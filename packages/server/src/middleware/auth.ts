@@ -1,9 +1,9 @@
-import { sql } from "drizzle-orm";
 import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
-import { db } from "../db";
+import { authProvider } from "../auth";
+import type { OrgRole } from "../auth/types";
 
-export type OrgRole = "owner" | "admin" | "member";
+export type { OrgRole };
 
 export type AppVariables = {
   jwtClaims: string;
@@ -15,21 +15,15 @@ export type AppVariables = {
 };
 export type AppEnv = { Variables: AppVariables };
 
-const JWKS = jose.createRemoteJWKSet(
-  new URL(`${process.env.NEON_AUTH_URL}/.well-known/jwks.json`),
-);
-
+// Delegates to whichever AuthProvider is active (see ../auth/index.ts) - the
+// active provider owns verifying a raw bearer token into a user id, but the
+// jwtClaims shape Postgres RLS policies read via request.jwt.claims is the
+// same regardless of provider, so it's synthesized here rather than by each
+// provider.
 export async function verifyToken(
   token: string,
-): Promise<jose.JWTPayload | null> {
-  try {
-    const { payload } = await jose.jwtVerify(token, JWKS, {
-      issuer: new URL(process.env.NEON_AUTH_URL!).origin,
-    });
-    return payload.sub ? payload : null;
-  } catch {
-    return null;
-  }
+): Promise<{ sub: string } | null> {
+  return authProvider.verifyToken(token);
 }
 
 export const IMPERSONATION_ISSUER = "magic-vault-impersonation";
@@ -43,6 +37,8 @@ function impersonationSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
+// Impersonation is the app's own HS256 token scheme, independent of
+// AUTH_PROVIDER - it works identically against either identity backend.
 export async function signImpersonationToken(
   adminUserId: string,
   targetUserId: string,
@@ -78,46 +74,17 @@ async function verifyImpersonationToken(
 }
 
 export async function getUserRole(userId: string): Promise<string> {
-  try {
-    const result = await db.execute(
-      sql`SELECT role FROM neon_auth.user WHERE id = ${userId} LIMIT 1`,
-    );
-    return (result.rows[0]?.role as string) ?? "user";
-  } catch {
-    return "user";
-  }
+  return authProvider.getUserRole(userId);
 }
 
 export async function getUserContact(
   userId: string,
 ): Promise<{ name: string | null; email: string | null }> {
-  try {
-    const result = await db.execute<{
-      name: string | null;
-      email: string | null;
-    }>(
-      sql`SELECT name, email FROM neon_auth.user WHERE id = ${userId} LIMIT 1`,
-    );
-    return result.rows[0] ?? { name: null, email: null };
-  } catch {
-    return { name: null, email: null };
-  }
+  return authProvider.getUserContact(userId);
 }
 
 export async function getUserDisplayName(userId: string): Promise<string> {
-  try {
-    const result = await db.execute<{
-      name: string | null;
-      email: string | null;
-    }>(
-      sql`SELECT name, email FROM neon_auth.user WHERE id = ${userId} LIMIT 1`,
-    );
-
-    const row = result.rows[0];
-    return row?.name ?? row?.email?.split("@")[0] ?? "Unknown";
-  } catch {
-    return "Unknown";
-  }
+  return authProvider.getUserDisplayName(userId);
 }
 
 export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
@@ -165,11 +132,7 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   const userId = c.get("userId");
-
-  const rows = await db.execute<{ role: string }>(
-    sql`SELECT role FROM neon_auth.member WHERE "organizationId" = ${orgId} AND "userId" = ${userId} LIMIT 1`,
-  );
-  const member = rows.rows[0];
+  const member = await authProvider.resolveOrgMembership(userId, orgId);
 
   if (!member) {
     return c.json(
@@ -179,7 +142,7 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   c.set("orgId", orgId);
-  c.set("orgRole", member.role as OrgRole);
+  c.set("orgRole", member.role);
   c.set(
     "jwtClaims",
     JSON.stringify({ sub: userId, role: "authenticated", org_id: orgId }),

@@ -1,7 +1,7 @@
-import { neon } from "@/lib/auth/client";
+import { useAuthSession } from "@/lib/auth";
 
 export function useRole() {
-  const { data, isPending } = neon.auth.useSession();
+  const { data, isPending } = useAuthSession();
   const role = data?.user?.role ?? null;
 
   return {

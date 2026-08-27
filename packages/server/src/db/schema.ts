@@ -406,6 +406,19 @@ export const impersonationAudit = pgTable(
   ],
 ).enableRLS();
 
+// ─── Local auth only (AUTH_PROVIDER=local) ───────────────────────────────────
+// own-auth's own tables (own_auth_*, see auth/local.ts) have no concept of a
+// global per-user platform role - that's an app-level concern in Neon mode
+// too (neon_auth.user.role), so local mode gets its own small table for it
+// rather than teaching own-auth about it. Not RLS-protected: only ever
+// read/written by the server via `db`, never by end users directly.
+export const platformUserRoles = pgTable("platform_user_roles", {
+  userId: text("user_id").primaryKey(),
+  role: text("role").notNull().default("user"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const binSetRelations = relations(binSets, ({ many, one }) => ({
   bins: many(bins),
   game: one(games, {

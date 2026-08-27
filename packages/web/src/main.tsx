@@ -10,8 +10,11 @@ import { RouterProvider } from "react-router-dom";
 
 // Used to live on NeonAuthUIProvider's own defaultTheme prop, back when
 // that wrapped the whole app - now that it's scoped to just /auth/* and
-// /app/* (see auth.tsx, auth-guard.tsx) for bundle size, dark mode needs
-// its own lightweight provider here so public pages get it too.
+// /app/* (see auth.tsx, auth-guard.neon.tsx) for bundle size, dark mode
+// needs its own lightweight provider here so public pages get it too. This
+// covers local mode too - own-auth has no NeonAuthUIProvider equivalent, and
+// local mode's own screens (see app/routes/auth-local.tsx) don't need a
+// wrapping provider at all, so this ThemeProvider is the only one they need.
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

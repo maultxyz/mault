@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useImpersonation } from "@/hooks/use-impersonation";
-import { neon } from "@/lib/auth/client";
+import { createOrganization } from "@/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconBuilding,
@@ -77,28 +77,15 @@ export function OrgSwitcher({
   });
 
   async function handleCreate({ name }: CreateValues) {
-    const slug = name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    try {
-      const { data, error } = await neon.auth.organization.create({
-        name: name.trim(),
-        slug,
-      });
-      if (error) throw new Error(error.message);
-      if (data) await setActiveOrg(data.id);
-      form.reset();
-      setCreateOpen(false);
-      toast.success(
-        t("orgSwitcher.organizationCreated", { name: name.trim() }),
-      );
-    } catch (e: unknown) {
-      toast.error(
-        e instanceof Error ? e.message : t("orgSwitcher.failedToCreate"),
-      );
+    const result = await createOrganization(name.trim());
+    if ("error" in result) {
+      toast.error(result.error || t("orgSwitcher.failedToCreate"));
+      return;
     }
+    await setActiveOrg(result.id);
+    form.reset();
+    setCreateOpen(false);
+    toast.success(t("orgSwitcher.organizationCreated", { name: name.trim() }));
   }
 
   return (

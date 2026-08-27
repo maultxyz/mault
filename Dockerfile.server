@@ -27,9 +27,21 @@ RUN cd packages/server && node -e " \
 # Copy source
 COPY packages/shared/ packages/shared/
 COPY packages/server/ packages/server/
+# Drizzle migrations live at the repo root, referenced via packages/server's
+# drizzle.config.ts `out: "../../drizzle"` - needed at runtime for
+# AUTH_PROVIDER=local's db:migrate-local (see scripts/migrate-local.ts).
+COPY drizzle/ drizzle/
 
 # Build server (tsup bundles shared directly from .ts source)
 RUN pnpm --filter @magic-vault/server build
+
+# Runtime only - set after the build/install steps, since pnpm install would
+# otherwise skip the devDependencies this build actually needs (tsup, tsx,
+# drizzle-kit). own-auth (AUTH_PROVIDER=local) gates its own production
+# safety checks behind this - e.g. it silently accepts a missing/weak
+# OWN_AUTH_TOKEN_PEPPER, and its console-log email/SMS fallbacks silently
+# "work" instead of refusing to run, unless NODE_ENV=production is set.
+ENV NODE_ENV=production
 
 EXPOSE 3001
 CMD ["node", "packages/server/dist/index.js"]

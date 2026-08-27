@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: mault
+      POSTGRES_USER: mault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - mault-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mault -d mault"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # Bound to localhost only, not 0.0.0.0 - lets a DB client on this
+    # machine (DataGrip, psql, etc.) connect for inspection/admin, without
+    # exposing Postgres to the rest of the LAN. Unlike the app's own
+    # connection, a client connecting here authenticates as the full-
+    # privilege `mault` role and bypasses RLS entirely (see db/schema.ts's
+    # crudPolicy setup) - that's expected for an admin/GUI connection, but
+    # is exactly why this shouldn't be reachable from anywhere but here.
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      AUTH_PROVIDER: local
+      DATABASE_URL: postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault
+      DATABASE_SSL: "false"
+      OWN_AUTH_TOKEN_PEPPER: ${OWN_AUTH_TOKEN_PEPPER:?Set OWN_AUTH_TOKEN_PEPPER in your .env - see .env.example}
+      IMPERSONATION_SECRET: ${IMPERSONATION_SECRET:?Set IMPERSONATION_SECRET in your .env - see .env.example}
+      WEB_URL: ${WEB_URL:-http://localhost:8080}
+      PORT: 3001
+      # Optional - see .env.example for what these unlock. Left unset by
+      # default: ${VAR:-} passes through an empty string rather than failing
+      # the way ${VAR:?...} above does for the required secrets.
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
+    # Drizzle + own-auth migrations and the RLS bootstrap script (see
+    # scripts/migrate-local.ts) run once per container start, before the
+    # server itself starts - all three are idempotent, safe on every restart.
+    command:
+      [
+        "sh",
+        "-c",
+        "pnpm --filter @magic-vault/server db:migrate-local && node packages/server/dist/index.js",
+      ]
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        # Empty - every frontend API call already hardcodes an /api/... path
+        # (see lib/api/client.ts's callers), so this resolves relative to the
+        # page's own origin and nginx.conf's /api/ location proxies it to
+        # the server container. Set VITE_API_URL to an absolute URL instead
+        # only if serving the web and server on genuinely different origins.
+        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_AUTH_PROVIDER: local
+    depends_on:
+      - server
+    ports:
+      - "8080:80"
+
+volumes:
+  mault-postgres:

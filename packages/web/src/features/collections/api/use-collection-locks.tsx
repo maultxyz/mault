@@ -1,5 +1,5 @@
 import { createLockEventsSource } from "@/lib/api/session";
-import { neon } from "@/lib/auth/client";
+import { useAuthSession } from "@/lib/auth";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 export interface ScanLockInfo {
@@ -26,7 +26,7 @@ export function CollectionLocksProvider({
   children: React.ReactNode;
 }) {
   const [locks, setLocks] = useState<Record<string, ScanLockInfo>>({});
-  const { data: sessionData } = neon.auth.useSession();
+  const { data: sessionData } = useAuthSession();
   const session = sessionData as {
     session?: { activeOrganizationId?: string | null };
     user?: { id?: string };

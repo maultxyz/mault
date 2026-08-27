@@ -1,9 +1,6 @@
-import type {
-  AdminUserSummary,
-  ImpersonationOrgSummary,
-} from "@magic-vault/shared";
-import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
+import { authProvider } from "../auth";
 import { db } from "../db";
 import { impersonationAudit } from "../db/schema";
 import { validateQuery } from "../lib/card-search/validate";
@@ -23,37 +20,7 @@ router.get("/users", requireAuth, requireRole("admin"), async (c) => {
   const invalid = validateQuery(search);
   if (invalid) return c.json(invalid);
 
-  const pattern = `%${search}%`;
-  const rows = await db.execute<{
-    id: string;
-    name: string | null;
-    email: string;
-    role: string;
-    orgs: ImpersonationOrgSummary[];
-  }>(sql`
-    SELECT u.id, u.name, u.email, u.role,
-      COALESCE(
-        json_agg(json_build_object('id', o.id, 'name', o.name, 'role', m.role))
-          FILTER (WHERE o.id IS NOT NULL),
-        '[]'
-      ) AS orgs
-    FROM neon_auth.user u
-    LEFT JOIN neon_auth.member m ON m."userId" = u.id
-    LEFT JOIN neon_auth.organization o ON o.id = m."organizationId"
-    WHERE u.name ILIKE ${pattern} OR u.email ILIKE ${pattern}
-    GROUP BY u.id, u.name, u.email, u.role
-    ORDER BY u.email
-    LIMIT 20
-  `);
-
-  const users: AdminUserSummary[] = rows.rows.map((row) => ({
-    id: row.id,
-    name: row.name,
-    email: row.email,
-    role: row.role,
-    orgs: row.orgs,
-  }));
-
+  const users = await authProvider.searchUsers(search, 20);
   return c.json({ success: true, data: users });
 });
 
@@ -118,19 +85,7 @@ router.post(
       );
     }
 
-    const orgRows = await db.execute<{
-      id: string;
-      name: string;
-      role: string;
-    }>(
-      sql`
-        SELECT o.id, o.name, m.role
-        FROM neon_auth.member m
-        JOIN neon_auth.organization o ON o.id = m."organizationId"
-        WHERE m."userId" = ${targetUserId}
-        ORDER BY o.name
-      `,
-    );
+    const orgs = await authProvider.listUserOrganisations(targetUserId);
 
     const admin = await getUserContact(adminUserId);
     const { token, expiresAt } = await signImpersonationToken(
@@ -151,7 +106,7 @@ router.post(
         token,
         expiresAt: expiresAt.toISOString(),
         user: { id: targetUserId, name: target.name, email: target.email },
-        orgs: orgRows.rows,
+        orgs,
       },
     });
   },

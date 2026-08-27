@@ -23,7 +23,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconFolderPlus, IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -72,12 +72,36 @@ export function RequireCollectionDialog() {
     [createCollection, form],
   );
 
-  const open = !!activeOrg && !isLoading && collections.length === 0;
+  // Not dismissible when a collection could actually be created (the
+  // original intent: force onboarding through it) - but with zero active
+  // games, its own game picker is empty and submit is disabled, so it must
+  // stay dismissible or there's no way out (this dialog no longer covers
+  // /app/admin - see router.tsx - but a non-dismissible backdrop on /app
+  // still blocks clicking through the nav to get there).
+  const dismissible = activeGames.length === 0;
+  const [dismissed, setDismissed] = useState(false);
+
+  // Re-arm once a game becomes available mid-session, so the dialog goes
+  // back to nagging (now-completable) rather than staying dismissed forever.
+  useEffect(() => {
+    if (activeGames.length > 0) setDismissed(false);
+  }, [activeGames.length]);
+
+  const open =
+    !!activeOrg && !isLoading && collections.length === 0 && !dismissed;
 
   return (
     <DynamicDialog
       open={open}
-      dismissible={false}
+      onOpenChange={(next) => {
+        // Desktop's underlying Dialog only uses `dismissible` to hide the
+        // close button - outside-click/Escape still fire onOpenChange(false)
+        // regardless, so this has to re-check dismissible itself to keep the
+        // non-dismissible case (games exist, real onboarding) actually
+        // non-dismissible rather than just missing its close button.
+        if (!next && dismissible) setDismissed(true);
+      }}
+      dismissible={dismissible}
       className="sm:max-w-md"
       title={
         <div className="flex items-center gap-2">

@@ -13,9 +13,11 @@ RUN pnpm install --frozen-lockfile
 COPY packages/shared/ packages/shared/
 COPY packages/web/ packages/web/
 
-# VITE_API_URL must be set at build time (baked into the JS bundle)
+# Vite env vars must be set at build time (baked into the JS bundle)
 ARG VITE_API_URL
 ENV VITE_API_URL=$VITE_API_URL
+ARG VITE_AUTH_PROVIDER
+ENV VITE_AUTH_PROVIDER=$VITE_AUTH_PROVIDER
 
 RUN pnpm --filter @magic-vault/web build
 

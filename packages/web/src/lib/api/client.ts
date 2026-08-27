@@ -3,6 +3,8 @@ import {
   clearImpersonation,
   getImpersonationState,
 } from "@/lib/auth/impersonation";
+import { setLocalToken } from "@/lib/auth/local-token";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { getAuthSession, getOrgId } from "@/lib/auth/session";
 
 export const API_BASE = import.meta.env.VITE_API_URL ?? "";
@@ -33,7 +35,11 @@ export async function handleForbidden(res: Response): Promise<void> {
   if (res.status !== 403) return;
   if (!forbiddenHandled) {
     forbiddenHandled = true;
-    await neon.auth.signOut();
+    if (AUTH_PROVIDER === "local") {
+      setLocalToken(null);
+    } else {
+      await neon.auth.signOut();
+    }
     window.location.href = "/auth/sign-in";
   }
   throw new Error("API error: 403");
