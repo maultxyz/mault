@@ -16,8 +16,7 @@
     "expandSidebar": "Expand sidebar ([)"
   },
   "breadcrumb": {
-    "account": "Account",
-    "sortingLogic": "Sorting Logic"
+    "account": "Account"
   },
   "userMenu": {
     "trigger": "Account menu",
@@ -52,7 +51,14 @@
     "syncFailed": "Card image vector sync failed",
     "sync": "Card image vector sync",
     "cardTotal_one": "{{count}} card · ${{value}} USD",
-    "cardTotal_other": "{{count}} cards · ${{value}} USD"
+    "cardTotal_other": "{{count}} cards · ${{value}} USD",
+    "healthIssues_one": "{{count}} issue detected",
+    "healthIssues_other": "{{count}} issues detected",
+    "healthIssuesTooltip": "Having trouble: {{names}}. Click for details.",
+    "health": "Health",
+    "healthOk": "All systems normal",
+    "healthOkTooltip": "Database and all card APIs are reachable. Click for details.",
+    "healthChecking": "Checking service status…"
   },
   "appVersion": {
     "outdatedBanner": "A new version of Magic Vault is available.",
@@ -100,5 +106,9 @@
     "description": "An unexpected error occurred. Try reloading the page.",
     "reload": "Reload page",
     "backHome": "Back to home"
+  },
+  "footer": {
+    "donate": "Donate",
+    "donateAriaLabel": "Support Mault on Buy Me a Coffee"
   }
 }

@@ -1,5 +1,6 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { CARD_API_HEADERS } from "../card-search/constants";
+import { fetchCardApi } from "../card-search/fetch";
 import type { CardSearchAdapter } from "../card-search/types";
 import { validateQuery } from "../card-search/validate";
 
@@ -176,7 +177,7 @@ export async function Search(
 
   if (isGermanApi(baseUrl)) {
     const url = `${baseUrl}/search?q=${encodeURIComponent(query)}`;
-    const response = await fetch(url, { headers: CARD_API_HEADERS });
+    const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
 
     if (!response.ok) {
       return {
@@ -201,7 +202,7 @@ export async function Search(
   }
 
   const url = `${baseUrl}/search?q=${encodeURIComponent(query)}&unique=prints`;
-  const response = await fetch(url, { headers: CARD_API_HEADERS });
+  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
 
   if (response.status === 404) {
     return {
@@ -231,7 +232,7 @@ export async function SearchById(
   baseUrl: string = LORCANA_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
   if (isGermanApi(baseUrl)) {
-    const response = await fetch(`${baseUrl}/${id}`, {
+    const response = await fetchCardApi(`${baseUrl}/${id}`, {
       headers: CARD_API_HEADERS,
     });
 
@@ -256,7 +257,7 @@ export async function SearchById(
     return { success: false, message: `Card ${id} not found.` };
   }
 
-  const response = await fetch(
+  const response = await fetchCardApi(
     `${baseUrl}/${parsed.setCode}/${parsed.number}`,
     {
       headers: CARD_API_HEADERS,

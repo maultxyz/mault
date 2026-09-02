@@ -62,7 +62,7 @@ export function BuildWiring() {
   const { moduleCount } = useModuleCount();
   const { boardType } = useBoardType();
   const board = BOARD_INFO[boardType];
-  const isEsp32 = boardType === "esp32";
+  const isEsp32 = boardType !== "uno_r4";
 
   const irSensorCount = moduleCount + 1;
   const irSensorRows: [string, ReactNode][] = [
@@ -135,14 +135,8 @@ export function BuildWiring() {
           <MiniTable
             columns={[t("wiring.i2cTable.colPcaPin"), board.displayName]}
             rows={[
-              [
-                <Pin key="a">SDA</Pin>,
-                <Pin key="b">{isEsp32 ? "GPIO8" : "SDA"}</Pin>,
-              ],
-              [
-                <Pin key="a">SCL</Pin>,
-                <Pin key="b">{isEsp32 ? "GPIO9" : "SCL"}</Pin>,
-              ],
+              [<Pin key="a">SDA</Pin>, <Pin key="b">{board.i2cSda}</Pin>],
+              [<Pin key="a">SCL</Pin>, <Pin key="b">{board.i2cScl}</Pin>],
               [
                 t("wiring.i2cTable.vccLogic"),
                 <Pin key="b">{board.logicVoltage}</Pin>,

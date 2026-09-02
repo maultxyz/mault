@@ -1,5 +1,6 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { CARD_API_HEADERS } from "../card-search/constants";
+import { fetchCardApi } from "../card-search/fetch";
 import type { CardSearchAdapter } from "../card-search/types";
 import { validateQuery } from "../card-search/validate";
 
@@ -105,7 +106,7 @@ export async function Search(
   const scopedQuery = lang ? `${query} lang:${lang}` : query;
   const scryfallUrl = `${baseUrl}/search?q=${encodeURIComponent(scopedQuery)}&unique=prints&order=released&dir=desc`;
 
-  const response = await fetch(scryfallUrl, {
+  const response = await fetchCardApi(scryfallUrl, {
     headers: CARD_API_HEADERS,
   });
 
@@ -136,7 +137,7 @@ export async function SearchById(
   id: string,
   baseUrl: string = SCRYFALL_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
-  const response = await fetch(`${baseUrl}/${id}`, {
+  const response = await fetchCardApi(`${baseUrl}/${id}`, {
     headers: CARD_API_HEADERS,
   });
 

@@ -5,16 +5,19 @@ import { lorcanaAdapter } from "../lorcana/search";
 import { onePieceAdapter } from "../onepiece/search";
 import { pokemonAdapter } from "../pokemon/search";
 import { scryfallAdapter } from "../scryfall/search";
+import { yugiohAdapter } from "../yugioh/search";
 import { withCache } from "./cache";
+import { withErrorHandling } from "./error-handling";
 import type { CardSearchAdapter } from "./types";
 
 export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
-  mtg: withCache(scryfallAdapter),
-  gundam: withCache(gundamAdapter),
-  pokemon: withCache(pokemonAdapter),
-  lorcana: withCache(lorcanaAdapter),
-  onepiece: withCache(onePieceAdapter),
-  fab: withCache(fabAdapter),
+  mtg: withCache(withErrorHandling(scryfallAdapter)),
+  gundam: withCache(withErrorHandling(gundamAdapter)),
+  pokemon: withCache(withErrorHandling(pokemonAdapter)),
+  lorcana: withCache(withErrorHandling(lorcanaAdapter)),
+  onepiece: withCache(withErrorHandling(onePieceAdapter)),
+  fab: withCache(withErrorHandling(fabAdapter)),
+  yugioh: withCache(withErrorHandling(yugiohAdapter)),
 };
 
 export async function resolveGameKeyAndLang(

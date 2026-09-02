@@ -16,8 +16,7 @@
     "expandSidebar": "Seitenleiste ausklappen ([)"
   },
   "breadcrumb": {
-    "account": "Konto",
-    "sortingLogic": "Sortierlogik"
+    "account": "Konto"
   },
   "userMenu": {
     "trigger": "Kontomenü",
@@ -52,7 +51,14 @@
     "syncFailed": "Kartenbild-Vektor-Sync fehlgeschlagen",
     "sync": "Kartenbild-Vektor-Sync",
     "cardTotal_one": "{{count}} Karte · ${{value}} USD",
-    "cardTotal_other": "{{count}} Karten · ${{value}} USD"
+    "cardTotal_other": "{{count}} Karten · ${{value}} USD",
+    "healthIssues_one": "{{count}} Problem erkannt",
+    "healthIssues_other": "{{count}} Probleme erkannt",
+    "healthIssuesTooltip": "Probleme bei: {{names}}. Für Details klicken.",
+    "health": "Status",
+    "healthOk": "Alle Systeme normal",
+    "healthOkTooltip": "Datenbank und alle Karten-APIs sind erreichbar. Für Details klicken.",
+    "healthChecking": "Dienststatus wird geprüft…"
   },
   "appVersion": {
     "outdatedBanner": "Eine neue Version von Magic Vault ist verfügbar.",
@@ -100,5 +106,9 @@
     "description": "Es ist ein unerwarteter Fehler aufgetreten. Lade die Seite neu.",
     "reload": "Seite neu laden",
     "backHome": "Zurück zur Startseite"
+  },
+  "footer": {
+    "donate": "Spenden",
+    "donateAriaLabel": "Mault auf Buy Me a Coffee unterstützen"
   }
 }

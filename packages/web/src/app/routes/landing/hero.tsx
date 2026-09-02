@@ -30,7 +30,7 @@ export function LandingHero() {
 
   return (
     <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-16 pb-16 md:grid-cols-2 md:pt-20 md:pb-20">
-      <div className="flex flex-col items-start gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col items-start gap-6">
         <h1 className="text-5xl font-heading font-semibold leading-[0.95] tracking-tight text-balance md:text-6xl lg:text-7xl">
           <Trans
             t={t}
@@ -64,7 +64,7 @@ export function LandingHero() {
         </div>
       </div>
 
-      <div className="relative animate-in fade-in zoom-in-95 duration-700">
+      <div className="relative">
         <div className="absolute inset-0 -z-10 rounded-3xl bg-primary/10 blur-2xl" />
         <div className="-rotate-1 rounded-xl bg-card p-3 shadow-xl shadow-black/5 ring-1 ring-foreground/10 transition-transform duration-300 hover:rotate-0 dark:shadow-black/40">
           <div className="flex items-center justify-between px-1 pb-2">

@@ -12,7 +12,7 @@ export function DiscordBotHero() {
   const isSignedIn = !isPending && !!data?.user;
 
   return (
-    <section className="mx-auto max-w-4xl px-4 pt-12 pb-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <section className="mx-auto max-w-4xl px-4 pt-12 pb-16">
       <p className="text-xs font-semibold text-primary">
         {t("hero.eyebrow")}
       </p>

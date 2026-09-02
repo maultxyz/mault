@@ -1,5 +1,6 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { CARD_API_HEADERS } from "../card-search/constants";
+import { fetchCardApi } from "../card-search/fetch";
 import type { CardSearchAdapter } from "../card-search/types";
 import { validateQuery } from "../card-search/validate";
 
@@ -207,7 +208,7 @@ export async function findCardVersion(
   let errorStatus: number | undefined;
   for (const key of keys) {
     for (const endpoint of endpoints) {
-      const response = await fetch(
+      const response = await fetchCardApi(
         `${baseUrl}/${endpoint}/${encodeURIComponent(key)}/`,
         { headers: CARD_API_HEADERS },
       );
@@ -244,7 +245,7 @@ export async function Search(
   const name = encodeURIComponent(query.trim());
   const responses = await Promise.all(
     FILTERED_ENDPOINTS.map((endpoint) =>
-      fetch(`${baseUrl}/${endpoint}/?card_name=${name}`, {
+      fetchCardApi(`${baseUrl}/${endpoint}/?card_name=${name}`, {
         headers: CARD_API_HEADERS,
       }),
     ),

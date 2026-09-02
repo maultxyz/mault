@@ -34,6 +34,7 @@ interface ScannerMenuProps {
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
   phonePairingUrl: string | null;
+  scanningBlocked: boolean;
   onCameraConnect: () => void;
   onCameraDisconnect: () => void;
   onCameraSelect: (deviceId: string) => void;
@@ -59,6 +60,7 @@ export function ScannerMenu({
   selectedCameraId,
   phonePairingStatus,
   phonePairingUrl,
+  scanningBlocked,
   onCameraConnect,
   onCameraDisconnect,
   onCameraSelect,
@@ -175,7 +177,10 @@ export function ScannerMenu({
                   </DropdownMenuItem>
                 </>
               ) : (
-                <DropdownMenuItem onClick={onCameraConnect}>
+                <DropdownMenuItem
+                  disabled={scanningBlocked}
+                  onClick={onCameraConnect}
+                >
                   {t("scannerMenu.connect")}
                 </DropdownMenuItem>
               )}
@@ -225,7 +230,10 @@ export function ScannerMenu({
                   </DropdownMenuItem>
                 </>
               ) : (
-                <DropdownMenuItem onClick={onScannerConnect}>
+                <DropdownMenuItem
+                  disabled={scanningBlocked}
+                  onClick={onScannerConnect}
+                >
                   {t("scannerMenu.connect")}
                 </DropdownMenuItem>
               )}

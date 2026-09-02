@@ -29,10 +29,7 @@
       "dialogDescription": "Flashes the latest firmware to your connected ESP32 over this browser tab. Don't disconnect the device or close this tab while it's in progress.",
       "startButton": "Start update",
       "flashing": "Flashing — do not disconnect the device…",
-      "successConfirmed": "Firmware updated to v{{version}}.",
-      "successUnconfirmed": "Firmware flashed, but the device didn't reconnect in time. Try reconnecting manually to confirm.",
-      "toastConfirmed": "Sorter updated to firmware v{{version}}.",
-      "toastUnconfirmed": "Firmware flashed, but the device didn't reconnect in time. Try reconnecting manually.",
+      "success": "Firmware flashed. Disconnect the sorter from your computer, then plug it back in to finish.",
       "errorTitle": "Update failed",
       "close": "Close",
       "tryAgain": "Try again"
@@ -199,6 +196,7 @@
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
   },
   "scannerOverlay": {
+    "apiDown": "{{api}} is currently down - scanning is disabled for this collection until it's back. Check the status page for updates.",
     "connectCamera": "Connect a camera to start scanning.",
     "waitingForPhone": "Waiting for a phone to pair as the camera - use the camera menu to show the QR code.",
     "phoneReadyNoPhoto": "Phone camera ready. It'll take a photo as soon as a card arrives.",

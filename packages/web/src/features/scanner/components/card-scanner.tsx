@@ -4,6 +4,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useCollections } from "@/features/collections/api/use-collections";
+import { useGameApiHealthCheck } from "@/features/health/api/health";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -49,6 +51,9 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
   const { hasCatchAll } = useBinConfigs();
+  const { activeCollection } = useCollections();
+  const apiHealthCheck = useGameApiHealthCheck(activeCollection?.game?.key);
+  const scanningBlocked = apiHealthCheck?.status === "error";
   const {
     status,
     errorMessage,
@@ -338,6 +343,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           cameraSource={cameraSource}
           phonePairingStatus={phonePairingStatus}
           hasPhonePhoto={hasPhonePhoto}
+          apiHealthCheck={apiHealthCheck}
           onRetryError={handleRetryError}
           onConnectScanner={connect}
         />
@@ -352,6 +358,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           selectedCameraId={selectedCameraId}
           phonePairingStatus={phonePairingStatus}
           phonePairingUrl={phonePairingUrl}
+          scanningBlocked={scanningBlocked}
           onCameraConnect={handleRetryError}
           onCameraDisconnect={handleStopCamera}
           onCameraSelect={selectCamera}

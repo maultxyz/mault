@@ -1,0 +1,12 @@
+{
+  "title": "Systemstatus",
+  "subtitle": "Live-Status der Datenbank und jeder verbundenen Karten-API.",
+  "refresh": "Aktualisieren",
+  "allHealthy": "Alles funktioniert einwandfrei.",
+  "someUnhealthy": "Einige Dienste haben Probleme.",
+  "lastChecked": "Zuletzt geprüft um {{time}}",
+  "loading": "Dienststatus wird geprüft…",
+  "latency": "{{ms}} ms",
+  "statusOk": "OK",
+  "statusError": "Fehler"
+}

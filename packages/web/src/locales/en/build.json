@@ -13,7 +13,8 @@
     "boardType": {
       "label": "Board",
       "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+      "esp32": "ESP32-S3",
+      "esp32Wroom": "ESP32 (WROOM)"
     }
   },
   "nav": {
@@ -62,6 +63,9 @@
           "esp32": {
             "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial - also flashable straight from the app afterward, see /app once it's set up"
           },
+          "esp32Wroom": {
+            "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. Update its firmware via the Arduino IDE only - the in-app browser flasher targets the ESP32-S3 build specifically and isn't safe to use on this board."
+          },
           "pca9685": {
             "part": "Adafruit PCA9685 16-channel 12-bit PWM/servo driver",
             "notes": "I²C servo driver - drives all 10 servos"
@@ -90,16 +94,20 @@
         "title": "Power",
         "items": {
           "psu": {
-            "part": "5V regulated power supply, 4–10A",
-            "notes": "Dedicated servo bus power into the PCA9685 V+ terminal - do not power 10 servos off the {{board}}'s onboard 5V"
+            "part": "6V regulated power supply, 2A",
+            "notes": "Dedicated servo bus power into the PCA9685 V+ terminal - do not power 10 servos off the {{board}}'s onboard 5V. 5.5mm x 2.5mm barrel plug, center positive."
           },
           "usbCable": {
             "part": "USB-A–to–USB-C cable",
-            "notes": "Arduino Uno R4 Minima ↔ host computer"
+            "notes": "Arduino Uno R4 ↔ host computer"
           },
           "usbCableEsp32": {
             "part": "USB-A–to–USB-C cable",
             "notes": "ESP32-S3 dev board ↔ host computer, via the board's native USB port"
+          },
+          "usbCableEsp32Wroom": {
+            "part": "USB-A–to–USB-C or Micro-USB cable (check which port your specific board has)",
+            "notes": "ESP32-WROOM-32 dev board ↔ host computer, via its USB-to-serial bridge chip (CP2102/CH340, depending on the board) - the connector itself is USB-C on newer boards, Micro-USB on older ones"
           },
           "barrelJack": {
             "part": "DC barrel jack or screw-terminal pigtail",
@@ -133,24 +141,28 @@
         "items": {
           "m3x6Screw": {
             "part": "M3×6 screw",
-            "notes": "14 attach each bin base to the housing; 8 attach the base panels to the base"
+            "notes": "14 attach each bin base to the housing; 8 attach the base panels to the base; 2 mount a camera or phone bracket"
           },
           "m3Nut": {
             "part": "M3 nut",
             "notes": "Paired with the base panel M3×6 screws"
           },
-          "m3x8Screw": {
-            "part": "M3×8 screw",
-            "notes": "Attaches the hopper tube"
+          "m3x10Screw": {
+            "part": "M3×10 screw",
+            "notes": "Attaches the variable-height wall to the hopper tube"
+          },
+          "m3Washer": {
+            "part": "M3 washer",
+            "notes": "Used with the M3×10 screws on the variable-height hopper wall"
           },
           "m2x4Screw": {
             "part": "M2×4 screw",
-            "partSpec": "(11 per module)",
-            "notes": "11 per module ({{count}} modules): flapper (bottom/sides), pusher arms, and IR sensor mounts"
+            "partSpec": "(20 for 2 modules, +6 per module beyond that, +7 for the board mount)",
+            "notes": "20 for 2 modules, +6 per additional module ({{count}} modules): flapper (bottom/sides), pusher arms, and IR sensor mounts; +7 to mount the {{board}} and PCA9685 servo driver board to the base panels"
           },
           "m2x6Screw": {
             "part": "M2×6 screw",
-            "notes": "Mounts the {{board}} and PCA9685 servo driver board to the base panels"
+            "notes": "1 to mount each IR sensor ({{count}} total)"
           },
           "servoHornScrew": {
             "part": "Servo horn screw (Included with servos)",
@@ -159,6 +171,10 @@
           "hookupWire": {
             "part": "Low Voltage Wire",
             "notes": "IR sensor/Servos. Using these you may have to daisy chain some together, just electrical tape them to make sure they don't come apart."
+          },
+          "wagoConnectors": {
+            "part": "Wago connectors (Optional)",
+            "notes": "Splices power and ground to each IR sensor without twisting/soldering wires together"
           },
           "dupontConnectors": {
             "part": "Dupont Connectors (Optional)",
@@ -176,6 +192,10 @@
           "webcam": {
             "part": "USB webcam",
             "notes": "This is the one I use - any webcam works as long as you can manually adjust focus, brightness, etc. (auto-adjusting can throw off scans)"
+          },
+          "cameraMountScrew": {
+            "part": "1/4\"-20 camera mount screw",
+            "notes": "Standard tripod-mount thread - screws into a webcam or phone mount's socket"
           }
         }
       }
@@ -205,8 +225,8 @@
     "servoPowerTable": {
       "colFrom": "From",
       "colTo": "To",
-      "psuPlus": "External 5V PSU, +",
-      "psuMinus": "External 5V PSU, −",
+      "psuPlus": "External 6V PSU, +",
+      "psuMinus": "External 6V PSU, −",
       "toPositive": "PCA9685 <pin>V+</pin> terminal block",
       "toNegative": "PCA9685 <pin>GND</pin> terminal block <em>and</em> {{board}} <pin>GND</pin>"
     },
@@ -239,6 +259,8 @@
     "heading": "Assembly",
     "description": "Eight phases, structural work first. Checkboxes are saved in this browser, so you can close the tab mid-build and pick back up later.",
     "helpText": "Stuck on a step? <a>Join the Discord</a> if you need help.",
+    "hasVideoAria": "Includes walkthrough video",
+    "videoTitle": "Assembly video",
     "progress": {
       "stepsCount": "{{done}} of {{total}} steps"
     },
@@ -248,7 +270,8 @@
         "title": "Print the structural parts",
         "steps": {
           "printSortingModule": {
-            "text": "Slice and print {{count}} Sorting Module plates - one per sorting module - from <mesh>card_sorter.3mf</mesh> (or re-export from <source>Card Sorter.f3d</source>)."
+            "text": "Slice and print {{count}} Sorting Module plates - one per sorting module - from <mesh>card_sorter.3mf</mesh> (or re-export from <source>Card Sorter.f3d</source>).",
+            "note": "\"Plate\" throughout these instructions means a slicer build plate (a print job's part arrangement) - not a part named \"Plate\" in the model."
           },
           "printFeederModule": {
             "text": "Print 1 Feeder Module plate from the same file - only one needed, regardless of module count. Houses the feeder roller and hopper throat."
@@ -272,7 +295,7 @@
             "text": "Dry-fit each module housing before inserting any electronics - sand or adjust any tight servo pockets now."
           },
           "mountBoardsToPanels": {
-            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 8 M2×6 screws."
+            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 7 M2×4 screws."
           },
           "attachBasePanels": {
             "text": "Attach the base panels to the base with 8 M3×6 screws and 8 M3 nuts.",
@@ -292,19 +315,23 @@
             "note": "Library Manager → search each by name."
           },
           "uploadSketch": {
-            "text": "Select board \"Arduino Uno R4 Minima\", select the correct port, then upload firmware/main/main.ino."
+            "text": "Select board \"Arduino Uno R4\", select the correct port, then upload firmware/main/main.ino."
           },
           "uploadSketchEsp32": {
-            "text": "Select board \"ESP32S3 Dev Module\", select the correct port, then upload firmware/main/main.ino.",
-            "note": "Uses the ESP32-S3 pin layout already in the sketch (see the IR_PINS comment in main.ino) - if you're on a different ESP32 variant, its pins differ, so renumber IR_PINS/IR_PIN_HOPPER before wiring."
+            "text": "Select board \"ESP32S3 Dev Module\", set Tools → USB Mode to \"Hardware CDC and JTAG\" and USB CDC On Boot to \"Enabled\", select the correct port, then upload firmware/main/main.ino.",
+            "note": "Uses the ESP32-S3 pin layout already in the sketch (see the IR_PINS comment in main.ino) - building on a classic ESP32 WROOM board instead? Switch to that board option above, its own pin layout is already in the sketch too. Hardware CDC/JTAG mode with CDC On Boot enabled is required for the board to show up on its native USB port at all, and it's what lets the in-app browser flasher reset the board into bootloader mode reliably without a BOOT-button press; the tradeoff is the board enumerates under a generic Espressif name instead of \"Mault Card Sorter\"."
+          },
+          "uploadSketchEsp32Wroom": {
+            "text": "Select board \"ESP32 Dev Module\", select the correct port, then upload firmware/main/main.ino.",
+            "note": "Uses the classic-ESP32 pin layout already in the sketch (see the IR_PINS comment in main.ino) - no renumbering needed. Don't use the in-app browser flasher to update this board later: it fetches a binary built for the ESP32-S3 specifically, and writing that to a different ESP32 chip won't work correctly. Re-upload from the Arduino IDE instead whenever the firmware changes."
           },
           "confirmReady": {
             "text": "Open the Serial Monitor at 9600 baud and confirm you see {\"status\":\"ready\"} after the board resets."
           }
         }
       },
-      "servos": {
-        "title": "Mount the servos",
+      "assembleModules": {
+        "title": "Assemble the modules",
         "steps": {
           "mountModuleServos": {
             "text": "Install the bottom, paddle, and pusher servo - all 180° positional SG90s - into each of the 3 module housings (9 servos total).",
@@ -337,25 +364,20 @@
             "text": "Install the continuous-rotation feeder servo to the roller, at the base of the hopper."
           },
           "mountFeederWall": {
-            "text": "Attach the wall piece to the tube that guides cards from the hopper to the feeder roller.",
+            "text": "Attach the wall piece to the hopper using the 2 M3×10 screws and M3 washers - it guides cards from the hopper to the feeder roller.",
             "note": "When mounting the wall, attach it to the feeder module first, then put 2 cards below the wall and slide it down before tighting it into place."
-          }
-        }
-      },
-      "irSensors": {
-        "title": "Mount the IR sensors",
-        "steps": {
+          },
           "mountModuleIr": {
-            "text": "Fix one IR sensor at the gate of each module (1-{{modules}}), aimed across the card path."
+            "text": "Fix one IR sensor at the gate of each module (1-{{modules}}) with 1 M2×6 screw each, aimed across the card path."
           },
           "mountHopperIr": {
-            "text": "Fix the remaining IR sensor in the hopper throat, just above the feeder.",
+            "text": "Fix the remaining IR sensor in the hopper throat, just above the feeder, with 1 M2×6 screw.",
             "note": "This one tells the feeder when the hopper is empty - placement matters more than the module sensors."
           }
         }
       },
-      "wiring": {
-        "title": "Wire the electronics",
+      "wireAndCalibrate": {
+        "title": "Wire and calibrate",
         "steps": {
           "wireI2c": {
             "text": "Wire the PCA9685 to the {{board}}'s I²C bus (SDA/SCL) and logic power/GND.",
@@ -370,27 +392,9 @@
             "note": "For the power and ground, you will have to combine {{count}} wires into one, either with a breadboard or by twisting and soldering them together. You will need to manually calibrate the sensors to have a shorter throw, as to not get false positives."
           },
           "wirePower": {
-            "text": "Bring the external 5V supply into the PCA9685 V+/GND terminal, and tie its ground to the {{board}}'s ground.",
+            "text": "Bring the external 6V supply into the PCA9685 V+/GND terminal, and tie its ground to the {{board}}'s ground.",
             "note": "Skipping the common ground is the #1 cause of servos that twitch but never move correctly."
-          }
-        }
-      },
-      "powerOnTest": {
-        "title": "First power-on test",
-        "steps": {
-          "runTestCommand": {
-            "text": "With the external servo supply connected, send {\"test\": true} over serial.",
-            "note": "Cycles every bottom and paddle open, sweeps all pushers left then right, resets to neutral, then briefly spins the feeder."
           },
-          "watchModules": {
-            "text": "Watch each module during the test - confirm nothing binds or grinds at the end of its travel.",
-            "note": "If a servo strains at open or closed, its housing cutout likely needs adjusting before calibration."
-          }
-        }
-      },
-      "calibrate": {
-        "title": "Calibrate from the app",
-        "steps": {
           "connectSerial": {
             "text": "Connect the {{board}} to the app via Web Serial, then open /app/calibrate."
           },
@@ -405,10 +409,24 @@
             "text": "Feeder Calibration Panel - tune feed speed, pulse/pause timing, and settle duration against your actual hopper."
           },
           "checkIr": {
-            "text": "IR Sensor Panel - verify all {{count}} sensors report present/absent correctly with a card in hand."
+            "text": "IR Sensor Panel - verify all {{count}} sensors report present/absent correctly with a card in hand.",
+            "note": "If a sensor doesn't trigger, or triggers with nothing in front of it, calibrate its detection distance manually: on the back of the sensor is a small blue box with a gray potentiometer dial. Turn it all the way one way so it detects nothing, then turn it slowly back until it just detects a card an inch or two in front of it."
           },
           "testBins": {
             "text": "Bin Routing Controls - send a test card to each of the 7 bins in turn and confirm it lands correctly."
+          }
+        }
+      },
+      "powerOnTest": {
+        "title": "First power-on test",
+        "steps": {
+          "runTestCommand": {
+            "text": "With the external servo supply connected, send {\"test\": true} over serial.",
+            "note": "Cycles every bottom and paddle open, sweeps all pushers left then right, resets to neutral, then briefly spins the feeder."
+          },
+          "watchModules": {
+            "text": "Watch each module during the test - confirm nothing binds or grinds at the end of its travel.",
+            "note": "If a servo strains at open or closed, its housing cutout likely needs adjusting before calibration."
           }
         }
       },

@@ -53,6 +53,7 @@ services:
       ]
     ports:
       - "3001:3001"
+    restart: unless-stopped
 
   web:
     build:
@@ -70,6 +71,20 @@ services:
       - server
     ports:
       - "8080:80"
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    env_file: .env
+    ports:
+      - "3002:3002"
+    depends_on:
+      - server
+    restart: unless-stopped
+    profiles:
+      - bot
 
 volumes:
   mault-postgres:

@@ -1,0 +1,12 @@
+{
+  "title": "État du système",
+  "subtitle": "État en direct de la base de données et de chaque API de cartes connectée.",
+  "refresh": "Actualiser",
+  "allHealthy": "Tout fonctionne normalement.",
+  "someUnhealthy": "Certains services rencontrent des problèmes.",
+  "lastChecked": "Dernière vérification à {{time}}",
+  "loading": "Vérification de l’état des services…",
+  "latency": "{{ms}} ms",
+  "statusOk": "OK",
+  "statusError": "Erreur"
+}

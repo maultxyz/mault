@@ -46,37 +46,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const decoderRef = useRef(new TextDecoder());
 
-  // Broadcast listeners (listenersRef) fire for every parsed message
-  // regardless of the waitForLine pending-queue, so this can run alongside
-  // openPort's own internal boot-check without racing it for the same
-  // response line - used by flashEsp32 to confirm the device actually came
-  // back up (and with which version) after a reflash, rather than just
-  // trusting that writeFlash() didn't throw.
-  const waitForReadyMessage = useCallback(
-    (timeoutMs: number): Promise<string | null> => {
-      return new Promise((resolve) => {
-        const listener: SerialMessageListener = (msg) => {
-          if (
-            typeof msg === "object" &&
-            msg !== null &&
-            (msg as Record<string, unknown>).status === "ready"
-          ) {
-            clearTimeout(timeout);
-            listenersRef.current.delete(listener);
-            const version = (msg as Record<string, unknown>).version;
-            resolve(typeof version === "string" ? version : null);
-          }
-        };
-        const timeout = setTimeout(() => {
-          listenersRef.current.delete(listener);
-          resolve(null);
-        }, timeoutMs);
-        listenersRef.current.add(listener);
-      });
-    },
-    [],
-  );
-
   const startReading = useCallback(
     async (
       reader: ReadableStreamDefaultReader<Uint8Array>,
@@ -370,18 +339,11 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         await loader.after("hard_reset");
         await transport.disconnect();
 
-        await openPort(port);
-        const confirmedVersion = await waitForReadyMessage(5000);
-
-        if (confirmedVersion) {
-          toast.success(
-            t("serial.update.toastConfirmed", { version: confirmedVersion }),
-          );
-        } else {
-          toast.warning(t("serial.update.toastUnconfirmed"));
-        }
-
-        return { success: true, confirmedVersion };
+        // Don't try to reopen the port ourselves - a hard reset on a native
+        // USB CDC board (ESP32-S3) fully re-enumerates the USB device, which
+        // isn't reliably fast or consistent enough to race against from
+        // here. The dialog tells the user to unplug/replug instead.
+        return { success: true };
       } catch (e) {
         return {
           success: false,
@@ -392,7 +354,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         setFlashProgress(null);
       }
     },
-    [disconnect, openPort, waitForReadyMessage, t],
+    [disconnect],
   );
 
   useEffect(() => {
@@ -446,6 +408,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           await fn();
         }
       : fn;
+    return () => {
+      preTestHookRef.current = previous;
+    };
   }, []);
 
   const sendCommandWithNewline = useCallback(

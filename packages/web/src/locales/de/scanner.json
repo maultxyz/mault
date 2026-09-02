@@ -29,10 +29,7 @@
       "dialogDescription": "Spielt die neueste Firmware über diesen Browser-Tab auf deinen verbundenen ESP32. Trenne das Gerät nicht und schließe diesen Tab nicht, während der Vorgang läuft.",
       "startButton": "Update starten",
       "flashing": "Wird installiert — Gerät nicht trennen…",
-      "successConfirmed": "Firmware auf v{{version}} aktualisiert.",
-      "successUnconfirmed": "Firmware wurde installiert, aber das Gerät hat sich nicht rechtzeitig wieder verbunden. Verbinde dich manuell erneut, um es zu bestätigen.",
-      "toastConfirmed": "Sortierer auf Firmware v{{version}} aktualisiert.",
-      "toastUnconfirmed": "Firmware wurde installiert, aber das Gerät hat sich nicht rechtzeitig wieder verbunden. Verbinde dich manuell erneut.",
+      "success": "Firmware wurde installiert. Trenne den Sortierer von deinem Computer und schließe ihn dann wieder an, um den Vorgang abzuschließen.",
       "errorTitle": "Update fehlgeschlagen",
       "close": "Schließen",
       "tryAgain": "Erneut versuchen"
@@ -199,6 +196,7 @@
     "sessionEndedDescription": "Der Scanner hat diese Kamera getrennt. Du kannst die Kamera ausschalten oder einen neuen QR-Code scannen, um dich wieder zu verbinden."
   },
   "scannerOverlay": {
+    "apiDown": "{{api}} ist derzeit nicht erreichbar - das Scannen ist für diese Sammlung deaktiviert, bis der Dienst wieder verfügbar ist. Prüfe die Statusseite für Updates.",
     "connectCamera": "Verbinde eine Kamera, um mit dem Scannen zu beginnen.",
     "waitingForPhone": "Warte auf ein Telefon, das als Kamera gekoppelt wird - zeige den QR-Code über das Kameramenü an.",
     "phoneReadyNoPhoto": "Telefonkamera bereit. Sie macht ein Foto, sobald eine Karte ankommt.",

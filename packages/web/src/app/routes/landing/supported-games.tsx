@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { usePublicGames } from "@/app/routes/landing/use-public-games";
+import { LANGUAGE_LABELS } from "@/lib/languages";
 
 export function LandingSupportedGames() {
   const { t } = useTranslation("landing");
@@ -25,6 +26,7 @@ export function LandingSupportedGames() {
                 <div key={i} className="flex flex-col gap-2">
                   <div className="h-4 w-28 animate-pulse rounded bg-muted" />
                   <div className="h-3 w-20 animate-pulse rounded bg-muted" />
+                  <div className="h-3 w-24 animate-pulse rounded bg-muted" />
                 </div>
               ))
             : games.map((game) => (
@@ -38,6 +40,13 @@ export function LandingSupportedGames() {
                       formatted: game.cardCount.toLocaleString(),
                     })}
                   </span>
+                  {game.languages.length > 0 && (
+                    <span className="text-xs text-muted-foreground/70">
+                      {game.languages
+                        .map((lang) => LANGUAGE_LABELS[lang] ?? lang)
+                        .join(", ")}
+                    </span>
+                  )}
                 </div>
               ))}
         </div>

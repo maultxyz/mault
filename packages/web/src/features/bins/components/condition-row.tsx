@@ -171,7 +171,11 @@ export function ConditionRow({
   const renderValueInput = () => {
     if (!fieldMeta) return null;
 
-    const isMulti = MULTI_VALUE_OPERATORS.includes(condition.operator);
+    const isMulti =
+      MULTI_VALUE_OPERATORS.includes(condition.operator) ||
+      (fieldMeta.type === "set" &&
+        (condition.operator === "equals" ||
+          condition.operator === "not_equals"));
     const isOptionsField =
       (fieldMeta.type === "enum" || fieldMeta.type === "set") &&
       !!fieldMeta.options;

@@ -52,11 +52,23 @@ export function ScannerOverlay({
   cameraSource,
   phonePairingStatus,
   hasPhonePhoto,
+  apiHealthCheck,
   onRetryError,
   onConnectScanner,
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
   const isPhoneMode = cameraSource === "phone";
+
+  if (apiHealthCheck?.status === "error") {
+    return (
+      <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
+        <div className="text-center text-xs text-muted-foreground max-w-56">
+          <IconAlertTriangle className="mx-auto mb-2 size-5 text-destructive" />
+          <p>{t("scannerOverlay.apiDown", { api: apiHealthCheck.name })}</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isCameraActive) {
     return (

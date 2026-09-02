@@ -174,16 +174,25 @@ docker run -p 8080:80 magic-vault-web
 
 Point `WEB_URL` (server env) at the public URL of the web container so CORS and Discord monitor-page links resolve correctly, and re-run `db:push`/`db:migrate` against the Neon database as part of your deploy if the schema changed.
 
+`docker-compose.yml` wires the three images together (server on :3001, web on :8080, and the optional bot on :3002) reading build args and env vars from the root `.env`:
+
+```bash
+docker compose up --build              # server + web
+docker compose --profile bot up --build  # + Discord bot
+```
+
+Still self-hosted-app-only — `.env` must already point `DATABASE_URL`/`NEON_AUTH_URL` at a real Neon project, since compose doesn't run a database.
+
 ## Hardware
 
 The full bill of materials, wiring diagrams, and assembly instructions live in the app at `/build`. In short:
 
-- Arduino Uno R4 Minima or ESP32 Dev Module, driving a PCA9685 servo controller over I2C
+- Arduino Uno R4 or ESP32 Dev Module, driving a PCA9685 servo controller over I2C
 - 3 positional SG90 servos per sorting module (trapdoor, paddle gate, pusher) plus 1 continuous-rotation SG90 for the feeder — module count is configurable (up to 5 on a single PCA9685) in Calibration
 - IR sensor for card-feed detection
 - Enclosure and module parts are in `3d model/` (Fusion 360 source + printable `.3mf`)
 
-Upload `firmware/main/main.ino` (requires the ArduinoJson library) to either board via the Arduino IDE — see `/build` for the full flashing steps and per-board pin/wiring differences. The sketch is always compiled for the full module ceiling a single PCA9685 supports — it doesn't need to match how many modules you've actually built, since the app already knows each org's real module count and only ever sends route commands for modules that exist, so you can add modules later without reflashing. It communicates via JSON over USB serial: the web app sends `{"route": {"module": N, "direction": "left"|"right"|"bottom"}}`, resolved from the bin's routing assignment in Calibration, and the board runs the routing sequence. `"bottom"` drops the card straight through the whole mechanism (any bin can be assigned to any module's bottom output — there's no single fixed catch-all bin).
+Upload `firmware/main/main.ino` (requires the ArduinoJson library) to either board via the Arduino IDE — see `/build` for the full flashing steps and per-board pin/wiring differences. The sketch is always compiled for the full module ceiling a single PCA9685 supports — it doesn't need to match how many modules you've actually built, since the app already knows each org's real module count and only ever sends route commands for modules that exist, so you can add modules later without reflashing. It communicates via JSON over USB serial: the web app sends `{"route": {"module": N, "direction": "left"|"right"|"bottom"}}`, resolved from the bin's routing assignment in Calibration, and the board runs the routing sequence. `"bottom"` advances the card through each preceding module (same as `"left"`/`"right"`) and drops it through the target module's own bottom output, rather than a shared catch-all — any bin can be assigned to any module's bottom output.
 
 Where module 1 starts on the PCA9685 is also runtime-configurable, not baked into the firmware: a "PCA9685 channel layout" toggle in Calibration (Standard = channel 0, up to 5 modules; Legacy = channel 4, reserving 0-3 for the status LEDs older firmware drove, up to 3 modules) sends `{"setChannelOffset": N}` once per connection. Orgs with pre-existing module calibration data default to Legacy so already-wired hardware keeps working unchanged; new orgs default to Standard.
 

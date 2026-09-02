@@ -1,5 +1,6 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { CARD_API_HEADERS } from "../card-search/constants";
+import { fetchCardApi } from "../card-search/fetch";
 import type { CardSearchAdapter } from "../card-search/types";
 import { validateQuery } from "../card-search/validate";
 
@@ -89,7 +90,7 @@ export async function Search(
   if (invalid) return invalid;
 
   const url = `${baseUrl}?name=${encodeURIComponent(query)}&limit=60`;
-  const response = await fetch(url, { headers: CARD_API_HEADERS });
+  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
 
   if (response.status === 404) {
     return {
@@ -118,7 +119,7 @@ export async function SearchById(
   id: string,
   baseUrl: string = GUNDAM_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
-  const response = await fetch(`${baseUrl}/${id}`, {
+  const response = await fetchCardApi(`${baseUrl}/${id}`, {
     headers: CARD_API_HEADERS,
   });
 

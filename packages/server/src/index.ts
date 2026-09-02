@@ -46,6 +46,11 @@ app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
 
+app.onError((err, c) => {
+  console.error("[server] Unhandled error:", err);
+  return c.json({ success: false, message: "Internal server error." }, 500);
+});
+
 serve({ fetch: app.fetch, port: PORT, hostname: "0.0.0.0" }, () => {
   console.log(`[server] Running on port:${PORT}`);
 });

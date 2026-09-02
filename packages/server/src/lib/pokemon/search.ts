@@ -1,9 +1,10 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { CARD_API_HEADERS } from "../card-search/constants";
+import { fetchCardApi } from "../card-search/fetch";
 import type { CardSearchAdapter } from "../card-search/types";
 import { validateQuery } from "../card-search/validate";
 
-export const POKEMON_DEFAULT_URL = "https://api.tcgdex.net/v2/en/cards";
+export const POKEMON_DEFAULT_URL = "https://api.eu1.tcgdex.net/v2/en/cards";
 
 interface PokemonCardBrief {
   id: string;
@@ -127,7 +128,7 @@ async function fetchDetail(
   id: string,
   baseUrl: string,
 ): Promise<PokemonCardDetail | null> {
-  const response = await fetch(`${baseUrl}/${id}`, {
+  const response = await fetchCardApi(`${baseUrl}/${id}`, {
     headers: CARD_API_HEADERS,
   });
   if (!response.ok) return null;
@@ -148,7 +149,7 @@ export async function Search(
   if (invalid) return invalid;
 
   const url = `${baseUrl}?name=${encodeURIComponent(query)}&pagination:itemsPerPage=${MAX_ENRICHED_RESULTS}`;
-  const response = await fetch(url, { headers: CARD_API_HEADERS });
+  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
 
   if (!response.ok) {
     return {

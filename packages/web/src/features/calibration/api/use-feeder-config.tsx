@@ -40,7 +40,7 @@ export function FeederConfigProvider({
     useQuery({ ...feederQueryOptions, enabled: !!activeOrg });
 
   useEffect(() => {
-    registerPreTestHook(async () => {
+    return registerPreTestHook(async () => {
       const fresh = await queryClient.fetchQuery(feederQueryOptions);
       const p = receiveResponse();
       await sendCommand(JSON.stringify({ setFeederConfig: fresh }));

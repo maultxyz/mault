@@ -1,5 +1,6 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { CARD_API_HEADERS } from "../card-search/constants";
+import { fetchCardApi } from "../card-search/fetch";
 import type { CardSearchAdapter } from "../card-search/types";
 import { validateQuery } from "../card-search/validate";
 
@@ -93,7 +94,7 @@ export async function findPrinting(
   let offset = 0;
   for (;;) {
     const url = `${baseUrl}?limit=${PAGE_LIMIT}&offset=${offset}`;
-    const res = await fetch(url, { headers: CARD_API_HEADERS, signal });
+    const res = await fetchCardApi(url, { headers: CARD_API_HEADERS, signal });
     if (!res.ok) return null;
 
     const json = (await res.json()) as FabCardListResponse;
@@ -115,7 +116,7 @@ export async function Search(
   if (invalid) return invalid;
 
   const url = `${baseUrl}?name=${encodeURIComponent(query)}&limit=60`;
-  const response = await fetch(url, { headers: CARD_API_HEADERS });
+  const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
 
   if (!response.ok) {
     return {

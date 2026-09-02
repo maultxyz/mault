@@ -46,7 +46,7 @@ export function ModuleConfigsProvider({
   });
 
   useEffect(() => {
-    registerPreTestHook(async () => {
+    return registerPreTestHook(async () => {
       try {
         const orgSettings = await queryClient.fetchQuery(
           orgSettingsQueryOptions(activeOrg?.id),

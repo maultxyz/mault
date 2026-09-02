@@ -18,6 +18,7 @@ export interface PublicGame {
   key: string;
   name: string;
   cardCount: number;
+  languages: string[];
 }
 
 export interface GameCoverage {

@@ -13,7 +13,8 @@
     "boardType": {
       "label": "Board",
       "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+      "esp32": "ESP32-S3",
+      "esp32Wroom": "ESP32 (WROOM)"
     }
   },
   "nav": {
@@ -62,6 +63,9 @@
           "esp32": {
             "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial - kann später auch direkt aus der App aktualisiert werden, siehe /app nach der Einrichtung"
           },
+          "esp32Wroom": {
+            "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial. Aktualisiere die Firmware dieses Boards nur über die Arduino-IDE - der in die App integrierte Browser-Flasher zielt speziell auf den ESP32-S3-Build ab und ist für dieses Board nicht sicher."
+          },
           "pca9685": {
             "part": "Adafruit PCA9685 16-Kanal-12-Bit-PWM-/Servotreiber",
             "notes": "I²C-Servotreiber – steuert alle 10 Servos an"
@@ -90,16 +94,20 @@
         "title": "Stromversorgung",
         "items": {
           "psu": {
-            "part": "5-V-geregeltes Netzteil, 4–10 A",
-            "notes": "Eigene Servobus-Versorgung an die V+-Klemme des PCA9685 – versorge nicht 10 Servos über die 5V-Onboard-Versorgung des {{board}}-Boards"
+            "part": "6-V-geregeltes Netzteil, 2 A",
+            "notes": "Eigene Servobus-Versorgung an die V+-Klemme des PCA9685 – versorge nicht 10 Servos über die 5V-Onboard-Versorgung des {{board}}-Boards. Hohlstecker 5,5 mm x 2,5 mm, Innenleiter Plus."
           },
           "usbCable": {
             "part": "USB-A-auf-USB-C-Kabel",
-            "notes": "Arduino Uno R4 Minima ↔ Host-Computer"
+            "notes": "Arduino Uno R4 ↔ Host-Computer"
           },
           "usbCableEsp32": {
             "part": "USB-A-auf-USB-C-Kabel",
             "notes": "ESP32-S3-Board ↔ Host-Computer, über den nativen USB-Anschluss des Boards"
+          },
+          "usbCableEsp32Wroom": {
+            "part": "USB-A-auf-USB-C- oder Micro-USB-Kabel (prüfe, welchen Anschluss dein Board hat)",
+            "notes": "ESP32-WROOM-32-Board ↔ Host-Computer, über seinen USB-Seriell-Brückenchip (CP2102/CH340, je nach Board) - der Anschluss selbst ist bei neueren Boards USB-C, bei älteren Micro-USB"
           },
           "barrelJack": {
             "part": "DC-Hohlstecker oder Schraubklemmen-Anschlusskabel",
@@ -133,24 +141,28 @@
         "items": {
           "m3x6Screw": {
             "part": "M3×6-Schraube",
-            "notes": "14 befestigen jeweils den Fachboden am Gehäuse; 8 befestigen die Bodenplatten an der Basis"
+            "notes": "14 befestigen jeweils den Fachboden am Gehäuse; 8 befestigen die Bodenplatten an der Basis; 2 befestigen eine Kamera- oder Telefonhalterung"
           },
           "m3Nut": {
             "part": "M3-Mutter",
             "notes": "Passend zu den M3×6-Schrauben der Bodenplatte"
           },
-          "m3x8Screw": {
-            "part": "M3×8-Schraube",
-            "notes": "Befestigt das Trichterrohr"
+          "m3x10Screw": {
+            "part": "M3×10-Schraube",
+            "notes": "Befestigt die höhenverstellbare Wand am Trichterrohr"
+          },
+          "m3Washer": {
+            "part": "M3-Unterlegscheibe",
+            "notes": "Wird zusammen mit den M3×10-Schrauben an der höhenverstellbaren Trichterwand verwendet"
           },
           "m2x4Screw": {
             "part": "M2×4-Schraube",
-            "partSpec": "(11 pro Modul)",
-            "notes": "11 pro Modul ({{count}} Module): Klappen (Boden/Seiten), Schieberarme und IR-Sensorhalterungen"
+            "partSpec": "(20 für 2 Module, +6 pro weiteres Modul, +7 für die Platinenbefestigung)",
+            "notes": "20 für 2 Module, +6 pro zusätzliches Modul ({{count}} Module): Klappen (Boden/Seiten), Schieberarme und IR-Sensorhalterungen; +7 zur Befestigung des {{board}} und der PCA9685-Servotreiberplatine an den Bodenplatten"
           },
           "m2x6Screw": {
             "part": "M2×6-Schraube",
-            "notes": "Befestigt den {{board}} und die PCA9685-Servotreiberplatine an den Bodenplatten"
+            "notes": "1 zur Befestigung jedes IR-Sensors ({{count}} insgesamt)"
           },
           "servoHornScrew": {
             "part": "Servohorn-Schraube (im Lieferumfang der Servos enthalten)",
@@ -159,6 +171,10 @@
           "hookupWire": {
             "part": "Niederspannungskabel",
             "notes": "IR-Sensoren/Servos. Damit musst du eventuell einige in Reihe verbinden – umwickle sie einfach mit Isolierband, damit sie sich nicht lösen."
+          },
+          "wagoConnectors": {
+            "part": "Wago-Verbinder (optional)",
+            "notes": "Verteilt Strom und Masse an jeden IR-Sensor, ohne Kabel verdrillen oder löten zu müssen"
           },
           "dupontConnectors": {
             "part": "Dupont-Steckverbinder (optional)",
@@ -176,6 +192,10 @@
           "webcam": {
             "part": "USB-Webcam",
             "notes": "Das ist die, die ich verwende - jede Webcam funktioniert, solange sich Fokus, Helligkeit usw. manuell einstellen lassen (automatische Anpassung kann Scans verfälschen)"
+          },
+          "cameraMountScrew": {
+            "part": "1/4\"-20 Kamera-Befestigungsschraube",
+            "notes": "Standard-Stativgewinde - passt in die Buchse einer Webcam- oder Telefonhalterung"
           }
         }
       }
@@ -205,8 +225,8 @@
     "servoPowerTable": {
       "colFrom": "Von",
       "colTo": "Zu",
-      "psuPlus": "Externes 5V-Netzteil, +",
-      "psuMinus": "Externes 5V-Netzteil, −",
+      "psuPlus": "Externes 6V-Netzteil, +",
+      "psuMinus": "Externes 6V-Netzteil, −",
       "toPositive": "PCA9685-<pin>V+</pin>-Klemmenblock",
       "toNegative": "PCA9685-<pin>GND</pin>-Klemmenblock <em>und</em> {{board}}-<pin>GND</pin>"
     },
@@ -239,6 +259,8 @@
     "heading": "Montage",
     "description": "Acht Phasen, zuerst die Strukturarbeiten. Die Kontrollkästchen werden in diesem Browser gespeichert, sodass du den Tab mitten im Aufbau schließen und später weitermachen kannst.",
     "helpText": "Bei einem Schritt nicht weiter? <a>Tritt dem Discord bei</a>, wenn du Hilfe brauchst.",
+    "hasVideoAria": "Enthält ein Video zur Anleitung",
+    "videoTitle": "Montagevideo",
     "progress": {
       "stepsCount": "{{done}} von {{total}} Schritten"
     },
@@ -248,7 +270,8 @@
         "title": "Die Strukturteile drucken",
         "steps": {
           "printSortingModule": {
-            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus <mesh>card_sorter.3mf</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>)."
+            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus <mesh>card_sorter.3mf</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>).",
+            "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {
             "text": "Drucke 1 Feeder-Module-Platte aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
@@ -272,7 +295,7 @@
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
           },
           "mountBoardsToPanels": {
-            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 8 M2×6-Schrauben an den Bodenplatten."
+            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×4-Schrauben an den Bodenplatten."
           },
           "attachBasePanels": {
             "text": "Befestige die Bodenplatten mit 8 M3×6-Schrauben und 8 M3-Muttern an der Basis.",
@@ -292,19 +315,23 @@
             "note": "Bibliotheksverwaltung → jeweils nach Namen suchen."
           },
           "uploadSketch": {
-            "text": "Wähle das Board „Arduino Uno R4 Minima“, wähle den richtigen Port und lade dann firmware/main/main.ino hoch."
+            "text": "Wähle das Board „Arduino Uno R4“, wähle den richtigen Port und lade dann firmware/main/main.ino hoch."
           },
           "uploadSketchEsp32": {
-            "text": "Wähle das Board „ESP32S3 Dev Module“, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
-            "note": "Verwendet das im Sketch bereits hinterlegte ESP32-S3-Pinlayout (siehe den IR_PINS-Kommentar in main.ino) - bei einer anderen ESP32-Variante unterscheiden sich die Pins, nummeriere IR_PINS/IR_PIN_HOPPER in dem Fall neu."
+            "text": "Wähle das Board „ESP32S3 Dev Module“, stelle unter Tools → USB Mode „Hardware CDC and JTAG“ und USB CDC On Boot „Enabled“ ein, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
+            "note": "Verwendet das im Sketch bereits hinterlegte ESP32-S3-Pinlayout (siehe den IR_PINS-Kommentar in main.ino) - baust du stattdessen ein klassisches ESP32-WROOM-Board? Wähle oben diese Board-Option, ihr eigenes Pinlayout ist ebenfalls schon im Sketch hinterlegt. Hardware-CDC/JTAG-Modus mit aktiviertem CDC On Boot ist nötig, damit das Board überhaupt über seinen nativen USB-Port erreichbar ist, und ermöglicht es dem browserbasierten Flash-Tool in der App, das Board zuverlässig ohne Drücken der BOOT-Taste in den Bootloader-Modus zu versetzen; im Gegenzug meldet sich das Board unter einem generischen Espressif-Namen statt „Mault Card Sorter“."
+          },
+          "uploadSketchEsp32Wroom": {
+            "text": "Wähle das Board „ESP32 Dev Module“, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
+            "note": "Verwendet das im Sketch bereits hinterlegte Pinlayout des klassischen ESP32 (siehe den IR_PINS-Kommentar in main.ino) - keine Neunummerierung nötig. Nutze für ein späteres Firmware-Update dieses Boards nicht das browserbasierte Flash-Tool in der App: Es lädt eine speziell für den ESP32-S3 gebaute Binärdatei herunter, die auf einem anderen ESP32-Chip nicht korrekt funktioniert. Lade stattdessen bei jeder Firmware-Änderung erneut über die Arduino-IDE hoch."
           },
           "confirmReady": {
             "text": "Öffne den seriellen Monitor mit 9600 Baud und bestätige, dass nach dem Neustart des Boards {\"status\":\"ready\"} angezeigt wird."
           }
         }
       },
-      "servos": {
-        "title": "Die Servos montieren",
+      "assembleModules": {
+        "title": "Die Module zusammenbauen",
         "steps": {
           "mountModuleServos": {
             "text": "Setze den Boden-, Paddel- und Schieberservo - alles 180°-Positionsservos vom Typ SG90 - in jedes der 3 Modulgehäuse ein (insgesamt 9 Servos).",
@@ -337,25 +364,20 @@
             "text": "Montiere den Dauerdreh-Zuführservo an der Rolle, am Fuß des Trichters."
           },
           "mountFeederWall": {
-            "text": "Befestige das Wandstück am Rohr, das Karten vom Trichter zur Zuführrolle führt.",
+            "text": "Befestige das Wandstück mit den 2 M3×10-Schrauben und M3-Unterlegscheiben am Trichter - er führt Karten vom Trichter zur Zuführrolle.",
             "note": "Befestige beim Montieren der Wand diese zuerst am Zuführmodul, lege dann 2 Karten unter die Wand und schiebe sie nach unten, bevor du sie festziehst."
-          }
-        }
-      },
-      "irSensors": {
-        "title": "Die IR-Sensoren montieren",
-        "steps": {
+          },
           "mountModuleIr": {
-            "text": "Befestige an jedem Modul (1-{{modules}}) einen IR-Sensor am Tor, ausgerichtet quer zum Kartenweg."
+            "text": "Befestige an jedem Modul (1-{{modules}}) einen IR-Sensor am Tor mit je 1 M2×6-Schraube, ausgerichtet quer zum Kartenweg."
           },
           "mountHopperIr": {
-            "text": "Befestige den verbleibenden IR-Sensor im Trichterhals, direkt über der Zuführung.",
+            "text": "Befestige den verbleibenden IR-Sensor im Trichterhals, direkt über der Zuführung, mit 1 M2×6-Schraube.",
             "note": "Dieser teilt der Zuführung mit, wann der Trichter leer ist – die Platzierung ist hier wichtiger als bei den Modulsensoren."
           }
         }
       },
-      "wiring": {
-        "title": "Die Elektronik verkabeln",
+      "wireAndCalibrate": {
+        "title": "Verkabeln und kalibrieren",
         "steps": {
           "wireI2c": {
             "text": "Verbinde den PCA9685 mit dem I²C-Bus des {{board}} (SDA/SCL) sowie mit der Logikversorgung/GND.",
@@ -370,27 +392,9 @@
             "note": "Für Versorgung und Masse musst du {{count}} Leitungen zu einer zusammenführen, entweder mit einem Breadboard oder indem du sie verdrillst und verlötest. Du musst die Sensoren manuell auf eine kürzere Reichweite kalibrieren, um Fehlauslösungen zu vermeiden."
           },
           "wirePower": {
-            "text": "Führe die externe 5V-Versorgung an die V+/GND-Klemme des PCA9685 und verbinde deren Masse mit der Masse des {{board}}.",
+            "text": "Führe die externe 6V-Versorgung an die V+/GND-Klemme des PCA9685 und verbinde deren Masse mit der Masse des {{board}}.",
             "note": "Eine fehlende gemeinsame Masse ist die häufigste Ursache dafür, dass Servos zucken, sich aber nie korrekt bewegen."
-          }
-        }
-      },
-      "powerOnTest": {
-        "title": "Erster Einschalttest",
-        "steps": {
-          "runTestCommand": {
-            "text": "Sende bei angeschlossener externer Servoversorgung {\"test\": true} über die serielle Schnittstelle.",
-            "note": "Öffnet nacheinander alle Boden- und Paddelklappen, bewegt alle Schieber links und dann rechts, setzt alles auf neutral zurück und lässt anschließend kurz die Zuführung laufen."
           },
-          "watchModules": {
-            "text": "Beobachte jedes Modul während des Tests – stelle sicher, dass nichts am Ende seines Wegs klemmt oder schleift.",
-            "note": "Wenn sich ein Servo beim Öffnen oder Schließen anstrengt, muss vermutlich der Gehäuseausschnitt vor der Kalibrierung angepasst werden."
-          }
-        }
-      },
-      "calibrate": {
-        "title": "Über die App kalibrieren",
-        "steps": {
           "connectSerial": {
             "text": "Verbinde den {{board}} über Web Serial mit der App und öffne dann /app/calibrate."
           },
@@ -405,10 +409,24 @@
             "text": "Zuführungs-Kalibrierungsfeld – stimme Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab."
           },
           "checkIr": {
-            "text": "IR-Sensorfeld – prüfe, ob alle {{count}} Sensoren mit einer Karte in der Hand korrekt „vorhanden“/„nicht vorhanden“ melden."
+            "text": "IR-Sensorfeld – prüfe, ob alle {{count}} Sensoren mit einer Karte in der Hand korrekt „vorhanden“/„nicht vorhanden“ melden.",
+            "note": "Wenn ein Sensor nicht auslöst oder auslöst, obwohl nichts vor ihm ist, kalibriere seine Erkennungsdistanz manuell: Auf der Rückseite des Sensors befindet sich ein kleines blaues Gehäuse mit einem grauen Potentiometer-Rädchen. Drehe es ganz in eine Richtung, sodass er nichts mehr erkennt, und drehe es dann langsam zurück, bis er eine Karte gerade so aus zwei bis fünf Zentimetern Entfernung erkennt."
           },
           "testBins": {
             "text": "Fachsteuerung – sende der Reihe nach eine Testkarte an jedes der 7 Fächer und bestätige, dass sie korrekt landet."
+          }
+        }
+      },
+      "powerOnTest": {
+        "title": "Erster Einschalttest",
+        "steps": {
+          "runTestCommand": {
+            "text": "Sende bei angeschlossener externer Servoversorgung {\"test\": true} über die serielle Schnittstelle.",
+            "note": "Öffnet nacheinander alle Boden- und Paddelklappen, bewegt alle Schieber links und dann rechts, setzt alles auf neutral zurück und lässt anschließend kurz die Zuführung laufen."
+          },
+          "watchModules": {
+            "text": "Beobachte jedes Modul während des Tests – stelle sicher, dass nichts am Ende seines Wegs klemmt oder schleift.",
+            "note": "Wenn sich ein Servo beim Öffnen oder Schließen anstrengt, muss vermutlich der Gehäuseausschnitt vor der Kalibrierung angepasst werden."
           }
         }
       },

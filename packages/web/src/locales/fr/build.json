@@ -13,7 +13,8 @@
     "boardType": {
       "label": "Carte",
       "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+      "esp32": "ESP32-S3",
+      "esp32Wroom": "ESP32 (WROOM)"
     }
   },
   "nav": {
@@ -62,6 +63,9 @@
           "esp32": {
             "notes": "Exécute <code>{{path}}</code> ; connexion USB à l'ordinateur hôte pour le Web Serial - peut aussi être mis à jour directement depuis l'app ensuite, voir /app une fois configuré"
           },
+          "esp32Wroom": {
+            "notes": "Exécute <code>{{path}}</code> ; connexion USB à l'ordinateur hôte pour le Web Serial. Mets à jour son firmware uniquement via l'IDE Arduino - le flasheur intégré à l'app cible spécifiquement l'ESP32-S3 et n'est pas sûr à utiliser sur cette carte."
+          },
           "pca9685": {
             "part": "Adafruit PCA9685, driver PWM/servo 16 canaux 12 bits",
             "notes": "Driver de servo I²C - pilote les 10 servos"
@@ -90,16 +94,20 @@
         "title": "Alimentation",
         "items": {
           "psu": {
-            "part": "Alimentation régulée 5V, 4–10A",
-            "notes": "Alimentation dédiée au bus des servos vers la borne V+ du PCA9685 - ne pas alimenter 10 servos depuis le 5V embarqué de la carte {{board}}"
+            "part": "Alimentation régulée 6V, 2A",
+            "notes": "Alimentation dédiée au bus des servos vers la borne V+ du PCA9685 - ne pas alimenter 10 servos depuis le 5V embarqué de la carte {{board}}. Prise jack 5,5 mm x 2,5 mm, positif au centre."
           },
           "usbCable": {
             "part": "Câble USB-A vers USB-C",
-            "notes": "Arduino Uno R4 Minima ↔ ordinateur hôte"
+            "notes": "Arduino Uno R4 ↔ ordinateur hôte"
           },
           "usbCableEsp32": {
             "part": "Câble USB-A vers USB-C",
             "notes": "Carte ESP32-S3 ↔ ordinateur hôte, via le port USB natif de la carte"
+          },
+          "usbCableEsp32Wroom": {
+            "part": "Câble USB-A vers USB-C ou Micro-USB (vérifie le port de ta carte)",
+            "notes": "Carte ESP32-WROOM-32 ↔ ordinateur hôte, via sa puce pont USB-série (CP2102/CH340, selon la carte) - le connecteur lui-même est en USB-C sur les cartes récentes, en Micro-USB sur les plus anciennes"
           },
           "barrelJack": {
             "part": "Prise jack CC ou pigtail à bornier à vis",
@@ -133,24 +141,28 @@
         "items": {
           "m3x6Screw": {
             "part": "Vis M3×6",
-            "notes": "14 fixent chaque base de bac au boîtier ; 8 fixent les panneaux de base à la base"
+            "notes": "14 fixent chaque base de bac au boîtier ; 8 fixent les panneaux de base à la base ; 2 fixent un support de caméra ou de téléphone"
           },
           "m3Nut": {
             "part": "Écrou M3",
             "notes": "Associé aux vis M3×6 des panneaux de base"
           },
-          "m3x8Screw": {
-            "part": "Vis M3×8",
-            "notes": "Fixe le tube de la trémie"
+          "m3x10Screw": {
+            "part": "Vis M3×10",
+            "notes": "Fixe la paroi à hauteur variable au tube de la trémie"
+          },
+          "m3Washer": {
+            "part": "Rondelle M3",
+            "notes": "Utilisée avec les vis M3×10 sur la paroi à hauteur variable de la trémie"
           },
           "m2x4Screw": {
             "part": "Vis M2×4",
-            "partSpec": "(11 par module)",
-            "notes": "11 par module ({{count}} modules) : trappe (bas/côtés), bras du poussoir, et supports du capteur IR"
+            "partSpec": "(20 pour 2 modules, +6 par module supplémentaire, +7 pour la fixation des cartes)",
+            "notes": "20 pour 2 modules, +6 par module supplémentaire ({{count}} modules) : trappe (bas/côtés), bras du poussoir, et supports du capteur IR ; +7 pour fixer le {{board}} et la carte driver de servo PCA9685 aux panneaux de base"
           },
           "m2x6Screw": {
             "part": "Vis M2×6",
-            "notes": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base"
+            "notes": "1 pour fixer chaque capteur IR ({{count}} au total)"
           },
           "servoHornScrew": {
             "part": "Vis de palonnier de servo (incluse avec les servos)",
@@ -159,6 +171,10 @@
           "hookupWire": {
             "part": "Fil basse tension",
             "notes": "Capteur IR/Servos. Avec ceux-ci, tu devras peut-être en chaîner certains ensemble, utilise du ruban électrique pour t'assurer qu'ils ne se séparent pas."
+          },
+          "wagoConnectors": {
+            "part": "Connecteurs Wago (optionnel)",
+            "notes": "Répartit l'alimentation et la masse vers chaque capteur IR sans avoir à torsader ou souder les fils"
           },
           "dupontConnectors": {
             "part": "Connecteurs Dupont (optionnel)",
@@ -176,6 +192,10 @@
           "webcam": {
             "part": "Webcam USB",
             "notes": "C'est celle que j'utilise - n'importe quelle webcam fonctionne tant que tu peux régler manuellement la mise au point, la luminosité, etc. (le réglage automatique peut fausser les scans)"
+          },
+          "cameraMountScrew": {
+            "part": "Vis de fixation caméra 1/4\"-20",
+            "notes": "Filetage standard de fixation trépied - se visse dans le support de webcam ou de téléphone"
           }
         }
       }
@@ -205,8 +225,8 @@
     "servoPowerTable": {
       "colFrom": "De",
       "colTo": "Vers",
-      "psuPlus": "Alimentation externe 5V, +",
-      "psuMinus": "Alimentation externe 5V, −",
+      "psuPlus": "Alimentation externe 6V, +",
+      "psuMinus": "Alimentation externe 6V, −",
       "toPositive": "Bornier <pin>V+</pin> du PCA9685",
       "toNegative": "Bornier <pin>GND</pin> du PCA9685 <em>et</em> <pin>GND</pin> du {{board}}"
     },
@@ -239,6 +259,8 @@
     "heading": "Assemblage",
     "description": "Huit phases, en commençant par le travail structurel. Les cases à cocher sont enregistrées dans ce navigateur, tu peux donc fermer l'onglet en cours de construction et reprendre plus tard.",
     "helpText": "Bloqué sur une étape ? <a>Rejoins le Discord</a> si tu as besoin d'aide.",
+    "hasVideoAria": "Comprend une vidéo explicative",
+    "videoTitle": "Vidéo de montage",
     "progress": {
       "stepsCount": "{{done}} sur {{total}} étapes"
     },
@@ -248,7 +270,8 @@
         "title": "Imprimer les pièces structurelles",
         "steps": {
           "printSortingModule": {
-            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir de <mesh>card_sorter.3mf</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>)."
+            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir de <mesh>card_sorter.3mf</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>).",
+            "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
           },
           "printFeederModule": {
             "text": "Imprime 1 plaque Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie."
@@ -272,7 +295,7 @@
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
           },
           "mountBoardsToPanels": {
-            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 8 vis M2×6."
+            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×4."
           },
           "attachBasePanels": {
             "text": "Fixe les panneaux de base à la base avec 8 vis M3×6 et 8 écrous M3.",
@@ -292,19 +315,23 @@
             "note": "Gestionnaire de bibliothèques → recherche chacune par son nom."
           },
           "uploadSketch": {
-            "text": "Sélectionne la carte « Arduino Uno R4 Minima », sélectionne le bon port, puis téléverse firmware/main/main.ino."
+            "text": "Sélectionne la carte « Arduino Uno R4 », sélectionne le bon port, puis téléverse firmware/main/main.ino."
           },
           "uploadSketchEsp32": {
-            "text": "Sélectionne la carte « ESP32S3 Dev Module », sélectionne le bon port, puis téléverse firmware/main/main.ino.",
-            "note": "Utilise la disposition de broches ESP32-S3 déjà présente dans le sketch (voir le commentaire IR_PINS dans main.ino) - sur une autre variante ESP32, les broches diffèrent, renumérote alors IR_PINS/IR_PIN_HOPPER."
+            "text": "Sélectionne la carte « ESP32S3 Dev Module », règle Tools → USB Mode sur « Hardware CDC and JTAG » et USB CDC On Boot sur « Enabled », sélectionne le bon port, puis téléverse firmware/main/main.ino.",
+            "note": "Utilise la disposition de broches ESP32-S3 déjà présente dans le sketch (voir le commentaire IR_PINS dans main.ino) - tu montes plutôt une carte ESP32 WROOM classique ? Choisis cette option de carte ci-dessus, sa propre disposition de broches est déjà prévue dans le sketch aussi. Le mode Hardware CDC/JTAG avec CDC On Boot activé est nécessaire pour que la carte soit accessible via son port USB natif, et permet à l'outil de flashage intégré à l'application de remettre la carte en mode bootloader de façon fiable, sans appuyer sur le bouton BOOT ; en contrepartie, la carte s'annonce sous un nom Espressif générique plutôt que « Mault Card Sorter »."
+          },
+          "uploadSketchEsp32Wroom": {
+            "text": "Sélectionne la carte « ESP32 Dev Module », sélectionne le bon port, puis téléverse firmware/main/main.ino.",
+            "note": "Utilise la disposition de broches de l'ESP32 classique déjà présente dans le sketch (voir le commentaire IR_PINS dans main.ino) - aucune renumérotation nécessaire. N'utilise pas l'outil de flashage intégré à l'application pour mettre à jour cette carte : il télécharge un binaire compilé spécifiquement pour l'ESP32-S3, qui ne fonctionnera pas correctement sur une autre puce ESP32. Retéléverse plutôt depuis l'IDE Arduino à chaque changement de firmware."
           },
           "confirmReady": {
             "text": "Ouvre le moniteur série à 9600 bauds et confirme que tu vois {\"status\":\"ready\"} après la réinitialisation de la carte."
           }
         }
       },
-      "servos": {
-        "title": "Monter les servos",
+      "assembleModules": {
+        "title": "Assembler les modules",
         "steps": {
           "mountModuleServos": {
             "text": "Installe le servo inférieur, le servo de palette et le poussoir - tous des servos SG90 positionnels à 180° - dans chacun des 3 logements de module (9 servos au total).",
@@ -337,25 +364,20 @@
             "text": "Installe le servo de chargeur à rotation continue sur le rouleau, à la base de la trémie."
           },
           "mountFeederWall": {
-            "text": "Fixe la paroi au tube qui guide les cartes de la trémie vers le rouleau du chargeur.",
+            "text": "Fixe la paroi à la trémie avec les 2 vis M3×10 et les rondelles M3 - elle guide les cartes de la trémie vers le rouleau du chargeur.",
             "note": "Lors du montage de la paroi, fixe-la d'abord au module du chargeur, puis place 2 cartes sous la paroi et fais-la glisser vers le bas avant de la serrer en place."
-          }
-        }
-      },
-      "irSensors": {
-        "title": "Monter les capteurs IR",
-        "steps": {
+          },
           "mountModuleIr": {
-            "text": "Fixe un capteur IR à la porte de chaque module (1 à {{modules}}), pointé à travers le trajet de la carte."
+            "text": "Fixe un capteur IR à la porte de chaque module (1 à {{modules}}) avec 1 vis M2×6 chacun, pointé à travers le trajet de la carte."
           },
           "mountHopperIr": {
-            "text": "Fixe le capteur IR restant dans la gorge de la trémie, juste au-dessus du chargeur.",
+            "text": "Fixe le capteur IR restant dans la gorge de la trémie, juste au-dessus du chargeur, avec 1 vis M2×6.",
             "note": "Celui-ci indique au chargeur quand la trémie est vide - son positionnement compte plus que celui des capteurs de module."
           }
         }
       },
-      "wiring": {
-        "title": "Câbler l'électronique",
+      "wireAndCalibrate": {
+        "title": "Câbler et calibrer",
         "steps": {
           "wireI2c": {
             "text": "Câble le PCA9685 au bus I²C du {{board}} (SDA/SCL) et à l'alimentation logique/GND.",
@@ -370,27 +392,9 @@
             "note": "Pour l'alimentation et la masse, tu devras combiner {{count}} fils en un seul, soit avec une plaque d'essai, soit en les torsadant et en les soudant ensemble. Tu devras calibrer manuellement les capteurs pour avoir une portée plus courte, afin d'éviter les faux positifs."
           },
           "wirePower": {
-            "text": "Amène l'alimentation externe 5V au bornier V+/GND du PCA9685, et relie sa masse à celle du {{board}}.",
+            "text": "Amène l'alimentation externe 6V au bornier V+/GND du PCA9685, et relie sa masse à celle du {{board}}.",
             "note": "Oublier la masse commune est la cause n°1 des servos qui tremblent sans jamais bouger correctement."
-          }
-        }
-      },
-      "powerOnTest": {
-        "title": "Premier test de mise sous tension",
-        "steps": {
-          "runTestCommand": {
-            "text": "Avec l'alimentation externe des servos connectée, envoie {\"test\": true} en série.",
-            "note": "Ouvre chaque trappe inférieure et palette, balaie tous les poussoirs à gauche puis à droite, revient au neutre, puis fait brièvement tourner le chargeur."
           },
-          "watchModules": {
-            "text": "Observe chaque module pendant le test - confirme que rien ne coince ou ne grince en fin de course.",
-            "note": "Si un servo force en position ouverte ou fermée, son logement a probablement besoin d'être ajusté avant la calibration."
-          }
-        }
-      },
-      "calibrate": {
-        "title": "Calibrer depuis l'application",
-        "steps": {
           "connectSerial": {
             "text": "Connecte le {{board}} à l'application via Web Serial, puis ouvre /app/calibrate."
           },
@@ -405,10 +409,24 @@
             "text": "Panneau de calibration du chargeur - ajuste la vitesse d'alimentation, le minutage impulsion/pause et la durée de stabilisation en fonction de ta trémie réelle."
           },
           "checkIr": {
-            "text": "Panneau des capteurs IR - vérifie que les {{count}} capteurs signalent correctement la présence/l'absence avec une carte en main."
+            "text": "Panneau des capteurs IR - vérifie que les {{count}} capteurs signalent correctement la présence/l'absence avec une carte en main.",
+            "note": "Si un capteur ne se déclenche pas, ou se déclenche sans rien devant lui, calibre sa distance de détection manuellement : au dos du capteur se trouve un petit boîtier bleu avec une molette grise (potentiomètre). Tourne-la à fond dans un sens pour qu'il ne détecte plus rien, puis tourne-la lentement en sens inverse jusqu'à ce qu'il détecte juste une carte à deux ou trois centimètres devant lui."
           },
           "testBins": {
             "text": "Contrôles de routage des bacs - envoie une carte de test vers chacun des 7 bacs à tour de rôle et confirme qu'elle atterrit correctement."
+          }
+        }
+      },
+      "powerOnTest": {
+        "title": "Premier test de mise sous tension",
+        "steps": {
+          "runTestCommand": {
+            "text": "Avec l'alimentation externe des servos connectée, envoie {\"test\": true} en série.",
+            "note": "Ouvre chaque trappe inférieure et palette, balaie tous les poussoirs à gauche puis à droite, revient au neutre, puis fait brièvement tourner le chargeur."
+          },
+          "watchModules": {
+            "text": "Observe chaque module pendant le test - confirme que rien ne coince ou ne grince en fin de course.",
+            "note": "Si un servo force en position ouverte ou fermée, son logement a probablement besoin d'être ajusté avant la calibration."
           }
         }
       },

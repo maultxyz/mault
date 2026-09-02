@@ -10,7 +10,7 @@ import { PublicGlow } from "@/components/public-glow";
 
 export default function BuildGuidePage() {
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground">
       <PublicGlow />
       <BuildNav />
       <main className="flex-1">

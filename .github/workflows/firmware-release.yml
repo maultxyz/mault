@@ -15,8 +15,8 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FQBN: esp32:esp32:esp32
-  BUILD_DIR: firmware/main/build/esp32.esp32.esp32
+  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc
+  BUILD_DIR: firmware/main/build/esp32.esp32.esp32s3
   FIRMWARE_DEST: packages/web/public/firmware/esp32-latest.bin
   UNO_FQBN: arduino:renesas_uno:minima
   UNO_BUILD_DIR: firmware/main/build/arduino.renesas_uno.minima
@@ -111,10 +111,10 @@ jobs:
             echo "::error::boot_app0.bin not found in the installed esp32 core"
             exit 1
           fi
-          esptool.py --chip esp32 merge_bin \
+          esptool.py --chip esp32s3 merge_bin \
             -o "$BUILD_DIR/main.ino.merged.bin" \
             --flash_mode dio --flash_freq 40m --flash_size 4MB \
-            0x1000  "$BUILD_DIR/main.ino.bootloader.bin" \
+            0x0     "$BUILD_DIR/main.ino.bootloader.bin" \
             0x8000  "$BUILD_DIR/main.ino.partitions.bin" \
             0xe000  "$BOOT_APP0" \
             0x10000 "$BUILD_DIR/main.ino.bin"

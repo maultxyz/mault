@@ -57,22 +57,16 @@ const GROUPS: Group[] = [
         key: "board",
         qty: () => "1",
         name: (boardType) => BOARD_INFO[boardType].displayName,
-        part: (_, boardType) =>
-          boardType === "uno_r4" ? (
-            <>
-              Arduino Uno R4 Minima{" "}
-              <span className="text-muted-foreground">(ABX0080)</span>
-            </>
-          ) : (
-            BOARD_INFO[boardType].displayName
-          ),
+        part: (_, boardType) => BOARD_INFO[boardType].displayName,
         notes: (t, _, boardType) => (
           <Trans
             t={t}
             i18nKey={
               boardType === "uno_r4"
                 ? "bom.groups.electronics.items.unoR4.notes"
-                : "bom.groups.electronics.items.esp32.notes"
+                : boardType === "esp32"
+                  ? "bom.groups.electronics.items.esp32.notes"
+                  : "bom.groups.electronics.items.esp32Wroom.notes"
             }
             values={{ path: "firmware/main/main.ino" }}
             components={{
@@ -138,7 +132,7 @@ const GROUPS: Group[] = [
       {
         key: "psu",
         qty: () => "1",
-        name: "5V Power Supply",
+        name: "6V Power Supply",
         part: (t) => t("bom.groups.power.items.psu.part"),
         notes: (t, _, boardType) =>
           t("bom.groups.power.items.psu.notes", {
@@ -154,13 +148,17 @@ const GROUPS: Group[] = [
           t(
             boardType === "uno_r4"
               ? "bom.groups.power.items.usbCable.part"
-              : "bom.groups.power.items.usbCableEsp32.part",
+              : boardType === "esp32"
+                ? "bom.groups.power.items.usbCableEsp32.part"
+                : "bom.groups.power.items.usbCableEsp32Wroom.part",
           ),
         notes: (t, _, boardType) =>
           t(
             boardType === "uno_r4"
               ? "bom.groups.power.items.usbCable.notes"
-              : "bom.groups.power.items.usbCableEsp32.notes",
+              : boardType === "esp32"
+                ? "bom.groups.power.items.usbCableEsp32.notes"
+                : "bom.groups.power.items.usbCableEsp32Wroom.notes",
           ),
       },
       {
@@ -237,7 +235,7 @@ const GROUPS: Group[] = [
     rows: [
       {
         key: "m3x6-screw",
-        qty: () => "22",
+        qty: () => "24",
         name: "M3x6 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x6Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x6Screw.notes"),
@@ -252,16 +250,24 @@ const GROUPS: Group[] = [
         buyUrl: "https://amzn.to/3UmCJx8",
       },
       {
-        key: "m3x8-screw",
+        key: "m3x10-screw",
         qty: () => "2",
-        name: "M3x8 screw",
-        part: (t) => t("bom.groups.fasteners.items.m3x8Screw.part"),
-        notes: (t) => t("bom.groups.fasteners.items.m3x8Screw.notes"),
+        name: "M3x10 screw",
+        part: (t) => t("bom.groups.fasteners.items.m3x10Screw.part"),
+        notes: (t) => t("bom.groups.fasteners.items.m3x10Screw.notes"),
+        buyUrl: "https://amzn.to/3UmCJx8",
+      },
+      {
+        key: "m3-washer",
+        qty: () => "2",
+        name: "M3 washer",
+        part: (t) => t("bom.groups.fasteners.items.m3Washer.part"),
+        notes: (t) => t("bom.groups.fasteners.items.m3Washer.notes"),
         buyUrl: "https://amzn.to/3UmCJx8",
       },
       {
         key: "m2x4-screw",
-        qty: (n) => String(n * 11),
+        qty: (n) => String(20 + (n - 2) * 6 + 7),
         name: "M2x4 screw",
         part: (t) => (
           <>
@@ -271,19 +277,20 @@ const GROUPS: Group[] = [
             </span>
           </>
         ),
-        notes: (t, n) =>
-          t("bom.groups.fasteners.items.m2x4Screw.notes", { count: n }),
+        notes: (t, n, boardType) =>
+          t("bom.groups.fasteners.items.m2x4Screw.notes", {
+            count: n,
+            board: BOARD_INFO[boardType].shortName,
+          }),
         buyUrl: "https://amzn.to/3UmCJx8",
       },
       {
         key: "m2x6-screw",
-        qty: () => "8",
+        qty: (n) => String(n + 1),
         name: "M2x6 screw",
         part: (t) => t("bom.groups.fasteners.items.m2x6Screw.part"),
-        notes: (t, _, boardType) =>
-          t("bom.groups.fasteners.items.m2x6Screw.notes", {
-            board: BOARD_INFO[boardType].shortName,
-          }),
+        notes: (t, n) =>
+          t("bom.groups.fasteners.items.m2x6Screw.notes", { count: n + 1 }),
         buyUrl: "https://amzn.to/3UmCJx8",
       },
       {
@@ -300,6 +307,14 @@ const GROUPS: Group[] = [
         part: (t) => t("bom.groups.fasteners.items.hookupWire.part"),
         notes: (t) => t("bom.groups.fasteners.items.hookupWire.notes"),
         buyUrl: "https://amzn.to/45T0LCt",
+      },
+      {
+        key: "wago-connectors",
+        qty: () => "2",
+        name: "Wago connectors",
+        part: (t) => t("bom.groups.fasteners.items.wagoConnectors.part"),
+        notes: (t) => t("bom.groups.fasteners.items.wagoConnectors.notes"),
+        buyUrl: "https://amzn.to/3UJSq1u",
       },
       {
         key: "dupont-connectors",
@@ -329,6 +344,14 @@ const GROUPS: Group[] = [
         part: (t) => t("bom.groups.optional.items.webcam.part"),
         notes: (t) => t("bom.groups.optional.items.webcam.notes"),
         buyUrl: "https://amzn.to/3SvwSVM",
+      },
+      {
+        key: "camera-mount-screw",
+        qty: () => "1",
+        name: "1/4\"-20 camera mount screw",
+        part: (t) => t("bom.groups.optional.items.cameraMountScrew.part"),
+        notes: (t) => t("bom.groups.optional.items.cameraMountScrew.notes"),
+        buyUrl: "https://amzn.to/4gKMoVS",
       },
     ],
   },
@@ -542,6 +565,16 @@ export function BuildBom() {
               onClick={() => setBoardType("esp32")}
             >
               {t("hero.boardType.esp32")}
+            </Button>
+            <Button
+              variant={boardType === "esp32_wroom" ? "secondary" : "ghost"}
+              size="sm"
+              className={cn(
+                boardType !== "esp32_wroom" && "text-muted-foreground",
+              )}
+              onClick={() => setBoardType("esp32_wroom")}
+            >
+              {t("hero.boardType.esp32Wroom")}
             </Button>
           </div>
         </div>

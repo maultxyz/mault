@@ -1,0 +1,12 @@
+{
+  "title": "System Health",
+  "subtitle": "Live status of the database and each connected card API.",
+  "refresh": "Refresh",
+  "allHealthy": "Everything is operational.",
+  "someUnhealthy": "Some services are having trouble.",
+  "lastChecked": "Last checked at {{time}}",
+  "loading": "Checking service status…",
+  "latency": "{{ms}}ms",
+  "statusOk": "OK",
+  "statusError": "Error"
+}

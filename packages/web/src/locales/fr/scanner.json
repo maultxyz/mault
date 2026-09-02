@@ -29,10 +29,7 @@
       "dialogDescription": "Installe le dernier firmware sur ton ESP32 connecté via cet onglet. Ne déconnecte pas l'appareil et ne ferme pas cet onglet pendant l'opération.",
       "startButton": "Démarrer la mise à jour",
       "flashing": "Installation en cours — ne déconnecte pas l'appareil…",
-      "successConfirmed": "Firmware mis à jour vers la v{{version}}.",
-      "successUnconfirmed": "Firmware installé, mais l'appareil ne s'est pas reconnecté à temps. Essaie de te reconnecter manuellement pour confirmer.",
-      "toastConfirmed": "Trieuse mise à jour vers le firmware v{{version}}.",
-      "toastUnconfirmed": "Firmware installé, mais l'appareil ne s'est pas reconnecté à temps. Essaie de te reconnecter manuellement.",
+      "success": "Firmware installé. Débranche la trieuse de ton ordinateur, puis rebranche-la pour terminer.",
       "errorTitle": "Échec de la mise à jour",
       "close": "Fermer",
       "tryAgain": "Réessayer"
@@ -199,6 +196,7 @@
     "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter."
   },
   "scannerOverlay": {
+    "apiDown": "{{api}} est actuellement hors service - le scan est désactivé pour cette collection jusqu'à son rétablissement. Consulte la page de statut pour les mises à jour.",
     "connectCamera": "Connecte une caméra pour commencer à scanner.",
     "waitingForPhone": "En attente d'un téléphone à associer comme caméra - affiche le code QR depuis le menu caméra.",
     "phoneReadyNoPhoto": "Caméra du téléphone prête. Elle prendra une photo dès qu'une carte arrivera.",

@@ -33,7 +33,7 @@
     "nameLabel": "Name",
     "namePlaceholder": "Pokémon",
     "apiDocsUrlLabel": "URL der API-Dokumentation",
-    "apiDocsUrlPlaceholder": "https://docs.pokemontcg.io/api-reference/cards/card-object",
+    "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
     "activeLabel": "Aktiv",
     "cancel": "Abbrechen",
     "saving": "Wird gespeichert…",

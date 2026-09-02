@@ -19,7 +19,6 @@ import {
   IconPlus,
   IconSettings,
 } from "@tabler/icons-react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -32,29 +31,13 @@ const createSchema = z.object({ name: z.string().min(1) });
 type CreateValues = z.infer<typeof createSchema>;
 
 function OrgBadge({
-  orgId,
   initial,
   className,
 }: {
-  orgId: string;
   initial: string;
   className: string;
 }) {
-  return (
-    <AnimatePresence mode="popLayout" initial={false}>
-      <motion.span
-        key={orgId}
-        initial={{ rotateY: 90, scale: 0.4, opacity: 0 }}
-        animate={{ rotateY: 0, scale: 1, opacity: 1 }}
-        exit={{ rotateY: -90, scale: 0.4, opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        style={{ transformPerspective: 60 }}
-        className={className}
-      >
-        {initial}
-      </motion.span>
-    </AnimatePresence>
-  );
+  return <span className={className}>{initial}</span>;
 }
 
 export function OrgSwitcher({
@@ -102,7 +85,6 @@ export function OrgSwitcher({
                   <IconBuilding size={20} />
                   {activeOrg && (
                     <OrgBadge
-                      orgId={activeOrg.id}
                       initial={activeOrg.name[0].toUpperCase()}
                       className="pointer-events-none absolute -right-1.5 -top-1 grid size-3 place-items-center rounded-full bg-primary text-[0.5rem] font-bold leading-none text-primary-foreground"
                     />
@@ -125,7 +107,6 @@ export function OrgSwitcher({
             />
             {activeOrg && (
               <OrgBadge
-                orgId={activeOrg.id}
                 initial={activeOrg.name[0].toUpperCase()}
                 className="pointer-events-none absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-primary text-[0.6rem] font-bold leading-none text-primary-foreground"
               />

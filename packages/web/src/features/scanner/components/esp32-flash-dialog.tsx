@@ -24,14 +24,10 @@ export function Esp32FlashDialog({
   const { isFlashing, flashProgress, flashLog, flashEsp32 } = useSerial();
   const [state, setState] = useState<FlashState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [confirmedVersion, setConfirmedVersion] = useState<string | null>(
-    null,
-  );
 
   useEffect(() => {
     if (!open) {
       setState("idle");
-      setConfirmedVersion(null);
     }
   }, [open]);
 
@@ -39,7 +35,6 @@ export function Esp32FlashDialog({
     setState("flashing");
     const result = await flashEsp32(ESP32_FIRMWARE_URL);
     if (result.success) {
-      setConfirmedVersion(result.confirmedVersion ?? null);
       setState("success");
     } else {
       setState("error");
@@ -105,13 +100,7 @@ export function Esp32FlashDialog({
       {state === "success" && (
         <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
           <IconCircleCheck className="size-4 shrink-0" />
-          <span>
-            {confirmedVersion
-              ? t("serial.update.successConfirmed", {
-                  version: confirmedVersion,
-                })
-              : t("serial.update.successUnconfirmed")}
-          </span>
+          <span>{t("serial.update.success")}</span>
         </div>
       )}
 

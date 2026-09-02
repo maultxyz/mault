@@ -31,3 +31,19 @@ export interface SyncState {
   logs: string[];
   currentCard?: string;
 }
+
+export type HealthCheckStatus = "ok" | "error";
+
+export interface HealthCheck {
+  name: string;
+  status: HealthCheckStatus;
+  latencyMs: number;
+  message?: string;
+  gameKey?: string;
+}
+
+export interface HealthCheckResponse {
+  healthy: boolean;
+  checkedAt: string;
+  checks: HealthCheck[];
+}

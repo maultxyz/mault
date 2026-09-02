@@ -2,30 +2,37 @@
 
 This documents the serial wire protocol implemented by the sorting
 machine's firmware (`main/main.ino`), running on an Arduino Uno R4
-Minima (the current build docs/BOM target) or an ESP32 (see the
+(the current build docs/BOM target) or an ESP32 (see the
 `ARDUINO_ARCH_ESP32` pin block in `main.ino`). Any client that can open
 a serial connection to the device can drive it by following this spec
 — it does not assume any particular host language or application.
 
 ## Transport
 
-- **9600 baud**. Uno R4 Minima uses native USB CDC serial; most ESP32
+- **9600 baud**. Uno R4 uses native USB CDC serial; most ESP32
   boards instead go through a UART-to-USB bridge chip, which looks
   identical to a client opening the port but does **not** share the
   Uno's reconnect-without-reset behavior described below — a host
   closing and reopening the port on one of those boards does reset the
   sketch (same as a classic Uno), so `{"getStatus": true}` still works
   either way but isn't the only source of a fresh ready/version line.
-- ESP32-S2/S3 boards have their own native USB CDC (no bridge chip), and
-  `main.ino` names that connection "Mault Card Sorter" via `USB.h` (see
-  `SORTER_HAS_NATIVE_USB` in `main.ino`) so it's identifiable in a
-  browser's serial port picker or the OS's device list - but only if the
-  board is built with "USB CDC On Boot: Enabled" and the client is
-  actually plugged into the chip's native USB port rather than a
-  secondary UART-only port some of these boards also expose. Classic
-  ESP32 (WROOM/WROVER) has no native USB at all, so its bridge chip's
-  fixed descriptor is what shows up instead - not something this
-  firmware can change.
+- ESP32-S2/S3 boards have their own native USB (no bridge chip). They
+  must be built with **"USB Mode: Hardware CDC and JTAG"** and **"USB CDC
+  On Boot: Enabled"** (`USBMode=hwcdc,CDCOnBoot=cdc` on the arduino-cli
+  FQBN - see `firmware-release.yml`), and the client must be plugged into
+  the chip's native USB port rather than a secondary UART-only port some
+  of these boards also expose. This firmware used to instead own a
+  manually-created `USBCDC`/USB-OTG connection so the device could report
+  a custom "Mault Card Sorter" name, but that mode's software
+  bootloader-reset handshake hits an unresolved upstream bug when
+  connected directly to a PC (github.com/espressif/arduino-esp32#10204),
+  which made this app's in-browser flashing (`use-serial.tsx`'s
+  `flashEsp32`) unreliable. Hardware CDC/JTAG mode's reset handshake
+  doesn't hit that bug, at the cost of the device enumerating under a
+  fixed Espressif name/VID/PID instead of a custom one. Classic ESP32
+  (WROOM/WROVER) has no native USB at all, so its bridge chip's fixed
+  descriptor is what shows up instead - not something this firmware can
+  change.
 - **Framing:** one JSON object per line, terminated by `\n` (`\r` is
   also accepted as a line terminator). Every request produces exactly
   **one** JSON-line response, in the order it was sent — there is no
@@ -72,7 +79,7 @@ a serial connection to the device can drive it by following this spec
 2. Send `{"getStatus": true}` and read the response to confirm the
    device is alive and check its firmware `version`. Also useful after
    reopening a port without a physical power cycle: on native-USB boards
-   (Uno R4 Minima) the sketch doesn't reset and won't print a fresh boot
+   (Uno R4) the sketch doesn't reset and won't print a fresh boot
    message on its own, so this is the only way to get one; on
    UART-bridge boards (most ESP32s) reopening does reset the sketch and
    print one unprompted, but sending this is still harmless and confirms
@@ -228,12 +235,12 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 {"route": {"module": 2, "direction": "left"}}
 ```
 - `direction`: `"left" | "right" | "bottom"`
-- Runs the feeder first, then routes the card: for `"left"`/`"right"`,
-  opens each preceding module's bottom in turn to advance the card
-  (confirming arrival via that module's IR sensor, 3s timeout each
-  step), then opens the target module's paddle and drives its pusher in
-  the requested direction; for `"bottom"`, opens every module's bottom
-  simultaneously so the card drops straight through the whole stack.
+- Runs the feeder first, then routes the card: opens each preceding
+  module's bottom in turn to advance the card (confirming arrival via
+  that module's IR sensor, 3s timeout each step), then either opens the
+  target module's paddle and drives its pusher in the requested
+  direction (`"left"`/`"right"`), or opens just the target module's own
+  bottom to drop the card there (`"bottom"`).
 - A card destined for a module's bottom output doesn't need to be the
   last module — any module can be targeted with `direction: "bottom"`.
 
