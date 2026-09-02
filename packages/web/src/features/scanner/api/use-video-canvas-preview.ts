@@ -5,14 +5,10 @@ import {
 import type { ScanRegion } from "@magic-vault/shared";
 import { useEffect, useRef } from "react";
 
-// Draws live video frames onto a canvas with the calibrated scan-region box
-// overlaid on top - same visual approach as the desktop scanner
-// (api/use-card-scanner.ts's stream-attach effect + detectionLoop), but
-// standalone: no capture, no identification, just "show where the scan
-// region is" so a camera (in this case a phone) can be aimed/positioned
-// correctly. Always drawn in the source's native orientation (no rotation) -
-// unlike the desktop's external, sideways-mounted webcam, a phone's own
-// camera already reports frames right-side up for however it's being held.
+// Standalone version of use-card-scanner.ts's stream-attach + overlay logic:
+// no capture or identification, just showing where the scan region is so a
+// camera can be aimed. Always drawn unrotated - unlike the desktop's
+// sideways-mounted webcam, a phone's own camera already reports right-side up.
 export function useVideoCanvasPreview(
   stream: MediaStream | null,
   scanRegion: ScanRegion,

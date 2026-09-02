@@ -29,28 +29,36 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # env_file passes every var in .env through as-is (DATABASE_URL,
+    # NEON_AUTH_URL, DISCORD_*, etc.) - required so AUTH_PROVIDER=neon mode
+    # gets NEON_AUTH_URL and its own Neon DATABASE_URL, neither of which the
+    # explicit overrides below know about. `environment:` entries win over
+    # env_file on key collisions, so they're still the place to enforce
+    # required-var checks and local-mode-only defaults.
+    env_file: .env
     environment:
-      AUTH_PROVIDER: local
-      DATABASE_URL: postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault
-      DATABASE_SSL: "false"
-      OWN_AUTH_TOKEN_PEPPER: ${OWN_AUTH_TOKEN_PEPPER:?Set OWN_AUTH_TOKEN_PEPPER in your .env - see .env.example}
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
       IMPERSONATION_SECRET: ${IMPERSONATION_SECRET:?Set IMPERSONATION_SECRET in your .env - see .env.example}
       WEB_URL: ${WEB_URL:-http://localhost:8080}
       PORT: 3001
-      # Optional - see .env.example for what these unlock. Left unset by
-      # default: ${VAR:-} passes through an empty string rather than failing
-      # the way ${VAR:?...} above does for the required secrets.
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
-    # Drizzle + own-auth migrations and the RLS bootstrap script (see
-    # scripts/migrate-local.ts) run once per container start, before the
-    # server itself starts - all three are idempotent, safe on every restart.
+    # AUTH_PROVIDER=local only: point DATABASE_URL/DATABASE_SSL at this
+    # compose stack's own Postgres (unless .env already overrides them) and
+    # run the local migrate script - own-auth migrations, auth_is_org_member(),
+    # Drizzle migrations, bootstrap-local.sql (see scripts/migrate-local.ts).
+    # AUTH_PROVIDER=neon skips all of that: DATABASE_URL/NEON_AUTH_URL come
+    # from .env via env_file above, and the Neon DB is assumed already
+    # migrated the normal way (`pnpm --filter @magic-vault/server db:migrate`
+    # from the host, per CONTRIBUTING.md).
     command:
-      [
-        "sh",
-        "-c",
-        "pnpm --filter @magic-vault/server db:migrate-local && node packages/server/dist/index.js",
-      ]
+      - sh
+      - -c
+      - |
+        if [ "$AUTH_PROVIDER" = "local" ]; then
+          export DATABASE_URL="${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
+          export DATABASE_SSL="${DATABASE_SSL:-false}"
+          pnpm --filter @magic-vault/server db:migrate-local
+        fi
+        node packages/server/dist/index.js
     ports:
       - "3001:3001"
     restart: unless-stopped
@@ -66,7 +74,13 @@ services:
         # the server container. Set VITE_API_URL to an absolute URL instead
         # only if serving the web and server on genuinely different origins.
         VITE_API_URL: ${VITE_API_URL:-}
-        VITE_AUTH_PROVIDER: local
+        VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-neon}
+        # Only meaningful (and only need to be set in .env) for
+        # VITE_AUTH_PROVIDER=neon - unused/empty is fine for local mode.
+        VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL:-}
+        VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
+        VITE_APP_ENV: ${VITE_APP_ENV:-}
+        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-}
     depends_on:
       - server
     ports:

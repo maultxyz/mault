@@ -3,7 +3,6 @@
 **/.turbo
 .git
 .github
-drizzle
 3d model
 firmware
 *.md

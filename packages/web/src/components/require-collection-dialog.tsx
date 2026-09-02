@@ -72,12 +72,8 @@ export function RequireCollectionDialog() {
     [createCollection, form],
   );
 
-  // Not dismissible when a collection could actually be created (the
-  // original intent: force onboarding through it) - but with zero active
-  // games, its own game picker is empty and submit is disabled, so it must
-  // stay dismissible or there's no way out (this dialog no longer covers
-  // /app/admin - see router.tsx - but a non-dismissible backdrop on /app
-  // still blocks clicking through the nav to get there).
+  // Dismissible only when there are no active games - otherwise its own game
+  // picker is empty and submit is disabled, leaving no way out.
   const dismissible = activeGames.length === 0;
   const [dismissed, setDismissed] = useState(false);
 
@@ -94,11 +90,9 @@ export function RequireCollectionDialog() {
     <DynamicDialog
       open={open}
       onOpenChange={(next) => {
-        // Desktop's underlying Dialog only uses `dismissible` to hide the
-        // close button - outside-click/Escape still fire onOpenChange(false)
-        // regardless, so this has to re-check dismissible itself to keep the
-        // non-dismissible case (games exist, real onboarding) actually
-        // non-dismissible rather than just missing its close button.
+        // The underlying Dialog only uses `dismissible` to hide the close
+        // button - outside-click/Escape still fire onOpenChange(false)
+        // regardless, so re-check it here to actually block dismissal.
         if (!next && dismissible) setDismissed(true);
       }}
       dismissible={dismissible}

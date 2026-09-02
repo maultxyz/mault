@@ -50,13 +50,9 @@ function DesktopOnlyGuard() {
   return <Outlet />;
 }
 
-// The "create your first collection" dialog is non-dismissible and only
-// makes sense on the scanning-related routes it wraps here - it must not
-// wrap /app/admin too, or a fresh instance with zero collections AND zero
-// games becomes an unrecoverable deadlock: no games means the dialog's own
-// game picker is empty (so it can't be submitted), but the Games Manager
-// needed to add one lives at /app/admin, which the dialog would otherwise
-// block just as much as every other /app/* route.
+// Must not wrap /app/admin: with zero games, the dialog's own game picker
+// is empty and unsubmittable, but /app/admin (Games Manager) is the only
+// way to add one - wrapping it would deadlock a fresh instance.
 function RequireCollectionGuard() {
   return (
     <>
@@ -87,11 +83,10 @@ export const router = createBrowserRouter([
         path: "/auth/:path",
         element: AUTH_PROVIDER === "local" ? <AuthLocalPage /> : <AuthPage />,
       },
-      // Local-mode only - no Neon equivalent exists (Neon's prebuilt
-      // <AuthView> already covers invites/password reset itself), so these
-      // routes simply don't exist in Neon mode. React Router ranks static
-      // path segments above dynamic ones regardless of array order, so
-      // these correctly take priority over /auth/:path above.
+      // Local-mode only - Neon's prebuilt <AuthView> already covers
+      // invites/password reset. React Router ranks static segments above
+      // dynamic ones regardless of array order, so these still take
+      // priority over /auth/:path above.
       ...(AUTH_PROVIDER === "local"
         ? [
             { path: "/auth/join", element: <AuthJoinPage /> },
