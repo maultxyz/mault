@@ -5,9 +5,10 @@ import type {
   PlayingCardWithDistance,
   ScannedCard,
 } from "@magic-vault/shared";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
+import { authProvider } from "../auth";
 import { authQuery, db, type Transaction } from "../db";
 import { collectionCards, collections, games, orgSettings } from "../db/schema";
 import {
@@ -171,11 +172,8 @@ router.get("/lock-events", async (c) => {
   if (!payload?.sub)
     return c.json({ success: false, message: "Unauthorized" }, 401);
 
-  const rows = await db.execute<{ role: string }>(
-    sql`SELECT role FROM neon_auth.member WHERE "organizationId" = ${orgId} AND "userId" = ${payload.sub} LIMIT 1`,
-  );
-  if (!rows.rows[0])
-    return c.json({ success: false, message: "Forbidden" }, 403);
+  const member = await authProvider.resolveOrgMembership(payload.sub, orgId);
+  if (!member) return c.json({ success: false, message: "Forbidden" }, 403);
 
   const jwtClaims = JSON.stringify({ sub: payload.sub, role: "authenticated" });
 
@@ -237,11 +235,8 @@ router.get("/live-events", async (c) => {
   if (!payload?.sub)
     return c.json({ success: false, message: "Unauthorized" }, 401);
 
-  const rows = await db.execute<{ role: string }>(
-    sql`SELECT role FROM neon_auth.member WHERE "organizationId" = ${orgId} AND "userId" = ${payload.sub} LIMIT 1`,
-  );
-  if (!rows.rows[0])
-    return c.json({ success: false, message: "Forbidden" }, 403);
+  const member = await authProvider.resolveOrgMembership(payload.sub, orgId);
+  if (!member) return c.json({ success: false, message: "Forbidden" }, 403);
 
   const jwtClaims = JSON.stringify({ sub: payload.sub, role: "authenticated" });
 
@@ -835,11 +830,8 @@ router.get("/:guid/stream", async (c) => {
   if (!payload?.sub)
     return c.json({ success: false, message: "Unauthorized" }, 401);
 
-  const rows = await db.execute<{ role: string }>(
-    sql`SELECT role FROM neon_auth.member WHERE "organizationId" = ${orgId} AND "userId" = ${payload.sub} LIMIT 1`,
-  );
-  if (!rows.rows[0])
-    return c.json({ success: false, message: "Forbidden" }, 403);
+  const member = await authProvider.resolveOrgMembership(payload.sub, orgId);
+  if (!member) return c.json({ success: false, message: "Forbidden" }, 403);
 
   const jwtClaims = JSON.stringify({ sub: payload.sub, role: "authenticated" });
 

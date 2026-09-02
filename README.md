@@ -59,7 +59,7 @@ pnpm dev        # Vite on :5173, Hono on :3001
 
 ### Setting up Neon
 
-The app needs a Postgres database with pgvector (for card-embedding search) and Neon Auth (for JWT-based login + row-level security). Both are provided by a [Neon](https://neon.com) project — this is required even if you're self-hosting the app itself (see [Deployment](#deployment)), since Neon isn't something this project runs for you. Neon's free tier is enough for a personal/single-org deployment.
+The app needs a Postgres database with pgvector (for card-embedding search) and an identity provider (for login + row-level security). By default that's a [Neon](https://neon.com) project (Neon Auth), described below. If you'd rather run entirely offline with no external account, see [Fully self-hosted](#fully-self-hosted-no-neon-account-works-offline) instead. Neon's free tier is enough for a personal/single-org deployment if you go that route.
 
 1. Create a Neon project at [console.neon.tech](https://console.neon.tech) (any recent Postgres version works; pgvector ships as a bundled extension).
 2. Open the SQL editor on your project's default branch/database and enable pgvector:
@@ -129,9 +129,34 @@ pnpm --filter @magic-vault/server db:studio    # open Drizzle Studio
 
 ## Deployment
 
-`Dockerfile.server` builds the Hono API (and pre-downloads the SigLIP model at build time). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` must be supplied as a build arg since it's baked into the client bundle. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans). Both directions share `BOT_API_SECRET`.
+`Dockerfile.server` builds the Hono API (and pre-downloads the SigLIP model at build time). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` (and, for self-hosted auth, `VITE_AUTH_PROVIDER`) must be supplied as build args since they're baked into the client bundle. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans). Both directions share `BOT_API_SECRET`.
 
-Self-hosting only replaces where the _app_ runs — the database and auth still need a [Neon project](#setting-up-neon) set up first, and its connection details passed to the server container as env vars (`DATABASE_URL`, `NEON_AUTH_URL`, `WEB_URL`) and to the web build as build args (`VITE_API_URL`, `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_APP_ENV`, `VITE_LATEST_FIRMWARE_VERSION`). A minimal setup:
+### Fully self-hosted (no Neon account, works offline)
+
+`docker-compose.yml` runs the whole stack — Postgres+pgvector, the API, and the web app — with `AUTH_PROVIDER=local`: [own-auth](https://own-auth.com) handles sign-up/sign-in against the same self-hosted Postgres, no external account or internet connection required at runtime.
+
+```bash
+cp .env.example .env
+# edit .env: set POSTGRES_PASSWORD, OWN_AUTH_TOKEN_PEPPER (32+ random bytes),
+# and IMPERSONATION_SECRET
+
+docker compose up -d
+```
+
+Open `http://localhost:8080` and sign up. The first account ever created on a fresh instance is automatically made platform admin (Games Manager, sync job, impersonation) and gets a default "Home" organisation — from there, add at least one game in the admin Games Manager (`/app/admin`) and run its sync before scanning, or collections/scanning have nothing to match against. The `server` container applies Drizzle migrations, own-auth's own migrations, and the RLS bootstrap (`packages/server/src/db/bootstrap-local.sql`, run via `pnpm db:migrate-local` — see that script for why plain Postgres needs a few things Neon normally provisions automatically) on every start; all three steps are idempotent.
+
+To grant a *second* admin, update their row in `platform_user_roles` directly — there's no UI for it yet:
+
+```sql
+INSERT INTO platform_user_roles (user_id, role) VALUES ('<their own_auth_users.id>', 'admin')
+ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
+```
+
+This mode currently covers sign-up/sign-in/sign-out, session, and organisation switching/creation only — email verification, multi-device session management, and org member/invite UI stay Neon-only for now (see `CLAUDE.md`'s Auth & RLS section).
+
+### Deploying with Neon
+
+For the Neon-backed deployment (`AUTH_PROVIDER=neon`, the default), the database and auth still need a [Neon project](#setting-up-neon) set up first, and its connection details passed to the server container as env vars (`DATABASE_URL`, `NEON_AUTH_URL`, `WEB_URL`) and to the web build as build args (`VITE_API_URL`, `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_APP_ENV`, `VITE_LATEST_FIRMWARE_VERSION`). A minimal setup:
 
 ```bash
 docker build -f Dockerfile.server -t magic-vault-server .

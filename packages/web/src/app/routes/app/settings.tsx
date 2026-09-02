@@ -2,9 +2,12 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
+import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
+import { LocalOrgInvites } from "@/features/companies/components/local-org-invites";
 import { OrgSettings } from "@/features/companies/components/org-settings";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useTranslation } from "react-i18next";
 
 export default function SettingsPage() {
@@ -18,12 +21,30 @@ export default function SettingsPage() {
           <h1 className="text-lg font-semibold font-heading">{t("title")}</h1>
           <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <h2 className="text-sm font-semibold font-heading">
-            {t("organizations.heading")}
-          </h2>
-          <OrgSettings />
-        </div>
+        {AUTH_PROVIDER !== "local" && (
+          <div className="rounded-lg border p-4 flex flex-col gap-4">
+            <h2 className="text-sm font-semibold font-heading">
+              {t("organizations.heading")}
+            </h2>
+            <OrgSettings />
+          </div>
+        )}
+        {AUTH_PROVIDER === "local" && (
+          <div className="rounded-lg border p-4 flex flex-col gap-4">
+            <h2 className="text-sm font-semibold font-heading">
+              {t("invites.heading")}
+            </h2>
+            <LocalOrgInvites />
+          </div>
+        )}
+        {AUTH_PROVIDER === "local" && (
+          <div className="rounded-lg border p-4 flex flex-col gap-4">
+            <h2 className="text-sm font-semibold font-heading">
+              {t("auditLog.heading")}
+            </h2>
+            <LocalAuditLog />
+          </div>
+        )}
         <div className="rounded-lg border p-4 flex flex-col gap-4">
           <div>
             <h2 className="text-sm font-semibold font-heading">

@@ -4,6 +4,12 @@
   "organizations": {
     "heading": "Organizations"
   },
+  "invites": {
+    "heading": "Invites"
+  },
+  "auditLog": {
+    "heading": "Activity log"
+  },
   "appearance": {
     "heading": "Appearance",
     "description": "Customize the app's accent color.",

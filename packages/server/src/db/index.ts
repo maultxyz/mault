@@ -3,9 +3,9 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
 
-const pool = new Pool({
+export const pool = new Pool({
   connectionString: process.env.DATABASE_URL!,
-  ssl: true,
+  ssl: process.env.DATABASE_SSL !== "false",
   max: 10,
   idleTimeoutMillis: 10_000,
   connectionTimeoutMillis: 10_000,
@@ -22,6 +22,12 @@ export async function authQuery<T>(
     await tx.execute(
       sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`,
     );
+    // Neon's connection-level JWT-to-role mechanism (pg_session_jwt) maps the
+    // claim above to the `authenticated` role automatically. A plain Postgres
+    // instance has no such extension, so local mode must switch role itself.
+    if (process.env.AUTH_PROVIDER === "local") {
+      await tx.execute(sql`SET LOCAL ROLE authenticated`);
+    }
     return callback(tx);
   });
 }

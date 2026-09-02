@@ -6,6 +6,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
+// Neon-only - local mode has no email verification step. Never mounted in
+// local mode (see app/routes/app/layout.tsx) rather than gated internally:
+// neon.auth.useSession() below is a real network call, and a hook can't be
+// skipped by an early return placed after it (rules of hooks) - it has to
+// not render at all.
 export function EmailVerificationBanner() {
   const { t } = useTranslation("common");
   const { data, isPending } = neon.auth.useSession();
