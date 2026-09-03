@@ -23,6 +23,17 @@ interface Step {
   text: ReactNode;
   note?: ReactNode;
   images?: string[];
+  optional?: true | "classic-hopper" | "new-hopper";
+}
+
+function optionalBadgeLabel(
+  t: TFunction<"build">,
+  optional: Step["optional"],
+): string {
+  if (optional === "classic-hopper")
+    return t("assembly.optionalClassicHopperBadge");
+  if (optional === "new-hopper") return t("assembly.optionalNewHopperBadge");
+  return t("assembly.optionalBadge");
 }
 
 interface Phase {
@@ -128,11 +139,7 @@ function buildPhases(
         {
           key: "dry-fit",
           text: t("assembly.phases.print.steps.dryFit.text"),
-          images: [
-            "/instructions/top_down_view_device.jpg",
-            "/instructions/corner_view_device.jpg",
-            "/instructions/front_view_device.jpg",
-          ],
+          images: ["/instructions/v5.jpg"],
         },
         {
           key: "mount-boards-to-panels",
@@ -246,12 +253,8 @@ function buildPhases(
         },
         {
           key: "fit-feeder-orings",
-          text: t(
-            "assembly.phases.assembleModules.steps.fitFeederOrings.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.fitFeederOrings.note",
-          ),
+          text: t("assembly.phases.assembleModules.steps.fitFeederOrings.text"),
+          note: t("assembly.phases.assembleModules.steps.fitFeederOrings.note"),
           images: ["/instructions/roller_o_rings_mounted.jpg"],
         },
         {
@@ -273,24 +276,48 @@ function buildPhases(
         },
         {
           key: "mount-feeder-wall",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountFeederWall.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.mountFeederWall.note",
-          ),
+          text: t("assembly.phases.assembleModules.steps.mountFeederWall.text"),
+          note: t("assembly.phases.assembleModules.steps.mountFeederWall.note"),
           images: [
             "/instructions/rube_disassembled.jpg",
             "/instructions/tube_assembled.jpg",
             "/instructions/feeder_tube_wall.jpg",
           ],
+          optional: "classic-hopper",
+        },
+        {
+          key: "fit-hopper-roller-orings",
+          text: t(
+            "assembly.phases.assembleModules.steps.fitHopperRollerOrings.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.fitHopperRollerOrings.note",
+          ),
+          optional: "new-hopper",
+        },
+        {
+          key: "mount-hopper-roller",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountHopperRoller.text",
+          ),
+          images: ["/instructions/new_hopper.JPG"],
+          optional: "new-hopper",
+        },
+        {
+          key: "calibrate-hopper-roller",
+          text: t(
+            "assembly.phases.assembleModules.steps.calibrateHopperRoller.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.calibrateHopperRoller.note",
+          ),
+          optional: "new-hopper",
         },
         {
           key: "mount-module-ir",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountModuleIr.text",
-            { modules: moduleCount },
-          ),
+          text: t("assembly.phases.assembleModules.steps.mountModuleIr.text", {
+            modules: moduleCount,
+          }),
           images: ["/instructions/sorter_ir_sensor_mounted.jpg"],
         },
         {
@@ -340,10 +367,9 @@ function buildPhases(
         },
         {
           key: "connect-serial",
-          text: t(
-            "assembly.phases.wireAndCalibrate.steps.connectSerial.text",
-            { board: board.shortName },
-          ),
+          text: t("assembly.phases.wireAndCalibrate.steps.connectSerial.text", {
+            board: board.shortName,
+          }),
         },
         {
           key: "calibrate-modules",
@@ -558,6 +584,11 @@ export function BuildAssembly() {
                           )}
                         >
                           {step.text}
+                          {step.optional && (
+                            <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-medium text-muted-foreground uppercase no-underline">
+                              {optionalBadgeLabel(t, step.optional)}
+                            </span>
+                          )}
                         </p>
                         {step.note && (
                           <p className="mt-1 text-[11px]/relaxed text-muted-foreground">

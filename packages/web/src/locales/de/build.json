@@ -37,6 +37,10 @@
     "heading": "Stückliste",
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
+    "hopperNote": "Es gibt zwei Trichter-Varianten: den klassischen Trichter und ein neueres Design, das sich leichter an unterschiedliche Kartenstärken anpasst. Die unten mit Optional, klassischer Trichter bzw. Optional, neuer Trichter markierten Teile gehören zu der Variante, die du nicht baust – du brauchst nur einen Satz.",
+    "optionalBadge": "Optional",
+    "optionalClassicHopperBadge": "Optional, klassischer Trichter",
+    "optionalNewHopperBadge": "Optional, neuer Trichter",
     "moduleCount": {
       "label": "Module",
       "decreaseAria": "Modulanzahl verringern",
@@ -130,6 +134,10 @@
             "part": "20mm ID 26mm OD 3mm Width O-Ring",
             "notes": "Auf die Zuführrolle aufgezogen für Griffigkeit auf der Kartenoberfläche"
           },
+          "hopperORing": {
+            "part": "O-Ring 9,2mm ID 14mm OD 2,4mm Schnurstärke",
+            "notes": "Neuer Trichter – passt sich leichter an unterschiedliche Kartenstärken an als der klassische Trichter"
+          },
           "binHolders": {
             "part": "3D-gedruckter Fachhalter",
             "notes": "2 pro Modul ({{count}} Module) - einer links, einer rechts - fängt die vom Pusher ausgeworfenen Karten auf"
@@ -153,16 +161,24 @@
           },
           "m3Washer": {
             "part": "M3-Unterlegscheibe",
-            "notes": "Wird zusammen mit den M3×10-Schrauben an der höhenverstellbaren Trichterwand verwendet"
+            "notes": "Wird zusammen mit den M3×10-Schrauben an der höhenverstellbaren Wand des klassischen Trichters verwendet, oder mit den Befestigungen des neuen Trichters - in beiden Fällen benötigt"
           },
-          "m2x4Screw": {
-            "part": "M2×4-Schraube",
-            "partSpec": "(20 für 2 Module, +6 pro weiteres Modul, +7 für die Platinenbefestigung)",
-            "notes": "20 für 2 Module, +6 pro zusätzliches Modul ({{count}} Module): Klappen (Boden/Seiten), Schieberarme und IR-Sensorhalterungen; +7 zur Befestigung des {{board}} und der PCA9685-Servotreiberplatine an den Bodenplatten"
+          "m3x8Screw": {
+            "part": "M3×8-Schraube",
+            "notes": "Neuer Trichter"
+          },
+          "m3x25Screw": {
+            "part": "M3×25-Schraube",
+            "notes": "Neuer Trichter"
+          },
+          "hopperSpring": {
+            "part": "Feder 7/32\" x 11/16\"",
+            "notes": "Neuer Trichter – spannt die verstellbare Wand gegen den Kartenstapel"
           },
           "m2x6Screw": {
             "part": "M2×6-Schraube",
-            "notes": "1 zur Befestigung jedes IR-Sensors ({{count}} insgesamt)"
+            "partSpec": "(20 für 2 Module, +6 pro weiteres Modul, +7 für die Platinenbefestigung, +1 pro IR-Sensor)",
+            "notes": "20 für 2 Module, +6 pro zusätzliches Modul ({{count}} Module): Klappen (Boden/Seiten) und Schieberarme; +7 zur Befestigung des {{board}} und der PCA9685-Servotreiberplatine an den Bodenplatten; +1 pro IR-Sensor ({{irCount}} insgesamt)"
           },
           "servoHornScrew": {
             "part": "Servohorn-Schraube (im Lieferumfang der Servos enthalten)",
@@ -173,15 +189,15 @@
             "notes": "IR-Sensoren/Servos. Damit musst du eventuell einige in Reihe verbinden – umwickle sie einfach mit Isolierband, damit sie sich nicht lösen."
           },
           "wagoConnectors": {
-            "part": "Wago-Verbinder (optional)",
+            "part": "Wago-Verbinder",
             "notes": "Verteilt Strom und Masse an jeden IR-Sensor, ohne Kabel verdrillen oder löten zu müssen"
           },
           "dupontConnectors": {
-            "part": "Dupont-Steckverbinder (optional)",
+            "part": "Dupont-Steckverbinder",
             "notes": "Diese werden nur benötigt, wenn du eigene Kabel in individueller Länge herstellst."
           },
           "dupontCrimper": {
-            "part": "Dupont-Crimpzange (optional)",
+            "part": "Dupont-Crimpzange",
             "notes": "Diese werden nur benötigt, wenn du eigene Kabel in individueller Länge herstellst."
           }
         }
@@ -261,6 +277,9 @@
     "helpText": "Bei einem Schritt nicht weiter? <a>Tritt dem Discord bei</a>, wenn du Hilfe brauchst.",
     "hasVideoAria": "Enthält ein Video zur Anleitung",
     "videoTitle": "Montagevideo",
+    "optionalBadge": "Optional",
+    "optionalClassicHopperBadge": "Optional, klassischer Trichter",
+    "optionalNewHopperBadge": "Optional, neuer Trichter",
     "progress": {
       "stepsCount": "{{done}} von {{total}} Schritten"
     },
@@ -274,19 +293,22 @@
             "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {
-            "text": "Drucke 1 Feeder-Module-Platte aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
+            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
           },
           "printSortingModuleShroud": {
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Base-Plate(s)-Platten aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe ein Stützteil mehr benötigt als die Stufe darüber. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{count}} Base-Support-Teile aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe ein Stützteil mehr benötigt als die Stufe darüber. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
           },
           "printPlateBaseBottom": {
-            "text": "Drucke 1 Base-Bottom-Platte."
+            "text": "Drucke 1 Controller-Platte."
+          },
+          "printEndBottom": {
+            "text": "Drucke 1 End-Platte."
           },
           "printGenericBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Base-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
           },
           "printBinHolders": {
             "text": "Für {{modules}} Sortiermodule drucke {{count}} Fachhalter – zwei pro Modul, einer für die linke und einer für die rechte Auswurfseite. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
@@ -295,7 +317,7 @@
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
           },
           "mountBoardsToPanels": {
-            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×4-Schrauben an den Bodenplatten."
+            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×6-Schrauben an den Bodenplatten."
           },
           "attachBasePanels": {
             "text": "Befestige die Bodenplatten mit 8 M3×6-Schrauben und 8 M3-Muttern an der Basis.",
@@ -366,6 +388,17 @@
           "mountFeederWall": {
             "text": "Befestige das Wandstück mit den 2 M3×10-Schrauben und M3-Unterlegscheiben am Trichter - er führt Karten vom Trichter zur Zuführrolle.",
             "note": "Befestige beim Montieren der Wand diese zuerst am Zuführmodul, lege dann 2 Karten unter die Wand und schiebe sie nach unten, bevor du sie festziehst."
+          },
+          "fitHopperRollerOrings": {
+            "text": "Ziehe O-Ringe auf die Trichterrolle auf.",
+            "note": "Wie bei der Zuführrolle geben diese ihr Griffigkeit auf der Kartenoberfläche."
+          },
+          "mountHopperRoller": {
+            "text": "Montiere die Trichterrolle mit 2 M3×8-Schrauben und 2 M3-Unterlegscheiben am Trichter."
+          },
+          "calibrateHopperRoller": {
+            "text": "Setze die Feder und die M3×25-Schraube ein und nutze die Schraube, um die Wand so einzustellen, dass jeweils nur 1 Karte durchpasst.",
+            "note": "Ziehe die Rolle an, bis sie nicht mehr frei durchdreht, sich aber noch von Hand drehen lässt."
           },
           "mountModuleIr": {
             "text": "Befestige an jedem Modul (1-{{modules}}) einen IR-Sensor am Tor mit je 1 M2×6-Schraube, ausgerichtet quer zum Kartenweg."

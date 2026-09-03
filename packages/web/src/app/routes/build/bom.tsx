@@ -29,6 +29,13 @@ interface Row {
   part: (t: BuildT, boardType: BoardType) => ReactNode;
   notes: (t: BuildT, moduleCount: number, boardType: BoardType) => ReactNode;
   buyUrl?: string | ((boardType: BoardType) => string | undefined);
+  optional?: true | "classic-hopper" | "new-hopper";
+}
+
+function optionalBadgeLabel(t: BuildT, optional: Row["optional"]): string {
+  if (optional === "classic-hopper") return t("bom.optionalClassicHopperBadge");
+  if (optional === "new-hopper") return t("bom.optionalNewHopperBadge");
+  return t("bom.optionalBadge");
 }
 
 interface Group {
@@ -218,7 +225,16 @@ const GROUPS: Group[] = [
         name: "20mm ID 26mm OD 3mm Width O-Ring",
         part: (t) => t("bom.groups.structural.items.oRing.part"),
         notes: (t) => t("bom.groups.structural.items.oRing.notes"),
-        buyUrl: "https://amzn.to/4wQReqm",
+        buyUrl: "https://amzn.to/3Spt0pl",
+      },
+      {
+        key: "hopper-o-ring",
+        qty: () => "4",
+        name: "9.2mm ID 14mm OD 2.4mm Section O-Ring",
+        part: (t) => t("bom.groups.structural.items.hopperORing.part"),
+        notes: (t) => t("bom.groups.structural.items.hopperORing.notes"),
+        optional: "new-hopper",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "bin-holders",
@@ -239,7 +255,7 @@ const GROUPS: Group[] = [
         name: "M3x6 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x6Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x6Screw.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "m3-nut",
@@ -247,7 +263,7 @@ const GROUPS: Group[] = [
         name: "M3 nut",
         part: (t) => t("bom.groups.fasteners.items.m3Nut.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3Nut.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "m3x10-screw",
@@ -255,7 +271,8 @@ const GROUPS: Group[] = [
         name: "M3x10 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x10Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x10Screw.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
+        optional: "classic-hopper",
       },
       {
         key: "m3-washer",
@@ -263,34 +280,53 @@ const GROUPS: Group[] = [
         name: "M3 washer",
         part: (t) => t("bom.groups.fasteners.items.m3Washer.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3Washer.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
-        key: "m2x4-screw",
-        qty: (n) => String(20 + (n - 2) * 6 + 7),
-        name: "M2x4 screw",
+        key: "m3x8-screw",
+        qty: () => "2",
+        name: "M3x8 screw",
+        part: (t) => t("bom.groups.fasteners.items.m3x8Screw.part"),
+        notes: (t) => t("bom.groups.fasteners.items.m3x8Screw.notes"),
+        buyUrl: "https://amzn.to/3TbcucH",
+        optional: "new-hopper",
+      },
+      {
+        key: "m3x25-screw",
+        qty: () => "1",
+        name: "M3x25 screw",
+        part: (t) => t("bom.groups.fasteners.items.m3x25Screw.part"),
+        notes: (t) => t("bom.groups.fasteners.items.m3x25Screw.notes"),
+        optional: "new-hopper",
+        buyUrl: "https://amzn.to/3TbcucH",
+      },
+      {
+        key: "hopper-spring",
+        qty: () => "1",
+        name: '7/32" x 11/16" spring',
+        part: (t) => t("bom.groups.fasteners.items.hopperSpring.part"),
+        notes: (t) => t("bom.groups.fasteners.items.hopperSpring.notes"),
+        optional: "new-hopper",
+        buyUrl: "https://amzn.to/4r1tbUv",
+      },
+      {
+        key: "m2x6-screw",
+        qty: (n) => String(20 + (n - 2) * 6 + 7 + (n + 1)),
+        name: "M2x6 screw",
         part: (t) => (
           <>
-            {t("bom.groups.fasteners.items.m2x4Screw.part")}{" "}
+            {t("bom.groups.fasteners.items.m2x6Screw.part")}{" "}
             <span className="text-muted-foreground">
-              {t("bom.groups.fasteners.items.m2x4Screw.partSpec")}
+              {t("bom.groups.fasteners.items.m2x6Screw.partSpec")}
             </span>
           </>
         ),
         notes: (t, n, boardType) =>
-          t("bom.groups.fasteners.items.m2x4Screw.notes", {
+          t("bom.groups.fasteners.items.m2x6Screw.notes", {
             count: n,
+            irCount: n + 1,
             board: BOARD_INFO[boardType].shortName,
           }),
-        buyUrl: "https://amzn.to/3UmCJx8",
-      },
-      {
-        key: "m2x6-screw",
-        qty: (n) => String(n + 1),
-        name: "M2x6 screw",
-        part: (t) => t("bom.groups.fasteners.items.m2x6Screw.part"),
-        notes: (t, n) =>
-          t("bom.groups.fasteners.items.m2x6Screw.notes", { count: n + 1 }),
         buyUrl: "https://amzn.to/3UmCJx8",
       },
       {
@@ -315,6 +351,7 @@ const GROUPS: Group[] = [
         part: (t) => t("bom.groups.fasteners.items.wagoConnectors.part"),
         notes: (t) => t("bom.groups.fasteners.items.wagoConnectors.notes"),
         buyUrl: "https://amzn.to/3UJSq1u",
+        optional: true,
       },
       {
         key: "dupont-connectors",
@@ -323,6 +360,7 @@ const GROUPS: Group[] = [
         part: (t) => t("bom.groups.fasteners.items.dupontConnectors.part"),
         notes: (t) => t("bom.groups.fasteners.items.dupontConnectors.notes"),
         buyUrl: "https://amzn.to/4xZY124",
+        optional: true,
       },
       {
         key: "dupont-crimper",
@@ -331,6 +369,7 @@ const GROUPS: Group[] = [
         part: (t) => t("bom.groups.fasteners.items.dupontCrimper.part"),
         notes: (t) => t("bom.groups.fasteners.items.dupontCrimper.notes"),
         buyUrl: "https://amzn.to/4zWaIwO",
+        optional: true,
       },
     ],
   },
@@ -348,7 +387,7 @@ const GROUPS: Group[] = [
       {
         key: "camera-mount-screw",
         qty: () => "1",
-        name: "1/4\"-20 camera mount screw",
+        name: '1/4"-20 camera mount screw',
         part: (t) => t("bom.groups.optional.items.cameraMountScrew.part"),
         notes: (t) => t("bom.groups.optional.items.cameraMountScrew.notes"),
         buyUrl: "https://amzn.to/4gKMoVS",
@@ -454,6 +493,11 @@ function GroupTable({
                     )}
                   >
                     {row.part(t, boardType)}
+                    {row.optional && (
+                      <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-medium text-muted-foreground uppercase no-underline">
+                        {optionalBadgeLabel(t, row.optional)}
+                      </span>
+                    )}
                   </td>
                   <td className="px-3 py-2.5 text-muted-foreground">
                     {row.notes(t, moduleCount, boardType)}
@@ -513,6 +557,10 @@ export function BuildBom() {
       <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs/relaxed text-amber-900 dark:bg-amber-500/10 dark:text-amber-300">
         <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
         <span>{t("bom.affiliateDisclaimer")}</span>
+      </div>
+      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2.5 text-xs/relaxed text-blue-900 dark:bg-blue-500/10 dark:text-blue-300">
+        <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
+        <span>{t("bom.hopperNote")}</span>
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
