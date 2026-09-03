@@ -522,7 +522,10 @@ export function useCardScanner({
     updateStatus("searching");
 
     if (cameraSource === "phone") {
-      capturePhonePhotoThenSearch(true);
+      settleTimeoutRef.current = setTimeout(() => {
+        settleTimeoutRef.current = null;
+        capturePhonePhotoThenSearch(true);
+      }, captureSettleDelayMsRef.current);
       return;
     }
 
