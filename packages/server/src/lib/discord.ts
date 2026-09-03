@@ -225,10 +225,11 @@ async function getNotifyConfig(
 async function postEmbedToBot(
   channelId: string,
   threadId: string | null,
-  threadName: string,
+  threadName: string | null,
   embed: DiscordEmbed,
   attachmentDataUrl?: string,
   secondaryImageUrl?: string,
+  useThread = true,
 ): Promise<string | null> {
   const botUrl = process.env.BOT_URL;
   const botSecret = process.env.BOT_API_SECRET;
@@ -245,6 +246,7 @@ async function postEmbedToBot(
         channelId,
         threadId,
         threadName,
+        useThread,
         embed,
         attachmentDataUrl,
         secondaryImageUrl,
@@ -296,19 +298,19 @@ export async function sendDiscordNotification(
   }
 }
 
-let donationThreadId: string | null = null;
-
 export async function sendDonationDiscordNotification(
   embed: DiscordEmbed,
 ): Promise<void> {
   const channelId = process.env.DISCORD_DONATION_CHANNEL_ID;
   if (!channelId) return;
 
-  const newThreadId = await postEmbedToBot(
+  await postEmbedToBot(
     channelId,
-    donationThreadId,
-    "Donations",
+    null,
+    null,
     embed,
+    undefined,
+    undefined,
+    false,
   );
-  if (newThreadId) donationThreadId = newThreadId;
 }
