@@ -3,13 +3,10 @@ import { createSessionEventSource } from "@/lib/api/session";
 import type { PhoneCameraMessage } from "@magic-vault/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Thin transport shared by the desktop capture hook and the phone
-// responder: relays presence/capture messages over the collection's
-// existing session SSE stream (see server routes/collections.ts's
-// /:guid/phone-camera-signal + /:guid/stream). No sender/role filtering
-// needed - each side only ever sends message kinds the other side doesn't,
-// so a listener naturally ignores its own broadcasts echoed back to it by
-// just not having a case for them.
+// Thin transport shared by the desktop capture hook and the phone responder:
+// relays presence/capture messages over the collection's existing session
+// SSE stream. No sender/role filtering needed - each side only sends message
+// kinds the other side doesn't, so echoed broadcasts are naturally ignored.
 export function useCameraSignalChannel(
   collectionGuid: string | undefined,
   onMessage: (message: PhoneCameraMessage) => void,

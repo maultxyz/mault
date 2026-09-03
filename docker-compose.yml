@@ -1,9 +1,64 @@
 services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: mault
+      POSTGRES_USER: mault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - mault-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mault -d mault"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # Bound to localhost only, not 0.0.0.0 - lets a DB client on this
+    # machine (DataGrip, psql, etc.) connect for inspection/admin, without
+    # exposing Postgres to the rest of the LAN. Unlike the app's own
+    # connection, a client connecting here authenticates as the full-
+    # privilege `mault` role and bypasses RLS entirely (see db/schema.ts's
+    # crudPolicy setup) - that's expected for an admin/GUI connection, but
+    # is exactly why this shouldn't be reachable from anywhere but here.
+    ports:
+      - "127.0.0.1:5432:5432"
+
   server:
     build:
       context: .
       dockerfile: Dockerfile.server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # env_file passes every var in .env through as-is (DATABASE_URL,
+    # NEON_AUTH_URL, DISCORD_*, etc.) - required so AUTH_PROVIDER=neon mode
+    # gets NEON_AUTH_URL and its own Neon DATABASE_URL, neither of which the
+    # explicit overrides below know about. `environment:` entries win over
+    # env_file on key collisions, so they're still the place to enforce
+    # required-var checks and local-mode-only defaults.
     env_file: .env
+    environment:
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
+      IMPERSONATION_SECRET: ${IMPERSONATION_SECRET:?Set IMPERSONATION_SECRET in your .env - see .env.example}
+      WEB_URL: ${WEB_URL:-http://localhost:8080}
+      PORT: 3001
+    # AUTH_PROVIDER=local only: point DATABASE_URL/DATABASE_SSL at this
+    # compose stack's own Postgres (unless .env already overrides them) and
+    # run the local migrate script - own-auth migrations, auth_is_org_member(),
+    # Drizzle migrations, bootstrap-local.sql (see scripts/migrate-local.ts).
+    # AUTH_PROVIDER=neon skips all of that: DATABASE_URL/NEON_AUTH_URL come
+    # from .env via env_file above, and the Neon DB is assumed already
+    # migrated the normal way (`pnpm --filter @magic-vault/server db:migrate`
+    # from the host, per CONTRIBUTING.md).
+    command:
+      - sh
+      - -c
+      - |
+        if [ "$AUTH_PROVIDER" = "local" ]; then
+          export DATABASE_URL="${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
+          export DATABASE_SSL="${DATABASE_SSL:-false}"
+          pnpm --filter @magic-vault/server db:migrate-local
+        fi
+        node packages/server/dist/index.js
     ports:
       - "3001:3001"
     restart: unless-stopped
@@ -13,16 +68,23 @@ services:
       context: .
       dockerfile: Dockerfile.web
       args:
-        VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL}
-        VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL}
-        VITE_APP_ENV: ${VITE_APP_ENV}
-        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION}
-    environment:
-      API_URL: http://server:3001
-    ports:
-      - "8080:80"
+        # Empty - every frontend API call already hardcodes an /api/... path
+        # (see lib/api/client.ts's callers), so this resolves relative to the
+        # page's own origin and nginx.conf's /api/ location proxies it to
+        # the server container. Set VITE_API_URL to an absolute URL instead
+        # only if serving the web and server on genuinely different origins.
+        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-neon}
+        # Only meaningful (and only need to be set in .env) for
+        # VITE_AUTH_PROVIDER=neon - unused/empty is fine for local mode.
+        VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL:-}
+        VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
+        VITE_APP_ENV: ${VITE_APP_ENV:-}
+        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-}
     depends_on:
       - server
+    ports:
+      - "8080:80"
     restart: unless-stopped
 
   bot:
@@ -37,3 +99,6 @@ services:
     restart: unless-stopped
     profiles:
       - bot
+
+volumes:
+  mault-postgres:

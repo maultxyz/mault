@@ -13,12 +13,15 @@ RUN pnpm install --frozen-lockfile
 COPY packages/shared/ packages/shared/
 COPY packages/web/ packages/web/
 
+# Vite env vars must be set at build time (baked into the JS bundle)
 ARG VITE_API_URL
+ARG VITE_AUTH_PROVIDER
 ARG VITE_NEON_AUTH_URL
 ARG VITE_NEON_DATA_API_URL
 ARG VITE_APP_ENV
 ARG VITE_LATEST_FIRMWARE_VERSION
 ENV VITE_API_URL=$VITE_API_URL \
+    VITE_AUTH_PROVIDER=$VITE_AUTH_PROVIDER \
     VITE_NEON_AUTH_URL=$VITE_NEON_AUTH_URL \
     VITE_NEON_DATA_API_URL=$VITE_NEON_DATA_API_URL \
     VITE_APP_ENV=$VITE_APP_ENV \
@@ -28,6 +31,5 @@ RUN pnpm --filter @magic-vault/web build
 
 FROM nginx:alpine
 COPY --from=builder /app/packages/web/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/templates/default.conf.template
-ENV API_URL=http://localhost:3001
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80

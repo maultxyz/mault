@@ -31,8 +31,8 @@ https://makerworld.com/en/models/3066180-tcg-card-sorting-machine#profileId-3451
 ## Stack
 
 - **Web**: React 19, Vite, React Router v7, Tailwind CSS 4, TanStack Query
-- **Server**: Hono 4, Drizzle ORM, Neon PostgreSQL (pgvector)
-- **Auth**: Neon Auth (JWT), backed by Better Auth on the client
+- **Server**: Hono 4, Drizzle ORM, PostgreSQL (pgvector) — either Neon-hosted or self-hosted
+- **Auth**: two interchangeable providers, picked with `AUTH_PROVIDER` — [Neon Auth](https://neon.com) (JWT, hosted) or [own-auth](https://own-auth.com) (self-hosted, bearer tokens against your own Postgres); see [Choosing a provider](#choosing-a-provider)
 - **Hardware**: Arduino Uno R4 or ESP32 via Web Serial API (9600 baud), PCA9685 servo driver
 - **Monorepo**: Turborepo + pnpm workspaces
 
@@ -52,14 +52,22 @@ scripts/      Release/version-bump helpers
 
 ## Getting started
 
+### Choosing a provider
+
+The app needs a Postgres database with pgvector (for card-embedding search) and an identity provider (for login + row-level security), selected by `AUTH_PROVIDER`/`VITE_AUTH_PROVIDER`:
+
+- **`neon`** (default) — a hosted [Neon](https://neon.com) project. A few minutes of console setup, then `pnpm dev`. Neon's free tier is enough for a personal/single-org deployment.
+- **`local`** — fully self-hosted, no external account, works offline. `docker-compose.yml` runs the whole stack (Postgres+pgvector, API, web app) with [own-auth](https://own-auth.com) handling sign-up/sign-in against that same self-hosted Postgres.
+
+Both providers read from the same root `.env` (Vite is configured to read up from `packages/web`, so there's no separate `packages/web/.env`):
+
 ```bash
-pnpm install
-pnpm dev        # Vite on :5173, Hono on :3001
+cp .env.example .env
 ```
 
-### Setting up Neon
+`.env.example` documents every variable each provider needs; set `AUTH_PROVIDER`/`VITE_AUTH_PROVIDER` to match the option you pick below.
 
-The app needs a Postgres database with pgvector (for card-embedding search) and Neon Auth (for JWT-based login + row-level security). Both are provided by a [Neon](https://neon.com) project — this is required even if you're self-hosting the app itself (see [Deployment](#deployment)), since Neon isn't something this project runs for you. Neon's free tier is enough for a personal/single-org deployment.
+### Option A: Neon
 
 1. Create a Neon project at [console.neon.tech](https://console.neon.tech) (any recent Postgres version works; pgvector ships as a bundled extension).
 2. Open the SQL editor on your project's default branch/database and enable pgvector:
@@ -73,57 +81,34 @@ The app needs a Postgres database with pgvector (for card-embedding search) and 
    - `VITE_NEON_AUTH_URL` — same Auth base URL, used client-side by the Better Auth React client
    - `VITE_NEON_DATA_API_URL` — the project's Data API URL, also from the Auth page
 6. Run `pnpm --filter @magic-vault/server db:push` (or `db:generate` + `db:migrate`, see [Database](#database)) to create the schema and RLS policies against your new database.
+7. Install and run:
+   ```bash
+   pnpm install
+   pnpm dev        # Vite on :5173, Hono on :3001
+   ```
 
-### Environment variables
+### Option B: Self-hosted (no Neon account, works offline)
 
-Everything lives in a single root `.env` (Vite is configured to read up from `packages/web`, so there's no separate `packages/web/.env`). Copy `.env.example` to `.env` and fill it in:
+1. In `.env`, set `AUTH_PROVIDER=local` and `VITE_AUTH_PROVIDER=local`, plus:
+   - `POSTGRES_PASSWORD` — the local Postgres container's password
+   - `OWN_AUTH_TOKEN_PEPPER` — 32+ random bytes; own-auth uses it to hash sessions/tokens/API keys
+   - `IMPERSONATION_SECRET` — any random string
+2. Start the stack:
+   ```bash
+   docker compose up -d
+   ```
+3. Open `http://localhost:8080` and sign up. The first account ever created on a fresh instance is automatically made platform admin (Games Manager, sync job, impersonation) and gets a default "Home" organisation — from there, add at least one game in the admin Games Manager (`/app/admin`) and run its sync before scanning, or collections/scanning have nothing to match against.
 
-```bash
-cp .env.example .env
+The `server` container applies Drizzle migrations, own-auth's own migrations, and the RLS bootstrap (`packages/server/src/db/bootstrap-local.sql`, run via `pnpm db:migrate-local` — see that script for why plain Postgres needs a few things Neon normally provisions automatically) on every start; all three steps are idempotent.
+
+To grant a _second_ admin, update their row in `platform_user_roles` directly — there's no UI for it yet:
+
+```sql
+INSERT INTO platform_user_roles (user_id, role) VALUES ('<their own_auth_users.id>', 'admin')
+ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
 
-```
-WEB_URL=http://localhost:5173
-PORT=3001
-
-# Get from neon.com
-DATABASE_URL=
-NEON_AUTH_URL=
-VITE_NEON_DATA_API_URL=
-VITE_NEON_AUTH_URL=
-
-# Generate yourself (any random string) - signs the server's short-lived
-# admin impersonation tokens
-IMPERSONATION_SECRET=
-
-# Optional - tuning for the admin card-image-vector sync job
-VECTORIZE_CONCURRENCY=1
-SYNC_INSERT_BATCH_SIZE=50
-SCAN_VECTORIZE_CONCURRENCY=2
-
-# Discord bot (packages/bot) - optional, only needed if you're running it.
-# Bot token/client id come from the Discord Developer Portal; BOT_API_SECRET
-# is any random string shared between the server and bot processes.
-DISCORD_BOT_TOKEN=
-DISCORD_CLIENT_ID=
-BOT_API_SECRET=
-SERVER_URL=http://localhost:3001
-DISCORD_DEV_GUILD_ID=
-BOT_PORT=3002
-BOT_URL=http://localhost:3002
-
-# Buy Me a Coffee donation webhook - optional. Set the webhook URL in the BMC
-# dashboard to <server>/public/webhooks/buymeacoffee and use its signing
-# secret here; DISCORD_DONATION_CHANNEL_ID is the channel donations post
-# into (requires the bot above to be running).
-BUY_ME_A_COFFEE_WEBHOOK_SECRET=
-DISCORD_DONATION_CHANNEL_ID=
-
-# Public variables for the React app
-VITE_API_URL=http://localhost:3001
-VITE_APP_ENV=local
-VITE_LATEST_FIRMWARE_VERSION=1.0.1 # Must match the latest release in main.ino
-```
+Local mode covers sign-up/sign-in/sign-out/session/org-switch, its own org invite UI, personal API keys, and an org audit log — email verification, profile/password editing, and multi-device session management stay Neon-only for now (see `CLAUDE.md`'s Auth & RLS section).
 
 ## Database
 
@@ -134,11 +119,24 @@ pnpm --filter @magic-vault/server db:push      # push schema directly (dev)
 pnpm --filter @magic-vault/server db:studio    # open Drizzle Studio
 ```
 
+These target whichever Postgres `DATABASE_URL` points at. Self-hosted mode's container applies migrations automatically (see [Option B](#option-b-self-hosted-no-neon-account-works-offline)) — you only need these commands by hand against Neon, or after changing `packages/server/src/db/schema.ts`.
+
 ## Deployment
 
-`Dockerfile.server` builds the Hono API (and pre-downloads the SigLIP model at build time). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` must be supplied as a build arg since it's baked into the client bundle. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or into the fixed `DISCORD_DONATION_CHANNEL_ID` for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
+`Dockerfile.server` builds the Hono API (and pre-downloads the SigLIP model at build time). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` (and `VITE_AUTH_PROVIDER`) must be supplied as build args since they're baked into the client bundle. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
 
-Self-hosting only replaces where the _app_ runs — the database and auth still need a [Neon project](#setting-up-neon) set up first, and its connection details passed to the server container as env vars (`DATABASE_URL`, `NEON_AUTH_URL`, `WEB_URL`) and to the web build as build args (`VITE_API_URL`, `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_APP_ENV`, `VITE_LATEST_FIRMWARE_VERSION`). A minimal setup:
+### Deploying self-hosted
+
+The same `docker compose up -d` flow from [Option B](#option-b-self-hosted-no-neon-account-works-offline) is the production deployment too — just point `WEB_URL` at your public URL, and use a real `POSTGRES_PASSWORD`/`OWN_AUTH_TOKEN_PEPPER`/`IMPERSONATION_SECRET` rather than dev placeholders.
+
+```bash
+docker compose up --build -d              # server + web + local Postgres
+docker compose --profile bot up --build -d  # + Discord bot
+```
+
+### Deploying with Neon
+
+For the Neon-backed deployment (`AUTH_PROVIDER=neon`, the default), the database and auth still need a [Neon project](#option-a-neon) set up first, and its connection details passed to the server container as env vars (`DATABASE_URL`, `NEON_AUTH_URL`, `WEB_URL`) and to the web build as build args (`VITE_API_URL`, `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_APP_ENV`, `VITE_LATEST_FIRMWARE_VERSION`). A minimal setup:
 
 ```bash
 docker build -f Dockerfile.server -t magic-vault-server .
@@ -156,14 +154,14 @@ docker run -p 8080:80 magic-vault-web
 
 Point `WEB_URL` (server env) at the public URL of the web container so CORS and Discord monitor-page links resolve correctly, and re-run `db:push`/`db:migrate` against the Neon database as part of your deploy if the schema changed.
 
-`docker-compose.yml` wires the three images together (server on :3001, web on :8080, and the optional bot on :3002) reading build args and env vars from the root `.env`:
+The same `docker-compose.yml` from [Option B](#option-b-self-hosted-no-neon-account-works-offline) can wire the three images together this way too (server on :3001, web on :8080, and the optional bot on :3002) — `AUTH_PROVIDER` in `.env` just needs to be `neon` (the default) rather than `local`:
 
 ```bash
-docker compose up --build              # server + web
+docker compose up --build
 docker compose --profile bot up --build  # + Discord bot
 ```
 
-Still self-hosted-app-only — `.env` must already point `DATABASE_URL`/`NEON_AUTH_URL` at a real Neon project, since compose doesn't run a database.
+`.env` must already point `DATABASE_URL`/`NEON_AUTH_URL` at a real Neon project — the `postgres` service in `docker-compose.yml` still starts alongside it, but sits unused since nothing points at it in this mode.
 
 ## Hardware
 

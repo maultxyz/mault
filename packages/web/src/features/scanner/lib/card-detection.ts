@@ -95,14 +95,9 @@ export function drawDetectionOverlay(
     .trim();
   const color = primaryRaw ? `${primaryRaw}` : "#6d28d9";
 
-  // Proportional to canvas resolution, not a fixed pixel count: the canvas
-  // is always sized to the source's native resolution (see
-  // use-card-scanner.ts / use-video-canvas-preview.ts), which varies a lot
-  // by source - a local webcam is typically ~1920x1080, but a phone's
-  // camera may capture at a very different resolution. A fixed line width
-  // tuned for 1080p looks proportionally huge once a smaller canvas gets
-  // CSS-scaled up to fill the same display box, so scale it off the
-  // canvas's actual short side instead.
+  // Scaled off canvas short side, not a fixed pixel count: source resolution
+  // varies widely (webcam vs. phone camera), and a width tuned for 1080p
+  // looks huge once a smaller canvas gets CSS-scaled up to the same box.
   const shortSide = Math.min(ctx.canvas.width, ctx.canvas.height);
   const lineWidth = Math.max(3, Math.round(shortSide * 0.011));
   const radius = Math.max(4, Math.round(shortSide * 0.0148));
@@ -113,7 +108,6 @@ export function drawDetectionOverlay(
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
 
-  // Draw a rounded polygon using arcTo at each corner
   ctx.beginPath();
   for (let i = 0; i < corners.length; i++) {
     const prev = corners[(i - 1 + corners.length) % corners.length];
@@ -121,7 +115,6 @@ export function drawDetectionOverlay(
     const next = corners[(i + 1) % corners.length];
 
     if (i === 0) {
-      // Start midpoint between prev and curr
       const mx = (prev.x + curr.x) / 2;
       const my = (prev.y + curr.y) / 2;
       ctx.moveTo(mx, my);

@@ -8,10 +8,10 @@ import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
 
-// Used to live on NeonAuthUIProvider's own defaultTheme prop, back when
-// that wrapped the whole app - now that it's scoped to just /auth/* and
-// /app/* (see auth.tsx, auth-guard.tsx) for bundle size, dark mode needs
-// its own lightweight provider here so public pages get it too.
+// NeonAuthUIProvider (which used to provide theming) is now scoped to just
+// /auth/* and /app/* for bundle size, so public pages - and local mode,
+// which has no NeonAuthUIProvider equivalent at all - need their own
+// lightweight theme provider here instead.
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

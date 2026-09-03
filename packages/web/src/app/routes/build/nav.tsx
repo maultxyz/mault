@@ -2,7 +2,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { MobileNavDrawer } from "@/components/mobile-nav-drawer";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
-import { neon } from "@/lib/auth/client";
+import { useAuthSession } from "@/lib/auth";
 import { DISCORD_URL } from "@/lib/links";
 import { cn } from "@/lib/utils";
 import { IconBrandDiscord } from "@tabler/icons-react";
@@ -16,7 +16,7 @@ const drawerLinkClass =
 
 export function BuildNav() {
   const { t } = useTranslation("build");
-  const { data, isPending } = neon.auth.useSession();
+  const { data, isPending } = useAuthSession();
   const isSignedIn = !isPending && !!data?.user;
 
   return (

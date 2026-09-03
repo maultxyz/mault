@@ -1,6 +1,6 @@
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { createLiveCountEventsSource } from "@/lib/api/session";
-import { neon } from "@/lib/auth/client";
+import { useAuthSession } from "@/lib/auth";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -35,7 +35,7 @@ export function LiveSessionStatusProvider({
     Record<string, SessionViewer[]>
   >({});
   const queryClient = useQueryClient();
-  const { data: sessionData } = neon.auth.useSession();
+  const { data: sessionData } = useAuthSession();
   const session = sessionData as {
     session?: { activeOrganizationId?: string | null };
   } | null;

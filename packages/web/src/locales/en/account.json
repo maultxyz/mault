@@ -53,5 +53,29 @@
     "lastActive": "Last active {{date}}",
     "unknownDevice": "Unknown device",
     "noIp": "Unknown location"
+  },
+  "apiKeys": {
+    "heading": "API keys",
+    "description": "Personal keys for scripting or automating access to Mault's API.",
+    "create": "New key",
+    "createTitle": "Create API key",
+    "createDescription": "Give it a name so you can recognize it later.",
+    "createFailed": "Couldn't create key",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. import script",
+    "revealTitle": "Copy your new key",
+    "revealDescription": "This is the only time you'll see the full key - store it somewhere safe.",
+    "revealDone": "Done",
+    "copied": "Copied to clipboard",
+    "copyFailed": "Couldn't copy to clipboard",
+    "revoke": "Revoke",
+    "revokeConfirmTitle": "Revoke this key?",
+    "revokeConfirmDescription": "Anything using this key will immediately lose access.",
+    "revoked": "Key revoked",
+    "revokeFailed": "Couldn't revoke key",
+    "loadFailed": "Couldn't load API keys",
+    "empty": "No API keys yet",
+    "expires": "expires {{date}}",
+    "noExpiry": "no expiry"
   }
 }

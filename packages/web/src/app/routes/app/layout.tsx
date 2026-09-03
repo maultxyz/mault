@@ -8,10 +8,10 @@ import { FirmwareVersionBanner } from "@/components/firmware-version-banner";
 import { FirmwareVersionMissingBanner } from "@/components/firmware-version-missing-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PageTransition } from "@/components/page-transition";
-import { RequireCollectionDialog } from "@/components/require-collection-dialog";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { DONATE_URL } from "@/lib/links";
 import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -23,11 +23,10 @@ export default function AppLayout() {
 
   return (
     <AppProviders>
-      <RequireCollectionDialog />
       {isMobile ? (
         <div className="h-dvh w-dvw overflow-hidden flex flex-col">
           <ImpersonationBanner />
-          <EmailVerificationBanner />
+          {AUTH_PROVIDER !== "local" && <EmailVerificationBanner />}
           <ChannelLayoutBanner />
           <AppVersionBanner />
           <FirmwareVersionBanner />
@@ -47,7 +46,7 @@ export default function AppLayout() {
           />
           <div className="flex flex-col border rounded-lg size-full overflow-hidden relative">
             <ImpersonationBanner />
-            <EmailVerificationBanner />
+            {AUTH_PROVIDER !== "local" && <EmailVerificationBanner />}
             <ChannelLayoutBanner />
             <AppVersionBanner />
             <FirmwareVersionBanner />

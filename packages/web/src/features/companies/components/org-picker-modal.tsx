@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
-import { neon } from "@/lib/auth/client";
+import { createOrganization } from "@/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconBuilding, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
@@ -29,25 +29,14 @@ export function OrgPickerModal() {
   }
 
   async function handleCreate({ name }: CreateValues) {
-    const slug = name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    try {
-      const { data, error } = await neon.auth.organization.create({
-        name: name.trim(),
-        slug,
-      });
-      if (error) throw new Error(error.message);
-      if (data) await handlePick(data.id);
-      form.reset();
-      setShowCreate(false);
-    } catch (e: unknown) {
-      toast.error(
-        e instanceof Error ? e.message : t("orgPickerModal.failedToCreate"),
-      );
+    const result = await createOrganization(name.trim());
+    if ("error" in result) {
+      toast.error(result.error || t("orgPickerModal.failedToCreate"));
+      return;
     }
+    await handlePick(result.id);
+    form.reset();
+    setShowCreate(false);
   }
 
   return (

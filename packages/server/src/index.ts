@@ -11,6 +11,7 @@ import { collectionsRouter } from "./routes/collections";
 import { feederRouter } from "./routes/feeder";
 import { gamesRouter } from "./routes/games";
 import { impersonationRouter } from "./routes/impersonation";
+import { localAuthRouter } from "./routes/local-auth";
 import { moduleConfigsRouter } from "./routes/module-configs";
 import { notificationsRouter } from "./routes/notifications";
 import { orgSettingsRouter } from "./routes/org-settings";
@@ -22,10 +23,14 @@ const PORT = parseInt(process.env.PORT ?? "3001");
 app.use(
   cors({
     origin: process.env.WEB_URL ?? "http://localhost:5173",
-    allowMethods: ["GET", "POST", "PUT", "DELETE"],
+    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
   }),
 );
+
+if (process.env.AUTH_PROVIDER === "local") {
+  app.route("/local-auth", localAuthRouter);
+}
 
 app.route("/bot", botRouter);
 app.route("/cards", cardRouter);

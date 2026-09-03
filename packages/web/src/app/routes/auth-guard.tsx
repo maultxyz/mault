@@ -1,22 +1,5 @@
-import { neon } from "@/lib/auth/client";
-import { RedirectToSignIn, SignedIn } from "@neondatabase/neon-js/auth/react";
-import { NeonAuthUIProvider } from "@neondatabase/neon-js/auth/react/ui";
-import { Outlet } from "react-router-dom";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import AuthGuardLocal from "./auth-guard.local";
+import AuthGuardNeon from "./auth-guard.neon";
 
-export default function AuthGuard() {
-  return (
-    <NeonAuthUIProvider
-      defaultTheme="system"
-      authClient={neon.auth}
-      redirectTo="/app"
-      account={{
-        basePath: "/app/account",
-      }}
-    >
-      <SignedIn>
-        <Outlet />
-      </SignedIn>
-      <RedirectToSignIn />
-    </NeonAuthUIProvider>
-  );
-}
+export default AUTH_PROVIDER === "local" ? AuthGuardLocal : AuthGuardNeon;

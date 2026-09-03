@@ -1,7 +1,9 @@
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
+import { RequireCollectionDialog } from "@/components/require-collection-dialog";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { lazy } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 
@@ -11,6 +13,14 @@ const LandingPage = lazy(() => import("@/app/routes/index"));
 const BuildGuidePage = lazy(() => import("@/app/routes/build"));
 const DiscordBotPage = lazy(() => import("@/app/routes/discord-bot"));
 const AuthPage = lazy(() => import("@/app/routes/auth"));
+const AuthLocalPage = lazy(() => import("@/app/routes/auth-local"));
+const AuthJoinPage = lazy(() => import("@/app/routes/auth-join"));
+const AuthForgotPasswordPage = lazy(
+  () => import("@/app/routes/auth-forgot-password"),
+);
+const AuthResetPasswordPage = lazy(
+  () => import("@/app/routes/auth-reset-password"),
+);
 const VerifyEmailPage = lazy(() => import("@/app/routes/app/verify-email"));
 const AppLayout = lazy(() => import("@/app/routes/app/layout"));
 const ScannerPage = lazy(() => import("@/app/routes/app/index"));
@@ -40,6 +50,18 @@ function DesktopOnlyGuard() {
   return <Outlet />;
 }
 
+// Must not wrap /app/admin: with zero games, the dialog's own game picker
+// is empty and unsubmittable, but /app/admin (Games Manager) is the only
+// way to add one - wrapping it would deadlock a fresh instance.
+function RequireCollectionGuard() {
+  return (
+    <>
+      <RequireCollectionDialog />
+      <Outlet />
+    </>
+  );
+}
+
 export const router = createBrowserRouter([
   {
     element: <Outlet />,
@@ -59,14 +81,38 @@ export const router = createBrowserRouter([
       },
       {
         path: "/auth/:path",
-        element: <AuthPage />,
+        element: AUTH_PROVIDER === "local" ? <AuthLocalPage /> : <AuthPage />,
       },
+      // Local-mode only - Neon's prebuilt <AuthView> already covers
+      // invites/password reset. React Router ranks static segments above
+      // dynamic ones regardless of array order, so these still take
+      // priority over /auth/:path above.
+      ...(AUTH_PROVIDER === "local"
+        ? [
+            { path: "/auth/join", element: <AuthJoinPage /> },
+            {
+              path: "/auth/forgot-password",
+              element: <AuthForgotPasswordPage />,
+            },
+            {
+              path: "/auth/reset-password",
+              element: <AuthResetPasswordPage />,
+            },
+          ]
+        : []),
       {
         element: <AuthGuard />,
         children: [
           {
             path: "/app/verify-email",
-            element: <VerifyEmailPage />,
+            // Local mode has no email verification step - own-auth accounts
+            // are usable immediately after sign-up.
+            element:
+              AUTH_PROVIDER === "local" ? (
+                <Navigate to="/app" replace />
+              ) : (
+                <VerifyEmailPage />
+              ),
           },
           {
             element: <AppLayout />,
@@ -75,20 +121,25 @@ export const router = createBrowserRouter([
                 element: <DesktopOnlyGuard />,
                 children: [
                   {
-                    path: "/app",
-                    element: <ScannerPage />,
-                  },
-                  {
-                    path: "/app/collections",
-                    element: <CollectionsPage />,
-                  },
-                  {
-                    path: "/app/collections/:collectionGuid/bins",
-                    element: <BinsPage />,
-                  },
-                  {
-                    path: "/app/calibrate",
-                    element: <CalibratePage />,
+                    element: <RequireCollectionGuard />,
+                    children: [
+                      {
+                        path: "/app",
+                        element: <ScannerPage />,
+                      },
+                      {
+                        path: "/app/collections",
+                        element: <CollectionsPage />,
+                      },
+                      {
+                        path: "/app/collections/:collectionGuid/bins",
+                        element: <BinsPage />,
+                      },
+                      {
+                        path: "/app/calibrate",
+                        element: <CalibratePage />,
+                      },
+                    ],
                   },
                   {
                     element: <AdminGuard />,

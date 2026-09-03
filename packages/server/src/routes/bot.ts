@@ -1,5 +1,6 @@
 import { and, count, desc, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import { authProvider } from "../auth";
 import { db } from "../db";
 import { collectionCards, collections, orgSettings } from "../db/schema";
 import { requireBotSecret, type AppEnv } from "../middleware/auth";
@@ -17,12 +18,7 @@ async function resolveOrgByGuild(guildId: string): Promise<string | null> {
   return rows[0]?.orgId ?? null;
 }
 
-async function getOrgName(orgId: string): Promise<string> {
-  const rows = await db.execute<{ name: string }>(
-    sql`SELECT name FROM neon_auth.organization WHERE id = ${orgId} LIMIT 1`,
-  );
-  return rows.rows[0]?.name ?? "your organization";
-}
+const getOrgName = (orgId: string) => authProvider.getOrganisationName(orgId);
 
 router.post("/link", async (c) => {
   const body = await c.req.json<{

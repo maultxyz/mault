@@ -67,5 +67,37 @@
     "generateError": "Failed to generate a link code.",
     "codeInstructions": "Run /link <code> in your Discord server to finish linking it.",
     "expiresIn": "Expires in {{seconds}}s"
+  },
+  "auditLog": {
+    "description": "Recent activity for this organization - sign-ins, membership changes, API key use.",
+    "membersOnly": "Only organization owners and admins can view activity.",
+    "empty": "No activity yet."
+  },
+  "invites": {
+    "description": "Invite people to this organization by sharing a link - no email setup required.",
+    "membersOnly": "Only organization owners and admins can manage invites.",
+    "invite": "Invite",
+    "inviteTitle": "Invite someone",
+    "inviteDescription": "You'll get a link to share with them yourself.",
+    "createFailed": "Couldn't create invite",
+    "emailLabel": "Email",
+    "emailPlaceholder": "someone@example.com",
+    "roleLabel": "Role",
+    "roleMember": "Member",
+    "roleAdmin": "Admin",
+    "revealTitle": "Share this invite link",
+    "revealDescription": "This wasn't emailed automatically - send it to them yourself. You won't see it again after closing this.",
+    "revealDescriptionEmailed": "We've also emailed this to them, but here's the link too just in case. You won't see it again after closing this.",
+    "revealDone": "Done",
+    "copied": "Copied to clipboard",
+    "copyFailed": "Couldn't copy to clipboard",
+    "revoke": "Revoke",
+    "revokeConfirmTitle": "Revoke this invite?",
+    "revokeConfirmDescription": "The link will stop working immediately.",
+    "revoked": "Invite revoked",
+    "revokeFailed": "Couldn't revoke invite",
+    "loadFailed": "Couldn't load invites",
+    "empty": "No pending invites",
+    "expires": "expires {{date}}"
   }
 }

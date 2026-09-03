@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getInitials } from "@/components/ui/initials-avatar";
-import { neon } from "@/lib/auth/client";
+import { signOut, useAuthSession } from "@/lib/auth";
 import { clearImpersonation } from "@/lib/auth/impersonation";
 import { IconLogout, IconUserCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -23,15 +23,15 @@ export function UserMenu({
   side?: "top" | "right";
 }) {
   const { t } = useTranslation("common");
-  const { data } = neon.auth.useSession();
+  const { data } = useAuthSession();
   const navigate = useNavigate();
 
-  const name = data?.user?.name;
+  const name = data?.user?.name ?? undefined;
   const email = data?.user?.email;
 
   async function handleSignOut() {
     clearImpersonation();
-    await neon.auth.signOut();
+    await signOut();
     navigate("/", { replace: true });
   }
 

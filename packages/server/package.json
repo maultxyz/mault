@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/server",
-  "version": "1.0.22",
+  "version": "1.0.26",
   "private": true,
   "scripts": {
     "dev": "tsx watch --env-file ../../.env src/index.ts",
@@ -9,6 +9,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
+    "db:migrate-local": "tsx scripts/migrate-local.ts",
     "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts"
   },
   "dependencies": {
@@ -19,7 +20,9 @@
     "drizzle-orm": "^0.45.1",
     "hono": "^4.12.2",
     "jose": "^6.1.3",
+    "own-auth": "^0.3.12",
     "pg": "^8.16.3",
+    "resend": "^6.24.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
