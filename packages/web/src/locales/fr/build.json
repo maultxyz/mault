@@ -37,6 +37,10 @@
     "heading": "Nomenclature",
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
+    "hopperNote": "Il existe deux styles de trémie : la trémie classique et un nouveau modèle qui s'adapte plus facilement à différentes épaisseurs de cartes. Les pièces marquées Optionnel, trémie classique ou Optionnel, nouvelle trémie ci-dessous appartiennent au style que tu ne construis pas - un seul jeu suffit.",
+    "optionalBadge": "Optionnel",
+    "optionalClassicHopperBadge": "Optionnel, trémie classique",
+    "optionalNewHopperBadge": "Optionnel, nouvelle trémie",
     "moduleCount": {
       "label": "Modules",
       "decreaseAria": "Diminuer le nombre de modules",
@@ -130,6 +134,10 @@
             "part": "Joint torique 20mm DI 26mm DE 3mm largeur",
             "notes": "Monté sur le rouleau du chargeur pour l'adhérence sur la carte"
           },
+          "hopperORing": {
+            "part": "Joint torique 9,8mm DI 14,6mm DE section 2,4mm",
+            "notes": "Nouvelle trémie - s'adapte plus facilement à différentes épaisseurs de cartes que la trémie classique"
+          },
           "binHolders": {
             "part": "Bac imprimé en 3D",
             "notes": "2 par module ({{count}} modules) - un à gauche, un à droite - reçoit les cartes éjectées par le poussoir"
@@ -153,7 +161,19 @@
           },
           "m3Washer": {
             "part": "Rondelle M3",
-            "notes": "Utilisée avec les vis M3×10 sur la paroi à hauteur variable de la trémie"
+            "notes": "Utilisée avec les vis M3×10 sur la paroi à hauteur variable de la trémie classique, ou avec les fixations de la nouvelle trémie - nécessaire dans les deux cas"
+          },
+          "m3x8Screw": {
+            "part": "Vis M3×8",
+            "notes": "Nouvelle trémie"
+          },
+          "m3x25Screw": {
+            "part": "Vis M3×25",
+            "notes": "Nouvelle trémie"
+          },
+          "hopperSpring": {
+            "part": "Ressort 7/32\" x 11/16\"",
+            "notes": "Nouvelle trémie - tend la paroi ajustable contre la pile de cartes"
           },
           "m2x4Screw": {
             "part": "Vis M2×4",
@@ -173,15 +193,15 @@
             "notes": "Capteur IR/Servos. Avec ceux-ci, tu devras peut-être en chaîner certains ensemble, utilise du ruban électrique pour t'assurer qu'ils ne se séparent pas."
           },
           "wagoConnectors": {
-            "part": "Connecteurs Wago (optionnel)",
+            "part": "Connecteurs Wago",
             "notes": "Répartit l'alimentation et la masse vers chaque capteur IR sans avoir à torsader ou souder les fils"
           },
           "dupontConnectors": {
-            "part": "Connecteurs Dupont (optionnel)",
+            "part": "Connecteurs Dupont",
             "notes": "Nécessaires uniquement si tu fabriques tes propres câbles sur mesure."
           },
           "dupontCrimper": {
-            "part": "Sertisseuse Dupont (optionnel)",
+            "part": "Sertisseuse Dupont",
             "notes": "Nécessaire uniquement si tu fabriques tes propres câbles sur mesure."
           }
         }
@@ -261,6 +281,9 @@
     "helpText": "Bloqué sur une étape ? <a>Rejoins le Discord</a> si tu as besoin d'aide.",
     "hasVideoAria": "Comprend une vidéo explicative",
     "videoTitle": "Vidéo de montage",
+    "optionalBadge": "Optionnel",
+    "optionalClassicHopperBadge": "Optionnel, trémie classique",
+    "optionalNewHopperBadge": "Optionnel, nouvelle trémie",
     "progress": {
       "stepsCount": "{{done}} sur {{total}} étapes"
     },
@@ -366,6 +389,17 @@
           "mountFeederWall": {
             "text": "Fixe la paroi à la trémie avec les 2 vis M3×10 et les rondelles M3 - elle guide les cartes de la trémie vers le rouleau du chargeur.",
             "note": "Lors du montage de la paroi, fixe-la d'abord au module du chargeur, puis place 2 cartes sous la paroi et fais-la glisser vers le bas avant de la serrer en place."
+          },
+          "fitHopperRollerOrings": {
+            "text": "Monte des joints toriques sur le rouleau de la trémie.",
+            "note": "Comme pour le rouleau du chargeur, ils lui donnent de l'adhérence sur la carte."
+          },
+          "mountHopperRoller": {
+            "text": "Installe le rouleau de la trémie sur la trémie avec 2 vis M3×8 et 2 rondelles M3."
+          },
+          "calibrateHopperRoller": {
+            "text": "Monte le ressort et la vis M3×25, puis utilise la vis pour régler la paroi afin qu'elle ne laisse passer qu'une seule carte à la fois.",
+            "note": "Serre le rouleau jusqu'à ce qu'il ne tourne plus librement, tout en pouvant encore être tourné à la main."
           },
           "mountModuleIr": {
             "text": "Fixe un capteur IR à la porte de chaque module (1 à {{modules}}) avec 1 vis M2×6 chacun, pointé à travers le trajet de la carte."

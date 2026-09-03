@@ -37,6 +37,10 @@
     "heading": "Bill of materials",
     "description": "Quantities scale with the number of modules you're building - {{modules}} modules × 3 servos, 1 feeder, {{irSensors}} IR sensors, {{channelsUsed}} of the PCA9685's 16 channels in use. The remaining channels are free for additional sorting modules (up to 5 modules on a single PCA9685). Check off each part as you gather it - checkmarks are saved in this browser.",
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links - we may earn a small commission on qualifying purchases at no extra cost to you.",
+    "hopperNote": "There are two hopper styles: the classic hopper and a newer design that accommodates different card thicknesses more easily. Parts tagged Optional, classic hopper or Optional, new hopper below belong to whichever style you aren't building - you only need one set.",
+    "optionalBadge": "Optional",
+    "optionalClassicHopperBadge": "Optional, classic hopper",
+    "optionalNewHopperBadge": "Optional, new hopper",
     "moduleCount": {
       "label": "Modules",
       "decreaseAria": "Decrease module count",
@@ -130,6 +134,10 @@
             "part": "20mm ID 26mm OD 3mm Width O-Ring",
             "notes": "Fitted onto the feeder roller for grip on the card face"
           },
+          "hopperORing": {
+            "part": "9.8mm ID 14.6mm OD 2.4mm Section O-Ring",
+            "notes": "New hopper style - accommodates different card thicknesses more easily than the classic hopper"
+          },
           "binHolders": {
             "part": "3D-printed bin holder",
             "notes": "2 per module ({{count}} modules) - one left, one right - catches the cards the pusher ejects to each side"
@@ -153,7 +161,19 @@
           },
           "m3Washer": {
             "part": "M3 washer",
-            "notes": "Used with the M3×10 screws on the variable-height hopper wall"
+            "notes": "Used with the M3×10 screws on the classic hopper's variable-height wall, or with the new hopper's fasteners - needed either way"
+          },
+          "m3x8Screw": {
+            "part": "M3×8 screw",
+            "notes": "New hopper style"
+          },
+          "m3x25Screw": {
+            "part": "M3×25 screw",
+            "notes": "New hopper style"
+          },
+          "hopperSpring": {
+            "part": "7/32\" x 11/16\" spring",
+            "notes": "New hopper style - tensions the adjustable wall against the card stack"
           },
           "m2x4Screw": {
             "part": "M2×4 screw",
@@ -173,15 +193,15 @@
             "notes": "IR sensor/Servos. Using these you may have to daisy chain some together, just electrical tape them to make sure they don't come apart."
           },
           "wagoConnectors": {
-            "part": "Wago connectors (Optional)",
+            "part": "Wago connectors",
             "notes": "Splices power and ground to each IR sensor without twisting/soldering wires together"
           },
           "dupontConnectors": {
-            "part": "Dupont Connectors (Optional)",
+            "part": "Dupont Connectors",
             "notes": "These are only needed if you're making your own custom length wires."
           },
           "dupontCrimper": {
-            "part": "Dupont Crimper (Optional)",
+            "part": "Dupont Crimper",
             "notes": "These are only needed if you're making your own custom length wires."
           }
         }
@@ -261,6 +281,9 @@
     "helpText": "Stuck on a step? <a>Join the Discord</a> if you need help.",
     "hasVideoAria": "Includes walkthrough video",
     "videoTitle": "Assembly video",
+    "optionalBadge": "Optional",
+    "optionalClassicHopperBadge": "Optional, classic hopper",
+    "optionalNewHopperBadge": "Optional, new hopper",
     "progress": {
       "stepsCount": "{{done}} of {{total}} steps"
     },
@@ -366,6 +389,17 @@
           "mountFeederWall": {
             "text": "Attach the wall piece to the hopper using the 2 M3×10 screws and M3 washers - it guides cards from the hopper to the feeder roller.",
             "note": "When mounting the wall, attach it to the feeder module first, then put 2 cards below the wall and slide it down before tighting it into place."
+          },
+          "fitHopperRollerOrings": {
+            "text": "Fit o-rings onto the hopper roller.",
+            "note": "Same as the feeder roller - these give it grip on the card face."
+          },
+          "mountHopperRoller": {
+            "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers."
+          },
+          "calibrateHopperRoller": {
+            "text": "Fit the spring and M3×25 screw, then use the screw to calibrate the wall so it lets only 1 card through at a time.",
+            "note": "Tighten the roller until it no longer free-spins, but can still be turned by hand."
           },
           "mountModuleIr": {
             "text": "Fix one IR sensor at the gate of each module (1-{{modules}}) with 1 M2×6 screw each, aimed across the card path."
