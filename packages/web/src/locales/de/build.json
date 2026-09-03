@@ -297,19 +297,22 @@
             "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {
-            "text": "Drucke 1 Feeder-Module-Platte aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
+            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
           },
           "printSortingModuleShroud": {
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Base-Plate(s)-Platten aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe ein Stützteil mehr benötigt als die Stufe darüber. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{count}} Base-Support-Teile aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe ein Stützteil mehr benötigt als die Stufe darüber. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
           },
           "printPlateBaseBottom": {
-            "text": "Drucke 1 Base-Bottom-Platte."
+            "text": "Drucke 1 Controller-Platte."
+          },
+          "printEndBottom": {
+            "text": "Drucke 1 End-Platte."
           },
           "printGenericBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Base-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
           },
           "printBinHolders": {
             "text": "Für {{modules}} Sortiermodule drucke {{count}} Fachhalter – zwei pro Modul, einer für die linke und einer für die rechte Auswurfseite. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."

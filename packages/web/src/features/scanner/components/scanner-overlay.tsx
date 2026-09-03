@@ -100,108 +100,121 @@ export function ScannerOverlay({
     );
   }
 
-  if (!isConnected) {
-    return (
-      <StatusPill variant="warning">
-        <IconDeviceUsb className="size-3.5 shrink-0" />
-        <span className="flex-1">
-          {t("scannerOverlay.scannerNotConnected")}
+  return (
+    <>
+      <div className="absolute top-1 left-1 right-1 z-30 flex justify-center pointer-events-none">
+        <span className="rounded-full border border-border bg-background/70 backdrop-blur-3xl px-2 py-0.5 text-[11px] text-muted-foreground">
+          {t("scannerOverlay.faceUpHint")}
         </span>
-        <Button size="sm" onClick={onConnectScanner}>
-          {t("scannerOverlay.connectScannerButton")}
-        </Button>
-      </StatusPill>
-    );
-  }
+      </div>
+      {renderStatusPill()}
+    </>
+  );
 
-  if (!isReady) {
-    return (
-      <StatusPill variant="loading">
-        <IconLoader2 className="size-3.5 animate-spin shrink-0" />
-        <span>{t("scannerOverlay.testingScanner")}</span>
-      </StatusPill>
-    );
-  }
-
-  if (!firmwareVersion) {
-    return (
-      <StatusPill variant="error">
-        <IconAlertTriangle className="size-3.5 shrink-0" />
-        <span>{t("scannerOverlay.firmwareVersionMissing")}</span>
-      </StatusPill>
-    );
-  }
-
-  if (!hasCatchAll) {
-    return (
-      <StatusPill variant="warning">
-        <IconAlertTriangle className="size-3.5 shrink-0" />
-        <span>{t("scannerOverlay.noCatchAllBin")}</span>
-      </StatusPill>
-    );
-  }
-
-  switch (status) {
-    case "initializing":
+  function renderStatusPill() {
+    if (!isConnected) {
       return (
-        <StatusPill variant="loading">
-          <IconLoader2 className="size-3.5 animate-spin shrink-0" />
-          <span>{t("scannerOverlay.initializing")}</span>
-        </StatusPill>
-      );
-    case "requesting-camera":
-      return (
-        <StatusPill variant="loading">
-          <IconCameraSpark className="size-3.5 shrink-0" />
-          <span>{t("scannerOverlay.requestingCameraAccess")}</span>
-        </StatusPill>
-      );
-    case "error":
-      return (
-        <StatusPill variant="error">
-          <span className="flex-1">{errorMessage}</span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onRetryError}
-            className="size-6 shrink-0"
-          >
-            <IconRefresh className="size-3" />
+        <StatusPill variant="warning">
+          <IconDeviceUsb className="size-3.5 shrink-0" />
+          <span className="flex-1">
+            {t("scannerOverlay.scannerNotConnected")}
+          </span>
+          <Button size="sm" onClick={onConnectScanner}>
+            {t("scannerOverlay.connectScannerButton")}
           </Button>
         </StatusPill>
       );
-    case "searching":
+    }
+
+    if (!isReady) {
       return (
         <StatusPill variant="loading">
           <IconLoader2 className="size-3.5 animate-spin shrink-0" />
-          <span>{t("scannerOverlay.identifyingCard")}</span>
+          <span>{t("scannerOverlay.testingScanner")}</span>
         </StatusPill>
       );
-    case "paused":
-      return <StatusPill>{t("scannerOverlay.paused")}</StatusPill>;
-    case "duplicate":
+    }
+
+    if (!firmwareVersion) {
+      return (
+        <StatusPill variant="error">
+          <IconAlertTriangle className="size-3.5 shrink-0" />
+          <span>{t("scannerOverlay.firmwareVersionMissing")}</span>
+        </StatusPill>
+      );
+    }
+
+    if (!hasCatchAll) {
       return (
         <StatusPill variant="warning">
           <IconAlertTriangle className="size-3.5 shrink-0" />
-          <span>{t("scannerOverlay.duplicate")}</span>
+          <span>{t("scannerOverlay.noCatchAllBin")}</span>
         </StatusPill>
       );
-    case "no-match":
-      return (
-        <StatusPill variant="warning">
-          <IconAlertTriangle className="size-3.5 shrink-0" />
-          <span>{t("scannerOverlay.noMatch")}</span>
-        </StatusPill>
-      );
-    default:
-      if (!autoFeed) {
+    }
+
+    switch (status) {
+      case "initializing":
         return (
-          <StatusPill>
-            <IconHandStop className="size-3.5 shrink-0" />
-            <span>{t("scannerOverlay.autoFeedOff")}</span>
+          <StatusPill variant="loading">
+            <IconLoader2 className="size-3.5 animate-spin shrink-0" />
+            <span>{t("scannerOverlay.initializing")}</span>
           </StatusPill>
         );
-      }
-      return null;
+      case "requesting-camera":
+        return (
+          <StatusPill variant="loading">
+            <IconCameraSpark className="size-3.5 shrink-0" />
+            <span>{t("scannerOverlay.requestingCameraAccess")}</span>
+          </StatusPill>
+        );
+      case "error":
+        return (
+          <StatusPill variant="error">
+            <span className="flex-1">{errorMessage}</span>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onRetryError}
+              className="size-6 shrink-0"
+            >
+              <IconRefresh className="size-3" />
+            </Button>
+          </StatusPill>
+        );
+      case "searching":
+        return (
+          <StatusPill variant="loading">
+            <IconLoader2 className="size-3.5 animate-spin shrink-0" />
+            <span>{t("scannerOverlay.identifyingCard")}</span>
+          </StatusPill>
+        );
+      case "paused":
+        return <StatusPill>{t("scannerOverlay.paused")}</StatusPill>;
+      case "duplicate":
+        return (
+          <StatusPill variant="warning">
+            <IconAlertTriangle className="size-3.5 shrink-0" />
+            <span>{t("scannerOverlay.duplicate")}</span>
+          </StatusPill>
+        );
+      case "no-match":
+        return (
+          <StatusPill variant="warning">
+            <IconAlertTriangle className="size-3.5 shrink-0" />
+            <span>{t("scannerOverlay.noMatch")}</span>
+          </StatusPill>
+        );
+      default:
+        if (!autoFeed) {
+          return (
+            <StatusPill>
+              <IconHandStop className="size-3.5 shrink-0" />
+              <span>{t("scannerOverlay.autoFeedOff")}</span>
+            </StatusPill>
+          );
+        }
+        return null;
+    }
   }
 }

@@ -297,19 +297,22 @@
             "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
           },
           "printFeederModule": {
-            "text": "Imprime 1 plaque Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie."
+            "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie."
           },
           "printSortingModuleShroud": {
             "text": "Imprime 1 Sorting Module Shroud - une seule suffit. Le capot qui recouvre les modules empilés."
           },
           "printPlateBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{count}} pièces Base Plate(s) à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une pièce de support de plus que le niveau au-dessus. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
+            "text": "Pour {{modules}} modules de tri, imprime {{count}} pièces Base Support à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une pièce de support de plus que le niveau au-dessus. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
           },
           "printPlateBaseBottom": {
-            "text": "Imprime 1 plaque Base Bottom."
+            "text": "Imprime 1 plaque Controller."
+          },
+          "printEndBottom": {
+            "text": "Imprime 1 plaque End."
           },
           "printGenericBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic Base. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
+            "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
           },
           "printBinHolders": {
             "text": "Pour {{modules}} modules de tri, imprime {{count}} bacs - deux par module, un pour le côté d'éjection gauche et un pour le droit. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."

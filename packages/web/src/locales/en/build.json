@@ -293,23 +293,25 @@
         "title": "Print the structural parts",
         "steps": {
           "printSortingModule": {
-            "text": "Slice and print {{count}} Sorting Module plates - one per sorting module - from <mesh>card_sorter.3mf</mesh> (or re-export from <source>Card Sorter.f3d</source>).",
-            "note": "\"Plate\" throughout these instructions means a slicer build plate (a print job's part arrangement) - not a part named \"Plate\" in the model."
+            "text": "Slice and print {{count}} Sorting Module plates - one per sorting module - from <mesh>card_sorter.3mf</mesh> (or re-export from <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
-            "text": "Print 1 Feeder Module plate from the same file - only one needed, regardless of module count. Houses the feeder roller and hopper throat."
+            "text": "Print 1 Feeder Module from the same file - only one needed, regardless of module count. Houses the feeder roller and hopper throat."
           },
           "printSortingModuleShroud": {
             "text": "Print 1 Sorting Module Shroud - only one needed. The cover that sits over the stacked modules."
           },
           "printPlateBase": {
-            "text": "For {{modules}} sorting modules, print {{count}} Base plate(s) pieces from the same file - the modules stack in a staircase, so each added tier needs one more support piece than the tier above it. Change the module count in the parts list above to update this."
+            "text": "For {{modules}} sorting modules, print {{count}} Base Support pieces from the same file - the modules stack in a staircase, so each added tier needs one more support piece than the tier above it. Change the module count in the parts list above to update this."
           },
           "printPlateBaseBottom": {
-            "text": "Print 1 Base Bottom plate."
+            "text": "Print 1 Controller Plates."
+          },
+          "printEndBottom": {
+            "text": "Print 1 End Plate."
           },
           "printGenericBase": {
-            "text": "For {{modules}} sorting modules, print {{count}} Generic Base plates. Change the module count in the parts list above to update this."
+            "text": "For {{modules}} sorting modules, print {{count}} Generic Plates. Change the module count in the parts list above to update this."
           },
           "printBinHolders": {
             "text": "For {{modules}} sorting modules, print {{count}} bin holders - two per module, one for the left ejection side and one for the right. Change the module count in the parts list above to update this."
