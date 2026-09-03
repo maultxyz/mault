@@ -135,7 +135,7 @@
             "notes": "Monté sur le rouleau du chargeur pour l'adhérence sur la carte"
           },
           "hopperORing": {
-            "part": "Joint torique 9,8mm DI 14,6mm DE section 2,4mm",
+            "part": "Joint torique 9,2mm DI 14mm DE section 2,4mm",
             "notes": "Nouvelle trémie - s'adapte plus facilement à différentes épaisseurs de cartes que la trémie classique"
           },
           "binHolders": {
@@ -175,14 +175,10 @@
             "part": "Ressort 7/32\" x 11/16\"",
             "notes": "Nouvelle trémie - tend la paroi ajustable contre la pile de cartes"
           },
-          "m2x4Screw": {
-            "part": "Vis M2×4",
-            "partSpec": "(20 pour 2 modules, +6 par module supplémentaire, +7 pour la fixation des cartes)",
-            "notes": "20 pour 2 modules, +6 par module supplémentaire ({{count}} modules) : trappe (bas/côtés), bras du poussoir, et supports du capteur IR ; +7 pour fixer le {{board}} et la carte driver de servo PCA9685 aux panneaux de base"
-          },
           "m2x6Screw": {
             "part": "Vis M2×6",
-            "notes": "1 pour fixer chaque capteur IR ({{count}} au total)"
+            "partSpec": "(20 pour 2 modules, +6 par module supplémentaire, +7 pour la fixation des cartes, +1 par capteur IR)",
+            "notes": "20 pour 2 modules, +6 par module supplémentaire ({{count}} modules) : trappe (bas/côtés) et bras du poussoir ; +7 pour fixer le {{board}} et la carte driver de servo PCA9685 aux panneaux de base ; +1 par capteur IR ({{irCount}} au total)"
           },
           "servoHornScrew": {
             "part": "Vis de palonnier de servo (incluse avec les servos)",
@@ -321,7 +317,7 @@
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
           },
           "mountBoardsToPanels": {
-            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×4."
+            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×6."
           },
           "attachBasePanels": {
             "text": "Fixe les panneaux de base à la base avec 8 vis M3×6 et 8 écrous M3.",

@@ -225,16 +225,16 @@ const GROUPS: Group[] = [
         name: "20mm ID 26mm OD 3mm Width O-Ring",
         part: (t) => t("bom.groups.structural.items.oRing.part"),
         notes: (t) => t("bom.groups.structural.items.oRing.notes"),
-        buyUrl: "https://amzn.to/4wQReqm",
-        optional: "classic-hopper",
+        buyUrl: "https://amzn.to/3Spt0pl",
       },
       {
         key: "hopper-o-ring",
         qty: () => "4",
-        name: "9.8mm ID 14.6mm OD 2.4mm Section O-Ring",
+        name: "9.2mm ID 14mm OD 2.4mm Section O-Ring",
         part: (t) => t("bom.groups.structural.items.hopperORing.part"),
         notes: (t) => t("bom.groups.structural.items.hopperORing.notes"),
         optional: "new-hopper",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "bin-holders",
@@ -255,7 +255,7 @@ const GROUPS: Group[] = [
         name: "M3x6 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x6Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x6Screw.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "m3-nut",
@@ -263,7 +263,7 @@ const GROUPS: Group[] = [
         name: "M3 nut",
         part: (t) => t("bom.groups.fasteners.items.m3Nut.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3Nut.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "m3x10-screw",
@@ -271,7 +271,7 @@ const GROUPS: Group[] = [
         name: "M3x10 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x10Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x10Screw.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
         optional: "classic-hopper",
       },
       {
@@ -280,7 +280,7 @@ const GROUPS: Group[] = [
         name: "M3 washer",
         part: (t) => t("bom.groups.fasteners.items.m3Washer.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3Washer.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "m3x8-screw",
@@ -288,7 +288,7 @@ const GROUPS: Group[] = [
         name: "M3x8 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x8Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x8Screw.notes"),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/3TbcucH",
         optional: "new-hopper",
       },
       {
@@ -298,41 +298,35 @@ const GROUPS: Group[] = [
         part: (t) => t("bom.groups.fasteners.items.m3x25Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x25Screw.notes"),
         optional: "new-hopper",
+        buyUrl: "https://amzn.to/3TbcucH",
       },
       {
         key: "hopper-spring",
         qty: () => "1",
-        name: "7/32\" x 11/16\" spring",
+        name: '7/32" x 11/16" spring',
         part: (t) => t("bom.groups.fasteners.items.hopperSpring.part"),
         notes: (t) => t("bom.groups.fasteners.items.hopperSpring.notes"),
         optional: "new-hopper",
+        buyUrl: "https://amzn.to/4r1tbUv",
       },
       {
-        key: "m2x4-screw",
-        qty: (n) => String(20 + (n - 2) * 6 + 7),
-        name: "M2x4 screw",
+        key: "m2x6-screw",
+        qty: (n) => String(20 + (n - 2) * 6 + 7 + (n + 1)),
+        name: "M2x6 screw",
         part: (t) => (
           <>
-            {t("bom.groups.fasteners.items.m2x4Screw.part")}{" "}
+            {t("bom.groups.fasteners.items.m2x6Screw.part")}{" "}
             <span className="text-muted-foreground">
-              {t("bom.groups.fasteners.items.m2x4Screw.partSpec")}
+              {t("bom.groups.fasteners.items.m2x6Screw.partSpec")}
             </span>
           </>
         ),
         notes: (t, n, boardType) =>
-          t("bom.groups.fasteners.items.m2x4Screw.notes", {
+          t("bom.groups.fasteners.items.m2x6Screw.notes", {
             count: n,
+            irCount: n + 1,
             board: BOARD_INFO[boardType].shortName,
           }),
-        buyUrl: "https://amzn.to/3UmCJx8",
-      },
-      {
-        key: "m2x6-screw",
-        qty: (n) => String(n + 1),
-        name: "M2x6 screw",
-        part: (t) => t("bom.groups.fasteners.items.m2x6Screw.part"),
-        notes: (t, n) =>
-          t("bom.groups.fasteners.items.m2x6Screw.notes", { count: n + 1 }),
         buyUrl: "https://amzn.to/3UmCJx8",
       },
       {
@@ -393,7 +387,7 @@ const GROUPS: Group[] = [
       {
         key: "camera-mount-screw",
         qty: () => "1",
-        name: "1/4\"-20 camera mount screw",
+        name: '1/4"-20 camera mount screw',
         part: (t) => t("bom.groups.optional.items.cameraMountScrew.part"),
         notes: (t) => t("bom.groups.optional.items.cameraMountScrew.notes"),
         buyUrl: "https://amzn.to/4gKMoVS",
