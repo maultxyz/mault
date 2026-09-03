@@ -432,7 +432,8 @@
             "text": "Verbinde den {{board}} über Web Serial mit der App und öffne dann /app/calibrate."
           },
           "calibrateModules": {
-            "text": "Modul-Kalibrierungsraster – lege modulweise den Öffnungs-/Schließimpuls für jede Boden- und Paddelklappe sowie links/neutral/rechts für jeden Schieber fest."
+            "text": "Modul-Kalibrierungsraster – lege modulweise den Öffnungs-/Schließimpuls für jede Boden- und Paddelklappe sowie links/neutral/rechts für jeden Schieber fest.",
+            "note": "Bei pusherLeft/pusherRight nicht vor der Innenwand stoppen – diese Servos bremsen ab, sobald sie sich einer weichen Zielposition nähern, wodurch der Schwung zum Wegschleudern der Karte verloren geht. Den Impuls über die Wand hinaus setzen, damit der Arm mit voller Geschwindigkeit dagegen schlägt; nur reduzieren, wenn er während des gesamten Hubs (nicht nur am Ende) gegen die Wand drückt/brummt."
           },
           "installHorns": {
             "text": "Stelle mit dem obigen Kalibrierungsraster jede Paddelklappe in ihre offene Position und jeden Schieber in seine neutrale Position, drücke dann das Horn (mit bereits montierter Klappe bzw. Schieberarm) auf die Servowelle und sichere es mit der Hornschraube – Bodenklappe, Paddelklappen und Schieberarm, für alle {{count}} Modul-Servos.",

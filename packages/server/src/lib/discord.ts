@@ -8,13 +8,14 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { bins, binSets, orgSettings } from "../db/schema";
 
-type DiscordEmbed = {
+export type DiscordEmbed = {
   title: string;
   description: string;
   color: number;
   timestamp: string;
   url?: string;
   image?: { url: string };
+  footer?: { text: string };
 };
 
 const CARD_SCANNED_COLOR = 0x5865f2; // Discord blurple
@@ -221,6 +222,52 @@ async function getNotifyConfig(
   };
 }
 
+async function postEmbedToBot(
+  channelId: string,
+  threadId: string | null,
+  threadName: string | null,
+  embed: DiscordEmbed,
+  attachmentDataUrl?: string,
+  secondaryImageUrl?: string,
+  useThread = true,
+): Promise<string | null> {
+  const botUrl = process.env.BOT_URL;
+  const botSecret = process.env.BOT_API_SECRET;
+  if (!botUrl || !botSecret) return null;
+
+  try {
+    const res = await fetch(`${botUrl}/notify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Bot-Secret": botSecret,
+      },
+      body: JSON.stringify({
+        channelId,
+        threadId,
+        threadName,
+        useThread,
+        embed,
+        attachmentDataUrl,
+        secondaryImageUrl,
+      }),
+    });
+    if (!res.ok) {
+      console.error(`[discord] Bot notify POST failed: ${res.status}`);
+      return null;
+    }
+
+    const result = (await res.json()) as {
+      success: boolean;
+      data?: { threadId?: string };
+    };
+    return result.data?.threadId ?? null;
+  } catch (err) {
+    console.error("[discord] Failed to send bot notification:", err);
+    return null;
+  }
+}
+
 export async function sendDiscordNotification(
   orgId: string,
   embed: DiscordEmbed,
@@ -231,47 +278,39 @@ export async function sendDiscordNotification(
   const config = await getNotifyConfig(orgId, kind);
   if (!config.channelId) return;
 
-  const botUrl = process.env.BOT_URL;
-  const botSecret = process.env.BOT_API_SECRET;
-  if (!botUrl || !botSecret) return;
-
-  try {
-    const res = await fetch(`${botUrl}/notify`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Bot-Secret": botSecret,
-      },
-      body: JSON.stringify({
-        channelId: config.channelId,
-        threadId: config.threadId,
-        threadName: THREAD_NAMES[kind],
-        embed,
-        attachmentDataUrl,
-        secondaryImageUrl,
-      }),
-    });
-    if (!res.ok) {
-      console.error(`[discord] Bot notify POST failed: ${res.status}`);
-      return;
-    }
-
-    const result = (await res.json()) as {
-      success: boolean;
-      data?: { threadId?: string };
-    };
-    const newThreadId = result.data?.threadId;
-    if (newThreadId && newThreadId !== config.threadId) {
-      await db
-        .update(orgSettings)
-        .set(
-          kind === "scan"
-            ? { discordScanThreadId: newThreadId, updatedAt: new Date() }
-            : { discordErrorThreadId: newThreadId, updatedAt: new Date() },
-        )
-        .where(eq(orgSettings.orgId, orgId));
-    }
-  } catch (err) {
-    console.error("[discord] Failed to send bot notification:", err);
+  const newThreadId = await postEmbedToBot(
+    config.channelId,
+    config.threadId,
+    THREAD_NAMES[kind],
+    embed,
+    attachmentDataUrl,
+    secondaryImageUrl,
+  );
+  if (newThreadId && newThreadId !== config.threadId) {
+    await db
+      .update(orgSettings)
+      .set(
+        kind === "scan"
+          ? { discordScanThreadId: newThreadId, updatedAt: new Date() }
+          : { discordErrorThreadId: newThreadId, updatedAt: new Date() },
+      )
+      .where(eq(orgSettings.orgId, orgId));
   }
+}
+
+export async function sendDonationDiscordNotification(
+  embed: DiscordEmbed,
+): Promise<void> {
+  const channelId = process.env.DISCORD_DONATION_CHANNEL_ID;
+  if (!channelId) return;
+
+  await postEmbedToBot(
+    channelId,
+    null,
+    null,
+    embed,
+    undefined,
+    undefined,
+    false,
+  );
 }

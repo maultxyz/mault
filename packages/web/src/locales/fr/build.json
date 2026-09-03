@@ -432,7 +432,8 @@
             "text": "Connecte le {{board}} à l'application via Web Serial, puis ouvre /app/calibrate."
           },
           "calibrateModules": {
-            "text": "Grille de calibration des modules - définis l'impulsion ouvert/fermé pour chaque trappe inférieure et palette, et gauche/neutre/droite pour chaque poussoir, module par module."
+            "text": "Grille de calibration des modules - définis l'impulsion ouvert/fermé pour chaque trappe inférieure et palette, et gauche/neutre/droite pour chaque poussoir, module par module.",
+            "note": "Pour pusherLeft/pusherRight, ne t'arrête pas avant la paroi intérieure - ces servos ralentissent en approchant une position \"molle\", ce qui tue l'élan nécessaire pour propulser la carte. Pousse l'impulsion au-delà de la paroi pour que le bras la percute à pleine vitesse ; ne réduis que s'il force/vibre contre la paroi pendant toute la course, et pas seulement à la fin."
           },
           "installHorns": {
             "text": "À l'aide de la grille de calibration ci-dessus, mets chaque palette en position ouverte et chaque poussoir en position neutre, puis appuie le palonnier (avec sa trappe ou son bras poussoir déjà fixé) sur l'axe du servo et fixe-le avec la vis de palonnier - trappe inférieure, trappes latérales et bras poussoir, pour les {{count}} servos du module.",

@@ -20,7 +20,8 @@ const SCAN_ATTACHMENT_NAME = "scan.jpg";
 interface NotifyBody {
   channelId?: string;
   threadId?: string | null;
-  threadName?: string;
+  threadName?: string | null;
+  useThread?: boolean;
   embed?: APIEmbed;
   attachmentDataUrl?: string;
   secondaryImageUrl?: string;
@@ -84,11 +85,14 @@ export function startNotifyServer(client: Client) {
     }
 
     const body = await c.req.json<NotifyBody>();
-    if (!body.channelId || !body.threadName || !body.embed) {
+    const useThread = body.useThread ?? true;
+    if (!body.channelId || !body.embed || (useThread && !body.threadName)) {
       return c.json(
         {
           success: false,
-          message: "channelId, threadName, and embed are required.",
+          message: useThread
+            ? "channelId, threadName, and embed are required."
+            : "channelId and embed are required.",
         },
         400,
       );
@@ -104,20 +108,6 @@ export function startNotifyServer(client: Client) {
           },
           404,
         );
-      }
-
-      let thread = null;
-      if (body.threadId) {
-        thread = await channel.threads.fetch(body.threadId).catch(() => null);
-      }
-
-      if (!thread) {
-        thread = await channel.threads.create({
-          name: body.threadName,
-          autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
-        });
-      } else if (thread.archived) {
-        await thread.setArchived(false);
       }
 
       const files = [];
@@ -138,6 +128,25 @@ export function startNotifyServer(client: Client) {
             new AttachmentBuilder(buffer, { name: SCAN_ATTACHMENT_NAME }),
           );
         }
+      }
+
+      if (!useThread) {
+        await channel.send({ embeds: [EmbedBuilder.from(body.embed)], files });
+        return c.json({ success: true, data: {} });
+      }
+
+      let thread = null;
+      if (body.threadId) {
+        thread = await channel.threads.fetch(body.threadId).catch(() => null);
+      }
+
+      if (!thread) {
+        thread = await channel.threads.create({
+          name: body.threadName!,
+          autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
+        });
+      } else if (thread.archived) {
+        await thread.setArchived(false);
       }
 
       await thread.send({ embeds: [EmbedBuilder.from(body.embed)], files });

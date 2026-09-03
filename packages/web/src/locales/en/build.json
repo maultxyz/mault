@@ -431,7 +431,8 @@
             "text": "Connect the {{board}} to the app via Web Serial, then open /app/calibrate."
           },
           "calibrateModules": {
-            "text": "Module Calibration Grid - set the open/closed pulse for each bottom and paddle, and left/neutral/right for each pusher, module by module."
+            "text": "Module Calibration Grid - set the open/closed pulse for each bottom and paddle, and left/neutral/right for each pusher, module by module.",
+            "note": "For pusherLeft/pusherRight, don't stop short of the inner wall - these servos slow down as they approach a soft target, which kills the momentum needed to fling the card. Push the pulse past the wall so the arm slaps into it at full speed; back it off only if it's straining/buzzing against the wall for the whole stroke instead of just at the end."
           },
           "installHorns": {
             "text": "Using the calibration grid above, put each paddle in its open position and each pusher in its neutral position, then press the horn (with its flapper or pusher arm already fitted) onto the servo shaft and secure it with the horn screw - bottom flapper, paddle flappers, and pusher arm, for all {{count}} module servos.",
