@@ -85,6 +85,7 @@ export function buildDonationEmbed(
   const lines = [
     amount != null ? `**${amount.toFixed(2)} ${currency}**` : undefined,
     note ?? "No message included.",
+    "Thank you for the support! ❤️",
   ].filter(Boolean);
 
   return {
