@@ -53,7 +53,6 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   const { hasCatchAll } = useBinConfigs();
   const { activeCollection } = useCollections();
   const apiHealthCheck = useGameApiHealthCheck(activeCollection?.game?.key);
-  const scanningBlocked = apiHealthCheck?.status === "error";
   const {
     status,
     errorMessage,
@@ -84,6 +83,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     startPhonePairing,
     stopPhonePairing,
     hasPhonePhoto,
+    isAtScanLimit,
   } = useCardScanner({
     onSearchResults: (cards, capturedImageUrl) => {
       if (cards.length > 0) {
@@ -93,6 +93,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     onNoMatch: sendCatchAllBin,
     rotated: !isMobile,
   });
+  const scanningBlocked = apiHealthCheck?.status === "error" || isAtScanLimit;
 
   useSerialMessage((msg) => {
     if (
@@ -344,6 +345,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           phonePairingStatus={phonePairingStatus}
           hasPhonePhoto={hasPhonePhoto}
           apiHealthCheck={apiHealthCheck}
+          dailyLimitReached={isAtScanLimit}
           onRetryError={handleRetryError}
           onConnectScanner={connect}
         />

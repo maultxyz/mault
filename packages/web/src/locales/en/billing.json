@@ -1,0 +1,13 @@
+{
+  "plan": {
+    "free": "Free",
+    "business": "Business"
+  },
+  "usage": "{{used}} / {{limit}} cards scanned today",
+  "upgrade": "Upgrade to Business",
+  "manage": "Manage billing",
+  "cancelAtPeriodEnd": "Your subscription ends on {{date}}.",
+  "checkoutSuccess": "You're now on the Business plan!",
+  "checkoutError": "Failed to start checkout. Please try again.",
+  "portalError": "Failed to open billing portal. Please try again."
+}

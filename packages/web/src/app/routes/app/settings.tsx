@@ -1,18 +1,45 @@
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
+import { BillingSettings } from "@/features/billing/components/billing-settings";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
 import { LocalOrgInvites } from "@/features/companies/components/local-org-invites";
 import { OrgSettings } from "@/features/companies/components/org-settings";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
+import { useOrg } from "@/features/companies/api/use-organization";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
 
 export default function SettingsPage() {
   const { t } = useTranslation("settings");
   const { t: tGames } = useTranslation("games");
+  const { t: tBilling } = useTranslation("billing");
+  const { activeOrg } = useOrg();
+  const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const billingResult = searchParams.get("billing");
+    if (!billingResult) return;
+    if (billingResult === "success") {
+      toast.success(tBilling("checkoutSuccess"));
+      void queryClient.invalidateQueries({ queryKey: ["billing", activeOrg?.id] });
+    }
+    setSearchParams(
+      (prev) => {
+        prev.delete("billing");
+        return prev;
+      },
+      { replace: true },
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   return (
     <div className="overflow-y-auto h-full w-full">
@@ -27,6 +54,14 @@ export default function SettingsPage() {
               {t("organizations.heading")}
             </h2>
             <OrgSettings />
+          </div>
+        )}
+        {AUTH_PROVIDER !== "local" && (
+          <div className="rounded-lg border p-4 flex flex-col gap-4">
+            <h2 className="text-sm font-semibold font-heading">
+              {t("billing.heading")}
+            </h2>
+            <BillingSettings />
           </div>
         )}
         {AUTH_PROVIDER === "local" && (

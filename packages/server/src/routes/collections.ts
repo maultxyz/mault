@@ -5,12 +5,18 @@ import type {
   PlayingCardWithDistance,
   ScannedCard,
 } from "@magic-vault/shared";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { authProvider } from "../auth";
 import { authQuery, db, type Transaction } from "../db";
-import { collectionCards, collections, games, orgSettings } from "../db/schema";
+import {
+  collectionCards,
+  collections,
+  games,
+  orgBilling,
+  orgSettings,
+} from "../db/schema";
 import {
   buildCardScannedEmbed,
   buildScanSessionStartEmbed,
@@ -32,6 +38,10 @@ import {
   subscribeOrgLiveCounts,
   subscribeSession,
 } from "../lib/session-stream";
+import {
+  FREE_PLAN_DAILY_SCAN_LIMIT,
+  isBillingEnabled,
+} from "../lib/stripe";
 import {
   getUserDisplayName,
   requireAuth,
@@ -477,7 +487,7 @@ router.post("/:guid/cards", requireAuth, requireOrg, async (c) => {
 
   type AddCardResult =
     | { success: true; data: ScannedCard }
-    | { success: false; message: string };
+    | { success: false; message: string; scanLimitReached?: boolean };
 
   try {
     const { result, collectionName, gameName, gameId } = await authQuery<{
@@ -497,6 +507,38 @@ router.post("/:guid/cards", requireAuth, requireOrg, async (c) => {
           gameName: undefined,
           gameId: null,
         };
+
+      if (isBillingEnabled()) {
+        const billing = await tx.query.orgBilling.findFirst({
+          where: eq(orgBilling.orgId, orgId),
+          columns: { plan: true },
+        });
+        if ((billing?.plan ?? "free") === "free") {
+          const startOfTodayUtc = new Date();
+          startOfTodayUtc.setUTCHours(0, 0, 0, 0);
+          const [{ scannedToday }] = await tx
+            .select({ scannedToday: sql<number>`count(*)::int` })
+            .from(collectionCards)
+            .where(
+              and(
+                eq(collectionCards.orgId, orgId),
+                gte(collectionCards.scannedAt, startOfTodayUtc),
+              ),
+            );
+          if (scannedToday >= FREE_PLAN_DAILY_SCAN_LIMIT) {
+            return {
+              result: {
+                success: false,
+                message: `Free plan daily scan limit reached (${FREE_PLAN_DAILY_SCAN_LIMIT}/day). Upgrade to Business for unlimited scanning.`,
+                scanLimitReached: true,
+              },
+              collectionName: undefined,
+              gameName: undefined,
+              gameId: null,
+            };
+          }
+        }
+      }
 
       await tx
         .insert(collectionCards)
@@ -594,6 +636,9 @@ router.post("/:guid/cards", requireAuth, requireOrg, async (c) => {
         .catch((err) => {
           console.error("[discord] Failed to check discordNotifyOnScan:", err);
         });
+    }
+    if (!result.success && result.scanLimitReached) {
+      return c.json(result, 402);
     }
     return c.json(result);
   } catch (err) {

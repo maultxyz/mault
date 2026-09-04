@@ -292,6 +292,31 @@ export const orgSettings = pgTable(
   ],
 ).enableRLS();
 
+export const orgBilling = pgTable(
+  "org_billing",
+  {
+    id: serial().primaryKey(),
+    orgId: text("org_id").notNull(),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    stripePriceId: text("stripe_price_id"),
+    plan: text("plan").notNull().default("free"),
+    status: text("status"),
+    currentPeriodEnd: timestamp("current_period_end"),
+    cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("org_billing_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 // ─── Audit tables (org-scoped, no FK — audit records are permanent) ───────────
 
 export const binSetAudit = pgTable(

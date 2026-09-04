@@ -53,6 +53,7 @@ export function ScannerOverlay({
   phonePairingStatus,
   hasPhonePhoto,
   apiHealthCheck,
+  dailyLimitReached,
   onRetryError,
   onConnectScanner,
 }: ScannerOverlayProps) {
@@ -65,6 +66,17 @@ export function ScannerOverlay({
         <div className="text-center text-xs text-muted-foreground max-w-56">
           <IconAlertTriangle className="mx-auto mb-2 size-5 text-destructive" />
           <p>{t("scannerOverlay.apiDown", { api: apiHealthCheck.name })}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (dailyLimitReached) {
+    return (
+      <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
+        <div className="text-center text-xs text-muted-foreground max-w-56">
+          <IconAlertTriangle className="mx-auto mb-2 size-5 text-destructive" />
+          <p>{t("scannerOverlay.dailyLimitReached")}</p>
         </div>
       </div>
     );

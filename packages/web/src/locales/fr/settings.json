@@ -4,6 +4,9 @@
   "organizations": {
     "heading": "Organisations"
   },
+  "billing": {
+    "heading": "Facturation"
+  },
   "appearance": {
     "heading": "Apparence",
     "description": "Personnalise la couleur d'accent de l'application.",

@@ -66,6 +66,10 @@
       "title": "Collection verrouillée",
       "description": "Un autre membre de l'organisation est en train de scanner dans cette collection."
     },
+    "scanLimitReached": {
+      "title": "Limite de scans quotidienne atteinte",
+      "description": "Passe à Entreprise pour un scan illimité."
+    },
     "routingFailed": {
       "title": "Échec du routage",
       "description": "Aucune réponse de la trieuse pour le bac {{binNumber}}."
@@ -197,6 +201,7 @@
   },
   "scannerOverlay": {
     "apiDown": "{{api}} est actuellement hors service - le scan est désactivé pour cette collection jusqu'à son rétablissement. Consulte la page de statut pour les mises à jour.",
+    "dailyLimitReached": "Limite de scans quotidienne atteinte. Passe à Entreprise pour un scan illimité.",
     "connectCamera": "Connecte une caméra pour commencer à scanner.",
     "waitingForPhone": "En attente d'un téléphone à associer comme caméra - affiche le code QR depuis le menu caméra.",
     "phoneReadyNoPhoto": "Caméra du téléphone prête. Elle prendra une photo dès qu'une carte arrivera.",

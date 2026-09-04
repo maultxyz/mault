@@ -45,15 +45,15 @@ const API_BASE = import.meta.env.VITE_API_URL ?? "";
 export async function addCollectionCard(
   guid: string,
   record: ScannedCard,
-): Promise<Result<ScannedCard>> {
+): Promise<Result<ScannedCard> & { scanLimitReached?: boolean }> {
   const res = await fetch(`${API_BASE}/api/collections/${guid}/cards`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
     body: JSON.stringify(record),
   });
   await handleForbidden(res);
-  // Return body for both success and 423 (locked)
-  if (res.ok || res.status === 423) return res.json();
+  // Return body for success, 423 (locked), and 402 (free-plan scan limit reached)
+  if (res.ok || res.status === 423 || res.status === 402) return res.json();
   throw new Error(`API error: ${res.status}`);
 }
 

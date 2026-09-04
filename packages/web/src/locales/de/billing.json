@@ -1,0 +1,13 @@
+{
+  "plan": {
+    "free": "Kostenlos",
+    "business": "Business"
+  },
+  "usage": "{{used}} / {{limit}} Karten heute gescannt",
+  "upgrade": "Auf Business upgraden",
+  "manage": "Abrechnung verwalten",
+  "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
+  "checkoutSuccess": "Du bist jetzt auf dem Business-Plan!",
+  "checkoutError": "Checkout konnte nicht gestartet werden. Bitte versuche es erneut.",
+  "portalError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut."
+}
