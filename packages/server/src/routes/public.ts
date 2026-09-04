@@ -1,6 +1,7 @@
 import type { HealthCheck, HealthCheckResponse } from "@magic-vault/shared";
 import { count, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
+import type Stripe from "stripe";
 import pkg from "../../package.json";
 import { db } from "../db";
 import { cardImageVectors, games, orgBilling } from "../db/schema";
@@ -20,7 +21,6 @@ import { SCRYFALL_DEFAULT_URL } from "../lib/scryfall/search";
 import { getStripe, isBillingEnabled } from "../lib/stripe";
 import { YUGIOH_DEFAULT_URL } from "../lib/yugioh/search";
 import type { AppEnv } from "../middleware/auth";
-import type Stripe from "stripe";
 
 const router = new Hono<AppEnv>();
 
@@ -187,9 +187,6 @@ router.post("/webhooks/buymeacoffee", async (c) => {
     void sendDonationDiscordNotification(embed);
   }
 
-  // Always 200 for a validly-signed, recognized-or-not event type, so BMC
-  // doesn't treat an event we intentionally ignore (membership, refund, ...)
-  // as a delivery failure and keep retrying it.
   return c.json({ success: true });
 });
 
@@ -199,10 +196,6 @@ async function upsertOrgBillingFromSubscription(
   subscription: Stripe.Subscription,
 ) {
   const item = subscription.items.data[0];
-  // Some API versions represent a scheduled cancellation via cancel_at (a
-  // timestamp) instead of the cancel_at_period_end boolean - a portal
-  // cancellation can arrive with cancel_at_period_end: false and a populated
-  // cancel_at, so check both rather than trusting the boolean alone.
   const cancelAtPeriodEnd =
     subscription.cancel_at_period_end || subscription.cancel_at != null;
   await db
@@ -259,7 +252,10 @@ router.post("/webhooks/stripe", async (c) => {
       webhookSecret,
     );
   } catch (err) {
-    console.error("[public] Stripe webhook signature verification failed:", err);
+    console.error(
+      "[public] Stripe webhook signature verification failed:",
+      err,
+    );
     return c.json({ success: false, message: "Invalid signature." }, 401);
   }
 
@@ -277,7 +273,11 @@ router.post("/webhooks/stripe", async (c) => {
         if (orgId && customerId && subscriptionId) {
           const subscription =
             await getStripe().subscriptions.retrieve(subscriptionId);
-          await upsertOrgBillingFromSubscription(orgId, customerId, subscription);
+          await upsertOrgBillingFromSubscription(
+            orgId,
+            customerId,
+            subscription,
+          );
         }
         break;
       }
@@ -293,7 +293,11 @@ router.post("/webhooks/stripe", async (c) => {
         });
         const orgId = existing?.orgId ?? subscription.metadata?.orgId;
         if (orgId) {
-          await upsertOrgBillingFromSubscription(orgId, customerId, subscription);
+          await upsertOrgBillingFromSubscription(
+            orgId,
+            customerId,
+            subscription,
+          );
         }
         break;
       }

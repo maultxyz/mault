@@ -2,11 +2,10 @@ import Stripe from "stripe";
 
 let _stripe: Stripe | null = null;
 
-// Self-hosted (AUTH_PROVIDER=local) installs never need a Stripe account -
-// billing is a hosted-SaaS-only concern, gated off entirely when either the
-// provider is local or no secret key is configured.
 export function isBillingEnabled(): boolean {
-  return process.env.AUTH_PROVIDER !== "local" && !!process.env.STRIPE_SECRET_KEY;
+  return (
+    process.env.AUTH_PROVIDER !== "local" && !!process.env.STRIPE_SECRET_KEY
+  );
 }
 
 export function getStripe(): Stripe {
@@ -33,14 +32,6 @@ export const FREE_PLAN_DAILY_SCAN_LIMIT =
 
 let _portalConfigurationId: string | null = null;
 
-// Stripe's default Customer Portal configuration cancels subscriptions
-// immediately unless its "subscription_cancel" feature is explicitly set to
-// "at_period_end" - without this, a customer canceling via the portal jumps
-// straight to the free plan instead of the org staying on Business until the
-// period they already paid for ends (which is what orgBilling.cancelAtPeriodEnd
-// is meant to represent). This patches the account's default configuration
-// in place the first time it's needed, then caches the id for the process
-// lifetime.
 export async function getCancelAtPeriodEndPortalConfigurationId(): Promise<
   string | undefined
 > {
