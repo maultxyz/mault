@@ -216,7 +216,8 @@
     "identifyingCard": "Identifying card…",
     "paused": "Scanner paused - press Resume to continue.",
     "duplicate": "Same card scanned - use Add Again to add it anyway.",
-    "noMatch": "Card not recognized - try Scan Again or adjust lighting."
+    "noMatch": "Card not recognized - try Scan Again or adjust lighting.",
+    "faceUpHint": "Cards should face right-side up"
   },
   "sessionErrorsPanel": {
     "heading": "Errors"

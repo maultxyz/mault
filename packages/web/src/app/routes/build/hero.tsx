@@ -57,7 +57,7 @@ export function BuildHero() {
         </span>
       </div>
 
-      <div className="mt-10 overflow-hidden rounded-lg border bg-card shadow-sm">
+      <div className="mt-10 overflow-hidden rounded-lg border bg-card">
         <div className="divide-y divide-border">
           <p className="p-5 text-sm/relaxed text-foreground/70 md:p-6">
             <Trans

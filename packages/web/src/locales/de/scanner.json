@@ -216,7 +216,8 @@
     "identifyingCard": "Karte wird identifiziert…",
     "paused": "Scanner pausiert - drücke Fortsetzen, um weiterzumachen.",
     "duplicate": "Gleiche Karte erneut gescannt - verwende Erneut hinzufügen, um sie trotzdem hinzuzufügen.",
-    "noMatch": "Karte nicht erkannt - versuche Erneut scannen oder passe die Beleuchtung an."
+    "noMatch": "Karte nicht erkannt - versuche Erneut scannen oder passe die Beleuchtung an.",
+    "faceUpHint": "Karten sollten mit der Vorderseite nach oben liegen"
   },
   "sessionErrorsPanel": {
     "heading": "Fehler"
