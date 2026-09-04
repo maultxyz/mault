@@ -13,6 +13,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { getCardById, searchCards } from "@/features/cards/api/card-search";
+import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
@@ -49,7 +50,6 @@ interface CardDetailPanelProps {
   onRemove?: () => void;
   currentCard?: PlayingCardWithDistance;
   alternativeMatches?: PlayingCardWithDistance[];
-  capturedImageUrl?: string;
   isFoil?: boolean;
   binNumber?: number;
   onPrev?: () => void;
@@ -66,7 +66,6 @@ export function CardDetailPanel({
   onRemove,
   currentCard,
   alternativeMatches,
-  capturedImageUrl,
   isFoil = false,
   binNumber,
   onPrev,
@@ -121,6 +120,16 @@ export function CardDetailPanel({
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
   }, [editing, hasPrev, hasNext, onPrev, onNext, onClose]);
+
+  const { data: capturedImageUrl } = useQuery({
+    queryKey: ["collection-card-image", activeCollection?.guid, scanId],
+    queryFn: () =>
+      loadCardImage(activeCollection!.guid, scanId!).then(
+        (r) => r.data?.capturedImageUrl,
+      ),
+    enabled: !!activeCollection?.guid && !!scanId,
+    staleTime: Infinity,
+  });
 
   const isQueryReady = debouncedQuery.trim().length >= QUERY_MIN_LENGTH;
 

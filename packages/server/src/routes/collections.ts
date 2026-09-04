@@ -112,20 +112,6 @@ function toScannedCard(row: {
   };
 }
 
-const MAX_CARDS_WITH_CAPTURED_IMAGE = 50;
-
-function toScannedCardsWithBoundedImages(
-  rows: Parameters<typeof toScannedCard>[0][],
-): ScannedCard[] {
-  return rows.map((row, i) =>
-    toScannedCard(
-      i < MAX_CARDS_WITH_CAPTURED_IMAGE
-        ? row
-        : { ...row, capturedImageDataUrl: null },
-    ),
-  );
-}
-
 async function _loadCollections(
   tx: Transaction,
   orgId: string,
@@ -446,7 +432,6 @@ router.get("/:guid/cards", requireAuth, requireOrg, async (c) => {
           card: collectionCards.card,
           scannedAt: collectionCards.scannedAt,
           binNumber: collectionCards.binNumber,
-          capturedImageDataUrl: collectionCards.capturedImageDataUrl,
           isFoil: collectionCards.isFoil,
           isDownloaded: collectionCards.isDownloaded,
           alternativeMatches: collectionCards.alternativeMatches,
@@ -455,7 +440,7 @@ router.get("/:guid/cards", requireAuth, requireOrg, async (c) => {
         .where(eq(collectionCards.collectionId, collection.id))
         .orderBy(desc(collectionCards.scannedAt));
 
-      return { success: true, data: toScannedCardsWithBoundedImages(rows) };
+      return { success: true, data: rows.map(toScannedCard) };
     });
     return c.json(result);
   } catch (err) {
@@ -661,6 +646,38 @@ router.post("/:guid/cards", requireAuth, requireOrg, async (c) => {
     return c.json({ success: false, message: "Database error." }, 500);
   }
 });
+
+// GET /collections/:guid/cards/:scanId/image — the scanned photo, fetched on
+// demand for the card detail view only; the bulk card list/session_init
+// payloads omit it since it's stored inline as a base64 data URL and
+// including it for every card in a collection's history blows up the
+// response size.
+router.get(
+  "/:guid/cards/:scanId/image",
+  requireAuth,
+  requireOrg,
+  async (c) => {
+    const orgId = c.get("orgId");
+    const scanId = c.req.param("scanId");
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        const existing = await tx.query.collectionCards.findFirst({
+          where: (t, { eq, and }) => and(eq(t.guid, scanId), eq(t.orgId, orgId)),
+          columns: { capturedImageDataUrl: true },
+        });
+        if (!existing) return { success: false, message: "Card not found." };
+        return {
+          success: true,
+          data: { capturedImageUrl: existing.capturedImageDataUrl ?? undefined },
+        };
+      });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  },
+);
 
 // PUT /collections/:guid/cards/:scanId — update card (correction and/or foil status)
 router.put("/:guid/cards/:scanId", requireAuth, requireOrg, async (c) => {
@@ -937,7 +954,6 @@ router.get("/:guid/stream", async (c) => {
             card: collectionCards.card,
             scannedAt: collectionCards.scannedAt,
             binNumber: collectionCards.binNumber,
-            capturedImageDataUrl: collectionCards.capturedImageDataUrl,
             isFoil: collectionCards.isFoil,
             isDownloaded: collectionCards.isDownloaded,
             alternativeMatches: collectionCards.alternativeMatches,
@@ -968,7 +984,7 @@ router.get("/:guid/stream", async (c) => {
             createdAt: collection.createdAt,
             updatedAt: collection.updatedAt,
           } satisfies Collection,
-          cards: toScannedCardsWithBoundedImages(cardRows),
+          cards: cardRows.map(toScannedCard),
           viewers: getSessionViewers(guid),
         };
       });

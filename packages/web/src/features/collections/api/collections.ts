@@ -40,6 +40,15 @@ export async function loadCollectionCards(guid: string): Promise<Result<ScannedC
   return apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards`);
 }
 
+export async function loadCardImage(
+  guid: string,
+  scanId: string,
+): Promise<Result<{ capturedImageUrl?: string }>> {
+  return apiGet<Result<{ capturedImageUrl?: string }>>(
+    `/api/collections/${guid}/cards/${scanId}/image`,
+  );
+}
+
 const API_BASE = import.meta.env.VITE_API_URL ?? "";
 
 export async function addCollectionCard(

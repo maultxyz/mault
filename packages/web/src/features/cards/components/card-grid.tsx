@@ -276,7 +276,6 @@ export function CardGrid() {
         scanId={openEntry.scanId}
         currentCard={openEntry.card}
         alternativeMatches={openEntry.alternativeMatches}
-        capturedImageUrl={openEntry.capturedImageUrl}
         isFoil={openEntry.isFoil}
         binNumber={openEntry.binNumber}
         onClose={() => setOpenScanId(null)}
