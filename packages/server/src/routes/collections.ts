@@ -38,10 +38,7 @@ import {
   subscribeOrgLiveCounts,
   subscribeSession,
 } from "../lib/session-stream";
-import {
-  FREE_PLAN_DAILY_SCAN_LIMIT,
-  isBillingEnabled,
-} from "../lib/stripe";
+import { FREE_PLAN_DAILY_SCAN_LIMIT, isBillingEnabled } from "../lib/stripe";
 import {
   getUserDisplayName,
   requireAuth,
@@ -113,6 +110,20 @@ function toScannedCard(row: {
     alternativeMatches:
       (row.alternativeMatches as PlayingCardWithDistance[] | null) ?? undefined,
   };
+}
+
+const MAX_CARDS_WITH_CAPTURED_IMAGE = 50;
+
+function toScannedCardsWithBoundedImages(
+  rows: Parameters<typeof toScannedCard>[0][],
+): ScannedCard[] {
+  return rows.map((row, i) =>
+    toScannedCard(
+      i < MAX_CARDS_WITH_CAPTURED_IMAGE
+        ? row
+        : { ...row, capturedImageDataUrl: null },
+    ),
+  );
 }
 
 async function _loadCollections(
@@ -444,7 +455,7 @@ router.get("/:guid/cards", requireAuth, requireOrg, async (c) => {
         .where(eq(collectionCards.collectionId, collection.id))
         .orderBy(desc(collectionCards.scannedAt));
 
-      return { success: true, data: rows.map(toScannedCard) };
+      return { success: true, data: toScannedCardsWithBoundedImages(rows) };
     });
     return c.json(result);
   } catch (err) {
@@ -957,7 +968,7 @@ router.get("/:guid/stream", async (c) => {
             createdAt: collection.createdAt,
             updatedAt: collection.updatedAt,
           } satisfies Collection,
-          cards: cardRows.map(toScannedCard),
+          cards: toScannedCardsWithBoundedImages(cardRows),
           viewers: getSessionViewers(guid),
         };
       });
