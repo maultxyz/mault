@@ -13,7 +13,16 @@
     "discordAriaLabel": "Discord beitreten",
     "collapse": "Einklappen",
     "collapseSidebar": "Seitenleiste einklappen ([)",
-    "expandSidebar": "Seitenleiste ausklappen ([)"
+    "expandSidebar": "Seitenleiste ausklappen ([)",
+    "alerts": "Meldungen"
+  },
+  "alerts": {
+    "dismiss": "Verwerfen",
+    "tray": {
+      "trigger": "Benachrichtigungen",
+      "title": "Benachrichtigungen",
+      "empty": "Du bist auf dem neuesten Stand."
+    }
   },
   "breadcrumb": {
     "account": "Konto"

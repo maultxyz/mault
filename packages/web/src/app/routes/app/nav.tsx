@@ -1,3 +1,4 @@
+import { AlertTrayTrigger } from "@/components/alert-tray-trigger";
 import { LanguageSwitcherIcon } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -434,6 +435,27 @@ export function AppNav() {
         {mobileItems.map((item) => (
           <BottomNavItem key={item.to} {...item} />
         ))}
+        <AlertTrayTrigger
+          side="top"
+          align="center"
+          trigger={(count) => (
+            <button
+              type="button"
+              aria-label={t("alerts.tray.trigger")}
+              className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md text-muted-foreground active:scale-90 transition-all"
+            >
+              <span className="relative">
+                <IconPigFilled size={20} />
+                {count > 0 && (
+                  <span className="absolute -top-1 -right-1.5 min-w-3 h-3 rounded-full bg-destructive ring-1 ring-background" />
+                )}
+              </span>
+              <span className="text-[10px] leading-none font-medium">
+                {t("nav.alerts")}
+              </span>
+            </button>
+          )}
+        />
         <OrgSwitcher variant="tab" side="top" />
         <UserMenu variant="tab" side="top" />
       </nav>
@@ -447,22 +469,32 @@ export function AppNav() {
         expanded ? "w-55 items-stretch" : "w-12 items-center",
       )}
     >
-      <Tooltip>
-        <TooltipTrigger
-          className={cn(
-            "flex items-center gap-2 cursor-default shrink-0",
-            expanded ? "h-8 mx-2" : "size-8 justify-center",
-          )}
-        >
-          <span className="bg-primary grid size-8 shrink-0 place-items-center rounded-lg text-primary-foreground">
-            <IconPigFilled className="size-4" />
-          </span>
-          {expanded && (
-            <span className="font-bold font-heading text-sm">Mault</span>
-          )}
-        </TooltipTrigger>
-        <TooltipContent side="right">v{__APP_VERSION__}</TooltipContent>
-      </Tooltip>
+      <AlertTrayTrigger
+        side="right"
+        align="start"
+        trigger={(count) => (
+          <button
+            type="button"
+            aria-label={t("alerts.tray.trigger")}
+            className={cn(
+              "flex items-center gap-2 shrink-0 outline-none",
+              expanded ? "h-8 mx-2" : "size-8 justify-center",
+            )}
+          >
+            <span className="relative bg-primary grid size-8 shrink-0 place-items-center rounded-lg text-primary-foreground">
+              <IconPigFilled className="size-4" />
+              {count > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 rounded-full bg-destructive px-0.5 text-[9px] font-semibold leading-3.5 text-destructive-foreground ring-2 ring-sidebar">
+                  {count > 9 ? "9+" : count}
+                </span>
+              )}
+            </span>
+            {expanded && (
+              <span className="font-bold font-heading text-sm">Mault</span>
+            )}
+          </button>
+        )}
+      />
       <Separator />
       <nav
         className={cn(

@@ -15,6 +15,7 @@ import { ScannedCardsProvider } from "@/features/scanner/api/use-scanned-cards";
 import { ScannerIslandProvider } from "@/features/scanner/api/use-scanner-island";
 import { SerialProvider } from "@/features/scanner/api/use-serial";
 import { DocumentTitleUpdater } from "@/features/scanner/components/document-title-updater";
+import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
 import {
   applyPrimaryColor,
   resetPrimaryColor,
@@ -70,7 +71,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                         <FeederConfigProvider>
                           <ScannedCardsProvider>
                             <CardFiltersProvider>
-                              <AppLoadingGate>{children}</AppLoadingGate>
+                              <AppAlertsProvider>
+                                <AppLoadingGate>{children}</AppLoadingGate>
+                              </AppAlertsProvider>
                               <OrgPickerModal />
                               <DocumentTitleUpdater />
                             </CardFiltersProvider>
