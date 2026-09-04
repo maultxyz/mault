@@ -3,7 +3,6 @@ import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
   boolean,
   customType,
-  index,
   integer,
   jsonb,
   pgTable,
@@ -52,10 +51,12 @@ export const cardImageVectors = pgTable(
       table.lang,
       table.cardId,
     ),
-    index("cards_embedding_hnsw").using(
-      "hnsw",
-      table.embedding.op("vector_cosine_ops"),
-    ),
+    // No table-wide HNSW index here on purpose: every real query filters by
+    // game_key first, and one global ANN index makes that filter lossy (see
+    // ensureGameVectorIndex in lib/game-vector-index.ts). Per-game_key
+    // partial HNSW indexes are created dynamically instead, since game keys
+    // are admin-defined data (Games Manager), not something this static
+    // schema can enumerate.
     crudPolicy({
       role: authenticatedRole,
       read: true,
