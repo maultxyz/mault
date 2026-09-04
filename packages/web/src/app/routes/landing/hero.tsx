@@ -47,10 +47,7 @@ export function LandingHero() {
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <Link
             to="/auth/sign-up"
-            className={cn(
-              buttonVariants({ variant: "default", size: "lg" }),
-              "shadow-sm shadow-primary/30 transition-shadow hover:shadow-md hover:shadow-primary/30",
-            )}
+            className={cn(buttonVariants({ variant: "default", size: "lg" }))}
           >
             {t("hero.getStartedFree")}
             <IconArrowRight size={16} />

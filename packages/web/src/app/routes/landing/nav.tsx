@@ -101,10 +101,7 @@ export function LandingNav() {
               </Link>
               <Link
                 to="/auth/sign-up"
-                className={cn(
-                  buttonVariants({ variant: "default", size: "lg" }),
-                  "shadow-sm shadow-primary/30 transition-shadow hover:shadow-md hover:shadow-primary/30",
-                )}
+                className={cn(buttonVariants({ variant: "default", size: "lg" }))}
               >
                 {t("nav.getStarted")}
               </Link>

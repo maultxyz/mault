@@ -13,7 +13,7 @@
     "getStarted": "Jetzt starten"
   },
   "footer": {
-    "copyright": "© {{year}} Mault · v{{version}}"
+    "copyright": "© {{year}} Mault LLC · v{{version}}"
   },
   "hero": {
     "title": "Jede Karte,<br></br><highlight>schön dort, wo sie hingehört.</highlight>",

@@ -31,7 +31,7 @@
     "openSource": "Open source",
     "reportIssue": "Report an issue",
     "signIn": "Sign in",
-    "copyright": "© {{year}} Mault"
+    "copyright": "© {{year}} Mault LLC"
   },
   "bom": {
     "heading": "Bill of materials",

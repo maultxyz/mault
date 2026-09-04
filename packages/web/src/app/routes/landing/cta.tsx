@@ -24,7 +24,7 @@ export function LandingCta() {
           to="/auth/sign-up"
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
-            "mt-2 shadow-sm shadow-primary/30 transition-shadow hover:shadow-md hover:shadow-primary/30",
+            "mt-2",
           )}
         >
           {t("cta.button")}

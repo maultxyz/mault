@@ -13,7 +13,7 @@
     "getStarted": "Get started"
   },
   "footer": {
-    "copyright": "© {{year}} Mault · v{{version}}"
+    "copyright": "© {{year}} Mault LLC · v{{version}}"
   },
   "hero": {
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",

@@ -49,7 +49,7 @@ function BinCell({
 
 export function DemoBinDiagram({ activeBin = 4 }: { activeBin?: number }) {
   return (
-    <div className="divide-y divide-border overflow-hidden rounded-lg border">
+    <div className="divide-y divide-border overflow-hidden rounded-lg border bg-background">
       {MODULES.map((m) => (
         <div key={m.module} className="grid grid-cols-2 divide-x divide-border">
           <BinCell

@@ -32,7 +32,10 @@ export function LandingFeatures() {
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {HIGHLIGHTS.map(({ key, demo: Demo }) => (
-            <div key={key} className="flex flex-col gap-4">
+            <div
+              key={key}
+              className="flex flex-col gap-4 rounded-xl bg-muted p-6"
+            >
               <div>
                 <p className="font-heading text-sm font-semibold">
                   {t(`features.items.${key}.title`)}

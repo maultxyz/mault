@@ -14,7 +14,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
   const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
 
   return (
-    <div className="relative rounded-lg border bg-muted p-1">
+    <div className="relative rounded-lg border p-1 bg-background">
       <div className="relative aspect-5/7 overflow-hidden rounded-lg">
         {isFoil && (
           <div

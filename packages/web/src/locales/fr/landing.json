@@ -13,7 +13,7 @@
     "getStarted": "Commencer"
   },
   "footer": {
-    "copyright": "© {{year}} Mault · v{{version}}"
+    "copyright": "© {{year}} Mault LLC · v{{version}}"
   },
   "hero": {
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
