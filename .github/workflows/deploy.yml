@@ -3,6 +3,7 @@ name: Deploy
 on:
   push:
     branches: [master]
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -23,8 +24,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Only meaningful for a push event, which has a "before" commit to
+      # diff against - a manually dispatched run always deploys below
+      # regardless of what this reports.
       - name: Detect changed packages
         id: changes
+        if: github.event_name == 'push'
         uses: dorny/paths-filter@v3
         with:
           filters: |
@@ -41,10 +46,15 @@ jobs:
       # Web and server are always deployed together: if only one of them
       # changed, deploying just that one would leave the other running an
       # older version, and the two are expected to stay on the same release.
+      # A manual (workflow_dispatch) run always deploys, since the whole
+      # point of triggering it by hand is to force a redeploy regardless of
+      # what changed - e.g. retrying after a failed Coolify webhook.
       - name: Compute deploy flag
         id: deploy
         run: |
-          if [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+          elif [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then
             echo "should_deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
