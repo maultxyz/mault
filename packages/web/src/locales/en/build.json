@@ -306,7 +306,8 @@
             "text": "Dry-fit each module housing before inserting any electronics - sand or adjust any tight servo pockets now."
           },
           "mountBoardsToPanels": {
-            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 7 M2×6 screws."
+            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 7 M2×6 screws.",
+            "note": "The PCA9685's header pins point straight out to the side - you may need to bend them 90° upward so they clear the panel and stay easy to reach when wiring to the {{board}}."
           },
           "attachBasePanels": {
             "text": "Attach the base panels to the base with 8 M3×6 screws and 8 M3 nuts.",

@@ -3,6 +3,7 @@ import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
   boolean,
   customType,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -50,6 +51,10 @@ export const cardImageVectors = pgTable(
       table.gameKey,
       table.lang,
       table.cardId,
+    ),
+    index("cards_embedding_hnsw").using(
+      "hnsw",
+      table.embedding.op("vector_cosine_ops"),
     ),
     crudPolicy({
       role: authenticatedRole,
