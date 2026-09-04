@@ -1,0 +1,1 @@
+CREATE INDEX "cards_embedding_hnsw" ON "cards" USING hnsw ("embedding" vector_cosine_ops);
