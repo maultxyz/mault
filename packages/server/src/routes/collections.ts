@@ -608,6 +608,9 @@ router.post("/:guid/cards", requireAuth, requireOrg, async (c) => {
                 sortingLogicSummary,
               ),
               "scan",
+              undefined,
+              undefined,
+              guid,
             );
           }
 
@@ -627,6 +630,7 @@ router.post("/:guid/cards", requireAuth, requireOrg, async (c) => {
             "scan",
             capturedImageUrl,
             referenceImageUrl,
+            guid,
           );
         })
         .catch((err) => {

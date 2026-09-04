@@ -10,6 +10,7 @@ import {
   type SlashCommandOptionsOnlyBuilder,
   type SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
+import * as clear from "./commands/clear";
 import * as help from "./commands/help";
 import * as link from "./commands/link";
 import * as notification from "./commands/notification";
@@ -35,7 +36,14 @@ if (!TOKEN || !CLIENT_ID) {
   throw new Error("DISCORD_BOT_TOKEN and DISCORD_CLIENT_ID must be set.");
 }
 
-const commands: BotCommand[] = [link, stats, notification, scanning, help];
+const commands: BotCommand[] = [
+  link,
+  stats,
+  notification,
+  scanning,
+  clear,
+  help,
+];
 const commandsByName = new Map(commands.map((c) => [c.data.name, c]));
 const commandBodies = commands.map((c) => c.data.toJSON());
 

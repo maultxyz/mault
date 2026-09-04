@@ -45,12 +45,16 @@
         "description": "Zeigt die Sammlungsstatistiken dieser Organisation, optional auf eine Sammlung beschränkt."
       },
       "scanning": {
-        "usage": "/scanning [Kanal]",
-        "description": "Legt den Kanal für Scan-Benachrichtigungen fest (Standard: aktueller Kanal)."
+        "usage": "/scanning [Kanal] [Sammlung]",
+        "description": "Legt den Kanal für Scan-Benachrichtigungen fest, optional nur für eine Sammlung (Standard: aktueller Kanal und alle Sammlungen)."
       },
       "notification": {
-        "usage": "/notification [Kanal]",
-        "description": "Legt den Kanal für Fehler-/Statusbenachrichtigungen fest (Standard: aktueller Kanal)."
+        "usage": "/notification [Kanal] [Sammlung]",
+        "description": "Legt den Kanal für Fehler-/Statusbenachrichtigungen fest, optional nur für eine Sammlung (Standard: aktueller Kanal und alle Sammlungen)."
+      },
+      "clear": {
+        "usage": "/clear scanning|notification [Sammlung]",
+        "description": "Entfernt eine mit /scanning oder /notification gesetzte Verknüpfung, optional nur für eine Sammlung."
       },
       "help": {
         "usage": "/help",

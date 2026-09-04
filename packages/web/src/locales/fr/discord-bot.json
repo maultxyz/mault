@@ -45,12 +45,16 @@
         "description": "Affiche les statistiques de collection de cette organisation, éventuellement limitées à une collection."
       },
       "scanning": {
-        "usage": "/scanning [salon]",
-        "description": "Définit le salon pour les notifications de scan de cartes (par défaut, le salon actuel)."
+        "usage": "/scanning [salon] [collection]",
+        "description": "Définit le salon pour les notifications de scan de cartes, éventuellement pour une seule collection (par défaut, le salon actuel et toutes les collections)."
       },
       "notification": {
-        "usage": "/notification [salon]",
-        "description": "Définit le salon pour les notifications d'erreur/de statut (par défaut, le salon actuel)."
+        "usage": "/notification [salon] [collection]",
+        "description": "Définit le salon pour les notifications d'erreur/de statut, éventuellement pour une seule collection (par défaut, le salon actuel et toutes les collections)."
+      },
+      "clear": {
+        "usage": "/clear scanning|notification [collection]",
+        "description": "Dissocie un salon défini par /scanning ou /notification, éventuellement pour une seule collection."
       },
       "help": {
         "usage": "/help",

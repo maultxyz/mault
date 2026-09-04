@@ -127,7 +127,12 @@ export function CardScanner({ className, compact }: CardScannerProps) {
         duration: Infinity,
         dismissible: true,
       });
-      void reportSerialEvent({ command: "jam", sent: true, response: raw });
+      void reportSerialEvent({
+        command: "jam",
+        sent: true,
+        response: raw,
+        collectionGuid: activeCollection?.guid,
+      });
     }
   });
 
@@ -143,6 +148,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           command: "feeder",
           sent: false,
           response: null,
+          collectionGuid: activeCollection?.guid,
         });
         return;
       }
@@ -155,6 +161,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           command: "feeder",
           sent: true,
           response: null,
+          collectionGuid: activeCollection?.guid,
         });
         return;
       }
@@ -171,6 +178,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
             command: "feeder",
             sent: true,
             response: parsed,
+            collectionGuid: activeCollection?.guid,
           });
         } else if (parsed.error) {
           toast.error(t("cardScanner.feederError.title"), {
@@ -182,6 +190,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
             command: "feeder",
             sent: true,
             response: parsed,
+            collectionGuid: activeCollection?.guid,
           });
         } else {
           // Feeder confirmed a card reached module 1 - capture it now.
@@ -191,12 +200,24 @@ export function CardScanner({ className, compact }: CardScannerProps) {
         toast.error(t("cardScanner.feedError.title"), {
           description: t("cardScanner.feedError.description"),
         });
-        void reportSerialEvent({ command: "feeder", sent: true, response });
+        void reportSerialEvent({
+          command: "feeder",
+          sent: true,
+          response,
+          collectionGuid: activeCollection?.guid,
+        });
       }
     } finally {
       setIsFeeding(false);
     }
-  }, [sendCommand, receiveResponse, captureCard, handlePause, t]);
+  }, [
+    sendCommand,
+    receiveResponse,
+    captureCard,
+    handlePause,
+    t,
+    activeCollection?.guid,
+  ]);
 
   const handleClearDevice = useCallback(async () => {
     setIsClearingDevice(true);

@@ -161,6 +161,7 @@ export function ScannedCardsProvider({
         command: "auto-feed",
         sent: false,
         response: null,
+        collectionGuid: activeCollectionRef.current?.guid,
       });
       return;
     }
@@ -175,6 +176,7 @@ export function ScannedCardsProvider({
         command: "auto-feed",
         sent: true,
         response: null,
+        collectionGuid: activeCollectionRef.current?.guid,
       });
       return;
     }
@@ -193,6 +195,7 @@ export function ScannedCardsProvider({
           command: "auto-feed",
           sent: true,
           response: parsed,
+          collectionGuid: activeCollectionRef.current?.guid,
         });
       } else if (parsed.error) {
         autoFeedRef.current = false;
@@ -206,6 +209,7 @@ export function ScannedCardsProvider({
           command: "auto-feed",
           sent: true,
           response: parsed,
+          collectionGuid: activeCollectionRef.current?.guid,
         });
       } else {
         cardArrivedHookRef.current?.();
@@ -216,7 +220,12 @@ export function ScannedCardsProvider({
       toast.error(t("scannedCards.autoFeedError.title"), {
         description: t("scannedCards.autoFeedError.description"),
       });
-      void reportSerialEvent({ command: "auto-feed", sent: true, response });
+      void reportSerialEvent({
+        command: "auto-feed",
+        sent: true,
+        response,
+        collectionGuid: activeCollectionRef.current?.guid,
+      });
     }
   }, [t]);
 
@@ -338,6 +347,7 @@ export function ScannedCardsProvider({
                 response: null,
                 cardName: card.name,
                 binNumber: matchedBin.binNumber,
+                collectionGuid: collection.guid,
               });
               autoFeedRef.current = false;
               setAutoFeedState(false);
@@ -356,6 +366,7 @@ export function ScannedCardsProvider({
                 response: res,
                 cardName: card.name,
                 binNumber: matchedBin.binNumber,
+                collectionGuid: collection.guid,
               });
               autoFeedRef.current = false;
               setAutoFeedState(false);
@@ -374,6 +385,7 @@ export function ScannedCardsProvider({
                 response: res,
                 cardName: card.name,
                 binNumber: matchedBin.binNumber,
+                collectionGuid: collection.guid,
               });
               autoFeedRef.current = false;
               setAutoFeedState(false);
@@ -409,6 +421,7 @@ export function ScannedCardsProvider({
               sent: true,
               response: null,
               binNumber: catchAll.binNumber,
+              collectionGuid: activeCollectionRef.current?.guid,
             });
             autoFeedRef.current = false;
             setAutoFeedState(false);
@@ -426,6 +439,7 @@ export function ScannedCardsProvider({
               sent: true,
               response: res,
               binNumber: catchAll.binNumber,
+              collectionGuid: activeCollectionRef.current?.guid,
             });
             autoFeedRef.current = false;
             setAutoFeedState(false);
@@ -443,6 +457,7 @@ export function ScannedCardsProvider({
               sent: true,
               response: res,
               binNumber: catchAll.binNumber,
+              collectionGuid: activeCollectionRef.current?.guid,
             });
             autoFeedRef.current = false;
             setAutoFeedState(false);

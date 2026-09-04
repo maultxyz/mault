@@ -40,10 +40,22 @@ export function setChannel(
   guildId: string,
   channelId: string,
   kind: NotificationKind,
+  collectionGuid?: string,
 ) {
   return botFetch<undefined>("/bot/set-channel", {
     method: "POST",
-    body: JSON.stringify({ guildId, channelId, kind }),
+    body: JSON.stringify({ guildId, channelId, kind, collectionGuid }),
+  });
+}
+
+export function clearChannel(
+  guildId: string,
+  kind: NotificationKind,
+  collectionGuid?: string,
+) {
+  return botFetch<undefined>("/bot/set-channel", {
+    method: "POST",
+    body: JSON.stringify({ guildId, kind, collectionGuid, clear: true }),
   });
 }
 

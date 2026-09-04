@@ -12,4 +12,5 @@ export interface SerialEventReport {
   response: unknown;
   cardName?: string;
   binNumber?: number;
+  collectionGuid?: string;
 }

@@ -99,14 +99,20 @@ router.post("/set-channel", async (c) => {
     guildId?: string;
     channelId?: string;
     kind?: string;
+    collectionGuid?: string;
+    clear?: boolean;
   }>();
-  const { guildId, channelId, kind } = body;
-  if (!guildId || !channelId || (kind !== "scan" && kind !== "error")) {
+  const { guildId, channelId, kind, collectionGuid, clear } = body;
+  if (
+    !guildId ||
+    (kind !== "scan" && kind !== "error") ||
+    (!channelId && !clear)
+  ) {
     return c.json(
       {
         success: false,
         message:
-          'guildId, channelId, and kind ("scan" or "error") are required.',
+          'guildId, kind ("scan" or "error"), and either channelId or clear are required.',
       },
       400,
     );
@@ -117,17 +123,45 @@ router.post("/set-channel", async (c) => {
     return c.json({ success: false, message: "not_linked" }, 404);
   }
 
+  const nextChannelId = clear ? null : channelId!;
+
+  if (collectionGuid) {
+    const result = await db
+      .update(collections)
+      .set(
+        kind === "scan"
+          ? {
+              discordScanChannelId: nextChannelId,
+              discordScanThreadId: null,
+              updatedAt: new Date(),
+            }
+          : {
+              discordErrorChannelId: nextChannelId,
+              discordErrorThreadId: null,
+              updatedAt: new Date(),
+            },
+      )
+      .where(
+        and(eq(collections.guid, collectionGuid), eq(collections.orgId, orgId)),
+      )
+      .returning({ id: collections.id });
+    if (result.length === 0) {
+      return c.json({ success: false, message: "collection_not_found" }, 404);
+    }
+    return c.json({ success: true, message: "Channel set." });
+  }
+
   await db
     .update(orgSettings)
     .set(
       kind === "scan"
         ? {
-            discordScanChannelId: channelId,
+            discordScanChannelId: nextChannelId,
             discordScanThreadId: null,
             updatedAt: new Date(),
           }
         : {
-            discordErrorChannelId: channelId,
+            discordErrorChannelId: nextChannelId,
             discordErrorThreadId: null,
             updatedAt: new Date(),
           },
