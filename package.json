@@ -3,7 +3,8 @@
   "version": "1.0.29",
   "private": true,
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=!@magic-vault/bot",
+    "dev:bot": "turbo dev --filter=@magic-vault/bot",
     "build": "turbo build",
     "lint": "turbo lint",
     "version:patch": "node scripts/version-bump.mjs patch",

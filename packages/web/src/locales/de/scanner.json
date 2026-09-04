@@ -66,6 +66,10 @@
       "title": "Sammlung gesperrt",
       "description": "Ein anderes Organisationsmitglied scannt gerade in diese Sammlung."
     },
+    "scanLimitReached": {
+      "title": "Tägliches Scan-Limit erreicht",
+      "description": "Upgrade auf Business für unbegrenztes Scannen."
+    },
     "routingFailed": {
       "title": "Weiterleitung fehlgeschlagen",
       "description": "Keine Antwort vom Sortierer für Fach {{binNumber}}."
@@ -197,6 +201,7 @@
   },
   "scannerOverlay": {
     "apiDown": "{{api}} ist derzeit nicht erreichbar - das Scannen ist für diese Sammlung deaktiviert, bis der Dienst wieder verfügbar ist. Prüfe die Statusseite für Updates.",
+    "dailyLimitReached": "Tägliches Scan-Limit erreicht. Upgrade auf Business für unbegrenztes Scannen.",
     "connectCamera": "Verbinde eine Kamera, um mit dem Scannen zu beginnen.",
     "waitingForPhone": "Warte auf ein Telefon, das als Kamera gekoppelt wird - zeige den QR-Code über das Kameramenü an.",
     "phoneReadyNoPhoto": "Telefonkamera bereit. Sie macht ein Foto, sobald eine Karte ankommt.",

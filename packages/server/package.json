@@ -23,6 +23,7 @@
     "own-auth": "^0.3.12",
     "pg": "^8.16.3",
     "resend": "^6.24.0",
+    "stripe": "^22.6.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {

@@ -1,3 +1,4 @@
+import { billingQueryOptions } from "@/features/billing/api/billing";
 import { searchByImage } from "@/features/cards/api/card";
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -131,6 +132,14 @@ export function useCardScanner({
   const { data: orgSettingsData } = useQuery(
     orgSettingsQueryOptions(activeOrg?.id),
   );
+  const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
+
+  const isAtScanLimit =
+    billingData?.plan === "free" &&
+    billingData?.dailyLimit != null &&
+    billingData.cardsScannedToday >= billingData.dailyLimit;
+  const isAtScanLimitRef = useRef(isAtScanLimit);
+  isAtScanLimitRef.current = isAtScanLimit;
 
   const rotatedRef = useRef(rotated);
   rotatedRef.current = rotated;
@@ -490,6 +499,7 @@ export function useCardScanner({
   const handleForceScan = useCallback(() => {
     if (
       isCapturingRef.current ||
+      isAtScanLimitRef.current ||
       !SCANNABLE_STATUSES.includes(statusRef.current)
     )
       return;
@@ -514,6 +524,7 @@ export function useCardScanner({
   const captureCard = useCallback(() => {
     if (
       isCapturingRef.current ||
+      isAtScanLimitRef.current ||
       !SCANNABLE_STATUSES.includes(statusRef.current)
     )
       return;
@@ -607,5 +618,6 @@ export function useCardScanner({
     startPhonePairing,
     stopPhonePairing,
     hasPhonePhoto,
+    isAtScanLimit,
   };
 }

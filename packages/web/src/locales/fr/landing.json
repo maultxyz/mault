@@ -6,13 +6,10 @@
     "build": "Construire",
     "discordBot": "Bot Discord",
     "signIn": "Se connecter",
-    "discordAriaLabel": "Rejoindre le Discord",
-    "menuAria": "Ouvrir le menu",
-    "openApp": "Ouvrir l'application",
-    "getStarted": "Commencer"
+    "discordAriaLabel": "Rejoindre le Discord"
   },
   "footer": {
-    "copyright": "© {{year}} Mault · v{{version}}"
+    "copyright": "© {{year}} Mault LLC · v{{version}}"
   },
   "hero": {
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
@@ -108,6 +105,29 @@
       "title": "Communauté",
       "description": "Rejoins le Discord pour montrer ton build, obtenir un coup de main si besoin, et échanger avec d'autres personnes qui font tourner leur propre trieuse.",
       "cta": "Rejoindre le Discord"
+    }
+  },
+  "pricing": {
+    "heading": "Des tarifs simples et transparents",
+    "subtitle": "La même appli dans les deux cas - Free couvre le tri occasionnel, Business supprime la limite de scans quotidienne.",
+    "shared": {
+      "collections": "Collections illimitées",
+      "games": "Tous les jeux de cartes pris en charge",
+      "notifications": "Notifications Discord de scan"
+    },
+    "free": {
+      "name": "Free",
+      "price": "0 $",
+      "description": "Pour les collectionneurs occasionnels qui débutent.",
+      "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
+      "cta": "Commencer gratuitement"
+    },
+    "business": {
+      "name": "Business",
+      "perMonth": "/mois",
+      "description": "Pour les boutiques et les collectionneurs assidus.",
+      "unlimitedScans": "Scans de cartes illimités",
+      "cta": "Passer au plan Business"
     }
   },
   "cta": {

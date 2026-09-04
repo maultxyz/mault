@@ -118,6 +118,7 @@ export interface ScannerOverlayProps {
   phonePairingStatus: PhoneCameraCaptureStatus;
   hasPhonePhoto: boolean;
   apiHealthCheck: HealthCheck | null;
+  dailyLimitReached: boolean;
   onRetryError: () => void;
   onConnectScanner: () => void;
 }

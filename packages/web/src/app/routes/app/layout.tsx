@@ -8,6 +8,7 @@ import { FirmwareVersionBanner } from "@/components/firmware-version-banner";
 import { FirmwareVersionMissingBanner } from "@/components/firmware-version-missing-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PageTransition } from "@/components/page-transition";
+import { PlanBadge } from "@/components/plan-badge";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -63,6 +64,7 @@ export default function AppLayout() {
           <div className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
             <StatusFooter />
             <div className="ml-auto flex items-center gap-3 shrink-0">
+              {AUTH_PROVIDER !== "local" && <PlanBadge />}
               <Tooltip>
                 <TooltipTrigger
                   render={

@@ -1,13 +1,4 @@
 {
-  "nav": {
-    "setup": "Configuration",
-    "commands": "Commandes",
-    "features": "Fonctionnalités",
-    "joinDiscordAria": "Rejoindre le Discord",
-    "menuAria": "Ouvrir le menu",
-    "openApp": "Ouvrir l'app",
-    "getStarted": "Commencer"
-  },
   "hero": {
     "eyebrow": "Intégration Discord",
     "title": "Amène ton trieur de cartes dans Discord",
@@ -92,6 +83,6 @@
   "footer": {
     "reportIssue": "Signaler un problème",
     "signIn": "Se connecter",
-    "copyright": "© {{year}} Magic Vault"
+    "copyright": "© {{year}} Mault LLC"
   }
 }

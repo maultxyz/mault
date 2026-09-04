@@ -34,14 +34,16 @@ export function DiscordBotFeatures() {
           {features.map((feature, i) => {
             const Icon = FEATURE_ICONS[i] ?? IconPhotoCog;
             return (
-              <div key={feature.title} className="flex flex-col items-start gap-3">
+              <div key={feature.title} className="flex items-start gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="size-4.5" />
                 </span>
-                <p className="text-sm font-medium">{feature.title}</p>
-                <p className="text-xs/relaxed text-muted-foreground">
-                  {feature.description}
-                </p>
+                <div>
+                  <p className="text-sm font-medium">{feature.title}</p>
+                  <p className="text-sm/relaxed text-foreground/70">
+                    {feature.description}
+                  </p>
+                </div>
               </div>
             );
           })}

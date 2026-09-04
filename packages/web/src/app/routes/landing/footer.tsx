@@ -1,18 +1,19 @@
 import { BrandMark } from "@/components/brand-mark";
-import { DISCORD_URL } from "@/lib/links";
-import { IconBrandDiscord } from "@tabler/icons-react";
+import { DISCORD_URL, DONATE_URL } from "@/lib/links";
+import { IconBrandDiscord, IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 export function LandingFooter() {
   const { t } = useTranslation("landing");
+  const { t: tCommon } = useTranslation("common");
 
   return (
     <footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
         <BrandMark size="sm" />
 
-        <nav className="flex items-center gap-5 text-xs text-muted-foreground">
+        <nav className="flex items-center gap-5 text-sm text-foreground/70">
           <a
             href="#features"
             className="transition-colors hover:text-foreground"
@@ -50,15 +51,25 @@ export function LandingFooter() {
 
         <div className="flex items-center gap-4">
           <a
+            href={DONATE_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={tCommon("footer.donateAriaLabel")}
+            className="flex items-center gap-1 text-foreground/70 transition-colors hover:text-foreground"
+          >
+            <IconCoffee size={16} />
+            {tCommon("footer.donate")}
+          </a>
+          <a
             href={DISCORD_URL}
             target="_blank"
             rel="noreferrer"
             aria-label={t("nav.discordAriaLabel")}
-            className="text-muted-foreground transition-colors hover:text-foreground"
+            className="text-foreground/70 transition-colors hover:text-foreground"
           >
             <IconBrandDiscord size={18} />
           </a>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-foreground/70">
             {t("footer.copyright", {
               year: new Date().getFullYear(),
               version: __APP_VERSION__,

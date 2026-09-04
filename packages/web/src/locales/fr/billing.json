@@ -1,0 +1,13 @@
+{
+  "plan": {
+    "free": "Gratuit",
+    "business": "Entreprise"
+  },
+  "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
+  "upgrade": "Passer à Entreprise",
+  "manage": "Gérer la facturation",
+  "cancelAtPeriodEnd": "Ton abonnement se termine le {{date}}.",
+  "checkoutSuccess": "Tu es maintenant sur le plan Entreprise !",
+  "checkoutError": "Échec du démarrage du paiement. Réessaie.",
+  "portalError": "Échec de l'ouverture du portail de facturation. Réessaie."
+}

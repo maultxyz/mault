@@ -16,7 +16,7 @@ export function LandingStats() {
             <span className="font-heading text-4xl font-bold tracking-tight md:text-5xl">
               {stat.value}
             </span>
-            <span className="text-xs/relaxed text-muted-foreground">
+            <span className="text-sm/relaxed text-foreground/70">
               {t(`stats.items.${stat.key}`)}
             </span>
           </div>

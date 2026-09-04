@@ -14,7 +14,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
   const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
 
   return (
-    <div className="relative rounded-lg border bg-muted p-1">
+    <div className="relative rounded-lg border p-1 bg-background">
       <div className="relative aspect-5/7 overflow-hidden rounded-lg">
         {isFoil && (
           <div
@@ -56,7 +56,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
           <p className="truncate text-[0.6rem] font-medium">{card.name}</p>
         </div>
         {displayPrice != null && (
-          <p className="shrink-0 text-[0.6rem] text-muted-foreground">
+          <p className="shrink-0 text-[0.6rem] text-foreground/70">
             {formatUsd(displayPrice)}
           </p>
         )}

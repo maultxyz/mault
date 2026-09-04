@@ -308,8 +308,11 @@ export function ScannedCardsProvider({
         .then((result) => {
           if (!result.success) {
             setCards((prev) => prev.filter((c) => c.scanId !== record.scanId));
-            toast.error(t("scannedCards.collectionLocked.title"), {
-              description: t("scannedCards.collectionLocked.description"),
+            const key = result.scanLimitReached
+              ? "scannedCards.scanLimitReached"
+              : "scannedCards.collectionLocked";
+            toast.error(t(`${key}.title`), {
+              description: t(`${key}.description`),
             });
           }
         })

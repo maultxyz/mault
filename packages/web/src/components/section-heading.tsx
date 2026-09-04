@@ -29,7 +29,7 @@ export function SectionHeading({
         {heading}
       </h2>
       {subtitle && (
-        <p className="mt-3 text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+        <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
           {subtitle}
         </p>
       )}

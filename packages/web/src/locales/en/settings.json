@@ -4,6 +4,9 @@
   "organizations": {
     "heading": "Organizations"
   },
+  "billing": {
+    "heading": "Billing"
+  },
   "invites": {
     "heading": "Invites"
   },

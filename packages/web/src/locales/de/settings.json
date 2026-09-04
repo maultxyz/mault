@@ -4,6 +4,9 @@
   "organizations": {
     "heading": "Organisationen"
   },
+  "billing": {
+    "heading": "Abrechnung"
+  },
   "appearance": {
     "heading": "Erscheinungsbild",
     "description": "Passe die Akzentfarbe der App an.",

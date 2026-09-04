@@ -25,19 +25,22 @@ export function LandingFeatures() {
           <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
             {t("features.heading")}
           </h2>
-          <p className="mt-3 text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+          <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
             {t("features.subtitle")}
           </p>
         </div>
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {HIGHLIGHTS.map(({ key, demo: Demo }) => (
-            <div key={key} className="flex flex-col gap-4">
+            <div
+              key={key}
+              className="flex flex-col gap-4 rounded-xl bg-muted p-6"
+            >
               <div>
                 <p className="font-heading text-sm font-semibold">
                   {t(`features.items.${key}.title`)}
                 </p>
-                <p className="mt-1 text-xs/relaxed text-muted-foreground">
+                <p className="mt-1 text-sm/relaxed text-muted-foreground">
                   {t(`features.items.${key}.description`)}
                 </p>
               </div>

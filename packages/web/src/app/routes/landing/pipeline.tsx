@@ -23,7 +23,7 @@ export function LandingPipeline() {
           <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
             {t("pipeline.heading")}
           </h2>
-          <p className="mt-3 text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+          <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
             {t("pipeline.subtitle")}
           </p>
         </div>
@@ -32,18 +32,20 @@ export function LandingPipeline() {
           {STEPS.map((step, i) => (
             <div
               key={step.key}
-              className="flex flex-col items-start gap-3 py-6 md:px-6 md:py-0 md:first:pl-0 md:last:pr-0"
+              className="flex items-start gap-4 py-6 md:px-6 md:py-0 md:first:pl-0 md:last:pr-0"
             >
-              <span className="font-heading text-xs font-medium text-muted-foreground">
-                {t("pipeline.stepLabel", { number: i + 1 })}
-              </span>
-              <step.icon size={20} className="text-primary" />
-              <p className="font-heading text-sm font-semibold">
-                {t(`pipeline.steps.${step.key}.title`)}
-              </p>
-              <p className="text-xs/relaxed text-muted-foreground">
-                {t(`pipeline.steps.${step.key}.description`)}
-              </p>
+              <step.icon size={20} className="mt-0.5 shrink-0 text-primary" />
+              <div className="flex flex-col gap-1">
+                <span className="font-heading text-sm font-medium text-foreground/70">
+                  {t("pipeline.stepLabel", { number: i + 1 })}
+                </span>
+                <p className="font-heading text-sm font-semibold">
+                  {t(`pipeline.steps.${step.key}.title`)}
+                </p>
+                <p className="text-sm/relaxed text-foreground/70">
+                  {t(`pipeline.steps.${step.key}.description`)}
+                </p>
+              </div>
             </div>
           ))}
         </div>

@@ -28,10 +28,10 @@ export function DiscordBotCommands() {
                 key={key}
                 className="flex flex-col gap-1 px-5 py-3.5 sm:flex-row sm:items-baseline sm:gap-4"
               >
-                <code className="shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground sm:w-52">
+                <code className="shrink-0 rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground sm:w-52">
                   {t(`commands.items.${key}.usage`)}
                 </code>
-                <p className="text-xs/relaxed text-muted-foreground">
+                <p className="text-sm/relaxed text-foreground/70">
                   {t(`commands.items.${key}.description`)}
                 </p>
               </div>

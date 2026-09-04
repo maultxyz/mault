@@ -19,10 +19,6 @@ import { IconEdit, IconPlus, IconShare } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-// A read-only stand-in for features/collections/components/collection-switcher.tsx,
-// reusing the same UI primitives - the real switcher pulls from
-// useCollections/useOrg/useQuery, which need the QueryClientProvider tree
-// that only wraps the authenticated /app/* routes, not this public page.
 export function DemoCollectionSwitcher() {
   const { t } = useTranslation("collections");
   const [activeGuid, setActiveGuid] = useState(DEMO_COLLECTIONS[0].guid);
@@ -40,8 +36,11 @@ export function DemoCollectionSwitcher() {
           {active.lang}
         </Badge>
       </span>
-      <ButtonGroup className="w-full">
-        <Select value={activeGuid} onValueChange={(guid) => guid && setActiveGuid(guid)}>
+      <ButtonGroup className="w-full bg-background rounded-lg">
+        <Select
+          value={activeGuid}
+          onValueChange={(guid) => guid && setActiveGuid(guid)}
+        >
           <SelectTrigger className="flex-1 overflow-hidden">
             <SelectValue>
               <span className="truncate">{active.name}</span>
@@ -51,7 +50,7 @@ export function DemoCollectionSwitcher() {
             {DEMO_COLLECTIONS.map((c) => (
               <SelectItem key={c.guid} value={c.guid}>
                 <span className="truncate">{c.name}</span>
-                <span className="ml-auto pl-2 pr-6 pt-0.5 text-xs text-muted-foreground tabular-nums">
+                <span className="ml-auto pl-2 pr-6 pt-0.5 text-sm text-foreground/70 tabular-nums">
                   {c.cardCount}
                 </span>
               </SelectItem>
