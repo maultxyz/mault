@@ -307,7 +307,8 @@
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
           },
           "mountBoardsToPanels": {
-            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×6."
+            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×6.",
+            "note": "Les broches d'en-tête du PCA9685 pointent horizontalement vers l'extérieur - il faudra peut-être les plier à 90° vers le haut pour qu'elles dégagent le panneau et restent faciles d'accès lors du câblage vers le {{board}}."
           },
           "attachBasePanels": {
             "text": "Fixe les panneaux de base à la base avec 8 vis M3×6 et 8 écrous M3.",

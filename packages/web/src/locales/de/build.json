@@ -307,7 +307,8 @@
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
           },
           "mountBoardsToPanels": {
-            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×6-Schrauben an den Bodenplatten."
+            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×6-Schrauben an den Bodenplatten.",
+            "note": "Die Header-Pins des PCA9685 zeigen seitlich nach außen - eventuell müssen sie um 90° nach oben gebogen werden, damit sie das Panel nicht berühren und beim Verkabeln mit dem {{board}} gut erreichbar bleiben."
           },
           "attachBasePanels": {
             "text": "Befestige die Bodenplatten mit 8 M3×6-Schrauben und 8 M3-Muttern an der Basis.",
