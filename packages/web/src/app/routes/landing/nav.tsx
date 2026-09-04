@@ -3,6 +3,7 @@ import { MobileNavDrawer } from "@/components/mobile-nav-drawer";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { useAuthSession } from "@/lib/auth";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { DISCORD_URL } from "@/lib/links";
 import { cn } from "@/lib/utils";
 import { IconBrandDiscord } from "@tabler/icons-react";
@@ -33,6 +34,11 @@ export function LandingNav() {
           <a href="#open-source" className={navLinkClass}>
             {t("nav.openSource")}
           </a>
+          {AUTH_PROVIDER !== "local" && (
+            <a href="#pricing" className={navLinkClass}>
+              {t("nav.pricing")}
+            </a>
+          )}
           <Link to="/build" className={navLinkClass}>
             {t("nav.build")}
           </Link>
@@ -62,6 +68,11 @@ export function LandingNav() {
             <a href="#open-source" className={drawerLinkClass}>
               {t("nav.openSource")}
             </a>
+            {AUTH_PROVIDER !== "local" && (
+              <a href="#pricing" className={drawerLinkClass}>
+                {t("nav.pricing")}
+              </a>
+            )}
             <Link to="/build" className={drawerLinkClass}>
               {t("nav.build")}
             </Link>

@@ -18,7 +18,12 @@ import { LORCANA_DEFAULT_URL } from "../lib/lorcana/search";
 import { ONE_PIECE_DEFAULT_URL } from "../lib/onepiece/search";
 import { POKEMON_DEFAULT_URL } from "../lib/pokemon/search";
 import { SCRYFALL_DEFAULT_URL } from "../lib/scryfall/search";
-import { getStripe, isBillingEnabled } from "../lib/stripe";
+import {
+  FREE_PLAN_DAILY_SCAN_LIMIT,
+  getBusinessPriceInfo,
+  getStripe,
+  isBillingEnabled,
+} from "../lib/stripe";
 import { YUGIOH_DEFAULT_URL } from "../lib/yugioh/search";
 import type { AppEnv } from "../middleware/auth";
 
@@ -68,6 +73,24 @@ router.get("/games", async (c) => {
   } catch (err) {
     console.error(err);
     return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
+// GET /public/pricing — unauthenticated, for the marketing/landing page.
+// Reads the live Stripe price rather than a hardcoded figure.
+router.get("/pricing", async (c) => {
+  try {
+    const business = isBillingEnabled() ? await getBusinessPriceInfo() : null;
+    return c.json({
+      success: true,
+      data: { business, freeDailyScanLimit: FREE_PLAN_DAILY_SCAN_LIMIT },
+    });
+  } catch (err) {
+    console.error(err);
+    return c.json({
+      success: true,
+      data: { business: null, freeDailyScanLimit: FREE_PLAN_DAILY_SCAN_LIMIT },
+    });
   }
 });
 

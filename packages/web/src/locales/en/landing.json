@@ -3,6 +3,7 @@
     "features": "Features",
     "howItWorks": "How it works",
     "openSource": "Open source",
+    "pricing": "Pricing",
     "build": "Build",
     "discordBot": "Discord Bot",
     "signIn": "Sign in",
@@ -108,6 +109,29 @@
       "title": "Community",
       "description": "Join the Discord to share your build, get a hand when you need it, and chat with others running their own sorter.",
       "cta": "Join the Discord"
+    }
+  },
+  "pricing": {
+    "heading": "Simple, transparent pricing",
+    "subtitle": "The same app either way - Free covers casual sorting, Business removes the daily scan cap.",
+    "shared": {
+      "collections": "Unlimited collections",
+      "games": "Every supported card game",
+      "notifications": "Discord scan notifications"
+    },
+    "free": {
+      "name": "Free",
+      "price": "$0",
+      "description": "For casual collectors getting started.",
+      "scanLimit": "Up to {{limit}} card scans per day",
+      "cta": "Get started free"
+    },
+    "business": {
+      "name": "Business",
+      "perMonth": "/month",
+      "description": "For shops and serious collectors.",
+      "unlimitedScans": "Unlimited card scans",
+      "cta": "Start Business plan"
     }
   },
   "cta": {

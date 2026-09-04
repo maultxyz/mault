@@ -5,9 +5,11 @@ import { LandingHero } from "@/app/routes/landing/hero";
 import { LandingNav } from "@/app/routes/landing/nav";
 import { LandingOpenSource } from "@/app/routes/landing/open-source";
 import { LandingPipeline } from "@/app/routes/landing/pipeline";
+import { LandingPricing } from "@/app/routes/landing/pricing";
 import { LandingStats } from "@/app/routes/landing/stats";
 import { LandingSupportedGames } from "@/app/routes/landing/supported-games";
 import { PublicGlow } from "@/components/public-glow";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
 
 export default function LandingPage() {
   return (
@@ -21,6 +23,7 @@ export default function LandingPage() {
         <LandingPipeline />
         <LandingFeatures />
         <LandingOpenSource />
+        {AUTH_PROVIDER !== "local" && <LandingPricing />}
         <LandingCta />
       </main>
       <LandingFooter />

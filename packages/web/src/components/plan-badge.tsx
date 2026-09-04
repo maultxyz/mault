@@ -17,6 +17,12 @@ export function PlanBadge() {
   if (isLoading || !billing) return null;
 
   const isBusiness = billing.plan === "business";
+  const usagePercent = billing.dailyLimit
+    ? Math.min(
+        100,
+        Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100),
+      )
+    : 0;
 
   return (
     <>
@@ -25,9 +31,21 @@ export function PlanBadge() {
           onClick={() => navigate("/app/settings")}
           className="cursor-pointer"
         >
-          <Badge variant={isBusiness ? "success" : "secondary"}>
-            {t(isBusiness ? "plan.business" : "plan.free")}
-          </Badge>
+          {isBusiness ? (
+            <Badge variant="success">{t("plan.business")}</Badge>
+          ) : (
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs text-muted-foreground">
+                {t("plan.free")}
+              </span>
+              <div className="h-1.5 w-14 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: `${usagePercent}%` }}
+                />
+              </div>
+            </div>
+          )}
         </TooltipTrigger>
         <TooltipContent side="top">
           {isBusiness

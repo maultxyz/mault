@@ -56,3 +56,36 @@ export async function getCancelAtPeriodEndPortalConfigurationId(): Promise<
   _portalConfigurationId = config.id;
   return config.id;
 }
+
+export interface BusinessPriceInfo {
+  amount: number;
+  currency: string;
+  interval: string;
+}
+
+const PRICE_CACHE_TTL_MS = 60 * 60 * 1000;
+let _businessPriceCache: BusinessPriceInfo | null = null;
+let _businessPriceCachedAt = 0;
+
+export async function getBusinessPriceInfo(): Promise<BusinessPriceInfo | null> {
+  if (
+    _businessPriceCache &&
+    Date.now() - _businessPriceCachedAt < PRICE_CACHE_TTL_MS
+  ) {
+    return _businessPriceCache;
+  }
+
+  const priceId = process.env.STRIPE_PRICE_ID_BUSINESS;
+  if (!priceId) return null;
+
+  const price = await getStripe().prices.retrieve(priceId);
+  if (price.unit_amount == null || !price.recurring) return null;
+
+  _businessPriceCache = {
+    amount: price.unit_amount,
+    currency: price.currency,
+    interval: price.recurring.interval,
+  };
+  _businessPriceCachedAt = Date.now();
+  return _businessPriceCache;
+}

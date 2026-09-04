@@ -3,6 +3,7 @@
     "features": "Funktionen",
     "howItWorks": "So funktioniert's",
     "openSource": "Open Source",
+    "pricing": "Preise",
     "build": "Bauanleitung",
     "discordBot": "Discord-Bot",
     "signIn": "Anmelden",
@@ -108,6 +109,29 @@
       "title": "Community",
       "description": "Tritt dem Discord bei, um deinen Build zu zeigen, dir bei Bedarf Hilfe zu holen und dich mit anderen auszutauschen, die ihren eigenen Sortierer betreiben.",
       "cta": "Discord beitreten"
+    }
+  },
+  "pricing": {
+    "heading": "Einfache, transparente Preise",
+    "subtitle": "Dieselbe App in beiden Fällen - Free deckt gelegentliches Sortieren ab, Business hebt das tägliche Scan-Limit auf.",
+    "shared": {
+      "collections": "Unbegrenzte Sammlungen",
+      "games": "Jedes unterstützte Sammelkartenspiel",
+      "notifications": "Discord-Scan-Benachrichtigungen"
+    },
+    "free": {
+      "name": "Free",
+      "price": "0 $",
+      "description": "Für gelegentliche Sammler, die gerade erst anfangen.",
+      "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag",
+      "cta": "Kostenlos starten"
+    },
+    "business": {
+      "name": "Business",
+      "perMonth": "/Monat",
+      "description": "Für Shops und ambitionierte Sammler.",
+      "unlimitedScans": "Unbegrenzte Kartenscans",
+      "cta": "Business-Plan starten"
     }
   },
   "cta": {
