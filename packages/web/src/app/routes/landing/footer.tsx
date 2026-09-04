@@ -1,11 +1,12 @@
 import { BrandMark } from "@/components/brand-mark";
-import { DISCORD_URL } from "@/lib/links";
-import { IconBrandDiscord } from "@tabler/icons-react";
+import { DISCORD_URL, DONATE_URL } from "@/lib/links";
+import { IconBrandDiscord, IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 export function LandingFooter() {
   const { t } = useTranslation("landing");
+  const { t: tCommon } = useTranslation("common");
 
   return (
     <footer className="border-t">
@@ -49,6 +50,16 @@ export function LandingFooter() {
         </nav>
 
         <div className="flex items-center gap-4">
+          <a
+            href={DONATE_URL}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={tCommon("footer.donateAriaLabel")}
+            className="flex items-center gap-1 text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <IconCoffee size={16} />
+            {tCommon("footer.donate")}
+          </a>
           <a
             href={DISCORD_URL}
             target="_blank"
