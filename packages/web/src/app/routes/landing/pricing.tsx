@@ -40,7 +40,7 @@ export function LandingPricing() {
           <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
             {t("pricing.heading")}
           </h2>
-          <p className="mt-3 text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+          <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
             {t("pricing.subtitle")}
           </p>
         </div>
@@ -54,7 +54,7 @@ export function LandingPricing() {
               <p className="mt-3 font-heading text-3xl font-semibold">
                 {t("pricing.free.price")}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-sm text-foreground/70">
                 {t("pricing.free.description")}
               </p>
             </div>
@@ -91,12 +91,12 @@ export function LandingPricing() {
               <p className="mt-3 font-heading text-3xl font-semibold">
                 {businessPrice ?? "—"}
                 {businessPrice && (
-                  <span className="text-sm font-normal text-muted-foreground">
+                  <span className="text-sm font-normal text-foreground/70">
                     {t("pricing.business.perMonth")}
                   </span>
                 )}
               </p>
-              <p className="mt-1 text-xs text-muted-foreground">
+              <p className="mt-1 text-sm text-foreground/70">
                 {t("pricing.business.description")}
               </p>
             </div>

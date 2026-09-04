@@ -30,27 +30,29 @@ export function DiscordBotSetup() {
           {steps.map((step, i) => {
             const Icon = STEP_ICONS[i] ?? IconKey;
             return (
-              <li key={step.title} className="flex flex-col items-start gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
-                    {i + 1}
-                  </span>
-                  <Icon className="size-4 text-muted-foreground" />
+              <li key={step.title} className="flex items-start gap-3">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                  {i + 1}
+                </span>
+                <div className="flex flex-col items-start gap-1">
+                  <div className="flex items-center gap-2">
+                    <Icon className="size-4 text-foreground/70" />
+                    <p className="text-sm font-medium">{step.title}</p>
+                  </div>
+                  <p className="text-sm/relaxed text-foreground/70">
+                    {step.description}
+                  </p>
+                  {i === 0 && (
+                    <a
+                      href={DISCORD_BOT_INSTALL_URL}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-sm font-medium text-primary hover:underline"
+                    >
+                      {t("setup.installLink")}
+                    </a>
+                  )}
                 </div>
-                <p className="text-sm font-medium">{step.title}</p>
-                <p className="text-xs/relaxed text-muted-foreground">
-                  {step.description}
-                </p>
-                {i === 0 && (
-                  <a
-                    href={DISCORD_BOT_INSTALL_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    {t("setup.installLink")}
-                  </a>
-                )}
               </li>
             );
           })}

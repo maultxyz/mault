@@ -50,7 +50,7 @@ export function DemoCollectionSwitcher() {
             {DEMO_COLLECTIONS.map((c) => (
               <SelectItem key={c.guid} value={c.guid}>
                 <span className="truncate">{c.name}</span>
-                <span className="ml-auto pl-2 pr-6 pt-0.5 text-xs text-muted-foreground tabular-nums">
+                <span className="ml-auto pl-2 pr-6 pt-0.5 text-sm text-foreground/70 tabular-nums">
                   {c.cardCount}
                 </span>
               </SelectItem>

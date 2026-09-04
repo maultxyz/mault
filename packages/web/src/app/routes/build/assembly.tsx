@@ -445,10 +445,10 @@ export function BuildAssembly() {
       <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
         {t("assembly.heading")}
       </h2>
-      <p className="mt-3 max-w-2xl text-sm/relaxed text-muted-foreground">
+      <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("assembly.description")}
       </p>
-      <p className="mt-2 max-w-2xl text-sm/relaxed text-muted-foreground">
+      <p className="mt-2 max-w-2xl text-sm/relaxed text-foreground/70">
         <Trans
           t={t}
           i18nKey="assembly.helpText"
@@ -466,7 +466,7 @@ export function BuildAssembly() {
       </p>
 
       <div className="mt-6">
-        <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
+        <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] text-foreground/70">
           <span>
             {t("assembly.progress.stepsCount", {
               done: doneCount,
@@ -523,7 +523,7 @@ export function BuildAssembly() {
                     <phase.icon size={16} />
                   </span>
                   <div className="flex flex-col items-baseline">
-                    <span className="font-mono text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+                    <span className="font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
                       {t("assembly.phaseLabel", { n: i + 1 })}
                     </span>
                     <h3 className="font-heading text-sm font-semibold">
@@ -533,7 +533,7 @@ export function BuildAssembly() {
                   {hasVideos && (
                     <IconVideo
                       size={16}
-                      className="ml-auto shrink-0 text-muted-foreground"
+                      className="ml-auto shrink-0 text-foreground/70"
                       aria-label={t("assembly.hasVideoAria")}
                     />
                   )}
@@ -555,15 +555,15 @@ export function BuildAssembly() {
                       <div className="min-w-0 flex-1">
                         <p
                           className={cn(
-                            "text-xs/relaxed",
+                            "text-sm/relaxed",
                             checked[step.key] &&
-                              "text-muted-foreground line-through decoration-muted-foreground/50",
+                              "text-foreground/70 line-through decoration-foreground/70",
                           )}
                         >
                           {step.text}
                         </p>
                         {step.note && (
-                          <p className="mt-1 text-[11px]/relaxed text-muted-foreground">
+                          <p className="mt-1 text-[11px]/relaxed text-foreground/70">
                             {step.note}
                           </p>
                         )}

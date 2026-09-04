@@ -7,6 +7,6 @@ export function useLandingStats() {
     { key: "bins", value: "11" },
     { key: "games", value: games === null ? "–" : String(games.length) },
     { key: "collections", value: "∞" },
-    { key: "cardsPerHour", value: "≤800" },
+    { key: "cardsPerHour", value: "800" },
   ] as const;
 }

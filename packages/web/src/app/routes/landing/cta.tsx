@@ -17,7 +17,7 @@ export function LandingCta() {
         <h2 className="font-heading text-4xl leading-[1.05] font-semibold tracking-tight text-balance md:text-5xl">
           {t("cta.heading")}
         </h2>
-        <p className="max-w-md text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+        <p className="max-w-md text-sm/relaxed text-foreground/70 md:text-base/relaxed">
           {t("cta.subtitle")}
         </p>
         <Link

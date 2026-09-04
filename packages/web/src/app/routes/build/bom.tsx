@@ -115,7 +115,7 @@ const GROUPS: Group[] = [
         part: (t) => (
           <>
             {t("bom.groups.sensing.items.irSensor.part")}{" "}
-            <span className="text-muted-foreground">
+            <span className="text-foreground/70">
               {t("bom.groups.sensing.items.irSensor.partSpec")}
             </span>
           </>
@@ -272,7 +272,7 @@ const GROUPS: Group[] = [
         part: (t) => (
           <>
             {t("bom.groups.fasteners.items.m2x4Screw.part")}{" "}
-            <span className="text-muted-foreground">
+            <span className="text-foreground/70">
               {t("bom.groups.fasteners.items.m2x4Screw.partSpec")}
             </span>
           </>
@@ -399,24 +399,24 @@ function GroupTable({
 
   return (
     <div>
-      <h3 className="mb-2 font-heading text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+      <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
         {t(`bom.groups.${group.key}.title`)}
       </h3>
       <div className="overflow-x-auto rounded-lg border">
-        <table className="w-full min-w-120 border-collapse text-xs/relaxed">
+        <table className="w-full min-w-120 border-collapse text-sm/relaxed">
           <thead>
             <tr className="bg-secondary/40">
               <th className="w-8 border-b px-3 py-2" />
-              <th className="w-16 border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <th className="w-16 border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.qty")}
               </th>
-              <th className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <th className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.part")}
               </th>
-              <th className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <th className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.notes")}
               </th>
-              <th className="w-12 border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-muted-foreground uppercase">
+              <th className="w-12 border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.buy")}
               </th>
             </tr>
@@ -443,19 +443,19 @@ function GroupTable({
                       className="size-4 accent-primary"
                     />
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-muted-foreground tabular-nums">
+                  <td className="px-3 py-2.5 font-mono text-foreground/70 tabular-nums">
                     {qty}
                   </td>
                   <td
                     className={cn(
                       "px-3 py-2.5 font-medium",
                       checked[row.key] &&
-                        "text-muted-foreground line-through decoration-muted-foreground/50",
+                        "text-foreground/70 line-through decoration-foreground/70",
                     )}
                   >
                     {row.part(t, boardType)}
                   </td>
-                  <td className="px-3 py-2.5 text-muted-foreground">
+                  <td className="px-3 py-2.5 text-foreground/70">
                     {row.notes(t, moduleCount, boardType)}
                   </td>
                   <td className="px-3 py-2.5">
@@ -467,7 +467,7 @@ function GroupTable({
                         aria-label={t("bom.buyAriaLabel", {
                           part: resolveRowName(row, boardType),
                         })}
-                        className="inline-flex items-center text-muted-foreground transition-colors hover:text-foreground"
+                        className="inline-flex items-center text-foreground/70 transition-colors hover:text-foreground"
                       >
                         <IconExternalLink size={14} />
                       </a>
@@ -502,7 +502,7 @@ export function BuildBom() {
       <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
         {t("bom.heading")}
       </h2>
-      <p className="mt-3 max-w-2xl text-sm/relaxed text-muted-foreground">
+      <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("bom.description", {
           modules: moduleCount,
           irSensors: moduleCount + 1,
@@ -510,14 +510,14 @@ export function BuildBom() {
           channelsFree: 16 - channelsUsed,
         })}
       </p>
-      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-xs/relaxed text-amber-900 dark:bg-amber-500/10 dark:text-amber-300">
+      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm/relaxed text-amber-900 dark:bg-amber-500/10 dark:text-amber-300">
         <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
         <span>{t("bom.affiliateDisclaimer")}</span>
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+          <span className="font-mono text-[11px] font-semibold tracking-wide text-foreground/70 uppercase">
             {t("bom.moduleCount.label")}
           </span>
           <div className="flex items-center gap-1.5 rounded-md border p-0.5">
@@ -530,7 +530,7 @@ export function BuildBom() {
             >
               <IconMinus />
             </Button>
-            <span className="w-4 text-center font-mono text-xs font-medium tabular-nums">
+            <span className="w-4 text-center font-mono text-sm font-medium tabular-nums">
               {moduleCount}
             </span>
             <Button
@@ -546,14 +546,14 @@ export function BuildBom() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[11px] font-semibold tracking-wide text-muted-foreground uppercase">
+          <span className="font-mono text-[11px] font-semibold tracking-wide text-foreground/70 uppercase">
             {t("hero.boardType.label")}
           </span>
           <div className="flex items-center gap-1 rounded-md border p-0.5">
             <Button
               variant={boardType === "uno_r4" ? "secondary" : "ghost"}
               size="sm"
-              className={cn(boardType !== "uno_r4" && "text-muted-foreground")}
+              className={cn(boardType !== "uno_r4" && "text-foreground/70")}
               onClick={() => setBoardType("uno_r4")}
             >
               {t("hero.boardType.unoR4")}
@@ -561,7 +561,7 @@ export function BuildBom() {
             <Button
               variant={boardType === "esp32" ? "secondary" : "ghost"}
               size="sm"
-              className={cn(boardType !== "esp32" && "text-muted-foreground")}
+              className={cn(boardType !== "esp32" && "text-foreground/70")}
               onClick={() => setBoardType("esp32")}
             >
               {t("hero.boardType.esp32")}
@@ -570,7 +570,7 @@ export function BuildBom() {
               variant={boardType === "esp32_wroom" ? "secondary" : "ghost"}
               size="sm"
               className={cn(
-                boardType !== "esp32_wroom" && "text-muted-foreground",
+                boardType !== "esp32_wroom" && "text-foreground/70",
               )}
               onClick={() => setBoardType("esp32_wroom")}
             >
@@ -581,7 +581,7 @@ export function BuildBom() {
       </div>
 
       <div className="mt-6">
-        <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] text-muted-foreground">
+        <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] text-foreground/70">
           <span>
             {t("bom.progress.partsCount", {
               done: doneCount,

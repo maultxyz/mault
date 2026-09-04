@@ -13,13 +13,13 @@ export function DiscordBotHero() {
 
   return (
     <section className="mx-auto max-w-4xl px-4 pt-12 pb-16">
-      <p className="text-xs font-semibold text-primary">
+      <p className="text-sm font-semibold text-primary">
         {t("hero.eyebrow")}
       </p>
       <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
         {t("hero.title")}
       </h1>
-      <p className="mt-4 max-w-2xl text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+      <p className="mt-4 max-w-2xl text-sm/relaxed text-foreground/70 md:text-base/relaxed">
         {t("hero.description")}
       </p>
 
@@ -30,7 +30,7 @@ export function DiscordBotHero() {
           rel="noreferrer"
           className={cn(
             buttonVariants({ variant: "default", size: "lg" }),
-            "gap-2 shadow-sm shadow-primary/30 transition-shadow hover:shadow-md hover:shadow-primary/30",
+            "gap-2",
           )}
         >
           <IconBrandDiscord className="size-4" />
@@ -50,7 +50,7 @@ export function DiscordBotHero() {
         </a>
       </div>
 
-      <p className="mt-5 max-w-2xl text-xs/relaxed text-muted-foreground">
+      <p className="mt-5 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("hero.selfHostedNote")}
       </p>
     </section>

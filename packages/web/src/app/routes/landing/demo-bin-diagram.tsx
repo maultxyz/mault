@@ -29,7 +29,7 @@ function BinCell({
     <div
       className={cn(
         "flex flex-col items-center justify-center px-4 py-3 text-[11px] font-semibold",
-        active ? "bg-primary text-primary-foreground" : "text-muted-foreground",
+        active ? "bg-primary text-primary-foreground" : "text-foreground/70",
       )}
     >
       <span>{t("binLocationDiagram.binLabel", { number: binNumber })}</span>
@@ -37,7 +37,7 @@ function BinCell({
         <span
           className={cn(
             "text-[8px] font-normal tracking-wide uppercase",
-            active ? "text-primary-foreground/80" : "text-muted-foreground/70",
+            active ? "text-primary-foreground/80" : "text-foreground/70",
           )}
         >
           {t("binLocationDiagram.catchAll")}

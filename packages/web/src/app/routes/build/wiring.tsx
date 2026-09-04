@@ -22,13 +22,13 @@ function MiniTable({
 }) {
   return (
     <div className="overflow-x-auto rounded-lg border">
-      <table className="w-full min-w-100 border-collapse text-xs/relaxed">
+      <table className="w-full min-w-100 border-collapse text-sm/relaxed">
         <thead>
           <tr className="bg-secondary/40">
             {columns.map((col) => (
               <th
                 key={col}
-                className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-muted-foreground uppercase"
+                className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase"
               >
                 {col}
               </th>
@@ -118,7 +118,7 @@ export function BuildWiring() {
       <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
         {t("wiring.heading")}
       </h2>
-      <p className="mt-3 max-w-2xl text-sm/relaxed text-muted-foreground">
+      <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
         <Trans
           t={t}
           i18nKey="wiring.description"
@@ -129,7 +129,7 @@ export function BuildWiring() {
 
       <div className="mt-8 flex flex-col gap-8">
         <div>
-          <h3 className="mb-2 font-heading text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
             {t("wiring.sections.i2c.title")}
           </h3>
           <MiniTable
@@ -145,14 +145,14 @@ export function BuildWiring() {
             ]}
           />
           {isEsp32 && (
-            <p className="mt-2 text-[11px]/relaxed text-muted-foreground">
+            <p className="mt-2 text-[11px]/relaxed text-foreground/70">
               {t("wiring.sections.i2c.esp32Note")}
             </p>
           )}
         </div>
 
         <div>
-          <h3 className="mb-2 font-heading text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
             {t("wiring.sections.servoPower.title")}
           </h3>
           <MiniTable
@@ -179,7 +179,7 @@ export function BuildWiring() {
                   values={{ board: board.shortName }}
                   components={{
                     pin: <Pin />,
-                    em: <em className="text-muted-foreground not-italic" />,
+                    em: <em className="text-foreground/70 not-italic" />,
                   }}
                 />,
               ],
@@ -188,10 +188,10 @@ export function BuildWiring() {
         </div>
 
         <div>
-          <h3 className="mb-2 font-heading text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
             {t("wiring.sections.irSensors.title")}
           </h3>
-          <p className="mb-3 text-xs/relaxed text-muted-foreground">
+          <p className="mb-3 text-sm/relaxed text-foreground/70">
             <Trans
               t={t}
               i18nKey="wiring.irSensors.description"
@@ -210,14 +210,14 @@ export function BuildWiring() {
             rows={irSensorRows}
           />
           {isEsp32 && (
-            <p className="mt-2 text-[11px]/relaxed text-muted-foreground">
+            <p className="mt-2 text-[11px]/relaxed text-foreground/70">
               {t("wiring.irSensors.esp32Note")}
             </p>
           )}
         </div>
 
         <div>
-          <h3 className="mb-2 font-heading text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
             {t("wiring.sections.channelMap.title")}
           </h3>
           <MiniTable
@@ -235,7 +235,7 @@ export function BuildWiring() {
         </div>
 
         <div>
-          <h3 className="mb-2 font-heading text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
             {t("wiring.sections.diagram.title")}
           </h3>
           <img
@@ -244,7 +244,7 @@ export function BuildWiring() {
             className="w-full rounded-lg border"
           />
           {isEsp32 && (
-            <p className="mt-2 text-[11px]/relaxed text-muted-foreground">
+            <p className="mt-2 text-[11px]/relaxed text-foreground/70">
               {t("wiring.sections.diagram.esp32Note")}
             </p>
           )}

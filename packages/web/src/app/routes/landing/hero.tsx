@@ -41,7 +41,7 @@ export function LandingHero() {
             }}
           />
         </h1>
-        <p className="max-w-md text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+        <p className="max-w-md text-sm/relaxed text-foreground/70 md:text-base/relaxed">
           {t("hero.subtitle")}
         </p>
         <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -65,10 +65,10 @@ export function LandingHero() {
         <div className="absolute inset-0 -z-10 rounded-3xl bg-primary/10 blur-2xl" />
         <div className="-rotate-1 rounded-xl bg-card p-3 shadow-xl shadow-black/5 ring-1 ring-foreground/10 transition-transform duration-300 hover:rotate-0 dark:shadow-black/40">
           <div className="flex items-center justify-between px-1 pb-2">
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-sm font-medium text-foreground/70">
               {t("hero.currentSession")}
             </span>
-            <span className="text-xs font-medium text-muted-foreground">
+            <span className="text-sm font-medium text-foreground/70">
               {t("hero.cardCount", { count: DEMO_SCANNED_CARDS.length })}
             </span>
           </div>
@@ -87,7 +87,7 @@ export function LandingHero() {
         <div className="absolute -right-4 -bottom-6 z-10 w-60 rounded-xl bg-card/95 shadow-xl shadow-black/10 ring-1 ring-foreground/10 backdrop-blur-sm sm:-right-8 sm:w-64 dark:shadow-black/40">
           <div className="grid grid-cols-2 divide-x divide-y divide-border">
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-muted-foreground uppercase tracking-wide">
+              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("scanStats.totalCards")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
@@ -95,7 +95,7 @@ export function LandingHero() {
               </p>
             </div>
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-muted-foreground uppercase tracking-wide">
+              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("scanStats.unique")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
@@ -103,7 +103,7 @@ export function LandingHero() {
               </p>
             </div>
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-muted-foreground uppercase tracking-wide">
+              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("scanStats.totalValue")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
@@ -111,7 +111,7 @@ export function LandingHero() {
               </p>
             </div>
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-muted-foreground uppercase tracking-wide">
+              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("scanStats.avgValue")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">

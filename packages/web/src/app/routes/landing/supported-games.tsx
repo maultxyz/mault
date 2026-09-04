@@ -15,7 +15,7 @@ export function LandingSupportedGames() {
           <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
             {t("supportedGames.heading")}
           </h2>
-          <p className="mt-3 text-sm/relaxed text-muted-foreground md:text-base/relaxed">
+          <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
             {t("supportedGames.subtitle")}
           </p>
         </div>
@@ -34,14 +34,14 @@ export function LandingSupportedGames() {
                   <span className="font-heading text-base font-semibold text-foreground md:text-lg">
                     {game.name}
                   </span>
-                  <span className="text-xs text-muted-foreground tabular-nums">
+                  <span className="text-sm text-foreground/70 tabular-nums">
                     {t("supportedGames.cardsIndexed", {
                       count: game.cardCount,
                       formatted: game.cardCount.toLocaleString(),
                     })}
                   </span>
                   {game.languages.length > 0 && (
-                    <span className="text-xs text-muted-foreground/70">
+                    <span className="text-sm text-foreground/70">
                       {game.languages
                         .map((lang) => LANGUAGE_LABELS[lang] ?? lang)
                         .join(", ")}
