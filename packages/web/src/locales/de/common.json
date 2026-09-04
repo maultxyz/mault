@@ -110,5 +110,18 @@
   "footer": {
     "donate": "Spenden",
     "donateAriaLabel": "Mault auf Buy Me a Coffee unterstützen"
+  },
+  "publicNav": {
+    "pagesLabel": "Seiten",
+    "pagesAria": "Seiten der Website",
+    "pages": {
+      "home": "Startseite",
+      "build": "Bauanleitung",
+      "discordBot": "Discord-Bot"
+    },
+    "discordAriaLabel": "Discord beitreten",
+    "signIn": "Anmelden",
+    "getStarted": "Jetzt starten",
+    "openApp": "App öffnen"
   }
 }

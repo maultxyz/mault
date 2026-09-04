@@ -1,13 +1,4 @@
 {
-  "nav": {
-    "setup": "Einrichtung",
-    "commands": "Befehle",
-    "features": "Funktionen",
-    "joinDiscordAria": "Discord beitreten",
-    "menuAria": "Menü öffnen",
-    "openApp": "App öffnen",
-    "getStarted": "Loslegen"
-  },
   "hero": {
     "eyebrow": "Discord-Integration",
     "title": "Hol dir deinen Kartensortierer in Discord",

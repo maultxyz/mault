@@ -3,14 +3,10 @@
     "features": "Funktionen",
     "howItWorks": "So funktioniert's",
     "openSource": "Open Source",
-    "pricing": "Preise",
     "build": "Bauanleitung",
     "discordBot": "Discord-Bot",
     "signIn": "Anmelden",
-    "discordAriaLabel": "Discord beitreten",
-    "menuAria": "Menü öffnen",
-    "openApp": "App öffnen",
-    "getStarted": "Jetzt starten"
+    "discordAriaLabel": "Discord beitreten"
   },
   "footer": {
     "copyright": "© {{year}} Mault LLC · v{{version}}"

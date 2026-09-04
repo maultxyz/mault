@@ -110,5 +110,18 @@
   "footer": {
     "donate": "Donate",
     "donateAriaLabel": "Support Mault on Buy Me a Coffee"
+  },
+  "publicNav": {
+    "pagesLabel": "Pages",
+    "pagesAria": "Site pages",
+    "pages": {
+      "home": "Home",
+      "build": "Build",
+      "discordBot": "Discord Bot"
+    },
+    "discordAriaLabel": "Join the Discord",
+    "signIn": "Sign in",
+    "getStarted": "Get started",
+    "openApp": "Open app"
   }
 }

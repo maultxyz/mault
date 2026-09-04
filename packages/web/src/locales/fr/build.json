@@ -17,16 +17,6 @@
       "esp32Wroom": "ESP32 (WROOM)"
     }
   },
-  "nav": {
-    "partsList": "Liste des pièces",
-    "wiring": "Câblage",
-    "assembly": "Assemblage",
-    "reportIssue": "Signaler un problème",
-    "joinDiscordAria": "Rejoindre le Discord",
-    "menuAria": "Ouvrir le menu",
-    "openApp": "Ouvrir l'application",
-    "getStarted": "Commencer"
-  },
   "footer": {
     "openSource": "Open source",
     "reportIssue": "Signaler un problème",
