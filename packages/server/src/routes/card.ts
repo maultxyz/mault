@@ -60,6 +60,9 @@ router.post("/", requireAuth, async (c) => {
 
   try {
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
+      await tx.execute(sql`SET LOCAL hnsw.max_scan_tuples = 100000`);
+
       const matches = await tx.execute(sql`
         SELECT
           card_id,
