@@ -1,15 +1,10 @@
 import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useAuthSession } from "@/lib/auth";
 import { DISCORD_URL } from "@/lib/links";
 import { cn } from "@/lib/utils";
-import { IconBrandDiscord, IconChevronDown } from "@tabler/icons-react";
+import { IconBrandDiscord } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 
@@ -37,37 +32,32 @@ export function PublicNav({
           containerClassName,
         )}
       >
-        <BrandMark />
+        <div className="flex items-center gap-6">
+          <BrandMark />
+          <nav
+            className="hidden items-center gap-1 md:flex"
+            aria-label={t("publicNav.pagesAria")}
+          >
+            {PAGES.map((page) => {
+              const active = location.pathname === page.to;
+              return (
+                <Link
+                  key={page.key}
+                  to={page.to}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
+                    active ? "text-foreground" : "text-foreground/70",
+                  )}
+                >
+                  {t(`publicNav.pages.${page.key}`)}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
 
         <div className="flex items-center gap-2">
-          <Popover>
-            <PopoverTrigger
-              aria-label={t("publicNav.pagesAria")}
-              className="flex items-center gap-1 rounded-md px-2.5 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
-            >
-              {t("publicNav.pagesLabel")}
-              <IconChevronDown size={14} />
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-48 gap-1 p-1.5">
-              {PAGES.map((page) => {
-                const active = location.pathname === page.to;
-                return (
-                  <Link
-                    key={page.key}
-                    to={page.to}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "rounded-md px-3 py-2 text-sm transition-colors hover:bg-muted hover:text-foreground",
-                      active ? "font-medium text-foreground" : "text-foreground/70",
-                    )}
-                  >
-                    {t(`publicNav.pages.${page.key}`)}
-                  </Link>
-                );
-              })}
-            </PopoverContent>
-          </Popover>
-
           <a
             href={DISCORD_URL}
             target="_blank"
