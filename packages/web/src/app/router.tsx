@@ -12,6 +12,8 @@ const AuthGuard = lazy(() => import("@/app/routes/auth-guard"));
 const LandingPage = lazy(() => import("@/app/routes/index"));
 const BuildGuidePage = lazy(() => import("@/app/routes/build"));
 const DiscordBotPage = lazy(() => import("@/app/routes/discord-bot"));
+const PrivacyPolicyPage = lazy(() => import("@/app/routes/privacy"));
+const TermsOfServicePage = lazy(() => import("@/app/routes/terms"));
 const AuthPage = lazy(() => import("@/app/routes/auth"));
 const AuthLocalPage = lazy(() => import("@/app/routes/auth-local"));
 const AuthJoinPage = lazy(() => import("@/app/routes/auth-join"));
@@ -78,6 +80,14 @@ export const router = createBrowserRouter([
       {
         path: "/discord-bot",
         element: <DiscordBotPage />,
+      },
+      {
+        path: "/privacy",
+        element: <PrivacyPolicyPage />,
+      },
+      {
+        path: "/terms",
+        element: <TermsOfServicePage />,
       },
       {
         path: "/auth/:path",

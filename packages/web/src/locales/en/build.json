@@ -21,6 +21,8 @@
     "openSource": "Open source",
     "reportIssue": "Report an issue",
     "signIn": "Sign in",
+    "privacy": "Privacy",
+    "terms": "Terms",
     "copyright": "© {{year}} Mault LLC"
   },
   "bom": {

@@ -47,6 +47,12 @@ export function LandingFooter() {
           >
             {t("nav.signIn")}
           </Link>
+          <Link to="/privacy" className="transition-colors hover:text-foreground">
+            {t("nav.privacy")}
+          </Link>
+          <Link to="/terms" className="transition-colors hover:text-foreground">
+            {t("nav.terms")}
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">

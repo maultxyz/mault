@@ -1,0 +1,156 @@
+{
+  "effectiveDateLabel": "Last updated {{date}}",
+  "privacy": {
+    "title": "Privacy Policy",
+    "intro": [
+      "This policy explains what information Mault LLC (\"Mault\", \"we\", \"us\") collects when you use the hosted Mault service, and how we use it.",
+      "It covers the hosted service only. If you're running a self-hosted instance (AUTH_PROVIDER=local), your data stays on infrastructure you control, and you're the one responsible for it - this policy doesn't apply to that deployment."
+    ],
+    "sections": [
+      {
+        "heading": "Information we collect",
+        "body": [
+          "Account information: your email and name, handled by our authentication provider (Neon Auth) when you sign up or sign in.",
+          "Organization data: organization names, membership, and roles for the teams you create or join.",
+          "Collection data: the collections, bins, sorting rules, and card records you create while using the app.",
+          "Card scan images: when you scan a physical card, the photo is sent to our server only to generate a match against the card database. It's processed in memory and discarded - we don't store the photo itself, only the resulting card match.",
+          "Payment information: if you subscribe to the Business plan, billing details are collected and processed directly by Stripe. We never see or store your full card number.",
+          "Discord webhook data: if you connect a Discord webhook, we send the scan and collection notifications you've configured to the webhook URL you provided.",
+          "Basic operational logs (errors, request metadata) used to keep the service reliable. We don't use third-party analytics or advertising trackers."
+        ]
+      },
+      {
+        "heading": "How we use this information",
+        "body": [
+          "To operate and provide the service, including authenticating you and keeping your data scoped to your organization.",
+          "To process payments for paid plans and manage your subscription.",
+          "To send the notifications you've explicitly configured (such as Discord webhook messages).",
+          "To maintain the security and reliability of the service."
+        ]
+      },
+      {
+        "heading": "How we share information",
+        "body": [
+          "We don't sell your personal information. We share it only with the service providers needed to run Mault:",
+          "Neon, for database hosting and authentication.",
+          "Stripe, for payment processing on paid plans.",
+          "Discord, only if and when you configure a webhook to send notifications there.",
+          "Third-party trading card game databases (e.g. Scryfall and similar sources), which we query to identify and enrich card data. These queries don't include your personal information."
+        ]
+      },
+      {
+        "heading": "Data retention",
+        "body": [
+          "We keep your account, organization, and collection data for as long as your account is active.",
+          "Card scan photos are never retained - they're discarded immediately after a match is generated.",
+          "You can request deletion of your account and associated data at any time by contacting us."
+        ]
+      },
+      {
+        "heading": "Your rights",
+        "body": [
+          "You can access, correct, export, or delete your personal data by contacting us at the address below, or directly through the app where available."
+        ]
+      },
+      {
+        "heading": "Security",
+        "body": [
+          "Traffic to the hosted service is encrypted in transit (HTTPS). Data is scoped per organization using database-level row-level security, and API access uses short-lived bearer tokens rather than cookies."
+        ]
+      },
+      {
+        "heading": "Children's privacy",
+        "body": [
+          "Mault is not directed at children under 13, and we don't knowingly collect personal information from them."
+        ]
+      },
+      {
+        "heading": "Changes to this policy",
+        "body": [
+          "We may update this policy from time to time. We'll update the date at the top of this page when we do."
+        ]
+      },
+      {
+        "heading": "Contact us",
+        "body": [
+          "Questions about this policy? Reach us at {{email}}."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Terms of Service",
+    "intro": [
+      "These terms govern your use of the hosted Mault service operated by Mault LLC (\"Mault\", \"we\", \"us\"). By creating an account or using the service, you agree to them."
+    ],
+    "sections": [
+      {
+        "heading": "The service",
+        "body": [
+          "Mault helps you identify, sort, and track physical trading cards using a camera-equipped sorter and companion software.",
+          "The sorter hardware is a DIY build assembled from off-the-shelf and 3D-printed parts, following our published build guide. It's provided as-is - we're not liable for damage arising from building or operating your own hardware.",
+          "You can also self-host the software entirely on your own infrastructure. These terms apply to the hosted service at our domain; a self-hosted instance is your own responsibility."
+        ]
+      },
+      {
+        "heading": "Accounts",
+        "body": [
+          "You're responsible for the accuracy of the information you provide and for keeping your account credentials secure.",
+          "Organizations may have multiple members with different roles; the organization owner is responsible for managing membership and access."
+        ]
+      },
+      {
+        "heading": "Subscriptions & billing",
+        "body": [
+          "Mault offers a free plan with usage limits, and a paid Business plan billed monthly through Stripe.",
+          "You can cancel your subscription at any time from the billing portal. Cancellation takes effect at the end of your current billing period - you keep Business features until then.",
+          "We don't provide refunds or credits for partial billing periods or unused time.",
+          "We'll give you reasonable notice before any price change takes effect for your subscription."
+        ]
+      },
+      {
+        "heading": "Acceptable use",
+        "body": [
+          "Don't use the service to violate the law, abuse or overload our infrastructure, or attempt to circumvent usage limits or access other organizations' data.",
+          "Don't resell or rehost the hosted service as your own competing offering; self-hosting your own instance for your own use is welcome."
+        ]
+      },
+      {
+        "heading": "Third-party card data",
+        "body": [
+          "Card names, images, and other metadata shown in the app are sourced from third-party trading card game databases and publishers. Mault doesn't claim ownership of that content, and all related trademarks belong to their respective owners."
+        ]
+      },
+      {
+        "heading": "Open source",
+        "body": [
+          "Mault's software is open source. You can review the code, self-host it, or contribute to it - see our GitHub repository for the license and details."
+        ]
+      },
+      {
+        "heading": "Disclaimers & limitation of liability",
+        "body": [
+          "The service is provided \"as is\" without warranties of any kind. To the fullest extent permitted by law, Mault LLC isn't liable for indirect, incidental, or consequential damages arising from your use of the service or your own hardware build."
+        ]
+      },
+      {
+        "heading": "Termination",
+        "body": [
+          "We may suspend or terminate access to the hosted service for accounts that violate these terms. You can stop using the service and cancel your subscription at any time."
+        ]
+      },
+      {
+        "heading": "Changes to these terms",
+        "body": [
+          "We may update these terms from time to time. We'll update the date at the top of this page when we do, and continued use of the service after changes take effect means you accept them."
+        ]
+      },
+      {
+        "heading": "Contact us",
+        "body": [
+          "Questions about these terms? Reach us at {{email}}."
+        ]
+      }
+    ]
+  }
+}
