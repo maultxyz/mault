@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { ScannerOverlayProps } from "@/features/scanner/types";
 import { cn } from "@/lib/utils";
@@ -115,9 +116,7 @@ export function ScannerOverlay({
   return (
     <>
       <div className="absolute top-1 left-1 right-1 z-30 flex justify-center pointer-events-none">
-        <span className="rounded-full border border-border bg-background/70 backdrop-blur-3xl px-2 py-0.5 text-[11px] text-muted-foreground">
-          {t("scannerOverlay.faceUpHint")}
-        </span>
+        <Badge>{t("scannerOverlay.faceUpHint")}</Badge>
       </div>
       {renderStatusPill()}
     </>
