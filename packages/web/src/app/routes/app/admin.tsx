@@ -371,7 +371,7 @@ export default function AdminPage() {
                     </span>
                   )}
                   {syncState.errors > 0 && (
-                    <span className="text-red-500">
+                    <span className="text-red-600 dark:text-red-400">
                       {t("cardImageVectors.errorsCount", {
                         count: syncState.errors,
                       })}

@@ -21,7 +21,7 @@ export function WatcherStack({ watchers }: { watchers: Watcher[] }) {
           <span
             key={w.userId}
             style={{ marginLeft: i === 0 ? 0 : -6, zIndex: MAX_STACK - i }}
-            className="relative inline-flex items-center justify-center size-5 rounded-full bg-green-500/15 text-green-500 ring-2 ring-background text-[9px] font-semibold"
+            className="relative inline-flex items-center justify-center size-5 rounded-full bg-green-500/15 text-green-800 dark:text-green-400 ring-2 ring-background text-[9px] font-semibold"
           >
             {getInitials(w.displayName)}
           </span>

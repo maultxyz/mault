@@ -27,10 +27,10 @@ export function InitialsAvatar({
   const sizeClass = size === "sm" ? "size-5 text-[9px]" : "size-6 text-[10px]";
   const colorClass =
     variant === "scanner"
-      ? "bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/30"
+      ? "bg-amber-500/15 text-amber-800 dark:text-amber-400 ring-1 ring-amber-500/30"
       : variant === "neutral"
         ? "bg-muted text-muted-foreground ring-1 ring-border"
-        : "bg-green-500/15 text-green-500 ring-1 ring-green-500/30";
+        : "bg-green-500/15 text-green-800 dark:text-green-400 ring-1 ring-green-500/30";
 
   const avatar = (
     <span
