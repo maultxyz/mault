@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { neon } from "@/lib/auth/client";
+import {
+  changeEmailSchema,
+  type ChangeEmailFormValues,
+} from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const emailSchema = z.object({ newEmail: z.string().trim().email() });
-type EmailValues = z.infer<typeof emailSchema>;
 
 export function ChangeEmailForm() {
   const { t } = useTranslation("account");
@@ -19,12 +19,12 @@ export function ChangeEmailForm() {
   const currentEmail = data?.user?.email ?? "";
   const isVerified = !!data?.user?.emailVerified;
 
-  const form = useForm<EmailValues>({
-    resolver: zodResolver(emailSchema),
+  const form = useForm<ChangeEmailFormValues>({
+    resolver: zodResolver(changeEmailSchema),
     defaultValues: { newEmail: "" },
   });
 
-  async function onSubmit({ newEmail }: EmailValues) {
+  async function onSubmit({ newEmail }: ChangeEmailFormValues) {
     if (newEmail === currentEmail) {
       form.setError("newEmail", { message: t("email.sameAsCurrent") });
       return;

@@ -16,10 +16,6 @@ export async function ensureGameVectorIndex(
   const indexName = `cards_embedding_hnsw_${gameKey}`;
 
   try {
-    // IF NOT EXISTS only checks the name — a previous CONCURRENTLY build that
-    // failed partway leaves an invalid index under this same name, which
-    // IF NOT EXISTS would then treat as "already done" forever. Drop it
-    // first so a failed build actually gets retried.
     const { rows } = await db.execute<{ indisvalid: boolean }>(
       sql.raw(
         `SELECT indisvalid FROM pg_index WHERE indexrelid = to_regclass('public."${indexName}"')`,

@@ -9,9 +9,6 @@ const ICONS = {
   danger: IconAlertTriangle,
 };
 
-// Admin-authored announcements (features/announcements) - the only alert
-// source backed by the database rather than client-side state, and the only
-// one that can produce more than one alert at a time.
 export function useAnnouncementAlerts(): AppAlert[] {
   const { data } = useQuery(activeAnnouncementsQueryOptions);
 

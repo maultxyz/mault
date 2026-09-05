@@ -1,5 +1,9 @@
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
-import AuthGuardLocal from "./auth-guard.local";
-import AuthGuardNeon from "./auth-guard.neon";
+import { useAuthSession } from "@/lib/auth";
+import { Navigate, Outlet } from "react-router-dom";
 
-export default AUTH_PROVIDER === "local" ? AuthGuardLocal : AuthGuardNeon;
+export default function AuthGuard() {
+  const { data, isPending } = useAuthSession();
+  if (isPending) return null;
+  if (!data?.user) return <Navigate to="/auth/sign-in" replace />;
+  return <Outlet />;
+}

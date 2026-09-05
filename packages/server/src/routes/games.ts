@@ -180,8 +180,7 @@ router.post("/", requireAuth, requireRole("admin"), async (c) => {
         isActive: isActive ?? true,
       })
       .returning();
-    // Cheap here since a brand-new game has no cards yet — the partial
-    // index just needs to exist before the sync job starts inserting rows.
+
     await ensureGameVectorIndex(row.key);
     return c.json({ success: true, data: toGame(row) });
   } catch (err) {
@@ -217,7 +216,8 @@ router.put("/:guid", requireAuth, requireRole("admin"), async (c) => {
     if (name !== undefined) updates.name = name.trim();
     if (fieldDefinitions !== undefined)
       updates.fieldDefinitions = fieldDefinitions;
-    if (apiDocsUrl !== undefined) updates.apiDocsUrl = apiDocsUrl?.trim() || null;
+    if (apiDocsUrl !== undefined)
+      updates.apiDocsUrl = apiDocsUrl?.trim() || null;
     if (isActive !== undefined) updates.isActive = isActive;
 
     const [row] = await db

@@ -15,7 +15,6 @@ const DiscordBotPage = lazy(() => import("@/app/routes/discord-bot"));
 const PrivacyPolicyPage = lazy(() => import("@/app/routes/privacy"));
 const TermsOfServicePage = lazy(() => import("@/app/routes/terms"));
 const AuthPage = lazy(() => import("@/app/routes/auth"));
-const AuthLocalPage = lazy(() => import("@/app/routes/auth-local"));
 const AuthJoinPage = lazy(() => import("@/app/routes/auth-join"));
 const AuthForgotPasswordPage = lazy(
   () => import("@/app/routes/auth-forgot-password"),
@@ -52,9 +51,6 @@ function DesktopOnlyGuard() {
   return <Outlet />;
 }
 
-// Must not wrap /app/admin: with zero games, the dialog's own game picker
-// is empty and unsubmittable, but /app/admin (Games Manager) is the only
-// way to add one - wrapping it would deadlock a fresh instance.
 function RequireCollectionGuard() {
   return (
     <>
@@ -91,32 +87,18 @@ export const router = createBrowserRouter([
       },
       {
         path: "/auth/:path",
-        element: AUTH_PROVIDER === "local" ? <AuthLocalPage /> : <AuthPage />,
+        element: <AuthPage />,
       },
-      // Local-mode only - Neon's prebuilt <AuthView> already covers
-      // invites/password reset. React Router ranks static segments above
-      // dynamic ones regardless of array order, so these still take
-      // priority over /auth/:path above.
+      { path: "/auth/forgot-password", element: <AuthForgotPasswordPage /> },
+      { path: "/auth/reset-password", element: <AuthResetPasswordPage /> },
       ...(AUTH_PROVIDER === "local"
-        ? [
-            { path: "/auth/join", element: <AuthJoinPage /> },
-            {
-              path: "/auth/forgot-password",
-              element: <AuthForgotPasswordPage />,
-            },
-            {
-              path: "/auth/reset-password",
-              element: <AuthResetPasswordPage />,
-            },
-          ]
+        ? [{ path: "/auth/join", element: <AuthJoinPage /> }]
         : []),
       {
         element: <AuthGuard />,
         children: [
           {
             path: "/app/verify-email",
-            // Local mode has no email verification step - own-auth accounts
-            // are usable immediately after sign-up.
             element:
               AUTH_PROVIDER === "local" ? (
                 <Navigate to="/app" replace />

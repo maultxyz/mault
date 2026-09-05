@@ -14,13 +14,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
+import {
+  orgInviteSchema,
+  type OrgInviteFormValues,
+} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconCopy, IconMailPlus, IconPlus } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
 
 interface Invitation {
   id: string;
@@ -29,12 +32,6 @@ interface Invitation {
   status: string;
   expiresAt: string;
 }
-
-const inviteSchema = z.object({
-  email: z.string().email(),
-  role: z.enum(["admin", "member"]),
-});
-type InviteValues = z.infer<typeof inviteSchema>;
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(undefined, {
@@ -59,8 +56,8 @@ export function LocalOrgInvites() {
 
   const canManage = activeOrg?.role === "owner" || activeOrg?.role === "admin";
 
-  const form = useForm<InviteValues>({
-    resolver: zodResolver(inviteSchema),
+  const form = useForm<OrgInviteFormValues>({
+    resolver: zodResolver(orgInviteSchema),
     defaultValues: { email: "", role: "member" },
   });
 
@@ -86,7 +83,7 @@ export function LocalOrgInvites() {
     load();
   }, [load]);
 
-  async function handleInvite({ email, role }: InviteValues) {
+  async function handleInvite({ email, role }: OrgInviteFormValues) {
     try {
       const res = await localPost<{
         success: boolean;

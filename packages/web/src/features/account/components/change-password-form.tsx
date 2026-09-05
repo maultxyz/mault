@@ -3,30 +3,21 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { neon } from "@/lib/auth/client";
+import {
+  createChangePasswordSchema,
+  type ChangePasswordFormValues,
+} from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
 
 export function ChangePasswordForm() {
   const { t } = useTranslation("account");
+  const passwordSchema = createChangePasswordSchema(t);
 
-  const passwordSchema = z
-    .object({
-      currentPassword: z.string().min(1, t("password.currentRequired")),
-      newPassword: z.string().min(8, t("password.tooShort")),
-      confirmPassword: z.string(),
-      revokeOtherSessions: z.boolean(),
-    })
-    .refine((data) => data.newPassword === data.confirmPassword, {
-      message: t("password.mismatch"),
-      path: ["confirmPassword"],
-    });
-  type PasswordValues = z.infer<typeof passwordSchema>;
-
-  const form = useForm<PasswordValues>({
+  const form = useForm<ChangePasswordFormValues>({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
       currentPassword: "",
@@ -36,7 +27,7 @@ export function ChangePasswordForm() {
     },
   });
 
-  async function onSubmit(values: PasswordValues) {
+  async function onSubmit(values: ChangePasswordFormValues) {
     try {
       const { error } = await neon.auth.changePassword({
         currentPassword: values.currentPassword,

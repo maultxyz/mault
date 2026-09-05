@@ -6,13 +6,16 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
+import {
+  createApiKeySchema,
+  type CreateApiKeyFormValues,
+} from "@/schemas/api-keys.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconCopy, IconKey, IconLoader2, IconPlus } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
 
 interface ApiKey {
   id: string;
@@ -24,9 +27,6 @@ interface ApiKey {
   lastUsedAt: string | null;
   createdAt: string;
 }
-
-const createSchema = z.object({ name: z.string().min(1) });
-type CreateValues = z.infer<typeof createSchema>;
 
 function formatDate(value: string | null): string | null {
   if (!value) return null;
@@ -49,8 +49,8 @@ export function ApiKeysManager() {
   const [revokingPrefix, setRevokingPrefix] = useState<string | null>(null);
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
 
-  const form = useForm<CreateValues>({
-    resolver: zodResolver(createSchema),
+  const form = useForm<CreateApiKeyFormValues>({
+    resolver: zodResolver(createApiKeySchema),
     defaultValues: { name: "" },
   });
 
@@ -72,7 +72,7 @@ export function ApiKeysManager() {
     load();
   }, [load]);
 
-  async function handleCreate({ name }: CreateValues) {
+  async function handleCreate({ name }: CreateApiKeyFormValues) {
     try {
       const res = await localPost<{
         success: boolean;

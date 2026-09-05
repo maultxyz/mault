@@ -11,40 +11,17 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  createAnnouncementFormSchema,
+  type AnnouncementFormValues,
+} from "@/schemas/announcements.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { Announcement, AnnouncementSeverity } from "@magic-vault/shared";
-import { TFunction } from "i18next";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { z } from "zod";
 
 const SEVERITIES: AnnouncementSeverity[] = ["info", "warning", "danger"];
-
-function createAnnouncementFormSchema(t: TFunction<"announcements">) {
-  return z
-    .object({
-      severity: z.enum(["info", "warning", "danger"]),
-      message: z.string().trim().min(1, t("formDialog.validation.required")),
-      isActive: z.boolean(),
-      startsAt: z.string().optional(),
-      endsAt: z.string().optional(),
-    })
-    .refine(
-      (data) =>
-        !data.startsAt ||
-        !data.endsAt ||
-        new Date(data.endsAt) > new Date(data.startsAt),
-      {
-        message: t("formDialog.validation.endAfterStart"),
-        path: ["endsAt"],
-      },
-    );
-}
-
-export type AnnouncementFormValues = z.infer<
-  ReturnType<typeof createAnnouncementFormSchema>
->;
 
 function toDatetimeLocalValue(value: Date | string | null): string {
   if (!value) return "";

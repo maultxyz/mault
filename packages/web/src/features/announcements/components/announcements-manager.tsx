@@ -10,6 +10,7 @@ import {
 } from "@/features/announcements/api/announcements";
 import { ALERT_SEVERITY_ICON_CLASS } from "@/lib/alerts";
 import { cn } from "@/lib/utils";
+import type { AnnouncementFormValues } from "@/schemas/announcements.schema";
 import type { Announcement } from "@magic-vault/shared";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -19,7 +20,6 @@ import { toast } from "sonner";
 import {
   AnnouncementFormDialog,
   fromDatetimeLocalValue,
-  type AnnouncementFormValues,
 } from "./announcement-form-dialog";
 
 function formatSchedule(

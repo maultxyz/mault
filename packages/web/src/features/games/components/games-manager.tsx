@@ -8,17 +8,14 @@ import {
   gamesQueryOptions,
   updateGame,
 } from "@/features/games/api/games";
+import type { GameFormValues } from "@/schemas/games.schema";
 import type { Game } from "@magic-vault/shared";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import {
-  GameFormDialog,
-  toFieldDefinitions,
-  type GameFormValues,
-} from "./game-form-dialog";
+import { GameFormDialog, toFieldDefinitions } from "./game-form-dialog";
 
 export function GamesManager() {
   const { t } = useTranslation("games");
