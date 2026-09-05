@@ -1,3 +1,4 @@
+import { useAnnouncementAlerts } from "@/hooks/alerts/use-announcement-alerts";
 import { useAppVersionAlert } from "@/hooks/alerts/use-app-version-alert";
 import { useChannelLayoutAlert } from "@/hooks/alerts/use-channel-layout-alert";
 import { useEmailVerificationAlert } from "@/hooks/alerts/use-email-verification-alert";
@@ -39,6 +40,7 @@ export function AppAlertsProvider({ children }: { children: ReactNode }) {
   const appVersion = useAppVersionAlert();
   const firmwareVersion = useFirmwareVersionAlert();
   const firmwareMissing = useFirmwareMissingAlert();
+  const announcements = useAnnouncementAlerts();
 
   const alerts = useMemo(
     () =>
@@ -48,6 +50,7 @@ export function AppAlertsProvider({ children }: { children: ReactNode }) {
         appVersion,
         firmwareVersion.alert,
         firmwareMissing,
+        ...announcements,
       ].filter((alert): alert is AppAlert => alert !== null),
     [
       emailVerification,
@@ -55,6 +58,7 @@ export function AppAlertsProvider({ children }: { children: ReactNode }) {
       appVersion,
       firmwareVersion.alert,
       firmwareMissing,
+      announcements,
     ],
   );
 

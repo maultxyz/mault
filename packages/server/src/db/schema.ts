@@ -89,6 +89,34 @@ export const games = pgTable(
   ],
 ).enableRLS();
 
+// Platform-wide admin broadcasts, shown to every authenticated user via the
+// same alert tray as the client-derived alerts (see web's hooks/alerts/) -
+// not org-scoped, so read: true rather than orgRls like the tables below.
+export const announcements = pgTable(
+  "announcements",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    severity: text("severity").notNull().default("info"),
+    message: text("message").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    // Null means no bound on that side - isActive alone still gates
+    // visibility, this just adds an optional time window on top of it.
+    startsAt: timestamp("starts_at"),
+    endsAt: timestamp("ends_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("announcements_guid_idx").on(table.guid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const binSets = pgTable(
   "bin_sets",
   {
