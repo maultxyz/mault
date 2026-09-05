@@ -47,6 +47,12 @@ export function LandingFooter() {
           >
             {t("nav.signIn")}
           </Link>
+          <Link to="/privacy" className="transition-colors hover:text-foreground">
+            {t("nav.privacy")}
+          </Link>
+          <Link to="/terms" className="transition-colors hover:text-foreground">
+            {t("nav.terms")}
+          </Link>
         </nav>
 
         <div className="flex items-center gap-4">
@@ -65,7 +71,7 @@ export function LandingFooter() {
             target="_blank"
             rel="noreferrer"
             aria-label={t("nav.discordAriaLabel")}
-            className="text-foreground/70 transition-colors hover:text-foreground"
+            className="external-icon-only text-foreground/70 transition-colors hover:text-foreground"
           >
             <IconBrandDiscord size={18} />
           </a>

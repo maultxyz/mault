@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { GameFormValues } from "@/schemas/games.schema";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import {
   Controller,
@@ -18,7 +19,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { FIELD_TYPES } from "../constants/field-operators";
 import { uniqueFieldKey, type PickedField } from "../lib/field-mapping";
-import type { GameFormValues } from "./game-form-dialog";
 import { SampleCardBrowser } from "./sample-card-browser";
 
 export function GameFieldDefinitionsEditor() {
@@ -81,7 +81,7 @@ export function GameFieldDefinitionsEditor() {
         </div>
 
         {errors.fieldDefinitions?.root?.message && (
-          <p className="text-xs text-destructive">
+          <p className="text-sm text-destructive">
             {errors.fieldDefinitions.root.message}
           </p>
         )}
@@ -190,7 +190,7 @@ export function GameFieldDefinitionsEditor() {
               </div>
             ))}
             {fields.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-4">
+              <p className="text-sm text-muted-foreground text-center py-4">
                 {t("fieldDefinitionsEditor.empty")}
               </p>
             )}

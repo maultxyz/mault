@@ -295,7 +295,7 @@ export default function CalibratePage() {
                   : t("calibratePage.runTest")}
               </Button>
               {isUnconfigured && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-sm text-muted-foreground">
                   {t("calibratePage.calibrateBeforeTest")}
                 </span>
               )}

@@ -11,46 +11,15 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { listSyncSources } from "@/lib/api/admin";
+import { createGameFormSchema, type GameFormValues } from "@/schemas/games.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FieldMeta, Game } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
-import { TFunction } from "i18next";
 import { useEffect } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { z } from "zod";
 import { DEFAULT_OPERATORS_BY_TYPE } from "../constants/field-operators";
 import { GameFieldDefinitionsEditor } from "./game-field-definitions-editor";
-
-function createGameFormSchema(t: TFunction<"games">) {
-  const fieldMetaFormSchema = z.object({
-    field: z.string().min(1, t("gameFormDialog.validation.required")),
-    label: z.string().min(1, t("gameFormDialog.validation.required")),
-    type: z.enum(["string", "numeric", "enum", "set"]),
-    path: z.string().min(1, t("gameFormDialog.validation.required")),
-    optionsText: z.string().optional(),
-  });
-
-  return z.object({
-    key: z
-      .string()
-      .min(1, t("gameFormDialog.validation.required"))
-      .regex(/^[a-z0-9-]+$/, t("gameFormDialog.validation.keyFormat")),
-    name: z.string().min(1, t("gameFormDialog.validation.required")),
-    apiDocsUrl: z
-      .string()
-      .trim()
-      .url(t("gameFormDialog.validation.urlFormat"))
-      .optional()
-      .or(z.literal("")),
-    isActive: z.boolean(),
-    fieldDefinitions: z
-      .array(fieldMetaFormSchema)
-      .min(1, t("gameFormDialog.validation.minFields")),
-  });
-}
-
-export type GameFormValues = z.infer<ReturnType<typeof createGameFormSchema>>;
 
 function toFormValues(game?: Game | null): GameFormValues {
   if (!game) {

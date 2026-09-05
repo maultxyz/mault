@@ -25,6 +25,12 @@ export function BuildFooter() {
           <Link to="/auth/sign-in" className="transition-colors hover:text-foreground">
             {t("footer.signIn")}
           </Link>
+          <Link to="/privacy" className="transition-colors hover:text-foreground">
+            {t("footer.privacy")}
+          </Link>
+          <Link to="/terms" className="transition-colors hover:text-foreground">
+            {t("footer.terms")}
+          </Link>
         </nav>
 
         <p className="text-sm text-foreground/70">

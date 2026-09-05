@@ -98,7 +98,7 @@ export function Esp32FlashDialog({
       )}
 
       {state === "success" && (
-        <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+        <div className="flex items-center gap-2 text-sm text-green-800 dark:text-green-400">
           <IconCircleCheck className="size-4 shrink-0" />
           <span>{t("serial.update.success")}</span>
         </div>
@@ -111,7 +111,7 @@ export function Esp32FlashDialog({
             <span>{t("serial.update.errorTitle")}</span>
           </div>
           {errorMessage && (
-            <p className="text-xs text-muted-foreground">{errorMessage}</p>
+            <p className="text-sm text-muted-foreground">{errorMessage}</p>
           )}
         </div>
       )}

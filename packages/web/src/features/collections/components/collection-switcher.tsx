@@ -125,7 +125,10 @@ export function CollectionSwitcher() {
                   <IconLoader2 className="size-3 animate-spin shrink-0 text-muted-foreground" />
                 )}
                 {activeCollection && isLockedByOther(activeCollection.guid) && (
-                  <IconLock size={11} className="shrink-0 text-amber-500" />
+                  <IconLock
+                    size={11}
+                    className="shrink-0 text-amber-800 dark:text-amber-400"
+                  />
                 )}
                 <span className="truncate">
                   {activeCollection?.name ?? t("switcher.noCollection")}
@@ -201,7 +204,7 @@ export function CollectionSwitcher() {
                   size="icon"
                   disabled={releasing}
                   onClick={handleReleaseLock}
-                  className="text-amber-500 border-amber-500/40 hover:bg-amber-500/10"
+                  className="text-amber-800 dark:text-amber-400 border-amber-500/40 hover:bg-amber-500/10"
                 >
                   {releasing ? (
                     <IconLoader2 className="animate-spin" />

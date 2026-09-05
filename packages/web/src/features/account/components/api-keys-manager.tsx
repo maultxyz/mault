@@ -6,13 +6,16 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
+import {
+  createApiKeySchema,
+  type CreateApiKeyFormValues,
+} from "@/schemas/api-keys.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconCopy, IconKey, IconLoader2, IconPlus } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
 
 interface ApiKey {
   id: string;
@@ -24,9 +27,6 @@ interface ApiKey {
   lastUsedAt: string | null;
   createdAt: string;
 }
-
-const createSchema = z.object({ name: z.string().min(1) });
-type CreateValues = z.infer<typeof createSchema>;
 
 function formatDate(value: string | null): string | null {
   if (!value) return null;
@@ -49,8 +49,8 @@ export function ApiKeysManager() {
   const [revokingPrefix, setRevokingPrefix] = useState<string | null>(null);
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
 
-  const form = useForm<CreateValues>({
-    resolver: zodResolver(createSchema),
+  const form = useForm<CreateApiKeyFormValues>({
+    resolver: zodResolver(createApiKeySchema),
     defaultValues: { name: "" },
   });
 
@@ -72,7 +72,7 @@ export function ApiKeysManager() {
     load();
   }, [load]);
 
-  async function handleCreate({ name }: CreateValues) {
+  async function handleCreate({ name }: CreateApiKeyFormValues) {
     try {
       const res = await localPost<{
         success: boolean;
@@ -122,7 +122,7 @@ export function ApiKeysManager() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("apiKeys.description")}
         </p>
         <Button
@@ -143,7 +143,7 @@ export function ApiKeysManager() {
       )}
 
       {!isLoading && activeKeys.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("apiKeys.empty")}</p>
+        <p className="text-sm text-muted-foreground">{t("apiKeys.empty")}</p>
       )}
 
       {!isLoading && activeKeys.length > 0 && (
@@ -235,7 +235,7 @@ export function ApiKeysManager() {
         }
       >
         <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
-          <code className="flex-1 overflow-x-auto whitespace-nowrap text-xs">
+          <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newRawKey}
           </code>
           <Button type="button" variant="outline" size="icon" onClick={copyNewKey}>

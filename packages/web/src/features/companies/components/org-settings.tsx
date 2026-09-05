@@ -9,24 +9,20 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { neon } from "@/lib/auth/client";
+import {
+  orgInviteSchema,
+  organizationNameSchema,
+  type OrgInviteFormValues,
+  type OrganizationNameFormValues,
+} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconTrash } from "@tabler/icons-react";
 import { Controller, useForm } from "react-hook-form";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
 
 type OrgRole = "owner" | "admin" | "member";
-
-const renameSchema = z.object({ name: z.string().min(1) });
-const inviteSchema = z.object({
-  email: z.string().email(),
-  role: z.enum(["admin", "member"]),
-});
-
-type RenameValues = z.infer<typeof renameSchema>;
-type InviteValues = z.infer<typeof inviteSchema>;
 
 export function OrgSettings() {
   const { t } = useTranslation("companies");
@@ -47,17 +43,17 @@ export function OrgSettings() {
   const [deleteOrgOpen, setDeleteOrgOpen] = useState(false);
   const [removeMemberTarget, setRemoveMemberTarget] = useState<{ id: string; name: string } | null>(null);
 
-  const renameForm = useForm<RenameValues>({
-    resolver: zodResolver(renameSchema),
+  const renameForm = useForm<OrganizationNameFormValues>({
+    resolver: zodResolver(organizationNameSchema),
     defaultValues: { name: "" },
   });
 
-  const inviteForm = useForm<InviteValues>({
-    resolver: zodResolver(inviteSchema),
+  const inviteForm = useForm<OrgInviteFormValues>({
+    resolver: zodResolver(orgInviteSchema),
     defaultValues: { email: "", role: "member" },
   });
 
-  async function handleRename({ name }: RenameValues) {
+  async function handleRename({ name }: OrganizationNameFormValues) {
     if (!activeOrg) return;
     try {
       const { error } = await neon.auth.organization.update({
@@ -73,7 +69,7 @@ export function OrgSettings() {
     }
   }
 
-  async function handleInvite({ email, role }: InviteValues) {
+  async function handleInvite({ email, role }: OrgInviteFormValues) {
     if (!activeOrg) return;
     try {
       const { error } = await neon.auth.organization.inviteMember({
@@ -311,7 +307,7 @@ export function OrgSettings() {
           {isOwner && (
             <div className="flex flex-col gap-3 bg-destructive rounded-lg p-4 text-destructive-foreground">
               <h3 className="text-sm font-semibold font-heading">{t("orgSettings.dangerZoneHeading")}</h3>
-              <p className="text-xs">
+              <p className="text-sm">
                 {t("orgSettings.deleteWarning", { name: activeOrg.name })}
               </p>
               <Button variant="secondary" size="sm" onClick={() => setDeleteOrgOpen(true)}>

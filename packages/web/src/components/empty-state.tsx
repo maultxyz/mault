@@ -26,7 +26,7 @@ export function EmptyState({
       {icon}
       <div>
         <p className="text-sm font-medium">{title}</p>
-        {description && <p className="text-xs">{description}</p>}
+        {description && <p className="text-sm">{description}</p>}
       </div>
       {action}
     </div>

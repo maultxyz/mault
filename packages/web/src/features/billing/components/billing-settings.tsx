@@ -33,7 +33,7 @@ export function BillingSettings() {
 
       {!isBusiness && billing.dailyLimit != null && (
         <div className="flex flex-col gap-1.5">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t("usage", {
               used: billing.cardsScannedToday,
               limit: billing.dailyLimit,
@@ -49,7 +49,7 @@ export function BillingSettings() {
       )}
 
       {isBusiness && billing.cancelAtPeriodEnd && billing.currentPeriodEnd && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("cancelAtPeriodEnd", {
             date: new Date(billing.currentPeriodEnd).toLocaleDateString(),
           })}

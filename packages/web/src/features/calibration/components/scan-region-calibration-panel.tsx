@@ -433,7 +433,7 @@ export function ScanRegionCalibrationPanel() {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         {t("scanRegionCalibrationPanel.instructions")}
       </p>
 
@@ -489,7 +489,7 @@ export function ScanRegionCalibrationPanel() {
           </Button>
         )}
         {phoneCaptureError && (
-          <p className="text-xs text-destructive">{phoneCaptureError}</p>
+          <p className="text-sm text-destructive">{phoneCaptureError}</p>
         )}
 
         <div className="relative overflow-hidden bg-background w-full rounded-lg border aspect-[2.5/3.5]">
@@ -523,7 +523,7 @@ export function ScanRegionCalibrationPanel() {
           {cameraSource === "phone"
             ? !phonePhotoUrl && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {phonePairingStatus === "connected"
                       ? t("scanRegionCalibrationPanel.takePhotoPrompt")
                       : t("scanRegionCalibrationPanel.waitingForPhone")}
@@ -532,7 +532,7 @@ export function ScanRegionCalibrationPanel() {
               )
             : !isCameraActive && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     {errorMessage ||
                       t("scanRegionCalibrationPanel.waitingForCamera")}
                   </p>

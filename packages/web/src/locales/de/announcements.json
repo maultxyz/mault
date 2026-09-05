@@ -1,0 +1,53 @@
+{
+  "heading": "Ankündigungen",
+  "description": "Sende eine Nachricht an alle App-Nutzer - sie erscheint als Banner und bleibt im Benachrichtigungsfach jedes Nutzers, bis du sie deaktivierst.",
+  "addAnnouncement": "Ankündigung hinzufügen",
+  "loading": "Wird geladen...",
+  "active": "Aktiv",
+  "inactive": "Inaktiv",
+  "editTitle": "Bearbeiten",
+  "deleteTitle": "Löschen",
+  "empty": "Noch keine Ankündigungen",
+  "severity": {
+    "info": "Info",
+    "warning": "Warnung",
+    "danger": "Gefahr"
+  },
+  "deleteDialog": {
+    "title": "Ankündigung löschen",
+    "description": "Diese Ankündigung endgültig löschen? Sie verschwindet sofort aus dem Benachrichtigungsfach aller Nutzer."
+  },
+  "toasts": {
+    "createError": "Ankündigung konnte nicht erstellt werden",
+    "createSuccess": "Ankündigung erstellt",
+    "updateError": "Ankündigung konnte nicht aktualisiert werden",
+    "updateSuccess": "Ankündigung gespeichert",
+    "deleteError": "Ankündigung konnte nicht gelöscht werden",
+    "deleteSuccess": "Ankündigung gelöscht"
+  },
+  "schedule": {
+    "starts": "Beginnt {{date}}",
+    "ends": "Endet {{date}}",
+    "startsAndEnds": "{{start}} → {{end}}"
+  },
+  "formDialog": {
+    "addTitle": "Ankündigung hinzufügen",
+    "editTitle": "Ankündigung bearbeiten",
+    "description": "Wird jedem angemeldeten Nutzer angezeigt, bis sie deaktiviert wird.",
+    "severityLabel": "Schweregrad",
+    "messageLabel": "Nachricht",
+    "messagePlaceholder": "Am Freitag um 22 Uhr UTC führen wir planmäßige Wartungsarbeiten durch.",
+    "startsAtLabel": "Beginnt am",
+    "endsAtLabel": "Endet am",
+    "scheduleHint": "Lasse eines der beiden Felder leer, um diese Seite nicht zu begrenzen - der Aktiv-Schalter setzt sich in jedem Fall durch.",
+    "activeLabel": "Aktiv",
+    "cancel": "Abbrechen",
+    "saving": "Wird gespeichert…",
+    "saveChanges": "Änderungen speichern",
+    "create": "Ankündigung erstellen",
+    "validation": {
+      "required": "Erforderlich",
+      "endAfterStart": "Die Endzeit muss nach der Startzeit liegen"
+    }
+  }
+}

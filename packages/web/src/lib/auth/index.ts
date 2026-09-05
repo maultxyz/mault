@@ -1,11 +1,11 @@
 import { apiPost } from "@/lib/api/client";
 import { neon } from "@/lib/auth/client";
 import { localPost } from "@/lib/auth/local-api";
-import { getLocalToken, setLocalToken } from "@/lib/auth/local-token";
 import {
   notifyLocalSessionChanged,
   useLocalAuthSession,
 } from "@/lib/auth/local-session-store";
+import { getLocalToken, setLocalToken } from "@/lib/auth/local-token";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 
 export { AUTH_PROVIDER };
@@ -39,11 +39,7 @@ async function acceptPendingInviteIfAny(): Promise<void> {
   await localPost("/api/local-auth/invites/accept", { token }).catch(() => {});
 }
 
-// Local-mode only (see app/routes/auth-local.tsx) - own-auth's sign-up/
-// sign-in isn't behind a AUTH_PROVIDER branch here because Neon mode's
-// equivalents go through NeonAuthUIProvider's own prebuilt <AuthView>
-// instead, which this app never calls directly.
-export async function signInLocal(
+async function signInLocal(
   email: string,
   password: string,
 ): Promise<{ error: string } | { error?: undefined }> {
@@ -65,7 +61,7 @@ export async function signInLocal(
   }
 }
 
-export async function signUpLocal(
+async function signUpLocal(
   email: string,
   password: string,
   name: string,
@@ -91,6 +87,60 @@ export async function signUpLocal(
   } catch {
     return { error: "Couldn't reach the server. Please try again." };
   }
+}
+
+export async function signIn(
+  email: string,
+  password: string,
+): Promise<{ error: string } | { error?: undefined }> {
+  if (AUTH_PROVIDER === "local") return signInLocal(email, password);
+  const { error } = await neon.auth.signIn.email({ email, password });
+  if (error) return { error: error.message ?? "Sign in failed." };
+  return {};
+}
+
+export async function signUp(
+  email: string,
+  password: string,
+  name: string,
+): Promise<{ error: string } | { error?: undefined }> {
+  if (AUTH_PROVIDER === "local") return signUpLocal(email, password, name);
+  const { error } = await neon.auth.signUp.email({ email, password, name });
+  if (error) return { error: error.message ?? "Sign up failed." };
+  return {};
+}
+
+export async function forgotPassword(email: string): Promise<void> {
+  if (AUTH_PROVIDER === "local") {
+    await localPost("/api/local-auth/forgot-password", { email }).catch(
+      () => {},
+    );
+    return;
+  }
+  await neon.auth
+    .requestPasswordReset({ email, redirectTo: "/auth/reset-password" })
+    .catch(() => {});
+}
+
+export async function resetPassword(
+  token: string,
+  newPassword: string,
+): Promise<{ error: string } | { error?: undefined }> {
+  if (AUTH_PROVIDER === "local") {
+    try {
+      const res = await localPost<{ success: boolean; message?: string }>(
+        "/api/local-auth/reset-password",
+        { token, newPassword },
+      );
+      if (!res.success) return { error: res.message ?? "Reset failed." };
+      return {};
+    } catch {
+      return { error: "Couldn't reach the server. Please try again." };
+    }
+  }
+  const { error } = await neon.auth.resetPassword({ newPassword, token });
+  if (error) return { error: error.message ?? "Reset failed." };
+  return {};
 }
 
 export async function signOut(): Promise<void> {
@@ -133,7 +183,8 @@ export async function createOrganization(
     name: name.trim(),
     slug,
   });
-  if (error) return { error: error.message ?? "Failed to create organization." };
+  if (error)
+    return { error: error.message ?? "Failed to create organization." };
   if (!data) return { error: "Failed to create organization." };
   return { id: data.id, name: data.name };
 }

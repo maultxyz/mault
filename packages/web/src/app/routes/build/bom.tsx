@@ -511,7 +511,7 @@ function GroupTable({
                         aria-label={t("bom.buyAriaLabel", {
                           part: resolveRowName(row, boardType),
                         })}
-                        className="inline-flex items-center text-foreground/70 transition-colors hover:text-foreground"
+                        className="external-icon-only inline-flex items-center text-foreground/70 transition-colors hover:text-foreground"
                       >
                         <IconExternalLink size={14} />
                       </a>
@@ -558,7 +558,7 @@ export function BuildBom() {
         <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
         <span>{t("bom.affiliateDisclaimer")}</span>
       </div>
-      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2.5 text-xs/relaxed text-blue-900 dark:bg-blue-500/10 dark:text-blue-300">
+      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2.5 text-sm/relaxed text-blue-900 dark:bg-blue-500/10 dark:text-blue-300">
         <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
         <span>{t("bom.hopperNote")}</span>
       </div>

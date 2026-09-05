@@ -21,8 +21,8 @@ const statusPill = cva(
       variant: {
         default: "bg-background border-border",
         loading: "bg-background border-border",
-        warning: "bg-amber-500 border-amber-600 text-white",
-        error: "bg-red-500 border-red-600 text-white",
+        warning: "bg-amber-700 border-amber-800 text-white",
+        error: "bg-red-700 border-red-800 text-white",
       },
     },
     defaultVariants: { variant: "default" },
@@ -64,7 +64,7 @@ export function ScannerOverlay({
   if (apiHealthCheck?.status === "error") {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-xs text-muted-foreground max-w-56">
+        <div className="text-center text-sm text-muted-foreground max-w-56">
           <IconAlertTriangle className="mx-auto mb-2 size-5 text-destructive" />
           <p>{t("scannerOverlay.apiDown", { api: apiHealthCheck.name })}</p>
         </div>
@@ -75,7 +75,7 @@ export function ScannerOverlay({
   if (dailyLimitReached) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-xs text-muted-foreground max-w-56">
+        <div className="text-center text-sm text-muted-foreground max-w-56">
           <IconAlertTriangle className="mx-auto mb-2 size-5 text-destructive" />
           <p>{t("scannerOverlay.dailyLimitReached")}</p>
         </div>
@@ -86,7 +86,7 @@ export function ScannerOverlay({
   if (!isCameraActive) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-xs text-muted-foreground">
+        <div className="text-center text-sm text-muted-foreground">
           {isPhoneMode ? (
             <IconDeviceMobile className="mx-auto mb-2 size-5" />
           ) : (
@@ -105,7 +105,7 @@ export function ScannerOverlay({
   if (isPhoneMode && phonePairingStatus === "connected" && !hasPhonePhoto) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-xs text-muted-foreground">
+        <div className="text-center text-sm text-muted-foreground">
           <IconDeviceMobile className="mx-auto mb-2 size-5" />
           <p>{t("scannerOverlay.phoneReadyNoPhoto")}</p>
         </div>

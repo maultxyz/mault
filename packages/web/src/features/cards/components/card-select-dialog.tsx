@@ -24,7 +24,6 @@ import {
   IconCheck,
   IconChevronLeft,
   IconChevronRight,
-  IconExternalLink,
   IconLoader2,
   IconPencil,
   IconSearch,
@@ -381,7 +380,6 @@ export function CardSelectDialog({
                       className="inline-flex items-center gap-1 text-primary hover:underline w-fit"
                     >
                       {t("cardSelectDialog.viewSource")}
-                      <IconExternalLink className="h-3 w-3" />
                     </a>
                   )}
                 </div>

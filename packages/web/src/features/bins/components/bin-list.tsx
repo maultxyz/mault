@@ -41,7 +41,7 @@ export function BinList() {
         ))}
       </div>
       {!hasCatchAll && (
-        <p className="text-xs text-destructive">{t("binList.needCatchAll")}</p>
+        <p className="text-sm text-destructive">{t("binList.needCatchAll")}</p>
       )}
     </div>
   );

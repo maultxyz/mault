@@ -1,0 +1,1 @@
+DROP INDEX "cards_embedding_hnsw";

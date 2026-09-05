@@ -1,3 +1,4 @@
+export * from "./interfaces/announcement.interface";
 export * from "./interfaces/api.interface";
 export * from "./interfaces/bin-routes.interface";
 export * from "./interfaces/bulk-import.interface";

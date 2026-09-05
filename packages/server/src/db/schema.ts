@@ -3,7 +3,6 @@ import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
   boolean,
   customType,
-  index,
   integer,
   jsonb,
   pgTable,
@@ -52,10 +51,12 @@ export const cardImageVectors = pgTable(
       table.lang,
       table.cardId,
     ),
-    index("cards_embedding_hnsw").using(
-      "hnsw",
-      table.embedding.op("vector_cosine_ops"),
-    ),
+    // No table-wide HNSW index here on purpose: every real query filters by
+    // game_key first, and one global ANN index makes that filter lossy (see
+    // ensureGameVectorIndex in lib/game-vector-index.ts). Per-game_key
+    // partial HNSW indexes are created dynamically instead, since game keys
+    // are admin-defined data (Games Manager), not something this static
+    // schema can enumerate.
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -80,6 +81,34 @@ export const games = pgTable(
   (table) => [
     unique("games_key_idx").on(table.key),
     unique("games_guid_idx").on(table.guid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+// Platform-wide admin broadcasts, shown to every authenticated user via the
+// same alert tray as the client-derived alerts (see web's hooks/alerts/) -
+// not org-scoped, so read: true rather than orgRls like the tables below.
+export const announcements = pgTable(
+  "announcements",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    severity: text("severity").notNull().default("info"),
+    message: text("message").notNull(),
+    isActive: boolean("is_active").notNull().default(true),
+    // Null means no bound on that side - isActive alone still gates
+    // visibility, this just adds an optional time window on top of it.
+    startsAt: timestamp("starts_at"),
+    endsAt: timestamp("ends_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("announcements_guid_idx").on(table.guid),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -218,6 +247,10 @@ export const collections = pgTable(
     gameId: integer("game_id").references(() => games.id),
     lang: text("lang").notNull().default("en"),
     orgId: text("org_id").notNull(),
+    discordScanChannelId: text("discord_scan_channel_id"),
+    discordScanThreadId: text("discord_scan_thread_id"),
+    discordErrorChannelId: text("discord_error_channel_id"),
+    discordErrorThreadId: text("discord_error_thread_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

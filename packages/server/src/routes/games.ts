@@ -4,6 +4,7 @@ import { Hono } from "hono";
 import { db } from "../db";
 import { cardImageVectors, games } from "../db/schema";
 import { ADAPTERS_BY_GAME_KEY } from "../lib/card-search/resolve";
+import { ensureGameVectorIndex } from "../lib/game-vector-index";
 import { requireAuth, requireRole, type AppEnv } from "../middleware/auth";
 
 const router = new Hono<AppEnv>();
@@ -179,6 +180,8 @@ router.post("/", requireAuth, requireRole("admin"), async (c) => {
         isActive: isActive ?? true,
       })
       .returning();
+
+    await ensureGameVectorIndex(row.key);
     return c.json({ success: true, data: toGame(row) });
   } catch (err) {
     if (err instanceof Error && /unique/i.test(err.message)) {
@@ -200,7 +203,7 @@ router.put("/:guid", requireAuth, requireRole("admin"), async (c) => {
   try {
     const target = await db.query.games.findFirst({
       where: (t, { eq }) => eq(t.guid, guid),
-      columns: { id: true },
+      columns: { id: true, key: true },
     });
     if (!target)
       return c.json({ success: false, message: "Game not found." }, 404);
@@ -208,11 +211,13 @@ router.put("/:guid", requireAuth, requireRole("admin"), async (c) => {
     const updates: Partial<typeof games.$inferInsert> = {
       updatedAt: new Date(),
     };
-    if (key !== undefined) updates.key = key.trim();
+    const newKey = key !== undefined ? key.trim() : undefined;
+    if (newKey !== undefined) updates.key = newKey;
     if (name !== undefined) updates.name = name.trim();
     if (fieldDefinitions !== undefined)
       updates.fieldDefinitions = fieldDefinitions;
-    if (apiDocsUrl !== undefined) updates.apiDocsUrl = apiDocsUrl?.trim() || null;
+    if (apiDocsUrl !== undefined)
+      updates.apiDocsUrl = apiDocsUrl?.trim() || null;
     if (isActive !== undefined) updates.isActive = isActive;
 
     const [row] = await db
@@ -220,6 +225,9 @@ router.put("/:guid", requireAuth, requireRole("admin"), async (c) => {
       .set(updates)
       .where(eq(games.id, target.id))
       .returning();
+    if (newKey !== undefined && newKey !== target.key) {
+      await ensureGameVectorIndex(newKey);
+    }
     return c.json({ success: true, data: toGame(row) });
   } catch (err) {
     if (err instanceof Error && /unique/i.test(err.message)) {

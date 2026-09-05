@@ -26,14 +26,24 @@ export async function execute(interaction: ChatInputCommandInteraction) {
           "Show this organization's collection stats, optionally limited to one collection.",
       },
       {
-        name: "/scanning [channel]",
+        name: "/status [collection]",
         value:
-          "Set the channel for card-scan notifications (defaults to the current channel).",
+          "Show which channels card-scan and error notifications currently go to, server-wide or for one collection.",
       },
       {
-        name: "/notification [channel]",
+        name: "/scanning [channel] [collection]",
         value:
-          "Set the channel for error/status notifications (defaults to the current channel).",
+          "Set the channel for card-scan notifications (defaults to the current channel and every collection).",
+      },
+      {
+        name: "/notification [channel] [collection]",
+        value:
+          "Set the channel for error/status notifications (defaults to the current channel and every collection).",
+      },
+      {
+        name: "/clear scanning|notification [collection]",
+        value:
+          "Unlink a channel set by /scanning or /notification, optionally for just one collection.",
       },
       {
         name: "/help",

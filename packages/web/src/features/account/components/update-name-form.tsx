@@ -2,23 +2,23 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { neon } from "@/lib/auth/client";
+import {
+  updateNameSchema,
+  type UpdateNameFormValues,
+} from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
-
-const nameSchema = z.object({ name: z.string().trim().min(1) });
-type NameValues = z.infer<typeof nameSchema>;
 
 export function UpdateNameForm() {
   const { t } = useTranslation("account");
   const { data, refetch } = neon.auth.useSession();
 
-  const form = useForm<NameValues>({
-    resolver: zodResolver(nameSchema),
+  const form = useForm<UpdateNameFormValues>({
+    resolver: zodResolver(updateNameSchema),
     defaultValues: { name: "" },
   });
 
@@ -28,7 +28,7 @@ export function UpdateNameForm() {
     }
   }, [data?.user?.name, form]);
 
-  async function onSubmit({ name }: NameValues) {
+  async function onSubmit({ name }: UpdateNameFormValues) {
     try {
       const { error } = await neon.auth.updateUser({ name });
       if (error) throw new Error(error.message);

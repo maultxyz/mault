@@ -241,7 +241,7 @@ export function SessionSummaryDialog({
             </div>
           )}
           {previouslyDownloadedCount > 0 && (
-            <label className="flex items-center justify-between gap-1.5 text-xs text-muted-foreground">
+            <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
               {t("sessionSummaryDialog.includePreviouslyDownloaded")}
               <Switch
                 size="sm"

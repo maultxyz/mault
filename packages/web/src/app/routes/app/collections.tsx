@@ -128,7 +128,7 @@ export default function CollectionsPage() {
           <h1 className="text-lg font-semibold font-heading">
             {t("page.title")}
           </h1>
-          <p className="text-xs text-muted-foreground">{t("page.subtitle")}</p>
+          <p className="text-sm text-muted-foreground">{t("page.subtitle")}</p>
         </div>
         <CreateCollectionDialog
           trigger={({ disabled }) => (
