@@ -10,7 +10,7 @@ import {
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BinRuleGroup } from "@magic-vault/shared";
-import { IconExternalLink, IconLoader2 } from "@tabler/icons-react";
+import { IconLoader2 } from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -105,7 +105,7 @@ export function BinConfigPanel() {
                   : t("binConfigPanel.setCatchAll")}
               </Button>
               {field.value && (
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {t("binConfigPanel.catchAllDescription")}
                 </p>
               )}
@@ -125,7 +125,6 @@ export function BinConfigPanel() {
                 className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 {t("binConfigPanel.apiDocsLink")}
-                <IconExternalLink size={12} />
               </a>
             )}
           </div>

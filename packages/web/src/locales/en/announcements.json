@@ -1,0 +1,53 @@
+{
+  "heading": "Announcements",
+  "description": "Broadcast a message to everyone using the app - it shows as a banner and stays in each viewer's notification tray until you deactivate it.",
+  "addAnnouncement": "Add announcement",
+  "loading": "Loading...",
+  "active": "Active",
+  "inactive": "Inactive",
+  "editTitle": "Edit",
+  "deleteTitle": "Delete",
+  "empty": "No announcements yet",
+  "severity": {
+    "info": "Info",
+    "warning": "Warning",
+    "danger": "Danger"
+  },
+  "deleteDialog": {
+    "title": "Delete announcement",
+    "description": "Permanently delete this announcement? It will disappear from everyone's notification tray immediately."
+  },
+  "toasts": {
+    "createError": "Failed to create announcement",
+    "createSuccess": "Announcement created",
+    "updateError": "Failed to update announcement",
+    "updateSuccess": "Announcement saved",
+    "deleteError": "Failed to delete announcement",
+    "deleteSuccess": "Announcement deleted"
+  },
+  "schedule": {
+    "starts": "Starts {{date}}",
+    "ends": "Ends {{date}}",
+    "startsAndEnds": "{{start}} → {{end}}"
+  },
+  "formDialog": {
+    "addTitle": "Add announcement",
+    "editTitle": "Edit announcement",
+    "description": "Shown to every signed-in user until deactivated.",
+    "severityLabel": "Severity",
+    "messageLabel": "Message",
+    "messagePlaceholder": "We'll be doing scheduled maintenance Friday at 10pm UTC.",
+    "startsAtLabel": "Starts at",
+    "endsAtLabel": "Ends at",
+    "scheduleHint": "Leave either blank for no start/end bound - the Active toggle still overrides both.",
+    "activeLabel": "Active",
+    "cancel": "Cancel",
+    "saving": "Saving…",
+    "saveChanges": "Save changes",
+    "create": "Create announcement",
+    "validation": {
+      "required": "Required",
+      "endAfterStart": "End time must be after the start time"
+    }
+  }
+}

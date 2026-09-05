@@ -1,0 +1,156 @@
+{
+  "effectiveDateLabel": "Zuletzt aktualisiert am {{date}}",
+  "privacy": {
+    "title": "Datenschutzerklärung",
+    "intro": [
+      "Diese Erklärung beschreibt, welche Informationen Mault LLC (\"Mault\", \"wir\") erhebt, wenn du den gehosteten Mault-Dienst nutzt, und wie wir sie verwenden.",
+      "Sie gilt nur für den gehosteten Dienst. Wenn du eine selbst gehostete Instanz betreibst (AUTH_PROVIDER=local), verbleiben deine Daten auf einer Infrastruktur, die du selbst kontrollierst, und du bist dafür verantwortlich - diese Erklärung gilt nicht für dieses Deployment."
+    ],
+    "sections": [
+      {
+        "heading": "Welche Informationen wir erheben",
+        "body": [
+          "Kontoinformationen: deine E-Mail-Adresse und dein Name, verwaltet von unserem Authentifizierungsanbieter (Neon Auth) bei Registrierung oder Anmeldung.",
+          "Organisationsdaten: Organisationsnamen, Mitgliedschaften und Rollen für die Teams, die du erstellst oder denen du beitrittst.",
+          "Sammlungsdaten: die Sammlungen, Fächer, Sortierregeln und Kartendatensätze, die du in der App anlegst.",
+          "Karten-Scan-Bilder: Wenn du eine physische Karte scannst, wird das Foto nur zur Erzeugung eines Treffers in der Kartendatenbank an unseren Server gesendet. Es wird im Arbeitsspeicher verarbeitet und danach verworfen - wir speichern nicht das Foto selbst, sondern nur die erkannte Karte.",
+          "Zahlungsinformationen: Wenn du den Business-Plan abonnierst, werden die Zahlungsdaten direkt von Stripe erhoben und verarbeitet. Wir sehen oder speichern niemals deine vollständige Kartennummer.",
+          "Discord-Webhook-Daten: Wenn du einen Discord-Webhook verbindest, senden wir die von dir konfigurierten Scan- und Sammlungsbenachrichtigungen an die von dir angegebene Webhook-URL.",
+          "Grundlegende Betriebsprotokolle (Fehler, Anfrage-Metadaten), die zur Aufrechterhaltung der Zuverlässigkeit des Dienstes verwendet werden. Wir setzen keine Analyse- oder Werbe-Tracker Dritter ein."
+        ]
+      },
+      {
+        "heading": "Wie wir diese Informationen verwenden",
+        "body": [
+          "Um den Dienst zu betreiben und bereitzustellen, einschließlich deiner Authentifizierung und der organisationsbezogenen Trennung deiner Daten.",
+          "Um Zahlungen für kostenpflichtige Pläne zu verarbeiten und dein Abonnement zu verwalten.",
+          "Um die von dir ausdrücklich konfigurierten Benachrichtigungen zu senden (z. B. Discord-Webhook-Nachrichten).",
+          "Um die Sicherheit und Zuverlässigkeit des Dienstes zu gewährleisten."
+        ]
+      },
+      {
+        "heading": "Wie wir Informationen weitergeben",
+        "body": [
+          "Wir verkaufen deine personenbezogenen Daten nicht. Wir geben sie nur an die Dienstleister weiter, die für den Betrieb von Mault erforderlich sind:",
+          "Neon, für Datenbank-Hosting und Authentifizierung.",
+          "Stripe, für die Zahlungsabwicklung bei kostenpflichtigen Plänen.",
+          "Discord, nur wenn und sobald du einen Webhook zum Versenden von Benachrichtigungen konfigurierst.",
+          "Drittanbieter-Datenbanken für Sammelkartenspiele (z. B. Scryfall und ähnliche Quellen), die wir zur Identifizierung und Anreicherung von Kartendaten abfragen. Diese Abfragen enthalten keine personenbezogenen Daten von dir."
+        ]
+      },
+      {
+        "heading": "Datenspeicherung",
+        "body": [
+          "Wir speichern deine Konto-, Organisations- und Sammlungsdaten, solange dein Konto aktiv ist.",
+          "Karten-Scan-Fotos werden niemals gespeichert - sie werden unmittelbar nach der Treffererkennung verworfen.",
+          "Du kannst jederzeit die Löschung deines Kontos und der zugehörigen Daten beantragen, indem du uns kontaktierst."
+        ]
+      },
+      {
+        "heading": "Deine Rechte",
+        "body": [
+          "Du kannst deine personenbezogenen Daten einsehen, korrigieren, exportieren oder löschen lassen, indem du uns unter der unten stehenden Adresse kontaktierst, oder - wo verfügbar - direkt in der App."
+        ]
+      },
+      {
+        "heading": "Sicherheit",
+        "body": [
+          "Der Datenverkehr zum gehosteten Dienst wird bei der Übertragung verschlüsselt (HTTPS). Daten werden mittels datenbankseitiger Row-Level-Security pro Organisation getrennt, und der API-Zugriff erfolgt über kurzlebige Bearer-Token statt über Cookies."
+        ]
+      },
+      {
+        "heading": "Datenschutz für Kinder",
+        "body": [
+          "Mault richtet sich nicht an Kinder unter 13 Jahren, und wir erheben wissentlich keine personenbezogenen Daten von ihnen."
+        ]
+      },
+      {
+        "heading": "Änderungen dieser Erklärung",
+        "body": [
+          "Wir können diese Erklärung von Zeit zu Zeit aktualisieren. In diesem Fall aktualisieren wir das Datum am Anfang dieser Seite."
+        ]
+      },
+      {
+        "heading": "Kontakt",
+        "body": [
+          "Fragen zu dieser Erklärung? Erreiche uns unter {{email}}."
+        ]
+      }
+    ]
+  },
+  "terms": {
+    "title": "Nutzungsbedingungen",
+    "intro": [
+      "Diese Bedingungen regeln deine Nutzung des von Mault LLC (\"Mault\", \"wir\") betriebenen, gehosteten Mault-Dienstes. Mit der Erstellung eines Kontos oder der Nutzung des Dienstes stimmst du ihnen zu."
+    ],
+    "sections": [
+      {
+        "heading": "Der Dienst",
+        "body": [
+          "Mault hilft dir, physische Sammelkarten mithilfe eines kamerabestückten Sortierers und einer Begleitsoftware zu identifizieren, zu sortieren und zu verwalten.",
+          "Die Sortierer-Hardware ist ein DIY-Aufbau aus handelsüblichen und 3D-gedruckten Teilen gemäß unserer veröffentlichten Bauanleitung. Sie wird \"wie besehen\" bereitgestellt - wir haften nicht für Schäden, die beim Bau oder Betrieb deiner eigenen Hardware entstehen.",
+          "Du kannst die Software auch vollständig auf deiner eigenen Infrastruktur selbst hosten. Diese Bedingungen gelten für den gehosteten Dienst auf unserer Domain; eine selbst gehostete Instanz liegt in deiner eigenen Verantwortung."
+        ]
+      },
+      {
+        "heading": "Konten",
+        "body": [
+          "Du bist für die Richtigkeit der von dir bereitgestellten Informationen und für die Sicherheit deiner Zugangsdaten verantwortlich.",
+          "Organisationen können mehrere Mitglieder mit unterschiedlichen Rollen haben; der Organisationsinhaber ist für die Verwaltung von Mitgliedschaft und Zugriff verantwortlich."
+        ]
+      },
+      {
+        "heading": "Abonnements und Abrechnung",
+        "body": [
+          "Mault bietet einen kostenlosen Plan mit Nutzungsgrenzen sowie einen kostenpflichtigen Business-Plan, der monatlich über Stripe abgerechnet wird.",
+          "Du kannst dein Abonnement jederzeit über das Abrechnungsportal kündigen. Die Kündigung wird zum Ende des laufenden Abrechnungszeitraums wirksam - bis dahin behältst du die Business-Funktionen.",
+          "Wir bieten keine Rückerstattungen oder Gutschriften für anteilige Abrechnungszeiträume oder nicht genutzte Zeit an.",
+          "Wir informieren dich rechtzeitig, bevor eine Preisänderung für dein Abonnement wirksam wird."
+        ]
+      },
+      {
+        "heading": "Zulässige Nutzung",
+        "body": [
+          "Nutze den Dienst nicht, um gegen geltendes Recht zu verstoßen, unsere Infrastruktur zu missbrauchen oder zu überlasten, oder um Nutzungsgrenzen zu umgehen oder auf Daten anderer Organisationen zuzugreifen.",
+          "Verkaufe oder hoste den gehosteten Dienst nicht als eigenes konkurrierendes Angebot weiter; das Selbsthosten einer eigenen Instanz für deinen eigenen Gebrauch ist willkommen."
+        ]
+      },
+      {
+        "heading": "Kartendaten von Drittanbietern",
+        "body": [
+          "Kartennamen, Bilder und andere in der App angezeigte Metadaten stammen aus Datenbanken und von Verlagen Dritter für Sammelkartenspiele. Mault erhebt keinen Anspruch auf Eigentum an diesen Inhalten, und alle zugehörigen Marken gehören ihren jeweiligen Inhabern."
+        ]
+      },
+      {
+        "heading": "Open Source",
+        "body": [
+          "Die Software von Mault ist Open Source. Du kannst den Code einsehen, selbst hosten oder dazu beitragen - Lizenz und Details findest du in unserem GitHub-Repository."
+        ]
+      },
+      {
+        "heading": "Haftungsausschluss und Haftungsbeschränkung",
+        "body": [
+          "Der Dienst wird \"wie besehen\" ohne jegliche Gewährleistung bereitgestellt. Soweit gesetzlich zulässig, haftet Mault LLC nicht für indirekte, beiläufig entstandene oder Folgeschäden, die aus deiner Nutzung des Dienstes oder deines eigenen Hardware-Aufbaus entstehen."
+        ]
+      },
+      {
+        "heading": "Kündigung",
+        "body": [
+          "Wir können den Zugang zum gehosteten Dienst für Konten sperren oder beenden, die gegen diese Bedingungen verstoßen. Du kannst die Nutzung des Dienstes jederzeit beenden und dein Abonnement kündigen."
+        ]
+      },
+      {
+        "heading": "Änderungen dieser Bedingungen",
+        "body": [
+          "Wir können diese Bedingungen von Zeit zu Zeit aktualisieren. In diesem Fall aktualisieren wir das Datum am Anfang dieser Seite; die fortgesetzte Nutzung des Dienstes nach Inkrafttreten der Änderungen gilt als Zustimmung."
+        ]
+      },
+      {
+        "heading": "Kontakt",
+        "body": [
+          "Fragen zu diesen Bedingungen? Erreiche uns unter {{email}}."
+        ]
+      }
+    ]
+  }
+}

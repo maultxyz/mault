@@ -1,0 +1,53 @@
+{
+  "heading": "Annonces",
+  "description": "Diffuse un message à tous les utilisateurs de l'application - il s'affiche en bannière et reste dans le tiroir de notifications de chacun jusqu'à ce que tu le désactives.",
+  "addAnnouncement": "Ajouter une annonce",
+  "loading": "Chargement...",
+  "active": "Active",
+  "inactive": "Inactive",
+  "editTitle": "Modifier",
+  "deleteTitle": "Supprimer",
+  "empty": "Aucune annonce pour le moment",
+  "severity": {
+    "info": "Info",
+    "warning": "Avertissement",
+    "danger": "Danger"
+  },
+  "deleteDialog": {
+    "title": "Supprimer l'annonce",
+    "description": "Supprimer définitivement cette annonce ? Elle disparaîtra immédiatement du tiroir de notifications de tout le monde."
+  },
+  "toasts": {
+    "createError": "Échec de la création de l'annonce",
+    "createSuccess": "Annonce créée",
+    "updateError": "Échec de la mise à jour de l'annonce",
+    "updateSuccess": "Annonce enregistrée",
+    "deleteError": "Échec de la suppression de l'annonce",
+    "deleteSuccess": "Annonce supprimée"
+  },
+  "schedule": {
+    "starts": "Débute {{date}}",
+    "ends": "Se termine {{date}}",
+    "startsAndEnds": "{{start}} → {{end}}"
+  },
+  "formDialog": {
+    "addTitle": "Ajouter une annonce",
+    "editTitle": "Modifier l'annonce",
+    "description": "Affichée à chaque utilisateur connecté jusqu'à sa désactivation.",
+    "severityLabel": "Gravité",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Une maintenance planifiée aura lieu vendredi à 22h UTC.",
+    "startsAtLabel": "Début",
+    "endsAtLabel": "Fin",
+    "scheduleHint": "Laisse l'un des deux champs vide pour ne pas borner ce côté - l'interrupteur Active reste prioritaire dans tous les cas.",
+    "activeLabel": "Active",
+    "cancel": "Annuler",
+    "saving": "Enregistrement…",
+    "saveChanges": "Enregistrer les modifications",
+    "create": "Créer l'annonce",
+    "validation": {
+      "required": "Requis",
+      "endAfterStart": "L'heure de fin doit être après l'heure de début"
+    }
+  }
+}

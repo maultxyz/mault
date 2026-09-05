@@ -137,7 +137,7 @@ export function SessionsList() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("sessions.description")}
         </p>
         {otherCount > 0 && (
@@ -161,7 +161,7 @@ export function SessionsList() {
       )}
 
       {!isLoading && sessions?.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("sessions.empty")}</p>
+        <p className="text-sm text-muted-foreground">{t("sessions.empty")}</p>
       )}
 
       {!isLoading && sessions && sessions.length > 0 && (

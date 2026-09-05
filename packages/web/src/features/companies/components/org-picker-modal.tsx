@@ -2,25 +2,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { createOrganization } from "@/lib/auth";
+import {
+  organizationNameSchema,
+  type OrganizationNameFormValues,
+} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconBuilding, IconPlus } from "@tabler/icons-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useOrg } from "../api/use-organization";
-
-const createSchema = z.object({ name: z.string().min(1) });
-type CreateValues = z.infer<typeof createSchema>;
 
 export function OrgPickerModal() {
   const { t } = useTranslation("companies");
   const [showCreate, setShowCreate] = useState(false);
   const { orgs, activeOrg, isLoading, setActiveOrg } = useOrg();
 
-  const form = useForm<CreateValues>({
-    resolver: zodResolver(createSchema),
+  const form = useForm<OrganizationNameFormValues>({
+    resolver: zodResolver(organizationNameSchema),
     defaultValues: { name: "" },
   });
 
@@ -28,7 +28,7 @@ export function OrgPickerModal() {
     await setActiveOrg(id);
   }
 
-  async function handleCreate({ name }: CreateValues) {
+  async function handleCreate({ name }: OrganizationNameFormValues) {
     const result = await createOrganization(name.trim());
     if ("error" in result) {
       toast.error(result.error || t("orgPickerModal.failedToCreate"));

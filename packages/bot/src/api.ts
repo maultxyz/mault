@@ -40,10 +40,22 @@ export function setChannel(
   guildId: string,
   channelId: string,
   kind: NotificationKind,
+  collectionGuid?: string,
 ) {
   return botFetch<undefined>("/bot/set-channel", {
     method: "POST",
-    body: JSON.stringify({ guildId, channelId, kind }),
+    body: JSON.stringify({ guildId, channelId, kind, collectionGuid }),
+  });
+}
+
+export function clearChannel(
+  guildId: string,
+  kind: NotificationKind,
+  collectionGuid?: string,
+) {
+  return botFetch<undefined>("/bot/set-channel", {
+    method: "POST",
+    body: JSON.stringify({ guildId, kind, collectionGuid, clear: true }),
   });
 }
 
@@ -70,6 +82,25 @@ export function getCollections(guildId: string) {
   return botFetch<CollectionSummary[]>(
     `/bot/collections?guildId=${encodeURIComponent(guildId)}`,
   );
+}
+
+export interface StatusOverride {
+  name: string;
+  scanChannelId: string | null;
+  errorChannelId: string | null;
+}
+
+export interface StatusResult {
+  orgScanChannelId: string | null;
+  orgErrorChannelId: string | null;
+  collection: StatusOverride | null;
+  overrides: StatusOverride[];
+}
+
+export function getStatus(guildId: string, collectionGuid?: string) {
+  const query = new URLSearchParams({ guildId });
+  if (collectionGuid) query.set("collection", collectionGuid);
+  return botFetch<StatusResult>(`/bot/status?${query.toString()}`);
 }
 
 export interface GameSummary {

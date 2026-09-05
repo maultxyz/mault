@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/server",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "private": true,
   "scripts": {
     "dev": "tsx watch --env-file ../../.env src/index.ts",
@@ -10,7 +10,8 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:migrate-local": "tsx scripts/migrate-local.ts",
-    "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts"
+    "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts",
+    "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",

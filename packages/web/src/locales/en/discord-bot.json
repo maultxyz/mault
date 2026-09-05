@@ -45,12 +45,16 @@
         "description": "Show this organization's collection stats, optionally limited to one collection."
       },
       "scanning": {
-        "usage": "/scanning [channel]",
-        "description": "Set the channel for card-scan notifications (defaults to the current channel)."
+        "usage": "/scanning [channel] [collection]",
+        "description": "Set the channel for card-scan notifications, optionally for just one collection (defaults to the current channel and every collection)."
       },
       "notification": {
-        "usage": "/notification [channel]",
-        "description": "Set the channel for error/status notifications (defaults to the current channel)."
+        "usage": "/notification [channel] [collection]",
+        "description": "Set the channel for error/status notifications, optionally for just one collection (defaults to the current channel and every collection)."
+      },
+      "clear": {
+        "usage": "/clear scanning|notification [collection]",
+        "description": "Unlink a channel set by /scanning or /notification, optionally for just one collection."
       },
       "help": {
         "usage": "/help",
@@ -83,6 +87,8 @@
   "footer": {
     "reportIssue": "Report an issue",
     "signIn": "Sign in",
+    "privacy": "Privacy",
+    "terms": "Terms",
     "copyright": "© {{year}} Mault LLC"
   }
 }

@@ -69,7 +69,7 @@ export function ImpersonationUsersManager() {
           <p className="text-sm font-medium">
             {t("impersonationUsersManager.heading")}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t("impersonationUsersManager.description")}
           </p>
         </div>
@@ -102,12 +102,12 @@ export function ImpersonationUsersManager() {
 
       <div className="divide-y max-h-80 overflow-y-auto">
         {!isQueryReady && (
-          <p className="text-xs text-muted-foreground text-center py-6">
+          <p className="text-sm text-muted-foreground text-center py-6">
             {t("impersonationUsersManager.startTyping")}
           </p>
         )}
         {isQueryReady && usersQuery.isLoading && (
-          <p className="text-xs text-muted-foreground text-center py-6">
+          <p className="text-sm text-muted-foreground text-center py-6">
             {t("impersonationUsersManager.loading")}
           </p>
         )}
@@ -157,7 +157,7 @@ export function ImpersonationUsersManager() {
         {isQueryReady &&
           !usersQuery.isLoading &&
           usersQuery.data?.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center py-6">
+            <p className="text-sm text-muted-foreground text-center py-6">
               {t("impersonationUsersManager.empty")}
             </p>
           )}

@@ -25,11 +25,26 @@ const EMPTY_FILTERS: CardFilters = {
 
 const KNOWN_COLOR_ACTIVE: Record<string, string> = {
   W: "bg-amber-100 text-amber-900 border-amber-400",
-  U: "bg-blue-500 text-white border-blue-700",
+  U: "bg-blue-700 text-white border-blue-800",
   B: "bg-neutral-900 text-white border-neutral-700",
-  R: "bg-red-500 text-white border-red-700",
-  G: "bg-green-600 text-white border-green-800",
-  C: "bg-gray-400 text-white border-gray-500",
+  R: "bg-red-700 text-white border-red-800",
+  G: "bg-green-700 text-white border-green-800",
+  C: "bg-gray-600 text-white border-gray-700",
+};
+
+// Rarity swatch colors (index.css) are fixed regardless of light/dark theme,
+// so the text color needs to be picked per swatch's own lightness rather
+// than tied to the app's theme like text-foreground/text-background would be.
+const RARITY_TEXT_CLASS: Record<string, string> = {
+  common: "text-white",
+  c: "text-white",
+  uncommon: "text-black",
+  u: "text-black",
+  rare: "text-black",
+  r: "text-black",
+  mythic: "text-black",
+  lr: "text-black",
+  p: "text-black",
 };
 
 function toggle<T>(arr: T[], item: T): T[] {
@@ -142,7 +157,10 @@ export function CardFilterPopover({
                       chipBase,
                       "flex items-center gap-1.5 px-2 h-7 font-medium",
                       active
-                        ? "border-transparent text-background"
+                        ? cn(
+                            "border-transparent",
+                            RARITY_TEXT_CLASS[rarity.key] ?? "text-foreground",
+                          )
                         : chipInactive,
                     )}
                     style={
@@ -251,7 +269,7 @@ export function CardFilterPopover({
               chipBase,
               "flex items-center gap-1.5 px-2 h-7",
               activeFilters.needsAttention
-                ? "bg-amber-500 text-white border-amber-600"
+                ? "bg-amber-700 text-white border-amber-800"
                 : chipInactive,
             )}
           >

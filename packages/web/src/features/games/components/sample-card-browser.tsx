@@ -139,7 +139,7 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
     <div className="flex flex-col gap-2 overflow-hidden">
       <div className="flex-none">
         <p className="text-sm font-medium">{t("fieldMapping.heading")}</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("fieldMapping.description")}
         </p>
       </div>
@@ -166,12 +166,12 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
         </Button>
       </div>
 
-      {error && <p className="text-xs text-destructive">{error}</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {raw && (
         <>
           {sampleName && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t("fieldMapping.sampleName", { name: sampleName })}
             </p>
           )}

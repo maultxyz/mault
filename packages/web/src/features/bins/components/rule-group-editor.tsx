@@ -120,7 +120,7 @@ export function RuleGroupEditor({
           ),
         )}
         {group.conditions.length === 0 && (
-          <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+          <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-sm bg-sidebar">
             {t("ruleGroupEditor.emptyState")}
           </p>
         )}

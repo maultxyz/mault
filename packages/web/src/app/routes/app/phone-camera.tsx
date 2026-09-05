@@ -155,7 +155,7 @@ export default function PhoneCameraPage() {
       </div>
       {status === "camera-error" && errorMessage && (
         <div className="absolute inset-x-0 bottom-20 flex items-center justify-center px-6">
-          <p className="rounded-lg bg-black/70 backdrop-blur-sm px-3 py-1.5 text-center text-xs text-white/70">
+          <p className="rounded-lg bg-black/70 backdrop-blur-sm px-3 py-1.5 text-center text-sm text-white/70">
             {errorMessage}
           </p>
         </div>

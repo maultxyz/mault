@@ -13,7 +13,16 @@
     "discordAriaLabel": "Rejoindre le Discord",
     "collapse": "Réduire",
     "collapseSidebar": "Réduire la barre latérale ([)",
-    "expandSidebar": "Développer la barre latérale ([)"
+    "expandSidebar": "Développer la barre latérale ([)",
+    "alerts": "Alertes"
+  },
+  "alerts": {
+    "dismiss": "Ignorer",
+    "tray": {
+      "trigger": "Notifications",
+      "title": "Notifications",
+      "empty": "Tout est à jour."
+    }
   },
   "breadcrumb": {
     "account": "Compte"
@@ -112,7 +121,6 @@
     "donateAriaLabel": "Soutenir Mault sur Buy Me a Coffee"
   },
   "publicNav": {
-    "pagesLabel": "Pages",
     "pagesAria": "Pages du site",
     "pages": {
       "home": "Accueil",

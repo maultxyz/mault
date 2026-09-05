@@ -6,7 +6,9 @@
     "build": "Construire",
     "discordBot": "Bot Discord",
     "signIn": "Se connecter",
-    "discordAriaLabel": "Rejoindre le Discord"
+    "discordAriaLabel": "Rejoindre le Discord",
+    "privacy": "Confidentialité",
+    "terms": "Conditions"
   },
   "footer": {
     "copyright": "© {{year}} Mault LLC · v{{version}}"

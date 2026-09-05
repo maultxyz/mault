@@ -6,6 +6,7 @@ const COMMANDS = [
   "stats",
   "scanning",
   "notification",
+  "clear",
   "help",
 ] as const;
 

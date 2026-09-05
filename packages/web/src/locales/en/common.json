@@ -13,7 +13,16 @@
     "discordAriaLabel": "Join the Discord",
     "collapse": "Collapse",
     "collapseSidebar": "Collapse sidebar ([)",
-    "expandSidebar": "Expand sidebar ([)"
+    "expandSidebar": "Expand sidebar ([)",
+    "alerts": "Alerts"
+  },
+  "alerts": {
+    "dismiss": "Dismiss",
+    "tray": {
+      "trigger": "Notifications",
+      "title": "Notifications",
+      "empty": "You're all caught up."
+    }
   },
   "breadcrumb": {
     "account": "Account"
@@ -112,7 +121,6 @@
     "donateAriaLabel": "Support Mault on Buy Me a Coffee"
   },
   "publicNav": {
-    "pagesLabel": "Pages",
     "pagesAria": "Site pages",
     "pages": {
       "home": "Home",

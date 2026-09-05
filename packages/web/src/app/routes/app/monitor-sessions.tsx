@@ -24,7 +24,7 @@ import { toast } from "sonner";
 function ScanningPill({ isOwn }: { isOwn?: boolean }) {
   const { t } = useTranslation("scanner");
   return (
-    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 ring-1 ring-amber-500/20 text-amber-500">
+    <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-amber-500/10 ring-1 ring-amber-500/20 text-amber-800 dark:text-amber-400">
       <span className="size-1.5 rounded-full bg-amber-500 animate-pulse shrink-0" />
       <span className="text-[10px] font-medium">
         {isOwn
@@ -45,7 +45,7 @@ function StatusIcon({
   if (scannerLock) {
     return (
       <div className="size-8 rounded-md flex items-center justify-center shrink-0 bg-amber-500/10 border border-amber-500/30">
-        <span className="text-[11px] font-bold text-amber-500">
+        <span className="text-[11px] font-bold text-amber-800 dark:text-amber-400">
           {getInitials(scannerLock.displayName)}
         </span>
       </div>
@@ -54,7 +54,7 @@ function StatusIcon({
   if (watcherCount > 0) {
     return (
       <div className="size-8 rounded-md flex items-center justify-center shrink-0 bg-green-500/10 border border-green-500/30">
-        <span className="text-[11px] font-bold text-green-500">
+        <span className="text-[11px] font-bold text-green-800 dark:text-green-400">
           {watcherCount}
         </span>
       </div>
@@ -90,7 +90,7 @@ function ReleaseButton({ guid }: { guid: string }) {
       onClick={handleRelease}
       disabled={releasing}
       title={t("monitorSessions.leaveSession")}
-      className="flex items-center justify-center size-7 rounded-md border border-amber-500/30 text-amber-500 hover:bg-amber-500/10 transition-colors disabled:opacity-50 shrink-0"
+      className="flex items-center justify-center size-7 rounded-md border border-amber-500/30 text-amber-800 dark:text-amber-400 hover:bg-amber-500/10 transition-colors disabled:opacity-50 shrink-0"
     >
       {releasing ? (
         <IconLoader2 className="size-3.5 animate-spin" />
@@ -131,7 +131,7 @@ export default function MonitorSessionsPage() {
         <h1 className="text-lg font-semibold font-heading">
           {t("monitorSessions.title")}
         </h1>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("monitorSessions.subtitle")}
         </p>
       </div>

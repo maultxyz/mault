@@ -46,7 +46,7 @@ export default function SettingsPage() {
       <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4 ">
         <div>
           <h1 className="text-lg font-semibold font-heading">{t("title")}</h1>
-          <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
         {AUTH_PROVIDER !== "local" && (
           <div className="rounded-lg border p-4 flex flex-col gap-4">
@@ -85,24 +85,24 @@ export default function SettingsPage() {
             <h2 className="text-sm font-semibold font-heading">
               {t("appearance.heading")}
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {t("appearance.description")}
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium">
+            <p className="text-sm font-medium">
               {t("appearance.primaryColor")}
             </p>
             <PrimaryColorPicker />
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium">
+            <p className="text-sm font-medium">
               {t("appearance.scannerLayout")}
             </p>
             <ScannerLayoutToggle />
           </div>
           <div className="flex flex-col gap-1.5">
-            <p className="text-xs font-medium">{t("appearance.language")}</p>
+            <p className="text-sm font-medium">{t("appearance.language")}</p>
             <LanguageSwitcher />
           </div>
         </div>
@@ -111,7 +111,7 @@ export default function SettingsPage() {
             <h2 className="text-sm font-semibold font-heading">
               {tGames("gameCoverage.heading")}
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {tGames("gameCoverage.description")}
             </p>
           </div>

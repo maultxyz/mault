@@ -74,7 +74,7 @@ export function ImpersonationAuditDrawer({
               ))}
             </div>
           ) : auditQuery.data?.length === 0 ? (
-            <p className="p-4 text-xs text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               {t("impersonationAuditDrawer.empty")}
             </p>
           ) : (
@@ -82,7 +82,7 @@ export function ImpersonationAuditDrawer({
               {auditQuery.data?.map((entry) => (
                 <div key={entry.guid} className="p-3 flex flex-col gap-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-medium truncate">
+                    <p className="text-sm font-medium truncate">
                       {t("impersonationAuditDrawer.entryLabel", {
                         admin: entry.adminEmail ?? "?",
                         target: entry.targetEmail ?? "?",

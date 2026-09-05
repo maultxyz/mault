@@ -69,6 +69,9 @@ router.post("/serial-event", requireAuth, requireOrg, async (c) => {
         timestamp: new Date().toISOString(),
       },
       "error",
+      undefined,
+      undefined,
+      event.collectionGuid,
     );
   }
   return c.json({ success: true, message: "Serial event reported." });

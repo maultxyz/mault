@@ -12,6 +12,10 @@ import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { createOrganization } from "@/lib/auth";
+import {
+  organizationNameSchema,
+  type OrganizationNameFormValues,
+} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconBuilding,
@@ -24,11 +28,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { z } from "zod";
 import { useOrg } from "../api/use-organization";
-
-const createSchema = z.object({ name: z.string().min(1) });
-type CreateValues = z.infer<typeof createSchema>;
 
 function OrgBadge({
   initial,
@@ -54,12 +54,12 @@ export function OrgSwitcher({
   const navigate = useNavigate();
   const [createOpen, setCreateOpen] = useState(false);
 
-  const form = useForm<CreateValues>({
-    resolver: zodResolver(createSchema),
+  const form = useForm<OrganizationNameFormValues>({
+    resolver: zodResolver(organizationNameSchema),
     defaultValues: { name: "" },
   });
 
-  async function handleCreate({ name }: CreateValues) {
+  async function handleCreate({ name }: OrganizationNameFormValues) {
     const result = await createOrganization(name.trim());
     if ("error" in result) {
       toast.error(result.error || t("orgSwitcher.failedToCreate"));

@@ -6,7 +6,7 @@ import {
 } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
-import { bins, binSets, orgSettings } from "../db/schema";
+import { bins, binSets, collections, orgSettings } from "../db/schema";
 
 export type DiscordEmbed = {
   title: string;
@@ -195,10 +195,47 @@ const THREAD_NAMES: Record<DiscordNotificationKind, string> = {
   error: "Notifications",
 };
 
+interface NotifyConfig {
+  channelId: string | null;
+  threadId: string | null;
+  source: "collection" | "org";
+}
+
 async function getNotifyConfig(
   orgId: string,
   kind: DiscordNotificationKind,
-): Promise<{ channelId: string | null; threadId: string | null }> {
+  collectionGuid?: string,
+): Promise<NotifyConfig> {
+  if (collectionGuid) {
+    const collectionRows = await db
+      .select({
+        discordScanChannelId: collections.discordScanChannelId,
+        discordScanThreadId: collections.discordScanThreadId,
+        discordErrorChannelId: collections.discordErrorChannelId,
+        discordErrorThreadId: collections.discordErrorThreadId,
+      })
+      .from(collections)
+      .where(
+        and(eq(collections.guid, collectionGuid), eq(collections.orgId, orgId)),
+      )
+      .limit(1);
+    const collectionRow = collectionRows[0];
+    const channelId =
+      kind === "scan"
+        ? collectionRow?.discordScanChannelId
+        : collectionRow?.discordErrorChannelId;
+    if (channelId) {
+      return {
+        channelId,
+        threadId:
+          (kind === "scan"
+            ? collectionRow?.discordScanThreadId
+            : collectionRow?.discordErrorThreadId) ?? null,
+        source: "collection",
+      };
+    }
+  }
+
   const rows = await db
     .select({
       discordScanChannelId: orgSettings.discordScanChannelId,
@@ -210,15 +247,15 @@ async function getNotifyConfig(
     .where(eq(orgSettings.orgId, orgId))
     .limit(1);
   const row = rows[0];
-  if (kind === "scan") {
-    return {
-      channelId: row?.discordScanChannelId ?? null,
-      threadId: row?.discordScanThreadId ?? null,
-    };
-  }
   return {
-    channelId: row?.discordErrorChannelId ?? null,
-    threadId: row?.discordErrorThreadId ?? null,
+    channelId:
+      (kind === "scan"
+        ? row?.discordScanChannelId
+        : row?.discordErrorChannelId) ?? null,
+    threadId:
+      (kind === "scan" ? row?.discordScanThreadId : row?.discordErrorThreadId) ??
+      null,
+    source: "org",
   };
 }
 
@@ -274,8 +311,9 @@ export async function sendDiscordNotification(
   kind: DiscordNotificationKind,
   attachmentDataUrl?: string,
   secondaryImageUrl?: string,
+  collectionGuid?: string,
 ): Promise<void> {
-  const config = await getNotifyConfig(orgId, kind);
+  const config = await getNotifyConfig(orgId, kind, collectionGuid);
   if (!config.channelId) return;
 
   const newThreadId = await postEmbedToBot(
@@ -287,14 +325,27 @@ export async function sendDiscordNotification(
     secondaryImageUrl,
   );
   if (newThreadId && newThreadId !== config.threadId) {
-    await db
-      .update(orgSettings)
-      .set(
-        kind === "scan"
-          ? { discordScanThreadId: newThreadId, updatedAt: new Date() }
-          : { discordErrorThreadId: newThreadId, updatedAt: new Date() },
-      )
-      .where(eq(orgSettings.orgId, orgId));
+    if (config.source === "collection" && collectionGuid) {
+      await db
+        .update(collections)
+        .set(
+          kind === "scan"
+            ? { discordScanThreadId: newThreadId, updatedAt: new Date() }
+            : { discordErrorThreadId: newThreadId, updatedAt: new Date() },
+        )
+        .where(
+          and(eq(collections.guid, collectionGuid), eq(collections.orgId, orgId)),
+        );
+    } else {
+      await db
+        .update(orgSettings)
+        .set(
+          kind === "scan"
+            ? { discordScanThreadId: newThreadId, updatedAt: new Date() }
+            : { discordErrorThreadId: newThreadId, updatedAt: new Date() },
+        )
+        .where(eq(orgSettings.orgId, orgId));
+    }
   }
 }
 
