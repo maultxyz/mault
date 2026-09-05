@@ -95,7 +95,7 @@ export function ChangePasswordForm() {
         name="revokeOtherSessions"
         render={({ field }) => (
           <label className="flex items-center justify-between gap-3">
-            <span className="text-xs text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               {t("password.revokeOtherSessions")}
             </span>
             <Switch checked={field.value} onCheckedChange={field.onChange} />

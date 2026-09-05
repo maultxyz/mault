@@ -131,7 +131,7 @@ export default function MonitorSessionsPage() {
         <h1 className="text-lg font-semibold font-heading">
           {t("monitorSessions.title")}
         </h1>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("monitorSessions.subtitle")}
         </p>
       </div>

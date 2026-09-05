@@ -82,7 +82,7 @@ export default function AuthForgotPasswordPage() {
           )}
           <button
             type="button"
-            className="text-xs text-primary hover:underline"
+            className="text-sm text-primary hover:underline"
             onClick={() => navigate("/auth/sign-in")}
           >
             {t("local.signInLink")}

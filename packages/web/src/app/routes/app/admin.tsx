@@ -234,7 +234,7 @@ export default function AdminPage() {
           <h1 className="text-lg font-semibold font-heading">
             {t("page.title")}
           </h1>
-          <p className="text-xs text-muted-foreground">{t("page.subtitle")}</p>
+          <p className="text-sm text-muted-foreground">{t("page.subtitle")}</p>
         </div>
 
         <div className="flex flex-col flex-none">
@@ -440,12 +440,12 @@ export default function AdminPage() {
 
           <div className="divide-y min-h-0 overflow-y-auto">
             {cardsQuery.isLoading && (
-              <p className="text-xs text-muted-foreground text-center py-6">
+              <p className="text-sm text-muted-foreground text-center py-6">
                 {t("cardDatabase.loading")}
               </p>
             )}
             {cardsQuery.isError && (
-              <p className="text-xs text-destructive text-center py-6">
+              <p className="text-sm text-destructive text-center py-6">
                 {t("cardDatabase.loadError")}
               </p>
             )}
@@ -480,7 +480,7 @@ export default function AdminPage() {
               </div>
             ))}
             {cardsQuery.data?.cards.length === 0 && (
-              <p className="text-xs text-muted-foreground text-center py-6">
+              <p className="text-sm text-muted-foreground text-center py-6">
                 {t("cardDatabase.empty")}
               </p>
             )}
@@ -525,7 +525,7 @@ export default function AdminPage() {
         <div className="rounded-lg border p-4 flex items-center justify-between gap-3">
           <div className="flex flex-col gap-0.5 min-w-0">
             <p className="text-sm font-medium">{t("syncCardById.heading")}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t("syncCardById.description")}
             </p>
           </div>
@@ -599,7 +599,7 @@ export default function AdminPage() {
         <div className="rounded-lg border p-4 flex items-center justify-between gap-3">
           <div className="flex flex-col gap-0.5 min-w-0">
             <p className="text-sm font-medium">{t("dumpDatabase.heading")}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {t("dumpDatabase.description")}
             </p>
           </div>

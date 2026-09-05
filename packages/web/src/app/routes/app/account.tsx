@@ -44,7 +44,7 @@ export default function AccountPage() {
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
         <div>
           <h1 className="font-heading text-lg font-semibold">{t("title")}</h1>
-          <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         {AUTH_PROVIDER === "local" ? (

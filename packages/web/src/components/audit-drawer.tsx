@@ -85,7 +85,7 @@ export function AuditDrawer({
               ))}
             </div>
           ) : entries.length === 0 ? (
-            <p className="p-4 text-xs text-muted-foreground">
+            <p className="p-4 text-sm text-muted-foreground">
               {t("auditDrawer.noHistory")}
             </p>
           ) : (
@@ -143,7 +143,7 @@ export function AuditDrawer({
                       </div>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground">{entry.body}</div>
+                  <div className="text-sm text-muted-foreground">{entry.body}</div>
                 </div>
               ))}
             </div>

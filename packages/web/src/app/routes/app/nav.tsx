@@ -547,7 +547,9 @@ export function AppNav() {
             variant: "ghost",
             size: `${expanded ? "default" : "icon-lg"}`,
           }),
-          expanded ? "mx-2 justify-start gap-2.5 px-2.5 border-0" : "",
+          expanded
+            ? "mx-2 justify-start gap-2.5 px-2.5 border-0"
+            : "external-icon-only",
         )}
       >
         <IconBrandDiscord size={16} />

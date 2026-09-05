@@ -76,7 +76,7 @@ export function DiscordBotSettings() {
         </div>
       ) : pending ? (
         <div className="flex flex-col gap-2 rounded-lg border px-3 py-2">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t("discordBot.codeInstructions")}
           </p>
           <div className="flex items-center justify-between gap-2">

@@ -27,7 +27,6 @@ import {
   IconCheck,
   IconChevronDown,
   IconChevronUp,
-  IconExternalLink,
   IconLoader2,
   IconPencil,
   IconRefresh,
@@ -434,7 +433,6 @@ export function CardDetailPanel({
                         className="inline-flex items-center gap-1 text-sm text-primary hover:underline w-fit"
                       >
                         {t("cardDetailPanel.viewSource")}
-                        <IconExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
                   </div>

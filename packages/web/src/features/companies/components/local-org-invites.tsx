@@ -132,14 +132,14 @@ export function LocalOrgInvites() {
 
   if (!canManage) {
     return (
-      <p className="text-xs text-muted-foreground">{t("invites.membersOnly")}</p>
+      <p className="text-sm text-muted-foreground">{t("invites.membersOnly")}</p>
     );
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">{t("invites.description")}</p>
+        <p className="text-sm text-muted-foreground">{t("invites.description")}</p>
         <Button
           type="button"
           variant="outline"
@@ -154,7 +154,7 @@ export function LocalOrgInvites() {
       {isLoading && <Skeleton className="h-12 w-full" />}
 
       {!isLoading && invites?.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("invites.empty")}</p>
+        <p className="text-sm text-muted-foreground">{t("invites.empty")}</p>
       )}
 
       {!isLoading && invites && invites.length > 0 && (
@@ -253,7 +253,7 @@ export function LocalOrgInvites() {
         }
       >
         <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
-          <code className="flex-1 overflow-x-auto whitespace-nowrap text-xs">
+          <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newInviteUrl}
           </code>
           <Button type="button" variant="outline" size="icon" onClick={copyInviteUrl}>

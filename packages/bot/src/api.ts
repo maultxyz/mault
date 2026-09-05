@@ -84,6 +84,25 @@ export function getCollections(guildId: string) {
   );
 }
 
+export interface StatusOverride {
+  name: string;
+  scanChannelId: string | null;
+  errorChannelId: string | null;
+}
+
+export interface StatusResult {
+  orgScanChannelId: string | null;
+  orgErrorChannelId: string | null;
+  collection: StatusOverride | null;
+  overrides: StatusOverride[];
+}
+
+export function getStatus(guildId: string, collectionGuid?: string) {
+  const query = new URLSearchParams({ guildId });
+  if (collectionGuid) query.set("collection", collectionGuid);
+  return botFetch<StatusResult>(`/bot/status?${query.toString()}`);
+}
+
 export interface GameSummary {
   key: string;
   name: string;

@@ -107,7 +107,7 @@ export default function AuthResetPasswordPage() {
                 <FieldError errors={[form.formState.errors.confirmPassword]} />
               </Field>
               {serverError && (
-                <p className="text-xs text-destructive">{serverError}</p>
+                <p className="text-sm text-destructive">{serverError}</p>
               )}
             </form>
           </CardContent>

@@ -122,7 +122,7 @@ export function ApiKeysManager() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           {t("apiKeys.description")}
         </p>
         <Button
@@ -143,7 +143,7 @@ export function ApiKeysManager() {
       )}
 
       {!isLoading && activeKeys.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("apiKeys.empty")}</p>
+        <p className="text-sm text-muted-foreground">{t("apiKeys.empty")}</p>
       )}
 
       {!isLoading && activeKeys.length > 0 && (
@@ -235,7 +235,7 @@ export function ApiKeysManager() {
         }
       >
         <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
-          <code className="flex-1 overflow-x-auto whitespace-nowrap text-xs">
+          <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newRawKey}
           </code>
           <Button type="button" variant="outline" size="icon" onClick={copyNewKey}>

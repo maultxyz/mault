@@ -125,7 +125,7 @@ export default function AuthLocalPage() {
                 <FieldError errors={[signUpForm.formState.errors.password]} />
               </Field>
               {serverError && (
-                <p className="text-xs text-destructive">{serverError}</p>
+                <p className="text-sm text-destructive">{serverError}</p>
               )}
             </form>
           ) : (
@@ -151,7 +151,7 @@ export default function AuthLocalPage() {
                   </FieldLabel>
                   <button
                     type="button"
-                    className="text-xs text-primary hover:underline"
+                    className="text-sm text-primary hover:underline"
                     onClick={() => navigate("/auth/forgot-password")}
                   >
                     {t("local.forgotPassword")}
@@ -166,7 +166,7 @@ export default function AuthLocalPage() {
                 <FieldError errors={[signInForm.formState.errors.password]} />
               </Field>
               {serverError && (
-                <p className="text-xs text-destructive">{serverError}</p>
+                <p className="text-sm text-destructive">{serverError}</p>
               )}
             </form>
           )}
@@ -189,7 +189,7 @@ export default function AuthLocalPage() {
             )}
             {isSignUp ? t("local.signUp") : t("local.signIn")}
           </Button>
-          <p className="text-center text-xs text-muted-foreground">
+          <p className="text-center text-sm text-muted-foreground">
             {isSignUp ? t("local.haveAccount") : t("local.noAccount")}{" "}
             <button
               type="button"

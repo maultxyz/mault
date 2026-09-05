@@ -311,7 +311,7 @@ export function OrgSettings() {
           {isOwner && (
             <div className="flex flex-col gap-3 bg-destructive rounded-lg p-4 text-destructive-foreground">
               <h3 className="text-sm font-semibold font-heading">{t("orgSettings.dangerZoneHeading")}</h3>
-              <p className="text-xs">
+              <p className="text-sm">
                 {t("orgSettings.deleteWarning", { name: activeOrg.name })}
               </p>
               <Button variant="secondary" size="sm" onClick={() => setDeleteOrgOpen(true)}>

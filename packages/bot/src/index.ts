@@ -16,6 +16,7 @@ import * as link from "./commands/link";
 import * as notification from "./commands/notification";
 import * as scanning from "./commands/scanning";
 import * as stats from "./commands/stats";
+import * as status from "./commands/status";
 import { startNotifyServer } from "./notify-server";
 import { startPresenceCycle } from "./presence";
 
@@ -39,6 +40,7 @@ if (!TOKEN || !CLIENT_ID) {
 const commands: BotCommand[] = [
   link,
   stats,
+  status,
   notification,
   scanning,
   clear,

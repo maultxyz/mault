@@ -133,7 +133,7 @@ export function AnnouncementsManager() {
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">{t("heading")}</p>
-          <p className="text-xs text-muted-foreground">{t("description")}</p>
+          <p className="text-sm text-muted-foreground">{t("description")}</p>
         </div>
         <Button onClick={() => setFormTarget(null)}>
           <IconPlus size={14} />
@@ -143,7 +143,7 @@ export function AnnouncementsManager() {
 
       <div className="divide-y">
         {announcementsQuery.isLoading && (
-          <p className="text-xs text-muted-foreground text-center py-6">
+          <p className="text-sm text-muted-foreground text-center py-6">
             {t("loading")}
           </p>
         )}
@@ -197,7 +197,7 @@ export function AnnouncementsManager() {
           );
         })}
         {announcementsQuery.data?.length === 0 && (
-          <p className="text-xs text-muted-foreground text-center py-6">
+          <p className="text-sm text-muted-foreground text-center py-6">
             {t("empty")}
           </p>
         )}

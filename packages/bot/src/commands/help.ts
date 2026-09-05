@@ -26,6 +26,11 @@ export async function execute(interaction: ChatInputCommandInteraction) {
           "Show this organization's collection stats, optionally limited to one collection.",
       },
       {
+        name: "/status [collection]",
+        value:
+          "Show which channels card-scan and error notifications currently go to, server-wide or for one collection.",
+      },
+      {
         name: "/scanning [channel] [collection]",
         value:
           "Set the channel for card-scan notifications (defaults to the current channel and every collection).",

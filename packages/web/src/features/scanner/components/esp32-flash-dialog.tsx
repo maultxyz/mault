@@ -111,7 +111,7 @@ export function Esp32FlashDialog({
             <span>{t("serial.update.errorTitle")}</span>
           </div>
           {errorMessage && (
-            <p className="text-xs text-muted-foreground">{errorMessage}</p>
+            <p className="text-sm text-muted-foreground">{errorMessage}</p>
           )}
         </div>
       )}

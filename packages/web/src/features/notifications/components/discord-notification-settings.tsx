@@ -35,7 +35,7 @@ export function DiscordNotificationSettings() {
           <span className="text-sm">
             {t("discordNotifications.notifyToggleLabel")}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {t("discordNotifications.notifyToggleDescription")}
           </span>
         </span>
@@ -46,7 +46,7 @@ export function DiscordNotificationSettings() {
         />
       </label>
       <div className="flex flex-col gap-1.5">
-        <Label className="text-xs text-muted-foreground">
+        <Label className="text-sm text-muted-foreground">
           {isLinked
             ? t("discordNotifications.testHintReady")
             : t("discordNotifications.testHintNotLinked")}

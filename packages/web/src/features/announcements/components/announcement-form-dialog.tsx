@@ -46,8 +46,6 @@ export type AnnouncementFormValues = z.infer<
   ReturnType<typeof createAnnouncementFormSchema>
 >;
 
-// Local <input type="datetime-local"> value (no timezone) <-> the ISO
-// strings the API stores/returns.
 function toDatetimeLocalValue(value: Date | string | null): string {
   if (!value) return "";
   const date = new Date(value);
@@ -55,11 +53,15 @@ function toDatetimeLocalValue(value: Date | string | null): string {
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16);
 }
 
-export function fromDatetimeLocalValue(value: string | undefined): string | null {
+export function fromDatetimeLocalValue(
+  value: string | undefined,
+): string | null {
   return value ? new Date(value).toISOString() : null;
 }
 
-function toFormValues(announcement?: Announcement | null): AnnouncementFormValues {
+function toFormValues(
+  announcement?: Announcement | null,
+): AnnouncementFormValues {
   if (!announcement) {
     return {
       severity: "info",
@@ -119,9 +121,7 @@ export function AnnouncementFormDialog({
       onOpenChange={onOpenChange}
       className="sm:max-w-md"
       title={
-        announcement
-          ? t("formDialog.editTitle")
-          : t("formDialog.addTitle")
+        announcement ? t("formDialog.editTitle") : t("formDialog.addTitle")
       }
       description={t("formDialog.description")}
       footer={
@@ -133,7 +133,11 @@ export function AnnouncementFormDialog({
           >
             {t("formDialog.cancel")}
           </Button>
-          <Button type="submit" form="announcement-form" disabled={isSubmitting}>
+          <Button
+            type="submit"
+            form="announcement-form"
+            disabled={isSubmitting}
+          >
             {isSubmitting
               ? t("formDialog.saving")
               : announcement
@@ -192,7 +196,7 @@ export function AnnouncementFormDialog({
             <FieldError errors={[errors.endsAt]} />
           </Field>
         </div>
-        <p className="text-xs text-muted-foreground -mt-2">
+        <p className="text-sm text-muted-foreground -mt-2">
           {t("formDialog.scheduleHint")}
         </p>
 

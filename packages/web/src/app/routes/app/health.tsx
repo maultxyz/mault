@@ -23,7 +23,7 @@ export default function HealthPage() {
             <h1 className="text-lg font-semibold font-heading">
               {t("title")}
             </h1>
-            <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+            <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
           </div>
           <Button
             size="xs"
@@ -85,7 +85,7 @@ export default function HealthPage() {
               </div>
               <div className="flex items-center gap-2 shrink-0">
                 {check.status === "error" && check.message && (
-                  <span className="text-xs text-red-600 dark:text-red-400">
+                  <span className="text-sm text-red-600 dark:text-red-400">
                     {check.message}
                   </span>
                 )}
