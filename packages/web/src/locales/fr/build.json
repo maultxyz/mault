@@ -169,8 +169,8 @@
           },
           "m2x6Screw": {
             "part": "Vis M2×6",
-            "partSpec": "(20 pour 2 modules, +6 par module supplémentaire, +7 pour la fixation des cartes, +1 par capteur IR)",
-            "notes": "20 pour 2 modules, +6 par module supplémentaire ({{count}} modules) : trappe (bas/côtés) et bras du poussoir ; +7 pour fixer le {{board}} et la carte driver de servo PCA9685 aux panneaux de base ; +1 par capteur IR ({{irCount}} au total)"
+            "partSpec": "(11 par module, +4 pour la fixation de la carte, +3 pour la carte driver de servo, +1 pour le chargeur)",
+            "notes": "11 par module ({{count}} modules) : trappe (bas/côtés) et bras du poussoir ; +4 pour fixer le {{board}} ; +3 pour fixer la carte driver de servo PCA9685 ; +1 pour le chargeur"
           },
           "servoHornScrew": {
             "part": "Vis de palonnier de servo (incluse avec les servos)",

@@ -71,7 +71,7 @@ export function LandingFooter() {
             target="_blank"
             rel="noreferrer"
             aria-label={t("nav.discordAriaLabel")}
-            className="external-icon-only text-foreground/70 transition-colors hover:text-foreground"
+            className="text-foreground/70 transition-colors hover:text-foreground"
           >
             <IconBrandDiscord size={18} />
           </a>

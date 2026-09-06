@@ -2,7 +2,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { useAuthSession } from "@/lib/auth";
-import { DISCORD_URL } from "@/lib/links";
+import { DISCORD_URL, SHOP_URL } from "@/lib/links";
 import { cn } from "@/lib/utils";
 import { IconBrandDiscord } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ const PAGES = [
   { key: "home", to: "/" },
   { key: "build", to: "/build" },
   { key: "discordBot", to: "/discord-bot" },
+  { key: "shop", to: SHOP_URL, external: true },
 ] as const;
 
 export function PublicNav({
@@ -39,6 +40,19 @@ export function PublicNav({
             aria-label={t("publicNav.pagesAria")}
           >
             {PAGES.map((page) => {
+              if ("external" in page && page.external) {
+                return (
+                  <a
+                    key={page.key}
+                    href={page.to}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-md px-2.5 py-1.5 text-sm font-medium text-foreground/70 transition-colors hover:bg-muted hover:text-foreground"
+                  >
+                    {t(`publicNav.pages.${page.key}`)}
+                  </a>
+                );
+              }
               const active = location.pathname === page.to;
               return (
                 <Link
@@ -63,7 +77,7 @@ export function PublicNav({
             target="_blank"
             rel="noreferrer"
             aria-label={t("publicNav.discordAriaLabel")}
-            className="external-icon-only text-foreground/70 transition-colors hover:text-foreground"
+            className="text-foreground/70 transition-colors hover:text-foreground"
           >
             <IconBrandDiscord size={18} />
           </a>

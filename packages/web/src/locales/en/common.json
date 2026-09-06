@@ -6,7 +6,7 @@
     "calibrate": "Calibrate",
     "settings": "Settings",
     "organization": "Org",
-    "cart": "Cart",
+    "cart": "Shop",
     "comingSoon": "Coming soon",
     "admin": "Admin",
     "discord": "Discord",
@@ -125,7 +125,8 @@
     "pages": {
       "home": "Home",
       "build": "Build",
-      "discordBot": "Discord Bot"
+      "discordBot": "Discord Bot",
+      "shop": "Shop"
     },
     "discordAriaLabel": "Join the Discord",
     "signIn": "Sign in",

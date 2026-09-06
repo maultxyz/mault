@@ -23,7 +23,7 @@ import { useLiveSessionCounts } from "@/features/collections/api/use-live-counts
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
-import { DISCORD_URL } from "@/lib/links";
+import { DISCORD_URL, SHOP_URL } from "@/lib/links";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
@@ -60,6 +60,7 @@ interface NavItemDef {
   desktopOnly?: boolean;
   disabled?: boolean;
   tooltip?: string;
+  external?: boolean;
   subItems?: NavSubItemDef[];
 }
 
@@ -71,6 +72,7 @@ function CollapsedNavItem({
   badge,
   disabled,
   tooltip,
+  external,
 }: NavItemDef) {
   return (
     <Tooltip>
@@ -83,6 +85,13 @@ function CollapsedNavItem({
                 buttonVariants({ variant: "ghost", size: "icon-lg" }),
                 "cursor-not-allowed text-muted-foreground/40 hover:bg-transparent hover:text-muted-foreground/40",
               )}
+            />
+          ) : external ? (
+            <a
+              href={to}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
             />
           ) : (
             <NavLink
@@ -183,6 +192,7 @@ function ExpandedNavItem({
   badge,
   disabled,
   tooltip,
+  external,
 }: NavItemDef) {
   const inner = (
     <>
@@ -214,6 +224,22 @@ function ExpandedNavItem({
         </TooltipTrigger>
         <TooltipContent side="right">{tooltip}</TooltipContent>
       </Tooltip>
+    );
+  }
+
+  if (external) {
+    return (
+      <a
+        href={to}
+        target="_blank"
+        rel="noreferrer"
+        className={cn(
+          buttonVariants({ variant: "ghost" }),
+          "w-full justify-start gap-2.5 px-2.5 border-0",
+        )}
+      >
+        {inner}
+      </a>
     );
   }
 
@@ -273,6 +299,7 @@ function BottomNavItem({
   badge,
   disabled,
   tooltip,
+  external,
 }: NavItemDef) {
   const inner = (
     <>
@@ -301,6 +328,19 @@ function BottomNavItem({
         </TooltipTrigger>
         <TooltipContent side="top">{tooltip}</TooltipContent>
       </Tooltip>
+    );
+  }
+
+  if (external) {
+    return (
+      <a
+        href={to}
+        target="_blank"
+        rel="noreferrer"
+        className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-all active:scale-90 text-muted-foreground"
+      >
+        {inner}
+      </a>
     );
   }
 
@@ -410,11 +450,10 @@ export function AppNav() {
       desktopOnly: true,
     },
     {
-      to: "",
+      to: SHOP_URL,
       icon: <IconShoppingCart size={20} />,
       label: t("nav.cart"),
-      disabled: true,
-      tooltip: t("nav.comingSoon"),
+      external: true,
     },
     ...(isAdmin
       ? [
@@ -547,9 +586,7 @@ export function AppNav() {
             variant: "ghost",
             size: `${expanded ? "default" : "icon-lg"}`,
           }),
-          expanded
-            ? "mx-2 justify-start gap-2.5 px-2.5 border-0"
-            : "external-icon-only",
+          expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
         )}
       >
         <IconBrandDiscord size={16} />

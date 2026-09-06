@@ -311,7 +311,7 @@ const GROUPS: Group[] = [
       },
       {
         key: "m2x6-screw",
-        qty: (n) => String(20 + (n - 2) * 6 + 7 + (n + 1)),
+        qty: (n) => String(n * 11 + 8),
         name: "M2x6 screw",
         part: (t) => (
           <>
@@ -324,7 +324,6 @@ const GROUPS: Group[] = [
         notes: (t, n, boardType) =>
           t("bom.groups.fasteners.items.m2x6Screw.notes", {
             count: n,
-            irCount: n + 1,
             board: BOARD_INFO[boardType].shortName,
           }),
         buyUrl: "https://amzn.to/4yhJU8l",
@@ -510,7 +509,7 @@ function GroupTable({
                         aria-label={t("bom.buyAriaLabel", {
                           part: resolveRowName(row, boardType),
                         })}
-                        className="external-icon-only inline-flex items-center text-foreground/70 transition-colors hover:text-foreground"
+                        className="inline-flex items-center text-foreground/70 transition-colors hover:text-foreground"
                       >
                         <IconExternalLink size={14} />
                       </a>

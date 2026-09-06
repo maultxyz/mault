@@ -169,8 +169,8 @@
           },
           "m2x6Screw": {
             "part": "M2×6-Schraube",
-            "partSpec": "(20 für 2 Module, +6 pro weiteres Modul, +7 für die Platinenbefestigung, +1 pro IR-Sensor)",
-            "notes": "20 für 2 Module, +6 pro zusätzliches Modul ({{count}} Module): Klappen (Boden/Seiten) und Schieberarme; +7 zur Befestigung des {{board}} und der PCA9685-Servotreiberplatine an den Bodenplatten; +1 pro IR-Sensor ({{irCount}} insgesamt)"
+            "partSpec": "(11 pro Modul, +4 für die Platinenbefestigung, +3 für die Servotreiberplatine, +1 für den Zuführer)",
+            "notes": "11 pro Modul ({{count}} Module): Klappen (Boden/Seiten) und Schieberarme; +4 zur Befestigung des {{board}}; +3 zur Befestigung der PCA9685-Servotreiberplatine; +1 für den Zuführer"
           },
           "servoHornScrew": {
             "part": "Servohorn-Schraube (im Lieferumfang der Servos enthalten)",
