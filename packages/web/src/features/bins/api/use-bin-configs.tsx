@@ -4,7 +4,6 @@ import {
   BinRuleGroup,
   BinSet,
   computeBinCount,
-  FIELD_DEFINITIONS,
 } from "@magic-vault/shared";
 
 import {
@@ -81,9 +80,10 @@ export function BinConfigsProvider({
     : activeCollection;
 
   const activeGameGuid = targetCollection?.game?.guid;
-  const fieldDefinitions =
-    targetCollection?.game?.fieldDefinitions ?? FIELD_DEFINITIONS;
+  const fieldDefinitions = targetCollection?.game?.fieldDefinitions ?? [];
   const apiDocsUrl = targetCollection?.game?.apiDocsUrl ?? null;
+  const hasGame = !!targetCollection?.game;
+  const hasCollection = !!targetCollection;
 
   const sets = useMemo(
     () => allSets.filter((s) => matchesGame(s, activeGameGuid)),
@@ -313,6 +313,8 @@ export function BinConfigsProvider({
         configs,
         sets,
         fieldDefinitions,
+        hasGame,
+        hasCollection,
         apiDocsUrl,
         isPending,
         isActivating,

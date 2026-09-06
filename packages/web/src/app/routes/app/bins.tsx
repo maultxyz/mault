@@ -5,6 +5,7 @@ import {
 } from "@/features/bins/api/use-bin-configs";
 import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
+import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -84,6 +85,7 @@ export default function BinsPage() {
   return (
     <BinConfigsProvider collectionGuid={collectionGuid}>
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <NoGameBanner />
         <NonEnglishRulesBanner />
         {content}
       </div>

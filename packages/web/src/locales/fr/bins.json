@@ -2,6 +2,9 @@
   "nonEnglishRulesBanner": {
     "message": "Cette collection est en {{language}}, donc les champs de règles ci-dessous utilisent du texte libre plutôt que des menus déroulants — les données des cartes reviennent elles-mêmes en {{language}}, pas en anglais, donc les options anglaises ne correspondraient pas."
   },
+  "noGameBanner": {
+    "message": "Cette collection n'a pas de jeu associé, il n'y a donc aucun champ de carte pour créer des règles de tri. Recréez la collection et sélectionnez un jeu pour activer le tri."
+  },
   "binCard": {
     "binLabel": "Bac {{number}}",
     "catchAll": "Fourre-tout",

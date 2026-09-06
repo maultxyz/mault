@@ -19,6 +19,10 @@ function formatCondition(
   );
   const opLabel = opMeta?.label ?? condition.operator;
 
+  if (condition.operator === "is_null" || condition.operator === "is_not_null") {
+    return `${fieldLabel} ${opLabel}`;
+  }
+
   let valueStr: string;
   if (Array.isArray(condition.value)) {
     const labels = condition.value.map((v) => {

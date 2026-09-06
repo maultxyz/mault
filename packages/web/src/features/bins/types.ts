@@ -10,6 +10,8 @@ export interface BinConfigsContextValue {
   configs: BinConfig[];
   sets: BinSet[];
   fieldDefinitions: FieldMeta[];
+  hasGame: boolean;
+  hasCollection: boolean;
   apiDocsUrl: string | null;
   isPending: boolean;
   isActivating: boolean;

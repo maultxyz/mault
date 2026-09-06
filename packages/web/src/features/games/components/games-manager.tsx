@@ -2,6 +2,7 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import {
   createGame,
   deleteGame,
@@ -70,6 +71,11 @@ export function GamesManager() {
           g.guid === r.data!.guid ? r.data! : g,
         ),
       );
+      // Collections embed a snapshot of their game (including
+      // fieldDefinitions), so it goes stale here until refetched.
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryOptions.queryKey,
+      });
       toast.success(
         t("gamesManager.toasts.updateSuccess", { name: r.data.name }),
       );
@@ -85,6 +91,9 @@ export function GamesManager() {
         return;
       }
       setGames((gamesQuery.data ?? []).filter((g) => g.guid !== guid));
+      queryClient.invalidateQueries({
+        queryKey: collectionsQueryOptions.queryKey,
+      });
       toast.success(t("gamesManager.toasts.deleteSuccess"));
     },
     onError: () => toast.error(t("gamesManager.toasts.deleteError")),

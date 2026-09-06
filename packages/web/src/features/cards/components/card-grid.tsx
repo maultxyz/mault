@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardFilterSort } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
@@ -190,6 +191,7 @@ export function CardGrid() {
   if (cards.length === 0) {
     return (
       <>
+        <NoGameBanner />
         <EmptyState
           className="flex-1"
           title={t("cardGrid.noCardsScanned")}
@@ -217,11 +219,11 @@ export function CardGrid() {
                         >
                           {scanner.isFeeding
                             ? t("cardGrid.feeding")
-                            : t("cardGrid.feed")}
+                            : t("cardGrid.start")}
                         </Button>
                       }
                     />
-                    <TooltipContent>{t("cardGrid.feedTooltip")}</TooltipContent>
+                    <TooltipContent>{t("cardGrid.startTooltip")}</TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger
@@ -299,6 +301,7 @@ export function CardGrid() {
 
   return (
     <>
+      <NoGameBanner />
       <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
         <CardToolbar
           searchQuery={searchQuery}
@@ -318,6 +321,7 @@ export function CardGrid() {
           onToggleSelectAll={toggleSelectAll}
           availableRarities={stats?.rarities}
           availableColors={stats?.colors}
+          cardCount={cards.length}
         />
       </div>
       {filteredAndSorted.length === 0 && (
@@ -487,7 +491,7 @@ export function CardGrid() {
         description={t("cardGrid.deleteCardsDescription", {
           count: selectedIds.size,
         })}
-        confirm={{ type: "keyword" }}
+        confirm={selectedIds.size > 100 ? { type: "keyword" } : { type: "simple" }}
         onConfirm={handleBulkDelete}
       />
     </>

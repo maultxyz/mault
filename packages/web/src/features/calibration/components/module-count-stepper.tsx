@@ -1,3 +1,4 @@
+import { DeleteDialog } from "@/components/delete-dialog";
 import {
   Select,
   SelectContent,
@@ -5,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DeleteDialog } from "@/components/delete-dialog";
 import { binRoutesQueryOptions } from "@/features/calibration/api/bin-routes";
 import {
   DEFAULT_ORG_SETTINGS,
@@ -32,7 +32,10 @@ export function ModuleCountStepper() {
   const current = data?.moduleCount ?? DEFAULT_MODULE_COUNT;
   const channelLayout = data?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
   const maxModules = maxModulesForLayout(channelLayout);
-  const moduleCountOptions = Array.from({ length: maxModules }, (_, i) => i + 1);
+  const moduleCountOptions = Array.from(
+    { length: maxModules },
+    (_, i) => i + 1,
+  );
 
   const mutation = useMutation({
     mutationFn: (moduleCount: number) => saveOrgSettings({ moduleCount }),
@@ -56,7 +59,9 @@ export function ModuleCountStepper() {
       if (result.success && result.data)
         queryClient.setQueryData(queryOpts.queryKey, result.data);
       queryClient.invalidateQueries({ queryKey: ["modules"] });
-      queryClient.invalidateQueries({ queryKey: binRoutesQueryOptions.queryKey });
+      queryClient.invalidateQueries({
+        queryKey: binRoutesQueryOptions.queryKey,
+      });
       queryClient.invalidateQueries({ queryKey: ["bins"] });
     },
   });
@@ -87,7 +92,7 @@ export function ModuleCountStepper() {
           ))}
         </SelectContent>
       </Select>
-      <p className="text-[10px] leading-tight text-muted-foreground">
+      <p className="text-xs leading-tight text-muted-foreground">
         {t("moduleCountStepper.description")}
       </p>
 

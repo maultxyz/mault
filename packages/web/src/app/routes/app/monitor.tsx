@@ -17,7 +17,6 @@ import { SessionStatsPanel } from "@/features/scanner/components/session-stats-p
 import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
-import { FIELD_DEFINITIONS } from "@magic-vault/shared";
 import {
   IconCards,
   IconChevronLeft,
@@ -148,8 +147,7 @@ export default function MonitorPage() {
   const otherViewers = viewers.filter(
     (v) => v.userId !== scannerUserId && v.userId !== currentUserId,
   );
-  const fieldDefinitions =
-    collection?.game?.fieldDefinitions ?? FIELD_DEFINITIONS;
+  const fieldDefinitions = collection?.game?.fieldDefinitions ?? [];
   const {
     filteredAndSorted,
     searchQuery,
@@ -226,6 +224,7 @@ export default function MonitorPage() {
                   activeFilterCount={activeFilterCount}
                   availableRarities={stats?.rarities}
                   availableColors={stats?.colors}
+                  cardCount={cards.length}
                 />
               </div>
               <div className="overflow-y-auto flex-1 @container">
@@ -269,6 +268,7 @@ export default function MonitorPage() {
             activeFilterCount={activeFilterCount}
             availableRarities={stats?.rarities}
             availableColors={stats?.colors}
+            cardCount={cards.length}
           />
         </div>
         <CardGrid

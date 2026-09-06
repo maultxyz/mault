@@ -17,7 +17,9 @@ export type ConditionOperator =
   | "not_in"
   | "contains_any"
   | "contains_all"
-  | "contains_none";
+  | "contains_none"
+  | "is_null"
+  | "is_not_null";
 
 export interface BinCondition {
   id: string;

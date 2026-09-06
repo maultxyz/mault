@@ -171,6 +171,10 @@ export function ConditionRow({
   const renderValueInput = () => {
     if (!fieldMeta) return null;
 
+    if (condition.operator === "is_null" || condition.operator === "is_not_null") {
+      return null;
+    }
+
     const isMulti =
       MULTI_VALUE_OPERATORS.includes(condition.operator) ||
       (fieldMeta.type === "set" &&

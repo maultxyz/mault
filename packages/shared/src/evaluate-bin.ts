@@ -1,4 +1,3 @@
-import { FIELD_DEFINITIONS } from "./constants/sort-bins.constant";
 import type {
   BinCondition,
   BinConfig,
@@ -30,7 +29,7 @@ export function getCardValue(
   card: SourceCard,
   field: BinCondition["field"],
   fieldDefinitions: FieldMeta[],
-): string | number | string[] {
+): string | number | string[] | null {
   const meta = fieldDefinitions.find((f) => f.field === field);
   if (!meta) return "";
 
@@ -39,14 +38,22 @@ export function getCardValue(
   const value = rawValue !== undefined ? rawValue : getByPath(card, meta.path);
 
   if (meta.type === "numeric") {
-    return typeof value === "number"
-      ? value
-      : parseFloat(String(value ?? "0")) || 0;
+    if (typeof value === "number") return value;
+    if (value === undefined || value === null) return null;
+    const parsed = parseFloat(String(value));
+    return Number.isNaN(parsed) ? null : parsed;
   }
   if (Array.isArray(value)) return value as string[];
   return value === undefined || value === null
     ? ""
     : (value as string | number);
+}
+
+function isNullish(value: string | number | string[] | null): boolean {
+  if (value === null) return true;
+  if (typeof value === "string") return value === "";
+  if (Array.isArray(value)) return value.length === 0;
+  return false;
 }
 
 function evaluateCondition(
@@ -99,16 +106,22 @@ function evaluateCondition(
         .endsWith(String(value).toLowerCase());
 
     case "gt":
-      return Number(cardValue) > Number(value);
+      return cardValue !== null && Number(cardValue) > Number(value);
 
     case "gte":
-      return Number(cardValue) >= Number(value);
+      return cardValue !== null && Number(cardValue) >= Number(value);
 
     case "lt":
-      return Number(cardValue) < Number(value);
+      return cardValue !== null && Number(cardValue) < Number(value);
 
     case "lte":
-      return Number(cardValue) <= Number(value);
+      return cardValue !== null && Number(cardValue) <= Number(value);
+
+    case "is_null":
+      return isNullish(cardValue);
+
+    case "is_not_null":
+      return !isNullish(cardValue);
 
     case "in":
       return Array.isArray(value) && value.includes(String(cardValue));
@@ -167,7 +180,7 @@ export function getCatchAllBin(configs: BinConfig[]): BinConfig | undefined {
 export function evaluateCardBin(
   card: SourceCard,
   configs: BinConfig[],
-  fieldDefinitions: FieldMeta[] = FIELD_DEFINITIONS,
+  fieldDefinitions: FieldMeta[],
 ): BinConfig | undefined {
   let catchAll: BinConfig | undefined;
 

@@ -188,6 +188,7 @@
     "statusConnected": "Connected",
     "statusError": "Couldn't reach the phone. Make sure it's still open on this page, then try again.",
     "disconnect": "Disconnect Phone",
+    "done": "OK, Start Scanning",
     "tryAgain": "Try Again",
     "requestingCamera": "Requesting camera access…",
     "cameraError": "Could not access camera. Please check your device.",
