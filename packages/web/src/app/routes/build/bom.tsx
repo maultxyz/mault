@@ -510,7 +510,7 @@ function GroupTable({
                         aria-label={t("bom.buyAriaLabel", {
                           part: resolveRowName(row, boardType),
                         })}
-                        className="external-icon-only inline-flex items-center text-foreground/70 transition-colors hover:text-foreground"
+                        className="inline-flex items-center text-foreground/70 transition-colors hover:text-foreground"
                       >
                         <IconExternalLink size={14} />
                       </a>
