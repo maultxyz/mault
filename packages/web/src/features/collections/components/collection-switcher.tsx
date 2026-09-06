@@ -169,19 +169,6 @@ export function CollectionSwitcher() {
         <Tooltip>
           <TooltipTrigger
             render={
-              <Button nativeButton={false} variant="outline" size="icon">
-                <Link to="/app/collections">
-                  <IconEdit />
-                </Link>
-              </Button>
-            }
-          />
-          <TooltipContent>{t("switcher.manageCollections")}</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger
-            render={
               <Button
                 variant="outline"
                 size="icon"
@@ -193,6 +180,19 @@ export function CollectionSwitcher() {
             }
           />
           <TooltipContent>{t("switcher.copyMonitorLink")}</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button nativeButton={false} variant="outline" size="icon">
+                <Link to="/app/collections">
+                  <IconEdit />
+                </Link>
+              </Button>
+            }
+          />
+          <TooltipContent>{t("switcher.manageCollections")}</TooltipContent>
         </Tooltip>
 
         {isLockedByMe && (
