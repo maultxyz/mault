@@ -11,19 +11,15 @@ import { useTranslation } from "react-i18next";
 
 export default function HealthPage() {
   const { t } = useTranslation("health");
-  const { data, isFetching, isLoading, refetch } = useQuery(
-    healthQueryOptions,
-  );
+  const { data, isFetching, isLoading, refetch } = useQuery(healthQueryOptions);
 
   return (
     <div className="overflow-y-auto h-full w-full">
       <div className="flex flex-col p-4 md:p-6 max-w-2xl mx-auto w-full gap-4">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-lg font-semibold font-heading">
-              {t("title")}
-            </h1>
-            <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+            <h1 className="text-lg font-semibold font-heading">{t("title")}</h1>
+            <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
           </div>
           <Button
             size="xs"
@@ -92,7 +88,9 @@ export default function HealthPage() {
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {t("latency", { ms: check.latencyMs })}
                 </span>
-                <Badge variant={check.status === "ok" ? "success" : "destructive"}>
+                <Badge
+                  variant={check.status === "ok" ? "success" : "destructive"}
+                >
                   {check.status === "ok" ? t("statusOk") : t("statusError")}
                 </Badge>
               </div>

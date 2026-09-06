@@ -98,7 +98,8 @@ export function ApiKeysManager() {
       const res = await localDelete<{ success: boolean; message?: string }>(
         `/api/local-auth/api-keys/${revokeTarget.keyPrefix}`,
       );
-      if (!res.success) throw new Error(res.message ?? t("apiKeys.revokeFailed"));
+      if (!res.success)
+        throw new Error(res.message ?? t("apiKeys.revokeFailed"));
       toast.success(t("apiKeys.revoked"));
       await load();
     } catch (e: unknown) {
@@ -122,7 +123,7 @@ export function ApiKeysManager() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("apiKeys.description")}
         </p>
         <Button
@@ -143,7 +144,7 @@ export function ApiKeysManager() {
       )}
 
       {!isLoading && activeKeys.length === 0 && (
-        <p className="text-sm text-muted-foreground">{t("apiKeys.empty")}</p>
+        <p className="text-xs text-muted-foreground">{t("apiKeys.empty")}</p>
       )}
 
       {!isLoading && activeKeys.length > 0 && (
@@ -229,7 +230,11 @@ export function ApiKeysManager() {
         title={t("apiKeys.revealTitle")}
         description={t("apiKeys.revealDescription")}
         footer={
-          <Button type="button" className="w-full" onClick={() => setNewRawKey(null)}>
+          <Button
+            type="button"
+            className="w-full"
+            onClick={() => setNewRawKey(null)}
+          >
             {t("apiKeys.revealDone")}
           </Button>
         }
@@ -238,7 +243,12 @@ export function ApiKeysManager() {
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newRawKey}
           </code>
-          <Button type="button" variant="outline" size="icon" onClick={copyNewKey}>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={copyNewKey}
+          >
             <IconCopy size={14} />
           </Button>
         </div>

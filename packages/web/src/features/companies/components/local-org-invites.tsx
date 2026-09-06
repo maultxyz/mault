@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
@@ -109,7 +109,8 @@ export function LocalOrgInvites() {
       const res = await localDelete<{ success: boolean; message?: string }>(
         `/api/local-auth/invites/${revokeTarget.id}`,
       );
-      if (!res.success) throw new Error(res.message ?? t("invites.revokeFailed"));
+      if (!res.success)
+        throw new Error(res.message ?? t("invites.revokeFailed"));
       toast.success(t("invites.revoked"));
       await load();
     } catch (e: unknown) {
@@ -129,14 +130,18 @@ export function LocalOrgInvites() {
 
   if (!canManage) {
     return (
-      <p className="text-sm text-muted-foreground">{t("invites.membersOnly")}</p>
+      <p className="text-xs text-muted-foreground">
+        {t("invites.membersOnly")}
+      </p>
     );
   }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm text-muted-foreground">{t("invites.description")}</p>
+        <p className="text-xs text-muted-foreground">
+          {t("invites.description")}
+        </p>
         <Button
           type="button"
           variant="outline"
@@ -151,7 +156,7 @@ export function LocalOrgInvites() {
       {isLoading && <Skeleton className="h-12 w-full" />}
 
       {!isLoading && invites?.length === 0 && (
-        <p className="text-sm text-muted-foreground">{t("invites.empty")}</p>
+        <p className="text-xs text-muted-foreground">{t("invites.empty")}</p>
       )}
 
       {!isLoading && invites && invites.length > 0 && (
@@ -198,9 +203,15 @@ export function LocalOrgInvites() {
           </Button>
         }
       >
-        <form id="invite-form" onSubmit={form.handleSubmit(handleInvite)} className="flex flex-col gap-3">
+        <form
+          id="invite-form"
+          onSubmit={form.handleSubmit(handleInvite)}
+          className="flex flex-col gap-3"
+        >
           <Field data-invalid={!!form.formState.errors.email}>
-            <FieldLabel htmlFor="invite-email">{t("invites.emailLabel")}</FieldLabel>
+            <FieldLabel htmlFor="invite-email">
+              {t("invites.emailLabel")}
+            </FieldLabel>
             <Input
               id="invite-email"
               type="email"
@@ -215,14 +226,20 @@ export function LocalOrgInvites() {
             name="role"
             render={({ field }) => (
               <Field>
-                <FieldLabel htmlFor="invite-role">{t("invites.roleLabel")}</FieldLabel>
+                <FieldLabel htmlFor="invite-role">
+                  {t("invites.roleLabel")}
+                </FieldLabel>
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger id="invite-role">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="member">{t("invites.roleMember")}</SelectItem>
-                    <SelectItem value="admin">{t("invites.roleAdmin")}</SelectItem>
+                    <SelectItem value="member">
+                      {t("invites.roleMember")}
+                    </SelectItem>
+                    <SelectItem value="admin">
+                      {t("invites.roleAdmin")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </Field>
@@ -244,7 +261,11 @@ export function LocalOrgInvites() {
             : t("invites.revealDescription")
         }
         footer={
-          <Button type="button" className="w-full" onClick={() => setNewInviteUrl(null)}>
+          <Button
+            type="button"
+            className="w-full"
+            onClick={() => setNewInviteUrl(null)}
+          >
             {t("invites.revealDone")}
           </Button>
         }
@@ -253,7 +274,12 @@ export function LocalOrgInvites() {
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newInviteUrl}
           </code>
-          <Button type="button" variant="outline" size="icon" onClick={copyInviteUrl}>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            onClick={copyInviteUrl}
+          >
             <IconCopy size={14} />
           </Button>
         </div>

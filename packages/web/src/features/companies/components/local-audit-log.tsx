@@ -58,7 +58,7 @@ export function LocalAuditLog() {
 
   if (!canView) {
     return (
-      <p className="text-sm text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         {t("auditLog.membersOnly")}
       </p>
     );
@@ -66,7 +66,9 @@ export function LocalAuditLog() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-sm text-muted-foreground">{t("auditLog.description")}</p>
+      <p className="text-xs text-muted-foreground">
+        {t("auditLog.description")}
+      </p>
 
       {isLoading && (
         <div className="flex flex-col gap-2">
@@ -76,14 +78,19 @@ export function LocalAuditLog() {
       )}
 
       {!isLoading && events?.length === 0 && (
-        <p className="text-sm text-muted-foreground">{t("auditLog.empty")}</p>
+        <p className="text-xs text-muted-foreground">{t("auditLog.empty")}</p>
       )}
 
       {!isLoading && events && events.length > 0 && (
         <div className="flex max-h-80 flex-col divide-y divide-border overflow-y-auto rounded-lg border">
           {events.slice(0, 100).map((event) => (
-            <div key={event.id} className="flex items-center gap-3 px-3 py-2 text-xs">
-              <span className="flex-1 truncate font-mono">{event.eventType}</span>
+            <div
+              key={event.id}
+              className="flex items-center gap-3 px-3 py-2 text-xs"
+            >
+              <span className="flex-1 truncate font-mono">
+                {event.eventType}
+              </span>
               {event.actor && (
                 <span className="truncate text-muted-foreground">
                   {event.actor}

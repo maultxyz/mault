@@ -131,7 +131,7 @@ export default function MonitorSessionsPage() {
         <h1 className="text-lg font-semibold font-heading">
           {t("monitorSessions.title")}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("monitorSessions.subtitle")}
         </p>
       </div>
@@ -164,7 +164,8 @@ export default function MonitorSessionsPage() {
           const scannerLock = locks[collection.guid];
           const isOwn = scannerLock?.userId === currentUserId;
           const watchers = rawViewers.filter(
-            (v) => v.userId !== scannerLock?.userId && v.userId !== currentUserId,
+            (v) =>
+              v.userId !== scannerLock?.userId && v.userId !== currentUserId,
           );
 
           return (

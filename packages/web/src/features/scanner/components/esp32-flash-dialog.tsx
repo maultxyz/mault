@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { ESP32_FIRMWARE_URL } from "@/lib/links";
 import {
@@ -53,7 +53,9 @@ export function Esp32FlashDialog({
       description={t("serial.update.dialogDescription")}
       footer={
         state === "idle" ? (
-          <Button onClick={handleStart}>{t("serial.update.startButton")}</Button>
+          <Button onClick={handleStart}>
+            {t("serial.update.startButton")}
+          </Button>
         ) : state === "flashing" ? null : (
           <Button
             variant={state === "error" ? "outline" : "default"}
@@ -111,7 +113,7 @@ export function Esp32FlashDialog({
             <span>{t("serial.update.errorTitle")}</span>
           </div>
           {errorMessage && (
-            <p className="text-sm text-muted-foreground">{errorMessage}</p>
+            <p className="text-xs text-muted-foreground">{errorMessage}</p>
           )}
         </div>
       )}

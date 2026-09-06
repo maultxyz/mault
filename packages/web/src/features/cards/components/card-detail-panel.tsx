@@ -365,7 +365,7 @@ export function CardDetailPanel({
                 {selectedCard && (
                   <div className="flex flex-col gap-3 min-w-0 flex-1">
                     {selectedCard.manaCost && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {formatManaCost(selectedCard.manaCost)}
                       </p>
                     )}
@@ -448,7 +448,10 @@ export function CardDetailPanel({
                     {t("cardDetailPanel.binLocation")}
                   </p>
                   <div className="w-48 rounded-lg border">
-                    <BinLocationDiagram binNumber={binNumber} inverted={false} />
+                    <BinLocationDiagram
+                      binNumber={binNumber}
+                      inverted={false}
+                    />
                   </div>
                 </div>
               )}

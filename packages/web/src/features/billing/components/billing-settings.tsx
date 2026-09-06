@@ -20,7 +20,10 @@ export function BillingSettings() {
   const isBusiness = billing.plan === "business";
   const usagePercent =
     billing.dailyLimit != null
-      ? Math.min(100, Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100))
+      ? Math.min(
+          100,
+          Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100),
+        )
       : 0;
 
   return (
@@ -33,7 +36,7 @@ export function BillingSettings() {
 
       {!isBusiness && billing.dailyLimit != null && (
         <div className="flex flex-col gap-1.5">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {t("usage", {
               used: billing.cardsScannedToday,
               limit: billing.dailyLimit,
@@ -49,7 +52,7 @@ export function BillingSettings() {
       )}
 
       {isBusiness && billing.cancelAtPeriodEnd && billing.currentPeriodEnd && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("cancelAtPeriodEnd", {
             date: new Date(billing.currentPeriodEnd).toLocaleDateString(),
           })}
@@ -59,11 +62,20 @@ export function BillingSettings() {
       {canManage && (
         <div>
           {isBusiness ? (
-            <Button variant="outline" size="sm" onClick={openPortal} disabled={isOpeningPortal}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={openPortal}
+              disabled={isOpeningPortal}
+            >
               {t("manage")}
             </Button>
           ) : (
-            <Button size="sm" onClick={startCheckout} disabled={isStartingCheckout}>
+            <Button
+              size="sm"
+              onClick={startCheckout}
+              disabled={isStartingCheckout}
+            >
               {t("upgrade")}
             </Button>
           )}

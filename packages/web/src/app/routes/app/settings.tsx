@@ -2,13 +2,13 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
+import { useOrg } from "@/features/companies/api/use-organization";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
 import { LocalOrgInvites } from "@/features/companies/components/local-org-invites";
 import { OrgSettings } from "@/features/companies/components/org-settings";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
-import { useOrg } from "@/features/companies/api/use-organization";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -29,7 +29,9 @@ export default function SettingsPage() {
     if (!billingResult) return;
     if (billingResult === "success") {
       toast.success(tBilling("checkoutSuccess"));
-      void queryClient.invalidateQueries({ queryKey: ["billing", activeOrg?.id] });
+      void queryClient.invalidateQueries({
+        queryKey: ["billing", activeOrg?.id],
+      });
     }
     setSearchParams(
       (prev) => {
@@ -46,7 +48,7 @@ export default function SettingsPage() {
       <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4 ">
         <div>
           <h1 className="text-lg font-semibold font-heading">{t("title")}</h1>
-          <p className="text-sm text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
         </div>
         {AUTH_PROVIDER !== "local" && (
           <div className="rounded-lg border p-4 flex flex-col gap-4">

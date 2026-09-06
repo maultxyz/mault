@@ -13,7 +13,7 @@ export default function NotFoundPage() {
         <h1 className="font-heading text-xl font-semibold">
           {t("notFound.title")}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("notFound.description")}
         </p>
       </div>

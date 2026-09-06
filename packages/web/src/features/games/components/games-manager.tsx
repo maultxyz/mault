@@ -112,7 +112,7 @@ export function GamesManager() {
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">{t("gamesManager.heading")}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {t("gamesManager.description")}
           </p>
         </div>

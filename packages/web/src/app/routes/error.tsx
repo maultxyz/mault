@@ -25,7 +25,7 @@ export default function ErrorPage() {
         <h1 className="font-heading text-xl font-semibold">
           {t("errorPage.title")}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {t("errorPage.description")}
         </p>
         {statusText && (
