@@ -8,7 +8,7 @@ export function LandingCta() {
   const { t } = useTranslation("landing");
 
   return (
-    <section className="border-t">
+    <section className="border-t bg-secondary/20">
       <div className="relative mx-auto flex max-w-2xl flex-col items-center gap-6 px-4 py-16 text-center md:py-20">
         <div
           aria-hidden
