@@ -169,8 +169,8 @@
           },
           "m2x6Screw": {
             "part": "M2×6 screw",
-            "partSpec": "(20 for 2 modules, +6 per module beyond that, +7 for the board mount, +1 per IR sensor)",
-            "notes": "20 for 2 modules, +6 per additional module ({{count}} modules): flapper (bottom/sides) and pusher arms; +7 to mount the {{board}} and PCA9685 servo driver board to the base panels; +1 per IR sensor ({{irCount}} total)"
+            "partSpec": "(11 per module, +4 for the board mount, +3 for the servo driver board, +1 for the feeder)",
+            "notes": "11 per module ({{count}} modules): flapper (bottom/sides) and pusher arms; +4 to mount the {{board}}; +3 to mount the PCA9685 servo driver board; +1 for the feeder"
           },
           "servoHornScrew": {
             "part": "Servo horn screw (Included with servos)",

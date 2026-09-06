@@ -31,7 +31,7 @@
     }
   },
   "supportedGames": {
-    "heading": "Happily sorts any TCG you love",
+    "heading": "Easily sorts any TCG you love",
     "subtitle": "New games get added right into the sorter's database, not hard-coded into the app - here's what's supported today.",
     "cardsIndexed_one": "{{formatted}} card indexed",
     "cardsIndexed_other": "{{formatted}} cards indexed"

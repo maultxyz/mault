@@ -31,7 +31,7 @@
     }
   },
   "supportedGames": {
-    "heading": "Trie avec plaisir n'importe quel JCC que tu aimes",
+    "heading": "Trie facilement n'importe quel JCC que tu aimes",
     "subtitle": "Les nouveaux jeux rejoignent directement la base de données de la trieuse, plutôt que d'être codés en dur dans l'application - voici ce qui est pris en charge aujourd'hui.",
     "cardsIndexed_one": "{{formatted}} carte indexée",
     "cardsIndexed_other": "{{formatted}} cartes indexées"
