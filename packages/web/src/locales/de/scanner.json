@@ -188,6 +188,7 @@
     "statusConnected": "Verbunden",
     "statusError": "Telefon nicht erreichbar. Stelle sicher, dass diese Seite auf dem Telefon noch geöffnet ist, und versuche es erneut.",
     "disconnect": "Telefon trennen",
+    "done": "OK, Scan starten",
     "tryAgain": "Erneut versuchen",
     "requestingCamera": "Kamerazugriff wird angefordert…",
     "cameraError": "Kamera konnte nicht aufgerufen werden. Bitte überprüfe dein Gerät.",

@@ -1,7 +1,7 @@
+import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
-import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { WatcherStack } from "@/components/ui/watcher-stack";
 import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
@@ -19,9 +19,6 @@ import type { TFunction } from "i18next";
 import { Fragment, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-// Numeric/enum fields both have a defined "low to high" order (a numeric
-// value, or a field's own `options` order); string fields sort
-// alphabetically. See compareByField in use-card-filter-sort.ts.
 function sortLabels(
   type: FieldMeta["type"],
   t: TFunction<"cards">,
@@ -87,21 +84,13 @@ export function CardToolbar({
   onToggleSelectAll,
   availableRarities,
   availableColors,
+  cardCount,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
-  const [isClearing, setIsClearing] = useState(false);
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
 
-  const handleClear = async () => {
-    setIsClearing(true);
-    try {
-      await onClearAll?.();
-    } catch (error) {
-      console.error("Failed to clear cards:", error);
-    } finally {
-      setIsClearing(false);
-      setClearAllDialogOpen(false);
-    }
+  const handleClear = () => {
+    onClearAll?.();
   };
 
   return (
@@ -189,43 +178,27 @@ export function CardToolbar({
           >
             <IconDownload className="size-4" />
           </Button>
-          <DynamicDialog
-            open={clearAllDialogOpen}
-            onOpenChange={setClearAllDialogOpen}
-            title={t("cardToolbar.deleteScannedCardsTitle")}
-            description={t("cardToolbar.deleteScannedCardsDescription")}
-            trigger={
-              <Button
-                variant="outline"
-                size="icon"
-                title={t("cardToolbar.clearAllCardsTitle")}
-              >
-                <IconTrash className="size-4" />
-              </Button>
-            }
-            footer={
-              <>
-                <Button
-                  variant="outline"
-                  onClick={() => setClearAllDialogOpen(false)}
-                >
-                  {t("cardToolbar.cancel")}
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={handleClear}
-                  disabled={isClearing}
-                >
-                  {isClearing
-                    ? t("cardToolbar.clearing")
-                    : t("cardToolbar.clearAll")}
-                </Button>
-              </>
-            }
-            footerClassName="flex-col-reverse md:flex-row"
-          />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setClearAllDialogOpen(true)}
+            disabled={!hasCards}
+            className="shrink-0"
+            title={t("cardToolbar.clearAllCardsTitle")}
+          >
+            <IconTrash className="size-4" />
+          </Button>
         </ButtonGroup>
       )}
+      <DeleteDialog
+        open={clearAllDialogOpen}
+        onOpenChange={setClearAllDialogOpen}
+        title={t("cardToolbar.deleteScannedCardsTitle")}
+        description={t("cardToolbar.deleteScannedCardsDescription")}
+        confirm={cardCount > 100 ? { type: "keyword" } : { type: "simple" }}
+        confirmLabel={t("cardToolbar.clearAll")}
+        onConfirm={handleClear}
+      />
     </div>
   );
 }

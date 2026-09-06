@@ -38,6 +38,7 @@ export interface CardToolbarProps {
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
+  cardCount: number;
   activeFilters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
   activeFilterCount: number;

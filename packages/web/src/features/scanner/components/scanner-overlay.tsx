@@ -92,7 +92,7 @@ export function ScannerOverlay({
           ) : (
             <IconCameraSpark className="mx-auto mb-2 size-5" />
           )}
-          <p>
+          <p className="text-xs">
             {isPhoneMode
               ? t("scannerOverlay.waitingForPhone")
               : t("scannerOverlay.connectCamera")}

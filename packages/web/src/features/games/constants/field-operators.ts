@@ -15,6 +15,8 @@ export const DEFAULT_OPERATORS_BY_TYPE: Record<
     { value: "ends_with", label: "ends with" },
     { value: "equals", label: "equals" },
     { value: "not_equals", label: "does not equal" },
+    { value: "is_null", label: "is empty" },
+    { value: "is_not_null", label: "is not empty" },
   ],
   numeric: [
     { value: "equals", label: "equals" },
@@ -23,12 +25,16 @@ export const DEFAULT_OPERATORS_BY_TYPE: Record<
     { value: "gte", label: "greater than or equal" },
     { value: "lt", label: "less than" },
     { value: "lte", label: "less than or equal" },
+    { value: "is_null", label: "is unknown" },
+    { value: "is_not_null", label: "is known" },
   ],
   enum: [
     { value: "in", label: "is any of" },
     { value: "not_in", label: "is none of" },
     { value: "equals", label: "equals" },
     { value: "not_equals", label: "does not equal" },
+    { value: "is_null", label: "is empty" },
+    { value: "is_not_null", label: "is not empty" },
   ],
   set: [
     { value: "contains_any", label: "contains any of" },
@@ -36,5 +42,7 @@ export const DEFAULT_OPERATORS_BY_TYPE: Record<
     { value: "contains_none", label: "contains none of" },
     { value: "equals", label: "is exactly" },
     { value: "not_equals", label: "is not exactly" },
+    { value: "is_null", label: "is empty" },
+    { value: "is_not_null", label: "is not empty" },
   ],
 };

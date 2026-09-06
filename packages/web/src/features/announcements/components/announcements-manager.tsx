@@ -114,7 +114,9 @@ export function AnnouncementsManager() {
         toast.error(r.message || t("toasts.deleteError"));
         return;
       }
-      setAnnouncements((announcementsQuery.data ?? []).filter((a) => a.guid !== guid));
+      setAnnouncements(
+        (announcementsQuery.data ?? []).filter((a) => a.guid !== guid),
+      );
       toast.success(t("toasts.deleteSuccess"));
     },
     onError: () => toast.error(t("toasts.deleteError")),
@@ -133,7 +135,7 @@ export function AnnouncementsManager() {
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">{t("heading")}</p>
-          <p className="text-sm text-muted-foreground">{t("description")}</p>
+          <p className="text-xs text-muted-foreground">{t("description")}</p>
         </div>
         <Button onClick={() => setFormTarget(null)}>
           <IconPlus size={14} />
@@ -164,7 +166,9 @@ export function AnnouncementsManager() {
                   >
                     {t(`severity.${announcement.severity}`)}
                   </span>
-                  <Badge variant={announcement.isActive ? "success" : "outline"}>
+                  <Badge
+                    variant={announcement.isActive ? "success" : "outline"}
+                  >
                     {announcement.isActive ? t("active") : t("inactive")}
                   </Badge>
                 </div>

@@ -188,6 +188,7 @@
     "statusConnected": "Connecté",
     "statusError": "Impossible de joindre le téléphone. Vérifie que cette page est toujours ouverte dessus, puis réessaie.",
     "disconnect": "Déconnecter le téléphone",
+    "done": "OK, démarrer le scan",
     "tryAgain": "Réessayer",
     "requestingCamera": "Demande d'accès à la caméra…",
     "cameraError": "Impossible d'accéder à la caméra. Vérifie ton appareil.",

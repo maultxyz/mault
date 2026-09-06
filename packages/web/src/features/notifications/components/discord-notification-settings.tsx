@@ -16,8 +16,15 @@ const TEST_TYPES: NotificationTestType[] = [
 
 export function DiscordNotificationSettings() {
   const { t } = useTranslation("notifications");
-  const { settings, isLoading, save, isLinked, sendTest, isTesting, testingType } =
-    useNotificationSettings();
+  const {
+    settings,
+    isLoading,
+    save,
+    isLinked,
+    sendTest,
+    isTesting,
+    testingType,
+  } = useNotificationSettings();
 
   const canTest = isLinked && !isTesting && !isLoading;
 
@@ -27,7 +34,7 @@ export function DiscordNotificationSettings() {
         <IconBrandDiscord className="size-4" />
         <Label>{t("discordNotifications.heading")}</Label>
       </div>
-      <p className="text-sm text-muted-foreground">
+      <p className="text-xs text-muted-foreground">
         {t("discordNotifications.description")}
       </p>
       <label className="flex items-center justify-between gap-3">

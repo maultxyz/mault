@@ -169,7 +169,7 @@ export function exportToCsv(
       ...fieldDefinitions.map((f) => {
         const value = getCardValue(card, f.field, fieldDefinitions);
         if (Array.isArray(value)) return csvEscape(value.join("; "));
-        return csvEscape(String(value));
+        return csvEscape(value === null ? "" : String(value));
       }),
     ],
   );

@@ -2,6 +2,9 @@
   "nonEnglishRulesBanner": {
     "message": "Diese Sammlung ist auf {{language}} eingestellt, daher verwenden die Regelfelder unten Freitext statt Dropdowns — die Kartendaten selbst kommen auf {{language}} zurück, nicht auf Englisch, weshalb englische Optionen nicht passen würden."
   },
+  "noGameBanner": {
+    "message": "Dieser Sammlung ist kein Spiel zugewiesen, daher gibt es keine Kartenfelder für Sortierregeln. Erstellen Sie die Sammlung neu und wählen Sie ein Spiel aus, um die Sortierung zu aktivieren."
+  },
   "binCard": {
     "binLabel": "Fach {{number}}",
     "catchAll": "Auffangfach",

@@ -69,7 +69,7 @@ export function ImpersonationUsersManager() {
           <p className="text-sm font-medium">
             {t("impersonationUsersManager.heading")}
           </p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground">
             {t("impersonationUsersManager.description")}
           </p>
         </div>

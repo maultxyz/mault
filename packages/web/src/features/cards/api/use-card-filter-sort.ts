@@ -85,6 +85,9 @@ function compareByField(
   const vb = getCardValue(b.card, meta.field, fieldDefinitions);
 
   if (meta.type === "numeric") {
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
     return (va as number) - (vb as number);
   }
 

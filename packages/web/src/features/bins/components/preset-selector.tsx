@@ -1,6 +1,6 @@
 import { AuditDrawer, type AuditEntry } from "@/components/audit-drawer";
-import { Button } from "@/components/ui/button";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -25,9 +25,9 @@ import {
   type BinSetAuditEntry,
 } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import type { PresetSelectorProps } from "@/features/bins/types";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
-import type { PresetSelectorProps } from "@/features/bins/types";
 import {
   createSetSchema,
   type CreateSetFormValues,
@@ -249,29 +249,28 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
                   </Button>
                 }
               ></TooltipTrigger>
-              <TooltipContent>{t("presetSelector.editSortingLogic")}</TooltipContent>
+              <TooltipContent>
+                {t("presetSelector.editSortingLogic")}
+              </TooltipContent>
             </Tooltip>
           </>
         ) : (
           <>
-            <Button
-              variant="outline"
-              size="icon"
-              disabled={!selectedSet || isPresetMutating || sets.length <= 1}
-              onClick={() => setDeleteDialogOpen(true)}
-            >
-              <IconTrash />
-            </Button>
-            <DeleteDialog
-              open={deleteDialogOpen}
-              onOpenChange={setDeleteDialogOpen}
-              title={t("presetSelector.deleteSetTitle")}
-              description={t("presetSelector.deleteSetDescription", {
-                name: selectedSet?.name,
-              })}
-              confirm={{ type: "name", name: selectedSet?.name ?? "" }}
-              onConfirm={handleDelete}
-            />
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={!selectedSet}
+                    onClick={() => setHistoryOpen(true)}
+                  >
+                    <IconClockHour3 />
+                  </Button>
+                }
+              ></TooltipTrigger>
+              <TooltipContent>{t("presetSelector.viewHistory")}</TooltipContent>
+            </Tooltip>
             <DynamicDialog
               open={renameDialogOpen}
               onOpenChange={handleRenameDialogChange}
@@ -398,21 +397,24 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
                 />
               </form>
             </DynamicDialog>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={!selectedSet}
-                    onClick={() => setHistoryOpen(true)}
-                  >
-                    <IconClockHour3 />
-                  </Button>
-                }
-              ></TooltipTrigger>
-              <TooltipContent>{t("presetSelector.viewHistory")}</TooltipContent>
-            </Tooltip>
+            <Button
+              variant="outline"
+              size="icon"
+              disabled={!selectedSet || isPresetMutating || sets.length <= 1}
+              onClick={() => setDeleteDialogOpen(true)}
+            >
+              <IconTrash />
+            </Button>
+            <DeleteDialog
+              open={deleteDialogOpen}
+              onOpenChange={setDeleteDialogOpen}
+              title={t("presetSelector.deleteSetTitle")}
+              description={t("presetSelector.deleteSetDescription", {
+                name: selectedSet?.name,
+              })}
+              confirm={{ type: "name", name: selectedSet?.name ?? "" }}
+              onConfirm={handleDelete}
+            />
           </>
         )}
       </ButtonGroup>

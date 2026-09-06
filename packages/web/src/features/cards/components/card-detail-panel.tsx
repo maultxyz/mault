@@ -328,37 +328,44 @@ export function CardDetailPanel({
                   <div className="border-t" />
                 </div>
               )}
-              <div className="flex gap-6">
+              <div className="flex flex-col gap-4">
                 {!hasMultipleCandidates && (
-                  <div className="shrink-0 flex flex-col gap-3 items-center">
-                    <div className="w-44 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
-                      <img
-                        src={selectedCard?.image?.normal || ""}
-                        alt={selectedCard?.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                  <div className="shrink-0 flex gap-3">
                     {capturedImageUrl && (
-                      <>
+                      <div className="flex flex-col gap-1.5 items-center">
                         <p className="text-xs text-muted-foreground">
                           {t("cardDetailPanel.capturedScan")}
                         </p>
-                        <div className="w-44 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
+                        <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
                           <img
                             src={capturedImageUrl}
                             alt={t("cardDetailPanel.scannedAlt")}
                             className="w-full h-full object-cover"
                           />
                         </div>
-                      </>
+                      </div>
                     )}
+                    <div className="flex flex-col gap-1.5 items-center">
+                      {capturedImageUrl && (
+                        <p className="text-xs text-muted-foreground">
+                          {t("cardDetailPanel.matchedCard")}
+                        </p>
+                      )}
+                      <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
+                        <img
+                          src={selectedCard?.image?.normal || ""}
+                          alt={selectedCard?.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {selectedCard && (
                   <div className="flex flex-col gap-3 min-w-0 flex-1">
                     {selectedCard.manaCost && (
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {formatManaCost(selectedCard.manaCost)}
                       </p>
                     )}
@@ -386,19 +393,6 @@ export function CardDetailPanel({
                         {selectedCard.setName} #{selectedCard.collectorNumber}
                       </span>
                     </div>
-                    {binNumber != null && (
-                      <div className="flex flex-col gap-1.5">
-                        <p className="text-xs font-medium text-muted-foreground">
-                          {t("cardDetailPanel.binLocation")}
-                        </p>
-                        <div className="w-48 rounded-lg border">
-                          <BinLocationDiagram
-                            binNumber={binNumber}
-                            inverted={false}
-                          />
-                        </div>
-                      </div>
-                    )}
                     {(selectedCard.price != null ||
                       selectedCard.priceFoil != null) && (
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -448,6 +442,19 @@ export function CardDetailPanel({
                 />
                 {t("cardDetailPanel.foil")}
               </Label>
+              {binNumber != null && (
+                <div className="flex flex-col gap-1.5">
+                  <p className="text-xs font-medium text-muted-foreground">
+                    {t("cardDetailPanel.binLocation")}
+                  </p>
+                  <div className="w-48 rounded-lg border">
+                    <BinLocationDiagram
+                      binNumber={binNumber}
+                      inverted={false}
+                    />
+                  </div>
+                </div>
+              )}
               <div className="flex gap-3 pt-1">
                 <Button
                   variant="outline"

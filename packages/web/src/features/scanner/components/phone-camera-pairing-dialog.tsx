@@ -98,9 +98,18 @@ export function PhoneCameraPairingDialog({
         </div>
 
         {status === "connected" && (
-          <Button variant="outline-destructive" onClick={onDisconnect}>
-            {t("phoneCamera.disconnect")}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline-destructive"
+              onClick={onDisconnect}
+              className="flex-1"
+            >
+              {t("phoneCamera.disconnect")}
+            </Button>
+            <Button onClick={() => onOpenChange(false)} className="flex-1">
+              {t("phoneCamera.done")}
+            </Button>
+          </div>
         )}
         {status === "error" && (
           <Button variant="outline" onClick={onRetry}>

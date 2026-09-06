@@ -81,10 +81,7 @@ export function BinConfigPanel() {
   const isCatchAll = form.watch("isCatchAll");
 
   return (
-    <form
-      onSubmit={form.handleSubmit(handleSave)}
-      className="flex flex-col"
-    >
+    <form onSubmit={form.handleSubmit(handleSave)} className="flex flex-col">
       <div className="flex items-center gap-4 mb-4">
         <h2 className="text-sm font-semibold font-heading">
           {t("binConfigPanel.binHeading", { number: config.binNumber })}
@@ -105,7 +102,7 @@ export function BinConfigPanel() {
                   : t("binConfigPanel.setCatchAll")}
               </Button>
               {field.value && (
-                <p className="text-sm text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {t("binConfigPanel.catchAllDescription")}
                 </p>
               )}
