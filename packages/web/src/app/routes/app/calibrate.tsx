@@ -16,12 +16,14 @@ import {
 import { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 import { BinRoutingAssignment } from "@/features/calibration/components/bin-routing-assignment";
 import { BinRoutingControls } from "@/features/calibration/components/bin-routing-controls";
+import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
 import { ChannelLayoutToggle } from "@/features/calibration/components/channel-layout-toggle";
 import { FeederCalibrationPanel } from "@/features/calibration/components/feeder-calibration-panel";
 import { IrSensorPanel } from "@/features/calibration/components/ir-sensor-panel";
 import { ModuleCalibrationGrid } from "@/features/calibration/components/module-calibration-grid";
 import { ModuleCountStepper } from "@/features/calibration/components/module-count-stepper";
 import { ScanRegionCalibrationPanel } from "@/features/calibration/components/scan-region-calibration-panel";
+import type { CalibrationSection } from "@/features/calibration/types";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustmentsHorizontal,
@@ -35,8 +37,6 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
-type CalibrationSection = "modules" | "scanRegion" | "calibration";
 
 function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
   const { t } = useTranslation("calibration");
@@ -252,7 +252,10 @@ export default function CalibratePage() {
 
   return (
     <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
-      <nav className="col-span-2 min-h-0 h-full overflow-y-auto flex flex-col border-r p-2 gap-2 bg-sidebar/70">
+      <nav
+        className="col-span-2 min-h-0 h-full overflow-y-auto flex flex-col border-r p-2 gap-2 bg-sidebar/70"
+        data-tour="calibration-sections"
+      >
         {sectionNavItems.map((item) => (
           <button
             key={item.value}
@@ -272,9 +275,15 @@ export default function CalibratePage() {
       </nav>
 
       <div className="col-span-10 min-h-0 h-full overflow-y-auto @container p-4 flex flex-col gap-4">
+        <div className="flex justify-end">
+          <CalibrationTour section={section} setSection={setSection} />
+        </div>
         {section === "modules" && (
           <>
-            <div className="flex flex-wrap items-center gap-2">
+            <div
+              className="flex flex-wrap items-center gap-2"
+              data-tour="calibration-connect"
+            >
               {isConnected ? (
                 <Button variant="outline" onClick={disconnect}>
                   <IconDeviceUsbFilled />
@@ -301,11 +310,14 @@ export default function CalibratePage() {
                 </span>
               )}
             </div>
-            <div className="flex flex-col gap-1.5">
+            <div
+              className="flex flex-col gap-1.5"
+              data-tour="channel-layout"
+            >
               <Label>{t("channelLayoutToggle.label")}</Label>
               <ChannelLayoutToggle />
             </div>
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5" data-tour="module-count">
               <Label>{t("moduleCountStepper.label")}</Label>
               <ModuleCountStepper />
             </div>

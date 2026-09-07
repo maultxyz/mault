@@ -71,6 +71,10 @@
       "title": "Définir un fourre-tout",
       "content": "Un seul bac doit être le fourre-tout - il reçoit toute carte qui ne correspond aux règles d'aucun autre bac. Active-le ici."
     },
+    "autoAssign": {
+      "title": "Ou laisse la détection automatique faire le travail",
+      "content": "Plutôt que d'écrire des règles à la main, active la détection automatique et choisis un champ. Dès qu'une nouvelle valeur apparaît pour ce champ, elle occupe automatiquement le prochain bac libre - les répétitions y sont ensuite dirigées, et une fois tous les bacs occupés, les nouvelles valeurs vont au fourre-tout. Réinitialise-la à tout moment ici ou via le bouton de réinitialisation rapide sur la page de scan."
+    },
     "combinator": {
       "title": "ET ou OU",
       "content": "Choisis si une carte doit satisfaire TOUTES les conditions de ce groupe (ET) ou UNE seule (OU)."
@@ -94,6 +98,57 @@
     "done": {
       "title": "Voilà pour la logique de tri !",
       "content": "Répète l'opération pour chaque bac, et n'oublie pas ton fourre-tout. Tu peux revoir cette visite à tout moment depuis l'icône d'aide de cette page."
+    }
+  },
+  "calibrationTour": {
+    "triggerTooltip": "Comment fonctionne le calibrage",
+    "welcome": {
+      "title": "Calibrer ton trieur",
+      "content": "Voyons comment connecter ton trieur et régler chaque servomoteur. Passe à tout moment - tu peux revoir cette visite depuis la même icône d'aide."
+    },
+    "sections": {
+      "title": "Trois sections",
+      "content": "Configuration des modules connecte le trieur et associe les bacs aux emplacements physiques, Zone de scan cadre la façon dont la caméra recadre chaque carte, et Calibrage des servos ajuste finement les positions de chaque servomoteur. Bascule entre elles ici."
+    },
+    "connect": {
+      "title": "Connecte ton trieur",
+      "content": "Associe d'abord le trieur en USB ici - la majeure partie de cette page est désactivée tant qu'il n'est pas connecté. Lance Tester pour vérifier chaque servomoteur une fois calibré."
+    },
+    "channelLayout": {
+      "title": "Disposition des canaux",
+      "content": "Indique à l'application comment les canaux du PCA9685 sont câblés aux servomoteurs de chaque module."
+    },
+    "moduleCount": {
+      "title": "Nombre de modules",
+      "content": "Définis le nombre de modules de tri physiquement installés - cela détermine le nombre de bacs disponibles."
+    },
+    "binRouting": {
+      "title": "Routage des bacs",
+      "content": "Associe chaque bac numéroté à un module et une direction (gauche, droite ou bas) pour que le firmware sache où envoyer une carte."
+    },
+    "irSensor": {
+      "title": "Capteurs infrarouges",
+      "content": "Lis ou surveille le capteur infrarouge de chaque module pour confirmer qu'il détecte le passage d'une carte, et vérifie si la trémie du chargeur contient des cartes."
+    },
+    "binRoutingControls": {
+      "title": "Teste ton routage",
+      "content": "Alimente une seule carte, lance un échantillon sur tous les bacs, ou envoie une carte vers un bac précis pour confirmer que le routage et le timing sont corrects."
+    },
+    "scanRegion": {
+      "title": "Cadrer la zone de scan",
+      "content": "Fais glisser et redimensionne ce cadre pour qu'il corresponde à l'emplacement d'une carte sous ta caméra, afin que les captures soient bien cadrées sur la carte."
+    },
+    "feeder": {
+      "title": "Calibrage du chargeur",
+      "content": "Ajuste ici la vitesse, le délai, l'impulsion et la pause du servomoteur du chargeur, puis utilise Définir pour enregistrer chaque valeur une fois qu'il alimente de façon fiable."
+    },
+    "moduleCalibration": {
+      "title": "Calibrage des servomoteurs",
+      "content": "Pour chaque module, ajuste les servomoteurs du bas, de la palette et du poussoir à leurs positions ouvert/fermé (ou gauche/neutre/droite) puis enregistre-les - c'est ce qui permet au routage de placer les cartes avec précision."
+    },
+    "done": {
+      "title": "Voilà pour le calibrage !",
+      "content": "Répète le calibrage des servomoteurs pour chaque module que tu ajoutes. Tu peux revoir cette visite à tout moment depuis l'icône d'aide de cette page."
     }
   }
 }

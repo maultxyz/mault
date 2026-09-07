@@ -193,7 +193,10 @@ export function ModuleCalibrationGrid({
 }: ModuleCalibrationGridProps) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-lg border bg-border">
+    <div
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-lg border bg-border"
+      data-tour="module-calibration-grid"
+    >
       {modules.map((module) => {
         const cal = configs.find((c) => c.moduleNumber === module)?.calibration;
         return (

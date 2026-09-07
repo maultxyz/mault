@@ -38,6 +38,13 @@ export const SORTING_RULES_TOUR_STEPS: SortingRulesTourStepConfig[] = [
     contentKey: "sortingRulesTour.catchAll.content",
   },
   {
+    id: "auto-assign",
+    target: '[data-tour="auto-assign-panel"]',
+    placement: "auto",
+    titleKey: "sortingRulesTour.autoAssign.title",
+    contentKey: "sortingRulesTour.autoAssign.content",
+  },
+  {
     id: "combinator",
     target: '[data-tour="rule-combinator"]',
     placement: "auto",
@@ -80,6 +87,13 @@ export const SORTING_RULES_TOUR_STEPS: SortingRulesTourStepConfig[] = [
     contentKey: "sortingRulesTour.done.content",
   },
 ];
+
+export const MANUAL_RULES_TOUR_STEP_IDS = new Set([
+  "combinator",
+  "add-condition",
+  "condition-row",
+  "add-group",
+]);
 
 const COMPLETED_KEY = "magic-vault:sorting-rules-tour-completed";
 

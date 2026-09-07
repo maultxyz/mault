@@ -4,9 +4,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import {
   isSortingRulesTourCompleted,
   markSortingRulesTourCompleted,
+  MANUAL_RULES_TOUR_STEP_IDS,
   SORTING_RULES_TOUR_STEPS,
 } from "@/features/bins/lib/sorting-rules-tour";
 import { TourTooltip } from "@/features/onboarding/components/tour-tooltip";
@@ -18,17 +20,22 @@ import { EVENTS, STATUS, useJoyride, type Step } from "react-joyride";
 
 export function SortingRulesTour({ className }: { className?: string }) {
   const { t } = useTranslation("onboarding");
+  const { selectedSet } = useBinConfigs();
+  const isAutoAssignEnabled = !!selectedSet?.autoAssignField;
 
   const steps: Step[] = useMemo(
     () =>
-      SORTING_RULES_TOUR_STEPS.map((config) => ({
+      SORTING_RULES_TOUR_STEPS.filter(
+        (config) =>
+          !isAutoAssignEnabled || !MANUAL_RULES_TOUR_STEP_IDS.has(config.id),
+      ).map((config) => ({
         target: config.target,
         placement: config.placement,
         title: t(config.titleKey),
         content: t(config.contentKey),
         skipScroll: config.target === "body",
       })),
-    [t],
+    [t, isAutoAssignEnabled],
   );
 
   const { controls, state, Tour, on } = useJoyride({

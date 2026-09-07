@@ -71,6 +71,10 @@
       "title": "Set a catch-all",
       "content": "Exactly one bin should be the catch-all - it receives any card that doesn't match another bin's rules. Toggle it on here."
     },
+    "autoAssign": {
+      "title": "Or let it auto-detect",
+      "content": "Instead of writing rules by hand, turn on auto-detect and pick a field. The first time a new value for that field shows up, it claims the next open bin automatically - repeats route back, and once every bin is taken, new values fall to the catch-all. Reset it anytime from here or the quick reset button on the scan page."
+    },
     "combinator": {
       "title": "AND vs OR",
       "content": "Choose whether a card must match ALL of this group's conditions (AND) or ANY of them (OR)."
@@ -94,6 +98,57 @@
     "done": {
       "title": "That's sorting logic!",
       "content": "Repeat this for each bin, and don't forget your catch-all. Replay this tour anytime from the help icon on this page."
+    }
+  },
+  "calibrationTour": {
+    "triggerTooltip": "How calibration works",
+    "welcome": {
+      "title": "Calibrating your sorter",
+      "content": "Let's walk through connecting your sorter and dialing in each servo. Skip anytime - you can replay this from the same help icon."
+    },
+    "sections": {
+      "title": "Three sections",
+      "content": "Module setup connects the sorter and maps bins to physical slots, Scan region frames how the camera crops each card, and Servo calibration fine-tunes each servo's positions. Switch between them here."
+    },
+    "connect": {
+      "title": "Connect your sorter",
+      "content": "Pair the sorter over USB here first - most of this page is disabled until it's connected. Run Test to sample every servo once you're calibrated."
+    },
+    "channelLayout": {
+      "title": "Channel layout",
+      "content": "Tell the app how your PCA9685 channels are wired to each module's servos."
+    },
+    "moduleCount": {
+      "title": "Module count",
+      "content": "Set how many sorting modules are physically installed - this determines how many bins are available."
+    },
+    "binRouting": {
+      "title": "Bin routing",
+      "content": "Map each numbered bin to a module and direction (left, right, or bottom) so the firmware knows where to send a card."
+    },
+    "irSensor": {
+      "title": "IR sensors",
+      "content": "Read or monitor each module's IR sensor to confirm it detects a card passing through, and check whether the feeder hopper has cards loaded."
+    },
+    "binRoutingControls": {
+      "title": "Test your routing",
+      "content": "Feed a single card, run a sample across every bin, or send a card to one specific bin to confirm the routing and timing feel right."
+    },
+    "scanRegion": {
+      "title": "Frame the scan region",
+      "content": "Drag and resize this box to match where a card sits under your camera, so captures crop tightly to just the card."
+    },
+    "feeder": {
+      "title": "Feeder calibration",
+      "content": "Tune the feeder servo's speed, timeout, pulse, and pause here, then use Set to save each value once it feeds reliably."
+    },
+    "moduleCalibration": {
+      "title": "Servo calibration",
+      "content": "For each module, jog the bottom, paddle, and pusher servos to their open/closed (or left/neutral/right) positions and save them - this is what makes routing land cards accurately."
+    },
+    "done": {
+      "title": "That's calibration!",
+      "content": "Repeat servo calibration for every module you add. Replay this tour anytime from the help icon on this page."
     }
   }
 }

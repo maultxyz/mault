@@ -32,7 +32,7 @@ export function AutoAssignPanel() {
   const isEnabled = !!selectedSet.autoAssignField;
 
   return (
-    <Field className="rounded-lg border p-2 gap-2">
+    <Field className="rounded-lg border p-2 gap-2" data-tour="auto-assign-panel">
       <label className="flex items-center justify-between gap-3">
         <span className="flex flex-col gap-0.5">
           <span className="text-sm font-medium">

@@ -1,5 +1,7 @@
 import type { BinRoute, ModuleConfig, ServoCalibration } from "@magic-vault/shared";
 
+export type CalibrationSection = "modules" | "scanRegion" | "calibration";
+
 export interface ModuleConfigsContextValue {
   configs: ModuleConfig[];
   saveConfig: (
