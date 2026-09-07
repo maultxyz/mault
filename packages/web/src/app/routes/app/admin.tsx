@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImpersonationUsersManager } from "@/features/admin/components/impersonation-users-manager";
+import { RollbarTestPanel } from "@/features/admin/components/rollbar-test-panel";
 import { AnnouncementsManager } from "@/features/announcements/components/announcements-manager";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { GamesManager } from "@/features/games/components/games-manager";
@@ -517,6 +518,8 @@ export default function AdminPage() {
         </div>
 
         <ImpersonationUsersManager />
+
+        <RollbarTestPanel />
 
         <AnnouncementsManager />
 

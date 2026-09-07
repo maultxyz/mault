@@ -85,6 +85,17 @@
       "startError": "Failed to start impersonation"
     }
   },
+  "rollbarTest": {
+    "heading": "Test Rollbar",
+    "description": "Send a test error to Rollbar from the client and/or the server to confirm error reporting is wired up",
+    "testClientButton": "Test Client",
+    "testServerButton": "Test Server",
+    "testingButton": "Sending...",
+    "toasts": {
+      "clientSent": "Sent test error to Rollbar (client).",
+      "serverError": "Failed to send test error to Rollbar (server)"
+    }
+  },
   "impersonationAuditDrawer": {
     "title": "Impersonation Audit Log",
     "empty": "No impersonation sessions yet",

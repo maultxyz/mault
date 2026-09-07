@@ -147,3 +147,12 @@ export async function listImpersonationAudit(): Promise<
 export async function stopImpersonation(): Promise<Result<null>> {
   return apiPost<Result<null>>("/api/admin/impersonate/stop");
 }
+
+export async function testServerRollbar(): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  return apiPost<{ success: boolean; message: string }>(
+    "/api/admin/rollbar/test",
+  );
+}
