@@ -52,7 +52,9 @@ export default function ErrorPage() {
           <IconRefresh size={14} />
           {t("errorPage.reload")}
         </Button>
-        <Button render={<Link to="/" />}>{t("errorPage.backHome")}</Button>
+        <Button nativeButton={false} render={<Link to="/" />}>
+          {t("errorPage.backHome")}
+        </Button>
       </div>
     </div>
   );

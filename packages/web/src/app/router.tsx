@@ -1,3 +1,4 @@
+import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
 import { RequireCollectionDialog } from "@/components/require-collection-dialog";
@@ -6,8 +7,6 @@ import { useRole } from "@/hooks/use-role";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { lazy } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
-
-const AuthGuard = lazy(() => import("@/app/routes/auth-guard"));
 
 const LandingPage = lazy(() => import("@/app/routes/index"));
 const BuildGuidePage = lazy(() => import("@/app/routes/build"));
