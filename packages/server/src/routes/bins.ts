@@ -39,6 +39,7 @@ function toBinSet(row: {
   guid: string | null;
   name: string;
   isActive: boolean;
+  autoAssignField: string | null;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -62,6 +63,7 @@ function toBinSet(row: {
     guid: row.guid!,
     name: row.name,
     isActive: row.isActive,
+    autoAssignField: row.autoAssignField,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -90,6 +92,7 @@ const binSetQuery = {
     guid: true,
     name: true,
     isActive: true,
+    autoAssignField: true,
     createdAt: true,
     updatedAt: true,
   },
@@ -455,6 +458,67 @@ router.put("/:guid", requireAuth, requireOrg, async (c) => {
         .update(binSets)
         .set({ name, updatedAt: new Date() })
         .where(eq(binSets.id, target.id));
+      return _loadSets(tx, orgId);
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
+async function _resetAutoAssignBins(tx: Transaction, binSetId: number) {
+  await tx
+    .update(bins)
+    .set({ rules: emptyRules(), updatedAt: new Date() })
+    .where(and(eq(bins.binSet, binSetId), eq(bins.isCatchAll, false)));
+}
+
+router.put("/:guid/auto-assign", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const guid = c.req.param("guid");
+  const { field } = await c.req.json<{ field: string | null }>();
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const target = await tx.query.binSets.findFirst({
+        where: (binSets, { eq, and }) =>
+          and(eq(binSets.guid, guid), eq(binSets.orgId, orgId)),
+        columns: { id: true, guid: true, autoAssignField: true },
+      });
+      if (!target) return { message: "Set not found.", success: false };
+
+      if (field && field !== target.autoAssignField) {
+        await _snapshotBinSet(tx, target.id, target.guid!, orgId);
+        await _resetAutoAssignBins(tx, target.id);
+      }
+
+      await tx
+        .update(binSets)
+        .set({ autoAssignField: field, updatedAt: new Date() })
+        .where(eq(binSets.id, target.id));
+      return _loadSets(tx, orgId);
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
+router.post("/:guid/auto-assign/reset", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const guid = c.req.param("guid");
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const target = await tx.query.binSets.findFirst({
+        where: (binSets, { eq, and }) =>
+          and(eq(binSets.guid, guid), eq(binSets.orgId, orgId)),
+        columns: { id: true, guid: true },
+      });
+      if (!target) return { message: "Set not found.", success: false };
+
+      await _snapshotBinSet(tx, target.id, target.guid!, orgId);
+      await _resetAutoAssignBins(tx, target.id);
       return _loadSets(tx, orgId);
     });
     return c.json(result);

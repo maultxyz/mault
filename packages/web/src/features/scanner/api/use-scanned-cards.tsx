@@ -1,9 +1,13 @@
 import {
+  type BinConfig,
   type BinRoute,
+  type BinRuleGroup,
+  type FieldMeta,
   type PlayingCard,
   type PlayingCardWithDistance,
   type ScannedCard,
   evaluateCardBin,
+  getCardValue,
   getCatchAllBin,
 } from "@magic-vault/shared";
 
@@ -37,6 +41,48 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
+function findAutoAssignTarget(
+  card: PlayingCardWithDistance,
+  configs: BinConfig[],
+  fieldDefinitions: FieldMeta[],
+  autoAssignField: string | null,
+): { binNumber: number; rules: BinRuleGroup } | null {
+  if (!autoAssignField) return null;
+
+  const matched = evaluateCardBin(card, configs, fieldDefinitions);
+  if (matched && !matched.isCatchAll) return null;
+
+  const nextOpen = configs
+    .filter((c) => !c.isCatchAll && c.rules.conditions.length === 0)
+    .sort((a, b) => a.binNumber - b.binNumber)[0];
+  if (!nextOpen) return null;
+
+  const value = getCardValue(card, autoAssignField, fieldDefinitions);
+  if (
+    value === null ||
+    value === "" ||
+    (Array.isArray(value) && value.length === 0)
+  ) {
+    return null;
+  }
+
+  return {
+    binNumber: nextOpen.binNumber,
+    rules: {
+      id: crypto.randomUUID(),
+      combinator: "and",
+      conditions: [
+        {
+          id: crypto.randomUUID(),
+          field: autoAssignField,
+          operator: "equals",
+          value,
+        },
+      ],
+    },
+  };
+}
+
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,
 );
@@ -49,7 +95,12 @@ export function ScannedCardsProvider({
   const { t } = useTranslation("scanner");
   const [cards, setCards] = useState<ScannedCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { configs: binConfigs, fieldDefinitions } = useBinConfigs();
+  const {
+    configs: binConfigs,
+    fieldDefinitions,
+    selectedSet,
+    save: saveBinConfig,
+  } = useBinConfigs();
   const { routes: binRoutes } = useBinRoutes();
   const { sendRoute, sendCommand, receiveResponse, isConnected, isReady } =
     useSerial();
@@ -69,6 +120,7 @@ export function ScannedCardsProvider({
   const binConfigsRef = useRef(binConfigs);
   const binRoutesRef = useRef(binRoutes);
   const fieldDefinitionsRef = useRef(fieldDefinitions);
+  const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
   const serialRef = useRef({
     sendRoute,
     sendCommand,
@@ -103,6 +155,10 @@ export function ScannedCardsProvider({
   useEffect(() => {
     fieldDefinitionsRef.current = fieldDefinitions;
   }, [fieldDefinitions]);
+
+  useEffect(() => {
+    autoAssignFieldRef.current = selectedSet?.autoAssignField ?? null;
+  }, [selectedSet?.autoAssignField]);
 
   useEffect(() => {
     emptyCollectionRef.current = emptyCollection;
@@ -295,11 +351,28 @@ export function ScannedCardsProvider({
         return;
       }
 
-      const matchedBin = evaluateCardBin(
+      let matchedBin = evaluateCardBin(
         card,
         binConfigsRef.current,
         fieldDefinitionsRef.current,
       );
+      const autoTarget = findAutoAssignTarget(
+        card,
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+        autoAssignFieldRef.current,
+      );
+      if (autoTarget) {
+        binConfigsRef.current = binConfigsRef.current.map((c) =>
+          c.binNumber === autoTarget.binNumber
+            ? { ...c, rules: autoTarget.rules }
+            : c,
+        );
+        matchedBin = binConfigsRef.current.find(
+          (c) => c.binNumber === autoTarget.binNumber,
+        );
+        saveBinConfig(autoTarget.binNumber, autoTarget.rules);
+      }
       const record: ScannedCard = {
         scanId: generateScanId(),
         card,
@@ -397,7 +470,7 @@ export function ScannedCardsProvider({
           });
       }
     },
-    [triggerAutoFeed, t],
+    [triggerAutoFeed, t, saveBinConfig],
   );
 
   const sendCatchAllBin = useCallback(() => {
@@ -491,30 +564,50 @@ export function ScannedCardsProvider({
     }
   }, []);
 
-  const correctCard = useCallback((scanId: string, card: PlayingCard) => {
-    const collection = activeCollectionRef.current;
-    const corrected: PlayingCardWithDistance = { ...card, distance: 0 };
-    const matchedBin = evaluateCardBin(
-      corrected,
-      binConfigsRef.current,
-      fieldDefinitionsRef.current,
-    );
-    setCards((prev) =>
-      prev.map((entry) =>
-        entry.scanId === scanId
-          ? { ...entry, card: corrected, binNumber: matchedBin?.binNumber }
-          : entry,
-      ),
-    );
-    if (collection) {
-      updateCollectionCard(
-        collection.guid,
-        scanId,
+  const correctCard = useCallback(
+    (scanId: string, card: PlayingCard) => {
+      const collection = activeCollectionRef.current;
+      const corrected: PlayingCardWithDistance = { ...card, distance: 0 };
+      let matchedBin = evaluateCardBin(
         corrected,
-        matchedBin?.binNumber,
-      ).catch((err) => console.error("Failed to update card:", err));
-    }
-  }, []);
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+      );
+      const autoTarget = findAutoAssignTarget(
+        corrected,
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+        autoAssignFieldRef.current,
+      );
+      if (autoTarget) {
+        binConfigsRef.current = binConfigsRef.current.map((c) =>
+          c.binNumber === autoTarget.binNumber
+            ? { ...c, rules: autoTarget.rules }
+            : c,
+        );
+        matchedBin = binConfigsRef.current.find(
+          (c) => c.binNumber === autoTarget.binNumber,
+        );
+        saveBinConfig(autoTarget.binNumber, autoTarget.rules);
+      }
+      setCards((prev) =>
+        prev.map((entry) =>
+          entry.scanId === scanId
+            ? { ...entry, card: corrected, binNumber: matchedBin?.binNumber }
+            : entry,
+        ),
+      );
+      if (collection) {
+        updateCollectionCard(
+          collection.guid,
+          scanId,
+          corrected,
+          matchedBin?.binNumber,
+        ).catch((err) => console.error("Failed to update card:", err));
+      }
+    },
+    [saveBinConfig],
+  );
 
   const toggleFoil = useCallback((scanId: string, isFoil: boolean) => {
     const collection = activeCollectionRef.current;

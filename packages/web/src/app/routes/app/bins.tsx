@@ -3,6 +3,7 @@ import {
   BinConfigsProvider,
   useBinConfigs,
 } from "@/features/bins/api/use-bin-configs";
+import { AutoAssignPanel } from "@/features/bins/components/auto-assign-panel";
 import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
@@ -40,6 +41,7 @@ function MobileBins() {
           <div className="overflow-y-auto p-4 flex flex-col gap-4 max-h-[calc(80vh-2rem)]">
             <CollectionSwitcher />
             <PresetSelector />
+            <AutoAssignPanel />
             <BinList />
           </div>
         </DrawerContent>
@@ -75,6 +77,7 @@ export default function BinsPage() {
       <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
         <CollectionSwitcher />
         <PresetSelector />
+        <AutoAssignPanel />
         <BinList />
       </section>
       <section className="relative col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4">

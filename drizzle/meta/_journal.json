@@ -127,6 +127,13 @@
       "when": 1788568542486,
       "tag": "0017_fantastic_expediter",
       "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1788749224206,
+      "tag": "0018_soft_giant_girl",
+      "breakpoints": true
     }
   ]
 }

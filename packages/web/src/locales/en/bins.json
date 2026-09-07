@@ -11,7 +11,8 @@
     "ruleCount_one": "{{count}} rule",
     "ruleCount_other": "{{count}} rules",
     "allUnmatched": "All unmatched cards",
-    "clickToConfigure": "Click to configure"
+    "clickToConfigure": "Click to configure",
+    "waitingForValue": "Waiting for next value"
   },
   "binConfigPanel": {
     "needCatchAllError": "At least one bin must be catch-all.",
@@ -22,7 +23,8 @@
     "rulesLabel": "Rules",
     "apiDocsLink": "Field reference",
     "clear": "Clear",
-    "save": "Save"
+    "save": "Save",
+    "autoAssignWaiting": "Waiting for a new {{field}} to appear"
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."
@@ -81,10 +83,20 @@
       "createSetFailed": "Failed to create set",
       "saveSetFailed": "Failed to save set",
       "renameSetFailed": "Failed to rename set",
-      "deleteSetFailed": "Failed to delete set"
+      "deleteSetFailed": "Failed to delete set",
+      "autoAssignFailed": "Failed to update auto-detect settings",
+      "autoAssignResetFailed": "Failed to reset auto-detected bins"
     }
   },
   "binsPage": {
     "binLabel": "Bin {{number}}"
+  },
+  "autoAssignPanel": {
+    "heading": "Auto-detect sorting",
+    "description": "Learns bin assignments as you scan: the first time a new value appears for the field below, it claims the next open bin. Repeats route back automatically, and once every bin is taken, new values fall to the catch-all.",
+    "fieldPlaceholder": "Choose a field...",
+    "reset": "Reset",
+    "resetConfirmTitle": "Reset auto-detected bins?",
+    "resetConfirmDescription": "Clears every bin's learned value in this set. New scans will refill them from scratch."
   }
 }
