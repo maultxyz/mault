@@ -26,6 +26,7 @@ interface FeederCalibrationPanelProps {
   onSetSpeed: () => void;
   onSetDuration: () => void;
   onSetPulseDuration: () => void;
+  onSetContinuous: () => void;
   onSetPauseDuration: () => void;
   onSetSettleDuration: () => void;
 }
@@ -47,6 +48,7 @@ export function FeederCalibrationPanel({
   onSetSpeed,
   onSetDuration,
   onSetPulseDuration,
+  onSetContinuous,
   onSetPauseDuration,
   onSetSettleDuration,
 }: FeederCalibrationPanelProps) {
@@ -253,8 +255,8 @@ export function FeederCalibrationPanel({
           <ButtonGroup className="w-full">
             <Button
               variant="outline"
-              disabled={!isConnected || pulseDurationValue > 0}
-              onClick={() => onPulseDurationChange(0)}
+              disabled={!isConnected}
+              onClick={onSetContinuous}
               className="flex-1"
             >
               {t("feederCalibrationPanel.continuousFeedButton")}

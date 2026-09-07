@@ -81,6 +81,7 @@ services:
         VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
         VITE_APP_ENV: ${VITE_APP_ENV:-}
         VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-}
+        VITE_ROLLBAR_ACCESS_TOKEN: ${VITE_ROLLBAR_ACCESS_TOKEN:-}
     depends_on:
       - server
     ports:

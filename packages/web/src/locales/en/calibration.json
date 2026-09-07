@@ -69,7 +69,7 @@
     "msValue": "{{value}} ms",
     "pulseDurationLabel": "Pulse Duration (ms)",
     "continuous": "Continuous",
-    "continuousFeedButton": "Continuous Feed",
+    "continuousFeedButton": "Set Continuous Feed",
     "setPulseDuration": "Set Pulse Duration",
     "pauseDurationLabel": "Pause Duration (ms)",
     "setPauseDuration": "Set Pause Duration",

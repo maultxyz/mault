@@ -237,6 +237,7 @@ export default function CalibratePage() {
     handleFeederSetSpeed,
     handleFeederSetDuration,
     handleFeederSetPulseDuration,
+    handleFeederSetContinuous,
     handleFeederSetPauseDuration,
     handleFeederSetSettleDuration,
     handleFeed,
@@ -361,6 +362,7 @@ export default function CalibratePage() {
               onSetSpeed={handleFeederSetSpeed}
               onSetDuration={handleFeederSetDuration}
               onSetPulseDuration={handleFeederSetPulseDuration}
+              onSetContinuous={handleFeederSetContinuous}
               onSetPauseDuration={handleFeederSetPauseDuration}
               onSetSettleDuration={handleFeederSetSettleDuration}
             />
