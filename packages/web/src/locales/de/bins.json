@@ -97,6 +97,7 @@
     "fieldPlaceholder": "Feld auswählen...",
     "reset": "Zurücksetzen",
     "resetConfirmTitle": "Automatisch erkannte Fächer zurücksetzen?",
-    "resetConfirmDescription": "Löscht den gelernten Wert jedes Fachs in diesem Set. Neue Scans füllen sie von Grund auf neu."
+    "resetConfirmDescription": "Löscht den gelernten Wert jedes Fachs in diesem Set. Neue Scans füllen sie von Grund auf neu.",
+    "notYetAssigned": "Noch nicht zugewiesen"
   }
 }

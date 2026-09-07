@@ -97,6 +97,7 @@
     "fieldPlaceholder": "Choisir un champ...",
     "reset": "Réinitialiser",
     "resetConfirmTitle": "Réinitialiser les bacs détectés automatiquement ?",
-    "resetConfirmDescription": "Efface la valeur apprise de chaque bac de cet ensemble. Les prochains scans les rempliront à nouveau depuis le début."
+    "resetConfirmDescription": "Efface la valeur apprise de chaque bac de cet ensemble. Les prochains scans les rempliront à nouveau depuis le début.",
+    "notYetAssigned": "Pas encore attribué"
   }
 }

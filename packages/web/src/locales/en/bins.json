@@ -97,6 +97,7 @@
     "fieldPlaceholder": "Choose a field...",
     "reset": "Reset",
     "resetConfirmTitle": "Reset auto-detected bins?",
-    "resetConfirmDescription": "Clears every bin's learned value in this set. New scans will refill them from scratch."
+    "resetConfirmDescription": "Clears every bin's learned value in this set. New scans will refill them from scratch.",
+    "notYetAssigned": "Not yet assigned"
   }
 }

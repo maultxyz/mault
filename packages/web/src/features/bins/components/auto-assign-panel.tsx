@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
 import { IconRefresh } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -97,7 +98,9 @@ export function AutoAssignPanel() {
         description={t("autoAssignPanel.resetConfirmDescription")}
         confirmLabel={t("autoAssignPanel.reset")}
         onConfirm={resetAutoAssign}
-      />
+      >
+        <AutoAssignSnapshot />
+      </DeleteDialog>
     </Field>
   );
 }

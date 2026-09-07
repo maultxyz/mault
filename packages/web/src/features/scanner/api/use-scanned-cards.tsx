@@ -11,6 +11,7 @@ import {
   getCatchAllBin,
 } from "@magic-vault/shared";
 
+import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import {
@@ -25,11 +26,13 @@ import {
 } from "@/features/collections/api/collections";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useOrg } from "@/features/companies/api/use-organization";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import type { ScannedCardsContextValue } from "@/features/scanner/types";
 import { generateScanId } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
   useCallback,
@@ -110,12 +113,20 @@ export function ScannedCardsProvider({
   const locksRef = useRef(locks);
   const currentUserIdRef = useRef(currentUserId);
 
+  const { activeOrg } = useOrg();
+  const activeOrgIdRef = useRef(activeOrg?.id);
+  const queryClient = useQueryClient();
+
   useEffect(() => {
     locksRef.current = locks;
   }, [locks]);
   useEffect(() => {
     currentUserIdRef.current = currentUserId;
   }, [currentUserId]);
+
+  useEffect(() => {
+    activeOrgIdRef.current = activeOrg?.id;
+  }, [activeOrg?.id]);
 
   const binConfigsRef = useRef(binConfigs);
   const binRoutesRef = useRef(binRoutes);
@@ -386,10 +397,31 @@ export function ScannedCardsProvider({
 
       setCards((prev) => [record, ...prev]);
       setTimerTrigger(record.scannedAt);
+
+      const orgId = activeOrgIdRef.current;
+      const billingQueryKey = orgId
+        ? billingQueryOptions(orgId).queryKey
+        : undefined;
+      if (billingQueryKey) {
+        queryClient.setQueryData(billingQueryKey, (old) =>
+          old ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 } : old,
+        );
+      }
+
       addCollectionCard(collection.guid, record)
         .then((result) => {
           if (!result.success) {
             setCards((prev) => prev.filter((c) => c.scanId !== record.scanId));
+            if (billingQueryKey) {
+              queryClient.setQueryData(billingQueryKey, (old) =>
+                old
+                  ? {
+                      ...old,
+                      cardsScannedToday: Math.max(0, old.cardsScannedToday - 1),
+                    }
+                  : old,
+              );
+            }
             const key = result.scanLimitReached
               ? "scannedCards.scanLimitReached"
               : "scannedCards.collectionLocked";
@@ -398,7 +430,12 @@ export function ScannedCardsProvider({
             });
           }
         })
-        .catch((err) => console.error("Failed to persist card:", err));
+        .catch((err) => console.error("Failed to persist card:", err))
+        .finally(() => {
+          if (billingQueryKey) {
+            void queryClient.invalidateQueries({ queryKey: billingQueryKey });
+          }
+        });
 
       if (
         matchedBin &&
@@ -470,7 +507,7 @@ export function ScannedCardsProvider({
           });
       }
     },
-    [triggerAutoFeed, t, saveBinConfig],
+    [triggerAutoFeed, t, saveBinConfig, queryClient],
   );
 
   const sendCatchAllBin = useCallback(() => {

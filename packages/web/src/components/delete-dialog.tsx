@@ -25,6 +25,7 @@ interface DeleteDialogProps {
   onOpenChange: (open: boolean) => void;
   title: string;
   description: string;
+  children?: React.ReactNode;
   confirm?: ConfirmMode;
   confirmLabel?: string;
   onConfirm: () => void;
@@ -35,6 +36,7 @@ export function DeleteDialog({
   onOpenChange,
   title,
   description,
+  children,
   confirm = { type: "simple" },
   confirmLabel,
   onConfirm,
@@ -112,6 +114,8 @@ export function DeleteDialog({
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>{description}</DialogDescription>
           </DialogHeader>
+
+          {children}
 
           {confirm.type !== "simple" && (
             <Field className="my-4" data-invalid={!!errors.input}>

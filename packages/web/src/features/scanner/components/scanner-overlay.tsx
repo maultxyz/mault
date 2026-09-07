@@ -13,6 +13,7 @@ import {
 } from "@tabler/icons-react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 const statusPill = cva(
   "absolute bottom-1 left-1 right-1 z-30 rounded-lg backdrop-blur-3xl border text-xs px-2 py-1 flex flex-row gap-1.5 items-center text-foreground",
@@ -75,9 +76,14 @@ export function ScannerOverlay({
   if (dailyLimitReached) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-sm text-muted-foreground max-w-56">
-          <IconAlertTriangle className="mx-auto mb-2 size-5 text-destructive" />
+        <div className="text-center text-sm text-muted-foreground max-w-56 flex flex-col items-center gap-2">
+          <IconAlertTriangle className="mx-auto size-5 text-destructive" />
           <p>{t("scannerOverlay.dailyLimitReached")}</p>
+          <Button size="sm" nativeButton={false}>
+            <Link to="/app/settings">
+              {t("scannerOverlay.upgradeButton")}
+            </Link>
+          </Button>
         </div>
       </div>
     );
