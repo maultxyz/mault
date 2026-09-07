@@ -344,6 +344,7 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
                   variant="outline"
                   size="icon"
                   disabled={isPresetMutating}
+                  data-tour="create-sorting-rule"
                 >
                   <IconPlus />
                 </Button>

@@ -95,6 +95,7 @@ export function BinConfigPanel() {
                 type="button"
                 variant={field.value ? "default" : "outline"}
                 size="sm"
+                data-tour="catch-all-toggle"
                 onClick={() => field.onChange(!field.value)}
               >
                 {field.value
@@ -152,7 +153,7 @@ export function BinConfigPanel() {
         >
           {t("binConfigPanel.clear")}
         </Button>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} data-tour="save-bin-config">
           {isPending && <IconLoader2 className="size-4 animate-spin" />}
           {t("binConfigPanel.save")}
         </Button>

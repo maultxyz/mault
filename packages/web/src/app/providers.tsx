@@ -10,6 +10,7 @@ import { LiveSessionStatusProvider } from "@/features/collections/api/use-live-c
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { OrgPickerModal } from "@/features/companies/components/org-picker-modal";
+import { OnboardingProvider } from "@/features/onboarding/components/onboarding-provider";
 import { CameraProvider } from "@/features/scanner/api/use-camera";
 import { ScannedCardsProvider } from "@/features/scanner/api/use-scanned-cards";
 import { ScannerIslandProvider } from "@/features/scanner/api/use-scanner-island";
@@ -61,31 +62,33 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <OrgThemeApplier />
       <ScannerIslandProvider>
         <CollectionsProvider>
-          <CameraProvider>
-            <SerialProvider>
-              <BinRoutesProvider>
-                <BinConfigsProvider>
-                  <CollectionLocksProvider>
-                    <LiveSessionStatusProvider>
-                      <ModuleConfigsProvider>
-                        <FeederConfigProvider>
-                          <ScannedCardsProvider>
-                            <CardFiltersProvider>
-                              <AppAlertsProvider>
-                                <AppLoadingGate>{children}</AppLoadingGate>
-                              </AppAlertsProvider>
-                              <OrgPickerModal />
-                              <DocumentTitleUpdater />
-                            </CardFiltersProvider>
-                          </ScannedCardsProvider>
-                        </FeederConfigProvider>
-                      </ModuleConfigsProvider>
-                    </LiveSessionStatusProvider>
-                  </CollectionLocksProvider>
-                </BinConfigsProvider>
-              </BinRoutesProvider>
-            </SerialProvider>
-          </CameraProvider>
+          <OnboardingProvider>
+            <CameraProvider>
+              <SerialProvider>
+                <BinRoutesProvider>
+                  <BinConfigsProvider>
+                    <CollectionLocksProvider>
+                      <LiveSessionStatusProvider>
+                        <ModuleConfigsProvider>
+                          <FeederConfigProvider>
+                            <ScannedCardsProvider>
+                              <CardFiltersProvider>
+                                <AppAlertsProvider>
+                                  <AppLoadingGate>{children}</AppLoadingGate>
+                                </AppAlertsProvider>
+                                <OrgPickerModal />
+                                <DocumentTitleUpdater />
+                              </CardFiltersProvider>
+                            </ScannedCardsProvider>
+                          </FeederConfigProvider>
+                        </ModuleConfigsProvider>
+                      </LiveSessionStatusProvider>
+                    </CollectionLocksProvider>
+                  </BinConfigsProvider>
+                </BinRoutesProvider>
+              </SerialProvider>
+            </CameraProvider>
+          </OnboardingProvider>
         </CollectionsProvider>
       </ScannerIslandProvider>
     </QueryClientProvider>

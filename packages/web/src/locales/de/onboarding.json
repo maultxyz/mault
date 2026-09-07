@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "back": "Zurück",
+    "close": "Schließen",
+    "done": "Fertig",
+    "next": "Weiter",
+    "nextWithProgress": "Weiter ({current} von {total})",
+    "skip": "Tour überspringen"
+  },
+  "steps": {
+    "welcome": {
+      "title": "Willkommen bei Mault",
+      "content": "Eine kurze Tour durch Scannen, Sammlungen und Sortierregeln. Du kannst jederzeit überspringen und die Tour später über die Einstellungen neu starten."
+    },
+    "connectCamera": {
+      "title": "Kamera verbinden",
+      "content": "Öffne dieses Menü und wähle Kamera, um eine Webcam zu verbinden (oder dein Handy als Kamera zu koppeln). Sie erfasst jede Karte beim Scannen."
+    },
+    "connectDevice": {
+      "title": "Sortiergerät verbinden",
+      "content": "Wähle im selben Menü Scanner, um deinen physischen Kartensortierer per USB zu koppeln. Danach kannst du ihn hier auch kalibrieren oder die Verbindung erneut versuchen."
+    },
+    "filterStats": {
+      "title": "Über Statistiken filtern",
+      "content": "Sobald du Karten gescannt hast, zeigt dieses Panel Gesamtwert, Seltenheit, Farbe und Set. Klicke auf einen Eintrag, um das Kartenraster auf genau diese Karten zu filtern."
+    },
+    "exportCollection": {
+      "title": "Eine Sammlung exportieren",
+      "content": "Exportiere deine gescannten Karten von hier aus als CSV, Manabox, Moxfield, TCGplayer oder Card Kingdom."
+    },
+    "manageCollections": {
+      "title": "Sammlungen verwalten",
+      "content": "Wechsle hier zwischen Sammlungen oder klicke jederzeit auf dieses Bearbeiten-Symbol, um die vollständige Sammlungsverwaltung zu öffnen."
+    },
+    "createCollection": {
+      "title": "Eine Sammlung erstellen",
+      "content": "Sammlungen führen getrennte Scan-Verläufe und Sortierregeln - eine pro Spiel, Box oder Projekt. Klicke hier, um eine neue zu starten."
+    },
+    "editCollection": {
+      "title": "Eine Sammlung bearbeiten",
+      "content": "Benenne eine Sammlung jederzeit von hier aus um."
+    },
+    "createSortingRules": {
+      "title": "Sortierregeln erstellen",
+      "content": "Sortierregeln liegen in benannten Sets, sodass du mehrere Sortierstrategien pro Sammlung speichern und wechseln kannst. Klicke hier, um ein neues Set zu erstellen."
+    },
+    "editSortingRules": {
+      "title": "Sortierregeln bearbeiten",
+      "content": "Wähle links ein Fach aus und füge hier Bedingungen hinzu (nach Seltenheit, Farbe, Preis und mehr), um zu steuern, welche Karten dort landen. Vergiss nicht, ein Fach als Auffangbecken für alles Nichtzutreffende zu markieren."
+    },
+    "done": {
+      "title": "Fertig!",
+      "content": "Das war die Tour. Du kannst sie jederzeit über Einstellungen > Geführte Tour neu starten."
+    }
+  },
+  "sortingRulesTour": {
+    "triggerTooltip": "So funktionieren Sortierregeln",
+    "welcome": {
+      "title": "Sortierlogik im Detail",
+      "content": "Schauen wir uns an, wie du Regeln erstellst, die entscheiden, in welches Fach jede gescannte Karte fällt. Du kannst jederzeit überspringen - über dieses Hilfe-Symbol kannst du die Tour später wiederholen."
+    },
+    "sets": {
+      "title": "Regel-Sets",
+      "content": "Sortierregeln sind in benannten Sets gruppiert, sodass du mehrere Sortierstrategien pro Sammlung speichern und wechseln kannst. Klicke hier, um ein neues Set zu erstellen."
+    },
+    "selectBin": {
+      "title": "Ein Fach auswählen",
+      "content": "Jedes nummerierte Fach entspricht einem physischen Platz an deinem Sortierer. Klicke hier auf ein Fach, um die Regeln zu bearbeiten, die bestimmen, was dort landet."
+    },
+    "catchAll": {
+      "title": "Auffangbecken festlegen",
+      "content": "Genau ein Fach sollte das Auffangbecken sein - es erhält jede Karte, die zu keinem anderen Fach passt. Schalte es hier ein."
+    },
+    "combinator": {
+      "title": "UND vs. ODER",
+      "content": "Wähle, ob eine Karte ALLE Bedingungen dieser Gruppe erfüllen muss (UND) oder EINE davon genügt (ODER)."
+    },
+    "addCondition": {
+      "title": "Eine Bedingung hinzufügen",
+      "content": "Eine Bedingung vergleicht ein Feld - Seltenheit, Farbe, Preis und mehr - mit einem Operator und einem Wert. Klicke hier, um eine hinzuzufügen."
+    },
+    "conditionRow": {
+      "title": "Die Bedingung aufbauen",
+      "content": "Wähle links das Feld, dann einen Operator und schließlich die Werte, mit denen verglichen werden soll."
+    },
+    "addGroup": {
+      "title": "Eine Gruppe verschachteln",
+      "content": "Für fortgeschrittenere Logik füge eine verschachtelte Gruppe mit eigenem UND/ODER-Verknüpfer hinzu - nützlich für Regeln wie \"(Seltenheit ist mythisch ODER selten) UND Preis > 5 $\"."
+    },
+    "save": {
+      "title": "Änderungen speichern",
+      "content": "Regeln werden erst nach dem Speichern angewendet. Klicke hier, sobald du mit der Konfiguration dieses Fachs zufrieden bist."
+    },
+    "done": {
+      "title": "Das war die Sortierlogik!",
+      "content": "Wiederhole dies für jedes Fach und vergiss dein Auffangbecken nicht. Du kannst diese Tour jederzeit über das Hilfe-Symbol auf dieser Seite wiederholen."
+    }
+  }
+}

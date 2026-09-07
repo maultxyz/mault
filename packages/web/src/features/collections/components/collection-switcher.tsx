@@ -95,7 +95,7 @@ export function CollectionSwitcher() {
   }
 
   return (
-    <Field>
+    <Field data-tour="collection-switcher">
       <span className="flex items-center gap-1.5">
         <FieldLabel>{t("switcher.label")}</FieldLabel>
         {activeCollection?.game && (

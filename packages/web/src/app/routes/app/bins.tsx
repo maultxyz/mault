@@ -8,6 +8,7 @@ import { BinList } from "@/features/bins/components/bin-list";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
+import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -76,7 +77,8 @@ export default function BinsPage() {
         <PresetSelector />
         <BinList />
       </section>
-      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4">
+      <section className="relative col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4">
+        <SortingRulesTour className="absolute top-2 right-2 z-10" />
         <BinConfigPanel />
       </section>
     </div>

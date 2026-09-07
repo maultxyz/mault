@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "back": "Retour",
+    "close": "Fermer",
+    "done": "Terminé",
+    "next": "Suivant",
+    "nextWithProgress": "Suivant ({current} sur {total})",
+    "skip": "Passer la visite"
+  },
+  "steps": {
+    "welcome": {
+      "title": "Bienvenue sur Mault",
+      "content": "Faisons un rapide tour du scan, des collections et des règles de tri. Tu peux passer à tout moment et recommencer plus tard depuis les Paramètres."
+    },
+    "connectCamera": {
+      "title": "Connecter une caméra",
+      "content": "Ouvre ce menu et choisis Caméra pour connecter une webcam (ou coupler ton téléphone comme caméra). C'est elle qui capture chaque carte pendant le scan."
+    },
+    "connectDevice": {
+      "title": "Connecter ton trieur",
+      "content": "Dans le même menu, choisis Scanner pour coupler ton trieur de cartes physique en USB. Une fois connecté, tu peux aussi le calibrer ou relancer la connexion ici."
+    },
+    "filterStats": {
+      "title": "Filtrer en cliquant sur les stats",
+      "content": "Une fois des cartes scannées, ce panneau totalise la valeur, la rareté, la couleur et l'édition. Clique sur une entrée pour filtrer la grille sur ces cartes uniquement."
+    },
+    "exportCollection": {
+      "title": "Exporter une collection",
+      "content": "Exporte tes cartes scannées aux formats CSV, Manabox, Moxfield, TCGplayer ou Card Kingdom depuis ici."
+    },
+    "manageCollections": {
+      "title": "Gérer tes collections",
+      "content": "Change de collection ici, ou clique sur cette icône à tout moment pour ouvrir le gestionnaire complet des collections."
+    },
+    "createCollection": {
+      "title": "Créer une collection",
+      "content": "Chaque collection garde son propre historique de scan et ses règles de tri - une par jeu, boîte ou projet. Clique ici pour en créer une nouvelle."
+    },
+    "editCollection": {
+      "title": "Modifier une collection",
+      "content": "Renomme une collection à tout moment depuis ici."
+    },
+    "createSortingRules": {
+      "title": "Créer des règles de tri",
+      "content": "Les règles de tri vivent dans des ensembles nommés, pour que tu puisses garder plusieurs stratégies de tri par collection et basculer entre elles. Clique ici pour créer un nouvel ensemble."
+    },
+    "editSortingRules": {
+      "title": "Modifier les règles de tri",
+      "content": "Sélectionne un bac à gauche, puis ajoute des conditions ici (par rareté, couleur, prix, etc.) pour décider quelles cartes y atterrissent. N'oublie pas de garder un bac comme fourre-tout pour ce qui ne correspond à aucune règle."
+    },
+    "done": {
+      "title": "C'est terminé !",
+      "content": "Voilà pour la visite. Tu peux la recommencer à tout moment depuis Paramètres > Visite guidée."
+    }
+  },
+  "sortingRulesTour": {
+    "triggerTooltip": "Comment fonctionnent les règles de tri",
+    "welcome": {
+      "title": "La logique de tri, en détail",
+      "content": "Voyons comment construire les règles qui décident dans quel bac atterrit chaque carte scannée. Passe à tout moment - tu pourras revoir cette visite depuis cette icône d'aide."
+    },
+    "sets": {
+      "title": "Ensembles de règles",
+      "content": "Les règles de tri sont regroupées en ensembles nommés, pour que tu puisses garder plusieurs stratégies de tri par collection et basculer entre elles. Clique ici pour en créer un nouveau."
+    },
+    "selectBin": {
+      "title": "Sélectionner un bac",
+      "content": "Chaque bac numéroté correspond à un emplacement physique de ton trieur. Clique sur un bac ici pour modifier les règles qui décident ce qui y atterrit."
+    },
+    "catchAll": {
+      "title": "Définir un fourre-tout",
+      "content": "Un seul bac doit être le fourre-tout - il reçoit toute carte qui ne correspond aux règles d'aucun autre bac. Active-le ici."
+    },
+    "combinator": {
+      "title": "ET ou OU",
+      "content": "Choisis si une carte doit satisfaire TOUTES les conditions de ce groupe (ET) ou UNE seule (OU)."
+    },
+    "addCondition": {
+      "title": "Ajouter une condition",
+      "content": "Une condition compare un champ - rareté, couleur, prix, etc. - à un opérateur et une valeur. Clique ici pour en ajouter une."
+    },
+    "conditionRow": {
+      "title": "Construire la condition",
+      "content": "Choisis le champ à gauche, puis un opérateur, puis la ou les valeurs à comparer."
+    },
+    "addGroup": {
+      "title": "Imbriquer un groupe",
+      "content": "Pour une logique plus avancée, ajoute un groupe imbriqué avec son propre combinateur ET/OU - utile pour des règles comme « (rareté mythique OU rare) ET prix > 5 $ »."
+    },
+    "save": {
+      "title": "Enregistrer les changements",
+      "content": "Les règles ne s'appliquent qu'une fois enregistrées. Clique ici une fois satisfait de la configuration de ce bac."
+    },
+    "done": {
+      "title": "Voilà pour la logique de tri !",
+      "content": "Répète l'opération pour chaque bac, et n'oublie pas ton fourre-tout. Tu peux revoir cette visite à tout moment depuis l'icône d'aide de cette page."
+    }
+  }
+}

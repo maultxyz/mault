@@ -21,5 +21,10 @@
   },
   "notifications": {
     "heading": "Notifications"
+  },
+  "tour": {
+    "heading": "Visite guidée",
+    "description": "Reprends la visite guidée du scanner, des collections et des règles de tri.",
+    "restartButton": "Recommencer le tutoriel"
   }
 }
