@@ -1,8 +1,8 @@
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
-import { Button } from "@/components/ui/button";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
+import { useDiscordBotSettings } from "@/features/companies/api/use-discord-bot";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
@@ -10,8 +10,6 @@ import { LocalOrgInvites } from "@/features/companies/components/local-org-invit
 import { OrgSettings } from "@/features/companies/components/org-settings";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
-import { useOnboarding } from "@/features/onboarding/api/use-onboarding";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
@@ -26,8 +24,7 @@ export default function SettingsPage() {
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { startTour } = useOnboarding();
-  const isMobile = useIsMobile();
+  const { isLinked: isDiscordLinked } = useDiscordBotSettings();
 
   useEffect(() => {
     const billingResult = searchParams.get("billing");
@@ -113,23 +110,6 @@ export default function SettingsPage() {
             <LanguageSwitcher />
           </div>
         </div>
-        {!isMobile && (
-          <div className="rounded-lg border p-4 flex flex-col gap-4">
-            <div>
-              <h2 className="text-sm font-semibold font-heading">
-                {t("tour.heading")}
-              </h2>
-              <p className="text-sm text-muted-foreground mt-0.5">
-                {t("tour.description")}
-              </p>
-            </div>
-            <div>
-              <Button variant="outline" onClick={startTour}>
-                {t("tour.restartButton")}
-              </Button>
-            </div>
-          </div>
-        )}
         <div className="rounded-lg border p-4 flex flex-col gap-4">
           <div>
             <h2 className="text-sm font-semibold font-heading">
@@ -143,12 +123,7 @@ export default function SettingsPage() {
         </div>
         <div className="rounded-lg border p-4 flex flex-col gap-4">
           <DiscordBotSettings />
-        </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <h2 className="text-sm font-semibold font-heading">
-            {t("notifications.heading")}
-          </h2>
-          <DiscordNotificationSettings />
+          {isDiscordLinked && <DiscordNotificationSettings />}
         </div>
       </div>
     </div>

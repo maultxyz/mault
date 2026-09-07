@@ -1,7 +1,12 @@
 {
   "plan": {
     "free": "Kostenlos",
-    "business": "Business"
+    "business": "Business",
+    "label": "Plan"
+  },
+  "planFooterTooltip": {
+    "free": "Kostenloser Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um zu upgraden.",
+    "business": "Business-Plan. Klicken, um die Abrechnung zu verwalten."
   },
   "usage": "{{used}} / {{limit}} Karten heute gescannt",
   "upgrade": "Auf Business upgraden",

@@ -1,4 +1,13 @@
-import type { QueryClient } from "@tanstack/react-query";
+import { QueryClient } from "@tanstack/react-query";
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+      retry: 1,
+    },
+  },
+});
 
 const EXCLUDED_KEYS = new Set(["games", "admin", "announcements"]);
 

@@ -18,13 +18,5 @@
     "scannerLayoutVertical": "Vertikal",
     "scannerLayoutVerticalDescription": "Scanner oben, Kartenraster darunter",
     "language": "Sprache"
-  },
-  "notifications": {
-    "heading": "Benachrichtigungen"
-  },
-  "tour": {
-    "heading": "Geführte Tour",
-    "description": "Wiederhole die Einführung in Scanner, Sammlungen und Sortierregeln.",
-    "restartButton": "Tutorial neu starten"
   }
 }

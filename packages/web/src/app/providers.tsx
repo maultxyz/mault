@@ -22,21 +22,9 @@ import {
   resetPrimaryColor,
   THEME_COLORS,
 } from "@/lib/primary-color";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { queryClient } from "@/lib/query-client";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Infinity,
-      retry: 1,
-    },
-  },
-});
 
 function OrgThemeApplier() {
   const { activeOrg } = useOrg();

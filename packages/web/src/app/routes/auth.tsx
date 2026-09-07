@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,10 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { signIn, signUp } from "@/lib/auth";
+import { signIn, signUp, useAuthSession } from "@/lib/auth";
 import {
   signInSchema,
   signUpSchema,
@@ -23,15 +23,18 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 
-// Sign-in/sign-up screen shared by both auth providers (see lib/auth's
-// signIn/signUp, which dispatch to own-auth or Neon Auth under the hood) -
-// email/password only, matching what both providers actually support today.
 export default function AuthPage() {
   const { t } = useTranslation("auth");
   const { path } = useParams();
   const navigate = useNavigate();
   const isSignUp = path === "sign-up";
   const [serverError, setServerError] = useState<string | null>(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  const { data: session } = useAuthSession();
+
+  useEffect(() => {
+    if (session?.user) navigate("/app", { replace: true });
+  }, [session, navigate]);
 
   const signInForm = useForm<SignInFormValues>({
     resolver: zodResolver(signInSchema),
@@ -53,7 +56,7 @@ export default function AuthPage() {
       setServerError(result.error);
       return;
     }
-    navigate("/app", { replace: true });
+    setIsRedirecting(true);
   }
 
   async function onSignUp(values: SignUpFormValues) {
@@ -63,7 +66,7 @@ export default function AuthPage() {
       setServerError(result.error);
       return;
     }
-    navigate("/app", { replace: true });
+    setIsRedirecting(true);
   }
 
   return (
@@ -86,11 +89,17 @@ export default function AuthPage() {
             >
               <Field data-invalid={!!signUpForm.formState.errors.name}>
                 <FieldLabel htmlFor="name">{t("signUp.nameLabel")}</FieldLabel>
-                <Input id="name" autoComplete="name" {...signUpForm.register("name")} />
+                <Input
+                  id="name"
+                  autoComplete="name"
+                  {...signUpForm.register("name")}
+                />
                 <FieldError errors={[signUpForm.formState.errors.name]} />
               </Field>
               <Field data-invalid={!!signUpForm.formState.errors.email}>
-                <FieldLabel htmlFor="email">{t("common.emailLabel")}</FieldLabel>
+                <FieldLabel htmlFor="email">
+                  {t("common.emailLabel")}
+                </FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -122,7 +131,9 @@ export default function AuthPage() {
               className="flex flex-col gap-3"
             >
               <Field data-invalid={!!signInForm.formState.errors.email}>
-                <FieldLabel htmlFor="email">{t("common.emailLabel")}</FieldLabel>
+                <FieldLabel htmlFor="email">
+                  {t("common.emailLabel")}
+                </FieldLabel>
                 <Input
                   id="email"
                   type="email"
@@ -164,14 +175,16 @@ export default function AuthPage() {
             form="local-auth-form"
             className="w-full"
             disabled={
-              isSignUp
+              isRedirecting ||
+              (isSignUp
                 ? signUpForm.formState.isSubmitting
-                : signInForm.formState.isSubmitting
+                : signInForm.formState.isSubmitting)
             }
           >
-            {(isSignUp
-              ? signUpForm.formState.isSubmitting
-              : signInForm.formState.isSubmitting) && (
+            {(isRedirecting ||
+              (isSignUp
+                ? signUpForm.formState.isSubmitting
+                : signInForm.formState.isSubmitting)) && (
               <IconLoader2 className="animate-spin" />
             )}
             {isSignUp ? t("signUp.submit") : t("signIn.submit")}

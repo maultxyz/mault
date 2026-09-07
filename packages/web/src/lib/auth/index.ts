@@ -7,12 +7,10 @@ import {
 } from "@/lib/auth/local-session-store";
 import { getLocalToken, setLocalToken } from "@/lib/auth/local-token";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import { queryClient } from "@/lib/query-client";
 
 export { AUTH_PROVIDER };
 
-// Same return shape as Neon's neon.auth.useSession() - data.user.{id,name,
-// email,role} - so call sites (use-role.ts, user-menu.tsx, nav components)
-// don't need provider-specific branching of their own.
 export const useAuthSession =
   AUTH_PROVIDER === "local"
     ? useLocalAuthSession
@@ -25,9 +23,6 @@ interface LocalAuthResult {
 
 const PENDING_INVITE_KEY = "pendingInviteToken";
 
-// Set by app/routes/auth-join.tsx before it sends an unauthenticated visitor
-// off to sign in/up, since that navigation loses the invite token in the URL
-// otherwise. Consumed once, right after a successful sign-in/sign-up below.
 export function savePendingInviteToken(token: string): void {
   localStorage.setItem(PENDING_INVITE_KEY, token);
 }
@@ -77,10 +72,7 @@ async function signUpLocal(
     }
     setLocalToken(res.data.token);
     notifyLocalSessionChanged();
-    // Accept a pending invite first if there is one, so signing up via an
-    // invite link joins that org - bootstrap below is a no-op once the
-    // account already has at least one org, so it won't also create a
-    // redundant "Home" org on top of it.
+
     await acceptPendingInviteIfAny();
     await apiPost("/api/local-auth/bootstrap").catch(() => {});
     return {};
@@ -150,9 +142,11 @@ export async function signOut(): Promise<void> {
     }
     setLocalToken(null);
     notifyLocalSessionChanged();
-    return;
+  } else {
+    await neon.auth.signOut();
   }
-  await neon.auth.signOut();
+  queryClient.clear();
+  localStorage.removeItem("activeOrgId");
 }
 
 export async function createOrganization(

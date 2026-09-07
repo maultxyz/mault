@@ -24,13 +24,5 @@
     "scannerLayoutVertical": "Vertical",
     "scannerLayoutVerticalDescription": "Scanner on top, card grid below",
     "language": "Language"
-  },
-  "notifications": {
-    "heading": "Notifications"
-  },
-  "tour": {
-    "heading": "Guided tour",
-    "description": "Replay the onboarding walkthrough of the scanner, collections, and sorting rules.",
-    "restartButton": "Restart tutorial"
   }
 }

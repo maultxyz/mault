@@ -77,5 +77,10 @@
     "empty": "No API keys yet",
     "expires": "expires {{date}}",
     "noExpiry": "no expiry"
+  },
+  "tour": {
+    "heading": "Guided tour",
+    "description": "Replay the onboarding walkthrough of the scanner, collections, and sorting rules.",
+    "restartButton": "Restart tutorial"
   }
 }

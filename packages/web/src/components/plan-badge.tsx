@@ -1,5 +1,4 @@
 import { FooterDivider } from "@/components/status-footer";
-import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,
   TooltipContent,
@@ -29,10 +28,13 @@ export function PlanBadge() {
       <Tooltip>
         <TooltipTrigger
           onClick={() => navigate("/app/settings")}
-          className="cursor-pointer"
+          className="flex items-center gap-1.5 cursor-pointer"
         >
+          <span className="text-xs text-muted-foreground">
+            {t("plan.label")}
+          </span>
           {isBusiness ? (
-            <Badge variant="success">{t("plan.business")}</Badge>
+            <span className="text-xs font-semibold">{t("plan.business")}</span>
           ) : (
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-muted-foreground">
@@ -49,8 +51,8 @@ export function PlanBadge() {
         </TooltipTrigger>
         <TooltipContent side="top">
           {isBusiness
-            ? t("plan.business")
-            : t("usage", {
+            ? t("planFooterTooltip.business")
+            : t("planFooterTooltip.free", {
                 used: billing.cardsScannedToday,
                 limit: billing.dailyLimit,
               })}
