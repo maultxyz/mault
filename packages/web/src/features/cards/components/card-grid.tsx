@@ -30,6 +30,7 @@ import {
   IconBolt,
   IconChevronLeft,
   IconChevronRight,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -50,6 +51,8 @@ export function CardGrid() {
     elapsedMs,
     autoFeed,
     setAutoFeed,
+    forceFoil,
+    setForceFoil,
   } = useScannedCards();
   const [summaryOpen, setSummaryOpen] = useState(false);
   const scanner = useScannerIsland();
@@ -208,6 +211,24 @@ export function CardGrid() {
                 onPause={scanner.handlePause}
                 onResume={scanner.handleResume}
               />
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant={forceFoil ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => setForceFoil(!forceFoil)}
+                    >
+                      <IconSparkles />
+                    </Button>
+                  }
+                />
+                <TooltipContent>
+                  {forceFoil
+                    ? t("cardGrid.forceFoilOnTooltip")
+                    : t("cardGrid.forceFoilOffTooltip")}
+                </TooltipContent>
+              </Tooltip>
               {scanner.isConnected && (
                 <>
                   <Tooltip>
@@ -388,6 +409,24 @@ export function CardGrid() {
                   onPause={scanner.handlePause}
                   onResume={scanner.handleResume}
                 />
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant={forceFoil ? "default" : "outline"}
+                        size="icon"
+                        onClick={() => setForceFoil(!forceFoil)}
+                      >
+                        <IconSparkles />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>
+                    {forceFoil
+                      ? t("cardGrid.forceFoilOnTooltip")
+                      : t("cardGrid.forceFoilOffTooltip")}
+                  </TooltipContent>
+                </Tooltip>
                 {scanner.isConnected && (
                   <>
                     <Tooltip>

@@ -144,6 +144,8 @@ export function ScannedCardsProvider({
   const prevCollectionGuidRef = useRef<string | undefined>(undefined);
   const [autoFeed, setAutoFeedState] = useState(true);
   const autoFeedRef = useRef(true);
+  const [forceFoil, setForceFoilState] = useState(false);
+  const forceFoilRef = useRef(false);
   const cardArrivedHookRef = useRef<(() => void) | null>(null);
   const pauseHookRef = useRef<(() => void) | null>(null);
   const [timerTrigger, setTimerTrigger] = useState<number | undefined>(
@@ -198,6 +200,11 @@ export function ScannedCardsProvider({
   const setAutoFeed = useCallback((enabled: boolean) => {
     autoFeedRef.current = enabled;
     setAutoFeedState(enabled);
+  }, []);
+
+  const setForceFoil = useCallback((enabled: boolean) => {
+    forceFoilRef.current = enabled;
+    setForceFoilState(enabled);
   }, []);
 
   const registerCardArrivedHook = useCallback((fn: () => void) => {
@@ -393,6 +400,7 @@ export function ScannedCardsProvider({
         alternativeMatches: alternativeMatches?.length
           ? alternativeMatches
           : undefined,
+        isFoil: forceFoilRef.current || undefined,
       };
 
       setCards((prev) => [record, ...prev]);
@@ -694,9 +702,11 @@ export function ScannedCardsProvider({
         cards,
         isLoading,
         autoFeed,
+        forceFoil,
         elapsedMs,
         isTimerActive,
         setAutoFeed,
+        setForceFoil,
         registerCardArrivedHook,
         registerPauseHook,
         addCard,

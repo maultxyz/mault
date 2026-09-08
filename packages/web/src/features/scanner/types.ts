@@ -43,9 +43,11 @@ export interface ScannedCardsContextValue {
   cards: ScannedCard[];
   isLoading: boolean;
   autoFeed: boolean;
+  forceFoil: boolean;
   elapsedMs: number;
   isTimerActive: boolean;
   setAutoFeed: (enabled: boolean) => void;
+  setForceFoil: (enabled: boolean) => void;
   addCard: (
     card: PlayingCardWithDistance,
     capturedImageUrl?: string,

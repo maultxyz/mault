@@ -56,6 +56,8 @@
     "startTooltip": "Feed the first card and start scanning",
     "autoFeedOnTooltip": "Auto-feed on — next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off — feed each card manually",
+    "forceFoilOnTooltip": "Foil mode on — every card scanned this session is marked foil",
+    "forceFoilOffTooltip": "Foil mode off — cards are scanned as non-foil by default",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
     "noCardsMatchFilters": "No cards match the current filters",
     "tryAdjusting": "Try adjusting your search, sort, or filter options",
