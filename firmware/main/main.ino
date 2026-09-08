@@ -19,7 +19,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.0.7"
+#define FIRMWARE_VERSION "2.1.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -64,8 +64,13 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 
 #define IR_TIMEOUT_MS 3000
 
-// If a card sits at module 1 this long with no route in progress, something's stuck.
-#define MODULE1_JAM_TIMEOUT_MS 20000
+// If a card sits at a module this long with no route in progress, something's stuck.
+#define MODULE_JAM_TIMEOUT_MS 20000
+
+// Partway through the jam wait, try flapping that module's paddle open/closed a
+// few times - jostling the card is often enough to turn it slightly and clear
+// whatever it's caught on, without needing a full jam alert.
+#define MODULE_WIGGLE_TIMEOUT_MS 8000
 
 // Declared here (before any function) because the Arduino builder hoists
 // auto-generated function prototypes above it - a hoisted
@@ -139,8 +144,9 @@ char inputBuffer[MAX_CMD_LEN + 1];
 uint8_t inputLen = 0;
 bool inputOverflowed = false;
 
-unsigned long module1PresentSince = 0;
-bool module1JamAlerted = false;
+unsigned long modulePresentSince[MAX_MODULES] = {0};
+bool moduleJamAlerted[MAX_MODULES] = {false};
+bool moduleWiggleAttempted[MAX_MODULES] = {false};
 
 int getChannel(int module, int servoOffset) {
   return moduleChannelOffset + (module - 1) * 3 + servoOffset;
@@ -236,24 +242,52 @@ FeedResult runFeeder() {
   return FEED_TIMEOUT;
 }
 
+// Flaps a module's paddle open/closed a few times to try to jostle a stuck
+// card loose - mirrors the manual fix of flapping the side paddles by hand.
+// Bails early as soon as the IR sensor sees the card clear, rather than
+// finishing the full sequence for no reason.
+void wiggleModulePaddle(int module) {
+  ModuleConfig& c = moduleConfig[module - 1];
+  int channel = getChannel(module, 1);
+  for (int i = 0; i < 3; i++) {
+    setServoPosition(channel, c.paddleOpen);
+    delay(150);
+    setServoPosition(channel, c.paddleClosed);
+    delay(150);
+    if (digitalRead(irPin(module)) == HIGH) return;
+  }
+}
+
 // Runs between commands only (routeCard()/runFeeder() block loop() for
-// their duration). Reports once if a card sits at module 1 continuously
-// past MODULE1_JAM_TIMEOUT_MS with no route in progress; re-arms once the
-// sensor sees the card leave.
-void checkModule1Jam() {
-  bool present = digitalRead(irPin(1)) == LOW;
-  if (!present) {
-    module1PresentSince = 0;
-    module1JamAlerted = false;
-    return;
-  }
-  if (module1PresentSince == 0) {
-    module1PresentSince = millis();
-    return;
-  }
-  if (!module1JamAlerted && millis() - module1PresentSince > MODULE1_JAM_TIMEOUT_MS) {
-    module1JamAlerted = true;
-    Serial.println(F("{\"error\":\"jam\",\"module\":1}"));
+// their duration). For each module, if a card sits there continuously with
+// no route in progress: tries one paddle wiggle at MODULE_WIGGLE_TIMEOUT_MS,
+// then reports a jam once if it's still stuck at MODULE_JAM_TIMEOUT_MS.
+// Re-arms once the sensor sees the card leave.
+void checkModuleJams() {
+  for (int m = 1; m <= maxModuleForOffset(); m++) {
+    int i = m - 1;
+    bool present = digitalRead(irPin(m)) == LOW;
+    if (!present) {
+      modulePresentSince[i] = 0;
+      moduleJamAlerted[i] = false;
+      moduleWiggleAttempted[i] = false;
+      continue;
+    }
+    if (modulePresentSince[i] == 0) {
+      modulePresentSince[i] = millis();
+      continue;
+    }
+    unsigned long presentFor = millis() - modulePresentSince[i];
+    if (!moduleWiggleAttempted[i] && presentFor > MODULE_WIGGLE_TIMEOUT_MS) {
+      moduleWiggleAttempted[i] = true;
+      wiggleModulePaddle(m);
+    }
+    if (!moduleJamAlerted[i] && presentFor > MODULE_JAM_TIMEOUT_MS) {
+      moduleJamAlerted[i] = true;
+      Serial.print(F("{\"error\":\"jam\",\"module\":"));
+      Serial.print(m);
+      Serial.println(F("}"));
+    }
   }
 }
 
@@ -688,7 +722,7 @@ void loop() {
       }
     }
   }
-  checkModule1Jam();
+  checkModuleJams();
 #if defined(RGB_BUILTIN)
   updateStatusLed();
 #endif

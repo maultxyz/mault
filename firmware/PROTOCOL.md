@@ -47,10 +47,15 @@ a serial connection to the device can drive it by following this spec
   - the app uses it to decide whether the device can be reflashed from the
   browser (ESP32 only) or needs a link to the GitHub repo instead.
 - One other message is **unsolicited** and can arrive at any time
-  between command/response pairs: `{"error":"jam","module":1}`, pushed
-  if module 1's IR sensor sees a card continuously for 20 seconds
+  between command/response pairs: `{"error":"jam","module":N}`, pushed
+  if module *N*'s IR sensor sees a card continuously for 20 seconds
   outside of an active `route`. A client should watch for this
-  independently of whatever response it's waiting on.
+  independently of whatever response it's waiting on. Partway through
+  that wait (8s in) the firmware tries flapping the module's paddle a
+  few times on its own, mirroring the manual fix of jiggling the side
+  paddles by hand, before giving up and reporting the jam - this is
+  purely internal and produces no message of its own, so a client sees
+  either nothing (card cleared) or the same `jam` error as before.
 
 ## Hardware model
 
@@ -260,4 +265,4 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 200 characters |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
-| `{"error":"jam","module":1}` | **unsolicited** — module 1's IR saw a card continuously for 20s with no route in progress |
+| `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (after an internal paddle-wiggle attempt at 8s failed to clear it) |
