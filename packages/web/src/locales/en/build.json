@@ -383,7 +383,7 @@
           },
           "fitHopperRollerOrings": {
             "text": "Fit o-rings onto the hopper roller.",
-            "note": "Same as the feeder roller - these give it grip on the card face."
+            "note": "Same as the feeder roller, these give it grip on the card face."
           },
           "mountHopperRoller": {
             "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers."
@@ -397,7 +397,7 @@
           },
           "mountHopperIr": {
             "text": "Fix the remaining IR sensor in the hopper throat, just above the feeder, with 1 M2×6 screw.",
-            "note": "This one tells the feeder when the hopper is empty - placement matters more than the module sensors."
+            "note": "This one tells the feeder when the hopper is empty. Placement matters more than the module sensors."
           }
         }
       },
@@ -406,14 +406,14 @@
         "steps": {
           "wireI2c": {
             "text": "Wire the PCA9685 to the {{board}}'s I²C bus (SDA/SCL) and logic power/GND.",
-            "note": "See the Wiring section above - the logic voltage is 3.3V on ESP32, not 5V."
+            "note": "See the Wiring section above. The logic voltage is 3.3V on ESP32, not 5V."
           },
           "wireServos": {
-            "text": "Wire all {{count}} servos into PCA9685 channels 0–{{lastChannel}} and 15 per the channel map - the feeder always takes the last channel.",
+            "text": "Wire all {{count}} servos into PCA9685 channels 0–{{lastChannel}} and 15 per the channel map. The feeder always takes the last channel.",
             "note": "There are wire channels, that use zip ties, in the side of the base to help keep everything neat."
           },
           "wireSensors": {
-            "text": "Wire the {{count}} IR sensors to the digital pins listed in the Wiring section above - module gates and the hopper throat sensor don't all fall on consecutive pins.",
+            "text": "Wire the {{count}} IR sensors to the digital pins listed in the Wiring section above. Module gates and the hopper throat sensor don't all fall on consecutive pins.",
             "note": "For the power and ground, you will have to combine {{count}} wires into one, either with a breadboard or by twisting and soldering them together. You will need to manually calibrate the sensors to have a shorter throw, as to not get false positives."
           },
           "wirePower": {
@@ -424,22 +424,22 @@
             "text": "Connect the {{board}} to the app via Web Serial, then open /app/calibrate."
           },
           "calibrateModules": {
-            "text": "Module Calibration Grid - set the open/closed pulse for each bottom and paddle, and left/neutral/right for each pusher, module by module.",
-            "note": "For pusherLeft/pusherRight, don't stop short of the inner wall - these servos slow down as they approach a soft target, which kills the momentum needed to fling the card. Push the pulse past the wall so the arm slaps into it at full speed; back it off only if it's straining/buzzing against the wall for the whole stroke instead of just at the end."
+            "text": "Module Calibration Grid, set the open/closed pulse for each bottom and paddle, and left/neutral/right for each pusher, module by module.",
+            "note": "For pusherLeft/pusherRight, don't stop short of the inner wall. These servos slow down as they approach a soft target, which kills the momentum needed to fling the card. Push the pulse past the wall so the arm slaps into it at full speed; back it off only if it's straining/buzzing against the wall for the whole stroke instead of just at the end."
           },
           "installHorns": {
-            "text": "Using the calibration grid above, put each paddle in its open position and each pusher in its neutral position, then press the horn (with its flapper or pusher arm already fitted) onto the servo shaft and secure it with the horn screw - bottom flapper, paddle flappers, and pusher arm, for all {{count}} module servos.",
-            "note": "Fitting a horn off-center biases the whole linkage - the exact open/closed and left/right pulses get fine-tuned afterward from the Module Calibration Grid above."
+            "text": "Using the calibration grid above, put each paddle in its open position and each pusher in its neutral position, then press the horn (with its flapper or pusher arm already fitted) onto the servo shaft and secure it with the horn screw: bottom flapper, paddle flappers, and pusher arm, for all {{count}} module servos.",
+            "note": "Fitting a horn off-center biases the whole linkage. The exact open/closed and left/right pulses get fine-tuned afterward from the Module Calibration Grid above."
           },
           "calibrateFeeder": {
-            "text": "Feeder Calibration Panel - tune feed speed, pulse/pause timing, and settle duration against your actual hopper."
+            "text": "Feeder Calibration Panel, tune feed speed, pulse/pause timing, and settle duration against your actual hopper."
           },
           "checkIr": {
-            "text": "IR Sensor Panel - verify all {{count}} sensors report present/absent correctly with a card in hand.",
+            "text": "IR Sensor Panel, verify all {{count}} sensors report present/absent correctly with a card in hand.",
             "note": "If a sensor doesn't trigger, or triggers with nothing in front of it, calibrate its detection distance manually: on the back of the sensor is a small blue box with a gray potentiometer dial. Turn it all the way one way so it detects nothing, then turn it slowly back until it just detects a card an inch or two in front of it."
           },
           "testBins": {
-            "text": "Bin Routing Controls - send a test card to each of the 7 bins in turn and confirm it lands correctly."
+            "text": "Bin Routing Controls, send a test card to each of the 7 bins in turn and confirm it lands correctly."
           }
         }
       },
@@ -451,7 +451,7 @@
             "note": "Cycles every bottom and paddle open, sweeps all pushers left then right, resets to neutral, then briefly spins the feeder."
           },
           "watchModules": {
-            "text": "Watch each module during the test - confirm nothing binds or grinds at the end of its travel.",
+            "text": "Watch each module during the test. Confirm nothing binds or grinds at the end of its travel.",
             "note": "If a servo strains at open or closed, its housing cutout likely needs adjusting before calibration."
           }
         }
