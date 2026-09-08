@@ -101,7 +101,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            git commit -m "chore(release): v${{ steps.appversion.outputs.version }}"
+            git commit -m "chore(release): v${{ steps.appversion.outputs.version }} [skip ci]"
             git tag "v${{ steps.appversion.outputs.version }}"
             git push
             git push origin "v${{ steps.appversion.outputs.version }}"
