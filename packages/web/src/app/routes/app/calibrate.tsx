@@ -27,6 +27,7 @@ import type { CalibrationSection } from "@/features/calibration/types";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustmentsHorizontal,
+  IconClipboard,
   IconClockHour3,
   IconDeviceUsb,
   IconDeviceUsbFilled,
@@ -248,6 +249,7 @@ export default function CalibratePage() {
     irMonitoring,
     handleReadIR,
     handleToggleIrMonitor,
+    handleCopyCalibration,
   } = useCalibrationPage();
 
   return (
@@ -275,7 +277,11 @@ export default function CalibratePage() {
       </nav>
 
       <div className="col-span-10 min-h-0 h-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" onClick={handleCopyCalibration}>
+            <IconClipboard />
+            {t("calibratePage.copyCalibration")}
+          </Button>
           <CalibrationTour section={section} setSection={setSection} />
         </div>
         {section === "modules" && (
