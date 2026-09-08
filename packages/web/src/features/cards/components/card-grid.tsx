@@ -244,7 +244,9 @@ export function CardGrid() {
                         </Button>
                       }
                     />
-                    <TooltipContent>{t("cardGrid.startTooltip")}</TooltipContent>
+                    <TooltipContent>
+                      {t("cardGrid.startTooltip")}
+                    </TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger
@@ -398,9 +400,9 @@ export function CardGrid() {
 
       {(scanner?.isCameraActive || selectedIds.size > 0) && (
         <div className="sticky bottom-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-t">
-          <div className="flex flex-row gap-2 items-center w-full">
+          <div className="flex flex-row gap-2 items-center justify-between w-full">
             {scanner?.isCameraActive && (
-              <>
+              <div className="flex flex-row gap-2 items-center">
                 <ScannerControls
                   status={scanner.status}
                   onForceAddDuplicate={scanner.handleForceAddDuplicate}
@@ -486,13 +488,10 @@ export function CardGrid() {
                   </>
                 )}
                 <ScannerDebug />
-              </>
+              </div>
             )}
             {selectedIds.size > 0 && (
-              <>
-                {scanner?.isCameraActive && (
-                  <div className="w-px h-5 bg-border mx-1 shrink-0" />
-                )}
+              <div className="flex flex-row gap-2 items-center">
                 <span className="text-sm text-muted-foreground">
                   {t("cardGrid.cardsSelected", { count: selectedIds.size })}
                 </span>
@@ -508,7 +507,7 @@ export function CardGrid() {
                 >
                   {t("cardGrid.delete")}
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -532,7 +531,9 @@ export function CardGrid() {
         description={t("cardGrid.deleteCardsDescription", {
           count: selectedIds.size,
         })}
-        confirm={selectedIds.size > 100 ? { type: "keyword" } : { type: "simple" }}
+        confirm={
+          selectedIds.size > 100 ? { type: "keyword" } : { type: "simple" }
+        }
         onConfirm={handleBulkDelete}
       />
     </>
