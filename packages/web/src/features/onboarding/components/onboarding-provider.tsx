@@ -1,5 +1,7 @@
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useOrg } from "@/features/companies/api/use-organization";
 import { OnboardingContext } from "@/features/onboarding/api/use-onboarding";
+import { TourTooltip } from "@/features/onboarding/components/tour-tooltip";
 import {
   resolvePagePath,
   TOUR_STEP_CONFIGS,
@@ -9,7 +11,6 @@ import {
   isOnboardingCompleted,
   markOnboardingCompleted,
 } from "@/features/onboarding/lib/tour-storage";
-import { TourTooltip } from "@/features/onboarding/components/tour-tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,7 +40,8 @@ export function OnboardingProvider({
   const { t } = useTranslation("onboarding");
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { activeCollection } = useCollections();
+  const { activeOrg, isLoading: orgLoading } = useOrg();
+  const { activeCollection, isLoading: collectionsLoading } = useCollections();
 
   const guidRef = useRef<string | null>(activeCollection?.guid ?? null);
   useEffect(() => {
@@ -96,10 +98,12 @@ export function OnboardingProvider({
   const autoStartChecked = useRef(false);
   useEffect(() => {
     if (autoStartChecked.current || isMobile) return;
+    if (orgLoading || collectionsLoading || !activeOrg || !activeCollection)
+      return;
     autoStartChecked.current = true;
     if (!isOnboardingCompleted()) controls.start(0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isMobile]);
+  }, [isMobile, orgLoading, collectionsLoading, activeOrg, activeCollection]);
 
   const contextValue = useMemo(
     () => ({ startTour: () => controls.start(0) }),
