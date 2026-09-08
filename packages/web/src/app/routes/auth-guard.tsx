@@ -1,16 +1,5 @@
-import { useAuthSession } from "@/lib/auth";
-import { useEffect } from "react";
-import { Navigate, Outlet } from "react-router-dom";
+import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import AuthGuardLocal from "./auth-guard.local";
+import AuthGuardNeon from "./auth-guard.neon";
 
-export default function AuthGuard() {
-  const { data, isPending } = useAuthSession();
-  const isAuthenticated = !!data?.user;
-
-  useEffect(() => {
-    if (isAuthenticated) void import("@/app/routes/app/layout");
-  }, [isAuthenticated]);
-
-  if (isPending) return null;
-  if (!isAuthenticated) return <Navigate to="/auth/sign-in" replace />;
-  return <Outlet />;
-}
+export default AUTH_PROVIDER === "local" ? AuthGuardLocal : AuthGuardNeon;
