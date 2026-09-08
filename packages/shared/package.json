@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/shared",
-  "version": "1.0.37",
+  "version": "1.0.38",
   "private": true,
   "exports": {
     ".": "./src/index.ts"
