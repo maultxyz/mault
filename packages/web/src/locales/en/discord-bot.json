@@ -2,21 +2,21 @@
   "hero": {
     "eyebrow": "Discord Integration",
     "title": "Bring your card sorter into Discord",
-    "description": "Magic Vault's Discord bot posts a message for every card as it's sorted, alerts your server when something goes wrong, and answers /stats on demand - so you don't have to keep the monitor page open to know what's happening.",
+    "description": "Magic Vault's Discord bot posts a message for every card as it's sorted, alerts your server when something goes wrong, and answers /stats on demand, so you don't have to keep the monitor page open to know what's happening.",
     "addToDiscord": "Add to Discord",
     "getStarted": "Get started",
     "openSettings": "Open Settings",
     "seeSetup": "See setup steps",
-    "selfHostedNote": "The bot runs as its own process (packages/bot) alongside the rest of Magic Vault - see the README for the env vars it needs if you're self-hosting."
+    "selfHostedNote": "The bot runs as its own process (packages/bot) alongside the rest of Magic Vault. See the README for the env vars it needs if you're self-hosting."
   },
   "setup": {
     "title": "Link a server in under a minute",
-    "description": "Connecting Discord doesn't touch your hardware or scanning setup - it's a few steps in the app and in Discord.",
+    "description": "Connecting Discord doesn't touch your hardware or scanning setup. It's a few steps in the app and in Discord.",
     "installLink": "Add to Discord →",
     "steps": [
       {
         "title": "Add the bot",
-        "description": "Add the Magic Vault bot to your Discord server - requires the Manage Server permission."
+        "description": "Add the Magic Vault bot to your Discord server. Requires the Manage Server permission."
       },
       {
         "title": "Generate a code",
@@ -28,7 +28,7 @@
       },
       {
         "title": "Pick your channels",
-        "description": "Run /scanning and /notification to choose where card-scan and error alerts get posted - each defaults to the current channel."
+        "description": "Run /scanning and /notification to choose where card-scan and error alerts get posted. Each defaults to the current channel."
       }
     ]
   },
@@ -64,7 +64,7 @@
   },
   "features": {
     "title": "What gets posted",
-    "description": "Once a server is linked, the bot keeps it updated automatically - no polling, no refreshing a dashboard.",
+    "description": "Once a server is linked, the bot keeps it updated automatically. No polling, no refreshing a dashboard.",
     "items": [
       {
         "title": "Card-scan notifications",

@@ -1,6 +1,6 @@
 {
   "heading": "Announcements",
-  "description": "Broadcast a message to everyone using the app - it shows as a banner and stays in each viewer's notification tray until you deactivate it.",
+  "description": "Broadcast a message to everyone using the app. It shows as a banner and stays in each viewer's notification tray until you deactivate it.",
   "addAnnouncement": "Add announcement",
   "loading": "Loading...",
   "active": "Active",
@@ -39,7 +39,7 @@
     "messagePlaceholder": "We'll be doing scheduled maintenance Friday at 10pm UTC.",
     "startsAtLabel": "Starts at",
     "endsAtLabel": "Ends at",
-    "scheduleHint": "Leave either blank for no start/end bound - the Active toggle still overrides both.",
+    "scheduleHint": "Leave either blank for no start/end bound. The Active toggle still overrides both.",
     "activeLabel": "Active",
     "cancel": "Cancel",
     "saving": "Saving…",

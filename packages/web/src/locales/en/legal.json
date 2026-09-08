@@ -4,7 +4,7 @@
     "title": "Privacy Policy",
     "intro": [
       "This policy explains what information Mault LLC (\"Mault\", \"we\", \"us\") collects when you use the hosted Mault service, and how we use it.",
-      "It covers the hosted service only. If you're running a self-hosted instance (AUTH_PROVIDER=local), your data stays on infrastructure you control, and you're the one responsible for it - this policy doesn't apply to that deployment."
+      "It covers the hosted service only. If you're running a self-hosted instance (AUTH_PROVIDER=local), your data stays on infrastructure you control, and you're the one responsible for it. This policy doesn't apply to that deployment."
     ],
     "sections": [
       {
@@ -13,7 +13,7 @@
           "Account information: your email and name, handled by our authentication provider (Neon Auth) when you sign up or sign in.",
           "Organization data: organization names, membership, and roles for the teams you create or join.",
           "Collection data: the collections, bins, sorting rules, and card records you create while using the app.",
-          "Card scan images: when you scan a physical card, the photo is sent to our server only to generate a match against the card database. It's processed in memory and discarded - we don't store the photo itself, only the resulting card match.",
+          "Card scan images: when you scan a physical card, the photo is sent to our server only to generate a match against the card database. It's processed in memory and discarded. We don't store the photo itself, only the resulting card match.",
           "Payment information: if you subscribe to the Business plan, billing details are collected and processed directly by Stripe. We never see or store your full card number.",
           "Discord webhook data: if you connect a Discord webhook, we send the scan and collection notifications you've configured to the webhook URL you provided.",
           "Basic operational logs (errors, request metadata) used to keep the service reliable. We don't use third-party analytics or advertising trackers."
@@ -42,7 +42,7 @@
         "heading": "Data retention",
         "body": [
           "We keep your account, organization, and collection data for as long as your account is active.",
-          "Card scan photos are never retained - they're discarded immediately after a match is generated.",
+          "Card scan photos are never retained. They're discarded immediately after a match is generated.",
           "You can request deletion of your account and associated data at any time by contacting us."
         ]
       },
@@ -88,7 +88,7 @@
         "heading": "The service",
         "body": [
           "Mault helps you identify, sort, and track physical trading cards using a camera-equipped sorter and companion software.",
-          "The sorter hardware is a DIY build assembled from off-the-shelf and 3D-printed parts, following our published build guide. It's provided as-is - we're not liable for damage arising from building or operating your own hardware.",
+          "The sorter hardware is a DIY build assembled from off-the-shelf and 3D-printed parts, following our published build guide. It's provided as-is. We're not liable for damage arising from building or operating your own hardware.",
           "You can also self-host the software entirely on your own infrastructure. These terms apply to the hosted service at our domain; a self-hosted instance is your own responsibility."
         ]
       },
@@ -103,7 +103,7 @@
         "heading": "Subscriptions & billing",
         "body": [
           "Mault offers a free plan with usage limits, and a paid Business plan billed monthly through Stripe.",
-          "You can cancel your subscription at any time from the billing portal. Cancellation takes effect at the end of your current billing period - you keep Business features until then.",
+          "You can cancel your subscription at any time from the billing portal. Cancellation takes effect at the end of your current billing period. You keep Business features until then.",
           "We don't provide refunds or credits for partial billing periods or unused time.",
           "We'll give you reasonable notice before any price change takes effect for your subscription."
         ]
@@ -124,7 +124,7 @@
       {
         "heading": "Open source",
         "body": [
-          "Mault's software is open source. You can review the code, self-host it, or contribute to it - see our GitHub repository for the license and details."
+          "Mault's software is open source. You can review the code, self-host it, or contribute to it. See our GitHub repository for the license and details."
         ]
       },
       {

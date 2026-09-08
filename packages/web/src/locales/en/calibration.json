@@ -47,9 +47,9 @@
     "label": "Bin Routing Assignment",
     "resetToDefaults": "Reset to Defaults",
     "binLabel": "Bin {{bin}}",
-    "moduleLeft": "Module {{module}} — Left",
-    "moduleRight": "Module {{module}} — Right",
-    "moduleBottom": "Module {{module}} — Bottom"
+    "moduleLeft": "Module {{module}}, Left",
+    "moduleRight": "Module {{module}}, Right",
+    "moduleBottom": "Module {{module}}, Bottom"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
