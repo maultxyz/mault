@@ -263,7 +263,7 @@ export function ConditionRow({
   };
 
   return (
-    <div className="flex flex-wrap items-start gap-1.5">
+    <div className="flex flex-wrap items-start gap-1.5" data-tour="condition-row">
       <Select
         value={condition.field}
         onValueChange={(val) => handleFieldChange(val as ConditionField)}

@@ -103,7 +103,7 @@ export function ScannerMenu({
       />
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button size="icon" variant="secondary" />}
+          render={<Button size="icon" variant="secondary" data-tour="scanner-menu" />}
         >
           <IconAdjustments size={16} />
         </DropdownMenuTrigger>

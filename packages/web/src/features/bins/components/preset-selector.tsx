@@ -25,6 +25,7 @@ import {
   type BinSetAuditEntry,
 } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
 import type { PresetSelectorProps } from "@/features/bins/types";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -39,6 +40,7 @@ import {
   IconEdit,
   IconLoader2,
   IconPlus,
+  IconRefresh,
   IconTrash,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -91,6 +93,7 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
     selectedSet,
     isActivating,
     isPresetMutating,
+    resetAutoAssign,
   } = useBinConfigs();
   const { activeCollection } = useCollections();
   const { activeOrg } = useOrg();
@@ -100,6 +103,8 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [resetAutoAssignDialogOpen, setResetAutoAssignDialogOpen] =
+    useState(false);
 
   const { data: historyResult, isLoading: historyLoading } = useQuery({
     queryKey: ["bins", "history", selectedSet?.guid],
@@ -253,6 +258,35 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
                 {t("presetSelector.editSortingLogic")}
               </TooltipContent>
             </Tooltip>
+            {!!selectedSet?.autoAssignField && (
+              <>
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        disabled={!selectedSet || isPresetMutating}
+                        onClick={() => setResetAutoAssignDialogOpen(true)}
+                      >
+                        <IconRefresh />
+                      </Button>
+                    }
+                  ></TooltipTrigger>
+                  <TooltipContent>{t("autoAssignPanel.reset")}</TooltipContent>
+                </Tooltip>
+                <DeleteDialog
+                  open={resetAutoAssignDialogOpen}
+                  onOpenChange={setResetAutoAssignDialogOpen}
+                  title={t("autoAssignPanel.resetConfirmTitle")}
+                  description={t("autoAssignPanel.resetConfirmDescription")}
+                  confirmLabel={t("autoAssignPanel.reset")}
+                  onConfirm={resetAutoAssign}
+                >
+                  <AutoAssignSnapshot />
+                </DeleteDialog>
+              </>
+            )}
           </>
         ) : (
           <>
@@ -344,6 +378,7 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
                   variant="outline"
                   size="icon"
                   disabled={isPresetMutating}
+                  data-tour="create-sorting-rule"
                 >
                   <IconPlus />
                 </Button>

@@ -74,7 +74,7 @@ export function RuleGroupEditor({
       className={`flex flex-col gap-2 ${depth > 0 ? "rounded-lg border border-dashed p-2.5" : ""}`}
     >
       <div className="flex items-center gap-2">
-        <ButtonGroup>
+        <ButtonGroup data-tour={depth === 0 ? "rule-combinator" : undefined}>
           <Button
             type="button"
             size="sm"
@@ -132,11 +132,18 @@ export function RuleGroupEditor({
           type="button"
           variant="outline"
           onClick={addCondition}
+          data-tour={depth === 0 ? "edit-sorting-rule" : undefined}
         >
           <IconPlus /> {t("ruleGroupEditor.addCondition")}
         </Button>
         {depth < 2 && (
-          <Button size="sm" type="button" variant="outline" onClick={addGroup}>
+          <Button
+            size="sm"
+            type="button"
+            variant="outline"
+            onClick={addGroup}
+            data-tour={depth === 0 ? "add-rule-group" : undefined}
+          >
             <IconPlus /> {t("ruleGroupEditor.addGroup")}
           </Button>
         )}

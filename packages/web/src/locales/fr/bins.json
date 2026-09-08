@@ -11,7 +11,8 @@
     "ruleCount_one": "{{count}} règle",
     "ruleCount_other": "{{count}} règles",
     "allUnmatched": "Toutes les cartes non associées",
-    "clickToConfigure": "Cliquer pour configurer"
+    "clickToConfigure": "Cliquer pour configurer",
+    "waitingForValue": "En attente de la prochaine valeur"
   },
   "binConfigPanel": {
     "needCatchAllError": "Au moins un bac doit être un fourre-tout.",
@@ -22,7 +23,8 @@
     "rulesLabel": "Règles",
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
-    "save": "Enregistrer"
+    "save": "Enregistrer",
+    "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}"
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."
@@ -81,10 +83,21 @@
       "createSetFailed": "Échec de la création de l'ensemble",
       "saveSetFailed": "Échec de l'enregistrement de l'ensemble",
       "renameSetFailed": "Échec du renommage de l'ensemble",
-      "deleteSetFailed": "Échec de la suppression de l'ensemble"
+      "deleteSetFailed": "Échec de la suppression de l'ensemble",
+      "autoAssignFailed": "Échec de la mise à jour des paramètres de détection automatique",
+      "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement"
     }
   },
   "binsPage": {
     "binLabel": "Bac {{number}}"
+  },
+  "autoAssignPanel": {
+    "heading": "Détection automatique",
+    "description": "Apprend les affectations de bacs pendant le scan : dès qu'une nouvelle valeur apparaît pour le champ ci-dessous, elle occupe le prochain bac libre. Les répétitions y sont ensuite dirigées automatiquement, et une fois tous les bacs occupés, les nouvelles valeurs vont au fourre-tout.",
+    "fieldPlaceholder": "Choisir un champ...",
+    "reset": "Réinitialiser",
+    "resetConfirmTitle": "Réinitialiser les bacs détectés automatiquement ?",
+    "resetConfirmDescription": "Efface la valeur apprise de chaque bac de cet ensemble. Les prochains scans les rempliront à nouveau depuis le début.",
+    "notYetAssigned": "Pas encore attribué"
   }
 }

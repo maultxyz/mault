@@ -18,6 +18,7 @@ import { moduleConfigsRouter } from "./routes/module-configs";
 import { notificationsRouter } from "./routes/notifications";
 import { orgSettingsRouter } from "./routes/org-settings";
 import { publicRouter } from "./routes/public";
+import { rollbar } from "./lib/rollbar";
 
 const app = new Hono<AppEnv>();
 const PORT = parseInt(process.env.PORT ?? "3001");
@@ -52,6 +53,7 @@ app.route("/public", publicRouter);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);
+  rollbar.error(err, { url: c.req.url, method: c.req.method });
   return c.json({ success: false, message: "Internal server error." }, 500);
 });
 

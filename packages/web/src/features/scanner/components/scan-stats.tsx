@@ -40,7 +40,10 @@ export function ScanStats() {
 
   if (!stats) {
     return (
-      <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input text-xs font-semibold text-muted-foreground p-2">
+      <div
+        data-tour="scan-stats"
+        className="rounded-lg bg-input/20 dark:bg-input/30 border border-input text-xs font-semibold text-muted-foreground p-2"
+      >
         {t("scanStats.emptyState")}
       </div>
     );
@@ -74,7 +77,7 @@ export function ScanStats() {
   );
 
   return (
-    <ScrollArea className="min-h-0 rounded-lg">
+    <ScrollArea className="min-h-0 rounded-lg" data-tour="scan-stats">
       <div className="flex flex-col gap-2 pr-3 text-sm">
         <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input">
           <div className="grid grid-cols-2">

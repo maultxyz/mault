@@ -64,6 +64,7 @@ export interface BinSet {
   isActive: boolean;
   bins: BinConfig[];
   game: Game | null;
+  autoAssignField: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

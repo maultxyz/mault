@@ -1,0 +1,154 @@
+{
+  "nav": {
+    "back": "Zurück",
+    "close": "Schließen",
+    "done": "Fertig",
+    "next": "Weiter",
+    "nextWithProgress": "Weiter ({current} von {total})",
+    "skip": "Tour überspringen"
+  },
+  "steps": {
+    "welcome": {
+      "title": "Willkommen bei Mault",
+      "content": "Eine kurze Tour durch Scannen, Sammlungen und Sortierregeln. Du kannst jederzeit überspringen und die Tour später über die Einstellungen neu starten."
+    },
+    "connectCamera": {
+      "title": "Kamera verbinden",
+      "content": "Öffne dieses Menü und wähle Kamera, um eine Webcam zu verbinden (oder dein Handy als Kamera zu koppeln). Sie erfasst jede Karte beim Scannen."
+    },
+    "connectDevice": {
+      "title": "Sortiergerät verbinden",
+      "content": "Wähle im selben Menü Scanner, um deinen physischen Kartensortierer per USB zu koppeln. Danach kannst du ihn hier auch kalibrieren oder die Verbindung erneut versuchen."
+    },
+    "filterStats": {
+      "title": "Über Statistiken filtern",
+      "content": "Sobald du Karten gescannt hast, zeigt dieses Panel Gesamtwert, Seltenheit, Farbe und Set. Klicke auf einen Eintrag, um das Kartenraster auf genau diese Karten zu filtern."
+    },
+    "exportCollection": {
+      "title": "Eine Sammlung exportieren",
+      "content": "Exportiere deine gescannten Karten von hier aus als CSV, Manabox, Moxfield, TCGplayer oder Card Kingdom."
+    },
+    "manageCollections": {
+      "title": "Sammlungen verwalten",
+      "content": "Wechsle hier zwischen Sammlungen oder klicke jederzeit auf dieses Bearbeiten-Symbol, um die vollständige Sammlungsverwaltung zu öffnen."
+    },
+    "createCollection": {
+      "title": "Eine Sammlung erstellen",
+      "content": "Sammlungen führen getrennte Scan-Verläufe und Sortierregeln - eine pro Spiel, Box oder Projekt. Klicke hier, um eine neue zu starten."
+    },
+    "editCollection": {
+      "title": "Eine Sammlung bearbeiten",
+      "content": "Benenne eine Sammlung jederzeit von hier aus um."
+    },
+    "createSortingRules": {
+      "title": "Sortierregeln erstellen",
+      "content": "Sortierregeln liegen in benannten Sets, sodass du mehrere Sortierstrategien pro Sammlung speichern und wechseln kannst. Klicke hier, um ein neues Set zu erstellen."
+    },
+    "editSortingRules": {
+      "title": "Sortierregeln bearbeiten",
+      "content": "Wähle links ein Fach aus und füge hier Bedingungen hinzu (nach Seltenheit, Farbe, Preis und mehr), um zu steuern, welche Karten dort landen. Vergiss nicht, ein Fach als Auffangbecken für alles Nichtzutreffende zu markieren."
+    },
+    "done": {
+      "title": "Fertig!",
+      "content": "Das war die Tour. Du kannst sie jederzeit über Einstellungen > Geführte Tour neu starten."
+    }
+  },
+  "sortingRulesTour": {
+    "triggerTooltip": "So funktionieren Sortierregeln",
+    "welcome": {
+      "title": "Sortierlogik im Detail",
+      "content": "Schauen wir uns an, wie du Regeln erstellst, die entscheiden, in welches Fach jede gescannte Karte fällt. Du kannst jederzeit überspringen - über dieses Hilfe-Symbol kannst du die Tour später wiederholen."
+    },
+    "sets": {
+      "title": "Regel-Sets",
+      "content": "Sortierregeln sind in benannten Sets gruppiert, sodass du mehrere Sortierstrategien pro Sammlung speichern und wechseln kannst. Klicke hier, um ein neues Set zu erstellen."
+    },
+    "selectBin": {
+      "title": "Ein Fach auswählen",
+      "content": "Jedes nummerierte Fach entspricht einem physischen Platz an deinem Sortierer. Klicke hier auf ein Fach, um die Regeln zu bearbeiten, die bestimmen, was dort landet."
+    },
+    "catchAll": {
+      "title": "Auffangbecken festlegen",
+      "content": "Genau ein Fach sollte das Auffangbecken sein - es erhält jede Karte, die zu keinem anderen Fach passt. Schalte es hier ein."
+    },
+    "autoAssign": {
+      "title": "Oder automatisch erkennen lassen",
+      "content": "Statt Regeln von Hand zu schreiben, aktiviere die automatische Erkennung und wähle ein Feld. Sobald ein neuer Wert für dieses Feld auftaucht, belegt er automatisch das nächste freie Fach - Wiederholungen werden dorthin geleitet, und sobald alle Fächer belegt sind, gehen neue Werte ins Auffangbecken. Setze sie jederzeit hier oder über die Schnell-Zurücksetzen-Schaltfläche auf der Scan-Seite zurück."
+    },
+    "combinator": {
+      "title": "UND vs. ODER",
+      "content": "Wähle, ob eine Karte ALLE Bedingungen dieser Gruppe erfüllen muss (UND) oder EINE davon genügt (ODER)."
+    },
+    "addCondition": {
+      "title": "Eine Bedingung hinzufügen",
+      "content": "Eine Bedingung vergleicht ein Feld - Seltenheit, Farbe, Preis und mehr - mit einem Operator und einem Wert. Klicke hier, um eine hinzuzufügen."
+    },
+    "conditionRow": {
+      "title": "Die Bedingung aufbauen",
+      "content": "Wähle links das Feld, dann einen Operator und schließlich die Werte, mit denen verglichen werden soll."
+    },
+    "addGroup": {
+      "title": "Eine Gruppe verschachteln",
+      "content": "Für fortgeschrittenere Logik füge eine verschachtelte Gruppe mit eigenem UND/ODER-Verknüpfer hinzu - nützlich für Regeln wie \"(Seltenheit ist mythisch ODER selten) UND Preis > 5 $\"."
+    },
+    "save": {
+      "title": "Änderungen speichern",
+      "content": "Regeln werden erst nach dem Speichern angewendet. Klicke hier, sobald du mit der Konfiguration dieses Fachs zufrieden bist."
+    },
+    "done": {
+      "title": "Das war die Sortierlogik!",
+      "content": "Wiederhole dies für jedes Fach und vergiss dein Auffangbecken nicht. Du kannst diese Tour jederzeit über das Hilfe-Symbol auf dieser Seite wiederholen."
+    }
+  },
+  "calibrationTour": {
+    "triggerTooltip": "So funktioniert die Kalibrierung",
+    "welcome": {
+      "title": "Deinen Sortierer kalibrieren",
+      "content": "Lass uns durchgehen, wie du deinen Sortierer verbindest und jeden Servo einstellst. Überspringe jederzeit - du kannst diese Tour über dasselbe Hilfe-Symbol wiederholen."
+    },
+    "sections": {
+      "title": "Drei Bereiche",
+      "content": "Modul-Einrichtung verbindet den Sortierer und ordnet Fächer physischen Steckplätzen zu, Scan-Bereich legt fest, wie die Kamera jede Karte zuschneidet, und Servo-Kalibrierung stellt die Positionen jedes Servos fein ein. Wechsle hier zwischen ihnen."
+    },
+    "connect": {
+      "title": "Verbinde deinen Sortierer",
+      "content": "Koppele den Sortierer zuerst hier über USB - der Großteil dieser Seite ist deaktiviert, bis er verbunden ist. Führe Testen aus, um jeden Servo nach der Kalibrierung zu prüfen."
+    },
+    "channelLayout": {
+      "title": "Kanalbelegung",
+      "content": "Teile der App mit, wie die PCA9685-Kanäle mit den Servos jedes Moduls verdrahtet sind."
+    },
+    "moduleCount": {
+      "title": "Modulanzahl",
+      "content": "Lege fest, wie viele Sortiermodule physisch installiert sind - das bestimmt, wie viele Fächer verfügbar sind."
+    },
+    "binRouting": {
+      "title": "Fach-Routing",
+      "content": "Ordne jedes nummerierte Fach einem Modul und einer Richtung (links, rechts oder unten) zu, damit die Firmware weiß, wohin eine Karte geschickt wird."
+    },
+    "irSensor": {
+      "title": "IR-Sensoren",
+      "content": "Lies oder überwache den IR-Sensor jedes Moduls, um zu bestätigen, dass er eine durchlaufende Karte erkennt, und prüfe, ob der Zuführtrichter Karten geladen hat."
+    },
+    "binRoutingControls": {
+      "title": "Teste dein Routing",
+      "content": "Führe eine einzelne Karte zu, lasse eine Probe über alle Fächer laufen oder schicke eine Karte gezielt zu einem Fach, um Routing und Timing zu überprüfen."
+    },
+    "scanRegion": {
+      "title": "Scan-Bereich einrahmen",
+      "content": "Ziehe und skaliere diesen Rahmen, damit er zur Position einer Karte unter deiner Kamera passt, sodass Aufnahmen eng auf die Karte zugeschnitten werden."
+    },
+    "feeder": {
+      "title": "Zuführer-Kalibrierung",
+      "content": "Stelle hier Geschwindigkeit, Timeout, Impuls und Pause des Zuführer-Servos ein und verwende dann Festlegen, um jeden Wert zu speichern, sobald er zuverlässig zuführt."
+    },
+    "moduleCalibration": {
+      "title": "Servo-Kalibrierung",
+      "content": "Bewege für jedes Modul die Servos für unten, Klappe und Schieber in ihre offen/geschlossen- (oder links/neutral/rechts-) Positionen und speichere sie - das sorgt dafür, dass das Routing Karten präzise platziert."
+    },
+    "done": {
+      "title": "Das war die Kalibrierung!",
+      "content": "Wiederhole die Servo-Kalibrierung für jedes hinzugefügte Modul. Du kannst diese Tour jederzeit über das Hilfe-Symbol auf dieser Seite wiederholen."
+    }
+  }
+}

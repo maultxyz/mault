@@ -132,7 +132,7 @@ export default function CollectionsPage() {
         </div>
         <CreateCollectionDialog
           trigger={({ disabled }) => (
-            <Button disabled={disabled}>
+            <Button disabled={disabled} data-tour="create-collection">
               <IconPlus className="size-4" />
               {t("page.newCollection")}
             </Button>
@@ -227,6 +227,7 @@ export default function CollectionsPage() {
                         variant="outline"
                         size="icon"
                         disabled={isMutating}
+                        data-tour="edit-collection"
                         onClick={() => {
                           renameForm.reset({ name: collection.name });
                           setRenameTarget({

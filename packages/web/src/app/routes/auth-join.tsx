@@ -42,14 +42,14 @@ export default function AuthJoinPage() {
     )
       .then((res) => {
         if (!res.success) {
-          setError(res.message ?? t("join.failed"));
+          setError(res.message ?? t("local.joinFailed"));
           setAccepting(false);
           return;
         }
         navigate("/app", { replace: true });
       })
       .catch(() => {
-        setError(t("join.unreachable"));
+        setError(t("local.joinUnreachable"));
         setAccepting(false);
       });
   }, [token, isPending, data, accepting, navigate, t]);
@@ -64,14 +64,14 @@ export default function AuthJoinPage() {
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            {orgName ? t("join.titleWithOrg", { org: orgName }) : t("join.title")}
+            {orgName ? t("local.joinTitleWithOrg", { org: orgName }) : t("local.joinTitle")}
           </CardTitle>
           <CardDescription>
             {!token
-              ? t("join.invalid")
+              ? t("local.joinInvalid")
               : error
                 ? error
-                : t("join.description")}
+                : t("local.joinDescription")}
           </CardDescription>
         </CardHeader>
         {token && !error && (
@@ -83,14 +83,14 @@ export default function AuthJoinPage() {
             ) : !data?.user ? (
               <CardFooter className="flex flex-col gap-2 px-0">
                 <Button className="w-full" onClick={() => goToAuth("sign-in")}>
-                  {t("signIn.submit")}
+                  {t("local.signIn")}
                 </Button>
                 <Button
                   variant="outline"
                   className="w-full"
                   onClick={() => goToAuth("sign-up")}
                 >
-                  {t("signUp.submit")}
+                  {t("local.signUp")}
                 </Button>
               </CardFooter>
             ) : null}

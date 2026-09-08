@@ -28,11 +28,14 @@ export interface BinConfigsContextValue {
   saveSet: (name: string) => Promise<void>;
   renameSet: (guid: string, name: string) => Promise<void>;
   deleteSet: (guid: string) => Promise<void>;
+  setAutoAssignField: (field: string | null) => Promise<void>;
+  resetAutoAssign: () => Promise<void>;
 }
 
 export interface BinCardProps {
   config: BinConfig;
   active?: boolean;
+  isAutoAssign?: boolean;
   onClick: () => void;
 }
 

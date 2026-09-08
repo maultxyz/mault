@@ -53,5 +53,10 @@
     "lastActive": "Zuletzt aktiv am {{date}}",
     "unknownDevice": "Unbekanntes Gerät",
     "noIp": "Unbekannter Standort"
+  },
+  "tour": {
+    "heading": "Geführte Tour",
+    "description": "Wiederhole die Einführung in Scanner, Sammlungen und Sortierregeln.",
+    "restartButton": "Tutorial neu starten"
   }
 }

@@ -244,6 +244,11 @@ export function useCalibrationPage() {
     saveFeeder({ ...feederConfig, pulseDuration: feederPulseDurationValue });
   }, [feederConfig, feederPulseDurationValue, saveFeeder]);
 
+  const handleFeederSetContinuous = useCallback(() => {
+    setFeederPulseDurationValue(0);
+    saveFeeder({ ...feederConfig, pulseDuration: 0 });
+  }, [feederConfig, saveFeeder]);
+
   const handleFeederSetPauseDuration = useCallback(() => {
     saveFeeder({ ...feederConfig, pauseDuration: feederPauseDurationValue });
   }, [feederConfig, feederPauseDurationValue, saveFeeder]);
@@ -324,6 +329,7 @@ export function useCalibrationPage() {
     handleFeederSetSpeed,
     handleFeederSetDuration,
     handleFeederSetPulseDuration,
+    handleFeederSetContinuous,
     handleFeederSetPauseDuration,
     handleFeederSetSettleDuration,
     handleFeed,

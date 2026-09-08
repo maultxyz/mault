@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { IconBrandDiscord } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDiscordBotSettings } from "../api/use-discord-bot";
@@ -54,10 +52,9 @@ export function DiscordBotSettings() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <IconBrandDiscord className="size-4" />
-        <Label>{t("discordBot.heading")}</Label>
-      </div>
+      <h2 className="text-sm font-semibold font-heading">
+        {t("discordBot.heading")}
+      </h2>
       <p className="text-xs text-muted-foreground">
         {t("discordBot.description")}
       </p>

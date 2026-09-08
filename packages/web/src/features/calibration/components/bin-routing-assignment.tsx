@@ -37,7 +37,7 @@ export function BinRoutingAssignment() {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-tour="bin-routing-assignment">
       <div className="flex items-center justify-between">
         <Label>{t("binRoutingAssignment.label")}</Label>
         <Button

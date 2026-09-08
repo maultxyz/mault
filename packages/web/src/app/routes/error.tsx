@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { rollbar } from "@/lib/rollbar";
 import { IconBug, IconRefresh } from "@tabler/icons-react";
+import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { isRouteErrorResponse, Link, useRouteError } from "react-router-dom";
 
@@ -8,6 +10,12 @@ export default function ErrorPage() {
   const error = useRouteError();
 
   console.error(error);
+
+  useEffect(() => {
+    if (!isRouteErrorResponse(error)) {
+      rollbar.error(error instanceof Error ? error : String(error));
+    }
+  }, [error]);
 
   const statusText = isRouteErrorResponse(error)
     ? `${error.status} ${error.statusText}`
@@ -44,7 +52,9 @@ export default function ErrorPage() {
           <IconRefresh size={14} />
           {t("errorPage.reload")}
         </Button>
-        <Button render={<Link to="/" />}>{t("errorPage.backHome")}</Button>
+        <Button nativeButton={false} render={<Link to="/" />}>
+          {t("errorPage.backHome")}
+        </Button>
       </div>
     </div>
   );

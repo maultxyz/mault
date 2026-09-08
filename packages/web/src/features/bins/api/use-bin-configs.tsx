@@ -13,8 +13,10 @@ import {
   createSet as createSetAction,
   deleteSet as deleteSetAction,
   renameSet as renameSetAction,
+  resetAutoAssign as resetAutoAssignAction,
   saveBinConfig as saveBinConfigAction,
   saveSet as saveSetAction,
+  setAutoAssignField as setAutoAssignFieldAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -244,6 +246,31 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.deleteSetFailed")),
   });
 
+  const setAutoAssignFieldMutation = useMutation({
+    mutationFn: ({ guid, field }: { guid: string; field: string | null }) =>
+      setAutoAssignFieldAction(guid, field),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(t("useBinConfigs.toasts.autoAssignFailed"));
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.autoAssignFailed")),
+  });
+
+  const resetAutoAssignMutation = useMutation({
+    mutationFn: resetAutoAssignAction,
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(t("useBinConfigs.toasts.autoAssignResetFailed"));
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.autoAssignResetFailed")),
+  });
+
   const isPending = saveBinMutation.isPending || clearBinMutation.isPending;
   const isActivating = activateSetMutation.isPending;
   const isPresetMutating =
@@ -251,7 +278,9 @@ export function BinConfigsProvider({
     createSetMutation.isPending ||
     saveSetMutation.isPending ||
     renameSetMutation.isPending ||
-    deleteSetMutation.isPending;
+    deleteSetMutation.isPending ||
+    setAutoAssignFieldMutation.isPending ||
+    resetAutoAssignMutation.isPending;
 
   const save = useCallback(
     (binNumber: number, rules: BinRuleGroup, isCatchAll?: boolean) => {
@@ -307,6 +336,22 @@ export function BinConfigsProvider({
     [deleteSetMutation],
   );
 
+  const setAutoAssignFieldFn = useCallback(
+    async (field: string | null) => {
+      if (!selectedSet) return;
+      await setAutoAssignFieldMutation.mutateAsync({
+        guid: selectedSet.guid,
+        field,
+      });
+    },
+    [setAutoAssignFieldMutation, selectedSet],
+  );
+
+  const resetAutoAssignFn = useCallback(async () => {
+    if (!selectedSet) return;
+    await resetAutoAssignMutation.mutateAsync(selectedSet.guid);
+  }, [resetAutoAssignMutation, selectedSet]);
+
   return (
     <BinConfigsContext
       value={{
@@ -331,6 +376,8 @@ export function BinConfigsProvider({
         saveSet: saveSetFn,
         renameSet: renameSetFn,
         deleteSet: deleteSetFn,
+        setAutoAssignField: setAutoAssignFieldFn,
+        resetAutoAssign: resetAutoAssignFn,
       }}
     >
       {children}

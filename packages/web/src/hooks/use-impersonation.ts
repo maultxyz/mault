@@ -8,7 +8,7 @@ import {
 } from "@/lib/auth/impersonation";
 import { invalidateAppQueries } from "@/lib/query-client";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback, useMemo, useSyncExternalStore } from "react";
 
 export function useImpersonation() {
   const state = useSyncExternalStore(
@@ -41,13 +41,16 @@ export function useImpersonation() {
     }
   }, [queryClient]);
 
-  return {
-    isImpersonating: !!state,
-    impersonatedUser: state?.user ?? null,
-    orgs: state?.orgs ?? [],
-    activeOrgId: state?.activeOrgId ?? null,
-    setActiveOrgId: setImpersonationOrgId,
-    start,
-    stop,
-  };
+  return useMemo(
+    () => ({
+      isImpersonating: !!state,
+      impersonatedUser: state?.user ?? null,
+      orgs: state?.orgs ?? [],
+      activeOrgId: state?.activeOrgId ?? null,
+      setActiveOrgId: setImpersonationOrgId,
+      start,
+      stop,
+    }),
+    [state, start, stop],
+  );
 }

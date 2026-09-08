@@ -175,6 +175,7 @@ export function CardToolbar({
             disabled={!hasCards}
             className="shrink-0"
             title={t("cardToolbar.sessionSummaryExport")}
+            data-tour="export-collection"
           >
             <IconDownload className="size-4" />
           </Button>

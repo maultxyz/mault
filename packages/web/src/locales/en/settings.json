@@ -24,8 +24,5 @@
     "scannerLayoutVertical": "Vertical",
     "scannerLayoutVerticalDescription": "Scanner on top, card grid below",
     "language": "Language"
-  },
-  "notifications": {
-    "heading": "Notifications"
   }
 }

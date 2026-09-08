@@ -1,7 +1,12 @@
 {
   "plan": {
     "free": "Gratuit",
-    "business": "Entreprise"
+    "business": "Entreprise",
+    "label": "Plan"
+  },
+  "planFooterTooltip": {
+    "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
+    "business": "Plan Entreprise. Clique pour gérer la facturation."
   },
   "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
   "upgrade": "Passer à Entreprise",

@@ -20,6 +20,15 @@ const localeModules = import.meta.glob<{ default: Record<string, unknown> }>(
   "../locales/*/*.json",
 );
 
+const FILE_NAME_TO_NAMESPACE = Object.fromEntries(
+  Object.entries(NAMESPACE_FILE_NAMES).map(([ns, fileName]) => [fileName, ns]),
+);
+
+const ALL_NAMESPACES = Object.keys(localeModules)
+  .filter((path) => path.startsWith("../locales/en/"))
+  .map((path) => path.slice("../locales/en/".length, -".json".length))
+  .map((fileName) => FILE_NAME_TO_NAMESPACE[fileName] ?? fileName);
+
 const lazyJsonBackend: BackendModule = {
   type: "backend",
   init() {},
@@ -54,10 +63,10 @@ void i18n
   .init({
     lng: getInitialLanguage(),
     fallbackLng: "en",
-    ns: ["common"],
+    ns: ALL_NAMESPACES,
     defaultNS: "common",
     interpolation: { escapeValue: false },
-    react: { useSuspense: true },
+    react: { useSuspense: false },
   });
 
 i18n.on("languageChanged", (lng) => {

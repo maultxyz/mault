@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
 import { db } from "../db";
 import { cardImageVectors } from "../db/schema";
+import { rollbar } from "../lib/rollbar";
 import {
   cancelSync,
   getStatus,
@@ -300,6 +301,13 @@ router.post("/cards/dump", requireAuth, requireRole("admin"), async (c) => {
 
   await db.delete(cardImageVectors);
   return c.json({ success: true, message: "Card database cleared" });
+});
+
+router.post("/rollbar/test", requireAuth, requireRole("admin"), (c) => {
+  rollbar.error(new Error("Rollbar test error triggered from admin page (server)"), {
+    triggeredBy: c.get("userId"),
+  });
+  return c.json({ success: true, message: "Sent test error to Rollbar (server)." });
 });
 
 export { router as adminRouter };

@@ -432,7 +432,7 @@ export function ScanRegionCalibrationPanel() {
   });
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-tour="scan-region-panel">
       <p className="text-xs text-muted-foreground">
         {t("scanRegionCalibrationPanel.instructions")}
       </p>

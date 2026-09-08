@@ -1,3 +1,4 @@
+import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
 import { RequireCollectionDialog } from "@/components/require-collection-dialog";
@@ -7,14 +8,13 @@ import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { lazy } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 
-const AuthGuard = lazy(() => import("@/app/routes/auth-guard"));
-
 const LandingPage = lazy(() => import("@/app/routes/index"));
 const BuildGuidePage = lazy(() => import("@/app/routes/build"));
 const DiscordBotPage = lazy(() => import("@/app/routes/discord-bot"));
 const PrivacyPolicyPage = lazy(() => import("@/app/routes/privacy"));
 const TermsOfServicePage = lazy(() => import("@/app/routes/terms"));
 const AuthPage = lazy(() => import("@/app/routes/auth"));
+const AuthLocalPage = lazy(() => import("@/app/routes/auth-local"));
 const AuthJoinPage = lazy(() => import("@/app/routes/auth-join"));
 const AuthForgotPasswordPage = lazy(
   () => import("@/app/routes/auth-forgot-password"),
@@ -87,12 +87,24 @@ export const router = createBrowserRouter([
       },
       {
         path: "/auth/:path",
-        element: <AuthPage />,
+        element: AUTH_PROVIDER === "local" ? <AuthLocalPage /> : <AuthPage />,
       },
-      { path: "/auth/forgot-password", element: <AuthForgotPasswordPage /> },
-      { path: "/auth/reset-password", element: <AuthResetPasswordPage /> },
+      // Local-mode only - Neon's prebuilt <AuthView> already covers
+      // invites/password reset. React Router ranks static segments above
+      // dynamic ones regardless of array order, so these still take
+      // priority over /auth/:path above.
       ...(AUTH_PROVIDER === "local"
-        ? [{ path: "/auth/join", element: <AuthJoinPage /> }]
+        ? [
+            { path: "/auth/join", element: <AuthJoinPage /> },
+            {
+              path: "/auth/forgot-password",
+              element: <AuthForgotPasswordPage />,
+            },
+            {
+              path: "/auth/reset-password",
+              element: <AuthResetPasswordPage />,
+            },
+          ]
         : []),
       {
         element: <AuthGuard />,

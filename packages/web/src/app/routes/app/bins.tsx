@@ -3,11 +3,13 @@ import {
   BinConfigsProvider,
   useBinConfigs,
 } from "@/features/bins/api/use-bin-configs";
+import { AutoAssignPanel } from "@/features/bins/components/auto-assign-panel";
 import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
+import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -39,6 +41,7 @@ function MobileBins() {
           <div className="overflow-y-auto p-4 flex flex-col gap-4 max-h-[calc(80vh-2rem)]">
             <CollectionSwitcher />
             <PresetSelector />
+            <AutoAssignPanel />
             <BinList />
           </div>
         </DrawerContent>
@@ -74,9 +77,11 @@ export default function BinsPage() {
       <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
         <CollectionSwitcher />
         <PresetSelector />
+        <AutoAssignPanel />
         <BinList />
       </section>
-      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4">
+      <section className="relative col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4">
+        <SortingRulesTour className="absolute top-2 right-2 z-10" />
         <BinConfigPanel />
       </section>
     </div>

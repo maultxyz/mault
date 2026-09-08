@@ -29,7 +29,7 @@ export function IrSensorPanel({
 }: IrSensorPanelProps) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2" data-tour="ir-sensor-panel">
       <Tooltip>
         <TooltipTrigger
           render={<Label className="w-fit">{t("irSensorPanel.label")}</Label>}

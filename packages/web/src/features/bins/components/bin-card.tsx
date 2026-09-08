@@ -17,7 +17,12 @@ function countConditions(config: BinConfig): number {
   return count(config.rules.conditions);
 }
 
-export function BinCard({ config, active, onClick }: BinCardProps) {
+export function BinCard({
+  config,
+  active,
+  isAutoAssign,
+  onClick,
+}: BinCardProps) {
   const { t } = useTranslation("bins");
   const isEmpty = config.rules.conditions.length === 0;
   const conditionCount = countConditions(config);
@@ -48,7 +53,11 @@ export function BinCard({ config, active, onClick }: BinCardProps) {
             {t("binCard.allUnmatched")}
           </p>
         ) : isEmpty ? (
-          <p className="text-xs">{t("binCard.clickToConfigure")}</p>
+          <p className="text-xs">
+            {isAutoAssign
+              ? t("binCard.waitingForValue")
+              : t("binCard.clickToConfigure")}
+          </p>
         ) : (
           <RuleSummary rules={config.rules} />
         )}

@@ -17,7 +17,9 @@ export default function NotFoundPage() {
           {t("notFound.description")}
         </p>
       </div>
-      <Button render={<Link to="/" />}>{t("notFound.backHome")}</Button>
+      <Button nativeButton={false} render={<Link to="/" />}>
+        {t("notFound.backHome")}
+      </Button>
     </div>
   );
 }

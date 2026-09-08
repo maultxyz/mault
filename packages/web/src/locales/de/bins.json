@@ -11,7 +11,8 @@
     "ruleCount_one": "{{count}} Regel",
     "ruleCount_other": "{{count}} Regeln",
     "allUnmatched": "Alle nicht zugeordneten Karten",
-    "clickToConfigure": "Zum Konfigurieren klicken"
+    "clickToConfigure": "Zum Konfigurieren klicken",
+    "waitingForValue": "Wartet auf nächsten Wert"
   },
   "binConfigPanel": {
     "needCatchAllError": "Mindestens ein Fach muss als Auffangfach festgelegt sein.",
@@ -22,7 +23,8 @@
     "rulesLabel": "Regeln",
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
-    "save": "Speichern"
+    "save": "Speichern",
+    "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}"
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."
@@ -81,10 +83,21 @@
       "createSetFailed": "Set konnte nicht erstellt werden",
       "saveSetFailed": "Set konnte nicht gespeichert werden",
       "renameSetFailed": "Set konnte nicht umbenannt werden",
-      "deleteSetFailed": "Set konnte nicht gelöscht werden"
+      "deleteSetFailed": "Set konnte nicht gelöscht werden",
+      "autoAssignFailed": "Auto-Erkennungseinstellungen konnten nicht aktualisiert werden",
+      "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden"
     }
   },
   "binsPage": {
     "binLabel": "Fach {{number}}"
+  },
+  "autoAssignPanel": {
+    "heading": "Automatische Erkennung",
+    "description": "Lernt Fachzuweisungen beim Scannen: Sobald ein neuer Wert für das Feld unten auftaucht, belegt er das nächste freie Fach. Wiederholungen werden automatisch dorthin geleitet, und sobald alle Fächer belegt sind, gehen neue Werte ins Auffangfach.",
+    "fieldPlaceholder": "Feld auswählen...",
+    "reset": "Zurücksetzen",
+    "resetConfirmTitle": "Automatisch erkannte Fächer zurücksetzen?",
+    "resetConfirmDescription": "Löscht den gelernten Wert jedes Fachs in diesem Set. Neue Scans füllen sie von Grund auf neu.",
+    "notYetAssigned": "Noch nicht zugewiesen"
   }
 }

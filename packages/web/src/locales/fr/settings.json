@@ -18,8 +18,5 @@
     "scannerLayoutVertical": "Verticale",
     "scannerLayoutVerticalDescription": "Scanner en haut, grille de cartes en dessous",
     "language": "Langue"
-  },
-  "notifications": {
-    "heading": "Notifications"
   }
 }

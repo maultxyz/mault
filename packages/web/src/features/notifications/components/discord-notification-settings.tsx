@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { IconBrandDiscord } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { NotificationTestType } from "../api/notification-settings";
 import { useNotificationSettings } from "../api/use-notification-settings";
@@ -30,19 +29,12 @@ export function DiscordNotificationSettings() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center gap-2">
-        <IconBrandDiscord className="size-4" />
-        <Label>{t("discordNotifications.heading")}</Label>
-      </div>
-      <p className="text-xs text-muted-foreground">
-        {t("discordNotifications.description")}
-      </p>
       <label className="flex items-center justify-between gap-3">
         <span className="flex flex-col gap-0.5">
           <span className="text-sm">
             {t("discordNotifications.notifyToggleLabel")}
           </span>
-          <span className="text-sm text-muted-foreground">
+          <span className="text-xs text-muted-foreground">
             {t("discordNotifications.notifyToggleDescription")}
           </span>
         </span>

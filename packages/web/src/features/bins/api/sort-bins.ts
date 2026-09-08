@@ -71,6 +71,17 @@ export async function clearBinConfig(
   return apiDelete<Result<null>>(`/api/bins/bins/${binNumber}${params}`);
 }
 
+export async function setAutoAssignField(
+  guid: string,
+  field: string | null,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/auto-assign`, { field });
+}
+
+export async function resetAutoAssign(guid: string): Promise<Result<BinSet[]>> {
+  return apiPost<Result<BinSet[]>>(`/api/bins/${guid}/auto-assign/reset`);
+}
+
 export interface BinSetAuditEntry {
   guid: string;
   binSetGuid: string;

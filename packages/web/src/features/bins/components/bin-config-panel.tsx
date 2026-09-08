@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
+import { RuleSummary } from "@/features/bins/components/rule-summary";
 import {
   binConfigSchema,
   type BinConfigFormValues,
@@ -28,7 +29,14 @@ export function BinConfigPanel() {
     configs,
     apiDocsUrl,
     isPending,
+    selectedSet,
+    fieldDefinitions,
   } = useBinConfigs();
+
+  const autoAssignField = selectedSet?.autoAssignField ?? null;
+  const autoAssignFieldLabel =
+    fieldDefinitions.find((f) => f.field === autoAssignField)?.label ??
+    autoAssignField;
 
   const form = useForm<BinConfigFormValues>({
     resolver: zodResolver(binConfigSchema) as Resolver<BinConfigFormValues>,
@@ -95,6 +103,7 @@ export function BinConfigPanel() {
                 type="button"
                 variant={field.value ? "default" : "outline"}
                 size="sm"
+                data-tour="catch-all-toggle"
                 onClick={() => field.onChange(!field.value)}
               >
                 {field.value
@@ -125,16 +134,28 @@ export function BinConfigPanel() {
               </a>
             )}
           </div>
-          <Controller
-            name="rules"
-            control={form.control}
-            render={({ field }) => (
-              <RuleGroupEditor
-                group={field.value as BinRuleGroup}
-                onChange={field.onChange}
-              />
-            )}
-          />
+          {autoAssignField ? (
+            config.rules.conditions.length > 0 ? (
+              <RuleSummary rules={config.rules} />
+            ) : (
+              <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+                {t("binConfigPanel.autoAssignWaiting", {
+                  field: autoAssignFieldLabel,
+                })}
+              </p>
+            )
+          ) : (
+            <Controller
+              name="rules"
+              control={form.control}
+              render={({ field }) => (
+                <RuleGroupEditor
+                  group={field.value as BinRuleGroup}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          )}
         </ScrollArea>
       )}
       {form.formState.errors.isCatchAll && (
@@ -152,7 +173,7 @@ export function BinConfigPanel() {
         >
           {t("binConfigPanel.clear")}
         </Button>
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} data-tour="save-bin-config">
           {isPending && <IconLoader2 className="size-4 animate-spin" />}
           {t("binConfigPanel.save")}
         </Button>

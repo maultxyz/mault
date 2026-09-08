@@ -1,16 +1,15 @@
+import { Button } from "@/components/ui/button";
 import { ApiKeysManager } from "@/features/account/components/api-keys-manager";
 import { ChangeEmailForm } from "@/features/account/components/change-email-form";
 import { ChangePasswordForm } from "@/features/account/components/change-password-form";
 import { SessionsList } from "@/features/account/components/sessions-list";
 import { UpdateNameForm } from "@/features/account/components/update-name-form";
+import { useOnboarding } from "@/features/onboarding/api/use-onboarding";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useAuthSession } from "@/lib/auth";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useTranslation } from "react-i18next";
 
-// Local mode: own-auth backs sign-up/sign-in/sign-out only in this pass (see
-// lib/auth/index.ts) - profile editing, email changes, and multi-device
-// session management aren't wired up yet, so this shows a read-only summary
-// instead of Neon's editable forms.
 function LocalAccountSummary() {
   const { t } = useTranslation("account");
   const { data } = useAuthSession();
@@ -38,6 +37,8 @@ function LocalAccountSummary() {
 
 export default function AccountPage() {
   const { t } = useTranslation("account");
+  const { startTour } = useOnboarding();
+  const isMobile = useIsMobile();
 
   return (
     <div className="h-full w-full overflow-y-auto">
@@ -87,6 +88,24 @@ export default function AccountPage() {
               <SessionsList />
             </div>
           </>
+        )}
+
+        {!isMobile && (
+          <div className="flex flex-col gap-4 rounded-lg border p-4">
+            <div>
+              <h2 className="font-heading text-sm font-semibold">
+                {t("tour.heading")}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {t("tour.description")}
+              </p>
+            </div>
+            <div>
+              <Button variant="outline" onClick={startTour}>
+                {t("tour.restartButton")}
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </div>

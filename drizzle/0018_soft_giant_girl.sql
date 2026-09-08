@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "auto_assign_field" text;

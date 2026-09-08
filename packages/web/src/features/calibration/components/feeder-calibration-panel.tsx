@@ -26,6 +26,7 @@ interface FeederCalibrationPanelProps {
   onSetSpeed: () => void;
   onSetDuration: () => void;
   onSetPulseDuration: () => void;
+  onSetContinuous: () => void;
   onSetPauseDuration: () => void;
   onSetSettleDuration: () => void;
 }
@@ -47,12 +48,16 @@ export function FeederCalibrationPanel({
   onSetSpeed,
   onSetDuration,
   onSetPulseDuration,
+  onSetContinuous,
   onSetPauseDuration,
   onSetSettleDuration,
 }: FeederCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3">
+    <div
+      className="grid grid-cols-1 md:grid-cols-3"
+      data-tour="feeder-calibration-panel"
+    >
       <div className="rounded-lg border bg-sidebar p-2 flex flex-col gap-5">
         <h2 className="text-sm font-semibold font-heading">
           {t("feederCalibrationPanel.heading")}
@@ -253,8 +258,8 @@ export function FeederCalibrationPanel({
           <ButtonGroup className="w-full">
             <Button
               variant="outline"
-              disabled={!isConnected || pulseDurationValue > 0}
-              onClick={() => onPulseDurationChange(0)}
+              disabled={!isConnected}
+              onClick={onSetContinuous}
               className="flex-1"
             >
               {t("feederCalibrationPanel.continuousFeedButton")}

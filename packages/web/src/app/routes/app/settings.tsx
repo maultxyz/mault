@@ -2,6 +2,7 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
+import { useDiscordBotSettings } from "@/features/companies/api/use-discord-bot";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
@@ -23,6 +24,7 @@ export default function SettingsPage() {
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { isLinked: isDiscordLinked } = useDiscordBotSettings();
 
   useEffect(() => {
     const billingResult = searchParams.get("billing");
@@ -121,12 +123,7 @@ export default function SettingsPage() {
         </div>
         <div className="rounded-lg border p-4 flex flex-col gap-4">
           <DiscordBotSettings />
-        </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <h2 className="text-sm font-semibold font-heading">
-            {t("notifications.heading")}
-          </h2>
-          <DiscordNotificationSettings />
+          {isDiscordLinked && <DiscordNotificationSettings />}
         </div>
       </div>
     </div>
