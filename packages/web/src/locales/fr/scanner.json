@@ -20,6 +20,10 @@
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."
     },
+    "copyCommunication": "Copier la communication",
+    "commLogCopied": "Journal de communication copié dans le presse-papiers",
+    "commLogCopyFailed": "Échec de la copie du journal de communication",
+    "commLogEmpty": "Aucune communication enregistrée pour le moment",
     "firmwareOutdatedBanner": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Réimporte firmware/main/main.ino pour la mettre à jour.",
     "firmwareVersionMissingBanner": "Le firmware de ta trieuse ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
     "update": {

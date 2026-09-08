@@ -20,6 +20,10 @@
       "title": "Device test failed",
       "description": "Connected but got no response. Try reconnecting."
     },
+    "copyCommunication": "Copy Communication",
+    "commLogCopied": "Communication log copied to clipboard",
+    "commLogCopyFailed": "Failed to copy communication log",
+    "commLogEmpty": "No communication recorded yet",
     "firmwareOutdatedBanner": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. Re-upload firmware/main/main.ino to update it.",
     "firmwareVersionMissingBanner": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning.",
     "update": {

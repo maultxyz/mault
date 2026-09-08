@@ -277,49 +277,55 @@ export default function CalibratePage() {
       </nav>
 
       <div className="col-span-10 min-h-0 h-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <div className="flex justify-end gap-2">
-          <Button variant="outline" size="sm" onClick={handleCopyCalibration}>
-            <IconClipboard />
-            {t("calibratePage.copyCalibration")}
-          </Button>
-          <CalibrationTour section={section} setSection={setSection} />
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div
+            className="flex flex-wrap items-center gap-2"
+            data-tour="calibration-connect"
+          >
+            {isConnected ? (
+              <Button variant="outline" onClick={disconnect}>
+                <IconDeviceUsbFilled />
+                {t("calibratePage.disconnect")}
+              </Button>
+            ) : (
+              <Button onClick={connect}>
+                <IconDeviceUsb />
+                {t("calibratePage.connectDevice")}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              disabled={!isConnected || isTesting || isUnconfigured}
+              onClick={handleTest}
+            >
+              {isTesting
+                ? t("calibratePage.testing")
+                : t("calibratePage.runTest")}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!isConnected || activeBin !== null || isSampleRunning}
+              onClick={handleFeed}
+            >
+              {t("binRoutingControls.feed")}
+            </Button>
+            {isUnconfigured && (
+              <span className="text-sm text-muted-foreground">
+                {t("calibratePage.calibrateBeforeTest")}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" onClick={handleCopyCalibration}>
+              <IconClipboard />
+              {t("calibratePage.copyCalibration")}
+            </Button>
+            <CalibrationTour section={section} setSection={setSection} />
+          </div>
         </div>
         {section === "modules" && (
           <>
-            <div
-              className="flex flex-wrap items-center gap-2"
-              data-tour="calibration-connect"
-            >
-              {isConnected ? (
-                <Button variant="outline" onClick={disconnect}>
-                  <IconDeviceUsbFilled />
-                  {t("calibratePage.disconnect")}
-                </Button>
-              ) : (
-                <Button onClick={connect}>
-                  <IconDeviceUsb />
-                  {t("calibratePage.connectDevice")}
-                </Button>
-              )}
-              <Button
-                variant="outline"
-                disabled={!isConnected || isTesting || isUnconfigured}
-                onClick={handleTest}
-              >
-                {isTesting
-                  ? t("calibratePage.testing")
-                  : t("calibratePage.runTest")}
-              </Button>
-              {isUnconfigured && (
-                <span className="text-sm text-muted-foreground">
-                  {t("calibratePage.calibrateBeforeTest")}
-                </span>
-              )}
-            </div>
-            <div
-              className="flex flex-col gap-1.5"
-              data-tour="channel-layout"
-            >
+            <div className="flex flex-col gap-1.5" data-tour="channel-layout">
               <Label>{t("channelLayoutToggle.label")}</Label>
               <ChannelLayoutToggle />
             </div>
@@ -342,7 +348,6 @@ export default function CalibratePage() {
               isConnected={isConnected}
               isSampleRunning={isSampleRunning}
               onTestBin={handleTestBin}
-              onFeed={handleFeed}
               onSampleRun={handleSampleRun}
             />
           </>
