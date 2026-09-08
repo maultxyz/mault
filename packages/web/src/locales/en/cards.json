@@ -126,6 +126,7 @@
     "byRarity": "By Rarity",
     "topSets": "Top Sets",
     "includePreviouslyDownloaded": "Include previously downloaded",
+    "applyGridFilters": "Apply active filters ({{count}})",
     "close": "Close",
     "download": "Download ({{count}})"
   }

@@ -136,7 +136,9 @@
       "binFailed": "Échec du bac {{bin}}",
       "startingSampleRun": "Démarrage du test d'exécution…",
       "sampleRunStopped": "Test d'exécution arrêté au bac {{bin}}",
-      "sampleRunComplete": "Test d'exécution terminé"
+      "sampleRunComplete": "Test d'exécution terminé",
+      "calibrationCopied": "Calibration copiée dans le presse-papiers",
+      "copyFailed": "Échec de la copie de la calibration"
     }
   },
   "useFeederConfig": {
@@ -191,6 +193,7 @@
     "scanRegionLabel": "Zone de scan",
     "feederCalibrationLabel": "Calibration du chargeur",
     "history": "Historique",
+    "copyCalibration": "Copier la calibration",
     "moduleCalibrationLabel": "Calibration des modules",
     "feederHistoryTitle": "Historique du chargeur",
     "moduleHistoryTitle": "Historique des modules"

@@ -126,6 +126,7 @@
     "byRarity": "Par rareté",
     "topSets": "Meilleurs sets",
     "includePreviouslyDownloaded": "Inclure celles déjà téléchargées",
+    "applyGridFilters": "Appliquer les filtres actifs ({{count}})",
     "close": "Fermer",
     "download": "Télécharger ({{count}})"
   }

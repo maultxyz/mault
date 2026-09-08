@@ -126,6 +126,7 @@
     "byRarity": "Nach Seltenheit",
     "topSets": "Top-Editionen",
     "includePreviouslyDownloaded": "Bereits heruntergeladene einschließen",
+    "applyGridFilters": "Aktive Filter anwenden ({{count}})",
     "close": "Schließen",
     "download": "Herunterladen ({{count}})"
   }

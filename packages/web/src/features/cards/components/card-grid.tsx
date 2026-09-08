@@ -482,6 +482,8 @@ export function CardGrid() {
         elapsedMs={elapsedMs}
         collectionName={activeCollection?.name ?? "collection"}
         onMarkDownloaded={markDownloaded}
+        gridFilters={filters}
+        gridFilterCount={activeFilterCount}
       />
 
       <DeleteDialog

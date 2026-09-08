@@ -136,7 +136,9 @@
       "binFailed": "Bin {{bin}} failed",
       "startingSampleRun": "Starting sample run…",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}",
-      "sampleRunComplete": "Sample run complete"
+      "sampleRunComplete": "Sample run complete",
+      "calibrationCopied": "Calibration copied to clipboard",
+      "copyFailed": "Failed to copy calibration"
     }
   },
   "useFeederConfig": {
@@ -191,6 +193,7 @@
     "scanRegionLabel": "Scan Region",
     "feederCalibrationLabel": "Feeder Calibration",
     "history": "History",
+    "copyCalibration": "Copy Calibration",
     "moduleCalibrationLabel": "Module Calibration",
     "feederHistoryTitle": "Feeder History",
     "moduleHistoryTitle": "Module History"
