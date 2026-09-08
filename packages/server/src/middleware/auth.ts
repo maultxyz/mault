@@ -132,12 +132,7 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   const userId = c.get("userId");
-
-  console.log(userId, orgId);
-
   const member = await authProvider.resolveOrgMembership(userId, orgId);
-
-  console.log(member);
 
   if (!member) {
     return c.json(
