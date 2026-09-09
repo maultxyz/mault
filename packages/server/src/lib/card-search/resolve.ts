@@ -1,11 +1,12 @@
 import { authQuery } from "../../db";
-import { fabAdapter } from "../fab/search";
-import { gundamAdapter } from "../gundam/search";
-import { lorcanaAdapter } from "../lorcana/search";
-import { onePieceAdapter } from "../onepiece/search";
-import { pokemonAdapter } from "../pokemon/search";
-import { scryfallAdapter } from "../scryfall/search";
-import { yugiohAdapter } from "../yugioh/search";
+import { fabAdapter } from "../adapters/fab/search";
+import { gundamAdapter } from "../adapters/gundam/search";
+import { lorcanaAdapter } from "../adapters/lorcana/search";
+import { onePieceAdapter } from "../adapters/onepiece/search";
+import { pokemonAdapter } from "../adapters/pokemon/search";
+import { riftboundAdapter } from "../adapters/riftbound/search";
+import { scryfallAdapter } from "../adapters/scryfall/search";
+import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withCache } from "./cache";
 import { withErrorHandling } from "./error-handling";
 import type { CardSearchAdapter } from "./types";
@@ -18,6 +19,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   onepiece: withCache(withErrorHandling(onePieceAdapter)),
   fab: withCache(withErrorHandling(fabAdapter)),
   yugioh: withCache(withErrorHandling(yugiohAdapter)),
+  riftbound: withCache(withErrorHandling(riftboundAdapter)),
 };
 
 export async function resolveGameKeyAndLang(
