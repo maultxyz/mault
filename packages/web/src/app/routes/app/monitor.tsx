@@ -14,6 +14,7 @@ import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { RecentScannedCards } from "@/features/scanner/components/recent-scanned-cards";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { SessionStatsPanel } from "@/features/scanner/components/session-stats-panel";
+import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
@@ -135,7 +136,7 @@ function CardGrid({
 export default function MonitorPage() {
   const { t } = useTranslation("scanner");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
-  const { collection, cards, viewers, errors, status } =
+  const { collection, cards, unmatchedCards, viewers, errors, status } =
     useSessionMonitor(collectionGuid);
   const { locks, currentUserId } = useCollectionLocks();
   const isMobile = useIsMobile();
@@ -196,6 +197,7 @@ export default function MonitorPage() {
         <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
           <SessionStatsPanel stats={stats} totalCards={filteredAndSorted.length} />
           <RecentScannedCards cards={cards} />
+          <UnmatchedCardsPanel cards={unmatchedCards} />
           <SessionErrorsPanel errors={errors} />
         </div>
 
@@ -251,6 +253,7 @@ export default function MonitorPage() {
           </div>
         )}
         <SessionStatsPanel stats={stats} totalCards={filteredAndSorted.length} />
+        <UnmatchedCardsPanel cards={unmatchedCards} />
         <SessionErrorsPanel errors={errors} />
       </aside>
 

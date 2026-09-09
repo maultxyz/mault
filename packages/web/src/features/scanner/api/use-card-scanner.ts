@@ -265,7 +265,7 @@ export function useCardScanner({
           }
         } else {
           playDingSound();
-          onNoMatchRef.current?.();
+          onNoMatchRef.current?.(debugImageUrl);
           updateStatus("no-match");
         }
       } catch (err) {

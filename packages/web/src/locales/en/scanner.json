@@ -166,6 +166,7 @@
     "heading": "Debug",
     "simulateScan": "Simulate Scan",
     "simulateMultiMatch": "Simulate Multi-Match",
+    "simulateNoMatch": "Simulate No Match",
     "forceError": "Force Error"
   },
   "scannerMenu": {
@@ -227,6 +228,12 @@
   },
   "sessionErrorsPanel": {
     "heading": "Errors"
+  },
+  "unmatchedCardsPanel": {
+    "heading_one": "{{count}} Unmatched Card",
+    "heading_other": "{{count}} Unmatched Cards",
+    "imageAlt": "Unrecognized card",
+    "noImage": "No image captured"
   },
   "sessionStatsPanel": {
     "totalCards": "Total Cards",

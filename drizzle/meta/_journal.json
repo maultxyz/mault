@@ -134,6 +134,20 @@
       "when": 1788749224206,
       "tag": "0018_soft_giant_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1788959377894,
+      "tag": "0019_pale_sally_floyd",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1788961711930,
+      "tag": "0020_jazzy_karma",
+      "breakpoints": true
     }
   ]
 }

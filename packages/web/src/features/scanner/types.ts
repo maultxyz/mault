@@ -7,6 +7,7 @@ import type {
   ScanRegion,
   ScannedCard,
   ScannerStatus,
+  UnmatchedCard,
 } from "@magic-vault/shared";
 
 export type CameraStatus = "idle" | "requesting" | "ready" | "error";
@@ -41,6 +42,7 @@ export interface CameraContextValue {
 
 export interface ScannedCardsContextValue {
   cards: ScannedCard[];
+  unmatchedCards: UnmatchedCard[];
   isLoading: boolean;
   autoFeed: boolean;
   forceFoil: boolean;
@@ -53,6 +55,8 @@ export interface ScannedCardsContextValue {
     capturedImageUrl?: string,
     alternativeMatches?: PlayingCardWithDistance[],
   ) => void;
+  addUnmatchedCard: (capturedImageUrl?: string) => void;
+  removeUnmatchedCard: (scanId: string) => void;
   sendCatchAllBin: () => void;
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
