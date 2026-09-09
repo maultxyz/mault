@@ -9,11 +9,11 @@ import {
 } from "../lib/card-search/resolve";
 import { sendDiscordNotification } from "../lib/discord";
 import { vectorizeImageFromBuffer } from "../lib/vectorize";
-import { requireAuth, type AppEnv } from "../middleware/auth";
+import { requireAuth, requireOrg, type AppEnv } from "../middleware/auth";
 
 const router = new Hono<AppEnv>();
 
-router.post("/", requireAuth, async (c) => {
+router.post("/", requireAuth, requireOrg, async (c) => {
   const body = await c.req.parseBody();
   const file = body["image"];
   const collectionGuid =
@@ -106,7 +106,7 @@ router.post("/", requireAuth, async (c) => {
   }
 });
 
-router.get("/search", requireAuth, async (c) => {
+router.get("/search", requireAuth, requireOrg, async (c) => {
   const query = c.req.query("q") ?? "";
   const resolved = await resolveCardSearch(
     c.get("jwtClaims"),
@@ -126,7 +126,7 @@ router.get("/search", requireAuth, async (c) => {
   return c.json(result);
 });
 
-router.get("/search/:id", requireAuth, async (c) => {
+router.get("/search/:id", requireAuth, requireOrg, async (c) => {
   const resolved = await resolveCardSearch(
     c.get("jwtClaims"),
     c.req.query("collectionGuid"),
