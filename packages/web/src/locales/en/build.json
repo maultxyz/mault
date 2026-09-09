@@ -13,8 +13,7 @@
     "boardType": {
       "label": "Board",
       "unoR4": "Arduino",
-      "esp32": "ESP32-S3",
-      "esp32Wroom": "ESP32 (WROOM)"
+      "esp32": "ESP32-S3"
     }
   },
   "footer": {
@@ -59,9 +58,6 @@
           "esp32": {
             "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. Also flashable straight from the app afterward, see /app once it's set up"
           },
-          "esp32Wroom": {
-            "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. Update its firmware via the Arduino IDE only. The in-app browser flasher targets the ESP32-S3 build specifically and isn't safe to use on this board."
-          },
           "pca9685": {
             "part": "Adafruit PCA9685 16-channel 12-bit PWM/servo driver",
             "notes": "I²C servo driver, drives all 10 servos"
@@ -100,10 +96,6 @@
           "usbCableEsp32": {
             "part": "USB-A–to–USB-C cable",
             "notes": "ESP32-S3 dev board ↔ host computer, via the board's native USB port"
-          },
-          "usbCableEsp32Wroom": {
-            "part": "USB-A–to–USB-C or Micro-USB cable (check which port your specific board has)",
-            "notes": "ESP32-WROOM-32 dev board ↔ host computer, via its USB-to-serial bridge chip (CP2102/CH340, depending on the board). The connector itself is USB-C on newer boards, Micro-USB on older ones"
           },
           "barrelJack": {
             "part": "DC barrel jack or screw-terminal pigtail",
@@ -272,6 +264,11 @@
     "optionalBadge": "Optional",
     "optionalClassicHopperBadge": "Optional, classic hopper",
     "optionalNewHopperBadge": "Optional, new hopper",
+    "esp32MountType": {
+      "label": "ESP32 mount",
+      "breakout": "With breakout board",
+      "bare": "Without breakout board"
+    },
     "progress": {
       "stepsCount": "{{done}} of {{total}} steps"
     },
@@ -290,10 +287,13 @@
             "text": "Print 1 Sorting Module Shroud. Only one needed. The cover that sits over the stacked modules."
           },
           "printPlateBase": {
-            "text": "For {{modules}} sorting modules, print {{count}} Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more support piece than the tier above it. Change the module count in the parts list above to update this."
+            "text": "For {{modules}} sorting modules, print {{count}} Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more support piece than the tier above it. Change the module count in the parts list above to update this.",
+            "breakoutNote": "Using the ESP32 with a breakout board? Print the breakout variant of this base support piece instead of the standard one. The breakout board's footprint needs the extra clearance."
           },
           "printPlateBaseBottom": {
-            "text": "Print 1 Controller Plates."
+            "arduino": "Print 1 Controller Plate. This plate now comes in three versions, print only the Arduino one and skip the two ESP32 versions.",
+            "esp32Bare": "Print 1 Controller Plate. This plate now comes in three versions, print only the ESP32 without breakout board one and skip the Arduino and ESP32 with breakout board versions.",
+            "esp32Breakout": "Print 1 Controller Plate. This plate now comes in three versions, print only the ESP32 with breakout board one and skip the Arduino and ESP32 without breakout board versions."
           },
           "printEndBottom": {
             "text": "Print 1 End Plate."
@@ -333,11 +333,7 @@
           },
           "uploadSketchEsp32": {
             "text": "Select board \"ESP32S3 Dev Module\", set Tools → USB Mode to \"Hardware CDC and JTAG\" and USB CDC On Boot to \"Enabled\", select the correct port, then upload firmware/main/main.ino.",
-            "note": "Uses the ESP32-S3 pin layout already in the sketch (see the IR_PINS comment in main.ino). Building on a classic ESP32 WROOM board instead? Switch to that board option above, its own pin layout is already in the sketch too. Hardware CDC/JTAG mode with CDC On Boot enabled is required for the board to show up on its native USB port at all, and it's what lets the in-app browser flasher reset the board into bootloader mode reliably without a BOOT-button press; the tradeoff is the board enumerates under a generic Espressif name instead of \"Mault Card Sorter\"."
-          },
-          "uploadSketchEsp32Wroom": {
-            "text": "Select board \"ESP32 Dev Module\", select the correct port, then upload firmware/main/main.ino.",
-            "note": "Uses the classic-ESP32 pin layout already in the sketch (see the IR_PINS comment in main.ino). No renumbering needed. Don't use the in-app browser flasher to update this board later: it fetches a binary built for the ESP32-S3 specifically, and writing that to a different ESP32 chip won't work correctly. Re-upload from the Arduino IDE instead whenever the firmware changes."
+            "note": "Uses the ESP32-S3 pin layout already in the sketch (see the IR_PINS comment in main.ino). Hardware CDC/JTAG mode with CDC On Boot enabled is required for the board to show up on its native USB port at all, and it's what lets the in-app browser flasher reset the board into bootloader mode reliably without a BOOT-button press; the tradeoff is the board enumerates under a generic Espressif name instead of \"Mault Card Sorter\"."
           },
           "confirmReady": {
             "text": "Open the Serial Monitor at 9600 baud and confirm you see {\"status\":\"ready\"} after the board resets."

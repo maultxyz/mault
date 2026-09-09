@@ -32,14 +32,4 @@ export const BOARD_INFO: Record<BoardType, BoardInfo> = {
     i2cSda: "GPIO8",
     i2cScl: "GPIO9",
   },
-  esp32_wroom: {
-    displayName: "ESP32-WROOM-32",
-    shortName: "ESP32",
-    irPins: [18, 19, 23, 25, 26],
-    hopperIrPin: 27,
-    logicVoltage: "3.3V",
-    usbCableName: "USB-A-to-USB-C or Micro-USB cable",
-    i2cSda: "GPIO21",
-    i2cScl: "GPIO22",
-  },
 };

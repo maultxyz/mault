@@ -6,7 +6,7 @@ import {
   type ReactNode,
 } from "react";
 
-export type BoardType = "uno_r4" | "esp32" | "esp32_wroom";
+export type BoardType = "uno_r4" | "esp32";
 
 export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
 
@@ -27,7 +27,7 @@ export function BoardTypeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(BOARD_TYPE_STORAGE_KEY);
-      if (raw === "uno_r4" || raw === "esp32" || raw === "esp32_wroom") {
+      if (raw === "uno_r4" || raw === "esp32") {
         setBoardTypeState(raw);
       }
     } catch {}

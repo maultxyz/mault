@@ -4,6 +4,7 @@ import {
   type BoardType,
 } from "@/app/routes/build/use-board-type";
 import { useModuleCount } from "@/app/routes/build/use-module-count";
+import { buttonVariants } from "@/components/ui/button";
 import { DISCORD_URL } from "@/lib/links";
 import { cn } from "@/lib/utils";
 import {
@@ -17,6 +18,30 @@ import {
 import type { TFunction } from "i18next";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
+
+type Esp32MountType = "breakout" | "bare";
+
+const ESP32_MOUNT_TYPE_STORAGE_KEY = "magic-vault:build-esp32-mount-type";
+
+function useEsp32MountType() {
+  const [mountType, setMountTypeState] = useState<Esp32MountType>("breakout");
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(ESP32_MOUNT_TYPE_STORAGE_KEY);
+      if (raw === "breakout" || raw === "bare") setMountTypeState(raw);
+    } catch {}
+  }, []);
+
+  const setMountType = (value: Esp32MountType) => {
+    setMountTypeState(value);
+    try {
+      localStorage.setItem(ESP32_MOUNT_TYPE_STORAGE_KEY, value);
+    } catch {}
+  };
+
+  return { mountType, setMountType };
+}
 
 interface Step {
   key: string;
@@ -55,10 +80,11 @@ function buildPhases(
   t: TFunction<"build">,
   moduleCount: number,
   boardType: BoardType,
+  mountType: Esp32MountType,
 ): Phase[] {
   const board = BOARD_INFO[boardType];
   const isEsp32Family = boardType !== "uno_r4";
-  const isEsp32S3 = boardType === "esp32";
+  const isEsp32Breakout = boardType === "esp32" && mountType === "breakout";
   const sortingModules = moduleCount;
   const plateBase = ((moduleCount + 1) * (moduleCount + 2)) / 2;
   const genericBase = Math.max(0, moduleCount - 2);
@@ -97,7 +123,6 @@ function buildPhases(
               }}
             />
           ),
-          note: t("assembly.phases.print.steps.printSortingModule.note"),
         },
         {
           key: "print-feeder-module",
@@ -113,6 +138,9 @@ function buildPhases(
             modules: moduleCount,
             count: plateBase,
           }),
+          note: isEsp32Breakout
+            ? t("assembly.phases.print.steps.printPlateBase.breakoutNote")
+            : undefined,
           images: [
             "/instructions/base_module.jpg",
             "/instructions/base_module_assembled.jpg",
@@ -120,7 +148,13 @@ function buildPhases(
         },
         {
           key: "print-plate-base-bottom",
-          text: t("assembly.phases.print.steps.printPlateBaseBottom.text"),
+          text: t(
+            boardType === "uno_r4"
+              ? "assembly.phases.print.steps.printPlateBaseBottom.arduino"
+              : isEsp32Breakout
+                ? "assembly.phases.print.steps.printPlateBaseBottom.esp32Breakout"
+                : "assembly.phases.print.steps.printPlateBaseBottom.esp32Bare",
+          ),
         },
         {
           key: "print-generic-base",
@@ -178,26 +212,16 @@ function buildPhases(
           text: t("assembly.phases.firmware.steps.installLibraries.text"),
           note: t("assembly.phases.firmware.steps.installLibraries.note"),
         },
-        isEsp32S3
+        isEsp32Family
           ? {
               key: "upload-sketch",
               text: t("assembly.phases.firmware.steps.uploadSketchEsp32.text"),
               note: t("assembly.phases.firmware.steps.uploadSketchEsp32.note"),
             }
-          : isEsp32Family
-            ? {
-                key: "upload-sketch",
-                text: t(
-                  "assembly.phases.firmware.steps.uploadSketchEsp32Wroom.text",
-                ),
-                note: t(
-                  "assembly.phases.firmware.steps.uploadSketchEsp32Wroom.note",
-                ),
-              }
-            : {
-                key: "upload-sketch",
-                text: t("assembly.phases.firmware.steps.uploadSketch.text"),
-              },
+          : {
+              key: "upload-sketch",
+              text: t("assembly.phases.firmware.steps.uploadSketch.text"),
+            },
         {
           key: "confirm-ready",
           text: t("assembly.phases.firmware.steps.confirmReady.text"),
@@ -457,10 +481,11 @@ export function BuildAssembly() {
   const { checked, toggle } = useChecklist();
   const { moduleCount } = useModuleCount();
   const { boardType } = useBoardType();
+  const { mountType, setMountType } = useEsp32MountType();
 
   const PHASES = useMemo(
-    () => buildPhases(t, moduleCount, boardType),
-    [t, moduleCount, boardType],
+    () => buildPhases(t, moduleCount, boardType, mountType),
+    [t, moduleCount, boardType, mountType],
   );
 
   const allSteps = useMemo(() => PHASES.flatMap((p) => p.steps), [PHASES]);
@@ -493,6 +518,42 @@ export function BuildAssembly() {
           }}
         />
       </p>
+
+      {boardType === "esp32" && (
+        <div className="mt-4 flex items-center gap-3">
+          <span className="font-mono text-[11px] font-semibold tracking-wide text-foreground/70 uppercase">
+            {t("assembly.esp32MountType.label")}
+          </span>
+          <div className="flex items-center gap-1 rounded-md border p-0.5">
+            <button
+              type="button"
+              onClick={() => setMountType("breakout")}
+              className={cn(
+                buttonVariants({
+                  variant: mountType === "breakout" ? "secondary" : "ghost",
+                  size: "sm",
+                }),
+                mountType !== "breakout" && "text-foreground/70",
+              )}
+            >
+              {t("assembly.esp32MountType.breakout")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMountType("bare")}
+              className={cn(
+                buttonVariants({
+                  variant: mountType === "bare" ? "secondary" : "ghost",
+                  size: "sm",
+                }),
+                mountType !== "bare" && "text-foreground/70",
+              )}
+            >
+              {t("assembly.esp32MountType.bare")}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="mt-6">
         <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] text-foreground/70">

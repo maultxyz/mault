@@ -13,8 +13,7 @@
     "boardType": {
       "label": "Board",
       "unoR4": "Arduino",
-      "esp32": "ESP32-S3",
-      "esp32Wroom": "ESP32 (WROOM)"
+      "esp32": "ESP32-S3"
     }
   },
   "footer": {
@@ -59,9 +58,6 @@
           "esp32": {
             "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial - kann später auch direkt aus der App aktualisiert werden, siehe /app nach der Einrichtung"
           },
-          "esp32Wroom": {
-            "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial. Aktualisiere die Firmware dieses Boards nur über die Arduino-IDE - der in die App integrierte Browser-Flasher zielt speziell auf den ESP32-S3-Build ab und ist für dieses Board nicht sicher."
-          },
           "pca9685": {
             "part": "Adafruit PCA9685 16-Kanal-12-Bit-PWM-/Servotreiber",
             "notes": "I²C-Servotreiber – steuert alle 10 Servos an"
@@ -100,10 +96,6 @@
           "usbCableEsp32": {
             "part": "USB-A-auf-USB-C-Kabel",
             "notes": "ESP32-S3-Board ↔ Host-Computer, über den nativen USB-Anschluss des Boards"
-          },
-          "usbCableEsp32Wroom": {
-            "part": "USB-A-auf-USB-C- oder Micro-USB-Kabel (prüfe, welchen Anschluss dein Board hat)",
-            "notes": "ESP32-WROOM-32-Board ↔ Host-Computer, über seinen USB-Seriell-Brückenchip (CP2102/CH340, je nach Board) - der Anschluss selbst ist bei neueren Boards USB-C, bei älteren Micro-USB"
           },
           "barrelJack": {
             "part": "DC-Hohlstecker oder Schraubklemmen-Anschlusskabel",
@@ -272,6 +264,11 @@
     "optionalBadge": "Optional",
     "optionalClassicHopperBadge": "Optional, klassischer Trichter",
     "optionalNewHopperBadge": "Optional, neuer Trichter",
+    "esp32MountType": {
+      "label": "ESP32-Montage",
+      "breakout": "Mit Breakout-Platine",
+      "bare": "Ohne Breakout-Platine"
+    },
     "progress": {
       "stepsCount": "{{done}} von {{total}} Schritten"
     },
@@ -291,10 +288,13 @@
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Base-Support-Teile aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe ein Stützteil mehr benötigt als die Stufe darüber. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{count}} Base-Support-Teile aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe ein Stützteil mehr benötigt als die Stufe darüber. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren.",
+            "breakoutNote": "Verwendest du den ESP32 mit einer Breakout-Platine? Drucke dann die Breakout-Variante dieses Base-Support-Teils statt der Standardversion. Der Platzbedarf der Breakout-Platine erfordert diesen zusätzlichen Freiraum."
           },
           "printPlateBaseBottom": {
-            "text": "Drucke 1 Controller-Platte."
+            "arduino": "Drucke 1 Controller-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Arduino-Version und lass die beiden ESP32-Versionen weg.",
+            "esp32Bare": "Drucke 1 Controller-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 ohne Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 mit Breakout-Platine weg.",
+            "esp32Breakout": "Drucke 1 Controller-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 mit Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 ohne Breakout-Platine weg."
           },
           "printEndBottom": {
             "text": "Drucke 1 End-Platte."
@@ -334,11 +334,7 @@
           },
           "uploadSketchEsp32": {
             "text": "Wähle das Board „ESP32S3 Dev Module“, stelle unter Tools → USB Mode „Hardware CDC and JTAG“ und USB CDC On Boot „Enabled“ ein, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
-            "note": "Verwendet das im Sketch bereits hinterlegte ESP32-S3-Pinlayout (siehe den IR_PINS-Kommentar in main.ino) - baust du stattdessen ein klassisches ESP32-WROOM-Board? Wähle oben diese Board-Option, ihr eigenes Pinlayout ist ebenfalls schon im Sketch hinterlegt. Hardware-CDC/JTAG-Modus mit aktiviertem CDC On Boot ist nötig, damit das Board überhaupt über seinen nativen USB-Port erreichbar ist, und ermöglicht es dem browserbasierten Flash-Tool in der App, das Board zuverlässig ohne Drücken der BOOT-Taste in den Bootloader-Modus zu versetzen; im Gegenzug meldet sich das Board unter einem generischen Espressif-Namen statt „Mault Card Sorter“."
-          },
-          "uploadSketchEsp32Wroom": {
-            "text": "Wähle das Board „ESP32 Dev Module“, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
-            "note": "Verwendet das im Sketch bereits hinterlegte Pinlayout des klassischen ESP32 (siehe den IR_PINS-Kommentar in main.ino) - keine Neunummerierung nötig. Nutze für ein späteres Firmware-Update dieses Boards nicht das browserbasierte Flash-Tool in der App: Es lädt eine speziell für den ESP32-S3 gebaute Binärdatei herunter, die auf einem anderen ESP32-Chip nicht korrekt funktioniert. Lade stattdessen bei jeder Firmware-Änderung erneut über die Arduino-IDE hoch."
+            "note": "Verwendet das im Sketch bereits hinterlegte ESP32-S3-Pinlayout (siehe den IR_PINS-Kommentar in main.ino). Hardware-CDC/JTAG-Modus mit aktiviertem CDC On Boot ist nötig, damit das Board überhaupt über seinen nativen USB-Port erreichbar ist, und ermöglicht es dem browserbasierten Flash-Tool in der App, das Board zuverlässig ohne Drücken der BOOT-Taste in den Bootloader-Modus zu versetzen; im Gegenzug meldet sich das Board unter einem generischen Espressif-Namen statt „Mault Card Sorter“."
           },
           "confirmReady": {
             "text": "Öffne den seriellen Monitor mit 9600 Baud und bestätige, dass nach dem Neustart des Boards {\"status\":\"ready\"} angezeigt wird."
