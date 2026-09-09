@@ -2,8 +2,8 @@ import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
 import type { ReadableStream as NodeWebReadableStream } from "node:stream/web";
 import { createGunzip } from "node:zlib";
-import { CARD_API_HEADERS } from "../card-search/constants";
-import type { SyncSource, SyncSourceCard } from "../card-search/sync-types";
+import { CARD_API_HEADERS } from "../../card-search/constants";
+import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
 import { SCRYFALL_DEFAULT_URL } from "./search";
 
 type ScryfallBulkCard = {

@@ -1,9 +1,9 @@
-import { CARD_API_HEADERS } from "../card-search/constants";
+import { CARD_API_HEADERS } from "../../card-search/constants";
 import type {
   SyncSource,
   SyncSourceCard,
   SyncSourceCardDetail,
-} from "../card-search/sync-types";
+} from "../../card-search/sync-types";
 import {
   LORCANA_DE_API_ROOT,
   LORCANA_DEFAULT_URL,

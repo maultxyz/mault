@@ -1,8 +1,8 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
-import { CARD_API_HEADERS } from "../card-search/constants";
-import { fetchCardApi } from "../card-search/fetch";
-import type { CardSearchAdapter } from "../card-search/types";
-import { validateQuery } from "../card-search/validate";
+import { CARD_API_HEADERS } from "../../card-search/constants";
+import { fetchCardApi } from "../../card-search/fetch";
+import type { CardSearchAdapter } from "../../card-search/types";
+import { validateQuery } from "../../card-search/validate";
 
 export const YUGIOH_DEFAULT_URL =
   "https://db.ygoprodeck.com/api/v7/cardinfo.php";

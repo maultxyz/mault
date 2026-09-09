@@ -1,9 +1,9 @@
-import { CARD_API_HEADERS } from "../card-search/constants";
+import { CARD_API_HEADERS } from "../../card-search/constants";
 import type {
   SyncSource,
   SyncSourceCard,
   SyncSourceCardDetail,
-} from "../card-search/sync-types";
+} from "../../card-search/sync-types";
 import { splitSetCode, YUGIOH_DEFAULT_URL, type YgoCard } from "./search";
 
 function toSyncCards(raw: YgoCard): SyncSourceCard[] {
