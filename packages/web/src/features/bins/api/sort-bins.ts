@@ -82,6 +82,13 @@ export async function resetAutoAssign(guid: string): Promise<Result<BinSet[]>> {
   return apiPost<Result<BinSet[]>>(`/api/bins/${guid}/auto-assign/reset`);
 }
 
+export async function setScanOnly(
+  guid: string,
+  enabled: boolean,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, { enabled });
+}
+
 export interface BinSetAuditEntry {
   guid: string;
   binSetGuid: string;

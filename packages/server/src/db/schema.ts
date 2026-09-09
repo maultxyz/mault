@@ -126,6 +126,7 @@ export const binSets = pgTable(
     isActive: boolean("is_active").notNull().default(false),
     gameId: integer("game_id").references(() => games.id),
     autoAssignField: text("auto_assign_field"),
+    scanOnly: boolean("scan_only").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

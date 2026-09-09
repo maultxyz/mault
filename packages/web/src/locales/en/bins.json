@@ -12,7 +12,8 @@
     "ruleCount_other": "{{count}} rules",
     "allUnmatched": "All unmatched cards",
     "clickToConfigure": "Click to configure",
-    "waitingForValue": "Waiting for next value"
+    "waitingForValue": "Waiting for next value",
+    "scanOnlyDisabled": "Scan only is on"
   },
   "binConfigPanel": {
     "needCatchAllError": "At least one bin must be catch-all.",
@@ -24,7 +25,8 @@
     "apiDocsLink": "Field reference",
     "clear": "Clear",
     "save": "Save",
-    "autoAssignWaiting": "Waiting for a new {{field}} to appear"
+    "autoAssignWaiting": "Waiting for a new {{field}} to appear",
+    "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins."
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."
@@ -58,6 +60,7 @@
     "conditionCount_other": "{{count}} conditions",
     "sortingLogic": "Sorting Logic",
     "selectSetPlaceholder": "Select a set...",
+    "noMatchingSets": "No matching sets",
     "editSortingLogic": "Edit Sorting Logic",
     "deleteSetTitle": "Delete Set",
     "deleteSetDescription": "Permanently deletes \"{{name}}\". This cannot be undone.",
@@ -85,7 +88,8 @@
       "renameSetFailed": "Failed to rename set",
       "deleteSetFailed": "Failed to delete set",
       "autoAssignFailed": "Failed to update auto-detect settings",
-      "autoAssignResetFailed": "Failed to reset auto-detected bins"
+      "autoAssignResetFailed": "Failed to reset auto-detected bins",
+      "scanOnlyFailed": "Failed to update scan only settings"
     }
   },
   "binsPage": {
@@ -99,5 +103,9 @@
     "resetConfirmTitle": "Reset auto-detected bins?",
     "resetConfirmDescription": "Clears every bin's learned value in this set. New scans will refill them from scratch.",
     "notYetAssigned": "Not yet assigned"
+  },
+  "scanOnlyPanel": {
+    "heading": "Scan only",
+    "description": "Sends every card straight to bin 7, the catch-all, without checking any sorting rules. Turn this off to configure bins manually."
   }
 }

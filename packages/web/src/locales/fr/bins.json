@@ -12,7 +12,8 @@
     "ruleCount_other": "{{count}} règles",
     "allUnmatched": "Toutes les cartes non associées",
     "clickToConfigure": "Cliquer pour configurer",
-    "waitingForValue": "En attente de la prochaine valeur"
+    "waitingForValue": "En attente de la prochaine valeur",
+    "scanOnlyDisabled": "Scan uniquement est activé"
   },
   "binConfigPanel": {
     "needCatchAllError": "Au moins un bac doit être un fourre-tout.",
@@ -24,7 +25,8 @@
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
     "save": "Enregistrer",
-    "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}"
+    "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
+    "scanOnlyLocked": "Scan uniquement est activé — chaque carte va directement dans le bac 7. Désactive-le ci-dessus pour configurer les bacs."
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."
@@ -58,6 +60,7 @@
     "conditionCount_other": "{{count}} conditions",
     "sortingLogic": "Logique de tri",
     "selectSetPlaceholder": "Sélectionner un ensemble...",
+    "noMatchingSets": "Aucun ensemble correspondant",
     "editSortingLogic": "Modifier la logique de tri",
     "deleteSetTitle": "Supprimer l'ensemble",
     "deleteSetDescription": "Supprimer définitivement « {{name}} ». Cette action est irréversible.",
@@ -85,7 +88,8 @@
       "renameSetFailed": "Échec du renommage de l'ensemble",
       "deleteSetFailed": "Échec de la suppression de l'ensemble",
       "autoAssignFailed": "Échec de la mise à jour des paramètres de détection automatique",
-      "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement"
+      "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement",
+      "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement"
     }
   },
   "binsPage": {
@@ -99,5 +103,9 @@
     "resetConfirmTitle": "Réinitialiser les bacs détectés automatiquement ?",
     "resetConfirmDescription": "Efface la valeur apprise de chaque bac de cet ensemble. Les prochains scans les rempliront à nouveau depuis le début.",
     "notYetAssigned": "Pas encore attribué"
+  },
+  "scanOnlyPanel": {
+    "heading": "Scan uniquement",
+    "description": "Envoie chaque carte directement au bac 7, le fourre-tout, sans vérifier aucune règle de tri. Désactive ceci pour configurer les bacs manuellement."
   }
 }

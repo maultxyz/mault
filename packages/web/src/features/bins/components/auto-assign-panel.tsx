@@ -9,9 +9,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
-import { IconRefresh } from "@tabler/icons-react";
+import { IconInfoCircle, IconRefresh } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +28,7 @@ export function AutoAssignPanel() {
     isPresetMutating,
     setAutoAssignField,
     resetAutoAssign,
+    setScanOnly,
   } = useBinConfigs();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
@@ -30,21 +36,30 @@ export function AutoAssignPanel() {
 
   const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
   const isEnabled = !!selectedSet.autoAssignField;
+  const isScanOnly = selectedSet.scanOnly;
 
   return (
     <Field className="rounded-lg border p-2 gap-2" data-tour="auto-assign-panel">
-      <label className="flex items-center justify-between gap-3">
-        <span className="flex flex-col gap-0.5">
+      <div className="flex items-center justify-between gap-3">
+        <span className="flex items-center gap-1.5">
           <span className="text-sm font-medium">
             {t("autoAssignPanel.heading")}
           </span>
-          <span className="text-xs text-muted-foreground">
-            {t("autoAssignPanel.description")}
-          </span>
+          <Tooltip>
+            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+              <IconInfoCircle className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {t("autoAssignPanel.description")}
+            </TooltipContent>
+          </Tooltip>
         </span>
         <Switch
+          aria-label={t("autoAssignPanel.heading")}
           checked={isEnabled}
-          disabled={isPresetMutating || eligibleFields.length === 0}
+          disabled={
+            isPresetMutating || eligibleFields.length === 0 || isScanOnly
+          }
           onCheckedChange={(checked) => {
             if (checked) {
               setAutoAssignField(eligibleFields[0].field);
@@ -53,7 +68,7 @@ export function AutoAssignPanel() {
             }
           }}
         />
-      </label>
+      </div>
 
       {isEnabled && (
         <div className="flex items-center gap-2">
@@ -101,6 +116,28 @@ export function AutoAssignPanel() {
       >
         <AutoAssignSnapshot />
       </DeleteDialog>
+
+      <div className="flex items-center justify-between gap-3 border-t pt-2">
+        <span className="flex items-center gap-1.5">
+          <span className="text-sm font-medium">
+            {t("scanOnlyPanel.heading")}
+          </span>
+          <Tooltip>
+            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+              <IconInfoCircle className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {t("scanOnlyPanel.description")}
+            </TooltipContent>
+          </Tooltip>
+        </span>
+        <Switch
+          aria-label={t("scanOnlyPanel.heading")}
+          checked={isScanOnly}
+          disabled={isPresetMutating || isEnabled}
+          onCheckedChange={(checked) => setScanOnly(checked)}
+        />
+      </div>
     </Field>
   );
 }

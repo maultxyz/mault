@@ -30,12 +30,14 @@ export interface BinConfigsContextValue {
   deleteSet: (guid: string) => Promise<void>;
   setAutoAssignField: (field: string | null) => Promise<void>;
   resetAutoAssign: () => Promise<void>;
+  setScanOnly: (enabled: boolean) => Promise<void>;
 }
 
 export interface BinCardProps {
   config: BinConfig;
   active?: boolean;
   isAutoAssign?: boolean;
+  isScanOnly?: boolean;
   onClick: () => void;
 }
 

@@ -17,6 +17,7 @@ import {
   saveBinConfig as saveBinConfigAction,
   saveSet as saveSetAction,
   setAutoAssignField as setAutoAssignFieldAction,
+  setScanOnly as setScanOnlyAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -271,6 +272,19 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.autoAssignResetFailed")),
   });
 
+  const setScanOnlyMutation = useMutation({
+    mutationFn: ({ guid, enabled }: { guid: string; enabled: boolean }) =>
+      setScanOnlyAction(guid, enabled),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(t("useBinConfigs.toasts.scanOnlyFailed"));
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.scanOnlyFailed")),
+  });
+
   const isPending = saveBinMutation.isPending || clearBinMutation.isPending;
   const isActivating = activateSetMutation.isPending;
   const isPresetMutating =
@@ -280,7 +294,8 @@ export function BinConfigsProvider({
     renameSetMutation.isPending ||
     deleteSetMutation.isPending ||
     setAutoAssignFieldMutation.isPending ||
-    resetAutoAssignMutation.isPending;
+    resetAutoAssignMutation.isPending ||
+    setScanOnlyMutation.isPending;
 
   const save = useCallback(
     (binNumber: number, rules: BinRuleGroup, isCatchAll?: boolean) => {
@@ -352,6 +367,14 @@ export function BinConfigsProvider({
     await resetAutoAssignMutation.mutateAsync(selectedSet.guid);
   }, [resetAutoAssignMutation, selectedSet]);
 
+  const setScanOnlyFn = useCallback(
+    async (enabled: boolean) => {
+      if (!selectedSet) return;
+      await setScanOnlyMutation.mutateAsync({ guid: selectedSet.guid, enabled });
+    },
+    [setScanOnlyMutation, selectedSet],
+  );
+
   return (
     <BinConfigsContext
       value={{
@@ -378,6 +401,7 @@ export function BinConfigsProvider({
         deleteSet: deleteSetFn,
         setAutoAssignField: setAutoAssignFieldFn,
         resetAutoAssign: resetAutoAssignFn,
+        setScanOnly: setScanOnlyFn,
       }}
     >
       {children}

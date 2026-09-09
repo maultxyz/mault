@@ -4,14 +4,16 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import { InputGroupAddon } from "@/components/ui/input-group";
+import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -209,32 +211,35 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
     <Field>
       <FieldLabel>{t("presetSelector.sortingLogic")}</FieldLabel>
       <ButtonGroup className="w-full">
-        <Select
-          key={selectedSet?.guid ?? ""}
-          value={selectedSet?.guid ?? ""}
-          onValueChange={(guid) => activateSet(guid!)}
+        <Combobox
+          items={sets}
+          value={selectedSet ?? null}
+          onValueChange={(set) => set && activateSet(set.guid)}
+          itemToStringLabel={(set: BinSet) => set.name}
+          isItemEqualToValue={(a: BinSet, b: BinSet) => a?.guid === b?.guid}
         >
-          <SelectTrigger
+          <ComboboxInput
             className="flex-1 overflow-hidden"
+            placeholder={t("presetSelector.selectSetPlaceholder")}
             disabled={isActivating}
           >
-            <SelectValue placeholder={t("presetSelector.selectSetPlaceholder")}>
-              <span className="flex items-center gap-1.5 min-w-0">
-                {isActivating && (
-                  <IconLoader2 className="size-3 animate-spin shrink-0 text-muted-foreground" />
-                )}
-                <span className="truncate">{selectedSet?.name}</span>
-              </span>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {sets.map((set) => (
-              <SelectItem key={set.guid} value={set.guid}>
-                <span className="truncate">{set.name}</span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            {isActivating && (
+              <InputGroupAddon align="inline-start">
+                <IconLoader2 className="size-3 animate-spin text-muted-foreground" />
+              </InputGroupAddon>
+            )}
+          </ComboboxInput>
+          <ComboboxContent>
+            <ComboboxEmpty>{t("presetSelector.noMatchingSets")}</ComboboxEmpty>
+            <ComboboxList>
+              {(set: BinSet) => (
+                <ComboboxItem key={set.guid} value={set}>
+                  <span className="truncate">{set.name}</span>
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
         {readOnly ? (
           <>
             <Tooltip>

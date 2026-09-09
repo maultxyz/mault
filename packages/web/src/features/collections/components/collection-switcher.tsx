@@ -1,14 +1,16 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Field, FieldLabel } from "@/components/ui/field";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { InputGroupAddon } from "@/components/ui/input-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -24,6 +26,7 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { LANGUAGE_LABELS } from "@/lib/languages";
+import type { Collection } from "@magic-vault/shared";
 import {
   IconEdit,
   IconLoader2,
@@ -110,61 +113,61 @@ export function CollectionSwitcher() {
         )}
       </span>
       <ButtonGroup className="w-full">
-        <Select
-          key={activeCollection?.guid ?? ""}
-          value={activeCollection?.guid ?? ""}
-          onValueChange={(guid) => activateCollection(guid!)}
+        <Combobox
+          items={collections}
+          value={activeCollection ?? null}
+          onValueChange={(c) => c && activateCollection(c.guid)}
+          itemToStringLabel={(c: Collection) => c.name}
+          isItemEqualToValue={(a: Collection, b: Collection) =>
+            a?.guid === b?.guid
+          }
         >
-          <SelectTrigger
+          <ComboboxInput
             className="flex-1 overflow-hidden"
+            placeholder={t("switcher.noCollectionSelected")}
             disabled={isActivating}
           >
-            <SelectValue placeholder={t("switcher.noCollectionSelected")}>
-              <span className="flex items-center gap-1.5 min-w-0">
-                {isActivating && (
-                  <IconLoader2 className="size-3 animate-spin shrink-0 text-muted-foreground" />
-                )}
-                {activeCollection && isLockedByOther(activeCollection.guid) && (
+            {(isActivating ||
+              (activeCollection && isLockedByOther(activeCollection.guid))) && (
+              <InputGroupAddon align="inline-start">
+                {isActivating ? (
+                  <IconLoader2 className="size-3 animate-spin text-muted-foreground" />
+                ) : (
                   <IconLock
                     size={11}
-                    className="shrink-0 text-amber-800 dark:text-amber-400"
+                    className="text-amber-800 dark:text-amber-400"
                   />
                 )}
-                <span className="truncate">
-                  {activeCollection?.name ?? t("switcher.noCollection")}
-                </span>
-              </span>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent>
-            {collections.map((c) => {
-              const lockedByOther = isLockedByOther(c.guid);
-              return (
-                <SelectItem
-                  key={c.guid}
-                  value={c.guid}
-                  disabled={lockedByOther}
-                >
-                  <span className="truncate">{c.name}</span>
-                  {lockedByOther && (
-                    <IconLock
-                      size={11}
-                      className="ml-1 shrink-0 text-muted-foreground"
-                    />
-                  )}
-                  <span className="ml-auto pl-2 pr-6 pt-0.5 text-xs text-muted-foreground tabular-nums">
-                    {c.cardCount}
-                  </span>
-                </SelectItem>
-              );
-            })}
-            {collections.length === 0 && (
-              <div className="px-2 py-3 text-xs text-muted-foreground text-center">
-                {t("switcher.noCollectionsYet")}
-              </div>
+              </InputGroupAddon>
             )}
-          </SelectContent>
-        </Select>
+          </ComboboxInput>
+          <ComboboxContent>
+            <ComboboxEmpty>
+              {collections.length === 0
+                ? t("switcher.noCollectionsYet")
+                : t("switcher.noMatches")}
+            </ComboboxEmpty>
+            <ComboboxList>
+              {(c: Collection) => {
+                const lockedByOther = isLockedByOther(c.guid);
+                return (
+                  <ComboboxItem key={c.guid} value={c} disabled={lockedByOther}>
+                    <span className="truncate">{c.name}</span>
+                    {lockedByOther && (
+                      <IconLock
+                        size={11}
+                        className="ml-1 shrink-0 text-muted-foreground"
+                      />
+                    )}
+                    <span className="ml-auto pl-2 pr-6 pt-0.5 text-xs text-muted-foreground tabular-nums">
+                      {c.cardCount}
+                    </span>
+                  </ComboboxItem>
+                );
+              }}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
 
         <Tooltip>
           <TooltipTrigger

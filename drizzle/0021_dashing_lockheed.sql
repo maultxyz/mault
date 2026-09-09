@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "scan_only" boolean DEFAULT false NOT NULL;
