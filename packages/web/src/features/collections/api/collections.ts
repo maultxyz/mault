@@ -1,5 +1,5 @@
 import { apiDelete, apiGet, apiPost, apiPut, getAuthHeaders, handleForbidden } from "@/lib/api/client";
-import type { Collection, Result, ScannedCard } from "@magic-vault/shared";
+import type { Collection, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
@@ -115,4 +115,26 @@ export async function clearCollectionCards(guid: string): Promise<Result<null>> 
 
 export async function releaseScanLock(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/scan-lock`);
+}
+
+export async function loadUnmatchedCards(guid: string): Promise<Result<UnmatchedCard[]>> {
+  return apiGet<Result<UnmatchedCard[]>>(`/api/collections/${guid}/unmatched`);
+}
+
+export async function addUnmatchedCard(
+  guid: string,
+  record: UnmatchedCard,
+): Promise<Result<UnmatchedCard>> {
+  return apiPost<Result<UnmatchedCard>>(`/api/collections/${guid}/unmatched`, record);
+}
+
+export async function removeUnmatchedCard(
+  guid: string,
+  scanId: string,
+): Promise<Result<null>> {
+  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched/${scanId}`);
+}
+
+export async function clearUnmatchedCards(guid: string): Promise<Result<null>> {
+  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched`);
 }

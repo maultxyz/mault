@@ -30,6 +30,15 @@ interface GameInput {
   isActive?: boolean;
 }
 
+async function keyIsTaken(key: string, excludeGuid?: string): Promise<boolean> {
+  const existing = await db.query.games.findFirst({
+    where: (t, { eq }) => eq(t.key, key),
+    columns: { guid: true },
+  });
+  if (!existing) return false;
+  return existing.guid !== excludeGuid;
+}
+
 // GET /games — any authenticated user (needed to pick a game per collection)
 router.get("/", requireAuth, async (c) => {
   try {
@@ -134,6 +143,22 @@ router.get("/sample-card", requireAuth, requireRole("admin"), async (c) => {
   }
 });
 
+router.get("/check-key", requireAuth, requireRole("admin"), async (c) => {
+  const key = c.req.query("key")?.trim();
+  const excludeGuid = c.req.query("excludeGuid") || undefined;
+  if (!key) {
+    return c.json({ success: false, message: "key is required." }, 400);
+  }
+
+  try {
+    const taken = await keyIsTaken(key, excludeGuid);
+    return c.json({ success: true, data: { available: !taken } });
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
 router.get("/:guid/languages", requireAuth, async (c) => {
   const guid = c.req.param("guid");
   try {
@@ -169,11 +194,23 @@ router.post("/", requireAuth, requireRole("admin"), async (c) => {
     );
   }
 
+  const trimmedKey = key.trim();
+
   try {
+    if (await keyIsTaken(trimmedKey)) {
+      return c.json(
+        {
+          success: false,
+          message: `A game with key "${trimmedKey}" already exists.`,
+        },
+        409,
+      );
+    }
+
     const [row] = await db
       .insert(games)
       .values({
-        key: key.trim(),
+        key: trimmedKey,
         name: name.trim(),
         fieldDefinitions,
         apiDocsUrl: apiDocsUrl?.trim() || null,
@@ -184,9 +221,15 @@ router.post("/", requireAuth, requireRole("admin"), async (c) => {
     await ensureGameVectorIndex(row.key);
     return c.json({ success: true, data: toGame(row) });
   } catch (err) {
+    // Backstop for a race between the check above and this insert (two
+    // concurrent creates with the same key) - the DB's unique constraint is
+    // still the actual guarantee, this is just a friendlier message for it.
     if (err instanceof Error && /unique/i.test(err.message)) {
       return c.json(
-        { success: false, message: `A game with key "${key}" already exists.` },
+        {
+          success: false,
+          message: `A game with key "${trimmedKey}" already exists.`,
+        },
         409,
       );
     }
@@ -212,6 +255,17 @@ router.put("/:guid", requireAuth, requireRole("admin"), async (c) => {
       updatedAt: new Date(),
     };
     const newKey = key !== undefined ? key.trim() : undefined;
+    if (newKey !== undefined && newKey !== target.key) {
+      if (await keyIsTaken(newKey, guid)) {
+        return c.json(
+          {
+            success: false,
+            message: `A game with key "${newKey}" already exists.`,
+          },
+          409,
+        );
+      }
+    }
     if (newKey !== undefined) updates.key = newKey;
     if (name !== undefined) updates.name = name.trim();
     if (fieldDefinitions !== undefined)
@@ -230,6 +284,7 @@ router.put("/:guid", requireAuth, requireRole("admin"), async (c) => {
     }
     return c.json({ success: true, data: toGame(row) });
   } catch (err) {
+    // Backstop for a race between the check above and this update.
     if (err instanceof Error && /unique/i.test(err.message)) {
       return c.json(
         { success: false, message: `A game with key "${key}" already exists.` },

@@ -10,21 +10,22 @@ import {
   parseBuyMeACoffeeWebhook,
   verifyBuyMeACoffeeSignature,
 } from "../lib/buymeacoffee";
+import { FAB_DEFAULT_URL } from "../lib/adapters/fab/search";
+import { GUNDAM_DEFAULT_URL } from "../lib/adapters/gundam/search";
+import { LORCANA_DEFAULT_URL } from "../lib/adapters/lorcana/search";
+import { ONE_PIECE_DEFAULT_URL } from "../lib/adapters/onepiece/search";
+import { POKEMON_DEFAULT_URL } from "../lib/adapters/pokemon/search";
+import { RIFTBOUND_DEFAULT_URL } from "../lib/adapters/riftbound/search";
+import { SCRYFALL_DEFAULT_URL } from "../lib/adapters/scryfall/search";
+import { YUGIOH_DEFAULT_URL } from "../lib/adapters/yugioh/search";
 import { fetchCardApi } from "../lib/card-search/fetch";
 import { sendDonationDiscordNotification } from "../lib/discord";
-import { FAB_DEFAULT_URL } from "../lib/fab/search";
-import { GUNDAM_DEFAULT_URL } from "../lib/gundam/search";
-import { LORCANA_DEFAULT_URL } from "../lib/lorcana/search";
-import { ONE_PIECE_DEFAULT_URL } from "../lib/onepiece/search";
-import { POKEMON_DEFAULT_URL } from "../lib/pokemon/search";
-import { SCRYFALL_DEFAULT_URL } from "../lib/scryfall/search";
 import {
   FREE_PLAN_DAILY_SCAN_LIMIT,
   getBusinessPriceInfo,
   getStripe,
   isBillingEnabled,
 } from "../lib/stripe";
-import { YUGIOH_DEFAULT_URL } from "../lib/yugioh/search";
 import type { AppEnv } from "../middleware/auth";
 
 const router = new Hono<AppEnv>();
@@ -117,6 +118,11 @@ const EXTERNAL_API_CHECKS: { name: string; url: string; gameKey: string }[] = [
     name: "YGOPRODeck (Yu-Gi-Oh!)",
     url: YUGIOH_DEFAULT_URL,
     gameKey: "yugioh",
+  },
+  {
+    name: "Riftcodex (Riftbound)",
+    url: RIFTBOUND_DEFAULT_URL,
+    gameKey: "riftbound",
   },
 ];
 

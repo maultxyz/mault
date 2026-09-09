@@ -6,6 +6,7 @@ import {
   type PlayingCard,
   type PlayingCardWithDistance,
   type ScannedCard,
+  type UnmatchedCard,
   evaluateCardBin,
   getCardValue,
   getCatchAllBin,
@@ -16,11 +17,14 @@ import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import {
   addCollectionCard,
+  addUnmatchedCard as addUnmatchedCardApi,
   loadCollectionCards,
+  loadUnmatchedCards,
   markCollectionCardsDownloaded,
   releaseScanLock,
   removeCollectionCard,
   removeCollectionCards,
+  removeUnmatchedCard as removeUnmatchedCardApi,
   setCollectionCardFoil,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -97,6 +101,7 @@ export function ScannedCardsProvider({
 }) {
   const { t } = useTranslation("scanner");
   const [cards, setCards] = useState<ScannedCard[]>([]);
+  const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const {
     configs: binConfigs,
@@ -323,17 +328,24 @@ export function ScannedCardsProvider({
   useEffect(() => {
     if (!activeCollection) {
       setCards([]);
+      setUnmatchedCards([]);
       setIsLoading(false);
       return;
     }
 
     let cancelled = false;
     setCards([]);
+    setUnmatchedCards([]);
     setIsLoading(true);
 
-    loadCollectionCards(activeCollection.guid)
-      .then((r) => {
-        if (!cancelled) setCards(r.data ?? []);
+    Promise.all([
+      loadCollectionCards(activeCollection.guid),
+      loadUnmatchedCards(activeCollection.guid),
+    ])
+      .then(([cardsResult, unmatchedResult]) => {
+        if (cancelled) return;
+        setCards(cardsResult.data ?? []);
+        setUnmatchedCards(unmatchedResult.data ?? []);
       })
       .catch((err) => {
         if (!cancelled) console.error("Failed to load collection cards:", err);
@@ -588,6 +600,36 @@ export function ScannedCardsProvider({
     }
   }, [triggerAutoFeed, t]);
 
+  const addUnmatchedCard = useCallback((capturedImageUrl?: string) => {
+    const collection = activeCollectionRef.current;
+    if (!collection) return;
+
+    const record: UnmatchedCard = {
+      scanId: generateScanId(),
+      capturedImageUrl,
+      scannedAt: Date.now(),
+    };
+
+    setUnmatchedCards((prev) => [record, ...prev]);
+
+    addUnmatchedCardApi(collection.guid, record).catch((err) => {
+      console.error("Failed to persist unmatched card:", err);
+      setUnmatchedCards((prev) =>
+        prev.filter((c) => c.scanId !== record.scanId),
+      );
+    });
+  }, []);
+
+  const removeUnmatchedCard = useCallback((scanId: string) => {
+    const collection = activeCollectionRef.current;
+    setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+    if (collection) {
+      removeUnmatchedCardApi(collection.guid, scanId).catch((err) =>
+        console.error("Failed to remove unmatched card:", err),
+      );
+    }
+  }, []);
+
   const removeCard = useCallback((scanId: string) => {
     const collection = activeCollectionRef.current;
     setCards((prev) => prev.filter((entry) => entry.scanId !== scanId));
@@ -700,6 +742,7 @@ export function ScannedCardsProvider({
     <ScannedCardsContext
       value={{
         cards,
+        unmatchedCards,
         isLoading,
         autoFeed,
         forceFoil,
@@ -710,6 +753,8 @@ export function ScannedCardsProvider({
         registerCardArrivedHook,
         registerPauseHook,
         addCard,
+        addUnmatchedCard,
+        removeUnmatchedCard,
         sendCatchAllBin,
         removeCard,
         removeCards,

@@ -4,6 +4,7 @@ import type {
   PhoneCameraMessage,
   PlayingCardWithDistance,
   ScannedCard,
+  UnmatchedCard,
 } from "@magic-vault/shared";
 import { and, count, desc, eq, gte, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -16,6 +17,7 @@ import {
   games,
   orgBilling,
   orgSettings,
+  unmatchedCards,
 } from "../db/schema";
 import {
   buildCardScannedEmbed,
@@ -109,6 +111,18 @@ function toScannedCard(row: {
     isDownloaded: row.isDownloaded ?? undefined,
     alternativeMatches:
       (row.alternativeMatches as PlayingCardWithDistance[] | null) ?? undefined,
+  };
+}
+
+function toUnmatchedCard(row: {
+  guid: string | null;
+  capturedImageDataUrl: string | null;
+  scannedAt: Date;
+}): UnmatchedCard {
+  return {
+    scanId: row.guid!,
+    capturedImageUrl: row.capturedImageDataUrl ?? undefined,
+    scannedAt: row.scannedAt.getTime(),
   };
 }
 
@@ -859,6 +873,141 @@ router.delete("/:guid/cards/:scanId", requireAuth, requireOrg, async (c) => {
   }
 });
 
+// GET /collections/:guid/unmatched — cards scanned but not matched to anything
+router.get("/:guid/unmatched", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const guid = c.req.param("guid");
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const collection = await tx.query.collections.findFirst({
+        where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+        columns: { id: true },
+      });
+      if (!collection)
+        return { success: false, message: "Collection not found." };
+
+      const rows = await tx
+        .select({
+          guid: unmatchedCards.guid,
+          capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
+          scannedAt: unmatchedCards.scannedAt,
+        })
+        .from(unmatchedCards)
+        .where(
+          and(
+            eq(unmatchedCards.collectionId, collection.id),
+            eq(unmatchedCards.isDeleted, false),
+          ),
+        )
+        .orderBy(desc(unmatchedCards.scannedAt));
+
+      return { success: true, data: rows.map(toUnmatchedCard) };
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
+// POST /collections/:guid/unmatched — record a scan that found no card match
+router.post("/:guid/unmatched", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const guid = c.req.param("guid");
+  const { scanId, scannedAt, capturedImageUrl } =
+    await c.req.json<UnmatchedCard>();
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const collection = await tx.query.collections.findFirst({
+        where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+        columns: { id: true },
+      });
+      if (!collection)
+        return { success: false, message: "Collection not found." };
+
+      await tx
+        .insert(unmatchedCards)
+        .values({
+          guid: scanId,
+          collectionId: collection.id,
+          capturedImageDataUrl: capturedImageUrl ?? null,
+          scannedAt: new Date(scannedAt),
+          orgId,
+        })
+        .onConflictDoNothing();
+
+      return {
+        success: true,
+        data: { scanId, capturedImageUrl, scannedAt } as UnmatchedCard,
+      };
+    });
+    if (result.success) emitToSession(guid, "unmatched_added", result.data);
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
+// DELETE /collections/:guid/unmatched — soft-delete all unmatched cards for a collection
+router.delete("/:guid/unmatched", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const guid = c.req.param("guid");
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const collection = await tx.query.collections.findFirst({
+        where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+        columns: { id: true },
+      });
+      if (!collection)
+        return { success: false, message: "Collection not found." };
+
+      await tx
+        .update(unmatchedCards)
+        .set({ isDeleted: true })
+        .where(eq(unmatchedCards.collectionId, collection.id));
+
+      return { success: true, data: null };
+    });
+    if (result.success) emitToSession(guid, "unmatched_cleared", {});
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
+// DELETE /collections/:guid/unmatched/:scanId — soft-delete one unmatched card
+router.delete(
+  "/:guid/unmatched/:scanId",
+  requireAuth,
+  requireOrg,
+  async (c) => {
+    const orgId = c.get("orgId");
+    const { guid, scanId } = c.req.param();
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        await tx
+          .update(unmatchedCards)
+          .set({ isDeleted: true })
+          .where(
+            and(
+              eq(unmatchedCards.guid, scanId),
+              eq(unmatchedCards.orgId, orgId),
+            ),
+          );
+        return { success: true, data: null };
+      });
+      if (result.success)
+        emitToSession(guid, "unmatched_removed", { scanId });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  },
+);
+
 router.delete("/:guid/scan-lock", requireAuth, requireOrg, async (c) => {
   const guid = c.req.param("guid");
   const userId = c.get("userId");
@@ -966,6 +1115,21 @@ router.get("/:guid/stream", async (c) => {
           .where(eq(collectionCards.collectionId, collection.id))
           .orderBy(desc(collectionCards.scannedAt));
 
+        const unmatchedRows = await tx
+          .select({
+            guid: unmatchedCards.guid,
+            capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
+            scannedAt: unmatchedCards.scannedAt,
+          })
+          .from(unmatchedCards)
+          .where(
+            and(
+              eq(unmatchedCards.collectionId, collection.id),
+              eq(unmatchedCards.isDeleted, false),
+            ),
+          )
+          .orderBy(desc(unmatchedCards.scannedAt));
+
         return {
           collection: {
             guid: collection.guid!,
@@ -989,6 +1153,7 @@ router.get("/:guid/stream", async (c) => {
             updatedAt: collection.updatedAt,
           } satisfies Collection,
           cards: cardRows.map(toScannedCard),
+          unmatchedCards: unmatchedRows.map(toUnmatchedCard),
           viewers: getSessionViewers(guid),
         };
       });

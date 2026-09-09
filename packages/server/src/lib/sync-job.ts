@@ -2,16 +2,17 @@ import type { SyncState, SyncStatus } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { db } from "../db";
 import { cardImageVectors } from "../db/schema";
+import { fabSyncSource } from "./adapters/fab/sync";
+import { gundamSyncSource } from "./adapters/gundam/sync";
+import { lorcanaSyncSource } from "./adapters/lorcana/sync";
+import { onePieceSyncSource } from "./adapters/onepiece/sync";
+import { pokemonSyncSource } from "./adapters/pokemon/sync";
+import { riftboundSyncSource } from "./adapters/riftbound/sync";
+import { scryfallSyncSource } from "./adapters/scryfall/sync";
+import { yugiohSyncSource } from "./adapters/yugioh/sync";
 import type { SyncSource, SyncSourceCard } from "./card-search/sync-types";
 import { sendDiscordNotification } from "./discord";
-import { fabSyncSource } from "./fab/sync";
-import { gundamSyncSource } from "./gundam/sync";
-import { lorcanaSyncSource } from "./lorcana/sync";
-import { onePieceSyncSource } from "./onepiece/sync";
-import { pokemonSyncSource } from "./pokemon/sync";
-import { scryfallSyncSource } from "./scryfall/sync";
 import { vectorizeImageFromBuffer } from "./vectorize";
-import { yugiohSyncSource } from "./yugioh/sync";
 
 export const SYNC_SOURCES: Record<string, SyncSource> = {
   mtg: scryfallSyncSource,
@@ -21,6 +22,7 @@ export const SYNC_SOURCES: Record<string, SyncSource> = {
   onepiece: onePieceSyncSource,
   fab: fabSyncSource,
   yugioh: yugiohSyncSource,
+  riftbound: riftboundSyncSource,
 };
 
 type SseWriter = (event: string, data: unknown) => void;

@@ -166,6 +166,7 @@
     "heading": "Débogage",
     "simulateScan": "Simuler un scan",
     "simulateMultiMatch": "Simuler des correspondances multiples",
+    "simulateNoMatch": "Simuler une carte non reconnue",
     "forceError": "Forcer une erreur"
   },
   "scannerMenu": {
@@ -227,6 +228,12 @@
   },
   "sessionErrorsPanel": {
     "heading": "Erreurs"
+  },
+  "unmatchedCardsPanel": {
+    "heading_one": "{{count}} carte non reconnue",
+    "heading_other": "{{count}} cartes non reconnues",
+    "imageAlt": "Carte non reconnue",
+    "noImage": "Aucune image capturée"
   },
   "sessionStatsPanel": {
     "totalCards": "Total des cartes",

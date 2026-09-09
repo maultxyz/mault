@@ -31,6 +31,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   const isMobile = useIsMobile();
   const {
     addCard,
+    addUnmatchedCard,
     sendCatchAllBin,
     autoFeed,
     setAutoFeed,
@@ -90,7 +91,10 @@ export function CardScanner({ className, compact }: CardScannerProps) {
         addCard(cards[0], capturedImageUrl, cards.slice(1));
       }
     },
-    onNoMatch: sendCatchAllBin,
+    onNoMatch: (capturedImageUrl) => {
+      addUnmatchedCard(capturedImageUrl);
+      sendCatchAllBin();
+    },
     rotated: !isMobile,
   });
   const scanningBlocked = apiHealthCheck?.status === "error" || isAtScanLimit;

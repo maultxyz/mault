@@ -294,6 +294,30 @@ export const collectionCards = pgTable(
   ],
 ).enableRLS();
 
+export const unmatchedCards = pgTable(
+  "unmatched_cards",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    collectionId: integer("collection_id")
+      .notNull()
+      .references(() => collections.id, { onDelete: "cascade" }),
+    capturedImageDataUrl: text("captured_image_data_url"),
+    scannedAt: timestamp("scanned_at").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("unmatched_cards_guid_idx").on(table.guid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const orgSettings = pgTable(
   "org_settings",
   {
@@ -507,6 +531,16 @@ export const collectionCardsRelations = relations(
   ({ one }) => ({
     collection: one(collections, {
       fields: [collectionCards.collectionId],
+      references: [collections.id],
+    }),
+  }),
+);
+
+export const unmatchedCardsRelations = relations(
+  unmatchedCards,
+  ({ one }) => ({
+    collection: one(collections, {
+      fields: [unmatchedCards.collectionId],
       references: [collections.id],
     }),
   }),

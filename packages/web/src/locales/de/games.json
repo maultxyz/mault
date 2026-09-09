@@ -42,6 +42,7 @@
     "validation": {
       "required": "Erforderlich",
       "keyFormat": "Nur Kleinbuchstaben, Zahlen und Bindestriche",
+      "keyTaken": "Ein Spiel mit diesem Schlüssel existiert bereits",
       "urlFormat": "Gib eine gültige URL ein",
       "minFields": "Mindestens ein Feld hinzufügen"
     }

@@ -17,6 +17,7 @@ import {
   IconAlertTriangle,
   IconBug,
   IconCards,
+  IconPhotoOff,
   IconStack2,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -26,7 +27,7 @@ let mockCardIndex = 0;
 export function ScannerDebug() {
   const { t } = useTranslation("scanner");
   const { isAdmin } = useRole();
-  const { addCard } = useScannedCards();
+  const { addCard, addUnmatchedCard } = useScannedCards();
   const { activeCollection } = useCollections();
 
   if (!isAdmin) return null;
@@ -43,6 +44,10 @@ export function ScannerDebug() {
   const handleSimulateMultiMatch = () => {
     const { card, imageUrl, alternates } = debugCards.multiMatch;
     addCard(card, imageUrl, alternates);
+  };
+
+  const handleSimulateNoMatch = () => {
+    addUnmatchedCard(debugCards.multiMatch.imageUrl);
   };
 
   const handleForceError = () => {
@@ -73,6 +78,10 @@ export function ScannerDebug() {
           <DropdownMenuItem onClick={handleSimulateMultiMatch}>
             <IconStack2 className="size-3.5" />
             {t("scannerDebug.simulateMultiMatch")}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSimulateNoMatch}>
+            <IconPhotoOff className="size-3.5" />
+            {t("scannerDebug.simulateNoMatch")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

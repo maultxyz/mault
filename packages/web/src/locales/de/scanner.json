@@ -166,6 +166,7 @@
     "heading": "Debug",
     "simulateScan": "Scan simulieren",
     "simulateMultiMatch": "Mehrfachtreffer simulieren",
+    "simulateNoMatch": "Nicht erkannte Karte simulieren",
     "forceError": "Fehler erzwingen"
   },
   "scannerMenu": {
@@ -227,6 +228,12 @@
   },
   "sessionErrorsPanel": {
     "heading": "Fehler"
+  },
+  "unmatchedCardsPanel": {
+    "heading_one": "{{count}} nicht erkannte Karte",
+    "heading_other": "{{count}} nicht erkannte Karten",
+    "imageAlt": "Nicht erkannte Karte",
+    "noImage": "Kein Bild aufgenommen"
   },
   "sessionStatsPanel": {
     "totalCards": "Karten gesamt",

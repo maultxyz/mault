@@ -1,5 +1,5 @@
-import { CARD_API_HEADERS } from "../card-search/constants";
-import type { SyncSource, SyncSourceCard } from "../card-search/sync-types";
+import { CARD_API_HEADERS } from "../../card-search/constants";
+import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
 import { FAB_DEFAULT_URL, findPrinting, type FabCard } from "./search";
 
 const PAGE_LIMIT = 100;
