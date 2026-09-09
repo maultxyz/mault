@@ -61,6 +61,7 @@
     "sortingLogic": "Sorting Logic",
     "selectSetPlaceholder": "Select a set...",
     "noMatchingSets": "No matching sets",
+    "duplicateName": "A set with this name already exists",
     "editSortingLogic": "Edit Sorting Logic",
     "deleteSetTitle": "Delete Set",
     "deleteSetDescription": "Permanently deletes \"{{name}}\". This cannot be undone.",

@@ -28,6 +28,17 @@ export async function renameCollection(guid: string, name: string): Promise<Resu
   return apiPut<Result<Collection[]>>(`/api/collections/${guid}`, { name });
 }
 
+export async function checkCollectionName(
+  name: string,
+  excludeGuid?: string,
+): Promise<Result<{ available: boolean }>> {
+  const params = new URLSearchParams({ name });
+  if (excludeGuid) params.set("excludeGuid", excludeGuid);
+  return apiGet<Result<{ available: boolean }>>(
+    `/api/collections/check-name?${params.toString()}`,
+  );
+}
+
 export async function activateCollection(guid: string): Promise<Result<Collection[]>> {
   return apiPut<Result<Collection[]>>(`/api/collections/${guid}/active`);
 }

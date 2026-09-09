@@ -7,7 +7,7 @@ import {
   type DefaultBinInit,
   type FieldMeta,
 } from "@magic-vault/shared";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Transaction } from "../db";
 import { authQuery } from "../db";
@@ -149,6 +149,58 @@ async function _resolveGameId(
   return game?.id ?? null;
 }
 
+async function _binSetNameTaken(
+  tx: Transaction,
+  orgId: string,
+  gameId: number | null,
+  name: string,
+  excludeGuid?: string,
+): Promise<boolean> {
+  const trimmed = name.trim().toLowerCase();
+  const existing = await tx.query.binSets.findFirst({
+    where: (t, { eq, and, isNull }) =>
+      and(
+        eq(t.orgId, orgId),
+        gameId === null ? isNull(t.gameId) : eq(t.gameId, gameId),
+        sql`lower(trim(${t.name})) = ${trimmed}`,
+      ),
+    columns: { guid: true },
+  });
+  if (!existing) return false;
+  return existing.guid !== excludeGuid;
+}
+
+router.get("/check-name", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const name = c.req.query("name")?.trim();
+  const excludeGuid = c.req.query("excludeGuid") || undefined;
+  const gameGuid = c.req.query("gameGuid") || undefined;
+  if (!name) {
+    return c.json({ success: false, message: "name is required." }, 400);
+  }
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await _resolveGameId(tx, gameGuid);
+      const taken = await _binSetNameTaken(
+        tx,
+        orgId,
+        gameId,
+        name,
+        excludeGuid,
+      );
+      return {
+        success: true,
+        message: "Checked.",
+        data: { available: !taken },
+      };
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
 router.get("/", requireAuth, requireOrg, async (c) => {
   const orgId = c.get("orgId");
   try {
@@ -213,6 +265,19 @@ router.post("/", requireAuth, requireOrg, async (c) => {
     gameGuid?: string;
   }>();
   try {
+    const nameTaken = await authQuery(c.get("jwtClaims"), async (tx) =>
+      _binSetNameTaken(tx, orgId, await _resolveGameId(tx, gameGuid), name),
+    );
+    if (nameTaken) {
+      return c.json(
+        {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+        },
+        409,
+      );
+    }
+
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const gameId = await _resolveGameId(tx, gameGuid);
 
@@ -272,6 +337,19 @@ router.post("/copies", requireAuth, requireOrg, async (c) => {
     gameGuid?: string;
   }>();
   try {
+    const nameTaken = await authQuery(c.get("jwtClaims"), async (tx) =>
+      _binSetNameTaken(tx, orgId, await _resolveGameId(tx, gameGuid), name),
+    );
+    if (nameTaken) {
+      return c.json(
+        {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+        },
+        409,
+      );
+    }
+
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const gameId = await _resolveGameId(tx, gameGuid);
 
@@ -454,16 +532,26 @@ router.put("/:guid", requireAuth, requireOrg, async (c) => {
       const target = await tx.query.binSets.findFirst({
         where: (binSets, { eq, and }) =>
           and(eq(binSets.guid, guid), eq(binSets.orgId, orgId)),
-        columns: { id: true },
+        columns: { id: true, gameId: true },
       });
       if (!target) return { message: "Set not found.", success: false };
+      if (await _binSetNameTaken(tx, orgId, target.gameId, name, guid)) {
+        return {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+          nameTaken: true,
+        };
+      }
       await tx
         .update(binSets)
         .set({ name, updatedAt: new Date() })
         .where(eq(binSets.id, target.id));
       return _loadSets(tx, orgId);
     });
-    return c.json(result);
+    return c.json(
+      result,
+      "nameTaken" in result && result.nameTaken ? 409 : 200,
+    );
   } catch (err) {
     console.error(err);
     return c.json({ success: false, message: "Database error." }, 500);

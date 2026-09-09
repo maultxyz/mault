@@ -17,7 +17,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import {
+  checkCollectionName,
+  collectionsQueryOptions,
+} from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -38,7 +41,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -85,25 +88,42 @@ export default function CollectionsPage() {
     mode: "onChange",
   });
 
+  const renameNameValue = renameForm.watch("name");
+  const { data: renameNameCheck } = useQuery({
+    queryKey: [
+      "collections",
+      "check-name",
+      renameNameValue,
+      renameTarget?.guid,
+    ],
+    queryFn: () => checkCollectionName(renameNameValue, renameTarget?.guid),
+    enabled: !!renameTarget && !!renameNameValue?.trim(),
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (!renameTarget || !renameNameValue?.trim()) return;
+    if (
+      renameNameCheck?.success &&
+      renameNameCheck.data &&
+      !renameNameCheck.data.available
+    ) {
+      renameForm.setError("name", {
+        type: "taken",
+        message: t("createDialog.duplicateName"),
+      });
+    } else {
+      renameForm.clearErrors("name");
+    }
+  }, [renameTarget, renameNameValue, renameNameCheck, renameForm, t]);
+
   const handleRename = useCallback(
     async (values: RenameCollectionFormValues) => {
       if (!renameTarget) return;
-      const isDuplicate = collections.some(
-        (c) =>
-          c.guid !== renameTarget.guid &&
-          c.name.trim().toLowerCase() === values.name.trim().toLowerCase(),
-      );
-      if (isDuplicate) {
-        renameForm.setError("name", {
-          type: "manual",
-          message: t("createDialog.duplicateName"),
-        });
-        return;
-      }
       await renameCollection(renameTarget.guid, values.name);
       setRenameTarget(null);
     },
-    [renameTarget, renameCollection, collections, renameForm],
+    [renameTarget, renameCollection],
   );
 
   const handleDelete = useCallback(async () => {

@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 import {
   binsQueryOptions,
+  checkSetName,
   getBinSetHistory,
   revertBinSet,
   type BinSetAuditEntry,
@@ -46,7 +47,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -149,6 +150,63 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
     defaultValues: { name: selectedSet?.name ?? "" },
     mode: "onChange",
   });
+
+  const activeGameGuid = activeCollection?.game?.guid;
+
+  const createNameValue = createForm.watch("name");
+  const { data: createNameCheck } = useQuery({
+    queryKey: ["bins", "check-name", createNameValue, activeGameGuid],
+    queryFn: () => checkSetName(createNameValue, activeGameGuid),
+    enabled: createDialogOpen && !!createNameValue?.trim(),
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (!createDialogOpen || !createNameValue?.trim()) return;
+    if (
+      createNameCheck?.success &&
+      createNameCheck.data &&
+      !createNameCheck.data.available
+    ) {
+      createForm.setError("name", {
+        type: "taken",
+        message: t("presetSelector.duplicateName"),
+      });
+    } else {
+      createForm.clearErrors("name");
+    }
+  }, [createDialogOpen, createNameValue, createNameCheck, createForm, t]);
+
+  const renameNameValue = renameForm.watch("name");
+  const { data: renameNameCheck } = useQuery({
+    queryKey: [
+      "bins",
+      "check-name",
+      renameNameValue,
+      activeGameGuid,
+      selectedSet?.guid,
+    ],
+    queryFn: () =>
+      checkSetName(renameNameValue, activeGameGuid, selectedSet?.guid),
+    enabled: renameDialogOpen && !!renameNameValue?.trim(),
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (!renameDialogOpen || !renameNameValue?.trim()) return;
+    if (
+      renameNameCheck?.success &&
+      renameNameCheck.data &&
+      !renameNameCheck.data.available
+    ) {
+      renameForm.setError("name", {
+        type: "taken",
+        message: t("presetSelector.duplicateName"),
+      });
+    } else {
+      renameForm.clearErrors("name");
+    }
+  }, [renameDialogOpen, renameNameValue, renameNameCheck, renameForm, t]);
 
   const handleCreate = useCallback(
     async (values: CreateSetFormValues) => {

@@ -61,6 +61,7 @@
     "sortingLogic": "Logique de tri",
     "selectSetPlaceholder": "Sélectionner un ensemble...",
     "noMatchingSets": "Aucun ensemble correspondant",
+    "duplicateName": "Un ensemble avec ce nom existe déjà",
     "editSortingLogic": "Modifier la logique de tri",
     "deleteSetTitle": "Supprimer l'ensemble",
     "deleteSetDescription": "Supprimer définitivement « {{name}} ». Cette action est irréversible.",
