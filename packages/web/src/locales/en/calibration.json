@@ -47,9 +47,9 @@
     "label": "Bin Routing Assignment",
     "resetToDefaults": "Reset to Defaults",
     "binLabel": "Bin {{bin}}",
-    "moduleLeft": "Module {{module}} — Left",
-    "moduleRight": "Module {{module}} — Right",
-    "moduleBottom": "Module {{module}} — Bottom"
+    "moduleLeft": "Module {{module}}, Left",
+    "moduleRight": "Module {{module}}, Right",
+    "moduleBottom": "Module {{module}}, Bottom"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
@@ -136,7 +136,9 @@
       "binFailed": "Bin {{bin}} failed",
       "startingSampleRun": "Starting sample run…",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}",
-      "sampleRunComplete": "Sample run complete"
+      "sampleRunComplete": "Sample run complete",
+      "calibrationCopied": "Calibration copied to clipboard",
+      "copyFailed": "Failed to copy calibration"
     }
   },
   "useFeederConfig": {
@@ -191,6 +193,7 @@
     "scanRegionLabel": "Scan Region",
     "feederCalibrationLabel": "Feeder Calibration",
     "history": "History",
+    "copyCalibration": "Copy Calibration",
     "moduleCalibrationLabel": "Module Calibration",
     "feederHistoryTitle": "Feeder History",
     "moduleHistoryTitle": "Module History"

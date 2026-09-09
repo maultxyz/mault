@@ -56,6 +56,8 @@
     "startTooltip": "Alimenter la première carte et démarrer le scan",
     "autoFeedOnTooltip": "Alimentation auto activée — la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée — alimenter chaque carte manuellement",
+    "forceFoilOnTooltip": "Quand le mode foil est activé, chaque carte scannée durant cette session est marquée foil",
+    "forceFoilOffTooltip": "Quand le mode foil est désactivé, les cartes sont scannées non foil par défaut",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
     "noCardsMatchFilters": "Aucune carte ne correspond aux filtres actuels",
     "tryAdjusting": "Essaie d'ajuster ta recherche, ton tri ou tes filtres",
@@ -126,6 +128,7 @@
     "byRarity": "Par rareté",
     "topSets": "Meilleurs sets",
     "includePreviouslyDownloaded": "Inclure celles déjà téléchargées",
+    "applyGridFilters": "Appliquer les filtres actifs ({{count}})",
     "close": "Fermer",
     "download": "Télécharger ({{count}})"
   }

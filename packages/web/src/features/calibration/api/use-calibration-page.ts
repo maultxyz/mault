@@ -1,10 +1,12 @@
 import { modulesQueryOptions } from "@/features/calibration/api/module-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
+import { useChannelLayout } from "@/features/calibration/api/use-channel-layout";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import {
+  buildCalibrationDebugText,
   defaultSliderValues,
   getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
@@ -23,8 +25,17 @@ import { toast } from "sonner";
 
 export function useCalibrationPage() {
   const { t } = useTranslation("calibration");
-  const { isConnected, connect, disconnect, sendCommand, sendRoute, sendTest, receiveResponse } =
-    useSerial();
+  const {
+    isConnected,
+    connect,
+    disconnect,
+    sendCommand,
+    sendRoute,
+    sendTest,
+    receiveResponse,
+    firmwareVersion,
+    board,
+  } = useSerial();
   const { configs, saveConfig, moveServo } = useModuleConfigs();
   const { feederConfig, saveConfig: saveFeeder, previewSpeed } = useFeederConfig();
   const { activeOrg } = useOrg();
@@ -32,6 +43,7 @@ export function useCalibrationPage() {
   const moduleCount = useModuleCount();
   const modules = Array.from({ length: moduleCount }, (_, i) => i + 1);
   const { routes: binRoutes } = useBinRoutes();
+  const channelLayout = useChannelLayout();
 
   const resolveRoute = useCallback(
     (binNumber: number): BinRoute =>
@@ -282,6 +294,24 @@ export function useCalibrationPage() {
     setIrMonitoring((prev) => !prev);
   }, []);
 
+  const handleCopyCalibration = useCallback(async () => {
+    const text = buildCalibrationDebugText({
+      channelLayout,
+      moduleCount,
+      configs,
+      feederConfig,
+      binRoutes,
+      firmwareVersion,
+      board,
+    });
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(t("useCalibrationPage.toasts.calibrationCopied"));
+    } catch {
+      toast.error(t("useCalibrationPage.toasts.copyFailed"));
+    }
+  }, [channelLayout, moduleCount, configs, feederConfig, binRoutes, firmwareVersion, board, t]);
+
   useEffect(() => {
     if (!irMonitoring || !isConnected) return;
     const id = setInterval(() => {
@@ -340,5 +370,6 @@ export function useCalibrationPage() {
     irMonitoring,
     handleReadIR: readIR,
     handleToggleIrMonitor,
+    handleCopyCalibration,
   };
 }

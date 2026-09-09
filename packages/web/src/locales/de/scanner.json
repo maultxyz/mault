@@ -20,6 +20,10 @@
       "title": "Gerätetest fehlgeschlagen",
       "description": "Verbunden, aber keine Antwort erhalten. Versuche eine erneute Verbindung."
     },
+    "copyCommunication": "Kommunikation kopieren",
+    "commLogCopied": "Kommunikationsprotokoll in die Zwischenablage kopiert",
+    "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
+    "commLogEmpty": "Noch keine Kommunikation aufgezeichnet",
     "firmwareOutdatedBanner": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Lade firmware/main/main.ino erneut hoch, um zu aktualisieren.",
     "firmwareVersionMissingBanner": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
     "update": {

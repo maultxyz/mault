@@ -34,7 +34,7 @@
     },
     "createCollection": {
       "title": "Create a collection",
-      "content": "Collections keep separate scan histories and sorting rules - one per game, box, or project. Click here to start a new one."
+      "content": "Collections keep separate scan histories and sorting rules, one per game, box, or project. Click here to start a new one."
     },
     "editCollection": {
       "title": "Edit a collection",
@@ -57,7 +57,7 @@
     "triggerTooltip": "How sorting rules work",
     "welcome": {
       "title": "Sorting logic, in depth",
-      "content": "Let's walk through how to build the rules that decide which bin each scanned card lands in. Skip anytime - you can replay this from the same help icon."
+      "content": "Let's walk through how to build the rules that decide which bin each scanned card lands in. Skip anytime. You can replay this from the same help icon."
     },
     "sets": {
       "title": "Rule sets",
@@ -69,11 +69,11 @@
     },
     "catchAll": {
       "title": "Set a catch-all",
-      "content": "Exactly one bin should be the catch-all - it receives any card that doesn't match another bin's rules. Toggle it on here."
+      "content": "Exactly one bin should be the catch-all. It receives any card that doesn't match another bin's rules. Toggle it on here."
     },
     "autoAssign": {
       "title": "Or let it auto-detect",
-      "content": "Instead of writing rules by hand, turn on auto-detect and pick a field. The first time a new value for that field shows up, it claims the next open bin automatically - repeats route back, and once every bin is taken, new values fall to the catch-all. Reset it anytime from here or the quick reset button on the scan page."
+      "content": "Instead of writing rules by hand, turn on auto-detect and pick a field. The first time a new value for that field shows up, it claims the next open bin automatically. Repeats route back, and once every bin is taken, new values fall to the catch-all. Reset it anytime from here or the quick reset button on the scan page."
     },
     "combinator": {
       "title": "AND vs OR",
@@ -81,7 +81,7 @@
     },
     "addCondition": {
       "title": "Add a condition",
-      "content": "A condition matches a field - rarity, color, price, and more - against an operator and a value. Click here to add one."
+      "content": "A condition matches a field, rarity, color, price, and more, against an operator and a value. Click here to add one."
     },
     "conditionRow": {
       "title": "Build the condition",
@@ -89,7 +89,7 @@
     },
     "addGroup": {
       "title": "Nest a group",
-      "content": "For more advanced logic, add a nested group with its own AND/OR combinator - useful for rules like \"(rarity is mythic OR rare) AND price > $5\"."
+      "content": "For more advanced logic, add a nested group with its own AND/OR combinator, useful for rules like \"(rarity is mythic OR rare) AND price > $5\"."
     },
     "save": {
       "title": "Save your changes",
@@ -104,7 +104,7 @@
     "triggerTooltip": "How calibration works",
     "welcome": {
       "title": "Calibrating your sorter",
-      "content": "Let's walk through connecting your sorter and dialing in each servo. Skip anytime - you can replay this from the same help icon."
+      "content": "Let's walk through connecting your sorter and dialing in each servo. Skip anytime. You can replay this from the same help icon."
     },
     "sections": {
       "title": "Three sections",
@@ -112,7 +112,7 @@
     },
     "connect": {
       "title": "Connect your sorter",
-      "content": "Pair the sorter over USB here first - most of this page is disabled until it's connected. Run Test to sample every servo once you're calibrated."
+      "content": "Pair the sorter over USB here first. Most of this page is disabled until it's connected. Run Test to sample every servo once you're calibrated."
     },
     "channelLayout": {
       "title": "Channel layout",
@@ -120,7 +120,7 @@
     },
     "moduleCount": {
       "title": "Module count",
-      "content": "Set how many sorting modules are physically installed - this determines how many bins are available."
+      "content": "Set how many sorting modules are physically installed. This determines how many bins are available."
     },
     "binRouting": {
       "title": "Bin routing",
@@ -144,7 +144,7 @@
     },
     "moduleCalibration": {
       "title": "Servo calibration",
-      "content": "For each module, jog the bottom, paddle, and pusher servos to their open/closed (or left/neutral/right) positions and save them - this is what makes routing land cards accurately."
+      "content": "For each module, jog the bottom, paddle, and pusher servos to their open/closed (or left/neutral/right) positions and save them. This is what makes routing land cards accurately."
     },
     "done": {
       "title": "That's calibration!",

@@ -56,6 +56,8 @@
     "startTooltip": "Die erste Karte zuführen und den Scan starten",
     "autoFeedOnTooltip": "Auto-Zuführung an — die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus — jede Karte manuell zuführen",
+    "forceFoilOnTooltip": "Wenn der Foilmodus aktiviert ist, wird jede in dieser Sitzung gescannte Karte als Foil markiert",
+    "forceFoilOffTooltip": "Wenn der Foilmodus deaktiviert ist, werden Karten standardmäßig nicht als Foil gescannt",
     "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
     "noCardsMatchFilters": "Keine Karten entsprechen den aktuellen Filtern",
     "tryAdjusting": "Passe deine Suche, Sortierung oder Filter an",
@@ -126,6 +128,7 @@
     "byRarity": "Nach Seltenheit",
     "topSets": "Top-Editionen",
     "includePreviouslyDownloaded": "Bereits heruntergeladene einschließen",
+    "applyGridFilters": "Aktive Filter anwenden ({{count}})",
     "close": "Schließen",
     "download": "Herunterladen ({{count}})"
   }

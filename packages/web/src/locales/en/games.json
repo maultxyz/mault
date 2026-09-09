@@ -62,7 +62,7 @@
     "labelPlaceholder": "Label (e.g. Rarity)",
     "dataPathPlaceholder": "Data path (e.g. prices.usd)",
     "optionsPlaceholder": "Options, comma separated (e.g. common, uncommon, rare)",
-    "empty": "No fields yet — add at least one for bin rules to filter on."
+    "empty": "No fields yet. Add at least one for bin rules to filter on."
   },
   "fieldTypes": {
     "string": "String",

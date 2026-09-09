@@ -15,7 +15,7 @@
   },
   "hero": {
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
-    "subtitle": "Load your cards into the hopper and Mault takes it from there - the feeder pushes each one past the camera to be recognized, then sorts it into bins using rules you set: rarity, color, set, type, or anything else. No spreadsheets, no guesswork.",
+    "subtitle": "Load your cards into the hopper and Mault takes it from there. The feeder pushes each one past the camera to be recognized, then sorts it into bins using rules you set: rarity, color, set, type, or anything else. No spreadsheets, no guesswork.",
     "getStartedFree": "Get started free",
     "seeHowItWorks": "See how it works",
     "currentSession": "Current session",
@@ -32,7 +32,7 @@
   },
   "supportedGames": {
     "heading": "Easily sorts any TCG you love",
-    "subtitle": "New games get added right into the sorter's database, not hard-coded into the app - here's what's supported today.",
+    "subtitle": "New games get added right into the sorter's database, not hard-coded into the app. Here's what's supported today.",
     "cardsIndexed_one": "{{formatted}} card indexed",
     "cardsIndexed_other": "{{formatted}} cards indexed"
   },
@@ -43,15 +43,15 @@
     "steps": {
       "showCard": {
         "title": "Load up the hopper",
-        "description": "Drop your cards in and the feeder pushes each one past the camera automatically - no scanner or phone app needed."
+        "description": "Drop your cards in and the feeder pushes each one past the camera automatically. No scanner or phone app needed."
       },
       "recognized": {
         "title": "It's recognized instantly",
-        "description": "Mault matches it against the full card database in an instant - rarity, set, and all."
+        "description": "Mault matches it against the full card database in an instant, rarity, set, and all."
       },
       "sorted": {
         "title": "Sorted by your rules",
-        "description": "Set your rules once - by rarity, color, set, type, or whatever you like - and every card finds its own way."
+        "description": "Set your rules once, by rarity, color, set, type, or whatever you like, and every card finds its own way."
       },
       "organized": {
         "title": "Always organized",
@@ -65,11 +65,11 @@
     "items": {
       "recognition": {
         "title": "Instant recognition",
-        "description": "No typing card names, no barcodes - the feeder puts each card in front of the camera, and Mault knows exactly what it is."
+        "description": "No typing card names, no barcodes. The feeder puts each card in front of the camera, and Mault knows exactly what it is."
       },
       "rules": {
         "title": "Rules you control",
-        "description": "Mix and match conditions - rarity, color, set, type, and more - to send every card exactly where you'd like."
+        "description": "Mix and match conditions, rarity, color, set, type, and more, to send every card exactly where you'd like."
       },
       "collections": {
         "title": "Multiple collections",
@@ -85,7 +85,7 @@
       },
       "hardware": {
         "title": "Built for the table",
-        "description": "Pairs with a physical sorter, so your cards land in real bins - not just another spreadsheet. Add more sorting modules any time to grow up to 11 bins."
+        "description": "Pairs with a physical sorter, so your cards land in real bins, not just another spreadsheet. Add more sorting modules any time to grow up to 11 bins."
       }
     }
   },
@@ -99,7 +99,7 @@
     },
     "printableSorter": {
       "title": "3D printable sorter",
-      "description": "Print your own card sorter at home - Fusion 360 and 3MF files are right there in the repo.",
+      "description": "Print your own card sorter at home. Fusion 360 and 3MF files are right there in the repo.",
       "getModel": "Get the 3D model",
       "buildGuide": "Read the build guide"
     },
@@ -111,7 +111,7 @@
   },
   "pricing": {
     "heading": "Simple, transparent pricing",
-    "subtitle": "The same app either way - Free covers casual sorting, Business removes the daily scan cap.",
+    "subtitle": "The same app either way. Free covers casual sorting, Business removes the daily scan cap.",
     "shared": {
       "collections": "Unlimited collections",
       "games": "Every supported card game",

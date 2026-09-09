@@ -8,13 +8,14 @@ import {
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Switch } from "@/components/ui/switch";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { applyCardFilters } from "@/features/cards/api/use-card-filter-sort";
 import {
-  exportToCardKingdom,
-  exportToCsv,
-  exportToManabox,
-  exportToMoxfield,
-  exportToTcgplayer,
-} from "@/features/cards/lib/export-formats";
+  allExportAdapters,
+  runExport,
+  supportsGame,
+  type ExportAdapter,
+} from "@/features/cards/lib/export";
+import type { CardFilters } from "@/features/cards/types";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   formatElapsed,
@@ -26,12 +27,6 @@ import { IconChevronDown, IconDownload } from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-interface ExportOption {
-  key: string;
-  label: string;
-  fn: (cards: ScannedCard[], collection: string) => void;
-}
-
 interface SessionSummaryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -39,6 +34,8 @@ interface SessionSummaryDialogProps {
   elapsedMs: number;
   collectionName: string;
   onMarkDownloaded: (scanIds: string[]) => void;
+  gridFilters: CardFilters;
+  gridFilterCount: number;
 }
 
 function StatCell({ label, value }: { label: string; value: string }) {
@@ -59,42 +56,38 @@ export function SessionSummaryDialog({
   elapsedMs,
   collectionName,
   onMarkDownloaded,
+  gridFilters,
+  gridFilterCount,
 }: SessionSummaryDialogProps) {
   const { t } = useTranslation("cards");
   const [includeDownloaded, setIncludeDownloaded] = useState(false);
+  const [applyGridFilters, setApplyGridFilters] = useState(false);
   const previouslyDownloadedCount = useMemo(
     () => cards.filter((c) => c.isDownloaded).length,
     [cards],
   );
-  const exportCards = useMemo(
-    () => (includeDownloaded ? cards : cards.filter((c) => !c.isDownloaded)),
-    [cards, includeDownloaded],
-  );
+  const exportCards = useMemo(() => {
+    const byDownloaded = includeDownloaded
+      ? cards
+      : cards.filter((c) => !c.isDownloaded);
+    // showDownloaded is already handled above by its own dedicated toggle,
+    // so it's forced true here to avoid the grid filter re-excluding cards
+    // this dialog just chose to include.
+    return applyGridFilters
+      ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
+      : byDownloaded;
+  }, [cards, includeDownloaded, applyGridFilters, gridFilters]);
   const stats = useMemo(() => computeStats(cards), [cards]);
   const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
   const { activeCollection } = useCollections();
   const { fieldDefinitions } = useBinConfigs();
 
-  const isMtg = activeCollection?.game?.key === "mtg";
-  const exportOptions: ExportOption[] = isMtg
-    ? [
-        { key: "manabox", label: "Manabox", fn: exportToManabox },
-        { key: "moxfield", label: "Moxfield", fn: exportToMoxfield },
-        { key: "tcgplayer", label: "TCGPlayer", fn: exportToTcgplayer },
-        {
-          key: "cardkingdom",
-          label: "Card Kingdom Buylist",
-          fn: exportToCardKingdom,
-        },
-      ]
-    : [
-        { key: "tcgplayer", label: "TCGPlayer", fn: exportToTcgplayer },
-        {
-          key: "csv",
-          label: "CSV",
-          fn: (c, collection) => exportToCsv(c, collection, fieldDefinitions),
-        },
-      ];
+  const gameKey = activeCollection?.game?.key;
+  const isMtg = gameKey === "mtg";
+  const exportContext = { isMtg, fieldDefinitions };
+  const exportAdapters: ExportAdapter[] = allExportAdapters.filter((adapter) =>
+    supportsGame(adapter, gameKey),
+  );
 
   const cardsPerHour =
     elapsedMs > 0 ? Math.round((cards.length / elapsedMs) * 3_600_000) : null;
@@ -117,8 +110,8 @@ export function SessionSummaryDialog({
     },
   );
 
-  function handleDownload(option: ExportOption) {
-    option.fn(exportCards, slug);
+  function handleDownload(adapter: ExportAdapter) {
+    runExport(adapter, exportCards, slug, exportContext);
     onMarkDownloaded(exportCards.map((c) => c.scanId));
     onOpenChange(false);
   }
@@ -145,12 +138,12 @@ export function SessionSummaryDialog({
               <IconChevronDown className="size-4" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {exportOptions.map((option) => (
+              {exportAdapters.map((adapter) => (
                 <DropdownMenuItem
-                  key={option.key}
-                  onClick={() => handleDownload(option)}
+                  key={adapter.key}
+                  onClick={() => handleDownload(adapter)}
                 >
-                  {option.label}
+                  {adapter.label}
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
@@ -247,6 +240,18 @@ export function SessionSummaryDialog({
                 size="sm"
                 checked={includeDownloaded}
                 onCheckedChange={setIncludeDownloaded}
+              />
+            </label>
+          )}
+          {gridFilterCount > 0 && (
+            <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
+              {t("sessionSummaryDialog.applyGridFilters", {
+                count: gridFilterCount,
+              })}
+              <Switch
+                size="sm"
+                checked={applyGridFilters}
+                onCheckedChange={setApplyGridFilters}
               />
             </label>
           )}

@@ -20,6 +20,10 @@
       "title": "Device test failed",
       "description": "Connected but got no response. Try reconnecting."
     },
+    "copyCommunication": "Copy Communication",
+    "commLogCopied": "Communication log copied to clipboard",
+    "commLogCopyFailed": "Failed to copy communication log",
+    "commLogEmpty": "No communication recorded yet",
     "firmwareOutdatedBanner": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. Re-upload firmware/main/main.ino to update it.",
     "firmwareVersionMissingBanner": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning.",
     "update": {
@@ -28,7 +32,7 @@
       "dialogTitle": "Update firmware",
       "dialogDescription": "Flashes the latest firmware to your connected ESP32 over this browser tab. Don't disconnect the device or close this tab while it's in progress.",
       "startButton": "Start update",
-      "flashing": "Flashing — do not disconnect the device…",
+      "flashing": "Flashing, do not disconnect the device…",
       "success": "Firmware flashed. Disconnect the sorter from your computer, then plug it back in to finish.",
       "errorTitle": "Update failed",
       "close": "Close",
@@ -84,7 +88,7 @@
   },
   "cardScanner": {
     "jamAutoScan": {
-      "title": "Card stuck at module 1 - forcing a scan",
+      "title": "Card stuck at module 1, forcing a scan",
       "description": "It was never identified, so we're scanning it automatically."
     },
     "jamDetected": {
@@ -182,7 +186,7 @@
   "phoneCamera": {
     "dialogTitle": "Use Phone as Camera",
     "scanDescription": "Scan this QR code on your phone, or open the link, so it can be used as this scanner's camera.",
-    "connectedDescription": "Your phone is ready - it'll take a photo whenever this scanner needs one.",
+    "connectedDescription": "Your phone is ready. It'll take a photo whenever this scanner needs one.",
     "qrAlt": "QR code to pair a phone camera",
     "statusWaiting": "Waiting for phone…",
     "statusConnected": "Connected",
@@ -201,24 +205,24 @@
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
   },
   "scannerOverlay": {
-    "apiDown": "{{api}} is currently down - scanning is disabled for this collection until it's back. Check the status page for updates.",
+    "apiDown": "{{api}} is currently down, so scanning is disabled for this collection until it's back. Check the status page for updates.",
     "dailyLimitReached": "Daily scan limit reached. Upgrade to Business for unlimited scanning.",
     "upgradeButton": "Upgrade plan",
     "connectCamera": "Connect a camera to start scanning.",
-    "waitingForPhone": "Waiting for a phone to pair as the camera - use the camera menu to show the QR code.",
+    "waitingForPhone": "Waiting for a phone to pair as the camera. Use the camera menu to show the QR code.",
     "phoneReadyNoPhoto": "Phone camera ready. It'll take a photo as soon as a card arrives.",
     "scannerNotConnected": "Card sorter not connected.",
     "connectScannerButton": "Connect",
     "testingScanner": "Testing card sorter connection…",
-    "autoFeedOff": "Auto-feed is off - feed cards manually.",
+    "autoFeedOff": "Auto-feed is off, feed cards manually.",
     "firmwareVersionMissing": "Card sorter firmware doesn't report a version. Re-upload the latest firmware/main/main.ino to enable scanning.",
-    "noCatchAllBin": "No catch-all bin configured - unmatched cards won't be sorted.",
+    "noCatchAllBin": "No catch-all bin configured, so unmatched cards won't be sorted.",
     "initializing": "Initializing scanner…",
     "requestingCameraAccess": "Requesting camera access…",
     "identifyingCard": "Identifying card…",
-    "paused": "Scanner paused - press Resume to continue.",
-    "duplicate": "Same card scanned - use Add Again to add it anyway.",
-    "noMatch": "Card not recognized - try Scan Again or adjust lighting.",
+    "paused": "Scanner paused. Press Resume to continue.",
+    "duplicate": "Same card scanned. Use Add Again to add it anyway.",
+    "noMatch": "Card not recognized. Try Scan Again or adjust lighting.",
     "faceUpHint": "Cards should face right-side up"
   },
   "sessionErrorsPanel": {

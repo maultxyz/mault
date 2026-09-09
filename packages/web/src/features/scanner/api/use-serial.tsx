@@ -1,4 +1,9 @@
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import {
+  formatCommLog,
+  MAX_COMM_LOG_ENTRIES,
+  type CommLogEntry,
+} from "@/features/scanner/lib/comm-log";
 import type {
   FlashEsp32Result,
   SerialBoardType,
@@ -43,8 +48,35 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const listenersRef = useRef(new Set<SerialMessageListener>());
   const disconnectingRef = useRef<Promise<void> | null>(null);
   const preTestHookRef = useRef<(() => Promise<void>) | null>(null);
+  const commLogRef = useRef<CommLogEntry[]>([]);
 
   const decoderRef = useRef(new TextDecoder());
+
+  const pushCommLog = useCallback(
+    (direction: CommLogEntry["direction"], text: string) => {
+      commLogRef.current.push({ direction, text, timestamp: Date.now() });
+      if (commLogRef.current.length > MAX_COMM_LOG_ENTRIES) {
+        commLogRef.current.shift();
+      }
+    },
+    [],
+  );
+
+  const getCommLog = useCallback(() => [...commLogRef.current], []);
+
+  const copyCommLog = useCallback(async () => {
+    const entries = getCommLog();
+    if (entries.length === 0) {
+      toast.error(t("serial.commLogEmpty"));
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(formatCommLog(entries));
+      toast.success(t("serial.commLogCopied"));
+    } catch {
+      toast.error(t("serial.commLogCopyFailed"));
+    }
+  }, [getCommLog, t]);
 
   const startReading = useCallback(
     async (
@@ -70,6 +102,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
                 jsonStart > 0 ? rawTrimmed.slice(jsonStart) : rawTrimmed;
 
               console.log("[Serial] ←", trimmed); // eslint-disable-line no-console -- hardware debug trace
+              pushCommLog("received", trimmed);
 
               try {
                 const parsed = JSON.parse(trimmed);
@@ -96,7 +129,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         onEnd?.();
       }
     },
-    [],
+    [pushCommLog],
   );
 
   const waitForLine = useCallback((timeoutMs: number): Promise<string> => {
@@ -132,6 +165,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         const writer = writableRef.current.getWriter();
         try {
           console.log("[Serial] →", data.trim()); // eslint-disable-line no-console -- hardware debug trace
+          pushCommLog("sent", data.trim());
           await writer.write(new TextEncoder().encode(data));
           resolve(true);
         } catch {
@@ -141,7 +175,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         }
       });
     });
-  }, []);
+  }, [pushCommLog]);
 
   const sendTest = useCallback(async (): Promise<TestResult> => {
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
@@ -259,11 +293,16 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         toast.info(t("serial.testingDevice"));
         const { ok, error: testError } = await sendTest();
         if (!portRef.current) return;
+        const copyAction = {
+          label: t("serial.copyCommunication"),
+          onClick: () => copyCommLog(),
+        };
         if (ok) {
-          toast.success(t("serial.deviceReady"));
+          toast.success(t("serial.deviceReady"), { action: copyAction });
         } else {
           toast.error(t("serial.deviceTestFailed.title"), {
             description: testError ?? t("serial.deviceTestFailed.description"),
+            action: copyAction,
           });
           void reportSerialEvent({
             command: "test",
@@ -275,7 +314,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       return true;
     },
-    [startReading, waitForLine, sendCommand, sendTest, disconnect, t],
+    [startReading, waitForLine, sendCommand, sendTest, disconnect, t, copyCommLog],
   );
 
   const connect = useCallback(async () => {

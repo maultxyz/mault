@@ -30,6 +30,7 @@ import {
   IconBolt,
   IconChevronLeft,
   IconChevronRight,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -50,6 +51,8 @@ export function CardGrid() {
     elapsedMs,
     autoFeed,
     setAutoFeed,
+    forceFoil,
+    setForceFoil,
   } = useScannedCards();
   const [summaryOpen, setSummaryOpen] = useState(false);
   const scanner = useScannerIsland();
@@ -208,6 +211,24 @@ export function CardGrid() {
                 onPause={scanner.handlePause}
                 onResume={scanner.handleResume}
               />
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      variant={forceFoil ? "default" : "outline"}
+                      size="icon"
+                      onClick={() => setForceFoil(!forceFoil)}
+                    >
+                      <IconSparkles />
+                    </Button>
+                  }
+                />
+                <TooltipContent>
+                  {forceFoil
+                    ? t("cardGrid.forceFoilOnTooltip")
+                    : t("cardGrid.forceFoilOffTooltip")}
+                </TooltipContent>
+              </Tooltip>
               {scanner.isConnected && (
                 <>
                   <Tooltip>
@@ -223,7 +244,9 @@ export function CardGrid() {
                         </Button>
                       }
                     />
-                    <TooltipContent>{t("cardGrid.startTooltip")}</TooltipContent>
+                    <TooltipContent>
+                      {t("cardGrid.startTooltip")}
+                    </TooltipContent>
                   </Tooltip>
                   <Tooltip>
                     <TooltipTrigger
@@ -377,9 +400,9 @@ export function CardGrid() {
 
       {(scanner?.isCameraActive || selectedIds.size > 0) && (
         <div className="sticky bottom-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-t">
-          <div className="flex flex-row gap-2 items-center w-full">
+          <div className="flex flex-row gap-2 items-center justify-between w-full">
             {scanner?.isCameraActive && (
-              <>
+              <div className="flex flex-row gap-2 items-center">
                 <ScannerControls
                   status={scanner.status}
                   onForceAddDuplicate={scanner.handleForceAddDuplicate}
@@ -388,6 +411,24 @@ export function CardGrid() {
                   onPause={scanner.handlePause}
                   onResume={scanner.handleResume}
                 />
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant={forceFoil ? "default" : "outline"}
+                        size="icon"
+                        onClick={() => setForceFoil(!forceFoil)}
+                      >
+                        <IconSparkles />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>
+                    {forceFoil
+                      ? t("cardGrid.forceFoilOnTooltip")
+                      : t("cardGrid.forceFoilOffTooltip")}
+                  </TooltipContent>
+                </Tooltip>
                 {scanner.isConnected && (
                   <>
                     <Tooltip>
@@ -447,13 +488,10 @@ export function CardGrid() {
                   </>
                 )}
                 <ScannerDebug />
-              </>
+              </div>
             )}
             {selectedIds.size > 0 && (
-              <>
-                {scanner?.isCameraActive && (
-                  <div className="w-px h-5 bg-border mx-1 shrink-0" />
-                )}
+              <div className="flex flex-row gap-2 items-center">
                 <span className="text-sm text-muted-foreground">
                   {t("cardGrid.cardsSelected", { count: selectedIds.size })}
                 </span>
@@ -469,7 +507,7 @@ export function CardGrid() {
                 >
                   {t("cardGrid.delete")}
                 </Button>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -482,6 +520,8 @@ export function CardGrid() {
         elapsedMs={elapsedMs}
         collectionName={activeCollection?.name ?? "collection"}
         onMarkDownloaded={markDownloaded}
+        gridFilters={filters}
+        gridFilterCount={activeFilterCount}
       />
 
       <DeleteDialog
@@ -491,7 +531,9 @@ export function CardGrid() {
         description={t("cardGrid.deleteCardsDescription", {
           count: selectedIds.size,
         })}
-        confirm={selectedIds.size > 100 ? { type: "keyword" } : { type: "simple" }}
+        confirm={
+          selectedIds.size > 100 ? { type: "keyword" } : { type: "simple" }
+        }
         onConfirm={handleBulkDelete}
       />
     </>

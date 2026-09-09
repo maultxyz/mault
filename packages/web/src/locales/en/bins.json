@@ -1,6 +1,6 @@
 {
   "nonEnglishRulesBanner": {
-    "message": "This collection is in {{language}}, so rule fields below use free text instead of dropdowns — the card data itself comes back in {{language}}, not English, so English options wouldn't match."
+    "message": "This collection is in {{language}}, so rule fields below use free text instead of dropdowns. The card data itself comes back in {{language}}, not English, so English options wouldn't match."
   },
   "noGameBanner": {
     "message": "This collection has no game assigned, so there are no card fields to build bin rules from. Recreate the collection and select a game to enable sorting."
