@@ -61,6 +61,11 @@ export default function CollectionsPage() {
     enabled: !!activeOrg,
   });
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredCollections = collections.filter((collection) =>
+    collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+  );
+
   const [renameTarget, setRenameTarget] = useState<{
     guid: string;
     name: string;
@@ -140,6 +145,14 @@ export default function CollectionsPage() {
         />
       </div>
 
+      {!isLoading && collections.length > 0 && (
+        <Input
+          placeholder={t("page.searchPlaceholder")}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      )}
+
       <div className="flex flex-col gap-2">
         {isLoading &&
           Array.from({ length: 3 }).map((_, i) => (
@@ -163,7 +176,17 @@ export default function CollectionsPage() {
           />
         )}
 
-        {collections.map((collection) => {
+        {!isLoading &&
+          collections.length > 0 &&
+          filteredCollections.length === 0 && (
+            <EmptyState
+              icon={<IconAlbum className="size-10" />}
+              title={t("page.noSearchResultsTitle")}
+              description={t("page.noSearchResultsDescription")}
+            />
+          )}
+
+        {filteredCollections.map((collection) => {
           const isActive = collection.guid === activeCollection?.guid;
           return (
             <div
