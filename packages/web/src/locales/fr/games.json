@@ -42,6 +42,7 @@
     "validation": {
       "required": "Obligatoire",
       "keyFormat": "Lettres minuscules, chiffres et tirets uniquement",
+      "keyTaken": "Un jeu avec cette clé existe déjà",
       "urlFormat": "Saisis une URL valide",
       "minFields": "Ajoute au moins un champ"
     }

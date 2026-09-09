@@ -10,13 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { checkGameKey } from "@/features/games/api/games";
 import { listSyncSources } from "@/lib/api/admin";
-import { createGameFormSchema, type GameFormValues } from "@/schemas/games.schema";
+import {
+  createGameFormSchema,
+  type GameFormValues,
+} from "@/schemas/games.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { FieldMeta, Game } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { Controller, FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { DEFAULT_OPERATORS_BY_TYPE } from "../constants/field-operators";
 import { GameFieldDefinitionsEditor } from "./game-field-definitions-editor";
@@ -94,6 +98,8 @@ export function GameFormDialog({
     register,
     handleSubmit,
     reset,
+    setError,
+    clearErrors,
     formState: { errors, isSubmitting },
   } = form;
 
@@ -106,6 +112,26 @@ export function GameFormDialog({
   useEffect(() => {
     if (open) reset(toFormValues(game));
   }, [open, game, reset]);
+
+  const keyValue = useWatch({ control, name: "key" });
+  const { data: keyCheck } = useQuery({
+    queryKey: ["games", "check-key", keyValue],
+    queryFn: () => checkGameKey(keyValue),
+    enabled: open && !game && !!keyValue,
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (!open || game || !keyValue) return;
+    if (keyCheck?.success && keyCheck.data && !keyCheck.data.available) {
+      setError("key", {
+        type: "taken",
+        message: t("gameFormDialog.validation.keyTaken"),
+      });
+    } else {
+      clearErrors("key");
+    }
+  }, [open, game, keyValue, keyCheck, setError, clearErrors, t]);
 
   async function handleFormSubmit(values: GameFormValues) {
     await onSubmit(values);
@@ -161,7 +187,9 @@ export function GameFormDialog({
                     disabled={!!game}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={t("gameFormDialog.keyPlaceholder")}>
+                      <SelectValue
+                        placeholder={t("gameFormDialog.keyPlaceholder")}
+                      >
                         {field.value
                           ? (sources.find((s) => s.gameKey === field.value)
                               ?.label ?? field.value)

@@ -62,6 +62,17 @@ export async function deleteGame(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/games/${guid}`);
 }
 
+export async function checkGameKey(
+  key: string,
+  excludeGuid?: string,
+): Promise<Result<{ available: boolean }>> {
+  const params = new URLSearchParams({ key });
+  if (excludeGuid) params.set("excludeGuid", excludeGuid);
+  return apiGet<Result<{ available: boolean }>>(
+    `/api/games/check-key?${params.toString()}`,
+  );
+}
+
 export interface SampleCard {
   name: string;
   raw: unknown;

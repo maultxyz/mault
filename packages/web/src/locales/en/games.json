@@ -42,6 +42,7 @@
     "validation": {
       "required": "Required",
       "keyFormat": "Lowercase letters, numbers, and hyphens only",
+      "keyTaken": "A game with this key already exists",
       "urlFormat": "Enter a valid URL",
       "minFields": "Add at least one field"
     }
