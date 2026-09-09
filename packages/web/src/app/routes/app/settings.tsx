@@ -8,7 +8,6 @@ import { DiscordBotSettings } from "@/features/companies/components/discord-bot-
 import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
 import { LocalOrgInvites } from "@/features/companies/components/local-org-invites";
 import { OrgSettings } from "@/features/companies/components/org-settings";
-import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useQueryClient } from "@tanstack/react-query";
@@ -19,7 +18,6 @@ import { toast } from "sonner";
 
 export default function SettingsPage() {
   const { t } = useTranslation("settings");
-  const { t: tGames } = useTranslation("games");
   const { t: tBilling } = useTranslation("billing");
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
@@ -109,17 +107,6 @@ export default function SettingsPage() {
             <p className="text-sm font-medium">{t("appearance.language")}</p>
             <LanguageSwitcher />
           </div>
-        </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <div>
-            <h2 className="text-sm font-semibold font-heading">
-              {tGames("gameCoverage.heading")}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {tGames("gameCoverage.description")}
-            </p>
-          </div>
-          <GameCoverageList />
         </div>
         <div className="rounded-lg border p-4 flex flex-col gap-4">
           <DiscordBotSettings />
