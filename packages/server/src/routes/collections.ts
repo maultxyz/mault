@@ -292,6 +292,45 @@ router.get("/live-events", async (c) => {
   });
 });
 
+async function _collectionNameTaken(
+  tx: Transaction,
+  orgId: string,
+  name: string,
+  excludeGuid?: string,
+): Promise<boolean> {
+  const trimmed = name.trim().toLowerCase();
+  const existing = await tx.query.collections.findFirst({
+    where: (t, { eq, and }) =>
+      and(eq(t.orgId, orgId), sql`lower(trim(${t.name})) = ${trimmed}`),
+    columns: { guid: true },
+  });
+  if (!existing) return false;
+  return existing.guid !== excludeGuid;
+}
+
+router.get("/check-name", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const name = c.req.query("name")?.trim();
+  const excludeGuid = c.req.query("excludeGuid") || undefined;
+  if (!name) {
+    return c.json({ success: false, message: "name is required." }, 400);
+  }
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const taken = await _collectionNameTaken(tx, orgId, name, excludeGuid);
+      return {
+        success: true,
+        message: "Checked.",
+        data: { available: !taken },
+      };
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
 // POST /collections — create and activate
 router.post("/", requireAuth, requireOrg, async (c) => {
   const orgId = c.get("orgId");
@@ -301,6 +340,19 @@ router.post("/", requireAuth, requireOrg, async (c) => {
     lang?: string;
   }>();
   try {
+    const taken = await authQuery(c.get("jwtClaims"), (tx) =>
+      _collectionNameTaken(tx, orgId, name),
+    );
+    if (taken) {
+      return c.json(
+        {
+          success: false,
+          message: `A collection named "${name.trim()}" already exists.`,
+        },
+        409,
+      );
+    }
+
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       let gameId: number | null = null;
       if (gameGuid) {
@@ -343,6 +395,13 @@ router.put("/:guid", requireAuth, requireOrg, async (c) => {
         columns: { id: true },
       });
       if (!target) return { success: false, message: "Collection not found." };
+      if (await _collectionNameTaken(tx, orgId, name, guid)) {
+        return {
+          success: false,
+          message: `A collection named "${name.trim()}" already exists.`,
+          nameTaken: true,
+        };
+      }
       await tx
         .update(collections)
         .set({ name, updatedAt: new Date() })
@@ -350,7 +409,10 @@ router.put("/:guid", requireAuth, requireOrg, async (c) => {
       return _loadCollections(tx, orgId);
     });
     if (result.success) emitToOrg(orgId, "collections_changed", { guid });
-    return c.json(result);
+    return c.json(
+      result,
+      "nameTaken" in result && result.nameTaken ? 409 : 200,
+    );
   } catch (err) {
     console.error(err);
     return c.json({ success: false, message: "Database error." }, 500);
@@ -670,32 +732,27 @@ router.post("/:guid/cards", requireAuth, requireOrg, async (c) => {
 // payloads omit it since it's stored inline as a base64 data URL and
 // including it for every card in a collection's history blows up the
 // response size.
-router.get(
-  "/:guid/cards/:scanId/image",
-  requireAuth,
-  requireOrg,
-  async (c) => {
-    const orgId = c.get("orgId");
-    const scanId = c.req.param("scanId");
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const existing = await tx.query.collectionCards.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, scanId), eq(t.orgId, orgId)),
-          columns: { capturedImageDataUrl: true },
-        });
-        if (!existing) return { success: false, message: "Card not found." };
-        return {
-          success: true,
-          data: { capturedImageUrl: existing.capturedImageDataUrl ?? undefined },
-        };
+router.get("/:guid/cards/:scanId/image", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const scanId = c.req.param("scanId");
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const existing = await tx.query.collectionCards.findFirst({
+        where: (t, { eq, and }) => and(eq(t.guid, scanId), eq(t.orgId, orgId)),
+        columns: { capturedImageDataUrl: true },
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
-  },
-);
+      if (!existing) return { success: false, message: "Card not found." };
+      return {
+        success: true,
+        data: { capturedImageUrl: existing.capturedImageDataUrl ?? undefined },
+      };
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
 
 // PUT /collections/:guid/cards/:scanId — update card (correction and/or foil status)
 router.put("/:guid/cards/:scanId", requireAuth, requireOrg, async (c) => {
@@ -998,8 +1055,7 @@ router.delete(
           );
         return { success: true, data: null };
       });
-      if (result.success)
-        emitToSession(guid, "unmatched_removed", { scanId });
+      if (result.success) emitToSession(guid, "unmatched_removed", { scanId });
       return c.json(result);
     } catch (err) {
       console.error(err);

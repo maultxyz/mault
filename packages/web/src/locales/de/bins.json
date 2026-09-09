@@ -12,7 +12,8 @@
     "ruleCount_other": "{{count}} Regeln",
     "allUnmatched": "Alle nicht zugeordneten Karten",
     "clickToConfigure": "Zum Konfigurieren klicken",
-    "waitingForValue": "Wartet auf nächsten Wert"
+    "waitingForValue": "Wartet auf nächsten Wert",
+    "scanOnlyDisabled": "Nur Scannen ist aktiv"
   },
   "binConfigPanel": {
     "needCatchAllError": "Mindestens ein Fach muss als Auffangfach festgelegt sein.",
@@ -24,7 +25,8 @@
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
     "save": "Speichern",
-    "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}"
+    "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
+    "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren."
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."
@@ -58,6 +60,8 @@
     "conditionCount_other": "{{count}} Bedingungen",
     "sortingLogic": "Sortierlogik",
     "selectSetPlaceholder": "Set auswählen...",
+    "noMatchingSets": "Keine passenden Sets",
+    "duplicateName": "Ein Set mit diesem Namen existiert bereits",
     "editSortingLogic": "Sortierlogik bearbeiten",
     "deleteSetTitle": "Set löschen",
     "deleteSetDescription": "Löscht \"{{name}}\" endgültig. Dies kann nicht rückgängig gemacht werden.",
@@ -85,7 +89,8 @@
       "renameSetFailed": "Set konnte nicht umbenannt werden",
       "deleteSetFailed": "Set konnte nicht gelöscht werden",
       "autoAssignFailed": "Auto-Erkennungseinstellungen konnten nicht aktualisiert werden",
-      "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden"
+      "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden",
+      "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden"
     }
   },
   "binsPage": {
@@ -99,5 +104,9 @@
     "resetConfirmTitle": "Automatisch erkannte Fächer zurücksetzen?",
     "resetConfirmDescription": "Löscht den gelernten Wert jedes Fachs in diesem Set. Neue Scans füllen sie von Grund auf neu.",
     "notYetAssigned": "Noch nicht zugewiesen"
+  },
+  "scanOnlyPanel": {
+    "heading": "Nur Scannen",
+    "description": "Schickt jede Karte direkt in Fach 7, das Auffangfach, ohne Sortierregeln zu prüfen. Schalte dies aus, um Fächer manuell zu konfigurieren."
   }
 }

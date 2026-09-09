@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { healthQueryOptions } from "@/features/health/api/health";
 import {
   IconAlertTriangle,
@@ -11,6 +12,7 @@ import { useTranslation } from "react-i18next";
 
 export default function HealthPage() {
   const { t } = useTranslation("health");
+  const { t: tGames } = useTranslation("games");
   const { data, isFetching, isLoading, refetch } = useQuery(healthQueryOptions);
 
   return (
@@ -96,6 +98,18 @@ export default function HealthPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="rounded-lg border p-4 flex flex-col gap-4">
+          <div>
+            <h2 className="text-sm font-semibold font-heading">
+              {tGames("gameCoverage.heading")}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {tGames("gameCoverage.description")}
+            </p>
+          </div>
+          <GameCoverageList />
         </div>
       </div>
     </div>

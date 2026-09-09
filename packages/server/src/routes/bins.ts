@@ -7,7 +7,7 @@ import {
   type DefaultBinInit,
   type FieldMeta,
 } from "@magic-vault/shared";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import type { Transaction } from "../db";
 import { authQuery } from "../db";
@@ -40,6 +40,7 @@ function toBinSet(row: {
   name: string;
   isActive: boolean;
   autoAssignField: string | null;
+  scanOnly: boolean;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -64,6 +65,7 @@ function toBinSet(row: {
     name: row.name,
     isActive: row.isActive,
     autoAssignField: row.autoAssignField,
+    scanOnly: row.scanOnly,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -93,6 +95,7 @@ const binSetQuery = {
     name: true,
     isActive: true,
     autoAssignField: true,
+    scanOnly: true,
     createdAt: true,
     updatedAt: true,
   },
@@ -145,6 +148,58 @@ async function _resolveGameId(
   });
   return game?.id ?? null;
 }
+
+async function _binSetNameTaken(
+  tx: Transaction,
+  orgId: string,
+  gameId: number | null,
+  name: string,
+  excludeGuid?: string,
+): Promise<boolean> {
+  const trimmed = name.trim().toLowerCase();
+  const existing = await tx.query.binSets.findFirst({
+    where: (t, { eq, and, isNull }) =>
+      and(
+        eq(t.orgId, orgId),
+        gameId === null ? isNull(t.gameId) : eq(t.gameId, gameId),
+        sql`lower(trim(${t.name})) = ${trimmed}`,
+      ),
+    columns: { guid: true },
+  });
+  if (!existing) return false;
+  return existing.guid !== excludeGuid;
+}
+
+router.get("/check-name", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const name = c.req.query("name")?.trim();
+  const excludeGuid = c.req.query("excludeGuid") || undefined;
+  const gameGuid = c.req.query("gameGuid") || undefined;
+  if (!name) {
+    return c.json({ success: false, message: "name is required." }, 400);
+  }
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await _resolveGameId(tx, gameGuid);
+      const taken = await _binSetNameTaken(
+        tx,
+        orgId,
+        gameId,
+        name,
+        excludeGuid,
+      );
+      return {
+        success: true,
+        message: "Checked.",
+        data: { available: !taken },
+      };
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
 
 router.get("/", requireAuth, requireOrg, async (c) => {
   const orgId = c.get("orgId");
@@ -210,6 +265,19 @@ router.post("/", requireAuth, requireOrg, async (c) => {
     gameGuid?: string;
   }>();
   try {
+    const nameTaken = await authQuery(c.get("jwtClaims"), async (tx) =>
+      _binSetNameTaken(tx, orgId, await _resolveGameId(tx, gameGuid), name),
+    );
+    if (nameTaken) {
+      return c.json(
+        {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+        },
+        409,
+      );
+    }
+
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const gameId = await _resolveGameId(tx, gameGuid);
 
@@ -269,6 +337,19 @@ router.post("/copies", requireAuth, requireOrg, async (c) => {
     gameGuid?: string;
   }>();
   try {
+    const nameTaken = await authQuery(c.get("jwtClaims"), async (tx) =>
+      _binSetNameTaken(tx, orgId, await _resolveGameId(tx, gameGuid), name),
+    );
+    if (nameTaken) {
+      return c.json(
+        {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+        },
+        409,
+      );
+    }
+
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const gameId = await _resolveGameId(tx, gameGuid);
 
@@ -451,16 +532,26 @@ router.put("/:guid", requireAuth, requireOrg, async (c) => {
       const target = await tx.query.binSets.findFirst({
         where: (binSets, { eq, and }) =>
           and(eq(binSets.guid, guid), eq(binSets.orgId, orgId)),
-        columns: { id: true },
+        columns: { id: true, gameId: true },
       });
       if (!target) return { message: "Set not found.", success: false };
+      if (await _binSetNameTaken(tx, orgId, target.gameId, name, guid)) {
+        return {
+          success: false,
+          message: `A set named "${name.trim()}" already exists.`,
+          nameTaken: true,
+        };
+      }
       await tx
         .update(binSets)
         .set({ name, updatedAt: new Date() })
         .where(eq(binSets.id, target.id));
       return _loadSets(tx, orgId);
     });
-    return c.json(result);
+    return c.json(
+      result,
+      "nameTaken" in result && result.nameTaken ? 409 : 200,
+    );
   } catch (err) {
     console.error(err);
     return c.json({ success: false, message: "Database error." }, 500);
@@ -519,6 +610,75 @@ router.post("/:guid/auto-assign/reset", requireAuth, requireOrg, async (c) => {
 
       await _snapshotBinSet(tx, target.id, target.guid!, orgId);
       await _resetAutoAssignBins(tx, target.id);
+      return _loadSets(tx, orgId);
+    });
+    return c.json(result);
+  } catch (err) {
+    console.error(err);
+    return c.json({ success: false, message: "Database error." }, 500);
+  }
+});
+
+// Scan Only forces every card to the same catch-all bin, ignoring rules
+// entirely - bin 7 is the app-wide default catch-all (the bottom chute of
+// the default 3-module layout, see computeBinCount), so it's used as a
+// fixed convention here rather than derived from the current module count.
+const SCAN_ONLY_CATCH_ALL_BIN = 7;
+
+async function _applyScanOnlyBins(
+  tx: Transaction,
+  binSetId: number,
+  orgId: string,
+) {
+  await tx
+    .update(bins)
+    .set({ rules: emptyRules(), isCatchAll: false, updatedAt: new Date() })
+    .where(eq(bins.binSet, binSetId));
+
+  const catchAllBin = await tx.query.bins.findFirst({
+    where: (t, { eq, and }) =>
+      and(eq(t.binSet, binSetId), eq(t.binNumber, SCAN_ONLY_CATCH_ALL_BIN)),
+    columns: { id: true },
+  });
+
+  if (catchAllBin) {
+    await tx
+      .update(bins)
+      .set({ isCatchAll: true, updatedAt: new Date() })
+      .where(eq(bins.id, catchAllBin.id));
+  } else {
+    await tx.insert(bins).values({
+      binNumber: SCAN_ONLY_CATCH_ALL_BIN,
+      rules: emptyRules(),
+      isCatchAll: true,
+      binSet: binSetId,
+      orgId,
+    });
+  }
+}
+
+router.put("/:guid/scan-only", requireAuth, requireOrg, async (c) => {
+  const orgId = c.get("orgId");
+  const guid = c.req.param("guid");
+  const { enabled } = await c.req.json<{ enabled: boolean }>();
+  try {
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const target = await tx.query.binSets.findFirst({
+        where: (binSets, { eq, and }) =>
+          and(eq(binSets.guid, guid), eq(binSets.orgId, orgId)),
+        columns: { id: true, guid: true, scanOnly: true },
+      });
+      if (!target) return { message: "Set not found.", success: false };
+
+      if (enabled && !target.scanOnly) {
+        await _snapshotBinSet(tx, target.id, target.guid!, orgId);
+        await _applyScanOnlyBins(tx, target.id, orgId);
+      }
+
+      await tx
+        .update(binSets)
+        .set({ scanOnly: enabled, updatedAt: new Date() })
+        .where(eq(binSets.id, target.id));
       return _loadSets(tx, orgId);
     });
     return c.json(result);

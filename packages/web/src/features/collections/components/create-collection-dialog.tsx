@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { checkCollectionName } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   gameLanguagesQueryOptions,
@@ -34,7 +35,7 @@ interface CreateCollectionDialogProps {
 
 export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps) {
   const { t } = useTranslation("collections");
-  const { collections, isMutating, createCollection } = useCollections();
+  const { isMutating, createCollection } = useCollections();
   const { data: games = [] } = useQuery(gamesQueryOptions);
   const activeGames = games.filter((g) => g.isActive);
   const [open, setOpen] = useState(false);
@@ -62,6 +63,26 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
     }
   }, [gameLanguages, form]);
 
+  const nameValue = form.watch("name");
+  const { data: nameCheck } = useQuery({
+    queryKey: ["collections", "check-name", nameValue],
+    queryFn: () => checkCollectionName(nameValue),
+    enabled: open && !!nameValue?.trim(),
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    if (!open || !nameValue?.trim()) return;
+    if (nameCheck?.success && nameCheck.data && !nameCheck.data.available) {
+      form.setError("name", {
+        type: "taken",
+        message: t("createDialog.duplicateName"),
+      });
+    } else {
+      form.clearErrors("name");
+    }
+  }, [open, nameValue, nameCheck, form, t]);
+
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
       setOpen(isOpen);
@@ -82,21 +103,11 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
 
   const handleCreate = useCallback(
     async (values: CreateCollectionFormValues) => {
-      const isDuplicate = collections.some(
-        (c) => c.name.trim().toLowerCase() === values.name.trim().toLowerCase(),
-      );
-      if (isDuplicate) {
-        form.setError("name", {
-          type: "manual",
-          message: t("createDialog.duplicateName"),
-        });
-        return;
-      }
       await createCollection(values.name, values.gameGuid, values.lang);
       form.reset();
       setOpen(false);
     },
-    [createCollection, collections, form, t],
+    [createCollection, form],
   );
 
   return (

@@ -12,6 +12,7 @@ export function BinList() {
   const { configs, selectedBin, setSelectedBin, hasCatchAll, selectedSet } =
     useBinConfigs();
   const isAutoAssign = !!selectedSet?.autoAssignField;
+  const isScanOnly = !!selectedSet?.scanOnly;
   const { activeOrg } = useOrg();
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
 
@@ -39,6 +40,7 @@ export function BinList() {
             config={config}
             active={config.binNumber === selectedBin}
             isAutoAssign={isAutoAssign}
+            isScanOnly={isScanOnly}
             onClick={() => setSelectedBin(config.binNumber)}
           />
         ))}

@@ -45,6 +45,19 @@ export async function deleteSet(guid: string): Promise<Result<BinSet[]>> {
   return apiDelete<Result<BinSet[]>>(`/api/bins/${guid}`);
 }
 
+export async function checkSetName(
+  name: string,
+  gameGuid?: string,
+  excludeGuid?: string,
+): Promise<Result<{ available: boolean }>> {
+  const params = new URLSearchParams({ name });
+  if (gameGuid) params.set("gameGuid", gameGuid);
+  if (excludeGuid) params.set("excludeGuid", excludeGuid);
+  return apiGet<Result<{ available: boolean }>>(
+    `/api/bins/check-name?${params.toString()}`,
+  );
+}
+
 export async function saveBinConfig({
   binNumber,
   rules,
@@ -80,6 +93,13 @@ export async function setAutoAssignField(
 
 export async function resetAutoAssign(guid: string): Promise<Result<BinSet[]>> {
   return apiPost<Result<BinSet[]>>(`/api/bins/${guid}/auto-assign/reset`);
+}
+
+export async function setScanOnly(
+  guid: string,
+  enabled: boolean,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, { enabled });
 }
 
 export interface BinSetAuditEntry {

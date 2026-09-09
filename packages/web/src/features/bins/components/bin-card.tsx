@@ -21,6 +21,7 @@ export function BinCard({
   config,
   active,
   isAutoAssign,
+  isScanOnly,
   onClick,
 }: BinCardProps) {
   const { t } = useTranslation("bins");
@@ -54,9 +55,11 @@ export function BinCard({
           </p>
         ) : isEmpty ? (
           <p className="text-xs">
-            {isAutoAssign
-              ? t("binCard.waitingForValue")
-              : t("binCard.clickToConfigure")}
+            {isScanOnly
+              ? t("binCard.scanOnlyDisabled")
+              : isAutoAssign
+                ? t("binCard.waitingForValue")
+                : t("binCard.clickToConfigure")}
           </p>
         ) : (
           <RuleSummary rules={config.rules} />

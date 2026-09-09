@@ -88,6 +88,26 @@ export function BinConfigPanel() {
 
   const isCatchAll = form.watch("isCatchAll");
 
+  if (selectedSet?.scanOnly) {
+    return (
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center gap-4">
+          <h2 className="text-sm font-semibold font-heading">
+            {t("binConfigPanel.binHeading", { number: config.binNumber })}
+          </h2>
+          {config.isCatchAll && (
+            <Button type="button" variant="default" size="sm" disabled>
+              {t("binConfigPanel.catchAllEnabled")}
+            </Button>
+          )}
+        </div>
+        <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+          {t("binConfigPanel.scanOnlyLocked")}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={form.handleSubmit(handleSave)} className="flex flex-col">
       <div className="flex items-center gap-4 mb-4">
