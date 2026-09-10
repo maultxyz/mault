@@ -1,9 +1,9 @@
-import { DemoBinDiagram } from "@/app/routes/landing/demo-bin-diagram";
-import { DemoCardStrip } from "@/app/routes/landing/demo-card-strip";
-import { DemoCollectionSwitcher } from "@/app/routes/landing/demo-collection-switcher";
-import { DemoRecognitionPreview } from "@/app/routes/landing/demo-recognition-preview";
-import { DemoRuleBuilder } from "@/app/routes/landing/demo-rule-builder";
-import { DemoStatsBreakdown } from "@/app/routes/landing/demo-stats-breakdown";
+import { DemoBinDiagram } from "@/features/landing/components/demo-bin-diagram";
+import { DemoCardStrip } from "@/features/landing/components/demo-card-strip";
+import { DemoCollectionSwitcher } from "@/features/landing/components/demo-collection-switcher";
+import { DemoRecognitionPreview } from "@/features/landing/components/demo-recognition-preview";
+import { DemoRuleBuilder } from "@/features/landing/components/demo-rule-builder";
+import { DemoStatsBreakdown } from "@/features/landing/components/demo-stats-breakdown";
 import { useTranslation } from "react-i18next";
 
 const HIGHLIGHTS = [

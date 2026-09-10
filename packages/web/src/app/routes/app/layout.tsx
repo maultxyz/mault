@@ -1,5 +1,5 @@
 import { AppProviders } from "@/app/providers";
-import { AppNav } from "@/app/routes/app/nav";
+import { AppNav } from "@/components/app-nav";
 import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";

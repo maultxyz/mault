@@ -1,4 +1,4 @@
-import { usePublicPricing } from "@/app/routes/landing/use-public-pricing";
+import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { IconCheck } from "@tabler/icons-react";

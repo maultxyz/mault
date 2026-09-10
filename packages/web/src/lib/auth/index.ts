@@ -21,7 +21,7 @@ export const useAuthSession =
     : () => neon.auth.useSession();
 
 
-// Set by app/routes/auth-join.tsx before it sends an unauthenticated visitor
+// Set by app/routes/local/join.tsx before it sends an unauthenticated visitor
 // off to sign in/up, since that navigation loses the invite token in the URL
 // otherwise. Consumed once, right after a successful sign-in/sign-up below.
 export function savePendingInviteToken(token: string): void {
@@ -35,7 +35,7 @@ async function acceptPendingInviteIfAny(): Promise<void> {
   await localPost("/api/local-auth/invites/accept", { token }).catch(() => {});
 }
 
-// Local-mode only (see app/routes/auth-local.tsx) - own-auth's sign-up/
+// Local-mode only (see app/routes/local/auth.tsx) - own-auth's sign-up/
 // sign-in isn't behind a AUTH_PROVIDER branch here because Neon mode's
 // equivalents go through NeonAuthUIProvider's own prebuilt <AuthView>
 // instead, which this app never calls directly.

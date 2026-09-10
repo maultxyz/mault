@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select";
 import { ImpersonationUsersManager } from "@/features/admin/components/impersonation-users-manager";
 import { RollbarTestPanel } from "@/features/admin/components/rollbar-test-panel";
+import { formatDuration } from "@/features/admin/lib/format-duration";
 import { AnnouncementsManager } from "@/features/announcements/components/announcements-manager";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { GamesManager } from "@/features/games/components/games-manager";
@@ -38,7 +39,6 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { formatDuration } from "./admin.utils";
 
 export default function AdminPage() {
   const { t } = useTranslation("admin");

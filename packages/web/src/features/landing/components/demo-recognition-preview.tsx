@@ -1,5 +1,5 @@
-import { DEMO_SCANNED_CARDS } from "@/app/routes/landing/demo-cards";
-import { DemoCardTile } from "@/app/routes/landing/demo-scanned-card";
+import { DEMO_SCANNED_CARDS } from "@/features/landing/lib/demo-cards";
+import { DemoCardTile } from "@/features/landing/components/demo-scanned-card";
 
 export function DemoRecognitionPreview() {
   const demo = DEMO_SCANNED_CARDS[5];

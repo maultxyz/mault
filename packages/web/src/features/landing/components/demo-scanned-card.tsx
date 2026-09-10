@@ -1,4 +1,4 @@
-import type { DemoScannedCard } from "@/app/routes/landing/demo-cards";
+import type { DemoScannedCard } from "@/features/landing/lib/demo-cards";
 import { Badge } from "@/components/ui/badge";
 import {
   Tooltip,

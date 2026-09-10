@@ -1,4 +1,4 @@
-import { LandingFooter } from "@/app/routes/landing/footer";
+import { LandingFooter } from "@/features/landing/components/footer";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
 import { LEGAL_EFFECTIVE_DATE as EFFECTIVE_DATE } from "@/lib/constants/legal";

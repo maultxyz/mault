@@ -1,4 +1,4 @@
-import { DEMO_COLLECTIONS } from "@/app/routes/landing/demo-collections";
+import { DEMO_COLLECTIONS } from "@/features/landing/lib/demo-collections";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";

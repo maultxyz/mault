@@ -1,7 +1,7 @@
 import {
   DEMO_SCANNED_CARDS,
   toScannedCards,
-} from "@/app/routes/landing/demo-cards";
+} from "@/features/landing/lib/demo-cards";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
 import { useTranslation } from "react-i18next";
 

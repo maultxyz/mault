@@ -1,4 +1,4 @@
-import { usePublicGames } from "@/app/routes/landing/use-public-games";
+import { usePublicGames } from "@/features/landing/api/use-public-games";
 
 export function useLandingStats() {
   const games = usePublicGames();

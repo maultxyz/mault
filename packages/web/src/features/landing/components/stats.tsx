@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useLandingStats } from "@/app/routes/landing/use-landing-stats";
+import { useLandingStats } from "@/features/landing/api/use-landing-stats";
 
 export function LandingStats() {
   const { t } = useTranslation("landing");

@@ -1,12 +1,12 @@
 import {
   useBoardType,
   type BoardType,
-} from "@/app/routes/build/use-board-type";
+} from "@/features/build/api/use-board-type";
 import {
   MAX_MODULES,
   MIN_MODULES,
   useModuleCount,
-} from "@/app/routes/build/use-module-count";
+} from "@/features/build/api/use-module-count";
 import { Button } from "@/components/ui/button";
 import { BOARD_BUY_URLS, BOARD_INFO } from "@/lib/constants/build";
 import { BUILD_PARTS_CHECKLIST_STORAGE_KEY } from "@/lib/constants/storage-keys";

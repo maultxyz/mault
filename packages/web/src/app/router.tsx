@@ -13,16 +13,18 @@ const BuildGuidePage = lazy(() => import("@/app/routes/build"));
 const DiscordBotPage = lazy(() => import("@/app/routes/discord-bot"));
 const PrivacyPolicyPage = lazy(() => import("@/app/routes/privacy"));
 const TermsOfServicePage = lazy(() => import("@/app/routes/terms"));
-const AuthPage = lazy(() => import("@/app/routes/auth"));
-const AuthLocalPage = lazy(() => import("@/app/routes/auth-local"));
-const AuthJoinPage = lazy(() => import("@/app/routes/auth-join"));
+const AuthPage = lazy(() => import("@/app/routes/neon/auth"));
+const AuthLocalPage = lazy(() => import("@/app/routes/local/auth"));
+const AuthJoinPage = lazy(() => import("@/app/routes/local/join"));
 const AuthForgotPasswordPage = lazy(
-  () => import("@/app/routes/auth-forgot-password"),
+  () => import("@/app/routes/local/forgot-password"),
 );
 const AuthResetPasswordPage = lazy(
-  () => import("@/app/routes/auth-reset-password"),
+  () => import("@/app/routes/local/reset-password"),
 );
-const VerifyEmailPage = lazy(() => import("@/app/routes/app/verify-email"));
+const VerifyEmailPage = lazy(
+  () => import("@/app/routes/app/neon/verify-email"),
+);
 const AppLayout = lazy(() => import("@/app/routes/app/layout"));
 const ScannerPage = lazy(() => import("@/app/routes/app/index"));
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));

@@ -1,8 +1,8 @@
 import {
   useBoardType,
   type BoardType,
-} from "@/app/routes/build/use-board-type";
-import { useModuleCount } from "@/app/routes/build/use-module-count";
+} from "@/features/build/api/use-board-type";
+import { useModuleCount } from "@/features/build/api/use-module-count";
 import { buttonVariants } from "@/components/ui/button";
 import { BOARD_INFO } from "@/lib/constants/build";
 import { DISCORD_URL } from "@/lib/constants/links";

@@ -1,6 +1,6 @@
 import { BOARD_INFO } from "@/lib/constants/build";
-import { useBoardType } from "@/app/routes/build/use-board-type";
-import { useModuleCount } from "@/app/routes/build/use-module-count";
+import { useBoardType } from "@/features/build/api/use-board-type";
+import { useModuleCount } from "@/features/build/api/use-module-count";
 import { Trans, useTranslation } from "react-i18next";
 
 export function BuildHero() {

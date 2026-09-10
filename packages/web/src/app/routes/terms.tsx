@@ -1,4 +1,4 @@
-import { LegalPage } from "@/app/routes/legal-page";
+import { LegalPage } from "@/components/legal-page";
 
 export default function TermsOfServicePage() {
   return <LegalPage page="terms" />;
