@@ -1,6 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
+import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
+import {
+  contourToBox,
+  rawContourToPortraitBox,
+} from "@/features/calibration/lib/scan-region-geometry";
 import {
   orgSettingsQueryOptions,
   saveOrgSettings,
@@ -13,7 +19,6 @@ import { SCAN_REGION_PHONE_SYNC_DELAY_MS } from "@/lib/constants/timing";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_SCAN_REGION,
-  type CardContour,
   type ScanRegion,
 } from "@magic-vault/shared";
 import {
@@ -22,79 +27,8 @@ import {
   IconRotate,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  useEffect,
-  useRef,
-  useState,
-  type PointerEvent as ReactPointerEvent,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-function clampRegion(region: ScanRegion): ScanRegion {
-  return {
-    coverage: Math.min(1, Math.max(0.1, region.coverage)),
-    offsetX: Math.min(0.45, Math.max(-0.45, region.offsetX)),
-    offsetY: Math.min(0.45, Math.max(-0.45, region.offsetY)),
-  };
-}
-
-function rawContourToPortraitBox(
-  contour: CardContour,
-  rawWidth: number,
-  rawHeight: number,
-) {
-  const corners = [
-    contour.topLeft,
-    contour.topRight,
-    contour.bottomRight,
-    contour.bottomLeft,
-  ];
-  const portraitPoints = corners.map((p) => ({
-    x: 1 - p.y / rawHeight,
-    y: p.x / rawWidth,
-  }));
-  const xs = portraitPoints.map((p) => p.x);
-  const ys = portraitPoints.map((p) => p.y);
-  return {
-    left: Math.min(...xs),
-    top: Math.min(...ys),
-    width: Math.max(...xs) - Math.min(...xs),
-    height: Math.max(...ys) - Math.min(...ys),
-  };
-}
-
-function contourToBox(contour: CardContour, width: number, height: number) {
-  const corners = [
-    contour.topLeft,
-    contour.topRight,
-    contour.bottomRight,
-    contour.bottomLeft,
-  ];
-  const xs = corners.map((p) => p.x / width);
-  const ys = corners.map((p) => p.y / height);
-  return {
-    left: Math.min(...xs),
-    top: Math.min(...ys),
-    width: Math.max(...xs) - Math.min(...xs),
-    height: Math.max(...ys) - Math.min(...ys),
-  };
-}
-
-type DragState =
-  | {
-      type: "move";
-      startClientX: number;
-      startClientY: number;
-      startOffsetX: number;
-      startOffsetY: number;
-    }
-  | {
-      type: "resize";
-      centerClientX: number;
-      centerClientY: number;
-      startDist: number;
-      startCoverage: number;
-    };
 
 export function ScanRegionCalibrationPanel() {
   const { t } = useTranslation("calibration");
@@ -144,10 +78,6 @@ export function ScanRegionCalibrationPanel() {
 
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [phonePhotoUrl, setPhonePhotoUrl] = useState<string | null>(null);
-  const [phonePhotoSize, setPhonePhotoSize] = useState<{
-    width: number;
-    height: number;
-  } | null>(null);
   const [isCapturingPhoto, setIsCapturingPhoto] = useState(false);
   const [phoneCaptureError, setPhoneCaptureError] = useState<string | null>(
     null,
@@ -156,7 +86,6 @@ export function ScanRegionCalibrationPanel() {
   useEffect(() => {
     if (cameraSource !== "phone") {
       setPhonePhotoUrl(null);
-      setPhonePhotoSize(null);
       setPhoneCaptureError(null);
     }
   }, [cameraSource]);
@@ -194,115 +123,8 @@ export function ScanRegionCalibrationPanel() {
     }
   };
 
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const frameRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rafRef = useRef(0);
-  const [videoSize, setVideoSize] = useState<{
-    width: number;
-    height: number;
-  } | null>(null);
-
-  useEffect(() => {
-    if (!stream) return;
-    let cancelled = false;
-    const video = videoRef.current;
-    if (!video) return;
-    video.srcObject = stream;
-
-    (async () => {
-      try {
-        await video.play();
-        if (cancelled) return;
-
-        const { videoWidth, videoHeight } = video;
-        setVideoSize({ width: videoWidth, height: videoHeight });
-
-        const canvas = canvasRef.current;
-        if (canvas) {
-          canvas.width = videoHeight;
-          canvas.height = videoWidth;
-        }
-
-        const frame = frameRef.current;
-        const container = frame?.parentElement;
-        if (container && frame && canvas) {
-          const cw = container.clientWidth;
-          const ch = container.clientHeight;
-          const scale = Math.max(cw / canvas.width, ch / canvas.height);
-          const cssW = Math.round(canvas.width * scale);
-          const cssH = Math.round(canvas.height * scale);
-          frame.style.width = `${cssW}px`;
-          frame.style.height = `${cssH}px`;
-          frame.style.left = `${(cw - cssW) / 2}px`;
-          frame.style.top = `${(ch - cssH) / 2}px`;
-        }
-
-        const loop = () => {
-          const c = canvasRef.current;
-          const ctx = c?.getContext("2d");
-          if (c && ctx && video.readyState >= video.HAVE_ENOUGH_DATA) {
-            ctx.save();
-            ctx.translate(c.width / 2, c.height / 2);
-            ctx.rotate(Math.PI / 2);
-            ctx.drawImage(
-              video,
-              -videoWidth / 2,
-              -videoHeight / 2,
-              videoWidth,
-              videoHeight,
-            );
-            ctx.restore();
-          }
-          rafRef.current = requestAnimationFrame(loop);
-        };
-        rafRef.current = requestAnimationFrame(loop);
-      } catch {}
-    })();
-
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
-      video.srcObject = null;
-    };
-  }, [stream]);
-
-  useEffect(() => {
-    if (!phonePhotoUrl) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    let cancelled = false;
-    const img = new Image();
-    img.onload = () => {
-      if (cancelled) return;
-      canvas.width = img.naturalWidth;
-      canvas.height = img.naturalHeight;
-      const ctx = canvas.getContext("2d");
-      if (ctx) ctx.drawImage(img, 0, 0);
-      setPhonePhotoSize({ width: img.naturalWidth, height: img.naturalHeight });
-
-      const frame = frameRef.current;
-      const container = frame?.parentElement;
-      if (container && frame) {
-        const cw = container.clientWidth;
-        const ch = container.clientHeight;
-        const scale = Math.max(cw / canvas.width, ch / canvas.height);
-        const cssW = Math.round(canvas.width * scale);
-        const cssH = Math.round(canvas.height * scale);
-        frame.style.width = `${cssW}px`;
-        frame.style.height = `${cssH}px`;
-        frame.style.left = `${(cw - cssW) / 2}px`;
-        frame.style.top = `${(ch - cssH) / 2}px`;
-      }
-    };
-    img.src = phonePhotoUrl;
-
-    return () => {
-      cancelled = true;
-    };
-  }, [phonePhotoUrl]);
+  const { videoRef, frameRef, canvasRef, videoSize, phonePhotoSize } =
+    useCameraFrameCanvas({ stream, phonePhotoUrl });
 
   useEffect(() => {
     if (cameraSource !== "phone" || phonePairingStatus !== "connected") return;
@@ -334,85 +156,12 @@ export function ScanRegionCalibrationPanel() {
           )
         : null;
 
-  const dragStateRef = useRef<DragState | null>(null);
-
-  const handleBoxPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    dragStateRef.current = {
-      type: "move",
-      startClientX: e.clientX,
-      startClientY: e.clientY,
-      startOffsetX: regionRef.current.offsetX,
-      startOffsetY: regionRef.current.offsetY,
-    };
-  };
-
-  const handleResizePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    const frame = frameRef.current;
-    if (!frame || !box) return;
-    const rect = frame.getBoundingClientRect();
-    const centerClientX = rect.left + (box.left + box.width / 2) * rect.width;
-    const centerClientY = rect.top + (box.top + box.height / 2) * rect.height;
-    dragStateRef.current = {
-      type: "resize",
-      centerClientX,
-      centerClientY,
-      startDist: Math.hypot(
-        e.clientX - centerClientX,
-        e.clientY - centerClientY,
-      ),
-      startCoverage: regionRef.current.coverage,
-    };
-  };
-
-  const handlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    const drag = dragStateRef.current;
-    const frame = frameRef.current;
-    if (!drag || !frame) return;
-
-    if (drag.type === "move") {
-      const rect = frame.getBoundingClientRect();
-      const dxFrac = (e.clientX - drag.startClientX) / rect.width;
-      const dyFrac = (e.clientY - drag.startClientY) / rect.height;
-      const offsets =
-        cameraSource === "phone"
-          ? {
-              offsetX: drag.startOffsetX + dxFrac,
-              offsetY: drag.startOffsetY + dyFrac,
-            }
-          : {
-              offsetX: drag.startOffsetX + dyFrac,
-              offsetY: drag.startOffsetY - dxFrac,
-            };
-      setDraft(
-        clampRegion({
-          ...regionRef.current,
-          ...offsets,
-        }),
-      );
-    } else {
-      const dist = Math.hypot(
-        e.clientX - drag.centerClientX,
-        e.clientY - drag.centerClientY,
-      );
-      if (drag.startDist > 0) {
-        setDraft(
-          clampRegion({
-            ...regionRef.current,
-            coverage: drag.startCoverage * (dist / drag.startDist),
-          }),
-        );
-      }
-    }
-  };
-
-  const handlePointerUp = () => {
-    dragStateRef.current = null;
-  };
+  const {
+    handleBoxPointerDown,
+    handleResizePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+  } = useRegionDrag({ frameRef, regionRef, cameraSource, box, setDraft });
 
   const saveMutation = useMutation({
     mutationFn: (next: ScanRegion) => saveOrgSettings({ scanRegion: next }),
