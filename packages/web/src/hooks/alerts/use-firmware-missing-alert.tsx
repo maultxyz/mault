@@ -1,5 +1,5 @@
 import { useSerial } from "@/features/scanner/api/use-serial";
-import type { AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/interfaces/alerts";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 

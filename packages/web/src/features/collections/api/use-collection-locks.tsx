@@ -1,12 +1,10 @@
 import { createLockEventsSource } from "@/lib/api/session";
 import { useAuthSession } from "@/lib/auth";
+import { ACTIVE_ORG_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import type { ScanLockInfo } from "@/lib/interfaces/collections";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
-export interface ScanLockInfo {
-  userId: string;
-  displayName: string;
-  expiresAt: number;
-}
+export type { ScanLockInfo };
 
 interface CollectionLocksContextValue {
   locks: Record<string, ScanLockInfo>;
@@ -34,7 +32,7 @@ export function CollectionLocksProvider({
   const currentUserId = session?.user?.id;
   const orgId =
     session?.session?.activeOrganizationId ??
-    localStorage.getItem("activeOrgId");
+    localStorage.getItem(ACTIVE_ORG_STORAGE_KEY);
 
   const esRef = useRef<EventSource | null>(null);
 

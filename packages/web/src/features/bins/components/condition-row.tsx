@@ -1,4 +1,4 @@
-import type { ConditionRowProps } from "@/features/bins/types";
+import type { ConditionRowProps } from "@/lib/interfaces/bins";
 import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
@@ -24,18 +24,11 @@ import {
 } from "@/components/ui/select";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { MULTI_VALUE_OPERATORS } from "@/lib/constants/bins";
 import { cn } from "@/lib/utils";
 import { IconChevronDown, IconX } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
-  "in",
-  "not_in",
-  "contains_any",
-  "contains_all",
-  "contains_none",
-];
 
 function FreeformMultiInput({
   value,

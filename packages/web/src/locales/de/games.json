@@ -34,6 +34,8 @@
     "namePlaceholder": "Pokémon",
     "apiDocsUrlLabel": "URL der API-Dokumentation",
     "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
+    "foilTypesLabel": "Foil-Typen",
+    "foilTypesPlaceholder": "Kommagetrennt (z. B. Reverse Holo, Holo). Leer lassen für eine einfache Foil-Option.",
     "activeLabel": "Aktiv",
     "cancel": "Abbrechen",
     "saving": "Wird gespeichert…",

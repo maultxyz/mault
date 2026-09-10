@@ -1,4 +1,5 @@
 import { apiGet, apiPost, apiPut } from "@/lib/api/client";
+import type { ModuleConfigAuditEntry } from "@/lib/interfaces/audit";
 import type {
   ModuleConfig,
   Result,
@@ -6,6 +7,8 @@ import type {
 } from "@magic-vault/shared";
 import { DEFAULT_CALIBRATION, DEFAULT_MODULE_COUNT } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
+
+export type { ModuleConfigAuditEntry };
 
 function defaultModuleConfigs(): ModuleConfig[] {
   return Array.from({ length: DEFAULT_MODULE_COUNT }, (_, i) => ({
@@ -33,13 +36,6 @@ export async function saveModuleConfig(
     `/api/modules/${moduleNumber}`,
     calibration,
   );
-}
-
-export interface ModuleConfigAuditEntry {
-  guid: string;
-  moduleNumber: number;
-  calibration: ServoCalibration;
-  createdAt: string;
 }
 
 export async function getModuleHistory(): Promise<

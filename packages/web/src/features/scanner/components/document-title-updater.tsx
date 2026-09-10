@@ -3,11 +3,11 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
+import { DOCUMENT_TITLE_CYCLE_MS as CYCLE_MS } from "@/lib/constants/timing";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const BASE_TITLE = "MAULT";
-const CYCLE_MS = 4000;
 
 export function DocumentTitleUpdater() {
   const { t } = useTranslation("scanner");

@@ -1,5 +1,6 @@
 import type { EmailMessage, EmailProvider } from "own-auth";
 import { Resend } from "resend";
+import { getWebUrl as webUrl } from "../lib/constants/urls";
 import { inviteCaptureStorage } from "./invite-capture";
 
 // Real delivery is opt-in - unset RESEND_API_KEY (the default for a fresh
@@ -13,10 +14,6 @@ function getResend(): Resend | undefined {
   if (!process.env.RESEND_API_KEY) return undefined;
   if (!resend) resend = new Resend(process.env.RESEND_API_KEY);
   return resend;
-}
-
-function webUrl(): string {
-  return process.env.WEB_URL ?? "http://localhost:5173";
 }
 
 // own-auth's own message.url points at paths its HTTP handler would serve

@@ -6,12 +6,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SERVOS } from "@/features/calibration/constants";
+import { SERVOS } from "@/lib/constants/calibration";
 import type {
   ActivePositions,
   ServoConfig,
   SliderKey,
-} from "@/features/calibration/types";
+} from "@/lib/interfaces/calibration";
 import type { ModuleConfig, ServoCalibration } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 

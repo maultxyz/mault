@@ -2,7 +2,10 @@ import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { Slider } from "@/components/ui/slider";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
-import type { CardFilters } from "@/features/cards/types";
+import type { CardFilters } from "@/lib/interfaces/cards";
+import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
+import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
+import { RARITY_TEXT_CLASS } from "@/lib/constants/rarity";
 import { cn } from "@/lib/utils";
 import { computeBinCount } from "@magic-vault/shared";
 import {
@@ -12,40 +15,6 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-
-const EMPTY_FILTERS: CardFilters = {
-  colors: [],
-  rarities: [],
-  bins: [],
-  needsAttention: false,
-  showDownloaded: false,
-  sets: [],
-  minMatchPercent: 0,
-};
-
-const KNOWN_COLOR_ACTIVE: Record<string, string> = {
-  W: "bg-amber-100 text-amber-900 border-amber-400",
-  U: "bg-blue-700 text-white border-blue-800",
-  B: "bg-neutral-900 text-white border-neutral-700",
-  R: "bg-red-700 text-white border-red-800",
-  G: "bg-green-700 text-white border-green-800",
-  C: "bg-gray-600 text-white border-gray-700",
-};
-
-// Rarity swatch colors (index.css) are fixed regardless of light/dark theme,
-// so the text color needs to be picked per swatch's own lightness rather
-// than tied to the app's theme like text-foreground/text-background would be.
-const RARITY_TEXT_CLASS: Record<string, string> = {
-  common: "text-white",
-  c: "text-white",
-  uncommon: "text-black",
-  u: "text-black",
-  rare: "text-black",
-  r: "text-black",
-  mythic: "text-black",
-  lr: "text-black",
-  p: "text-black",
-};
 
 function toggle<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
@@ -62,6 +31,7 @@ interface CardFilterPopoverProps {
   activeFilterCount: number;
   availableRarities: { key: string; label: string }[];
   availableColors: { key: string; label: string; bg: string }[];
+  availableFoilTypes: { key: string; label: string }[];
 }
 
 export function CardFilterPopover({
@@ -70,6 +40,7 @@ export function CardFilterPopover({
   activeFilterCount,
   availableRarities,
   availableColors,
+  availableFoilTypes,
 }: CardFilterPopoverProps) {
   const { t } = useTranslation("cards");
   const moduleCount = useModuleCount();
@@ -98,7 +69,7 @@ export function CardFilterPopover({
             <div className="flex flex-col gap-1">
               {availableColors.map((color) => {
                 const active = activeFilters.colors.includes(color.key);
-                const knownActiveClass = KNOWN_COLOR_ACTIVE[color.key];
+                const knownActiveClass = CARD_COLOR_ACTIVE_CLASS[color.key];
                 return (
                   <button
                     key={color.key}
@@ -174,6 +145,40 @@ export function CardFilterPopover({
                       style={{ backgroundColor: `var(--${rarity.key})` }}
                     />
                     {rarity.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {availableFoilTypes.length > 0 && (
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+              {t("cardFilterPopover.foilType")}
+            </p>
+            <div className="flex flex-col gap-1">
+              {availableFoilTypes.map((foilType) => {
+                const active = activeFilters.foilTypes.includes(foilType.key);
+                return (
+                  <button
+                    key={foilType.key}
+                    type="button"
+                    onClick={() =>
+                      onFiltersChange({
+                        ...activeFilters,
+                        foilTypes: toggle(activeFilters.foilTypes, foilType.key),
+                      })
+                    }
+                    className={cn(
+                      chipBase,
+                      "flex items-center gap-1.5 px-2 h-7 font-medium",
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : chipInactive,
+                    )}
+                  >
+                    {foilType.label}
                   </button>
                 );
               })}
@@ -337,7 +342,7 @@ export function CardFilterPopover({
             variant="ghost"
             size="sm"
             className="w-full"
-            onClick={() => onFiltersChange(EMPTY_FILTERS)}
+            onClick={() => onFiltersChange(EMPTY_CARD_FILTERS)}
           >
             {t("cardFilterPopover.resetFilters")}
           </Button>

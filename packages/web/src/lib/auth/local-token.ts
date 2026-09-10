@@ -1,10 +1,10 @@
-const TOKEN_KEY = "localAuthToken";
+import { LOCAL_AUTH_TOKEN_STORAGE_KEY } from "@/lib/constants/storage-keys";
 
 export function getLocalToken(): string | null {
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(LOCAL_AUTH_TOKEN_STORAGE_KEY);
 }
 
 export function setLocalToken(token: string | null): void {
-  if (token) localStorage.setItem(TOKEN_KEY, token);
-  else localStorage.removeItem(TOKEN_KEY);
+  if (token) localStorage.setItem(LOCAL_AUTH_TOKEN_STORAGE_KEY, token);
+  else localStorage.removeItem(LOCAL_AUTH_TOKEN_STORAGE_KEY);
 }

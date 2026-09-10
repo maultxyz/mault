@@ -17,11 +17,8 @@ import { ScannerIslandProvider } from "@/features/scanner/api/use-scanner-island
 import { SerialProvider } from "@/features/scanner/api/use-serial";
 import { DocumentTitleUpdater } from "@/features/scanner/components/document-title-updater";
 import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
-import {
-  applyPrimaryColor,
-  resetPrimaryColor,
-  THEME_COLORS,
-} from "@/lib/primary-color";
+import { THEME_COLORS } from "@/lib/constants/colors";
+import { applyPrimaryColor, resetPrimaryColor } from "@/lib/primary-color";
 import {
   QueryClient,
   QueryClientProvider,

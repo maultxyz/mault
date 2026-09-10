@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type { ScannerControlsProps } from "@/features/scanner/types";
+import type { ScannerControlsProps } from "@/lib/interfaces/scanner";
 import {
   IconFocus2,
   IconPlayerPause,

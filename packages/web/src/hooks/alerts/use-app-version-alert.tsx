@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useAppVersionCheck } from "@/hooks/use-app-version-check";
-import type { AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/interfaces/alerts";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 

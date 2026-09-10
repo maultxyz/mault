@@ -1,6 +1,6 @@
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
-import { POKEMON_DEFAULT_URL } from "./search";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { POKEMON_DEFAULT_URL } from "../../constants/urls";
 
 interface PokemonListCard {
   id: string;

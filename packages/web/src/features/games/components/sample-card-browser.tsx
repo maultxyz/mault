@@ -9,11 +9,10 @@ import {
   pathToFieldKey,
   type PickedField,
 } from "@/features/games/lib/field-mapping";
+import { ARRAY_PREVIEW_LIMIT } from "@/lib/constants/limits";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const ARRAY_PREVIEW_LIMIT = 5;
 
 function previewValue(value: unknown): string {
   if (Array.isArray(value)) return `[${value.join(", ")}]`;

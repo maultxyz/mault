@@ -16,9 +16,6 @@ function contextLines(event: SerialEventReport): string[] {
   return lines;
 }
 
-// The backend is the sole authority on what a serial exchange means and how
-// it's worded for Discord. Clients only ever forward the raw command/response
-// pair — no client ever decides "this is a jam" or writes notification copy.
 export function classifySerialEvent(
   event: SerialEventReport,
 ): { title: string; description: string } | null {
@@ -28,23 +25,30 @@ export function classifySerialEvent(
   if (!event.sent) {
     return {
       title: `${label} Failed`,
-      description: [...lines, "**Error:** Could not send command to the device."].join("\n"),
+      description: [
+        ...lines,
+        "**Error:** Could not send command to the device.",
+      ].join("\n"),
     };
   }
 
   if (!event.response) {
     return {
       title: `${label} Timeout`,
-      description: [...lines, "**Error:** No response from the device in time."].join("\n"),
+      description: [
+        ...lines,
+        "**Error:** No response from the device in time.",
+      ].join("\n"),
     };
   }
 
   if (typeof event.response !== "object") {
     return {
       title: `${label} Error`,
-      description: [...lines, `**Error:** Unexpected response: ${String(event.response)}`].join(
-        "\n",
-      ),
+      description: [
+        ...lines,
+        `**Error:** Unexpected response: ${String(event.response)}`,
+      ].join("\n"),
     };
   }
 
@@ -74,6 +78,5 @@ export function classifySerialEvent(
     };
   }
 
-  // A recognized success response (e.g. {"status":"ok", ...}) — nothing to report.
   return null;
 }

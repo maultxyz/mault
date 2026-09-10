@@ -5,7 +5,7 @@ import type {
   CameraSource,
   CameraStatus,
   ZoomRange,
-} from "@/features/scanner/types";
+} from "@/lib/interfaces/scanner";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   createContext,

@@ -1,4 +1,5 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
+import type { BinRouteAuditEntry } from "@/lib/interfaces/audit";
 import {
   createDefaultBinRoutes,
   DEFAULT_MODULE_COUNT,
@@ -6,6 +7,8 @@ import {
   type Result,
 } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
+
+export type { BinRouteAuditEntry };
 
 function defaultRoutes(): BinRoute[] {
   return createDefaultBinRoutes(DEFAULT_MODULE_COUNT);
@@ -27,12 +30,6 @@ export async function saveBinRoute(route: BinRoute): Promise<Result<BinRoute[]>>
 
 export async function deleteBinRoute(binNumber: number): Promise<Result<BinRoute[]>> {
   return apiDelete<Result<BinRoute[]>>(`/api/bin-routes/${binNumber}`);
-}
-
-export interface BinRouteAuditEntry {
-  guid: string;
-  route: BinRoute;
-  createdAt: string;
 }
 
 export async function getBinRouteHistory(): Promise<Result<BinRouteAuditEntry[]>> {

@@ -1,4 +1,4 @@
-const CARD_API_TIMEOUT_MS = 10_000;
+import { CARD_API_TIMEOUT_MS } from "../constants/timing";
 
 export function fetchCardApi(
   url: string,

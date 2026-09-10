@@ -1,6 +1,7 @@
 import { AppLoadingScreen } from "@/components/app-loading-screen";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { APP_LOADING_TRANSITION_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 
@@ -16,7 +17,7 @@ export function AppLoadingGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (isInitialLoading || phase !== "loading") return;
-    const id = setTimeout(() => setPhase("exiting"), 500);
+    const id = setTimeout(() => setPhase("exiting"), APP_LOADING_TRANSITION_MS);
     return () => clearTimeout(id);
   }, [isInitialLoading, phase]);
 

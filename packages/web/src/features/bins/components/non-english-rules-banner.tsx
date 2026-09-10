@@ -1,5 +1,5 @@
 import { useCollections } from "@/features/collections/api/use-collections";
-import { LANGUAGE_LABELS } from "@/lib/languages";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 

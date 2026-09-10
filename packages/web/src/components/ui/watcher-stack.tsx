@@ -1,14 +1,9 @@
 import { InitialsAvatar, getInitials } from "@/components/ui/initials-avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { MAX_WATCHER_STACK as MAX_STACK } from "@/lib/constants/limits";
+import type { SessionViewer } from "@/lib/interfaces/collections";
 
-const MAX_STACK = 2;
-
-export interface Watcher {
-  userId: string;
-  displayName: string;
-}
-
-export function WatcherStack({ watchers }: { watchers: Watcher[] }) {
+export function WatcherStack({ watchers }: { watchers: SessionViewer[] }) {
   if (watchers.length === 0) return null;
 
   const visible = watchers.slice(0, MAX_STACK);

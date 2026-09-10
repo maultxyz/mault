@@ -6,9 +6,7 @@ export interface Game {
   name: string;
   isActive: boolean;
   fieldDefinitions: FieldMeta[];
-  // Link to the source TCG API's own documentation, so admins/players can
-  // look up what a field's raw values actually mean (e.g. rarity codes,
-  // price formats) when writing bin rules against it.
+  foilTypes: string[];
   apiDocsUrl: string | null;
   createdAt: Date;
   updatedAt: Date;

@@ -1,10 +1,11 @@
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import type {
   SyncSource,
   SyncSourceCard,
   SyncSourceCardDetail,
 } from "../../card-search/sync-types";
-import { RIFTBOUND_DEFAULT_URL, type RiftboundCard } from "./search";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { RIFTBOUND_DEFAULT_URL } from "../../constants/urls";
+import { type RiftboundCard } from "./search";
 
 const SYNC_PAGE_SIZE = 100;
 

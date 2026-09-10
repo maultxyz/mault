@@ -1,6 +1,6 @@
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
-import { GUNDAM_DEFAULT_URL } from "./search";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { GUNDAM_DEFAULT_URL } from "../../constants/urls";
 
 interface GundamListCard {
   product_id: string;

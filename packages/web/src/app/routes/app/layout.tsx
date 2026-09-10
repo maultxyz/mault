@@ -1,5 +1,5 @@
 import { AppProviders } from "@/app/providers";
-import { AppNav } from "@/app/routes/app/nav";
+import { AppNav } from "@/components/app-nav";
 import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
@@ -9,7 +9,7 @@ import { FooterDivider, StatusFooter } from "@/components/status-footer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
-import { DONATE_URL } from "@/lib/links";
+import { DONATE_URL } from "@/lib/constants/links";
 import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Outlet } from "react-router-dom";

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { LIVE_CLOCK_TICK_MS } from "@/lib/constants/timing";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDiscordBotSettings } from "../api/use-discord-bot";
@@ -23,7 +24,7 @@ export function DiscordBotSettings() {
 
   useEffect(() => {
     if (!pending) return;
-    const interval = setInterval(() => setNow(Date.now()), 1000);
+    const interval = setInterval(() => setNow(Date.now()), LIVE_CLOCK_TICK_MS);
     return () => clearInterval(interval);
   }, [pending]);
 

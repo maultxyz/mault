@@ -1,8 +1,8 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { BMC_URL } from "./constants/urls";
 import type { DiscordEmbed } from "./discord";
 
 const BMC_COLOR = 0xffdd00;
-const BMC_URL = "https://buymeacoffee.com/mault";
 
 export function verifyBuyMeACoffeeSignature(
   rawBody: string,

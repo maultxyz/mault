@@ -10,8 +10,12 @@ import {
   defaultSliderValues,
   getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
-import type { ActivePositions, SliderKey } from "@/features/calibration/types";
+import type { ActivePositions, SliderKey } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import {
+  CALIBRATION_STEP_SETTLE_MS,
+  FEEDER_PREVIEW_DEBOUNCE_MS,
+} from "@/lib/constants/timing";
 import {
   computeBinCount,
   DEFAULT_CALIBRATION,
@@ -201,7 +205,7 @@ export function useCalibrationPage() {
           return;
         }
         // Brief pause between cards so the mechanism fully resets
-        await new Promise<void>((r) => setTimeout(r, 500));
+        await new Promise<void>((r) => setTimeout(r, CALIBRATION_STEP_SETTLE_MS));
       }
       toast.success(t("useCalibrationPage.toasts.sampleRunComplete"));
     } finally {
@@ -223,7 +227,10 @@ export function useCalibrationPage() {
     (value: number) => {
       setFeederSpeedValue(value);
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
-      feederDebounceRef.current = setTimeout(() => previewSpeed(value), 30);
+      feederDebounceRef.current = setTimeout(
+        () => previewSpeed(value),
+        FEEDER_PREVIEW_DEBOUNCE_MS,
+      );
     },
     [previewSpeed],
   );

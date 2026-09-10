@@ -23,7 +23,7 @@ import { IrSensorPanel } from "@/features/calibration/components/ir-sensor-panel
 import { ModuleCalibrationGrid } from "@/features/calibration/components/module-calibration-grid";
 import { ModuleCountStepper } from "@/features/calibration/components/module-count-stepper";
 import { ScanRegionCalibrationPanel } from "@/features/calibration/components/scan-region-calibration-panel";
-import type { CalibrationSection } from "@/features/calibration/types";
+import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustmentsHorizontal,

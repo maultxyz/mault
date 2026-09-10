@@ -12,6 +12,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { checkGameKey } from "@/features/games/api/games";
 import { listSyncSources } from "@/lib/api/admin";
+import { DEFAULT_OPERATORS_BY_TYPE } from "@/lib/constants/field-operators";
 import {
   createGameFormSchema,
   type GameFormValues,
@@ -22,7 +23,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { DEFAULT_OPERATORS_BY_TYPE } from "../constants/field-operators";
 import { GameFieldDefinitionsEditor } from "./game-field-definitions-editor";
 
 function toFormValues(game?: Game | null): GameFormValues {
@@ -31,6 +31,7 @@ function toFormValues(game?: Game | null): GameFormValues {
       key: "",
       name: "",
       apiDocsUrl: "",
+      foilTypesText: "",
       isActive: true,
       fieldDefinitions: [],
     };
@@ -39,6 +40,7 @@ function toFormValues(game?: Game | null): GameFormValues {
     key: game.key,
     name: game.name,
     apiDocsUrl: game.apiDocsUrl ?? "",
+    foilTypesText: game.foilTypes.join(", "),
     isActive: game.isActive,
     fieldDefinitions: game.fieldDefinitions.map((f) => ({
       field: f.field,
@@ -48,6 +50,15 @@ function toFormValues(game?: Game | null): GameFormValues {
       optionsText: f.options?.map((o) => o.value).join(", ") ?? "",
     })),
   };
+}
+
+export function toFoilTypes(foilTypesText: string | undefined): string[] {
+  return (
+    foilTypesText
+      ?.split(",")
+      .map((v) => v.trim())
+      .filter(Boolean) ?? []
+  );
 }
 
 export function toFieldDefinitions(
@@ -226,6 +237,15 @@ export function GameFormDialog({
               {...register("apiDocsUrl")}
             />
             <FieldError errors={[errors.apiDocsUrl]} />
+          </Field>
+
+          <Field data-invalid={!!errors.foilTypesText}>
+            <FieldLabel>{t("gameFormDialog.foilTypesLabel")}</FieldLabel>
+            <Input
+              placeholder={t("gameFormDialog.foilTypesPlaceholder")}
+              {...register("foilTypesText")}
+            />
+            <FieldError errors={[errors.foilTypesText]} />
           </Field>
 
           <Field orientation="horizontal">

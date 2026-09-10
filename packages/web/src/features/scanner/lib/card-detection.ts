@@ -1,4 +1,4 @@
-import { MTG_ASPECT_RATIO } from "@/features/scanner/constants";
+import { MTG_ASPECT_RATIO } from "@/lib/constants/scanner";
 import {
   DEFAULT_SCAN_REGION,
   type CardContour,

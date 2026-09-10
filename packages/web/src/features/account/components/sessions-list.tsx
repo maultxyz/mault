@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { neon } from "@/lib/auth/client";
+import type { SessionRow } from "@/lib/interfaces/account";
 import {
   IconDeviceDesktop,
   IconDeviceMobile,
@@ -11,15 +12,6 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
-interface SessionRow {
-  id: string;
-  token: string;
-  createdAt: Date | string;
-  updatedAt: Date | string;
-  ipAddress?: string | null;
-  userAgent?: string | null;
-}
 
 function describeUserAgent(ua: string | null | undefined): {
   label: string;

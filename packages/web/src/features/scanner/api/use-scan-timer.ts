@@ -1,6 +1,5 @@
+import { IDLE_THRESHOLD_MS } from "@/lib/constants/timing";
 import { useEffect, useRef, useState } from "react";
-
-const IDLE_THRESHOLD_MS = 5_000;
 
 export function useScanTimer(lastScannedAt: number | undefined, resetSignal: number) {
   const [elapsedMs, setElapsedMs] = useState(0);

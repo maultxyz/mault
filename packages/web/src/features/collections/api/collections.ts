@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut, getAuthHeaders, handleForbidden } from "@/lib/api/client";
+import { API_BASE, apiDelete, apiGet, apiPost, apiPut, getAuthHeaders, handleForbidden } from "@/lib/api/client";
 import type { Collection, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -60,8 +60,6 @@ export async function loadCardImage(
   );
 }
 
-const API_BASE = import.meta.env.VITE_API_URL ?? "";
-
 export async function addCollectionCard(
   guid: string,
   record: ScannedCard,
@@ -89,13 +87,15 @@ export async function updateCollectionCard(
   });
 }
 
-export async function setCollectionCardFoil(
+export async function setCollectionCardFoilType(
   guid: string,
   scanId: string,
   isFoil: boolean,
+  foilType: string | null,
 ): Promise<Result<ScannedCard>> {
   return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
     isFoil,
+    foilType,
   });
 }
 

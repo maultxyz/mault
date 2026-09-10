@@ -9,8 +9,9 @@ import {
   isCalibrationTourCompleted,
   markCalibrationTourCompleted,
 } from "@/features/calibration/lib/calibration-tour";
-import type { CalibrationSection } from "@/features/calibration/types";
+import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import { TourTooltip } from "@/features/onboarding/components/tour-tooltip";
+import { TOUR_STEP_NAVIGATION_DELAY_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import { IconHelpCircle } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef } from "react";
@@ -25,7 +26,9 @@ function createSectionBeforeHook(
   return async () => {
     if (getSection() === targetSection) return;
     setSection(targetSection);
-    await new Promise((resolve) => setTimeout(resolve, 60));
+    await new Promise((resolve) =>
+      setTimeout(resolve, TOUR_STEP_NAVIGATION_DELAY_MS),
+    );
   };
 }
 

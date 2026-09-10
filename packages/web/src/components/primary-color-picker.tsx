@@ -4,12 +4,8 @@ import {
   saveOrgSettings,
 } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
-import {
-  applyPrimaryColor,
-  resetPrimaryColor,
-  THEME_COLORS,
-  type ThemeColor,
-} from "@/lib/primary-color";
+import { THEME_COLORS, type ThemeColor } from "@/lib/constants/colors";
+import { applyPrimaryColor, resetPrimaryColor } from "@/lib/primary-color";
 import { cn } from "@/lib/utils";
 import { IconCheck, IconRotate } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

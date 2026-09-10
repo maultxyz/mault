@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { ScannerOverlayProps } from "@/features/scanner/types";
+import type { ScannerOverlayProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import {
   IconAlertTriangle,

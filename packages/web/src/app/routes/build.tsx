@@ -1,10 +1,10 @@
-import { BuildAssembly } from "@/app/routes/build/assembly";
-import { BuildBom } from "@/app/routes/build/bom";
-import { BuildFooter } from "@/app/routes/build/footer";
-import { BuildHero } from "@/app/routes/build/hero";
-import { BoardTypeProvider } from "@/app/routes/build/use-board-type";
-import { ModuleCountProvider } from "@/app/routes/build/use-module-count";
-import { BuildWiring } from "@/app/routes/build/wiring";
+import { BuildAssembly } from "@/features/build/components/assembly";
+import { BuildBom } from "@/features/build/components/bom";
+import { BuildFooter } from "@/features/build/components/footer";
+import { BuildHero } from "@/features/build/components/hero";
+import { BoardTypeProvider } from "@/features/build/api/use-board-type";
+import { ModuleCountProvider } from "@/features/build/api/use-module-count";
+import { BuildWiring } from "@/features/build/components/wiring";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
 

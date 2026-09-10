@@ -1,5 +1,5 @@
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
-import AuthGuardLocal from "./auth-guard.local";
-import AuthGuardNeon from "./auth-guard.neon";
+import AuthGuardLocal from "./local/auth-guard";
+import AuthGuardNeon from "./neon/auth-guard";
 
 export default AUTH_PROVIDER === "local" ? AuthGuardLocal : AuthGuardNeon;

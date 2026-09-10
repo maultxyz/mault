@@ -1,4 +1,4 @@
-import type { BinConfigsContextValue } from "@/features/bins/types";
+import type { BinConfigsContextValue } from "@/lib/interfaces/bins";
 import {
   BinConfig,
   BinRuleGroup,

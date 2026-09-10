@@ -1,3 +1,4 @@
+import { SORTING_RULES_TOUR_COMPLETED_KEY } from "@/lib/constants/storage-keys";
 import type { Step } from "react-joyride";
 
 export interface SortingRulesTourStepConfig {
@@ -95,11 +96,9 @@ export const MANUAL_RULES_TOUR_STEP_IDS = new Set([
   "add-group",
 ]);
 
-const COMPLETED_KEY = "magic-vault:sorting-rules-tour-completed";
-
 export function isSortingRulesTourCompleted(): boolean {
   try {
-    return localStorage.getItem(COMPLETED_KEY) === "true";
+    return localStorage.getItem(SORTING_RULES_TOUR_COMPLETED_KEY) === "true";
   } catch {
     return true;
   }
@@ -107,7 +106,7 @@ export function isSortingRulesTourCompleted(): boolean {
 
 export function markSortingRulesTourCompleted(): void {
   try {
-    localStorage.setItem(COMPLETED_KEY, "true");
+    localStorage.setItem(SORTING_RULES_TOUR_COMPLETED_KEY, "true");
   } catch {
     // Storage unavailable (private browsing, disabled cookies) - skip persisting.
   }

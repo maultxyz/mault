@@ -12,6 +12,7 @@ import {
   markOnboardingCompleted,
 } from "@/features/onboarding/lib/tour-storage";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { TOUR_STEP_NAVIGATION_DELAY_MS } from "@/lib/constants/timing";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { EVENTS, STATUS, useJoyride, type Step } from "react-joyride";
@@ -28,7 +29,9 @@ function createBeforeHook(
     if (!path || window.location.pathname === path) return;
     navigate(path);
 
-    await new Promise((resolve) => setTimeout(resolve, 60));
+    await new Promise((resolve) =>
+      setTimeout(resolve, TOUR_STEP_NAVIGATION_DELAY_MS),
+    );
   };
 }
 

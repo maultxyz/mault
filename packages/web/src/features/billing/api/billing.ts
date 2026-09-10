@@ -1,14 +1,8 @@
 import { apiGet, apiPost } from "@/lib/api/client";
+import type { BillingStatus } from "@/lib/interfaces/billing";
 import { queryOptions } from "@tanstack/react-query";
 
-export interface BillingStatus {
-  plan: "free" | "business";
-  status: string | null;
-  cancelAtPeriodEnd: boolean;
-  currentPeriodEnd: string | null;
-  cardsScannedToday: number;
-  dailyLimit: number | null;
-}
+export type { BillingStatus };
 
 export async function getBillingStatus(): Promise<{
   success: boolean;

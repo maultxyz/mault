@@ -1,9 +1,9 @@
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { ONE_PIECE_DEFAULT_URL } from "../../constants/urls";
 import {
   dedupeOnePieceRows,
   findCardVersion,
-  ONE_PIECE_DEFAULT_URL,
   onePieceSetCode,
   type OptcgCard,
 } from "./search";

@@ -10,13 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { getCardById, searchCards } from "@/features/cards/api/card-search";
 import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
   QUERY_MIN_LENGTH,
@@ -50,6 +50,7 @@ interface CardDetailPanelProps {
   currentCard?: PlayingCardWithDistance;
   alternativeMatches?: PlayingCardWithDistance[];
   isFoil?: boolean;
+  foilType?: string;
   binNumber?: number;
   onPrev?: () => void;
   onNext?: () => void;
@@ -66,6 +67,7 @@ export function CardDetailPanel({
   currentCard,
   alternativeMatches,
   isFoil = false,
+  foilType,
   binNumber,
   onPrev,
   onNext,
@@ -85,8 +87,13 @@ export function CardDetailPanel({
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
-  const { addCard, correctCard, toggleFoil } = useScannedCards();
+  const { addCard, correctCard, setCardFoilType } = useScannedCards();
   const { activeCollection } = useCollections();
+  const foilOptions = activeCollection?.game?.foilTypes?.length
+    ? activeCollection.game.foilTypes
+    : [t("cardDetailPanel.foil")];
+  const currentFoilType =
+    foilType ?? (isFoil ? t("cardDetailPanel.foil") : null);
 
   useEffect(() => {
     if (!currentCard) return;
@@ -146,7 +153,10 @@ export function CardDetailPanel({
     setQuery(value);
     setSelectedSet("all");
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setDebouncedQuery(value), 300);
+    debounceRef.current = setTimeout(
+      () => setDebouncedQuery(value),
+      SEARCH_DEBOUNCE_MS,
+    );
   };
 
   const handleSelect = useCallback(
@@ -432,16 +442,32 @@ export function CardDetailPanel({
                   </div>
                 )}
               </div>
-              <Label className="flex items-center gap-2 w-fit">
-                <Switch
-                  checked={isFoil}
-                  onCheckedChange={(checked) => {
-                    if (scanId) toggleFoil(scanId, checked);
+              <div className="flex items-center gap-2 w-fit">
+                <Label>{t("cardDetailPanel.foil")}</Label>
+                <Select
+                  value={currentFoilType ?? "none"}
+                  onValueChange={(value) => {
+                    if (scanId) {
+                      setCardFoilType(scanId, value === "none" ? null : value);
+                    }
                   }}
                   disabled={!scanId}
-                />
-                {t("cardDetailPanel.foil")}
-              </Label>
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder={t("cardDetailPanel.foilNone")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">
+                      {t("cardDetailPanel.foilNone")}
+                    </SelectItem>
+                    {foilOptions.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
               {binNumber != null && (
                 <div className="flex flex-col gap-1.5">
                   <p className="text-xs font-medium text-muted-foreground">

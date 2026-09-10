@@ -1,6 +1,13 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
@@ -32,11 +39,10 @@ import {
   IconChevronRight,
   IconSparkles,
 } from "@tabler/icons-react";
+import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const PAGE_SIZE = 96;
 
 export function CardGrid() {
   const { t } = useTranslation("cards");
@@ -51,9 +57,12 @@ export function CardGrid() {
     elapsedMs,
     autoFeed,
     setAutoFeed,
-    forceFoil,
-    setForceFoil,
+    forceFoilType,
+    setForceFoilType,
   } = useScannedCards();
+  const foilOptions = activeCollection?.game?.foilTypes?.length
+    ? activeCollection.game.foilTypes
+    : [t("cardGrid.foilGeneric")];
   const [summaryOpen, setSummaryOpen] = useState(false);
   const scanner = useScannerIsland();
   const { locks, currentUserId } = useCollectionLocks();
@@ -211,24 +220,25 @@ export function CardGrid() {
                 onPause={scanner.handlePause}
                 onResume={scanner.handleResume}
               />
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant={forceFoil ? "default" : "outline"}
-                      size="icon"
-                      onClick={() => setForceFoil(!forceFoil)}
-                    >
-                      <IconSparkles />
-                    </Button>
-                  }
-                />
-                <TooltipContent>
-                  {forceFoil
-                    ? t("cardGrid.forceFoilOnTooltip")
-                    : t("cardGrid.forceFoilOffTooltip")}
-                </TooltipContent>
-              </Tooltip>
+              <Select
+                value={forceFoilType ?? "none"}
+                onValueChange={(value) =>
+                  setForceFoilType(value === "none" ? null : value)
+                }
+              >
+                <SelectTrigger size="sm" className="gap-1">
+                  <IconSparkles className="size-3.5" />
+                  <SelectValue placeholder={t("cardGrid.foilNone")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("cardGrid.foilNone")}</SelectItem>
+                  {foilOptions.map((type) => (
+                    <SelectItem key={type} value={type}>
+                      {type}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {scanner.isConnected && (
                 <>
                   <Tooltip>
@@ -302,6 +312,7 @@ export function CardGrid() {
         currentCard={openEntry.card}
         alternativeMatches={openEntry.alternativeMatches}
         isFoil={openEntry.isFoil}
+        foilType={openEntry.foilType}
         binNumber={openEntry.binNumber}
         onClose={() => setOpenScanId(null)}
         onRemove={() => {
@@ -344,6 +355,7 @@ export function CardGrid() {
           onToggleSelectAll={toggleSelectAll}
           availableRarities={stats?.rarities}
           availableColors={stats?.colors}
+          availableFoilTypes={stats?.foilTypes}
           cardCount={cards.length}
         />
       </div>
@@ -366,6 +378,7 @@ export function CardGrid() {
               onToggleSelect={() => toggleSelect(card.scanId)}
               hasAlternatives={!!card.alternativeMatches?.length}
               isFoil={card.isFoil}
+              foilType={card.foilType}
               isDownloaded={card.isDownloaded}
             />
           ))}
@@ -411,24 +424,25 @@ export function CardGrid() {
                   onPause={scanner.handlePause}
                   onResume={scanner.handleResume}
                 />
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant={forceFoil ? "default" : "outline"}
-                        size="icon"
-                        onClick={() => setForceFoil(!forceFoil)}
-                      >
-                        <IconSparkles />
-                      </Button>
-                    }
-                  />
-                  <TooltipContent>
-                    {forceFoil
-                      ? t("cardGrid.forceFoilOnTooltip")
-                      : t("cardGrid.forceFoilOffTooltip")}
-                  </TooltipContent>
-                </Tooltip>
+                <Select
+                  value={forceFoilType ?? "none"}
+                  onValueChange={(value) =>
+                    setForceFoilType(value === "none" ? null : value)
+                  }
+                >
+                  <SelectTrigger size="sm" className="gap-1">
+                    <IconSparkles className="size-3.5" />
+                    <SelectValue placeholder={t("cardGrid.foilNone")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("cardGrid.foilNone")}</SelectItem>
+                    {foilOptions.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 {scanner.isConnected && (
                   <>
                     <Tooltip>

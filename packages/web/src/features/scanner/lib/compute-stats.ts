@@ -1,15 +1,9 @@
-import { RARITY_LABELS, RARITY_ORDER } from "@/features/scanner/constants";
-import type { SetStats } from "@/features/scanner/types";
+import { CARD_COLOR_SWATCHES } from "@/lib/constants/colors";
+import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
+import type { ScanStats, SetStats } from "@/lib/interfaces/scanner";
 import type { ScannedCard } from "@magic-vault/shared";
 
-const KNOWN_COLOR_SWATCHES: Record<string, { label: string; bg: string }> = {
-  W: { label: "White", bg: "#F9FAF4" },
-  U: { label: "Blue", bg: "#0E68AB" },
-  B: { label: "Black", bg: "#150B00" },
-  R: { label: "Red", bg: "#D3202A" },
-  G: { label: "Green", bg: "#00733E" },
-  C: { label: "Colorless", bg: "#94979A" },
-};
+export type { ScanStats };
 
 function capitalize(value: string): string {
   return value.length > 0
@@ -30,18 +24,6 @@ function sortRarities<T extends { key: string; count: number }>(
   });
 }
 
-export interface ScanStats {
-  totalCount: number;
-  uniqueCount: number;
-  totalValue: number;
-  avgValue: number;
-  hasPricing: boolean;
-  mostValuable: { name: string; price: number } | null;
-  sets: SetStats[];
-  rarities: { key: string; label: string; count: number }[];
-  colors: { key: string; label: string; bg: string; count: number }[];
-}
-
 export function computeStats(cards: ScannedCard[]): ScanStats | null {
   if (cards.length === 0) return null;
 
@@ -50,6 +32,7 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
   const setMap = new Map<string, SetStats>();
   const rarityMap = new Map<string, number>();
   const colorMap = new Map<string, number>();
+  const foilTypeMap = new Map<string, number>();
   let mostValuable: { name: string; price: number } | null = null;
   const uniqueCards = new Set<string>();
 
@@ -88,6 +71,11 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
     for (const color of c.colorIdentity) {
       colorMap.set(color, (colorMap.get(color) ?? 0) + 1);
     }
+
+    const foilLabel = entry.foilType ?? (entry.isFoil ? "Foil" : null);
+    if (foilLabel) {
+      foilTypeMap.set(foilLabel, (foilTypeMap.get(foilLabel) ?? 0) + 1);
+    }
   }
 
   return {
@@ -111,10 +99,13 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
       .sort((a, b) => b[1] - a[1])
       .map(([key, count]) => ({
         key,
-        label: KNOWN_COLOR_SWATCHES[key]?.label ?? key,
-        bg: KNOWN_COLOR_SWATCHES[key]?.bg ?? key.toLowerCase(),
+        label: CARD_COLOR_SWATCHES[key]?.label ?? key,
+        bg: CARD_COLOR_SWATCHES[key]?.bg ?? key.toLowerCase(),
         count,
       })),
+    foilTypes: Array.from(foilTypeMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, count]) => ({ key, label: key, count })),
   };
 }
 
@@ -137,5 +128,6 @@ export function computeDisplayStats(
     sets: all.sets,
     rarities: all.rarities,
     colors: all.colors,
+    foilTypes: all.foilTypes,
   };
 }

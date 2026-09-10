@@ -1,10 +1,9 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../card-search/types";
 import { validateQuery } from "../../card-search/validate";
-
-export const RIFTBOUND_DEFAULT_URL = "https://api.riftcodex.com/cards";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { RIFTBOUND_DEFAULT_URL } from "../../constants/urls";
 
 const SEARCH_PAGE_SIZE = 30;
 

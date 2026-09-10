@@ -6,6 +6,7 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { apiGet } from "@/lib/api/client";
 import { localDelete, localPost } from "@/lib/auth/local-api";
+import type { ApiKey } from "@/lib/interfaces/account";
 import {
   createApiKeySchema,
   type CreateApiKeyFormValues,
@@ -16,17 +17,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
-interface ApiKey {
-  id: string;
-  keyPrefix: string;
-  name: string;
-  scopes: string[];
-  status: "active" | "revoked";
-  expiresAt: string | null;
-  lastUsedAt: string | null;
-  createdAt: string;
-}
 
 function formatDate(value: string | null): string | null {
   if (!value) return null;

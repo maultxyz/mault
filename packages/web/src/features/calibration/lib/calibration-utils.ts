@@ -1,4 +1,4 @@
-import type { SliderKey } from "@/features/calibration/types";
+import type { SliderKey } from "@/lib/interfaces/calibration";
 import {
   CHANNEL_OFFSET,
   type BinRoute,

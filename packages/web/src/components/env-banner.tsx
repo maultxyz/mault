@@ -1,19 +1,6 @@
-const ENV = import.meta.env.VITE_APP_ENV as string | undefined;
+import { ENV_BANNER_CONFIG as CONFIG } from "@/lib/constants/env-banner";
 
-const CONFIG = {
-  local: {
-    label: "Local",
-    className: "bg-pink-400/90 text-pink-950",
-  },
-  development: {
-    label: "Development",
-    className: "bg-amber-400/90 text-amber-950",
-  },
-  qa: {
-    label: "QA",
-    className: "bg-violet-500/90 text-violet-50",
-  },
-} satisfies Record<string, { label: string; className: string }>;
+const ENV = import.meta.env.VITE_APP_ENV as string | undefined;
 
 type KnownEnv = keyof typeof CONFIG;
 

@@ -7,17 +7,12 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { AuditEntry } from "@/lib/interfaces/audit";
 import { IconClockHour3, IconRotateClockwise2, IconX } from "@tabler/icons-react";
-import type { ReactNode } from "react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export interface AuditEntry {
-  guid: string;
-  createdAt: string;
-  label?: string;
-  body: ReactNode;
-}
+export type { AuditEntry };
 
 interface AuditDrawerProps {
   open: boolean;

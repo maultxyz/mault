@@ -2,6 +2,10 @@ import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
 import { authProvider } from "../auth";
 import type { OrgRole } from "../auth/types";
+import {
+  IMPERSONATION_ISSUER,
+  IMPERSONATION_TTL_SECONDS,
+} from "../lib/constants/auth";
 
 export type { OrgRole };
 
@@ -25,9 +29,6 @@ export async function verifyToken(
 ): Promise<{ sub: string } | null> {
   return authProvider.verifyToken(token);
 }
-
-export const IMPERSONATION_ISSUER = "magic-vault-impersonation";
-export const IMPERSONATION_TTL_SECONDS = 60 * 60;
 
 function impersonationSecret(): Uint8Array {
   const secret = process.env.IMPERSONATION_SECRET;

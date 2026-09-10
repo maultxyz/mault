@@ -15,7 +15,7 @@ import {
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
-import type { CardFilters } from "@/features/cards/types";
+import type { CardFilters } from "@/lib/interfaces/cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   formatElapsed,

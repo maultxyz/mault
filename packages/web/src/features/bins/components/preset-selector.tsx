@@ -29,7 +29,7 @@ import {
 } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
-import type { PresetSelectorProps } from "@/features/bins/types";
+import type { PresetSelectorProps } from "@/lib/interfaces/bins";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {

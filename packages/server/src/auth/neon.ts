@@ -4,9 +4,6 @@ import * as jose from "jose";
 import { db } from "../db";
 import type { AuthProvider, OrgRole } from "./types";
 
-// Lazy: auth/index.ts imports both providers unconditionally regardless of
-// AUTH_PROVIDER, so this can't construct a URL from NEON_AUTH_URL at module
-// load - that env var is unset (and irrelevant) in local-mode deployments.
 let jwks: ReturnType<typeof jose.createRemoteJWKSet> | undefined;
 function getJwks() {
   if (!jwks) {

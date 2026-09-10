@@ -1,4 +1,5 @@
-import type { CardFilters } from "@/features/cards/types";
+import type { CardFilters } from "@/lib/interfaces/cards";
+import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import {
   getCardValue,
   type FieldMeta,
@@ -46,6 +47,13 @@ export function applyCardFilters(
     result = result.filter((entry) => filters.sets.includes(entry.card.set));
   }
 
+  if (filters.foilTypes.length > 0) {
+    result = result.filter((entry) => {
+      const label = entry.foilType ?? (entry.isFoil ? "Foil" : null);
+      return label != null && filters.foilTypes.includes(label);
+    });
+  }
+
   if (filters.minMatchPercent > 0) {
     result = result.filter(
       (entry) => (1 - entry.card.distance) * 100 >= filters.minMatchPercent,
@@ -54,16 +62,6 @@ export function applyCardFilters(
 
   return result;
 }
-
-const EMPTY_FILTERS: CardFilters = {
-  colors: [],
-  rarities: [],
-  bins: [],
-  needsAttention: false,
-  showDownloaded: false,
-  sets: [],
-  minMatchPercent: 0,
-};
 
 const SORTABLE_TYPES: FieldMeta["type"][] = ["string", "numeric", "enum"];
 
@@ -112,7 +110,7 @@ export function useCardFilterSort(
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<string | null>("scan-desc");
   const [internalFilters, setInternalFilters] =
-    useState<CardFilters>(EMPTY_FILTERS);
+    useState<CardFilters>(EMPTY_CARD_FILTERS);
   const filters = external?.filters ?? internalFilters;
   const setFilters = external?.setFilters ?? setInternalFilters;
 
@@ -164,6 +162,7 @@ export function useCardFilterSort(
     filters.rarities.length +
     filters.bins.length +
     filters.sets.length +
+    filters.foilTypes.length +
     (filters.needsAttention ? 1 : 0) +
     (filters.showDownloaded ? 1 : 0) +
     (filters.minMatchPercent > 0 ? 1 : 0);

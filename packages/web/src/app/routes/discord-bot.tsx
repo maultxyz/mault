@@ -1,8 +1,8 @@
-import { DiscordBotCommands } from "@/app/routes/discord-bot/commands";
-import { DiscordBotFeatures } from "@/app/routes/discord-bot/features";
-import { DiscordBotFooter } from "@/app/routes/discord-bot/footer";
-import { DiscordBotHero } from "@/app/routes/discord-bot/hero";
-import { DiscordBotSetup } from "@/app/routes/discord-bot/setup";
+import { DiscordBotCommands } from "@/features/discord-bot/components/commands";
+import { DiscordBotFeatures } from "@/features/discord-bot/components/features";
+import { DiscordBotFooter } from "@/features/discord-bot/components/footer";
+import { DiscordBotHero } from "@/features/discord-bot/components/hero";
+import { DiscordBotSetup } from "@/features/discord-bot/components/setup";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
 

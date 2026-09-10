@@ -13,7 +13,7 @@ import { useRegisterScannerIsland } from "@/features/scanner/api/use-scanner-isl
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
-import { SCANNABLE_STATUSES } from "@/features/scanner/constants";
+import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { cn } from "@/lib/utils";

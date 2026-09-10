@@ -1,16 +1,7 @@
+import { SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/lib/constants/languages";
+import { LANGUAGE_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import i18n, { type BackendModule } from "i18next";
 import { initReactI18next } from "react-i18next";
-
-export const SUPPORTED_LANGUAGES = ["en", "de", "fr"] as const;
-export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
-
-export const LANGUAGE_NATIVE_NAMES: Record<SupportedLanguage, string> = {
-  en: "English",
-  de: "Deutsch",
-  fr: "Français",
-};
-
-const LANGUAGE_STORAGE_KEY = "language";
 
 const NAMESPACE_FILE_NAMES: Record<string, string> = {
   discordBot: "discord-bot",

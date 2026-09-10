@@ -1,8 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { orgSettings } from "../db/schema";
-
-const LOCK_TTL_MS = 5 * 60 * 1000; // 5 minutes of inactivity
+import { SCAN_LOCK_TTL_MS as LOCK_TTL_MS } from "./constants/timing";
 
 export interface ScanLock {
   userId: string;

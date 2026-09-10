@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type { AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/interfaces/alerts";
 import { neon } from "@/lib/auth/client";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { IconAlertTriangle, IconLoader2 } from "@tabler/icons-react";

@@ -1,17 +1,8 @@
-import type {
-  ImpersonationOrgSummary,
-  ImpersonationSession,
-} from "@magic-vault/shared";
+import { IMPERSONATION_STORAGE_KEY as STORAGE_KEY } from "@/lib/constants/storage-keys";
+import type { ImpersonationState } from "@/lib/interfaces/auth";
+import type { ImpersonationSession } from "@magic-vault/shared";
 
-const STORAGE_KEY = "impersonation";
-
-export interface ImpersonationState {
-  token: string;
-  expiresAt: string;
-  user: { id: string; name: string | null; email: string };
-  orgs: ImpersonationOrgSummary[];
-  activeOrgId: string | null;
-}
+export type { ImpersonationState };
 
 function readInitialState(): ImpersonationState | null {
   try {

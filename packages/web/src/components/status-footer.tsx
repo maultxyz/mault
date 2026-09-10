@@ -9,6 +9,7 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useRole } from "@/hooks/use-role";
 import { createSyncEventSource } from "@/lib/api/admin";
+import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
 import type { SyncState } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -18,18 +19,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 export function FooterDivider() {
   return <span className="h-3 w-px bg-border shrink-0" />;
 }
-
-const DEFAULT_SYNC_STATE: SyncState = {
-  status: "idle",
-  gameKey: "",
-  total: 0,
-  processed: 0,
-  skipped: 0,
-  errors: 0,
-  startedAt: null,
-  logs: [],
-  lang: "en",
-};
 
 function StatusDot({
   variant,

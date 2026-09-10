@@ -2,7 +2,7 @@ import {
   modulesQueryOptions,
   saveModuleConfig,
 } from "@/features/calibration/api/module-configs";
-import type { ModuleConfigsContextValue } from "@/features/calibration/types";
+import type { ModuleConfigsContextValue } from "@/lib/interfaces/calibration";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";

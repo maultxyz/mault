@@ -10,10 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { searchCards } from "@/features/cards/api/card-search";
-import type { CardSelectDialogProps } from "@/features/cards/types";
+import type { CardSelectDialogProps } from "@/lib/interfaces/cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
   QUERY_MIN_LENGTH,
@@ -118,7 +119,7 @@ export function CardSelectDialog({
     setQuery(value);
     setSelectedSet("all");
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setDebouncedQuery(value), 300);
+    debounceRef.current = setTimeout(() => setDebouncedQuery(value), SEARCH_DEBOUNCE_MS);
   };
 
   const handleSelect = useCallback(

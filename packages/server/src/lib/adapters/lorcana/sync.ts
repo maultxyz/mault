@@ -1,12 +1,11 @@
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import type {
   SyncSource,
   SyncSourceCard,
   SyncSourceCardDetail,
 } from "../../card-search/sync-types";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { LORCANA_DE_API_ROOT, LORCANA_DEFAULT_URL } from "../../constants/urls";
 import {
-  LORCANA_DE_API_ROOT,
-  LORCANA_DEFAULT_URL,
   type LorcanaDeCard,
   type LorcastCard,
   lorcanaCardId,

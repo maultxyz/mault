@@ -1,9 +1,8 @@
 import { useCameraSignalChannel } from "@/features/scanner/api/use-camera-signal-channel";
+import { PHONE_CAMERA_JPEG_QUALITY as JPEG_QUALITY } from "@/lib/constants/scanner";
+import { HEARTBEAT_INTERVAL_MS } from "@/lib/constants/timing";
 import type { PhoneCameraMessage, ScanRegion } from "@magic-vault/shared";
 import { useCallback, useEffect, useRef } from "react";
-
-const HEARTBEAT_INTERVAL_MS = 3000;
-const JPEG_QUALITY = 0.85;
 
 export function usePhoneCameraResponder(
   collectionGuid: string | undefined,
