@@ -1,11 +1,9 @@
 import { apiGet } from "@/lib/api/client";
+import type { PublicPricing } from "@/lib/interfaces/landing";
 import type { Result } from "@magic-vault/shared";
 import { useEffect, useState } from "react";
 
-export interface PublicPricing {
-  business: { amount: number; currency: string; interval: string } | null;
-  freeDailyScanLimit: number;
-}
+export type { PublicPricing };
 
 export function usePublicPricing() {
   const [pricing, setPricing] = useState<PublicPricing | null>(null);

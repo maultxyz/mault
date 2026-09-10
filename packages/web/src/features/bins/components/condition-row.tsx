@@ -1,4 +1,4 @@
-import type { ConditionRowProps } from "@/features/bins/types";
+import type { ConditionRowProps } from "@/lib/interfaces/bins";
 import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,

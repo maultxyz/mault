@@ -1,4 +1,4 @@
-import type { ScannerStatus } from "@magic-vault/shared";
+import type { ScannerIslandState } from "@/lib/interfaces/scanner";
 import {
   createContext,
   useContext,
@@ -6,21 +6,7 @@ import {
   useState,
 } from "react";
 
-export interface ScannerIslandState {
-  status: ScannerStatus;
-  isCameraActive: boolean;
-  isConnected: boolean;
-  isReady: boolean;
-  isFeeding: boolean;
-  isClearingDevice: boolean;
-  handleForceAddDuplicate: () => void;
-  handleForceScan: () => void;
-  handleSkipDuplicate: () => void;
-  handlePause: () => void;
-  handleResume: () => void;
-  handleFeed: () => void;
-  handleClearDevice: () => void;
-}
+export type { ScannerIslandState };
 
 type ContextValue = {
   state: ScannerIslandState | null;

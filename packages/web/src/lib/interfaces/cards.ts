@@ -59,3 +59,29 @@ export interface ScannedCardItemProps {
   isFoil?: boolean;
   isDownloaded?: boolean;
 }
+
+export interface ExportContext {
+  isMtg: boolean;
+  fieldDefinitions: FieldMeta[];
+}
+
+export interface GroupedEntry {
+  card: PlayingCardWithDistance;
+  quantity: number;
+  isFoil: boolean;
+}
+
+export type GroupBy = "card" | "card-foil";
+
+export interface ExportAdapter {
+  key: string;
+  label: string;
+  filenameSlug: string;
+  groupBy: GroupBy;
+  // Game.key values this format applies to, or "all" - game keys are
+  // admin-defined free text (see the Games Manager), not a fixed enum, so
+  // this can't be a literal union.
+  games: "all" | string[];
+  headers: (ctx: ExportContext) => string[];
+  row: (entry: GroupedEntry, ctx: ExportContext) => string[];
+}

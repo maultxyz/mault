@@ -1,13 +1,9 @@
 import { apiGet } from "@/lib/api/client";
+import type { LocalSessionUser } from "@/lib/interfaces/auth";
 import { useSyncExternalStore } from "react";
 import { getLocalToken } from "./local-token";
 
-export interface LocalSessionUser {
-  id: string;
-  name: string | null;
-  email: string;
-  role: string;
-}
+export type { LocalSessionUser };
 
 interface LocalSessionSnapshot {
   data: { user: LocalSessionUser } | null;

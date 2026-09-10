@@ -2,6 +2,7 @@ import { collectionsQueryOptions } from "@/features/collections/api/collections"
 import { createLiveCountEventsSource } from "@/lib/api/session";
 import { useAuthSession } from "@/lib/auth";
 import { ACTIVE_ORG_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import type { SessionViewer } from "@/lib/interfaces/collections";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -11,10 +12,7 @@ import {
   useState,
 } from "react";
 
-export interface SessionViewer {
-  userId: string;
-  displayName: string;
-}
+export type { SessionViewer };
 
 interface LiveSessionStatusContextValue {
   counts: Record<string, number>;

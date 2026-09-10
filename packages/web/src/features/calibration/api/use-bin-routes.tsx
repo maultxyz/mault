@@ -4,7 +4,7 @@ import {
   saveBinRoute,
 } from "@/features/calibration/api/bin-routes";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
-import type { BinRoutesContextValue } from "@/features/calibration/types";
+import type { BinRoutesContextValue } from "@/lib/interfaces/calibration";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { createDefaultBinRoutes, type BinRoute } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";

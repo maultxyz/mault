@@ -34,7 +34,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import type { ScannedCardsContextValue } from "@/features/scanner/types";
+import type { ScannedCardsContextValue } from "@/lib/interfaces/scanner";
 import { generateScanId } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {

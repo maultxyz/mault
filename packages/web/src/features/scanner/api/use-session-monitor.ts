@@ -1,29 +1,15 @@
-import type { Collection, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { createSessionEventSource } from "@/lib/api/session";
+import type {
+  ConnectionStatus,
+  SessionError,
+  SessionMonitorState,
+} from "@/lib/interfaces/scanner";
+import type { SessionViewer } from "@/lib/interfaces/collections";
+import type { Collection, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-type ConnectionStatus = "connecting" | "connected" | "error" | "closed";
-
-export interface SessionViewer {
-  userId: string;
-  displayName: string;
-}
-
-export interface SessionError {
-  id: string;
-  message: string;
-  timestamp: number;
-}
-
-export interface SessionMonitorState {
-  collection: Collection | null;
-  cards: ScannedCard[];
-  unmatchedCards: UnmatchedCard[];
-  viewers: SessionViewer[];
-  errors: SessionError[];
-  status: ConnectionStatus;
-}
+export type { SessionError, SessionMonitorState };
 
 export function useSessionMonitor(collectionGuid: string | undefined): SessionMonitorState {
   const { t } = useTranslation("scanner");

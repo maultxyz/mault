@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { Slider } from "@/components/ui/slider";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
-import type { CardFilters } from "@/features/cards/types";
+import type { CardFilters } from "@/lib/interfaces/cards";
 import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { RARITY_TEXT_CLASS } from "@/lib/constants/rarity";

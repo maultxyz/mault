@@ -1,4 +1,4 @@
-import type { CalibrationSection } from "@/features/calibration/types";
+import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import { CALIBRATION_TOUR_COMPLETED_KEY } from "@/lib/constants/storage-keys";
 import type { Step } from "react-joyride";
 

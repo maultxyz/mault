@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import type { AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/interfaces/alerts";
 import { ALERT_SEVERITY_BANNER_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
 import { IconX } from "@tabler/icons-react";

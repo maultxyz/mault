@@ -1,12 +1,8 @@
 import { apiPost } from "@/lib/api/client";
+import type { NotificationTestType } from "@/lib/interfaces/notifications";
 import type { Response, SerialEventReport } from "@magic-vault/shared";
 
-export type NotificationTestType =
-  | "sorter-error"
-  | "feeder-empty"
-  | "card-jam"
-  | "card-search-error"
-  | "sync-failure";
+export type { NotificationTestType };
 
 export async function sendTestNotification(
   type: NotificationTestType,

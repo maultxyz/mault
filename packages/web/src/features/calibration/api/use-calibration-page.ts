@@ -10,7 +10,7 @@ import {
   defaultSliderValues,
   getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
-import type { ActivePositions, SliderKey } from "@/features/calibration/types";
+import type { ActivePositions, SliderKey } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   CALIBRATION_STEP_SETTLE_MS,

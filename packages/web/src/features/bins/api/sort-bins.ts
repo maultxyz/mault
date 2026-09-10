@@ -6,7 +6,10 @@ import type {
   Result,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
+import type { BinSetAuditEntry } from "@/lib/interfaces/audit";
 import { queryOptions } from "@tanstack/react-query";
+
+export type { BinSetAuditEntry };
 
 export async function loadSets(): Promise<Result<BinSet[]>> {
   return apiGet<Result<BinSet[]>>("/api/bins");
@@ -100,13 +103,6 @@ export async function setScanOnly(
   enabled: boolean,
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, { enabled });
-}
-
-export interface BinSetAuditEntry {
-  guid: string;
-  binSetGuid: string;
-  snapshot: BinConfig[];
-  createdAt: string;
 }
 
 export async function getBinSetHistory(setGuid: string): Promise<Result<BinSetAuditEntry[]>> {

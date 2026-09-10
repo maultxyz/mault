@@ -6,7 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import type { ScannedCardItemProps } from "@/features/cards/types";
+import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
 import { cn } from "@/lib/utils";
 import {

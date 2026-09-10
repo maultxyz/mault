@@ -1,5 +1,5 @@
 import { activeAnnouncementsQueryOptions } from "@/features/announcements/api/announcements";
-import type { AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/interfaces/alerts";
 import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 

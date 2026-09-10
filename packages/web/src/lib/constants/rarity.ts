@@ -16,9 +16,6 @@ export const RARITY_ORDER = [
   "bonus",
 ];
 
-// Rarity swatch colors (index.css) are fixed regardless of light/dark theme,
-// so the text color needs to be picked per swatch's own lightness rather
-// than tied to the app's theme like text-foreground/text-background would be.
 export const RARITY_TEXT_CLASS: Record<string, string> = {
   common: "text-white",
   c: "text-white",

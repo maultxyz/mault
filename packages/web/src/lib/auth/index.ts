@@ -8,6 +8,7 @@ import {
 } from "@/lib/auth/local-session-store";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { PENDING_INVITE_STORAGE_KEY as PENDING_INVITE_KEY } from "@/lib/constants/storage-keys";
+import type { LocalAuthResult } from "@/lib/interfaces/auth";
 
 export { AUTH_PROVIDER };
 
@@ -18,11 +19,6 @@ export const useAuthSession =
   AUTH_PROVIDER === "local"
     ? useLocalAuthSession
     : () => neon.auth.useSession();
-
-interface LocalAuthResult {
-  token: string;
-  user: { id: string; name: string | null; email: string };
-}
 
 
 // Set by app/routes/auth-join.tsx before it sends an unauthenticated visitor

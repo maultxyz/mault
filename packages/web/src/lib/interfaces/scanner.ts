@@ -1,6 +1,7 @@
-import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
+import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinRoute,
+  Collection,
   HealthCheck,
   PlayingCard,
   PlayingCardWithDistance,
@@ -9,6 +10,14 @@ import type {
   ScannerStatus,
   UnmatchedCard,
 } from "@magic-vault/shared";
+
+export type PhoneCameraCaptureStatus = "idle" | "waiting" | "connected" | "error";
+
+export type PhoneLocalCameraStatus =
+  | "requesting-camera"
+  | "camera-error"
+  | "ready"
+  | "disconnected";
 
 export type CameraStatus = "idle" | "requesting" | "ready" | "error";
 export type CameraSource = "local" | "phone";
@@ -134,4 +143,55 @@ export interface SetStats {
   name: string;
   count: number;
   value: number;
+}
+
+export interface ScanStats {
+  totalCount: number;
+  uniqueCount: number;
+  totalValue: number;
+  avgValue: number;
+  hasPricing: boolean;
+  mostValuable: { name: string; price: number } | null;
+  sets: SetStats[];
+  rarities: { key: string; label: string; count: number }[];
+  colors: { key: string; label: string; bg: string; count: number }[];
+}
+
+export interface CommLogEntry {
+  direction: "sent" | "received";
+  text: string;
+  timestamp: number;
+}
+
+export interface ScannerIslandState {
+  status: ScannerStatus;
+  isCameraActive: boolean;
+  isConnected: boolean;
+  isReady: boolean;
+  isFeeding: boolean;
+  isClearingDevice: boolean;
+  handleForceAddDuplicate: () => void;
+  handleForceScan: () => void;
+  handleSkipDuplicate: () => void;
+  handlePause: () => void;
+  handleResume: () => void;
+  handleFeed: () => void;
+  handleClearDevice: () => void;
+}
+
+export type ConnectionStatus = "connecting" | "connected" | "error" | "closed";
+
+export interface SessionError {
+  id: string;
+  message: string;
+  timestamp: number;
+}
+
+export interface SessionMonitorState {
+  collection: Collection | null;
+  cards: ScannedCard[];
+  unmatchedCards: UnmatchedCard[];
+  viewers: SessionViewer[];
+  errors: SessionError[];
+  status: ConnectionStatus;
 }

@@ -1,10 +1,7 @@
-// Every localStorage/sessionStorage key the app writes, combined here so a
-// key string is never duplicated (and typo'd) across the file that reads it
-// and the file that writes it.
-
 export const SIDEBAR_EXPANDED_STORAGE_KEY = "sidebarExpanded";
 
-export const ESP32_MOUNT_TYPE_STORAGE_KEY = "magic-vault:build-esp32-mount-type";
+export const ESP32_MOUNT_TYPE_STORAGE_KEY =
+  "magic-vault:build-esp32-mount-type";
 export const BUILD_CHECKLIST_STORAGE_KEY = "magic-vault:build-checklist";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =
   "magic-vault:build-parts-checklist";
@@ -21,8 +18,6 @@ export const ONBOARDING_COMPLETED_KEY = "magic-vault:onboarding-completed";
 export const ACTIVE_COLLECTION_STORAGE_KEY = "activeCollectionGuid";
 export const ACTIVE_ORG_STORAGE_KEY = "activeOrgId";
 
-// sessionStorage, not localStorage — an impersonation session shouldn't
-// survive the tab closing.
 export const IMPERSONATION_STORAGE_KEY = "impersonation";
 
 export const PENDING_INVITE_STORAGE_KEY = "pendingInviteToken";

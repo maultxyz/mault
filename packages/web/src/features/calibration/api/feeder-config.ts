@@ -1,7 +1,10 @@
 import { apiGet, apiPost, apiPut } from "@/lib/api/client";
+import type { FeederConfigAuditEntry } from "@/lib/interfaces/audit";
 import type { FeederCalibration, Result } from "@magic-vault/shared";
 import { DEFAULT_FEEDER_CALIBRATION } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
+
+export type { FeederConfigAuditEntry };
 
 export const feederQueryOptions = queryOptions({
   queryKey: ["feeder"] as const,
@@ -18,12 +21,6 @@ export async function saveFeederConfig(
   calibration: FeederCalibration,
 ): Promise<Result<FeederCalibration>> {
   return apiPut<Result<FeederCalibration>>("/api/feeder", calibration);
-}
-
-export interface FeederConfigAuditEntry {
-  guid: string;
-  calibration: FeederCalibration;
-  createdAt: string;
 }
 
 export async function getFeederHistory(): Promise<

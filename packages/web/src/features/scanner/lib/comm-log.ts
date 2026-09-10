@@ -1,10 +1,7 @@
 export { MAX_COMM_LOG_ENTRIES } from "@/lib/constants/limits";
+import type { CommLogEntry } from "@/lib/interfaces/scanner";
 
-export interface CommLogEntry {
-  direction: "sent" | "received";
-  text: string;
-  timestamp: number;
-}
+export type { CommLogEntry };
 
 export function formatCommLog(entries: CommLogEntry[]): string {
   const lines = [

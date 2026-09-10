@@ -1,7 +1,9 @@
-import type { SetStats } from "@/features/scanner/types";
 import { CARD_COLOR_SWATCHES } from "@/lib/constants/colors";
 import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
+import type { ScanStats } from "@/lib/interfaces/scanner";
 import type { ScannedCard } from "@magic-vault/shared";
+
+export type { ScanStats };
 
 function capitalize(value: string): string {
   return value.length > 0
@@ -22,17 +24,6 @@ function sortRarities<T extends { key: string; count: number }>(
   });
 }
 
-export interface ScanStats {
-  totalCount: number;
-  uniqueCount: number;
-  totalValue: number;
-  avgValue: number;
-  hasPricing: boolean;
-  mostValuable: { name: string; price: number } | null;
-  sets: SetStats[];
-  rarities: { key: string; label: string; count: number }[];
-  colors: { key: string; label: string; bg: string; count: number }[];
-}
 
 export function computeStats(cards: ScannedCard[]): ScanStats | null {
   if (cards.length === 0) return null;

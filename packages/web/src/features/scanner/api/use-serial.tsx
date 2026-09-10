@@ -10,7 +10,7 @@ import type {
   SerialContextValue,
   SerialMessageListener,
   TestResult,
-} from "@/features/scanner/types";
+} from "@/lib/interfaces/scanner";
 import type { BinRoute } from "@magic-vault/shared";
 import { ESPLoader, Transport } from "esptool-js";
 import {
@@ -24,7 +24,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-export type { SerialMessageListener } from "@/features/scanner/types";
+export type { SerialMessageListener } from "@/lib/interfaces/scanner";
 
 const SerialContext = createContext<SerialContextValue | null>(null);
 

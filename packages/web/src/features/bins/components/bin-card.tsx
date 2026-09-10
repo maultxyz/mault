@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
-import type { BinCardProps } from "@/features/bins/types";
+import type { BinCardProps } from "@/lib/interfaces/bins";
 import { BinConfig, isRuleGroup } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 

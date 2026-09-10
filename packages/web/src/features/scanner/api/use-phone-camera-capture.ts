@@ -3,18 +3,15 @@ import {
   CAPTURE_TIMEOUT_MS,
   PRESENCE_TIMEOUT_MS,
 } from "@/lib/constants/timing";
+import type { PhoneCameraCaptureStatus } from "@/lib/interfaces/scanner";
 import type { PhoneCameraMessage, ScanRegion } from "@magic-vault/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
+
+export type { PhoneCameraCaptureStatus };
 
 // The phone heartbeats "camera_ready" roughly this often while its camera
 // is live (see use-phone-camera-responder.ts) - if we haven't heard one in
 // a while, treat it as gone rather than waiting forever.
-
-export type PhoneCameraCaptureStatus =
-  | "idle"
-  | "waiting"
-  | "connected"
-  | "error";
 
 interface PendingCapture {
   requestId: string;

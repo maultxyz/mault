@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { WatcherStack } from "@/components/ui/watcher-stack";
 import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
-import type { CardToolbarProps } from "@/features/cards/types";
+import type { CardToolbarProps } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import type { FieldMeta } from "@magic-vault/shared";
 import {

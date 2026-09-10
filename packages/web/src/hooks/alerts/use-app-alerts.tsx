@@ -4,7 +4,7 @@ import { useChannelLayoutAlert } from "@/hooks/alerts/use-channel-layout-alert";
 import { useEmailVerificationAlert } from "@/hooks/alerts/use-email-verification-alert";
 import { useFirmwareMissingAlert } from "@/hooks/alerts/use-firmware-missing-alert";
 import { useFirmwareVersionAlert } from "@/hooks/alerts/use-firmware-version-alert";
-import type { AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/interfaces/alerts";
 import { DISMISSED_ALERTS_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
   createContext,

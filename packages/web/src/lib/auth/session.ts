@@ -2,11 +2,9 @@ import { neon } from "@/lib/auth/client";
 import { getLocalToken } from "@/lib/auth/local-token";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { ACTIVE_ORG_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import type { AuthSession } from "@/lib/interfaces/auth";
 
-export type AuthSession = {
-  token?: string;
-  activeOrganizationId?: string | null;
-};
+export type { AuthSession };
 
 export async function getAuthSession(): Promise<AuthSession | null> {
   if (AUTH_PROVIDER === "local") {

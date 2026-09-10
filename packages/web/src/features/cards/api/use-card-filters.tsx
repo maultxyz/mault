@@ -1,4 +1,4 @@
-import type { CardFilters } from "@/features/cards/types";
+import type { CardFilters } from "@/lib/interfaces/cards";
 import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { createContext, useCallback, useContext, useState } from "react";
 

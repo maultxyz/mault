@@ -10,4 +10,3 @@ export interface AppAlert {
   message: ReactNode;
   actions?: ReactNode;
 }
-

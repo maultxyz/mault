@@ -1,4 +1,4 @@
-import type { CardFilters } from "@/features/cards/types";
+import type { CardFilters } from "@/lib/interfaces/cards";
 
 export const EMPTY_CARD_FILTERS: CardFilters = {
   colors: [],

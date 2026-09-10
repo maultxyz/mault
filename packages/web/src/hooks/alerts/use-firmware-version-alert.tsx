@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { Esp32FlashDialog } from "@/features/scanner/components/esp32-flash-dialog";
-import type { AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/interfaces/alerts";
 import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
 import { FIRMWARE_RELEASES_URL } from "@/lib/constants/links";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";

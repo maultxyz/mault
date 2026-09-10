@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
-import type { ZoomRange } from "@/features/scanner/types";
+import type { ZoomRange } from "@/lib/interfaces/scanner";
 import {
   IconAdjustments,
   IconCameraSpark,

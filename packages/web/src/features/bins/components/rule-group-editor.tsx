@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { ConditionRow } from "@/features/bins/components/condition-row";
-import type { RuleGroupEditorProps } from "@/features/bins/types";
+import type { RuleGroupEditorProps } from "@/lib/interfaces/bins";
 import { BinCondition, BinRuleGroup, isRuleGroup } from "@magic-vault/shared";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useCallback } from "react";

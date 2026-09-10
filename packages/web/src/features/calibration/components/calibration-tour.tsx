@@ -9,7 +9,7 @@ import {
   isCalibrationTourCompleted,
   markCalibrationTourCompleted,
 } from "@/features/calibration/lib/calibration-tour";
-import type { CalibrationSection } from "@/features/calibration/types";
+import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import { TourTooltip } from "@/features/onboarding/components/tour-tooltip";
 import { TOUR_STEP_NAVIGATION_DELAY_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
