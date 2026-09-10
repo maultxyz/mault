@@ -19,7 +19,7 @@ export function UnmatchedCardsPanel({
   if (cards.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 overflow-hidden">
+    <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 overflow-hidden flex-none">
       <p className="text-[10px] font-medium text-amber-700 dark:text-amber-400 uppercase tracking-wide px-2 pt-2 pb-1.5">
         {t("unmatchedCardsPanel.heading", { count: cards.length })}
       </p>

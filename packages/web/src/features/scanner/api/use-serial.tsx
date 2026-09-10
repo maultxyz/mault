@@ -121,15 +121,22 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (e) {
-        // Reader was cancelled (disconnect) - expected
         if (!(e instanceof DOMException && e.name === "NetworkError")) {
           console.error("[Serial] Read error:", e);
+          toast.error(t("serial.connectionLost.title"), {
+            description: t("serial.connectionLost.description"),
+          });
+          void reportSerialEvent({
+            command: "connect",
+            sent: false,
+            response: null,
+          });
         }
       } finally {
         onEnd?.();
       }
     },
-    [pushCommLog],
+    [pushCommLog, t],
   );
 
   const waitForLine = useCallback((timeoutMs: number): Promise<string> => {
@@ -153,29 +160,33 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  const sendCommand = useCallback((data: string): Promise<boolean> => {
-    if (!portRef.current || !writableRef.current) return Promise.resolve(false);
+  const sendCommand = useCallback(
+    (data: string): Promise<boolean> => {
+      if (!portRef.current || !writableRef.current)
+        return Promise.resolve(false);
 
-    return new Promise<boolean>((resolve) => {
-      writeQueueRef.current = writeQueueRef.current.then(async () => {
-        if (!writableRef.current) {
-          resolve(false);
-          return;
-        }
-        const writer = writableRef.current.getWriter();
-        try {
-          console.log("[Serial] →", data.trim()); // eslint-disable-line no-console -- hardware debug trace
-          pushCommLog("sent", data.trim());
-          await writer.write(new TextEncoder().encode(data));
-          resolve(true);
-        } catch {
-          resolve(false);
-        } finally {
-          writer.releaseLock();
-        }
+      return new Promise<boolean>((resolve) => {
+        writeQueueRef.current = writeQueueRef.current.then(async () => {
+          if (!writableRef.current) {
+            resolve(false);
+            return;
+          }
+          const writer = writableRef.current.getWriter();
+          try {
+            console.log("[Serial] →", data.trim()); // eslint-disable-line no-console -- hardware debug trace
+            pushCommLog("sent", data.trim());
+            await writer.write(new TextEncoder().encode(data));
+            resolve(true);
+          } catch {
+            resolve(false);
+          } finally {
+            writer.releaseLock();
+          }
+        });
       });
-    });
-  }, [pushCommLog]);
+    },
+    [pushCommLog],
+  );
 
   const sendTest = useCallback(async (): Promise<TestResult> => {
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
@@ -314,7 +325,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       return true;
     },
-    [startReading, waitForLine, sendCommand, sendTest, disconnect, t, copyCommLog],
+    [
+      startReading,
+      waitForLine,
+      sendCommand,
+      sendTest,
+      disconnect,
+      t,
+      copyCommLog,
+    ],
   );
 
   const connect = useCallback(async () => {

@@ -3,8 +3,9 @@ RUN npm install -g corepack && corepack enable && corepack prepare pnpm@latest -
 
 WORKDIR /app
 
-# Set HuggingFace cache to a known path inside the image
+# Set HuggingFace and Tesseract caches to known paths inside the image
 ENV HF_HOME=/app/.cache/huggingface
+ENV TESSERACT_CACHE_PATH=/app/.cache/tesseract
 
 # Copy manifests for layer caching
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
@@ -21,6 +22,18 @@ RUN cd packages/server && node -e " \
     SiglipVisionModel.from_pretrained('Xenova/siglip-base-patch16-512', { dtype: 'q8' }), \
     AutoProcessor.from_pretrained('Xenova/siglip-base-patch16-512'), \
   ]).then(() => { console.log('[build] SigLIP model pre-downloaded.'); process.exit(0); }) \
+    .catch(e => { console.error(e); process.exit(1); }); \
+"
+
+# Pre-download Tesseract's English traineddata into the same kind of
+# persistent, image-baked cache dir lib/ocr.ts points at via
+# TESSERACT_CACHE_PATH - otherwise the first scan on a fresh container
+# would fetch it from the network instead of finding it already cached.
+RUN cd packages/server && node -e " \
+  const { createWorker } = require('tesseract.js'); \
+  createWorker('eng', undefined, { cachePath: process.env.TESSERACT_CACHE_PATH }) \
+    .then(w => w.terminate()) \
+    .then(() => { console.log('[build] Tesseract eng traineddata pre-downloaded.'); process.exit(0); }) \
     .catch(e => { console.error(e); process.exit(1); }); \
 "
 

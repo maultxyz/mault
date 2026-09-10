@@ -4,46 +4,31 @@ import {
   IconFocus2,
   IconPlayerPause,
   IconPlayerPlay,
-  IconPlus,
-  IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function ScannerControls({
   status,
-  onForceAddDuplicate,
   onForceScan,
-  onSkipDuplicate,
   onPause,
   onResume,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
+  const canForceScan =
+    status === "no-match" || status === "scanning" || status === "captured";
+
   return (
     <>
-      {status === "no-match" && (
-        <Button onClick={onForceScan} variant="secondary">
-          <IconFocus2 />
-          {t("scannerControls.scanAgain")}
-        </Button>
-      )}
-      {status === "duplicate" && (
-        <>
-          <Button onClick={onForceAddDuplicate} variant="secondary">
-            <IconPlus />
-            {t("scannerControls.addAgain")}
-          </Button>
-          <Button onClick={onSkipDuplicate} variant="ghost">
-            <IconX />
-            {t("scannerControls.skip")}
-          </Button>
-        </>
-      )}
-      {(status === "scanning" || status === "captured") && (
-        <Button onClick={onForceScan} variant="secondary">
-          <IconFocus2 />
-          {t("scannerControls.scanNow")}
-        </Button>
-      )}
+      <Button
+        onClick={onForceScan}
+        variant="secondary"
+        disabled={!canForceScan}
+      >
+        <IconFocus2 />
+        {status === "no-match"
+          ? t("scannerControls.scanAgain")
+          : t("scannerControls.scanNow")}
+      </Button>
       {status === "paused" ? (
         <Button onClick={onResume} variant="secondary">
           <IconPlayerPlay />

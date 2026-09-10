@@ -26,6 +26,7 @@
     "resend": "^6.24.0",
     "rollbar": "^3.1.0",
     "stripe": "^22.6.1",
+    "tesseract.js": "^7.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {

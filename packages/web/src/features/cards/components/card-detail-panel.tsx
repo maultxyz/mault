@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/select";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { getCardById, searchCards } from "@/features/cards/api/card-search";
+import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -276,11 +277,10 @@ export function CardDetailPanel({
                 <div className="flex flex-col gap-3">
                   {capturedImageUrl ? (
                     <div className="flex items-center gap-4">
-                      <div className="w-40 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
-                        <img
+                      <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
+                        <CapturedImageThumb
                           src={capturedImageUrl}
                           alt={t("cardDetailPanel.scannedAlt")}
-                          className="w-full h-full object-cover"
                         />
                       </div>
                       <p className="text-sm text-muted-foreground leading-snug">
@@ -347,10 +347,9 @@ export function CardDetailPanel({
                           {t("cardDetailPanel.capturedScan")}
                         </p>
                         <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
-                          <img
+                          <CapturedImageThumb
                             src={capturedImageUrl}
                             alt={t("cardDetailPanel.scannedAlt")}
-                            className="w-full h-full object-cover"
                           />
                         </div>
                       </div>
@@ -515,11 +514,10 @@ export function CardDetailPanel({
             <>
               {capturedImageUrl && (
                 <div className="flex items-center gap-4">
-                  <div className="w-40 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
-                    <img
+                  <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
+                    <CapturedImageThumb
                       src={capturedImageUrl}
                       alt={t("cardDetailPanel.scannedAlt")}
-                      className="w-full h-full object-cover"
                     />
                   </div>
                   <p className="text-sm text-muted-foreground leading-snug">
