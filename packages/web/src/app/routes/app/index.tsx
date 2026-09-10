@@ -43,7 +43,7 @@ function MobileScanner() {
         </DrawerTrigger>
         <DrawerContent>
           <div className="overflow-y-auto p-4 flex flex-col gap-4 max-h-[calc(80vh-2rem)]">
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               <CollectionSwitcher />
               <PresetSelector readOnly />
             </div>
@@ -106,7 +106,7 @@ export default function App() {
             <CardScanner className="flex-1 min-h-0" />
           </div>
           <ScanStats />
-          <div className="flex flex-col gap-2 w-52 shrink-0 overflow-y-auto">
+          <div className="flex flex-col gap-4 w-52 shrink-0 overflow-y-auto">
             <CollectionSwitcher />
             <PresetSelector readOnly />
             <ScannerDebug />

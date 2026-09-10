@@ -182,7 +182,14 @@
     "calibrate": "Calibrate",
     "retryConnection": "Retry Connection",
     "usePhoneAsCamera": "Use Phone as Camera",
-    "phoneCameraConnected": "Phone Camera Connected"
+    "phoneCameraConnected": "Phone Camera Connected",
+    "ocrTextMatching": "OCR text matching"
+  },
+  "ocrBetaDialog": {
+    "title": "OCR text matching (beta)",
+    "description": "This reads the set code and collector number off the scanned card image to help pick the right printing. It's still in beta, so it can occasionally pick up extra text from the card or misread it. Turn it back off if it seems to be making matches worse.",
+    "confirm": "Enable OCR",
+    "cancel": "Cancel"
   },
   "phoneCamera": {
     "dialogTitle": "Use Phone as Camera",

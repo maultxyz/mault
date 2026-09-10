@@ -182,7 +182,14 @@
     "calibrate": "Kalibrieren",
     "retryConnection": "Verbindung erneut versuchen",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",
-    "phoneCameraConnected": "Telefonkamera verbunden"
+    "phoneCameraConnected": "Telefonkamera verbunden",
+    "ocrTextMatching": "OCR-Texterkennung"
+  },
+  "ocrBetaDialog": {
+    "title": "OCR-Texterkennung (Beta)",
+    "description": "Liest den Set-Code und die Sammelkartennummer auf dem gescannten Kartenbild, um die richtige Druckversion zu bestimmen. Diese Funktion befindet sich noch in der Beta-Phase und kann gelegentlich zusätzlichen Text auf der Karte erfassen oder falsch erkennen. Deaktiviere sie wieder, falls sie die Treffer verschlechtert.",
+    "confirm": "OCR aktivieren",
+    "cancel": "Abbrechen"
   },
   "phoneCamera": {
     "dialogTitle": "Telefon als Kamera verwenden",

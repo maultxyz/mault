@@ -78,6 +78,9 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,
+    ocrEnabled,
+    setOcrEnabled,
+    ocrSupported,
     cameraSource,
     phonePairingStatus,
     phonePairingUrl,
@@ -379,6 +382,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           isConnected={isConnected}
           autoFeed={autoFeed}
           allowDuplicates={allowDuplicates}
+          ocrEnabled={ocrEnabled}
+          ocrSupported={ocrSupported}
           zoom={zoom}
           zoomRange={zoomRange}
           cameras={cameras}
@@ -398,6 +403,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           onCalibrate={() => navigate("/app/calibrate")}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
+          onOcrEnabledChange={setOcrEnabled}
         />
       </div>
     </div>

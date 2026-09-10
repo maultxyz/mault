@@ -182,7 +182,14 @@
     "calibrate": "Calibrer",
     "retryConnection": "Réessayer la connexion",
     "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
-    "phoneCameraConnected": "Caméra du téléphone connectée"
+    "phoneCameraConnected": "Caméra du téléphone connectée",
+    "ocrTextMatching": "Correspondance de texte OCR"
+  },
+  "ocrBetaDialog": {
+    "title": "Correspondance de texte OCR (bêta)",
+    "description": "Cette fonctionnalité lit le code d'extension et le numéro de collection sur l'image de la carte scannée afin d'aider à identifier la bonne édition. Elle est encore en bêta et peut occasionnellement capter du texte superflu sur la carte ou le mal interpréter. Désactivez-la si elle semble dégrader les résultats.",
+    "confirm": "Activer l'OCR",
+    "cancel": "Annuler"
   },
   "phoneCamera": {
     "dialogTitle": "Utiliser le téléphone comme caméra",

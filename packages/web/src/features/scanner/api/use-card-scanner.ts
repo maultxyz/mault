@@ -15,6 +15,7 @@ import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_SCAN_REGION,
+  OCR_REGIONS_BY_GAME_KEY,
   type CardContour,
   type CardScannerProps,
   type PlayingCardWithDistance,
@@ -60,6 +61,7 @@ async function searchCardImage(
   canvas: HTMLCanvasElement,
   contour?: CardContour | null,
   collectionGuid?: string,
+  ocrEnabled?: boolean,
 ): Promise<{
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
@@ -71,6 +73,7 @@ async function searchCardImage(
   const formData = new FormData();
   formData.append("image", blob, "card.jpg");
   if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  formData.append("ocrEnabled", String(ocrEnabled ?? false));
 
   const { data } = await searchByImage(formData);
   if (!data || data.length === 0)
@@ -175,6 +178,15 @@ export function useCardScanner({
   const [debugImageUrl, setDebugImageUrl] = useState<string | null>(null);
   const debugImageUrlRef = useRef<string | null>(null);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
+  // Games without a tuned OCR region (see OCR_REGIONS_BY_GAME_KEY) can't
+  // usefully run OCR at all - keep the toggle off and disabled for them
+  // rather than letting it silently do nothing.
+  const ocrSupported =
+    (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
+    0;
+  const [ocrEnabled, setOcrEnabled] = useState(false);
+  const ocrEnabledRef = useRef(ocrEnabled && ocrSupported);
+  ocrEnabledRef.current = ocrEnabled && ocrSupported;
   const [hasPhonePhoto, setHasPhonePhoto] = useState(false);
 
   useEffect(() => {
@@ -241,6 +253,7 @@ export function useCardScanner({
             canvas,
             contour,
             activeCollectionGuidRef.current,
+            ocrEnabledRef.current,
           );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
@@ -610,6 +623,9 @@ export function useCardScanner({
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,
+    ocrEnabled: ocrEnabled && ocrSupported,
+    setOcrEnabled,
+    ocrSupported,
     cameraSource,
     phonePairingStatus,
     phonePairingUrl,
