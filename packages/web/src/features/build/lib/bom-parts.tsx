@@ -69,7 +69,7 @@ export const GROUPS: Group[] = [
         name: "Adafruit PCA9685",
         part: (t) => t("bom.groups.electronics.items.pca9685.part"),
         notes: (t) => t("bom.groups.electronics.items.pca9685.notes"),
-        buyUrl: "https://amzn.to/4choCPU",
+        buyUrl: "https://amzn.to/4gPYpcG",
       },
       {
         key: "sg90-positional",
@@ -80,7 +80,7 @@ export const GROUPS: Group[] = [
           t("bom.groups.electronics.items.sg90Positional.notes", {
             count: n,
           }),
-        buyUrl: "https://amzn.to/4gwmuX7",
+        buyUrl: "https://amzn.to/4hacYZM",
       },
       {
         key: "sg90-continuous",
@@ -88,7 +88,7 @@ export const GROUPS: Group[] = [
         name: "SG90 servo, continuous rotation",
         part: (t) => t("bom.groups.electronics.items.sg90Continuous.part"),
         notes: (t) => t("bom.groups.electronics.items.sg90Continuous.notes"),
-        buyUrl: "https://amzn.to/3UciimD",
+        buyUrl: "https://amzn.to/4qTVZy2",
       },
     ],
   },
@@ -109,7 +109,7 @@ export const GROUPS: Group[] = [
         ),
         notes: (t, n) =>
           t("bom.groups.sensing.items.irSensor.notes", { count: n }),
-        buyUrl: "https://amzn.to/4guPkWo",
+        buyUrl: "https://amzn.to/4qVNFOt",
       },
     ],
   },
@@ -150,7 +150,7 @@ export const GROUPS: Group[] = [
         name: "DC barrel jack or screw-terminal pigtail",
         part: (t) => t("bom.groups.power.items.barrelJack.part"),
         notes: (t) => t("bom.groups.power.items.barrelJack.notes"),
-        buyUrl: "https://amzn.to/4guET5e",
+        buyUrl: "https://amzn.to/4ieVcWq",
       },
     ],
   },
@@ -193,7 +193,7 @@ export const GROUPS: Group[] = [
         name: "PLA or PETG filament",
         part: (t) => t("bom.groups.structural.items.filament.part"),
         notes: (t) => t("bom.groups.structural.items.filament.notes"),
-        buyUrl: "https://amzn.to/45Qt8RK",
+        buyUrl: "https://amzn.to/4ieZmgR",
       },
       {
         key: "o-ring",
@@ -201,7 +201,7 @@ export const GROUPS: Group[] = [
         name: "20mm ID 26mm OD 3mm Width O-Ring",
         part: (t) => t("bom.groups.structural.items.oRing.part"),
         notes: (t) => t("bom.groups.structural.items.oRing.notes"),
-        buyUrl: "https://amzn.to/3Spt0pl",
+        buyUrl: "https://amzn.to/4yqGK2s",
       },
       {
         key: "hopper-o-ring",
@@ -210,7 +210,7 @@ export const GROUPS: Group[] = [
         part: (t) => t("bom.groups.structural.items.hopperORing.part"),
         notes: (t) => t("bom.groups.structural.items.hopperORing.notes"),
         optional: "new-hopper",
-        buyUrl: "https://amzn.to/3TbcucH",
+        buyUrl: "https://amzn.to/4gPYxJc",
       },
       {
         key: "bin-holders",
@@ -231,7 +231,7 @@ export const GROUPS: Group[] = [
         name: "M3x6 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x6Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x6Screw.notes"),
-        buyUrl: "https://amzn.to/3TbcucH",
+        buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
         key: "m3-nut",
@@ -239,7 +239,7 @@ export const GROUPS: Group[] = [
         name: "M3 nut",
         part: (t) => t("bom.groups.fasteners.items.m3Nut.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3Nut.notes"),
-        buyUrl: "https://amzn.to/3TbcucH",
+        buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
         key: "m3x10-screw",
@@ -247,7 +247,7 @@ export const GROUPS: Group[] = [
         name: "M3x10 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x10Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x10Screw.notes"),
-        buyUrl: "https://amzn.to/3TbcucH",
+        buyUrl: "https://amzn.to/3VfNwJN",
         optional: "classic-hopper",
       },
       {
@@ -256,7 +256,7 @@ export const GROUPS: Group[] = [
         name: "M3 washer",
         part: (t) => t("bom.groups.fasteners.items.m3Washer.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3Washer.notes"),
-        buyUrl: "https://amzn.to/3TbcucH",
+        buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
         key: "m3x8-screw",
@@ -264,7 +264,7 @@ export const GROUPS: Group[] = [
         name: "M3x8 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x8Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x8Screw.notes"),
-        buyUrl: "https://amzn.to/3TbcucH",
+        buyUrl: "https://amzn.to/3VfNwJN",
         optional: "new-hopper",
       },
       {
@@ -274,7 +274,7 @@ export const GROUPS: Group[] = [
         part: (t) => t("bom.groups.fasteners.items.m3x25Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x25Screw.notes"),
         optional: "new-hopper",
-        buyUrl: "https://amzn.to/3TbcucH",
+        buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
         key: "hopper-spring",
@@ -302,7 +302,7 @@ export const GROUPS: Group[] = [
             count: n,
             board: BOARD_INFO[boardType].shortName,
           }),
-        buyUrl: "https://amzn.to/3UmCJx8",
+        buyUrl: "https://amzn.to/4yhJU8l",
       },
       {
         key: "servo-horn-screw",
@@ -317,7 +317,7 @@ export const GROUPS: Group[] = [
         name: "Low Voltage Wire",
         part: (t) => t("bom.groups.fasteners.items.hookupWire.part"),
         notes: (t) => t("bom.groups.fasteners.items.hookupWire.notes"),
-        buyUrl: "https://amzn.to/45T0LCt",
+        buyUrl: "https://amzn.to/4d3n6B7",
       },
       {
         key: "wago-connectors",
@@ -325,7 +325,7 @@ export const GROUPS: Group[] = [
         name: "Wago connectors",
         part: (t) => t("bom.groups.fasteners.items.wagoConnectors.part"),
         notes: (t) => t("bom.groups.fasteners.items.wagoConnectors.notes"),
-        buyUrl: "https://amzn.to/3UJSq1u",
+        buyUrl: "https://amzn.to/3SMx0jQ",
         optional: true,
       },
       {
@@ -343,7 +343,7 @@ export const GROUPS: Group[] = [
         name: "Dupont Crimper",
         part: (t) => t("bom.groups.fasteners.items.dupontCrimper.part"),
         notes: (t) => t("bom.groups.fasteners.items.dupontCrimper.notes"),
-        buyUrl: "https://amzn.to/4zWaIwO",
+        buyUrl: "https://amzn.to/4gD8RoX",
         optional: true,
       },
     ],
@@ -357,7 +357,7 @@ export const GROUPS: Group[] = [
         name: "Webcam",
         part: (t) => t("bom.groups.optional.items.webcam.part"),
         notes: (t) => t("bom.groups.optional.items.webcam.notes"),
-        buyUrl: "https://amzn.to/3SvwSVM",
+        buyUrl: "https://amzn.to/4h8B6Mp",
       },
       {
         key: "camera-mount-screw",
@@ -365,8 +365,9 @@ export const GROUPS: Group[] = [
         name: '1/4"-20 camera mount screw',
         part: (t) => t("bom.groups.optional.items.cameraMountScrew.part"),
         notes: (t) => t("bom.groups.optional.items.cameraMountScrew.notes"),
-        buyUrl: "https://amzn.to/4gKMoVS",
+        buyUrl: "https://amzn.to/4qTWoAy",
       },
     ],
   },
 ];
+
