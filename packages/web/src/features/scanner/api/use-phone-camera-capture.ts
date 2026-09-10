@@ -1,12 +1,14 @@
 import { useCameraSignalChannel } from "@/features/scanner/api/use-camera-signal-channel";
+import {
+  CAPTURE_TIMEOUT_MS,
+  PRESENCE_TIMEOUT_MS,
+} from "@/lib/constants/timing";
 import type { PhoneCameraMessage, ScanRegion } from "@magic-vault/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // The phone heartbeats "camera_ready" roughly this often while its camera
 // is live (see use-phone-camera-responder.ts) - if we haven't heard one in
 // a while, treat it as gone rather than waiting forever.
-const PRESENCE_TIMEOUT_MS = 8000;
-const CAPTURE_TIMEOUT_MS = 8000;
 
 export type PhoneCameraCaptureStatus =
   | "idle"

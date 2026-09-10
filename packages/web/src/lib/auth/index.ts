@@ -7,6 +7,7 @@ import {
   useLocalAuthSession,
 } from "@/lib/auth/local-session-store";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import { PENDING_INVITE_STORAGE_KEY as PENDING_INVITE_KEY } from "@/lib/constants/storage-keys";
 
 export { AUTH_PROVIDER };
 
@@ -23,7 +24,6 @@ interface LocalAuthResult {
   user: { id: string; name: string | null; email: string };
 }
 
-const PENDING_INVITE_KEY = "pendingInviteToken";
 
 // Set by app/routes/auth-join.tsx before it sends an unauthenticated visitor
 // off to sign in/up, since that navigation loses the invite token in the URL

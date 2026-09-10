@@ -1,15 +1,7 @@
-import { RARITY_LABELS, RARITY_ORDER } from "@/features/scanner/constants";
 import type { SetStats } from "@/features/scanner/types";
+import { CARD_COLOR_SWATCHES } from "@/lib/constants/colors";
+import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
 import type { ScannedCard } from "@magic-vault/shared";
-
-const KNOWN_COLOR_SWATCHES: Record<string, { label: string; bg: string }> = {
-  W: { label: "White", bg: "#F9FAF4" },
-  U: { label: "Blue", bg: "#0E68AB" },
-  B: { label: "Black", bg: "#150B00" },
-  R: { label: "Red", bg: "#D3202A" },
-  G: { label: "Green", bg: "#00733E" },
-  C: { label: "Colorless", bg: "#94979A" },
-};
 
 function capitalize(value: string): string {
   return value.length > 0
@@ -111,8 +103,8 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
       .sort((a, b) => b[1] - a[1])
       .map(([key, count]) => ({
         key,
-        label: KNOWN_COLOR_SWATCHES[key]?.label ?? key,
-        bg: KNOWN_COLOR_SWATCHES[key]?.bg ?? key.toLowerCase(),
+        label: CARD_COLOR_SWATCHES[key]?.label ?? key,
+        bg: CARD_COLOR_SWATCHES[key]?.bg ?? key.toLowerCase(),
         count,
       })),
   };

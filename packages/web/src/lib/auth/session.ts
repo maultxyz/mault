@@ -1,6 +1,7 @@
 import { neon } from "@/lib/auth/client";
 import { getLocalToken } from "@/lib/auth/local-token";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import { ACTIVE_ORG_STORAGE_KEY } from "@/lib/constants/storage-keys";
 
 export type AuthSession = {
   token?: string;
@@ -22,5 +23,5 @@ export function getOrgId(session: AuthSession | null): string | null {
   // organization.setActive — so session.activeOrganizationId can lag behind an org
   // switch for the life of the cached JWT. setActiveOrg() writes localStorage
   // synchronously on every switch, so prefer it over the potentially-stale session.
-  return localStorage.getItem("activeOrgId") ?? session?.activeOrganizationId ?? null;
+  return localStorage.getItem(ACTIVE_ORG_STORAGE_KEY) ?? session?.activeOrganizationId ?? null;
 }

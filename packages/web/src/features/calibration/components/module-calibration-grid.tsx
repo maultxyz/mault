@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SERVOS } from "@/features/calibration/constants";
+import { SERVOS } from "@/lib/constants/calibration";
 import type {
   ActivePositions,
   ServoConfig,

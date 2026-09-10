@@ -1,15 +1,6 @@
 import type { CardFilters } from "@/features/cards/types";
+import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { createContext, useCallback, useContext, useState } from "react";
-
-export const EMPTY_CARD_FILTERS: CardFilters = {
-  colors: [],
-  rarities: [],
-  bins: [],
-  needsAttention: false,
-  showDownloaded: false,
-  sets: [],
-  minMatchPercent: 0,
-};
 
 function toggleItem<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];

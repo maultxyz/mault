@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { usePublicGames } from "@/app/routes/landing/use-public-games";
-import { LANGUAGE_LABELS } from "@/lib/languages";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 
 export function LandingSupportedGames() {
   const { t } = useTranslation("landing");

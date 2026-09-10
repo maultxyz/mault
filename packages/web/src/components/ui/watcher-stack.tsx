@@ -1,7 +1,6 @@
 import { InitialsAvatar, getInitials } from "@/components/ui/initials-avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-
-const MAX_STACK = 2;
+import { MAX_WATCHER_STACK as MAX_STACK } from "@/lib/constants/limits";
 
 export interface Watcher {
   userId: string;

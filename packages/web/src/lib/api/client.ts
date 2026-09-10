@@ -6,8 +6,9 @@ import {
 import { setLocalToken } from "@/lib/auth/local-token";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { getAuthSession, getOrgId } from "@/lib/auth/session";
+import { API_BASE } from "@/lib/constants/api";
 
-export const API_BASE = import.meta.env.VITE_API_URL ?? "";
+export { API_BASE };
 
 export async function getAuthHeaders(): Promise<HeadersInit> {
   const impersonation = getImpersonationState();

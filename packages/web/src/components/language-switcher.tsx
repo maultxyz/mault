@@ -16,7 +16,7 @@ import {
   LANGUAGE_NATIVE_NAMES,
   SUPPORTED_LANGUAGES,
   type SupportedLanguage,
-} from "@/lib/i18n";
+} from "@/lib/constants/languages";
 import { IconCheck, IconLanguage } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 

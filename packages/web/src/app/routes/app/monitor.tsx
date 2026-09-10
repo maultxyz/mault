@@ -25,11 +25,10 @@ import {
   IconLoader2,
   IconWifiOff,
 } from "@tabler/icons-react";
+import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-
-const PAGE_SIZE = 96;
 
 function CardGrid({
   filteredAndSorted,

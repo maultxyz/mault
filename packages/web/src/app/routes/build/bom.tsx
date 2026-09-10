@@ -1,4 +1,3 @@
-import { BOARD_INFO } from "@/app/routes/build/board-info";
 import {
   useBoardType,
   type BoardType,
@@ -9,6 +8,8 @@ import {
   useModuleCount,
 } from "@/app/routes/build/use-module-count";
 import { Button } from "@/components/ui/button";
+import { BOARD_BUY_URLS, BOARD_INFO } from "@/lib/constants/build";
+import { BUILD_PARTS_CHECKLIST_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
   IconExternalLink,
@@ -50,11 +51,6 @@ function resolveRowName(row: Row, boardType: BoardType): string {
 function resolveRowBuyUrl(row: Row, boardType: BoardType): string | undefined {
   return typeof row.buyUrl === "function" ? row.buyUrl(boardType) : row.buyUrl;
 }
-
-const BOARD_BUY_URLS: Partial<Record<BoardType, string>> = {
-  uno_r4: "https://amzn.to/4zFfnmv",
-  esp32: "https://amzn.to/4gmsm51",
-};
 
 const GROUPS: Group[] = [
   {
@@ -389,14 +385,12 @@ const GROUPS: Group[] = [
   },
 ];
 
-const STORAGE_KEY = "magic-vault:build-parts-checklist";
-
 function usePartsChecklist() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(BUILD_PARTS_CHECKLIST_STORAGE_KEY);
       if (raw) setChecked(JSON.parse(raw));
     } catch {}
   }, []);
@@ -405,7 +399,7 @@ function usePartsChecklist() {
     setChecked((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(BUILD_PARTS_CHECKLIST_STORAGE_KEY, JSON.stringify(next));
       } catch {}
       return next;
     });

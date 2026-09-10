@@ -25,7 +25,7 @@ import { useCollectionLocks } from "@/features/collections/api/use-collection-lo
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { LANGUAGE_LABELS } from "@/lib/languages";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { Collection } from "@magic-vault/shared";
 import {
   IconEdit,

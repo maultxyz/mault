@@ -1,11 +1,15 @@
-import { BOARD_INFO } from "@/app/routes/build/board-info";
 import {
   useBoardType,
   type BoardType,
 } from "@/app/routes/build/use-board-type";
 import { useModuleCount } from "@/app/routes/build/use-module-count";
 import { buttonVariants } from "@/components/ui/button";
-import { DISCORD_URL } from "@/lib/links";
+import { BOARD_INFO } from "@/lib/constants/build";
+import { DISCORD_URL } from "@/lib/constants/links";
+import {
+  BUILD_CHECKLIST_STORAGE_KEY,
+  ESP32_MOUNT_TYPE_STORAGE_KEY,
+} from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
   IconCpu,
@@ -20,8 +24,6 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
 type Esp32MountType = "breakout" | "bare";
-
-const ESP32_MOUNT_TYPE_STORAGE_KEY = "magic-vault:build-esp32-mount-type";
 
 function useEsp32MountType() {
   const [mountType, setMountTypeState] = useState<Esp32MountType>("breakout");
@@ -451,14 +453,12 @@ function buildPhases(
   ];
 }
 
-const STORAGE_KEY = "magic-vault:build-checklist";
-
 function useChecklist() {
   const [checked, setChecked] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(BUILD_CHECKLIST_STORAGE_KEY);
       if (raw) setChecked(JSON.parse(raw));
     } catch {}
   }, []);
@@ -467,7 +467,7 @@ function useChecklist() {
     setChecked((prev) => {
       const next = { ...prev, [key]: !prev[key] };
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        localStorage.setItem(BUILD_CHECKLIST_STORAGE_KEY, JSON.stringify(next));
       } catch {}
       return next;
     });

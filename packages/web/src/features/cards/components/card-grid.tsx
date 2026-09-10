@@ -32,11 +32,10 @@ import {
   IconChevronRight,
   IconSparkles,
 } from "@tabler/icons-react";
+import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-const PAGE_SIZE = 96;
 
 export function CardGrid() {
   const { t } = useTranslation("cards");

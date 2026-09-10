@@ -1,4 +1,4 @@
-import { BOARD_INFO } from "@/app/routes/build/board-info";
+import { BOARD_INFO } from "@/lib/constants/build";
 import { useBoardType } from "@/app/routes/build/use-board-type";
 import { useModuleCount } from "@/app/routes/build/use-module-count";
 import { cn } from "@/lib/utils";

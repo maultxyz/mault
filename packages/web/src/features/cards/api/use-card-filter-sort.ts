@@ -1,4 +1,5 @@
 import type { CardFilters } from "@/features/cards/types";
+import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import {
   getCardValue,
   type FieldMeta,
@@ -55,16 +56,6 @@ export function applyCardFilters(
   return result;
 }
 
-const EMPTY_FILTERS: CardFilters = {
-  colors: [],
-  rarities: [],
-  bins: [],
-  needsAttention: false,
-  showDownloaded: false,
-  sets: [],
-  minMatchPercent: 0,
-};
-
 const SORTABLE_TYPES: FieldMeta["type"][] = ["string", "numeric", "enum"];
 
 function splitSortKey(sortKey: string): { field: string; dir: "asc" | "desc" } {
@@ -112,7 +103,7 @@ export function useCardFilterSort(
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<string | null>("scan-desc");
   const [internalFilters, setInternalFilters] =
-    useState<CardFilters>(EMPTY_FILTERS);
+    useState<CardFilters>(EMPTY_CARD_FILTERS);
   const filters = external?.filters ?? internalFilters;
   const setFilters = external?.setFilters ?? setInternalFilters;
 

@@ -1,6 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
 import { neon } from "@/lib/auth/client";
-import { DISCORD_BOT_INSTALL_URL } from "@/lib/links";
+import { DISCORD_BOT_INSTALL_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { IconBrandDiscord } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";

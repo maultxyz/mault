@@ -17,6 +17,7 @@ import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
   QUERY_MIN_LENGTH,
@@ -146,7 +147,7 @@ export function CardDetailPanel({
     setQuery(value);
     setSelectedSet("all");
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setDebouncedQuery(value), 300);
+    debounceRef.current = setTimeout(() => setDebouncedQuery(value), SEARCH_DEBOUNCE_MS);
   };
 
   const handleSelect = useCallback(

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { ESP32_FIRMWARE_URL } from "@/lib/links";
+import { ESP32_FIRMWARE_URL } from "@/lib/constants/links";
 import {
   IconAlertTriangle,
   IconCircleCheck,

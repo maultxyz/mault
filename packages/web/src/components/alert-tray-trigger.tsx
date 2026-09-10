@@ -1,6 +1,7 @@
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { useAppAlertsContext } from "@/hooks/alerts/use-app-alerts";
-import { ALERT_SEVERITY_ICON_CLASS, type AppAlert } from "@/lib/alerts";
+import type { AppAlert } from "@/lib/alerts";
+import { ALERT_SEVERITY_ICON_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
 import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";

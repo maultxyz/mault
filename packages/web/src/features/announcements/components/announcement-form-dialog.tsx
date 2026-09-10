@@ -11,17 +11,16 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ANNOUNCEMENT_SEVERITIES } from "@/lib/constants/announcements";
 import {
   createAnnouncementFormSchema,
   type AnnouncementFormValues,
 } from "@/schemas/announcements.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Announcement, AnnouncementSeverity } from "@magic-vault/shared";
+import type { Announcement } from "@magic-vault/shared";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-
-const SEVERITIES: AnnouncementSeverity[] = ["info", "warning", "danger"];
 
 function toDatetimeLocalValue(value: Date | string | null): string {
   if (!value) return "";
@@ -140,7 +139,7 @@ export function AnnouncementFormDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {SEVERITIES.map((severity) => (
+                  {ANNOUNCEMENT_SEVERITIES.map((severity) => (
                     <SelectItem key={severity} value={severity}>
                       {t(`severity.${severity}`)}
                     </SelectItem>

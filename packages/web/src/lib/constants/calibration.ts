@@ -1,4 +1,4 @@
-import type { ServoConfig } from "./types";
+import type { ServoConfig } from "@/features/calibration/types";
 
 export const SERVOS: ServoConfig[] = [
   {

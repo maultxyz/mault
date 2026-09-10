@@ -1,3 +1,4 @@
+import { CATCH_ALL_BIN } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -6,7 +7,6 @@ const MODULES = [
   { module: 2, left: 3, right: 4 },
   { module: 3, left: 5, right: 6 },
 ];
-const CATCH_ALL_BIN = 7;
 
 // A read-only stand-in for features/bins/components/bin-location-diagram.tsx,
 // reusing its cell layout and translations - the real diagram pulls its

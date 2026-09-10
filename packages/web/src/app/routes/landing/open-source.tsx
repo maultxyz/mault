@@ -1,5 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
-import { DISCORD_URL, MODEL_URL, REPO_URL } from "@/lib/links";
+import { DISCORD_URL, MODEL_URL, REPO_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import {
   IconBrandDiscord,

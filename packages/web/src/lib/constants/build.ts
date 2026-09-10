@@ -1,4 +1,10 @@
-import type { BoardType } from "@/app/routes/build/use-board-type";
+export type BoardType = "uno_r4" | "esp32";
+
+export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
+
+export const MIN_MODULES = 1;
+export const MAX_MODULES = 5;
+export const DEFAULT_MODULES = 3;
 
 export interface BoardInfo {
   displayName: string;
@@ -32,4 +38,9 @@ export const BOARD_INFO: Record<BoardType, BoardInfo> = {
     i2cSda: "GPIO8",
     i2cScl: "GPIO9",
   },
+};
+
+export const BOARD_BUY_URLS: Partial<Record<BoardType, string>> = {
+  uno_r4: "https://amzn.to/4zFfnmv",
+  esp32: "https://amzn.to/4gmsm51",
 };

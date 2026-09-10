@@ -1,9 +1,8 @@
+import { IMPERSONATION_STORAGE_KEY as STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type {
   ImpersonationOrgSummary,
   ImpersonationSession,
 } from "@magic-vault/shared";
-
-const STORAGE_KEY = "impersonation";
 
 export interface ImpersonationState {
   token: string;

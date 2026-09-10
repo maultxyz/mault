@@ -1,4 +1,5 @@
 import type { CalibrationSection } from "@/features/calibration/types";
+import { CALIBRATION_TOUR_COMPLETED_KEY } from "@/lib/constants/storage-keys";
 import type { Step } from "react-joyride";
 
 export interface CalibrationTourStepConfig {
@@ -109,11 +110,9 @@ export const CALIBRATION_TOUR_STEPS: CalibrationTourStepConfig[] = [
   },
 ];
 
-const COMPLETED_KEY = "magic-vault:calibration-tour-completed";
-
 export function isCalibrationTourCompleted(): boolean {
   try {
-    return localStorage.getItem(COMPLETED_KEY) === "true";
+    return localStorage.getItem(CALIBRATION_TOUR_COMPLETED_KEY) === "true";
   } catch {
     return true;
   }
@@ -121,7 +120,7 @@ export function isCalibrationTourCompleted(): boolean {
 
 export function markCalibrationTourCompleted(): void {
   try {
-    localStorage.setItem(COMPLETED_KEY, "true");
+    localStorage.setItem(CALIBRATION_TOUR_COMPLETED_KEY, "true");
   } catch {
     // Storage unavailable (private browsing, disabled cookies) - skip persisting.
   }

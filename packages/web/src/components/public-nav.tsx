@@ -2,7 +2,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { buttonVariants } from "@/components/ui/button";
 import { useAuthSession } from "@/lib/auth";
-import { DISCORD_URL, SHOP_URL } from "@/lib/links";
+import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { IconBrandDiscord } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";

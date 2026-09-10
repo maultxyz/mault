@@ -1,4 +1,10 @@
 import {
+  DEFAULT_MODULES,
+  MAX_MODULES,
+  MIN_MODULES,
+} from "@/lib/constants/build";
+import { BUILD_MODULE_COUNT_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import {
   createContext,
   useContext,
   useEffect,
@@ -6,11 +12,7 @@ import {
   type ReactNode,
 } from "react";
 
-export const MIN_MODULES = 1;
-export const MAX_MODULES = 5;
-export const DEFAULT_MODULES = 3;
-
-const MODULE_COUNT_STORAGE_KEY = "magic-vault:build-parts-module-count";
+export { DEFAULT_MODULES, MAX_MODULES, MIN_MODULES };
 
 interface ModuleCountContextValue {
   moduleCount: number;
@@ -26,7 +28,7 @@ export function ModuleCountProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(MODULE_COUNT_STORAGE_KEY);
+      const raw = localStorage.getItem(BUILD_MODULE_COUNT_STORAGE_KEY);
       const parsed = raw ? parseInt(raw, 10) : NaN;
       if (parsed >= MIN_MODULES && parsed <= MAX_MODULES) {
         setModuleCountState(parsed);
@@ -38,7 +40,7 @@ export function ModuleCountProvider({ children }: { children: ReactNode }) {
     const clamped = Math.min(MAX_MODULES, Math.max(MIN_MODULES, value));
     setModuleCountState(clamped);
     try {
-      localStorage.setItem(MODULE_COUNT_STORAGE_KEY, String(clamped));
+      localStorage.setItem(BUILD_MODULE_COUNT_STORAGE_KEY, String(clamped));
     } catch {}
   };
 

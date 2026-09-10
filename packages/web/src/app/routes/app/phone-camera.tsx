@@ -6,6 +6,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera-responder";
 import { usePhoneLocalCamera } from "@/features/scanner/api/use-phone-local-camera";
 import { useVideoCanvasPreview } from "@/features/scanner/api/use-video-canvas-preview";
+import { CAPTURE_FLASH_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import { DEFAULT_SCAN_REGION, type ScanRegion } from "@magic-vault/shared";
 import {
@@ -19,8 +20,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-
-const CAPTURE_FLASH_MS = 300;
 
 export default function PhoneCameraPage() {
   const { t } = useTranslation("scanner");

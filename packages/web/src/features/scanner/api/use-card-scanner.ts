@@ -5,13 +5,13 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
-import { SCANNABLE_STATUSES } from "@/features/scanner/constants";
 import {
   canvasToBlob,
   drawDetectionOverlay,
   extractCardImage,
   getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
+import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_SCAN_REGION,
@@ -55,8 +55,6 @@ function playDingSound() {
   oscillator.start(ctx.currentTime);
   oscillator.stop(ctx.currentTime + 0.3);
 }
-
-const CLOSE_MATCH_DELTA = 0.05;
 
 async function searchCardImage(
   canvas: HTMLCanvasElement,

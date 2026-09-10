@@ -1,10 +1,9 @@
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { neon } from "@/lib/auth/client";
+import { ACTIVE_ORG_STORAGE_KEY as ORG_KEY } from "@/lib/constants/storage-keys";
 import { invalidateAppQueries } from "@/lib/query-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
-
-const ORG_KEY = "activeOrgId";
 
 export function useOrgNeon() {
   const queryClient = useQueryClient();

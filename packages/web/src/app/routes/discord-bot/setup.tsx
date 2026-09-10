@@ -1,5 +1,5 @@
 import { SectionHeading } from "@/components/section-heading";
-import { DISCORD_BOT_INSTALL_URL } from "@/lib/links";
+import { DISCORD_BOT_INSTALL_URL } from "@/lib/constants/links";
 import {
   IconBrandDiscord,
   IconKey,

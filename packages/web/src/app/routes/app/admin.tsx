@@ -24,6 +24,10 @@ import {
   startSync,
   syncCardById,
 } from "@/lib/api/admin";
+import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
+import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { LIVE_CLOCK_TICK_MS } from "@/lib/constants/timing";
 import type { SyncState } from "@magic-vault/shared";
 import {
   IconChevronLeft,
@@ -34,12 +38,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import {
-  DEFAULT_SYNC_STATE,
-  formatDuration,
-  LANGUAGE_LABELS,
-  STATUS_COLORS,
-} from "./admin.constants";
+import { formatDuration } from "./admin.utils";
 
 export default function AdminPage() {
   const { t } = useTranslation("admin");
@@ -131,7 +130,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (syncState.status !== "running") return;
-    const interval = setInterval(() => setNow(Date.now()), 1000);
+    const interval = setInterval(() => setNow(Date.now()), LIVE_CLOCK_TICK_MS);
     return () => clearInterval(interval);
   }, [syncState.status]);
 
@@ -247,7 +246,7 @@ export default function AdminPage() {
                 </p>
                 <p
                   className="text-xs font-medium"
-                  style={{ color: STATUS_COLORS[syncState.status] }}
+                  style={{ color: SYNC_STATUS_COLORS[syncState.status] }}
                 >
                   {t(`cardImageVectors.syncStatus.${syncState.status}`)}
                   {isRunning &&

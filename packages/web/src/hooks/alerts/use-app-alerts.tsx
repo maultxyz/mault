@@ -5,6 +5,7 @@ import { useEmailVerificationAlert } from "@/hooks/alerts/use-email-verification
 import { useFirmwareMissingAlert } from "@/hooks/alerts/use-firmware-missing-alert";
 import { useFirmwareVersionAlert } from "@/hooks/alerts/use-firmware-version-alert";
 import type { AppAlert } from "@/lib/alerts";
+import { DISMISSED_ALERTS_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
   createContext,
   useContext,
@@ -23,14 +24,12 @@ interface AppAlertsContextValue {
 
 const AppAlertsContext = createContext<AppAlertsContextValue | null>(null);
 
-const DISMISSED_STORAGE_KEY = "magic-vault:dismissed-alerts";
-
 export function AppAlertsProvider({ children }: { children: ReactNode }) {
   const [dismissedIds, setDismissedIds] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(DISMISSED_STORAGE_KEY);
+      const raw = localStorage.getItem(DISMISSED_ALERTS_STORAGE_KEY);
       if (raw) setDismissedIds(JSON.parse(raw));
     } catch {}
   }, []);
@@ -71,7 +70,7 @@ export function AppAlertsProvider({ children }: { children: ReactNode }) {
         setDismissedIds((prev) => {
           const next = { ...prev, [id]: true };
           try {
-            localStorage.setItem(DISMISSED_STORAGE_KEY, JSON.stringify(next));
+            localStorage.setItem(DISMISSED_ALERTS_STORAGE_KEY, JSON.stringify(next));
           } catch {}
           return next;
         }),

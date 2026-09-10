@@ -1,5 +1,5 @@
 import { BrandMark } from "@/components/brand-mark";
-import { DISCORD_URL, DONATE_URL } from "@/lib/links";
+import { DISCORD_URL, DONATE_URL } from "@/lib/constants/links";
 import { IconBrandDiscord, IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";

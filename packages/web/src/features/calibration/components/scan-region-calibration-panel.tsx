@@ -9,6 +9,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import { getDefaultCardContour } from "@/features/scanner/lib/card-detection";
+import { SCAN_REGION_PHONE_SYNC_DELAY_MS } from "@/lib/constants/timing";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_SCAN_REGION,
@@ -305,7 +306,10 @@ export function ScanRegionCalibrationPanel() {
 
   useEffect(() => {
     if (cameraSource !== "phone" || phonePairingStatus !== "connected") return;
-    const timeout = setTimeout(() => sendPhoneScanRegion(region), 80);
+    const timeout = setTimeout(
+      () => sendPhoneScanRegion(region),
+      SCAN_REGION_PHONE_SYNC_DELAY_MS,
+    );
     return () => clearTimeout(timeout);
   }, [region, cameraSource, phonePairingStatus, sendPhoneScanRegion]);
 

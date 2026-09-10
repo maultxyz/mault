@@ -1,7 +1,6 @@
 import { apiGet } from "@/lib/api/client";
+import { APP_VERSION_CHECK_INTERVAL_MS as CHECK_INTERVAL_MS } from "@/lib/constants/timing";
 import { useEffect, useState } from "react";
-
-const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 
 interface VersionResponse {
   success: boolean;

@@ -1,3 +1,5 @@
+import { DEFAULT_BOARD_TYPE, type BoardType } from "@/lib/constants/build";
+import { BUILD_BOARD_TYPE_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
   createContext,
   useContext,
@@ -6,11 +8,8 @@ import {
   type ReactNode,
 } from "react";
 
-export type BoardType = "uno_r4" | "esp32";
-
-export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
-
-const BOARD_TYPE_STORAGE_KEY = "magic-vault:build-board-type";
+export type { BoardType };
+export { DEFAULT_BOARD_TYPE };
 
 interface BoardTypeContextValue {
   boardType: BoardType;
@@ -26,7 +25,7 @@ export function BoardTypeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const raw = localStorage.getItem(BOARD_TYPE_STORAGE_KEY);
+      const raw = localStorage.getItem(BUILD_BOARD_TYPE_STORAGE_KEY);
       if (raw === "uno_r4" || raw === "esp32") {
         setBoardTypeState(raw);
       }
@@ -36,7 +35,7 @@ export function BoardTypeProvider({ children }: { children: ReactNode }) {
   const setBoardType = (value: BoardType) => {
     setBoardTypeState(value);
     try {
-      localStorage.setItem(BOARD_TYPE_STORAGE_KEY, value);
+      localStorage.setItem(BUILD_BOARD_TYPE_STORAGE_KEY, value);
     } catch {}
   };
 

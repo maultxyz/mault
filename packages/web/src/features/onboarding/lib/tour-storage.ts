@@ -1,8 +1,8 @@
-const COMPLETED_KEY = "magic-vault:onboarding-completed";
+import { ONBOARDING_COMPLETED_KEY } from "@/lib/constants/storage-keys";
 
 export function isOnboardingCompleted(): boolean {
   try {
-    return localStorage.getItem(COMPLETED_KEY) === "true";
+    return localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true";
   } catch {
     return true;
   }
@@ -10,7 +10,7 @@ export function isOnboardingCompleted(): boolean {
 
 export function markOnboardingCompleted(): void {
   try {
-    localStorage.setItem(COMPLETED_KEY, "true");
+    localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
   } catch {
     // Storage unavailable (private browsing, disabled cookies) - skip persisting.
   }

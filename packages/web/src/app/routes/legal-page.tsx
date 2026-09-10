@@ -1,7 +1,8 @@
 import { LandingFooter } from "@/app/routes/landing/footer";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
-import { CONTACT_EMAIL } from "@/lib/links";
+import { LEGAL_EFFECTIVE_DATE as EFFECTIVE_DATE } from "@/lib/constants/legal";
+import { CONTACT_EMAIL } from "@/lib/constants/links";
 import { useTranslation } from "react-i18next";
 
 interface LegalSection {
@@ -12,8 +13,6 @@ interface LegalSection {
 function withContactEmail(text: string) {
   return text.replace("{{email}}", CONTACT_EMAIL);
 }
-
-const EFFECTIVE_DATE = "2026-09-04";
 
 export function LegalPage({ page }: { page: "privacy" | "terms" }) {
   const { t, i18n } = useTranslation("legal");

@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
+import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
   Tooltip,
   TooltipContent,
@@ -23,7 +24,7 @@ import { useLiveSessionCounts } from "@/features/collections/api/use-live-counts
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
-import { DISCORD_URL, SHOP_URL } from "@/lib/links";
+import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
@@ -41,7 +42,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 
-const EXPANDED_KEY = "sidebarExpanded";
 
 interface NavSubItemDef {
   key: string;
@@ -368,13 +368,13 @@ export function AppNav() {
   const { locks, currentUserId } = useCollectionLocks();
 
   const [expanded, setExpanded] = useState(
-    () => localStorage.getItem(EXPANDED_KEY) === "true",
+    () => localStorage.getItem(SIDEBAR_EXPANDED_STORAGE_KEY) === "true",
   );
 
   const toggle = useCallback(() => {
     setExpanded((prev) => {
       const next = !prev;
-      localStorage.setItem(EXPANDED_KEY, String(next));
+      localStorage.setItem(SIDEBAR_EXPANDED_STORAGE_KEY, String(next));
       return next;
     });
   }, []);

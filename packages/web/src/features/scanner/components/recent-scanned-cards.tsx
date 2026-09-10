@@ -1,9 +1,8 @@
+import { RECENT_SCANNED_CARDS_COUNT as RECENT_COUNT } from "@/lib/constants/limits";
 import type { ScannedCard } from "@magic-vault/shared";
 import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { formatUsd } from "./scan-stats";
-
-const RECENT_COUNT = 5;
 
 function RecentCardRow({ card, binNumber, isFoil }: ScannedCard) {
   const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;

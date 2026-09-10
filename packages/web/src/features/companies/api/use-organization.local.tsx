@@ -1,10 +1,9 @@
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { apiGet } from "@/lib/api/client";
+import { ACTIVE_ORG_STORAGE_KEY as ORG_KEY } from "@/lib/constants/storage-keys";
 import { invalidateAppQueries } from "@/lib/query-client";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
-
-const ORG_KEY = "activeOrgId";
 
 interface LocalOrg {
   id: string;

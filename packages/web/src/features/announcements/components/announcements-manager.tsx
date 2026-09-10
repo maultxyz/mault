@@ -8,7 +8,7 @@ import {
   deleteAnnouncement,
   updateAnnouncement,
 } from "@/features/announcements/api/announcements";
-import { ALERT_SEVERITY_ICON_CLASS } from "@/lib/alerts";
+import { ALERT_SEVERITY_ICON_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
 import type { AnnouncementFormValues } from "@/schemas/announcements.schema";
 import type { Announcement } from "@magic-vault/shared";

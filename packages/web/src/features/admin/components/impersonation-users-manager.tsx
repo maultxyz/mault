@@ -10,6 +10,7 @@ import {
 import { ImpersonationAuditDrawer } from "@/features/admin/components/impersonation-audit-drawer";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { searchAdminUsers } from "@/lib/api/admin";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { QUERY_MIN_LENGTH, type AdminUserSummary } from "@magic-vault/shared";
 import { IconClockHour3, IconUserScan } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -41,7 +42,7 @@ export function ImpersonationUsersManager() {
   function handleSearchInput(value: string) {
     setSearchInput(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setSearch(value), 300);
+    debounceRef.current = setTimeout(() => setSearch(value), SEARCH_DEBOUNCE_MS);
   }
 
   async function handleConfirmImpersonate() {
