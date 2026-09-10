@@ -112,10 +112,7 @@ export interface SerialContextValue {
 
 export interface ScannerControlsProps {
   status: ScannerStatus;
-  duplicateCardName?: string;
-  onForceAddDuplicate: () => void;
   onForceScan: () => void;
-  onSkipDuplicate: () => void;
   onPause: () => void;
   onResume: () => void;
 }

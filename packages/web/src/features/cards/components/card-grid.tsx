@@ -31,6 +31,7 @@ import { ScannerControls } from "@/features/scanner/components/scanner-controls"
 import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
 
+import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
 import {
   IconAlbum,
   IconArrowBarToDown,
@@ -39,7 +40,6 @@ import {
   IconChevronRight,
   IconSparkles,
 } from "@tabler/icons-react";
-import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -214,9 +214,7 @@ export function CardGrid() {
             <div className="flex flex-row gap-2 items-center w-full">
               <ScannerControls
                 status={scanner.status}
-                onForceAddDuplicate={scanner.handleForceAddDuplicate}
                 onForceScan={scanner.handleForceScan}
-                onSkipDuplicate={scanner.handleSkipDuplicate}
                 onPause={scanner.handlePause}
                 onResume={scanner.handleResume}
               />
@@ -226,7 +224,7 @@ export function CardGrid() {
                   setForceFoilType(value === "none" ? null : value)
                 }
               >
-                <SelectTrigger size="sm" className="gap-1">
+                <SelectTrigger className="gap-1">
                   <IconSparkles className="size-3.5" />
                   <SelectValue placeholder={t("cardGrid.foilNone")} />
                 </SelectTrigger>
@@ -418,9 +416,7 @@ export function CardGrid() {
               <div className="flex flex-row gap-2 items-center">
                 <ScannerControls
                   status={scanner.status}
-                  onForceAddDuplicate={scanner.handleForceAddDuplicate}
                   onForceScan={scanner.handleForceScan}
-                  onSkipDuplicate={scanner.handleSkipDuplicate}
                   onPause={scanner.handlePause}
                   onResume={scanner.handleResume}
                 />
@@ -430,12 +426,14 @@ export function CardGrid() {
                     setForceFoilType(value === "none" ? null : value)
                   }
                 >
-                  <SelectTrigger size="sm" className="gap-1">
+                  <SelectTrigger className="gap-1">
                     <IconSparkles className="size-3.5" />
                     <SelectValue placeholder={t("cardGrid.foilNone")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">{t("cardGrid.foilNone")}</SelectItem>
+                    <SelectItem value="none">
+                      {t("cardGrid.foilNone")}
+                    </SelectItem>
                     {foilOptions.map((type) => (
                       <SelectItem key={type} value={type}>
                         {type}
