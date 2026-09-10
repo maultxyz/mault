@@ -14,6 +14,10 @@
       "title": "Échec de la connexion",
       "description": "Impossible d'ouvrir le port. Vérifie qu'aucune autre application ne l'utilise."
     },
+    "connectionLost": {
+      "title": "Connexion perdue",
+      "description": "Le trieur s'est déconnecté de manière inattendue. Vérifie qu'aucune autre application (comme le moniteur série de l'IDE Arduino) n'utilise le port, puis reconnecte-toi."
+    },
     "testingDevice": "Test de l'appareil…",
     "deviceReady": "Appareil prêt",
     "deviceTestFailed": {

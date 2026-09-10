@@ -14,6 +14,10 @@
       "title": "Connection failed",
       "description": "Failed to open port. Make sure no other application is using it."
     },
+    "connectionLost": {
+      "title": "Connection lost",
+      "description": "The sorter disconnected unexpectedly. Make sure no other application (like the Arduino IDE's Serial Monitor) is using the port, then reconnect."
+    },
     "testingDevice": "Testing device…",
     "deviceReady": "Device ready",
     "deviceTestFailed": {
