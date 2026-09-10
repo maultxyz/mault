@@ -2,10 +2,11 @@ import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
 import { RequireCollectionDialog } from "@/components/require-collection-dialog";
+import { RouteLoadingFallback } from "@/components/route-loading-fallback";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
-import { lazy } from "react";
+import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 
 const LandingPage = lazy(() => import("@/app/routes/index"));
@@ -109,7 +110,15 @@ export const router = createBrowserRouter([
           ]
         : []),
       {
-        element: <AuthGuard />,
+        // Scopes the branded "Loading your vault" screen to the /app/*
+        // portion only - the outer Suspense in main.tsx has no fallback so
+        // the public marketing pages don't flash it while their own chunk
+        // loads.
+        element: (
+          <Suspense fallback={<RouteLoadingFallback />}>
+            <AuthGuard />
+          </Suspense>
+        ),
         children: [
           {
             path: "/app/verify-email",

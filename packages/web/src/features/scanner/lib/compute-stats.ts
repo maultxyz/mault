@@ -1,6 +1,6 @@
 import { CARD_COLOR_SWATCHES } from "@/lib/constants/colors";
 import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
-import type { ScanStats } from "@/lib/interfaces/scanner";
+import type { ScanStats, SetStats } from "@/lib/interfaces/scanner";
 import type { ScannedCard } from "@magic-vault/shared";
 
 export type { ScanStats };
@@ -23,7 +23,6 @@ function sortRarities<T extends { key: string; count: number }>(
     return b.count - a.count;
   });
 }
-
 
 export function computeStats(cards: ScannedCard[]): ScanStats | null {
   if (cards.length === 0) return null;

@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { FIELD_TYPES } from "@/lib/constants/field-operators";
 import type { GameFormValues } from "@/schemas/games.schema";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import {
@@ -17,7 +18,6 @@ import {
   useWatch,
 } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { FIELD_TYPES } from "../constants/field-operators";
 import { uniqueFieldKey, type PickedField } from "../lib/field-mapping";
 import { SampleCardBrowser } from "./sample-card-browser";
 

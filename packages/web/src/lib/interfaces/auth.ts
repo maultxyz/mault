@@ -1,7 +1,4 @@
-import type {
-  ImpersonationOrgSummary,
-  ImpersonationSession,
-} from "@magic-vault/shared";
+import type { ImpersonationOrgSummary } from "@magic-vault/shared";
 
 export interface ImpersonationState {
   token: string;

@@ -3,6 +3,7 @@ import {
   binsQueryOptions,
   createSet as createSetFn,
 } from "@/features/bins/api/sort-bins";
+import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import {
   activateCollection as activateCollectionFn,
   clearCollectionCards,
@@ -11,13 +12,11 @@ import {
   deleteCollection as deleteCollectionFn,
   renameCollection as renameCollectionFn,
 } from "@/features/collections/api/collections";
-import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { ACTIVE_COLLECTION_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
   computeBinCount,
   createDefaultCatchAllOnlyBins,
-  createDefaultColorBins,
   type BinSet,
   type Collection,
 } from "@magic-vault/shared";
@@ -123,12 +122,9 @@ export function CollectionsProvider({
           (s) => (s.game?.guid ?? undefined) === gameGuid,
         );
         if (!sameGameSet) {
-          const isMtg = created?.game?.key === "mtg";
           const binsResult = await createSetFn(
             name,
-            isMtg
-              ? createDefaultColorBins(computeBinCount(moduleCount))
-              : createDefaultCatchAllOnlyBins(computeBinCount(moduleCount)),
+            createDefaultCatchAllOnlyBins(computeBinCount(moduleCount)),
             gameGuid,
           );
           if (binsResult.success && binsResult.data) {
