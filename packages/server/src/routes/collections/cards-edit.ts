@@ -15,10 +15,11 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const { guid, scanId } = c.req.param();
-    const { card, binNumber, isFoil } = await c.req.json<{
+    const { card, binNumber, isFoil, foilType } = await c.req.json<{
       card?: PlayingCardWithDistance;
       binNumber?: number;
       isFoil?: boolean;
+      foilType?: string | null;
     }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -30,6 +31,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             card: true,
             binNumber: true,
             isFoil: true,
+            foilType: true,
           },
         });
         if (!existing) return { success: false, message: "Card not found." };
@@ -41,6 +43,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           updates.binNumber = binNumber ?? null;
         }
         if (isFoil !== undefined) updates.isFoil = isFoil;
+        if (foilType !== undefined) updates.foilType = foilType;
 
         await tx
           .update(collectionCards)
@@ -56,6 +59,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             binNumber:
               card !== undefined ? (binNumber ?? null) : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
+            foilType: foilType !== undefined ? foilType : existing.foilType,
           }),
         };
       });

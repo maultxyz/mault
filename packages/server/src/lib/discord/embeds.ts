@@ -21,6 +21,7 @@ function resolveImageUrl(url: string): string {
 
 export interface CardScannedEmbedOptions {
   isFoil?: boolean;
+  foilType?: string;
   collectionName?: string;
   gameName?: string;
   collectionGuid?: string;
@@ -38,6 +39,7 @@ export function buildCardScannedEmbed(
 ): CardScannedEmbedResult {
   const {
     isFoil,
+    foilType,
     collectionName,
     gameName,
     collectionGuid,
@@ -52,7 +54,7 @@ export function buildCardScannedEmbed(
     lines.push(`**Foil Price:** $${card.priceFoil.toFixed(2)} USD`);
   }
   if (lines.length === 0) lines.push("**Price:** N/A");
-  if (isFoil) lines.push("**Foil**");
+  if (isFoil) lines.push(`**${foilType ?? "Foil"}**`);
   if (collectionName) lines.push(`**Collection:** ${collectionName}`);
   if (gameName) lines.push(`**Game:** ${gameName}`);
 

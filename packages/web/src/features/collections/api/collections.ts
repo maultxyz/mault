@@ -87,13 +87,15 @@ export async function updateCollectionCard(
   });
 }
 
-export async function setCollectionCardFoil(
+export async function setCollectionCardFoilType(
   guid: string,
   scanId: string,
   isFoil: boolean,
+  foilType: string | null,
 ): Promise<Result<ScannedCard>> {
   return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
     isFoil,
+    foilType,
   });
 }
 

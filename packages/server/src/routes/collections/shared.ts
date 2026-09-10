@@ -22,6 +22,7 @@ export function toCollection(row: {
   gameName: string | null;
   gameIsActive: boolean | null;
   gameFieldDefinitions: unknown;
+  gameFoilTypes: unknown;
   gameApiDocsUrl: string | null;
   gameCreatedAt: Date | null;
   gameUpdatedAt: Date | null;
@@ -39,6 +40,7 @@ export function toCollection(row: {
           name: row.gameName!,
           isActive: row.gameIsActive!,
           fieldDefinitions: row.gameFieldDefinitions as FieldMeta[],
+          foilTypes: (row.gameFoilTypes as string[] | null) ?? [],
           apiDocsUrl: row.gameApiDocsUrl,
           createdAt: row.gameCreatedAt!,
           updatedAt: row.gameUpdatedAt!,
@@ -56,6 +58,7 @@ export function toScannedCard(row: {
   binNumber: number | null;
   capturedImageDataUrl?: string | null;
   isFoil?: boolean | null;
+  foilType?: string | null;
   isDownloaded?: boolean | null;
   alternativeMatches?: unknown;
 }): ScannedCard {
@@ -66,6 +69,7 @@ export function toScannedCard(row: {
     binNumber: row.binNumber ?? undefined,
     capturedImageUrl: row.capturedImageDataUrl ?? undefined,
     isFoil: row.isFoil ?? undefined,
+    foilType: row.foilType ?? undefined,
     isDownloaded: row.isDownloaded ?? undefined,
     alternativeMatches:
       (row.alternativeMatches as PlayingCardWithDistance[] | null) ?? undefined,
@@ -103,6 +107,7 @@ export async function loadCollections(
       gameName: games.name,
       gameIsActive: games.isActive,
       gameFieldDefinitions: games.fieldDefinitions,
+      gameFoilTypes: games.foilTypes,
       gameApiDocsUrl: games.apiDocsUrl,
       gameCreatedAt: games.createdAt,
       gameUpdatedAt: games.updatedAt,

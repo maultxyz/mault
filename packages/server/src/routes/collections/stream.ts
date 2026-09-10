@@ -74,6 +74,7 @@ export const collectionStreamRoute = new Hono<AppEnv>().get("/:guid/stream", asy
             scannedAt: collectionCards.scannedAt,
             binNumber: collectionCards.binNumber,
             isFoil: collectionCards.isFoil,
+            foilType: collectionCards.foilType,
             isDownloaded: collectionCards.isDownloaded,
             alternativeMatches: collectionCards.alternativeMatches,
           })
@@ -110,6 +111,7 @@ export const collectionStreamRoute = new Hono<AppEnv>().get("/:guid/stream", asy
                   name: game.name,
                   isActive: game.isActive,
                   fieldDefinitions: game.fieldDefinitions as FieldMeta[],
+                  foilTypes: (game.foilTypes as string[] | null) ?? [],
                   apiDocsUrl: game.apiDocsUrl,
                   createdAt: game.createdAt,
                   updatedAt: game.updatedAt,

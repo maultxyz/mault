@@ -15,6 +15,7 @@ export interface NotifyCardScannedParams {
   isNewSession: boolean;
   card: PlayingCardWithDistance;
   isFoil?: boolean;
+  foilType?: string;
   collectionName: string | undefined;
   gameName: string | undefined;
   gameId: number | null;
@@ -33,6 +34,7 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
     isNewSession,
     card,
     isFoil,
+    foilType,
     collectionName,
     gameName,
     gameId,
@@ -67,6 +69,7 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
 
       const { embed, referenceImageUrl } = buildCardScannedEmbed(card, {
         isFoil,
+        foilType,
         collectionName,
         gameName,
         collectionGuid,

@@ -31,6 +31,7 @@ function toFormValues(game?: Game | null): GameFormValues {
       key: "",
       name: "",
       apiDocsUrl: "",
+      foilTypesText: "",
       isActive: true,
       fieldDefinitions: [],
     };
@@ -39,6 +40,7 @@ function toFormValues(game?: Game | null): GameFormValues {
     key: game.key,
     name: game.name,
     apiDocsUrl: game.apiDocsUrl ?? "",
+    foilTypesText: game.foilTypes.join(", "),
     isActive: game.isActive,
     fieldDefinitions: game.fieldDefinitions.map((f) => ({
       field: f.field,
@@ -48,6 +50,15 @@ function toFormValues(game?: Game | null): GameFormValues {
       optionsText: f.options?.map((o) => o.value).join(", ") ?? "",
     })),
   };
+}
+
+export function toFoilTypes(foilTypesText: string | undefined): string[] {
+  return (
+    foilTypesText
+      ?.split(",")
+      .map((v) => v.trim())
+      .filter(Boolean) ?? []
+  );
 }
 
 export function toFieldDefinitions(
@@ -226,6 +237,15 @@ export function GameFormDialog({
               {...register("apiDocsUrl")}
             />
             <FieldError errors={[errors.apiDocsUrl]} />
+          </Field>
+
+          <Field data-invalid={!!errors.foilTypesText}>
+            <FieldLabel>{t("gameFormDialog.foilTypesLabel")}</FieldLabel>
+            <Input
+              placeholder={t("gameFormDialog.foilTypesPlaceholder")}
+              {...register("foilTypesText")}
+            />
+            <FieldError errors={[errors.foilTypesText]} />
           </Field>
 
           <Field orientation="horizontal">

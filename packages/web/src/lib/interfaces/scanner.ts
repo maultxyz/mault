@@ -54,11 +54,11 @@ export interface ScannedCardsContextValue {
   unmatchedCards: UnmatchedCard[];
   isLoading: boolean;
   autoFeed: boolean;
-  forceFoil: boolean;
+  forceFoilType: string | null;
   elapsedMs: number;
   isTimerActive: boolean;
   setAutoFeed: (enabled: boolean) => void;
-  setForceFoil: (enabled: boolean) => void;
+  setForceFoilType: (foilType: string | null) => void;
   addCard: (
     card: PlayingCardWithDistance,
     capturedImageUrl?: string,
@@ -72,7 +72,7 @@ export interface ScannedCardsContextValue {
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => void;
   correctCard: (scanId: string, card: PlayingCard) => void;
-  toggleFoil: (scanId: string, isFoil: boolean) => void;
+  setCardFoilType: (scanId: string, foilType: string | null) => void;
   markDownloaded: (scanIds: string[]) => void;
   clearCards: () => void;
 }

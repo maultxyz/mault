@@ -12,7 +12,7 @@ export const editGameRoute = new Hono<AppEnv>().put(
   requireRole("admin"),
   async (c) => {
     const guid = c.req.param("guid");
-    const { key, name, fieldDefinitions, apiDocsUrl, isActive } =
+    const { key, name, fieldDefinitions, foilTypes, apiDocsUrl, isActive } =
       await c.req.json<Partial<GameInput>>();
 
     try {
@@ -42,6 +42,7 @@ export const editGameRoute = new Hono<AppEnv>().put(
       if (name !== undefined) updates.name = name.trim();
       if (fieldDefinitions !== undefined)
         updates.fieldDefinitions = fieldDefinitions;
+      if (foilTypes !== undefined) updates.foilTypes = foilTypes;
       if (apiDocsUrl !== undefined)
         updates.apiDocsUrl = apiDocsUrl?.trim() || null;
       if (isActive !== undefined) updates.isActive = isActive;

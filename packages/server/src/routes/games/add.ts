@@ -10,7 +10,7 @@ export const addGameRoute = new Hono<AppEnv>().post(
   requireAuth,
   requireRole("admin"),
   async (c) => {
-    const { key, name, fieldDefinitions, apiDocsUrl, isActive } =
+    const { key, name, fieldDefinitions, foilTypes, apiDocsUrl, isActive } =
       await c.req.json<GameInput>();
 
     if (!key?.trim() || !name?.trim()) {
@@ -39,6 +39,7 @@ export const addGameRoute = new Hono<AppEnv>().post(
           key: trimmedKey,
           name: name.trim(),
           fieldDefinitions,
+          foilTypes: foilTypes ?? [],
           apiDocsUrl: apiDocsUrl?.trim() || null,
           isActive: isActive ?? true,
         })

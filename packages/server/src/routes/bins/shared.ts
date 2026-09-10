@@ -48,6 +48,7 @@ function toBinSet(row: {
     name: string;
     isActive: boolean;
     fieldDefinitions: unknown;
+    foilTypes: unknown;
     apiDocsUrl: string | null;
     createdAt: Date;
     updatedAt: Date;
@@ -72,6 +73,7 @@ function toBinSet(row: {
           name: row.game.name,
           isActive: row.game.isActive,
           fieldDefinitions: row.game.fieldDefinitions as FieldMeta[],
+          foilTypes: (row.game.foilTypes as string[] | null) ?? [],
           apiDocsUrl: row.game.apiDocsUrl,
           createdAt: row.game.createdAt,
           updatedAt: row.game.updatedAt,

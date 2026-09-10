@@ -22,6 +22,7 @@ export function createGameFormSchema(t: TFunction<"games">) {
       .url(t("gameFormDialog.validation.urlFormat"))
       .optional()
       .or(z.literal("")),
+    foilTypesText: z.string().optional(),
     isActive: z.boolean(),
     fieldDefinitions: z
       .array(fieldMetaFormSchema)

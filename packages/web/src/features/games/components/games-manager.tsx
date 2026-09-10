@@ -16,7 +16,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { GameFormDialog, toFieldDefinitions } from "./game-form-dialog";
+import { GameFormDialog, toFieldDefinitions, toFoilTypes } from "./game-form-dialog";
 
 export function GamesManager() {
   const { t } = useTranslation("games");
@@ -36,6 +36,7 @@ export function GamesManager() {
         key: values.key,
         name: values.name,
         apiDocsUrl: values.apiDocsUrl || null,
+        foilTypes: toFoilTypes(values.foilTypesText),
         isActive: values.isActive,
         fieldDefinitions: toFieldDefinitions(values.fieldDefinitions),
       }),
@@ -58,6 +59,7 @@ export function GamesManager() {
         key: values.key,
         name: values.name,
         apiDocsUrl: values.apiDocsUrl || null,
+        foilTypes: toFoilTypes(values.foilTypesText),
         isActive: values.isActive,
         fieldDefinitions: toFieldDefinitions(values.fieldDefinitions),
       }),

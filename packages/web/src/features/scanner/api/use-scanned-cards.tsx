@@ -21,7 +21,7 @@ import {
   removeCollectionCard,
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
-  setCollectionCardFoil,
+  setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
@@ -123,8 +123,8 @@ export function ScannedCardsProvider({
     registerPauseHook,
   } = useAutoFeed({ serialRef, activeCollectionRef });
 
-  const [forceFoil, setForceFoilState] = useState(false);
-  const forceFoilRef = useRef(false);
+  const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
+  const forceFoilTypeRef = useRef<string | null>(null);
 
   useEffect(() => {
     binConfigsRef.current = binConfigs;
@@ -166,9 +166,9 @@ export function ScannedCardsProvider({
     return { binNumber, module: lastModule, direction: "bottom" };
   }, []);
 
-  const setForceFoil = useCallback((enabled: boolean) => {
-    forceFoilRef.current = enabled;
-    setForceFoilState(enabled);
+  const setForceFoilType = useCallback((foilType: string | null) => {
+    forceFoilTypeRef.current = foilType;
+    setForceFoilTypeState(foilType);
   }, []);
 
   useEffect(() => {
@@ -275,7 +275,8 @@ export function ScannedCardsProvider({
         alternativeMatches: alternativeMatches?.length
           ? alternativeMatches
           : undefined,
-        isFoil: forceFoilRef.current || undefined,
+        isFoil: forceFoilTypeRef.current != null || undefined,
+        foilType: forceFoilTypeRef.current ?? undefined,
       };
 
       setCards((prev) => [record, ...prev]);
@@ -471,19 +472,25 @@ export function ScannedCardsProvider({
     [saveBinConfig],
   );
 
-  const toggleFoil = useCallback((scanId: string, isFoil: boolean) => {
-    const collection = activeCollectionRef.current;
-    setCards((prev) =>
-      prev.map((entry) =>
-        entry.scanId === scanId ? { ...entry, isFoil } : entry,
-      ),
-    );
-    if (collection) {
-      setCollectionCardFoil(collection.guid, scanId, isFoil).catch((err) =>
-        console.error("Failed to update foil status:", err),
+  const setCardFoilType = useCallback(
+    (scanId: string, foilType: string | null) => {
+      const collection = activeCollectionRef.current;
+      const isFoil = foilType != null;
+      setCards((prev) =>
+        prev.map((entry) =>
+          entry.scanId === scanId
+            ? { ...entry, isFoil, foilType: foilType ?? undefined }
+            : entry,
+        ),
       );
-    }
-  }, []);
+      if (collection) {
+        setCollectionCardFoilType(collection.guid, scanId, isFoil, foilType).catch(
+          (err) => console.error("Failed to update foil status:", err),
+        );
+      }
+    },
+    [],
+  );
 
   const markDownloaded = useCallback((scanIds: string[]) => {
     const collection = activeCollectionRef.current;
@@ -520,11 +527,11 @@ export function ScannedCardsProvider({
         unmatchedCards,
         isLoading,
         autoFeed,
-        forceFoil,
+        forceFoilType,
         elapsedMs,
         isTimerActive,
         setAutoFeed,
-        setForceFoil,
+        setForceFoilType,
         registerCardArrivedHook,
         registerPauseHook,
         addCard,
@@ -534,7 +541,7 @@ export function ScannedCardsProvider({
         removeCard,
         removeCards,
         correctCard,
-        toggleFoil,
+        setCardFoilType,
         markDownloaded,
         clearCards,
       }}

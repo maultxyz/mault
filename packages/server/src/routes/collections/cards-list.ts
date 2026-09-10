@@ -28,6 +28,7 @@ export const listCollectionCardsRoute = new Hono<AppEnv>().get(
             scannedAt: collectionCards.scannedAt,
             binNumber: collectionCards.binNumber,
             isFoil: collectionCards.isFoil,
+            foilType: collectionCards.foilType,
             isDownloaded: collectionCards.isDownloaded,
             alternativeMatches: collectionCards.alternativeMatches,
           })

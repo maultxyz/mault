@@ -25,6 +25,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       binNumber,
       capturedImageUrl,
       isFoil,
+      foilType,
       alternativeMatches,
     } = await c.req.json<ScannedCard>();
 
@@ -93,6 +94,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             binNumber: binNumber ?? null,
             capturedImageDataUrl: capturedImageUrl ?? null,
             isFoil: isFoil ?? false,
+            foilType: foilType ?? null,
             alternativeMatches: alternativeMatches?.length
               ? alternativeMatches
               : null,
@@ -122,6 +124,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               binNumber,
               capturedImageUrl,
               isFoil,
+              foilType,
               alternativeMatches,
             } as ScannedCard,
           },
@@ -140,6 +143,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           isNewSession,
           card: card as PlayingCardWithDistance,
           isFoil,
+          foilType,
           collectionName,
           gameName,
           gameId,

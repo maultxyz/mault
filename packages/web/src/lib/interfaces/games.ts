@@ -4,6 +4,7 @@ export interface GameInput {
   key: string;
   name: string;
   fieldDefinitions: FieldMeta[];
+  foilTypes: string[];
   apiDocsUrl?: string | null;
   isActive: boolean;
 }

@@ -26,6 +26,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   onToggleSelect,
   hasAlternatives = false,
   isFoil = false,
+  foilType,
   isDownloaded = false,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
@@ -53,7 +54,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 "absolute top-1 z-20 rounded-full p-0.5 shadow-md bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300",
                 hasAlternatives ? "left-6" : "left-1",
               )}
-              title={t("scannedCardItem.foil")}
+              title={foilType ?? t("scannedCardItem.foil")}
             >
               <IconSparkles className="size-3 text-white" />
             </div>

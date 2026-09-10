@@ -69,6 +69,7 @@ export interface ScannedCard {
   capturedImageUrl?: string;
   alternativeMatches?: PlayingCardWithDistance[];
   isFoil?: boolean;
+  foilType?: string;
   isDownloaded?: boolean;
 }
 

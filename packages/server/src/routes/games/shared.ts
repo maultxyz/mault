@@ -9,6 +9,7 @@ export function toGame(row: typeof games.$inferSelect): Game {
     name: row.name,
     isActive: row.isActive,
     fieldDefinitions: row.fieldDefinitions as FieldMeta[],
+    foilTypes: (row.foilTypes as string[] | null) ?? [],
     apiDocsUrl: row.apiDocsUrl,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
@@ -19,6 +20,7 @@ export interface GameInput {
   key: string;
   name: string;
   fieldDefinitions: FieldMeta[];
+  foilTypes?: string[];
   apiDocsUrl?: string | null;
   isActive?: boolean;
 }
