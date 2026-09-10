@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
@@ -25,7 +26,7 @@ const PORT = parseInt(process.env.PORT ?? "3001");
 
 app.use(
   cors({
-    origin: process.env.WEB_URL ?? "http://localhost:5173",
+    origin: getWebUrl(),
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
     allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
   }),

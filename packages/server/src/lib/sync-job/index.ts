@@ -1,18 +1,34 @@
-import type { SyncState, SyncStatus } from "@magic-vault/shared";
+import type { SyncStatus } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
-import { db } from "../db";
-import { cardImageVectors } from "../db/schema";
-import { fabSyncSource } from "./adapters/fab/sync";
-import { gundamSyncSource } from "./adapters/gundam/sync";
-import { lorcanaSyncSource } from "./adapters/lorcana/sync";
-import { onePieceSyncSource } from "./adapters/onepiece/sync";
-import { pokemonSyncSource } from "./adapters/pokemon/sync";
-import { riftboundSyncSource } from "./adapters/riftbound/sync";
-import { scryfallSyncSource } from "./adapters/scryfall/sync";
-import { yugiohSyncSource } from "./adapters/yugioh/sync";
-import type { SyncSource, SyncSourceCard } from "./card-search/sync-types";
-import { sendDiscordNotification } from "./discord";
-import { vectorizeImageFromBuffer } from "./vectorize";
+import { db } from "../../db";
+import { cardImageVectors } from "../../db/schema";
+import { fabSyncSource } from "../adapters/fab/sync";
+import { gundamSyncSource } from "../adapters/gundam/sync";
+import { lorcanaSyncSource } from "../adapters/lorcana/sync";
+import { onePieceSyncSource } from "../adapters/onepiece/sync";
+import { pokemonSyncSource } from "../adapters/pokemon/sync";
+import { riftboundSyncSource } from "../adapters/riftbound/sync";
+import { scryfallSyncSource } from "../adapters/scryfall/sync";
+import { yugiohSyncSource } from "../adapters/yugioh/sync";
+import type { SyncSource, SyncSourceCard } from "../card-search/sync-types";
+import { sendDiscordNotification } from "../discord";
+import { vectorizeImageFromBuffer } from "../vectorize";
+import {
+  addLog,
+  beginRun,
+  cancelSync,
+  emitEvent,
+  getAbortSignal,
+  getState,
+  getStatus,
+  incrementCounters,
+  isCancelled,
+  patchState,
+  resetState,
+  subscribeSSE,
+} from "./state";
+
+export { cancelSync, getStatus, subscribeSSE };
 
 export const SYNC_SOURCES: Record<string, SyncSource> = {
   mtg: scryfallSyncSource,
@@ -25,68 +41,19 @@ export const SYNC_SOURCES: Record<string, SyncSource> = {
   riftbound: riftboundSyncSource,
 };
 
-type SseWriter = (event: string, data: unknown) => void;
-
-let state: SyncState = {
-  status: "idle",
-  gameKey: "",
-  lang: "en",
-  total: 0,
-  processed: 0,
-  skipped: 0,
-  errors: 0,
-  startedAt: null,
-  logs: [],
-};
-
-let cancelFlag = false;
-let abortController: AbortController | null = null;
-const writers = new Set<SseWriter>();
-
-function addLog(msg: string) {
-  state = { ...state, logs: [...state.logs.slice(-199), msg] };
-  emit("log", { line: msg });
-}
-
-function emit(event: string, data: unknown) {
-  for (const writer of writers) {
-    try {
-      writer(event, data);
-    } catch {}
-  }
-}
-
-export function getStatus(): SyncState {
-  return { ...state, logs: [...state.logs] };
-}
-
-export function subscribeSSE(writer: SseWriter): () => void {
-  writers.add(writer);
-  writer("status", getStatus());
-  return () => writers.delete(writer);
-}
-
-export function cancelSync(): void {
-  if (state.status === "running") {
-    cancelFlag = true;
-    abortController?.abort();
-  }
-}
-
 export function startSync(
   orgId: string | undefined,
   gameKey: string,
   lang: string = "en",
 ): void {
-  if (state.status === "running") return;
+  if (getState().status === "running") return;
 
   const source = SYNC_SOURCES[gameKey];
   if (!source) return;
   if (!source.languages.includes(lang)) return;
 
-  cancelFlag = false;
-  abortController = new AbortController();
-  state = {
+  beginRun();
+  resetState({
     status: "running",
     gameKey,
     lang,
@@ -96,14 +63,13 @@ export function startSync(
     errors: 0,
     startedAt: new Date().toISOString(),
     logs: [],
-  };
+  });
 
-  emit("status", getStatus());
   runSync(source, lang).catch((err) => {
-    state = { ...state, status: "failed" };
+    patchState({ status: "failed" });
     const msg = err instanceof Error ? err.message : String(err);
     addLog(`Fatal error: ${msg}`);
-    emit("error", { message: msg });
+    emitEvent("error", { message: msg });
     if (orgId) {
       void sendDiscordNotification(
         orgId,
@@ -126,6 +92,18 @@ const INSERT_BATCH_SIZE = parseInt(
   process.env.SYNC_INSERT_BATCH_SIZE ?? "50",
 );
 
+function emitCancelledDone(): void {
+  patchState({ status: "cancelled" });
+  addLog("Sync cancelled by user.");
+  const s = getState();
+  emitEvent("done", {
+    status: "cancelled" as SyncStatus,
+    processed: s.processed,
+    skipped: s.skipped,
+    errors: s.errors,
+  });
+}
+
 async function runSync(source: SyncSource, lang: string): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
@@ -136,24 +114,17 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
       baseUrl,
       addLog,
       lang,
-      abortController?.signal,
+      getAbortSignal(),
     );
   } catch (err) {
-    if (cancelFlag) {
-      state = { ...state, status: "cancelled" };
-      addLog("Sync cancelled by user.");
-      emit("done", {
-        status: "cancelled" as SyncStatus,
-        processed: state.processed,
-        skipped: state.skipped,
-        errors: state.errors,
-      });
+    if (isCancelled()) {
+      emitCancelledDone();
       return;
     }
     throw err;
   }
-  state = { ...state, total: cards.length };
-  emit("status", getStatus());
+  patchState({ total: cards.length });
+  emitEvent("status", getStatus());
 
   const noImageCount = cards.filter((c) => !c.imageUrl).length;
   if (noImageCount > 0) {
@@ -198,32 +169,35 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
     try {
       await db.insert(cardImageVectors).values(batchRows).onConflictDoNothing();
       for (const c of batchCards) existingSet.add(c.id);
-      state = { ...state, processed: state.processed + batchCards.length };
+      incrementCounters({ processed: batchCards.length });
+      const s = getState();
       addLog(
-        `[${state.processed + state.skipped}/${state.total}] inserted batch of ${batchCards.length} cards`,
+        `[${s.processed + s.skipped}/${s.total}] inserted batch of ${batchCards.length} cards`,
       );
     } catch (err) {
-      state = { ...state, errors: state.errors + batchCards.length };
+      incrementCounters({ errors: batchCards.length });
       const msg = err instanceof Error ? err.message : String(err);
       addLog(
         `Error inserting batch of ${batchCards.length} cards: ${msg}`,
       );
     }
 
-    emit("progress", {
-      processed: state.processed,
-      skipped: state.skipped,
-      errors: state.errors,
+    const s = getState();
+    emitEvent("progress", {
+      processed: s.processed,
+      skipped: s.skipped,
+      errors: s.errors,
     });
   }
 
   async function processCard(card: SyncSourceCard): Promise<void> {
     if (!card.imageUrl || existingSet.has(card.id)) {
-      state = { ...state, skipped: state.skipped + 1 };
-      emit("progress", {
-        processed: state.processed,
-        skipped: state.skipped,
-        errors: state.errors,
+      incrementCounters({ skipped: 1 });
+      const s = getState();
+      emitEvent("progress", {
+        processed: s.processed,
+        skipped: s.skipped,
+        errors: s.errors,
         currentCard: card.name,
       });
       return;
@@ -232,7 +206,7 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
     try {
       const imageRes = await fetch(card.imageUrl, {
         headers: source.fetchHeaders,
-        signal: abortController?.signal,
+        signal: getAbortSignal(),
       });
       if (!imageRes.ok)
         throw new Error(`Image fetch failed: ${imageRes.status}`);
@@ -250,20 +224,22 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
       pendingCards.push(card);
       await flushInserts();
 
-      emit("progress", {
-        processed: state.processed,
-        skipped: state.skipped,
-        errors: state.errors,
+      const s = getState();
+      emitEvent("progress", {
+        processed: s.processed,
+        skipped: s.skipped,
+        errors: s.errors,
         currentCard: card.name,
       });
     } catch (err) {
-      state = { ...state, errors: state.errors + 1 };
+      incrementCounters({ errors: 1 });
       const msg = err instanceof Error ? err.message : String(err);
       addLog(`Error: ${card.name}: ${msg}`);
-      emit("progress", {
-        processed: state.processed,
-        skipped: state.skipped,
-        errors: state.errors,
+      const s = getState();
+      emitEvent("progress", {
+        processed: s.processed,
+        skipped: s.skipped,
+        errors: s.errors,
         currentCard: card.name,
       });
     }
@@ -274,7 +250,7 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
 
   async function worker(): Promise<void> {
     for (;;) {
-      if (cancelFlag) {
+      if (isCancelled()) {
         cancelled = true;
         return;
       }
@@ -294,25 +270,19 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
   await flushInserts(true);
 
   if (cancelled) {
-    state = { ...state, status: "cancelled" };
-    addLog("Sync cancelled by user.");
-    emit("done", {
-      status: "cancelled" as SyncStatus,
-      processed: state.processed,
-      skipped: state.skipped,
-      errors: state.errors,
-    });
+    emitCancelledDone();
     return;
   }
 
-  state = { ...state, status: "completed" };
+  patchState({ status: "completed" });
+  const s = getState();
   addLog(
-    `Done. Processed: ${state.processed}, Skipped: ${state.skipped}, Errors: ${state.errors}`,
+    `Done. Processed: ${s.processed}, Skipped: ${s.skipped}, Errors: ${s.errors}`,
   );
-  emit("done", {
+  emitEvent("done", {
     status: "completed" as SyncStatus,
-    processed: state.processed,
-    skipped: state.skipped,
-    errors: state.errors,
+    processed: s.processed,
+    skipped: s.skipped,
+    errors: s.errors,
   });
 }

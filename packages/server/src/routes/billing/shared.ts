@@ -1,3 +1,1 @@
-export function webUrl(): string {
-  return process.env.WEB_URL ?? "http://localhost:5173";
-}
+export { getWebUrl as webUrl } from "../../lib/constants/urls";

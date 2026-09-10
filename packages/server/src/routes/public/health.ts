@@ -2,15 +2,18 @@ import type { HealthCheck, HealthCheckResponse } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
-import { FAB_DEFAULT_URL } from "../../lib/adapters/fab/search";
-import { GUNDAM_DEFAULT_URL } from "../../lib/adapters/gundam/search";
-import { LORCANA_DEFAULT_URL } from "../../lib/adapters/lorcana/search";
-import { ONE_PIECE_DEFAULT_URL } from "../../lib/adapters/onepiece/search";
-import { POKEMON_DEFAULT_URL } from "../../lib/adapters/pokemon/search";
-import { RIFTBOUND_DEFAULT_URL } from "../../lib/adapters/riftbound/search";
-import { SCRYFALL_DEFAULT_URL } from "../../lib/adapters/scryfall/search";
-import { YUGIOH_DEFAULT_URL } from "../../lib/adapters/yugioh/search";
 import { fetchCardApi } from "../../lib/card-search/fetch";
+import { HEALTH_CACHE_TTL_MS } from "../../lib/constants/timing";
+import {
+  FAB_DEFAULT_URL,
+  GUNDAM_DEFAULT_URL,
+  LORCANA_DEFAULT_URL,
+  ONE_PIECE_DEFAULT_URL,
+  POKEMON_DEFAULT_URL,
+  RIFTBOUND_DEFAULT_URL,
+  SCRYFALL_DEFAULT_URL,
+  YUGIOH_DEFAULT_URL,
+} from "../../lib/constants/urls";
 import type { AppEnv } from "../../middleware/auth";
 
 const EXTERNAL_API_CHECKS: { name: string; url: string; gameKey: string }[] = [
@@ -81,7 +84,6 @@ async function checkExternalApi(
   }
 }
 
-const HEALTH_CACHE_TTL_MS = 20_000;
 let cachedHealth: { data: HealthCheckResponse; expiresAt: number } | null =
   null;
 

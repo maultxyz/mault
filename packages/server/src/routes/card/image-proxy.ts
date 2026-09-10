@@ -1,13 +1,7 @@
 import { Hono } from "hono";
-import { CARD_API_USER_AGENT } from "../../lib/card-search/constants";
+import { CARD_API_USER_AGENT } from "../../lib/constants/card-search";
+import { ALLOWED_IMAGE_HOSTS } from "../../lib/constants/urls";
 import type { AppEnv } from "../../middleware/auth";
-
-const ALLOWED_IMAGE_HOSTS = new Set([
-  "cards.scryfall.io",
-  "gundam-gcg.com",
-  "www.gundam-gcg.com",
-  "assets.tcgdex.net",
-]);
 
 export const imageProxyRoute = new Hono<AppEnv>().get("/image-proxy", async (c) => {
   const url = c.req.query("url");

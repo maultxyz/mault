@@ -1,10 +1,11 @@
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import type {
   SyncSource,
   SyncSourceCard,
   SyncSourceCardDetail,
 } from "../../card-search/sync-types";
-import { splitSetCode, YUGIOH_DEFAULT_URL, type YgoCard } from "./search";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
+import { splitSetCode, type YgoCard } from "./search";
 
 function toSyncCards(raw: YgoCard): SyncSourceCard[] {
   const primarySet = raw.card_sets?.[0];

@@ -3,6 +3,7 @@ import { authProvider } from "../../auth";
 import { inviteCaptureStorage, type InviteCapture } from "../../auth/invite-capture";
 import { getOwnAuth } from "../../auth/own-auth-instance";
 import type { OrgRole } from "../../auth/types";
+import { getWebUrl } from "../../lib/constants/urls";
 import {
   requireAuth,
   requireOrg,
@@ -41,7 +42,7 @@ export const addInviteRoute = new Hono<AppEnv>().post(
           invitedByUserId: c.get("userId"),
         }),
       );
-      const webUrl = process.env.WEB_URL ?? "http://localhost:5173";
+      const webUrl = getWebUrl();
       let inviteUrl: string | null = null;
       if (capture.token) {
         // The org name here is purely a display hint for the recipient

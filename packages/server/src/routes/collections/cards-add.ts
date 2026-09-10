@@ -1,18 +1,14 @@
 import type { PlayingCardWithDistance, ScannedCard } from "@magic-vault/shared";
-import { and, eq, gte, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { authQuery, db } from "../../db";
-import { collectionCards, collections, orgBilling, orgSettings } from "../../db/schema";
-import {
-  buildCardScannedEmbed,
-  buildScanSessionStartEmbed,
-  buildSortingLogicSummary,
-  sendDiscordNotification,
-} from "../../lib/discord";
+import { authQuery } from "../../db";
+import { collectionCards, collections } from "../../db/schema";
 import { acquireLock } from "../../lib/scan-lock";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
-import { FREE_PLAN_DAILY_SCAN_LIMIT, isBillingEnabled } from "../../lib/stripe";
+import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { notifyCardScanned } from "./notify-card-scanned";
+import { isOverFreeScanLimit } from "./scan-limit";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -73,36 +69,17 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             gameId: null,
           };
 
-        if (isBillingEnabled()) {
-          const billing = await tx.query.orgBilling.findFirst({
-            where: eq(orgBilling.orgId, orgId),
-            columns: { plan: true },
-          });
-          if ((billing?.plan ?? "free") === "free") {
-            const startOfTodayUtc = new Date();
-            startOfTodayUtc.setUTCHours(0, 0, 0, 0);
-            const [{ scannedToday }] = await tx
-              .select({ scannedToday: sql<number>`count(*)::int` })
-              .from(collectionCards)
-              .where(
-                and(
-                  eq(collectionCards.orgId, orgId),
-                  gte(collectionCards.scannedAt, startOfTodayUtc),
-                ),
-              );
-            if (scannedToday >= FREE_PLAN_DAILY_SCAN_LIMIT) {
-              return {
-                result: {
-                  success: false,
-                  message: `Free plan daily scan limit reached (${FREE_PLAN_DAILY_SCAN_LIMIT}/day). Upgrade to Business for unlimited scanning.`,
-                  scanLimitReached: true,
-                },
-                collectionName: undefined,
-                gameName: undefined,
-                gameId: null,
-              };
-            }
-          }
+        if (await isOverFreeScanLimit(tx, orgId)) {
+          return {
+            result: {
+              success: false,
+              message: `Free plan daily scan limit reached (${FREE_PLAN_DAILY_SCAN_LIMIT}/day). Upgrade to Business for unlimited scanning.`,
+              scanLimitReached: true,
+            },
+            collectionName: undefined,
+            gameName: undefined,
+            gameId: null,
+          };
         }
 
         await tx
@@ -157,54 +134,17 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         emitToSession(guid, "card_added", result.data);
         emitToOrg(orgId, "collections_changed", { guid });
 
-        db.query.orgSettings
-          .findFirst({
-            where: eq(orgSettings.orgId, orgId),
-            columns: { discordNotifyOnScan: true },
-          })
-          .then(async (row) => {
-            if (!row?.discordNotifyOnScan) return;
-
-            if (isNewSession) {
-              const sortingLogicSummary = await buildSortingLogicSummary(
-                orgId,
-                gameId,
-              );
-              await sendDiscordNotification(
-                orgId,
-                buildScanSessionStartEmbed(
-                  collectionName ?? "Unknown collection",
-                  sortingLogicSummary,
-                ),
-                "scan",
-                undefined,
-                undefined,
-                guid,
-              );
-            }
-
-            const { embed, referenceImageUrl } = buildCardScannedEmbed(
-              card as PlayingCardWithDistance,
-              {
-                isFoil,
-                collectionName,
-                gameName,
-                collectionGuid: guid,
-                capturedImageDataUrl: capturedImageUrl,
-              },
-            );
-            void sendDiscordNotification(
-              orgId,
-              embed,
-              "scan",
-              capturedImageUrl,
-              referenceImageUrl,
-              guid,
-            );
-          })
-          .catch((err) => {
-            console.error("[discord] Failed to check discordNotifyOnScan:", err);
-          });
+        notifyCardScanned({
+          orgId,
+          collectionGuid: guid,
+          isNewSession,
+          card: card as PlayingCardWithDistance,
+          isFoil,
+          collectionName,
+          gameName,
+          gameId,
+          capturedImageUrl,
+        });
       }
       if (!result.success && result.scanLimitReached) {
         return c.json(result, 402);

@@ -1,8 +1,9 @@
-import { DEFAULT_CHANNEL_LAYOUT, type ChannelLayout } from "@magic-vault/shared";
+import {
+  DEFAULT_CHANNEL_LAYOUT,
+  DEFAULT_SCAN_REGION,
+  type ChannelLayout,
+} from "@magic-vault/shared";
 import type { Transaction } from "../../db";
-
-export const DEFAULT_SCAN_REGION = { coverage: 0.85, offsetX: 0, offsetY: 0 };
-export const DISCORD_LINK_CODE_TTL_MS = 10 * 60 * 1000;
 
 export function toScanRegion(row?: {
   scanCoverage: number | null;

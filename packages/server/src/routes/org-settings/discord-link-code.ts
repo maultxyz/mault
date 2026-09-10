@@ -1,13 +1,13 @@
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
+import { DISCORD_LINK_CODE_TTL_MS } from "../../lib/constants/timing";
 import {
   requireAuth,
   requireOrg,
   requireOrgRole,
   type AppEnv,
 } from "../../middleware/auth";
-import { DISCORD_LINK_CODE_TTL_MS } from "./shared";
 
 export const discordLinkCodeRoute = new Hono<AppEnv>().post(
   "/discord-link-code",

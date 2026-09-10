@@ -1,13 +1,13 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../card-search/types";
 import { validateQuery } from "../../card-search/validate";
-
-export const LORCANA_DEFAULT_URL = "https://api.lorcast.com/v0/cards";
-
-export const LORCANA_DE_API_ROOT = "https://lorcana-de-api.onrender.com/api";
-export const LORCANA_DE_DEFAULT_URL = `${LORCANA_DE_API_ROOT}/cards`;
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import {
+  LORCANA_DE_API_ROOT,
+  LORCANA_DE_DEFAULT_URL,
+  LORCANA_DEFAULT_URL,
+} from "../../constants/urls";
 
 interface LorcastImageUris {
   small: string;

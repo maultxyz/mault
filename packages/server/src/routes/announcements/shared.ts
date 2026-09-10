@@ -1,8 +1,6 @@
 import type { Announcement, AnnouncementSeverity } from "@magic-vault/shared";
 import type { announcements } from "../../db/schema";
 
-export const SEVERITIES: AnnouncementSeverity[] = ["info", "warning", "danger"];
-
 export function toAnnouncement(row: typeof announcements.$inferSelect): Announcement {
   return {
     guid: row.guid!,

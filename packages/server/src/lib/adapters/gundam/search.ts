@@ -1,10 +1,9 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../card-search/types";
 import { validateQuery } from "../../card-search/validate";
-
-export const GUNDAM_DEFAULT_URL = "https://api.gcgapi.com/v1/cards";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { GUNDAM_DEFAULT_URL } from "../../constants/urls";
 
 interface GundamCard {
   product_id: string;

@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { STRIPE_PRICE_CACHE_TTL_MS as PRICE_CACHE_TTL_MS } from "./constants/timing";
 
 let _stripe: Stripe | null = null;
 
@@ -63,7 +64,6 @@ export interface BusinessPriceInfo {
   interval: string;
 }
 
-const PRICE_CACHE_TTL_MS = 60 * 60 * 1000;
 let _businessPriceCache: BusinessPriceInfo | null = null;
 let _businessPriceCachedAt = 0;
 

@@ -1,10 +1,9 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
-import { CARD_API_HEADERS } from "../../card-search/constants";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../card-search/types";
 import { validateQuery } from "../../card-search/validate";
-
-export const FAB_DEFAULT_URL = "https://api.goagain.dev/v1/cards";
+import { CARD_API_HEADERS } from "../../constants/card-search";
+import { FAB_DEFAULT_URL } from "../../constants/urls";
 
 const PAGE_LIMIT = 100;
 

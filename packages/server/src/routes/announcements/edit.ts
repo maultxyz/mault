@@ -2,8 +2,9 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { announcements } from "../../db/schema";
+import { ANNOUNCEMENT_SEVERITIES as SEVERITIES } from "../../lib/constants/announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
-import { type AnnouncementInput, SEVERITIES, toAnnouncement } from "./shared";
+import { type AnnouncementInput, toAnnouncement } from "./shared";
 
 export const editAnnouncementRoute = new Hono<AppEnv>().put(
   "/:guid",
