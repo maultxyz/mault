@@ -89,9 +89,6 @@ export const games = pgTable(
   ],
 ).enableRLS();
 
-// Platform-wide admin broadcasts, shown to every authenticated user via the
-// same alert tray as the client-derived alerts (see web's hooks/alerts/) -
-// not org-scoped, so read: true rather than orgRls like the tables below.
 export const announcements = pgTable(
   "announcements",
   {
@@ -100,8 +97,6 @@ export const announcements = pgTable(
     severity: text("severity").notNull().default("info"),
     message: text("message").notNull(),
     isActive: boolean("is_active").notNull().default(true),
-    // Null means no bound on that side - isActive alone still gates
-    // visibility, this just adds an optional time window on top of it.
     startsAt: timestamp("starts_at"),
     endsAt: timestamp("ends_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -537,12 +532,9 @@ export const collectionCardsRelations = relations(
   }),
 );
 
-export const unmatchedCardsRelations = relations(
-  unmatchedCards,
-  ({ one }) => ({
-    collection: one(collections, {
-      fields: [unmatchedCards.collectionId],
-      references: [collections.id],
-    }),
+export const unmatchedCardsRelations = relations(unmatchedCards, ({ one }) => ({
+  collection: one(collections, {
+    fields: [unmatchedCards.collectionId],
+    references: [collections.id],
   }),
-);
+}));
