@@ -26,6 +26,9 @@ export interface CardFilters {
   showDownloaded: boolean;
   sets: string[];
   minMatchPercent: number;
+  // Foil variant labels to filter on (e.g. "Reverse Holo", or the generic
+  // "Foil" fallback used for foil cards with no specific type set).
+  foilTypes: string[];
 }
 
 export interface CardToolbarProps {
@@ -47,6 +50,7 @@ export interface CardToolbarProps {
   onToggleSelectAll?: () => void;
   availableRarities?: { key: string; label: string }[];
   availableColors?: { key: string; label: string; bg: string }[];
+  availableFoilTypes?: { key: string; label: string }[];
 }
 
 export interface ScannedCardItemProps {

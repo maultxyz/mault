@@ -32,6 +32,7 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
   const setMap = new Map<string, SetStats>();
   const rarityMap = new Map<string, number>();
   const colorMap = new Map<string, number>();
+  const foilTypeMap = new Map<string, number>();
   let mostValuable: { name: string; price: number } | null = null;
   const uniqueCards = new Set<string>();
 
@@ -70,6 +71,11 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
     for (const color of c.colorIdentity) {
       colorMap.set(color, (colorMap.get(color) ?? 0) + 1);
     }
+
+    const foilLabel = entry.foilType ?? (entry.isFoil ? "Foil" : null);
+    if (foilLabel) {
+      foilTypeMap.set(foilLabel, (foilTypeMap.get(foilLabel) ?? 0) + 1);
+    }
   }
 
   return {
@@ -97,6 +103,9 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
         bg: CARD_COLOR_SWATCHES[key]?.bg ?? key.toLowerCase(),
         count,
       })),
+    foilTypes: Array.from(foilTypeMap.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([key, count]) => ({ key, label: key, count })),
   };
 }
 
@@ -119,5 +128,6 @@ export function computeDisplayStats(
     sets: all.sets,
     rarities: all.rarities,
     colors: all.colors,
+    foilTypes: all.foilTypes,
   };
 }

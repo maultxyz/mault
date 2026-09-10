@@ -355,6 +355,7 @@ export function CardGrid() {
           onToggleSelectAll={toggleSelectAll}
           availableRarities={stats?.rarities}
           availableColors={stats?.colors}
+          availableFoilTypes={stats?.foilTypes}
           cardCount={cards.length}
         />
       </div>

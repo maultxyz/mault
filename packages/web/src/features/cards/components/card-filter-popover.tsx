@@ -31,6 +31,7 @@ interface CardFilterPopoverProps {
   activeFilterCount: number;
   availableRarities: { key: string; label: string }[];
   availableColors: { key: string; label: string; bg: string }[];
+  availableFoilTypes: { key: string; label: string }[];
 }
 
 export function CardFilterPopover({
@@ -39,6 +40,7 @@ export function CardFilterPopover({
   activeFilterCount,
   availableRarities,
   availableColors,
+  availableFoilTypes,
 }: CardFilterPopoverProps) {
   const { t } = useTranslation("cards");
   const moduleCount = useModuleCount();
@@ -143,6 +145,40 @@ export function CardFilterPopover({
                       style={{ backgroundColor: `var(--${rarity.key})` }}
                     />
                     {rarity.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {availableFoilTypes.length > 0 && (
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+              {t("cardFilterPopover.foilType")}
+            </p>
+            <div className="flex flex-col gap-1">
+              {availableFoilTypes.map((foilType) => {
+                const active = activeFilters.foilTypes.includes(foilType.key);
+                return (
+                  <button
+                    key={foilType.key}
+                    type="button"
+                    onClick={() =>
+                      onFiltersChange({
+                        ...activeFilters,
+                        foilTypes: toggle(activeFilters.foilTypes, foilType.key),
+                      })
+                    }
+                    className={cn(
+                      chipBase,
+                      "flex items-center gap-1.5 px-2 h-7 font-medium",
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : chipInactive,
+                    )}
+                  >
+                    {foilType.label}
                   </button>
                 );
               })}

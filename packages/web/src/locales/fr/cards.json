@@ -34,6 +34,7 @@
   "cardFilterPopover": {
     "color": "Couleur",
     "rarity": "Rareté",
+    "foilType": "Type de foil",
     "bin": "Bac",
     "unassigned": "Non assigné",
     "minMatch": "Correspondance min.",

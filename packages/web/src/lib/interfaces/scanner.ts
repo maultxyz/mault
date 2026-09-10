@@ -155,6 +155,7 @@ export interface ScanStats {
   sets: SetStats[];
   rarities: { key: string; label: string; count: number }[];
   colors: { key: string; label: string; bg: string; count: number }[];
+  foilTypes: { key: string; label: string; count: number }[];
 }
 
 export interface CommLogEntry {

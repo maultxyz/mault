@@ -84,6 +84,7 @@ export function CardToolbar({
   onToggleSelectAll,
   availableRarities,
   availableColors,
+  availableFoilTypes,
   cardCount,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
@@ -149,6 +150,7 @@ export function CardToolbar({
         activeFilterCount={activeFilterCount}
         availableRarities={availableRarities ?? []}
         availableColors={availableColors ?? []}
+        availableFoilTypes={availableFoilTypes ?? []}
       />
       {onToggleSelectAll && (
         <Button

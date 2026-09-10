@@ -8,4 +8,5 @@ export const EMPTY_CARD_FILTERS: CardFilters = {
   showDownloaded: false,
   sets: [],
   minMatchPercent: 0,
+  foilTypes: [],
 };

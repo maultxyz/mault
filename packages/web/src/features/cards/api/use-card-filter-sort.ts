@@ -47,6 +47,13 @@ export function applyCardFilters(
     result = result.filter((entry) => filters.sets.includes(entry.card.set));
   }
 
+  if (filters.foilTypes.length > 0) {
+    result = result.filter((entry) => {
+      const label = entry.foilType ?? (entry.isFoil ? "Foil" : null);
+      return label != null && filters.foilTypes.includes(label);
+    });
+  }
+
   if (filters.minMatchPercent > 0) {
     result = result.filter(
       (entry) => (1 - entry.card.distance) * 100 >= filters.minMatchPercent,
@@ -155,6 +162,7 @@ export function useCardFilterSort(
     filters.rarities.length +
     filters.bins.length +
     filters.sets.length +
+    filters.foilTypes.length +
     (filters.needsAttention ? 1 : 0) +
     (filters.showDownloaded ? 1 : 0) +
     (filters.minMatchPercent > 0 ? 1 : 0);
