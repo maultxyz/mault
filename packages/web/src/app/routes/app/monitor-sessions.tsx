@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { getInitials, InitialsAvatar } from "@/components/ui/initials-avatar";
+import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { WatcherStack } from "@/components/ui/watcher-stack";
 import {
@@ -112,6 +113,8 @@ export default function MonitorSessionsPage() {
   const { locks, currentUserId } = useCollectionLocks();
   const navigate = useNavigate();
 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const sorted = [...(collections ?? [])].sort((a, b) => {
     const aOwn = locks[a.guid]?.userId === currentUserId;
     const bOwn = locks[b.guid]?.userId === currentUserId;
@@ -125,6 +128,10 @@ export default function MonitorSessionsPage() {
     return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 
+  const filteredSorted = sorted.filter((collection) =>
+    collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+  );
+
   return (
     <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4">
       <div>
@@ -135,6 +142,14 @@ export default function MonitorSessionsPage() {
           {t("monitorSessions.subtitle")}
         </p>
       </div>
+
+      {!isLoading && sorted.length > 0 && (
+        <Input
+          placeholder={t("monitorSessions.searchPlaceholder")}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      )}
 
       <div className="flex flex-col gap-2">
         {isLoading &&
@@ -159,7 +174,15 @@ export default function MonitorSessionsPage() {
           />
         )}
 
-        {sorted.map((collection) => {
+        {!isLoading && sorted.length > 0 && filteredSorted.length === 0 && (
+          <EmptyState
+            icon={<IconHeartRateMonitor className="size-10" />}
+            title={t("monitorSessions.noSearchResultsTitle")}
+            description={t("monitorSessions.noSearchResultsDescription")}
+          />
+        )}
+
+        {filteredSorted.map((collection) => {
           const rawViewers = allViewers?.[collection.guid] ?? [];
           const scannerLock = locks[collection.guid];
           const isOwn = scannerLock?.userId === currentUserId;

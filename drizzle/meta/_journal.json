@@ -169,6 +169,13 @@
       "when": 1789138811838,
       "tag": "0023_light_trauma",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1789160834700,
+      "tag": "0024_shocking_reavers",
+      "breakpoints": true
     }
   ]
 }

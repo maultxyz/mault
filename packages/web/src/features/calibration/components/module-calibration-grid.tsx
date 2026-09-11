@@ -6,13 +6,17 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { SERVOS } from "@/lib/constants/calibration";
+import {
+  PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
+  SERVOS,
+} from "@/lib/constants/calibration";
 import type {
   ActivePositions,
   ServoConfig,
   SliderKey,
 } from "@/lib/interfaces/calibration";
 import type { ModuleConfig, ServoCalibration } from "@magic-vault/shared";
+import { IconAlertTriangle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 interface ServoControlProps {
@@ -55,6 +59,12 @@ function ServoControl({
   const { t } = useTranslation("calibration");
   const positionLabel = (position: string) =>
     t(`moduleCalibrationGrid.positions.${position}`).toUpperCase();
+
+  const showPusherOffsetWarning =
+    servo.name === "pusher" &&
+    calibration != null &&
+    Math.abs(sliderValue - calibration.pusherNeutral) >
+      PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD;
 
   return (
     <div className="flex flex-col gap-2">
@@ -126,6 +136,13 @@ function ServoControl({
           +10
         </Button>
       </ButtonGroup>
+
+      {showPusherOffsetWarning && (
+        <p className="flex items-start gap-1.5 text-xs/relaxed text-amber-800 dark:text-amber-400">
+          <IconAlertTriangle size={14} className="mt-0.5 shrink-0" />
+          {t("moduleCalibrationGrid.pusherOffsetWarning")}
+        </p>
+      )}
 
       <ButtonGroup className="w-full">
         {servo.calibrationPositions.map((pos) => (

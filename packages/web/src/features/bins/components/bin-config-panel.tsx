@@ -16,7 +16,7 @@ import {
   type BinConfigFormValues,
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BinRuleGroup } from "@magic-vault/shared";
+import { BinRuleGroup, DEFAULT_BIN_CAPACITY } from "@magic-vault/shared";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
@@ -49,7 +49,7 @@ export function BinConfigPanel() {
     defaultValues: {
       isCatchAll: false,
       rules: emptyRuleGroup(),
-      cardLimit: null,
+      cardLimit: DEFAULT_BIN_CAPACITY,
     },
   });
 
@@ -58,7 +58,8 @@ export function BinConfigPanel() {
       isCatchAll: config.isCatchAll ?? false,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
-      cardLimit: config.cardLimit ?? null,
+      cardLimit:
+        config.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : config.cardLimit,
     });
   }, [config, form]);
 
@@ -95,7 +96,7 @@ export function BinConfigPanel() {
     form.reset({
       isCatchAll: false,
       rules: emptyRuleGroup(),
-      cardLimit: null,
+      cardLimit: DEFAULT_BIN_CAPACITY,
     });
     clear(config.binNumber);
   }, [config, clear, form, isOnlyCatchAll, t]);

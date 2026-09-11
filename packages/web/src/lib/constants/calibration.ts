@@ -1,5 +1,7 @@
 import type { ServoConfig } from "@/lib/interfaces/calibration";
 
+export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD = 80;
+
 export const SERVOS: ServoConfig[] = [
   {
     name: "bottom",

@@ -100,7 +100,8 @@
       "left": "Gauche",
       "right": "Droite",
       "neutral": "Neutre"
-    }
+    },
+    "pusherOffsetWarning": "Plus de 80 par rapport au neutre — plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Fais glisser le cadre pour le déplacer, ou fais glisser la poignée pour le redimensionner. Aligne-le avec une carte posée au module 1.",

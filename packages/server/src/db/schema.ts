@@ -148,10 +148,7 @@ export const bins = pgTable(
     binSet: integer("bin_set")
       .notNull()
       .references(() => binSets.id),
-    // Max cards the physical bin can hold before scanning must stop; null = unlimited.
-    cardLimit: integer("card_limit"),
-    // Cards scanned after this timestamp count toward the current fill level -
-    // reset when the user empties the physical bin, without touching collection history.
+    cardLimit: integer("card_limit").default(250),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -1,4 +1,8 @@
-import { computeBinCount, type DefaultBinInit } from "@magic-vault/shared";
+import {
+  computeBinCount,
+  DEFAULT_BIN_CAPACITY,
+  type DefaultBinInit,
+} from "@magic-vault/shared";
 import { and, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -63,6 +67,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
                 binNumber: i + 1,
                 rules: emptyRules(),
                 isCatchAll: false,
+                cardLimit: DEFAULT_BIN_CAPACITY,
               }),
             );
         await tx.insert(bins).values(
@@ -70,6 +75,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
             binNumber: b.binNumber,
             rules: b.rules,
             isCatchAll: b.isCatchAll,
+            cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
             binSet: newBinSet.id,
             orgId,
           })),

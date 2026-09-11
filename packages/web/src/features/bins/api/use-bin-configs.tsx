@@ -4,6 +4,7 @@ import {
   BinRuleGroup,
   BinSet,
   computeBinCount,
+  DEFAULT_BIN_CAPACITY,
 } from "@magic-vault/shared";
 
 import {
@@ -39,7 +40,12 @@ function emptyRules(): BinRuleGroup {
 }
 
 function createEmptyConfig(binNumber: number): BinConfig {
-  return { guid: crypto.randomUUID(), binNumber, rules: emptyRules() };
+  return {
+    guid: crypto.randomUUID(),
+    binNumber,
+    rules: emptyRules(),
+    cardLimit: DEFAULT_BIN_CAPACITY,
+  };
 }
 
 function configsFromSet(
