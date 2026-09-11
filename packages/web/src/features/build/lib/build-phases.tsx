@@ -60,7 +60,6 @@ export function buildPhases(
   const sortingModules = moduleCount;
   const plateBase = ((moduleCount + 1) * (moduleCount + 2)) / 2;
   const genericBase = Math.max(0, moduleCount - 2);
-  const binHolders = moduleCount * 2;
 
   return [
     {
@@ -129,6 +128,14 @@ export function buildPhases(
           ),
         },
         {
+          key: "print-servo-controller-plate",
+          text: t("assembly.phases.print.steps.printServoControllerPlate.text"),
+        },
+        {
+          key: "print-end-plate",
+          text: t("assembly.phases.print.steps.printEndBottom.text"),
+        },
+        {
           key: "print-generic-base",
           text: t("assembly.phases.print.steps.printGenericBase.text", {
             modules: moduleCount,
@@ -136,11 +143,12 @@ export function buildPhases(
           }),
         },
         {
-          key: "print-bin-holders",
-          text: t("assembly.phases.print.steps.printBinHolders.text", {
-            modules: moduleCount,
-            count: binHolders,
-          }),
+          key: "print-bins-plate",
+          text: t("assembly.phases.print.steps.printBinsPlate.text"),
+        },
+        {
+          key: "print-end-bin-plate",
+          text: t("assembly.phases.print.steps.printEndBinPlate.text"),
         },
         {
           key: "dry-fit",

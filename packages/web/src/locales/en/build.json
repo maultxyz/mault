@@ -122,9 +122,17 @@
             "part": "9.2mm ID 14mm OD 2.4mm Section O-Ring",
             "notes": "New hopper style, accommodates different card thicknesses more easily than the classic hopper"
           },
-          "binHolders": {
-            "part": "3D-printed bin holder",
-            "notes": "2 per module ({{count}} modules), one left, one right, catches the cards the pusher ejects to each side"
+          "servoControllerPlate": {
+            "part": "3D-printed Servo Controller Plate",
+            "notes": "Printed once, regardless of module count"
+          },
+          "binsPlate": {
+            "part": "3D-printed Bins Plate",
+            "notes": "Catches the cards the pusher ejects to each side"
+          },
+          "endBinPlate": {
+            "part": "3D-printed End Bin Plate",
+            "notes": "Used alongside the Bins Plates to complete the bin assembly"
           }
         }
       },
@@ -291,9 +299,12 @@
             "breakoutNote": "Using the ESP32 with a breakout board? Print the breakout variant of this base support piece instead of the standard one. The breakout board's footprint needs the extra clearance."
           },
           "printPlateBaseBottom": {
-            "arduino": "Print 1 Controller Plate. This plate now comes in three versions, print only the Arduino one and skip the two ESP32 versions.",
-            "esp32Bare": "Print 1 Controller Plate. This plate now comes in three versions, print only the ESP32 without breakout board one and skip the Arduino and ESP32 with breakout board versions.",
-            "esp32Breakout": "Print 1 Controller Plate. This plate now comes in three versions, print only the ESP32 with breakout board one and skip the Arduino and ESP32 without breakout board versions."
+            "arduino": "Print 1 Circuit Board Plate. This plate now comes in three versions, print only the Arduino one and skip the two ESP32 versions.",
+            "esp32Bare": "Print 1 Circuit Board Plate. This plate now comes in three versions, print only the ESP32 without breakout board one and skip the Arduino and ESP32 with breakout board versions.",
+            "esp32Breakout": "Print 1 Circuit Board Plate. This plate now comes in three versions, print only the ESP32 with breakout board one and skip the Arduino and ESP32 without breakout board versions."
+          },
+          "printServoControllerPlate": {
+            "text": "Print 1 Servo Controller Plate."
           },
           "printEndBottom": {
             "text": "Print 1 End Plate."
@@ -301,8 +312,11 @@
           "printGenericBase": {
             "text": "For {{modules}} sorting modules, print {{count}} Generic Plates. Change the module count in the parts list above to update this."
           },
-          "printBinHolders": {
-            "text": "For {{modules}} sorting modules, print {{count}} bin holders, two per module, one for the left ejection side and one for the right. Change the module count in the parts list above to update this."
+          "printBinsPlate": {
+            "text": "Print 2 Bins Plates."
+          },
+          "printEndBinPlate": {
+            "text": "Print 1 End Bin Plate."
           },
           "dryFit": {
             "text": "Dry-fit each module housing before inserting any electronics. Sand or adjust any tight servo pockets now."

@@ -122,9 +122,17 @@
             "part": "O-Ring 9,2mm ID 14mm OD 2,4mm Schnurstärke",
             "notes": "Neuer Trichter – passt sich leichter an unterschiedliche Kartenstärken an als der klassische Trichter"
           },
-          "binHolders": {
-            "part": "3D-gedruckter Fachhalter",
-            "notes": "2 pro Modul ({{count}} Module) - einer links, einer rechts - fängt die vom Pusher ausgeworfenen Karten auf"
+          "servoControllerPlate": {
+            "part": "3D-gedruckte Servo-Controller-Platte",
+            "notes": "Wird unabhängig von der Modulanzahl nur einmal gedruckt"
+          },
+          "binsPlate": {
+            "part": "3D-gedruckte Bins-Platte",
+            "notes": "Fängt die vom Pusher auf jeder Seite ausgeworfenen Karten auf"
+          },
+          "endBinPlate": {
+            "part": "3D-gedruckte End-Bin-Platte",
+            "notes": "Wird zusammen mit den Bins-Platten verwendet, um die Fachbaugruppe zu vervollständigen"
           }
         }
       },
@@ -292,9 +300,12 @@
             "breakoutNote": "Verwendest du den ESP32 mit einer Breakout-Platine? Drucke dann die Breakout-Variante dieses Base-Support-Teils statt der Standardversion. Der Platzbedarf der Breakout-Platine erfordert diesen zusätzlichen Freiraum."
           },
           "printPlateBaseBottom": {
-            "arduino": "Drucke 1 Controller-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Arduino-Version und lass die beiden ESP32-Versionen weg.",
-            "esp32Bare": "Drucke 1 Controller-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 ohne Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 mit Breakout-Platine weg.",
-            "esp32Breakout": "Drucke 1 Controller-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 mit Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 ohne Breakout-Platine weg."
+            "arduino": "Drucke 1 Circuit-Board-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Arduino-Version und lass die beiden ESP32-Versionen weg.",
+            "esp32Bare": "Drucke 1 Circuit-Board-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 ohne Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 mit Breakout-Platine weg.",
+            "esp32Breakout": "Drucke 1 Circuit-Board-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 mit Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 ohne Breakout-Platine weg."
+          },
+          "printServoControllerPlate": {
+            "text": "Drucke 1 Servo-Controller-Platte."
           },
           "printEndBottom": {
             "text": "Drucke 1 End-Platte."
@@ -302,8 +313,11 @@
           "printGenericBase": {
             "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
           },
-          "printBinHolders": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Fachhalter – zwei pro Modul, einer für die linke und einer für die rechte Auswurfseite. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+          "printBinsPlate": {
+            "text": "Drucke 2 Bins-Platten."
+          },
+          "printEndBinPlate": {
+            "text": "Drucke 1 End-Bin-Platte."
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
