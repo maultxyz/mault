@@ -56,6 +56,8 @@ export interface BinConfig {
   binNumber: number;
   rules: BinRuleGroup;
   isCatchAll?: boolean;
+  cardLimit?: number | null;
+  lastEmptiedAt?: number | null;
 }
 
 export interface BinSet {

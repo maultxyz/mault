@@ -285,5 +285,10 @@
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "isScanningTooltip": "{{name}} is scanning"
+  },
+  "binLimitDialog": {
+    "title": "Bin {{number}} is full",
+    "description": "Bin {{number}} has reached its limit of {{limit}} cards. Remove the cards from the bin, then continue scanning.",
+    "continueButton": "I've emptied the bin, continue"
   }
 }

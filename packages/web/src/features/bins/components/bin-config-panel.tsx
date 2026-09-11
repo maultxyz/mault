@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { FieldError } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
@@ -43,6 +49,7 @@ export function BinConfigPanel() {
     defaultValues: {
       isCatchAll: false,
       rules: emptyRuleGroup(),
+      cardLimit: null,
     },
   });
 
@@ -51,6 +58,7 @@ export function BinConfigPanel() {
       isCatchAll: config.isCatchAll ?? false,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
+      cardLimit: config.cardLimit ?? null,
     });
   }, [config, form]);
 
@@ -67,7 +75,12 @@ export function BinConfigPanel() {
         });
         return;
       }
-      save(config.binNumber, values.rules as BinRuleGroup, values.isCatchAll);
+      save(
+        config.binNumber,
+        values.rules as BinRuleGroup,
+        values.isCatchAll,
+        values.cardLimit,
+      );
     },
     [config, save, isOnlyCatchAll, form, t],
   );
@@ -82,6 +95,7 @@ export function BinConfigPanel() {
     form.reset({
       isCatchAll: false,
       rules: emptyRuleGroup(),
+      cardLimit: null,
     });
     clear(config.binNumber);
   }, [config, clear, form, isOnlyCatchAll, t]);
@@ -139,6 +153,36 @@ export function BinConfigPanel() {
           )}
         />
       </div>
+      <Field
+        className="mb-6"
+        data-invalid={!!form.formState.errors.cardLimit}
+      >
+        <FieldLabel htmlFor="bin-card-limit">
+          {t("binConfigPanel.cardLimitLabel")}
+        </FieldLabel>
+        <Controller
+          name="cardLimit"
+          control={form.control}
+          render={({ field }) => (
+            <Input
+              id="bin-card-limit"
+              type="number"
+              min={1}
+              placeholder={t("binConfigPanel.cardLimitPlaceholder")}
+              className="max-w-32"
+              value={field.value ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value;
+                field.onChange(raw === "" ? null : Number(raw));
+              }}
+            />
+          )}
+        />
+        <FieldDescription>
+          {t("binConfigPanel.cardLimitDescription")}
+        </FieldDescription>
+        <FieldError errors={[form.formState.errors.cardLimit]} />
+      </Field>
       {!isCatchAll && (
         <ScrollArea>
           <div className="flex items-center justify-between mb-2">

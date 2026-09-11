@@ -25,6 +25,9 @@
     "apiDocsLink": "Field reference",
     "clear": "Clear",
     "save": "Save",
+    "cardLimitLabel": "Bin capacity",
+    "cardLimitPlaceholder": "Unlimited",
+    "cardLimitDescription": "Stops scanning and prompts to empty the bin once it holds this many cards. Leave blank for no limit.",
     "autoAssignWaiting": "Waiting for a new {{field}} to appear",
     "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins."
   },
@@ -90,7 +93,8 @@
       "deleteSetFailed": "Failed to delete set",
       "autoAssignFailed": "Failed to update auto-detect settings",
       "autoAssignResetFailed": "Failed to reset auto-detected bins",
-      "scanOnlyFailed": "Failed to update scan only settings"
+      "scanOnlyFailed": "Failed to update scan only settings",
+      "emptyBinFailed": "Failed to mark bin as emptied"
     }
   },
   "binsPage": {

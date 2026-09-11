@@ -39,6 +39,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
               .set({
                 rules: config.rules,
                 isCatchAll: config.isCatchAll,
+                cardLimit: config.cardLimit ?? null,
                 updatedAt: new Date(),
               })
               .where(eq(bins.id, existing.id));
@@ -47,6 +48,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
               binNumber: config.binNumber,
               rules: config.rules,
               isCatchAll: config.isCatchAll,
+              cardLimit: config.cardLimit ?? null,
               binSet: binSet.id,
               orgId,
             });

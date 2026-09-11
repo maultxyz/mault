@@ -21,8 +21,14 @@ export interface BinConfigsContextValue {
   selectedSet?: BinSet;
   setSelectedBin: (bin: number) => void;
   selectedConfig: BinConfig;
-  save: (binNumber: number, rules: BinRuleGroup, isCatchAll?: boolean) => void;
+  save: (
+    binNumber: number,
+    rules: BinRuleGroup,
+    isCatchAll?: boolean,
+    cardLimit?: number | null,
+  ) => void;
   clear: (binNumber: number) => void;
+  emptyBin: (binNumber: number) => Promise<void>;
   activateSet: (guid: string) => Promise<void>;
   createSet: (name: string) => Promise<void>;
   saveSet: (name: string) => Promise<void>;

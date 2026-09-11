@@ -25,6 +25,9 @@
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
     "save": "Speichern",
+    "cardLimitLabel": "Fachkapazität",
+    "cardLimitPlaceholder": "Unbegrenzt",
+    "cardLimitDescription": "Stoppt das Scannen und fordert zum Leeren des Fachs auf, sobald es so viele Karten enthält. Leer lassen für kein Limit.",
     "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
     "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren."
   },
@@ -90,7 +93,8 @@
       "deleteSetFailed": "Set konnte nicht gelöscht werden",
       "autoAssignFailed": "Auto-Erkennungseinstellungen konnten nicht aktualisiert werden",
       "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden",
-      "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden"
+      "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden",
+      "emptyBinFailed": "Fach konnte nicht als geleert markiert werden"
     }
   },
   "binsPage": {

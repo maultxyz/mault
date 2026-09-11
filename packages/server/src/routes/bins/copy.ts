@@ -47,7 +47,14 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
                 ),
           columns: { id: true },
           with: {
-            bins: { columns: { binNumber: true, rules: true, isCatchAll: true } },
+            bins: {
+              columns: {
+                binNumber: true,
+                rules: true,
+                isCatchAll: true,
+                cardLimit: true,
+              },
+            },
           },
         });
         const activeBins = active?.bins ?? [];
@@ -61,6 +68,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
               binNumber: bin.binNumber,
               rules: bin.rules,
               isCatchAll: bin.isCatchAll,
+              cardLimit: bin.cardLimit,
               binSet: newBinSet.id,
               orgId,
             })),

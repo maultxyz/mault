@@ -59,6 +59,12 @@ export const binRuleGroupSchema: z.ZodType<{
 export const binConfigSchema = z.object({
   isCatchAll: z.boolean(),
   rules: binRuleGroupSchema,
+  cardLimit: z
+    .number()
+    .int()
+    .min(1, "Limit must be at least 1 card")
+    .max(CONDITION_NUMERIC_MAX)
+    .nullable(),
 });
 
 export type BinConfigFormValues = z.infer<typeof binConfigSchema>;

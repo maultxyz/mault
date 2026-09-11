@@ -65,17 +65,20 @@ export async function saveBinConfig({
   binNumber,
   rules,
   isCatchAll,
+  cardLimit,
   gameGuid,
 }: {
   binNumber: number;
   rules: BinRuleGroup;
   isCatchAll?: boolean;
+  cardLimit?: number | null;
   gameGuid?: string;
 }): Promise<Result<BinConfig[]>> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
   return apiPut<Result<BinConfig[]>>(`/api/bins/bins/${binNumber}${params}`, {
     rules,
     isCatchAll,
+    cardLimit,
   });
 }
 
@@ -85,6 +88,16 @@ export async function clearBinConfig(
 ): Promise<Result<null>> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
   return apiDelete<Result<null>>(`/api/bins/bins/${binNumber}${params}`);
+}
+
+export async function emptyBin(
+  binNumber: number,
+  gameGuid?: string,
+): Promise<Result<BinConfig[]>> {
+  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+  return apiPost<Result<BinConfig[]>>(
+    `/api/bins/bins/${binNumber}/empty${params}`,
+  );
 }
 
 export async function setAutoAssignField(

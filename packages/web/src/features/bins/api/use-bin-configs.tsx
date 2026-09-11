@@ -12,6 +12,7 @@ import {
   clearBinConfig as clearBinConfigAction,
   createSet as createSetAction,
   deleteSet as deleteSetAction,
+  emptyBin as emptyBinAction,
   renameSet as renameSetAction,
   resetAutoAssign as resetAutoAssignAction,
   saveBinConfig as saveBinConfigAction,
@@ -113,7 +114,7 @@ export function BinConfigsProvider({
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
-    onMutate: async ({ binNumber, rules, isCatchAll }) => {
+    onMutate: async ({ binNumber, rules, isCatchAll, cardLimit }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
       const previous = queryClient.getQueryData<BinSet[]>(["bins"]);
       queryClient.setQueryData<BinSet[]>(["bins"], (old = []) =>
@@ -125,6 +126,8 @@ export function BinConfigsProvider({
             binNumber,
             rules: rules!,
             isCatchAll,
+            cardLimit: cardLimit ?? null,
+            lastEmptiedAt: idx >= 0 ? set.bins[idx].lastEmptiedAt : null,
           };
           const bins =
             idx >= 0
@@ -272,6 +275,27 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.autoAssignResetFailed")),
   });
 
+  const emptyBinMutation = useMutation({
+    mutationFn: (binNumber: number) => emptyBinAction(binNumber, activeGameGuid),
+    onSuccess: (result) => {
+      if (!result.success) {
+        toast.error(t("useBinConfigs.toasts.emptyBinFailed"));
+        return;
+      }
+      if (result.data) {
+        const confirmedBins = result.data;
+        queryClient.setQueryData<BinSet[]>(["bins"], (old = []) =>
+          old.map((set) =>
+            set.isActive && matchesGame(set, activeGameGuid)
+              ? { ...set, bins: confirmedBins }
+              : set,
+          ),
+        );
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.emptyBinFailed")),
+  });
+
   const setScanOnlyMutation = useMutation({
     mutationFn: ({ guid, enabled }: { guid: string; enabled: boolean }) =>
       setScanOnlyAction(guid, enabled),
@@ -298,15 +322,28 @@ export function BinConfigsProvider({
     setScanOnlyMutation.isPending;
 
   const save = useCallback(
-    (binNumber: number, rules: BinRuleGroup, isCatchAll?: boolean) => {
+    (
+      binNumber: number,
+      rules: BinRuleGroup,
+      isCatchAll?: boolean,
+      cardLimit?: number | null,
+    ) => {
       saveBinMutation.mutate({
         binNumber,
         rules,
         isCatchAll,
+        cardLimit,
         gameGuid: activeGameGuid,
       });
     },
     [saveBinMutation, activeGameGuid],
+  );
+
+  const emptyBin = useCallback(
+    async (binNumber: number) => {
+      await emptyBinMutation.mutateAsync(binNumber);
+    },
+    [emptyBinMutation],
   );
 
   const clear = useCallback(
@@ -394,6 +431,7 @@ export function BinConfigsProvider({
         selectedSet,
         save,
         clear,
+        emptyBin,
         activateSet: activateSetFn,
         createSet: createSetFn,
         saveSet: saveSetFn,

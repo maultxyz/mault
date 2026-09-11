@@ -63,15 +63,22 @@ export async function loadCardImage(
 export async function addCollectionCard(
   guid: string,
   record: ScannedCard,
-): Promise<Result<ScannedCard> & { scanLimitReached?: boolean }> {
+): Promise<
+  Result<ScannedCard> & {
+    scanLimitReached?: boolean;
+    binLimitReached?: boolean;
+    binNumber?: number;
+  }
+> {
   const res = await fetch(`${API_BASE}/api/collections/${guid}/cards`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
     body: JSON.stringify(record),
   });
   await handleForbidden(res);
-  // Return body for success, 423 (locked), and 402 (free-plan scan limit reached)
-  if (res.ok || res.status === 423 || res.status === 402) return res.json();
+  // Return body for success, 423 (locked), 402 (free-plan scan limit reached), and 409 (bin full)
+  if (res.ok || res.status === 423 || res.status === 402 || res.status === 409)
+    return res.json();
   throw new Error(`API error: ${res.status}`);
 }
 
