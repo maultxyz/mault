@@ -148,6 +148,8 @@ export const bins = pgTable(
     binSet: integer("bin_set")
       .notNull()
       .references(() => binSets.id),
+    cardLimit: integer("card_limit").default(250),
+    lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

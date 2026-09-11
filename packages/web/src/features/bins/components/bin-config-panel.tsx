@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { FieldError } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
@@ -10,7 +16,7 @@ import {
   type BinConfigFormValues,
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BinRuleGroup } from "@magic-vault/shared";
+import { BinRuleGroup, DEFAULT_BIN_CAPACITY } from "@magic-vault/shared";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
@@ -43,6 +49,7 @@ export function BinConfigPanel() {
     defaultValues: {
       isCatchAll: false,
       rules: emptyRuleGroup(),
+      cardLimit: DEFAULT_BIN_CAPACITY,
     },
   });
 
@@ -51,6 +58,8 @@ export function BinConfigPanel() {
       isCatchAll: config.isCatchAll ?? false,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
+      cardLimit:
+        config.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : config.cardLimit,
     });
   }, [config, form]);
 
@@ -67,7 +76,12 @@ export function BinConfigPanel() {
         });
         return;
       }
-      save(config.binNumber, values.rules as BinRuleGroup, values.isCatchAll);
+      save(
+        config.binNumber,
+        values.rules as BinRuleGroup,
+        values.isCatchAll,
+        values.cardLimit,
+      );
     },
     [config, save, isOnlyCatchAll, form, t],
   );
@@ -82,6 +96,7 @@ export function BinConfigPanel() {
     form.reset({
       isCatchAll: false,
       rules: emptyRuleGroup(),
+      cardLimit: DEFAULT_BIN_CAPACITY,
     });
     clear(config.binNumber);
   }, [config, clear, form, isOnlyCatchAll, t]);
@@ -139,6 +154,36 @@ export function BinConfigPanel() {
           )}
         />
       </div>
+      <Field
+        className="mb-6"
+        data-invalid={!!form.formState.errors.cardLimit}
+      >
+        <FieldLabel htmlFor="bin-card-limit">
+          {t("binConfigPanel.cardLimitLabel")}
+        </FieldLabel>
+        <Controller
+          name="cardLimit"
+          control={form.control}
+          render={({ field }) => (
+            <Input
+              id="bin-card-limit"
+              type="number"
+              min={1}
+              placeholder={t("binConfigPanel.cardLimitPlaceholder")}
+              className="max-w-32"
+              value={field.value ?? ""}
+              onChange={(e) => {
+                const raw = e.target.value;
+                field.onChange(raw === "" ? null : Number(raw));
+              }}
+            />
+          )}
+        />
+        <FieldDescription>
+          {t("binConfigPanel.cardLimitDescription")}
+        </FieldDescription>
+        <FieldError errors={[form.formState.errors.cardLimit]} />
+      </Field>
       {!isCatchAll && (
         <ScrollArea>
           <div className="flex items-center justify-between mb-2">

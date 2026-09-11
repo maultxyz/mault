@@ -100,7 +100,8 @@
       "left": "Links",
       "right": "Rechts",
       "neutral": "Neutral"
-    }
+    },
+    "pusherOffsetWarning": "Mehr als 80 von neutral entfernt — je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Ziehe das Rechteck, um es zu verschieben, oder ziehe den Griff, um die Größe zu ändern. Richte es an einer Karte in Modul 1 aus.",

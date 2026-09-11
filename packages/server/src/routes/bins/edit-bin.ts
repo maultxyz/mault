@@ -14,9 +14,10 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
-    const { rules, isCatchAll } = await c.req.json<{
+    const { rules, isCatchAll, cardLimit } = await c.req.json<{
       rules: BinRuleGroup;
       isCatchAll?: boolean;
+      cardLimit?: number | null;
     }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -57,6 +58,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             .set({
               rules,
               isCatchAll: isCatchAll ?? false,
+              cardLimit: cardLimit ?? null,
               updatedAt: new Date(),
             })
             .where(eq(bins.id, existing.id));
@@ -65,6 +67,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             binNumber,
             rules,
             isCatchAll: isCatchAll ?? false,
+            cardLimit: cardLimit ?? null,
             binSet: activeBinSet.id,
             orgId,
           });
@@ -74,7 +77,14 @@ export const editBinRoute = new Hono<AppEnv>().put(
 
         const updatedBins = await tx.query.bins.findMany({
           where: (t, { eq }) => eq(t.binSet, activeBinSet.id),
-          columns: { guid: true, binNumber: true, rules: true, isCatchAll: true },
+          columns: {
+            guid: true,
+            binNumber: true,
+            rules: true,
+            isCatchAll: true,
+            cardLimit: true,
+            lastEmptiedAt: true,
+          },
         });
 
         return {
@@ -86,6 +96,8 @@ export const editBinRoute = new Hono<AppEnv>().put(
               binNumber: b.binNumber,
               rules: b.rules as BinRuleGroup,
               isCatchAll: b.isCatchAll,
+              cardLimit: b.cardLimit,
+              lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),
         };

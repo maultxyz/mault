@@ -100,7 +100,8 @@
       "left": "Left",
       "right": "Right",
       "neutral": "Neutral"
-    }
+    },
+    "pusherOffsetWarning": "More than 80 away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Drag the box to move it, or drag the handle to resize. Line it up with a card sitting at module 1.",

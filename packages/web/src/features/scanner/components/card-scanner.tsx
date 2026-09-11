@@ -11,6 +11,7 @@ import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useRegisterScannerIsland } from "@/features/scanner/api/use-scanner-island";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
+import { BinLimitDialog } from "@/features/scanner/components/bin-limit-dialog";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
 import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
@@ -37,6 +38,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     setAutoFeed,
     registerCardArrivedHook,
     registerPauseHook,
+    binLimitReached,
+    resolveBinLimit,
   } = useScannedCards();
   const registerIsland = useRegisterScannerIsland();
   const {
@@ -264,6 +267,11 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     return registerPauseHook(handlePause);
   }, [registerPauseHook, handlePause]);
 
+  const handleContinueAfterBinLimit = useCallback(async () => {
+    await resolveBinLimit();
+    handleResume();
+  }, [resolveBinLimit, handleResume]);
+
   useEffect(() => {
     registerIsland({
       status,
@@ -406,6 +414,10 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           onOcrEnabledChange={setOcrEnabled}
         />
       </div>
+      <BinLimitDialog
+        bin={binLimitReached}
+        onContinue={handleContinueAfterBinLimit}
+      />
     </div>
   );
 }

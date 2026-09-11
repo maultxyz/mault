@@ -1,5 +1,6 @@
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
+  BinConfig,
   BinRoute,
   Collection,
   HealthCheck,
@@ -67,6 +68,8 @@ export interface ScannedCardsContextValue {
   addUnmatchedCard: (capturedImageUrl?: string) => void;
   removeUnmatchedCard: (scanId: string) => void;
   sendCatchAllBin: () => void;
+  binLimitReached: BinConfig | null;
+  resolveBinLimit: () => Promise<void>;
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
   removeCard: (scanId: string) => void;

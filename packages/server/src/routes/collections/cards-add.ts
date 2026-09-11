@@ -7,6 +7,7 @@ import { acquireLock } from "../../lib/scan-lock";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { findFullBin } from "./bin-limit";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { isOverFreeScanLimit } from "./scan-limit";
 
@@ -49,7 +50,13 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
 
     type AddCardResult =
       | { success: true; data: ScannedCard }
-      | { success: false; message: string; scanLimitReached?: boolean };
+      | {
+          success: false;
+          message: string;
+          scanLimitReached?: boolean;
+          binLimitReached?: boolean;
+          binNumber?: number;
+        };
 
     try {
       const { result, collectionName, gameName, gameId } = await authQuery<{
@@ -81,6 +88,29 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             gameName: undefined,
             gameId: null,
           };
+        }
+
+        if (binNumber != null) {
+          const fullBin = await findFullBin(
+            tx,
+            orgId,
+            collection.gameId,
+            collection.id,
+            binNumber,
+          );
+          if (fullBin) {
+            return {
+              result: {
+                success: false,
+                message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.cardLimit} cards). Empty it to continue scanning.`,
+                binLimitReached: true,
+                binNumber: fullBin.binNumber,
+              },
+              collectionName: undefined,
+              gameName: undefined,
+              gameId: null,
+            };
+          }
         }
 
         await tx
@@ -152,6 +182,9 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       }
       if (!result.success && result.scanLimitReached) {
         return c.json(result, 402);
+      }
+      if (!result.success && result.binLimitReached) {
+        return c.json(result, 409);
       }
       return c.json(result);
     } catch (err) {

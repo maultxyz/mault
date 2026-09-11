@@ -1,3 +1,4 @@
+import type { ScannedCard } from "./interfaces/scanner.interface";
 import type {
   BinCondition,
   BinConfig,
@@ -6,9 +7,6 @@ import type {
 } from "./interfaces/sort-bins.interface";
 import { isRuleGroup } from "./interfaces/sort-bins.interface";
 
-// `object` (not `Record<string, unknown>`) so concrete card interfaces like
-// ScryfallCard - which have no index signature - are assignable without a
-// cast at every call site. getByPath narrows internally as it walks the path.
 export type SourceCard = object;
 
 export function getByPath(card: SourceCard, path: string): unknown {
@@ -198,4 +196,23 @@ export function evaluateCardBin(
   }
 
   return catchAll;
+}
+
+export function countCardsInBin(
+  cards: Pick<ScannedCard, "binNumber" | "scannedAt">[],
+  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,
+): number {
+  return cards.filter(
+    (c) =>
+      c.binNumber === bin.binNumber &&
+      (bin.lastEmptiedAt == null || c.scannedAt > bin.lastEmptiedAt),
+  ).length;
+}
+
+export function isBinFull(
+  cards: Pick<ScannedCard, "binNumber" | "scannedAt">[],
+  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt" | "cardLimit">,
+): boolean {
+  if (bin.cardLimit == null) return false;
+  return countCardsInBin(cards, bin) >= bin.cardLimit;
 }

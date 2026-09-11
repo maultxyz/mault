@@ -1,4 +1,5 @@
 import {
+  type BinConfig,
   type BinRoute,
   type PlayingCard,
   type PlayingCardWithDistance,
@@ -64,7 +65,9 @@ export function ScannedCardsProvider({
     fieldDefinitions,
     selectedSet,
     save: saveBinConfig,
+    emptyBin,
   } = useBinConfigs();
+  const [binLimitBin, setBinLimitBin] = useState<BinConfig | null>(null);
   const { routes: binRoutes } = useBinRoutes();
   const { sendRoute, sendCommand, receiveResponse, isConnected, isReady } =
     useSerial();
@@ -306,11 +309,37 @@ export function ScannedCardsProvider({
                   : old,
               );
             }
+            if (result.binLimitReached) {
+              // Card wasn't persisted or physically routed - the bin filled
+              // up before this scan, so scanning stays blocked until addressed.
+              disableAutoFeed();
+              pause();
+              setBinLimitBin(matchedBin ?? null);
+              return;
+            }
             const key = result.scanLimitReached
               ? "scannedCards.scanLimitReached"
               : "scannedCards.collectionLocked";
             toast.error(t(`${key}.title`), {
               description: t(`${key}.description`),
+            });
+            return;
+          }
+
+          // Only route physically once the server has confirmed the bin
+          // wasn't full, so a rejected card never gets routed either.
+          if (matchedBin && serialRef.current.isConnected && serialRef.current.isReady) {
+            void routeCardToBin({
+              route: resolveRoute(matchedBin.binNumber),
+              sendRoute: serialRef.current.sendRoute,
+              t,
+              failedKey: "scannedCards.routingFailed",
+              cardName: card.name,
+              collectionGuid: collection.guid,
+              isAutoFeedEnabled,
+              disableAutoFeed,
+              pause,
+              triggerAutoFeed,
             });
           }
         })
@@ -320,21 +349,6 @@ export function ScannedCardsProvider({
             void queryClient.invalidateQueries({ queryKey: billingQueryKey });
           }
         });
-
-      if (matchedBin && serialRef.current.isConnected && serialRef.current.isReady) {
-        void routeCardToBin({
-          route: resolveRoute(matchedBin.binNumber),
-          sendRoute: serialRef.current.sendRoute,
-          t,
-          failedKey: "scannedCards.routingFailed",
-          cardName: card.name,
-          collectionGuid: collection.guid,
-          isAutoFeedEnabled,
-          disableAutoFeed,
-          pause,
-          triggerAutoFeed,
-        });
-      }
     },
     [
       t,
@@ -347,6 +361,18 @@ export function ScannedCardsProvider({
       triggerAutoFeed,
     ],
   );
+
+  const resolveBinLimit = useCallback(async () => {
+    const bin = binLimitBin;
+    if (!bin) return;
+    try {
+      await emptyBin(bin.binNumber);
+    } catch (err) {
+      console.error("Failed to mark bin as emptied:", err);
+    } finally {
+      setBinLimitBin(null);
+    }
+  }, [binLimitBin, emptyBin]);
 
   const sendCatchAllBin = useCallback(() => {
     const catchAll = getCatchAllBin(binConfigsRef.current);
@@ -538,6 +564,8 @@ export function ScannedCardsProvider({
         addUnmatchedCard,
         removeUnmatchedCard,
         sendCatchAllBin,
+        binLimitReached: binLimitBin,
+        resolveBinLimit,
         removeCard,
         removeCards,
         correctCard,

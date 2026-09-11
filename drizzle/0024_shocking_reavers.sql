@@ -1,0 +1,1 @@
+ALTER TABLE "bins" ALTER COLUMN "card_limit" SET DEFAULT 250;

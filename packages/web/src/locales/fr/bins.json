@@ -25,6 +25,9 @@
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
     "save": "Enregistrer",
+    "cardLimitLabel": "Capacité du bac",
+    "cardLimitPlaceholder": "Illimité",
+    "cardLimitDescription": "Arrête le scan et invite à vider le bac une fois qu'il contient ce nombre de cartes. Laisser vide pour aucune limite.",
     "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
     "scanOnlyLocked": "Scan uniquement est activé — chaque carte va directement dans le bac 7. Désactive-le ci-dessus pour configurer les bacs."
   },
@@ -90,7 +93,8 @@
       "deleteSetFailed": "Échec de la suppression de l'ensemble",
       "autoAssignFailed": "Échec de la mise à jour des paramètres de détection automatique",
       "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement",
-      "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement"
+      "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement",
+      "emptyBinFailed": "Échec du marquage du bac comme vidé"
     }
   },
   "binsPage": {

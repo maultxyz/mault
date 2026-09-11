@@ -278,6 +278,9 @@
     "sessionReleased": "Session libérée",
     "releaseFailed": "Échec de la libération de la session",
     "leaveSession": "Quitter la session",
+    "searchPlaceholder": "Rechercher des sessions...",
+    "noSearchResultsTitle": "Aucune session correspondante",
+    "noSearchResultsDescription": "Essayez un autre terme de recherche",
     "title": "Surveillance de session",
     "subtitle": "Rejoindre une session de scan en direct",
     "noSessionsFound": "Aucune session trouvée",
@@ -285,5 +288,10 @@
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
     "isScanningTooltip": "{{name}} est en train de scanner"
+  },
+  "binLimitDialog": {
+    "title": "Le bac {{number}} est plein",
+    "description": "Le bac {{number}} a atteint sa limite de {{limit}} cartes. Retirez les cartes du bac, puis continuez le scan.",
+    "continueButton": "J'ai vidé le bac, continuer"
   }
 }

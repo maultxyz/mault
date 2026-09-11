@@ -41,6 +41,8 @@ function toBinSet(row: {
     binNumber: number;
     rules: unknown;
     isCatchAll: boolean;
+    cardLimit: number | null;
+    lastEmptiedAt: Date | null;
   }[];
   game: {
     guid: string | null;
@@ -65,6 +67,8 @@ function toBinSet(row: {
       binNumber: bin.binNumber,
       rules: bin.rules as BinRuleGroup,
       isCatchAll: bin.isCatchAll,
+      cardLimit: bin.cardLimit,
+      lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
     game: row.game
       ? {
@@ -96,7 +100,14 @@ const binSetQuery = {
   },
   with: {
     bins: {
-      columns: { guid: true, binNumber: true, rules: true, isCatchAll: true },
+      columns: {
+        guid: true,
+        binNumber: true,
+        rules: true,
+        isCatchAll: true,
+        cardLimit: true,
+        lastEmptiedAt: true,
+      },
     },
     game: true,
   },
@@ -119,13 +130,20 @@ export async function snapshotBinSet(
 ) {
   const rows = await tx.query.bins.findMany({
     where: (bins, { eq }) => eq(bins.binSet, binSetId),
-    columns: { guid: true, binNumber: true, rules: true, isCatchAll: true },
+    columns: {
+      guid: true,
+      binNumber: true,
+      rules: true,
+      isCatchAll: true,
+      cardLimit: true,
+    },
   });
   const snapshot: BinConfig[] = rows.map((r) => ({
     guid: r.guid!,
     binNumber: r.binNumber,
     rules: r.rules as BinRuleGroup,
     isCatchAll: r.isCatchAll,
+    cardLimit: r.cardLimit,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
 }
