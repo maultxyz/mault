@@ -1,3 +1,4 @@
+import { buttonVariants } from "@/components/ui/button";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
 import { useEsp32MountType } from "@/features/build/api/use-esp32-mount-type";
@@ -7,7 +8,6 @@ import {
   getYouTubeVideoId,
   optionalBadgeLabel,
 } from "@/features/build/lib/build-phases";
-import { buttonVariants } from "@/components/ui/button";
 import { DISCORD_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { IconVideo } from "@tabler/icons-react";
@@ -146,7 +146,7 @@ export function BuildAssembly() {
                 </div>
               )}
               <div className="min-w-0 flex-1 rounded-lg border bg-card">
-                <div className="sticky top-20 z-10 flex items-center gap-3 rounded-t-lg border-b bg-secondary px-4 py-3 md:px-5">
+                <div className="sticky top-14 z-10 flex items-center gap-3 rounded-t-lg border-b bg-secondary px-4 py-3 md:px-5">
                   <span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
                     <phase.icon size={16} />
                   </span>

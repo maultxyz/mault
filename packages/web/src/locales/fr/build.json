@@ -122,9 +122,17 @@
             "part": "Joint torique 9,2mm DI 14mm DE section 2,4mm",
             "notes": "Nouvelle trémie - s'adapte plus facilement à différentes épaisseurs de cartes que la trémie classique"
           },
-          "binHolders": {
-            "part": "Bac imprimé en 3D",
-            "notes": "2 par module ({{count}} modules) - un à gauche, un à droite - reçoit les cartes éjectées par le poussoir"
+          "servoControllerPlate": {
+            "part": "Plaque Servo Controller imprimée en 3D",
+            "notes": "Imprimée une seule fois, quel que soit le nombre de modules"
+          },
+          "binsPlate": {
+            "part": "Plaque Bins imprimée en 3D",
+            "notes": "Reçoit les cartes éjectées de chaque côté par le poussoir"
+          },
+          "endBinPlate": {
+            "part": "Plaque End Bin imprimée en 3D",
+            "notes": "Utilisée avec les plaques Bins pour compléter l'assemblage des bacs"
           }
         }
       },
@@ -292,9 +300,12 @@
             "breakoutNote": "Tu utilises l'ESP32 avec une carte de breakout ? Imprime la variante breakout de cette pièce Base Support au lieu de la version standard. L'encombrement de la carte de breakout nécessite ce dégagement supplémentaire."
           },
           "printPlateBaseBottom": {
-            "arduino": "Imprime 1 plaque Controller. Cette plaque existe maintenant en trois versions, imprime uniquement la version Arduino et ignore les deux versions ESP32.",
-            "esp32Bare": "Imprime 1 plaque Controller. Cette plaque existe maintenant en trois versions, imprime uniquement la version ESP32 sans carte de breakout et ignore les versions Arduino et ESP32 avec carte de breakout.",
-            "esp32Breakout": "Imprime 1 plaque Controller. Cette plaque existe maintenant en trois versions, imprime uniquement la version ESP32 avec carte de breakout et ignore les versions Arduino et ESP32 sans carte de breakout."
+            "arduino": "Imprime 1 plaque Circuit Board. Cette plaque existe maintenant en trois versions, imprime uniquement la version Arduino et ignore les deux versions ESP32.",
+            "esp32Bare": "Imprime 1 plaque Circuit Board. Cette plaque existe maintenant en trois versions, imprime uniquement la version ESP32 sans carte de breakout et ignore les versions Arduino et ESP32 avec carte de breakout.",
+            "esp32Breakout": "Imprime 1 plaque Circuit Board. Cette plaque existe maintenant en trois versions, imprime uniquement la version ESP32 avec carte de breakout et ignore les versions Arduino et ESP32 sans carte de breakout."
+          },
+          "printServoControllerPlate": {
+            "text": "Imprime 1 plaque Servo Controller."
           },
           "printEndBottom": {
             "text": "Imprime 1 plaque End."
@@ -302,8 +313,11 @@
           "printGenericBase": {
             "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
           },
-          "printBinHolders": {
-            "text": "Pour {{modules}} modules de tri, imprime {{count}} bacs - deux par module, un pour le côté d'éjection gauche et un pour le droit. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
+          "printBinsPlate": {
+            "text": "Imprime 2 plaques Bins."
+          },
+          "printEndBinPlate": {
+            "text": "Imprime 1 plaque End Bin."
           },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
