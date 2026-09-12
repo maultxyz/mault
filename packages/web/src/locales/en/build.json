@@ -172,6 +172,10 @@
             "partSpec": "(11 per module, +4 for the board mount, +3 for the servo driver board, +1 for the feeder)",
             "notes": "11 per module ({{count}} modules): flapper (bottom/sides) and pusher arms; +4 to mount the {{board}}; +3 to mount the PCA9685 servo driver board; +1 for the feeder"
           },
+          "m2x8Screw": {
+            "part": "M2×8 screw",
+            "notes": "2 per module ({{count}} modules), to mount the pusher"
+          },
           "servoHornScrew": {
             "part": "Servo horn screw (Included with servos)",
             "notes": "Included with each servo; secures the horn to the shaft"

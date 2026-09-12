@@ -172,6 +172,10 @@
             "partSpec": "(11 pro Modul, +4 für die Platinenbefestigung, +3 für die Servotreiberplatine, +1 für den Zuführer)",
             "notes": "11 pro Modul ({{count}} Module): Klappen (Boden/Seiten) und Schieberarme; +4 zur Befestigung des {{board}}; +3 zur Befestigung der PCA9685-Servotreiberplatine; +1 für den Zuführer"
           },
+          "m2x8Screw": {
+            "part": "M2×8-Schraube",
+            "notes": "2 pro Modul ({{count}} Module), zur Befestigung des Schiebers"
+          },
           "servoHornScrew": {
             "part": "Servohorn-Schraube (im Lieferumfang der Servos enthalten)",
             "notes": "Bei jedem Servo enthalten; sichert das Horn auf der Welle"

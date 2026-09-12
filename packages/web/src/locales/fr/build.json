@@ -172,6 +172,10 @@
             "partSpec": "(11 par module, +4 pour la fixation de la carte, +3 pour la carte driver de servo, +1 pour le chargeur)",
             "notes": "11 par module ({{count}} modules) : trappe (bas/côtés) et bras du poussoir ; +4 pour fixer le {{board}} ; +3 pour fixer la carte driver de servo PCA9685 ; +1 pour le chargeur"
           },
+          "m2x8Screw": {
+            "part": "Vis M2×8",
+            "notes": "2 par module ({{count}} modules), pour fixer le poussoir"
+          },
           "servoHornScrew": {
             "part": "Vis de palonnier de servo (incluse avec les servos)",
             "notes": "Incluse avec chaque servo ; fixe le palonnier à l'axe"
