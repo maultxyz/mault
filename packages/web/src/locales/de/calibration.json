@@ -49,7 +49,8 @@
     "binLabel": "Fach {{bin}}",
     "moduleLeft": "Modul {{module}} — Links",
     "moduleRight": "Modul {{module}} — Rechts",
-    "moduleBottom": "Modul {{module}} — Unten"
+    "moduleOnly": "Modul {{module}}",
+    "bottomSectionLabel": "Unten (Auffangfach)"
   },
   "binRoutingControls": {
     "label": "Fach-Routing",

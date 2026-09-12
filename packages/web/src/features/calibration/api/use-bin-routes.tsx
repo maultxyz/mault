@@ -60,6 +60,17 @@ export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
     [saveMutation],
   );
 
+  // Awaits the first save before issuing the second so the two upserts land
+  // in order - firing both via `save` without awaiting risks the responses
+  // resolving out of order and one overwriting the other in the query cache.
+  const swap = useCallback(
+    async (route: BinRoute, displaced: BinRoute) => {
+      await saveMutation.mutateAsync(route);
+      await saveMutation.mutateAsync(displaced);
+    },
+    [saveMutation],
+  );
+
   const resetToDefaults = useCallback(() => {
     resetMutation.mutate();
   }, [resetMutation]);
@@ -70,6 +81,7 @@ export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
         routes,
         isPending: saveMutation.isPending || resetMutation.isPending,
         save,
+        swap,
         resetToDefaults,
       }}
     >

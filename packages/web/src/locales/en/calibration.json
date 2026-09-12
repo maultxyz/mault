@@ -49,7 +49,8 @@
     "binLabel": "Bin {{bin}}",
     "moduleLeft": "Module {{module}}, Left",
     "moduleRight": "Module {{module}}, Right",
-    "moduleBottom": "Module {{module}}, Bottom"
+    "moduleOnly": "Module {{module}}",
+    "bottomSectionLabel": "Bottom (catch-all)"
   },
   "binRoutingControls": {
     "label": "Bin Routing",

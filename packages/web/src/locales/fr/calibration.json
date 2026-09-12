@@ -49,7 +49,8 @@
     "binLabel": "Bac {{bin}}",
     "moduleLeft": "Module {{module}} — Gauche",
     "moduleRight": "Module {{module}} — Droite",
-    "moduleBottom": "Module {{module}} — Bas"
+    "moduleOnly": "Module {{module}}",
+    "bottomSectionLabel": "Bas (fourre-tout)"
   },
   "binRoutingControls": {
     "label": "Routage des bacs",

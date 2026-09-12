@@ -1,4 +1,8 @@
-import type { BinRoute, ModuleConfig, ServoCalibration } from "@magic-vault/shared";
+import type {
+  BinRoute,
+  ModuleConfig,
+  ServoCalibration,
+} from "@magic-vault/shared";
 
 export type CalibrationSection = "modules" | "scanRegion" | "calibration";
 
@@ -19,6 +23,7 @@ export interface BinRoutesContextValue {
   routes: BinRoute[];
   isPending: boolean;
   save: (route: BinRoute) => void;
+  swap: (route: BinRoute, displaced: BinRoute) => Promise<void>;
   resetToDefaults: () => void;
 }
 

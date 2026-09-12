@@ -329,11 +329,6 @@ export default function CalibratePage() {
               <Label>{t("channelLayoutToggle.label")}</Label>
               <ChannelLayoutToggle />
             </div>
-            <div className="flex flex-col gap-1.5" data-tour="module-count">
-              <Label>{t("moduleCountStepper.label")}</Label>
-              <ModuleCountStepper />
-            </div>
-            <BinRoutingAssignment />
             <IrSensorPanel
               modules={modules}
               irStates={irStates}
@@ -350,6 +345,11 @@ export default function CalibratePage() {
               onTestBin={handleTestBin}
               onSampleRun={handleSampleRun}
             />
+            <div className="flex flex-col gap-1.5" data-tour="module-count">
+              <Label>{t("moduleCountStepper.label")}</Label>
+              <ModuleCountStepper />
+            </div>
+            <BinRoutingAssignment />
           </>
         )}
 
