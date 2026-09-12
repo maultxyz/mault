@@ -31,11 +31,14 @@ import {
   IconClockHour3,
   IconDeviceUsb,
   IconDeviceUsbFilled,
+  IconDownload,
   IconFocus2,
+  IconLoader2,
   IconSettingsCog,
+  IconUpload,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -250,7 +253,12 @@ export default function CalibratePage() {
     handleReadIR,
     handleToggleIrMonitor,
     handleCopyCalibration,
+    handleExportConfig,
+    handleImportConfig,
+    isImporting,
   } = useCalibrationPage();
+
+  const importInputRef = useRef<HTMLInputElement>(null);
 
   return (
     <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
@@ -319,6 +327,35 @@ export default function CalibratePage() {
             <Button variant="outline" onClick={handleCopyCalibration}>
               <IconClipboard />
               {t("calibratePage.copyCalibration")}
+            </Button>
+            <Button variant="outline" onClick={handleExportConfig}>
+              <IconDownload />
+              {t("calibratePage.exportConfig")}
+            </Button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) void handleImportConfig(file);
+              }}
+            />
+            <Button
+              variant="outline"
+              disabled={isImporting}
+              onClick={() => importInputRef.current?.click()}
+            >
+              {isImporting ? (
+                <IconLoader2 className="animate-spin" />
+              ) : (
+                <IconUpload />
+              )}
+              {isImporting
+                ? t("calibratePage.importing")
+                : t("calibratePage.importConfig")}
             </Button>
             <CalibrationTour section={section} setSection={setSection} />
           </div>

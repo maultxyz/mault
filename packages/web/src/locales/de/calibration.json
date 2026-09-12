@@ -148,7 +148,10 @@
       "sampleRunStopped": "Testlauf bei Fach {{bin}} gestoppt",
       "sampleRunComplete": "Testlauf abgeschlossen",
       "calibrationCopied": "Kalibrierung in die Zwischenablage kopiert",
-      "copyFailed": "Kopieren der Kalibrierung fehlgeschlagen"
+      "copyFailed": "Kopieren der Kalibrierung fehlgeschlagen",
+      "importInvalid": "Diese Datei ist kein gültiger Kalibrierungs-Export",
+      "importSuccess": "Kalibrierung importiert",
+      "importFailed": "Importieren der Kalibrierung fehlgeschlagen"
     }
   },
   "useFeederConfig": {
@@ -204,6 +207,9 @@
     "feederCalibrationLabel": "Zuführungskalibrierung",
     "history": "Verlauf",
     "copyCalibration": "Kalibrierung kopieren",
+    "exportConfig": "Konfiguration exportieren",
+    "importConfig": "Konfiguration importieren",
+    "importing": "Wird importiert…",
     "moduleCalibrationLabel": "Modulkalibrierung",
     "feederHistoryTitle": "Zuführungsverlauf",
     "moduleHistoryTitle": "Modulverlauf"

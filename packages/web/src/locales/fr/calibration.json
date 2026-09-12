@@ -148,7 +148,10 @@
       "sampleRunStopped": "Test d'exécution arrêté au bac {{bin}}",
       "sampleRunComplete": "Test d'exécution terminé",
       "calibrationCopied": "Calibration copiée dans le presse-papiers",
-      "copyFailed": "Échec de la copie de la calibration"
+      "copyFailed": "Échec de la copie de la calibration",
+      "importInvalid": "Ce fichier n'est pas un export de calibration valide",
+      "importSuccess": "Calibration importée",
+      "importFailed": "Échec de l'importation de la calibration"
     }
   },
   "useFeederConfig": {
@@ -204,6 +207,9 @@
     "feederCalibrationLabel": "Calibration du chargeur",
     "history": "Historique",
     "copyCalibration": "Copier la calibration",
+    "exportConfig": "Exporter la config",
+    "importConfig": "Importer la config",
+    "importing": "Importation…",
     "moduleCalibrationLabel": "Calibration des modules",
     "feederHistoryTitle": "Historique du chargeur",
     "moduleHistoryTitle": "Historique des modules"

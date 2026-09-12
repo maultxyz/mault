@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import { neon } from "@/lib/auth/client";
 import {
   AuthView,
@@ -17,7 +18,8 @@ export default function AuthPage() {
         basePath: "/app/account",
       }}
     >
-      <div className="bg-muted flex items-center justify-center min-h-screen">
+      <div className="bg-muted flex min-h-screen flex-col items-center justify-center gap-6 p-4">
+        <BrandMark />
         <AuthView
           path={path}
           classNames={{

@@ -148,7 +148,10 @@
       "sampleRunStopped": "Sample run stopped at bin {{bin}}",
       "sampleRunComplete": "Sample run complete",
       "calibrationCopied": "Calibration copied to clipboard",
-      "copyFailed": "Failed to copy calibration"
+      "copyFailed": "Failed to copy calibration",
+      "importInvalid": "That file isn't a valid calibration export",
+      "importSuccess": "Calibration imported",
+      "importFailed": "Failed to import calibration"
     }
   },
   "useFeederConfig": {
@@ -204,6 +207,9 @@
     "feederCalibrationLabel": "Feeder Calibration",
     "history": "History",
     "copyCalibration": "Copy Calibration",
+    "exportConfig": "Export Config",
+    "importConfig": "Import Config",
+    "importing": "Importing…",
     "moduleCalibrationLabel": "Module Calibration",
     "feederHistoryTitle": "Feeder History",
     "moduleHistoryTitle": "Module History"
