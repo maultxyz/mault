@@ -11,7 +11,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
   Tooltip,
   TooltipContent,
@@ -25,6 +24,7 @@ import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
+import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
@@ -35,13 +35,12 @@ import {
   IconHeartRateMonitor,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
-  IconPigFilled,
   IconShoppingCart,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
-
+import { BrandIcon } from "./brand-icon";
 
 interface NavSubItemDef {
   key: string;
@@ -484,7 +483,7 @@ export function AppNav() {
               className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md text-muted-foreground active:scale-90 transition-all"
             >
               <span className="relative">
-                <IconPigFilled size={20} />
+                <BrandIcon className="size-5" />
                 {count > 0 && (
                   <span className="absolute -top-1 -right-1.5 min-w-3 h-3 rounded-full bg-destructive ring-1 ring-background" />
                 )}
@@ -521,7 +520,7 @@ export function AppNav() {
             )}
           >
             <span className="relative bg-primary grid size-8 shrink-0 place-items-center rounded-lg text-primary-foreground">
-              <IconPigFilled className="size-4" />
+              <BrandIcon className="size-4" />
               {count > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 rounded-full bg-destructive px-0.5 text-[9px] font-semibold leading-3.5 text-destructive-foreground ring-2 ring-sidebar">
                   {count > 9 ? "9+" : count}
