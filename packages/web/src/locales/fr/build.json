@@ -172,6 +172,10 @@
             "partSpec": "(11 par module, +4 pour la fixation de la carte, +3 pour la carte driver de servo, +1 pour le chargeur)",
             "notes": "11 par module ({{count}} modules) : trappe (bas/côtés) et bras du poussoir ; +4 pour fixer le {{board}} ; +3 pour fixer la carte driver de servo PCA9685 ; +1 pour le chargeur"
           },
+          "m2x8Screw": {
+            "part": "Vis M2×8",
+            "notes": "2 par module ({{count}} modules), pour fixer le poussoir"
+          },
           "servoHornScrew": {
             "part": "Vis de palonnier de servo (incluse avec les servos)",
             "notes": "Incluse avec chaque servo ; fixe le palonnier à l'axe"
@@ -296,13 +300,13 @@
             "text": "Imprime 1 Sorting Module Shroud - une seule suffit. Le capot qui recouvre les modules empilés."
           },
           "printPlateBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{count}} pièces Base Support à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une pièce de support de plus que le niveau au-dessus. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour.",
+            "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces Base Support 1 niveau à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les deux hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour.",
             "breakoutNote": "Tu utilises l'ESP32 avec une carte de breakout ? Imprime la variante breakout de cette pièce Base Support au lieu de la version standard. L'encombrement de la carte de breakout nécessite ce dégagement supplémentaire."
           },
           "printPlateBaseBottom": {
-            "arduino": "Imprime 1 plaque Circuit Board. Cette plaque existe maintenant en trois versions, imprime uniquement la version Arduino et ignore les deux versions ESP32.",
-            "esp32Bare": "Imprime 1 plaque Circuit Board. Cette plaque existe maintenant en trois versions, imprime uniquement la version ESP32 sans carte de breakout et ignore les versions Arduino et ESP32 avec carte de breakout.",
-            "esp32Breakout": "Imprime 1 plaque Circuit Board. Cette plaque existe maintenant en trois versions, imprime uniquement la version ESP32 avec carte de breakout et ignore les versions Arduino et ESP32 sans carte de breakout."
+            "esp32OrArduino": "Imprime 1 plaque Circuit Board (ESP32 / Arduino). Cette plaque couvre maintenant à la fois l'Arduino et l'ESP32 sans carte de breakout, la même plaque dans les deux cas.",
+            "esp32Breakout": "Imprime plutôt 1 plaque Circuit Board (ESP32 + carte de breakout). C'est une plaque distincte de celle pour Arduino/ESP32 sans breakout, nécessaire seulement si tu utilises l'ESP32 avec une carte de breakout.",
+            "esp32BreakoutNote": "Cette plaque nécessite aussi un support de base pour breakout, disponible en deux hauteurs : imprime la version 3 niveaux si ton escalier compte 3 modules, ou la version 1 niveau pour un empilement plus court. N'imprime que celle qui correspond à ton nombre de modules, pas les deux."
           },
           "printServoControllerPlate": {
             "text": "Imprime 1 plaque Servo Controller."

@@ -49,7 +49,8 @@
     "binLabel": "Bac {{bin}}",
     "moduleLeft": "Module {{module}} — Gauche",
     "moduleRight": "Module {{module}} — Droite",
-    "moduleBottom": "Module {{module}} — Bas"
+    "moduleOnly": "Module {{module}}",
+    "bottomSectionLabel": "Bas (fourre-tout)"
   },
   "binRoutingControls": {
     "label": "Routage des bacs",
@@ -61,8 +62,12 @@
   },
   "feederCalibrationPanel": {
     "heading": "Chargeur",
-    "speedLabel": "Vitesse (PWM)",
-    "speedTooltip": "Vitesse du moteur du chargeur en valeur PWM brute (120 = le plus lent, 490 = le plus rapide accepté par le contrôleur moteur)",
+    "showAdvanced": "Afficher les valeurs brutes",
+    "hideAdvanced": "Masquer les valeurs brutes",
+    "speedLabel": "Vitesse d'alimentation",
+    "speedTooltip": "À quelle vitesse et dans quel sens tourne le moteur du chargeur. 0 % est à l'arrêt ; fais glisser d'un côté ou de l'autre pour accélérer dans ce sens.",
+    "forward": "Avant",
+    "reverse": "Inverse",
     "setSpeed": "Définir la vitesse",
     "timeoutLabel": "Délai d'expiration (ms)",
     "setTimeout": "Définir le délai d'expiration",
@@ -94,14 +99,18 @@
   },
   "moduleCalibrationGrid": {
     "moduleHeading": "Module {{module}}",
-    "sliderTooltip": "Position brute de l'impulsion du servo (120-490). Utilise les boutons de position ci-dessus, puis un bouton « Définir » pour enregistrer ce point de calibration.",
+    "positionLabel": "Position",
+    "percentSliderTooltip": "À quel point ce servo est poussé, en pourcentage de sa course totale. Utilise les boutons de position ci-dessus, puis un bouton « Définir » pour enregistrer ce point de calibration.",
+    "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
+    "showAdvanced": "Afficher la valeur brute de l'impulsion",
+    "hideAdvanced": "Masquer la valeur brute de l'impulsion",
     "positions": {
       "open": "Ouvert",
       "left": "Gauche",
       "right": "Droite",
       "neutral": "Neutre"
     },
-    "pusherOffsetWarning": "Plus de 80 par rapport au neutre — plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente."
+    "pusherOffsetWarning": "Plus de {{percent}}% par rapport au neutre — plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Fais glisser le cadre pour le déplacer, ou fais glisser la poignée pour le redimensionner. Aligne-le avec une carte posée au module 1.",

@@ -49,7 +49,8 @@
     "binLabel": "Bin {{bin}}",
     "moduleLeft": "Module {{module}}, Left",
     "moduleRight": "Module {{module}}, Right",
-    "moduleBottom": "Module {{module}}, Bottom"
+    "moduleOnly": "Module {{module}}",
+    "bottomSectionLabel": "Bottom (catch-all)"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
@@ -61,8 +62,12 @@
   },
   "feederCalibrationPanel": {
     "heading": "Feeder",
-    "speedLabel": "Speed (PWM)",
-    "speedTooltip": "Feeder motor speed as a raw PWM signal value (120 = slowest, 490 = fastest the motor controller accepts)",
+    "showAdvanced": "Show raw values",
+    "hideAdvanced": "Hide raw values",
+    "speedLabel": "Feed Speed",
+    "speedTooltip": "How fast and which way the feeder motor spins. 0% is stopped; drag either way to speed up in that direction.",
+    "forward": "Forward",
+    "reverse": "Reverse",
     "setSpeed": "Set Speed",
     "timeoutLabel": "Timeout (ms)",
     "setTimeout": "Set Timeout",
@@ -94,14 +99,18 @@
   },
   "moduleCalibrationGrid": {
     "moduleHeading": "Module {{module}}",
-    "sliderTooltip": "Raw servo pulse position (120-490). Use the position buttons above, then a \"Set\" button to save this as a calibration point.",
+    "positionLabel": "Position",
+    "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Use the position buttons above, then a \"Set\" button to save this as a calibration point.",
+    "rawPulseTooltip": "Raw servo pulse position (120-490), the exact value sent to the device.",
+    "showAdvanced": "Show raw pulse value",
+    "hideAdvanced": "Hide raw pulse value",
     "positions": {
       "open": "Open",
       "left": "Left",
       "right": "Right",
       "neutral": "Neutral"
     },
-    "pusherOffsetWarning": "More than 80 away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it."
+    "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Drag the box to move it, or drag the handle to resize. Line it up with a card sitting at module 1.",

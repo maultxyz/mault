@@ -2,9 +2,13 @@
 
 A TCG card scanner and physical sorter. A webcam identifies cards via AI image embeddings, a rule engine decides which bin each card belongs in, and a feeder and servo mechanism driven by an Arduino or ESP32 physically routes the card there.
 
+## Supported TCGs
+
+Magic: The Gathering, Pokemon, Yu-Gi-Oh, One Piece, Lorcana, Gundam, Flesh and Blood, Riftbound
+
 ## MakerWorld
 
-https://makerworld.com/en/models/3066180-tcg-card-sorting-machine#profileId-3451252
+https://makerworld.com/en/models/3066180-tcg-card-sorting-machine
 
 ## How it works
 
@@ -18,7 +22,7 @@ https://makerworld.com/en/models/3066180-tcg-card-sorting-machine#profileId-3451
 ## Features
 
 - Live webcam scanning with automatic card detection and identification; captures wait for the card to physically settle at the sensor before the shot is taken
-- Multi-TCG support: pluggable card-search adapters per game (Scryfall/MTG built in, plus Gundam Card Game), with each game's own admin-configurable field definitions driving sorting, filtering, and bin rules
+- Multi-TCG support: pluggable card-search adapters per game, with each game's own admin-configurable field definitions driving sorting, filtering, and bin rules
 - Rule-based sort bins, grouped by collection, with and/or rule trees across each game's own card fields (color, rarity, price, set, etc.)
 - Card grid sorting (by name, price, rarity, etc.) adapts automatically to whichever game a collection uses
 - Multiple collections per organization, each with their own bin configuration and card history

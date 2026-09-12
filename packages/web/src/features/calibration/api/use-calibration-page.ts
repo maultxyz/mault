@@ -13,8 +13,8 @@ import {
 import type { ActivePositions, SliderKey } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
+  CALIBRATION_PREVIEW_DEBOUNCE_MS,
   CALIBRATION_STEP_SETTLE_MS,
-  FEEDER_PREVIEW_DEBOUNCE_MS,
 } from "@/lib/constants/timing";
 import {
   computeBinCount,
@@ -138,7 +138,10 @@ export function useCalibrationPage() {
     (module: number, servo: "bottom" | "paddle" | "pusher", value: number) => {
       setSliderValues((prev) => ({ ...prev, [`${module}:${servo}`]: value }));
       if (servoDebounceRef.current) clearTimeout(servoDebounceRef.current);
-      servoDebounceRef.current = setTimeout(() => moveServo(module, servo, value), 30);
+      servoDebounceRef.current = setTimeout(
+        () => moveServo(module, servo, value),
+        CALIBRATION_PREVIEW_DEBOUNCE_MS,
+      );
     },
     [moveServo],
   );
@@ -229,7 +232,7 @@ export function useCalibrationPage() {
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
-        FEEDER_PREVIEW_DEBOUNCE_MS,
+        CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
     [previewSpeed],

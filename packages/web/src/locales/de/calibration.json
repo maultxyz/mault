@@ -49,7 +49,8 @@
     "binLabel": "Fach {{bin}}",
     "moduleLeft": "Modul {{module}} — Links",
     "moduleRight": "Modul {{module}} — Rechts",
-    "moduleBottom": "Modul {{module}} — Unten"
+    "moduleOnly": "Modul {{module}}",
+    "bottomSectionLabel": "Unten (Auffangfach)"
   },
   "binRoutingControls": {
     "label": "Fach-Routing",
@@ -61,8 +62,12 @@
   },
   "feederCalibrationPanel": {
     "heading": "Zuführung",
-    "speedLabel": "Geschwindigkeit (PWM)",
-    "speedTooltip": "Motorgeschwindigkeit der Zuführung als roher PWM-Signalwert (120 = langsamste, 490 = schnellste vom Motorcontroller akzeptierte Geschwindigkeit)",
+    "showAdvanced": "Rohwerte anzeigen",
+    "hideAdvanced": "Rohwerte ausblenden",
+    "speedLabel": "Zuführgeschwindigkeit",
+    "speedTooltip": "Wie schnell und in welche Richtung der Zuführmotor dreht. 0 % bedeutet gestoppt; ziehe in eine der beiden Richtungen, um dort schneller zu werden.",
+    "forward": "Vorwärts",
+    "reverse": "Rückwärts",
     "setSpeed": "Geschwindigkeit setzen",
     "timeoutLabel": "Timeout (ms)",
     "setTimeout": "Timeout setzen",
@@ -94,14 +99,18 @@
   },
   "moduleCalibrationGrid": {
     "moduleHeading": "Modul {{module}}",
-    "sliderTooltip": "Rohe Servo-Impulsposition (120-490). Verwende zuerst die Positionsschaltflächen oben und dann eine \"Setzen\"-Schaltfläche, um dies als Kalibrierungspunkt zu speichern.",
+    "positionLabel": "Position",
+    "percentSliderTooltip": "Wie weit dieser Servo bewegt ist, als Prozentsatz seines gesamten Bewegungsbereichs. Verwende zuerst die Positionsschaltflächen oben und dann eine \"Setzen\"-Schaltfläche, um dies als Kalibrierungspunkt zu speichern.",
+    "rawPulseTooltip": "Rohe Servo-Impulsposition (120-490), der genaue an das Gerät gesendete Wert.",
+    "showAdvanced": "Rohen Impulswert anzeigen",
+    "hideAdvanced": "Rohen Impulswert ausblenden",
     "positions": {
       "open": "Offen",
       "left": "Links",
       "right": "Rechts",
       "neutral": "Neutral"
     },
-    "pusherOffsetWarning": "Mehr als 80 von neutral entfernt — je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht."
+    "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt — je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Ziehe das Rechteck, um es zu verschieben, oder ziehe den Griff, um die Größe zu ändern. Richte es an einer Karte in Modul 1 aus.",

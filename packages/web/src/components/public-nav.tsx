@@ -34,7 +34,7 @@ export function PublicNav({
         )}
       >
         <div className="flex items-center gap-6">
-          <BrandMark />
+          <BrandMark className="color-primary" />
           <nav
             className="hidden items-center gap-1 md:flex"
             aria-label={t("publicNav.pagesAria")}
@@ -103,7 +103,9 @@ export function PublicNav({
               </Link>
               <Link
                 to="/auth/sign-up"
-                className={cn(buttonVariants({ variant: "default", size: "lg" }))}
+                className={cn(
+                  buttonVariants({ variant: "default", size: "lg" }),
+                )}
               >
                 {t("publicNav.getStarted")}
               </Link>

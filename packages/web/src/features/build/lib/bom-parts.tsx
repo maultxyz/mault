@@ -318,6 +318,14 @@ export const GROUPS: Group[] = [
         buyUrl: "https://amzn.to/4yhJU8l",
       },
       {
+        key: "m2x8-screw",
+        qty: (n) => String(n * 2),
+        name: "M2x8 screw",
+        part: (t) => t("bom.groups.fasteners.items.m2x8Screw.part"),
+        notes: (t, n) =>
+          t("bom.groups.fasteners.items.m2x8Screw.notes", { count: n }),
+      },
+      {
         key: "servo-horn-screw",
         qty: (n) => String(n * 3 + 1),
         name: "Servo horn screw",

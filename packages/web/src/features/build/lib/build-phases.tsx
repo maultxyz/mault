@@ -45,9 +45,19 @@ export function getYouTubeVideoId(url: string): string | null {
   return match?.[1] ?? null;
 }
 
-// The step-by-step assembly guide content, parameterized by module count,
-// board type, and (for ESP32) mount type - separate from BuildAssembly's
-// rendering so the huge phase/step literal doesn't drown out the component.
+function countBaseSupportPieces(moduleCount: number): {
+  threeTall: number;
+  oneTall: number;
+} {
+  let threeTall = 0;
+  let oneTall = 0;
+  for (let tier = 1; tier <= moduleCount + 1; tier++) {
+    threeTall += Math.floor(tier / 3);
+    oneTall += tier % 3;
+  }
+  return { threeTall, oneTall };
+}
+
 export function buildPhases(
   t: TFunction<"build">,
   moduleCount: number,
@@ -58,7 +68,7 @@ export function buildPhases(
   const isEsp32Family = boardType !== "uno_r4";
   const isEsp32Breakout = boardType === "esp32" && mountType === "breakout";
   const sortingModules = moduleCount;
-  const plateBase = ((moduleCount + 1) * (moduleCount + 2)) / 2;
+  const baseSupportPieces = countBaseSupportPieces(moduleCount);
   const genericBase = Math.max(0, moduleCount - 2);
 
   return [
@@ -107,7 +117,8 @@ export function buildPhases(
           key: "print-plate-base",
           text: t("assembly.phases.print.steps.printPlateBase.text", {
             modules: moduleCount,
-            count: plateBase,
+            threeTall: baseSupportPieces.threeTall,
+            oneTall: baseSupportPieces.oneTall,
           }),
           note: isEsp32Breakout
             ? t("assembly.phases.print.steps.printPlateBase.breakoutNote")
@@ -120,12 +131,15 @@ export function buildPhases(
         {
           key: "print-plate-base-bottom",
           text: t(
-            boardType === "uno_r4"
-              ? "assembly.phases.print.steps.printPlateBaseBottom.arduino"
-              : isEsp32Breakout
-                ? "assembly.phases.print.steps.printPlateBaseBottom.esp32Breakout"
-                : "assembly.phases.print.steps.printPlateBaseBottom.esp32Bare",
+            isEsp32Breakout
+              ? "assembly.phases.print.steps.printPlateBaseBottom.esp32Breakout"
+              : "assembly.phases.print.steps.printPlateBaseBottom.esp32OrArduino",
           ),
+          note: isEsp32Breakout
+            ? t(
+                "assembly.phases.print.steps.printPlateBaseBottom.esp32BreakoutNote",
+              )
+            : undefined,
         },
         {
           key: "print-servo-controller-plate",
