@@ -16,7 +16,10 @@ export interface Row {
   optional?: true | "classic-hopper" | "new-hopper";
 }
 
-export function optionalBadgeLabel(t: BuildT, optional: Row["optional"]): string {
+export function optionalBadgeLabel(
+  t: BuildT,
+  optional: Row["optional"],
+): string {
   if (optional === "classic-hopper") return t("bom.optionalClassicHopperBadge");
   if (optional === "new-hopper") return t("bom.optionalNewHopperBadge");
   return t("bom.optionalBadge");
@@ -31,7 +34,10 @@ export function resolveRowName(row: Row, boardType: BoardType): string {
   return typeof row.name === "function" ? row.name(boardType) : row.name;
 }
 
-export function resolveRowBuyUrl(row: Row, boardType: BoardType): string | undefined {
+export function resolveRowBuyUrl(
+  row: Row,
+  boardType: BoardType,
+): string | undefined {
   return typeof row.buyUrl === "function" ? row.buyUrl(boardType) : row.buyUrl;
 }
 
@@ -217,7 +223,8 @@ export const GROUPS: Group[] = [
         qty: () => "1",
         name: "3D-printed Servo Controller Plate",
         part: (t) => t("bom.groups.structural.items.servoControllerPlate.part"),
-        notes: (t) => t("bom.groups.structural.items.servoControllerPlate.notes"),
+        notes: (t) =>
+          t("bom.groups.structural.items.servoControllerPlate.notes"),
       },
       {
         key: "bins-plate",
@@ -364,7 +371,7 @@ export const GROUPS: Group[] = [
         name: "Dupont Crimper",
         part: (t) => t("bom.groups.fasteners.items.dupontCrimper.part"),
         notes: (t) => t("bom.groups.fasteners.items.dupontCrimper.notes"),
-        buyUrl: "https://amzn.to/4gD8RoX",
+        buyUrl: "https://amzn.to/4is9Klx",
         optional: true,
       },
     ],
@@ -391,4 +398,3 @@ export const GROUPS: Group[] = [
     ],
   },
 ];
-
