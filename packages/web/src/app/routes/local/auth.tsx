@@ -1,3 +1,5 @@
+import { BrandMark } from "@/components/brand-mark";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -6,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { signInLocal, signUpLocal } from "@/lib/auth";
@@ -28,11 +29,6 @@ const signUpSchema = z.object({
   password: z.string().min(8),
 });
 
-// Local-mode-only sign-in/sign-up screen (see app/router.tsx, which renders
-// this instead of Neon's prebuilt <AuthView> when AUTH_PROVIDER=local).
-// own-auth has no equivalent prebuilt React UI to reuse, so this is a
-// minimal hand-built form covering only what local mode supports: email/
-// password auth. No email verification, magic links, MFA, or OAuth.
 export default function AuthLocalPage() {
   const { t } = useTranslation("auth");
   const { path } = useParams();
@@ -78,7 +74,8 @@ export default function AuthLocalPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted p-4">
+      <BrandMark />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
@@ -99,7 +96,11 @@ export default function AuthLocalPage() {
             >
               <Field data-invalid={!!signUpForm.formState.errors.name}>
                 <FieldLabel htmlFor="name">{t("local.nameLabel")}</FieldLabel>
-                <Input id="name" autoComplete="name" {...signUpForm.register("name")} />
+                <Input
+                  id="name"
+                  autoComplete="name"
+                  {...signUpForm.register("name")}
+                />
                 <FieldError errors={[signUpForm.formState.errors.name]} />
               </Field>
               <Field data-invalid={!!signUpForm.formState.errors.email}>

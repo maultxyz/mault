@@ -40,7 +40,7 @@ export function AppLoadingScreen({
     >
       <div className="flex flex-col items-center gap-2 relative">
         <span className="mb-1 grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-foreground/4 text-foreground">
-          <BrandIcon className="size-4.5" />
+          <BrandIcon className="size-7" />
         </span>
         <ScanningCard />
         <span className="text-sm text-muted-foreground font-bold sr-only">

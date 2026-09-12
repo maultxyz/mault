@@ -1,3 +1,4 @@
+import { binRoutesQueryOptions, saveBinRoute } from "@/features/calibration/api/bin-routes";
 import { modulesQueryOptions } from "@/features/calibration/api/module-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useChannelLayout } from "@/features/calibration/api/use-channel-layout";
@@ -10,6 +11,12 @@ import {
   defaultSliderValues,
   getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
+import {
+  buildCalibrationExport,
+  downloadCalibrationExport,
+  parseCalibrationExport,
+} from "@/features/calibration/lib/calibration-export";
+import { orgSettingsQueryOptions, saveOrgSettings } from "@/features/companies/api/org-settings";
 import type { ActivePositions, SliderKey } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
@@ -22,7 +29,7 @@ import {
   type BinRoute,
   type ServoCalibration,
 } from "@magic-vault/shared";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -43,6 +50,7 @@ export function useCalibrationPage() {
   const { configs, saveConfig, moveServo } = useModuleConfigs();
   const { feederConfig, saveConfig: saveFeeder, previewSpeed } = useFeederConfig();
   const { activeOrg } = useOrg();
+  const queryClient = useQueryClient();
   const { isLoading } = useQuery({ ...modulesQueryOptions, enabled: !!activeOrg });
   const moduleCount = useModuleCount();
   const modules = Array.from({ length: moduleCount }, (_, i) => i + 1);
@@ -322,6 +330,63 @@ export function useCalibrationPage() {
     }
   }, [channelLayout, moduleCount, configs, feederConfig, binRoutes, firmwareVersion, board, t]);
 
+  const handleExportConfig = useCallback(() => {
+    downloadCalibrationExport(
+      buildCalibrationExport({
+        channelLayout,
+        moduleCount,
+        configs,
+        feederConfig,
+        binRoutes,
+      }),
+    );
+  }, [channelLayout, moduleCount, configs, feederConfig, binRoutes]);
+
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleImportConfig = useCallback(
+    async (file: File) => {
+      let parsed;
+      try {
+        parsed = parseCalibrationExport(await file.text());
+      } catch {
+        toast.error(t("useCalibrationPage.toasts.importInvalid"));
+        return;
+      }
+
+      setIsImporting(true);
+      try {
+        await saveOrgSettings({
+          moduleCount: parsed.moduleCount,
+          channelLayout: parsed.channelLayout,
+        });
+        await queryClient.invalidateQueries({
+          queryKey: orgSettingsQueryOptions(activeOrg?.id).queryKey,
+        });
+
+        for (const m of parsed.modules) {
+          await saveConfig(m.moduleNumber, m.calibration);
+        }
+
+        await saveFeeder(parsed.feeder);
+
+        for (const route of parsed.binRoutes) {
+          await saveBinRoute(route);
+        }
+        await queryClient.invalidateQueries({
+          queryKey: binRoutesQueryOptions.queryKey,
+        });
+
+        toast.success(t("useCalibrationPage.toasts.importSuccess"));
+      } catch {
+        toast.error(t("useCalibrationPage.toasts.importFailed"));
+      } finally {
+        setIsImporting(false);
+      }
+    },
+    [activeOrg?.id, queryClient, saveConfig, saveFeeder, t],
+  );
+
   useEffect(() => {
     if (!irMonitoring || !isConnected) return;
     const id = setInterval(() => {
@@ -381,5 +446,8 @@ export function useCalibrationPage() {
     handleReadIR: readIR,
     handleToggleIrMonitor,
     handleCopyCalibration,
+    handleExportConfig,
+    handleImportConfig,
+    isImporting,
   };
 }

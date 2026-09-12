@@ -129,6 +129,7 @@
       "shop": "Shop"
     },
     "discordAriaLabel": "Join the Discord",
+    "menuAriaLabel": "Menu",
     "signIn": "Sign in",
     "getStarted": "Get started",
     "openApp": "Open app"

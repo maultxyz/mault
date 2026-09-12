@@ -9,7 +9,6 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { GameSwitchAlert } from "@/features/scanner/components/game-switch-alert";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
-import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useResizablePanel } from "@/hooks/use-resizable-panel";
@@ -109,7 +108,6 @@ export default function App() {
           <div className="flex flex-col gap-4 w-52 shrink-0 overflow-y-auto">
             <CollectionSwitcher />
             <PresetSelector readOnly />
-            <ScannerDebug />
             <UnmatchedCardsPanel
               cards={unmatchedCards}
               onRemove={removeUnmatchedCard}
@@ -139,7 +137,6 @@ export default function App() {
         <PresetSelector readOnly />
         <CardScanner className="flex-none" />
         <GameSwitchAlert />
-        <ScannerDebug />
         <UnmatchedCardsPanel
           cards={unmatchedCards}
           onRemove={removeUnmatchedCard}

@@ -8,10 +8,13 @@ export function BuildFooter() {
   return (
     <footer className="border-t">
       <div className="mx-auto flex max-w-4xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
-        <BrandMark size="sm" />
+        <BrandMark />
 
-        <nav className="flex items-center gap-5 text-sm text-foreground/70">
-          <Link to="/#open-source" className="transition-colors hover:text-foreground">
+        <nav className="flex flex-col items-center gap-2 text-sm text-foreground/70 sm:flex-row sm:gap-5">
+          <Link
+            to="/#open-source"
+            className="transition-colors hover:text-foreground"
+          >
             {t("footer.openSource")}
           </Link>
           <a
@@ -22,10 +25,16 @@ export function BuildFooter() {
           >
             {t("footer.reportIssue")}
           </a>
-          <Link to="/auth/sign-in" className="transition-colors hover:text-foreground">
+          <Link
+            to="/auth/sign-in"
+            className="transition-colors hover:text-foreground"
+          >
             {t("footer.signIn")}
           </Link>
-          <Link to="/privacy" className="transition-colors hover:text-foreground">
+          <Link
+            to="/privacy"
+            className="transition-colors hover:text-foreground"
+          >
             {t("footer.privacy")}
           </Link>
           <Link to="/terms" className="transition-colors hover:text-foreground">

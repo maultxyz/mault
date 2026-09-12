@@ -100,17 +100,15 @@ export default function HealthPage() {
           ))}
         </div>
 
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <div>
-            <h2 className="text-sm font-semibold font-heading">
-              {tGames("gameCoverage.heading")}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {tGames("gameCoverage.description")}
-            </p>
-          </div>
-          <GameCoverageList />
+        <div>
+          <h2 className="text-sm font-semibold font-heading">
+            {tGames("gameCoverage.heading")}
+          </h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            {tGames("gameCoverage.description")}
+          </p>
         </div>
+        <GameCoverageList />
       </div>
     </div>
   );
