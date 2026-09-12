@@ -296,13 +296,13 @@
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Base-Support-Teile aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe ein Stützteil mehr benötigt als die Stufe darüber. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren.",
+            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} Base-Support-Teile mit 1 Stufe aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die beiden Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren.",
             "breakoutNote": "Verwendest du den ESP32 mit einer Breakout-Platine? Drucke dann die Breakout-Variante dieses Base-Support-Teils statt der Standardversion. Der Platzbedarf der Breakout-Platine erfordert diesen zusätzlichen Freiraum."
           },
           "printPlateBaseBottom": {
-            "arduino": "Drucke 1 Circuit-Board-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Arduino-Version und lass die beiden ESP32-Versionen weg.",
-            "esp32Bare": "Drucke 1 Circuit-Board-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 ohne Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 mit Breakout-Platine weg.",
-            "esp32Breakout": "Drucke 1 Circuit-Board-Platte. Diese Platte gibt es jetzt in drei Versionen, drucke nur die Version für ESP32 mit Breakout-Platine und lass die Arduino-Version sowie die Version für ESP32 ohne Breakout-Platine weg."
+            "esp32OrArduino": "Drucke 1 Circuit-Board-Platte (ESP32 / Arduino). Diese Platte deckt jetzt sowohl die Arduino- als auch die ESP32-Montage ohne Breakout-Platine ab, in beiden Fällen dieselbe Platte.",
+            "esp32Breakout": "Drucke stattdessen 1 Circuit-Board-Platte (ESP32 + Breakout-Platine). Das ist eine eigene Platte, getrennt von der für Arduino/ESP32 ohne Breakout, nur nötig, wenn du den ESP32 mit einer Breakout-Platine verwendest.",
+            "esp32BreakoutNote": "Diese Platte benötigt außerdem eine Breakout-Basisstütze, die es in zwei Höhen gibt: drucke die 3-stufige Version, wenn deine Treppe 3 Module hoch ist, oder die 1-stufige Version für einen kürzeren Stapel. Drucke nur die zu deiner Modulanzahl passende, nicht beide."
           },
           "printServoControllerPlate": {
             "text": "Drucke 1 Servo-Controller-Platte."

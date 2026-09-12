@@ -295,13 +295,13 @@
             "text": "Print 1 Sorting Module Shroud. Only one needed. The cover that sits over the stacked modules."
           },
           "printPlateBase": {
-            "text": "For {{modules}} sorting modules, print {{count}} Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more support piece than the tier above it. Change the module count in the parts list above to update this.",
+            "text": "For {{modules}} sorting modules, print {{threeTall}} 3-tall Base Support pieces and {{oneTall}} 1-tall Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the two piece heights to build up each tier. Change the module count in the parts list above to update this.",
             "breakoutNote": "Using the ESP32 with a breakout board? Print the breakout variant of this base support piece instead of the standard one. The breakout board's footprint needs the extra clearance."
           },
           "printPlateBaseBottom": {
-            "arduino": "Print 1 Circuit Board Plate. This plate now comes in three versions, print only the Arduino one and skip the two ESP32 versions.",
-            "esp32Bare": "Print 1 Circuit Board Plate. This plate now comes in three versions, print only the ESP32 without breakout board one and skip the Arduino and ESP32 with breakout board versions.",
-            "esp32Breakout": "Print 1 Circuit Board Plate. This plate now comes in three versions, print only the ESP32 with breakout board one and skip the Arduino and ESP32 without breakout board versions."
+            "esp32OrArduino": "Print 1 Circuit Board Plate (ESP32 / Arduino). This plate now covers both the Arduino and the bare ESP32 mount, the same plate either way.",
+            "esp32Breakout": "Print 1 Circuit Board Plate (ESP32 + Breakout Board) instead. This is a separate plate from the Arduino/bare-ESP32 one, only needed if you're using the ESP32 with a breakout board.",
+            "esp32BreakoutNote": "This plate also needs one Breakout Base Support, which comes in two heights: print the 3-tall version if your staircase is a 3-module stack, or the 1-tall version for a shorter stack. Print only the one matching your module count, not both."
           },
           "printServoControllerPlate": {
             "text": "Print 1 Servo Controller Plate."
