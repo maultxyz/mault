@@ -65,12 +65,14 @@ export async function saveBinConfig({
   binNumber,
   rules,
   isCatchAll,
+  isOverride,
   cardLimit,
   gameGuid,
 }: {
   binNumber: number;
   rules: BinRuleGroup;
   isCatchAll?: boolean;
+  isOverride?: boolean;
   cardLimit?: number | null;
   gameGuid?: string;
 }): Promise<Result<BinConfig[]>> {
@@ -78,6 +80,7 @@ export async function saveBinConfig({
   return apiPut<Result<BinConfig[]>>(`/api/bins/bins/${binNumber}${params}`, {
     rules,
     isCatchAll,
+    isOverride,
     cardLimit,
   });
 }

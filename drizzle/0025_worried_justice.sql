@@ -1,0 +1,1 @@
+ALTER TABLE "bins" ADD COLUMN "is_override" boolean DEFAULT false NOT NULL;

@@ -8,6 +8,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
@@ -48,6 +49,7 @@ export function BinConfigPanel() {
     resolver: zodResolver(binConfigSchema) as Resolver<BinConfigFormValues>,
     defaultValues: {
       isCatchAll: false,
+      isOverride: false,
       rules: emptyRuleGroup(),
       cardLimit: DEFAULT_BIN_CAPACITY,
     },
@@ -56,6 +58,7 @@ export function BinConfigPanel() {
   useEffect(() => {
     form.reset({
       isCatchAll: config.isCatchAll ?? false,
+      isOverride: config.isOverride ?? false,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
       cardLimit:
@@ -81,6 +84,7 @@ export function BinConfigPanel() {
         values.rules as BinRuleGroup,
         values.isCatchAll,
         values.cardLimit,
+        !values.isCatchAll && values.isOverride,
       );
     },
     [config, save, isOnlyCatchAll, form, t],
@@ -95,6 +99,7 @@ export function BinConfigPanel() {
     }
     form.reset({
       isCatchAll: false,
+      isOverride: false,
       rules: emptyRuleGroup(),
       cardLimit: DEFAULT_BIN_CAPACITY,
     });
@@ -186,6 +191,30 @@ export function BinConfigPanel() {
       </Field>
       {!isCatchAll && (
         <ScrollArea>
+          {!autoAssignField && (
+            <Field className="mb-6">
+              <div className="flex items-center gap-2">
+                <Controller
+                  name="isOverride"
+                  control={form.control}
+                  render={({ field }) => (
+                    <Switch
+                      id="bin-override"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      aria-describedby="bin-override-description"
+                    />
+                  )}
+                />
+                <FieldLabel htmlFor="bin-override">
+                  {t("binConfigPanel.overrideLabel")}
+                </FieldLabel>
+              </div>
+              <FieldDescription id="bin-override-description">
+                {t("binConfigPanel.overrideDescription")}
+              </FieldDescription>
+            </Field>
+          )}
           <div className="flex items-center justify-between mb-2">
             <Label>{t("binConfigPanel.rulesLabel")}</Label>
             {apiDocsUrl && (

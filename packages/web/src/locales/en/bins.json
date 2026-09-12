@@ -6,6 +6,7 @@
     "message": "This collection has no game assigned, so there are no card fields to build bin rules from. Recreate the collection and select a game to enable sorting."
   },
   "binCard": {
+    "override": "Override",
     "binLabel": "Bin {{number}}",
     "catchAll": "Catch-all",
     "ruleCount_one": "{{count}} rule",
@@ -16,6 +17,8 @@
     "scanOnlyDisabled": "Scan only is on"
   },
   "binConfigPanel": {
+    "overrideLabel": "Override rules",
+    "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, the lowest bin number wins. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
     "needCatchAllError": "At least one bin must be catch-all.",
     "binHeading": "Bin {{number}}",
     "catchAllEnabled": "Catch-all enabled",

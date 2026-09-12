@@ -26,6 +26,7 @@ export interface BinConfigsContextValue {
     rules: BinRuleGroup,
     isCatchAll?: boolean,
     cardLimit?: number | null,
+    isOverride?: boolean,
   ) => void;
   clear: (binNumber: number) => void;
   emptyBin: (binNumber: number) => Promise<void>;

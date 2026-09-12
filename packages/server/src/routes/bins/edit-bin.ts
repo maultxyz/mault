@@ -14,9 +14,10 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
-    const { rules, isCatchAll, cardLimit } = await c.req.json<{
+    const { rules, isCatchAll, isOverride, cardLimit } = await c.req.json<{
       rules: BinRuleGroup;
       isCatchAll?: boolean;
+      isOverride?: boolean;
       cardLimit?: number | null;
     }>();
     try {
@@ -58,6 +59,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             .set({
               rules,
               isCatchAll: isCatchAll ?? false,
+              isOverride: !isCatchAll && isOverride === true,
               cardLimit: cardLimit ?? null,
               updatedAt: new Date(),
             })
@@ -67,6 +69,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             binNumber,
             rules,
             isCatchAll: isCatchAll ?? false,
+            isOverride: !isCatchAll && isOverride === true,
             cardLimit: cardLimit ?? null,
             binSet: activeBinSet.id,
             orgId,
@@ -82,6 +85,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             binNumber: true,
             rules: true,
             isCatchAll: true,
+            isOverride: true,
             cardLimit: true,
             lastEmptiedAt: true,
           },
@@ -96,6 +100,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               binNumber: b.binNumber,
               rules: b.rules as BinRuleGroup,
               isCatchAll: b.isCatchAll,
+              isOverride: b.isOverride,
               cardLimit: b.cardLimit,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
