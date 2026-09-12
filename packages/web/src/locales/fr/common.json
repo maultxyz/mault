@@ -129,6 +129,7 @@
       "shop": "Boutique"
     },
     "discordAriaLabel": "Rejoindre le Discord",
+    "menuAriaLabel": "Menu",
     "signIn": "Se connecter",
     "getStarted": "Commencer",
     "openApp": "Ouvrir l'application"

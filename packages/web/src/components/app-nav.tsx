@@ -520,7 +520,7 @@ export function AppNav() {
             )}
           >
             <span className="relative bg-primary grid size-8 shrink-0 place-items-center rounded-lg text-primary-foreground">
-              <BrandIcon className="size-4" />
+              <BrandIcon className="size-7" />
               {count > 0 && (
                 <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 rounded-full bg-destructive px-0.5 text-[9px] font-semibold leading-3.5 text-destructive-foreground ring-2 ring-sidebar">
                   {count > 9 ? "9+" : count}

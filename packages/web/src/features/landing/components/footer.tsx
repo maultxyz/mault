@@ -11,9 +11,9 @@ export function LandingFooter() {
   return (
     <footer className="border-t">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
-        <BrandMark size="sm" />
+        <BrandMark />
 
-        <nav className="flex items-center gap-5 text-sm text-foreground/70">
+        <nav className="flex flex-col items-center gap-2 text-sm text-foreground/70 sm:flex-row sm:gap-5">
           <a
             href="#features"
             className="transition-colors hover:text-foreground"
@@ -47,7 +47,10 @@ export function LandingFooter() {
           >
             {t("nav.signIn")}
           </Link>
-          <Link to="/privacy" className="transition-colors hover:text-foreground">
+          <Link
+            to="/privacy"
+            className="transition-colors hover:text-foreground"
+          >
             {t("nav.privacy")}
           </Link>
           <Link to="/terms" className="transition-colors hover:text-foreground">
@@ -55,7 +58,7 @@ export function LandingFooter() {
           </Link>
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
           <a
             href={DONATE_URL}
             target="_blank"
