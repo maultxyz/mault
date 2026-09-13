@@ -58,6 +58,7 @@ export const binRuleGroupSchema: z.ZodType<{
 
 export const binConfigSchema = z.object({
   isCatchAll: z.boolean(),
+  isOverride: z.boolean(),
   rules: binRuleGroupSchema,
   cardLimit: z
     .number()

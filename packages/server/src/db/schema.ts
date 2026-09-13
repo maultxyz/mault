@@ -144,6 +144,7 @@ export const bins = pgTable(
     guid: uuid("guid").defaultRandom(),
     rules: jsonb("rules").notNull(),
     isCatchAll: boolean("is_catch_all").notNull().default(false),
+    isOverride: boolean("is_override").notNull().default(false),
     binNumber: integer("bin_number").notNull(),
     binSet: integer("bin_set")
       .notNull()

@@ -181,6 +181,7 @@ export function evaluateCardBin(
   fieldDefinitions: FieldMeta[],
 ): BinConfig | undefined {
   let catchAll: BinConfig | undefined;
+  let firstMatch: BinConfig | undefined;
 
   for (const config of configs) {
     if (config.isCatchAll) {
@@ -191,11 +192,12 @@ export function evaluateCardBin(
       config.rules.conditions.length > 0 &&
       evaluateRuleGroup(card, config.rules, fieldDefinitions)
     ) {
-      return config;
+      if (config.isOverride) return config;
+      firstMatch ??= config;
     }
   }
 
-  return catchAll;
+  return firstMatch ?? catchAll;
 }
 
 export function countCardsInBin(

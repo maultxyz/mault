@@ -72,6 +72,7 @@ function BinSnapshotSummary({ snapshot }: { snapshot: BinConfig[] }) {
               {t("presetSelector.binLabel", { number: bin.binNumber })}
             </span>
             <span>
+              {!bin.isCatchAll && bin.isOverride && `${t("binCard.override")} · `}
               {bin.isCatchAll
                 ? t("presetSelector.catchAll")
                 : count === 0

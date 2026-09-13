@@ -67,6 +67,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
                 binNumber: i + 1,
                 rules: emptyRules(),
                 isCatchAll: false,
+                isOverride: false,
                 cardLimit: DEFAULT_BIN_CAPACITY,
               }),
             );
@@ -75,6 +76,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
             binNumber: b.binNumber,
             rules: b.rules,
             isCatchAll: b.isCatchAll,
+            isOverride: !b.isCatchAll && b.isOverride === true,
             cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
             binSet: newBinSet.id,
             orgId,
