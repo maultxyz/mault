@@ -122,7 +122,7 @@ export function BinConfigsProvider({
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
-    onMutate: async ({ binNumber, rules, isCatchAll, cardLimit }) => {
+    onMutate: async ({ binNumber, rules, isCatchAll, isOverride, cardLimit }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
       const previous = queryClient.getQueryData<BinSet[]>(["bins"]);
       queryClient.setQueryData<BinSet[]>(["bins"], (old = []) =>
@@ -134,6 +134,7 @@ export function BinConfigsProvider({
             binNumber,
             rules: rules!,
             isCatchAll,
+            isOverride,
             cardLimit: cardLimit ?? null,
             lastEmptiedAt: idx >= 0 ? set.bins[idx].lastEmptiedAt : null,
           };
@@ -358,11 +359,13 @@ export function BinConfigsProvider({
       rules: BinRuleGroup,
       isCatchAll?: boolean,
       cardLimit?: number | null,
+      isOverride?: boolean,
     ) => {
       saveBinMutation.mutate({
         binNumber,
         rules,
         isCatchAll,
+        isOverride,
         cardLimit,
         gameGuid: activeGameGuid,
       });

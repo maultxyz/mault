@@ -9,6 +9,7 @@ export type DefaultBinInit = {
   binNumber: number;
   rules: BinRuleGroup;
   isCatchAll: boolean;
+  isOverride?: boolean;
   cardLimit: number | null;
 };
 

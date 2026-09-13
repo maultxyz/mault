@@ -1,5 +1,5 @@
 {
-  "id": "e090e33e-551d-4fc7-b7a2-97cacecd870d",
+  "id": "524fd87e-2651-44e0-a23a-7d71f149414a",
   "prevId": "f5f986b0-50a5-4072-ac72-d904ff6c7cbd",
   "version": "7",
   "dialect": "postgresql",
@@ -601,6 +601,13 @@
           "notNull": true,
           "default": false
         },
+        "is_override": {
+          "name": "is_override",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "bin_number": {
           "name": "bin_number",
           "type": "integer",
@@ -1044,12 +1051,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'en'"
-        },
-        "match_threshold": {
-          "name": "match_threshold",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         },
         "org_id": {
           "name": "org_id",

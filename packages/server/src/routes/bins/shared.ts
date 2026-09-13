@@ -45,6 +45,7 @@ function toBinSet(row: {
     binNumber: number;
     rules: unknown;
     isCatchAll: boolean;
+    isOverride: boolean;
     cardLimit: number | null;
     lastEmptiedAt: Date | null;
   }[];
@@ -74,6 +75,7 @@ function toBinSet(row: {
       binNumber: bin.binNumber,
       rules: bin.rules as BinRuleGroup,
       isCatchAll: bin.isCatchAll,
+      isOverride: bin.isOverride,
       cardLimit: bin.cardLimit,
       lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
@@ -115,6 +117,7 @@ const binSetQuery = {
         binNumber: true,
         rules: true,
         isCatchAll: true,
+        isOverride: true,
         cardLimit: true,
         lastEmptiedAt: true,
       },
@@ -145,6 +148,7 @@ export async function snapshotBinSet(
       binNumber: true,
       rules: true,
       isCatchAll: true,
+      isOverride: true,
       cardLimit: true,
     },
   });
@@ -153,6 +157,7 @@ export async function snapshotBinSet(
     binNumber: r.binNumber,
     rules: r.rules as BinRuleGroup,
     isCatchAll: r.isCatchAll,
+    isOverride: r.isOverride,
     cardLimit: r.cardLimit,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
@@ -196,7 +201,7 @@ export async function binSetNameTaken(
 export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
   await tx
     .update(bins)
-    .set({ rules: emptyRules(), updatedAt: new Date() })
+    .set({ rules: emptyRules(), isOverride: false, updatedAt: new Date() })
     .where(and(eq(bins.binSet, binSetId), eq(bins.isCatchAll, false)));
 }
 
@@ -224,7 +229,12 @@ export async function applyScanOnlyBins(
 ) {
   await tx
     .update(bins)
-    .set({ rules: emptyRules(), isCatchAll: false, updatedAt: new Date() })
+    .set({
+      rules: emptyRules(),
+      isCatchAll: false,
+      isOverride: false,
+      updatedAt: new Date(),
+    })
     .where(eq(bins.binSet, binSetId));
 
   const catchAllBin = await tx.query.bins.findFirst({
@@ -243,6 +253,7 @@ export async function applyScanOnlyBins(
       binNumber: SCAN_ONLY_CATCH_ALL_BIN,
       rules: emptyRules(),
       isCatchAll: true,
+      isOverride: false,
       binSet: binSetId,
       orgId,
     });

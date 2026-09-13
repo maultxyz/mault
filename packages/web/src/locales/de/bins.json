@@ -6,6 +6,7 @@
     "message": "Dieser Sammlung ist kein Spiel zugewiesen, daher gibt es keine Kartenfelder für Sortierregeln. Erstellen Sie die Sammlung neu und wählen Sie ein Spiel aus, um die Sortierung zu aktivieren."
   },
   "binCard": {
+    "override": "Vorrang",
     "binLabel": "Fach {{number}}",
     "catchAll": "Auffangfach",
     "ruleCount_one": "{{count}} Regel",
@@ -16,6 +17,8 @@
     "scanOnlyDisabled": "Nur Scannen ist aktiv"
   },
   "binConfigPanel": {
+    "overrideLabel": "Vorrangige Regeln",
+    "overrideDescription": "Wenn diese Regeln zutreffen, hat dieses Fach Vorrang vor normalen Fächern. Treffen mehrere vorrangige Fächer zu, gewinnt die niedrigste Fachnummer. Verwende hier zum Beispiel Preis ≥ 1, um Karten ab 1 $ vor den Farbfächern in dieses Fach zu sortieren.",
     "needCatchAllError": "Mindestens ein Fach muss als Auffangfach festgelegt sein.",
     "binHeading": "Fach {{number}}",
     "catchAllEnabled": "Auffangfach aktiviert",

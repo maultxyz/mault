@@ -1,6 +1,6 @@
 {
-  "id": "e72462a7-bb16-4638-9262-8f354e251cdd",
-  "prevId": "e090e33e-551d-4fc7-b7a2-97cacecd870d",
+  "id": "c0da0576-d09d-45eb-ba99-68d29cf79c97",
+  "prevId": "524fd87e-2651-44e0-a23a-7d71f149414a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -503,12 +503,6 @@
           "notNull": true,
           "default": false
         },
-        "repack_bin_number": {
-          "name": "repack_bin_number",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
         "org_id": {
           "name": "org_id",
           "type": "text",
@@ -623,6 +617,13 @@
         },
         "is_catch_all": {
           "name": "is_catch_all",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "is_override": {
+          "name": "is_override",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,

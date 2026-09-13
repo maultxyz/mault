@@ -47,6 +47,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
               .set({
                 rules: config.rules,
                 isCatchAll: config.isCatchAll,
+                isOverride: !config.isCatchAll && (config.isOverride ?? false),
                 cardLimit,
                 updatedAt: new Date(),
               })
@@ -56,6 +57,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
               binNumber: config.binNumber,
               rules: config.rules,
               isCatchAll: config.isCatchAll,
+              isOverride: !config.isCatchAll && (config.isOverride ?? false),
               cardLimit,
               binSet: binSet.id,
               orgId,

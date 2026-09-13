@@ -6,6 +6,7 @@
     "message": "Cette collection n'a pas de jeu associé, il n'y a donc aucun champ de carte pour créer des règles de tri. Recréez la collection et sélectionnez un jeu pour activer le tri."
   },
   "binCard": {
+    "override": "Prioritaire",
     "binLabel": "Bac {{number}}",
     "catchAll": "Fourre-tout",
     "ruleCount_one": "{{count}} règle",
@@ -16,6 +17,8 @@
     "scanOnlyDisabled": "Scan uniquement est activé"
   },
   "binConfigPanel": {
+    "overrideLabel": "Règles prioritaires",
+    "overrideDescription": "Si ces règles correspondent, ce bac est prioritaire sur les bacs ordinaires. Si plusieurs bacs prioritaires correspondent, celui dont le numéro est le plus petit est choisi. Par exemple, utilisez Prix ≥ 1 ici pour donner la priorité à ce bac sur les bacs de couleur pour les cartes valant au moins 1 $.",
     "needCatchAllError": "Au moins un bac doit être un fourre-tout.",
     "binHeading": "Bac {{number}}",
     "catchAllEnabled": "Fourre-tout activé",

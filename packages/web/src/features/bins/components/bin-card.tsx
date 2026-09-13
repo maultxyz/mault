@@ -42,6 +42,8 @@ export function BinCard({
         </p>
         {config.isCatchAll ? (
           <Badge variant="default">{t("binCard.catchAll")}</Badge>
+        ) : config.isOverride ? (
+          <Badge variant="outline">{t("binCard.override")}</Badge>
         ) : (
           !isEmpty && (
             <Badge variant="secondary">

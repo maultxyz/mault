@@ -1,1 +1,0 @@
-ALTER TABLE "collections" ADD COLUMN "match_threshold" integer;

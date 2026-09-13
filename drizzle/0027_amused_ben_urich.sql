@@ -1,1 +1,0 @@
-ALTER TABLE "bin_sets" DROP COLUMN "repack_bin_number";
