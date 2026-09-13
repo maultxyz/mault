@@ -694,9 +694,14 @@ void setup() {
   // Without this, a glitched I2C transaction (brief brownout from several
   // servos moving at once, electrical noise) blocks Wire forever - loop()
   // never returns, so the board stops answering Serial until power-cycled.
-  // reset_on_timeout=true also resets the I2C peripheral itself so the next
-  // transaction isn't left stuck on a wedged bus.
+  // arduino-esp32's TwoWire has no setWireTimeout (the AVR/Renesas Wire API)
+  // - it exposes a single-argument millisecond setTimeout instead, with no
+  // reset_on_timeout equivalent (its implementation recovers the bus itself).
+#if defined(ARDUINO_ARCH_ESP32)
+  Wire.setTimeout(25);
+#else
   Wire.setWireTimeout(25000, true);
+#endif
   pwm.setPWMFreq(50);
   delay(10);
   setAllNeutral();
