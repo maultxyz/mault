@@ -1,0 +1,48 @@
+name: Firmware PR Check
+
+on:
+  pull_request:
+    paths:
+      - "firmware/main/**"
+  workflow_dispatch: {}
+
+concurrency:
+  group: firmware-pr-check-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc
+  UNO_FQBN: arduino:renesas_uno:minima
+  UNO_WIFI_FQBN: arduino:renesas_uno:unor4wifi
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up arduino-cli
+        uses: arduino/setup-arduino-cli@v2
+
+      - name: Install Arduino cores
+        run: |
+          arduino-cli config init --overwrite
+          arduino-cli config add board_manager.additional_urls https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+          arduino-cli core update-index
+          arduino-cli core install esp32:esp32
+          arduino-cli core install arduino:renesas_uno
+
+      - name: Install libraries
+        run: |
+          arduino-cli lib install ArduinoJson
+          arduino-cli lib install "Adafruit PWM Servo Driver Library"
+
+      - name: Compile (ESP32)
+        run: arduino-cli compile --fqbn "$FQBN" firmware/main
+
+      - name: Compile (Uno R4 Minima)
+        run: arduino-cli compile --fqbn "$UNO_FQBN" firmware/main
+
+      - name: Compile (Uno R4 WiFi)
+        run: arduino-cli compile --fqbn "$UNO_WIFI_FQBN" firmware/main
