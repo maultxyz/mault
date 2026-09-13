@@ -150,6 +150,11 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     }
   });
 
+  const handleCardArrived = useCallback(() => {
+    if (status === "paused") handleResume();
+    captureCard();
+  }, [status, handleResume, captureCard]);
+
   const handleFeed = useCallback(async () => {
     setIsFeeding(true);
     try {
@@ -207,8 +212,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
             collectionGuid: activeCollection?.guid,
           });
         } else {
-          // Feeder confirmed a card reached module 1 - capture it now.
-          captureCard();
+          handleCardArrived();
         }
       } catch {
         toast.error(t("cardScanner.feedError.title"), {
@@ -227,7 +231,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   }, [
     sendCommand,
     receiveResponse,
-    captureCard,
+    handleCardArrived,
     handlePause,
     t,
     activeCollection?.guid,
@@ -305,8 +309,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   }, [sendCatchAllBin, handleSkipDuplicateFromScanner]);
 
   useEffect(() => {
-    return registerCardArrivedHook(captureCard);
-  }, [registerCardArrivedHook, captureCard]);
+    return registerCardArrivedHook(handleCardArrived);
+  }, [registerCardArrivedHook, handleCardArrived]);
 
   useEffect(() => {
     return registerPauseHook(handlePause);

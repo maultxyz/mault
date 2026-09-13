@@ -1,4 +1,7 @@
-import { SUPPORTED_LANGUAGES, type SupportedLanguage } from "@/lib/constants/languages";
+import {
+  SUPPORTED_LANGUAGES,
+  type SupportedLanguage,
+} from "@/lib/constants/languages";
 import { LANGUAGE_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import i18n, { type BackendModule } from "i18next";
 import { initReactI18next } from "react-i18next";
@@ -38,9 +41,16 @@ const lazyJsonBackend: BackendModule = {
 };
 
 function getInitialLanguage(): SupportedLanguage {
-  const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  if ((SUPPORTED_LANGUAGES as readonly string[]).includes(stored ?? "")) {
-    return stored as SupportedLanguage;
+  try {
+    const stored = localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if ((SUPPORTED_LANGUAGES as readonly string[]).includes(stored ?? "")) {
+      return stored as SupportedLanguage;
+    }
+  } catch {
+    // Safari can throw on localStorage access (private browsing, storage
+    // restrictions) - this runs at module load, before React ever mounts,
+    // so an uncaught throw here takes down the whole app with nothing to
+    // show for it. Fall through to browser-language detection instead.
   }
   const browserLang = navigator.language.toLowerCase();
   if (browserLang.startsWith("de")) return "de";
@@ -61,7 +71,12 @@ void i18n
   });
 
 i18n.on("languageChanged", (lng) => {
-  localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
+  try {
+    localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
+  } catch {
+    // Same storage-restricted environments as above - persistence is a
+    // nice-to-have, not required for the language switch itself to work.
+  }
 });
 
 export default i18n;

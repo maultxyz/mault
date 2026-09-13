@@ -48,9 +48,9 @@ export interface FeederCalibration {
 }
 
 export const DEFAULT_FEEDER_CALIBRATION: FeederCalibration = {
-  speed: 250,
+  speed: 277,
   duration: 3000,
-  pulseDuration: 80,
+  pulseDuration: 0,
   pauseDuration: 0,
   settleDuration: 500,
 };
