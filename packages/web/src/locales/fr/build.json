@@ -379,7 +379,7 @@
             "note": "Un seul servo de palette entraîne les deux trappes ensemble - elles s'ouvrent et se ferment en paire, pas indépendamment. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "mountPusherArm": {
-            "text": "Assemble le poussoir en vissant le bras poussoir à la liaison, puis la liaison au palonnier. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
+            "text": "Assemble le poussoir en vissant le bras poussoir à la liaison, puis la liaison au palonnier. Fixe le poussoir assemblé au boîtier du module avec deux vis M2×8. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
             "note": "Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "fitFeederOrings": {

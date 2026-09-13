@@ -378,7 +378,7 @@
             "note": "One paddle servo drives both flappers together. They open and close as a pair, not independently. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "mountPusherArm": {
-            "text": "Assemble the pusher by screwing the pusher arm to the linkage, then the linkage to the horn. Remember not to install the horn to the servo yet.",
+            "text": "Assemble the pusher by screwing the pusher arm to the linkage, then the linkage to the horn. Screw the assembled pusher into the module housing with two M2×8 screws. Remember not to install the horn to the servo yet.",
             "note": "The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "fitFeederOrings": {
