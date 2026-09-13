@@ -372,15 +372,15 @@
           },
           "mountBottomFlapper": {
             "text": "Baue die Bodenklappe zusammen, indem du die Klappe an das Gestänge schraubst und dann das Gestänge an das Horn. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
-            "note": "Dies ist die Falltür, durch die eine Karte fällt, um das nächste Modul zu erreichen, oder das aktuelle bei einem Treffer. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Dies ist die Falltür, durch die eine Karte fällt, um das nächste Modul zu erreichen, oder das aktuelle bei einem Treffer. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountSideFlappers": {
             "text": "Baue die seitlichen Klappen zusammen, indem du die linke und rechte Klappe an das gemeinsame Gestänge schraubst und dann das Gestänge an das Horn (ein Paar pro Modul). Denke daran, das Horn noch nicht auf den Servo zu montieren.",
-            "note": "Ein Paddelservo treibt beide Klappen gemeinsam an – sie öffnen und schließen als Paar, nicht unabhängig voneinander. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Ein Paddelservo treibt beide Klappen gemeinsam an – sie öffnen und schließen als Paar, nicht unabhängig voneinander. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountPusherArm": {
             "text": "Baue den Schieber zusammen, indem du den Schieberarm an das Gestänge schraubst und dann das Gestänge an das Horn. Schraube den zusammengebauten Schieber mit zwei M2×8-Schrauben am Modulgehäuse fest. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
-            "note": "Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "fitFeederOrings": {
             "text": "Ziehe 6 G20-O-Ringe auf die Zuführrolle auf.",

@@ -16,16 +16,25 @@ export async function createCollection(
   name: string,
   gameGuid: string,
   lang: string,
+  matchThreshold: number | null,
 ): Promise<Result<Collection[]>> {
   return apiPost<Result<Collection[]>>("/api/collections", {
     name,
     gameGuid,
     lang,
+    matchThreshold,
   });
 }
 
-export async function renameCollection(guid: string, name: string): Promise<Result<Collection[]>> {
-  return apiPut<Result<Collection[]>>(`/api/collections/${guid}`, { name });
+export async function updateCollection(
+  guid: string,
+  name: string,
+  matchThreshold: number | null,
+): Promise<Result<Collection[]>> {
+  return apiPut<Result<Collection[]>>(`/api/collections/${guid}`, {
+    name,
+    matchThreshold,
+  });
 }
 
 export async function checkCollectionName(

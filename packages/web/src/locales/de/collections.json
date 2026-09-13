@@ -48,14 +48,17 @@
     "noGame": "Kein Spiel",
     "setActiveCollection": "Als aktive Sammlung festlegen",
     "editSortingRules": "Sortierregeln bearbeiten",
-    "rename": "Umbenennen",
+    "edit": "Bearbeiten",
     "emptyCollection": "Sammlung leeren",
     "deleteCollection": "Sammlung löschen"
   },
-  "renameDialog": {
-    "title": "Sammlung umbenennen",
-    "description": "Gib einen neuen Namen für diese Sammlung ein.",
-    "submit": "Umbenennen"
+  "editDialog": {
+    "title": "Sammlung bearbeiten",
+    "description": "Aktualisiere den Namen und den Übereinstimmungsschwellenwert dieser Sammlung.",
+    "submit": "Speichern",
+    "matchThresholdLabel": "Mindestübereinstimmung (%)",
+    "matchThresholdPlaceholder": "Standard ({{default}} %)",
+    "matchThresholdHint": "Scans mit einer Übereinstimmung unter diesem Prozentsatz werden als keine Übereinstimmung behandelt, anstatt akzeptiert zu werden."
   },
   "deleteDialog": {
     "title": "Sammlung löschen",
@@ -68,7 +71,7 @@
   },
   "errors": {
     "createFailed": "Sammlung konnte nicht erstellt werden",
-    "renameFailed": "Sammlung konnte nicht umbenannt werden",
+    "renameFailed": "Sammlung konnte nicht aktualisiert werden",
     "deleteFailed": "Sammlung konnte nicht gelöscht werden",
     "emptyFailed": "Sammlung konnte nicht geleert werden"
   }

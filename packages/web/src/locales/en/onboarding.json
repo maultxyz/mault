@@ -38,7 +38,7 @@
     },
     "editCollection": {
       "title": "Edit a collection",
-      "content": "Rename a collection at any time from here."
+      "content": "Rename a collection or adjust its match threshold at any time from here."
     },
     "createSortingRules": {
       "title": "Create sorting rules",

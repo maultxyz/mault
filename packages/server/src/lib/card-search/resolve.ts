@@ -25,12 +25,12 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
 export async function resolveGameKeyAndLang(
   jwtClaims: string,
   collectionGuid: string | undefined,
-): Promise<{ gameKey: string; lang: string } | null> {
+): Promise<{ gameKey: string; lang: string; matchThreshold: number | null } | null> {
   if (!collectionGuid) return null;
   return authQuery(jwtClaims, async (tx) => {
     const collection = await tx.query.collections.findFirst({
       where: (t, { eq }) => eq(t.guid, collectionGuid),
-      columns: { gameId: true, lang: true },
+      columns: { gameId: true, lang: true, matchThreshold: true },
     });
     if (!collection?.gameId) return null;
     const game = await tx.query.games.findFirst({
@@ -38,7 +38,11 @@ export async function resolveGameKeyAndLang(
       columns: { key: true },
     });
     if (!game) return null;
-    return { gameKey: game.key, lang: collection.lang };
+    return {
+      gameKey: game.key,
+      lang: collection.lang,
+      matchThreshold: collection.matchThreshold,
+    };
   });
 }
 

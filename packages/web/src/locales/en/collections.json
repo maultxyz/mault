@@ -48,14 +48,17 @@
     "noGame": "No game",
     "setActiveCollection": "Set as active collection",
     "editSortingRules": "Edit sorting rules",
-    "rename": "Rename",
+    "edit": "Edit",
     "emptyCollection": "Empty Collection",
     "deleteCollection": "Delete Collection"
   },
-  "renameDialog": {
-    "title": "Rename Collection",
-    "description": "Enter a new name for this collection.",
-    "submit": "Rename"
+  "editDialog": {
+    "title": "Edit Collection",
+    "description": "Update this collection's name and match threshold.",
+    "submit": "Save",
+    "matchThresholdLabel": "Minimum match %",
+    "matchThresholdPlaceholder": "Default ({{default}}%)",
+    "matchThresholdHint": "Scans matching below this percentage are treated as no match instead of being accepted."
   },
   "deleteDialog": {
     "title": "Delete Collection",
@@ -68,7 +71,7 @@
   },
   "errors": {
     "createFailed": "Failed to create collection",
-    "renameFailed": "Failed to rename collection",
+    "renameFailed": "Failed to update collection",
     "deleteFailed": "Failed to delete collection",
     "emptyFailed": "Failed to empty collection"
   }

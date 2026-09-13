@@ -13,12 +13,15 @@ export const editCollectionRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    const { name } = await c.req.json<{ name: string }>();
+    const { name, matchThreshold } = await c.req.json<{
+      name: string;
+      matchThreshold?: number | null;
+    }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const target = await tx.query.collections.findFirst({
           where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
-          columns: { id: true },
+          columns: { id: true, matchThreshold: true },
         });
         if (!target) return { success: false, message: "Collection not found." };
         if (await collectionNameTaken(tx, orgId, name, guid)) {
@@ -30,7 +33,16 @@ export const editCollectionRoute = new Hono<AppEnv>().put(
         }
         await tx
           .update(collections)
-          .set({ name, updatedAt: new Date() })
+          .set({
+            name,
+            matchThreshold:
+              matchThreshold === undefined
+                ? target.matchThreshold
+                : matchThreshold == null
+                  ? null
+                  : Math.min(Math.max(Math.round(matchThreshold), 1), 99),
+            updatedAt: new Date(),
+          })
           .where(eq(collections.id, target.id));
         return loadCollections(tx, orgId);
       });

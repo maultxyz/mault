@@ -6,3 +6,6 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
 };
 
 export const DISTANCE_THRESHOLD = 0.3;
+
+// Equivalent to DISTANCE_THRESHOLD expressed as the match % shown in the UI (100 - distance * 100).
+export const DEFAULT_MATCH_THRESHOLD_PERCENT = 70;

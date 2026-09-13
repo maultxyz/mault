@@ -57,7 +57,9 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         400,
       );
     }
-    const { gameKey, lang } = resolved;
+    const { gameKey, lang, matchThreshold } = resolved;
+    const distanceThreshold =
+      matchThreshold != null ? 1 - matchThreshold / 100 : DISTANCE_THRESHOLD;
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -96,7 +98,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
             set_code,
             embedding <=> ${embeddingStr}::vector(768) AS distance
           FROM cards
-          WHERE game_key = ${gameKey} AND lang = ${lang} AND (embedding <=> ${embeddingStr}::vector(768)) < ${DISTANCE_THRESHOLD}
+          WHERE game_key = ${gameKey} AND lang = ${lang} AND (embedding <=> ${embeddingStr}::vector(768)) < ${distanceThreshold}
           ORDER BY embedding <=> ${embeddingStr}::vector(768)
           LIMIT 5
         `);

@@ -38,7 +38,7 @@
     },
     "editCollection": {
       "title": "Modifier une collection",
-      "content": "Renomme une collection à tout moment depuis ici."
+      "content": "Renomme une collection ou ajuste son seuil de correspondance à tout moment depuis ici."
     },
     "createSortingRules": {
       "title": "Créer des règles de tri",
