@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: firmware-release-master
+  group: master-release-pipeline
   cancel-in-progress: false
 
 env:
