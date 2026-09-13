@@ -9,15 +9,13 @@ import { useTranslation } from "react-i18next";
 
 export function ScannerControls({
   status,
-  cardPresentAtModuleOne,
   onForceScan,
   onPause,
   onResume,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
-  const statusAllowsScan =
+  const canForceScan =
     status === "no-match" || status === "scanning" || status === "captured";
-  const canForceScan = statusAllowsScan && cardPresentAtModuleOne !== false;
 
   return (
     <>

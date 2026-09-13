@@ -51,13 +51,9 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     sendTest,
     sendCommand,
     receiveResponse,
-    isRouteBusy,
   } = useSerial();
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
-  const [cardPresentAtModuleOne, setCardPresentAtModuleOne] = useState<
-    boolean | null
-  >(null);
   const { hasCatchAll } = useBinConfigs();
   const { activeCollection } = useCollections();
   const apiHealthCheck = useGameApiHealthCheck(activeCollection?.game?.key);
@@ -262,46 +258,26 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     }
   }, [sendCommand, receiveResponse, t]);
 
-  const irPollBusyRef = useRef(false);
-  useEffect(() => {
-    if (!isConnected || !isReady) {
-      setCardPresentAtModuleOne(null);
-      return;
-    }
-    const id = setInterval(async () => {
-      if (
-        irPollBusyRef.current ||
-        isFeeding ||
-        isClearingDevice ||
-        isRouteBusy()
-      )
-        return;
-      irPollBusyRef.current = true;
-      try {
-        const sent = await sendCommand(JSON.stringify({ readIR: true }));
-        if (!sent) return;
+  const handleForceScanClick = useCallback(async () => {
+    try {
+      const sent = await sendCommand(JSON.stringify({ readIR: true }));
+      if (sent) {
         const response = await receiveResponse(2000);
-        if (!response) return;
-        const parsed = JSON.parse(response) as Record<string, unknown>;
-        if (Array.isArray(parsed.ir)) {
-          setCardPresentAtModuleOne(!!parsed.ir[0]);
+        if (response) {
+          const parsed = JSON.parse(response) as Record<string, unknown>;
+          if (Array.isArray(parsed.ir) && !parsed.ir[0]) {
+            toast.error(t("cardScanner.noCardDetected.title"), {
+              description: t("cardScanner.noCardDetected.description"),
+            });
+            return;
+          }
         }
-      } catch {
-        // Malformed/missing response - keep the last known state.
-      } finally {
-        irPollBusyRef.current = false;
       }
-    }, 300);
-    return () => clearInterval(id);
-  }, [
-    isConnected,
-    isReady,
-    isFeeding,
-    isClearingDevice,
-    isRouteBusy,
-    sendCommand,
-    receiveResponse,
-  ]);
+    } catch {
+      // Malformed/missing response - fall through to the scan attempt.
+    }
+    handleForceScan();
+  }, [sendCommand, receiveResponse, handleForceScan, t]);
 
   const handleSkipDuplicate = useCallback(() => {
     sendCatchAllBin();
@@ -329,9 +305,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       isReady,
       isFeeding,
       isClearingDevice,
-      cardPresentAtModuleOne,
       handleForceAddDuplicate,
-      handleForceScan,
+      handleForceScan: handleForceScanClick,
       handleSkipDuplicate,
       handlePause: () => {
         setAutoFeed(false);
@@ -348,9 +323,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     isReady,
     isFeeding,
     isClearingDevice,
-    cardPresentAtModuleOne,
     handleForceAddDuplicate,
-    handleForceScan,
+    handleForceScanClick,
     handleSkipDuplicate,
     handlePause,
     handleResume,

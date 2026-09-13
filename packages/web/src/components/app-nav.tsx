@@ -24,7 +24,9 @@ import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
+import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
 import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
@@ -41,27 +43,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BrandIcon } from "./brand-icon";
-
-interface NavSubItemDef {
-  key: string;
-  to: string;
-  label: string;
-  badge?: boolean;
-  onClick?: () => void;
-}
-
-interface NavItemDef {
-  to: string;
-  icon: React.ReactNode;
-  label: string;
-  end?: boolean;
-  badge?: boolean;
-  desktopOnly?: boolean;
-  disabled?: boolean;
-  tooltip?: string;
-  external?: boolean;
-  subItems?: NavSubItemDef[];
-}
 
 function CollapsedNavItem({
   icon,
@@ -158,7 +139,7 @@ function CollapsedNavItemWithSubItems({
         <DropdownMenuGroup>
           <DropdownMenuLabel>{label}</DropdownMenuLabel>
           {subItems.length > 0 ? (
-            subItems.map((sub) => (
+            subItems.slice(0, NAV_SUBITEMS_LIMIT).map((sub) => (
               <DropdownMenuItem
                 key={sub.key}
                 onClick={() => {
@@ -559,7 +540,7 @@ export function AppNav() {
               <ExpandedNavItem {...item} />
               {item.subItems && item.subItems.length > 0 && (
                 <div className="mt-0.5 flex flex-col gap-0.5">
-                  {item.subItems.slice(0, 5).map((sub) => (
+                  {item.subItems.slice(0, NAV_SUBITEMS_LIMIT).map((sub) => (
                     <SubItem
                       key={sub.key}
                       to={sub.to}

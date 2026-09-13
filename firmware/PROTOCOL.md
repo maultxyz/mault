@@ -50,12 +50,11 @@ a serial connection to the device can drive it by following this spec
   between command/response pairs: `{"error":"jam","module":N}`, pushed
   if module *N*'s IR sensor sees a card continuously for 20 seconds
   outside of an active `route`. A client should watch for this
-  independently of whatever response it's waiting on. Partway through
-  that wait (8s in) the firmware tries flapping the module's paddle a
-  few times on its own, mirroring the manual fix of jiggling the side
-  paddles by hand, before giving up and reporting the jam - this is
-  purely internal and produces no message of its own, so a client sees
-  either nothing (card cleared) or the same `jam` error as before.
+  independently of whatever response it's waiting on. This check is
+  purely informational - it doesn't move any servos, since nothing is
+  actively trying to sort that card. Paddle-flap recovery only happens
+  inline during an active `route`, on a card that fails to advance to
+  the next module in time (see `route` below).
 
 ## Hardware model
 
@@ -242,10 +241,12 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 - `direction`: `"left" | "right" | "bottom"`
 - Runs the feeder first, then routes the card: opens each preceding
   module's bottom in turn to advance the card (confirming arrival via
-  that module's IR sensor, 3s timeout each step), then either opens the
-  target module's paddle and drives its pusher in the requested
-  direction (`"left"`/`"right"`), or opens just the target module's own
-  bottom to drop the card there (`"bottom"`).
+  that module's IR sensor, 3s timeout each step - if a step times out,
+  flaps that module's paddle once, the same recovery `jam` handling uses,
+  then gives the card one more 3s window before reporting failure), then
+  either opens the target module's paddle and drives its pusher in the
+  requested direction (`"left"`/`"right"`), or opens just the target
+  module's own bottom to drop the card there (`"bottom"`).
 - A card destined for a module's bottom output doesn't need to be the
   last module — any module can be targeted with `direction: "bottom"`.
 
@@ -261,8 +262,8 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 | `{"error":"direction must be left, right, or bottom"}` | invalid `direction` in `route` |
 | `{"error":"empty: feeder hopper is out of cards","empty":true}` | feed attempted with no cards in the hopper |
 | `{"error":"timeout: feeder did not deliver card to module 1","empty":false}` | feeder ran its full configured `duration` without module 1's IR triggering |
-| `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s) |
+| `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 200 characters |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
-| `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (after an internal paddle-wiggle attempt at 8s failed to clear it) |
+| `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (informational only - no paddle-flap is attempted since nothing is actively sorting) |

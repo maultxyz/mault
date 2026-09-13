@@ -64,13 +64,12 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 
 #define IR_TIMEOUT_MS 3000
 
-// If a card sits at a module this long with no route in progress, something's stuck.
+// If a card sits at a module this long with no route in progress, something's
+// stuck - just report it. Paddle-flap recovery only happens while a route is
+// actively moving a card through (see routeCard()) - something merely
+// resting on a sensor while the device is idle (a card left in a tray, a
+// hand, dust) isn't a jam a wiggle should react to.
 #define MODULE_JAM_TIMEOUT_MS 20000
-
-// Partway through the jam wait, try flapping that module's paddle open/closed a
-// few times - jostling the card is often enough to turn it slightly and clear
-// whatever it's caught on, without needing a full jam alert.
-#define MODULE_WIGGLE_TIMEOUT_MS 8000
 
 // Declared here (before any function) because the Arduino builder hoists
 // auto-generated function prototypes above it - a hoisted
@@ -138,6 +137,16 @@ FeederConfig feederConfig = {315, 1000, 40, 100, 100};
 #define DELAY_CARD_ENTER   300  // time for card to settle after target bottom opens
 #define DELAY_PADDLE       300  // time for paddle to engage
 #define DELAY_PUSH         600  // time for pusher to complete its stroke
+// A servo is positional, not velocity-controlled - commanding it to (or past)
+// a hard mechanical stop makes it stall at full torque against that stop for
+// as long as it's held there, not just for the instant it takes to arrive.
+// The fling itself happens in the first ~100ms of travel; every extra ms
+// held against the stop after that is pure stress on the horn/shaft with no
+// benefit, and is what walks the horn loose over repeated cycles. Keep this
+// well under DELAY_PUSH and tune it on real hardware: long enough for the
+// pusher to complete its swing and actually fling the card, short enough
+// that it's released before it's spent much time stalled at the stop.
+#define DELAY_PUSHER_HOLD  150
 
 #define MAX_CMD_LEN 200
 char inputBuffer[MAX_CMD_LEN + 1];
@@ -146,7 +155,6 @@ bool inputOverflowed = false;
 
 unsigned long modulePresentSince[MAX_MODULES] = {0};
 bool moduleJamAlerted[MAX_MODULES] = {false};
-bool moduleWiggleAttempted[MAX_MODULES] = {false};
 
 int getChannel(int module, int servoOffset) {
   return moduleChannelOffset + (module - 1) * 3 + servoOffset;
@@ -259,10 +267,12 @@ void wiggleModulePaddle(int module) {
 }
 
 // Runs between commands only (routeCard()/runFeeder() block loop() for
-// their duration). For each module, if a card sits there continuously with
-// no route in progress: tries one paddle wiggle at MODULE_WIGGLE_TIMEOUT_MS,
-// then reports a jam once if it's still stuck at MODULE_JAM_TIMEOUT_MS.
-// Re-arms once the sensor sees the card leave.
+// their duration), i.e. only while nothing is actively sorting. For each
+// module, if a card sits there continuously with no route in progress,
+// reports a jam once it's been there MODULE_JAM_TIMEOUT_MS - purely
+// informational, no servo movement. Paddle-flap recovery is handled
+// separately, inline, only while a route is actively moving a card through
+// (see routeCard()) - not here. Re-arms once the sensor sees the card leave.
 void checkModuleJams() {
   for (int m = 1; m <= maxModuleForOffset(); m++) {
     int i = m - 1;
@@ -270,7 +280,6 @@ void checkModuleJams() {
     if (!present) {
       modulePresentSince[i] = 0;
       moduleJamAlerted[i] = false;
-      moduleWiggleAttempted[i] = false;
       continue;
     }
     if (modulePresentSince[i] == 0) {
@@ -278,10 +287,6 @@ void checkModuleJams() {
       continue;
     }
     unsigned long presentFor = millis() - modulePresentSince[i];
-    if (!moduleWiggleAttempted[i] && presentFor > MODULE_WIGGLE_TIMEOUT_MS) {
-      moduleWiggleAttempted[i] = true;
-      wiggleModulePaddle(m);
-    }
     if (!moduleJamAlerted[i] && presentFor > MODULE_JAM_TIMEOUT_MS) {
       moduleJamAlerted[i] = true;
       Serial.print(F("{\"error\":\"jam\",\"module\":"));
@@ -397,11 +402,16 @@ void routeCard(int targetModule, const char* direction) {
   for (int m = 1; m < targetModule; m++) {
     setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
     if (!waitForCard(m + 1)) {
-      Serial.print(F("{\"error\":\"timeout: no card detected at module "));
-      Serial.print(m + 1);
-      Serial.println(F("\"}"));
-      setAllNeutral();
-      return;
+      // Card didn't clear module m in time - try the same paddle-flap
+      // recovery used for a stuck card before giving up on this route.
+      wiggleModulePaddle(m);
+      if (!waitForCard(m + 1)) {
+        Serial.print(F("{\"error\":\"timeout: no card detected at module "));
+        Serial.print(m + 1);
+        Serial.println(F("\"}"));
+        setAllNeutral();
+        return;
+      }
     }
   }
   if (targetModule > 1) delay(DELAY_CARD_ENTER);
@@ -422,7 +432,7 @@ void routeCard(int targetModule, const char* direction) {
   setServoPosition(getChannel(targetModule, 1), c.paddleOpen);
   delay(DELAY_PADDLE);
   setServoPosition(getChannel(targetModule, 2), pushLeft ? c.pusherLeft : c.pusherRight);
-  delay(DELAY_PUSH);
+  delay(DELAY_PUSHER_HOLD);
   for (int m = 1; m <= targetModule; m++) setModuleNeutral(m);
   delay(200);
 

@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: deploy-master
+  group: master-release-pipeline
   cancel-in-progress: false
 
 jobs:

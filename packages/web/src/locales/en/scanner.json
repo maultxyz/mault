@@ -100,6 +100,10 @@
       "description": "Card stuck at module {{module}}. Check the sorter and resume.",
       "descriptionWithBin": "Card stuck at module {{module}} (heading to bin {{bin}}). Check the sorter and resume."
     },
+    "noCardDetected": {
+      "title": "No card detected",
+      "description": "Module 1's sensor doesn't see a card - feed one before scanning."
+    },
     "feedFailed": {
       "title": "Feed failed",
       "description": "Could not send feeder command."

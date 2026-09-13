@@ -116,7 +116,6 @@ export interface SerialContextValue {
 
 export interface ScannerControlsProps {
   status: ScannerStatus;
-  cardPresentAtModuleOne: boolean | null;
   onForceScan: () => void;
   onPause: () => void;
   onResume: () => void;
@@ -173,7 +172,6 @@ export interface ScannerIslandState {
   isReady: boolean;
   isFeeding: boolean;
   isClearingDevice: boolean;
-  cardPresentAtModuleOne: boolean | null;
   handleForceAddDuplicate: () => void;
   handleForceScan: () => void;
   handleSkipDuplicate: () => void;
