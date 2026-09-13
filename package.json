@@ -1,6 +1,6 @@
 {
   "name": "magic-vault-monorepo",
-  "version": "1.0.53",
+  "version": "1.0.54",
   "private": true,
   "scripts": {
     "dev": "turbo dev --filter=!@magic-vault/bot",
