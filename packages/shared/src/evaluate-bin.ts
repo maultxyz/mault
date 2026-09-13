@@ -243,10 +243,6 @@ export function countSlotMatches(
     .length;
 }
 
-// A repack is "complete" once every slot has reached its target - this is
-// treated the same way an ordinary bin's cardLimit is: it blocks further
-// scans into the bin until an operator physically removes the pack and
-// empties the bin (see isBinFull's caller in cards-add.ts / bin-limit.ts).
 export function isRepackComplete(
   slots: RepackSlot[],
   fieldDefinitions: FieldMeta[],
@@ -256,24 +252,20 @@ export function isRepackComplete(
   return slots.every(
     (slot) =>
       slot.targetCount > 0 &&
-      countSlotMatches(cardsInPack, slot, fieldDefinitions) >=
-        slot.targetCount,
+      countSlotMatches(cardsInPack, slot, fieldDefinitions) >= slot.targetCount,
   );
 }
 
-function isDuplicateInPack(card: SourceCard, cardsInPack: SourceCard[]): boolean {
+function isDuplicateInPack(
+  card: SourceCard,
+  cardsInPack: SourceCard[],
+): boolean {
   const id = (card as { id?: unknown }).id;
-  return id != null && cardsInPack.some((c) => (c as { id?: unknown }).id === id);
+  return (
+    id != null && cardsInPack.some((c) => (c as { id?: unknown }).id === id)
+  );
 }
 
-// Every non-catch-all bin builds its own independent pack from the same
-// slot rules, so several packs can be assembled in parallel. A card goes to
-// the first bin (in bin-number order) whose pack isn't already complete,
-// has an open slot the card matches, and (unless duplicates are allowed)
-// doesn't already contain that exact card - a bin whose pack is complete or
-// that already has this card is simply skipped, not treated as a hard stop,
-// so scanning keeps going into whichever packs still have room. Anything no
-// bin can accept falls through to the catch-all.
 export function evaluateRepackBin(
   card: SourceCard,
   configs: BinConfig[],

@@ -6,9 +6,9 @@ import {
   type FieldMeta,
   type RepackSlot,
 } from "@magic-vault/shared";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { bins, binSetAudit, binSets } from "../../db/schema";
+import { bins, binSetAudit } from "../../db/schema";
 
 export async function getModuleCount(
   tx: Transaction,
@@ -205,10 +205,6 @@ export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
     .where(and(eq(bins.binSet, binSetId), eq(bins.isCatchAll, false)));
 }
 
-// Clears every bin's rules when repack mode is turned on - the repack's
-// slots are the only thing deciding where a card goes while it's active, so
-// leftover per-bin rules would just be stale config that can't affect
-// anything (see evaluateRepackBin, which never reads BinConfig.rules).
 export async function clearAllBinRules(tx: Transaction, binSetId: number) {
   await tx
     .update(bins)
@@ -216,10 +212,6 @@ export async function clearAllBinRules(tx: Transaction, binSetId: number) {
     .where(eq(bins.binSet, binSetId));
 }
 
-// Scan Only forces every card to the same catch-all bin, ignoring rules
-// entirely - bin 7 is the app-wide default catch-all (the bottom chute of
-// the default 3-module layout, see computeBinCount), so it's used as a
-// fixed convention here rather than derived from the current module count.
 const SCAN_ONLY_CATCH_ALL_BIN = 7;
 
 export async function applyScanOnlyBins(
