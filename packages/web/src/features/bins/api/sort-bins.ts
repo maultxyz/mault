@@ -3,6 +3,7 @@ import type {
   BinRuleGroup,
   BinSet,
   DefaultBinInit,
+  RepackSlot,
   Result,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
@@ -116,6 +117,17 @@ export async function setScanOnly(
   enabled: boolean,
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, { enabled });
+}
+
+export async function setRepackConfig(
+  guid: string,
+  config: {
+    isRepackMode: boolean;
+    repackSlots: RepackSlot[];
+    repackAllowDuplicates: boolean;
+  },
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/repack`, config);
 }
 
 export async function getBinSetHistory(setGuid: string): Promise<Result<BinSetAuditEntry[]>> {

@@ -94,7 +94,8 @@
       "autoAssignFailed": "Échec de la mise à jour des paramètres de détection automatique",
       "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement",
       "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement",
-      "emptyBinFailed": "Échec du marquage du bac comme vidé"
+      "emptyBinFailed": "Échec du marquage du bac comme vidé",
+      "repackFailed": "Échec de la mise à jour des paramètres de repack"
     }
   },
   "binsPage": {
@@ -112,5 +113,15 @@
   "scanOnlyPanel": {
     "heading": "Scan uniquement",
     "description": "Envoie chaque carte directement au bac 7, le fourre-tout, sans vérifier aucune règle de tri. Désactive ceci pour configurer les bacs manuellement."
+  },
+  "repackPanel": {
+    "heading": "Créer des repacks",
+    "description": "Chaque bac (hors fourre-tout) constitue son propre pack en même temps, à partir des créneaux que tu définis ci-dessous (ex. 3 communes, 2 peu communes, 1 rare). Tout ce qui ne correspond à aucun créneau ouvert dans aucun bac va au fourre-tout. Une fois le pack d'un bac terminé, ce bac cesse de recevoir des cartes - vide-le pour démarrer un nouveau pack pendant que les autres continuent de se remplir.",
+    "allowDuplicatesLabel": "Autoriser les doublons",
+    "allowDuplicatesDescription": "Si désactivé, une carte déjà présente dans un pack donné est ignorée pour ce bac (elle peut quand même démarrer un autre pack qui ne l'a pas encore) au lieu d'être ajoutée à nouveau.",
+    "slotsLabel": "Créneaux du pack",
+    "slotCountLabel": "Nombre",
+    "addSlot": "Ajouter un créneau",
+    "save": "Enregistrer"
   }
 }

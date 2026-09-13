@@ -100,6 +100,37 @@
       "content": "Repeat this for each bin, and don't forget your catch-all. Replay this tour anytime from the help icon on this page."
     }
   },
+  "repackTour": {
+    "triggerTooltip": "How build repacks works",
+    "welcome": {
+      "title": "Building repacks",
+      "content": "Let's walk through how Build Repacks fills multiple packs at once from the same set of slots. Skip anytime and replay this from the same help icon."
+    },
+    "toggle": {
+      "title": "Turn it on here",
+      "content": "This switch turns Build Repacks on and off. While it's on, every bin except the catch-all builds its own pack from the slots below instead of using individual rules."
+    },
+    "duplicates": {
+      "title": "Duplicate cards",
+      "content": "Turn this off to keep a pack from getting two copies of the same card - a duplicate is skipped for that bin, but can still start a different bin's pack that doesn't have it yet."
+    },
+    "slots": {
+      "title": "Define what goes in a pack",
+      "content": "Each slot pairs a rule (by rarity, color, price, and more) with how many matching cards a pack needs. A pack is complete once every slot hits its count."
+    },
+    "addSlot": {
+      "title": "Add more slots",
+      "content": "Click here to add another slot, e.g. one for commons, one for rares - build up the full recipe for a pack."
+    },
+    "save": {
+      "title": "Save your changes",
+      "content": "Slots aren't applied until you save. Every non-catch-all bin picks these same slots up immediately after."
+    },
+    "done": {
+      "title": "That's building repacks!",
+      "content": "Scan as usual - cards route into whichever bin still has room for them, and a bin that fills up just stops accepting cards until you empty it. Replay this tour anytime from the help icon on this page."
+    }
+  },
   "calibrationTour": {
     "triggerTooltip": "How calibration works",
     "welcome": {

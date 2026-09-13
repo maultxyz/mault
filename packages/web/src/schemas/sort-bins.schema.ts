@@ -68,3 +68,22 @@ export const binConfigSchema = z.object({
 });
 
 export type BinConfigFormValues = z.infer<typeof binConfigSchema>;
+
+export const repackSlotSchema = z.object({
+  id: z.string(),
+  rule: binRuleGroupSchema,
+  targetCount: z
+    .number()
+    .int()
+    .min(1, "Must be at least 1 card")
+    .max(CONDITION_NUMERIC_MAX),
+});
+
+export type RepackSlotFormValues = z.infer<typeof repackSlotSchema>;
+
+export const repackConfigSchema = z.object({
+  repackAllowDuplicates: z.boolean(),
+  repackSlots: z.array(repackSlotSchema),
+});
+
+export type RepackConfigFormValues = z.infer<typeof repackConfigSchema>;

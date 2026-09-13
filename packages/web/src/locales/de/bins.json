@@ -94,7 +94,8 @@
       "autoAssignFailed": "Auto-Erkennungseinstellungen konnten nicht aktualisiert werden",
       "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden",
       "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden",
-      "emptyBinFailed": "Fach konnte nicht als geleert markiert werden"
+      "emptyBinFailed": "Fach konnte nicht als geleert markiert werden",
+      "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden"
     }
   },
   "binsPage": {
@@ -112,5 +113,15 @@
   "scanOnlyPanel": {
     "heading": "Nur Scannen",
     "description": "Schickt jede Karte direkt in Fach 7, das Auffangfach, ohne Sortierregeln zu prüfen. Schalte dies aus, um Fächer manuell zu konfigurieren."
+  },
+  "repackPanel": {
+    "heading": "Repacks erstellen",
+    "description": "Jedes Fach (außer dem Auffangfach) baut gleichzeitig sein eigenes Pack aus den unten definierten Slots (z. B. 3 Commons, 2 Uncommons, 1 Rare). Alles, was in keinem Fach in einen offenen Slot passt, geht ins Auffangfach. Sobald das Pack eines Fachs fertig ist, nimmt es keine Karten mehr an - leere es, um dort ein neues Pack zu starten, während die anderen weiter gefüllt werden.",
+    "allowDuplicatesLabel": "Duplikate zulassen",
+    "allowDuplicatesDescription": "Ist dies aus, wird eine bereits in einem Pack enthaltene Karte für dieses Fach übersprungen (sie kann trotzdem ein anderes Pack starten, das sie noch nicht enthält), statt erneut hinzugefügt zu werden.",
+    "slotsLabel": "Pack-Slots",
+    "slotCountLabel": "Anzahl",
+    "addSlot": "Slot hinzufügen",
+    "save": "Speichern"
   }
 }

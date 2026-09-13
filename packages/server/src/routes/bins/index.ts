@@ -14,6 +14,7 @@ import { resetAutoAssignRoute } from "./reset-auto-assign";
 import { revertBinSetRoute } from "./revert";
 import { setBinSetActiveRoute } from "./set-active";
 import { setAutoAssignRoute } from "./set-auto-assign";
+import { setRepackRoute } from "./set-repack";
 import { setScanOnlyRoute } from "./set-scan-only";
 
 const router = new Hono<AppEnv>()
@@ -29,6 +30,7 @@ const router = new Hono<AppEnv>()
   .route("/", setAutoAssignRoute)
   .route("/", resetAutoAssignRoute)
   .route("/", setScanOnlyRoute)
+  .route("/", setRepackRoute)
   .route("/", deleteBinSetRoute)
   .route("/", binSetHistoryRoute)
   .route("/", revertBinSetRoute);

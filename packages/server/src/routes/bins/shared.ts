@@ -4,6 +4,7 @@ import {
   type BinRuleGroup,
   type BinSet,
   type FieldMeta,
+  type RepackSlot,
 } from "@magic-vault/shared";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
@@ -34,6 +35,9 @@ function toBinSet(row: {
   isActive: boolean;
   autoAssignField: string | null;
   scanOnly: boolean;
+  isRepackMode: boolean;
+  repackSlots: unknown;
+  repackAllowDuplicates: boolean;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -62,6 +66,9 @@ function toBinSet(row: {
     isActive: row.isActive,
     autoAssignField: row.autoAssignField,
     scanOnly: row.scanOnly,
+    isRepackMode: row.isRepackMode,
+    repackSlots: (row.repackSlots as RepackSlot[] | null) ?? [],
+    repackAllowDuplicates: row.repackAllowDuplicates,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -95,6 +102,9 @@ const binSetQuery = {
     isActive: true,
     autoAssignField: true,
     scanOnly: true,
+    isRepackMode: true,
+    repackSlots: true,
+    repackAllowDuplicates: true,
     createdAt: true,
     updatedAt: true,
   },
@@ -188,6 +198,17 @@ export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
     .update(bins)
     .set({ rules: emptyRules(), updatedAt: new Date() })
     .where(and(eq(bins.binSet, binSetId), eq(bins.isCatchAll, false)));
+}
+
+// Clears every bin's rules when repack mode is turned on - the repack's
+// slots are the only thing deciding where a card goes while it's active, so
+// leftover per-bin rules would just be stale config that can't affect
+// anything (see evaluateRepackBin, which never reads BinConfig.rules).
+export async function clearAllBinRules(tx: Transaction, binSetId: number) {
+  await tx
+    .update(bins)
+    .set({ rules: emptyRules(), updatedAt: new Date() })
+    .where(eq(bins.binSet, binSetId));
 }
 
 // Scan Only forces every card to the same catch-all bin, ignoring rules

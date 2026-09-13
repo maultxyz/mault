@@ -103,6 +103,8 @@ export function BinConfigPanel() {
 
   const isCatchAll = form.watch("isCatchAll");
 
+  if (selectedSet?.isRepackMode) return null;
+
   if (selectedSet?.scanOnly) {
     return (
       <div className="flex flex-col gap-3">

@@ -29,6 +29,7 @@ export function AutoAssignPanel() {
     setAutoAssignField,
     resetAutoAssign,
     setScanOnly,
+    setRepackConfig,
   } = useBinConfigs();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
@@ -37,6 +38,7 @@ export function AutoAssignPanel() {
   const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
   const isEnabled = !!selectedSet.autoAssignField;
   const isScanOnly = selectedSet.scanOnly;
+  const isRepackMode = selectedSet.isRepackMode;
 
   return (
     <Field className="rounded-lg border p-2 gap-2" data-tour="auto-assign-panel">
@@ -58,7 +60,10 @@ export function AutoAssignPanel() {
           aria-label={t("autoAssignPanel.heading")}
           checked={isEnabled}
           disabled={
-            isPresetMutating || eligibleFields.length === 0 || isScanOnly
+            isPresetMutating ||
+            eligibleFields.length === 0 ||
+            isScanOnly ||
+            isRepackMode
           }
           onCheckedChange={(checked) => {
             if (checked) {
@@ -134,8 +139,39 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("scanOnlyPanel.heading")}
           checked={isScanOnly}
-          disabled={isPresetMutating || isEnabled}
+          disabled={isPresetMutating || isEnabled || isRepackMode}
           onCheckedChange={(checked) => setScanOnly(checked)}
+        />
+      </div>
+
+      <div
+        className="flex items-center justify-between gap-3 border-t pt-2"
+        data-tour="repack-toggle"
+      >
+        <span className="flex items-center gap-1.5">
+          <span className="text-sm font-medium">
+            {t("repackPanel.heading")}
+          </span>
+          <Tooltip>
+            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+              <IconInfoCircle className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {t("repackPanel.description")}
+            </TooltipContent>
+          </Tooltip>
+        </span>
+        <Switch
+          aria-label={t("repackPanel.heading")}
+          checked={isRepackMode}
+          disabled={isPresetMutating || isEnabled || isScanOnly}
+          onCheckedChange={(checked) =>
+            setRepackConfig({
+              isRepackMode: checked,
+              repackSlots: selectedSet.repackSlots,
+              repackAllowDuplicates: selectedSet.repackAllowDuplicates,
+            })
+          }
         />
       </div>
     </Field>

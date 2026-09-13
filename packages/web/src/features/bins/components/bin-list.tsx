@@ -13,6 +13,7 @@ export function BinList() {
     useBinConfigs();
   const isAutoAssign = !!selectedSet?.autoAssignField;
   const isScanOnly = !!selectedSet?.scanOnly;
+  const isRepackMode = !!selectedSet?.isRepackMode;
   const { activeOrg } = useOrg();
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
 
@@ -41,6 +42,7 @@ export function BinList() {
             active={config.binNumber === selectedBin}
             isAutoAssign={isAutoAssign}
             isScanOnly={isScanOnly}
+            disabled={isRepackMode}
             onClick={() => setSelectedBin(config.binNumber)}
           />
         ))}

@@ -100,6 +100,37 @@
       "content": "Répète l'opération pour chaque bac, et n'oublie pas ton fourre-tout. Tu peux revoir cette visite à tout moment depuis l'icône d'aide de cette page."
     }
   },
+  "repackTour": {
+    "triggerTooltip": "Comment fonctionne la création de repacks",
+    "welcome": {
+      "title": "Créer des repacks",
+      "content": "Voyons comment Créer des repacks remplit plusieurs packs à la fois à partir du même ensemble de créneaux. Passe à tout moment et rejoue ce tour depuis la même icône d'aide."
+    },
+    "toggle": {
+      "title": "Active-le ici",
+      "content": "Cet interrupteur active ou désactive Créer des repacks. Tant qu'il est activé, chaque bac sauf le fourre-tout constitue son propre pack à partir des créneaux ci-dessous, au lieu d'utiliser des règles individuelles."
+    },
+    "duplicates": {
+      "title": "Cartes en double",
+      "content": "Désactive ceci pour éviter qu'un pack reçoive deux exemplaires de la même carte - un doublon est ignoré pour ce bac, mais peut quand même démarrer le pack d'un autre bac qui ne l'a pas encore."
+    },
+    "slots": {
+      "title": "Définis le contenu d'un pack",
+      "content": "Chaque créneau associe une règle (par rareté, couleur, prix, etc.) au nombre de cartes correspondantes nécessaires. Un pack est terminé une fois que chaque créneau atteint son nombre."
+    },
+    "addSlot": {
+      "title": "Ajoute d'autres créneaux",
+      "content": "Clique ici pour ajouter un autre créneau, par ex. un pour les communes, un pour les rares - construis la recette complète d'un pack."
+    },
+    "save": {
+      "title": "Enregistre tes modifications",
+      "content": "Les créneaux ne s'appliquent qu'une fois enregistrés. Chaque bac (hors fourre-tout) les reprend immédiatement ensuite."
+    },
+    "done": {
+      "title": "Voilà pour la création de repacks !",
+      "content": "Scanne normalement - les cartes vont dans le premier bac qui a encore de la place pour elles, et un bac dont le pack est complet cesse simplement d'accepter des cartes jusqu'à ce que tu le vides. Rejoue ce tour à tout moment depuis l'icône d'aide de cette page."
+    }
+  },
   "calibrationTour": {
     "triggerTooltip": "Comment fonctionne le calibrage",
     "welcome": {
