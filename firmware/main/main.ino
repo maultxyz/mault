@@ -691,6 +691,12 @@ void setup() {
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
 
   pwm.begin();
+  // Without this, a glitched I2C transaction (brief brownout from several
+  // servos moving at once, electrical noise) blocks Wire forever - loop()
+  // never returns, so the board stops answering Serial until power-cycled.
+  // reset_on_timeout=true also resets the I2C peripheral itself so the next
+  // transaction isn't left stuck on a wedged bus.
+  Wire.setWireTimeout(25000, true);
   pwm.setPWMFreq(50);
   delay(10);
   setAllNeutral();
