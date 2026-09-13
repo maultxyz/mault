@@ -30,6 +30,8 @@ export function AutoAssignPanel() {
     resetAutoAssign,
     setScanOnly,
     setRepackConfig,
+    configs,
+    save,
   } = useBinConfigs();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
@@ -165,13 +167,19 @@ export function AutoAssignPanel() {
           aria-label={t("repackPanel.heading")}
           checked={isRepackMode}
           disabled={isPresetMutating || isEnabled || isScanOnly}
-          onCheckedChange={(checked) =>
+          onCheckedChange={(checked) => {
             setRepackConfig({
               isRepackMode: checked,
               repackSlots: selectedSet.repackSlots,
               repackAllowDuplicates: selectedSet.repackAllowDuplicates,
-            })
-          }
+            });
+            if (checked) {
+              const lastBin = configs[configs.length - 1];
+              if (lastBin && !lastBin.isCatchAll) {
+                save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+              }
+            }
+          }}
         />
       </div>
     </Field>

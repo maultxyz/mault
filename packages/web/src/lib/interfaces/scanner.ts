@@ -102,6 +102,7 @@ export interface SerialContextValue {
   connect: () => Promise<void>;
   disconnect: () => Promise<void>;
   sendRoute: (route: BinRoute) => Promise<unknown | null>;
+  isRouteBusy: () => boolean;
   sendTest: () => Promise<TestResult>;
   sendCommand: (data: string) => Promise<boolean>;
   receiveResponse: (timeoutMs?: number) => Promise<string>;
@@ -115,6 +116,7 @@ export interface SerialContextValue {
 
 export interface ScannerControlsProps {
   status: ScannerStatus;
+  cardPresentAtModuleOne: boolean | null;
   onForceScan: () => void;
   onPause: () => void;
   onResume: () => void;
@@ -171,6 +173,7 @@ export interface ScannerIslandState {
   isReady: boolean;
   isFeeding: boolean;
   isClearingDevice: boolean;
+  cardPresentAtModuleOne: boolean | null;
   handleForceAddDuplicate: () => void;
   handleForceScan: () => void;
   handleSkipDuplicate: () => void;

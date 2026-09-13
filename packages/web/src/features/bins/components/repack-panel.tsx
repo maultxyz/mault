@@ -78,21 +78,7 @@ export function RepackPanel() {
       className="flex flex-col gap-3"
       data-tour="repack-panel"
     >
-      <div
-        className="flex items-center justify-between gap-3"
-        data-tour="repack-duplicates"
-      >
-        <span className="flex items-center gap-1.5">
-          <FieldLabel>{t("repackPanel.allowDuplicatesLabel")}</FieldLabel>
-          <Tooltip>
-            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
-              <IconInfoCircle className="size-3.5" />
-            </TooltipTrigger>
-            <TooltipContent className="max-w-xs">
-              {t("repackPanel.allowDuplicatesDescription")}
-            </TooltipContent>
-          </Tooltip>
-        </span>
+      <div className="flex items-center gap-2" data-tour="repack-duplicates">
         <Controller
           name="repackAllowDuplicates"
           control={form.control}
@@ -104,6 +90,17 @@ export function RepackPanel() {
             />
           )}
         />
+        <span className="flex items-center gap-1.5">
+          <FieldLabel>{t("repackPanel.allowDuplicatesLabel")}</FieldLabel>
+          <Tooltip>
+            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+              <IconInfoCircle className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {t("repackPanel.allowDuplicatesDescription")}
+            </TooltipContent>
+          </Tooltip>
+        </span>
       </div>
 
       <Controller
@@ -112,7 +109,7 @@ export function RepackPanel() {
         render={({ field }) => (
           <div className="flex flex-col gap-2" data-tour="repack-slots">
             <Label>{t("repackPanel.slotsLabel")}</Label>
-            <ScrollArea className="max-h-96">
+            <ScrollArea>
               <div className="flex flex-col gap-3 pr-2">
                 {field.value.map((slot, index) => (
                   <div
@@ -163,25 +160,31 @@ export function RepackPanel() {
                 ))}
               </div>
             </ScrollArea>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              data-tour="repack-add-slot"
-              onClick={() => field.onChange([...field.value, createSlot()])}
-            >
-              <IconPlus /> {t("repackPanel.addSlot")}
-            </Button>
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                data-tour="repack-add-slot"
+                onClick={() => field.onChange([...field.value, createSlot()])}
+              >
+                <IconPlus /> {t("repackPanel.addSlot")}
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={isPresetMutating}
+                data-tour="repack-save"
+              >
+                {isPresetMutating && (
+                  <IconLoader2 className="size-4 animate-spin" />
+                )}
+                {t("repackPanel.save")}
+              </Button>
+            </div>
           </div>
         )}
       />
-
-      <div className="flex justify-end" data-tour="repack-save">
-        <Button type="submit" disabled={isPresetMutating}>
-          {isPresetMutating && <IconLoader2 className="size-4 animate-spin" />}
-          {t("repackPanel.save")}
-        </Button>
-      </div>
     </form>
   );
 }
