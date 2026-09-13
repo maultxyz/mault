@@ -100,6 +100,10 @@
       "description": "Carte bloquée au module {{module}}. Vérifie la trieuse et reprends.",
       "descriptionWithBin": "Carte bloquée au module {{module}} (en direction du bac {{bin}}). Vérifie la trieuse et reprends."
     },
+    "noCardDetected": {
+      "title": "Aucune carte détectée",
+      "description": "Le capteur du module 1 ne détecte aucune carte - insère-en une avant de scanner."
+    },
     "feedFailed": {
       "title": "Échec de l'alimentation",
       "description": "Impossible d'envoyer la commande au chargeur."

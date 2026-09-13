@@ -100,6 +100,10 @@
       "description": "Karte an Modul {{module}} blockiert. Überprüfe den Sortierer und setze fort.",
       "descriptionWithBin": "Karte an Modul {{module}} blockiert (unterwegs zu Fach {{bin}}). Überprüfe den Sortierer und setze fort."
     },
+    "noCardDetected": {
+      "title": "Keine Karte erkannt",
+      "description": "Der Sensor von Modul 1 erkennt keine Karte - führe eine zu, bevor du scannst."
+    },
     "feedFailed": {
       "title": "Zufuhr fehlgeschlagen",
       "description": "Zuführbefehl konnte nicht gesendet werden."
