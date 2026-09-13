@@ -3,7 +3,9 @@ import type {
   BinCondition,
   BinConfig,
   BinRuleGroup,
+  BinSet,
   FieldMeta,
+  RepackSlot,
 } from "./interfaces/sort-bins.interface";
 import { isRuleGroup } from "./interfaces/sort-bins.interface";
 
@@ -153,7 +155,7 @@ function evaluateCondition(
   }
 }
 
-function evaluateRuleGroup(
+export function evaluateRuleGroup(
   card: SourceCard,
   group: BinRuleGroup,
   fieldDefinitions: FieldMeta[],
@@ -217,4 +219,83 @@ export function isBinFull(
 ): boolean {
   if (bin.cardLimit == null) return false;
   return countCardsInBin(cards, bin) >= bin.cardLimit;
+}
+
+export function getCardsInBin(
+  cards: { binNumber?: number | null; scannedAt: number; card: SourceCard }[],
+  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,
+): SourceCard[] {
+  return cards
+    .filter(
+      (c) =>
+        c.binNumber === bin.binNumber &&
+        (bin.lastEmptiedAt == null || c.scannedAt > bin.lastEmptiedAt),
+    )
+    .map((c) => c.card);
+}
+
+export function countSlotMatches(
+  cards: SourceCard[],
+  slot: RepackSlot,
+  fieldDefinitions: FieldMeta[],
+): number {
+  return cards.filter((c) => evaluateRuleGroup(c, slot.rule, fieldDefinitions))
+    .length;
+}
+
+export function isRepackComplete(
+  slots: RepackSlot[],
+  fieldDefinitions: FieldMeta[],
+  cardsInPack: SourceCard[],
+): boolean {
+  if (slots.length === 0) return false;
+  return slots.every(
+    (slot) =>
+      slot.targetCount > 0 &&
+      countSlotMatches(cardsInPack, slot, fieldDefinitions) >= slot.targetCount,
+  );
+}
+
+function isDuplicateInPack(
+  card: SourceCard,
+  cardsInPack: SourceCard[],
+): boolean {
+  const id = (card as { id?: unknown }).id;
+  return (
+    id != null && cardsInPack.some((c) => (c as { id?: unknown }).id === id)
+  );
+}
+
+export function evaluateRepackBin(
+  card: SourceCard,
+  configs: BinConfig[],
+  fieldDefinitions: FieldMeta[],
+  binSet: Pick<BinSet, "repackSlots" | "repackAllowDuplicates">,
+  cardsInBin: (bin: BinConfig) => SourceCard[],
+): BinConfig | undefined {
+  const catchAll = getCatchAllBin(configs);
+
+  for (const bin of configs) {
+    if (bin.isCatchAll) continue;
+
+    const cardsInPack = cardsInBin(bin);
+    if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
+      continue;
+    }
+    if (!binSet.repackAllowDuplicates && isDuplicateInPack(card, cardsInPack)) {
+      continue;
+    }
+
+    const openSlot = binSet.repackSlots.find(
+      (slot) =>
+        slot.targetCount > 0 &&
+        slot.rule.conditions.length > 0 &&
+        evaluateRuleGroup(card, slot.rule, fieldDefinitions) &&
+        countSlotMatches(cardsInPack, slot, fieldDefinitions) <
+          slot.targetCount,
+    );
+    if (openSlot) return bin;
+  }
+
+  return catchAll;
 }

@@ -214,6 +214,7 @@ export function CardGrid() {
             <div className="flex flex-row gap-2 items-center w-full">
               <ScannerControls
                 status={scanner.status}
+                cardPresentAtModuleOne={scanner.cardPresentAtModuleOne}
                 onForceScan={scanner.handleForceScan}
                 onPause={scanner.handlePause}
                 onResume={scanner.handleResume}
@@ -416,6 +417,7 @@ export function CardGrid() {
               <div className="flex flex-row gap-2 items-center">
                 <ScannerControls
                   status={scanner.status}
+                  cardPresentAtModuleOne={scanner.cardPresentAtModuleOne}
                   onForceScan={scanner.handleForceScan}
                   onPause={scanner.handlePause}
                   onResume={scanner.handleResume}

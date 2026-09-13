@@ -38,7 +38,7 @@
     },
     "editCollection": {
       "title": "Eine Sammlung bearbeiten",
-      "content": "Benenne eine Sammlung jederzeit von hier aus um."
+      "content": "Benenne eine Sammlung um oder passe ihren Übereinstimmungsschwellenwert jederzeit von hier aus an."
     },
     "createSortingRules": {
       "title": "Sortierregeln erstellen",
@@ -98,6 +98,37 @@
     "done": {
       "title": "Das war die Sortierlogik!",
       "content": "Wiederhole dies für jedes Fach und vergiss dein Auffangbecken nicht. Du kannst diese Tour jederzeit über das Hilfe-Symbol auf dieser Seite wiederholen."
+    }
+  },
+  "repackTour": {
+    "triggerTooltip": "So funktioniert das Erstellen von Repacks",
+    "welcome": {
+      "title": "Repacks erstellen",
+      "content": "Schauen wir uns an, wie Repacks erstellen mehrere Packs gleichzeitig aus denselben Slots füllt. Jederzeit überspringbar, jederzeit über dasselbe Hilfe-Symbol wiederholbar."
+    },
+    "toggle": {
+      "title": "Hier aktivieren",
+      "content": "Dieser Schalter aktiviert oder deaktiviert Repacks erstellen. Solange er aktiv ist, baut jedes Fach außer dem Auffangfach sein eigenes Pack aus den Slots unten, statt einzelner Regeln."
+    },
+    "duplicates": {
+      "title": "Doppelte Karten",
+      "content": "Schalte dies aus, damit ein Pack nicht zwei Exemplare derselben Karte erhält - ein Duplikat wird für dieses Fach übersprungen, kann aber trotzdem das Pack eines anderen Fachs starten, das es noch nicht enthält."
+    },
+    "slots": {
+      "title": "Lege den Packinhalt fest",
+      "content": "Jeder Slot verbindet eine Regel (nach Seltenheit, Farbe, Preis und mehr) mit der Anzahl passender Karten, die ein Pack braucht. Ein Pack ist fertig, sobald jeder Slot seine Anzahl erreicht."
+    },
+    "addSlot": {
+      "title": "Weitere Slots hinzufügen",
+      "content": "Klicke hier, um einen weiteren Slot hinzuzufügen, z. B. einen für Commons, einen für Rares - so baust du das vollständige Rezept für ein Pack."
+    },
+    "save": {
+      "title": "Änderungen speichern",
+      "content": "Slots gelten erst nach dem Speichern. Jedes Fach außer dem Auffangfach übernimmt sie danach sofort."
+    },
+    "done": {
+      "title": "Das war's zu Repacks erstellen!",
+      "content": "Scanne wie gewohnt - Karten gehen in das erste Fach, das noch Platz für sie hat, und ein fertiges Fach nimmt einfach keine Karten mehr an, bis du es leerst. Wiederhole diese Tour jederzeit über das Hilfe-Symbol auf dieser Seite."
     }
   },
   "calibrationTour": {

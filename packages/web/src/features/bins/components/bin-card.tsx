@@ -22,6 +22,7 @@ export function BinCard({
   active,
   isAutoAssign,
   isScanOnly,
+  disabled,
   onClick,
 }: BinCardProps) {
   const { t } = useTranslation("bins");
@@ -32,6 +33,7 @@ export function BinCard({
     <Button
       variant={active ? "secondary" : "ghost"}
       className="h-auto p-2 flex flex-col justify-start text-start w-full"
+      disabled={disabled}
       onClick={onClick}
     >
       <div className="flex flex-row justify-between gap-2 items-center w-full">

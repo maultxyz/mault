@@ -6,6 +6,8 @@ import {
   type ScannedCard,
   type UnmatchedCard,
   evaluateCardBin,
+  evaluateRepackBin,
+  getCardsInBin,
   getCatchAllBin,
 } from "@magic-vault/shared";
 
@@ -96,6 +98,8 @@ export function ScannedCardsProvider({
   const binRoutesRef = useRef(binRoutes);
   const fieldDefinitionsRef = useRef(fieldDefinitions);
   const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
+  const selectedSetRef = useRef(selectedSet);
+  const cardsRef = useRef(cards);
   const serialRef = useRef({
     sendRoute,
     sendCommand,
@@ -146,6 +150,14 @@ export function ScannedCardsProvider({
   }, [selectedSet?.autoAssignField]);
 
   useEffect(() => {
+    selectedSetRef.current = selectedSet;
+  }, [selectedSet]);
+
+  useEffect(() => {
+    cardsRef.current = cards;
+  }, [cards]);
+
+  useEffect(() => {
     emptyCollectionRef.current = emptyCollection;
   }, [emptyCollection]);
 
@@ -158,6 +170,35 @@ export function ScannedCardsProvider({
       isReady,
     };
   }, [sendRoute, sendCommand, receiveResponse, isConnected, isReady]);
+
+  const resolveMatchedBin = useCallback(
+    (card: PlayingCardWithDistance): BinConfig | undefined => {
+      const set = selectedSetRef.current;
+      if (set?.isRepackMode) {
+        return evaluateRepackBin(
+          card,
+          binConfigsRef.current,
+          fieldDefinitionsRef.current,
+          set,
+          (bin) =>
+            getCardsInBin(
+              cardsRef.current.map((c) => ({
+                binNumber: c.binNumber,
+                scannedAt: c.scannedAt,
+                card: c.card,
+              })),
+              bin,
+            ),
+        );
+      }
+      return evaluateCardBin(
+        card,
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+      );
+    },
+    [],
+  );
 
   const resolveRoute = useCallback((binNumber: number): BinRoute => {
     const found = binRoutesRef.current.find((r) => r.binNumber === binNumber);
@@ -247,17 +288,15 @@ export function ScannedCardsProvider({
         return;
       }
 
-      let matchedBin = evaluateCardBin(
-        card,
-        binConfigsRef.current,
-        fieldDefinitionsRef.current,
-      );
-      const autoTarget = findAutoAssignTarget(
-        card,
-        binConfigsRef.current,
-        fieldDefinitionsRef.current,
-        autoAssignFieldRef.current,
-      );
+      let matchedBin = resolveMatchedBin(card);
+      const autoTarget = selectedSetRef.current?.isRepackMode
+        ? null
+        : findAutoAssignTarget(
+            card,
+            binConfigsRef.current,
+            fieldDefinitionsRef.current,
+            autoAssignFieldRef.current,
+          );
       if (autoTarget) {
         binConfigsRef.current = binConfigsRef.current.map((c) =>
           c.binNumber === autoTarget.binNumber
@@ -355,6 +394,7 @@ export function ScannedCardsProvider({
       saveBinConfig,
       queryClient,
       resolveRoute,
+      resolveMatchedBin,
       isAutoFeedEnabled,
       disableAutoFeed,
       pause,
@@ -457,17 +497,15 @@ export function ScannedCardsProvider({
     (scanId: string, card: PlayingCard) => {
       const collection = activeCollectionRef.current;
       const corrected: PlayingCardWithDistance = { ...card, distance: 0 };
-      let matchedBin = evaluateCardBin(
-        corrected,
-        binConfigsRef.current,
-        fieldDefinitionsRef.current,
-      );
-      const autoTarget = findAutoAssignTarget(
-        corrected,
-        binConfigsRef.current,
-        fieldDefinitionsRef.current,
-        autoAssignFieldRef.current,
-      );
+      let matchedBin = resolveMatchedBin(corrected);
+      const autoTarget = selectedSetRef.current?.isRepackMode
+        ? null
+        : findAutoAssignTarget(
+            corrected,
+            binConfigsRef.current,
+            fieldDefinitionsRef.current,
+            autoAssignFieldRef.current,
+          );
       if (autoTarget) {
         binConfigsRef.current = binConfigsRef.current.map((c) =>
           c.binNumber === autoTarget.binNumber
@@ -495,7 +533,7 @@ export function ScannedCardsProvider({
         ).catch((err) => console.error("Failed to update card:", err));
       }
     },
-    [saveBinConfig],
+    [saveBinConfig, resolveMatchedBin],
   );
 
   const setCardFoilType = useCallback(

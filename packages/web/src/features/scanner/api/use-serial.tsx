@@ -482,6 +482,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   );
 
   const binBusyRef = useRef(false);
+  const isRouteBusy = useCallback(() => binBusyRef.current, []);
 
   const sendRoute = useCallback(
     async (route: BinRoute): Promise<unknown | null> => {
@@ -523,6 +524,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         connect,
         disconnect,
         sendRoute,
+        isRouteBusy,
         sendTest,
         sendCommand: sendCommandWithNewline,
         receiveResponse,

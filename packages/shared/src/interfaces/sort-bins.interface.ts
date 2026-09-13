@@ -61,6 +61,12 @@ export interface BinConfig {
   lastEmptiedAt?: number | null;
 }
 
+export interface RepackSlot {
+  id: string;
+  rule: BinRuleGroup;
+  targetCount: number;
+}
+
 export interface BinSet {
   guid: string;
   name: string;
@@ -69,6 +75,9 @@ export interface BinSet {
   game: Game | null;
   autoAssignField: string | null;
   scanOnly: boolean;
+  isRepackMode: boolean;
+  repackSlots: RepackSlot[];
+  repackAllowDuplicates: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

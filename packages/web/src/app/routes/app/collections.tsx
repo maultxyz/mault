@@ -8,7 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -26,10 +31,11 @@ import { CreateCollectionDialog } from "@/features/collections/components/create
 import { useOrg } from "@/features/companies/api/use-organization";
 import { cn } from "@/lib/utils";
 import {
-  renameCollectionSchema,
-  type RenameCollectionFormValues,
+  editCollectionSchema,
+  type EditCollectionFormValues,
 } from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DEFAULT_MATCH_THRESHOLD_PERCENT } from "@magic-vault/shared";
 import {
   IconAlbum,
   IconEdit,
@@ -53,7 +59,7 @@ export default function CollectionsPage() {
     activeCollection,
     isActivating,
     isMutating,
-    renameCollection,
+    updateCollection,
     activateCollection,
     deleteCollection,
     emptyCollection,
@@ -69,9 +75,10 @@ export default function CollectionsPage() {
     collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
 
-  const [renameTarget, setRenameTarget] = useState<{
+  const [editTarget, setEditTarget] = useState<{
     guid: string;
     name: string;
+    matchThreshold: number | null;
   } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     guid: string;
@@ -82,48 +89,50 @@ export default function CollectionsPage() {
     name: string;
   } | null>(null);
 
-  const renameForm = useForm<RenameCollectionFormValues>({
-    resolver: zodResolver(renameCollectionSchema),
-    defaultValues: { name: renameTarget?.name ?? "" },
+  const editForm = useForm({
+    resolver: zodResolver(editCollectionSchema),
+    defaultValues: {
+      name: editTarget?.name ?? "",
+      matchThreshold: editTarget?.matchThreshold ?? null,
+    },
     mode: "onChange",
   });
 
-  const renameNameValue = renameForm.watch("name");
-  const { data: renameNameCheck } = useQuery({
-    queryKey: [
-      "collections",
-      "check-name",
-      renameNameValue,
-      renameTarget?.guid,
-    ],
-    queryFn: () => checkCollectionName(renameNameValue, renameTarget?.guid),
-    enabled: !!renameTarget && !!renameNameValue?.trim(),
+  const editNameValue = editForm.watch("name");
+  const { data: editNameCheck } = useQuery({
+    queryKey: ["collections", "check-name", editNameValue, editTarget?.guid],
+    queryFn: () => checkCollectionName(editNameValue, editTarget?.guid),
+    enabled: !!editTarget && !!editNameValue?.trim(),
     staleTime: 0,
   });
 
   useEffect(() => {
-    if (!renameTarget || !renameNameValue?.trim()) return;
+    if (!editTarget || !editNameValue?.trim()) return;
     if (
-      renameNameCheck?.success &&
-      renameNameCheck.data &&
-      !renameNameCheck.data.available
+      editNameCheck?.success &&
+      editNameCheck.data &&
+      !editNameCheck.data.available
     ) {
-      renameForm.setError("name", {
+      editForm.setError("name", {
         type: "taken",
         message: t("createDialog.duplicateName"),
       });
     } else {
-      renameForm.clearErrors("name");
+      editForm.clearErrors("name");
     }
-  }, [renameTarget, renameNameValue, renameNameCheck, renameForm, t]);
+  }, [editTarget, editNameValue, editNameCheck, editForm, t]);
 
-  const handleRename = useCallback(
-    async (values: RenameCollectionFormValues) => {
-      if (!renameTarget) return;
-      await renameCollection(renameTarget.guid, values.name);
-      setRenameTarget(null);
+  const handleEditSubmit = useCallback(
+    async (values: EditCollectionFormValues) => {
+      if (!editTarget) return;
+      await updateCollection(
+        editTarget.guid,
+        values.name,
+        values.matchThreshold,
+      );
+      setEditTarget(null);
     },
-    [renameTarget, renameCollection],
+    [editTarget, updateCollection],
   );
 
   const handleDelete = useCallback(async () => {
@@ -272,10 +281,14 @@ export default function CollectionsPage() {
                         disabled={isMutating}
                         data-tour="edit-collection"
                         onClick={() => {
-                          renameForm.reset({ name: collection.name });
-                          setRenameTarget({
+                          editForm.reset({
+                            name: collection.name,
+                            matchThreshold: collection.matchThreshold,
+                          });
+                          setEditTarget({
                             guid: collection.guid,
                             name: collection.name,
+                            matchThreshold: collection.matchThreshold,
                           });
                         }}
                       >
@@ -283,7 +296,7 @@ export default function CollectionsPage() {
                       </Button>
                     }
                   ></TooltipTrigger>
-                  <TooltipContent>{t("page.rename")}</TooltipContent>
+                  <TooltipContent>{t("page.edit")}</TooltipContent>
                 </Tooltip>
                 <DropdownMenu>
                   <DropdownMenuTrigger
@@ -329,50 +342,82 @@ export default function CollectionsPage() {
         })}
       </div>
       <DynamicDialog
-        open={!!renameTarget}
+        open={!!editTarget}
         onOpenChange={(open) => {
-          if (!open) setRenameTarget(null);
+          if (!open) setEditTarget(null);
         }}
-        title={t("renameDialog.title")}
-        description={t("renameDialog.description")}
+        title={t("editDialog.title")}
+        description={t("editDialog.description")}
         trigger={<span />}
         footer={
           <>
-            <Button variant="outline" onClick={() => setRenameTarget(null)}>
+            <Button variant="outline" onClick={() => setEditTarget(null)}>
               {t("createDialog.cancel")}
             </Button>
             <Button
               type="submit"
-              form="rename-collection-form"
-              disabled={!renameForm.formState.isValid || isMutating}
+              form="edit-collection-form"
+              disabled={!editForm.formState.isValid || isMutating}
             >
               {isMutating && <IconLoader2 className="size-4 animate-spin" />}
-              {t("renameDialog.submit")}
+              {t("editDialog.submit")}
             </Button>
           </>
         }
         footerClassName="flex-col-reverse md:flex-row"
       >
         <form
-          id="rename-collection-form"
-          onSubmit={renameForm.handleSubmit(handleRename)}
+          id="edit-collection-form"
+          onSubmit={editForm.handleSubmit(handleEditSubmit)}
+          className="flex flex-col gap-4"
         >
           <Controller
             name="name"
-            control={renameForm.control}
+            control={editForm.control}
             render={({ field, fieldState }) => (
               <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="rename-collection-name">
+                <FieldLabel htmlFor="edit-collection-name">
                   {t("createDialog.nameLabel")}
                 </FieldLabel>
                 <Input
                   {...field}
-                  id="rename-collection-name"
+                  id="edit-collection-name"
                   aria-invalid={fieldState.invalid}
                   autoFocus
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+          <Controller
+            name="matchThreshold"
+            control={editForm.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel htmlFor="edit-collection-match-threshold">
+                  {t("editDialog.matchThresholdLabel")}
+                </FieldLabel>
+                <Input
+                  id="edit-collection-match-threshold"
+                  type="number"
+                  min={1}
+                  max={99}
+                  value={field.value ?? ""}
+                  onChange={(e) => field.onChange(e.target.value)}
+                  onBlur={field.onBlur}
+                  aria-invalid={fieldState.invalid}
+                  placeholder={t("editDialog.matchThresholdPlaceholder", {
+                    default: DEFAULT_MATCH_THRESHOLD_PERCENT,
+                  })}
+                />
+                {fieldState.invalid ? (
+                  <FieldError errors={[fieldState.error]} />
+                ) : (
+                  <FieldDescription>
+                    {t("editDialog.matchThresholdHint")}
+                  </FieldDescription>
                 )}
               </Field>
             )}

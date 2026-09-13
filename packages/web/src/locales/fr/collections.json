@@ -48,14 +48,17 @@
     "noGame": "Aucun jeu",
     "setActiveCollection": "Définir comme collection active",
     "editSortingRules": "Modifier les règles de tri",
-    "rename": "Renommer",
+    "edit": "Modifier",
     "emptyCollection": "Vider la collection",
     "deleteCollection": "Supprimer la collection"
   },
-  "renameDialog": {
-    "title": "Renommer la collection",
-    "description": "Saisis un nouveau nom pour cette collection.",
-    "submit": "Renommer"
+  "editDialog": {
+    "title": "Modifier la collection",
+    "description": "Modifie le nom et le seuil de correspondance de cette collection.",
+    "submit": "Enregistrer",
+    "matchThresholdLabel": "Correspondance minimale (%)",
+    "matchThresholdPlaceholder": "Par défaut ({{default}} %)",
+    "matchThresholdHint": "Les scans dont la correspondance est inférieure à ce pourcentage sont traités comme une absence de correspondance plutôt que d'être acceptés."
   },
   "deleteDialog": {
     "title": "Supprimer la collection",
@@ -68,7 +71,7 @@
   },
   "errors": {
     "createFailed": "Échec de la création de la collection",
-    "renameFailed": "Échec du renommage de la collection",
+    "renameFailed": "Échec de la mise à jour de la collection",
     "deleteFailed": "Échec de la suppression de la collection",
     "emptyFailed": "Échec du vidage de la collection"
   }

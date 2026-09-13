@@ -97,7 +97,8 @@
       "autoAssignFailed": "Failed to update auto-detect settings",
       "autoAssignResetFailed": "Failed to reset auto-detected bins",
       "scanOnlyFailed": "Failed to update scan only settings",
-      "emptyBinFailed": "Failed to mark bin as emptied"
+      "emptyBinFailed": "Failed to mark bin as emptied",
+      "repackFailed": "Failed to update repack settings"
     }
   },
   "binsPage": {
@@ -115,5 +116,15 @@
   "scanOnlyPanel": {
     "heading": "Scan only",
     "description": "Sends every card straight to bin 7, the catch-all, without checking any sorting rules. Turn this off to configure bins manually."
+  },
+  "repackPanel": {
+    "heading": "Build repacks",
+    "description": "Every non-catch-all bin builds its own pack at the same time from the slots you define below (e.g. 3 commons, 2 uncommons, 1 rare). Anything that doesn't fit an open slot in any bin goes to the catch-all. Once a bin's pack is complete it stops receiving cards - empty it to start a new pack there while the others keep filling.",
+    "allowDuplicatesLabel": "Allow duplicate cards",
+    "allowDuplicatesDescription": "When off, a card already in a given pack is skipped for that bin (it can still start a different pack that doesn't have it yet) instead of being added again.",
+    "slotsLabel": "Pack slots",
+    "slotCountLabel": "Count",
+    "addSlot": "Add slot",
+    "save": "Save"
   }
 }

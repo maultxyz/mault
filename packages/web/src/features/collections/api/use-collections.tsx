@@ -10,7 +10,7 @@ import {
   collectionsQueryOptions,
   createCollection as createCollectionFn,
   deleteCollection as deleteCollectionFn,
-  renameCollection as renameCollectionFn,
+  updateCollection as updateCollectionFn,
 } from "@/features/collections/api/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { ACTIVE_COLLECTION_STORAGE_KEY } from "@/lib/constants/storage-keys";
@@ -42,8 +42,13 @@ interface CollectionsContextValue {
     name: string,
     gameGuid: string,
     lang: string,
+    matchThreshold: number | null,
   ) => Promise<void>;
-  renameCollection: (guid: string, name: string) => Promise<void>;
+  updateCollection: (
+    guid: string,
+    name: string,
+    matchThreshold: number | null,
+  ) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;
   emptyCollection: (guid: string) => Promise<void>;
@@ -104,11 +109,13 @@ export function CollectionsProvider({
       name,
       gameGuid,
       lang,
+      matchThreshold,
     }: {
       name: string;
       gameGuid: string;
       lang: string;
-    }) => createCollectionFn(name, gameGuid, lang),
+      matchThreshold: number | null;
+    }) => createCollectionFn(name, gameGuid, lang, matchThreshold),
     onSuccess: async (r, { name }) => {
       if (r.success && r.data) {
         setCollections(r.data);
@@ -141,9 +148,16 @@ export function CollectionsProvider({
     onError: () => toast.error(t("errors.createFailed")),
   });
 
-  const renameMutation = useMutation({
-    mutationFn: ({ guid, name }: { guid: string; name: string }) =>
-      renameCollectionFn(guid, name),
+  const updateMutation = useMutation({
+    mutationFn: ({
+      guid,
+      name,
+      matchThreshold,
+    }: {
+      guid: string;
+      name: string;
+      matchThreshold: number | null;
+    }) => updateCollectionFn(guid, name, matchThreshold),
     onSuccess: (r) => {
       if (r.success && r.data) setCollections(r.data);
     },
@@ -174,22 +188,27 @@ export function CollectionsProvider({
 
   const isMutating =
     createMutation.isPending ||
-    renameMutation.isPending ||
+    updateMutation.isPending ||
     deleteMutation.isPending ||
     emptyMutation.isPending;
 
   const create = useCallback(
-    async (name: string, gameGuid: string, lang: string) => {
-      await createMutation.mutateAsync({ name, gameGuid, lang });
+    async (
+      name: string,
+      gameGuid: string,
+      lang: string,
+      matchThreshold: number | null,
+    ) => {
+      await createMutation.mutateAsync({ name, gameGuid, lang, matchThreshold });
     },
     [createMutation],
   );
 
-  const rename = useCallback(
-    async (guid: string, name: string) => {
-      await renameMutation.mutateAsync({ guid, name });
+  const update = useCallback(
+    async (guid: string, name: string, matchThreshold: number | null) => {
+      await updateMutation.mutateAsync({ guid, name, matchThreshold });
     },
-    [renameMutation],
+    [updateMutation],
   );
 
   const activate = useCallback(
@@ -224,7 +243,7 @@ export function CollectionsProvider({
         isActivating: false,
         isMutating,
         createCollection: create,
-        renameCollection: rename,
+        updateCollection: update,
         activateCollection: activate,
         deleteCollection: remove,
         emptyCollection: empty,

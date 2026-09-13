@@ -4,6 +4,7 @@ import type {
   BinRuleGroup,
   BinSet,
   FieldMeta,
+  RepackSlot,
 } from "@magic-vault/shared";
 
 export interface BinConfigsContextValue {
@@ -38,6 +39,11 @@ export interface BinConfigsContextValue {
   setAutoAssignField: (field: string | null) => Promise<void>;
   resetAutoAssign: () => Promise<void>;
   setScanOnly: (enabled: boolean) => Promise<void>;
+  setRepackConfig: (config: {
+    isRepackMode: boolean;
+    repackSlots: RepackSlot[];
+    repackAllowDuplicates: boolean;
+  }) => Promise<void>;
 }
 
 export interface BinCardProps {
@@ -45,6 +51,7 @@ export interface BinCardProps {
   active?: boolean;
   isAutoAssign?: boolean;
   isScanOnly?: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }
 

@@ -9,6 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Switch } from "@/components/ui/switch";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
@@ -18,7 +23,7 @@ import {
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BinRuleGroup, DEFAULT_BIN_CAPACITY } from "@magic-vault/shared";
-import { IconLoader2 } from "@tabler/icons-react";
+import { IconInfoCircle, IconLoader2 } from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -107,6 +112,8 @@ export function BinConfigPanel() {
   }, [config, clear, form, isOnlyCatchAll, t]);
 
   const isCatchAll = form.watch("isCatchAll");
+
+  if (selectedSet?.isRepackMode) return null;
 
   if (selectedSet?.scanOnly) {
     return (
@@ -202,17 +209,23 @@ export function BinConfigPanel() {
                       id="bin-override"
                       checked={field.value}
                       onCheckedChange={field.onChange}
-                      aria-describedby="bin-override-description"
                     />
                   )}
                 />
-                <FieldLabel htmlFor="bin-override">
-                  {t("binConfigPanel.overrideLabel")}
-                </FieldLabel>
+                <span className="flex items-center gap-1.5">
+                  <FieldLabel htmlFor="bin-override">
+                    {t("binConfigPanel.overrideLabel")}
+                  </FieldLabel>
+                  <Tooltip>
+                    <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                      <IconInfoCircle className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      {t("binConfigPanel.overrideDescription")}
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
               </div>
-              <FieldDescription id="bin-override-description">
-                {t("binConfigPanel.overrideDescription")}
-              </FieldDescription>
             </Field>
           )}
           <div className="flex items-center justify-between mb-2">

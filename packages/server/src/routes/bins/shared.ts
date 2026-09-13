@@ -4,10 +4,11 @@ import {
   type BinRuleGroup,
   type BinSet,
   type FieldMeta,
+  type RepackSlot,
 } from "@magic-vault/shared";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { bins, binSetAudit, binSets } from "../../db/schema";
+import { bins, binSetAudit } from "../../db/schema";
 
 export async function getModuleCount(
   tx: Transaction,
@@ -34,6 +35,9 @@ function toBinSet(row: {
   isActive: boolean;
   autoAssignField: string | null;
   scanOnly: boolean;
+  isRepackMode: boolean;
+  repackSlots: unknown;
+  repackAllowDuplicates: boolean;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -63,6 +67,9 @@ function toBinSet(row: {
     isActive: row.isActive,
     autoAssignField: row.autoAssignField,
     scanOnly: row.scanOnly,
+    isRepackMode: row.isRepackMode,
+    repackSlots: (row.repackSlots as RepackSlot[] | null) ?? [],
+    repackAllowDuplicates: row.repackAllowDuplicates,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -97,6 +104,9 @@ const binSetQuery = {
     isActive: true,
     autoAssignField: true,
     scanOnly: true,
+    isRepackMode: true,
+    repackSlots: true,
+    repackAllowDuplicates: true,
     createdAt: true,
     updatedAt: true,
   },
@@ -195,10 +205,13 @@ export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
     .where(and(eq(bins.binSet, binSetId), eq(bins.isCatchAll, false)));
 }
 
-// Scan Only forces every card to the same catch-all bin, ignoring rules
-// entirely - bin 7 is the app-wide default catch-all (the bottom chute of
-// the default 3-module layout, see computeBinCount), so it's used as a
-// fixed convention here rather than derived from the current module count.
+export async function clearAllBinRules(tx: Transaction, binSetId: number) {
+  await tx
+    .update(bins)
+    .set({ rules: emptyRules(), updatedAt: new Date() })
+    .where(eq(bins.binSet, binSetId));
+}
+
 const SCAN_ONLY_CATCH_ALL_BIN = 7;
 
 export async function applyScanOnlyBins(

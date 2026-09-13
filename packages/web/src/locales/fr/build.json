@@ -372,15 +372,15 @@
           },
           "mountBottomFlapper": {
             "text": "Assemble la trappe inférieure en vissant la trappe à la liaison, puis la liaison au palonnier. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
-            "note": "C'est la trappe par laquelle une carte tombe pour atteindre le module suivant, ou le module actuel en cas de correspondance. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
+            "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. C'est la trappe par laquelle une carte tombe pour atteindre le module suivant, ou le module actuel en cas de correspondance. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "mountSideFlappers": {
             "text": "Assemble les trappes latérales en vissant la trappe gauche et la trappe droite à la liaison commune, puis la liaison au palonnier (une paire par module). N'oublie pas de ne pas encore installer le palonnier sur le servo.",
-            "note": "Un seul servo de palette entraîne les deux trappes ensemble - elles s'ouvrent et se ferment en paire, pas indépendamment. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
+            "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. Un seul servo de palette entraîne les deux trappes ensemble - elles s'ouvrent et se ferment en paire, pas indépendamment. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "mountPusherArm": {
-            "text": "Assemble le poussoir en vissant le bras poussoir à la liaison, puis la liaison au palonnier. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
-            "note": "Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
+            "text": "Assemble le poussoir en vissant le bras poussoir à la liaison, puis la liaison au palonnier. Fixe le poussoir assemblé au boîtier du module avec deux vis M2×8. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
+            "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "fitFeederOrings": {
             "text": "Monte 6 joints toriques G20 sur le rouleau du chargeur.",

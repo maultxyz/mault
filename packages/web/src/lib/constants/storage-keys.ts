@@ -13,6 +13,8 @@ export const SORTING_RULES_TOUR_COMPLETED_KEY =
   "magic-vault:sorting-rules-tour-completed";
 export const CALIBRATION_TOUR_COMPLETED_KEY =
   "magic-vault:calibration-tour-completed";
+export const REPACK_TOUR_COMPLETED_KEY =
+  "magic-vault:repack-tour-completed";
 export const ONBOARDING_COMPLETED_KEY = "magic-vault:onboarding-completed";
 
 export const ACTIVE_COLLECTION_STORAGE_KEY = "activeCollectionGuid";

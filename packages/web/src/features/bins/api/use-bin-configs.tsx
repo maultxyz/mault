@@ -5,6 +5,7 @@ import {
   BinSet,
   computeBinCount,
   DEFAULT_BIN_CAPACITY,
+  type RepackSlot,
 } from "@magic-vault/shared";
 
 import {
@@ -19,6 +20,7 @@ import {
   saveBinConfig as saveBinConfigAction,
   saveSet as saveSetAction,
   setAutoAssignField as setAutoAssignFieldAction,
+  setRepackConfig as setRepackConfigAction,
   setScanOnly as setScanOnlyAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
@@ -316,6 +318,28 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.scanOnlyFailed")),
   });
 
+  const setRepackConfigMutation = useMutation({
+    mutationFn: ({
+      guid,
+      config,
+    }: {
+      guid: string;
+      config: {
+        isRepackMode: boolean;
+        repackSlots: RepackSlot[];
+        repackAllowDuplicates: boolean;
+      };
+    }) => setRepackConfigAction(guid, config),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(t("useBinConfigs.toasts.repackFailed"));
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.repackFailed")),
+  });
+
   const isPending = saveBinMutation.isPending || clearBinMutation.isPending;
   const isActivating = activateSetMutation.isPending;
   const isPresetMutating =
@@ -326,7 +350,8 @@ export function BinConfigsProvider({
     deleteSetMutation.isPending ||
     setAutoAssignFieldMutation.isPending ||
     resetAutoAssignMutation.isPending ||
-    setScanOnlyMutation.isPending;
+    setScanOnlyMutation.isPending ||
+    setRepackConfigMutation.isPending;
 
   const save = useCallback(
     (
@@ -421,6 +446,21 @@ export function BinConfigsProvider({
     [setScanOnlyMutation, selectedSet],
   );
 
+  const setRepackConfigFn = useCallback(
+    async (config: {
+      isRepackMode: boolean;
+      repackSlots: RepackSlot[];
+      repackAllowDuplicates: boolean;
+    }) => {
+      if (!selectedSet) return;
+      await setRepackConfigMutation.mutateAsync({
+        guid: selectedSet.guid,
+        config,
+      });
+    },
+    [setRepackConfigMutation, selectedSet],
+  );
+
   return (
     <BinConfigsContext
       value={{
@@ -449,6 +489,7 @@ export function BinConfigsProvider({
         setAutoAssignField: setAutoAssignFieldFn,
         resetAutoAssign: resetAutoAssignFn,
         setScanOnly: setScanOnlyFn,
+        setRepackConfig: setRepackConfigFn,
       }}
     >
       {children}

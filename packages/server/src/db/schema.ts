@@ -123,6 +123,11 @@ export const binSets = pgTable(
     gameId: integer("game_id").references(() => games.id),
     autoAssignField: text("auto_assign_field"),
     scanOnly: boolean("scan_only").notNull().default(false),
+    isRepackMode: boolean("is_repack_mode").notNull().default(false),
+    repackSlots: jsonb("repack_slots").notNull().default([]),
+    repackAllowDuplicates: boolean("repack_allow_duplicates")
+      .notNull()
+      .default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -247,6 +252,7 @@ export const collections = pgTable(
     isActive: boolean("is_active").notNull().default(false),
     gameId: integer("game_id").references(() => games.id),
     lang: text("lang").notNull().default("en"),
+    matchThreshold: integer("match_threshold"),
     orgId: text("org_id").notNull(),
     discordScanChannelId: text("discord_scan_channel_id"),
     discordScanThreadId: text("discord_scan_thread_id"),

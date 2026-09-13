@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import {
@@ -21,6 +26,7 @@ import {
   type CreateCollectionFormValues,
 } from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DEFAULT_MATCH_THRESHOLD_PERCENT } from "@magic-vault/shared";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
@@ -38,9 +44,9 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
   const activeGames = games.filter((g) => g.isActive);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<CreateCollectionFormValues>({
+  const form = useForm({
     resolver: zodResolver(createCollectionSchema),
-    defaultValues: { name: "", gameGuid: "", lang: "" },
+    defaultValues: { name: "", gameGuid: "", lang: "", matchThreshold: null },
     mode: "onChange",
   });
 
@@ -90,6 +96,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
           name: firstGame?.name ?? "",
           gameGuid: firstGame?.guid ?? "",
           lang: "",
+          matchThreshold: null,
         });
         setNameEdited(false);
       } else {
@@ -101,7 +108,12 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
 
   const handleCreate = useCallback(
     async (values: CreateCollectionFormValues) => {
-      await createCollection(values.name, values.gameGuid, values.lang);
+      await createCollection(
+        values.name,
+        values.gameGuid,
+        values.lang,
+        values.matchThreshold,
+      );
       form.reset();
       setOpen(false);
     },
@@ -226,6 +238,37 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
                 </SelectContent>
               </Select>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+            </Field>
+          )}
+        />
+        <Controller
+          name="matchThreshold"
+          control={form.control}
+          render={({ field, fieldState }) => (
+            <Field data-invalid={fieldState.invalid || undefined}>
+              <FieldLabel htmlFor="collection-match-threshold">
+                {t("editDialog.matchThresholdLabel")}
+              </FieldLabel>
+              <Input
+                id="collection-match-threshold"
+                type="number"
+                min={1}
+                max={99}
+                value={field.value ?? ""}
+                onChange={(e) => field.onChange(e.target.value)}
+                onBlur={field.onBlur}
+                aria-invalid={fieldState.invalid}
+                placeholder={t("editDialog.matchThresholdPlaceholder", {
+                  default: DEFAULT_MATCH_THRESHOLD_PERCENT,
+                })}
+              />
+              {fieldState.invalid ? (
+                <FieldError errors={[fieldState.error]} />
+              ) : (
+                <FieldDescription>
+                  {t("editDialog.matchThresholdHint")}
+                </FieldDescription>
+              )}
             </Field>
           )}
         />
