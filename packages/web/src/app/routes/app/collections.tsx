@@ -89,7 +89,7 @@ export default function CollectionsPage() {
     name: string;
   } | null>(null);
 
-  const editForm = useForm<EditCollectionFormValues>({
+  const editForm = useForm({
     resolver: zodResolver(editCollectionSchema),
     defaultValues: {
       name: editTarget?.name ?? "",

@@ -44,7 +44,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
   const activeGames = games.filter((g) => g.isActive);
   const [open, setOpen] = useState(false);
 
-  const form = useForm<CreateCollectionFormValues>({
+  const form = useForm({
     resolver: zodResolver(createCollectionSchema),
     defaultValues: { name: "", gameGuid: "", lang: "", matchThreshold: null },
     mode: "onChange",

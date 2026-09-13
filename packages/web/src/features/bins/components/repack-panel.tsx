@@ -17,7 +17,12 @@ import {
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { BinRuleGroup, RepackSlot } from "@magic-vault/shared";
-import { IconInfoCircle, IconLoader2, IconPlus, IconTrash } from "@tabler/icons-react";
+import {
+  IconInfoCircle,
+  IconLoader2,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -30,15 +35,11 @@ function createSlot(): RepackSlot {
   return { id: crypto.randomUUID(), rule: emptyRuleGroup(), targetCount: 1 };
 }
 
-// The isRepackMode toggle itself lives in AutoAssignPanel (next to Scan Only)
-// since this panel only renders the repack rules once the mode is on. Every
-// non-catch-all bin builds its own pack from these same slots in parallel -
-// there's no single "pack bin" to pick.
 export function RepackPanel() {
   const { t } = useTranslation("bins");
   const { selectedSet, isPresetMutating, setRepackConfig } = useBinConfigs();
 
-  const form = useForm<RepackConfigFormValues>({
+  const form = useForm({
     resolver: zodResolver(repackConfigSchema),
     defaultValues: {
       repackAllowDuplicates: false,
@@ -131,7 +132,10 @@ export function RepackPanel() {
                             const next = [...field.value];
                             next[index] = {
                               ...slot,
-                              targetCount: Math.max(1, Number(e.target.value) || 1),
+                              targetCount: Math.max(
+                                1,
+                                Number(e.target.value) || 1,
+                              ),
                             };
                             field.onChange(next);
                           }}
@@ -142,7 +146,9 @@ export function RepackPanel() {
                         variant="ghost"
                         size="icon"
                         onClick={() =>
-                          field.onChange(field.value.filter((_, i) => i !== index))
+                          field.onChange(
+                            field.value.filter((_, i) => i !== index),
+                          )
                         }
                       >
                         <IconTrash />

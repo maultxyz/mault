@@ -2,6 +2,7 @@ import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
   SET_NAME_MAX_LENGTH,
+  type BinRuleGroup,
 } from "@magic-vault/shared";
 import { z } from "zod";
 
@@ -31,6 +32,8 @@ const conditionOperatorValues = [
   "contains_any",
   "contains_all",
   "contains_none",
+  "is_null",
+  "is_not_null",
 ] as const;
 
 export const binConditionSchema = z.object({
@@ -44,11 +47,7 @@ export const binConditionSchema = z.object({
   ]),
 });
 
-export const binRuleGroupSchema: z.ZodType<{
-  id: string;
-  combinator: "and" | "or";
-  conditions: (z.infer<typeof binConditionSchema> | { id: string; combinator: "and" | "or"; conditions: unknown[] })[];
-}> = z.object({
+export const binRuleGroupSchema: z.ZodType<BinRuleGroup, BinRuleGroup> = z.object({
   id: z.string(),
   combinator: z.enum(["and", "or"]),
   conditions: z.array(
