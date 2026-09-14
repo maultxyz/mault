@@ -32,6 +32,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             binNumber: true,
             isFoil: true,
             foilType: true,
+            isCorrected: true,
           },
         });
         if (!existing) return { success: false, message: "Card not found." };
@@ -41,6 +42,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           updates.card = card;
           updates.cardId = card.id;
           updates.binNumber = binNumber ?? null;
+          updates.isCorrected = true;
         }
         if (isFoil !== undefined) updates.isFoil = isFoil;
         if (foilType !== undefined) updates.foilType = foilType;
@@ -60,6 +62,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
               card !== undefined ? (binNumber ?? null) : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
+            isCorrected: card !== undefined ? true : existing.isCorrected,
           }),
         };
       });

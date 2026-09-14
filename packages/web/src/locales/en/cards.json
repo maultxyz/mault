@@ -113,6 +113,7 @@
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
+    "multipleMatchesResolvedTooltip": "Multiple close matches, reviewed and corrected",
     "foil": "Foil",
     "matchTooltip": "How closely the scanned image matches this card, based on visual similarity search",
     "bin": "Bin {{number}}",

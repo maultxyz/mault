@@ -25,6 +25,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   isSelected = false,
   onToggleSelect,
   hasAlternatives = false,
+  wasCorrected = false,
   isFoil = false,
   foilType,
   isDownloaded = false,
@@ -42,8 +43,15 @@ export const ScannedCardItem = memo(function ScannedCardItem({
         <div className="aspect-[2.5/3.5] rounded-lg overflow-hidden relative">
           {hasAlternatives && (
             <div
-              className="absolute top-1 left-1 z-20 rounded-full bg-amber-700 p-0.5 shadow-md"
-              title={t("scannedCardItem.multipleMatchesTooltip")}
+              className={cn(
+                "absolute top-1 left-1 z-20 rounded-full p-0.5 shadow-md",
+                wasCorrected ? "bg-green-600" : "bg-amber-700",
+              )}
+              title={
+                wasCorrected
+                  ? t("scannedCardItem.multipleMatchesResolvedTooltip")
+                  : t("scannedCardItem.multipleMatchesTooltip")
+              }
             >
               <IconHelpCircle className="size-3 text-white" />
             </div>

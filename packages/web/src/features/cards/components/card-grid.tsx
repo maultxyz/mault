@@ -375,6 +375,7 @@ export function CardGrid() {
               isSelected={selectedIds.has(card.scanId)}
               onToggleSelect={() => toggleSelect(card.scanId)}
               hasAlternatives={!!card.alternativeMatches?.length}
+              wasCorrected={card.corrected}
               isFoil={card.isFoil}
               foilType={card.foilType}
               isDownloaded={card.isDownloaded}
