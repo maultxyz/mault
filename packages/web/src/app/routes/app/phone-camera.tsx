@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
-import { useOrg } from "@/features/companies/api/use-organization";
 import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera-responder";
 import { usePhoneLocalCamera } from "@/features/scanner/api/use-phone-local-camera";
 import { useVideoCanvasPreview } from "@/features/scanner/api/use-video-canvas-preview";
@@ -28,13 +27,10 @@ export default function PhoneCameraPage() {
     usePhoneLocalCamera();
   const { data: collections } = useQuery(collectionsQueryOptions);
   const collection = collections?.find((c) => c.guid === collectionGuid);
-  const { activeOrg } = useOrg();
-  const { data: orgSettingsData } = useQuery(
-    orgSettingsQueryOptions(activeOrg?.id),
-  );
+  const device = useDevice();
   const [liveScanRegion, setLiveScanRegion] = useState<ScanRegion | null>(null);
   const scanRegion =
-    liveScanRegion ?? orgSettingsData?.scanRegion ?? DEFAULT_SCAN_REGION;
+    liveScanRegion ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
   const { videoRef, displayCanvasRef, overlayCanvasRef } =
     useVideoCanvasPreview(localStream, scanRegion);
 
