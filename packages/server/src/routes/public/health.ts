@@ -1,7 +1,8 @@
 import type { HealthCheck, HealthCheckResponse } from "@magic-vault/shared";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
+import { games } from "../../db/schema";
 import { fetchCardApi } from "../../lib/card-search/fetch";
 import { HEALTH_CACHE_TTL_MS } from "../../lib/constants/timing";
 import {
@@ -95,9 +96,18 @@ export const healthRoute = new Hono<AppEnv>().get("/health", async (c) => {
     return c.json({ success: true, data: cachedHealth.data });
   }
 
+  const activeGames = await db.query.games.findMany({
+    where: eq(games.isActive, true),
+    columns: { key: true },
+  });
+  const activeGameKeys = new Set(activeGames.map((g) => g.key));
+  const activeChecks = EXTERNAL_API_CHECKS.filter((api) =>
+    activeGameKeys.has(api.gameKey),
+  );
+
   const [database, ...externalApis] = await Promise.all([
     checkDatabase(),
-    ...EXTERNAL_API_CHECKS.map((api) =>
+    ...activeChecks.map((api) =>
       checkExternalApi(api.name, api.url, api.gameKey),
     ),
   ]);
