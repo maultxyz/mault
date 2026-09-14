@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "session_wrapped_enabled" boolean DEFAULT true NOT NULL;

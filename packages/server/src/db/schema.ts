@@ -342,6 +342,9 @@ export const orgSettings = pgTable(
     captureSettleDelayMs: integer("capture_settle_delay_ms"),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
+    sessionWrappedEnabled: boolean("session_wrapped_enabled")
+      .notNull()
+      .default(true),
     discordGuildId: text("discord_guild_id"),
     discordLinkCode: text("discord_link_code"),
     discordLinkCodeExpiresAt: timestamp("discord_link_code_expires_at"),

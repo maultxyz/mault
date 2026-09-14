@@ -51,6 +51,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
             scannerLayout:
               (row?.scannerLayout as "horizontal" | "vertical") ?? "horizontal",
             discordNotifyOnScan: row?.discordNotifyOnScan ?? false,
+            sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
             discordGuildId: row?.discordGuildId ?? null,
             scanRegion: toScanRegion(row),
             captureSettleDelayMs:

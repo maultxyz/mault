@@ -1,6 +1,7 @@
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
+import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
 import { useDiscordBotSettings } from "@/features/companies/api/use-discord-bot";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -107,6 +108,20 @@ export default function SettingsPage() {
             <p className="text-sm font-medium">{t("appearance.language")}</p>
             <LanguageSwitcher />
           </div>
+        </div>
+        <div className="rounded-lg border p-4 flex flex-col gap-4">
+          <div>
+            <h2 className="text-sm font-semibold font-heading">
+              {t("sessionWrapped.heading")}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {t("sessionWrapped.description")}
+            </p>
+          </div>
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-sm">{t("sessionWrapped.toggleLabel")}</span>
+            <SessionWrappedToggle />
+          </label>
         </div>
         <div className="rounded-lg border p-4 flex flex-col gap-4">
           <DiscordBotSettings />

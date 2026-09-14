@@ -22,7 +22,12 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       primaryColor?: string | null;
       scannerLayout?: string | null;
       discordNotifyOnScan?: boolean;
-      scanRegion?: { coverage: number; offsetX: number; offsetY: number } | null;
+      sessionWrappedEnabled?: boolean;
+      scanRegion?: {
+        coverage: number;
+        offsetX: number;
+        offsetY: number;
+      } | null;
       captureSettleDelayMs?: number | null;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
@@ -52,6 +57,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             "discordNotifyOnScan" in body
               ? (body.discordNotifyOnScan ?? false)
               : (existing?.discordNotifyOnScan ?? false),
+          sessionWrappedEnabled:
+            "sessionWrappedEnabled" in body
+              ? (body.sessionWrappedEnabled ?? true)
+              : (existing?.sessionWrappedEnabled ?? true),
           scanCoverage:
             "scanRegion" in body
               ? body.scanRegion
@@ -94,7 +103,8 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             set: { ...merged, updatedAt: new Date() },
           });
 
-        const previousModuleCount = existing?.moduleCount ?? DEFAULT_MODULE_COUNT;
+        const previousModuleCount =
+          existing?.moduleCount ?? DEFAULT_MODULE_COUNT;
         if (merged.moduleCount < previousModuleCount) {
           const newBinCount = computeBinCount(merged.moduleCount);
           await tx
@@ -124,8 +134,11 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           data: {
             primaryColor: merged.primaryColor,
             scannerLayout:
-              (merged.scannerLayout as "horizontal" | "vertical") ?? "horizontal",
+              (merged.scannerLayout as "horizontal" | "vertical") ??
+              "horizontal",
             discordNotifyOnScan: merged.discordNotifyOnScan,
+            sessionWrappedEnabled: merged.sessionWrappedEnabled,
+            discordGuildId: existing?.discordGuildId ?? null,
             scanRegion: toScanRegion(merged),
             captureSettleDelayMs:
               merged.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,

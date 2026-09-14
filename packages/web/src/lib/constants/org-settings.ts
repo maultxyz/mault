@@ -11,6 +11,7 @@ export interface OrgSettings {
   primaryColor: string | null;
   scannerLayout: "horizontal" | "vertical";
   discordNotifyOnScan: boolean;
+  sessionWrappedEnabled: boolean;
   discordGuildId: string | null;
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
@@ -22,6 +23,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   primaryColor: null,
   scannerLayout: "horizontal",
   discordNotifyOnScan: false,
+  sessionWrappedEnabled: true,
   discordGuildId: null,
   scanRegion: DEFAULT_SCAN_REGION,
   captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,

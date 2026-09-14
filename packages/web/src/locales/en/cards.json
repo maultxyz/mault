@@ -132,6 +132,51 @@
     "includePreviouslyDownloaded": "Include previously downloaded",
     "applyGridFilters": "Apply active filters ({{count}})",
     "close": "Close",
-    "download": "Download ({{count}})"
+    "download": "Download ({{count}})",
+    "sessionWrappedToggle": "Wrapped"
+  },
+  "sessionWrapped": {
+    "srTitle": "{{collectionName}} Wrapped",
+    "srDescription": "A recap of your scanning session.",
+    "previous": "Previous",
+    "next": "Next",
+    "skipAll": "Skip all",
+    "intro": {
+      "eyebrow": "Your session",
+      "title": "{{collectionName}} Wrapped",
+      "subtitle": "Tap or press the arrow keys to see your recap"
+    },
+    "total": {
+      "title": "cards sorted"
+    },
+    "unique": {
+      "title": "unique cards",
+      "subtitle": "{{percent}}% of your haul was something new"
+    },
+    "set": {
+      "eyebrow": "Your top set",
+      "subtitle": "{{count}} cards"
+    },
+    "rarity": {
+      "eyebrow": "Your rarity mix"
+    },
+    "color": {
+      "eyebrow": "Your dominant color",
+      "subtitle": "{{count}} of {{total}} cards"
+    },
+    "mvp": {
+      "eyebrow": "Your MVP"
+    },
+    "value": {
+      "eyebrow": "Total haul",
+      "avgLabel": "Average per card:"
+    },
+    "speed": {
+      "eyebrow": "Your pace",
+      "unit": "cards / hour",
+      "fast": "Lightning fast",
+      "medium": "Solid pace",
+      "slow": "Slow and steady"
+    }
   }
 }

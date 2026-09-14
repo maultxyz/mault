@@ -18,5 +18,10 @@
     "scannerLayoutVertical": "Verticale",
     "scannerLayoutVerticalDescription": "Scanner en haut, grille de cartes en dessous",
     "language": "Langue"
+  },
+  "sessionWrapped": {
+    "heading": "Récap de session",
+    "description": "Affiche un récap façon Wrapped des temps forts avant le résumé d'export.",
+    "toggleLabel": "Activer le récap de session"
   }
 }
