@@ -1,9 +1,4 @@
-import {
-  DEFAULT_CHANNEL_LAYOUT,
-  DEFAULT_SCAN_REGION,
-  type ChannelLayout,
-} from "@magic-vault/shared";
-import type { Transaction } from "../../db";
+import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
 
 export function toScanRegion(row?: {
   scanCoverage: number | null;
@@ -24,15 +19,4 @@ export function toScanRegion(row?: {
         ? row.scanOffsetY / 100
         : DEFAULT_SCAN_REGION.offsetY,
   };
-}
-
-export async function detectDefaultChannelLayout(
-  tx: Transaction,
-  orgId: string,
-): Promise<ChannelLayout> {
-  const existing = await tx.query.moduleConfigs.findFirst({
-    where: (t, { eq }) => eq(t.orgId, orgId),
-    columns: { id: true },
-  });
-  return existing ? "legacy" : DEFAULT_CHANNEL_LAYOUT;
 }

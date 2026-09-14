@@ -1,17 +1,4 @@
-import {
-  DEFAULT_CALIBRATION,
-  DEFAULT_MODULE_COUNT,
-  type ModuleConfig,
-} from "@magic-vault/shared";
-import type { Transaction } from "../../db";
-
-export async function getModuleCount(tx: Transaction, orgId: string): Promise<number> {
-  const row = await tx.query.orgSettings.findFirst({
-    where: (t, { eq }) => eq(t.orgId, orgId),
-    columns: { moduleCount: true },
-  });
-  return row?.moduleCount ?? DEFAULT_MODULE_COUNT;
-}
+import { DEFAULT_CALIBRATION, type ModuleConfig } from "@magic-vault/shared";
 
 export type CalibRow = {
   moduleNumber: number;

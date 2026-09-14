@@ -197,6 +197,20 @@
       "when": 1789396427897,
       "tag": "0027_familiar_madame_web",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1789399141994,
+      "tag": "0028_puzzling_killmonger",
+      "breakpoints": true
+    },
+    {
+      "idx": 29,
+      "version": "7",
+      "when": 1789399316211,
+      "tag": "0029_lean_wolfsbane",
+      "breakpoints": true
     }
   ]
 }

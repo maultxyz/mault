@@ -1,6 +1,7 @@
 import { DEFAULT_FEEDER_CALIBRATION, type FeederCalibration } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { rowToCalibration } from "./shared";
 
@@ -10,10 +11,13 @@ export const getFeederRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
+    const deviceGuid = c.req.param("guid");
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+        if (!device) return { success: false, message: "Device not found." };
         const row = await tx.query.feederConfigs.findFirst({
-          where: (t, { eq }) => eq(t.orgId, orgId),
+          where: (t, { eq }) => eq(t.deviceId, device.id),
         });
         const calibration: FeederCalibration = row
           ? rowToCalibration(row)

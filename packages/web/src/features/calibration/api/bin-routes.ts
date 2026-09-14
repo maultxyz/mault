@@ -14,28 +14,53 @@ function defaultRoutes(): BinRoute[] {
   return createDefaultBinRoutes(DEFAULT_MODULE_COUNT);
 }
 
-export const binRoutesQueryOptions = queryOptions({
-  queryKey: ["bin-routes"] as const,
-  queryFn: () => getBinRoutes().then((r) => r.data ?? defaultRoutes()),
-  staleTime: Infinity,
-});
+export const binRoutesQueryOptions = (deviceGuid: string | undefined) =>
+  queryOptions({
+    queryKey: ["bin-routes", deviceGuid] as const,
+    queryFn: () =>
+      getBinRoutes(deviceGuid!).then((r) => r.data ?? defaultRoutes()),
+    staleTime: Infinity,
+    enabled: !!deviceGuid,
+  });
 
-export async function getBinRoutes(): Promise<Result<BinRoute[]>> {
-  return apiGet<Result<BinRoute[]>>("/api/bin-routes");
+export async function getBinRoutes(
+  deviceGuid: string,
+): Promise<Result<BinRoute[]>> {
+  return apiGet<Result<BinRoute[]>>(`/api/devices/${deviceGuid}/bin-routes`);
 }
 
-export async function saveBinRoute(route: BinRoute): Promise<Result<BinRoute[]>> {
-  return apiPut<Result<BinRoute[]>>(`/api/bin-routes/${route.binNumber}`, route);
+export async function saveBinRoute(
+  deviceGuid: string,
+  route: BinRoute,
+): Promise<Result<BinRoute[]>> {
+  return apiPut<Result<BinRoute[]>>(
+    `/api/devices/${deviceGuid}/bin-routes/${route.binNumber}`,
+    route,
+  );
 }
 
-export async function deleteBinRoute(binNumber: number): Promise<Result<BinRoute[]>> {
-  return apiDelete<Result<BinRoute[]>>(`/api/bin-routes/${binNumber}`);
+export async function deleteBinRoute(
+  deviceGuid: string,
+  binNumber: number,
+): Promise<Result<BinRoute[]>> {
+  return apiDelete<Result<BinRoute[]>>(
+    `/api/devices/${deviceGuid}/bin-routes/${binNumber}`,
+  );
 }
 
-export async function getBinRouteHistory(): Promise<Result<BinRouteAuditEntry[]>> {
-  return apiGet<Result<BinRouteAuditEntry[]>>("/api/bin-routes/history");
+export async function getBinRouteHistory(
+  deviceGuid: string,
+): Promise<Result<BinRouteAuditEntry[]>> {
+  return apiGet<Result<BinRouteAuditEntry[]>>(
+    `/api/devices/${deviceGuid}/bin-routes/history`,
+  );
 }
 
-export async function revertBinRoute(guid: string): Promise<Result<BinRoute[]>> {
-  return apiPost<Result<BinRoute[]>>(`/api/bin-routes/history/${guid}/revert`);
+export async function revertBinRoute(
+  deviceGuid: string,
+  guid: string,
+): Promise<Result<BinRoute[]>> {
+  return apiPost<Result<BinRoute[]>>(
+    `/api/devices/${deviceGuid}/bin-routes/history/${guid}/revert`,
+  );
 }

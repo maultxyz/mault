@@ -142,6 +142,32 @@ export const binSets = pgTable(
   ],
 ).enableRLS();
 
+export const devices = pgTable(
+  "devices",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    orgId: text("org_id").notNull(),
+    name: text("name").notNull().default("Card Sorter"),
+    scanCoverage: integer("scan_coverage"),
+    scanOffsetX: integer("scan_offset_x"),
+    scanOffsetY: integer("scan_offset_y"),
+    captureSettleDelayMs: integer("capture_settle_delay_ms"),
+    moduleCount: integer("module_count").notNull().default(3),
+    channelLayout: text("channel_layout"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("devices_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const bins = pgTable(
   "bins",
   {
@@ -179,11 +205,14 @@ export const binRoutes = pgTable(
     module: integer("module").notNull(),
     direction: text("direction").notNull(),
     orgId: text("org_id").notNull(),
+    deviceId: integer("device_id")
+      .notNull()
+      .references(() => devices.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("bin_routes_org_bin_idx").on(table.orgId, table.binNumber),
+    unique("bin_routes_device_bin_idx").on(table.deviceId, table.binNumber),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -199,6 +228,9 @@ export const moduleConfigs = pgTable(
     guid: uuid("guid").defaultRandom(),
     moduleNumber: integer("module_number").notNull(),
     orgId: text("org_id").notNull(),
+    deviceId: integer("device_id")
+      .notNull()
+      .references(() => devices.id),
     bottomClosed: integer("bottom_closed").notNull().default(102),
     bottomOpen: integer("bottom_open").notNull().default(307),
     paddleClosed: integer("paddle_closed").notNull().default(150),
@@ -210,7 +242,10 @@ export const moduleConfigs = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("module_configs_org_module_idx").on(table.orgId, table.moduleNumber),
+    unique("module_configs_device_module_idx").on(
+      table.deviceId,
+      table.moduleNumber,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -225,6 +260,9 @@ export const feederConfigs = pgTable(
     id: serial().primaryKey(),
     guid: uuid("guid").defaultRandom(),
     orgId: text("org_id").notNull(),
+    deviceId: integer("device_id")
+      .notNull()
+      .references(() => devices.id),
     speed: integer("speed").notNull().default(400),
     duration: integer("duration").notNull().default(3000),
     pulseDuration: integer("pulse_duration").notNull().default(80),
@@ -234,7 +272,7 @@ export const feederConfigs = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("feeder_configs_org_idx").on(table.orgId),
+    unique("feeder_configs_device_idx").on(table.deviceId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -336,12 +374,6 @@ export const orgSettings = pgTable(
     discordNotifyOnScan: boolean("discord_notify_on_scan")
       .notNull()
       .default(false),
-    scanCoverage: integer("scan_coverage"),
-    scanOffsetX: integer("scan_offset_x"),
-    scanOffsetY: integer("scan_offset_y"),
-    captureSettleDelayMs: integer("capture_settle_delay_ms"),
-    moduleCount: integer("module_count").notNull().default(3),
-    channelLayout: text("channel_layout"),
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),
@@ -421,6 +453,8 @@ export const binRouteAudit = pgTable(
     module: integer("module").notNull(),
     direction: text("direction").notNull(),
     orgId: text("org_id").notNull(),
+    // No FK, matching the rest of this table (audit records are permanent).
+    deviceId: integer("device_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
@@ -440,6 +474,8 @@ export const moduleConfigAudit = pgTable(
     guid: uuid("guid").defaultRandom(),
     moduleNumber: integer("module_number").notNull(),
     orgId: text("org_id").notNull(),
+    // No FK, matching the rest of this table (audit records are permanent).
+    deviceId: integer("device_id").notNull(),
     bottomClosed: integer("bottom_closed").notNull(),
     bottomOpen: integer("bottom_open").notNull(),
     paddleClosed: integer("paddle_closed").notNull(),
@@ -465,6 +501,8 @@ export const feederConfigAudit = pgTable(
     id: serial().primaryKey(),
     guid: uuid("guid").defaultRandom(),
     orgId: text("org_id").notNull(),
+    // No FK, matching the rest of this table (audit records are permanent).
+    deviceId: integer("device_id").notNull(),
     speed: integer("speed").notNull(),
     duration: integer("duration").notNull(),
     pulseDuration: integer("pulse_duration").notNull(),

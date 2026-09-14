@@ -3,9 +3,9 @@ import {
   deleteBinRoute,
   saveBinRoute,
 } from "@/features/calibration/api/bin-routes";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import type { BinRoutesContextValue } from "@/lib/interfaces/calibration";
-import { useOrg } from "@/features/companies/api/use-organization";
 import { createDefaultBinRoutes, type BinRoute } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext } from "react";
@@ -17,19 +17,18 @@ const BinRoutesContext = createContext<BinRoutesContextValue | null>(null);
 export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
-  const { activeOrg } = useOrg();
+  const device = useDevice();
   const moduleCount = useModuleCount();
 
-  const { data: routes = createDefaultBinRoutes(moduleCount) } = useQuery({
-    ...binRoutesQueryOptions,
-    enabled: !!activeOrg,
-  });
+  const queryOpts = binRoutesQueryOptions(device?.guid);
+  const { data: routes = createDefaultBinRoutes(moduleCount) } =
+    useQuery(queryOpts);
 
   const saveMutation = useMutation({
-    mutationFn: saveBinRoute,
+    mutationFn: (route: BinRoute) => saveBinRoute(device!.guid, route),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(binRoutesQueryOptions.queryKey, result.data);
+        queryClient.setQueryData(queryOpts.queryKey, result.data);
       }
     },
     onError: () => toast.error(t("useBinRoutes.toasts.saveFailed")),
@@ -40,13 +39,13 @@ export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
       const defaults = createDefaultBinRoutes(moduleCount);
       let last: Awaited<ReturnType<typeof saveBinRoute>> | null = null;
       for (const route of defaults) {
-        last = await saveBinRoute(route);
+        last = await saveBinRoute(device!.guid, route);
       }
       return last;
     },
     onSuccess: (result) => {
       if (result?.success && result.data) {
-        queryClient.setQueryData(binRoutesQueryOptions.queryKey, result.data);
+        queryClient.setQueryData(queryOpts.queryKey, result.data);
         toast.success(t("useBinRoutes.toasts.resetSuccess"));
       }
     },
@@ -55,9 +54,10 @@ export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
 
   const save = useCallback(
     (route: BinRoute) => {
+      if (!device) return;
       saveMutation.mutate(route);
     },
-    [saveMutation],
+    [saveMutation, device],
   );
 
   // Awaits the first save before issuing the second so the two upserts land
@@ -72,8 +72,9 @@ export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
   );
 
   const resetToDefaults = useCallback(() => {
+    if (!device) return;
     resetMutation.mutate();
-  }, [resetMutation]);
+  }, [resetMutation, device]);
 
   return (
     <BinRoutesContext

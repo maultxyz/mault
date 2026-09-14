@@ -1,10 +1,7 @@
-import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
-import { useOrg } from "@/features/companies/api/use-organization";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { DEFAULT_CHANNEL_LAYOUT, type ChannelLayout } from "@magic-vault/shared";
-import { useQuery } from "@tanstack/react-query";
 
 export function useChannelLayout(): ChannelLayout {
-  const { activeOrg } = useOrg();
-  const { data } = useQuery(orgSettingsQueryOptions(activeOrg?.id));
-  return data?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
+  const device = useDevice();
+  return device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
 }

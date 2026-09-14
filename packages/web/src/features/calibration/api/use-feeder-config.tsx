@@ -2,7 +2,7 @@ import {
   feederQueryOptions,
   saveFeederConfig,
 } from "@/features/calibration/api/feeder-config";
-import { useOrg } from "@/features/companies/api/use-organization";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   DEFAULT_FEEDER_CALIBRATION,
@@ -33,15 +33,17 @@ export function FeederConfigProvider({
 }) {
   const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
-  const { activeOrg } = useOrg();
+  const device = useDevice();
   const { sendCommand, receiveResponse, registerPreTestHook } = useSerial();
 
+  const queryOpts = feederQueryOptions(device?.guid);
   const { data: feederConfig = { ...DEFAULT_FEEDER_CALIBRATION } } =
-    useQuery({ ...feederQueryOptions, enabled: !!activeOrg });
+    useQuery(queryOpts);
 
   useEffect(() => {
     return registerPreTestHook(async () => {
-      const fresh = await queryClient.fetchQuery(feederQueryOptions);
+      if (!device) return;
+      const fresh = await queryClient.fetchQuery(queryOpts);
       const p = receiveResponse();
       await sendCommand(JSON.stringify({ setFeederConfig: fresh }));
       const response = await p;
@@ -60,25 +62,30 @@ export function FeederConfigProvider({
         });
       }
     });
-  }, [registerPreTestHook, queryClient, sendCommand, receiveResponse, t]);
+  }, [registerPreTestHook, queryClient, queryOpts, sendCommand, receiveResponse, device, t]);
 
   const saveConfigMutation = useMutation({
     mutationFn: (calibration: FeederCalibration) =>
-      saveFeederConfig(calibration),
+      saveFeederConfig(device!.guid, calibration),
     onMutate: async (calibration) => {
-      await queryClient.cancelQueries({ queryKey: ["feeder"] });
-      const previous = queryClient.getQueryData<FeederCalibration>(["feeder"]);
-      queryClient.setQueryData<FeederCalibration>(["feeder"], calibration);
+      await queryClient.cancelQueries({ queryKey: queryOpts.queryKey });
+      const previous = queryClient.getQueryData<FeederCalibration>(
+        queryOpts.queryKey,
+      );
+      queryClient.setQueryData<FeederCalibration>(
+        queryOpts.queryKey,
+        calibration,
+      );
       return { previous };
     },
     onError: (_err, _vars, context) => {
       if (context?.previous)
-        queryClient.setQueryData(["feeder"], context.previous);
+        queryClient.setQueryData(queryOpts.queryKey, context.previous);
       toast.error(t("useFeederConfig.toasts.saveFailed"));
     },
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(["feeder"], result.data);
+        queryClient.setQueryData(queryOpts.queryKey, result.data);
         sendCommand(JSON.stringify({ setFeederConfig: result.data }));
       }
     },
@@ -86,9 +93,10 @@ export function FeederConfigProvider({
 
   const saveConfig = useCallback(
     async (calibration: FeederCalibration) => {
+      if (!device) return;
       await saveConfigMutation.mutateAsync(calibration);
     },
-    [saveConfigMutation],
+    [saveConfigMutation, device],
   );
 
   const previewSpeed = useCallback(

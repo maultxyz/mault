@@ -1,12 +1,12 @@
-import {
-  DEFAULT_MODULE_COUNT,
-  type BinConfig,
-  type BinRuleGroup,
-  type BinSet,
-  type FieldMeta,
-  type RepackSlot,
+import type {
+  BinConfig,
+  BinRuleGroup,
+  BinSet,
+  FieldMeta,
+  RepackSlot,
 } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
+import { getOrCreateDevice } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit } from "../../db/schema";
 
@@ -14,11 +14,8 @@ export async function getModuleCount(
   tx: Transaction,
   orgId: string,
 ): Promise<number> {
-  const row = await tx.query.orgSettings.findFirst({
-    where: (t, { eq }) => eq(t.orgId, orgId),
-    columns: { moduleCount: true },
-  });
-  return row?.moduleCount ?? DEFAULT_MODULE_COUNT;
+  const device = await getOrCreateDevice(tx, orgId);
+  return device.moduleCount;
 }
 
 export function emptyRules(): BinRuleGroup {

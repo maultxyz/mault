@@ -6,19 +6,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { binRoutesQueryOptions } from "@/features/calibration/api/bin-routes";
-import {
-  DEFAULT_ORG_SETTINGS,
-  orgSettingsQueryOptions,
-  saveOrgSettings,
-} from "@/features/companies/api/org-settings";
+import type { Device } from "@/features/calibration/api/devices";
+import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
   DEFAULT_CHANNEL_LAYOUT,
   DEFAULT_MODULE_COUNT,
   maxModulesForLayout,
 } from "@magic-vault/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -26,11 +23,11 @@ export function ModuleCountStepper() {
   const { t } = useTranslation("calibration");
   const [pendingCount, setPendingCount] = useState<number | null>(null);
   const { activeOrg } = useOrg();
+  const device = useDevice();
   const queryClient = useQueryClient();
-  const queryOpts = orgSettingsQueryOptions(activeOrg?.id);
-  const { data } = useQuery(queryOpts);
-  const current = data?.moduleCount ?? DEFAULT_MODULE_COUNT;
-  const channelLayout = data?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
+  const devicesOpts = devicesQueryOptions(activeOrg?.id);
+  const current = device?.moduleCount ?? DEFAULT_MODULE_COUNT;
+  const channelLayout = device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
   const maxModules = maxModulesForLayout(channelLayout);
   const moduleCountOptions = Array.from(
     { length: maxModules },
@@ -38,30 +35,32 @@ export function ModuleCountStepper() {
   );
 
   const mutation = useMutation({
-    mutationFn: (moduleCount: number) => saveOrgSettings({ moduleCount }),
+    mutationFn: (moduleCount: number) =>
+      saveDevice(device!.guid, { moduleCount }),
     onMutate: async (moduleCount) => {
-      await queryClient.cancelQueries({ queryKey: queryOpts.queryKey });
-      const previous = queryClient.getQueryData(queryOpts.queryKey);
+      await queryClient.cancelQueries({ queryKey: devicesOpts.queryKey });
+      const previous = queryClient.getQueryData(devicesOpts.queryKey);
       queryClient.setQueryData(
-        queryOpts.queryKey,
-        (old: typeof data): typeof data => ({
-          ...(old ?? DEFAULT_ORG_SETTINGS),
-          moduleCount,
-        }),
+        devicesOpts.queryKey,
+        (old: Device[] | undefined) =>
+          old?.map((d, i) => (i === 0 ? { ...d, moduleCount } : d)) ?? old,
       );
       return { previous };
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.previous)
-        queryClient.setQueryData(queryOpts.queryKey, ctx.previous);
+      if (ctx?.previous) queryClient.setQueryData(devicesOpts.queryKey, ctx.previous);
     },
     onSuccess: (result) => {
-      if (result.success && result.data)
-        queryClient.setQueryData(queryOpts.queryKey, result.data);
+      if (result.success && result.data) {
+        const saved = result.data;
+        queryClient.setQueryData(
+          devicesOpts.queryKey,
+          (old: Device[] | undefined) =>
+            old ? [saved, ...old.slice(1)] : [saved],
+        );
+      }
       queryClient.invalidateQueries({ queryKey: ["modules"] });
-      queryClient.invalidateQueries({
-        queryKey: binRoutesQueryOptions.queryKey,
-      });
+      queryClient.invalidateQueries({ queryKey: ["bin-routes"] });
       queryClient.invalidateQueries({ queryKey: ["bins"] });
     },
   });
@@ -71,6 +70,7 @@ export function ModuleCountStepper() {
       <Select
         value={String(current)}
         onValueChange={(value) => {
+          if (!device) return;
           const next = Number(value);
           if (next < current) {
             setPendingCount(next);
