@@ -12,7 +12,7 @@ export const editModuleConfigRoute = new Hono<AppEnv>().put(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const deviceGuid = c.req.param("guid");
+    const deviceGuid = c.req.param("guid") as string;
     const moduleNumber = parseInt(c.req.param("moduleNumber"));
     const calibration = await c.req.json<ServoCalibration>();
     try {

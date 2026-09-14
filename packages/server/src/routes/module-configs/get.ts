@@ -10,7 +10,7 @@ export const getModuleConfigsRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const deviceGuid = c.req.param("guid");
+    const deviceGuid = c.req.param("guid") as string;
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const device = await getDeviceByGuid(tx, orgId, deviceGuid);

@@ -12,7 +12,7 @@ export const revertFeederRoute = new Hono<AppEnv>().post(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const deviceGuid = c.req.param("guid");
+    const deviceGuid = c.req.param("guid") as string;
     const entryGuid = c.req.param("entryGuid");
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {

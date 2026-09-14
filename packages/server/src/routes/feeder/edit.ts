@@ -12,7 +12,7 @@ export const editFeederRoute = new Hono<AppEnv>().put(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const deviceGuid = c.req.param("guid");
+    const deviceGuid = c.req.param("guid") as string;
     const calibration = await c.req.json<FeederCalibration>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -34,7 +34,9 @@ export const editFeederRoute = new Hono<AppEnv>().put(
         const row = await tx.query.feederConfigs.findFirst({
           where: (t, { eq }) => eq(t.deviceId, device.id),
         });
-        const saved: FeederCalibration = row ? rowToCalibration(row) : calibration;
+        const saved: FeederCalibration = row
+          ? rowToCalibration(row)
+          : calibration;
         return { success: true, message: "Saved feeder config.", data: saved };
       });
       return c.json(result);

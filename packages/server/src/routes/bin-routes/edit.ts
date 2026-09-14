@@ -12,7 +12,7 @@ export const editBinRouteRoute = new Hono<AppEnv>().put(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const deviceGuid = c.req.param("guid");
+    const deviceGuid = c.req.param("guid") as string;
     const binNumber = parseInt(c.req.param("binNumber"));
     const route = await c.req.json<BinRoute>();
     try {

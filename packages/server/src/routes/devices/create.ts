@@ -10,7 +10,9 @@ export const createDeviceRoute = new Hono<AppEnv>().post(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const body = await c.req.json<{ name?: string }>().catch(() => ({}));
+    const body = await c.req
+      .json<{ name?: string }>()
+      .catch(() => ({ name: undefined }));
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const existing = await tx.query.devices.findFirst({

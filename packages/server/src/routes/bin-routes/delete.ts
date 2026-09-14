@@ -12,7 +12,7 @@ export const deleteBinRouteRoute = new Hono<AppEnv>().delete(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const deviceGuid = c.req.param("guid");
+    const deviceGuid = c.req.param("guid") as string;
     const binNumber = parseInt(c.req.param("binNumber"));
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -20,7 +20,12 @@ export const deleteBinRouteRoute = new Hono<AppEnv>().delete(
         if (!device) return { success: false, message: "Device not found." };
         await tx
           .delete(binRoutes)
-          .where(and(eq(binRoutes.deviceId, device.id), eq(binRoutes.binNumber, binNumber)));
+          .where(
+            and(
+              eq(binRoutes.deviceId, device.id),
+              eq(binRoutes.binNumber, binNumber),
+            ),
+          );
 
         const rows = await tx.query.binRoutes.findMany({
           where: (t, { eq }) => eq(t.deviceId, device.id),

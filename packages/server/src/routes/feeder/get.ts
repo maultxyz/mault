@@ -1,4 +1,7 @@
-import { DEFAULT_FEEDER_CALIBRATION, type FeederCalibration } from "@magic-vault/shared";
+import {
+  DEFAULT_FEEDER_CALIBRATION,
+  type FeederCalibration,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { getDeviceByGuid } from "../../lib/devices";
@@ -11,7 +14,7 @@ export const getFeederRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const deviceGuid = c.req.param("guid");
+    const deviceGuid = c.req.param("guid") as string;
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const device = await getDeviceByGuid(tx, orgId, deviceGuid);
@@ -22,7 +25,11 @@ export const getFeederRoute = new Hono<AppEnv>().get(
         const calibration: FeederCalibration = row
           ? rowToCalibration(row)
           : { ...DEFAULT_FEEDER_CALIBRATION };
-        return { success: true, message: "Loaded feeder config.", data: calibration };
+        return {
+          success: true,
+          message: "Loaded feeder config.",
+          data: calibration,
+        };
       });
       return c.json(result);
     } catch (err) {
