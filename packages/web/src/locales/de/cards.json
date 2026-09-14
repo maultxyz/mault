@@ -132,6 +132,51 @@
     "includePreviouslyDownloaded": "Bereits heruntergeladene einschließen",
     "applyGridFilters": "Aktive Filter anwenden ({{count}})",
     "close": "Schließen",
-    "download": "Herunterladen ({{count}})"
+    "download": "Herunterladen ({{count}})",
+    "sessionWrappedToggle": "Wrapped"
+  },
+  "sessionWrapped": {
+    "srTitle": "{{collectionName}} Jahresrückblick",
+    "srDescription": "Ein Rückblick auf deine Scan-Sitzung.",
+    "previous": "Zurück",
+    "next": "Weiter",
+    "skipAll": "Alles überspringen",
+    "intro": {
+      "eyebrow": "Deine Sitzung",
+      "title": "{{collectionName}} Rückblick",
+      "subtitle": "Tippe oder nutze die Pfeiltasten für deinen Rückblick"
+    },
+    "total": {
+      "title": "Karten sortiert"
+    },
+    "unique": {
+      "title": "einzigartige Karten",
+      "subtitle": "{{percent}}% deiner Ausbeute war neu"
+    },
+    "set": {
+      "eyebrow": "Deine Top-Edition",
+      "subtitle": "{{count}} Karten"
+    },
+    "rarity": {
+      "eyebrow": "Deine Seltenheitsverteilung"
+    },
+    "color": {
+      "eyebrow": "Deine dominante Farbe",
+      "subtitle": "{{count}} von {{total}} Karten"
+    },
+    "mvp": {
+      "eyebrow": "Deine wertvollste Karte"
+    },
+    "value": {
+      "eyebrow": "Gesamtausbeute",
+      "avgLabel": "Durchschnitt pro Karte:"
+    },
+    "speed": {
+      "eyebrow": "Dein Tempo",
+      "unit": "Karten / Stunde",
+      "fast": "Blitzschnell",
+      "medium": "Solides Tempo",
+      "slow": "Langsam und gründlich"
+    }
   }
 }

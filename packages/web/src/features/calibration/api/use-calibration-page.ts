@@ -1,7 +1,9 @@
 import { binRoutesQueryOptions, saveBinRoute } from "@/features/calibration/api/bin-routes";
+import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
 import { modulesQueryOptions } from "@/features/calibration/api/module-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useChannelLayout } from "@/features/calibration/api/use-channel-layout";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
@@ -16,7 +18,6 @@ import {
   downloadCalibrationExport,
   parseCalibrationExport,
 } from "@/features/calibration/lib/calibration-export";
-import { orgSettingsQueryOptions, saveOrgSettings } from "@/features/companies/api/org-settings";
 import type { ActivePositions, SliderKey } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
@@ -50,8 +51,9 @@ export function useCalibrationPage() {
   const { configs, saveConfig, moveServo } = useModuleConfigs();
   const { feederConfig, saveConfig: saveFeeder, previewSpeed } = useFeederConfig();
   const { activeOrg } = useOrg();
+  const device = useDevice();
   const queryClient = useQueryClient();
-  const { isLoading } = useQuery({ ...modulesQueryOptions, enabled: !!activeOrg });
+  const { isLoading } = useQuery(modulesQueryOptions(device?.guid));
   const moduleCount = useModuleCount();
   const modules = Array.from({ length: moduleCount }, (_, i) => i + 1);
   const { routes: binRoutes } = useBinRoutes();
@@ -354,14 +356,19 @@ export function useCalibrationPage() {
         return;
       }
 
+      if (!device) {
+        toast.error(t("useCalibrationPage.toasts.importFailed"));
+        return;
+      }
+
       setIsImporting(true);
       try {
-        await saveOrgSettings({
+        await saveDevice(device.guid, {
           moduleCount: parsed.moduleCount,
           channelLayout: parsed.channelLayout,
         });
         await queryClient.invalidateQueries({
-          queryKey: orgSettingsQueryOptions(activeOrg?.id).queryKey,
+          queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
         });
 
         for (const m of parsed.modules) {
@@ -371,10 +378,10 @@ export function useCalibrationPage() {
         await saveFeeder(parsed.feeder);
 
         for (const route of parsed.binRoutes) {
-          await saveBinRoute(route);
+          await saveBinRoute(device.guid, route);
         }
         await queryClient.invalidateQueries({
-          queryKey: binRoutesQueryOptions.queryKey,
+          queryKey: binRoutesQueryOptions(device.guid).queryKey,
         });
 
         toast.success(t("useCalibrationPage.toasts.importSuccess"));
@@ -384,7 +391,7 @@ export function useCalibrationPage() {
         setIsImporting(false);
       }
     },
-    [activeOrg?.id, queryClient, saveConfig, saveFeeder, t],
+    [activeOrg?.id, device, queryClient, saveConfig, saveFeeder, t],
   );
 
   useEffect(() => {

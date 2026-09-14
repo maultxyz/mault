@@ -12,7 +12,8 @@
     "db:studio": "drizzle-kit studio",
     "db:migrate-local": "tsx scripts/migrate-local.ts",
     "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts",
-    "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts"
+    "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts",
+    "backfill:devices": "tsx --env-file ../../.env scripts/backfill-devices.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",

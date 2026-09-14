@@ -2,9 +2,8 @@ import {
   modulesQueryOptions,
   saveModuleConfig,
 } from "@/features/calibration/api/module-configs";
+import { useDevice } from "@/features/calibration/api/use-device";
 import type { ModuleConfigsContextValue } from "@/lib/interfaces/calibration";
-import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
-import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   CHANNEL_OFFSET,
@@ -37,22 +36,16 @@ export function ModuleConfigsProvider({
 }) {
   const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
-  const { activeOrg } = useOrg();
+  const device = useDevice();
   const { sendCommand, receiveResponse, registerPreTestHook } = useSerial();
 
-  const { data: configs = defaultConfigs() } = useQuery({
-    ...modulesQueryOptions,
-    enabled: !!activeOrg,
-  });
+  const queryOpts = modulesQueryOptions(device?.guid);
+  const { data: configs = defaultConfigs() } = useQuery(queryOpts);
 
   useEffect(() => {
     return registerPreTestHook(async () => {
       try {
-        const orgSettings = await queryClient.fetchQuery(
-          orgSettingsQueryOptions(activeOrg?.id),
-        );
-        const channelLayout =
-          orgSettings?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
+        const channelLayout = device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
         const offsetResponse = receiveResponse();
         await sendCommand(
           JSON.stringify({ setChannelOffset: CHANNEL_OFFSET[channelLayout] }),
@@ -62,7 +55,8 @@ export function ModuleConfigsProvider({
         console.error("[Serial] Failed to sync channel offset:", e); // eslint-disable-line no-console -- hardware debug trace
       }
 
-      const fresh = await queryClient.fetchQuery(modulesQueryOptions);
+      if (!device) return;
+      const fresh = await queryClient.fetchQuery(queryOpts);
       for (const config of fresh) {
         const p = receiveResponse();
         await sendCommand(
@@ -98,9 +92,10 @@ export function ModuleConfigsProvider({
   }, [
     registerPreTestHook,
     queryClient,
+    queryOpts,
     sendCommand,
     receiveResponse,
-    activeOrg,
+    device,
     t,
   ]);
 
@@ -111,12 +106,14 @@ export function ModuleConfigsProvider({
     }: {
       moduleNumber: number;
       calibration: ServoCalibration;
-    }) => saveModuleConfig(moduleNumber, calibration),
+    }) => saveModuleConfig(device!.guid, moduleNumber, calibration),
     onMutate: async ({ moduleNumber, calibration }) => {
-      await queryClient.cancelQueries({ queryKey: ["modules"] });
-      const previous = queryClient.getQueryData<ModuleConfig[]>(["modules"]);
+      await queryClient.cancelQueries({ queryKey: queryOpts.queryKey });
+      const previous = queryClient.getQueryData<ModuleConfig[]>(
+        queryOpts.queryKey,
+      );
       queryClient.setQueryData<ModuleConfig[]>(
-        ["modules"],
+        queryOpts.queryKey,
         (old = defaultConfigs()) =>
           old.map((c) =>
             c.moduleNumber === moduleNumber ? { ...c, calibration } : c,
@@ -126,12 +123,12 @@ export function ModuleConfigsProvider({
     },
     onError: (_err, _vars, context) => {
       if (context?.previous)
-        queryClient.setQueryData(["modules"], context.previous);
+        queryClient.setQueryData(queryOpts.queryKey, context.previous);
       toast.error(t("useModuleConfigs.toasts.saveFailed"));
     },
     onSuccess: (result, { moduleNumber, calibration }) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(["modules"], result.data);
+        queryClient.setQueryData(queryOpts.queryKey, result.data);
         sendCommand(
           JSON.stringify({
             setConfig: { module: moduleNumber, ...calibration },
@@ -143,9 +140,10 @@ export function ModuleConfigsProvider({
 
   const saveConfig = useCallback(
     async (moduleNumber: number, calibration: ServoCalibration) => {
+      if (!device) return;
       await saveConfigMutation.mutateAsync({ moduleNumber, calibration });
     },
-    [saveConfigMutation],
+    [saveConfigMutation, device],
   );
 
   const moveServo = useCallback(

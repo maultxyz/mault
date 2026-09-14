@@ -17,35 +17,45 @@ function defaultModuleConfigs(): ModuleConfig[] {
   }));
 }
 
-export const modulesQueryOptions = queryOptions({
-  queryKey: ["modules"] as const,
-  queryFn: () =>
-    getModuleConfigs().then((r) => r.data ?? defaultModuleConfigs()),
-  staleTime: Infinity,
-});
+export const modulesQueryOptions = (deviceGuid: string | undefined) =>
+  queryOptions({
+    queryKey: ["modules", deviceGuid] as const,
+    queryFn: () =>
+      getModuleConfigs(deviceGuid!).then((r) => r.data ?? defaultModuleConfigs()),
+    staleTime: Infinity,
+    enabled: !!deviceGuid,
+  });
 
-export async function getModuleConfigs(): Promise<Result<ModuleConfig[]>> {
-  return apiGet<Result<ModuleConfig[]>>("/api/modules");
+export async function getModuleConfigs(
+  deviceGuid: string,
+): Promise<Result<ModuleConfig[]>> {
+  return apiGet<Result<ModuleConfig[]>>(`/api/devices/${deviceGuid}/modules`);
 }
 
 export async function saveModuleConfig(
+  deviceGuid: string,
   moduleNumber: number,
   calibration: ServoCalibration,
 ): Promise<Result<ModuleConfig[]>> {
   return apiPut<Result<ModuleConfig[]>>(
-    `/api/modules/${moduleNumber}`,
+    `/api/devices/${deviceGuid}/modules/${moduleNumber}`,
     calibration,
   );
 }
 
-export async function getModuleHistory(): Promise<
-  Result<ModuleConfigAuditEntry[]>
-> {
-  return apiGet<Result<ModuleConfigAuditEntry[]>>("/api/modules/history");
+export async function getModuleHistory(
+  deviceGuid: string,
+): Promise<Result<ModuleConfigAuditEntry[]>> {
+  return apiGet<Result<ModuleConfigAuditEntry[]>>(
+    `/api/devices/${deviceGuid}/modules/history`,
+  );
 }
 
 export async function revertModuleConfig(
+  deviceGuid: string,
   guid: string,
 ): Promise<Result<ModuleConfig[]>> {
-  return apiPost<Result<ModuleConfig[]>>(`/api/modules/history/${guid}/revert`);
+  return apiPost<Result<ModuleConfig[]>>(
+    `/api/devices/${deviceGuid}/modules/history/${guid}/revert`,
+  );
 }

@@ -132,6 +132,51 @@
     "includePreviouslyDownloaded": "Inclure celles déjà téléchargées",
     "applyGridFilters": "Appliquer les filtres actifs ({{count}})",
     "close": "Fermer",
-    "download": "Télécharger ({{count}})"
+    "download": "Télécharger ({{count}})",
+    "sessionWrappedToggle": "Wrapped"
+  },
+  "sessionWrapped": {
+    "srTitle": "Le récap de {{collectionName}}",
+    "srDescription": "Le récapitulatif de ta session de scan.",
+    "previous": "Précédent",
+    "next": "Suivant",
+    "skipAll": "Tout passer",
+    "intro": {
+      "eyebrow": "Ta session",
+      "title": "Le récap de {{collectionName}}",
+      "subtitle": "Touche l'écran ou utilise les flèches pour voir ton récap"
+    },
+    "total": {
+      "title": "cartes triées"
+    },
+    "unique": {
+      "title": "cartes uniques",
+      "subtitle": "{{percent}}% de ton lot était inédit"
+    },
+    "set": {
+      "eyebrow": "Ton set favori",
+      "subtitle": "{{count}} cartes"
+    },
+    "rarity": {
+      "eyebrow": "Ta répartition de raretés"
+    },
+    "color": {
+      "eyebrow": "Ta couleur dominante",
+      "subtitle": "{{count}} sur {{total}} cartes"
+    },
+    "mvp": {
+      "eyebrow": "Ta carte MVP"
+    },
+    "value": {
+      "eyebrow": "Valeur totale",
+      "avgLabel": "Moyenne par carte :"
+    },
+    "speed": {
+      "eyebrow": "Ton rythme",
+      "unit": "cartes / heure",
+      "fast": "Ultra rapide",
+      "medium": "Bon rythme",
+      "slow": "Lent et minutieux"
+    }
   }
 }

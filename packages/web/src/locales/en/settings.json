@@ -24,5 +24,10 @@
     "scannerLayoutVertical": "Vertical",
     "scannerLayoutVerticalDescription": "Scanner on top, card grid below",
     "language": "Language"
+  },
+  "sessionWrapped": {
+    "heading": "Session Wrapped",
+    "description": "Show a Wrapped-style recap of stat highlights before the export summary.",
+    "toggleLabel": "Enable Session Wrapped"
   }
 }

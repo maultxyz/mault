@@ -1,8 +1,6 @@
-import {
-  DEFAULT_ORG_SETTINGS,
-  orgSettingsQueryOptions,
-  saveOrgSettings,
-} from "@/features/companies/api/org-settings";
+import type { Device } from "@/features/calibration/api/devices";
+import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { cn } from "@/lib/utils";
 import {
@@ -11,12 +9,13 @@ import {
   maxModulesForLayout,
   type ChannelLayout,
 } from "@magic-vault/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 export function ChannelLayoutToggle() {
   const { t } = useTranslation("calibration");
   const { activeOrg } = useOrg();
+  const device = useDevice();
 
   const OPTIONS: {
     value: ChannelLayout;
@@ -36,42 +35,51 @@ export function ChannelLayoutToggle() {
   ];
 
   const queryClient = useQueryClient();
-  const queryOpts = orgSettingsQueryOptions(activeOrg?.id);
-  const { data } = useQuery(queryOpts);
-  const current = data?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
+  const devicesOpts = devicesQueryOptions(activeOrg?.id);
+  const current = device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
 
   const mutation = useMutation({
     mutationFn: (channelLayout: ChannelLayout) =>
-      saveOrgSettings({
+      saveDevice(device!.guid, {
         channelLayout,
         moduleCount: Math.min(
-          data?.moduleCount ?? DEFAULT_MODULE_COUNT,
+          device?.moduleCount ?? DEFAULT_MODULE_COUNT,
           maxModulesForLayout(channelLayout),
         ),
       }),
     onMutate: async (channelLayout) => {
-      await queryClient.cancelQueries({ queryKey: queryOpts.queryKey });
-      const previous = queryClient.getQueryData(queryOpts.queryKey);
+      await queryClient.cancelQueries({ queryKey: devicesOpts.queryKey });
+      const previous = queryClient.getQueryData(devicesOpts.queryKey);
       queryClient.setQueryData(
-        queryOpts.queryKey,
-        (old: typeof data): typeof data => ({
-          ...(old ?? DEFAULT_ORG_SETTINGS),
-          channelLayout,
-          moduleCount: Math.min(
-            old?.moduleCount ?? DEFAULT_MODULE_COUNT,
-            maxModulesForLayout(channelLayout),
-          ),
-        }),
+        devicesOpts.queryKey,
+        (old: Device[] | undefined) =>
+          old?.map((d, i) =>
+            i === 0
+              ? {
+                  ...d,
+                  channelLayout,
+                  moduleCount: Math.min(
+                    d.moduleCount,
+                    maxModulesForLayout(channelLayout),
+                  ),
+                }
+              : d,
+          ) ?? old,
       );
       return { previous };
     },
     onError: (_err, _vars, ctx) => {
-      if (ctx?.previous)
-        queryClient.setQueryData(queryOpts.queryKey, ctx.previous);
+      if (ctx?.previous) queryClient.setQueryData(devicesOpts.queryKey, ctx.previous);
     },
     onSuccess: (result) => {
-      if (result.success && result.data)
-        queryClient.setQueryData(queryOpts.queryKey, result.data);
+      if (result.success && result.data) {
+        const saved = result.data;
+        queryClient.setQueryData(
+          devicesOpts.queryKey,
+          (old: Device[] | undefined) =>
+            old ? [saved, ...old.slice(1)] : [saved],
+        );
+      }
     },
   });
 
@@ -84,7 +92,7 @@ export function ChannelLayoutToggle() {
             <button
               key={opt.value}
               type="button"
-              onClick={() => mutation.mutate(opt.value)}
+              onClick={() => device && mutation.mutate(opt.value)}
               className={cn(
                 "flex flex-col items-start gap-0.5 rounded-lg border p-3 flex-1 transition-all text-left",
                 isSelected

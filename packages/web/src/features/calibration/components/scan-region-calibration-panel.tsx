@@ -3,14 +3,12 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
 import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
+import type { Device } from "@/features/calibration/api/devices";
+import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
 import {
   contourToBox,
   rawContourToPortraitBox,
 } from "@/features/calibration/lib/scan-region-geometry";
-import {
-  orgSettingsQueryOptions,
-  saveOrgSettings,
-} from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
@@ -34,11 +32,12 @@ export function ScanRegionCalibrationPanel() {
   const { t } = useTranslation("calibration");
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const queryOpts = orgSettingsQueryOptions(activeOrg?.id);
-  const { data, isLoading } = useQuery(queryOpts);
-  const savedRegion = data?.scanRegion ?? DEFAULT_SCAN_REGION;
+  const queryOpts = devicesQueryOptions(activeOrg?.id);
+  const { data: devices, isLoading } = useQuery(queryOpts);
+  const device = devices?.[0];
+  const savedRegion = device?.scanRegion ?? DEFAULT_SCAN_REGION;
   const savedCaptureSettleDelayMs =
-    data?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS;
+    device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS;
 
   const [draft, setDraft] = useState<ScanRegion | null>(null);
   const region = draft ?? savedRegion;
@@ -164,10 +163,16 @@ export function ScanRegionCalibrationPanel() {
   } = useRegionDrag({ frameRef, regionRef, cameraSource, box, setDraft });
 
   const saveMutation = useMutation({
-    mutationFn: (next: ScanRegion) => saveOrgSettings({ scanRegion: next }),
+    mutationFn: (next: ScanRegion) =>
+      saveDevice(device!.guid, { scanRegion: next }),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(queryOpts.queryKey, result.data);
+        const saved = result.data;
+        queryClient.setQueryData(
+          queryOpts.queryKey,
+          (old: Device[] | undefined) =>
+            old ? [saved, ...old.slice(1)] : [saved],
+        );
         setDraft(null);
       }
     },
@@ -175,10 +180,15 @@ export function ScanRegionCalibrationPanel() {
 
   const saveCaptureSettleMutation = useMutation({
     mutationFn: (next: number) =>
-      saveOrgSettings({ captureSettleDelayMs: next }),
+      saveDevice(device!.guid, { captureSettleDelayMs: next }),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(queryOpts.queryKey, result.data);
+        const saved = result.data;
+        queryClient.setQueryData(
+          queryOpts.queryKey,
+          (old: Device[] | undefined) =>
+            old ? [saved, ...old.slice(1)] : [saved],
+        );
         setCaptureSettleDraft(null);
       }
     },
@@ -306,8 +316,8 @@ export function ScanRegionCalibrationPanel() {
             </span>
           </Button>
           <Button
-            disabled={draft === null || saveMutation.isPending}
-            onClick={() => saveMutation.mutate(region)}
+            disabled={draft === null || saveMutation.isPending || !device}
+            onClick={() => device && saveMutation.mutate(region)}
             className="flex-1"
           >
             {saveMutation.isPending
@@ -387,10 +397,12 @@ export function ScanRegionCalibrationPanel() {
           </ButtonGroup>
           <Button
             disabled={
-              captureSettleDraft === null || saveCaptureSettleMutation.isPending
+              captureSettleDraft === null ||
+              saveCaptureSettleMutation.isPending ||
+              !device
             }
             onClick={() =>
-              saveCaptureSettleMutation.mutate(captureSettleDelayMsValue)
+              device && saveCaptureSettleMutation.mutate(captureSettleDelayMsValue)
             }
           >
             {saveCaptureSettleMutation.isPending

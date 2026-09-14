@@ -14,6 +14,7 @@ import {
   type ModuleConfigAuditEntry,
 } from "@/features/calibration/api/module-configs";
 import { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { BinRoutingAssignment } from "@/features/calibration/components/bin-routing-assignment";
 import { BinRoutingControls } from "@/features/calibration/components/bin-routing-controls";
 import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
@@ -119,6 +120,7 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
 export default function CalibratePage() {
   const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
+  const device = useDevice();
   const [moduleHistoryOpen, setModuleHistoryOpen] = useState(false);
   const [feederHistoryOpen, setFeederHistoryOpen] = useState(false);
   const [section, setSection] = useState<CalibrationSection>("modules");
@@ -147,25 +149,28 @@ export default function CalibratePage() {
 
   const { data: moduleHistoryResult, isLoading: moduleHistoryLoading } =
     useQuery({
-      queryKey: ["modules", "history"],
-      queryFn: getModuleHistory,
-      enabled: moduleHistoryOpen,
+      queryKey: ["modules", "history", device?.guid],
+      queryFn: () => getModuleHistory(device!.guid),
+      enabled: moduleHistoryOpen && !!device,
       staleTime: 0,
     });
 
   const { data: feederHistoryResult, isLoading: feederHistoryLoading } =
     useQuery({
-      queryKey: ["feeder", "history"],
-      queryFn: getFeederHistory,
-      enabled: feederHistoryOpen,
+      queryKey: ["feeder", "history", device?.guid],
+      queryFn: () => getFeederHistory(device!.guid),
+      enabled: feederHistoryOpen && !!device,
       staleTime: 0,
     });
 
   const revertModuleMutation = useMutation({
-    mutationFn: revertModuleConfig,
+    mutationFn: (guid: string) => revertModuleConfig(device!.guid, guid),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(modulesQueryOptions.queryKey, result.data);
+        queryClient.setQueryData(
+          modulesQueryOptions(device?.guid).queryKey,
+          result.data,
+        );
         queryClient.invalidateQueries({ queryKey: ["modules", "history"] });
         setModuleHistoryOpen(false);
         toast.success(t("calibratePage.toasts.moduleReverted"));
@@ -175,10 +180,13 @@ export default function CalibratePage() {
   });
 
   const revertFeederMutation = useMutation({
-    mutationFn: revertFeederConfig,
+    mutationFn: (guid: string) => revertFeederConfig(device!.guid, guid),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        queryClient.setQueryData(feederQueryOptions.queryKey, result.data);
+        queryClient.setQueryData(
+          feederQueryOptions(device?.guid).queryKey,
+          result.data,
+        );
         queryClient.invalidateQueries({ queryKey: ["feeder", "history"] });
         setFeederHistoryOpen(false);
         toast.success(t("calibratePage.toasts.feederReverted"));

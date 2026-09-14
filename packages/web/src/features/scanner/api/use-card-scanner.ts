@@ -1,8 +1,8 @@
 import { billingQueryOptions } from "@/features/billing/api/billing";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { searchByImage } from "@/features/cards/api/card";
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import {
@@ -130,9 +130,7 @@ export function useCardScanner({
   } = useCameraContext();
   const { activeCollection } = useCollections();
   const { activeOrg } = useOrg();
-  const { data: orgSettingsData } = useQuery(
-    orgSettingsQueryOptions(activeOrg?.id),
-  );
+  const device = useDevice();
   const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
 
   const isAtScanLimit =
@@ -146,12 +144,12 @@ export function useCardScanner({
   rotatedRef.current = rotated;
 
   const scanRegion =
-    scanRegionProp ?? orgSettingsData?.scanRegion ?? DEFAULT_SCAN_REGION;
+    scanRegionProp ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
   const scanRegionRef = useRef(scanRegion);
   scanRegionRef.current = scanRegion;
 
   const captureSettleDelayMs =
-    orgSettingsData?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS;
+    device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS;
   const captureSettleDelayMsRef = useRef(captureSettleDelayMs);
   captureSettleDelayMsRef.current = captureSettleDelayMs;
 
