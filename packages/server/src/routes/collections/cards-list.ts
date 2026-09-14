@@ -31,6 +31,7 @@ export const listCollectionCardsRoute = new Hono<AppEnv>().get(
             foilType: collectionCards.foilType,
             isDownloaded: collectionCards.isDownloaded,
             alternativeMatches: collectionCards.alternativeMatches,
+            isCorrected: collectionCards.isCorrected,
           })
           .from(collectionCards)
           .where(eq(collectionCards.collectionId, collection.id))

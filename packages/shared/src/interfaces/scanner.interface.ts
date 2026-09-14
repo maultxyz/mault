@@ -71,6 +71,7 @@ export interface ScannedCard {
   isFoil?: boolean;
   foilType?: string;
   isDownloaded?: boolean;
+  corrected?: boolean;
 }
 
 export interface UnmatchedCard {

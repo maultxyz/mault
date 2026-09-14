@@ -113,6 +113,7 @@
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
+    "multipleMatchesResolvedTooltip": "Plusieurs correspondances proches - vérifié et corrigé",
     "foil": "Foil",
     "matchTooltip": "À quel point l'image scannée correspond à cette carte, basé sur une recherche de similarité visuelle",
     "bin": "Bac {{number}}",

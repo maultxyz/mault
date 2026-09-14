@@ -367,7 +367,11 @@ export function ScannedCardsProvider({
 
           // Only route physically once the server has confirmed the bin
           // wasn't full, so a rejected card never gets routed either.
-          if (matchedBin && serialRef.current.isConnected && serialRef.current.isReady) {
+          if (
+            matchedBin &&
+            serialRef.current.isConnected &&
+            serialRef.current.isReady
+          ) {
             void routeCardToBin({
               route: resolveRoute(matchedBin.binNumber),
               sendRoute: serialRef.current.sendRoute,
@@ -520,7 +524,12 @@ export function ScannedCardsProvider({
       setCards((prev) =>
         prev.map((entry) =>
           entry.scanId === scanId
-            ? { ...entry, card: corrected, binNumber: matchedBin?.binNumber }
+            ? {
+                ...entry,
+                card: corrected,
+                binNumber: matchedBin?.binNumber,
+                corrected: true,
+              }
             : entry,
         ),
       );
@@ -548,9 +557,12 @@ export function ScannedCardsProvider({
         ),
       );
       if (collection) {
-        setCollectionCardFoilType(collection.guid, scanId, isFoil, foilType).catch(
-          (err) => console.error("Failed to update foil status:", err),
-        );
+        setCollectionCardFoilType(
+          collection.guid,
+          scanId,
+          isFoil,
+          foilType,
+        ).catch((err) => console.error("Failed to update foil status:", err));
       }
     },
     [],

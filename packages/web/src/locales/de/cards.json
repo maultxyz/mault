@@ -113,6 +113,7 @@
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
+    "multipleMatchesResolvedTooltip": "Mehrere ähnliche Treffer - überprüft und korrigiert",
     "foil": "Foil",
     "matchTooltip": "Wie genau das gescannte Bild mit dieser Karte übereinstimmt, basierend auf visueller Ähnlichkeitssuche",
     "bin": "Fach {{number}}",
