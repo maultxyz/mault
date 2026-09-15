@@ -118,6 +118,10 @@ struct ModuleConfig {
   int bottomClosed, bottomOpen;
   int paddleClosed, paddleOpen;
   int pusherLeft, pusherNeutral, pusherRight;
+  int paddleCloseDelay;  // ms from the pusher firing until this module's
+                          // paddle closes again - independent of
+                          // DELAY_PUSHER_HOLD, which governs when the pusher
+                          // itself returns to neutral (see routeCard())
 };
 
 ModuleConfig moduleConfig[MAX_MODULES];
@@ -432,8 +436,18 @@ void routeCard(int targetModule, const char* direction) {
   setServoPosition(getChannel(targetModule, 1), c.paddleOpen);
   delay(DELAY_PADDLE);
   setServoPosition(getChannel(targetModule, 2), pushLeft ? c.pusherLeft : c.pusherRight);
+  unsigned long pusherFiredAt = millis();
   delay(DELAY_PUSHER_HOLD);
-  for (int m = 1; m <= targetModule; m++) setModuleNeutral(m);
+  setServoPosition(getChannel(targetModule, 2), c.pusherNeutral);
+  for (int m = 1; m < targetModule; m++) setModuleNeutral(m);
+
+  // c.paddleCloseDelay is measured from when the pusher fired, independent
+  // of DELAY_PUSHER_HOLD above (which only governs the pusher's own
+  // retraction) - wait out whatever's left of it before closing the paddle.
+  long paddleWait = (long)c.paddleCloseDelay - (long)(millis() - pusherFiredAt);
+  if (paddleWait > 0) delay((unsigned long)paddleWait);
+  setServoPosition(getChannel(targetModule, 0), c.bottomClosed);
+  setServoPosition(getChannel(targetModule, 1), c.paddleClosed);
   delay(200);
 
   Serial.print(F("{\"status\":\"routed\",\"module\":"));
@@ -604,6 +618,7 @@ void handleCommand(char* json) {
     c.pusherLeft    = cfg["pusherLeft"]    | c.pusherLeft;
     c.pusherNeutral = cfg["pusherNeutral"] | c.pusherNeutral;
     c.pusherRight   = cfg["pusherRight"]   | c.pusherRight;
+    c.paddleCloseDelay = cfg["paddleCloseDelay"] | c.paddleCloseDelay;
 
     Serial.print(F("{\"status\":\"ok\",\"module\":"));
     Serial.print(module);
@@ -692,7 +707,7 @@ void setup() {
   while (!Serial);
 
   for (int m = 0; m < MAX_MODULES; m++) {
-    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305};
+    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, 150};
   }
 
   // All MAX_MODULES pins are set up regardless of the eventual offset/module
