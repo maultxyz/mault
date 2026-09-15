@@ -30,6 +30,42 @@
 #define BOARD_TYPE "uno_r4"
 #endif
 
+// Which (if any) BLE backend this build compiles in. ARDUINO_UNOWIFIR4 is the
+// Renesas core's board macro for the arduino:renesas_uno:unor4wifi FQBN
+// (mirroring ARDUINO_MINIMA for the plain arduino:renesas_uno:minima variant,
+// which has no BLE hardware and must stay Serial-only) - confirmed correct
+// by a real compile against the installed core (selects BLE_BACKEND_ARDUINOBLE
+// as expected for the WiFi board). Only the S3 gets a BLE backend on the
+// ESP32 side - classic ESP32 (WROOM/WROVER) isn't a build target today (see
+// firmware-release.yml) and its Bluedroid BLE would need its own IR pin map
+// consideration if that ever changes.
+#if defined(ARDUINO_UNOWIFIR4)
+#define BLE_SUPPORTED 1
+#define BLE_BACKEND_ARDUINOBLE 1
+#elif defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_IDF_TARGET_ESP32S3)
+#define BLE_SUPPORTED 1
+#define BLE_BACKEND_ESP32 1
+#else
+#define BLE_SUPPORTED 0
+#endif
+
+// These must be #included here (not just in ble_arduinoble.ino/ble_esp32.ino,
+// even though that's where they're actually used) - the Arduino builder
+// inserts its auto-generated function prototypes for the WHOLE merged
+// sketch at one point anchored to this file's own leading #include block,
+// before any other tab's #includes take effect. A prototype referencing
+// BLEDevice/BLECharacteristic/etc. hoisted to that point fails to compile
+// ("was not declared in this scope") unless these headers are already
+// visible there.
+#if BLE_BACKEND_ARDUINOBLE
+#include <ArduinoBLE.h>
+#elif BLE_BACKEND_ESP32
+#include <BLE2902.h>
+#include <BLEDevice.h>
+#include <BLEServer.h>
+#include <BLEUtils.h>
+#endif
+
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 // PCA9685 channels: each module uses 3 consecutive channels (bottom, paddle,
@@ -153,9 +189,29 @@ FeederConfig feederConfig = {315, 1000, 40, 100, 100};
 #define DELAY_PUSHER_HOLD  150
 
 #define MAX_CMD_LEN 200
-char inputBuffer[MAX_CMD_LEN + 1];
-uint8_t inputLen = 0;
-bool inputOverflowed = false;
+
+// One InputState per transport - a command's response must go back out the
+// same transport it arrived on (the protocol has no request IDs; a client
+// correlates request/response positionally, see PROTOCOL.md), so a partial
+// line from one transport must never get spliced with a partial line from
+// the other.
+struct InputState {
+  char buf[MAX_CMD_LEN + 1];
+  uint8_t len = 0;
+  bool overflowed = false;
+};
+InputState serialInput;
+#if BLE_SUPPORTED
+InputState bleInput;
+#endif
+
+// Manual prototype: the Arduino builder's auto-generated forward
+// declarations are hoisted above this point in the file (before
+// InputState even exists there), which fails to compile for any function
+// taking it by reference. An explicit prototype here - matching feedByte()'s
+// eventual definition further down - stops the builder from generating its
+// own broken one for it.
+void feedByte(InputState& s, char c, Print& reply);
 
 unsigned long modulePresentSince[MAX_MODULES] = {0};
 bool moduleJamAlerted[MAX_MODULES] = {false};
@@ -293,9 +349,9 @@ void checkModuleJams() {
     unsigned long presentFor = millis() - modulePresentSince[i];
     if (!moduleJamAlerted[i] && presentFor > MODULE_JAM_TIMEOUT_MS) {
       moduleJamAlerted[i] = true;
-      Serial.print(F("{\"error\":\"jam\",\"module\":"));
-      Serial.print(m);
-      Serial.println(F("}"));
+      char line[40];
+      snprintf(line, sizeof(line), "{\"error\":\"jam\",\"module\":%d}", m);
+      broadcastLine(line);
     }
   }
 }
@@ -364,23 +420,23 @@ int getServoOffset(const char* servo) {
   return -1;
 }
 
-void printModuleRangeError() {
-  Serial.print(F("{\"error\":\"module must be 1 to "));
-  Serial.print(maxModuleForOffset());
-  Serial.println(F("\"}"));
+void printModuleRangeError(Print& reply) {
+  reply.print(F("{\"error\":\"module must be 1 to "));
+  reply.print(maxModuleForOffset());
+  reply.println(F("\"}"));
 }
 
-bool feedNextCard() {
+bool feedNextCard(Print& reply) {
   FeedResult feedResult = runFeeder();
   if (feedResult == FEED_DETECTED) return true;
 
-  Serial.print(F("{\"error\":\""));
-  Serial.print(feedResult == FEED_EMPTY
+  reply.print(F("{\"error\":\""));
+  reply.print(feedResult == FEED_EMPTY
     ? F("empty: feeder hopper is out of cards")
     : F("timeout: feeder did not deliver card to module 1"));
-  Serial.print(F("\",\"empty\":"));
-  Serial.print(feedResult == FEED_EMPTY ? F("true") : F("false"));
-  Serial.println(F("}"));
+  reply.print(F("\",\"empty\":"));
+  reply.print(feedResult == FEED_EMPTY ? F("true") : F("false"));
+  reply.println(F("}"));
   setAllNeutral();
   return false;
 }
@@ -392,13 +448,13 @@ bool feedNextCard() {
 // module's own bottom, rather than opening every module's trapdoor at once,
 // which would drop the card through the first (nearest) open module instead
 // of the one actually targeted.
-void routeCard(int targetModule, const char* direction) {
+void routeCard(int targetModule, const char* direction, Print& reply) {
   if (targetModule < 1 || targetModule > maxModuleForOffset()) {
-    printModuleRangeError();
+    printModuleRangeError(reply);
     return;
   }
 
-  if (!feedNextCard()) return;
+  if (!feedNextCard(reply)) return;
 
   bool dropBottom = strcmp(direction, "bottom") == 0;
   bool pushLeft = strcmp(direction, "left") == 0;
@@ -410,9 +466,9 @@ void routeCard(int targetModule, const char* direction) {
       // recovery used for a stuck card before giving up on this route.
       wiggleModulePaddle(m);
       if (!waitForCard(m + 1)) {
-        Serial.print(F("{\"error\":\"timeout: no card detected at module "));
-        Serial.print(m + 1);
-        Serial.println(F("\"}"));
+        reply.print(F("{\"error\":\"timeout: no card detected at module "));
+        reply.print(m + 1);
+        reply.println(F("\"}"));
         setAllNeutral();
         return;
       }
@@ -426,9 +482,9 @@ void routeCard(int targetModule, const char* direction) {
     setAllNeutral();
     delay(200);
 
-    Serial.print(F("{\"status\":\"routed\",\"module\":"));
-    Serial.print(targetModule);
-    Serial.println(F(",\"direction\":\"bottom\"}"));
+    reply.print(F("{\"status\":\"routed\",\"module\":"));
+    reply.print(targetModule);
+    reply.println(F(",\"direction\":\"bottom\"}"));
     return;
   }
 
@@ -450,51 +506,115 @@ void routeCard(int targetModule, const char* direction) {
   setServoPosition(getChannel(targetModule, 1), c.paddleClosed);
   delay(200);
 
-  Serial.print(F("{\"status\":\"routed\",\"module\":"));
-  Serial.print(targetModule);
-  Serial.print(F(",\"direction\":\""));
-  Serial.print(pushLeft ? F("left") : F("right"));
-  Serial.println(F("\"}"));
+  reply.print(F("{\"status\":\"routed\",\"module\":"));
+  reply.print(targetModule);
+  reply.print(F(",\"direction\":\""));
+  reply.print(pushLeft ? F("left") : F("right"));
+  reply.println(F("\"}"));
 }
 
-void printJsonEscaped(const char* s) {
-  for (const char* p = s; *p; p++) {
-    char c = *p;
-    if (c == '"' || c == '\\') {
-      Serial.write('\\');
-      Serial.write(c);
-    } else if (c == '\n') {
-      Serial.print(F("\\n"));
-    } else if (c == '\r') {
-      Serial.print(F("\\r"));
-    } else if ((unsigned char)c >= 0x20) {
-      Serial.write(c);
+// Broadcasts a line to every currently-connected transport - unlike a
+// command's response (which must go back only to whichever transport asked
+// for it, see feedByte()), the boot banner and the jam alert aren't a
+// response to anything, so every connected client should see them.
+void broadcastLine(const char* s) {
+  Serial.println(s);
+#if BLE_SUPPORTED
+  if (bleIsConnected()) bleSendLine(s);
+#endif
+}
+
+#if BLE_SUPPORTED
+// Wraps the BLE TX (notify) characteristic as a Print target so handleCommand
+// et al. can write a BLE-originated response the same way they'd write to
+// Serial. Buffers a whole line and only hands it to bleSendLine() (which
+// chunks it to the connection's MTU) once it sees the line's terminating
+// '\n' - chunking a still-in-progress line would let its notify packets
+// interleave with the next line's and corrupt both.
+class BlePrint : public Print {
+ public:
+  size_t write(uint8_t c) override {
+    if (c == '\n') {
+      if (len > 0 && buf[len - 1] == '\r') len--;
+      buf[len] = '\0';
+      bleSendLine(buf);
+      len = 0;
+      return 1;
+    }
+    if (len < sizeof(buf) - 1) buf[len++] = c;
+    return 1;
+  }
+  using Print::write;
+
+ private:
+  char buf[MAX_CMD_LEN + 1];
+  uint8_t len = 0;
+};
+BlePrint bleReply;
+#endif
+
+// Feeds one byte into a transport's line buffer, dispatching to
+// handleCommand() once a line is complete. `reply` is where that command's
+// response goes - always the same transport `s` belongs to, so responses
+// never cross transports (see broadcastLine() for the messages that do).
+void feedByte(InputState& s, char c, Print& reply) {
+  if (c == '\n' || c == '\r') {
+    if (s.overflowed) {
+      reply.println(F("{\"error\":\"command too long\"}"));
+      s.overflowed = false;
+    } else if (s.len > 0) {
+      s.buf[s.len] = '\0';
+      handleCommand(s.buf, reply);
+    }
+    s.len = 0;
+  } else if (!s.overflowed) {
+    if (s.len < MAX_CMD_LEN) {
+      s.buf[s.len++] = c;
+    } else {
+      s.overflowed = true;
+      s.len = 0;
     }
   }
 }
 
-void handleCommand(char* json) {
+void printJsonEscaped(const char* s, Print& reply) {
+  for (const char* p = s; *p; p++) {
+    char c = *p;
+    if (c == '"' || c == '\\') {
+      reply.write('\\');
+      reply.write(c);
+    } else if (c == '\n') {
+      reply.print(F("\\n"));
+    } else if (c == '\r') {
+      reply.print(F("\\r"));
+    } else if ((unsigned char)c >= 0x20) {
+      reply.write(c);
+    }
+  }
+}
+
+void handleCommand(char* json, Print& reply) {
   JsonDocument doc;
   DeserializationError err = deserializeJson(doc, json);
   if (err) {
-    Serial.print(F("{\"error\":\"invalid JSON\",\"reason\":\""));
-    Serial.print(err.c_str());
-    Serial.print(F("\",\"length\":"));
-    Serial.print(strlen(json));
-    Serial.print(F(",\"received\":\""));
-    printJsonEscaped(json);
-    Serial.println(F("\"}"));
+    reply.print(F("{\"error\":\"invalid JSON\",\"reason\":\""));
+    reply.print(err.c_str());
+    reply.print(F("\",\"length\":"));
+    reply.print(strlen(json));
+    reply.print(F(",\"received\":\""));
+    printJsonEscaped(json, reply);
+    reply.println(F("\"}"));
     return;
   }
 
   // {"getStatus": true} — report readiness/version on demand; see
   // PROTOCOL.md for why the app sends this on every connection.
   if (doc["getStatus"].is<bool>() && doc["getStatus"].as<bool>()) {
-    Serial.print(F("{\"status\":\"ready\",\"version\":\""));
-    Serial.print(FIRMWARE_VERSION);
-    Serial.print(F("\",\"board\":\""));
-    Serial.print(BOARD_TYPE);
-    Serial.println(F("\"}"));
+    reply.print(F("{\"status\":\"ready\",\"version\":\""));
+    reply.print(FIRMWARE_VERSION);
+    reply.print(F("\",\"board\":\""));
+    reply.print(BOARD_TYPE);
+    reply.println(F("\"}"));
     return;
   }
 
@@ -502,7 +622,7 @@ void handleCommand(char* json) {
   if (doc["setChannelOffset"].is<int>()) {
     moduleChannelOffset = doc["setChannelOffset"].as<int>();
     setAllNeutral();
-    Serial.println(F("{\"status\":\"ok\"}"));
+    reply.println(F("{\"status\":\"ok\"}"));
     return;
   }
 
@@ -510,11 +630,11 @@ void handleCommand(char* json) {
   if (doc["test"].is<bool>() && doc["test"].as<bool>()) {
     int blockedModule = findBlockedModule();
     if (blockedModule > 0) {
-      Serial.print(F("{\"error\":\"module "));
-      Serial.print(blockedModule);
-      Serial.print(F(" sensor is blocked - clear the device before testing\",\"module\":"));
-      Serial.print(blockedModule);
-      Serial.println(F("}"));
+      reply.print(F("{\"error\":\"module "));
+      reply.print(blockedModule);
+      reply.print(F(" sensor is blocked - clear the device before testing\",\"module\":"));
+      reply.print(blockedModule);
+      reply.println(F("}"));
       return;
     }
 
@@ -542,14 +662,14 @@ void handleCommand(char* json) {
     stopFeeder();
     delay(200);
 
-    Serial.println(F("{\"status\":\"test_complete\"}"));
+    reply.println(F("{\"status\":\"test_complete\"}"));
     return;
   }
 
   // {"neutral": true} — reset all servos
   if (doc["neutral"].is<bool>() && doc["neutral"].as<bool>()) {
     setAllNeutral();
-    Serial.println(F("{\"status\":\"ok\"}"));
+    reply.println(F("{\"status\":\"ok\"}"));
     return;
   }
 
@@ -563,7 +683,7 @@ void handleCommand(char* json) {
     delay(DELAY_PUSH);
     setAllNeutral();
     delay(200);
-    Serial.println(F("{\"status\":\"cleared\"}"));
+    reply.println(F("{\"status\":\"cleared\"}"));
     return;
   }
 
@@ -573,12 +693,12 @@ void handleCommand(char* json) {
     const char* servo = doc["servo"];
     int module = doc["module"] | 0;
     if (module < 1 || module > maxModuleForOffset()) {
-      printModuleRangeError();
+      printModuleRangeError(reply);
       return;
     }
     int offset = getServoOffset(servo);
     if (offset < 0) {
-      Serial.println(F("{\"error\":\"servo must be bottom, paddle, or pusher\"}"));
+      reply.println(F("{\"error\":\"servo must be bottom, paddle, or pusher\"}"));
       return;
     }
     int pulse;
@@ -587,18 +707,18 @@ void handleCommand(char* json) {
     } else {
       pulse = getPositionPulse(module, offset, doc["position"] | "neutral");
       if (pulse < 0) {
-        Serial.println(F("{\"error\":\"invalid position\"}"));
+        reply.println(F("{\"error\":\"invalid position\"}"));
         return;
       }
     }
     setServoPosition(getChannel(module, offset), pulse);
     delay(200);
 
-    Serial.print(F("{\"status\":\"ok\",\"servo\":\""));
-    Serial.print(servo);
-    Serial.print(F("\",\"module\":"));
-    Serial.print(module);
-    Serial.println(F("}"));
+    reply.print(F("{\"status\":\"ok\",\"servo\":\""));
+    reply.print(servo);
+    reply.print(F("\",\"module\":"));
+    reply.print(module);
+    reply.println(F("}"));
     return;
   }
 
@@ -607,7 +727,7 @@ void handleCommand(char* json) {
     JsonObject cfg = doc["setConfig"];
     int module = cfg["module"] | 0;
     if (module < 1 || module > maxModuleForOffset()) {
-      printModuleRangeError();
+      printModuleRangeError(reply);
       return;
     }
     ModuleConfig& c = moduleConfig[module - 1];
@@ -620,34 +740,34 @@ void handleCommand(char* json) {
     c.pusherRight   = cfg["pusherRight"]   | c.pusherRight;
     c.paddleCloseDelay = cfg["paddleCloseDelay"] | c.paddleCloseDelay;
 
-    Serial.print(F("{\"status\":\"ok\",\"module\":"));
-    Serial.print(module);
-    Serial.println(F("}"));
+    reply.print(F("{\"status\":\"ok\",\"module\":"));
+    reply.print(module);
+    reply.println(F("}"));
     return;
   }
 
   // {"feeder": true} — run feeder until module 1 IR detects a card (or timeout/empty hopper)
   if (doc["feeder"].is<bool>() && doc["feeder"].as<bool>()) {
     FeedResult result = runFeeder();
-    Serial.print(F("{\"status\":\"ok\",\"detected\":"));
-    Serial.print(result == FEED_DETECTED ? F("true") : F("false"));
-    Serial.print(F(",\"empty\":"));
-    Serial.print(result == FEED_EMPTY ? F("true") : F("false"));
-    Serial.println(F("}"));
+    reply.print(F("{\"status\":\"ok\",\"detected\":"));
+    reply.print(result == FEED_DETECTED ? F("true") : F("false"));
+    reply.print(F(",\"empty\":"));
+    reply.print(result == FEED_EMPTY ? F("true") : F("false"));
+    reply.println(F("}"));
     return;
   }
 
   // {"feederValue": N} — set raw PWM (for calibration preview, does not auto-stop)
   if (doc["feederValue"].is<int>()) {
     setServoPosition(getFeederChannel(), doc["feederValue"].as<int>());
-    Serial.println(F("{\"status\":\"ok\"}"));
+    reply.println(F("{\"status\":\"ok\"}"));
     return;
   }
 
   // {"feederStop": true} — stop feeder immediately
   if (doc["feederStop"].is<bool>() && doc["feederStop"].as<bool>()) {
     stopFeeder();
-    Serial.println(F("{\"status\":\"ok\"}"));
+    reply.println(F("{\"status\":\"ok\"}"));
     return;
   }
 
@@ -660,20 +780,20 @@ void handleCommand(char* json) {
     feederConfig.pauseDuration  = cfg["pauseDuration"]  | feederConfig.pauseDuration;
     feederConfig.settleDuration = cfg["settleDuration"] | feederConfig.settleDuration;
     stopFeeder();
-    Serial.println(F("{\"status\":\"ok\"}"));
+    reply.println(F("{\"status\":\"ok\"}"));
     return;
   }
 
   // {"readIR": true} — read current IR sensor state for all modules + hopper
   if (doc["readIR"].is<bool>() && doc["readIR"].as<bool>()) {
-    Serial.print(F("{\"status\":\"ok\",\"ir\":["));
+    reply.print(F("{\"status\":\"ok\",\"ir\":["));
     for (int m = 1; m <= maxModuleForOffset(); m++) {
-      if (m > 1) Serial.print(',');
-      Serial.print(digitalRead(irPin(m)) == LOW ? F("true") : F("false"));  // true = card present
+      if (m > 1) reply.print(',');
+      reply.print(digitalRead(irPin(m)) == LOW ? F("true") : F("false"));  // true = card present
     }
-    Serial.print(F("],\"hopper\":"));
-    Serial.print(hopperHasCards() ? F("true") : F("false"));  // true = cards remain in feeder stack
-    Serial.println(F("}"));
+    reply.print(F("],\"hopper\":"));
+    reply.print(hopperHasCards() ? F("true") : F("false"));  // true = cards remain in feeder stack
+    reply.println(F("}"));
     return;
   }
 
@@ -683,19 +803,19 @@ void handleCommand(char* json) {
     int module = route["module"] | 0;
     const char* direction = route["direction"] | "";
     if (module < 1 || module > maxModuleForOffset()) {
-      printModuleRangeError();
+      printModuleRangeError(reply);
       return;
     }
     if (strcmp(direction, "left") != 0 && strcmp(direction, "right") != 0 &&
         strcmp(direction, "bottom") != 0) {
-      Serial.println(F("{\"error\":\"direction must be left, right, or bottom\"}"));
+      reply.println(F("{\"error\":\"direction must be left, right, or bottom\"}"));
       return;
     }
-    routeCard(module, direction);
+    routeCard(module, direction, reply);
     return;
   }
 
-  Serial.println(F("{\"error\":\"unknown command\"}"));
+  reply.println(F("{\"error\":\"unknown command\"}"));
 }
 
 void setup() {
@@ -730,34 +850,25 @@ void setup() {
   pwm.setPWMFreq(50);
   delay(10);
   setAllNeutral();
-  Serial.print(F("{\"status\":\"ready\",\"version\":\""));
-  Serial.print(FIRMWARE_VERSION);
-  Serial.print(F("\",\"board\":\""));
-  Serial.print(BOARD_TYPE);
-  Serial.println(F("\"}"));
+
+#if BLE_SUPPORTED
+  bleInit();
+#endif
+
+  char bootLine[96];
+  snprintf(bootLine, sizeof(bootLine),
+           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\"}",
+           FIRMWARE_VERSION, BOARD_TYPE);
+  broadcastLine(bootLine);
 }
 
 void loop() {
   while (Serial.available()) {
-    char c = Serial.read();
-    if (c == '\n' || c == '\r') {
-      if (inputOverflowed) {
-        Serial.println(F("{\"error\":\"command too long\"}"));
-        inputOverflowed = false;
-      } else if (inputLen > 0) {
-        inputBuffer[inputLen] = '\0';
-        handleCommand(inputBuffer);
-      }
-      inputLen = 0;
-    } else if (!inputOverflowed) {
-      if (inputLen < MAX_CMD_LEN) {
-        inputBuffer[inputLen++] = c;
-      } else {
-        inputOverflowed = true;
-        inputLen = 0;
-      }
-    }
+    feedByte(serialInput, Serial.read(), Serial);
   }
+#if BLE_SUPPORTED
+  blePoll();
+#endif
   checkModuleJams();
 #if defined(RGB_BUILTIN)
   updateStatusLed();

@@ -21,9 +21,6 @@ export function useFirmwareVersionAlert(): {
   const showAlert =
     isConnected &&
     isFirmwareVersionOutdated(firmwareVersion, LATEST_FIRMWARE_VERSION);
-  // In-browser flashing needs the raw SerialPort (esptool-js) - unavailable
-  // over a Bluetooth connection, so fall back to the manual-download link
-  // there even on an ESP32 board.
   const isEsp32 = (board === "esp32" && transport === "serial") || isFlashing;
 
   const portal = (

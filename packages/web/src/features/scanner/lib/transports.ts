@@ -6,26 +6,12 @@ import {
 } from "@/lib/constants/bluetooth";
 import type { SerialTransportType } from "@/lib/interfaces/scanner";
 
-// Minimal byte-in/byte-out surface the connection bootstrap (getStatus →
-// board/version parse → self-test) and the command/response plumbing in
-// use-serial.tsx need - both SerialTransport (USB) and BluetoothTransport
-// (BLE) implement it so the rest of the provider doesn't care which one is
-// active. See firmware/PROTOCOL.md - both transports carry the identical
-// line-delimited JSON protocol, just framed differently at the byte level.
 export interface ByteTransport {
   kind: SerialTransportType;
-  /** Begins delivering received bytes to the onData callback. */
   start(): void;
   write(data: Uint8Array): Promise<void>;
   onData(cb: (chunk: Uint8Array) => void): void;
-  /** Fires whenever the connection ends, for any reason (including our own close()). */
   onDisconnect(cb: () => void): void;
-  /**
-   * Fires only for an *unexpected* disconnect (not one caused by our own
-   * close()) - lets the caller show a "connection lost" toast for a real
-   * problem without also showing one for a deliberate user-initiated
-   * disconnect.
-   */
   onError(cb: (error: unknown) => void): void;
   close(): Promise<void>;
 }
@@ -42,11 +28,6 @@ export class SerialTransport implements ByteTransport {
     this.port = port;
   }
 
-  /**
-   * `"cancelled"` means the user dismissed the port picker (not an error -
-   * callers should stay silent); `"open-failed"` means a port was picked
-   * but `port.open()` itself threw (callers should surface this).
-   */
   static async requestAndOpen(): Promise<
     | { ok: true; transport: SerialTransport }
     | { ok: false; reason: "cancelled" | "open-failed" }
@@ -78,9 +59,6 @@ export class SerialTransport implements ByteTransport {
           if (value) this.dataCb?.(value);
         }
       } catch (e) {
-        // A NetworkError here is the expected result of our own close()
-        // cancelling the reader (see close()) - anything else is a genuine
-        // unexpected disconnect worth surfacing.
         if (!(e instanceof DOMException && e.name === "NetworkError")) {
           console.error("[Serial] Read error:", e); // eslint-disable-line no-console -- hardware debug trace
           this.errorCb?.(e);
@@ -131,9 +109,6 @@ export class BluetoothTransport implements ByteTransport {
   private dataCb: ((chunk: Uint8Array) => void) | null = null;
   private disconnectCb: (() => void) | null = null;
   private errorCb: ((error: unknown) => void) | null = null;
-  // gattserverdisconnected fires the same way whether we asked for it (see
-  // close()) or the device dropped off unexpectedly - track our own intent
-  // so only the latter reports through onError.
   private closing = false;
 
   private constructor(
@@ -146,16 +121,6 @@ export class BluetoothTransport implements ByteTransport {
     this.txChar = txChar;
   }
 
-  /**
-   * `"cancelled"` means the user dismissed the device picker (not an error -
-   * callers should stay silent); `"permission-blocked"` means the browser
-   * refused even to show the picker because Bluetooth access for this site
-   * (or the Web Bluetooth API itself) is blocked - callers should point the
-   * user at their browser's Bluetooth permission/flag settings rather than
-   * show a generic failure, since "reconnect the device" won't help here;
-   * `"failed"` covers everything else (no adapter, GATT connect / service
-   * discovery failure) and callers should surface `message`.
-   */
   static async requestAndConnect(): Promise<
     | { ok: true; transport: BluetoothTransport }
     | { ok: false; reason: "cancelled" }
@@ -168,11 +133,6 @@ export class BluetoothTransport implements ByteTransport {
         filters: [{ services: [NUS_SERVICE_UUID] }],
       });
     } catch (e) {
-      // Only a genuine chooser dismissal (or "no matching device found")
-      // comes back as NotFoundError - a blocked site/browser permission
-      // surfaces as NotAllowedError specifically, and other failures (no
-      // adapter, disabled API) have their own names, all real problems
-      // worth surfacing.
       if (e instanceof DOMException && e.name === "NotFoundError") {
         return { ok: false, reason: "cancelled" };
       }
@@ -243,9 +203,6 @@ export class BluetoothTransport implements ByteTransport {
   }
 
   async write(data: Uint8Array): Promise<void> {
-    // Chunk to the connection's likely MTU - a single write larger than
-    // what's negotiated is rejected by the OS/browser rather than
-    // auto-fragmented (see PROTOCOL.md's BLE transport section).
     for (let offset = 0; offset < data.length; offset += BLE_WRITE_CHUNK_SIZE) {
       const chunk = data.subarray(offset, offset + BLE_WRITE_CHUNK_SIZE);
       await this.rxChar.writeValueWithoutResponse(chunk);

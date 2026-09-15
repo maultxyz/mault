@@ -191,14 +191,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     setBoard(null);
     setTransport(null);
 
-    // Reject any outstanding waiters
     for (const pending of pendingRef.current) {
       pending("");
     }
     pendingRef.current = [];
     bufferRef.current = "";
 
-    // Async cleanup - stored so connect()/connectBluetooth() can await it
     const cleanup = (async () => {
       if (activeTransport) {
         try {
@@ -230,10 +228,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           disconnect();
         }
       });
-      // Awaited even though the interface types this as void - Bluetooth's
-      // start() must finish subscribing to notifications before we risk a
-      // race where getStatus's response arrives before we're listening for
-      // it; Serial's start() has nothing to await and resolves immediately.
       await newTransport.start();
 
       setIsConnected(true);
@@ -378,10 +372,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         await loader.after("hard_reset");
         await espTransport.disconnect();
 
-        // Don't try to reopen the port ourselves - a hard reset on a native
-        // USB CDC board (ESP32-S3) fully re-enumerates the USB device, which
-        // isn't reliably fast or consistent enough to race against from
-        // here. The dialog tells the user to unplug/replug instead.
         return { success: true };
       } catch (e) {
         return {
