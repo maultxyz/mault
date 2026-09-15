@@ -9,7 +9,7 @@ import type { SerialTransportType } from "@/lib/interfaces/scanner";
 export interface ByteTransport {
   kind: SerialTransportType;
   start(): void;
-  write(data: Uint8Array): Promise<void>;
+  write(data: Uint8Array<ArrayBuffer>): Promise<void>;
   onData(cb: (chunk: Uint8Array) => void): void;
   onDisconnect(cb: () => void): void;
   onError(cb: (error: unknown) => void): void;
@@ -81,7 +81,7 @@ export class SerialTransport implements ByteTransport {
     this.errorCb = cb;
   }
 
-  async write(data: Uint8Array): Promise<void> {
+  async write(data: Uint8Array<ArrayBuffer>): Promise<void> {
     if (!this.port.writable) return;
     const writer = this.port.writable.getWriter();
     try {
@@ -202,7 +202,7 @@ export class BluetoothTransport implements ByteTransport {
     this.errorCb = cb;
   }
 
-  async write(data: Uint8Array): Promise<void> {
+  async write(data: Uint8Array<ArrayBuffer>): Promise<void> {
     for (let offset = 0; offset < data.length; offset += BLE_WRITE_CHUNK_SIZE) {
       const chunk = data.subarray(offset, offset + BLE_WRITE_CHUNK_SIZE);
       await this.rxChar.writeValueWithoutResponse(chunk);
