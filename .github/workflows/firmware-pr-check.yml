@@ -37,6 +37,11 @@ jobs:
         run: |
           arduino-cli lib install ArduinoJson
           arduino-cli lib install "Adafruit PWM Servo Driver Library"
+          # BLE peripheral support on the Uno R4 WiFi (ble_arduinoble.ino) -
+          # the ESP32-S3 BLE backend (ble_esp32.ino) uses BLEDevice, which
+          # ships in the esp32:esp32 core already installed above, so no
+          # separate lib install is needed for it.
+          arduino-cli lib install ArduinoBLE
 
       - name: Compile (ESP32)
         run: arduino-cli compile --fqbn "$FQBN" firmware/main

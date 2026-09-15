@@ -12,11 +12,12 @@
   "serial": {
     "connectionFailed": {
       "title": "Verbindung fehlgeschlagen",
-      "description": "Port konnte nicht geöffnet werden. Stelle sicher, dass keine andere Anwendung ihn verwendet."
+      "description": "Verbindung fehlgeschlagen. Stelle sicher, dass kein anderes Programm das Gerät verwendet."
     },
+    "bluetoothPermissionBlocked": "Die Bluetooth-Berechtigung ist für diesen Browser blockiert. Überprüfe die Website-Einstellungen deines Browsers (oder chrome://settings/content/bluetoothDevices), um Bluetooth zuzulassen, und versuche es erneut.",
     "connectionLost": {
       "title": "Verbindung getrennt",
-      "description": "Der Sortierer hat die Verbindung unerwartet getrennt. Stelle sicher, dass keine andere Anwendung (z. B. der serielle Monitor der Arduino IDE) den Port verwendet, und verbinde dich erneut."
+      "description": "Der Sortierer hat die Verbindung unerwartet getrennt. Falls du über USB verbunden bist, stelle sicher, dass keine andere Anwendung (z. B. der serielle Monitor der Arduino IDE) den Port verwendet, und verbinde dich erneut."
     },
     "testingDevice": "Gerät wird getestet…",
     "deviceReady": "Gerät bereit",
@@ -184,6 +185,8 @@
     "zoom": "Zoom",
     "disconnect": "Trennen",
     "connect": "Verbinden",
+    "connectUsb": "Über USB verbinden",
+    "connectBluetooth": "Über Bluetooth verbinden",
     "scanner": "Scanner",
     "autoFeed": "Automatische Zufuhr",
     "allowDuplicates": "Duplikate zulassen",

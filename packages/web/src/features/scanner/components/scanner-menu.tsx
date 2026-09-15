@@ -45,6 +45,8 @@ interface ScannerMenuProps {
   onStartPhonePairing: () => void;
   onStopPhonePairing: () => void;
   onScannerConnect: () => void;
+  onScannerConnectBluetooth: () => void;
+  bluetoothSupported: boolean;
   onScannerDisconnect: () => void;
   onScannerRetry: () => void;
   onCalibrate: () => void;
@@ -74,6 +76,8 @@ export function ScannerMenu({
   onStartPhonePairing,
   onStopPhonePairing,
   onScannerConnect,
+  onScannerConnectBluetooth,
+  bluetoothSupported,
   onScannerDisconnect,
   onScannerRetry,
   onCalibrate,
@@ -245,12 +249,22 @@ export function ScannerMenu({
                   </DropdownMenuItem>
                 </>
               ) : (
-                <DropdownMenuItem
-                  disabled={scanningBlocked}
-                  onClick={onScannerConnect}
-                >
-                  {t("scannerMenu.connect")}
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem
+                    disabled={scanningBlocked}
+                    onClick={onScannerConnect}
+                  >
+                    {t("scannerMenu.connectUsb")}
+                  </DropdownMenuItem>
+                  {bluetoothSupported && (
+                    <DropdownMenuItem
+                      disabled={scanningBlocked}
+                      onClick={onScannerConnectBluetooth}
+                    >
+                      {t("scannerMenu.connectBluetooth")}
+                    </DropdownMenuItem>
+                  )}
+                </>
               )}
             </DropdownMenuSubContent>
           </DropdownMenuSub>

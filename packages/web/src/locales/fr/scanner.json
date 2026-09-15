@@ -12,11 +12,12 @@
   "serial": {
     "connectionFailed": {
       "title": "Échec de la connexion",
-      "description": "Impossible d'ouvrir le port. Vérifie qu'aucune autre application ne l'utilise."
+      "description": "Impossible de se connecter. Vérifie qu'aucune autre application n'utilise l'appareil."
     },
+    "bluetoothPermissionBlocked": "L'autorisation Bluetooth est bloquée pour ce navigateur. Vérifie les paramètres du site dans ton navigateur (ou chrome://settings/content/bluetoothDevices) pour autoriser le Bluetooth, puis réessaie.",
     "connectionLost": {
       "title": "Connexion perdue",
-      "description": "Le trieur s'est déconnecté de manière inattendue. Vérifie qu'aucune autre application (comme le moniteur série de l'IDE Arduino) n'utilise le port, puis reconnecte-toi."
+      "description": "Le trieur s'est déconnecté de manière inattendue. Si tu es connecté via USB, vérifie qu'aucune autre application (comme le moniteur série de l'IDE Arduino) n'utilise le port, puis reconnecte-toi."
     },
     "testingDevice": "Test de l'appareil…",
     "deviceReady": "Appareil prêt",
@@ -184,6 +185,8 @@
     "zoom": "Zoom",
     "disconnect": "Déconnecter",
     "connect": "Connecter",
+    "connectUsb": "Connecter via USB",
+    "connectBluetooth": "Connecter via Bluetooth",
     "scanner": "Scanner",
     "autoFeed": "Alimentation auto",
     "allowDuplicates": "Autoriser les doublons",

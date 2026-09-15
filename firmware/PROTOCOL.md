@@ -56,6 +56,44 @@ a serial connection to the device can drive it by following this spec
   inline during an active `route`, on a card that fails to advance to
   the next module in time (see `route` below).
 
+## BLE transport
+
+ESP32-S3 and Uno R4 WiFi builds also advertise a BLE peripheral, so a client
+can drive the device wirelessly instead of over USB - Uno R4 Minima has no
+BLE hardware and is Serial-only. This carries the **exact same** line-
+delimited JSON protocol documented below; only how bytes get to/from the
+device differs. `main.ino`'s two backends (`ble_arduinoble.ino` for the Uno
+R4 WiFi, `ble_esp32.ino` for the ESP32-S3) implement this identically from a
+protocol standpoint.
+
+- **Service:** the well-known Nordic UART Service (NUS) UUIDs, reused rather
+  than inventing custom ones so generic BLE terminal apps (nRF Connect, etc.)
+  can talk to the device for debugging without any app-specific tooling.
+  - Service: `6E400001-B5A3-F393-E0A9-E50E24DCCA9E`
+  - RX characteristic (write / write-without-response — commands in):
+    `6E400002-B5A3-F393-E0A9-E50E24DCCA9E`
+  - TX characteristic (notify — responses and unsolicited messages out):
+    `6E400003-B5A3-F393-E0A9-E50E24DCCA9E`
+- **Framing:** identical to Serial — one JSON object per line, `\n`-
+  terminated. A single command or response line is **not** guaranteed to
+  arrive in one BLE write/notify packet: both directions get chunked to the
+  connection's negotiated MTU (the device chunks conservatively at 20 bytes
+  unless testing shows a given board/central negotiates higher), so a client
+  must reassemble by simply appending received bytes to a buffer and
+  splitting on `\n`, exactly as it already does for Serial's byte stream.
+- **Response routing:** a command's response is sent back only on the
+  transport it arrived on — if both Serial and BLE are connected at once,
+  each keeps its own independent request/response correlation (the protocol
+  has no request IDs, so a client must still send one command and read one
+  response before sending the next — see Transport above). The boot banner
+  and the unsolicited `{"error":"jam",...}` message are the exception: they
+  broadcast to every currently-connected transport, not just one.
+- **Reliability:** BLE notifications aren't guaranteed delivery. A dropped
+  chunk mid-line corrupts that one response; a client's existing timeout-
+  based recovery (waiting for a response line, per the framing note above)
+  handles this as a failed/garbled response, but there's no automatic retry
+  of the specific request. This matches how generic BLE UART bridges behave.
+
 ## Hardware model
 
 - A **module** is one physical sorting stage: three positional SG90

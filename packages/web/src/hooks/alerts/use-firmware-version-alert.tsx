@@ -14,13 +14,17 @@ export function useFirmwareVersionAlert(): {
   portal: ReactNode;
 } {
   const { t } = useTranslation("scanner");
-  const { isConnected, firmwareVersion, board, isFlashing } = useSerial();
+  const { isConnected, firmwareVersion, board, transport, isFlashing } =
+    useSerial();
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
 
   const showAlert =
     isConnected &&
     isFirmwareVersionOutdated(firmwareVersion, LATEST_FIRMWARE_VERSION);
-  const isEsp32 = board === "esp32" || isFlashing;
+  // In-browser flashing needs the raw SerialPort (esptool-js) - unavailable
+  // over a Bluetooth connection, so fall back to the manual-download link
+  // there even on an ESP32 board.
+  const isEsp32 = (board === "esp32" && transport === "serial") || isFlashing;
 
   const portal = (
     <Esp32FlashDialog
