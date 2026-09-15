@@ -1,4 +1,4 @@
-import { createSessionEventSource } from "@/lib/api/session";
+import { useCollectionStream } from "@/lib/app-stream";
 import type {
   ConnectionStatus,
   SessionError,
@@ -6,7 +6,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type { Collection, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export type { SessionError, SessionMonitorState };
@@ -25,120 +25,129 @@ export function useSessionMonitor(collectionGuid: string | undefined): SessionMo
       { id: `${Date.now()}-${Math.random()}`, message, timestamp: Date.now() },
       ...prev,
     ]);
-  const esRef = useRef<EventSource | null>(null);
+
+  const eventSource = useCollectionStream(collectionGuid);
 
   useEffect(() => {
     if (!collectionGuid) return;
-
-    let cancelled = false;
     setStatus("connecting");
     setCards([]);
     setUnmatchedCards([]);
     setCollection(null);
     setViewers([]);
     setErrors([]);
+  }, [collectionGuid]);
 
-    createSessionEventSource(collectionGuid).then((es) => {
-      if (cancelled) { es.close(); return; }
-      esRef.current = es;
+  useEffect(() => {
+    if (!collectionGuid || !eventSource) return;
 
-      es.addEventListener("session_init", (e) => {
-        const {
-          collection,
-          cards,
-          unmatchedCards: initUnmatched,
-          viewers: initViewers,
-        } = JSON.parse((e as MessageEvent).data) as {
-          collection: Collection;
-          cards: ScannedCard[];
-          unmatchedCards?: UnmatchedCard[];
-          viewers?: SessionViewer[];
-        };
-        setCollection(collection);
-        setCards(cards);
-        setUnmatchedCards(initUnmatched ?? []);
-        if (initViewers) setViewers(initViewers);
-        setStatus("connected");
-      });
+    const guid = collectionGuid;
+    const es = eventSource;
+    const scoped = (name: string) => `session:${guid}:${name}`;
+    const listeners: Array<[string, (e: Event) => void]> = [];
+    const on = (name: string, handler: (e: Event) => void) => {
+      es.addEventListener(name, handler);
+      listeners.push([name, handler]);
+    };
 
-      es.addEventListener("viewers_updated", (e) => {
-        const { viewers: updated } = JSON.parse((e as MessageEvent).data) as { viewers: SessionViewer[] };
-        setViewers(updated);
-      });
-
-      es.addEventListener("card_added", (e) => {
-        const card = JSON.parse((e as MessageEvent).data) as ScannedCard;
-        setCards((prev) => [card, ...prev]);
-      });
-
-      es.addEventListener("card_updated", (e) => {
-        const updated = JSON.parse((e as MessageEvent).data) as ScannedCard;
-        setCards((prev) =>
-          prev.map((c) => (c.scanId === updated.scanId ? updated : c)),
-        );
-      });
-
-      es.addEventListener("card_removed", (e) => {
-        const { scanId } = JSON.parse((e as MessageEvent).data) as { scanId: string };
-        setCards((prev) => prev.filter((c) => c.scanId !== scanId));
-      });
-
-      es.addEventListener("cards_removed", (e) => {
-        const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
-        const ids = new Set(scanIds);
-        setCards((prev) => prev.filter((c) => !ids.has(c.scanId)));
-      });
-
-      es.addEventListener("cards_downloaded", (e) => {
-        const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
-        const ids = new Set(scanIds);
-        setCards((prev) =>
-          prev.map((c) => (ids.has(c.scanId) ? { ...c, isDownloaded: true } : c)),
-        );
-      });
-
-      es.addEventListener("cards_cleared", () => {
-        setCards([]);
-      });
-
-      es.addEventListener("unmatched_added", (e) => {
-        const card = JSON.parse((e as MessageEvent).data) as UnmatchedCard;
-        setUnmatchedCards((prev) => [card, ...prev]);
-      });
-
-      es.addEventListener("unmatched_removed", (e) => {
-        const { scanId } = JSON.parse((e as MessageEvent).data) as { scanId: string };
-        setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
-      });
-
-      es.addEventListener("unmatched_cleared", () => {
-        setUnmatchedCards([]);
-      });
-
-      es.addEventListener("scan_error", (e) => {
-        const { message } = JSON.parse((e as MessageEvent).data) as { message: string };
-        pushError(message);
-      });
-
-      es.onerror = () => {
-        setStatus("error");
-        pushError(t("sessionMonitor.connectionLost"));
+    on(scoped("session_init"), (e) => {
+      const {
+        collection,
+        cards,
+        unmatchedCards: initUnmatched,
+        viewers: initViewers,
+      } = JSON.parse((e as MessageEvent).data) as {
+        collection: Collection;
+        cards: ScannedCard[];
+        unmatchedCards?: UnmatchedCard[];
+        viewers?: SessionViewer[];
       };
-
-      es.onopen = () => {
-        setStatus("connected");
-      };
-    }).catch(() => {
-      if (!cancelled) setStatus("error");
+      setCollection(collection);
+      setCards(cards);
+      setUnmatchedCards(initUnmatched ?? []);
+      if (initViewers) setViewers(initViewers);
+      setStatus("connected");
     });
 
+    on(scoped("viewers_updated"), (e) => {
+      const { viewers: updated } = JSON.parse((e as MessageEvent).data) as { viewers: SessionViewer[] };
+      setViewers(updated);
+    });
+
+    on(scoped("card_added"), (e) => {
+      const card = JSON.parse((e as MessageEvent).data) as ScannedCard;
+      setCards((prev) => [card, ...prev]);
+    });
+
+    on(scoped("card_updated"), (e) => {
+      const updated = JSON.parse((e as MessageEvent).data) as ScannedCard;
+      setCards((prev) =>
+        prev.map((c) => (c.scanId === updated.scanId ? updated : c)),
+      );
+    });
+
+    on(scoped("card_removed"), (e) => {
+      const { scanId } = JSON.parse((e as MessageEvent).data) as { scanId: string };
+      setCards((prev) => prev.filter((c) => c.scanId !== scanId));
+    });
+
+    on(scoped("cards_removed"), (e) => {
+      const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
+      const ids = new Set(scanIds);
+      setCards((prev) => prev.filter((c) => !ids.has(c.scanId)));
+    });
+
+    on(scoped("cards_downloaded"), (e) => {
+      const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
+      const ids = new Set(scanIds);
+      setCards((prev) =>
+        prev.map((c) => (ids.has(c.scanId) ? { ...c, isDownloaded: true } : c)),
+      );
+    });
+
+    on(scoped("cards_cleared"), () => {
+      setCards([]);
+    });
+
+    on(scoped("unmatched_added"), (e) => {
+      const card = JSON.parse((e as MessageEvent).data) as UnmatchedCard;
+      setUnmatchedCards((prev) => [card, ...prev]);
+    });
+
+    on(scoped("unmatched_removed"), (e) => {
+      const { scanId } = JSON.parse((e as MessageEvent).data) as { scanId: string };
+      setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+    });
+
+    on(scoped("unmatched_cleared"), () => {
+      setUnmatchedCards([]);
+    });
+
+    on(scoped("scan_error"), (e) => {
+      const { message } = JSON.parse((e as MessageEvent).data) as { message: string };
+      pushError(message);
+    });
+
+    // Connection-level, not guid-scoped - the EventSource is shared, so use
+    // addEventListener rather than onerror/onopen (which would clobber every
+    // other consumer's handler on this same connection).
+    on("error", () => {
+      setStatus("error");
+      pushError(t("sessionMonitor.connectionLost"));
+    });
+
+    on("open", () => {
+      setStatus("connected");
+    });
+    // readyState is already OPEN when a second consumer attaches to the
+    // already-connected shared EventSource - "open" won't fire again for it.
+    if (es.readyState === EventSource.OPEN) setStatus("connected");
+
     return () => {
-      cancelled = true;
-      esRef.current?.close();
-      esRef.current = null;
+      for (const [name, handler] of listeners) es.removeEventListener(name, handler);
       setStatus("closed");
     };
-  }, [collectionGuid, t]);
+  }, [eventSource, collectionGuid, t]);
 
   return { collection, cards, unmatchedCards, viewers, errors, status };
 }

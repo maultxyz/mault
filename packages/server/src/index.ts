@@ -19,6 +19,7 @@ import { localAuthRouter } from "./routes/local-auth";
 import { notificationsRouter } from "./routes/notifications";
 import { orgSettingsRouter } from "./routes/org-settings";
 import { publicRouter } from "./routes/public";
+import { streamRoute } from "./routes/stream";
 import { rollbar } from "./lib/rollbar";
 
 const app = new Hono<AppEnv>();
@@ -49,6 +50,7 @@ app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
+app.route("/stream", streamRoute);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);

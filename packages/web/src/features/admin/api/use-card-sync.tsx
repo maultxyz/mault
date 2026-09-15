@@ -1,21 +1,10 @@
-import {
-  cancelSync,
-  createSyncEventSource,
-  listSyncSources,
-  startSync,
-} from "@/lib/api/admin";
-import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
+import { cancelSync, listSyncSources, startSync } from "@/lib/api/admin";
+import { useSyncState } from "@/lib/app-stream";
 import { LIVE_CLOCK_TICK_MS } from "@/lib/constants/timing";
 import type { SyncSourceInfo } from "@/lib/interfaces/admin";
 import type { SyncState } from "@magic-vault/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 interface CardSyncContextValue {
   syncState: SyncState;
@@ -34,13 +23,13 @@ interface CardSyncContextValue {
 
 const CardSyncContext = createContext<CardSyncContextValue | null>(null);
 
-// Owns the single SSE subscription to the sync job (see lib/sync-job.ts on
-// the server) so every admin section that cares about sync status - the
-// progress/log panel and the "dump database" guard that disables dumping
-// mid-sync - shares one connection and one source of truth instead of each
-// opening its own stream.
+// Sync status is one of several concerns multiplexed over the single
+// app-wide SSE connection (see lib/app-stream.tsx) so every admin section
+// that cares about it - the progress/log panel and the "dump database" guard
+// that disables dumping mid-sync - shares one source of truth instead of
+// each opening its own stream.
 export function CardSyncProvider({ children }: { children: ReactNode }) {
-  const [syncState, setSyncState] = useState<SyncState>(DEFAULT_SYNC_STATE);
+  const syncState = useSyncState();
   const [now, setNow] = useState(() => Date.now());
 
   const sourcesQuery = useQuery({
@@ -48,61 +37,6 @@ export function CardSyncProvider({ children }: { children: ReactNode }) {
     queryFn: () => listSyncSources().then((r) => r.data ?? []),
     staleTime: Infinity,
   });
-
-  useEffect(() => {
-    let es: EventSource | null = null;
-    let cancelled = false;
-
-    async function connect() {
-      try {
-        es = await createSyncEventSource();
-        if (cancelled) {
-          es.close();
-          return;
-        }
-
-        es.addEventListener("status", (e: MessageEvent) => {
-          setSyncState(JSON.parse(e.data) as SyncState);
-        });
-
-        es.addEventListener("progress", (e: MessageEvent) => {
-          const update = JSON.parse(e.data) as Partial<SyncState>;
-          setSyncState((prev) => ({ ...prev, ...update }));
-        });
-
-        es.addEventListener("done", (e: MessageEvent) => {
-          const update = JSON.parse(e.data) as Partial<SyncState>;
-          setSyncState((prev) => ({ ...prev, ...update }));
-        });
-
-        es.addEventListener("log", (e: MessageEvent) => {
-          const { line } = JSON.parse(e.data) as { line: string };
-          setSyncState((prev) => ({
-            ...prev,
-            logs: [...prev.logs.slice(-199), line],
-          }));
-        });
-
-        es.addEventListener("error", (e: MessageEvent) => {
-          if (e.data) {
-            const update = JSON.parse(e.data) as { message: string };
-            setSyncState((prev) => ({
-              ...prev,
-              status: "failed",
-              logs: [...prev.logs.slice(-199), `Error: ${update.message}`],
-            }));
-          }
-        });
-      } catch {}
-    }
-
-    connect();
-
-    return () => {
-      cancelled = true;
-      es?.close();
-    };
-  }, []);
 
   useEffect(() => {
     if (syncState.status !== "running") return;
