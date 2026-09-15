@@ -10,6 +10,7 @@ import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import {
   buildCalibrationDebugText,
+  defaultPaddleCloseDelayValues,
   defaultSliderValues,
   getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
@@ -87,6 +88,10 @@ export function useCalibrationPage() {
   const [sliderValues, setSliderValues] = useState<Record<SliderKey, number>>(
     () => defaultSliderValues(modules),
   );
+
+  const [paddleCloseDelayValues, setPaddleCloseDelayValues] = useState<
+    Record<number, number>
+  >(() => defaultPaddleCloseDelayValues(modules));
 
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -234,6 +239,13 @@ export function useCalibrationPage() {
       saveConfig(module, { ...calibration, [posKey]: value });
     },
     [saveConfig],
+  );
+
+  const handlePaddleCloseDelayChange = useCallback(
+    (module: number, value: number) => {
+      setPaddleCloseDelayValues((prev) => ({ ...prev, [module]: value }));
+    },
+    [],
   );
 
   const handleFeederSpeedChange = useCallback(
@@ -419,11 +431,13 @@ export function useCalibrationPage() {
     isLoading,
     active,
     sliderValues,
+    paddleCloseDelayValues,
     activeBin,
     isTesting,
     isUnconfigured,
     handleControl,
     handleSliderChange,
+    handlePaddleCloseDelayChange,
     handleTest,
     handleTestBin,
     handleSetPosition,

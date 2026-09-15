@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  PADDLE_CLOSE_DELAY_SLIDER_MAX,
   percentToPulse,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
@@ -15,6 +16,7 @@ import {
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
   SERVOS,
+  sliderMax,
 } from "@/lib/constants/calibration";
 import type {
   ActivePositions,
@@ -104,21 +106,19 @@ function ServoControl({
       )}
 
       <div className="flex flex-col gap-1.5">
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">
-                  {t("moduleCalibrationGrid.positionLabel")}
-                </span>
-                <span className="text-sm font-bold">{percent}%</span>
-              </div>
-            }
-          />
-          <TooltipContent>
-            {t("moduleCalibrationGrid.percentSliderTooltip")}
-          </TooltipContent>
-        </Tooltip>
+        <div className="flex items-center justify-between">
+          <span className="text-xs text-muted-foreground">
+            {t("moduleCalibrationGrid.positionLabel")}
+          </span>
+          <Tooltip>
+            <TooltipTrigger
+              render={<span className="text-sm font-bold">{percent}%</span>}
+            />
+            <TooltipContent>
+              {t("moduleCalibrationGrid.percentSliderTooltip")}
+            </TooltipContent>
+          </Tooltip>
+        </div>
         <Slider
           min={0}
           max={100}
@@ -243,11 +243,89 @@ function ServoControl({
   );
 }
 
+interface PaddleCloseDelayControlProps {
+  module: number;
+  value: number;
+  calibration: ServoCalibration | undefined;
+  isLoading: boolean;
+  isConnected: boolean;
+  onChange: (module: number, value: number) => void;
+  onSetPosition: (
+    module: number,
+    posKey: keyof ServoCalibration,
+    value: number,
+  ) => void;
+}
+
+// Unlike the SERVOS controls above, this isn't a servo position to preview
+// and move to - it's a timing value, so there's nothing to send until "Set"
+// is pressed.
+function PaddleCloseDelayControl({
+  module,
+  value,
+  calibration,
+  isLoading,
+  isConnected,
+  onChange,
+  onSetPosition,
+}: PaddleCloseDelayControlProps) {
+  const { t } = useTranslation("calibration");
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          {t("moduleCalibrationGrid.paddleCloseDelayLabel")}
+        </p>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <span className="text-sm font-bold">
+                {t("moduleCalibrationGrid.msValue", { value })}
+              </span>
+            }
+          />
+          <TooltipContent>
+            {t("moduleCalibrationGrid.paddleCloseDelayDescription")}
+          </TooltipContent>
+        </Tooltip>
+      </div>
+      <Slider
+        min={0}
+        max={sliderMax(value, PADDLE_CLOSE_DELAY_SLIDER_MAX)}
+        step={10}
+        disabled={!isConnected}
+        value={value}
+        onValueChange={(v) => onChange(module, v)}
+      />
+      <ButtonGroup className="w-full">
+        <Button
+          variant="outline"
+          disabled={!isConnected}
+          onClick={() => onSetPosition(module, "paddleCloseDelay", value)}
+          className="flex-1"
+        >
+          {t("moduleCalibrationGrid.setPaddleCloseDelay")}
+        </Button>
+      </ButtonGroup>
+      {isLoading ? (
+        <Skeleton className="h-3 w-16 rounded" />
+      ) : calibration ? (
+        <p className="text-xs text-muted-foreground text-center">
+          {t("moduleCalibrationGrid.msValue", {
+            value: calibration.paddleCloseDelay,
+          })}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 interface ModuleCalibrationGridProps {
   modules: number[];
   configs: ModuleConfig[];
   active: ActivePositions;
   sliderValues: Record<SliderKey, number>;
+  paddleCloseDelayValues: Record<number, number>;
   isLoading: boolean;
   isConnected: boolean;
   onControl: (
@@ -260,6 +338,7 @@ interface ModuleCalibrationGridProps {
     servo: "bottom" | "paddle" | "pusher",
     value: number,
   ) => void;
+  onPaddleCloseDelayChange: (module: number, value: number) => void;
   onSetPosition: (
     module: number,
     posKey: keyof ServoCalibration,
@@ -272,10 +351,12 @@ export function ModuleCalibrationGrid({
   configs,
   active,
   sliderValues,
+  paddleCloseDelayValues,
   isLoading,
   isConnected,
   onControl,
   onSliderChange,
+  onPaddleCloseDelayChange,
   onSetPosition,
 }: ModuleCalibrationGridProps) {
   const { t } = useTranslation("calibration");
@@ -309,6 +390,15 @@ export function ModuleCalibrationGrid({
                 />
               );
             })}
+            <PaddleCloseDelayControl
+              module={module}
+              value={paddleCloseDelayValues[module] ?? cal?.paddleCloseDelay ?? 150}
+              calibration={cal}
+              isLoading={isLoading}
+              isConnected={isConnected}
+              onChange={onPaddleCloseDelayChange}
+              onSetPosition={onSetPosition}
+            />
           </div>
         );
       })}

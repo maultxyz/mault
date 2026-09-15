@@ -72,6 +72,14 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
           {c.pusherLeft} / {c.pusherNeutral} / {c.pusherRight}
         </span>
       </div>
+      <div className="flex gap-2">
+        <span className="w-16 shrink-0 text-muted-foreground">
+          {t("calibratePage.moduleHistory.paddleCloseDelay")}
+        </span>
+        <span>
+          {t("calibratePage.moduleHistory.msValue", { value: c.paddleCloseDelay })}
+        </span>
+      </div>
     </div>
   );
 }
@@ -227,11 +235,13 @@ export default function CalibratePage() {
     isLoading,
     active,
     sliderValues,
+    paddleCloseDelayValues,
     activeBin,
     isTesting,
     isUnconfigured,
     handleControl,
     handleSliderChange,
+    handlePaddleCloseDelayChange,
     handleTest,
     handleTestBin,
     handleSetPosition,
@@ -451,10 +461,12 @@ export default function CalibratePage() {
               configs={configs}
               active={active}
               sliderValues={sliderValues}
+              paddleCloseDelayValues={paddleCloseDelayValues}
               isLoading={isLoading}
               isConnected={isConnected}
               onControl={handleControl}
               onSliderChange={handleSliderChange}
+              onPaddleCloseDelayChange={handlePaddleCloseDelayChange}
               onSetPosition={handleSetPosition}
             />
           </>

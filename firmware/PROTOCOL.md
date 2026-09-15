@@ -168,14 +168,18 @@ or, to bypass calibrated positions and drive a raw pulse directly:
     "module": 1,
     "bottomClosed": 400, "bottomOpen": 150,
     "paddleClosed": 420, "paddleOpen": 150,
-    "pusherLeft": 150, "pusherNeutral": 230, "pusherRight": 300
+    "pusherLeft": 150, "pusherNeutral": 230, "pusherRight": 300,
+    "paddleCloseDelay": 150
   }
 }
 ```
 Every field except `module` is optional — omitted fields keep their
-current stored value. These are raw PWM pulse values (same `120–490`
-range as `servo`'s `value`), one pair/triple per servo defining its two
-or three named positions. → `{"status":"ok","module":1}`
+current stored value. `bottomClosed`/`bottomOpen`/`paddleClosed`/`paddleOpen`/
+`pusherLeft`/`pusherNeutral`/`pusherRight` are raw PWM pulse values (same
+`120–490` range as `servo`'s `value`), one pair/triple per servo defining
+its two or three named positions. `paddleCloseDelay` is different: it's a
+duration in milliseconds, not a pulse - see `route` below for how it's
+used. → `{"status":"ok","module":1}`
 
 ### `feeder`
 ```json
@@ -247,6 +251,15 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
   either opens the target module's paddle and drives its pusher in the
   requested direction (`"left"`/`"right"`), or opens just the target
   module's own bottom to drop the card there (`"bottom"`).
+- For a `"left"`/`"right"` push, two timings run independently once the
+  pusher fires: the pusher itself always returns to neutral after a fixed
+  internal hold (long enough to complete its stroke and fling the card,
+  short enough not to stall against the mechanical stop for long); the
+  target module's paddle instead closes `paddleCloseDelay` ms after the
+  pusher fired (per-module, via `setConfig`) - independent of the pusher's
+  own timing, so the paddle can be tuned to stay open longer than the
+  pusher is held, to make sure the card has actually cleared before the
+  gate closes.
 - A card destined for a module's bottom output doesn't need to be the
   last module — any module can be targeted with `direction: "bottom"`.
 

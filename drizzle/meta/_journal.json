@@ -218,6 +218,13 @@
       "when": 1789416357475,
       "tag": "0030_perpetual_stephen_strange",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1789476443516,
+      "tag": "0031_cheerful_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }

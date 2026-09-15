@@ -1,6 +1,7 @@
 import type { SliderKey } from "@/lib/interfaces/calibration";
 import {
   CHANNEL_OFFSET,
+  DEFAULT_CALIBRATION,
   type BinRoute,
   type ChannelLayout,
   type FeederCalibration,
@@ -31,6 +32,14 @@ export function defaultSliderValues(modules: number[]): Record<SliderKey, number
     vals[`${m}:paddle`] = 307;
     vals[`${m}:pusher`] = 307;
   }
+  return vals;
+}
+
+export function defaultPaddleCloseDelayValues(
+  modules: number[],
+): Record<number, number> {
+  const vals: Record<number, number> = {};
+  for (const m of modules) vals[m] = DEFAULT_CALIBRATION.paddleCloseDelay;
   return vals;
 }
 
@@ -78,6 +87,7 @@ export function buildCalibrationDebugText({
       `  bottom: closed=${c.calibration.bottomClosed} open=${c.calibration.bottomOpen}`,
       `  paddle: closed=${c.calibration.paddleClosed} open=${c.calibration.paddleOpen}`,
       `  pusher: left=${c.calibration.pusherLeft} neutral=${c.calibration.pusherNeutral} right=${c.calibration.pusherRight}`,
+      `  paddleCloseDelay: ${c.calibration.paddleCloseDelay}ms`,
     );
   }
 

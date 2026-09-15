@@ -72,6 +72,7 @@ export const FEEDER_DURATION_SLIDER_MAX = 10_000;
 export const FEEDER_PULSE_DURATION_SLIDER_MAX = 500;
 export const FEEDER_PAUSE_DURATION_SLIDER_MAX = 1_000;
 export const FEEDER_SETTLE_DURATION_SLIDER_MAX = 2_000;
+export const PADDLE_CLOSE_DELAY_SLIDER_MAX = 1_000;
 
 export function sliderMax(value: number, defaultMax: number): number {
   return Math.max(defaultMax, value);
