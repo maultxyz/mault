@@ -8,6 +8,7 @@ const servoCalibrationSchema = z.object({
   pusherLeft: z.number(),
   pusherNeutral: z.number(),
   pusherRight: z.number(),
+  paddleCloseDelay: z.number().default(150),
 });
 
 const moduleConfigSchema = z.object({

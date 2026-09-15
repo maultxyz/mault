@@ -1,5 +1,4 @@
-import { API_BASE, apiDelete, apiGet, apiPost } from "@/lib/api/client";
-import { getAuthSession } from "@/lib/auth/session";
+import { apiDelete, apiGet, apiPost } from "@/lib/api/client";
 import type {
   AdminCard,
   AdminCardsPage,
@@ -92,12 +91,6 @@ export async function syncCardById(
     cardId,
     lang,
   });
-}
-
-export async function createSyncEventSource(): Promise<EventSource> {
-  const session = await getAuthSession();
-  const url = `${API_BASE}/api/admin/sync/stream${session?.token ? `?token=${encodeURIComponent(session.token)}` : ""}`;
-  return new EventSource(url);
 }
 
 export async function searchAdminUsers(

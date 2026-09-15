@@ -14,13 +14,10 @@ import { debugErrorRoute } from "./debug-error";
 import { deleteCollectionRoute } from "./delete";
 import { editCollectionRoute } from "./edit";
 import { listCollectionsRoute } from "./list";
-import { liveEventsRoute } from "./live-events";
-import { lockEventsRoute } from "./lock-events";
 import { locksRoute } from "./locks";
 import { phoneCameraSignalRoute } from "./phone-camera-signal";
 import { releaseScanLockRoute } from "./scan-lock-release";
 import { setCollectionActiveRoute } from "./set-active";
-import { collectionStreamRoute } from "./stream";
 import { addUnmatchedCardRoute } from "./unmatched-add";
 import { clearUnmatchedCardsRoute } from "./unmatched-clear";
 import { deleteUnmatchedCardRoute } from "./unmatched-delete";
@@ -28,9 +25,7 @@ import { listUnmatchedCardsRoute } from "./unmatched-list";
 
 const router = new Hono<AppEnv>()
   .route("/", listCollectionsRoute)
-  .route("/", lockEventsRoute)
   .route("/", locksRoute)
-  .route("/", liveEventsRoute)
   .route("/", checkCollectionNameRoute)
   .route("/", addCollectionRoute)
   .route("/", editCollectionRoute)
@@ -50,7 +45,6 @@ const router = new Hono<AppEnv>()
   .route("/", deleteUnmatchedCardRoute)
   .route("/", releaseScanLockRoute)
   .route("/", debugErrorRoute)
-  .route("/", phoneCameraSignalRoute)
-  .route("/", collectionStreamRoute);
+  .route("/", phoneCameraSignalRoute);
 
 export { router as collectionsRouter };

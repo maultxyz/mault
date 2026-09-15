@@ -8,11 +8,8 @@ import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useRole } from "@/hooks/use-role";
-import { createSyncEventSource } from "@/lib/api/admin";
-import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
-import type { SyncState } from "@magic-vault/shared";
+import { useSyncState } from "@/lib/app-stream";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -58,44 +55,10 @@ function StatusItem({
 
 function SyncStatusItem() {
   const { t } = useTranslation("common");
-  const [syncState, setSyncState] = useState<SyncState>(DEFAULT_SYNC_STATE);
+  const syncState = useSyncState();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { isAdmin } = useRole();
-
-  useEffect(() => {
-    let es: EventSource | null = null;
-    let cancelled = false;
-
-    async function connect() {
-      try {
-        es = await createSyncEventSource();
-        if (cancelled) {
-          es.close();
-          return;
-        }
-
-        es.addEventListener("status", (e: MessageEvent) => {
-          setSyncState(JSON.parse(e.data) as SyncState);
-        });
-        es.addEventListener("progress", (e: MessageEvent) => {
-          setSyncState((prev) => ({ ...prev, ...JSON.parse(e.data) }));
-        });
-        es.addEventListener("done", (e: MessageEvent) => {
-          setSyncState((prev) => ({ ...prev, ...JSON.parse(e.data) }));
-        });
-        es.addEventListener("error", (e: MessageEvent) => {
-          if (e.data) setSyncState((prev) => ({ ...prev, status: "failed" }));
-        });
-      } catch {}
-    }
-
-    connect();
-    return () => {
-      cancelled = true;
-      es?.close();
-    };
-  }, []);
 
   const { status, total, processed, skipped } = syncState;
   const done = processed + skipped;

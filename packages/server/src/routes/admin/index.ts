@@ -10,10 +10,8 @@ import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
 import { syncStartRoute } from "./sync-start";
 import { syncStatusRoute } from "./sync-status";
-import { syncStreamRoute } from "./sync-stream";
 
 const router = new Hono<AppEnv>()
-  .route("/", syncStreamRoute)
   .route("/", syncStatusRoute)
   .route("/", syncSourcesRoute)
   .route("/", syncStartRoute)

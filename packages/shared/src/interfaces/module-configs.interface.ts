@@ -6,6 +6,7 @@ export interface ServoCalibration {
   pusherLeft: number;
   pusherNeutral: number;
   pusherRight: number;
+  paddleCloseDelay: number;
 }
 
 export interface ModuleConfig {
@@ -37,6 +38,7 @@ export const DEFAULT_CALIBRATION: ServoCalibration = {
   pusherLeft: 150,
   pusherNeutral: 230,
   pusherRight: 300,
+  paddleCloseDelay: 150,
 };
 
 export interface FeederCalibration {

@@ -110,7 +110,11 @@
       "right": "Right",
       "neutral": "Neutral"
     },
-    "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it."
+    "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it.",
+    "msValue": "{{value}} ms",
+    "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
+    "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts.",
+    "setPaddleCloseDelay": "Set Paddle Close Delay"
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Drag the box to move it, or drag the handle to resize. Line it up with a card sitting at module 1.",
@@ -182,7 +186,9 @@
       "bottom": "Bottom",
       "paddle": "Paddle",
       "pusher": "Pusher",
-      "moduleLabel": "Module {{module}}"
+      "paddleCloseDelay": "Paddle Close Delay",
+      "moduleLabel": "Module {{module}}",
+      "msValue": "{{value}}ms"
     },
     "feederHistory": {
       "speed": "Speed",

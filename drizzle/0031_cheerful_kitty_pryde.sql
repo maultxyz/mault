@@ -1,0 +1,2 @@
+ALTER TABLE "module_config_audit" ADD COLUMN "paddle_close_delay" integer DEFAULT 150 NOT NULL;--> statement-breakpoint
+ALTER TABLE "module_configs" ADD COLUMN "paddle_close_delay" integer DEFAULT 150 NOT NULL;

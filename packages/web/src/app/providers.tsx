@@ -4,9 +4,7 @@ import { BinRoutesProvider } from "@/features/calibration/api/use-bin-routes";
 import { FeederConfigProvider } from "@/features/calibration/api/use-feeder-config";
 import { ModuleConfigsProvider } from "@/features/calibration/api/use-module-configs";
 import { CardFiltersProvider } from "@/features/cards/api/use-card-filters";
-import { CollectionLocksProvider } from "@/features/collections/api/use-collection-locks";
 import { CollectionsProvider } from "@/features/collections/api/use-collections";
-import { LiveSessionStatusProvider } from "@/features/collections/api/use-live-counts";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { OrgPickerModal } from "@/features/companies/components/org-picker-modal";
@@ -17,6 +15,7 @@ import { ScannerIslandProvider } from "@/features/scanner/api/use-scanner-island
 import { SerialProvider } from "@/features/scanner/api/use-serial";
 import { DocumentTitleUpdater } from "@/features/scanner/components/document-title-updater";
 import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
+import { AppStreamProvider } from "@/lib/app-stream";
 import { THEME_COLORS } from "@/lib/constants/colors";
 import { applyPrimaryColor, resetPrimaryColor } from "@/lib/primary-color";
 import {
@@ -60,31 +59,29 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       <ScannerIslandProvider>
         <CollectionsProvider>
           <OnboardingProvider>
-            <CameraProvider>
-              <SerialProvider>
-                <BinRoutesProvider>
-                  <BinConfigsProvider>
-                    <CollectionLocksProvider>
-                      <LiveSessionStatusProvider>
-                        <ModuleConfigsProvider>
-                          <FeederConfigProvider>
-                            <ScannedCardsProvider>
-                              <CardFiltersProvider>
-                                <AppAlertsProvider>
-                                  <AppLoadingGate>{children}</AppLoadingGate>
-                                </AppAlertsProvider>
-                                <OrgPickerModal />
-                                <DocumentTitleUpdater />
-                              </CardFiltersProvider>
-                            </ScannedCardsProvider>
-                          </FeederConfigProvider>
-                        </ModuleConfigsProvider>
-                      </LiveSessionStatusProvider>
-                    </CollectionLocksProvider>
-                  </BinConfigsProvider>
-                </BinRoutesProvider>
-              </SerialProvider>
-            </CameraProvider>
+            <AppStreamProvider>
+              <CameraProvider>
+                <SerialProvider>
+                  <BinRoutesProvider>
+                    <BinConfigsProvider>
+                      <ModuleConfigsProvider>
+                        <FeederConfigProvider>
+                          <ScannedCardsProvider>
+                            <CardFiltersProvider>
+                              <AppAlertsProvider>
+                                <AppLoadingGate>{children}</AppLoadingGate>
+                              </AppAlertsProvider>
+                              <OrgPickerModal />
+                              <DocumentTitleUpdater />
+                            </CardFiltersProvider>
+                          </ScannedCardsProvider>
+                        </FeederConfigProvider>
+                      </ModuleConfigsProvider>
+                    </BinConfigsProvider>
+                  </BinRoutesProvider>
+                </SerialProvider>
+              </CameraProvider>
+            </AppStreamProvider>
           </OnboardingProvider>
         </CollectionsProvider>
       </ScannerIslandProvider>

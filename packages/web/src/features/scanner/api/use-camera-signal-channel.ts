@@ -1,12 +1,8 @@
 import { postPhoneCameraSignal } from "@/features/collections/api/phone-camera-signal";
-import { createSessionEventSource } from "@/lib/api/session";
+import { useCollectionStream } from "@/lib/app-stream";
 import type { PhoneCameraMessage } from "@magic-vault/shared";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-// Thin transport shared by the desktop capture hook and the phone responder:
-// relays presence/capture messages over the collection's existing session
-// SSE stream. No sender/role filtering needed - each side only sends message
-// kinds the other side doesn't, so echoed broadcasts are naturally ignored.
 export function useCameraSignalChannel(
   collectionGuid: string | undefined,
   onMessage: (message: PhoneCameraMessage) => void,
@@ -14,37 +10,45 @@ export function useCameraSignalChannel(
   const [connected, setConnected] = useState(false);
   const onMessageRef = useRef(onMessage);
   onMessageRef.current = onMessage;
-  const esRef = useRef<EventSource | null>(null);
+
+  const eventSource = useCollectionStream(collectionGuid);
 
   useEffect(() => {
     if (!collectionGuid) return;
-
-    let cancelled = false;
     setConnected(false);
+  }, [collectionGuid]);
 
-    createSessionEventSource(collectionGuid).then((es) => {
-      if (cancelled) {
-        es.close();
-        return;
-      }
-      esRef.current = es;
+  useEffect(() => {
+    if (!collectionGuid || !eventSource) return;
 
-      es.addEventListener("phone_camera_message", (e) => {
-        const message = JSON.parse((e as MessageEvent).data) as PhoneCameraMessage;
-        onMessageRef.current(message);
-      });
+    const onPhoneMessage = (e: Event) => {
+      const message = JSON.parse(
+        (e as MessageEvent).data,
+      ) as PhoneCameraMessage;
+      onMessageRef.current(message);
+    };
+    const onOpen = () => setConnected(true);
+    const onError = () => setConnected(false);
 
-      es.onopen = () => setConnected(true);
-      es.onerror = () => setConnected(false);
-    });
+    eventSource.addEventListener(
+      `session:${collectionGuid}:phone_camera_message`,
+      onPhoneMessage,
+    );
+    eventSource.addEventListener("open", onOpen);
+    eventSource.addEventListener("error", onError);
+
+    if (eventSource.readyState === EventSource.OPEN) setConnected(true);
 
     return () => {
-      cancelled = true;
-      esRef.current?.close();
-      esRef.current = null;
+      eventSource.removeEventListener(
+        `session:${collectionGuid}:phone_camera_message`,
+        onPhoneMessage,
+      );
+      eventSource.removeEventListener("open", onOpen);
+      eventSource.removeEventListener("error", onError);
       setConnected(false);
     };
-  }, [collectionGuid]);
+  }, [eventSource, collectionGuid]);
 
   const send = useCallback(
     (message: PhoneCameraMessage) => {
