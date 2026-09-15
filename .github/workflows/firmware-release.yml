@@ -75,6 +75,7 @@ jobs:
         run: |
           arduino-cli lib install ArduinoJson
           arduino-cli lib install "Adafruit PWM Servo Driver Library"
+          arduino-cli lib install ArduinoBLE
 
       - name: Compile (ESP32)
         run: arduino-cli compile --fqbn "$FQBN" --export-binaries firmware/main

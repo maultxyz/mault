@@ -12,11 +12,12 @@
   "serial": {
     "connectionFailed": {
       "title": "Connection failed",
-      "description": "Failed to open port. Make sure no other application is using it."
+      "description": "Failed to connect. Make sure no other application is using the device."
     },
+    "bluetoothPermissionBlocked": "Bluetooth permission is blocked for this browser. Check your browser's site settings (or chrome://settings/content/bluetoothDevices) to allow Bluetooth, then try again.",
     "connectionLost": {
       "title": "Connection lost",
-      "description": "The sorter disconnected unexpectedly. Make sure no other application (like the Arduino IDE's Serial Monitor) is using the port, then reconnect."
+      "description": "The sorter disconnected unexpectedly. If you're connected over USB, make sure no other application (like the Arduino IDE's Serial Monitor) is using the port, then reconnect."
     },
     "testingDevice": "Testing device…",
     "deviceReady": "Device ready",
@@ -184,6 +185,8 @@
     "zoom": "Zoom",
     "disconnect": "Disconnect",
     "connect": "Connect",
+    "connectUsb": "Connect via USB",
+    "connectBluetooth": "Connect via Bluetooth",
     "scanner": "Scanner",
     "autoFeed": "Auto-feed",
     "allowDuplicates": "Allow duplicates",

@@ -23,6 +23,8 @@
 - [ ] Arduino Uno R4 Minima (arduino:renesas_uno:minima)
 - [ ] Arduino Uno R4 WiFi (arduino:renesas_uno:unor4wifi)
 - [ ] Compiles cleanly for all three FQBNs (`arduino-cli compile --fqbn <fqbn> --export-binaries firmware/main`)
+- [ ] BLE connect + command round-trip tested on ESP32-S3 (Minima has no BLE hardware — Serial-only there)
+- [ ] BLE connect + command round-trip tested on Uno R4 WiFi
 
 ## Checklist
 

@@ -47,11 +47,14 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     isReady,
     firmwareVersion,
     connect,
+    connectBluetooth,
     disconnect,
     sendTest,
     sendCommand,
     receiveResponse,
   } = useSerial();
+  const bluetoothSupported =
+    typeof navigator !== "undefined" && !!navigator.bluetooth;
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
   const { hasCatchAll } = useBinConfigs();
@@ -431,6 +434,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           onStartPhonePairing={startPhonePairing}
           onStopPhonePairing={stopPhonePairing}
           onScannerConnect={connect}
+          onScannerConnectBluetooth={connectBluetooth}
+          bluetoothSupported={bluetoothSupported}
           onScannerDisconnect={disconnect}
           onScannerRetry={sendTest}
           onCalibrate={() => navigate("/app/calibrate")}

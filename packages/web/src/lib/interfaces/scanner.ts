@@ -84,6 +84,8 @@ export type SerialMessageListener = (message: unknown) => void;
 
 export type SerialBoardType = "esp32" | "uno_r4";
 
+export type SerialTransportType = "serial" | "bluetooth";
+
 export interface FlashEsp32Result {
   success: boolean;
   error?: string;
@@ -99,7 +101,9 @@ export interface SerialContextValue {
   isReady: boolean;
   firmwareVersion: string | null;
   board: SerialBoardType | null;
+  transport: SerialTransportType | null;
   connect: () => Promise<void>;
+  connectBluetooth: () => Promise<void>;
   disconnect: () => Promise<void>;
   sendRoute: (route: BinRoute) => Promise<unknown | null>;
   isRouteBusy: () => boolean;

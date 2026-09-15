@@ -5,7 +5,7 @@ export type { CommLogEntry };
 
 export function formatCommLog(entries: CommLogEntry[]): string {
   const lines = [
-    "Magic Vault Serial Communication Log",
+    "Magic Vault Device Communication Log",
     `Generated: ${new Date().toISOString()}`,
     "",
   ];
