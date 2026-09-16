@@ -318,7 +318,8 @@
             "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
           },
           "printBinsPlate": {
-            "text": "Imprime 2 plaques Bins."
+            "text": "Imprime 2 plaques Bins.",
+            "risersNote": "Si tu utilises plus de 3 modules, tu auras peut-être besoin des rehausseurs de bacs pour que les deux bacs arrière soient assez hauts."
           },
           "printEndBinPlate": {
             "text": "Imprime 1 plaque End Bin."
