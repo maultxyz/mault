@@ -400,11 +400,11 @@
             "note": "Same as the feeder roller, these give it grip on the card face."
           },
           "mountHopperRoller": {
-            "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers."
+            "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers.",
+            "note": "The roller should be stiff once mounted — it should not free-roll."
           },
           "calibrateHopperRoller": {
-            "text": "Fit the spring and M3×25 screw, then use the screw to calibrate the wall so it lets only 1 card through at a time.",
-            "note": "Tighten the roller until it no longer free-spins, but can still be turned by hand."
+            "text": "Fit the spring and M3×25 screw, then tighten the screw until it pokes out from the bottom of the mounting point. Slowly back it off until the hopper feeds only 1 card at a time."
           },
           "mountModuleIr": {
             "text": "Fix one IR sensor at the gate of each module (1-{{modules}}) with 1 M2×6 screw each, aimed across the card path."
