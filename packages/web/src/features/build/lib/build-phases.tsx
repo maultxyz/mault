@@ -226,7 +226,7 @@ export function buildPhases(
       key: "assemble-modules",
       title: t("assembly.phases.assembleModules.title"),
       icon: IconTool,
-      videos: ["https://youtu.be/ayseLirjn4k", "https://youtu.be/nFxPrAMkSPc"],
+      videos: ["https://youtu.be/fHURbemYg-c"],
       steps: [
         {
           key: "mount-module-servos",
