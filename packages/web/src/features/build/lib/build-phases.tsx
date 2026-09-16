@@ -226,7 +226,7 @@ export function buildPhases(
       key: "assemble-modules",
       title: t("assembly.phases.assembleModules.title"),
       icon: IconTool,
-      videos: ["https://youtu.be/fHURbemYg-c"],
+      videos: ["https://youtu.be/sCH3U6oM2xk"],
       steps: [
         {
           key: "mount-module-servos",
@@ -321,6 +321,9 @@ export function buildPhases(
           text: t(
             "assembly.phases.assembleModules.steps.mountHopperRoller.text",
           ),
+          note: t(
+            "assembly.phases.assembleModules.steps.mountHopperRoller.note",
+          ),
           images: ["/instructions/new_hopper.JPG"],
           optional: "new-hopper",
         },
@@ -328,9 +331,6 @@ export function buildPhases(
           key: "calibrate-hopper-roller",
           text: t(
             "assembly.phases.assembleModules.steps.calibrateHopperRoller.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.calibrateHopperRoller.note",
           ),
           optional: "new-hopper",
         },

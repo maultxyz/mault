@@ -401,11 +401,11 @@
             "note": "Comme pour le rouleau du chargeur, ils lui donnent de l'adhérence sur la carte."
           },
           "mountHopperRoller": {
-            "text": "Installe le rouleau de la trémie sur la trémie avec 2 vis M3×8 et 2 rondelles M3."
+            "text": "Installe le rouleau de la trémie sur la trémie avec 2 vis M3×8 et 2 rondelles M3.",
+            "note": "Le rouleau doit être rigide une fois monté — il ne doit pas tourner librement."
           },
           "calibrateHopperRoller": {
-            "text": "Monte le ressort et la vis M3×25, puis utilise la vis pour régler la paroi afin qu'elle ne laisse passer qu'une seule carte à la fois.",
-            "note": "Serre le rouleau jusqu'à ce qu'il ne tourne plus librement, tout en pouvant encore être tourné à la main."
+            "text": "Monte le ressort et la vis M3×25, puis serre la vis jusqu'à ce qu'elle dépasse par le bas du point de montage. Desserre-la ensuite lentement jusqu'à ce que la trémie ne laisse passer qu'une seule carte à la fois."
           },
           "mountModuleIr": {
             "text": "Fixe un capteur IR à la porte de chaque module (1 à {{modules}}) avec 1 vis M2×6 chacun, pointé à travers le trajet de la carte."

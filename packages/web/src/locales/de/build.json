@@ -401,11 +401,11 @@
             "note": "Wie bei der Zuführrolle geben diese ihr Griffigkeit auf der Kartenoberfläche."
           },
           "mountHopperRoller": {
-            "text": "Montiere die Trichterrolle mit 2 M3×8-Schrauben und 2 M3-Unterlegscheiben am Trichter."
+            "text": "Montiere die Trichterrolle mit 2 M3×8-Schrauben und 2 M3-Unterlegscheiben am Trichter.",
+            "note": "Die Rolle sollte nach der Montage stramm sitzen — sie darf nicht frei durchdrehen."
           },
           "calibrateHopperRoller": {
-            "text": "Setze die Feder und die M3×25-Schraube ein und nutze die Schraube, um die Wand so einzustellen, dass jeweils nur 1 Karte durchpasst.",
-            "note": "Ziehe die Rolle an, bis sie nicht mehr frei durchdreht, sich aber noch von Hand drehen lässt."
+            "text": "Setze die Feder und die M3×25-Schraube ein und ziehe die Schraube an, bis sie unten am Montagepunkt herausragt. Löse sie dann langsam, bis der Trichter jeweils nur 1 Karte zuführt."
           },
           "mountModuleIr": {
             "text": "Befestige an jedem Modul (1-{{modules}}) einen IR-Sensor am Tor mit je 1 M2×6-Schraube, ausgerichtet quer zum Kartenweg."
