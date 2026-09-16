@@ -103,6 +103,8 @@
     "sortDescDefault": "Décroissant",
     "deselectAll": "Tout désélectionner",
     "selectAll": "Tout sélectionner",
+    "gridView": "Vue grille",
+    "listView": "Vue liste",
     "sessionSummaryExport": "Résumé de session et export",
     "deleteScannedCardsTitle": "Supprimer les cartes scannées",
     "deleteScannedCardsDescription": "Cela supprimera définitivement toutes les cartes de ta collection. Cette action est irréversible.",

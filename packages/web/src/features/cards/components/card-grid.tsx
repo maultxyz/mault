@@ -21,6 +21,7 @@ import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
+import { ScannedCardListItem } from "@/features/cards/components/scanned-card-list-item";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -32,6 +33,8 @@ import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
 
 import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
+import { CARD_VIEW_MODE_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import type { CardViewMode } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
   IconArrowBarToDown,
@@ -93,6 +96,22 @@ export function CardGrid() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [openScanId, setOpenScanId] = useState<string | null>(null);
   const [page, setPage] = useState(0);
+  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
+    try {
+      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
+        ? "list"
+        : "grid";
+    } catch {
+      return "grid";
+    }
+  });
+
+  const handleViewModeChange = useCallback((mode: CardViewMode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
+    } catch {}
+  }, []);
 
   const pageCount = Math.max(
     1,
@@ -355,6 +374,8 @@ export function CardGrid() {
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
           cardCount={cards.length}
+          viewMode={viewMode}
+          onViewModeChange={handleViewModeChange}
         />
       </div>
       {filteredAndSorted.length === 0 && (
@@ -365,23 +386,43 @@ export function CardGrid() {
         />
       )}
       <div className="p-2 flex-1">
-        <div className="grid grid-cols-3 @4xl:grid-cols-4 @6xl:grid-cols-6 @7xl:grid-cols-8 gap-2">
-          {pagedCards.map((card) => (
-            <ScannedCardItem
-              key={card.scanId}
-              card={card.card}
-              onOpen={() => setOpenScanId(card.scanId)}
-              binNumber={card.binNumber}
-              isSelected={selectedIds.has(card.scanId)}
-              onToggleSelect={() => toggleSelect(card.scanId)}
-              hasAlternatives={!!card.alternativeMatches?.length}
-              wasCorrected={card.corrected}
-              isFoil={card.isFoil}
-              foilType={card.foilType}
-              isDownloaded={card.isDownloaded}
-            />
-          ))}
-        </div>
+        {viewMode === "list" ? (
+          <div className="flex flex-col gap-1.5">
+            {pagedCards.map((card) => (
+              <ScannedCardListItem
+                key={card.scanId}
+                card={card.card}
+                onOpen={() => setOpenScanId(card.scanId)}
+                binNumber={card.binNumber}
+                isSelected={selectedIds.has(card.scanId)}
+                onToggleSelect={() => toggleSelect(card.scanId)}
+                hasAlternatives={!!card.alternativeMatches?.length}
+                wasCorrected={card.corrected}
+                isFoil={card.isFoil}
+                foilType={card.foilType}
+                isDownloaded={card.isDownloaded}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 @4xl:grid-cols-4 @6xl:grid-cols-6 @7xl:grid-cols-8 gap-2">
+            {pagedCards.map((card) => (
+              <ScannedCardItem
+                key={card.scanId}
+                card={card.card}
+                onOpen={() => setOpenScanId(card.scanId)}
+                binNumber={card.binNumber}
+                isSelected={selectedIds.has(card.scanId)}
+                onToggleSelect={() => toggleSelect(card.scanId)}
+                hasAlternatives={!!card.alternativeMatches?.length}
+                wasCorrected={card.corrected}
+                isFoil={card.isFoil}
+                foilType={card.foilType}
+                isDownloaded={card.isDownloaded}
+              />
+            ))}
+          </div>
+        )}
         {pageCount > 1 && (
           <div className="flex items-center justify-center gap-3 pt-4">
             <Button

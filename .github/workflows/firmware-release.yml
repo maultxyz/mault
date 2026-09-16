@@ -1,10 +1,6 @@
 name: Firmware Release
 
 on:
-  push:
-    branches: [master]
-    paths:
-      - "firmware/**"
   workflow_dispatch: {}
 
 permissions:

@@ -13,6 +13,8 @@ import {
   IconCheck,
   IconCheckbox,
   IconDownload,
+  IconLayoutGrid,
+  IconLayoutList,
   IconTrash,
 } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
@@ -86,6 +88,8 @@ export function CardToolbar({
   availableColors,
   availableFoilTypes,
   cardCount,
+  viewMode,
+  onViewModeChange,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
@@ -152,6 +156,24 @@ export function CardToolbar({
         availableColors={availableColors ?? []}
         availableFoilTypes={availableFoilTypes ?? []}
       />
+      <ButtonGroup className="shrink-0">
+        <Button
+          variant={viewMode === "grid" ? "secondary" : "outline"}
+          size="icon"
+          onClick={() => onViewModeChange("grid")}
+          title={t("cardToolbar.gridView")}
+        >
+          <IconLayoutGrid className="size-4" />
+        </Button>
+        <Button
+          variant={viewMode === "list" ? "secondary" : "outline"}
+          size="icon"
+          onClick={() => onViewModeChange("list")}
+          title={t("cardToolbar.listView")}
+        >
+          <IconLayoutList className="size-4" />
+        </Button>
+      </ButtonGroup>
       {onToggleSelectAll && (
         <Button
           variant="outline"

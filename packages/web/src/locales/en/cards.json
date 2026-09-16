@@ -103,6 +103,8 @@
     "sortDescDefault": "High-Low",
     "deselectAll": "Deselect all",
     "selectAll": "Select all",
+    "gridView": "Grid view",
+    "listView": "List view",
     "sessionSummaryExport": "Session summary & export",
     "deleteScannedCardsTitle": "Delete Scanned Cards",
     "deleteScannedCardsDescription": "This will permanently delete all cards from your collection. This action cannot be undone.",
