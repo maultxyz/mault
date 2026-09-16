@@ -371,15 +371,15 @@
           },
           "mountBottomFlapper": {
             "text": "Assemble the bottom paddle by screwing the paddle to the linkage, then the linkage to the horn. Remember not to install the horn to the servo yet.",
-            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces — since you build with the platform upside down, TOP points away from the platform. This is the trapdoor a card falls through to reach the next module, or the current one on a match. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
+            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces. Since you build with the platform upside down, TOP points away from the platform. This is the trapdoor a card falls through to reach the next module, or the current one on a match. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "mountSideFlappers": {
             "text": "Assemble the side paddles by screwing the left and right flapper to the shared linkage, then the linkage to the horn (one pair per module). Remember not to install the horn to the servo yet.",
-            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces — since you build with the platform upside down, TOP points away from the platform. One paddle servo drives both flappers together. They open and close as a pair, not independently. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
+            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces. Since you build with the platform upside down, TOP points away from the platform. One paddle servo drives both flappers together. They open and close as a pair, not independently. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "mountPusherArm": {
             "text": "Assemble the pusher by screwing the pusher arm to the linkage, then the linkage to the horn. Screw the assembled pusher into the module housing with two M2×8 screws. Remember not to install the horn to the servo yet.",
-            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces — since you build with the platform upside down, TOP points away from the platform. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
+            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces. Since you build with the platform upside down, TOP points away from the platform. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "fitFeederOrings": {
             "text": "Fit 6 G20 o-rings onto the feeder roller.",
