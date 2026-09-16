@@ -303,9 +303,9 @@ export default function CalibratePage() {
       </nav>
 
       <div className="col-span-10 min-h-0 h-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center justify-between gap-2 overflow-x-auto">
           <div
-            className="flex flex-wrap items-center gap-2"
+            className="flex items-center gap-2 shrink-0"
             data-tour="calibration-connect"
           >
             {isConnected ? (
@@ -341,7 +341,7 @@ export default function CalibratePage() {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <Button variant="outline" onClick={handleCopyCalibration}>
               <IconClipboard />
               {t("calibratePage.copyCalibration")}

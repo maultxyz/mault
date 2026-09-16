@@ -103,6 +103,8 @@
     "sortDescDefault": "Hoch-Niedrig",
     "deselectAll": "Alle abwählen",
     "selectAll": "Alle auswählen",
+    "gridView": "Rasteransicht",
+    "listView": "Listenansicht",
     "sessionSummaryExport": "Sitzungsübersicht & Export",
     "deleteScannedCardsTitle": "Gescannte Karten löschen",
     "deleteScannedCardsDescription": "Dadurch werden alle Karten dauerhaft aus deiner Sammlung gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
