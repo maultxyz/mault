@@ -318,7 +318,8 @@
             "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
           },
           "printBinsPlate": {
-            "text": "Drucke 2 Bins-Platten."
+            "text": "Drucke 2 Bins-Platten.",
+            "risersNote": "Wenn du mehr als 3 Module verwendest, benötigst du eventuell die Behälter-Erhöhungen, damit die hinteren beiden Behälter hoch genug sitzen."
           },
           "printEndBinPlate": {
             "text": "Drucke 1 End-Bin-Platte."

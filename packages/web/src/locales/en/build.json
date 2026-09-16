@@ -317,7 +317,8 @@
             "text": "For {{modules}} sorting modules, print {{count}} Generic Plates. Change the module count in the parts list above to update this."
           },
           "printBinsPlate": {
-            "text": "Print 2 Bins Plates."
+            "text": "Print 2 Bins Plates.",
+            "risersNote": "If you're using more than 3 modules, you may need to use the bin risers to make sure the back two bins are high enough."
           },
           "printEndBinPlate": {
             "text": "Print 1 End Bin Plate."

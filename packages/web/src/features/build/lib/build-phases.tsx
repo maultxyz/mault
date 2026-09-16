@@ -159,6 +159,10 @@ export function buildPhases(
         {
           key: "print-bins-plate",
           text: t("assembly.phases.print.steps.printBinsPlate.text"),
+          note:
+            moduleCount > 3
+              ? t("assembly.phases.print.steps.printBinsPlate.risersNote")
+              : undefined,
         },
         {
           key: "print-end-bin-plate",
@@ -226,7 +230,7 @@ export function buildPhases(
       key: "assemble-modules",
       title: t("assembly.phases.assembleModules.title"),
       icon: IconTool,
-      videos: ["https://youtu.be/sCH3U6oM2xk"],
+      videos: ["https://youtu.be/sCH3U6oM2xk", "https://youtu.be/nFxPrAMkSPc"],
       steps: [
         {
           key: "mount-module-servos",
