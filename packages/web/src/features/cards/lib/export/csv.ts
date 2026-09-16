@@ -7,10 +7,20 @@ export const csvAdapter: ExportAdapter = {
   filenameSlug: "export",
   groupBy: "card-foil",
   games: "all",
-  headers: (ctx) => ["Quantity", "Foil", ...ctx.fieldDefinitions.map((f) => f.label)],
-  row: ({ card, quantity, isFoil }, ctx) => [
+  headers: (ctx) => [
+    "Quantity",
+    "Foil",
+    "Foil Type",
+    "Set",
+    "Card Number",
+    ...ctx.fieldDefinitions.map((f) => f.label),
+  ],
+  row: ({ card, quantity, isFoil, foilType }, ctx) => [
     String(quantity),
     isFoil ? "True" : "False",
+    foilType ? csvEscape(foilType) : "",
+    card.set.toUpperCase(),
+    card.collectorNumber,
     ...ctx.fieldDefinitions.map((f) => {
       const value = getCardValue(card, f.field, ctx.fieldDefinitions);
       if (Array.isArray(value)) return csvEscape(value.join("; "));
