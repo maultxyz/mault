@@ -34,10 +34,18 @@ function groupCards(cards: ScannedCard[], groupBy: GroupBy): GroupedEntry[] {
   for (const entry of cards) {
     const isFoil = !!entry.isFoil;
     const key =
-      groupBy === "card-foil" ? `${entry.card.id}:${isFoil}` : entry.card.id;
+      groupBy === "card-foil"
+        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}`
+        : entry.card.id;
     const existing = grouped.get(key);
     if (existing) existing.quantity++;
-    else grouped.set(key, { card: entry.card, quantity: 1, isFoil });
+    else
+      grouped.set(key, {
+        card: entry.card,
+        quantity: 1,
+        isFoil,
+        foilType: entry.foilType,
+      });
   }
   return Array.from(grouped.values());
 }
