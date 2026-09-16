@@ -174,7 +174,7 @@
           },
           "m2x8Screw": {
             "part": "M2×8-Schraube",
-            "notes": "2 pro Modul ({{count}} Module), zur Befestigung des Schiebers"
+            "notes": "2 pro Modul ({{count}} Module), zur Befestigung des Schiebers. M2×10 geht auch, falls keine M2×8 vorhanden ist."
           },
           "servoHornScrew": {
             "part": "Servohorn-Schraube (im Lieferumfang der Servos enthalten)",

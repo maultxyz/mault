@@ -174,7 +174,7 @@
           },
           "m2x8Screw": {
             "part": "M2×8 screw",
-            "notes": "2 per module ({{count}} modules), to mount the pusher"
+            "notes": "2 per module ({{count}} modules), to mount the pusher. M2×10 works fine if you don't have M2×8 on hand."
           },
           "servoHornScrew": {
             "part": "Servo horn screw (Included with servos)",

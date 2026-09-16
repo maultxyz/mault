@@ -174,7 +174,7 @@
           },
           "m2x8Screw": {
             "part": "Vis M2×8",
-            "notes": "2 par module ({{count}} modules), pour fixer le poussoir"
+            "notes": "2 par module ({{count}} modules), pour fixer le poussoir. Une vis M2×10 convient aussi si tu n'as pas de M2×8."
           },
           "servoHornScrew": {
             "part": "Vis de palonnier de servo (incluse avec les servos)",
