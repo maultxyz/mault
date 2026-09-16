@@ -9,6 +9,7 @@ import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCardFilterSort } from "@/features/cards/api/use-card-filter-sort";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
+import { ScannedCardListItem } from "@/features/cards/components/scanned-card-list-item";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { RecentScannedCards } from "@/features/scanner/components/recent-scanned-cards";
@@ -17,6 +18,8 @@ import { SessionStatsPanel } from "@/features/scanner/components/session-stats-p
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { CARD_VIEW_MODE_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import type { CardViewMode } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import {
   IconCards,
@@ -26,7 +29,7 @@ import {
   IconWifiOff,
 } from "@tabler/icons-react";
 import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
@@ -35,11 +38,13 @@ function CardGrid({
   status,
   cardCount,
   isMobile,
+  viewMode,
 }: {
   filteredAndSorted: ReturnType<typeof useCardFilterSort>["filteredAndSorted"];
   status: string;
   cardCount: number;
   isMobile: boolean;
+  viewMode: CardViewMode;
 }) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -85,23 +90,36 @@ function CardGrid({
             {t("monitorPage.noCardsMatchSearch")}
           </div>
         )}
-      <div
-        className={cn(
-          "grid gap-2 p-4",
-          isMobile
-            ? "grid-cols-2"
-            : "grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8",
-        )}
-      >
-        {pagedCards.map((card) => (
-          <ScannedCardItem
-            key={card.scanId}
-            card={card.card}
-            binNumber={card.binNumber}
-            onOpen={() => {}}
-          />
-        ))}
-      </div>
+      {viewMode === "list" ? (
+        <div className="flex flex-col gap-1.5 p-4">
+          {pagedCards.map((card) => (
+            <ScannedCardListItem
+              key={card.scanId}
+              card={card.card}
+              binNumber={card.binNumber}
+              onOpen={() => {}}
+            />
+          ))}
+        </div>
+      ) : (
+        <div
+          className={cn(
+            "grid gap-2 p-4",
+            isMobile
+              ? "grid-cols-2"
+              : "grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8",
+          )}
+        >
+          {pagedCards.map((card) => (
+            <ScannedCardItem
+              key={card.scanId}
+              card={card.card}
+              binNumber={card.binNumber}
+              onOpen={() => {}}
+            />
+          ))}
+        </div>
+      )}
       {pageCount > 1 && (
         <div className="flex items-center justify-center gap-3 pb-4">
           <Button
@@ -163,6 +181,23 @@ export default function MonitorPage() {
     () => computeDisplayStats(cards, filteredAndSorted),
     [cards, filteredAndSorted],
   );
+
+  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
+    try {
+      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
+        ? "list"
+        : "grid";
+    } catch {
+      return "grid";
+    }
+  });
+
+  const handleViewModeChange = useCallback((mode: CardViewMode) => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
+    } catch {}
+  }, []);
 
   const viewerAvatars = (
     <>
@@ -226,6 +261,8 @@ export default function MonitorPage() {
                   availableRarities={stats?.rarities}
                   availableColors={stats?.colors}
                   cardCount={cards.length}
+                  viewMode={viewMode}
+                  onViewModeChange={handleViewModeChange}
                 />
               </div>
               <div className="overflow-y-auto flex-1 @container">
@@ -234,6 +271,7 @@ export default function MonitorPage() {
                   status={status}
                   cardCount={cards.length}
                   isMobile
+                  viewMode={viewMode}
                 />
               </div>
             </div>
@@ -271,6 +309,8 @@ export default function MonitorPage() {
             availableRarities={stats?.rarities}
             availableColors={stats?.colors}
             cardCount={cards.length}
+            viewMode={viewMode}
+            onViewModeChange={handleViewModeChange}
           />
         </div>
         <CardGrid
@@ -278,6 +318,7 @@ export default function MonitorPage() {
           status={status}
           cardCount={cards.length}
           isMobile={false}
+          viewMode={viewMode}
         />
       </main>
     </div>
