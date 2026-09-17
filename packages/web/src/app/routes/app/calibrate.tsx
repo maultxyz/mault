@@ -1,5 +1,11 @@
 import { AuditDrawer, type AuditEntry } from "@/components/audit-drawer";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 import {
   feederQueryOptions,
@@ -229,6 +235,7 @@ export default function CalibratePage() {
   const {
     isConnected,
     connect,
+    connectBluetooth,
     disconnect,
     configs,
     modules,
@@ -277,6 +284,8 @@ export default function CalibratePage() {
   } = useCalibrationPage();
 
   const importInputRef = useRef<HTMLInputElement>(null);
+  const bluetoothSupported =
+    typeof navigator !== "undefined" && !!navigator.bluetooth;
 
   return (
     <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
@@ -314,10 +323,22 @@ export default function CalibratePage() {
                 {t("calibratePage.disconnect")}
               </Button>
             ) : (
-              <Button onClick={connect}>
-                <IconDeviceUsb />
-                {t("calibratePage.connectDevice")}
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger render={<Button />}>
+                  <IconDeviceUsb />
+                  {t("calibratePage.connectDevice")}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={connect}>
+                    {t("calibratePage.connectUsb")}
+                  </DropdownMenuItem>
+                  {bluetoothSupported && (
+                    <DropdownMenuItem onClick={connectBluetooth}>
+                      {t("calibratePage.connectBluetooth")}
+                    </DropdownMenuItem>
+                  )}
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
             <Button
               variant="outline"

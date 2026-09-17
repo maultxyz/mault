@@ -412,6 +412,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           dailyLimitReached={isAtScanLimit}
           onRetryError={handleRetryError}
           onConnectScanner={connect}
+          onConnectScannerBluetooth={connectBluetooth}
+          bluetoothSupported={bluetoothSupported}
         />
         <ScannerMenu
           isCameraActive={isCameraActive}

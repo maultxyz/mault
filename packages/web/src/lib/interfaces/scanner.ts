@@ -141,6 +141,8 @@ export interface ScannerOverlayProps {
   dailyLimitReached: boolean;
   onRetryError: () => void;
   onConnectScanner: () => void;
+  onConnectScannerBluetooth: () => void;
+  bluetoothSupported: boolean;
 }
 
 export interface SetStats {

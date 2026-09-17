@@ -206,6 +206,8 @@
     },
     "disconnect": "Déconnecter",
     "connectDevice": "Connecter l'appareil",
+    "connectUsb": "Connecter via USB",
+    "connectBluetooth": "Connecter via Bluetooth",
     "testing": "Test en cours…",
     "runTest": "Lancer le test",
     "calibrateBeforeTest": "Calibre tous les modules avant de lancer le test",

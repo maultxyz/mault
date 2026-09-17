@@ -1,5 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import type { ScannerOverlayProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import {
@@ -58,6 +64,8 @@ export function ScannerOverlay({
   dailyLimitReached,
   onRetryError,
   onConnectScanner,
+  onConnectScannerBluetooth,
+  bluetoothSupported,
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
   const isPhoneMode = cameraSource === "phone";
@@ -136,9 +144,25 @@ export function ScannerOverlay({
           <span className="flex-1">
             {t("scannerOverlay.scannerNotConnected")}
           </span>
-          <Button size="sm" onClick={onConnectScanner}>
-            {t("scannerOverlay.connectScannerButton")}
-          </Button>
+          {bluetoothSupported ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button size="sm" />}>
+                {t("scannerOverlay.connectScannerButton")}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onConnectScanner}>
+                  {t("scannerMenu.connectUsb")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onConnectScannerBluetooth}>
+                  {t("scannerMenu.connectBluetooth")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button size="sm" onClick={onConnectScanner}>
+              {t("scannerOverlay.connectScannerButton")}
+            </Button>
+          )}
         </StatusPill>
       );
     }

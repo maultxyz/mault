@@ -41,6 +41,7 @@ export function useCalibrationPage() {
   const {
     isConnected,
     connect,
+    connectBluetooth,
     disconnect,
     sendCommand,
     sendRoute,
@@ -425,6 +426,7 @@ export function useCalibrationPage() {
   return {
     isConnected,
     connect,
+    connectBluetooth,
     disconnect,
     configs,
     modules,
