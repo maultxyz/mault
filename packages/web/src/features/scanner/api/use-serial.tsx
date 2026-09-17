@@ -270,6 +270,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             sent: true,
             response: null,
           });
+          disconnect();
         }
       })();
 
