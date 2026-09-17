@@ -50,10 +50,13 @@ export async function findCardMatches(
   const nameStr = vectorLiteral(embeddings.embeddingName);
   const bottomStr = vectorLiteral(embeddings.embeddingBottom);
   const ocrTokens = extractOcrTokens(ocrText);
+  const isLocal = process.env.NODE_ENV !== "production";
 
-  console.log(
-    `[card-search] query-side vectors for game=${gameKey}: full=yes art=${artStr ? "yes" : "no"} name=${nameStr ? "yes" : "no"} bottom=${bottomStr ? "yes" : "no"}`,
-  );
+  if (isLocal) {
+    console.log(
+      `[card-search] query-side vectors for game=${gameKey}: full=yes art=${artStr ? "yes" : "no"} name=${nameStr ? "yes" : "no"} bottom=${bottomStr ? "yes" : "no"}`,
+    );
+  }
 
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
@@ -113,33 +116,35 @@ export async function findCardMatches(
       rerankScore: row.rerank_score as number,
     }));
 
-    console.log(`[card-search] shortlist matches for game=${gameKey} lang=${lang}:`);
-    console.table(
-      rows.map(
-        ({
-          cardId,
-          setCode,
-          distance,
-          distArt,
-          distName,
-          distBottom,
-          rerankScore,
-        }) => ({
-          cardId,
-          setCode,
-          distFull: distance,
-          distArt,
-          distName,
-          distBottom,
-          rerankScore,
-          vectorsUsed:
-            1 +
-            (distArt != null ? 1 : 0) +
-            (distName != null ? 1 : 0) +
-            (distBottom != null ? 1 : 0),
-        }),
-      ),
-    );
+    if (isLocal) {
+      console.log(`[card-search] shortlist matches for game=${gameKey} lang=${lang}:`);
+      console.table(
+        rows.map(
+          ({
+            cardId,
+            setCode,
+            distance,
+            distArt,
+            distName,
+            distBottom,
+            rerankScore,
+          }) => ({
+            cardId,
+            setCode,
+            distFull: distance,
+            distArt,
+            distName,
+            distBottom,
+            rerankScore,
+            vectorsUsed:
+              1 +
+              (distArt != null ? 1 : 0) +
+              (distName != null ? 1 : 0) +
+              (distBottom != null ? 1 : 0),
+          }),
+        ),
+      );
+    }
 
     const ranked =
       ocrTokens.length > 0
