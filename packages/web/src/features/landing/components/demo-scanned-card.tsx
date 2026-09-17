@@ -1,5 +1,6 @@
 import type { DemoScannedCard } from "@/features/landing/lib/demo-cards";
 import { Badge } from "@/components/ui/badge";
+import { FoilOverlay } from "@/components/foil-overlay";
 import {
   Tooltip,
   TooltipContent,
@@ -46,6 +47,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
           alt={card.name}
           className="h-full w-full object-cover"
         />
+        {isFoil && <FoilOverlay />}
       </div>
       <div className="flex flex-row items-center justify-between px-1 pt-1">
         <div className="flex min-w-0 items-center gap-1.5">

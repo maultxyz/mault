@@ -5,6 +5,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
@@ -65,6 +66,7 @@ export const ScannedCardListItem = memo(function ScannedCardListItem({
             alt={card.name}
             className="w-full h-full object-cover"
           />
+          {isFoil && <FoilOverlay />}
         </div>
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">{card.name}</p>

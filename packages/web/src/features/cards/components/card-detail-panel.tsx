@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import { FoilOverlay } from "@/components/foil-overlay";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -360,12 +361,13 @@ export function CardDetailPanel({
                           {t("cardDetailPanel.matchedCard")}
                         </p>
                       )}
-                      <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
+                      <div className="relative w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
                         <img
                           src={selectedCard?.image?.normal || ""}
                           alt={selectedCard?.name}
                           className="w-full h-full object-cover"
                         />
+                        {isFoil && <FoilOverlay />}
                       </div>
                     </div>
                   </div>
