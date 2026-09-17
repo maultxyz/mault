@@ -5,7 +5,11 @@ import {
   type DeviceType,
   type Processor,
 } from "@huggingface/transformers";
-import type { CardCropRegions, OcrRegion } from "@magic-vault/shared";
+import type {
+  CardCropRegions,
+  CardSearchEmbeddings,
+  OcrRegion,
+} from "@magic-vault/shared";
 
 const MODEL_NAME = "Xenova/siglip-base-patch16-512";
 
@@ -104,19 +108,12 @@ function releaseScanVectorizeSlot(): void {
   scanVectorizeQueue.shift()?.();
 }
 
-export interface CardEmbeddings {
-  embedding: number[];
-  embeddingArt: number[] | null;
-  embeddingName: number[] | null;
-  embeddingBottom: number[] | null;
-}
-
 type CropKey = "embeddingArt" | "embeddingName" | "embeddingBottom";
 
 export async function vectorizeCardImage(
   buffer: Buffer,
   regions?: CardCropRegions,
-): Promise<CardEmbeddings> {
+): Promise<CardSearchEmbeddings> {
   await acquireScanVectorizeSlot();
   try {
     const uint8Array = new Uint8Array(buffer);
@@ -140,7 +137,7 @@ export async function vectorizeCardImage(
       ...croppedImages,
     ]);
 
-    const result: CardEmbeddings = {
+    const result: CardSearchEmbeddings = {
       embedding,
       embeddingArt: null,
       embeddingName: null,

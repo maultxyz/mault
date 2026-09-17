@@ -3,6 +3,7 @@ export * from "./interfaces/api.interface";
 export * from "./interfaces/bin-routes.interface";
 export * from "./interfaces/bulk-import.interface";
 export * from "./interfaces/card.interface";
+export * from "./interfaces/card-embeddings.interface";
 export * from "./interfaces/collections.interface";
 export * from "./interfaces/games.interface";
 export * from "./interfaces/impersonation.interface";
