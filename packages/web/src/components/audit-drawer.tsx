@@ -121,7 +121,7 @@ export function AuditDrawer({
                               disabled={isReverting}
                               onClick={() => setConfirmGuid(null)}
                             >
-                              {t("auditDrawer.cancel")}
+                              {t("actions.cancel")}
                             </Button>
                           </>
                         ) : (

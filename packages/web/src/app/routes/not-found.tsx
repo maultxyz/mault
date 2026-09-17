@@ -18,7 +18,7 @@ export default function NotFoundPage() {
         </p>
       </div>
       <Button nativeButton={false} render={<Link to="/" />}>
-        {t("notFound.backHome")}
+        {t("backHome")}
       </Button>
     </div>
   );

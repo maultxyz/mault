@@ -1,21 +1,19 @@
 {
   "servos": {
     "bottom": {
-      "label": "Bottom Paddle",
-      "closed": "Set Closed",
-      "open": "Set Open"
+      "label": "Bottom Paddle"
     },
     "paddle": {
-      "label": "Paddles",
-      "closed": "Set Closed",
-      "open": "Set Open"
+      "label": "Paddles"
     },
     "pusher": {
       "label": "Pusher",
       "left": "Set Left",
       "neutral": "Set Neutral",
       "right": "Set Right"
-    }
+    },
+    "closed": "Set Closed",
+    "open": "Set Open"
   },
   "moduleCountStepper": {
     "label": "Sorting modules",
@@ -46,10 +44,8 @@
   "binRoutingAssignment": {
     "label": "Bin Routing Assignment",
     "resetToDefaults": "Reset to Defaults",
-    "binLabel": "Bin {{bin}}",
     "moduleLeft": "Module {{module}}, Left",
     "moduleRight": "Module {{module}}, Right",
-    "moduleOnly": "Module {{module}}",
     "bottomSectionLabel": "Bottom (catch-all)"
   },
   "binRoutingControls": {
@@ -57,8 +53,7 @@
     "feed": "Feed",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
-    "sampleRun": "Sample Run",
-    "binButton": "Bin {{bin}}"
+    "sampleRun": "Sample Run"
   },
   "feederCalibrationPanel": {
     "heading": "Feeder",
@@ -71,9 +66,7 @@
     "setSpeed": "Set Speed",
     "timeoutLabel": "Timeout (ms)",
     "setTimeout": "Set Timeout",
-    "msValue": "{{value}} ms",
     "pulseDurationLabel": "Pulse Duration (ms)",
-    "continuous": "Continuous",
     "continuousFeedButton": "Set Continuous Feed",
     "setPulseDuration": "Set Pulse Duration",
     "pauseDurationLabel": "Pause Duration (ms)",
@@ -90,7 +83,6 @@
     "monitorTooltip": "Continuously poll the IR sensors and update the badges below in real time",
     "read": "Read",
     "readTooltip": "Take a single snapshot reading of the IR sensors",
-    "moduleLabel": "Module {{module}}",
     "detectedTooltip": "A card is currently detected at Module {{module}}'s IR sensor",
     "notDetectedTooltip": "No card currently detected at Module {{module}}'s IR sensor",
     "hopperEmpty": "Hopper empty",
@@ -98,7 +90,6 @@
     "hopperTooltip": "Whether the card hopper's IR sensor currently detects cards waiting to be fed"
   },
   "moduleCalibrationGrid": {
-    "moduleHeading": "Module {{module}}",
     "positionLabel": "Position",
     "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Use the position buttons above, then a \"Set\" button to save this as a calibration point.",
     "rawPulseTooltip": "Raw servo pulse position (120-490), the exact value sent to the device.",
@@ -111,7 +102,6 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it.",
-    "msValue": "{{value}} ms",
     "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
     "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts.",
     "setPaddleCloseDelay": "Set Paddle Close Delay"
@@ -126,7 +116,6 @@
     "saving": "Saving…",
     "saveScanRegion": "Save Scan Region",
     "savedSummary": "Saved: {{coverage}}% coverage, {{offsetX}}% / {{offsetY}}% offset",
-    "msValue": "{{value}} ms",
     "captureSettleLabel": "Capture Settle Delay (ms)",
     "captureSettleDescription": "How long to wait after the feeder confirms a card has arrived before capturing a frame, so the card is fully still and in focus.",
     "setCaptureSettle": "Set Capture Settle Delay",
@@ -146,7 +135,6 @@
       "runningTest": "Running test sequence…",
       "testComplete": "Test complete",
       "testFailed": "Test failed",
-      "noResponse": "No response from sorter.",
       "binFailed": "Bin {{bin}} failed",
       "startingSampleRun": "Starting sample run…",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}",
@@ -161,16 +149,12 @@
   "useFeederConfig": {
     "toasts": {
       "notSynced": "Feeder calibration not synced",
-      "unexpectedResponse": "Unexpected response: {{response}}",
-      "noResponse": "No response from sorter.",
       "saveFailed": "Failed to save feeder config"
     }
   },
   "useModuleConfigs": {
     "toasts": {
       "notSynced": "Module {{module}} calibration not synced",
-      "unexpectedResponse": "Unexpected response: {{response}}",
-      "noResponse": "No response from sorter.",
       "saveFailed": "Failed to save module config"
     }
   },
@@ -185,19 +169,14 @@
     "moduleHistory": {
       "bottom": "Bottom",
       "paddle": "Paddle",
-      "pusher": "Pusher",
-      "paddleCloseDelay": "Paddle Close Delay",
-      "moduleLabel": "Module {{module}}",
-      "msValue": "{{value}}ms"
+      "paddleCloseDelay": "Paddle Close Delay"
     },
     "feederHistory": {
       "speed": "Speed",
       "duration": "Duration",
       "pulse": "Pulse",
       "pause": "Pause",
-      "settle": "Final Detection Delay",
-      "continuous": "Continuous",
-      "msValue": "{{value}}ms"
+      "settle": "Final Detection Delay"
     },
     "toasts": {
       "moduleReverted": "Reverted module calibration",
@@ -211,15 +190,22 @@
     "testing": "Testing…",
     "runTest": "Run Test",
     "calibrateBeforeTest": "Calibrate all modules before running the test",
-    "scanRegionLabel": "Scan Region",
     "feederCalibrationLabel": "Feeder Calibration",
     "history": "History",
     "copyCalibration": "Copy Calibration",
     "exportConfig": "Export Config",
     "importConfig": "Import Config",
     "importing": "Importing…",
-    "moduleCalibrationLabel": "Module Calibration",
     "feederHistoryTitle": "Feeder History",
-    "moduleHistoryTitle": "Module History"
+    "moduleHistoryTitle": "Module History",
+    "msValue": "{{value}}ms"
+  },
+  "moduleLabel": "Module {{module}}",
+  "binLabel": "Bin {{bin}}",
+  "msValue": "{{value}} ms",
+  "continuous": "Continuous",
+  "toasts": {
+    "noResponse": "No response from sorter.",
+    "unexpectedResponse": "Unexpected response: {{response}}"
   }
 }

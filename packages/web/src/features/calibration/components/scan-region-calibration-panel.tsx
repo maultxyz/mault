@@ -371,7 +371,7 @@ export function ScanRegionCalibrationPanel() {
             </Button>
             <div className="flex flex-row flex-1 bg-background border-y justify-center px-2 items-center">
               <p className="font-bold text-sm">
-                {t("scanRegionCalibrationPanel.msValue", {
+                {t("msValue", {
                   value: captureSettleDelayMsValue,
                 })}
               </p>

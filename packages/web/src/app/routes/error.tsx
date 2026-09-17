@@ -53,7 +53,7 @@ export default function ErrorPage() {
           {t("errorPage.reload")}
         </Button>
         <Button nativeButton={false} render={<Link to="/" />}>
-          {t("errorPage.backHome")}
+          {t("backHome")}
         </Button>
       </div>
     </div>

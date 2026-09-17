@@ -177,7 +177,7 @@ export function useCalibrationPage() {
       toast.success(t("useCalibrationPage.toasts.testComplete"));
     } else {
       toast.error(t("useCalibrationPage.toasts.testFailed"), {
-        description: error ?? t("useCalibrationPage.toasts.noResponse"),
+        description: error ?? t("toasts.noResponse"),
       });
     }
   }, [sendTest, isUnconfigured, t]);
@@ -189,7 +189,7 @@ export function useCalibrationPage() {
         const response = await sendRoute(resolveRoute(bin));
         if (!response) {
           toast.error(t("useCalibrationPage.toasts.binFailed", { bin }), {
-            description: t("useCalibrationPage.toasts.noResponse"),
+            description: t("toasts.noResponse"),
           });
         } else if (typeof response === "object" && "error" in response) {
           toast.error(t("useCalibrationPage.toasts.binFailed", { bin }), {
@@ -213,7 +213,7 @@ export function useCalibrationPage() {
         const response = await sendRoute(resolveRoute(bin));
         if (!response) {
           toast.error(t("useCalibrationPage.toasts.sampleRunStopped", { bin }), {
-            description: t("useCalibrationPage.toasts.noResponse"),
+            description: t("toasts.noResponse"),
           });
           return;
         }

@@ -99,7 +99,6 @@
     "noHistory": "No history yet.",
     "current": "current",
     "confirm": "Confirm",
-    "cancel": "Cancel",
     "revert": "Revert"
   },
   "loadingGate": {
@@ -107,14 +106,12 @@
   },
   "notFound": {
     "title": "Page not found",
-    "description": "The page you're looking for doesn't exist or has been moved.",
-    "backHome": "Back to home"
+    "description": "The page you're looking for doesn't exist or has been moved."
   },
   "errorPage": {
     "title": "Something went wrong",
     "description": "An unexpected error occurred. Try reloading the page.",
-    "reload": "Reload page",
-    "backHome": "Back to home"
+    "reload": "Reload page"
   },
   "footer": {
     "donate": "Donate",
@@ -133,5 +130,6 @@
     "signIn": "Sign in",
     "getStarted": "Get started",
     "openApp": "Open app"
-  }
+  },
+  "backHome": "Back to home"
 }

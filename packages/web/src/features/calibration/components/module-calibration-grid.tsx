@@ -280,7 +280,7 @@ function PaddleCloseDelayControl({
           <TooltipTrigger
             render={
               <span className="text-sm font-bold">
-                {t("moduleCalibrationGrid.msValue", { value })}
+                {t("msValue", { value })}
               </span>
             }
           />
@@ -311,7 +311,7 @@ function PaddleCloseDelayControl({
         <Skeleton className="h-3 w-16 rounded" />
       ) : calibration ? (
         <p className="text-xs text-muted-foreground text-center">
-          {t("moduleCalibrationGrid.msValue", {
+          {t("msValue", {
             value: calibration.paddleCloseDelay,
           })}
         </p>
@@ -370,7 +370,7 @@ export function ModuleCalibrationGrid({
         return (
           <div key={module} className="p-2 flex flex-col gap-5 bg-sidebar">
             <h2 className="text-sm font-semibold font-heading">
-              {t("moduleCalibrationGrid.moduleHeading", { module })}
+              {t("moduleLabel", { module })}
             </h2>
             {SERVOS.map((servo) => {
               const sliderKey = `${module}:${servo.name}` as SliderKey;

@@ -50,7 +50,7 @@ export function BinRoutingControls({
             onClick={() => onTestBin(bin)}
           >
             <IconPackage />
-            {t("binRoutingControls.binButton", {
+            {t("binLabel", {
               bin: activeBin === bin && !isSampleRunning ? "…" : bin,
             })}
           </Button>

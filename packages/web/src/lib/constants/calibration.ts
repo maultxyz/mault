@@ -92,8 +92,8 @@ export const SERVOS: ServoConfig[] = [
     labelKey: "servos.bottom.label",
     controlPositions: ["open"],
     calibrationPositions: [
-      { labelKey: "servos.bottom.closed", key: "bottomClosed" },
-      { labelKey: "servos.bottom.open", key: "bottomOpen" },
+      { labelKey: "servos.closed", key: "bottomClosed" },
+      { labelKey: "servos.open", key: "bottomOpen" },
     ],
   },
   {
@@ -101,8 +101,8 @@ export const SERVOS: ServoConfig[] = [
     labelKey: "servos.paddle.label",
     controlPositions: ["open"],
     calibrationPositions: [
-      { labelKey: "servos.paddle.closed", key: "paddleClosed" },
-      { labelKey: "servos.paddle.open", key: "paddleOpen" },
+      { labelKey: "servos.closed", key: "paddleClosed" },
+      { labelKey: "servos.open", key: "paddleOpen" },
     ],
   },
   {

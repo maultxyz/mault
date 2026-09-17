@@ -72,7 +72,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
       </div>
       <div className="flex gap-2">
         <span className="w-16 shrink-0 text-muted-foreground">
-          {t("calibratePage.moduleHistory.pusher")}
+          {t("servos.pusher.label")}
         </span>
         <span>
           {c.pusherLeft} / {c.pusherNeutral} / {c.pusherRight}
@@ -83,7 +83,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
           {t("calibratePage.moduleHistory.paddleCloseDelay")}
         </span>
         <span>
-          {t("calibratePage.moduleHistory.msValue", { value: c.paddleCloseDelay })}
+          {t("calibratePage.msValue", { value: c.paddleCloseDelay })}
         </span>
       </div>
     </div>
@@ -103,15 +103,15 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
         {t("calibratePage.feederHistory.duration")}
       </span>
       <span>
-        {t("calibratePage.feederHistory.msValue", { value: c.duration })}
+        {t("calibratePage.msValue", { value: c.duration })}
       </span>
       <span className="text-muted-foreground">
         {t("calibratePage.feederHistory.pulse")}
       </span>
       <span>
         {c.pulseDuration <= 0
-          ? t("calibratePage.feederHistory.continuous")
-          : t("calibratePage.feederHistory.msValue", {
+          ? t("continuous")
+          : t("calibratePage.msValue", {
               value: c.pulseDuration,
             })}
       </span>
@@ -119,13 +119,13 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
         {t("calibratePage.feederHistory.pause")}
       </span>
       <span>
-        {t("calibratePage.feederHistory.msValue", { value: c.pauseDuration })}
+        {t("calibratePage.msValue", { value: c.pauseDuration })}
       </span>
       <span className="text-muted-foreground">
         {t("calibratePage.feederHistory.settle")}
       </span>
       <span>
-        {t("calibratePage.feederHistory.msValue", { value: c.settleDuration })}
+        {t("calibratePage.msValue", { value: c.settleDuration })}
       </span>
     </div>
   );
@@ -214,7 +214,7 @@ export default function CalibratePage() {
       (entry: ModuleConfigAuditEntry) => ({
         guid: entry.guid,
         createdAt: entry.createdAt,
-        label: t("calibratePage.moduleHistory.moduleLabel", {
+        label: t("moduleLabel", {
           module: entry.moduleNumber,
         }),
         body: <ModuleHistoryBody entry={entry} />,

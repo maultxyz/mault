@@ -1,21 +1,19 @@
 {
   "servos": {
     "bottom": {
-      "label": "Unteres Paddel",
-      "closed": "Geschlossen setzen",
-      "open": "Offen setzen"
+      "label": "Unteres Paddel"
     },
     "paddle": {
-      "label": "Paddel",
-      "closed": "Geschlossen setzen",
-      "open": "Offen setzen"
+      "label": "Paddel"
     },
     "pusher": {
       "label": "Schieber",
       "left": "Links setzen",
       "neutral": "Neutral setzen",
       "right": "Rechts setzen"
-    }
+    },
+    "closed": "Geschlossen setzen",
+    "open": "Offen setzen"
   },
   "moduleCountStepper": {
     "label": "Sortiermodule",
@@ -46,10 +44,8 @@
   "binRoutingAssignment": {
     "label": "Fach-Zuordnung",
     "resetToDefaults": "Auf Standard zurücksetzen",
-    "binLabel": "Fach {{bin}}",
     "moduleLeft": "Modul {{module}} — Links",
     "moduleRight": "Modul {{module}} — Rechts",
-    "moduleOnly": "Modul {{module}}",
     "bottomSectionLabel": "Unten (Auffangfach)"
   },
   "binRoutingControls": {
@@ -57,8 +53,7 @@
     "feed": "Zuführen",
     "binActive": "Fach {{bin}}…",
     "running": "Läuft…",
-    "sampleRun": "Testlauf",
-    "binButton": "Fach {{bin}}"
+    "sampleRun": "Testlauf"
   },
   "feederCalibrationPanel": {
     "heading": "Zuführung",
@@ -71,9 +66,7 @@
     "setSpeed": "Geschwindigkeit setzen",
     "timeoutLabel": "Timeout (ms)",
     "setTimeout": "Timeout setzen",
-    "msValue": "{{value}} ms",
     "pulseDurationLabel": "Impulsdauer (ms)",
-    "continuous": "Dauerbetrieb",
     "continuousFeedButton": "Dauerhafte Zuführung",
     "setPulseDuration": "Impulsdauer setzen",
     "pauseDurationLabel": "Pausendauer (ms)",
@@ -90,7 +83,6 @@
     "monitorTooltip": "Fragt die IR-Sensoren fortlaufend ab und aktualisiert die Badges unten in Echtzeit",
     "read": "Lesen",
     "readTooltip": "Nimmt eine einzelne Momentaufnahme der IR-Sensoren auf",
-    "moduleLabel": "Modul {{module}}",
     "detectedTooltip": "Am IR-Sensor von Modul {{module}} wird derzeit eine Karte erkannt",
     "notDetectedTooltip": "Am IR-Sensor von Modul {{module}} wird derzeit keine Karte erkannt",
     "hopperEmpty": "Zuführbehälter leer",
@@ -98,7 +90,6 @@
     "hopperTooltip": "Ob der IR-Sensor des Kartenbehälters derzeit auf die Zuführung wartende Karten erkennt"
   },
   "moduleCalibrationGrid": {
-    "moduleHeading": "Modul {{module}}",
     "positionLabel": "Position",
     "percentSliderTooltip": "Wie weit dieser Servo bewegt ist, als Prozentsatz seines gesamten Bewegungsbereichs. Verwende zuerst die Positionsschaltflächen oben und dann eine \"Setzen\"-Schaltfläche, um dies als Kalibrierungspunkt zu speichern.",
     "rawPulseTooltip": "Rohe Servo-Impulsposition (120-490), der genaue an das Gerät gesendete Wert.",
@@ -111,7 +102,6 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt — je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
-    "msValue": "{{value}} ms",
     "paddleCloseDelayLabel": "Paddel-Schließverzögerung (ms)",
     "paddleCloseDelayDescription": "Wie lange nach dem Auslösen des Schiebers, bis sich das Paddel dieses Moduls wieder schließt — unabhängig davon, wann der Schieber selbst zurückkehrt. Länger einstellen, wenn Karten nicht vollständig frei sind, bevor sich das Tor schließt.",
     "setPaddleCloseDelay": "Paddel-Schließverzögerung setzen"
@@ -126,7 +116,6 @@
     "saving": "Wird gespeichert…",
     "saveScanRegion": "Scanbereich speichern",
     "savedSummary": "Gespeichert: {{coverage}}% Abdeckung, {{offsetX}}% / {{offsetY}}% Versatz",
-    "msValue": "{{value}} ms",
     "captureSettleLabel": "Aufnahme-Verzögerung (ms)",
     "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
     "setCaptureSettle": "Aufnahme-Verzögerung setzen",
@@ -146,7 +135,6 @@
       "runningTest": "Testsequenz läuft…",
       "testComplete": "Test abgeschlossen",
       "testFailed": "Test fehlgeschlagen",
-      "noResponse": "Keine Antwort vom Sortierer.",
       "binFailed": "Fach {{bin}} fehlgeschlagen",
       "startingSampleRun": "Testlauf wird gestartet…",
       "sampleRunStopped": "Testlauf bei Fach {{bin}} gestoppt",
@@ -161,16 +149,12 @@
   "useFeederConfig": {
     "toasts": {
       "notSynced": "Zuführungskalibrierung nicht synchronisiert",
-      "unexpectedResponse": "Unerwartete Antwort: {{response}}",
-      "noResponse": "Keine Antwort vom Sortierer.",
       "saveFailed": "Zuführungskonfiguration konnte nicht gespeichert werden"
     }
   },
   "useModuleConfigs": {
     "toasts": {
       "notSynced": "Kalibrierung von Modul {{module}} nicht synchronisiert",
-      "unexpectedResponse": "Unerwartete Antwort: {{response}}",
-      "noResponse": "Keine Antwort vom Sortierer.",
       "saveFailed": "Modulkonfiguration konnte nicht gespeichert werden"
     }
   },
@@ -185,19 +169,14 @@
     "moduleHistory": {
       "bottom": "Unten",
       "paddle": "Paddel",
-      "pusher": "Schieber",
-      "paddleCloseDelay": "Paddel-Schließverzögerung",
-      "moduleLabel": "Modul {{module}}",
-      "msValue": "{{value}}ms"
+      "paddleCloseDelay": "Paddel-Schließverzögerung"
     },
     "feederHistory": {
       "speed": "Geschwindigkeit",
       "duration": "Dauer",
       "pulse": "Impuls",
       "pause": "Pause",
-      "settle": "Verzögerung (letzte Karte)",
-      "continuous": "Dauerbetrieb",
-      "msValue": "{{value}}ms"
+      "settle": "Verzögerung (letzte Karte)"
     },
     "toasts": {
       "moduleReverted": "Modulkalibrierung zurückgesetzt",
@@ -211,15 +190,22 @@
     "testing": "Wird getestet…",
     "runTest": "Test ausführen",
     "calibrateBeforeTest": "Kalibriere alle Module, bevor du den Test ausführst",
-    "scanRegionLabel": "Scanbereich",
     "feederCalibrationLabel": "Zuführungskalibrierung",
     "history": "Verlauf",
     "copyCalibration": "Kalibrierung kopieren",
     "exportConfig": "Konfiguration exportieren",
     "importConfig": "Konfiguration importieren",
     "importing": "Wird importiert…",
-    "moduleCalibrationLabel": "Modulkalibrierung",
     "feederHistoryTitle": "Zuführungsverlauf",
-    "moduleHistoryTitle": "Modulverlauf"
+    "moduleHistoryTitle": "Modulverlauf",
+    "msValue": "{{value}}ms"
+  },
+  "moduleLabel": "Modul {{module}}",
+  "binLabel": "Fach {{bin}}",
+  "msValue": "{{value}} ms",
+  "continuous": "Dauerbetrieb",
+  "toasts": {
+    "noResponse": "Keine Antwort vom Sortierer.",
+    "unexpectedResponse": "Unerwartete Antwort: {{response}}"
   }
 }

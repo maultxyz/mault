@@ -57,8 +57,8 @@ export function FeederConfigProvider({
       } catch {
         toast.error(t("useFeederConfig.toasts.notSynced"), {
           description: response
-            ? t("useFeederConfig.toasts.unexpectedResponse", { response })
-            : t("useFeederConfig.toasts.noResponse"),
+            ? t("toasts.unexpectedResponse", { response })
+            : t("toasts.noResponse"),
         });
       }
     });

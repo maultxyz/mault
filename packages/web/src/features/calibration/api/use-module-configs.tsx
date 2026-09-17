@@ -82,8 +82,8 @@ export function ModuleConfigsProvider({
             }),
             {
               description: response
-                ? t("useModuleConfigs.toasts.unexpectedResponse", { response })
-                : t("useModuleConfigs.toasts.noResponse"),
+                ? t("toasts.unexpectedResponse", { response })
+                : t("toasts.noResponse"),
             },
           );
         }

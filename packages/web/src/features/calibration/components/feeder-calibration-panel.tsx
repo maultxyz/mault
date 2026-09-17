@@ -237,7 +237,7 @@ export function FeederCalibrationPanel({
               {t("feederCalibrationPanel.timeoutLabel")}
             </p>
             <span className="text-sm font-bold">
-              {t("feederCalibrationPanel.msValue", { value: durationValue })}
+              {t("msValue", { value: durationValue })}
             </span>
           </div>
           <Slider
@@ -258,7 +258,7 @@ export function FeederCalibrationPanel({
               onChange={onDurationChange}
               renderValue={() => (
                 <p className="font-bold text-sm">
-                  {t("feederCalibrationPanel.msValue", {
+                  {t("msValue", {
                     value: durationValue,
                   })}
                 </p>
@@ -279,7 +279,7 @@ export function FeederCalibrationPanel({
             <Skeleton className="h-3 w-16 rounded" />
           ) : calibration ? (
             <p className="text-xs text-muted-foreground text-center">
-              {t("feederCalibrationPanel.msValue", {
+              {t("msValue", {
                 value: calibration.duration,
               })}
             </p>
@@ -293,8 +293,8 @@ export function FeederCalibrationPanel({
             </p>
             <p className="text-xs text-muted-foreground italic">
               {pulseDurationValue <= 0
-                ? t("feederCalibrationPanel.continuous")
-                : t("feederCalibrationPanel.msValue", {
+                ? t("continuous")
+                : t("msValue", {
                     value: pulseDurationValue,
                   })}
             </p>
@@ -318,8 +318,8 @@ export function FeederCalibrationPanel({
               renderValue={() => (
                 <p className="font-bold text-sm">
                   {pulseDurationValue <= 0
-                    ? t("feederCalibrationPanel.continuous")
-                    : t("feederCalibrationPanel.msValue", {
+                    ? t("continuous")
+                    : t("msValue", {
                         value: pulseDurationValue,
                       })}
                 </p>
@@ -349,8 +349,8 @@ export function FeederCalibrationPanel({
           ) : calibration ? (
             <p className="text-xs text-muted-foreground text-center">
               {calibration.pulseDuration <= 0
-                ? t("feederCalibrationPanel.continuous")
-                : t("feederCalibrationPanel.msValue", {
+                ? t("continuous")
+                : t("msValue", {
                     value: calibration.pulseDuration,
                   })}
             </p>
@@ -363,7 +363,7 @@ export function FeederCalibrationPanel({
               {t("feederCalibrationPanel.pauseDurationLabel")}
             </p>
             <span className="text-sm font-bold">
-              {t("feederCalibrationPanel.msValue", {
+              {t("msValue", {
                 value: pauseDurationValue,
               })}
             </span>
@@ -386,7 +386,7 @@ export function FeederCalibrationPanel({
               onChange={onPauseDurationChange}
               renderValue={() => (
                 <p className="font-bold text-sm">
-                  {t("feederCalibrationPanel.msValue", {
+                  {t("msValue", {
                     value: pauseDurationValue,
                   })}
                 </p>
@@ -407,7 +407,7 @@ export function FeederCalibrationPanel({
             <Skeleton className="h-3 w-16 rounded" />
           ) : calibration ? (
             <p className="text-xs text-muted-foreground text-center">
-              {t("feederCalibrationPanel.msValue", {
+              {t("msValue", {
                 value: calibration.pauseDuration,
               })}
             </p>
@@ -420,7 +420,7 @@ export function FeederCalibrationPanel({
               {t("feederCalibrationPanel.settleDurationLabel")}
             </p>
             <span className="text-sm font-bold">
-              {t("feederCalibrationPanel.msValue", {
+              {t("msValue", {
                 value: settleDurationValue,
               })}
             </span>
@@ -449,7 +449,7 @@ export function FeederCalibrationPanel({
               onChange={onSettleDurationChange}
               renderValue={() => (
                 <p className="font-bold text-sm">
-                  {t("feederCalibrationPanel.msValue", {
+                  {t("msValue", {
                     value: settleDurationValue,
                   })}
                 </p>
@@ -470,7 +470,7 @@ export function FeederCalibrationPanel({
             <Skeleton className="h-3 w-16 rounded" />
           ) : calibration ? (
             <p className="text-xs text-muted-foreground text-center">
-              {t("feederCalibrationPanel.msValue", {
+              {t("msValue", {
                 value: calibration.settleDuration,
               })}
             </p>
