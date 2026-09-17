@@ -31,7 +31,6 @@
     "startsAndEnds": "{{start}} → {{end}}"
   },
   "formDialog": {
-    "addTitle": "Ankündigung hinzufügen",
     "editTitle": "Ankündigung bearbeiten",
     "description": "Wird jedem angemeldeten Nutzer angezeigt, bis sie deaktiviert wird.",
     "severityLabel": "Schweregrad",
@@ -40,7 +39,6 @@
     "startsAtLabel": "Beginnt am",
     "endsAtLabel": "Endet am",
     "scheduleHint": "Lasse eines der beiden Felder leer, um diese Seite nicht zu begrenzen - der Aktiv-Schalter setzt sich in jedem Fall durch.",
-    "activeLabel": "Aktiv",
     "cancel": "Abbrechen",
     "saving": "Wird gespeichert…",
     "saveChanges": "Änderungen speichern",

@@ -157,7 +157,7 @@ export function GameFormDialog({
       title={
         game
           ? t("gameFormDialog.editTitle", { name: game.name })
-          : t("gameFormDialog.addTitle")
+          : t("addGame")
       }
       description={t("gameFormDialog.description")}
       footer={
@@ -249,7 +249,7 @@ export function GameFormDialog({
           </Field>
 
           <Field orientation="horizontal">
-            <FieldLabel>{t("gameFormDialog.activeLabel")}</FieldLabel>
+            <FieldLabel>{t("active")}</FieldLabel>
             <Controller
               control={control}
               name="isActive"

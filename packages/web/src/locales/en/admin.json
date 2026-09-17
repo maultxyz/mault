@@ -14,10 +14,8 @@
     },
     "selectGamePlaceholder": "Select a game...",
     "languagePlaceholder": "Language...",
-    "cancelButton": "Cancel",
     "cancellingButton": "Cancelling...",
     "startSyncButton": "Start Sync",
-    "startingButton": "Starting...",
     "progressCount": "{{done}} / {{total}}",
     "vectorizedCount": "{{count}} vectorized",
     "queuedCount": "{{count}} queued",
@@ -34,7 +32,6 @@
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "searchPlaceholder": "Search by name...",
-    "loading": "Loading...",
     "loadError": "Failed to load cards",
     "revectorizeTitle": "Re-vectorize",
     "empty": "No cards found",
@@ -68,7 +65,6 @@
     "description": "Search for a user to view the app as them, for support/debugging",
     "searchPlaceholder": "Search by name or email...",
     "startTyping": "Start typing a name or email to search",
-    "loading": "Loading...",
     "empty": "No users found",
     "noOrgs": "No organizations",
     "adminBadge": "Admin",
@@ -78,9 +74,7 @@
     "confirmDialog": {
       "title": "Impersonate this user?",
       "description": "You'll see the app exactly as {{email}} does, including their organizations and data. This is logged. You can exit impersonation at any time from the banner at the top of the screen.",
-      "cancel": "Cancel",
-      "confirm": "Start Impersonating",
-      "starting": "Starting..."
+      "confirm": "Start Impersonating"
     },
     "toasts": {
       "startError": "Failed to start impersonation"
@@ -104,5 +98,8 @@
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
     "startedOnly": "Started {{started}}"
-  }
+  },
+  "cancel": "Cancel",
+  "starting": "Starting...",
+  "loading": "Loading..."
 }

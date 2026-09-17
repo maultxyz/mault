@@ -8,16 +8,12 @@
     "copyLinkFailed": "Impossible de copier le lien",
     "noCollectionSelected": "Aucune collection sélectionnée",
     "noCollection": "Aucune collection",
-    "noCollectionsYet": "Pas encore de collections",
-    "noMatches": "Aucune collection correspondante",
     "manageCollections": "Gérer les collections",
     "copyMonitorLink": "Copier le lien de surveillance",
     "giveUpSession": "Abandonner la session",
-    "noGamesHint": "Demande à un admin d'ajouter un jeu avant de créer une collection",
-    "newCollection": "Nouvelle collection"
+    "noGamesHint": "Demande à un admin d'ajouter un jeu avant de créer une collection"
   },
   "createDialog": {
-    "title": "Nouvelle collection",
     "description": "Crée une nouvelle collection dans laquelle scanner des cartes.",
     "duplicateName": "Une collection avec ce nom existe déjà",
     "cancel": "Annuler",
@@ -37,20 +33,15 @@
   "page": {
     "title": "Collections",
     "subtitle": "Organise les cartes scannées en collections nommées",
-    "newCollection": "Nouvelle collection",
-    "emptyTitle": "Pas encore de collections",
     "emptyDescription": "Crée une collection pour commencer à scanner des cartes",
     "searchPlaceholder": "Rechercher des collections...",
-    "noSearchResultsTitle": "Aucune collection correspondante",
     "noSearchResultsDescription": "Essaie un autre terme de recherche",
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
     "noGame": "Aucun jeu",
     "setActiveCollection": "Définir comme collection active",
     "editSortingRules": "Modifier les règles de tri",
-    "edit": "Modifier",
-    "emptyCollection": "Vider la collection",
-    "deleteCollection": "Supprimer la collection"
+    "edit": "Modifier"
   },
   "editDialog": {
     "title": "Modifier la collection",
@@ -61,11 +52,9 @@
     "matchThresholdHint": "Les scans dont la correspondance est inférieure à ce pourcentage sont traités comme une absence de correspondance plutôt que d'être acceptés."
   },
   "deleteDialog": {
-    "title": "Supprimer la collection",
     "description": "Supprime définitivement « {{name}} » et toutes ses cartes. Cette action est irréversible."
   },
   "emptyDialog": {
-    "title": "Vider la collection",
     "description": "Retire définitivement toutes les cartes de « {{name}} », mais conserve la collection elle-même. Cette action est irréversible.",
     "confirmLabel": "Vider"
   },
@@ -74,5 +63,10 @@
     "renameFailed": "Échec de la mise à jour de la collection",
     "deleteFailed": "Échec de la suppression de la collection",
     "emptyFailed": "Échec du vidage de la collection"
-  }
+  },
+  "noCollectionsYet": "Pas encore de collections",
+  "noMatchingCollections": "Aucune collection correspondante",
+  "newCollection": "Nouvelle collection",
+  "emptyCollection": "Vider la collection",
+  "deleteCollection": "Supprimer la collection"
 }

@@ -8,16 +8,12 @@
     "copyLinkFailed": "Could not copy link",
     "noCollectionSelected": "No collection selected",
     "noCollection": "No collection",
-    "noCollectionsYet": "No collections yet",
-    "noMatches": "No matching collections",
     "manageCollections": "Manage Collections",
     "copyMonitorLink": "Copy monitor link",
     "giveUpSession": "Give up session",
-    "noGamesHint": "Ask an admin to add a game before creating a collection",
-    "newCollection": "New Collection"
+    "noGamesHint": "Ask an admin to add a game before creating a collection"
   },
   "createDialog": {
-    "title": "New Collection",
     "description": "Create a new collection to scan cards into.",
     "duplicateName": "A collection with this name already exists",
     "cancel": "Cancel",
@@ -37,20 +33,15 @@
   "page": {
     "title": "Collections",
     "subtitle": "Organize scanned cards into named collections",
-    "newCollection": "New Collection",
-    "emptyTitle": "No collections yet",
     "emptyDescription": "Create a collection to start scanning cards",
     "searchPlaceholder": "Search collections...",
-    "noSearchResultsTitle": "No matching collections",
     "noSearchResultsDescription": "Try a different search term",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "noGame": "No game",
     "setActiveCollection": "Set as active collection",
     "editSortingRules": "Edit sorting rules",
-    "edit": "Edit",
-    "emptyCollection": "Empty Collection",
-    "deleteCollection": "Delete Collection"
+    "edit": "Edit"
   },
   "editDialog": {
     "title": "Edit Collection",
@@ -61,11 +52,9 @@
     "matchThresholdHint": "Scans matching below this percentage are treated as no match instead of being accepted."
   },
   "deleteDialog": {
-    "title": "Delete Collection",
     "description": "Permanently deletes \"{{name}}\" and all its cards. This cannot be undone."
   },
   "emptyDialog": {
-    "title": "Empty Collection",
     "description": "Permanently removes all cards from \"{{name}}\", but keeps the collection itself. This cannot be undone.",
     "confirmLabel": "Empty"
   },
@@ -74,5 +63,10 @@
     "renameFailed": "Failed to update collection",
     "deleteFailed": "Failed to delete collection",
     "emptyFailed": "Failed to empty collection"
-  }
+  },
+  "noCollectionsYet": "No collections yet",
+  "noMatchingCollections": "No matching collections",
+  "newCollection": "New Collection",
+  "emptyCollection": "Empty Collection",
+  "deleteCollection": "Delete Collection"
 }

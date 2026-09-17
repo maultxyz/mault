@@ -49,7 +49,7 @@ export function LandingHero() {
             to="/auth/sign-up"
             className={cn(buttonVariants({ variant: "default", size: "lg" }))}
           >
-            {t("hero.getStartedFree")}
+            {t("getStartedFree")}
             <IconArrowRight size={16} />
           </Link>
           <a
@@ -88,7 +88,7 @@ export function LandingHero() {
           <div className="grid grid-cols-2 divide-x divide-y divide-border">
             <div className="p-2.5">
               <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
-                {tScanner("scanStats.totalCards")}
+                {tScanner("totalCards")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
                 {stats.totalCount}
@@ -96,7 +96,7 @@ export function LandingHero() {
             </div>
             <div className="p-2.5">
               <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
-                {tScanner("scanStats.unique")}
+                {tScanner("unique")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
                 {stats.uniqueCount}

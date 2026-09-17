@@ -16,7 +16,6 @@
   "hero": {
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
     "subtitle": "Charge tes cartes dans la trémie, et Mault s'occupe du reste - le chargeur fait passer chaque carte devant la caméra pour la reconnaître, puis la trie dans un bac selon les règles que tu définis : rareté, couleur, set, type, ou ce que tu préfères. Plus de tableurs, plus de suppositions.",
-    "getStartedFree": "Commencer gratuitement",
     "seeHowItWorks": "Voir comment ça marche",
     "currentSession": "Session en cours",
     "cardCount_one": "{{count}} carte",
@@ -121,8 +120,7 @@
       "name": "Free",
       "price": "0 $",
       "description": "Pour les collectionneurs occasionnels qui débutent.",
-      "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
-      "cta": "Commencer gratuitement"
+      "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour"
     },
     "business": {
       "name": "Business",
@@ -134,7 +132,7 @@
   },
   "cta": {
     "heading": "Trions tes cartes ensemble.",
-    "subtitle": "Configure ta première collection en quelques minutes à peine, et laisse Mault garder tout ça bien organisé à partir de maintenant.",
-    "button": "Commencer gratuitement"
-  }
+    "subtitle": "Configure ta première collection en quelques minutes à peine, et laisse Mault garder tout ça bien organisé à partir de maintenant."
+  },
+  "getStartedFree": "Commencer gratuitement"
 }

@@ -17,7 +17,6 @@
       "content": "Ouvre ce menu et choisis Caméra pour connecter une webcam (ou coupler ton téléphone comme caméra). C'est elle qui capture chaque carte pendant le scan."
     },
     "connectDevice": {
-      "title": "Connecter ton trieur",
       "content": "Dans le même menu, choisis Scanner pour coupler ton trieur de cartes physique en USB. Une fois connecté, tu peux aussi le calibrer ou relancer la connexion ici."
     },
     "filterStats": {
@@ -92,7 +91,6 @@
       "content": "Pour une logique plus avancée, ajoute un groupe imbriqué avec son propre combinateur ET/OU - utile pour des règles comme « (rareté mythique OU rare) ET prix > 5 $ »."
     },
     "save": {
-      "title": "Enregistrer les changements",
       "content": "Les règles ne s'appliquent qu'une fois enregistrées. Clique ici une fois satisfait de la configuration de ce bac."
     },
     "done": {
@@ -123,7 +121,6 @@
       "content": "Clique ici pour ajouter un autre créneau, par ex. un pour les communes, un pour les rares - construis la recette complète d'un pack."
     },
     "save": {
-      "title": "Enregistre tes modifications",
       "content": "Les créneaux ne s'appliquent qu'une fois enregistrés. Chaque bac (hors fourre-tout) les reprend immédiatement ensuite."
     },
     "done": {
@@ -142,7 +139,6 @@
       "content": "Configuration des modules connecte le trieur et associe les bacs aux emplacements physiques, Zone de scan cadre la façon dont la caméra recadre chaque carte, et Calibrage des servos ajuste finement les positions de chaque servomoteur. Bascule entre elles ici."
     },
     "connect": {
-      "title": "Connecte ton trieur",
       "content": "Associe d'abord le trieur en USB ici - la majeure partie de cette page est désactivée tant qu'il n'est pas connecté. Lance Tester pour vérifier chaque servomoteur une fois calibré."
     },
     "channelLayout": {
@@ -181,5 +177,7 @@
       "title": "Voilà pour le calibrage !",
       "content": "Répète le calibrage des servomoteurs pour chaque module que tu ajoutes. Tu peux revoir cette visite à tout moment depuis l'icône d'aide de cette page."
     }
-  }
+  },
+  "connectYourSorterTitle": "Connecter ton trieur",
+  "saveYourChangesTitle": "Enregistrer les changements"
 }

@@ -20,7 +20,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
         {isFoil && (
           <div
             className="absolute top-1 left-1 z-20 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5 shadow-md"
-            title={t("scannedCardItem.foil")}
+            title={t("foil")}
           >
             <IconSparkles className="size-3 text-white" />
           </div>

@@ -37,12 +37,12 @@ export function SessionStatsPanel({
         <div className="grid grid-cols-2 divide-x divide-y divide-border">
           <div className="col-span-2 divide-y divide-border">
             <StatCell
-              label={t("sessionStatsPanel.totalCards")}
+              label={t("totalCards")}
               value={String(totalCards)}
             />
           </div>
           <StatCell
-            label={t("sessionStatsPanel.unique")}
+            label={t("unique")}
             value={stats ? String(stats.uniqueCount) : "-"}
             className={!stats?.hasPricing ? "col-span-2" : undefined}
           />
@@ -56,7 +56,7 @@ export function SessionStatsPanel({
         {stats?.mostValuable && (
           <div className="p-2 border-t border-input">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
-              {t("sessionStatsPanel.mostValuable")}
+              {t("mostValuable")}
             </p>
             <p className="text-xs font-semibold truncate">
               {stats.mostValuable.name}
@@ -71,7 +71,7 @@ export function SessionStatsPanel({
       {stats && stats.rarities.length > 0 && (
         <div className="rounded-lg border bg-input/20 dark:bg-input/30 p-2">
           <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
-            {t("sessionStatsPanel.byRarity")}
+            {t("byRarity")}
           </p>
           <div className="flex flex-col gap-1">
             {stats.rarities.map((r) => (

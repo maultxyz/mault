@@ -120,7 +120,7 @@ export function BinConfigPanel() {
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-4">
           <h2 className="text-sm font-semibold font-heading">
-            {t("binConfigPanel.binHeading", { number: config.binNumber })}
+            {t("binLabel", { number: config.binNumber })}
           </h2>
           {config.isCatchAll && (
             <Button type="button" variant="default" size="sm" disabled>
@@ -139,7 +139,7 @@ export function BinConfigPanel() {
     <form onSubmit={form.handleSubmit(handleSave)} className="flex flex-col">
       <div className="flex items-center gap-4 mb-4">
         <h2 className="text-sm font-semibold font-heading">
-          {t("binConfigPanel.binHeading", { number: config.binNumber })}
+          {t("binLabel", { number: config.binNumber })}
         </h2>
         <Controller
           name="isCatchAll"
@@ -282,7 +282,7 @@ export function BinConfigPanel() {
         </Button>
         <Button type="submit" disabled={isPending} data-tour="save-bin-config">
           {isPending && <IconLoader2 className="size-4 animate-spin" />}
-          {t("binConfigPanel.save")}
+          {t("save")}
         </Button>
       </div>
     </form>

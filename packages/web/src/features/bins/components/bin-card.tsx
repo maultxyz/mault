@@ -38,10 +38,10 @@ export function BinCard({
     >
       <div className="flex flex-row justify-between gap-2 items-center w-full">
         <p className="font-medium text-sm font-heading">
-          {t("binCard.binLabel", { number: config.binNumber })}
+          {t("binLabel", { number: config.binNumber })}
         </p>
         {config.isCatchAll ? (
-          <Badge variant="default">{t("binCard.catchAll")}</Badge>
+          <Badge variant="default">{t("catchAll")}</Badge>
         ) : config.isOverride ? (
           <Badge variant="outline">{t("binCard.override")}</Badge>
         ) : (

@@ -55,8 +55,8 @@ export default function PhoneCameraPage() {
   );
 
   const statusText: Record<typeof status, string> = {
-    "requesting-camera": t("phoneCamera.requestingCamera"),
-    "camera-error": t("phoneCamera.cameraError"),
+    "requesting-camera": t("requestingCameraAccess"),
+    "camera-error": t("cameraAccessError"),
     ready: t("phoneCamera.ready"),
     disconnected: t("phoneCamera.disconnected"),
   };
@@ -75,7 +75,7 @@ export default function PhoneCameraPage() {
             disconnect();
           }}
         >
-          {t("phoneCamera.disconnectButton")}
+          {t("disconnect")}
         </Button>
       }
     />
@@ -88,7 +88,7 @@ export default function PhoneCameraPage() {
         <p className="text-sm font-medium">{statusText.disconnected}</p>
         <Button variant="secondary" onClick={reconnect}>
           <IconRefresh />
-          {t("phoneCamera.reconnect")}
+          {t("reconnect")}
         </Button>
         {sessionEndedDialog}
       </div>
@@ -113,14 +113,14 @@ export default function PhoneCameraPage() {
         <p className="text-sm font-medium">
           {collection
             ? t("phoneCamera.streamingTo", { name: collection.name })
-            : t("phoneCamera.dialogTitle")}
+            : t("usePhoneAsCamera")}
         </p>
         {status === "requesting-camera" && (
           <Button
             variant="secondary"
             size="icon-sm"
             onClick={disconnect}
-            title={t("phoneCamera.disconnectButton")}
+            title={t("disconnect")}
           >
             <IconPlugOff />
           </Button>
@@ -140,7 +140,7 @@ export default function PhoneCameraPage() {
             <button
               type="button"
               onClick={disconnect}
-              title={t("phoneCamera.disconnectButton")}
+              title={t("disconnect")}
               className="ml-1 -mr-1 shrink-0 rounded-full p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
               <IconPlugOff className="size-3.5" />

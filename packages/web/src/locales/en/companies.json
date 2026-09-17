@@ -2,12 +2,7 @@
   "orgPickerModal": {
     "title": "Choose an organization",
     "createToGetStarted": "Create an organization to get started.",
-    "selectOrCreate": "Select or create an organization to continue.",
-    "newOrganization": "New organization",
-    "organizationNamePlaceholder": "Organization name",
-    "creating": "Creating…",
-    "create": "Create",
-    "failedToCreate": "Failed to create organization."
+    "selectOrCreate": "Select or create an organization to continue."
   },
   "orgSettings": {
     "noOrgSelected": "No organization selected. Use the organization menu in the sidebar to create or switch organizations.",
@@ -18,17 +13,13 @@
     "inviteMemberHeading": "Invite member",
     "emailPlaceholder": "Email address",
     "sending": "Sending…",
-    "invite": "Invite",
     "pendingInvites": "Pending invites",
     "dangerZoneHeading": "Danger zone",
     "deleteWarning": "Permanently deletes \"{{name}}\" and all its data.",
     "deleteOrganization": "Delete organization",
     "roleOwner": "Owner",
-    "roleAdmin": "Admin",
-    "roleMember": "Member",
     "removeMemberTitle": "Remove member",
     "removeMemberDescription": "Remove \"{{name}}\" from this organization? They will lose access immediately.",
-    "deleteOrgTitle": "Delete organization",
     "deleteOrgDescription": "Permanently deletes \"{{name}}\" and all its data. This cannot be undone.",
     "organizationRenamed": "Organization renamed.",
     "failedToRename": "Failed to rename.",
@@ -44,16 +35,11 @@
   },
   "orgSwitcher": {
     "organizations": "Organizations",
-    "newOrganization": "New organization",
     "manageOrganizations": "Organization Settings",
     "newOrganizationTitle": "New Organization",
     "newOrganizationDescription": "Create a new organization to scope your bins, collections, and calibration.",
     "cancel": "Cancel",
-    "creating": "Creating…",
-    "create": "Create",
-    "organizationNamePlaceholder": "Organization name",
-    "organizationCreated": "Organization \"{{name}}\" created.",
-    "failedToCreate": "Failed to create organization."
+    "organizationCreated": "Organization \"{{name}}\" created."
   },
   "discordBot": {
     "heading": "Discord Bot",
@@ -76,15 +62,12 @@
   "invites": {
     "description": "Invite people to this organization by sharing a link. No email setup required.",
     "membersOnly": "Only organization owners and admins can manage invites.",
-    "invite": "Invite",
     "inviteTitle": "Invite someone",
     "inviteDescription": "You'll get a link to share with them yourself.",
     "createFailed": "Couldn't create invite",
     "emailLabel": "Email",
     "emailPlaceholder": "someone@example.com",
     "roleLabel": "Role",
-    "roleMember": "Member",
-    "roleAdmin": "Admin",
     "revealTitle": "Share this invite link",
     "revealDescription": "This wasn't emailed automatically. Send it to them yourself. You won't see it again after closing this.",
     "revealDescriptionEmailed": "We've also emailed this to them, but here's the link too just in case. You won't see it again after closing this.",
@@ -99,5 +82,13 @@
     "loadFailed": "Couldn't load invites",
     "empty": "No pending invites",
     "expires": "expires {{date}}"
-  }
+  },
+  "newOrganization": "New organization",
+  "organizationNamePlaceholder": "Organization name",
+  "creatingOrganization": "Creating…",
+  "create": "Create",
+  "failedToCreateOrganization": "Failed to create organization.",
+  "invite": "Invite",
+  "roleAdmin": "Admin",
+  "roleMember": "Member"
 }

@@ -31,7 +31,6 @@
     "startsAndEnds": "{{start}} → {{end}}"
   },
   "formDialog": {
-    "addTitle": "Add announcement",
     "editTitle": "Edit announcement",
     "description": "Shown to every signed-in user until deactivated.",
     "severityLabel": "Severity",
@@ -40,7 +39,6 @@
     "startsAtLabel": "Starts at",
     "endsAtLabel": "Ends at",
     "scheduleHint": "Leave either blank for no start/end bound. The Active toggle still overrides both.",
-    "activeLabel": "Active",
     "cancel": "Cancel",
     "saving": "Saving…",
     "saveChanges": "Save changes",

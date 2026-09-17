@@ -144,8 +144,8 @@ export function CollectionSwitcher() {
           <ComboboxContent>
             <ComboboxEmpty>
               {collections.length === 0
-                ? t("switcher.noCollectionsYet")
-                : t("switcher.noMatches")}
+                ? t("noCollectionsYet")
+                : t("noMatchingCollections")}
             </ComboboxEmpty>
             <ComboboxList>
               {(c: Collection) => {
@@ -238,7 +238,7 @@ export function CollectionSwitcher() {
               />
             )}
           />
-          <TooltipContent>{t("switcher.newCollection")}</TooltipContent>
+          <TooltipContent>{t("newCollection")}</TooltipContent>
         </Tooltip>
       </ButtonGroup>
     </Field>

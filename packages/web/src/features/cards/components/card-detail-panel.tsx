@@ -96,9 +96,9 @@ export function CardDetailPanel({
   const { activeCollection } = useCollections();
   const foilOptions = activeCollection?.game?.foilTypes?.length
     ? activeCollection.game.foilTypes
-    : [t("cardDetailPanel.foil")];
+    : [t("foil")];
   const currentFoilType =
-    foilType ?? (isFoil ? t("cardDetailPanel.foil") : null);
+    foilType ?? (isFoil ? t("foil") : null);
 
   useEffect(() => {
     if (!currentCard) return;
@@ -306,18 +306,18 @@ export function CardDetailPanel({
                       <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
                         <CapturedImageThumb
                           src={capturedImageUrl}
-                          alt={t("cardDetailPanel.scannedAlt")}
+                          alt={t("cardPicker.scannedAlt")}
                           showVectorRegions={showVectorRegions}
                           showOcrRegions={showOcrRegions}
                         />
                       </div>
                       <p className="text-sm text-muted-foreground leading-snug">
-                        {t("cardDetailPanel.selectCorrectVersion")}
+                        {t("cardPicker.selectCorrectVersion")}
                       </p>
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground font-medium">
-                      {t("cardDetailPanel.multipleMatches")}
+                      {t("cardPicker.multipleMatches")}
                     </p>
                   )}
                   <div className="flex gap-3 overflow-x-auto pb-1">
@@ -377,7 +377,7 @@ export function CardDetailPanel({
                         <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
                           <CapturedImageThumb
                             src={capturedImageUrl}
-                            alt={t("cardDetailPanel.scannedAlt")}
+                            alt={t("cardPicker.scannedAlt")}
                             showVectorRegions={showVectorRegions}
                             showOcrRegions={showOcrRegions}
                           />
@@ -438,14 +438,14 @@ export function CardDetailPanel({
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         {selectedCard.price != null && (
                           <span>
-                            {t("cardDetailPanel.regularPrice", {
+                            {t("cardPicker.regularPrice", {
                               price: formatUsd(selectedCard.price),
                             })}
                           </span>
                         )}
                         {selectedCard.priceFoil != null && (
                           <span>
-                            {t("cardDetailPanel.foilPrice", {
+                            {t("cardPicker.foilPrice", {
                               price: formatUsd(selectedCard.priceFoil),
                             })}
                           </span>
@@ -454,7 +454,7 @@ export function CardDetailPanel({
                     )}
                     {selectedCard.artist && (
                       <p className="text-xs text-muted-foreground">
-                        {t("cardDetailPanel.artBy", {
+                        {t("cardPicker.artBy", {
                           artist: selectedCard.artist,
                         })}
                       </p>
@@ -466,14 +466,14 @@ export function CardDetailPanel({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-sm text-primary hover:underline w-fit"
                       >
-                        {t("cardDetailPanel.viewSource")}
+                        {t("cardPicker.viewSource")}
                       </a>
                     )}
                   </div>
                 )}
               </div>
               <div className="flex items-center gap-2 w-fit">
-                <Label>{t("cardDetailPanel.foil")}</Label>
+                <Label>{t("foil")}</Label>
                 <Select
                   value={currentFoilType ?? "none"}
                   onValueChange={(value) => {
@@ -484,11 +484,11 @@ export function CardDetailPanel({
                   disabled={!scanId}
                 >
                   <SelectTrigger className="w-40">
-                    <SelectValue placeholder={t("cardDetailPanel.foilNone")} />
+                    <SelectValue placeholder={t("foilNone")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">
-                      {t("cardDetailPanel.foilNone")}
+                      {t("foilNone")}
                     </SelectItem>
                     {foilOptions.map((type) => (
                       <SelectItem key={type} value={type}>
@@ -533,11 +533,11 @@ export function CardDetailPanel({
                   }}
                 >
                   <IconPencil className="size-4" />
-                  {t("cardDetailPanel.correctCard")}
+                  {t("cardPicker.correctCard")}
                 </Button>
                 <Button variant="destructive" onClick={() => onRemove?.()}>
                   <IconTrash className="size-4" />
-                  {t("cardDetailPanel.remove")}
+                  {t("cardPicker.remove")}
                 </Button>
               </div>
             </>
@@ -548,7 +548,7 @@ export function CardDetailPanel({
                   <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
                     <CapturedImageThumb
                       src={capturedImageUrl}
-                      alt={t("cardDetailPanel.scannedAlt")}
+                      alt={t("cardPicker.scannedAlt")}
                       showVectorRegions={showVectorRegions}
                       showOcrRegions={showOcrRegions}
                     />
@@ -562,7 +562,7 @@ export function CardDetailPanel({
                 <div className="relative flex-1">
                   <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
                   <Input
-                    placeholder={t("cardDetailPanel.searchPlaceholder")}
+                    placeholder={t("cardPicker.searchPlaceholder")}
                     value={query}
                     onChange={(e) => handleInputChange(e.target.value)}
                     className="pl-7"
@@ -575,9 +575,9 @@ export function CardDetailPanel({
                     onValueChange={(value) => setSelectedSet(value)}
                   >
                     <SelectTrigger className="w-40 shrink-0">
-                      <SelectValue placeholder={t("cardDetailPanel.allSets")}>
+                      <SelectValue placeholder={t("cardPicker.allSets")}>
                         {selectedSet === "all"
-                          ? t("cardDetailPanel.allSetsCount", {
+                          ? t("cardPicker.allSetsCount", {
                               count: results.length,
                             })
                           : sets.find((s) => s.code === selectedSet)?.name}
@@ -585,7 +585,7 @@ export function CardDetailPanel({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">
-                        {t("cardDetailPanel.allSetsCount", {
+                        {t("cardPicker.allSetsCount", {
                           count: results.length,
                         })}
                       </SelectItem>
@@ -608,14 +608,14 @@ export function CardDetailPanel({
                   filteredResults.length === 0 &&
                   query.trim().length === 0 && (
                     <p className="text-center text-sm text-muted-foreground py-8">
-                      {t("cardDetailPanel.startTyping")}
+                      {t("cardPicker.startTyping")}
                     </p>
                   )}
                 {!loading &&
                   filteredResults.length === 0 &&
                   query.trim().length >= 2 && (
                     <p className="text-center text-sm text-muted-foreground py-8">
-                      {t("cardDetailPanel.noCardsFound")}
+                      {t("cardPicker.noCardsFound")}
                     </p>
                   )}
                 {!loading && filteredResults.length > 0 && (

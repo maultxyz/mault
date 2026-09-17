@@ -8,16 +8,12 @@
     "copyLinkFailed": "Link konnte nicht kopiert werden",
     "noCollectionSelected": "Keine Sammlung ausgewählt",
     "noCollection": "Keine Sammlung",
-    "noCollectionsYet": "Noch keine Sammlungen",
-    "noMatches": "Keine passenden Sammlungen",
     "manageCollections": "Sammlungen verwalten",
     "copyMonitorLink": "Überwachungslink kopieren",
     "giveUpSession": "Sitzung abgeben",
-    "noGamesHint": "Bitte einen Admin, zuerst ein Spiel hinzuzufügen, bevor eine Sammlung erstellt werden kann",
-    "newCollection": "Neue Sammlung"
+    "noGamesHint": "Bitte einen Admin, zuerst ein Spiel hinzuzufügen, bevor eine Sammlung erstellt werden kann"
   },
   "createDialog": {
-    "title": "Neue Sammlung",
     "description": "Erstelle eine neue Sammlung, um Karten hinein zu scannen.",
     "duplicateName": "Eine Sammlung mit diesem Namen existiert bereits",
     "cancel": "Abbrechen",
@@ -37,20 +33,15 @@
   "page": {
     "title": "Sammlungen",
     "subtitle": "Organisiere gescannte Karten in benannten Sammlungen",
-    "newCollection": "Neue Sammlung",
-    "emptyTitle": "Noch keine Sammlungen",
     "emptyDescription": "Erstelle eine Sammlung, um mit dem Scannen von Karten zu beginnen",
     "searchPlaceholder": "Sammlungen durchsuchen...",
-    "noSearchResultsTitle": "Keine passenden Sammlungen",
     "noSearchResultsDescription": "Versuche einen anderen Suchbegriff",
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
     "noGame": "Kein Spiel",
     "setActiveCollection": "Als aktive Sammlung festlegen",
     "editSortingRules": "Sortierregeln bearbeiten",
-    "edit": "Bearbeiten",
-    "emptyCollection": "Sammlung leeren",
-    "deleteCollection": "Sammlung löschen"
+    "edit": "Bearbeiten"
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",
@@ -61,11 +52,9 @@
     "matchThresholdHint": "Scans mit einer Übereinstimmung unter diesem Prozentsatz werden als keine Übereinstimmung behandelt, anstatt akzeptiert zu werden."
   },
   "deleteDialog": {
-    "title": "Sammlung löschen",
     "description": "Löscht \"{{name}}\" und alle enthaltenen Karten dauerhaft. Dies kann nicht rückgängig gemacht werden."
   },
   "emptyDialog": {
-    "title": "Sammlung leeren",
     "description": "Entfernt dauerhaft alle Karten aus \"{{name}}\", behält aber die Sammlung selbst. Dies kann nicht rückgängig gemacht werden.",
     "confirmLabel": "Leeren"
   },
@@ -74,5 +63,10 @@
     "renameFailed": "Sammlung konnte nicht aktualisiert werden",
     "deleteFailed": "Sammlung konnte nicht gelöscht werden",
     "emptyFailed": "Sammlung konnte nicht geleert werden"
-  }
+  },
+  "noCollectionsYet": "Noch keine Sammlungen",
+  "noMatchingCollections": "Keine passenden Sammlungen",
+  "newCollection": "Neue Sammlung",
+  "emptyCollection": "Sammlung leeren",
+  "deleteCollection": "Sammlung löschen"
 }

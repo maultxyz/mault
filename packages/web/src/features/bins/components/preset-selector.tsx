@@ -69,7 +69,7 @@ function BinSnapshotSummary({ snapshot }: { snapshot: BinConfig[] }) {
         return (
           <div key={bin.binNumber} className="flex gap-2">
             <span className="w-10 shrink-0 text-muted-foreground">
-              {t("presetSelector.binLabel", { number: bin.binNumber })}
+              {t("binLabel", { number: bin.binNumber })}
             </span>
             <span>
               {!bin.isCatchAll && bin.isOverride && `${t("binCard.override")} · `}

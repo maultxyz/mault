@@ -33,7 +33,7 @@ export const TOUR_STEP_CONFIGS: TourStepConfig[] = [
     page: "scanner",
     target: '[data-tour="scanner-menu"]',
     placement: "auto",
-    titleKey: "steps.connectDevice.title",
+    titleKey: "connectYourSorterTitle",
     contentKey: "steps.connectDevice.content",
   },
   {

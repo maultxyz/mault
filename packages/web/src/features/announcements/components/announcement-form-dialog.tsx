@@ -97,7 +97,7 @@ export function AnnouncementFormDialog({
       onOpenChange={onOpenChange}
       className="sm:max-w-md"
       title={
-        announcement ? t("formDialog.editTitle") : t("formDialog.addTitle")
+        announcement ? t("formDialog.editTitle") : t("addAnnouncement")
       }
       description={t("formDialog.description")}
       footer={
@@ -177,7 +177,7 @@ export function AnnouncementFormDialog({
         </p>
 
         <Field orientation="horizontal">
-          <FieldLabel>{t("formDialog.activeLabel")}</FieldLabel>
+          <FieldLabel>{t("active")}</FieldLabel>
           <Controller
             control={control}
             name="isActive"

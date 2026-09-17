@@ -81,7 +81,7 @@ export function RuleGroupEditor({
             variant={group.combinator === "and" ? "secondary" : "outline"}
             onClick={() => toggleCombinator("and")}
           >
-            {t("ruleGroupEditor.and")}
+            {t("and")}
           </Button>
           <Button
             type="button"
@@ -89,7 +89,7 @@ export function RuleGroupEditor({
             variant={group.combinator === "or" ? "secondary" : "outline"}
             onClick={() => toggleCombinator("or")}
           >
-            {t("ruleGroupEditor.or")}
+            {t("or")}
           </Button>
         </ButtonGroup>
 

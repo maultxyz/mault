@@ -98,7 +98,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       const msg =
         err instanceof DOMException && err.name === "NotAllowedError"
           ? t("camera.permissionDenied")
-          : t("camera.accessError");
+          : t("cameraAccessError");
       setErrorMessage(msg);
       setStatus("error");
     }

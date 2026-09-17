@@ -16,7 +16,6 @@
   "hero": {
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
     "subtitle": "Load your cards into the hopper and Mault takes it from there. The feeder pushes each one past the camera to be recognized, then sorts it into bins using rules you set: rarity, color, set, type, or anything else. No spreadsheets, no guesswork.",
-    "getStartedFree": "Get started free",
     "seeHowItWorks": "See how it works",
     "currentSession": "Current session",
     "cardCount_one": "{{count}} card",
@@ -121,8 +120,7 @@
       "name": "Free",
       "price": "$0",
       "description": "For casual collectors getting started.",
-      "scanLimit": "Up to {{limit}} card scans per day",
-      "cta": "Get started free"
+      "scanLimit": "Up to {{limit}} card scans per day"
     },
     "business": {
       "name": "Business",
@@ -134,7 +132,7 @@
   },
   "cta": {
     "heading": "Let's get your cards sorted.",
-    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out.",
-    "button": "Get started free"
-  }
+    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out."
+  },
+  "getStartedFree": "Get started free"
 }

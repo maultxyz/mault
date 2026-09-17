@@ -31,7 +31,7 @@ export function OrgPickerModal() {
   async function handleCreate({ name }: OrganizationNameFormValues) {
     const result = await createOrganization(name.trim());
     if ("error" in result) {
-      toast.error(result.error || t("orgPickerModal.failedToCreate"));
+      toast.error(result.error || t("failedToCreateOrganization"));
       return;
     }
     await handlePick(result.id);
@@ -70,7 +70,7 @@ export function OrgPickerModal() {
             onClick={() => setShowCreate(true)}
           >
             <IconPlus size={14} />
-            {t("orgPickerModal.newOrganization")}
+            {t("newOrganization")}
           </Button>
         ) : (
           <form
@@ -78,14 +78,14 @@ export function OrgPickerModal() {
             className="flex gap-2"
           >
             <Input
-              placeholder={t("orgPickerModal.organizationNamePlaceholder")}
+              placeholder={t("organizationNamePlaceholder")}
               {...form.register("name")}
               autoFocus
             />
             <Button type="submit" disabled={form.formState.isSubmitting}>
               {form.formState.isSubmitting
-                ? t("orgPickerModal.creating")
-                : t("orgPickerModal.create")}
+                ? t("creatingOrganization")
+                : t("create")}
             </Button>
           </form>
         )}

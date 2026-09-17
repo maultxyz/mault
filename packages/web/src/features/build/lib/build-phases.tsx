@@ -25,9 +25,9 @@ export function optionalBadgeLabel(
   optional: Step["optional"],
 ): string {
   if (optional === "classic-hopper")
-    return t("assembly.optionalClassicHopperBadge");
-  if (optional === "new-hopper") return t("assembly.optionalNewHopperBadge");
-  return t("assembly.optionalBadge");
+    return t("optionalClassicHopperBadge");
+  if (optional === "new-hopper") return t("optionalNewHopperBadge");
+  return t("optionalBadge");
 }
 
 export interface Phase {

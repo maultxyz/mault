@@ -63,7 +63,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 "absolute top-1 z-20 rounded-full p-0.5 shadow-md bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300",
                 hasAlternatives ? "left-6" : "left-1",
               )}
-              title={foilType ?? t("scannedCardItem.foil")}
+              title={foilType ?? t("foil")}
             >
               <IconSparkles className="size-3 text-white" />
             </div>
@@ -138,7 +138,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
           {isDownloaded && (
             <span
               className="shrink-0"
-              title={t("scannedCardItem.downloaded")}
+              title={t("downloaded")}
             >
               <IconDownload className="size-3 text-muted-foreground shrink-0" />
             </span>

@@ -33,7 +33,7 @@ export const CALIBRATION_TOUR_STEPS: CalibrationTourStepConfig[] = [
     section: "modules",
     target: '[data-tour="calibration-connect"]',
     placement: "auto",
-    titleKey: "calibrationTour.connect.title",
+    titleKey: "connectYourSorterTitle",
     contentKey: "calibrationTour.connect.content",
   },
   {

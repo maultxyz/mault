@@ -7,8 +7,6 @@
   },
   "binCard": {
     "override": "Vorrang",
-    "binLabel": "Fach {{number}}",
-    "catchAll": "Auffangfach",
     "ruleCount_one": "{{count}} Regel",
     "ruleCount_other": "{{count}} Regeln",
     "allUnmatched": "Alle nicht zugeordneten Karten",
@@ -20,14 +18,12 @@
     "overrideLabel": "Vorrangige Regeln",
     "overrideDescription": "Wenn diese Regeln zutreffen, hat dieses Fach Vorrang vor normalen Fächern. Treffen mehrere vorrangige Fächer zu, gewinnt die niedrigste Fachnummer. Verwende hier zum Beispiel Preis ≥ 1, um Karten ab 1 $ vor den Farbfächern in dieses Fach zu sortieren.",
     "needCatchAllError": "Mindestens ein Fach muss als Auffangfach festgelegt sein.",
-    "binHeading": "Fach {{number}}",
     "catchAllEnabled": "Auffangfach aktiviert",
     "setCatchAll": "Als Auffangfach festlegen",
     "catchAllDescription": "Karten, die auf kein anderes Fach passen, landen hier.",
     "rulesLabel": "Regeln",
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
-    "save": "Speichern",
     "cardLimitLabel": "Fachkapazität",
     "cardLimitPlaceholder": "Unbegrenzt",
     "cardLimitDescription": "Stoppt das Scannen und fordert zum Leeren des Fachs auf, sobald es so viele Karten enthält. Leer lassen für kein Limit.",
@@ -37,29 +33,21 @@
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."
   },
-  "binLocationDiagram": {
-    "binLabel": "Fach {{number}}",
-    "catchAll": "Auffangfach"
-  },
+  "binLocationDiagram": {},
   "conditionRow": {
     "selectPlaceholder": "Auswählen...",
     "valuePlaceholder": "Wert...",
     "freeformMultiPlaceholder": "Werte, durch Komma getrennt..."
   },
   "ruleGroupEditor": {
-    "and": "UND",
-    "or": "ODER",
     "emptyState": "Keine Bedingungen. Füge eine Bedingung oder Gruppe hinzu, um zu beginnen.",
     "addCondition": "Bedingung",
     "addGroup": "Gruppe"
   },
   "ruleSummary": {
-    "noConditions": "Keine Bedingungen",
-    "and": "UND",
-    "or": "ODER"
+    "noConditions": "Keine Bedingungen"
   },
   "presetSelector": {
-    "binLabel": "Fach {{number}}",
     "catchAll": "Auffangfach",
     "noRules": "keine Regeln",
     "conditionCount_one": "{{count}} Bedingung",
@@ -101,9 +89,7 @@
       "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden"
     }
   },
-  "binsPage": {
-    "binLabel": "Fach {{number}}"
-  },
+  "binsPage": {},
   "autoAssignPanel": {
     "heading": "Automatische Erkennung",
     "description": "Lernt Fachzuweisungen beim Scannen: Sobald ein neuer Wert für das Feld unten auftaucht, belegt er das nächste freie Fach. Wiederholungen werden automatisch dorthin geleitet, und sobald alle Fächer belegt sind, gehen neue Werte ins Auffangfach.",
@@ -124,7 +110,11 @@
     "allowDuplicatesDescription": "Ist dies aus, wird eine bereits in einem Pack enthaltene Karte für dieses Fach übersprungen (sie kann trotzdem ein anderes Pack starten, das sie noch nicht enthält), statt erneut hinzugefügt zu werden.",
     "slotsLabel": "Pack-Slots",
     "slotCountLabel": "Anzahl",
-    "addSlot": "Slot hinzufügen",
-    "save": "Speichern"
-  }
+    "addSlot": "Slot hinzufügen"
+  },
+  "binLabel": "Fach {{number}}",
+  "catchAll": "Auffangfach",
+  "save": "Speichern",
+  "and": "UND",
+  "or": "ODER"
 }

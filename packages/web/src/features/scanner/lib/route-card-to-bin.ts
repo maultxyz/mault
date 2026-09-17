@@ -51,8 +51,8 @@ export async function routeCardToBin({
   const res = response as Record<string, unknown>;
 
   if (res.empty) {
-    toast.error(t("scannedCards.feederEmpty.title"), {
-      description: t("scannedCards.feederEmpty.description"),
+    toast.error(t("feederEmpty.title"), {
+      description: t("feederEmpty.description"),
       duration: Infinity,
       dismissible: true,
     });

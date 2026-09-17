@@ -28,8 +28,8 @@ export function OrgSettings() {
   const { t } = useTranslation("companies");
   const ROLE_LABELS: Record<OrgRole, string> = {
     owner: t("orgSettings.roleOwner"),
-    admin: t("orgSettings.roleAdmin"),
-    member: t("orgSettings.roleMember"),
+    admin: t("roleAdmin"),
+    member: t("roleMember"),
   };
   const { refetch: refetchOrgs } = neon.auth.useListOrganizations();
   const { data: activeOrg, refetch: refetchActive } =
@@ -232,10 +232,10 @@ export function OrgSettings() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="admin">
-                            {t("orgSettings.roleAdmin")}
+                            {t("roleAdmin")}
                           </SelectItem>
                           <SelectItem value="member">
-                            {t("orgSettings.roleMember")}
+                            {t("roleMember")}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -293,10 +293,10 @@ export function OrgSettings() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="admin">
-                            {t("orgSettings.roleAdmin")}
+                            {t("roleAdmin")}
                           </SelectItem>
                           <SelectItem value="member">
-                            {t("orgSettings.roleMember")}
+                            {t("roleMember")}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -308,7 +308,7 @@ export function OrgSettings() {
                   >
                     {inviteForm.formState.isSubmitting
                       ? t("orgSettings.sending")
-                      : t("orgSettings.invite")}
+                      : t("invite")}
                   </Button>
                 </form>
 
@@ -381,7 +381,7 @@ export function OrgSettings() {
       <DeleteDialog
         open={deleteOrgOpen}
         onOpenChange={setDeleteOrgOpen}
-        title={t("orgSettings.deleteOrgTitle")}
+        title={t("orgSettings.deleteOrganization")}
         description={t("orgSettings.deleteOrgDescription", {
           name: activeOrg?.name,
         })}

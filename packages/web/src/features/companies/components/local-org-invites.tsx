@@ -149,7 +149,7 @@ export function LocalOrgInvites() {
           onClick={() => setShowInvite(true)}
         >
           <IconPlus size={14} />
-          {t("invites.invite")}
+          {t("invite")}
         </Button>
       </div>
 
@@ -199,7 +199,7 @@ export function LocalOrgInvites() {
             disabled={form.formState.isSubmitting}
             className="w-full"
           >
-            {t("invites.invite")}
+            {t("invite")}
           </Button>
         }
       >
@@ -235,10 +235,10 @@ export function LocalOrgInvites() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="member">
-                      {t("invites.roleMember")}
+                      {t("roleMember")}
                     </SelectItem>
                     <SelectItem value="admin">
-                      {t("invites.roleAdmin")}
+                      {t("roleAdmin")}
                     </SelectItem>
                   </SelectContent>
                 </Select>

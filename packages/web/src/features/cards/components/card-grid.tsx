@@ -65,7 +65,7 @@ export function CardGrid() {
   } = useScannedCards();
   const foilOptions = activeCollection?.game?.foilTypes?.length
     ? activeCollection.game.foilTypes
-    : [t("cardGrid.foilGeneric")];
+    : [t("foil")];
   const [summaryOpen, setSummaryOpen] = useState(false);
   const scanner = useScannerIsland();
   const { locks, currentUserId } = useCollectionLocks();
@@ -245,10 +245,10 @@ export function CardGrid() {
               >
                 <SelectTrigger className="gap-1">
                   <IconSparkles className="size-3.5" />
-                  <SelectValue placeholder={t("cardGrid.foilNone")} />
+                  <SelectValue placeholder={t("foilNone")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">{t("cardGrid.foilNone")}</SelectItem>
+                  <SelectItem value="none">{t("foilNone")}</SelectItem>
                   {foilOptions.map((type) => (
                     <SelectItem key={type} value={type}>
                       {type}
@@ -470,11 +470,11 @@ export function CardGrid() {
                 >
                   <SelectTrigger className="gap-1">
                     <IconSparkles className="size-3.5" />
-                    <SelectValue placeholder={t("cardGrid.foilNone")} />
+                    <SelectValue placeholder={t("foilNone")} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="none">
-                      {t("cardGrid.foilNone")}
+                      {t("foilNone")}
                     </SelectItem>
                     {foilOptions.map((type) => (
                       <SelectItem key={type} value={type}>

@@ -109,7 +109,7 @@ export function ImpersonationUsersManager() {
         )}
         {isQueryReady && usersQuery.isLoading && (
           <p className="text-sm text-muted-foreground text-center py-6">
-            {t("impersonationUsersManager.loading")}
+            {t("loading")}
           </p>
         )}
         {isQueryReady &&
@@ -176,11 +176,11 @@ export function ImpersonationUsersManager() {
         footer={
           <>
             <Button variant="outline" onClick={() => setTarget(null)}>
-              {t("impersonationUsersManager.confirmDialog.cancel")}
+              {t("cancel")}
             </Button>
             <Button disabled={isStarting} onClick={handleConfirmImpersonate}>
               {isStarting
-                ? t("impersonationUsersManager.confirmDialog.starting")
+                ? t("starting")
                 : t("impersonationUsersManager.confirmDialog.confirm")}
             </Button>
           </>

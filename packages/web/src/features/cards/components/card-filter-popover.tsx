@@ -285,7 +285,7 @@ export function CardFilterPopover({
 
         <div>
           <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
-            {t("cardFilterPopover.downloaded")}
+            {t("downloaded")}
           </p>
           <button
             type="button"

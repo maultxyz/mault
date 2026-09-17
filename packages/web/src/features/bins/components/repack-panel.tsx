@@ -185,7 +185,7 @@ export function RepackPanel() {
                 {isPresetMutating && (
                   <IconLoader2 className="size-4 animate-spin" />
                 )}
-                {t("repackPanel.save")}
+                {t("save")}
               </Button>
             </div>
           </div>

@@ -103,13 +103,13 @@ export const ScannedCardListItem = memo(function ScannedCardListItem({
         {isFoil && (
           <span
             className="shrink-0 rounded-full p-0.5 shadow-md bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300"
-            title={foilType ?? t("scannedCardItem.foil")}
+            title={foilType ?? t("foil")}
           >
             <IconSparkles className="size-3 text-white" />
           </span>
         )}
         {isDownloaded && (
-          <span className="shrink-0" title={t("scannedCardItem.downloaded")}>
+          <span className="shrink-0" title={t("downloaded")}>
             <IconDownload className="size-3.5 text-muted-foreground" />
           </span>
         )}

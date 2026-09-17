@@ -20,9 +20,9 @@ export function optionalBadgeLabel(
   t: BuildT,
   optional: Row["optional"],
 ): string {
-  if (optional === "classic-hopper") return t("bom.optionalClassicHopperBadge");
-  if (optional === "new-hopper") return t("bom.optionalNewHopperBadge");
-  return t("bom.optionalBadge");
+  if (optional === "classic-hopper") return t("optionalClassicHopperBadge");
+  if (optional === "new-hopper") return t("optionalNewHopperBadge");
+  return t("optionalBadge");
 }
 
 export interface Group {
@@ -141,7 +141,7 @@ export const GROUPS: Group[] = [
           t(
             boardType === "uno_r4"
               ? "bom.groups.power.items.usbCable.part"
-              : "bom.groups.power.items.usbCableEsp32.part",
+              : "bom.groups.power.items.usbCable.part",
           ),
         notes: (t, _, boardType) =>
           t(
@@ -292,7 +292,7 @@ export const GROUPS: Group[] = [
         qty: () => "1",
         name: "M3x25 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x25Screw.part"),
-        notes: (t) => t("bom.groups.fasteners.items.m3x25Screw.notes"),
+        notes: (t) => t("bom.groups.fasteners.items.m3x8Screw.notes"),
         optional: "new-hopper",
         buyUrl: "https://amzn.to/3VfNwJN",
       },
@@ -370,7 +370,7 @@ export const GROUPS: Group[] = [
         qty: () => "1",
         name: "Dupont Crimper",
         part: (t) => t("bom.groups.fasteners.items.dupontCrimper.part"),
-        notes: (t) => t("bom.groups.fasteners.items.dupontCrimper.notes"),
+        notes: (t) => t("bom.groups.fasteners.items.dupontConnectors.notes"),
         buyUrl: "https://amzn.to/4is9Klx",
         optional: true,
       },

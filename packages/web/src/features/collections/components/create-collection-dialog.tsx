@@ -124,7 +124,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
     <DynamicDialog
       open={open}
       onOpenChange={handleOpenChange}
-      title={t("createDialog.title")}
+      title={t("newCollection")}
       description={t("createDialog.description")}
       trigger={trigger({
         disabled: isMutating || activeGames.length === 0,

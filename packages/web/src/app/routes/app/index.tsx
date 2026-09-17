@@ -37,7 +37,7 @@ function MobileScanner() {
             className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 text-sm font-medium shadow-lg"
           >
             <IconCards size={16} />
-            {t("appScanner.cardCount", { count: cards.length })}
+            {t("cardCount", { count: cards.length })}
           </button>
         </DrawerTrigger>
         <DrawerContent>

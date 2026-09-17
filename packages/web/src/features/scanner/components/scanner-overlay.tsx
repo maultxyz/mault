@@ -147,7 +147,7 @@ export function ScannerOverlay({
           {bluetoothSupported ? (
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button size="sm" />}>
-                {t("scannerOverlay.connectScannerButton")}
+                {t("connect")}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={onConnectScanner}>
@@ -160,7 +160,7 @@ export function ScannerOverlay({
             </DropdownMenu>
           ) : (
             <Button size="sm" onClick={onConnectScanner}>
-              {t("scannerOverlay.connectScannerButton")}
+              {t("connect")}
             </Button>
           )}
         </StatusPill>
@@ -206,7 +206,7 @@ export function ScannerOverlay({
         return (
           <StatusPill variant="loading">
             <IconCameraSpark className="size-3.5 shrink-0" />
-            <span>{t("scannerOverlay.requestingCameraAccess")}</span>
+            <span>{t("requestingCameraAccess")}</span>
           </StatusPill>
         );
       case "error":

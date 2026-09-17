@@ -160,7 +160,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       const sent = await sendCommand(JSON.stringify({ feeder: true }));
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
-          description: t("cardScanner.feedFailed.description"),
+          description: t("feederCommandFailedDescription"),
         });
         void reportSerialEvent({
           command: "feeder",
@@ -173,7 +173,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       const response = await receiveResponse(10000);
       if (!response) {
         toast.error(t("cardScanner.feedTimeout.title"), {
-          description: t("cardScanner.feedTimeout.description"),
+          description: t("feederTimeoutDescription"),
         });
         void reportSerialEvent({
           command: "feeder",
@@ -187,8 +187,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
         const parsed = JSON.parse(response) as Record<string, unknown>;
         if (parsed.empty) {
           handlePause();
-          toast.error(t("cardScanner.feederEmpty.title"), {
-            description: t("cardScanner.feederEmpty.description"),
+          toast.error(t("feederEmpty.title"), {
+            description: t("feederEmpty.description"),
             duration: Infinity,
             dismissible: true,
           });
@@ -199,7 +199,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
             collectionGuid: activeCollection?.guid,
           });
         } else if (parsed.error) {
-          toast.error(t("cardScanner.feederError.title"), {
+          toast.error(t("feederError.title"), {
             description: String(parsed.error),
             duration: Infinity,
             dismissible: true,
@@ -215,7 +215,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
         }
       } catch {
         toast.error(t("cardScanner.feedError.title"), {
-          description: t("cardScanner.feedError.description"),
+          description: t("feederUnexpectedResponseDescription"),
         });
         void reportSerialEvent({
           command: "feeder",

@@ -31,7 +31,6 @@
     "startsAndEnds": "{{start}} → {{end}}"
   },
   "formDialog": {
-    "addTitle": "Ajouter une annonce",
     "editTitle": "Modifier l'annonce",
     "description": "Affichée à chaque utilisateur connecté jusqu'à sa désactivation.",
     "severityLabel": "Gravité",
@@ -40,7 +39,6 @@
     "startsAtLabel": "Début",
     "endsAtLabel": "Fin",
     "scheduleHint": "Laisse l'un des deux champs vide pour ne pas borner ce côté - l'interrupteur Active reste prioritaire dans tous les cas.",
-    "activeLabel": "Active",
     "cancel": "Annuler",
     "saving": "Enregistrement…",
     "saveChanges": "Enregistrer les modifications",

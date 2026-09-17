@@ -2,15 +2,11 @@
   "gamesManager": {
     "heading": "Games",
     "description": "Configure which trading card games can be scanned into and how their cards are matched against bin rules.",
-    "addGame": "Add game",
     "loading": "Loading...",
-    "active": "Active",
-    "inactive": "Inactive",
     "fieldCount_one": "{{count}} field",
     "fieldCount_other": "{{count}} fields",
     "editTitle": "Edit",
     "deleteTitle": "Delete",
-    "empty": "No games configured yet",
     "deleteDialog": {
       "title": "Delete game",
       "description": "Permanently delete \"{{name}}\"? Collections using this game will keep their scanned cards, but no new cards can be matched against it."
@@ -25,7 +21,6 @@
     }
   },
   "gameFormDialog": {
-    "addTitle": "Add game",
     "editTitle": "Edit {{name}}",
     "description": "Define which fields bin rules can filter on for this game.",
     "keyLabel": "Key",
@@ -36,7 +31,6 @@
     "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
     "foilTypesLabel": "Foil types",
     "foilTypesPlaceholder": "Comma separated (e.g. Reverse Holo, Holo). Leave blank for a plain Foil option.",
-    "activeLabel": "Active",
     "cancel": "Cancel",
     "saving": "Saving…",
     "saveChanges": "Save changes",
@@ -78,8 +72,10 @@
     "description": "Which trading card games are supported and how many cards are in the database for each.",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
-    "inactive": "Inactive",
-    "lastUpdated": "Updated {{date}}",
-    "empty": "No games configured yet"
-  }
+    "lastUpdated": "Updated {{date}}"
+  },
+  "addGame": "Add game",
+  "active": "Active",
+  "inactive": "Inactive",
+  "noGamesConfigured": "No games configured yet"
 }

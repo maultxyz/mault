@@ -119,7 +119,7 @@ export function CardSyncPanel() {
               >
                 {isCancelling
                   ? t("cardImageVectors.cancellingButton")
-                  : t("cardImageVectors.cancelButton")}
+                  : t("cancel")}
               </Button>
             ) : (
               <Button
@@ -127,7 +127,7 @@ export function CardSyncPanel() {
                 onClick={() => start(syncGameKey!, syncLang)}
               >
                 {isStarting
-                  ? t("cardImageVectors.startingButton")
+                  ? t("starting")
                   : t("cardImageVectors.startSyncButton")}
               </Button>
             )}

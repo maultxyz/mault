@@ -27,7 +27,7 @@ export function GameCoverageList() {
       {!isLoading && coverage.length === 0 && (
         <EmptyState
           icon={<IconCards className="size-10" />}
-          title={t("gameCoverage.empty")}
+          title={t("noGamesConfigured")}
         />
       )}
 
@@ -37,7 +37,7 @@ export function GameCoverageList() {
             <div className="flex items-center gap-2">
               <p className="text-sm font-medium truncate">{game.name}</p>
               {!game.isActive && (
-                <Badge variant="outline">{t("gameCoverage.inactive")}</Badge>
+                <Badge variant="outline">{t("inactive")}</Badge>
               )}
             </div>
             {game.languages.length > 0 && (

@@ -168,7 +168,7 @@ export default function CollectionsPage() {
           trigger={({ disabled }) => (
             <Button disabled={disabled} data-tour="create-collection">
               <IconPlus className="size-4" />
-              {t("page.newCollection")}
+              {t("newCollection")}
             </Button>
           )}
         />
@@ -200,7 +200,7 @@ export default function CollectionsPage() {
         {!isLoading && collections.length === 0 && (
           <EmptyState
             icon={<IconAlbum className="size-10" />}
-            title={t("page.emptyTitle")}
+            title={t("noCollectionsYet")}
             description={t("page.emptyDescription")}
           />
         )}
@@ -210,7 +210,7 @@ export default function CollectionsPage() {
           filteredCollections.length === 0 && (
             <EmptyState
               icon={<IconAlbum className="size-10" />}
-              title={t("page.noSearchResultsTitle")}
+              title={t("noMatchingCollections")}
               description={t("page.noSearchResultsDescription")}
             />
           )}
@@ -320,7 +320,7 @@ export default function CollectionsPage() {
                       }
                     >
                       <IconEraser />
-                      {t("page.emptyCollection")}
+                      {t("emptyCollection")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       variant="destructive"
@@ -332,7 +332,7 @@ export default function CollectionsPage() {
                       }
                     >
                       <IconTrash />
-                      {t("page.deleteCollection")}
+                      {t("deleteCollection")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -427,7 +427,7 @@ export default function CollectionsPage() {
       <DeleteDialog
         open={!!deleteTarget}
         onOpenChange={handleDeleteOpenChange}
-        title={t("deleteDialog.title")}
+        title={t("deleteCollection")}
         description={t("deleteDialog.description", {
           name: deleteTarget?.name ?? "",
         })}
@@ -437,7 +437,7 @@ export default function CollectionsPage() {
       <DeleteDialog
         open={!!emptyTarget}
         onOpenChange={handleEmptyOpenChange}
-        title={t("emptyDialog.title")}
+        title={t("emptyCollection")}
         description={t("emptyDialog.description", {
           name: emptyTarget?.name ?? "",
         })}
