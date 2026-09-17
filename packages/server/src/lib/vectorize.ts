@@ -2,19 +2,27 @@ import {
   AutoProcessor,
   RawImage,
   SiglipVisionModel,
+  type DeviceType,
   type Processor,
 } from "@huggingface/transformers";
+import type { CardCropRegions, OcrRegion } from "@magic-vault/shared";
 
 const MODEL_NAME = "Xenova/siglip-base-patch16-512";
+
+const MODEL_DEVICE = process.env.VECTORIZE_DEVICE as DeviceType | undefined;
+const MODEL_DTYPE = MODEL_DEVICE && MODEL_DEVICE !== "cpu" ? "fp32" : "q8";
 
 let modelPromise: Promise<SiglipVisionModel> | null = null;
 let processorPromise: Promise<Processor> | null = null;
 
 async function getModel(): Promise<SiglipVisionModel> {
   if (!modelPromise) {
-    console.log("[vectorize] Loading SigLIP model...");
+    console.log(
+      `[vectorize] Loading SigLIP model (device: ${MODEL_DEVICE ?? "default"}, dtype: ${MODEL_DTYPE})...`,
+    );
     modelPromise = SiglipVisionModel.from_pretrained(MODEL_NAME, {
-      dtype: "q8",
+      dtype: MODEL_DTYPE,
+      device: MODEL_DEVICE,
     });
     await modelPromise;
     console.log(
@@ -31,13 +39,33 @@ async function getProcessor(): Promise<Processor> {
   return processorPromise;
 }
 
-async function vectorizeBuffer(buffer: Buffer): Promise<number[]> {
+async function vectorizeRawImages(images: RawImage[]): Promise<number[][]> {
   const [model, processor] = await Promise.all([getModel(), getProcessor()]);
+  const image_inputs = await processor(images);
+  const { pooler_output } = await model(image_inputs);
+  return pooler_output.tolist();
+}
+
+async function vectorizeRawImage(image: RawImage): Promise<number[]> {
+  const [embedding] = await vectorizeRawImages([image]);
+  return embedding;
+}
+
+async function cropToRegion(
+  image: RawImage,
+  region: OcrRegion,
+): Promise<RawImage> {
+  const x_min = Math.round(region.x * image.width);
+  const y_min = Math.round(region.y * image.height);
+  const x_max = Math.round((region.x + region.width) * image.width);
+  const y_max = Math.round((region.y + region.height) * image.height);
+  return image.crop([x_min, y_min, x_max, y_max]);
+}
+
+async function vectorizeBuffer(buffer: Buffer): Promise<number[]> {
   const uint8Array = new Uint8Array(buffer);
   const image = await RawImage.fromBlob(new Blob([uint8Array]));
-  const image_inputs = await processor(image);
-  const { pooler_output } = await model(image_inputs);
-  const embedding = Array.from(pooler_output.data) as number[];
+  const embedding = await vectorizeRawImage(image);
 
   console.log(
     `[vectorize] Generated ${embedding.length}-dimensional SigLIP embedding`,
@@ -76,12 +104,53 @@ function releaseScanVectorizeSlot(): void {
   scanVectorizeQueue.shift()?.();
 }
 
-export async function vectorizeImageFromBuffer(
+export interface CardEmbeddings {
+  embedding: number[];
+  embeddingArt: number[] | null;
+  embeddingName: number[] | null;
+  embeddingBottom: number[] | null;
+}
+
+type CropKey = "embeddingArt" | "embeddingName" | "embeddingBottom";
+
+export async function vectorizeCardImage(
   buffer: Buffer,
-): Promise<number[]> {
+  regions?: CardCropRegions,
+): Promise<CardEmbeddings> {
   await acquireScanVectorizeSlot();
   try {
-    return await vectorizeBuffer(buffer);
+    const uint8Array = new Uint8Array(buffer);
+    const image = await RawImage.fromBlob(new Blob([uint8Array]));
+
+    const allCrops: { key: CropKey; region: OcrRegion | undefined }[] = [
+      { key: "embeddingArt", region: regions?.art },
+      { key: "embeddingName", region: regions?.name },
+      { key: "embeddingBottom", region: regions?.bottom },
+    ];
+    const crops = allCrops.filter(
+      (c): c is { key: CropKey; region: OcrRegion } => c.region !== undefined,
+    );
+
+    const croppedImages = await Promise.all(
+      crops.map((c) => cropToRegion(image, c.region)),
+    );
+
+    const [embedding, ...cropEmbeddings] = await vectorizeRawImages([
+      image,
+      ...croppedImages,
+    ]);
+
+    const result: CardEmbeddings = {
+      embedding,
+      embeddingArt: null,
+      embeddingName: null,
+      embeddingBottom: null,
+    };
+    crops.forEach((c, i) => {
+      result[c.key] = cropEmbeddings[i];
+    });
+
+    return result;
   } finally {
     releaseScanVectorizeSlot();
   }

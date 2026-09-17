@@ -14,6 +14,7 @@ export * from "./interfaces/scanner.interface";
 export * from "./interfaces/phone-camera.interface";
 export * from "./interfaces/sort-bins.interface";
 
+export * from "./constants/card-crop-regions.constant";
 export * from "./constants/firmware.constant";
 export * from "./constants/ocr-regions.constant";
 export * from "./constants/rarity.constant";

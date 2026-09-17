@@ -44,7 +44,8 @@ DECLARE
   read_write_tables text[] := ARRAY[
     'bin_sets', 'bins', 'bin_routes', 'module_configs', 'feeder_configs',
     'collections', 'collection_cards', 'org_settings',
-    'bin_set_audit', 'bin_route_audit', 'module_config_audit', 'feeder_config_audit'
+    'bin_set_audit', 'bin_route_audit', 'module_config_audit', 'feeder_config_audit', 
+    'devices'
   ];
   tbl text;
 BEGIN

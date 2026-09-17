@@ -20,6 +20,7 @@
     "startingButton": "Démarrage...",
     "progressCount": "{{done}} / {{total}}",
     "vectorizedCount": "{{count}} vectorisées",
+    "queuedCount": "{{count}} en attente",
     "skippedCount": "{{count}} ignorées",
     "etaRemaining": "~{{duration}} restant",
     "errorsCount": "{{count}} erreurs"

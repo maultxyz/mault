@@ -8,5 +8,6 @@
   "loading": "Checking service status…",
   "latency": "{{ms}}ms",
   "statusOk": "OK",
-  "statusError": "Error"
+  "statusError": "Error",
+  "pausedDuringSync": "Paused while a database sync is running"
 }

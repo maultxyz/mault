@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { getCardById, searchCards } from "@/features/cards/api/card-search";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
@@ -80,6 +81,8 @@ export function CardDetailPanel({
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
+  const [showVectorRegions, setShowVectorRegions] = useState(false);
+  const [showOcrRegions, setShowOcrRegions] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedSet, setSelectedSet] = useState<string | null>("all");
@@ -270,6 +273,28 @@ export function CardDetailPanel({
               </p>
             )}
           </div>
+          {capturedImageUrl && (
+            <div className="flex items-center gap-4 shrink-0 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>{t("cardDetailPanel.showOcrRegions")}</span>
+                <Switch
+                  size="sm"
+                  aria-label={t("cardDetailPanel.showOcrRegions")}
+                  checked={showOcrRegions}
+                  onCheckedChange={setShowOcrRegions}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span>{t("cardDetailPanel.showVectorRegions")}</span>
+                <Switch
+                  size="sm"
+                  aria-label={t("cardDetailPanel.showVectorRegions")}
+                  checked={showVectorRegions}
+                  onCheckedChange={setShowVectorRegions}
+                />
+              </div>
+            </div>
+          )}
         </div>
         <div className="p-6 flex flex-col gap-5">
           {currentCard && !editing ? (
@@ -282,6 +307,8 @@ export function CardDetailPanel({
                         <CapturedImageThumb
                           src={capturedImageUrl}
                           alt={t("cardDetailPanel.scannedAlt")}
+                          showVectorRegions={showVectorRegions}
+                          showOcrRegions={showOcrRegions}
                         />
                       </div>
                       <p className="text-sm text-muted-foreground leading-snug">
@@ -351,6 +378,8 @@ export function CardDetailPanel({
                           <CapturedImageThumb
                             src={capturedImageUrl}
                             alt={t("cardDetailPanel.scannedAlt")}
+                            showVectorRegions={showVectorRegions}
+                            showOcrRegions={showOcrRegions}
                           />
                         </div>
                       </div>
@@ -520,6 +549,8 @@ export function CardDetailPanel({
                     <CapturedImageThumb
                       src={capturedImageUrl}
                       alt={t("cardDetailPanel.scannedAlt")}
+                      showVectorRegions={showVectorRegions}
+                      showOcrRegions={showOcrRegions}
                     />
                   </div>
                   <p className="text-sm text-muted-foreground leading-snug">

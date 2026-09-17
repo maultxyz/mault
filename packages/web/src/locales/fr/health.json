@@ -8,5 +8,6 @@
   "loading": "Vérification de l’état des services…",
   "latency": "{{ms}} ms",
   "statusOk": "OK",
-  "statusError": "Erreur"
+  "statusError": "Erreur",
+  "pausedDuringSync": "Suspendu pendant une synchronisation de la base de données"
 }

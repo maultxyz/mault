@@ -20,6 +20,7 @@
     "startingButton": "Starting...",
     "progressCount": "{{done}} / {{total}}",
     "vectorizedCount": "{{count}} vectorized",
+    "queuedCount": "{{count}} queued",
     "skippedCount": "{{count}} skipped",
     "etaRemaining": "~{{duration}} remaining",
     "errorsCount": "{{count}} errors"

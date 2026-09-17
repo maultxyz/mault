@@ -29,7 +29,9 @@
     "cancel": "Cancel",
     "binLocation": "Bin location",
     "artBy": "Art by {{artist}}",
-    "viewSource": "View source"
+    "viewSource": "View source",
+    "showVectorRegions": "Show vectorizing regions",
+    "showOcrRegions": "Show OCR regions"
   },
   "cardFilterPopover": {
     "color": "Color",

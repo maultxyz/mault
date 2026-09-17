@@ -10,13 +10,12 @@ const INITIAL_STATE: SyncState = {
   processed: 0,
   skipped: 0,
   errors: 0,
+  queued: 0,
   startedAt: null,
   logs: [],
 };
 
 let state: SyncState = INITIAL_STATE;
-let cancelFlag = false;
-let abortController: AbortController | null = null;
 const writers = new Set<SseWriter>();
 
 function emit(event: string, data: unknown): void {
@@ -74,26 +73,4 @@ export function subscribeSSE(writer: SseWriter): () => void {
   writers.add(writer);
   writer("status", getStatus());
   return () => writers.delete(writer);
-}
-
-export function isCancelled(): boolean {
-  return cancelFlag;
-}
-
-export function getAbortSignal(): AbortSignal | undefined {
-  return abortController?.signal;
-}
-
-// Called once at the start of a run - resets the cancel flag and hands back
-// a fresh AbortController for the fetches that run belongs to.
-export function beginRun(): void {
-  cancelFlag = false;
-  abortController = new AbortController();
-}
-
-export function cancelSync(): void {
-  if (state.status === "running") {
-    cancelFlag = true;
-    abortController?.abort();
-  }
 }

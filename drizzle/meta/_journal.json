@@ -225,6 +225,13 @@
       "when": 1789476443516,
       "tag": "0031_cheerful_kitty_pryde",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1789647690389,
+      "tag": "0032_charming_stone_men",
+      "breakpoints": true
     }
   ]
 }

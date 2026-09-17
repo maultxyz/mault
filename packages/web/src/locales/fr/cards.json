@@ -29,7 +29,9 @@
     "cancel": "Annuler",
     "binLocation": "Emplacement du bac",
     "artBy": "Illustration par {{artist}}",
-    "viewSource": "Voir la source"
+    "viewSource": "Voir la source",
+    "showVectorRegions": "Afficher les zones de vectorisation",
+    "showOcrRegions": "Afficher les zones OCR"
   },
   "cardFilterPopover": {
     "color": "Couleur",

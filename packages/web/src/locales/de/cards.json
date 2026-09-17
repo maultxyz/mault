@@ -29,7 +29,9 @@
     "cancel": "Abbrechen",
     "binLocation": "Fachposition",
     "artBy": "Illustration von {{artist}}",
-    "viewSource": "Quelle ansehen"
+    "viewSource": "Quelle ansehen",
+    "showVectorRegions": "Vektorisierungsbereiche anzeigen",
+    "showOcrRegions": "OCR-Bereiche anzeigen"
   },
   "cardFilterPopover": {
     "color": "Farbe",
