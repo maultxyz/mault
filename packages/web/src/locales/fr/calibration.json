@@ -85,8 +85,7 @@
     "noPositionSelected": "Sélectionne une position ci-dessus pour la modifier",
     "percentSliderTooltip": "À quel point ce servo est poussé, en pourcentage de sa course totale. Sélectionne une position ci-dessus, puis fais glisser ce curseur pour la modifier - elle est enregistrée avec le reste quand tu cliques sur Enregistrer.",
     "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
-    "showAdvanced": "Afficher la valeur brute de l'impulsion",
-    "hideAdvanced": "Masquer la valeur brute de l'impulsion",
+    "rawPulseToggleLabel": "Valeurs brutes de l'impulsion",
     "positions": {
       "open": "Ouvert",
       "closed": "Fermé",

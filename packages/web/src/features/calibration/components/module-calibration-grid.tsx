@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
@@ -25,7 +26,7 @@ import type {
   SliderKey,
 } from "@/lib/interfaces/calibration";
 import type { ModuleConfig, ServoCalibration } from "@magic-vault/shared";
-import { IconAlertTriangle, IconChevronDown } from "@tabler/icons-react";
+import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -37,6 +38,7 @@ interface ServoControlProps {
   calibration: ServoCalibration | undefined;
   isLoading: boolean;
   isConnected: boolean;
+  showRaw: boolean;
   onControl: (
     module: number,
     servo: "bottom" | "paddle" | "pusher",
@@ -57,11 +59,11 @@ function ServoControl({
   calibration,
   isLoading,
   isConnected,
+  showRaw,
   onControl,
   onSliderChange,
 }: ServoControlProps) {
   const { t } = useTranslation("calibration");
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const positionLabel = (position: string) =>
     t(`moduleCalibrationGrid.positions.${position}`).toUpperCase();
 
@@ -77,6 +79,24 @@ function ServoControl({
   return (
     <div className="flex flex-col gap-2">
       <p className="text-xs text-muted-foreground">{t(servo.labelKey)}</p>
+
+      {isLoading ? (
+        <Skeleton className="h-4 w-full rounded" />
+      ) : calibration ? (
+        <div className="flex w-full">
+          {servo.positions.map((position) => {
+            const key = getCalibrationKey(servo.name, position);
+            if (!key) return null;
+            return (
+              <p key={position} className="flex-1 text-center text-sm font-bold">
+                {showRaw
+                  ? calibration[key]
+                  : `${pulseToPercent(calibration[key])}%`}
+              </p>
+            );
+          })}
+        </div>
+      ) : null}
 
       <ButtonGroup className="w-full">
         {servo.positions.map((position) => (
@@ -131,21 +151,7 @@ function ServoControl({
         />
       </div>
 
-      <button
-        type="button"
-        onClick={() => setShowAdvanced((v) => !v)}
-        className="self-start flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <IconChevronDown
-          size={12}
-          className={showAdvanced ? "rotate-180" : undefined}
-        />
-        {showAdvanced
-          ? t("moduleCalibrationGrid.hideAdvanced")
-          : t("moduleCalibrationGrid.showAdvanced")}
-      </button>
-
-      {showAdvanced && (
+      {showRaw && (
         <ButtonGroup className="w-full">
           <Button
             variant="outline"
@@ -211,29 +217,6 @@ function ServoControl({
           </Button>
         </ButtonGroup>
       )}
-
-      {isLoading ? (
-        <Skeleton className="h-3 w-32 rounded" />
-      ) : calibration ? (
-        <div className="text-xs text-muted-foreground w-full flex">
-          {servo.positions.map((position) => {
-            const key = getCalibrationKey(servo.name, position);
-            if (!key) return null;
-            return (
-              <div key={position} className="flex-1 flex flex-col items-center">
-                <span className="text-[10px] uppercase">
-                  {t(`moduleCalibrationGrid.positions.${position}`)}
-                </span>
-                <span>
-                  {showAdvanced
-                    ? calibration[key]
-                    : `${pulseToPercent(calibration[key])}%`}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      ) : null}
     </div>
   );
 }
@@ -319,6 +302,10 @@ export function ModuleCalibrationGrid({
   onPaddleCloseDelayChange,
 }: ModuleCalibrationGridProps) {
   const { t } = useTranslation("calibration");
+  const [rawModeByModule, setRawModeByModule] = useState<
+    Record<number, boolean>
+  >({});
+
   return (
     <div
       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-px rounded-lg border bg-border"
@@ -329,11 +316,36 @@ export function ModuleCalibrationGrid({
         const effectiveCal = cal
           ? { ...cal, ...pendingCalibration[module] }
           : cal;
+        const showRaw = rawModeByModule[module] ?? false;
         return (
           <div key={module} className="p-2 flex flex-col gap-5 bg-sidebar">
-            <h2 className="text-sm font-semibold font-heading">
-              {t("moduleLabel", { module })}
-            </h2>
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold font-heading">
+                {t("moduleLabel", { module })}
+              </h2>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-muted-foreground">
+                  {t("moduleCalibrationGrid.rawPulseToggleLabel")}
+                </span>
+                <Tooltip>
+                  <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                    <IconInfoCircle className="size-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    {t("moduleCalibrationGrid.rawPulseTooltip")}
+                  </TooltipContent>
+                </Tooltip>
+                <Switch
+                  checked={showRaw}
+                  onCheckedChange={(checked) =>
+                    setRawModeByModule((prev) => ({
+                      ...prev,
+                      [module]: checked,
+                    }))
+                  }
+                />
+              </div>
+            </div>
             {SERVOS.map((servo) => {
               const sliderKey = `${module}:${servo.name}` as SliderKey;
               return (
@@ -346,6 +358,7 @@ export function ModuleCalibrationGrid({
                   calibration={effectiveCal}
                   isLoading={isLoading}
                   isConnected={isConnected}
+                  showRaw={showRaw}
                   onControl={onControl}
                   onSliderChange={onSliderChange}
                 />

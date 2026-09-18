@@ -85,8 +85,7 @@
     "noPositionSelected": "Wähle oben eine Position zum Bearbeiten",
     "percentSliderTooltip": "Wie weit dieser Servo bewegt ist, als Prozentsatz seines gesamten Bewegungsbereichs. Wähle oben eine Position und ziehe diesen Regler, um sie zu ändern — sie wird zusammen mit allem anderen gespeichert, wenn du auf Speichern klickst.",
     "rawPulseTooltip": "Rohe Servo-Impulsposition (120-490), der genaue an das Gerät gesendete Wert.",
-    "showAdvanced": "Rohen Impulswert anzeigen",
-    "hideAdvanced": "Rohen Impulswert ausblenden",
+    "rawPulseToggleLabel": "Rohe Impulswerte",
     "positions": {
       "open": "Offen",
       "closed": "Geschlossen",
