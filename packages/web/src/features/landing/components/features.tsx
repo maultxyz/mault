@@ -1,7 +1,8 @@
+import { DemoAutoAssign } from "@/features/landing/components/demo-auto-assign";
 import { DemoBinDiagram } from "@/features/landing/components/demo-bin-diagram";
-import { DemoCardStrip } from "@/features/landing/components/demo-card-strip";
 import { DemoCollectionSwitcher } from "@/features/landing/components/demo-collection-switcher";
 import { DemoRecognitionPreview } from "@/features/landing/components/demo-recognition-preview";
+import { DemoRepack } from "@/features/landing/components/demo-repack";
 import { DemoRuleBuilder } from "@/features/landing/components/demo-rule-builder";
 import { DemoStatsBreakdown } from "@/features/landing/components/demo-stats-breakdown";
 import { useTranslation } from "react-i18next";
@@ -9,9 +10,10 @@ import { useTranslation } from "react-i18next";
 const HIGHLIGHTS = [
   { key: "recognition", demo: DemoRecognitionPreview },
   { key: "rules", demo: DemoRuleBuilder },
+  { key: "autoAssign", demo: DemoAutoAssign },
+  { key: "repack", demo: DemoRepack },
   { key: "collections", demo: DemoCollectionSwitcher },
   { key: "insights", demo: DemoStatsBreakdown },
-  { key: "logging", demo: DemoCardStrip },
   { key: "hardware", demo: DemoBinDiagram },
 ] as const;
 

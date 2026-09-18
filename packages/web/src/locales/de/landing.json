@@ -70,6 +70,14 @@
         "title": "Regeln, die du kontrollierst",
         "description": "Kombiniere Bedingungen - Seltenheit, Farbe, Set, Typ und mehr -, um jede Karte genau dorthin zu schicken, wo du sie haben möchtest."
       },
+      "autoAssign": {
+        "title": "Automatische Fachzuweisung",
+        "description": "Kein Regeln-Schreiben nötig. Wähle ein Feld wie Seltenheit oder Set, und die erste Karte mit einem neuen Wert belegt das nächste freie Fach. Wiederholungen werden automatisch zurückgeleitet."
+      },
+      "repack": {
+        "title": "Repacks erstellen",
+        "description": "Lege pro Fach Pack-Slots fest, etwa 3 Commons und 1 Rare, und jedes Fach füllt gleichzeitig sein eigenes Pack. Leere es, um das nächste zu starten."
+      },
       "collections": {
         "title": "Mehrere Sammlungen",
         "description": "Führe separate Sammlungen für Tauschordner, Decks oder Aufbewahrungsboxen, und wechsle ganz einfach zwischen ihnen hin und her."

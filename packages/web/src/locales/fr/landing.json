@@ -70,6 +70,14 @@
         "title": "Des règles que tu contrôles",
         "description": "Combine des conditions - rareté, couleur, set, type et plus encore - pour envoyer chaque carte exactement là où tu le souhaites."
       },
+      "autoAssign": {
+        "title": "Attribution automatique des bacs",
+        "description": "Pas besoin d'écrire de règles. Choisis un champ comme la rareté ou le set, et la première carte avec une nouvelle valeur occupe le prochain bac libre. Les répétitions y retournent automatiquement."
+      },
+      "repack": {
+        "title": "Créer des repacks",
+        "description": "Définis des emplacements de pack par bac, par exemple 3 communes et 1 rare, et chaque bac remplit son propre pack en même temps. Vide-le pour en démarrer un nouveau."
+      },
       "collections": {
         "title": "Plusieurs collections",
         "description": "Garde des collections séparées pour tes classeurs d'échange, tes decks ou tes boîtes de rangement, et passe de l'une à l'autre en toute simplicité."
