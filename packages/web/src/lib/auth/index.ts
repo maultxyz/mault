@@ -1,4 +1,4 @@
-import { apiPost } from "@/lib/api/client";
+import { API_BASE, apiPost, getAuthHeaders } from "@/lib/api/client";
 import { neon } from "@/lib/auth/client";
 import { localPost } from "@/lib/auth/local-api";
 import { getLocalToken, setLocalToken } from "@/lib/auth/local-token";
@@ -101,6 +101,26 @@ export async function signOut(): Promise<void> {
   await neon.auth.signOut();
 }
 
+// Neon-mode org creation happens directly against Neon Auth from the
+// browser, so the server never sees it and can't self-heal via
+// getOrCreateDevice until someone loads a device-dependent page. Local mode
+// doesn't need this - org creation there goes through our own server
+// (routes/local-auth/organizations-add.ts, bootstrap.ts), which creates the
+// device in the same request. Best-effort: GET /devices still self-heals on
+// first visit to a device-dependent page if this fails.
+async function ensureDeviceForOrg(orgId: string): Promise<void> {
+  try {
+    await fetch(`${API_BASE}/devices`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(await getAuthHeaders()),
+        "X-Org-Id": orgId,
+      },
+    });
+  } catch {}
+}
+
 export async function createOrganization(
   name: string,
 ): Promise<{ id: string; name: string } | { error: string }> {
@@ -131,5 +151,6 @@ export async function createOrganization(
   });
   if (error) return { error: error.message ?? "Failed to create organization." };
   if (!data) return { error: "Failed to create organization." };
+  await ensureDeviceForOrg(data.id);
   return { id: data.id, name: data.name };
 }

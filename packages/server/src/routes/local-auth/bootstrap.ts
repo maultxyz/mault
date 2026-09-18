@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
+import { db } from "../../db";
+import { getOrCreateDevice } from "../../lib/devices";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
 
 // Called once right after sign-up: a brand-new user has no organisations
@@ -18,5 +20,6 @@ export const bootstrapRoute = new Hono<AppEnv>().post("/bootstrap", requireAuth,
     name: "Home",
     ownerUserId: userId,
   });
+  await db.transaction((tx) => getOrCreateDevice(tx, organisation.id));
   return c.json({ success: true, data: [organisation] });
 });

@@ -1,5 +1,7 @@
 import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
+import { db } from "../../db";
+import { getOrCreateDevice } from "../../lib/devices";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
 import { authErrorResponse } from "./shared";
 
@@ -16,6 +18,8 @@ export const addOrganizationRoute = new Hono<AppEnv>().post(
         name,
         ownerUserId: c.get("userId"),
       });
+
+      await db.transaction((tx) => getOrCreateDevice(tx, organisation.id));
       return c.json({ success: true, data: organisation });
     } catch (err) {
       const { message, status } = authErrorResponse(err);
