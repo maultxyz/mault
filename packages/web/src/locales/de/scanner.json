@@ -276,5 +276,11 @@
   "cardCount_one": "{{count}} Karte",
   "cardCount_other": "{{count}} Karten",
   "isScanningTooltip": "{{name}} scannt gerade",
-  "cameraAccessError": "Kamera konnte nicht aufgerufen werden. Bitte überprüfe dein Gerät."
+  "cameraAccessError": "Kamera konnte nicht aufgerufen werden. Bitte überprüfe dein Gerät.",
+  "staleDeviceDialog": {
+    "title": "Diese Organisation war lange nicht verbunden",
+    "description": "Die Kalibrierung dieses Geräts wurde seit über 30 Tagen nicht geändert. Führe den Selbsttest wie gewohnt aus oder kalibriere zuerst, um sicherzustellen, dass alles noch zur physischen Hardware passt.",
+    "runTest": "Test trotzdem ausführen",
+    "calibrateFirst": "Zuerst kalibrieren"
+  }
 }

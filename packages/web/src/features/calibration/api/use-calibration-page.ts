@@ -19,6 +19,7 @@ import {
   downloadCalibrationExport,
   parseCalibrationExport,
 } from "@/features/calibration/lib/calibration-export";
+import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import type { ActivePositions, SliderKey } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
@@ -40,8 +41,6 @@ export function useCalibrationPage() {
   const { t } = useTranslation("calibration");
   const {
     isConnected,
-    connect,
-    connectBluetooth,
     disconnect,
     sendCommand,
     sendRoute,
@@ -50,6 +49,14 @@ export function useCalibrationPage() {
     firmwareVersion,
     board,
   } = useSerial();
+  const {
+    connect,
+    connectBluetooth,
+    staleDialogOpen,
+    onDismissStaleDialog,
+    onRunTest,
+    onCalibrateFirst,
+  } = useConnectWithStaleCheck();
   const { configs, saveConfig, moveServo } = useModuleConfigs();
   const { feederConfig, saveConfig: saveFeeder, previewSpeed } = useFeederConfig();
   const { activeOrg } = useOrg();
@@ -427,6 +434,10 @@ export function useCalibrationPage() {
     isConnected,
     connect,
     connectBluetooth,
+    staleDialogOpen,
+    onDismissStaleDialog,
+    onRunTest,
+    onCalibrateFirst,
     disconnect,
     configs,
     modules,

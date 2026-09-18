@@ -276,5 +276,11 @@
   "cardCount_one": "{{count}} card",
   "cardCount_other": "{{count}} cards",
   "isScanningTooltip": "{{name}} is scanning",
-  "cameraAccessError": "Could not access camera. Please check your device."
+  "cameraAccessError": "Could not access camera. Please check your device.",
+  "staleDeviceDialog": {
+    "title": "Been a while since this org connected",
+    "description": "This device's calibration hasn't changed in over 30 days. Run the self-test as-is, or calibrate first to make sure everything still matches the physical hardware.",
+    "runTest": "Run test anyway",
+    "calibrateFirst": "Calibrate first"
+  }
 }

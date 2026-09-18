@@ -1,4 +1,5 @@
 import { AuditDrawer, type AuditEntry } from "@/components/audit-drawer";
+import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -236,6 +237,10 @@ export default function CalibratePage() {
     isConnected,
     connect,
     connectBluetooth,
+    staleDialogOpen,
+    onDismissStaleDialog,
+    onRunTest,
+    onCalibrateFirst,
     disconnect,
     configs,
     modules,
@@ -512,6 +517,15 @@ export default function CalibratePage() {
         isLoading={moduleHistoryLoading}
         onRevert={(guid) => revertModuleMutation.mutate(guid)}
         isReverting={revertModuleMutation.isPending}
+      />
+
+      <StaleDeviceDialog
+        open={staleDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) onDismissStaleDialog();
+        }}
+        onRunTest={onRunTest}
+        onCalibrateFirst={onCalibrateFirst}
       />
     </div>
   );

@@ -1,3 +1,4 @@
+import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +15,7 @@ import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { BinLimitDialog } from "@/features/scanner/components/bin-limit-dialog";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
@@ -46,13 +48,19 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     isConnected,
     isReady,
     firmwareVersion,
-    connect,
-    connectBluetooth,
     disconnect,
     sendTest,
     sendCommand,
     receiveResponse,
   } = useSerial();
+  const {
+    connect,
+    connectBluetooth,
+    staleDialogOpen,
+    onDismissStaleDialog,
+    onRunTest,
+    onCalibrateFirst,
+  } = useConnectWithStaleCheck();
   const bluetoothSupported =
     typeof navigator !== "undefined" && !!navigator.bluetooth;
   const [isFeeding, setIsFeeding] = useState(false);
@@ -449,6 +457,14 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       <BinLimitDialog
         bin={binLimitReached}
         onContinue={handleContinueAfterBinLimit}
+      />
+      <StaleDeviceDialog
+        open={staleDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) onDismissStaleDialog();
+        }}
+        onRunTest={onRunTest}
+        onCalibrateFirst={onCalibrateFirst}
       />
     </div>
   );

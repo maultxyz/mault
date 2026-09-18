@@ -276,5 +276,11 @@
   "cardCount_one": "{{count}} carte",
   "cardCount_other": "{{count}} cartes",
   "isScanningTooltip": "{{name}} est en train de scanner",
-  "cameraAccessError": "Impossible d'accéder à la caméra. Vérifie ton appareil."
+  "cameraAccessError": "Impossible d'accéder à la caméra. Vérifie ton appareil.",
+  "staleDeviceDialog": {
+    "title": "Cette organisation ne s'est pas connectée depuis un moment",
+    "description": "La calibration de cet appareil n'a pas changé depuis plus de 30 jours. Lance le test automatique tel quel, ou calibre d'abord pour t'assurer que tout correspond encore au matériel physique.",
+    "runTest": "Lancer le test quand même",
+    "calibrateFirst": "Calibrer d'abord"
+  }
 }
