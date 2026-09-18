@@ -10,7 +10,7 @@ export function AlertBanner({
   onDismiss,
 }: {
   alert: AppAlert;
-  onDismiss: () => void;
+  onDismiss?: () => void;
 }) {
   const { t } = useTranslation("common");
   const Icon = alert.icon;
@@ -23,17 +23,30 @@ export function AlertBanner({
       )}
     >
       <Icon className="size-3.5 shrink-0" />
-      <span>{alert.message}</span>
+      {alert.link ? (
+        <a
+          href={alert.link}
+          target="_blank"
+          rel="noreferrer"
+          className="underline underline-offset-2 hover:opacity-80"
+        >
+          {alert.message}
+        </a>
+      ) : (
+        <span>{alert.message}</span>
+      )}
       {alert.actions}
-      <Button
-        variant="ghost"
-        size="icon-xs"
-        onClick={onDismiss}
-        aria-label={t("alerts.dismiss")}
-        className="shrink-0 text-current hover:bg-black/10 dark:hover:bg-white/10"
-      >
-        <IconX className="size-3" />
-      </Button>
+      {onDismiss && (
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          onClick={onDismiss}
+          aria-label={t("alerts.dismiss")}
+          className="shrink-0 text-current hover:bg-black/10 dark:hover:bg-white/10"
+        >
+          <IconX className="size-3" />
+        </Button>
+      )}
     </div>
   );
 }

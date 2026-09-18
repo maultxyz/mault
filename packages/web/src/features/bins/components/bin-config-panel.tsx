@@ -142,7 +142,7 @@ export function BinConfigPanel() {
             {t("binLabel", { number: config.binNumber })}
           </h2>
           {config.isCatchAll && (
-            <Button type="button" variant="default" size="sm" disabled>
+            <Button type="button" variant="outline-selected" size="sm" disabled>
               {t("binConfigPanel.catchAllEnabled")}
             </Button>
           )}
@@ -172,7 +172,7 @@ export function BinConfigPanel() {
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
-                  variant={field.value ? "default" : "outline"}
+                  variant={field.value ? "outline-selected" : "outline"}
                   size="sm"
                   data-tour="catch-all-toggle"
                   onClick={() => field.onChange(!field.value)}

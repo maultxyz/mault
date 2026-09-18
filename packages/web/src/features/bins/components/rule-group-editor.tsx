@@ -78,7 +78,7 @@ export function RuleGroupEditor({
           <Button
             type="button"
             size="sm"
-            variant={group.combinator === "and" ? "secondary" : "outline"}
+            variant={group.combinator === "and" ? "outline-selected" : "outline"}
             onClick={() => toggleCombinator("and")}
           >
             {t("and")}
@@ -86,7 +86,7 @@ export function RuleGroupEditor({
           <Button
             type="button"
             size="sm"
-            variant={group.combinator === "or" ? "secondary" : "outline"}
+            variant={group.combinator === "or" ? "outline-selected" : "outline"}
             onClick={() => toggleCombinator("or")}
           >
             {t("or")}

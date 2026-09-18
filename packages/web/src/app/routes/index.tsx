@@ -7,6 +7,7 @@ import { LandingPipeline } from "@/features/landing/components/pipeline";
 import { LandingPricing } from "@/features/landing/components/pricing";
 import { LandingStats } from "@/features/landing/components/stats";
 import { LandingSupportedGames } from "@/features/landing/components/supported-games";
+import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
@@ -15,6 +16,7 @@ export default function LandingPage() {
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
       <PublicGlow />
+      <PublicAnnouncementBanner />
       <PublicNav />
       <main className="flex-1">
         <LandingHero />

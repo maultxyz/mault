@@ -7,6 +7,8 @@ export function createAnnouncementFormSchema(t: TFunction<"announcements">) {
       severity: z.enum(["info", "warning", "danger"]),
       message: z.string().trim().min(1, t("formDialog.validation.required")),
       isActive: z.boolean(),
+      showOnLanding: z.boolean(),
+      link: z.string().trim().optional(),
       startsAt: z.string().optional(),
       endsAt: z.string().optional(),
     })
@@ -18,6 +20,21 @@ export function createAnnouncementFormSchema(t: TFunction<"announcements">) {
       {
         message: t("formDialog.validation.endAfterStart"),
         path: ["endsAt"],
+      },
+    )
+    .refine(
+      (data) => {
+        if (!data.link) return true;
+        try {
+          const url = new URL(data.link);
+          return url.protocol === "http:" || url.protocol === "https:";
+        } catch {
+          return false;
+        }
+      },
+      {
+        message: t("formDialog.validation.invalidLink"),
+        path: ["link"],
       },
     );
 }

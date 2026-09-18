@@ -50,7 +50,7 @@ export function CardFilterPopover({
     <DynamicPopover
       trigger={
         <Button
-          variant={activeFilterCount > 0 ? "secondary" : "outline"}
+          variant={activeFilterCount > 0 ? "outline-selected" : "outline"}
           size="icon"
           className="shrink-0"
         >

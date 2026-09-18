@@ -102,7 +102,7 @@ function ServoControl({
         {servo.positions.map((position) => (
           <Button
             key={position}
-            variant={activePosition === position ? "default" : "outline"}
+            variant={activePosition === position ? "outline-selected" : "outline"}
             disabled={!isConnected}
             onClick={() => onControl(module, servo.name, position)}
             className="flex-1"

@@ -17,5 +17,6 @@ export function useAnnouncementAlerts(): AppAlert[] {
     severity: announcement.severity,
     icon: ICONS[announcement.severity],
     message: announcement.message,
+    link: announcement.link,
   }));
 }

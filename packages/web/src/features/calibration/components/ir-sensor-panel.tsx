@@ -41,7 +41,7 @@ export function IrSensorPanel({
           <TooltipTrigger
             render={
               <Button
-                variant={isMonitoring ? "default" : "outline"}
+                variant={isMonitoring ? "outline-selected" : "outline"}
                 disabled={!isConnected}
                 onClick={onToggleMonitor}
               >

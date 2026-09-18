@@ -12,7 +12,7 @@ import { ALERT_SEVERITY_ICON_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
 import type { AnnouncementFormValues } from "@/schemas/announcements.schema";
 import type { Announcement } from "@magic-vault/shared";
-import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconLink, IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -65,6 +65,7 @@ export function AnnouncementsManager() {
     mutationFn: (values: AnnouncementFormValues) =>
       createAnnouncement({
         ...values,
+        link: values.link || null,
         startsAt: fromDatetimeLocalValue(values.startsAt),
         endsAt: fromDatetimeLocalValue(values.endsAt),
       }),
@@ -89,6 +90,7 @@ export function AnnouncementsManager() {
     }) =>
       updateAnnouncement(guid, {
         ...values,
+        link: values.link || null,
         startsAt: fromDatetimeLocalValue(values.startsAt),
         endsAt: fromDatetimeLocalValue(values.endsAt),
       }),
@@ -171,8 +173,17 @@ export function AnnouncementsManager() {
                   >
                     {announcement.isActive ? t("active") : t("inactive")}
                   </Badge>
+                  {announcement.showOnLanding && (
+                    <Badge variant="outline">{t("onLandingPage")}</Badge>
+                  )}
                 </div>
                 <p className="text-sm truncate">{announcement.message}</p>
+                {announcement.link && (
+                  <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                    <IconLink size={12} className="shrink-0" />
+                    {announcement.link}
+                  </p>
+                )}
                 {schedule && (
                   <p className="text-xs text-muted-foreground truncate">
                     {schedule}

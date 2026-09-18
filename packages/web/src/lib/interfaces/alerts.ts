@@ -8,5 +8,6 @@ export interface AppAlert {
   severity: AlertSeverity;
   icon: ComponentType<{ className?: string }>;
   message: ReactNode;
+  link?: string | null;
   actions?: ReactNode;
 }

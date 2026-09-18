@@ -279,7 +279,7 @@ export function CardGrid() {
                     <TooltipTrigger
                       render={
                         <Button
-                          variant={autoFeed ? "default" : "outline"}
+                          variant={autoFeed ? "outline-selected" : "outline"}
                           size="icon"
                           onClick={() => setAutoFeed(!autoFeed)}
                         >
@@ -506,7 +506,7 @@ export function CardGrid() {
                       <TooltipTrigger
                         render={
                           <Button
-                            variant={autoFeed ? "default" : "outline"}
+                            variant={autoFeed ? "outline-selected" : "outline"}
                             size="icon"
                             onClick={() => setAutoFeed(!autoFeed)}
                           >

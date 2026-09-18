@@ -232,6 +232,20 @@
       "when": 1789647690389,
       "tag": "0032_charming_stone_men",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1789756381209,
+      "tag": "0033_oval_eternity",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1789763050674,
+      "tag": "0034_lowly_wind_dancer",
+      "breakpoints": true
     }
   ]
 }
