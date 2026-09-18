@@ -145,12 +145,24 @@ export async function createOrganization(
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
-  const { data, error } = await neon.auth.organization.create({
-    name: name.trim(),
-    slug,
-  });
-  if (error) return { error: error.message ?? "Failed to create organization." };
-  if (!data) return { error: "Failed to create organization." };
-  await ensureDeviceForOrg(data.id);
-  return { id: data.id, name: data.name };
+  try {
+    const { data, error } = await neon.auth.organization.create({
+      name: name.trim(),
+      slug,
+    });
+    if (error) {
+      return { error: error.message ?? "Failed to create organization." };
+    }
+    if (!data) return { error: "Failed to create organization." };
+    await ensureDeviceForOrg(data.id);
+    return { id: data.id, name: data.name };
+  } catch (err) {
+    const message =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err && "message" in err
+          ? String((err as { message: unknown }).message)
+          : null;
+    return { error: message || "Failed to create organization." };
+  }
 }
