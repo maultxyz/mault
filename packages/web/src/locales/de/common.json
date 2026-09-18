@@ -95,6 +95,16 @@
     "save": "Speichern",
     "create": "Erstellen"
   },
+  "unsavedChanges": {
+    "message": "Du hast ungespeicherte Änderungen",
+    "discard": "Verwerfen",
+    "save": "Speichern",
+    "saving": "Speichern…",
+    "leaveTitle": "Ungespeicherte Änderungen verwerfen?",
+    "leaveDescription": "Du hast ungespeicherte Änderungen. Wenn du jetzt gehst, gehen sie verloren.",
+    "keepEditing": "Weiter bearbeiten",
+    "discardAndLeave": "Änderungen verwerfen"
+  },
   "auditDrawer": {
     "noHistory": "Noch keine Historie.",
     "current": "aktuell",

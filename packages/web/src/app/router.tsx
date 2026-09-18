@@ -30,7 +30,16 @@ const AppLayout = lazy(() => import("@/app/routes/app/layout"));
 const ScannerPage = lazy(() => import("@/app/routes/app/index"));
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
-const CalibratePage = lazy(() => import("@/app/routes/app/calibrate"));
+const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
+const CalibrateModulesPage = lazy(
+  () => import("@/app/routes/app/calibrate/modules"),
+);
+const CalibrateScanRegionPage = lazy(
+  () => import("@/app/routes/app/calibrate/scan-region"),
+);
+const CalibrateCalibrationPage = lazy(
+  () => import("@/app/routes/app/calibrate/calibration"),
+);
 const AdminPage = lazy(() => import("@/app/routes/app/admin"));
 const MonitorSessionsPage = lazy(
   () => import("@/app/routes/app/monitor-sessions"),
@@ -152,7 +161,25 @@ export const router = createBrowserRouter([
                       },
                       {
                         path: "/app/calibrate",
-                        element: <CalibratePage />,
+                        element: <CalibrateLayout />,
+                        children: [
+                          {
+                            index: true,
+                            element: <Navigate to="modules" replace />,
+                          },
+                          {
+                            path: "modules",
+                            element: <CalibrateModulesPage />,
+                          },
+                          {
+                            path: "scan-region",
+                            element: <CalibrateScanRegionPage />,
+                          },
+                          {
+                            path: "calibration",
+                            element: <CalibrateCalibrationPage />,
+                          },
+                        ],
                       },
                     ],
                   },

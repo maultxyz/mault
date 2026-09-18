@@ -9,11 +9,11 @@ import { useTranslation } from "react-i18next";
 
 export function BinList() {
   const { t } = useTranslation("bins");
-  const { configs, selectedBin, setSelectedBin, hasCatchAll, selectedSet } =
+  const { configs, selectedBin, setSelectedBin, hasCatchAll, effectiveMode, isModeDirty } =
     useBinConfigs();
-  const isAutoAssign = !!selectedSet?.autoAssignField;
-  const isScanOnly = !!selectedSet?.scanOnly;
-  const isRepackMode = !!selectedSet?.isRepackMode;
+  const isAutoAssign = !!effectiveMode.autoAssignField;
+  const isScanOnly = effectiveMode.scanOnly;
+  const isRepackMode = effectiveMode.isRepackMode;
   const { activeOrg } = useOrg();
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
 
@@ -42,7 +42,7 @@ export function BinList() {
             active={config.binNumber === selectedBin}
             isAutoAssign={isAutoAssign}
             isScanOnly={isScanOnly}
-            disabled={isRepackMode}
+            disabled={isRepackMode || isModeDirty}
             onClick={() => setSelectedBin(config.binNumber)}
           />
         ))}

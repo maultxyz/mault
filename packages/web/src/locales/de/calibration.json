@@ -7,13 +7,8 @@
       "label": "Paddel"
     },
     "pusher": {
-      "label": "Schieber",
-      "left": "Links setzen",
-      "neutral": "Neutral setzen",
-      "right": "Rechts setzen"
-    },
-    "closed": "Geschlossen setzen",
-    "open": "Offen setzen"
+      "label": "Schieber"
+    }
   },
   "moduleCountStepper": {
     "label": "Sortiermodule",
@@ -63,17 +58,12 @@
     "speedTooltip": "Wie schnell und in welche Richtung der Zuführmotor dreht. 0 % bedeutet gestoppt; ziehe in eine der beiden Richtungen, um dort schneller zu werden.",
     "forward": "Vorwärts",
     "reverse": "Rückwärts",
-    "setSpeed": "Geschwindigkeit setzen",
     "timeoutLabel": "Timeout (ms)",
-    "setTimeout": "Timeout setzen",
     "pulseDurationLabel": "Impulsdauer (ms)",
     "continuousFeedButton": "Dauerhafte Zuführung",
-    "setPulseDuration": "Impulsdauer setzen",
     "pauseDurationLabel": "Pausendauer (ms)",
-    "setPauseDuration": "Pausendauer setzen",
     "settleDurationLabel": "Verzögerung für letzte Kartenerkennung (ms)",
-    "settleDurationDescription": "Zusätzliche Zeit, um die Zuführung fortzusetzen, nachdem der Sensor von Modul 1 die letzte Karte im Zuführbehälter erkannt hat, damit sie vollständig in den Mechanismus einläuft, bevor der Motor stoppt.",
-    "setSettleDuration": "Verzögerung für letzte Kartenerkennung setzen"
+    "settleDurationDescription": "Zusätzliche Zeit, um die Zuführung fortzusetzen, nachdem der Sensor von Modul 1 die letzte Karte im Zuführbehälter erkannt hat, damit sie vollständig in den Mechanismus einläuft, bevor der Motor stoppt."
   },
   "irSensorPanel": {
     "label": "IR-Sensoren",
@@ -91,20 +81,22 @@
   },
   "moduleCalibrationGrid": {
     "positionLabel": "Position",
-    "percentSliderTooltip": "Wie weit dieser Servo bewegt ist, als Prozentsatz seines gesamten Bewegungsbereichs. Verwende zuerst die Positionsschaltflächen oben und dann eine \"Setzen\"-Schaltfläche, um dies als Kalibrierungspunkt zu speichern.",
+    "editingPosition": "Bearbeite: {{position}}",
+    "noPositionSelected": "Wähle oben eine Position zum Bearbeiten",
+    "percentSliderTooltip": "Wie weit dieser Servo bewegt ist, als Prozentsatz seines gesamten Bewegungsbereichs. Wähle oben eine Position und ziehe diesen Regler, um sie zu ändern — sie wird zusammen mit allem anderen gespeichert, wenn du auf Speichern klickst.",
     "rawPulseTooltip": "Rohe Servo-Impulsposition (120-490), der genaue an das Gerät gesendete Wert.",
     "showAdvanced": "Rohen Impulswert anzeigen",
     "hideAdvanced": "Rohen Impulswert ausblenden",
     "positions": {
       "open": "Offen",
+      "closed": "Geschlossen",
       "left": "Links",
       "right": "Rechts",
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt — je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
     "paddleCloseDelayLabel": "Paddel-Schließverzögerung (ms)",
-    "paddleCloseDelayDescription": "Wie lange nach dem Auslösen des Schiebers, bis sich das Paddel dieses Moduls wieder schließt — unabhängig davon, wann der Schieber selbst zurückkehrt. Länger einstellen, wenn Karten nicht vollständig frei sind, bevor sich das Tor schließt.",
-    "setPaddleCloseDelay": "Paddel-Schließverzögerung setzen"
+    "paddleCloseDelayDescription": "Wie lange nach dem Auslösen des Schiebers, bis sich das Paddel dieses Moduls wieder schließt — unabhängig davon, wann der Schieber selbst zurückkehrt. Länger einstellen, wenn Karten nicht vollständig frei sind, bevor sich das Tor schließt."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Ziehe das Rechteck, um es zu verschieben, oder ziehe den Griff, um die Größe zu ändern. Richte es an einer Karte in Modul 1 aus.",
@@ -113,12 +105,9 @@
     "connectWebcam": "Webcam verbinden",
     "waitingForCamera": "Warte auf Kamera…",
     "resetToDefault": "Auf Standard zurücksetzen",
-    "saving": "Wird gespeichert…",
-    "saveScanRegion": "Scanbereich speichern",
-    "savedSummary": "Gespeichert: {{coverage}}% Abdeckung, {{offsetX}}% / {{offsetY}}% Versatz",
+    "currentSummary": "{{coverage}}% Abdeckung, {{offsetX}}% / {{offsetY}}% Versatz",
     "captureSettleLabel": "Aufnahme-Verzögerung (ms)",
     "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
-    "setCaptureSettle": "Aufnahme-Verzögerung setzen",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",
     "phoneCameraConnected": "Telefonkamera verbunden",
     "takePhoto": "Foto aufnehmen",
@@ -143,7 +132,9 @@
       "copyFailed": "Kopieren der Kalibrierung fehlgeschlagen",
       "importInvalid": "Diese Datei ist kein gültiger Kalibrierungs-Export",
       "importSuccess": "Kalibrierung importiert",
-      "importFailed": "Importieren der Kalibrierung fehlgeschlagen"
+      "importFailed": "Importieren der Kalibrierung fehlgeschlagen",
+      "calibrationSaved": "Kalibrierung gespeichert",
+      "saveCalibrationFailed": "Scanbereich oder Aufnahme-Verzögerung konnte nicht gespeichert werden"
     }
   },
   "useFeederConfig": {

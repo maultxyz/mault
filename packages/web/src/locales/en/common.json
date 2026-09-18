@@ -95,6 +95,16 @@
     "save": "Save",
     "create": "Create"
   },
+  "unsavedChanges": {
+    "message": "You have unsaved changes",
+    "discard": "Discard",
+    "save": "Save",
+    "saving": "Saving…",
+    "leaveTitle": "Discard unsaved changes?",
+    "leaveDescription": "You have unsaved changes. If you leave now, they'll be lost.",
+    "keepEditing": "Keep editing",
+    "discardAndLeave": "Discard changes"
+  },
   "auditDrawer": {
     "noHistory": "No history yet.",
     "current": "current",

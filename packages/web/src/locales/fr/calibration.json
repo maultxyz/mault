@@ -7,13 +7,8 @@
       "label": "Palettes"
     },
     "pusher": {
-      "label": "Poussoir",
-      "left": "Définir à gauche",
-      "neutral": "Définir neutre",
-      "right": "Définir à droite"
-    },
-    "closed": "Définir fermé",
-    "open": "Définir ouvert"
+      "label": "Poussoir"
+    }
   },
   "moduleCountStepper": {
     "label": "Modules de tri",
@@ -63,17 +58,12 @@
     "speedTooltip": "À quelle vitesse et dans quel sens tourne le moteur du chargeur. 0 % est à l'arrêt ; fais glisser d'un côté ou de l'autre pour accélérer dans ce sens.",
     "forward": "Avant",
     "reverse": "Inverse",
-    "setSpeed": "Définir la vitesse",
     "timeoutLabel": "Délai d'expiration (ms)",
-    "setTimeout": "Définir le délai d'expiration",
     "pulseDurationLabel": "Durée de l'impulsion (ms)",
     "continuousFeedButton": "Alimentation continue",
-    "setPulseDuration": "Définir la durée de l'impulsion",
     "pauseDurationLabel": "Durée de la pause (ms)",
-    "setPauseDuration": "Définir la durée de la pause",
     "settleDurationLabel": "Délai de détection de la dernière carte (ms)",
-    "settleDurationDescription": "Temps supplémentaire à continuer d'alimenter une fois que le capteur du module 1 détecte la dernière carte de la trémie, afin qu'elle parcoure tout le mécanisme avant l'arrêt du moteur.",
-    "setSettleDuration": "Définir le délai de détection de la dernière carte"
+    "settleDurationDescription": "Temps supplémentaire à continuer d'alimenter une fois que le capteur du module 1 détecte la dernière carte de la trémie, afin qu'elle parcoure tout le mécanisme avant l'arrêt du moteur."
   },
   "irSensorPanel": {
     "label": "Capteurs IR",
@@ -91,20 +81,22 @@
   },
   "moduleCalibrationGrid": {
     "positionLabel": "Position",
-    "percentSliderTooltip": "À quel point ce servo est poussé, en pourcentage de sa course totale. Utilise les boutons de position ci-dessus, puis un bouton « Définir » pour enregistrer ce point de calibration.",
+    "editingPosition": "Modification : {{position}}",
+    "noPositionSelected": "Sélectionne une position ci-dessus pour la modifier",
+    "percentSliderTooltip": "À quel point ce servo est poussé, en pourcentage de sa course totale. Sélectionne une position ci-dessus, puis fais glisser ce curseur pour la modifier - elle est enregistrée avec le reste quand tu cliques sur Enregistrer.",
     "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
     "showAdvanced": "Afficher la valeur brute de l'impulsion",
     "hideAdvanced": "Masquer la valeur brute de l'impulsion",
     "positions": {
       "open": "Ouvert",
+      "closed": "Fermé",
       "left": "Gauche",
       "right": "Droite",
       "neutral": "Neutre"
     },
     "pusherOffsetWarning": "Plus de {{percent}}% par rapport au neutre — plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
     "paddleCloseDelayLabel": "Délai de fermeture de la palette (ms)",
-    "paddleCloseDelayDescription": "Temps après le déclenchement du poussoir avant que la palette de ce module se referme, indépendamment du moment où le poussoir lui-même revient en position neutre. Augmente ce délai si les cartes ne sont pas totalement dégagées avant la fermeture.",
-    "setPaddleCloseDelay": "Définir le délai de fermeture de la palette"
+    "paddleCloseDelayDescription": "Temps après le déclenchement du poussoir avant que la palette de ce module se referme, indépendamment du moment où le poussoir lui-même revient en position neutre. Augmente ce délai si les cartes ne sont pas totalement dégagées avant la fermeture."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Fais glisser le cadre pour le déplacer, ou fais glisser la poignée pour le redimensionner. Aligne-le avec une carte posée au module 1.",
@@ -113,12 +105,9 @@
     "connectWebcam": "Connecter la webcam",
     "waitingForCamera": "En attente de la caméra…",
     "resetToDefault": "Réinitialiser par défaut",
-    "saving": "Enregistrement…",
-    "saveScanRegion": "Enregistrer la zone de scan",
-    "savedSummary": "Enregistré : {{coverage}} % de couverture, décalage {{offsetX}} % / {{offsetY}} %",
+    "currentSummary": "{{coverage}} % de couverture, décalage {{offsetX}} % / {{offsetY}} %",
     "captureSettleLabel": "Délai avant capture (ms)",
     "captureSettleDescription": "Temps d'attente après que le chargeur confirme l'arrivée d'une carte avant de capturer une image, pour qu'elle soit parfaitement immobile et nette.",
-    "setCaptureSettle": "Définir le délai avant capture",
     "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
     "phoneCameraConnected": "Caméra du téléphone connectée",
     "takePhoto": "Prendre une photo",
@@ -143,7 +132,9 @@
       "copyFailed": "Échec de la copie de la calibration",
       "importInvalid": "Ce fichier n'est pas un export de calibration valide",
       "importSuccess": "Calibration importée",
-      "importFailed": "Échec de l'importation de la calibration"
+      "importFailed": "Échec de l'importation de la calibration",
+      "calibrationSaved": "Calibration enregistrée",
+      "saveCalibrationFailed": "Échec de l'enregistrement de la zone de scan ou du délai avant capture"
     }
   },
   "useFeederConfig": {

@@ -7,13 +7,8 @@
       "label": "Paddles"
     },
     "pusher": {
-      "label": "Pusher",
-      "left": "Set Left",
-      "neutral": "Set Neutral",
-      "right": "Set Right"
-    },
-    "closed": "Set Closed",
-    "open": "Set Open"
+      "label": "Pusher"
+    }
   },
   "moduleCountStepper": {
     "label": "Sorting modules",
@@ -63,17 +58,12 @@
     "speedTooltip": "How fast and which way the feeder motor spins. 0% is stopped; drag either way to speed up in that direction.",
     "forward": "Forward",
     "reverse": "Reverse",
-    "setSpeed": "Set Speed",
     "timeoutLabel": "Timeout (ms)",
-    "setTimeout": "Set Timeout",
     "pulseDurationLabel": "Pulse Duration (ms)",
-    "continuousFeedButton": "Set Continuous Feed",
-    "setPulseDuration": "Set Pulse Duration",
+    "continuousFeedButton": "Continuous Feed",
     "pauseDurationLabel": "Pause Duration (ms)",
-    "setPauseDuration": "Set Pause Duration",
     "settleDurationLabel": "Final Card Detection Delay (ms)",
-    "settleDurationDescription": "Extra time to keep feeding once the module 1 sensor sees the last card in the hopper, so it travels all the way into the mechanism before the motor stops.",
-    "setSettleDuration": "Set Final Card Detection Delay"
+    "settleDurationDescription": "Extra time to keep feeding once the module 1 sensor sees the last card in the hopper, so it travels all the way into the mechanism before the motor stops."
   },
   "irSensorPanel": {
     "label": "IR Sensors",
@@ -91,20 +81,22 @@
   },
   "moduleCalibrationGrid": {
     "positionLabel": "Position",
-    "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Use the position buttons above, then a \"Set\" button to save this as a calibration point.",
+    "editingPosition": "Editing: {{position}}",
+    "noPositionSelected": "Select a position above to edit it",
+    "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Select a position above, then drag this slider to change it - it's saved along with everything else when you hit Save.",
     "rawPulseTooltip": "Raw servo pulse position (120-490), the exact value sent to the device.",
     "showAdvanced": "Show raw pulse value",
     "hideAdvanced": "Hide raw pulse value",
     "positions": {
       "open": "Open",
+      "closed": "Closed",
       "left": "Left",
       "right": "Right",
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it.",
     "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
-    "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts.",
-    "setPaddleCloseDelay": "Set Paddle Close Delay"
+    "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Drag the box to move it, or drag the handle to resize. Line it up with a card sitting at module 1.",
@@ -113,12 +105,9 @@
     "connectWebcam": "Connect Webcam",
     "waitingForCamera": "Waiting for camera…",
     "resetToDefault": "Reset to default",
-    "saving": "Saving…",
-    "saveScanRegion": "Save Scan Region",
-    "savedSummary": "Saved: {{coverage}}% coverage, {{offsetX}}% / {{offsetY}}% offset",
+    "currentSummary": "{{coverage}}% coverage, {{offsetX}}% / {{offsetY}}% offset",
     "captureSettleLabel": "Capture Settle Delay (ms)",
     "captureSettleDescription": "How long to wait after the feeder confirms a card has arrived before capturing a frame, so the card is fully still and in focus.",
-    "setCaptureSettle": "Set Capture Settle Delay",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",
     "takePhoto": "Take Photo",
@@ -143,7 +132,9 @@
       "copyFailed": "Failed to copy calibration",
       "importInvalid": "That file isn't a valid calibration export",
       "importSuccess": "Calibration imported",
-      "importFailed": "Failed to import calibration"
+      "importFailed": "Failed to import calibration",
+      "calibrationSaved": "Calibration saved",
+      "saveCalibrationFailed": "Failed to save the scan region or capture settle delay"
     }
   },
   "useFeederConfig": {

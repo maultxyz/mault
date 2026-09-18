@@ -43,7 +43,9 @@ export function useConnectWithStaleCheck() {
 
   const handleCalibrateFirst = useCallback(() => {
     setPending(null);
-    if (location.pathname !== "/app/calibrate") navigate("/app/calibrate");
+    if (!location.pathname.startsWith("/app/calibrate")) {
+      navigate("/app/calibrate");
+    }
   }, [navigate, location.pathname]);
 
   return {

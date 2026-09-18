@@ -28,7 +28,8 @@
     "cardLimitPlaceholder": "Unlimited",
     "cardLimitDescription": "Stops scanning and prompts to empty the bin once it holds this many cards. Leave blank for no limit.",
     "autoAssignWaiting": "Waiting for a new {{field}} to appear",
-    "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins."
+    "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins.",
+    "modeChangePending": "Save or discard the pending mode change above before editing bins."
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."
@@ -76,7 +77,6 @@
   "useBinConfigs": {
     "toasts": {
       "saveBinFailed": "Failed to save bin config",
-      "clearBinFailed": "Failed to clear bin config",
       "activateSetFailed": "Failed to activate set",
       "createSetFailed": "Failed to create set",
       "saveSetFailed": "Failed to save set",

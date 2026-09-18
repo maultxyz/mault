@@ -95,6 +95,16 @@
     "save": "Enregistrer",
     "create": "Créer"
   },
+  "unsavedChanges": {
+    "message": "Vous avez des modifications non enregistrées",
+    "discard": "Ignorer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "leaveTitle": "Ignorer les modifications non enregistrées ?",
+    "leaveDescription": "Vous avez des modifications non enregistrées. Si vous partez maintenant, elles seront perdues.",
+    "keepEditing": "Continuer la modification",
+    "discardAndLeave": "Ignorer les modifications"
+  },
   "auditDrawer": {
     "noHistory": "Pas encore d'historique.",
     "current": "actuel",

@@ -73,6 +73,7 @@ export const FEEDER_PULSE_DURATION_SLIDER_MAX = 500;
 export const FEEDER_PAUSE_DURATION_SLIDER_MAX = 1_000;
 export const FEEDER_SETTLE_DURATION_SLIDER_MAX = 2_000;
 export const PADDLE_CLOSE_DELAY_SLIDER_MAX = 1_000;
+export const CAPTURE_SETTLE_DELAY_SLIDER_MAX = 2_000;
 
 export function sliderMax(value: number, defaultMax: number): number {
   return Math.max(defaultMax, value);
@@ -90,29 +91,16 @@ export const SERVOS: ServoConfig[] = [
   {
     name: "bottom",
     labelKey: "servos.bottom.label",
-    controlPositions: ["open"],
-    calibrationPositions: [
-      { labelKey: "servos.closed", key: "bottomClosed" },
-      { labelKey: "servos.open", key: "bottomOpen" },
-    ],
+    positions: ["closed", "open"],
   },
   {
     name: "paddle",
     labelKey: "servos.paddle.label",
-    controlPositions: ["open"],
-    calibrationPositions: [
-      { labelKey: "servos.closed", key: "paddleClosed" },
-      { labelKey: "servos.open", key: "paddleOpen" },
-    ],
+    positions: ["closed", "open"],
   },
   {
     name: "pusher",
     labelKey: "servos.pusher.label",
-    controlPositions: ["left", "neutral", "right"],
-    calibrationPositions: [
-      { labelKey: "servos.pusher.left", key: "pusherLeft" },
-      { labelKey: "servos.pusher.neutral", key: "pusherNeutral" },
-      { labelKey: "servos.pusher.right", key: "pusherRight" },
-    ],
+    positions: ["left", "neutral", "right"],
   },
 ];

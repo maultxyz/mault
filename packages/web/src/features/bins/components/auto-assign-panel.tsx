@@ -1,4 +1,5 @@
 import { DeleteDialog } from "@/components/delete-dialog";
+import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import {
@@ -14,6 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
 import { IconInfoCircle, IconRefresh } from "@tabler/icons-react";
@@ -26,21 +28,23 @@ export function AutoAssignPanel() {
     selectedSet,
     fieldDefinitions,
     isPresetMutating,
-    setAutoAssignField,
     resetAutoAssign,
-    setScanOnly,
-    setRepackConfig,
-    configs,
-    save,
+    effectiveMode,
+    isModeDirty,
+    isSavingMode,
+    stageMode,
+    saveMode,
+    discardMode,
   } = useBinConfigs();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   if (!selectedSet) return null;
 
   const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
-  const isEnabled = !!selectedSet.autoAssignField;
-  const isScanOnly = selectedSet.scanOnly;
-  const isRepackMode = selectedSet.isRepackMode;
+  const isEnabled = !!effectiveMode.autoAssignField;
+  const isScanOnly = effectiveMode.scanOnly;
+  const isRepackMode = effectiveMode.isRepackMode;
+  const disableToggles = isPresetMutating || isSavingMode;
 
   return (
     <Field className="rounded-lg border p-2 gap-2" data-tour="auto-assign-panel">
@@ -62,17 +66,15 @@ export function AutoAssignPanel() {
           aria-label={t("autoAssignPanel.heading")}
           checked={isEnabled}
           disabled={
-            isPresetMutating ||
+            disableToggles ||
             eligibleFields.length === 0 ||
             isScanOnly ||
             isRepackMode
           }
           onCheckedChange={(checked) => {
-            if (checked) {
-              setAutoAssignField(eligibleFields[0].field);
-            } else {
-              setAutoAssignField(null);
-            }
+            stageMode({
+              autoAssignField: checked ? eligibleFields[0].field : null,
+            });
           }}
         />
       </div>
@@ -83,12 +85,14 @@ export function AutoAssignPanel() {
             {t("autoAssignPanel.fieldPlaceholder")}
           </FieldLabel>
           <Select
-            value={selectedSet.autoAssignField ?? ""}
-            onValueChange={(value) => setAutoAssignField(value ?? null)}
+            value={effectiveMode.autoAssignField ?? ""}
+            onValueChange={(value) =>
+              stageMode({ autoAssignField: value ?? null })
+            }
           >
             <SelectTrigger
               className="flex-1 overflow-hidden"
-              disabled={isPresetMutating}
+              disabled={disableToggles}
             >
               <SelectValue
                 placeholder={t("autoAssignPanel.fieldPlaceholder")}
@@ -105,7 +109,7 @@ export function AutoAssignPanel() {
           <Button
             variant="outline"
             size="icon"
-            disabled={isPresetMutating}
+            disabled={disableToggles}
             onClick={() => setResetDialogOpen(true)}
           >
             <IconRefresh />
@@ -141,8 +145,8 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("scanOnlyPanel.heading")}
           checked={isScanOnly}
-          disabled={isPresetMutating || isEnabled || isRepackMode}
-          onCheckedChange={(checked) => setScanOnly(checked)}
+          disabled={disableToggles || isEnabled || isRepackMode}
+          onCheckedChange={(checked) => stageMode({ scanOnly: checked })}
         />
       </div>
 
@@ -166,22 +170,18 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("repackPanel.heading")}
           checked={isRepackMode}
-          disabled={isPresetMutating || isEnabled || isScanOnly}
-          onCheckedChange={(checked) => {
-            setRepackConfig({
-              isRepackMode: checked,
-              repackSlots: selectedSet.repackSlots,
-              repackAllowDuplicates: selectedSet.repackAllowDuplicates,
-            });
-            if (checked) {
-              const lastBin = configs[configs.length - 1];
-              if (lastBin && !lastBin.isCatchAll) {
-                save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
-              }
-            }
-          }}
+          disabled={disableToggles || isEnabled || isScanOnly}
+          onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
         />
       </div>
+
+      <SaveBar
+        show={isModeDirty}
+        onSave={saveMode}
+        isSaving={isSavingMode}
+        onDiscard={discardMode}
+      />
+      <UnsavedChangesGuard isDirty={isModeDirty} onDiscard={discardMode} />
     </Field>
   );
 }

@@ -86,14 +86,6 @@ export async function saveBinConfig({
   });
 }
 
-export async function clearBinConfig(
-  binNumber: number,
-  gameGuid?: string,
-): Promise<Result<null>> {
-  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  return apiDelete<Result<null>>(`/api/bins/bins/${binNumber}${params}`);
-}
-
 export async function emptyBin(
   binNumber: number,
   gameGuid?: string,

@@ -28,7 +28,8 @@
     "cardLimitPlaceholder": "Unbegrenzt",
     "cardLimitDescription": "Stoppt das Scannen und fordert zum Leeren des Fachs auf, sobald es so viele Karten enthält. Leer lassen für kein Limit.",
     "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
-    "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren."
+    "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren.",
+    "modeChangePending": "Speichere oder verwerfe die ausstehende Modusänderung oben, bevor du Fächer bearbeitest."
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."
@@ -76,7 +77,6 @@
   "useBinConfigs": {
     "toasts": {
       "saveBinFailed": "Fach-Konfiguration konnte nicht gespeichert werden",
-      "clearBinFailed": "Fach-Konfiguration konnte nicht geleert werden",
       "activateSetFailed": "Set konnte nicht aktiviert werden",
       "createSetFailed": "Set konnte nicht erstellt werden",
       "saveSetFailed": "Set konnte nicht gespeichert werden",

@@ -10,7 +10,6 @@ import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import {
   buildCalibrationDebugText,
-  defaultPaddleCloseDelayValues,
   defaultSliderValues,
   getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
@@ -29,11 +28,14 @@ import {
 import {
   computeBinCount,
   DEFAULT_CALIBRATION,
+  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_SCAN_REGION,
   type BinRoute,
+  type ScanRegion,
   type ServoCalibration,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -63,6 +65,9 @@ export function useCalibrationPage() {
   const device = useDevice();
   const queryClient = useQueryClient();
   const { isLoading } = useQuery(modulesQueryOptions(device?.guid));
+  const { isLoading: isDeviceLoading } = useQuery(
+    devicesQueryOptions(activeOrg?.id),
+  );
   const moduleCount = useModuleCount();
   const modules = Array.from({ length: moduleCount }, (_, i) => i + 1);
   const { routes: binRoutes } = useBinRoutes();
@@ -97,9 +102,49 @@ export function useCalibrationPage() {
     () => defaultSliderValues(modules),
   );
 
-  const [paddleCloseDelayValues, setPaddleCloseDelayValues] = useState<
-    Record<number, number>
-  >(() => defaultPaddleCloseDelayValues(modules));
+  const [pendingCalibration, setPendingCalibration] = useState<
+    Record<number, Partial<ServoCalibration>>
+  >({});
+  const pendingCalibrationRef = useRef(pendingCalibration);
+  pendingCalibrationRef.current = pendingCalibration;
+
+  const paddleCloseDelayValues = useMemo(() => {
+    const vals: Record<number, number> = {};
+    for (const m of modules) {
+      const cal = configs.find((c) => c.moduleNumber === m)?.calibration;
+      vals[m] =
+        pendingCalibration[m]?.paddleCloseDelay ??
+        cal?.paddleCloseDelay ??
+        DEFAULT_CALIBRATION.paddleCloseDelay;
+    }
+    return vals;
+  }, [modules, configs, pendingCalibration]);
+
+  const [scanRegionDraft, setScanRegionDraft] = useState<ScanRegion | null>(
+    null,
+  );
+  const [captureSettleDraft, setCaptureSettleDraft] = useState<number | null>(
+    null,
+  );
+  const isScanRegionDirty = scanRegionDraft !== null;
+  const isCaptureSettleDirty = captureSettleDraft !== null;
+  const scanRegion = scanRegionDraft ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
+  const captureSettleDelayMs =
+    captureSettleDraft ??
+    device?.captureSettleDelayMs ??
+    DEFAULT_CAPTURE_SETTLE_DELAY_MS;
+
+  const handleScanRegionChange = useCallback((next: ScanRegion) => {
+    setScanRegionDraft(next);
+  }, []);
+
+  const handleResetScanRegion = useCallback(() => {
+    setScanRegionDraft({ ...DEFAULT_SCAN_REGION });
+  }, []);
+
+  const handleCaptureSettleChange = useCallback((value: number) => {
+    setCaptureSettleDraft(value);
+  }, []);
 
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -147,11 +192,13 @@ export function useCalibrationPage() {
       const cal = configsRef.current.find(
         (c) => c.moduleNumber === module,
       )?.calibration;
-      if (cal) {
-        const calKey = getCalibrationKey(servo, isToggleOff ? "neutral" : position);
-        if (calKey) {
-          setSliderValues((prev) => ({ ...prev, [key]: cal[calKey] }));
-        }
+      const calKey = getCalibrationKey(servo, isToggleOff ? "neutral" : position);
+      if (cal && calKey) {
+        const pendingValue = pendingCalibrationRef.current[module]?.[calKey];
+        setSliderValues((prev) => ({
+          ...prev,
+          [key]: pendingValue ?? cal[calKey],
+        }));
       }
     },
     [sendCommand],
@@ -159,12 +206,22 @@ export function useCalibrationPage() {
 
   const handleSliderChange = useCallback(
     (module: number, servo: "bottom" | "paddle" | "pusher", value: number) => {
-      setSliderValues((prev) => ({ ...prev, [`${module}:${servo}`]: value }));
+      const key = `${module}:${servo}`;
+      setSliderValues((prev) => ({ ...prev, [key]: value }));
       if (servoDebounceRef.current) clearTimeout(servoDebounceRef.current);
       servoDebounceRef.current = setTimeout(
         () => moveServo(module, servo, value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
+
+      const position = activeRef.current[key];
+      const calKey = position ? getCalibrationKey(servo, position) : null;
+      if (calKey) {
+        setPendingCalibration((prev) => ({
+          ...prev,
+          [module]: { ...prev[module], [calKey]: value },
+        }));
+      }
     },
     [moveServo],
   );
@@ -240,18 +297,12 @@ export function useCalibrationPage() {
     }
   }, [sendRoute, resolveRoute, moduleCount, setActiveBin, t]);
 
-  const handleSetPosition = useCallback(
-    (module: number, posKey: keyof ServoCalibration, value: number) => {
-      const config = configsRef.current.find((c) => c.moduleNumber === module);
-      const calibration = config?.calibration ?? DEFAULT_CALIBRATION;
-      saveConfig(module, { ...calibration, [posKey]: value });
-    },
-    [saveConfig],
-  );
-
   const handlePaddleCloseDelayChange = useCallback(
     (module: number, value: number) => {
-      setPaddleCloseDelayValues((prev) => ({ ...prev, [module]: value }));
+      setPendingCalibration((prev) => ({
+        ...prev,
+        [module]: { ...prev[module], paddleCloseDelay: value },
+      }));
     },
     [],
   );
@@ -284,30 +335,124 @@ export function useCalibrationPage() {
     setFeederSettleDurationValue(value);
   }, []);
 
-  const handleFeederSetSpeed = useCallback(() => {
-    saveFeeder({ ...feederConfig, speed: feederSpeedValue });
-  }, [feederConfig, feederSpeedValue, saveFeeder]);
-
-  const handleFeederSetDuration = useCallback(() => {
-    saveFeeder({ ...feederConfig, duration: feederDurationValue });
-  }, [feederConfig, feederDurationValue, saveFeeder]);
-
-  const handleFeederSetPulseDuration = useCallback(() => {
-    saveFeeder({ ...feederConfig, pulseDuration: feederPulseDurationValue });
-  }, [feederConfig, feederPulseDurationValue, saveFeeder]);
-
-  const handleFeederSetContinuous = useCallback(() => {
+  const handleFeederSelectContinuous = useCallback(() => {
     setFeederPulseDurationValue(0);
-    saveFeeder({ ...feederConfig, pulseDuration: 0 });
-  }, [feederConfig, saveFeeder]);
+  }, []);
 
-  const handleFeederSetPauseDuration = useCallback(() => {
-    saveFeeder({ ...feederConfig, pauseDuration: feederPauseDurationValue });
-  }, [feederConfig, feederPauseDurationValue, saveFeeder]);
+  const isFeederDirty =
+    feederSpeedValue !== feederConfig.speed ||
+    feederDurationValue !== feederConfig.duration ||
+    feederPulseDurationValue !== feederConfig.pulseDuration ||
+    feederPauseDurationValue !== feederConfig.pauseDuration ||
+    feederSettleDurationValue !== feederConfig.settleDuration;
 
-  const handleFeederSetSettleDuration = useCallback(() => {
-    saveFeeder({ ...feederConfig, settleDuration: feederSettleDurationValue });
-  }, [feederConfig, feederSettleDurationValue, saveFeeder]);
+  const dirtyModules = useMemo(
+    () =>
+      modules.filter(
+        (m) =>
+          pendingCalibration[m] &&
+          Object.keys(pendingCalibration[m]).length > 0,
+      ),
+    [modules, pendingCalibration],
+  );
+
+  const isFeederModuleDirty = isFeederDirty || dirtyModules.length > 0;
+  const isScanRegionSectionDirty = isScanRegionDirty || isCaptureSettleDirty;
+
+  const [isSavingFeederModule, setIsSavingFeederModule] = useState(false);
+
+  const handleSaveFeederModuleCalibration = useCallback(async () => {
+    setIsSavingFeederModule(true);
+    try {
+      if (isFeederDirty) {
+        await saveFeeder({
+          ...feederConfig,
+          speed: feederSpeedValue,
+          duration: feederDurationValue,
+          pulseDuration: feederPulseDurationValue,
+          pauseDuration: feederPauseDurationValue,
+          settleDuration: feederSettleDurationValue,
+        });
+      }
+      for (const moduleNumber of dirtyModules) {
+        const config = configsRef.current.find(
+          (c) => c.moduleNumber === moduleNumber,
+        );
+        const calibration = config?.calibration ?? DEFAULT_CALIBRATION;
+        await saveConfig(moduleNumber, {
+          ...calibration,
+          ...pendingCalibrationRef.current[moduleNumber],
+        });
+        setPendingCalibration((prev) => {
+          const next = { ...prev };
+          delete next[moduleNumber];
+          return next;
+        });
+      }
+      toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
+    } catch {
+    } finally {
+      setIsSavingFeederModule(false);
+    }
+  }, [
+    isFeederDirty,
+    dirtyModules,
+    feederConfig,
+    feederSpeedValue,
+    feederDurationValue,
+    feederPulseDurationValue,
+    feederPauseDurationValue,
+    feederSettleDurationValue,
+    saveFeeder,
+    saveConfig,
+    t,
+  ]);
+
+  const handleDiscardFeederModuleCalibration = useCallback(() => {
+    setPendingCalibration({});
+    setFeederSpeedValue(feederConfig.speed);
+    setFeederDurationValue(feederConfig.duration);
+    setFeederPulseDurationValue(feederConfig.pulseDuration);
+    setFeederPauseDurationValue(feederConfig.pauseDuration);
+    setFeederSettleDurationValue(feederConfig.settleDuration);
+  }, [feederConfig]);
+
+  const [isSavingScanRegion, setIsSavingScanRegion] = useState(false);
+
+  const handleSaveScanRegion = useCallback(async () => {
+    if (!device) return;
+    setIsSavingScanRegion(true);
+    try {
+      await saveDevice(device.guid, {
+        ...(isScanRegionDirty ? { scanRegion } : {}),
+        ...(isCaptureSettleDirty ? { captureSettleDelayMs } : {}),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
+      });
+      setScanRegionDraft(null);
+      setCaptureSettleDraft(null);
+      toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
+    } catch {
+      toast.error(t("useCalibrationPage.toasts.saveCalibrationFailed"));
+    } finally {
+      setIsSavingScanRegion(false);
+    }
+  }, [
+    device,
+    isScanRegionDirty,
+    isCaptureSettleDirty,
+    scanRegion,
+    captureSettleDelayMs,
+    queryClient,
+    activeOrg?.id,
+    t,
+  ]);
+
+  const handleDiscardScanRegion = useCallback(() => {
+    setScanRegionDraft(null);
+    setCaptureSettleDraft(null);
+  }, []);
 
   const handleFeed = useCallback(() => {
     sendCommand(JSON.stringify({ feeder: true }));
@@ -444,6 +589,7 @@ export function useCalibrationPage() {
     isLoading,
     active,
     sliderValues,
+    pendingCalibration,
     paddleCloseDelayValues,
     activeBin,
     isTesting,
@@ -453,7 +599,6 @@ export function useCalibrationPage() {
     handlePaddleCloseDelayChange,
     handleTest,
     handleTestBin,
-    handleSetPosition,
     feederConfig,
     feederSpeedValue,
     feederDurationValue,
@@ -465,12 +610,21 @@ export function useCalibrationPage() {
     handleFeederPulseDurationChange,
     handleFeederPauseDurationChange,
     handleFeederSettleDurationChange,
-    handleFeederSetSpeed,
-    handleFeederSetDuration,
-    handleFeederSetPulseDuration,
-    handleFeederSetContinuous,
-    handleFeederSetPauseDuration,
-    handleFeederSetSettleDuration,
+    handleFeederSelectContinuous,
+    scanRegion,
+    captureSettleDelayMs,
+    isDeviceLoading,
+    handleScanRegionChange,
+    handleResetScanRegion,
+    handleCaptureSettleChange,
+    isFeederModuleDirty,
+    isSavingFeederModule,
+    handleSaveFeederModuleCalibration,
+    handleDiscardFeederModuleCalibration,
+    isScanRegionSectionDirty,
+    isSavingScanRegion,
+    handleSaveScanRegion,
+    handleDiscardScanRegion,
     handleFeed,
     isSampleRunning,
     handleSampleRun,

@@ -1,54 +1,49 @@
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Slider } from "@/components/ui/slider";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
 import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
-import type { Device } from "@/features/calibration/api/devices";
-import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
 import {
   contourToBox,
   rawContourToPortraitBox,
 } from "@/features/calibration/lib/scan-region-geometry";
-import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import { getDefaultCardContour } from "@/features/scanner/lib/card-detection";
-import { SCAN_REGION_PHONE_SYNC_DELAY_MS } from "@/lib/constants/timing";
 import {
-  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
-  DEFAULT_SCAN_REGION,
-  type ScanRegion,
-} from "@magic-vault/shared";
+  CAPTURE_SETTLE_DELAY_SLIDER_MAX,
+  sliderMax,
+} from "@/lib/constants/calibration";
+import { SCAN_REGION_PHONE_SYNC_DELAY_MS } from "@/lib/constants/timing";
+import type { ScanRegion } from "@magic-vault/shared";
 import {
   IconCameraSpark,
   IconDeviceMobile,
   IconRotate,
 } from "@tabler/icons-react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function ScanRegionCalibrationPanel() {
-  const { t } = useTranslation("calibration");
-  const { activeOrg } = useOrg();
-  const queryClient = useQueryClient();
-  const queryOpts = devicesQueryOptions(activeOrg?.id);
-  const { data: devices, isLoading } = useQuery(queryOpts);
-  const device = devices?.[0];
-  const savedRegion = device?.scanRegion ?? DEFAULT_SCAN_REGION;
-  const savedCaptureSettleDelayMs =
-    device?.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS;
+interface ScanRegionCalibrationPanelProps {
+  scanRegion: ScanRegion;
+  captureSettleDelayMs: number;
+  isLoading: boolean;
+  onRegionChange: (region: ScanRegion) => void;
+  onResetRegion: () => void;
+  onCaptureSettleChange: (value: number) => void;
+}
 
-  const [draft, setDraft] = useState<ScanRegion | null>(null);
-  const region = draft ?? savedRegion;
+export function ScanRegionCalibrationPanel({
+  scanRegion: region,
+  captureSettleDelayMs: captureSettleDelayMsValue,
+  isLoading,
+  onRegionChange,
+  onResetRegion,
+  onCaptureSettleChange,
+}: ScanRegionCalibrationPanelProps) {
+  const { t } = useTranslation("calibration");
   const regionRef = useRef(region);
   regionRef.current = region;
-
-  const [captureSettleDraft, setCaptureSettleDraft] = useState<number | null>(
-    null,
-  );
-  const captureSettleDelayMsValue =
-    captureSettleDraft ?? savedCaptureSettleDelayMs;
 
   const {
     stream,
@@ -160,38 +155,12 @@ export function ScanRegionCalibrationPanel() {
     handleResizePointerDown,
     handlePointerMove,
     handlePointerUp,
-  } = useRegionDrag({ frameRef, regionRef, cameraSource, box, setDraft });
-
-  const saveMutation = useMutation({
-    mutationFn: (next: ScanRegion) =>
-      saveDevice(device!.guid, { scanRegion: next }),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        const saved = result.data;
-        queryClient.setQueryData(
-          queryOpts.queryKey,
-          (old: Device[] | undefined) =>
-            old ? [saved, ...old.slice(1)] : [saved],
-        );
-        setDraft(null);
-      }
-    },
-  });
-
-  const saveCaptureSettleMutation = useMutation({
-    mutationFn: (next: number) =>
-      saveDevice(device!.guid, { captureSettleDelayMs: next }),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        const saved = result.data;
-        queryClient.setQueryData(
-          queryOpts.queryKey,
-          (old: Device[] | undefined) =>
-            old ? [saved, ...old.slice(1)] : [saved],
-        );
-        setCaptureSettleDraft(null);
-      }
-    },
+  } = useRegionDrag({
+    frameRef,
+    regionRef,
+    cameraSource,
+    box,
+    onRegionChange,
   });
 
   return (
@@ -307,7 +276,7 @@ export function ScanRegionCalibrationPanel() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setDraft({ ...DEFAULT_SCAN_REGION })}
+            onClick={onResetRegion}
             title={t("scanRegionCalibrationPanel.resetToDefault")}
           >
             <IconRotate size={14} />
@@ -315,100 +284,41 @@ export function ScanRegionCalibrationPanel() {
               {t("scanRegionCalibrationPanel.resetToDefault")}
             </span>
           </Button>
-          <Button
-            disabled={draft === null || saveMutation.isPending || !device}
-            onClick={() => device && saveMutation.mutate(region)}
-            className="flex-1"
-          >
-            {saveMutation.isPending
-              ? t("scanRegionCalibrationPanel.saving")
-              : t("scanRegionCalibrationPanel.saveScanRegion")}
-          </Button>
+          {isLoading ? (
+            <Skeleton className="h-6 flex-1 rounded" />
+          ) : (
+            <p className="text-xs text-muted-foreground flex-1">
+              {t("scanRegionCalibrationPanel.currentSummary", {
+                coverage: Math.round(region.coverage * 100),
+                offsetX: Math.round(region.offsetX * 100),
+                offsetY: Math.round(region.offsetY * 100),
+              })}
+            </p>
+          )}
         </div>
-        {isLoading ? (
-          <Skeleton className="h-3 w-40 rounded" />
-        ) : (
-          <p className="text-xs text-muted-foreground">
-            {t("scanRegionCalibrationPanel.savedSummary", {
-              coverage: Math.round(savedRegion.coverage * 100),
-              offsetX: Math.round(savedRegion.offsetX * 100),
-              offsetY: Math.round(savedRegion.offsetY * 100),
-            })}
-          </p>
-        )}
 
         <div className="flex flex-col gap-2 pt-2 border-t">
-          <p className="text-xs text-muted-foreground">
-            {t("scanRegionCalibrationPanel.captureSettleLabel")}
-          </p>
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              {t("scanRegionCalibrationPanel.captureSettleLabel")}
+            </p>
+            <span className="text-sm font-bold">
+              {t("msValue", { value: captureSettleDelayMsValue })}
+            </span>
+          </div>
           <p className="text-[10px] text-muted-foreground/70">
             {t("scanRegionCalibrationPanel.captureSettleDescription")}
           </p>
-          <ButtonGroup className="w-full">
-            <Button
-              variant="outline"
-              disabled={captureSettleDelayMsValue <= 0}
-              onClick={() =>
-                setCaptureSettleDraft(
-                  Math.max(0, captureSettleDelayMsValue - 100),
-                )
-              }
-              className="px-2 text-xs"
-            >
-              -100
-            </Button>
-            <Button
-              variant="outline"
-              disabled={captureSettleDelayMsValue <= 0}
-              onClick={() =>
-                setCaptureSettleDraft(
-                  Math.max(0, captureSettleDelayMsValue - 10),
-                )
-              }
-              className="px-2 text-xs"
-            >
-              -10
-            </Button>
-            <div className="flex flex-row flex-1 bg-background border-y justify-center px-2 items-center">
-              <p className="font-bold text-sm">
-                {t("msValue", {
-                  value: captureSettleDelayMsValue,
-                })}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              onClick={() =>
-                setCaptureSettleDraft(captureSettleDelayMsValue + 10)
-              }
-              className="px-2 text-xs"
-            >
-              +10
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() =>
-                setCaptureSettleDraft(captureSettleDelayMsValue + 100)
-              }
-              className="px-2 text-xs"
-            >
-              +100
-            </Button>
-          </ButtonGroup>
-          <Button
-            disabled={
-              captureSettleDraft === null ||
-              saveCaptureSettleMutation.isPending ||
-              !device
-            }
-            onClick={() =>
-              device && saveCaptureSettleMutation.mutate(captureSettleDelayMsValue)
-            }
-          >
-            {saveCaptureSettleMutation.isPending
-              ? t("scanRegionCalibrationPanel.saving")
-              : t("scanRegionCalibrationPanel.setCaptureSettle")}
-          </Button>
+          <Slider
+            min={0}
+            max={sliderMax(
+              captureSettleDelayMsValue,
+              CAPTURE_SETTLE_DELAY_SLIDER_MAX,
+            )}
+            step={10}
+            value={captureSettleDelayMsValue}
+            onValueChange={onCaptureSettleChange}
+          />
         </div>
       </div>
     </div>
