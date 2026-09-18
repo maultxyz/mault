@@ -45,7 +45,8 @@ function RawStepperRow({
   onChange,
   renderValue,
 }: RawStepperRowProps) {
-  const clamp = (v: number) => Math.max(min, max != null ? Math.min(max, v) : v);
+  const clamp = (v: number) =>
+    Math.max(min, max != null ? Math.min(max, v) : v);
   return (
     <ButtonGroup className="w-full">
       <Button
@@ -126,7 +127,7 @@ export function FeederCalibrationPanel({
       className="grid grid-cols-1 md:grid-cols-3"
       data-tour="feeder-calibration-panel"
     >
-      <div className="rounded-lg border bg-sidebar p-2 flex flex-col gap-5">
+      <div className="rounded-lg border bg-sidebar p-2 flex flex-col gap-5 col-span-2 lg:col-span-1">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold font-heading">
             {t("feederCalibrationPanel.heading")}
@@ -171,7 +172,9 @@ export function FeederCalibrationPanel({
             step={1}
             disabled={!isConnected}
             value={speedSigned}
-            onValueChange={(value) => onSpeedChange(signedPercentToPulse(value))}
+            onValueChange={(value) =>
+              onSpeedChange(signedPercentToPulse(value))
+            }
           />
           {showAdvanced && (
             <RawStepperRow
@@ -240,7 +243,10 @@ export function FeederCalibrationPanel({
           </div>
           <Slider
             min={0}
-            max={sliderMax(pulseDurationValue, FEEDER_PULSE_DURATION_SLIDER_MAX)}
+            max={sliderMax(
+              pulseDurationValue,
+              FEEDER_PULSE_DURATION_SLIDER_MAX,
+            )}
             step={1}
             disabled={!isConnected}
             value={pulseDurationValue}
@@ -290,7 +296,10 @@ export function FeederCalibrationPanel({
           </div>
           <Slider
             min={0}
-            max={sliderMax(pauseDurationValue, FEEDER_PAUSE_DURATION_SLIDER_MAX)}
+            max={sliderMax(
+              pauseDurationValue,
+              FEEDER_PAUSE_DURATION_SLIDER_MAX,
+            )}
             step={1}
             disabled={!isConnected}
             value={pauseDurationValue}
