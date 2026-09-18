@@ -1,17 +1,29 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import { useBoardType } from "@/features/build/api/use-board-type";
-import { MAX_MODULES, MIN_MODULES, useModuleCount } from "@/features/build/api/use-module-count";
+import {
+  MAX_MODULES,
+  MIN_MODULES,
+  useModuleCount,
+} from "@/features/build/api/use-module-count";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
 import { BomGroupTable } from "@/features/build/components/bom-group-table";
 import { GROUPS } from "@/features/build/lib/bom-parts";
-import { Button } from "@/components/ui/button";
+import { SHOP_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import {
   IconInfoCircle,
   IconMinus,
   IconPlus,
+  IconShoppingCart,
 } from "@tabler/icons-react";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 export function BuildBom() {
   const { t } = useTranslation("build");
@@ -40,13 +52,27 @@ export function BuildBom() {
           channelsFree: 16 - channelsUsed,
         })}
       </p>
-      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2.5 text-sm/relaxed text-amber-900 dark:bg-amber-500/10 dark:text-amber-300">
-        <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
-        <span>{t("bom.affiliateDisclaimer")}</span>
-      </div>
-      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2.5 text-sm/relaxed text-blue-900 dark:bg-blue-500/10 dark:text-blue-300">
+      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2.5 text-sm/relaxed text-blue-900 dark:bg-blue-500/10 dark:text-blue-300">
         <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
         <span>{t("bom.hopperNote")}</span>
+      </div>
+      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm/relaxed text-primary">
+        <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
+        <span>
+          <Trans
+            t={t}
+            i18nKey="bom.shopNote"
+            components={[
+              <a
+                key="0"
+                href={SHOP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline underline-offset-2 hover:opacity-80"
+              />,
+            ]}
+          />
+        </span>
       </div>
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
@@ -122,18 +148,31 @@ export function BuildBom() {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-col gap-8">
-        {GROUPS.map((group) => (
-          <BomGroupTable
-            key={group.key}
-            group={group}
-            moduleCount={moduleCount}
-            boardType={boardType}
-            checked={checked}
-            toggle={toggle}
-          />
-        ))}
-      </div>
+      <Accordion multiple defaultValue={["parts"]} className="mt-8">
+        <AccordionItem value="parts" className="border-b-0">
+          <AccordionTrigger className="font-heading text-base font-semibold tracking-wide text-foreground uppercase">
+            {t("bom.partsListLabel")}
+          </AccordionTrigger>
+          <AccordionContent className="pb-0">
+            <div className="flex flex-col gap-8">
+              {GROUPS.map((group) => (
+                <BomGroupTable
+                  key={group.key}
+                  group={group}
+                  moduleCount={moduleCount}
+                  boardType={boardType}
+                  checked={checked}
+                  toggle={toggle}
+                />
+              ))}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      <p className="mt-6 max-w-2xl text-xs/relaxed text-foreground/70">
+        {t("bom.affiliateDisclaimer")}
+      </p>
     </section>
   );
 }

@@ -29,6 +29,8 @@
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
     "hopperNote": "Il existe deux styles de trémie : la trémie classique et un nouveau modèle qui s'adapte plus facilement à différentes épaisseurs de cartes. Les pièces marquées Optionnel, trémie classique ou Optionnel, nouvelle trémie ci-dessous appartiennent au style que tu ne construis pas - un seul jeu suffit.",
+    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
+    "partsListLabel": "Liste complète des pièces",
     "moduleCount": {
       "label": "Modules",
       "decreaseAria": "Diminuer le nombre de modules",
@@ -210,6 +212,7 @@
   "wiring": {
     "heading": "Câblage",
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
+    "detailsLabel": "Détails du câblage",
     "sections": {
       "i2c": {
         "title": "Bus I²C",

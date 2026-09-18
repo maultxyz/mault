@@ -29,6 +29,8 @@
     "description": "Quantities scale with the number of modules you're building: {{modules}} modules × 3 servos, 1 feeder, {{irSensors}} IR sensors, {{channelsUsed}} of the PCA9685's 16 channels in use. The remaining channels are free for additional sorting modules (up to 5 modules on a single PCA9685). Check off each part as you gather it. Checkmarks are saved in this browser.",
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links. We may earn a small commission on qualifying purchases at no extra cost to you.",
     "hopperNote": "There are two hopper styles: the classic hopper and a newer design that accommodates different card thicknesses more easily. Parts tagged Optional, classic hopper or Optional, new hopper below belong to whichever style you aren't building. You only need one set.",
+    "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
+    "partsListLabel": "Full parts list",
     "moduleCount": {
       "label": "Modules",
       "decreaseAria": "Decrease module count",
@@ -210,6 +212,7 @@
   "wiring": {
     "heading": "Wiring",
     "description": "Everything hangs off one I²C bus (PCA9685) and {{count}} digital input pins (IR sensors). The PCA9685's logic side runs off the {{board}}'s onboard supply; its <pin>V+</pin> servo rail must come from the external supply, and that supply's ground must be tied back to the {{board}}'s ground. A floating servo ground is the most common reason a freshly wired unit won't move.",
+    "detailsLabel": "Wiring details",
     "sections": {
       "i2c": {
         "title": "I²C bus",

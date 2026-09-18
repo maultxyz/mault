@@ -29,6 +29,8 @@
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
     "hopperNote": "Es gibt zwei Trichter-Varianten: den klassischen Trichter und ein neueres Design, das sich leichter an unterschiedliche Kartenstärken anpasst. Die unten mit Optional, klassischer Trichter bzw. Optional, neuer Trichter markierten Teile gehören zu der Variante, die du nicht baust – du brauchst nur einen Satz.",
+    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
+    "partsListLabel": "Vollständige Teileliste",
     "moduleCount": {
       "label": "Module",
       "decreaseAria": "Modulanzahl verringern",
@@ -210,6 +212,7 @@
   "wiring": {
     "heading": "Verkabelung",
     "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Logikseite des PCA9685 wird über die Onboard-Versorgung des {{board}} gespeist; seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein – eine schwebende Servomasse ist der häufigste Grund, warum sich ein frisch verkabeltes Gerät nicht bewegt.",
+    "detailsLabel": "Verkabelungsdetails",
     "sections": {
       "i2c": {
         "title": "I²C-Bus",
