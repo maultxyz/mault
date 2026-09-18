@@ -23,14 +23,14 @@ export function maxModulesForLayout(layout: ChannelLayout): number {
 export const DEFAULT_MODULE_COUNT = 3;
 
 export const DEFAULT_CALIBRATION: ServoCalibration = {
-  bottomClosed: 400,
-  bottomOpen: 150,
-  paddleClosed: 420,
-  paddleOpen: 150,
-  pusherLeft: 150,
-  pusherNeutral: 230,
-  pusherRight: 300,
-  paddleCloseDelay: 150,
+  bottomClosed: 305,
+  bottomOpen: 268,
+  paddleClosed: 305,
+  paddleOpen: 268,
+  pusherLeft: 268,
+  pusherNeutral: 305,
+  pusherRight: 342,
+  paddleCloseDelay: 0,
 };
 
 export const DEFAULT_FEEDER_CALIBRATION: FeederCalibration = {
