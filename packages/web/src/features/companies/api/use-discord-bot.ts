@@ -28,7 +28,9 @@ export function useDiscordBotSettings() {
     onSuccess: (result) => {
       if (result.success) {
         queryClient.setQueryData(queryOpts.queryKey, (old) =>
-          old ? { ...old, discordGuildId: null } : old,
+          old
+            ? { ...old, discordGuildId: null, discordNotifyOnScan: false }
+            : old,
         );
         toast.success(t("discordBot.unlinkSuccess"));
       } else {

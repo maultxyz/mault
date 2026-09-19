@@ -151,6 +151,7 @@
     "simulateScan": "Simulate Scan",
     "simulateMultiMatch": "Simulate Multi-Match",
     "simulateNoMatch": "Simulate No Match",
+    "forceCpu": "Force CPU (skip WebGPU)",
     "forceError": "Force Error"
   },
   "scannerMenu": {

@@ -1,7 +1,6 @@
-import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { orgSettings } from "../../db/schema";
+import { clearOrgDiscordReferences } from "../../lib/discord/unlink";
 import {
   requireAuth,
   requireOrg,
@@ -18,10 +17,7 @@ export const discordUnlinkRoute = new Hono<AppEnv>().post(
     const orgId = c.get("orgId");
     try {
       await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .update(orgSettings)
-          .set({ discordGuildId: null, updatedAt: new Date() })
-          .where(eq(orgSettings.orgId, orgId)),
+        clearOrgDiscordReferences(tx, orgId),
       );
       return c.json({ success: true, message: "Unlinked." });
     } catch (err) {
