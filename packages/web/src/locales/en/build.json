@@ -229,8 +229,7 @@
       },
       "diagram": {
         "title": "Wiring diagram",
-        "alt": "Wiring diagram showing the PCA9685, microcontroller, servo, and IR sensor connections",
-        "esp32Note": "This diagram shows the Arduino wiring for reference. The connection layout is the same on ESP32 (PCA9685 over I²C, one IR sensor per digital pin), just use the pin numbers and 3.3V logic voltage from the tables above instead of what's pictured."
+        "alt": "Wiring diagram showing the PCA9685, microcontroller, servo, and IR sensor connections"
       }
     },
     "i2cTable": {

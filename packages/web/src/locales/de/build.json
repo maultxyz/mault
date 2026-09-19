@@ -229,8 +229,7 @@
       },
       "diagram": {
         "title": "Verkabelungsdiagramm",
-        "alt": "Verkabelungsdiagramm mit den Anschlüssen von PCA9685, Mikrocontroller, Servos und IR-Sensoren",
-        "esp32Note": "Dieses Diagramm zeigt die Arduino-Verkabelung als Referenz - der Aufbau ist beim ESP32 derselbe (PCA9685 über I²C, ein IR-Sensor pro digitalem Pin), verwende einfach die Pin-Nummern und die 3.3V-Logikspannung aus den Tabellen oben statt der Abbildung."
+        "alt": "Verkabelungsdiagramm mit den Anschlüssen von PCA9685, Mikrocontroller, Servos und IR-Sensoren"
       }
     },
     "i2cTable": {
