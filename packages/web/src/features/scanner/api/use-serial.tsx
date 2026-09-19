@@ -52,7 +52,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const pendingRef = useRef<Array<(line: string) => void>>([]);
   const listenersRef = useRef(new Set<SerialMessageListener>());
   const disconnectingRef = useRef<Promise<void> | null>(null);
-  const preTestHookRef = useRef<(() => Promise<void>) | null>(null);
+  const preTestHooksRef = useRef(new Set<() => Promise<void>>());
   const commLogRef = useRef<CommLogEntry[]>([]);
 
   const decoderRef = useRef(new TextDecoder());
@@ -218,8 +218,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   // toasts/reporting/disconnect-on-fail either way.
   const runConnectTest = useCallback(
     async (forTransport: ByteTransport) => {
-      if (preTestHookRef.current) {
-        await preTestHookRef.current();
+      for (const hook of [...preTestHooksRef.current]) {
+        try {
+          await hook();
+        } catch (e) {
+          console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
+        }
       }
       if (transportRef.current !== forTransport) return;
       toast.info(t("serial.testingDevice"));
@@ -459,19 +463,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const registerPreTestHook = useCallback((fn: () => Promise<void>) => {
-    const previous = preTestHookRef.current;
-    preTestHookRef.current = previous
-      ? async () => {
-          try {
-            await previous();
-          } catch (e) {
-            console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
-          }
-          await fn();
-        }
-      : fn;
+    const hooks = preTestHooksRef.current;
+    hooks.add(fn);
     return () => {
-      preTestHookRef.current = previous;
+      hooks.delete(fn);
     };
   }, []);
 
