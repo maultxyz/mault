@@ -52,8 +52,8 @@ export function ScanStats() {
   const visibleSets = expandedSets ? stats.sets : stats.sets.slice(0, 5);
 
   const statCards: { label: string; value: string; indicator?: boolean }[] = [
-    { label: t("scanStats.totalCards"), value: String(stats.totalCount) },
-    { label: t("scanStats.unique"), value: String(stats.uniqueCount) },
+    { label: t("totalCards"), value: String(stats.totalCount) },
+    { label: t("unique"), value: String(stats.uniqueCount) },
   ];
   if (stats.hasPricing) {
     statCards.push(
@@ -98,7 +98,7 @@ export function ScanStats() {
           {stats.mostValuable && (
             <div className="p-2 border-t border-input">
               <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-                {t("scanStats.mostValuable")}
+                {t("mostValuable")}
               </p>
               <div className="flex flex-row justify-between items-center">
                 <p className="text-xs font-semibold truncate">
@@ -114,7 +114,7 @@ export function ScanStats() {
         {stats.rarities.length > 0 && (
           <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
             <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
-              {t("scanStats.byRarity")}
+              {t("byRarity")}
             </p>
             <div className="flex flex-col gap-1">
               {stats.rarities.map((r) => {

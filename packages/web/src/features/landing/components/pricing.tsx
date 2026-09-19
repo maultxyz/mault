@@ -79,7 +79,7 @@ export function LandingPricing() {
               to="/auth/sign-up"
               className={cn(buttonVariants({ variant: "outline" }))}
             >
-              {t("pricing.free.cta")}
+              {t("getStartedFree")}
             </Link>
           </div>
 

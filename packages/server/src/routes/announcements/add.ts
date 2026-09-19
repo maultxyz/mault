@@ -3,14 +3,18 @@ import { db } from "../../db";
 import { announcements } from "../../db/schema";
 import { ANNOUNCEMENT_SEVERITIES as SEVERITIES } from "../../lib/constants/announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
-import { type AnnouncementInput, toAnnouncement } from "./shared";
+import {
+  type AnnouncementInput,
+  parseAnnouncementLink,
+  toAnnouncement,
+} from "./shared";
 
 export const addAnnouncementRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
   requireRole("admin"),
   async (c) => {
-    const { severity, message, isActive, startsAt, endsAt } =
+    const { severity, message, isActive, showOnLanding, link, startsAt, endsAt } =
       await c.req.json<AnnouncementInput>();
 
     if (!message?.trim()) {
@@ -18,6 +22,11 @@ export const addAnnouncementRoute = new Hono<AppEnv>().post(
     }
     if (!SEVERITIES.includes(severity)) {
       return c.json({ success: false, message: "Invalid severity." }, 400);
+    }
+
+    const parsedLink = parseAnnouncementLink(link);
+    if (!parsedLink.ok) {
+      return c.json({ success: false, message: "Invalid link URL." }, 400);
     }
 
     const startsAtDate = startsAt ? new Date(startsAt) : null;
@@ -42,6 +51,8 @@ export const addAnnouncementRoute = new Hono<AppEnv>().post(
           severity,
           message: message.trim(),
           isActive: isActive ?? true,
+          showOnLanding: showOnLanding ?? false,
+          link: parsedLink.value,
           startsAt: startsAtDate,
           endsAt: endsAtDate,
         })

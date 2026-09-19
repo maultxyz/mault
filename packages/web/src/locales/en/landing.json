@@ -16,7 +16,6 @@
   "hero": {
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
     "subtitle": "Load your cards into the hopper and Mault takes it from there. The feeder pushes each one past the camera to be recognized, then sorts it into bins using rules you set: rarity, color, set, type, or anything else. No spreadsheets, no guesswork.",
-    "getStartedFree": "Get started free",
     "seeHowItWorks": "See how it works",
     "currentSession": "Current session",
     "cardCount_one": "{{count}} card",
@@ -71,6 +70,14 @@
         "title": "Rules you control",
         "description": "Mix and match conditions, rarity, color, set, type, and more, to send every card exactly where you'd like."
       },
+      "autoAssign": {
+        "title": "Auto bin assignment",
+        "description": "Skip the rule-writing. Pick a field like rarity or set, and the first card with a new value claims the next open bin. Repeats route back automatically."
+      },
+      "repack": {
+        "title": "Build repacks",
+        "description": "Define pack slots per bin, like 3 commons and 1 rare, and every bin fills its own pack at the same time. Empty it to start the next one."
+      },
       "collections": {
         "title": "Multiple collections",
         "description": "Keep separate collections for trade binders, decks, or storage boxes, and hop between them whenever you like."
@@ -121,8 +128,7 @@
       "name": "Free",
       "price": "$0",
       "description": "For casual collectors getting started.",
-      "scanLimit": "Up to {{limit}} card scans per day",
-      "cta": "Get started free"
+      "scanLimit": "Up to {{limit}} card scans per day"
     },
     "business": {
       "name": "Business",
@@ -134,7 +140,7 @@
   },
   "cta": {
     "heading": "Let's get your cards sorted.",
-    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out.",
-    "button": "Get started free"
-  }
+    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out."
+  },
+  "getStartedFree": "Get started free"
 }

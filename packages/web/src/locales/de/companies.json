@@ -2,12 +2,7 @@
   "orgPickerModal": {
     "title": "Organisation auswählen",
     "createToGetStarted": "Erstelle eine Organisation, um loszulegen.",
-    "selectOrCreate": "Wähle eine Organisation aus oder erstelle eine, um fortzufahren.",
-    "newOrganization": "Neue Organisation",
-    "organizationNamePlaceholder": "Name der Organisation",
-    "creating": "Wird erstellt…",
-    "create": "Erstellen",
-    "failedToCreate": "Organisation konnte nicht erstellt werden."
+    "selectOrCreate": "Wähle eine Organisation aus oder erstelle eine, um fortzufahren."
   },
   "orgSettings": {
     "noOrgSelected": "Keine Organisation ausgewählt. Verwende das Organisationsmenü in der Seitenleiste, um eine Organisation zu erstellen oder zu wechseln.",
@@ -18,17 +13,13 @@
     "inviteMemberHeading": "Mitglied einladen",
     "emailPlaceholder": "E-Mail-Adresse",
     "sending": "Wird gesendet…",
-    "invite": "Einladen",
     "pendingInvites": "Ausstehende Einladungen",
     "dangerZoneHeading": "Gefahrenzone",
     "deleteWarning": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft.",
     "deleteOrganization": "Organisation löschen",
     "roleOwner": "Inhaber",
-    "roleAdmin": "Admin",
-    "roleMember": "Mitglied",
     "removeMemberTitle": "Mitglied entfernen",
     "removeMemberDescription": "\"{{name}}\" aus dieser Organisation entfernen? Der Zugriff geht sofort verloren.",
-    "deleteOrgTitle": "Organisation löschen",
     "deleteOrgDescription": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft. Dies kann nicht rückgängig gemacht werden.",
     "organizationRenamed": "Organisation umbenannt.",
     "failedToRename": "Umbenennen fehlgeschlagen.",
@@ -44,16 +35,11 @@
   },
   "orgSwitcher": {
     "organizations": "Organisationen",
-    "newOrganization": "Neue Organisation",
     "manageOrganizations": "Organisationseinstellungen",
     "newOrganizationTitle": "Neue Organisation",
     "newOrganizationDescription": "Erstelle eine neue Organisation, um deine Fächer, Sammlungen und Kalibrierung zu verwalten.",
     "cancel": "Abbrechen",
-    "creating": "Wird erstellt…",
-    "create": "Erstellen",
-    "organizationNamePlaceholder": "Name der Organisation",
-    "organizationCreated": "Organisation \"{{name}}\" erstellt.",
-    "failedToCreate": "Organisation konnte nicht erstellt werden."
+    "organizationCreated": "Organisation \"{{name}}\" erstellt."
   },
   "discordBot": {
     "heading": "Discord-Bot",
@@ -67,5 +53,13 @@
     "generateError": "Verknüpfungscode konnte nicht erstellt werden.",
     "codeInstructions": "Führe /link <code> auf deinem Discord-Server aus, um die Verknüpfung abzuschließen.",
     "expiresIn": "Läuft in {{seconds}}s ab"
-  }
+  },
+  "newOrganization": "Neue Organisation",
+  "organizationNamePlaceholder": "Name der Organisation",
+  "creatingOrganization": "Wird erstellt…",
+  "create": "Erstellen",
+  "failedToCreateOrganization": "Organisation konnte nicht erstellt werden.",
+  "invite": "Einladen",
+  "roleAdmin": "Admin",
+  "roleMember": "Mitglied"
 }

@@ -212,8 +212,45 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return cleanup;
   }, []);
 
+  // Shared by the auto-test that normally follows a connect and by callers
+  // manually re-triggering it later (e.g. after skipAutoTest) - same
+  // toasts/reporting/disconnect-on-fail either way.
+  const runConnectTest = useCallback(
+    async (forTransport: ByteTransport) => {
+      if (preTestHookRef.current) {
+        await preTestHookRef.current();
+      }
+      if (transportRef.current !== forTransport) return;
+      toast.info(t("serial.testingDevice"));
+      const { ok, error: testError } = await sendTest();
+      if (transportRef.current !== forTransport) return;
+      const copyAction = {
+        label: t("serial.copyCommunication"),
+        onClick: () => copyCommLog(),
+      };
+      if (ok) {
+        toast.success(t("serial.deviceReady"), { action: copyAction });
+      } else {
+        toast.error(t("serial.deviceTestFailed.title"), {
+          description: testError ?? t("serial.deviceTestFailed.description"),
+          action: copyAction,
+        });
+        void reportSerialEvent({
+          command: "test",
+          sent: true,
+          response: null,
+        });
+        disconnect();
+      }
+    },
+    [sendTest, disconnect, t, copyCommLog],
+  );
+
   const openTransport = useCallback(
-    async (newTransport: ByteTransport): Promise<boolean> => {
+    async (
+      newTransport: ByteTransport,
+      options?: { skipAutoTest?: boolean },
+    ): Promise<boolean> => {
       transportRef.current = newTransport;
       newTransport.onData(handleIncomingChunk);
       newTransport.onError(() => {
@@ -247,83 +284,73 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             setBoard(parsed.board);
           }
         } catch {}
-        if (preTestHookRef.current) {
-          await preTestHookRef.current();
-        }
-        if (transportRef.current !== newTransport) return;
-        toast.info(t("serial.testingDevice"));
-        const { ok, error: testError } = await sendTest();
-        if (transportRef.current !== newTransport) return;
-        const copyAction = {
-          label: t("serial.copyCommunication"),
-          onClick: () => copyCommLog(),
-        };
-        if (ok) {
-          toast.success(t("serial.deviceReady"), { action: copyAction });
-        } else {
-          toast.error(t("serial.deviceTestFailed.title"), {
-            description: testError ?? t("serial.deviceTestFailed.description"),
-            action: copyAction,
-          });
-          void reportSerialEvent({
-            command: "test",
-            sent: true,
-            response: null,
-          });
-        }
+        if (options?.skipAutoTest) return;
+        await runConnectTest(newTransport);
       })();
 
       return true;
     },
-    [handleIncomingChunk, waitForLine, sendCommand, sendTest, disconnect, t, copyCommLog],
+    [handleIncomingChunk, waitForLine, sendCommand, runConnectTest, disconnect, t],
   );
 
-  const connect = useCallback(async () => {
-    if (disconnectingRef.current) {
-      await disconnectingRef.current;
-    }
-    if (transportRef.current) return;
-    if (!navigator.serial) return;
+  const runTestOnActiveTransport = useCallback(async () => {
+    const activeTransport = transportRef.current;
+    if (!activeTransport) return;
+    await runConnectTest(activeTransport);
+  }, [runConnectTest]);
 
-    const result = await SerialTransport.requestAndOpen();
-    if (!result.ok) {
-      if (result.reason === "cancelled") return;
-      toast.error(t("serial.connectionFailed.title"), {
-        description: t("serial.connectionFailed.description"),
-      });
-      void reportSerialEvent({ command: "connect", sent: false, response: null });
-      return;
-    }
+  const connect = useCallback(
+    async (options?: { skipAutoTest?: boolean }) => {
+      if (disconnectingRef.current) {
+        await disconnectingRef.current;
+      }
+      if (transportRef.current) return;
+      if (!navigator.serial) return;
 
-    await openTransport(result.transport);
-  }, [openTransport, t]);
-
-  const connectBluetooth = useCallback(async () => {
-    if (disconnectingRef.current) {
-      await disconnectingRef.current;
-    }
-    if (transportRef.current) return;
-    if (!navigator.bluetooth) return;
-
-    const result = await BluetoothTransport.requestAndConnect();
-    if (!result.ok) {
-      if (result.reason === "cancelled") return;
-      if (result.reason === "permission-blocked") {
+      const result = await SerialTransport.requestAndOpen();
+      if (!result.ok) {
+        if (result.reason === "cancelled") return;
         toast.error(t("serial.connectionFailed.title"), {
-          description: t("serial.bluetoothPermissionBlocked"),
+          description: t("serial.connectionFailed.description"),
         });
         void reportSerialEvent({ command: "connect", sent: false, response: null });
         return;
       }
-      toast.error(t("serial.connectionFailed.title"), {
-        description: result.message || t("serial.connectionFailed.description"),
-      });
-      void reportSerialEvent({ command: "connect", sent: false, response: null });
-      return;
-    }
 
-    await openTransport(result.transport);
-  }, [openTransport, t]);
+      await openTransport(result.transport, options);
+    },
+    [openTransport, t],
+  );
+
+  const connectBluetooth = useCallback(
+    async (options?: { skipAutoTest?: boolean }) => {
+      if (disconnectingRef.current) {
+        await disconnectingRef.current;
+      }
+      if (transportRef.current) return;
+      if (!navigator.bluetooth) return;
+
+      const result = await BluetoothTransport.requestAndConnect();
+      if (!result.ok) {
+        if (result.reason === "cancelled") return;
+        if (result.reason === "permission-blocked") {
+          toast.error(t("serial.connectionFailed.title"), {
+            description: t("serial.bluetoothPermissionBlocked"),
+          });
+          void reportSerialEvent({ command: "connect", sent: false, response: null });
+          return;
+        }
+        toast.error(t("serial.connectionFailed.title"), {
+          description: result.message || t("serial.connectionFailed.description"),
+        });
+        void reportSerialEvent({ command: "connect", sent: false, response: null });
+        return;
+      }
+
+      await openTransport(result.transport, options);
+    },
+    [openTransport, t],
+  );
 
   const flashEsp32 = useCallback(
     async (firmwareUrl: string): Promise<FlashEsp32Result> => {
@@ -503,6 +530,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         sendRoute,
         isRouteBusy,
         sendTest,
+        runTest: runTestOnActiveTransport,
         sendCommand: sendCommandWithNewline,
         receiveResponse,
         subscribe,

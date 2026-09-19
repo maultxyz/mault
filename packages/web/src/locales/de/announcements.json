@@ -5,6 +5,7 @@
   "loading": "Wird geladen...",
   "active": "Aktiv",
   "inactive": "Inaktiv",
+  "onLandingPage": "Auf Startseite",
   "editTitle": "Bearbeiten",
   "deleteTitle": "Löschen",
   "empty": "Noch keine Ankündigungen",
@@ -31,23 +32,26 @@
     "startsAndEnds": "{{start}} → {{end}}"
   },
   "formDialog": {
-    "addTitle": "Ankündigung hinzufügen",
     "editTitle": "Ankündigung bearbeiten",
     "description": "Wird jedem angemeldeten Nutzer angezeigt, bis sie deaktiviert wird.",
     "severityLabel": "Schweregrad",
     "messageLabel": "Nachricht",
     "messagePlaceholder": "Am Freitag um 22 Uhr UTC führen wir planmäßige Wartungsarbeiten durch.",
+    "linkLabel": "Link (optional)",
+    "linkPlaceholder": "https://example.com/changelog",
     "startsAtLabel": "Beginnt am",
     "endsAtLabel": "Endet am",
     "scheduleHint": "Lasse eines der beiden Felder leer, um diese Seite nicht zu begrenzen - der Aktiv-Schalter setzt sich in jedem Fall durch.",
-    "activeLabel": "Aktiv",
+    "showOnLandingLabel": "Auf Startseite anzeigen",
+    "showOnLandingDescription": "Zeigt dieses Banner auch abgemeldeten Besuchern auf den öffentlichen Startseiten- und Bauanleitungsseiten.",
     "cancel": "Abbrechen",
     "saving": "Wird gespeichert…",
     "saveChanges": "Änderungen speichern",
     "create": "Ankündigung erstellen",
     "validation": {
       "required": "Erforderlich",
-      "endAfterStart": "Die Endzeit muss nach der Startzeit liegen"
+      "endAfterStart": "Die Endzeit muss nach der Startzeit liegen",
+      "invalidLink": "Gib eine gültige http(s)-URL ein"
     }
   }
 }

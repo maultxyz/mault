@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { SaveBar } from "@/components/save-bar";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { neon } from "@/lib/auth/client";
 import {
   updateNameSchema,
   type UpdateNameFormValues,
 } from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -40,25 +40,25 @@ export function UpdateNameForm() {
   }
 
   return (
-    <form
-      onSubmit={form.handleSubmit(onSubmit)}
-      className="flex max-w-sm flex-col gap-3"
-    >
-      <Field data-invalid={!!form.formState.errors.name}>
-        <FieldLabel htmlFor="name">{t("profile.nameLabel")}</FieldLabel>
-        <Input id="name" autoComplete="name" {...form.register("name")} />
-        <FieldError errors={[form.formState.errors.name]} />
-      </Field>
-      <Button
-        type="submit"
-        disabled={form.formState.isSubmitting}
-        className="self-start"
+    <>
+      <form
+        id="update-name-form"
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex max-w-sm flex-col gap-3"
       >
-        {form.formState.isSubmitting && (
-          <IconLoader2 className="animate-spin" />
-        )}
-        {t("profile.save")}
-      </Button>
-    </form>
+        <Field data-invalid={!!form.formState.errors.name}>
+          <FieldLabel htmlFor="name">{t("profile.nameLabel")}</FieldLabel>
+          <Input id="name" autoComplete="name" {...form.register("name")} />
+          <FieldError errors={[form.formState.errors.name]} />
+        </Field>
+      </form>
+      <SaveBar
+        show={form.formState.isDirty}
+        formId="update-name-form"
+        isSaving={form.formState.isSubmitting}
+        onDiscard={() => form.reset()}
+      />
+      <UnsavedChangesGuard isDirty={form.formState.isDirty} />
+    </>
   );
 }

@@ -10,3 +10,5 @@ export const MTG_ASPECT_RATIO = 2.5 / 3.5;
 export const CLOSE_MATCH_DELTA = 0.05;
 export const PHONE_CAMERA_JPEG_QUALITY = 0.85;
 export const CATCH_ALL_BIN = 7;
+
+export const STALE_DEVICE_THRESHOLD_DAYS = 30;

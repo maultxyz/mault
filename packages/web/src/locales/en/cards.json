@@ -1,35 +1,38 @@
 {
+  "cardPicker": {
+    "remove": "Remove",
+    "correctCard": "Correct Card",
+    "scannedAlt": "Scanned",
+    "selectCorrectVersion": "Your scanned card, select the correct version below",
+    "multipleMatches": "Multiple close matches, select the correct version:",
+    "regularPrice": "Regular: {{price}}",
+    "foilPrice": "Foil: {{price}}",
+    "artBy": "Art by {{artist}}",
+    "viewSource": "View source",
+    "searchPlaceholder": "Search by card name...",
+    "allSets": "All sets",
+    "allSetsCount": "All sets ({{count}})",
+    "startTyping": "Start typing to search for cards",
+    "noCardsFound": "No cards found"
+  },
   "cardDetailPanel": {
     "backToList": "Back to card list",
     "previousCard": "Previous card",
     "nextCard": "Next card",
-    "scannedAlt": "Scanned",
-    "selectCorrectVersion": "Your scanned card, select the correct version below",
-    "multipleMatches": "Multiple close matches, select the correct version:",
     "cardDetailsFallback": "Card Details",
     "capturedScan": "Captured scan",
     "matchedCard": "Matched card",
-    "foil": "Foil",
-    "foilNone": "Not foil",
-    "regularPrice": "Regular: {{price}}",
-    "foilPrice": "Foil: {{price}}",
-    "correctCard": "Correct Card",
+    "similarMatches": "Similar matches",
     "refetchCardData": "Refetch Data",
     "refetchCardDataTitle": "Re-fetch this card's data from the source and update the saved record",
     "refetching": "Refetching...",
     "refetchSuccess": "Card data updated",
     "refetchError": "Failed to refetch card data",
-    "remove": "Remove",
     "searchForCorrectVersion": "Your scanned card, search for the correct version below",
-    "searchPlaceholder": "Search by card name...",
-    "allSets": "All sets",
-    "allSetsCount": "All sets ({{count}})",
-    "startTyping": "Start typing to search for cards",
-    "noCardsFound": "No cards found",
     "cancel": "Cancel",
     "binLocation": "Bin location",
-    "artBy": "Art by {{artist}}",
-    "viewSource": "View source"
+    "showVectorRegions": "Show vectorizing regions",
+    "showOcrRegions": "Show OCR regions"
   },
   "cardFilterPopover": {
     "color": "Color",
@@ -40,7 +43,6 @@
     "minMatch": "Min. match",
     "status": "Status",
     "needsAttention": "Needs attention",
-    "downloaded": "Downloaded",
     "showDownloadedCards": "Show downloaded cards",
     "sets": "Sets",
     "resetFilters": "Reset filters"
@@ -58,8 +60,6 @@
     "startTooltip": "Feed the first card and start scanning",
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
-    "foilNone": "Not foil",
-    "foilGeneric": "Foil",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
     "noCardsMatchFilters": "No cards match the current filters",
     "tryAdjusting": "Try adjusting your search, sort, or filter options",
@@ -76,22 +76,8 @@
   "cardSelectDialog": {
     "defaultTitle": "Select Card",
     "defaultDescription": "Search Scryfall for a card.",
-    "remove": "Remove",
-    "correctCard": "Correct Card",
-    "scannedAlt": "Scanned",
-    "selectCorrectVersion": "Your scanned card, select the correct version below",
-    "multipleMatches": "Multiple close matches, select the correct version:",
     "scanned": "Scanned",
-    "manaCost": "Mana: {{cost}}",
-    "regularPrice": "Regular: {{price}}",
-    "foilPrice": "Foil: {{price}}",
-    "artBy": "Art by {{artist}}",
-    "viewSource": "View source",
-    "searchPlaceholder": "Search by card name...",
-    "allSets": "All sets",
-    "allSetsCount": "All sets ({{count}})",
-    "startTyping": "Start typing to search for cards",
-    "noCardsFound": "No cards found"
+    "manaCost": "Mana: {{cost}}"
   },
   "cardToolbar": {
     "searchPlaceholder": "Search by name, set, type...",
@@ -108,7 +94,6 @@
     "sessionSummaryExport": "Session summary & export",
     "deleteScannedCardsTitle": "Delete Scanned Cards",
     "deleteScannedCardsDescription": "This will permanently delete all cards from your collection. This action cannot be undone.",
-    "cancel": "Cancel",
     "clearing": "Clearing...",
     "clearAll": "Clear All",
     "clearAllCardsTitle": "Clear all cards"
@@ -116,10 +101,8 @@
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
     "multipleMatchesResolvedTooltip": "Multiple close matches, reviewed and corrected",
-    "foil": "Foil",
     "matchTooltip": "How closely the scanned image matches this card, based on visual similarity search",
-    "bin": "Bin {{number}}",
-    "downloaded": "Downloaded"
+    "bin": "Bin {{number}}"
   },
   "sessionSummaryDialog": {
     "title": "Session Summary",
@@ -181,5 +164,8 @@
       "medium": "Solid pace",
       "slow": "Slow and steady"
     }
-  }
+  },
+  "foil": "Foil",
+  "foilNone": "Not foil",
+  "downloaded": "Downloaded"
 }

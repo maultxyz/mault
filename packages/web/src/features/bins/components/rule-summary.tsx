@@ -58,8 +58,8 @@ function formatGroup(
 
   const joiner =
     group.combinator === "and"
-      ? ` ${t("ruleSummary.and")} `
-      : ` ${t("ruleSummary.or")} `;
+      ? ` ${t("and")} `
+      : ` ${t("or")} `;
   return parts.join(joiner);
 }
 

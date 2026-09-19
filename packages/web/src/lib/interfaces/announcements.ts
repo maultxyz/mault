@@ -4,6 +4,8 @@ export interface AnnouncementInput {
   severity: AnnouncementSeverity;
   message: string;
   isActive: boolean;
+  showOnLanding: boolean;
+  link: string | null;
   startsAt: string | null;
   endsAt: string | null;
 }

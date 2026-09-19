@@ -29,9 +29,8 @@
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
     "hopperNote": "Il existe deux styles de trémie : la trémie classique et un nouveau modèle qui s'adapte plus facilement à différentes épaisseurs de cartes. Les pièces marquées Optionnel, trémie classique ou Optionnel, nouvelle trémie ci-dessous appartiennent au style que tu ne construis pas - un seul jeu suffit.",
-    "optionalBadge": "Optionnel",
-    "optionalClassicHopperBadge": "Optionnel, trémie classique",
-    "optionalNewHopperBadge": "Optionnel, nouvelle trémie",
+    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
+    "partsListLabel": "Liste complète des pièces",
     "moduleCount": {
       "label": "Modules",
       "decreaseAria": "Diminuer le nombre de modules",
@@ -94,7 +93,6 @@
             "notes": "Arduino Uno R4 ↔ ordinateur hôte"
           },
           "usbCableEsp32": {
-            "part": "Câble USB-A vers USB-C",
             "notes": "Carte ESP32-S3 ↔ ordinateur hôte, via le port USB natif de la carte"
           },
           "barrelJack": {
@@ -160,8 +158,7 @@
             "notes": "Nouvelle trémie"
           },
           "m3x25Screw": {
-            "part": "Vis M3×25",
-            "notes": "Nouvelle trémie"
+            "part": "Vis M3×25"
           },
           "hopperSpring": {
             "part": "Ressort 7/32\" x 11/16\"",
@@ -193,8 +190,7 @@
             "notes": "Nécessaires uniquement si tu fabriques tes propres câbles sur mesure."
           },
           "dupontCrimper": {
-            "part": "Sertisseuse Dupont",
-            "notes": "Nécessaire uniquement si tu fabriques tes propres câbles sur mesure."
+            "part": "Sertisseuse Dupont"
           }
         }
       },
@@ -216,14 +212,21 @@
   "wiring": {
     "heading": "Câblage",
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
+    "detailsLabel": "Détails du câblage",
     "sections": {
       "i2c": {
         "title": "Bus I²C",
         "esp32Note": "Câble le VCC du PCA9685 sur la broche 3.3V de l'ESP32, pas le 5V - les résistances de tirage I²C suivent ce qui alimente le PCA9685, et envoyer du 5V dans un GPIO ESP32 peut l'endommager. La puce PCA9685 fonctionne très bien en logique 3.3V, donc ça ne coûte rien."
       },
-      "servoPower": { "title": "Alimentation des servos" },
-      "irSensors": { "title": "Capteurs IR" },
-      "channelMap": { "title": "Carte des canaux du PCA9685" },
+      "servoPower": {
+        "title": "Alimentation des servos"
+      },
+      "irSensors": {
+        "title": "Capteurs IR"
+      },
+      "channelMap": {
+        "title": "Carte des canaux du PCA9685"
+      },
       "diagram": {
         "title": "Schéma de câblage",
         "alt": "Schéma de câblage montrant les connexions du PCA9685, du microcontrôleur, des servos et des capteurs IR",
@@ -273,9 +276,6 @@
     "helpText": "Bloqué sur une étape ? <a>Rejoins le Discord</a> si tu as besoin d'aide.",
     "hasVideoAria": "Comprend une vidéo explicative",
     "videoTitle": "Vidéo de montage",
-    "optionalBadge": "Optionnel",
-    "optionalClassicHopperBadge": "Optionnel, trémie classique",
-    "optionalNewHopperBadge": "Optionnel, nouvelle trémie",
     "esp32MountType": {
       "label": "Montage ESP32",
       "breakout": "Avec carte de breakout",
@@ -484,5 +484,8 @@
         }
       }
     }
-  }
+  },
+  "optionalBadge": "Optionnel",
+  "optionalClassicHopperBadge": "Optionnel, trémie classique",
+  "optionalNewHopperBadge": "Optionnel, nouvelle trémie"
 }

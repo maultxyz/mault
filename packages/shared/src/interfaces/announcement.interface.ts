@@ -5,6 +5,8 @@ export interface Announcement {
   severity: AnnouncementSeverity;
   message: string;
   isActive: boolean;
+  showOnLanding: boolean;
+  link: string | null;
   startsAt: Date | null;
   endsAt: Date | null;
   createdAt: Date;

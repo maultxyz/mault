@@ -1,20 +1,13 @@
 {
   "servos": {
     "bottom": {
-      "label": "Bottom Paddle",
-      "closed": "Set Closed",
-      "open": "Set Open"
+      "label": "Bottom Paddle"
     },
     "paddle": {
-      "label": "Paddles",
-      "closed": "Set Closed",
-      "open": "Set Open"
+      "label": "Paddles"
     },
     "pusher": {
-      "label": "Pusher",
-      "left": "Set Left",
-      "neutral": "Set Neutral",
-      "right": "Set Right"
+      "label": "Pusher"
     }
   },
   "moduleCountStepper": {
@@ -46,10 +39,8 @@
   "binRoutingAssignment": {
     "label": "Bin Routing Assignment",
     "resetToDefaults": "Reset to Defaults",
-    "binLabel": "Bin {{bin}}",
     "moduleLeft": "Module {{module}}, Left",
     "moduleRight": "Module {{module}}, Right",
-    "moduleOnly": "Module {{module}}",
     "bottomSectionLabel": "Bottom (catch-all)"
   },
   "binRoutingControls": {
@@ -57,8 +48,7 @@
     "feed": "Feed",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
-    "sampleRun": "Sample Run",
-    "binButton": "Bin {{bin}}"
+    "sampleRun": "Sample Run"
   },
   "feederCalibrationPanel": {
     "heading": "Feeder",
@@ -68,19 +58,12 @@
     "speedTooltip": "How fast and which way the feeder motor spins. 0% is stopped; drag either way to speed up in that direction.",
     "forward": "Forward",
     "reverse": "Reverse",
-    "setSpeed": "Set Speed",
     "timeoutLabel": "Timeout (ms)",
-    "setTimeout": "Set Timeout",
-    "msValue": "{{value}} ms",
     "pulseDurationLabel": "Pulse Duration (ms)",
-    "continuous": "Continuous",
-    "continuousFeedButton": "Set Continuous Feed",
-    "setPulseDuration": "Set Pulse Duration",
+    "continuousFeedButton": "Continuous Feed",
     "pauseDurationLabel": "Pause Duration (ms)",
-    "setPauseDuration": "Set Pause Duration",
     "settleDurationLabel": "Final Card Detection Delay (ms)",
-    "settleDurationDescription": "Extra time to keep feeding once the module 1 sensor sees the last card in the hopper, so it travels all the way into the mechanism before the motor stops.",
-    "setSettleDuration": "Set Final Card Detection Delay"
+    "settleDurationDescription": "Extra time to keep feeding once the module 1 sensor sees the last card in the hopper, so it travels all the way into the mechanism before the motor stops."
   },
   "irSensorPanel": {
     "label": "IR Sensors",
@@ -90,7 +73,6 @@
     "monitorTooltip": "Continuously poll the IR sensors and update the badges below in real time",
     "read": "Read",
     "readTooltip": "Take a single snapshot reading of the IR sensors",
-    "moduleLabel": "Module {{module}}",
     "detectedTooltip": "A card is currently detected at Module {{module}}'s IR sensor",
     "notDetectedTooltip": "No card currently detected at Module {{module}}'s IR sensor",
     "hopperEmpty": "Hopper empty",
@@ -98,23 +80,22 @@
     "hopperTooltip": "Whether the card hopper's IR sensor currently detects cards waiting to be fed"
   },
   "moduleCalibrationGrid": {
-    "moduleHeading": "Module {{module}}",
     "positionLabel": "Position",
-    "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Use the position buttons above, then a \"Set\" button to save this as a calibration point.",
+    "editingPosition": "Editing: {{position}}",
+    "noPositionSelected": "Select a position above to edit it",
+    "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Select a position above, then drag this slider to change it - it's saved along with everything else when you hit Save.",
     "rawPulseTooltip": "Raw servo pulse position (120-490), the exact value sent to the device.",
-    "showAdvanced": "Show raw pulse value",
-    "hideAdvanced": "Hide raw pulse value",
+    "rawPulseToggleLabel": "Raw pulse values",
     "positions": {
       "open": "Open",
+      "closed": "Closed",
       "left": "Left",
       "right": "Right",
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it.",
-    "msValue": "{{value}} ms",
     "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
-    "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts.",
-    "setPaddleCloseDelay": "Set Paddle Close Delay"
+    "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Drag the box to move it, or drag the handle to resize. Line it up with a card sitting at module 1.",
@@ -123,13 +104,9 @@
     "connectWebcam": "Connect Webcam",
     "waitingForCamera": "Waiting for camera…",
     "resetToDefault": "Reset to default",
-    "saving": "Saving…",
-    "saveScanRegion": "Save Scan Region",
-    "savedSummary": "Saved: {{coverage}}% coverage, {{offsetX}}% / {{offsetY}}% offset",
-    "msValue": "{{value}} ms",
+    "currentSummary": "{{coverage}}% coverage, {{offsetX}}% / {{offsetY}}% offset",
     "captureSettleLabel": "Capture Settle Delay (ms)",
     "captureSettleDescription": "How long to wait after the feeder confirms a card has arrived before capturing a frame, so the card is fully still and in focus.",
-    "setCaptureSettle": "Set Capture Settle Delay",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",
     "takePhoto": "Take Photo",
@@ -146,7 +123,6 @@
       "runningTest": "Running test sequence…",
       "testComplete": "Test complete",
       "testFailed": "Test failed",
-      "noResponse": "No response from sorter.",
       "binFailed": "Bin {{bin}} failed",
       "startingSampleRun": "Starting sample run…",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}",
@@ -155,22 +131,20 @@
       "copyFailed": "Failed to copy calibration",
       "importInvalid": "That file isn't a valid calibration export",
       "importSuccess": "Calibration imported",
-      "importFailed": "Failed to import calibration"
+      "importFailed": "Failed to import calibration",
+      "calibrationSaved": "Calibration saved",
+      "saveCalibrationFailed": "Failed to save the scan region or capture settle delay"
     }
   },
   "useFeederConfig": {
     "toasts": {
       "notSynced": "Feeder calibration not synced",
-      "unexpectedResponse": "Unexpected response: {{response}}",
-      "noResponse": "No response from sorter.",
       "saveFailed": "Failed to save feeder config"
     }
   },
   "useModuleConfigs": {
     "toasts": {
       "notSynced": "Module {{module}} calibration not synced",
-      "unexpectedResponse": "Unexpected response: {{response}}",
-      "noResponse": "No response from sorter.",
       "saveFailed": "Failed to save module config"
     }
   },
@@ -185,19 +159,14 @@
     "moduleHistory": {
       "bottom": "Bottom",
       "paddle": "Paddle",
-      "pusher": "Pusher",
-      "paddleCloseDelay": "Paddle Close Delay",
-      "moduleLabel": "Module {{module}}",
-      "msValue": "{{value}}ms"
+      "paddleCloseDelay": "Paddle Close Delay"
     },
     "feederHistory": {
       "speed": "Speed",
       "duration": "Duration",
       "pulse": "Pulse",
       "pause": "Pause",
-      "settle": "Final Detection Delay",
-      "continuous": "Continuous",
-      "msValue": "{{value}}ms"
+      "settle": "Final Detection Delay"
     },
     "toasts": {
       "moduleReverted": "Reverted module calibration",
@@ -206,18 +175,27 @@
     },
     "disconnect": "Disconnect",
     "connectDevice": "Connect Device",
+    "connectUsb": "Connect via USB",
+    "connectBluetooth": "Connect via Bluetooth",
     "testing": "Testing…",
     "runTest": "Run Test",
     "calibrateBeforeTest": "Calibrate all modules before running the test",
-    "scanRegionLabel": "Scan Region",
     "feederCalibrationLabel": "Feeder Calibration",
     "history": "History",
     "copyCalibration": "Copy Calibration",
     "exportConfig": "Export Config",
     "importConfig": "Import Config",
     "importing": "Importing…",
-    "moduleCalibrationLabel": "Module Calibration",
     "feederHistoryTitle": "Feeder History",
-    "moduleHistoryTitle": "Module History"
+    "moduleHistoryTitle": "Module History",
+    "msValue": "{{value}}ms"
+  },
+  "moduleLabel": "Module {{module}}",
+  "binLabel": "Bin {{bin}}",
+  "msValue": "{{value}} ms",
+  "continuous": "Continuous",
+  "toasts": {
+    "noResponse": "No response from sorter.",
+    "unexpectedResponse": "Unexpected response: {{response}}"
   }
 }

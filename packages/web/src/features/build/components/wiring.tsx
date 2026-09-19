@@ -1,3 +1,9 @@
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { BOARD_INFO } from "@/lib/constants/build";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useModuleCount } from "@/features/build/api/use-module-count";
@@ -127,129 +133,138 @@ export function BuildWiring() {
         />
       </p>
 
-      <div className="mt-8 flex flex-col gap-8">
-        <div>
-          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("wiring.sections.i2c.title")}
-          </h3>
-          <MiniTable
-            columns={[t("wiring.i2cTable.colPcaPin"), board.displayName]}
-            rows={[
-              [<Pin key="a">SDA</Pin>, <Pin key="b">{board.i2cSda}</Pin>],
-              [<Pin key="a">SCL</Pin>, <Pin key="b">{board.i2cScl}</Pin>],
-              [
-                t("wiring.i2cTable.vccLogic"),
-                <Pin key="b">{board.logicVoltage}</Pin>,
-              ],
-              [<Pin key="a">GND</Pin>, <Pin key="b">GND</Pin>],
-            ]}
-          />
-          {isEsp32 && (
-            <p className="mt-2 text-[11px]/relaxed text-foreground/70">
-              {t("wiring.sections.i2c.esp32Note")}
-            </p>
-          )}
-        </div>
+      <Accordion multiple defaultValue={["wiring"]} className="mt-8">
+        <AccordionItem value="wiring" className="border-b-0">
+          <AccordionTrigger className="font-heading text-base font-semibold tracking-wide text-foreground uppercase">
+            {t("wiring.detailsLabel")}
+          </AccordionTrigger>
+          <AccordionContent className="pb-0">
+            <div className="flex flex-col gap-8">
+              <div>
+                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                  {t("wiring.sections.i2c.title")}
+                </h3>
+                <MiniTable
+                  columns={[t("wiring.i2cTable.colPcaPin"), board.displayName]}
+                  rows={[
+                    [<Pin key="a">SDA</Pin>, <Pin key="b">{board.i2cSda}</Pin>],
+                    [<Pin key="a">SCL</Pin>, <Pin key="b">{board.i2cScl}</Pin>],
+                    [
+                      t("wiring.i2cTable.vccLogic"),
+                      <Pin key="b">{board.logicVoltage}</Pin>,
+                    ],
+                    [<Pin key="a">GND</Pin>, <Pin key="b">GND</Pin>],
+                  ]}
+                />
+                {isEsp32 && (
+                  <p className="mt-2 text-[11px]/relaxed text-foreground/70">
+                    {t("wiring.sections.i2c.esp32Note")}
+                  </p>
+                )}
+              </div>
 
-        <div>
-          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("wiring.sections.servoPower.title")}
-          </h3>
-          <MiniTable
-            columns={[
-              t("wiring.servoPowerTable.colFrom"),
-              t("wiring.servoPowerTable.colTo"),
-            ]}
-            rows={[
-              [
-                t("wiring.servoPowerTable.psuPlus"),
-                <Trans
-                  key="to-plus"
-                  t={t}
-                  i18nKey="wiring.servoPowerTable.toPositive"
-                  components={{ pin: <Pin /> }}
-                />,
-              ],
-              [
-                t("wiring.servoPowerTable.psuMinus"),
-                <Trans
-                  key="to-minus"
-                  t={t}
-                  i18nKey="wiring.servoPowerTable.toNegative"
-                  values={{ board: board.shortName }}
-                  components={{
-                    pin: <Pin />,
-                    em: <em className="text-foreground/70 not-italic" />,
-                  }}
-                />,
-              ],
-            ]}
-          />
-        </div>
+              <div>
+                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                  {t("wiring.sections.servoPower.title")}
+                </h3>
+                <MiniTable
+                  columns={[
+                    t("wiring.servoPowerTable.colFrom"),
+                    t("wiring.servoPowerTable.colTo"),
+                  ]}
+                  rows={[
+                    [
+                      t("wiring.servoPowerTable.psuPlus"),
+                      <Trans
+                        key="to-plus"
+                        t={t}
+                        i18nKey="wiring.servoPowerTable.toPositive"
+                        components={{ pin: <Pin /> }}
+                      />,
+                    ],
+                    [
+                      t("wiring.servoPowerTable.psuMinus"),
+                      <Trans
+                        key="to-minus"
+                        t={t}
+                        i18nKey="wiring.servoPowerTable.toNegative"
+                        values={{ board: board.shortName }}
+                        components={{
+                          pin: <Pin />,
+                          em: <em className="text-foreground/70 not-italic" />,
+                        }}
+                      />,
+                    ],
+                  ]}
+                />
+              </div>
 
-        <div>
-          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("wiring.sections.irSensors.title")}
-          </h3>
-          <p className="mb-3 text-sm/relaxed text-foreground/70">
-            <Trans
-              t={t}
-              i18nKey="wiring.irSensors.description"
-              values={{ count: irSensorCount, board: board.shortName }}
-              components={{
-                strong: <strong className="text-foreground" />,
-                pin: <Pin />,
-              }}
-            />
-          </p>
-          <MiniTable
-            columns={[
-              t("wiring.irTable.colSensor"),
-              t("wiring.irTable.colPin"),
-            ]}
-            rows={irSensorRows}
-          />
-          {isEsp32 && (
-            <p className="mt-2 text-[11px]/relaxed text-foreground/70">
-              {t("wiring.irSensors.esp32Note")}
-            </p>
-          )}
-        </div>
+              <div>
+                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                  {t("wiring.sections.irSensors.title")}
+                </h3>
+                <p className="mb-3 text-sm/relaxed text-foreground/70">
+                  <Trans
+                    t={t}
+                    i18nKey="wiring.irSensors.description"
+                    values={{ count: irSensorCount, board: board.shortName }}
+                    components={{
+                      strong: <strong className="text-foreground" />,
+                      pin: <Pin />,
+                    }}
+                  />
+                </p>
+                <MiniTable
+                  columns={[
+                    t("wiring.irTable.colSensor"),
+                    t("wiring.irTable.colPin"),
+                  ]}
+                  rows={irSensorRows}
+                />
+                {isEsp32 && (
+                  <p className="mt-2 text-[11px]/relaxed text-foreground/70">
+                    {t("wiring.irSensors.esp32Note")}
+                  </p>
+                )}
+              </div>
 
-        <div>
-          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("wiring.sections.channelMap.title")}
-          </h3>
-          <MiniTable
-            columns={[
-              t("wiring.channelTable.colCh"),
-              t("wiring.channelTable.colAssignment"),
-            ]}
-            rows={CHANNEL_MAP.map(([ch, assignment]) => [
-              <span key="ch" className="font-mono tabular-nums">
-                {ch}
-              </span>,
-              assignment,
-            ])}
-          />
-        </div>
+              <div>
+                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                  {t("wiring.sections.channelMap.title")}
+                </h3>
+                <MiniTable
+                  columns={[
+                    t("wiring.channelTable.colCh"),
+                    t("wiring.channelTable.colAssignment"),
+                  ]}
+                  rows={CHANNEL_MAP.map(([ch, assignment]) => [
+                    <span key="ch" className="font-mono tabular-nums">
+                      {ch}
+                    </span>,
+                    assignment,
+                  ])}
+                />
+              </div>
 
-        <div>
-          <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("wiring.sections.diagram.title")}
-          </h3>
-          <img
-            src="/instructions/wiring_diagram.png"
-            alt={t("wiring.sections.diagram.alt")}
-            className="w-full rounded-lg border"
-          />
-          {isEsp32 && (
-            <p className="mt-2 text-[11px]/relaxed text-foreground/70">
-              {t("wiring.sections.diagram.esp32Note")}
-            </p>
-          )}
-        </div>
-      </div>
+              <div>
+                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                  {t("wiring.sections.diagram.title")}
+                </h3>
+                <img
+                  src="/instructions/wiring_diagram.png"
+                  alt={t("wiring.sections.diagram.alt")}
+                  className="w-full rounded-lg border"
+                />
+                {isEsp32 && (
+                  <p className="mt-2 text-[11px]/relaxed text-foreground/70">
+                    {t("wiring.sections.diagram.esp32Note")}
+                  </p>
+                )}
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </section>
   );
 }

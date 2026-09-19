@@ -211,7 +211,7 @@ export default function MonitorSessionsPage() {
                     {collection.name}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {t("monitorSessions.cardCount", {
+                    {t("cardCount", {
                       count: collection.cardCount,
                     })}{" "}
                     ·{" "}
@@ -234,7 +234,7 @@ export default function MonitorSessionsPage() {
                         name={scannerLock.displayName}
                         variant="scanner"
                         size="sm"
-                        tooltip={t("monitorSessions.isScanningTooltip", {
+                        tooltip={t("isScanningTooltip", {
                           name: scannerLock.displayName,
                         })}
                       />

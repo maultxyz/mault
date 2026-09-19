@@ -7,8 +7,6 @@
   },
   "binCard": {
     "override": "Override",
-    "binLabel": "Bin {{number}}",
-    "catchAll": "Catch-all",
     "ruleCount_one": "{{count}} rule",
     "ruleCount_other": "{{count}} rules",
     "allUnmatched": "All unmatched cards",
@@ -20,46 +18,37 @@
     "overrideLabel": "Override rules",
     "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, the lowest bin number wins. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
     "needCatchAllError": "At least one bin must be catch-all.",
-    "binHeading": "Bin {{number}}",
     "catchAllEnabled": "Catch-all enabled",
     "setCatchAll": "Set as catch-all",
     "catchAllDescription": "Cards that don't match any other bin will go here.",
     "rulesLabel": "Rules",
     "apiDocsLink": "Field reference",
     "clear": "Clear",
-    "save": "Save",
     "cardLimitLabel": "Bin capacity",
     "cardLimitPlaceholder": "Unlimited",
     "cardLimitDescription": "Stops scanning and prompts to empty the bin once it holds this many cards. Leave blank for no limit.",
     "autoAssignWaiting": "Waiting for a new {{field}} to appear",
-    "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins."
+    "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins.",
+    "modeChangePending": "Save or discard the pending mode change above before editing bins."
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."
   },
-  "binLocationDiagram": {
-    "binLabel": "Bin {{number}}",
-    "catchAll": "Catch-all"
-  },
+  "binLocationDiagram": {},
   "conditionRow": {
     "selectPlaceholder": "Select...",
     "valuePlaceholder": "Value...",
     "freeformMultiPlaceholder": "Comma-separated values..."
   },
   "ruleGroupEditor": {
-    "and": "AND",
-    "or": "OR",
     "emptyState": "No conditions. Add a condition or group to get started.",
     "addCondition": "Condition",
     "addGroup": "Group"
   },
   "ruleSummary": {
-    "noConditions": "No conditions",
-    "and": "AND",
-    "or": "OR"
+    "noConditions": "No conditions"
   },
   "presetSelector": {
-    "binLabel": "Bin {{number}}",
     "catchAll": "catch-all",
     "noRules": "no rules",
     "conditionCount_one": "{{count}} condition",
@@ -88,7 +77,6 @@
   "useBinConfigs": {
     "toasts": {
       "saveBinFailed": "Failed to save bin config",
-      "clearBinFailed": "Failed to clear bin config",
       "activateSetFailed": "Failed to activate set",
       "createSetFailed": "Failed to create set",
       "saveSetFailed": "Failed to save set",
@@ -101,9 +89,7 @@
       "repackFailed": "Failed to update repack settings"
     }
   },
-  "binsPage": {
-    "binLabel": "Bin {{number}}"
-  },
+  "binsPage": {},
   "autoAssignPanel": {
     "heading": "Auto-detect sorting",
     "description": "Learns bin assignments as you scan: the first time a new value appears for the field below, it claims the next open bin. Repeats route back automatically, and once every bin is taken, new values fall to the catch-all.",
@@ -124,7 +110,11 @@
     "allowDuplicatesDescription": "When off, a card already in a given pack is skipped for that bin (it can still start a different pack that doesn't have it yet) instead of being added again.",
     "slotsLabel": "Pack slots",
     "slotCountLabel": "Count",
-    "addSlot": "Add slot",
-    "save": "Save"
-  }
+    "addSlot": "Add slot"
+  },
+  "binLabel": "Bin {{number}}",
+  "catchAll": "Catch-all",
+  "save": "Save",
+  "and": "AND",
+  "or": "OR"
 }

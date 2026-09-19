@@ -1,35 +1,38 @@
 {
+  "cardPicker": {
+    "remove": "Entfernen",
+    "correctCard": "Karte korrigieren",
+    "scannedAlt": "Gescannt",
+    "selectCorrectVersion": "Deine gescannte Karte - wähle unten die richtige Version aus",
+    "multipleMatches": "Mehrere ähnliche Treffer - wähle die richtige Version aus:",
+    "regularPrice": "Normal: {{price}}",
+    "foilPrice": "Foil: {{price}}",
+    "artBy": "Illustration von {{artist}}",
+    "viewSource": "Quelle ansehen",
+    "searchPlaceholder": "Nach Kartenname suchen...",
+    "allSets": "Alle Editionen",
+    "allSetsCount": "Alle Editionen ({{count}})",
+    "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
+    "noCardsFound": "Keine Karten gefunden"
+  },
   "cardDetailPanel": {
     "backToList": "Zurück zur Kartenliste",
     "previousCard": "Vorherige Karte",
     "nextCard": "Nächste Karte",
-    "scannedAlt": "Gescannt",
-    "selectCorrectVersion": "Deine gescannte Karte - wähle unten die richtige Version aus",
-    "multipleMatches": "Mehrere ähnliche Treffer - wähle die richtige Version aus:",
     "cardDetailsFallback": "Kartendetails",
     "capturedScan": "Aufgenommener Scan",
     "matchedCard": "Übereinstimmende Karte",
-    "foil": "Foil",
-    "foilNone": "Kein Foil",
-    "regularPrice": "Normal: {{price}}",
-    "foilPrice": "Foil: {{price}}",
-    "correctCard": "Karte korrigieren",
+    "similarMatches": "Ähnliche Übereinstimmungen",
     "refetchCardData": "Daten aktualisieren",
     "refetchCardDataTitle": "Kartendaten erneut von der Quelle abrufen und den gespeicherten Datensatz aktualisieren",
     "refetching": "Wird aktualisiert...",
     "refetchSuccess": "Kartendaten aktualisiert",
     "refetchError": "Kartendaten konnten nicht aktualisiert werden",
-    "remove": "Entfernen",
     "searchForCorrectVersion": "Deine gescannte Karte - suche unten nach der richtigen Version",
-    "searchPlaceholder": "Nach Kartenname suchen...",
-    "allSets": "Alle Editionen",
-    "allSetsCount": "Alle Editionen ({{count}})",
-    "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
-    "noCardsFound": "Keine Karten gefunden",
     "cancel": "Abbrechen",
     "binLocation": "Fachposition",
-    "artBy": "Illustration von {{artist}}",
-    "viewSource": "Quelle ansehen"
+    "showVectorRegions": "Vektorisierungsbereiche anzeigen",
+    "showOcrRegions": "OCR-Bereiche anzeigen"
   },
   "cardFilterPopover": {
     "color": "Farbe",
@@ -40,7 +43,6 @@
     "minMatch": "Min. Übereinstimmung",
     "status": "Status",
     "needsAttention": "Benötigt Aufmerksamkeit",
-    "downloaded": "Heruntergeladen",
     "showDownloadedCards": "Heruntergeladene Karten anzeigen",
     "sets": "Editionen",
     "resetFilters": "Filter zurücksetzen"
@@ -58,8 +60,6 @@
     "startTooltip": "Die erste Karte zuführen und den Scan starten",
     "autoFeedOnTooltip": "Auto-Zuführung an — die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus — jede Karte manuell zuführen",
-    "foilNone": "Kein Foil",
-    "foilGeneric": "Foil",
     "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
     "noCardsMatchFilters": "Keine Karten entsprechen den aktuellen Filtern",
     "tryAdjusting": "Passe deine Suche, Sortierung oder Filter an",
@@ -76,22 +76,8 @@
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
     "defaultDescription": "Scryfall nach einer Karte durchsuchen.",
-    "remove": "Entfernen",
-    "correctCard": "Karte korrigieren",
-    "scannedAlt": "Gescannt",
-    "selectCorrectVersion": "Deine gescannte Karte - wähle unten die richtige Version aus",
-    "multipleMatches": "Mehrere ähnliche Treffer - wähle die richtige Version aus:",
     "scanned": "Gescannt",
-    "manaCost": "Mana: {{cost}}",
-    "regularPrice": "Normal: {{price}}",
-    "foilPrice": "Foil: {{price}}",
-    "artBy": "Illustration von {{artist}}",
-    "viewSource": "Quelle ansehen",
-    "searchPlaceholder": "Nach Kartenname suchen...",
-    "allSets": "Alle Editionen",
-    "allSetsCount": "Alle Editionen ({{count}})",
-    "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
-    "noCardsFound": "Keine Karten gefunden"
+    "manaCost": "Mana: {{cost}}"
   },
   "cardToolbar": {
     "searchPlaceholder": "Nach Name, Edition, Typ suchen...",
@@ -108,7 +94,6 @@
     "sessionSummaryExport": "Sitzungsübersicht & Export",
     "deleteScannedCardsTitle": "Gescannte Karten löschen",
     "deleteScannedCardsDescription": "Dadurch werden alle Karten dauerhaft aus deiner Sammlung gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
-    "cancel": "Abbrechen",
     "clearing": "Wird geleert...",
     "clearAll": "Alle löschen",
     "clearAllCardsTitle": "Alle Karten leeren"
@@ -116,10 +101,8 @@
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
     "multipleMatchesResolvedTooltip": "Mehrere ähnliche Treffer - überprüft und korrigiert",
-    "foil": "Foil",
     "matchTooltip": "Wie genau das gescannte Bild mit dieser Karte übereinstimmt, basierend auf visueller Ähnlichkeitssuche",
-    "bin": "Fach {{number}}",
-    "downloaded": "Heruntergeladen"
+    "bin": "Fach {{number}}"
   },
   "sessionSummaryDialog": {
     "title": "Sitzungsübersicht",
@@ -181,5 +164,8 @@
       "medium": "Solides Tempo",
       "slow": "Langsam und gründlich"
     }
-  }
+  },
+  "foil": "Foil",
+  "foilNone": "Kein Foil",
+  "downloaded": "Heruntergeladen"
 }

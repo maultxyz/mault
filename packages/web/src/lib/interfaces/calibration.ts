@@ -30,8 +30,7 @@ export interface BinRoutesContextValue {
 export interface ServoConfig {
   name: "bottom" | "paddle" | "pusher";
   labelKey: string;
-  controlPositions: string[];
-  calibrationPositions: { labelKey: string; key: keyof ServoCalibration }[];
+  positions: string[];
 }
 
 export type SliderKey = `${number}:${"bottom" | "paddle" | "pusher"}`;

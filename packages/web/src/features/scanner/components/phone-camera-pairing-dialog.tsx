@@ -54,7 +54,7 @@ export function PhoneCameraPairingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t("phoneCamera.dialogTitle")}</DialogTitle>
+          <DialogTitle>{t("usePhoneAsCamera")}</DialogTitle>
           <DialogDescription>
             {status === "connected"
               ? t("phoneCamera.connectedDescription")

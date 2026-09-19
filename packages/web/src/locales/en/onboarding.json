@@ -17,7 +17,6 @@
       "content": "Open this menu and choose Camera to connect a webcam (or pair your phone as a camera). It's what captures each card as you scan."
     },
     "connectDevice": {
-      "title": "Connect your sorter",
       "content": "In the same menu, choose Scanner to pair your physical card sorter over USB. Once connected, you can calibrate it or retry the connection here too."
     },
     "filterStats": {
@@ -92,7 +91,6 @@
       "content": "For more advanced logic, add a nested group with its own AND/OR combinator, useful for rules like \"(rarity is mythic OR rare) AND price > $5\"."
     },
     "save": {
-      "title": "Save your changes",
       "content": "Rules aren't applied until you save. Click here once you're happy with this bin's setup."
     },
     "done": {
@@ -123,7 +121,6 @@
       "content": "Click here to add another slot, e.g. one for commons, one for rares - build up the full recipe for a pack."
     },
     "save": {
-      "title": "Save your changes",
       "content": "Slots aren't applied until you save. Every non-catch-all bin picks these same slots up immediately after."
     },
     "done": {
@@ -142,7 +139,6 @@
       "content": "Module setup connects the sorter and maps bins to physical slots, Scan region frames how the camera crops each card, and Servo calibration fine-tunes each servo's positions. Switch between them here."
     },
     "connect": {
-      "title": "Connect your sorter",
       "content": "Pair the sorter over USB here first. Most of this page is disabled until it's connected. Run Test to sample every servo once you're calibrated."
     },
     "channelLayout": {
@@ -181,5 +177,7 @@
       "title": "That's calibration!",
       "content": "Repeat servo calibration for every module you add. Replay this tour anytime from the help icon on this page."
     }
-  }
+  },
+  "connectYourSorterTitle": "Connect your sorter",
+  "saveYourChangesTitle": "Save your changes"
 }

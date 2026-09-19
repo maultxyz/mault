@@ -77,7 +77,7 @@ export const SORTING_RULES_TOUR_STEPS: SortingRulesTourStepConfig[] = [
     id: "save",
     target: '[data-tour="save-bin-config"]',
     placement: "auto",
-    titleKey: "sortingRulesTour.save.title",
+    titleKey: "saveYourChangesTitle",
     contentKey: "sortingRulesTour.save.content",
   },
   {

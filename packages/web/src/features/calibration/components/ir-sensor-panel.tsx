@@ -41,7 +41,7 @@ export function IrSensorPanel({
           <TooltipTrigger
             render={
               <Button
-                variant={isMonitoring ? "default" : "outline"}
+                variant={isMonitoring ? "outline-selected" : "outline"}
                 disabled={!isConnected}
                 onClick={onToggleMonitor}
               >
@@ -77,7 +77,7 @@ export function IrSensorPanel({
                 render={
                   <div className="flex items-center gap-1.5">
                     <Badge variant={detected ? "success" : "ghost"}>
-                      {t("irSensorPanel.moduleLabel", { module: m })}
+                      {t("moduleLabel", { module: m })}
                     </Badge>
                   </div>
                 }

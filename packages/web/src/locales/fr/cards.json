@@ -1,35 +1,38 @@
 {
+  "cardPicker": {
+    "remove": "Retirer",
+    "correctCard": "Carte correcte",
+    "scannedAlt": "Scannée",
+    "selectCorrectVersion": "Ta carte scannée - sélectionne la bonne version ci-dessous",
+    "multipleMatches": "Plusieurs correspondances proches - sélectionne la bonne version :",
+    "regularPrice": "Normale : {{price}}",
+    "foilPrice": "Foil : {{price}}",
+    "artBy": "Illustration par {{artist}}",
+    "viewSource": "Voir la source",
+    "searchPlaceholder": "Rechercher par nom de carte...",
+    "allSets": "Tous les sets",
+    "allSetsCount": "Tous les sets ({{count}})",
+    "startTyping": "Commence à taper pour rechercher des cartes",
+    "noCardsFound": "Aucune carte trouvée"
+  },
   "cardDetailPanel": {
     "backToList": "Retour à la liste des cartes",
     "previousCard": "Carte précédente",
     "nextCard": "Carte suivante",
-    "scannedAlt": "Scannée",
-    "selectCorrectVersion": "Ta carte scannée - sélectionne la bonne version ci-dessous",
-    "multipleMatches": "Plusieurs correspondances proches - sélectionne la bonne version :",
     "cardDetailsFallback": "Détails de la carte",
     "capturedScan": "Scan capturé",
     "matchedCard": "Carte correspondante",
-    "foil": "Foil",
-    "foilNone": "Non foil",
-    "regularPrice": "Normale : {{price}}",
-    "foilPrice": "Foil : {{price}}",
-    "correctCard": "Carte correcte",
+    "similarMatches": "Correspondances similaires",
     "refetchCardData": "Actualiser les données",
     "refetchCardDataTitle": "Récupérer à nouveau les données de cette carte depuis la source et mettre à jour l'enregistrement",
     "refetching": "Actualisation...",
     "refetchSuccess": "Données de la carte mises à jour",
     "refetchError": "Échec de l'actualisation des données de la carte",
-    "remove": "Retirer",
     "searchForCorrectVersion": "Ta carte scannée - recherche la bonne version ci-dessous",
-    "searchPlaceholder": "Rechercher par nom de carte...",
-    "allSets": "Tous les sets",
-    "allSetsCount": "Tous les sets ({{count}})",
-    "startTyping": "Commence à taper pour rechercher des cartes",
-    "noCardsFound": "Aucune carte trouvée",
     "cancel": "Annuler",
     "binLocation": "Emplacement du bac",
-    "artBy": "Illustration par {{artist}}",
-    "viewSource": "Voir la source"
+    "showVectorRegions": "Afficher les zones de vectorisation",
+    "showOcrRegions": "Afficher les zones OCR"
   },
   "cardFilterPopover": {
     "color": "Couleur",
@@ -40,7 +43,6 @@
     "minMatch": "Correspondance min.",
     "status": "Statut",
     "needsAttention": "Nécessite une attention",
-    "downloaded": "Téléchargée",
     "showDownloadedCards": "Afficher les cartes téléchargées",
     "sets": "Sets",
     "resetFilters": "Réinitialiser les filtres"
@@ -58,8 +60,6 @@
     "startTooltip": "Alimenter la première carte et démarrer le scan",
     "autoFeedOnTooltip": "Alimentation auto activée — la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée — alimenter chaque carte manuellement",
-    "foilNone": "Non foil",
-    "foilGeneric": "Foil",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
     "noCardsMatchFilters": "Aucune carte ne correspond aux filtres actuels",
     "tryAdjusting": "Essaie d'ajuster ta recherche, ton tri ou tes filtres",
@@ -76,22 +76,8 @@
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",
     "defaultDescription": "Rechercher une carte sur Scryfall.",
-    "remove": "Retirer",
-    "correctCard": "Carte correcte",
-    "scannedAlt": "Scannée",
-    "selectCorrectVersion": "Ta carte scannée - sélectionne la bonne version ci-dessous",
-    "multipleMatches": "Plusieurs correspondances proches - sélectionne la bonne version :",
     "scanned": "Scannée",
-    "manaCost": "Mana : {{cost}}",
-    "regularPrice": "Normale : {{price}}",
-    "foilPrice": "Foil : {{price}}",
-    "artBy": "Illustration par {{artist}}",
-    "viewSource": "Voir la source",
-    "searchPlaceholder": "Rechercher par nom de carte...",
-    "allSets": "Tous les sets",
-    "allSetsCount": "Tous les sets ({{count}})",
-    "startTyping": "Commence à taper pour rechercher des cartes",
-    "noCardsFound": "Aucune carte trouvée"
+    "manaCost": "Mana : {{cost}}"
   },
   "cardToolbar": {
     "searchPlaceholder": "Rechercher par nom, set, type...",
@@ -108,7 +94,6 @@
     "sessionSummaryExport": "Résumé de session et export",
     "deleteScannedCardsTitle": "Supprimer les cartes scannées",
     "deleteScannedCardsDescription": "Cela supprimera définitivement toutes les cartes de ta collection. Cette action est irréversible.",
-    "cancel": "Annuler",
     "clearing": "Suppression...",
     "clearAll": "Tout effacer",
     "clearAllCardsTitle": "Effacer toutes les cartes"
@@ -116,10 +101,8 @@
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
     "multipleMatchesResolvedTooltip": "Plusieurs correspondances proches - vérifié et corrigé",
-    "foil": "Foil",
     "matchTooltip": "À quel point l'image scannée correspond à cette carte, basé sur une recherche de similarité visuelle",
-    "bin": "Bac {{number}}",
-    "downloaded": "Téléchargée"
+    "bin": "Bac {{number}}"
   },
   "sessionSummaryDialog": {
     "title": "Résumé de la session",
@@ -181,5 +164,8 @@
       "medium": "Bon rythme",
       "slow": "Lent et minutieux"
     }
-  }
+  },
+  "foil": "Foil",
+  "foilNone": "Non foil",
+  "downloaded": "Téléchargée"
 }

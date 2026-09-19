@@ -158,7 +158,7 @@ export function CardToolbar({
       />
       <ButtonGroup className="shrink-0">
         <Button
-          variant={viewMode === "grid" ? "secondary" : "outline"}
+          variant={viewMode === "grid" ? "outline-selected" : "outline"}
           size="icon"
           onClick={() => onViewModeChange("grid")}
           title={t("cardToolbar.gridView")}
@@ -166,7 +166,7 @@ export function CardToolbar({
           <IconLayoutGrid className="size-4" />
         </Button>
         <Button
-          variant={viewMode === "list" ? "secondary" : "outline"}
+          variant={viewMode === "list" ? "outline-selected" : "outline"}
           size="icon"
           onClick={() => onViewModeChange("list")}
           title={t("cardToolbar.listView")}

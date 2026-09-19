@@ -1,20 +1,13 @@
 {
   "servos": {
     "bottom": {
-      "label": "Trappe inférieure",
-      "closed": "Définir fermé",
-      "open": "Définir ouvert"
+      "label": "Trappe inférieure"
     },
     "paddle": {
-      "label": "Palettes",
-      "closed": "Définir fermé",
-      "open": "Définir ouvert"
+      "label": "Palettes"
     },
     "pusher": {
-      "label": "Poussoir",
-      "left": "Définir à gauche",
-      "neutral": "Définir neutre",
-      "right": "Définir à droite"
+      "label": "Poussoir"
     }
   },
   "moduleCountStepper": {
@@ -46,10 +39,8 @@
   "binRoutingAssignment": {
     "label": "Attribution du routage des bacs",
     "resetToDefaults": "Réinitialiser aux valeurs par défaut",
-    "binLabel": "Bac {{bin}}",
     "moduleLeft": "Module {{module}} — Gauche",
     "moduleRight": "Module {{module}} — Droite",
-    "moduleOnly": "Module {{module}}",
     "bottomSectionLabel": "Bas (fourre-tout)"
   },
   "binRoutingControls": {
@@ -57,8 +48,7 @@
     "feed": "Alimenter",
     "binActive": "Bac {{bin}}…",
     "running": "En cours…",
-    "sampleRun": "Test d'exécution",
-    "binButton": "Bac {{bin}}"
+    "sampleRun": "Test d'exécution"
   },
   "feederCalibrationPanel": {
     "heading": "Chargeur",
@@ -68,19 +58,12 @@
     "speedTooltip": "À quelle vitesse et dans quel sens tourne le moteur du chargeur. 0 % est à l'arrêt ; fais glisser d'un côté ou de l'autre pour accélérer dans ce sens.",
     "forward": "Avant",
     "reverse": "Inverse",
-    "setSpeed": "Définir la vitesse",
     "timeoutLabel": "Délai d'expiration (ms)",
-    "setTimeout": "Définir le délai d'expiration",
-    "msValue": "{{value}} ms",
     "pulseDurationLabel": "Durée de l'impulsion (ms)",
-    "continuous": "Continu",
     "continuousFeedButton": "Alimentation continue",
-    "setPulseDuration": "Définir la durée de l'impulsion",
     "pauseDurationLabel": "Durée de la pause (ms)",
-    "setPauseDuration": "Définir la durée de la pause",
     "settleDurationLabel": "Délai de détection de la dernière carte (ms)",
-    "settleDurationDescription": "Temps supplémentaire à continuer d'alimenter une fois que le capteur du module 1 détecte la dernière carte de la trémie, afin qu'elle parcoure tout le mécanisme avant l'arrêt du moteur.",
-    "setSettleDuration": "Définir le délai de détection de la dernière carte"
+    "settleDurationDescription": "Temps supplémentaire à continuer d'alimenter une fois que le capteur du module 1 détecte la dernière carte de la trémie, afin qu'elle parcoure tout le mécanisme avant l'arrêt du moteur."
   },
   "irSensorPanel": {
     "label": "Capteurs IR",
@@ -90,7 +73,6 @@
     "monitorTooltip": "Interroge en continu les capteurs IR et met à jour les badges ci-dessous en temps réel",
     "read": "Lire",
     "readTooltip": "Effectue une lecture instantanée des capteurs IR",
-    "moduleLabel": "Module {{module}}",
     "detectedTooltip": "Une carte est actuellement détectée au capteur IR du module {{module}}",
     "notDetectedTooltip": "Aucune carte actuellement détectée au capteur IR du module {{module}}",
     "hopperEmpty": "Trémie vide",
@@ -98,23 +80,22 @@
     "hopperTooltip": "Indique si le capteur IR de la trémie détecte actuellement des cartes en attente d'alimentation"
   },
   "moduleCalibrationGrid": {
-    "moduleHeading": "Module {{module}}",
     "positionLabel": "Position",
-    "percentSliderTooltip": "À quel point ce servo est poussé, en pourcentage de sa course totale. Utilise les boutons de position ci-dessus, puis un bouton « Définir » pour enregistrer ce point de calibration.",
+    "editingPosition": "Modification : {{position}}",
+    "noPositionSelected": "Sélectionne une position ci-dessus pour la modifier",
+    "percentSliderTooltip": "À quel point ce servo est poussé, en pourcentage de sa course totale. Sélectionne une position ci-dessus, puis fais glisser ce curseur pour la modifier - elle est enregistrée avec le reste quand tu cliques sur Enregistrer.",
     "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
-    "showAdvanced": "Afficher la valeur brute de l'impulsion",
-    "hideAdvanced": "Masquer la valeur brute de l'impulsion",
+    "rawPulseToggleLabel": "Valeurs brutes de l'impulsion",
     "positions": {
       "open": "Ouvert",
+      "closed": "Fermé",
       "left": "Gauche",
       "right": "Droite",
       "neutral": "Neutre"
     },
     "pusherOffsetWarning": "Plus de {{percent}}% par rapport au neutre — plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
-    "msValue": "{{value}} ms",
     "paddleCloseDelayLabel": "Délai de fermeture de la palette (ms)",
-    "paddleCloseDelayDescription": "Temps après le déclenchement du poussoir avant que la palette de ce module se referme, indépendamment du moment où le poussoir lui-même revient en position neutre. Augmente ce délai si les cartes ne sont pas totalement dégagées avant la fermeture.",
-    "setPaddleCloseDelay": "Définir le délai de fermeture de la palette"
+    "paddleCloseDelayDescription": "Temps après le déclenchement du poussoir avant que la palette de ce module se referme, indépendamment du moment où le poussoir lui-même revient en position neutre. Augmente ce délai si les cartes ne sont pas totalement dégagées avant la fermeture."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Fais glisser le cadre pour le déplacer, ou fais glisser la poignée pour le redimensionner. Aligne-le avec une carte posée au module 1.",
@@ -123,13 +104,9 @@
     "connectWebcam": "Connecter la webcam",
     "waitingForCamera": "En attente de la caméra…",
     "resetToDefault": "Réinitialiser par défaut",
-    "saving": "Enregistrement…",
-    "saveScanRegion": "Enregistrer la zone de scan",
-    "savedSummary": "Enregistré : {{coverage}} % de couverture, décalage {{offsetX}} % / {{offsetY}} %",
-    "msValue": "{{value}} ms",
+    "currentSummary": "{{coverage}} % de couverture, décalage {{offsetX}} % / {{offsetY}} %",
     "captureSettleLabel": "Délai avant capture (ms)",
     "captureSettleDescription": "Temps d'attente après que le chargeur confirme l'arrivée d'une carte avant de capturer une image, pour qu'elle soit parfaitement immobile et nette.",
-    "setCaptureSettle": "Définir le délai avant capture",
     "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
     "phoneCameraConnected": "Caméra du téléphone connectée",
     "takePhoto": "Prendre une photo",
@@ -146,7 +123,6 @@
       "runningTest": "Séquence de test en cours…",
       "testComplete": "Test terminé",
       "testFailed": "Échec du test",
-      "noResponse": "Aucune réponse de la trieuse.",
       "binFailed": "Échec du bac {{bin}}",
       "startingSampleRun": "Démarrage du test d'exécution…",
       "sampleRunStopped": "Test d'exécution arrêté au bac {{bin}}",
@@ -155,22 +131,20 @@
       "copyFailed": "Échec de la copie de la calibration",
       "importInvalid": "Ce fichier n'est pas un export de calibration valide",
       "importSuccess": "Calibration importée",
-      "importFailed": "Échec de l'importation de la calibration"
+      "importFailed": "Échec de l'importation de la calibration",
+      "calibrationSaved": "Calibration enregistrée",
+      "saveCalibrationFailed": "Échec de l'enregistrement de la zone de scan ou du délai avant capture"
     }
   },
   "useFeederConfig": {
     "toasts": {
       "notSynced": "Calibration du chargeur non synchronisée",
-      "unexpectedResponse": "Réponse inattendue : {{response}}",
-      "noResponse": "Aucune réponse de la trieuse.",
       "saveFailed": "Échec de l'enregistrement de la configuration du chargeur"
     }
   },
   "useModuleConfigs": {
     "toasts": {
       "notSynced": "Calibration du module {{module}} non synchronisée",
-      "unexpectedResponse": "Réponse inattendue : {{response}}",
-      "noResponse": "Aucune réponse de la trieuse.",
       "saveFailed": "Échec de l'enregistrement de la configuration du module"
     }
   },
@@ -185,19 +159,14 @@
     "moduleHistory": {
       "bottom": "Bas",
       "paddle": "Palette",
-      "pusher": "Poussoir",
-      "paddleCloseDelay": "Délai de fermeture de la palette",
-      "moduleLabel": "Module {{module}}",
-      "msValue": "{{value}} ms"
+      "paddleCloseDelay": "Délai de fermeture de la palette"
     },
     "feederHistory": {
       "speed": "Vitesse",
       "duration": "Durée",
       "pulse": "Impulsion",
       "pause": "Pause",
-      "settle": "Délai de détection finale",
-      "continuous": "Continu",
-      "msValue": "{{value}} ms"
+      "settle": "Délai de détection finale"
     },
     "toasts": {
       "moduleReverted": "Calibration du module rétablie",
@@ -206,18 +175,27 @@
     },
     "disconnect": "Déconnecter",
     "connectDevice": "Connecter l'appareil",
+    "connectUsb": "Connecter via USB",
+    "connectBluetooth": "Connecter via Bluetooth",
     "testing": "Test en cours…",
     "runTest": "Lancer le test",
     "calibrateBeforeTest": "Calibre tous les modules avant de lancer le test",
-    "scanRegionLabel": "Zone de scan",
     "feederCalibrationLabel": "Calibration du chargeur",
     "history": "Historique",
     "copyCalibration": "Copier la calibration",
     "exportConfig": "Exporter la config",
     "importConfig": "Importer la config",
     "importing": "Importation…",
-    "moduleCalibrationLabel": "Calibration des modules",
     "feederHistoryTitle": "Historique du chargeur",
-    "moduleHistoryTitle": "Historique des modules"
+    "moduleHistoryTitle": "Historique des modules",
+    "msValue": "{{value}} ms"
+  },
+  "moduleLabel": "Module {{module}}",
+  "binLabel": "Bac {{bin}}",
+  "msValue": "{{value}} ms",
+  "continuous": "Continu",
+  "toasts": {
+    "noResponse": "Aucune réponse de la trieuse.",
+    "unexpectedResponse": "Réponse inattendue : {{response}}"
   }
 }

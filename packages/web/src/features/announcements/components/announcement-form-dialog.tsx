@@ -43,6 +43,8 @@ function toFormValues(
       severity: "info",
       message: "",
       isActive: true,
+      showOnLanding: false,
+      link: "",
       startsAt: "",
       endsAt: "",
     };
@@ -51,6 +53,8 @@ function toFormValues(
     severity: announcement.severity,
     message: announcement.message,
     isActive: announcement.isActive,
+    showOnLanding: announcement.showOnLanding,
+    link: announcement.link ?? "",
     startsAt: toDatetimeLocalValue(announcement.startsAt),
     endsAt: toDatetimeLocalValue(announcement.endsAt),
   };
@@ -97,7 +101,7 @@ export function AnnouncementFormDialog({
       onOpenChange={onOpenChange}
       className="sm:max-w-md"
       title={
-        announcement ? t("formDialog.editTitle") : t("formDialog.addTitle")
+        announcement ? t("formDialog.editTitle") : t("addAnnouncement")
       }
       description={t("formDialog.description")}
       footer={
@@ -160,6 +164,16 @@ export function AnnouncementFormDialog({
           <FieldError errors={[errors.message]} />
         </Field>
 
+        <Field data-invalid={!!errors.link}>
+          <FieldLabel>{t("formDialog.linkLabel")}</FieldLabel>
+          <Input
+            type="url"
+            placeholder={t("formDialog.linkPlaceholder")}
+            {...register("link")}
+          />
+          <FieldError errors={[errors.link]} />
+        </Field>
+
         <div className="grid grid-cols-2 gap-3">
           <Field data-invalid={!!errors.startsAt}>
             <FieldLabel>{t("formDialog.startsAtLabel")}</FieldLabel>
@@ -177,7 +191,7 @@ export function AnnouncementFormDialog({
         </p>
 
         <Field orientation="horizontal">
-          <FieldLabel>{t("formDialog.activeLabel")}</FieldLabel>
+          <FieldLabel>{t("active")}</FieldLabel>
           <Controller
             control={control}
             name="isActive"
@@ -186,6 +200,20 @@ export function AnnouncementFormDialog({
             )}
           />
         </Field>
+
+        <Field orientation="horizontal">
+          <FieldLabel>{t("formDialog.showOnLandingLabel")}</FieldLabel>
+          <Controller
+            control={control}
+            name="showOnLanding"
+            render={({ field }) => (
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+            )}
+          />
+        </Field>
+        <p className="text-sm text-muted-foreground -mt-2">
+          {t("formDialog.showOnLandingDescription")}
+        </p>
       </form>
     </DynamicDialog>
   );

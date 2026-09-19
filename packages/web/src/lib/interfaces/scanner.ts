@@ -102,12 +102,13 @@ export interface SerialContextValue {
   firmwareVersion: string | null;
   board: SerialBoardType | null;
   transport: SerialTransportType | null;
-  connect: () => Promise<void>;
-  connectBluetooth: () => Promise<void>;
+  connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
+  connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   disconnect: () => Promise<void>;
   sendRoute: (route: BinRoute) => Promise<unknown | null>;
   isRouteBusy: () => boolean;
   sendTest: () => Promise<TestResult>;
+  runTest: () => Promise<void>;
   sendCommand: (data: string) => Promise<boolean>;
   receiveResponse: (timeoutMs?: number) => Promise<string>;
   subscribe: (listener: SerialMessageListener) => () => void;
@@ -141,6 +142,8 @@ export interface ScannerOverlayProps {
   dailyLimitReached: boolean;
   onRetryError: () => void;
   onConnectScanner: () => void;
+  onConnectScannerBluetooth: () => void;
+  bluetoothSupported: boolean;
 }
 
 export interface SetStats {

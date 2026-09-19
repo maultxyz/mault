@@ -27,7 +27,7 @@ export function LandingCta() {
             "mt-2",
           )}
         >
-          {t("cta.button")}
+          {t("getStartedFree")}
           <IconArrowRight size={16} />
         </Link>
       </div>

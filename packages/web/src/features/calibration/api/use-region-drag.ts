@@ -3,10 +3,8 @@ import type { CameraSource } from "@/lib/interfaces/scanner";
 import type { ScanRegion } from "@magic-vault/shared";
 import {
   useRef,
-  type Dispatch,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
-  type SetStateAction,
 } from "react";
 
 type DragState =
@@ -41,13 +39,13 @@ export function useRegionDrag({
   regionRef,
   cameraSource,
   box,
-  setDraft,
+  onRegionChange,
 }: {
   frameRef: RefObject<HTMLDivElement | null>;
   regionRef: RefObject<ScanRegion>;
   cameraSource: CameraSource;
   box: Box | null;
-  setDraft: Dispatch<SetStateAction<ScanRegion | null>>;
+  onRegionChange: (region: ScanRegion) => void;
 }) {
   const dragStateRef = useRef<DragState | null>(null);
 
@@ -103,7 +101,7 @@ export function useRegionDrag({
               offsetX: drag.startOffsetX + dyFrac,
               offsetY: drag.startOffsetY - dxFrac,
             };
-      setDraft(
+      onRegionChange(
         clampRegion({
           ...regionRef.current,
           ...offsets,
@@ -115,7 +113,7 @@ export function useRegionDrag({
         e.clientY - drag.centerClientY,
       );
       if (drag.startDist > 0) {
-        setDraft(
+        onRegionChange(
           clampRegion({
             ...regionRef.current,
             coverage: drag.startCoverage * (dist / drag.startDist),

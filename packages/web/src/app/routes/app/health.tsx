@@ -1,19 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
-import { healthQueryOptions } from "@/features/health/api/health";
+import { useHealthQuery } from "@/features/health/api/health";
+import { useSyncState } from "@/lib/app-stream";
 import {
   IconAlertTriangle,
   IconCircleCheck,
   IconRefresh,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 export default function HealthPage() {
   const { t } = useTranslation("health");
   const { t: tGames } = useTranslation("games");
-  const { data, isFetching, isLoading, refetch } = useQuery(healthQueryOptions);
+  const { data, isFetching, isLoading, refetch } = useHealthQuery();
+  const isSyncing = useSyncState().status === "running";
 
   return (
     <div className="overflow-y-auto h-full w-full">
@@ -23,17 +24,24 @@ export default function HealthPage() {
             <h1 className="text-lg font-semibold font-heading">{t("title")}</h1>
             <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
           </div>
-          <Button
-            size="xs"
-            variant="outline"
-            onClick={() => refetch()}
-            disabled={isFetching}
-          >
-            <IconRefresh
-              className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
-            />
-            {t("refresh")}
-          </Button>
+          <div className="flex flex-col items-end gap-1">
+            <Button
+              size="xs"
+              variant="outline"
+              onClick={() => refetch()}
+              disabled={isFetching || isSyncing}
+            >
+              <IconRefresh
+                className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
+              />
+              {t("refresh")}
+            </Button>
+            {isSyncing && (
+              <p className="text-xs text-foreground/70">
+                {t("pausedDuringSync")}
+              </p>
+            )}
+          </div>
         </div>
 
         {data && (

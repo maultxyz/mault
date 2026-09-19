@@ -7,8 +7,6 @@
   },
   "binCard": {
     "override": "Prioritaire",
-    "binLabel": "Bac {{number}}",
-    "catchAll": "Fourre-tout",
     "ruleCount_one": "{{count}} règle",
     "ruleCount_other": "{{count}} règles",
     "allUnmatched": "Toutes les cartes non associées",
@@ -20,46 +18,37 @@
     "overrideLabel": "Règles prioritaires",
     "overrideDescription": "Si ces règles correspondent, ce bac est prioritaire sur les bacs ordinaires. Si plusieurs bacs prioritaires correspondent, celui dont le numéro est le plus petit est choisi. Par exemple, utilisez Prix ≥ 1 ici pour donner la priorité à ce bac sur les bacs de couleur pour les cartes valant au moins 1 $.",
     "needCatchAllError": "Au moins un bac doit être un fourre-tout.",
-    "binHeading": "Bac {{number}}",
     "catchAllEnabled": "Fourre-tout activé",
     "setCatchAll": "Définir comme fourre-tout",
     "catchAllDescription": "Les cartes qui ne correspondent à aucun autre bac iront ici.",
     "rulesLabel": "Règles",
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
-    "save": "Enregistrer",
     "cardLimitLabel": "Capacité du bac",
     "cardLimitPlaceholder": "Illimité",
     "cardLimitDescription": "Arrête le scan et invite à vider le bac une fois qu'il contient ce nombre de cartes. Laisser vide pour aucune limite.",
     "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
-    "scanOnlyLocked": "Scan uniquement est activé — chaque carte va directement dans le bac 7. Désactive-le ci-dessus pour configurer les bacs."
+    "scanOnlyLocked": "Scan uniquement est activé — chaque carte va directement dans le bac 7. Désactive-le ci-dessus pour configurer les bacs.",
+    "modeChangePending": "Enregistre ou ignore le changement de mode en attente ci-dessus avant de modifier les bacs."
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."
   },
-  "binLocationDiagram": {
-    "binLabel": "Bac {{number}}",
-    "catchAll": "Fourre-tout"
-  },
+  "binLocationDiagram": {},
   "conditionRow": {
     "selectPlaceholder": "Sélectionner...",
     "valuePlaceholder": "Valeur...",
     "freeformMultiPlaceholder": "Valeurs séparées par des virgules..."
   },
   "ruleGroupEditor": {
-    "and": "ET",
-    "or": "OU",
     "emptyState": "Aucune condition. Ajoute une condition ou un groupe pour commencer.",
     "addCondition": "Condition",
     "addGroup": "Groupe"
   },
   "ruleSummary": {
-    "noConditions": "Aucune condition",
-    "and": "ET",
-    "or": "OU"
+    "noConditions": "Aucune condition"
   },
   "presetSelector": {
-    "binLabel": "Bac {{number}}",
     "catchAll": "fourre-tout",
     "noRules": "aucune règle",
     "conditionCount_one": "{{count}} condition",
@@ -88,7 +77,6 @@
   "useBinConfigs": {
     "toasts": {
       "saveBinFailed": "Échec de l'enregistrement de la configuration du bac",
-      "clearBinFailed": "Échec de l'effacement de la configuration du bac",
       "activateSetFailed": "Échec de l'activation de l'ensemble",
       "createSetFailed": "Échec de la création de l'ensemble",
       "saveSetFailed": "Échec de l'enregistrement de l'ensemble",
@@ -101,9 +89,7 @@
       "repackFailed": "Échec de la mise à jour des paramètres de repack"
     }
   },
-  "binsPage": {
-    "binLabel": "Bac {{number}}"
-  },
+  "binsPage": {},
   "autoAssignPanel": {
     "heading": "Détection automatique",
     "description": "Apprend les affectations de bacs pendant le scan : dès qu'une nouvelle valeur apparaît pour le champ ci-dessous, elle occupe le prochain bac libre. Les répétitions y sont ensuite dirigées automatiquement, et une fois tous les bacs occupés, les nouvelles valeurs vont au fourre-tout.",
@@ -124,7 +110,11 @@
     "allowDuplicatesDescription": "Si désactivé, une carte déjà présente dans un pack donné est ignorée pour ce bac (elle peut quand même démarrer un autre pack qui ne l'a pas encore) au lieu d'être ajoutée à nouveau.",
     "slotsLabel": "Créneaux du pack",
     "slotCountLabel": "Nombre",
-    "addSlot": "Ajouter un créneau",
-    "save": "Enregistrer"
-  }
+    "addSlot": "Ajouter un créneau"
+  },
+  "binLabel": "Bac {{number}}",
+  "catchAll": "Fourre-tout",
+  "save": "Enregistrer",
+  "and": "ET",
+  "or": "OU"
 }

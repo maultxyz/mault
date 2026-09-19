@@ -1,3 +1,4 @@
+import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +15,7 @@ import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { BinLimitDialog } from "@/features/scanner/components/bin-limit-dialog";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
@@ -46,13 +48,19 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     isConnected,
     isReady,
     firmwareVersion,
-    connect,
-    connectBluetooth,
     disconnect,
     sendTest,
     sendCommand,
     receiveResponse,
   } = useSerial();
+  const {
+    connect,
+    connectBluetooth,
+    staleDialogOpen,
+    onDismissStaleDialog,
+    onRunTest,
+    onCalibrateFirst,
+  } = useConnectWithStaleCheck();
   const bluetoothSupported =
     typeof navigator !== "undefined" && !!navigator.bluetooth;
   const [isFeeding, setIsFeeding] = useState(false);
@@ -160,7 +168,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       const sent = await sendCommand(JSON.stringify({ feeder: true }));
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
-          description: t("cardScanner.feedFailed.description"),
+          description: t("feederCommandFailedDescription"),
         });
         void reportSerialEvent({
           command: "feeder",
@@ -173,7 +181,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       const response = await receiveResponse(10000);
       if (!response) {
         toast.error(t("cardScanner.feedTimeout.title"), {
-          description: t("cardScanner.feedTimeout.description"),
+          description: t("feederTimeoutDescription"),
         });
         void reportSerialEvent({
           command: "feeder",
@@ -187,8 +195,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
         const parsed = JSON.parse(response) as Record<string, unknown>;
         if (parsed.empty) {
           handlePause();
-          toast.error(t("cardScanner.feederEmpty.title"), {
-            description: t("cardScanner.feederEmpty.description"),
+          toast.error(t("feederEmpty.title"), {
+            description: t("feederEmpty.description"),
             duration: Infinity,
             dismissible: true,
           });
@@ -199,7 +207,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
             collectionGuid: activeCollection?.guid,
           });
         } else if (parsed.error) {
-          toast.error(t("cardScanner.feederError.title"), {
+          toast.error(t("feederError.title"), {
             description: String(parsed.error),
             duration: Infinity,
             dismissible: true,
@@ -215,7 +223,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
         }
       } catch {
         toast.error(t("cardScanner.feedError.title"), {
-          description: t("cardScanner.feedError.description"),
+          description: t("feederUnexpectedResponseDescription"),
         });
         void reportSerialEvent({
           command: "feeder",
@@ -412,6 +420,8 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           dailyLimitReached={isAtScanLimit}
           onRetryError={handleRetryError}
           onConnectScanner={connect}
+          onConnectScannerBluetooth={connectBluetooth}
+          bluetoothSupported={bluetoothSupported}
         />
         <ScannerMenu
           isCameraActive={isCameraActive}
@@ -447,6 +457,14 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       <BinLimitDialog
         bin={binLimitReached}
         onContinue={handleContinueAfterBinLimit}
+      />
+      <StaleDeviceDialog
+        open={staleDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) onDismissStaleDialog();
+        }}
+        onRunTest={onRunTest}
+        onCalibrateFirst={onCalibrateFirst}
       />
     </div>
   );

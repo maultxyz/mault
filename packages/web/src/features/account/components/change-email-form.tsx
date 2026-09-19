@@ -1,14 +1,14 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { SaveBar } from "@/components/save-bar";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { neon } from "@/lib/auth/client";
 import {
   changeEmailSchema,
   type ChangeEmailFormValues,
 } from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconLoader2 } from "@tabler/icons-react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -52,6 +52,7 @@ export function ChangeEmailForm() {
         </Badge>
       </div>
       <form
+        id="change-email-form"
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-3"
       >
@@ -66,17 +67,14 @@ export function ChangeEmailForm() {
           />
           <FieldError errors={[form.formState.errors.newEmail]} />
         </Field>
-        <Button
-          type="submit"
-          disabled={form.formState.isSubmitting}
-          className="self-start"
-        >
-          {form.formState.isSubmitting && (
-            <IconLoader2 className="animate-spin" />
-          )}
-          {t("email.submit")}
-        </Button>
       </form>
+      <SaveBar
+        show={form.formState.isDirty}
+        formId="change-email-form"
+        isSaving={form.formState.isSubmitting}
+        onDiscard={() => form.reset()}
+      />
+      <UnsavedChangesGuard isDirty={form.formState.isDirty} />
     </div>
   );
 }

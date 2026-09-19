@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import {
   Tooltip,
@@ -19,7 +18,6 @@ import {
   signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
-import type { FeederCalibration } from "@magic-vault/shared";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -47,7 +45,8 @@ function RawStepperRow({
   onChange,
   renderValue,
 }: RawStepperRowProps) {
-  const clamp = (v: number) => Math.max(min, max != null ? Math.min(max, v) : v);
+  const clamp = (v: number) =>
+    Math.max(min, max != null ? Math.min(max, v) : v);
   return (
     <ButtonGroup className="w-full">
       <Button
@@ -95,20 +94,13 @@ interface FeederCalibrationPanelProps {
   pulseDurationValue: number;
   pauseDurationValue: number;
   settleDurationValue: number;
-  calibration: FeederCalibration | undefined;
-  isLoading: boolean;
   isConnected: boolean;
   onSpeedChange: (value: number) => void;
   onDurationChange: (value: number) => void;
   onPulseDurationChange: (value: number) => void;
   onPauseDurationChange: (value: number) => void;
   onSettleDurationChange: (value: number) => void;
-  onSetSpeed: () => void;
-  onSetDuration: () => void;
-  onSetPulseDuration: () => void;
-  onSetContinuous: () => void;
-  onSetPauseDuration: () => void;
-  onSetSettleDuration: () => void;
+  onSelectContinuous: () => void;
 }
 
 export function FeederCalibrationPanel({
@@ -117,20 +109,13 @@ export function FeederCalibrationPanel({
   pulseDurationValue,
   pauseDurationValue,
   settleDurationValue,
-  calibration,
-  isLoading,
   isConnected,
   onSpeedChange,
   onDurationChange,
   onPulseDurationChange,
   onPauseDurationChange,
   onSettleDurationChange,
-  onSetSpeed,
-  onSetDuration,
-  onSetPulseDuration,
-  onSetContinuous,
-  onSetPauseDuration,
-  onSetSettleDuration,
+  onSelectContinuous,
 }: FeederCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -142,7 +127,7 @@ export function FeederCalibrationPanel({
       className="grid grid-cols-1 md:grid-cols-3"
       data-tour="feeder-calibration-panel"
     >
-      <div className="rounded-lg border bg-sidebar p-2 flex flex-col gap-5">
+      <div className="rounded-lg border bg-sidebar p-2 flex flex-col gap-5 col-span-2 lg:col-span-1">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold font-heading">
             {t("feederCalibrationPanel.heading")}
@@ -187,7 +172,9 @@ export function FeederCalibrationPanel({
             step={1}
             disabled={!isConnected}
             value={speedSigned}
-            onValueChange={(value) => onSpeedChange(signedPercentToPulse(value))}
+            onValueChange={(value) =>
+              onSpeedChange(signedPercentToPulse(value))
+            }
           />
           {showAdvanced && (
             <RawStepperRow
@@ -203,32 +190,6 @@ export function FeederCalibrationPanel({
               )}
             />
           )}
-          <ButtonGroup className="w-full">
-            <Button
-              variant="outline"
-              disabled={!isConnected}
-              onClick={onSetSpeed}
-              className="flex-1"
-            >
-              {t("feederCalibrationPanel.setSpeed")}
-            </Button>
-          </ButtonGroup>
-          {isLoading ? (
-            <Skeleton className="h-3 w-16 rounded" />
-          ) : calibration ? (
-            <p className="text-xs text-muted-foreground text-center">
-              {showAdvanced ? (
-                calibration.speed
-              ) : (
-                <>
-                  {t(
-                    `feederCalibrationPanel.${pulseToDirectionalSpeed(calibration.speed).direction}`,
-                  )}{" "}
-                  {pulseToDirectionalSpeed(calibration.speed).magnitude}%
-                </>
-              )}
-            </p>
-          ) : null}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -237,7 +198,7 @@ export function FeederCalibrationPanel({
               {t("feederCalibrationPanel.timeoutLabel")}
             </p>
             <span className="text-sm font-bold">
-              {t("feederCalibrationPanel.msValue", { value: durationValue })}
+              {t("msValue", { value: durationValue })}
             </span>
           </div>
           <Slider
@@ -258,32 +219,13 @@ export function FeederCalibrationPanel({
               onChange={onDurationChange}
               renderValue={() => (
                 <p className="font-bold text-sm">
-                  {t("feederCalibrationPanel.msValue", {
+                  {t("msValue", {
                     value: durationValue,
                   })}
                 </p>
               )}
             />
           )}
-          <ButtonGroup className="w-full">
-            <Button
-              variant="outline"
-              disabled={!isConnected}
-              onClick={onSetDuration}
-              className="flex-1"
-            >
-              {t("feederCalibrationPanel.setTimeout")}
-            </Button>
-          </ButtonGroup>
-          {isLoading ? (
-            <Skeleton className="h-3 w-16 rounded" />
-          ) : calibration ? (
-            <p className="text-xs text-muted-foreground text-center">
-              {t("feederCalibrationPanel.msValue", {
-                value: calibration.duration,
-              })}
-            </p>
-          ) : null}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -293,15 +235,18 @@ export function FeederCalibrationPanel({
             </p>
             <p className="text-xs text-muted-foreground italic">
               {pulseDurationValue <= 0
-                ? t("feederCalibrationPanel.continuous")
-                : t("feederCalibrationPanel.msValue", {
+                ? t("continuous")
+                : t("msValue", {
                     value: pulseDurationValue,
                   })}
             </p>
           </div>
           <Slider
             min={0}
-            max={sliderMax(pulseDurationValue, FEEDER_PULSE_DURATION_SLIDER_MAX)}
+            max={sliderMax(
+              pulseDurationValue,
+              FEEDER_PULSE_DURATION_SLIDER_MAX,
+            )}
             step={1}
             disabled={!isConnected}
             value={pulseDurationValue}
@@ -318,8 +263,8 @@ export function FeederCalibrationPanel({
               renderValue={() => (
                 <p className="font-bold text-sm">
                   {pulseDurationValue <= 0
-                    ? t("feederCalibrationPanel.continuous")
-                    : t("feederCalibrationPanel.msValue", {
+                    ? t("continuous")
+                    : t("msValue", {
                         value: pulseDurationValue,
                       })}
                 </p>
@@ -330,31 +275,12 @@ export function FeederCalibrationPanel({
             <Button
               variant="outline"
               disabled={!isConnected}
-              onClick={onSetContinuous}
+              onClick={onSelectContinuous}
               className="flex-1"
             >
               {t("feederCalibrationPanel.continuousFeedButton")}
             </Button>
-            <Button
-              variant="outline"
-              disabled={!isConnected}
-              onClick={onSetPulseDuration}
-              className="flex-1"
-            >
-              {t("feederCalibrationPanel.setPulseDuration")}
-            </Button>
           </ButtonGroup>
-          {isLoading ? (
-            <Skeleton className="h-3 w-16 rounded" />
-          ) : calibration ? (
-            <p className="text-xs text-muted-foreground text-center">
-              {calibration.pulseDuration <= 0
-                ? t("feederCalibrationPanel.continuous")
-                : t("feederCalibrationPanel.msValue", {
-                    value: calibration.pulseDuration,
-                  })}
-            </p>
-          ) : null}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -363,14 +289,17 @@ export function FeederCalibrationPanel({
               {t("feederCalibrationPanel.pauseDurationLabel")}
             </p>
             <span className="text-sm font-bold">
-              {t("feederCalibrationPanel.msValue", {
+              {t("msValue", {
                 value: pauseDurationValue,
               })}
             </span>
           </div>
           <Slider
             min={0}
-            max={sliderMax(pauseDurationValue, FEEDER_PAUSE_DURATION_SLIDER_MAX)}
+            max={sliderMax(
+              pauseDurationValue,
+              FEEDER_PAUSE_DURATION_SLIDER_MAX,
+            )}
             step={1}
             disabled={!isConnected}
             value={pauseDurationValue}
@@ -386,32 +315,13 @@ export function FeederCalibrationPanel({
               onChange={onPauseDurationChange}
               renderValue={() => (
                 <p className="font-bold text-sm">
-                  {t("feederCalibrationPanel.msValue", {
+                  {t("msValue", {
                     value: pauseDurationValue,
                   })}
                 </p>
               )}
             />
           )}
-          <ButtonGroup className="w-full">
-            <Button
-              variant="outline"
-              disabled={!isConnected}
-              onClick={onSetPauseDuration}
-              className="flex-1"
-            >
-              {t("feederCalibrationPanel.setPauseDuration")}
-            </Button>
-          </ButtonGroup>
-          {isLoading ? (
-            <Skeleton className="h-3 w-16 rounded" />
-          ) : calibration ? (
-            <p className="text-xs text-muted-foreground text-center">
-              {t("feederCalibrationPanel.msValue", {
-                value: calibration.pauseDuration,
-              })}
-            </p>
-          ) : null}
         </div>
 
         <div className="flex flex-col gap-2">
@@ -420,7 +330,7 @@ export function FeederCalibrationPanel({
               {t("feederCalibrationPanel.settleDurationLabel")}
             </p>
             <span className="text-sm font-bold">
-              {t("feederCalibrationPanel.msValue", {
+              {t("msValue", {
                 value: settleDurationValue,
               })}
             </span>
@@ -449,32 +359,13 @@ export function FeederCalibrationPanel({
               onChange={onSettleDurationChange}
               renderValue={() => (
                 <p className="font-bold text-sm">
-                  {t("feederCalibrationPanel.msValue", {
+                  {t("msValue", {
                     value: settleDurationValue,
                   })}
                 </p>
               )}
             />
           )}
-          <ButtonGroup className="w-full">
-            <Button
-              variant="outline"
-              disabled={!isConnected}
-              onClick={onSetSettleDuration}
-              className="flex-1"
-            >
-              {t("feederCalibrationPanel.setSettleDuration")}
-            </Button>
-          </ButtonGroup>
-          {isLoading ? (
-            <Skeleton className="h-3 w-16 rounded" />
-          ) : calibration ? (
-            <p className="text-xs text-muted-foreground text-center">
-              {t("feederCalibrationPanel.msValue", {
-                value: calibration.settleDuration,
-              })}
-            </p>
-          ) : null}
         </div>
       </div>
     </div>

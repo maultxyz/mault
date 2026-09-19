@@ -1,4 +1,5 @@
 import { DeleteDialog } from "@/components/delete-dialog";
+import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { neon } from "@/lib/auth/client";
 import {
   orgInviteSchema,
@@ -28,8 +30,8 @@ export function OrgSettings() {
   const { t } = useTranslation("companies");
   const ROLE_LABELS: Record<OrgRole, string> = {
     owner: t("orgSettings.roleOwner"),
-    admin: t("orgSettings.roleAdmin"),
-    member: t("orgSettings.roleMember"),
+    admin: t("roleAdmin"),
+    member: t("roleMember"),
   };
   const { refetch: refetchOrgs } = neon.auth.useListOrganizations();
   const { data: activeOrg, refetch: refetchActive } =
@@ -173,29 +175,28 @@ export function OrgSettings() {
         {activeOrg && (
           <>
             {canManage && (
-              <form
-                onSubmit={renameForm.handleSubmit(handleRename)}
-                className="flex flex-col gap-2"
-              >
-                <h3 className="text-sm font-semibold font-heading">
-                  {t("orgSettings.renameHeading", { name: activeOrg.name })}
-                </h3>
-                <div className="flex gap-2">
+              <>
+                <form
+                  id="org-rename-form"
+                  onSubmit={renameForm.handleSubmit(handleRename)}
+                  className="flex flex-col gap-2"
+                >
+                  <h3 className="text-sm font-semibold font-heading">
+                    {t("orgSettings.renameHeading", { name: activeOrg.name })}
+                  </h3>
                   <Input
                     placeholder={activeOrg.name}
                     {...renameForm.register("name")}
-                    className="flex-1"
                   />
-                  <Button
-                    type="submit"
-                    disabled={renameForm.formState.isSubmitting}
-                  >
-                    {renameForm.formState.isSubmitting
-                      ? t("orgSettings.saving")
-                      : t("orgSettings.rename")}
-                  </Button>
-                </div>
-              </form>
+                </form>
+                <SaveBar
+                  show={renameForm.formState.isDirty}
+                  formId="org-rename-form"
+                  isSaving={renameForm.formState.isSubmitting}
+                  onDiscard={() => renameForm.reset()}
+                />
+                <UnsavedChangesGuard isDirty={renameForm.formState.isDirty} />
+              </>
             )}
 
             <div className="flex flex-col gap-2">
@@ -232,10 +233,10 @@ export function OrgSettings() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="admin">
-                            {t("orgSettings.roleAdmin")}
+                            {t("roleAdmin")}
                           </SelectItem>
                           <SelectItem value="member">
-                            {t("orgSettings.roleMember")}
+                            {t("roleMember")}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -293,10 +294,10 @@ export function OrgSettings() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="admin">
-                            {t("orgSettings.roleAdmin")}
+                            {t("roleAdmin")}
                           </SelectItem>
                           <SelectItem value="member">
-                            {t("orgSettings.roleMember")}
+                            {t("roleMember")}
                           </SelectItem>
                         </SelectContent>
                       </Select>
@@ -308,7 +309,7 @@ export function OrgSettings() {
                   >
                     {inviteForm.formState.isSubmitting
                       ? t("orgSettings.sending")
-                      : t("orgSettings.invite")}
+                      : t("invite")}
                   </Button>
                 </form>
 
@@ -381,7 +382,7 @@ export function OrgSettings() {
       <DeleteDialog
         open={deleteOrgOpen}
         onOpenChange={setDeleteOrgOpen}
-        title={t("orgSettings.deleteOrgTitle")}
+        title={t("orgSettings.deleteOrganization")}
         description={t("orgSettings.deleteOrgDescription", {
           name: activeOrg?.name,
         })}

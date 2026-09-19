@@ -1,4 +1,16 @@
-import type { BinConfigsContextValue } from "@/lib/interfaces/bins";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import type {
+  BinConfigsContextValue,
+  BinModeDraft,
+} from "@/lib/interfaces/bins";
 import {
   BinConfig,
   BinRuleGroup,
@@ -11,7 +23,6 @@ import {
 import {
   activateSet as activateSetAction,
   binsQueryOptions,
-  clearBinConfig as clearBinConfigAction,
   createSet as createSetAction,
   deleteSet as deleteSetAction,
   emptyBin as emptyBinAction,
@@ -31,6 +42,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
 } from "react";
@@ -79,8 +91,13 @@ export function BinConfigsProvider({
   const queryClient = useQueryClient();
   const { activeOrg } = useOrg();
   const { activeCollection, collections } = useCollections();
+  const { t: tCommon } = useTranslation("common");
   const moduleCount = useModuleCount();
-  const [selectedBin, setSelectedBin] = useState(1);
+  const [selectedBin, setSelectedBinState] = useState(1);
+  const [isBinFormDirty, setBinFormDirty] = useState(false);
+  const [pendingBinNumber, setPendingBinNumber] = useState<number | null>(
+    null,
+  );
 
   const { data: allSets = [] } = useQuery({
     ...binsQueryOptions,
@@ -119,6 +136,25 @@ export function BinConfigsProvider({
 
   const selectedConfig =
     configs.find((c) => c.binNumber === selectedBin) ?? configs[0];
+
+  const [modeDraft, setModeDraft] = useState<BinModeDraft | null>(null);
+  const [isSavingMode, setIsSavingMode] = useState(false);
+
+  useEffect(() => {
+    setModeDraft(null);
+  }, [selectedSet?.guid]);
+
+  const modeBaseline: BinModeDraft = {
+    autoAssignField: selectedSet?.autoAssignField ?? null,
+    scanOnly: selectedSet?.scanOnly ?? false,
+    isRepackMode: selectedSet?.isRepackMode ?? false,
+  };
+  const effectiveMode = modeDraft ?? modeBaseline;
+  const isModeDirty =
+    modeDraft !== null &&
+    (modeDraft.autoAssignField !== modeBaseline.autoAssignField ||
+      modeDraft.scanOnly !== modeBaseline.scanOnly ||
+      modeDraft.isRepackMode !== modeBaseline.isRepackMode);
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
@@ -179,36 +215,12 @@ export function BinConfigsProvider({
     },
   });
 
-  const clearBinMutation = useMutation({
-    mutationFn: (binNumber: number) =>
-      clearBinConfigAction(binNumber, activeGameGuid),
-    onMutate: async (binNumber) => {
-      await queryClient.cancelQueries({ queryKey: ["bins"] });
-      const previous = queryClient.getQueryData<BinSet[]>(["bins"]);
-      queryClient.setQueryData<BinSet[]>(["bins"], (old = []) =>
-        old.map((set) =>
-          set.isActive && matchesGame(set, activeGameGuid)
-            ? {
-                ...set,
-                bins: set.bins.filter((b) => b.binNumber !== binNumber),
-              }
-            : set,
-        ),
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previous)
-        queryClient.setQueryData(["bins"], context.previous);
-      toast.error(t("useBinConfigs.toasts.clearBinFailed"));
-    },
-  });
-
   const activateSetMutation = useMutation({
     mutationFn: activateSetAction,
     onSuccess: (result) => {
       if (result.success && result.data) {
-        setSelectedBin(1);
+        setSelectedBinState(1);
+        setPendingBinNumber(null);
         queryClient.setQueryData(["bins"], result.data);
       }
     },
@@ -220,7 +232,8 @@ export function BinConfigsProvider({
       createSetAction(name, undefined, activeGameGuid),
     onSuccess: (result) => {
       if (result.success && result.data) {
-        setSelectedBin(1);
+        setSelectedBinState(1);
+        setPendingBinNumber(null);
         queryClient.setQueryData(["bins"], result.data);
       }
     },
@@ -252,7 +265,8 @@ export function BinConfigsProvider({
     mutationFn: deleteSetAction,
     onSuccess: (result) => {
       if (result.success && result.data) {
-        setSelectedBin(1);
+        setSelectedBinState(1);
+        setPendingBinNumber(null);
         queryClient.setQueryData(["bins"], result.data);
       }
     },
@@ -340,7 +354,7 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.repackFailed")),
   });
 
-  const isPending = saveBinMutation.isPending || clearBinMutation.isPending;
+  const isPending = saveBinMutation.isPending;
   const isActivating = activateSetMutation.isPending;
   const isPresetMutating =
     activateSetMutation.isPending ||
@@ -378,13 +392,6 @@ export function BinConfigsProvider({
       await emptyBinMutation.mutateAsync(binNumber);
     },
     [emptyBinMutation],
-  );
-
-  const clear = useCallback(
-    (binNumber: number) => {
-      clearBinMutation.mutate(binNumber);
-    },
-    [clearBinMutation],
   );
 
   const activateSetFn = useCallback(
@@ -461,6 +468,60 @@ export function BinConfigsProvider({
     [setRepackConfigMutation, selectedSet],
   );
 
+  const stageMode = (patch: Partial<BinModeDraft>) => {
+    setModeDraft((prev) => ({ ...(prev ?? modeBaseline), ...patch }));
+  };
+
+  const discardMode = () => setModeDraft(null);
+
+  const saveMode = async () => {
+    if (!modeDraft || !selectedSet) return;
+    setIsSavingMode(true);
+    try {
+      if (modeDraft.autoAssignField !== modeBaseline.autoAssignField) {
+        await setAutoAssignFieldFn(modeDraft.autoAssignField);
+      }
+      if (modeDraft.scanOnly !== modeBaseline.scanOnly) {
+        await setScanOnlyFn(modeDraft.scanOnly);
+      }
+      if (modeDraft.isRepackMode !== modeBaseline.isRepackMode) {
+        await setRepackConfigFn({
+          isRepackMode: modeDraft.isRepackMode,
+          repackSlots: selectedSet.repackSlots,
+          repackAllowDuplicates: selectedSet.repackAllowDuplicates,
+        });
+        if (modeDraft.isRepackMode) {
+          const lastBin = configs[configs.length - 1];
+          if (lastBin && !lastBin.isCatchAll) {
+            save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+          }
+        }
+      }
+      setModeDraft(null);
+    } finally {
+      setIsSavingMode(false);
+    }
+  };
+
+  const requestSelectBin = useCallback(
+    (bin: number) => {
+      if (bin === selectedBin) return;
+      if (isBinFormDirty) {
+        setPendingBinNumber(bin);
+        return;
+      }
+      setSelectedBinState(bin);
+    },
+    [selectedBin, isBinFormDirty],
+  );
+
+  const confirmBinSwitch = useCallback(() => {
+    if (pendingBinNumber !== null) setSelectedBinState(pendingBinNumber);
+    setPendingBinNumber(null);
+  }, [pendingBinNumber]);
+
+  const cancelBinSwitch = useCallback(() => setPendingBinNumber(null), []);
+
   return (
     <BinConfigsContext
       value={{
@@ -475,11 +536,11 @@ export function BinConfigsProvider({
         isPresetMutating,
         hasCatchAll,
         selectedBin,
-        setSelectedBin,
+        setSelectedBin: requestSelectBin,
+        setBinFormDirty,
         selectedConfig,
         selectedSet,
         save,
-        clear,
         emptyBin,
         activateSet: activateSetFn,
         createSet: createSetFn,
@@ -490,9 +551,43 @@ export function BinConfigsProvider({
         resetAutoAssign: resetAutoAssignFn,
         setScanOnly: setScanOnlyFn,
         setRepackConfig: setRepackConfigFn,
+        effectiveMode,
+        isModeDirty,
+        isSavingMode,
+        stageMode,
+        saveMode,
+        discardMode,
       }}
     >
       {children}
+
+      <Dialog
+        open={pendingBinNumber !== null}
+        onOpenChange={(open) => {
+          if (!open) cancelBinSwitch();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{tCommon("unsavedChanges.leaveTitle")}</DialogTitle>
+            <DialogDescription>
+              {tCommon("unsavedChanges.leaveDescription")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={cancelBinSwitch}>
+              {tCommon("unsavedChanges.keepEditing")}
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmBinSwitch}
+            >
+              {tCommon("unsavedChanges.discardAndLeave")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </BinConfigsContext>
   );
 }

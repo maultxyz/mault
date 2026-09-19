@@ -29,9 +29,8 @@
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
     "hopperNote": "Es gibt zwei Trichter-Varianten: den klassischen Trichter und ein neueres Design, das sich leichter an unterschiedliche Kartenstärken anpasst. Die unten mit Optional, klassischer Trichter bzw. Optional, neuer Trichter markierten Teile gehören zu der Variante, die du nicht baust – du brauchst nur einen Satz.",
-    "optionalBadge": "Optional",
-    "optionalClassicHopperBadge": "Optional, klassischer Trichter",
-    "optionalNewHopperBadge": "Optional, neuer Trichter",
+    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
+    "partsListLabel": "Vollständige Teileliste",
     "moduleCount": {
       "label": "Module",
       "decreaseAria": "Modulanzahl verringern",
@@ -94,7 +93,6 @@
             "notes": "Arduino Uno R4 ↔ Host-Computer"
           },
           "usbCableEsp32": {
-            "part": "USB-A-auf-USB-C-Kabel",
             "notes": "ESP32-S3-Board ↔ Host-Computer, über den nativen USB-Anschluss des Boards"
           },
           "barrelJack": {
@@ -160,8 +158,7 @@
             "notes": "Neuer Trichter"
           },
           "m3x25Screw": {
-            "part": "M3×25-Schraube",
-            "notes": "Neuer Trichter"
+            "part": "M3×25-Schraube"
           },
           "hopperSpring": {
             "part": "Feder 7/32\" x 11/16\"",
@@ -193,8 +190,7 @@
             "notes": "Diese werden nur benötigt, wenn du eigene Kabel in individueller Länge herstellst."
           },
           "dupontCrimper": {
-            "part": "Dupont-Crimpzange",
-            "notes": "Diese werden nur benötigt, wenn du eigene Kabel in individueller Länge herstellst."
+            "part": "Dupont-Crimpzange"
           }
         }
       },
@@ -216,14 +212,21 @@
   "wiring": {
     "heading": "Verkabelung",
     "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Logikseite des PCA9685 wird über die Onboard-Versorgung des {{board}} gespeist; seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein – eine schwebende Servomasse ist der häufigste Grund, warum sich ein frisch verkabeltes Gerät nicht bewegt.",
+    "detailsLabel": "Verkabelungsdetails",
     "sections": {
       "i2c": {
         "title": "I²C-Bus",
         "esp32Note": "Verbinde das VCC des PCA9685 mit dem 3.3V-Pin des ESP32, nicht mit 5V - die I²C-Pull-ups richten sich danach, womit der PCA9685 versorgt wird, und 5V an einem ESP32-GPIO kann diesen beschädigen. Der PCA9685-Chip selbst läuft problemlos mit 3.3V-Logik, das kostet also nichts."
       },
-      "servoPower": { "title": "Servostromversorgung" },
-      "irSensors": { "title": "IR-Sensoren" },
-      "channelMap": { "title": "PCA9685-Kanalbelegung" },
+      "servoPower": {
+        "title": "Servostromversorgung"
+      },
+      "irSensors": {
+        "title": "IR-Sensoren"
+      },
+      "channelMap": {
+        "title": "PCA9685-Kanalbelegung"
+      },
       "diagram": {
         "title": "Verkabelungsdiagramm",
         "alt": "Verkabelungsdiagramm mit den Anschlüssen von PCA9685, Mikrocontroller, Servos und IR-Sensoren",
@@ -273,9 +276,6 @@
     "helpText": "Bei einem Schritt nicht weiter? <a>Tritt dem Discord bei</a>, wenn du Hilfe brauchst.",
     "hasVideoAria": "Enthält ein Video zur Anleitung",
     "videoTitle": "Montagevideo",
-    "optionalBadge": "Optional",
-    "optionalClassicHopperBadge": "Optional, klassischer Trichter",
-    "optionalNewHopperBadge": "Optional, neuer Trichter",
     "esp32MountType": {
       "label": "ESP32-Montage",
       "breakout": "Mit Breakout-Platine",
@@ -484,5 +484,8 @@
         }
       }
     }
-  }
+  },
+  "optionalBadge": "Optional",
+  "optionalClassicHopperBadge": "Optional, klassischer Trichter",
+  "optionalNewHopperBadge": "Optional, neuer Trichter"
 }

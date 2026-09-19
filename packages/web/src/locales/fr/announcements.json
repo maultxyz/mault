@@ -5,6 +5,7 @@
   "loading": "Chargement...",
   "active": "Active",
   "inactive": "Inactive",
+  "onLandingPage": "Sur la page d'accueil",
   "editTitle": "Modifier",
   "deleteTitle": "Supprimer",
   "empty": "Aucune annonce pour le moment",
@@ -31,23 +32,26 @@
     "startsAndEnds": "{{start}} → {{end}}"
   },
   "formDialog": {
-    "addTitle": "Ajouter une annonce",
     "editTitle": "Modifier l'annonce",
     "description": "Affichée à chaque utilisateur connecté jusqu'à sa désactivation.",
     "severityLabel": "Gravité",
     "messageLabel": "Message",
     "messagePlaceholder": "Une maintenance planifiée aura lieu vendredi à 22h UTC.",
+    "linkLabel": "Lien (facultatif)",
+    "linkPlaceholder": "https://example.com/changelog",
     "startsAtLabel": "Début",
     "endsAtLabel": "Fin",
     "scheduleHint": "Laisse l'un des deux champs vide pour ne pas borner ce côté - l'interrupteur Active reste prioritaire dans tous les cas.",
-    "activeLabel": "Active",
+    "showOnLandingLabel": "Afficher sur la page d'accueil",
+    "showOnLandingDescription": "Affiche aussi cette bannière aux visiteurs non connectés sur les pages publiques d'accueil et du guide de montage.",
     "cancel": "Annuler",
     "saving": "Enregistrement…",
     "saveChanges": "Enregistrer les modifications",
     "create": "Créer l'annonce",
     "validation": {
       "required": "Requis",
-      "endAfterStart": "L'heure de fin doit être après l'heure de début"
+      "endAfterStart": "L'heure de fin doit être après l'heure de début",
+      "invalidLink": "Saisis une URL http(s) valide"
     }
   }
 }

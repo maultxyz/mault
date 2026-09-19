@@ -227,6 +227,42 @@ code {
   }
 }
 
+@keyframes foil-sheen {
+  0%,
+  100% {
+    background-position: -30% -30%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+  }
+  50% {
+    background-position: 130% 130%;
+    opacity: 0.5;
+  }
+  80% {
+    opacity: 0.5;
+  }
+}
+
+.animate-foil-sheen {
+  animation: foil-sheen 9s ease-in-out infinite;
+}
+
+.bg-foil-sheen {
+  background-image: linear-gradient(
+    115deg,
+    transparent 15%,
+    #ff5ec8 27%,
+    #7afcff 35%,
+    #fffab0 43%,
+    #7afcff 51%,
+    #ff5ec8 59%,
+    transparent 71%,
+    transparent 100%
+  );
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

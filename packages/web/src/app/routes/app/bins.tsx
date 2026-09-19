@@ -46,7 +46,7 @@ function MobileBins() {
             className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 text-sm font-medium shadow-lg"
           >
             <IconLayoutGrid size={16} />
-            {t("binsPage.binLabel", { number: selectedBin })}
+            {t("binLabel", { number: selectedBin })}
           </button>
         </DrawerTrigger>
         <DrawerContent>

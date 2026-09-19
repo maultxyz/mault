@@ -14,12 +14,11 @@
     },
     "selectGamePlaceholder": "Sélectionner un jeu...",
     "languagePlaceholder": "Langue...",
-    "cancelButton": "Annuler",
     "cancellingButton": "Annulation...",
     "startSyncButton": "Démarrer la synchro",
-    "startingButton": "Démarrage...",
     "progressCount": "{{done}} / {{total}}",
     "vectorizedCount": "{{count}} vectorisées",
+    "queuedCount": "{{count}} en attente",
     "skippedCount": "{{count}} ignorées",
     "etaRemaining": "~{{duration}} restant",
     "errorsCount": "{{count}} erreurs"
@@ -33,7 +32,6 @@
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
     "searchPlaceholder": "Rechercher par nom...",
-    "loading": "Chargement...",
     "loadError": "Échec du chargement des cartes",
     "revectorizeTitle": "Revectoriser",
     "empty": "Aucune carte trouvée",
@@ -67,7 +65,6 @@
     "description": "Recherche un utilisateur pour voir l'application comme lui, à des fins de support/débogage",
     "searchPlaceholder": "Rechercher par nom ou email...",
     "startTyping": "Commence à taper un nom ou un email pour rechercher",
-    "loading": "Chargement...",
     "empty": "Aucun utilisateur trouvé",
     "noOrgs": "Aucune organisation",
     "adminBadge": "Admin",
@@ -77,9 +74,7 @@
     "confirmDialog": {
       "title": "Emprunter l'identité de cet utilisateur ?",
       "description": "Tu verras l'application exactement comme {{email}}, y compris ses organisations et ses données. Ceci est journalisé. Tu peux quitter l'emprunt d'identité à tout moment depuis le bandeau en haut de l'écran.",
-      "cancel": "Annuler",
-      "confirm": "Démarrer l'emprunt d'identité",
-      "starting": "Démarrage..."
+      "confirm": "Démarrer l'emprunt d'identité"
     },
     "toasts": {
       "startError": "Échec du démarrage de l'emprunt d'identité"
@@ -92,5 +87,8 @@
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
     "startedOnly": "Démarré {{started}}"
-  }
+  },
+  "cancel": "Annuler",
+  "starting": "Démarrage...",
+  "loading": "Chargement..."
 }

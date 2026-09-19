@@ -2,15 +2,11 @@
   "gamesManager": {
     "heading": "Spiele",
     "description": "Lege fest, welche Trading Card Games gescannt werden können und wie ihre Karten mit Fach-Regeln abgeglichen werden.",
-    "addGame": "Spiel hinzufügen",
     "loading": "Wird geladen...",
-    "active": "Aktiv",
-    "inactive": "Inaktiv",
     "fieldCount_one": "{{count}} Feld",
     "fieldCount_other": "{{count}} Felder",
     "editTitle": "Bearbeiten",
     "deleteTitle": "Löschen",
-    "empty": "Noch keine Spiele konfiguriert",
     "deleteDialog": {
       "title": "Spiel löschen",
       "description": "„{{name}}“ dauerhaft löschen? Sammlungen, die dieses Spiel verwenden, behalten ihre gescannten Karten, aber es können keine neuen Karten mehr damit abgeglichen werden."
@@ -25,7 +21,6 @@
     }
   },
   "gameFormDialog": {
-    "addTitle": "Spiel hinzufügen",
     "editTitle": "{{name}} bearbeiten",
     "description": "Lege fest, welche Felder Fach-Regeln für dieses Spiel filtern können.",
     "keyLabel": "Schlüssel",
@@ -36,7 +31,6 @@
     "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
     "foilTypesLabel": "Foil-Typen",
     "foilTypesPlaceholder": "Kommagetrennt (z. B. Reverse Holo, Holo). Leer lassen für eine einfache Foil-Option.",
-    "activeLabel": "Aktiv",
     "cancel": "Abbrechen",
     "saving": "Wird gespeichert…",
     "saveChanges": "Änderungen speichern",
@@ -78,8 +72,10 @@
     "description": "Welche Sammelkartenspiele unterstützt werden und wie viele Karten für jedes in der Datenbank vorhanden sind.",
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
-    "inactive": "Inaktiv",
-    "lastUpdated": "Aktualisiert am {{date}}",
-    "empty": "Noch keine Spiele konfiguriert"
-  }
+    "lastUpdated": "Aktualisiert am {{date}}"
+  },
+  "addGame": "Spiel hinzufügen",
+  "active": "Aktiv",
+  "inactive": "Inaktiv",
+  "noGamesConfigured": "Noch keine Spiele konfiguriert"
 }

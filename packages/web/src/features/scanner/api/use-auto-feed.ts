@@ -59,7 +59,7 @@ export function useAutoFeed({
     if (!sent) {
       disableAutoFeed();
       toast.error(t("scannedCards.autoFeedFailed.title"), {
-        description: t("scannedCards.autoFeedFailed.description"),
+        description: t("feederCommandFailedDescription"),
       });
       void reportSerialEvent({
         command: "auto-feed",
@@ -73,7 +73,7 @@ export function useAutoFeed({
     if (!response) {
       disableAutoFeed();
       toast.error(t("scannedCards.autoFeedTimeout.title"), {
-        description: t("scannedCards.autoFeedTimeout.description"),
+        description: t("feederTimeoutDescription"),
       });
       void reportSerialEvent({
         command: "auto-feed",
@@ -88,8 +88,8 @@ export function useAutoFeed({
       if (parsed.empty) {
         disableAutoFeed();
         pause();
-        toast.error(t("scannedCards.feederEmpty.title"), {
-          description: t("scannedCards.feederEmpty.description"),
+        toast.error(t("feederEmpty.title"), {
+          description: t("feederEmpty.description"),
           duration: Infinity,
           dismissible: true,
         });
@@ -101,7 +101,7 @@ export function useAutoFeed({
         });
       } else if (parsed.error) {
         disableAutoFeed();
-        toast.error(t("scannedCards.feederError.title"), {
+        toast.error(t("feederError.title"), {
           description: String(parsed.error),
           duration: Infinity,
           dismissible: true,
@@ -118,7 +118,7 @@ export function useAutoFeed({
     } catch {
       disableAutoFeed();
       toast.error(t("scannedCards.autoFeedError.title"), {
-        description: t("scannedCards.autoFeedError.description"),
+        description: t("feederUnexpectedResponseDescription"),
       });
       void reportSerialEvent({
         command: "auto-feed",

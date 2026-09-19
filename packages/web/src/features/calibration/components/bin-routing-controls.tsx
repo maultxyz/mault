@@ -30,7 +30,7 @@ export function BinRoutingControls({
       <Label>{t("binRoutingControls.label")}</Label>
       <div className="flex items-center gap-2">
         <Button
-          variant={isSampleRunning ? "default" : "outline"}
+          variant={isSampleRunning ? "outline-selected" : "outline"}
           disabled={!isConnected || busy}
           onClick={onSampleRun}
         >
@@ -45,12 +45,14 @@ export function BinRoutingControls({
         {bins.map((bin) => (
           <Button
             key={bin}
-            variant={activeBin === bin && !isSampleRunning ? "default" : "outline"}
+            variant={
+              activeBin === bin && !isSampleRunning ? "outline-selected" : "outline"
+            }
             disabled={!isConnected || busy}
             onClick={() => onTestBin(bin)}
           >
             <IconPackage />
-            {t("binRoutingControls.binButton", {
+            {t("binLabel", {
               bin: activeBin === bin && !isSampleRunning ? "…" : bin,
             })}
           </Button>

@@ -14,12 +14,11 @@
     },
     "selectGamePlaceholder": "Spiel auswählen...",
     "languagePlaceholder": "Sprache...",
-    "cancelButton": "Abbrechen",
     "cancellingButton": "Wird abgebrochen...",
     "startSyncButton": "Sync starten",
-    "startingButton": "Wird gestartet...",
     "progressCount": "{{done}} / {{total}}",
     "vectorizedCount": "{{count}} vektorisiert",
+    "queuedCount": "{{count}} in Warteschlange",
     "skippedCount": "{{count}} übersprungen",
     "etaRemaining": "noch ~{{duration}}",
     "errorsCount": "{{count}} Fehler"
@@ -33,7 +32,6 @@
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
     "searchPlaceholder": "Nach Name suchen...",
-    "loading": "Wird geladen...",
     "loadError": "Karten konnten nicht geladen werden",
     "revectorizeTitle": "Neu vektorisieren",
     "empty": "Keine Karten gefunden",
@@ -67,7 +65,6 @@
     "description": "Suche einen Benutzer, um die App aus dessen Sicht zu sehen (für Support/Debugging)",
     "searchPlaceholder": "Nach Name oder E-Mail suchen...",
     "startTyping": "Beginne mit der Eingabe eines Namens oder einer E-Mail, um zu suchen",
-    "loading": "Wird geladen...",
     "empty": "Keine Benutzer gefunden",
     "noOrgs": "Keine Organisationen",
     "adminBadge": "Admin",
@@ -77,9 +74,7 @@
     "confirmDialog": {
       "title": "Als diesen Benutzer anmelden?",
       "description": "Du siehst die App genau so wie {{email}}, einschließlich seiner Organisationen und Daten. Dies wird protokolliert. Du kannst die Imitation jederzeit über das Banner am oberen Bildschirmrand beenden.",
-      "cancel": "Abbrechen",
-      "confirm": "Imitation starten",
-      "starting": "Wird gestartet..."
+      "confirm": "Imitation starten"
     },
     "toasts": {
       "startError": "Imitation konnte nicht gestartet werden"
@@ -92,5 +87,8 @@
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
     "startedOnly": "Gestartet {{started}}"
-  }
+  },
+  "cancel": "Abbrechen",
+  "starting": "Wird gestartet...",
+  "loading": "Wird geladen..."
 }

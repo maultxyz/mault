@@ -88,7 +88,7 @@ export function DemoCollectionSwitcher() {
               </Button>
             }
           />
-          <TooltipContent>{t("switcher.newCollection")}</TooltipContent>
+          <TooltipContent>{t("newCollection")}</TooltipContent>
         </Tooltip>
       </ButtonGroup>
     </Field>

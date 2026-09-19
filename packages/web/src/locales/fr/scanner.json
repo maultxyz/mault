@@ -1,7 +1,6 @@
 {
   "camera": {
-    "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
-    "accessError": "Impossible d'accéder à la caméra. Vérifie ton appareil."
+    "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
@@ -49,23 +48,13 @@
   },
   "scannedCards": {
     "autoFeedFailed": {
-      "title": "Échec de l'alimentation automatique",
-      "description": "Impossible d'envoyer la commande au chargeur."
+      "title": "Échec de l'alimentation automatique"
     },
     "autoFeedTimeout": {
-      "title": "Délai d'attente de l'alimentation automatique dépassé",
-      "description": "Le chargeur n'a pas répondu à temps."
-    },
-    "feederEmpty": {
-      "title": "Chargeur vide",
-      "description": "Plus de cartes dans la trémie. Ajoute des cartes pour continuer."
-    },
-    "feederError": {
-      "title": "Erreur du chargeur"
+      "title": "Délai d'attente de l'alimentation automatique dépassé"
     },
     "autoFeedError": {
-      "title": "Erreur d'alimentation automatique",
-      "description": "Réponse inattendue du chargeur."
+      "title": "Erreur d'alimentation automatique"
     },
     "noCollectionSelected": {
       "title": "Aucune collection sélectionnée",
@@ -106,23 +95,13 @@
       "description": "Le capteur du module 1 ne détecte aucune carte - insère-en une avant de scanner."
     },
     "feedFailed": {
-      "title": "Échec de l'alimentation",
-      "description": "Impossible d'envoyer la commande au chargeur."
+      "title": "Échec de l'alimentation"
     },
     "feedTimeout": {
-      "title": "Délai d'attente de l'alimentation dépassé",
-      "description": "Le chargeur n'a pas répondu à temps."
-    },
-    "feederEmpty": {
-      "title": "Chargeur vide",
-      "description": "Plus de cartes dans la trémie. Ajoute des cartes pour continuer."
-    },
-    "feederError": {
-      "title": "Erreur du chargeur"
+      "title": "Délai d'attente de l'alimentation dépassé"
     },
     "feedError": {
-      "title": "Erreur d'alimentation",
-      "description": "Réponse inattendue du chargeur."
+      "title": "Erreur d'alimentation"
     },
     "clearFailed": {
       "title": "Échec du vidage",
@@ -150,14 +129,10 @@
   },
   "scanStats": {
     "emptyState": "Scanne des cartes pour voir leurs statistiques.",
-    "totalCards": "Total des cartes",
-    "unique": "Uniques",
     "totalValue": "Valeur totale",
     "avgValue": "Valeur moyenne",
     "sessionTime": "Durée de la session",
     "cardsPerHour": "Cartes / h",
-    "mostValuable": "La plus précieuse",
-    "byRarity": "Par rareté",
     "byColor": "Par couleur",
     "bySet": "Par set",
     "showLess": "Afficher moins",
@@ -181,10 +156,7 @@
   "scannerMenu": {
     "camera": "Caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
-    "reconnect": "Reconnecter",
     "zoom": "Zoom",
-    "disconnect": "Déconnecter",
-    "connect": "Connecter",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
     "scanner": "Scanner",
@@ -192,7 +164,6 @@
     "allowDuplicates": "Autoriser les doublons",
     "calibrate": "Calibrer",
     "retryConnection": "Réessayer la connexion",
-    "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
     "phoneCameraConnected": "Caméra du téléphone connectée",
     "ocrTextMatching": "Correspondance de texte OCR"
   },
@@ -203,7 +174,6 @@
     "cancel": "Annuler"
   },
   "phoneCamera": {
-    "dialogTitle": "Utiliser le téléphone comme caméra",
     "scanDescription": "Scanne ce code QR avec ton téléphone, ou ouvre le lien, pour qu'il puisse être utilisé comme caméra de ce scanner.",
     "connectedDescription": "Ton téléphone est prêt — il prendra une photo dès que ce scanner en aura besoin.",
     "qrAlt": "Code QR pour associer une caméra de téléphone",
@@ -213,13 +183,9 @@
     "disconnect": "Déconnecter le téléphone",
     "done": "OK, démarrer le scan",
     "tryAgain": "Réessayer",
-    "requestingCamera": "Demande d'accès à la caméra…",
-    "cameraError": "Impossible d'accéder à la caméra. Vérifie ton appareil.",
     "ready": "Caméra prête",
     "streamingTo": "Prêt pour {{name}}",
     "disconnected": "Déconnecté de la trieuse.",
-    "reconnect": "Reconnecter",
-    "disconnectButton": "Déconnecter",
     "sessionEndedTitle": "Session terminée",
     "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter."
   },
@@ -231,13 +197,11 @@
     "waitingForPhone": "En attente d'un téléphone à associer comme caméra - affiche le code QR depuis le menu caméra.",
     "phoneReadyNoPhoto": "Caméra du téléphone prête. Elle prendra une photo dès qu'une carte arrivera.",
     "scannerNotConnected": "Trieuse non connectée.",
-    "connectScannerButton": "Connecter",
     "testingScanner": "Test de la connexion à la trieuse…",
     "autoFeedOff": "L'alimentation auto est désactivée - alimente les cartes manuellement.",
     "firmwareVersionMissing": "Le firmware de la trieuse ne signale aucune version. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
     "noCatchAllBin": "Aucun bac fourre-tout configuré - les cartes non associées ne seront pas triées.",
     "initializing": "Initialisation du scanner…",
-    "requestingCameraAccess": "Demande d'accès à la caméra…",
     "identifyingCard": "Identification de la carte…",
     "paused": "Scanner en pause - appuie sur Reprendre pour continuer.",
     "duplicate": "Même carte scannée - utilise Ajouter à nouveau pour l'ajouter quand même.",
@@ -254,16 +218,9 @@
     "noImage": "Aucune image capturée"
   },
   "sessionStatsPanel": {
-    "totalCards": "Total des cartes",
-    "unique": "Uniques",
-    "value": "Valeur",
-    "mostValuable": "La plus précieuse",
-    "byRarity": "Par rareté"
+    "value": "Valeur"
   },
-  "appScanner": {
-    "cardCount_one": "{{count}} carte",
-    "cardCount_other": "{{count}} cartes"
-  },
+  "appScanner": {},
   "recentScannedCards": {
     "heading": "Récemment scannées"
   },
@@ -272,7 +229,6 @@
     "connectFailed": "Impossible de se connecter.",
     "noCardsScannedYet": "Aucune carte scannée pour le moment.",
     "noCardsMatchSearch": "Aucune carte ne correspond à la recherche.",
-    "isScanningTooltip": "{{name}} est en train de scanner",
     "isWatchingTooltip": "{{name}} regarde",
     "viewCards_one": "Voir {{count}} carte",
     "viewCards_other": "Voir {{count}} cartes",
@@ -291,14 +247,40 @@
     "title": "Surveillance de session",
     "subtitle": "Rejoindre une session de scan en direct",
     "noSessionsFound": "Aucune session trouvée",
-    "noSessionsHint": "Les sessions actives apparaîtront ici",
-    "cardCount_one": "{{count}} carte",
-    "cardCount_other": "{{count}} cartes",
-    "isScanningTooltip": "{{name}} est en train de scanner"
+    "noSessionsHint": "Les sessions actives apparaîtront ici"
   },
   "binLimitDialog": {
     "title": "Le bac {{number}} est plein",
     "description": "Le bac {{number}} a atteint sa limite de {{limit}} cartes. Retirez les cartes du bac, puis continuez le scan.",
     "continueButton": "J'ai vidé le bac, continuer"
+  },
+  "feederEmpty": {
+    "title": "Chargeur vide",
+    "description": "Plus de cartes dans la trémie. Ajoute des cartes pour continuer."
+  },
+  "feederError": {
+    "title": "Erreur du chargeur"
+  },
+  "feederCommandFailedDescription": "Impossible d'envoyer la commande au chargeur.",
+  "feederTimeoutDescription": "Le chargeur n'a pas répondu à temps.",
+  "feederUnexpectedResponseDescription": "Réponse inattendue du chargeur.",
+  "totalCards": "Total des cartes",
+  "unique": "Uniques",
+  "mostValuable": "La plus précieuse",
+  "byRarity": "Par rareté",
+  "reconnect": "Reconnecter",
+  "disconnect": "Déconnecter",
+  "connect": "Connecter",
+  "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
+  "requestingCameraAccess": "Demande d'accès à la caméra…",
+  "cardCount_one": "{{count}} carte",
+  "cardCount_other": "{{count}} cartes",
+  "isScanningTooltip": "{{name}} est en train de scanner",
+  "cameraAccessError": "Impossible d'accéder à la caméra. Vérifie ton appareil.",
+  "staleDeviceDialog": {
+    "title": "Cette organisation ne s'est pas connectée depuis un moment",
+    "description": "La calibration de cet appareil n'a pas changé depuis plus de 30 jours. Lance le test automatique tel quel, ou calibre d'abord pour t'assurer que tout correspond encore au matériel physique.",
+    "runTest": "Lancer le test quand même",
+    "calibrateFirst": "Calibrer d'abord"
   }
 }

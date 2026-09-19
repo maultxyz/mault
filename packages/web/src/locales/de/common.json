@@ -95,11 +95,20 @@
     "save": "Speichern",
     "create": "Erstellen"
   },
+  "unsavedChanges": {
+    "message": "Du hast ungespeicherte Änderungen",
+    "discard": "Verwerfen",
+    "save": "Speichern",
+    "saving": "Speichern…",
+    "leaveTitle": "Ungespeicherte Änderungen verwerfen?",
+    "leaveDescription": "Du hast ungespeicherte Änderungen. Wenn du jetzt gehst, gehen sie verloren.",
+    "keepEditing": "Weiter bearbeiten",
+    "discardAndLeave": "Änderungen verwerfen"
+  },
   "auditDrawer": {
     "noHistory": "Noch keine Historie.",
     "current": "aktuell",
     "confirm": "Bestätigen",
-    "cancel": "Abbrechen",
     "revert": "Zurücksetzen"
   },
   "loadingGate": {
@@ -107,14 +116,12 @@
   },
   "notFound": {
     "title": "Seite nicht gefunden",
-    "description": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
-    "backHome": "Zurück zur Startseite"
+    "description": "Die gesuchte Seite existiert nicht oder wurde verschoben."
   },
   "errorPage": {
     "title": "Etwas ist schiefgelaufen",
     "description": "Es ist ein unerwarteter Fehler aufgetreten. Lade die Seite neu.",
-    "reload": "Seite neu laden",
-    "backHome": "Zurück zur Startseite"
+    "reload": "Seite neu laden"
   },
   "footer": {
     "donate": "Spenden",
@@ -133,5 +140,6 @@
     "signIn": "Anmelden",
     "getStarted": "Jetzt starten",
     "openApp": "App öffnen"
-  }
+  },
+  "backHome": "Zurück zur Startseite"
 }

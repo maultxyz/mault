@@ -1,0 +1,1 @@
+ALTER TABLE "announcements" ADD COLUMN "show_on_landing" boolean DEFAULT false NOT NULL;

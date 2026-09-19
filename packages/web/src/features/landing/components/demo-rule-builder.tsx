@@ -89,18 +89,18 @@ export function DemoRuleBuilder() {
         <Button
           type="button"
           size="sm"
-          variant={combinator === "and" ? "secondary" : "outline"}
+          variant={combinator === "and" ? "outline-selected" : "outline"}
           onClick={() => setCombinator("and")}
         >
-          {t("ruleGroupEditor.and")}
+          {t("and")}
         </Button>
         <Button
           type="button"
           size="sm"
-          variant={combinator === "or" ? "secondary" : "outline"}
+          variant={combinator === "or" ? "outline-selected" : "outline"}
           onClick={() => setCombinator("or")}
         >
-          {t("ruleGroupEditor.or")}
+          {t("or")}
         </Button>
       </ButtonGroup>
 

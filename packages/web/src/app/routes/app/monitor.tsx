@@ -205,7 +205,7 @@ export default function MonitorPage() {
         <InitialsAvatar
           name={locks[collectionGuid].displayName}
           variant="scanner"
-          tooltip={t("monitorPage.isScanningTooltip", {
+          tooltip={t("isScanningTooltip", {
             name: locks[collectionGuid].displayName,
           })}
         />

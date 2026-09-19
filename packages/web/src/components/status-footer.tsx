@@ -3,13 +3,12 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { healthQueryOptions } from "@/features/health/api/health";
+import { useHealthQuery } from "@/features/health/api/health";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useRole } from "@/hooks/use-role";
 import { useSyncState } from "@/lib/app-stream";
-import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
@@ -122,7 +121,7 @@ function HealthStatusItem() {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { data } = useQuery(healthQueryOptions);
+  const { data } = useHealthQuery();
 
   if (pathname === "/app/health") return null;
 

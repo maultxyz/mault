@@ -33,7 +33,7 @@ export function AutoAssignSnapshot() {
       {rows.map((row) => (
         <div key={row.binNumber} className="flex gap-2">
           <span className="w-16 shrink-0 text-muted-foreground">
-            {t("presetSelector.binLabel", { number: row.binNumber })}
+            {t("binLabel", { number: row.binNumber })}
           </span>
           <span
             className={

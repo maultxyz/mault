@@ -5,6 +5,7 @@ import { BuildHero } from "@/features/build/components/hero";
 import { BoardTypeProvider } from "@/features/build/api/use-board-type";
 import { ModuleCountProvider } from "@/features/build/api/use-module-count";
 import { BuildWiring } from "@/features/build/components/wiring";
+import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
 
@@ -12,6 +13,7 @@ export default function BuildGuidePage() {
   return (
     <div className="relative flex min-h-screen flex-col bg-background text-foreground">
       <PublicGlow />
+      <PublicAnnouncementBanner />
       <PublicNav containerClassName="max-w-4xl" />
       <main className="flex-1">
         <BoardTypeProvider>

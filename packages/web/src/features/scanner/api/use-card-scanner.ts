@@ -1,6 +1,6 @@
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useDevice } from "@/features/calibration/api/use-device";
-import { searchByImage } from "@/features/cards/api/card";
+import { searchByImage, searchByVector } from "@/features/cards/api/card";
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -11,6 +11,10 @@ import {
   extractCardImage,
   getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
+import {
+  isWebGpuSupported,
+  vectorizeCardImageOnClient,
+} from "@/features/scanner/lib/client-vectorize";
 import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
@@ -21,6 +25,7 @@ import {
   type PlayingCardWithDistance,
   type ScanRegion,
   type ScannerStatus,
+  type SearchCardMatch,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -57,25 +62,15 @@ function playDingSound() {
   oscillator.stop(ctx.currentTime + 0.3);
 }
 
-async function searchCardImage(
-  canvas: HTMLCanvasElement,
-  contour?: CardContour | null,
-  collectionGuid?: string,
-  ocrEnabled?: boolean,
+async function resolveSearchMatches(
+  data: SearchCardMatch[] | null | undefined,
+  collectionGuid: string | undefined,
+  debugImageUrl: string,
 ): Promise<{
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
   debugImageUrl: string;
 }> {
-  const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
-  const debugImageUrl = warpedCanvas.toDataURL("image/jpeg", 0.8);
-  const blob = await canvasToBlob(warpedCanvas);
-  const formData = new FormData();
-  formData.append("image", blob, "card.jpg");
-  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
-  formData.append("ocrEnabled", String(ocrEnabled ?? false));
-
-  const { data } = await searchByImage(formData);
   if (!data || data.length === 0)
     return { card: null, alternativeMatches: [], debugImageUrl };
 
@@ -96,6 +91,58 @@ async function searchCardImage(
 
   const [card, ...alternativeMatches] = cards;
   return { card, alternativeMatches, debugImageUrl };
+}
+
+async function searchCardImage(
+  canvas: HTMLCanvasElement,
+  contour?: CardContour | null,
+  collectionGuid?: string,
+  ocrEnabled?: boolean,
+  gameKey?: string,
+): Promise<{
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+}> {
+  const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
+  const debugImageUrl = warpedCanvas.toDataURL("image/jpeg", 0.8);
+  const blob = await canvasToBlob(warpedCanvas);
+
+  if (await isWebGpuSupported()) {
+    try {
+      const embeddings = await vectorizeCardImageOnClient(
+        warpedCanvas,
+        gameKey,
+      );
+      const vectorFormData = new FormData();
+      vectorFormData.append("image", blob, "card.jpg");
+      if (collectionGuid) vectorFormData.append("collectionGuid", collectionGuid);
+      vectorFormData.append("ocrEnabled", String(ocrEnabled ?? false));
+      vectorFormData.append("embedding", JSON.stringify(embeddings.embedding));
+      if (embeddings.embeddingArt) {
+        vectorFormData.append("embeddingArt", JSON.stringify(embeddings.embeddingArt));
+      }
+      if (embeddings.embeddingName) {
+        vectorFormData.append("embeddingName", JSON.stringify(embeddings.embeddingName));
+      }
+      if (embeddings.embeddingBottom) {
+        vectorFormData.append("embeddingBottom", JSON.stringify(embeddings.embeddingBottom));
+      }
+
+      const { data } = await searchByVector(vectorFormData);
+      return resolveSearchMatches(data, collectionGuid, debugImageUrl);
+    } catch (err) {
+      console.error("[scanner] client-side vectorization failed, falling back to server:", err);
+    }
+  }
+
+  const formData = new FormData();
+  formData.append("image", blob, "card.jpg");
+  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  formData.append("ocrEnabled", String(ocrEnabled ?? false));
+
+  const { data } = await searchByImage(formData);
+  return resolveSearchMatches(data, collectionGuid, debugImageUrl);
 }
 
 export function useCardScanner({
@@ -155,6 +202,8 @@ export function useCardScanner({
 
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
+  const activeGameKeyRef = useRef(activeCollection?.game?.key);
+  activeGameKeyRef.current = activeCollection?.game?.key;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -252,6 +301,7 @@ export function useCardScanner({
             contour,
             activeCollectionGuidRef.current,
             ocrEnabledRef.current,
+            activeGameKeyRef.current,
           );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;

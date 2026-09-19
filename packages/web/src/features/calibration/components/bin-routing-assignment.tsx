@@ -36,14 +36,14 @@ function SlotSelect({
         <SelectTrigger className="h-8 w-full text-xs">
           <SelectValue>
             {binNumber != null
-              ? t("binRoutingAssignment.binLabel", { bin: binNumber })
+              ? t("binLabel", { bin: binNumber })
               : ""}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {binNumbers.map((bin) => (
             <SelectItem key={bin} value={String(bin)}>
-              {t("binRoutingAssignment.binLabel", { bin })}
+              {t("binLabel", { bin })}
             </SelectItem>
           ))}
         </SelectContent>
@@ -149,7 +149,7 @@ export function BinRoutingAssignment() {
               >
                 <SelectTrigger className="h-8 w-32 text-xs">
                   <SelectValue>
-                    {t("binRoutingAssignment.moduleOnly", {
+                    {t("moduleLabel", {
                       module: route.module,
                     })}
                   </SelectValue>
@@ -157,7 +157,7 @@ export function BinRoutingAssignment() {
                 <SelectContent>
                   {modules.map((m) => (
                     <SelectItem key={m} value={String(m)}>
-                      {t("binRoutingAssignment.moduleOnly", { module: m })}
+                      {t("moduleLabel", { module: m })}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -170,7 +170,7 @@ export function BinRoutingAssignment() {
               >
                 <SelectTrigger className="h-8 flex-1 text-xs">
                   <SelectValue>
-                    {t("binRoutingAssignment.binLabel", {
+                    {t("binLabel", {
                       bin: route.binNumber,
                     })}
                   </SelectValue>
@@ -178,7 +178,7 @@ export function BinRoutingAssignment() {
                 <SelectContent>
                   {binNumbers.map((bin) => (
                     <SelectItem key={bin} value={String(bin)}>
-                      {t("binRoutingAssignment.binLabel", { bin })}
+                      {t("binLabel", { bin })}
                     </SelectItem>
                   ))}
                 </SelectContent>

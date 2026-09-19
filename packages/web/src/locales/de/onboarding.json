@@ -17,7 +17,6 @@
       "content": "Öffne dieses Menü und wähle Kamera, um eine Webcam zu verbinden (oder dein Handy als Kamera zu koppeln). Sie erfasst jede Karte beim Scannen."
     },
     "connectDevice": {
-      "title": "Sortiergerät verbinden",
       "content": "Wähle im selben Menü Scanner, um deinen physischen Kartensortierer per USB zu koppeln. Danach kannst du ihn hier auch kalibrieren oder die Verbindung erneut versuchen."
     },
     "filterStats": {
@@ -92,7 +91,6 @@
       "content": "Für fortgeschrittenere Logik füge eine verschachtelte Gruppe mit eigenem UND/ODER-Verknüpfer hinzu - nützlich für Regeln wie \"(Seltenheit ist mythisch ODER selten) UND Preis > 5 $\"."
     },
     "save": {
-      "title": "Änderungen speichern",
       "content": "Regeln werden erst nach dem Speichern angewendet. Klicke hier, sobald du mit der Konfiguration dieses Fachs zufrieden bist."
     },
     "done": {
@@ -123,7 +121,6 @@
       "content": "Klicke hier, um einen weiteren Slot hinzuzufügen, z. B. einen für Commons, einen für Rares - so baust du das vollständige Rezept für ein Pack."
     },
     "save": {
-      "title": "Änderungen speichern",
       "content": "Slots gelten erst nach dem Speichern. Jedes Fach außer dem Auffangfach übernimmt sie danach sofort."
     },
     "done": {
@@ -142,7 +139,6 @@
       "content": "Modul-Einrichtung verbindet den Sortierer und ordnet Fächer physischen Steckplätzen zu, Scan-Bereich legt fest, wie die Kamera jede Karte zuschneidet, und Servo-Kalibrierung stellt die Positionen jedes Servos fein ein. Wechsle hier zwischen ihnen."
     },
     "connect": {
-      "title": "Verbinde deinen Sortierer",
       "content": "Koppele den Sortierer zuerst hier über USB - der Großteil dieser Seite ist deaktiviert, bis er verbunden ist. Führe Testen aus, um jeden Servo nach der Kalibrierung zu prüfen."
     },
     "channelLayout": {
@@ -181,5 +177,7 @@
       "title": "Das war die Kalibrierung!",
       "content": "Wiederhole die Servo-Kalibrierung für jedes hinzugefügte Modul. Du kannst diese Tour jederzeit über das Hilfe-Symbol auf dieser Seite wiederholen."
     }
-  }
+  },
+  "connectYourSorterTitle": "Sortiergerät verbinden",
+  "saveYourChangesTitle": "Änderungen speichern"
 }

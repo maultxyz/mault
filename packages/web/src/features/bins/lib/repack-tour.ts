@@ -49,7 +49,7 @@ export const REPACK_TOUR_STEPS: RepackTourStepConfig[] = [
     id: "save",
     target: '[data-tour="repack-save"]',
     placement: "auto",
-    titleKey: "repackTour.save.title",
+    titleKey: "saveYourChangesTitle",
     contentKey: "repackTour.save.content",
   },
   {

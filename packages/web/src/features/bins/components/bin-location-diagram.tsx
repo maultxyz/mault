@@ -26,7 +26,7 @@ function BinCell({
             : "text-muted-foreground",
       )}
     >
-      <span>{t("binLocationDiagram.binLabel", { number: binNumber })}</span>
+      <span>{t("binLabel", { number: binNumber })}</span>
       {isCatchAll && (
         <span
           className={cn(
@@ -38,7 +38,7 @@ function BinCell({
                 : "text-muted-foreground/70",
           )}
         >
-          {t("binLocationDiagram.catchAll")}
+          {t("catchAll")}
         </span>
       )}
     </div>

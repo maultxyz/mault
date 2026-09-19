@@ -87,7 +87,7 @@ export function CardDatabaseManager() {
       <div className="divide-y min-h-0 overflow-y-auto">
         {cardsQuery.isLoading && (
           <p className="text-sm text-muted-foreground text-center py-6">
-            {t("cardDatabase.loading")}
+            {t("loading")}
           </p>
         )}
         {cardsQuery.isError && (

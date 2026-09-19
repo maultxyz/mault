@@ -1,3 +1,4 @@
+import { FoilOverlay } from "@/components/foil-overlay";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { getCardById, searchCards } from "@/features/cards/api/card-search";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
@@ -79,6 +82,8 @@ export function CardDetailPanel({
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
+  const [showVectorRegions, setShowVectorRegions] = useState(false);
+  const [showOcrRegions, setShowOcrRegions] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedSet, setSelectedSet] = useState<string | null>("all");
@@ -92,9 +97,8 @@ export function CardDetailPanel({
   const { activeCollection } = useCollections();
   const foilOptions = activeCollection?.game?.foilTypes?.length
     ? activeCollection.game.foilTypes
-    : [t("cardDetailPanel.foil")];
-  const currentFoilType =
-    foilType ?? (isFoil ? t("cardDetailPanel.foil") : null);
+    : [t("foil")];
+  const currentFoilType = foilType ?? (isFoil ? t("foil") : null);
 
   useEffect(() => {
     if (!currentCard) return;
@@ -128,15 +132,18 @@ export function CardDetailPanel({
     return () => document.removeEventListener("keydown", handler);
   }, [editing, hasPrev, hasNext, onPrev, onNext, onClose]);
 
-  const { data: capturedImageUrl } = useQuery({
-    queryKey: ["collection-card-image", activeCollection?.guid, scanId],
-    queryFn: () =>
-      loadCardImage(activeCollection!.guid, scanId!).then(
-        (r) => r.data?.capturedImageUrl,
-      ),
-    enabled: !!activeCollection?.guid && !!scanId,
-    staleTime: Infinity,
-  });
+  const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
+    useQuery({
+      queryKey: ["collection-card-image", activeCollection?.guid, scanId],
+      queryFn: () =>
+        loadCardImage(activeCollection!.guid, scanId!).then(
+          (r) => r.data?.capturedImageUrl,
+        ),
+      enabled: !!activeCollection?.guid && !!scanId,
+      staleTime: Infinity,
+    });
+  const showCapturedImageSlot =
+    !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
 
   const isQueryReady = debouncedQuery.trim().length >= QUERY_MIN_LENGTH;
 
@@ -220,7 +227,7 @@ export function CardDetailPanel({
   const typeLine = selectedCard?.typeLine ?? "";
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full overflow-x-hidden">
       <div className="sticky top-0 p-2 shrink-0 flex flex-col gap-2">
         <Button
           size="icon"
@@ -252,7 +259,7 @@ export function CardDetailPanel({
           </Button>
         </ButtonGroup>
       </div>
-      <div className="flex-1 flex flex-col min-w-0 border-l">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 border-l">
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             <div className="flex items-baseline gap-2">
@@ -269,29 +276,60 @@ export function CardDetailPanel({
               </p>
             )}
           </div>
+          {capturedImageUrl && (
+            <div className="flex items-center gap-4 shrink-0 text-xs text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <span>{t("cardDetailPanel.showOcrRegions")}</span>
+                <Switch
+                  size="sm"
+                  aria-label={t("cardDetailPanel.showOcrRegions")}
+                  checked={showOcrRegions}
+                  onCheckedChange={setShowOcrRegions}
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <span>{t("cardDetailPanel.showVectorRegions")}</span>
+                <Switch
+                  size="sm"
+                  aria-label={t("cardDetailPanel.showVectorRegions")}
+                  checked={showVectorRegions}
+                  onCheckedChange={setShowVectorRegions}
+                />
+              </div>
+            </div>
+          )}
         </div>
-        <div className="p-6 flex flex-col gap-5">
+        <div className="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-5">
           {currentCard && !editing ? (
             <>
               {hasMultipleCandidates && (
                 <div className="flex flex-col gap-3">
-                  {capturedImageUrl ? (
+                  {showCapturedImageSlot ? (
                     <div className="flex items-center gap-4">
                       <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
-                        <CapturedImageThumb
-                          src={capturedImageUrl}
-                          alt={t("cardDetailPanel.scannedAlt")}
-                        />
+                        {capturedImageUrl ? (
+                          <CapturedImageThumb
+                            src={capturedImageUrl}
+                            alt={t("cardPicker.scannedAlt")}
+                            showVectorRegions={showVectorRegions}
+                            showOcrRegions={showOcrRegions}
+                          />
+                        ) : (
+                          <Skeleton className="h-full w-full rounded-none" />
+                        )}
                       </div>
                       <p className="text-sm text-muted-foreground leading-snug">
-                        {t("cardDetailPanel.selectCorrectVersion")}
+                        {t("cardPicker.selectCorrectVersion")}
                       </p>
                     </div>
                   ) : (
                     <p className="text-sm text-muted-foreground font-medium">
-                      {t("cardDetailPanel.multipleMatches")}
+                      {t("cardPicker.multipleMatches")}
                     </p>
                   )}
+                  <p className="text-xs font-medium text-muted-foreground tracking-wide">
+                    {t("cardDetailPanel.similarMatches")}
+                  </p>
                   <div className="flex gap-3 overflow-x-auto pb-1">
                     {candidates.map((c) => {
                       const isSelected = c.id === selectedId;
@@ -341,31 +379,38 @@ export function CardDetailPanel({
               <div className="flex flex-col gap-4">
                 {!hasMultipleCandidates && (
                   <div className="shrink-0 flex gap-3">
-                    {capturedImageUrl && (
+                    {showCapturedImageSlot && (
                       <div className="flex flex-col gap-1.5 items-center">
                         <p className="text-xs text-muted-foreground">
                           {t("cardDetailPanel.capturedScan")}
                         </p>
                         <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
-                          <CapturedImageThumb
-                            src={capturedImageUrl}
-                            alt={t("cardDetailPanel.scannedAlt")}
-                          />
+                          {capturedImageUrl ? (
+                            <CapturedImageThumb
+                              src={capturedImageUrl}
+                              alt={t("cardPicker.scannedAlt")}
+                              showVectorRegions={showVectorRegions}
+                              showOcrRegions={showOcrRegions}
+                            />
+                          ) : (
+                            <Skeleton className="h-full w-full rounded-none" />
+                          )}
                         </div>
                       </div>
                     )}
                     <div className="flex flex-col gap-1.5 items-center">
-                      {capturedImageUrl && (
+                      {showCapturedImageSlot && (
                         <p className="text-xs text-muted-foreground">
                           {t("cardDetailPanel.matchedCard")}
                         </p>
                       )}
-                      <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
+                      <div className="relative w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
                         <img
                           src={selectedCard?.image?.normal || ""}
                           alt={selectedCard?.name}
                           className="w-full h-full object-cover"
                         />
+                        {isFoil && <FoilOverlay />}
                       </div>
                     </div>
                   </div>
@@ -407,14 +452,14 @@ export function CardDetailPanel({
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         {selectedCard.price != null && (
                           <span>
-                            {t("cardDetailPanel.regularPrice", {
+                            {t("cardPicker.regularPrice", {
                               price: formatUsd(selectedCard.price),
                             })}
                           </span>
                         )}
                         {selectedCard.priceFoil != null && (
                           <span>
-                            {t("cardDetailPanel.foilPrice", {
+                            {t("cardPicker.foilPrice", {
                               price: formatUsd(selectedCard.priceFoil),
                             })}
                           </span>
@@ -423,7 +468,7 @@ export function CardDetailPanel({
                     )}
                     {selectedCard.artist && (
                       <p className="text-xs text-muted-foreground">
-                        {t("cardDetailPanel.artBy", {
+                        {t("cardPicker.artBy", {
                           artist: selectedCard.artist,
                         })}
                       </p>
@@ -435,14 +480,14 @@ export function CardDetailPanel({
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-sm text-primary hover:underline w-fit"
                       >
-                        {t("cardDetailPanel.viewSource")}
+                        {t("cardPicker.viewSource")}
                       </a>
                     )}
                   </div>
                 )}
               </div>
               <div className="flex items-center gap-2 w-fit">
-                <Label>{t("cardDetailPanel.foil")}</Label>
+                <Label>{t("foil")}</Label>
                 <Select
                   value={currentFoilType ?? "none"}
                   onValueChange={(value) => {
@@ -453,12 +498,10 @@ export function CardDetailPanel({
                   disabled={!scanId}
                 >
                   <SelectTrigger className="w-40">
-                    <SelectValue placeholder={t("cardDetailPanel.foilNone")} />
+                    <SelectValue placeholder={t("foilNone")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">
-                      {t("cardDetailPanel.foilNone")}
-                    </SelectItem>
+                    <SelectItem value="none">{t("foilNone")}</SelectItem>
                     {foilOptions.map((type) => (
                       <SelectItem key={type} value={type}>
                         {type}
@@ -480,45 +523,22 @@ export function CardDetailPanel({
                   </div>
                 </div>
               )}
-              <div className="flex gap-3 pt-1">
-                <Button
-                  variant="outline"
-                  onClick={handleRefetch}
-                  disabled={isRefetching || !selectedCard}
-                  title={t("cardDetailPanel.refetchCardDataTitle")}
-                >
-                  <IconRefresh
-                    className={cn("size-4", isRefetching && "animate-spin")}
-                  />
-                  {isRefetching
-                    ? t("cardDetailPanel.refetching")
-                    : t("cardDetailPanel.refetchCardData")}
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setEditing(true);
-                    if (selectedCard) handleInputChange(selectedCard.name);
-                  }}
-                >
-                  <IconPencil className="size-4" />
-                  {t("cardDetailPanel.correctCard")}
-                </Button>
-                <Button variant="destructive" onClick={() => onRemove?.()}>
-                  <IconTrash className="size-4" />
-                  {t("cardDetailPanel.remove")}
-                </Button>
-              </div>
             </>
           ) : (
             <>
-              {capturedImageUrl && (
+              {showCapturedImageSlot && (
                 <div className="flex items-center gap-4">
                   <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
-                    <CapturedImageThumb
-                      src={capturedImageUrl}
-                      alt={t("cardDetailPanel.scannedAlt")}
-                    />
+                    {capturedImageUrl ? (
+                      <CapturedImageThumb
+                        src={capturedImageUrl}
+                        alt={t("cardPicker.scannedAlt")}
+                        showVectorRegions={showVectorRegions}
+                        showOcrRegions={showOcrRegions}
+                      />
+                    ) : (
+                      <Skeleton className="h-full w-full rounded-none" />
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground leading-snug">
                     {t("cardDetailPanel.searchForCorrectVersion")}
@@ -529,7 +549,7 @@ export function CardDetailPanel({
                 <div className="relative flex-1">
                   <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
                   <Input
-                    placeholder={t("cardDetailPanel.searchPlaceholder")}
+                    placeholder={t("cardPicker.searchPlaceholder")}
                     value={query}
                     onChange={(e) => handleInputChange(e.target.value)}
                     className="pl-7"
@@ -542,9 +562,9 @@ export function CardDetailPanel({
                     onValueChange={(value) => setSelectedSet(value)}
                   >
                     <SelectTrigger className="w-40 shrink-0">
-                      <SelectValue placeholder={t("cardDetailPanel.allSets")}>
+                      <SelectValue placeholder={t("cardPicker.allSets")}>
                         {selectedSet === "all"
-                          ? t("cardDetailPanel.allSetsCount", {
+                          ? t("cardPicker.allSetsCount", {
                               count: results.length,
                             })
                           : sets.find((s) => s.code === selectedSet)?.name}
@@ -552,7 +572,7 @@ export function CardDetailPanel({
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">
-                        {t("cardDetailPanel.allSetsCount", {
+                        {t("cardPicker.allSetsCount", {
                           count: results.length,
                         })}
                       </SelectItem>
@@ -575,14 +595,14 @@ export function CardDetailPanel({
                   filteredResults.length === 0 &&
                   query.trim().length === 0 && (
                     <p className="text-center text-sm text-muted-foreground py-8">
-                      {t("cardDetailPanel.startTyping")}
+                      {t("cardPicker.startTyping")}
                     </p>
                   )}
                 {!loading &&
                   filteredResults.length === 0 &&
                   query.trim().length >= 2 && (
                     <p className="text-center text-sm text-muted-foreground py-8">
-                      {t("cardDetailPanel.noCardsFound")}
+                      {t("cardPicker.noCardsFound")}
                     </p>
                   )}
                 {!loading && filteredResults.length > 0 && (
@@ -611,6 +631,44 @@ export function CardDetailPanel({
                   </div>
                 )}
               </ScrollArea>
+            </>
+          )}
+        </div>
+        {currentCard && !editing ? (
+          <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
+            <div className="flex flex-wrap gap-2 items-center w-full">
+              <Button
+                variant="outline"
+                onClick={handleRefetch}
+                disabled={isRefetching || !selectedCard}
+                title={t("cardDetailPanel.refetchCardDataTitle")}
+              >
+                <IconRefresh
+                  className={cn("size-4", isRefetching && "animate-spin")}
+                />
+                {isRefetching
+                  ? t("cardDetailPanel.refetching")
+                  : t("cardDetailPanel.refetchCardData")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setEditing(true);
+                  if (selectedCard) handleInputChange(selectedCard.name);
+                }}
+              >
+                <IconPencil className="size-4" />
+                {t("cardPicker.correctCard")}
+              </Button>
+              <Button variant="destructive" onClick={() => onRemove?.()}>
+                <IconTrash className="size-4" />
+                {t("cardPicker.remove")}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
+            <div className="flex items-center w-full">
               <Button
                 variant="outline"
                 onClick={() => {
@@ -622,9 +680,9 @@ export function CardDetailPanel({
               >
                 {t("cardDetailPanel.cancel")}
               </Button>
-            </>
-          )}
-        </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,6 +5,7 @@
   "loading": "Loading...",
   "active": "Active",
   "inactive": "Inactive",
+  "onLandingPage": "On landing page",
   "editTitle": "Edit",
   "deleteTitle": "Delete",
   "empty": "No announcements yet",
@@ -31,23 +32,26 @@
     "startsAndEnds": "{{start}} → {{end}}"
   },
   "formDialog": {
-    "addTitle": "Add announcement",
     "editTitle": "Edit announcement",
     "description": "Shown to every signed-in user until deactivated.",
     "severityLabel": "Severity",
     "messageLabel": "Message",
     "messagePlaceholder": "We'll be doing scheduled maintenance Friday at 10pm UTC.",
+    "linkLabel": "Link (optional)",
+    "linkPlaceholder": "https://example.com/changelog",
     "startsAtLabel": "Starts at",
     "endsAtLabel": "Ends at",
     "scheduleHint": "Leave either blank for no start/end bound. The Active toggle still overrides both.",
-    "activeLabel": "Active",
+    "showOnLandingLabel": "Show on landing page",
+    "showOnLandingDescription": "Also shows this banner to signed-out visitors on the public landing and build guide pages.",
     "cancel": "Cancel",
     "saving": "Saving…",
     "saveChanges": "Save changes",
     "create": "Create announcement",
     "validation": {
       "required": "Required",
-      "endAfterStart": "End time must be after the start time"
+      "endAfterStart": "End time must be after the start time",
+      "invalidLink": "Enter a valid http(s) URL"
     }
   }
 }

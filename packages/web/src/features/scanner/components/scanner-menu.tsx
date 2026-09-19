@@ -153,7 +153,7 @@ export function ScannerMenu({
                     </>
                   )}
                   <DropdownMenuItem onClick={onCameraConnect}>
-                    {t("scannerMenu.reconnect")}
+                    {t("reconnect")}
                   </DropdownMenuItem>
                   {zoomRange && (
                     <>
@@ -192,7 +192,7 @@ export function ScannerMenu({
                     variant="destructive"
                     onClick={onCameraDisconnect}
                   >
-                    {t("scannerMenu.disconnect")}
+                    {t("disconnect")}
                   </DropdownMenuItem>
                 </>
               ) : (
@@ -200,7 +200,7 @@ export function ScannerMenu({
                   disabled={scanningBlocked}
                   onClick={onCameraConnect}
                 >
-                  {t("scannerMenu.connect")}
+                  {t("connect")}
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -208,7 +208,7 @@ export function ScannerMenu({
                 <IconDeviceMobile />
                 {phonePairingStatus === "connected"
                   ? t("scannerMenu.phoneCameraConnected")
-                  : t("scannerMenu.usePhoneAsCamera")}
+                  : t("usePhoneAsCamera")}
               </DropdownMenuItem>
             </DropdownMenuSubContent>
           </DropdownMenuSub>
@@ -245,7 +245,7 @@ export function ScannerMenu({
                     variant="destructive"
                     onClick={onScannerDisconnect}
                   >
-                    {t("scannerMenu.disconnect")}
+                    {t("disconnect")}
                   </DropdownMenuItem>
                 </>
               ) : (

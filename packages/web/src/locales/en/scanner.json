@@ -1,7 +1,6 @@
 {
   "camera": {
-    "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
-    "accessError": "Could not access camera. Please check your device."
+    "permissionDenied": "Camera permission denied. Please allow camera access and try again."
   },
   "scanEngine": {
     "searchFailed": "Failed to search card",
@@ -49,23 +48,13 @@
   },
   "scannedCards": {
     "autoFeedFailed": {
-      "title": "Auto-feed failed",
-      "description": "Could not send feeder command."
+      "title": "Auto-feed failed"
     },
     "autoFeedTimeout": {
-      "title": "Auto-feed timeout",
-      "description": "Feeder did not respond in time."
-    },
-    "feederEmpty": {
-      "title": "Feeder empty",
-      "description": "No cards remaining in the hopper. Add more cards to continue."
-    },
-    "feederError": {
-      "title": "Feeder error"
+      "title": "Auto-feed timeout"
     },
     "autoFeedError": {
-      "title": "Auto-feed error",
-      "description": "Unexpected response from feeder."
+      "title": "Auto-feed error"
     },
     "noCollectionSelected": {
       "title": "No collection selected",
@@ -106,23 +95,13 @@
       "description": "Module 1's sensor doesn't see a card - feed one before scanning."
     },
     "feedFailed": {
-      "title": "Feed failed",
-      "description": "Could not send feeder command."
+      "title": "Feed failed"
     },
     "feedTimeout": {
-      "title": "Feed timeout",
-      "description": "Feeder did not respond in time."
-    },
-    "feederEmpty": {
-      "title": "Feeder empty",
-      "description": "No cards remaining in the hopper. Add more cards to continue."
-    },
-    "feederError": {
-      "title": "Feeder error"
+      "title": "Feed timeout"
     },
     "feedError": {
-      "title": "Feed error",
-      "description": "Unexpected response from feeder."
+      "title": "Feed error"
     },
     "clearFailed": {
       "title": "Clear failed",
@@ -150,14 +129,10 @@
   },
   "scanStats": {
     "emptyState": "Scan cards to see their stats.",
-    "totalCards": "Total Cards",
-    "unique": "Unique",
     "totalValue": "Total Value",
     "avgValue": "Avg Value",
     "sessionTime": "Session Time",
     "cardsPerHour": "Cards / hr",
-    "mostValuable": "Most Valuable",
-    "byRarity": "By Rarity",
     "byColor": "By Color",
     "bySet": "By Set",
     "showLess": "Show less",
@@ -181,10 +156,7 @@
   "scannerMenu": {
     "camera": "Camera",
     "cameraFallbackLabel": "Camera {{index}}",
-    "reconnect": "Reconnect",
     "zoom": "Zoom",
-    "disconnect": "Disconnect",
-    "connect": "Connect",
     "connectUsb": "Connect via USB",
     "connectBluetooth": "Connect via Bluetooth",
     "scanner": "Scanner",
@@ -192,7 +164,6 @@
     "allowDuplicates": "Allow duplicates",
     "calibrate": "Calibrate",
     "retryConnection": "Retry Connection",
-    "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",
     "ocrTextMatching": "OCR text matching"
   },
@@ -203,7 +174,6 @@
     "cancel": "Cancel"
   },
   "phoneCamera": {
-    "dialogTitle": "Use Phone as Camera",
     "scanDescription": "Scan this QR code on your phone, or open the link, so it can be used as this scanner's camera.",
     "connectedDescription": "Your phone is ready. It'll take a photo whenever this scanner needs one.",
     "qrAlt": "QR code to pair a phone camera",
@@ -213,13 +183,9 @@
     "disconnect": "Disconnect Phone",
     "done": "OK, Start Scanning",
     "tryAgain": "Try Again",
-    "requestingCamera": "Requesting camera access…",
-    "cameraError": "Could not access camera. Please check your device.",
     "ready": "Camera ready",
     "streamingTo": "Ready for {{name}}",
     "disconnected": "Disconnected from the sorter.",
-    "reconnect": "Reconnect",
-    "disconnectButton": "Disconnect",
     "sessionEndedTitle": "Session ended",
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
   },
@@ -231,13 +197,11 @@
     "waitingForPhone": "Waiting for a phone to pair as the camera. Use the camera menu to show the QR code.",
     "phoneReadyNoPhoto": "Phone camera ready. It'll take a photo as soon as a card arrives.",
     "scannerNotConnected": "Card sorter not connected.",
-    "connectScannerButton": "Connect",
     "testingScanner": "Testing card sorter connection…",
     "autoFeedOff": "Auto-feed is off, feed cards manually.",
     "firmwareVersionMissing": "Card sorter firmware doesn't report a version. Re-upload the latest firmware/main/main.ino to enable scanning.",
     "noCatchAllBin": "No catch-all bin configured, so unmatched cards won't be sorted.",
     "initializing": "Initializing scanner…",
-    "requestingCameraAccess": "Requesting camera access…",
     "identifyingCard": "Identifying card…",
     "paused": "Scanner paused. Press Resume to continue.",
     "duplicate": "Same card scanned. Use Add Again to add it anyway.",
@@ -254,16 +218,9 @@
     "noImage": "No image captured"
   },
   "sessionStatsPanel": {
-    "totalCards": "Total Cards",
-    "unique": "Unique",
-    "value": "Value",
-    "mostValuable": "Most Valuable",
-    "byRarity": "By Rarity"
+    "value": "Value"
   },
-  "appScanner": {
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards"
-  },
+  "appScanner": {},
   "recentScannedCards": {
     "heading": "Recently Scanned"
   },
@@ -272,7 +229,6 @@
     "connectFailed": "Could not connect.",
     "noCardsScannedYet": "No cards scanned yet.",
     "noCardsMatchSearch": "No cards match the search query.",
-    "isScanningTooltip": "{{name}} is scanning",
     "isWatchingTooltip": "{{name}} is watching",
     "viewCards_one": "View {{count}} card",
     "viewCards_other": "View {{count}} cards",
@@ -291,14 +247,40 @@
     "title": "Session Monitor",
     "subtitle": "Join a live scanning session",
     "noSessionsFound": "No sessions found",
-    "noSessionsHint": "Active sessions will appear here",
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards",
-    "isScanningTooltip": "{{name}} is scanning"
+    "noSessionsHint": "Active sessions will appear here"
   },
   "binLimitDialog": {
     "title": "Bin {{number}} is full",
     "description": "Bin {{number}} has reached its limit of {{limit}} cards. Remove the cards from the bin, then continue scanning.",
     "continueButton": "I've emptied the bin, continue"
+  },
+  "feederEmpty": {
+    "title": "Feeder empty",
+    "description": "No cards remaining in the hopper. Add more cards to continue."
+  },
+  "feederError": {
+    "title": "Feeder error"
+  },
+  "feederCommandFailedDescription": "Could not send feeder command.",
+  "feederTimeoutDescription": "Feeder did not respond in time.",
+  "feederUnexpectedResponseDescription": "Unexpected response from feeder.",
+  "totalCards": "Total Cards",
+  "unique": "Unique",
+  "mostValuable": "Most Valuable",
+  "byRarity": "By Rarity",
+  "reconnect": "Reconnect",
+  "disconnect": "Disconnect",
+  "connect": "Connect",
+  "usePhoneAsCamera": "Use Phone as Camera",
+  "requestingCameraAccess": "Requesting camera access…",
+  "cardCount_one": "{{count}} card",
+  "cardCount_other": "{{count}} cards",
+  "isScanningTooltip": "{{name}} is scanning",
+  "cameraAccessError": "Could not access camera. Please check your device.",
+  "staleDeviceDialog": {
+    "title": "Been a while since this org connected",
+    "description": "This device's calibration hasn't changed in over 30 days. Run the self-test as-is, or calibrate first to make sure everything still matches the physical hardware.",
+    "runTest": "Run test anyway",
+    "calibrateFirst": "Calibrate first"
   }
 }

@@ -62,7 +62,7 @@ export function OrgSwitcher({
   async function handleCreate({ name }: OrganizationNameFormValues) {
     const result = await createOrganization(name.trim());
     if ("error" in result) {
-      toast.error(result.error || t("orgSwitcher.failedToCreate"));
+      toast.error(result.error || t("failedToCreateOrganization"));
       return;
     }
     await setActiveOrg(result.id);
@@ -140,7 +140,7 @@ export function OrgSwitcher({
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => setCreateOpen(true)}>
                 <IconPlus size={14} />
-                {t("orgSwitcher.newOrganization")}
+                {t("newOrganization")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => navigate("/app/settings")}>
                 <IconSettings size={14} />
@@ -170,8 +170,8 @@ export function OrgSwitcher({
               disabled={form.formState.isSubmitting}
             >
               {form.formState.isSubmitting
-                ? t("orgSwitcher.creating")
-                : t("orgSwitcher.create")}
+                ? t("creatingOrganization")
+                : t("create")}
             </Button>
           </>
         }
@@ -179,7 +179,7 @@ export function OrgSwitcher({
       >
         <form id="create-org-form" onSubmit={form.handleSubmit(handleCreate)}>
           <Input
-            placeholder={t("orgSwitcher.organizationNamePlaceholder")}
+            placeholder={t("organizationNamePlaceholder")}
             {...form.register("name")}
             autoFocus
           />

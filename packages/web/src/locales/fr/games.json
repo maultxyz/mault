@@ -2,15 +2,11 @@
   "gamesManager": {
     "heading": "Jeux",
     "description": "Configure quels jeux de cartes à collectionner peuvent être scannés et comment leurs cartes sont associées aux règles des bacs.",
-    "addGame": "Ajouter un jeu",
     "loading": "Chargement...",
-    "active": "Actif",
-    "inactive": "Inactif",
     "fieldCount_one": "{{count}} champ",
     "fieldCount_other": "{{count}} champs",
     "editTitle": "Modifier",
     "deleteTitle": "Supprimer",
-    "empty": "Aucun jeu configuré pour le moment",
     "deleteDialog": {
       "title": "Supprimer le jeu",
       "description": "Supprimer définitivement « {{name}} » ? Les collections utilisant ce jeu conserveront leurs cartes scannées, mais aucune nouvelle carte ne pourra y être associée."
@@ -25,7 +21,6 @@
     }
   },
   "gameFormDialog": {
-    "addTitle": "Ajouter un jeu",
     "editTitle": "Modifier {{name}}",
     "description": "Définis quels champs les règles des bacs peuvent filtrer pour ce jeu.",
     "keyLabel": "Clé",
@@ -36,7 +31,6 @@
     "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
     "foilTypesLabel": "Types de foil",
     "foilTypesPlaceholder": "Séparés par des virgules (ex. Reverse Holo, Holo). Laisser vide pour une simple option Foil.",
-    "activeLabel": "Actif",
     "cancel": "Annuler",
     "saving": "Enregistrement…",
     "saveChanges": "Enregistrer les modifications",
@@ -78,8 +72,10 @@
     "description": "Quels jeux de cartes à collectionner sont pris en charge et combien de cartes se trouvent dans la base de données pour chacun.",
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
-    "inactive": "Inactif",
-    "lastUpdated": "Mis à jour le {{date}}",
-    "empty": "Aucun jeu configuré pour le moment"
-  }
+    "lastUpdated": "Mis à jour le {{date}}"
+  },
+  "addGame": "Ajouter un jeu",
+  "active": "Actif",
+  "inactive": "Inactif",
+  "noGamesConfigured": "Aucun jeu configuré pour le moment"
 }

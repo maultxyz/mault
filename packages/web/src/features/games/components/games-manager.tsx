@@ -120,7 +120,7 @@ export function GamesManager() {
         </div>
         <Button onClick={() => setFormGame(null)}>
           <IconPlus size={14} />
-          {t("gamesManager.addGame")}
+          {t("addGame")}
         </Button>
       </div>
 
@@ -137,8 +137,8 @@ export function GamesManager() {
                 <p className="text-sm font-medium truncate">{game.name}</p>
                 <Badge variant={game.isActive ? "success" : "outline"}>
                   {game.isActive
-                    ? t("gamesManager.active")
-                    : t("gamesManager.inactive")}
+                    ? t("active")
+                    : t("inactive")}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground truncate">
@@ -170,7 +170,7 @@ export function GamesManager() {
         ))}
         {gamesQuery.data?.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-6">
-            {t("gamesManager.empty")}
+            {t("noGamesConfigured")}
           </p>
         )}
       </div>
