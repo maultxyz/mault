@@ -3,6 +3,8 @@ export const SIDEBAR_EXPANDED_STORAGE_KEY = "sidebarExpanded";
 export const ESP32_MOUNT_TYPE_STORAGE_KEY =
   "magic-vault:build-esp32-mount-type";
 export const BUILD_CHECKLIST_STORAGE_KEY = "magic-vault:build-checklist";
+export const FORCE_CPU_VECTORIZE_STORAGE_KEY =
+  "magic-vault:scanner-force-cpu-vectorize";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =
   "magic-vault:build-parts-checklist";
 export const BUILD_BOARD_TYPE_STORAGE_KEY = "magic-vault:build-board-type";

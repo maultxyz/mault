@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -11,12 +12,14 @@ import {
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { getDebugCards } from "@/features/scanner/lib/debug-cards";
+import { useForceCpuVectorize } from "@/features/scanner/lib/force-cpu-vectorize";
 import { useRole } from "@/hooks/use-role";
 import { apiPost } from "@/lib/api/client";
 import {
   IconAlertTriangle,
   IconBug,
   IconCards,
+  IconCpu,
   IconPhotoOff,
   IconStack2,
 } from "@tabler/icons-react";
@@ -29,6 +32,7 @@ export function ScannerDebug() {
   const { isAdmin } = useRole();
   const { addCard, addUnmatchedCard } = useScannedCards();
   const { activeCollection } = useCollections();
+  const [forceCpu, setForceCpu] = useForceCpuVectorize();
 
   if (!isAdmin) return null;
 
@@ -86,6 +90,13 @@ export function ScannerDebug() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <DropdownMenuCheckboxItem
+            checked={forceCpu}
+            onCheckedChange={setForceCpu}
+          >
+            <IconCpu className="size-3.5" />
+            {t("scannerDebug.forceCpu")}
+          </DropdownMenuCheckboxItem>
           <DropdownMenuItem
             onClick={handleForceError}
             disabled={!activeCollection}

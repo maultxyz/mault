@@ -15,6 +15,7 @@ import {
   isWebGpuSupported,
   vectorizeCardImageOnClient,
 } from "@/features/scanner/lib/client-vectorize";
+import { getForceCpuVectorize } from "@/features/scanner/lib/force-cpu-vectorize";
 import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
@@ -108,7 +109,7 @@ async function searchCardImage(
   const debugImageUrl = warpedCanvas.toDataURL("image/jpeg", 0.8);
   const blob = await canvasToBlob(warpedCanvas);
 
-  if (await isWebGpuSupported()) {
+  if (!getForceCpuVectorize() && (await isWebGpuSupported())) {
     try {
       const embeddings = await vectorizeCardImageOnClient(
         warpedCanvas,

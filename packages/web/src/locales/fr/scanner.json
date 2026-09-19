@@ -151,6 +151,7 @@
     "simulateScan": "Simuler un scan",
     "simulateMultiMatch": "Simuler des correspondances multiples",
     "simulateNoMatch": "Simuler une carte non reconnue",
+    "forceCpu": "Forcer le CPU (sans WebGPU)",
     "forceError": "Forcer une erreur"
   },
   "scannerMenu": {
