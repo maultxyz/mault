@@ -51,7 +51,6 @@ export function SaveBar({
         <Button
           type="button"
           variant="ghost"
-          size="sm"
           onClick={onDiscard}
           disabled={isSaving}
         >
@@ -61,7 +60,6 @@ export function SaveBar({
           type={formId ? "submit" : "button"}
           form={formId}
           onClick={formId ? undefined : onSave}
-          size="sm"
           disabled={isSaving || saveDisabled}
           data-tour={saveButtonDataTour}
         >
