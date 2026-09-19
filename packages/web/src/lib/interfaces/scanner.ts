@@ -96,6 +96,10 @@ export interface TestResult {
   error: string | null;
 }
 
+export type FirmwareCheckResult =
+  | { status: "ok"; version: string }
+  | { status: "noVersion" | "noResponse" | "busy" | "disconnected" };
+
 export interface SerialContextValue {
   isConnected: boolean;
   isReady: boolean;
@@ -109,6 +113,7 @@ export interface SerialContextValue {
   isRouteBusy: () => boolean;
   sendTest: () => Promise<TestResult>;
   runTest: () => Promise<void>;
+  checkFirmwareVersion: () => Promise<FirmwareCheckResult>;
   sendCommand: (data: string) => Promise<boolean>;
   receiveResponse: (timeoutMs?: number) => Promise<string>;
   subscribe: (listener: SerialMessageListener) => () => void;

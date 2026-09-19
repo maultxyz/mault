@@ -56,7 +56,7 @@ export function ModuleConfigsProvider({
       }
 
       if (!device) return;
-      const fresh = await queryClient.fetchQuery(queryOpts);
+      const fresh = await queryClient.fetchQuery(modulesQueryOptions(device.guid));
       for (const config of fresh) {
         const p = receiveResponse();
         await sendCommand(
@@ -92,7 +92,6 @@ export function ModuleConfigsProvider({
   }, [
     registerPreTestHook,
     queryClient,
-    queryOpts,
     sendCommand,
     receiveResponse,
     device,

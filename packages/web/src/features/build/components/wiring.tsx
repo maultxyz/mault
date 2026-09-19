@@ -251,15 +251,10 @@ export function BuildWiring() {
                   {t("wiring.sections.diagram.title")}
                 </h3>
                 <img
-                  src="/instructions/wiring_diagram.png"
+                  src={board.wiringDiagramSrc}
                   alt={t("wiring.sections.diagram.alt")}
                   className="w-full rounded-lg border"
                 />
-                {isEsp32 && (
-                  <p className="mt-2 text-[11px]/relaxed text-foreground/70">
-                    {t("wiring.sections.diagram.esp32Note")}
-                  </p>
-                )}
               </div>
             </div>
           </AccordionContent>

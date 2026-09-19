@@ -15,6 +15,7 @@ export interface BoardInfo {
   usbCableName: string;
   i2cSda: string;
   i2cScl: string;
+  wiringDiagramSrc: string;
 }
 
 export const BOARD_INFO: Record<BoardType, BoardInfo> = {
@@ -27,6 +28,7 @@ export const BOARD_INFO: Record<BoardType, BoardInfo> = {
     usbCableName: "USB-A-to-USB-C cable",
     i2cSda: "SDA",
     i2cScl: "SCL",
+    wiringDiagramSrc: "/instructions/wiring_diagram.png",
   },
   esp32: {
     displayName: "ESP32-S3-WROOM-1",
@@ -37,6 +39,7 @@ export const BOARD_INFO: Record<BoardType, BoardInfo> = {
     usbCableName: "USB-A-to-USB-C cable",
     i2cSda: "GPIO8",
     i2cScl: "GPIO9",
+    wiringDiagramSrc: "/instructions/wiring_diagram_esp32.png",
   },
 };
 

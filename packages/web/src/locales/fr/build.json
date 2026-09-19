@@ -229,8 +229,7 @@
       },
       "diagram": {
         "title": "Schéma de câblage",
-        "alt": "Schéma de câblage montrant les connexions du PCA9685, du microcontrôleur, des servos et des capteurs IR",
-        "esp32Note": "Ce schéma montre le câblage Arduino à titre de référence - la disposition est la même sur ESP32 (PCA9685 via I²C, un capteur IR par broche numérique), utilise simplement les numéros de broches et la tension logique 3.3V des tableaux ci-dessus au lieu de ce qui est représenté."
+        "alt": "Schéma de câblage montrant les connexions du PCA9685, du microcontrôleur, des servos et des capteurs IR"
       }
     },
     "i2cTable": {

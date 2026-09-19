@@ -10,6 +10,7 @@ import {
   type ByteTransport,
 } from "@/features/scanner/lib/transports";
 import type {
+  FirmwareCheckResult,
   FlashEsp32Result,
   SerialBoardType,
   SerialContextValue,
@@ -51,7 +52,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const pendingRef = useRef<Array<(line: string) => void>>([]);
   const listenersRef = useRef(new Set<SerialMessageListener>());
   const disconnectingRef = useRef<Promise<void> | null>(null);
-  const preTestHookRef = useRef<(() => Promise<void>) | null>(null);
+  const preTestHooksRef = useRef(new Set<() => Promise<void>>());
   const commLogRef = useRef<CommLogEntry[]>([]);
 
   const decoderRef = useRef(new TextDecoder());
@@ -217,8 +218,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   // toasts/reporting/disconnect-on-fail either way.
   const runConnectTest = useCallback(
     async (forTransport: ByteTransport) => {
-      if (preTestHookRef.current) {
-        await preTestHookRef.current();
+      for (const hook of [...preTestHooksRef.current]) {
+        try {
+          await hook();
+        } catch (e) {
+          console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
+        }
       }
       if (transportRef.current !== forTransport) return;
       toast.info(t("serial.testingDevice"));
@@ -433,13 +438,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const listener: SerialMessageListener = (msg) => {
-      if (
-        typeof msg === "object" &&
-        msg !== null &&
-        "status" in msg &&
-        (msg as Record<string, unknown>).status === "test_complete"
-      ) {
-        setIsReady(true);
+      if (typeof msg !== "object" || msg === null) return;
+      const fields = msg as Record<string, unknown>;
+      if (fields.status === "test_complete") setIsReady(true);
+      // The device announces itself unprompted on boot (ESP32s reset when the
+      // port opens) and again on getStatus, so a one-shot waiter can miss it.
+      if (typeof fields.version === "string") setFirmwareVersion(fields.version);
+      if (fields.board === "esp32" || fields.board === "uno_r4") {
+        setBoard(fields.board);
       }
     };
     const listeners = listenersRef.current;
@@ -457,19 +463,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const registerPreTestHook = useCallback((fn: () => Promise<void>) => {
-    const previous = preTestHookRef.current;
-    preTestHookRef.current = previous
-      ? async () => {
-          try {
-            await previous();
-          } catch (e) {
-            console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
-          }
-          await fn();
-        }
-      : fn;
+    const hooks = preTestHooksRef.current;
+    hooks.add(fn);
     return () => {
-      preTestHookRef.current = previous;
+      hooks.delete(fn);
     };
   }, []);
 
@@ -485,6 +482,35 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const binBusyRef = useRef(false);
   const isRouteBusy = useCallback(() => binBusyRef.current, []);
+
+  const checkFirmwareVersion =
+    useCallback(async (): Promise<FirmwareCheckResult> => {
+      if (!transportRef.current) return { status: "disconnected" };
+      if (binBusyRef.current) return { status: "busy" };
+
+      binBusyRef.current = true;
+      try {
+        const sent = await sendCommand(JSON.stringify({ getStatus: true }) + "\n");
+        if (!sent) return { status: "noResponse" };
+
+        const response = await waitForLine(5000);
+        if (!response) return { status: "noResponse" };
+
+        try {
+          const parsed = JSON.parse(response);
+          if (parsed?.board === "esp32" || parsed?.board === "uno_r4") {
+            setBoard(parsed.board);
+          }
+          if (typeof parsed?.version !== "string") return { status: "noVersion" };
+          setFirmwareVersion(parsed.version);
+          return { status: "ok", version: parsed.version };
+        } catch {
+          return { status: "noVersion" };
+        }
+      } finally {
+        binBusyRef.current = false;
+      }
+    }, [sendCommand, waitForLine]);
 
   const sendRoute = useCallback(
     async (route: BinRoute): Promise<unknown | null> => {
@@ -531,6 +557,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         isRouteBusy,
         sendTest,
         runTest: runTestOnActiveTransport,
+        checkFirmwareVersion,
         sendCommand: sendCommandWithNewline,
         receiveResponse,
         subscribe,
