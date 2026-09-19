@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { orgSettings } from "../../db/schema";
+import { clearOrgDiscordReferences } from "../../lib/discord/unlink";
 import type { AppEnv } from "../../middleware/auth";
 import { getOrgName } from "./shared";
 
@@ -56,10 +57,9 @@ export const botLinkRoute = new Hono<AppEnv>().post("/link", async (c) => {
   }
 
   if (relinking) {
-    await db
-      .update(orgSettings)
-      .set({ discordGuildId: null, updatedAt: new Date() })
-      .where(eq(orgSettings.orgId, existingOrgId));
+    await db.transaction((tx) =>
+      clearOrgDiscordReferences(tx, existingOrgId),
+    );
   }
 
   await db
