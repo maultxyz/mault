@@ -11,6 +11,8 @@ import { vectorizeCardImage } from "../../lib/vectorize";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findCardMatches } from "./shared";
 
+const SCAN_VECTORIZE_REGIONS = process.env.SCAN_VECTORIZE_REGIONS !== "false";
+
 export const searchByImageRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
@@ -50,7 +52,9 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
       matchThreshold != null ? 1 - matchThreshold / 100 : DISTANCE_THRESHOLD;
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const cropRegions = CARD_CROP_REGIONS_BY_GAME_KEY[gameKey];
+    const cropRegions = SCAN_VECTORIZE_REGIONS
+      ? CARD_CROP_REGIONS_BY_GAME_KEY[gameKey]
+      : undefined;
 
     let embeddings: Awaited<ReturnType<typeof vectorizeCardImage>>;
     let ocrText: string;
