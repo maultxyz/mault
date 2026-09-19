@@ -22,6 +22,7 @@
     "cardDetailsFallback": "Card Details",
     "capturedScan": "Captured scan",
     "matchedCard": "Matched card",
+    "similarMatches": "Similar matches",
     "refetchCardData": "Refetch Data",
     "refetchCardDataTitle": "Re-fetch this card's data from the source and update the saved record",
     "refetching": "Refetching...",

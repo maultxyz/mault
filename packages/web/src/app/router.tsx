@@ -152,6 +152,10 @@ export const router = createBrowserRouter([
                         element: <ScannerPage />,
                       },
                       {
+                        path: "/app/cards/:scanId",
+                        element: <ScannerPage />,
+                      },
+                      {
                         path: "/app/collections",
                         element: <CollectionsPage />,
                       },

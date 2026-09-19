@@ -45,7 +45,7 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 export function CardGrid() {
   const { t } = useTranslation("cards");
@@ -94,7 +94,18 @@ export function CardGrid() {
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [openScanId, setOpenScanId] = useState<string | null>(null);
+  const { scanId: openScanId } = useParams<{ scanId?: string }>();
+  const navigate = useNavigate();
+  // Keeps the open card in the URL (/app/cards/:scanId) so it's shareable
+  // and survives a refresh, rather than living only in component state.
+  // Replaces history instead of pushing, so browser back always returns to
+  // the grid rather than stepping back through every previously viewed card.
+  const setOpenScanId = useCallback(
+    (scanId: string | null) => {
+      navigate(scanId ? `/app/cards/${scanId}` : "/app", { replace: true });
+    },
+    [navigate],
+  );
   const [page, setPage] = useState(0);
   const [viewMode, setViewMode] = useState<CardViewMode>(() => {
     try {
