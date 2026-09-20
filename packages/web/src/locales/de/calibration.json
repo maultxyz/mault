@@ -1,4 +1,8 @@
 {
+  "page": {
+    "title": "Kalibrieren",
+    "subtitle": "Modulverkabelung, Kamera-Scanbereich und Servokalibrierung konfigurieren"
+  },
   "servos": {
     "bottom": {
       "label": "Unteres Paddel"

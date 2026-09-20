@@ -40,7 +40,16 @@ const CalibrateScanRegionPage = lazy(
 const CalibrateCalibrationPage = lazy(
   () => import("@/app/routes/app/calibrate/calibration"),
 );
-const AdminPage = lazy(() => import("@/app/routes/app/admin"));
+const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
+const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
+const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
+const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
+const AdminAnnouncementsPage = lazy(
+  () => import("@/app/routes/app/admin/announcements"),
+);
+const AdminDeveloperPage = lazy(
+  () => import("@/app/routes/app/admin/developer"),
+);
 const MonitorSessionsPage = lazy(
   () => import("@/app/routes/app/monitor-sessions"),
 );
@@ -192,7 +201,33 @@ export const router = createBrowserRouter([
                     children: [
                       {
                         path: "/app/admin",
-                        element: <AdminPage />,
+                        element: <AdminLayout />,
+                        children: [
+                          {
+                            index: true,
+                            element: <Navigate to="cards" replace />,
+                          },
+                          {
+                            path: "cards",
+                            element: <AdminCardsPage />,
+                          },
+                          {
+                            path: "games",
+                            element: <AdminGamesPage />,
+                          },
+                          {
+                            path: "users",
+                            element: <AdminUsersPage />,
+                          },
+                          {
+                            path: "announcements",
+                            element: <AdminAnnouncementsPage />,
+                          },
+                          {
+                            path: "developer",
+                            element: <AdminDeveloperPage />,
+                          },
+                        ],
                       },
                     ],
                   },

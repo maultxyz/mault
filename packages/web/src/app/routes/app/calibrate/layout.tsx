@@ -113,6 +113,12 @@ export default function CalibrateLayout() {
         className="col-span-2 min-h-0 h-full overflow-y-auto flex flex-col border-r p-2 gap-2 bg-sidebar/70"
         data-tour="calibration-sections"
       >
+        <div className="px-1.5 pt-1 pb-2">
+          <h1 className="text-lg font-semibold font-heading">
+            {t("page.title")}
+          </h1>
+          <p className="text-xs text-muted-foreground">{t("page.subtitle")}</p>
+        </div>
         {sectionNavItems.map((item) => (
           <NavLink
             key={item.value}

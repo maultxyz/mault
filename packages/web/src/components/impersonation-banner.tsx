@@ -13,7 +13,7 @@ export function ImpersonationBanner() {
 
   async function handleExit() {
     await stop();
-    navigate("/app/admin");
+    navigate("/app/admin/users");
   }
 
   return (

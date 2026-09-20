@@ -72,9 +72,10 @@ BEGIN
 END
 $$;
 
--- platform_user_roles and impersonation_audit are intentionally not granted
--- here - the app only ever touches them via `db` directly (see auth/local.ts,
--- routes/impersonation.ts), never through an authQuery()/authenticated
+-- platform_user_roles, impersonation_audit, and scan_vectorize_stats are
+-- intentionally not granted here - the app only ever touches them via `db`
+-- directly (see auth/local.ts, routes/impersonation.ts,
+-- lib/scan-vectorize-stats.ts), never through an authQuery()/authenticated
 -- session, so authenticated has no need to read or write them.
 
 -- SECURITY DEFINER: evaluated with the privileges of the function's owner

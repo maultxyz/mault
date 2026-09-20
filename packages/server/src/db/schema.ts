@@ -566,6 +566,16 @@ export const platformUserRoles = pgTable("platform_user_roles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+// Admin-only telemetry: how many card searches vectorized on the server
+// (search-by-image) vs. on the client via WebGPU (search-by-vector). Not
+// RLS-protected or org-scoped - only ever read/written by the server via
+// `db`, exposed through /admin/scan-vectorize-stats for operators to check.
+export const scanVectorizeStats = pgTable("scan_vectorize_stats", {
+  source: text("source").primaryKey(), // "server" | "webgpu"
+  count: integer("count").notNull().default(0),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const binSetRelations = relations(binSets, ({ many, one }) => ({
   bins: many(bins),
   game: one(games, {

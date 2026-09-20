@@ -3,6 +3,13 @@
     "title": "Admin",
     "subtitle": "Verwalte Spiele, die Kartensynchronisierung und die Kartenbild-Vektordatenbank"
   },
+  "sections": {
+    "cards": "Karten",
+    "games": "Spiele",
+    "users": "Benutzer",
+    "announcements": "Ankündigungen",
+    "developer": "Entwickler"
+  },
   "cardImageVectors": {
     "heading": "Kartenbild-Vektoren",
     "syncStatus": {
@@ -87,6 +94,13 @@
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
     "startedOnly": "Gestartet {{started}}"
+  },
+  "scanVectorizeStats": {
+    "heading": "Vektorisierungsquelle beim Scannen",
+    "description": "Wie viele Kartenscans auf dem Server vektorisiert wurden im Vergleich zu clientseitig über WebGPU",
+    "serverLabel": "Server",
+    "webgpuLabel": "WebGPU",
+    "percentOfTotal": "{{percent}}% der Scans"
   },
   "cancel": "Abbrechen",
   "starting": "Wird gestartet...",

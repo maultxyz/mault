@@ -129,3 +129,12 @@ export async function testServerRollbar(): Promise<{
     "/api/admin/rollbar/test",
   );
 }
+
+export async function getScanVectorizeStats(): Promise<{
+  success: boolean;
+  data: { server: number; webgpu: number };
+}> {
+  return apiGet<{ success: boolean; data: { server: number; webgpu: number } }>(
+    "/api/admin/scan-vectorize-stats",
+  );
+}

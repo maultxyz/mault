@@ -3,6 +3,13 @@
     "title": "Admin",
     "subtitle": "Gère les jeux, la synchronisation des cartes et la base de données de vecteurs d'image"
   },
+  "sections": {
+    "cards": "Cartes",
+    "games": "Jeux",
+    "users": "Utilisateurs",
+    "announcements": "Annonces",
+    "developer": "Développeur"
+  },
   "cardImageVectors": {
     "heading": "Vecteurs d'image des cartes",
     "syncStatus": {
@@ -87,6 +94,13 @@
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
     "startedOnly": "Démarré {{started}}"
+  },
+  "scanVectorizeStats": {
+    "heading": "Source de vectorisation des scans",
+    "description": "Combien de scans de cartes ont été vectorisés sur le serveur par rapport au client via WebGPU",
+    "serverLabel": "Serveur",
+    "webgpuLabel": "WebGPU",
+    "percentOfTotal": "{{percent}}% des scans"
   },
   "cancel": "Annuler",
   "starting": "Démarrage...",
