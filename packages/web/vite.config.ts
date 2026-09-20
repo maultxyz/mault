@@ -43,6 +43,8 @@ export default defineConfig({
         ],
       },
       workbox: {
+        // Excludes the 20MB+ onnxruntime .wasm, which is only needed for scanning.
+        globPatterns: ["**/*.{js,css,html}"],
         skipWaiting: true,
         clientsClaim: true,
         navigateFallback: "/index.html",
