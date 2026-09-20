@@ -166,8 +166,8 @@
           },
           "m2x6Screw": {
             "part": "M2×6 screw",
-            "partSpec": "(11 per module, +4 for the board mount, +3 for the servo driver board, +1 for the feeder)",
-            "notes": "11 per module ({{count}} modules): flapper (bottom/sides) and pusher arms; +4 to mount the {{board}}; +3 to mount the PCA9685 servo driver board; +1 for the feeder"
+            "partSpec": "(17 per module, +4 for the board mount, +3 for the servo driver board, +1 for the feeder)",
+            "notes": "17 per module ({{count}} modules): flapper (bottom/sides) and pusher arms, plus 6 to screw the bottom and side paddles into the housing; +4 to mount the {{board}}; +3 to mount the PCA9685 servo driver board; +1 for the feeder"
           },
           "m2x8Screw": {
             "part": "M2×8 screw",
@@ -370,11 +370,11 @@
             "note": "Not calibrated yet? It centers using sensible defaults instead. Safe to reconnect any time you need to re-center a servo before fitting or repositioning a horn."
           },
           "mountBottomFlapper": {
-            "text": "Assemble the bottom paddle by screwing the paddle to the linkage, then the linkage to the horn. Remember not to install the horn to the servo yet.",
+            "text": "Assemble the bottom paddle by screwing the paddle to the linkage, then the linkage to the horn. Screw the assembled bottom paddle into the module housing with 2 M2×6 screws. Remember not to install the horn to the servo yet.",
             "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces. Since you build with the platform upside down, TOP points away from the platform. This is the trapdoor a card falls through to reach the next module, or the current one on a match. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "mountSideFlappers": {
-            "text": "Assemble the side paddles by screwing the left and right flapper to the shared linkage, then the linkage to the horn (one pair per module). Remember not to install the horn to the servo yet.",
+            "text": "Assemble the side paddles by screwing the left and right flapper to the shared linkage, then the linkage to the horn (one pair per module). Screw the assembled side paddle into the module housing with 4 M2×6 screws. Remember not to install the horn to the servo yet.",
             "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces. Since you build with the platform upside down, TOP points away from the platform. One paddle servo drives both flappers together. They open and close as a pair, not independently. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "mountPusherArm": {

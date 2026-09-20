@@ -27,6 +27,12 @@
     "cardLimitLabel": "Bin capacity",
     "cardLimitPlaceholder": "Unlimited",
     "cardLimitDescription": "Stops scanning and prompts to empty the bin once it holds this many cards. Leave blank for no limit.",
+    "capacityInfoTitle": "Estimated cards per bin, by card thickness",
+    "capacityInfoSizeHeader": "Bin size",
+    "capacityInfoSmall": "Small",
+    "capacityInfoMedium": "Medium",
+    "capacityInfoLarge": "Large",
+    "capacityInfoNote": "Each larger bin holds about 65% more than the last. Thicker cards (sleeved, foil, double-sleeved) hold fewer.",
     "autoAssignWaiting": "Waiting for a new {{field}} to appear",
     "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins.",
     "modeChangePending": "Save or discard the pending mode change above before editing bins."

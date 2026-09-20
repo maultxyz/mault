@@ -166,8 +166,8 @@
           },
           "m2x6Screw": {
             "part": "M2×6-Schraube",
-            "partSpec": "(11 pro Modul, +4 für die Platinenbefestigung, +3 für die Servotreiberplatine, +1 für den Zuführer)",
-            "notes": "11 pro Modul ({{count}} Module): Klappen (Boden/Seiten) und Schieberarme; +4 zur Befestigung des {{board}}; +3 zur Befestigung der PCA9685-Servotreiberplatine; +1 für den Zuführer"
+            "partSpec": "(17 pro Modul, +4 für die Platinenbefestigung, +3 für die Servotreiberplatine, +1 für den Zuführer)",
+            "notes": "17 pro Modul ({{count}} Module): Klappen (Boden/Seiten) und Schieberarme, plus 6 zum Anschrauben der Boden- und Seitenklappen am Gehäuse; +4 zur Befestigung des {{board}}; +3 zur Befestigung der PCA9685-Servotreiberplatine; +1 für den Zuführer"
           },
           "m2x8Screw": {
             "part": "M2×8-Schraube",
@@ -371,11 +371,11 @@
             "note": "Noch nicht kalibriert? Dann wird mit sinnvollen Standardwerten zentriert. Kann jederzeit durch erneutes Verbinden wiederholt werden, wenn ein Servo vor der Montage oder Neupositionierung eines Horns neu zentriert werden muss."
           },
           "mountBottomFlapper": {
-            "text": "Baue die Bodenklappe zusammen, indem du die Klappe an das Gestänge schraubst und dann das Gestänge an das Horn. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
+            "text": "Baue die Bodenklappe zusammen, indem du die Klappe an das Gestänge schraubst und dann das Gestänge an das Horn. Schraube die zusammengebaute Bodenklappe mit 2 M2×6-Schrauben in das Modulgehäuse. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
             "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Dies ist die Falltür, durch die eine Karte fällt, um das nächste Modul zu erreichen, oder das aktuelle bei einem Treffer. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountSideFlappers": {
-            "text": "Baue die seitlichen Klappen zusammen, indem du die linke und rechte Klappe an das gemeinsame Gestänge schraubst und dann das Gestänge an das Horn (ein Paar pro Modul). Denke daran, das Horn noch nicht auf den Servo zu montieren.",
+            "text": "Baue die seitlichen Klappen zusammen, indem du die linke und rechte Klappe an das gemeinsame Gestänge schraubst und dann das Gestänge an das Horn (ein Paar pro Modul). Schraube die zusammengebauten seitlichen Klappen mit 4 M2×6-Schrauben in das Modulgehäuse. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
             "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Ein Paddelservo treibt beide Klappen gemeinsam an – sie öffnen und schließen als Paar, nicht unabhängig voneinander. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountPusherArm": {

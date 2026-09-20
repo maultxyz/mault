@@ -166,8 +166,8 @@
           },
           "m2x6Screw": {
             "part": "Vis M2×6",
-            "partSpec": "(11 par module, +4 pour la fixation de la carte, +3 pour la carte driver de servo, +1 pour le chargeur)",
-            "notes": "11 par module ({{count}} modules) : trappe (bas/côtés) et bras du poussoir ; +4 pour fixer le {{board}} ; +3 pour fixer la carte driver de servo PCA9685 ; +1 pour le chargeur"
+            "partSpec": "(17 par module, +4 pour la fixation de la carte, +3 pour la carte driver de servo, +1 pour le chargeur)",
+            "notes": "17 par module ({{count}} modules) : trappe (bas/côtés) et bras du poussoir, plus 6 pour visser les trappes inférieure et latérales dans le boîtier ; +4 pour fixer le {{board}} ; +3 pour fixer la carte driver de servo PCA9685 ; +1 pour le chargeur"
           },
           "m2x8Screw": {
             "part": "Vis M2×8",
@@ -371,11 +371,11 @@
             "note": "Pas encore calibré ? Le centrage se fait alors avec des valeurs par défaut adaptées. Peut être relancé à tout moment en te reconnectant, pour recentrer un servo avant de fixer ou repositionner un palonnier."
           },
           "mountBottomFlapper": {
-            "text": "Assemble la trappe inférieure en vissant la trappe à la liaison, puis la liaison au palonnier. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
+            "text": "Assemble la trappe inférieure en vissant la trappe à la liaison, puis la liaison au palonnier. Visse la trappe inférieure assemblée dans le boîtier du module avec 2 vis M2×6. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
             "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. C'est la trappe par laquelle une carte tombe pour atteindre le module suivant, ou le module actuel en cas de correspondance. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "mountSideFlappers": {
-            "text": "Assemble les trappes latérales en vissant la trappe gauche et la trappe droite à la liaison commune, puis la liaison au palonnier (une paire par module). N'oublie pas de ne pas encore installer le palonnier sur le servo.",
+            "text": "Assemble les trappes latérales en vissant la trappe gauche et la trappe droite à la liaison commune, puis la liaison au palonnier (une paire par module). Visse les trappes latérales assemblées dans le boîtier du module avec 4 vis M2×6. N'oublie pas de ne pas encore installer le palonnier sur le servo.",
             "note": "Les repères HAUT/BAS de la liaison indiquent son sens de montage, pas l'orientation du module : la plateforme étant montée à l'envers, HAUT est à l'opposé de la plateforme. Un seul servo de palette entraîne les deux trappes ensemble - elles s'ouvrent et se ferment en paire, pas indépendamment. Le palonnier n'est fixé sur le servo qu'une fois le module calibré depuis l'application - voir « Calibrer depuis l'application » plus bas."
           },
           "mountPusherArm": {

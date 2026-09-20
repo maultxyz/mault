@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { BIN_CAPACITY_TABLE } from "@/features/bins/lib/bin-capacity";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import {
@@ -194,9 +195,57 @@ export function BinConfigPanel() {
           className="mb-6"
           data-invalid={!!form.formState.errors.cardLimit}
         >
-          <FieldLabel htmlFor="bin-card-limit">
-            {t("binConfigPanel.cardLimitLabel")}
-          </FieldLabel>
+          <span className="flex items-center gap-1.5">
+            <FieldLabel htmlFor="bin-card-limit">
+              {t("binConfigPanel.cardLimitLabel")}
+            </FieldLabel>
+            <Tooltip>
+              <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                <IconInfoCircle className="size-3.5" />
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className="w-auto max-w-none items-start p-3"
+              >
+                <div className="flex flex-col gap-2">
+                  <p className="font-medium">
+                    {t("binConfigPanel.capacityInfoTitle")}
+                  </p>
+                  <table className="text-xs">
+                    <thead>
+                      <tr>
+                        <th className="text-left font-medium text-background/70 pr-4 pb-1">
+                          {t("binConfigPanel.capacityInfoSizeHeader")}
+                        </th>
+                        <th className="text-right font-medium text-background/70 pr-3 pb-1">
+                          0.3mm
+                        </th>
+                        <th className="text-right font-medium text-background/70 pb-1">
+                          0.4mm
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {BIN_CAPACITY_TABLE.map((row) => (
+                        <tr key={row.sizeKey}>
+                          <td className="pr-4 py-0.5">
+                            {t(`binConfigPanel.${row.sizeKey}`)}
+                          </td>
+                          <td className="text-right pr-3 py-0.5">
+                            {row.thin}
+                          </td>
+                          <td className="text-right py-0.5">{row.thick}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <p className="text-background/70">
+                    {t("binConfigPanel.capacityInfoNote")}
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </span>
           <Controller
             name="cardLimit"
             control={form.control}

@@ -27,6 +27,12 @@
     "cardLimitLabel": "Fachkapazität",
     "cardLimitPlaceholder": "Unbegrenzt",
     "cardLimitDescription": "Stoppt das Scannen und fordert zum Leeren des Fachs auf, sobald es so viele Karten enthält. Leer lassen für kein Limit.",
+    "capacityInfoTitle": "Geschätzte Karten pro Fach, nach Kartendicke",
+    "capacityInfoSizeHeader": "Fachgröße",
+    "capacityInfoSmall": "Klein",
+    "capacityInfoMedium": "Mittel",
+    "capacityInfoLarge": "Groß",
+    "capacityInfoNote": "Jedes größere Fach fasst etwa 65% mehr als das vorherige. Dickere Karten (gesleevt, Foil, doppelt gesleevt) fassen weniger.",
     "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
     "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren.",
     "modeChangePending": "Speichere oder verwerfe die ausstehende Modusänderung oben, bevor du Fächer bearbeitest."
