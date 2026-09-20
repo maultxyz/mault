@@ -43,15 +43,11 @@ async function getProcessor(): Promise<Processor> {
   return processorPromise;
 }
 
-async function vectorizeRawImages(images: RawImage[]): Promise<number[][]> {
-  const [model, processor] = await Promise.all([getModel(), getProcessor()]);
-  const image_inputs = await processor(images);
-  const { pooler_output } = await model(image_inputs);
-  return pooler_output.tolist();
-}
-
 async function vectorizeRawImage(image: RawImage): Promise<number[]> {
-  const [embedding] = await vectorizeRawImages([image]);
+  const [model, processor] = await Promise.all([getModel(), getProcessor()]);
+  const image_inputs = await processor([image]);
+  const { pooler_output } = await model(image_inputs);
+  const [embedding] = pooler_output.tolist();
   return embedding;
 }
 
@@ -132,20 +128,17 @@ export async function vectorizeCardImage(
       crops.map((c) => cropToRegion(image, c.region)),
     );
 
-    const [embedding, ...cropEmbeddings] = await vectorizeRawImages([
-      image,
-      ...croppedImages,
-    ]);
-
+    // One image per model call: batching the full image with its crops
+    // multiplies peak memory (SigLIP-512 is 1024 tokens per image).
     const result: CardSearchEmbeddings = {
-      embedding,
+      embedding: await vectorizeRawImage(image),
       embeddingArt: null,
       embeddingName: null,
       embeddingBottom: null,
     };
-    crops.forEach((c, i) => {
-      result[c.key] = cropEmbeddings[i];
-    });
+    for (const [i, c] of crops.entries()) {
+      result[c.key] = await vectorizeRawImage(croppedImages[i]);
+    }
 
     return result;
   } finally {
