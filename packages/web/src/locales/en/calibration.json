@@ -1,4 +1,8 @@
 {
+  "page": {
+    "title": "Calibrate",
+    "subtitle": "Configure module routing, the camera scan region, and servo calibration"
+  },
   "servos": {
     "bottom": {
       "label": "Bottom Paddle"

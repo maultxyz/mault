@@ -27,6 +27,12 @@
     "cardLimitLabel": "Capacité du bac",
     "cardLimitPlaceholder": "Illimité",
     "cardLimitDescription": "Arrête le scan et invite à vider le bac une fois qu'il contient ce nombre de cartes. Laisser vide pour aucune limite.",
+    "capacityInfoTitle": "Cartes estimées par bac, selon l'épaisseur des cartes",
+    "capacityInfoSizeHeader": "Taille du bac",
+    "capacityInfoSmall": "Petit",
+    "capacityInfoMedium": "Moyen",
+    "capacityInfoLarge": "Grand",
+    "capacityInfoNote": "Chaque bac plus grand contient environ 65% de plus que le précédent. Les cartes plus épaisses (sous pochette, foil, double pochette) en contiennent moins.",
     "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
     "scanOnlyLocked": "Scan uniquement est activé — chaque carte va directement dans le bac 7. Désactive-le ci-dessus pour configurer les bacs.",
     "modeChangePending": "Enregistre ou ignore le changement de mode en attente ci-dessus avant de modifier les bacs."

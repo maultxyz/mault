@@ -3,6 +3,13 @@
     "title": "Admin",
     "subtitle": "Manage games, sync card data, and the card image vector database"
   },
+  "sections": {
+    "cards": "Cards",
+    "games": "Games",
+    "users": "Users",
+    "announcements": "Announcements",
+    "developer": "Developer"
+  },
   "cardImageVectors": {
     "heading": "Card Image Vectors",
     "syncStatus": {
@@ -79,6 +86,13 @@
     "toasts": {
       "startError": "Failed to start impersonation"
     }
+  },
+  "scanVectorizeStats": {
+    "heading": "Scan vectorization source",
+    "description": "How many card scans were vectorized on the server vs. on the client via WebGPU",
+    "serverLabel": "Server",
+    "webgpuLabel": "WebGPU",
+    "percentOfTotal": "{{percent}}% of scans"
   },
   "rollbarTest": {
     "heading": "Test Rollbar",

@@ -1,4 +1,8 @@
 {
+  "page": {
+    "title": "Calibrer",
+    "subtitle": "Configure le routage des modules, la zone de scan de la caméra et la calibration des servos"
+  },
   "servos": {
     "bottom": {
       "label": "Trappe inférieure"

@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
 import { ocrRegions } from "../../lib/ocr";
+import { recordScanVectorizeSource } from "../../lib/scan-vectorize-stats";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findCardMatches } from "./shared";
@@ -69,6 +70,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
       ]);
       embeddings = embeddingResult;
       ocrText = ocrResult;
+      void recordScanVectorizeSource("server");
     } catch (err) {
       console.error(err);
       return c.json(

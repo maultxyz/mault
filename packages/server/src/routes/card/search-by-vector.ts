@@ -7,6 +7,7 @@ import { Hono } from "hono";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
 import { ocrRegions } from "../../lib/ocr";
+import { recordScanVectorizeSource } from "../../lib/scan-vectorize-stats";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findCardMatches } from "./shared";
 
@@ -54,6 +55,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       embeddingName: parseEmbeddingField(body["embeddingName"]),
       embeddingBottom: parseEmbeddingField(body["embeddingBottom"]),
     };
+    void recordScanVectorizeSource("webgpu");
 
     const resolved = await resolveGameKeyAndLang(
       c.get("jwtClaims"),

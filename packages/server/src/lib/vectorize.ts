@@ -128,8 +128,6 @@ export async function vectorizeCardImage(
       crops.map((c) => cropToRegion(image, c.region)),
     );
 
-    // One image per model call: batching the full image with its crops
-    // multiplies peak memory (SigLIP-512 is 1024 tokens per image).
     const result: CardSearchEmbeddings = {
       embedding: await vectorizeRawImage(image),
       embeddingArt: null,

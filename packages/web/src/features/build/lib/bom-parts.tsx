@@ -305,7 +305,7 @@ export const GROUPS: Group[] = [
       },
       {
         key: "m2x6-screw",
-        qty: (n) => String(n * 11 + 8),
+        qty: (n) => String(n * 17 + 8),
         name: "M2x6 screw",
         part: (t) => (
           <>

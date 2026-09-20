@@ -73,7 +73,9 @@ function SyncStatusItem() {
   const done = processed + skipped;
 
   const visible =
-    status !== "idle" && status !== "cancelled" && pathname !== "/app/admin";
+    status !== "idle" &&
+    status !== "cancelled" &&
+    pathname !== "/app/admin/cards";
   if (!visible) return null;
 
   const dot =
@@ -107,7 +109,7 @@ function SyncStatusItem() {
   return (
     <Tooltip>
       <TooltipTrigger
-        onClick={isAdmin ? () => navigate("/app/admin") : undefined}
+        onClick={isAdmin ? () => navigate("/app/admin/cards") : undefined}
         className={`flex items-center gap-1.5 transition-colors min-w-0 ${
           isAdmin ? "cursor-pointer hover:text-foreground" : "cursor-default"
         }`}
