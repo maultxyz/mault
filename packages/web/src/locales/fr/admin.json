@@ -8,7 +8,22 @@
     "games": "Jeux",
     "users": "Utilisateurs",
     "announcements": "Annonces",
+    "servos": "Servos",
     "developer": "Développeur"
+  },
+  "servoTester": {
+    "heading": "Test de canal servo",
+    "description": "Pilote directement un canal PCA9685 brut pour vérifier qu'un servo fonctionne, ou pour trouver sur quel canal se trouve un fil donné - contourne entièrement l'association module/bac.",
+    "connectButton": "Connecter l'appareil",
+    "connectUsb": "Connecter via USB",
+    "connectBluetooth": "Connecter via Bluetooth",
+    "channelLabel": "Canal",
+    "sweepDescription": "Clique sur un canal pour faire balayer ce servo d'une extrémité de sa course à l'autre puis retour - un test complet de la plage de mouvement.",
+    "stopButton": "Arrêter",
+    "disconnectButton": "Déconnecter",
+    "toasts": {
+      "sendFailed": "Échec de l'envoi de la commande à l'appareil"
+    }
   },
   "cardImageVectors": {
     "heading": "Vecteurs d'image des cartes",

@@ -8,7 +8,22 @@
     "games": "Games",
     "users": "Users",
     "announcements": "Announcements",
+    "servos": "Servos",
     "developer": "Developer"
+  },
+  "servoTester": {
+    "heading": "Servo channel test",
+    "description": "Drive a raw PCA9685 channel directly to verify a servo works, or to find which channel a given wire is on - bypasses module/bin assignment entirely.",
+    "connectButton": "Connect Device",
+    "connectUsb": "Connect via USB",
+    "connectBluetooth": "Connect via Bluetooth",
+    "channelLabel": "Channel",
+    "sweepDescription": "Click a channel to sweep that servo from one end of its range to the other and back - a full range-of-motion test.",
+    "stopButton": "Stop",
+    "disconnectButton": "Disconnect",
+    "toasts": {
+      "sendFailed": "Failed to send command to the device"
+    }
   },
   "cardImageVectors": {
     "heading": "Card Image Vectors",

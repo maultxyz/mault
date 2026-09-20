@@ -19,7 +19,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.0.12"
+#define FIRMWARE_VERSION "2.0.13"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -718,6 +718,42 @@ void handleCommand(char* json, Print& reply) {
     reply.print(servo);
     reply.print(F("\",\"module\":"));
     reply.print(module);
+    reply.println(F("}"));
+    return;
+  }
+
+  // {"channel": N, "value": V} — drive a raw PCA9685 channel directly,
+  // bypassing the module/servo mapping entirely. For verifying a servo works
+  // (or finding which channel a given wire is on) before it's assigned to a
+  // module - the app has no way to know what's plugged into an unassigned
+  // channel, so this addresses the driver board directly instead of going
+  // through getChannel()/module validation like {"servo": ...} does.
+  if (doc["channel"].is<int>() && doc["value"].is<int>()) {
+    int channel = doc["channel"].as<int>();
+    if (channel < 0 || channel > 15) {
+      reply.println(F("{\"error\":\"channel must be 0 to 15\"}"));
+      return;
+    }
+    setServoPosition(channel, doc["value"].as<int>());
+    reply.print(F("{\"status\":\"ok\",\"channel\":"));
+    reply.print(channel);
+    reply.println(F("}"));
+    return;
+  }
+
+  // {"channelStop": N} — cut PWM on a raw channel (for a continuous-rotation
+  // servo under test via {"channel": ...} above, which - like the feeder -
+  // doesn't stop on its own at a "neutral" pulse the way a positional servo
+  // does)
+  if (doc["channelStop"].is<int>()) {
+    int channel = doc["channelStop"].as<int>();
+    if (channel < 0 || channel > 15) {
+      reply.println(F("{\"error\":\"channel must be 0 to 15\"}"));
+      return;
+    }
+    pwm.setPin(channel, 0);
+    reply.print(F("{\"status\":\"ok\",\"channel\":"));
+    reply.print(channel);
     reply.println(F("}"));
     return;
   }
