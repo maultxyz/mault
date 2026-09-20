@@ -4,6 +4,7 @@ import {
   IconBug,
   IconCards,
   IconDeviceGamepad2,
+  IconRotate360,
   IconSpeakerphone,
   IconUserScan,
 } from "@tabler/icons-react";
@@ -19,6 +20,7 @@ const SECTION_ITEMS = [
     icon: IconSpeakerphone,
     labelKey: "sections.announcements",
   },
+  { path: "servos", icon: IconRotate360, labelKey: "sections.servos" },
   { path: "developer", icon: IconBug, labelKey: "sections.developer" },
 ] as const;
 

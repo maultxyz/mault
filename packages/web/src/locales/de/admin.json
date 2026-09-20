@@ -8,7 +8,22 @@
     "games": "Spiele",
     "users": "Benutzer",
     "announcements": "Ankündigungen",
+    "servos": "Servos",
     "developer": "Entwickler"
+  },
+  "servoTester": {
+    "heading": "Servokanal-Test",
+    "description": "Steuere einen rohen PCA9685-Kanal direkt an, um zu prüfen, ob ein Servo funktioniert, oder um herauszufinden, an welchem Kanal ein bestimmtes Kabel hängt - umgeht die Modul-/Fach-Zuordnung vollständig.",
+    "connectButton": "Gerät verbinden",
+    "connectUsb": "Über USB verbinden",
+    "connectBluetooth": "Über Bluetooth verbinden",
+    "channelLabel": "Kanal",
+    "sweepDescription": "Klicke auf einen Kanal, um diesen Servo einmal von einem Ende seines Bewegungsbereichs zum anderen und zurück zu fahren - ein vollständiger Bewegungsbereichstest.",
+    "stopButton": "Stoppen",
+    "disconnectButton": "Trennen",
+    "toasts": {
+      "sendFailed": "Befehl konnte nicht an das Gerät gesendet werden"
+    }
   },
   "cardImageVectors": {
     "heading": "Kartenbild-Vektoren",

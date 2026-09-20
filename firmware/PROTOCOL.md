@@ -199,6 +199,27 @@ or, to bypass calibrated positions and drive a raw pulse directly:
 `{"error":"servo must be bottom, paddle, or pusher"}` /
 `{"error":"invalid position"}` / `{"error":"module must be 1 to N"}`
 
+### `channel` (raw PCA9685 channel test)
+```json
+{"channel": 7, "value": 300}
+```
+Drives PCA9685 channel `channel` (0-15) at raw pulse `value` directly,
+bypassing the module/servo mapping (`getChannel()`) and its module-range
+validation entirely — unlike `servo` above, this works on a channel that
+isn't wired into any module yet. For verifying a servo/channel works, or
+finding which channel a given wire is on, during assembly or troubleshooting.
+- `value`: raw PWM pulse, same `120–490` range as `servo`'s `value`
+→ `{"status":"ok","channel":7}`, or `{"error":"channel must be 0 to 15"}`
+
+### `channelStop`
+```json
+{"channelStop": 7}
+```
+Cuts PWM on a raw channel — needed after testing a continuous-rotation servo
+via `channel` above, since (like the feeder) it has no neutral pulse that
+stops it on its own. → `{"status":"ok","channel":7}`, or
+`{"error":"channel must be 0 to 15"}`
+
 ### `setConfig` (calibration values — does not move anything)
 ```json
 {
@@ -308,6 +329,7 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 | Response | When |
 |---|---|
 | `{"error":"module must be 1 to N"}` | `module` outside the valid range for the current channel offset |
+| `{"error":"channel must be 0 to 15"}` | `channel`/`channelStop` outside the PCA9685's addressable range |
 | `{"error":"servo must be bottom, paddle, or pusher"}` | invalid `servo` field |
 | `{"error":"invalid position"}` | `position` not valid for that servo type |
 | `{"error":"direction must be left, right, or bottom"}` | invalid `direction` in `route` |
