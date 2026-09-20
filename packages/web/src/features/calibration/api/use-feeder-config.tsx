@@ -4,6 +4,7 @@ import {
 } from "@/features/calibration/api/feeder-config";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { FEEDER_PREVIEW_STOP_MS } from "@/lib/constants/timing";
 import {
   DEFAULT_FEEDER_CALIBRATION,
   type FeederCalibration,
@@ -14,6 +15,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -99,12 +101,30 @@ export function FeederConfigProvider({
     [saveConfigMutation, device],
   );
 
+  const previewStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
   const previewSpeed = useCallback(
     (value: number) => {
       sendCommand(JSON.stringify({ feederValue: value }));
+      if (previewStopTimeoutRef.current) {
+        clearTimeout(previewStopTimeoutRef.current);
+      }
+      previewStopTimeoutRef.current = setTimeout(() => {
+        sendCommand(JSON.stringify({ feederStop: true }));
+      }, FEEDER_PREVIEW_STOP_MS);
     },
     [sendCommand],
   );
+
+  useEffect(() => {
+    return () => {
+      if (previewStopTimeoutRef.current) {
+        clearTimeout(previewStopTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <FeederConfigContext value={{ feederConfig, saveConfig, previewSpeed }}>
