@@ -2,11 +2,14 @@ import { router } from "@/app/router";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "@/index.css";
 import "@/lib/i18n";
+import { registerServiceWorker } from "@/lib/pwa";
 import "@/lib/rollbar";
 import { ThemeProvider } from "next-themes";
 import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider } from "react-router-dom";
+
+registerServiceWorker();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
