@@ -50,9 +50,9 @@ export async function findCardMatches(
   const nameStr = vectorLiteral(embeddings.embeddingName);
   const bottomStr = vectorLiteral(embeddings.embeddingBottom);
   const ocrTokens = extractOcrTokens(ocrText);
-  const isLocal = process.env.NODE_ENV !== "production";
+  const showVectorLogs = process.env.SHOW_VECTOR_LOGS == "true";
 
-  if (isLocal) {
+  if (showVectorLogs) {
     console.log(
       `[card-search] query-side vectors for game=${gameKey}: full=yes art=${artStr ? "yes" : "no"} name=${nameStr ? "yes" : "no"} bottom=${bottomStr ? "yes" : "no"}`,
     );
@@ -116,8 +116,10 @@ export async function findCardMatches(
       rerankScore: row.rerank_score as number,
     }));
 
-    if (isLocal) {
-      console.log(`[card-search] shortlist matches for game=${gameKey} lang=${lang}:`);
+    if (showVectorLogs) {
+      console.log(
+        `[card-search] shortlist matches for game=${gameKey} lang=${lang}:`,
+      );
       console.table(
         rows.map(
           ({
@@ -161,11 +163,13 @@ export async function findCardMatches(
           })
         : rows;
 
-    const matchList: SearchCardMatch[] = ranked.map(({ id, cardId, distance }) => ({
-      id,
-      cardId,
-      distance,
-    }));
+    const matchList: SearchCardMatch[] = ranked.map(
+      ({ id, cardId, distance }) => ({
+        id,
+        cardId,
+        distance,
+      }),
+    );
 
     return {
       message: "Successfully searched for card.",
