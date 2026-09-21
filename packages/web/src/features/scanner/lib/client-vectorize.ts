@@ -8,7 +8,19 @@ const MODEL_NAME = "Xenova/siglip-base-patch16-512";
 
 let webGpuSupportPromise: Promise<boolean> | null = null;
 
+// Firefox reports navigator.gpu and resolves requestAdapter() successfully,
+// but transformers.js's WebGPU backend produces embeddings there that are
+// numerically wrong (not NaN/empty, just far enough from the CPU-computed
+// vector that search-by-vector never finds a match) - confirmed by a user
+// report where forcing CPU vectorization fixed matching in Firefox with no
+// other change. Excluded outright rather than trying to validate the
+// backend's output at runtime.
+function isFirefox(): boolean {
+  return /firefox/i.test(navigator.userAgent);
+}
+
 async function detectWebGpuSupport(): Promise<boolean> {
+  if (isFirefox()) return false;
   const gpu = (
     navigator as unknown as {
       gpu?: { requestAdapter: () => Promise<unknown> };
