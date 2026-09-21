@@ -13,12 +13,20 @@ COPY packages/shared/package.json packages/shared/
 COPY packages/server/package.json packages/server/
 RUN pnpm install --frozen-lockfile
 
-# Pre-download SigLIP model into the image at build time
+# Pre-download SigLIP model into the image at build time, both dtype variants
+# lib/vectorize.ts can request: fp32 (the default - matches what the
+# in-browser WebGPU scan path always computes, see that file's MODEL_DTYPE
+# comment) and q8 (the VECTORIZE_DTYPE=q8 opt-out for memory/CPU-constrained
+# deployments). Whichever one isn't pre-downloaded here, a container that
+# requests it at runtime fails with "Unable to get model file path or
+# buffer" instead of fetching it live - this image is built to never need
+# network access for the model at all, not just usually not need it.
 # Run from packages/server so pnpm resolves @huggingface/transformers correctly
 # This layer is cached as long as dependencies don't change
 RUN cd packages/server && node -e " \
   const { SiglipVisionModel, AutoProcessor } = require('@huggingface/transformers'); \
   Promise.all([ \
+    SiglipVisionModel.from_pretrained('Xenova/siglip-base-patch16-512', { dtype: 'fp32' }), \
     SiglipVisionModel.from_pretrained('Xenova/siglip-base-patch16-512', { dtype: 'q8' }), \
     AutoProcessor.from_pretrained('Xenova/siglip-base-patch16-512'), \
   ]).then(() => { console.log('[build] SigLIP model pre-downloaded.'); process.exit(0); }) \
