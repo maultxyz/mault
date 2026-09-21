@@ -8,13 +8,6 @@ const MODEL_NAME = "Xenova/siglip-base-patch16-512";
 
 let webGpuSupportPromise: Promise<boolean> | null = null;
 
-// Firefox reports navigator.gpu and resolves requestAdapter() successfully,
-// but transformers.js's WebGPU backend produces embeddings there that are
-// numerically wrong (not NaN/empty, just far enough from the CPU-computed
-// vector that search-by-vector never finds a match) - confirmed by a user
-// report where forcing CPU vectorization fixed matching in Firefox with no
-// other change. Excluded outright rather than trying to validate the
-// backend's output at runtime.
 function isFirefox(): boolean {
   return /firefox/i.test(navigator.userAgent);
 }
@@ -40,8 +33,7 @@ export function isWebGpuSupported(): Promise<boolean> {
   return webGpuSupportPromise;
 }
 
-type SiglipVisionModel =
-  import("@huggingface/transformers").SiglipVisionModel;
+type SiglipVisionModel = import("@huggingface/transformers").SiglipVisionModel;
 type Processor = import("@huggingface/transformers").Processor;
 
 let modelPromise: Promise<SiglipVisionModel> | null = null;
@@ -108,7 +100,9 @@ export async function vectorizeCardImageOnClient(
   const croppedCanvases = await Promise.all(
     crops.map((c) => cropToCanvas(canvas, c.region)),
   );
-  const images = [canvas, ...croppedCanvases].map((c) => RawImage.fromCanvas(c));
+  const images = [canvas, ...croppedCanvases].map((c) =>
+    RawImage.fromCanvas(c),
+  );
 
   const image_inputs = await processor(images);
   const { pooler_output } = await model(image_inputs);
