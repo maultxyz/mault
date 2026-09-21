@@ -36,6 +36,7 @@ export function startSync(
   orgId: string | undefined,
   gameKey: string,
   lang: string = "en",
+  forceResync: boolean = false,
 ): void {
   if (currentWorker) return;
 
@@ -47,6 +48,7 @@ export function startSync(
     status: "running",
     gameKey,
     lang,
+    forceResync,
     total: 0,
     processed: 0,
     skipped: 0,
@@ -124,7 +126,13 @@ export function startSync(
     notifyFailure(msg);
   });
 
-  const startMessage: StartMessage = { type: "start", gameKey, lang, initialState };
+  const startMessage: StartMessage = {
+    type: "start",
+    gameKey,
+    lang,
+    forceResync,
+    initialState,
+  };
   child.send(startMessage);
 }
 

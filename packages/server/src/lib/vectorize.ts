@@ -2,6 +2,7 @@ import {
   AutoProcessor,
   RawImage,
   SiglipVisionModel,
+  type DataType,
   type DeviceType,
   type Processor,
 } from "@huggingface/transformers";
@@ -14,7 +15,8 @@ import type {
 const MODEL_NAME = "Xenova/siglip-base-patch16-512";
 
 const MODEL_DEVICE = process.env.VECTORIZE_DEVICE as DeviceType | undefined;
-const MODEL_DTYPE = MODEL_DEVICE && MODEL_DEVICE !== "cpu" ? "fp32" : "q8";
+const MODEL_DTYPE =
+  (process.env.VECTORIZE_DTYPE as DataType | undefined) ?? "fp32";
 
 let modelPromise: Promise<SiglipVisionModel> | null = null;
 let processorPromise: Promise<Processor> | null = null;

@@ -15,7 +15,7 @@ interface CardSyncContextValue {
   progress: number;
   elapsedMs: number;
   etaMs: number | null;
-  start: (gameKey: string, lang: string) => void;
+  start: (gameKey: string, lang: string, forceResync?: boolean) => void;
   isStarting: boolean;
   cancel: () => void;
   isCancelling: boolean;
@@ -45,8 +45,15 @@ export function CardSyncProvider({ children }: { children: ReactNode }) {
   }, [syncState.status]);
 
   const startSyncMutation = useMutation({
-    mutationFn: ({ gameKey, lang }: { gameKey: string; lang: string }) =>
-      startSync(gameKey, lang),
+    mutationFn: ({
+      gameKey,
+      lang,
+      forceResync,
+    }: {
+      gameKey: string;
+      lang: string;
+      forceResync?: boolean;
+    }) => startSync(gameKey, lang, forceResync),
   });
   const cancelSyncMutation = useMutation({ mutationFn: cancelSync });
 
@@ -71,7 +78,8 @@ export function CardSyncProvider({ children }: { children: ReactNode }) {
         progress,
         elapsedMs,
         etaMs,
-        start: (gameKey, lang) => startSyncMutation.mutate({ gameKey, lang }),
+        start: (gameKey, lang, forceResync) =>
+          startSyncMutation.mutate({ gameKey, lang, forceResync }),
         isStarting: startSyncMutation.isPending,
         cancel: () => cancelSyncMutation.mutate(),
         isCancelling: cancelSyncMutation.isPending,

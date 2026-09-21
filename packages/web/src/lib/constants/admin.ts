@@ -4,6 +4,7 @@ export const DEFAULT_SYNC_STATE: SyncState = {
   status: "idle",
   gameKey: "",
   lang: "en",
+  forceResync: false,
   total: 0,
   processed: 0,
   skipped: 0,

@@ -106,7 +106,11 @@ function emitCancelledDone(): void {
   });
 }
 
-async function runSync(source: SyncSource, lang: string): Promise<void> {
+async function runSync(
+  source: SyncSource,
+  lang: string,
+  forceResync: boolean,
+): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
 
@@ -163,9 +167,11 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
 
   addLog(
     `Found ${existingSet.size} existing ${source.label} cards in DB` +
-      (needsCropBackfill.size > 0
-        ? ` (${needsCropBackfill.size} missing crop embeddings and will be reprocessed)`
-        : "") +
+      (forceResync
+        ? " (force resync on - all will be reprocessed)"
+        : needsCropBackfill.size > 0
+          ? ` (${needsCropBackfill.size} missing crop embeddings and will be reprocessed)`
+          : "") +
       `. Starting vectorization (${VECTORIZE_CONCURRENCY} in parallel)...`,
   );
 
@@ -233,7 +239,9 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
 
   async function processCard(card: SyncSourceCard): Promise<void> {
     const alreadyVectorized =
-      existingSet.has(card.id) && !needsCropBackfill.has(card.id);
+      !forceResync &&
+      existingSet.has(card.id) &&
+      !needsCropBackfill.has(card.id);
     if (!card.imageUrl || alreadyVectorized) {
       incrementCounters({ skipped: 1 });
       const s = getState();
@@ -355,7 +363,7 @@ process.on("message", (msg: ParentToWorkerMessage) => {
     }
 
     beginRun();
-    runSync(source, msg.lang)
+    runSync(source, msg.lang, msg.forceResync)
       .then(() => process.exit(0))
       .catch((err) => {
         patchState({ status: "failed" });

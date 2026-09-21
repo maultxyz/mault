@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -6,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useCardSync } from "@/features/admin/api/use-card-sync";
 import { formatDuration } from "@/features/admin/lib/format-duration";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
@@ -31,6 +33,7 @@ export function CardSyncPanel() {
   const logRef = useRef<HTMLDivElement>(null);
   const [syncGameKey, setSyncGameKey] = useState<string | null>(null);
   const [syncLang, setSyncLang] = useState<string>("en");
+  const [forceResync, setForceResync] = useState(false);
 
   useEffect(() => {
     if (logRef.current) {
@@ -60,6 +63,10 @@ export function CardSyncPanel() {
                 }${
                   syncState.lang !== "en"
                     ? ` (${LANGUAGE_LABELS[syncState.lang] ?? syncState.lang})`
+                    : ""
+                }${
+                  syncState.forceResync
+                    ? ` · ${t("cardImageVectors.forceResyncActive")}`
                     : ""
                 }`}
             </p>
@@ -124,7 +131,7 @@ export function CardSyncPanel() {
             ) : (
               <Button
                 disabled={isRunning || isStarting || !syncGameKey}
-                onClick={() => start(syncGameKey!, syncLang)}
+                onClick={() => start(syncGameKey!, syncLang, forceResync)}
               >
                 {isStarting
                   ? t("starting")
@@ -133,6 +140,22 @@ export function CardSyncPanel() {
             )}
           </div>
         </div>
+
+        {!isRunning && (
+          <div className="flex items-center gap-2">
+            <Switch
+              id="sync-force-resync"
+              checked={forceResync}
+              onCheckedChange={setForceResync}
+            />
+            <Label
+              htmlFor="sync-force-resync"
+              className="text-xs font-normal text-muted-foreground"
+            >
+              {t("cardImageVectors.forceResyncLabel")}
+            </Label>
+          </div>
+        )}
 
         {total > 0 && (
           <div className="flex flex-col gap-1.5">

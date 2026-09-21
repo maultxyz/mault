@@ -4,6 +4,7 @@ export interface StartMessage {
   type: "start";
   gameKey: string;
   lang: string;
+  forceResync: boolean;
   initialState: SyncState;
 }
 
