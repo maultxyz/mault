@@ -2,48 +2,49 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
-import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
-import {
-  contourToBox,
-  rawContourToPortraitBox,
-} from "@/features/calibration/lib/scan-region-geometry";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
-import { getDefaultCardContour } from "@/features/scanner/lib/card-detection";
+import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
+import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import {
   CAPTURE_SETTLE_DELAY_SLIDER_MAX,
+  MATCHES_NEEDED_MIN,
+  MATCHES_NEEDED_SLIDER_MAX,
   sliderMax,
 } from "@/lib/constants/calibration";
-import { SCAN_REGION_PHONE_SYNC_DELAY_MS } from "@/lib/constants/timing";
 import type { ScanRegion } from "@magic-vault/shared";
-import {
-  IconCameraSpark,
-  IconDeviceMobile,
-  IconRotate,
-} from "@tabler/icons-react";
+import { IconCameraSpark, IconDeviceMobile } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+const LIVE_DETECTION_INTERVAL_MS = 200;
 
 interface ScanRegionCalibrationPanelProps {
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
+  matchesNeeded: number;
   isLoading: boolean;
   onRegionChange: (region: ScanRegion) => void;
   onResetRegion: () => void;
   onCaptureSettleChange: (value: number) => void;
+  onMatchesNeededChange: (value: number) => void;
 }
 
+// The scan region's hard-coded bounding box (drag-to-move/resize) has been
+// removed for now in favor of CollectorVision's live corner detection, which
+// this panel now previews instead - see use-card-scanner.ts for the same
+// detection loop on the actual scanning page. `scanRegion`/`onRegionChange`/
+// `onResetRegion` are intentionally unused here; the underlying state/save
+// plumbing in use-calibration-page.ts is left in place in case the manual
+// box comes back.
 export function ScanRegionCalibrationPanel({
-  scanRegion: region,
   captureSettleDelayMs: captureSettleDelayMsValue,
+  matchesNeeded,
   isLoading,
-  onRegionChange,
-  onResetRegion,
   onCaptureSettleChange,
+  onMatchesNeededChange,
 }: ScanRegionCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
-  const regionRef = useRef(region);
-  regionRef.current = region;
 
   const {
     stream,
@@ -56,7 +57,6 @@ export function ScanRegionCalibrationPanel({
     startPhonePairing,
     stopPhonePairing,
     requestPhoneCapture,
-    sendPhoneScanRegion,
   } = useCameraContext();
   const isCameraActive = cameraSource === "local" && cameraStatus === "ready";
   const [isConnecting, setIsConnecting] = useState(false);
@@ -119,49 +119,71 @@ export function ScanRegionCalibrationPanel({
 
   const { videoRef, frameRef, canvasRef, videoSize, phonePhotoSize } =
     useCameraFrameCanvas({ stream, phonePhotoUrl });
+  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  // Live edge-detection preview on the webcam feed - runs full-frame (no
+  // fixed region to crop to first) on a throttled interval, since inference
+  // is far too slow to run every frame.
+  const liveDetectingRef = useRef(false);
   useEffect(() => {
-    if (cameraSource !== "phone" || phonePairingStatus !== "connected") return;
-    const timeout = setTimeout(
-      () => sendPhoneScanRegion(region),
-      SCAN_REGION_PHONE_SYNC_DELAY_MS,
-    );
-    return () => clearTimeout(timeout);
-  }, [region, cameraSource, phonePairingStatus, sendPhoneScanRegion]);
+    if (!videoSize) return;
 
-  const box =
-    cameraSource === "phone"
-      ? phonePhotoSize
-        ? contourToBox(
-            getDefaultCardContour(
-              phonePhotoSize.width,
-              phonePhotoSize.height,
-              region,
-            ),
-            phonePhotoSize.width,
-            phonePhotoSize.height,
-          )
-        : null
-      : videoSize
-        ? rawContourToPortraitBox(
-            getDefaultCardContour(videoSize.width, videoSize.height, region),
-            videoSize.width,
-            videoSize.height,
-          )
-        : null;
+    const interval = setInterval(() => {
+      if (liveDetectingRef.current) return;
+      const canvas = canvasRef.current;
+      const overlayCanvas = overlayCanvasRef.current;
+      const overlayCtx = overlayCanvas?.getContext("2d");
+      if (!canvas || !overlayCanvas || !overlayCtx) return;
+      if (overlayCanvas.width !== canvas.width) overlayCanvas.width = canvas.width;
+      if (overlayCanvas.height !== canvas.height) overlayCanvas.height = canvas.height;
 
-  const {
-    handleBoxPointerDown,
-    handleResizePointerDown,
-    handlePointerMove,
-    handlePointerUp,
-  } = useRegionDrag({
-    frameRef,
-    regionRef,
-    cameraSource,
-    box,
-    onRegionChange,
-  });
+      liveDetectingRef.current = true;
+      detectCardCorners(canvas)
+        .then((detection) => {
+          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+          if (detection.cardPresent) {
+            drawDetectionOverlay(overlayCtx, {
+              detected: true,
+              contour: detection.contour,
+              confidence: detection.confidence,
+              sharpness: detection.sharpness ?? undefined,
+            });
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          liveDetectingRef.current = false;
+        });
+    }, LIVE_DETECTION_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [videoSize, canvasRef]);
+
+  // One-shot detection on a freshly-taken phone photo (there's no live feed
+  // to poll in that mode).
+  useEffect(() => {
+    if (!phonePhotoSize) return;
+    const canvas = canvasRef.current;
+    const overlayCanvas = overlayCanvasRef.current;
+    const overlayCtx = overlayCanvas?.getContext("2d");
+    if (!canvas || !overlayCanvas || !overlayCtx) return;
+    overlayCanvas.width = canvas.width;
+    overlayCanvas.height = canvas.height;
+
+    detectCardCorners(canvas)
+      .then((detection) => {
+        overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+        if (detection.cardPresent) {
+          drawDetectionOverlay(overlayCtx, {
+            detected: true,
+            contour: detection.contour,
+            confidence: detection.confidence,
+            sharpness: detection.sharpness ?? undefined,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [phonePhotoSize, canvasRef]);
 
   return (
     <div className="flex flex-col gap-2" data-tour="scan-region-panel">
@@ -231,26 +253,10 @@ export function ScanRegionCalibrationPanel({
               ref={canvasRef}
               className="absolute inset-0 w-full h-full"
             />
-            {box && (
-              <div
-                className="absolute rounded-xl border-[6px] border-primary! cursor-move touch-none select-none"
-                style={{
-                  left: `${box.left * 100}%`,
-                  top: `${box.top * 100}%`,
-                  width: `${box.width * 100}%`,
-                  height: `${box.height * 100}%`,
-                }}
-                onPointerDown={handleBoxPointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
-              >
-                <div
-                  className="absolute -right-2.5 -bottom-2.5 size-5 rounded-full bg-primary border-2 border-background cursor-nwse-resize touch-none"
-                  onPointerDown={handleResizePointerDown}
-                />
-              </div>
-            )}
+            <canvas
+              ref={overlayCanvasRef}
+              className="absolute inset-0 w-full h-full pointer-events-none"
+            />
           </div>
           {cameraSource === "phone"
             ? !phonePhotoUrl && (
@@ -272,39 +278,18 @@ export function ScanRegionCalibrationPanel({
               )}
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onResetRegion}
-            title={t("scanRegionCalibrationPanel.resetToDefault")}
-          >
-            <IconRotate size={14} />
-            <span className="sr-only">
-              {t("scanRegionCalibrationPanel.resetToDefault")}
-            </span>
-          </Button>
-          {isLoading ? (
-            <Skeleton className="h-6 flex-1 rounded" />
-          ) : (
-            <p className="text-xs text-muted-foreground flex-1">
-              {t("scanRegionCalibrationPanel.currentSummary", {
-                coverage: Math.round(region.coverage * 100),
-                offsetX: Math.round(region.offsetX * 100),
-                offsetY: Math.round(region.offsetY * 100),
-              })}
-            </p>
-          )}
-        </div>
-
         <div className="flex flex-col gap-2 pt-2 border-t">
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
               {t("scanRegionCalibrationPanel.captureSettleLabel")}
             </p>
-            <span className="text-sm font-bold">
-              {t("msValue", { value: captureSettleDelayMsValue })}
-            </span>
+            {isLoading ? (
+              <Skeleton className="h-5 w-12 rounded" />
+            ) : (
+              <span className="text-sm font-bold">
+                {t("msValue", { value: captureSettleDelayMsValue })}
+              </span>
+            )}
           </div>
           <p className="text-[10px] text-muted-foreground/70">
             {t("scanRegionCalibrationPanel.captureSettleDescription")}
@@ -318,6 +303,29 @@ export function ScanRegionCalibrationPanel({
             step={10}
             value={captureSettleDelayMsValue}
             onValueChange={onCaptureSettleChange}
+          />
+        </div>
+
+        <div className="flex flex-col gap-2 pt-2 border-t">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              {t("scanRegionCalibrationPanel.matchesNeededLabel")}
+            </p>
+            {isLoading ? (
+              <Skeleton className="h-5 w-6 rounded" />
+            ) : (
+              <span className="text-sm font-bold">{matchesNeeded}</span>
+            )}
+          </div>
+          <p className="text-[10px] text-muted-foreground/70">
+            {t("scanRegionCalibrationPanel.matchesNeededDescription")}
+          </p>
+          <Slider
+            min={MATCHES_NEEDED_MIN}
+            max={sliderMax(matchesNeeded, MATCHES_NEEDED_SLIDER_MAX)}
+            step={1}
+            value={matchesNeeded}
+            onValueChange={onMatchesNeededChange}
           />
         </div>
       </div>

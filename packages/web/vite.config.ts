@@ -72,4 +72,14 @@ export default defineConfig({
       },
     },
   },
+  optimizeDeps: {
+    // onnxruntime-web locates its WASM/worker files relative to its own
+    // module URL (import.meta.url). esbuild's dependency pre-bundling
+    // (Vite's default for node_modules deps) breaks that resolution - the
+    // WASM fetch 404s and Vite's dev server falls back to index.html, which
+    // onnxruntime-web then fails to parse as WASM. Excluding it here serves
+    // the real, unbundled node_modules files instead, where that relative
+    // resolution (including its own internal dynamic `import()`s) works.
+    exclude: ["onnxruntime-web"],
+  },
 });

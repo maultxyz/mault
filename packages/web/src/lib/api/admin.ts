@@ -22,13 +22,18 @@ export async function listSyncSources(): Promise<{
   return apiGet<{ success: boolean; data: SyncSourceInfo[] }>("/api/admin/sync/sources");
 }
 
-export async function startSync(gameKey: string, lang: string = "en"): Promise<{
+export async function startSync(
+  gameKey: string,
+  lang: string = "en",
+  forceResync: boolean = false,
+): Promise<{
   success: boolean;
   data: SyncState;
 }> {
   return apiPost<{ success: boolean; data: SyncState }>("/api/admin/sync", {
     gameKey,
     lang,
+    forceResync,
   });
 }
 

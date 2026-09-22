@@ -6,6 +6,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { useCardSync } from "@/features/admin/api/use-card-sync";
 import { formatDuration } from "@/features/admin/lib/format-duration";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
@@ -31,6 +32,7 @@ export function CardSyncPanel() {
   const logRef = useRef<HTMLDivElement>(null);
   const [syncGameKey, setSyncGameKey] = useState<string | null>(null);
   const [syncLang, setSyncLang] = useState<string>("en");
+  const [forceResync, setForceResync] = useState(false);
 
   useEffect(() => {
     if (logRef.current) {
@@ -124,7 +126,7 @@ export function CardSyncPanel() {
             ) : (
               <Button
                 disabled={isRunning || isStarting || !syncGameKey}
-                onClick={() => start(syncGameKey!, syncLang)}
+                onClick={() => start(syncGameKey!, syncLang, forceResync)}
               >
                 {isStarting
                   ? t("starting")
@@ -133,6 +135,17 @@ export function CardSyncPanel() {
             )}
           </div>
         </div>
+
+        {!isRunning && (
+          <label className="flex items-center gap-2 text-sm">
+            <Switch
+              size="sm"
+              checked={forceResync}
+              onCheckedChange={setForceResync}
+            />
+            {t("cardImageVectors.forceResyncLabel")}
+          </label>
+        )}
 
         {total > 0 && (
           <div className="flex flex-col gap-1.5">

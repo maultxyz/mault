@@ -26,10 +26,19 @@ export const DEFAULT_SCAN_REGION: ScanRegion = {
 
 export const DEFAULT_CAPTURE_SETTLE_DELAY_MS = 500;
 
+// How many consecutive live frames must agree on the same top match before a
+// capture is accepted - 1 disables consensus (first frame wins, fastest), a
+// higher value trades capture speed for reliability against a single noisy
+// frame (motion blur, a momentary bad corner detection, etc).
+export const DEFAULT_MATCHES_NEEDED = 2;
+
 export interface DetectionResult {
   detected: boolean;
   contour: CardContour | null;
   confidence: number;
+  // SimCC mean-peak sharpness from the Cornelius corner detector (0-1).
+  // Only set for a live neural detection, not the static default contour.
+  sharpness?: number;
 }
 
 export type ScannerStatus =

@@ -31,7 +31,6 @@
     "searchForCorrectVersion": "Ta carte scannée - recherche la bonne version ci-dessous",
     "cancel": "Annuler",
     "binLocation": "Emplacement du bac",
-    "showVectorRegions": "Afficher les zones de vectorisation",
     "showOcrRegions": "Afficher les zones OCR"
   },
   "cardFilterPopover": {

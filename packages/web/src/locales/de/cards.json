@@ -31,7 +31,6 @@
     "searchForCorrectVersion": "Deine gescannte Karte - suche unten nach der richtigen Version",
     "cancel": "Abbrechen",
     "binLocation": "Fachposition",
-    "showVectorRegions": "Vektorisierungsbereiche anzeigen",
     "showOcrRegions": "OCR-Bereiche anzeigen"
   },
   "cardFilterPopover": {

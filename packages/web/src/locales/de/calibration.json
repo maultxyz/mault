@@ -111,6 +111,8 @@
     "currentSummary": "{{coverage}}% Abdeckung, {{offsetX}}% / {{offsetY}}% Versatz",
     "captureSettleLabel": "Aufnahme-Verzögerung (ms)",
     "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
+    "matchesNeededLabel": "Benötigte Übereinstimmungen",
+    "matchesNeededDescription": "Wie viele aufeinanderfolgende Bilder dieselbe Karte bestätigen müssen, bevor ein Scan akzeptiert wird. 1 ist am schnellsten; höhere Werte sind zuverlässiger, aber langsamer.",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",
     "phoneCameraConnected": "Telefonkamera verbunden",
     "takePhoto": "Foto aufnehmen",

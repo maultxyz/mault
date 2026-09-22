@@ -16,7 +16,7 @@ import { relations } from "drizzle-orm/relations";
 
 const vector = customType<{ data: number[]; driverData: string }>({
   dataType() {
-    return "vector(768)"; // 768 dimensions — SigLIP ViT-Base-Patch16-224 embeddings
+    return "vector(128)"; // 128 dimensions — CollectorVision Milo embeddings
   },
   toDriver(value: number[]): string {
     return JSON.stringify(value);
@@ -42,9 +42,6 @@ export const cardImageVectors = pgTable(
     name: text("name").notNull(),
     setCode: text("set_code").notNull(),
     embedding: vector("embedding").notNull(),
-    embeddingArt: vector("embedding_art"),
-    embeddingName: vector("embedding_name"),
-    embeddingBottom: vector("embedding_bottom"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -159,6 +156,7 @@ export const devices = pgTable(
     scanOffsetX: integer("scan_offset_x"),
     scanOffsetY: integer("scan_offset_y"),
     captureSettleDelayMs: integer("capture_settle_delay_ms"),
+    matchesNeeded: integer("matches_needed"),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
     createdAt: timestamp("created_at").defaultNow().notNull(),

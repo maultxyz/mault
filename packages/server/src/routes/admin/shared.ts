@@ -1,4 +1,3 @@
-import { CARD_CROP_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { SYNC_SOURCES } from "../../lib/sync-job";
@@ -48,8 +47,7 @@ export async function syncOneCard(
     };
   }
   const buffer = Buffer.from(await imageRes.arrayBuffer());
-  const { embedding, embeddingArt, embeddingName, embeddingBottom } =
-    await vectorizeCardImage(buffer, CARD_CROP_REGIONS_BY_GAME_KEY[gameKey]);
+  const { embedding } = await vectorizeCardImage(buffer);
 
   await db
     .insert(cardImageVectors)
@@ -60,9 +58,6 @@ export async function syncOneCard(
       name: card.name,
       setCode: card.setCode,
       embedding,
-      embeddingArt,
-      embeddingName,
-      embeddingBottom,
     })
     .onConflictDoUpdate({
       target: [
@@ -74,9 +69,6 @@ export async function syncOneCard(
         name: card.name,
         setCode: card.setCode,
         embedding,
-        embeddingArt,
-        embeddingName,
-        embeddingBottom,
         updatedAt: new Date(),
       },
     });

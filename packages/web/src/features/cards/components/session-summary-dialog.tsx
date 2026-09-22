@@ -34,7 +34,7 @@ import {
 } from "@/features/scanner/components/scan-stats";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
 import { cn } from "@/lib/utils";
-import type { ScannedCard } from "@magic-vault/shared";
+import { DEFAULT_MATCH_THRESHOLD_PERCENT, type ScannedCard } from "@magic-vault/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -505,6 +505,10 @@ export function SessionSummaryDialog({
   const [paused, setPaused] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
+  const { activeCollection } = useCollections();
+  const matchThresholdPercent =
+    activeCollection?.matchThreshold ?? DEFAULT_MATCH_THRESHOLD_PERCENT;
+
   const previouslyDownloadedCount = useMemo(
     () => cards.filter((c) => c.isDownloaded).length,
     [cards],
@@ -517,12 +521,15 @@ export function SessionSummaryDialog({
     // so it's forced true here to avoid the grid filter re-excluding cards
     // this dialog just chose to include.
     return applyGridFilters
-      ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
+      ? applyCardFilters(
+          byDownloaded,
+          { ...gridFilters, showDownloaded: true },
+          matchThresholdPercent,
+        )
       : byDownloaded;
-  }, [cards, includeDownloaded, applyGridFilters, gridFilters]);
+  }, [cards, includeDownloaded, applyGridFilters, gridFilters, matchThresholdPercent]);
   const stats = useMemo(() => computeStats(cards), [cards]);
   const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
-  const { activeCollection } = useCollections();
   const { fieldDefinitions } = useBinConfigs();
   const { activeOrg } = useOrg();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(activeOrg?.id));

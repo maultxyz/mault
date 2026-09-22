@@ -1,8 +1,4 @@
-import {
-  CARD_CROP_REGIONS_BY_GAME_KEY,
-  type SyncState,
-  type SyncStatus,
-} from "@magic-vault/shared";
+import type { SyncState, SyncStatus } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
@@ -146,11 +142,9 @@ async function runSync(
 
   addLog(`Loading existing ${source.label} cards from DB...`);
 
-  const cropRegions = CARD_CROP_REGIONS_BY_GAME_KEY[source.gameKey];
   const existing = await db
     .select({
       id: cardImageVectors.cardId,
-      embeddingArt: cardImageVectors.embeddingArt,
       updatedAt: cardImageVectors.updatedAt,
     })
     .from(cardImageVectors)
@@ -161,11 +155,6 @@ async function runSync(
       ),
     );
   const existingSet = new Set(existing.map((r) => r.id));
-  const needsCropBackfill = new Set(
-    cropRegions
-      ? existing.filter((r) => r.embeddingArt == null).map((r) => r.id)
-      : [],
-  );
 
   // Only meaningful with forceResync on - the normal alreadyVectorized check
   // below already skips these cards regardless of recency. Lets a resumed
@@ -187,9 +176,7 @@ async function runSync(
           (recentlyUpdated.size > 0
             ? `, except ${recentlyUpdated.size} updated within the last ${Math.round(skipUpdatedWithinMs! / 3_600_000)}h`
             : "")
-        : needsCropBackfill.size > 0
-          ? ` (${needsCropBackfill.size} missing crop embeddings and will be reprocessed)`
-          : "") +
+        : "") +
       `. Starting vectorization (${VECTORIZE_CONCURRENCY} in parallel)...`,
   );
 
@@ -225,15 +212,11 @@ async function runSync(
             name: sql`excluded.name`,
             setCode: sql`excluded.set_code`,
             embedding: sql`excluded.embedding`,
-            embeddingArt: sql`excluded.embedding_art`,
-            embeddingName: sql`excluded.embedding_name`,
-            embeddingBottom: sql`excluded.embedding_bottom`,
             updatedAt: sql`now()`,
           },
         });
       for (const c of batchCards) {
         existingSet.add(c.id);
-        needsCropBackfill.delete(c.id);
       }
       incrementCounters({ processed: batchCards.length });
       const s = getState();
@@ -257,9 +240,7 @@ async function runSync(
 
   async function processCard(card: SyncSourceCard): Promise<void> {
     const alreadyVectorized =
-      (!forceResync &&
-        existingSet.has(card.id) &&
-        !needsCropBackfill.has(card.id)) ||
+      (!forceResync && existingSet.has(card.id)) ||
       recentlyUpdated.has(card.id);
     if (!card.imageUrl || alreadyVectorized) {
       incrementCounters({ skipped: 1 });
@@ -282,11 +263,7 @@ async function runSync(
       if (!imageRes.ok)
         throw new Error(`Image fetch failed: ${imageRes.status}`);
       const buffer = Buffer.from(await imageRes.arrayBuffer());
-      const { embedding, embeddingArt, embeddingName, embeddingBottom } =
-        await vectorizeCardImage(
-          buffer,
-          CARD_CROP_REGIONS_BY_GAME_KEY[source.gameKey],
-        );
+      const { embedding } = await vectorizeCardImage(buffer);
 
       pendingInserts.push({
         cardId: card.id,
@@ -295,9 +272,6 @@ async function runSync(
         name: card.name,
         setCode: card.setCode,
         embedding,
-        embeddingArt,
-        embeddingName,
-        embeddingBottom,
       });
       pendingCards.push(card);
       patchState({ queued: pendingCards.length });

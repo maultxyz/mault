@@ -2,6 +2,7 @@ import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHANNEL_LAYOUT,
+  DEFAULT_MATCHES_NEEDED,
   DEFAULT_MODULE_COUNT,
   DEFAULT_SCAN_REGION,
   type ChannelLayout,
@@ -16,6 +17,7 @@ export interface Device {
   hardwareId: string | null;
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
+  matchesNeeded: number;
   moduleCount: number;
   channelLayout: ChannelLayout;
   createdAt: string;
@@ -27,6 +29,7 @@ export interface DevicePatch {
   hardwareId?: string | null;
   scanRegion?: ScanRegion | null;
   captureSettleDelayMs?: number | null;
+  matchesNeeded?: number | null;
   moduleCount?: number;
   channelLayout?: ChannelLayout;
 }
@@ -37,6 +40,7 @@ export const DEFAULT_DEVICE: Device = {
   hardwareId: null,
   scanRegion: DEFAULT_SCAN_REGION,
   captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  matchesNeeded: DEFAULT_MATCHES_NEEDED,
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
   createdAt: "",

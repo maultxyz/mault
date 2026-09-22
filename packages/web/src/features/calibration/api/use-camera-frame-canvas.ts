@@ -7,9 +7,10 @@ interface Size {
 }
 
 // Draws either the live webcam stream (rotated 90°, via a requestAnimationFrame
-// loop) or a captured phone photo into the shared canvas/frame pair the scan
-// region box overlays. Only one of `stream`/`phonePhotoUrl` is expected to be
-// active at a time (see cameraSource in ScanRegionCalibrationPanel).
+// loop) or a captured phone photo into a shared canvas/frame pair, which
+// ScanRegionCalibrationPanel then overlays with a live edge-detection preview.
+// Only one of `stream`/`phonePhotoUrl` is expected to be active at a time
+// (see cameraSource in ScanRegionCalibrationPanel).
 export function useCameraFrameCanvas({
   stream,
   phonePhotoUrl,

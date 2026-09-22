@@ -111,6 +111,8 @@
     "currentSummary": "{{coverage}}% coverage, {{offsetX}}% / {{offsetY}}% offset",
     "captureSettleLabel": "Capture Settle Delay (ms)",
     "captureSettleDescription": "How long to wait after the feeder confirms a card has arrived before capturing a frame, so the card is fully still and in focus.",
+    "matchesNeededLabel": "Matches Needed",
+    "matchesNeededDescription": "How many consecutive frames must agree on the same card before a scan is accepted. 1 is fastest; higher values are more reliable but slower.",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",
     "takePhoto": "Take Photo",

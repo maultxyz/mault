@@ -9,10 +9,16 @@ export const syncStartRoute = new Hono<AppEnv>().post(
   async (c) => {
     let gameKey: string | undefined;
     let lang = "en";
+    let forceResync = false;
     try {
-      const body = await c.req.json<{ gameKey?: string; lang?: string }>();
+      const body = await c.req.json<{
+        gameKey?: string;
+        lang?: string;
+        forceResync?: boolean;
+      }>();
       gameKey = body.gameKey;
       if (body.lang) lang = body.lang;
+      if (body.forceResync) forceResync = true;
     } catch {}
 
     if (!gameKey) {
@@ -35,7 +41,7 @@ export const syncStartRoute = new Hono<AppEnv>().post(
       );
     }
 
-    startSync(c.req.header("X-Org-Id"), gameKey, lang);
+    startSync(c.req.header("X-Org-Id"), gameKey, lang, forceResync);
     return c.json({ success: true, data: getStatus() });
   },
 );

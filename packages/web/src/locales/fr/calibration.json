@@ -111,6 +111,8 @@
     "currentSummary": "{{coverage}} % de couverture, décalage {{offsetX}} % / {{offsetY}} %",
     "captureSettleLabel": "Délai avant capture (ms)",
     "captureSettleDescription": "Temps d'attente après que le chargeur confirme l'arrivée d'une carte avant de capturer une image, pour qu'elle soit parfaitement immobile et nette.",
+    "matchesNeededLabel": "Correspondances requises",
+    "matchesNeededDescription": "Nombre d'images consécutives devant s'accorder sur la même carte avant qu'un scan soit accepté. 1 est le plus rapide ; des valeurs plus élevées sont plus fiables mais plus lentes.",
     "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
     "phoneCameraConnected": "Caméra du téléphone connectée",
     "takePhoto": "Prendre une photo",

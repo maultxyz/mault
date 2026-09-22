@@ -28,6 +28,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
         offsetY: number;
       } | null;
       captureSettleDelayMs?: number | null;
+      matchesNeeded?: number | null;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
     }>();
@@ -68,6 +69,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             "captureSettleDelayMs" in body
               ? (body.captureSettleDelayMs ?? null)
               : device.captureSettleDelayMs,
+          matchesNeeded:
+            "matchesNeeded" in body
+              ? (body.matchesNeeded ?? null)
+              : device.matchesNeeded,
           channelLayout,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null

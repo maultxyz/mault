@@ -36,6 +36,7 @@
     },
     "selectGamePlaceholder": "Sélectionner un jeu...",
     "languagePlaceholder": "Langue...",
+    "forceResyncLabel": "Forcer la resynchronisation complète",
     "cancellingButton": "Annulation...",
     "startSyncButton": "Démarrer la synchro",
     "progressCount": "{{done}} / {{total}}",

@@ -1,7 +1,7 @@
 // AUTH_PROVIDER=local only - run before starting the server (see the
 // "server" service's command in docker-compose.yml). Applies, in order:
 // 0. pgvector extension + `authenticated` role - independent of everything
-//    else, but Drizzle's own migrations need both already (vector(768)
+//    else, but Drizzle's own migrations need both already (vector(128)
 //    columns, RLS policies written "TO authenticated")
 // 1. own-auth's own migrations - its own_auth_* tables. Independent of
 //    everything else, but must run before step 2: unlike a plpgsql function,

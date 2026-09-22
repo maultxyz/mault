@@ -11,19 +11,20 @@ import {
   extractCardImage,
   getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
-import {
-  isWebGpuSupported,
-  vectorizeCardImageOnClient,
-} from "@/features/scanner/lib/client-vectorize";
+import { vectorizeCardImageOnClient } from "@/features/scanner/lib/client-vectorize";
+import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { getForceCpuVectorize } from "@/features/scanner/lib/force-cpu-vectorize";
+import { rotateCanvas180 } from "@/features/scanner/lib/milo-client";
 import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   OCR_REGIONS_BY_GAME_KEY,
   type CardContour,
   type CardScannerProps,
   type PlayingCardWithDistance,
+  type Result,
   type ScanRegion,
   type ScannerStatus,
   type SearchCardMatch,
@@ -31,6 +32,8 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+const LIVE_DETECTION_INTERVAL_MS = 200;
 
 // Singleton AudioContext - browsers cap concurrent contexts (~6).
 // Creating one per scan exhausts the limit quickly.
@@ -94,48 +97,78 @@ async function resolveSearchMatches(
   return { card, alternativeMatches, debugImageUrl };
 }
 
+function buildSearchFormData(
+  blob: Blob,
+  embedding: number[],
+  collectionGuid?: string,
+  ocrEnabled?: boolean,
+): FormData {
+  const formData = new FormData();
+  formData.append("image", blob, "card.jpg");
+  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  formData.append("ocrEnabled", String(ocrEnabled ?? false));
+  formData.append("embedding", JSON.stringify(embedding));
+  return formData;
+}
+
+function bestDistance(result: Result<SearchCardMatch[] | null>): number {
+  return result.data?.[0]?.distance ?? Number.POSITIVE_INFINITY;
+}
+
 async function searchCardImage(
   canvas: HTMLCanvasElement,
   contour?: CardContour | null,
   collectionGuid?: string,
   ocrEnabled?: boolean,
-  gameKey?: string,
 ): Promise<{
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
   debugImageUrl: string;
 }> {
-  const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
-  const debugImageUrl = warpedCanvas.toDataURL("image/jpeg", 0.8);
-  const blob = await canvasToBlob(warpedCanvas);
-
-  if (!getForceCpuVectorize() && (await isWebGpuSupported())) {
+  if (!getForceCpuVectorize()) {
     try {
-      const embeddings = await vectorizeCardImageOnClient(
-        warpedCanvas,
-        gameKey,
-      );
-      const vectorFormData = new FormData();
-      vectorFormData.append("image", blob, "card.jpg");
-      if (collectionGuid) vectorFormData.append("collectionGuid", collectionGuid);
-      vectorFormData.append("ocrEnabled", String(ocrEnabled ?? false));
-      vectorFormData.append("embedding", JSON.stringify(embeddings.embedding));
-      if (embeddings.embeddingArt) {
-        vectorFormData.append("embeddingArt", JSON.stringify(embeddings.embeddingArt));
-      }
-      if (embeddings.embeddingName) {
-        vectorFormData.append("embeddingName", JSON.stringify(embeddings.embeddingName));
-      }
-      if (embeddings.embeddingBottom) {
-        vectorFormData.append("embeddingBottom", JSON.stringify(embeddings.embeddingBottom));
-      }
+      const { dewarpedCanvas, embeddings } = await vectorizeCardImageOnClient(canvas);
+      if (dewarpedCanvas && embeddings) {
+        // Corner geometry alone can't tell top from bottom (a rectangle looks
+        // the same rotated 180°) - Cornelius only resolves the portrait/
+        // landscape axis, so the dewarped crop is upright exactly half the
+        // time. Milo is sensitive to that remaining ambiguity, which is why
+        // both orientations get searched; each needs its own correctly-
+        // rotated image (not just its own embedding), both for the debug/
+        // captured-image preview and so server-side OCR reads the right way up.
+        const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
+        const [uprightBlob, rotatedBlob] = await Promise.all([
+          canvasToBlob(dewarpedCanvas),
+          canvasToBlob(rotatedCanvas),
+        ]);
 
-      const { data } = await searchByVector(vectorFormData);
-      return resolveSearchMatches(data, collectionGuid, debugImageUrl);
+        const [uprightResult, rotatedResult] = await Promise.all([
+          searchByVector(
+            buildSearchFormData(uprightBlob, embeddings.upright, collectionGuid, ocrEnabled),
+          ),
+          searchByVector(
+            buildSearchFormData(rotatedBlob, embeddings.rotated, collectionGuid, ocrEnabled),
+          ),
+        ]);
+        const rotatedWon = bestDistance(rotatedResult) < bestDistance(uprightResult);
+        const best = rotatedWon ? rotatedResult : uprightResult;
+        const debugImageUrl = (rotatedWon ? rotatedCanvas : dewarpedCanvas).toDataURL(
+          "image/jpeg",
+          0.8,
+        );
+
+        return resolveSearchMatches(best.data, collectionGuid, debugImageUrl);
+      }
+      // Cornelius didn't confidently find a card in frame - fall through to
+      // the server path below rather than guessing with the static crop.
     } catch (err) {
       console.error("[scanner] client-side vectorization failed, falling back to server:", err);
     }
   }
+
+  const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
+  const debugImageUrl = warpedCanvas.toDataURL("image/jpeg", 0.8);
+  const blob = await canvasToBlob(warpedCanvas);
 
   const formData = new FormData();
   formData.append("image", blob, "card.jpg");
@@ -144,6 +177,49 @@ async function searchCardImage(
 
   const { data } = await searchByImage(formData);
   return resolveSearchMatches(data, collectionGuid, debugImageUrl);
+}
+
+// Re-runs the capture exactly matchesNeeded times (each attempt itself
+// checking both the upright and 180°-rotated embedding, per searchCardImage)
+// and requires every one of them to agree on the same top card before
+// accepting it - no early exit on a mismatch and no extra attempts beyond
+// matchesNeeded, so the number a user sets is exactly how many rounds run,
+// every time. `canvas` is re-read live by each attempt's own vision
+// pipeline, not snapshotted once, since it's the same element the RAF draw
+// loop keeps redrawing the current camera frame onto.
+async function searchCardImageWithConsensus(
+  canvas: HTMLCanvasElement,
+  contour: CardContour | null | undefined,
+  collectionGuid: string | undefined,
+  ocrEnabled: boolean | undefined,
+  matchesNeeded: number,
+): Promise<{
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+}> {
+  if (matchesNeeded <= 1) {
+    return searchCardImage(canvas, contour, collectionGuid, ocrEnabled);
+  }
+
+  let streakId: string | null = null;
+  let streakCount = 0;
+  let lastResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
+
+  for (let attempt = 0; attempt < matchesNeeded; attempt++) {
+    const result = await searchCardImage(canvas, contour, collectionGuid, ocrEnabled);
+    lastResult = result;
+    const topId = result.card?.id ?? null;
+
+    if (topId != null && topId === streakId) {
+      streakCount++;
+    } else {
+      streakId = topId;
+      streakCount = topId != null ? 1 : 0;
+    }
+  }
+
+  return streakId != null && streakCount >= matchesNeeded ? lastResult! : { ...lastResult!, card: null };
 }
 
 export function useCardScanner({
@@ -201,10 +277,12 @@ export function useCardScanner({
   const captureSettleDelayMsRef = useRef(captureSettleDelayMs);
   captureSettleDelayMsRef.current = captureSettleDelayMs;
 
+  const matchesNeeded = device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED;
+  const matchesNeededRef = useRef(matchesNeeded);
+  matchesNeededRef.current = matchesNeeded;
+
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
-  const activeGameKeyRef = useRef(activeCollection?.game?.key);
-  activeGameKeyRef.current = activeCollection?.game?.key;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -297,12 +375,12 @@ export function useCardScanner({
 
       try {
         const { card, alternativeMatches, debugImageUrl } =
-          await searchCardImage(
+          await searchCardImageWithConsensus(
             canvas,
             contour,
             activeCollectionGuidRef.current,
             ocrEnabledRef.current,
-            activeGameKeyRef.current,
+            matchesNeededRef.current,
           );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
@@ -384,20 +462,6 @@ export function useCardScanner({
           }
         }
 
-        const overlayCtx = overlayCanvasRef.current?.getContext("2d");
-        if (overlayCtx) {
-          overlayCtx.clearRect(0, 0, videoWidth, videoHeight);
-          drawDetectionOverlay(overlayCtx, {
-            detected: true,
-            contour: getDefaultCardContour(
-              videoWidth,
-              videoHeight,
-              scanRegionRef.current,
-            ),
-            confidence: 1,
-          });
-        }
-
         const container = displayCanvasRef.current?.parentElement;
         if (container) {
           const cw = container.clientWidth;
@@ -444,18 +508,45 @@ export function useCardScanner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream]);
 
+  // Polls Cornelius on the live feed so the on-screen guide reflects the
+  // actual detected card quadrilateral instead of a fixed alignment box.
+  // Runs on the whole frame every time (see cornelius.ts) - no ROI crop.
+  // Independent of the RAF draw loop above since inference is far too slow
+  // to run every frame. Nothing is drawn when no card is confidently
+  // detected, rather than falling back to a static shape.
+  const liveDetectingRef = useRef(false);
   useEffect(() => {
-    const canvas = displayCanvasRef.current;
-    const overlayCtx = overlayCanvasRef.current?.getContext("2d");
-    if (!canvas || !overlayCtx || !canvas.width || !canvas.height) return;
-    overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
-    drawDetectionOverlay(overlayCtx, {
-      detected: true,
-      contour: getDefaultCardContour(canvas.width, canvas.height, scanRegion),
-      confidence: 1,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanRegion.coverage, scanRegion.offsetX, scanRegion.offsetY]);
+    if (!stream || cameraSource === "phone") return;
+
+    const interval = setInterval(() => {
+      if (liveDetectingRef.current || isCapturingRef.current) return;
+      if (statusRef.current !== "scanning" && statusRef.current !== "paused") return;
+
+      const canvas = displayCanvasRef.current;
+      const overlayCtx = overlayCanvasRef.current?.getContext("2d");
+      if (!canvas || !overlayCtx || !canvas.width || !canvas.height) return;
+
+      liveDetectingRef.current = true;
+      detectCardCorners(canvas)
+        .then((detection) => {
+          overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
+          if (detection.cardPresent) {
+            drawDetectionOverlay(overlayCtx, {
+              detected: true,
+              contour: detection.contour,
+              confidence: detection.confidence,
+              sharpness: detection.sharpness ?? undefined,
+            });
+          }
+        })
+        .catch(() => {})
+        .finally(() => {
+          liveDetectingRef.current = false;
+        });
+    }, LIVE_DETECTION_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [stream, cameraSource]);
 
   const handleForceAddDuplicate = useCallback(() => {
     if (duplicateCard) {
