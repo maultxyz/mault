@@ -30,13 +30,6 @@ interface ScanRegionCalibrationPanelProps {
   onMatchesNeededChange: (value: number) => void;
 }
 
-// The scan region's hard-coded bounding box (drag-to-move/resize) has been
-// removed for now in favor of CollectorVision's live corner detection, which
-// this panel now previews instead - see use-card-scanner.ts for the same
-// detection loop on the actual scanning page. `scanRegion`/`onRegionChange`/
-// `onResetRegion` are intentionally unused here; the underlying state/save
-// plumbing in use-calibration-page.ts is left in place in case the manual
-// box comes back.
 export function ScanRegionCalibrationPanel({
   captureSettleDelayMs: captureSettleDelayMsValue,
   matchesNeeded,
@@ -121,9 +114,6 @@ export function ScanRegionCalibrationPanel({
     useCameraFrameCanvas({ stream, phonePhotoUrl });
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Live edge-detection preview on the webcam feed - runs full-frame (no
-  // fixed region to crop to first) on a throttled interval, since inference
-  // is far too slow to run every frame.
   const liveDetectingRef = useRef(false);
   useEffect(() => {
     if (!videoSize) return;
@@ -159,8 +149,6 @@ export function ScanRegionCalibrationPanel({
     return () => clearInterval(interval);
   }, [videoSize, canvasRef]);
 
-  // One-shot detection on a freshly-taken phone photo (there's no live feed
-  // to poll in that mode).
   useEffect(() => {
     if (!phonePhotoSize) return;
     const canvas = canvasRef.current;

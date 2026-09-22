@@ -2,48 +2,25 @@ import type { CardContour, Point } from "@magic-vault/shared";
 import { FASTWEB_DETECTOR_MODEL } from "./model-fetch";
 import { loadOnnxSession, ort, runOnnxSession } from "./onnx-runtime";
 
-// CollectorVision-family corner detector - currently HanClinto/ccgdetector-
-// fastweb-single (MIT-licensed, not the AGPL Cornelius model this module was
-// originally built against), pulled from HuggingFace at runtime and cached in
-// IndexedDB rather than committed to the repo - see model-fetch.ts. Same
-// 384x384 RGB in / corners+presence+sharpness out contract as Cornelius, so
-// nothing else in this file needed to change. See collector_vision/detectors/
-// neural.py upstream (https://github.com/HanClinto/CollectorVision) and its
-// reference web scanner's scanner.worker.mjs for the preprocessing/
-// postprocessing this mirrors (not just the bare model I/O contract).
 const INPUT_SIZE = 384;
 const IMAGENET_MEAN = [0.485, 0.456, 0.406];
 const IMAGENET_STD = [0.229, 0.224, 0.225];
 
-// Blank frames score ~0.008-0.014 depending on the exact detector build,
-// valid cards ~0.03-0.07 (upstream docstring, Cornelius numbers - not yet
-// re-measured against real scans for fastweb-single specifically).
 export const DEFAULT_MIN_SHARPNESS = 0.02;
 
 export interface CornerDetection {
   cardPresent: boolean;
   confidence: number;
   sharpness: number | null;
-  // Ordered TL, TR, BR, BL, in the *source canvas's* pixel coordinates.
   contour: CardContour | null;
 }
 
 function getSession() {
-  // graphOptimizationLevel: "disabled" - the default optimizer hits a "two
-  // nodes with same node name (/GatherSliceToSplitFusion/)" fusion-pass bug
-  // against this specific graph on at least onnxruntime-node 1.21.0. Applied
-  // defensively here too in case onnxruntime-web's optimizer shares the bug.
   return loadOnnxSession("detector", FASTWEB_DETECTOR_MODEL, {
     graphOptimizationLevel: "disabled",
   });
 }
 
-// The reference scanner runs the detector on the *entire* video frame,
-// squashed to 384x384, every time - it deliberately does not pre-crop to any
-// region of interest ("Use the full video frame — do not crop to a fixed
-// aspect ratio", app.js). Cropping first changes the effective scale/context
-// the model sees versus what it was tuned against, and compounds any
-// calibration drift straight into the detected corners.
 function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
   const cropCanvas = document.createElement("canvas");
   cropCanvas.width = INPUT_SIZE;
@@ -66,14 +43,6 @@ function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
   return chw;
 }
 
-// Reorders 4 raw (unsorted) model-output points into a proper perimeter walk:
-// sort by angle around their centroid first (guarantees a non-self-
-// intersecting quad regardless of the order the model emitted them in), pick
-// the top-left-most as the start, then correct winding direction via signed
-// area. Matches the reference scanner's orderCorners exactly - the simpler
-// independent-min/max-per-corner approach this replaced had no winding-order
-// correction and could produce a bowtie (self-intersecting) quad for an
-// unusually-rotated card.
 function orderCorners(points: Point[]): Point[] {
   const cx = points.reduce((sum, p) => sum + p.x, 0) / points.length;
   const cy = points.reduce((sum, p) => sum + p.y, 0) / points.length;
@@ -99,9 +68,6 @@ function orderCorners(points: Point[]): Point[] {
   const canonical =
     signedArea < 0 ? [ordered[0], ordered[3], ordered[2], ordered[1]] : ordered;
 
-  // Rotate so the shortest edge becomes the top - matches Cornelius's own
-  // convention so a sideways/landscape card dewarps upright without a
-  // separate rotation step.
   const edgeLengths = canonical.map((p, i) => {
     const next = canonical[(i + 1) % 4];
     return Math.hypot(next.x - p.x, next.y - p.y);
@@ -123,13 +89,6 @@ function quadArea(points: Point[]): number {
   return Math.abs(area) * 0.5;
 }
 
-// Ported from the reference scanner's isUsableQuad (scanner.worker.mjs):
-// operates on normalised [0,1] points, same thresholds. Rejects a quad that's
-// too small, has two corners nearly coincident, or is non-convex/self-
-// intersecting (a reflex vertex's cross product has the opposite sign to the
-// other three - this is the main thing a degenerate detector output looks
-// like). Without this, a bad quad still gets perspective-warped and embedded,
-// silently producing a garbage embedding with no error or warning.
 function isUsableQuad(points: Point[]): boolean {
   if (points.length !== 4) return false;
 
@@ -182,9 +141,6 @@ export async function detectCardCorners(
     return { cardPresent: false, confidence: sharpness ?? presence, sharpness, contour: null };
   }
 
-  // Stay in normalised [0,1] space for validation, matching the reference's
-  // thresholds exactly - only scale to canvas pixels once the quad is known
-  // to be usable.
   const normalizedPoints: Point[] = [];
   for (let i = 0; i < 4; i++) {
     normalizedPoints.push({

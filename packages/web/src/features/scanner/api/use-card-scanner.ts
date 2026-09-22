@@ -129,13 +129,6 @@ async function searchCardImage(
     try {
       const { dewarpedCanvas, embeddings } = await vectorizeCardImageOnClient(canvas);
       if (dewarpedCanvas && embeddings) {
-        // Corner geometry alone can't tell top from bottom (a rectangle looks
-        // the same rotated 180°) - Cornelius only resolves the portrait/
-        // landscape axis, so the dewarped crop is upright exactly half the
-        // time. Milo is sensitive to that remaining ambiguity, which is why
-        // both orientations get searched; each needs its own correctly-
-        // rotated image (not just its own embedding), both for the debug/
-        // captured-image preview and so server-side OCR reads the right way up.
         const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
         const [uprightBlob, rotatedBlob] = await Promise.all([
           canvasToBlob(dewarpedCanvas),
@@ -159,8 +152,6 @@ async function searchCardImage(
 
         return resolveSearchMatches(best.data, collectionGuid, debugImageUrl);
       }
-      // Cornelius didn't confidently find a card in frame - fall through to
-      // the server path below rather than guessing with the static crop.
     } catch (err) {
       console.error("[scanner] client-side vectorization failed, falling back to server:", err);
     }
@@ -179,14 +170,6 @@ async function searchCardImage(
   return resolveSearchMatches(data, collectionGuid, debugImageUrl);
 }
 
-// Re-runs the capture exactly matchesNeeded times (each attempt itself
-// checking both the upright and 180°-rotated embedding, per searchCardImage)
-// and requires every one of them to agree on the same top card before
-// accepting it - no early exit on a mismatch and no extra attempts beyond
-// matchesNeeded, so the number a user sets is exactly how many rounds run,
-// every time. `canvas` is re-read live by each attempt's own vision
-// pipeline, not snapshotted once, since it's the same element the RAF draw
-// loop keeps redrawing the current camera frame onto.
 async function searchCardImageWithConsensus(
   canvas: HTMLCanvasElement,
   contour: CardContour | null | undefined,
@@ -508,12 +491,6 @@ export function useCardScanner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream]);
 
-  // Polls Cornelius on the live feed so the on-screen guide reflects the
-  // actual detected card quadrilateral instead of a fixed alignment box.
-  // Runs on the whole frame every time (see cornelius.ts) - no ROI crop.
-  // Independent of the RAF draw loop above since inference is far too slow
-  // to run every frame. Nothing is drawn when no card is confidently
-  // detected, rather than falling back to a static shape.
   const liveDetectingRef = useRef(false);
   useEffect(() => {
     if (!stream || cameraSource === "phone") return;

@@ -49,12 +49,6 @@ export async function findCardMatches(
     await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
     await tx.execute(sql`SET LOCAL hnsw.max_scan_tuples = 100000`);
 
-    // Fetch the nearest candidates regardless of distanceThreshold (applied
-    // as a post-filter below) rather than baking the cutoff into the WHERE
-    // clause - otherwise a too-strict threshold returns zero rows with no
-    // way to tell "closest match was just barely over the bar" apart from
-    // "closest match was nowhere close," which matters a lot when tuning
-    // distanceThreshold for a newly-swapped embedding model.
     const matches = await tx.execute(sql`
       SELECT
         card_id,

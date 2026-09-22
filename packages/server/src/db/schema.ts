@@ -16,7 +16,7 @@ import { relations } from "drizzle-orm/relations";
 
 const vector = customType<{ data: number[]; driverData: string }>({
   dataType() {
-    return "vector(128)"; // 128 dimensions — CollectorVision Milo embeddings
+    return "vector(128)";
   },
   toDriver(value: number[]): string {
     return JSON.stringify(value);

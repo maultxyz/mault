@@ -1,10 +1,6 @@
 import { MILO_MODEL } from "./model-fetch";
 import { loadOnnxSession, ort, runOnnxSession } from "./onnx-runtime";
 
-// CollectorVision's Milo embedder, run client-side, pulled from HuggingFace
-// at runtime and cached in IndexedDB (see model-fetch.ts) rather than
-// committed to the repo. See packages/server/src/lib/milo.ts for the
-// server-side twin of this preprocessing (kept in sync deliberately).
 const INPUT_SIZE = 448;
 const IMAGENET_MEAN = [0.485, 0.456, 0.406];
 const IMAGENET_STD = [0.229, 0.224, 0.225];
@@ -13,10 +9,6 @@ function getSession() {
   return loadOnnxSession("milo", MILO_MODEL);
 }
 
-// The dewarped canvas may be WebGL-backed (see perspective-warp.ts) and a
-// canvas can only ever bind one context type for its lifetime, so pixel
-// access always goes through a fresh 2D copy rather than calling
-// getContext("2d") on the canvas we were handed.
 function toImageData(canvas: HTMLCanvasElement): ImageData {
   const copy = document.createElement("canvas");
   copy.width = canvas.width;
@@ -76,9 +68,6 @@ export interface DualEmbedding {
   rotated: number[];
 }
 
-// Milo is sensitive to 180-degree rotation (upstream README) - embedding
-// both orientations and letting the caller keep whichever scores better
-// against the catalog is the library's own documented workaround.
 export async function embedCardCanvas(
   dewarpedCanvas: HTMLCanvasElement,
 ): Promise<DualEmbedding> {

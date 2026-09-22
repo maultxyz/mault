@@ -1,15 +1,6 @@
 import * as ort from "onnxruntime-web/webgpu";
 import { fetchPinnedModel, type PinnedModel } from "./model-fetch";
 
-// onnxruntime-web locates its WASM/worker files relative to its own module
-// URL (import.meta.url) by default - left alone here (no wasmPaths override)
-// so that resolution keeps working. See vite.config.ts's optimizeDeps.exclude
-// for why the dev server needs a matching config to make that resolution
-// actually correct, and why an explicit `public/`-hosted override doesn't
-// work: Vite's dev server refuses to `import()` a file that lives in
-// `public/` (only static fetches are allowed there), and onnxruntime-web's
-// threaded WASM loader does exactly that for its companion .mjs file.
-
 let webGpuSupportPromise: Promise<boolean> | null = null;
 
 function isFirefox(): boolean {
@@ -17,10 +8,6 @@ function isFirefox(): boolean {
 }
 
 async function detectWebGpuSupport(): Promise<boolean> {
-  // CollectorVision (the upstream project these models come from) disables
-  // WebGPU on Firefox - it has produced invalid Metal shaders there for both
-  // the corner detector and embedder models. Mirroring that exclusion here
-  // rather than re-discovering it the hard way.
   if (isFirefox()) return false;
   const gpu = (
     navigator as unknown as {
@@ -77,12 +64,6 @@ export async function loadOnnxSession(
   return promise;
 }
 
-// A single InferenceSession must not be re-entered while a run is already in
-// flight - concurrent `session.run()` calls on the same session (e.g. the two
-// orientations milo-client.ts embeds) can hang the WASM runtime outright,
-// freezing the tab, since it's all on the main thread. This queues every run
-// per session key so overlapping callers (live detection polling vs. an
-// actual capture, or two embeds in one capture) never actually overlap.
 const runQueues = new Map<string, Promise<unknown>>();
 
 export function runOnnxSession(

@@ -2,10 +2,6 @@ import { InferenceSession, Tensor } from "onnxruntime-node";
 import sharp from "sharp";
 import { resolveMiloModelPath } from "./models/model-registry";
 
-// CollectorVision's Milo embedder: MobileViT-XXS backbone, ArcFace-trained,
-// 448x448 RGB in, L2-normalised 128-d out. See collector_vision/embedders/neural.py
-// upstream (https://github.com/HanClinto/CollectorVision) for the reference
-// preprocessing this mirrors.
 const INPUT_SIZE = 448;
 const IMAGENET_MEAN = [0.485, 0.456, 0.406];
 const IMAGENET_STD = [0.229, 0.224, 0.225];

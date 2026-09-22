@@ -10,11 +10,6 @@ interface PinnedModel {
   sha256: string;
 }
 
-// Pinned against CollectorVision's published HuggingFace repos
-// (https://huggingface.co/HanClinto/milo). Re-pin deliberately: download the
-// new revision, verify its sha256 by hand, then update this record - don't
-// resolve against CollectorVision's own runtime model registry, so our Docker
-// builds stay as deterministic as the old SigLIP pre-download step was.
 export const MILO_MODEL: PinnedModel = {
   repo: "HanClinto/milo",
   revision: "9bcc5e809e936b8c5630d1e7101aae1de1e76621",

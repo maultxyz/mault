@@ -1,21 +1,10 @@
 import type { CardContour } from "@magic-vault/shared";
 
-// Perspective-dewarps a detected card quadrilateral to a canonical square
-// crop, matching CollectorVision's cv2.getPerspectiveTransform +
-// warpPerspective (collector_vision/interfaces.py DetectionResult.dewarp).
-// The Canvas 2D API only supports affine transforms, so there's no built-in
-// equivalent - this computes the projective homography by hand and applies
-// it via a WebGL fragment shader (falling back to a per-pixel JS sampler
-// when WebGL is unavailable).
-
 interface Point2 {
   x: number;
   y: number;
 }
 
-// Solves the homography H (dst -> src) that maps the destination unit
-// square's four corners onto the four source corners, via direct linear
-// transform on the standard 8-unknown projective system.
 function solveHomographyDstToSrc(srcCorners: Point2[]): number[] {
   const dst: Point2[] = [
     { x: 0, y: 0 },
@@ -24,7 +13,6 @@ function solveHomographyDstToSrc(srcCorners: Point2[]): number[] {
     { x: 0, y: 1 },
   ];
 
-  // A * h = b, h = [h0..h7], h33 implicitly 1.
   const A: number[][] = [];
   const b: number[] = [];
   for (let i = 0; i < 4; i++) {
@@ -89,8 +77,6 @@ const FRAGMENT_SHADER = `
   uniform vec2 uSourceSize;
 
   void main() {
-    // vDstCoord.y is bottom-up (WebGL clip space); flip so (0,0) is the
-    // dewarped crop's top-left, matching the corner order it was solved for.
     vec2 dst = vec2(vDstCoord.x, 1.0 - vDstCoord.y);
     vec3 src = uHomography * vec3(dst, 1.0);
     vec2 srcPixel = src.xy / src.z;
@@ -155,8 +141,6 @@ function warpWithWebGl(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
-  // WebGL matrices are column-major; `homography` above is row-major, so
-  // transpose it into the mat3 uniform layout.
   const h = homography;
   const mat3 = new Float32Array([h[0], h[3], h[6], h[1], h[4], h[7], h[2], h[5], h[8]]);
   gl.uniformMatrix3fv(gl.getUniformLocation(program, "uHomography"), false, mat3);

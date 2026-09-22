@@ -1,9 +1,3 @@
-// Client-side vision models are pulled from HuggingFace at runtime and cached
-// in IndexedDB (keyed by content hash, not URL) rather than committed to the
-// repo as static binary assets. Mirrors packages/server/src/lib/models/
-// model-registry.ts's pattern, adapted for the browser (Web Crypto +
-// IndexedDB instead of node:crypto + the filesystem).
-
 export interface PinnedModel {
   repo: string;
   revision: string;
@@ -38,8 +32,6 @@ async function readCached(key: string): Promise<ArrayBuffer | null> {
       req.onerror = () => reject(req.error);
     });
   } catch {
-    // IndexedDB unavailable (private browsing, disabled storage, etc) - fall
-    // through to a fresh download every time rather than failing outright.
     return null;
   }
 }
@@ -53,9 +45,7 @@ async function writeCached(key: string, buffer: ArrayBuffer): Promise<void> {
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
-  } catch {
-    // Non-fatal - this session just re-downloads next time.
-  }
+  } catch {}
 }
 
 async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
@@ -87,18 +77,6 @@ export async function fetchPinnedModel(model: PinnedModel): Promise<ArrayBuffer>
   return buffer;
 }
 
-// Pinned against CollectorVision's published HuggingFace repos. Re-pin
-// deliberately: download the new revision, verify its sha256 by hand, then
-// update these records - don't resolve against a moving "main" branch, so
-// every deployed build uses a known-verified artifact.
-
-// fastweb-single 1.39 ("corndog"): EfficientViT-B0 + global-token SimCC,
-// MIT-licensed. Same 384x384 input / corners+presence+sharpness output
-// contract as CollectorVision's Cornelius, ~28% smaller and ~2.8x faster on
-// CPU with comparable accuracy (see the model card). Needs
-// graphOptimizationLevel: "disabled" - the default optimizer level hits a
-// "two nodes with same node name (/GatherSliceToSplitFusion/)" fusion-pass
-// bug against this graph on at least onnxruntime-node 1.21.0.
 export const FASTWEB_DETECTOR_MODEL: PinnedModel = {
   repo: "HanClinto/ccgdetector-fastweb-single",
   revision: "66ffd4976ec57bda0f6ea2d83e15ca6a3add7dd9",
@@ -106,7 +84,6 @@ export const FASTWEB_DETECTOR_MODEL: PinnedModel = {
   sha256: "05d2b90b928a5a3bf0f49aa90aa86211b2103d9c347c238fd18b4f544b3cb8ca",
 };
 
-// Milo embedder - kept in sync with packages/server/src/lib/models/model-registry.ts's pin.
 export const MILO_MODEL: PinnedModel = {
   repo: "HanClinto/milo",
   revision: "9bcc5e809e936b8c5630d1e7101aae1de1e76621",
