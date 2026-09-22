@@ -55,7 +55,16 @@ class SorterRxCallbacks : public BLECharacteristicCallbacks {
 };
 
 void bleInit() {
-  BLEDevice::init("Mault Card Sorter");
+  // deviceId is already populated by main.ino's setup() (via
+  // initDeviceIdFromEspMac(), called before bleInit()) - reused here rather
+  // than re-reading the MAC, since the Arduino BLE library's device-name API
+  // varies across esp32-arduino core versions and it's simplest to just fold
+  // the already-known ID into the name up front instead of depending on
+  // being able to rename the device post-init.
+  char localName[32];
+  snprintf(localName, sizeof(localName), "Mault Sorter %s", deviceId);
+
+  BLEDevice::init(localName);
   bleServer = BLEDevice::createServer();
   bleServer->setCallbacks(new SorterServerCallbacks());
 

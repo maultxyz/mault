@@ -63,8 +63,8 @@ async function fetchCards(
 }
 
 async function fetchOne(id: string, baseUrl: string) {
-  const { match } = await findCardVersion(id, baseUrl);
-  return match ? toSyncCard(match, id) : null;
+  const { match, urls } = await findCardVersion(id, baseUrl);
+  return { card: match ? toSyncCard(match, id) : null, urls };
 }
 
 export const onePieceSyncSource: SyncSource = {

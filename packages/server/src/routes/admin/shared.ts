@@ -22,18 +22,19 @@ export async function syncOneCard(
   }
   const baseUrl = source.defaultUrl;
 
-  const card = await source.fetchOne(cardId, baseUrl, lang);
+  const { card, urls } = await source.fetchOne(cardId, baseUrl, lang);
+  const attempted = urls.length > 0 ? ` (tried: ${urls.join(", ")})` : "";
   if (!card) {
     return {
       success: false,
-      message: `Card not found via ${source.label}`,
+      message: `Card not found via ${source.label}${attempted}`,
       status: 404,
     };
   }
   if (!card.imageUrl) {
     return {
       success: false,
-      message: "No image available for this card",
+      message: `No image available for this card${attempted}`,
       status: 400,
     };
   }
@@ -42,7 +43,7 @@ export async function syncOneCard(
   if (!imageRes.ok) {
     return {
       success: false,
-      message: "Failed to download card image",
+      message: `Failed to download card image (GET ${card.imageUrl})`,
       status: 502,
     };
   }

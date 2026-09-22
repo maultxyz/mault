@@ -4,6 +4,7 @@ import { toScanRegion } from "../org-settings/shared";
 export function toDevice(row: {
   guid: string | null;
   name: string;
+  hardwareId: string | null;
   scanCoverage: number | null;
   scanOffsetX: number | null;
   scanOffsetY: number | null;
@@ -16,6 +17,7 @@ export function toDevice(row: {
   return {
     guid: row.guid!,
     name: row.name,
+    hardwareId: row.hardwareId,
     scanRegion: toScanRegion(row),
     captureSettleDelayMs:
       row.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,

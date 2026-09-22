@@ -42,10 +42,18 @@ a serial connection to the device can drive it by following this spec
   `{"error":"command too long"}`.
 - Malformed JSON gets `{"error":"invalid JSON","reason":"...","length":N,"received":"<escaped input>"}`.
 - An unrecognized (but validly-parsed) command gets `{"error":"unknown command"}`.
-- On power-up the device prints `{"status":"ready","version":"1.0.2","board":"esp32"}`
+- On power-up the device prints
+  `{"status":"ready","version":"1.0.2","board":"esp32","id":"A1B2C3"}`
   unprompted, before any command is sent. `board` is `"esp32"` or `"uno_r4"`
   - the app uses it to decide whether the device can be reflashed from the
-  browser (ESP32 only) or needs a link to the GitHub repo instead.
+  browser (ESP32 only) or needs a link to the GitHub repo instead. `id` is
+  a short (6 hex character) identifier for this specific physical board -
+  the same value over Serial or BLE, and stable across power cycles and
+  re-flashes, so a client can key a saved configuration to the board it's
+  actually talking to. Sourced from whatever's factory-unique on the board
+  (its Wi-Fi/BT MAC on ESP32 and the Uno R4 WiFi - see BLE transport below),
+  falling back to a random value generated once and persisted to EEPROM on
+  the Uno R4 Minima, which has no radio at all to read an address from.
 - One other message is **unsolicited** and can arrive at any time
   between command/response pairs: `{"error":"jam","module":N}`, pushed
   if module *N*'s IR sensor sees a card continuously for 20 seconds
@@ -93,6 +101,13 @@ protocol standpoint.
   based recovery (waiting for a response line, per the framing note above)
   handles this as a failed/garbled response, but there's no automatic retry
   of the specific request. This matches how generic BLE UART bridges behave.
+- **Advertised name:** `"Mault Sorter XXXXXX"`, where `XXXXXX` is the same
+  `id` reported in `getStatus`/the boot banner (see Transport above) - on
+  these two boards, sourced from the BLE MAC (`BLE.address()` on the Uno R4
+  WiFi's ArduinoBLE backend, `esp_read_mac(..., ESP_MAC_WIFI_STA)` on the
+  ESP32-S3 Bluedroid backend, read before BLE even advertises). This exists
+  so multiple physical units show up as distinct entries in a phone/OS
+  Bluetooth picker before a client ever connects to one.
 
 ## Hardware model
 
@@ -144,7 +159,7 @@ field is present.
 ```json
 {"getStatus": true}
 ```
-→ `{"status":"ready","version":"1.0.2","board":"esp32"}`
+→ `{"status":"ready","version":"1.0.2","board":"esp32","id":"A1B2C3"}`
 
 ### `setChannelOffset`
 ```json

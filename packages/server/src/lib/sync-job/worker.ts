@@ -106,7 +106,12 @@ function emitCancelledDone(): void {
   });
 }
 
-async function runSync(source: SyncSource, lang: string): Promise<void> {
+async function runSync(
+  source: SyncSource,
+  lang: string,
+  forceResync: boolean,
+  skipUpdatedWithinMs?: number,
+): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
 
@@ -146,6 +151,7 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
     .select({
       id: cardImageVectors.cardId,
       embeddingArt: cardImageVectors.embeddingArt,
+      updatedAt: cardImageVectors.updatedAt,
     })
     .from(cardImageVectors)
     .where(
@@ -161,11 +167,29 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
       : [],
   );
 
+  // Only meaningful with forceResync on - the normal alreadyVectorized check
+  // below already skips these cards regardless of recency. Lets a resumed
+  // forceResync run (after a crash/interrupt) skip whatever a previous
+  // partial run already redid, instead of reprocessing the whole catalog
+  // again from scratch.
+  const recentlyUpdated = new Set<string>();
+  if (skipUpdatedWithinMs && skipUpdatedWithinMs > 0) {
+    const cutoff = new Date(Date.now() - skipUpdatedWithinMs);
+    for (const r of existing) {
+      if (r.updatedAt >= cutoff) recentlyUpdated.add(r.id);
+    }
+  }
+
   addLog(
     `Found ${existingSet.size} existing ${source.label} cards in DB` +
-      (needsCropBackfill.size > 0
-        ? ` (${needsCropBackfill.size} missing crop embeddings and will be reprocessed)`
-        : "") +
+      (forceResync
+        ? " (force resync on - all will be reprocessed)" +
+          (recentlyUpdated.size > 0
+            ? `, except ${recentlyUpdated.size} updated within the last ${Math.round(skipUpdatedWithinMs! / 3_600_000)}h`
+            : "")
+        : needsCropBackfill.size > 0
+          ? ` (${needsCropBackfill.size} missing crop embeddings and will be reprocessed)`
+          : "") +
       `. Starting vectorization (${VECTORIZE_CONCURRENCY} in parallel)...`,
   );
 
@@ -233,7 +257,10 @@ async function runSync(source: SyncSource, lang: string): Promise<void> {
 
   async function processCard(card: SyncSourceCard): Promise<void> {
     const alreadyVectorized =
-      existingSet.has(card.id) && !needsCropBackfill.has(card.id);
+      (!forceResync &&
+        existingSet.has(card.id) &&
+        !needsCropBackfill.has(card.id)) ||
+      recentlyUpdated.has(card.id);
     if (!card.imageUrl || alreadyVectorized) {
       incrementCounters({ skipped: 1 });
       const s = getState();
@@ -355,7 +382,7 @@ process.on("message", (msg: ParentToWorkerMessage) => {
     }
 
     beginRun();
-    runSync(source, msg.lang)
+    runSync(source, msg.lang, msg.forceResync, msg.skipUpdatedWithinMs)
       .then(() => process.exit(0))
       .catch((err) => {
         patchState({ status: "failed" });

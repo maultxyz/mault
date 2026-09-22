@@ -89,21 +89,28 @@ export async function findPrinting(
   id: string,
   baseUrl: string,
   signal?: AbortSignal,
-): Promise<{ card: FabCard; printing: FabPrinting } | null> {
+): Promise<{
+  match: { card: FabCard; printing: FabPrinting } | null;
+  urls: string[];
+}> {
+  const urls: string[] = [];
   let offset = 0;
   for (;;) {
     const url = `${baseUrl}?limit=${PAGE_LIMIT}&offset=${offset}`;
     const res = await fetchCardApi(url, { headers: CARD_API_HEADERS, signal });
-    if (!res.ok) return null;
+    urls.push(`${url} [HTTP ${res.status}]`);
+    if (!res.ok) return { match: null, urls };
 
     const json = (await res.json()) as FabCardListResponse;
     for (const card of json.data) {
       const printing = card.printings.find((p) => p.unique_id === id);
-      if (printing) return { card, printing };
+      if (printing) return { match: { card, printing }, urls };
     }
 
     offset += PAGE_LIMIT;
-    if (offset >= json.total || json.data.length === 0) return null;
+    if (offset >= json.total || json.data.length === 0) {
+      return { match: null, urls };
+    }
   }
 }
 
@@ -147,7 +154,7 @@ export async function SearchById(
   id: string,
   baseUrl: string = FAB_DEFAULT_URL,
 ): Promise<Result<PlayingCard>> {
-  const match = await findPrinting(id, baseUrl);
+  const { match } = await findPrinting(id, baseUrl);
   if (!match) {
     return { success: false, message: `Card ${id} not found.` };
   }

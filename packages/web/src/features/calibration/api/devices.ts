@@ -13,6 +13,7 @@ import { queryOptions } from "@tanstack/react-query";
 export interface Device {
   guid: string;
   name: string;
+  hardwareId: string | null;
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
   moduleCount: number;
@@ -23,6 +24,7 @@ export interface Device {
 
 export interface DevicePatch {
   name?: string;
+  hardwareId?: string | null;
   scanRegion?: ScanRegion | null;
   captureSettleDelayMs?: number | null;
   moduleCount?: number;
@@ -32,6 +34,7 @@ export interface DevicePatch {
 export const DEFAULT_DEVICE: Device = {
   guid: "",
   name: "Card Sorter",
+  hardwareId: null,
   scanRegion: DEFAULT_SCAN_REGION,
   captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   moduleCount: DEFAULT_MODULE_COUNT,

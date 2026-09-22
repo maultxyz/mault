@@ -58,16 +58,20 @@ async function fetchCards(
 }
 
 async function fetchOne(id: string, baseUrl: string) {
-  const res = await fetch(`${baseUrl}/${id}`, { headers: CARD_API_HEADERS });
-  if (!res.ok) return null;
+  const url = `${baseUrl}/${id}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const raw = (await res.json()) as PokemonDetailCard;
-  if (!raw) return null;
+  if (!raw) return { card: null, urls: [url] };
 
   return {
-    name: raw.name,
-    setCode: raw.set?.id ?? raw.id.split("-")[0] ?? "",
-    imageUrl: highResUrl(raw.image),
+    card: {
+      name: raw.name,
+      setCode: raw.set?.id ?? raw.id.split("-")[0] ?? "",
+      imageUrl: highResUrl(raw.image),
+    },
+    urls: [url],
   };
 }
 

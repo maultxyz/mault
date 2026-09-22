@@ -105,6 +105,7 @@ export interface SerialContextValue {
   isReady: boolean;
   firmwareVersion: string | null;
   board: SerialBoardType | null;
+  deviceId: string | null;
   transport: SerialTransportType | null;
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;

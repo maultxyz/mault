@@ -51,7 +51,19 @@ void bleInit() {
   // matching how a missing/broken Serial connection is also silently
   // tolerated elsewhere in this firmware.
   if (!BLE.begin()) return;
-  BLE.setLocalName("Mault Card Sorter");
+
+  // BLE.address() only returns a real value once the co-processor has
+  // answered BLE.begin(), unlike ble_esp32.ino's backend, which can read its
+  // factory MAC before init - so the ID/name are computed here instead. This
+  // is the only source of deviceId for this board (Uno R4 WiFi has no
+  // separate esp_read_mac()-style API of its own), so if BLE.begin() had
+  // failed above, setup()'s EEPROM fallback (loadOrCreateDeviceId()) takes
+  // over instead once it sees deviceId is still empty.
+  setDeviceIdFromMac(BLE.address().c_str());
+  char localName[32];
+  snprintf(localName, sizeof(localName), "Mault Sorter %s", deviceId);
+
+  BLE.setLocalName(localName);
   BLE.setAdvertisedService(nusService);
   nusService.addCharacteristic(rxChar);
   nusService.addCharacteristic(txChar);

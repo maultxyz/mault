@@ -28,6 +28,10 @@
     "commLogCopied": "Kommunikationsprotokoll in die Zwischenablage kopiert",
     "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
     "commLogEmpty": "Noch keine Kommunikation aufgezeichnet",
+    "hardwareIdMismatch": {
+      "title": "Mit einem anderen Sortierer verbunden",
+      "description": "Die ID dieser Platine stimmt nicht mit der zuletzt verbundenen überein. Die Kalibrierung wurde für ein anderes physisches Gerät gespeichert."
+    },
     "firmwareOutdatedBanner": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Lade firmware/main/main.ino erneut hoch, um zu aktualisieren.",
     "firmwareVersionMissingBanner": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
     "update": {

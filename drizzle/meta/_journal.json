@@ -253,6 +253,13 @@
       "when": 1789921640552,
       "tag": "0035_rainy_blue_shield",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1790030334917,
+      "tag": "0036_puzzling_thunderbolt_ross",
+      "breakpoints": true
     }
   ]
 }

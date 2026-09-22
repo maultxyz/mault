@@ -52,8 +52,9 @@ async function fetchCards(
 }
 
 async function fetchOne(id: string, baseUrl: string) {
-  const res = await fetch(`${baseUrl}/${id}`, { headers: CARD_API_HEADERS });
-  if (!res.ok) return null;
+  const url = `${baseUrl}/${id}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const json = await res.json();
   const raw =
@@ -61,8 +62,11 @@ async function fetchOne(id: string, baseUrl: string) {
       ? (json as { data: GundamListCard }).data
       : (json as GundamListCard);
 
-  if (!raw) return null;
-  return { name: raw.name, setCode: raw.set_code, imageUrl: raw.image_url };
+  if (!raw) return { card: null, urls: [url] };
+  return {
+    card: { name: raw.name, setCode: raw.set_code, imageUrl: raw.image_url },
+    urls: [url],
+  };
 }
 
 export const gundamSyncSource: SyncSource = {

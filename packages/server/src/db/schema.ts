@@ -154,6 +154,7 @@ export const devices = pgTable(
     guid: uuid("guid").defaultRandom(),
     orgId: text("org_id").notNull(),
     name: text("name").notNull().default("Card Sorter"),
+    hardwareId: text("hardware_id"),
     scanCoverage: integer("scan_coverage"),
     scanOffsetX: integer("scan_offset_x"),
     scanOffsetY: integer("scan_offset_y"),

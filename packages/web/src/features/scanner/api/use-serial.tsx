@@ -1,3 +1,9 @@
+import {
+  devicesQueryOptions,
+  saveDevice,
+} from "@/features/calibration/api/devices";
+import { useDevice } from "@/features/calibration/api/use-device";
+import { useOrg } from "@/features/companies/api/use-organization";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import {
   formatCommLog,
@@ -18,6 +24,7 @@ import type {
   TestResult,
 } from "@/lib/interfaces/scanner";
 import type { BinRoute } from "@magic-vault/shared";
+import { useQueryClient } from "@tanstack/react-query";
 import { ESPLoader, Transport as EspLoaderTransport } from "esptool-js";
 import {
   createContext,
@@ -40,6 +47,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<SerialBoardType | null>(null);
+  const [deviceId, setDeviceId] = useState<string | null>(null);
   const [transport, setTransport] = useState<SerialContextValue["transport"]>(
     null,
   );
@@ -56,6 +64,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const commLogRef = useRef<CommLogEntry[]>([]);
 
   const decoderRef = useRef(new TextDecoder());
+
+  const { activeOrg } = useOrg();
+  const device = useDevice();
+  const queryClient = useQueryClient();
 
   const pushCommLog = useCallback(
     (direction: CommLogEntry["direction"], text: string) => {
@@ -190,6 +202,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     setIsReady(false);
     setFirmwareVersion(null);
     setBoard(null);
+    setDeviceId(null);
     setTransport(null);
 
     for (const pending of pendingRef.current) {
@@ -287,6 +300,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           }
           if (parsed?.board === "esp32" || parsed?.board === "uno_r4") {
             setBoard(parsed.board);
+          }
+          if (typeof parsed?.id === "string" && parsed.id) {
+            setDeviceId(parsed.id);
           }
         } catch {}
         if (options?.skipAutoTest) return;
@@ -447,6 +463,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       if (fields.board === "esp32" || fields.board === "uno_r4") {
         setBoard(fields.board);
       }
+      if (typeof fields.id === "string" && fields.id) setDeviceId(fields.id);
     };
     const listeners = listenersRef.current;
     listeners.add(listener);
@@ -454,6 +471,34 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       listeners.delete(listener);
     };
   }, []);
+
+  // Keys the org's saved device record to the specific physical board it's
+  // talking to. The first board an org ever connects claims the record
+  // silently; once claimed, a later connect from a different physical board
+  // (a swap, a bench mix-up) only warns - it never overwrites, since that'd
+  // silently rebind calibration data saved for one board onto another.
+  const savingHardwareIdRef = useRef(false);
+  useEffect(() => {
+    if (!deviceId || !device || !activeOrg?.id) return;
+    if (device.hardwareId === deviceId) return;
+    if (!device.hardwareId) {
+      if (savingHardwareIdRef.current) return;
+      savingHardwareIdRef.current = true;
+      saveDevice(device.guid, { hardwareId: deviceId })
+        .then(() =>
+          queryClient.invalidateQueries({
+            queryKey: devicesQueryOptions(activeOrg.id).queryKey,
+          }),
+        )
+        .finally(() => {
+          savingHardwareIdRef.current = false;
+        });
+      return;
+    }
+    toast.warning(t("serial.hardwareIdMismatch.title"), {
+      description: t("serial.hardwareIdMismatch.description"),
+    });
+  }, [deviceId, device, activeOrg?.id, queryClient, t]);
 
   const subscribe = useCallback((listener: SerialMessageListener) => {
     listenersRef.current.add(listener);
@@ -549,6 +594,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         isReady,
         firmwareVersion,
         board,
+        deviceId,
         transport,
         connect,
         connectBluetooth,

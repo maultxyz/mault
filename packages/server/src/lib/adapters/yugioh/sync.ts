@@ -1,7 +1,7 @@
 import type {
+  FetchOneResult,
   SyncSource,
   SyncSourceCard,
-  SyncSourceCardDetail,
 } from "../../card-search/sync-types";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
@@ -39,22 +39,18 @@ async function fetchCards(
   return cards;
 }
 
-async function fetchOne(
-  id: string,
-  baseUrl: string,
-): Promise<SyncSourceCardDetail | null> {
-  const res = await fetch(`${baseUrl}?id=${encodeURIComponent(id)}`, {
-    headers: CARD_API_HEADERS,
-  });
-  if (!res.ok) return null;
+async function fetchOne(id: string, baseUrl: string): Promise<FetchOneResult> {
+  const url = `${baseUrl}?id=${encodeURIComponent(id)}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const json = (await res.json()) as { data?: YgoCard[] };
   const raw = json.data?.[0];
-  if (!raw) return null;
+  if (!raw) return { card: null, urls: [url] };
 
   const cards = toSyncCards(raw);
   const match = cards.find((c) => c.id === id) ?? cards[0];
-  return match ?? null;
+  return { card: match ?? null, urls: [url] };
 }
 
 export const yugiohSyncSource: SyncSource = {
