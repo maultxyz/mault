@@ -140,7 +140,7 @@ export function ScanRegionCalibrationPanel({
             });
           }
         })
-        .catch(() => {})
+        .catch((err) => console.error("[calibration] live detection failed:", err))
         .finally(() => {
           liveDetectingRef.current = false;
         });
@@ -170,7 +170,7 @@ export function ScanRegionCalibrationPanel({
           });
         }
       })
-      .catch(() => {});
+      .catch((err) => console.error("[calibration] photo detection failed:", err));
   }, [phonePhotoSize, canvasRef]);
 
   return (

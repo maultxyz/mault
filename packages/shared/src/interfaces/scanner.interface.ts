@@ -43,6 +43,7 @@ export type ScannerStatus =
   | "captured"
   | "duplicate"
   | "no-match"
+  | "settling"
   | "searching"
   | "error";
 

@@ -223,6 +223,13 @@ export function ScannerOverlay({
             </Button>
           </StatusPill>
         );
+      case "settling":
+        return (
+          <StatusPill variant="loading">
+            <IconLoader2 className="size-3.5 animate-spin shrink-0" />
+            <span>{t("scannerOverlay.settling")}</span>
+          </StatusPill>
+        );
       case "searching":
         return (
           <StatusPill variant="loading">

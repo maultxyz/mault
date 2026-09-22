@@ -33,7 +33,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-const LIVE_DETECTION_INTERVAL_MS = 200;
+const LIVE_DETECTION_INTERVAL_MS = 300;
+const LIVE_DETECTION_STATUSES: ScannerStatus[] = ["scanning", "paused", "settling"];
 
 // Singleton AudioContext - browsers cap concurrent contexts (~6).
 // Creating one per scan exhausts the limit quickly.
@@ -124,10 +125,11 @@ async function searchCardImage(
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
   debugImageUrl: string;
+  detectedContour: CardContour | null;
 }> {
   if (!getForceCpuVectorize()) {
     try {
-      const { dewarpedCanvas, embeddings } = await vectorizeCardImageOnClient(canvas);
+      const { dewarpedCanvas, embeddings, detection } = await vectorizeCardImageOnClient(canvas);
       if (dewarpedCanvas && embeddings) {
         const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
         const [uprightBlob, rotatedBlob] = await Promise.all([
@@ -150,7 +152,10 @@ async function searchCardImage(
           0.8,
         );
 
-        return resolveSearchMatches(best.data, collectionGuid, debugImageUrl);
+        return {
+          ...(await resolveSearchMatches(best.data, collectionGuid, debugImageUrl)),
+          detectedContour: detection.contour,
+        };
       }
     } catch (err) {
       console.error("[scanner] client-side vectorization failed, falling back to server:", err);
@@ -167,7 +172,10 @@ async function searchCardImage(
   formData.append("ocrEnabled", String(ocrEnabled ?? false));
 
   const { data } = await searchByImage(formData);
-  return resolveSearchMatches(data, collectionGuid, debugImageUrl);
+  return {
+    ...(await resolveSearchMatches(data, collectionGuid, debugImageUrl)),
+    detectedContour: null,
+  };
 }
 
 async function searchCardImageWithConsensus(
@@ -180,6 +188,7 @@ async function searchCardImageWithConsensus(
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
   debugImageUrl: string;
+  detectedContour: CardContour | null;
 }> {
   if (matchesNeeded <= 1) {
     return searchCardImage(canvas, contour, collectionGuid, ocrEnabled);
@@ -357,7 +366,7 @@ export function useCardScanner({
       }
 
       try {
-        const { card, alternativeMatches, debugImageUrl } =
+        const { card, alternativeMatches, debugImageUrl, detectedContour } =
           await searchCardImageWithConsensus(
             canvas,
             contour,
@@ -367,6 +376,18 @@ export function useCardScanner({
           );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
+
+        const overlayCtx = overlayCanvasRef.current?.getContext("2d");
+        if (overlayCtx && canvas.width && canvas.height) {
+          overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
+          if (detectedContour) {
+            drawDetectionOverlay(overlayCtx, {
+              detected: true,
+              contour: detectedContour,
+              confidence: 1,
+            });
+          }
+        }
 
         if (card) {
           if (
@@ -491,39 +512,46 @@ export function useCardScanner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream]);
 
+  // Continuous live-preview overlay showing what would be captured - purely
+  // visual feedback, decoupled from when an actual capture/match fires
+  // (that stays gated on the settle-delayed captureCard flow).
   const liveDetectingRef = useRef(false);
   useEffect(() => {
-    if (!stream || cameraSource === "phone") return;
+    if (!stream) return;
 
-    const interval = setInterval(() => {
-      if (liveDetectingRef.current || isCapturingRef.current) return;
-      if (statusRef.current !== "scanning" && statusRef.current !== "paused") return;
+    const intervalId = setInterval(() => {
+      if (liveDetectingRef.current) return;
+      if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
 
       const canvas = displayCanvasRef.current;
-      const overlayCtx = overlayCanvasRef.current?.getContext("2d");
-      if (!canvas || !overlayCtx || !canvas.width || !canvas.height) return;
+      const overlayCanvas = overlayCanvasRef.current;
+      if (!canvas || !overlayCanvas || !canvas.width || !canvas.height) return;
 
       liveDetectingRef.current = true;
       detectCardCorners(canvas)
         .then((detection) => {
-          overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
-          if (detection.cardPresent) {
+          if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
+          const overlayCtx = overlayCanvas.getContext("2d");
+          if (!overlayCtx) return;
+          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+          if (detection.cardPresent && detection.contour) {
             drawDetectionOverlay(overlayCtx, {
               detected: true,
               contour: detection.contour,
               confidence: detection.confidence,
-              sharpness: detection.sharpness ?? undefined,
             });
           }
         })
-        .catch(() => {})
+        .catch((err) => {
+          console.error("[scanner] live detection failed:", err);
+        })
         .finally(() => {
           liveDetectingRef.current = false;
         });
     }, LIVE_DETECTION_INTERVAL_MS);
 
-    return () => clearInterval(interval);
-  }, [stream, cameraSource]);
+    return () => clearInterval(intervalId);
+  }, [stream]);
 
   const handleForceAddDuplicate = useCallback(() => {
     if (duplicateCard) {
@@ -658,11 +686,12 @@ export function useCardScanner({
       return;
 
     isCapturingRef.current = true;
-    updateStatus("searching");
+    updateStatus("settling");
 
     if (cameraSource === "phone") {
       settleTimeoutRef.current = setTimeout(() => {
         settleTimeoutRef.current = null;
+        updateStatus("searching");
         capturePhonePhotoThenSearch(true);
       }, captureSettleDelayMsRef.current);
       return;
@@ -677,6 +706,7 @@ export function useCardScanner({
     );
     settleTimeoutRef.current = setTimeout(() => {
       settleTimeoutRef.current = null;
+      updateStatus("searching");
       performCapture(true, contour);
     }, captureSettleDelayMsRef.current);
   }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);

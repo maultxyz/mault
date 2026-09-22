@@ -85,10 +85,6 @@
     }
   },
   "cardScanner": {
-    "jamAutoScan": {
-      "title": "Karte an Modul 1 blockiert - Scan wird erzwungen",
-      "description": "Sie wurde nie erkannt, daher wird sie automatisch gescannt."
-    },
     "jamDetected": {
       "title": "Kartenstau erkannt",
       "description": "Karte an Modul {{module}} blockiert. Überprüfe den Sortierer und setze fort.",
@@ -208,6 +204,7 @@
     "noCatchAllBin": "Kein Sammelfach konfiguriert - nicht zugeordnete Karten werden nicht sortiert.",
     "initializing": "Scanner wird initialisiert…",
     "identifyingCard": "Karte wird identifiziert…",
+    "settling": "Warten, bis die Karte zur Ruhe kommt…",
     "paused": "Scanner pausiert - drücke Fortsetzen, um weiterzumachen.",
     "duplicate": "Gleiche Karte erneut gescannt - verwende Erneut hinzufügen, um sie trotzdem hinzuzufügen.",
     "noMatch": "Karte nicht erkannt - versuche Erneut scannen oder passe die Beleuchtung an.",

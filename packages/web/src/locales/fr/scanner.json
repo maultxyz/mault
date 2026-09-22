@@ -85,10 +85,6 @@
     }
   },
   "cardScanner": {
-    "jamAutoScan": {
-      "title": "Carte bloquée au module 1 - scan forcé",
-      "description": "Elle n'a jamais été identifiée, elle est donc scannée automatiquement."
-    },
     "jamDetected": {
       "title": "Bourrage de carte détecté",
       "description": "Carte bloquée au module {{module}}. Vérifie la trieuse et reprends.",
@@ -208,6 +204,7 @@
     "noCatchAllBin": "Aucun bac fourre-tout configuré - les cartes non associées ne seront pas triées.",
     "initializing": "Initialisation du scanner…",
     "identifyingCard": "Identification de la carte…",
+    "settling": "En attente que la carte se stabilise…",
     "paused": "Scanner en pause - appuie sur Reprendre pour continuer.",
     "duplicate": "Même carte scannée - utilise Ajouter à nouveau pour l'ajouter quand même.",
     "noMatch": "Carte non reconnue - essaie Scanner à nouveau ou ajuste l'éclairage.",

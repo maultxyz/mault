@@ -85,10 +85,6 @@
     }
   },
   "cardScanner": {
-    "jamAutoScan": {
-      "title": "Card stuck at module 1, forcing a scan",
-      "description": "It was never identified, so we're scanning it automatically."
-    },
     "jamDetected": {
       "title": "Card jam detected",
       "description": "Card stuck at module {{module}}. Check the sorter and resume.",
@@ -203,6 +199,7 @@
     "phoneReadyNoPhoto": "Phone camera ready. It'll take a photo as soon as a card arrives.",
     "scannerNotConnected": "Card sorter not connected.",
     "testingScanner": "Testing card sorter connection…",
+    "settling": "Waiting for card to settle…",
     "autoFeedOff": "Auto-feed is off, feed cards manually.",
     "firmwareVersionMissing": "Card sorter firmware doesn't report a version. Re-upload the latest firmware/main/main.ino to enable scanning.",
     "noCatchAllBin": "No catch-all bin configured, so unmatched cards won't be sorted.",

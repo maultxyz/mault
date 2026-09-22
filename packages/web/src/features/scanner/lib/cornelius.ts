@@ -138,6 +138,9 @@ export async function detectCardCorners(
   const cardPresent = sharpness != null ? sharpness >= minSharpness : presence >= 0.5;
 
   if (!cardPresent) {
+    console.warn(
+      `[scanner] card rejected: sharpness=${sharpness ?? "n/a"} (min ${minSharpness}), presence=${presence.toFixed(3)}`,
+    );
     return { cardPresent: false, confidence: sharpness ?? presence, sharpness, contour: null };
   }
 
@@ -149,15 +152,23 @@ export async function detectCardCorners(
     });
   }
 
-  if (!isUsableQuad(normalizedPoints)) {
+  // Order in pixel space, not normalized space: normalizing x/y independently
+  // distorts edge lengths on a non-square canvas, which breaks orderCorners'
+  // shortest-edge (top/bottom) detection and rotates the dewarped card 90°.
+  const orderedPixel = orderCorners(
+    normalizedPoints.map((p) => ({ x: p.x * canvas.width, y: p.y * canvas.height })),
+  );
+  const orderedNormalized = orderedPixel.map((p) => ({
+    x: p.x / canvas.width,
+    y: p.y / canvas.height,
+  }));
+
+  if (!isUsableQuad(orderedNormalized)) {
+    console.warn("[scanner] card rejected: corners formed an unusable quad", orderedNormalized);
     return { cardPresent: false, confidence: sharpness ?? presence, sharpness, contour: null };
   }
 
-  const pixelPoints = normalizedPoints.map((p) => ({
-    x: p.x * canvas.width,
-    y: p.y * canvas.height,
-  }));
-  const [topLeft, topRight, bottomRight, bottomLeft] = orderCorners(pixelPoints);
+  const [topLeft, topRight, bottomRight, bottomLeft] = orderedPixel;
 
   return {
     cardPresent: true,
