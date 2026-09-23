@@ -111,6 +111,18 @@
     "startedAndEnded": "{{started}} – {{ended}}",
     "startedOnly": "Démarré {{started}}"
   },
+  "metricsStats": {
+    "heading": "Statistiques de scan",
+    "description": "Totaux de scans de cartes à l'échelle de l'application, toutes organisations confondues",
+    "totalScannedLabel": "Total scanné",
+    "matchedLabel": "Trouvés",
+    "unidentifiedLabel": "Non identifiés",
+    "matchRateLabel": "Taux de correspondance",
+    "averageMatchPercentLabel": "Confiance moy.",
+    "correctedLabel": "Corrigés",
+    "multipleMatchesLabel": "Correspondances multiples",
+    "percentValue": "{{percent}}%"
+  },
   "scanVectorizeStats": {
     "heading": "Source de vectorisation des scans",
     "description": "Combien de scans de cartes ont été vectorisés sur le serveur par rapport au client via WebGPU",

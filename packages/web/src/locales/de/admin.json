@@ -111,6 +111,18 @@
     "startedAndEnded": "{{started}} – {{ended}}",
     "startedOnly": "Gestartet {{started}}"
   },
+  "metricsStats": {
+    "heading": "Scan-Statistiken",
+    "description": "App-weite Kartenscan-Summen über alle Organisationen hinweg",
+    "totalScannedLabel": "Gesamt gescannt",
+    "matchedLabel": "Erkannt",
+    "unidentifiedLabel": "Nicht erkannt",
+    "matchRateLabel": "Erkennungsrate",
+    "averageMatchPercentLabel": "Ø Trefferzuversicht",
+    "correctedLabel": "Korrigiert",
+    "multipleMatchesLabel": "Mehrere Treffer",
+    "percentValue": "{{percent}}%"
+  },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
     "description": "Wie viele Kartenscans auf dem Server vektorisiert wurden im Vergleich zu clientseitig über WebGPU",

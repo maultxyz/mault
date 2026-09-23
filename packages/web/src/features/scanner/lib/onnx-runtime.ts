@@ -125,7 +125,14 @@ export function runOnnxSession(
   feeds: ort.InferenceSession.OnnxValueMapType,
 ): Promise<ort.InferenceSession.OnnxValueMapType> {
   const previous = runQueues.get(key) ?? Promise.resolve();
-  const next = previous.catch(() => {}).then(() => session.run(feeds));
+  const next = previous
+    .catch(() => {})
+    .then(() =>
+      session.run(feeds).catch((err) => {
+        sessions.delete(key);
+        throw err;
+      }),
+    );
   runQueues.set(
     key,
     next.catch(() => {}),

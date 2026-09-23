@@ -1,3 +1,4 @@
+import type { PublicMetrics } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
@@ -17,16 +18,6 @@ export const publicMetricsRoute = new Hono<AppEnv>().get(
         .select({ unidentified: sql<number>`count(*)::int` })
         .from(unmatchedCards);
 
-      // `card` is jsonb (PlayingCardWithDistance) - `distance` isn't present
-      // on every historical row (e.g. manually-added cards never scanned),
-      // so the distance average only counts rows where it's actually a
-      // number. Mirrors matchPercentFromDistance (web/lib/utils.ts) exactly:
-      // the raw cosine similarity as a percentage, distance 0 is 100%,
-      // distance 1 is 0%. `corrected` is a scan the user manually fixed
-      // after a wrong auto-match; `multipleMatches` is a scan where the
-      // matcher itself returned more than one close candidate
-      // (alternativeMatches populated) - both signal auto-match confidence
-      // issues distinct from a clean single-best-guess scan.
       const [{ matched, corrected, multipleMatches, avgPercent }] = await db
         .select({
           matched: sql<number>`count(*)::int`,
@@ -42,21 +33,19 @@ export const publicMetricsRoute = new Hono<AppEnv>().get(
       const averageMatchPercent =
         avgPercent != null ? Math.round(avgPercent * 10) / 10 : null;
 
-      return c.json({
-        success: true,
-        data: {
-          totalScanned,
-          matched,
-          unidentified,
-          corrected,
-          multipleMatches,
-          matchRate:
-            totalScanned > 0
-              ? Math.round((matched / totalScanned) * 1000) / 10
-              : null,
-          averageMatchPercent,
-        },
-      });
+      const data: PublicMetrics = {
+        totalScanned,
+        matched,
+        unidentified,
+        corrected,
+        multipleMatches,
+        matchRate:
+          totalScanned > 0
+            ? Math.round((matched / totalScanned) * 1000) / 10
+            : null,
+        averageMatchPercent,
+      };
+      return c.json({ success: true, data });
     } catch (err) {
       console.error(err);
       return c.json({ success: false, message: "Database error." }, 500);

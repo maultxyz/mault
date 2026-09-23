@@ -9,6 +9,7 @@ import type {
   AdminUserSummary,
   ImpersonationAuditEntry,
   ImpersonationSession,
+  PublicMetrics,
   Result,
   SyncState,
 } from "@magic-vault/shared";
@@ -140,6 +141,10 @@ export async function testServerRollbar(): Promise<{
   return apiPost<{ success: boolean; message: string }>(
     "/api/admin/rollbar/test",
   );
+}
+
+export async function getPublicMetrics(): Promise<Result<PublicMetrics>> {
+  return apiGet<Result<PublicMetrics>>("/api/public/metrics");
 }
 
 export async function getScanVectorizeStats(): Promise<{

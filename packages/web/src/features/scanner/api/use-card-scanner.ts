@@ -13,7 +13,6 @@ import {
 } from "@/features/scanner/lib/card-detection";
 import { vectorizeCardImageOnClient } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
-import { getForceCpuVectorize } from "@/features/scanner/lib/force-cpu-vectorize";
 import { rotateCanvas180 } from "@/features/scanner/lib/milo-client";
 import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
@@ -144,63 +143,61 @@ async function searchCardImage(
   debugImageUrl: string;
   detectedContour: CardContour | null;
 }> {
-  let fallbackReason = "forceCpuVectorize enabled";
-  if (!getForceCpuVectorize()) {
-    try {
-      const { dewarpedCanvas, embeddings, detection } =
-        await vectorizeCardImageOnClient(canvas);
-      if (dewarpedCanvas && embeddings) {
-        const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
-        const [uprightBlob, rotatedBlob] = await Promise.all([
-          canvasToBlob(dewarpedCanvas),
-          canvasToBlob(rotatedCanvas),
-        ]);
+  let fallbackReason = "card not detected";
+  try {
+    const { dewarpedCanvas, embeddings, detection } =
+      await vectorizeCardImageOnClient(canvas);
+    if (dewarpedCanvas && embeddings) {
+      const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
+      const [uprightBlob, rotatedBlob] = await Promise.all([
+        canvasToBlob(dewarpedCanvas),
+        canvasToBlob(rotatedCanvas),
+      ]);
 
-        const [uprightResult, rotatedResult] = await Promise.all([
-          searchByVector(
-            buildSearchFormData(
-              uprightBlob,
-              embeddings.upright,
-              collectionGuid,
-              ocrEnabled,
-            ),
-          ),
-          searchByVector(
-            buildSearchFormData(
-              rotatedBlob,
-              embeddings.rotated,
-              collectionGuid,
-              ocrEnabled,
-            ),
-          ),
-        ]);
-        const rotatedWon =
-          bestDistance(rotatedResult) < bestDistance(uprightResult);
-        const best = rotatedWon ? rotatedResult : uprightResult;
-        const debugImageUrl = (
-          rotatedWon ? rotatedCanvas : dewarpedCanvas
-        ).toDataURL("image/jpeg", 0.8);
-
-        console.log(
-          `[scanner] using AI card detection (confidence=${detection.confidence.toFixed(3)})`,
-        );
-        return {
-          ...(await resolveSearchMatches(
-            best.data,
+      const [uprightResult, rotatedResult] = await Promise.all([
+        searchByVector(
+          buildSearchFormData(
+            uprightBlob,
+            embeddings.upright,
             collectionGuid,
-            debugImageUrl,
-          )),
-          detectedContour: detection.contour,
-        };
-      }
-      fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
-    } catch (err) {
-      fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
-      console.error(
-        "[scanner] client-side vectorization failed, falling back to server:",
-        err,
+            ocrEnabled,
+          ),
+        ),
+        searchByVector(
+          buildSearchFormData(
+            rotatedBlob,
+            embeddings.rotated,
+            collectionGuid,
+            ocrEnabled,
+          ),
+        ),
+      ]);
+      const rotatedWon =
+        bestDistance(rotatedResult) < bestDistance(uprightResult);
+      const best = rotatedWon ? rotatedResult : uprightResult;
+      const debugImageUrl = (
+        rotatedWon ? rotatedCanvas : dewarpedCanvas
+      ).toDataURL("image/jpeg", 0.8);
+
+      console.log(
+        `[scanner] using AI card detection (confidence=${detection.confidence.toFixed(3)})`,
       );
+      return {
+        ...(await resolveSearchMatches(
+          best.data,
+          collectionGuid,
+          debugImageUrl,
+        )),
+        detectedContour: detection.contour,
+      };
     }
+    fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
+  } catch (err) {
+    fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
+    console.error(
+      "[scanner] client-side vectorization failed, falling back to server:",
+      err,
+    );
   }
 
   console.log(`[scanner] using fallback scan region (${fallbackReason})`);
