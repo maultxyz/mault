@@ -65,6 +65,40 @@ export const cardImageVectors = pgTable(
   ],
 ).enableRLS();
 
+// Parallel catalog for the in-progress embedding-model transition: same
+// shape as cardImageVectors, synced/vectorized independently so prod keeps
+// serving matches from `cards` until `cards_v2` is fully populated and
+// verified, then the two get swapped. See ensureGameVectorIndex's `table`
+// param in lib/game-vector-index.ts for building this table's per-game HNSW
+// indexes the same way.
+export const cardImageVectorsV2 = pgTable(
+  "cards_v2",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    cardId: text("card_id").notNull(),
+    gameKey: text("game_key").notNull().default("mtg"),
+    lang: text("lang").notNull().default("en"),
+    name: text("name").notNull(),
+    setCode: text("set_code").notNull(),
+    embedding: vector("embedding").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("cards_v2_game_lang_card_idx").on(
+      table.gameKey,
+      table.lang,
+      table.cardId,
+    ),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const games = pgTable(
   "games",
   {

@@ -19,10 +19,13 @@ export type SyncStatus =
   | "failed"
   | "cancelled";
 
+export type SyncTargetTable = "cards" | "cards_v2";
+
 export interface SyncState {
   status: SyncStatus;
   gameKey: string;
   lang: string;
+  targetTable: SyncTargetTable;
   total: number;
   processed: number;
   skipped: number;

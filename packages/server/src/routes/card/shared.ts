@@ -48,6 +48,10 @@ export async function findCardMatches(
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
     await tx.execute(sql`SET LOCAL hnsw.max_scan_tuples = 100000`);
+    // Default is 40, which under-searches once the game/lang filter forces
+    // iterative_scan to keep expanding — widening the base beam here cuts
+    // down how often iterative_scan has to fall back on extra rounds.
+    await tx.execute(sql`SET LOCAL hnsw.ef_search = 200`);
 
     const matches = await tx.execute(sql`
       SELECT

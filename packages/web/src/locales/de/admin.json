@@ -36,6 +36,8 @@
     },
     "selectGamePlaceholder": "Spiel auswählen...",
     "languagePlaceholder": "Sprache...",
+    "targetTableLive": "Live (cards)",
+    "targetTableStaging": "Staging (cards_v2)",
     "forceResyncLabel": "Vollständige Neusynchronisierung erzwingen",
     "cancellingButton": "Wird abgebrochen...",
     "startSyncButton": "Sync starten",

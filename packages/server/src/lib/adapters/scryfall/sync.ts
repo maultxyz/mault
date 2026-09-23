@@ -89,7 +89,7 @@ async function fetchCards(
   signal?: AbortSignal,
 ): Promise<SyncSourceCard[]> {
   return lang === "en"
-    ? downloadBulkData(baseUrl, addLog, "unique_artwork", undefined, signal)
+    ? downloadBulkData(baseUrl, addLog, "default_cards", "en", signal)
     : downloadBulkData(baseUrl, addLog, "all_cards", lang, signal);
 }
 

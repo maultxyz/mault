@@ -11,6 +11,7 @@ import { useCardSync } from "@/features/admin/api/use-card-sync";
 import { formatDuration } from "@/features/admin/lib/format-duration";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
+import type { SyncTargetTable } from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -33,6 +34,7 @@ export function CardSyncPanel() {
   const [syncGameKey, setSyncGameKey] = useState<string | null>(null);
   const [syncLang, setSyncLang] = useState<string>("en");
   const [forceResync, setForceResync] = useState(false);
+  const [targetTable, setTargetTable] = useState<SyncTargetTable>("cards");
 
   useEffect(() => {
     if (logRef.current) {
@@ -62,6 +64,10 @@ export function CardSyncPanel() {
                 }${
                   syncState.lang !== "en"
                     ? ` (${LANGUAGE_LABELS[syncState.lang] ?? syncState.lang})`
+                    : ""
+                }${
+                  syncState.targetTable === "cards_v2"
+                    ? ` → ${t("cardImageVectors.targetTableStaging")}`
                     : ""
                 }`}
             </p>
@@ -113,6 +119,26 @@ export function CardSyncPanel() {
                 </SelectContent>
               </Select>
             )}
+            {!isRunning && (
+              <Select
+                value={targetTable}
+                onValueChange={(value) =>
+                  setTargetTable(value as SyncTargetTable)
+                }
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cards">
+                    {t("cardImageVectors.targetTableLive")}
+                  </SelectItem>
+                  <SelectItem value="cards_v2">
+                    {t("cardImageVectors.targetTableStaging")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             {isRunning ? (
               <Button
                 variant="outline"
@@ -126,7 +152,9 @@ export function CardSyncPanel() {
             ) : (
               <Button
                 disabled={isRunning || isStarting || !syncGameKey}
-                onClick={() => start(syncGameKey!, syncLang, forceResync)}
+                onClick={() =>
+                  start(syncGameKey!, syncLang, forceResync, targetTable)
+                }
               >
                 {isStarting
                   ? t("starting")

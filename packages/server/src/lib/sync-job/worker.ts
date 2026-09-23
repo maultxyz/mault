@@ -1,11 +1,98 @@
-import type { SyncState, SyncStatus } from "@magic-vault/shared";
+import type {
+  SyncState,
+  SyncStatus,
+  SyncTargetTable,
+} from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { cardImageVectors } from "../../db/schema";
+import { cardImageVectors, cardImageVectorsV2 } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../card-search/sync-types";
 import { vectorizeCardImage } from "../vectorize";
 import type { ParentToWorkerMessage, WorkerToParentMessage } from "./protocol";
 import { SYNC_SOURCES } from "./sources";
+
+interface PendingRow {
+  cardId: string;
+  gameKey: string;
+  lang: string;
+  name: string;
+  setCode: string;
+  embedding: number[];
+}
+
+async function selectExisting(
+  targetTable: SyncTargetTable,
+  gameKey: string,
+  lang: string,
+): Promise<{ id: string; updatedAt: Date }[]> {
+  if (targetTable === "cards_v2") {
+    return db
+      .select({
+        id: cardImageVectorsV2.cardId,
+        updatedAt: cardImageVectorsV2.updatedAt,
+      })
+      .from(cardImageVectorsV2)
+      .where(
+        and(
+          eq(cardImageVectorsV2.gameKey, gameKey),
+          eq(cardImageVectorsV2.lang, lang),
+        ),
+      );
+  }
+  return db
+    .select({
+      id: cardImageVectors.cardId,
+      updatedAt: cardImageVectors.updatedAt,
+    })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, gameKey),
+        eq(cardImageVectors.lang, lang),
+      ),
+    );
+}
+
+async function insertBatch(
+  targetTable: SyncTargetTable,
+  rows: PendingRow[],
+): Promise<void> {
+  if (targetTable === "cards_v2") {
+    await db
+      .insert(cardImageVectorsV2)
+      .values(rows)
+      .onConflictDoUpdate({
+        target: [
+          cardImageVectorsV2.gameKey,
+          cardImageVectorsV2.lang,
+          cardImageVectorsV2.cardId,
+        ],
+        set: {
+          name: sql`excluded.name`,
+          setCode: sql`excluded.set_code`,
+          embedding: sql`excluded.embedding`,
+          updatedAt: sql`now()`,
+        },
+      });
+    return;
+  }
+  await db
+    .insert(cardImageVectors)
+    .values(rows)
+    .onConflictDoUpdate({
+      target: [
+        cardImageVectors.gameKey,
+        cardImageVectors.lang,
+        cardImageVectors.cardId,
+      ],
+      set: {
+        name: sql`excluded.name`,
+        setCode: sql`excluded.set_code`,
+        embedding: sql`excluded.embedding`,
+        updatedAt: sql`now()`,
+      },
+    });
+}
 
 function errorMessage(err: unknown): string {
   if (!(err instanceof Error)) return String(err);
@@ -106,10 +193,14 @@ async function runSync(
   source: SyncSource,
   lang: string,
   forceResync: boolean,
-  skipUpdatedWithinMs?: number,
+  skipUpdatedWithinMs: number | undefined,
+  targetTable: SyncTargetTable,
 ): Promise<void> {
   const baseUrl = source.defaultUrl;
-  addLog(`Using data source: ${baseUrl}`);
+  addLog(
+    `Using data source: ${baseUrl}` +
+      (targetTable === "cards_v2" ? ` (writing to "${targetTable}")` : ""),
+  );
 
   let cards: Awaited<ReturnType<SyncSource["fetchCards"]>>;
   try {
@@ -142,25 +233,9 @@ async function runSync(
 
   addLog(`Loading existing ${source.label} cards from DB...`);
 
-  const existing = await db
-    .select({
-      id: cardImageVectors.cardId,
-      updatedAt: cardImageVectors.updatedAt,
-    })
-    .from(cardImageVectors)
-    .where(
-      and(
-        eq(cardImageVectors.gameKey, source.gameKey),
-        eq(cardImageVectors.lang, lang),
-      ),
-    );
+  const existing = await selectExisting(targetTable, source.gameKey, lang);
   const existingSet = new Set(existing.map((r) => r.id));
 
-  // Only meaningful with forceResync on - the normal alreadyVectorized check
-  // below already skips these cards regardless of recency. Lets a resumed
-  // forceResync run (after a crash/interrupt) skip whatever a previous
-  // partial run already redid, instead of reprocessing the whole catalog
-  // again from scratch.
   const recentlyUpdated = new Set<string>();
   if (skipUpdatedWithinMs && skipUpdatedWithinMs > 0) {
     const cutoff = new Date(Date.now() - skipUpdatedWithinMs);
@@ -180,7 +255,7 @@ async function runSync(
       `. Starting vectorization (${VECTORIZE_CONCURRENCY} in parallel)...`,
   );
 
-  let pendingInserts: (typeof cardImageVectors.$inferInsert)[] = [];
+  let pendingInserts: PendingRow[] = [];
   let pendingCards: SyncSourceCard[] = [];
 
   // `processed`/`errors` must only advance once a batch's INSERT has been
@@ -199,22 +274,7 @@ async function runSync(
     addLog(`Inserting batch of ${batchCards.length} cards...`);
 
     try {
-      await db
-        .insert(cardImageVectors)
-        .values(batchRows)
-        .onConflictDoUpdate({
-          target: [
-            cardImageVectors.gameKey,
-            cardImageVectors.lang,
-            cardImageVectors.cardId,
-          ],
-          set: {
-            name: sql`excluded.name`,
-            setCode: sql`excluded.set_code`,
-            embedding: sql`excluded.embedding`,
-            updatedAt: sql`now()`,
-          },
-        });
+      await insertBatch(targetTable, batchRows);
       for (const c of batchCards) {
         existingSet.add(c.id);
       }
@@ -356,7 +416,13 @@ process.on("message", (msg: ParentToWorkerMessage) => {
     }
 
     beginRun();
-    runSync(source, msg.lang, msg.forceResync, msg.skipUpdatedWithinMs)
+    runSync(
+      source,
+      msg.lang,
+      msg.forceResync,
+      msg.skipUpdatedWithinMs,
+      msg.targetTable,
+    )
       .then(() => process.exit(0))
       .catch((err) => {
         patchState({ status: "failed" });

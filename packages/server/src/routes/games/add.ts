@@ -45,7 +45,9 @@ export const addGameRoute = new Hono<AppEnv>().post(
         })
         .returning();
 
-      await ensureGameVectorIndex(row.key);
+      // Fire-and-forget: a build against an already-populated table can take
+      // minutes, well past any HTTP request timeout in front of this route.
+      void ensureGameVectorIndex(row.key);
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
       // Backstop for a race between the check above and this insert (two

@@ -53,7 +53,8 @@ export const editGameRoute = new Hono<AppEnv>().put(
         .where(eq(games.id, target.id))
         .returning();
       if (newKey !== undefined && newKey !== target.key) {
-        await ensureGameVectorIndex(newKey);
+        // Fire-and-forget - see add.ts for why this isn't awaited.
+        void ensureGameVectorIndex(newKey);
       }
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
