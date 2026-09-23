@@ -1,4 +1,11 @@
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
@@ -14,6 +21,10 @@ import {
   getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
+import {
+  useExecutionProviderPreference,
+  type OnnxExecutionProviderPreference,
+} from "@/features/scanner/lib/onnx-runtime";
 import {
   CAPTURE_SETTLE_DELAY_SLIDER_MAX,
   MATCHES_NEEDED_MIN,
@@ -56,6 +67,9 @@ export function ScanRegionCalibrationPanel({
   const { t } = useTranslation("calibration");
   const regionRef = useRef(region);
   regionRef.current = region;
+
+  const [executionProvider, setExecutionProvider] =
+    useExecutionProviderPreference();
 
   const {
     stream,
@@ -431,6 +445,36 @@ export function ScanRegionCalibrationPanel({
             value={matchesNeeded}
             onValueChange={onMatchesNeededChange}
           />
+        </div>
+
+        <div className="flex flex-col gap-2 pt-2 border-t">
+          <p className="text-xs text-muted-foreground">
+            {t("scanRegionCalibrationPanel.executionProviderLabel")}
+          </p>
+          <p className="text-[10px] text-muted-foreground/70">
+            {t("scanRegionCalibrationPanel.executionProviderDescription")}
+          </p>
+          <Select
+            value={executionProvider}
+            onValueChange={(value) =>
+              setExecutionProvider(value as OnnxExecutionProviderPreference)
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="auto">
+                {t("scanRegionCalibrationPanel.executionProviderAuto")}
+              </SelectItem>
+              <SelectItem value="webgpu">
+                {t("scanRegionCalibrationPanel.executionProviderWebGpu")}
+              </SelectItem>
+              <SelectItem value="wasm">
+                {t("scanRegionCalibrationPanel.executionProviderWasm")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
     </div>
