@@ -144,6 +144,7 @@ async function searchCardImage(
   debugImageUrl: string;
   detectedContour: CardContour | null;
 }> {
+  let fallbackReason = "forceCpuVectorize enabled";
   if (!getForceCpuVectorize()) {
     try {
       const { dewarpedCanvas, embeddings, detection } =
@@ -180,6 +181,9 @@ async function searchCardImage(
           rotatedWon ? rotatedCanvas : dewarpedCanvas
         ).toDataURL("image/jpeg", 0.8);
 
+        console.log(
+          `[scanner] using AI card detection (confidence=${detection.confidence.toFixed(3)})`,
+        );
         return {
           ...(await resolveSearchMatches(
             best.data,
@@ -189,7 +193,9 @@ async function searchCardImage(
           detectedContour: detection.contour,
         };
       }
+      fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
     } catch (err) {
+      fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
       console.error(
         "[scanner] client-side vectorization failed, falling back to server:",
         err,
@@ -197,6 +203,7 @@ async function searchCardImage(
     }
   }
 
+  console.log(`[scanner] using fallback scan region (${fallbackReason})`);
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
   const rotatedCanvas = rotateCanvas180(warpedCanvas);
   const [uprightBlob, rotatedBlob] = await Promise.all([

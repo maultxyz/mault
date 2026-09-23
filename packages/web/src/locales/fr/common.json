@@ -52,6 +52,7 @@
     "sorterReady": "Trieuse prête",
     "sorterReadyWithVersion": "Trieuse prête (firmware v{{version}})",
     "sorterWithVersion": "Trieuse v{{version}}",
+    "checkFirmware": "Vérifier le firmware",
     "firmwareChecking": "Vérification du firmware de la trieuse…",
     "firmwareUpToDate": "Le firmware v{{version}} de la trieuse est à jour",
     "firmwareOutdated": "La trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}",

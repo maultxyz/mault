@@ -1,3 +1,11 @@
+import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTitle,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
@@ -6,11 +14,13 @@ import {
 import { useHealthQuery } from "@/features/health/api/health";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { useSerial } from "@/features/scanner/api/use-serial";
+import { useCommLog, useSerial } from "@/features/scanner/api/use-serial";
+import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { useRole } from "@/hooks/use-role";
 import { useSyncState } from "@/lib/app-stream";
 import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
+import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -129,6 +139,127 @@ function SyncStatusItem() {
   );
 }
 
+function SorterStatusItem() {
+  const { t } = useTranslation("common");
+  const { t: tScanner } = useTranslation("scanner");
+  const { isConnected, isReady, firmwareVersion, checkFirmwareVersion } =
+    useSerial();
+  const entries = useCommLog();
+
+  const dot = !isConnected ? "muted" : !isReady ? "warning" : "success";
+  const label =
+    isConnected && firmwareVersion
+      ? t("statusFooter.sorterWithVersion", { version: firmwareVersion })
+      : t("statusFooter.sorter");
+  const statusText = !isConnected
+    ? t("statusFooter.sorterDisconnected")
+    : !isReady
+      ? t("statusFooter.sorterSelfTest")
+      : firmwareVersion
+        ? t("statusFooter.sorterReadyWithVersion", { version: firmwareVersion })
+        : t("statusFooter.sorterReady");
+
+  const handleCheckFirmware = async () => {
+    const toastId = toast.loading(t("statusFooter.firmwareChecking"));
+    const result = await checkFirmwareVersion();
+    if (result.status === "ok") {
+      if (isFirmwareVersionOutdated(result.version, LATEST_FIRMWARE_VERSION)) {
+        toast.warning(
+          t("statusFooter.firmwareOutdated", {
+            version: result.version,
+            latest: LATEST_FIRMWARE_VERSION,
+          }),
+          { id: toastId },
+        );
+      } else {
+        toast.success(
+          t("statusFooter.firmwareUpToDate", { version: result.version }),
+          { id: toastId },
+        );
+      }
+      return;
+    }
+    const message = {
+      noVersion: t("statusFooter.firmwareNoVersion"),
+      noResponse: t("statusFooter.firmwareNoResponse"),
+      busy: t("statusFooter.firmwareBusy"),
+      disconnected: t("statusFooter.sorterDisconnected"),
+    }[result.status];
+    toast.error(message, { id: toastId });
+  };
+
+  const handleCopy = async () => {
+    if (entries.length === 0) {
+      toast.error(tScanner("serial.commLogEmpty"));
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(formatCommLog(entries));
+      toast.success(tScanner("serial.commLogCopied"));
+    } catch {
+      toast.error(tScanner("serial.commLogCopyFailed"));
+    }
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors">
+        <StatusDot variant={dot} />
+        <span className="text-xs text-muted-foreground">{label}</span>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-80 gap-2">
+        <div className="flex items-center justify-between gap-2">
+          <PopoverTitle className="truncate">{statusText}</PopoverTitle>
+          <div className="flex items-center gap-1 shrink-0">
+            {isConnected && (
+              <Button variant="outline" size="sm" onClick={handleCheckFirmware}>
+                {t("statusFooter.checkFirmware")}
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="icon-sm"
+              onClick={handleCopy}
+              title={tScanner("serial.copyCommunication")}
+            >
+              <IconCopy />
+              <span className="sr-only">
+                {tScanner("serial.copyCommunication")}
+              </span>
+            </Button>
+          </div>
+        </div>
+        <ScrollArea className="h-56 rounded-md border">
+          {entries.length === 0 ? (
+            <p className="p-2 text-xs text-muted-foreground">
+              {tScanner("serial.commLogEmpty")}
+            </p>
+          ) : (
+            <div className="flex flex-col gap-0.5 p-2 font-mono text-[10px] leading-tight">
+              {entries.map((entry, i) => (
+                <div key={i} className="flex gap-1.5">
+                  <span
+                    className={
+                      entry.direction === "sent"
+                        ? "text-blue-500 shrink-0"
+                        : "text-green-500 shrink-0"
+                    }
+                  >
+                    {entry.direction === "sent" ? "→" : "←"}
+                  </span>
+                  <span className="break-all text-muted-foreground">
+                    {entry.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 function HealthStatusItem() {
   const { t } = useTranslation("common");
   const navigate = useNavigate();
@@ -169,38 +300,7 @@ function HealthStatusItem() {
 export function StatusFooter() {
   const { t } = useTranslation("common");
   const { status: cameraStatus } = useCameraContext();
-  const { isConnected, isReady, firmwareVersion, checkFirmwareVersion } =
-    useSerial();
   const { cards } = useScannedCards();
-
-  const handleCheckFirmware = async () => {
-    const toastId = toast.loading(t("statusFooter.firmwareChecking"));
-    const result = await checkFirmwareVersion();
-    if (result.status === "ok") {
-      if (isFirmwareVersionOutdated(result.version, LATEST_FIRMWARE_VERSION)) {
-        toast.warning(
-          t("statusFooter.firmwareOutdated", {
-            version: result.version,
-            latest: LATEST_FIRMWARE_VERSION,
-          }),
-          { id: toastId },
-        );
-      } else {
-        toast.success(
-          t("statusFooter.firmwareUpToDate", { version: result.version }),
-          { id: toastId },
-        );
-      }
-      return;
-    }
-    const message = {
-      noVersion: t("statusFooter.firmwareNoVersion"),
-      noResponse: t("statusFooter.firmwareNoResponse"),
-      busy: t("statusFooter.firmwareBusy"),
-      disconnected: t("statusFooter.sorterDisconnected"),
-    }[result.status];
-    toast.error(message, { id: toastId });
-  };
 
   const totalValue = cards.reduce(
     (sum, { card, isFoil }) =>
@@ -226,19 +326,6 @@ export function StatusFooter() {
           ? t("statusFooter.cameraRequesting")
           : t("statusFooter.cameraNone");
 
-  const deviceDot = !isConnected ? "muted" : !isReady ? "warning" : "success";
-  const deviceTooltip = !isConnected
-    ? t("statusFooter.sorterDisconnected")
-    : !isReady
-      ? t("statusFooter.sorterSelfTest")
-      : firmwareVersion
-        ? t("statusFooter.sorterReadyWithVersion", { version: firmwareVersion })
-        : t("statusFooter.sorterReady");
-  const deviceLabel =
-    isConnected && firmwareVersion
-      ? t("statusFooter.sorterWithVersion", { version: firmwareVersion })
-      : t("statusFooter.sorter");
-
   return (
     <div className="flex items-center gap-3 text-muted-foreground">
       <div className="flex items-center gap-3">
@@ -247,12 +334,7 @@ export function StatusFooter() {
           dot={cameraDot}
           tooltip={cameraTooltip}
         />
-        <StatusItem
-          label={deviceLabel}
-          dot={deviceDot}
-          tooltip={deviceTooltip}
-          onClick={isConnected ? handleCheckFirmware : undefined}
-        />
+        <SorterStatusItem />
         <SyncStatusItem />
         <HealthStatusItem />
       </div>

@@ -119,6 +119,8 @@ export interface SerialContextValue {
   receiveResponse: (timeoutMs?: number) => Promise<string>;
   subscribe: (listener: SerialMessageListener) => () => void;
   registerPreTestHook: (fn: () => Promise<void>) => () => void;
+  getCommLog: () => CommLogEntry[];
+  subscribeCommLog: (listener: () => void) => () => void;
   isFlashing: boolean;
   flashProgress: number | null;
   flashLog: string[];

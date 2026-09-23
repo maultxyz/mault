@@ -33,6 +33,7 @@ import {
   useEffect,
   useRef,
   useState,
+  useSyncExternalStore,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -48,9 +49,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<SerialBoardType | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
-  const [transport, setTransport] = useState<SerialContextValue["transport"]>(
-    null,
-  );
+  const [transport, setTransport] =
+    useState<SerialContextValue["transport"]>(null);
   const [isFlashing, setIsFlashing] = useState(false);
   const [flashProgress, setFlashProgress] = useState<number | null>(null);
   const [flashLog, setFlashLog] = useState<string[]>([]);
@@ -62,6 +62,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const disconnectingRef = useRef<Promise<void> | null>(null);
   const preTestHooksRef = useRef(new Set<() => Promise<void>>());
   const commLogRef = useRef<CommLogEntry[]>([]);
+  const commLogSnapshotRef = useRef<CommLogEntry[]>([]);
+  const commLogListenersRef = useRef(new Set<() => void>());
 
   const decoderRef = useRef(new TextDecoder());
 
@@ -75,11 +77,21 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       if (commLogRef.current.length > MAX_COMM_LOG_ENTRIES) {
         commLogRef.current.shift();
       }
+      commLogSnapshotRef.current = [...commLogRef.current];
+      for (const listener of commLogListenersRef.current) listener();
     },
     [],
   );
 
-  const getCommLog = useCallback(() => [...commLogRef.current], []);
+  const getCommLog = useCallback(() => commLogSnapshotRef.current, []);
+
+  const subscribeCommLog = useCallback((listener: () => void) => {
+    const listeners = commLogListenersRef.current;
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, []);
 
   const copyCommLog = useCallback(async () => {
     const entries = getCommLog();
@@ -105,7 +117,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (!rawTrimmed) continue;
 
         const jsonStart = rawTrimmed.search(/[{[]/);
-        const trimmed = jsonStart > 0 ? rawTrimmed.slice(jsonStart) : rawTrimmed;
+        const trimmed =
+          jsonStart > 0 ? rawTrimmed.slice(jsonStart) : rawTrimmed;
 
         console.log("[Device] ←", trimmed); // eslint-disable-line no-console -- hardware debug trace
         pushCommLog("received", trimmed);
@@ -275,7 +288,11 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         toast.error(t("serial.connectionLost.title"), {
           description: t("serial.connectionLost.description"),
         });
-        void reportSerialEvent({ command: "connect", sent: false, response: null });
+        void reportSerialEvent({
+          command: "connect",
+          sent: false,
+          response: null,
+        });
       });
       newTransport.onDisconnect(() => {
         if (transportRef.current === newTransport) {
@@ -311,7 +328,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       return true;
     },
-    [handleIncomingChunk, waitForLine, sendCommand, runConnectTest, disconnect, t],
+    [
+      handleIncomingChunk,
+      waitForLine,
+      sendCommand,
+      runConnectTest,
+      disconnect,
+      t,
+    ],
   );
 
   const runTestOnActiveTransport = useCallback(async () => {
@@ -334,7 +358,11 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         toast.error(t("serial.connectionFailed.title"), {
           description: t("serial.connectionFailed.description"),
         });
-        void reportSerialEvent({ command: "connect", sent: false, response: null });
+        void reportSerialEvent({
+          command: "connect",
+          sent: false,
+          response: null,
+        });
         return;
       }
 
@@ -358,13 +386,22 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           toast.error(t("serial.connectionFailed.title"), {
             description: t("serial.bluetoothPermissionBlocked"),
           });
-          void reportSerialEvent({ command: "connect", sent: false, response: null });
+          void reportSerialEvent({
+            command: "connect",
+            sent: false,
+            response: null,
+          });
           return;
         }
         toast.error(t("serial.connectionFailed.title"), {
-          description: result.message || t("serial.connectionFailed.description"),
+          description:
+            result.message || t("serial.connectionFailed.description"),
         });
-        void reportSerialEvent({ command: "connect", sent: false, response: null });
+        void reportSerialEvent({
+          command: "connect",
+          sent: false,
+          response: null,
+        });
         return;
       }
 
@@ -440,7 +477,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const activeTransport = transportRef.current;
       if (
         activeTransport?.kind === "serial" &&
-        (activeTransport as SerialTransport).port === (event.target as SerialPort)
+        (activeTransport as SerialTransport).port ===
+          (event.target as SerialPort)
       ) {
         console.warn("[Serial] Device unplugged");
         disconnect();
@@ -459,7 +497,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       if (fields.status === "test_complete") setIsReady(true);
       // The device announces itself unprompted on boot (ESP32s reset when the
       // port opens) and again on getStatus, so a one-shot waiter can miss it.
-      if (typeof fields.version === "string") setFirmwareVersion(fields.version);
+      if (typeof fields.version === "string")
+        setFirmwareVersion(fields.version);
       if (fields.board === "esp32" || fields.board === "uno_r4") {
         setBoard(fields.board);
       }
@@ -535,7 +574,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       binBusyRef.current = true;
       try {
-        const sent = await sendCommand(JSON.stringify({ getStatus: true }) + "\n");
+        const sent = await sendCommand(
+          JSON.stringify({ getStatus: true }) + "\n",
+        );
         if (!sent) return { status: "noResponse" };
 
         const response = await waitForLine(5000);
@@ -546,7 +587,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (parsed?.board === "esp32" || parsed?.board === "uno_r4") {
             setBoard(parsed.board);
           }
-          if (typeof parsed?.version !== "string") return { status: "noVersion" };
+          if (typeof parsed?.version !== "string")
+            return { status: "noVersion" };
           setFirmwareVersion(parsed.version);
           return { status: "ok", version: parsed.version };
         } catch {
@@ -608,6 +650,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         receiveResponse,
         subscribe,
         registerPreTestHook,
+        getCommLog,
+        subscribeCommLog,
         isFlashing,
         flashProgress,
         flashLog,
@@ -625,6 +669,11 @@ export function useSerial() {
     throw new Error("useSerial must be used within a SerialProvider");
   }
   return context;
+}
+
+export function useCommLog(): CommLogEntry[] {
+  const { getCommLog, subscribeCommLog } = useSerial();
+  return useSyncExternalStore(subscribeCommLog, getCommLog);
 }
 
 export function useSerialMessage(listener: SerialMessageListener) {
