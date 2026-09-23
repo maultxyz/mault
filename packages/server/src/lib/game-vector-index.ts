@@ -1,11 +1,9 @@
 import { pool } from "../db";
 
 const SAFE_KEY = /^[a-z0-9_]+$/;
-const VALID_TABLES = new Set(["cards", "cards_v2"]);
 
 export async function ensureGameVectorIndex(
   gameKey: string,
-  table: "cards" | "cards_v2" = "cards",
   lang?: string,
 ): Promise<{ success: boolean; message?: string }> {
   if (!SAFE_KEY.test(gameKey)) {
@@ -13,9 +11,6 @@ export async function ensureGameVectorIndex(
       success: false,
       message: `Game key "${gameKey}" must be lowercase letters, digits, and underscores only to get a vector index.`,
     };
-  }
-  if (!VALID_TABLES.has(table)) {
-    return { success: false, message: `Unknown table "${table}".` };
   }
   if (lang !== undefined && !SAFE_KEY.test(lang)) {
     return {
@@ -28,8 +23,8 @@ export async function ensureGameVectorIndex(
   // clause (game_key AND lang) exactly, instead of relying on iterative_scan
   // to filter lang out of a game_key-only partial index post-hoc.
   const indexName = lang
-    ? `${table}_embedding_hnsw_${gameKey}_${lang}`
-    : `${table}_embedding_hnsw_${gameKey}`;
+    ? `cards_embedding_hnsw_${gameKey}_${lang}`
+    : `cards_embedding_hnsw_${gameKey}`;
   const whereClause = lang
     ? `"game_key" = '${gameKey}' AND "lang" = '${lang}'`
     : `"game_key" = '${gameKey}'`;
@@ -54,12 +49,12 @@ export async function ensureGameVectorIndex(
 
     await client.query(
       `CREATE INDEX CONCURRENTLY IF NOT EXISTS "${indexName}" ` +
-        `ON "${table}" USING hnsw ("embedding" vector_cosine_ops) WHERE ${whereClause}`,
+        `ON "cards" USING hnsw ("embedding" vector_cosine_ops) WHERE ${whereClause}`,
     );
     return { success: true };
   } catch (err) {
     console.error(
-      `[game-vector-index] Failed to index "${gameKey}"${lang ? `/${lang}` : ""} on "${table}":`,
+      `[game-vector-index] Failed to index "${gameKey}"${lang ? `/${lang}` : ""}:`,
       err,
     );
     return { success: false, message: "Failed to build the vector index." };

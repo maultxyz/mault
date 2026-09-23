@@ -11,7 +11,6 @@ import type {
   ImpersonationSession,
   Result,
   SyncState,
-  SyncTargetTable,
 } from "@magic-vault/shared";
 
 export type { AdminCard, AdminCardsPage, CardGameCount, SyncSourceInfo };
@@ -29,7 +28,6 @@ export async function startSync(
   gameKey: string,
   lang: string = "en",
   forceResync: boolean = false,
-  targetTable: SyncTargetTable = "cards",
 ): Promise<{
   success: boolean;
   data: SyncState;
@@ -38,7 +36,6 @@ export async function startSync(
     gameKey,
     lang,
     forceResync,
-    targetTable,
   });
 }
 

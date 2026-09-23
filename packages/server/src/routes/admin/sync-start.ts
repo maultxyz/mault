@@ -1,4 +1,3 @@
-import type { SyncTargetTable } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { getStatus, startSync, SYNC_SOURCES } from "../../lib/sync-job";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
@@ -11,18 +10,15 @@ export const syncStartRoute = new Hono<AppEnv>().post(
     let gameKey: string | undefined;
     let lang = "en";
     let forceResync = false;
-    let targetTable: SyncTargetTable = "cards";
     try {
       const body = await c.req.json<{
         gameKey?: string;
         lang?: string;
         forceResync?: boolean;
-        targetTable?: SyncTargetTable;
       }>();
       gameKey = body.gameKey;
       if (body.lang) lang = body.lang;
       if (body.forceResync) forceResync = true;
-      if (body.targetTable === "cards_v2") targetTable = "cards_v2";
     } catch {}
 
     if (!gameKey) {
@@ -45,14 +41,7 @@ export const syncStartRoute = new Hono<AppEnv>().post(
       );
     }
 
-    startSync(
-      c.req.header("X-Org-Id"),
-      gameKey,
-      lang,
-      forceResync,
-      undefined,
-      targetTable,
-    );
+    startSync(c.req.header("X-Org-Id"), gameKey, lang, forceResync);
     return c.json({ success: true, data: getStatus() });
   },
 );
