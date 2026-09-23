@@ -205,11 +205,17 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 // hand, dust) isn't a jam a wiggle should react to.
 #define MODULE_JAM_TIMEOUT_MS 20000
 
-// Declared here (before any function) because the Arduino builder hoists
-// auto-generated function prototypes above it - a hoisted
-// `FeedResult runFeeder();` would precede this and fail to compile
-// ("FeedResult does not name a type") if it were declared later instead.
+// The Arduino builder auto-generates a forward declaration for every
+// function and hoists all of them to one insertion point near the top of
+// the file - earlier than this enum, since setDeviceIdFromMac() and other
+// functions above already exist there. That hoisted `FeedResult runFeeder();`
+// then fails to compile ("FeedResult does not name a type") on cores whose
+// bundled ctags can't resolve the return type at that point (this is the
+// case on ESP32, not on the Uno R4 board's core). Writing our own prototype
+// below stops the builder from generating a conflicting one, since it skips
+// auto-prototyping any function that already has an explicit declaration.
 enum FeedResult { FEED_DETECTED, FEED_TIMEOUT, FEED_EMPTY };
+FeedResult runFeeder();
 
 // Largest module number whose 3 channels, plus one feeder channel right
 // after it, still fit in channels [offset, 15].
