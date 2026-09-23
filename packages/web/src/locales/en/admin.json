@@ -103,6 +103,18 @@
       "startError": "Failed to start impersonation"
     }
   },
+  "metricsStats": {
+    "heading": "Scan stats",
+    "description": "App-wide card scan totals across every organization",
+    "totalScannedLabel": "Total scanned",
+    "matchedLabel": "Matched",
+    "unidentifiedLabel": "Unidentified",
+    "matchRateLabel": "Match rate",
+    "averageMatchPercentLabel": "Avg. match confidence",
+    "correctedLabel": "Corrected",
+    "multipleMatchesLabel": "Multiple matches",
+    "percentValue": "{{percent}}%"
+  },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
     "description": "How many card scans were vectorized on the server vs. on the client via WebGPU",

@@ -7,6 +7,7 @@ export * from "./interfaces/card-embeddings.interface";
 export * from "./interfaces/collections.interface";
 export * from "./interfaces/games.interface";
 export * from "./interfaces/impersonation.interface";
+export * from "./interfaces/metrics.interface";
 export * from "./interfaces/module-configs.interface";
 export * from "./interfaces/notification-settings.interface";
 export * from "./interfaces/ocr-region.interface";

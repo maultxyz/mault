@@ -16,30 +16,40 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function snapshotCanvas(source: HTMLCanvasElement): HTMLCanvasElement {
+  const snapshot = document.createElement("canvas");
+  snapshot.width = source.width;
+  snapshot.height = source.height;
+  snapshot.getContext("2d")?.drawImage(source, 0, 0);
+  return snapshot;
+}
+
 async function detectCardCornersWithRetry(
   canvas: HTMLCanvasElement,
-): Promise<CornerDetection> {
+): Promise<{ detection: CornerDetection; frame: HTMLCanvasElement }> {
   const start = Date.now();
-  let detection = await detectCardCorners(canvas);
+  let frame = snapshotCanvas(canvas);
+  let detection = await detectCardCorners(frame);
   while (
     !detection.cardPresent &&
     Date.now() - start < CARD_DETECTION_RETRY_TIMEOUT_MS
   ) {
     await delay(CARD_DETECTION_RETRY_INTERVAL_MS);
-    detection = await detectCardCorners(canvas);
+    frame = snapshotCanvas(canvas);
+    detection = await detectCardCorners(frame);
   }
-  return detection;
+  return { detection, frame };
 }
 
 export async function vectorizeCardImageOnClient(
   canvas: HTMLCanvasElement,
 ): Promise<ClientVectorizeResult> {
-  const detection = await detectCardCornersWithRetry(canvas);
+  const { detection, frame } = await detectCardCornersWithRetry(canvas);
   if (!detection.cardPresent || !detection.contour) {
     return { detection, dewarpedCanvas: null, embeddings: null };
   }
 
-  const dewarpedCanvas = dewarpCard(canvas, detection.contour);
+  const dewarpedCanvas = dewarpCard(frame, detection.contour);
   const embeddings = await embedCardCanvas(dewarpedCanvas);
   return { detection, dewarpedCanvas, embeddings };
 }
