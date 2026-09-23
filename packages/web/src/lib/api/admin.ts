@@ -20,7 +20,9 @@ export async function listSyncSources(): Promise<{
   success: boolean;
   data: SyncSourceInfo[];
 }> {
-  return apiGet<{ success: boolean; data: SyncSourceInfo[] }>("/api/admin/sync/sources");
+  return apiGet<{ success: boolean; data: SyncSourceInfo[] }>(
+    "/api/admin/sync/sources",
+  );
 }
 
 export async function startSync(
@@ -78,7 +80,9 @@ export async function listCards(
 ): Promise<{ success: boolean; data: AdminCardsPage }> {
   const params = new URLSearchParams({ page: String(page), limit: "50" });
   if (search) params.set("search", search);
-  return apiGet<{ success: boolean; data: AdminCardsPage }>(`/api/admin/cards?${params}`);
+  return apiGet<{ success: boolean; data: AdminCardsPage }>(
+    `/api/admin/cards?${params}`,
+  );
 }
 
 export async function revectorizeCard(
@@ -94,11 +98,14 @@ export async function syncCardById(
   cardId: string,
   lang: string = "en",
 ): Promise<{ success: boolean; message: string }> {
-  return apiPost<{ success: boolean; message: string }>("/api/admin/cards/sync", {
-    gameKey,
-    cardId,
-    lang,
-  });
+  return apiPost<{ success: boolean; message: string }>(
+    "/api/admin/cards/sync",
+    {
+      gameKey,
+      cardId,
+      lang,
+    },
+  );
 }
 
 export async function searchAdminUsers(

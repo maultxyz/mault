@@ -28,7 +28,9 @@ export async function vectorizeCardImage(
   await acquireScanVectorizeSlot();
   try {
     const embedding = await embedCardImage(buffer);
-    console.log(`[vectorize] Generated ${embedding.length}-dimensional Milo embedding`);
+    console.log(
+      `[vectorize] Generated ${embedding.length}-dimensional Milo embedding`,
+    );
     return { embedding };
   } finally {
     releaseScanVectorizeSlot();

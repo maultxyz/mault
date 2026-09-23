@@ -1,4 +1,7 @@
-import type { CardSearchEmbeddings, SearchCardMatch } from "@magic-vault/shared";
+import type {
+  CardSearchEmbeddings,
+  SearchCardMatch,
+} from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { authQuery } from "../../db";
 
@@ -43,7 +46,7 @@ export async function findCardMatches(
 ): Promise<CardMatchSearchResult> {
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
   const ocrTokens = extractOcrTokens(ocrText);
-  const isLocal = process.env.NODE_ENV !== "production";
+  const showVectorLogs = process.env.SHOW_VECTOR_LOGS == "true";
 
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
@@ -95,11 +98,13 @@ export async function findCardMatches(
           })
         : rows;
 
-    const matchList: SearchCardMatch[] = ranked.map(({ id, cardId, distance }) => ({
-      id,
-      cardId,
-      distance,
-    }));
+    const matchList: SearchCardMatch[] = ranked.map(
+      ({ id, cardId, distance }) => ({
+        id,
+        cardId,
+        distance,
+      }),
+    );
 
     return {
       message: "Successfully searched for card.",

@@ -59,8 +59,8 @@ export function CardSyncPanel() {
               {t(`cardImageVectors.syncStatus.${syncState.status}`)}
               {isRunning &&
                 ` — ${
-                  sources.find((s) => s.gameKey === syncState.gameKey)
-                    ?.label ?? syncState.gameKey
+                  sources.find((s) => s.gameKey === syncState.gameKey)?.label ??
+                  syncState.gameKey
                 }${
                   syncState.lang !== "en"
                     ? ` (${LANGUAGE_LABELS[syncState.lang] ?? syncState.lang})`
@@ -184,7 +184,9 @@ export function CardSyncPanel() {
               />
             </div>
             <div className="flex gap-4 text-xs text-muted-foreground tabular-nums">
-              <span>{t("cardImageVectors.progressCount", { done, total })}</span>
+              <span>
+                {t("cardImageVectors.progressCount", { done, total })}
+              </span>
               <span>
                 {t("cardImageVectors.vectorizedCount", {
                   count: syncState.processed,

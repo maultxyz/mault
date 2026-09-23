@@ -414,14 +414,27 @@ FeedResult runFeeder() {
 // finishing the full sequence for no reason.
 void wiggleModulePaddle(int module) {
   ModuleConfig& c = moduleConfig[module - 1];
-  int channel = getChannel(module, 1);
+  int bottomChannel = getChannel(module, 0);  // front/bottom flap
+  int paddleChannel = getChannel(module, 1);  // side paddle
+
   for (int i = 0; i < 3; i++) {
-    setServoPosition(channel, c.paddleOpen);
+    // Jiggle both the side paddle and front/bottom flap together.
+    setServoPosition(paddleChannel, c.paddleOpen);
+    setServoPosition(bottomChannel, c.bottomClosed);
     delay(150);
-    setServoPosition(channel, c.paddleClosed);
+
+    setServoPosition(paddleChannel, c.paddleClosed);
+    setServoPosition(bottomChannel, c.bottomOpen);
     delay(150);
+
+    // Stop as soon as the card clears this module.
     if (digitalRead(irPin(module)) == HIGH) return;
   }
+
+  // routeCard() calls this recovery after the bottom has already been opened,
+  // so leave the front/bottom flap open for the retry.
+  setServoPosition(bottomChannel, c.bottomOpen);
+  setServoPosition(paddleChannel, c.paddleClosed);
 }
 
 // Runs between commands only (routeCard()/runFeeder() block loop() for

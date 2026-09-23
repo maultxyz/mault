@@ -4,7 +4,13 @@ import { LIVE_CLOCK_TICK_MS } from "@/lib/constants/timing";
 import type { SyncSourceInfo } from "@/lib/interfaces/admin";
 import type { SyncState, SyncTargetTable } from "@magic-vault/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 interface CardSyncContextValue {
   syncState: SyncState;
