@@ -125,9 +125,9 @@
   },
   "scanVectorizeStats": {
     "heading": "Source de vectorisation des scans",
-    "description": "Combien de scans de cartes ont été vectorisés sur le serveur par rapport au client via WebGPU",
+    "description": "Combien de scans de cartes ont été vectorisés sur le serveur par rapport au navigateur",
     "serverLabel": "Serveur",
-    "webgpuLabel": "WebGPU",
+    "webLabel": "Web",
     "percentOfTotal": "{{percent}}% des scans"
   },
   "cancel": "Annuler",

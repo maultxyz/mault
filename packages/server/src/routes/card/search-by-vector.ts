@@ -50,7 +50,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "No embedding provided." }, 400);
     }
     const embeddings: CardSearchEmbeddings = { embedding };
-    void recordScanVectorizeSource("webgpu");
+    void recordScanVectorizeSource("web");
 
     const resolved = await resolveGameKeyAndLang(
       c.get("jwtClaims"),

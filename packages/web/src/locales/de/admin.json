@@ -125,9 +125,9 @@
   },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
-    "description": "Wie viele Kartenscans auf dem Server vektorisiert wurden im Vergleich zu clientseitig über WebGPU",
+    "description": "Wie viele Kartenscans auf dem Server vektorisiert wurden im Vergleich zum Browser",
     "serverLabel": "Server",
-    "webgpuLabel": "WebGPU",
+    "webLabel": "Web",
     "percentOfTotal": "{{percent}}% der Scans"
   },
   "cancel": "Abbrechen",
