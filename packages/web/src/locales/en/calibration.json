@@ -90,6 +90,8 @@
     "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Select a position above, then drag this slider to change it - it's saved along with everything else when you hit Save.",
     "rawPulseTooltip": "Raw servo pulse position (120-490), the exact value sent to the device.",
     "rawPulseToggleLabel": "Raw pulse values",
+    "testServoTooltipGate": "Test: briefly opens the gate, then returns it to closed, so you can watch it move.",
+    "testServoTooltipPusher": "Test: briefly fires the pusher left, then right, then returns it to neutral, so you can watch it move both ways.",
     "positions": {
       "open": "Open",
       "closed": "Closed",

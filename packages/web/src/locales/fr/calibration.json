@@ -90,6 +90,8 @@
     "percentSliderTooltip": "À quel point ce servo est poussé, en pourcentage de sa course totale. Sélectionne une position ci-dessus, puis fais glisser ce curseur pour la modifier - elle est enregistrée avec le reste quand tu cliques sur Enregistrer.",
     "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
     "rawPulseToggleLabel": "Valeurs brutes de l'impulsion",
+    "testServoTooltipGate": "Test : ouvre brièvement la trappe, puis la referme, pour que tu puisses observer le mouvement.",
+    "testServoTooltipPusher": "Test : pousse brièvement à gauche, puis à droite, puis revient en position neutre, pour que tu puisses observer le mouvement dans les deux sens.",
     "positions": {
       "open": "Ouvert",
       "closed": "Fermé",
