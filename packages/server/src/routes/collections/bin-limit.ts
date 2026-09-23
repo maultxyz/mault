@@ -1,3 +1,4 @@
+import { computeBinCapacity } from "@magic-vault/shared";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { collectionCards } from "../../db/schema";
@@ -29,7 +30,32 @@ export async function findFullBin(
       and(eq(t.binSet, activeBinSet.id), eq(t.binNumber, binNumber)),
     columns: { cardLimit: true, lastEmptiedAt: true },
   });
-  if (!bin?.cardLimit) return null;
+  if (!bin) return null;
+
+  const device = await tx.query.devices.findFirst({
+    where: (t, { eq }) => eq(t.orgId, orgId),
+    columns: { id: true },
+  });
+  const heightRow = device
+    ? await tx.query.binHeights.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.deviceId, device.id), eq(t.binNumber, binNumber)),
+        columns: { height: true },
+      })
+    : null;
+  const game = gameId
+    ? await tx.query.games.findFirst({
+        where: (t, { eq }) => eq(t.id, gameId),
+        columns: { cardThickness: true },
+      })
+    : null;
+
+  const effectiveCapacity = computeBinCapacity(
+    heightRow?.height,
+    game?.cardThickness,
+    bin.cardLimit,
+  );
+  if (!effectiveCapacity) return null;
 
   const [{ value }] = await tx
     .select({ value: sql<number>`count(*)::int` })
@@ -44,6 +70,6 @@ export async function findFullBin(
       ),
     );
 
-  if (value < bin.cardLimit) return null;
-  return { binNumber, cardLimit: bin.cardLimit, count: value };
+  if (value < effectiveCapacity) return null;
+  return { binNumber, cardLimit: effectiveCapacity, count: value };
 }

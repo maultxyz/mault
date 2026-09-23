@@ -219,6 +219,14 @@
     "imageAlt": "Unrecognized card",
     "noImage": "No image captured"
   },
+  "binStatusMeter": {
+    "heading": "Bin Levels",
+    "tooltipWithCapacity": "Bin {{bin}}: {{count}} / {{capacity}} cards",
+    "tooltipNoCapacity": "Bin {{bin}}: {{count}} cards",
+    "confirmTitle": "Empty bin {{bin}}?",
+    "confirmDescription": "This resets bin {{bin}}'s fill counter to zero. Make sure you've physically emptied the bin first - this doesn't move anything for you.",
+    "confirmButton": "Empty Bin"
+  },
   "sessionStatsPanel": {
     "value": "Value"
   },

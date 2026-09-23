@@ -1,4 +1,4 @@
-import type { ServoConfig } from "@/lib/interfaces/calibration";
+import type { BinHeightPreset, ServoConfig } from "@/lib/interfaces/calibration";
 
 export const SERVO_PULSE_MIN = 120;
 export const SERVO_PULSE_MAX = 490;
@@ -105,4 +105,10 @@ export const SERVOS: ServoConfig[] = [
     labelKey: "servos.pusher.label",
     positions: ["left", "neutral", "right"],
   },
+];
+
+export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
+  { key: "small", height: 69 },
+  { key: "medium", height: 113 },
+  { key: "large", height: 187 },
 ];

@@ -8,6 +8,7 @@ export interface Game {
   fieldDefinitions: FieldMeta[];
   foilTypes: string[];
   apiDocsUrl: string | null;
+  cardThickness: number | null;
   createdAt: Date;
   updatedAt: Date;
 }

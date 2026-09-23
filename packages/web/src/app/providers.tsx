@@ -1,8 +1,10 @@
 import { AppLoadingGate } from "@/app/app-loading-gate";
 import { BinConfigsProvider } from "@/features/bins/api/use-bin-configs";
+import { BinHeightsProvider } from "@/features/calibration/api/use-bin-heights";
 import { BinRoutesProvider } from "@/features/calibration/api/use-bin-routes";
 import { FeederConfigProvider } from "@/features/calibration/api/use-feeder-config";
 import { ModuleConfigsProvider } from "@/features/calibration/api/use-module-configs";
+import { ModuleCountConfigProvider } from "@/features/calibration/api/use-module-count-config";
 import { CardFiltersProvider } from "@/features/cards/api/use-card-filters";
 import { CollectionsProvider } from "@/features/collections/api/use-collections";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
@@ -63,21 +65,25 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
               <CameraProvider>
                 <SerialProvider>
                   <BinRoutesProvider>
-                    <BinConfigsProvider>
-                      <ModuleConfigsProvider>
-                        <FeederConfigProvider>
-                          <ScannedCardsProvider>
-                            <CardFiltersProvider>
-                              <AppAlertsProvider>
-                                <AppLoadingGate>{children}</AppLoadingGate>
-                              </AppAlertsProvider>
-                              <OrgPickerModal />
-                              <DocumentTitleUpdater />
-                            </CardFiltersProvider>
-                          </ScannedCardsProvider>
-                        </FeederConfigProvider>
-                      </ModuleConfigsProvider>
-                    </BinConfigsProvider>
+                    <BinHeightsProvider>
+                      <ModuleCountConfigProvider>
+                        <BinConfigsProvider>
+                          <ModuleConfigsProvider>
+                            <FeederConfigProvider>
+                              <ScannedCardsProvider>
+                                <CardFiltersProvider>
+                                  <AppAlertsProvider>
+                                    <AppLoadingGate>{children}</AppLoadingGate>
+                                  </AppAlertsProvider>
+                                  <OrgPickerModal />
+                                  <DocumentTitleUpdater />
+                                </CardFiltersProvider>
+                              </ScannedCardsProvider>
+                            </FeederConfigProvider>
+                          </ModuleConfigsProvider>
+                        </BinConfigsProvider>
+                      </ModuleCountConfigProvider>
+                    </BinHeightsProvider>
                   </BinRoutesProvider>
                 </SerialProvider>
               </CameraProvider>

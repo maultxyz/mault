@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import {
+  Field,
+  FieldDescription,
+  FieldError,
+  FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import {
@@ -32,6 +37,7 @@ function toFormValues(game?: Game | null): GameFormValues {
       name: "",
       apiDocsUrl: "",
       foilTypesText: "",
+      cardThickness: null,
       isActive: true,
       fieldDefinitions: [],
     };
@@ -41,6 +47,7 @@ function toFormValues(game?: Game | null): GameFormValues {
     name: game.name,
     apiDocsUrl: game.apiDocsUrl ?? "",
     foilTypesText: game.foilTypes.join(", "),
+    cardThickness: game.cardThickness ?? null,
     isActive: game.isActive,
     fieldDefinitions: game.fieldDefinitions.map((f) => ({
       field: f.field,
@@ -246,6 +253,35 @@ export function GameFormDialog({
               {...register("foilTypesText")}
             />
             <FieldError errors={[errors.foilTypesText]} />
+          </Field>
+
+          <Field data-invalid={!!errors.cardThickness}>
+            <FieldLabel htmlFor="game-card-thickness">
+              {t("gameFormDialog.cardThicknessLabel")}
+            </FieldLabel>
+            <Controller
+              control={control}
+              name="cardThickness"
+              render={({ field }) => (
+                <Input
+                  id="game-card-thickness"
+                  type="number"
+                  min={0}
+                  step={0.01}
+                  placeholder={t("gameFormDialog.cardThicknessPlaceholder")}
+                  className="max-w-32"
+                  value={field.value ?? ""}
+                  onChange={(e) => {
+                    const raw = e.target.value;
+                    field.onChange(raw === "" ? null : Number(raw));
+                  }}
+                />
+              )}
+            />
+            <FieldDescription>
+              {t("gameFormDialog.cardThicknessDescription")}
+            </FieldDescription>
+            <FieldError errors={[errors.cardThickness]} />
           </Field>
 
           <Field orientation="horizontal">

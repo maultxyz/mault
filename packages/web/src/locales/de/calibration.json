@@ -40,12 +40,17 @@
     "calibration": "Zuführungs- & Modulkalibrierung",
     "moduleCalibration": "Modulkalibrierung"
   },
-  "binRoutingAssignment": {
-    "label": "Fach-Zuordnung",
+  "binConfigurations": {
+    "label": "Fach-Konfiguration",
     "resetToDefaults": "Auf Standard zurücksetzen",
-    "moduleLeft": "Modul {{module}} — Links",
-    "moduleRight": "Modul {{module}} — Rechts",
-    "bottomSectionLabel": "Unten (Auffangfach)"
+    "moduleLeft": "Modul {{module}}, Links",
+    "moduleRight": "Modul {{module}}, Rechts",
+    "bottomSectionLabel": "Unten (Auffangfach)",
+    "presets": {
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß"
+    }
   },
   "binRoutingControls": {
     "label": "Fach-Routing",
@@ -167,6 +172,16 @@
       "saveFailed": "Fach-Route konnte nicht gespeichert werden",
       "resetSuccess": "Fach-Routen auf Standard zurückgesetzt",
       "resetFailed": "Fach-Routen konnten nicht zurückgesetzt werden"
+    }
+  },
+  "useBinHeights": {
+    "toasts": {
+      "saveFailed": "Fach-Höhe konnte nicht gespeichert werden"
+    }
+  },
+  "modulesPage": {
+    "toasts": {
+      "saveFailed": "Änderungen konnten nicht gespeichert werden"
     }
   },
   "calibratePage": {

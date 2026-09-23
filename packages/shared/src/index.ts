@@ -1,5 +1,6 @@
 export * from "./interfaces/announcement.interface";
 export * from "./interfaces/api.interface";
+export * from "./interfaces/bin-heights.interface";
 export * from "./interfaces/bin-routes.interface";
 export * from "./interfaces/bulk-import.interface";
 export * from "./interfaces/card.interface";

@@ -3,6 +3,7 @@ import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
   boolean,
   customType,
+  doublePrecision,
   integer,
   jsonb,
   pgTable,
@@ -75,6 +76,7 @@ export const games = pgTable(
     fieldDefinitions: jsonb("field_definitions").notNull(),
     foilTypes: jsonb("foil_types").notNull().default([]),
     apiDocsUrl: text("api_docs_url"),
+    cardThickness: doublePrecision("card_thickness"),
     isActive: boolean("is_active").notNull().default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -217,6 +219,30 @@ export const binRoutes = pgTable(
   },
   (table) => [
     unique("bin_routes_device_bin_idx").on(table.deviceId, table.binNumber),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const binHeights = pgTable(
+  "bin_heights",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    binNumber: integer("bin_number").notNull(),
+    height: doublePrecision("height").notNull(),
+    orgId: text("org_id").notNull(),
+    deviceId: integer("device_id")
+      .notNull()
+      .references(() => devices.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("bin_heights_device_bin_idx").on(table.deviceId, table.binNumber),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -465,6 +491,28 @@ export const binRouteAudit = pgTable(
   },
   (table) => [
     unique("bin_route_audit_guid_idx").on(table.guid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const binHeightAudit = pgTable(
+  "bin_height_audit",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    binNumber: integer("bin_number").notNull(),
+    height: doublePrecision("height").notNull(),
+    orgId: text("org_id").notNull(),
+    // No FK, matching the rest of this table (audit records are permanent).
+    deviceId: integer("device_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("bin_height_audit_guid_idx").on(table.guid),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

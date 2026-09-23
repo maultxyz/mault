@@ -12,8 +12,15 @@ export const editGameRoute = new Hono<AppEnv>().put(
   requireRole("admin"),
   async (c) => {
     const guid = c.req.param("guid");
-    const { key, name, fieldDefinitions, foilTypes, apiDocsUrl, isActive } =
-      await c.req.json<Partial<GameInput>>();
+    const {
+      key,
+      name,
+      fieldDefinitions,
+      foilTypes,
+      apiDocsUrl,
+      cardThickness,
+      isActive,
+    } = await c.req.json<Partial<GameInput>>();
 
     try {
       const target = await db.query.games.findFirst({
@@ -45,6 +52,7 @@ export const editGameRoute = new Hono<AppEnv>().put(
       if (foilTypes !== undefined) updates.foilTypes = foilTypes;
       if (apiDocsUrl !== undefined)
         updates.apiDocsUrl = apiDocsUrl?.trim() || null;
+      if (cardThickness !== undefined) updates.cardThickness = cardThickness;
       if (isActive !== undefined) updates.isActive = isActive;
 
       const [row] = await db

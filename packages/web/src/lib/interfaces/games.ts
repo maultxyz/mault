@@ -6,6 +6,7 @@ export interface GameInput {
   fieldDefinitions: FieldMeta[];
   foilTypes: string[];
   apiDocsUrl?: string | null;
+  cardThickness?: number | null;
   isActive: boolean;
 }
 

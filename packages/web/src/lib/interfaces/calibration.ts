@@ -1,4 +1,5 @@
 import type {
+  BinHeight,
   BinRoute,
   ModuleConfig,
   ServoCalibration,
@@ -21,10 +22,34 @@ export interface ModuleConfigsContextValue {
 
 export interface BinRoutesContextValue {
   routes: BinRoute[];
-  isPending: boolean;
+  isDirty: boolean;
+  isSaving: boolean;
   save: (route: BinRoute) => void;
-  swap: (route: BinRoute, displaced: BinRoute) => Promise<void>;
+  swap: (route: BinRoute, displaced: BinRoute) => void;
   resetToDefaults: () => void;
+  commit: () => Promise<void>;
+  discard: () => void;
+}
+
+export interface BinHeightsContextValue {
+  heights: BinHeight[];
+  isDirty: boolean;
+  isSaving: boolean;
+  setHeight: (binNumber: number, height: number) => void;
+  commit: () => Promise<void>;
+  discard: () => void;
+}
+
+export interface ModuleCountConfigContextValue {
+  current: number;
+  displayCount: number;
+  options: number[];
+  isDirty: boolean;
+  isSaving: boolean;
+  isReducing: boolean;
+  stage: (count: number) => void;
+  commit: () => Promise<void>;
+  discard: () => void;
 }
 
 export interface ServoConfig {
@@ -36,3 +61,10 @@ export interface ServoConfig {
 export type SliderKey = `${number}:${"bottom" | "paddle" | "pusher"}`;
 
 export type ActivePositions = Record<string, string | null>;
+
+export type BinSizePreset = "small" | "medium" | "large";
+
+export interface BinHeightPreset {
+  key: BinSizePreset;
+  height: number;
+}

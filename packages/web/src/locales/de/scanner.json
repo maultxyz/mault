@@ -219,6 +219,14 @@
     "imageAlt": "Nicht erkannte Karte",
     "noImage": "Kein Bild aufgenommen"
   },
+  "binStatusMeter": {
+    "heading": "Fach-Füllstände",
+    "tooltipWithCapacity": "Fach {{bin}}: {{count}} / {{capacity}} Karten",
+    "tooltipNoCapacity": "Fach {{bin}}: {{count}} Karten",
+    "confirmTitle": "Fach {{bin}} leeren?",
+    "confirmDescription": "Dies setzt den Füllstandszähler von Fach {{bin}} auf null zurück. Stelle sicher, dass du das Fach vorher physisch geleert hast, das übernimmt die App nicht für dich.",
+    "confirmButton": "Fach leeren"
+  },
   "sessionStatsPanel": {
     "value": "Wert"
   },

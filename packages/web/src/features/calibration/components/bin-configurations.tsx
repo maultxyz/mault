@@ -7,37 +7,80 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
+import { BIN_HEIGHT_PRESETS } from "@/lib/constants/calibration";
+import { cn } from "@/lib/utils";
 import { computeBinCount, type BinDirection } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
-function SlotSelect({
+function SizeSelect({
+  binNumber,
+  height,
+  onChange,
+  className,
+}: {
+  binNumber: number;
+  height: number | undefined;
+  onChange: (binNumber: number, height: number) => void;
+  className?: string;
+}) {
+  const { t } = useTranslation("calibration");
+  const sizeKey =
+    BIN_HEIGHT_PRESETS.find((preset) => preset.height === height)?.key ??
+    BIN_HEIGHT_PRESETS[0].key;
+
+  return (
+    <Select
+      value={sizeKey}
+      onValueChange={(key) => {
+        const preset = BIN_HEIGHT_PRESETS.find((p) => p.key === key)!;
+        onChange(binNumber, preset.height);
+      }}
+    >
+      <SelectTrigger className={cn("h-8 w-full text-xs", className)}>
+        <SelectValue>{t(`binConfigurations.presets.${sizeKey}`)}</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {BIN_HEIGHT_PRESETS.map((preset) => (
+          <SelectItem key={preset.key} value={preset.key}>
+            {t(`binConfigurations.presets.${preset.key}`)}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+}
+
+function BinSlot({
   label,
   binNumber,
   binNumbers,
-  onChange,
+  onBinChange,
+  height,
+  onHeightChange,
 }: {
   label: string;
   binNumber: number | undefined;
   binNumbers: number[];
-  onChange: (binNumber: number) => void;
+  onBinChange: (binNumber: number) => void;
+  height: number | undefined;
+  onHeightChange: (binNumber: number, height: number) => void;
 }) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-1 p-2 bg-sidebar">
+    <div className="flex flex-col gap-1.5 p-2 bg-sidebar">
       <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
         {label}
       </span>
       <Select
         value={binNumber != null ? String(binNumber) : ""}
-        onValueChange={(value) => onChange(Number(value))}
+        onValueChange={(value) => onBinChange(Number(value))}
       >
         <SelectTrigger className="h-8 w-full text-xs">
           <SelectValue>
-            {binNumber != null
-              ? t("binLabel", { bin: binNumber })
-              : ""}
+            {binNumber != null ? t("binLabel", { bin: binNumber }) : ""}
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
@@ -48,19 +91,31 @@ function SlotSelect({
           ))}
         </SelectContent>
       </Select>
+      {binNumber != null && (
+        <SizeSelect
+          binNumber={binNumber}
+          height={height}
+          onChange={onHeightChange}
+        />
+      )}
     </div>
   );
 }
 
-export function BinRoutingAssignment() {
+export function BinConfigurations() {
   const { t } = useTranslation("calibration");
   const moduleCount = useModuleCount();
-  const { routes, isPending, save, swap, resetToDefaults } = useBinRoutes();
+  const { routes, isSaving, save, swap, resetToDefaults } = useBinRoutes();
+  const { heights, setHeight } = useBinHeights();
 
   const binCount = computeBinCount(moduleCount);
   const binNumbers = Array.from({ length: binCount }, (_, i) => i + 1);
   const modules = Array.from({ length: moduleCount }, (_, i) => i + 1);
   const bottomRoutes = routes.filter((r) => r.direction === "bottom");
+
+  function heightFor(binNumber: number) {
+    return heights.find((h) => h.binNumber === binNumber)?.height;
+  }
 
   function handleSlotChange(
     module: number,
@@ -75,7 +130,7 @@ export function BinRoutingAssignment() {
         (r) => r.binNumber === newBinNumber,
       );
       if (movingBinPreviousRoute) {
-        void swap(
+        swap(
           { binNumber: newBinNumber, module, direction },
           {
             binNumber: displaced.binNumber,
@@ -90,16 +145,16 @@ export function BinRoutingAssignment() {
   }
 
   return (
-    <div className="flex flex-col gap-2" data-tour="bin-routing-assignment">
+    <div className="flex flex-col gap-2" data-tour="bin-configurations">
       <div className="flex items-center justify-between">
-        <Label>{t("binRoutingAssignment.label")}</Label>
+        <Label>{t("binConfigurations.label")}</Label>
         <Button
           variant="outline"
           size="sm"
-          disabled={isPending}
+          disabled={isSaving}
           onClick={resetToDefaults}
         >
-          {t("binRoutingAssignment.resetToDefaults")}
+          {t("binConfigurations.resetToDefaults")}
         </Button>
       </div>
 
@@ -113,17 +168,21 @@ export function BinRoutingAssignment() {
           );
           return (
             <div key={module} className="grid grid-cols-2 gap-px bg-border">
-              <SlotSelect
-                label={t("binRoutingAssignment.moduleLeft", { module })}
+              <BinSlot
+                label={t("binConfigurations.moduleLeft", { module })}
                 binNumber={left?.binNumber}
                 binNumbers={binNumbers}
-                onChange={(bin) => handleSlotChange(module, "left", bin)}
+                onBinChange={(bin) => handleSlotChange(module, "left", bin)}
+                height={left ? heightFor(left.binNumber) : undefined}
+                onHeightChange={setHeight}
               />
-              <SlotSelect
-                label={t("binRoutingAssignment.moduleRight", { module })}
+              <BinSlot
+                label={t("binConfigurations.moduleRight", { module })}
                 binNumber={right?.binNumber}
                 binNumbers={binNumbers}
-                onChange={(bin) => handleSlotChange(module, "right", bin)}
+                onBinChange={(bin) => handleSlotChange(module, "right", bin)}
+                height={right ? heightFor(right.binNumber) : undefined}
+                onHeightChange={setHeight}
               />
             </div>
           );
@@ -133,7 +192,7 @@ export function BinRoutingAssignment() {
       {bottomRoutes.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border p-2 bg-sidebar">
           <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
-            {t("binRoutingAssignment.bottomSectionLabel")}
+            {t("binConfigurations.bottomSectionLabel")}
           </span>
           {bottomRoutes.map((route) => (
             <div key={route.binNumber} className="flex items-center gap-2">
@@ -183,6 +242,12 @@ export function BinRoutingAssignment() {
                   ))}
                 </SelectContent>
               </Select>
+              <SizeSelect
+                binNumber={route.binNumber}
+                height={heightFor(route.binNumber)}
+                onChange={setHeight}
+                className="flex-1"
+              />
             </div>
           ))}
         </div>

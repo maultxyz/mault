@@ -149,9 +149,9 @@
       "title": "Modulanzahl",
       "content": "Lege fest, wie viele Sortiermodule physisch installiert sind - das bestimmt, wie viele Fächer verfügbar sind."
     },
-    "binRouting": {
-      "title": "Fach-Routing",
-      "content": "Ordne jedes nummerierte Fach einem Modul und einer Richtung (links, rechts oder unten) zu, damit die Firmware weiß, wohin eine Karte geschickt wird."
+    "binConfigurations": {
+      "title": "Fach-Konfiguration",
+      "content": "Ordne jedes nummerierte Fach einem Modul und einer Richtung (links, rechts oder unten) zu, damit die Firmware weiß, wohin eine Karte geschickt wird, und wähle eine Größe (Klein, Mittel oder Groß), damit die App erkennen kann, wann es voll ist."
     },
     "irSensor": {
       "title": "IR-Sensoren",

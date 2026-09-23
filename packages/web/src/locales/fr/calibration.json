@@ -40,12 +40,17 @@
     "calibration": "Calibration du chargeur et des modules",
     "moduleCalibration": "Calibration des modules"
   },
-  "binRoutingAssignment": {
-    "label": "Attribution du routage des bacs",
+  "binConfigurations": {
+    "label": "Configuration des bacs",
     "resetToDefaults": "Réinitialiser aux valeurs par défaut",
-    "moduleLeft": "Module {{module}} — Gauche",
-    "moduleRight": "Module {{module}} — Droite",
-    "bottomSectionLabel": "Bas (fourre-tout)"
+    "moduleLeft": "Module {{module}}, Gauche",
+    "moduleRight": "Module {{module}}, Droite",
+    "bottomSectionLabel": "Bas (fourre-tout)",
+    "presets": {
+      "small": "Petit",
+      "medium": "Moyen",
+      "large": "Grand"
+    }
   },
   "binRoutingControls": {
     "label": "Routage des bacs",
@@ -167,6 +172,16 @@
       "saveFailed": "Échec de l'enregistrement du routage du bac",
       "resetSuccess": "Routage des bacs réinitialisé aux valeurs par défaut",
       "resetFailed": "Échec de la réinitialisation du routage des bacs"
+    }
+  },
+  "useBinHeights": {
+    "toasts": {
+      "saveFailed": "Échec de l'enregistrement de la hauteur du bac"
+    }
+  },
+  "modulesPage": {
+    "toasts": {
+      "saveFailed": "Échec de l'enregistrement des modifications"
     }
   },
   "calibratePage": {

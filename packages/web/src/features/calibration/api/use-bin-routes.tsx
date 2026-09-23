@@ -1,89 +1,82 @@
 import {
   binRoutesQueryOptions,
-  deleteBinRoute,
   saveBinRoute,
 } from "@/features/calibration/api/bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import type { BinRoutesContextValue } from "@/lib/interfaces/calibration";
 import { createDefaultBinRoutes, type BinRoute } from "@magic-vault/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useCallback, useContext } from "react";
-import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
 
 const BinRoutesContext = createContext<BinRoutesContextValue | null>(null);
 
 export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
-  const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
   const device = useDevice();
   const moduleCount = useModuleCount();
+  const [isSaving, setIsSaving] = useState(false);
+  const [pending, setPending] = useState<Record<number, BinRoute>>({});
 
   const queryOpts = binRoutesQueryOptions(device?.guid);
-  const { data: routes = createDefaultBinRoutes(moduleCount) } =
+  const { data: savedRoutes = createDefaultBinRoutes(moduleCount) } =
     useQuery(queryOpts);
 
-  const saveMutation = useMutation({
-    mutationFn: (route: BinRoute) => saveBinRoute(device!.guid, route),
-    onSuccess: (result) => {
-      if (result.success && result.data) {
-        queryClient.setQueryData(queryOpts.queryKey, result.data);
-      }
-    },
-    onError: () => toast.error(t("useBinRoutes.toasts.saveFailed")),
-  });
-
-  const resetMutation = useMutation({
-    mutationFn: async () => {
-      const defaults = createDefaultBinRoutes(moduleCount);
-      let last: Awaited<ReturnType<typeof saveBinRoute>> | null = null;
-      for (const route of defaults) {
-        last = await saveBinRoute(device!.guid, route);
-      }
-      return last;
-    },
-    onSuccess: (result) => {
-      if (result?.success && result.data) {
-        queryClient.setQueryData(queryOpts.queryKey, result.data);
-        toast.success(t("useBinRoutes.toasts.resetSuccess"));
-      }
-    },
-    onError: () => toast.error(t("useBinRoutes.toasts.resetFailed")),
-  });
-
-  const save = useCallback(
-    (route: BinRoute) => {
-      if (!device) return;
-      saveMutation.mutate(route);
-    },
-    [saveMutation, device],
+  const routes = useMemo(
+    () => savedRoutes.map((r) => pending[r.binNumber] ?? r),
+    [savedRoutes, pending],
   );
 
-  // Awaits the first save before issuing the second so the two upserts land
-  // in order - firing both via `save` without awaiting risks the responses
-  // resolving out of order and one overwriting the other in the query cache.
-  const swap = useCallback(
-    async (route: BinRoute, displaced: BinRoute) => {
-      await saveMutation.mutateAsync(route);
-      await saveMutation.mutateAsync(displaced);
-    },
-    [saveMutation],
-  );
+  const isDirty = Object.keys(pending).length > 0;
+
+  const save = useCallback((route: BinRoute) => {
+    setPending((prev) => ({ ...prev, [route.binNumber]: route }));
+  }, []);
+
+  const swap = useCallback((route: BinRoute, displaced: BinRoute) => {
+    setPending((prev) => ({
+      ...prev,
+      [route.binNumber]: route,
+      [displaced.binNumber]: displaced,
+    }));
+  }, []);
 
   const resetToDefaults = useCallback(() => {
+    const defaults = createDefaultBinRoutes(moduleCount);
+    setPending(Object.fromEntries(defaults.map((r) => [r.binNumber, r])));
+  }, [moduleCount]);
+
+  const discard = useCallback(() => setPending({}), []);
+
+  const commit = useCallback(async () => {
     if (!device) return;
-    resetMutation.mutate();
-  }, [resetMutation, device]);
+    setIsSaving(true);
+    try {
+      let result;
+      for (const route of Object.values(pending)) {
+        result = await saveBinRoute(device.guid, route);
+        if (!result.success) throw new Error(result.message);
+      }
+      if (result?.data) {
+        queryClient.setQueryData(queryOpts.queryKey, result.data);
+      }
+      setPending({});
+    } finally {
+      setIsSaving(false);
+    }
+  }, [device, pending, queryClient, queryOpts.queryKey]);
 
   return (
     <BinRoutesContext
       value={{
         routes,
-        isPending: saveMutation.isPending || resetMutation.isPending,
+        isDirty,
+        isSaving,
         save,
         swap,
         resetToDefaults,
+        commit,
+        discard,
       }}
     >
       {children}
@@ -98,5 +91,3 @@ export function useBinRoutes() {
   }
   return context;
 }
-
-export { deleteBinRoute };

@@ -53,12 +53,12 @@ export const CALIBRATION_TOUR_STEPS: CalibrationTourStepConfig[] = [
     contentKey: "calibrationTour.moduleCount.content",
   },
   {
-    id: "bin-routing",
+    id: "bin-configurations",
     section: "modules",
-    target: '[data-tour="bin-routing-assignment"]',
+    target: '[data-tour="bin-configurations"]',
     placement: "auto",
-    titleKey: "calibrationTour.binRouting.title",
-    contentKey: "calibrationTour.binRouting.content",
+    titleKey: "calibrationTour.binConfigurations.title",
+    contentKey: "calibrationTour.binConfigurations.content",
   },
   {
     id: "ir-sensor",
