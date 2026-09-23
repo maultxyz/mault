@@ -74,7 +74,7 @@ export async function findCardMatches(
       distance: row.distance as number,
     }));
 
-    if (isLocal) {
+    if (showVectorLogs) {
       console.log(
         `[card-search] nearest candidates for game=${gameKey} lang=${lang} (threshold=${distanceThreshold}):`,
       );

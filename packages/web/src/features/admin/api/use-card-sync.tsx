@@ -2,7 +2,7 @@ import { cancelSync, listSyncSources, startSync } from "@/lib/api/admin";
 import { useSyncState } from "@/lib/app-stream";
 import { LIVE_CLOCK_TICK_MS } from "@/lib/constants/timing";
 import type { SyncSourceInfo } from "@/lib/interfaces/admin";
-import type { SyncState, SyncTargetTable } from "@magic-vault/shared";
+import type { SyncState } from "@magic-vault/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createContext,
@@ -21,12 +21,7 @@ interface CardSyncContextValue {
   progress: number;
   elapsedMs: number;
   etaMs: number | null;
-  start: (
-    gameKey: string,
-    lang: string,
-    forceResync?: boolean,
-    targetTable?: SyncTargetTable,
-  ) => void;
+  start: (gameKey: string, lang: string, forceResync?: boolean) => void;
   isStarting: boolean;
   cancel: () => void;
   isCancelling: boolean;
@@ -60,13 +55,11 @@ export function CardSyncProvider({ children }: { children: ReactNode }) {
       gameKey,
       lang,
       forceResync,
-      targetTable,
     }: {
       gameKey: string;
       lang: string;
       forceResync?: boolean;
-      targetTable?: SyncTargetTable;
-    }) => startSync(gameKey, lang, forceResync, targetTable),
+    }) => startSync(gameKey, lang, forceResync),
   });
   const cancelSyncMutation = useMutation({ mutationFn: cancelSync });
 
@@ -91,8 +84,8 @@ export function CardSyncProvider({ children }: { children: ReactNode }) {
         progress,
         elapsedMs,
         etaMs,
-        start: (gameKey, lang, forceResync, targetTable) =>
-          startSyncMutation.mutate({ gameKey, lang, forceResync, targetTable }),
+        start: (gameKey, lang, forceResync) =>
+          startSyncMutation.mutate({ gameKey, lang, forceResync }),
         isStarting: startSyncMutation.isPending,
         cancel: () => cancelSyncMutation.mutate(),
         isCancelling: cancelSyncMutation.isPending,

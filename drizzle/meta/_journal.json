@@ -281,6 +281,13 @@
       "when": 1790166131226,
       "tag": "0039_striped_silverclaw",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1790175225390,
+      "tag": "0040_kind_blizzard",
+      "breakpoints": true
     }
   ]
 }

@@ -1,4 +1,4 @@
-import type { SyncState, SyncTargetTable } from "@magic-vault/shared";
+import type { SyncState } from "@magic-vault/shared";
 import { type ChildProcess, fork } from "node:child_process";
 import path from "node:path";
 import { sendDiscordNotification } from "../discord";
@@ -38,7 +38,6 @@ export function startSync(
   lang: string = "en",
   forceResync: boolean = false,
   skipUpdatedWithinMs?: number,
-  targetTable: SyncTargetTable = "cards",
 ): void {
   if (currentWorker) return;
 
@@ -50,7 +49,6 @@ export function startSync(
     status: "running",
     gameKey,
     lang,
-    targetTable,
     total: 0,
     processed: 0,
     skipped: 0,
@@ -134,7 +132,6 @@ export function startSync(
     lang,
     forceResync,
     skipUpdatedWithinMs,
-    targetTable,
     initialState,
   };
   child.send(startMessage);
