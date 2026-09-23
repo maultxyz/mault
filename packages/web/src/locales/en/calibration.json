@@ -103,6 +103,7 @@
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Drag the box to move it, or drag the handle to resize. Line it up with a card sitting at module 1.",
+    "liveDetectionHint": "The dashed box is the fallback crop used when live detection can't find the card - it's what you're editing. The solid outline is a live preview of what detection sees.",
     "connecting": "Connecting…",
     "reconnectWebcam": "Reconnect Webcam",
     "connectWebcam": "Connect Webcam",

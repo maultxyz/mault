@@ -103,6 +103,7 @@
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Ziehe das Rechteck, um es zu verschieben, oder ziehe den Griff, um die Größe zu ändern. Richte es an einer Karte in Modul 1 aus.",
+    "liveDetectionHint": "Das gestrichelte Rechteck ist der Ausweich-Zuschnitt, der verwendet wird, wenn die Live-Erkennung die Karte nicht findet — das bearbeitest du hier. Die durchgezogene Kontur ist eine Live-Vorschau dessen, was die Erkennung sieht.",
     "connecting": "Verbindung wird hergestellt…",
     "reconnectWebcam": "Webcam erneut verbinden",
     "connectWebcam": "Webcam verbinden",

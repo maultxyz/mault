@@ -34,7 +34,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 const LIVE_DETECTION_INTERVAL_MS = 300;
-const LIVE_DETECTION_STATUSES: ScannerStatus[] = ["scanning", "paused", "settling"];
+const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "paused",
+  "settling",
+];
+const CONSENSUS_RETRY_BUDGET = 3;
 
 // Singleton AudioContext - browsers cap concurrent contexts (~6).
 // Creating one per scan exhausts the limit quickly.
@@ -116,6 +121,18 @@ function bestDistance(result: Result<SearchCardMatch[] | null>): number {
   return result.data?.[0]?.distance ?? Number.POSITIVE_INFINITY;
 }
 
+function buildImageSearchFormData(
+  blob: Blob,
+  collectionGuid?: string,
+  ocrEnabled?: boolean,
+): FormData {
+  const formData = new FormData();
+  formData.append("image", blob, "card.jpg");
+  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  formData.append("ocrEnabled", String(ocrEnabled ?? false));
+  return formData;
+}
+
 async function searchCardImage(
   canvas: HTMLCanvasElement,
   contour?: CardContour | null,
@@ -129,7 +146,8 @@ async function searchCardImage(
 }> {
   if (!getForceCpuVectorize()) {
     try {
-      const { dewarpedCanvas, embeddings, detection } = await vectorizeCardImageOnClient(canvas);
+      const { dewarpedCanvas, embeddings, detection } =
+        await vectorizeCardImageOnClient(canvas);
       if (dewarpedCanvas && embeddings) {
         const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
         const [uprightBlob, rotatedBlob] = await Promise.all([
@@ -139,41 +157,69 @@ async function searchCardImage(
 
         const [uprightResult, rotatedResult] = await Promise.all([
           searchByVector(
-            buildSearchFormData(uprightBlob, embeddings.upright, collectionGuid, ocrEnabled),
+            buildSearchFormData(
+              uprightBlob,
+              embeddings.upright,
+              collectionGuid,
+              ocrEnabled,
+            ),
           ),
           searchByVector(
-            buildSearchFormData(rotatedBlob, embeddings.rotated, collectionGuid, ocrEnabled),
+            buildSearchFormData(
+              rotatedBlob,
+              embeddings.rotated,
+              collectionGuid,
+              ocrEnabled,
+            ),
           ),
         ]);
-        const rotatedWon = bestDistance(rotatedResult) < bestDistance(uprightResult);
+        const rotatedWon =
+          bestDistance(rotatedResult) < bestDistance(uprightResult);
         const best = rotatedWon ? rotatedResult : uprightResult;
-        const debugImageUrl = (rotatedWon ? rotatedCanvas : dewarpedCanvas).toDataURL(
-          "image/jpeg",
-          0.8,
-        );
+        const debugImageUrl = (
+          rotatedWon ? rotatedCanvas : dewarpedCanvas
+        ).toDataURL("image/jpeg", 0.8);
 
         return {
-          ...(await resolveSearchMatches(best.data, collectionGuid, debugImageUrl)),
+          ...(await resolveSearchMatches(
+            best.data,
+            collectionGuid,
+            debugImageUrl,
+          )),
           detectedContour: detection.contour,
         };
       }
     } catch (err) {
-      console.error("[scanner] client-side vectorization failed, falling back to server:", err);
+      console.error(
+        "[scanner] client-side vectorization failed, falling back to server:",
+        err,
+      );
     }
   }
 
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
-  const debugImageUrl = warpedCanvas.toDataURL("image/jpeg", 0.8);
-  const blob = await canvasToBlob(warpedCanvas);
+  const rotatedCanvas = rotateCanvas180(warpedCanvas);
+  const [uprightBlob, rotatedBlob] = await Promise.all([
+    canvasToBlob(warpedCanvas),
+    canvasToBlob(rotatedCanvas),
+  ]);
+  const [uprightResult, rotatedResult] = await Promise.all([
+    searchByImage(
+      buildImageSearchFormData(uprightBlob, collectionGuid, ocrEnabled),
+    ),
+    searchByImage(
+      buildImageSearchFormData(rotatedBlob, collectionGuid, ocrEnabled),
+    ),
+  ]);
+  const rotatedWon = bestDistance(rotatedResult) < bestDistance(uprightResult);
+  const best = rotatedWon ? rotatedResult : uprightResult;
+  const debugImageUrl = (rotatedWon ? rotatedCanvas : warpedCanvas).toDataURL(
+    "image/jpeg",
+    0.8,
+  );
 
-  const formData = new FormData();
-  formData.append("image", blob, "card.jpg");
-  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
-  formData.append("ocrEnabled", String(ocrEnabled ?? false));
-
-  const { data } = await searchByImage(formData);
   return {
-    ...(await resolveSearchMatches(data, collectionGuid, debugImageUrl)),
+    ...(await resolveSearchMatches(best.data, collectionGuid, debugImageUrl)),
     detectedContour: null,
   };
 }
@@ -194,24 +240,36 @@ async function searchCardImageWithConsensus(
     return searchCardImage(canvas, contour, collectionGuid, ocrEnabled);
   }
 
+  const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
+
   let streakId: string | null = null;
   let streakCount = 0;
+  let streakResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
   let lastResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
 
-  for (let attempt = 0; attempt < matchesNeeded; attempt++) {
-    const result = await searchCardImage(canvas, contour, collectionGuid, ocrEnabled);
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const result = await searchCardImage(
+      canvas,
+      contour,
+      collectionGuid,
+      ocrEnabled,
+    );
     lastResult = result;
     const topId = result.card?.id ?? null;
 
     if (topId != null && topId === streakId) {
       streakCount++;
+      streakResult = result;
     } else {
       streakId = topId;
       streakCount = topId != null ? 1 : 0;
+      streakResult = topId != null ? result : null;
     }
+
+    if (streakCount >= matchesNeeded) return streakResult!;
   }
 
-  return streakId != null && streakCount >= matchesNeeded ? lastResult! : { ...lastResult!, card: null };
+  return { ...lastResult!, card: null };
 }
 
 export function useCardScanner({

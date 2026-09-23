@@ -2,9 +2,17 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
+import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
+import {
+  contourToBox,
+  rawContourToPortraitBox,
+} from "@/features/calibration/lib/scan-region-geometry";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
-import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
+import {
+  drawDetectionOverlay,
+  getDefaultCardContour,
+} from "@/features/scanner/lib/card-detection";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import {
   CAPTURE_SETTLE_DELAY_SLIDER_MAX,
@@ -12,8 +20,13 @@ import {
   MATCHES_NEEDED_SLIDER_MAX,
   sliderMax,
 } from "@/lib/constants/calibration";
+import { SCAN_REGION_PHONE_SYNC_DELAY_MS } from "@/lib/constants/timing";
 import type { ScanRegion } from "@magic-vault/shared";
-import { IconCameraSpark, IconDeviceMobile } from "@tabler/icons-react";
+import {
+  IconCameraSpark,
+  IconDeviceMobile,
+  IconRotate,
+} from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -31,13 +44,18 @@ interface ScanRegionCalibrationPanelProps {
 }
 
 export function ScanRegionCalibrationPanel({
+  scanRegion: region,
   captureSettleDelayMs: captureSettleDelayMsValue,
   matchesNeeded,
   isLoading,
+  onRegionChange,
+  onResetRegion,
   onCaptureSettleChange,
   onMatchesNeededChange,
 }: ScanRegionCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
+  const regionRef = useRef(region);
+  regionRef.current = region;
 
   const {
     stream,
@@ -50,6 +68,7 @@ export function ScanRegionCalibrationPanel({
     startPhonePairing,
     stopPhonePairing,
     requestPhoneCapture,
+    sendPhoneScanRegion,
   } = useCameraContext();
   const isCameraActive = cameraSource === "local" && cameraStatus === "ready";
   const [isConnecting, setIsConnecting] = useState(false);
@@ -114,6 +133,49 @@ export function ScanRegionCalibrationPanel({
     useCameraFrameCanvas({ stream, phonePhotoUrl });
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
+  useEffect(() => {
+    if (cameraSource !== "phone" || phonePairingStatus !== "connected") return;
+    const timeout = setTimeout(
+      () => sendPhoneScanRegion(region),
+      SCAN_REGION_PHONE_SYNC_DELAY_MS,
+    );
+    return () => clearTimeout(timeout);
+  }, [region, cameraSource, phonePairingStatus, sendPhoneScanRegion]);
+
+  const box =
+    cameraSource === "phone"
+      ? phonePhotoSize
+        ? contourToBox(
+            getDefaultCardContour(
+              phonePhotoSize.width,
+              phonePhotoSize.height,
+              region,
+            ),
+            phonePhotoSize.width,
+            phonePhotoSize.height,
+          )
+        : null
+      : videoSize
+        ? rawContourToPortraitBox(
+            getDefaultCardContour(videoSize.width, videoSize.height, region),
+            videoSize.width,
+            videoSize.height,
+          )
+        : null;
+
+  const {
+    handleBoxPointerDown,
+    handleResizePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+  } = useRegionDrag({
+    frameRef,
+    regionRef,
+    cameraSource,
+    box,
+    onRegionChange,
+  });
+
   const liveDetectingRef = useRef(false);
   useEffect(() => {
     if (!videoSize) return;
@@ -124,8 +186,10 @@ export function ScanRegionCalibrationPanel({
       const overlayCanvas = overlayCanvasRef.current;
       const overlayCtx = overlayCanvas?.getContext("2d");
       if (!canvas || !overlayCanvas || !overlayCtx) return;
-      if (overlayCanvas.width !== canvas.width) overlayCanvas.width = canvas.width;
-      if (overlayCanvas.height !== canvas.height) overlayCanvas.height = canvas.height;
+      if (overlayCanvas.width !== canvas.width)
+        overlayCanvas.width = canvas.width;
+      if (overlayCanvas.height !== canvas.height)
+        overlayCanvas.height = canvas.height;
 
       liveDetectingRef.current = true;
       detectCardCorners(canvas)
@@ -140,7 +204,9 @@ export function ScanRegionCalibrationPanel({
             });
           }
         })
-        .catch((err) => console.error("[calibration] live detection failed:", err))
+        .catch((err) =>
+          console.error("[calibration] live detection failed:", err),
+        )
         .finally(() => {
           liveDetectingRef.current = false;
         });
@@ -170,13 +236,18 @@ export function ScanRegionCalibrationPanel({
           });
         }
       })
-      .catch((err) => console.error("[calibration] photo detection failed:", err));
+      .catch((err) =>
+        console.error("[calibration] photo detection failed:", err),
+      );
   }, [phonePhotoSize, canvasRef]);
 
   return (
     <div className="flex flex-col gap-2" data-tour="scan-region-panel">
       <p className="text-xs text-muted-foreground">
         {t("scanRegionCalibrationPanel.instructions")}
+      </p>
+      <p className="text-[10px] text-muted-foreground/70">
+        {t("scanRegionCalibrationPanel.liveDetectionHint")}
       </p>
 
       <div className="flex flex-col gap-2 w-full max-w-sm mx-auto md:mx-0">
@@ -245,6 +316,26 @@ export function ScanRegionCalibrationPanel({
               ref={overlayCanvasRef}
               className="absolute inset-0 w-full h-full pointer-events-none"
             />
+            {box && (
+              <div
+                className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none"
+                style={{
+                  left: `${box.left * 100}%`,
+                  top: `${box.top * 100}%`,
+                  width: `${box.width * 100}%`,
+                  height: `${box.height * 100}%`,
+                }}
+                onPointerDown={handleBoxPointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                onPointerCancel={handlePointerUp}
+              >
+                <div
+                  className="absolute -right-2.5 -bottom-2.5 size-5 rounded-full bg-muted-foreground border-2 border-background cursor-nwse-resize touch-none"
+                  onPointerDown={handleResizePointerDown}
+                />
+              </div>
+            )}
           </div>
           {cameraSource === "phone"
             ? !phonePhotoUrl && (
@@ -264,6 +355,31 @@ export function ScanRegionCalibrationPanel({
                   </p>
                 </div>
               )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onResetRegion}
+            title={t("scanRegionCalibrationPanel.resetToDefault")}
+          >
+            <IconRotate size={14} />
+            <span className="sr-only">
+              {t("scanRegionCalibrationPanel.resetToDefault")}
+            </span>
+          </Button>
+          {isLoading ? (
+            <Skeleton className="h-6 flex-1 rounded" />
+          ) : (
+            <p className="text-xs text-muted-foreground flex-1">
+              {t("scanRegionCalibrationPanel.currentSummary", {
+                coverage: Math.round(region.coverage * 100),
+                offsetX: Math.round(region.offsetX * 100),
+                offsetY: Math.round(region.offsetY * 100),
+              })}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-col gap-2 pt-2 border-t">
