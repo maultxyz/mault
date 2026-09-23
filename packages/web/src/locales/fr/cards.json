@@ -31,7 +31,8 @@
     "searchForCorrectVersion": "Ta carte scannée - recherche la bonne version ci-dessous",
     "cancel": "Annuler",
     "binLocation": "Emplacement du bac",
-    "showOcrRegions": "Afficher les zones OCR"
+    "showOcrRegions": "Afficher les zones OCR",
+    "copyOf": "Exemplaire {{index}} sur {{count}}"
   },
   "cardFilterPopover": {
     "color": "Couleur",
@@ -90,6 +91,7 @@
     "selectAll": "Tout sélectionner",
     "gridView": "Vue grille",
     "listView": "Vue liste",
+    "groupDuplicates": "Grouper les doublons",
     "sessionSummaryExport": "Résumé de session et export",
     "deleteScannedCardsTitle": "Supprimer les cartes scannées",
     "deleteScannedCardsDescription": "Cela supprimera définitivement toutes les cartes de ta collection. Cette action est irréversible.",
@@ -101,7 +103,9 @@
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
     "multipleMatchesResolvedTooltip": "Plusieurs correspondances proches - vérifié et corrigé",
     "matchTooltip": "À quel point l'image scannée correspond à cette carte, basé sur une recherche de similarité visuelle",
-    "bin": "Bac {{number}}"
+    "bin": "Bac {{number}}",
+    "quantityTooltip_one": "{{count}} exemplaire de cette carte dans cette collection",
+    "quantityTooltip_other": "{{count}} exemplaires de cette carte dans cette collection"
   },
   "sessionSummaryDialog": {
     "title": "Résumé de la session",

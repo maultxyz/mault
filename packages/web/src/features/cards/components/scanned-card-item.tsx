@@ -30,6 +30,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   isFoil = false,
   foilType,
   isDownloaded = false,
+  quantity = 1,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
   const matchPercent =
@@ -71,23 +72,41 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             </div>
           )}
           <div className="absolute bottom-1 left-1 right-1 flex gap-1 items-center justify-between z-20">
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Badge
-                    variant={matchPercent >= 80 ? "default" : "destructive"}
-                    className={
-                      matchPercent >= 80 ? undefined : "bg-destructive text-white"
+            <div className="flex gap-1 items-center min-w-0">
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Badge
+                      variant={matchPercent >= 80 ? "default" : "destructive"}
+                      className={
+                        matchPercent >= 80
+                          ? undefined
+                          : "bg-destructive text-white"
+                      }
+                    >
+                      {matchPercent.toFixed(2)}%
+                    </Badge>
+                  }
+                />
+                <TooltipContent>
+                  {t("scannedCardItem.matchTooltip")}
+                </TooltipContent>
+              </Tooltip>
+              {quantity > 1 && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Badge variant="default" className="shadow-md">
+                        ×{quantity}
+                      </Badge>
                     }
-                  >
-                    {matchPercent.toFixed(2)}%
-                  </Badge>
-                }
-              />
-              <TooltipContent>
-                {t("scannedCardItem.matchTooltip")}
-              </TooltipContent>
-            </Tooltip>
+                  />
+                  <TooltipContent>
+                    {t("scannedCardItem.quantityTooltip", { count: quantity })}
+                  </TooltipContent>
+                </Tooltip>
+              )}
+            </div>
             <Tooltip>
               <TooltipTrigger
                 render={

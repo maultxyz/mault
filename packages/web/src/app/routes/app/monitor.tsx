@@ -10,6 +10,7 @@ import { useCardFilterSort } from "@/features/cards/api/use-card-filter-sort";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardListItem } from "@/features/cards/components/scanned-card-list-item";
+import { toDisplayEntries } from "@/features/cards/lib/group-cards";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { RecentScannedCards } from "@/features/scanner/components/recent-scanned-cards";
@@ -18,7 +19,10 @@ import { SessionStatsPanel } from "@/features/scanner/components/session-stats-p
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { CARD_VIEW_MODE_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import {
+  CARD_GROUP_DUPLICATES_STORAGE_KEY,
+  CARD_VIEW_MODE_STORAGE_KEY,
+} from "@/lib/constants/storage-keys";
 import type { CardViewMode } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import {
@@ -39,30 +43,34 @@ function CardGrid({
   cardCount,
   isMobile,
   viewMode,
+  groupDuplicates,
 }: {
   filteredAndSorted: ReturnType<typeof useCardFilterSort>["filteredAndSorted"];
   status: string;
   cardCount: number;
   isMobile: boolean;
   viewMode: CardViewMode;
+  groupDuplicates: boolean;
 }) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
   const [page, setPage] = useState(0);
 
-  const pageCount = Math.max(
-    1,
-    Math.ceil(filteredAndSorted.length / PAGE_SIZE),
+  const displayEntries = useMemo(
+    () => toDisplayEntries(filteredAndSorted, groupDuplicates),
+    [filteredAndSorted, groupDuplicates],
   );
+
+  const pageCount = Math.max(1, Math.ceil(displayEntries.length / PAGE_SIZE));
   const clampedPage = Math.min(page, pageCount - 1);
-  const pagedCards = filteredAndSorted.slice(
+  const pagedCards = displayEntries.slice(
     clampedPage * PAGE_SIZE,
     (clampedPage + 1) * PAGE_SIZE,
   );
 
   useEffect(() => {
     setPage(0);
-  }, [filteredAndSorted.length]);
+  }, [displayEntries.length]);
 
   return (
     <>
@@ -98,6 +106,7 @@ function CardGrid({
               card={card.card}
               binNumber={card.binNumber}
               onOpen={() => {}}
+              quantity={card.quantity}
             />
           ))}
         </div>
@@ -116,6 +125,7 @@ function CardGrid({
               card={card.card}
               binNumber={card.binNumber}
               onOpen={() => {}}
+              quantity={card.quantity}
             />
           ))}
         </div>
@@ -199,6 +209,24 @@ export default function MonitorPage() {
     } catch {}
   }, []);
 
+  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
+    setGroupDuplicates(grouped);
+    try {
+      localStorage.setItem(
+        CARD_GROUP_DUPLICATES_STORAGE_KEY,
+        grouped ? "1" : "0",
+      );
+    } catch {}
+  }, []);
+
   const viewerAvatars = (
     <>
       {isScanning && collectionGuid && locks[collectionGuid] && (
@@ -263,6 +291,8 @@ export default function MonitorPage() {
                   cardCount={cards.length}
                   viewMode={viewMode}
                   onViewModeChange={handleViewModeChange}
+                  groupDuplicates={groupDuplicates}
+                  onGroupDuplicatesChange={handleGroupDuplicatesChange}
                 />
               </div>
               <div className="overflow-y-auto flex-1 @container">
@@ -272,6 +302,7 @@ export default function MonitorPage() {
                   cardCount={cards.length}
                   isMobile
                   viewMode={viewMode}
+                  groupDuplicates={groupDuplicates}
                 />
               </div>
             </div>
@@ -311,6 +342,8 @@ export default function MonitorPage() {
             cardCount={cards.length}
             viewMode={viewMode}
             onViewModeChange={handleViewModeChange}
+            groupDuplicates={groupDuplicates}
+            onGroupDuplicatesChange={handleGroupDuplicatesChange}
           />
         </div>
         <CardGrid
@@ -319,6 +352,7 @@ export default function MonitorPage() {
           cardCount={cards.length}
           isMobile={false}
           viewMode={viewMode}
+          groupDuplicates={groupDuplicates}
         />
       </main>
     </div>
