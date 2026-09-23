@@ -219,6 +219,14 @@
     "imageAlt": "Carte non reconnue",
     "noImage": "Aucune image capturée"
   },
+  "binStatusMeter": {
+    "heading": "Niveaux des bacs",
+    "tooltipWithCapacity": "Bac {{bin}} : {{count}} / {{capacity}} cartes",
+    "tooltipNoCapacity": "Bac {{bin}} : {{count}} cartes",
+    "confirmTitle": "Vider le bac {{bin}} ?",
+    "confirmDescription": "Ceci remet à zéro le compteur de remplissage du bac {{bin}}. Assure-toi d'avoir vidé le bac physiquement au préalable, cette action ne déplace rien pour toi.",
+    "confirmButton": "Vider le bac"
+  },
   "sessionStatsPanel": {
     "value": "Valeur"
   },

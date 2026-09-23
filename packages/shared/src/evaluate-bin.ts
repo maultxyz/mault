@@ -221,6 +221,16 @@ export function isBinFull(
   return countCardsInBin(cards, bin) >= bin.cardLimit;
 }
 
+export function computeBinCapacity(
+  height: number | null | undefined,
+  cardThickness: number | null | undefined,
+  manualCardLimit: number | null | undefined,
+): number | null {
+  const calculated =
+    height && cardThickness ? Math.floor(height / cardThickness) : null;
+  return calculated ?? manualCardLimit ?? null;
+}
+
 export function getCardsInBin(
   cards: { binNumber?: number | null; scannedAt: number; card: SourceCard }[],
   bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,

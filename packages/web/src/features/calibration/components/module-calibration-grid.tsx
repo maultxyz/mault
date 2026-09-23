@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getCalibrationKey } from "@/features/calibration/lib/calibration-utils";
+import { cn } from "@/lib/utils";
 import {
   PADDLE_CLOSE_DELAY_SLIDER_MAX,
   percentToPulse,
@@ -26,7 +27,11 @@ import type {
   SliderKey,
 } from "@/lib/interfaces/calibration";
 import type { ModuleConfig, ServoCalibration } from "@magic-vault/shared";
-import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconInfoCircle,
+  IconPlayerPlay,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -38,6 +43,7 @@ interface ServoControlProps {
   calibration: ServoCalibration | undefined;
   isLoading: boolean;
   isConnected: boolean;
+  isTesting: boolean;
   showRaw: boolean;
   onControl: (
     module: number,
@@ -49,6 +55,7 @@ interface ServoControlProps {
     servo: "bottom" | "paddle" | "pusher",
     value: number,
   ) => void;
+  onTest: (module: number, servo: "bottom" | "paddle" | "pusher") => void;
 }
 
 function ServoControl({
@@ -59,9 +66,11 @@ function ServoControl({
   calibration,
   isLoading,
   isConnected,
+  isTesting,
   showRaw,
   onControl,
   onSliderChange,
+  onTest,
 }: ServoControlProps) {
   const { t } = useTranslation("calibration");
   const positionLabel = (position: string) =>
@@ -78,7 +87,31 @@ function ServoControl({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-muted-foreground">{t(servo.labelKey)}</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs text-muted-foreground">{t(servo.labelKey)}</p>
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                disabled={!isConnected || !calibration}
+                onClick={() => onTest(module, servo.name)}
+                className={cn(isTesting && "text-primary")}
+              >
+                <IconPlayerPlay />
+              </Button>
+            }
+          />
+          <TooltipContent>
+            {t(
+              servo.name === "pusher"
+                ? "moduleCalibrationGrid.testServoTooltipPusher"
+                : "moduleCalibrationGrid.testServoTooltipGate",
+            )}
+          </TooltipContent>
+        </Tooltip>
+      </div>
 
       {isLoading ? (
         <Skeleton className="h-4 w-full rounded" />
@@ -286,6 +319,8 @@ interface ModuleCalibrationGridProps {
     value: number,
   ) => void;
   onPaddleCloseDelayChange: (module: number, value: number) => void;
+  testingServos: Record<SliderKey, boolean>;
+  onTest: (module: number, servo: "bottom" | "paddle" | "pusher") => void;
 }
 
 export function ModuleCalibrationGrid({
@@ -300,6 +335,8 @@ export function ModuleCalibrationGrid({
   onControl,
   onSliderChange,
   onPaddleCloseDelayChange,
+  testingServos,
+  onTest,
 }: ModuleCalibrationGridProps) {
   const { t } = useTranslation("calibration");
   const [rawModeByModule, setRawModeByModule] = useState<
@@ -358,9 +395,11 @@ export function ModuleCalibrationGrid({
                   calibration={effectiveCal}
                   isLoading={isLoading}
                   isConnected={isConnected}
+                  isTesting={testingServos[sliderKey] ?? false}
                   showRaw={showRaw}
                   onControl={onControl}
                   onSliderChange={onSliderChange}
+                  onTest={onTest}
                 />
               );
             })}

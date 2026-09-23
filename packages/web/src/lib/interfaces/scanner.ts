@@ -174,6 +174,13 @@ export interface ScanStats {
   foilTypes: { key: string; label: string; count: number }[];
 }
 
+export interface BinFillLevel {
+  binNumber: number;
+  count: number;
+  capacity: number | null;
+  percent: number;
+}
+
 export interface CommLogEntry {
   direction: "sent" | "received";
   text: string;

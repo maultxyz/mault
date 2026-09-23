@@ -149,9 +149,9 @@
       "title": "Module count",
       "content": "Set how many sorting modules are physically installed. This determines how many bins are available."
     },
-    "binRouting": {
-      "title": "Bin routing",
-      "content": "Map each numbered bin to a module and direction (left, right, or bottom) so the firmware knows where to send a card."
+    "binConfigurations": {
+      "title": "Bin configurations",
+      "content": "Map each numbered bin to a module and direction (left, right, or bottom) so the firmware knows where to send a card, and pick a size (Small, Medium, or Large) so the app can tell when it's full."
     },
     "irSensor": {
       "title": "IR sensors",

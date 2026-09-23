@@ -40,12 +40,17 @@
     "calibration": "Zuführungs- & Modulkalibrierung",
     "moduleCalibration": "Modulkalibrierung"
   },
-  "binRoutingAssignment": {
-    "label": "Fach-Zuordnung",
+  "binConfigurations": {
+    "label": "Fach-Konfiguration",
     "resetToDefaults": "Auf Standard zurücksetzen",
-    "moduleLeft": "Modul {{module}} — Links",
-    "moduleRight": "Modul {{module}} — Rechts",
-    "bottomSectionLabel": "Unten (Auffangfach)"
+    "moduleLeft": "Modul {{module}}, Links",
+    "moduleRight": "Modul {{module}}, Rechts",
+    "bottomSectionLabel": "Unten (Auffangfach)",
+    "presets": {
+      "small": "Klein",
+      "medium": "Mittel",
+      "large": "Groß"
+    }
   },
   "binRoutingControls": {
     "label": "Fach-Routing",
@@ -90,6 +95,8 @@
     "percentSliderTooltip": "Wie weit dieser Servo bewegt ist, als Prozentsatz seines gesamten Bewegungsbereichs. Wähle oben eine Position und ziehe diesen Regler, um sie zu ändern — sie wird zusammen mit allem anderen gespeichert, wenn du auf Speichern klickst.",
     "rawPulseTooltip": "Rohe Servo-Impulsposition (120-490), der genaue an das Gerät gesendete Wert.",
     "rawPulseToggleLabel": "Rohe Impulswerte",
+    "testServoTooltipGate": "Test: öffnet die Klappe kurz und schließt sie wieder, damit du die Bewegung beobachten kannst.",
+    "testServoTooltipPusher": "Test: fährt den Schieber kurz nach links, dann nach rechts und dann zurück in die Neutralstellung, damit du die Bewegung in beide Richtungen beobachten kannst.",
     "positions": {
       "open": "Offen",
       "closed": "Geschlossen",
@@ -165,6 +172,16 @@
       "saveFailed": "Fach-Route konnte nicht gespeichert werden",
       "resetSuccess": "Fach-Routen auf Standard zurückgesetzt",
       "resetFailed": "Fach-Routen konnten nicht zurückgesetzt werden"
+    }
+  },
+  "useBinHeights": {
+    "toasts": {
+      "saveFailed": "Fach-Höhe konnte nicht gespeichert werden"
+    }
+  },
+  "modulesPage": {
+    "toasts": {
+      "saveFailed": "Änderungen konnten nicht gespeichert werden"
     }
   },
   "calibratePage": {

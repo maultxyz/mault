@@ -15,6 +15,7 @@ import {
   IconDownload,
   IconLayoutGrid,
   IconLayoutList,
+  IconStack2,
   IconTrash,
 } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
@@ -90,6 +91,8 @@ export function CardToolbar({
   cardCount,
   viewMode,
   onViewModeChange,
+  groupDuplicates,
+  onGroupDuplicatesChange,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
@@ -174,6 +177,15 @@ export function CardToolbar({
           <IconLayoutList className="size-4" />
         </Button>
       </ButtonGroup>
+      <Button
+        variant={groupDuplicates ? "outline-selected" : "outline"}
+        size="icon"
+        className="shrink-0"
+        onClick={() => onGroupDuplicatesChange(!groupDuplicates)}
+        title={t("cardToolbar.groupDuplicates")}
+      >
+        <IconStack2 className="size-4" />
+      </Button>
       {onToggleSelectAll && (
         <Button
           variant="outline"

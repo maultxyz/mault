@@ -1,4 +1,8 @@
-import type { FieldMeta, PlayingCardWithDistance } from "@magic-vault/shared";
+import type {
+  FieldMeta,
+  PlayingCardWithDistance,
+  ScannedCard,
+} from "@magic-vault/shared";
 import type { ReactElement } from "react";
 
 export interface CardSelectDialogProps {
@@ -31,6 +35,15 @@ export interface CardFilters {
 
 export type CardViewMode = "grid" | "list";
 
+// One display tile for the grid/list — either a single scanned instance
+// (scanIds.length === 1) or several identical printings collapsed together
+// when duplicate grouping is on (scanIds holds every instance in the group,
+// `card`/`scanId` are the representative — most recent — instance).
+export interface GroupedScannedCard extends ScannedCard {
+  scanIds: string[];
+  quantity: number;
+}
+
 export interface CardToolbarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
@@ -53,6 +66,8 @@ export interface CardToolbarProps {
   availableFoilTypes?: { key: string; label: string }[];
   viewMode: CardViewMode;
   onViewModeChange: (mode: CardViewMode) => void;
+  groupDuplicates: boolean;
+  onGroupDuplicatesChange: (grouped: boolean) => void;
 }
 
 export interface ScannedCardItemProps {
@@ -66,6 +81,7 @@ export interface ScannedCardItemProps {
   isFoil?: boolean;
   foilType?: string;
   isDownloaded?: boolean;
+  quantity?: number;
 }
 
 export interface ExportContext {

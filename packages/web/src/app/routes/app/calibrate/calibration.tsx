@@ -118,6 +118,8 @@ export default function CalibrateCalibrationPage() {
     isConnected,
     handleControl,
     handleSliderChange,
+    testingServos,
+    handleServoTest,
     handlePaddleCloseDelayChange,
     feederSpeedValue,
     feederDurationValue,
@@ -257,6 +259,8 @@ export default function CalibrateCalibrationPage() {
         isConnected={isConnected}
         onControl={handleControl}
         onSliderChange={handleSliderChange}
+        testingServos={testingServos}
+        onTest={handleServoTest}
         onPaddleCloseDelayChange={handlePaddleCloseDelayChange}
       />
 

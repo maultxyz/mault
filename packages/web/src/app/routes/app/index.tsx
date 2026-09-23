@@ -6,6 +6,7 @@ import { CollectionSwitcher } from "@/features/collections/components/collection
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { GameSwitchAlert } from "@/features/scanner/components/game-switch-alert";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
@@ -28,6 +29,7 @@ function MobileScanner() {
           cards={unmatchedCards}
           onRemove={removeUnmatchedCard}
         />
+        <BinStatusMeter />
         <GameSwitchAlert />
       </div>
       <Drawer>
@@ -112,6 +114,7 @@ export default function App() {
               cards={unmatchedCards}
               onRemove={removeUnmatchedCard}
             />
+            <BinStatusMeter />
             <GameSwitchAlert />
           </div>
         </section>
@@ -141,6 +144,7 @@ export default function App() {
           cards={unmatchedCards}
           onRemove={removeUnmatchedCard}
         />
+        <BinStatusMeter />
         <ScanStats />
       </section>
       <ResizeHandle

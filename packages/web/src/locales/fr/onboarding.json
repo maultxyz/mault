@@ -149,9 +149,9 @@
       "title": "Nombre de modules",
       "content": "Définis le nombre de modules de tri physiquement installés - cela détermine le nombre de bacs disponibles."
     },
-    "binRouting": {
-      "title": "Routage des bacs",
-      "content": "Associe chaque bac numéroté à un module et une direction (gauche, droite ou bas) pour que le firmware sache où envoyer une carte."
+    "binConfigurations": {
+      "title": "Configuration des bacs",
+      "content": "Associe chaque bac numéroté à un module et une direction (gauche, droite ou bas) pour que le firmware sache où envoyer une carte, et choisis une taille (Petit, Moyen ou Grand) pour que l'application sache quand il est plein."
     },
     "irSensor": {
       "title": "Capteurs infrarouges",

@@ -31,7 +31,8 @@
     "searchForCorrectVersion": "Deine gescannte Karte - suche unten nach der richtigen Version",
     "cancel": "Abbrechen",
     "binLocation": "Fachposition",
-    "showOcrRegions": "OCR-Bereiche anzeigen"
+    "showOcrRegions": "OCR-Bereiche anzeigen",
+    "copyOf": "Exemplar {{index}} von {{count}}"
   },
   "cardFilterPopover": {
     "color": "Farbe",
@@ -90,6 +91,7 @@
     "selectAll": "Alle auswählen",
     "gridView": "Rasteransicht",
     "listView": "Listenansicht",
+    "groupDuplicates": "Duplikate gruppieren",
     "sessionSummaryExport": "Sitzungsübersicht & Export",
     "deleteScannedCardsTitle": "Gescannte Karten löschen",
     "deleteScannedCardsDescription": "Dadurch werden alle Karten dauerhaft aus deiner Sammlung gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
@@ -101,7 +103,9 @@
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
     "multipleMatchesResolvedTooltip": "Mehrere ähnliche Treffer - überprüft und korrigiert",
     "matchTooltip": "Wie genau das gescannte Bild mit dieser Karte übereinstimmt, basierend auf visueller Ähnlichkeitssuche",
-    "bin": "Fach {{number}}"
+    "bin": "Fach {{number}}",
+    "quantityTooltip_one": "{{count}} Exemplar dieser Karte in dieser Sammlung",
+    "quantityTooltip_other": "{{count}} Exemplare dieser Karte in dieser Sammlung"
   },
   "sessionSummaryDialog": {
     "title": "Sitzungsübersicht",

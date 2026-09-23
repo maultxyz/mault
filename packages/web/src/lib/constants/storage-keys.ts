@@ -30,3 +30,5 @@ export const LANGUAGE_STORAGE_KEY = "language";
 export const DISMISSED_ALERTS_STORAGE_KEY = "magic-vault:dismissed-alerts";
 
 export const CARD_VIEW_MODE_STORAGE_KEY = "magic-vault:card-view-mode";
+export const CARD_GROUP_DUPLICATES_STORAGE_KEY =
+  "magic-vault:card-group-duplicates";

@@ -23,6 +23,10 @@ import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardListItem } from "@/features/cards/components/scanned-card-list-item";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
+import {
+  groupScannedCards,
+  toDisplayEntries,
+} from "@/features/cards/lib/group-cards";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useSessionViewersByGuid } from "@/features/collections/api/use-live-counts";
@@ -33,7 +37,10 @@ import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
 
 import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
-import { CARD_VIEW_MODE_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import {
+  CARD_GROUP_DUPLICATES_STORAGE_KEY,
+  CARD_VIEW_MODE_STORAGE_KEY,
+} from "@/lib/constants/storage-keys";
 import type { CardViewMode } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
@@ -124,37 +131,86 @@ export function CardGrid() {
     } catch {}
   }, []);
 
-  const pageCount = Math.max(
-    1,
-    Math.ceil(filteredAndSorted.length / PAGE_SIZE),
+  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
+    setGroupDuplicates(grouped);
+    try {
+      localStorage.setItem(
+        CARD_GROUP_DUPLICATES_STORAGE_KEY,
+        grouped ? "1" : "0",
+      );
+    } catch {}
+  }, []);
+
+  const displayEntries = useMemo(
+    () => toDisplayEntries(filteredAndSorted, groupDuplicates),
+    [filteredAndSorted, groupDuplicates],
   );
+
+  const pageCount = Math.max(1, Math.ceil(displayEntries.length / PAGE_SIZE));
   const clampedPage = Math.min(page, pageCount - 1);
-  const pagedCards = filteredAndSorted.slice(
+  const pagedCards = displayEntries.slice(
     clampedPage * PAGE_SIZE,
     (clampedPage + 1) * PAGE_SIZE,
   );
 
   useEffect(() => {
     setPage(0);
-  }, [searchQuery, filters, sortKey, activeCollection?.guid]);
+  }, [searchQuery, filters, sortKey, activeCollection?.guid, groupDuplicates]);
 
-  const openIndex = openScanId
-    ? filteredAndSorted.findIndex((c) => c.scanId === openScanId)
-    : -1;
-  const openEntry = openIndex >= 0 ? filteredAndSorted[openIndex] : null;
+  // Prev/next walks every individual scan, but a grouped tile's duplicates
+  // are placed adjacently (regardless of when they were actually scanned)
+  // so stepping through them visits every copy before moving to the next
+  // distinct card, instead of following raw scan-time order.
+  const navigationList = useMemo(
+    () => displayEntries.flatMap((entry) => entry.scanIds),
+    [displayEntries],
+  );
+  const cardsByScanId = useMemo(
+    () => new Map(filteredAndSorted.map((c) => [c.scanId, c] as const)),
+    [filteredAndSorted],
+  );
+  const openIndex = openScanId ? navigationList.indexOf(openScanId) : -1;
+  const openEntry =
+    openIndex >= 0
+      ? (cardsByScanId.get(navigationList[openIndex]) ?? null)
+      : null;
 
-  const toggleSelect = useCallback((scanId: string) => {
+  const duplicateGroups = useMemo(
+    () => groupScannedCards(filteredAndSorted),
+    [filteredAndSorted],
+  );
+  const openGroup = openEntry
+    ? duplicateGroups.find((g) => g.scanIds.includes(openEntry.scanId))
+    : undefined;
+  const openCopyIndex =
+    openEntry && openGroup ? openGroup.scanIds.indexOf(openEntry.scanId) : -1;
+  const openCopyCount = openGroup?.quantity ?? 1;
+
+  const toggleSelect = useCallback((scanIds: string[]) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(scanId)) next.delete(scanId);
-      else next.add(scanId);
+      const allSelected = scanIds.every((id) => next.has(id));
+      for (const id of scanIds) {
+        if (allSelected) next.delete(id);
+        else next.add(id);
+      }
       return next;
     });
   }, []);
 
   const allSelected =
-    filteredAndSorted.length > 0 &&
-    filteredAndSorted.every((card) => selectedIds.has(card.scanId));
+    displayEntries.length > 0 &&
+    displayEntries.every((entry) =>
+      entry.scanIds.every((id) => selectedIds.has(id)),
+    );
 
   const toggleSelectAll = useCallback(() => {
     setSelectedIds((prev) => {
@@ -347,16 +403,14 @@ export function CardGrid() {
           removeCard(openEntry.scanId);
           setOpenScanId(null);
         }}
-        onPrev={() =>
-          setOpenScanId(filteredAndSorted[openIndex - 1]?.scanId ?? null)
-        }
-        onNext={() =>
-          setOpenScanId(filteredAndSorted[openIndex + 1]?.scanId ?? null)
-        }
+        onPrev={() => setOpenScanId(navigationList[openIndex - 1] ?? null)}
+        onNext={() => setOpenScanId(navigationList[openIndex + 1] ?? null)}
         hasPrev={openIndex > 0}
-        hasNext={openIndex < filteredAndSorted.length - 1}
+        hasNext={openIndex < navigationList.length - 1}
         currentIndex={openIndex}
-        total={filteredAndSorted.length}
+        total={navigationList.length}
+        copyIndex={openCopyIndex}
+        copyCount={openCopyCount}
       />
     );
   }
@@ -387,6 +441,8 @@ export function CardGrid() {
           cardCount={cards.length}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
+          groupDuplicates={groupDuplicates}
+          onGroupDuplicatesChange={handleGroupDuplicatesChange}
         />
       </div>
       {filteredAndSorted.length === 0 && (
@@ -399,37 +455,39 @@ export function CardGrid() {
       <div className="p-2 flex-1">
         {viewMode === "list" ? (
           <div className="flex flex-col gap-1.5">
-            {pagedCards.map((card) => (
+            {pagedCards.map((entry) => (
               <ScannedCardListItem
-                key={card.scanId}
-                card={card.card}
-                onOpen={() => setOpenScanId(card.scanId)}
-                binNumber={card.binNumber}
-                isSelected={selectedIds.has(card.scanId)}
-                onToggleSelect={() => toggleSelect(card.scanId)}
-                hasAlternatives={!!card.alternativeMatches?.length}
-                wasCorrected={card.corrected}
-                isFoil={card.isFoil}
-                foilType={card.foilType}
-                isDownloaded={card.isDownloaded}
+                key={entry.scanId}
+                card={entry.card}
+                onOpen={() => setOpenScanId(entry.scanId)}
+                binNumber={entry.binNumber}
+                isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+                onToggleSelect={() => toggleSelect(entry.scanIds)}
+                hasAlternatives={!!entry.alternativeMatches?.length}
+                wasCorrected={entry.corrected}
+                isFoil={entry.isFoil}
+                foilType={entry.foilType}
+                isDownloaded={entry.isDownloaded}
+                quantity={entry.quantity}
               />
             ))}
           </div>
         ) : (
           <div className="grid grid-cols-3 @4xl:grid-cols-4 @6xl:grid-cols-6 @7xl:grid-cols-8 gap-2">
-            {pagedCards.map((card) => (
+            {pagedCards.map((entry) => (
               <ScannedCardItem
-                key={card.scanId}
-                card={card.card}
-                onOpen={() => setOpenScanId(card.scanId)}
-                binNumber={card.binNumber}
-                isSelected={selectedIds.has(card.scanId)}
-                onToggleSelect={() => toggleSelect(card.scanId)}
-                hasAlternatives={!!card.alternativeMatches?.length}
-                wasCorrected={card.corrected}
-                isFoil={card.isFoil}
-                foilType={card.foilType}
-                isDownloaded={card.isDownloaded}
+                key={entry.scanId}
+                card={entry.card}
+                onOpen={() => setOpenScanId(entry.scanId)}
+                binNumber={entry.binNumber}
+                isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+                onToggleSelect={() => toggleSelect(entry.scanIds)}
+                hasAlternatives={!!entry.alternativeMatches?.length}
+                wasCorrected={entry.corrected}
+                isFoil={entry.isFoil}
+                foilType={entry.foilType}
+                isDownloaded={entry.isDownloaded}
+                quantity={entry.quantity}
               />
             ))}
           </div>

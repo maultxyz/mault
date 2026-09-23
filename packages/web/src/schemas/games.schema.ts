@@ -23,6 +23,7 @@ export function createGameFormSchema(t: TFunction<"games">) {
       .optional()
       .or(z.literal("")),
     foilTypesText: z.string().optional(),
+    cardThickness: z.number().positive().nullable(),
     isActive: z.boolean(),
     fieldDefinitions: z
       .array(fieldMetaFormSchema)

@@ -24,6 +24,8 @@ import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
   CALIBRATION_STEP_SETTLE_MS,
+  SERVO_TEST_GATE_HOLD_MS,
+  SERVO_TEST_PUSHER_HOLD_MS,
 } from "@/lib/constants/timing";
 import {
   computeBinCount,
@@ -159,6 +161,20 @@ export function useCalibrationPage() {
 
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [testingServos, setTestingServos] = useState<Record<SliderKey, boolean>>(
+    {},
+  );
+  const servoTestTimeoutsRef = useRef<
+    Partial<Record<SliderKey, ReturnType<typeof setTimeout>>>
+  >({});
+
+  useEffect(() => {
+    const timeouts = servoTestTimeoutsRef.current;
+    return () => {
+      for (const timeout of Object.values(timeouts)) clearTimeout(timeout);
+    };
+  }, []);
+
   const [activeBin, setActiveBinState] = useState<number | null>(null);
   const activeBinRef = useRef<number | null>(null);
   const setActiveBin = useCallback((v: number | null) => {
@@ -233,6 +249,60 @@ export function useCalibrationPage() {
           [module]: { ...prev[module], [calKey]: value },
         }));
       }
+    },
+    [moveServo],
+  );
+
+  const handleServoTest = useCallback(
+    (module: number, servo: "bottom" | "paddle" | "pusher") => {
+      const key = `${module}:${servo}` as SliderKey;
+      const cal = configsRef.current.find(
+        (c) => c.moduleNumber === module,
+      )?.calibration;
+      if (!cal) return;
+      const pending = pendingCalibrationRef.current[module];
+      const valueFor = (calKey: keyof ServoCalibration) =>
+        pending?.[calKey] ?? cal[calKey];
+
+      const restKey = getCalibrationKey(
+        servo,
+        servo === "pusher" ? "neutral" : "closed",
+      );
+      if (!restKey) return;
+
+      const steps: { calKey: keyof ServoCalibration; holdMs: number }[] =
+        servo === "pusher"
+          ? [
+              { calKey: "pusherLeft", holdMs: SERVO_TEST_PUSHER_HOLD_MS },
+              { calKey: "pusherRight", holdMs: SERVO_TEST_PUSHER_HOLD_MS },
+            ]
+          : [
+              {
+                calKey: getCalibrationKey(servo, "open")!,
+                holdMs: SERVO_TEST_GATE_HOLD_MS,
+              },
+            ];
+
+      const existingTimeout = servoTestTimeoutsRef.current[key];
+      if (existingTimeout) clearTimeout(existingTimeout);
+
+      const runStep = (index: number) => {
+        const step = steps[index];
+        if (!step) {
+          moveServo(module, servo, valueFor(restKey));
+          setTestingServos((prev) => ({ ...prev, [key]: false }));
+          delete servoTestTimeoutsRef.current[key];
+          return;
+        }
+        moveServo(module, servo, valueFor(step.calKey));
+        servoTestTimeoutsRef.current[key] = setTimeout(
+          () => runStep(index + 1),
+          step.holdMs,
+        );
+      };
+
+      setTestingServos((prev) => ({ ...prev, [key]: true }));
+      runStep(0);
     },
     [moveServo],
   );
@@ -613,6 +683,8 @@ export function useCalibrationPage() {
     isUnconfigured,
     handleControl,
     handleSliderChange,
+    testingServos,
+    handleServoTest,
     handlePaddleCloseDelayChange,
     handleTest,
     handleTestBin,

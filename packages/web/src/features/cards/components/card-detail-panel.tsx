@@ -1,4 +1,5 @@
 import { FoilOverlay } from "@/components/foil-overlay";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -62,6 +63,8 @@ interface CardDetailPanelProps {
   hasNext?: boolean;
   currentIndex?: number;
   total?: number;
+  copyIndex?: number;
+  copyCount?: number;
 }
 
 export function CardDetailPanel({
@@ -79,6 +82,8 @@ export function CardDetailPanel({
   hasNext,
   currentIndex,
   total,
+  copyIndex,
+  copyCount,
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
@@ -267,6 +272,14 @@ export function CardDetailPanel({
                 <span className="text-xs text-muted-foreground shrink-0">
                   {currentIndex + 1} / {total}
                 </span>
+              )}
+              {copyCount != null && copyCount > 1 && (
+                <Badge variant="secondary" className="shrink-0">
+                  {t("cardDetailPanel.copyOf", {
+                    index: (copyIndex ?? 0) + 1,
+                    count: copyCount,
+                  })}
+                </Badge>
               )}
             </div>
             {typeLine && (

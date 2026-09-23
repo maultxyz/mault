@@ -40,12 +40,17 @@
     "calibration": "Feeder & Module Calibration",
     "moduleCalibration": "Module Calibration"
   },
-  "binRoutingAssignment": {
-    "label": "Bin Routing Assignment",
+  "binConfigurations": {
+    "label": "Bin Configurations",
     "resetToDefaults": "Reset to Defaults",
     "moduleLeft": "Module {{module}}, Left",
     "moduleRight": "Module {{module}}, Right",
-    "bottomSectionLabel": "Bottom (catch-all)"
+    "bottomSectionLabel": "Bottom (catch-all)",
+    "presets": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    }
   },
   "binRoutingControls": {
     "label": "Bin Routing",
@@ -90,6 +95,8 @@
     "percentSliderTooltip": "How far this servo is pushed, as a percent of its full range of motion. Select a position above, then drag this slider to change it - it's saved along with everything else when you hit Save.",
     "rawPulseTooltip": "Raw servo pulse position (120-490), the exact value sent to the device.",
     "rawPulseToggleLabel": "Raw pulse values",
+    "testServoTooltipGate": "Test: briefly opens the gate, then returns it to closed, so you can watch it move.",
+    "testServoTooltipPusher": "Test: briefly fires the pusher left, then right, then returns it to neutral, so you can watch it move both ways.",
     "positions": {
       "open": "Open",
       "closed": "Closed",
@@ -165,6 +172,16 @@
       "saveFailed": "Failed to save bin route",
       "resetSuccess": "Bin routes reset to defaults",
       "resetFailed": "Failed to reset bin routes"
+    }
+  },
+  "useBinHeights": {
+    "toasts": {
+      "saveFailed": "Failed to save bin height"
+    }
+  },
+  "modulesPage": {
+    "toasts": {
+      "saveFailed": "Failed to save changes"
     }
   },
   "calibratePage": {

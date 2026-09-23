@@ -12,8 +12,8 @@ export function ScanVectorizeStatsPanel() {
   });
 
   const server = statsQuery.data?.server ?? 0;
-  const webgpu = statsQuery.data?.webgpu ?? 0;
-  const total = server + webgpu;
+  const web = statsQuery.data?.web ?? 0;
+  const total = server + web;
 
   return (
     <div className="rounded-lg border p-4 flex flex-col gap-3">
@@ -41,13 +41,13 @@ export function ScanVectorizeStatsPanel() {
         </div>
         <div className="rounded-lg bg-sidebar border p-3">
           <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
-            {t("scanVectorizeStats.webgpuLabel")}
+            {t("scanVectorizeStats.webLabel")}
           </p>
-          <p className="text-lg font-semibold">{webgpu}</p>
+          <p className="text-lg font-semibold">{web}</p>
           <p className="text-xs text-muted-foreground">
             {total > 0
               ? t("scanVectorizeStats.percentOfTotal", {
-                  percent: Math.round((webgpu / total) * 100),
+                  percent: Math.round((web / total) * 100),
                 })
               : "-"}
           </p>

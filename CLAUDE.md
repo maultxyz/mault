@@ -70,3 +70,5 @@ pnpm workspace + Turborepo, three packages: `shared` (framework-agnostic types/c
 ## Code style
 
 Don't write excessive comments — code should be self-documenting through clear naming and structure. Only add a comment when it explains something the code itself can't: a non-obvious constraint, a workaround for a specific external system's quirk, or an invariant that would surprise a reader. Don't restate what the code already makes obvious.
+
+Never use em dashes, in code, comments, commit messages, or chat responses. Use a comma, colon, or period instead, or split into two sentences.

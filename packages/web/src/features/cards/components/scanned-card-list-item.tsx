@@ -31,6 +31,7 @@ export const ScannedCardListItem = memo(function ScannedCardListItem({
   isFoil = false,
   foilType,
   isDownloaded = false,
+  quantity = 1,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
   const matchPercent =
@@ -114,6 +115,20 @@ export const ScannedCardListItem = memo(function ScannedCardListItem({
           <span className="shrink-0" title={t("downloaded")}>
             <IconDownload className="size-3.5 text-muted-foreground" />
           </span>
+        )}
+        {quantity > 1 && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Badge variant="default" className="shrink-0">
+                  ×{quantity}
+                </Badge>
+              }
+            />
+            <TooltipContent>
+              {t("scannedCardItem.quantityTooltip", { count: quantity })}
+            </TooltipContent>
+          </Tooltip>
         )}
         <Tooltip>
           <TooltipTrigger

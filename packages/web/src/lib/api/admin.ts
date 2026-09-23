@@ -149,9 +149,9 @@ export async function getPublicMetrics(): Promise<Result<PublicMetrics>> {
 
 export async function getScanVectorizeStats(): Promise<{
   success: boolean;
-  data: { server: number; webgpu: number };
+  data: { server: number; web: number };
 }> {
-  return apiGet<{ success: boolean; data: { server: number; webgpu: number } }>(
+  return apiGet<{ success: boolean; data: { server: number; web: number } }>(
     "/api/admin/scan-vectorize-stats",
   );
 }

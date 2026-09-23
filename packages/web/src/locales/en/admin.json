@@ -117,9 +117,9 @@
   },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
-    "description": "How many card scans were vectorized on the server vs. on the client via WebGPU",
+    "description": "How many card scans were vectorized on the server vs. in the browser",
     "serverLabel": "Server",
-    "webgpuLabel": "WebGPU",
+    "webLabel": "Web",
     "percentOfTotal": "{{percent}}% of scans"
   },
   "rollbarTest": {

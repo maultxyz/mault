@@ -31,7 +31,8 @@
     "searchForCorrectVersion": "Your scanned card, search for the correct version below",
     "cancel": "Cancel",
     "binLocation": "Bin location",
-    "showOcrRegions": "Show OCR regions"
+    "showOcrRegions": "Show OCR regions",
+    "copyOf": "Copy {{index}} of {{count}}"
   },
   "cardFilterPopover": {
     "color": "Color",
@@ -90,6 +91,7 @@
     "selectAll": "Select all",
     "gridView": "Grid view",
     "listView": "List view",
+    "groupDuplicates": "Group duplicates",
     "sessionSummaryExport": "Session summary & export",
     "deleteScannedCardsTitle": "Delete Scanned Cards",
     "deleteScannedCardsDescription": "This will permanently delete all cards from your collection. This action cannot be undone.",
@@ -101,7 +103,9 @@
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
     "multipleMatchesResolvedTooltip": "Multiple close matches, reviewed and corrected",
     "matchTooltip": "How closely the scanned image matches this card, based on visual similarity search",
-    "bin": "Bin {{number}}"
+    "bin": "Bin {{number}}",
+    "quantityTooltip_one": "{{count}} copy of this card in this collection",
+    "quantityTooltip_other": "{{count}} copies of this card in this collection"
   },
   "sessionSummaryDialog": {
     "title": "Session Summary",

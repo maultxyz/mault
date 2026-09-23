@@ -11,6 +11,7 @@ export function toGame(row: typeof games.$inferSelect): Game {
     fieldDefinitions: row.fieldDefinitions as FieldMeta[],
     foilTypes: (row.foilTypes as string[] | null) ?? [],
     apiDocsUrl: row.apiDocsUrl,
+    cardThickness: row.cardThickness,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -22,6 +23,7 @@ export interface GameInput {
   fieldDefinitions: FieldMeta[];
   foilTypes?: string[];
   apiDocsUrl?: string | null;
+  cardThickness?: number | null;
   isActive?: boolean;
 }
 
