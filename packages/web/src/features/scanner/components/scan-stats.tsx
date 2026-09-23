@@ -1,11 +1,9 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { applyCardFilters } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
-import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
 import { cn } from "@/lib/utils";
-import { DEFAULT_MATCH_THRESHOLD_PERCENT } from "@magic-vault/shared";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -30,13 +28,10 @@ export function ScanStats() {
   const [expandedSets, setExpandedSets] = useState(false);
   const { cards, elapsedMs, isTimerActive } = useScannedCards();
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
-  const { activeCollection } = useCollections();
-  const matchThresholdPercent =
-    activeCollection?.matchThreshold ?? DEFAULT_MATCH_THRESHOLD_PERCENT;
 
   const visibleCards = useMemo(
-    () => applyCardFilters(cards, filters, matchThresholdPercent),
-    [cards, filters, matchThresholdPercent],
+    () => applyCardFilters(cards, filters),
+    [cards, filters],
   );
   const stats = useMemo(
     () => computeDisplayStats(cards, visibleCards),

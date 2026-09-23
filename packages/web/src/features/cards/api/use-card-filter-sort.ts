@@ -1,19 +1,12 @@
-import { useCollections } from "@/features/collections/api/use-collections";
 import type { CardFilters } from "@/lib/interfaces/cards";
 import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { matchPercentFromDistance } from "@/lib/utils";
-import {
-  DEFAULT_MATCH_THRESHOLD_PERCENT,
-  getCardValue,
-  type FieldMeta,
-  type ScannedCard,
-} from "@magic-vault/shared";
+import { getCardValue, type FieldMeta, type ScannedCard } from "@magic-vault/shared";
 import { useEffect, useMemo, useState } from "react";
 
 export function applyCardFilters(
   cards: ScannedCard[],
   filters: CardFilters,
-  matchThresholdPercent: number = DEFAULT_MATCH_THRESHOLD_PERCENT,
 ): ScannedCard[] {
   let result = cards;
 
@@ -61,8 +54,7 @@ export function applyCardFilters(
   if (filters.minMatchPercent > 0) {
     result = result.filter(
       (entry) =>
-        matchPercentFromDistance(entry.card.distance, matchThresholdPercent) >=
-        filters.minMatchPercent,
+        matchPercentFromDistance(entry.card.distance) >= filters.minMatchPercent,
     );
   }
 
@@ -119,9 +111,6 @@ export function useCardFilterSort(
     useState<CardFilters>(EMPTY_CARD_FILTERS);
   const filters = external?.filters ?? internalFilters;
   const setFilters = external?.setFilters ?? setInternalFilters;
-  const { activeCollection } = useCollections();
-  const matchThresholdPercent =
-    activeCollection?.matchThreshold ?? DEFAULT_MATCH_THRESHOLD_PERCENT;
 
   const sortableFields = useMemo(
     () => fieldDefinitions.filter((f) => SORTABLE_TYPES.includes(f.type)),
@@ -137,7 +126,7 @@ export function useCardFilterSort(
   }, [fieldDefinitions, sortKey]);
 
   const filteredAndSorted = useMemo(() => {
-    let result = applyCardFilters(cards, filters, matchThresholdPercent);
+    let result = applyCardFilters(cards, filters);
 
     const query = searchQuery.toLowerCase().trim();
     if (query) {
@@ -164,7 +153,7 @@ export function useCardFilterSort(
     const sorted = [...result];
     sorted.sort((a, b) => mul * compareByField(a, b, meta, fieldDefinitions));
     return sorted;
-  }, [cards, searchQuery, sortKey, filters, fieldDefinitions, matchThresholdPercent]);
+  }, [cards, searchQuery, sortKey, filters, fieldDefinitions]);
 
   const activeFilterCount =
     filters.colors.length +

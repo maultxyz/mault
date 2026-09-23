@@ -7,12 +7,10 @@ import {
 } from "@/components/ui/tooltip";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { useCollections } from "@/features/collections/api/use-collections";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
 import { cn, matchPercentFromDistance } from "@/lib/utils";
-import { DEFAULT_MATCH_THRESHOLD_PERCENT } from "@magic-vault/shared";
 import {
   IconCheck,
   IconDownload,
@@ -35,13 +33,8 @@ export const ScannedCardListItem = memo(function ScannedCardListItem({
   isDownloaded = false,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
-  const { activeCollection } = useCollections();
-  const matchThresholdPercent =
-    activeCollection?.matchThreshold ?? DEFAULT_MATCH_THRESHOLD_PERCENT;
   const matchPercent =
-    card.distance != null
-      ? matchPercentFromDistance(card.distance, matchThresholdPercent)
-      : 0;
+    card.distance != null ? matchPercentFromDistance(card.distance) : 0;
   const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
 
   return (
