@@ -7,10 +7,12 @@ export default function CalibrateScanRegionPage() {
   const {
     scanRegion,
     captureSettleDelayMs,
+    matchesNeeded,
     isDeviceLoading,
     handleScanRegionChange,
     handleResetScanRegion,
     handleCaptureSettleChange,
+    handleMatchesNeededChange,
     isScanRegionSectionDirty,
     isSavingScanRegion,
     handleSaveScanRegion,
@@ -22,10 +24,12 @@ export default function CalibrateScanRegionPage() {
       <ScanRegionCalibrationPanel
         scanRegion={scanRegion}
         captureSettleDelayMs={captureSettleDelayMs}
+        matchesNeeded={matchesNeeded}
         isLoading={isDeviceLoading}
         onRegionChange={handleScanRegionChange}
         onResetRegion={handleResetScanRegion}
         onCaptureSettleChange={handleCaptureSettleChange}
+        onMatchesNeededChange={handleMatchesNeededChange}
       />
 
       <SaveBar

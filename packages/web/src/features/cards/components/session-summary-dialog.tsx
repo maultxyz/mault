@@ -505,6 +505,8 @@ export function SessionSummaryDialog({
   const [paused, setPaused] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
+  const { activeCollection } = useCollections();
+
   const previouslyDownloadedCount = useMemo(
     () => cards.filter((c) => c.isDownloaded).length,
     [cards],
@@ -522,7 +524,6 @@ export function SessionSummaryDialog({
   }, [cards, includeDownloaded, applyGridFilters, gridFilters]);
   const stats = useMemo(() => computeStats(cards), [cards]);
   const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
-  const { activeCollection } = useCollections();
   const { fieldDefinitions } = useBinConfigs();
   const { activeOrg } = useOrg();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(activeOrg?.id));

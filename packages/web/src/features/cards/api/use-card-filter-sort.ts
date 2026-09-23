@@ -1,10 +1,7 @@
 import type { CardFilters } from "@/lib/interfaces/cards";
 import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
-import {
-  getCardValue,
-  type FieldMeta,
-  type ScannedCard,
-} from "@magic-vault/shared";
+import { matchPercentFromDistance } from "@/lib/utils";
+import { getCardValue, type FieldMeta, type ScannedCard } from "@magic-vault/shared";
 import { useEffect, useMemo, useState } from "react";
 
 export function applyCardFilters(
@@ -56,7 +53,8 @@ export function applyCardFilters(
 
   if (filters.minMatchPercent > 0) {
     result = result.filter(
-      (entry) => (1 - entry.card.distance) * 100 >= filters.minMatchPercent,
+      (entry) =>
+        matchPercentFromDistance(entry.card.distance) >= filters.minMatchPercent,
     );
   }
 

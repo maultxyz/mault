@@ -16,7 +16,7 @@ import { relations } from "drizzle-orm/relations";
 
 const vector = customType<{ data: number[]; driverData: string }>({
   dataType() {
-    return "vector(768)"; // 768 dimensions — SigLIP ViT-Base-Patch16-224 embeddings
+    return "vector(128)";
   },
   toDriver(value: number[]): string {
     return JSON.stringify(value);
@@ -42,9 +42,6 @@ export const cardImageVectors = pgTable(
     name: text("name").notNull(),
     setCode: text("set_code").notNull(),
     embedding: vector("embedding").notNull(),
-    embeddingArt: vector("embedding_art"),
-    embeddingName: vector("embedding_name"),
-    embeddingBottom: vector("embedding_bottom"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -60,6 +57,40 @@ export const cardImageVectors = pgTable(
     // partial HNSW indexes are created dynamically instead, since game keys
     // are admin-defined data (Games Manager), not something this static
     // schema can enumerate.
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+// Parallel catalog for the in-progress embedding-model transition: same
+// shape as cardImageVectors, synced/vectorized independently so prod keeps
+// serving matches from `cards` until `cards_v2` is fully populated and
+// verified, then the two get swapped. See ensureGameVectorIndex's `table`
+// param in lib/game-vector-index.ts for building this table's per-game HNSW
+// indexes the same way.
+export const cardImageVectorsV2 = pgTable(
+  "cards_v2",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    cardId: text("card_id").notNull(),
+    gameKey: text("game_key").notNull().default("mtg"),
+    lang: text("lang").notNull().default("en"),
+    name: text("name").notNull(),
+    setCode: text("set_code").notNull(),
+    embedding: vector("embedding").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("cards_v2_game_lang_card_idx").on(
+      table.gameKey,
+      table.lang,
+      table.cardId,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -154,10 +185,12 @@ export const devices = pgTable(
     guid: uuid("guid").defaultRandom(),
     orgId: text("org_id").notNull(),
     name: text("name").notNull().default("Card Sorter"),
+    hardwareId: text("hardware_id"),
     scanCoverage: integer("scan_coverage"),
     scanOffsetX: integer("scan_offset_x"),
     scanOffsetY: integer("scan_offset_y"),
     captureSettleDelayMs: integer("capture_settle_delay_ms"),
+    matchesNeeded: integer("matches_needed"),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
     createdAt: timestamp("created_at").defaultNow().notNull(),

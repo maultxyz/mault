@@ -1,6 +1,11 @@
 #include <ArduinoJson.h>
+#include <EEPROM.h>
 #include <Wire.h>
+#include <ctype.h>
 #include <Adafruit_PWMServoDriver.h>
+#if defined(ARDUINO_ARCH_ESP32)
+#include "esp_mac.h"
+#endif
 
 // S2/S3 boards must be built with "USB Mode: Hardware CDC and JTAG" and
 // "USB CDC On Boot: Enabled" (Arduino IDE Tools menu, or
@@ -67,6 +72,99 @@
 #endif
 
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+
+// Short, human-distinguishable ID identifying this specific physical board -
+// the same value regardless of which transport (Serial or BLE) a client
+// reads it over, and stable across power cycles/resets, so the app can key a
+// saved device record to a specific unit and multiple units show up as
+// distinct entries in a phone/OS Bluetooth picker before ever connecting.
+// Populated once from setup(), before the boot banner is printed, via the
+// best source available on the board:
+//   - ESP32 (any variant): the factory Wi-Fi/BT MAC (setDeviceIdFromMac()
+//     below), read unconditionally - present on the silicon regardless of
+//     whether this build even compiles in a BLE backend (see BLE_SUPPORTED).
+//   - Uno R4 WiFi: also MAC-derived, but only readable after BLE.begin()
+//     talks to the onboard co-processor, so it's set from inside bleInit()
+//     (see ble_arduinoble.ino) instead of here.
+//   - Uno R4 Minima (no radio of any kind): falls back to
+//     loadOrCreateDeviceId() below, which persists a random one-time-
+//     generated ID to EEPROM/data flash - the only board with nothing
+//     factory-unique to read.
+char deviceId[7] = "";
+
+// Formats a colon-separated MAC string ("aa:bb:cc:dd:ee:ff") into deviceId as
+// its last 6 hex characters, uppercased and with colons stripped - plenty of
+// entropy to tell boards apart on a bench without needing the full address.
+void setDeviceIdFromMac(const char* mac) {
+  char stripped[13];
+  int len = 0;
+  for (const char* p = mac; *p && len < 12; p++) {
+    if (*p != ':') stripped[len++] = (char)toupper((unsigned char)*p);
+  }
+  stripped[len] = '\0';
+  int start = len > 6 ? len - 6 : 0;
+  strncpy(deviceId, stripped + start, 6);
+  deviceId[6] = '\0';
+}
+
+#if defined(ARDUINO_ARCH_ESP32)
+// Every ESP32 (classic or S3) has a factory-programmed Wi-Fi/BT MAC
+// regardless of whether this build even compiles in the BLE backend
+// (BLE_SUPPORTED is 0 for classic ESP32 - see below) - ESP_MAC_WIFI_STA is
+// readable unconditionally, unlike the Uno R4 WiFi's BLE.address(), which
+// needs the co-processor initialized first.
+void initDeviceIdFromEspMac() {
+  uint8_t mac[6];
+  esp_read_mac(mac, ESP_MAC_WIFI_STA);
+  char macStr[18];
+  snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0],
+           mac[1], mac[2], mac[3], mac[4], mac[5]);
+  setDeviceIdFromMac(macStr);
+}
+#endif
+
+#define DEVICE_ID_EEPROM_ADDR 0
+// Marks that a device ID was already generated and stored, so a re-flash or
+// reset doesn't hand out a fresh random one - written only once, on this
+// board's actual first boot.
+#define DEVICE_ID_EEPROM_MAGIC 0xA5
+
+// Last-resort fallback for a board with no factory-unique hardware ID to
+// read at all (only the Uno R4 Minima, which has no radio - see deviceId's
+// comment above). Unlike servo calibration, which this firmware intentionally
+// does NOT remember across power-off (see setConfig's docs in PROTOCOL.md), a
+// board's identity has to survive a reset or it's useless for keying a saved
+// device record to a specific physical unit - so this one value does get
+// persisted, to EEPROM (which the Renesas UNO R4 core emulates over its
+// internal data flash).
+void loadOrCreateDeviceId() {
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.begin(8);
+#endif
+
+  if (EEPROM.read(DEVICE_ID_EEPROM_ADDR) == DEVICE_ID_EEPROM_MAGIC) {
+    for (int i = 0; i < 6; i++) {
+      deviceId[i] = (char)EEPROM.read(DEVICE_ID_EEPROM_ADDR + 1 + i);
+    }
+    deviceId[6] = '\0';
+    return;
+  }
+
+  randomSeed(micros());
+  const char hexDigits[] = "0123456789ABCDEF";
+  for (int i = 0; i < 6; i++) {
+    deviceId[i] = hexDigits[random(0, 16)];
+  }
+  deviceId[6] = '\0';
+
+  EEPROM.write(DEVICE_ID_EEPROM_ADDR, DEVICE_ID_EEPROM_MAGIC);
+  for (int i = 0; i < 6; i++) {
+    EEPROM.write(DEVICE_ID_EEPROM_ADDR + 1 + i, deviceId[i]);
+  }
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.commit();
+#endif
+}
 
 // PCA9685 channels: each module uses 3 consecutive channels (bottom, paddle,
 // pusher) starting at moduleChannelOffset; the feeder gets the next channel
@@ -627,6 +725,8 @@ void handleCommand(char* json, Print& reply) {
     reply.print(FIRMWARE_VERSION);
     reply.print(F("\",\"board\":\""));
     reply.print(BOARD_TYPE);
+    reply.print(F("\",\"id\":\""));
+    reply.print(deviceId);
     reply.println(F("\"}"));
     return;
   }
@@ -900,14 +1000,25 @@ void setup() {
   delay(10);
   setAllNeutral();
 
-#if BLE_SUPPORTED
-  bleInit();
+#if defined(ARDUINO_ARCH_ESP32)
+  initDeviceIdFromEspMac();
 #endif
 
-  char bootLine[96];
+#if BLE_SUPPORTED
+  bleInit();  // Uno R4 WiFi sets deviceId here, from BLE.address()
+#endif
+
+  // Nothing above set an ID - either a board with no radio at all (Uno R4
+  // Minima), or a BLE co-processor that failed to respond (see bleInit()'s
+  // own comment on BLE.begin() failures).
+  if (deviceId[0] == '\0') {
+    loadOrCreateDeviceId();
+  }
+
+  char bootLine[128];
   snprintf(bootLine, sizeof(bootLine),
-           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\"}",
-           FIRMWARE_VERSION, BOARD_TYPE);
+           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\"}",
+           FIRMWARE_VERSION, BOARD_TYPE, deviceId);
   broadcastLine(bootLine);
 }
 

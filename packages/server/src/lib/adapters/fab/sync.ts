@@ -49,12 +49,15 @@ async function fetchCards(
 }
 
 async function fetchOne(id: string, baseUrl: string) {
-  const match = await findPrinting(id, baseUrl);
-  if (!match) return null;
+  const { match, urls } = await findPrinting(id, baseUrl);
+  if (!match) return { card: null, urls };
   return {
-    name: match.card.name,
-    setCode: match.printing.set_id,
-    imageUrl: match.printing.image_url ?? undefined,
+    card: {
+      name: match.card.name,
+      setCode: match.printing.set_id,
+      imageUrl: match.printing.image_url ?? undefined,
+    },
+    urls,
   };
 }
 

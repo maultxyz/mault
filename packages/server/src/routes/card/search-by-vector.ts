@@ -49,12 +49,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
     if (!embedding) {
       return c.json({ success: false, message: "No embedding provided." }, 400);
     }
-    const embeddings: CardSearchEmbeddings = {
-      embedding,
-      embeddingArt: parseEmbeddingField(body["embeddingArt"]),
-      embeddingName: parseEmbeddingField(body["embeddingName"]),
-      embeddingBottom: parseEmbeddingField(body["embeddingBottom"]),
-    };
+    const embeddings: CardSearchEmbeddings = { embedding };
     void recordScanVectorizeSource("webgpu");
 
     const resolved = await resolveGameKeyAndLang(

@@ -89,22 +89,26 @@ async function fetchCards(
   signal?: AbortSignal,
 ): Promise<SyncSourceCard[]> {
   return lang === "en"
-    ? downloadBulkData(baseUrl, addLog, "unique_artwork", undefined, signal)
+    ? downloadBulkData(baseUrl, addLog, "default_cards", "en", signal)
     : downloadBulkData(baseUrl, addLog, "all_cards", lang, signal);
 }
 
 async function fetchOne(id: string, baseUrl: string) {
-  const res = await fetch(`${baseUrl}/${id}`, { headers: CARD_API_HEADERS });
-  if (!res.ok) return null;
-  const card = (await res.json()) as {
+  const url = `${baseUrl}/${id}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
+  const raw = (await res.json()) as {
     name: string;
     set: string;
     image_uris?: { png?: string; large?: string };
   };
   return {
-    name: card.name,
-    setCode: card.set,
-    imageUrl: card.image_uris?.png ?? card.image_uris?.large,
+    card: {
+      name: raw.name,
+      setCode: raw.set,
+      imageUrl: raw.image_uris?.png ?? raw.image_uris?.large,
+    },
+    urls: [url],
   };
 }
 

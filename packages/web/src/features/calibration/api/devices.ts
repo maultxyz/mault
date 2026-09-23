@@ -2,6 +2,7 @@ import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHANNEL_LAYOUT,
+  DEFAULT_MATCHES_NEEDED,
   DEFAULT_MODULE_COUNT,
   DEFAULT_SCAN_REGION,
   type ChannelLayout,
@@ -13,8 +14,10 @@ import { queryOptions } from "@tanstack/react-query";
 export interface Device {
   guid: string;
   name: string;
+  hardwareId: string | null;
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
+  matchesNeeded: number;
   moduleCount: number;
   channelLayout: ChannelLayout;
   createdAt: string;
@@ -23,8 +26,10 @@ export interface Device {
 
 export interface DevicePatch {
   name?: string;
+  hardwareId?: string | null;
   scanRegion?: ScanRegion | null;
   captureSettleDelayMs?: number | null;
+  matchesNeeded?: number | null;
   moduleCount?: number;
   channelLayout?: ChannelLayout;
 }
@@ -32,8 +37,10 @@ export interface DevicePatch {
 export const DEFAULT_DEVICE: Device = {
   guid: "",
   name: "Card Sorter",
+  hardwareId: null,
   scanRegion: DEFAULT_SCAN_REGION,
   captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  matchesNeeded: DEFAULT_MATCHES_NEEDED,
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
   createdAt: "",

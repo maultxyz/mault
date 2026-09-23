@@ -12,9 +12,9 @@ https://makerworld.com/en/models/3066180-tcg-card-sorting-machine
 
 ## How it works
 
-1. A feeder mechanism (continuous-rotation servo + roller) pulls a card from the hopper into view of the webcam, into a fixed, per-camera-calibrated scan region (see calibration screen)
-2. The browser crops that region to a straightened card image (plain Canvas 2D, no computer vision needed, since the camera mounting and card size are fixed and calibrated ahead of time)
-3. The image is sent to the server for embedding search (Hugging Face SigLIP)
+1. A feeder mechanism (continuous-rotation servo + roller) pulls a card from the hopper into view of the webcam, into a fixed, per-camera-calibrated scan region (see calibration screen) used as a coarse hint for step 2
+2. The browser locates the card's four corners and perspective-dewarps it to a straightened crop, then embeds it, all client-side via [CollectorVision](https://github.com/HanClinto/CollectorVision)'s Cornelius (corner detection) and Milo (embedding) ONNX models running in-browser
+3. The embedding is sent to the server for similarity search (or, if the client can't run the on-device models, the raw image is sent for server-side embedding instead)
 4. PostgreSQL vector similarity search (pgvector) identifies the card
 5. Configurable, per-collection bin rules decide which bin the card should go to
 6. The web app sends a serial command to the microcontroller, which drives the trapdoor/paddle/pusher servos to route the card into that bin
@@ -128,9 +128,9 @@ These target whichever Postgres `DATABASE_URL` points at. Self-hosted mode's con
 
 ## Deployment
 
-`Dockerfile.server` builds the Hono API (and pre-downloads the SigLIP model at build time). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` (and `VITE_AUTH_PROVIDER`) must be supplied as build args since they're baked into the client bundle. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
+`Dockerfile.server` builds the Hono API (and pre-downloads the pinned CollectorVision Milo model at build time — `packages/server/src/lib/models/model-registry.ts`). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` (and `VITE_AUTH_PROVIDER`) must be supplied as build args since they're baked into the client bundle. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
 
-> If you're running a Pi-hole or similar DNS-level blocker on your network, it may block `us.aws.cdn.hf.co` (a Hugging Face CDN host), which will cause the SigLIP model download to fail. Allowlist that domain if you hit download errors during the server build/startup.
+> If you're running a Pi-hole or similar DNS-level blocker on your network, it may block `huggingface.co`, which will cause the Milo model download to fail. Allowlist that domain if you hit download errors during the server build/startup.
 
 ### Deploying self-hosted
 

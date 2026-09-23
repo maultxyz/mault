@@ -1,10 +1,12 @@
-import type { SyncState } from "@magic-vault/shared";
+import type { SyncState, SyncTargetTable } from "@magic-vault/shared";
 
 export interface StartMessage {
   type: "start";
   gameKey: string;
   lang: string;
   forceResync: boolean;
+  skipUpdatedWithinMs?: number;
+  targetTable: SyncTargetTable;
   initialState: SyncState;
 }
 

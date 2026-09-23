@@ -26,10 +26,13 @@ export const DEFAULT_SCAN_REGION: ScanRegion = {
 
 export const DEFAULT_CAPTURE_SETTLE_DELAY_MS = 500;
 
+export const DEFAULT_MATCHES_NEEDED = 2;
+
 export interface DetectionResult {
   detected: boolean;
   contour: CardContour | null;
   confidence: number;
+  sharpness?: number;
 }
 
 export type ScannerStatus =
@@ -40,6 +43,7 @@ export type ScannerStatus =
   | "captured"
   | "duplicate"
   | "no-match"
+  | "settling"
   | "searching"
   | "error";
 

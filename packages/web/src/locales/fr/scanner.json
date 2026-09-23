@@ -28,6 +28,10 @@
     "commLogCopied": "Journal de communication copié dans le presse-papiers",
     "commLogCopyFailed": "Échec de la copie du journal de communication",
     "commLogEmpty": "Aucune communication enregistrée pour le moment",
+    "hardwareIdMismatch": {
+      "title": "Connecté à une trieuse différente",
+      "description": "L'ID de cette carte ne correspond pas à celle utilisée la dernière fois par cette organisation. Le calibrage a été enregistré pour un autre appareil physique."
+    },
     "firmwareOutdatedBanner": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Réimporte firmware/main/main.ino pour la mettre à jour.",
     "firmwareVersionMissingBanner": "Le firmware de ta trieuse ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
     "update": {
@@ -81,10 +85,6 @@
     }
   },
   "cardScanner": {
-    "jamAutoScan": {
-      "title": "Carte bloquée au module 1 - scan forcé",
-      "description": "Elle n'a jamais été identifiée, elle est donc scannée automatiquement."
-    },
     "jamDetected": {
       "title": "Bourrage de carte détecté",
       "description": "Carte bloquée au module {{module}}. Vérifie la trieuse et reprends.",
@@ -204,6 +204,7 @@
     "noCatchAllBin": "Aucun bac fourre-tout configuré - les cartes non associées ne seront pas triées.",
     "initializing": "Initialisation du scanner…",
     "identifyingCard": "Identification de la carte…",
+    "settling": "En attente que la carte se stabilise…",
     "paused": "Scanner en pause - appuie sur Reprendre pour continuer.",
     "duplicate": "Même carte scannée - utilise Ajouter à nouveau pour l'ajouter quand même.",
     "noMatch": "Carte non reconnue - essaie Scanner à nouveau ou ajuste l'éclairage.",

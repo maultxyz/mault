@@ -3,8 +3,9 @@ RUN npm install -g corepack && corepack enable && corepack prepare pnpm@latest -
 
 WORKDIR /app
 
-# Set HuggingFace and Tesseract caches to known paths inside the image
+# Set HuggingFace, CollectorVision, and Tesseract caches to known paths inside the image
 ENV HF_HOME=/app/.cache/huggingface
+ENV COLLECTORVISION_CACHE=/app/.cache/collectorvision
 ENV TESSERACT_CACHE_PATH=/app/.cache/tesseract
 
 # Copy manifests for layer caching
@@ -13,24 +14,34 @@ COPY packages/shared/package.json packages/shared/
 COPY packages/server/package.json packages/server/
 RUN pnpm install --frozen-lockfile
 
-# Pre-download SigLIP model into the image at build time, both dtype variants
-# lib/vectorize.ts can request: fp32 (the default - matches what the
-# in-browser WebGPU scan path always computes, see that file's MODEL_DTYPE
-# comment) and q8 (the VECTORIZE_DTYPE=q8 opt-out for memory/CPU-constrained
-# deployments). Whichever one isn't pre-downloaded here, a container that
-# requests it at runtime fails with "Unable to get model file path or
-# buffer" instead of fetching it live - this image is built to never need
-# network access for the model at all, not just usually not need it.
-# Run from packages/server so pnpm resolves @huggingface/transformers correctly
-# This layer is cached as long as dependencies don't change
-RUN cd packages/server && node -e " \
-  const { SiglipVisionModel, AutoProcessor } = require('@huggingface/transformers'); \
-  Promise.all([ \
-    SiglipVisionModel.from_pretrained('Xenova/siglip-base-patch16-512', { dtype: 'fp32' }), \
-    SiglipVisionModel.from_pretrained('Xenova/siglip-base-patch16-512', { dtype: 'q8' }), \
-    AutoProcessor.from_pretrained('Xenova/siglip-base-patch16-512'), \
-  ]).then(() => { console.log('[build] SigLIP model pre-downloaded.'); process.exit(0); }) \
-    .catch(e => { console.error(e); process.exit(1); }); \
+# Pre-download the pinned CollectorVision Milo embedder into the image at build
+# time. Pinned repo/revision/sha256 must match packages/server/src/lib/models/
+# model-registry.ts exactly - this duplicates that record inline (rather than
+# importing the .ts source) so the source tree doesn't need to be copied in
+# before this layer, keeping it cached as long as the pin doesn't change.
+RUN node -e " \
+  const crypto = require('crypto'); \
+  const fs = require('fs'); \
+  const path = require('path'); \
+  const model = { \
+    repo: 'HanClinto/milo', \
+    revision: '9bcc5e809e936b8c5630d1e7101aae1de1e76621', \
+    filename: 'model.onnx', \
+    sha256: 'bd13d8d60383c69da04dce261f32e93fdaeaa8fd618fbc991e7385f71b3d45df', \
+  }; \
+  const dir = path.join(process.env.COLLECTORVISION_CACHE, 'models', model.sha256); \
+  const dest = path.join(dir, model.filename); \
+  fs.mkdirSync(dir, { recursive: true }); \
+  const url = \`https://huggingface.co/\${model.repo}/resolve/\${model.revision}/\${model.filename}\`; \
+  fetch(url).then(res => { \
+    if (!res.ok) throw new Error(\`Failed to download \${url}: \${res.status}\`); \
+    return res.arrayBuffer(); \
+  }).then(buf => { \
+    const digest = crypto.createHash('sha256').update(Buffer.from(buf)).digest('hex'); \
+    if (digest !== model.sha256) throw new Error(\`Checksum mismatch: expected \${model.sha256}, got \${digest}\`); \
+    fs.writeFileSync(dest, Buffer.from(buf)); \
+    console.log('[build] Milo embedder model pre-downloaded and verified.'); \
+  }).catch(e => { console.error(e); process.exit(1); }); \
 "
 
 # Pre-download Tesseract's English traineddata into the same kind of

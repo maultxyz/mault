@@ -1,7 +1,7 @@
 import type {
+  FetchOneResult,
   SyncSource,
   SyncSourceCard,
-  SyncSourceCardDetail,
 } from "../../card-search/sync-types";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { RIFTBOUND_DEFAULT_URL } from "../../constants/urls";
@@ -59,18 +59,19 @@ async function fetchCards(
   return all;
 }
 
-async function fetchOne(
-  id: string,
-  baseUrl: string,
-): Promise<SyncSourceCardDetail | null> {
-  const res = await fetch(`${baseUrl}/${id}`, { headers: CARD_API_HEADERS });
-  if (!res.ok) return null;
+async function fetchOne(id: string, baseUrl: string): Promise<FetchOneResult> {
+  const url = `${baseUrl}/${id}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const raw = (await res.json()) as RiftboundCard;
   return {
-    name: raw.name,
-    setCode: raw.set?.set_id ?? "",
-    imageUrl: raw.media?.image_url,
+    card: {
+      name: raw.name,
+      setCode: raw.set?.set_id ?? "",
+      imageUrl: raw.media?.image_url,
+    },
+    urls: [url],
   };
 }
 

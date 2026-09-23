@@ -253,6 +253,34 @@
       "when": 1789921640552,
       "tag": "0035_rainy_blue_shield",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1790030334917,
+      "tag": "0036_puzzling_thunderbolt_ross",
+      "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1790085254041,
+      "tag": "0037_little_marvel_apes",
+      "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1790090057614,
+      "tag": "0038_great_zaladane",
+      "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1790166131226,
+      "tag": "0039_striped_silverclaw",
+      "breakpoints": true
     }
   ]
 }

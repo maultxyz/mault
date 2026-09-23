@@ -7,11 +7,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { matchPercentFromDistance } from "@/lib/utils";
 import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
   const { t } = useTranslation("cards");
+  const matchPercent = matchPercentFromDistance(card.distance);
   const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
 
   return (
@@ -30,9 +32,12 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
             <TooltipTrigger
               render={
                 <Badge
-                  variant={card.distance < 0.15 ? "default" : "destructive"}
+                  variant={matchPercent >= 80 ? "default" : "destructive"}
+                  className={
+                    matchPercent >= 80 ? undefined : "bg-destructive text-white"
+                  }
                 >
-                  {(100 - card.distance * 100).toFixed(2)}%
+                  {matchPercent.toFixed(2)}%
                 </Badge>
               }
             />

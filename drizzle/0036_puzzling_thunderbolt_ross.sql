@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD COLUMN "hardware_id" text;

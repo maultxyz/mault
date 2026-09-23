@@ -29,6 +29,7 @@ import {
   computeBinCount,
   DEFAULT_CALIBRATION,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   type BinRoute,
   type ScanRegion,
@@ -126,13 +127,19 @@ export function useCalibrationPage() {
   const [captureSettleDraft, setCaptureSettleDraft] = useState<number | null>(
     null,
   );
+  const [matchesNeededDraft, setMatchesNeededDraft] = useState<number | null>(
+    null,
+  );
   const isScanRegionDirty = scanRegionDraft !== null;
   const isCaptureSettleDirty = captureSettleDraft !== null;
+  const isMatchesNeededDirty = matchesNeededDraft !== null;
   const scanRegion = scanRegionDraft ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
   const captureSettleDelayMs =
     captureSettleDraft ??
     device?.captureSettleDelayMs ??
     DEFAULT_CAPTURE_SETTLE_DELAY_MS;
+  const matchesNeeded =
+    matchesNeededDraft ?? device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED;
 
   const handleScanRegionChange = useCallback((next: ScanRegion) => {
     setScanRegionDraft(next);
@@ -144,6 +151,10 @@ export function useCalibrationPage() {
 
   const handleCaptureSettleChange = useCallback((value: number) => {
     setCaptureSettleDraft(value);
+  }, []);
+
+  const handleMatchesNeededChange = useCallback((value: number) => {
+    setMatchesNeededDraft(value);
   }, []);
 
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -357,7 +368,8 @@ export function useCalibrationPage() {
   );
 
   const isFeederModuleDirty = isFeederDirty || dirtyModules.length > 0;
-  const isScanRegionSectionDirty = isScanRegionDirty || isCaptureSettleDirty;
+  const isScanRegionSectionDirty =
+    isScanRegionDirty || isCaptureSettleDirty || isMatchesNeededDirty;
 
   const [isSavingFeederModule, setIsSavingFeederModule] = useState(false);
 
@@ -426,12 +438,14 @@ export function useCalibrationPage() {
       await saveDevice(device.guid, {
         ...(isScanRegionDirty ? { scanRegion } : {}),
         ...(isCaptureSettleDirty ? { captureSettleDelayMs } : {}),
+        ...(isMatchesNeededDirty ? { matchesNeeded } : {}),
       });
       await queryClient.invalidateQueries({
         queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
       });
       setScanRegionDraft(null);
       setCaptureSettleDraft(null);
+      setMatchesNeededDraft(null);
       toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
     } catch {
       toast.error(t("useCalibrationPage.toasts.saveCalibrationFailed"));
@@ -442,8 +456,10 @@ export function useCalibrationPage() {
     device,
     isScanRegionDirty,
     isCaptureSettleDirty,
+    isMatchesNeededDirty,
     scanRegion,
     captureSettleDelayMs,
+    matchesNeeded,
     queryClient,
     activeOrg?.id,
     t,
@@ -452,6 +468,7 @@ export function useCalibrationPage() {
   const handleDiscardScanRegion = useCallback(() => {
     setScanRegionDraft(null);
     setCaptureSettleDraft(null);
+    setMatchesNeededDraft(null);
   }, []);
 
   const handleFeed = useCallback(() => {
@@ -613,10 +630,12 @@ export function useCalibrationPage() {
     handleFeederSelectContinuous,
     scanRegion,
     captureSettleDelayMs,
+    matchesNeeded,
     isDeviceLoading,
     handleScanRegionChange,
     handleResetScanRegion,
     handleCaptureSettleChange,
+    handleMatchesNeededChange,
     isFeederModuleDirty,
     isSavingFeederModule,
     handleSaveFeederModuleCalibration,

@@ -52,6 +52,7 @@
     "sorterReady": "Sorter ready",
     "sorterReadyWithVersion": "Sorter ready (firmware v{{version}})",
     "sorterWithVersion": "Sorter v{{version}}",
+    "checkFirmware": "Check firmware",
     "firmwareChecking": "Checking sorter firmware…",
     "firmwareUpToDate": "Sorter firmware v{{version}} is up to date",
     "firmwareOutdated": "Sorter is on firmware v{{version}}, older than the latest v{{latest}}",

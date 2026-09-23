@@ -18,7 +18,6 @@ import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
-import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import type { CardScannerProps } from "@magic-vault/shared";
 import { IconEye } from "@tabler/icons-react";
@@ -124,18 +123,6 @@ export function CardScanner({ className, compact }: CardScannerProps) {
       (msg as Record<string, unknown>).error === "jam"
     ) {
       const raw = msg as Record<string, unknown>;
-
-      if (
-        raw.module === 1 &&
-        raw.bin === undefined &&
-        SCANNABLE_STATUSES.includes(status)
-      ) {
-        toast.info(t("cardScanner.jamAutoScan.title"), {
-          description: t("cardScanner.jamAutoScan.description"),
-        });
-        handleForceScan();
-        return;
-      }
 
       handlePause();
       toast.error(t("cardScanner.jamDetected.title"), {

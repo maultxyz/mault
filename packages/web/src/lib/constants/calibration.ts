@@ -74,6 +74,8 @@ export const FEEDER_PAUSE_DURATION_SLIDER_MAX = 1_000;
 export const FEEDER_SETTLE_DURATION_SLIDER_MAX = 2_000;
 export const PADDLE_CLOSE_DELAY_SLIDER_MAX = 1_000;
 export const CAPTURE_SETTLE_DELAY_SLIDER_MAX = 2_000;
+export const MATCHES_NEEDED_MIN = 1;
+export const MATCHES_NEEDED_SLIDER_MAX = 5;
 
 export function sliderMax(value: number, defaultMax: number): number {
   return Math.max(defaultMax, value);

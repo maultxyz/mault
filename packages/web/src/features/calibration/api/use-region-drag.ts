@@ -30,10 +30,6 @@ interface Box {
   height: number;
 }
 
-// Pointer-driven move/resize for the scan region box overlaid on the camera
-// preview - dragging the box moves it, dragging its corner handle resizes
-// it. Coordinates are read fresh from regionRef/box each gesture so this
-// doesn't need to re-bind on every region change.
 export function useRegionDrag({
   frameRef,
   regionRef,

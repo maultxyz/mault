@@ -82,7 +82,6 @@ export function CardDetailPanel({
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
-  const [showVectorRegions, setShowVectorRegions] = useState(false);
   const [showOcrRegions, setShowOcrRegions] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -287,15 +286,6 @@ export function CardDetailPanel({
                   onCheckedChange={setShowOcrRegions}
                 />
               </div>
-              <div className="flex items-center gap-2">
-                <span>{t("cardDetailPanel.showVectorRegions")}</span>
-                <Switch
-                  size="sm"
-                  aria-label={t("cardDetailPanel.showVectorRegions")}
-                  checked={showVectorRegions}
-                  onCheckedChange={setShowVectorRegions}
-                />
-              </div>
             </div>
           )}
         </div>
@@ -311,7 +301,6 @@ export function CardDetailPanel({
                           <CapturedImageThumb
                             src={capturedImageUrl}
                             alt={t("cardPicker.scannedAlt")}
-                            showVectorRegions={showVectorRegions}
                             showOcrRegions={showOcrRegions}
                           />
                         ) : (
@@ -389,7 +378,6 @@ export function CardDetailPanel({
                             <CapturedImageThumb
                               src={capturedImageUrl}
                               alt={t("cardPicker.scannedAlt")}
-                              showVectorRegions={showVectorRegions}
                               showOcrRegions={showOcrRegions}
                             />
                           ) : (
@@ -533,7 +521,6 @@ export function CardDetailPanel({
                       <CapturedImageThumb
                         src={capturedImageUrl}
                         alt={t("cardPicker.scannedAlt")}
-                        showVectorRegions={showVectorRegions}
                         showOcrRegions={showOcrRegions}
                       />
                     ) : (

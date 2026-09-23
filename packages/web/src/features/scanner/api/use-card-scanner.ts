@@ -11,19 +11,20 @@ import {
   extractCardImage,
   getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
-import {
-  isWebGpuSupported,
-  vectorizeCardImageOnClient,
-} from "@/features/scanner/lib/client-vectorize";
+import { vectorizeCardImageOnClient } from "@/features/scanner/lib/client-vectorize";
+import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { getForceCpuVectorize } from "@/features/scanner/lib/force-cpu-vectorize";
+import { rotateCanvas180 } from "@/features/scanner/lib/milo-client";
 import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   OCR_REGIONS_BY_GAME_KEY,
   type CardContour,
   type CardScannerProps,
   type PlayingCardWithDistance,
+  type Result,
   type ScanRegion,
   type ScannerStatus,
   type SearchCardMatch,
@@ -31,6 +32,14 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+
+const LIVE_DETECTION_INTERVAL_MS = 300;
+const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "paused",
+  "settling",
+];
+const CONSENSUS_RETRY_BUDGET = 3;
 
 // Singleton AudioContext - browsers cap concurrent contexts (~6).
 // Creating one per scan exhausts the limit quickly.
@@ -94,56 +103,180 @@ async function resolveSearchMatches(
   return { card, alternativeMatches, debugImageUrl };
 }
 
+function buildSearchFormData(
+  blob: Blob,
+  embedding: number[],
+  collectionGuid?: string,
+  ocrEnabled?: boolean,
+): FormData {
+  const formData = new FormData();
+  formData.append("image", blob, "card.jpg");
+  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  formData.append("ocrEnabled", String(ocrEnabled ?? false));
+  formData.append("embedding", JSON.stringify(embedding));
+  return formData;
+}
+
+function bestDistance(result: Result<SearchCardMatch[] | null>): number {
+  return result.data?.[0]?.distance ?? Number.POSITIVE_INFINITY;
+}
+
+function buildImageSearchFormData(
+  blob: Blob,
+  collectionGuid?: string,
+  ocrEnabled?: boolean,
+): FormData {
+  const formData = new FormData();
+  formData.append("image", blob, "card.jpg");
+  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  formData.append("ocrEnabled", String(ocrEnabled ?? false));
+  return formData;
+}
+
 async function searchCardImage(
   canvas: HTMLCanvasElement,
   contour?: CardContour | null,
   collectionGuid?: string,
   ocrEnabled?: boolean,
-  gameKey?: string,
 ): Promise<{
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
   debugImageUrl: string;
+  detectedContour: CardContour | null;
 }> {
-  const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
-  const debugImageUrl = warpedCanvas.toDataURL("image/jpeg", 0.8);
-  const blob = await canvasToBlob(warpedCanvas);
-
-  if (!getForceCpuVectorize() && (await isWebGpuSupported())) {
+  let fallbackReason = "forceCpuVectorize enabled";
+  if (!getForceCpuVectorize()) {
     try {
-      const embeddings = await vectorizeCardImageOnClient(
-        warpedCanvas,
-        gameKey,
-      );
-      const vectorFormData = new FormData();
-      vectorFormData.append("image", blob, "card.jpg");
-      if (collectionGuid) vectorFormData.append("collectionGuid", collectionGuid);
-      vectorFormData.append("ocrEnabled", String(ocrEnabled ?? false));
-      vectorFormData.append("embedding", JSON.stringify(embeddings.embedding));
-      if (embeddings.embeddingArt) {
-        vectorFormData.append("embeddingArt", JSON.stringify(embeddings.embeddingArt));
-      }
-      if (embeddings.embeddingName) {
-        vectorFormData.append("embeddingName", JSON.stringify(embeddings.embeddingName));
-      }
-      if (embeddings.embeddingBottom) {
-        vectorFormData.append("embeddingBottom", JSON.stringify(embeddings.embeddingBottom));
-      }
+      const { dewarpedCanvas, embeddings, detection } =
+        await vectorizeCardImageOnClient(canvas);
+      if (dewarpedCanvas && embeddings) {
+        const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
+        const [uprightBlob, rotatedBlob] = await Promise.all([
+          canvasToBlob(dewarpedCanvas),
+          canvasToBlob(rotatedCanvas),
+        ]);
 
-      const { data } = await searchByVector(vectorFormData);
-      return resolveSearchMatches(data, collectionGuid, debugImageUrl);
+        const [uprightResult, rotatedResult] = await Promise.all([
+          searchByVector(
+            buildSearchFormData(
+              uprightBlob,
+              embeddings.upright,
+              collectionGuid,
+              ocrEnabled,
+            ),
+          ),
+          searchByVector(
+            buildSearchFormData(
+              rotatedBlob,
+              embeddings.rotated,
+              collectionGuid,
+              ocrEnabled,
+            ),
+          ),
+        ]);
+        const rotatedWon =
+          bestDistance(rotatedResult) < bestDistance(uprightResult);
+        const best = rotatedWon ? rotatedResult : uprightResult;
+        const debugImageUrl = (
+          rotatedWon ? rotatedCanvas : dewarpedCanvas
+        ).toDataURL("image/jpeg", 0.8);
+
+        console.log(
+          `[scanner] using AI card detection (confidence=${detection.confidence.toFixed(3)})`,
+        );
+        return {
+          ...(await resolveSearchMatches(
+            best.data,
+            collectionGuid,
+            debugImageUrl,
+          )),
+          detectedContour: detection.contour,
+        };
+      }
+      fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
     } catch (err) {
-      console.error("[scanner] client-side vectorization failed, falling back to server:", err);
+      fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
+      console.error(
+        "[scanner] client-side vectorization failed, falling back to server:",
+        err,
+      );
     }
   }
 
-  const formData = new FormData();
-  formData.append("image", blob, "card.jpg");
-  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
-  formData.append("ocrEnabled", String(ocrEnabled ?? false));
+  console.log(`[scanner] using fallback scan region (${fallbackReason})`);
+  const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
+  const rotatedCanvas = rotateCanvas180(warpedCanvas);
+  const [uprightBlob, rotatedBlob] = await Promise.all([
+    canvasToBlob(warpedCanvas),
+    canvasToBlob(rotatedCanvas),
+  ]);
+  const [uprightResult, rotatedResult] = await Promise.all([
+    searchByImage(
+      buildImageSearchFormData(uprightBlob, collectionGuid, ocrEnabled),
+    ),
+    searchByImage(
+      buildImageSearchFormData(rotatedBlob, collectionGuid, ocrEnabled),
+    ),
+  ]);
+  const rotatedWon = bestDistance(rotatedResult) < bestDistance(uprightResult);
+  const best = rotatedWon ? rotatedResult : uprightResult;
+  const debugImageUrl = (rotatedWon ? rotatedCanvas : warpedCanvas).toDataURL(
+    "image/jpeg",
+    0.8,
+  );
 
-  const { data } = await searchByImage(formData);
-  return resolveSearchMatches(data, collectionGuid, debugImageUrl);
+  return {
+    ...(await resolveSearchMatches(best.data, collectionGuid, debugImageUrl)),
+    detectedContour: null,
+  };
+}
+
+async function searchCardImageWithConsensus(
+  canvas: HTMLCanvasElement,
+  contour: CardContour | null | undefined,
+  collectionGuid: string | undefined,
+  ocrEnabled: boolean | undefined,
+  matchesNeeded: number,
+): Promise<{
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+  detectedContour: CardContour | null;
+}> {
+  if (matchesNeeded <= 1) {
+    return searchCardImage(canvas, contour, collectionGuid, ocrEnabled);
+  }
+
+  const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
+
+  let streakId: string | null = null;
+  let streakCount = 0;
+  let streakResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
+  let lastResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const result = await searchCardImage(
+      canvas,
+      contour,
+      collectionGuid,
+      ocrEnabled,
+    );
+    lastResult = result;
+    const topId = result.card?.id ?? null;
+
+    if (topId != null && topId === streakId) {
+      streakCount++;
+      streakResult = result;
+    } else {
+      streakId = topId;
+      streakCount = topId != null ? 1 : 0;
+      streakResult = topId != null ? result : null;
+    }
+
+    if (streakCount >= matchesNeeded) return streakResult!;
+  }
+
+  return { ...lastResult!, card: null };
 }
 
 export function useCardScanner({
@@ -201,10 +334,12 @@ export function useCardScanner({
   const captureSettleDelayMsRef = useRef(captureSettleDelayMs);
   captureSettleDelayMsRef.current = captureSettleDelayMs;
 
+  const matchesNeeded = device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED;
+  const matchesNeededRef = useRef(matchesNeeded);
+  matchesNeededRef.current = matchesNeeded;
+
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
-  const activeGameKeyRef = useRef(activeCollection?.game?.key);
-  activeGameKeyRef.current = activeCollection?.game?.key;
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -296,16 +431,28 @@ export function useCardScanner({
       }
 
       try {
-        const { card, alternativeMatches, debugImageUrl } =
-          await searchCardImage(
+        const { card, alternativeMatches, debugImageUrl, detectedContour } =
+          await searchCardImageWithConsensus(
             canvas,
             contour,
             activeCollectionGuidRef.current,
             ocrEnabledRef.current,
-            activeGameKeyRef.current,
+            matchesNeededRef.current,
           );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
+
+        const overlayCtx = overlayCanvasRef.current?.getContext("2d");
+        if (overlayCtx && canvas.width && canvas.height) {
+          overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
+          if (detectedContour) {
+            drawDetectionOverlay(overlayCtx, {
+              detected: true,
+              contour: detectedContour,
+              confidence: 1,
+            });
+          }
+        }
 
         if (card) {
           if (
@@ -384,20 +531,6 @@ export function useCardScanner({
           }
         }
 
-        const overlayCtx = overlayCanvasRef.current?.getContext("2d");
-        if (overlayCtx) {
-          overlayCtx.clearRect(0, 0, videoWidth, videoHeight);
-          drawDetectionOverlay(overlayCtx, {
-            detected: true,
-            contour: getDefaultCardContour(
-              videoWidth,
-              videoHeight,
-              scanRegionRef.current,
-            ),
-            confidence: 1,
-          });
-        }
-
         const container = displayCanvasRef.current?.parentElement;
         if (container) {
           const cw = container.clientWidth;
@@ -444,18 +577,46 @@ export function useCardScanner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stream]);
 
+  // Continuous live-preview overlay showing what would be captured - purely
+  // visual feedback, decoupled from when an actual capture/match fires
+  // (that stays gated on the settle-delayed captureCard flow).
+  const liveDetectingRef = useRef(false);
   useEffect(() => {
-    const canvas = displayCanvasRef.current;
-    const overlayCtx = overlayCanvasRef.current?.getContext("2d");
-    if (!canvas || !overlayCtx || !canvas.width || !canvas.height) return;
-    overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
-    drawDetectionOverlay(overlayCtx, {
-      detected: true,
-      contour: getDefaultCardContour(canvas.width, canvas.height, scanRegion),
-      confidence: 1,
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanRegion.coverage, scanRegion.offsetX, scanRegion.offsetY]);
+    if (!stream) return;
+
+    const intervalId = setInterval(() => {
+      if (liveDetectingRef.current) return;
+      if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
+
+      const canvas = displayCanvasRef.current;
+      const overlayCanvas = overlayCanvasRef.current;
+      if (!canvas || !overlayCanvas || !canvas.width || !canvas.height) return;
+
+      liveDetectingRef.current = true;
+      detectCardCorners(canvas)
+        .then((detection) => {
+          if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
+          const overlayCtx = overlayCanvas.getContext("2d");
+          if (!overlayCtx) return;
+          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
+          if (detection.cardPresent && detection.contour) {
+            drawDetectionOverlay(overlayCtx, {
+              detected: true,
+              contour: detection.contour,
+              confidence: detection.confidence,
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("[scanner] live detection failed:", err);
+        })
+        .finally(() => {
+          liveDetectingRef.current = false;
+        });
+    }, LIVE_DETECTION_INTERVAL_MS);
+
+    return () => clearInterval(intervalId);
+  }, [stream]);
 
   const handleForceAddDuplicate = useCallback(() => {
     if (duplicateCard) {
@@ -590,11 +751,12 @@ export function useCardScanner({
       return;
 
     isCapturingRef.current = true;
-    updateStatus("searching");
+    updateStatus("settling");
 
     if (cameraSource === "phone") {
       settleTimeoutRef.current = setTimeout(() => {
         settleTimeoutRef.current = null;
+        updateStatus("searching");
         capturePhonePhotoThenSearch(true);
       }, captureSettleDelayMsRef.current);
       return;
@@ -609,6 +771,7 @@ export function useCardScanner({
     );
     settleTimeoutRef.current = setTimeout(() => {
       settleTimeoutRef.current = null;
+      updateStatus("searching");
       performCapture(true, contour);
     }, captureSettleDelayMsRef.current);
   }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);

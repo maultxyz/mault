@@ -8,10 +8,6 @@ export function clampRegion(region: ScanRegion): ScanRegion {
   };
 }
 
-// The webcam feed is captured landscape and rotated 90° for display (see
-// use-camera-frame-canvas.ts's draw loop), so its contour needs remapping
-// into the rotated (portrait) coordinate space before it can be turned into
-// a CSS box - unlike a phone photo, which is already portrait (contourToBox).
 export function rawContourToPortraitBox(
   contour: CardContour,
   rawWidth: number,

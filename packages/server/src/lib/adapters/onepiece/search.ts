@@ -194,7 +194,7 @@ export function findVersion(
 export async function findCardVersion(
   id: string,
   baseUrl: string,
-): Promise<{ match: OptcgCard | null; errorStatus?: number }> {
+): Promise<{ match: OptcgCard | null; errorStatus?: number; urls: string[] }> {
   const printedId = onePiecePrintedId(id);
   const primary = primaryEndpoint(printedId);
   const endpoints = [primary, ...CARD_ENDPOINTS.filter((e) => e !== primary)];
@@ -204,13 +204,13 @@ export async function findCardVersion(
   // misses, retry with the raw id as the path key.
   const keys = id === printedId ? [printedId] : [printedId, id];
 
+  const urls: string[] = [];
   let errorStatus: number | undefined;
   for (const key of keys) {
     for (const endpoint of endpoints) {
-      const response = await fetchCardApi(
-        `${baseUrl}/${endpoint}/${encodeURIComponent(key)}/`,
-        { headers: CARD_API_HEADERS },
-      );
+      const url = `${baseUrl}/${endpoint}/${encodeURIComponent(key)}/`;
+      const response = await fetchCardApi(url, { headers: CARD_API_HEADERS });
+      urls.push(`${url} [HTTP ${response.status}]`);
       if (!response.ok) {
         if (response.status !== 404) errorStatus ??= response.status;
         continue;
@@ -221,11 +221,11 @@ export async function findCardVersion(
       const match =
         findVersion(data, id) ??
         (id === printedId || key === id ? data[0] : undefined);
-      if (match) return { match };
+      if (match) return { match, urls };
     }
   }
 
-  return { match: null, errorStatus };
+  return { match: null, errorStatus, urls };
 }
 
 const FILTERED_ENDPOINTS = [

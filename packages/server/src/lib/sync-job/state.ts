@@ -6,7 +6,7 @@ const INITIAL_STATE: SyncState = {
   status: "idle",
   gameKey: "",
   lang: "en",
-  forceResync: false,
+  targetTable: "cards",
   total: 0,
   processed: 0,
   skipped: 0,

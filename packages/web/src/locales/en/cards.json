@@ -31,7 +31,6 @@
     "searchForCorrectVersion": "Your scanned card, search for the correct version below",
     "cancel": "Cancel",
     "binLocation": "Bin location",
-    "showVectorRegions": "Show vectorizing regions",
     "showOcrRegions": "Show OCR regions"
   },
   "cardFilterPopover": {

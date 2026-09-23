@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -12,6 +11,7 @@ import { useCardSync } from "@/features/admin/api/use-card-sync";
 import { formatDuration } from "@/features/admin/lib/format-duration";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
+import type { SyncTargetTable } from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -34,6 +34,7 @@ export function CardSyncPanel() {
   const [syncGameKey, setSyncGameKey] = useState<string | null>(null);
   const [syncLang, setSyncLang] = useState<string>("en");
   const [forceResync, setForceResync] = useState(false);
+  const [targetTable, setTargetTable] = useState<SyncTargetTable>("cards");
 
   useEffect(() => {
     if (logRef.current) {
@@ -58,15 +59,15 @@ export function CardSyncPanel() {
               {t(`cardImageVectors.syncStatus.${syncState.status}`)}
               {isRunning &&
                 ` — ${
-                  sources.find((s) => s.gameKey === syncState.gameKey)
-                    ?.label ?? syncState.gameKey
+                  sources.find((s) => s.gameKey === syncState.gameKey)?.label ??
+                  syncState.gameKey
                 }${
                   syncState.lang !== "en"
                     ? ` (${LANGUAGE_LABELS[syncState.lang] ?? syncState.lang})`
                     : ""
                 }${
-                  syncState.forceResync
-                    ? ` · ${t("cardImageVectors.forceResyncActive")}`
+                  syncState.targetTable === "cards_v2"
+                    ? ` → ${t("cardImageVectors.targetTableStaging")}`
                     : ""
                 }`}
             </p>
@@ -118,6 +119,26 @@ export function CardSyncPanel() {
                 </SelectContent>
               </Select>
             )}
+            {!isRunning && (
+              <Select
+                value={targetTable}
+                onValueChange={(value) =>
+                  setTargetTable(value as SyncTargetTable)
+                }
+              >
+                <SelectTrigger className="w-40">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cards">
+                    {t("cardImageVectors.targetTableLive")}
+                  </SelectItem>
+                  <SelectItem value="cards_v2">
+                    {t("cardImageVectors.targetTableStaging")}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
             {isRunning ? (
               <Button
                 variant="outline"
@@ -131,7 +152,9 @@ export function CardSyncPanel() {
             ) : (
               <Button
                 disabled={isRunning || isStarting || !syncGameKey}
-                onClick={() => start(syncGameKey!, syncLang, forceResync)}
+                onClick={() =>
+                  start(syncGameKey!, syncLang, forceResync, targetTable)
+                }
               >
                 {isStarting
                   ? t("starting")
@@ -142,19 +165,14 @@ export function CardSyncPanel() {
         </div>
 
         {!isRunning && (
-          <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2 text-sm">
             <Switch
-              id="sync-force-resync"
+              size="sm"
               checked={forceResync}
               onCheckedChange={setForceResync}
             />
-            <Label
-              htmlFor="sync-force-resync"
-              className="text-xs font-normal text-muted-foreground"
-            >
-              {t("cardImageVectors.forceResyncLabel")}
-            </Label>
-          </div>
+            {t("cardImageVectors.forceResyncLabel")}
+          </label>
         )}
 
         {total > 0 && (
@@ -166,7 +184,9 @@ export function CardSyncPanel() {
               />
             </div>
             <div className="flex gap-4 text-xs text-muted-foreground tabular-nums">
-              <span>{t("cardImageVectors.progressCount", { done, total })}</span>
+              <span>
+                {t("cardImageVectors.progressCount", { done, total })}
+              </span>
               <span>
                 {t("cardImageVectors.vectorizedCount", {
                   count: syncState.processed,

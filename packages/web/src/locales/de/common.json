@@ -52,6 +52,7 @@
     "sorterReady": "Sortierer bereit",
     "sorterReadyWithVersion": "Sortierer bereit (Firmware v{{version}})",
     "sorterWithVersion": "Sortierer v{{version}}",
+    "checkFirmware": "Firmware prüfen",
     "firmwareChecking": "Sortierer-Firmware wird geprüft…",
     "firmwareUpToDate": "Die Sortierer-Firmware v{{version}} ist aktuell",
     "firmwareOutdated": "Der Sortierer läuft mit Firmware v{{version}}, älter als die neueste v{{latest}}",

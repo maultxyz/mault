@@ -1,7 +1,7 @@
 import type {
+  FetchOneResult,
   SyncSource,
   SyncSourceCard,
-  SyncSourceCardDetail,
 } from "../../card-search/sync-types";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { LORCANA_DE_API_ROOT, LORCANA_DEFAULT_URL } from "../../constants/urls";
@@ -82,17 +82,19 @@ async function fetchGermanCards(
   return all;
 }
 
-async function fetchOneDe(id: string): Promise<SyncSourceCardDetail | null> {
-  const res = await fetch(`${LORCANA_DE_API_ROOT}/cards/${id}`, {
-    headers: CARD_API_HEADERS,
-  });
-  if (!res.ok) return null;
+async function fetchOneDe(id: string): Promise<FetchOneResult> {
+  const url = `${LORCANA_DE_API_ROOT}/cards/${id}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const raw = (await res.json()) as LorcanaDeCard;
   return {
-    name: lorcanaDeCardName(raw),
-    setCode: raw.setCode,
-    imageUrl: raw.images?.full ?? raw.images?.thumbnail,
+    card: {
+      name: lorcanaDeCardName(raw),
+      setCode: raw.setCode,
+      imageUrl: raw.images?.full ?? raw.images?.thumbnail,
+    },
+    urls: [url],
   };
 }
 
@@ -162,19 +164,18 @@ async function fetchOne(
   id: string,
   baseUrl: string,
   lang?: string,
-): Promise<SyncSourceCardDetail | null> {
+): Promise<FetchOneResult> {
   if (lang === "de") return fetchOneDe(id);
 
   const parsed = parseLorcanaCardId(id);
-  if (!parsed) return null;
+  if (!parsed) return { card: null, urls: [] };
 
-  const res = await fetch(`${baseUrl}/${parsed.setCode}/${parsed.number}`, {
-    headers: CARD_API_HEADERS,
-  });
-  if (!res.ok) return null;
+  const url = `${baseUrl}/${parsed.setCode}/${parsed.number}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const raw = (await res.json()) as LorcastCard;
-  return toSyncCard(raw);
+  return { card: toSyncCard(raw), urls: [url] };
 }
 
 export const lorcanaSyncSource: SyncSource = {

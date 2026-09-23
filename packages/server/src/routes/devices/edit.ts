@@ -21,12 +21,14 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
     const guid = c.req.param("guid");
     const body = await c.req.json<{
       name?: string;
+      hardwareId?: string | null;
       scanRegion?: {
         coverage: number;
         offsetX: number;
         offsetY: number;
       } | null;
       captureSettleDelayMs?: number | null;
+      matchesNeeded?: number | null;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
     }>();
@@ -43,6 +45,8 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
 
         const merged = {
           name: "name" in body && body.name ? body.name : device.name,
+          hardwareId:
+            "hardwareId" in body ? body.hardwareId : device.hardwareId,
           scanCoverage:
             "scanRegion" in body
               ? body.scanRegion
@@ -65,6 +69,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             "captureSettleDelayMs" in body
               ? (body.captureSettleDelayMs ?? null)
               : device.captureSettleDelayMs,
+          matchesNeeded:
+            "matchesNeeded" in body
+              ? (body.matchesNeeded ?? null)
+              : device.matchesNeeded,
           channelLayout,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
