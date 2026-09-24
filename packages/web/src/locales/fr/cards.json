@@ -114,7 +114,8 @@
     "applyGridFilters": "Appliquer les filtres actifs ({{count}})",
     "close": "Fermer",
     "download": "Télécharger ({{count}})",
-    "sessionWrappedToggle": "Wrapped"
+    "sessionWrappedToggle": "Wrapped",
+    "combineDuplicates": "Regrouper les doublons"
   },
   "sessionWrapped": {
     "srTitle": "Le récap de {{collectionName}}",

@@ -114,7 +114,8 @@
     "applyGridFilters": "Apply active filters ({{count}})",
     "close": "Close",
     "download": "Download ({{count}})",
-    "sessionWrappedToggle": "Wrapped"
+    "sessionWrappedToggle": "Wrapped",
+    "combineDuplicates": "Combine duplicates"
   },
   "sessionWrapped": {
     "srTitle": "{{collectionName}} Wrapped",

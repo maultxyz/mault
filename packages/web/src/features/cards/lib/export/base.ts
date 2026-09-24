@@ -27,7 +27,18 @@ export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
   return price != null ? price.toFixed(2) : "";
 }
 
-function groupCards(cards: ScannedCard[], groupBy: GroupBy): GroupedEntry[] {
+function groupCards(
+  cards: ScannedCard[],
+  groupBy: GroupBy,
+  combineDuplicates: boolean,
+): GroupedEntry[] {
+  if (!combineDuplicates)
+    return cards.map((entry) => ({
+      card: entry.card,
+      quantity: 1,
+      isFoil: !!entry.isFoil,
+      foilType: entry.foilType,
+    }));
   const grouped = new Map<string, GroupedEntry>();
   for (const entry of cards) {
     const isFoil = !!entry.isFoil;
@@ -65,9 +76,10 @@ export function runExport(
   cards: ScannedCard[],
   collection: string,
   ctx: ExportContext,
+  combineDuplicates: boolean,
 ) {
   if (cards.length === 0) return;
-  const entries = groupCards(cards, adapter.groupBy);
+  const entries = groupCards(cards, adapter.groupBy, combineDuplicates);
   const csv = [
     adapter.headers(ctx).join(","),
     ...entries.map((entry) => adapter.row(entry, ctx).join(",")),
