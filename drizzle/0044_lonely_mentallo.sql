@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD COLUMN "check_both_orientations" boolean;

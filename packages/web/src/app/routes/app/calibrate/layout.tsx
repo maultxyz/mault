@@ -1,5 +1,6 @@
+import { SectionNav } from "@/components/section-nav";
 import { StaleDeviceDialog } from "@/components/stale-device-dialog";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,7 +10,7 @@ import {
 import { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
 import type { CalibrationSection } from "@/lib/interfaces/calibration";
-import { cn } from "@/lib/utils";
+import type { SectionNavItem } from "@/lib/interfaces/nav";
 import {
   IconAdjustmentsHorizontal,
   IconClipboard,
@@ -24,7 +25,6 @@ import {
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  NavLink,
   Outlet,
   useLocation,
   useNavigate,
@@ -59,23 +59,19 @@ export default function CalibrateLayout() {
   const setSection = (next: CalibrationSection) =>
     navigate(`/app/calibrate/${SECTION_PATHS[next]}`);
 
-  const sectionNavItems: {
-    value: CalibrationSection;
-    icon: React.ReactNode;
-    label: string;
-  }[] = [
+  const sectionNavItems: SectionNavItem[] = [
     {
-      value: "modules",
+      to: SECTION_PATHS.modules,
       icon: <IconAdjustmentsHorizontal size={16} />,
       label: t("sections.moduleSetup"),
     },
     {
-      value: "scanRegion",
+      to: SECTION_PATHS.scanRegion,
       icon: <IconFocus2 size={16} />,
       label: t("sections.scanRegion"),
     },
     {
-      value: "calibration",
+      to: SECTION_PATHS.calibration,
       icon: <IconSettingsCog size={16} />,
       label: t("sections.calibration"),
     },
@@ -108,38 +104,19 @@ export default function CalibrateLayout() {
     typeof navigator !== "undefined" && !!navigator.bluetooth;
 
   return (
-    <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
-      <nav
-        className="col-span-2 min-h-0 h-full overflow-y-auto flex flex-col border-r p-2 gap-2 bg-sidebar/70"
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">
+      <SectionNav
+        title={t("page.title")}
+        subtitle={t("page.subtitle")}
+        items={sectionNavItems}
+        className="lg:col-span-2"
         data-tour="calibration-sections"
-      >
-        <div className="px-1.5 pt-1 pb-2">
-          <h1 className="text-lg font-semibold font-heading">
-            {t("page.title")}
-          </h1>
-          <p className="text-xs text-muted-foreground">{t("page.subtitle")}</p>
-        </div>
-        {sectionNavItems.map((item) => (
-          <NavLink
-            key={item.value}
-            to={SECTION_PATHS[item.value]}
-            className={({ isActive }) =>
-              cn(
-                buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
-                "w-full justify-start gap-2 px-2.5 border-0",
-              )
-            }
-          >
-            {item.icon}
-            <span className="truncate">{item.label}</span>
-          </NavLink>
-        ))}
-      </nav>
+      />
 
-      <div className="col-span-10 min-h-0 h-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <div className="flex items-center justify-between gap-2 overflow-x-auto">
+      <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <div
-            className="flex items-center gap-2 shrink-0"
+            className="flex flex-wrap items-center gap-2"
             data-tour="calibration-connect"
           >
             {isConnected ? (
@@ -187,7 +164,7 @@ export default function CalibrateLayout() {
               </span>
             )}
           </div>
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2">
             <Button variant="outline" onClick={handleCopyCalibration}>
               <IconClipboard />
               {t("calibratePage.copyCalibration")}

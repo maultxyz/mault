@@ -29,6 +29,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       } | null;
       captureSettleDelayMs?: number | null;
       matchesNeeded?: number | null;
+      checkBothOrientations?: boolean | null;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
     }>();
@@ -73,6 +74,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             "matchesNeeded" in body
               ? (body.matchesNeeded ?? null)
               : device.matchesNeeded,
+          checkBothOrientations:
+            "checkBothOrientations" in body
+              ? (body.checkBothOrientations ?? null)
+              : device.checkBothOrientations,
           channelLayout,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null

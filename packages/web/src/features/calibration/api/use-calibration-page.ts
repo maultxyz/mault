@@ -31,6 +31,7 @@ import {
   computeBinCount,
   DEFAULT_CALIBRATION,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   type BinRoute,
@@ -134,7 +135,11 @@ export function useCalibrationPage() {
   );
   const isScanRegionDirty = scanRegionDraft !== null;
   const isCaptureSettleDirty = captureSettleDraft !== null;
+  const [checkBothOrientationsDraft, setCheckBothOrientationsDraft] = useState<
+    boolean | null
+  >(null);
   const isMatchesNeededDirty = matchesNeededDraft !== null;
+  const isCheckBothOrientationsDirty = checkBothOrientationsDraft !== null;
   const scanRegion = scanRegionDraft ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
   const captureSettleDelayMs =
     captureSettleDraft ??
@@ -142,6 +147,10 @@ export function useCalibrationPage() {
     DEFAULT_CAPTURE_SETTLE_DELAY_MS;
   const matchesNeeded =
     matchesNeededDraft ?? device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED;
+  const checkBothOrientations =
+    checkBothOrientationsDraft ??
+    device?.checkBothOrientations ??
+    DEFAULT_CHECK_BOTH_ORIENTATIONS;
 
   const handleScanRegionChange = useCallback((next: ScanRegion) => {
     setScanRegionDraft(next);
@@ -157,6 +166,10 @@ export function useCalibrationPage() {
 
   const handleMatchesNeededChange = useCallback((value: number) => {
     setMatchesNeededDraft(value);
+  }, []);
+
+  const handleCheckBothOrientationsChange = useCallback((value: boolean) => {
+    setCheckBothOrientationsDraft(value);
   }, []);
 
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -439,7 +452,10 @@ export function useCalibrationPage() {
 
   const isFeederModuleDirty = isFeederDirty || dirtyModules.length > 0;
   const isScanRegionSectionDirty =
-    isScanRegionDirty || isCaptureSettleDirty || isMatchesNeededDirty;
+    isScanRegionDirty ||
+    isCaptureSettleDirty ||
+    isMatchesNeededDirty ||
+    isCheckBothOrientationsDirty;
 
   const [isSavingFeederModule, setIsSavingFeederModule] = useState(false);
 
@@ -509,6 +525,7 @@ export function useCalibrationPage() {
         ...(isScanRegionDirty ? { scanRegion } : {}),
         ...(isCaptureSettleDirty ? { captureSettleDelayMs } : {}),
         ...(isMatchesNeededDirty ? { matchesNeeded } : {}),
+        ...(isCheckBothOrientationsDirty ? { checkBothOrientations } : {}),
       });
       await queryClient.invalidateQueries({
         queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
@@ -516,6 +533,7 @@ export function useCalibrationPage() {
       setScanRegionDraft(null);
       setCaptureSettleDraft(null);
       setMatchesNeededDraft(null);
+      setCheckBothOrientationsDraft(null);
       toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
     } catch {
       toast.error(t("useCalibrationPage.toasts.saveCalibrationFailed"));
@@ -527,9 +545,11 @@ export function useCalibrationPage() {
     isScanRegionDirty,
     isCaptureSettleDirty,
     isMatchesNeededDirty,
+    isCheckBothOrientationsDirty,
     scanRegion,
     captureSettleDelayMs,
     matchesNeeded,
+    checkBothOrientations,
     queryClient,
     activeOrg?.id,
     t,
@@ -539,6 +559,7 @@ export function useCalibrationPage() {
     setScanRegionDraft(null);
     setCaptureSettleDraft(null);
     setMatchesNeededDraft(null);
+    setCheckBothOrientationsDraft(null);
   }, []);
 
   const handleFeed = useCallback(() => {
@@ -703,11 +724,13 @@ export function useCalibrationPage() {
     scanRegion,
     captureSettleDelayMs,
     matchesNeeded,
+    checkBothOrientations,
     isDeviceLoading,
     handleScanRegionChange,
     handleResetScanRegion,
     handleCaptureSettleChange,
     handleMatchesNeededChange,
+    handleCheckBothOrientationsChange,
     isFeederModuleDirty,
     isSavingFeederModule,
     handleSaveFeederModuleCalibration,

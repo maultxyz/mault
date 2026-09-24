@@ -43,6 +43,7 @@ async function detectCardCornersWithRetry(
 
 export async function vectorizeCardImageOnClient(
   canvas: HTMLCanvasElement,
+  includeRotated: boolean,
 ): Promise<ClientVectorizeResult> {
   const { detection, frame } = await detectCardCornersWithRetry(canvas);
   if (!detection.cardPresent || !detection.contour) {
@@ -50,6 +51,6 @@ export async function vectorizeCardImageOnClient(
   }
 
   const dewarpedCanvas = dewarpCard(frame, detection.contour);
-  const embeddings = await embedCardCanvas(dewarpedCanvas);
+  const embeddings = await embedCardCanvas(dewarpedCanvas, includeRotated);
   return { detection, dewarpedCanvas, embeddings };
 }

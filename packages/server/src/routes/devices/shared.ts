@@ -1,5 +1,6 @@
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
 } from "@magic-vault/shared";
 import { toScanRegion } from "../org-settings/shared";
@@ -13,6 +14,7 @@ export function toDevice(row: {
   scanOffsetY: number | null;
   captureSettleDelayMs: number | null;
   matchesNeeded: number | null;
+  checkBothOrientations: boolean | null;
   moduleCount: number;
   channelLayout: string | null;
   createdAt: Date;
@@ -26,6 +28,8 @@ export function toDevice(row: {
     captureSettleDelayMs:
       row.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
     matchesNeeded: row.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
+    checkBothOrientations:
+      row.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
     moduleCount: row.moduleCount,
     channelLayout: row.channelLayout,
     createdAt: row.createdAt.toISOString(),

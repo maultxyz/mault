@@ -65,16 +65,16 @@ async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
 
 export interface DualEmbedding {
   upright: number[];
-  rotated: number[];
+  rotated: number[] | null;
 }
 
 export async function embedCardCanvas(
   dewarpedCanvas: HTMLCanvasElement,
+  includeRotated: boolean,
 ): Promise<DualEmbedding> {
-  const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
   const [upright, rotated] = await Promise.all([
     embedCanvas(dewarpedCanvas),
-    embedCanvas(rotatedCanvas),
+    includeRotated ? embedCanvas(rotateCanvas180(dewarpedCanvas)) : null,
   ]);
   return { upright, rotated };
 }

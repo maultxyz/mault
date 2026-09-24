@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
 import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
 import {
@@ -47,22 +48,26 @@ interface ScanRegionCalibrationPanelProps {
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
   matchesNeeded: number;
+  checkBothOrientations: boolean;
   isLoading: boolean;
   onRegionChange: (region: ScanRegion) => void;
   onResetRegion: () => void;
   onCaptureSettleChange: (value: number) => void;
   onMatchesNeededChange: (value: number) => void;
+  onCheckBothOrientationsChange: (value: boolean) => void;
 }
 
 export function ScanRegionCalibrationPanel({
   scanRegion: region,
   captureSettleDelayMs: captureSettleDelayMsValue,
   matchesNeeded,
+  checkBothOrientations,
   isLoading,
   onRegionChange,
   onResetRegion,
   onCaptureSettleChange,
   onMatchesNeededChange,
+  onCheckBothOrientationsChange,
 }: ScanRegionCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const regionRef = useRef(region);
@@ -264,217 +269,240 @@ export function ScanRegionCalibrationPanel({
         {t("scanRegionCalibrationPanel.liveDetectionHint")}
       </p>
 
-      <div className="flex flex-col gap-2 w-full max-w-sm mx-auto md:mx-0">
-        <PhoneCameraPairingDialog
-          open={phoneDialogOpen}
-          onOpenChange={handlePhoneDialogOpenChange}
-          status={phonePairingStatus}
-          pairingUrl={phonePairingUrl}
-          onRetry={startPhonePairing}
-          onDisconnect={handleDisconnectPhone}
-        />
+      <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-6">
+        <div className="flex flex-col gap-2 w-full max-w-sm mx-auto md:mx-0">
+          <PhoneCameraPairingDialog
+            open={phoneDialogOpen}
+            onOpenChange={handlePhoneDialogOpenChange}
+            status={phonePairingStatus}
+            pairingUrl={phonePairingUrl}
+            onRetry={startPhonePairing}
+            onDisconnect={handleDisconnectPhone}
+          />
 
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleConnectCamera}
-            disabled={isConnecting}
-            className="flex-1"
-          >
-            <IconCameraSpark />
-            {isConnecting
-              ? t("scanRegionCalibrationPanel.connecting")
-              : isCameraActive
-                ? t("scanRegionCalibrationPanel.reconnectWebcam")
-                : t("scanRegionCalibrationPanel.connectWebcam")}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handleOpenPhonePairing}
-            className="flex-1"
-          >
-            <IconDeviceMobile />
-            {cameraSource === "phone" && phonePairingStatus === "connected"
-              ? t("scanRegionCalibrationPanel.phoneCameraConnected")
-              : t("scanRegionCalibrationPanel.usePhoneAsCamera")}
-          </Button>
-        </div>
-
-        {cameraSource === "phone" && (
-          <Button
-            variant="outline"
-            onClick={handleTakePhoto}
-            disabled={phonePairingStatus !== "connected" || isCapturingPhoto}
-            className="w-full"
-          >
-            <IconCameraSpark />
-            {isCapturingPhoto
-              ? t("scanRegionCalibrationPanel.capturingPhoto")
-              : phonePhotoUrl
-                ? t("scanRegionCalibrationPanel.retakePhoto")
-                : t("scanRegionCalibrationPanel.takePhoto")}
-          </Button>
-        )}
-        {phoneCaptureError && (
-          <p className="text-sm text-destructive">{phoneCaptureError}</p>
-        )}
-
-        <div className="relative overflow-hidden bg-background w-full rounded-lg border aspect-[2.5/3.5]">
-          <video ref={videoRef} className="hidden" playsInline muted />
-          <div ref={frameRef} className="absolute">
-            <canvas
-              ref={canvasRef}
-              className="absolute inset-0 w-full h-full"
-            />
-            <canvas
-              ref={overlayCanvasRef}
-              className="absolute inset-0 w-full h-full pointer-events-none"
-            />
-            {box && (
-              <div
-                className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none"
-                style={{
-                  left: `${box.left * 100}%`,
-                  top: `${box.top * 100}%`,
-                  width: `${box.width * 100}%`,
-                  height: `${box.height * 100}%`,
-                }}
-                onPointerDown={handleBoxPointerDown}
-                onPointerMove={handlePointerMove}
-                onPointerUp={handlePointerUp}
-                onPointerCancel={handlePointerUp}
-              >
-                <div
-                  className="absolute -right-2.5 -bottom-2.5 size-5 rounded-full bg-muted-foreground border-2 border-background cursor-nwse-resize touch-none"
-                  onPointerDown={handleResizePointerDown}
-                />
-              </div>
-            )}
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleConnectCamera}
+              disabled={isConnecting}
+              className="flex-1"
+            >
+              <IconCameraSpark />
+              {isConnecting
+                ? t("scanRegionCalibrationPanel.connecting")
+                : isCameraActive
+                  ? t("scanRegionCalibrationPanel.reconnectWebcam")
+                  : t("scanRegionCalibrationPanel.connectWebcam")}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleOpenPhonePairing}
+              className="flex-1"
+            >
+              <IconDeviceMobile />
+              {cameraSource === "phone" && phonePairingStatus === "connected"
+                ? t("scanRegionCalibrationPanel.phoneCameraConnected")
+                : t("scanRegionCalibrationPanel.usePhoneAsCamera")}
+            </Button>
           </div>
-          {cameraSource === "phone"
-            ? !phonePhotoUrl && (
-                <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                  <p className="text-xs text-muted-foreground">
-                    {phonePairingStatus === "connected"
-                      ? t("scanRegionCalibrationPanel.takePhotoPrompt")
-                      : t("scanRegionCalibrationPanel.waitingForPhone")}
-                  </p>
-                </div>
-              )
-            : !isCameraActive && (
-                <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                  <p className="text-xs text-muted-foreground">
-                    {errorMessage ||
-                      t("scanRegionCalibrationPanel.waitingForCamera")}
-                  </p>
+
+          {cameraSource === "phone" && (
+            <Button
+              variant="outline"
+              onClick={handleTakePhoto}
+              disabled={phonePairingStatus !== "connected" || isCapturingPhoto}
+              className="w-full"
+            >
+              <IconCameraSpark />
+              {isCapturingPhoto
+                ? t("scanRegionCalibrationPanel.capturingPhoto")
+                : phonePhotoUrl
+                  ? t("scanRegionCalibrationPanel.retakePhoto")
+                  : t("scanRegionCalibrationPanel.takePhoto")}
+            </Button>
+          )}
+          {phoneCaptureError && (
+            <p className="text-sm text-destructive">{phoneCaptureError}</p>
+          )}
+
+          <div className="relative overflow-hidden bg-background w-full rounded-lg border aspect-[2.5/3.5]">
+            <video ref={videoRef} className="hidden" playsInline muted />
+            <div ref={frameRef} className="absolute">
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full"
+              />
+              <canvas
+                ref={overlayCanvasRef}
+                className="absolute inset-0 w-full h-full pointer-events-none"
+              />
+              {box && (
+                <div
+                  className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none"
+                  style={{
+                    left: `${box.left * 100}%`,
+                    top: `${box.top * 100}%`,
+                    width: `${box.width * 100}%`,
+                    height: `${box.height * 100}%`,
+                  }}
+                  onPointerDown={handleBoxPointerDown}
+                  onPointerMove={handlePointerMove}
+                  onPointerUp={handlePointerUp}
+                  onPointerCancel={handlePointerUp}
+                >
+                  <div
+                    className="absolute -right-2.5 -bottom-2.5 size-5 rounded-full bg-muted-foreground border-2 border-background cursor-nwse-resize touch-none"
+                    onPointerDown={handleResizePointerDown}
+                  />
                 </div>
               )}
-        </div>
+            </div>
+            {cameraSource === "phone"
+              ? !phonePhotoUrl && (
+                  <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+                    <p className="text-xs text-muted-foreground">
+                      {phonePairingStatus === "connected"
+                        ? t("scanRegionCalibrationPanel.takePhotoPrompt")
+                        : t("scanRegionCalibrationPanel.waitingForPhone")}
+                    </p>
+                  </div>
+                )
+              : !isCameraActive && (
+                  <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
+                    <p className="text-xs text-muted-foreground">
+                      {errorMessage ||
+                        t("scanRegionCalibrationPanel.waitingForCamera")}
+                    </p>
+                  </div>
+                )}
+          </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onResetRegion}
-            title={t("scanRegionCalibrationPanel.resetToDefault")}
-          >
-            <IconRotate size={14} />
-            <span className="sr-only">
-              {t("scanRegionCalibrationPanel.resetToDefault")}
-            </span>
-          </Button>
-          {isLoading ? (
-            <Skeleton className="h-6 flex-1 rounded" />
-          ) : (
-            <p className="text-xs text-muted-foreground flex-1">
-              {t("scanRegionCalibrationPanel.currentSummary", {
-                coverage: Math.round(region.coverage * 100),
-                offsetX: Math.round(region.offsetX * 100),
-                offsetY: Math.round(region.offsetY * 100),
-              })}
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-col gap-2 pt-2 border-t">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              {t("scanRegionCalibrationPanel.captureSettleLabel")}
-            </p>
-            {isLoading ? (
-              <Skeleton className="h-5 w-12 rounded" />
-            ) : (
-              <span className="text-sm font-bold">
-                {t("msValue", { value: captureSettleDelayMsValue })}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={onResetRegion}
+              title={t("scanRegionCalibrationPanel.resetToDefault")}
+            >
+              <IconRotate size={14} />
+              <span className="sr-only">
+                {t("scanRegionCalibrationPanel.resetToDefault")}
               </span>
-            )}
-          </div>
-          <p className="text-[10px] text-muted-foreground/70">
-            {t("scanRegionCalibrationPanel.captureSettleDescription")}
-          </p>
-          <Slider
-            min={0}
-            max={sliderMax(
-              captureSettleDelayMsValue,
-              CAPTURE_SETTLE_DELAY_SLIDER_MAX,
-            )}
-            step={10}
-            value={captureSettleDelayMsValue}
-            onValueChange={onCaptureSettleChange}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2 pt-2 border-t">
-          <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
-              {t("scanRegionCalibrationPanel.matchesNeededLabel")}
-            </p>
+            </Button>
             {isLoading ? (
-              <Skeleton className="h-5 w-6 rounded" />
+              <Skeleton className="h-6 flex-1 rounded" />
             ) : (
-              <span className="text-sm font-bold">{matchesNeeded}</span>
+              <p className="text-xs text-muted-foreground flex-1">
+                {t("scanRegionCalibrationPanel.currentSummary", {
+                  coverage: Math.round(region.coverage * 100),
+                  offsetX: Math.round(region.offsetX * 100),
+                  offsetY: Math.round(region.offsetY * 100),
+                })}
+              </p>
             )}
           </div>
-          <p className="text-[10px] text-muted-foreground/70">
-            {t("scanRegionCalibrationPanel.matchesNeededDescription")}
-          </p>
-          <Slider
-            min={MATCHES_NEEDED_MIN}
-            max={sliderMax(matchesNeeded, MATCHES_NEEDED_SLIDER_MAX)}
-            step={1}
-            value={matchesNeeded}
-            onValueChange={onMatchesNeededChange}
-          />
         </div>
 
-        <div className="flex flex-col gap-2 pt-2 border-t">
-          <p className="text-xs text-muted-foreground">
-            {t("scanRegionCalibrationPanel.executionProviderLabel")}
-          </p>
-          <p className="text-[10px] text-muted-foreground/70">
-            {t("scanRegionCalibrationPanel.executionProviderDescription")}
-          </p>
-          <Select
-            value={executionProvider}
-            onValueChange={(value) =>
-              setExecutionProvider(value as OnnxExecutionProviderPreference)
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="auto">
-                {t("scanRegionCalibrationPanel.executionProviderAuto")}
-              </SelectItem>
-              <SelectItem value="webgpu">
-                {t("scanRegionCalibrationPanel.executionProviderWebGpu")}
-              </SelectItem>
-              <SelectItem value="wasm">
-                {t("scanRegionCalibrationPanel.executionProviderWasm")}
-              </SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col gap-2 w-full max-w-sm mx-auto md:mx-0">
+          <div className="flex flex-col gap-2 pt-2 border-t md:pt-0 md:border-t-0">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                {t("scanRegionCalibrationPanel.captureSettleLabel")}
+              </p>
+              {isLoading ? (
+                <Skeleton className="h-5 w-12 rounded" />
+              ) : (
+                <span className="text-sm font-bold">
+                  {t("msValue", { value: captureSettleDelayMsValue })}
+                </span>
+              )}
+            </div>
+            <p className="text-[10px] text-muted-foreground/70">
+              {t("scanRegionCalibrationPanel.captureSettleDescription")}
+            </p>
+            <Slider
+              min={0}
+              max={sliderMax(
+                captureSettleDelayMsValue,
+                CAPTURE_SETTLE_DELAY_SLIDER_MAX,
+              )}
+              step={10}
+              value={captureSettleDelayMsValue}
+              onValueChange={onCaptureSettleChange}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 pt-2 border-t">
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-muted-foreground">
+                {t("scanRegionCalibrationPanel.matchesNeededLabel")}
+              </p>
+              {isLoading ? (
+                <Skeleton className="h-5 w-6 rounded" />
+              ) : (
+                <span className="text-sm font-bold">{matchesNeeded}</span>
+              )}
+            </div>
+            <p className="text-[10px] text-muted-foreground/70">
+              {t("scanRegionCalibrationPanel.matchesNeededDescription")}
+            </p>
+            <Slider
+              min={MATCHES_NEEDED_MIN}
+              max={sliderMax(matchesNeeded, MATCHES_NEEDED_SLIDER_MAX)}
+              step={1}
+              value={matchesNeeded}
+              onValueChange={onMatchesNeededChange}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2 pt-2 border-t">
+            <label className="flex items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">
+                {t("scanRegionCalibrationPanel.checkBothOrientationsLabel")}
+              </span>
+              {isLoading ? (
+                <Skeleton className="h-4 w-7 rounded-full" />
+              ) : (
+                <Switch
+                  checked={checkBothOrientations}
+                  onCheckedChange={onCheckBothOrientationsChange}
+                />
+              )}
+            </label>
+            <p className="text-[10px] text-muted-foreground/70">
+              {t("scanRegionCalibrationPanel.checkBothOrientationsDescription")}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2 pt-2 border-t">
+            <p className="text-xs text-muted-foreground">
+              {t("scanRegionCalibrationPanel.executionProviderLabel")}
+            </p>
+            <p className="text-[10px] text-muted-foreground/70">
+              {t("scanRegionCalibrationPanel.executionProviderDescription")}
+            </p>
+            <Select
+              value={executionProvider}
+              onValueChange={(value) =>
+                setExecutionProvider(value as OnnxExecutionProviderPreference)
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="auto">
+                  {t("scanRegionCalibrationPanel.executionProviderAuto")}
+                </SelectItem>
+                <SelectItem value="webgpu">
+                  {t("scanRegionCalibrationPanel.executionProviderWebGpu")}
+                </SelectItem>
+                <SelectItem value="wasm">
+                  {t("scanRegionCalibrationPanel.executionProviderWasm")}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
     </div>

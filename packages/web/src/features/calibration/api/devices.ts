@@ -10,6 +10,7 @@ import {
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHANNEL_LAYOUT,
+  DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_MODULE_COUNT,
   DEFAULT_SCAN_REGION,
@@ -26,6 +27,7 @@ export interface Device {
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
   matchesNeeded: number;
+  checkBothOrientations: boolean;
   moduleCount: number;
   channelLayout: ChannelLayout;
   createdAt: string;
@@ -38,6 +40,7 @@ export interface DevicePatch {
   scanRegion?: ScanRegion | null;
   captureSettleDelayMs?: number | null;
   matchesNeeded?: number | null;
+  checkBothOrientations?: boolean | null;
   moduleCount?: number;
   channelLayout?: ChannelLayout;
 }
@@ -49,6 +52,7 @@ export const DEFAULT_DEVICE: Device = {
   scanRegion: DEFAULT_SCAN_REGION,
   captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   matchesNeeded: DEFAULT_MATCHES_NEEDED,
+  checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
   createdAt: "",
