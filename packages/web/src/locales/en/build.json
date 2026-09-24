@@ -338,6 +338,10 @@
       "firmware": {
         "title": "Flash the firmware",
         "steps": {
+          "downloadCode": {
+            "text": "Download the code from the <repo>GitHub repository</repo> (Code → Download ZIP) and unzip it, then open the firmware folder with the Arduino IDE (File → Open → firmware/main/main.ino).",
+            "note": "The Arduino IDE needs a sketch to live in a folder with the same name, so open main.ino from inside firmware/main rather than moving it elsewhere."
+          },
           "installEsp32Core": {
             "text": "In the Arduino IDE, add the ESP32 board index URL (File → Preferences → Additional boards manager URLs): https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json, then install \"esp32 by Espressif Systems\" from the Boards Manager.",
             "note": "This pulls down a few hundred MB (the whole Xtensa toolchain) and takes a few minutes."
@@ -346,8 +350,16 @@
             "text": "In the Arduino IDE, install the ArduinoJson and Adafruit PWM Servo Driver libraries.",
             "note": "Library Manager → search each by name."
           },
+          "installLibrariesEsp32": {
+            "note": "Library Manager → search each by name. Bluetooth support ships with the ESP32 core you just installed, so no extra Bluetooth library is needed."
+          },
+          "installLibrariesUnoR4": {
+            "text": "In the Arduino IDE, install the ArduinoJson, Adafruit PWM Servo Driver, and ArduinoBLE libraries.",
+            "note": "Library Manager → search each by name. ArduinoBLE powers Bluetooth on the Uno R4 WiFi. The Uno R4 Minima has no Bluetooth hardware and doesn't use it, so Minima builds can skip it."
+          },
           "uploadSketch": {
-            "text": "Select board \"Arduino Uno R4\", select the correct port, then upload firmware/main/main.ino."
+            "text": "Select board \"Arduino UNO R4 WiFi\" (or \"Arduino UNO R4 Minima\" if that's the one you have), select the correct port, then upload firmware/main/main.ino.",
+            "note": "Picking the exact board matters: Bluetooth is only compiled in when the WiFi board is selected."
           },
           "uploadSketchEsp32": {
             "text": "Select board \"ESP32S3 Dev Module\", set Tools → USB Mode to \"Hardware CDC and JTAG\" and USB CDC On Boot to \"Enabled\", select the correct port, then upload firmware/main/main.ino.",

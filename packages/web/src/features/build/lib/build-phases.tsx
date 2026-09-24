@@ -1,6 +1,7 @@
 import type { BoardType } from "@/features/build/api/use-board-type";
 import type { Esp32MountType } from "@/features/build/api/use-esp32-mount-type";
 import { BOARD_INFO } from "@/lib/constants/build";
+import { REPO_URL } from "@/lib/constants/links";
 import {
   IconCpu,
   IconCube,
@@ -195,6 +196,26 @@ export function buildPhases(
       title: t("assembly.phases.firmware.title"),
       icon: IconCpu,
       steps: [
+        {
+          key: "download-code",
+          text: (
+            <Trans
+              t={t}
+              i18nKey="assembly.phases.firmware.steps.downloadCode.text"
+              components={{
+                repo: (
+                  <a
+                    href={REPO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground"
+                  />
+                ),
+              }}
+            />
+          ),
+          note: t("assembly.phases.firmware.steps.downloadCode.note"),
+        },
         ...(isEsp32Family
           ? [
               {
@@ -204,11 +225,23 @@ export function buildPhases(
               },
             ]
           : []),
-        {
-          key: "install-libraries",
-          text: t("assembly.phases.firmware.steps.installLibraries.text"),
-          note: t("assembly.phases.firmware.steps.installLibraries.note"),
-        },
+        isEsp32Family
+          ? {
+              key: "install-libraries",
+              text: t("assembly.phases.firmware.steps.installLibraries.text"),
+              note: t(
+                "assembly.phases.firmware.steps.installLibrariesEsp32.note",
+              ),
+            }
+          : {
+              key: "install-libraries",
+              text: t(
+                "assembly.phases.firmware.steps.installLibrariesUnoR4.text",
+              ),
+              note: t(
+                "assembly.phases.firmware.steps.installLibrariesUnoR4.note",
+              ),
+            },
         isEsp32Family
           ? {
               key: "upload-sketch",
@@ -218,6 +251,7 @@ export function buildPhases(
           : {
               key: "upload-sketch",
               text: t("assembly.phases.firmware.steps.uploadSketch.text"),
+              note: t("assembly.phases.firmware.steps.uploadSketch.note"),
             },
         {
           key: "confirm-ready",
