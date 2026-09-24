@@ -1,3 +1,5 @@
+export type NotificationTestOutcome = "sent" | "no_channel" | "failed";
+
 export type NotificationTestType =
   | "sorter-error"
   | "feeder-empty"

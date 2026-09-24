@@ -19,6 +19,10 @@
     "saveError": "Benachrichtigungseinstellungen konnten nicht gespeichert werden.",
     "saveSuccess": "Benachrichtigungseinstellungen gespeichert.",
     "testSuccess": "Testbenachrichtigung gesendet.",
-    "testError": "Testbenachrichtigung konnte nicht gesendet werden."
+    "testError": "Testbenachrichtigung konnte nicht gesendet werden.",
+    "testNoChannel": {
+      "title": "Kein Fehlerkanal festgelegt",
+      "description": "Führe /notification auf deinem Discord-Server in dem Kanal aus, in dem Fehlermeldungen erscheinen sollen, und versuche es dann erneut."
+    }
   }
 }

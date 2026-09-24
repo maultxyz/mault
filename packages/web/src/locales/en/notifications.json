@@ -19,6 +19,10 @@
     "saveError": "Failed to save notification settings.",
     "saveSuccess": "Notification settings saved.",
     "testSuccess": "Test notification sent.",
-    "testError": "Failed to send test notification."
+    "testError": "Failed to send test notification.",
+    "testNoChannel": {
+      "title": "No error channel set",
+      "description": "Run /notification in your Discord server, in the channel you want error notifications in, then try again."
+    }
   }
 }
