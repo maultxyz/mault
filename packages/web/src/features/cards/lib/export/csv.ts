@@ -13,7 +13,7 @@ export const csvAdapter: ExportAdapter = {
     "Foil Type",
     "Set",
     "Card Number",
-    ...ctx.fieldDefinitions.map((f) => f.label),
+    ...ctx.fieldDefinitions.map((f) => csvEscape(f.label)),
   ],
   row: ({ card, quantity, isFoil, foilType }, ctx) => [
     String(quantity),

@@ -1,10 +1,23 @@
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { apiGet } from "@/lib/api/client";
-import { ACTIVE_ORG_STORAGE_KEY as ORG_KEY } from "@/lib/constants/storage-keys";
+import {
+  getLocalActiveOrgId,
+  setLocalActiveOrgId,
+  subscribeLocalActiveOrg,
+} from "@/lib/auth/local-active-org";
+import { useLocalAuthSession } from "@/lib/auth/local-session-store";
+import { LOCAL_ORGS_QUERY_KEY } from "@/lib/constants/query";
 import type { LocalOrg } from "@/lib/interfaces/auth";
 import { invalidateAppQueries } from "@/lib/query-client";
-import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
+
+async function fetchLocalOrgs(): Promise<LocalOrg[]> {
+  const res = await apiGet<{ success: boolean; data?: LocalOrg[] }>(
+    "/api/local-auth/organizations",
+  );
+  return res.data ?? [];
+}
 
 // own-auth has no server-side "active organization" concept - unlike Neon
 // mode, which round-trips organization.setActive() to the identity provider
@@ -12,35 +25,26 @@ import { useCallback, useEffect, useState } from "react";
 // here, so switching orgs is a synchronous local write.
 export function useOrgLocal() {
   const queryClient = useQueryClient();
-  const [orgs, setOrgs] = useState<LocalOrg[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeOrgId, setActiveOrgId] = useState<string | null>(() =>
-    localStorage.getItem(ORG_KEY),
+  const session = useLocalAuthSession();
+  const userId = session.data?.user.id ?? null;
+  const orgsQuery = useQuery({
+    queryKey: [LOCAL_ORGS_QUERY_KEY, userId],
+    queryFn: fetchLocalOrgs,
+    enabled: !!userId,
+  });
+  const orgs = orgsQuery.data ?? [];
+  const activeOrgId = useSyncExternalStore(
+    subscribeLocalActiveOrg,
+    getLocalActiveOrgId,
   );
   const impersonation = useImpersonation();
 
   useEffect(() => {
-    let cancelled = false;
-    apiGet<{ success: boolean; data?: LocalOrg[] }>("/api/local-auth/organizations")
-      .then((res) => {
-        if (!cancelled) setOrgs(res.data ?? []);
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setIsLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    if (isLoading) return;
-    if (activeOrgId && !orgs.some((o) => o.id === activeOrgId)) {
-      localStorage.removeItem(ORG_KEY);
-      setActiveOrgId(null);
+    if (!orgsQuery.isSuccess || orgsQuery.isFetching) return;
+    if (activeOrgId && !orgsQuery.data.some((o) => o.id === activeOrgId)) {
+      setLocalActiveOrgId(null);
     }
-  }, [isLoading, orgs, activeOrgId]);
+  }, [orgsQuery.isSuccess, orgsQuery.isFetching, orgsQuery.data, activeOrgId]);
 
   const setActiveOrg = useCallback(
     async (orgId: string) => {
@@ -49,11 +53,21 @@ export function useOrgLocal() {
         await invalidateAppQueries(queryClient);
         return;
       }
-      localStorage.setItem(ORG_KEY, orgId);
-      setActiveOrgId(orgId);
+      // A just-created org isn't in the cached list yet; refetch first so the
+      // stale-org cleanup above doesn't immediately clear the new selection.
+      const cached = queryClient.getQueryData<LocalOrg[]>([
+        LOCAL_ORGS_QUERY_KEY,
+        userId,
+      ]);
+      if (!cached?.some((o) => o.id === orgId)) {
+        await queryClient.refetchQueries({
+          queryKey: [LOCAL_ORGS_QUERY_KEY, userId],
+        });
+      }
+      setLocalActiveOrgId(orgId);
       await invalidateAppQueries(queryClient);
     },
-    [queryClient, impersonation],
+    [queryClient, impersonation, userId],
   );
 
   if (impersonation.isImpersonating) {
@@ -72,7 +86,7 @@ export function useOrgLocal() {
   return {
     orgs,
     activeOrg: orgs.find((o) => o.id === activeOrgId) ?? null,
-    isLoading,
+    isLoading: session.isPending || (!!userId && orgsQuery.isPending),
     setActiveOrg,
   };
 }
