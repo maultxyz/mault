@@ -1,5 +1,6 @@
 import type { BoardType } from "@/features/build/api/use-board-type";
 import type { Esp32MountType } from "@/features/build/api/use-esp32-mount-type";
+import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
 import { BOARD_INFO } from "@/lib/constants/build";
 import { REPO_URL } from "@/lib/constants/links";
 import {
@@ -196,6 +197,15 @@ export function buildPhases(
       title: t("assembly.phases.firmware.title"),
       icon: IconCpu,
       steps: [
+        ...(isEsp32Family
+          ? [
+              {
+                key: "flash-in-browser",
+                text: <FlashInBrowserStep />,
+                note: t("assembly.phases.firmware.steps.flashInBrowser.note"),
+              },
+            ]
+          : []),
         {
           key: "download-code",
           text: (

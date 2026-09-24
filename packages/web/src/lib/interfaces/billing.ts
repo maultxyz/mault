@@ -5,4 +5,5 @@ export interface BillingStatus {
   currentPeriodEnd: string | null;
   cardsScannedToday: number;
   dailyLimit: number | null;
+  maxConnectedSorters?: number | null;
 }

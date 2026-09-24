@@ -1,5 +1,6 @@
 import { useCollections } from "@/features/collections/api/use-collections";
 import { usePhoneCameraCapture } from "@/features/scanner/api/use-phone-camera-capture";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import type {
   CameraContextValue,
   CameraSource,
@@ -52,6 +53,19 @@ async function acquireStream(deviceId?: string): Promise<MediaStream> {
   return stream;
 }
 
+async function pickUnusedCamera(
+  usedIds: Set<string>,
+): Promise<string | undefined> {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    return devices.find(
+      (d) => d.kind === "videoinput" && d.deviceId && !usedIds.has(d.deviceId),
+    )?.deviceId;
+  } catch {
+    return undefined;
+  }
+}
+
 export function CameraProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
@@ -65,12 +79,24 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const [cameraSource, setCameraSource] = useState<CameraSource>("local");
   const streamRef = useRef<MediaStream | null>(null);
   const { activeCollection } = useCollections();
+  const { station, isLive } = useStation();
+  const stationsCtx = useStations();
+  const stationsRef = useRef(stationsCtx);
+  stationsRef.current = stationsCtx;
+  const stationId = station.id;
+  const stationCameraIdRef = useRef(station.cameraId);
+  stationCameraIdRef.current = station.cameraId;
 
   const startCamera = useCallback(async (deviceId?: string) => {
     setStatus("requesting");
     setErrorMessage("");
     try {
-      const mediaStream = await acquireStream(deviceId);
+      // A remembered camera may have been unplugged since - fall back to the
+      // browser's default rather than failing the station outright.
+      const mediaStream = await acquireStream(deviceId).catch((err) => {
+        if (!deviceId) throw err;
+        return acquireStream();
+      });
       streamRef.current = mediaStream;
       setStream(mediaStream);
       setStatus("ready");
@@ -79,6 +105,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       if (track) {
         const activeDeviceId = track.getSettings().deviceId ?? null;
         setSelectedCameraId(activeDeviceId);
+        stationsRef.current.setStationCamera(stationId, activeDeviceId);
 
         const caps = track.getCapabilities() as MediaTrackCapabilities & {
           zoom?: { min: number; max: number; step: number };
@@ -102,7 +129,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       setErrorMessage(msg);
       setStatus("error");
     }
-  }, [t]);
+  }, [t, stationId]);
 
   const setZoom = useCallback((value: number) => {
     const track = streamRef.current?.getVideoTracks()[0];
@@ -171,17 +198,46 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Mobile is redirected to the read-only monitor view and never scans -
     // don't prompt for camera access it'll never use.
-    if (isMobile) return;
+    // The idle standby station holds no camera until it's connected or viewed.
+    if (isMobile || !isLive) return;
 
-    startCamera();
+    void (async () => {
+      let cameraId = stationCameraIdRef.current ?? undefined;
+      if (!cameraId) {
+        const { stations, isStationLive } = stationsRef.current;
+        const usedIds = new Set(
+          stations
+            .filter((s) => s.id !== stationId && s.cameraId && isStationLive(s.id))
+            .map((s) => s.cameraId as string),
+        );
+        if (usedIds.size > 0) cameraId = await pickUnusedCamera(usedIds);
+      }
+      await startCamera(cameraId);
+    })();
 
     return () => {
       if (streamRef.current) {
         for (const track of streamRef.current.getTracks()) track.stop();
         streamRef.current = null;
       }
+      setStream(null);
+      setStatus("idle");
     };
-  }, [startCamera, isMobile]);
+  }, [startCamera, isMobile, isLive, stationId]);
+
+  // A board reconnecting restores the camera it last used (see
+  // bindStationDevice), which may differ from the one already running.
+  useEffect(() => {
+    if (
+      status === "ready" &&
+      cameraSource === "local" &&
+      station.cameraId &&
+      selectedCameraId &&
+      station.cameraId !== selectedCameraId
+    ) {
+      void selectCamera(station.cameraId);
+    }
+  }, [station.cameraId, selectedCameraId, status, cameraSource, selectCamera]);
 
   return (
     <CameraContext

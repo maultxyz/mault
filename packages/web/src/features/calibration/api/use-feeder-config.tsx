@@ -43,9 +43,9 @@ export function FeederConfigProvider({
     useQuery(queryOpts);
 
   useEffect(() => {
-    return registerPreTestHook(async () => {
-      if (!device) return;
-      const fresh = await queryClient.fetchQuery(feederQueryOptions(device.guid));
+    return registerPreTestHook(async (target) => {
+      if (!target) return;
+      const fresh = await queryClient.fetchQuery(feederQueryOptions(target.guid));
       const p = receiveResponse();
       await sendCommand(JSON.stringify({ setFeederConfig: fresh }));
       const response = await p;
@@ -64,7 +64,7 @@ export function FeederConfigProvider({
         });
       }
     });
-  }, [registerPreTestHook, queryClient, sendCommand, receiveResponse, device, t]);
+  }, [registerPreTestHook, queryClient, sendCommand, receiveResponse, t]);
 
   const saveConfigMutation = useMutation({
     mutationFn: (calibration: FeederCalibration) =>

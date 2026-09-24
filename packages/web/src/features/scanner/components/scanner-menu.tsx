@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
+import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { OcrBetaDialog } from "@/features/scanner/components/ocr-beta-dialog";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import type { ZoomRange } from "@/lib/interfaces/scanner";
@@ -20,6 +21,8 @@ import {
   IconDeviceMobile,
   IconDeviceUsb,
   IconDeviceUsbFilled,
+  IconDownload,
+  IconPlus,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -53,6 +56,10 @@ interface ScannerMenuProps {
   onAutoFeedChange: (enabled: boolean) => void;
   onAllowDuplicatesChange: (enabled: boolean) => void;
   onOcrEnabledChange: (enabled: boolean) => void;
+  onConnectAnotherUsb: () => void;
+  onConnectAnotherBluetooth: () => void;
+  canConnectAnotherSorter: boolean;
+  onUpgrade: () => void;
 }
 
 export function ScannerMenu({
@@ -84,10 +91,17 @@ export function ScannerMenu({
   onAutoFeedChange,
   onAllowDuplicatesChange,
   onOcrEnabledChange,
+  onConnectAnotherUsb,
+  onConnectAnotherBluetooth,
+  canConnectAnotherSorter,
+  onUpgrade,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [ocrDialogOpen, setOcrDialogOpen] = useState(false);
+  const [flashDialogOpen, setFlashDialogOpen] = useState(false);
+  const webSerialSupported =
+    typeof navigator !== "undefined" && !!navigator.serial;
 
   const handleOcrCheckedChange = (checked: boolean) => {
     if (checked) setOcrDialogOpen(true);
@@ -247,6 +261,26 @@ export function ScannerMenu({
                   >
                     {t("disconnect")}
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {canConnectAnotherSorter ? (
+                    <>
+                      <DropdownMenuItem onClick={onConnectAnotherUsb}>
+                        <IconPlus />
+                        {t("scannerMenu.connectAnotherUsb")}
+                      </DropdownMenuItem>
+                      {bluetoothSupported && (
+                        <DropdownMenuItem onClick={onConnectAnotherBluetooth}>
+                          <IconPlus />
+                          {t("scannerMenu.connectAnotherBluetooth")}
+                        </DropdownMenuItem>
+                      )}
+                    </>
+                  ) : (
+                    <DropdownMenuItem onClick={onUpgrade}>
+                      <IconPlus />
+                      {t("scannerMenu.connectAnotherUpgrade")}
+                    </DropdownMenuItem>
+                  )}
                 </>
               ) : (
                 <>
@@ -264,6 +298,15 @@ export function ScannerMenu({
                       {t("scannerMenu.connectBluetooth")}
                     </DropdownMenuItem>
                   )}
+                  {webSerialSupported && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setFlashDialogOpen(true)}>
+                        <IconDownload />
+                        {t("scannerMenu.flashNewBoard")}
+                      </DropdownMenuItem>
+                    </>
+                  )}
                 </>
               )}
             </DropdownMenuSubContent>
@@ -278,6 +321,11 @@ export function ScannerMenu({
           </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
+      <NewBoardFlashDialog
+        open={flashDialogOpen}
+        onOpenChange={setFlashDialogOpen}
+        onConnect={onScannerConnect}
+      />
       <OcrBetaDialog
         open={ocrDialogOpen}
         onOpenChange={setOcrDialogOpen}

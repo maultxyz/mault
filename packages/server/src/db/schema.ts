@@ -165,7 +165,7 @@ export const devices = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("devices_org_idx").on(table.orgId),
+    unique("devices_org_hardware_idx").on(table.orgId, table.hardwareId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

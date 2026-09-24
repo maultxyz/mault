@@ -15,6 +15,7 @@ export async function findFullBin(
   gameId: number | null,
   collectionId: number,
   binNumber: number,
+  deviceGuid: string | undefined,
 ): Promise<BinLimitStatus | null> {
   const activeBinSet = await tx.query.binSets.findFirst({
     where: (t, { eq, and, isNull }) =>
@@ -33,7 +34,11 @@ export async function findFullBin(
   if (!bin) return null;
 
   const device = await tx.query.devices.findFirst({
-    where: (t, { eq }) => eq(t.orgId, orgId),
+    where: (t, { eq, and }) =>
+      deviceGuid
+        ? and(eq(t.orgId, orgId), eq(t.guid, deviceGuid))
+        : eq(t.orgId, orgId),
+    orderBy: (t, { asc }) => asc(t.id),
     columns: { id: true },
   });
   const heightRow = device

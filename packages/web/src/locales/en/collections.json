@@ -62,7 +62,8 @@
     "createFailed": "Failed to create collection",
     "renameFailed": "Failed to update collection",
     "deleteFailed": "Failed to delete collection",
-    "emptyFailed": "Failed to empty collection"
+    "emptyFailed": "Failed to empty collection",
+    "openInAnotherSorter": "This collection is already open in another sorter panel"
   },
   "noCollectionsYet": "No collections yet",
   "noMatchingCollections": "No matching collections",

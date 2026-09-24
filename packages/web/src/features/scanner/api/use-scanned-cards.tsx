@@ -14,6 +14,7 @@ import {
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
+import { useDevice } from "@/features/calibration/api/use-device";
 import {
   addCollectionCard,
   addUnmatchedCard as addUnmatchedCardApi,
@@ -71,6 +72,9 @@ export function ScannedCardsProvider({
   } = useBinConfigs();
   const [binLimitBin, setBinLimitBin] = useState<BinConfig | null>(null);
   const { routes: binRoutes } = useBinRoutes();
+  const device = useDevice();
+  const deviceGuidRef = useRef(device?.guid);
+  deviceGuidRef.current = device?.guid;
   const { sendRoute, sendCommand, receiveResponse, isConnected, isReady } =
     useSerial();
   const { activeCollection, emptyCollection } = useCollections();
@@ -334,7 +338,7 @@ export function ScannedCardsProvider({
         );
       }
 
-      addCollectionCard(collection.guid, record)
+      addCollectionCard(collection.guid, record, deviceGuidRef.current)
         .then((result) => {
           if (!result.success) {
             setCards((prev) => prev.filter((c) => c.scanId !== record.scanId));
@@ -354,6 +358,14 @@ export function ScannedCardsProvider({
               disableAutoFeed();
               pause();
               setBinLimitBin(matchedBin ?? null);
+              return;
+            }
+            if (result.sorterLimitReached) {
+              disableAutoFeed();
+              pause();
+              toast.error(t("stations.limitReached.title"), {
+                description: t("stations.limitReached.description"),
+              });
               return;
             }
             const key = result.scanLimitReached

@@ -2,6 +2,7 @@ import { and, eq, gte, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collectionCards, orgBilling } from "../../db/schema";
+import { sorterLimitForPlan } from "../../lib/sorter-limit";
 import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -44,6 +45,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
             currentPeriodEnd: billing?.currentPeriodEnd ?? null,
             cardsScannedToday: count,
             dailyLimit: plan === "business" ? null : FREE_PLAN_DAILY_SCAN_LIMIT,
+            maxConnectedSorters: sorterLimitForPlan(plan),
           },
         };
       });

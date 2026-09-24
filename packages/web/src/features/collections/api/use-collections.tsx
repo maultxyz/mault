@@ -13,7 +13,7 @@ import {
   updateCollection as updateCollectionFn,
 } from "@/features/collections/api/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { ACTIVE_COLLECTION_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
   computeBinCount,
   createDefaultCatchAllOnlyBins,
@@ -27,7 +27,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -70,15 +69,18 @@ export function CollectionsProvider({
     enabled: !!activeOrg,
   });
 
-  const [activeGuid, setActiveGuidState] = useState<string | null>(() =>
-    localStorage.getItem(ACTIVE_COLLECTION_STORAGE_KEY),
-  );
+  const { station, isLive } = useStation();
+  const { stations, claimStationCollection, isStationLive } = useStations();
+  const activeGuid = station.collectionGuid;
 
-  const setActiveGuid = useCallback((guid: string | null) => {
-    setActiveGuidState(guid);
-    if (guid) localStorage.setItem(ACTIVE_COLLECTION_STORAGE_KEY, guid);
-    else localStorage.removeItem(ACTIVE_COLLECTION_STORAGE_KEY);
-  }, []);
+  const setActiveGuid = useCallback(
+    (guid: string | null) => {
+      const claimed = claimStationCollection(station.id, guid);
+      if (!claimed) toast.error(t("errors.openInAnotherSorter"));
+      return claimed;
+    },
+    [claimStationCollection, station.id, t],
+  );
 
   // If the stored guid no longer exists (e.g. collection deleted), clear it
   useEffect(() => {
@@ -91,14 +93,35 @@ export function CollectionsProvider({
     }
   }, [collections, activeGuid, setActiveGuid]);
 
+  // Only live stations (connected, or being viewed) hold a collection; the
+  // idle standby's pick never blocks anyone.
   const activeCollection = useMemo(() => {
-    if (activeGuid) {
+    const taken = new Set(
+      stations
+        .filter((s) => s.id !== station.id && isStationLive(s.id))
+        .map((s) => s.collectionGuid),
+    );
+    if (activeGuid && !taken.has(activeGuid)) {
       const found = collections.find((c) => c.guid === activeGuid);
       if (found) return found;
     }
-    // First load or no stored preference - fall back to most recently updated
-    return collections[0] ?? null;
-  }, [collections, activeGuid]);
+    // No usable stored preference - fall back to the most recently updated
+    // collection no other sorter is already scanning into.
+    return collections.find((c) => !taken.has(c.guid)) ?? null;
+  }, [collections, activeGuid, stations, station.id, isStationLive]);
+
+  // Pins the fallback pick so a second station's fallback can't land on it too.
+  useEffect(() => {
+    if (isLive && activeCollection && activeGuid !== activeCollection.guid) {
+      claimStationCollection(station.id, activeCollection.guid);
+    }
+  }, [
+    isLive,
+    activeGuid,
+    activeCollection,
+    claimStationCollection,
+    station.id,
+  ]);
 
   function setCollections(data: Collection[]) {
     queryClient.setQueryData(["collections"], data);
@@ -213,7 +236,7 @@ export function CollectionsProvider({
 
   const activate = useCallback(
     async (guid: string) => {
-      setActiveGuid(guid);
+      if (!setActiveGuid(guid)) return;
       // Fire-and-forget to server so the org has a "last used" hint for new devices
       activateCollectionFn(guid).catch(() => {});
     },

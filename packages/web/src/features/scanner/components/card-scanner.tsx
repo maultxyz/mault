@@ -12,6 +12,7 @@ import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useRegisterScannerIsland } from "@/features/scanner/api/use-scanner-island";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { BinLimitDialog } from "@/features/scanner/components/bin-limit-dialog";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
@@ -43,6 +44,9 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     resolveBinLimit,
   } = useScannedCards();
   const registerIsland = useRegisterScannerIsland();
+  const { station } = useStation();
+  const { setActiveStation, connectAnotherSorter, canConnectAnotherSorter } =
+    useStations();
   const {
     isConnected,
     isReady,
@@ -435,7 +439,14 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           bluetoothSupported={bluetoothSupported}
           onScannerDisconnect={disconnect}
           onScannerRetry={sendTest}
-          onCalibrate={() => navigate("/app/calibrate")}
+          onCalibrate={() => {
+            setActiveStation(station.id);
+            navigate("/app/calibrate");
+          }}
+          onConnectAnotherUsb={() => connectAnotherSorter("usb")}
+          onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
+          canConnectAnotherSorter={canConnectAnotherSorter}
+          onUpgrade={() => navigate("/app/settings")}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
           onOcrEnabledChange={setOcrEnabled}

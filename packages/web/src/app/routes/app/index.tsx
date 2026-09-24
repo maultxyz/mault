@@ -10,6 +10,7 @@ import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { GameSwitchAlert } from "@/features/scanner/components/game-switch-alert";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
+import { StationPanels } from "@/features/scanner/components/station-panels";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useResizablePanel } from "@/hooks/use-resizable-panel";
@@ -61,7 +62,6 @@ function MobileScanner() {
 
 export default function App() {
   const isMobile = useIsMobile();
-  const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
   const { activeOrg } = useOrg();
   const { data: orgSettings } = useQuery(
     orgSettingsQueryOptions(activeOrg?.id),
@@ -99,25 +99,7 @@ export default function App() {
   if (isVertical) {
     return (
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-        <section
-          style={{ height: scannerHeight }}
-          className="flex items-stretch gap-2 p-2 bg-sidebar/70 shrink-0"
-        >
-          <div className="flex flex-col gap-2 min-w-0">
-            <CardScanner className="flex-1 min-h-0" />
-          </div>
-          <ScanStats />
-          <div className="flex flex-col gap-4 w-52 shrink-0 overflow-y-auto">
-            <CollectionSwitcher />
-            <PresetSelector readOnly />
-            <UnmatchedCardsPanel
-              cards={unmatchedCards}
-              onRemove={removeUnmatchedCard}
-            />
-            <BinStatusMeter />
-            <GameSwitchAlert />
-          </div>
-        </section>
+        <StationPanels layout="vertical" size={scannerHeight} />
         <ResizeHandle
           orientation="horizontal"
           isDragging={isResizingHeight}
@@ -132,21 +114,7 @@ export default function App() {
 
   return (
     <div className="flex flex-1 min-h-0 overflow-hidden">
-      <section
-        style={{ width: scannerWidth }}
-        className="shrink-0 overflow-hidden flex flex-col h-full p-2 gap-2 bg-sidebar/70"
-      >
-        <CollectionSwitcher />
-        <PresetSelector readOnly />
-        <CardScanner className="flex-none" />
-        <GameSwitchAlert />
-        <UnmatchedCardsPanel
-          cards={unmatchedCards}
-          onRemove={removeUnmatchedCard}
-        />
-        <BinStatusMeter />
-        <ScanStats />
-      </section>
+      <StationPanels layout="horizontal" size={scannerWidth} />
       <ResizeHandle
         orientation="vertical"
         isDragging={isResizingWidth}

@@ -1,15 +1,20 @@
 import {
+  acquireDeviceLease,
   devicesQueryOptions,
-  saveDevice,
+  releaseDeviceLease,
+  resolveDevice,
+  type Device,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
   formatCommLog,
   MAX_COMM_LOG_ENTRIES,
   type CommLogEntry,
 } from "@/features/scanner/lib/comm-log";
+import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import {
   BluetoothTransport,
   SerialTransport,
@@ -23,9 +28,10 @@ import type {
   SerialMessageListener,
   TestResult,
 } from "@/lib/interfaces/scanner";
+import { DEVICE_LEASE_HEARTBEAT_MS } from "@/lib/constants/timing";
+import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
-import { ESPLoader, Transport as EspLoaderTransport } from "esptool-js";
 import {
   createContext,
   useCallback,
@@ -54,13 +60,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const [isFlashing, setIsFlashing] = useState(false);
   const [flashProgress, setFlashProgress] = useState<number | null>(null);
   const [flashLog, setFlashLog] = useState<string[]>([]);
+  const [leasedDeviceGuid, setLeasedDeviceGuid] = useState<string | null>(null);
+  const leasedDeviceGuidRef = useRef<string | null>(null);
   const transportRef = useRef<ByteTransport | null>(null);
   const writeQueueRef = useRef<Promise<void>>(Promise.resolve());
   const bufferRef = useRef("");
   const pendingRef = useRef<Array<(line: string) => void>>([]);
   const listenersRef = useRef(new Set<SerialMessageListener>());
   const disconnectingRef = useRef<Promise<void> | null>(null);
-  const preTestHooksRef = useRef(new Set<() => Promise<void>>());
+  const preTestHooksRef = useRef(new Set<PreTestHook>());
   const commLogRef = useRef<CommLogEntry[]>([]);
   const commLogSnapshotRef = useRef<CommLogEntry[]>([]);
   const commLogListenersRef = useRef(new Set<() => void>());
@@ -69,6 +77,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const { activeOrg } = useOrg();
   const device = useDevice();
+  const deviceRef = useRef(device);
+  deviceRef.current = device;
+  const { station } = useStation();
+  const stationsCtx = useStations();
+  const stationsRef = useRef(stationsCtx);
+  stationsRef.current = stationsCtx;
   const queryClient = useQueryClient();
 
   const pushCommLog = useCallback(
@@ -209,6 +223,11 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const disconnect = useCallback(() => {
     const activeTransport = transportRef.current;
 
+    const leased = leasedDeviceGuidRef.current;
+    leasedDeviceGuidRef.current = null;
+    setLeasedDeviceGuid(null);
+    if (leased) void releaseDeviceLease(leased);
+
     transportRef.current = null;
     writeQueueRef.current = Promise.resolve();
     setIsConnected(false);
@@ -243,10 +262,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   // manually re-triggering it later (e.g. after skipAutoTest) - same
   // toasts/reporting/disconnect-on-fail either way.
   const runConnectTest = useCallback(
-    async (forTransport: ByteTransport) => {
+    async (forTransport: ByteTransport, forDevice: Device | undefined) => {
       for (const hook of [...preTestHooksRef.current]) {
         try {
-          await hook();
+          await hook(forDevice);
         } catch (e) {
           console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
         }
@@ -277,6 +296,100 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [sendTest, disconnect, t, copyCommLog],
   );
 
+  // Binds a device record to this station so every calibration read from
+  // here on is that physical board's. Returns null when another station in
+  // this tab already has the same board open.
+  const claimForStation = useCallback(
+    (target: Device): Device | null => {
+      const { stations, connectedStationIds, bindStationDevice } =
+        stationsRef.current;
+      const holder = stations.find(
+        (s) =>
+          s.id !== station.id &&
+          s.deviceGuid === target.guid &&
+          connectedStationIds.has(s.id),
+      );
+      if (holder) {
+        toast.error(t("serial.deviceInUse.title"), {
+          description: t("serial.deviceInUse.description", {
+            name: target.name,
+          }),
+        });
+        return null;
+      }
+      bindStationDevice(station.id, target.guid);
+      return target;
+    },
+    [station.id, t],
+  );
+
+  const notifySorterLimit = useCallback(() => {
+    toast.error(t("stations.limitReached.title"), {
+      description: t("stations.limitReached.description"),
+    });
+  }, [t]);
+
+  // Fast in-tab check before claiming a device record. The server's lease
+  // (acquired after binding, below) is the real enforcement, across every
+  // browser and computer in the org.
+  const exceedsSorterLimit = useCallback(() => {
+    const { stations, connectedStationIds, maxConnectedSorters } =
+      stationsRef.current;
+    if (maxConnectedSorters === null) return false;
+    const otherConnected = stations.filter(
+      (s) => s.id !== station.id && connectedStationIds.has(s.id),
+    ).length;
+    if (otherConnected < maxConnectedSorters) return false;
+    notifySorterLimit();
+    return true;
+  }, [station.id, notifySorterLimit]);
+
+  // Maps the board's firmware id to the org's device record for it, claiming
+  // or creating one server-side.
+  const bindBoard = useCallback(
+    async (hardwareId: string): Promise<Device | undefined | null> => {
+      const result = await resolveDevice(hardwareId).catch(() => null);
+      if (!result?.success || !result.data) {
+        toast.error(t("serial.deviceResolveFailed"));
+        return deviceRef.current;
+      }
+      const resolved = result.data;
+      if (activeOrg?.id) {
+        queryClient.setQueryData(
+          devicesQueryOptions(activeOrg.id).queryKey,
+          (old) =>
+            old?.some((d) => d.guid === resolved.guid)
+              ? old.map((d) => (d.guid === resolved.guid ? resolved : d))
+              : [...(old ?? []), resolved],
+        );
+      }
+      return claimForStation(resolved);
+    },
+    [activeOrg?.id, queryClient, claimForStation, t],
+  );
+
+  // Firmware older than the boot-banner `id` can't say which board it is.
+  // With only one device on the org there's no ambiguity, so bind to it;
+  // otherwise keep whatever this station already shows.
+  const bindUnidentifiedBoard = useCallback(async (): Promise<
+    Device | undefined | null
+  > => {
+    if (!activeOrg?.id) return deviceRef.current;
+    const devices = await queryClient
+      .ensureQueryData(devicesQueryOptions(activeOrg.id))
+      .catch(() => []);
+    if (devices.length === 1) return claimForStation(devices[0]);
+    const current = deviceRef.current;
+    toast.warning(t("serial.unidentifiedBoard.title"), {
+      description: current
+        ? t("serial.unidentifiedBoard.description", { name: current.name })
+        : t("serial.unidentifiedBoard.descriptionNoDevice"),
+      duration: Infinity,
+      dismissible: true,
+    });
+    return current;
+  }, [activeOrg?.id, queryClient, claimForStation, t]);
+
   const openTransport = useCallback(
     async (
       newTransport: ByteTransport,
@@ -306,24 +419,58 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       setTransport(newTransport.kind);
 
       (async () => {
-        const bootLinePromise = waitForLine(5000);
+        // ESP32s reset when the port opens, so the first lines can be ROM
+        // bootloader noise rather than JSON - skip ahead to the status line
+        // (the boot banner or the getStatus reply, whichever comes first).
+        const deadline = Date.now() + 5000;
+        const firstLinePromise = waitForLine(5000);
         await sendCommand(JSON.stringify({ getStatus: true }) + "\n");
-        const bootLine = await bootLinePromise;
+        let status: Record<string, unknown> | null = null;
+        let line = await firstLinePromise;
+        while (line) {
+          try {
+            const parsed = JSON.parse(line);
+            if (typeof parsed?.version === "string") status = parsed;
+          } catch {}
+          const remaining = deadline - Date.now();
+          if (status || remaining <= 0) break;
+          line = await waitForLine(remaining);
+        }
         if (transportRef.current !== newTransport) return;
-        try {
-          const parsed = bootLine ? JSON.parse(bootLine) : null;
-          if (typeof parsed?.version === "string") {
-            setFirmwareVersion(parsed.version);
+        if (typeof status?.version === "string") {
+          setFirmwareVersion(status.version);
+        }
+        if (status?.board === "esp32" || status?.board === "uno_r4") {
+          setBoard(status.board);
+        }
+        const hardwareId =
+          typeof status?.id === "string" && status.id ? status.id : null;
+        if (hardwareId) setDeviceId(hardwareId);
+        if (exceedsSorterLimit()) {
+          disconnect();
+          return;
+        }
+        const boundDevice = hardwareId
+          ? await bindBoard(hardwareId)
+          : await bindUnidentifiedBoard();
+        if (transportRef.current !== newTransport) return;
+        if (boundDevice === null) {
+          disconnect();
+          return;
+        }
+        if (boundDevice) {
+          const leased = await acquireDeviceLease(boundDevice.guid);
+          if (transportRef.current !== newTransport) return;
+          if (!leased) {
+            notifySorterLimit();
+            disconnect();
+            return;
           }
-          if (parsed?.board === "esp32" || parsed?.board === "uno_r4") {
-            setBoard(parsed.board);
-          }
-          if (typeof parsed?.id === "string" && parsed.id) {
-            setDeviceId(parsed.id);
-          }
-        } catch {}
+          leasedDeviceGuidRef.current = boundDevice.guid;
+          setLeasedDeviceGuid(boundDevice.guid);
+        }
         if (options?.skipAutoTest) return;
-        await runConnectTest(newTransport);
+        await runConnectTest(newTransport, boundDevice);
       })();
 
       return true;
@@ -332,6 +479,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       handleIncomingChunk,
       waitForLine,
       sendCommand,
+      exceedsSorterLimit,
+      notifySorterLimit,
+      bindBoard,
+      bindUnidentifiedBoard,
       runConnectTest,
       disconnect,
       t,
@@ -341,7 +492,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const runTestOnActiveTransport = useCallback(async () => {
     const activeTransport = transportRef.current;
     if (!activeTransport) return;
-    await runConnectTest(activeTransport);
+    await runConnectTest(activeTransport, deviceRef.current);
   }, [runConnectTest]);
 
   const connect = useCallback(
@@ -410,6 +561,30 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [openTransport, t],
   );
 
+  // Keeps this sorter's slot against the plan's connected-sorter cap. If the
+  // lease was lost (e.g. the server restarted) and another sorter took the
+  // slot meanwhile, this one yields.
+  useEffect(() => {
+    if (!leasedDeviceGuid) return;
+    const id = setInterval(() => {
+      void acquireDeviceLease(leasedDeviceGuid).then((ok) => {
+        if (ok || leasedDeviceGuidRef.current !== leasedDeviceGuid) return;
+        notifySorterLimit();
+        disconnect();
+      });
+    }, DEVICE_LEASE_HEARTBEAT_MS);
+    return () => clearInterval(id);
+  }, [leasedDeviceGuid, notifySorterLimit, disconnect]);
+
+  useEffect(
+    () =>
+      stationsRef.current.registerConnector(station.id, {
+        connect: () => connect(),
+        connectBluetooth: () => connectBluetooth(),
+      }),
+    [station.id, connect, connectBluetooth],
+  );
+
   const flashEsp32 = useCallback(
     async (firmwareUrl: string): Promise<FlashEsp32Result> => {
       const activeTransport = transportRef.current;
@@ -424,45 +599,11 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       try {
         await disconnect();
-
-        const response = await fetch(firmwareUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to download firmware (${response.status})`);
-        }
-        const firmwareData = new Uint8Array(await response.arrayBuffer());
-
-        const espTransport = new EspLoaderTransport(port);
-        const loader = new ESPLoader({
-          transport: espTransport,
-          baudrate: 115200,
-          terminal: {
-            clean: () => setFlashLog([]),
-            writeLine: (line) => setFlashLog((prev) => [...prev, line]),
-            write: (line) => setFlashLog((prev) => [...prev, line]),
-          },
+        return await flashEsp32Port(port, firmwareUrl, {
+          onLog: (line) => setFlashLog((prev) => [...prev, line]),
+          onClearLog: () => setFlashLog([]),
+          onProgress: setFlashProgress,
         });
-
-        await loader.main();
-        await loader.writeFlash({
-          fileArray: [{ data: firmwareData, address: 0 }],
-          flashMode: "keep",
-          flashFreq: "keep",
-          flashSize: "keep",
-          eraseAll: false,
-          compress: true,
-          reportProgress: (_fileIndex, written, total) => {
-            setFlashProgress(total > 0 ? written / total : null);
-          },
-        });
-        await loader.after("hard_reset");
-        await espTransport.disconnect();
-
-        return { success: true };
-      } catch (e) {
-        return {
-          success: false,
-          error: e instanceof Error ? e.message : "Flash failed.",
-        };
       } finally {
         setIsFlashing(false);
         setFlashProgress(null);
@@ -511,33 +652,17 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Keys the org's saved device record to the specific physical board it's
-  // talking to. The first board an org ever connects claims the record
-  // silently; once claimed, a later connect from a different physical board
-  // (a swap, a bench mix-up) only warns - it never overwrites, since that'd
-  // silently rebind calibration data saved for one board onto another.
-  const savingHardwareIdRef = useRef(false);
   useEffect(() => {
-    if (!deviceId || !device || !activeOrg?.id) return;
-    if (device.hardwareId === deviceId) return;
-    if (!device.hardwareId) {
-      if (savingHardwareIdRef.current) return;
-      savingHardwareIdRef.current = true;
-      saveDevice(device.guid, { hardwareId: deviceId })
-        .then(() =>
-          queryClient.invalidateQueries({
-            queryKey: devicesQueryOptions(activeOrg.id).queryKey,
-          }),
-        )
-        .finally(() => {
-          savingHardwareIdRef.current = false;
-        });
-      return;
-    }
-    toast.warning(t("serial.hardwareIdMismatch.title"), {
-      description: t("serial.hardwareIdMismatch.description"),
-    });
-  }, [deviceId, device, activeOrg?.id, queryClient, t]);
+    stationsRef.current.setStationConnected(station.id, isConnected);
+  }, [station.id, isConnected]);
+
+  useEffect(() => {
+    const stationId = station.id;
+    return () => {
+      stationsRef.current.setStationConnected(stationId, false);
+      void disconnect();
+    };
+  }, [station.id, disconnect]);
 
   const subscribe = useCallback((listener: SerialMessageListener) => {
     listenersRef.current.add(listener);
@@ -546,7 +671,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const registerPreTestHook = useCallback((fn: () => Promise<void>) => {
+  const registerPreTestHook = useCallback((fn: PreTestHook) => {
     const hooks = preTestHooksRef.current;
     hooks.add(fn);
     return () => {
