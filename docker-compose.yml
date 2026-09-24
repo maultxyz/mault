@@ -19,8 +19,12 @@ services:
     # privilege `mault` role and bypasses RLS entirely (see db/schema.ts's
     # crudPolicy setup) - that's expected for an admin/GUI connection, but
     # is exactly why this shouldn't be reachable from anywhere but here.
+    # Host port 5433, not 5432 - another Postgres server already owns 5432 on
+    # some hosts. The container's own internal port stays 5432, and the
+    # `server` service still reaches it as `postgres:5432` over the compose
+    # network, so this only affects host DB clients connecting from outside.
     ports:
-      - "127.0.0.1:5432:5432"
+      - "127.0.0.1:5433:5432"
 
   server:
     build:

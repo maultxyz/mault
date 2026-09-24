@@ -40,11 +40,11 @@ GRANT USAGE ON SCHEMA public TO authenticated;
 
 DO $$
 DECLARE
-  read_only_tables text[] := ARRAY['cards', 'games'];
+  read_only_tables text[] := ARRAY['cards', 'games', 'announcements'];
   read_write_tables text[] := ARRAY[
-    'bin_sets', 'bins', 'bin_routes', 'module_configs', 'feeder_configs',
-    'collections', 'collection_cards', 'org_settings',
-    'bin_set_audit', 'bin_route_audit', 'module_config_audit', 'feeder_config_audit', 
+    'bin_sets', 'bins', 'bin_routes', 'bin_heights', 'module_configs', 'feeder_configs',
+    'collections', 'collection_cards', 'unmatched_cards', 'org_settings', 'org_billing',
+    'bin_set_audit', 'bin_route_audit', 'bin_height_audit', 'module_config_audit', 'feeder_config_audit',
     'devices'
   ];
   tbl text;
