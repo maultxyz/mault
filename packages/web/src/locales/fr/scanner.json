@@ -228,8 +228,8 @@
     "apiDown": "{{api}} est actuellement hors service - le scan est désactivé pour cette collection jusqu'à son rétablissement. Consulte la page de statut pour les mises à jour.",
     "dailyLimitReached": "Limite de scans quotidienne atteinte. Passe à Entreprise pour un scan illimité.",
     "upgradeButton": "Mettre à niveau",
-    "connectCamera": "Connecte une caméra pour commencer à scanner.",
-    "waitingForPhone": "En attente d'un téléphone à associer comme caméra - affiche le code QR depuis le menu caméra.",
+    "connectCamera": "Connecte la webcam installée au-dessus du trieur, ou associe ton téléphone comme caméra.",
+    "waitingForPhone": "Scanne le code QR avec ton téléphone pour l'associer comme caméra.",
     "phoneReadyNoPhoto": "Caméra du téléphone prête. Elle prendra une photo dès qu'une carte arrivera.",
     "scannerNotConnected": "Trieuse non connectée.",
     "testingScanner": "Test de la connexion à la trieuse…",
@@ -242,7 +242,11 @@
     "paused": "Scanner en pause - appuie sur Reprendre pour continuer.",
     "duplicate": "Même carte scannée - utilise Ajouter à nouveau pour l'ajouter quand même.",
     "noMatch": "Carte non reconnue - essaie Scanner à nouveau ou ajuste l'éclairage.",
-    "faceUpHint": "Les cartes doivent être posées face visible"
+    "faceUpHint": "Les cartes doivent être posées face visible",
+    "noCameraTitle": "Aucune caméra connectée",
+    "connectCameraButton": "Connecter la caméra",
+    "waitingForPhoneTitle": "En attente de ton téléphone",
+    "showQrCode": "Afficher le code QR"
   },
   "sessionErrorsPanel": {
     "heading": "Erreurs"

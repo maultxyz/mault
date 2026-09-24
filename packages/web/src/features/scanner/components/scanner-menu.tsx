@@ -13,7 +13,6 @@ import {
 import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { OcrBetaDialog } from "@/features/scanner/components/ocr-beta-dialog";
-import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import type { ZoomRange } from "@/lib/interfaces/scanner";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
@@ -40,14 +39,12 @@ interface ScannerMenuProps {
   cameras: MediaDeviceInfo[];
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
-  phonePairingUrl: string | null;
   scanningBlocked: boolean;
   onCameraConnect: () => void;
   onCameraDisconnect: () => void;
   onCameraSelect: (deviceId: string) => void;
   onZoomChange: (value: number) => void;
-  onStartPhonePairing: () => void;
-  onStopPhonePairing: () => void;
+  onOpenPhonePairing: () => void;
   onScannerConnect: () => void;
   onScannerConnectBluetooth: () => void;
   bluetoothSupported: boolean;
@@ -76,14 +73,12 @@ export function ScannerMenu({
   cameras,
   selectedCameraId,
   phonePairingStatus,
-  phonePairingUrl,
   scanningBlocked,
   onCameraConnect,
   onCameraDisconnect,
   onCameraSelect,
   onZoomChange,
-  onStartPhonePairing,
-  onStopPhonePairing,
+  onOpenPhonePairing,
   onScannerConnect,
   onScannerConnectBluetooth,
   bluetoothSupported,
@@ -100,7 +95,6 @@ export function ScannerMenu({
   onUpgrade,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
-  const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [ocrDialogOpen, setOcrDialogOpen] = useState(false);
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const webSerialSupported =
@@ -111,30 +105,8 @@ export function ScannerMenu({
     else onOcrEnabledChange(false);
   };
 
-  const handleOpenPhonePairing = () => {
-    setPhoneDialogOpen(true);
-    if (phonePairingStatus === "idle" || phonePairingStatus === "error")
-      onStartPhonePairing();
-  };
-
-  const handlePhoneDialogOpenChange = (open: boolean) => {
-    setPhoneDialogOpen(open);
-    if (!open && phonePairingStatus !== "connected") onStopPhonePairing();
-  };
-
   return (
     <div className="absolute top-2 right-2 z-40">
-      <PhoneCameraPairingDialog
-        open={phoneDialogOpen}
-        onOpenChange={handlePhoneDialogOpenChange}
-        status={phonePairingStatus}
-        pairingUrl={phonePairingUrl}
-        onRetry={onStartPhonePairing}
-        onDisconnect={() => {
-          onStopPhonePairing();
-          setPhoneDialogOpen(false);
-        }}
-      />
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
@@ -221,7 +193,7 @@ export function ScannerMenu({
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleOpenPhonePairing}>
+              <DropdownMenuItem onClick={onOpenPhonePairing}>
                 <IconDeviceMobile />
                 {phonePairingStatus === "connected"
                   ? t("scannerMenu.phoneCameraConnected")

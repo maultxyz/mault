@@ -228,8 +228,8 @@
     "apiDown": "{{api}} ist derzeit nicht erreichbar - das Scannen ist für diese Sammlung deaktiviert, bis der Dienst wieder verfügbar ist. Prüfe die Statusseite für Updates.",
     "dailyLimitReached": "Tägliches Scan-Limit erreicht. Upgrade auf Business für unbegrenztes Scannen.",
     "upgradeButton": "Plan upgraden",
-    "connectCamera": "Verbinde eine Kamera, um mit dem Scannen zu beginnen.",
-    "waitingForPhone": "Warte auf ein Telefon, das als Kamera gekoppelt wird - zeige den QR-Code über das Kameramenü an.",
+    "connectCamera": "Verbinde die Webcam über dem Sortierer oder kopple dein Telefon als Kamera.",
+    "waitingForPhone": "Scanne den QR-Code mit deinem Telefon, um es als Kamera zu koppeln.",
     "phoneReadyNoPhoto": "Telefonkamera bereit. Sie macht ein Foto, sobald eine Karte ankommt.",
     "scannerNotConnected": "Kartensortierer nicht verbunden.",
     "testingScanner": "Verbindung zum Kartensortierer wird getestet…",
@@ -242,7 +242,11 @@
     "paused": "Scanner pausiert - drücke Fortsetzen, um weiterzumachen.",
     "duplicate": "Gleiche Karte erneut gescannt - verwende Erneut hinzufügen, um sie trotzdem hinzuzufügen.",
     "noMatch": "Karte nicht erkannt - versuche Erneut scannen oder passe die Beleuchtung an.",
-    "faceUpHint": "Karten sollten mit der Vorderseite nach oben liegen"
+    "faceUpHint": "Karten sollten mit der Vorderseite nach oben liegen",
+    "noCameraTitle": "Keine Kamera verbunden",
+    "connectCameraButton": "Kamera verbinden",
+    "waitingForPhoneTitle": "Warte auf dein Telefon",
+    "showQrCode": "QR-Code anzeigen"
   },
   "sessionErrorsPanel": {
     "heading": "Fehler"

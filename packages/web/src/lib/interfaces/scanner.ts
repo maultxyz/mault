@@ -187,6 +187,8 @@ export interface ScannerOverlayProps {
   apiHealthCheck: HealthCheck | null;
   dailyLimitReached: boolean;
   onRetryError: () => void;
+  onConnectCamera: () => void;
+  onOpenPhonePairing: () => void;
   onConnectScanner: () => void;
   onConnectScannerBluetooth: () => void;
   bluetoothSupported: boolean;

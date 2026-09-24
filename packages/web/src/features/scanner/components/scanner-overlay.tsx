@@ -15,6 +15,7 @@ import {
   IconDeviceUsb,
   IconHandStop,
   IconLoader2,
+  IconQrcode,
   IconRefresh,
 } from "@tabler/icons-react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -63,6 +64,8 @@ export function ScannerOverlay({
   apiHealthCheck,
   dailyLimitReached,
   onRetryError,
+  onConnectCamera,
+  onOpenPhonePairing,
   onConnectScanner,
   onConnectScannerBluetooth,
   bluetoothSupported,
@@ -100,17 +103,38 @@ export function ScannerOverlay({
   if (!isCameraActive) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-sm text-muted-foreground">
-          {isPhoneMode ? (
-            <IconDeviceMobile className="mx-auto mb-2 size-5" />
-          ) : (
-            <IconCameraSpark className="mx-auto mb-2 size-5" />
-          )}
-          <p className="text-xs">
-            {isPhoneMode
-              ? t("scannerOverlay.waitingForPhone")
-              : t("scannerOverlay.connectCamera")}
-          </p>
+        <div className="flex flex-col items-center gap-3 text-center max-w-56">
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-semibold text-foreground">
+              {isPhoneMode
+                ? t("scannerOverlay.waitingForPhoneTitle")
+                : t("scannerOverlay.noCameraTitle")}
+            </p>
+            <p className="text-xs text-foreground/70">
+              {isPhoneMode
+                ? t("scannerOverlay.waitingForPhone")
+                : t("scannerOverlay.connectCamera")}
+            </p>
+          </div>
+          <div className="flex flex-col gap-1.5 w-full">
+            {isPhoneMode ? (
+              <Button onClick={onOpenPhonePairing}>
+                <IconQrcode />
+                {t("scannerOverlay.showQrCode")}
+              </Button>
+            ) : (
+              <>
+                <Button onClick={onConnectCamera}>
+                  <IconCameraSpark />
+                  {t("scannerOverlay.connectCameraButton")}
+                </Button>
+                <Button variant="ghost" onClick={onOpenPhonePairing}>
+                  <IconDeviceMobile />
+                  {t("usePhoneAsCamera")}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     );

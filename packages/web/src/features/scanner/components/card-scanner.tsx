@@ -13,6 +13,7 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { BinLimitDialog } from "@/features/scanner/components/bin-limit-dialog";
+import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
@@ -74,6 +75,7 @@ export function CardScanner({
     typeof navigator !== "undefined" && !!navigator.bluetooth;
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
+  const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const { hasCatchAll } = useBinConfigs();
   const { activeCollection } = useCollections();
   const apiHealthCheck = useGameApiHealthCheck(activeCollection?.game?.key);
@@ -121,6 +123,17 @@ export function CardScanner({
     rotated: !isMobile,
   });
   const isSideControls = controlsPosition === "side";
+
+  const handleOpenPhonePairing = () => {
+    setPhoneDialogOpen(true);
+    if (phonePairingStatus === "idle" || phonePairingStatus === "error")
+      startPhonePairing();
+  };
+
+  const handlePhoneDialogOpenChange = (open: boolean) => {
+    setPhoneDialogOpen(open);
+    if (!open && phonePairingStatus !== "connected") stopPhonePairing();
+  };
   const scanningBlocked = apiHealthCheck?.status === "error" || isAtScanLimit;
 
   useSerialMessage((msg) => {
@@ -374,6 +387,8 @@ export function CardScanner({
           apiHealthCheck={apiHealthCheck}
           dailyLimitReached={isAtScanLimit}
           onRetryError={handleRetryError}
+          onConnectCamera={handleRetryError}
+          onOpenPhonePairing={handleOpenPhonePairing}
           onConnectScanner={connect}
           onConnectScannerBluetooth={connectBluetooth}
           bluetoothSupported={bluetoothSupported}
@@ -390,14 +405,12 @@ export function CardScanner({
           cameras={cameras}
           selectedCameraId={selectedCameraId}
           phonePairingStatus={phonePairingStatus}
-          phonePairingUrl={phonePairingUrl}
           scanningBlocked={scanningBlocked}
           onCameraConnect={handleRetryError}
           onCameraDisconnect={handleStopCamera}
           onCameraSelect={selectCamera}
           onZoomChange={setZoom}
-          onStartPhonePairing={startPhonePairing}
-          onStopPhonePairing={stopPhonePairing}
+          onOpenPhonePairing={handleOpenPhonePairing}
           onScannerConnect={connect}
           onScannerConnectBluetooth={connectBluetooth}
           bluetoothSupported={bluetoothSupported}
@@ -435,6 +448,17 @@ export function CardScanner({
           onClearDevice={handleClearDevice}
         />
       )}
+      <PhoneCameraPairingDialog
+        open={phoneDialogOpen}
+        onOpenChange={handlePhoneDialogOpenChange}
+        status={phonePairingStatus}
+        pairingUrl={phonePairingUrl}
+        onRetry={startPhonePairing}
+        onDisconnect={() => {
+          stopPhonePairing();
+          setPhoneDialogOpen(false);
+        }}
+      />
       <BinLimitDialog
         bin={binLimitReached}
         onContinue={handleContinueAfterBinLimit}
