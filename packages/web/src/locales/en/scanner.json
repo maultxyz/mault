@@ -167,7 +167,14 @@
     "skip": "Skip",
     "scanNow": "Scan Now",
     "resume": "Resume",
-    "pause": "Pause"
+    "pause": "Pause",
+    "feeding": "Feeding…",
+    "feedTooltip": "Advance one card from the hopper into the scanner",
+    "startTooltip": "Feed the first card and start scanning",
+    "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
+    "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
+    "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "foilTooltip": "Foil type for scanned cards: {{type}}"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -221,8 +228,8 @@
     "apiDown": "{{api}} is currently down, so scanning is disabled for this collection until it's back. Check the status page for updates.",
     "dailyLimitReached": "Daily scan limit reached. Upgrade to Business for unlimited scanning.",
     "upgradeButton": "Upgrade plan",
-    "connectCamera": "Connect a camera to start scanning.",
-    "waitingForPhone": "Waiting for a phone to pair as the camera. Use the camera menu to show the QR code.",
+    "connectCamera": "Connect the webcam mounted over the sorter, or pair your phone to use as the camera.",
+    "waitingForPhone": "Scan the QR code with your phone to pair it as the camera.",
     "phoneReadyNoPhoto": "Phone camera ready. It'll take a photo as soon as a card arrives.",
     "scannerNotConnected": "Card sorter not connected.",
     "testingScanner": "Testing card sorter connection…",
@@ -235,7 +242,11 @@
     "paused": "Scanner paused. Press Resume to continue.",
     "duplicate": "Same card scanned. Use Add Again to add it anyway.",
     "noMatch": "Card not recognized. Try Scan Again or adjust lighting.",
-    "faceUpHint": "Cards should face right-side up"
+    "faceUpHint": "Cards should face right-side up",
+    "noCameraTitle": "No camera connected",
+    "connectCameraButton": "Connect camera",
+    "waitingForPhoneTitle": "Waiting for your phone",
+    "showQrCode": "Show QR code"
   },
   "sessionErrorsPanel": {
     "heading": "Errors"
