@@ -167,7 +167,14 @@
     "skip": "Ignorer",
     "scanNow": "Scanner maintenant",
     "resume": "Reprendre",
-    "pause": "Pause"
+    "pause": "Pause",
+    "feeding": "Alimentation…",
+    "feedTooltip": "Faire avancer une carte de la trémie vers le scanner",
+    "startTooltip": "Alimenter la première carte et démarrer le scan",
+    "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
+    "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
+    "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "foilTooltip": "Type de foil des cartes scannées : {{type}}"
   },
   "scannerDebug": {
     "heading": "Débogage",

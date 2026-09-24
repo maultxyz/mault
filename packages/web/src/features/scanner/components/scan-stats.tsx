@@ -77,8 +77,8 @@ export function ScanStats() {
   );
 
   return (
-    <ScrollArea className="min-h-0 rounded-lg" data-tour="scan-stats">
-      <div className="flex flex-col gap-2 pr-3 text-sm">
+    <ScrollArea className="@container min-h-0 rounded-lg" data-tour="scan-stats">
+      <div className="flex flex-col gap-2 pr-3 text-sm @2xl:grid @2xl:grid-cols-2 @2xl:items-start @5xl:grid-cols-3">
         <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input">
           <div className="grid grid-cols-2">
             {statCards.map((card, i) => (

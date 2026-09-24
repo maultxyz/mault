@@ -9,6 +9,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { getDebugCards } from "@/features/scanner/lib/debug-cards";
@@ -63,14 +68,25 @@ export function ScannerDebug() {
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button size="icon" variant="outline">
-            <IconBug className="size-3.5" />
-          </Button>
-        }
-      ></DropdownMenuTrigger>
-      <DropdownMenuContent side="right" align="end">
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  size="icon"
+                  variant="outline"
+                  aria-label={t("scannerDebug.heading")}
+                >
+                  <IconBug className="size-3.5" />
+                </Button>
+              }
+            />
+          }
+        />
+        <TooltipContent>{t("scannerDebug.heading")}</TooltipContent>
+      </Tooltip>
+      <DropdownMenuContent align="start">
         <DropdownMenuGroup>
           <DropdownMenuLabel className="text-xs font-mono">
             {t("scannerDebug.heading")}

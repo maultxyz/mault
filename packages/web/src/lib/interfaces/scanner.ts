@@ -11,6 +11,7 @@ import type {
   ScannerStatus,
   UnmatchedCard,
 } from "@magic-vault/shared";
+import type { ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 
 export type PhoneCameraCaptureStatus = "idle" | "waiting" | "connected" | "error";
@@ -151,9 +152,24 @@ export interface SerialContextValue {
 
 export interface ScannerControlsProps {
   status: ScannerStatus;
+  orientation?: "horizontal" | "vertical";
+  isConnected: boolean;
+  isReady: boolean;
+  isFeeding: boolean;
+  isClearingDevice: boolean;
   onForceScan: () => void;
   onPause: () => void;
   onResume: () => void;
+  onFeed: () => void;
+  onClearDevice: () => void;
+}
+
+export interface ScannerControlButtonProps {
+  tooltip: string;
+  onClick: () => void;
+  disabled?: boolean;
+  selected?: boolean;
+  children: ReactNode;
 }
 
 export interface ScannerOverlayProps {
@@ -207,22 +223,6 @@ export interface CommLogEntry {
   direction: "sent" | "received";
   text: string;
   timestamp: number;
-}
-
-export interface ScannerIslandState {
-  status: ScannerStatus;
-  isCameraActive: boolean;
-  isConnected: boolean;
-  isReady: boolean;
-  isFeeding: boolean;
-  isClearingDevice: boolean;
-  handleForceAddDuplicate: () => void;
-  handleForceScan: () => void;
-  handleSkipDuplicate: () => void;
-  handlePause: () => void;
-  handleResume: () => void;
-  handleFeed: () => void;
-  handleClearDevice: () => void;
 }
 
 export type ConnectionStatus = "connecting" | "connected" | "error" | "closed";

@@ -1,19 +1,7 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardFilterSort } from "@/features/cards/api/use-card-filter-sort";
@@ -31,11 +19,9 @@ import { useCollectionLocks } from "@/features/collections/api/use-collection-lo
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useSessionViewersByGuid } from "@/features/collections/api/use-live-counts";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { useScannerIsland } from "@/features/scanner/api/use-scanner-island";
-import { ScannerControls } from "@/features/scanner/components/scanner-controls";
-import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
 
+import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
 import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
 import {
   CARD_GROUP_DUPLICATES_STORAGE_KEY,
@@ -44,11 +30,8 @@ import {
 import type { CardViewMode } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
-  IconArrowBarToDown,
-  IconBolt,
   IconChevronLeft,
   IconChevronRight,
-  IconSparkles,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -65,16 +48,8 @@ export function CardGrid() {
     markDownloaded,
     isLoading,
     elapsedMs,
-    autoFeed,
-    setAutoFeed,
-    forceFoilType,
-    setForceFoilType,
   } = useScannedCards();
-  const foilOptions = activeCollection?.game?.foilTypes?.length
-    ? activeCollection.game.foilTypes
-    : [t("foil")];
   const [summaryOpen, setSummaryOpen] = useState(false);
-  const scanner = useScannerIsland();
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     activeCollection && locks[activeCollection.guid]?.userId === currentUserId
@@ -245,7 +220,7 @@ export function CardGrid() {
           </div>
         </div>
         <div className="p-2 flex-1">
-          <div className="grid grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 gap-2">
+          <div className={CARD_GRID_CLASS}>
             {Array.from({ length: 12 }).map((_, i) => (
               <div key={i} className="rounded-lg p-1 bg-muted border">
                 <Skeleton className="aspect-[2.5/3.5] rounded-lg" />
@@ -295,96 +270,6 @@ export function CardGrid() {
           title={t("cardGrid.noCardsScanned")}
           description={t("cardGrid.scanToGetStarted")}
         />
-        {scanner?.isCameraActive && (
-          <div className="sticky bottom-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-t">
-            <div className="flex flex-row gap-2 items-center w-full">
-              <ScannerControls
-                status={scanner.status}
-                onForceScan={scanner.handleForceScan}
-                onPause={scanner.handlePause}
-                onResume={scanner.handleResume}
-              />
-              <Select
-                value={forceFoilType ?? "none"}
-                onValueChange={(value) =>
-                  setForceFoilType(value === "none" ? null : value)
-                }
-              >
-                <SelectTrigger className="gap-1">
-                  <IconSparkles className="size-3.5" />
-                  <SelectValue placeholder={t("foilNone")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">{t("foilNone")}</SelectItem>
-                  {foilOptions.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {scanner.isConnected && (
-                <>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          onClick={scanner.handleFeed}
-                          disabled={!scanner.isReady || scanner.isFeeding}
-                        >
-                          {scanner.isFeeding
-                            ? t("cardGrid.feeding")
-                            : t("cardGrid.start")}
-                        </Button>
-                      }
-                    />
-                    <TooltipContent>
-                      {t("cardGrid.startTooltip")}
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          variant={autoFeed ? "outline-selected" : "outline"}
-                          size="icon"
-                          onClick={() => setAutoFeed(!autoFeed)}
-                        >
-                          <IconBolt />
-                        </Button>
-                      }
-                    />
-                    <TooltipContent>
-                      {autoFeed
-                        ? t("cardGrid.autoFeedOnTooltip")
-                        : t("cardGrid.autoFeedOffTooltip")}
-                    </TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={scanner.handleClearDevice}
-                          disabled={
-                            !scanner.isReady || scanner.isClearingDevice
-                          }
-                        >
-                          <IconArrowBarToDown />
-                        </Button>
-                      }
-                    />
-                    <TooltipContent>
-                      {t("cardGrid.clearDeviceTooltip")}
-                    </TooltipContent>
-                  </Tooltip>
-                </>
-              )}
-              <ScannerDebug />
-            </div>
-          </div>
-        )}
       </>
     );
   }
@@ -473,7 +358,7 @@ export function CardGrid() {
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-3 @4xl:grid-cols-4 @6xl:grid-cols-6 @7xl:grid-cols-8 gap-2">
+          <div className={CARD_GRID_CLASS}>
             {pagedCards.map((entry) => (
               <ScannedCardItem
                 key={entry.scanId}
@@ -520,118 +405,29 @@ export function CardGrid() {
         )}
       </div>
 
-      {(scanner?.isCameraActive || selectedIds.size > 0) && (
-        <div className="sticky bottom-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-t">
-          <div className="flex flex-row gap-2 items-center justify-between w-full">
-            {scanner?.isCameraActive && (
-              <div className="flex flex-row gap-2 items-center">
-                <ScannerControls
-                  status={scanner.status}
-                  onForceScan={scanner.handleForceScan}
-                  onPause={scanner.handlePause}
-                  onResume={scanner.handleResume}
-                />
-                <Select
-                  value={forceFoilType ?? "none"}
-                  onValueChange={(value) =>
-                    setForceFoilType(value === "none" ? null : value)
-                  }
-                >
-                  <SelectTrigger className="gap-1">
-                    <IconSparkles className="size-3.5" />
-                    <SelectValue placeholder={t("foilNone")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">
-                      {t("foilNone")}
-                    </SelectItem>
-                    {foilOptions.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {scanner.isConnected && (
-                  <>
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={
-                          <Button
-                            onClick={scanner.handleFeed}
-                            disabled={!scanner.isReady || scanner.isFeeding}
-                          >
-                            {scanner.isFeeding
-                              ? t("cardGrid.feeding")
-                              : t("cardGrid.feed")}
-                          </Button>
-                        }
-                      />
-                      <TooltipContent>
-                        {t("cardGrid.feedTooltip")}
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={
-                          <Button
-                            variant={autoFeed ? "outline-selected" : "outline"}
-                            size="icon"
-                            onClick={() => setAutoFeed(!autoFeed)}
-                          >
-                            <IconBolt />
-                          </Button>
-                        }
-                      />
-                      <TooltipContent>
-                        {autoFeed
-                          ? t("cardGrid.autoFeedOnTooltip")
-                          : t("cardGrid.autoFeedOffTooltip")}
-                      </TooltipContent>
-                    </Tooltip>
-                    <Tooltip>
-                      <TooltipTrigger
-                        render={
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={scanner.handleClearDevice}
-                            disabled={
-                              !scanner.isReady || scanner.isClearingDevice
-                            }
-                          >
-                            <IconArrowBarToDown />
-                          </Button>
-                        }
-                      />
-                      <TooltipContent>
-                        {t("cardGrid.clearDeviceTooltip")}
-                      </TooltipContent>
-                    </Tooltip>
-                  </>
-                )}
-                <ScannerDebug />
-              </div>
-            )}
-            {selectedIds.size > 0 && (
-              <div className="flex flex-row gap-2 items-center">
-                <span className="text-sm text-muted-foreground">
-                  {t("cardGrid.cardsSelected", { count: selectedIds.size })}
-                </span>
-                <Button
-                  variant="ghost"
-                  onClick={() => setSelectedIds(new Set())}
-                >
-                  {t("cardGrid.clear")}
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => setConfirmOpen(true)}
-                >
-                  {t("cardGrid.delete")}
-                </Button>
-              </div>
-            )}
+      {selectedIds.size > 0 && (
+        <div
+          role="status"
+          className="sticky bottom-4 z-50 mx-auto mb-4 flex w-fit shrink-0 items-center gap-3 rounded-lg bg-foreground px-1.5 pl-3 py-1.5 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150"
+        >
+          <span className="font-medium">
+            {t("cardGrid.cardsSelected", { count: selectedIds.size })}
+          </span>
+          <div className="flex gap-2">
+            <Button
+              variant="ghost"
+              className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+              onClick={() => setSelectedIds(new Set())}
+            >
+              {t("cardGrid.clear")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
+              onClick={() => setConfirmOpen(true)}
+            >
+              {t("cardGrid.delete")}
+            </Button>
           </div>
         </div>
       )}

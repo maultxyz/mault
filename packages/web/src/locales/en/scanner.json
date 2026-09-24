@@ -167,7 +167,14 @@
     "skip": "Skip",
     "scanNow": "Scan Now",
     "resume": "Resume",
-    "pause": "Pause"
+    "pause": "Pause",
+    "feeding": "Feeding…",
+    "feedTooltip": "Advance one card from the hopper into the scanner",
+    "startTooltip": "Feed the first card and start scanning",
+    "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
+    "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
+    "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "foilTooltip": "Foil type for scanned cards: {{type}}"
   },
   "scannerDebug": {
     "heading": "Debug",

@@ -57,6 +57,7 @@ export interface CardScannerProps {
   onError?: (error: string) => void;
   className?: string;
   compact?: boolean;
+  controlsPosition?: "bottom" | "side";
 }
 
 export interface CardMatch {

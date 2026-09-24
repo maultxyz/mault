@@ -14,11 +14,11 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
   if (layout === "vertical") {
     return (
       <>
-        <div className="flex flex-col gap-2 min-w-0">
-          <CardScanner className="flex-1 min-h-0" />
+        <CardScanner className="h-full shrink-0" controlsPosition="side" />
+        <div className="flex flex-col flex-1 min-w-0">
+          <ScanStats />
         </div>
-        <ScanStats />
-        <div className="flex flex-col gap-4 w-52 shrink-0 overflow-y-auto">
+        <div className="flex flex-col gap-4 w-60 shrink-0 overflow-y-auto">
           <CollectionSwitcher />
           <PresetSelector readOnly />
           <UnmatchedCardsPanel

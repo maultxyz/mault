@@ -167,7 +167,14 @@
     "skip": "Überspringen",
     "scanNow": "Jetzt scannen",
     "resume": "Fortsetzen",
-    "pause": "Pausieren"
+    "pause": "Pausieren",
+    "feeding": "Wird zugeführt…",
+    "feedTooltip": "Eine Karte vom Zuführer in den Scanner befördern",
+    "startTooltip": "Die erste Karte zuführen und den Scan starten",
+    "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
+    "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
+    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}"
   },
   "scannerDebug": {
     "heading": "Debug",

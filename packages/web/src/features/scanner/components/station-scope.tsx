@@ -8,7 +8,6 @@ import { CardFiltersProvider } from "@/features/cards/api/use-card-filters";
 import { CollectionsProvider } from "@/features/collections/api/use-collections";
 import { CameraProvider } from "@/features/scanner/api/use-camera";
 import { ScannedCardsProvider } from "@/features/scanner/api/use-scanned-cards";
-import { ScannerIslandProvider } from "@/features/scanner/api/use-scanner-island";
 import { SerialProvider } from "@/features/scanner/api/use-serial";
 import { StationContext, useStations } from "@/features/scanner/api/use-stations";
 import { StationPanel } from "@/features/scanner/components/station-panel";
@@ -41,37 +40,35 @@ export function StationScope({
 
   return (
     <StationContext value={value}>
-      <ScannerIslandProvider>
-        <CollectionsProvider>
-          <CameraProvider>
-            <SerialProvider>
-              <BinRoutesProvider>
-                <BinHeightsProvider>
-                  <ModuleCountConfigProvider>
-                    <BinConfigsProvider>
-                      <ModuleConfigsProvider>
-                        <FeederConfigProvider>
-                          <ScannedCardsProvider>
-                            <CardFiltersProvider>
-                              {isActive && children}
-                              {panelLayout &&
-                                isLive &&
-                                createPortal(
-                                  <StationPanel layout={panelLayout} />,
-                                  getPanelElement(station.id),
-                                )}
-                            </CardFiltersProvider>
-                          </ScannedCardsProvider>
-                        </FeederConfigProvider>
-                      </ModuleConfigsProvider>
-                    </BinConfigsProvider>
-                  </ModuleCountConfigProvider>
-                </BinHeightsProvider>
-              </BinRoutesProvider>
-            </SerialProvider>
-          </CameraProvider>
-        </CollectionsProvider>
-      </ScannerIslandProvider>
+      <CollectionsProvider>
+        <CameraProvider>
+          <SerialProvider>
+            <BinRoutesProvider>
+              <BinHeightsProvider>
+                <ModuleCountConfigProvider>
+                  <BinConfigsProvider>
+                    <ModuleConfigsProvider>
+                      <FeederConfigProvider>
+                        <ScannedCardsProvider>
+                          <CardFiltersProvider>
+                            {isActive && children}
+                            {panelLayout &&
+                              isLive &&
+                              createPortal(
+                                <StationPanel layout={panelLayout} />,
+                                getPanelElement(station.id),
+                              )}
+                          </CardFiltersProvider>
+                        </ScannedCardsProvider>
+                      </FeederConfigProvider>
+                    </ModuleConfigsProvider>
+                  </BinConfigsProvider>
+                </ModuleCountConfigProvider>
+              </BinHeightsProvider>
+            </BinRoutesProvider>
+          </SerialProvider>
+        </CameraProvider>
+      </CollectionsProvider>
     </StationContext>
   );
 }

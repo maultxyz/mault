@@ -10,10 +10,10 @@ import { useGameApiHealthCheck } from "@/features/health/api/health";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { useRegisterScannerIsland } from "@/features/scanner/api/use-scanner-island";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { BinLimitDialog } from "@/features/scanner/components/bin-limit-dialog";
+import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
@@ -27,7 +27,11 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
-export function CardScanner({ className, compact }: CardScannerProps) {
+export function CardScanner({
+  className,
+  compact,
+  controlsPosition = "bottom",
+}: CardScannerProps) {
   const { t } = useTranslation("scanner");
   const navigate = useNavigate();
   const { isAdmin } = useRole();
@@ -35,7 +39,6 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   const {
     addCard,
     addUnmatchedCard,
-    sendCatchAllBin,
     autoFeed,
     setAutoFeed,
     registerCardArrivedHook,
@@ -43,7 +46,6 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     binLimitReached,
     resolveBinLimit,
   } = useScannedCards();
-  const registerIsland = useRegisterScannerIsland();
   const { station } = useStation();
   const {
     setActiveStation,
@@ -84,9 +86,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     displayCanvasRef,
     overlayCanvasRef,
     captureCard,
-    handleForceAddDuplicate,
     handleForceScan,
-    handleSkipDuplicate: handleSkipDuplicateFromScanner,
     handlePause,
     handleResume,
     handleRetryError,
@@ -120,6 +120,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     },
     rotated: !isMobile,
   });
+  const isSideControls = controlsPosition === "side";
   const scanningBlocked = apiHealthCheck?.status === "error" || isAtScanLimit;
 
   useSerialMessage((msg) => {
@@ -284,11 +285,6 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     handleForceScan();
   }, [sendCommand, receiveResponse, handleForceScan, t]);
 
-  const handleSkipDuplicate = useCallback(() => {
-    sendCatchAllBin();
-    handleSkipDuplicateFromScanner();
-  }, [sendCatchAllBin, handleSkipDuplicateFromScanner]);
-
   useEffect(() => {
     return registerCardArrivedHook(handleCardArrived);
   }, [registerCardArrivedHook, handleCardArrived]);
@@ -301,45 +297,6 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     await resolveBinLimit();
     handleResume();
   }, [resolveBinLimit, handleResume]);
-
-  useEffect(() => {
-    registerIsland({
-      status,
-      isCameraActive,
-      isConnected,
-      isReady,
-      isFeeding,
-      isClearingDevice,
-      handleForceAddDuplicate,
-      handleForceScan: handleForceScanClick,
-      handleSkipDuplicate,
-      handlePause: () => {
-        setAutoFeed(false);
-        handlePause();
-      },
-      handleResume,
-      handleFeed,
-      handleClearDevice,
-    });
-  }, [
-    status,
-    isCameraActive,
-    isConnected,
-    isReady,
-    isFeeding,
-    isClearingDevice,
-    handleForceAddDuplicate,
-    handleForceScanClick,
-    handleSkipDuplicate,
-    handlePause,
-    handleResume,
-    handleFeed,
-    handleClearDevice,
-    setAutoFeed,
-    registerIsland,
-  ]);
-
-  useEffect(() => () => registerIsland(null), [registerIsland]);
 
   const canScan = isCameraActive;
   const wasReadyRef = useRef(canScan);
@@ -356,14 +313,18 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   return (
     <div
       className={cn(
-        "flex flex-col-reverse md:flex-col overflow-hidden gap-2",
+        "flex overflow-hidden gap-2",
+        isSideControls ? "flex-row" : "flex-col-reverse md:flex-col",
         className,
       )}
     >
       <div
         className={cn(
-          "relative overflow-hidden bg-background w-full h-full max-w-full rounded-lg border",
-          !compact && "md:aspect-[2.5/3.5]",
+          "relative overflow-hidden bg-background rounded-lg border",
+          isSideControls
+            ? "h-full aspect-[2.5/3.5] shrink-0"
+            : "w-full h-full max-w-full",
+          !compact && !isSideControls && "md:aspect-[2.5/3.5]",
         )}
       >
         <video ref={videoRef} className="hidden" playsInline muted />
@@ -456,6 +417,24 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           onOcrEnabledChange={setOcrEnabled}
         />
       </div>
+      {isCameraActive && (
+        <ScannerControls
+          orientation={isSideControls ? "vertical" : "horizontal"}
+          status={status}
+          isConnected={isConnected}
+          isReady={isReady}
+          isFeeding={isFeeding}
+          isClearingDevice={isClearingDevice}
+          onForceScan={handleForceScanClick}
+          onPause={() => {
+            setAutoFeed(false);
+            handlePause();
+          }}
+          onResume={handleResume}
+          onFeed={handleFeed}
+          onClearDevice={handleClearDevice}
+        />
+      )}
       <BinLimitDialog
         bin={binLimitReached}
         onContinue={handleContinueAfterBinLimit}
