@@ -1,7 +1,7 @@
 import { computeBinCapacity } from "@magic-vault/shared";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { collectionCards } from "../../db/schema";
+import { collectionCards, unmatchedCards } from "../../db/schema";
 
 export interface BinLimitStatus {
   binNumber: number;
@@ -62,7 +62,7 @@ export async function findFullBin(
   );
   if (!effectiveCapacity) return null;
 
-  const [{ value }] = await tx
+  const [{ value: matchedCount }] = await tx
     .select({ value: sql<number>`count(*)::int` })
     .from(collectionCards)
     .where(
@@ -74,7 +74,21 @@ export async function findFullBin(
           : undefined,
       ),
     );
+  const [{ value: unmatchedCount }] = await tx
+    .select({ value: sql<number>`count(*)::int` })
+    .from(unmatchedCards)
+    .where(
+      and(
+        eq(unmatchedCards.collectionId, collectionId),
+        eq(unmatchedCards.binNumber, binNumber),
+        eq(unmatchedCards.isDeleted, false),
+        bin.lastEmptiedAt
+          ? gt(unmatchedCards.scannedAt, bin.lastEmptiedAt)
+          : undefined,
+      ),
+    );
+  const count = matchedCount + unmatchedCount;
 
-  if (value < effectiveCapacity) return null;
-  return { binNumber, cardLimit: effectiveCapacity, count: value };
+  if (count < effectiveCapacity) return null;
+  return { binNumber, cardLimit: effectiveCapacity, count };
 }

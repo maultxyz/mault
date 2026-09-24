@@ -82,4 +82,5 @@ export interface UnmatchedCard {
   scanId: string;
   capturedImageUrl?: string;
   scannedAt: number;
+  binNumber?: number;
 }

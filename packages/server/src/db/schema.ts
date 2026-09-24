@@ -381,6 +381,7 @@ export const unmatchedCards = pgTable(
       .references(() => collections.id, { onDelete: "cascade" }),
     capturedImageDataUrl: text("captured_image_data_url"),
     scannedAt: timestamp("scanned_at").notNull(),
+    binNumber: integer("bin_number"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

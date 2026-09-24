@@ -1,70 +1,30 @@
 import { useCollections } from "@/features/collections/api/use-collections";
 import { usePhoneCameraCapture } from "@/features/scanner/api/use-phone-camera-capture";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
+import {
+  acquireFreeStream,
+  camerasHeldByOtherStations,
+} from "@/features/scanner/lib/camera-stream";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import type {
   CameraContextValue,
   CameraSource,
   CameraStatus,
+  CameraTrackCapabilities,
   ZoomRange,
 } from "@/lib/interfaces/scanner";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   createContext,
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
 
 const CameraContext = createContext<CameraContextValue | null>(null);
-
-async function acquireStream(deviceId?: string): Promise<MediaStream> {
-  const stream = await navigator.mediaDevices.getUserMedia({
-    video: {
-      ...(deviceId ? { deviceId: { exact: deviceId } } : {}),
-      width: { ideal: 1920 },
-      height: { ideal: 1080 },
-      zoom: true,
-    } as MediaTrackConstraints,
-  });
-
-  const track = stream.getVideoTracks()[0];
-  if (track) {
-    try {
-      const capabilities = track.getCapabilities() as MediaTrackCapabilities & {
-        focusMode?: string[];
-        zoom?: { min: number; max: number; step: number };
-      };
-      const constraints: MediaTrackConstraintSet[] = [];
-      if (capabilities.focusMode?.includes("continuous")) {
-        constraints.push({ focusMode: "continuous" } as MediaTrackConstraintSet);
-      }
-      if (capabilities.zoom) {
-        constraints.push({ zoom: capabilities.zoom.min } as MediaTrackConstraintSet);
-      }
-      if (constraints.length > 0) {
-        await track.applyConstraints({ advanced: constraints });
-      }
-    } catch {}
-  }
-
-  return stream;
-}
-
-async function pickUnusedCamera(
-  usedIds: Set<string>,
-): Promise<string | undefined> {
-  try {
-    const devices = await navigator.mediaDevices.enumerateDevices();
-    return devices.find(
-      (d) => d.kind === "videoinput" && d.deviceId && !usedIds.has(d.deviceId),
-    )?.deviceId;
-  } catch {
-    return undefined;
-  }
-}
 
 export function CameraProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
@@ -87,54 +47,67 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const stationCameraIdRef = useRef(station.cameraId);
   stationCameraIdRef.current = station.cameraId;
 
-  const startCamera = useCallback(async (deviceId?: string) => {
-    setStatus("requesting");
-    setErrorMessage("");
-    try {
-      // A remembered camera may have been unplugged since - fall back to the
-      // browser's default rather than failing the station outright.
-      const mediaStream = await acquireStream(deviceId).catch((err) => {
-        if (!deviceId) throw err;
-        return acquireStream();
-      });
-      streamRef.current = mediaStream;
-      setStream(mediaStream);
-      setStatus("ready");
+  const otherStationCameraIds = useCallback(() => {
+    const { stations, isStationLive } = stationsRef.current;
+    return camerasHeldByOtherStations(stations, isStationLive, stationId);
+  }, [stationId]);
 
-      const track = mediaStream.getVideoTracks()[0];
-      if (track) {
-        const activeDeviceId = track.getSettings().deviceId ?? null;
-        setSelectedCameraId(activeDeviceId);
-        stationsRef.current.setStationCamera(stationId, activeDeviceId);
-
-        const caps = track.getCapabilities() as MediaTrackCapabilities & {
-          zoom?: { min: number; max: number; step: number };
-        };
-        if (caps.zoom) {
-          setZoomRange(caps.zoom);
-          setZoomState(caps.zoom.min);
-        } else {
-          setZoomRange(null);
+  const startCamera = useCallback(
+    async (deviceId?: string) => {
+      setStatus("requesting");
+      setErrorMessage("");
+      try {
+        const mediaStream = await acquireFreeStream(
+          deviceId,
+          otherStationCameraIds(),
+        );
+        if (!mediaStream) {
+          setErrorMessage(t("camera.allInUse"));
+          setStatus("error");
+          return;
         }
-      }
+        streamRef.current = mediaStream;
+        setStream(mediaStream);
+        setStatus("ready");
 
-      // Enumerate cameras after permission is granted so labels are available
-      const devices = await navigator.mediaDevices.enumerateDevices();
-      setCameras(devices.filter((d) => d.kind === "videoinput"));
-    } catch (err) {
-      const msg =
-        err instanceof DOMException && err.name === "NotAllowedError"
-          ? t("camera.permissionDenied")
-          : t("cameraAccessError");
-      setErrorMessage(msg);
-      setStatus("error");
-    }
-  }, [t, stationId]);
+        const track = mediaStream.getVideoTracks()[0];
+        if (track) {
+          const activeDeviceId = track.getSettings().deviceId ?? null;
+          setSelectedCameraId(activeDeviceId);
+          stationsRef.current.setStationCamera(stationId, activeDeviceId);
+
+          const caps = track.getCapabilities() as CameraTrackCapabilities;
+          if (caps.zoom) {
+            setZoomRange(caps.zoom);
+            setZoomState(caps.zoom.min);
+          } else {
+            setZoomRange(null);
+          }
+        }
+
+        // Enumerate cameras after permission is granted so labels are available
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        setCameras(devices.filter((d) => d.kind === "videoinput"));
+      } catch (err) {
+        const msg =
+          err instanceof DOMException && err.name === "NotAllowedError"
+            ? t("camera.permissionDenied")
+            : t("cameraAccessError");
+        setErrorMessage(msg);
+        setStatus("error");
+      }
+    },
+    [t, stationId, otherStationCameraIds],
+  );
 
   const setZoom = useCallback((value: number) => {
     const track = streamRef.current?.getVideoTracks()[0];
     if (!track) return;
-    track.applyConstraints({ advanced: [{ zoom: value } as MediaTrackConstraintSet] }).catch(() => {});
+    track
+      .applyConstraints({
+        advanced: [{ zoom: value } as MediaTrackConstraintSet],
+      })
+      .catch(() => {});
     setZoomState(value);
   }, []);
 
@@ -190,10 +163,14 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     setCameraSource((prev) => (prev === "phone" ? "local" : prev));
   }, [stopPhonePairingInternal]);
 
-  const selectCamera = useCallback(async (deviceId: string) => {
-    stopCamera();
-    await startCamera(deviceId);
-  }, [startCamera, stopCamera]);
+  const selectCamera = useCallback(
+    async (deviceId: string) => {
+      if (otherStationCameraIds().has(deviceId)) return;
+      stopCamera();
+      await startCamera(deviceId);
+    },
+    [startCamera, stopCamera, otherStationCameraIds],
+  );
 
   useEffect(() => {
     // Mobile is redirected to the read-only monitor view and never scans -
@@ -201,19 +178,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     // The idle standby station holds no camera until it's connected or viewed.
     if (isMobile || !isLive) return;
 
-    void (async () => {
-      let cameraId = stationCameraIdRef.current ?? undefined;
-      if (!cameraId) {
-        const { stations, isStationLive } = stationsRef.current;
-        const usedIds = new Set(
-          stations
-            .filter((s) => s.id !== stationId && s.cameraId && isStationLive(s.id))
-            .map((s) => s.cameraId as string),
-        );
-        if (usedIds.size > 0) cameraId = await pickUnusedCamera(usedIds);
-      }
-      await startCamera(cameraId);
-    })();
+    void startCamera(stationCameraIdRef.current ?? undefined);
 
     return () => {
       if (streamRef.current) {
@@ -223,10 +188,8 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       setStream(null);
       setStatus("idle");
     };
-  }, [startCamera, isMobile, isLive, stationId]);
+  }, [startCamera, isMobile, isLive]);
 
-  // A board reconnecting restores the camera it last used (see
-  // bindStationDevice), which may differ from the one already running.
   useEffect(() => {
     if (
       status === "ready" &&
@@ -239,6 +202,16 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     }
   }, [station.cameraId, selectedCameraId, status, cameraSource, selectCamera]);
 
+  const { stations, isStationLive } = stationsCtx;
+  const availableCameras = useMemo(() => {
+    const taken = camerasHeldByOtherStations(
+      stations,
+      isStationLive,
+      stationId,
+    );
+    return cameras.filter((c) => !taken.has(c.deviceId));
+  }, [cameras, stations, isStationLive, stationId]);
+
   return (
     <CameraContext
       value={{
@@ -247,7 +220,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         errorMessage,
         zoom,
         zoomRange,
-        cameras,
+        cameras: availableCameras,
         selectedCameraId,
         setZoom,
         selectCamera,

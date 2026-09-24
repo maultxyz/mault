@@ -13,6 +13,7 @@ import type {
   StationState,
   StationsContextValue,
 } from "@/lib/interfaces/stations";
+import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import {
   createContext,
@@ -58,7 +59,10 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   const { activeOrg } = useOrg();
   const orgId = activeOrg?.id;
   const { data: billing } = useQuery(billingQueryOptions(orgId));
-  const maxConnectedSorters = billing?.maxConnectedSorters ?? null;
+  const maxConnectedSorters = Math.min(
+    billing?.maxConnectedSorters ?? MAX_CONNECTED_SORTERS,
+    MAX_CONNECTED_SORTERS,
+  );
   const maxConnectedSortersRef = useRef(maxConnectedSorters);
   maxConnectedSortersRef.current = maxConnectedSorters;
   const [stations, setStationsState] = useState<StationState[]>(() => [
@@ -159,6 +163,14 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     [isLive],
   );
 
+  const cameraTakenByOther = useCallback(
+    (id: string, cameraId: string) =>
+      stationsRef.current.some(
+        (s) => s.id !== id && s.cameraId === cameraId && isLive(s.id),
+      ),
+    [isLive],
+  );
+
   const updateStation = useCallback(
     (id: string, patch: Partial<StationState>) => {
       setStations(
@@ -183,6 +195,10 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
         !collectionTakenByOther(id, prefs.collectionGuid)
           ? prefs.collectionGuid
           : undefined;
+      const restoredCamera =
+        prefs?.cameraId && !cameraTakenByOther(id, prefs.cameraId)
+          ? prefs.cameraId
+          : undefined;
       setStations(
         stationsRef.current.map((s) =>
           s.id === id
@@ -192,7 +208,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
                 ...(restoredCollection
                   ? { collectionGuid: restoredCollection }
                   : {}),
-                ...(prefs?.cameraId ? { cameraId: prefs.cameraId } : {}),
+                ...(restoredCamera ? { cameraId: restoredCamera } : {}),
               }
             : s.deviceGuid === deviceGuid
               ? { ...s, deviceGuid: null }
@@ -200,7 +216,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
         ),
       );
     },
-    [collectionTakenByOther, setStations],
+    [collectionTakenByOther, cameraTakenByOther, setStations],
   );
 
   const claimStationCollection = useCallback(
@@ -280,8 +296,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   // Must stay synchronous up to the connector call: the browser only shows
   // the port/device picker from within the originating user gesture.
   const connectAnotherSorter = useCallback((kind: StationConnectKind) => {
-    const max = maxConnectedSortersRef.current;
-    if (max !== null && connectedRef.current.size >= max) return;
+    if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
     const standby = stationsRef.current.find(
       (s) => !connectedRef.current.has(s.id),
     );
@@ -312,9 +327,8 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       connectedStationIds,
       panelLayout,
       maxConnectedSorters,
-      canConnectAnotherSorter:
-        maxConnectedSorters === null ||
-        connectedStationIds.size < maxConnectedSorters,
+      sorterLimitIsHardCap: maxConnectedSorters >= MAX_CONNECTED_SORTERS,
+      canConnectAnotherSorter: connectedStationIds.size < maxConnectedSorters,
       isStationLive: (id) =>
         connectedStationIds.has(id) || activeStationId === id,
       setActiveStation,

@@ -1,0 +1,1 @@
+ALTER TABLE "unmatched_cards" ADD COLUMN "bin_number" integer;

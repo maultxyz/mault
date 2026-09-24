@@ -1,6 +1,7 @@
 {
   "camera": {
-    "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut."
+    "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",
+    "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an."
   },
   "scanEngine": {
     "searchFailed": "Kartensuche fehlgeschlagen",
@@ -322,6 +323,11 @@
   "stations": {
     "label": "Sortierer {{number}}",
     "tabsLabel": "Sortierer",
+    "connect": "Sortierer verbinden",
+    "hardCapReached": {
+      "title": "Höchstens {{max}} Sortierer gleichzeitig",
+      "description": "Trenne einen Sortierer, bevor du einen weiteren verbindest."
+    },
     "limitReached": {
       "title": "Weitere Sortierer erfordern den Business-Tarif",
       "description": "Der kostenlose Tarif betreibt jeweils nur einen Sortierer. Trenne den anderen Sortierer oder wechsle in den Einstellungen zu Business, um mehrere gleichzeitig zu betreiben."

@@ -15,6 +15,7 @@ import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-fla
 import { OcrBetaDialog } from "@/features/scanner/components/ocr-beta-dialog";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import type { ZoomRange } from "@/lib/interfaces/scanner";
+import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconAdjustments,
   IconCameraSpark,
@@ -59,6 +60,7 @@ interface ScannerMenuProps {
   onConnectAnotherUsb: () => void;
   onConnectAnotherBluetooth: () => void;
   canConnectAnotherSorter: boolean;
+  sorterLimitIsHardCap: boolean;
   onUpgrade: () => void;
 }
 
@@ -94,6 +96,7 @@ export function ScannerMenu({
   onConnectAnotherUsb,
   onConnectAnotherBluetooth,
   canConnectAnotherSorter,
+  sorterLimitIsHardCap,
   onUpgrade,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
@@ -275,6 +278,13 @@ export function ScannerMenu({
                         </DropdownMenuItem>
                       )}
                     </>
+                  ) : sorterLimitIsHardCap ? (
+                    <DropdownMenuItem disabled>
+                      <IconPlus />
+                      {t("stations.hardCapReached.title", {
+                        max: MAX_CONNECTED_SORTERS,
+                      })}
+                    </DropdownMenuItem>
                   ) : (
                     <DropdownMenuItem onClick={onUpgrade}>
                       <IconPlus />

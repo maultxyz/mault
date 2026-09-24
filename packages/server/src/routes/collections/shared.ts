@@ -84,11 +84,13 @@ export function toUnmatchedCard(row: {
   guid: string | null;
   capturedImageDataUrl: string | null;
   scannedAt: Date;
+  binNumber: number | null;
 }): UnmatchedCard {
   return {
     scanId: row.guid!,
     capturedImageUrl: row.capturedImageDataUrl ?? undefined,
     scannedAt: row.scannedAt.getTime(),
+    binNumber: row.binNumber ?? undefined,
   };
 }
 

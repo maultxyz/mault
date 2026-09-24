@@ -15,6 +15,7 @@ import {
   type CommLogEntry,
 } from "@/features/scanner/lib/comm-log";
 import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
+import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import {
   BluetoothTransport,
   SerialTransport,
@@ -324,9 +325,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   );
 
   const notifySorterLimit = useCallback(() => {
-    toast.error(t("stations.limitReached.title"), {
-      description: t("stations.limitReached.description"),
-    });
+    showSorterLimitToast(t, stationsRef.current.sorterLimitIsHardCap);
   }, [t]);
 
   // Fast in-tab check before claiming a device record. The server's lease
@@ -335,7 +334,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const exceedsSorterLimit = useCallback(() => {
     const { stations, connectedStationIds, maxConnectedSorters } =
       stationsRef.current;
-    if (maxConnectedSorters === null) return false;
     const otherConnected = stations.filter(
       (s) => s.id !== station.id && connectedStationIds.has(s.id),
     ).length;

@@ -1,6 +1,7 @@
 {
   "camera": {
-    "permissionDenied": "Camera permission denied. Please allow camera access and try again."
+    "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
+    "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter."
   },
   "scanEngine": {
     "searchFailed": "Failed to search card",
@@ -322,6 +323,11 @@
   "stations": {
     "label": "Sorter {{number}}",
     "tabsLabel": "Sorters",
+    "connect": "Connect sorter",
+    "hardCapReached": {
+      "title": "Up to {{max}} sorters at a time",
+      "description": "Disconnect a sorter before connecting another one."
+    },
     "limitReached": {
       "title": "More sorters need the Business plan",
       "description": "The free plan runs one sorter at a time. Disconnect the other sorter, or upgrade to Business in Settings to run several at once."

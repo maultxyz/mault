@@ -8,7 +8,10 @@ import {
   UNIDENTIFIED_SORTER_LEASE_KEY,
 } from "../../lib/device-leases";
 import { acquireLock } from "../../lib/scan-lock";
-import { getConnectedSorterLimit } from "../../lib/sorter-limit";
+import {
+  getConnectedSorterLimit,
+  sorterLimitMessage,
+} from "../../lib/sorter-limit";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -102,7 +105,6 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         // every scan renews the scanning sorter's lease.
         const sorterLimit = await getConnectedSorterLimit(tx, orgId);
         if (
-          sorterLimit !== null &&
           !acquireDeviceLease(
             orgId,
             deviceGuid ?? UNIDENTIFIED_SORTER_LEASE_KEY,
@@ -112,7 +114,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return {
             result: {
               success: false,
-              message: `Your plan allows ${sorterLimit} connected sorter(s) at a time. Upgrade to Business to connect more.`,
+              message: sorterLimitMessage(sorterLimit),
               sorterLimitReached: true,
             },
             collectionName: undefined,

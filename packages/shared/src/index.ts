@@ -23,5 +23,6 @@ export * from "./constants/ocr-regions.constant";
 export * from "./constants/rarity.constant";
 export * from "./constants/scryfall.constant";
 export * from "./constants/sort-bins.constant";
+export * from "./constants/sorters.constant";
 
 export * from "./evaluate-bin";

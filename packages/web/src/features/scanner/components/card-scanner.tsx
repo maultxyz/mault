@@ -45,8 +45,12 @@ export function CardScanner({ className, compact }: CardScannerProps) {
   } = useScannedCards();
   const registerIsland = useRegisterScannerIsland();
   const { station } = useStation();
-  const { setActiveStation, connectAnotherSorter, canConnectAnotherSorter } =
-    useStations();
+  const {
+    setActiveStation,
+    connectAnotherSorter,
+    canConnectAnotherSorter,
+    sorterLimitIsHardCap,
+  } = useStations();
   const {
     isConnected,
     isReady,
@@ -113,7 +117,6 @@ export function CardScanner({ className, compact }: CardScannerProps) {
     },
     onNoMatch: (capturedImageUrl) => {
       addUnmatchedCard(capturedImageUrl);
-      sendCatchAllBin();
     },
     rotated: !isMobile,
   });
@@ -446,6 +449,7 @@ export function CardScanner({ className, compact }: CardScannerProps) {
           onConnectAnotherUsb={() => connectAnotherSorter("usb")}
           onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
           canConnectAnotherSorter={canConnectAnotherSorter}
+          sorterLimitIsHardCap={sorterLimitIsHardCap}
           onUpgrade={() => navigate("/app/settings")}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}

@@ -30,6 +30,11 @@ export interface ZoomRange {
   step: number;
 }
 
+export type CameraTrackCapabilities = MediaTrackCapabilities & {
+  focusMode?: string[];
+  zoom?: ZoomRange;
+};
+
 export interface CameraContextValue {
   stream: MediaStream | null;
   status: CameraStatus;

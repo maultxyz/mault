@@ -1,6 +1,7 @@
 {
   "camera": {
-    "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer."
+    "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
+    "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
@@ -322,6 +323,11 @@
   "stations": {
     "label": "Trieuse {{number}}",
     "tabsLabel": "Trieuses",
+    "connect": "Connecter une trieuse",
+    "hardCapReached": {
+      "title": "{{max}} trieuses maximum à la fois",
+      "description": "Déconnectez une trieuse avant d'en connecter une autre."
+    },
     "limitReached": {
       "title": "Plus de trieuses nécessitent l'offre Business",
       "description": "L'offre gratuite ne gère qu'une trieuse à la fois. Déconnectez l'autre trieuse, ou passez à Business dans les paramètres pour en utiliser plusieurs à la fois."

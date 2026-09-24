@@ -12,3 +12,6 @@ export const PHONE_CAMERA_JPEG_QUALITY = 0.85;
 export const CATCH_ALL_BIN = 7;
 
 export const STALE_DEVICE_THRESHOLD_DAYS = 30;
+
+export const CAMERA_IDEAL_WIDTH = 1920;
+export const CAMERA_IDEAL_HEIGHT = 1080;

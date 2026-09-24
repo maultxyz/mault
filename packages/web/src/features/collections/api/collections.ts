@@ -153,8 +153,18 @@ export async function loadUnmatchedCards(guid: string): Promise<Result<Unmatched
 export async function addUnmatchedCard(
   guid: string,
   record: UnmatchedCard,
-): Promise<Result<UnmatchedCard>> {
-  return apiPost<Result<UnmatchedCard>>(`/api/collections/${guid}/unmatched`, record);
+  deviceGuid: string | undefined,
+): Promise<
+  Result<UnmatchedCard> & { binLimitReached?: boolean; binNumber?: number }
+> {
+  const res = await fetch(`${API_BASE}/api/collections/${guid}/unmatched`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
+    body: JSON.stringify({ ...record, deviceGuid }),
+  });
+  await handleForbidden(res);
+  if (res.ok || res.status === 409) return res.json();
+  throw new Error(`API error: ${res.status}`);
 }
 
 export async function removeUnmatchedCard(

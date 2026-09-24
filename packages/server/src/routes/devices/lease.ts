@@ -2,12 +2,12 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { acquireDeviceLease, releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
-import { getConnectedSorterLimit } from "../../lib/sorter-limit";
+import {
+  getConnectedSorterLimit,
+  sorterLimitMessage,
+} from "../../lib/sorter-limit";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
-// Taken when a sorter connects and renewed on a heartbeat while it stays
-// connected. This is what enforces the free plan's cap on simultaneously
-// connected sorters across every browser and computer in the org.
 export const acquireDeviceLeaseRoute = new Hono<AppEnv>().post(
   "/:guid/lease",
   requireAuth,
@@ -33,7 +33,7 @@ export const acquireDeviceLeaseRoute = new Hono<AppEnv>().post(
             success: false,
             sorterLimitReached: true,
             limit: result.limit,
-            message: `Your plan allows ${result.limit} connected sorter(s) at a time. Upgrade to Business to connect more.`,
+            message: sorterLimitMessage(result.limit),
           },
           402,
         );

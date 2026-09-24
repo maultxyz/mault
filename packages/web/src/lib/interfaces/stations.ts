@@ -26,8 +26,8 @@ export interface StationsContextValue {
   activeStationId: string;
   connectedStationIds: ReadonlySet<string>;
   panelLayout: StationPanelLayout | null;
-  // null when unlimited (Business plan, or billing isn't configured).
-  maxConnectedSorters: number | null;
+  maxConnectedSorters: number;
+  sorterLimitIsHardCap: boolean;
   canConnectAnotherSorter: boolean;
   isStationLive: (id: string) => boolean;
   setActiveStation: (id: string) => void;
