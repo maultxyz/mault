@@ -204,6 +204,7 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 // resting on a sensor while the device is idle (a card left in a tray, a
 // hand, dust) isn't a jam a wiggle should react to.
 #define MODULE_JAM_TIMEOUT_MS 20000
+#define SERVO_IDLE_RELEASE_MS 1500
 
 // The Arduino builder auto-generates a forward declaration for every
 // function and hoists all of them to one insertion point near the top of
@@ -328,8 +329,27 @@ int getFeederChannel() {
   return moduleChannelOffset + maxModuleForOffset() * 3;
 }
 
+unsigned long lastServoMoveAt = 0;
+bool servosReleased = false;
+
 void setServoPosition(int channel, int pulse) {
   pwm.setPWM(channel, 0, constrain(pulse, 120, 490));
+  lastServoMoveAt = millis();
+  servosReleased = false;
+}
+
+// SG90s keep hunting around a held position and pick up supply noise as
+// twitches, so idle positional servos get no signal at all. Gear friction
+// holds them in place. The feeder is left alone: stopFeeder() already
+// releases it, and a calibration preview keeps it running on purpose.
+void releaseIdleServos() {
+  if (servosReleased || millis() - lastServoMoveAt < SERVO_IDLE_RELEASE_MS) {
+    return;
+  }
+  for (int m = 1; m <= maxModuleForOffset(); m++) {
+    for (int s = 0; s < 3; s++) pwm.setPin(getChannel(m, s), 0);
+  }
+  servosReleased = true;
 }
 
 void setModuleNeutral(int module) {
@@ -1036,6 +1056,7 @@ void loop() {
   blePoll();
 #endif
   checkModuleJams();
+  releaseIdleServos();
 #if defined(RGB_BUILTIN)
   updateStatusLed();
 #endif
