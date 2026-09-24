@@ -19,9 +19,7 @@ export function supportsGame(
 }
 
 export function csvEscape(val: string): string {
-  return val.includes(",") || val.includes('"')
-    ? `"${val.replace(/"/g, '""')}"`
-    : val;
+  return /[",\r\n]/.test(val) ? `"${val.replace(/"/g, '""')}"` : val;
 }
 
 export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
