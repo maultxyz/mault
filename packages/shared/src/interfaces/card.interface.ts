@@ -21,6 +21,7 @@ export interface PlayingCard {
   price: number | null;
   priceFoil: number | null;
   sourceUrl?: string;
+  tcgplayerId?: string;
   cmc?: number;
   raw?: unknown;
 }
