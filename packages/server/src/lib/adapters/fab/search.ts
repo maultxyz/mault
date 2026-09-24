@@ -76,6 +76,7 @@ export function normalizeFabPrinting(
     price: null,
     priceFoil: null,
     sourceUrl: printing.tcgplayer_url ?? undefined,
+    tcgplayerId: printing.tcgplayer_product_id ?? undefined,
     cmc: card.cost ? Number(card.cost) : undefined,
     raw: { card, printing },
   };

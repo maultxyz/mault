@@ -45,6 +45,7 @@ interface ScryfallApiCard {
   artist?: string;
   scryfall_uri: string;
   prices: { usd: string | null; usd_foil: string | null };
+  tcgplayer_id?: number;
 }
 
 function withPrintedFields(raw: ScryfallApiCard): ScryfallApiCard {
@@ -89,6 +90,8 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
         ? Number.parseFloat(raw.prices.usd_foil)
         : null,
     sourceUrl: raw.scryfall_uri,
+    tcgplayerId:
+      raw.tcgplayer_id != null ? String(raw.tcgplayer_id) : undefined,
     cmc: raw.cmc,
     raw,
   };

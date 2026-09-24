@@ -85,6 +85,7 @@ export function normalizeRiftboundCard(raw: RiftboundCard): PlayingCard {
     sourceUrl: raw.tcgplayer_id
       ? `https://www.tcgplayer.com/product/${raw.tcgplayer_id}`
       : undefined,
+    tcgplayerId: raw.tcgplayer_id || undefined,
     cmc: raw.attributes?.energy ?? undefined,
     raw,
   };

@@ -36,6 +36,7 @@ export interface LorcastCard {
   lang: string;
   set: { id: string; code: string; name: string };
   prices?: { usd: string | number | null; usd_foil: string | number | null };
+  tcgplayer_id?: number | null;
 }
 
 export function lorcanaCardId(
@@ -82,6 +83,8 @@ export function normalizeLorcanaCard(raw: LorcastCard): PlayingCard {
     price: raw.prices?.usd != null ? Number(raw.prices.usd) : null,
     priceFoil:
       raw.prices?.usd_foil != null ? Number(raw.prices.usd_foil) : null,
+    tcgplayerId:
+      raw.tcgplayer_id != null ? String(raw.tcgplayer_id) : undefined,
     cmc: raw.cost,
     raw,
   };
@@ -128,6 +131,10 @@ export interface LorcanaDeCard {
   externalLinks?: { cardmarketUrl?: string; tcgPlayerUrl?: string };
 }
 
+function tcgplayerIdFromUrl(url: string | undefined): string | undefined {
+  return url?.match(/\/product\/(\d+)/)?.[1];
+}
+
 export function lorcanaDeCardName(raw: LorcanaDeCard): string {
   return raw.fullName || raw.name;
 }
@@ -159,6 +166,7 @@ export function normalizeLorcanaDeCard(raw: LorcanaDeCard): PlayingCard {
     price: null,
     priceFoil: null,
     sourceUrl: raw.externalLinks?.cardmarketUrl,
+    tcgplayerId: tcgplayerIdFromUrl(raw.externalLinks?.tcgPlayerUrl),
     cmc: raw.cost,
     raw,
   };

@@ -114,7 +114,8 @@
     "applyGridFilters": "Aktive Filter anwenden ({{count}})",
     "close": "Schließen",
     "download": "Herunterladen ({{count}})",
-    "sessionWrappedToggle": "Wrapped"
+    "sessionWrappedToggle": "Wrapped",
+    "combineDuplicates": "Duplikate zusammenfassen"
   },
   "sessionWrapped": {
     "srTitle": "{{collectionName}} Jahresrückblick",

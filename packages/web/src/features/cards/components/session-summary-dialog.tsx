@@ -501,6 +501,7 @@ export function SessionSummaryDialog({
   const { t } = useTranslation("cards");
   const [includeDownloaded, setIncludeDownloaded] = useState(false);
   const [applyGridFilters, setApplyGridFilters] = useState(false);
+  const [combineDuplicates, setCombineDuplicates] = useState(true);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -572,7 +573,7 @@ export function SessionSummaryDialog({
   }, [open, goPrev, goNext]);
 
   function handleDownload(adapter: ExportAdapter) {
-    runExport(adapter, exportCards, slug, exportContext);
+    runExport(adapter, exportCards, slug, exportContext, combineDuplicates);
     onMarkDownloaded(exportCards.map((c) => c.scanId));
     onOpenChange(false);
   }
@@ -738,6 +739,14 @@ export function SessionSummaryDialog({
           />
         </label>
       )}
+      <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
+        {t("sessionSummaryDialog.combineDuplicates")}
+        <Switch
+          size="sm"
+          checked={combineDuplicates}
+          onCheckedChange={setCombineDuplicates}
+        />
+      </label>
       {wrappedEnabled && (
         <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
           {t("sessionSummaryDialog.sessionWrappedToggle")}
