@@ -339,6 +339,10 @@
       "firmware": {
         "title": "Die Firmware aufspielen",
         "steps": {
+          "downloadCode": {
+            "text": "Lade den Code aus dem <repo>GitHub-Repository</repo> herunter (Code → Download ZIP) und entpacke ihn. Öffne dann den firmware-Ordner mit der Arduino-IDE (Datei → Öffnen → firmware/main/main.ino).",
+            "note": "Die Arduino-IDE erwartet, dass ein Sketch in einem gleichnamigen Ordner liegt. Öffne main.ino daher direkt aus firmware/main, statt die Datei zu verschieben."
+          },
           "installEsp32Core": {
             "text": "Füge in der Arduino-IDE die ESP32-Board-Index-URL hinzu (Datei → Voreinstellungen → Zusätzliche Boardverwalter-URLs): https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json, und installiere dann „esp32 by Espressif Systems“ über den Boardverwalter.",
             "note": "Das lädt einige hundert MB herunter (die komplette Xtensa-Toolchain) und dauert ein paar Minuten."
@@ -347,8 +351,16 @@
             "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson und Adafruit PWM Servo Driver.",
             "note": "Bibliotheksverwaltung → jeweils nach Namen suchen."
           },
+          "installLibrariesEsp32": {
+            "note": "Bibliotheksverwaltung → jeweils nach Namen suchen. Die Bluetooth-Unterstützung ist bereits im gerade installierten ESP32-Core enthalten, eine zusätzliche Bluetooth-Bibliothek ist also nicht nötig."
+          },
+          "installLibrariesUnoR4": {
+            "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson, Adafruit PWM Servo Driver und ArduinoBLE.",
+            "note": "Bibliotheksverwaltung → jeweils nach Namen suchen. ArduinoBLE stellt Bluetooth auf dem Uno R4 WiFi bereit. Der Uno R4 Minima hat keine Bluetooth-Hardware und nutzt sie nicht, Minima-Builds können sie also weglassen."
+          },
           "uploadSketch": {
-            "text": "Wähle das Board „Arduino Uno R4“, wähle den richtigen Port und lade dann firmware/main/main.ino hoch."
+            "text": "Wähle das Board „Arduino UNO R4 WiFi“ (oder „Arduino UNO R4 Minima“, falls du dieses hast), wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
+            "note": "Die genaue Board-Auswahl ist wichtig: Bluetooth wird nur einkompiliert, wenn das WiFi-Board ausgewählt ist."
           },
           "uploadSketchEsp32": {
             "text": "Wähle das Board „ESP32S3 Dev Module“, stelle unter Tools → USB Mode „Hardware CDC and JTAG“ und USB CDC On Boot „Enabled“ ein, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
