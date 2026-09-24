@@ -1,7 +1,7 @@
 import { computeBinCapacity } from "@magic-vault/shared";
 import { and, eq, gt, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { collectionCards } from "../../db/schema";
+import { collectionCards, unmatchedCards } from "../../db/schema";
 
 export interface BinLimitStatus {
   binNumber: number;
@@ -15,6 +15,7 @@ export async function findFullBin(
   gameId: number | null,
   collectionId: number,
   binNumber: number,
+  deviceGuid: string | undefined,
 ): Promise<BinLimitStatus | null> {
   const activeBinSet = await tx.query.binSets.findFirst({
     where: (t, { eq, and, isNull }) =>
@@ -33,7 +34,11 @@ export async function findFullBin(
   if (!bin) return null;
 
   const device = await tx.query.devices.findFirst({
-    where: (t, { eq }) => eq(t.orgId, orgId),
+    where: (t, { eq, and }) =>
+      deviceGuid
+        ? and(eq(t.orgId, orgId), eq(t.guid, deviceGuid))
+        : eq(t.orgId, orgId),
+    orderBy: (t, { asc }) => asc(t.id),
     columns: { id: true },
   });
   const heightRow = device
@@ -57,7 +62,7 @@ export async function findFullBin(
   );
   if (!effectiveCapacity) return null;
 
-  const [{ value }] = await tx
+  const [{ value: matchedCount }] = await tx
     .select({ value: sql<number>`count(*)::int` })
     .from(collectionCards)
     .where(
@@ -69,7 +74,21 @@ export async function findFullBin(
           : undefined,
       ),
     );
+  const [{ value: unmatchedCount }] = await tx
+    .select({ value: sql<number>`count(*)::int` })
+    .from(unmatchedCards)
+    .where(
+      and(
+        eq(unmatchedCards.collectionId, collectionId),
+        eq(unmatchedCards.binNumber, binNumber),
+        eq(unmatchedCards.isDeleted, false),
+        bin.lastEmptiedAt
+          ? gt(unmatchedCards.scannedAt, bin.lastEmptiedAt)
+          : undefined,
+      ),
+    );
+  const count = matchedCount + unmatchedCount;
 
-  if (value < effectiveCapacity) return null;
-  return { binNumber, cardLimit: effectiveCapacity, count: value };
+  if (count < effectiveCapacity) return null;
+  return { binNumber, cardLimit: effectiveCapacity, count };
 }

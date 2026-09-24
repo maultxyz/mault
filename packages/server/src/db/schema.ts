@@ -165,7 +165,7 @@ export const devices = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("devices_org_idx").on(table.orgId),
+    unique("devices_org_hardware_idx").on(table.orgId, table.hardwareId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -381,6 +381,7 @@ export const unmatchedCards = pgTable(
       .references(() => collections.id, { onDelete: "cascade" }),
     capturedImageDataUrl: text("captured_image_data_url"),
     scannedAt: timestamp("scanned_at").notNull(),
+    binNumber: integer("bin_number"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

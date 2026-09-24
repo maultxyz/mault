@@ -132,6 +132,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
                 guid: unmatchedCards.guid,
                 capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
                 scannedAt: unmatchedCards.scannedAt,
+                binNumber: unmatchedCards.binNumber,
               })
               .from(unmatchedCards)
               .where(

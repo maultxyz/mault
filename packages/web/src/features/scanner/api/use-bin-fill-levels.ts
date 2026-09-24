@@ -8,7 +8,7 @@ import { computeBinCapacity, countCardsInBin } from "@magic-vault/shared";
 export function useBinFillLevels(): BinFillLevel[] {
   const { configs } = useBinConfigs();
   const { heights } = useBinHeights();
-  const { cards } = useScannedCards();
+  const { cards, unmatchedCards } = useScannedCards();
   const { activeCollection } = useCollections();
   const cardThickness = activeCollection?.game?.cardThickness ?? null;
 
@@ -20,7 +20,8 @@ export function useBinFillLevels(): BinFillLevel[] {
         cardThickness,
         bin.cardLimit ?? null,
       );
-      const count = countCardsInBin(cards, bin);
+      const count =
+        countCardsInBin(cards, bin) + countCardsInBin(unmatchedCards, bin);
       const percent = capacity ? Math.min(100, Math.round((count / capacity) * 100)) : 0;
       return { binNumber: bin.binNumber, count, capacity, percent };
     })

@@ -1,9 +1,9 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { collections, orgSettings } from "../../db/schema";
 import type { AppEnv } from "../../middleware/auth";
-import { resolveOrgByGuild } from "./shared";
+import { resolveOrgByGuild, resolveOrgCollection } from "./shared";
 
 export const botSetChannelRoute = new Hono<AppEnv>().post("/set-channel", async (c) => {
   const body = await c.req.json<{
@@ -37,7 +37,11 @@ export const botSetChannelRoute = new Hono<AppEnv>().post("/set-channel", async 
   const nextChannelId = clear ? null : channelId!;
 
   if (collectionGuid) {
-    const result = await db
+    const collection = await resolveOrgCollection(orgId, collectionGuid);
+    if (!collection) {
+      return c.json({ success: false, message: "collection_not_found" }, 404);
+    }
+    await db
       .update(collections)
       .set(
         kind === "scan"
@@ -52,13 +56,7 @@ export const botSetChannelRoute = new Hono<AppEnv>().post("/set-channel", async 
               updatedAt: new Date(),
             },
       )
-      .where(
-        and(eq(collections.guid, collectionGuid), eq(collections.orgId, orgId)),
-      )
-      .returning({ id: collections.id });
-    if (result.length === 0) {
-      return c.json({ success: false, message: "collection_not_found" }, 404);
-    }
+      .where(eq(collections.id, collection.id));
     return c.json({ success: true, message: "Channel set." });
   }
 

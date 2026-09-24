@@ -6,7 +6,7 @@ import type {
   RepackSlot,
 } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
-import { getOrCreateDevice } from "../../lib/devices";
+import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit } from "../../db/schema";
 
@@ -14,8 +14,8 @@ export async function getModuleCount(
   tx: Transaction,
   orgId: string,
 ): Promise<number> {
-  const device = await getOrCreateDevice(tx, orgId);
-  return device.moduleCount;
+  const devices = await listOrgDevices(tx, orgId);
+  return Math.max(...devices.map((d) => d.moduleCount));
 }
 
 export function emptyRules(): BinRuleGroup {

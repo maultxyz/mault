@@ -62,7 +62,8 @@
     "createFailed": "Sammlung konnte nicht erstellt werden",
     "renameFailed": "Sammlung konnte nicht aktualisiert werden",
     "deleteFailed": "Sammlung konnte nicht gelöscht werden",
-    "emptyFailed": "Sammlung konnte nicht geleert werden"
+    "emptyFailed": "Sammlung konnte nicht geleert werden",
+    "openInAnotherSorter": "Diese Sammlung ist bereits in einem anderen Sortierer-Bereich geöffnet"
   },
   "noCollectionsYet": "Noch keine Sammlungen",
   "noMatchingCollections": "Keine passenden Sammlungen",

@@ -1,6 +1,7 @@
 {
   "camera": {
-    "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer."
+    "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
+    "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
@@ -28,10 +29,6 @@
     "commLogCopied": "Journal de communication copié dans le presse-papiers",
     "commLogCopyFailed": "Échec de la copie du journal de communication",
     "commLogEmpty": "Aucune communication enregistrée pour le moment",
-    "hardwareIdMismatch": {
-      "title": "Connecté à une trieuse différente",
-      "description": "L'ID de cette carte ne correspond pas à celle utilisée la dernière fois par cette organisation. Le calibrage a été enregistré pour un autre appareil physique."
-    },
     "firmwareOutdatedBanner": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Réimporte firmware/main/main.ino pour la mettre à jour.",
     "firmwareVersionMissingBanner": "Le firmware de ta trieuse ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
     "update": {
@@ -45,6 +42,32 @@
       "errorTitle": "Échec de la mise à jour",
       "close": "Fermer",
       "tryAgain": "Réessayer"
+    },
+    "deviceResolveFailed": "Impossible d'identifier cette trieuse. La dernière calibration enregistrée est utilisée.",
+    "deviceInUse": {
+      "title": "Trieuse déjà connectée",
+      "description": "{{name}} est déjà connectée dans un autre panneau de trieuse. Déconnectez-la d’abord."
+    },
+    "unidentifiedBoard": {
+      "title": "Ancien firmware détecté",
+      "description": "Le firmware de cette trieuse ne transmet pas de numéro de série. Elle utilisera donc la calibration de l'appareil actuel ({{name}}). Mettez à jour le firmware pour que chaque trieuse conserve sa propre calibration.",
+      "descriptionNoDevice": "Le firmware de cette trieuse ne transmet pas de numéro de série. Elle utilisera donc la calibration de l'appareil actuel. Mettez à jour le firmware pour que chaque trieuse conserve sa propre calibration."
+    },
+    "flash": {
+      "errors": {
+        "wrongChip": "Cette carte est un {{chip}}. Le firmware de la trieuse ne fonctionne que sur l'ESP32-S3, rien n'a donc été écrit.",
+        "noBootloader": "Impossible d'atteindre le bootloader de la carte. Maintenez BOOT, appuyez sur RESET, relâchez BOOT, puis réessayez.",
+        "downloadFailed": "Impossible de télécharger le firmware. Vérifiez votre connexion et réessayez."
+      },
+      "newBoard": {
+        "dialogTitle": "Flasher une nouvelle carte",
+        "dialogDescription": "Installe le firmware de la trieuse sur un ESP32-S3 directement depuis ce navigateur. Fonctionne sur les cartes vierges et celles qui exécutent un autre firmware.",
+        "hintPort": "Branchez la carte par son port USB natif (souvent marqué USB plutôt que UART ou COM), puis sélectionnez-la dans la fenêtre de choix du port du navigateur.",
+        "hintBootMode": "Si le flashage ne démarre pas, maintenez BOOT, appuyez sur RESET, relâchez BOOT et réessayez.",
+        "startButton": "Choisir la carte et flasher",
+        "success": "Firmware installé. La carte a redémarré et est prête à être connectée.",
+        "connectButton": "Connecter la trieuse"
+      }
     }
   },
   "sessionMonitor": {
@@ -166,7 +189,11 @@
     "calibrate": "Calibrer",
     "retryConnection": "Réessayer la connexion",
     "phoneCameraConnected": "Caméra du téléphone connectée",
-    "ocrTextMatching": "Correspondance de texte OCR"
+    "ocrTextMatching": "Correspondance de texte OCR",
+    "connectAnotherUsb": "Connecter une autre trieuse (USB)",
+    "connectAnotherBluetooth": "Connecter une autre trieuse (Bluetooth)",
+    "flashNewBoard": "Flasher une nouvelle carte",
+    "connectAnotherUpgrade": "Connecter plus de trieuses avec Business"
   },
   "ocrBetaDialog": {
     "title": "Correspondance de texte OCR (bêta)",
@@ -292,5 +319,18 @@
     "description": "La calibration de cet appareil n'a pas changé depuis plus de 30 jours. Lance le test automatique tel quel, ou calibre d'abord pour t'assurer que tout correspond encore au matériel physique.",
     "runTest": "Lancer le test quand même",
     "calibrateFirst": "Calibrer d'abord"
+  },
+  "stations": {
+    "label": "Trieuse {{number}}",
+    "tabsLabel": "Trieuses",
+    "connect": "Connecter une trieuse",
+    "hardCapReached": {
+      "title": "{{max}} trieuses maximum à la fois",
+      "description": "Déconnectez une trieuse avant d'en connecter une autre."
+    },
+    "limitReached": {
+      "title": "Plus de trieuses nécessitent l'offre Business",
+      "description": "L'offre gratuite ne gère qu'une trieuse à la fois. Déconnectez l'autre trieuse, ou passez à Business dans les paramètres pour en utiliser plusieurs à la fois."
+    }
   }
 }

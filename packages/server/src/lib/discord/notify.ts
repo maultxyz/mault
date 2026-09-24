@@ -1,7 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { collections, orgSettings } from "../../db/schema";
-import type { DiscordEmbed, DiscordNotificationKind } from "./types";
+import type {
+  DiscordEmbed,
+  DiscordNotificationKind,
+  DiscordNotifyOutcome,
+} from "./types";
 
 const THREAD_NAMES: Record<DiscordNotificationKind, string> = {
   scan: "Card Scans",
@@ -80,10 +84,10 @@ async function postEmbedToBot(
   attachmentDataUrl?: string,
   secondaryImageUrl?: string,
   useThread = true,
-): Promise<string | null> {
+): Promise<{ ok: boolean; threadId: string | null }> {
   const botUrl = process.env.BOT_URL;
   const botSecret = process.env.BOT_API_SECRET;
-  if (!botUrl || !botSecret) return null;
+  if (!botUrl || !botSecret) return { ok: false, threadId: null };
 
   try {
     const res = await fetch(`${botUrl}/notify`, {
@@ -104,17 +108,17 @@ async function postEmbedToBot(
     });
     if (!res.ok) {
       console.error(`[discord] Bot notify POST failed: ${res.status}`);
-      return null;
+      return { ok: false, threadId: null };
     }
 
     const result = (await res.json()) as {
       success: boolean;
       data?: { threadId?: string };
     };
-    return result.data?.threadId ?? null;
+    return { ok: result.success, threadId: result.data?.threadId ?? null };
   } catch (err) {
     console.error("[discord] Failed to send bot notification:", err);
-    return null;
+    return { ok: false, threadId: null };
   }
 }
 
@@ -125,11 +129,11 @@ export async function sendDiscordNotification(
   attachmentDataUrl?: string,
   secondaryImageUrl?: string,
   collectionGuid?: string,
-): Promise<void> {
+): Promise<DiscordNotifyOutcome> {
   const config = await getNotifyConfig(orgId, kind, collectionGuid);
-  if (!config.channelId) return;
+  if (!config.channelId) return "no_channel";
 
-  const newThreadId = await postEmbedToBot(
+  const { ok, threadId: newThreadId } = await postEmbedToBot(
     config.channelId,
     config.threadId,
     THREAD_NAMES[kind],
@@ -160,6 +164,7 @@ export async function sendDiscordNotification(
         .where(eq(orgSettings.orgId, orgId));
     }
   }
+  return ok ? "sent" : "failed";
 }
 
 export async function sendDonationDiscordNotification(

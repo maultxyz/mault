@@ -43,9 +43,9 @@ export function ModuleConfigsProvider({
   const { data: configs = defaultConfigs() } = useQuery(queryOpts);
 
   useEffect(() => {
-    return registerPreTestHook(async () => {
+    return registerPreTestHook(async (target) => {
       try {
-        const channelLayout = device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
+        const channelLayout = target?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
         const offsetResponse = receiveResponse();
         await sendCommand(
           JSON.stringify({ setChannelOffset: CHANNEL_OFFSET[channelLayout] }),
@@ -55,8 +55,8 @@ export function ModuleConfigsProvider({
         console.error("[Serial] Failed to sync channel offset:", e); // eslint-disable-line no-console -- hardware debug trace
       }
 
-      if (!device) return;
-      const fresh = await queryClient.fetchQuery(modulesQueryOptions(device.guid));
+      if (!target) return;
+      const fresh = await queryClient.fetchQuery(modulesQueryOptions(target.guid));
       for (const config of fresh) {
         const p = receiveResponse();
         await sendCommand(
@@ -94,7 +94,6 @@ export function ModuleConfigsProvider({
     queryClient,
     sendCommand,
     receiveResponse,
-    device,
     t,
   ]);
 

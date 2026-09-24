@@ -2,11 +2,13 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import {
+  binHeights,
   binRoutes,
   devices,
   feederConfigs,
   moduleConfigs,
 } from "../../db/schema";
+import { releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -26,10 +28,12 @@ export const deleteDeviceRoute = new Hono<AppEnv>().delete(
           .delete(moduleConfigs)
           .where(eq(moduleConfigs.deviceId, device.id));
         await tx.delete(binRoutes).where(eq(binRoutes.deviceId, device.id));
+        await tx.delete(binHeights).where(eq(binHeights.deviceId, device.id));
         await tx
           .delete(feederConfigs)
           .where(eq(feederConfigs.deviceId, device.id));
         await tx.delete(devices).where(eq(devices.id, device.id));
+        releaseDeviceLease(orgId, guid);
 
         return { success: true, message: "Deleted device." };
       });

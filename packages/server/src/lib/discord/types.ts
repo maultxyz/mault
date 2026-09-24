@@ -9,3 +9,5 @@ export type DiscordEmbed = {
 };
 
 export type DiscordNotificationKind = "scan" | "error";
+
+export type DiscordNotifyOutcome = "sent" | "no_channel" | "failed";

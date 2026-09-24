@@ -56,7 +56,14 @@ export function useNotificationSettings() {
 
   const testMutation = useMutation({
     mutationFn: (type: NotificationTestType) => sendTestNotification(type),
-    onSuccess: () => toast.success(t("toasts.testSuccess")),
+    onSuccess: (outcome) => {
+      if (outcome === "sent") toast.success(t("toasts.testSuccess"));
+      else if (outcome === "no_channel") {
+        toast.error(t("toasts.testNoChannel.title"), {
+          description: t("toasts.testNoChannel.description"),
+        });
+      } else toast.error(t("toasts.testError"));
+    },
     onError: () => toast.error(t("toasts.testError")),
   });
 

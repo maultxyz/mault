@@ -15,13 +15,6 @@ export const createDeviceRoute = new Hono<AppEnv>().post(
       .catch(() => ({ name: undefined }));
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const existing = await tx.query.devices.findFirst({
-          where: (t, { eq }) => eq(t.orgId, orgId),
-        });
-        if (existing) {
-          return { success: false, message: "This org already has a device." };
-        }
-
         const [inserted] = await tx
           .insert(devices)
           .values({ orgId, ...(body.name ? { name: body.name } : {}) })

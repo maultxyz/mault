@@ -339,6 +339,12 @@
       "firmware": {
         "title": "Die Firmware aufspielen",
         "steps": {
+          "flashInBrowser": {
+            "text": "Einfachste Option: Installiere die Firmware direkt aus diesem Browser.",
+            "button": "Im Browser flashen",
+            "unsupported": "(Erfordert einen Chromium-basierten Browser wie Chrome oder Edge.)",
+            "note": "Funktioniert mit einem brandneuen ESP32-S3. Lieber die Arduino IDE? Überspringe diesen Schritt und folge den manuellen Schritten unten."
+          },
           "downloadCode": {
             "text": "Lade den Code aus dem <repo>GitHub-Repository</repo> herunter (Code → Download ZIP) und entpacke ihn. Öffne dann den firmware-Ordner mit der Arduino-IDE (Datei → Öffnen → firmware/main/main.ino).",
             "note": "Die Arduino-IDE erwartet, dass ein Sketch in einem gleichnamigen Ordner liegt. Öffne main.ino daher direkt aus firmware/main, statt die Datei zu verschieben."

@@ -8,11 +8,16 @@ import { createDeviceRoute } from "./create";
 import { deleteDeviceRoute } from "./delete";
 import { editDeviceRoute } from "./edit";
 import { getDeviceRoute } from "./get";
+import { acquireDeviceLeaseRoute, releaseDeviceLeaseRoute } from "./lease";
 import { listDevicesRoute } from "./list";
+import { resolveDeviceRoute } from "./resolve";
 
 const router = new Hono<AppEnv>()
   .route("/", listDevicesRoute)
   .route("/", createDeviceRoute)
+  .route("/", resolveDeviceRoute)
+  .route("/", acquireDeviceLeaseRoute)
+  .route("/", releaseDeviceLeaseRoute)
   .route("/", getDeviceRoute)
   .route("/", editDeviceRoute)
   .route("/", deleteDeviceRoute)

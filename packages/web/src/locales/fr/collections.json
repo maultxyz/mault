@@ -62,7 +62,8 @@
     "createFailed": "Échec de la création de la collection",
     "renameFailed": "Échec de la mise à jour de la collection",
     "deleteFailed": "Échec de la suppression de la collection",
-    "emptyFailed": "Échec du vidage de la collection"
+    "emptyFailed": "Échec du vidage de la collection",
+    "openInAnotherSorter": "Cette collection est déjà ouverte dans un autre panneau de trieuse"
   },
   "noCollectionsYet": "Pas encore de collections",
   "noMatchingCollections": "Aucune collection correspondante",

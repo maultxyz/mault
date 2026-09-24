@@ -11,6 +11,7 @@ import type {
   ScannerStatus,
   UnmatchedCard,
 } from "@magic-vault/shared";
+import type { PreTestHook } from "@/lib/interfaces/stations";
 
 export type PhoneCameraCaptureStatus = "idle" | "waiting" | "connected" | "error";
 
@@ -28,6 +29,11 @@ export interface ZoomRange {
   max: number;
   step: number;
 }
+
+export type CameraTrackCapabilities = MediaTrackCapabilities & {
+  focusMode?: string[];
+  zoom?: ZoomRange;
+};
 
 export interface CameraContextValue {
   stream: MediaStream | null;
@@ -86,9 +92,25 @@ export type SerialBoardType = "esp32" | "uno_r4";
 
 export type SerialTransportType = "serial" | "bluetooth";
 
+export type FlashFailureReason =
+  | "wrong-chip"
+  | "no-bootloader"
+  | "download-failed"
+  | "flash-failed";
+
 export interface FlashEsp32Result {
   success: boolean;
   error?: string;
+  reason?: FlashFailureReason;
+  chip?: string;
+}
+
+export type FirmwareFlashState = "idle" | "flashing" | "success" | "error";
+
+export interface FlashProgressCallbacks {
+  onLog: (line: string) => void;
+  onClearLog: () => void;
+  onProgress: (fraction: number | null) => void;
 }
 
 export interface TestResult {
@@ -118,7 +140,7 @@ export interface SerialContextValue {
   sendCommand: (data: string) => Promise<boolean>;
   receiveResponse: (timeoutMs?: number) => Promise<string>;
   subscribe: (listener: SerialMessageListener) => () => void;
-  registerPreTestHook: (fn: () => Promise<void>) => () => void;
+  registerPreTestHook: (fn: PreTestHook) => () => void;
   getCommLog: () => CommLogEntry[];
   subscribeCommLog: (listener: () => void) => () => void;
   isFlashing: boolean;

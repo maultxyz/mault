@@ -1,6 +1,7 @@
 {
   "camera": {
-    "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut."
+    "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",
+    "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an."
   },
   "scanEngine": {
     "searchFailed": "Kartensuche fehlgeschlagen",
@@ -28,10 +29,6 @@
     "commLogCopied": "Kommunikationsprotokoll in die Zwischenablage kopiert",
     "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
     "commLogEmpty": "Noch keine Kommunikation aufgezeichnet",
-    "hardwareIdMismatch": {
-      "title": "Mit einem anderen Sortierer verbunden",
-      "description": "Die ID dieser Platine stimmt nicht mit der zuletzt verbundenen überein. Die Kalibrierung wurde für ein anderes physisches Gerät gespeichert."
-    },
     "firmwareOutdatedBanner": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Lade firmware/main/main.ino erneut hoch, um zu aktualisieren.",
     "firmwareVersionMissingBanner": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
     "update": {
@@ -45,6 +42,32 @@
       "errorTitle": "Update fehlgeschlagen",
       "close": "Schließen",
       "tryAgain": "Erneut versuchen"
+    },
+    "deviceResolveFailed": "Dieser Sortierer konnte nicht identifiziert werden. Die zuletzt gespeicherte Kalibrierung wird verwendet.",
+    "deviceInUse": {
+      "title": "Sortierer bereits verbunden",
+      "description": "{{name}} ist bereits in einem anderen Sortierer-Bereich verbunden. Trenne ihn dort zuerst."
+    },
+    "unidentifiedBoard": {
+      "title": "Ältere Firmware erkannt",
+      "description": "Die Firmware dieses Sortierers meldet keine Seriennummer. Daher wird die Kalibrierung des aktuellen Geräts ({{name}}) verwendet. Aktualisiere die Firmware, damit jeder Sortierer seine eigene Kalibrierung behält.",
+      "descriptionNoDevice": "Die Firmware dieses Sortierers meldet keine Seriennummer. Daher wird die Kalibrierung des aktuellen Geräts verwendet. Aktualisiere die Firmware, damit jeder Sortierer seine eigene Kalibrierung behält."
+    },
+    "flash": {
+      "errors": {
+        "wrongChip": "Diese Platine ist ein {{chip}}. Die Sortierer-Firmware läuft nur auf dem ESP32-S3, daher wurde nichts geschrieben.",
+        "noBootloader": "Der Bootloader der Platine war nicht erreichbar. Halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
+        "downloadFailed": "Die Firmware konnte nicht heruntergeladen werden. Prüfe deine Verbindung und versuche es erneut."
+      },
+      "newBoard": {
+        "dialogTitle": "Neue Platine flashen",
+        "dialogDescription": "Installiert die Sortierer-Firmware direkt aus diesem Browser auf einem ESP32-S3. Funktioniert mit leeren Platinen und Platinen mit anderer Firmware.",
+        "hintPort": "Schließe die Platine über ihren nativen USB-Anschluss an (oft mit USB statt UART oder COM beschriftet) und wähle sie in der Port-Abfrage des Browsers aus.",
+        "hintBootMode": "Wenn das Flashen nicht startet, halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
+        "startButton": "Platine wählen und flashen",
+        "success": "Firmware installiert. Die Platine wurde neu gestartet und kann verbunden werden.",
+        "connectButton": "Sortierer verbinden"
+      }
     }
   },
   "sessionMonitor": {
@@ -166,7 +189,11 @@
     "calibrate": "Kalibrieren",
     "retryConnection": "Verbindung erneut versuchen",
     "phoneCameraConnected": "Telefonkamera verbunden",
-    "ocrTextMatching": "OCR-Texterkennung"
+    "ocrTextMatching": "OCR-Texterkennung",
+    "connectAnotherUsb": "Weiteren Sortierer verbinden (USB)",
+    "connectAnotherBluetooth": "Weiteren Sortierer verbinden (Bluetooth)",
+    "flashNewBoard": "Neue Platine flashen",
+    "connectAnotherUpgrade": "Mehr Sortierer mit Business verbinden"
   },
   "ocrBetaDialog": {
     "title": "OCR-Texterkennung (Beta)",
@@ -292,5 +319,18 @@
     "description": "Die Kalibrierung dieses Geräts wurde seit über 30 Tagen nicht geändert. Führe den Selbsttest wie gewohnt aus oder kalibriere zuerst, um sicherzustellen, dass alles noch zur physischen Hardware passt.",
     "runTest": "Test trotzdem ausführen",
     "calibrateFirst": "Zuerst kalibrieren"
+  },
+  "stations": {
+    "label": "Sortierer {{number}}",
+    "tabsLabel": "Sortierer",
+    "connect": "Sortierer verbinden",
+    "hardCapReached": {
+      "title": "Höchstens {{max}} Sortierer gleichzeitig",
+      "description": "Trenne einen Sortierer, bevor du einen weiteren verbindest."
+    },
+    "limitReached": {
+      "title": "Weitere Sortierer erfordern den Business-Tarif",
+      "description": "Der kostenlose Tarif betreibt jeweils nur einen Sortierer. Trenne den anderen Sortierer oder wechsle in den Einstellungen zu Business, um mehrere gleichzeitig zu betreiben."
+    }
   }
 }

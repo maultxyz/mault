@@ -339,6 +339,12 @@
       "firmware": {
         "title": "Flasher le firmware",
         "steps": {
+          "flashInBrowser": {
+            "text": "Option la plus simple : installez le firmware directement depuis ce navigateur.",
+            "button": "Flasher depuis le navigateur",
+            "unsupported": "(Nécessite un navigateur basé sur Chromium comme Chrome ou Edge.)",
+            "note": "Fonctionne sur un ESP32-S3 tout neuf. Vous préférez l'IDE Arduino ? Passez cette étape et suivez les étapes manuelles ci-dessous."
+          },
           "downloadCode": {
             "text": "Télécharge le code depuis le <repo>dépôt GitHub</repo> (Code → Download ZIP) et décompresse-le, puis ouvre le dossier firmware avec l'IDE Arduino (Fichier → Ouvrir → firmware/main/main.ino).",
             "note": "L'IDE Arduino exige qu'un sketch se trouve dans un dossier du même nom : ouvre donc main.ino directement depuis firmware/main plutôt que de le déplacer."

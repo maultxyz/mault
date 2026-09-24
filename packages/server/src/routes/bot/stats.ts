@@ -1,9 +1,9 @@
-import { and, count, eq, sql } from "drizzle-orm";
+import { count, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { collectionCards, collections } from "../../db/schema";
 import type { AppEnv } from "../../middleware/auth";
-import { resolveOrgByGuild } from "./shared";
+import { resolveOrgByGuild, resolveOrgCollection } from "./shared";
 
 export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
   const guildId = c.req.query("guildId");
@@ -16,23 +16,15 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
     return c.json({ success: false, message: "not_linked" }, 404);
   }
 
-  let collectionName: string | undefined;
-  if (collectionGuid) {
-    const match = await db
-      .select({ name: collections.name })
-      .from(collections)
-      .where(
-        and(eq(collections.orgId, orgId), eq(collections.guid, collectionGuid)),
-      )
-      .limit(1);
-    if (!match[0]) {
-      return c.json({ success: false, message: "collection_not_found" }, 404);
-    }
-    collectionName = match[0].name;
+  const collection = collectionGuid
+    ? await resolveOrgCollection(orgId, collectionGuid)
+    : null;
+  if (collectionGuid && !collection) {
+    return c.json({ success: false, message: "collection_not_found" }, 404);
   }
 
-  const scopeCondition = collectionGuid
-    ? and(eq(collections.orgId, orgId), eq(collections.guid, collectionGuid))
+  const scopeCondition = collection
+    ? eq(collections.id, collection.id)
     : eq(collections.orgId, orgId);
 
   const [row] = await db
@@ -53,7 +45,7 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
       collectionCount: Number(row?.collectionCount ?? 0),
       cardCount: Number(row?.cardCount ?? 0),
       totalValue: row?.totalValue ? Number(row.totalValue) : 0,
-      collectionName,
+      collectionName: collection?.name,
     },
   });
 });

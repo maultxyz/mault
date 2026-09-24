@@ -14,6 +14,7 @@ import {
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
+import { useDevice } from "@/features/calibration/api/use-device";
 import {
   addCollectionCard,
   addUnmatchedCard as addUnmatchedCardApi,
@@ -33,8 +34,10 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { useStations } from "@/features/scanner/api/use-stations";
 import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
+import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import type { ScannedCardsContextValue } from "@/lib/interfaces/scanner";
 import { generateScanId } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -71,6 +74,9 @@ export function ScannedCardsProvider({
   } = useBinConfigs();
   const [binLimitBin, setBinLimitBin] = useState<BinConfig | null>(null);
   const { routes: binRoutes } = useBinRoutes();
+  const device = useDevice();
+  const deviceGuidRef = useRef(device?.guid);
+  deviceGuidRef.current = device?.guid;
   const { sendRoute, sendCommand, receiveResponse, isConnected, isReady } =
     useSerial();
   const { activeCollection, emptyCollection } = useCollections();
@@ -81,6 +87,9 @@ export function ScannedCardsProvider({
 
   const { activeOrg } = useOrg();
   const activeOrgIdRef = useRef(activeOrg?.id);
+  const { sorterLimitIsHardCap } = useStations();
+  const sorterLimitIsHardCapRef = useRef(sorterLimitIsHardCap);
+  sorterLimitIsHardCapRef.current = sorterLimitIsHardCap;
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -334,7 +343,7 @@ export function ScannedCardsProvider({
         );
       }
 
-      addCollectionCard(collection.guid, record)
+      addCollectionCard(collection.guid, record, deviceGuidRef.current)
         .then((result) => {
           if (!result.success) {
             setCards((prev) => prev.filter((c) => c.scanId !== record.scanId));
@@ -354,6 +363,12 @@ export function ScannedCardsProvider({
               disableAutoFeed();
               pause();
               setBinLimitBin(matchedBin ?? null);
+              return;
+            }
+            if (result.sorterLimitReached) {
+              disableAutoFeed();
+              pause();
+              showSorterLimitToast(t, sorterLimitIsHardCapRef.current);
               return;
             }
             const key = result.scanLimitReached
@@ -446,25 +461,48 @@ export function ScannedCardsProvider({
     triggerAutoFeed,
   ]);
 
-  const addUnmatchedCard = useCallback((capturedImageUrl?: string) => {
-    const collection = activeCollectionRef.current;
-    if (!collection) return;
+  const addUnmatchedCard = useCallback(
+    (capturedImageUrl?: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) {
+        sendCatchAllBin();
+        return;
+      }
 
-    const record: UnmatchedCard = {
-      scanId: generateScanId(),
-      capturedImageUrl,
-      scannedAt: Date.now(),
-    };
+      const catchAll = getCatchAllBin(binConfigsRef.current);
+      const record: UnmatchedCard = {
+        scanId: generateScanId(),
+        capturedImageUrl,
+        scannedAt: Date.now(),
+        binNumber: catchAll?.binNumber,
+      };
+      const dropRecord = () =>
+        setUnmatchedCards((prev) =>
+          prev.filter((c) => c.scanId !== record.scanId),
+        );
 
-    setUnmatchedCards((prev) => [record, ...prev]);
+      setUnmatchedCards((prev) => [record, ...prev]);
 
-    addUnmatchedCardApi(collection.guid, record).catch((err) => {
-      console.error("Failed to persist unmatched card:", err);
-      setUnmatchedCards((prev) =>
-        prev.filter((c) => c.scanId !== record.scanId),
-      );
-    });
-  }, []);
+      addUnmatchedCardApi(collection.guid, record, deviceGuidRef.current)
+        .then((result) => {
+          if (!result.success) {
+            dropRecord();
+            if (result.binLimitReached) {
+              disableAutoFeed();
+              pause();
+              setBinLimitBin(catchAll ?? null);
+            }
+            return;
+          }
+          sendCatchAllBin();
+        })
+        .catch((err) => {
+          console.error("Failed to persist unmatched card:", err);
+          dropRecord();
+        });
+    },
+    [sendCatchAllBin, disableAutoFeed, pause],
+  );
 
   const removeUnmatchedCard = useCallback((scanId: string) => {
     const collection = activeCollectionRef.current;

@@ -1,6 +1,7 @@
 {
   "camera": {
-    "permissionDenied": "Camera permission denied. Please allow camera access and try again."
+    "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
+    "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter."
   },
   "scanEngine": {
     "searchFailed": "Failed to search card",
@@ -28,10 +29,6 @@
     "commLogCopied": "Communication log copied to clipboard",
     "commLogCopyFailed": "Failed to copy communication log",
     "commLogEmpty": "No communication recorded yet",
-    "hardwareIdMismatch": {
-      "title": "Connected to a different sorter",
-      "description": "This board's ID doesn't match the one this org last connected to. Calibration was saved for a different physical unit."
-    },
     "firmwareOutdatedBanner": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. Re-upload firmware/main/main.ino to update it.",
     "firmwareVersionMissingBanner": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning.",
     "update": {
@@ -45,6 +42,32 @@
       "errorTitle": "Update failed",
       "close": "Close",
       "tryAgain": "Try again"
+    },
+    "deviceResolveFailed": "Couldn't identify this sorter. Using the last saved calibration.",
+    "deviceInUse": {
+      "title": "Sorter already connected",
+      "description": "{{name}} is already connected in another sorter panel. Disconnect it there first."
+    },
+    "unidentifiedBoard": {
+      "title": "Older firmware detected",
+      "description": "This sorter's firmware doesn't report a serial number, so it will use whatever calibration is set for the current device ({{name}}). Update the firmware so each sorter keeps its own calibration.",
+      "descriptionNoDevice": "This sorter's firmware doesn't report a serial number, so it will use whatever calibration is set for the current device. Update the firmware so each sorter keeps its own calibration."
+    },
+    "flash": {
+      "errors": {
+        "wrongChip": "This board is an {{chip}}. The sorter firmware only runs on the ESP32-S3, so nothing was written.",
+        "noBootloader": "Couldn't reach the board's bootloader. Hold the BOOT button, tap RESET, release BOOT, then try again.",
+        "downloadFailed": "Couldn't download the firmware. Check your connection and try again."
+      },
+      "newBoard": {
+        "dialogTitle": "Flash a new board",
+        "dialogDescription": "Installs the sorter firmware on an ESP32-S3 straight from this browser. It works on blank boards and boards running other firmware.",
+        "hintPort": "Plug the board in using its native USB port (often labeled USB rather than UART or COM), then pick it in the browser's port prompt.",
+        "hintBootMode": "If flashing can't start, hold BOOT, tap RESET, release BOOT, and try again.",
+        "startButton": "Choose board and flash",
+        "success": "Firmware installed. The board has restarted and is ready to connect.",
+        "connectButton": "Connect sorter"
+      }
     }
   },
   "sessionMonitor": {
@@ -166,7 +189,11 @@
     "calibrate": "Calibrate",
     "retryConnection": "Retry Connection",
     "phoneCameraConnected": "Phone Camera Connected",
-    "ocrTextMatching": "OCR text matching"
+    "ocrTextMatching": "OCR text matching",
+    "connectAnotherUsb": "Connect another sorter (USB)",
+    "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
+    "flashNewBoard": "Flash a new board",
+    "connectAnotherUpgrade": "Connect more sorters with Business"
   },
   "ocrBetaDialog": {
     "title": "OCR text matching (beta)",
@@ -292,5 +319,18 @@
     "description": "This device's calibration hasn't changed in over 30 days. Run the self-test as-is, or calibrate first to make sure everything still matches the physical hardware.",
     "runTest": "Run test anyway",
     "calibrateFirst": "Calibrate first"
+  },
+  "stations": {
+    "label": "Sorter {{number}}",
+    "tabsLabel": "Sorters",
+    "connect": "Connect sorter",
+    "hardCapReached": {
+      "title": "Up to {{max}} sorters at a time",
+      "description": "Disconnect a sorter before connecting another one."
+    },
+    "limitReached": {
+      "title": "More sorters need the Business plan",
+      "description": "The free plan runs one sorter at a time. Disconnect the other sorter, or upgrade to Business in Settings to run several at once."
+    }
   }
 }

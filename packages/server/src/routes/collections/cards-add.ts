@@ -3,7 +3,15 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collectionCards, collections } from "../../db/schema";
+import {
+  acquireDeviceLease,
+  UNIDENTIFIED_SORTER_LEASE_KEY,
+} from "../../lib/device-leases";
 import { acquireLock } from "../../lib/scan-lock";
+import {
+  getConnectedSorterLimit,
+  sorterLimitMessage,
+} from "../../lib/sorter-limit";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -28,7 +36,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       isFoil,
       foilType,
       alternativeMatches,
-    } = await c.req.json<ScannedCard>();
+      deviceGuid,
+    } = await c.req.json<ScannedCard & { deviceGuid?: string }>();
 
     const displayName = await getUserDisplayName(userId);
     const { ok: lockOk, isNewSession } = acquireLock(
@@ -54,6 +63,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           success: false;
           message: string;
           scanLimitReached?: boolean;
+          sorterLimitReached?: boolean;
           binLimitReached?: boolean;
           binNumber?: number;
         };
@@ -90,6 +100,29 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           };
         }
 
+        // Backstop for the connect-time lease (routes/devices/lease.ts): a
+        // client that never leased still can't scan past the plan's cap, and
+        // every scan renews the scanning sorter's lease.
+        const sorterLimit = await getConnectedSorterLimit(tx, orgId);
+        if (
+          !acquireDeviceLease(
+            orgId,
+            deviceGuid ?? UNIDENTIFIED_SORTER_LEASE_KEY,
+            sorterLimit,
+          )
+        ) {
+          return {
+            result: {
+              success: false,
+              message: sorterLimitMessage(sorterLimit),
+              sorterLimitReached: true,
+            },
+            collectionName: undefined,
+            gameName: undefined,
+            gameId: null,
+          };
+        }
+
         if (binNumber != null) {
           const fullBin = await findFullBin(
             tx,
@@ -97,6 +130,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             collection.gameId,
             collection.id,
             binNumber,
+            deviceGuid,
           );
           if (fullBin) {
             return {
@@ -180,7 +214,10 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           capturedImageUrl,
         });
       }
-      if (!result.success && result.scanLimitReached) {
+      if (
+        !result.success &&
+        (result.scanLimitReached || result.sorterLimitReached)
+      ) {
         return c.json(result, 402);
       }
       if (!result.success && result.binLimitReached) {

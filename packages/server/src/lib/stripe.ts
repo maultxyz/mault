@@ -30,6 +30,8 @@ export function getBusinessPriceId(): string {
 
 export const FREE_PLAN_DAILY_SCAN_LIMIT =
   Number(process.env.FREE_PLAN_DAILY_SCAN_LIMIT) || 50;
+export const FREE_PLAN_MAX_CONNECTED_SORTERS =
+  Number(process.env.FREE_PLAN_MAX_CONNECTED_SORTERS) || 1;
 
 let _portalConfigurationId: string | null = null;
 

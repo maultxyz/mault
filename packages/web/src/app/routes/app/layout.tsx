@@ -5,6 +5,7 @@ import { EnvBanner } from "@/components/env-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
+import { StationTabs } from "@/features/scanner/components/station-tabs";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -43,6 +44,7 @@ export default function AppLayout() {
             <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
               <AppNav />
               <main className="flex-1 min-w-0 overflow-hidden flex flex-col bg-background/70 dark:bg-background/60">
+                <StationTabs />
                 <PageTransition>
                   <Outlet />
                 </PageTransition>
