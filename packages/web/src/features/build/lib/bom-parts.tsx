@@ -162,36 +162,6 @@ export const GROUPS: Group[] = [
     key: "structural",
     rows: [
       {
-        key: "enclosure",
-        qty: () => "1 set",
-        name: "3D-printed enclosure & module housings",
-        part: (t) => t("bom.groups.structural.items.enclosure.part"),
-        notes: (t) => (
-          <Trans
-            t={t}
-            i18nKey="bom.groups.structural.items.enclosure.notes"
-            components={{
-              mesh: (
-                <a
-                  href="https://github.com/dishwasher-detergent/mault/blob/master/3d%20model/card_sorter.3mf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline underline-offset-2 hover:text-foreground"
-                />
-              ),
-              source: (
-                <a
-                  href="https://github.com/dishwasher-detergent/mault/blob/master/3d%20model/Card%20Sorter.f3d"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="underline underline-offset-2 hover:text-foreground"
-                />
-              ),
-            }}
-          />
-        ),
-      },
-      {
         key: "filament",
         qty: () => "-",
         name: "PLA or PETG filament",
