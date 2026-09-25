@@ -5,7 +5,7 @@ import type {
 } from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
-import { tcgplayerPrices } from "../../db/schema";
+import { tcgplayerPrices, tcgplayerProducts } from "../../db/schema";
 import { ADAPTERS_BY_GAME_KEY } from "./resolve";
 import type { CardSearchAdapter, TcgplayerPricing } from "./types";
 
@@ -17,6 +17,77 @@ function productIdOf(
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
+async function resolveProductIds(
+  pricing: TcgplayerPricing,
+  cards: PlayingCard[],
+): Promise<number[][]> {
+  const direct = cards.map((card) => productIdOf(pricing, card));
+  const matches = cards.map((card, i) =>
+    direct[i] === null ? (pricing.productMatch?.(card) ?? null) : null,
+  );
+
+  const numbers = [...new Set(matches.flatMap((m) => m?.numbers ?? []))];
+  const candidates =
+    numbers.length === 0
+      ? []
+      : await db
+          .select({
+            productId: tcgplayerProducts.productId,
+            number: tcgplayerProducts.number,
+            name: tcgplayerProducts.name,
+            rarity: tcgplayerProducts.rarity,
+          })
+          .from(tcgplayerProducts)
+          .where(
+            and(
+              eq(tcgplayerProducts.categoryId, pricing.categoryId),
+              inArray(tcgplayerProducts.number, numbers),
+            ),
+          );
+  const byNumber = new Map<string, typeof candidates>();
+  for (const candidate of candidates) {
+    const key = candidate.number ?? "";
+    byNumber.set(key, [...(byNumber.get(key) ?? []), candidate]);
+  }
+
+  return cards.map((_, i) => {
+    const id = direct[i];
+    if (id !== null) return [id];
+    const match = matches[i];
+    if (!match) return [];
+    const ids = match.numbers
+      .flatMap((number) => byNumber.get(number) ?? [])
+      .filter((product) => match.accepts(product))
+      .map((product) => product.productId);
+    return [...new Set(ids)];
+  });
+}
+
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+  const sorted = [...values].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  return sorted.length % 2
+    ? sorted[middle]
+    : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+function combineRanges(
+  ranges: PlayingCardPriceRange[],
+): PlayingCardPriceRange | undefined {
+  if (ranges.length <= 1) return ranges[0];
+  const present = (key: "low" | "mid" | "high") =>
+    ranges.flatMap((r) => (r[key] != null ? [r[key]] : []));
+  const lows = present("low");
+  const highs = present("high");
+  return {
+    low: lows.length ? Math.min(...lows) : null,
+    mid: median(present("mid")),
+    high: highs.length ? Math.max(...highs) : null,
+    printings: ranges.length,
+  };
+}
+
 export async function applyTcgplayerPrices<T extends PlayingCard>(
   adapter: CardSearchAdapter,
   cards: T[],
@@ -24,13 +95,8 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
   const pricing = adapter.tcgplayer;
   if (!pricing) return cards;
 
-  const productIds = [
-    ...new Set(
-      cards
-        .map((card) => productIdOf(pricing, card))
-        .filter((id) => id !== null),
-    ),
-  ];
+  const productIdsByCard = await resolveProductIds(pricing, cards);
+  const productIds = [...new Set(productIdsByCard.flat())];
   if (productIds.length === 0) return cards;
 
   const rows = await db
@@ -55,18 +121,23 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
     ]),
   );
 
-  return cards.map((card) => {
-    const productId = productIdOf(pricing, card);
-    if (productId === null) return card;
+  return cards.map((card, i) => {
+    const cardProductIds = productIdsByCard[i];
+    if (cardProductIds.length === 0) return card;
 
-    const firstRange = (subTypes: string[]) =>
-      subTypes
-        .map((subType) => ranges.get(`${productId}:${subType}`))
-        .find((range) => range?.mid != null);
+    const rangeFor = (subTypes: string[]) =>
+      combineRanges(
+        cardProductIds.flatMap((productId) => {
+          const range = subTypes
+            .map((subType) => ranges.get(`${productId}:${subType}`))
+            .find((r) => r?.mid != null);
+          return range ? [range] : [];
+        }),
+      );
 
     const subTypes = pricing.subTypes(card);
-    const range = firstRange(subTypes.price);
-    const rangeFoil = firstRange(subTypes.priceFoil);
+    const range = rangeFor(subTypes.price);
+    const rangeFoil = rangeFor(subTypes.priceFoil);
     return {
       ...card,
       price: range?.mid ?? card.price,

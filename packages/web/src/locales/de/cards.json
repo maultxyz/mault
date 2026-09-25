@@ -22,7 +22,8 @@
     "high": "Hoch",
     "regular": "Normal",
     "foil": "Foil",
-    "noPrice": "k. A."
+    "noPrice": "k. A.",
+    "acrossPrintings": "Spanne über {{count}} Drucke"
   },
   "cardDetailPanel": {
     "backToList": "Zurück zur Kartenliste",

@@ -23,6 +23,11 @@ export function CardPriceDetails({ card, className }: CardPriceDetailsProps) {
 
   if (rows.length === 0) return null;
 
+  const printings = Math.max(
+    card.priceRange?.printings ?? 1,
+    card.priceRangeFoil?.printings ?? 1,
+  );
+
   const formatOptional = (value: number | null) =>
     value != null ? formatUsd(value) : t("priceTable.noPrice");
 
@@ -62,6 +67,11 @@ export function CardPriceDetails({ card, className }: CardPriceDetailsProps) {
           ))}
         </tbody>
       </table>
+      {printings > 1 && (
+        <p className="pt-2 text-xs text-muted-foreground">
+          {t("priceTable.acrossPrintings", { count: printings })}
+        </p>
+      )}
     </div>
   );
 }

@@ -22,7 +22,8 @@
     "high": "Haut",
     "regular": "Normale",
     "foil": "Foil",
-    "noPrice": "n/d"
+    "noPrice": "n/d",
+    "acrossPrintings": "Fourchette sur {{count}} impressions"
   },
   "cardDetailPanel": {
     "backToList": "Retour à la liste des cartes",

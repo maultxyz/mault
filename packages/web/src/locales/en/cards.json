@@ -22,7 +22,8 @@
     "high": "High",
     "regular": "Regular",
     "foil": "Foil",
-    "noPrice": "n/a"
+    "noPrice": "n/a",
+    "acrossPrintings": "Range across {{count}} printings"
   },
   "cardDetailPanel": {
     "backToList": "Back to card list",

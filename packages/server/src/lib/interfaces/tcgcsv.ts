@@ -19,8 +19,21 @@ export interface TcgcsvPrice {
   directLowPrice: number | null;
 }
 
+export interface TcgcsvExtendedData {
+  name: string;
+  value: string;
+}
+
+export interface TcgcsvProduct {
+  productId: number;
+  name: string;
+  groupId: number;
+  extendedData: TcgcsvExtendedData[];
+}
+
 export interface PriceSyncResult {
   skipped: boolean;
   prices: number;
+  products: number;
   failedGroups: number;
 }

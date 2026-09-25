@@ -22,6 +22,10 @@ interface GundamCard {
   detail_url: string | null;
 }
 
+function parallelSuffix(productName: string): string | null {
+  return /\(([A-Z]+\+)\)$/.exec(productName)?.[1] ?? null;
+}
+
 function proxiedImageUrl(url: string): string {
   return `/api/cards/image-proxy?url=${encodeURIComponent(url)}`;
 }
@@ -146,4 +150,23 @@ export const gundamAdapter: CardSearchAdapter = {
   search: Search,
   searchById: SearchById,
   normalizeStored: (raw) => normalizeGundamCard(raw as GundamCard),
+  tcgplayer: {
+    categoryId: 86,
+    subTypes: () => ({
+      price: ["Normal", "Holofoil"],
+      priceFoil: ["Holofoil"],
+    }),
+    productMatch: (card) => {
+      const raw = card.raw as GundamCard;
+      const isParallel = raw.product_id !== raw.card_number;
+      const rarity = (raw.rarity ?? "").replace(/\s+/g, "");
+      return {
+        numbers: [raw.card_number],
+        accepts: (product) => {
+          const suffix = parallelSuffix(product.name);
+          return isParallel ? suffix === rarity : suffix === null;
+        },
+      };
+    },
+  },
 };

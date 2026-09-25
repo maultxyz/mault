@@ -182,4 +182,18 @@ export const yugiohAdapter: CardSearchAdapter = {
   searchById: SearchById,
   normalizeStored: (raw, id) =>
     normalizeYugiohCard(raw as YgoCard).find((card) => card.id === id) ?? null,
+  tcgplayer: {
+    categoryId: 2,
+    subTypes: () => ({
+      price: ["1st Edition", "Unlimited", "Limited", "Normal"],
+      priceFoil: [],
+    }),
+    productMatch: (card) => {
+      const sets = (card.raw as YgoCard).card_sets ?? [];
+      return {
+        numbers: sets.map((set) => set.set_code),
+        accepts: () => true,
+      };
+    },
+  },
 };

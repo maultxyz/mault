@@ -37,10 +37,10 @@ const ONE_PIECE_COLORS = new Set([
   "Yellow",
 ]);
 
-// Version ids usually suffix the printed id with an underscore
-// ("OP01-016_p8", "OP13-118_AZWGnsD"), but the API also contains hyphenated
-// typos ("OP09-078-r1") and set-prefixed ids ("EB03_OP09-034_p1"), so extract
-// the first segment shaped like a printed id.
+function normalizeProductName(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, " ").trim();
+}
+
 export function onePiecePrintedId(id: string): string {
   for (const segment of id.split("_")) {
     const printed = segment.replace(/-(?:pr|r|p)\d+$/, "");
@@ -50,8 +50,6 @@ export function onePiecePrintedId(id: string): string {
   return idx > 0 ? id.slice(0, idx) : id;
 }
 
-// The printed id's prefix is the only reliable set code — the API's own
-// set_id field mixes formats ("OP-01" vs "OP01", "OP14-EB04", bare "P").
 export function onePieceSetCode(
   raw: Pick<OptcgCard, "card_image_id" | "card_set_id" | "set_id">,
 ): string {
@@ -73,9 +71,10 @@ export function imageStem(url: string | null | undefined): string {
 // rows are re-keyed by their image filename stem, prefixed with the printed id
 // when the stem alone doesn't carry one — which is exactly the form
 // findVersion resolves back to the row.
-export function dedupeOnePieceRows(
-  rows: OptcgCard[],
-): { rows: { raw: OptcgCard; id: string }[]; dropped: OptcgCard[] } {
+export function dedupeOnePieceRows(rows: OptcgCard[]): {
+  rows: { raw: OptcgCard; id: string }[];
+  dropped: OptcgCard[];
+} {
   const seen = new Map<string, { raw: OptcgCard; id: string }>();
   const dropped: OptcgCard[] = [];
 
@@ -328,4 +327,16 @@ export const onePieceAdapter: CardSearchAdapter = {
   search: Search,
   searchById: SearchById,
   normalizeStored: (raw, id) => normalizeOnePieceCard(raw as OptcgCard, id),
+  tcgplayer: {
+    categoryId: 68,
+    subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),
+    productMatch: (card) => {
+      const raw = card.raw as OptcgCard;
+      const name = normalizeProductName(raw.card_name);
+      return {
+        numbers: [onePiecePrintedId(raw.card_image_id || raw.card_set_id)],
+        accepts: (product) => normalizeProductName(product.name) === name,
+      };
+    },
+  },
 };

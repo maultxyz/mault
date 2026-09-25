@@ -4,6 +4,7 @@ import {
   boolean,
   customType,
   doublePrecision,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -641,6 +642,25 @@ export const tcgplayerPrices = pgTable(
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [primaryKey({ columns: [table.productId, table.subType] })],
+);
+
+export const tcgplayerProducts = pgTable(
+  "tcgplayer_products",
+  {
+    productId: integer("product_id").primaryKey(),
+    categoryId: integer("category_id").notNull(),
+    groupId: integer("group_id").notNull(),
+    name: text("name").notNull(),
+    number: text("number"),
+    rarity: text("rarity"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("tcgplayer_products_category_number_idx").on(
+      table.categoryId,
+      table.number,
+    ),
+  ],
 );
 
 export const binSetRelations = relations(binSets, ({ many, one }) => ({
