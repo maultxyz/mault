@@ -17,9 +17,6 @@ function productIdOf(
   return Number.isInteger(id) && id > 0 ? id : null;
 }
 
-// Sets each card's price/priceFoil to the TCGplayer mid price from the daily
-// tcgcsv sync, and priceRange/priceRangeFoil to its low/mid/high. The source
-// API's own price stays in place wherever no synced price matches.
 export async function applyTcgplayerPrices<T extends PlayingCard>(
   adapter: CardSearchAdapter,
   cards: T[],
@@ -80,8 +77,6 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
   });
 }
 
-// Scan history keeps each card as it was at scan time, so prices are
-// refreshed here whenever history is loaded rather than trusting the copy.
 export async function applyTcgplayerPricesToScans(
   gameKey: string | null | undefined,
   scans: ScannedCard[],

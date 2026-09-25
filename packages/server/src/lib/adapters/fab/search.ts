@@ -2,28 +2,23 @@ import type { PlayingCard, Result } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../card-search/types";
 import { validateQuery } from "../../card-search/validate";
-import { CARD_API_HEADERS } from "../../constants/card-search";
+import {
+  CARD_API_HEADERS,
+  FAB_SEARCH_CARD_LIMIT,
+  FAB_STANDARD_FOILING,
+  FAB_TCGPLAYER_EDITION_PREFIXES,
+  FAB_TCGPLAYER_FOIL_NAMES,
+} from "../../constants/card-search";
+import { FLESHCUBE_RETRY_DELAY_MS } from "../../constants/timing";
 import { FAB_DEFAULT_URL } from "../../constants/urls";
+import type {
+  FabCard,
+  FabPrinting,
+  FleshcubeCard,
+  FleshcubePrinting,
+  FleshcubeSearchResponse,
+} from "../../interfaces/fleshcube";
 
-const SEARCH_CARD_LIMIT = 12;
-const STANDARD_FOILING = "S";
-const TCGPLAYER_FOIL_NAMES: Record<string, string> = {
-  S: "Normal",
-  R: "Rainbow Foil",
-  C: "Cold Foil",
-  G: "Cold Foil",
-};
-// TCGplayer splits some older sets' printings by edition in the sub-type
-// name itself, e.g. "1st Edition Rainbow Foil".
-const TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
-  A: "1st Edition ",
-  F: "1st Edition ",
-  U: "Unlimited Edition ",
-};
-const RETRY_DELAY_MS = 250;
-
-// Fleshcube's Heroku backend 500s on roughly half of requests once even two
-// are in flight at once, so every call to it is funneled through one queue.
 let fleshcubeQueue: Promise<unknown> = Promise.resolve();
 
 export function fleshcubeFetch(
@@ -34,124 +29,14 @@ export function fleshcubeFetch(
     const init = { headers: CARD_API_HEADERS, signal };
     const res = await fetchCardApi(url, init);
     if (res.status < 500) return res;
-    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    await new Promise((resolve) =>
+      setTimeout(resolve, FLESHCUBE_RETRY_DELAY_MS),
+    );
     return fetchCardApi(url, init);
   };
   const next = fleshcubeQueue.then(run, run);
   fleshcubeQueue = next.catch(() => undefined);
   return next;
-}
-
-export interface FleshcubePrice {
-  lowPrice: number | null;
-  midPrice: number | null;
-  highPrice: number | null;
-  marketPrice: number | null;
-  priceLastUpdated: string | null;
-}
-
-export interface FleshcubePrinting {
-  uniqueId: string;
-  setPrintingUniqueId: string;
-  cardId: string;
-  setId: string;
-  edition: string;
-  foiling: string;
-  rarity: string;
-  expansionSlot: boolean;
-  artists: string[];
-  artVariations: string[];
-  flavorText: string | null;
-  flavorTextPlain: string | null;
-  imageUrl: string | null;
-  imageRotationDegrees: number;
-  tcgplayerProductId: string | null;
-  tcgplayerUrl: string | null;
-  tcgPlayerPrice: FleshcubePrice | null;
-}
-
-export interface FleshcubeCard {
-  uniqueId: string;
-  name: string;
-  color: string | null;
-  pitch: string | null;
-  cost: string | null;
-  power: string | null;
-  defense: string | null;
-  health: string | null;
-  intelligence: string | null;
-  arcane: string | null;
-  types: string[];
-  traits: string[];
-  keywords: string[];
-  functionalText: string | null;
-  functionalTextPlain: string | null;
-  typeText: string | null;
-  cardPrintings: FleshcubePrinting[];
-}
-
-// /card/search only returns a trimmed per-printing summary (no text, types,
-// artists), enough to list the catalog but not to build a PlayingCard.
-export interface FleshcubeSearchPrinting {
-  uniqueId: string;
-  cardId: string;
-  setId: string;
-  imageUrl: string | null;
-}
-
-export interface FleshcubeSearchCard {
-  uniqueId: string;
-  name: string;
-  printings: FleshcubeSearchPrinting[];
-}
-
-export interface FleshcubeSearchResponse {
-  results: FleshcubeSearchCard[];
-  page: number;
-  pageSize: number;
-  total: number;
-}
-
-// `raw` keeps the snake_case shape of the previous goagain.dev source, since
-// admin-configured fieldDefinitions paths (e.g. `card.type_text`) and cards
-// already persisted in scan history both point into it.
-export interface FabPrinting {
-  unique_id: string;
-  set_printing_unique_id: string;
-  id: string;
-  set_id: string;
-  edition: string;
-  foiling: string;
-  rarity: string;
-  expansion_slot: boolean;
-  artists: string[];
-  art_variations: string[];
-  flavor_text: string;
-  flavor_text_plain: string;
-  image_url: string | null;
-  image_rotation_degrees: number;
-  tcgplayer_product_id: string | null;
-  tcgplayer_url: string | null;
-  tcgplayer_price: FleshcubePrice | null;
-}
-
-export interface FabCard {
-  unique_id: string;
-  name: string;
-  color: string;
-  pitch: string;
-  cost: string;
-  power: string;
-  defense: string;
-  health: string;
-  intelligence: string;
-  arcane: string;
-  types: string[];
-  traits: string[];
-  card_keywords: string[];
-  functional_text: string;
-  functional_text_plain: string;
-  type_text: string;
 }
 
 export function searchUrl(
@@ -218,7 +103,7 @@ export function normalizeFabPrinting(
   const card = toFabCard(source);
   const printing = toFabPrinting(sourcePrinting);
   const marketPrice = printing.tcgplayer_price?.marketPrice ?? null;
-  const isFoil = printing.foiling !== STANDARD_FOILING;
+  const isFoil = printing.foiling !== FAB_STANDARD_FOILING;
 
   return {
     id: printing.unique_id,
@@ -245,7 +130,6 @@ export function normalizeFabPrinting(
   };
 }
 
-// Returns the full card (every printing included) that owns printing `id`.
 export async function fetchCardByPrintingId(
   id: string,
   baseUrl: string,
@@ -265,7 +149,7 @@ export async function Search(
   if (invalid) return invalid;
 
   const response = await fleshcubeFetch(
-    searchUrl(baseUrl, 1, SEARCH_CARD_LIMIT, query),
+    searchUrl(baseUrl, 1, FAB_SEARCH_CARD_LIMIT, query),
   );
 
   if (!response.ok) {
@@ -338,12 +222,12 @@ export const fabAdapter: CardSearchAdapter = {
       (card.raw as { printing: FabPrinting }).printing.tcgplayer_product_id,
     subTypes: (card) => {
       const { printing } = card.raw as { printing: FabPrinting };
-      const foil = TCGPLAYER_FOIL_NAMES[printing.foiling] ?? "Normal";
-      const edition = TCGPLAYER_EDITION_PREFIXES[printing.edition];
+      const foil = FAB_TCGPLAYER_FOIL_NAMES[printing.foiling] ?? "Normal";
+      const edition = FAB_TCGPLAYER_EDITION_PREFIXES[printing.edition];
       const subTypes = edition ? [`${edition}${foil}`, foil] : [foil];
       return {
         price: subTypes,
-        priceFoil: printing.foiling === STANDARD_FOILING ? [] : subTypes,
+        priceFoil: printing.foiling === FAB_STANDARD_FOILING ? [] : subTypes,
       };
     },
   },

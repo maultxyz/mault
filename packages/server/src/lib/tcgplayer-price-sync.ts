@@ -4,39 +4,15 @@ import { tcgplayerPrices } from "../db/schema";
 import { fetchCardApi } from "./card-search/fetch";
 import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
 import { CARD_API_HEADERS } from "./constants/card-search";
+import { TCGPLAYER_PRICE_UPSERT_BATCH_SIZE } from "./constants/sync";
+import { TCGCSV_REQUEST_DELAY_MS } from "./constants/timing";
 import { TCGCSV_URL } from "./constants/urls";
-
-// tcgcsv's usage guidelines: a named User-Agent (CARD_API_HEADERS), ~100ms
-// between requests, and at most one full pull per daily build.
-const REQUEST_DELAY_MS = 100;
-const UPSERT_BATCH_SIZE = 1000;
-
-interface TcgcsvResponse<T> {
-  success: boolean;
-  errors: string[];
-  results: T[];
-}
-
-interface TcgcsvGroup {
-  groupId: number;
-  name: string;
-}
-
-interface TcgcsvPrice {
-  productId: number;
-  subTypeName: string;
-  lowPrice: number | null;
-  midPrice: number | null;
-  highPrice: number | null;
-  marketPrice: number | null;
-  directLowPrice: number | null;
-}
-
-export interface PriceSyncResult {
-  skipped: boolean;
-  prices: number;
-  failedGroups: number;
-}
+import type {
+  PriceSyncResult,
+  TcgcsvGroup,
+  TcgcsvPrice,
+  TcgcsvResponse,
+} from "./interfaces/tcgcsv";
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -46,7 +22,7 @@ async function tcgcsvGet(path: string): Promise<Response> {
   const res = await fetchCardApi(`${TCGCSV_URL}${path}`, {
     headers: CARD_API_HEADERS,
   });
-  await sleep(REQUEST_DELAY_MS);
+  await sleep(TCGCSV_REQUEST_DELAY_MS);
   if (!res.ok) throw new Error(`GET ${path} failed: HTTP ${res.status}`);
   return res;
 }
@@ -63,8 +39,8 @@ async function upsertPrices(
   categoryId: number,
   prices: TcgcsvPrice[],
 ): Promise<void> {
-  for (let i = 0; i < prices.length; i += UPSERT_BATCH_SIZE) {
-    const batch = prices.slice(i, i + UPSERT_BATCH_SIZE);
+  for (let i = 0; i < prices.length; i += TCGPLAYER_PRICE_UPSERT_BATCH_SIZE) {
+    const batch = prices.slice(i, i + TCGPLAYER_PRICE_UPSERT_BATCH_SIZE);
     await db
       .insert(tcgplayerPrices)
       .values(
@@ -94,10 +70,6 @@ async function upsertPrices(
   }
 }
 
-// Pulls every group's prices for each game with a TCGplayer mapping
-// (CardSearchAdapter.tcgplayer). Skipped when tcgcsv hasn't published a new
-// build since the last pull, unless `force` is set. A failed group is logged
-// and counted rather than aborting the rest of the run.
 export async function syncTcgplayerPrices({
   force = false,
   log,

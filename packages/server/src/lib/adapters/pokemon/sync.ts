@@ -1,19 +1,17 @@
-import {
-  withRawData,
-  type SyncSource,
-  type SyncSourceCard,
-} from "../../card-search/sync-types";
+import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
+import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";
 import {
-  fetchDetail,
-  type PokemonCardBrief,
-  type PokemonCardDetail,
-} from "./search";
-
-const PAGE_LIMIT = 1000;
-const DETAIL_CONCURRENCY = 8;
-const DETAIL_LOG_EVERY = 1000;
+  POKEMON_DETAIL_CONCURRENCY,
+  POKEMON_DETAIL_LOG_EVERY,
+  POKEMON_SYNC_PAGE_LIMIT,
+} from "../../constants/sync";
+import type {
+  PokemonCardBrief,
+  PokemonCardDetail,
+} from "../../interfaces/pokemon";
+import { fetchDetail } from "./search";
 
 function highResUrl(image: string | undefined): string | undefined {
   return image ? `${image}/high.webp` : undefined;
@@ -33,9 +31,6 @@ function toSyncCard(raw: PokemonCardBrief | PokemonCardDetail): SyncSourceCard {
   );
 }
 
-// TCGdex's list endpoint only has {id, localId, name, image}, so storing a
-// full card means one detail request per card. A card whose detail request
-// fails twice is stored as its brief listing object instead of being dropped.
 async function fetchDetails(
   briefs: PokemonCardBrief[],
   baseUrl: string,
@@ -61,13 +56,13 @@ async function fetchDetails(
       results[index] = toSyncCard(detail ?? brief);
 
       done++;
-      if (done % DETAIL_LOG_EVERY === 0) {
+      if (done % POKEMON_DETAIL_LOG_EVERY === 0) {
         addLog(`Fetched details for ${done}/${briefs.length} cards...`);
       }
     }
   }
 
-  await Promise.all(Array.from({ length: DETAIL_CONCURRENCY }, worker));
+  await Promise.all(Array.from({ length: POKEMON_DETAIL_CONCURRENCY }, worker));
   if (signal?.aborted) throw new Error("Pokémon detail fetch aborted");
 
   if (fellBack > 0) {
@@ -90,7 +85,7 @@ async function fetchCards(
   const all: PokemonCardBrief[] = [];
   let page = 1;
   for (;;) {
-    const url = `${listUrl}?pagination:page=${page}&pagination:itemsPerPage=${PAGE_LIMIT}`;
+    const url = `${listUrl}?pagination:page=${page}&pagination:itemsPerPage=${POKEMON_SYNC_PAGE_LIMIT}`;
     const res = await fetch(url, { headers: CARD_API_HEADERS, signal });
     if (!res.ok)
       throw new Error(`Pokémon card list fetch failed: ${res.status}`);
@@ -99,7 +94,7 @@ async function fetchCards(
     all.push(...rows);
     addLog(`Fetched ${all.length} cards so far...`);
 
-    if (rows.length < PAGE_LIMIT) break;
+    if (rows.length < POKEMON_SYNC_PAGE_LIMIT) break;
     page += 1;
   }
 

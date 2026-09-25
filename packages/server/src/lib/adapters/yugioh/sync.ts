@@ -1,9 +1,9 @@
-import {
-  withRawData,
-  type FetchOneResult,
-  type SyncSource,
-  type SyncSourceCard,
+import type {
+  FetchOneResult,
+  SyncSource,
+  SyncSourceCard,
 } from "../../card-search/sync-types";
+import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
 import { splitSetCode, type YgoCard } from "./search";

@@ -1,22 +1,15 @@
-import {
-  withRawData,
-  type SyncSource,
-  type SyncSourceCard,
-} from "../../card-search/sync-types";
+import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
+import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
+import { FAB_SYNC_LOG_EVERY, FAB_SYNC_PAGE_SIZE } from "../../constants/sync";
 import { FAB_DEFAULT_URL } from "../../constants/urls";
-import {
-  fetchCardByPrintingId,
-  fleshcubeFetch,
-  searchUrl,
-  type FleshcubeCard,
-  type FleshcubePrinting,
-  type FleshcubeSearchCard,
-  type FleshcubeSearchResponse,
-} from "./search";
-
-const PAGE_SIZE = 1000;
-const FULL_CARD_LOG_EVERY = 250;
+import type {
+  FleshcubeCard,
+  FleshcubePrinting,
+  FleshcubeSearchCard,
+  FleshcubeSearchResponse,
+} from "../../interfaces/fleshcube";
+import { fetchCardByPrintingId, fleshcubeFetch, searchUrl } from "./search";
 
 function toSyncCard(
   card: FleshcubeCard,
@@ -41,7 +34,7 @@ async function fetchCatalogSummary(
   const all: FleshcubeSearchCard[] = [];
   for (let page = 1; ; page++) {
     const res = await fleshcubeFetch(
-      searchUrl(baseUrl, page, PAGE_SIZE),
+      searchUrl(baseUrl, page, FAB_SYNC_PAGE_SIZE),
       signal,
     );
     if (!res.ok)
@@ -51,14 +44,12 @@ async function fetchCatalogSummary(
     all.push(...json.results);
     addLog(`Listed ${all.length} cards so far...`);
 
-    if (page * PAGE_SIZE >= json.total || json.results.length === 0) break;
+    if (page * FAB_SYNC_PAGE_SIZE >= json.total || json.results.length === 0)
+      break;
   }
   return all;
 }
 
-// The catalog listing is a trimmed summary, and /card/setCode omits prices,
-// so the full card is fetched one card at a time from the same endpoint
-// searchById uses. Each response carries every printing of that card.
 async function fetchCards(
   baseUrl: string,
   addLog: (msg: string) => void,
@@ -91,7 +82,7 @@ async function fetchCards(
       if (printing) all.push(toSyncCard(card, printing));
     }
 
-    if ((index + 1) % FULL_CARD_LOG_EVERY === 0) {
+    if ((index + 1) % FAB_SYNC_LOG_EVERY === 0) {
       addLog(`Fetched ${index + 1}/${summary.length} cards...`);
     }
   }

@@ -4,64 +4,11 @@ import type { CardSearchAdapter } from "../../card-search/types";
 import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";
-
-export interface PokemonCardBrief {
-  id: string;
-  localId: string;
-  name: string;
-  image?: string;
-}
-
-interface PokemonAttack {
-  name: string;
-  cost?: string[];
-  damage?: string | number;
-  effect?: string;
-}
-
-interface PokemonAbility {
-  type?: string;
-  name: string;
-  effect?: string;
-}
-
-interface PokemonTcgplayerVariant {
-  productId?: number;
-  marketPrice?: number;
-}
-
-interface PokemonPricing {
-  tcgplayer?: {
-    normal?: PokemonTcgplayerVariant;
-    holofoil?: PokemonTcgplayerVariant;
-    "reverse-holofoil"?: PokemonTcgplayerVariant;
-  };
-}
-
-export interface PokemonCardDetail extends PokemonCardBrief {
-  category?: string;
-  illustrator?: string;
-  rarity?: string;
-  hp?: number;
-  types?: string[];
-  evolveFrom?: string;
-  description?: string;
-  stage?: string;
-  trainerType?: string;
-  energyType?: string;
-  effect?: string;
-  attacks?: PokemonAttack[];
-  abilities?: PokemonAbility[];
-  retreat?: number;
-  pricing?: PokemonPricing;
-  set?: {
-    id: string;
-    name: string;
-  };
-  legal?: {
-    standard?: boolean;
-  };
-}
+import type {
+  PokemonCardBrief,
+  PokemonCardDetail,
+  PokemonPricing,
+} from "../../interfaces/pokemon";
 
 function assetUrl(image: string, quality: "low" | "high"): string {
   return `/api/cards/image-proxy?url=${encodeURIComponent(`${image}/${quality}.webp`)}`;

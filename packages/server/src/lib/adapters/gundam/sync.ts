@@ -1,8 +1,8 @@
-import {
-  withRawData,
-  type SyncSource,
-  type SyncSourceCard,
+import type {
+  SyncSource,
+  SyncSourceCard,
 } from "../../card-search/sync-types";
+import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { GUNDAM_DEFAULT_URL } from "../../constants/urls";
 

@@ -2,18 +2,10 @@ import type { PlayingCard, Result } from "@magic-vault/shared";
 import { and, eq, ilike, isNotNull } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
+import { STORED_SEARCH_LIMIT } from "../constants/card-search";
 import { applyTcgplayerPrices } from "./tcgplayer-prices";
-import type { CardSearchAdapter } from "./types";
+import type { ResolvedCardSearch } from "./types";
 import { validateQuery } from "./validate";
-
-const STORED_SEARCH_LIMIT = 60;
-
-export interface ResolvedCardSearch {
-  adapter: CardSearchAdapter;
-  gameKey: string;
-  baseUrl: string;
-  lang: string;
-}
 
 async function findStoredCard(
   { adapter, gameKey, lang }: ResolvedCardSearch,

@@ -44,9 +44,6 @@ export const cardImageVectors = pgTable(
     name: text("name").notNull(),
     setCode: text("set_code").notNull(),
     embedding: vector("embedding").notNull(),
-    // The source API's own card object, untouched, saved at sync time so
-    // scans and lookups don't depend on the upstream API being reachable.
-    // Normalized on read by the game's CardSearchAdapter.normalizeStored.
     data: jsonb("data"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -630,9 +627,6 @@ export const scanVectorizeStats = pgTable("scan_vectorize_stats", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// TCGplayer prices from tcgcsv.com, refreshed daily by scripts/sync-prices.ts
-// and overlaid onto stored cards on read (lib/card-search/tcgplayer-prices.ts).
-// Global catalog data only ever touched through `db`, so no RLS.
 export const tcgplayerPrices = pgTable(
   "tcgplayer_prices",
   {

@@ -3,6 +3,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../card-search/sync-types";
+import { SYNC_DATA_REFRESH_BATCH_SIZE } from "../constants/sync";
 import { vectorizeCardImage } from "../vectorize";
 import type { ParentToWorkerMessage, WorkerToParentMessage } from "./protocol";
 import { SYNC_SOURCES } from "./sources";
@@ -73,7 +74,6 @@ const VECTORIZE_CONCURRENCY = parseInt(
   process.env.VECTORIZE_CONCURRENCY ?? "10",
 );
 const INSERT_BATCH_SIZE = parseInt(process.env.SYNC_INSERT_BATCH_SIZE ?? "50");
-const DATA_REFRESH_BATCH_SIZE = 500;
 
 const IMAGE_FETCH_DELAY_MS = parseInt(
   process.env.SYNC_IMAGE_FETCH_DELAY_MS ?? "200",
@@ -100,9 +100,9 @@ async function refreshStoredData(
   addLog(`Refreshing stored data for ${cards.length} existing cards...`);
 
   let updated = 0;
-  for (let i = 0; i < cards.length; i += DATA_REFRESH_BATCH_SIZE) {
+  for (let i = 0; i < cards.length; i += SYNC_DATA_REFRESH_BATCH_SIZE) {
     if (isCancelled()) return;
-    const batch = cards.slice(i, i + DATA_REFRESH_BATCH_SIZE);
+    const batch = cards.slice(i, i + SYNC_DATA_REFRESH_BATCH_SIZE);
     const rows = `[${batch
       .map((c) => `{"card_id":${JSON.stringify(c.id)},"data":${c.data}}`)
       .join(",")}]`;

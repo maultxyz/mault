@@ -3,8 +3,6 @@ export interface PlayingCardImage {
   normal: string;
 }
 
-// TCGplayer's low/mid/high listing prices for one sub-type (e.g. Normal or
-// Foil), from the daily tcgcsv price sync.
 export interface PlayingCardPriceRange {
   low: number | null;
   mid: number | null;

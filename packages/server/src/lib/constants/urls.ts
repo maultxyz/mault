@@ -19,7 +19,6 @@ export const POKEMON_DEFAULT_URL = "https://api.tcgdex.net/v2/en/cards";
 export const RIFTBOUND_DEFAULT_URL = "https://api.riftcodex.com/cards";
 export const SCRYFALL_DEFAULT_URL = "https://api.scryfall.com/cards";
 
-// Daily TCGplayer price export (see lib/tcgplayer-price-sync.ts).
 export const TCGCSV_URL = "https://tcgcsv.com";
 export const YUGIOH_DEFAULT_URL =
   "https://db.ygoprodeck.com/api/v7/cardinfo.php";

@@ -1,8 +1,5 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 
-// Which of a TCGplayer product's price sub-types (tcgcsv's `subTypeName`,
-// e.g. "Normal", "Foil", "Rainbow Foil") feed a card's `price` and
-// `priceFoil`, in order of preference.
 export interface TcgplayerSubTypes {
   price: string[];
   priceFoil: string[];
@@ -11,8 +8,6 @@ export interface TcgplayerSubTypes {
 export interface TcgplayerPricing {
   categoryId: number;
   subTypes(card: PlayingCard): TcgplayerSubTypes;
-  // Reads the product id from `card.raw` for cards saved to scan history
-  // before this game's adapter set `PlayingCard.tcgplayerId`.
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
 }
 
@@ -31,11 +26,13 @@ export interface CardSearchAdapter {
     lang: string,
   ): Promise<Result<PlayingCard[]>>;
   searchById(id: string, baseUrl: string): Promise<Result<PlayingCard>>;
-  // Builds a card from the source API object the sync job stored in
-  // `cards.data` for printing `id`. Null when that object has no such
-  // printing.
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
-  // Present for games whose cards carry a TCGplayer product id
-  // (`PlayingCard.tcgplayerId`), so the daily tcgcsv price sync covers them.
   tcgplayer?: TcgplayerPricing;
+}
+
+export interface ResolvedCardSearch {
+  adapter: CardSearchAdapter;
+  gameKey: string;
+  baseUrl: string;
+  lang: string;
 }

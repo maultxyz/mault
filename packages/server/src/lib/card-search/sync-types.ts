@@ -1,7 +1,3 @@
-// `data` is the source API's own card object, stored untouched in
-// `cards.data` and normalized on read (CardSearchAdapter.normalizeStored).
-// It's pre-serialized since a full catalog (100k+ Scryfall printings) held as
-// parsed objects until the insert phase takes several times the memory.
 export interface SyncSourceCard {
   id: string;
   name: string;
@@ -11,13 +7,6 @@ export interface SyncSourceCard {
 }
 
 export type SyncSourceCardDetail = Omit<SyncSourceCard, "id">;
-
-export function withRawData<T extends object>(
-  card: T,
-  raw: unknown,
-): T & { data: string } {
-  return { ...card, data: JSON.stringify(raw) };
-}
 
 // `urls` is every request fetchOne actually made while looking for the card
 // - one entry for a direct by-id lookup, several for an adapter (onepiece)
