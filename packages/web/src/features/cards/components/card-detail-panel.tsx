@@ -174,7 +174,7 @@ export function CardDetailPanel({
   const handleSelect = useCallback(
     (card: PlayingCard) => {
       if (scanId) correctCard(scanId, card);
-      else addCard({ ...card, distance: 0 });
+      else addCard({ ...card, distance: 0, confidence: 1 });
       onClose();
     },
     [scanId, addCard, correctCard, onClose],

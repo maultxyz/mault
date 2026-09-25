@@ -1,5 +1,5 @@
 import {
-  DISTANCE_THRESHOLD,
+  DEFAULT_MATCH_THRESHOLD_PERCENT,
   OCR_REGIONS_BY_GAME_KEY,
   type CardSearchEmbeddings,
 } from "@magic-vault/shared";
@@ -63,8 +63,8 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       );
     }
     const { gameKey, lang, matchThreshold } = resolved;
-    const distanceThreshold =
-      matchThreshold != null ? 1 - matchThreshold / 100 : DISTANCE_THRESHOLD;
+    const minConfidence =
+      (matchThreshold ?? DEFAULT_MATCH_THRESHOLD_PERCENT) / 100;
 
     const buffer = Buffer.from(await file.arrayBuffer());
     let ocrText = "";
@@ -80,7 +80,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       const result = await findCardMatches(c.get("jwtClaims"), {
         gameKey,
         lang,
-        distanceThreshold,
+        minConfidence,
         embeddings,
         ocrText,
       });

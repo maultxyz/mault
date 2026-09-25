@@ -1,4 +1,4 @@
-import { DISTANCE_THRESHOLD, OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
+import { DEFAULT_MATCH_THRESHOLD_PERCENT, OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
@@ -43,8 +43,8 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
       );
     }
     const { gameKey, lang, matchThreshold } = resolved;
-    const distanceThreshold =
-      matchThreshold != null ? 1 - matchThreshold / 100 : DISTANCE_THRESHOLD;
+    const minConfidence =
+      (matchThreshold ?? DEFAULT_MATCH_THRESHOLD_PERCENT) / 100;
 
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -74,7 +74,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
       const result = await findCardMatches(c.get("jwtClaims"), {
         gameKey,
         lang,
-        distanceThreshold,
+        minConfidence,
         embeddings,
         ocrText,
       });

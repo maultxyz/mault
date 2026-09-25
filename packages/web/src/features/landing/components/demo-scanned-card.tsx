@@ -7,13 +7,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { formatUsd } from "@/features/scanner/components/scan-stats";
-import { matchPercentFromDistance } from "@/lib/utils";
+import { matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
   const { t } = useTranslation("cards");
-  const matchPercent = matchPercentFromDistance(card.distance);
+  const matchPercent = getMatchPercent(card);
   const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
 
   return (

@@ -17,7 +17,10 @@ async function computeMetrics(): Promise<PublicMetrics> {
       corrected: sql<number>`count(*) filter (where is_corrected)::int`,
       multipleMatches: sql<number>`count(*) filter (where alternative_matches is not null)::int`,
       avgPercent: sql<number | null>`avg(
-        greatest(0, least(100, (1 - (card->>'distance')::double precision) * 100))
+        greatest(0, least(100, coalesce(
+          (card->>'confidence')::double precision,
+          1 - (card->>'distance')::double precision
+        ) * 100))
       ) filter (where jsonb_typeof(card->'distance') = 'number')`,
     })
     .from(collectionCards);
