@@ -538,7 +538,11 @@ export function ScannedCardsProvider({
   const correctCard = useCallback(
     (scanId: string, card: PlayingCard) => {
       const collection = activeCollectionRef.current;
-      const corrected: PlayingCardWithDistance = { ...card, distance: 0 };
+      const corrected: PlayingCardWithDistance = {
+        ...card,
+        distance: 0,
+        confidence: 1,
+      };
       let matchedBin = resolveMatchedBin(corrected);
       const autoTarget = selectedSetRef.current?.isRepackMode
         ? null

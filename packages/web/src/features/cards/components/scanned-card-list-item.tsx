@@ -10,7 +10,7 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import { formatUsd } from "@/features/scanner/components/scan-stats";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
-import { cn, matchPercentFromDistance } from "@/lib/utils";
+import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import {
   IconCheck,
   IconDownload,
@@ -35,7 +35,7 @@ export const ScannedCardListItem = memo(function ScannedCardListItem({
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
   const matchPercent =
-    card.distance != null ? matchPercentFromDistance(card.distance) : 0;
+    card.distance != null ? getMatchPercent(card) : 0;
   const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
 
   return (

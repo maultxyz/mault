@@ -89,7 +89,9 @@ async function resolveSearchMatches(
   const resolved = await Promise.all(
     closeMatches.map((m) =>
       getCardById(m.cardId, collectionGuid).then((r) =>
-        r.data ? { ...r.data, distance: m.distance } : null,
+        r.data
+          ? { ...r.data, distance: m.distance, confidence: m.confidence }
+          : null,
       ),
     ),
   );

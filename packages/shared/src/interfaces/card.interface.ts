@@ -28,4 +28,5 @@ export interface PlayingCard {
 
 export interface PlayingCardWithDistance extends PlayingCard {
   distance: number;
+  confidence?: number;
 }

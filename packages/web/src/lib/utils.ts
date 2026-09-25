@@ -9,14 +9,16 @@ export function generateScanId(): string {
   return crypto.randomUUID();
 }
 
-// The raw cosine similarity as a percentage - distance 0 (a literal perfect
-// match, which real scans essentially never hit) is 100%, distance 1 is 0%.
-// Not scaled against a collection's accept/reject threshold: that's a
-// separate concern (whether a candidate is shown at all) from how good an
-// already-shown match actually is, and scaling against it either pinned
-// almost every real match at 100% (anchoring "100%" short of the threshold)
-// or crushed real matches into a narrow low range (scaling 0% to the
-// threshold itself) depending on which anchor was tried.
-export function matchPercentFromDistance(distance: number): number {
-  return Math.max(0, Math.min(100, (1 - distance) * 100));
+// Prefers the server's margin-based confidence (see findCardMatches). Falls
+// back to raw cosine similarity for scans saved before confidence existed and
+// for manual picks, which carry distance 0. Deliberately not scaled against a
+// collection's accept/reject threshold: anchoring 100% short of the threshold
+// pinned almost every real match at 100%, and anchoring 0% at it crushed real
+// matches into a narrow low range.
+export function matchPercent(card: {
+  distance: number;
+  confidence?: number;
+}): number {
+  const score = card.confidence ?? 1 - card.distance;
+  return Math.max(0, Math.min(100, score * 100));
 }

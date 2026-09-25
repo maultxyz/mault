@@ -4,6 +4,7 @@ export interface SearchCardMatch {
   id: string;
   cardId: string;
   distance: number;
+  confidence: number;
 }
 
 export interface ScryfallListResponse {
