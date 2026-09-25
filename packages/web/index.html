@@ -7,6 +7,41 @@
     <meta name="theme-color" content="#1447e6" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MAULT</title>
+    <script>
+      // ?perf=1 load diagnostics (public/perf-overlay.js). Recorders start
+      // here, before any app code, so they cover the whole load.
+      if (/[?&]perf=1(&|$)/.test(location.search)) {
+        (function () {
+          var P = (window.__perf = { stalls: [], errors: [] });
+          if (performance.setResourceTimingBufferSize)
+            performance.setResourceTimingBufferSize(1000);
+          window.addEventListener("error", function (e) {
+            P.errors.push([performance.now(), e.message || String(e.target && (e.target.src || e.target.href))]);
+          }, true);
+          window.addEventListener("unhandledrejection", function (e) {
+            P.errors.push([performance.now(), "rejection: " + String(e.reason)]);
+          });
+          var last = performance.now();
+          (function frame(t) {
+            if (t - last > 200) P.stalls.push([last, t - last]);
+            last = t;
+            if (!P.rootAt || t - P.rootAt < 10000) requestAnimationFrame(frame);
+          })(last);
+          document.addEventListener("DOMContentLoaded", function () {
+            var root = document.getElementById("root");
+            new MutationObserver(function (_, obs) {
+              if (root.childElementCount > 0) {
+                P.rootAt = performance.now();
+                obs.disconnect();
+              }
+            }).observe(root, { childList: true });
+          });
+          var s = document.createElement("script");
+          s.src = "/perf-overlay.js";
+          document.head.appendChild(s);
+        })();
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
