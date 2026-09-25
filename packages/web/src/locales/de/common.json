@@ -62,7 +62,6 @@
     "syncProgress": "Sync {{done}}/{{total}}",
     "syncStatus": "Sync {{status}}",
     "syncing": "Kartenbild-Vektoren werden synchronisiert…",
-    "syncingCard": "Kartenbild-Vektoren werden synchronisiert: {{card}}",
     "syncCompleted": "Kartenbild-Vektor-Sync abgeschlossen",
     "syncFailed": "Kartenbild-Vektor-Sync fehlgeschlagen",
     "sync": "Kartenbild-Vektor-Sync",

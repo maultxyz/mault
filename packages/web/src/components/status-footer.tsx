@@ -107,9 +107,7 @@ function SyncStatusItem() {
 
   const tooltip =
     status === "running"
-      ? syncState.currentCard
-        ? t("statusFooter.syncingCard", { card: syncState.currentCard })
-        : t("statusFooter.syncing")
+      ? t("statusFooter.syncing")
       : status === "completed"
         ? t("statusFooter.syncCompleted")
         : status === "failed"
@@ -128,11 +126,6 @@ function SyncStatusItem() {
         <span className="text-xs text-muted-foreground tabular-nums shrink-0">
           {countLabel}
         </span>
-        {status === "running" && syncState.currentCard && (
-          <span className="text-xs text-muted-foreground/70 truncate max-w-32">
-            — {syncState.currentCard}
-          </span>
-        )}
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>

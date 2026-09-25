@@ -8,11 +8,13 @@ export default function CalibrateScanRegionPage() {
     scanRegion,
     captureSettleDelayMs,
     matchesNeeded,
+    checkBothOrientations,
     isDeviceLoading,
     handleScanRegionChange,
     handleResetScanRegion,
     handleCaptureSettleChange,
     handleMatchesNeededChange,
+    handleCheckBothOrientationsChange,
     isScanRegionSectionDirty,
     isSavingScanRegion,
     handleSaveScanRegion,
@@ -25,11 +27,13 @@ export default function CalibrateScanRegionPage() {
         scanRegion={scanRegion}
         captureSettleDelayMs={captureSettleDelayMs}
         matchesNeeded={matchesNeeded}
+        checkBothOrientations={checkBothOrientations}
         isLoading={isDeviceLoading}
         onRegionChange={handleScanRegionChange}
         onResetRegion={handleResetScanRegion}
         onCaptureSettleChange={handleCaptureSettleChange}
         onMatchesNeededChange={handleMatchesNeededChange}
+        onCheckBothOrientationsChange={handleCheckBothOrientationsChange}
       />
 
       <SaveBar

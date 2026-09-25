@@ -28,6 +28,8 @@ export const DEFAULT_CAPTURE_SETTLE_DELAY_MS = 500;
 
 export const DEFAULT_MATCHES_NEEDED = 2;
 
+export const DEFAULT_CHECK_BOTH_ORIENTATIONS = true;
+
 export interface DetectionResult {
   detected: boolean;
   contour: CardContour | null;

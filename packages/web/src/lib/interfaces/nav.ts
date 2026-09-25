@@ -20,3 +20,17 @@ export interface NavItemDef {
   external?: boolean;
   subItems?: NavSubItemDef[];
 }
+
+export interface SectionNavItem {
+  to: string;
+  icon: ReactNode;
+  label: string;
+}
+
+export interface SectionNavProps {
+  title: string;
+  subtitle: string;
+  items: SectionNavItem[];
+  className?: string;
+  "data-tour"?: string;
+}

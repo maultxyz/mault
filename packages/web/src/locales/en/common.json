@@ -62,7 +62,6 @@
     "syncProgress": "Sync {{done}}/{{total}}",
     "syncStatus": "Sync {{status}}",
     "syncing": "Syncing card image vectors…",
-    "syncingCard": "Syncing card image vectors: {{card}}",
     "syncCompleted": "Card image vector sync completed",
     "syncFailed": "Card image vector sync failed",
     "sync": "Card image vector sync",

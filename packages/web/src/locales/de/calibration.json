@@ -121,6 +121,8 @@
     "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
     "matchesNeededLabel": "Benötigte Übereinstimmungen",
     "matchesNeededDescription": "Wie viele aufeinanderfolgende Bilder dieselbe Karte bestätigen müssen, bevor ein Scan akzeptiert wird. 1 ist am schnellsten; höhere Werte sind zuverlässiger, aber langsamer.",
+    "checkBothOrientationsLabel": "Beide Richtungen prüfen",
+    "checkBothOrientationsDescription": "Gleicht die Karte zusätzlich um 180° gedreht ab, damit auch verkehrt herum eingezogene Karten erkannt werden. Deaktivieren, wenn alle Karten gleich ausgerichtet eingezogen werden, um jeden Scan zu beschleunigen.",
     "executionProviderLabel": "KI-Erkennungs-Backend",
     "executionProviderDescription": "Welches Backend die Kartenerkennungs- und Abgleichsmodelle in deinem Browser ausführt. Automatisch bevorzugt WebGPU, wenn dein Gerät es unterstützt, und weicht ansonsten auf WASM aus.",
     "executionProviderAuto": "Automatisch (WebGPU bevorzugt)",

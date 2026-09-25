@@ -62,7 +62,6 @@
     "syncProgress": "Synchro {{done}}/{{total}}",
     "syncStatus": "Synchro {{status}}",
     "syncing": "Synchronisation des vecteurs d'image des cartes…",
-    "syncingCard": "Synchronisation des vecteurs d'image des cartes : {{card}}",
     "syncCompleted": "Synchronisation des vecteurs d'image terminée",
     "syncFailed": "Échec de la synchronisation des vecteurs d'image",
     "sync": "Synchronisation des vecteurs d'image des cartes",

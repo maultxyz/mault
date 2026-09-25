@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -91,9 +90,7 @@ export function ScannerOverlay({
           <IconAlertTriangle className="mx-auto size-5 text-destructive" />
           <p>{t("scannerOverlay.dailyLimitReached")}</p>
           <Button size="sm" nativeButton={false}>
-            <Link to="/app/settings">
-              {t("scannerOverlay.upgradeButton")}
-            </Link>
+            <Link to="/app/settings">{t("scannerOverlay.upgradeButton")}</Link>
           </Button>
         </div>
       </div>
@@ -151,14 +148,7 @@ export function ScannerOverlay({
     );
   }
 
-  return (
-    <>
-      <div className="absolute top-1 left-1 right-1 z-30 flex justify-center pointer-events-none">
-        <Badge>{t("scannerOverlay.faceUpHint")}</Badge>
-      </div>
-      {renderStatusPill()}
-    </>
-  );
+  return <>{renderStatusPill()}</>;
 
   function renderStatusPill() {
     if (!isConnected) {

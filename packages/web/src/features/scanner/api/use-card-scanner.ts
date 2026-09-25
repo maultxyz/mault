@@ -26,6 +26,7 @@ import { SCAN_ORIENTATION_STORAGE_KEY_PREFIX } from "@/lib/constants/storage-key
 import type { ScanOrientation } from "@/lib/interfaces/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   OCR_REGIONS_BY_GAME_KEY,
@@ -132,11 +133,12 @@ function hasMatch(result: CardSearchResult): boolean {
 }
 
 // Searches the orientation that matched last first, and only embeds/searches
-// the 180° copy when that misses. On a double miss, keeps whichever copy came
+// the 180° copy when that misses and the device checks both orientations. On a double miss, keeps whichever copy came
 // closest so the saved unmatched image is the likelier right-way-up one.
 async function searchInOrientationOrder(
   canvas: HTMLCanvasElement,
   preferred: ScanOrientation,
+  checkBothOrientations: boolean,
   search: (canvas: HTMLCanvasElement) => Promise<CardSearchResult>,
 ): Promise<{
   result: CardSearchResult;
@@ -152,7 +154,7 @@ async function searchInOrientationOrder(
     canvas: firstCanvas,
     orientation: preferred,
   };
-  if (hasMatch(first.result)) return first;
+  if (hasMatch(first.result) || !checkBothOrientations) return first;
 
   const otherOrientation: ScanOrientation =
     preferred === "upright" ? "rotated" : "upright";
@@ -189,6 +191,7 @@ async function searchCardImage(
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
   preferredOrientation: ScanOrientation,
+  checkBothOrientations: boolean,
 ): Promise<{
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
@@ -206,6 +209,7 @@ async function searchCardImage(
       const best = await searchInOrientationOrder(
         dewarpedCanvas,
         preferredOrientation,
+        checkBothOrientations,
         async (oriented) => {
           const [blob, embedding] = await Promise.all([
             canvasToBlob(oriented),
@@ -245,6 +249,7 @@ async function searchCardImage(
   const best = await searchInOrientationOrder(
     warpedCanvas,
     preferredOrientation,
+    checkBothOrientations,
     async (oriented) =>
       searchByImage(
         buildImageSearchFormData(
@@ -275,6 +280,7 @@ async function searchCardImageWithConsensus(
   ocrEnabled: boolean | undefined,
   matchesNeeded: number,
   orientationPreference: { current: ScanOrientation },
+  checkBothOrientations: boolean,
 ): Promise<Awaited<ReturnType<typeof searchCardImage>>> {
   const attempt = async () => {
     const result = await searchCardImage(
@@ -284,6 +290,7 @@ async function searchCardImageWithConsensus(
       collectionGuid,
       ocrEnabled,
       orientationPreference.current,
+      checkBothOrientations,
     );
     if (result.matchedOrientation) {
       orientationPreference.current = result.matchedOrientation;
@@ -397,6 +404,11 @@ export function useCardScanner({
   const matchesNeeded = device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED;
   const matchesNeededRef = useRef(matchesNeeded);
   matchesNeededRef.current = matchesNeeded;
+
+  const checkBothOrientations =
+    device?.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS;
+  const checkBothOrientationsRef = useRef(checkBothOrientations);
+  checkBothOrientationsRef.current = checkBothOrientations;
 
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
@@ -513,6 +525,7 @@ export function useCardScanner({
             ocrEnabledRef.current,
             matchesNeededRef.current,
             orientationPreferenceRef,
+            checkBothOrientationsRef.current,
           );
         try {
           localStorage.setItem(
