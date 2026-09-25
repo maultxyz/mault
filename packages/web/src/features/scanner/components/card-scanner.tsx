@@ -20,6 +20,7 @@ import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
+import { PAUSE_WHEN_HIDDEN_STATUSES } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import type { CardScannerProps } from "@magic-vault/shared";
 import { IconEye } from "@tabler/icons-react";
@@ -165,10 +166,46 @@ export function CardScanner({
     }
   });
 
+  // A card fed just before the tab was hidden still arrives; hold it until resume.
+  const heldCardArrivalRef = useRef(false);
+
   const handleCardArrived = useCallback(() => {
+    if (document.hidden) {
+      heldCardArrivalRef.current = true;
+      return;
+    }
     if (status === "paused") handleResume();
     captureCard();
   }, [status, handleResume, captureCard]);
+
+  const handleResumeClick = useCallback(() => {
+    handleResume();
+    if (heldCardArrivalRef.current) {
+      heldCardArrivalRef.current = false;
+      captureCard();
+    }
+  }, [handleResume, captureCard]);
+
+  const statusRef = useRef(status);
+  statusRef.current = status;
+
+  useEffect(() => {
+    const onVisibilityChange = () => {
+      if (!document.hidden) return;
+      if (!PAUSE_WHEN_HIDDEN_STATUSES.includes(statusRef.current)) return;
+      setAutoFeed(false);
+      handlePause();
+      toast.info(t("cardScanner.pausedTabHidden.title"), {
+        id: "scanner-paused-tab-hidden",
+        description: t("cardScanner.pausedTabHidden.description"),
+        duration: Infinity,
+        dismissible: true,
+      });
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+  }, [setAutoFeed, handlePause, t]);
 
   const handleFeed = useCallback(async () => {
     setIsFeeding(true);
@@ -443,7 +480,7 @@ export function CardScanner({
             setAutoFeed(false);
             handlePause();
           }}
-          onResume={handleResume}
+          onResume={handleResumeClick}
           onFeed={handleFeed}
           onClearDevice={handleClearDevice}
         />

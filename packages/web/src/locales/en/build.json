@@ -219,6 +219,7 @@
   "wiring": {
     "heading": "Wiring",
     "description": "Everything hangs off one I²C bus (PCA9685) and {{count}} digital input pins (IR sensors). The PCA9685's logic side runs off the {{board}}'s onboard supply; its <pin>V+</pin> servo rail must come from the external supply, and that supply's ground must be tied back to the {{board}}'s ground. A floating servo ground is the most common reason a freshly wired unit won't move.",
+    "wireColorNote": "Wire colors vary between parts and suppliers, so don't rely on the colors in the diagram or photos. Trace each wire from its pin label and make sure it ends up at the correct place.",
     "detailsLabel": "Wiring details",
     "sections": {
       "i2c": {
@@ -466,8 +467,8 @@
             "note": "For pusherLeft/pusherRight, don't stop short of the inner wall. These servos slow down as they approach a soft target, which kills the momentum needed to fling the card. Push the pulse past the wall so the arm slaps into it at full speed; back it off only if it's straining/buzzing against the wall for the whole stroke instead of just at the end."
           },
           "installHorns": {
-            "text": "Using the calibration grid above, put each paddle in its open position and each pusher in its neutral position, then press the horn (with its flapper or pusher arm already fitted) onto the servo shaft and secure it with the horn screw: bottom flapper, paddle flappers, and pusher arm, for all {{count}} module servos.",
-            "note": "Fitting a horn off-center biases the whole linkage. The exact open/closed and left/right pulses get fine-tuned afterward from the Module Calibration Grid above."
+            "text": "In the Module Calibration Grid on /app/calibrate, put each paddle in its open position and each pusher in its neutral position, then press the horn (with its flapper or pusher arm already fitted) onto the servo shaft and secure it with the horn screw: bottom flapper, paddle flappers, and pusher arm, for all {{count}} module servos.",
+            "note": "Fitting a horn off-center biases the whole linkage. The exact open/closed and left/right pulses get fine-tuned in the next step."
           },
           "calibrateFeeder": {
             "text": "Feeder Calibration Panel, tune feed speed, pulse/pause timing, and settle duration against your actual hopper."
@@ -477,7 +478,7 @@
             "note": "If a sensor doesn't trigger, or triggers with nothing in front of it, calibrate its detection distance manually: on the back of the sensor is a small blue box with a gray potentiometer dial. Turn it all the way one way so it detects nothing, then turn it slowly back until it just detects a card an inch or two in front of it."
           },
           "testBins": {
-            "text": "Bin Routing Controls, send a test card to each of the 7 bins in turn and confirm it lands correctly."
+            "text": "Bin Routing Controls, send a test card to each of the {{count}} bins in turn and confirm it lands correctly."
           }
         }
       },

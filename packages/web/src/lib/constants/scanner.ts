@@ -1,9 +1,22 @@
+import type { ScanOrientation } from "@/lib/interfaces/scanner";
 import type { ScannerStatus } from "@magic-vault/shared";
+
+// The sorter's camera sees cards upside down relative to the dewarp.
+export const DEFAULT_SCAN_ORIENTATION: ScanOrientation = "rotated";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
   "no-match",
   "duplicate",
+];
+
+export const PAUSE_WHEN_HIDDEN_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "settling",
+  "searching",
+  "captured",
+  "duplicate",
+  "no-match",
 ];
 
 export const MTG_ASPECT_RATIO = 2.5 / 3.5;

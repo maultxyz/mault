@@ -219,6 +219,7 @@
   "wiring": {
     "heading": "Câblage",
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
+    "wireColorNote": "Les couleurs des fils varient selon les pièces et les fournisseurs, donc ne te fie pas aux couleurs du schéma ou des photos. Suis chaque fil depuis l'étiquette de sa broche et vérifie qu'il arrive au bon endroit.",
     "detailsLabel": "Détails du câblage",
     "sections": {
       "i2c": {
@@ -467,8 +468,8 @@
             "note": "Pour pusherLeft/pusherRight, ne t'arrête pas avant la paroi intérieure - ces servos ralentissent en approchant une position \"molle\", ce qui tue l'élan nécessaire pour propulser la carte. Pousse l'impulsion au-delà de la paroi pour que le bras la percute à pleine vitesse ; ne réduis que s'il force/vibre contre la paroi pendant toute la course, et pas seulement à la fin."
           },
           "installHorns": {
-            "text": "À l'aide de la grille de calibration ci-dessus, mets chaque palette en position ouverte et chaque poussoir en position neutre, puis appuie le palonnier (avec sa trappe ou son bras poussoir déjà fixé) sur l'axe du servo et fixe-le avec la vis de palonnier - trappe inférieure, trappes latérales et bras poussoir, pour les {{count}} servos du module.",
-            "note": "Fixer un palonnier de façon décentrée biaise toute la liaison - les impulsions exactes d'ouverture/fermeture et gauche/droite seront affinées ensuite depuis la grille de calibration des modules ci-dessus."
+            "text": "Dans la grille de calibration des modules sur /app/calibrate, mets chaque palette en position ouverte et chaque poussoir en position neutre, puis appuie le palonnier (avec sa trappe ou son bras poussoir déjà fixé) sur l'axe du servo et fixe-le avec la vis de palonnier : trappe inférieure, trappes latérales et bras poussoir, pour les {{count}} servos du module.",
+            "note": "Fixer un palonnier de façon décentrée biaise toute la liaison. Les impulsions exactes d'ouverture/fermeture et gauche/droite seront affinées à l'étape suivante."
           },
           "calibrateFeeder": {
             "text": "Panneau de calibration du chargeur - ajuste la vitesse d'alimentation, le minutage impulsion/pause et la durée de stabilisation en fonction de ta trémie réelle."
@@ -478,7 +479,7 @@
             "note": "Si un capteur ne se déclenche pas, ou se déclenche sans rien devant lui, calibre sa distance de détection manuellement : au dos du capteur se trouve un petit boîtier bleu avec une molette grise (potentiomètre). Tourne-la à fond dans un sens pour qu'il ne détecte plus rien, puis tourne-la lentement en sens inverse jusqu'à ce qu'il détecte juste une carte à deux ou trois centimètres devant lui."
           },
           "testBins": {
-            "text": "Contrôles de routage des bacs - envoie une carte de test vers chacun des 7 bacs à tour de rôle et confirme qu'elle atterrit correctement."
+            "text": "Contrôles de routage des bacs : envoie une carte de test vers chacun des {{count}} bacs à tour de rôle et confirme qu'elle atterrit correctement."
           }
         }
       },

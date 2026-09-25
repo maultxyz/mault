@@ -1,10 +1,15 @@
 import type { PlayingCard } from "./card.interface";
+import type { Result } from "./result.interface";
 
 export interface SearchCardMatch {
   id: string;
   cardId: string;
   distance: number;
   confidence: number;
+}
+
+export interface CardSearchResult extends Result<SearchCardMatch[] | null> {
+  nearestDistance?: number | null;
 }
 
 export interface ScryfallListResponse {

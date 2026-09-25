@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useBoardType } from "@/features/build/api/use-board-type";
+import { useKitMode } from "@/features/build/api/use-kit-mode";
 import {
   MAX_MODULES,
   MIN_MODULES,
@@ -22,7 +23,7 @@ import {
   IconPlus,
   IconShoppingCart,
 } from "@tabler/icons-react";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
 export function BuildBom() {
@@ -30,6 +31,12 @@ export function BuildBom() {
   const { checked, toggle } = usePartsChecklist();
   const { moduleCount, setModuleCount } = useModuleCount();
   const { boardType, setBoardType } = useBoardType();
+  const { usingKit } = useKitMode();
+  const [openSections, setOpenSections] = useState<string[]>(["parts"]);
+
+  useEffect(() => {
+    setOpenSections(usingKit ? [] : ["parts"]);
+  }, [usingKit]);
 
   const allRows = useMemo(() => GROUPS.flatMap((g) => g.rows), []);
   const doneCount = allRows.filter((r) => checked[r.key]).length;
@@ -148,7 +155,12 @@ export function BuildBom() {
         </div>
       </div>
 
-      <Accordion multiple defaultValue={["parts"]} className="mt-8">
+      <Accordion
+        multiple
+        value={openSections}
+        onValueChange={setOpenSections}
+        className="mt-8"
+      >
         <AccordionItem value="parts" className="border-b-0">
           <AccordionTrigger className="font-heading text-base font-semibold tracking-wide text-foreground uppercase">
             {t("bom.partsListLabel")}
