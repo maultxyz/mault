@@ -31,7 +31,9 @@
     "memberRemoved": "Membre retiré.",
     "failedToRemoveMember": "Échec du retrait du membre.",
     "organizationDeleted": "Organisation supprimée.",
-    "failedToDelete": "Échec de la suppression."
+    "failedToDelete": "Échec de la suppression.",
+    "cancelSubscriptionFirst": "Annulez l'abonnement de cette organisation avant de la supprimer. Une fois qu'il est programmé pour s'arrêter à la fin de la période de facturation, vous pourrez supprimer l'organisation.",
+    "manageBilling": "Gérer la facturation"
   },
   "orgSwitcher": {
     "organizations": "Organisations",

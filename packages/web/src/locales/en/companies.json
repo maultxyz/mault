@@ -31,7 +31,9 @@
     "memberRemoved": "Member removed.",
     "failedToRemoveMember": "Failed to remove member.",
     "organizationDeleted": "Organization deleted.",
-    "failedToDelete": "Failed to delete."
+    "failedToDelete": "Failed to delete.",
+    "cancelSubscriptionFirst": "Cancel this organization's subscription before deleting it. Once it's set to cancel at the end of the billing period, you can delete the organization.",
+    "manageBilling": "Manage billing"
   },
   "orgSwitcher": {
     "organizations": "Organizations",

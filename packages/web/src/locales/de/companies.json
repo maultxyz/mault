@@ -31,7 +31,9 @@
     "memberRemoved": "Mitglied entfernt.",
     "failedToRemoveMember": "Mitglied konnte nicht entfernt werden.",
     "organizationDeleted": "Organisation gelöscht.",
-    "failedToDelete": "Löschen fehlgeschlagen."
+    "failedToDelete": "Löschen fehlgeschlagen.",
+    "cancelSubscriptionFirst": "Kündige das Abonnement dieser Organisation, bevor du sie löschst. Sobald es zum Ende des Abrechnungszeitraums gekündigt ist, kannst du die Organisation löschen.",
+    "manageBilling": "Abrechnung verwalten"
   },
   "orgSwitcher": {
     "organizations": "Organisationen",

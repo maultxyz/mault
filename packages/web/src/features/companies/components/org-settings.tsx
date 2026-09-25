@@ -10,6 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
+import { useBilling } from "@/features/billing/api/use-billing";
+import { hasActiveSubscription } from "@/features/billing/lib/subscription";
+import { apiDelete } from "@/lib/api/client";
 import { neon } from "@/lib/auth/client";
 import {
   orgInviteSchema,
@@ -41,6 +44,9 @@ export function OrgSettings() {
   const myRole = activeMember?.role as OrgRole | undefined;
   const canManage = myRole === "owner" || myRole === "admin";
   const isOwner = myRole === "owner";
+
+  const { billing, openPortal, isOpeningPortal } = useBilling();
+  const blockedBySubscription = hasActiveSubscription(billing);
 
   const [deleteOrgOpen, setDeleteOrgOpen] = useState(false);
   const [removeMemberTarget, setRemoveMemberTarget] = useState<{
@@ -147,6 +153,7 @@ export function OrgSettings() {
   async function handleDelete() {
     if (!activeOrg) return;
     try {
+      await apiDelete("/api/org-settings/data");
       const { error } = await neon.auth.organization.delete({
         organizationId: activeOrg.id,
       });
@@ -353,13 +360,31 @@ export function OrgSettings() {
                 <p className="text-sm">
                   {t("orgSettings.deleteWarning", { name: activeOrg.name })}
                 </p>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => setDeleteOrgOpen(true)}
-                >
-                  {t("orgSettings.deleteOrganization")}
-                </Button>
+                {blockedBySubscription && (
+                  <p className="text-sm font-medium">
+                    {t("orgSettings.cancelSubscriptionFirst")}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  {blockedBySubscription && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={openPortal}
+                      disabled={isOpeningPortal}
+                    >
+                      {t("orgSettings.manageBilling")}
+                    </Button>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setDeleteOrgOpen(true)}
+                    disabled={blockedBySubscription}
+                  >
+                    {t("orgSettings.deleteOrganization")}
+                  </Button>
+                </div>
               </div>
             )}
           </>
