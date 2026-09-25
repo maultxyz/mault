@@ -219,6 +219,7 @@
   "wiring": {
     "heading": "Verkabelung",
     "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Logikseite des PCA9685 wird über die Onboard-Versorgung des {{board}} gespeist; seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein – eine schwebende Servomasse ist der häufigste Grund, warum sich ein frisch verkabeltes Gerät nicht bewegt.",
+    "wireColorNote": "Kabelfarben unterscheiden sich je nach Bauteil und Hersteller, verlass dich also nicht auf die Farben im Schaltplan oder auf den Fotos. Verfolge jedes Kabel ab seiner Pin-Beschriftung und stelle sicher, dass es an der richtigen Stelle ankommt.",
     "detailsLabel": "Verkabelungsdetails",
     "sections": {
       "i2c": {

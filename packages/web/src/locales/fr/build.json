@@ -219,6 +219,7 @@
   "wiring": {
     "heading": "Câblage",
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
+    "wireColorNote": "Les couleurs des fils varient selon les pièces et les fournisseurs, donc ne te fie pas aux couleurs du schéma ou des photos. Suis chaque fil depuis l'étiquette de sa broche et vérifie qu'il arrive au bon endroit.",
     "detailsLabel": "Détails du câblage",
     "sections": {
       "i2c": {
