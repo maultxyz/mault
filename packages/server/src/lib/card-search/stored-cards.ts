@@ -62,6 +62,24 @@ async function searchStoredCards(
   return applyTcgplayerPrices(adapter, cards);
 }
 
+async function hasStoredCards({
+  gameKey,
+  lang,
+}: ResolvedCardSearch): Promise<boolean> {
+  const [row] = await db
+    .select({ id: cardImageVectors.id })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, gameKey),
+        eq(cardImageVectors.lang, lang),
+        isNotNull(cardImageVectors.data),
+      ),
+    )
+    .limit(1);
+  return !!row;
+}
+
 export async function searchCardById(
   resolved: ResolvedCardSearch,
   id: string,
@@ -86,6 +104,17 @@ export async function searchCards(
 ): Promise<Result<PlayingCard[]>> {
   const invalid = validateQuery(query);
   if (invalid) return invalid;
+
+  if (!(await hasStoredCards(resolved))) {
+    const result = await resolved.adapter.search(
+      query,
+      resolved.baseUrl,
+      resolved.lang,
+    );
+    if (!result.success || !result.data) return result;
+    const priced = await applyTcgplayerPrices(resolved.adapter, result.data);
+    return { ...result, data: priced };
+  }
 
   const cards = await searchStoredCards(resolved, query);
   if (cards.length === 0) {
