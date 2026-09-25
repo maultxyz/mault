@@ -7,7 +7,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 
 const LandingPage = lazy(
@@ -58,10 +58,15 @@ const VerifyEmailPage = lazy(
     ALL_NAMESPACES,
   ),
 );
-const AppLayout = lazy(
-  withNamespaces(() => import("@/app/routes/app/layout"), ALL_NAMESPACES),
+const loadAppLayout = withNamespaces(
+  () => import("@/app/routes/app/layout"),
+  ALL_NAMESPACES,
 );
-const ScannerPage = lazy(() => import("@/app/routes/app/index"));
+const loadScannerPage = () => import("@/app/routes/app/index");
+const loadMonitorSessionsPage = () =>
+  import("@/app/routes/app/monitor-sessions");
+const AppLayout = lazy(loadAppLayout);
+const ScannerPage = lazy(loadScannerPage);
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
 const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
@@ -85,14 +90,27 @@ const AdminServosPage = lazy(() => import("@/app/routes/app/admin/servos"));
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
-const MonitorSessionsPage = lazy(
-  () => import("@/app/routes/app/monitor-sessions"),
-);
+const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
 const SettingsPage = lazy(() => import("@/app/routes/app/settings"));
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
+
+// Otherwise the app shell's chunks only start downloading once the auth
+// session resolves, then the landing route's once the loading gate lifts.
+// A failed preload is ignored here, the lazy() route surfaces it instead.
+function AppChunkPreloader() {
+  const isMobile = useIsMobile();
+  useEffect(() => {
+    const ignoreFailure = () => {};
+    loadAppLayout().catch(ignoreFailure);
+    (isMobile ? loadMonitorSessionsPage() : loadScannerPage()).catch(
+      ignoreFailure,
+    );
+  }, [isMobile]);
+  return null;
+}
 
 function AdminGuard() {
   const { isAdmin, isPending } = useRole();
@@ -169,6 +187,7 @@ export const router = createBrowserRouter([
         // loads.
         element: (
           <Suspense fallback={<RouteLoadingFallback />}>
+            <AppChunkPreloader />
             <AuthGuard />
           </Suspense>
         ),
