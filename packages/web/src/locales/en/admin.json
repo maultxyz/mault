@@ -23,7 +23,8 @@
     "disconnectButton": "Disconnect",
     "toasts": {
       "sendFailed": "Failed to send command to the device"
-    }
+    },
+    "flashButton": "Flash firmware"
   },
   "cardImageVectors": {
     "heading": "Card Image Vectors",

@@ -23,7 +23,8 @@
     "disconnectButton": "Déconnecter",
     "toasts": {
       "sendFailed": "Échec de l'envoi de la commande à l'appareil"
-    }
+    },
+    "flashButton": "Flasher le firmware"
   },
   "cardImageVectors": {
     "heading": "Vecteurs d'image des cartes",

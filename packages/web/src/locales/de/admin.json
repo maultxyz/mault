@@ -23,7 +23,8 @@
     "disconnectButton": "Trennen",
     "toasts": {
       "sendFailed": "Befehl konnte nicht an das Gerät gesendet werden"
-    }
+    },
+    "flashButton": "Firmware flashen"
   },
   "cardImageVectors": {
     "heading": "Kartenbild-Vektoren",
