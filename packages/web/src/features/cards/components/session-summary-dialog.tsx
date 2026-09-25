@@ -28,11 +28,8 @@ import type { CardFilters } from "@/lib/interfaces/cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
-import {
-  formatElapsed,
-  formatUsd,
-} from "@/features/scanner/components/scan-stats";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
+import { formatElapsed, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ScannedCard } from "@magic-vault/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";

@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/api/client";
+import { publicGet } from "@/lib/api/client";
 import type { PublicPricing } from "@/lib/interfaces/landing";
 import type { Result } from "@magic-vault/shared";
 import { useEffect, useState } from "react";
@@ -11,7 +11,7 @@ export function usePublicPricing() {
   useEffect(() => {
     let cancelled = false;
 
-    apiGet<Result<PublicPricing>>("/api/public/pricing")
+    publicGet<Result<PublicPricing>>("/api/public/pricing")
       .then((res) => {
         if (cancelled) return;
         setPricing(res.data ?? null);

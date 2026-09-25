@@ -6,7 +6,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { formatUsd } from "@/lib/format";
 import { matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";

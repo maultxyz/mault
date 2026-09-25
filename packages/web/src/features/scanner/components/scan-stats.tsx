@@ -3,25 +3,10 @@ import { applyCardFilters } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
+import { formatElapsed, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-export function formatUsd(value: number): string {
-  // Non-breaking space keeps "USD" from wrapping onto its own line in
-  // tight layouts (card grid badges, stat tiles).
-  return `$${value.toFixed(2)} USD`;
-}
-
-export function formatElapsed(ms: number): string {
-  const s = Math.floor(ms / 1000);
-  const h = Math.floor(s / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  const sec = s % 60;
-  if (h > 0)
-    return `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
-  return `${m}:${String(sec).padStart(2, "0")}`;
-}
 
 export function ScanStats() {
   const { t } = useTranslation("scanner");

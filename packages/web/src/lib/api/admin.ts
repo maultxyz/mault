@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, publicGet } from "@/lib/api/client";
 import type {
   AdminCard,
   AdminCardsPage,
@@ -144,7 +144,7 @@ export async function testServerRollbar(): Promise<{
 }
 
 export async function getPublicMetrics(): Promise<Result<PublicMetrics>> {
-  return apiGet<Result<PublicMetrics>>("/api/public/metrics");
+  return publicGet<Result<PublicMetrics>>("/api/public/metrics");
 }
 
 export async function getScanVectorizeStats(): Promise<{

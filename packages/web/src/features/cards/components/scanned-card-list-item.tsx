@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { formatUsd } from "@/lib/format";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";

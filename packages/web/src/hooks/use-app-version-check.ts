@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/api/client";
+import { publicGet } from "@/lib/api/client";
 import { APP_VERSION_CHECK_INTERVAL_MS as CHECK_INTERVAL_MS } from "@/lib/constants/timing";
 import { useEffect, useState } from "react";
 
@@ -16,7 +16,7 @@ export function useAppVersionCheck() {
 
     async function check() {
       try {
-        const res = await apiGet<VersionResponse>("/api/public/version");
+        const res = await publicGet<VersionResponse>("/api/public/version");
         if (!cancelled && res.data.version !== __APP_VERSION__) {
           setIsOutdated(true);
         }

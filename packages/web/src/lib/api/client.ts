@@ -58,6 +58,15 @@ async function checkResponse(
   if (!res.ok) throw new Error(`API error: ${res.status}`);
 }
 
+// For unauthenticated endpoints. Skips getAuthHeaders() entirely, since that
+// awaits a cross-site Neon Auth session lookup that public pages (the landing
+// page especially) shouldn't be held up by.
+export async function publicGet<T>(path: string): Promise<T> {
+  const res = await fetch(`${API_BASE}${path}`);
+  if (!res.ok) throw new Error(`API error: ${res.status}`);
+  return res.json();
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const wasImpersonating = !!getImpersonationState();
   const res = await fetch(`${API_BASE}${path}`, {

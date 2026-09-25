@@ -1,7 +1,7 @@
 import { DEMO_SCANNED_CARDS } from "@/features/landing/lib/demo-cards";
 import { DemoCardTile } from "@/features/landing/components/demo-scanned-card";
 import { buttonVariants } from "@/components/ui/button";
-import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useMemo } from "react";
