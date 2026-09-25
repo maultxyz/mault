@@ -1,8 +1,4 @@
-import type { ScanOrientation } from "@/lib/interfaces/scanner";
 import type { ScannerStatus } from "@magic-vault/shared";
-
-// The sorter's camera sees cards upside down relative to the dewarp.
-export const DEFAULT_SCAN_ORIENTATION: ScanOrientation = "rotated";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",

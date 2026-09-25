@@ -25,8 +25,6 @@ export type PhoneLocalCameraStatus =
 export type CameraStatus = "idle" | "requesting" | "ready" | "error";
 export type CameraSource = "local" | "phone";
 
-export type ScanOrientation = "upright" | "rotated";
-
 export interface ZoomRange {
   min: number;
   max: number;
