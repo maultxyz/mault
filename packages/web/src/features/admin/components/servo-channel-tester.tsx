@@ -6,15 +6,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
+import { useNewBoardFlash } from "@/features/scanner/api/use-new-board-flash";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import {
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
-} from "@/lib/constants/calibration";
+import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
+import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@/lib/constants/calibration";
 import { SERVO_SWEEP_STEP_MS } from "@/lib/constants/timing";
 import {
   IconDeviceUsb,
   IconDeviceUsbFilled,
+  IconDownload,
   IconLoader2,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -34,6 +34,8 @@ export function ServoChannelTester() {
     useSerial();
   const [activeChannel, setActiveChannel] = useState<number | null>(null);
   const [isSweeping, setIsSweeping] = useState(false);
+  const [flashDialogOpen, setFlashDialogOpen] = useState(false);
+  const { isSupported: flashSupported } = useNewBoardFlash();
 
   const bluetoothSupported =
     typeof navigator !== "undefined" && !!navigator.bluetooth;
@@ -75,22 +77,30 @@ export function ServoChannelTester() {
       </div>
 
       {!isConnected ? (
-        <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" />}>
-            <IconDeviceUsb />
-            {t("servoTester.connectButton")}
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start">
-            <DropdownMenuItem onClick={() => connect()}>
-              {t("servoTester.connectUsb")}
-            </DropdownMenuItem>
-            {bluetoothSupported && (
-              <DropdownMenuItem onClick={() => connectBluetooth()}>
-                {t("servoTester.connectBluetooth")}
+        <div className="flex flex-wrap gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger render={<Button variant="outline" />}>
+              <IconDeviceUsb />
+              {t("servoTester.connectButton")}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem onClick={() => connect()}>
+                {t("servoTester.connectUsb")}
               </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {bluetoothSupported && (
+                <DropdownMenuItem onClick={() => connectBluetooth()}>
+                  {t("servoTester.connectBluetooth")}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {flashSupported && (
+            <Button variant="ghost" onClick={() => setFlashDialogOpen(true)}>
+              <IconDownload />
+              {t("servoTester.flashButton")}
+            </Button>
+          )}
+        </div>
       ) : (
         <>
           <div className="flex flex-col gap-2">
@@ -102,7 +112,9 @@ export function ServoChannelTester() {
               {CHANNELS.map((ch) => (
                 <Button
                   key={ch}
-                  variant={activeChannel === ch ? "outline-selected" : "outline"}
+                  variant={
+                    activeChannel === ch ? "outline-selected" : "outline"
+                  }
                   className="px-0"
                   disabled={isSweeping}
                   onClick={() => handleSweep(ch)}
@@ -132,6 +144,11 @@ export function ServoChannelTester() {
           </div>
         </>
       )}
+      <NewBoardFlashDialog
+        open={flashDialogOpen}
+        onOpenChange={setFlashDialogOpen}
+        onConnect={() => connect()}
+      />
     </div>
   );
 }
