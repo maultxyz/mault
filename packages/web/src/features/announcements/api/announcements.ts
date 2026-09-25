@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, apiPut, publicGet } from "@/lib/api/client";
 import type { AnnouncementInput } from "@/lib/interfaces/announcements";
 import type { Announcement, Result } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
@@ -18,7 +18,7 @@ export const activeAnnouncementsQueryOptions = queryOptions({
 
 // No auth - powers the banner on the public landing/build pages.
 export async function listPublicAnnouncements(): Promise<Result<Announcement[]>> {
-  return apiGet<Result<Announcement[]>>("/api/announcements/public");
+  return publicGet<Result<Announcement[]>>("/api/announcements/public");
 }
 
 export const publicAnnouncementsQueryOptions = queryOptions({

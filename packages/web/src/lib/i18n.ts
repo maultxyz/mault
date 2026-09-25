@@ -18,7 +18,7 @@ const FILE_NAME_TO_NAMESPACE = Object.fromEntries(
   Object.entries(NAMESPACE_FILE_NAMES).map(([ns, fileName]) => [fileName, ns]),
 );
 
-const ALL_NAMESPACES = Object.keys(localeModules)
+export const ALL_NAMESPACES = Object.keys(localeModules)
   .filter((path) => path.startsWith("../locales/en/"))
   .map((path) => path.slice("../locales/en/".length, -".json".length))
   .map((fileName) => FILE_NAME_TO_NAMESPACE[fileName] ?? fileName);
@@ -64,7 +64,11 @@ void i18n
   .init({
     lng: getInitialLanguage(),
     fallbackLng: "en",
-    ns: ALL_NAMESPACES,
+    // Only "common" up front: loading all ~21 namespaces (42 for a non-English
+    // browser, counting the English fallback) at startup competed with the
+    // landing page's own chunks. Routes preload what they need via
+    // withNamespaces(), and anything missed still loads on demand.
+    ns: ["common"],
     defaultNS: "common",
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
@@ -78,5 +82,18 @@ i18n.on("languageChanged", (lng) => {
     // nice-to-have, not required for the language switch itself to work.
   }
 });
+
+// Wraps a React.lazy importer so the route's translations load in parallel
+// with its code and are ready by first render, rather than flashing raw keys
+// while useTranslation() fetches them on demand.
+export function withNamespaces<T>(
+  load: () => Promise<T>,
+  namespaces: readonly string[],
+): () => Promise<T> {
+  return () =>
+    Promise.all([load(), i18n.loadNamespaces([...namespaces])]).then(
+      ([module]) => module,
+    );
+}
 
 export default i18n;

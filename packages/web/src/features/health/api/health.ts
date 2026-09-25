@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/api/client";
+import { publicGet } from "@/lib/api/client";
 import { useSyncState } from "@/lib/app-stream";
 import type {
   HealthCheck,
@@ -8,7 +8,7 @@ import type {
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 export async function getHealth(): Promise<Result<HealthCheckResponse>> {
-  return apiGet<Result<HealthCheckResponse>>("/api/public/health");
+  return publicGet<Result<HealthCheckResponse>>("/api/public/health");
 }
 
 export const healthQueryOptions = queryOptions({

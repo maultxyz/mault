@@ -1,7 +1,7 @@
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { formatUsd } from "@/lib/format";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
 import { DOCUMENT_TITLE_CYCLE_MS as CYCLE_MS } from "@/lib/constants/timing";
 import { useEffect, useMemo, useState } from "react";

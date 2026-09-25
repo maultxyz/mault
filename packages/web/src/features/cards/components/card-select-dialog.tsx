@@ -13,7 +13,7 @@ import { searchCards } from "@/features/cards/api/card-search";
 import type { CardSelectDialogProps } from "@/lib/interfaces/cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { formatUsd } from "@/lib/format";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {

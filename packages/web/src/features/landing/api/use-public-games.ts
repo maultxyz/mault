@@ -1,4 +1,4 @@
-import { apiGet } from "@/lib/api/client";
+import { publicGet } from "@/lib/api/client";
 import type { PublicGame, Result } from "@magic-vault/shared";
 import { useEffect, useState } from "react";
 
@@ -8,7 +8,7 @@ export function usePublicGames() {
   useEffect(() => {
     let cancelled = false;
 
-    apiGet<Result<PublicGame[]>>("/api/public/games")
+    publicGet<Result<PublicGame[]>>("/api/public/games")
       .then((res) => {
         if (cancelled) return;
         setGames(res.data ?? []);

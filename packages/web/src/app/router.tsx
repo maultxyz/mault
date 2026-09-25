@@ -6,27 +6,61 @@ import { RouteLoadingFallback } from "@/components/route-loading-fallback";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 
-const LandingPage = lazy(() => import("@/app/routes/index"));
-const BuildGuidePage = lazy(() => import("@/app/routes/build"));
-const DiscordBotPage = lazy(() => import("@/app/routes/discord-bot"));
-const PrivacyPolicyPage = lazy(() => import("@/app/routes/privacy"));
-const TermsOfServicePage = lazy(() => import("@/app/routes/terms"));
-const AuthPage = lazy(() => import("@/app/routes/neon/auth"));
-const AuthLocalPage = lazy(() => import("@/app/routes/local/auth"));
-const AuthJoinPage = lazy(() => import("@/app/routes/local/join"));
+const LandingPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/index"),
+    ["common", "landing", "scanner", "cards", "bins", "collections"],
+  ),
+);
+const BuildGuidePage = lazy(
+  withNamespaces(() => import("@/app/routes/build"), ["common", "build"]),
+);
+const DiscordBotPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/discord-bot"),
+    ["common", "discordBot"],
+  ),
+);
+const PrivacyPolicyPage = lazy(
+  withNamespaces(() => import("@/app/routes/privacy"), ["common", "legal"]),
+);
+const TermsOfServicePage = lazy(
+  withNamespaces(() => import("@/app/routes/terms"), ["common", "legal"]),
+);
+const AuthPage = lazy(
+  withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
+);
+const AuthLocalPage = lazy(
+  withNamespaces(() => import("@/app/routes/local/auth"), ["common", "auth"]),
+);
+const AuthJoinPage = lazy(
+  withNamespaces(() => import("@/app/routes/local/join"), ["common", "auth"]),
+);
 const AuthForgotPasswordPage = lazy(
-  () => import("@/app/routes/local/forgot-password"),
+  withNamespaces(
+    () => import("@/app/routes/local/forgot-password"),
+    ["common", "auth"],
+  ),
 );
 const AuthResetPasswordPage = lazy(
-  () => import("@/app/routes/local/reset-password"),
+  withNamespaces(
+    () => import("@/app/routes/local/reset-password"),
+    ["common", "auth"],
+  ),
 );
 const VerifyEmailPage = lazy(
-  () => import("@/app/routes/app/neon/verify-email"),
+  withNamespaces(
+    () => import("@/app/routes/app/neon/verify-email"),
+    ALL_NAMESPACES,
+  ),
 );
-const AppLayout = lazy(() => import("@/app/routes/app/layout"));
+const AppLayout = lazy(
+  withNamespaces(() => import("@/app/routes/app/layout"), ALL_NAMESPACES),
+);
 const ScannerPage = lazy(() => import("@/app/routes/app/index"));
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));

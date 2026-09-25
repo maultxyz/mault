@@ -8,7 +8,7 @@ import {
 import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
-import { formatUsd } from "@/features/scanner/components/scan-stats";
+import { formatUsd } from "@/lib/format";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import {
   IconCheck,
