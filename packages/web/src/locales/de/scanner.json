@@ -138,7 +138,11 @@
       "title": "Gerät geleert",
       "description": "Alle unteren Klappen wurden geöffnet, um festsitzende Karten zu lösen."
     },
-    "lastSearchImageAlt": "Letztes Suchbild"
+    "lastSearchImageAlt": "Letztes Suchbild",
+    "pausedTabHidden": {
+      "title": "Scannen pausiert",
+      "description": "Der Scanner-Tab wurde ausgeblendet, daher wurden Scannen und automatisches Zuführen pausiert. Die Kameravorschau friert ein, solange der Tab nicht sichtbar ist. Drücke Fortsetzen, um weiterzumachen."
+    }
   },
   "documentTitle": {
     "sorting": "Sortierung: {{setName}}",

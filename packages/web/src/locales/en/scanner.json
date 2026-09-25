@@ -138,7 +138,11 @@
       "title": "Device cleared",
       "description": "All bottom paddles were opened to drop any stuck cards."
     },
-    "lastSearchImageAlt": "Last search image"
+    "lastSearchImageAlt": "Last search image",
+    "pausedTabHidden": {
+      "title": "Scanning paused",
+      "description": "The scanner tab was hidden, so scanning and auto-feed were paused. The camera preview freezes while the tab isn't visible. Press Resume to continue."
+    }
   },
   "documentTitle": {
     "sorting": "Sorting: {{setName}}",

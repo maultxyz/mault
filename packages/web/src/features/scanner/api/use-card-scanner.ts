@@ -184,6 +184,7 @@ function buildImageSearchFormData(
 
 async function searchCardImage(
   canvas: HTMLCanvasElement,
+  refreshFrame: () => void,
   contour: CardContour | null | undefined,
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
@@ -197,7 +198,10 @@ async function searchCardImage(
 }> {
   let fallbackReason = "card not detected";
   try {
-    const { dewarpedCanvas, detection } = await detectAndDewarpCard(canvas);
+    const { dewarpedCanvas, detection } = await detectAndDewarpCard(
+      canvas,
+      refreshFrame,
+    );
     if (dewarpedCanvas) {
       const best = await searchInOrientationOrder(
         dewarpedCanvas,
@@ -265,6 +269,7 @@ async function searchCardImage(
 
 async function searchCardImageWithConsensus(
   canvas: HTMLCanvasElement,
+  refreshFrame: () => void,
   contour: CardContour | null | undefined,
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
@@ -274,6 +279,7 @@ async function searchCardImageWithConsensus(
   const attempt = async () => {
     const result = await searchCardImage(
       canvas,
+      refreshFrame,
       contour,
       collectionGuid,
       ocrEnabled,
@@ -475,8 +481,21 @@ export function useCardScanner({
     );
   }, [cameraSource, phonePairingStatus, updateStatus]);
 
+  const drawLatestVideoFrame = useCallback(() => {
+    const video = videoRef.current;
+    const canvas = displayCanvasRef.current;
+    if (!video || !canvas || video.readyState < video.HAVE_CURRENT_DATA) {
+      return;
+    }
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+  }, []);
+
   const performCapture = useCallback(
-    async (checkDuplicate: boolean, contour?: CardContour | null) => {
+    async (
+      checkDuplicate: boolean,
+      contour: CardContour | null | undefined,
+      fromLiveVideo: boolean,
+    ) => {
       const canvas = displayCanvasRef.current;
       if (!canvas) {
         isCapturingRef.current = false;
@@ -488,6 +507,7 @@ export function useCardScanner({
         const { card, alternativeMatches, debugImageUrl, detectedContour } =
           await searchCardImageWithConsensus(
             canvas,
+            fromLiveVideo ? drawLatestVideoFrame : () => {},
             contour,
             activeCollectionGuidRef.current,
             ocrEnabledRef.current,
@@ -515,6 +535,7 @@ export function useCardScanner({
           }
         }
 
+        const pausedMidSearch = statusRef.current === "paused";
         if (card) {
           if (
             checkDuplicate &&
@@ -522,19 +543,19 @@ export function useCardScanner({
             lastScannedCardIdRef.current === card.id
           ) {
             setDuplicateCard(card);
-            updateStatus("duplicate");
+            if (!pausedMidSearch) updateStatus("duplicate");
           } else {
             lastScannedCardIdRef.current = card.id;
             onSearchResultsRef.current?.(
               [card, ...alternativeMatches],
               debugImageUrl,
             );
-            updateStatus("scanning");
+            if (!pausedMidSearch) updateStatus("scanning");
           }
         } else {
           playDingSound();
           onNoMatchRef.current?.(debugImageUrl);
-          updateStatus("no-match");
+          if (!pausedMidSearch) updateStatus("no-match");
         }
       } catch (err) {
         handleErrorRef.current(
@@ -544,7 +565,7 @@ export function useCardScanner({
         isCapturingRef.current = false;
       }
     },
-    [updateStatus, allowDuplicates, t],
+    [updateStatus, allowDuplicates, drawLatestVideoFrame, t],
   );
 
   const detectionLoop = useCallback(() => {
@@ -772,7 +793,7 @@ export function useCardScanner({
           return;
         }
         const contour = await drawImageToCanvas(dataUrl);
-        performCapture(checkDuplicate, contour);
+        performCapture(checkDuplicate, contour, false);
       });
     },
     [requestPhoneCapture, drawImageToCanvas, performCapture, t],
@@ -800,6 +821,7 @@ export function useCardScanner({
     performCapture(
       false,
       getDefaultCardContour(canvas.width, canvas.height, scanRegionRef.current),
+      true,
     );
   }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);
 
@@ -833,7 +855,7 @@ export function useCardScanner({
     settleTimeoutRef.current = setTimeout(() => {
       settleTimeoutRef.current = null;
       updateStatus("searching");
-      performCapture(true, contour);
+      performCapture(true, contour, true);
     }, captureSettleDelayMsRef.current);
   }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);
 

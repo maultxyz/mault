@@ -138,7 +138,11 @@
       "title": "Appareil vidé",
       "description": "Toutes les trappes inférieures ont été ouvertes pour libérer les cartes coincées."
     },
-    "lastSearchImageAlt": "Dernière image de recherche"
+    "lastSearchImageAlt": "Dernière image de recherche",
+    "pausedTabHidden": {
+      "title": "Numérisation en pause",
+      "description": "L'onglet du scanner a été masqué, la numérisation et l'alimentation automatique ont donc été mises en pause. L'aperçu de la caméra se fige tant que l'onglet n'est pas visible. Appuie sur Reprendre pour continuer."
+    }
   },
   "documentTitle": {
     "sorting": "Tri : {{setName}}",
