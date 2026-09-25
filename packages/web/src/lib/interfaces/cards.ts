@@ -1,9 +1,21 @@
 import type {
   FieldMeta,
+  PlayingCard,
   PlayingCardWithDistance,
   ScannedCard,
 } from "@magic-vault/shared";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
+
+export interface DetailSectionProps {
+  title: string;
+  children: ReactNode;
+  className?: string;
+}
+
+export interface CardPriceDetailsProps {
+  card: PlayingCard;
+  className?: string;
+}
 
 export interface CardSelectDialogProps {
   trigger?: ReactElement;

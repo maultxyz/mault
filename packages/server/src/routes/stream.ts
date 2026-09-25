@@ -5,6 +5,7 @@ import { streamSSE } from "hono/streaming";
 import { authProvider } from "../auth";
 import { authQuery } from "../db";
 import { collectionCards, collections, unmatchedCards } from "../db/schema";
+import { applyTcgplayerPricesToScans } from "../lib/card-search/tcgplayer-prices";
 import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
 import {
   getAllSessionViewers,
@@ -173,7 +174,13 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
             };
           });
 
-          if (initial) write(`session:${guid}:session_init`, initial);
+          if (initial) {
+            const cards = await applyTcgplayerPricesToScans(
+              initial.collection.game?.key,
+              initial.cards,
+            );
+            write(`session:${guid}:session_init`, { ...initial, cards });
+          }
         } catch {
           // non-fatal — subscriber will still receive live session events
         }

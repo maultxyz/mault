@@ -1,3 +1,4 @@
+import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
@@ -13,7 +14,6 @@ import { searchCards } from "@/features/cards/api/card-search";
 import type { CardSelectDialogProps } from "@/lib/interfaces/cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { formatUsd } from "@/lib/format";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
@@ -349,25 +349,7 @@ export function CardSelectDialog({
                       {selectedCard.setName} #{selectedCard.collectorNumber}
                     </span>
                   </div>
-                  {(selectedCard.price != null ||
-                    selectedCard.priceFoil != null) && (
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      {selectedCard.price != null && (
-                        <span>
-                          {t("cardPicker.regularPrice", {
-                            price: formatUsd(selectedCard.price),
-                          })}
-                        </span>
-                      )}
-                      {selectedCard.priceFoil != null && (
-                        <span>
-                          {t("cardPicker.foilPrice", {
-                            price: formatUsd(selectedCard.priceFoil),
-                          })}
-                        </span>
-                      )}
-                    </div>
-                  )}
+                  <CardPriceDetails card={selectedCard} />
                   {selectedCard.artist && (
                     <p className="text-muted-foreground">
                       {t("cardPicker.artBy", { artist: selectedCard.artist })}

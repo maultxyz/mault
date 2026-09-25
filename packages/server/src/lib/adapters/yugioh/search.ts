@@ -180,4 +180,6 @@ export const yugiohAdapter: CardSearchAdapter = {
   defaultUrl: YUGIOH_DEFAULT_URL,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw, id) =>
+    normalizeYugiohCard(raw as YgoCard).find((card) => card.id === id) ?? null,
 };

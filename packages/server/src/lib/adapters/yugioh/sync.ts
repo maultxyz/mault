@@ -1,7 +1,8 @@
-import type {
-  FetchOneResult,
-  SyncSource,
-  SyncSourceCard,
+import {
+  withRawData,
+  type FetchOneResult,
+  type SyncSource,
+  type SyncSourceCard,
 } from "../../card-search/sync-types";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
@@ -11,12 +12,17 @@ function toSyncCards(raw: YgoCard): SyncSourceCard[] {
   const primarySet = raw.card_sets?.[0];
   const { set } = primarySet ? splitSetCode(primarySet.set_code) : { set: "" };
 
-  return (raw.card_images ?? []).map((image) => ({
-    id: String(image.id),
-    name: raw.name,
-    setCode: set,
-    imageUrl: image.image_url,
-  }));
+  return (raw.card_images ?? []).map((image) =>
+    withRawData(
+      {
+        id: String(image.id),
+        name: raw.name,
+        setCode: set,
+        imageUrl: image.image_url,
+      },
+      raw,
+    ),
+  );
 }
 
 async function fetchCards(

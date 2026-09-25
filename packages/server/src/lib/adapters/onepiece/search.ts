@@ -327,4 +327,5 @@ export const onePieceAdapter: CardSearchAdapter = {
   defaultUrl: ONE_PIECE_DEFAULT_URL,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw, id) => normalizeOnePieceCard(raw as OptcgCard, id),
 };

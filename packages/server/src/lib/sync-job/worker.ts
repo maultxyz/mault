@@ -73,6 +73,7 @@ const VECTORIZE_CONCURRENCY = parseInt(
   process.env.VECTORIZE_CONCURRENCY ?? "10",
 );
 const INSERT_BATCH_SIZE = parseInt(process.env.SYNC_INSERT_BATCH_SIZE ?? "50");
+const DATA_REFRESH_BATCH_SIZE = 500;
 
 const IMAGE_FETCH_DELAY_MS = parseInt(
   process.env.SYNC_IMAGE_FETCH_DELAY_MS ?? "200",
@@ -88,6 +89,36 @@ function throttleImageFetch(): Promise<void> {
   );
   imageFetchGate = thisTurn;
   return thisTurn;
+}
+
+async function refreshStoredData(
+  source: SyncSource,
+  lang: string,
+  cards: SyncSourceCard[],
+): Promise<void> {
+  if (cards.length === 0) return;
+  addLog(`Refreshing stored data for ${cards.length} existing cards...`);
+
+  let updated = 0;
+  for (let i = 0; i < cards.length; i += DATA_REFRESH_BATCH_SIZE) {
+    if (isCancelled()) return;
+    const batch = cards.slice(i, i + DATA_REFRESH_BATCH_SIZE);
+    const rows = `[${batch
+      .map((c) => `{"card_id":${JSON.stringify(c.id)},"data":${c.data}}`)
+      .join(",")}]`;
+    const result = await db.execute(sql`
+      UPDATE cards AS c
+      SET data = x.data
+      FROM jsonb_to_recordset(${rows}::jsonb) AS x(card_id text, data jsonb)
+      WHERE c.game_key = ${source.gameKey}
+        AND c.lang = ${lang}
+        AND c.card_id = x.card_id
+        AND c.data IS DISTINCT FROM x.data
+    `);
+    updated += result.rowCount ?? 0;
+  }
+
+  addLog(`Stored data refreshed (${updated} changed).`);
 }
 
 function emitCancelledDone(): void {
@@ -172,8 +203,23 @@ async function runSync(
             ? `, except ${recentlyUpdated.size} updated within the last ${Math.round(skipUpdatedWithinMs! / 3_600_000)}h`
             : "")
         : "") +
-      `. Starting vectorization (${VECTORIZE_CONCURRENCY} in parallel)...`,
+      ".",
   );
+
+  const isAlreadyVectorized = (id: string) =>
+    (!forceResync && existingSet.has(id)) || recentlyUpdated.has(id);
+
+  await refreshStoredData(
+    source,
+    lang,
+    cards.filter((c) => isAlreadyVectorized(c.id)),
+  );
+  if (isCancelled()) {
+    emitCancelledDone();
+    return;
+  }
+
+  addLog(`Starting vectorization (${VECTORIZE_CONCURRENCY} in parallel)...`);
 
   let pendingInserts: (typeof cardImageVectors.$inferInsert)[] = [];
   let pendingCards: SyncSourceCard[] = [];
@@ -207,6 +253,7 @@ async function runSync(
             name: sql`excluded.name`,
             setCode: sql`excluded.set_code`,
             embedding: sql`excluded.embedding`,
+            data: sql`excluded.data`,
             updatedAt: sql`now()`,
           },
         });
@@ -234,10 +281,7 @@ async function runSync(
   }
 
   async function processCard(card: SyncSourceCard): Promise<void> {
-    const alreadyVectorized =
-      (!forceResync && existingSet.has(card.id)) ||
-      recentlyUpdated.has(card.id);
-    if (!card.imageUrl || alreadyVectorized) {
+    if (!card.imageUrl || isAlreadyVectorized(card.id)) {
       incrementCounters({ skipped: 1 });
       const s = getState();
       emitEvent("progress", {
@@ -267,6 +311,7 @@ async function runSync(
         name: card.name,
         setCode: card.setCode,
         embedding,
+        data: JSON.parse(card.data),
       });
       pendingCards.push(card);
       patchState({ queued: pendingCards.length });

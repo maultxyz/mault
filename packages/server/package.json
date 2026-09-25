@@ -12,6 +12,7 @@
     "db:studio": "drizzle-kit studio",
     "db:migrate-local": "tsx scripts/migrate-local.ts",
     "resync:all": "tsx --env-file ../../.env scripts/resync-all.ts",
+    "sync:prices": "tsx --env-file ../../.env scripts/sync-prices.ts",
     "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts",
     "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts",
     "backfill:devices": "tsx --env-file ../../.env scripts/backfill-devices.ts",

@@ -1,3 +1,4 @@
+import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,10 +18,10 @@ import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { getCardById, searchCards } from "@/features/cards/api/card-search";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
+import { DetailSection } from "@/features/cards/components/detail-section";
 import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { formatUsd } from "@/lib/format";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
@@ -32,6 +33,7 @@ import {
   IconCheck,
   IconChevronDown,
   IconChevronUp,
+  IconExternalLink,
   IconLoader2,
   IconPencil,
   IconRefresh,
@@ -226,6 +228,16 @@ export function CardDetailPanel({
     }
   }, [scanId, selectedCard, activeCollection?.guid, correctCard, t]);
 
+  const capturedImage = capturedImageUrl ? (
+    <CapturedImageThumb
+      src={capturedImageUrl}
+      alt={t("cardPicker.scannedAlt")}
+      showOcrRegions={showOcrRegions}
+    />
+  ) : (
+    <Skeleton className="h-full w-full rounded-none" />
+  );
+
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
   const typeLine = selectedCard?.typeLine ?? "";
@@ -302,37 +314,15 @@ export function CardDetailPanel({
             </div>
           )}
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-5">
+        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
           {currentCard && !editing ? (
             <>
               {hasMultipleCandidates && (
-                <div className="flex flex-col gap-3">
-                  {showCapturedImageSlot ? (
-                    <div className="flex items-center gap-4">
-                      <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
-                        {capturedImageUrl ? (
-                          <CapturedImageThumb
-                            src={capturedImageUrl}
-                            alt={t("cardPicker.scannedAlt")}
-                            showOcrRegions={showOcrRegions}
-                          />
-                        ) : (
-                          <Skeleton className="h-full w-full rounded-none" />
-                        )}
-                      </div>
-                      <p className="text-sm text-muted-foreground leading-snug">
-                        {t("cardPicker.selectCorrectVersion")}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground font-medium">
-                      {t("cardPicker.multipleMatches")}
-                    </p>
-                  )}
-                  <p className="text-xs font-medium text-muted-foreground tracking-wide">
-                    {t("cardDetailPanel.similarMatches")}
+                <DetailSection title={t("cardDetailPanel.similarMatches")}>
+                  <p className="text-sm text-foreground/70">
+                    {t("cardPicker.multipleMatches")}
                   </p>
-                  <div className="flex gap-3 overflow-x-auto pb-1">
+                  <div className="flex gap-2 overflow-x-auto pb-1">
                     {candidates.map((c) => {
                       const isSelected = c.id === selectedId;
                       return (
@@ -340,18 +330,18 @@ export function CardDetailPanel({
                           key={c.id}
                           type="button"
                           onClick={() => handleSelectCandidate(c)}
-                          className="shrink-0 flex flex-col gap-1.5 items-center cursor-pointer group"
+                          className="shrink-0 flex flex-col gap-1 items-center cursor-pointer group"
                         >
                           <div
                             className={cn(
-                              "w-32 aspect-[2.5/3.5] rounded-lg overflow-hidden border-2 transition-all",
+                              "w-24 aspect-[2.5/3.5] rounded-md overflow-hidden border-2 transition-all",
                               isSelected
                                 ? "border-primary shadow-md"
                                 : "border-border group-hover:border-primary/60",
                             )}
                           >
                             <img
-                              src={c.image?.normal || c.image?.small || ""}
+                              src={c.image?.small || c.image?.normal || ""}
                               alt={c.name}
                               className="w-full h-full object-cover"
                             />
@@ -365,7 +355,7 @@ export function CardDetailPanel({
                                 "text-xs font-medium",
                                 isSelected
                                   ? "text-primary"
-                                  : "text-muted-foreground",
+                                  : "text-foreground/70",
                               )}
                             >
                               {c.set.toUpperCase()} #{c.collectorNumber}
@@ -375,172 +365,173 @@ export function CardDetailPanel({
                       );
                     })}
                   </div>
-                  <div className="border-t" />
-                </div>
+                </DetailSection>
               )}
-              <div className="flex flex-col gap-4">
-                {!hasMultipleCandidates && (
-                  <div className="shrink-0 flex gap-3">
+
+              <div className="grid gap-6 @3xl:grid-cols-[auto_minmax(0,1fr)]">
+                <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row">
+                  {showCapturedImageSlot && (
+                    <figure className="flex flex-col gap-1.5">
+                      <figcaption className="text-xs text-foreground/70">
+                        {t("cardDetailPanel.capturedScan")}
+                      </figcaption>
+                      <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
+                        {capturedImage}
+                      </div>
+                    </figure>
+                  )}
+                  <figure className="flex flex-col gap-1.5">
                     {showCapturedImageSlot && (
-                      <div className="flex flex-col gap-1.5 items-center">
-                        <p className="text-xs text-muted-foreground">
-                          {t("cardDetailPanel.capturedScan")}
-                        </p>
-                        <div className="w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
-                          {capturedImageUrl ? (
-                            <CapturedImageThumb
-                              src={capturedImageUrl}
-                              alt={t("cardPicker.scannedAlt")}
-                              showOcrRegions={showOcrRegions}
-                            />
-                          ) : (
-                            <Skeleton className="h-full w-full rounded-none" />
-                          )}
-                        </div>
-                      </div>
+                      <figcaption className="text-xs text-foreground/70">
+                        {t("cardDetailPanel.matchedCard")}
+                      </figcaption>
                     )}
-                    <div className="flex flex-col gap-1.5 items-center">
-                      {showCapturedImageSlot && (
-                        <p className="text-xs text-muted-foreground">
-                          {t("cardDetailPanel.matchedCard")}
-                        </p>
-                      )}
-                      <div className="relative w-64 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
-                        <img
-                          src={selectedCard?.image?.normal || ""}
-                          alt={selectedCard?.name}
-                          className="w-full h-full object-cover"
-                        />
-                        {isFoil && <FoilOverlay />}
-                      </div>
+                    <div className="relative w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
+                      <img
+                        src={selectedCard?.image?.normal || ""}
+                        alt={selectedCard?.name}
+                        className="w-full h-full object-cover"
+                      />
+                      {isFoil && <FoilOverlay />}
                     </div>
-                  </div>
-                )}
+                  </figure>
+                </div>
 
                 {selectedCard && (
-                  <div className="flex flex-col gap-3 min-w-0 flex-1">
-                    {selectedCard.manaCost && (
-                      <p className="text-xs text-muted-foreground">
-                        {formatManaCost(selectedCard.manaCost)}
-                      </p>
-                    )}
-                    {selectedCard.text && (
-                      <p className="text-sm whitespace-pre-line leading-relaxed">
-                        {selectedCard.text}
-                      </p>
-                    )}
-                    {selectedCard.power != null &&
-                      selectedCard.toughness != null && (
-                        <p className="text-sm font-semibold">
-                          {selectedCard.power}/{selectedCard.toughness}
-                        </p>
-                      )}
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">
-                      <div
-                        className="size-2 rounded-full shrink-0"
-                        style={{
-                          backgroundColor: `var(--${selectedCard.rarity})`,
-                        }}
-                      />
-                      <span className="capitalize">{selectedCard.rarity}</span>
-                      <span>·</span>
-                      <span>
-                        {selectedCard.setName} #{selectedCard.collectorNumber}
-                      </span>
-                    </div>
-                    {(selectedCard.price != null ||
-                      selectedCard.priceFoil != null) && (
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        {selectedCard.price != null && (
-                          <span>
-                            {t("cardPicker.regularPrice", {
-                              price: formatUsd(selectedCard.price),
-                            })}
-                          </span>
+                  <div className="flex flex-col gap-6 min-w-0">
+                    <DetailSection title={t("cardDetailPanel.prices")}>
+                      <CardPriceDetails card={selectedCard} />
+                    </DetailSection>
+
+                    <DetailSection title={t("cardDetailPanel.details")}>
+                      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1.5 text-sm">
+                        <dt className="text-foreground/70">
+                          {t("cardDetailPanel.set")}
+                        </dt>
+                        <dd>
+                          {`${selectedCard.setName} (${selectedCard.set.toUpperCase()}) #${selectedCard.collectorNumber}`}
+                        </dd>
+                        {selectedCard.rarity && (
+                          <>
+                            <dt className="text-foreground/70">
+                              {t("cardDetailPanel.rarity")}
+                            </dt>
+                            <dd className="flex items-center gap-2 capitalize">
+                              <span
+                                className="size-2 rounded-full shrink-0"
+                                style={{
+                                  backgroundColor: `var(--${selectedCard.rarity})`,
+                                }}
+                              />
+                              {selectedCard.rarity}
+                            </dd>
+                          </>
                         )}
-                        {selectedCard.priceFoil != null && (
-                          <span>
-                            {t("cardPicker.foilPrice", {
-                              price: formatUsd(selectedCard.priceFoil),
-                            })}
-                          </span>
+                        {selectedCard.manaCost && (
+                          <>
+                            <dt className="text-foreground/70">
+                              {t("cardDetailPanel.manaCost")}
+                            </dt>
+                            <dd>{formatManaCost(selectedCard.manaCost)}</dd>
+                          </>
+                        )}
+                        {selectedCard.power != null &&
+                          selectedCard.toughness != null && (
+                            <>
+                              <dt className="text-foreground/70">
+                                {t("cardDetailPanel.powerToughness")}
+                              </dt>
+                              <dd>
+                                {selectedCard.power}/{selectedCard.toughness}
+                              </dd>
+                            </>
+                          )}
+                        {selectedCard.artist && (
+                          <>
+                            <dt className="text-foreground/70">
+                              {t("cardDetailPanel.artist")}
+                            </dt>
+                            <dd>{selectedCard.artist}</dd>
+                          </>
+                        )}
+                      </dl>
+                      {selectedCard.sourceUrl && (
+                        <a
+                          href={selectedCard.sourceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-sm text-primary hover:underline w-fit"
+                        >
+                          {t("cardPicker.viewSource")}
+                          <IconExternalLink className="size-3.5" />
+                        </a>
+                      )}
+                    </DetailSection>
+
+                    {selectedCard.text && (
+                      <DetailSection title={t("cardDetailPanel.cardText")}>
+                        <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
+                          {selectedCard.text}
+                        </p>
+                      </DetailSection>
+                    )}
+
+                    <DetailSection title={t("cardDetailPanel.thisScan")}>
+                      <div className="flex flex-wrap gap-6 items-start">
+                        <div className="flex flex-col gap-1.5">
+                          <Label>{t("foil")}</Label>
+                          <Select
+                            value={currentFoilType ?? "none"}
+                            onValueChange={(value) => {
+                              if (scanId) {
+                                setCardFoilType(
+                                  scanId,
+                                  value === "none" ? null : value,
+                                );
+                              }
+                            }}
+                            disabled={!scanId}
+                          >
+                            <SelectTrigger className="w-40">
+                              <SelectValue placeholder={t("foilNone")} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">
+                                {t("foilNone")}
+                              </SelectItem>
+                              {foilOptions.map((type) => (
+                                <SelectItem key={type} value={type}>
+                                  {type}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {binNumber != null && (
+                          <div className="flex flex-col gap-1.5">
+                            <Label>{t("cardDetailPanel.binLocation")}</Label>
+                            <div className="w-48 rounded-lg border">
+                              <BinLocationDiagram
+                                binNumber={binNumber}
+                                inverted={false}
+                              />
+                            </div>
+                          </div>
                         )}
                       </div>
-                    )}
-                    {selectedCard.artist && (
-                      <p className="text-xs text-muted-foreground">
-                        {t("cardPicker.artBy", {
-                          artist: selectedCard.artist,
-                        })}
-                      </p>
-                    )}
-                    {selectedCard.sourceUrl && (
-                      <a
-                        href={selectedCard.sourceUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-sm text-primary hover:underline w-fit"
-                      >
-                        {t("cardPicker.viewSource")}
-                      </a>
-                    )}
+                    </DetailSection>
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 w-fit">
-                <Label>{t("foil")}</Label>
-                <Select
-                  value={currentFoilType ?? "none"}
-                  onValueChange={(value) => {
-                    if (scanId) {
-                      setCardFoilType(scanId, value === "none" ? null : value);
-                    }
-                  }}
-                  disabled={!scanId}
-                >
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder={t("foilNone")} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t("foilNone")}</SelectItem>
-                    {foilOptions.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              {binNumber != null && (
-                <div className="flex flex-col gap-1.5">
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {t("cardDetailPanel.binLocation")}
-                  </p>
-                  <div className="w-48 rounded-lg border">
-                    <BinLocationDiagram
-                      binNumber={binNumber}
-                      inverted={false}
-                    />
-                  </div>
-                </div>
-              )}
             </>
           ) : (
             <>
               {showCapturedImageSlot && (
                 <div className="flex items-center gap-4">
                   <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
-                    {capturedImageUrl ? (
-                      <CapturedImageThumb
-                        src={capturedImageUrl}
-                        alt={t("cardPicker.scannedAlt")}
-                        showOcrRegions={showOcrRegions}
-                      />
-                    ) : (
-                      <Skeleton className="h-full w-full rounded-none" />
-                    )}
+                    {capturedImage}
                   </div>
-                  <p className="text-sm text-muted-foreground leading-snug">
+                  <p className="text-sm text-foreground/70 leading-snug">
                     {t("cardDetailPanel.searchForCorrectVersion")}
                   </p>
                 </div>

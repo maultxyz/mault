@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { resolveCardSearch } from "../../lib/card-search/resolve";
+import { searchCards } from "../../lib/card-search/stored-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const searchCardRoute = new Hono<AppEnv>().get(
@@ -18,11 +19,7 @@ export const searchCardRoute = new Hono<AppEnv>().get(
         400,
       );
     }
-    const result = await resolved.adapter.search(
-      query,
-      resolved.baseUrl,
-      resolved.lang,
-    );
+    const result = await searchCards(resolved, query);
     return c.json(result);
   },
 );

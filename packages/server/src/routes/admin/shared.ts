@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { SYNC_SOURCES } from "../../lib/sync-job";
@@ -58,6 +59,7 @@ export async function syncOneCard(
       name: card.name,
       setCode: card.setCode,
       embedding,
+      data: sql`${card.data}::jsonb`,
     })
     .onConflictDoUpdate({
       target: [
@@ -69,6 +71,7 @@ export async function syncOneCard(
         name: card.name,
         setCode: card.setCode,
         embedding,
+        data: sql`${card.data}::jsonb`,
         updatedAt: new Date(),
       },
     });

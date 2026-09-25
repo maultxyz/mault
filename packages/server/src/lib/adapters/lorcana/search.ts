@@ -294,4 +294,15 @@ export const lorcanaAdapter: CardSearchAdapter = {
     lang === "de" ? LORCANA_DE_DEFAULT_URL : LORCANA_DEFAULT_URL,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw, _id, lang) =>
+    lang === "de"
+      ? normalizeLorcanaDeCard(raw as LorcanaDeCard)
+      : normalizeLorcanaCard(raw as LorcastCard),
+  tcgplayer: {
+    categoryId: 71,
+    subTypes: () => ({
+      price: ["Normal"],
+      priceFoil: ["Holofoil", "Cold Foil"],
+    }),
+  },
 };

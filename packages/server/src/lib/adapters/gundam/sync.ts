@@ -1,4 +1,8 @@
-import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
+import {
+  withRawData,
+  type SyncSource,
+  type SyncSourceCard,
+} from "../../card-search/sync-types";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { GUNDAM_DEFAULT_URL } from "../../constants/urls";
 
@@ -43,12 +47,17 @@ async function fetchCards(
     offset += PAGE_LIMIT;
   }
 
-  return all.map((c) => ({
-    id: c.product_id ?? c.card_number,
-    name: c.name,
-    setCode: c.set_code,
-    imageUrl: c.image_url,
-  }));
+  return all.map((c) =>
+    withRawData(
+      {
+        id: c.product_id ?? c.card_number,
+        name: c.name,
+        setCode: c.set_code,
+        imageUrl: c.image_url,
+      },
+      c,
+    ),
+  );
 }
 
 async function fetchOne(id: string, baseUrl: string) {
@@ -64,7 +73,10 @@ async function fetchOne(id: string, baseUrl: string) {
 
   if (!raw) return { card: null, urls: [url] };
   return {
-    card: { name: raw.name, setCode: raw.set_code, imageUrl: raw.image_url },
+    card: withRawData(
+      { name: raw.name, setCode: raw.set_code, imageUrl: raw.image_url },
+      raw,
+    ),
     urls: [url],
   };
 }

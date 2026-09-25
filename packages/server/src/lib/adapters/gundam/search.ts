@@ -145,4 +145,5 @@ export const gundamAdapter: CardSearchAdapter = {
   defaultUrl: GUNDAM_DEFAULT_URL,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw) => normalizeGundamCard(raw as GundamCard),
 };

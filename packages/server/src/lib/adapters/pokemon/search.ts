@@ -5,7 +5,7 @@ import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";
 
-interface PokemonCardBrief {
+export interface PokemonCardBrief {
   id: string;
   localId: string;
   name: string;
@@ -25,15 +25,20 @@ interface PokemonAbility {
   effect?: string;
 }
 
+interface PokemonTcgplayerVariant {
+  productId?: number;
+  marketPrice?: number;
+}
+
 interface PokemonPricing {
   tcgplayer?: {
-    normal?: { marketPrice?: number };
-    holofoil?: { marketPrice?: number };
-    "reverse-holofoil"?: { marketPrice?: number };
+    normal?: PokemonTcgplayerVariant;
+    holofoil?: PokemonTcgplayerVariant;
+    "reverse-holofoil"?: PokemonTcgplayerVariant;
   };
 }
 
-interface PokemonCardDetail extends PokemonCardBrief {
+export interface PokemonCardDetail extends PokemonCardBrief {
   category?: string;
   illustrator?: string;
   rarity?: string;
@@ -78,6 +83,17 @@ function resolveFoilPrice(pricing: PokemonPricing | undefined): number | null {
   );
 }
 
+function resolveTcgplayerId(
+  pricing: PokemonPricing | undefined,
+): string | undefined {
+  const tcgplayer = pricing?.tcgplayer;
+  const productId =
+    tcgplayer?.normal?.productId ??
+    tcgplayer?.holofoil?.productId ??
+    tcgplayer?.["reverse-holofoil"]?.productId;
+  return productId != null ? String(productId) : undefined;
+}
+
 function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
   const small = raw.image ? assetUrl(raw.image, "low") : "";
   const large = raw.image ? assetUrl(raw.image, "high") : "";
@@ -118,17 +134,20 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
     price: resolvePrice(raw.pricing),
     priceFoil: resolveFoilPrice(raw.pricing),
     sourceUrl: `https://tcgdex.dev/cards/${raw.id}`,
+    tcgplayerId: resolveTcgplayerId(raw.pricing),
     cmc: raw.retreat,
     raw,
   };
 }
 
-async function fetchDetail(
+export async function fetchDetail(
   id: string,
   baseUrl: string,
+  signal?: AbortSignal,
 ): Promise<PokemonCardDetail | null> {
   const response = await fetchCardApi(`${baseUrl}/${id}`, {
     headers: CARD_API_HEADERS,
+    signal,
   });
   if (!response.ok) return null;
   return (await response.json()) as PokemonCardDetail;
@@ -202,4 +221,14 @@ export const pokemonAdapter: CardSearchAdapter = {
   urlForLang,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw) => normalizePokemonCard(raw as PokemonCardDetail),
+  tcgplayer: {
+    categoryId: 3,
+    productIdFromRaw: (card) =>
+      resolveTcgplayerId((card.raw as PokemonCardDetail).pricing),
+    subTypes: () => ({
+      price: ["Normal"],
+      priceFoil: ["Holofoil", "Reverse Holofoil"],
+    }),
+  },
 };

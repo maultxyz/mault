@@ -9,6 +9,7 @@ import { scryfallAdapter } from "../adapters/scryfall/search";
 import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withCache } from "./cache";
 import { withErrorHandling } from "./error-handling";
+import type { ResolvedCardSearch } from "./stored-cards";
 import type { CardSearchAdapter } from "./types";
 
 export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
@@ -49,7 +50,7 @@ export async function resolveGameKeyAndLang(
 export async function resolveCardSearch(
   jwtClaims: string,
   collectionGuid: string | undefined,
-): Promise<{ adapter: CardSearchAdapter; baseUrl: string; lang: string } | null> {
+): Promise<ResolvedCardSearch | null> {
   const resolved = await resolveGameKeyAndLang(jwtClaims, collectionGuid);
   if (!resolved) return null;
 
@@ -57,5 +58,5 @@ export async function resolveCardSearch(
   if (!adapter) return null;
 
   const baseUrl = adapter.urlForLang?.(resolved.lang) ?? adapter.defaultUrl;
-  return { adapter, baseUrl, lang: resolved.lang };
+  return { adapter, gameKey: resolved.gameKey, baseUrl, lang: resolved.lang };
 }

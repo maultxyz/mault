@@ -316,6 +316,20 @@
       "when": 1790277594802,
       "tag": "0044_lonely_mentallo",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1790366151624,
+      "tag": "0045_bizarre_hawkeye",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1790368449915,
+      "tag": "0046_bitter_beyonder",
+      "breakpoints": true
     }
   ]
 }
