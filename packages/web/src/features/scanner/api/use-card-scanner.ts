@@ -132,9 +132,8 @@ function hasMatch(result: CardSearchResult): boolean {
   return (result.data?.length ?? 0) > 0;
 }
 
-// Searches the orientation that matched last first, and only embeds/searches
-// the 180° copy when that misses and the device checks both orientations. On a double miss, keeps whichever copy came
-// closest so the saved unmatched image is the likelier right-way-up one.
+// On a double miss, keep the closer copy so the saved unmatched image is
+// likelier to be right way up.
 async function searchInOrientationOrder(
   canvas: HTMLCanvasElement,
   preferred: ScanOrientation,

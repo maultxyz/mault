@@ -9,8 +9,6 @@ export interface SearchCardMatch {
 }
 
 export interface CardSearchResult extends Result<SearchCardMatch[] | null> {
-  // Set even when data is null, so the client can tell which scan
-  // orientation came closest when neither produced a confident match.
   nearestDistance?: number | null;
 }
 

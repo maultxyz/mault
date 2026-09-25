@@ -166,8 +166,7 @@ export function CardScanner({
     }
   });
 
-  // A card fed just before the tab was hidden still arrives. Hold it until
-  // the user resumes rather than scanning a stale, frozen preview frame.
+  // A card fed just before the tab was hidden still arrives; hold it until resume.
   const heldCardArrivalRef = useRef(false);
 
   const handleCardArrived = useCallback(() => {
