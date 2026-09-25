@@ -18,12 +18,32 @@
       type="font/woff2"
       crossorigin
     />
+    <script>
+      // Runs before first paint so the boot shell below already matches the
+      // theme next-themes will apply (its own script only runs once React
+      // mounts) and, on /app, the React loading screen it hands off to.
+      (function () {
+        var theme;
+        try {
+          theme = localStorage.getItem("theme");
+        } catch (e) {}
+        if (theme !== "light" && theme !== "dark")
+          theme = matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        var root = document.documentElement;
+        root.classList.add(theme);
+        root.style.colorScheme = theme;
+        if (/^\/app(\/|$)/.test(location.pathname)) root.dataset.boot = "app";
+      })();
+    </script>
     <style>
       /* Boot shell: system-font content that paints immediately, for the
-         same iOS Safari first-paint rule. A sibling of #root rather than its
+         iOS Safari first-paint rule above. A sibling of #root rather than its
          child, since React's first commit (the root Suspense fallback) would
          clear it before the page has any content; it hides itself once #root
-         does. */
+         does. On /app it mirrors AppLoadingScreen's layout and colors so the
+         handoff to it doesn't flash. */
       .boot-shell {
         position: fixed;
         inset: 0;
@@ -41,11 +61,55 @@
       #root:not(:empty) + .boot-shell {
         display: none;
       }
-      @media (prefers-color-scheme: dark) {
-        .boot-shell {
-          background: #09090b;
-          color: #a1a1aa;
-        }
+      .boot-shell-icon {
+        display: grid;
+        place-items: center;
+        color: oklch(0.141 0.005 285.823);
+      }
+      .boot-shell-icon svg {
+        width: 56px;
+        height: 56px;
+      }
+      .boot-shell-card-space {
+        display: none;
+      }
+      .dark .boot-shell {
+        background: #09090b;
+        color: #a1a1aa;
+      }
+      .dark .boot-shell-icon {
+        color: oklch(0.985 0 0);
+      }
+      [data-boot="app"] .boot-shell {
+        gap: 8px;
+        background: oklch(0.967 0.001 286.375);
+      }
+      [data-boot="app"].dark .boot-shell {
+        background: #000;
+      }
+      [data-boot="app"] .boot-shell-icon {
+        box-sizing: border-box;
+        width: 36px;
+        height: 36px;
+        margin-bottom: 4px;
+        border: 1px solid oklch(0.92 0.004 286.32);
+        border-radius: 0.625rem;
+        background: oklch(0.141 0.005 285.823 / 4%);
+      }
+      [data-boot="app"].dark .boot-shell-icon {
+        border-color: oklch(1 0 0 / 10%);
+        background: oklch(0.985 0 0 / 4%);
+      }
+      [data-boot="app"] .boot-shell-icon svg {
+        width: 28px;
+        height: 28px;
+      }
+      [data-boot="app"] .boot-shell-tagline {
+        display: none;
+      }
+      [data-boot="app"] .boot-shell-card-space {
+        display: block;
+        height: 144px;
       }
     </style>
     <script>
@@ -94,8 +158,13 @@
   <body>
     <div id="root"></div>
     <div class="boot-shell" aria-hidden="true">
-      <img src="/icon/Mault.svg" width="56" height="56" alt="" />
-      <span>MAULT · Automated trading card sorting</span>
+      <span class="boot-shell-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 235 217" fill="none">
+          <path fill="currentColor" d="M78.567 70.705c9.79-16.958 31.474-22.768 48.431-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843zM131.841 70.705c9.791-16.958 31.475-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.844l-48 83.138c-9.79 16.958-31.474 22.768-48.432 12.977a3.545 3.545 0 0 1-1.297-4.843zM162.526 109.705c9.791-16.958 31.474-22.768 48.432-12.978a3.545 3.545 0 0 1 1.298 4.843l-25.41 44.011c-9.79 16.958-31.474 22.768-48.432 12.978a3.546 3.546 0 0 1-1.298-4.844z" />
+        </svg>
+      </span>
+      <span class="boot-shell-tagline">MAULT · Automated trading card sorting</span>
+      <span class="boot-shell-card-space"></span>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

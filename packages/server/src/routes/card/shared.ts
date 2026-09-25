@@ -5,7 +5,10 @@ import type {
 import { DISTANCE_THRESHOLD } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { authQuery } from "../../db";
-import { MATCH_CONFIDENCE_TEMPERATURE } from "../../lib/constants/card-search";
+import {
+  DUPLICATE_PRINTING_MAX_DISTANCE,
+  MATCH_CONFIDENCE_TEMPERATURE,
+} from "../../lib/constants/card-search";
 
 const MATCH_LIMIT = 5;
 
@@ -20,11 +23,6 @@ export function extractOcrTokens(text: string): string[] {
     .filter((token) => token.length > 0);
 }
 
-// Each candidate's softmax share among all nearest candidates, taken before
-// the threshold filter so a runner-up just past the threshold still counts
-// against the winner. Raw similarity alone reads low for a correct match,
-// since a camera frame never embeds identically to a clean reference image;
-// the margin over the next-best card is what actually decides the match.
 function withConfidence<T extends { distance: number }>(
   candidates: T[],
 ): (T & { confidence: number })[] {
@@ -37,6 +35,19 @@ function withConfidence<T extends { distance: number }>(
     );
     return { ...c, confidence: 1 / total };
   });
+}
+
+function poolDuplicatePrintings<
+  T extends { confidence: number; leaderDistance: number },
+>(candidates: T[]): T[] {
+  const isDuplicate = (c: T) =>
+    c.leaderDistance <= DUPLICATE_PRINTING_MAX_DISTANCE;
+  const pooled = candidates
+    .filter(isDuplicate)
+    .reduce((sum, c) => sum + c.confidence, 0);
+  return candidates.map((c) =>
+    isDuplicate(c) ? { ...c, confidence: pooled } : c,
+  );
 }
 
 function vectorLiteral(embedding: number[] | null): string | null {
@@ -72,29 +83,39 @@ export async function findCardMatches(
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
     await tx.execute(sql`SET LOCAL hnsw.max_scan_tuples = 100000`);
-    // Default is 40, which under-searches once the game/lang filter forces
-    // iterative_scan to keep expanding — widening the base beam here cuts
-    // down how often iterative_scan has to fall back on extra rounds.
     await tx.execute(sql`SET LOCAL hnsw.ef_search = 200`);
 
     const matches = await tx.execute(sql`
+      WITH nearest AS (
+        SELECT
+          card_id,
+          set_code,
+          embedding,
+          embedding <=> ${embeddingStr}::vector(128) AS distance
+        FROM cards
+        WHERE game_key = ${gameKey} AND lang = ${lang}
+        ORDER BY embedding <=> ${embeddingStr}::vector(128)
+        LIMIT ${MATCH_LIMIT}
+      )
       SELECT
         card_id,
         set_code,
-        embedding <=> ${embeddingStr}::vector(128) AS distance
-      FROM cards
-      WHERE game_key = ${gameKey} AND lang = ${lang}
-      ORDER BY embedding <=> ${embeddingStr}::vector(128)
-      LIMIT ${MATCH_LIMIT}
+        distance,
+        embedding <=> first_value(embedding) OVER (ORDER BY distance) AS leader_distance
+      FROM nearest
+      ORDER BY distance
     `);
 
-    const candidates = withConfidence(
-      matches.rows.map((row) => ({
-        id: row.card_id as string,
-        cardId: row.card_id as string,
-        setCode: row.set_code as string,
-        distance: row.distance as number,
-      })),
+    const candidates = poolDuplicatePrintings(
+      withConfidence(
+        matches.rows.map((row) => ({
+          id: row.card_id as string,
+          cardId: row.card_id as string,
+          setCode: row.set_code as string,
+          distance: row.distance as number,
+          leaderDistance: row.leader_distance as number,
+        })),
+      ),
     );
 
     if (showVectorLogs) {
@@ -104,11 +125,6 @@ export async function findCardMatches(
       console.table(candidates);
     }
 
-    // Confidence is relative to the other candidates, so a frame showing no
-    // card, or one from another game, can still have a clear leader. The
-    // fixed distance cap is the absolute floor that rejects those, and the
-    // collection's setting gates on the leader's confidence alone so a close
-    // runner-up still survives as an alternative to pick from.
     const rows = candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
     if ((rows[0]?.confidence ?? 0) < minConfidence) {
       return {

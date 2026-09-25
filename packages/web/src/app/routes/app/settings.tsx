@@ -8,6 +8,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
 import { LocalOrgInvites } from "@/features/companies/components/local-org-invites";
+import { LocalOrgSettings } from "@/features/companies/components/local-org-settings";
 import { OrgSettings } from "@/features/companies/components/org-settings";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
@@ -75,6 +76,7 @@ export default function SettingsPage() {
             <LocalOrgInvites />
           </div>
         )}
+        {AUTH_PROVIDER === "local" && <LocalOrgSettings />}
         {AUTH_PROVIDER === "local" && (
           <div className="rounded-lg border p-4 flex flex-col gap-4">
             <h2 className="text-sm font-semibold font-heading">

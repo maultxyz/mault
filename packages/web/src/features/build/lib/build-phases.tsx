@@ -64,6 +64,7 @@ export function buildPhases(
   moduleCount: number,
   boardType: BoardType,
   mountType: Esp32MountType,
+  usingKit: boolean,
 ): Phase[] {
   const board = BOARD_INFO[boardType];
   const isEsp32Family = boardType !== "uno_r4";
@@ -71,8 +72,13 @@ export function buildPhases(
   const sortingModules = moduleCount;
   const baseSupportPieces = countBaseSupportPieces(moduleCount);
   const genericBase = Math.max(0, moduleCount - 2);
+  const breakoutSupportHeight = isEsp32Breakout
+    ? moduleCount >= 3
+      ? 3
+      : 1
+    : null;
 
-  return [
+  const phases: Phase[] = [
     {
       key: "print",
       title: t("assembly.phases.print.title"),
@@ -116,14 +122,22 @@ export function buildPhases(
         },
         {
           key: "print-plate-base",
-          text: t("assembly.phases.print.steps.printPlateBase.text", {
-            modules: moduleCount,
-            threeTall: baseSupportPieces.threeTall,
-            oneTall: baseSupportPieces.oneTall,
-          }),
-          note: isEsp32Breakout
-            ? t("assembly.phases.print.steps.printPlateBase.breakoutNote")
-            : undefined,
+          text: breakoutSupportHeight
+            ? t("assembly.phases.print.steps.printPlateBase.breakoutText", {
+                modules: moduleCount,
+                threeTall:
+                  baseSupportPieces.threeTall -
+                  (breakoutSupportHeight === 3 ? 1 : 0),
+                oneTall:
+                  baseSupportPieces.oneTall -
+                  (breakoutSupportHeight === 1 ? 1 : 0),
+                breakoutHeight: breakoutSupportHeight,
+              })
+            : t("assembly.phases.print.steps.printPlateBase.text", {
+                modules: moduleCount,
+                threeTall: baseSupportPieces.threeTall,
+                oneTall: baseSupportPieces.oneTall,
+              }),
           images: [
             "/instructions/base_module.jpg",
             "/instructions/base_module_assembled.jpg",
@@ -136,11 +150,6 @@ export function buildPhases(
               ? "assembly.phases.print.steps.printPlateBaseBottom.esp32Breakout"
               : "assembly.phases.print.steps.printPlateBaseBottom.esp32OrArduino",
           ),
-          note: isEsp32Breakout
-            ? t(
-                "assembly.phases.print.steps.printPlateBaseBottom.esp32BreakoutNote",
-              )
-            : undefined,
         },
         {
           key: "print-servo-controller-plate",
@@ -490,4 +499,8 @@ export function buildPhases(
       ],
     },
   ];
+
+  return usingKit
+    ? phases.filter((phase) => phase.key !== "firmware")
+    : phases;
 }

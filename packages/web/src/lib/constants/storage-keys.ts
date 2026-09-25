@@ -10,6 +10,7 @@ export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =
 export const BUILD_BOARD_TYPE_STORAGE_KEY = "magic-vault:build-board-type";
 export const BUILD_MODULE_COUNT_STORAGE_KEY =
   "magic-vault:build-parts-module-count";
+export const BUILD_USING_KIT_STORAGE_KEY = "magic-vault:build-using-kit";
 
 export const SORTING_RULES_TOUR_COMPLETED_KEY =
   "magic-vault:sorting-rules-tour-completed";
