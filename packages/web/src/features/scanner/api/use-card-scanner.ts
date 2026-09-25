@@ -17,13 +17,7 @@ import {
   embedCanvas,
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
-import {
-  CLOSE_MATCH_DELTA,
-  DEFAULT_SCAN_ORIENTATION,
-  SCANNABLE_STATUSES,
-} from "@/lib/constants/scanner";
-import { SCAN_ORIENTATION_STORAGE_KEY_PREFIX } from "@/lib/constants/storage-keys";
-import type { ScanOrientation } from "@/lib/interfaces/scanner";
+import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
@@ -134,34 +128,18 @@ function hasMatch(result: CardSearchResult): boolean {
 
 // On a double miss, keep the closer copy so the saved unmatched image is
 // likelier to be right way up.
-async function searchInOrientationOrder(
+async function searchUprightThenRotated(
   canvas: HTMLCanvasElement,
-  preferred: ScanOrientation,
   checkBothOrientations: boolean,
   search: (canvas: HTMLCanvasElement) => Promise<CardSearchResult>,
-): Promise<{
-  result: CardSearchResult;
-  canvas: HTMLCanvasElement;
-  orientation: ScanOrientation;
-}> {
-  const canvasFor = (orientation: ScanOrientation) =>
-    orientation === "upright" ? canvas : rotateCanvas180(canvas);
-
-  const firstCanvas = canvasFor(preferred);
-  const first = {
-    result: await search(firstCanvas),
-    canvas: firstCanvas,
-    orientation: preferred,
-  };
+): Promise<{ result: CardSearchResult; canvas: HTMLCanvasElement }> {
+  const first = { result: await search(canvas), canvas };
   if (hasMatch(first.result) || !checkBothOrientations) return first;
 
-  const otherOrientation: ScanOrientation =
-    preferred === "upright" ? "rotated" : "upright";
-  const secondCanvas = canvasFor(otherOrientation);
+  const rotatedCanvas = rotateCanvas180(canvas);
   const second = {
-    result: await search(secondCanvas),
-    canvas: secondCanvas,
-    orientation: otherOrientation,
+    result: await search(rotatedCanvas),
+    canvas: rotatedCanvas,
   };
   if (hasMatch(second.result)) return second;
 
@@ -189,14 +167,12 @@ async function searchCardImage(
   contour: CardContour | null | undefined,
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
-  preferredOrientation: ScanOrientation,
   checkBothOrientations: boolean,
 ): Promise<{
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
   debugImageUrl: string;
   detectedContour: CardContour | null;
-  matchedOrientation: ScanOrientation | null;
 }> {
   let fallbackReason = "card not detected";
   try {
@@ -205,9 +181,8 @@ async function searchCardImage(
       refreshFrame,
     );
     if (dewarpedCanvas) {
-      const best = await searchInOrientationOrder(
+      const best = await searchUprightThenRotated(
         dewarpedCanvas,
-        preferredOrientation,
         checkBothOrientations,
         async (oriented) => {
           const [blob, embedding] = await Promise.all([
@@ -231,7 +206,6 @@ async function searchCardImage(
           debugImageUrl,
         )),
         detectedContour: detection.contour,
-        matchedOrientation: hasMatch(best.result) ? best.orientation : null,
       };
     }
     fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
@@ -245,9 +219,8 @@ async function searchCardImage(
 
   console.log(`[scanner] using fallback scan region (${fallbackReason})`);
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
-  const best = await searchInOrientationOrder(
+  const best = await searchUprightThenRotated(
     warpedCanvas,
-    preferredOrientation,
     checkBothOrientations,
     async (oriented) =>
       searchByImage(
@@ -267,7 +240,6 @@ async function searchCardImage(
       debugImageUrl,
     )),
     detectedContour: null,
-    matchedOrientation: hasMatch(best.result) ? best.orientation : null,
   };
 }
 
@@ -278,24 +250,17 @@ async function searchCardImageWithConsensus(
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
   matchesNeeded: number,
-  orientationPreference: { current: ScanOrientation },
   checkBothOrientations: boolean,
 ): Promise<Awaited<ReturnType<typeof searchCardImage>>> {
-  const attempt = async () => {
-    const result = await searchCardImage(
+  const attempt = () =>
+    searchCardImage(
       canvas,
       refreshFrame,
       contour,
       collectionGuid,
       ocrEnabled,
-      orientationPreference.current,
       checkBothOrientations,
     );
-    if (result.matchedOrientation) {
-      orientationPreference.current = result.matchedOrientation;
-    }
-    return result;
-  };
 
   if (matchesNeeded <= 1) return attempt();
 
@@ -370,25 +335,6 @@ export function useCardScanner({
 
   const rotatedRef = useRef(rotated);
   rotatedRef.current = rotated;
-
-  const orientationStorageKey =
-    SCAN_ORIENTATION_STORAGE_KEY_PREFIX + (device?.guid ?? "default");
-  const orientationStorageKeyRef = useRef(orientationStorageKey);
-  orientationStorageKeyRef.current = orientationStorageKey;
-  const orientationPreferenceRef = useRef<ScanOrientation>(
-    DEFAULT_SCAN_ORIENTATION,
-  );
-
-  useEffect(() => {
-    let stored: string | null = null;
-    try {
-      stored = localStorage.getItem(orientationStorageKey);
-    } catch {}
-    orientationPreferenceRef.current =
-      stored === "upright" || stored === "rotated"
-        ? stored
-        : DEFAULT_SCAN_ORIENTATION;
-  }, [orientationStorageKey]);
 
   const scanRegion =
     scanRegionProp ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
@@ -523,15 +469,8 @@ export function useCardScanner({
             activeCollectionGuidRef.current,
             ocrEnabledRef.current,
             matchesNeededRef.current,
-            orientationPreferenceRef,
             checkBothOrientationsRef.current,
           );
-        try {
-          localStorage.setItem(
-            orientationStorageKeyRef.current,
-            orientationPreferenceRef.current,
-          );
-        } catch {}
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
 
