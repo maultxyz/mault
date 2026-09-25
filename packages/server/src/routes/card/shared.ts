@@ -58,6 +58,7 @@ export interface CardMatchSearchResult {
   message: string;
   success: true;
   data: SearchCardMatch[] | null;
+  nearestDistance: number | null;
 }
 
 export async function findCardMatches(
@@ -125,12 +126,14 @@ export async function findCardMatches(
       console.table(candidates);
     }
 
+    const nearestDistance = candidates[0]?.distance ?? null;
     const rows = candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
     if ((rows[0]?.confidence ?? 0) < minConfidence) {
       return {
         message: "Successfully searched for card.",
         success: true,
         data: null,
+        nearestDistance,
       };
     }
 
@@ -162,6 +165,7 @@ export async function findCardMatches(
       message: "Successfully searched for card.",
       success: true,
       data: matchList.length > 0 ? matchList : null,
+      nearestDistance,
     };
   });
 }

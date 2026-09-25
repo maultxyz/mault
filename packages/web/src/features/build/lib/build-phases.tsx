@@ -449,6 +449,13 @@ export function buildPhases(
           }),
         },
         {
+          key: "install-horns",
+          text: t("assembly.phases.wireAndCalibrate.steps.installHorns.text", {
+            count: moduleCount * 3,
+          }),
+          note: t("assembly.phases.wireAndCalibrate.steps.installHorns.note"),
+        },
+        {
           key: "calibrate-modules",
           text: t(
             "assembly.phases.wireAndCalibrate.steps.calibrateModules.text",
@@ -456,13 +463,6 @@ export function buildPhases(
           note: t(
             "assembly.phases.wireAndCalibrate.steps.calibrateModules.note",
           ),
-        },
-        {
-          key: "install-horns",
-          text: t("assembly.phases.wireAndCalibrate.steps.installHorns.text", {
-            count: moduleCount * 3,
-          }),
-          note: t("assembly.phases.wireAndCalibrate.steps.installHorns.note"),
         },
         {
           key: "calibrate-feeder",
@@ -479,7 +479,9 @@ export function buildPhases(
         },
         {
           key: "test-bins",
-          text: t("assembly.phases.wireAndCalibrate.steps.testBins.text"),
+          text: t("assembly.phases.wireAndCalibrate.steps.testBins.text", {
+            count: moduleCount * 2 + 1,
+          }),
         },
       ],
     },

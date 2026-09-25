@@ -467,8 +467,8 @@
             "note": "Bei pusherLeft/pusherRight nicht vor der Innenwand stoppen – diese Servos bremsen ab, sobald sie sich einer weichen Zielposition nähern, wodurch der Schwung zum Wegschleudern der Karte verloren geht. Den Impuls über die Wand hinaus setzen, damit der Arm mit voller Geschwindigkeit dagegen schlägt; nur reduzieren, wenn er während des gesamten Hubs (nicht nur am Ende) gegen die Wand drückt/brummt."
           },
           "installHorns": {
-            "text": "Stelle mit dem obigen Kalibrierungsraster jede Paddelklappe in ihre offene Position und jeden Schieber in seine neutrale Position, drücke dann das Horn (mit bereits montierter Klappe bzw. Schieberarm) auf die Servowelle und sichere es mit der Hornschraube – Bodenklappe, Paddelklappen und Schieberarm, für alle {{count}} Modul-Servos.",
-            "note": "Ein außermittig montiertes Horn verzerrt das gesamte Gestänge – die genauen Öffnungs-/Schließ- und Links-/Rechts-Impulse werden anschließend im obigen Modul-Kalibrierungsraster feinjustiert."
+            "text": "Stelle im Modul-Kalibrierungsraster unter /app/calibrate jede Paddelklappe in ihre offene Position und jeden Schieber in seine neutrale Position. Drücke dann das Horn (mit bereits montierter Klappe bzw. Schieberarm) auf die Servowelle und sichere es mit der Hornschraube: Bodenklappe, Paddelklappen und Schieberarm, für alle {{count}} Modul-Servos.",
+            "note": "Ein außermittig montiertes Horn verzerrt das gesamte Gestänge. Die genauen Öffnungs-/Schließ- und Links-/Rechts-Impulse werden im nächsten Schritt feinjustiert."
           },
           "calibrateFeeder": {
             "text": "Zuführungs-Kalibrierungsfeld – stimme Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab."
@@ -478,7 +478,7 @@
             "note": "Wenn ein Sensor nicht auslöst oder auslöst, obwohl nichts vor ihm ist, kalibriere seine Erkennungsdistanz manuell: Auf der Rückseite des Sensors befindet sich ein kleines blaues Gehäuse mit einem grauen Potentiometer-Rädchen. Drehe es ganz in eine Richtung, sodass er nichts mehr erkennt, und drehe es dann langsam zurück, bis er eine Karte gerade so aus zwei bis fünf Zentimetern Entfernung erkennt."
           },
           "testBins": {
-            "text": "Fachsteuerung – sende der Reihe nach eine Testkarte an jedes der 7 Fächer und bestätige, dass sie korrekt landet."
+            "text": "Fachsteuerung: Sende der Reihe nach eine Testkarte an jedes der {{count}} Fächer und bestätige, dass sie korrekt landet."
           }
         }
       },

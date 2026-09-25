@@ -3,13 +3,11 @@ import {
   CARD_DETECTION_RETRY_TIMEOUT_MS,
 } from "@/lib/constants/timing";
 import { detectCardCorners, type CornerDetection } from "./cornelius";
-import { embedCardCanvas, type DualEmbedding } from "./milo-client";
 import { dewarpCard } from "./perspective-warp";
 
-export interface ClientVectorizeResult {
+export interface ClientDewarpResult {
   detection: CornerDetection;
   dewarpedCanvas: HTMLCanvasElement | null;
-  embeddings: DualEmbedding | null;
 }
 
 function delay(ms: number): Promise<void> {
@@ -41,15 +39,13 @@ async function detectCardCornersWithRetry(
   return { detection, frame };
 }
 
-export async function vectorizeCardImageOnClient(
+export async function detectAndDewarpCard(
   canvas: HTMLCanvasElement,
-): Promise<ClientVectorizeResult> {
+): Promise<ClientDewarpResult> {
   const { detection, frame } = await detectCardCornersWithRetry(canvas);
   if (!detection.cardPresent || !detection.contour) {
-    return { detection, dewarpedCanvas: null, embeddings: null };
+    return { detection, dewarpedCanvas: null };
   }
 
-  const dewarpedCanvas = dewarpCard(frame, detection.contour);
-  const embeddings = await embedCardCanvas(dewarpedCanvas);
-  return { detection, dewarpedCanvas, embeddings };
+  return { detection, dewarpedCanvas: dewarpCard(frame, detection.contour) };
 }

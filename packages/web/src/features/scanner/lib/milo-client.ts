@@ -44,7 +44,7 @@ function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
   return chw;
 }
 
-async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
+export async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
   const session = await getSession();
   const chw = toChwTensor(canvas);
   const tensor = new ort.Tensor("float32", chw, [1, 3, INPUT_SIZE, INPUT_SIZE]);
@@ -61,20 +61,4 @@ async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
   const embedding = new Array<number>(raw.length);
   for (let i = 0; i < raw.length; i++) embedding[i] = raw[i] / denom;
   return embedding;
-}
-
-export interface DualEmbedding {
-  upright: number[];
-  rotated: number[];
-}
-
-export async function embedCardCanvas(
-  dewarpedCanvas: HTMLCanvasElement,
-): Promise<DualEmbedding> {
-  const rotatedCanvas = rotateCanvas180(dewarpedCanvas);
-  const [upright, rotated] = await Promise.all([
-    embedCanvas(dewarpedCanvas),
-    embedCanvas(rotatedCanvas),
-  ]);
-  return { upright, rotated };
 }
