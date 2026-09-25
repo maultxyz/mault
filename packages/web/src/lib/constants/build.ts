@@ -6,6 +6,9 @@ export const MIN_MODULES = 1;
 export const MAX_MODULES = 5;
 export const DEFAULT_MODULES = 3;
 
+export const KIT_MODULE_COUNT = 3;
+export const KIT_BOARD_TYPE: BoardType = "esp32";
+
 export interface BoardInfo {
   displayName: string;
   shortName: string;

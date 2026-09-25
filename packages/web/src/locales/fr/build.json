@@ -14,6 +14,13 @@
       "label": "Carte",
       "unoR4": "Arduino",
       "esp32": "ESP32-S3"
+    },
+    "kit": {
+      "title": "Vous montez un kit ?",
+      "description": "Vous utilisez un kit Mault ? Nous adaptons le guide : 3 modules, l'ESP32-S3 avec sa carte d'extension, et aucun flashage du firmware puisque la carte est livrée prête à l'emploi.",
+      "activeDescription": "Guide configuré pour le kit : 3 modules, l'ESP32-S3 avec sa carte d'extension. L'étape du firmware est ignorée car la carte est livrée déjà flashée.",
+      "button": "J'utilise un kit",
+      "active": "Kit utilisé"
     }
   },
   "footer": {
@@ -300,12 +307,11 @@
           },
           "printPlateBase": {
             "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces Base Support 1 niveau à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les deux hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour.",
-            "breakoutNote": "Tu utilises l'ESP32 avec une carte de breakout ? Imprime la variante breakout de cette pièce Base Support au lieu de la version standard. L'encombrement de la carte de breakout nécessite ce dégagement supplémentaire."
+            "breakoutText": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces 1 niveau, plus 1 support de base pour breakout de {{breakoutHeight}} niveau(x) à la place d'une des pièces standard de {{breakoutHeight}} niveau(x). La variante breakout offre le dégagement supplémentaire dont la carte de breakout a besoin. Les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
           },
           "printPlateBaseBottom": {
             "esp32OrArduino": "Imprime 1 plaque Circuit Board (ESP32 / Arduino). Cette plaque couvre maintenant à la fois l'Arduino et l'ESP32 sans carte de breakout, la même plaque dans les deux cas.",
-            "esp32Breakout": "Imprime plutôt 1 plaque Circuit Board (ESP32 + carte de breakout). C'est une plaque distincte de celle pour Arduino/ESP32 sans breakout, nécessaire seulement si tu utilises l'ESP32 avec une carte de breakout.",
-            "esp32BreakoutNote": "Cette plaque nécessite aussi un support de base pour breakout, disponible en deux hauteurs : imprime la version 3 niveaux si ton escalier compte 3 modules, ou la version 1 niveau pour un empilement plus court. N'imprime que celle qui correspond à ton nombre de modules, pas les deux."
+            "esp32Breakout": "Imprime plutôt 1 plaque Circuit Board (ESP32 + carte de breakout). C'est une plaque distincte de celle pour Arduino/ESP32 sans breakout, nécessaire seulement si tu utilises l'ESP32 avec une carte de breakout."
           },
           "printServoControllerPlate": {
             "text": "Imprime 1 plaque Servo Controller."

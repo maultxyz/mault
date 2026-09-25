@@ -1,13 +1,32 @@
-import { BOARD_INFO } from "@/lib/constants/build";
+import { Button } from "@/components/ui/button";
+import {
+  BOARD_INFO,
+  KIT_BOARD_TYPE,
+  KIT_MODULE_COUNT,
+} from "@/lib/constants/build";
 import { useBoardType } from "@/features/build/api/use-board-type";
+import { useEsp32MountType } from "@/features/build/api/use-esp32-mount-type";
+import { useKitMode } from "@/features/build/api/use-kit-mode";
 import { useModuleCount } from "@/features/build/api/use-module-count";
+import { IconCheck, IconPackage } from "@tabler/icons-react";
 import { Trans, useTranslation } from "react-i18next";
 
 export function BuildHero() {
   const { t } = useTranslation("build");
-  const { moduleCount } = useModuleCount();
-  const { boardType } = useBoardType();
+  const { moduleCount, setModuleCount } = useModuleCount();
+  const { boardType, setBoardType } = useBoardType();
+  const { setMountType } = useEsp32MountType();
+  const { usingKit, setUsingKit } = useKitMode();
   const board = BOARD_INFO[boardType];
+
+  const toggleKit = () => {
+    if (!usingKit) {
+      setModuleCount(KIT_MODULE_COUNT);
+      setBoardType(KIT_BOARD_TYPE);
+      setMountType("breakout");
+    }
+    setUsingKit(!usingKit);
+  };
 
   const catchAllBin = moduleCount * 2 + 1;
   const moduleBins = Array.from({ length: moduleCount }, (_, i) => [
@@ -17,6 +36,31 @@ export function BuildHero() {
 
   return (
     <section className="mx-auto max-w-4xl px-4 pt-12 pb-16">
+      <div className="mb-10 flex flex-col gap-3 rounded-lg border bg-card p-4 sm:flex-row sm:items-center sm:justify-between md:p-5">
+        <div className="flex items-start gap-3">
+          <span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+            <IconPackage size={16} />
+          </span>
+          <div>
+            <p className="text-sm font-medium">{t("hero.kit.title")}</p>
+            <p className="mt-0.5 text-sm/relaxed text-foreground/70">
+              {usingKit
+                ? t("hero.kit.activeDescription")
+                : t("hero.kit.description")}
+            </p>
+          </div>
+        </div>
+        <Button
+          variant={usingKit ? "default" : "outline"}
+          aria-pressed={usingKit}
+          onClick={toggleKit}
+          className="shrink-0"
+        >
+          {usingKit && <IconCheck />}
+          {usingKit ? t("hero.kit.active") : t("hero.kit.button")}
+        </Button>
+      </div>
+
       <p className="text-sm font-semibold text-primary">
         {t("hero.eyebrow")}
       </p>

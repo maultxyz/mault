@@ -2,6 +2,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
 import { useEsp32MountType } from "@/features/build/api/use-esp32-mount-type";
+import { useKitMode } from "@/features/build/api/use-kit-mode";
 import { useModuleCount } from "@/features/build/api/use-module-count";
 import {
   buildPhases,
@@ -20,10 +21,11 @@ export function BuildAssembly() {
   const { moduleCount } = useModuleCount();
   const { boardType } = useBoardType();
   const { mountType, setMountType } = useEsp32MountType();
+  const { usingKit } = useKitMode();
 
   const PHASES = useMemo(
-    () => buildPhases(t, moduleCount, boardType, mountType),
-    [t, moduleCount, boardType, mountType],
+    () => buildPhases(t, moduleCount, boardType, mountType, usingKit),
+    [t, moduleCount, boardType, mountType, usingKit],
   );
 
   const allSteps = useMemo(() => PHASES.flatMap((p) => p.steps), [PHASES]);
