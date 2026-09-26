@@ -14,10 +14,6 @@ import { toast } from "sonner";
 
 const SetupWizardContext = createContext<SetupWizardContextValue | null>(null);
 
-// Opens on its own once a board that hasn't been through setup connects, and
-// on request (the calibration page's "Run setup wizard"). Closing only hides
-// it for that device until the next time it's opened by hand; finishing or
-// skipping is what records setup as done (see DeviceSetupWizard).
 export function SetupWizardProvider({
   children,
 }: {
@@ -43,8 +39,6 @@ export function SetupWizardProvider({
     setClosedForGuid(device?.guid ?? null);
   }, [device?.guid]);
 
-  // Clears the sorter's setup flag, so the wizard opens (and can only be
-  // left through Finish or Skip) now if it's connected, or on its next connect.
   const forceSetup = useCallback(async () => {
     if (!device?.guid) return;
     const result = await saveDevice(device.guid, {

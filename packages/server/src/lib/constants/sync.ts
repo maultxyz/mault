@@ -9,3 +9,10 @@ export const FAB_SYNC_LOG_EVERY = 250;
 export const POKEMON_SYNC_PAGE_LIMIT = 1000;
 export const POKEMON_DETAIL_CONCURRENCY = 8;
 export const POKEMON_DETAIL_LOG_EVERY = 1000;
+
+export const COLLECTION_CARD_PRICE_KEYS = [
+  "price",
+  "priceFoil",
+  "priceRange",
+  "priceRangeFoil",
+] as const;

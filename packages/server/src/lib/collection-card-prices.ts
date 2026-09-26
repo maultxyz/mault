@@ -3,31 +3,26 @@ import { sql } from "drizzle-orm";
 import { db } from "../db";
 import { applyTcgplayerPrices } from "./card-search/tcgplayer-prices";
 import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
-import { COLLECTION_CARD_PRICE_REFRESH_BATCH_SIZE } from "./constants/sync";
-
-const PRICE_KEYS = [
-  "price",
-  "priceFoil",
-  "priceRange",
-  "priceRangeFoil",
-] as const;
+import {
+  COLLECTION_CARD_PRICE_KEYS,
+  COLLECTION_CARD_PRICE_REFRESH_BATCH_SIZE,
+} from "./constants/sync";
+import type {
+  PriceRefreshOptions,
+  StoredCardPriceRow,
+} from "./interfaces/collection-card-prices";
 
 function pricesOf(card: PlayingCard): Record<string, unknown> {
   return Object.fromEntries(
-    PRICE_KEYS.flatMap((key) =>
+    COLLECTION_CARD_PRICE_KEYS.flatMap((key) =>
       card[key] === undefined ? [] : [[key, card[key]]],
     ),
   );
 }
 
-// Stamps each scanned card's stored JSON with its current TCGplayer prices,
-// so SQL-side reads (collection stats, price sorting, exports, the Discord
-// bot) see the same prices as the read-time overlay.
 export async function refreshCollectionCardPrices({
   log,
-}: {
-  log: (msg: string) => void;
-}): Promise<number> {
+}: PriceRefreshOptions): Promise<number> {
   let totalUpdated = 0;
   for (const [gameKey, adapter] of Object.entries(ADAPTERS_BY_GAME_KEY)) {
     if (!adapter.tcgplayer) continue;
@@ -46,10 +41,7 @@ export async function refreshCollectionCardPrices({
         ORDER BY card_id, (card -> 'raw') IS NULL
         LIMIT ${COLLECTION_CARD_PRICE_REFRESH_BATCH_SIZE}
       `);
-      const rows = batch.rows as unknown as {
-        card_id: string;
-        card: PlayingCard;
-      }[];
+      const rows = batch.rows as unknown as StoredCardPriceRow[];
       if (rows.length === 0) break;
       lastCardId = rows[rows.length - 1].card_id;
 

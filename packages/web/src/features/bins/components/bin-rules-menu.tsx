@@ -24,9 +24,10 @@ import {
 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { BinRulesMenuProps } from "@/lib/interfaces/bins";
 import { toast } from "sonner";
 
-export function BinRulesMenu({ className }: { className?: string }) {
+export function BinRulesMenu({ className }: BinRulesMenuProps) {
   const { t } = useTranslation("bins");
   const {
     selectedSet,
@@ -96,7 +97,6 @@ export function BinRulesMenu({ className }: { className?: string }) {
             : undefined,
       });
     } catch {
-      // useBinConfigs already toasts a failed create.
     } finally {
       setIsImporting(false);
     }

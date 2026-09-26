@@ -3,6 +3,7 @@ import type {
   ModuleDelayField,
   ServoConfig,
   SetupIntroPart,
+  SetupIrSeen,
   SetupServoPosition,
 } from "@/lib/interfaces/calibration";
 import {
@@ -96,9 +97,6 @@ export const MODULE_DELAY_FIELDS: ModuleDelayField[] = [
 
 export const PUSH_TEST_DIRECTIONS = ["left", "right"] as const;
 
-// Route directions are the firmware's pusher directions, which are mirrored
-// from the front of the sorter: a "left" push lands on the physical right
-// (bin 1 is top right). Bin layouts render in physical left-to-right order.
 export const BIN_SLOTS_PHYSICAL_ORDER = [
   { direction: "right", labelKey: "binConfigurations.moduleLeft" },
   { direction: "left", labelKey: "binConfigurations.moduleRight" },
@@ -148,8 +146,6 @@ export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
   { key: "large", height: 187 },
 ];
 
-// Order the setup wizard walks each module's positions in: rest position
-// first for each servo, so the extremes are set relative to it.
 export const SETUP_SERVO_POSITIONS: SetupServoPosition[] = [
   { servo: "bottom", position: "closed", calKey: "bottomClosed", restKey: "bottomClosed" },
   { servo: "bottom", position: "open", calKey: "bottomOpen", restKey: "bottomClosed" },
@@ -159,6 +155,10 @@ export const SETUP_SERVO_POSITIONS: SetupServoPosition[] = [
   { servo: "pusher", position: "left", calKey: "pusherLeft", restKey: "pusherNeutral" },
   { servo: "pusher", position: "right", calKey: "pusherRight", restKey: "pusherNeutral" },
 ];
+
+export function emptySetupIrSeen(): SetupIrSeen {
+  return { modules: new Set(), hopper: false };
+}
 
 export const SETUP_INTRO_PARTS: { key: SetupIntroPart; icon: Icon }[] = [
   { key: "feeder", icon: IconRotateClockwise },

@@ -86,3 +86,7 @@ export interface RuleGroupEditorProps {
   onRemove?: () => void;
   depth?: number;
 }
+
+export interface BinRulesMenuProps {
+  className?: string;
+}

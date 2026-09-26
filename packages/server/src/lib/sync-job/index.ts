@@ -116,8 +116,6 @@ export function startSync(
     }
   });
 
-  // "close", not "exit": "exit" can fire before the last IPC messages (the
-  // terminal status among them) have been read off the channel.
   child.on("close", (code) => {
     currentWorker = null;
     if (reachedTerminalStatus) return;

@@ -25,6 +25,7 @@ import {
   pulseToSignedPercent,
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
+  emptySetupIrSeen,
   SETUP_INTRO_PARTS,
   SETUP_SERVO_POSITIONS,
   signedPercentToPulse,
@@ -35,9 +36,14 @@ import {
   SETUP_IR_RESPONSE_TIMEOUT_MS,
 } from "@/lib/constants/timing";
 import type {
+  ReadIrResponse,
+  SetupControlPanelProps,
   SetupIrReading,
-  SetupServo,
-  SetupServoPosition,
+  SetupIrSeen,
+  SetupIrSensor,
+  SetupIrSensorRowProps,
+  SetupServoStepProps,
+  SetupStepHeadingProps,
   SetupTestState,
   SetupWizardStep,
 } from "@/lib/interfaces/calibration";
@@ -95,9 +101,7 @@ export function DeviceSetupWizard() {
   const [testState, setTestState] = useState<SetupTestState>("idle");
   const [testError, setTestError] = useState<string | null>(null);
   const [irReading, setIrReading] = useState<SetupIrReading | null>(null);
-  const [irSeen, setIrSeen] = useState<{ modules: Set<number>; hopper: boolean }>(
-    () => ({ modules: new Set(), hopper: false }),
-  );
+  const [irSeen, setIrSeen] = useState<SetupIrSeen>(emptySetupIrSeen);
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -115,37 +119,56 @@ export function DeviceSetupWizard() {
     [drafts, configs],
   );
 
-  // Fresh start each time it opens. The connect self-test (skipped for a
-  // board that hasn't been set up) is what normally syncs the channel
-  // offset, so it's sent here before any servo moves.
+  const latest = useRef({
+    feederSpeed: feederConfig.speed,
+    channelLayout: device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT,
+    step,
+    calibrationFor,
+    moveServo,
+    sendCommand,
+    receiveResponse,
+  });
+  latest.current = {
+    feederSpeed: feederConfig.speed,
+    channelLayout: device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT,
+    step,
+    calibrationFor,
+    moveServo,
+    sendCommand,
+    receiveResponse,
+  };
+
   useEffect(() => {
     if (!isOpen) return;
+    const current = latest.current;
     setStepIndex(0);
     setDrafts({});
-    setFeederSpeed(feederConfig.speed);
+    setFeederSpeed(current.feederSpeed);
     setTestState("idle");
     setTestError(null);
     setIrReading(null);
-    setIrSeen({ modules: new Set(), hopper: false });
-    const channelLayout = device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT;
-    const response = receiveResponse();
-    void sendCommand(
-      JSON.stringify({ setChannelOffset: CHANNEL_OFFSET[channelLayout] }),
-    ).then(() => response);
-    // Only on open: re-running on config/device refetches would reset progress.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setIrSeen(emptySetupIrSeen());
+    const response = current.receiveResponse();
+    void current
+      .sendCommand(
+        JSON.stringify({
+          setChannelOffset: CHANNEL_OFFSET[current.channelLayout],
+        }),
+      )
+      .then(() => response);
   }, [isOpen]);
 
   useEffect(() => {
-    if (!isOpen || step.kind !== "servo") return;
-    const { module, position } = step;
-    moveServo(module, position.servo, calibrationFor(module)[position.calKey]);
-    // Move once on entering a step; the slider handles moves after that.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const current = latest.current;
+    if (!isOpen || current.step.kind !== "servo") return;
+    const { module, position } = current.step;
+    current.moveServo(
+      module,
+      position.servo,
+      current.calibrationFor(module)[position.calKey],
+    );
   }, [isOpen, stepIndex]);
 
-  // Live sensor readout while the IR step is showing. One read in flight at a
-  // time, so replies can't pile up behind a slow link.
   useEffect(() => {
     if (!isOpen || step.kind !== "irSensors") return;
     let cancelled = false;
@@ -158,7 +181,7 @@ export function DeviceSetupWizard() {
         if (!(await sendCommand(JSON.stringify({ readIR: true })))) return;
         const line = await response;
         if (cancelled || !line) return;
-        const parsed = JSON.parse(line) as { ir?: unknown; hopper?: unknown };
+        const parsed = JSON.parse(line) as ReadIrResponse;
         if (!Array.isArray(parsed.ir)) return;
         const reading: SetupIrReading = {
           modules: (parsed.ir as unknown[]).map(Boolean),
@@ -291,7 +314,6 @@ export function DeviceSetupWizard() {
   return (
     <DynamicDialog
       open={isOpen}
-      // Leaving only happens through Skip or Finish, so setup is recorded.
       onOpenChange={() => {}}
       dismissible={false}
       className="sm:max-w-xl"
@@ -421,7 +443,7 @@ export function DeviceSetupWizard() {
             />
             <div className="flex flex-col divide-y rounded-lg border">
               {[
-                ...Array.from({ length: moduleCount.displayCount }, (_, i) => ({
+                ...Array.from({ length: moduleCount.displayCount }, (_, i): SetupIrSensor => ({
                   key: `module-${i + 1}`,
                   label: t("setupWizard.irSensors.moduleSensor", {
                     module: i + 1,
@@ -525,7 +547,7 @@ export function DeviceSetupWizard() {
   );
 }
 
-function StepHeading({ title, body }: { title: string; body?: string }) {
+function StepHeading({ title, body }: SetupStepHeadingProps) {
   return (
     <div className="flex flex-col gap-1">
       <h3 className="font-heading text-base font-semibold">{title}</h3>
@@ -534,17 +556,7 @@ function StepHeading({ title, body }: { title: string; body?: string }) {
   );
 }
 
-function IrSensorRow({
-  label,
-  hint,
-  present,
-  seen,
-}: {
-  label: string;
-  hint: string;
-  present: boolean;
-  seen: boolean;
-}) {
+function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
   const { t } = useTranslation("calibration");
   return (
     <div className="flex items-center gap-3 p-3">
@@ -576,17 +588,7 @@ function IrSensorRow({
   );
 }
 
-function ControlPanel({
-  label,
-  value,
-  hint,
-  children,
-}: {
-  label?: string;
-  value?: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
+function ControlPanel({ label, value, hint, children }: SetupControlPanelProps) {
   return (
     <div className="flex flex-col gap-3 rounded-lg border p-4">
       {(label || value) && (
@@ -605,17 +607,7 @@ function ControlPanel({
   );
 }
 
-function ServoStep({
-  servo,
-  currentKey,
-  value,
-  onChange,
-}: {
-  servo: SetupServo;
-  currentKey: SetupServoPosition["calKey"];
-  value: number;
-  onChange: (value: number) => void;
-}) {
+function ServoStep({ servo, currentKey, value, onChange }: SetupServoStepProps) {
   const { t } = useTranslation("calibration");
   const positions = SETUP_SERVO_POSITIONS.filter((p) => p.servo === servo);
   const currentIndex = positions.findIndex((p) => p.calKey === currentKey);

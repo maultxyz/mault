@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type {
   BinHeight,
   BinRoute,
@@ -84,7 +85,6 @@ export interface SetupServoPosition {
     | "pusherNeutral"
     | "pusherLeft"
     | "pusherRight";
-  // Where the servo is parked once its last position is set.
   restKey: "bottomClosed" | "paddleClosed" | "pusherNeutral";
 }
 
@@ -101,6 +101,46 @@ export type SetupIntroPart = "feeder" | "module" | "bottom" | "paddle" | "pusher
 export interface SetupIrReading {
   modules: boolean[];
   hopper: boolean;
+}
+
+export interface SetupIrSeen {
+  modules: Set<number>;
+  hopper: boolean;
+}
+
+export interface ReadIrResponse {
+  ir?: unknown;
+  hopper?: unknown;
+}
+
+export interface SetupIrSensorRowProps {
+  label: string;
+  hint: string;
+  present: boolean;
+  seen: boolean;
+}
+
+export interface SetupIrSensor extends SetupIrSensorRowProps {
+  key: string;
+}
+
+export interface SetupStepHeadingProps {
+  title: string;
+  body?: string;
+}
+
+export interface SetupControlPanelProps {
+  label?: string;
+  value?: string;
+  hint?: string;
+  children: ReactNode;
+}
+
+export interface SetupServoStepProps {
+  servo: SetupServo;
+  currentKey: SetupServoPosition["calKey"];
+  value: number;
+  onChange: (value: number) => void;
 }
 
 export type SetupTestState = "idle" | "running" | "passed" | "failed";

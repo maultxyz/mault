@@ -34,8 +34,6 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       channelLayout?: ChannelLayout;
       setupCompleted?: boolean;
     }>();
-    // Anyone can finish or skip setup; sending a sorter back through the
-    // setup wizard is a platform-admin action.
     if (body.setupCompleted === false && c.get("userRole") !== "admin") {
       return c.json({ success: false, message: "Forbidden." }, 403);
     }
