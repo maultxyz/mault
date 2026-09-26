@@ -431,6 +431,9 @@
           "calibrateHopperRoller": {
             "text": "Monte le ressort et la vis M3×25, puis serre la vis jusqu'à ce qu'elle dépasse par le bas du point de montage. Desserre-la ensuite lentement jusqu'à ce que la trémie ne laisse passer qu'une seule carte à la fois."
           },
+          "mountHopperRiser": {
+            "text": "Installe la pièce de réhausse à l'arrière de la trémie."
+          },
           "mountModuleIr": {
             "text": "Fixe un capteur IR à la porte de chaque module (1 à {{modules}}) avec 1 vis M2×6 chacun, pointé à travers le trajet de la carte."
           },

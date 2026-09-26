@@ -430,6 +430,9 @@
           "calibrateHopperRoller": {
             "text": "Fit the spring and M3×25 screw, then tighten the screw until it pokes out from the bottom of the mounting point. Slowly back it off until the hopper feeds only 1 card at a time."
           },
+          "mountHopperRiser": {
+            "text": "Install the riser part on the back of the hopper."
+          },
           "mountModuleIr": {
             "text": "Fix one IR sensor at the gate of each module (1-{{modules}}) with 1 M2×6 screw each, aimed across the card path."
           },

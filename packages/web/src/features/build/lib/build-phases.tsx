@@ -388,6 +388,14 @@ export function buildPhases(
           optional: "new-hopper",
         },
         {
+          key: "mount-hopper-riser",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountHopperRiser.text",
+          ),
+          images: ["/instructions/feeder_riser.JPG"],
+          optional: "new-hopper",
+        },
+        {
           key: "mount-module-ir",
           text: t("assembly.phases.assembleModules.steps.mountModuleIr.text", {
             modules: moduleCount,
@@ -502,7 +510,5 @@ export function buildPhases(
     },
   ];
 
-  return usingKit
-    ? phases.filter((phase) => phase.key !== "firmware")
-    : phases;
+  return usingKit ? phases.filter((phase) => phase.key !== "firmware") : phases;
 }

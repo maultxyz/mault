@@ -431,6 +431,9 @@
           "calibrateHopperRoller": {
             "text": "Setze die Feder und die M3×25-Schraube ein und ziehe die Schraube an, bis sie unten am Montagepunkt herausragt. Löse sie dann langsam, bis der Trichter jeweils nur 1 Karte zuführt."
           },
+          "mountHopperRiser": {
+            "text": "Montiere das Erhöhungsteil an der Rückseite des Trichters."
+          },
           "mountModuleIr": {
             "text": "Befestige an jedem Modul (1-{{modules}}) einen IR-Sensor am Tor mit je 1 M2×6-Schraube, ausgerichtet quer zum Kartenweg."
           },
