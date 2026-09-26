@@ -151,9 +151,6 @@
     "noCardsScanned": "No cards scanned",
     "mostValuable": "{{price}} · {{name}}"
   },
-  "gameSwitchAlert": {
-    "message": "When switching game types, you may have to re-adjust the feeder module tube wall."
-  },
   "scanStats": {
     "emptyState": "Scan cards to see their stats.",
     "totalValue": "Total Value",

@@ -151,9 +151,6 @@
     "noCardsScanned": "Aucune carte scannée",
     "mostValuable": "{{price}} · {{name}}"
   },
-  "gameSwitchAlert": {
-    "message": "Lors du changement de type de jeu, il se peut que tu doives réajuster la paroi du tube du module d'alimentation."
-  },
   "scanStats": {
     "emptyState": "Scanne des cartes pour voir leurs statistiques.",
     "totalValue": "Valeur totale",

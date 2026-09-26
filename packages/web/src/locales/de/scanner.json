@@ -151,9 +151,6 @@
     "noCardsScanned": "Keine Karten gescannt",
     "mostValuable": "{{price}} · {{name}}"
   },
-  "gameSwitchAlert": {
-    "message": "Beim Wechsel des Spieltyps musst du möglicherweise die Schlauchwand des Zuführmoduls neu anpassen."
-  },
   "scanStats": {
     "emptyState": "Scanne Karten, um ihre Statistiken zu sehen.",
     "totalValue": "Gesamtwert",
