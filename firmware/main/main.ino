@@ -325,7 +325,7 @@ FeederConfig feederConfig = {315, 1000, 40, 100, 100};
 // that it's released before it's spent much time stalled at the stop.
 #define DELAY_PUSHER_HOLD  150
 
-#define MAX_CMD_LEN 200
+#define MAX_CMD_LEN 255
 
 // One InputState per transport - a command's response must go back out the
 // same transport it arrived on (the protocol has no request IDs; a client
