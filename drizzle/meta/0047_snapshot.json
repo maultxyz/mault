@@ -1,6 +1,6 @@
 {
-  "id": "bf09b81e-42e0-4b58-8056-aa41b7dc7160",
-  "prevId": "e605a1cf-ba43-4179-a4b0-a34a7f5f5270",
+  "id": "67cab592-5318-4c2c-bd11-324848de3a6e",
+  "prevId": "348e10f8-e525-4841-82e6-43f42d136d73",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1065,12 +1065,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "data": {
-          "name": "data",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1242,7 +1236,29 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "collection_cards_collection_scanned_idx": {
+          "name": "collection_cards_collection_scanned_idx",
+          "columns": [
+            {
+              "expression": "collection_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "scanned_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "collection_cards_collection_id_collections_id_fk": {
           "name": "collection_cards_collection_id_collections_id_fk",
@@ -1352,12 +1368,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'en'"
-        },
-        "match_threshold": {
-          "name": "match_threshold",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         },
         "org_id": {
           "name": "org_id",
@@ -2218,6 +2228,13 @@
           "primaryKey": false,
           "notNull": true
         },
+        "pusher_hold_duration": {
+          "name": "pusher_hold_duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 150
+        },
         "paddle_close_delay": {
           "name": "paddle_close_delay",
           "type": "integer",
@@ -2370,6 +2387,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": 460
+        },
+        "pusher_hold_duration": {
+          "name": "pusher_hold_duration",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 150
         },
         "paddle_close_delay": {
           "name": "paddle_close_delay",
@@ -2817,160 +2841,6 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.tcgplayer_prices": {
-      "name": "tcgplayer_prices",
-      "schema": "",
-      "columns": {
-        "product_id": {
-          "name": "product_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "sub_type": {
-          "name": "sub_type",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "category_id": {
-          "name": "category_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "low_price": {
-          "name": "low_price",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "mid_price": {
-          "name": "mid_price",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "high_price": {
-          "name": "high_price",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "market_price": {
-          "name": "market_price",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "direct_low_price": {
-          "name": "direct_low_price",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "tcgplayer_prices_product_id_sub_type_pk": {
-          "name": "tcgplayer_prices_product_id_sub_type_pk",
-          "columns": [
-            "product_id",
-            "sub_type"
-          ]
-        }
-      },
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.tcgplayer_products": {
-      "name": "tcgplayer_products",
-      "schema": "",
-      "columns": {
-        "product_id": {
-          "name": "product_id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "category_id": {
-          "name": "category_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "group_id": {
-          "name": "group_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "number": {
-          "name": "number",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "rarity": {
-          "name": "rarity",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "tcgplayer_products_category_number_idx": {
-          "name": "tcgplayer_products_category_number_idx",
-          "columns": [
-            {
-              "expression": "category_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "number",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},

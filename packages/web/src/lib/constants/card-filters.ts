@@ -1,12 +1,13 @@
-import type { CardFilters } from "@/lib/interfaces/cards";
+import {
+  EMPTY_CARD_FILTERS,
+  type CollectionCardsQuery,
+} from "@magic-vault/shared";
 
-export const EMPTY_CARD_FILTERS: CardFilters = {
-  colors: [],
-  rarities: [],
-  bins: [],
-  needsAttention: false,
-  showDownloaded: false,
-  sets: [],
-  minMatchPercent: 0,
-  foilTypes: [],
+export { EMPTY_CARD_FILTERS };
+
+export const ALL_CARDS_QUERY: CollectionCardsQuery = {
+  search: "",
+  sort: null,
+  filters: EMPTY_CARD_FILTERS,
+  grouped: false,
 };

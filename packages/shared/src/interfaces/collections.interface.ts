@@ -8,7 +8,6 @@ export interface Collection {
   cardCount: number;
   game: Game | null;
   lang: string;
-  matchThreshold: number | null;
   createdAt: Date;
   updatedAt: Date;
 }

@@ -38,7 +38,7 @@ a serial connection to the device can drive it by following this spec
   **one** JSON-line response, in the order it was sent — there is no
   request ID, so a client must correlate responses positionally (send
   one command, read one response line, before sending the next).
-- A line longer than 200 characters is discarded and answered with
+- A line longer than 255 characters is discarded and answered with
   `{"error":"command too long"}`.
 - Malformed JSON gets `{"error":"invalid JSON","reason":"...","length":N,"received":"<escaped input>"}`.
 - An unrecognized (but validly-parsed) command gets `{"error":"unknown command"}`.
@@ -63,6 +63,13 @@ a serial connection to the device can drive it by following this spec
   actively trying to sort that card. Paddle-flap recovery only happens
   inline during an active `route`, on a card that fails to advance to
   the next module in time (see `route` below).
+
+- Uno R4 builds run a hardware watchdog (about 4s). If the board ever
+  hangs mid-command (typically a supply dip from servos wedging the MCU or
+  its I2C bus), it reboots instead of going silent: the pending command
+  never gets a response, USB/BLE drops, and the boot banner is sent again
+  once a client reconnects. Configuration is back to defaults after that,
+  so a client must re-send it exactly as on a fresh connect.
 
 ## BLE transport
 
@@ -243,6 +250,7 @@ stops it on its own. → `{"status":"ok","channel":7}`, or
     "bottomClosed": 400, "bottomOpen": 150,
     "paddleClosed": 420, "paddleOpen": 150,
     "pusherLeft": 150, "pusherNeutral": 230, "pusherRight": 300,
+    "pusherHoldDuration": 150,
     "paddleCloseDelay": 150
   }
 }
@@ -251,9 +259,24 @@ Every field except `module` is optional — omitted fields keep their
 current stored value. `bottomClosed`/`bottomOpen`/`paddleClosed`/`paddleOpen`/
 `pusherLeft`/`pusherNeutral`/`pusherRight` are raw PWM pulse values (same
 `120–490` range as `servo`'s `value`), one pair/triple per servo defining
-its two or three named positions. `paddleCloseDelay` is different: it's a
-duration in milliseconds, not a pulse - see `route` below for how it's
-used. → `{"status":"ok","module":1}`
+its two or three named positions. `pusherHoldDuration` and
+`paddleCloseDelay` are different: they're durations in milliseconds, not
+pulses - see `route` below for how they're used. `pusherHoldDuration`
+defaults to 150. → `{"status":"ok","module":1}`
+
+### `pushTest` (tune push timings without a card)
+```json
+{"pushTest": {"module": 2, "direction": "left", "pusherHoldDuration": 150, "paddleCloseDelay": 1000}}
+```
+Runs only the left/right push step of `route` on `module`: opens its
+paddle, fires the pusher, retracts it after `pusherHoldDuration` ms, and
+closes the paddle `paddleCloseDelay` ms after the pusher fired. No feed and
+no IR checks. Both timings are optional (default: the module's stored
+`setConfig` values) and clamped to 0–5000 ms, so unsaved values can be
+tried before committing them with `setConfig`.
+→ `{"status":"pushed","module":2,"direction":"left"}`, or
+`{"error":"module must be 1 to N"}` / `{"error":"direction must be left or right"}`.
+Firmware older than this command answers `{"error":"unknown command"}`.
 
 ### `feeder`
 ```json
@@ -326,9 +349,10 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
   requested direction (`"left"`/`"right"`), or opens just the target
   module's own bottom to drop the card there (`"bottom"`).
 - For a `"left"`/`"right"` push, two timings run independently once the
-  pusher fires: the pusher itself always returns to neutral after a fixed
-  internal hold (long enough to complete its stroke and fling the card,
-  short enough not to stall against the mechanical stop for long); the
+  pusher fires: the pusher itself returns to neutral after
+  `pusherHoldDuration` ms (per-module, via `setConfig`: long enough to
+  complete its stroke and fling the card, short enough not to stall
+  against the mechanical stop for long); the
   target module's paddle instead closes `paddleCloseDelay` ms after the
   pusher fired (per-module, via `setConfig`) - independent of the pusher's
   own timing, so the paddle can be tuned to stay open longer than the
@@ -352,6 +376,6 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 | `{"error":"timeout: feeder did not deliver card to module 1","empty":false}` | feeder ran its full configured `duration` without module 1's IR triggering |
 | `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
-| `{"error":"command too long"}` | line exceeded 200 characters |
+| `{"error":"command too long"}` | line exceeded 255 characters |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
 | `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (informational only - no paddle-flap is attempted since nothing is actively sorting) |

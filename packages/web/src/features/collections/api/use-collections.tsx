@@ -37,17 +37,8 @@ interface CollectionsContextValue {
   isLoading: boolean;
   isActivating: boolean;
   isMutating: boolean;
-  createCollection: (
-    name: string,
-    gameGuid: string,
-    lang: string,
-    matchThreshold: number | null,
-  ) => Promise<void>;
-  updateCollection: (
-    guid: string,
-    name: string,
-    matchThreshold: number | null,
-  ) => Promise<void>;
+  createCollection: (name: string, gameGuid: string, lang: string) => Promise<void>;
+  updateCollection: (guid: string, name: string) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;
   emptyCollection: (guid: string) => Promise<void>;
@@ -132,13 +123,11 @@ export function CollectionsProvider({
       name,
       gameGuid,
       lang,
-      matchThreshold,
     }: {
       name: string;
       gameGuid: string;
       lang: string;
-      matchThreshold: number | null;
-    }) => createCollectionFn(name, gameGuid, lang, matchThreshold),
+    }) => createCollectionFn(name, gameGuid, lang),
     onSuccess: async (r, { name }) => {
       if (r.success && r.data) {
         setCollections(r.data);
@@ -172,15 +161,8 @@ export function CollectionsProvider({
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({
-      guid,
-      name,
-      matchThreshold,
-    }: {
-      guid: string;
-      name: string;
-      matchThreshold: number | null;
-    }) => updateCollectionFn(guid, name, matchThreshold),
+    mutationFn: ({ guid, name }: { guid: string; name: string }) =>
+      updateCollectionFn(guid, name),
     onSuccess: (r) => {
       if (r.success && r.data) setCollections(r.data);
     },
@@ -216,20 +198,15 @@ export function CollectionsProvider({
     emptyMutation.isPending;
 
   const create = useCallback(
-    async (
-      name: string,
-      gameGuid: string,
-      lang: string,
-      matchThreshold: number | null,
-    ) => {
-      await createMutation.mutateAsync({ name, gameGuid, lang, matchThreshold });
+    async (name: string, gameGuid: string, lang: string) => {
+      await createMutation.mutateAsync({ name, gameGuid, lang });
     },
     [createMutation],
   );
 
   const update = useCallback(
-    async (guid: string, name: string, matchThreshold: number | null) => {
-      await updateMutation.mutateAsync({ guid, name, matchThreshold });
+    async (guid: string, name: string) => {
+      await updateMutation.mutateAsync({ guid, name });
     },
     [updateMutation],
   );

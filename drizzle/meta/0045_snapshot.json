@@ -1,5 +1,5 @@
 {
-  "id": "f1017b68-d527-4f68-9432-0033727c7581",
+  "id": "f4aaa1ae-5607-415a-8d9f-d8be41396647",
   "prevId": "f1f7cda6-14b2-455f-a569-ec11daca50ad",
   "version": "7",
   "dialect": "postgresql",
@@ -1065,12 +1065,6 @@
           "primaryKey": false,
           "notNull": true
         },
-        "data": {
-          "name": "data",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp",
@@ -1352,12 +1346,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'en'"
-        },
-        "match_threshold": {
-          "name": "match_threshold",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
         },
         "org_id": {
           "name": "org_id",

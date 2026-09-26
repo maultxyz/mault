@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
-import { useCardFilterSort } from "@/features/cards/api/use-card-filter-sort";
+import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
@@ -12,17 +12,19 @@ import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardListItem } from "@/features/cards/components/scanned-card-list-item";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
 import {
-  groupScannedCards,
-  toDisplayEntries,
-} from "@/features/cards/lib/group-cards";
+  collectionCardPositionQueryOptions,
+  collectionCardsExportQueryOptions,
+  collectionCardsPageQueryOptions,
+  loadCollectionCardIds,
+} from "@/features/collections/api/collection-cards";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useSessionViewersByGuid } from "@/features/collections/api/use-live-counts";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { computeStats } from "@/features/scanner/lib/compute-stats";
-
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
-import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
   CARD_GROUP_DUPLICATES_STORAGE_KEY,
   CARD_VIEW_MODE_STORAGE_KEY,
@@ -33,6 +35,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
 } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -40,15 +43,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 export function CardGrid() {
   const { t } = useTranslation("cards");
   const { activeCollection, isLoading: collectionsLoading } = useCollections();
-  const {
-    cards,
-    removeCard,
-    removeCards,
-    clearCards,
-    markDownloaded,
-    isLoading,
-    elapsedMs,
-  } = useScannedCards();
+  const { removeCard, removeCards, clearCards, markDownloaded, elapsedMs } =
+    useScannedCards();
+  const collectionGuid = activeCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
@@ -64,15 +61,18 @@ export function CardGrid() {
   const { filters, setFilters } = useCardFilters();
   const { fieldDefinitions } = useBinConfigs();
   const {
-    filteredAndSorted,
     searchQuery,
     setSearchQuery,
     sortKey,
     setSortKey,
     sortableFields,
     activeFilterCount,
-  } = useCardFilterSort(cards, fieldDefinitions, { filters, setFilters });
-  const stats = useMemo(() => computeStats(cards), [cards]);
+  } = useCardQueryState(fieldDefinitions, { filters, setFilters });
+  const {
+    allStats: stats,
+    totalCount,
+    isPending: summaryPending,
+  } = useCollectionCardsSummary();
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -124,50 +124,46 @@ export function CardGrid() {
     } catch {}
   }, []);
 
-  const displayEntries = useMemo(
-    () => toDisplayEntries(filteredAndSorted, groupDuplicates),
-    [filteredAndSorted, groupDuplicates],
-  );
-
-  const pageCount = Math.max(1, Math.ceil(displayEntries.length / PAGE_SIZE));
-  const clampedPage = Math.min(page, pageCount - 1);
-  const pagedCards = displayEntries.slice(
-    clampedPage * PAGE_SIZE,
-    (clampedPage + 1) * PAGE_SIZE,
+  const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
+  const cardsQuery = useMemo(
+    () => ({
+      search: debouncedSearch.toLowerCase().trim(),
+      sort: sortKey,
+      filters,
+      grouped: groupDuplicates,
+    }),
+    [debouncedSearch, sortKey, filters, groupDuplicates],
   );
 
   useEffect(() => {
     setPage(0);
-  }, [searchQuery, filters, sortKey, activeCollection?.guid, groupDuplicates]);
+  }, [cardsQuery, collectionGuid]);
 
-  // Prev/next walks every individual scan, but a grouped tile's duplicates
-  // are placed adjacently (regardless of when they were actually scanned)
-  // so stepping through them visits every copy before moving to the next
-  // distinct card, instead of following raw scan-time order.
-  const navigationList = useMemo(
-    () => displayEntries.flatMap((entry) => entry.scanIds),
-    [displayEntries],
+  const { data: pageData, isPending: pagePending } = useQuery(
+    collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page),
   );
-  const cardsByScanId = useMemo(
-    () => new Map(filteredAndSorted.map((c) => [c.scanId, c] as const)),
-    [filteredAndSorted],
+  const pagedCards = pageData?.items ?? [];
+  const totalCards = pageData?.totalCards ?? 0;
+  const pageCount = pageData
+    ? Math.max(1, Math.ceil(pageData.totalEntries / pageData.pageSize))
+    : 1;
+  const clampedPage = Math.min(page, pageCount - 1);
+
+  useEffect(() => {
+    if (page !== clampedPage) setPage(clampedPage);
+  }, [page, clampedPage]);
+
+  const { data: openPosition } = useQuery(
+    collectionCardPositionQueryOptions(
+      collectionGuid,
+      openScanId,
+      cardsQuery,
+    ),
   );
-  const openIndex = openScanId ? navigationList.indexOf(openScanId) : -1;
   const openEntry =
-    openIndex >= 0
-      ? (cardsByScanId.get(navigationList[openIndex]) ?? null)
+    openPosition && openPosition.entry.scanId === openScanId
+      ? openPosition.entry
       : null;
-
-  const duplicateGroups = useMemo(
-    () => groupScannedCards(filteredAndSorted),
-    [filteredAndSorted],
-  );
-  const openGroup = openEntry
-    ? duplicateGroups.find((g) => g.scanIds.includes(openEntry.scanId))
-    : undefined;
-  const openCopyIndex =
-    openEntry && openGroup ? openGroup.scanIds.indexOf(openEntry.scanId) : -1;
-  const openCopyCount = openGroup?.quantity ?? 1;
 
   const toggleSelect = useCallback((scanIds: string[]) => {
     setSelectedIds((prev) => {
@@ -182,21 +178,28 @@ export function CardGrid() {
   }, []);
 
   const allSelected =
-    displayEntries.length > 0 &&
-    displayEntries.every((entry) =>
+    totalCards > 0 &&
+    selectedIds.size >= totalCards &&
+    pagedCards.every((entry) =>
       entry.scanIds.every((id) => selectedIds.has(id)),
     );
 
-  const toggleSelectAll = useCallback(() => {
-    setSelectedIds((prev) => {
-      const allCurrentlySelected =
-        filteredAndSorted.length > 0 &&
-        filteredAndSorted.every((card) => prev.has(card.scanId));
-      return allCurrentlySelected
-        ? new Set()
-        : new Set(filteredAndSorted.map((card) => card.scanId));
-    });
-  }, [filteredAndSorted]);
+  const toggleSelectAll = useCallback(async () => {
+    if (allSelected || !collectionGuid) {
+      setSelectedIds(new Set());
+      return;
+    }
+    try {
+      const ids = await loadCollectionCardIds(collectionGuid, cardsQuery);
+      setSelectedIds(new Set(ids));
+    } catch (err) {
+      console.error("Failed to select all cards:", err);
+    }
+  }, [allSelected, collectionGuid, cardsQuery]);
+
+  const { data: exportCards } = useQuery(
+    collectionCardsExportQueryOptions(collectionGuid, summaryOpen),
+  );
 
   const handleBulkDelete = useCallback(() => {
     removeCards(Array.from(selectedIds));
@@ -207,7 +210,7 @@ export function CardGrid() {
     clearCards();
   }, [clearCards]);
 
-  if (isLoading) {
+  if (activeCollection && (pagePending || summaryPending)) {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
@@ -261,7 +264,7 @@ export function CardGrid() {
     );
   }
 
-  if (cards.length === 0) {
+  if (totalCount === 0) {
     return (
       <>
         <NoGameBanner />
@@ -288,14 +291,14 @@ export function CardGrid() {
           removeCard(openEntry.scanId);
           setOpenScanId(null);
         }}
-        onPrev={() => setOpenScanId(navigationList[openIndex - 1] ?? null)}
-        onNext={() => setOpenScanId(navigationList[openIndex + 1] ?? null)}
-        hasPrev={openIndex > 0}
-        hasNext={openIndex < navigationList.length - 1}
-        currentIndex={openIndex}
-        total={navigationList.length}
-        copyIndex={openCopyIndex}
-        copyCount={openCopyCount}
+        onPrev={() => setOpenScanId(openPosition?.prevScanId ?? null)}
+        onNext={() => setOpenScanId(openPosition?.nextScanId ?? null)}
+        hasPrev={!!openPosition?.prevScanId}
+        hasNext={!!openPosition?.nextScanId}
+        currentIndex={openPosition?.index ?? 0}
+        total={openPosition?.total ?? 0}
+        copyIndex={openPosition?.copyIndex ?? -1}
+        copyCount={openPosition?.copyCount ?? 1}
       />
     );
   }
@@ -313,7 +316,7 @@ export function CardGrid() {
           onExport={() => setSummaryOpen(true)}
           collectionName={activeCollection?.name}
           onClearAll={handleClearSession}
-          hasCards={filteredAndSorted.length > 0}
+          hasCards={totalCards > 0}
           activeFilters={filters}
           onFiltersChange={setFilters}
           activeFilterCount={activeFilterCount}
@@ -323,14 +326,14 @@ export function CardGrid() {
           availableRarities={stats?.rarities}
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
-          cardCount={cards.length}
+          cardCount={totalCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
           groupDuplicates={groupDuplicates}
           onGroupDuplicatesChange={handleGroupDuplicatesChange}
         />
       </div>
-      {filteredAndSorted.length === 0 && (
+      {totalCards === 0 && (
         <EmptyState
           className="flex-1"
           title={t("cardGrid.noCardsMatchFilters")}
@@ -433,9 +436,9 @@ export function CardGrid() {
       )}
 
       <SessionSummaryDialog
-        open={summaryOpen}
+        open={summaryOpen && !!exportCards}
         onOpenChange={setSummaryOpen}
-        cards={cards}
+        cards={exportCards ?? []}
         elapsedMs={elapsedMs}
         collectionName={activeCollection?.name ?? "collection"}
         onMarkDownloaded={markDownloaded}

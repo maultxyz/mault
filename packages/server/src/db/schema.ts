@@ -272,6 +272,7 @@ export const moduleConfigs = pgTable(
     pusherLeft: integer("pusher_left").notNull().default(150),
     pusherNeutral: integer("pusher_neutral").notNull().default(307),
     pusherRight: integer("pusher_right").notNull().default(460),
+    pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -325,7 +326,6 @@ export const collections = pgTable(
     isActive: boolean("is_active").notNull().default(false),
     gameId: integer("game_id").references(() => games.id),
     lang: text("lang").notNull().default("en"),
-    matchThreshold: integer("match_threshold"),
     orgId: text("org_id").notNull(),
     discordScanChannelId: text("discord_scan_channel_id"),
     discordScanThreadId: text("discord_scan_thread_id"),
@@ -367,6 +367,10 @@ export const collectionCards = pgTable(
   },
   (table) => [
     unique("collection_cards_guid_idx").on(table.guid),
+    index("collection_cards_collection_scanned_idx").on(
+      table.collectionId,
+      table.scannedAt,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -542,6 +546,7 @@ export const moduleConfigAudit = pgTable(
     pusherLeft: integer("pusher_left").notNull(),
     pusherNeutral: integer("pusher_neutral").notNull(),
     pusherRight: integer("pusher_right").notNull(),
+    pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     // Has a default (unlike this table's other columns) purely so the
     // migration adding it can backfill existing audit rows - every new row
     // always supplies it explicitly, same as the rest.

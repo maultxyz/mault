@@ -5,6 +5,7 @@ export * from "./interfaces/bin-routes.interface";
 export * from "./interfaces/bulk-import.interface";
 export * from "./interfaces/card.interface";
 export * from "./interfaces/card-embeddings.interface";
+export * from "./interfaces/collection-cards.interface";
 export * from "./interfaces/collections.interface";
 export * from "./interfaces/games.interface";
 export * from "./interfaces/impersonation.interface";
@@ -17,6 +18,7 @@ export * from "./interfaces/scanner.interface";
 export * from "./interfaces/phone-camera.interface";
 export * from "./interfaces/sort-bins.interface";
 
+export * from "./constants/collection-cards.constant";
 export * from "./constants/firmware.constant";
 export * from "./constants/module-configs.constant";
 export * from "./constants/ocr-regions.constant";

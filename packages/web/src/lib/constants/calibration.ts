@@ -1,4 +1,8 @@
-import type { BinHeightPreset, ServoConfig } from "@/lib/interfaces/calibration";
+import type {
+  BinHeightPreset,
+  ModuleDelayField,
+  ServoConfig,
+} from "@/lib/interfaces/calibration";
 
 export const SERVO_PULSE_MIN = 120;
 export const SERVO_PULSE_MAX = 490;
@@ -73,6 +77,19 @@ export const FEEDER_PULSE_DURATION_SLIDER_MAX = 500;
 export const FEEDER_PAUSE_DURATION_SLIDER_MAX = 1_000;
 export const FEEDER_SETTLE_DURATION_SLIDER_MAX = 2_000;
 export const PADDLE_CLOSE_DELAY_SLIDER_MAX = 1_000;
+export const PUSHER_HOLD_DURATION_SLIDER_MAX = 1_000;
+
+export const MODULE_DELAY_FIELDS: ModuleDelayField[] = [
+  "pusherHoldDuration",
+  "paddleCloseDelay",
+];
+
+export const PUSH_TEST_DIRECTIONS = ["left", "right"] as const;
+
+export const MODULE_DELAY_SLIDER_MAX: Record<ModuleDelayField, number> = {
+  pusherHoldDuration: PUSHER_HOLD_DURATION_SLIDER_MAX,
+  paddleCloseDelay: PADDLE_CLOSE_DELAY_SLIDER_MAX,
+};
 export const CAPTURE_SETTLE_DELAY_SLIDER_MAX = 2_000;
 export const MATCHES_NEEDED_MIN = 1;
 export const MATCHES_NEEDED_SLIDER_MAX = 5;

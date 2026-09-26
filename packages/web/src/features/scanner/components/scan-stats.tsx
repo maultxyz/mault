@@ -1,8 +1,8 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { applyCardFilters } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { formatElapsed, formatUsd } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
@@ -11,17 +11,10 @@ import { useTranslation } from "react-i18next";
 export function ScanStats() {
   const { t } = useTranslation("scanner");
   const [expandedSets, setExpandedSets] = useState(false);
-  const { cards, elapsedMs, isTimerActive } = useScannedCards();
+  const { elapsedMs, isTimerActive } = useScannedCards();
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
-
-  const visibleCards = useMemo(
-    () => applyCardFilters(cards, filters),
-    [cards, filters],
-  );
-  const stats = useMemo(
-    () => computeDisplayStats(cards, visibleCards),
-    [cards, visibleCards],
-  );
+  const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
+  const { displayStats: stats, totalCount } = useCollectionCardsSummary(query);
 
   if (!stats) {
     return (
@@ -56,7 +49,7 @@ export function ScanStats() {
       label: t("scanStats.cardsPerHour"),
       value:
         elapsedMs > 0
-          ? String(Math.round((cards.length / elapsedMs) * 3_600_000))
+          ? String(Math.round((totalCount / elapsedMs) * 3_600_000))
           : "-",
     },
   );

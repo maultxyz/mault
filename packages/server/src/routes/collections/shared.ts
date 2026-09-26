@@ -15,7 +15,6 @@ export function toCollection(row: {
   isActive: boolean;
   cardCount: string | number;
   lang: string;
-  matchThreshold: number | null;
   createdAt: Date;
   updatedAt: Date;
   gameGuid: string | null;
@@ -34,7 +33,6 @@ export function toCollection(row: {
     isActive: row.isActive,
     cardCount: Number(row.cardCount),
     lang: row.lang,
-    matchThreshold: row.matchThreshold,
     game: row.gameGuid
       ? {
           guid: row.gameGuid,
@@ -106,7 +104,6 @@ export async function loadCollections(
       isActive: collections.isActive,
       cardCount: count(collectionCards.id),
       lang: collections.lang,
-      matchThreshold: collections.matchThreshold,
       createdAt: collections.createdAt,
       updatedAt: collections.updatedAt,
       gameGuid: games.guid,
@@ -129,7 +126,6 @@ export async function loadCollections(
       collections.name,
       collections.isActive,
       collections.lang,
-      collections.matchThreshold,
       collections.createdAt,
       collections.updatedAt,
       games.id,

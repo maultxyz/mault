@@ -58,7 +58,6 @@ export interface CameraContextValue {
 }
 
 export interface ScannedCardsContextValue {
-  cards: ScannedCard[];
   unmatchedCards: UnmatchedCard[];
   isLoading: boolean;
   autoFeed: boolean;
@@ -123,6 +122,13 @@ export type FirmwareCheckResult =
   | { status: "ok"; version: string }
   | { status: "noVersion" | "noResponse" | "busy" | "disconnected" };
 
+export interface PushTest {
+  module: number;
+  direction: "left" | "right";
+  pusherHoldDuration: number;
+  paddleCloseDelay: number;
+}
+
 export interface SerialContextValue {
   isConnected: boolean;
   isReady: boolean;
@@ -134,6 +140,7 @@ export interface SerialContextValue {
   connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   disconnect: () => Promise<void>;
   sendRoute: (route: BinRoute) => Promise<unknown | null>;
+  sendPushTest: (test: PushTest) => Promise<unknown | null>;
   isRouteBusy: () => boolean;
   sendTest: () => Promise<TestResult>;
   runTest: () => Promise<void>;

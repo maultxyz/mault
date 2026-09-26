@@ -8,9 +8,11 @@ import { authQuery } from "../../db";
 import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
+  MATCH_MAX_DISTANCE_RATIO,
 } from "../../lib/constants/card-search";
 
 const MATCH_LIMIT = 5;
+const RUNNER_UP_SEARCH_LIMIT = 20;
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -66,13 +68,11 @@ export async function findCardMatches(
   {
     gameKey,
     lang,
-    minConfidence,
     embeddings,
     ocrText,
   }: {
     gameKey: string;
     lang: string;
-    minConfidence: number;
     embeddings: CardSearchEmbeddings;
     ocrText: string;
   },
@@ -90,16 +90,18 @@ export async function findCardMatches(
       WITH nearest AS (
         SELECT
           card_id,
+          name,
           set_code,
           embedding,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
         WHERE game_key = ${gameKey} AND lang = ${lang}
         ORDER BY embedding <=> ${embeddingStr}::vector(128)
-        LIMIT ${MATCH_LIMIT}
+        LIMIT ${RUNNER_UP_SEARCH_LIMIT}
       )
       SELECT
         card_id,
+        name,
         set_code,
         distance,
         embedding <=> first_value(embedding) OVER (ORDER BY distance) AS leader_distance
@@ -107,9 +109,15 @@ export async function findCardMatches(
       ORDER BY distance
     `);
 
+    const leaderName = matches.rows[0]?.name as string | undefined;
+    const runnerUpDistance =
+      (matches.rows.find((row) => row.name !== leaderName)?.distance as
+        | number
+        | undefined) ?? null;
+
     const candidates = poolDuplicatePrintings(
       withConfidence(
-        matches.rows.map((row) => ({
+        matches.rows.slice(0, MATCH_LIMIT).map((row) => ({
           id: row.card_id as string,
           cardId: row.card_id as string,
           setCode: row.set_code as string,
@@ -121,14 +129,20 @@ export async function findCardMatches(
 
     if (showVectorLogs) {
       console.log(
-        `[card-search] nearest candidates for game=${gameKey} lang=${lang} (minConfidence=${minConfidence}, maxDistance=${DISTANCE_THRESHOLD}):`,
+        `[card-search] nearest candidates for game=${gameKey} lang=${lang} (maxDistance=${DISTANCE_THRESHOLD}, maxRatio=${MATCH_MAX_DISTANCE_RATIO}, runnerUpDistance=${runnerUpDistance}):`,
       );
       console.table(candidates);
     }
 
     const nearestDistance = candidates[0]?.distance ?? null;
-    const rows = candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
-    if ((rows[0]?.confidence ?? 0) < minConfidence) {
+    const isAmbiguous =
+      nearestDistance != null &&
+      runnerUpDistance != null &&
+      nearestDistance >= runnerUpDistance * MATCH_MAX_DISTANCE_RATIO;
+    const rows = isAmbiguous
+      ? []
+      : candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
+    if (rows.length === 0) {
       return {
         message: "Successfully searched for card.",
         success: true,

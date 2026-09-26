@@ -55,6 +55,14 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
       </div>
       <div className="flex gap-2">
         <span className="w-16 shrink-0 text-muted-foreground">
+          {t("calibratePage.moduleHistory.pusherHoldDuration")}
+        </span>
+        <span>
+          {t("calibratePage.msValue", { value: c.pusherHoldDuration })}
+        </span>
+      </div>
+      <div className="flex gap-2">
+        <span className="w-16 shrink-0 text-muted-foreground">
           {t("calibratePage.moduleHistory.paddleCloseDelay")}
         </span>
         <span>
@@ -114,13 +122,15 @@ export default function CalibrateCalibrationPage() {
     active,
     sliderValues,
     pendingCalibration,
-    paddleCloseDelayValues,
+    moduleDelayValues,
     isConnected,
     handleControl,
     handleSliderChange,
     testingServos,
     handleServoTest,
-    handlePaddleCloseDelayChange,
+    handleModuleDelayChange,
+    pushTestingModule,
+    handlePushTest,
     feederSpeedValue,
     feederDurationValue,
     feederPulseDurationValue,
@@ -253,7 +263,7 @@ export default function CalibrateCalibrationPage() {
         configs={configs}
         active={active}
         sliderValues={sliderValues}
-        paddleCloseDelayValues={paddleCloseDelayValues}
+        moduleDelayValues={moduleDelayValues}
         pendingCalibration={pendingCalibration}
         isLoading={isLoading}
         isConnected={isConnected}
@@ -261,7 +271,9 @@ export default function CalibrateCalibrationPage() {
         onSliderChange={handleSliderChange}
         testingServos={testingServos}
         onTest={handleServoTest}
-        onPaddleCloseDelayChange={handlePaddleCloseDelayChange}
+        onModuleDelayChange={handleModuleDelayChange}
+        pushTestingModule={pushTestingModule}
+        onPushTest={handlePushTest}
       />
 
       <AuditDrawer

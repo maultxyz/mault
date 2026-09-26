@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   Field,
-  FieldDescription,
   FieldError,
   FieldLabel,
 } from "@/components/ui/field";
@@ -35,7 +34,6 @@ import {
   type EditCollectionFormValues,
 } from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DEFAULT_MATCH_THRESHOLD_PERCENT } from "@magic-vault/shared";
 import {
   IconAlbum,
   IconEdit,
@@ -78,7 +76,6 @@ export default function CollectionsPage() {
   const [editTarget, setEditTarget] = useState<{
     guid: string;
     name: string;
-    matchThreshold: number | null;
   } | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     guid: string;
@@ -91,10 +88,7 @@ export default function CollectionsPage() {
 
   const editForm = useForm({
     resolver: zodResolver(editCollectionSchema),
-    defaultValues: {
-      name: editTarget?.name ?? "",
-      matchThreshold: editTarget?.matchThreshold ?? null,
-    },
+    defaultValues: { name: editTarget?.name ?? "" },
     mode: "onChange",
   });
 
@@ -125,11 +119,7 @@ export default function CollectionsPage() {
   const handleEditSubmit = useCallback(
     async (values: EditCollectionFormValues) => {
       if (!editTarget) return;
-      await updateCollection(
-        editTarget.guid,
-        values.name,
-        values.matchThreshold,
-      );
+      await updateCollection(editTarget.guid, values.name);
       setEditTarget(null);
     },
     [editTarget, updateCollection],
@@ -281,14 +271,10 @@ export default function CollectionsPage() {
                         disabled={isMutating}
                         data-tour="edit-collection"
                         onClick={() => {
-                          editForm.reset({
-                            name: collection.name,
-                            matchThreshold: collection.matchThreshold,
-                          });
+                          editForm.reset({ name: collection.name });
                           setEditTarget({
                             guid: collection.guid,
                             name: collection.name,
-                            matchThreshold: collection.matchThreshold,
                           });
                         }}
                       >
@@ -387,37 +373,6 @@ export default function CollectionsPage() {
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
-                )}
-              </Field>
-            )}
-          />
-          <Controller
-            name="matchThreshold"
-            control={editForm.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="edit-collection-match-threshold">
-                  {t("editDialog.matchThresholdLabel")}
-                </FieldLabel>
-                <Input
-                  id="edit-collection-match-threshold"
-                  type="number"
-                  min={1}
-                  max={99}
-                  value={field.value ?? ""}
-                  onChange={(e) => field.onChange(e.target.value)}
-                  onBlur={field.onBlur}
-                  aria-invalid={fieldState.invalid}
-                  placeholder={t("editDialog.matchThresholdPlaceholder", {
-                    default: DEFAULT_MATCH_THRESHOLD_PERCENT,
-                  })}
-                />
-                {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
-                ) : (
-                  <FieldDescription>
-                    {t("editDialog.matchThresholdHint")}
-                  </FieldDescription>
                 )}
               </Field>
             )}

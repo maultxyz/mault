@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useHealthQuery } from "@/features/health/api/health";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
-import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useCommLog, useSerial } from "@/features/scanner/api/use-serial";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { useRole } from "@/hooks/use-role";
@@ -293,13 +293,7 @@ function HealthStatusItem() {
 export function StatusFooter() {
   const { t } = useTranslation("common");
   const { status: cameraStatus } = useCameraContext();
-  const { cards } = useScannedCards();
-
-  const totalValue = cards.reduce(
-    (sum, { card, isFoil }) =>
-      sum + ((isFoil ? card.priceFoil : card.price) ?? card.price ?? 0),
-    0,
-  );
+  const { totalCount, totalValue } = useCollectionCardsSummary();
 
   const cameraDot =
     cameraStatus === "ready"
@@ -331,12 +325,12 @@ export function StatusFooter() {
         <SyncStatusItem />
         <HealthStatusItem />
       </div>
-      {cards.length > 0 && (
+      {totalCount > 0 && (
         <>
           <FooterDivider />
           <p className="text-xs tabular-nums">
             {t("statusFooter.cardTotal", {
-              count: cards.length,
+              count: totalCount,
               value: totalValue.toFixed(2),
             })}
           </p>

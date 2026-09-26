@@ -24,12 +24,17 @@ import {
 import type {
   FirmwareCheckResult,
   FlashEsp32Result,
+  PushTest,
   SerialBoardType,
   SerialContextValue,
   SerialMessageListener,
   TestResult,
 } from "@/lib/interfaces/scanner";
-import { DEVICE_LEASE_HEARTBEAT_MS } from "@/lib/constants/timing";
+import {
+  DEVICE_LEASE_HEARTBEAT_MS,
+  PUSH_TEST_RESPONSE_TIMEOUT_MS,
+  ROUTE_RESPONSE_TIMEOUT_MS,
+} from "@/lib/constants/timing";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
@@ -722,21 +727,17 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
     }, [sendCommand, waitForLine]);
 
-  const sendRoute = useCallback(
-    async (route: BinRoute): Promise<unknown | null> => {
+  const sendAwaited = useCallback(
+    async (payload: unknown, timeoutMs: number): Promise<unknown | null> => {
       if (!transportRef.current) return null;
       if (binBusyRef.current) return null;
 
       binBusyRef.current = true;
       try {
-        const sent = await sendCommand(
-          JSON.stringify({
-            route: { module: route.module, direction: route.direction },
-          }) + "\n",
-        );
+        const sent = await sendCommand(JSON.stringify(payload) + "\n");
         if (!sent) return null;
 
-        const response = await waitForLine(15000);
+        const response = await waitForLine(timeoutMs);
         if (!response) return null;
 
         try {
@@ -752,6 +753,21 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [sendCommand, waitForLine],
   );
 
+  const sendRoute = useCallback(
+    (route: BinRoute) =>
+      sendAwaited(
+        { route: { module: route.module, direction: route.direction } },
+        ROUTE_RESPONSE_TIMEOUT_MS,
+      ),
+    [sendAwaited],
+  );
+
+  const sendPushTest = useCallback(
+    (test: PushTest) =>
+      sendAwaited({ pushTest: test }, PUSH_TEST_RESPONSE_TIMEOUT_MS),
+    [sendAwaited],
+  );
+
   return (
     <SerialContext
       value={{
@@ -765,6 +781,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         connectBluetooth,
         disconnect,
         sendRoute,
+        sendPushTest,
         isRouteBusy,
         sendTest,
         runTest: runTestOnActiveTransport,

@@ -32,7 +32,7 @@ import {
   IconLoader2,
   IconWifiOff,
 } from "@tabler/icons-react";
-import { CARD_PAGE_SIZE as PAGE_SIZE } from "@/lib/constants/limits";
+import { COLLECTION_CARDS_PAGE_SIZE } from "@magic-vault/shared";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -61,11 +61,11 @@ function CardGrid({
     [filteredAndSorted, groupDuplicates],
   );
 
-  const pageCount = Math.max(1, Math.ceil(displayEntries.length / PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(displayEntries.length / COLLECTION_CARDS_PAGE_SIZE));
   const clampedPage = Math.min(page, pageCount - 1);
   const pagedCards = displayEntries.slice(
-    clampedPage * PAGE_SIZE,
-    (clampedPage + 1) * PAGE_SIZE,
+    clampedPage * COLLECTION_CARDS_PAGE_SIZE,
+    (clampedPage + 1) * COLLECTION_CARDS_PAGE_SIZE,
   );
 
   useEffect(() => {

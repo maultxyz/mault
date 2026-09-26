@@ -1,0 +1,2 @@
+ALTER TABLE "module_config_audit" ADD COLUMN "pusher_hold_duration" integer DEFAULT 150 NOT NULL;--> statement-breakpoint
+ALTER TABLE "module_configs" ADD COLUMN "pusher_hold_duration" integer DEFAULT 150 NOT NULL;
