@@ -122,5 +122,23 @@
   "catchAll": "Fourre-tout",
   "save": "Enregistrer",
   "and": "ET",
-  "or": "OU"
+  "or": "OU",
+  "binRulesMenu": {
+    "label": "Règles des bacs",
+    "importing": "Importation…",
+    "copy": "Copier les règles",
+    "export": "Exporter les règles",
+    "import": "Importer depuis un fichier",
+    "importedSuffix": "(importé)",
+    "toasts": {
+      "copied": "Règles des bacs copiées",
+      "copyFailed": "Impossible de copier les règles des bacs",
+      "invalid": "Ce n'est pas un fichier de règles de bacs valide",
+      "wrongGame": "Ces règles de bacs concernent un autre jeu",
+      "importFailed": "Impossible d'importer les règles des bacs",
+      "imported": "Importé sous \"{{name}}\"",
+      "binsSkipped_one": "{{count}} bac a été ignoré car ce trieur a moins de bacs.",
+      "binsSkipped_other": "{{count}} bacs ont été ignorés car ce trieur a moins de bacs."
+    }
+  }
 }

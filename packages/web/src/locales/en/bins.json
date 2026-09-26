@@ -122,5 +122,23 @@
   "catchAll": "Catch-all",
   "save": "Save",
   "and": "AND",
-  "or": "OR"
+  "or": "OR",
+  "binRulesMenu": {
+    "label": "Bin rules",
+    "importing": "Importing…",
+    "copy": "Copy rules",
+    "export": "Export rules",
+    "import": "Import from file",
+    "importedSuffix": "(imported)",
+    "toasts": {
+      "copied": "Bin rules copied",
+      "copyFailed": "Couldn't copy the bin rules",
+      "invalid": "That isn't a valid bin rules file",
+      "wrongGame": "These bin rules are for a different game",
+      "importFailed": "Couldn't import the bin rules",
+      "imported": "Imported as \"{{name}}\"",
+      "binsSkipped_one": "{{count}} bin was skipped because this sorter has fewer bins.",
+      "binsSkipped_other": "{{count}} bins were skipped because this sorter has fewer bins."
+    }
+  }
 }

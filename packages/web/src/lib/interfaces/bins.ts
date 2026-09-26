@@ -3,6 +3,7 @@ import type {
   BinConfig,
   BinRuleGroup,
   BinSet,
+  DefaultBinInit,
   FieldMeta,
   RepackSlot,
 } from "@magic-vault/shared";
@@ -17,6 +18,7 @@ export interface BinConfigsContextValue {
   configs: BinConfig[];
   sets: BinSet[];
   fieldDefinitions: FieldMeta[];
+  gameKey: string | null;
   hasGame: boolean;
   hasCollection: boolean;
   apiDocsUrl: string | null;
@@ -39,6 +41,7 @@ export interface BinConfigsContextValue {
   emptyBin: (binNumber: number) => Promise<void>;
   activateSet: (guid: string) => Promise<void>;
   createSet: (name: string) => Promise<void>;
+  importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;
   saveSet: (name: string) => Promise<void>;
   renameSet: (guid: string, name: string) => Promise<void>;
   deleteSet: (guid: string) => Promise<void>;

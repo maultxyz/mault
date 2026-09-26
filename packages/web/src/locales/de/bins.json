@@ -122,5 +122,23 @@
   "catchAll": "Auffangfach",
   "save": "Speichern",
   "and": "UND",
-  "or": "ODER"
+  "or": "ODER",
+  "binRulesMenu": {
+    "label": "Fachregeln",
+    "importing": "Wird importiert…",
+    "copy": "Regeln kopieren",
+    "export": "Regeln exportieren",
+    "import": "Aus Datei importieren",
+    "importedSuffix": "(importiert)",
+    "toasts": {
+      "copied": "Fachregeln kopiert",
+      "copyFailed": "Fachregeln konnten nicht kopiert werden",
+      "invalid": "Das ist keine gültige Fachregeldatei",
+      "wrongGame": "Diese Fachregeln gehören zu einem anderen Spiel",
+      "importFailed": "Fachregeln konnten nicht importiert werden",
+      "imported": "Importiert als \"{{name}}\"",
+      "binsSkipped_one": "{{count}} Fach wurde übersprungen, weil dieser Sortierer weniger Fächer hat.",
+      "binsSkipped_other": "{{count}} Fächer wurden übersprungen, weil dieser Sortierer weniger Fächer hat."
+    }
+  }
 }
