@@ -126,27 +126,33 @@ function hasMatch(result: CardSearchResult): boolean {
   return (result.data?.length ?? 0) > 0;
 }
 
-// On a double miss, keep the closer copy so the saved unmatched image is
-// likelier to be right way up.
-async function searchUprightThenRotated(
+// Both orientations are always searched: an upside-down card still has a
+// nearest neighbour, so stopping at the first orientation that returns
+// anything accepts wrong matches. The closer orientation wins, which also
+// keeps a saved unmatched image likelier to be right way up.
+async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,
   search: (canvas: HTMLCanvasElement) => Promise<CardSearchResult>,
 ): Promise<{ result: CardSearchResult; canvas: HTMLCanvasElement }> {
-  const first = { result: await search(canvas), canvas };
-  if (hasMatch(first.result) || !checkBothOrientations) return first;
+  if (!checkBothOrientations) return { result: await search(canvas), canvas };
 
   const rotatedCanvas = rotateCanvas180(canvas);
-  const second = {
-    result: await search(rotatedCanvas),
-    canvas: rotatedCanvas,
-  };
-  if (hasMatch(second.result)) return second;
+  const [upright, rotated] = await Promise.all([
+    search(canvas).then((result) => ({ result, canvas })),
+    search(rotatedCanvas).then((result) => ({
+      result,
+      canvas: rotatedCanvas,
+    })),
+  ]);
 
-  const secondCloser =
-    (second.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-    (first.result.nearestDistance ?? Number.POSITIVE_INFINITY);
-  return secondCloser ? second : first;
+  if (hasMatch(upright.result) !== hasMatch(rotated.result)) {
+    return hasMatch(upright.result) ? upright : rotated;
+  }
+  const rotatedCloser =
+    (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
+    (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
+  return rotatedCloser ? rotated : upright;
 }
 
 function buildImageSearchFormData(
@@ -181,7 +187,7 @@ async function searchCardImage(
       refreshFrame,
     );
     if (dewarpedCanvas) {
-      const best = await searchUprightThenRotated(
+      const best = await searchBothOrientations(
         dewarpedCanvas,
         checkBothOrientations,
         async (oriented) => {
@@ -219,7 +225,7 @@ async function searchCardImage(
 
   console.log(`[scanner] using fallback scan region (${fallbackReason})`);
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
-  const best = await searchUprightThenRotated(
+  const best = await searchBothOrientations(
     warpedCanvas,
     checkBothOrientations,
     async (oriented) =>

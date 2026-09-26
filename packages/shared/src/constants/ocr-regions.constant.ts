@@ -5,4 +5,6 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   // pokemon: [{ x: 0.03, y: 0.82, width: 0.94, height: 0.18 }],
 };
 
-export const DISTANCE_THRESHOLD = 0.5;
+// Measured against re-photographed Scryfall images: correct matches mostly land
+// under 0.3, unrelated cards and out-of-catalog scans at 0.45+.
+export const DISTANCE_THRESHOLD = 0.4;
