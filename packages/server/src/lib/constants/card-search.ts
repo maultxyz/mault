@@ -14,7 +14,6 @@ export const MATCH_CONFIDENCE_TEMPERATURE = 0.05;
 // count as the same art (reprints), pooling their match confidence.
 export const DUPLICATE_PRINTING_MAX_DISTANCE = 0.02;
 
-<<<<<<< HEAD
 export const STORED_SEARCH_LIMIT = 60;
 
 export const FAB_SEARCH_CARD_LIMIT = 12;
@@ -30,6 +29,5 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   F: "1st Edition ",
   U: "Unlimited Edition ",
 };
-=======
+
 export const MATCH_MAX_DISTANCE_RATIO = 0.9;
->>>>>>> master

@@ -371,6 +371,7 @@ export const collectionCards = pgTable(
       table.collectionId,
       table.scannedAt,
     ),
+    index("collection_cards_card_id_idx").on(table.cardId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

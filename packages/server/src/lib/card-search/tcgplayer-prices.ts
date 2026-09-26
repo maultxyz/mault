@@ -148,10 +148,10 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
   });
 }
 
-export async function applyTcgplayerPricesToScans(
+export async function applyTcgplayerPricesToScans<T extends ScannedCard>(
   gameKey: string | null | undefined,
-  scans: ScannedCard[],
-): Promise<ScannedCard[]> {
+  scans: T[],
+): Promise<T[]> {
   const adapter = gameKey ? ADAPTERS_BY_GAME_KEY[gameKey] : undefined;
   if (!adapter) return scans;
   const cards = await applyTcgplayerPrices(

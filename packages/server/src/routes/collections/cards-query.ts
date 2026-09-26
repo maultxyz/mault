@@ -82,10 +82,18 @@ export async function findCardsCollection(
   tx: Transaction,
   guid: string,
   orgId: string,
-): Promise<{ id: number; fieldDefinitions: FieldMeta[] } | null> {
+): Promise<{
+  id: number;
+  gameKey: string | null;
+  fieldDefinitions: FieldMeta[];
+} | null> {
   if (!isUuid(guid)) return null;
   const [collection] = await tx
-    .select({ id: collections.id, fieldDefinitions: games.fieldDefinitions })
+    .select({
+      id: collections.id,
+      gameKey: games.key,
+      fieldDefinitions: games.fieldDefinitions,
+    })
     .from(collections)
     .leftJoin(games, eq(games.id, collections.gameId))
     .where(and(eq(collections.guid, guid), eq(collections.orgId, orgId)))
@@ -93,6 +101,7 @@ export async function findCardsCollection(
   if (!collection) return null;
   return {
     id: collection.id,
+    gameKey: collection.gameKey,
     fieldDefinitions: (collection.fieldDefinitions as FieldMeta[] | null) ?? [],
   };
 }
