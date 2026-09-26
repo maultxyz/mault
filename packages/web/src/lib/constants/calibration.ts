@@ -86,6 +86,14 @@ export const MODULE_DELAY_FIELDS: ModuleDelayField[] = [
 
 export const PUSH_TEST_DIRECTIONS = ["left", "right"] as const;
 
+// Route directions are the firmware's pusher directions, which are mirrored
+// from the front of the sorter: a "left" push lands on the physical right
+// (bin 1 is top right). Bin layouts render in physical left-to-right order.
+export const BIN_SLOTS_PHYSICAL_ORDER = [
+  { direction: "right", labelKey: "binConfigurations.moduleLeft" },
+  { direction: "left", labelKey: "binConfigurations.moduleRight" },
+] as const;
+
 export const MODULE_DELAY_SLIDER_MAX: Record<ModuleDelayField, number> = {
   pusherHoldDuration: PUSHER_HOLD_DURATION_SLIDER_MAX,
   paddleCloseDelay: PADDLE_CLOSE_DELAY_SLIDER_MAX,

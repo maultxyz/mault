@@ -55,6 +55,7 @@
   "binRoutingControls": {
     "label": "Bin Routing",
     "feed": "Feed",
+    "dropCard": "Drop Card",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
     "sampleRun": "Sample Run"

@@ -55,6 +55,7 @@
   "binRoutingControls": {
     "label": "Fach-Routing",
     "feed": "Zuführen",
+    "dropCard": "Karte abwerfen",
     "binActive": "Fach {{bin}}…",
     "running": "Läuft…",
     "sampleRun": "Testlauf"

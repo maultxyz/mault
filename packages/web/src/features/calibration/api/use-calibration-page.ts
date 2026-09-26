@@ -608,6 +608,10 @@ export function useCalibrationPage() {
     sendCommand(JSON.stringify({ feeder: true }));
   }, [sendCommand]);
 
+  const handleDropCard = useCallback(() => {
+    sendCommand(JSON.stringify({ clearDevice: true }));
+  }, [sendCommand]);
+
   const readIR = useCallback(async () => {
     if (irBusyRef.current || activeBinRef.current !== null) return;
     irBusyRef.current = true;
@@ -784,6 +788,7 @@ export function useCalibrationPage() {
     handleSaveScanRegion,
     handleDiscardScanRegion,
     handleFeed,
+    handleDropCard,
     isSampleRunning,
     handleSampleRun,
     irStates,

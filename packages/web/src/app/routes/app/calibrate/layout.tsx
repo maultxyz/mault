@@ -92,6 +92,7 @@ export default function CalibrateLayout() {
     isUnconfigured,
     handleTest,
     handleFeed,
+    handleDropCard,
     isSampleRunning,
     handleCopyCalibration,
     handleExportConfig,
@@ -113,8 +114,8 @@ export default function CalibrateLayout() {
         data-tour="calibration-sections"
       />
 
-      <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4">
+        <div className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md">
           <div
             className="flex flex-wrap items-center gap-2"
             data-tour="calibration-connect"
@@ -157,6 +158,13 @@ export default function CalibrateLayout() {
               onClick={handleFeed}
             >
               {t("binRoutingControls.feed")}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!isConnected || activeBin !== null || isSampleRunning}
+              onClick={handleDropCard}
+            >
+              {t("binRoutingControls.dropCard")}
             </Button>
             {isUnconfigured && (
               <span className="text-sm text-muted-foreground">
