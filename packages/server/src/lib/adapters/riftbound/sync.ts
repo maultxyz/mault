@@ -3,6 +3,7 @@ import type {
   SyncSource,
   SyncSourceCard,
 } from "../../card-search/sync-types";
+import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { RIFTBOUND_DEFAULT_URL } from "../../constants/urls";
 import { type RiftboundCard } from "./search";
@@ -18,12 +19,15 @@ interface RiftboundListResponse {
 }
 
 function toSyncCard(raw: RiftboundCard): SyncSourceCard {
-  return {
-    id: raw.id,
-    name: raw.name,
-    setCode: raw.set?.set_id ?? "",
-    imageUrl: raw.media?.image_url,
-  };
+  return withRawData(
+    {
+      id: raw.id,
+      name: raw.name,
+      setCode: raw.set?.set_id ?? "",
+      imageUrl: raw.media?.image_url,
+    },
+    raw,
+  );
 }
 
 async function fetchCards(
@@ -65,14 +69,7 @@ async function fetchOne(id: string, baseUrl: string): Promise<FetchOneResult> {
   if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const raw = (await res.json()) as RiftboundCard;
-  return {
-    card: {
-      name: raw.name,
-      setCode: raw.set?.set_id ?? "",
-      imageUrl: raw.media?.image_url,
-    },
-    urls: [url],
-  };
+  return { card: toSyncCard(raw), urls: [url] };
 }
 
 export const riftboundSyncSource: SyncSource = {

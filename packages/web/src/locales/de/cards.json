@@ -15,6 +15,16 @@
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
     "noCardsFound": "Keine Karten gefunden"
   },
+  "priceTable": {
+    "heading": "TCGplayer",
+    "low": "Niedrig",
+    "mid": "Mittel",
+    "high": "Hoch",
+    "regular": "Normal",
+    "foil": "Foil",
+    "noPrice": "k. A.",
+    "acrossPrintings": "Spanne über {{count}} Drucke"
+  },
   "cardDetailPanel": {
     "backToList": "Zurück zur Kartenliste",
     "previousCard": "Vorherige Karte",
@@ -30,6 +40,15 @@
     "refetchError": "Kartendaten konnten nicht aktualisiert werden",
     "searchForCorrectVersion": "Deine gescannte Karte - suche unten nach der richtigen Version",
     "cancel": "Abbrechen",
+    "prices": "Preise",
+    "details": "Details",
+    "cardText": "Kartentext",
+    "thisScan": "Dieser Scan",
+    "set": "Set",
+    "rarity": "Seltenheit",
+    "manaCost": "Manakosten",
+    "powerToughness": "Stärke / Widerstand",
+    "artist": "Künstler",
     "binLocation": "Fachposition",
     "showOcrRegions": "OCR-Bereiche anzeigen",
     "copyOf": "Exemplar {{index}} von {{count}}"

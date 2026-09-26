@@ -8,6 +8,7 @@ import {
   integer,
   jsonb,
   pgTable,
+  primaryKey,
   serial,
   text,
   timestamp,
@@ -44,6 +45,7 @@ export const cardImageVectors = pgTable(
     name: text("name").notNull(),
     setCode: text("set_code").notNull(),
     embedding: vector("embedding").notNull(),
+    data: jsonb("data"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -369,6 +371,7 @@ export const collectionCards = pgTable(
       table.collectionId,
       table.scannedAt,
     ),
+    index("collection_cards_card_id_idx").on(table.cardId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -630,6 +633,41 @@ export const scanVectorizeStats = pgTable("scan_vectorize_stats", {
   count: integer("count").notNull().default(0),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const tcgplayerPrices = pgTable(
+  "tcgplayer_prices",
+  {
+    productId: integer("product_id").notNull(),
+    subType: text("sub_type").notNull(),
+    categoryId: integer("category_id").notNull(),
+    lowPrice: doublePrecision("low_price"),
+    midPrice: doublePrecision("mid_price"),
+    highPrice: doublePrecision("high_price"),
+    marketPrice: doublePrecision("market_price"),
+    directLowPrice: doublePrecision("direct_low_price"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.productId, table.subType] })],
+);
+
+export const tcgplayerProducts = pgTable(
+  "tcgplayer_products",
+  {
+    productId: integer("product_id").primaryKey(),
+    categoryId: integer("category_id").notNull(),
+    groupId: integer("group_id").notNull(),
+    name: text("name").notNull(),
+    number: text("number"),
+    rarity: text("rarity"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("tcgplayer_products_category_number_idx").on(
+      table.categoryId,
+      table.number,
+    ),
+  ],
+);
 
 export const binSetRelations = relations(binSets, ({ many, one }) => ({
   bins: many(bins),

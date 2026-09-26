@@ -15,6 +15,16 @@
     "startTyping": "Start typing to search for cards",
     "noCardsFound": "No cards found"
   },
+  "priceTable": {
+    "heading": "TCGplayer",
+    "low": "Low",
+    "mid": "Mid",
+    "high": "High",
+    "regular": "Regular",
+    "foil": "Foil",
+    "noPrice": "n/a",
+    "acrossPrintings": "Range across {{count}} printings"
+  },
   "cardDetailPanel": {
     "backToList": "Back to card list",
     "previousCard": "Previous card",
@@ -30,6 +40,15 @@
     "refetchError": "Failed to refetch card data",
     "searchForCorrectVersion": "Your scanned card, search for the correct version below",
     "cancel": "Cancel",
+    "prices": "Prices",
+    "details": "Details",
+    "cardText": "Card text",
+    "thisScan": "This scan",
+    "set": "Set",
+    "rarity": "Rarity",
+    "manaCost": "Mana cost",
+    "powerToughness": "Power / Toughness",
+    "artist": "Artist",
     "binLocation": "Bin location",
     "showOcrRegions": "Show OCR regions",
     "copyOf": "Copy {{index}} of {{count}}"

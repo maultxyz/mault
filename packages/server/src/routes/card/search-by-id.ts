@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { resolveCardSearch } from "../../lib/card-search/resolve";
+import { searchCardById } from "../../lib/card-search/stored-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const searchCardByIdRoute = new Hono<AppEnv>().get(
@@ -17,10 +18,7 @@ export const searchCardByIdRoute = new Hono<AppEnv>().get(
         400,
       );
     }
-    const result = await resolved.adapter.searchById(
-      c.req.param("id"),
-      resolved.baseUrl,
-    );
+    const result = await searchCardById(resolved, c.req.param("id"));
     return c.json(result);
   },
 );

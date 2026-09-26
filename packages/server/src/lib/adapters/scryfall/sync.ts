@@ -74,6 +74,7 @@ async function downloadBulkData(
       name: raw.printed_name ?? raw.name,
       setCode: raw.set,
       imageUrl: raw.image_uris?.png ?? raw.image_uris?.large,
+      data: line,
     });
   }
 
@@ -97,7 +98,8 @@ async function fetchOne(id: string, baseUrl: string) {
   const url = `${baseUrl}/${id}`;
   const res = await fetch(url, { headers: CARD_API_HEADERS });
   if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
-  const raw = (await res.json()) as {
+  const data = await res.text();
+  const raw = JSON.parse(data) as {
     name: string;
     set: string;
     image_uris?: { png?: string; large?: string };
@@ -107,6 +109,7 @@ async function fetchOne(id: string, baseUrl: string) {
       name: raw.name,
       setCode: raw.set,
       imageUrl: raw.image_uris?.png ?? raw.image_uris?.large,
+      data,
     },
     urls: [url],
   };

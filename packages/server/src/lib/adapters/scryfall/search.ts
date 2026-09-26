@@ -163,4 +163,10 @@ export const scryfallAdapter: CardSearchAdapter = {
   defaultUrl: SCRYFALL_DEFAULT_URL,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw) => normalizeScryfallCard(raw as ScryfallApiCard),
+  tcgplayer: {
+    categoryId: 1,
+    subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
+    productIdFromRaw: (card) => (card.raw as ScryfallApiCard).tcgplayer_id,
+  },
 };

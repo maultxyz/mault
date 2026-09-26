@@ -35,7 +35,7 @@ const EXTERNAL_API_CHECKS: { name: string; url: string; gameKey: string }[] = [
     url: ONE_PIECE_DEFAULT_URL,
     gameKey: "onepiece",
   },
-  { name: "Flesh and Blood API", url: FAB_DEFAULT_URL, gameKey: "fab" },
+  { name: "Fleshcube (Flesh and Blood)", url: FAB_DEFAULT_URL, gameKey: "fab" },
   {
     name: "YGOPRODeck (Yu-Gi-Oh!)",
     url: YUGIOH_DEFAULT_URL,

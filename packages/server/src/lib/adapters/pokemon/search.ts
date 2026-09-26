@@ -4,59 +4,11 @@ import type { CardSearchAdapter } from "../../card-search/types";
 import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";
-
-interface PokemonCardBrief {
-  id: string;
-  localId: string;
-  name: string;
-  image?: string;
-}
-
-interface PokemonAttack {
-  name: string;
-  cost?: string[];
-  damage?: string | number;
-  effect?: string;
-}
-
-interface PokemonAbility {
-  type?: string;
-  name: string;
-  effect?: string;
-}
-
-interface PokemonPricing {
-  tcgplayer?: {
-    normal?: { marketPrice?: number };
-    holofoil?: { marketPrice?: number };
-    "reverse-holofoil"?: { marketPrice?: number };
-  };
-}
-
-interface PokemonCardDetail extends PokemonCardBrief {
-  category?: string;
-  illustrator?: string;
-  rarity?: string;
-  hp?: number;
-  types?: string[];
-  evolveFrom?: string;
-  description?: string;
-  stage?: string;
-  trainerType?: string;
-  energyType?: string;
-  effect?: string;
-  attacks?: PokemonAttack[];
-  abilities?: PokemonAbility[];
-  retreat?: number;
-  pricing?: PokemonPricing;
-  set?: {
-    id: string;
-    name: string;
-  };
-  legal?: {
-    standard?: boolean;
-  };
-}
+import type {
+  PokemonCardBrief,
+  PokemonCardDetail,
+  PokemonPricing,
+} from "../../interfaces/pokemon";
 
 function assetUrl(image: string, quality: "low" | "high"): string {
   return `/api/cards/image-proxy?url=${encodeURIComponent(`${image}/${quality}.webp`)}`;
@@ -76,6 +28,17 @@ function resolveFoilPrice(pricing: PokemonPricing | undefined): number | null {
     pricing?.tcgplayer?.["reverse-holofoil"]?.marketPrice ??
     null
   );
+}
+
+function resolveTcgplayerId(
+  pricing: PokemonPricing | undefined,
+): string | undefined {
+  const tcgplayer = pricing?.tcgplayer;
+  const productId =
+    tcgplayer?.normal?.productId ??
+    tcgplayer?.holofoil?.productId ??
+    tcgplayer?.["reverse-holofoil"]?.productId;
+  return productId != null ? String(productId) : undefined;
 }
 
 function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
@@ -118,17 +81,20 @@ function normalizePokemonCard(raw: PokemonCardDetail): PlayingCard {
     price: resolvePrice(raw.pricing),
     priceFoil: resolveFoilPrice(raw.pricing),
     sourceUrl: `https://tcgdex.dev/cards/${raw.id}`,
+    tcgplayerId: resolveTcgplayerId(raw.pricing),
     cmc: raw.retreat,
     raw,
   };
 }
 
-async function fetchDetail(
+export async function fetchDetail(
   id: string,
   baseUrl: string,
+  signal?: AbortSignal,
 ): Promise<PokemonCardDetail | null> {
   const response = await fetchCardApi(`${baseUrl}/${id}`, {
     headers: CARD_API_HEADERS,
+    signal,
   });
   if (!response.ok) return null;
   return (await response.json()) as PokemonCardDetail;
@@ -202,4 +168,14 @@ export const pokemonAdapter: CardSearchAdapter = {
   urlForLang,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw) => normalizePokemonCard(raw as PokemonCardDetail),
+  tcgplayer: {
+    categoryId: 3,
+    productIdFromRaw: (card) =>
+      resolveTcgplayerId((card.raw as PokemonCardDetail).pricing),
+    subTypes: () => ({
+      price: ["Normal"],
+      priceFoil: ["Holofoil", "Reverse Holofoil"],
+    }),
+  },
 };

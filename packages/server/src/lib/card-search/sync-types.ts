@@ -3,17 +3,14 @@ export interface SyncSourceCard {
   name: string;
   setCode: string;
   imageUrl: string | undefined;
+  data: string;
 }
 
-export interface SyncSourceCardDetail {
-  name: string;
-  setCode: string;
-  imageUrl: string | undefined;
-}
+export type SyncSourceCardDetail = Omit<SyncSourceCard, "id">;
 
 // `urls` is every request fetchOne actually made while looking for the card
-// - one entry for a direct by-id lookup, several for an adapter (onepiece,
-// fab) that has to page through a listing since the source has no direct
+// - one entry for a direct by-id lookup, several for an adapter (onepiece)
+// that has to page through a listing since the source has no direct
 // by-id endpoint at this granularity. Populated whether or not `card` was
 // found, so a caller can report exactly what was queried on a miss.
 export interface FetchOneResult {

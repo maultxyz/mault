@@ -15,6 +15,16 @@
     "startTyping": "Commence à taper pour rechercher des cartes",
     "noCardsFound": "Aucune carte trouvée"
   },
+  "priceTable": {
+    "heading": "TCGplayer",
+    "low": "Bas",
+    "mid": "Moyen",
+    "high": "Haut",
+    "regular": "Normale",
+    "foil": "Foil",
+    "noPrice": "n/d",
+    "acrossPrintings": "Fourchette sur {{count}} impressions"
+  },
   "cardDetailPanel": {
     "backToList": "Retour à la liste des cartes",
     "previousCard": "Carte précédente",
@@ -30,6 +40,15 @@
     "refetchError": "Échec de l'actualisation des données de la carte",
     "searchForCorrectVersion": "Ta carte scannée - recherche la bonne version ci-dessous",
     "cancel": "Annuler",
+    "prices": "Prix",
+    "details": "Détails",
+    "cardText": "Texte de la carte",
+    "thisScan": "Ce scan",
+    "set": "Extension",
+    "rarity": "Rareté",
+    "manaCost": "Coût de mana",
+    "powerToughness": "Force / Endurance",
+    "artist": "Artiste",
     "binLocation": "Emplacement du bac",
     "showOcrRegions": "Afficher les zones OCR",
     "copyOf": "Exemplaire {{index}} sur {{count}}"

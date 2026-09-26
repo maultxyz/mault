@@ -151,4 +151,9 @@ export const riftboundAdapter: CardSearchAdapter = {
   defaultUrl: RIFTBOUND_DEFAULT_URL,
   search: Search,
   searchById: SearchById,
+  normalizeStored: (raw) => normalizeRiftboundCard(raw as RiftboundCard),
+  tcgplayer: {
+    categoryId: 89,
+    subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
+  },
 };

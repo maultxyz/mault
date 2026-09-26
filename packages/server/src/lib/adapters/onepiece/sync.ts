@@ -1,4 +1,8 @@
-import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
+import type {
+  SyncSource,
+  SyncSourceCard,
+} from "../../card-search/sync-types";
+import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { ONE_PIECE_DEFAULT_URL } from "../../constants/urls";
 import {
@@ -19,12 +23,15 @@ const CATALOGS = [
 ];
 
 function toSyncCard(raw: OptcgCard, id: string): SyncSourceCard {
-  return {
-    id,
-    name: raw.card_name,
-    setCode: onePieceSetCode(raw),
-    imageUrl: raw.card_image ?? undefined,
-  };
+  return withRawData(
+    {
+      id,
+      name: raw.card_name,
+      setCode: onePieceSetCode(raw),
+      imageUrl: raw.card_image ?? undefined,
+    },
+    raw,
+  );
 }
 
 async function fetchCards(

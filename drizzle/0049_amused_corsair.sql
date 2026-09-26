@@ -1,0 +1,1 @@
+CREATE INDEX "collection_cards_card_id_idx" ON "collection_cards" USING btree ("card_id");

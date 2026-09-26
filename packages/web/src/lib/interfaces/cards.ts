@@ -1,9 +1,21 @@
 import type {
   CardFilters,
   FieldMeta,
+  PlayingCard,
   PlayingCardWithDistance,
 } from "@magic-vault/shared";
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
+
+export interface DetailSectionProps {
+  title: string;
+  children: ReactNode;
+  className?: string;
+}
+
+export interface CardPriceDetailsProps {
+  card: PlayingCard;
+  className?: string;
+}
 
 export type { CardFilters, GroupedScannedCard } from "@magic-vault/shared";
 

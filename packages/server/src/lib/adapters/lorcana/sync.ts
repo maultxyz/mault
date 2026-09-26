@@ -3,6 +3,7 @@ import type {
   SyncSource,
   SyncSourceCard,
 } from "../../card-search/sync-types";
+import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { LORCANA_DE_API_ROOT, LORCANA_DEFAULT_URL } from "../../constants/urls";
 import {
@@ -26,12 +27,15 @@ interface LorcanaDeSet {
 }
 
 function toSyncCardDe(raw: LorcanaDeCard): SyncSourceCard {
-  return {
-    id: String(raw.id),
-    name: lorcanaDeCardName(raw),
-    setCode: raw.setCode,
-    imageUrl: raw.images?.full ?? raw.images?.thumbnail,
-  };
+  return withRawData(
+    {
+      id: String(raw.id),
+      name: lorcanaDeCardName(raw),
+      setCode: raw.setCode,
+      imageUrl: raw.images?.full ?? raw.images?.thumbnail,
+    },
+    raw,
+  );
 }
 
 async function fetchGermanCards(
@@ -88,14 +92,7 @@ async function fetchOneDe(id: string): Promise<FetchOneResult> {
   if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
   const raw = (await res.json()) as LorcanaDeCard;
-  return {
-    card: {
-      name: lorcanaDeCardName(raw),
-      setCode: raw.setCode,
-      imageUrl: raw.images?.full ?? raw.images?.thumbnail,
-    },
-    urls: [url],
-  };
+  return { card: toSyncCardDe(raw), urls: [url] };
 }
 
 function apiRoot(baseUrl: string): string {
@@ -108,12 +105,15 @@ function apiRoot(baseUrl: string): string {
 
 function toSyncCard(raw: LorcastCard): SyncSourceCard {
   const image = raw.image_uris?.digital;
-  return {
-    id: lorcanaCardId(raw.set.code, raw.collector_number),
-    name: lorcanaCardName(raw),
-    setCode: raw.set.code,
-    imageUrl: image?.large ?? image?.normal,
-  };
+  return withRawData(
+    {
+      id: lorcanaCardId(raw.set.code, raw.collector_number),
+      name: lorcanaCardName(raw),
+      setCode: raw.set.code,
+      imageUrl: image?.large ?? image?.normal,
+    },
+    raw,
+  );
 }
 
 async function fetchCards(

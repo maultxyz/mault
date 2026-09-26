@@ -3,6 +3,13 @@ export interface PlayingCardImage {
   normal: string;
 }
 
+export interface PlayingCardPriceRange {
+  low: number | null;
+  mid: number | null;
+  high: number | null;
+  printings?: number;
+}
+
 export interface PlayingCard {
   id: string;
   name: string;
@@ -20,6 +27,8 @@ export interface PlayingCard {
   artist?: string;
   price: number | null;
   priceFoil: number | null;
+  priceRange?: PlayingCardPriceRange;
+  priceRangeFoil?: PlayingCardPriceRange;
   sourceUrl?: string;
   tcgplayerId?: string;
   cmc?: number;
