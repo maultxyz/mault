@@ -50,10 +50,6 @@ export async function deleteCollection(guid: string): Promise<Result<Collection[
   return apiDelete<Result<Collection[]>>(`/api/collections/${guid}`);
 }
 
-export async function loadCollectionCards(guid: string): Promise<Result<ScannedCard[]>> {
-  return apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards`);
-}
-
 export async function loadCardImage(
   guid: string,
   scanId: string,

@@ -1,0 +1,1 @@
+CREATE INDEX "collection_cards_collection_scanned_idx" ON "collection_cards" USING btree ("collection_id","scanned_at");

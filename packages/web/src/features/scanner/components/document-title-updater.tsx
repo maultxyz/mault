@@ -1,8 +1,7 @@
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { formatUsd } from "@/lib/format";
-import { computeStats } from "@/features/scanner/lib/compute-stats";
 import { DOCUMENT_TITLE_CYCLE_MS as CYCLE_MS } from "@/lib/constants/timing";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,10 +10,9 @@ const BASE_TITLE = "MAULT";
 
 export function DocumentTitleUpdater() {
   const { t } = useTranslation("scanner");
-  const { cards } = useScannedCards();
   const { activeCollection } = useCollections();
   const { selectedSet } = useBinConfigs();
-  const stats = useMemo(() => computeStats(cards), [cards]);
+  const { allStats: stats } = useCollectionCardsSummary();
 
   const slides = useMemo(() => {
     const result: string[] = [];

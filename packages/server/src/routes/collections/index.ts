@@ -2,13 +2,18 @@ import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { addCollectionRoute } from "./add";
 import { addCollectionCardRoute } from "./cards-add";
+import { collectionCardBinsRoute } from "./cards-bins";
 import { clearCollectionCardsRoute } from "./cards-clear";
 import { deleteCollectionCardRoute } from "./cards-delete";
 import { collectionCardImageRoute } from "./cards-image";
 import { editCollectionCardRoute } from "./cards-edit";
+import { exportCollectionCardsRoute } from "./cards-export";
+import { collectionCardIdsRoute } from "./cards-ids";
 import { listCollectionCardsRoute } from "./cards-list";
 import { markCollectionCardsDownloadedRoute } from "./cards-mark-downloaded";
+import { collectionCardPositionRoute } from "./cards-position";
 import { removeBulkCollectionCardsRoute } from "./cards-remove-bulk";
+import { collectionCardsSummaryRoute } from "./cards-summary";
 import { checkCollectionNameRoute } from "./check-name";
 import { debugErrorRoute } from "./debug-error";
 import { deleteCollectionRoute } from "./delete";
@@ -32,6 +37,11 @@ const router = new Hono<AppEnv>()
   .route("/", setCollectionActiveRoute)
   .route("/", deleteCollectionRoute)
   .route("/", listCollectionCardsRoute)
+  .route("/", collectionCardsSummaryRoute)
+  .route("/", collectionCardIdsRoute)
+  .route("/", exportCollectionCardsRoute)
+  .route("/", collectionCardBinsRoute)
+  .route("/", collectionCardPositionRoute)
   .route("/", addCollectionCardRoute)
   .route("/", collectionCardImageRoute)
   .route("/", editCollectionCardRoute)
