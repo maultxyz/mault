@@ -7,6 +7,7 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   ScanRegion,
+  ScannedCard,
   ScannerStatus,
   UnmatchedCard,
 } from "@magic-vault/shared";
@@ -235,6 +236,7 @@ export interface SessionError {
 
 export interface SessionMonitorState {
   collection: Collection | null;
+  cards: ScannedCard[];
   unmatchedCards: UnmatchedCard[];
   viewers: SessionViewer[];
   errors: SessionError[];
