@@ -30,17 +30,40 @@ function delay(ms: number) {
 
 export function ServoChannelTester() {
   const { t } = useTranslation("admin");
-  const { isConnected, connect, connectBluetooth, disconnect, sendCommand } =
-    useSerial();
+  const {
+    isConnected,
+    isReady,
+    connect,
+    connectBluetooth,
+    disconnect,
+    sendCommand,
+    sendTest,
+  } = useSerial();
   const [activeChannel, setActiveChannel] = useState<number | null>(null);
   const [isSweeping, setIsSweeping] = useState(false);
+  const [isTesting, setIsTesting] = useState(false);
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const { isSupported: flashSupported } = useNewBoardFlash();
 
   const bluetoothSupported =
     typeof navigator !== "undefined" && !!navigator.bluetooth;
 
+  async function handleRunTest() {
+    setIsTesting(true);
+    try {
+      const { ok, error } = await sendTest();
+      if (ok) toast.success(t("servoTester.toasts.testPassed"));
+      else
+        toast.error(t("servoTester.toasts.testFailed"), {
+          description: error ?? undefined,
+        });
+    } finally {
+      setIsTesting(false);
+    }
+  }
+
   async function handleSweep(channel: number) {
+    if (!isReady) return;
     setActiveChannel(channel);
     setIsSweeping(true);
     try {
@@ -60,7 +83,7 @@ export function ServoChannelTester() {
   }
 
   async function handleStop() {
-    if (activeChannel === null) return;
+    if (!isReady || activeChannel === null) return;
     const sent = await sendCommand(
       JSON.stringify({ channelStop: activeChannel }),
     );
@@ -103,6 +126,23 @@ export function ServoChannelTester() {
         </div>
       ) : (
         <>
+          {!isReady && (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                disabled={isTesting}
+                onClick={handleRunTest}
+              >
+                {isTesting && <IconLoader2 className="animate-spin" />}
+                {isTesting
+                  ? t("servoTester.testing")
+                  : t("servoTester.runTest")}
+              </Button>
+              <span className="text-xs text-foreground/70">
+                {t("servoTester.testRequired")}
+              </span>
+            </div>
+          )}
           <div className="flex flex-col gap-2">
             <Label>{t("servoTester.channelLabel")}</Label>
             <p className="text-xs text-muted-foreground">
@@ -116,7 +156,7 @@ export function ServoChannelTester() {
                     activeChannel === ch ? "outline-selected" : "outline"
                   }
                   className="px-0"
-                  disabled={isSweeping}
+                  disabled={!isReady || isSweeping}
                   onClick={() => handleSweep(ch)}
                 >
                   {activeChannel === ch && isSweeping ? (
@@ -132,7 +172,7 @@ export function ServoChannelTester() {
           <div className="flex flex-wrap gap-2">
             <Button
               variant="outline"
-              disabled={activeChannel === null}
+              disabled={!isReady || activeChannel === null}
               onClick={handleStop}
             >
               {t("servoTester.stopButton")}

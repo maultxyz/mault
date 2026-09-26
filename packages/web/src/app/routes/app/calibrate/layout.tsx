@@ -13,10 +13,12 @@ import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import type { SectionNavItem } from "@/lib/interfaces/nav";
 import {
   IconAdjustmentsHorizontal,
+  IconChevronDown,
   IconClipboard,
   IconDeviceUsb,
   IconDeviceUsbFilled,
   IconDownload,
+  IconFileSettings,
   IconFocus2,
   IconLoader2,
   IconSettingsCog,
@@ -80,6 +82,7 @@ export default function CalibrateLayout() {
   const calibrationPage = useCalibrationPage();
   const {
     isConnected,
+    isReady,
     connect,
     connectBluetooth,
     staleDialogOpen,
@@ -154,33 +157,62 @@ export default function CalibrateLayout() {
             </Button>
             <Button
               variant="outline"
-              disabled={!isConnected || activeBin !== null || isSampleRunning}
+              disabled={!isReady || activeBin !== null || isSampleRunning}
               onClick={handleFeed}
             >
               {t("binRoutingControls.feed")}
             </Button>
             <Button
               variant="outline"
-              disabled={!isConnected || activeBin !== null || isSampleRunning}
+              disabled={!isReady || activeBin !== null || isSampleRunning}
               onClick={handleDropCard}
             >
               {t("binRoutingControls.dropCard")}
             </Button>
-            {isUnconfigured && (
-              <span className="text-sm text-muted-foreground">
+            {isUnconfigured ? (
+              <span className="text-sm text-foreground/70">
                 {t("calibratePage.calibrateBeforeTest")}
               </span>
+            ) : (
+              isConnected &&
+              !isReady && (
+                <span className="text-xs text-foreground/70">
+                  {t("calibratePage.testBeforeControls")}
+                </span>
+              )
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={handleCopyCalibration}>
-              <IconClipboard />
-              {t("calibratePage.copyCalibration")}
-            </Button>
-            <Button variant="outline" onClick={handleExportConfig}>
-              <IconDownload />
-              {t("calibratePage.exportConfig")}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="outline" />}>
+                {isImporting ? (
+                  <IconLoader2 className="animate-spin" />
+                ) : (
+                  <IconFileSettings />
+                )}
+                {isImporting
+                  ? t("calibratePage.importing")
+                  : t("calibratePage.configMenu")}
+                <IconChevronDown />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleCopyCalibration}>
+                  <IconClipboard />
+                  {t("calibratePage.copyCalibration")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportConfig}>
+                  <IconDownload />
+                  {t("calibratePage.exportConfig")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={isImporting}
+                  onClick={() => importInputRef.current?.click()}
+                >
+                  <IconUpload />
+                  {t("calibratePage.importConfig")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <input
               ref={importInputRef}
               type="file"
@@ -192,20 +224,6 @@ export default function CalibrateLayout() {
                 if (file) void handleImportConfig(file);
               }}
             />
-            <Button
-              variant="outline"
-              disabled={isImporting}
-              onClick={() => importInputRef.current?.click()}
-            >
-              {isImporting ? (
-                <IconLoader2 className="animate-spin" />
-              ) : (
-                <IconUpload />
-              )}
-              {isImporting
-                ? t("calibratePage.importing")
-                : t("calibratePage.importConfig")}
-            </Button>
             <CalibrationTour section={section} setSection={setSection} />
           </div>
         </div>

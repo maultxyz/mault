@@ -334,8 +334,7 @@
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
           },
           "mountBoardsToPanels": {
-            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×6-Schrauben an den Bodenplatten.",
-            "note": "Die Header-Pins des PCA9685 zeigen seitlich nach außen - eventuell müssen sie um 90° nach oben gebogen werden, damit sie das Panel nicht berühren und beim Verkabeln mit dem {{board}} gut erreichbar bleiben."
+            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×6-Schrauben an den Bodenplatten."
           },
           "attachBasePanels": {
             "text": "Befestige die Bodenplatten mit 8 M3×6-Schrauben und 8 M3-Muttern an der Basis.",
@@ -446,7 +445,8 @@
         "steps": {
           "wireI2c": {
             "text": "Verbinde den PCA9685 mit dem I²C-Bus des {{board}} (SDA/SCL) sowie mit der Logikversorgung/GND.",
-            "note": "Siehe den Abschnitt Verkabelung oben - die Logikspannung ist beim ESP32 3.3V, nicht 5V."
+            "note": "Siehe den Abschnitt Verkabelung oben - die Logikspannung ist beim ESP32 3.3V, nicht 5V.",
+            "bendPinsNote": "Die Header-Pins des PCA9685 zeigen seitlich nach außen - eventuell müssen sie um 90° nach oben gebogen werden, damit sie das Panel nicht berühren und beim Verkabeln mit dem {{board}} gut erreichbar bleiben."
           },
           "wireServos": {
             "text": "Verkabele alle {{count}} Servos gemäß der Kanalbelegung mit den PCA9685-Kanälen 0–{{lastChannel}} und 15 - die Zuführung belegt immer den letzten Kanal.",

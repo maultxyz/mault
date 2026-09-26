@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 
 interface BinRoutingControlsProps {
   activeBin: number | null;
-  isConnected: boolean;
+  isReady: boolean;
   isSampleRunning: boolean;
   onTestBin: (bin: number) => void;
   onSampleRun: () => void;
@@ -15,7 +15,7 @@ interface BinRoutingControlsProps {
 
 export function BinRoutingControls({
   activeBin,
-  isConnected,
+  isReady,
   isSampleRunning,
   onTestBin,
   onSampleRun,
@@ -31,7 +31,7 @@ export function BinRoutingControls({
       <div className="flex items-center gap-2">
         <Button
           variant={isSampleRunning ? "outline-selected" : "outline"}
-          disabled={!isConnected || busy}
+          disabled={!isReady || busy}
           onClick={onSampleRun}
         >
           <IconPlayerPlay />
@@ -48,7 +48,7 @@ export function BinRoutingControls({
             variant={
               activeBin === bin && !isSampleRunning ? "outline-selected" : "outline"
             }
-            disabled={!isConnected || busy}
+            disabled={!isReady || busy}
             onClick={() => onTestBin(bin)}
           >
             <IconPackage />

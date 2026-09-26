@@ -205,6 +205,7 @@ export function CardScanner({
   }, [setAutoFeed, handlePause, t]);
 
   const handleFeed = useCallback(async () => {
+    if (!isReady) return;
     setIsFeeding(true);
     try {
       const sent = await sendCommand(JSON.stringify({ feeder: true }));
@@ -278,6 +279,7 @@ export function CardScanner({
       setIsFeeding(false);
     }
   }, [
+    isReady,
     sendCommand,
     receiveResponse,
     handleCardArrived,
@@ -287,6 +289,7 @@ export function CardScanner({
   ]);
 
   const handleClearDevice = useCallback(async () => {
+    if (!isReady) return;
     setIsClearingDevice(true);
     try {
       const sent = await sendCommand(JSON.stringify({ clearDevice: true }));
@@ -309,9 +312,13 @@ export function CardScanner({
     } finally {
       setIsClearingDevice(false);
     }
-  }, [sendCommand, receiveResponse, t]);
+  }, [isReady, sendCommand, receiveResponse, t]);
 
   const handleForceScanClick = useCallback(async () => {
+    if (!isReady) {
+      handleForceScan();
+      return;
+    }
     try {
       const sent = await sendCommand(JSON.stringify({ readIR: true }));
       if (sent) {
@@ -330,7 +337,7 @@ export function CardScanner({
       // Malformed/missing response - fall through to the scan attempt.
     }
     handleForceScan();
-  }, [sendCommand, receiveResponse, handleForceScan, t]);
+  }, [isReady, sendCommand, receiveResponse, handleForceScan, t]);
 
   useEffect(() => {
     return registerCardArrivedHook(handleCardArrived);

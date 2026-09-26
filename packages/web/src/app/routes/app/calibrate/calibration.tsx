@@ -124,6 +124,8 @@ export default function CalibrateCalibrationPage() {
     pendingCalibration,
     moduleDelayValues,
     isConnected,
+    isReady,
+    canCalibrate,
     handleControl,
     handleSliderChange,
     testingServos,
@@ -239,6 +241,7 @@ export default function CalibrateCalibrationPage() {
         pauseDurationValue={feederPauseDurationValue}
         settleDurationValue={feederSettleDurationValue}
         isConnected={isConnected}
+        canCalibrate={canCalibrate}
         onSpeedChange={handleFeederSpeedChange}
         onDurationChange={handleFeederDurationChange}
         onPulseDurationChange={handleFeederPulseDurationChange}
@@ -267,6 +270,8 @@ export default function CalibrateCalibrationPage() {
         pendingCalibration={pendingCalibration}
         isLoading={isLoading}
         isConnected={isConnected}
+        isReady={isReady}
+        canCalibrate={canCalibrate}
         onControl={handleControl}
         onSliderChange={handleSliderChange}
         testingServos={testingServos}

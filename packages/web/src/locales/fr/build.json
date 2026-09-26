@@ -334,8 +334,7 @@
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
           },
           "mountBoardsToPanels": {
-            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×6.",
-            "note": "Les broches d'en-tête du PCA9685 pointent horizontalement vers l'extérieur - il faudra peut-être les plier à 90° vers le haut pour qu'elles dégagent le panneau et restent faciles d'accès lors du câblage vers le {{board}}."
+            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×6."
           },
           "attachBasePanels": {
             "text": "Fixe les panneaux de base à la base avec 8 vis M3×6 et 8 écrous M3.",
@@ -446,7 +445,8 @@
         "steps": {
           "wireI2c": {
             "text": "Câble le PCA9685 au bus I²C du {{board}} (SDA/SCL) et à l'alimentation logique/GND.",
-            "note": "Voir la section Câblage ci-dessus - la tension logique est de 3.3V sur ESP32, pas 5V."
+            "note": "Voir la section Câblage ci-dessus - la tension logique est de 3.3V sur ESP32, pas 5V.",
+            "bendPinsNote": "Les broches d'en-tête du PCA9685 pointent horizontalement vers l'extérieur - il faudra peut-être les plier à 90° vers le haut pour qu'elles dégagent le panneau et restent faciles d'accès lors du câblage vers le {{board}}."
           },
           "wireServos": {
             "text": "Câble les {{count}} servos dans les canaux 0 à {{lastChannel}} et 15 du PCA9685 selon la carte des canaux - le chargeur prend toujours le dernier canal.",

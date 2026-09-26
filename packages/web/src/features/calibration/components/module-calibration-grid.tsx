@@ -49,7 +49,7 @@ interface ServoControlProps {
   activePosition: string | null | undefined;
   calibration: ServoCalibration | undefined;
   isLoading: boolean;
-  isConnected: boolean;
+  canCalibrate: boolean;
   isTesting: boolean;
   showRaw: boolean;
   onControl: (
@@ -72,7 +72,7 @@ function ServoControl({
   activePosition,
   calibration,
   isLoading,
-  isConnected,
+  canCalibrate,
   isTesting,
   showRaw,
   onControl,
@@ -90,7 +90,7 @@ function ServoControl({
       PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD;
 
   const percent = pulseToPercent(sliderValue);
-  const sliderDisabled = !isConnected || !activePosition;
+  const sliderDisabled = !canCalibrate || !activePosition;
 
   return (
     <div className="flex flex-col gap-2">
@@ -102,7 +102,7 @@ function ServoControl({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                disabled={!isConnected || !calibration}
+                disabled={!canCalibrate || !calibration}
                 onClick={() => onTest(module, servo.name)}
                 className={cn(isTesting && "text-primary")}
               >
@@ -143,7 +143,7 @@ function ServoControl({
           <Button
             key={position}
             variant={activePosition === position ? "outline-selected" : "outline"}
-            disabled={!isConnected}
+            disabled={!canCalibrate}
             onClick={() => onControl(module, servo.name, position)}
             className="flex-1"
           >
@@ -310,14 +310,14 @@ function ModuleDelayControl({
 
 interface PushTestControlProps {
   module: number;
-  isConnected: boolean;
+  isReady: boolean;
   isTesting: boolean;
   onTest: (module: number, direction: "left" | "right") => void;
 }
 
 function PushTestControl({
   module,
-  isConnected,
+  isReady,
   isTesting,
   onTest,
 }: PushTestControlProps) {
@@ -342,7 +342,7 @@ function PushTestControl({
           <Button
             key={direction}
             variant="outline"
-            disabled={!isConnected || isTesting}
+            disabled={!isReady || isTesting}
             onClick={() => onTest(module, direction)}
             className="flex-1"
           >
@@ -364,6 +364,8 @@ interface ModuleCalibrationGridProps {
   pendingCalibration: Record<number, Partial<ServoCalibration>>;
   isLoading: boolean;
   isConnected: boolean;
+  isReady: boolean;
+  canCalibrate: boolean;
   onControl: (
     module: number,
     servo: "bottom" | "paddle" | "pusher",
@@ -394,6 +396,8 @@ export function ModuleCalibrationGrid({
   pendingCalibration,
   isLoading,
   isConnected,
+  isReady,
+  canCalibrate,
   onControl,
   onSliderChange,
   onModuleDelayChange,
@@ -458,7 +462,7 @@ export function ModuleCalibrationGrid({
                   activePosition={active[sliderKey]}
                   calibration={effectiveCal}
                   isLoading={isLoading}
-                  isConnected={isConnected}
+                  canCalibrate={canCalibrate}
                   isTesting={testingServos[sliderKey] ?? false}
                   showRaw={showRaw}
                   onControl={onControl}
@@ -482,7 +486,7 @@ export function ModuleCalibrationGrid({
             ))}
             <PushTestControl
               module={module}
-              isConnected={isConnected}
+              isReady={isReady}
               isTesting={pushTestingModule !== null}
               onTest={onPushTest}
             />

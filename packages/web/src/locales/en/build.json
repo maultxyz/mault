@@ -333,8 +333,7 @@
             "text": "Dry-fit each module housing before inserting any electronics. Sand or adjust any tight servo pockets now."
           },
           "mountBoardsToPanels": {
-            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 7 M2×6 screws.",
-            "note": "The PCA9685's header pins point straight out to the side. You may need to bend them 90° upward so they clear the panel and stay easy to reach when wiring to the {{board}}."
+            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 7 M2×6 screws."
           },
           "attachBasePanels": {
             "text": "Attach the base panels to the base with 8 M3×6 screws and 8 M3 nuts.",
@@ -445,7 +444,8 @@
         "steps": {
           "wireI2c": {
             "text": "Wire the PCA9685 to the {{board}}'s I²C bus (SDA/SCL) and logic power/GND.",
-            "note": "See the Wiring section above. The logic voltage is 3.3V on ESP32, not 5V."
+            "note": "See the Wiring section above. The logic voltage is 3.3V on ESP32, not 5V.",
+            "bendPinsNote": "The PCA9685's header pins point straight out to the side. You may need to bend them 90° upward so they clear the panel and stay easy to reach when wiring to the {{board}}."
           },
           "wireServos": {
             "text": "Wire all {{count}} servos into PCA9685 channels 0–{{lastChannel}} and 15 per the channel map. The feeder always takes the last channel.",

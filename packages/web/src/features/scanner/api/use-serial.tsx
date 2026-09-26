@@ -208,6 +208,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   );
 
   const sendTest = useCallback(async (): Promise<TestResult> => {
+    setIsReady(false);
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
     if (!sent) return { ok: false, error: null };
 

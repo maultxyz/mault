@@ -95,6 +95,7 @@ interface FeederCalibrationPanelProps {
   pauseDurationValue: number;
   settleDurationValue: number;
   isConnected: boolean;
+  canCalibrate: boolean;
   onSpeedChange: (value: number) => void;
   onDurationChange: (value: number) => void;
   onPulseDurationChange: (value: number) => void;
@@ -110,6 +111,7 @@ export function FeederCalibrationPanel({
   pauseDurationValue,
   settleDurationValue,
   isConnected,
+  canCalibrate,
   onSpeedChange,
   onDurationChange,
   onPulseDurationChange,
@@ -170,7 +172,7 @@ export function FeederCalibrationPanel({
             min={-100}
             max={100}
             step={1}
-            disabled={!isConnected}
+            disabled={!canCalibrate}
             value={speedSigned}
             onValueChange={(value) =>
               onSpeedChange(signedPercentToPulse(value))
@@ -183,7 +185,7 @@ export function FeederCalibrationPanel({
               max={SERVO_PULSE_MAX}
               bigStep={10}
               smallStep={1}
-              disabled={!isConnected}
+              disabled={!canCalibrate}
               onChange={onSpeedChange}
               renderValue={() => (
                 <p className="font-bold text-sm">{speedValue}</p>

@@ -51,6 +51,7 @@ export function useCalibrationPage() {
   const { t } = useTranslation("calibration");
   const {
     isConnected,
+    isReady,
     disconnect,
     sendCommand,
     sendRoute,
@@ -106,6 +107,10 @@ export function useCalibrationPage() {
         (key) => c.calibration[key] === DEFAULT_CALIBRATION[key],
       ),
     );
+  // Every command needs a passed test, except that a completely uncalibrated
+  // sorter can't pass one (handleTest refuses), so its servo calibration
+  // controls stay usable until something is calibrated.
+  const canCalibrate = isReady || (isConnected && isUnconfigured);
 
   const [sliderValues, setSliderValues] = useState<Record<SliderKey, number>>(
     () => defaultSliderValues(modules),
@@ -225,6 +230,7 @@ export function useCalibrationPage() {
       servo: "bottom" | "paddle" | "pusher",
       position: string,
     ) => {
+      if (!canCalibrate) return;
       const key = `${module}:${servo}`;
       const current = activeRef.current[key];
       const isToggleOff = current === position;
@@ -250,11 +256,12 @@ export function useCalibrationPage() {
         }));
       }
     },
-    [sendCommand],
+    [canCalibrate, sendCommand],
   );
 
   const handleSliderChange = useCallback(
     (module: number, servo: "bottom" | "paddle" | "pusher", value: number) => {
+      if (!canCalibrate) return;
       const key = `${module}:${servo}`;
       setSliderValues((prev) => ({ ...prev, [key]: value }));
       if (servoDebounceRef.current) clearTimeout(servoDebounceRef.current);
@@ -272,11 +279,12 @@ export function useCalibrationPage() {
         }));
       }
     },
-    [moveServo],
+    [canCalibrate, moveServo],
   );
 
   const handleServoTest = useCallback(
     (module: number, servo: "bottom" | "paddle" | "pusher") => {
+      if (!canCalibrate) return;
       const key = `${module}:${servo}` as SliderKey;
       const cal = configsRef.current.find(
         (c) => c.moduleNumber === module,
@@ -326,7 +334,7 @@ export function useCalibrationPage() {
       setTestingServos((prev) => ({ ...prev, [key]: true }));
       runStep(0);
     },
-    [moveServo],
+    [canCalibrate, moveServo],
   );
 
   const handleTest = useCallback(async () => {
@@ -351,6 +359,7 @@ export function useCalibrationPage() {
 
   const handleTestBin = useCallback(
     async (bin: number) => {
+      if (!isReady) return;
       setActiveBin(bin);
       try {
         const response = await sendRoute(resolveRoute(bin));
@@ -367,10 +376,11 @@ export function useCalibrationPage() {
         setActiveBin(null);
       }
     },
-    [sendRoute, resolveRoute, setActiveBin, t],
+    [isReady, sendRoute, resolveRoute, setActiveBin, t],
   );
 
   const handleSampleRun = useCallback(async () => {
+    if (!isReady) return;
     setIsSampleRunning(true);
     toast.info(t("useCalibrationPage.toasts.startingSampleRun"));
     try {
@@ -398,7 +408,7 @@ export function useCalibrationPage() {
       setActiveBin(null);
       setIsSampleRunning(false);
     }
-  }, [sendRoute, resolveRoute, moduleCount, setActiveBin, t]);
+  }, [isReady, sendRoute, resolveRoute, moduleCount, setActiveBin, t]);
 
   const [pushTestingModule, setPushTestingModule] = useState<number | null>(
     null,
@@ -406,6 +416,7 @@ export function useCalibrationPage() {
 
   const handlePushTest = useCallback(
     async (module: number, direction: "left" | "right") => {
+      if (!isReady) return;
       setPushTestingModule(module);
       try {
         const response = await sendPushTest({
@@ -430,7 +441,7 @@ export function useCalibrationPage() {
         setPushTestingModule(null);
       }
     },
-    [sendPushTest, moduleDelayValues, t],
+    [isReady, sendPushTest, moduleDelayValues, t],
   );
 
   const handleModuleDelayChange = useCallback(
@@ -445,6 +456,7 @@ export function useCalibrationPage() {
 
   const handleFeederSpeedChange = useCallback(
     (value: number) => {
+      if (!canCalibrate) return;
       setFeederSpeedValue(value);
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
@@ -452,7 +464,7 @@ export function useCalibrationPage() {
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [previewSpeed],
+    [canCalibrate, previewSpeed],
   );
 
   const handleFeederDurationChange = useCallback((value: number) => {
@@ -605,15 +617,17 @@ export function useCalibrationPage() {
   }, []);
 
   const handleFeed = useCallback(() => {
+    if (!isReady) return;
     sendCommand(JSON.stringify({ feeder: true }));
-  }, [sendCommand]);
+  }, [isReady, sendCommand]);
 
   const handleDropCard = useCallback(() => {
+    if (!isReady) return;
     sendCommand(JSON.stringify({ clearDevice: true }));
-  }, [sendCommand]);
+  }, [isReady, sendCommand]);
 
   const readIR = useCallback(async () => {
-    if (irBusyRef.current || activeBinRef.current !== null) return;
+    if (!isReady || irBusyRef.current || activeBinRef.current !== null) return;
     irBusyRef.current = true;
     try {
       const sent = await sendCommand(JSON.stringify({ readIR: true }));
@@ -627,7 +641,7 @@ export function useCalibrationPage() {
     } finally {
       irBusyRef.current = false;
     }
-  }, [sendCommand, receiveResponse]);
+  }, [isReady, sendCommand, receiveResponse]);
 
   const handleToggleIrMonitor = useCallback(() => {
     setIrMonitoring((prev) => !prev);
@@ -714,12 +728,12 @@ export function useCalibrationPage() {
   );
 
   useEffect(() => {
-    if (!irMonitoring || !isConnected) return;
+    if (!irMonitoring || !isReady) return;
     const id = setInterval(() => {
       void readIR();
     }, 300);
     return () => clearInterval(id);
-  }, [irMonitoring, isConnected, readIR]);
+  }, [irMonitoring, isReady, readIR]);
 
   useEffect(() => {
     if (!isConnected) {
@@ -731,6 +745,8 @@ export function useCalibrationPage() {
 
   return {
     isConnected,
+    isReady,
+    canCalibrate,
     connect,
     connectBluetooth,
     staleDialogOpen,

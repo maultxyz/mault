@@ -188,9 +188,6 @@ export function buildPhases(
           text: t("assembly.phases.print.steps.mountBoardsToPanels.text", {
             board: board.shortName,
           }),
-          note: t("assembly.phases.print.steps.mountBoardsToPanels.note", {
-            board: board.shortName,
-          }),
         },
         {
           key: "attach-base-panels",
@@ -416,7 +413,10 @@ export function buildPhases(
           text: t("assembly.phases.wireAndCalibrate.steps.wireI2c.text", {
             board: board.shortName,
           }),
-          note: t("assembly.phases.wireAndCalibrate.steps.wireI2c.note"),
+          note: `${t(
+            "assembly.phases.wireAndCalibrate.steps.wireI2c.bendPinsNote",
+            { board: board.shortName },
+          )} ${t("assembly.phases.wireAndCalibrate.steps.wireI2c.note")}`,
         },
         {
           key: "wire-servos",

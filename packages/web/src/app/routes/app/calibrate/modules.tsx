@@ -21,7 +21,7 @@ export default function CalibrateModulesPage() {
     modules,
     irStates,
     hopperHasCards,
-    isConnected,
+    isReady,
     irMonitoring,
     handleReadIR,
     handleToggleIrMonitor,
@@ -73,14 +73,14 @@ export default function CalibrateModulesPage() {
         modules={modules}
         irStates={irStates}
         hopperHasCards={hopperHasCards}
-        isConnected={isConnected}
+        isReady={isReady}
         isMonitoring={irMonitoring}
         onRead={handleReadIR}
         onToggleMonitor={handleToggleIrMonitor}
       />
       <BinRoutingControls
         activeBin={activeBin}
-        isConnected={isConnected}
+        isReady={isReady}
         isSampleRunning={isSampleRunning}
         onTestBin={handleTestBin}
         onSampleRun={handleSampleRun}

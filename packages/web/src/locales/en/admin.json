@@ -20,9 +20,14 @@
     "channelLabel": "Channel",
     "sweepDescription": "Click a channel to sweep that servo from one end of its range to the other and back - a full range-of-motion test.",
     "stopButton": "Stop",
+    "runTest": "Run test",
+    "testing": "Testing…",
+    "testRequired": "Run a successful device test before driving any channel.",
     "disconnectButton": "Disconnect",
     "toasts": {
-      "sendFailed": "Failed to send command to the device"
+      "sendFailed": "Failed to send command to the device",
+      "testPassed": "Device test passed",
+      "testFailed": "Device test failed"
     },
     "flashButton": "Flash firmware"
   },
