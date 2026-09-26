@@ -95,6 +95,13 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
   const pricing = adapter.tcgplayer;
   if (!pricing) return cards;
 
+  const priceable = cards.filter((card) => card.raw != null);
+  if (priceable.length < cards.length) {
+    const priced = await applyTcgplayerPrices(adapter, priceable);
+    let next = 0;
+    return cards.map((card) => (card.raw != null ? priced[next++] : card));
+  }
+
   const productIdsByCard = await resolveProductIds(pricing, cards);
   const productIds = [...new Set(productIdsByCard.flat())];
   if (productIds.length === 0) return cards;

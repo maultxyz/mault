@@ -43,7 +43,7 @@ export async function refreshCollectionCardPrices({
         SELECT DISTINCT ON (card_id) card_id, card
         FROM collection_cards
         WHERE collection_id IN ${gameCollections} AND card_id > ${lastCardId}
-        ORDER BY card_id
+        ORDER BY card_id, (card -> 'raw') IS NULL
         LIMIT ${COLLECTION_CARD_PRICE_REFRESH_BATCH_SIZE}
       `);
       const rows = batch.rows as unknown as {
