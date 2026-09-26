@@ -99,7 +99,6 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
                 isActive: true,
                 gameId: true,
                 lang: true,
-                matchThreshold: true,
                 createdAt: true,
                 updatedAt: true,
               },
@@ -150,7 +149,6 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
                 isActive: collection.isActive,
                 cardCount: cardRows.length,
                 lang: collection.lang,
-                matchThreshold: collection.matchThreshold,
                 game: game
                   ? {
                       guid: game.guid!,

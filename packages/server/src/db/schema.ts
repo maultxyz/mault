@@ -322,7 +322,6 @@ export const collections = pgTable(
     isActive: boolean("is_active").notNull().default(false),
     gameId: integer("game_id").references(() => games.id),
     lang: text("lang").notNull().default("en"),
-    matchThreshold: integer("match_threshold"),
     orgId: text("org_id").notNull(),
     discordScanChannelId: text("discord_scan_channel_id"),
     discordScanThreadId: text("discord_scan_thread_id"),

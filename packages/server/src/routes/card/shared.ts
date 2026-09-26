@@ -66,13 +66,11 @@ export async function findCardMatches(
   {
     gameKey,
     lang,
-    minConfidence,
     embeddings,
     ocrText,
   }: {
     gameKey: string;
     lang: string;
-    minConfidence: number;
     embeddings: CardSearchEmbeddings;
     ocrText: string;
   },
@@ -121,14 +119,14 @@ export async function findCardMatches(
 
     if (showVectorLogs) {
       console.log(
-        `[card-search] nearest candidates for game=${gameKey} lang=${lang} (minConfidence=${minConfidence}, maxDistance=${DISTANCE_THRESHOLD}):`,
+        `[card-search] nearest candidates for game=${gameKey} lang=${lang} (maxDistance=${DISTANCE_THRESHOLD}):`,
       );
       console.table(candidates);
     }
 
     const nearestDistance = candidates[0]?.distance ?? null;
     const rows = candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
-    if ((rows[0]?.confidence ?? 0) < minConfidence) {
+    if (rows.length === 0) {
       return {
         message: "Successfully searched for card.",
         success: true,

@@ -13,11 +13,10 @@ export const addCollectionRoute = new Hono<AppEnv>().post(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const { name, gameGuid, lang, matchThreshold } = await c.req.json<{
+    const { name, gameGuid, lang } = await c.req.json<{
       name: string;
       gameGuid?: string;
       lang?: string;
-      matchThreshold?: number | null;
     }>();
     try {
       const taken = await authQuery(c.get("jwtClaims"), (tx) =>
@@ -56,10 +55,6 @@ export const addCollectionRoute = new Hono<AppEnv>().post(
           orgId,
           gameId,
           lang: lang || "en",
-          matchThreshold:
-            matchThreshold == null
-              ? null
-              : Math.min(Math.max(Math.round(matchThreshold), 1), 99),
         });
 
         return loadCollections(tx, orgId);

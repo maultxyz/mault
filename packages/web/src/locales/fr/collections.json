@@ -45,11 +45,8 @@
   },
   "editDialog": {
     "title": "Modifier la collection",
-    "description": "Modifie le nom et le seuil de correspondance de cette collection.",
-    "submit": "Enregistrer",
-    "matchThresholdLabel": "Correspondance minimale (%)",
-    "matchThresholdPlaceholder": "Par défaut ({{default}} %)",
-    "matchThresholdHint": "Les scans dont la correspondance est inférieure à ce pourcentage sont traités comme une absence de correspondance plutôt que d'être acceptés."
+    "description": "Renomme cette collection.",
+    "submit": "Enregistrer"
   },
   "deleteDialog": {
     "description": "Supprime définitivement « {{name}} » et toutes ses cartes. Cette action est irréversible."

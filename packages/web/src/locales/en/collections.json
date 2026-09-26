@@ -45,11 +45,8 @@
   },
   "editDialog": {
     "title": "Edit Collection",
-    "description": "Update this collection's name and match threshold.",
-    "submit": "Save",
-    "matchThresholdLabel": "Minimum match %",
-    "matchThresholdPlaceholder": "Default ({{default}}%)",
-    "matchThresholdHint": "Scans matching below this percentage are treated as no match instead of being accepted."
+    "description": "Rename this collection.",
+    "submit": "Save"
   },
   "deleteDialog": {
     "description": "Permanently deletes \"{{name}}\" and all its cards. This cannot be undone."

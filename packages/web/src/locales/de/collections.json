@@ -45,11 +45,8 @@
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",
-    "description": "Aktualisiere den Namen und den Übereinstimmungsschwellenwert dieser Sammlung.",
-    "submit": "Speichern",
-    "matchThresholdLabel": "Mindestübereinstimmung (%)",
-    "matchThresholdPlaceholder": "Standard ({{default}} %)",
-    "matchThresholdHint": "Scans mit einer Übereinstimmung unter diesem Prozentsatz werden als keine Übereinstimmung behandelt, anstatt akzeptiert zu werden."
+    "description": "Benenne diese Sammlung um.",
+    "submit": "Speichern"
   },
   "deleteDialog": {
     "description": "Löscht \"{{name}}\" und alle enthaltenen Karten dauerhaft. Dies kann nicht rückgängig gemacht werden."
