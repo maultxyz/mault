@@ -21,6 +21,11 @@ import {
   SerialTransport,
   type ByteTransport,
 } from "@/features/scanner/lib/transports";
+import {
+  DEVICE_LEASE_HEARTBEAT_MS,
+  PUSH_TEST_RESPONSE_TIMEOUT_MS,
+  ROUTE_RESPONSE_TIMEOUT_MS,
+} from "@/lib/constants/timing";
 import type {
   FirmwareCheckResult,
   FlashEsp32Result,
@@ -30,11 +35,6 @@ import type {
   SerialMessageListener,
   TestResult,
 } from "@/lib/interfaces/scanner";
-import {
-  DEVICE_LEASE_HEARTBEAT_MS,
-  PUSH_TEST_RESPONSE_TIMEOUT_MS,
-  ROUTE_RESPONSE_TIMEOUT_MS,
-} from "@/lib/constants/timing";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
@@ -266,9 +266,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return cleanup;
   }, []);
 
-  // Shared by the auto-test that normally follows a connect and by callers
-  // manually re-triggering it later (e.g. after skipAutoTest) - same
-  // toasts/reporting/disconnect-on-fail either way.
   const runConnectTest = useCallback(
     async (forTransport: ByteTransport, forDevice: Device | undefined) => {
       for (const hook of [...preTestHooksRef.current]) {
@@ -283,20 +280,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const { ok, error: testError } = await sendTest();
       if (transportRef.current !== forTransport) return;
       const copyAction = {
-        label: t("serial.copyCommunication"),
+        label: (
+          <IconCopy size={14} aria-label={t("serial.copyCommunication")} />
+        ),
         onClick: () => copyCommLog(),
       };
       if (ok) {
         toast.success(t("serial.deviceReady"), {
-          cancel: {
-            label: (
-              <IconCopy
-                size={14}
-                aria-label={t("serial.copyCommunication")}
-              />
-            ),
-            onClick: () => copyCommLog(),
-          },
+          cancel: copyAction,
+          actionButtonStyle: { marginLeft: 4 },
           action: {
             label: t("serial.dropCard"),
             onClick: () =>
