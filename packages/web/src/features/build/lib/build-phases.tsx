@@ -336,10 +336,7 @@ export function buildPhases(
           text: t(
             "assembly.phases.assembleModules.steps.mountFeederRoller.text",
           ),
-          images: [
-            "/instructions/assembling_feeder.jpg",
-            "/instructions/roller_mounted.jpg",
-          ],
+          images: ["/instructions/assembling_feeder.jpg"],
         },
         {
           key: "mount-feeder-servo",
