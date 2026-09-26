@@ -191,7 +191,6 @@
   "scannerMenu": {
     "camera": "Camera",
     "cameraFallbackLabel": "Camera {{index}}",
-    "zoom": "Zoom",
     "connectUsb": "Connect via USB",
     "connectBluetooth": "Connect via Bluetooth",
     "scanner": "Scanner",
@@ -334,6 +333,10 @@
     "description": "This device's calibration hasn't changed in over 30 days. Run the self-test as-is, or calibrate first to make sure everything still matches the physical hardware.",
     "runTest": "Run test anyway",
     "calibrateFirst": "Calibrate first"
+  },
+  "cameraFocus": {
+    "label": "Focus",
+    "auto": "Auto"
   },
   "stations": {
     "label": "Sorter {{number}}",

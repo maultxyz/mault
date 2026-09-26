@@ -25,7 +25,7 @@ export type PhoneLocalCameraStatus =
 export type CameraStatus = "idle" | "requesting" | "ready" | "error";
 export type CameraSource = "local" | "phone";
 
-export interface ZoomRange {
+export interface CameraRange {
   min: number;
   max: number;
   step: number;
@@ -33,18 +33,21 @@ export interface ZoomRange {
 
 export type CameraTrackCapabilities = MediaTrackCapabilities & {
   focusMode?: string[];
-  zoom?: ZoomRange;
+  focusDistance?: CameraRange;
+  zoom?: CameraRange;
 };
 
 export interface CameraContextValue {
   stream: MediaStream | null;
   status: CameraStatus;
   errorMessage: string;
-  zoom: number;
-  zoomRange: ZoomRange | null;
+  // null when the camera can't be focused manually from the browser.
+  focusRange: CameraRange | null;
+  // null means continuous autofocus.
+  focusDistance: number | null;
   cameras: MediaDeviceInfo[];
   selectedCameraId: string | null;
-  setZoom: (value: number) => void;
+  setFocusDistance: (value: number | null) => void;
   selectCamera: (deviceId: string) => void;
   retryCamera: () => Promise<void>;
   stopCamera: () => void;

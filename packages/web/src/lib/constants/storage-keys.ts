@@ -35,3 +35,5 @@ export const CARD_GROUP_DUPLICATES_STORAGE_KEY =
   "magic-vault:card-group-duplicates";
 
 export const DEVICE_PREFS_STORAGE_KEY_PREFIX = "magic-vault:device-prefs:";
+
+export const CAMERA_FOCUS_STORAGE_KEY = "magic-vault:camera-focus";

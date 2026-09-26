@@ -308,11 +308,8 @@ export function useCardScanner({
     stream,
     status: cameraStatus,
     errorMessage: cameraError,
-    zoom,
-    zoomRange,
     cameras,
     selectedCameraId,
-    setZoom,
     selectCamera,
     retryCamera,
     stopCamera,
@@ -863,11 +860,8 @@ export function useCardScanner({
       cameraSource === "phone"
         ? phonePairingStatus === "connected"
         : cameraStatus === "ready",
-    zoom,
-    zoomRange,
     cameras,
     selectedCameraId,
-    setZoom,
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,

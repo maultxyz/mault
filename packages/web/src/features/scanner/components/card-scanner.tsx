@@ -94,11 +94,8 @@ export function CardScanner({
     handleResume,
     handleRetryError,
     handleStopCamera,
-    zoom,
-    zoomRange,
     cameras,
     selectedCameraId,
-    setZoom,
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,
@@ -437,8 +434,6 @@ export function CardScanner({
           allowDuplicates={allowDuplicates}
           ocrEnabled={ocrEnabled}
           ocrSupported={ocrSupported}
-          zoom={zoom}
-          zoomRange={zoomRange}
           cameras={cameras}
           selectedCameraId={selectedCameraId}
           phonePairingStatus={phonePairingStatus}
@@ -446,7 +441,6 @@ export function CardScanner({
           onCameraConnect={handleRetryError}
           onCameraDisconnect={handleStopCamera}
           onCameraSelect={selectCamera}
-          onZoomChange={setZoom}
           onOpenPhonePairing={handleOpenPhonePairing}
           onScannerConnect={connect}
           onScannerConnectBluetooth={connectBluetooth}

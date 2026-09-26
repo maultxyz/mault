@@ -191,7 +191,6 @@
   "scannerMenu": {
     "camera": "Caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
-    "zoom": "Zoom",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
     "scanner": "Scanner",
@@ -334,6 +333,10 @@
     "description": "La calibration de cet appareil n'a pas changé depuis plus de 30 jours. Lance le test automatique tel quel, ou calibre d'abord pour t'assurer que tout correspond encore au matériel physique.",
     "runTest": "Lancer le test quand même",
     "calibrateFirst": "Calibrer d'abord"
+  },
+  "cameraFocus": {
+    "label": "Mise au point",
+    "auto": "Auto"
   },
   "stations": {
     "label": "Trieuse {{number}}",

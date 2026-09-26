@@ -16,6 +16,7 @@ import {
   rawContourToPortraitBox,
 } from "@/features/calibration/lib/scan-region-geometry";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
+import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import {
   drawDetectionOverlay,
@@ -431,6 +432,8 @@ export function ScanRegionCalibrationPanel({
               onValueChange={onCaptureSettleChange}
             />
           </div>
+
+          {isCameraActive && <CameraFocusControl className="pt-2 border-t" />}
 
           <div className="flex flex-col gap-2 pt-2 border-t">
             <div className="flex items-center justify-between">
