@@ -21,11 +21,11 @@ import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
+  emptySetupIrSeen,
   pulseToPercent,
   pulseToSignedPercent,
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
-  emptySetupIrSeen,
   SETUP_INTRO_PARTS,
   SETUP_SERVO_POSITIONS,
   signedPercentToPulse,
@@ -190,7 +190,9 @@ export function DeviceSetupWizard() {
         setIrReading(reading);
         setIrSeen((prev) => {
           const modules = new Set(prev.modules);
-          reading.modules.forEach((present, i) => present && modules.add(i + 1));
+          reading.modules.forEach(
+            (present, i) => present && modules.add(i + 1),
+          );
           return { modules, hopper: prev.hopper || reading.hopper };
         });
       } catch {
@@ -275,9 +277,9 @@ export function DeviceSetupWizard() {
 
   const markSetupComplete = async () => {
     if (!device?.guid) return;
-    const result = await saveDevice(device.guid, { setupCompleted: true }).catch(
-      () => null,
-    );
+    const result = await saveDevice(device.guid, {
+      setupCompleted: true,
+    }).catch(() => null);
     if (!result?.success || !result.data) return;
     const saved = result.data;
     queryClient.setQueryData(
@@ -443,15 +445,18 @@ export function DeviceSetupWizard() {
             />
             <div className="flex flex-col divide-y rounded-lg border">
               {[
-                ...Array.from({ length: moduleCount.displayCount }, (_, i): SetupIrSensor => ({
-                  key: `module-${i + 1}`,
-                  label: t("setupWizard.irSensors.moduleSensor", {
-                    module: i + 1,
+                ...Array.from(
+                  { length: moduleCount.displayCount },
+                  (_, i): SetupIrSensor => ({
+                    key: `module-${i + 1}`,
+                    label: t("setupWizard.irSensors.moduleSensor", {
+                      module: i + 1,
+                    }),
+                    hint: t("setupWizard.irSensors.moduleHint"),
+                    present: irReading?.modules[i] ?? false,
+                    seen: irSeen.modules.has(i + 1),
                   }),
-                  hint: t("setupWizard.irSensors.moduleHint"),
-                  present: irReading?.modules[i] ?? false,
-                  seen: irSeen.modules.has(i + 1),
-                })),
+                ),
                 {
                   key: "hopper",
                   label: t("setupWizard.irSensors.hopperSensor"),
@@ -460,7 +465,7 @@ export function DeviceSetupWizard() {
                   seen: irSeen.hopper,
                 },
               ].map((sensor) => (
-                <IrSensorRow key={sensor.key} {...sensor} />
+                <IrSensorRow {...sensor} />
               ))}
             </div>
             <p className="text-xs text-foreground/70">
@@ -588,7 +593,12 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
   );
 }
 
-function ControlPanel({ label, value, hint, children }: SetupControlPanelProps) {
+function ControlPanel({
+  label,
+  value,
+  hint,
+  children,
+}: SetupControlPanelProps) {
   return (
     <div className="flex flex-col gap-3 rounded-lg border p-4">
       {(label || value) && (
@@ -607,12 +617,19 @@ function ControlPanel({ label, value, hint, children }: SetupControlPanelProps) 
   );
 }
 
-function ServoStep({ servo, currentKey, value, onChange }: SetupServoStepProps) {
+function ServoStep({
+  servo,
+  currentKey,
+  value,
+  onChange,
+}: SetupServoStepProps) {
   const { t } = useTranslation("calibration");
   const positions = SETUP_SERVO_POSITIONS.filter((p) => p.servo === servo);
   const currentIndex = positions.findIndex((p) => p.calKey === currentKey);
   const nudge = (delta: number) =>
-    onChange(Math.min(SERVO_PULSE_MAX, Math.max(SERVO_PULSE_MIN, value + delta)));
+    onChange(
+      Math.min(SERVO_PULSE_MAX, Math.max(SERVO_PULSE_MIN, value + delta)),
+    );
 
   return (
     <>
