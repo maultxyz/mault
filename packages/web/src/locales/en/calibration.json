@@ -105,8 +105,12 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it.",
+    "pusherHoldDurationLabel": "Pusher Hold Time (ms)",
+    "pusherHoldDurationDescription": "How long the pusher stays extended before returning to neutral. Longer if cards aren't pushed fully out before it retracts; keep it short, since holding against the end stop strains the servo horn.",
     "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
-    "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts."
+    "paddleCloseDelayDescription": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts.",
+    "pushTestLabel": "Test Push Timing",
+    "pushTestTooltip": "Runs this module's push exactly as a route would, using the hold time and paddle close delay above (even before you save them). No card is fed; drop one onto the module first to see it pushed out."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Drag the box to move it, or drag the handle to resize. Line it up with a card sitting at module 1.",
@@ -154,7 +158,9 @@
       "importSuccess": "Calibration imported",
       "importFailed": "Failed to import calibration",
       "calibrationSaved": "Calibration saved",
-      "saveCalibrationFailed": "Failed to save the scan region or capture settle delay"
+      "saveCalibrationFailed": "Failed to save the scan region or capture settle delay",
+      "pushTestFailed": "Push test failed",
+      "pushTestUnsupported": "This firmware doesn't support push tests. Update the sorter firmware."
     }
   },
   "useFeederConfig": {
@@ -190,6 +196,7 @@
     "moduleHistory": {
       "bottom": "Bottom",
       "paddle": "Paddle",
+      "pusherHoldDuration": "Pusher Hold Time",
       "paddleCloseDelay": "Paddle Close Delay"
     },
     "feederHistory": {

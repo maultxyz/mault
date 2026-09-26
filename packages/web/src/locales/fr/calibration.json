@@ -105,8 +105,12 @@
       "neutral": "Neutre"
     },
     "pusherOffsetWarning": "Plus de {{percent}}% par rapport au neutre — plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
+    "pusherHoldDurationLabel": "Durée de maintien du poussoir (ms)",
+    "pusherHoldDurationDescription": "Durée pendant laquelle le poussoir reste déployé avant de revenir en position neutre. Augmente-la si les cartes ne sont pas entièrement poussées avant qu'il se rétracte ; garde-la courte, car le maintien contre la butée fatigue le palonnier du servo.",
     "paddleCloseDelayLabel": "Délai de fermeture de la palette (ms)",
-    "paddleCloseDelayDescription": "Temps après le déclenchement du poussoir avant que la palette de ce module se referme, indépendamment du moment où le poussoir lui-même revient en position neutre. Augmente ce délai si les cartes ne sont pas totalement dégagées avant la fermeture."
+    "paddleCloseDelayDescription": "Temps après le déclenchement du poussoir avant que la palette de ce module se referme, indépendamment du moment où le poussoir lui-même revient en position neutre. Augmente ce délai si les cartes ne sont pas totalement dégagées avant la fermeture.",
+    "pushTestLabel": "Tester le timing de poussée",
+    "pushTestTooltip": "Exécute la poussée de ce module exactement comme lors d'un tri, avec la durée de maintien et le délai de fermeture de la palette ci-dessus (même non enregistrés). Aucune carte n'est alimentée ; place d'abord une carte dans le module pour la voir éjectée."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Fais glisser le cadre pour le déplacer, ou fais glisser la poignée pour le redimensionner. Aligne-le avec une carte posée au module 1.",
@@ -154,7 +158,9 @@
       "importSuccess": "Calibration importée",
       "importFailed": "Échec de l'importation de la calibration",
       "calibrationSaved": "Calibration enregistrée",
-      "saveCalibrationFailed": "Échec de l'enregistrement de la zone de scan ou du délai avant capture"
+      "saveCalibrationFailed": "Échec de l'enregistrement de la zone de scan ou du délai avant capture",
+      "pushTestFailed": "Échec du test de poussée",
+      "pushTestUnsupported": "Ce firmware ne prend pas en charge les tests de poussée. Mets à jour le firmware du trieur."
     }
   },
   "useFeederConfig": {
@@ -190,6 +196,7 @@
     "moduleHistory": {
       "bottom": "Bas",
       "paddle": "Palette",
+      "pusherHoldDuration": "Maintien du poussoir",
       "paddleCloseDelay": "Délai de fermeture de la palette"
     },
     "feederHistory": {

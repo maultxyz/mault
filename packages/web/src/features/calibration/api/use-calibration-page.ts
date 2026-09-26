@@ -19,7 +19,11 @@ import {
   parseCalibrationExport,
 } from "@/features/calibration/lib/calibration-export";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
-import type { ActivePositions, SliderKey } from "@/lib/interfaces/calibration";
+import type {
+  ActivePositions,
+  ModuleDelayField,
+  SliderKey,
+} from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
@@ -50,6 +54,7 @@ export function useCalibrationPage() {
     disconnect,
     sendCommand,
     sendRoute,
+    sendPushTest,
     sendTest,
     receiveResponse,
     firmwareVersion,
@@ -112,14 +117,18 @@ export function useCalibrationPage() {
   const pendingCalibrationRef = useRef(pendingCalibration);
   pendingCalibrationRef.current = pendingCalibration;
 
-  const paddleCloseDelayValues = useMemo(() => {
-    const vals: Record<number, number> = {};
+  const moduleDelayValues = useMemo(() => {
+    const vals: Record<number, Record<ModuleDelayField, number>> = {};
     for (const m of modules) {
       const cal = configs.find((c) => c.moduleNumber === m)?.calibration;
-      vals[m] =
-        pendingCalibration[m]?.paddleCloseDelay ??
-        cal?.paddleCloseDelay ??
-        DEFAULT_CALIBRATION.paddleCloseDelay;
+      const valueOf = (field: ModuleDelayField) =>
+        pendingCalibration[m]?.[field] ??
+        cal?.[field] ??
+        DEFAULT_CALIBRATION[field];
+      vals[m] = {
+        pusherHoldDuration: valueOf("pusherHoldDuration"),
+        paddleCloseDelay: valueOf("paddleCloseDelay"),
+      };
     }
     return vals;
   }, [modules, configs, pendingCalibration]);
@@ -391,11 +400,44 @@ export function useCalibrationPage() {
     }
   }, [sendRoute, resolveRoute, moduleCount, setActiveBin, t]);
 
-  const handlePaddleCloseDelayChange = useCallback(
-    (module: number, value: number) => {
+  const [pushTestingModule, setPushTestingModule] = useState<number | null>(
+    null,
+  );
+
+  const handlePushTest = useCallback(
+    async (module: number, direction: "left" | "right") => {
+      setPushTestingModule(module);
+      try {
+        const response = await sendPushTest({
+          module,
+          direction,
+          ...moduleDelayValues[module],
+        });
+        if (!response) {
+          toast.error(t("useCalibrationPage.toasts.pushTestFailed"), {
+            description: t("toasts.noResponse"),
+          });
+        } else if (typeof response === "object" && "error" in response) {
+          const error = (response as { error: string }).error;
+          toast.error(t("useCalibrationPage.toasts.pushTestFailed"), {
+            description:
+              error === "unknown command"
+                ? t("useCalibrationPage.toasts.pushTestUnsupported")
+                : error,
+          });
+        }
+      } finally {
+        setPushTestingModule(null);
+      }
+    },
+    [sendPushTest, moduleDelayValues, t],
+  );
+
+  const handleModuleDelayChange = useCallback(
+    (module: number, field: ModuleDelayField, value: number) => {
       setPendingCalibration((prev) => ({
         ...prev,
-        [module]: { ...prev[module], paddleCloseDelay: value },
+        [module]: { ...prev[module], [field]: value },
       }));
     },
     [],
@@ -698,7 +740,7 @@ export function useCalibrationPage() {
     active,
     sliderValues,
     pendingCalibration,
-    paddleCloseDelayValues,
+    moduleDelayValues,
     activeBin,
     isTesting,
     isUnconfigured,
@@ -706,7 +748,9 @@ export function useCalibrationPage() {
     handleSliderChange,
     testingServos,
     handleServoTest,
-    handlePaddleCloseDelayChange,
+    handleModuleDelayChange,
+    pushTestingModule,
+    handlePushTest,
     handleTest,
     handleTestBin,
     feederConfig,

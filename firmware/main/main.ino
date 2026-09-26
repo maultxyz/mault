@@ -5,6 +5,8 @@
 #include <Adafruit_PWMServoDriver.h>
 #if defined(ARDUINO_ARCH_ESP32)
 #include "esp_mac.h"
+#else
+#include <WDT.h>
 #endif
 
 // S2/S3 boards must be built with "USB Mode: Hardware CDC and JTAG" and
@@ -198,6 +200,18 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 
 #define IR_TIMEOUT_MS 3000
 
+// Uno R4 only (its WDT tops out at ~5.6s). Every blocking wait goes through
+// waitMs(), which keeps it fed, so it only fires if the board truly hangs,
+// e.g. after a supply dip from servos moving together leaves the MCU or
+// its I2C peripheral wedged. The reboot drops USB, so the app sees a
+// disconnect instead of a sorter that silently stops answering.
+#define WATCHDOG_TIMEOUT_MS 4000
+
+#define SERVO_PWM_FREQ 50
+// Gap between consecutive servo moves in setAllNeutral(), so a full reset
+// doesn't start every servo at once and pull the supply down.
+#define SERVO_STAGGER_MS 25
+
 // If a card sits at a module this long with no route in progress, something's
 // stuck - just report it. Paddle-flap recovery only happens while a route is
 // actively moving a card through (see routeCard()) - something merely
@@ -233,11 +247,27 @@ bool hopperHasCards() {
   return digitalRead(IR_PIN_HOPPER) == LOW;
 }
 
+void feedWatchdog() {
+#if !defined(ARDUINO_ARCH_ESP32)
+  WDT.refresh();
+#endif
+}
+
+void waitMs(unsigned long ms) {
+  unsigned long start = millis();
+  while (millis() - start < ms) {
+    feedWatchdog();
+    unsigned long left = ms - (millis() - start);
+    delay(left < 50 ? left : 50);
+  }
+  feedWatchdog();
+}
+
 bool waitForCard(int module, int timeoutMs = IR_TIMEOUT_MS) {
   unsigned long start = millis();
   while (digitalRead(irPin(module)) == HIGH) {
     if (millis() - start > (unsigned long)timeoutMs) return false;
-    delay(5);
+    waitMs(5);
   }
   return true;
 }
@@ -259,6 +289,8 @@ struct ModuleConfig {
   int bottomClosed, bottomOpen;
   int paddleClosed, paddleOpen;
   int pusherLeft, pusherNeutral, pusherRight;
+  int pusherHoldDuration;  // ms the pusher stays extended before
+                           // returning to neutral
   int paddleCloseDelay;  // ms from the pusher firing until this module's
                           // paddle closes again - independent of
                           // DELAY_PUSHER_HOLD, which governs when the pusher
@@ -332,8 +364,44 @@ int getFeederChannel() {
 unsigned long lastServoMoveAt = 0;
 bool servosReleased = false;
 
+void configureI2c() {
+  // Renesas' Wire ignores setWireTimeout's reset flag, so a timed-out
+  // transaction leaves the peripheral wedged; recoverServoDriver() restarts
+  // it instead. arduino-esp32's TwoWire has no setWireTimeout at all, only
+  // a millisecond setTimeout, and recovers its own bus.
+#if defined(ARDUINO_ARCH_ESP32)
+  Wire.setTimeout(25);
+#else
+  Wire.setWireTimeout(25000, true);
+#endif
+}
+
+void initServoDriver() {
+  pwm.begin();
+  configureI2c();
+  pwm.setPWMFreq(SERVO_PWM_FREQ);
+  delay(10);
+}
+
+void recoverServoDriver() {
+  Wire.end();
+  initServoDriver();
+}
+
+// A supply dip can also reset the PCA9685 itself, which silently drops it
+// back to its power-on prescale and sleep mode: writes still succeed but
+// no servo moves. Its prescale register is the cheapest tell.
+void ensureServoDriver() {
+  uint8_t expected = (uint8_t)(round(25000000.0 / (4096.0 * SERVO_PWM_FREQ)) - 1);
+  if (pwm.readPrescale() != expected) recoverServoDriver();
+}
+
 void setServoPosition(int channel, int pulse) {
-  pwm.setPWM(channel, 0, constrain(pulse, 120, 490));
+  int value = constrain(pulse, 120, 490);
+  if (pwm.setPWM(channel, 0, value) != 0) {
+    recoverServoDriver();
+    pwm.setPWM(channel, 0, value);
+  }
   lastServoMoveAt = millis();
   servosReleased = false;
 }
@@ -367,7 +435,7 @@ void stopFeeder() {
 // once the hopper's empty, keep the motor running settleDuration ms longer.
 void settleAndStopFeeder() {
   if (!hopperHasCards()) {
-    delay(feederConfig.settleDuration);
+    waitMs(feederConfig.settleDuration);
   }
   stopFeeder();
 }
@@ -386,7 +454,7 @@ FeedResult runFeeder() {
 
   if (!hopperHasCards()) {
     setServoPosition(getFeederChannel(), feederConfig.speed);
-    delay(feederConfig.pulseDuration > 0 ? feederConfig.pulseDuration : 200);
+    waitMs(feederConfig.pulseDuration > 0 ? feederConfig.pulseDuration : 200);
     stopFeeder();
     if (digitalRead(irPin(1)) == LOW) return FEED_DETECTED;
     if (!hopperHasCards()) return FEED_EMPTY;
@@ -399,7 +467,7 @@ FeedResult runFeeder() {
         settleAndStopFeeder();
         return FEED_DETECTED;
       }
-      delay(2);
+      waitMs(2);
     }
     stopFeeder();
     return FEED_TIMEOUT;
@@ -416,7 +484,7 @@ FeedResult runFeeder() {
         settleAndStopFeeder();
         return FEED_DETECTED;
       }
-      delay(2);
+      waitMs(2);
     }
 
     stopFeeder();
@@ -424,12 +492,12 @@ FeedResult runFeeder() {
       // Motor's already off - only the last card (hopper now empty) needs an extra push to fully seat it.
       if (!hopperHasCards()) {
         setServoPosition(getFeederChannel(), feederConfig.speed);
-        delay(feederConfig.settleDuration);
+        waitMs(feederConfig.settleDuration);
         stopFeeder();
       }
       return FEED_DETECTED;
     }
-    delay(feederConfig.pauseDuration);
+    waitMs(feederConfig.pauseDuration);
   }
   return FEED_TIMEOUT;
 }
@@ -443,15 +511,19 @@ void wiggleModulePaddle(int module) {
   int bottomChannel = getChannel(module, 0);  // front/bottom flap
   int paddleChannel = getChannel(module, 1);  // side paddle
 
+  // Only swing the bottom flap halfway shut, so it jostles the card without
+  // clamping down on it.
+  int bottomHalfClosed = (c.bottomOpen + c.bottomClosed) / 2;
+
   for (int i = 0; i < 3; i++) {
     // Jiggle both the side paddle and front/bottom flap together.
     setServoPosition(paddleChannel, c.paddleOpen);
-    setServoPosition(bottomChannel, c.bottomClosed);
-    delay(150);
+    setServoPosition(bottomChannel, bottomHalfClosed);
+    waitMs(150);
 
     setServoPosition(paddleChannel, c.paddleClosed);
     setServoPosition(bottomChannel, c.bottomOpen);
-    delay(150);
+    waitMs(150);
 
     // Stop as soon as the card clears this module.
     if (digitalRead(irPin(module)) == HIGH) return;
@@ -527,9 +599,17 @@ void updateStatusLed() {
 #endif
 
 void setAllNeutral() {
-  for (int m = 1; m <= maxModuleForOffset(); m++) setModuleNeutral(m);
   stopFeeder();
-  delay(200);
+  for (int m = 1; m <= maxModuleForOffset(); m++) {
+    ModuleConfig& c = moduleConfig[m - 1];
+    setServoPosition(getChannel(m, 0), c.bottomClosed);
+    waitMs(SERVO_STAGGER_MS);
+    setServoPosition(getChannel(m, 1), c.paddleClosed);
+    waitMs(SERVO_STAGGER_MS);
+    setServoPosition(getChannel(m, 2), c.pusherNeutral);
+    waitMs(SERVO_STAGGER_MS);
+  }
+  waitMs(200);
 }
 
 int getPositionPulse(int module, int servoOffset, const char* position) {
@@ -591,6 +671,7 @@ void routeCard(int targetModule, const char* direction, Print& reply) {
     return;
   }
 
+  ensureServoDriver();
   if (!feedNextCard(reply)) return;
 
   bool dropBottom = strcmp(direction, "bottom") == 0;
@@ -611,13 +692,13 @@ void routeCard(int targetModule, const char* direction, Print& reply) {
       }
     }
   }
-  if (targetModule > 1) delay(DELAY_CARD_ENTER);
+  if (targetModule > 1) waitMs(DELAY_CARD_ENTER);
 
   if (dropBottom) {
     setServoPosition(getChannel(targetModule, 0), moduleConfig[targetModule - 1].bottomOpen);
-    delay(DELAY_PUSH);
+    waitMs(DELAY_PUSH);
     setAllNeutral();
-    delay(200);
+    waitMs(200);
 
     reply.print(F("{\"status\":\"routed\",\"module\":"));
     reply.print(targetModule);
@@ -626,28 +707,37 @@ void routeCard(int targetModule, const char* direction, Print& reply) {
   }
 
   ModuleConfig& c = moduleConfig[targetModule - 1];
-  setServoPosition(getChannel(targetModule, 1), c.paddleOpen);
-  delay(DELAY_PADDLE);
-  setServoPosition(getChannel(targetModule, 2), pushLeft ? c.pusherLeft : c.pusherRight);
-  unsigned long pusherFiredAt = millis();
-  delay(DELAY_PUSHER_HOLD);
-  setServoPosition(getChannel(targetModule, 2), c.pusherNeutral);
-  for (int m = 1; m < targetModule; m++) setModuleNeutral(m);
-
-  // c.paddleCloseDelay is measured from when the pusher fired, independent
-  // of DELAY_PUSHER_HOLD above (which only governs the pusher's own
-  // retraction) - wait out whatever's left of it before closing the paddle.
-  long paddleWait = (long)c.paddleCloseDelay - (long)(millis() - pusherFiredAt);
-  if (paddleWait > 0) delay((unsigned long)paddleWait);
-  setServoPosition(getChannel(targetModule, 0), c.bottomClosed);
-  setServoPosition(getChannel(targetModule, 1), c.paddleClosed);
-  delay(200);
+  pushCard(targetModule, pushLeft, c.pusherHoldDuration, c.paddleCloseDelay, true);
 
   reply.print(F("{\"status\":\"routed\",\"module\":"));
   reply.print(targetModule);
   reply.print(F(",\"direction\":\""));
   reply.print(pushLeft ? F("left") : F("right"));
   reply.println(F("\"}"));
+}
+
+// The left/right push at the end of a route, also run standalone by
+// pushTest so the timings can be tuned without feeding a card.
+// paddleCloseDelayMs counts from when the pusher fired, independently of
+// holdMs (which only governs when the pusher itself retracts).
+void pushCard(int module, bool pushLeft, int holdMs, int paddleCloseDelayMs,
+              bool resetPrecedingModules) {
+  ModuleConfig& c = moduleConfig[module - 1];
+  setServoPosition(getChannel(module, 1), c.paddleOpen);
+  waitMs(DELAY_PADDLE);
+  setServoPosition(getChannel(module, 2), pushLeft ? c.pusherLeft : c.pusherRight);
+  unsigned long pusherFiredAt = millis();
+  waitMs(holdMs);
+  setServoPosition(getChannel(module, 2), c.pusherNeutral);
+  if (resetPrecedingModules) {
+    for (int m = 1; m < module; m++) setModuleNeutral(m);
+  }
+
+  long paddleWait = (long)paddleCloseDelayMs - (long)(millis() - pusherFiredAt);
+  if (paddleWait > 0) waitMs((unsigned long)paddleWait);
+  setServoPosition(getChannel(module, 0), c.bottomClosed);
+  setServoPosition(getChannel(module, 1), c.paddleClosed);
+  waitMs(200);
 }
 
 // Broadcasts a line to every currently-connected transport - unlike a
@@ -781,25 +871,25 @@ void handleCommand(char* json, Print& reply) {
       setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
       setServoPosition(getChannel(m, 1), moduleConfig[m - 1].paddleOpen);
     }
-    delay(DELAY_PUSH);
+    waitMs(DELAY_PUSH);
 
     for (int m = 1; m <= maxModuleForOffset(); m++) {
       setServoPosition(getChannel(m, 2), moduleConfig[m - 1].pusherLeft);
     }
-    delay(DELAY_PUSH);
+    waitMs(DELAY_PUSH);
 
     for (int m = 1; m <= maxModuleForOffset(); m++) {
       setServoPosition(getChannel(m, 2), moduleConfig[m - 1].pusherRight);
     }
-    delay(DELAY_PUSH);
+    waitMs(DELAY_PUSH);
 
     setAllNeutral();
-    delay(200);
+    waitMs(200);
 
     setServoPosition(getFeederChannel(), feederConfig.speed);
-    delay(500);
+    waitMs(500);
     stopFeeder();
-    delay(200);
+    waitMs(200);
 
     reply.println(F("{\"status\":\"test_complete\"}"));
     return;
@@ -819,9 +909,9 @@ void handleCommand(char* json, Print& reply) {
     for (int m = 1; m <= maxModuleForOffset(); m++) {
       setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
     }
-    delay(DELAY_PUSH);
+    waitMs(DELAY_PUSH);
     setAllNeutral();
-    delay(200);
+    waitMs(200);
     reply.println(F("{\"status\":\"cleared\"}"));
     return;
   }
@@ -851,7 +941,7 @@ void handleCommand(char* json, Print& reply) {
       }
     }
     setServoPosition(getChannel(module, offset), pulse);
-    delay(200);
+    waitMs(200);
 
     reply.print(F("{\"status\":\"ok\",\"servo\":\""));
     reply.print(servo);
@@ -914,6 +1004,7 @@ void handleCommand(char* json, Print& reply) {
     c.pusherNeutral = cfg["pusherNeutral"] | c.pusherNeutral;
     c.pusherRight   = cfg["pusherRight"]   | c.pusherRight;
     c.paddleCloseDelay = cfg["paddleCloseDelay"] | c.paddleCloseDelay;
+    c.pusherHoldDuration = cfg["pusherHoldDuration"] | c.pusherHoldDuration;
 
     reply.print(F("{\"status\":\"ok\",\"module\":"));
     reply.print(module);
@@ -990,6 +1081,35 @@ void handleCommand(char* json, Print& reply) {
     return;
   }
 
+  // {"pushTest": {"module": N, "direction": "left"|"right",
+  //   "pusherHoldDuration": ms, "paddleCloseDelay": ms}} - timings optional,
+  // default to the module's stored config
+  if (!doc["pushTest"].isNull()) {
+    JsonObject test = doc["pushTest"];
+    int module = test["module"] | 0;
+    const char* direction = test["direction"] | "";
+    if (module < 1 || module > maxModuleForOffset()) {
+      printModuleRangeError(reply);
+      return;
+    }
+    if (strcmp(direction, "left") != 0 && strcmp(direction, "right") != 0) {
+      reply.println(F("{\"error\":\"direction must be left or right\"}"));
+      return;
+    }
+    ModuleConfig& c = moduleConfig[module - 1];
+    int holdMs = constrain((int)(test["pusherHoldDuration"] | c.pusherHoldDuration), 0, 5000);
+    int paddleMs = constrain((int)(test["paddleCloseDelay"] | c.paddleCloseDelay), 0, 5000);
+    ensureServoDriver();
+    pushCard(module, strcmp(direction, "left") == 0, holdMs, paddleMs, false);
+
+    reply.print(F("{\"status\":\"pushed\",\"module\":"));
+    reply.print(module);
+    reply.print(F(",\"direction\":\""));
+    reply.print(direction);
+    reply.println(F("\"}"));
+    return;
+  }
+
   reply.println(F("{\"error\":\"unknown command\"}"));
 }
 
@@ -1002,7 +1122,7 @@ void setup() {
   while (!Serial);
 
   for (int m = 0; m < MAX_MODULES; m++) {
-    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, 150};
+    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, DELAY_PUSHER_HOLD, 150};
   }
 
   // All MAX_MODULES pins are set up regardless of the eventual offset/module
@@ -1010,20 +1130,7 @@ void setup() {
   for (int m = 0; m < MAX_MODULES; m++) pinMode(IR_PINS[m], INPUT_PULLUP);
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
 
-  pwm.begin();
-  // Without this, a glitched I2C transaction (brief brownout from several
-  // servos moving at once, electrical noise) blocks Wire forever - loop()
-  // never returns, so the board stops answering Serial until power-cycled.
-  // arduino-esp32's TwoWire has no setWireTimeout (the AVR/Renesas Wire API)
-  // - it exposes a single-argument millisecond setTimeout instead, with no
-  // reset_on_timeout equivalent (its implementation recovers the bus itself).
-#if defined(ARDUINO_ARCH_ESP32)
-  Wire.setTimeout(25);
-#else
-  Wire.setWireTimeout(25000, true);
-#endif
-  pwm.setPWMFreq(50);
-  delay(10);
+  initServoDriver();
   setAllNeutral();
 
 #if defined(ARDUINO_ARCH_ESP32)
@@ -1046,9 +1153,14 @@ void setup() {
            "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\"}",
            FIRMWARE_VERSION, BOARD_TYPE, deviceId);
   broadcastLine(bootLine);
+
+#if !defined(ARDUINO_ARCH_ESP32)
+  WDT.begin(WATCHDOG_TIMEOUT_MS);
+#endif
 }
 
 void loop() {
+  feedWatchdog();
   while (Serial.available()) {
     feedByte(serialInput, Serial.read(), Serial);
   }

@@ -9,6 +9,7 @@ export type CalibRow = {
   pusherLeft: number;
   pusherNeutral: number;
   pusherRight: number;
+  pusherHoldDuration: number;
   paddleCloseDelay: number;
 };
 
@@ -23,6 +24,7 @@ export function toModuleConfig(row: CalibRow): ModuleConfig {
       pusherLeft: row.pusherLeft,
       pusherNeutral: row.pusherNeutral,
       pusherRight: row.pusherRight,
+      pusherHoldDuration: row.pusherHoldDuration,
       paddleCloseDelay: row.paddleCloseDelay,
     },
   };

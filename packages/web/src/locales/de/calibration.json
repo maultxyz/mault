@@ -105,8 +105,12 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt — je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
+    "pusherHoldDurationLabel": "Schieber-Haltezeit (ms)",
+    "pusherHoldDurationDescription": "Wie lange der Schieber ausgefahren bleibt, bevor er in die Neutralstellung zurückkehrt. Länger einstellen, wenn Karten nicht vollständig hinausgeschoben werden; möglichst kurz halten, da das Drücken gegen den Anschlag das Servohorn belastet.",
     "paddleCloseDelayLabel": "Paddel-Schließverzögerung (ms)",
-    "paddleCloseDelayDescription": "Wie lange nach dem Auslösen des Schiebers, bis sich das Paddel dieses Moduls wieder schließt — unabhängig davon, wann der Schieber selbst zurückkehrt. Länger einstellen, wenn Karten nicht vollständig frei sind, bevor sich das Tor schließt."
+    "paddleCloseDelayDescription": "Wie lange nach dem Auslösen des Schiebers, bis sich das Paddel dieses Moduls wieder schließt — unabhängig davon, wann der Schieber selbst zurückkehrt. Länger einstellen, wenn Karten nicht vollständig frei sind, bevor sich das Tor schließt.",
+    "pushTestLabel": "Schiebe-Timing testen",
+    "pushTestTooltip": "Führt den Schiebevorgang dieses Moduls genau wie beim Sortieren aus, mit der Haltezeit und Paddel-Schließverzögerung oben (auch ungespeichert). Es wird keine Karte zugeführt; lege vorher eine Karte in das Modul, um zu sehen, wie sie hinausgeschoben wird."
   },
   "scanRegionCalibrationPanel": {
     "instructions": "Ziehe das Rechteck, um es zu verschieben, oder ziehe den Griff, um die Größe zu ändern. Richte es an einer Karte in Modul 1 aus.",
@@ -154,7 +158,9 @@
       "importSuccess": "Kalibrierung importiert",
       "importFailed": "Importieren der Kalibrierung fehlgeschlagen",
       "calibrationSaved": "Kalibrierung gespeichert",
-      "saveCalibrationFailed": "Scanbereich oder Aufnahme-Verzögerung konnte nicht gespeichert werden"
+      "saveCalibrationFailed": "Scanbereich oder Aufnahme-Verzögerung konnte nicht gespeichert werden",
+      "pushTestFailed": "Schiebetest fehlgeschlagen",
+      "pushTestUnsupported": "Diese Firmware unterstützt keine Schiebetests. Aktualisiere die Sortierer-Firmware."
     }
   },
   "useFeederConfig": {
@@ -190,6 +196,7 @@
     "moduleHistory": {
       "bottom": "Unten",
       "paddle": "Paddel",
+      "pusherHoldDuration": "Schieber-Haltezeit",
       "paddleCloseDelay": "Paddel-Schließverzögerung"
     },
     "feederHistory": {

@@ -11,7 +11,9 @@ import {
 import { getCalibrationKey } from "@/features/calibration/lib/calibration-utils";
 import { cn } from "@/lib/utils";
 import {
-  PADDLE_CLOSE_DELAY_SLIDER_MAX,
+  MODULE_DELAY_FIELDS,
+  MODULE_DELAY_SLIDER_MAX,
+  PUSH_TEST_DIRECTIONS,
   percentToPulse,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
@@ -23,10 +25,15 @@ import {
 } from "@/lib/constants/calibration";
 import type {
   ActivePositions,
+  ModuleDelayField,
   ServoConfig,
   SliderKey,
 } from "@/lib/interfaces/calibration";
-import type { ModuleConfig, ServoCalibration } from "@magic-vault/shared";
+import {
+  DEFAULT_CALIBRATION,
+  type ModuleConfig,
+  type ServoCalibration,
+} from "@magic-vault/shared";
 import {
   IconAlertTriangle,
   IconInfoCircle,
@@ -254,25 +261,27 @@ function ServoControl({
   );
 }
 
-interface PaddleCloseDelayControlProps {
+interface ModuleDelayControlProps {
   module: number;
+  field: ModuleDelayField;
   value: number;
   isConnected: boolean;
-  onChange: (module: number, value: number) => void;
+  onChange: (module: number, field: ModuleDelayField, value: number) => void;
 }
 
-function PaddleCloseDelayControl({
+function ModuleDelayControl({
   module,
+  field,
   value,
   isConnected,
   onChange,
-}: PaddleCloseDelayControlProps) {
+}: ModuleDelayControlProps) {
   const { t } = useTranslation("calibration");
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          {t("moduleCalibrationGrid.paddleCloseDelayLabel")}
+          {t(`moduleCalibrationGrid.${field}Label`)}
         </p>
         <Tooltip>
           <TooltipTrigger
@@ -283,18 +292,65 @@ function PaddleCloseDelayControl({
             }
           />
           <TooltipContent>
-            {t("moduleCalibrationGrid.paddleCloseDelayDescription")}
+            {t(`moduleCalibrationGrid.${field}Description`)}
           </TooltipContent>
         </Tooltip>
       </div>
       <Slider
         min={0}
-        max={sliderMax(value, PADDLE_CLOSE_DELAY_SLIDER_MAX)}
+        max={sliderMax(value, MODULE_DELAY_SLIDER_MAX[field])}
         step={10}
         disabled={!isConnected}
         value={value}
-        onValueChange={(v) => onChange(module, v)}
+        onValueChange={(v) => onChange(module, field, v)}
       />
+    </div>
+  );
+}
+
+interface PushTestControlProps {
+  module: number;
+  isConnected: boolean;
+  isTesting: boolean;
+  onTest: (module: number, direction: "left" | "right") => void;
+}
+
+function PushTestControl({
+  module,
+  isConnected,
+  isTesting,
+  onTest,
+}: PushTestControlProps) {
+  const { t } = useTranslation("calibration");
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          {t("moduleCalibrationGrid.pushTestLabel")}
+        </p>
+        <Tooltip>
+          <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+            <IconInfoCircle className="size-3.5" />
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            {t("moduleCalibrationGrid.pushTestTooltip")}
+          </TooltipContent>
+        </Tooltip>
+      </div>
+      <ButtonGroup className="w-full">
+        {PUSH_TEST_DIRECTIONS.map((direction) => (
+          <Button
+            key={direction}
+            variant="outline"
+            disabled={!isConnected || isTesting}
+            onClick={() => onTest(module, direction)}
+            className="flex-1"
+          >
+            <IconPlayerPlay />
+            {t(`moduleCalibrationGrid.positions.${direction}`).toUpperCase()}
+          </Button>
+        ))}
+      </ButtonGroup>
     </div>
   );
 }
@@ -304,7 +360,7 @@ interface ModuleCalibrationGridProps {
   configs: ModuleConfig[];
   active: ActivePositions;
   sliderValues: Record<SliderKey, number>;
-  paddleCloseDelayValues: Record<number, number>;
+  moduleDelayValues: Record<number, Record<ModuleDelayField, number>>;
   pendingCalibration: Record<number, Partial<ServoCalibration>>;
   isLoading: boolean;
   isConnected: boolean;
@@ -318,9 +374,15 @@ interface ModuleCalibrationGridProps {
     servo: "bottom" | "paddle" | "pusher",
     value: number,
   ) => void;
-  onPaddleCloseDelayChange: (module: number, value: number) => void;
+  onModuleDelayChange: (
+    module: number,
+    field: ModuleDelayField,
+    value: number,
+  ) => void;
   testingServos: Record<SliderKey, boolean>;
   onTest: (module: number, servo: "bottom" | "paddle" | "pusher") => void;
+  pushTestingModule: number | null;
+  onPushTest: (module: number, direction: "left" | "right") => void;
 }
 
 export function ModuleCalibrationGrid({
@@ -328,15 +390,17 @@ export function ModuleCalibrationGrid({
   configs,
   active,
   sliderValues,
-  paddleCloseDelayValues,
+  moduleDelayValues,
   pendingCalibration,
   isLoading,
   isConnected,
   onControl,
   onSliderChange,
-  onPaddleCloseDelayChange,
+  onModuleDelayChange,
   testingServos,
   onTest,
+  pushTestingModule,
+  onPushTest,
 }: ModuleCalibrationGridProps) {
   const { t } = useTranslation("calibration");
   const [rawModeByModule, setRawModeByModule] = useState<
@@ -403,11 +467,24 @@ export function ModuleCalibrationGrid({
                 />
               );
             })}
-            <PaddleCloseDelayControl
+            {MODULE_DELAY_FIELDS.map((field) => (
+              <ModuleDelayControl
+                key={field}
+                module={module}
+                field={field}
+                value={
+                  moduleDelayValues[module]?.[field] ??
+                  DEFAULT_CALIBRATION[field]
+                }
+                isConnected={isConnected}
+                onChange={onModuleDelayChange}
+              />
+            ))}
+            <PushTestControl
               module={module}
-              value={paddleCloseDelayValues[module] ?? 150}
               isConnected={isConnected}
-              onChange={onPaddleCloseDelayChange}
+              isTesting={pushTestingModule !== null}
+              onTest={onPushTest}
             />
           </div>
         );

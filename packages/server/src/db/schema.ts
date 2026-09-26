@@ -270,6 +270,7 @@ export const moduleConfigs = pgTable(
     pusherLeft: integer("pusher_left").notNull().default(150),
     pusherNeutral: integer("pusher_neutral").notNull().default(307),
     pusherRight: integer("pusher_right").notNull().default(460),
+    pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -543,6 +544,7 @@ export const moduleConfigAudit = pgTable(
     pusherLeft: integer("pusher_left").notNull(),
     pusherNeutral: integer("pusher_neutral").notNull(),
     pusherRight: integer("pusher_right").notNull(),
+    pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     // Has a default (unlike this table's other columns) purely so the
     // migration adding it can backfill existing audit rows - every new row
     // always supplies it explicitly, same as the rest.

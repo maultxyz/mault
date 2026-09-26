@@ -6,6 +6,7 @@ export interface ServoCalibration {
   pusherLeft: number;
   pusherNeutral: number;
   pusherRight: number;
+  pusherHoldDuration: number;
   paddleCloseDelay: number;
 }
 

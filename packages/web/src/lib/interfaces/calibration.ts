@@ -68,3 +68,5 @@ export interface BinHeightPreset {
   key: BinSizePreset;
   height: number;
 }
+
+export type ModuleDelayField = "pusherHoldDuration" | "paddleCloseDelay";
