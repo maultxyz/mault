@@ -38,7 +38,7 @@ a serial connection to the device can drive it by following this spec
   **one** JSON-line response, in the order it was sent — there is no
   request ID, so a client must correlate responses positionally (send
   one command, read one response line, before sending the next).
-- A line longer than 200 characters is discarded and answered with
+- A line longer than 255 characters is discarded and answered with
   `{"error":"command too long"}`.
 - Malformed JSON gets `{"error":"invalid JSON","reason":"...","length":N,"received":"<escaped input>"}`.
 - An unrecognized (but validly-parsed) command gets `{"error":"unknown command"}`.
@@ -376,6 +376,6 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 | `{"error":"timeout: feeder did not deliver card to module 1","empty":false}` | feeder ran its full configured `duration` without module 1's IR triggering |
 | `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
-| `{"error":"command too long"}` | line exceeded 200 characters |
+| `{"error":"command too long"}` | line exceeded 255 characters |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
 | `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (informational only - no paddle-flap is attempted since nothing is actively sorting) |

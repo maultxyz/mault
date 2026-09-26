@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.0.15"
+#define FIRMWARE_VERSION "2.0.16"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -325,7 +325,7 @@ FeederConfig feederConfig = {315, 1000, 40, 100, 100};
 // that it's released before it's spent much time stalled at the stop.
 #define DELAY_PUSHER_HOLD  150
 
-#define MAX_CMD_LEN 200
+#define MAX_CMD_LEN 255
 
 // One InputState per transport - a command's response must go back out the
 // same transport it arrived on (the protocol has no request IDs; a client
