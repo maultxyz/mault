@@ -78,6 +78,7 @@ export function buildCalibrationDebugText({
       `  bottom: closed=${c.calibration.bottomClosed} open=${c.calibration.bottomOpen}`,
       `  paddle: closed=${c.calibration.paddleClosed} open=${c.calibration.paddleOpen}`,
       `  pusher: left=${c.calibration.pusherLeft} neutral=${c.calibration.pusherNeutral} right=${c.calibration.pusherRight}`,
+      `  pusherHoldDuration: ${c.calibration.pusherHoldDuration}ms`,
       `  paddleCloseDelay: ${c.calibration.paddleCloseDelay}ms`,
     );
   }
