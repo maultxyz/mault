@@ -2,7 +2,17 @@ import type {
   BinHeightPreset,
   ModuleDelayField,
   ServoConfig,
+  SetupIntroPart,
+  SetupServoPosition,
 } from "@/lib/interfaces/calibration";
+import {
+  IconArrowBarToDown,
+  IconArrowsHorizontal,
+  IconColumns2,
+  IconRotateClockwise,
+  IconStack2,
+  type Icon,
+} from "@tabler/icons-react";
 
 export const SERVO_PULSE_MIN = 120;
 export const SERVO_PULSE_MAX = 490;
@@ -136,4 +146,24 @@ export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
   { key: "small", height: 69 },
   { key: "medium", height: 113 },
   { key: "large", height: 187 },
+];
+
+// Order the setup wizard walks each module's positions in: rest position
+// first for each servo, so the extremes are set relative to it.
+export const SETUP_SERVO_POSITIONS: SetupServoPosition[] = [
+  { servo: "bottom", position: "closed", calKey: "bottomClosed", restKey: "bottomClosed" },
+  { servo: "bottom", position: "open", calKey: "bottomOpen", restKey: "bottomClosed" },
+  { servo: "paddle", position: "closed", calKey: "paddleClosed", restKey: "paddleClosed" },
+  { servo: "paddle", position: "open", calKey: "paddleOpen", restKey: "paddleClosed" },
+  { servo: "pusher", position: "neutral", calKey: "pusherNeutral", restKey: "pusherNeutral" },
+  { servo: "pusher", position: "left", calKey: "pusherLeft", restKey: "pusherNeutral" },
+  { servo: "pusher", position: "right", calKey: "pusherRight", restKey: "pusherNeutral" },
+];
+
+export const SETUP_INTRO_PARTS: { key: SetupIntroPart; icon: Icon }[] = [
+  { key: "feeder", icon: IconRotateClockwise },
+  { key: "module", icon: IconStack2 },
+  { key: "bottom", icon: IconArrowBarToDown },
+  { key: "paddle", icon: IconColumns2 },
+  { key: "pusher", icon: IconArrowsHorizontal },
 ];

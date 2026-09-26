@@ -351,6 +351,13 @@
       "when": 1790445885551,
       "tag": "0049_amused_corsair",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1790463780671,
+      "tag": "0050_low_power_man",
+      "breakpoints": true
     }
   ]
 }

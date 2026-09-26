@@ -70,3 +70,44 @@ export interface BinHeightPreset {
 }
 
 export type ModuleDelayField = "pusherHoldDuration" | "paddleCloseDelay";
+
+export type SetupServo = "bottom" | "paddle" | "pusher";
+
+export interface SetupServoPosition {
+  servo: SetupServo;
+  position: "closed" | "open" | "neutral" | "left" | "right";
+  calKey:
+    | "bottomClosed"
+    | "bottomOpen"
+    | "paddleClosed"
+    | "paddleOpen"
+    | "pusherNeutral"
+    | "pusherLeft"
+    | "pusherRight";
+  // Where the servo is parked once its last position is set.
+  restKey: "bottomClosed" | "paddleClosed" | "pusherNeutral";
+}
+
+export type SetupWizardStep =
+  | { kind: "intro" }
+  | { kind: "moduleCount" }
+  | { kind: "servo"; module: number; position: SetupServoPosition }
+  | { kind: "irSensors" }
+  | { kind: "feeder" }
+  | { kind: "test" };
+
+export type SetupIntroPart = "feeder" | "module" | "bottom" | "paddle" | "pusher";
+
+export interface SetupIrReading {
+  modules: boolean[];
+  hopper: boolean;
+}
+
+export type SetupTestState = "idle" | "running" | "passed" | "failed";
+
+export interface SetupWizardContextValue {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  forceSetup: () => Promise<void>;
+}

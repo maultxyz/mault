@@ -129,6 +129,10 @@
     }
   },
   "calibrationTour": {
+    "menu": {
+      "pageTour": "Seitenrundgang",
+      "setupWizard": "Einrichtungsassistent"
+    },
     "triggerTooltip": "So funktioniert die Kalibrierung",
     "welcome": {
       "title": "Deinen Sortierer kalibrieren",

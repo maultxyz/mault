@@ -17,6 +17,7 @@ export function toDevice(row: {
   checkBothOrientations: boolean | null;
   moduleCount: number;
   channelLayout: string | null;
+  setupCompletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -32,6 +33,7 @@ export function toDevice(row: {
       row.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
     moduleCount: row.moduleCount,
     channelLayout: row.channelLayout,
+    setupCompletedAt: row.setupCompletedAt?.toISOString() ?? null,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

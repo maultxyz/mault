@@ -56,7 +56,7 @@ export function ModuleCountConfigProvider({
         queryClient.setQueryData(
           devicesOpts.queryKey,
           (old: Device[] | undefined) =>
-            old ? [saved, ...old.slice(1)] : [saved],
+            old ? old.map((d) => (d.guid === saved.guid ? saved : d)) : [saved],
         );
       }
       queryClient.invalidateQueries({ queryKey: ["modules"] });

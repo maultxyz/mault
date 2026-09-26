@@ -5,9 +5,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
+import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
+import { useRole } from "@/hooks/use-role";
 import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
 import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import type { SectionNavItem } from "@/lib/interfaces/nav";
@@ -22,6 +25,7 @@ import {
   IconFocus2,
   IconLoader2,
   IconSettingsCog,
+  IconRotateClockwise,
   IconUpload,
 } from "@tabler/icons-react";
 import { useRef } from "react";
@@ -104,6 +108,8 @@ export default function CalibrateLayout() {
   } = calibrationPage;
 
   const importInputRef = useRef<HTMLInputElement>(null);
+  const setupWizard = useSetupWizard();
+  const { isAdmin } = useRole();
   const bluetoothSupported =
     typeof navigator !== "undefined" && !!navigator.bluetooth;
 
@@ -211,6 +217,17 @@ export default function CalibrateLayout() {
                   <IconUpload />
                   {t("calibratePage.importConfig")}
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => void setupWizard.forceSetup()}
+                    >
+                      <IconRotateClockwise />
+                      {t("calibratePage.forceSetupWizard")}
+                    </DropdownMenuItem>
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
             <input

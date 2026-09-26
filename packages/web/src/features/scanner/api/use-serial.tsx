@@ -482,6 +482,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           setLeasedDeviceGuid(boundDevice.guid);
         }
         if (options?.skipAutoTest) return;
+        // A board that hasn't been through setup still has default
+        // calibration; the setup wizard runs the test once it's calibrated.
+        if (boundDevice && !boundDevice.setupCompletedAt) return;
         await runConnectTest(newTransport, boundDevice);
       })();
 
