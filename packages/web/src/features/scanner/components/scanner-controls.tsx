@@ -12,6 +12,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import type {
@@ -73,15 +74,16 @@ export function ScannerControls({
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
-  const { cards, autoFeed, setAutoFeed, forceFoilType, setForceFoilType } =
+  const { autoFeed, setAutoFeed, forceFoilType, setForceFoilType } =
     useScannedCards();
+  const { totalCount } = useCollectionCardsSummary();
   const { activeCollection } = useCollections();
   const foilOptions = activeCollection?.game?.foilTypes?.length
     ? activeCollection.game.foilTypes
     : [tCards("foil")];
   const canForceScan =
     status === "no-match" || status === "scanning" || status === "captured";
-  const isFirstFeed = cards.length === 0;
+  const isFirstFeed = totalCount === 0;
   const foilTooltip = t("scannerControls.foilTooltip", {
     type: forceFoilType ?? tCards("foilNone"),
   });

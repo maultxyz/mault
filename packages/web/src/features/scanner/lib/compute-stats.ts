@@ -1,7 +1,7 @@
 import { CARD_COLOR_SWATCHES } from "@/lib/constants/colors";
 import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
-import type { ScanStats, SetStats } from "@/lib/interfaces/scanner";
-import type { ScannedCard } from "@magic-vault/shared";
+import type { ScanStats } from "@/lib/interfaces/scanner";
+import type { CardStatsAggregate, ScannedCard } from "@magic-vault/shared";
 
 export type { ScanStats };
 
@@ -24,12 +24,10 @@ function sortRarities<T extends { key: string; count: number }>(
   });
 }
 
-export function computeStats(cards: ScannedCard[]): ScanStats | null {
-  if (cards.length === 0) return null;
-
+export function aggregateCards(cards: ScannedCard[]): CardStatsAggregate {
   let totalValue = 0;
   let priceableCount = 0;
-  const setMap = new Map<string, SetStats>();
+  const setMap = new Map<string, CardStatsAggregate["sets"][number]>();
   const rarityMap = new Map<string, number>();
   const colorMap = new Map<string, number>();
   const foilTypeMap = new Map<string, number>();
@@ -78,34 +76,83 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
     }
   }
 
+  const toCounts = (map: Map<string, number>) =>
+    Array.from(map.entries()).map(([key, count]) => ({ key, count }));
+
   return {
     totalCount: cards.length,
     uniqueCount: uniqueCards.size,
     totalValue,
-    avgValue: priceableCount > 0 ? totalValue / priceableCount : 0,
-    hasPricing: priceableCount > 0,
+    priceableCount,
     mostValuable,
-    sets: Array.from(setMap.values()).sort(
+    sets: Array.from(setMap.values()),
+    rarities: toCounts(rarityMap),
+    colors: toCounts(colorMap),
+    foilTypes: toCounts(foilTypeMap),
+  };
+}
+
+export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
+  if (aggregate.totalCount === 0) return null;
+
+  return {
+    totalCount: aggregate.totalCount,
+    uniqueCount: aggregate.uniqueCount,
+    totalValue: aggregate.totalValue,
+    avgValue:
+      aggregate.priceableCount > 0
+        ? aggregate.totalValue / aggregate.priceableCount
+        : 0,
+    hasPricing: aggregate.priceableCount > 0,
+    mostValuable: aggregate.mostValuable,
+    sets: [...aggregate.sets].sort(
       (a, b) => b.value - a.value || b.count - a.count,
     ),
     rarities: sortRarities(
-      Array.from(rarityMap.entries()).map(([key, count]) => ({
+      aggregate.rarities.map(({ key, count }) => ({
         key,
         label: RARITY_LABELS[key] ?? capitalize(key),
         count,
       })),
     ),
-    colors: Array.from(colorMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([key, count]) => ({
+    colors: [...aggregate.colors]
+      .sort((a, b) => b.count - a.count)
+      .map(({ key, count }) => ({
         key,
         label: CARD_COLOR_SWATCHES[key]?.label ?? key,
         bg: CARD_COLOR_SWATCHES[key]?.bg ?? key.toLowerCase(),
         count,
       })),
-    foilTypes: Array.from(foilTypeMap.entries())
-      .sort((a, b) => b[1] - a[1])
-      .map(([key, count]) => ({ key, label: key, count })),
+    foilTypes: [...aggregate.foilTypes]
+      .sort((a, b) => b.count - a.count)
+      .map(({ key, count }) => ({ key, label: key, count })),
+  };
+}
+
+export function computeStats(cards: ScannedCard[]): ScanStats | null {
+  return toScanStats(aggregateCards(cards));
+}
+
+export function toDisplayStats(
+  all: CardStatsAggregate,
+  visible: CardStatsAggregate,
+): ScanStats | null {
+  const allStats = toScanStats(all);
+  if (!allStats) return null;
+
+  const visibleStats = toScanStats(visible);
+
+  return {
+    totalCount: visibleStats?.totalCount ?? 0,
+    uniqueCount: visibleStats?.uniqueCount ?? 0,
+    totalValue: visibleStats?.totalValue ?? 0,
+    avgValue: visibleStats?.avgValue ?? 0,
+    hasPricing: visibleStats?.hasPricing ?? false,
+    mostValuable: visibleStats?.mostValuable ?? null,
+    sets: allStats.sets,
+    rarities: allStats.rarities,
+    colors: allStats.colors,
+    foilTypes: allStats.foilTypes,
   };
 }
 
@@ -113,21 +160,5 @@ export function computeDisplayStats(
   allCards: ScannedCard[],
   visibleCards: ScannedCard[],
 ): ScanStats | null {
-  const all = computeStats(allCards);
-  if (!all) return null;
-
-  const visible = computeStats(visibleCards);
-
-  return {
-    totalCount: visible?.totalCount ?? 0,
-    uniqueCount: visible?.uniqueCount ?? 0,
-    totalValue: visible?.totalValue ?? 0,
-    avgValue: visible?.avgValue ?? 0,
-    hasPricing: visible?.hasPricing ?? false,
-    mostValuable: visible?.mostValuable ?? null,
-    sets: all.sets,
-    rarities: all.rarities,
-    colors: all.colors,
-    foilTypes: all.foilTypes,
-  };
+  return toDisplayStats(aggregateCards(allCards), aggregateCards(visibleCards));
 }

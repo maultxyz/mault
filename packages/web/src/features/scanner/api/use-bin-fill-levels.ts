@@ -1,14 +1,25 @@
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
+import { useBinCardCounts } from "@/features/collections/api/use-collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import type { BinFillLevel } from "@/lib/interfaces/scanner";
 import { computeBinCapacity, countCardsInBin } from "@magic-vault/shared";
+import { useMemo } from "react";
 
 export function useBinFillLevels(): BinFillLevel[] {
   const { configs } = useBinConfigs();
   const { heights } = useBinHeights();
-  const { cards, unmatchedCards } = useScannedCards();
+  const { unmatchedCards } = useScannedCards();
+  const binWindows = useMemo(
+    () =>
+      configs.map((bin) => ({
+        binNumber: bin.binNumber,
+        lastEmptiedAt: bin.lastEmptiedAt ?? null,
+      })),
+    [configs],
+  );
+  const matchedCounts = useBinCardCounts(binWindows);
   const { activeCollection } = useCollections();
   const cardThickness = activeCollection?.game?.cardThickness ?? null;
 
@@ -21,7 +32,8 @@ export function useBinFillLevels(): BinFillLevel[] {
         bin.cardLimit ?? null,
       );
       const count =
-        countCardsInBin(cards, bin) + countCardsInBin(unmatchedCards, bin);
+        (matchedCounts.get(bin.binNumber) ?? 0) +
+        countCardsInBin(unmatchedCards, bin);
       const percent = capacity ? Math.min(100, Math.round((count / capacity) * 100)) : 0;
       return { binNumber: bin.binNumber, count, capacity, percent };
     })

@@ -4,6 +4,7 @@ import {
   boolean,
   customType,
   doublePrecision,
+  index,
   integer,
   jsonb,
   pgTable,
@@ -363,6 +364,10 @@ export const collectionCards = pgTable(
   },
   (table) => [
     unique("collection_cards_guid_idx").on(table.guid),
+    index("collection_cards_collection_scanned_idx").on(
+      table.collectionId,
+      table.scannedAt,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

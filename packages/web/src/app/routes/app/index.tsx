@@ -5,6 +5,7 @@ import { CardGrid } from "@/features/cards/components/card-grid";
 import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
@@ -20,7 +21,8 @@ import { useTranslation } from "react-i18next";
 
 function MobileScanner() {
   const { t } = useTranslation("scanner");
-  const { cards, unmatchedCards, removeUnmatchedCard } = useScannedCards();
+  const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
+  const { totalCount } = useCollectionCardsSummary();
 
   return (
     <div className="flex-1 min-h-0 relative overflow-hidden">
@@ -40,7 +42,7 @@ function MobileScanner() {
             className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 text-sm font-medium shadow-lg"
           >
             <IconCards size={16} />
-            {t("cardCount", { count: cards.length })}
+            {t("cardCount", { count: totalCount })}
           </button>
         </DrawerTrigger>
         <DrawerContent>

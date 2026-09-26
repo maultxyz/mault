@@ -58,7 +58,6 @@ export interface CameraContextValue {
 }
 
 export interface ScannedCardsContextValue {
-  cards: ScannedCard[];
   unmatchedCards: UnmatchedCard[];
   isLoading: boolean;
   autoFeed: boolean;

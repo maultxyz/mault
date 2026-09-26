@@ -1,5 +1,6 @@
 import {
   type BinConfig,
+  type BinContentCard,
   type BinRoute,
   type PlayingCard,
   type PlayingCardWithDistance,
@@ -15,10 +16,10 @@ import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { loadBinContents } from "@/features/collections/api/collection-cards";
 import {
   addCollectionCard,
   addUnmatchedCard as addUnmatchedCardApi,
-  loadCollectionCards,
   loadUnmatchedCards,
   markCollectionCardsDownloaded,
   releaseScanLock,
@@ -30,6 +31,11 @@ import {
 } from "@/features/collections/api/collections";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
+import {
+  invalidateCollectionCards,
+  removeFromCardPages,
+  updateInCardPages,
+} from "@/features/collections/lib/card-page-cache";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
@@ -62,7 +68,6 @@ export function ScannedCardsProvider({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation("scanner");
-  const [cards, setCards] = useState<ScannedCard[]>([]);
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const {
@@ -108,7 +113,7 @@ export function ScannedCardsProvider({
   const fieldDefinitionsRef = useRef(fieldDefinitions);
   const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
   const selectedSetRef = useRef(selectedSet);
-  const cardsRef = useRef(cards);
+  const binContentsRef = useRef<BinContentCard[]>([]);
   const serialRef = useRef({
     sendRoute,
     sendCommand,
@@ -163,10 +168,6 @@ export function ScannedCardsProvider({
   }, [selectedSet]);
 
   useEffect(() => {
-    cardsRef.current = cards;
-  }, [cards]);
-
-  useEffect(() => {
     emptyCollectionRef.current = emptyCollection;
   }, [emptyCollection]);
 
@@ -190,14 +191,7 @@ export function ScannedCardsProvider({
           fieldDefinitionsRef.current,
           set,
           (bin) =>
-            getCardsInBin(
-              cardsRef.current.map((c) => ({
-                binNumber: c.binNumber,
-                scannedAt: c.scannedAt,
-                card: c.card,
-              })),
-              bin,
-            ),
+            getCardsInBin(binContentsRef.current, bin),
         );
       }
       return evaluateCardBin(
@@ -243,28 +237,22 @@ export function ScannedCardsProvider({
 
   useEffect(() => {
     if (!activeCollection) {
-      setCards([]);
       setUnmatchedCards([]);
       setIsLoading(false);
       return;
     }
 
     let cancelled = false;
-    setCards([]);
     setUnmatchedCards([]);
     setIsLoading(true);
 
-    Promise.all([
-      loadCollectionCards(activeCollection.guid),
-      loadUnmatchedCards(activeCollection.guid),
-    ])
-      .then(([cardsResult, unmatchedResult]) => {
+    loadUnmatchedCards(activeCollection.guid)
+      .then((unmatchedResult) => {
         if (cancelled) return;
-        setCards(cardsResult.data ?? []);
         setUnmatchedCards(unmatchedResult.data ?? []);
       })
       .catch((err) => {
-        if (!cancelled) console.error("Failed to load collection cards:", err);
+        if (!cancelled) console.error("Failed to load unmatched cards:", err);
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -274,6 +262,34 @@ export function ScannedCardsProvider({
       cancelled = true;
     };
   }, [activeCollection?.guid]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const isRepackMode = !!selectedSet?.isRepackMode;
+  const repackBinWindowsKey = JSON.stringify(
+    binConfigs
+      .filter((bin) => !bin.isCatchAll)
+      .map((bin) => ({
+        binNumber: bin.binNumber,
+        lastEmptiedAt: bin.lastEmptiedAt ?? null,
+      })),
+  );
+
+  useEffect(() => {
+    binContentsRef.current = [];
+    const guid = activeCollection?.guid;
+    if (!guid || !isRepackMode) return;
+
+    let cancelled = false;
+    loadBinContents(guid, JSON.parse(repackBinWindowsKey))
+      .then((contents) => {
+        if (!cancelled) binContentsRef.current = contents;
+      })
+      .catch((err) => {
+        if (!cancelled) console.error("Failed to load bin contents:", err);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeCollection?.guid, isRepackMode, repackBinWindowsKey]);
 
   const addCard = useCallback(
     (
@@ -330,7 +346,17 @@ export function ScannedCardsProvider({
         foilType: forceFoilTypeRef.current ?? undefined,
       };
 
-      setCards((prev) => [record, ...prev]);
+      if (record.binNumber != null && selectedSetRef.current?.isRepackMode) {
+        binContentsRef.current = [
+          {
+            scanId: record.scanId,
+            binNumber: record.binNumber,
+            scannedAt: record.scannedAt,
+            card,
+          },
+          ...binContentsRef.current,
+        ];
+      }
       setTimerTrigger(record.scannedAt);
 
       const orgId = activeOrgIdRef.current;
@@ -346,7 +372,9 @@ export function ScannedCardsProvider({
       addCollectionCard(collection.guid, record, deviceGuidRef.current)
         .then((result) => {
           if (!result.success) {
-            setCards((prev) => prev.filter((c) => c.scanId !== record.scanId));
+            binContentsRef.current = binContentsRef.current.filter(
+              (c) => c.scanId !== record.scanId,
+            );
             if (billingQueryKey) {
               queryClient.setQueryData(billingQueryKey, (old) =>
                 old
@@ -403,6 +431,7 @@ export function ScannedCardsProvider({
         })
         .catch((err) => console.error("Failed to persist card:", err))
         .finally(() => {
+          void invalidateCollectionCards(queryClient, collection.guid);
           if (billingQueryKey) {
             void queryClient.invalidateQueries({ queryKey: billingQueryKey });
           }
@@ -514,26 +543,32 @@ export function ScannedCardsProvider({
     }
   }, []);
 
-  const removeCard = useCallback((scanId: string) => {
-    const collection = activeCollectionRef.current;
-    setCards((prev) => prev.filter((entry) => entry.scanId !== scanId));
-    if (collection) {
-      removeCollectionCard(collection.guid, scanId).catch((err) =>
-        console.error("Failed to remove card:", err),
+  const removeCards = useCallback(
+    (scanIds: string[]) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return;
+      const idSet = new Set(scanIds);
+      binContentsRef.current = binContentsRef.current.filter(
+        (c) => !idSet.has(c.scanId),
       );
-    }
-  }, []);
+      removeFromCardPages(queryClient, collection.guid, idSet);
+      const request =
+        scanIds.length === 1
+          ? removeCollectionCard(collection.guid, scanIds[0])
+          : removeCollectionCards(collection.guid, scanIds);
+      request
+        .catch((err) => console.error("Failed to remove cards:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
 
-  const removeCards = useCallback((scanIds: string[]) => {
-    const collection = activeCollectionRef.current;
-    const idSet = new Set(scanIds);
-    setCards((prev) => prev.filter((entry) => !idSet.has(entry.scanId)));
-    if (collection) {
-      removeCollectionCards(collection.guid, scanIds).catch((err) =>
-        console.error("Failed to remove cards:", err),
-      );
-    }
-  }, []);
+  const removeCard = useCallback(
+    (scanId: string) => removeCards([scanId]),
+    [removeCards],
+  );
 
   const correctCard = useCallback(
     (scanId: string, card: PlayingCard) => {
@@ -563,85 +598,89 @@ export function ScannedCardsProvider({
         );
         saveBinConfig(autoTarget.binNumber, autoTarget.rules);
       }
-      setCards((prev) =>
-        prev.map((entry) =>
-          entry.scanId === scanId
-            ? {
-                ...entry,
-                card: corrected,
-                binNumber: matchedBin?.binNumber,
-                corrected: true,
-              }
-            : entry,
-        ),
+      binContentsRef.current = binContentsRef.current.flatMap((entry) => {
+        if (entry.scanId !== scanId) return [entry];
+        return matchedBin
+          ? [{ ...entry, card: corrected, binNumber: matchedBin.binNumber }]
+          : [];
+      });
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({
+          ...entry,
+          card: corrected,
+          binNumber: matchedBin?.binNumber,
+          corrected: true,
+        }),
       );
-      if (collection) {
-        updateCollectionCard(
-          collection.guid,
-          scanId,
-          corrected,
-          matchedBin?.binNumber,
-        ).catch((err) => console.error("Failed to update card:", err));
-      }
+      updateCollectionCard(
+        collection.guid,
+        scanId,
+        corrected,
+        matchedBin?.binNumber,
+      )
+        .catch((err) => console.error("Failed to update card:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
     },
-    [saveBinConfig, resolveMatchedBin],
+    [saveBinConfig, resolveMatchedBin, queryClient],
   );
 
   const setCardFoilType = useCallback(
     (scanId: string, foilType: string | null) => {
       const collection = activeCollectionRef.current;
       const isFoil = foilType != null;
-      setCards((prev) =>
-        prev.map((entry) =>
-          entry.scanId === scanId
-            ? { ...entry, isFoil, foilType: foilType ?? undefined }
-            : entry,
-        ),
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, isFoil, foilType: foilType ?? undefined }),
       );
-      if (collection) {
-        setCollectionCardFoilType(
-          collection.guid,
-          scanId,
-          isFoil,
-          foilType,
-        ).catch((err) => console.error("Failed to update foil status:", err));
-      }
+      setCollectionCardFoilType(collection.guid, scanId, isFoil, foilType)
+        .catch((err) => console.error("Failed to update foil status:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
     },
-    [],
+    [queryClient],
   );
 
-  const markDownloaded = useCallback((scanIds: string[]) => {
-    const collection = activeCollectionRef.current;
-    if (scanIds.length === 0) return;
-    const idSet = new Set(scanIds);
-    setCards((prev) =>
-      prev.map((entry) =>
-        idSet.has(entry.scanId) ? { ...entry, isDownloaded: true } : entry,
-      ),
-    );
-    if (collection) {
-      markCollectionCardsDownloaded(collection.guid, scanIds).catch((err) =>
-        console.error("Failed to mark cards downloaded:", err),
-      );
-    }
-  }, []);
+  const markDownloaded = useCallback(
+    (scanIds: string[]) => {
+      const collection = activeCollectionRef.current;
+      if (scanIds.length === 0 || !collection) return;
+      markCollectionCardsDownloaded(collection.guid, scanIds)
+        .catch((err) => console.error("Failed to mark cards downloaded:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
 
   const clearCards = useCallback(() => {
     const collection = activeCollectionRef.current;
-    setCards([]);
+    binContentsRef.current = [];
     setTimerTrigger(undefined);
     setTimerResetSignal((s) => s + 1);
     if (collection) {
       emptyCollectionRef
         .current(collection.guid)
-        .catch((err) => console.error("Failed to clear cards:", err));
+        .catch((err) => console.error("Failed to clear cards:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
     }
-  }, []);
+  }, [queryClient]);
 
   return (
     <ScannedCardsContext
       value={{
-        cards,
         unmatchedCards,
         isLoading,
         autoFeed,

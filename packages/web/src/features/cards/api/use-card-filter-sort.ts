@@ -1,7 +1,12 @@
 import type { CardFilters } from "@/lib/interfaces/cards";
 import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { matchPercent } from "@/lib/utils";
-import { getCardValue, type FieldMeta, type ScannedCard } from "@magic-vault/shared";
+import {
+  DEFAULT_CARD_SORT,
+  getCardValue,
+  type FieldMeta,
+  type ScannedCard,
+} from "@magic-vault/shared";
 import { useEffect, useMemo, useState } from "react";
 
 export function applyCardFilters(
@@ -97,8 +102,7 @@ function compareByField(
   return String(va ?? "").localeCompare(String(vb ?? ""));
 }
 
-export function useCardFilterSort(
-  cards: ScannedCard[],
+export function useCardQueryState(
   fieldDefinitions: FieldMeta[],
   external?: {
     filters: CardFilters;
@@ -106,7 +110,7 @@ export function useCardFilterSort(
   },
 ) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [sortKey, setSortKey] = useState<string | null>("scan-desc");
+  const [sortKey, setSortKey] = useState<string | null>(DEFAULT_CARD_SORT);
   const [internalFilters, setInternalFilters] =
     useState<CardFilters>(EMPTY_CARD_FILTERS);
   const filters = external?.filters ?? internalFilters;
@@ -118,12 +122,45 @@ export function useCardFilterSort(
   );
 
   useEffect(() => {
-    if (!sortKey || sortKey === "scan-desc") return;
+    if (!sortKey || sortKey === DEFAULT_CARD_SORT) return;
     const { field } = splitSortKey(sortKey);
     if (!fieldDefinitions.some((f) => f.field === field)) {
-      setSortKey("scan-desc");
+      setSortKey(DEFAULT_CARD_SORT);
     }
   }, [fieldDefinitions, sortKey]);
+
+  const activeFilterCount =
+    filters.colors.length +
+    filters.rarities.length +
+    filters.bins.length +
+    filters.sets.length +
+    filters.foilTypes.length +
+    (filters.needsAttention ? 1 : 0) +
+    (filters.showDownloaded ? 1 : 0) +
+    (filters.minMatchPercent > 0 ? 1 : 0);
+
+  return {
+    searchQuery,
+    setSearchQuery,
+    sortKey,
+    setSortKey,
+    sortableFields,
+    filters,
+    setFilters,
+    activeFilterCount,
+  };
+}
+
+export function useCardFilterSort(
+  cards: ScannedCard[],
+  fieldDefinitions: FieldMeta[],
+  external?: {
+    filters: CardFilters;
+    setFilters: (filters: CardFilters) => void;
+  },
+) {
+  const state = useCardQueryState(fieldDefinitions, external);
+  const { searchQuery, sortKey, filters } = state;
 
   const filteredAndSorted = useMemo(() => {
     let result = applyCardFilters(cards, filters);
@@ -143,7 +180,7 @@ export function useCardFilterSort(
       });
     }
 
-    if (!sortKey || sortKey === "scan-desc") return result;
+    if (!sortKey || sortKey === DEFAULT_CARD_SORT) return result;
 
     const { field, dir } = splitSortKey(sortKey);
     const meta = fieldDefinitions.find((f) => f.field === field);
@@ -155,25 +192,5 @@ export function useCardFilterSort(
     return sorted;
   }, [cards, searchQuery, sortKey, filters, fieldDefinitions]);
 
-  const activeFilterCount =
-    filters.colors.length +
-    filters.rarities.length +
-    filters.bins.length +
-    filters.sets.length +
-    filters.foilTypes.length +
-    (filters.needsAttention ? 1 : 0) +
-    (filters.showDownloaded ? 1 : 0) +
-    (filters.minMatchPercent > 0 ? 1 : 0);
-
-  return {
-    filteredAndSorted,
-    searchQuery,
-    setSearchQuery,
-    sortKey,
-    setSortKey,
-    sortableFields,
-    filters,
-    setFilters,
-    activeFilterCount,
-  };
+  return { ...state, filteredAndSorted };
 }
