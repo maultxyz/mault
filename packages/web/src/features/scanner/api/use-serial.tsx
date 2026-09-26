@@ -584,8 +584,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       stationsRef.current.registerConnector(station.id, {
         connect: () => connect(),
         connectBluetooth: () => connectBluetooth(),
+        disconnect,
       }),
-    [station.id, connect, connectBluetooth],
+    [station.id, connect, connectBluetooth, disconnect],
   );
 
   const flashEsp32 = useCallback(

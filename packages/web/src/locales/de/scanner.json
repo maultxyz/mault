@@ -339,6 +339,7 @@
     "label": "Sortierer {{number}}",
     "tabsLabel": "Sortierer",
     "connect": "Sortierer verbinden",
+    "disconnect": "{{name}} trennen",
     "hardCapReached": {
       "title": "Höchstens {{max}} Sortierer gleichzeitig",
       "description": "Trenne einen Sortierer, bevor du einen weiteren verbindest."

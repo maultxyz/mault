@@ -19,6 +19,7 @@ export interface DevicePrefs {
 export interface StationConnector {
   connect: () => Promise<void>;
   connectBluetooth: () => Promise<void>;
+  disconnect: () => void;
 }
 
 export interface StationsContextValue {
@@ -37,6 +38,7 @@ export interface StationsContextValue {
   setStationConnected: (id: string, connected: boolean) => void;
   registerConnector: (id: string, connector: StationConnector) => () => void;
   connectAnotherSorter: (kind: StationConnectKind) => void;
+  disconnectStation: (id: string) => void;
   getPanelElement: (id: string) => HTMLElement;
   attachPanels: (layout: StationPanelLayout) => () => void;
 }

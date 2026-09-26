@@ -339,6 +339,7 @@
     "label": "Trieuse {{number}}",
     "tabsLabel": "Trieuses",
     "connect": "Connecter une trieuse",
+    "disconnect": "Déconnecter {{name}}",
     "hardCapReached": {
       "title": "{{max}} trieuses maximum à la fois",
       "description": "Déconnectez une trieuse avant d'en connecter une autre."

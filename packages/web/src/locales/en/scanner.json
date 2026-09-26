@@ -339,6 +339,7 @@
     "label": "Sorter {{number}}",
     "tabsLabel": "Sorters",
     "connect": "Connect sorter",
+    "disconnect": "Disconnect {{name}}",
     "hardCapReached": {
       "title": "Up to {{max}} sorters at a time",
       "description": "Disconnect a sorter before connecting another one."
