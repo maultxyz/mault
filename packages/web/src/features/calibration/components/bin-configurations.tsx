@@ -10,7 +10,10 @@ import {
 import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
-import { BIN_HEIGHT_PRESETS } from "@/lib/constants/calibration";
+import {
+  BIN_HEIGHT_PRESETS,
+  BIN_SLOTS_PHYSICAL_ORDER,
+} from "@/lib/constants/calibration";
 import { cn } from "@/lib/utils";
 import { computeBinCount, type BinDirection } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
@@ -159,34 +162,28 @@ export function BinConfigurations() {
       </div>
 
       <div className="overflow-hidden rounded-lg border divide-y bg-border">
-        {modules.map((module) => {
-          const left = routes.find(
-            (r) => r.module === module && r.direction === "left",
-          );
-          const right = routes.find(
-            (r) => r.module === module && r.direction === "right",
-          );
-          return (
-            <div key={module} className="grid grid-cols-2 gap-px bg-border">
-              <BinSlot
-                label={t("binConfigurations.moduleLeft", { module })}
-                binNumber={left?.binNumber}
-                binNumbers={binNumbers}
-                onBinChange={(bin) => handleSlotChange(module, "left", bin)}
-                height={left ? heightFor(left.binNumber) : undefined}
-                onHeightChange={setHeight}
-              />
-              <BinSlot
-                label={t("binConfigurations.moduleRight", { module })}
-                binNumber={right?.binNumber}
-                binNumbers={binNumbers}
-                onBinChange={(bin) => handleSlotChange(module, "right", bin)}
-                height={right ? heightFor(right.binNumber) : undefined}
-                onHeightChange={setHeight}
-              />
-            </div>
-          );
-        })}
+        {modules.map((module) => (
+          <div key={module} className="grid grid-cols-2 gap-px bg-border">
+            {BIN_SLOTS_PHYSICAL_ORDER.map(({ direction, labelKey }) => {
+              const route = routes.find(
+                (r) => r.module === module && r.direction === direction,
+              );
+              return (
+                <BinSlot
+                  key={direction}
+                  label={t(labelKey, { module })}
+                  binNumber={route?.binNumber}
+                  binNumbers={binNumbers}
+                  onBinChange={(bin) =>
+                    handleSlotChange(module, direction, bin)
+                  }
+                  height={route ? heightFor(route.binNumber) : undefined}
+                  onHeightChange={setHeight}
+                />
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       {bottomRoutes.length > 0 && (

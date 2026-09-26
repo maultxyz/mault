@@ -116,7 +116,9 @@ export function startSync(
     }
   });
 
-  child.on("exit", (code) => {
+  // "close", not "exit": "exit" can fire before the last IPC messages (the
+  // terminal status among them) have been read off the channel.
+  child.on("close", (code) => {
     currentWorker = null;
     if (reachedTerminalStatus) return;
     const msg = `Sync worker exited unexpectedly (code ${code ?? "unknown"}).`;

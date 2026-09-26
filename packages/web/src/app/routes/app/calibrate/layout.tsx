@@ -13,10 +13,12 @@ import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import type { SectionNavItem } from "@/lib/interfaces/nav";
 import {
   IconAdjustmentsHorizontal,
+  IconChevronDown,
   IconClipboard,
   IconDeviceUsb,
   IconDeviceUsbFilled,
   IconDownload,
+  IconFileSettings,
   IconFocus2,
   IconLoader2,
   IconSettingsCog,
@@ -80,6 +82,7 @@ export default function CalibrateLayout() {
   const calibrationPage = useCalibrationPage();
   const {
     isConnected,
+    isReady,
     connect,
     connectBluetooth,
     staleDialogOpen,
@@ -92,6 +95,7 @@ export default function CalibrateLayout() {
     isUnconfigured,
     handleTest,
     handleFeed,
+    handleDropCard,
     isSampleRunning,
     handleCopyCalibration,
     handleExportConfig,
@@ -113,8 +117,8 @@ export default function CalibrateLayout() {
         data-tour="calibration-sections"
       />
 
-      <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4">
+        <div className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md">
           <div
             className="flex flex-wrap items-center gap-2"
             data-tour="calibration-connect"
@@ -153,26 +157,62 @@ export default function CalibrateLayout() {
             </Button>
             <Button
               variant="outline"
-              disabled={!isConnected || activeBin !== null || isSampleRunning}
+              disabled={!isReady || activeBin !== null || isSampleRunning}
               onClick={handleFeed}
             >
               {t("binRoutingControls.feed")}
             </Button>
-            {isUnconfigured && (
-              <span className="text-sm text-muted-foreground">
+            <Button
+              variant="outline"
+              disabled={!isReady || activeBin !== null || isSampleRunning}
+              onClick={handleDropCard}
+            >
+              {t("binRoutingControls.dropCard")}
+            </Button>
+            {isUnconfigured ? (
+              <span className="text-sm text-foreground/70">
                 {t("calibratePage.calibrateBeforeTest")}
               </span>
+            ) : (
+              isConnected &&
+              !isReady && (
+                <span className="text-xs text-foreground/70">
+                  {t("calibratePage.testBeforeControls")}
+                </span>
+              )
             )}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" onClick={handleCopyCalibration}>
-              <IconClipboard />
-              {t("calibratePage.copyCalibration")}
-            </Button>
-            <Button variant="outline" onClick={handleExportConfig}>
-              <IconDownload />
-              {t("calibratePage.exportConfig")}
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button variant="outline" />}>
+                {isImporting ? (
+                  <IconLoader2 className="animate-spin" />
+                ) : (
+                  <IconFileSettings />
+                )}
+                {isImporting
+                  ? t("calibratePage.importing")
+                  : t("calibratePage.configMenu")}
+                <IconChevronDown />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleCopyCalibration}>
+                  <IconClipboard />
+                  {t("calibratePage.copyCalibration")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleExportConfig}>
+                  <IconDownload />
+                  {t("calibratePage.exportConfig")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  disabled={isImporting}
+                  onClick={() => importInputRef.current?.click()}
+                >
+                  <IconUpload />
+                  {t("calibratePage.importConfig")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <input
               ref={importInputRef}
               type="file"
@@ -184,20 +224,6 @@ export default function CalibrateLayout() {
                 if (file) void handleImportConfig(file);
               }}
             />
-            <Button
-              variant="outline"
-              disabled={isImporting}
-              onClick={() => importInputRef.current?.click()}
-            >
-              {isImporting ? (
-                <IconLoader2 className="animate-spin" />
-              ) : (
-                <IconUpload />
-              )}
-              {isImporting
-                ? t("calibratePage.importing")
-                : t("calibratePage.importConfig")}
-            </Button>
             <CalibrationTour section={section} setSection={setSection} />
           </div>
         </div>

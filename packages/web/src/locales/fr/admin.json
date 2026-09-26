@@ -20,9 +20,14 @@
     "channelLabel": "Canal",
     "sweepDescription": "Clique sur un canal pour faire balayer ce servo d'une extrémité de sa course à l'autre puis retour - un test complet de la plage de mouvement.",
     "stopButton": "Arrêter",
+    "runTest": "Lancer le test",
+    "testing": "Test en cours…",
+    "testRequired": "Lancez un test de l'appareil réussi avant de piloter un canal.",
     "disconnectButton": "Déconnecter",
     "toasts": {
-      "sendFailed": "Échec de l'envoi de la commande à l'appareil"
+      "sendFailed": "Échec de l'envoi de la commande à l'appareil",
+      "testPassed": "Test de l'appareil réussi",
+      "testFailed": "Échec du test de l'appareil"
     },
     "flashButton": "Flasher le firmware"
   },

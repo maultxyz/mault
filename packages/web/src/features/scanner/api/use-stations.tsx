@@ -305,6 +305,10 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     void (kind === "usb" ? connector.connect() : connector.connectBluetooth());
   }, []);
 
+  const disconnectStation = useCallback((id: string) => {
+    connectorsRef.current.get(id)?.disconnect();
+  }, []);
+
   const getPanelElement = useCallback((id: string) => {
     let el = panelElementsRef.current.get(id);
     if (!el) {
@@ -338,6 +342,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       setStationConnected,
       registerConnector,
       connectAnotherSorter,
+      disconnectStation,
       getPanelElement,
       attachPanels,
     }),
@@ -354,6 +359,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       setStationConnected,
       registerConnector,
       connectAnotherSorter,
+      disconnectStation,
       getPanelElement,
       attachPanels,
     ],

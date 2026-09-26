@@ -9,7 +9,6 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
-import { GameSwitchAlert } from "@/features/scanner/components/game-switch-alert";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { StationPanels } from "@/features/scanner/components/station-panels";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
@@ -33,7 +32,6 @@ function MobileScanner() {
           onRemove={removeUnmatchedCard}
         />
         <BinStatusMeter />
-        <GameSwitchAlert />
       </div>
       <Drawer>
         <DrawerTrigger asChild>

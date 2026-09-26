@@ -1,5 +1,6 @@
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
+import { BIN_SLOTS_PHYSICAL_ORDER } from "@/lib/constants/calibration";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
@@ -69,34 +70,26 @@ export function BinLocationDiagram({
 
   return (
     <div className="overflow-hidden rounded-lg">
-      {modules.map((module) => {
-        const left = routes.find(
-          (r) => r.module === module && r.direction === "left",
-        )?.binNumber;
-        const right = routes.find(
-          (r) => r.module === module && r.direction === "right",
-        )?.binNumber;
-        return (
-          <div key={module} className="grid grid-cols-2">
-            {left !== undefined && (
-              <BinCell
-                binNumber={left}
-                active={binNumber === left}
-                isCatchAll={catchAllBin === left}
-                inverted={inverted}
-              />
-            )}
-            {right !== undefined && (
-              <BinCell
-                binNumber={right}
-                active={binNumber === right}
-                isCatchAll={catchAllBin === right}
-                inverted={inverted}
-              />
-            )}
-          </div>
-        );
-      })}
+      {modules.map((module) => (
+        <div key={module} className="grid grid-cols-2">
+          {BIN_SLOTS_PHYSICAL_ORDER.map(({ direction }) => {
+            const slotBin = routes.find(
+              (r) => r.module === module && r.direction === direction,
+            )?.binNumber;
+            return (
+              slotBin !== undefined && (
+                <BinCell
+                  key={direction}
+                  binNumber={slotBin}
+                  active={binNumber === slotBin}
+                  isCatchAll={catchAllBin === slotBin}
+                  inverted={inverted}
+                />
+              )
+            );
+          })}
+        </div>
+      ))}
       {bottomRoutes.map((route) => (
         <BinCell
           key={route.binNumber}

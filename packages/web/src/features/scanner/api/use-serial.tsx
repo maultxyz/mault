@@ -21,6 +21,11 @@ import {
   SerialTransport,
   type ByteTransport,
 } from "@/features/scanner/lib/transports";
+import {
+  DEVICE_LEASE_HEARTBEAT_MS,
+  PUSH_TEST_RESPONSE_TIMEOUT_MS,
+  ROUTE_RESPONSE_TIMEOUT_MS,
+} from "@/lib/constants/timing";
 import type {
   FirmwareCheckResult,
   FlashEsp32Result,
@@ -30,13 +35,9 @@ import type {
   SerialMessageListener,
   TestResult,
 } from "@/lib/interfaces/scanner";
-import {
-  DEVICE_LEASE_HEARTBEAT_MS,
-  PUSH_TEST_RESPONSE_TIMEOUT_MS,
-  ROUTE_RESPONSE_TIMEOUT_MS,
-} from "@/lib/constants/timing";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
+import { IconCopy } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -208,6 +209,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   );
 
   const sendTest = useCallback(async (): Promise<TestResult> => {
+    setIsReady(false);
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
     if (!sent) return { ok: false, error: null };
 
@@ -264,9 +266,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return cleanup;
   }, []);
 
-  // Shared by the auto-test that normally follows a connect and by callers
-  // manually re-triggering it later (e.g. after skipAutoTest) - same
-  // toasts/reporting/disconnect-on-fail either way.
   const runConnectTest = useCallback(
     async (forTransport: ByteTransport, forDevice: Device | undefined) => {
       for (const hook of [...preTestHooksRef.current]) {
@@ -281,11 +280,21 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const { ok, error: testError } = await sendTest();
       if (transportRef.current !== forTransport) return;
       const copyAction = {
-        label: t("serial.copyCommunication"),
+        label: (
+          <IconCopy size={14} aria-label={t("serial.copyCommunication")} />
+        ),
         onClick: () => copyCommLog(),
       };
       if (ok) {
-        toast.success(t("serial.deviceReady"), { action: copyAction });
+        toast.success(t("serial.deviceReady"), {
+          cancel: copyAction,
+          actionButtonStyle: { marginLeft: 4 },
+          action: {
+            label: t("serial.dropCard"),
+            onClick: () =>
+              void sendCommand(JSON.stringify({ clearDevice: true }) + "\n"),
+          },
+        });
       } else {
         toast.error(t("serial.deviceTestFailed.title"), {
           description: testError ?? t("serial.deviceTestFailed.description"),
@@ -299,7 +308,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         disconnect();
       }
     },
-    [sendTest, disconnect, t, copyCommLog],
+    [sendTest, sendCommand, disconnect, t, copyCommLog],
   );
 
   // Binds a device record to this station so every calibration read from
@@ -584,8 +593,9 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       stationsRef.current.registerConnector(station.id, {
         connect: () => connect(),
         connectBluetooth: () => connectBluetooth(),
+        disconnect,
       }),
-    [station.id, connect, connectBluetooth],
+    [station.id, connect, connectBluetooth, disconnect],
   );
 
   const flashEsp32 = useCallback(

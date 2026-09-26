@@ -17,6 +17,7 @@ import {
   BinSet,
   computeBinCount,
   DEFAULT_BIN_CAPACITY,
+  type DefaultBinInit,
   type RepackSlot,
 } from "@magic-vault/shared";
 
@@ -109,6 +110,7 @@ export function BinConfigsProvider({
     : activeCollection;
 
   const activeGameGuid = targetCollection?.game?.guid;
+  const gameKey = targetCollection?.game?.key ?? null;
   const fieldDefinitions = targetCollection?.game?.fieldDefinitions ?? [];
   const apiDocsUrl = targetCollection?.game?.apiDocsUrl ?? null;
   const hasGame = !!targetCollection?.game;
@@ -228,8 +230,13 @@ export function BinConfigsProvider({
   });
 
   const createSetMutation = useMutation({
-    mutationFn: (name: string) =>
-      createSetAction(name, undefined, activeGameGuid),
+    mutationFn: ({
+      name,
+      initialBins,
+    }: {
+      name: string;
+      initialBins?: DefaultBinInit[];
+    }) => createSetAction(name, initialBins, activeGameGuid),
     onSuccess: (result) => {
       if (result.success && result.data) {
         setSelectedBinState(1);
@@ -403,7 +410,15 @@ export function BinConfigsProvider({
 
   const createSetFn = useCallback(
     async (name: string) => {
-      await createSetMutation.mutateAsync(name);
+      await createSetMutation.mutateAsync({ name });
+    },
+    [createSetMutation],
+  );
+
+  const importSetFn = useCallback(
+    async (name: string, initialBins: DefaultBinInit[]) => {
+      const result = await createSetMutation.mutateAsync({ name, initialBins });
+      return result.success;
     },
     [createSetMutation],
   );
@@ -528,6 +543,7 @@ export function BinConfigsProvider({
         configs,
         sets,
         fieldDefinitions,
+        gameKey,
         hasGame,
         hasCollection,
         apiDocsUrl,
@@ -544,6 +560,7 @@ export function BinConfigsProvider({
         emptyBin,
         activateSet: activateSetFn,
         createSet: createSetFn,
+        importSet: importSetFn,
         saveSet: saveSetFn,
         renameSet: renameSetFn,
         deleteSet: deleteSetFn,

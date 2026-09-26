@@ -9,13 +9,13 @@ import { devicesQueryOptions } from "@/features/calibration/api/devices";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
-import { IconPlus } from "@tabler/icons-react";
+import { IconPlus, IconX } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-// One tab per connected sorter. Tabs can't be opened or closed by hand: they
-// appear when a board connects and disappear when it disconnects.
+// One tab per connected sorter: a tab appears when a board connects and
+// disappears when it disconnects, including via the tab's own disconnect.
 export function StationTabs() {
   const { t } = useTranslation("scanner");
   const navigate = useNavigate();
@@ -27,6 +27,7 @@ export function StationTabs() {
     connectedStationIds,
     setActiveStation,
     connectAnotherSorter,
+    disconnectStation,
     canConnectAnotherSorter,
     sorterLimitIsHardCap,
   } = useStations();
@@ -45,18 +46,33 @@ export function StationTabs() {
       >
         {connected.map((station, index) => {
           const isActive = station.id === activeStationId;
+          const name =
+            devices.find((d) => d.guid === station.deviceGuid)?.name ??
+            t("stations.label", { number: index + 1 });
+          const variant = isActive ? "default" : "ghost";
           return (
-            <Button
-              key={station.id}
-              role="tab"
-              aria-selected={isActive}
-              size="sm"
-              variant={isActive ? "default" : "ghost"}
-              onClick={() => setActiveStation(station.id)}
-            >
-              {devices.find((d) => d.guid === station.deviceGuid)?.name ??
-                t("stations.label", { number: index + 1 })}
-            </Button>
+            <div key={station.id} className="flex items-center">
+              <Button
+                role="tab"
+                aria-selected={isActive}
+                size="sm"
+                variant={variant}
+                className="rounded-r-none"
+                onClick={() => setActiveStation(station.id)}
+              >
+                {name}
+              </Button>
+              <Button
+                size="icon-sm"
+                variant={variant}
+                className="rounded-l-none"
+                aria-label={t("stations.disconnect", { name })}
+                title={t("stations.disconnect", { name })}
+                onClick={() => disconnectStation(station.id)}
+              >
+                <IconX />
+              </Button>
+            </div>
           );
         })}
       </div>

@@ -25,6 +25,7 @@
       "title": "Gerätetest fehlgeschlagen",
       "description": "Verbunden, aber keine Antwort erhalten. Versuche eine erneute Verbindung."
     },
+    "dropCard": "Karte abwerfen",
     "copyCommunication": "Kommunikation kopieren",
     "commLogCopied": "Kommunikationsprotokoll in die Zwischenablage kopiert",
     "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
@@ -151,9 +152,6 @@
     "noCardsScanned": "Keine Karten gescannt",
     "mostValuable": "{{price}} · {{name}}"
   },
-  "gameSwitchAlert": {
-    "message": "Beim Wechsel des Spieltyps musst du möglicherweise die Schlauchwand des Zuführmoduls neu anpassen."
-  },
   "scanStats": {
     "emptyState": "Scanne Karten, um ihre Statistiken zu sehen.",
     "totalValue": "Gesamtwert",
@@ -191,7 +189,6 @@
   "scannerMenu": {
     "camera": "Kamera",
     "cameraFallbackLabel": "Kamera {{index}}",
-    "zoom": "Zoom",
     "connectUsb": "Über USB verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",
     "scanner": "Scanner",
@@ -335,10 +332,15 @@
     "runTest": "Test trotzdem ausführen",
     "calibrateFirst": "Zuerst kalibrieren"
   },
+  "cameraFocus": {
+    "label": "Fokus",
+    "auto": "Auto"
+  },
   "stations": {
     "label": "Sortierer {{number}}",
     "tabsLabel": "Sortierer",
     "connect": "Sortierer verbinden",
+    "disconnect": "{{name}} trennen",
     "hardCapReached": {
       "title": "Höchstens {{max}} Sortierer gleichzeitig",
       "description": "Trenne einen Sortierer, bevor du einen weiteren verbindest."

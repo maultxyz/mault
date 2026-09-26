@@ -30,8 +30,8 @@ export function BuildHero() {
 
   const catchAllBin = moduleCount * 2 + 1;
   const moduleBins = Array.from({ length: moduleCount }, (_, i) => [
-    i * 2 + 1,
     i * 2 + 2,
+    i * 2 + 1,
   ]);
 
   return (

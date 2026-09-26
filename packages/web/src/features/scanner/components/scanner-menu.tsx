@@ -10,10 +10,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCameraContext } from "@/features/scanner/api/use-camera";
 import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
+import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { OcrBetaDialog } from "@/features/scanner/components/ocr-beta-dialog";
-import type { ZoomRange } from "@/lib/interfaces/scanner";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconAdjustments,
@@ -34,8 +35,6 @@ interface ScannerMenuProps {
   allowDuplicates: boolean;
   ocrEnabled: boolean;
   ocrSupported: boolean;
-  zoom: number;
-  zoomRange: ZoomRange | null;
   cameras: MediaDeviceInfo[];
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
@@ -43,7 +42,6 @@ interface ScannerMenuProps {
   onCameraConnect: () => void;
   onCameraDisconnect: () => void;
   onCameraSelect: (deviceId: string) => void;
-  onZoomChange: (value: number) => void;
   onOpenPhonePairing: () => void;
   onScannerConnect: () => void;
   onScannerConnectBluetooth: () => void;
@@ -68,8 +66,6 @@ export function ScannerMenu({
   allowDuplicates,
   ocrEnabled,
   ocrSupported,
-  zoom,
-  zoomRange,
   cameras,
   selectedCameraId,
   phonePairingStatus,
@@ -77,7 +73,6 @@ export function ScannerMenu({
   onCameraConnect,
   onCameraDisconnect,
   onCameraSelect,
-  onZoomChange,
   onOpenPhonePairing,
   onScannerConnect,
   onScannerConnectBluetooth,
@@ -95,6 +90,7 @@ export function ScannerMenu({
   onUpgrade,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
+  const { focusRange } = useCameraContext();
   const [ocrDialogOpen, setOcrDialogOpen] = useState(false);
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const webSerialSupported =
@@ -144,35 +140,15 @@ export function ScannerMenu({
                   <DropdownMenuItem onClick={onCameraConnect}>
                     {t("reconnect")}
                   </DropdownMenuItem>
-                  {zoomRange && (
+                  {focusRange && (
                     <>
                       <DropdownMenuSeparator />
                       <div
-                        className="px-2 py-1.5 flex flex-col gap-1"
+                        className="px-2 py-1.5"
                         onPointerDown={(e) => e.stopPropagation()}
+                        onKeyDown={(e) => e.stopPropagation()}
                       >
-                        <p className="text-xs text-muted-foreground">
-                          {t("scannerMenu.zoom")}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-4">
-                            {zoomRange.min}
-                          </span>
-                          <input
-                            type="range"
-                            min={zoomRange.min}
-                            max={zoomRange.max}
-                            step={zoomRange.step}
-                            value={zoom}
-                            onChange={(e) =>
-                              onZoomChange(Number(e.target.value))
-                            }
-                            className="flex-1 cursor-pointer accent-foreground"
-                          />
-                          <span className="text-xs text-muted-foreground w-4">
-                            {zoomRange.max}
-                          </span>
-                        </div>
+                        <CameraFocusControl />
                       </div>
                     </>
                   )}

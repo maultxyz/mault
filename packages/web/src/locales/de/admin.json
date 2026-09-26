@@ -20,9 +20,14 @@
     "channelLabel": "Kanal",
     "sweepDescription": "Klicke auf einen Kanal, um diesen Servo einmal von einem Ende seines Bewegungsbereichs zum anderen und zurück zu fahren - ein vollständiger Bewegungsbereichstest.",
     "stopButton": "Stoppen",
+    "runTest": "Test ausführen",
+    "testing": "Test läuft…",
+    "testRequired": "Führe einen erfolgreichen Gerätetest aus, bevor du einen Kanal ansteuerst.",
     "disconnectButton": "Trennen",
     "toasts": {
-      "sendFailed": "Befehl konnte nicht an das Gerät gesendet werden"
+      "sendFailed": "Befehl konnte nicht an das Gerät gesendet werden",
+      "testPassed": "Gerätetest bestanden",
+      "testFailed": "Gerätetest fehlgeschlagen"
     },
     "flashButton": "Firmware flashen"
   },

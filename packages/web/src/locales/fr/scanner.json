@@ -25,6 +25,7 @@
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."
     },
+    "dropCard": "Lâcher la carte",
     "copyCommunication": "Copier la communication",
     "commLogCopied": "Journal de communication copié dans le presse-papiers",
     "commLogCopyFailed": "Échec de la copie du journal de communication",
@@ -151,9 +152,6 @@
     "noCardsScanned": "Aucune carte scannée",
     "mostValuable": "{{price}} · {{name}}"
   },
-  "gameSwitchAlert": {
-    "message": "Lors du changement de type de jeu, il se peut que tu doives réajuster la paroi du tube du module d'alimentation."
-  },
   "scanStats": {
     "emptyState": "Scanne des cartes pour voir leurs statistiques.",
     "totalValue": "Valeur totale",
@@ -191,7 +189,6 @@
   "scannerMenu": {
     "camera": "Caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
-    "zoom": "Zoom",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
     "scanner": "Scanner",
@@ -335,10 +332,15 @@
     "runTest": "Lancer le test quand même",
     "calibrateFirst": "Calibrer d'abord"
   },
+  "cameraFocus": {
+    "label": "Mise au point",
+    "auto": "Auto"
+  },
   "stations": {
     "label": "Trieuse {{number}}",
     "tabsLabel": "Trieuses",
     "connect": "Connecter une trieuse",
+    "disconnect": "Déconnecter {{name}}",
     "hardCapReached": {
       "title": "{{max}} trieuses maximum à la fois",
       "description": "Déconnectez une trieuse avant d'en connecter une autre."

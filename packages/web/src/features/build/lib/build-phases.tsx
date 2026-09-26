@@ -188,9 +188,6 @@ export function buildPhases(
           text: t("assembly.phases.print.steps.mountBoardsToPanels.text", {
             board: board.shortName,
           }),
-          note: t("assembly.phases.print.steps.mountBoardsToPanels.note", {
-            board: board.shortName,
-          }),
         },
         {
           key: "attach-base-panels",
@@ -339,10 +336,7 @@ export function buildPhases(
           text: t(
             "assembly.phases.assembleModules.steps.mountFeederRoller.text",
           ),
-          images: [
-            "/instructions/assembling_feeder.jpg",
-            "/instructions/roller_mounted.jpg",
-          ],
+          images: ["/instructions/assembling_feeder.jpg"],
         },
         {
           key: "mount-feeder-servo",
@@ -391,6 +385,14 @@ export function buildPhases(
           optional: "new-hopper",
         },
         {
+          key: "mount-hopper-riser",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountHopperRiser.text",
+          ),
+          images: ["/instructions/feeder_riser.JPG"],
+          optional: "new-hopper",
+        },
+        {
           key: "mount-module-ir",
           text: t("assembly.phases.assembleModules.steps.mountModuleIr.text", {
             modules: moduleCount,
@@ -416,7 +418,10 @@ export function buildPhases(
           text: t("assembly.phases.wireAndCalibrate.steps.wireI2c.text", {
             board: board.shortName,
           }),
-          note: t("assembly.phases.wireAndCalibrate.steps.wireI2c.note"),
+          note: `${t(
+            "assembly.phases.wireAndCalibrate.steps.wireI2c.bendPinsNote",
+            { board: board.shortName },
+          )} ${t("assembly.phases.wireAndCalibrate.steps.wireI2c.note")}`,
         },
         {
           key: "wire-servos",
@@ -502,7 +507,5 @@ export function buildPhases(
     },
   ];
 
-  return usingKit
-    ? phases.filter((phase) => phase.key !== "firmware")
-    : phases;
+  return usingKit ? phases.filter((phase) => phase.key !== "firmware") : phases;
 }

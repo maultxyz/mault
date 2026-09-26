@@ -2,16 +2,21 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { usePhoneCameraCapture } from "@/features/scanner/api/use-phone-camera-capture";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
+  applyFocus,
+  loadSavedFocus,
+  manualFocusRange,
+  saveFocus,
+} from "@/features/scanner/lib/camera-focus";
+import {
   acquireFreeStream,
   camerasHeldByOtherStations,
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type {
   CameraContextValue,
+  CameraRange,
   CameraSource,
   CameraStatus,
-  CameraTrackCapabilities,
-  ZoomRange,
 } from "@/lib/interfaces/scanner";
 import {
   createContext,
@@ -32,8 +37,10 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const [zoom, setZoomState] = useState(1);
-  const [zoomRange, setZoomRange] = useState<ZoomRange | null>(null);
+  const [focusRange, setFocusRange] = useState<CameraRange | null>(null);
+  const [focusDistance, setFocusDistanceState] = useState<number | null>(
+    null,
+  );
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
   const [cameraSource, setCameraSource] = useState<CameraSource>("local");
@@ -76,12 +83,12 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           setSelectedCameraId(activeDeviceId);
           stationsRef.current.setStationCamera(stationId, activeDeviceId);
 
-          const caps = track.getCapabilities() as CameraTrackCapabilities;
-          if (caps.zoom) {
-            setZoomRange(caps.zoom);
-            setZoomState(caps.zoom.min);
-          } else {
-            setZoomRange(null);
+          const range = manualFocusRange(track);
+          const savedFocus = range ? loadSavedFocus(activeDeviceId) : null;
+          setFocusRange(range);
+          setFocusDistanceState(savedFocus);
+          if (savedFocus !== null) {
+            await applyFocus(track, savedFocus).catch(() => {});
           }
         }
 
@@ -100,15 +107,12 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     [t, stationId, otherStationCameraIds],
   );
 
-  const setZoom = useCallback((value: number) => {
+  const setFocusDistance = useCallback((value: number | null) => {
     const track = streamRef.current?.getVideoTracks()[0];
     if (!track) return;
-    track
-      .applyConstraints({
-        advanced: [{ zoom: value } as MediaTrackConstraintSet],
-      })
-      .catch(() => {});
-    setZoomState(value);
+    void applyFocus(track, value).catch(() => {});
+    saveFocus(track.getSettings().deviceId ?? null, value);
+    setFocusDistanceState(value);
   }, []);
 
   const {
@@ -218,11 +222,11 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         stream,
         status,
         errorMessage,
-        zoom,
-        zoomRange,
+        focusRange,
+        focusDistance,
         cameras: availableCameras,
         selectedCameraId,
-        setZoom,
+        setFocusDistance,
         selectCamera,
         retryCamera,
         stopCamera,

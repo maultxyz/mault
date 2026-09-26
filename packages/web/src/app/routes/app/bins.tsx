@@ -6,6 +6,7 @@ import {
 import { AutoAssignPanel } from "@/features/bins/components/auto-assign-panel";
 import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
+import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
@@ -36,6 +37,7 @@ function MobileBins() {
   return (
     <div className="flex-1 min-h-0 relative overflow-hidden">
       <div className="size-full overflow-y-auto @container p-4 flex flex-col gap-4">
+        <BinRulesMenu className="self-end" />
         <RepackPanel />
         <BinConfigPanel />
       </div>
@@ -93,7 +95,10 @@ export default function BinsPage() {
         <BinList />
       </section>
       <section className="relative col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 pt-14 flex flex-col gap-4">
-        <BinsHelpTour className="absolute top-2 right-2 z-10" />
+        <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+          <BinRulesMenu />
+          <BinsHelpTour />
+        </div>
         <RepackPanel />
         <BinConfigPanel />
       </section>

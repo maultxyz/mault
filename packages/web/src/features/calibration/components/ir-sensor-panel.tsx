@@ -12,7 +12,7 @@ interface IrSensorPanelProps {
   modules: number[];
   irStates: boolean[] | null;
   hopperHasCards: boolean | null;
-  isConnected: boolean;
+  isReady: boolean;
   isMonitoring: boolean;
   onRead: () => void;
   onToggleMonitor: () => void;
@@ -22,7 +22,7 @@ export function IrSensorPanel({
   modules,
   irStates,
   hopperHasCards,
-  isConnected,
+  isReady,
   isMonitoring,
   onRead,
   onToggleMonitor,
@@ -42,7 +42,7 @@ export function IrSensorPanel({
             render={
               <Button
                 variant={isMonitoring ? "outline-selected" : "outline"}
-                disabled={!isConnected}
+                disabled={!isReady}
                 onClick={onToggleMonitor}
               >
                 {isMonitoring
@@ -59,7 +59,7 @@ export function IrSensorPanel({
               render={
                 <Button
                   variant="outline"
-                  disabled={!isConnected}
+                  disabled={!isReady}
                   onClick={onRead}
                 >
                   {t("irSensorPanel.read")}
