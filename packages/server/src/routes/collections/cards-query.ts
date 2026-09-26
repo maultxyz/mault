@@ -127,8 +127,6 @@ const SEARCH_FIELDS = [
   "text",
 ];
 
-// Same lookup as getCardValue(): the adapter's raw source object first,
-// falling back to the normalized card.
 function fieldValueSql(path: string): SQL {
   const segments = path.split(".");
   return sql`COALESCE(cc.card #> ${pgTextArray(["raw", ...segments])}::text[], cc.card #> ${pgTextArray(segments)}::text[])`;
@@ -236,8 +234,6 @@ export function cardOrderSql(
         ? sql`(CASE ${text} ${sql.join(whens, sql` `)} ELSE ${sql.raw(String(meta.options.length))} END)`
         : sql`0`;
   } else {
-    // ICU root collation, to match the old client-side localeCompare()
-    // rather than the database's byte-order default.
     key = sql`${text} COLLATE "und-x-icu"`;
   }
 

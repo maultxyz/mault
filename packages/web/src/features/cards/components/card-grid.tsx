@@ -149,15 +149,10 @@ export function CardGrid() {
     : 1;
   const clampedPage = Math.min(page, pageCount - 1);
 
-  // Deleting the last cards on the final page would otherwise strand the
-  // grid on a page that no longer exists.
   useEffect(() => {
     if (page !== clampedPage) setPage(clampedPage);
   }, [page, clampedPage]);
 
-  // Prev/next walks every individual scan in the filtered, sorted order
-  // (grouped copies adjacent), resolved server-side since the neighbours
-  // of an open card may sit on another page.
   const { data: openPosition } = useQuery(
     collectionCardPositionQueryOptions(
       collectionGuid,

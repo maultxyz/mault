@@ -14,7 +14,4 @@ export const MATCH_CONFIDENCE_TEMPERATURE = 0.05;
 // count as the same art (reprints), pooling their match confidence.
 export const DUPLICATE_PRINTING_MAX_DISTANCE = 0.02;
 
-// Lowe's ratio test: the best match must be clearly closer than the nearest
-// candidate with a different card name. Same-name reprints are excluded so an
-// ambiguous printing doesn't reject an otherwise certain identification.
 export const MATCH_MAX_DISTANCE_RATIO = 0.9;

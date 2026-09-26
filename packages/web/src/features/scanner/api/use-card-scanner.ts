@@ -126,10 +126,6 @@ function hasMatch(result: CardSearchResult): boolean {
   return (result.data?.length ?? 0) > 0;
 }
 
-// Both orientations are always searched: an upside-down card still has a
-// nearest neighbour, so stopping at the first orientation that returns
-// anything accepts wrong matches. The closer orientation wins, which also
-// keeps a saved unmatched image likelier to be right way up.
 async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,

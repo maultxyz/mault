@@ -113,8 +113,6 @@ export function ScannedCardsProvider({
   const fieldDefinitionsRef = useRef(fieldDefinitions);
   const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
   const selectedSetRef = useRef(selectedSet);
-  // Cards still physically in each repack bin (scanned since it was last
-  // emptied), which repack routing needs synchronously on every scan.
   const binContentsRef = useRef<BinContentCard[]>([]);
   const serialRef = useRef({
     sendRoute,

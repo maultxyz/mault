@@ -133,8 +133,6 @@ export function computeStats(cards: ScannedCard[]): ScanStats | null {
   return toScanStats(aggregateCards(cards));
 }
 
-// Totals follow the visible (filtered) cards, while the facet breakdowns
-// stay collection-wide so filter options don't vanish as filters apply.
 export function toDisplayStats(
   all: CardStatsAggregate,
   visible: CardStatsAggregate,

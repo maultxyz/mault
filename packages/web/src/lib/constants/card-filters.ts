@@ -5,8 +5,6 @@ import {
 
 export { EMPTY_CARD_FILTERS };
 
-// Callers that only read the collection-wide totals (summary.all) share this
-// query so they share one cached summary request.
 export const ALL_CARDS_QUERY: CollectionCardsQuery = {
   search: "",
   sort: null,

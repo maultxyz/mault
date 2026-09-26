@@ -5,8 +5,6 @@ import type {
 } from "@magic-vault/shared";
 import type { QueryClient } from "@tanstack/react-query";
 
-// Optimistic edits to the loaded pages, so the grid reacts immediately while
-// the follow-up refetch reconciles counts, sort order and page boundaries.
 export function patchCardPages(
   queryClient: QueryClient,
   guid: string,

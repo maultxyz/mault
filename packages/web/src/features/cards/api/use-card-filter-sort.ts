@@ -151,9 +151,6 @@ export function useCardQueryState(
   };
 }
 
-// Client-side filtering for card lists that already live in memory (the
-// remote monitor's streamed session). The collection grid queries the
-// server instead, which applies the same rules in SQL.
 export function useCardFilterSort(
   cards: ScannedCard[],
   fieldDefinitions: FieldMeta[],
