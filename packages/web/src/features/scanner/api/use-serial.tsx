@@ -37,6 +37,7 @@ import {
 } from "@/lib/constants/timing";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
+import { IconCopy } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -286,7 +287,22 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         onClick: () => copyCommLog(),
       };
       if (ok) {
-        toast.success(t("serial.deviceReady"), { action: copyAction });
+        toast.success(t("serial.deviceReady"), {
+          cancel: {
+            label: (
+              <IconCopy
+                size={14}
+                aria-label={t("serial.copyCommunication")}
+              />
+            ),
+            onClick: () => copyCommLog(),
+          },
+          action: {
+            label: t("serial.dropCard"),
+            onClick: () =>
+              void sendCommand(JSON.stringify({ clearDevice: true }) + "\n"),
+          },
+        });
       } else {
         toast.error(t("serial.deviceTestFailed.title"), {
           description: testError ?? t("serial.deviceTestFailed.description"),
@@ -300,7 +316,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         disconnect();
       }
     },
-    [sendTest, disconnect, t, copyCommLog],
+    [sendTest, sendCommand, disconnect, t, copyCommLog],
   );
 
   // Binds a device record to this station so every calibration read from

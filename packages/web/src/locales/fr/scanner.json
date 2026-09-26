@@ -25,6 +25,7 @@
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."
     },
+    "dropCard": "Lâcher la carte",
     "copyCommunication": "Copier la communication",
     "commLogCopied": "Journal de communication copié dans le presse-papiers",
     "commLogCopyFailed": "Échec de la copie du journal de communication",

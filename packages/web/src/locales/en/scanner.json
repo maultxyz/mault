@@ -25,6 +25,7 @@
       "title": "Device test failed",
       "description": "Connected but got no response. Try reconnecting."
     },
+    "dropCard": "Drop Card",
     "copyCommunication": "Copy Communication",
     "commLogCopied": "Communication log copied to clipboard",
     "commLogCopyFailed": "Failed to copy communication log",
