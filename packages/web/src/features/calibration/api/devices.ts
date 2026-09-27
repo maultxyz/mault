@@ -31,6 +31,7 @@ export interface Device {
   moduleCount: number;
   channelLayout: ChannelLayout;
   setupCompletedAt: string | null;
+  pipelinedFeed: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -45,6 +46,7 @@ export interface DevicePatch {
   moduleCount?: number;
   channelLayout?: ChannelLayout;
   setupCompleted?: boolean;
+  pipelinedFeed?: boolean;
 }
 
 export const DEFAULT_DEVICE: Device = {
@@ -58,6 +60,7 @@ export const DEFAULT_DEVICE: Device = {
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
   setupCompletedAt: null,
+  pipelinedFeed: false,
   createdAt: "",
   updatedAt: "",
 };

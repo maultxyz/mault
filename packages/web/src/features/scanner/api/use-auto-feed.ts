@@ -1,4 +1,6 @@
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import { useSerialMessage } from "@/features/scanner/api/use-serial";
+import { isFedEvent } from "@/features/scanner/lib/serial-messages";
 import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
@@ -52,6 +54,47 @@ export function useAutoFeed({
     };
   }, []);
 
+  const handleFeedResult = useCallback(
+    (parsed: Record<string, unknown>) => {
+      if (parsed.empty) {
+        disableAutoFeed();
+        pause();
+        toast.error(t("feederEmpty.title"), {
+          description: t("feederEmpty.description"),
+          duration: Infinity,
+          dismissible: true,
+        });
+        void reportSerialEvent({
+          command: "auto-feed",
+          sent: true,
+          response: parsed,
+          collectionGuid: activeCollectionRef.current?.guid,
+        });
+      } else if (parsed.error) {
+        disableAutoFeed();
+        toast.error(t("feederError.title"), {
+          description: String(parsed.error),
+          duration: Infinity,
+          dismissible: true,
+        });
+        void reportSerialEvent({
+          command: "auto-feed",
+          sent: true,
+          response: parsed,
+          collectionGuid: activeCollectionRef.current?.guid,
+        });
+      } else {
+        cardArrivedHookRef.current?.();
+      }
+    },
+    [t, activeCollectionRef, disableAutoFeed, pause],
+  );
+
+  useSerialMessage((message) => {
+    if (!isFedEvent(message) || !autoFeedRef.current) return;
+    handleFeedResult(message);
+  });
+
   const triggerAutoFeed = useCallback(async () => {
     const sent = await serialRef.current.sendCommand(
       JSON.stringify({ feeder: true }),
@@ -84,37 +127,7 @@ export function useAutoFeed({
       return;
     }
     try {
-      const parsed = JSON.parse(response) as Record<string, unknown>;
-      if (parsed.empty) {
-        disableAutoFeed();
-        pause();
-        toast.error(t("feederEmpty.title"), {
-          description: t("feederEmpty.description"),
-          duration: Infinity,
-          dismissible: true,
-        });
-        void reportSerialEvent({
-          command: "auto-feed",
-          sent: true,
-          response: parsed,
-          collectionGuid: activeCollectionRef.current?.guid,
-        });
-      } else if (parsed.error) {
-        disableAutoFeed();
-        toast.error(t("feederError.title"), {
-          description: String(parsed.error),
-          duration: Infinity,
-          dismissible: true,
-        });
-        void reportSerialEvent({
-          command: "auto-feed",
-          sent: true,
-          response: parsed,
-          collectionGuid: activeCollectionRef.current?.guid,
-        });
-      } else {
-        cardArrivedHookRef.current?.();
-      }
+      handleFeedResult(JSON.parse(response) as Record<string, unknown>);
     } catch {
       disableAutoFeed();
       toast.error(t("scannedCards.autoFeedError.title"), {
@@ -127,7 +140,7 @@ export function useAutoFeed({
         collectionGuid: activeCollectionRef.current?.guid,
       });
     }
-  }, [t, serialRef, activeCollectionRef, disableAutoFeed, pause]);
+  }, [t, serialRef, activeCollectionRef, disableAutoFeed, handleFeedResult]);
 
   return {
     autoFeed,

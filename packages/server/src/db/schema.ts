@@ -166,6 +166,7 @@ export const devices = pgTable(
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
     setupCompletedAt: timestamp("setup_completed_at"),
+    pipelinedFeed: boolean("pipelined_feed").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

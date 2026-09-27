@@ -33,6 +33,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       moduleCount?: number;
       channelLayout?: ChannelLayout;
       setupCompleted?: boolean;
+      pipelinedFeed?: boolean;
     }>();
     if (body.setupCompleted === false && c.get("userRole") !== "admin") {
       return c.json({ success: false, message: "Forbidden." }, 403);
@@ -89,6 +90,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
                 ? (device.setupCompletedAt ?? new Date())
                 : null
               : device.setupCompletedAt,
+          pipelinedFeed:
+            typeof body.pipelinedFeed === "boolean"
+              ? body.pipelinedFeed
+              : device.pipelinedFeed,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
               ? Math.min(

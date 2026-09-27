@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.0.17"
+#define FIRMWARE_VERSION "2.1.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -199,6 +199,7 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 #endif
 
 #define IR_TIMEOUT_MS 3000
+#define SERIAL_CONNECT_WAIT_MS 1500
 
 // Uno R4 only (its WDT tops out at ~5.6s). Every blocking wait goes through
 // waitMs(), which keeps it fed, so it only fires if the board truly hangs,
@@ -231,6 +232,7 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 // auto-prototyping any function that already has an explicit declaration.
 enum FeedResult { FEED_DETECTED, FEED_TIMEOUT, FEED_EMPTY };
 FeedResult runFeeder();
+void printFeedFailureFields(FeedResult feedResult, Print& reply);
 
 // Largest module number whose 3 channels, plus one feeder channel right
 // after it, still fit in channels [offset, 15].
@@ -253,10 +255,14 @@ void feedWatchdog() {
 #endif
 }
 
+void pumpInput();
+extern bool commandInProgress;
+
 void waitMs(unsigned long ms) {
   unsigned long start = millis();
   while (millis() - start < ms) {
     feedWatchdog();
+    if (commandInProgress) pumpInput();
     unsigned long left = ms - (millis() - start);
     delay(left < 50 ? left : 50);
   }
@@ -266,6 +272,15 @@ void waitMs(unsigned long ms) {
 bool waitForCard(int module, int timeoutMs = IR_TIMEOUT_MS) {
   unsigned long start = millis();
   while (digitalRead(irPin(module)) == HIGH) {
+    if (millis() - start > (unsigned long)timeoutMs) return false;
+    waitMs(5);
+  }
+  return true;
+}
+
+bool waitForClear(int module, int timeoutMs = IR_TIMEOUT_MS) {
+  unsigned long start = millis();
+  while (digitalRead(irPin(module)) == LOW) {
     if (millis() - start > (unsigned long)timeoutMs) return false;
     waitMs(5);
   }
@@ -643,19 +658,45 @@ void printModuleRangeError(Print& reply) {
   reply.println(F("\"}"));
 }
 
-bool feedNextCard(Print& reply) {
-  FeedResult feedResult = runFeeder();
-  if (feedResult == FEED_DETECTED) return true;
-
-  reply.print(F("{\"error\":\""));
+void printFeedFailureFields(FeedResult feedResult, Print& reply) {
+  reply.print(F("\"error\":\""));
   reply.print(feedResult == FEED_EMPTY
     ? F("empty: feeder hopper is out of cards")
     : F("timeout: feeder did not deliver card to module 1"));
   reply.print(F("\",\"empty\":"));
   reply.print(feedResult == FEED_EMPTY ? F("true") : F("false"));
   reply.println(F("}"));
+}
+
+bool feedNextCard(Print& reply) {
+  FeedResult feedResult = runFeeder();
+  if (feedResult == FEED_DETECTED) return true;
+
+  reply.print(F("{"));
+  printFeedFailureFields(feedResult, reply);
   setAllNeutral();
   return false;
+}
+
+void feedAndReportEvent(Print& reply) {
+  FeedResult feedResult = runFeeder();
+  if (feedResult == FEED_DETECTED) {
+    reply.println(F("{\"event\":\"fed\",\"status\":\"ok\",\"detected\":true,\"empty\":false}"));
+    return;
+  }
+  stopFeeder();
+  reply.print(F("{\"event\":\"fed\","));
+  printFeedFailureFields(feedResult, reply);
+}
+
+void printRoutedResponse(int module, const char* direction, bool feedNext, Print& reply) {
+  reply.print(F("{\"status\":\"routed\",\"module\":"));
+  reply.print(module);
+  reply.print(F(",\"direction\":\""));
+  reply.print(direction);
+  reply.print(F("\""));
+  if (feedNext) reply.print(F(",\"fedNext\":true"));
+  reply.println(F("}"));
 }
 
 // "bottom" targets targetModule's own trapdoor, not a shared catch-all - a
@@ -665,7 +706,7 @@ bool feedNextCard(Print& reply) {
 // module's own bottom, rather than opening every module's trapdoor at once,
 // which would drop the card through the first (nearest) open module instead
 // of the one actually targeted.
-void routeCard(int targetModule, const char* direction, Print& reply) {
+void routeCard(int targetModule, const char* direction, bool feedNext, Print& reply) {
   if (targetModule < 1 || targetModule > maxModuleForOffset()) {
     printModuleRangeError(reply);
     return;
@@ -676,6 +717,7 @@ void routeCard(int targetModule, const char* direction, Print& reply) {
 
   bool dropBottom = strcmp(direction, "bottom") == 0;
   bool pushLeft = strcmp(direction, "left") == 0;
+  bool nextFed = false;
 
   for (int m = 1; m < targetModule; m++) {
     setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
@@ -691,6 +733,13 @@ void routeCard(int targetModule, const char* direction, Print& reply) {
         return;
       }
     }
+    if (m == 1 && feedNext && waitForClear(1)) {
+      waitMs(DELAY_CARD_ENTER);
+      setModuleNeutral(1);
+      waitMs(200);
+      feedAndReportEvent(reply);
+      nextFed = true;
+    }
   }
   if (targetModule > 1) waitMs(DELAY_CARD_ENTER);
 
@@ -699,21 +748,13 @@ void routeCard(int targetModule, const char* direction, Print& reply) {
     waitMs(DELAY_PUSH);
     setAllNeutral();
     waitMs(200);
-
-    reply.print(F("{\"status\":\"routed\",\"module\":"));
-    reply.print(targetModule);
-    reply.println(F(",\"direction\":\"bottom\"}"));
-    return;
+  } else {
+    ModuleConfig& c = moduleConfig[targetModule - 1];
+    pushCard(targetModule, pushLeft, c.pusherHoldDuration, c.paddleCloseDelay, true);
   }
 
-  ModuleConfig& c = moduleConfig[targetModule - 1];
-  pushCard(targetModule, pushLeft, c.pusherHoldDuration, c.paddleCloseDelay, true);
-
-  reply.print(F("{\"status\":\"routed\",\"module\":"));
-  reply.print(targetModule);
-  reply.print(F(",\"direction\":\""));
-  reply.print(pushLeft ? F("left") : F("right"));
-  reply.println(F("\"}"));
+  if (feedNext && !nextFed) feedAndReportEvent(reply);
+  printRoutedResponse(targetModule, direction, feedNext, reply);
 }
 
 // The left/right push at the end of a route, also run standalone by
@@ -786,14 +827,16 @@ BlePrint bleReply;
 // never cross transports (see broadcastLine() for the messages that do).
 void feedByte(InputState& s, char c, Print& reply) {
   if (c == '\n' || c == '\r') {
-    if (s.overflowed) {
+    bool overflowed = s.overflowed;
+    uint8_t len = s.len;
+    s.overflowed = false;
+    s.len = 0;
+    if (overflowed) {
       reply.println(F("{\"error\":\"command too long\"}"));
-      s.overflowed = false;
-    } else if (s.len > 0) {
-      s.buf[s.len] = '\0';
+    } else if (len > 0) {
+      s.buf[len] = '\0';
       handleCommand(s.buf, reply);
     }
-    s.len = 0;
   } else if (!s.overflowed) {
     if (s.len < MAX_CMD_LEN) {
       s.buf[s.len++] = c;
@@ -820,7 +863,33 @@ void printJsonEscaped(const char* s, Print& reply) {
   }
 }
 
+bool commandInProgress = false;
+char activeCommand[MAX_CMD_LEN + 1];
+
+void runCommand(char* json, Print& reply);
+
 void handleCommand(char* json, Print& reply) {
+  if (commandInProgress) {
+    reply.println(F("{\"error\":\"busy\",\"reason\":\"another command is in progress\"}"));
+    return;
+  }
+  commandInProgress = true;
+  strncpy(activeCommand, json, MAX_CMD_LEN);
+  activeCommand[MAX_CMD_LEN] = '\0';
+  runCommand(activeCommand, reply);
+  commandInProgress = false;
+}
+
+void pumpInput() {
+  while (Serial.available()) {
+    feedByte(serialInput, Serial.read(), Serial);
+  }
+#if BLE_SUPPORTED
+  blePoll();
+#endif
+}
+
+void runCommand(char* json, Print& reply) {
   JsonDocument doc;
   DeserializationError err = deserializeJson(doc, json);
   if (err) {
@@ -1063,7 +1132,7 @@ void handleCommand(char* json, Print& reply) {
     return;
   }
 
-  // {"route": {"module": N, "direction": "left"|"right"|"bottom"}} — see routeCard()
+  // {"route": {"module": N, "direction": "left"|"right"|"bottom", "feedNext": bool}} — see routeCard()
   if (!doc["route"].isNull()) {
     JsonObject route = doc["route"];
     int module = route["module"] | 0;
@@ -1077,7 +1146,7 @@ void handleCommand(char* json, Print& reply) {
       reply.println(F("{\"error\":\"direction must be left, right, or bottom\"}"));
       return;
     }
-    routeCard(module, direction, reply);
+    routeCard(module, direction, route["feedNext"] | false, reply);
     return;
   }
 
@@ -1119,7 +1188,11 @@ void setup() {
 #endif
 
   Serial.begin(9600);
-  while (!Serial);
+  unsigned long serialWaitStart = millis();
+  while (!Serial && millis() - serialWaitStart < SERIAL_CONNECT_WAIT_MS) delay(10);
+#if defined(ARDUINO_ARCH_ESP32) && ARDUINO_USB_MODE && ARDUINO_USB_CDC_ON_BOOT
+  Serial.setTxTimeoutMs(0);
+#endif
 
   for (int m = 0; m < MAX_MODULES; m++) {
     moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, DELAY_PUSHER_HOLD, 150};
@@ -1161,12 +1234,7 @@ void setup() {
 
 void loop() {
   feedWatchdog();
-  while (Serial.available()) {
-    feedByte(serialInput, Serial.read(), Serial);
-  }
-#if BLE_SUPPORTED
-  blePoll();
-#endif
+  pumpInput();
   checkModuleJams();
   releaseIdleServos();
 #if defined(RGB_BUILTIN)

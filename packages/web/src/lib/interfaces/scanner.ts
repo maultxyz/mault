@@ -131,6 +131,14 @@ export type FirmwareCheckResult =
   | { status: "ok"; version: string }
   | { status: "noVersion" | "noResponse" | "busy" | "disconnected" };
 
+export interface RouteOptions {
+  feedNext?: boolean;
+}
+
+export interface SkippedRouteResponse {
+  skipped: true;
+}
+
 export interface PushTest {
   module: number;
   direction: "left" | "right";
@@ -148,7 +156,10 @@ export interface SerialContextValue {
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   disconnect: () => Promise<void>;
-  sendRoute: (route: BinRoute) => Promise<unknown | null>;
+  sendRoute: (
+    route: BinRoute,
+    options?: RouteOptions,
+  ) => Promise<unknown | null>;
   sendPushTest: (test: PushTest) => Promise<unknown | null>;
   isRouteBusy: () => boolean;
   sendTest: () => Promise<TestResult>;

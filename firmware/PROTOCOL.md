@@ -38,6 +38,17 @@ a serial connection to the device can drive it by following this spec
   **one** JSON-line response, in the order it was sent — there is no
   request ID, so a client must correlate responses positionally (send
   one command, read one response line, before sending the next).
+- **One command at a time, across every transport.** While a command is
+  executing (a `route` can take several seconds), the device keeps reading
+  input and answers any new line immediately with
+  `{"error":"busy","reason":"another command is in progress"}`, without
+  running it. That rejection arrives **before** the in-progress command's own
+  response, so a client that sent a second command while waiting on a first
+  must match the `busy` reply to the second one, not the first. Nothing is
+  queued: resend once the first response has arrived. One exception: on the
+  Uno R4 WiFi (ArduinoBLE backend), BLE input can't be read while a
+  BLE-originated command is running, so a BLE line sent during a BLE command
+  is only read (and then run normally) once that command finishes.
 - A line longer than 255 characters is discarded and answered with
   `{"error":"command too long"}`.
 - Malformed JSON gets `{"error":"invalid JSON","reason":"...","length":N,"received":"<escaped input>"}`.
@@ -63,6 +74,10 @@ a serial connection to the device can drive it by following this spec
   actively trying to sort that card. Paddle-flap recovery only happens
   inline during an active `route`, on a card that fails to advance to
   the next module in time (see `route` below).
+- A `route` sent with `"feedNext": true` (firmware 2.1.0+) also emits one
+  `{"event":"fed",...}` line **before** its own response (see `route`
+  below). Any line carrying an `event` key is never a command's
+  response, so a client correlating responses positionally must skip it.
 
 - Uno R4 builds run a hardware watchdog (about 4s). If the board ever
   hangs mid-command (typically a supply dip from servos wedging the MCU or
@@ -108,6 +123,12 @@ protocol standpoint.
   based recovery (waiting for a response line, per the framing note above)
   handles this as a failed/garbled response, but there's no automatic retry
   of the specific request. This matches how generic BLE UART bridges behave.
+- **Power-only operation:** BLE works with no USB host at all (e.g. only
+  VIN powered). On boot the firmware waits at most 1.5s for a USB serial
+  host before starting BLE, and on ESP32-S3 Hardware CDC builds USB writes
+  never block when no host is attached. Without a USB host the boot banner
+  only goes out over BLE once a central connects, so a client should send
+  `{"getStatus": true}` after connecting.
 - **Advertised name:** `"Mault Sorter XXXXXX"`, where `XXXXXX` is the same
   `id` reported in `getStatus`/the boot banner (see Transport above) - on
   these two boards, sourced from the BLE MAC (`BLE.address()` on the Uno R4
@@ -363,6 +384,31 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 
 → `{"status":"routed","module":2,"direction":"left"}` on success.
 
+#### `feedNext` (firmware 2.1.0+)
+```json
+{"route": {"module": 3, "direction": "left", "feedNext": true}}
+```
+Feeds the next card into module 1 as part of this route, so a client can
+start scanning it while this card is still travelling. Once the routed
+card has reached module 2 and module 1's IR sensor reads clear, module 1's
+bottom closes and the feeder runs. If the target is module 1 itself (or
+module 1's sensor never clears within 3s), the feed runs after the card
+has been pushed/dropped instead. Either way, exactly one extra line is
+sent before the final response, from the same transport:
+
+- `{"event":"fed","status":"ok","detected":true,"empty":false}` when a card arrived at module 1
+- `{"event":"fed","error":"empty: feeder hopper is out of cards","empty":true}` or
+  `{"event":"fed","error":"timeout: feeder did not deliver card to module 1","empty":false}` otherwise
+
+A failed mid-route feed doesn't abort the route. The final response then
+carries `"fedNext":true`, e.g.
+`{"status":"routed","module":3,"direction":"left","fedNext":true}`, so a
+client can tell a firmware that honored the flag from an older one that
+silently ignored it (older firmware sends no event and no `fedNext`). If
+the route itself fails after the mid-route feed, the `fed` event has
+already been sent and the next card is sitting in module 1. Allow extra
+response time for the feed (the web client waits 25s instead of 15s).
+
 ## Error responses
 
 | Response | When |
@@ -377,5 +423,6 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
 | `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 255 characters |
+| `{"error":"busy","reason":"another command is in progress"}` | a line arrived while another command (from any transport) was still executing; the line was not run |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
 | `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (informational only - no paddle-flap is attempted since nothing is actively sorting) |

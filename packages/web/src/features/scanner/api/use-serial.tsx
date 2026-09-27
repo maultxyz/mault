@@ -15,6 +15,11 @@ import {
   type CommLogEntry,
 } from "@/features/scanner/lib/comm-log";
 import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
+import {
+  isBusyResponse,
+  isFailedRouteResponse,
+  isUnsolicitedSerialMessage,
+} from "@/features/scanner/lib/serial-messages";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import {
   BluetoothTransport,
@@ -25,14 +30,17 @@ import {
   DEVICE_LEASE_HEARTBEAT_MS,
   PUSH_TEST_RESPONSE_TIMEOUT_MS,
   ROUTE_RESPONSE_TIMEOUT_MS,
+  ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS,
 } from "@/lib/constants/timing";
 import type {
   FirmwareCheckResult,
   FlashEsp32Result,
   PushTest,
+  RouteOptions,
   SerialBoardType,
   SerialContextValue,
   SerialMessageListener,
+  SkippedRouteResponse,
   TestResult,
 } from "@/lib/interfaces/scanner";
 import type { PreTestHook } from "@/lib/interfaces/stations";
@@ -144,16 +152,24 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         console.log("[Device] ←", trimmed); // eslint-disable-line no-console -- hardware debug trace
         pushCommLog("received", trimmed);
 
+        let unsolicited = false;
+        let busy = false;
         try {
           const parsed = JSON.parse(trimmed);
+          unsolicited = isUnsolicitedSerialMessage(parsed);
+          busy = isBusyResponse(parsed);
           for (const listener of listenersRef.current) {
             listener(parsed);
           }
         } catch {
           console.warn("[Device] Non-JSON message:", trimmed);
         }
+        if (unsolicited) continue;
 
-        const pending = pendingRef.current.shift();
+        const pending =
+          busy && pendingRef.current.length > 1
+            ? pendingRef.current.splice(1, 1)[0]
+            : pendingRef.current.shift();
         if (pending) {
           pending(trimmed);
         }
@@ -764,12 +780,40 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [sendCommand, waitForLine],
   );
 
+  const routeQueueRef = useRef<{
+    tail: Promise<unknown | null>;
+    pending: number;
+  }>({ tail: Promise.resolve(null), pending: 0 });
+
   const sendRoute = useCallback(
-    (route: BinRoute) =>
-      sendAwaited(
-        { route: { module: route.module, direction: route.direction } },
-        ROUTE_RESPONSE_TIMEOUT_MS,
-      ),
+    (route: BinRoute, options: RouteOptions = {}) => {
+      const queue = routeQueueRef.current;
+      const waitsOnPrevious = queue.pending > 0;
+      queue.pending += 1;
+      const next = queue.tail
+        .then((previous) => {
+          if (waitsOnPrevious && isFailedRouteResponse(previous)) {
+            return { skipped: true } satisfies SkippedRouteResponse;
+          }
+          return sendAwaited(
+            {
+              route: {
+                module: route.module,
+                direction: route.direction,
+                ...(options.feedNext ? { feedNext: true } : {}),
+              },
+            },
+            options.feedNext
+              ? ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS
+              : ROUTE_RESPONSE_TIMEOUT_MS,
+          );
+        })
+        .finally(() => {
+          queue.pending -= 1;
+        });
+      queue.tail = next.catch(() => null);
+      return next;
+    },
     [sendAwaited],
   );
 

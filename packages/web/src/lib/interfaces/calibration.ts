@@ -151,3 +151,9 @@ export interface SetupWizardContextValue {
   close: () => void;
   forceSetup: () => Promise<void>;
 }
+
+export interface ExperimentalFeaturesPanelProps {
+  pipelinedFeed: boolean;
+  isLoading: boolean;
+  onPipelinedFeedChange: (next: boolean) => void;
+}

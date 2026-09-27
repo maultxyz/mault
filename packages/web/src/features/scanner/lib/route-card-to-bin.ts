@@ -1,16 +1,18 @@
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import type { RouteOptions } from "@/lib/interfaces/scanner";
 import type { BinRoute } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { toast } from "sonner";
 
 export interface RouteCardToBinParams {
   route: BinRoute;
-  sendRoute: (route: BinRoute) => Promise<unknown | null>;
+  sendRoute: (route: BinRoute, options?: RouteOptions) => Promise<unknown | null>;
   t: TFunction;
   failedKey: string;
   cardName?: string;
   collectionGuid: string | undefined;
   isAutoFeedEnabled: () => boolean;
+  isPipelinedFeedEnabled: () => boolean;
   disableAutoFeed: () => void;
   pause: () => void;
   triggerAutoFeed: () => void;
@@ -24,11 +26,17 @@ export async function routeCardToBin({
   cardName,
   collectionGuid,
   isAutoFeedEnabled,
+  isPipelinedFeedEnabled,
   disableAutoFeed,
   pause,
   triggerAutoFeed,
 }: RouteCardToBinParams): Promise<void> {
-  const response = await sendRoute(route);
+  const feedNext = isAutoFeedEnabled() && isPipelinedFeedEnabled();
+  const response = await sendRoute(route, { feedNext });
+  const stopPipeline = () => {
+    disableAutoFeed();
+    if (feedNext) pause();
+  };
 
   if (!response) {
     toast.error(t(`${failedKey}.title`), {
@@ -44,11 +52,16 @@ export async function routeCardToBin({
       binNumber: route.binNumber,
       collectionGuid,
     });
-    disableAutoFeed();
+    stopPipeline();
     return;
   }
 
   const res = response as Record<string, unknown>;
+
+  if (res.skipped) {
+    stopPipeline();
+    return;
+  }
 
   if (res.empty) {
     toast.error(t("feederEmpty.title"), {
@@ -83,9 +96,11 @@ export async function routeCardToBin({
       binNumber: route.binNumber,
       collectionGuid,
     });
-    disableAutoFeed();
+    stopPipeline();
     return;
   }
+
+  if (res.fedNext) return;
 
   if (isAutoFeedEnabled()) {
     triggerAutoFeed();

@@ -18,6 +18,7 @@ export function toDevice(row: {
   moduleCount: number;
   channelLayout: string | null;
   setupCompletedAt: Date | null;
+  pipelinedFeed: boolean;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -34,6 +35,7 @@ export function toDevice(row: {
     moduleCount: row.moduleCount,
     channelLayout: row.channelLayout,
     setupCompletedAt: row.setupCompletedAt?.toISOString() ?? null,
+    pipelinedFeed: row.pipelinedFeed,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
