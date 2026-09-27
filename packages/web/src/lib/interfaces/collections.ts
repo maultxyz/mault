@@ -1,3 +1,5 @@
+import type { MonitorLinkInfo } from "@magic-vault/shared";
+
 export interface ScanLockInfo {
   userId: string;
   displayName: string;
@@ -11,3 +13,17 @@ export interface SessionViewer {
   userId: string;
   displayName: string;
 }
+
+export interface ShareMonitorLinkDialogProps {
+  collectionGuid: string;
+}
+
+export interface CreatedMonitorLink {
+  url: string;
+  expiresAt: string;
+}
+
+export type WatchLinkState =
+  | { status: "checking" }
+  | { status: "invalid" }
+  | { status: "valid"; info: MonitorLinkInfo };

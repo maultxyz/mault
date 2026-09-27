@@ -88,11 +88,13 @@ export function CardToolbar({
   availableRarities,
   availableColors,
   availableFoilTypes,
+  binCount,
   cardCount,
   viewMode,
   onViewModeChange,
   groupDuplicates,
   onGroupDuplicatesChange,
+  leading,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
@@ -103,6 +105,7 @@ export function CardToolbar({
 
   return (
     <div className="flex flex-row gap-2 items-center w-full">
+      {leading}
       {watchers && watchers.length > 0 && <WatcherStack watchers={watchers} />}
       <Input
         placeholder={t("cardToolbar.searchPlaceholder")}
@@ -158,6 +161,7 @@ export function CardToolbar({
         availableRarities={availableRarities ?? []}
         availableColors={availableColors ?? []}
         availableFoilTypes={availableFoilTypes ?? []}
+        binCount={binCount}
       />
       <ButtonGroup className="shrink-0">
         <Button

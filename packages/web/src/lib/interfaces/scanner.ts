@@ -1,8 +1,10 @@
+import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   BinRoute,
   Collection,
+  GroupedScannedCard,
   HealthCheck,
   PlayingCard,
   PlayingCardWithDistance,
@@ -264,9 +266,39 @@ export interface SessionError {
 
 export interface SessionMonitorState {
   collection: Collection | null;
-  cards: ScannedCard[];
+  recentCards: ScannedCard[];
+  cardsVersion: number;
   unmatchedCards: UnmatchedCard[];
   viewers: SessionViewer[];
   errors: SessionError[];
   status: ConnectionStatus;
+}
+
+export interface MonitorCardsSource {
+  collectionGuid: string;
+  shareToken?: string | null;
+}
+
+export interface MonitorCardGridProps {
+  entries: GroupedScannedCard[];
+  status: ConnectionStatus;
+  cardCount: number;
+  matchingCount: number;
+  isLoading: boolean;
+  isMobile: boolean;
+  viewMode: CardViewMode;
+  groupDuplicates: boolean;
+  page: number;
+  pageCount: number;
+  onPageChange: (page: number) => void;
+  showBinLocation: boolean;
+}
+
+export interface SessionMonitorViewProps {
+  session: SessionMonitorState;
+  cardsSource: MonitorCardsSource;
+  header?: ReactNode;
+  toolbarLeading?: ReactNode;
+  binCount?: number;
+  showBinLocation: boolean;
 }

@@ -1,251 +1,37 @@
-import { Button } from "@/components/ui/button";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
-import { useCardFilterSort } from "@/features/cards/api/use-card-filter-sort";
-import { CardToolbar } from "@/features/cards/components/card-toolbar";
-import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
-import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
-import { toDisplayEntries } from "@/features/cards/lib/group-cards";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
+import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
-import { RecentScannedCards } from "@/features/scanner/components/recent-scanned-cards";
-import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
-import { SessionStatsPanel } from "@/features/scanner/components/session-stats-panel";
-import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
-import { computeDisplayStats } from "@/features/scanner/lib/compute-stats";
-import { useIsMobile } from "@/hooks/use-is-mobile";
-import {
-  CARD_GROUP_DUPLICATES_STORAGE_KEY,
-  CARD_VIEW_MODE_STORAGE_KEY,
-} from "@/lib/constants/storage-keys";
-import type { CardViewMode } from "@/lib/interfaces/cards";
-import { cn } from "@/lib/utils";
-import {
-  IconCards,
-  IconChevronLeft,
-  IconChevronRight,
-  IconLoader2,
-  IconWifiOff,
-} from "@tabler/icons-react";
-import { COLLECTION_CARDS_PAGE_SIZE } from "@magic-vault/shared";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
+import { useModuleCount } from "@/features/calibration/api/use-module-count";
+import { computeBinCount } from "@magic-vault/shared";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-
-function CardGrid({
-  filteredAndSorted,
-  status,
-  cardCount,
-  isMobile,
-  viewMode,
-  groupDuplicates,
-  pageResetKey,
-}: {
-  filteredAndSorted: ReturnType<typeof useCardFilterSort>["filteredAndSorted"];
-  status: string;
-  cardCount: number;
-  isMobile: boolean;
-  viewMode: CardViewMode;
-  groupDuplicates: boolean;
-  pageResetKey: string;
-}) {
-  const { t } = useTranslation("scanner");
-  const { t: tCards } = useTranslation("cards");
-  const [page, setPage] = useState(0);
-
-  const displayEntries = useMemo(
-    () => toDisplayEntries(filteredAndSorted, groupDuplicates),
-    [filteredAndSorted, groupDuplicates],
-  );
-
-  const pageCount = Math.max(1, Math.ceil(displayEntries.length / COLLECTION_CARDS_PAGE_SIZE));
-  const clampedPage = Math.min(page, pageCount - 1);
-  const pagedCards = displayEntries.slice(
-    clampedPage * COLLECTION_CARDS_PAGE_SIZE,
-    (clampedPage + 1) * COLLECTION_CARDS_PAGE_SIZE,
-  );
-
-  useEffect(() => {
-    setPage(0);
-  }, [pageResetKey]);
-
-  return (
-    <>
-      {status === "connecting" && cardCount === 0 && (
-        <div className="flex items-center justify-center h-32 text-muted-foreground text-sm gap-2">
-          <IconLoader2 size={16} className="animate-spin" />
-          {t("monitorPage.loadingSession")}
-        </div>
-      )}
-      {status === "error" && (
-        <div className="flex items-center justify-center h-32 text-destructive text-sm gap-2">
-          <IconWifiOff size={16} />
-          {t("monitorPage.connectFailed")}
-        </div>
-      )}
-      {status === "connected" && cardCount === 0 && (
-        <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
-          {t("monitorPage.noCardsScannedYet")}
-        </div>
-      )}
-      {status === "connected" &&
-        cardCount > 0 &&
-        filteredAndSorted.length === 0 && (
-          <div className="flex items-center justify-center h-32 text-muted-foreground text-sm">
-            {t("monitorPage.noCardsMatchSearch")}
-          </div>
-        )}
-      {pagedCards.length === 0 ? null : viewMode === "list" ? (
-        <div className="p-4">
-          <div className="rounded-lg border">
-            <ScannedCardTable
-              rows={pagedCards.map((card) => ({
-                scanId: card.scanId,
-                scanIds: card.scanIds,
-                card: card.card,
-                binNumber: card.binNumber,
-                quantity: card.quantity,
-                isFoil: card.isFoil,
-                foilType: card.foilType,
-                hasAlternatives: !!card.alternativeMatches?.length,
-                wasCorrected: card.corrected,
-              }))}
-              showQuantity={groupDuplicates}
-            />
-          </div>
-        </div>
-      ) : (
-        <div
-          className={cn(
-            "grid gap-2 p-4",
-            isMobile
-              ? "grid-cols-2"
-              : "grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8",
-          )}
-        >
-          {pagedCards.map((card) => (
-            <ScannedCardItem
-              key={card.scanId}
-              card={card.card}
-              binNumber={card.binNumber}
-              onOpen={() => {}}
-              quantity={card.quantity}
-            />
-          ))}
-        </div>
-      )}
-      {pageCount > 1 && (
-        <div className="flex items-center justify-center gap-3 pb-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setPage((p) => Math.max(0, p - 1))}
-            disabled={clampedPage === 0}
-          >
-            <IconChevronLeft />
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            {tCards("cardGrid.pageOf", {
-              page: clampedPage + 1,
-              total: pageCount,
-            })}
-          </span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-            disabled={clampedPage === pageCount - 1}
-          >
-            <IconChevronRight />
-          </Button>
-        </div>
-      )}
-    </>
-  );
-}
 
 export default function MonitorPage() {
   const { t } = useTranslation("scanner");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
-  const { collection, cards, unmatchedCards, viewers, errors, status } =
-    useSessionMonitor(collectionGuid);
+  const session = useSessionMonitor(collectionGuid);
+  const cardsSource = useMemo(
+    () => ({ collectionGuid: collectionGuid ?? "" }),
+    [collectionGuid],
+  );
   const { locks, currentUserId } = useCollectionLocks();
-  const isMobile = useIsMobile();
+  const moduleCount = useModuleCount();
 
-  const isScanning = !!(collectionGuid && locks[collectionGuid]);
-  const scannerUserId = collectionGuid
-    ? locks[collectionGuid]?.userId
-    : undefined;
-  const otherViewers = viewers.filter(
-    (v) => v.userId !== scannerUserId && v.userId !== currentUserId,
+  const lock = collectionGuid ? locks[collectionGuid] : undefined;
+  const otherViewers = session.viewers.filter(
+    (v) => v.userId !== lock?.userId && v.userId !== currentUserId,
   );
-  const fieldDefinitions = collection?.game?.fieldDefinitions ?? [];
-  const {
-    filteredAndSorted,
-    searchQuery,
-    setSearchQuery,
-    sortKey,
-    setSortKey,
-    sortableFields,
-    filters,
-    setFilters,
-    activeFilterCount,
-  } = useCardFilterSort(cards, fieldDefinitions);
-  const stats = useMemo(
-    () => computeDisplayStats(cards, filteredAndSorted),
-    [cards, filteredAndSorted],
-  );
-  const filterKey = JSON.stringify({ searchQuery, sortKey, filters });
 
-  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
-    try {
-      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
-        ? "list"
-        : "grid";
-    } catch {
-      return "grid";
-    }
-  });
-
-  const handleViewModeChange = useCallback((mode: CardViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {}
-  }, []);
-
-  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
-    setGroupDuplicates(grouped);
-    try {
-      localStorage.setItem(
-        CARD_GROUP_DUPLICATES_STORAGE_KEY,
-        grouped ? "1" : "0",
-      );
-    } catch {}
-  }, []);
-
-  const viewerAvatars = (
-    <>
-      {isScanning && collectionGuid && locks[collectionGuid] && (
+  const header = (lock || otherViewers.length > 0) && (
+    <div className="flex items-center gap-1 px-1 flex-wrap">
+      {lock && (
         <InitialsAvatar
-          name={locks[collectionGuid].displayName}
+          name={lock.displayName}
           variant="scanner"
-          tooltip={t("isScanningTooltip", {
-            name: locks[collectionGuid].displayName,
-          })}
+          tooltip={t("isScanningTooltip", { name: lock.displayName })}
         />
       )}
       {otherViewers.map((v) => (
@@ -256,117 +42,21 @@ export default function MonitorPage() {
           tooltip={t("monitorPage.isWatchingTooltip", { name: v.displayName })}
         />
       ))}
-    </>
+    </div>
   );
 
-  if (isMobile) {
-    return (
-      <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
-        {(isScanning || otherViewers.length > 0) && (
-          <div className="flex items-center gap-1">{viewerAvatars}</div>
-        )}
-
-        <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
-          <SessionStatsPanel stats={stats} totalCards={filteredAndSorted.length} />
-          <RecentScannedCards cards={cards} />
-          <UnmatchedCardsPanel cards={unmatchedCards} />
-          <SessionErrorsPanel errors={errors} />
-        </div>
-
-        <Drawer>
-          <DrawerTrigger className="flex items-center justify-center gap-2 mx-3 mb-3 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors shrink-0">
-            <IconCards className="size-4" />
-            {cards.length > 0
-              ? t("monitorPage.viewCards", { count: cards.length })
-              : t("monitorPage.viewCardsEmpty")}
-          </DrawerTrigger>
-          <DrawerContent className="max-h-[85vh]">
-            <DrawerTitle className="sr-only">
-              {t("monitorPage.scannedCardsTitle")}
-            </DrawerTitle>
-            <div className="flex flex-col overflow-hidden flex-1 min-h-0 pt-2">
-              <div className="px-2 pb-2 border-b @container">
-                <CardToolbar
-                  searchQuery={searchQuery}
-                  onSearchChange={setSearchQuery}
-                  sortKey={sortKey}
-                  onSortChange={setSortKey}
-                  sortableFields={sortableFields}
-                  hasCards={filteredAndSorted.length > 0}
-                  activeFilters={filters}
-                  onFiltersChange={setFilters}
-                  activeFilterCount={activeFilterCount}
-                  availableRarities={stats?.rarities}
-                  availableColors={stats?.colors}
-                  cardCount={cards.length}
-                  viewMode={viewMode}
-                  onViewModeChange={handleViewModeChange}
-                  groupDuplicates={groupDuplicates}
-                  onGroupDuplicatesChange={handleGroupDuplicatesChange}
-                />
-              </div>
-              <div className="overflow-y-auto flex-1 @container">
-                <CardGrid
-                  filteredAndSorted={filteredAndSorted}
-                  status={status}
-                  cardCount={cards.length}
-                  isMobile
-                  viewMode={viewMode}
-                  groupDuplicates={groupDuplicates}
-                  pageResetKey={`${filterKey}:${groupDuplicates}`}
-                />
-              </div>
-            </div>
-          </DrawerContent>
-        </Drawer>
-      </div>
-    );
-  }
-
   return (
-    <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
-      <aside className="col-span-5 md:col-span-5 lg:col-span-4 xl:col-span-3 2xl:col-span-2 overflow-hidden flex flex-col h-full p-2 border-r gap-2 bg-sidebar/70">
-        {(isScanning || otherViewers.length > 0) && (
-          <div className="flex items-center gap-1 px-1 flex-wrap">
-            {viewerAvatars}
-          </div>
-        )}
-        <SessionStatsPanel stats={stats} totalCards={filteredAndSorted.length} />
-        <UnmatchedCardsPanel cards={unmatchedCards} />
-        <SessionErrorsPanel errors={errors} />
-      </aside>
-
-      <main className="col-span-7 md:col-span-7 lg:col-span-8 xl:col-span-9 2xl:col-span-10 overflow-y-auto h-full @container">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl p-2 border-b">
-          <CardToolbar
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            sortKey={sortKey}
-            onSortChange={setSortKey}
-            sortableFields={sortableFields}
-            hasCards={filteredAndSorted.length > 0}
-            activeFilters={filters}
-            onFiltersChange={setFilters}
-            activeFilterCount={activeFilterCount}
-            availableRarities={stats?.rarities}
-            availableColors={stats?.colors}
-            cardCount={cards.length}
-            viewMode={viewMode}
-            onViewModeChange={handleViewModeChange}
-            groupDuplicates={groupDuplicates}
-            onGroupDuplicatesChange={handleGroupDuplicatesChange}
-          />
-        </div>
-        <CardGrid
-          filteredAndSorted={filteredAndSorted}
-          status={status}
-          cardCount={cards.length}
-          isMobile={false}
-          viewMode={viewMode}
-          groupDuplicates={groupDuplicates}
-          pageResetKey={`${filterKey}:${groupDuplicates}`}
-        />
-      </main>
-    </div>
+    <SessionMonitorView
+      session={session}
+      cardsSource={cardsSource}
+      header={header}
+      toolbarLeading={
+        collectionGuid ? (
+          <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
+        ) : undefined
+      }
+      binCount={computeBinCount(moduleCount)}
+      showBinLocation
+    />
   );
 }

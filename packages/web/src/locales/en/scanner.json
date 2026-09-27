@@ -349,5 +349,11 @@
       "title": "More sorters need the Business plan",
       "description": "The free plan runs one sorter at a time. Disconnect the other sorter, or upgrade to Business in Settings to run several at once."
     }
+  },
+  "watchPage": {
+    "liveBadge": "Live",
+    "readOnly": "View only",
+    "invalidTitle": "This link doesn't work",
+    "invalidDescription": "It may have expired or been revoked. Ask the person who shared it for a new link."
   }
 }

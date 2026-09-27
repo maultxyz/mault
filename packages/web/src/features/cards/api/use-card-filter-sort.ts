@@ -3,7 +3,6 @@ import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { matchPercent } from "@/lib/utils";
 import {
   DEFAULT_CARD_SORT,
-  getCardValue,
   type FieldMeta,
   type ScannedCard,
 } from "@magic-vault/shared";
@@ -76,32 +75,6 @@ function splitSortKey(sortKey: string): { field: string; dir: "asc" | "desc" } {
   };
 }
 
-function compareByField(
-  a: ScannedCard,
-  b: ScannedCard,
-  meta: FieldMeta,
-  fieldDefinitions: FieldMeta[],
-): number {
-  const va = getCardValue(a.card, meta.field, fieldDefinitions);
-  const vb = getCardValue(b.card, meta.field, fieldDefinitions);
-
-  if (meta.type === "numeric") {
-    if (va === null && vb === null) return 0;
-    if (va === null) return 1;
-    if (vb === null) return -1;
-    return (va as number) - (vb as number);
-  }
-
-  if (meta.type === "enum" && meta.options) {
-    const order = meta.options.map((o) => o.value);
-    const ia = order.indexOf(String(va));
-    const ib = order.indexOf(String(vb));
-    return (ia === -1 ? order.length : ia) - (ib === -1 ? order.length : ib);
-  }
-
-  return String(va ?? "").localeCompare(String(vb ?? ""));
-}
-
 export function useCardQueryState(
   fieldDefinitions: FieldMeta[],
   external?: {
@@ -149,48 +122,4 @@ export function useCardQueryState(
     setFilters,
     activeFilterCount,
   };
-}
-
-export function useCardFilterSort(
-  cards: ScannedCard[],
-  fieldDefinitions: FieldMeta[],
-  external?: {
-    filters: CardFilters;
-    setFilters: (filters: CardFilters) => void;
-  },
-) {
-  const state = useCardQueryState(fieldDefinitions, external);
-  const { searchQuery, sortKey, filters } = state;
-
-  const filteredAndSorted = useMemo(() => {
-    let result = applyCardFilters(cards, filters);
-
-    const query = searchQuery.toLowerCase().trim();
-    if (query) {
-      result = result.filter((entry) => {
-        const c = entry.card;
-        return (
-          c.name.toLowerCase().includes(query) ||
-          c.setName.toLowerCase().includes(query) ||
-          c.set.toLowerCase().includes(query) ||
-          c.typeLine.toLowerCase().includes(query) ||
-          c.collectorNumber.toLowerCase().includes(query) ||
-          (c.text?.toLowerCase().includes(query) ?? false)
-        );
-      });
-    }
-
-    if (!sortKey || sortKey === DEFAULT_CARD_SORT) return result;
-
-    const { field, dir } = splitSortKey(sortKey);
-    const meta = fieldDefinitions.find((f) => f.field === field);
-    if (!meta) return result;
-
-    const mul = dir === "asc" ? 1 : -1;
-    const sorted = [...result];
-    sorted.sort((a, b) => mul * compareByField(a, b, meta, fieldDefinitions));
-    return sorted;
-  }, [cards, searchQuery, sortKey, filters, fieldDefinitions]);
-
-  return { ...state, filteredAndSorted };
 }

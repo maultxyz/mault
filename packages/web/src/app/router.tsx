@@ -25,6 +25,12 @@ const DiscordBotPage = lazy(
     ["common", "discordBot"],
   ),
 );
+const WatchPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/watch"),
+    ["common", "scanner", "cards", "collections"],
+  ),
+);
 const PrivacyPolicyPage = lazy(
   withNamespaces(() => import("@/app/routes/privacy"), ["common", "legal"]),
 );
@@ -150,6 +156,10 @@ export const router = createBrowserRouter([
       {
         path: "/discord-bot",
         element: <DiscordBotPage />,
+      },
+      {
+        path: "/watch/:collectionGuid",
+        element: <WatchPage />,
       },
       {
         path: "/privacy",

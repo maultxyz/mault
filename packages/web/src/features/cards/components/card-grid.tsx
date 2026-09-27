@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
@@ -35,6 +36,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
 } from "@tabler/icons-react";
+import { computeBinCount } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -60,6 +62,7 @@ export function CardGrid() {
       : undefined;
   const { filters, setFilters } = useCardFilters();
   const { fieldDefinitions } = useBinConfigs();
+  const moduleCount = useModuleCount();
   const {
     searchQuery,
     setSearchQuery,
@@ -339,6 +342,7 @@ export function CardGrid() {
           availableRarities={stats?.rarities}
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
+          binCount={computeBinCount(moduleCount)}
           cardCount={totalCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}

@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 export function ScannedCardTable({
   rows,
   showQuantity = false,
+  showBinLocation = true,
   onOpen,
   onToggleSelect,
   onTogglePageSelect,
@@ -207,7 +208,12 @@ export function ScannedCardTable({
                 </Tooltip>
               </TableCell>
               <TableCell>
-                {row.binNumber != null && (
+                {row.binNumber != null && !showBinLocation && (
+                  <Badge variant="secondary">
+                    {t("scannedCardItem.bin", { number: row.binNumber })}
+                  </Badge>
+                )}
+                {row.binNumber != null && showBinLocation && (
                   <Tooltip>
                     <TooltipTrigger
                       render={

@@ -349,5 +349,11 @@
       "title": "Weitere Sortierer erfordern den Business-Tarif",
       "description": "Der kostenlose Tarif betreibt jeweils nur einen Sortierer. Trenne den anderen Sortierer oder wechsle in den Einstellungen zu Business, um mehrere gleichzeitig zu betreiben."
     }
+  },
+  "watchPage": {
+    "liveBadge": "Live",
+    "readOnly": "Nur ansehen",
+    "invalidTitle": "Dieser Link funktioniert nicht",
+    "invalidDescription": "Er ist möglicherweise abgelaufen oder wurde widerrufen. Bitte die Person, die ihn geteilt hat, um einen neuen Link."
   }
 }

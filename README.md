@@ -98,6 +98,7 @@ cp .env.example .env
    - `POSTGRES_PASSWORD` — the local Postgres container's password
    - `OWN_AUTH_TOKEN_PEPPER` — 32+ random bytes; own-auth uses it to hash sessions/tokens/API keys
    - `IMPERSONATION_SECRET` — any random string
+   - `MONITOR_LINK_SECRET` — any random string (optional; enables shareable no-login monitor links)
 2. Start the stack:
    ```bash
    docker compose up -d

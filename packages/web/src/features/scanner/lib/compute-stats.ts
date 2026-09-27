@@ -155,10 +155,3 @@ export function toDisplayStats(
     foilTypes: allStats.foilTypes,
   };
 }
-
-export function computeDisplayStats(
-  allCards: ScannedCard[],
-  visibleCards: ScannedCard[],
-): ScanStats | null {
-  return toDisplayStats(aggregateCards(allCards), aggregateCards(visibleCards));
-}

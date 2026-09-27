@@ -1,11 +1,18 @@
-import type { Collection, FieldMeta } from "@magic-vault/shared";
-import { and, desc, eq } from "drizzle-orm";
-import { Hono } from "hono";
+import { randomUUID } from "node:crypto";
+import { eq } from "drizzle-orm";
+import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
 import { authProvider } from "../auth";
-import { authQuery } from "../db";
-import { collectionCards, collections, unmatchedCards } from "../db/schema";
-import { applyTcgplayerPricesToScans } from "../lib/card-search/tcgplayer-prices";
+import { authQuery, db } from "../db";
+import { collections } from "../db/schema";
+import {
+  MAX_TIMER_DELAY_MS,
+  MONITOR_LINK_GUEST_NAME,
+} from "../lib/constants/auth";
+import {
+  trackMonitorLinkStream,
+  verifyMonitorLink,
+} from "../lib/monitor-links";
 import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
 import {
   getAllSessionViewers,
@@ -20,7 +27,62 @@ import {
   verifyRequestToken,
   type AppEnv,
 } from "../middleware/auth";
-import { toScannedCard, toUnmatchedCard } from "./collections/shared";
+import { loadSessionInit } from "./session-init";
+
+async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
+  const claims = await verifyMonitorLink(shareToken);
+  if (!claims) return c.json({ success: false, message: "Unauthorized" }, 401);
+  const { collectionGuid: guid, orgId } = claims;
+
+  return streamSSE(c, async (stream) => {
+    let close: () => void = () => {};
+    const closed = new Promise<void>((resolve) => {
+      close = resolve;
+      stream.onAbort(resolve);
+    });
+    const write = (event: string, data: unknown) => {
+      stream.writeSSE({ event, data: JSON.stringify(data) }).catch(() => {});
+    };
+    const sessionWrite = (event: string, data: unknown) => {
+      if (event === "viewers_updated") return;
+      write(`session:${guid}:${event}`, data);
+    };
+
+    const unsubs = [
+      subscribeSession(
+        guid,
+        orgId,
+        `guest:${randomUUID()}`,
+        MONITOR_LINK_GUEST_NAME,
+        sessionWrite,
+      ),
+      trackMonitorLinkStream(guid, () => close()),
+    ];
+    const expiryTimer = setTimeout(
+      () => close(),
+      Math.min(
+        Math.max(0, claims.expiresAt.getTime() - Date.now()),
+        MAX_TIMER_DELAY_MS,
+      ),
+    );
+
+    try {
+      const initial = await loadSessionInit(
+        (fn) => db.transaction(fn),
+        guid,
+        orgId,
+        [],
+      );
+      if (initial) write(`session:${guid}:session_init`, initial);
+    } catch (err) {
+      console.error(`[stream] Failed to load shared session ${guid}:`, err);
+    }
+
+    await closed;
+    clearTimeout(expiryTimer);
+    for (const unsub of unsubs) unsub();
+  });
+}
 
 // GET /stream — single SSE connection multiplexing everything the app used to
 // open separate connections for: org-wide scan locks, org-wide live viewer
@@ -28,6 +90,9 @@ import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 // session events. Session-scoped events are namespaced "session:<guid>:<event>"
 // so one connection can safely watch several collections at once.
 export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
+  const shareToken = c.req.query("share");
+  if (shareToken) return streamMonitorLink(c, shareToken);
+
   const token = c.req.query("token");
   const orgId = c.req.query("orgId");
   const guidsParam = c.req.query("guids");
@@ -92,97 +157,16 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
         );
 
         try {
-          const initial = await authQuery(jwtClaims!, async (tx) => {
-            const collection = await tx.query.collections.findFirst({
-              where: (t, { eq, and }) =>
-                and(eq(t.guid, guid), eq(t.orgId, orgId)),
-              columns: {
-                id: true,
-                guid: true,
-                name: true,
-                isActive: true,
-                gameId: true,
-                lang: true,
-                createdAt: true,
-                updatedAt: true,
-              },
-            });
-            if (!collection) return null;
-
-            const game = collection.gameId
-              ? await tx.query.games.findFirst({
-                  where: (t, { eq }) => eq(t.id, collection.gameId!),
-                })
-              : null;
-
-            const cardRows = await tx
-              .select({
-                guid: collectionCards.guid,
-                card: collectionCards.card,
-                scannedAt: collectionCards.scannedAt,
-                binNumber: collectionCards.binNumber,
-                isFoil: collectionCards.isFoil,
-                foilType: collectionCards.foilType,
-                isDownloaded: collectionCards.isDownloaded,
-                alternativeMatches: collectionCards.alternativeMatches,
-              })
-              .from(collectionCards)
-              .where(eq(collectionCards.collectionId, collection.id))
-              .orderBy(desc(collectionCards.scannedAt));
-
-            const unmatchedRows = await tx
-              .select({
-                guid: unmatchedCards.guid,
-                capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
-                scannedAt: unmatchedCards.scannedAt,
-                binNumber: unmatchedCards.binNumber,
-              })
-              .from(unmatchedCards)
-              .where(
-                and(
-                  eq(unmatchedCards.collectionId, collection.id),
-                  eq(unmatchedCards.isDeleted, false),
-                ),
-              )
-              .orderBy(desc(unmatchedCards.scannedAt));
-
-            return {
-              collection: {
-                guid: collection.guid!,
-                name: collection.name,
-                isActive: collection.isActive,
-                cardCount: cardRows.length,
-                lang: collection.lang,
-                game: game
-                  ? {
-                      guid: game.guid!,
-                      key: game.key,
-                      name: game.name,
-                      isActive: game.isActive,
-                      fieldDefinitions: game.fieldDefinitions as FieldMeta[],
-                      foilTypes: (game.foilTypes as string[] | null) ?? [],
-                      apiDocsUrl: game.apiDocsUrl,
-                      createdAt: game.createdAt,
-                      updatedAt: game.updatedAt,
-                    }
-                  : null,
-                createdAt: collection.createdAt,
-                updatedAt: collection.updatedAt,
-              } satisfies Collection,
-              cards: cardRows.map(toScannedCard),
-              unmatchedCards: unmatchedRows.map(toUnmatchedCard),
-              viewers: getSessionViewers(guid),
-            };
-          });
-
+          const initial = await loadSessionInit(
+            (fn) => authQuery(jwtClaims!, fn),
+            guid,
+            orgId,
+            getSessionViewers(guid),
+          );
           if (!initial) {
             console.warn(`[stream] Session ${guid} not found in org ${orgId}`);
           } else {
-            const cards = await applyTcgplayerPricesToScans(
-              initial.collection.game?.key,
-              initial.cards,
-            );
-            write(`session:${guid}:session_init`, { ...initial, cards });
+            write(`session:${guid}:session_init`, initial);
           }
         } catch (err) {
           console.error(`[stream] Failed to load session ${guid}:`, err);

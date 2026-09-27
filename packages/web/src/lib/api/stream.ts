@@ -11,3 +11,8 @@ export async function createAppStreamSource(
   if (watchGuids.length) params.set("guids", watchGuids.join(","));
   return new EventSource(`${API_BASE}/api/stream?${params}`);
 }
+
+export function createMonitorLinkStreamSource(token: string): EventSource {
+  const params = new URLSearchParams({ share: token });
+  return new EventSource(`${API_BASE}/api/stream?${params}`);
+}

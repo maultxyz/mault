@@ -333,6 +333,7 @@ export const collections = pgTable(
     discordScanThreadId: text("discord_scan_thread_id"),
     discordErrorChannelId: text("discord_error_channel_id"),
     discordErrorThreadId: text("discord_error_thread_id"),
+    monitorLinkVersion: integer("monitor_link_version").notNull().default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
