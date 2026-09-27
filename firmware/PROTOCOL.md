@@ -242,6 +242,22 @@ or, to bypass calibrated positions and drive a raw pulse directly:
 `{"error":"servo must be bottom, paddle, or pusher"}` /
 `{"error":"invalid position"}` / `{"error":"module must be 1 to N"}`
 
+#### Push safeguard (firmware 2.2.0+)
+
+A pusher may only move off neutral while a card is on its module's platform
+(that module's IR sensor reads a card) if that module's side paddle has
+been commanded to its calibrated `paddleOpen` position and has had
+`DELAY_PADDLE` (300 ms) to get there. The firmware has no paddle position
+sensor, so it tracks the last position it commanded: any other paddle
+pulse, or the idle servo release, counts as not open. With no card on the
+platform, pushers move freely (calibration). A refused move changes
+nothing and answers
+`{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}`.
+This applies to `servo` pusher moves and to `channel` writes that land on a
+module's pusher channel. Returning a pusher to neutral is always allowed.
+`route` and `pushTest` already lower the paddle first, and also wait for the
+same condition before firing.
+
 ### `channel` (raw PCA9685 channel test)
 ```json
 {"channel": 7, "value": 300}
@@ -423,6 +439,7 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 255 characters |
+| `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}` | a `servo`/`channel` pusher move while a card is on module *N*'s platform and its side paddle isn't down (see Push safeguard) |
 | `{"error":"busy","reason":"another command is in progress"}` | a line arrived while another command (from any transport) was still executing; the line was not run |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
 | `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (informational only - no paddle-flap is attempted since nothing is actively sorting) |

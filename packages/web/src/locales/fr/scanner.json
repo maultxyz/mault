@@ -69,6 +69,10 @@
         "success": "Firmware installé. La carte a redémarré et est prête à être connectée.",
         "connectButton": "Connecter la trieuse"
       }
+    },
+    "pushBlocked": {
+      "title": "Poussoir bloqué",
+      "description": "Une carte se trouve sur la plateforme du module {{module}}. Abaisse d'abord sa palette latérale avant de déplacer le poussoir."
     }
   },
   "sessionMonitor": {
