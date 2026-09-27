@@ -19,7 +19,7 @@ export function CapturedImageThumb({
 
   return (
     <div className="relative h-full w-full">
-      <img src={src} alt={alt} className="h-full w-full object-cover" />
+      <img src={src} alt={alt} className="h-full w-full object-fill" />
       {ocrRegions.map((region, i) => (
         <div
           key={`ocr-${i}`}

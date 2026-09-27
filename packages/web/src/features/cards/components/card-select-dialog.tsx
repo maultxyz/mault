@@ -227,11 +227,11 @@ export function CardSelectDialog({
               <div className="flex flex-col gap-2">
                 {capturedImageUrl && (
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-12 aspect-[2.5/3.5] rounded overflow-hidden border shrink-0">
+                    <div className="w-12 aspect-square rounded overflow-hidden border shrink-0">
                       <img
                         src={capturedImageUrl}
                         alt={t("cardPicker.scannedAlt")}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-fill"
                       />
                     </div>
                     <p className="text-xs text-muted-foreground leading-snug">
@@ -307,11 +307,11 @@ export function CardSelectDialog({
                       <p className="text-[10px] text-muted-foreground">
                         {t("cardSelectDialog.scanned")}
                       </p>
-                      <div className="w-28 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
+                      <div className="w-28 aspect-square rounded-lg overflow-hidden border">
                         <img
                           src={capturedImageUrl}
                           alt={t("cardPicker.scannedAlt")}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-fill"
                         />
                       </div>
                     </>

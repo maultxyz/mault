@@ -375,7 +375,7 @@ export function CardDetailPanel({
                       <figcaption className="text-xs text-foreground/70">
                         {t("cardDetailPanel.capturedScan")}
                       </figcaption>
-                      <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border">
+                      <div className="w-56 aspect-square rounded-lg overflow-hidden border">
                         {capturedImage}
                       </div>
                     </figure>
@@ -528,7 +528,7 @@ export function CardDetailPanel({
             <>
               {showCapturedImageSlot && (
                 <div className="flex items-center gap-4">
-                  <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
+                  <div className="w-56 aspect-square rounded-lg overflow-hidden border shadow-sm shrink-0">
                     {capturedImage}
                   </div>
                   <p className="text-sm text-foreground/70 leading-snug">
