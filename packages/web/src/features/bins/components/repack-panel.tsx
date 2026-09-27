@@ -64,14 +64,17 @@ export function RepackPanel() {
   }, [selectedSet?.guid]);
 
   const handleSave = useCallback(
-    (values: RepackConfigFormValues) => {
-      setRepackConfig({
-        isRepackMode: true,
-        repackSlots: values.repackSlots,
-        repackAllowDuplicates: values.repackAllowDuplicates,
-      });
+    async (values: RepackConfigFormValues) => {
+      try {
+        const saved = await setRepackConfig({
+          isRepackMode: true,
+          repackSlots: values.repackSlots,
+          repackAllowDuplicates: values.repackAllowDuplicates,
+        });
+        if (saved) form.reset(values);
+      } catch {}
     },
-    [setRepackConfig],
+    [setRepackConfig, form],
   );
 
   if (isModeDirty) return null;

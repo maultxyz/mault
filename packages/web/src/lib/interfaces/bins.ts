@@ -52,7 +52,7 @@ export interface BinConfigsContextValue {
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
     repackAllowDuplicates: boolean;
-  }) => Promise<void>;
+  }) => Promise<boolean>;
   effectiveMode: BinModeDraft;
   isModeDirty: boolean;
   isSavingMode: boolean;
