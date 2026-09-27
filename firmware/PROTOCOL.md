@@ -192,6 +192,15 @@ field is present.
 ```
 → `{"status":"ready","version":"1.0.2","board":"esp32","id":"A1B2C3"}`
 
+Firmware 2.2.2+ adds `"ble"` to this line and to the boot banner:
+`"advertising"` (BLE is up and discoverable), `"connected"` (a central is
+connected, so the device isn't advertising, since ArduinoBLE and this
+firmware's Bluedroid backend accept one connection at a time),
+`"unavailable"` (the BLE stack failed to start, e.g. the Uno R4 WiFi's
+co-processor didn't answer `BLE.begin()` after 5 attempts; the device keeps
+working over Serial), or `"none"` (a board with no BLE hardware, such as the
+Uno R4 Minima).
+
 ### `setChannelOffset`
 ```json
 {"setChannelOffset": 0}

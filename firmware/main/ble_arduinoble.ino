@@ -30,6 +30,10 @@ BLECharacteristic txChar("6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENo
 // whether back-to-back writeValue() calls need the delay below (forum
 // reports suggest rapid consecutive notifications can be dropped).
 #define BLE_CHUNK_SIZE 20
+#define BLE_BEGIN_ATTEMPTS 5
+#define BLE_BEGIN_RETRY_MS 500
+
+bool bleAvailable = false;
 
 // Manual prototype, belt-and-suspenders alongside main.ino's early
 // #include <ArduinoBLE.h> - see that file's comment on why the Arduino
@@ -50,7 +54,15 @@ void bleInit() {
   // channel to report that today beyond Serial staying available regardless,
   // matching how a missing/broken Serial connection is also silently
   // tolerated elsewhere in this firmware.
-  if (!BLE.begin()) return;
+  for (int attempt = 0; attempt < BLE_BEGIN_ATTEMPTS && !bleAvailable; attempt++) {
+    if (BLE.begin()) {
+      bleAvailable = true;
+    } else {
+      BLE.end();
+      delay(BLE_BEGIN_RETRY_MS);
+    }
+  }
+  if (!bleAvailable) return;
 
   // BLE.address() only returns a real value once the co-processor has
   // answered BLE.begin(), unlike ble_esp32.ino's backend, which can read its
@@ -76,16 +88,21 @@ void blePoll() {
   // Pumps ArduinoBLE's internal event loop - this is what actually invokes
   // onRxWritten() and keeps BLE.connected()/advertising state current.
   static bool polling = false;
-  if (polling) return;
+  if (polling || !bleAvailable) return;
   polling = true;
   BLE.poll();
   polling = false;
 }
 
-bool bleIsConnected() { return BLE.connected(); }
+bool bleIsConnected() { return bleAvailable && BLE.connected(); }
+
+const char* bleState() {
+  if (!bleAvailable) return "unavailable";
+  return BLE.connected() ? "connected" : "advertising";
+}
 
 void bleSendLine(const char* s) {
-  if (!BLE.connected()) return;
+  if (!bleIsConnected()) return;
   size_t len = strlen(s);
   // Chunk the line across multiple writeValue() calls, then send a trailing
   // "\n" chunk so the client's byte-stream line-splitter (the same logic it

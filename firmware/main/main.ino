@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.2.1"
+#define FIRMWARE_VERSION "2.2.2"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -702,6 +702,14 @@ int getServoOffset(const char* servo) {
   return -1;
 }
 
+const char* bleStatus() {
+#if BLE_SUPPORTED
+  return bleState();
+#else
+  return "none";
+#endif
+}
+
 void printModuleRangeError(Print& reply) {
   reply.print(F("{\"error\":\"module must be 1 to "));
   reply.print(maxModuleForOffset());
@@ -963,6 +971,8 @@ void runCommand(char* json, Print& reply) {
     reply.print(BOARD_TYPE);
     reply.print(F("\",\"id\":\""));
     reply.print(deviceId);
+    reply.print(F("\",\"ble\":\""));
+    reply.print(bleStatus());
     reply.println(F("\"}"));
     return;
   }
@@ -1283,10 +1293,10 @@ void setup() {
     loadOrCreateDeviceId();
   }
 
-  char bootLine[128];
+  char bootLine[160];
   snprintf(bootLine, sizeof(bootLine),
-           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\"}",
-           FIRMWARE_VERSION, BOARD_TYPE, deviceId);
+           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\",\"ble\":\"%s\"}",
+           FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus());
   broadcastLine(bootLine);
 
 #if !defined(ARDUINO_ARCH_ESP32)
