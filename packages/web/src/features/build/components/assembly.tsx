@@ -1,3 +1,4 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { buttonVariants } from "@/components/ui/button";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
@@ -175,12 +176,11 @@ export function BuildAssembly() {
                       htmlFor={step.key}
                       className="flex cursor-pointer items-start gap-3 py-3 first:pt-0 last:pb-0"
                     >
-                      <input
+                      <Checkbox
                         id={step.key}
-                        type="checkbox"
                         checked={!!checked[step.key]}
-                        onChange={() => toggle(step.key)}
-                        className="mt-0.5 size-4 shrink-0 accent-primary"
+                        onCheckedChange={() => toggle(step.key)}
+                        className="mt-0.5"
                       />
                       <div className="min-w-0 flex-1">
                         <p
