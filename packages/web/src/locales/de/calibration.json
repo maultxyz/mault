@@ -146,7 +146,10 @@
     "capturingPhoto": "Wird aufgenommen…",
     "takePhotoPrompt": "Nimm mit deinem Telefon ein Foto auf, um das Rechteck zu positionieren.",
     "waitingForPhone": "Warte auf Telefon…",
-    "phoneCaptureFailed": "Das Telefon hat nicht rechtzeitig mit einem Foto geantwortet."
+    "phoneCaptureFailed": "Das Telefon hat nicht rechtzeitig mit einem Foto geantwortet.",
+    "cameraLabel": "Kamera",
+    "cameraPlaceholder": "Kamera auswählen",
+    "cameraFallbackLabel": "Kamera {{index}}"
   },
   "useCalibrationPage": {
     "toasts": {
