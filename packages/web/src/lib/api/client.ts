@@ -10,20 +10,23 @@ import { API_BASE } from "@/lib/constants/api";
 
 export { API_BASE };
 
-export async function getAuthHeaders(): Promise<HeadersInit> {
+export async function getRequestAuth(): Promise<{
+  token: string | null;
+  orgId: string | null;
+}> {
   const impersonation = getImpersonationState();
   if (impersonation) {
     return {
-      Authorization: `Bearer ${impersonation.token}`,
-      ...(impersonation.activeOrgId
-        ? { "X-Org-Id": impersonation.activeOrgId }
-        : {}),
+      token: impersonation.token,
+      orgId: impersonation.activeOrgId ?? null,
     };
   }
-
   const session = await getAuthSession();
-  const token = session?.token;
-  const orgId = getOrgId(session);
+  return { token: session?.token ?? null, orgId: getOrgId(session) };
+}
+
+export async function getAuthHeaders(): Promise<HeadersInit> {
+  const { token, orgId } = await getRequestAuth();
   return {
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...(orgId ? { "X-Org-Id": orgId } : {}),

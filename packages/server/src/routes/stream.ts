@@ -15,7 +15,11 @@ import {
   subscribeSession,
 } from "../lib/session-stream";
 import { subscribeSSE } from "../lib/sync-job";
-import { getUserDisplayName, verifyToken, type AppEnv } from "../middleware/auth";
+import {
+  getUserDisplayName,
+  verifyRequestToken,
+  type AppEnv,
+} from "../middleware/auth";
 import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 
 // GET /stream — single SSE connection multiplexing everything the app used to
@@ -31,7 +35,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
 
   if (!token) return c.json({ success: false, message: "Unauthorized" }, 401);
 
-  const payload = await verifyToken(token);
+  const payload = await verifyRequestToken(token);
   if (!payload?.sub)
     return c.json({ success: false, message: "Unauthorized" }, 401);
   const userId = payload.sub;
@@ -42,7 +46,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
   }
 
   const jwtClaims = orgId
-    ? JSON.stringify({ sub: userId, role: "authenticated" })
+    ? JSON.stringify({ sub: userId, role: "authenticated", org_id: orgId })
     : null;
   const displayName = await getUserDisplayName(userId);
 
@@ -52,11 +56,10 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       stream.writeSSE({ event, data: JSON.stringify(data) }).catch(() => {});
     };
 
-    // "error" is EventSource's reserved connection-failure event name, so the
-    // sync job's own same-named event is renamed here - a custom "error" event
-    // would otherwise also fire every other consumer's connection-error handler.
     const unsubs: Array<() => void> = [
-      subscribeSSE((event, data) => write(event === "error" ? "sync_error" : event, data)),
+      subscribeSSE((event, data) =>
+        write(event === "error" ? "sync_error" : event, data),
+      ),
     ];
 
     if (orgId) {
@@ -172,15 +175,17 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
             };
           });
 
-          if (initial) {
+          if (!initial) {
+            console.warn(`[stream] Session ${guid} not found in org ${orgId}`);
+          } else {
             const cards = await applyTcgplayerPricesToScans(
               initial.collection.game?.key,
               initial.cards,
             );
             write(`session:${guid}:session_init`, { ...initial, cards });
           }
-        } catch {
-          // non-fatal — subscriber will still receive live session events
+        } catch (err) {
+          console.error(`[stream] Failed to load session ${guid}:`, err);
         }
       }
     }

@@ -44,6 +44,7 @@ function CardGrid({
   isMobile,
   viewMode,
   groupDuplicates,
+  pageResetKey,
 }: {
   filteredAndSorted: ReturnType<typeof useCardFilterSort>["filteredAndSorted"];
   status: string;
@@ -51,6 +52,7 @@ function CardGrid({
   isMobile: boolean;
   viewMode: CardViewMode;
   groupDuplicates: boolean;
+  pageResetKey: string;
 }) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -70,7 +72,7 @@ function CardGrid({
 
   useEffect(() => {
     setPage(0);
-  }, [displayEntries.length]);
+  }, [pageResetKey]);
 
   return (
     <>
@@ -98,7 +100,7 @@ function CardGrid({
             {t("monitorPage.noCardsMatchSearch")}
           </div>
         )}
-      {viewMode === "list" ? (
+      {pagedCards.length === 0 ? null : viewMode === "list" ? (
         <div className="p-4">
           <div className="rounded-lg border">
             <ScannedCardTable
@@ -198,6 +200,7 @@ export default function MonitorPage() {
     () => computeDisplayStats(cards, filteredAndSorted),
     [cards, filteredAndSorted],
   );
+  const filterKey = JSON.stringify({ searchQuery, sortKey, filters });
 
   const [viewMode, setViewMode] = useState<CardViewMode>(() => {
     try {
@@ -310,6 +313,7 @@ export default function MonitorPage() {
                   isMobile
                   viewMode={viewMode}
                   groupDuplicates={groupDuplicates}
+                  pageResetKey={`${filterKey}:${groupDuplicates}`}
                 />
               </div>
             </div>
@@ -360,6 +364,7 @@ export default function MonitorPage() {
           isMobile={false}
           viewMode={viewMode}
           groupDuplicates={groupDuplicates}
+          pageResetKey={`${filterKey}:${groupDuplicates}`}
         />
       </main>
     </div>
