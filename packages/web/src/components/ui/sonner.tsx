@@ -12,6 +12,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster app-toaster group"
       richColors
+      closeButton
       icons={{
         success: (
           <IconCircleCheck className="size-4" />
