@@ -26,6 +26,7 @@ import {
   SerialTransport,
   type ByteTransport,
 } from "@/features/scanner/lib/transports";
+import { SERIAL_PUSH_BLOCKED_ERROR } from "@/lib/constants/firmware";
 import {
   DEVICE_LEASE_HEARTBEAT_MS,
   PUSH_TEST_RESPONSE_TIMEOUT_MS,
@@ -666,8 +667,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       if (typeof msg !== "object" || msg === null) return;
       const fields = msg as Record<string, unknown>;
       if (fields.status === "test_complete") setIsReady(true);
-      // The device announces itself unprompted on boot (ESP32s reset when the
-      // port opens) and again on getStatus, so a one-shot waiter can miss it.
+      if (fields.error === SERIAL_PUSH_BLOCKED_ERROR) {
+        toast.error(t("serial.pushBlocked.title"), {
+          description: t("serial.pushBlocked.description", {
+            module: fields.module,
+          }),
+        });
+      }
+
       if (typeof fields.version === "string")
         setFirmwareVersion(fields.version);
       if (fields.board === "esp32" || fields.board === "uno_r4") {
@@ -680,7 +687,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return () => {
       listeners.delete(listener);
     };
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     stationsRef.current.setStationConnected(station.id, isConnected);

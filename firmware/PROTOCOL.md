@@ -68,7 +68,10 @@ a serial connection to the device can drive it by following this spec
 - One other message is **unsolicited** and can arrive at any time
   between command/response pairs: `{"error":"jam","module":N}`, pushed
   if module *N*'s IR sensor sees a card continuously for 20 seconds
-  outside of an active `route`. A client should watch for this
+  with no servo activity (firmware 2.2.1+: the clock restarts on any
+  servo move, so back-to-back cards fed in during a `feedNext` route never
+  add up to a false jam; older firmware timed from when the sensor was
+  last seen empty). A client should watch for this
   independently of whatever response it's waiting on. This check is
   purely informational - it doesn't move any servos, since nothing is
   actively trying to sort that card. Paddle-flap recovery only happens
@@ -189,6 +192,15 @@ field is present.
 ```
 → `{"status":"ready","version":"1.0.2","board":"esp32","id":"A1B2C3"}`
 
+Firmware 2.2.2+ adds `"ble"` to this line and to the boot banner:
+`"advertising"` (BLE is up and discoverable), `"connected"` (a central is
+connected, so the device isn't advertising, since ArduinoBLE and this
+firmware's Bluedroid backend accept one connection at a time),
+`"unavailable"` (the BLE stack failed to start, e.g. the Uno R4 WiFi's
+co-processor didn't answer `BLE.begin()` after 5 attempts; the device keeps
+working over Serial), or `"none"` (a board with no BLE hardware, such as the
+Uno R4 Minima).
+
 ### `setChannelOffset`
 ```json
 {"setChannelOffset": 0}
@@ -241,6 +253,22 @@ or, to bypass calibrated positions and drive a raw pulse directly:
 → `{"status":"ok","servo":"bottom","module":1}`, or
 `{"error":"servo must be bottom, paddle, or pusher"}` /
 `{"error":"invalid position"}` / `{"error":"module must be 1 to N"}`
+
+#### Push safeguard (firmware 2.2.0+)
+
+A pusher may only move off neutral while a card is on its module's platform
+(that module's IR sensor reads a card) if that module's side paddle has
+been commanded to its calibrated `paddleOpen` position and has had
+`DELAY_PADDLE` (300 ms) to get there. The firmware has no paddle position
+sensor, so it tracks the last position it commanded: any other paddle
+pulse, or the idle servo release, counts as not open. With no card on the
+platform, pushers move freely (calibration). A refused move changes
+nothing and answers
+`{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}`.
+This applies to `servo` pusher moves and to `channel` writes that land on a
+module's pusher channel. Returning a pusher to neutral is always allowed.
+`route` and `pushTest` already lower the paddle first, and also wait for the
+same condition before firing.
 
 ### `channel` (raw PCA9685 channel test)
 ```json
@@ -423,6 +451,7 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 255 characters |
+| `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}` | a `servo`/`channel` pusher move while a card is on module *N*'s platform and its side paddle isn't down (see Push safeguard) |
 | `{"error":"busy","reason":"another command is in progress"}` | a line arrived while another command (from any transport) was still executing; the line was not run |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
-| `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (informational only - no paddle-flap is attempted since nothing is actively sorting) |
+| `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no servo activity (informational only - no paddle-flap is attempted since nothing is actively sorting) |

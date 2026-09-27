@@ -69,6 +69,10 @@
         "success": "Firmware installiert. Die Platine wurde neu gestartet und kann verbunden werden.",
         "connectButton": "Sortierer verbinden"
       }
+    },
+    "pushBlocked": {
+      "title": "Schieber blockiert",
+      "description": "Auf der Plattform von Modul {{module}} liegt eine Karte. Senke zuerst das seitliche Paddel, bevor du den Schieber bewegst."
     }
   },
   "sessionMonitor": {

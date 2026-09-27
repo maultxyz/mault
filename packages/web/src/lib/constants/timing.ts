@@ -7,7 +7,6 @@ export const CAPTURE_FLASH_MS = 300;
 export const PRESENCE_TIMEOUT_MS = 8000;
 export const CAPTURE_TIMEOUT_MS = 8000;
 export const HEARTBEAT_INTERVAL_MS = 3000;
-export const IDLE_THRESHOLD_MS = 5_000;
 export const DOCUMENT_TITLE_CYCLE_MS = 4000;
 export const APP_VERSION_CHECK_INTERVAL_MS = 15 * 60 * 1000;
 export const TOUR_STEP_NAVIGATION_DELAY_MS = 60;

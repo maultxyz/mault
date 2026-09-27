@@ -6,6 +6,15 @@ export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "duplicate",
 ];
 
+export const SESSION_TIMER_RUNNING_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "settling",
+  "searching",
+  "captured",
+  "duplicate",
+  "no-match",
+];
+
 export const PAUSE_WHEN_HIDDEN_STATUSES: ScannerStatus[] = [
   "scanning",
   "settling",

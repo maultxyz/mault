@@ -1,52 +1,33 @@
-import { IDLE_THRESHOLD_MS } from "@/lib/constants/timing";
 import { useEffect, useRef, useState } from "react";
 
-export function useScanTimer(lastScannedAt: number | undefined, resetSignal: number) {
+export function useScanTimer(isRunning: boolean, resetSignal: number) {
   const [elapsedMs, setElapsedMs] = useState(0);
-  const [isActive, setIsActive] = useState(false);
-
   const accumulated = useRef(0);
   const segmentStart = useRef<number | null>(null);
-  const isActiveRef = useRef(false);
 
   useEffect(() => {
-    segmentStart.current = null;
     accumulated.current = 0;
-    isActiveRef.current = false;
-    setIsActive(false);
+    segmentStart.current = segmentStart.current === null ? null : Date.now();
     setElapsedMs(0);
   }, [resetSignal]);
 
   useEffect(() => {
-    if (!isActive) return;
+    if (!isRunning) return;
+    segmentStart.current = Date.now();
     const id = setInterval(() => {
       if (segmentStart.current !== null) {
         setElapsedMs(accumulated.current + (Date.now() - segmentStart.current));
       }
     }, 1000);
-    return () => clearInterval(id);
-  }, [isActive]);
-
-  useEffect(() => {
-    if (lastScannedAt === undefined) return;
-
-    if (!isActiveRef.current) {
-      segmentStart.current = Date.now();
-      isActiveRef.current = true;
-      setIsActive(true);
-    }
-
-    const id = setTimeout(() => {
+    return () => {
+      clearInterval(id);
       if (segmentStart.current !== null) {
         accumulated.current += Date.now() - segmentStart.current;
         segmentStart.current = null;
       }
-      isActiveRef.current = false;
-      setIsActive(false);
-    }, IDLE_THRESHOLD_MS);
+      setElapsedMs(accumulated.current);
+    };
+  }, [isRunning]);
 
-    return () => clearTimeout(id);
-  }, [lastScannedAt]);
-
-  return { elapsedMs, isActive };
+  return { elapsedMs, isActive: isRunning };
 }

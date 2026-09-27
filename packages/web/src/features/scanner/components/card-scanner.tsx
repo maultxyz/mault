@@ -20,7 +20,10 @@ import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
-import { PAUSE_WHEN_HIDDEN_STATUSES } from "@/lib/constants/scanner";
+import {
+  PAUSE_WHEN_HIDDEN_STATUSES,
+  SESSION_TIMER_RUNNING_STATUSES,
+} from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import type { CardScannerProps } from "@magic-vault/shared";
 import { IconEye } from "@tabler/icons-react";
@@ -47,6 +50,7 @@ export function CardScanner({
     registerPauseHook,
     binLimitReached,
     resolveBinLimit,
+    setScannerRunning,
   } = useScannedCards();
   const { station } = useStation();
   const {
@@ -182,6 +186,12 @@ export function CardScanner({
       captureCard();
     }
   }, [handleResume, captureCard]);
+
+  useEffect(() => {
+    setScannerRunning(SESSION_TIMER_RUNNING_STATUSES.includes(status));
+  }, [status, setScannerRunning]);
+
+  useEffect(() => () => setScannerRunning(false), [setScannerRunning]);
 
   const statusRef = useRef(status);
   statusRef.current = status;
@@ -408,7 +418,7 @@ export function CardScanner({
               <img
                 src={debugImageUrl}
                 alt={t("cardScanner.lastSearchImageAlt")}
-                className="w-48"
+                className="w-48 aspect-square object-fill"
               />
             </TooltipContent>
           </Tooltip>

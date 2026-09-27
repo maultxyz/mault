@@ -119,6 +119,8 @@ void blePoll() {
 
 bool bleIsConnected() { return bleConnected; }
 
+const char* bleState() { return bleConnected ? "connected" : "advertising"; }
+
 void bleSendLine(const char* s) {
   if (!bleConnected || bleTxChar == nullptr) return;
   size_t len = strlen(s);

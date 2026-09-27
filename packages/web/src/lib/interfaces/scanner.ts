@@ -75,6 +75,7 @@ export interface ScannedCardsContextValue {
   forceFoilType: string | null;
   elapsedMs: number;
   isTimerActive: boolean;
+  setScannerRunning: (running: boolean) => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
   addCard: (

@@ -474,11 +474,12 @@ export function BinConfigsProvider({
       repackSlots: RepackSlot[];
       repackAllowDuplicates: boolean;
     }) => {
-      if (!selectedSet) return;
-      await setRepackConfigMutation.mutateAsync({
+      if (!selectedSet) return false;
+      const result = await setRepackConfigMutation.mutateAsync({
         guid: selectedSet.guid,
         config,
       });
+      return !!(result.success && result.data);
     },
     [setRepackConfigMutation, selectedSet],
   );

@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.1.0"
+#define FIRMWARE_VERSION "2.2.2"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -366,7 +366,7 @@ InputState bleInput;
 void feedByte(InputState& s, char c, Print& reply);
 
 unsigned long modulePresentSince[MAX_MODULES] = {0};
-bool moduleJamAlerted[MAX_MODULES] = {false};
+unsigned long moduleJamAlertedFor[MAX_MODULES] = {0};
 
 int getChannel(int module, int servoOffset) {
   return moduleChannelOffset + (module - 1) * 3 + servoOffset;
@@ -411,14 +411,60 @@ void ensureServoDriver() {
   if (pwm.readPrescale() != expected) recoverServoDriver();
 }
 
+unsigned long paddleOpenedAt[MAX_MODULES] = {0};
+
+int servoPulse(int pulse) {
+  return constrain(pulse, 120, 490);
+}
+
+int moduleForChannel(int channel) {
+  int rel = channel - moduleChannelOffset;
+  if (rel < 0) return 0;
+  int module = rel / 3 + 1;
+  return module <= maxModuleForOffset() ? module : 0;
+}
+
+int servoSlotForChannel(int channel) {
+  return moduleForChannel(channel) ? (channel - moduleChannelOffset) % 3 : -1;
+}
+
 void setServoPosition(int channel, int pulse) {
-  int value = constrain(pulse, 120, 490);
+  int value = servoPulse(pulse);
   if (pwm.setPWM(channel, 0, value) != 0) {
     recoverServoDriver();
     pwm.setPWM(channel, 0, value);
   }
   lastServoMoveAt = millis();
   servosReleased = false;
+
+  int module = moduleForChannel(channel);
+  if (module && servoSlotForChannel(channel) == 1) {
+    bool open = value == servoPulse(moduleConfig[module - 1].paddleOpen);
+    paddleOpenedAt[module - 1] = open ? (millis() | 1) : 0;
+  }
+}
+
+bool cardOnPlatform(int module) {
+  return digitalRead(irPin(module)) == LOW;
+}
+
+bool paddleReadyForPush(int module) {
+  unsigned long openedAt = paddleOpenedAt[module - 1];
+  return openedAt != 0 && millis() - openedAt >= DELAY_PADDLE;
+}
+
+bool pushAllowed(int module) {
+  return !cardOnPlatform(module) || paddleReadyForPush(module);
+}
+
+bool isPusherPush(int module, int pulse) {
+  return servoPulse(pulse) != servoPulse(moduleConfig[module - 1].pusherNeutral);
+}
+
+void printPushBlocked(int module, Print& reply) {
+  reply.print(F("{\"error\":\"push_blocked\",\"reason\":\"lower the side paddle before pushing a card\",\"module\":"));
+  reply.print(module);
+  reply.println(F("}"));
 }
 
 // SG90s keep hunting around a held position and pick up supply noise as
@@ -431,6 +477,7 @@ void releaseIdleServos() {
   }
   for (int m = 1; m <= maxModuleForOffset(); m++) {
     for (int s = 0; s < 3; s++) pwm.setPin(getChannel(m, s), 0);
+    paddleOpenedAt[m - 1] = 0;
   }
   servosReleased = true;
 }
@@ -563,16 +610,19 @@ void checkModuleJams() {
     bool present = digitalRead(irPin(m)) == LOW;
     if (!present) {
       modulePresentSince[i] = 0;
-      moduleJamAlerted[i] = false;
+      moduleJamAlertedFor[i] = 0;
       continue;
     }
     if (modulePresentSince[i] == 0) {
       modulePresentSince[i] = millis();
       continue;
     }
-    unsigned long presentFor = millis() - modulePresentSince[i];
-    if (!moduleJamAlerted[i] && presentFor > MODULE_JAM_TIMEOUT_MS) {
-      moduleJamAlerted[i] = true;
+    unsigned long idleSince = modulePresentSince[i] > lastServoMoveAt
+      ? modulePresentSince[i]
+      : lastServoMoveAt;
+    unsigned long presentFor = millis() - idleSince;
+    if (moduleJamAlertedFor[i] != idleSince && presentFor > MODULE_JAM_TIMEOUT_MS) {
+      moduleJamAlertedFor[i] = idleSince;
       char line[40];
       snprintf(line, sizeof(line), "{\"error\":\"jam\",\"module\":%d}", m);
       broadcastLine(line);
@@ -650,6 +700,14 @@ int getServoOffset(const char* servo) {
   if (strcmp(servo, "paddle") == 0) return 1;
   if (strcmp(servo, "pusher") == 0) return 2;
   return -1;
+}
+
+const char* bleStatus() {
+#if BLE_SUPPORTED
+  return bleState();
+#else
+  return "none";
+#endif
 }
 
 void printModuleRangeError(Print& reply) {
@@ -766,6 +824,7 @@ void pushCard(int module, bool pushLeft, int holdMs, int paddleCloseDelayMs,
   ModuleConfig& c = moduleConfig[module - 1];
   setServoPosition(getChannel(module, 1), c.paddleOpen);
   waitMs(DELAY_PADDLE);
+  while (!pushAllowed(module)) waitMs(5);
   setServoPosition(getChannel(module, 2), pushLeft ? c.pusherLeft : c.pusherRight);
   unsigned long pusherFiredAt = millis();
   waitMs(holdMs);
@@ -912,6 +971,8 @@ void runCommand(char* json, Print& reply) {
     reply.print(BOARD_TYPE);
     reply.print(F("\",\"id\":\""));
     reply.print(deviceId);
+    reply.print(F("\",\"ble\":\""));
+    reply.print(bleStatus());
     reply.println(F("\"}"));
     return;
   }
@@ -1009,6 +1070,10 @@ void runCommand(char* json, Print& reply) {
         return;
       }
     }
+    if (offset == 2 && isPusherPush(module, pulse) && !pushAllowed(module)) {
+      printPushBlocked(module, reply);
+      return;
+    }
     setServoPosition(getChannel(module, offset), pulse);
     waitMs(200);
 
@@ -1032,7 +1097,14 @@ void runCommand(char* json, Print& reply) {
       reply.println(F("{\"error\":\"channel must be 0 to 15\"}"));
       return;
     }
-    setServoPosition(channel, doc["value"].as<int>());
+    int value = doc["value"].as<int>();
+    int channelModule = moduleForChannel(channel);
+    if (channelModule && servoSlotForChannel(channel) == 2 &&
+        isPusherPush(channelModule, value) && !pushAllowed(channelModule)) {
+      printPushBlocked(channelModule, reply);
+      return;
+    }
+    setServoPosition(channel, value);
     reply.print(F("{\"status\":\"ok\",\"channel\":"));
     reply.print(channel);
     reply.println(F("}"));
@@ -1221,10 +1293,10 @@ void setup() {
     loadOrCreateDeviceId();
   }
 
-  char bootLine[128];
+  char bootLine[160];
   snprintf(bootLine, sizeof(bootLine),
-           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\"}",
-           FIRMWARE_VERSION, BOARD_TYPE, deviceId);
+           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\",\"ble\":\"%s\"}",
+           FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus());
   broadcastLine(bootLine);
 
 #if !defined(ARDUINO_ARCH_ESP32)

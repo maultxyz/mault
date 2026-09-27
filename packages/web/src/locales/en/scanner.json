@@ -69,6 +69,10 @@
         "success": "Firmware installed. The board has restarted and is ready to connect.",
         "connectButton": "Connect sorter"
       }
+    },
+    "pushBlocked": {
+      "title": "Pusher blocked",
+      "description": "A card is on module {{module}}'s platform. Lower its side paddle before moving the pusher."
     }
   },
   "sessionMonitor": {

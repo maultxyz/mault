@@ -130,12 +130,10 @@ export function ScannedCardsProvider({
   const activeCollectionRef = useRef(activeCollection);
   const emptyCollectionRef = useRef(emptyCollection);
   const prevCollectionGuidRef = useRef<string | undefined>(undefined);
-  const [timerTrigger, setTimerTrigger] = useState<number | undefined>(
-    undefined,
-  );
+  const [scannerRunning, setScannerRunning] = useState(false);
   const [timerResetSignal, setTimerResetSignal] = useState(0);
   const { elapsedMs, isActive: isTimerActive } = useScanTimer(
-    timerTrigger,
+    scannerRunning,
     timerResetSignal,
   );
 
@@ -363,7 +361,6 @@ export function ScannedCardsProvider({
           ...binContentsRef.current,
         ];
       }
-      setTimerTrigger(record.scannedAt);
 
       const orgId = activeOrgIdRef.current;
       const billingQueryKey = orgId
@@ -676,7 +673,6 @@ export function ScannedCardsProvider({
   const clearCards = useCallback(() => {
     const collection = activeCollectionRef.current;
     binContentsRef.current = [];
-    setTimerTrigger(undefined);
     setTimerResetSignal((s) => s + 1);
     if (collection) {
       emptyCollectionRef
@@ -697,6 +693,7 @@ export function ScannedCardsProvider({
         forceFoilType,
         elapsedMs,
         isTimerActive,
+        setScannerRunning,
         setAutoFeed,
         setForceFoilType,
         registerCardArrivedHook,
