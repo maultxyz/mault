@@ -31,7 +31,7 @@ import { IconCopy, IconLoader2, IconShare } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function ShareMonitorLinkDialog({
   collectionGuid,

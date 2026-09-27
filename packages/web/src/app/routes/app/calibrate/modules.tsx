@@ -13,7 +13,7 @@ import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useModuleCountConfig } from "@/features/calibration/api/use-module-count-config";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export default function CalibrateModulesPage() {
   const { t } = useTranslation("calibration");

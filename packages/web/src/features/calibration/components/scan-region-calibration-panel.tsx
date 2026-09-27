@@ -83,6 +83,9 @@ export function ScanRegionCalibrationPanel({
     errorMessage,
     retryCamera,
     cameraSource,
+    cameras,
+    selectedCameraId,
+    selectCamera,
     phonePairingStatus,
     phonePairingUrl,
     startPhonePairing,
@@ -306,6 +309,55 @@ export function ScanRegionCalibrationPanel({
                 : t("scanRegionCalibrationPanel.usePhoneAsCamera")}
             </Button>
           </div>
+
+          {cameraSource === "local" && cameras.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <label
+                htmlFor="calibration-camera"
+                className="text-xs text-foreground/70"
+              >
+                {t("scanRegionCalibrationPanel.cameraLabel")}
+              </label>
+              <Select
+                value={selectedCameraId ?? ""}
+                onValueChange={(deviceId) => {
+                  if (deviceId && deviceId !== selectedCameraId) {
+                    void selectCamera(deviceId);
+                  }
+                }}
+                disabled={cameras.length < 2 || isConnecting}
+              >
+                <SelectTrigger id="calibration-camera" className="w-full">
+                  <SelectValue
+                    placeholder={t("scanRegionCalibrationPanel.cameraPlaceholder")}
+                  >
+                    {(() => {
+                      const index = cameras.findIndex(
+                        (cam) => cam.deviceId === selectedCameraId,
+                      );
+                      if (index < 0) return null;
+                      return (
+                        cameras[index].label ||
+                        t("scanRegionCalibrationPanel.cameraFallbackLabel", {
+                          index: index + 1,
+                        })
+                      );
+                    })()}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {cameras.map((cam, i) => (
+                    <SelectItem key={cam.deviceId} value={cam.deviceId}>
+                      {cam.label ||
+                        t("scanRegionCalibrationPanel.cameraFallbackLabel", {
+                          index: i + 1,
+                        })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           {cameraSource === "phone" && (
             <Button

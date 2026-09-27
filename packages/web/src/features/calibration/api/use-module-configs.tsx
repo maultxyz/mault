@@ -16,7 +16,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 const ModuleConfigsContext = createContext<ModuleConfigsContextValue | null>(
   null,

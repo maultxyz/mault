@@ -7,3 +7,15 @@ export interface BillingStatus {
   dailyLimit: number | null;
   maxConnectedSorters?: number | null;
 }
+
+export interface SupportPromptState {
+  scans: number;
+  lastShownAt: number | null;
+  optedOut: boolean;
+}
+
+export interface SupportPromptToastProps {
+  toastId: string | number;
+  showSubscribe: boolean;
+  onSubscribe: () => void;
+}

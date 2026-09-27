@@ -39,6 +39,7 @@ import {
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
+import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
@@ -56,7 +57,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,
@@ -349,6 +350,8 @@ export function ScannedCardsProvider({
         isFoil: forceFoilTypeRef.current != null || undefined,
         foilType: forceFoilTypeRef.current ?? undefined,
       };
+
+      recordSupportPromptScan();
 
       if (record.binNumber != null && selectedSetRef.current?.isRepackMode) {
         binContentsRef.current = [

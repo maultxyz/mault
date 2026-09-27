@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
+import { TOAST_DURATION_MS } from "@/lib/constants/toast"
 import { IconCircleCheck, IconInfoCircle, IconAlertTriangle, IconAlertOctagon, IconLoader } from "@tabler/icons-react"
 
 const Toaster = ({ ...props }: ToasterProps) => {
@@ -12,6 +13,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster app-toaster group"
       richColors
+      closeButton
+      duration={TOAST_DURATION_MS}
       icons={{
         success: (
           <IconCircleCheck className="size-4" />

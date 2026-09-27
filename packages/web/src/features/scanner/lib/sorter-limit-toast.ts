@@ -1,6 +1,6 @@
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function showSorterLimitToast(
   t: TFunction<"scanner">,

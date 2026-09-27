@@ -25,7 +25,7 @@ import {
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { BinRulesMenuProps } from "@/lib/interfaces/bins";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function BinRulesMenu({ className }: BinRulesMenuProps) {
   const { t } = useTranslation("bins");

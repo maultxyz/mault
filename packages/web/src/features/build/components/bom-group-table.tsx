@@ -1,3 +1,4 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import type { BoardType } from "@/features/build/api/use-board-type";
 import {
   optionalBadgeLabel,
@@ -60,14 +61,12 @@ export function BomGroupTable({
                   )}
                 >
                   <td className="px-3 py-2.5">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       aria-label={t("bom.checkboxAriaLabel", {
                         qty: qty === "-" ? "" : qty,
                       })}
                       checked={!!checked[row.key]}
-                      onChange={() => toggle(row.key)}
-                      className="size-4 accent-primary"
+                      onCheckedChange={() => toggle(row.key)}
                     />
                   </td>
                   <td className="px-3 py-2.5 font-mono text-foreground/70 tabular-nums">

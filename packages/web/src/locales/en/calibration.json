@@ -146,7 +146,10 @@
     "capturingPhoto": "Capturing…",
     "takePhotoPrompt": "Take a photo from your phone to position the box.",
     "waitingForPhone": "Waiting for phone…",
-    "phoneCaptureFailed": "Phone didn't respond with a photo in time."
+    "phoneCaptureFailed": "Phone didn't respond with a photo in time.",
+    "cameraLabel": "Camera",
+    "cameraPlaceholder": "Select a camera",
+    "cameraFallbackLabel": "Camera {{index}}"
   },
   "useCalibrationPage": {
     "toasts": {

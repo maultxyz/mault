@@ -58,7 +58,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export type { SerialMessageListener } from "@/lib/interfaces/scanner";
 
@@ -413,8 +413,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       description: current
         ? t("serial.unidentifiedBoard.description", { name: current.name })
         : t("serial.unidentifiedBoard.descriptionNoDevice"),
-      duration: Infinity,
-      dismissible: true,
     });
     return current;
   }, [activeOrg?.id, queryClient, claimForStation, t]);

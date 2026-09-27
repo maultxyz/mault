@@ -6,7 +6,7 @@ import { IconAlertTriangle, IconLoader2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 function useEmailVerificationAlertNeon(): AppAlert | null {
   const { t } = useTranslation("common");

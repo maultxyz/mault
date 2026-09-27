@@ -44,7 +44,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 function formatManaCost(manaCost: string): string {
   return manaCost.replace(/[{}]/g, " ").trim().replace(/\s+/g, " ");

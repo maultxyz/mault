@@ -14,5 +14,13 @@
   "cancelAtPeriodEnd": "Ton abonnement se termine le {{date}}.",
   "checkoutSuccess": "Tu es maintenant sur le plan Entreprise !",
   "checkoutError": "Échec du démarrage du paiement. Réessaie.",
-  "portalError": "Échec de l'ouverture du portail de facturation. Réessaie."
+  "portalError": "Échec de l'ouverture du portail de facturation. Réessaie.",
+  "supportPrompt": {
+    "title": "Tu apprécies Mault ?",
+    "description": "Mault est développé de manière indépendante. S'il te fait gagner du temps, tu peux aider à le faire vivre.",
+    "support": "Offre-nous un café",
+    "subscribe": "S'abonner",
+    "later": "Plus tard",
+    "dontAskAgain": "Ne plus demander"
+  }
 }
