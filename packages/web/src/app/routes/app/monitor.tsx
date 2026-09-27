@@ -9,7 +9,7 @@ import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCardFilterSort } from "@/features/cards/api/use-card-filter-sort";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
-import { ScannedCardListItem } from "@/features/cards/components/scanned-card-list-item";
+import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
 import { toDisplayEntries } from "@/features/cards/lib/group-cards";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
@@ -99,16 +99,23 @@ function CardGrid({
           </div>
         )}
       {viewMode === "list" ? (
-        <div className="flex flex-col gap-1.5 p-4">
-          {pagedCards.map((card) => (
-            <ScannedCardListItem
-              key={card.scanId}
-              card={card.card}
-              binNumber={card.binNumber}
-              onOpen={() => {}}
-              quantity={card.quantity}
+        <div className="p-4">
+          <div className="rounded-lg border">
+            <ScannedCardTable
+              rows={pagedCards.map((card) => ({
+                scanId: card.scanId,
+                scanIds: card.scanIds,
+                card: card.card,
+                binNumber: card.binNumber,
+                quantity: card.quantity,
+                isFoil: card.isFoil,
+                foilType: card.foilType,
+                hasAlternatives: !!card.alternativeMatches?.length,
+                wasCorrected: card.corrected,
+              }))}
+              showQuantity={groupDuplicates}
             />
-          ))}
+          </div>
         </div>
       ) : (
         <div

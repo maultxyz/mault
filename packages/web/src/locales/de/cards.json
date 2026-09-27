@@ -118,6 +118,18 @@
     "quantityTooltip_one": "{{count}} Exemplar dieser Karte in dieser Sammlung",
     "quantityTooltip_other": "{{count}} Exemplare dieser Karte in dieser Sammlung"
   },
+  "scannedCardTable": {
+    "selectPage": "Alle Karten auf dieser Seite auswählen",
+    "selectRow": "{{name}} auswählen",
+    "image": "Bild",
+    "name": "Name",
+    "set": "Set",
+    "rarity": "Seltenheit",
+    "quantity": "Anz.",
+    "match": "Treffer",
+    "bin": "Fach",
+    "price": "Preis"
+  },
   "sessionSummaryDialog": {
     "title": "Sitzungsübersicht",
     "totalCards": "Karten gesamt",

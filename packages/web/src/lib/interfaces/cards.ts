@@ -78,6 +78,28 @@ export interface ScannedCardItemProps {
   quantity?: number;
 }
 
+export interface ScannedCardTableRow {
+  scanId: string;
+  scanIds: string[];
+  card: PlayingCardWithDistance;
+  binNumber?: number;
+  quantity: number;
+  isFoil?: boolean;
+  foilType?: string;
+  isDownloaded?: boolean;
+  hasAlternatives?: boolean;
+  wasCorrected?: boolean;
+  isSelected?: boolean;
+}
+
+export interface ScannedCardTableProps {
+  rows: ScannedCardTableRow[];
+  showQuantity?: boolean;
+  onOpen?: (row: ScannedCardTableRow) => void;
+  onToggleSelect?: (row: ScannedCardTableRow) => void;
+  onTogglePageSelect?: () => void;
+}
+
 export interface ExportContext {
   isMtg: boolean;
   fieldDefinitions: FieldMeta[];
