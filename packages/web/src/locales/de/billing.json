@@ -14,5 +14,13 @@
   "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
   "checkoutSuccess": "Du bist jetzt auf dem Business-Plan!",
   "checkoutError": "Checkout konnte nicht gestartet werden. Bitte versuche es erneut.",
-  "portalError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut."
+  "portalError": "Abrechnungsportal konnte nicht geöffnet werden. Bitte versuche es erneut.",
+  "supportPrompt": {
+    "title": "Gefällt dir Mault?",
+    "description": "Mault wird unabhängig entwickelt. Wenn es dir Zeit spart, kannst du helfen, es am Laufen zu halten.",
+    "support": "Spendiere uns einen Kaffee",
+    "subscribe": "Abonnieren",
+    "later": "Vielleicht später",
+    "dontAskAgain": "Nicht mehr fragen"
+  }
 }

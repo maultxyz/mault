@@ -23,7 +23,7 @@ import { IconCopy, IconMailPlus, IconPlus } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 interface Invitation {
   id: string;

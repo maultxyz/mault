@@ -18,7 +18,7 @@ import {
   useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 interface FeederConfigContextValue {
   feederConfig: FeederCalibration;

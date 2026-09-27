@@ -23,7 +23,7 @@ import { IconClockHour3 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
   const { t } = useTranslation("calibration");

@@ -19,7 +19,7 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 const CHANNELS = Array.from({ length: 16 }, (_, i) => i);
 const SWEEP_PULSES = [SERVO_PULSE_MIN, SERVO_PULSE_MAX, SERVO_PULSE_MIN];

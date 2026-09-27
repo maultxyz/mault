@@ -16,7 +16,7 @@ import { IconCopy, IconKey, IconLoader2, IconPlus } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 function formatDate(value: string | null): string | null {
   if (!value) return null;

@@ -2,7 +2,7 @@ import { reportSerialEvent } from "@/features/notifications/api/notification-set
 import type { RouteOptions } from "@/lib/interfaces/scanner";
 import type { BinRoute } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export interface RouteCardToBinParams {
   route: BinRoute;

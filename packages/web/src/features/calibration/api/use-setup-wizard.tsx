@@ -10,7 +10,7 @@ import type { SetupWizardContextValue } from "@/lib/interfaces/calibration";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 const SetupWizardContext = createContext<SetupWizardContextValue | null>(null);
 

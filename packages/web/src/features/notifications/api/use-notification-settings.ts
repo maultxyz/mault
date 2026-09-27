@@ -7,7 +7,7 @@ import {
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import type { NotificationTestType } from "./notification-settings";
 import { sendTestNotification } from "./notification-settings";
 

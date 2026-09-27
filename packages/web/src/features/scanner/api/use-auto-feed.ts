@@ -4,7 +4,7 @@ import { isFedEvent } from "@/features/scanner/lib/serial-messages";
 import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 interface AutoFeedSerial {
   sendCommand: (data: string) => Promise<boolean>;

@@ -14,5 +14,13 @@
   "cancelAtPeriodEnd": "Your subscription ends on {{date}}.",
   "checkoutSuccess": "You're now on the Business plan!",
   "checkoutError": "Failed to start checkout. Please try again.",
-  "portalError": "Failed to open billing portal. Please try again."
+  "portalError": "Failed to open billing portal. Please try again.",
+  "supportPrompt": {
+    "title": "Enjoying Mault?",
+    "description": "Mault is independently developed. If it's saving you time, you can help keep it going.",
+    "support": "Buy us a coffee",
+    "subscribe": "Subscribe",
+    "later": "Maybe later",
+    "dontAskAgain": "Don't ask again"
+  }
 }

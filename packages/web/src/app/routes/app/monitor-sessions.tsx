@@ -20,7 +20,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 function ScanningPill({ isOwn }: { isOwn?: boolean }) {
   const { t } = useTranslation("scanner");

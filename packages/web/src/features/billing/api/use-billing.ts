@@ -2,7 +2,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { neon } from "@/lib/auth/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import {
   billingQueryOptions,
   createCheckoutSession,

@@ -23,7 +23,7 @@ import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function FooterDivider() {
   return <span className="h-3 w-px bg-border shrink-0" />;

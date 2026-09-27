@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { testServerRollbar } from "@/lib/api/admin";
 import { useMutation } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function RollbarTestPanel() {
   const { t } = useTranslation("admin");

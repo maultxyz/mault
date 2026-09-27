@@ -12,7 +12,7 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function SyncCardByIdPanel() {
   const { t } = useTranslation("admin");

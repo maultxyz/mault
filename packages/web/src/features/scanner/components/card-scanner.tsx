@@ -29,8 +29,9 @@ import type { CardScannerProps } from "@magic-vault/shared";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function CardScanner({
   className,
@@ -193,6 +194,8 @@ export function CardScanner({
 
   useEffect(() => () => setScannerRunning(false), [setScannerRunning]);
 
+  useSupportPrompt(status);
+
   const statusRef = useRef(status);
   statusRef.current = status;
 
@@ -205,8 +208,6 @@ export function CardScanner({
       toast.info(t("cardScanner.pausedTabHidden.title"), {
         id: "scanner-paused-tab-hidden",
         description: t("cardScanner.pausedTabHidden.description"),
-        duration: Infinity,
-        dismissible: true,
       });
     };
     document.addEventListener("visibilitychange", onVisibilityChange);

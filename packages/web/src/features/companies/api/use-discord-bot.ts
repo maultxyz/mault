@@ -6,7 +6,7 @@ import {
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 export function useDiscordBotSettings() {
   const { t } = useTranslation("companies");
