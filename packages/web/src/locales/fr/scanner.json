@@ -349,5 +349,11 @@
       "title": "Plus de trieuses nécessitent l'offre Business",
       "description": "L'offre gratuite ne gère qu'une trieuse à la fois. Déconnectez l'autre trieuse, ou passez à Business dans les paramètres pour en utiliser plusieurs à la fois."
     }
+  },
+  "watchPage": {
+    "liveBadge": "En direct",
+    "readOnly": "Lecture seule",
+    "invalidTitle": "Ce lien ne fonctionne pas",
+    "invalidDescription": "Il a peut-être expiré ou été révoqué. Demande un nouveau lien à la personne qui l'a partagé."
   }
 }

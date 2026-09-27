@@ -84,6 +84,14 @@ export async function getUserContact(
   return authProvider.getUserContact(userId);
 }
 
+export async function verifyRequestToken(
+  token: string,
+): Promise<{ sub: string } | null> {
+  const impersonation = await verifyImpersonationToken(token);
+  if (impersonation) return { sub: impersonation.sub };
+  return verifyToken(token);
+}
+
 export async function getUserDisplayName(userId: string): Promise<string> {
   return authProvider.getUserDisplayName(userId);
 }

@@ -34,6 +34,12 @@
     "legacyBanner": "Du verwendest die Legacy-Kanalbelegung, begrenzt auf 3 Module. Verkabele Modul 1 neu, sodass es bei Kanal 0 beginnt, um bis zu 5 Module zu unterstützen.",
     "legacyBannerAction": "Auf Standard aktualisieren"
   },
+  "experimentalFeatures": {
+    "title": "Experimentell",
+    "badge": "Beta",
+    "pipelinedFeedLabel": "Nächste Karte während des Sortierens scannen",
+    "pipelinedFeedDescription": "Führt die nächste Karte zu und scannt sie, sobald die vorherige Modul 1 verlassen hat, statt zu warten, bis sie ihr Fach erreicht. Erfordert Firmware 2.1.0 oder neuer und aktivierte automatische Zufuhr. Schalte dies aus, wenn Karten klemmen oder Scans die sich bewegende Karte erfassen."
+  },
   "sections": {
     "moduleSetup": "Module & Routing",
     "scanRegion": "Scanbereich",

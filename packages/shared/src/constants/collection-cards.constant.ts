@@ -14,3 +14,4 @@ export const EMPTY_CARD_FILTERS: CardFilters = {
   minMatchPercent: 0,
   foilTypes: [],
 };
+export const RECENT_SCANNED_CARDS_COUNT = 5;

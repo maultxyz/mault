@@ -118,6 +118,18 @@
     "quantityTooltip_one": "{{count}} copy of this card in this collection",
     "quantityTooltip_other": "{{count}} copies of this card in this collection"
   },
+  "scannedCardTable": {
+    "selectPage": "Select all cards on this page",
+    "selectRow": "Select {{name}}",
+    "image": "Image",
+    "name": "Name",
+    "set": "Set",
+    "rarity": "Rarity",
+    "quantity": "Qty",
+    "match": "Match",
+    "bin": "Bin",
+    "price": "Price"
+  },
   "sessionSummaryDialog": {
     "title": "Session Summary",
     "totalCards": "Total Cards",

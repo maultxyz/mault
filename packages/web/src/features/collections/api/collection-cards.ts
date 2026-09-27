@@ -12,7 +12,7 @@ import type {
 } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
-function queryParams(
+export function cardsQueryParams(
   query: CollectionCardsQuery,
   extra: Record<string, string> = {},
 ): string {
@@ -55,7 +55,7 @@ export function loadCollectionCardIds(
 ): Promise<string[]> {
   return unwrap(
     apiGet<Result<string[]>>(
-      `/api/collections/${guid}/cards/ids?${queryParams(query)}`,
+      `/api/collections/${guid}/cards/ids?${cardsQueryParams(query)}`,
     ),
   );
 }
@@ -82,7 +82,7 @@ export const collectionCardsPageQueryOptions = (
     queryFn: () =>
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
-          `/api/collections/${guid}/cards?${queryParams(query, { page: String(page) })}`,
+          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page) })}`,
         ),
       ),
     enabled: !!guid,
@@ -98,7 +98,7 @@ export const collectionCardsSummaryQueryOptions = (
     queryFn: () =>
       unwrap(
         apiGet<Result<CollectionCardsSummary>>(
-          `/api/collections/${guid}/cards/summary?${queryParams(query)}`,
+          `/api/collections/${guid}/cards/summary?${cardsQueryParams(query)}`,
         ),
       ),
     enabled: !!guid,
@@ -115,7 +115,7 @@ export const collectionCardPositionQueryOptions = (
     queryFn: () =>
       unwrap(
         apiGet<Result<CollectionCardPosition | null>>(
-          `/api/collections/${guid}/cards/${scanId}/position?${queryParams(query)}`,
+          `/api/collections/${guid}/cards/${scanId}/position?${cardsQueryParams(query)}`,
         ),
       ),
     enabled: !!guid && !!scanId,

@@ -6,15 +6,28 @@ import type {
 } from "@/lib/interfaces/scanner";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type { Collection, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
-import { useEffect, useState } from "react";
+import { RECENT_SCANNED_CARDS_COUNT } from "@/lib/constants/limits";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export type { SessionError, SessionMonitorState };
 
-export function useSessionMonitor(collectionGuid: string | undefined): SessionMonitorState {
+export function useSessionMonitor(
+  collectionGuid: string | undefined,
+): SessionMonitorState {
+  const eventSource = useCollectionStream(collectionGuid);
+  return useSessionEvents(collectionGuid, eventSource);
+}
+
+export function useSessionEvents(
+  collectionGuid: string | undefined,
+  eventSource: EventSource | null,
+): SessionMonitorState {
   const { t } = useTranslation("scanner");
   const [collection, setCollection] = useState<Collection | null>(null);
-  const [cards, setCards] = useState<ScannedCard[]>([]);
+  const [recentCards, setRecentCards] = useState<ScannedCard[]>([]);
+  const [cardsVersion, setCardsVersion] = useState(0);
+  const initializedRef = useRef(false);
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
   const [viewers, setViewers] = useState<SessionViewer[]>([]);
   const [errors, setErrors] = useState<SessionError[]>([]);
@@ -26,12 +39,11 @@ export function useSessionMonitor(collectionGuid: string | undefined): SessionMo
       ...prev,
     ]);
 
-  const eventSource = useCollectionStream(collectionGuid);
-
   useEffect(() => {
     if (!collectionGuid) return;
     setStatus("connecting");
-    setCards([]);
+    initializedRef.current = false;
+    setRecentCards([]);
     setUnmatchedCards([]);
     setCollection(null);
     setViewers([]);
@@ -49,21 +61,24 @@ export function useSessionMonitor(collectionGuid: string | undefined): SessionMo
       es.addEventListener(name, handler);
       listeners.push([name, handler]);
     };
+    const cardsChanged = () => setCardsVersion((v) => v + 1);
 
     on(scoped("session_init"), (e) => {
       const {
         collection,
-        cards,
+        recentCards: initRecent,
         unmatchedCards: initUnmatched,
         viewers: initViewers,
       } = JSON.parse((e as MessageEvent).data) as {
         collection: Collection;
-        cards: ScannedCard[];
+        recentCards?: ScannedCard[];
         unmatchedCards?: UnmatchedCard[];
         viewers?: SessionViewer[];
       };
       setCollection(collection);
-      setCards(cards);
+      setRecentCards(initRecent ?? []);
+      if (initializedRef.current) cardsChanged();
+      initializedRef.current = true;
       setUnmatchedCards(initUnmatched ?? []);
       if (initViewers) setViewers(initViewers);
       setStatus("connected");
@@ -76,37 +91,45 @@ export function useSessionMonitor(collectionGuid: string | undefined): SessionMo
 
     on(scoped("card_added"), (e) => {
       const card = JSON.parse((e as MessageEvent).data) as ScannedCard;
-      setCards((prev) => [card, ...prev]);
+      setRecentCards((prev) =>
+        [card, ...prev].slice(0, RECENT_SCANNED_CARDS_COUNT),
+      );
+      cardsChanged();
     });
 
     on(scoped("card_updated"), (e) => {
       const updated = JSON.parse((e as MessageEvent).data) as ScannedCard;
-      setCards((prev) =>
+      setRecentCards((prev) =>
         prev.map((c) => (c.scanId === updated.scanId ? updated : c)),
       );
+      cardsChanged();
     });
 
     on(scoped("card_removed"), (e) => {
       const { scanId } = JSON.parse((e as MessageEvent).data) as { scanId: string };
-      setCards((prev) => prev.filter((c) => c.scanId !== scanId));
+      setRecentCards((prev) => prev.filter((c) => c.scanId !== scanId));
+      cardsChanged();
     });
 
     on(scoped("cards_removed"), (e) => {
       const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
       const ids = new Set(scanIds);
-      setCards((prev) => prev.filter((c) => !ids.has(c.scanId)));
+      setRecentCards((prev) => prev.filter((c) => !ids.has(c.scanId)));
+      cardsChanged();
     });
 
     on(scoped("cards_downloaded"), (e) => {
       const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
       const ids = new Set(scanIds);
-      setCards((prev) =>
+      setRecentCards((prev) =>
         prev.map((c) => (ids.has(c.scanId) ? { ...c, isDownloaded: true } : c)),
       );
+      cardsChanged();
     });
 
     on(scoped("cards_cleared"), () => {
-      setCards([]);
+      setRecentCards([]);
+      cardsChanged();
     });
 
     on(scoped("unmatched_added"), (e) => {
@@ -149,5 +172,13 @@ export function useSessionMonitor(collectionGuid: string | undefined): SessionMo
     };
   }, [eventSource, collectionGuid, t]);
 
-  return { collection, cards, unmatchedCards, viewers, errors, status };
+  return {
+    collection,
+    recentCards,
+    cardsVersion,
+    unmatchedCards,
+    viewers,
+    errors,
+    status,
+  };
 }

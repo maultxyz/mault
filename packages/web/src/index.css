@@ -31,6 +31,10 @@ code {
     source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
+[data-sonner-toaster]:not(.app-toaster) {
+  display: none;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);
@@ -74,6 +78,18 @@ code {
   --r: var(--rare);
   --lr: var(--mythic);
   --p: var(--mythic);
+  --toast-success-bg: oklch(0.962 0.044 156.743);
+  --toast-success-border: oklch(0.871 0.15 154.449);
+  --toast-success-text: oklch(0.448 0.119 151.328);
+  --toast-info-bg: oklch(0.97 0.014 254.604);
+  --toast-info-border: oklch(0.809 0.105 251.813);
+  --toast-info-text: oklch(0.488 0.243 264.376);
+  --toast-warning-bg: oklch(0.987 0.026 102.212);
+  --toast-warning-border: oklch(0.905 0.182 98.111);
+  --toast-warning-text: oklch(0.476 0.114 61.907);
+  --toast-error-bg: oklch(0.971 0.013 17.38);
+  --toast-error-border: oklch(0.808 0.114 19.571);
+  --toast-error-text: oklch(0.505 0.213 27.518);
 }
 
 .dark {
@@ -109,6 +125,18 @@ code {
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.552 0.016 285.938);
+  --toast-success-bg: oklch(0.266 0.065 152.934);
+  --toast-success-border: oklch(0.448 0.119 151.328);
+  --toast-success-text: oklch(0.871 0.15 154.449);
+  --toast-info-bg: oklch(0.282 0.091 267.935);
+  --toast-info-border: oklch(0.424 0.199 265.638);
+  --toast-info-text: oklch(0.809 0.105 251.813);
+  --toast-warning-bg: oklch(0.286 0.066 53.813);
+  --toast-warning-border: oklch(0.476 0.114 61.907);
+  --toast-warning-text: oklch(0.905 0.182 98.111);
+  --toast-error-bg: oklch(0.258 0.092 26.042);
+  --toast-error-border: oklch(0.444 0.177 26.899);
+  --toast-error-text: oklch(0.808 0.114 19.571);
 }
 
 @theme inline {

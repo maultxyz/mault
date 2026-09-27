@@ -118,6 +118,18 @@
     "quantityTooltip_one": "{{count}} exemplaire de cette carte dans cette collection",
     "quantityTooltip_other": "{{count}} exemplaires de cette carte dans cette collection"
   },
+  "scannedCardTable": {
+    "selectPage": "Sélectionner toutes les cartes de cette page",
+    "selectRow": "Sélectionner {{name}}",
+    "image": "Image",
+    "name": "Nom",
+    "set": "Extension",
+    "rarity": "Rareté",
+    "quantity": "Qté",
+    "match": "Correspondance",
+    "bin": "Bac",
+    "price": "Prix"
+  },
   "sessionSummaryDialog": {
     "title": "Résumé de la session",
     "totalCards": "Total des cartes",

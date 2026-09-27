@@ -3,13 +3,14 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
-import { ScannedCardListItem } from "@/features/cards/components/scanned-card-list-item";
+import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
 import {
   collectionCardPositionQueryOptions,
@@ -35,6 +36,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
 } from "@tabler/icons-react";
+import { computeBinCount } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -60,6 +62,7 @@ export function CardGrid() {
       : undefined;
   const { filters, setFilters } = useCardFilters();
   const { fieldDefinitions } = useBinConfigs();
+  const moduleCount = useModuleCount();
   const {
     searchQuery,
     setSearchQuery,
@@ -176,6 +179,19 @@ export function CardGrid() {
       return next;
     });
   }, []);
+
+  const togglePageSelect = useCallback(() => {
+    const pageIds = pagedCards.flatMap((entry) => entry.scanIds);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      const pageSelected = pageIds.every((id) => next.has(id));
+      for (const id of pageIds) {
+        if (pageSelected) next.delete(id);
+        else next.add(id);
+      }
+      return next;
+    });
+  }, [pagedCards]);
 
   const allSelected =
     totalCards > 0 &&
@@ -326,6 +342,7 @@ export function CardGrid() {
           availableRarities={stats?.rarities}
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
+          binCount={computeBinCount(moduleCount)}
           cardCount={totalCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
@@ -342,23 +359,26 @@ export function CardGrid() {
       )}
       <div className="p-2 flex-1">
         {viewMode === "list" ? (
-          <div className="flex flex-col gap-1.5">
-            {pagedCards.map((entry) => (
-              <ScannedCardListItem
-                key={entry.scanId}
-                card={entry.card}
-                onOpen={() => setOpenScanId(entry.scanId)}
-                binNumber={entry.binNumber}
-                isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                onToggleSelect={() => toggleSelect(entry.scanIds)}
-                hasAlternatives={!!entry.alternativeMatches?.length}
-                wasCorrected={entry.corrected}
-                isFoil={entry.isFoil}
-                foilType={entry.foilType}
-                isDownloaded={entry.isDownloaded}
-                quantity={entry.quantity}
-              />
-            ))}
+          <div className="rounded-lg border">
+            <ScannedCardTable
+              rows={pagedCards.map((entry) => ({
+                scanId: entry.scanId,
+                scanIds: entry.scanIds,
+                card: entry.card,
+                binNumber: entry.binNumber,
+                quantity: entry.quantity,
+                isFoil: entry.isFoil,
+                foilType: entry.foilType,
+                isDownloaded: entry.isDownloaded,
+                hasAlternatives: !!entry.alternativeMatches?.length,
+                wasCorrected: entry.corrected,
+                isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
+              }))}
+              showQuantity={groupDuplicates}
+              onOpen={(row) => setOpenScanId(row.scanId)}
+              onToggleSelect={(row) => toggleSelect(row.scanIds)}
+              onTogglePageSelect={togglePageSelect}
+            />
           </div>
         ) : (
           <div className={CARD_GRID_CLASS}>

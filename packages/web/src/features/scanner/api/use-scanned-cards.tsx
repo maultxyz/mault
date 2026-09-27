@@ -82,6 +82,12 @@ export function ScannedCardsProvider({
   const device = useDevice();
   const deviceGuidRef = useRef(device?.guid);
   deviceGuidRef.current = device?.guid;
+  const pipelinedFeedRef = useRef(device?.pipelinedFeed ?? false);
+  pipelinedFeedRef.current = device?.pipelinedFeed ?? false;
+  const isPipelinedFeedEnabled = useCallback(
+    () => pipelinedFeedRef.current,
+    [],
+  );
   const { sendRoute, sendCommand, receiveResponse, isConnected, isReady } =
     useSerial();
   const { activeCollection, emptyCollection } = useCollections();
@@ -423,6 +429,7 @@ export function ScannedCardsProvider({
               cardName: card.name,
               collectionGuid: collection.guid,
               isAutoFeedEnabled,
+              isPipelinedFeedEnabled,
               disableAutoFeed,
               pause,
               triggerAutoFeed,
@@ -444,6 +451,7 @@ export function ScannedCardsProvider({
       resolveRoute,
       resolveMatchedBin,
       isAutoFeedEnabled,
+      isPipelinedFeedEnabled,
       disableAutoFeed,
       pause,
       triggerAutoFeed,
@@ -476,6 +484,7 @@ export function ScannedCardsProvider({
         failedKey: "scannedCards.routingFailedCatchAll",
         collectionGuid: activeCollectionRef.current?.guid,
         isAutoFeedEnabled,
+        isPipelinedFeedEnabled,
         disableAutoFeed,
         pause,
         triggerAutoFeed,
@@ -485,6 +494,7 @@ export function ScannedCardsProvider({
     t,
     resolveRoute,
     isAutoFeedEnabled,
+    isPipelinedFeedEnabled,
     disableAutoFeed,
     pause,
     triggerAutoFeed,

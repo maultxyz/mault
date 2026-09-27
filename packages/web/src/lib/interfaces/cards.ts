@@ -39,6 +39,7 @@ export interface CardSelectDialogProps {
 export type CardViewMode = "grid" | "list";
 
 export interface CardToolbarProps {
+  leading?: ReactNode;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sortKey: string | null;
@@ -58,6 +59,7 @@ export interface CardToolbarProps {
   availableRarities?: { key: string; label: string }[];
   availableColors?: { key: string; label: string; bg: string }[];
   availableFoilTypes?: { key: string; label: string }[];
+  binCount?: number;
   viewMode: CardViewMode;
   onViewModeChange: (mode: CardViewMode) => void;
   groupDuplicates: boolean;
@@ -76,6 +78,30 @@ export interface ScannedCardItemProps {
   foilType?: string;
   isDownloaded?: boolean;
   quantity?: number;
+  showBinLocation?: boolean;
+}
+
+export interface ScannedCardTableRow {
+  scanId: string;
+  scanIds: string[];
+  card: PlayingCardWithDistance;
+  binNumber?: number;
+  quantity: number;
+  isFoil?: boolean;
+  foilType?: string;
+  isDownloaded?: boolean;
+  hasAlternatives?: boolean;
+  wasCorrected?: boolean;
+  isSelected?: boolean;
+}
+
+export interface ScannedCardTableProps {
+  rows: ScannedCardTableRow[];
+  showQuantity?: boolean;
+  showBinLocation?: boolean;
+  onOpen?: (row: ScannedCardTableRow) => void;
+  onToggleSelect?: (row: ScannedCardTableRow) => void;
+  onTogglePageSelect?: () => void;
 }
 
 export interface ExportContext {

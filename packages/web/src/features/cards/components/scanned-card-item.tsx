@@ -31,6 +31,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   foilType,
   isDownloaded = false,
   quantity = 1,
+  showBinLocation = true,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
   const matchPercent =
@@ -107,18 +108,24 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 </Tooltip>
               )}
             </div>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Badge variant="secondary" className="shadow-md">
-                    {t("scannedCardItem.bin", { number: binNumber })}
-                  </Badge>
-                }
-              />
-              <TooltipContent side="top" className="p-0">
-                <BinLocationDiagram binNumber={binNumber} />
-              </TooltipContent>
-            </Tooltip>
+            {showBinLocation ? (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Badge variant="secondary" className="shadow-md">
+                      {t("scannedCardItem.bin", { number: binNumber })}
+                    </Badge>
+                  }
+                />
+                <TooltipContent side="top" className="p-0">
+                  <BinLocationDiagram binNumber={binNumber} />
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Badge variant="secondary" className="shadow-md">
+                {t("scannedCardItem.bin", { number: binNumber })}
+              </Badge>
+            )}
           </div>
           <img
             src={card.image?.normal || ""}

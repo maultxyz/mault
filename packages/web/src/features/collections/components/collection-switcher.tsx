@@ -23,10 +23,18 @@ import {
 } from "@/features/collections/api/collections";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
+import {
+  buildMonitorLinkUrl,
+  createMonitorLink,
+} from "@/features/collections/api/monitor-links";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { copyTextFromPromise } from "@/lib/clipboard";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import type { Collection } from "@magic-vault/shared";
+import {
+  DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  type Collection,
+} from "@magic-vault/shared";
 import {
   IconEdit,
   IconLoader2,
@@ -52,6 +60,7 @@ export function CollectionSwitcher() {
   });
   const { locks, currentUserId, isLockedByOther } = useCollectionLocks();
   const [releasing, setReleasing] = useState(false);
+  const [sharing, setSharing] = useState(false);
 
   const isLockedByMe = !!(
     activeCollection &&
@@ -72,19 +81,39 @@ export function CollectionSwitcher() {
     }
   }, [activeCollection, t]);
 
-  const handleShare = useCallback(() => {
+  const handleShare = useCallback(async () => {
     if (!activeCollection) return;
-    const url = `${window.location.origin}/app/monitor/${activeCollection.guid}`;
-    navigator.clipboard
-      .writeText(url)
-      .then(() => {
-        toast.success(t("switcher.monitorLinkCopied"), {
-          description: t("switcher.monitorLinkCopiedDescription"),
-        });
-      })
-      .catch(() => {
-        toast.error(t("switcher.copyLinkFailed"), { description: url });
+    const collectionGuid = activeCollection.guid;
+    const created: { url?: string } = {};
+    const urlPromise = createMonitorLink(
+      collectionGuid,
+      DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+    ).then((result) => {
+      if (!result.success || !result.data) {
+        throw new Error(result.message);
+      }
+      created.url = buildMonitorLinkUrl(collectionGuid, result.data.token);
+      return created.url;
+    });
+    setSharing(true);
+    try {
+      await copyTextFromPromise(urlPromise);
+      toast.success(t("switcher.monitorLinkCopied"), {
+        description: t("switcher.monitorLinkCopiedDescription", {
+          count: DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+        }),
       });
+    } catch {
+      if (created.url) {
+        toast.error(t("switcher.copyLinkFailed"), {
+          description: created.url,
+        });
+      } else {
+        toast.error(t("shareMonitorLink.createFailed"));
+      }
+    } finally {
+      setSharing(false);
+    }
   }, [activeCollection, t]);
 
   if (isLoading) {
@@ -175,10 +204,10 @@ export function CollectionSwitcher() {
               <Button
                 variant="outline"
                 size="icon"
-                disabled={!activeCollection}
+                disabled={!activeCollection || sharing}
                 onClick={handleShare}
               >
-                <IconShare />
+                {sharing ? <IconLoader2 className="animate-spin" /> : <IconShare />}
               </Button>
             }
           />

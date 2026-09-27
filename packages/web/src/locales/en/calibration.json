@@ -34,6 +34,12 @@
     "legacyBanner": "You're on the legacy channel layout, capped at 3 modules. Rewire module 1 to start at channel 0 to support up to 5 modules.",
     "legacyBannerAction": "Update to Standard"
   },
+  "experimentalFeatures": {
+    "title": "Experimental",
+    "badge": "Beta",
+    "pipelinedFeedLabel": "Scan the next card while sorting",
+    "pipelinedFeedDescription": "Feeds and scans the next card as soon as the previous one has left module 1, instead of waiting for it to reach its bin. Needs firmware 2.1.0 or newer and auto-feed turned on. Turn this off if cards jam or scans start picking up the moving card."
+  },
   "sections": {
     "moduleSetup": "Modules & Routing",
     "scanRegion": "Scan Region",

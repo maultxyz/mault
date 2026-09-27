@@ -1,8 +1,8 @@
+import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
 import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
-import { ACTIVE_ORG_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { ScanLockInfo, SessionViewer } from "@/lib/interfaces/collections";
 import type { SyncState } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
@@ -43,14 +43,10 @@ const AppStreamContext = createContext<AppStreamContextValue>({
 export function AppStreamProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const { data: sessionData } = useAuthSession();
-  const session = sessionData as {
-    session?: { activeOrganizationId?: string | null };
-    user?: { id?: string };
-  } | null;
+  const session = sessionData as { user?: { id?: string } } | null;
   const currentUserId = session?.user?.id;
-  const orgId =
-    session?.session?.activeOrganizationId ??
-    localStorage.getItem(ACTIVE_ORG_STORAGE_KEY);
+  const { activeOrg } = useOrg();
+  const orgId = activeOrg?.id ?? null;
 
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
   const [locks, setLocks] = useState<Record<string, ScanLockInfo>>({});

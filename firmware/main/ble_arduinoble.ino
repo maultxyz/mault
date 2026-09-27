@@ -75,7 +75,11 @@ void bleInit() {
 void blePoll() {
   // Pumps ArduinoBLE's internal event loop - this is what actually invokes
   // onRxWritten() and keeps BLE.connected()/advertising state current.
+  static bool polling = false;
+  if (polling) return;
+  polling = true;
   BLE.poll();
+  polling = false;
 }
 
 bool bleIsConnected() { return BLE.connected(); }

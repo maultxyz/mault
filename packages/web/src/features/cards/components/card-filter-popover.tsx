@@ -1,13 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { Slider } from "@/components/ui/slider";
-import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import type { CardFilters } from "@/lib/interfaces/cards";
 import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { RARITY_TEXT_CLASS } from "@/lib/constants/rarity";
 import { cn } from "@/lib/utils";
-import { computeBinCount } from "@magic-vault/shared";
 import {
   IconDownload,
   IconFilter,
@@ -32,6 +30,7 @@ interface CardFilterPopoverProps {
   availableRarities: { key: string; label: string }[];
   availableColors: { key: string; label: string; bg: string }[];
   availableFoilTypes: { key: string; label: string }[];
+  binCount?: number;
 }
 
 export function CardFilterPopover({
@@ -41,10 +40,10 @@ export function CardFilterPopover({
   availableRarities,
   availableColors,
   availableFoilTypes,
+  binCount,
 }: CardFilterPopoverProps) {
   const { t } = useTranslation("cards");
-  const moduleCount = useModuleCount();
-  const bins = Array.from({ length: computeBinCount(moduleCount) }, (_, i) => i + 1);
+  const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
 
   return (
     <DynamicPopover
@@ -186,56 +185,58 @@ export function CardFilterPopover({
           </div>
         )}
 
-        <div>
-          <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
-            {t("cardFilterPopover.bin")}
-          </p>
-          <div className="flex gap-1 flex-wrap">
-            {bins.map((bin) => {
-              const active = activeFilters.bins.includes(bin);
-              return (
-                <button
-                  key={bin}
-                  type="button"
-                  onClick={() =>
-                    onFiltersChange({
-                      ...activeFilters,
-                      bins: toggle(activeFilters.bins, bin),
-                    })
-                  }
-                  className={cn(
-                    chipBase,
-                    "size-7",
-                    active
-                      ? "bg-primary text-primary-foreground border-primary"
-                      : chipInactive,
-                  )}
-                >
-                  {bin}
-                </button>
-              );
-            })}
-            <button
-              type="button"
-              onClick={() =>
-                onFiltersChange({
-                  ...activeFilters,
-                  bins: toggle(activeFilters.bins, null),
-                })
-              }
-              className={cn(
-                chipBase,
-                "size-7",
-                activeFilters.bins.includes(null)
-                  ? "bg-muted-foreground text-background border-muted-foreground"
-                  : chipInactive,
-              )}
-              title={t("cardFilterPopover.unassigned")}
-            >
-              -
-            </button>
+        {binCount !== undefined && (
+          <div>
+            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+              {t("cardFilterPopover.bin")}
+            </p>
+            <div className="flex gap-1 flex-wrap">
+              {bins.map((bin) => {
+                const active = activeFilters.bins.includes(bin);
+                return (
+                  <button
+                    key={bin}
+                    type="button"
+                    onClick={() =>
+                      onFiltersChange({
+                        ...activeFilters,
+                        bins: toggle(activeFilters.bins, bin),
+                      })
+                    }
+                    className={cn(
+                      chipBase,
+                      "size-7",
+                      active
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : chipInactive,
+                    )}
+                  >
+                    {bin}
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() =>
+                  onFiltersChange({
+                    ...activeFilters,
+                    bins: toggle(activeFilters.bins, null),
+                  })
+                }
+                className={cn(
+                  chipBase,
+                  "size-7",
+                  activeFilters.bins.includes(null)
+                    ? "bg-muted-foreground text-background border-muted-foreground"
+                    : chipInactive,
+                )}
+                title={t("cardFilterPopover.unassigned")}
+              >
+                -
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         <div>
           <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading flex items-center justify-between">

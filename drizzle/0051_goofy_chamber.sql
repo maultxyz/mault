@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD COLUMN "pipelined_feed" boolean DEFAULT false NOT NULL;

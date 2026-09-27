@@ -20,6 +20,7 @@ import { deleteCollectionRoute } from "./delete";
 import { editCollectionRoute } from "./edit";
 import { listCollectionsRoute } from "./list";
 import { locksRoute } from "./locks";
+import { monitorLinkRoute } from "./monitor-link";
 import { phoneCameraSignalRoute } from "./phone-camera-signal";
 import { releaseScanLockRoute } from "./scan-lock-release";
 import { setCollectionActiveRoute } from "./set-active";
@@ -55,6 +56,7 @@ const router = new Hono<AppEnv>()
   .route("/", deleteUnmatchedCardRoute)
   .route("/", releaseScanLockRoute)
   .route("/", debugErrorRoute)
-  .route("/", phoneCameraSignalRoute);
+  .route("/", phoneCameraSignalRoute)
+  .route("/", monitorLinkRoute);
 
 export { router as collectionsRouter };

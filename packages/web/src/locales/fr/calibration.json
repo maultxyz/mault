@@ -34,6 +34,12 @@
     "legacyBanner": "Tu utilises l'ancienne disposition des canaux, limitée à 3 modules. Recâble le module 1 pour qu'il commence au canal 0 afin de prendre en charge jusqu'à 5 modules.",
     "legacyBannerAction": "Passer à la disposition standard"
   },
+  "experimentalFeatures": {
+    "title": "Expérimental",
+    "badge": "Bêta",
+    "pipelinedFeedLabel": "Scanner la carte suivante pendant le tri",
+    "pipelinedFeedDescription": "Alimente et scanne la carte suivante dès que la précédente a quitté le module 1, au lieu d'attendre qu'elle atteigne son bac. Nécessite le firmware 2.1.0 ou plus récent et l'alimentation automatique activée. Désactive cette option si des cartes se coincent ou si les scans captent la carte en mouvement."
+  },
   "sections": {
     "moduleSetup": "Modules et routage",
     "scanRegion": "Zone de scan",

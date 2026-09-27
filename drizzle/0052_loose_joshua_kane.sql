@@ -1,0 +1,1 @@
+ALTER TABLE "collections" ADD COLUMN "monitor_link_version" integer DEFAULT 0 NOT NULL;

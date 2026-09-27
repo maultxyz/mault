@@ -29,6 +29,24 @@
 // payload (23-byte MTU - 3-byte ATT header) instead - verify on hardware
 // whether this can safely be raised.
 #define BLE_CHUNK_SIZE 20
+#define BLE_RX_RING_SIZE 512
+
+char bleRxRing[BLE_RX_RING_SIZE];
+volatile size_t bleRxHead = 0;
+volatile size_t bleRxTail = 0;
+portMUX_TYPE bleRxMux = portMUX_INITIALIZER_UNLOCKED;
+
+bool bleRxPop(char& c) {
+  bool available = false;
+  portENTER_CRITICAL(&bleRxMux);
+  if (bleRxTail != bleRxHead) {
+    c = bleRxRing[bleRxTail];
+    bleRxTail = (bleRxTail + 1) % BLE_RX_RING_SIZE;
+    available = true;
+  }
+  portEXIT_CRITICAL(&bleRxMux);
+  return available;
+}
 
 BLEServer* bleServer = nullptr;
 BLECharacteristic* bleTxChar = nullptr;
@@ -48,9 +66,14 @@ class SorterServerCallbacks : public BLEServerCallbacks {
 class SorterRxCallbacks : public BLECharacteristicCallbacks {
   void onWrite(BLECharacteristic* characteristic) override {
     String value = characteristic->getValue();
+    portENTER_CRITICAL(&bleRxMux);
     for (size_t i = 0; i < value.length(); i++) {
-      feedByte(bleInput, value[i], bleReply);
+      size_t next = (bleRxHead + 1) % BLE_RX_RING_SIZE;
+      if (next == bleRxTail) break;
+      bleRxRing[bleRxHead] = value[i];
+      bleRxHead = next;
     }
+    portEXIT_CRITICAL(&bleRxMux);
   }
 };
 
@@ -88,10 +111,10 @@ void bleInit() {
 }
 
 void blePoll() {
-  // Bluedroid delivers RX writes via SorterRxCallbacks::onWrite() on its own
-  // task, not from loop() - nothing to pump here. Kept as a no-op for
-  // symmetry with the ArduinoBLE backend's BLE.poll()-driven event model, so
-  // main.ino's loop() doesn't need to know which backend is active.
+  char c;
+  while (bleRxPop(c)) {
+    feedByte(bleInput, c, bleReply);
+  }
 }
 
 bool bleIsConnected() { return bleConnected; }

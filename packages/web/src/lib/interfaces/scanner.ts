@@ -1,8 +1,10 @@
+import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   BinRoute,
   Collection,
+  GroupedScannedCard,
   HealthCheck,
   PlayingCard,
   PlayingCardWithDistance,
@@ -131,6 +133,14 @@ export type FirmwareCheckResult =
   | { status: "ok"; version: string }
   | { status: "noVersion" | "noResponse" | "busy" | "disconnected" };
 
+export interface RouteOptions {
+  feedNext?: boolean;
+}
+
+export interface SkippedRouteResponse {
+  skipped: true;
+}
+
 export interface PushTest {
   module: number;
   direction: "left" | "right";
@@ -148,7 +158,10 @@ export interface SerialContextValue {
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   disconnect: () => Promise<void>;
-  sendRoute: (route: BinRoute) => Promise<unknown | null>;
+  sendRoute: (
+    route: BinRoute,
+    options?: RouteOptions,
+  ) => Promise<unknown | null>;
   sendPushTest: (test: PushTest) => Promise<unknown | null>;
   isRouteBusy: () => boolean;
   sendTest: () => Promise<TestResult>;
@@ -253,9 +266,39 @@ export interface SessionError {
 
 export interface SessionMonitorState {
   collection: Collection | null;
-  cards: ScannedCard[];
+  recentCards: ScannedCard[];
+  cardsVersion: number;
   unmatchedCards: UnmatchedCard[];
   viewers: SessionViewer[];
   errors: SessionError[];
   status: ConnectionStatus;
+}
+
+export interface MonitorCardsSource {
+  collectionGuid: string;
+  shareToken?: string | null;
+}
+
+export interface MonitorCardGridProps {
+  entries: GroupedScannedCard[];
+  status: ConnectionStatus;
+  cardCount: number;
+  matchingCount: number;
+  isLoading: boolean;
+  isMobile: boolean;
+  viewMode: CardViewMode;
+  groupDuplicates: boolean;
+  page: number;
+  pageCount: number;
+  onPageChange: (page: number) => void;
+  showBinLocation: boolean;
+}
+
+export interface SessionMonitorViewProps {
+  session: SessionMonitorState;
+  cardsSource: MonitorCardsSource;
+  header?: ReactNode;
+  toolbarLeading?: ReactNode;
+  binCount?: number;
+  showBinLocation: boolean;
 }
