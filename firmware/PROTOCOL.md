@@ -68,7 +68,10 @@ a serial connection to the device can drive it by following this spec
 - One other message is **unsolicited** and can arrive at any time
   between command/response pairs: `{"error":"jam","module":N}`, pushed
   if module *N*'s IR sensor sees a card continuously for 20 seconds
-  outside of an active `route`. A client should watch for this
+  with no servo activity (firmware 2.2.1+: the clock restarts on any
+  servo move, so back-to-back cards fed in during a `feedNext` route never
+  add up to a false jam; older firmware timed from when the sensor was
+  last seen empty). A client should watch for this
   independently of whatever response it's waiting on. This check is
   purely informational - it doesn't move any servos, since nothing is
   actively trying to sort that card. Paddle-flap recovery only happens
@@ -442,4 +445,4 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}` | a `servo`/`channel` pusher move while a card is on module *N*'s platform and its side paddle isn't down (see Push safeguard) |
 | `{"error":"busy","reason":"another command is in progress"}` | a line arrived while another command (from any transport) was still executing; the line was not run |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
-| `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no route in progress (informational only - no paddle-flap is attempted since nothing is actively sorting) |
+| `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no servo activity (informational only - no paddle-flap is attempted since nothing is actively sorting) |

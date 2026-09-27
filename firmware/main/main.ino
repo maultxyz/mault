@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.2.0"
+#define FIRMWARE_VERSION "2.2.1"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -366,7 +366,7 @@ InputState bleInput;
 void feedByte(InputState& s, char c, Print& reply);
 
 unsigned long modulePresentSince[MAX_MODULES] = {0};
-bool moduleJamAlerted[MAX_MODULES] = {false};
+unsigned long moduleJamAlertedFor[MAX_MODULES] = {0};
 
 int getChannel(int module, int servoOffset) {
   return moduleChannelOffset + (module - 1) * 3 + servoOffset;
@@ -610,16 +610,19 @@ void checkModuleJams() {
     bool present = digitalRead(irPin(m)) == LOW;
     if (!present) {
       modulePresentSince[i] = 0;
-      moduleJamAlerted[i] = false;
+      moduleJamAlertedFor[i] = 0;
       continue;
     }
     if (modulePresentSince[i] == 0) {
       modulePresentSince[i] = millis();
       continue;
     }
-    unsigned long presentFor = millis() - modulePresentSince[i];
-    if (!moduleJamAlerted[i] && presentFor > MODULE_JAM_TIMEOUT_MS) {
-      moduleJamAlerted[i] = true;
+    unsigned long idleSince = modulePresentSince[i] > lastServoMoveAt
+      ? modulePresentSince[i]
+      : lastServoMoveAt;
+    unsigned long presentFor = millis() - idleSince;
+    if (moduleJamAlertedFor[i] != idleSince && presentFor > MODULE_JAM_TIMEOUT_MS) {
+      moduleJamAlertedFor[i] = idleSince;
       char line[40];
       snprintf(line, sizeof(line), "{\"error\":\"jam\",\"module\":%d}", m);
       broadcastLine(line);
