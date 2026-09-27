@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type {
   BinHeight,
   BinRoute,
@@ -70,3 +71,83 @@ export interface BinHeightPreset {
 }
 
 export type ModuleDelayField = "pusherHoldDuration" | "paddleCloseDelay";
+
+export type SetupServo = "bottom" | "paddle" | "pusher";
+
+export interface SetupServoPosition {
+  servo: SetupServo;
+  position: "closed" | "open" | "neutral" | "left" | "right";
+  calKey:
+    | "bottomClosed"
+    | "bottomOpen"
+    | "paddleClosed"
+    | "paddleOpen"
+    | "pusherNeutral"
+    | "pusherLeft"
+    | "pusherRight";
+  restKey: "bottomClosed" | "paddleClosed" | "pusherNeutral";
+}
+
+export type SetupWizardStep =
+  | { kind: "intro" }
+  | { kind: "moduleCount" }
+  | { kind: "servo"; module: number; position: SetupServoPosition }
+  | { kind: "irSensors" }
+  | { kind: "feeder" }
+  | { kind: "test" };
+
+export type SetupIntroPart = "feeder" | "module" | "bottom" | "paddle" | "pusher";
+
+export interface SetupIrReading {
+  modules: boolean[];
+  hopper: boolean;
+}
+
+export interface SetupIrSeen {
+  modules: Set<number>;
+  hopper: boolean;
+}
+
+export interface ReadIrResponse {
+  ir?: unknown;
+  hopper?: unknown;
+}
+
+export interface SetupIrSensorRowProps {
+  label: string;
+  hint: string;
+  present: boolean;
+  seen: boolean;
+}
+
+export interface SetupIrSensor extends SetupIrSensorRowProps {
+  key: string;
+}
+
+export interface SetupStepHeadingProps {
+  title: string;
+  body?: string;
+}
+
+export interface SetupControlPanelProps {
+  label?: string;
+  value?: string;
+  hint?: string;
+  children: ReactNode;
+}
+
+export interface SetupServoStepProps {
+  servo: SetupServo;
+  currentKey: SetupServoPosition["calKey"];
+  value: number;
+  onChange: (value: number) => void;
+}
+
+export type SetupTestState = "idle" | "running" | "passed" | "failed";
+
+export interface SetupWizardContextValue {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+  forceSetup: () => Promise<void>;
+}

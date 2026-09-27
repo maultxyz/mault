@@ -165,6 +165,7 @@ export const devices = pgTable(
     checkBothOrientations: boolean("check_both_orientations"),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
+    setupCompletedAt: timestamp("setup_completed_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

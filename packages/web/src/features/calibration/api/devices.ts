@@ -30,6 +30,7 @@ export interface Device {
   checkBothOrientations: boolean;
   moduleCount: number;
   channelLayout: ChannelLayout;
+  setupCompletedAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -43,6 +44,7 @@ export interface DevicePatch {
   checkBothOrientations?: boolean | null;
   moduleCount?: number;
   channelLayout?: ChannelLayout;
+  setupCompleted?: boolean;
 }
 
 export const DEFAULT_DEVICE: Device = {
@@ -55,6 +57,7 @@ export const DEFAULT_DEVICE: Device = {
   checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
+  setupCompletedAt: null,
   createdAt: "",
   updatedAt: "",
 };

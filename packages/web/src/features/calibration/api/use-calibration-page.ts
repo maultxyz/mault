@@ -107,9 +107,6 @@ export function useCalibrationPage() {
         (key) => c.calibration[key] === DEFAULT_CALIBRATION[key],
       ),
     );
-  // Every command needs a passed test, except that a completely uncalibrated
-  // sorter can't pass one (handleTest refuses), so its servo calibration
-  // controls stay usable until something is calibrated.
   const canCalibrate = isReady || (isConnected && isUnconfigured);
 
   const [sliderValues, setSliderValues] = useState<Record<SliderKey, number>>(

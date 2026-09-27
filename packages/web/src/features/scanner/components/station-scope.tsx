@@ -4,6 +4,8 @@ import { BinRoutesProvider } from "@/features/calibration/api/use-bin-routes";
 import { FeederConfigProvider } from "@/features/calibration/api/use-feeder-config";
 import { ModuleConfigsProvider } from "@/features/calibration/api/use-module-configs";
 import { ModuleCountConfigProvider } from "@/features/calibration/api/use-module-count-config";
+import { SetupWizardProvider } from "@/features/calibration/api/use-setup-wizard";
+import { DeviceSetupWizard } from "@/features/calibration/components/device-setup-wizard";
 import { CardFiltersProvider } from "@/features/cards/api/use-card-filters";
 import { CollectionsProvider } from "@/features/collections/api/use-collections";
 import { CameraProvider } from "@/features/scanner/api/use-camera";
@@ -51,13 +53,16 @@ export function StationScope({
                       <FeederConfigProvider>
                         <ScannedCardsProvider>
                           <CardFiltersProvider>
-                            {isActive && children}
-                            {panelLayout &&
-                              isLive &&
-                              createPortal(
-                                <StationPanel layout={panelLayout} />,
-                                getPanelElement(station.id),
-                              )}
+                            <SetupWizardProvider>
+                              {isActive && children}
+                              {isActive && <DeviceSetupWizard />}
+                              {panelLayout &&
+                                isLive &&
+                                createPortal(
+                                  <StationPanel layout={panelLayout} />,
+                                  getPanelElement(station.id),
+                                )}
+                            </SetupWizardProvider>
                           </CardFiltersProvider>
                         </ScannedCardsProvider>
                       </FeederConfigProvider>

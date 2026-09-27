@@ -2,12 +2,11 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { currentFocusDistance } from "@/features/scanner/lib/camera-focus";
+import type { CameraFocusControlProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
-// Renders nothing unless the active camera exposes manual focus to the
-// browser (Chrome/Edge with a UVC webcam that reports focusDistance).
-export function CameraFocusControl({ className }: { className?: string }) {
+export function CameraFocusControl({ className }: CameraFocusControlProps) {
   const { t } = useTranslation("scanner");
   const { stream, focusRange, focusDistance, setFocusDistance } =
     useCameraContext();

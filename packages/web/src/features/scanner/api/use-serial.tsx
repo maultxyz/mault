@@ -482,6 +482,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           setLeasedDeviceGuid(boundDevice.guid);
         }
         if (options?.skipAutoTest) return;
+        if (boundDevice && !boundDevice.setupCompletedAt) return;
         await runConnectTest(newTransport, boundDevice);
       })();
 

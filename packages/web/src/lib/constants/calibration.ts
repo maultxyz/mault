@@ -2,7 +2,18 @@ import type {
   BinHeightPreset,
   ModuleDelayField,
   ServoConfig,
+  SetupIntroPart,
+  SetupIrSeen,
+  SetupServoPosition,
 } from "@/lib/interfaces/calibration";
+import {
+  IconArrowBarToDown,
+  IconArrowsHorizontal,
+  IconColumns2,
+  IconRotateClockwise,
+  IconStack2,
+  type Icon,
+} from "@tabler/icons-react";
 
 export const SERVO_PULSE_MIN = 120;
 export const SERVO_PULSE_MAX = 490;
@@ -86,9 +97,6 @@ export const MODULE_DELAY_FIELDS: ModuleDelayField[] = [
 
 export const PUSH_TEST_DIRECTIONS = ["left", "right"] as const;
 
-// Route directions are the firmware's pusher directions, which are mirrored
-// from the front of the sorter: a "left" push lands on the physical right
-// (bin 1 is top right). Bin layouts render in physical left-to-right order.
 export const BIN_SLOTS_PHYSICAL_ORDER = [
   { direction: "right", labelKey: "binConfigurations.moduleLeft" },
   { direction: "left", labelKey: "binConfigurations.moduleRight" },
@@ -136,4 +144,26 @@ export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
   { key: "small", height: 69 },
   { key: "medium", height: 113 },
   { key: "large", height: 187 },
+];
+
+export const SETUP_SERVO_POSITIONS: SetupServoPosition[] = [
+  { servo: "bottom", position: "closed", calKey: "bottomClosed", restKey: "bottomClosed" },
+  { servo: "bottom", position: "open", calKey: "bottomOpen", restKey: "bottomClosed" },
+  { servo: "paddle", position: "closed", calKey: "paddleClosed", restKey: "paddleClosed" },
+  { servo: "paddle", position: "open", calKey: "paddleOpen", restKey: "paddleClosed" },
+  { servo: "pusher", position: "neutral", calKey: "pusherNeutral", restKey: "pusherNeutral" },
+  { servo: "pusher", position: "left", calKey: "pusherLeft", restKey: "pusherNeutral" },
+  { servo: "pusher", position: "right", calKey: "pusherRight", restKey: "pusherNeutral" },
+];
+
+export function emptySetupIrSeen(): SetupIrSeen {
+  return { modules: new Set(), hopper: false };
+}
+
+export const SETUP_INTRO_PARTS: { key: SetupIntroPart; icon: Icon }[] = [
+  { key: "feeder", icon: IconRotateClockwise },
+  { key: "module", icon: IconStack2 },
+  { key: "bottom", icon: IconArrowBarToDown },
+  { key: "paddle", icon: IconColumns2 },
+  { key: "pusher", icon: IconArrowsHorizontal },
 ];

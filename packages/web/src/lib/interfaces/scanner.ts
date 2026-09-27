@@ -31,6 +31,14 @@ export interface CameraRange {
   step: number;
 }
 
+export interface CameraFocusControlProps {
+  className?: string;
+}
+
+export type CameraTrackSettings = MediaTrackSettings & {
+  focusDistance?: number;
+};
+
 export type CameraTrackCapabilities = MediaTrackCapabilities & {
   focusMode?: string[];
   focusDistance?: CameraRange;
@@ -41,9 +49,7 @@ export interface CameraContextValue {
   stream: MediaStream | null;
   status: CameraStatus;
   errorMessage: string;
-  // null when the camera can't be focused manually from the browser.
   focusRange: CameraRange | null;
-  // null means continuous autofocus.
   focusDistance: number | null;
   cameras: MediaDeviceInfo[];
   selectedCameraId: string | null;

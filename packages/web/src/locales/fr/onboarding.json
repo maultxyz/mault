@@ -129,6 +129,10 @@
     }
   },
   "calibrationTour": {
+    "menu": {
+      "pageTour": "Visite de la page",
+      "setupWizard": "Assistant de configuration"
+    },
     "triggerTooltip": "Comment fonctionne le calibrage",
     "welcome": {
       "title": "Calibrer ton trieur",

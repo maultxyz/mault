@@ -223,6 +223,7 @@
     "feederCalibrationLabel": "Feeder Calibration",
     "history": "History",
     "configMenu": "Configuration",
+    "forceSetupWizard": "Force setup wizard",
     "copyCalibration": "Copy Calibration",
     "exportConfig": "Export Config",
     "importConfig": "Import Config",
@@ -238,5 +239,125 @@
   "toasts": {
     "noResponse": "No response from sorter.",
     "unexpectedResponse": "Unexpected response: {{response}}"
+  },
+  "setupWizard": {
+    "forced": "Setup wizard required for this sorter",
+    "forcedNextConnect": "It will open the next time {{name}} connects.",
+    "forceFailed": "Couldn't require the setup wizard",
+    "title": "Set up your sorter",
+    "stepCounter": "Step {{current}} of {{total}}",
+    "skip": "Skip setup",
+    "back": "Back",
+    "next": "Next",
+    "finish": "Finish",
+    "percent": "{{value}}%",
+    "positionLabel": "Position",
+    "nudgeDown": "Nudge down",
+    "nudgeUp": "Nudge up",
+    "intro": {
+      "heading": "Let's calibrate this sorter",
+      "body": "Every servo stops in a slightly different place, so each position needs setting once before this sorter can run. This walks through them one at a time. Every slider moves the real servo as you drag it, so watch the sorter while you adjust.",
+      "parts": {
+        "feeder": {
+          "name": "Feeder",
+          "desc": "The roller under the hopper that pulls one card at a time into module 1."
+        },
+        "module": {
+          "name": "Modules",
+          "desc": "The stacked sorting stages. Each one catches the card, then pushes it into one of its two bins or drops it to the module below."
+        },
+        "bottom": {
+          "name": "Bottom paddle",
+          "desc": "The trapdoor floor of each module. Closed holds the card, open drops it to the next module."
+        },
+        "paddle": {
+          "name": "Paddles",
+          "desc": "The side gates. They hold the card in place and open to let it be pushed out."
+        },
+        "pusher": {
+          "name": "Pusher",
+          "desc": "The arm that sweeps the card sideways into a bin."
+        }
+      },
+      "skipNote": "You can skip this and calibrate later from the Calibration page."
+    },
+    "moduleCount": {
+      "heading": "How many modules does this sorter have?",
+      "body": "Count the sorting modules stacked on this sorter, not including the feeder. Each module adds two bins."
+    },
+    "servos": {
+      "bottom": "The bottom paddle is the module's trapdoor floor. It holds the card while the module decides where it goes.",
+      "paddle": "The paddles are the side gates. They keep the card in place until it's pushed out to a bin.",
+      "pusher": "The pusher is the arm that sweeps the card sideways out of the module into one of its two bins."
+    },
+    "positions": {
+      "bottomClosed": {
+        "title": "Bottom paddle: closed",
+        "body": "Drag until the trapdoor sits flat and fully shut, so a card resting on it can't slip through. Stop as soon as it's closed; pushing further strains the servo."
+      },
+      "bottomOpen": {
+        "title": "Bottom paddle: open",
+        "body": "Drag until the trapdoor swings fully open and a card would drop cleanly to the module below. Stop where it stops moving."
+      },
+      "paddleClosed": {
+        "title": "Paddles: closed",
+        "body": "Drag until the paddles close in and hold a card in place without pinching it."
+      },
+      "paddleOpen": {
+        "title": "Paddles: open",
+        "body": "Drag until the paddles open wide enough for a card to slide out sideways."
+      },
+      "pusherNeutral": {
+        "title": "Pusher: neutral",
+        "body": "Drag until the arm sits centered and clear of the card path, so cards drop straight past it."
+      },
+      "pusherLeft": {
+        "title": "Pusher: left",
+        "body": "Drag until the arm swings all the way into the inner edge of the module, pushing a card out on the right side as you face the sorter. Don't stop short of the edge: the servo slows as it nears its target, so the arm needs to hit the edge at full speed to keep the momentum that flings the card out. Only back it off if it buzzes against the edge the whole time instead of just at the end."
+      },
+      "pusherRight": {
+        "title": "Pusher: right",
+        "body": "Now the other way: drag until the arm hits the inner edge on the other side, pushing a card out on the left side as you face the sorter. Again, let it hit the edge at full speed so it keeps its momentum, and only back it off if it buzzes against the edge the whole time."
+      }
+    },
+    "irSensors": {
+      "heading": "Check the sensors",
+      "body": "Each module has an infrared sensor at its gate that sees when a card arrives, and one more in the hopper that sees when cards are waiting. Hold a card in front of each sensor, one at a time, and watch its row light up. Each sensor gets a check once it has seen a card.",
+      "moduleSensor": "Module {{module}} gate",
+      "moduleHint": "Hold a card where the card rests in this module.",
+      "hopperSensor": "Hopper",
+      "hopperHint": "Put a few cards in the hopper.",
+      "present": "Card",
+      "clear": "Clear",
+      "verified": "Sensor verified",
+      "waiting": "Waiting for the first reading from the sorter…",
+      "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later."
+    },
+    "feeder": {
+      "heading": "Feeder speed",
+      "body": "The feeder roller pulls the bottom card out of the hopper and into module 1. Drag until it spins in the direction that pulls cards in, at a steady speed.",
+      "speedLabel": "Speed",
+      "hint": "0% is stopped. Drag either way to spin it in that direction. It stops on its own a few seconds after you let go."
+    },
+    "test": {
+      "heading": "Run the self-test",
+      "body": "The sorter opens every trapdoor and paddle, sweeps every pusher both ways, then briefly spins the feeder. Make sure no cards are in the modules, then run it.",
+      "run": "Run test",
+      "running": "Testing…",
+      "passed": "Test passed. This sorter is ready to use.",
+      "failed": "Test failed",
+      "failedHint": "Go back and adjust any position that didn't move cleanly, then run the test again."
+    },
+    "sections": {
+      "intro": "Getting started",
+      "moduleCount": "Your sorter",
+      "module": "Module {{module}} of {{total}} · {{servo}}",
+      "irSensors": "Sensors",
+      "feeder": "Feeder",
+      "test": "Self-test"
+    },
+    "partsHeading": "The parts you'll set",
+    "aboutPart": "About the {{servo}}",
+    "howToSet": "How to set it"
   }
 }

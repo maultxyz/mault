@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
+import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   CALIBRATION_TOUR_STEPS,
   isCalibrationTourCompleted,
@@ -13,7 +16,7 @@ import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import { TourTooltip } from "@/features/onboarding/components/tour-tooltip";
 import { TOUR_STEP_NAVIGATION_DELAY_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
-import { IconHelpCircle } from "@tabler/icons-react";
+import { IconHelpCircle, IconRoute, IconWand } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { EVENTS, STATUS, useJoyride, type Step } from "react-joyride";
@@ -44,6 +47,8 @@ export function CalibrationTour({
   className,
 }: CalibrationTourProps) {
   const { t } = useTranslation("onboarding");
+  const setupWizard = useSetupWizard();
+  const { isConnected } = useSerial();
   const sectionRef = useRef(section);
   useEffect(() => {
     sectionRef.current = section;
@@ -110,21 +115,30 @@ export function CalibrationTour({
 
   return (
     <>
-      <Tooltip>
-        <TooltipTrigger
+      <DropdownMenu>
+        <DropdownMenuTrigger
           render={
             <Button
               variant="outline"
               size="icon"
               className={cn(className)}
-              onClick={() => controls.start(0)}
-            >
-              <IconHelpCircle />
-            </Button>
+              aria-label={t("calibrationTour.triggerTooltip")}
+            />
           }
-        />
-        <TooltipContent>{t("calibrationTour.triggerTooltip")}</TooltipContent>
-      </Tooltip>
+        >
+          <IconHelpCircle />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => controls.start(0)}>
+            <IconRoute />
+            {t("calibrationTour.menu.pageTour")}
+          </DropdownMenuItem>
+          <DropdownMenuItem disabled={!isConnected} onClick={setupWizard.open}>
+            <IconWand />
+            {t("calibrationTour.menu.setupWizard")}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
       {Tour}
     </>
   );

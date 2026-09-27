@@ -219,10 +219,11 @@
     "testing": "Test en cours…",
     "runTest": "Lancer le test",
     "calibrateBeforeTest": "Calibre tous les modules avant de lancer le test",
-    "testBeforeControls": "Lancez un test réussi pour débloquer les commandes de l'appareil.",
+    "testBeforeControls": "Lance un test réussi pour débloquer les commandes de l'appareil.",
     "feederCalibrationLabel": "Calibration du chargeur",
     "history": "Historique",
     "configMenu": "Configuration",
+    "forceSetupWizard": "Imposer l'assistant de configuration",
     "copyCalibration": "Copier la calibration",
     "exportConfig": "Exporter la config",
     "importConfig": "Importer la config",
@@ -238,5 +239,125 @@
   "toasts": {
     "noResponse": "Aucune réponse de la trieuse.",
     "unexpectedResponse": "Réponse inattendue : {{response}}"
+  },
+  "setupWizard": {
+    "forced": "Assistant de configuration requis pour ce trieur",
+    "forcedNextConnect": "Il s'ouvrira à la prochaine connexion de {{name}}.",
+    "forceFailed": "Impossible d'imposer l'assistant de configuration",
+    "title": "Configurer ton trieur",
+    "stepCounter": "Étape {{current}} sur {{total}}",
+    "skip": "Passer la configuration",
+    "back": "Retour",
+    "next": "Suivant",
+    "finish": "Terminer",
+    "percent": "{{value}} %",
+    "positionLabel": "Position",
+    "nudgeDown": "Reculer un peu",
+    "nudgeUp": "Avancer un peu",
+    "intro": {
+      "heading": "Calibrons ce trieur",
+      "body": "Chaque servo s'arrête à un endroit légèrement différent, donc chaque position doit être réglée une fois avant que ce trieur puisse fonctionner. Tu vas les parcourir une par une. Chaque curseur déplace le vrai servo pendant que tu le fais glisser, alors garde un œil sur le trieur pendant les réglages.",
+      "parts": {
+        "feeder": {
+          "name": "Alimentation",
+          "desc": "Le rouleau sous la trémie qui amène une carte à la fois dans le module 1."
+        },
+        "module": {
+          "name": "Modules",
+          "desc": "Les étages de tri empilés. Chacun reçoit la carte, puis la pousse dans l'un de ses deux bacs ou la laisse tomber dans le module du dessous."
+        },
+        "bottom": {
+          "name": "Palette du bas",
+          "desc": "La trappe au fond de chaque module. Fermée, elle retient la carte ; ouverte, elle la laisse tomber dans le module suivant."
+        },
+        "paddle": {
+          "name": "Palettes",
+          "desc": "Les portes latérales. Elles maintiennent la carte et s'ouvrent pour qu'elle soit poussée dehors."
+        },
+        "pusher": {
+          "name": "Poussoir",
+          "desc": "Le bras qui balaie la carte sur le côté dans un bac."
+        }
+      },
+      "skipNote": "Tu peux passer cette étape et calibrer plus tard depuis la page Calibrage."
+    },
+    "moduleCount": {
+      "heading": "Combien de modules a ce trieur ?",
+      "body": "Compte les modules de tri empilés, sans l'alimentation. Chaque module ajoute deux bacs."
+    },
+    "servos": {
+      "bottom": "La palette du bas est la trappe du module. Elle retient la carte pendant que le module décide où elle va.",
+      "paddle": "Les palettes sont les portes latérales. Elles maintiennent la carte jusqu'à ce qu'elle soit poussée dans un bac.",
+      "pusher": "Le poussoir est le bras qui balaie la carte sur le côté, hors du module, dans l'un de ses deux bacs."
+    },
+    "positions": {
+      "bottomClosed": {
+        "title": "Palette du bas : fermée",
+        "body": "Fais glisser jusqu'à ce que la trappe soit à plat et bien fermée, pour qu'une carte posée dessus ne puisse pas passer. Arrête dès qu'elle est fermée ; forcer davantage fatigue le servo."
+      },
+      "bottomOpen": {
+        "title": "Palette du bas : ouverte",
+        "body": "Fais glisser jusqu'à ce que la trappe s'ouvre entièrement et qu'une carte tombe proprement dans le module du dessous. Arrête là où elle ne bouge plus."
+      },
+      "paddleClosed": {
+        "title": "Palettes : fermées",
+        "body": "Fais glisser jusqu'à ce que les palettes se referment et maintiennent une carte sans la pincer."
+      },
+      "paddleOpen": {
+        "title": "Palettes : ouvertes",
+        "body": "Fais glisser jusqu'à ce que les palettes soient assez ouvertes pour qu'une carte sorte sur le côté."
+      },
+      "pusherNeutral": {
+        "title": "Poussoir : neutre",
+        "body": "Fais glisser jusqu'à ce que le bras soit centré et hors du trajet des cartes, pour qu'elles tombent sans le toucher."
+      },
+      "pusherLeft": {
+        "title": "Poussoir : gauche",
+        "body": "Fais glisser jusqu'à ce que le bras vienne taper contre le bord intérieur du module, en poussant une carte dehors du côté droit quand tu fais face au trieur. Ne t'arrête pas avant le bord : le servo ralentit en approchant de sa cible, donc le bras doit taper le bord à pleine vitesse pour garder l'élan qui éjecte la carte. Recule-le seulement s'il bourdonne contre le bord tout du long au lieu de juste à la fin."
+      },
+      "pusherRight": {
+        "title": "Poussoir : droite",
+        "body": "Maintenant dans l'autre sens : fais glisser jusqu'à ce que le bras tape le bord intérieur de l'autre côté, en poussant une carte dehors du côté gauche quand tu fais face au trieur. Là aussi, laisse-le taper le bord à pleine vitesse pour qu'il garde son élan, et recule-le seulement s'il bourdonne contre le bord tout du long."
+      }
+    },
+    "irSensors": {
+      "heading": "Vérifier les capteurs",
+      "body": "Chaque module a un capteur infrarouge à sa porte qui voit quand une carte arrive, et un autre dans la trémie voit quand des cartes attendent. Tiens une carte devant chaque capteur, un par un, et regarde sa ligne s'allumer. Chaque capteur est coché dès qu'il a vu une carte.",
+      "moduleSensor": "Porte du module {{module}}",
+      "moduleHint": "Tiens une carte là où la carte repose dans ce module.",
+      "hopperSensor": "Trémie",
+      "hopperHint": "Mets quelques cartes dans la trémie.",
+      "present": "Carte",
+      "clear": "Libre",
+      "verified": "Capteur vérifié",
+      "waiting": "En attente de la première lecture du trieur…",
+      "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard."
+    },
+    "feeder": {
+      "heading": "Vitesse d'alimentation",
+      "body": "Le rouleau d'alimentation tire la carte du dessous de la trémie jusque dans le module 1. Fais glisser jusqu'à ce qu'il tourne dans le sens qui fait entrer les cartes, à vitesse régulière.",
+      "speedLabel": "Vitesse",
+      "hint": "0 % correspond à l'arrêt. Fais glisser dans un sens pour le faire tourner dans ce sens. Il s'arrête tout seul quelques secondes après que tu relâches."
+    },
+    "test": {
+      "heading": "Lancer l'autotest",
+      "body": "Le trieur ouvre chaque trappe et chaque palette, fait balayer chaque poussoir dans les deux sens, puis fait tourner brièvement l'alimentation. Vérifie qu'il n'y a aucune carte dans les modules, puis lance-le.",
+      "run": "Lancer le test",
+      "running": "Test en cours…",
+      "passed": "Test réussi. Ce trieur est prêt à l'emploi.",
+      "failed": "Échec du test",
+      "failedHint": "Reviens en arrière, ajuste chaque position qui ne bougeait pas proprement, puis relance le test."
+    },
+    "sections": {
+      "intro": "Pour commencer",
+      "moduleCount": "Ton trieur",
+      "module": "Module {{module}} sur {{total}} · {{servo}}",
+      "irSensors": "Capteurs",
+      "feeder": "Alimentation",
+      "test": "Autotest"
+    },
+    "partsHeading": "Les pièces que tu vas régler",
+    "aboutPart": "À propos : {{servo}}",
+    "howToSet": "Comment le régler"
   }
 }

@@ -223,6 +223,7 @@
     "feederCalibrationLabel": "Zuführungskalibrierung",
     "history": "Verlauf",
     "configMenu": "Konfiguration",
+    "forceSetupWizard": "Einrichtungsassistent erzwingen",
     "copyCalibration": "Kalibrierung kopieren",
     "exportConfig": "Konfiguration exportieren",
     "importConfig": "Konfiguration importieren",
@@ -238,5 +239,125 @@
   "toasts": {
     "noResponse": "Keine Antwort vom Sortierer.",
     "unexpectedResponse": "Unerwartete Antwort: {{response}}"
+  },
+  "setupWizard": {
+    "forced": "Einrichtungsassistent für diesen Sortierer erforderlich",
+    "forcedNextConnect": "Er öffnet sich, wenn {{name}} das nächste Mal verbunden wird.",
+    "forceFailed": "Einrichtungsassistent konnte nicht erzwungen werden",
+    "title": "Sortierer einrichten",
+    "stepCounter": "Schritt {{current}} von {{total}}",
+    "skip": "Einrichtung überspringen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "finish": "Fertig",
+    "percent": "{{value}} %",
+    "positionLabel": "Position",
+    "nudgeDown": "Etwas zurück",
+    "nudgeUp": "Etwas weiter",
+    "intro": {
+      "heading": "Lass uns diesen Sortierer kalibrieren",
+      "body": "Jeder Servo hält an einer leicht anderen Stelle, deshalb muss jede Position einmal eingestellt werden, bevor dieser Sortierer laufen kann. Hier gehst du sie nacheinander durch. Jeder Schieberegler bewegt den echten Servo, während du ziehst, also behalte den Sortierer beim Einstellen im Blick.",
+      "parts": {
+        "feeder": {
+          "name": "Zuführung",
+          "desc": "Die Rolle unter dem Trichter, die jeweils eine Karte in Modul 1 zieht."
+        },
+        "module": {
+          "name": "Module",
+          "desc": "Die gestapelten Sortierstufen. Jedes fängt die Karte auf und schiebt sie in eines seiner zwei Fächer oder lässt sie ins Modul darunter fallen."
+        },
+        "bottom": {
+          "name": "Bodenpaddel",
+          "desc": "Die Falltür jedes Moduls. Geschlossen hält sie die Karte, offen lässt sie sie ins nächste Modul fallen."
+        },
+        "paddle": {
+          "name": "Paddel",
+          "desc": "Die seitlichen Tore. Sie halten die Karte und öffnen sich, damit sie hinausgeschoben werden kann."
+        },
+        "pusher": {
+          "name": "Schieber",
+          "desc": "Der Arm, der die Karte seitlich in ein Fach schiebt."
+        }
+      },
+      "skipNote": "Du kannst das überspringen und später auf der Kalibrierungsseite kalibrieren."
+    },
+    "moduleCount": {
+      "heading": "Wie viele Module hat dieser Sortierer?",
+      "body": "Zähle die gestapelten Sortiermodule, ohne die Zuführung. Jedes Modul bringt zwei Fächer."
+    },
+    "servos": {
+      "bottom": "Das Bodenpaddel ist die Falltür des Moduls. Es hält die Karte, während das Modul entscheidet, wohin sie geht.",
+      "paddle": "Die Paddel sind die seitlichen Tore. Sie halten die Karte, bis sie in ein Fach geschoben wird.",
+      "pusher": "Der Schieber ist der Arm, der die Karte seitlich aus dem Modul in eines seiner zwei Fächer schiebt."
+    },
+    "positions": {
+      "bottomClosed": {
+        "title": "Bodenpaddel: geschlossen",
+        "body": "Ziehe, bis die Falltür flach und ganz geschlossen ist, sodass eine aufliegende Karte nicht durchrutschen kann. Hör auf, sobald sie zu ist; weiter drücken belastet den Servo."
+      },
+      "bottomOpen": {
+        "title": "Bodenpaddel: offen",
+        "body": "Ziehe, bis die Falltür ganz aufschwingt und eine Karte sauber ins Modul darunter fallen würde. Hör dort auf, wo sie sich nicht mehr bewegt."
+      },
+      "paddleClosed": {
+        "title": "Paddel: geschlossen",
+        "body": "Ziehe, bis die Paddel zugehen und eine Karte festhalten, ohne sie einzuklemmen."
+      },
+      "paddleOpen": {
+        "title": "Paddel: offen",
+        "body": "Ziehe, bis die Paddel weit genug offen sind, damit eine Karte seitlich hinausgleiten kann."
+      },
+      "pusherNeutral": {
+        "title": "Schieber: neutral",
+        "body": "Ziehe, bis der Arm mittig und außerhalb des Kartenwegs steht, sodass Karten gerade an ihm vorbeifallen."
+      },
+      "pusherLeft": {
+        "title": "Schieber: links",
+        "body": "Ziehe, bis der Arm ganz gegen die Innenkante des Moduls schwenkt und eine Karte auf der rechten Seite (von vorne gesehen) hinausschiebt. Hör nicht vor der Kante auf: Der Servo wird langsamer, je näher er seinem Ziel kommt, also muss der Arm mit voller Geschwindigkeit gegen die Kante schlagen, damit er den Schwung behält, der die Karte hinausschleudert. Nimm ihn nur zurück, wenn er die ganze Zeit gegen die Kante brummt statt nur am Ende."
+      },
+      "pusherRight": {
+        "title": "Schieber: rechts",
+        "body": "Jetzt in die andere Richtung: Ziehe, bis der Arm gegen die Innenkante auf der anderen Seite schlägt und eine Karte auf der linken Seite (von vorne gesehen) hinausschiebt. Auch hier soll er mit voller Geschwindigkeit gegen die Kante schlagen, damit er seinen Schwung behält. Nimm ihn nur zurück, wenn er die ganze Zeit gegen die Kante brummt."
+      }
+    },
+    "irSensors": {
+      "heading": "Sensoren prüfen",
+      "body": "Jedes Modul hat am Tor einen Infrarotsensor, der erkennt, wenn eine Karte ankommt, und ein weiterer im Trichter erkennt, ob Karten warten. Halte nacheinander eine Karte vor jeden Sensor und beobachte, wie seine Zeile aufleuchtet. Jeder Sensor bekommt einen Haken, sobald er eine Karte erkannt hat.",
+      "moduleSensor": "Tor von Modul {{module}}",
+      "moduleHint": "Halte eine Karte dorthin, wo die Karte in diesem Modul liegt.",
+      "hopperSensor": "Trichter",
+      "hopperHint": "Lege ein paar Karten in den Trichter.",
+      "present": "Karte",
+      "clear": "Frei",
+      "verified": "Sensor geprüft",
+      "waiting": "Warte auf den ersten Messwert vom Sortierer…",
+      "footnote": "Ein Sensor, der nie aufleuchtet, ist meist nicht eingesteckt, am falschen Pin angeschlossen oder zeigt nicht auf den Kartenweg. Du kannst weitermachen und das später beheben."
+    },
+    "feeder": {
+      "heading": "Zuführgeschwindigkeit",
+      "body": "Die Zuführrolle zieht die unterste Karte aus dem Trichter in Modul 1. Ziehe, bis sie in die Richtung dreht, die Karten hineinzieht, mit gleichmäßiger Geschwindigkeit.",
+      "speedLabel": "Geschwindigkeit",
+      "hint": "0 % ist Stillstand. Ziehe in eine Richtung, um sie so drehen zu lassen. Sie stoppt ein paar Sekunden nach dem Loslassen von selbst."
+    },
+    "test": {
+      "heading": "Selbsttest ausführen",
+      "body": "Der Sortierer öffnet jede Falltür und jedes Paddel, schwenkt jeden Schieber in beide Richtungen und dreht kurz die Zuführung. Achte darauf, dass keine Karten in den Modulen sind, und starte ihn dann.",
+      "run": "Test ausführen",
+      "running": "Test läuft…",
+      "passed": "Test bestanden. Dieser Sortierer ist einsatzbereit.",
+      "failed": "Test fehlgeschlagen",
+      "failedHint": "Geh zurück, stelle jede Position nach, die sich nicht sauber bewegt hat, und führe den Test erneut aus."
+    },
+    "sections": {
+      "intro": "Erste Schritte",
+      "moduleCount": "Dein Sortierer",
+      "module": "Modul {{module}} von {{total}} · {{servo}}",
+      "irSensors": "Sensoren",
+      "feeder": "Zuführung",
+      "test": "Selbsttest"
+    },
+    "partsHeading": "Die Teile, die du einstellst",
+    "aboutPart": "Über: {{servo}}",
+    "howToSet": "So stellst du es ein"
   }
 }

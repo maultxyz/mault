@@ -2,6 +2,7 @@ import { CAMERA_FOCUS_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type {
   CameraRange,
   CameraTrackCapabilities,
+  CameraTrackSettings,
 } from "@/lib/interfaces/scanner";
 
 function loadAll(): Record<string, number> {
@@ -40,13 +41,10 @@ export function manualFocusRange(
 }
 
 export function currentFocusDistance(track: MediaStreamTrack): number | null {
-  const settings = track.getSettings() as MediaTrackSettings & {
-    focusDistance?: number;
-  };
+  const settings = track.getSettings() as CameraTrackSettings;
   return settings.focusDistance ?? null;
 }
 
-// null restores continuous autofocus.
 export function applyFocus(
   track: MediaStreamTrack,
   value: number | null,

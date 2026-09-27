@@ -129,6 +129,10 @@
     }
   },
   "calibrationTour": {
+    "menu": {
+      "pageTour": "Page tour",
+      "setupWizard": "Setup wizard"
+    },
     "triggerTooltip": "How calibration works",
     "welcome": {
       "title": "Calibrating your sorter",

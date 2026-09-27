@@ -18,10 +18,6 @@ function send(msg: WorkerToParentMessage): void {
   process.send?.(msg);
 }
 
-// IPC sends are async and flush in order, so exiting straight after the final
-// status drops it whenever progress messages are still queued (a mostly-skipped
-// sync queues thousands). A no-op message's send callback fires only once
-// everything before it has gone out.
 function exitAfterFlush(code: number): void {
   if (!process.send) process.exit(code);
   process.send({ type: "patchState", patch: {} }, undefined, undefined, () =>

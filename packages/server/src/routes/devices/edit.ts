@@ -32,7 +32,11 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       checkBothOrientations?: boolean | null;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
+      setupCompleted?: boolean;
     }>();
+    if (body.setupCompleted === false && c.get("userRole") !== "admin") {
+      return c.json({ success: false, message: "Forbidden." }, 403);
+    }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const device = await getDeviceByGuid(tx, orgId, guid);
@@ -79,6 +83,12 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
               ? (body.checkBothOrientations ?? null)
               : device.checkBothOrientations,
           channelLayout,
+          setupCompletedAt:
+            "setupCompleted" in body
+              ? body.setupCompleted
+                ? (device.setupCompletedAt ?? new Date())
+                : null
+              : device.setupCompletedAt,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
               ? Math.min(

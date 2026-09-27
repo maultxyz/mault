@@ -51,8 +51,6 @@ export function downloadBinRulesExport(data: BinRulesExport): void {
   URL.revokeObjectURL(url);
 }
 
-// Preset names are unique per game, so an import that collides gets a
-// numbered suffix instead of failing.
 export function uniqueImportedName(
   base: string,
   sets: BinSet[],
