@@ -19,7 +19,7 @@ import { useDevice } from "@/features/calibration/api/use-device";
 import { ExperimentalFeaturesPanel } from "@/features/calibration/components/experimental-features-panel";
 import { FeederCalibrationPanel } from "@/features/calibration/components/feeder-calibration-panel";
 import { ModuleCalibrationGrid } from "@/features/calibration/components/module-calibration-grid";
-import { IconClockHour3 } from "@tabler/icons-react";
+import { IconClockHour3, IconRestore } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -151,6 +151,7 @@ export default function CalibrateCalibrationPage() {
     isSavingFeederModule,
     handleSaveFeederModuleCalibration,
     handleDiscardFeederModuleCalibration,
+    handleResetServosToDefaults,
   } = useCalibrationOutletContext();
 
   const { data: moduleHistoryResult, isLoading: moduleHistoryLoading } =
@@ -255,14 +256,24 @@ export default function CalibrateCalibrationPage() {
 
       <div className="flex items-center justify-between">
         <Label>{t("sections.moduleCalibration")}</Label>
-        <button
-          type="button"
-          onClick={() => setModuleHistoryOpen(true)}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <IconClockHour3 size={12} />
-          {t("calibratePage.history")}
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleResetServosToDefaults}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <IconRestore size={12} />
+            {t("calibratePage.resetServosToDefaults")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setModuleHistoryOpen(true)}
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <IconClockHour3 size={12} />
+            {t("calibratePage.history")}
+          </button>
+        </div>
       </div>
       <ModuleCalibrationGrid
         modules={modules}

@@ -203,6 +203,7 @@
     }
   },
   "calibratePage": {
+    "resetServosToDefaults": "Réinitialiser les servos",
     "moduleHistory": {
       "bottom": "Bas",
       "paddle": "Palette",

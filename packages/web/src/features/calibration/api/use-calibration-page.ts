@@ -25,6 +25,7 @@ import type {
   SliderKey,
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { SETUP_SERVO_POSITIONS } from "@/lib/constants/calibration";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
   CALIBRATION_STEP_SETTLE_MS,
@@ -591,6 +592,38 @@ export function useCalibrationPage() {
     t,
   ]);
 
+  const handleResetServosToDefaults = useCallback(() => {
+    setPendingCalibration((prev) => {
+      const next = { ...prev };
+      for (const m of modules) {
+        const saved =
+          configsRef.current.find((c) => c.moduleNumber === m)?.calibration ??
+          DEFAULT_CALIBRATION;
+        const pending: Partial<ServoCalibration> = { ...prev[m] };
+        for (const { calKey } of SETUP_SERVO_POSITIONS) {
+          if (saved[calKey] === DEFAULT_CALIBRATION[calKey]) {
+            delete pending[calKey];
+          } else {
+            pending[calKey] = DEFAULT_CALIBRATION[calKey];
+          }
+        }
+        if (Object.keys(pending).length > 0) next[m] = pending;
+        else delete next[m];
+      }
+      return next;
+    });
+    setSliderValues((prev) => {
+      const next = { ...prev };
+      for (const [key, position] of Object.entries(activeRef.current)) {
+        if (!position) continue;
+        const servo = key.split(":")[1] as "bottom" | "paddle" | "pusher";
+        const calKey = getCalibrationKey(servo, position);
+        if (calKey) next[key as SliderKey] = DEFAULT_CALIBRATION[calKey];
+      }
+      return next;
+    });
+  }, [modules]);
+
   const handleDiscardFeederModuleCalibration = useCallback(() => {
     setPendingCalibration({});
     setPipelinedFeedDraft(null);
@@ -833,6 +866,7 @@ export function useCalibrationPage() {
     isSavingFeederModule,
     handleSaveFeederModuleCalibration,
     handleDiscardFeederModuleCalibration,
+    handleResetServosToDefaults,
     isScanRegionSectionDirty,
     isSavingScanRegion,
     handleSaveScanRegion,

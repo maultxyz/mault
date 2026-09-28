@@ -203,6 +203,7 @@
     }
   },
   "calibratePage": {
+    "resetServosToDefaults": "Reset servos to defaults",
     "moduleHistory": {
       "bottom": "Bottom",
       "paddle": "Paddle",
