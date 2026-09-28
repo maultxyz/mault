@@ -2,9 +2,11 @@ import type {
   CardSearchEmbeddings,
   SearchCardMatch,
 } from "@magic-vault/shared";
-import { DISTANCE_THRESHOLD } from "@magic-vault/shared";
+import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { authQuery } from "../../db";
+import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
+import { searchCardById } from "../../lib/card-search/stored-cards";
 import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
@@ -182,4 +184,24 @@ export async function findCardMatches(
       nearestDistance,
     };
   });
+}
+
+export async function attachMatchedCards(
+  result: CardMatchSearchResult,
+  gameKey: string,
+  lang: string,
+): Promise<CardMatchSearchResult> {
+  const matches = result.data;
+  const resolved = resolveCardSearchForGame(gameKey, lang);
+  if (!matches || matches.length === 0 || !resolved) return result;
+
+  const leaderDistance = matches[0].distance;
+  const data = await Promise.all(
+    matches.map(async (match) => {
+      if (match.distance - leaderDistance > CLOSE_MATCH_DELTA) return match;
+      const found = await searchCardById(resolved, match.cardId);
+      return found.success && found.data ? { ...match, card: found.data } : match;
+    }),
+  );
+  return { ...result, data };
 }

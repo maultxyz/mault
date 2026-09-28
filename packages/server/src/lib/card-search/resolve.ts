@@ -44,16 +44,22 @@ export async function resolveGameKeyAndLang(
   });
 }
 
+export function resolveCardSearchForGame(
+  gameKey: string,
+  lang: string,
+): ResolvedCardSearch | null {
+  const adapter = ADAPTERS_BY_GAME_KEY[gameKey];
+  if (!adapter) return null;
+
+  const baseUrl = adapter.urlForLang?.(lang) ?? adapter.defaultUrl;
+  return { adapter, gameKey, baseUrl, lang };
+}
+
 export async function resolveCardSearch(
   jwtClaims: string,
   collectionGuid: string | undefined,
 ): Promise<ResolvedCardSearch | null> {
   const resolved = await resolveGameKeyAndLang(jwtClaims, collectionGuid);
   if (!resolved) return null;
-
-  const adapter = ADAPTERS_BY_GAME_KEY[resolved.gameKey];
-  if (!adapter) return null;
-
-  const baseUrl = adapter.urlForLang?.(resolved.lang) ?? adapter.defaultUrl;
-  return { adapter, gameKey: resolved.gameKey, baseUrl, lang: resolved.lang };
+  return resolveCardSearchForGame(resolved.gameKey, resolved.lang);
 }

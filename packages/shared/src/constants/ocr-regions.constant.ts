@@ -6,3 +6,4 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
 };
 
 export const DISTANCE_THRESHOLD = 0.4;
+export const CLOSE_MATCH_DELTA = 0.05;
