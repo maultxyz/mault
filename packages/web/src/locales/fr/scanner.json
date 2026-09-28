@@ -21,6 +21,13 @@
     },
     "testingDevice": "Test de l'appareil…",
     "deviceReady": "Appareil prêt",
+    "sensorBlocked": {
+      "title": "Carte sur un capteur",
+      "description": "Le capteur du module {{module}} détecte une carte, le test automatique n'a donc pas été lancé. Éjectez la carte ou retirez-la à la main, puis marquez le problème comme résolu pour relancer le test.",
+      "dropped": "Cartes éjectées. Marquez le problème comme résolu pour relancer le test automatique.",
+      "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le problème comme résolu.",
+      "noResponse": "Le trieur n'a pas répondu. Reconnectez-le et réessayez."
+    },
     "deviceTestFailed": {
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."
@@ -116,7 +123,17 @@
     "jamDetected": {
       "title": "Bourrage de carte détecté",
       "description": "Carte bloquée au module {{module}}. Vérifie la trieuse et reprends.",
-      "descriptionWithBin": "Carte bloquée au module {{module}} (en direction du bac {{bin}}). Vérifie la trieuse et reprends."
+      "descriptionWithBin": "Carte bloquée au module {{module}} (en direction du bac {{bin}}). Vérifie la trieuse et reprends.",
+      "dropCard": "Éjecter la carte",
+      "dropFailed": "Le trieur n'a pas répondu à la commande d'éjection. Retirez la carte à la main.",
+      "notReady": "Le trieur n'est pas prêt. Reconnectez-le ou retirez la carte à la main.",
+      "markCleared": "Marquer comme résolu",
+      "dropped": "Cartes éjectées. Marquez le bourrage comme résolu pour reprendre.",
+      "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le bourrage comme résolu."
+    },
+    "jamCleared": {
+      "title": "Bourrage résolu",
+      "description": "La numérisation et le chargement automatique ont repris."
     },
     "noCardDetected": {
       "title": "Aucune carte détectée",

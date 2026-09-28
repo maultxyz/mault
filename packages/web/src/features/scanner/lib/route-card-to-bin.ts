@@ -1,5 +1,6 @@
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
-import type { RouteOptions } from "@/lib/interfaces/scanner";
+import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/scanner";
+import type { JamToastOptions, RouteOptions } from "@/lib/interfaces/scanner";
 import type { BinRoute } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { toast } from "@/lib/toast";
@@ -16,6 +17,7 @@ export interface RouteCardToBinParams {
   disableAutoFeed: () => void;
   pause: () => void;
   triggerAutoFeed: () => void;
+  onJam: (options: JamToastOptions) => void;
 }
 
 export async function routeCardToBin({
@@ -30,6 +32,7 @@ export async function routeCardToBin({
   disableAutoFeed,
   pause,
   triggerAutoFeed,
+  onJam,
 }: RouteCardToBinParams): Promise<void> {
   const feedNext = isAutoFeedEnabled() && isPipelinedFeedEnabled();
   const response = await sendRoute(route, { feedNext });
@@ -83,11 +86,16 @@ export async function routeCardToBin({
   }
 
   if (res.error) {
-    toast.error(t("scannedCards.sorterError.title"), {
-      description: String(res.error),
-      duration: Infinity,
-      dismissible: true,
-    });
+    const jamModule = String(res.error).match(ROUTE_TIMEOUT_MODULE_PATTERN);
+    if (jamModule) {
+      onJam({ module: Number(jamModule[1]), binNumber: route.binNumber });
+    } else {
+      toast.error(t("scannedCards.sorterError.title"), {
+        description: String(res.error),
+        duration: Infinity,
+        dismissible: true,
+      });
+    }
     void reportSerialEvent({
       command: "bin",
       sent: true,

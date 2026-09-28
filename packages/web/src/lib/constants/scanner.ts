@@ -33,3 +33,9 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+
+export const JAM_TOAST_ID_PREFIX = "jam-module-";
+export const JAM_COMMAND_TIMEOUT_MS = 3000;
+export const JAM_CLEAR_DEVICE_TIMEOUT_MS = 10000;
+export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
+export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;

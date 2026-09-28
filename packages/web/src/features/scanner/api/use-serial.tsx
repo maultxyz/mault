@@ -21,6 +21,7 @@ import {
   isUnsolicitedSerialMessage,
 } from "@/features/scanner/lib/serial-messages";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
+import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
 import {
   BluetoothTransport,
   SerialTransport,
@@ -28,12 +29,18 @@ import {
 } from "@/features/scanner/lib/transports";
 import { SERIAL_PUSH_BLOCKED_ERROR } from "@/lib/constants/firmware";
 import {
+  JAM_CLEAR_DEVICE_TIMEOUT_MS,
+  JAM_COMMAND_TIMEOUT_MS,
+  SENSOR_BLOCKED_TOAST_ID,
+} from "@/lib/constants/scanner";
+import {
   DEVICE_LEASE_HEARTBEAT_MS,
   PUSH_TEST_RESPONSE_TIMEOUT_MS,
   ROUTE_RESPONSE_TIMEOUT_MS,
   ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS,
 } from "@/lib/constants/timing";
 import type {
+  ConnectTestRunner,
   FirmwareCheckResult,
   FlashEsp32Result,
   PushTest,
@@ -228,10 +235,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const sendTest = useCallback(async (): Promise<TestResult> => {
     setIsReady(false);
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
-    if (!sent) return { ok: false, error: null };
+    if (!sent) return { ok: false, error: null, blockedModule: null };
 
     const response = await waitForLine(10000);
-    if (!response) return { ok: false, error: null };
+    if (!response) return { ok: false, error: null, blockedModule: null };
 
     try {
       const parsed = JSON.parse(response);
@@ -239,11 +246,103 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       return {
         ok,
         error: !ok && typeof parsed.error === "string" ? parsed.error : null,
+        blockedModule:
+          !ok && typeof parsed.module === "number" ? parsed.module : null,
       };
     } catch {
-      return { ok: false, error: null };
+      return { ok: false, error: null, blockedModule: null };
     }
   }, [sendCommand, waitForLine]);
+
+  const runConnectTestRef = useRef<ConnectTestRunner | null>(null);
+
+  const showSensorBlockedToast = useCallback(
+    (
+      module: number,
+      forTransport: ByteTransport,
+      forDevice: Device | undefined,
+    ) => {
+      let busy = false;
+
+      const runCommand = async (command: object, timeoutMs: number) => {
+        if (transportRef.current !== forTransport) return null;
+        if (!(await sendCommand(JSON.stringify(command) + "\n"))) return null;
+        const line = await waitForLine(timeoutMs);
+        if (!line) return null;
+        try {
+          return JSON.parse(line) as Record<string, unknown>;
+        } catch {
+          return null;
+        }
+      };
+
+      const runExclusive = async (task: () => Promise<void>) => {
+        if (busy) return;
+        busy = true;
+        try {
+          await task();
+        } finally {
+          busy = false;
+        }
+      };
+
+      const handleDrop = () =>
+        runExclusive(async () => {
+          const response = await runCommand(
+            { clearDevice: true },
+            JAM_CLEAR_DEVICE_TIMEOUT_MS,
+          );
+          show(
+            !response || response.error
+              ? t("cardScanner.jamDetected.dropFailed")
+              : t("serial.sensorBlocked.dropped"),
+          );
+        });
+
+      const handleMarkCleared = () =>
+        runExclusive(async () => {
+          const response = await runCommand(
+            { readIR: true },
+            JAM_COMMAND_TIMEOUT_MS,
+          );
+          if (!Array.isArray(response?.ir)) {
+            show(t("serial.sensorBlocked.noResponse"));
+            return;
+          }
+          const blockedIndex = response.ir.indexOf(true);
+          if (blockedIndex !== -1) {
+            show(
+              t("serial.sensorBlocked.stillBlocked", {
+                module: blockedIndex + 1,
+              }),
+            );
+            return;
+          }
+          toast.dismiss(SENSOR_BLOCKED_TOAST_ID);
+          await runConnectTestRef.current?.(forTransport, forDevice);
+        });
+
+      function show(description: string) {
+        toast.error(t("serial.sensorBlocked.title"), {
+          id: SENSOR_BLOCKED_TOAST_ID,
+          description: (
+            <JamToastBody
+              description={description}
+              dropLabel={t("cardScanner.jamDetected.dropCard")}
+              markClearedLabel={t("cardScanner.jamDetected.markCleared")}
+              onDrop={() => void handleDrop()}
+              onMarkCleared={() => void handleMarkCleared()}
+            />
+          ),
+          duration: Infinity,
+          dismissible: true,
+        });
+      }
+
+      show(t("serial.sensorBlocked.description", { module }));
+    },
+    [sendCommand, waitForLine, t],
+  );
 
   const disconnect = useCallback(() => {
     const activeTransport = transportRef.current;
@@ -294,7 +393,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
       if (transportRef.current !== forTransport) return;
       toast.info(t("serial.testingDevice"));
-      const { ok, error: testError } = await sendTest();
+      const { ok, error: testError, blockedModule } = await sendTest();
       if (transportRef.current !== forTransport) return;
       const copyAction = {
         label: (
@@ -303,6 +402,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         onClick: () => copyCommLog(),
       };
       if (ok) {
+        toast.dismiss(SENSOR_BLOCKED_TOAST_ID);
         toast.success(t("serial.deviceReady"), {
           cancel: copyAction,
           actionButtonStyle: { marginLeft: 4 },
@@ -312,6 +412,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
               void sendCommand(JSON.stringify({ clearDevice: true }) + "\n"),
           },
         });
+      } else if (blockedModule !== null) {
+        showSensorBlockedToast(blockedModule, forTransport, forDevice);
       } else {
         toast.error(t("serial.deviceTestFailed.title"), {
           description: testError ?? t("serial.deviceTestFailed.description"),
@@ -325,8 +427,19 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         disconnect();
       }
     },
-    [sendTest, sendCommand, disconnect, t, copyCommLog],
+    [
+      sendTest,
+      sendCommand,
+      disconnect,
+      t,
+      copyCommLog,
+      showSensorBlockedToast,
+    ],
   );
+
+  useEffect(() => {
+    runConnectTestRef.current = runConnectTest;
+  }, [runConnectTest]);
 
   // Binds a device record to this station so every calibration read from
   // here on is that physical board's. Returns null when another station in

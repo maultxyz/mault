@@ -43,6 +43,7 @@ import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
+import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
@@ -148,7 +149,10 @@ export function ScannedCardsProvider({
     triggerAutoFeed,
     registerCardArrivedHook,
     registerPauseHook,
+    resume,
+    registerResumeHook,
   } = useAutoFeed({ serialRef, activeCollectionRef });
+  const showJamToast = useJamToast(resume);
 
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);
@@ -441,6 +445,7 @@ export function ScannedCardsProvider({
               disableAutoFeed,
               pause,
               triggerAutoFeed,
+              onJam: showJamToast,
             });
           }
         })
@@ -463,6 +468,7 @@ export function ScannedCardsProvider({
       disableAutoFeed,
       pause,
       triggerAutoFeed,
+      showJamToast,
     ],
   );
 
@@ -496,6 +502,7 @@ export function ScannedCardsProvider({
         disableAutoFeed,
         pause,
         triggerAutoFeed,
+        onJam: showJamToast,
       });
     }
   }, [
@@ -506,6 +513,7 @@ export function ScannedCardsProvider({
     disableAutoFeed,
     pause,
     triggerAutoFeed,
+    showJamToast,
   ]);
 
   const addUnmatchedCard = useCallback(
@@ -709,6 +717,8 @@ export function ScannedCardsProvider({
         setForceFoilType,
         registerCardArrivedHook,
         registerPauseHook,
+        registerResumeHook,
+        showJamToast,
         addCard,
         addUnmatchedCard,
         removeUnmatchedCard,

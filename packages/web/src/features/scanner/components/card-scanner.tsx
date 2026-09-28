@@ -49,6 +49,8 @@ export function CardScanner({
     setAutoFeed,
     registerCardArrivedHook,
     registerPauseHook,
+    registerResumeHook,
+    showJamToast,
     binLimitReached,
     resolveBinLimit,
     setScannerRunning,
@@ -149,15 +151,9 @@ export function CardScanner({
       const raw = msg as Record<string, unknown>;
 
       handlePause();
-      toast.error(t("cardScanner.jamDetected.title"), {
-        description: raw.bin
-          ? t("cardScanner.jamDetected.descriptionWithBin", {
-              module: raw.module,
-              bin: raw.bin,
-            })
-          : t("cardScanner.jamDetected.description", { module: raw.module }),
-        duration: Infinity,
-        dismissible: true,
+      showJamToast({
+        module: Number(raw.module),
+        binNumber: raw.bin ? Number(raw.bin) : undefined,
       });
       void reportSerialEvent({
         command: "jam",
@@ -357,6 +353,20 @@ export function CardScanner({
   useEffect(() => {
     return registerPauseHook(handlePause);
   }, [registerPauseHook, handlePause]);
+
+  const handleResumeAfterJam = useCallback(() => {
+    setAutoFeed(true);
+    if (heldCardArrivalRef.current) {
+      handleResumeClick();
+      return;
+    }
+    handleResume();
+    void handleFeed();
+  }, [setAutoFeed, handleResumeClick, handleResume, handleFeed]);
+
+  useEffect(() => {
+    return registerResumeHook(handleResumeAfterJam);
+  }, [registerResumeHook, handleResumeAfterJam]);
 
   const handleContinueAfterBinLimit = useCallback(async () => {
     await resolveBinLimit();
