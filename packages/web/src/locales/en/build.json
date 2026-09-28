@@ -1,4 +1,9 @@
 {
+  "anchorLink": {
+    "copy": "Copy link to this section",
+    "copied": "Link copied",
+    "copyFailed": "Couldn't copy the link"
+  },
   "hero": {
     "eyebrow": "Hardware build guide",
     "title": "Build the card sorter",

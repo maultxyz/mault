@@ -1,4 +1,9 @@
 {
+  "anchorLink": {
+    "copy": "Link zu diesem Abschnitt kopieren",
+    "copied": "Link kopiert",
+    "copyFailed": "Link konnte nicht kopiert werden"
+  },
   "hero": {
     "eyebrow": "Bauanleitung für die Hardware",
     "title": "Den Kartensortierer bauen",

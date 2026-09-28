@@ -10,8 +10,11 @@ import { BuildWiring } from "@/features/build/components/wiring";
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
+import { useScrollToHash } from "@/features/build/api/use-scroll-to-hash";
 
 export default function BuildGuidePage() {
+  useScrollToHash();
+
   return (
     <div className="relative flex min-h-screen flex-col bg-background text-foreground">
       <PublicGlow />

@@ -50,3 +50,14 @@ export const BOARD_BUY_URLS: Partial<Record<BoardType, string>> = {
   uno_r4: "https://amzn.to/4zFfnmv",
   esp32: "https://amzn.to/4gmsm51",
 };
+
+export const BUILD_ANCHOR_SCROLL_MAX_FRAMES = 120;
+export const BUILD_ANCHOR_HIGHLIGHT_MS = 2500;
+export const BUILD_ANCHOR_HIGHLIGHT_CLASSES = [
+  "ring-2",
+  "ring-primary",
+  "ring-offset-4",
+  "ring-offset-background",
+  "rounded-md",
+];
+export const BOM_ANCHOR_PREFIX = "parts-";

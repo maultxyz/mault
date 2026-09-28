@@ -1,4 +1,6 @@
 import { Checkbox } from "@/components/ui/checkbox";
+import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { bomGroupAnchorId } from "@/features/build/lib/anchors";
 import type { BoardType } from "@/features/build/api/use-board-type";
 import {
   optionalBadgeLabel,
@@ -26,10 +28,13 @@ export function BomGroupTable({
   const { t } = useTranslation("build");
 
   return (
-    <div>
-      <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-        {t(`bom.groups.${group.key}.title`)}
-      </h3>
+    <div id={bomGroupAnchorId(group.key)} className="scroll-mt-16">
+      <div className="group/anchor mb-2 flex items-center gap-1">
+        <h3 className="font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+          {t(`bom.groups.${group.key}.title`)}
+        </h3>
+        <AnchorLinkButton id={bomGroupAnchorId(group.key)} />
+      </div>
       <div className="overflow-x-auto rounded-lg border">
         <table className="w-full min-w-120 border-collapse text-sm/relaxed">
           <thead>

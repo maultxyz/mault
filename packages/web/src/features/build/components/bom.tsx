@@ -13,7 +13,10 @@ import {
   useModuleCount,
 } from "@/features/build/api/use-module-count";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
+import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { BomGroupTable } from "@/features/build/components/bom-group-table";
+import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
+import { useLocation } from "react-router-dom";
 import { GROUPS } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
@@ -38,6 +41,14 @@ export function BuildBom() {
     setOpenSections(usingKit ? [] : ["parts"]);
   }, [usingKit]);
 
+  const { hash } = useLocation();
+  useEffect(() => {
+    if (!hash.startsWith(`#${BOM_ANCHOR_PREFIX}`)) return;
+    setOpenSections((prev) =>
+      prev.includes("parts") ? prev : [...prev, "parts"],
+    );
+  }, [hash]);
+
   const allRows = useMemo(() => GROUPS.flatMap((g) => g.rows), []);
   const doneCount = allRows.filter((r) => checked[r.key]).length;
   const pct = allRows.length
@@ -47,10 +58,13 @@ export function BuildBom() {
   const channelsUsed = moduleCount * 3 + 1;
 
   return (
-    <section id="parts" className="mx-auto max-w-4xl px-4 py-16">
-      <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
-        {t("bom.heading")}
-      </h2>
+    <section id="parts" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-16">
+      <div className="group/anchor flex items-center gap-1">
+        <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
+          {t("bom.heading")}
+        </h2>
+        <AnchorLinkButton id="parts" />
+      </div>
       <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("bom.description", {
           modules: moduleCount,

@@ -1,4 +1,9 @@
 {
+  "anchorLink": {
+    "copy": "Copier le lien vers cette section",
+    "copied": "Lien copié",
+    "copyFailed": "Impossible de copier le lien"
+  },
   "hero": {
     "eyebrow": "Guide de montage du matériel",
     "title": "Construire la trieuse de cartes",
