@@ -4,6 +4,7 @@ import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../card-search/sync-types";
 import { SYNC_DATA_REFRESH_BATCH_SIZE } from "../constants/sync";
+import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
 import type { ParentToWorkerMessage, WorkerToParentMessage } from "./protocol";
 import { SYNC_SOURCES } from "./sources";
@@ -308,7 +309,9 @@ async function runSync(
       });
       if (!imageRes.ok)
         throw new Error(`Image fetch failed: ${imageRes.status}`);
-      const buffer = Buffer.from(await imageRes.arrayBuffer());
+      const buffer = await toPortraitCardImage(
+        Buffer.from(await imageRes.arrayBuffer()),
+      );
       const { embedding } = await vectorizeCardImage(buffer);
 
       pendingInserts.push({

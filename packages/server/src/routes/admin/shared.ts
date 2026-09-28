@@ -2,6 +2,7 @@ import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { SYNC_SOURCES } from "../../lib/sync-job";
+import { toPortraitCardImage } from "../../lib/card-image";
 import { vectorizeCardImage } from "../../lib/vectorize";
 
 export async function syncOneCard(
@@ -47,7 +48,9 @@ export async function syncOneCard(
       status: 502,
     };
   }
-  const buffer = Buffer.from(await imageRes.arrayBuffer());
+  const buffer = await toPortraitCardImage(
+    Buffer.from(await imageRes.arrayBuffer()),
+  );
   const { embedding } = await vectorizeCardImage(buffer);
 
   await db

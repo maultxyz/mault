@@ -5,6 +5,7 @@ import { onePieceSyncSource } from "../adapters/onepiece/sync";
 import { pokemonSyncSource } from "../adapters/pokemon/sync";
 import { riftboundSyncSource } from "../adapters/riftbound/sync";
 import { scryfallSyncSource } from "../adapters/scryfall/sync";
+import { swuSyncSource } from "../adapters/swu/sync";
 import { yugiohSyncSource } from "../adapters/yugioh/sync";
 import type { SyncSource } from "../card-search/sync-types";
 
@@ -17,4 +18,5 @@ export const SYNC_SOURCES: Record<string, SyncSource> = {
   fab: fabSyncSource,
   yugioh: yugiohSyncSource,
   riftbound: riftboundSyncSource,
+  swu: swuSyncSource,
 };

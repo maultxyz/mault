@@ -13,6 +13,7 @@ import {
   POKEMON_DEFAULT_URL,
   RIFTBOUND_DEFAULT_URL,
   SCRYFALL_DEFAULT_URL,
+  SWU_API_ROOT,
   YUGIOH_DEFAULT_URL,
 } from "../../lib/constants/urls";
 import type { AppEnv } from "../../middleware/auth";
@@ -45,6 +46,11 @@ const EXTERNAL_API_CHECKS: { name: string; url: string; gameKey: string }[] = [
     name: "Riftcodex (Riftbound)",
     url: RIFTBOUND_DEFAULT_URL,
     gameKey: "riftbound",
+  },
+  {
+    name: "SWU-DB (Star Wars: Unlimited)",
+    url: `${SWU_API_ROOT}/sets`,
+    gameKey: "swu",
   },
 ];
 

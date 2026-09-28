@@ -5,6 +5,7 @@ import { lorcanaAdapter } from "../adapters/lorcana/search";
 import { onePieceAdapter } from "../adapters/onepiece/search";
 import { pokemonAdapter } from "../adapters/pokemon/search";
 import { riftboundAdapter } from "../adapters/riftbound/search";
+import { swuAdapter } from "../adapters/swu/search";
 import { scryfallAdapter } from "../adapters/scryfall/search";
 import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withCache } from "./cache";
@@ -20,6 +21,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   fab: withCache(withErrorHandling(fabAdapter)),
   yugioh: withCache(withErrorHandling(yugiohAdapter)),
   riftbound: withCache(withErrorHandling(riftboundAdapter)),
+  swu: withCache(withErrorHandling(swuAdapter)),
 };
 
 export async function resolveGameKeyAndLang(
