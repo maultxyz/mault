@@ -131,6 +131,14 @@
     "routingFailedCatchAll": {
       "title": "Weiterleitung fehlgeschlagen",
       "description": "Keine Antwort vom Sortierer für das Sammelfach {{binNumber}}."
+    },
+    "saveFailed": {
+      "title": "Karte nicht gespeichert",
+      "description": "{{name}} wurde einsortiert, konnte aber nicht in der Sammlung gespeichert werden. Das Scannen ist pausiert. Prüfe deine Verbindung, nimm die Karte wieder heraus und scanne sie erneut."
+    },
+    "saveFailedUnmatched": {
+      "title": "Nicht erkannte Karte nicht gespeichert",
+      "description": "Eine Karte ist ins Auffangfach gegangen, konnte aber nicht in der Sammlung gespeichert werden. Das Scannen ist pausiert. Prüfe deine Verbindung, bevor du fortfährst."
     }
   },
   "cardScanner": {

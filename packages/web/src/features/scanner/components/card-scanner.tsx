@@ -50,6 +50,9 @@ export function CardScanner({
     registerCardArrivedHook,
     registerPauseHook,
     registerResumeHook,
+    pause,
+    isFeedHalted,
+    clearFeedHalt,
     showJamToast,
     binLimitReached,
     resolveBinLimit,
@@ -152,7 +155,7 @@ export function CardScanner({
 
       const raw = msg as Record<string, unknown>;
 
-      handlePause();
+      pause();
       showJamToast({
         module: Number(raw.module),
         binNumber: raw.bin ? Number(raw.bin) : undefined,
@@ -170,13 +173,13 @@ export function CardScanner({
   const heldCardArrivalRef = useRef(false);
 
   const handleCardArrived = useCallback(() => {
-    if (document.hidden) {
+    if (document.hidden || isFeedHalted()) {
       heldCardArrivalRef.current = true;
       return;
     }
     if (status === "paused") handleResume();
     captureCard();
-  }, [status, handleResume, captureCard]);
+  }, [status, handleResume, captureCard, isFeedHalted]);
 
   const handleResumeClick = useCallback(() => {
     handleResume();
@@ -201,8 +204,7 @@ export function CardScanner({
     const onVisibilityChange = () => {
       if (!document.hidden) return;
       if (!PAUSE_WHEN_HIDDEN_STATUSES.includes(statusRef.current)) return;
-      setAutoFeed(false);
-      handlePause();
+      pause();
       toast.info(t("cardScanner.pausedTabHidden.title"), {
         id: "scanner-paused-tab-hidden",
         description: t("cardScanner.pausedTabHidden.description"),
@@ -211,7 +213,7 @@ export function CardScanner({
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [setAutoFeed, handlePause, t]);
+  }, [pause, t]);
 
   const handleFeed = useCallback(async () => {
     if (!isReady) return;
@@ -246,7 +248,7 @@ export function CardScanner({
       try {
         const parsed = JSON.parse(response) as Record<string, unknown>;
         if (parsed.empty) {
-          handlePause();
+          pause();
           toast.error(t("feederEmpty.title"), {
             description: t("feederEmpty.description"),
             duration: Infinity,
@@ -356,24 +358,24 @@ export function CardScanner({
     return registerPauseHook(handlePause);
   }, [registerPauseHook, handlePause]);
 
-  const handleResumeAfterJam = useCallback(() => {
-    setAutoFeed(true);
+  const handleResumeScanning = useCallback(() => {
+    clearFeedHalt();
     if (heldCardArrivalRef.current) {
       handleResumeClick();
       return;
     }
     handleResume();
-    void handleFeed();
-  }, [setAutoFeed, handleResumeClick, handleResume, handleFeed]);
+    if (autoFeed) void handleFeed();
+  }, [clearFeedHalt, handleResumeClick, handleResume, handleFeed, autoFeed]);
 
   useEffect(() => {
-    return registerResumeHook(handleResumeAfterJam);
-  }, [registerResumeHook, handleResumeAfterJam]);
+    return registerResumeHook(handleResumeScanning);
+  }, [registerResumeHook, handleResumeScanning]);
 
   const handleContinueAfterBinLimit = useCallback(async () => {
     await resolveBinLimit();
-    handleResume();
-  }, [resolveBinLimit, handleResume]);
+    handleResumeScanning();
+  }, [resolveBinLimit, handleResumeScanning]);
 
   const canScan = isCameraActive;
   const wasReadyRef = useRef(canScan);
@@ -500,11 +502,8 @@ export function CardScanner({
           isFeeding={isFeeding}
           isClearingDevice={isClearingDevice}
           onForceScan={handleForceScanClick}
-          onPause={() => {
-            setAutoFeed(false);
-            handlePause();
-          }}
-          onResume={handleResumeClick}
+          onPause={pause}
+          onResume={handleResumeScanning}
           onFeed={handleFeed}
           onClearDevice={handleClearDevice}
         />

@@ -1,15 +1,15 @@
 import type { PlayingCardWithDistance, ScannedCard } from "@magic-vault/shared";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { collectionCards, collections } from "../../db/schema";
+import { collectionCards, collections, games } from "../../db/schema";
 import {
   acquireDeviceLease,
   UNIDENTIFIED_SORTER_LEASE_KEY,
 } from "../../lib/device-leases";
 import { acquireLock } from "../../lib/scan-lock";
 import {
-  getConnectedSorterLimit,
+  sorterLimitForPlan,
   sorterLimitMessage,
 } from "../../lib/sorter-limit";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
@@ -17,7 +17,7 @@ import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { notifyCardScanned } from "./notify-card-scanned";
-import { isOverFreeScanLimit } from "./scan-limit";
+import { isOverFreeScanLimit, loadOrgPlan } from "./scan-limit";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -75,10 +75,17 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         gameName: string | undefined;
         gameId: number | null;
       }>(c.get("jwtClaims"), async (tx) => {
-        const collection = await tx.query.collections.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
-          columns: { id: true, gameId: true, name: true },
-        });
+        const [collection] = await tx
+          .select({
+            id: collections.id,
+            gameId: collections.gameId,
+            name: collections.name,
+            gameName: games.name,
+          })
+          .from(collections)
+          .leftJoin(games, eq(games.id, collections.gameId))
+          .where(and(eq(collections.guid, guid), eq(collections.orgId, orgId)))
+          .limit(1);
         if (!collection)
           return {
             result: { success: false, message: "Collection not found." },
@@ -87,7 +94,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             gameId: null,
           };
 
-        if (await isOverFreeScanLimit(tx, orgId)) {
+        const plan = await loadOrgPlan(tx, orgId);
+        if (await isOverFreeScanLimit(tx, orgId, plan)) {
           return {
             result: {
               success: false,
@@ -103,7 +111,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         // Backstop for the connect-time lease (routes/devices/lease.ts): a
         // client that never leased still can't scan past the plan's cap, and
         // every scan renews the scanning sorter's lease.
-        const sorterLimit = await getConnectedSorterLimit(tx, orgId);
+        const sorterLimit = sorterLimitForPlan(plan);
         if (
           !acquireDeviceLease(
             orgId,
@@ -171,12 +179,6 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           .set({ updatedAt: new Date() })
           .where(eq(collections.id, collection.id));
 
-        const game = collection.gameId
-          ? await tx.query.games.findFirst({
-              where: (t, { eq }) => eq(t.id, collection.gameId!),
-              columns: { name: true },
-            })
-          : null;
 
         return {
           result: {
@@ -193,7 +195,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             } as ScannedCard,
           },
           collectionName: collection.name,
-          gameName: game?.name,
+          gameName: collection.gameName ?? undefined,
           gameId: collection.gameId,
         };
       });

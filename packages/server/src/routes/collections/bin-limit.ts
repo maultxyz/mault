@@ -1,7 +1,15 @@
 import { computeBinCapacity } from "@magic-vault/shared";
-import { and, eq, gt, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { collectionCards, unmatchedCards } from "../../db/schema";
+import {
+  binHeights,
+  binSets,
+  bins,
+  collectionCards,
+  devices,
+  games,
+  unmatchedCards,
+} from "../../db/schema";
 
 export interface BinLimitStatus {
   binNumber: number;
@@ -17,78 +25,65 @@ export async function findFullBin(
   binNumber: number,
   deviceGuid: string | undefined,
 ): Promise<BinLimitStatus | null> {
-  const activeBinSet = await tx.query.binSets.findFirst({
-    where: (t, { eq, and, isNull }) =>
-      gameId === null
-        ? and(eq(t.isActive, true), isNull(t.gameId), eq(t.orgId, orgId))
-        : and(eq(t.isActive, true), eq(t.gameId, gameId), eq(t.orgId, orgId)),
-    columns: { id: true },
-  });
-  if (!activeBinSet) return null;
-
-  const bin = await tx.query.bins.findFirst({
-    where: (t, { eq, and }) =>
-      and(eq(t.binSet, activeBinSet.id), eq(t.binNumber, binNumber)),
-    columns: { cardLimit: true, lastEmptiedAt: true },
-  });
-  if (!bin) return null;
-
-  const device = await tx.query.devices.findFirst({
-    where: (t, { eq, and }) =>
-      deviceGuid
-        ? and(eq(t.orgId, orgId), eq(t.guid, deviceGuid))
-        : eq(t.orgId, orgId),
-    orderBy: (t, { asc }) => asc(t.id),
-    columns: { id: true },
-  });
-  const heightRow = device
-    ? await tx.query.binHeights.findFirst({
-        where: (t, { eq, and }) =>
-          and(eq(t.deviceId, device.id), eq(t.binNumber, binNumber)),
-        columns: { height: true },
-      })
-    : null;
-  const game = gameId
-    ? await tx.query.games.findFirst({
-        where: (t, { eq }) => eq(t.id, gameId),
-        columns: { cardThickness: true },
-      })
-    : null;
+  const result = await tx.execute(sql`
+    WITH target AS (
+      SELECT b.card_limit, b.last_emptied_at
+      FROM ${bins} b
+      JOIN ${binSets} s ON s.id = b.bin_set
+      WHERE s.is_active
+        AND s.org_id = ${orgId}
+        AND ${gameId === null ? sql`s.game_id IS NULL` : sql`s.game_id = ${gameId}`}
+        AND b.bin_number = ${binNumber}
+      LIMIT 1
+    )
+    SELECT
+      t.card_limit,
+      (
+        SELECT bh.height
+        FROM ${binHeights} bh
+        WHERE bh.bin_number = ${binNumber}
+          AND bh.device_id = (
+            SELECT d.id FROM ${devices} d
+            WHERE d.org_id = ${orgId}
+              ${deviceGuid ? sql`AND d.guid = ${deviceGuid}` : sql``}
+            ORDER BY d.id
+            LIMIT 1
+          )
+        LIMIT 1
+      ) AS height,
+      ${gameId === null ? sql`NULL::double precision` : sql`(SELECT g.card_thickness FROM ${games} g WHERE g.id = ${gameId})`} AS card_thickness,
+      (
+        SELECT count(*)::int FROM ${collectionCards} c
+        WHERE c.collection_id = ${collectionId}
+          AND c.bin_number = ${binNumber}
+          AND (t.last_emptied_at IS NULL OR c.scanned_at > t.last_emptied_at)
+      ) + (
+        SELECT count(*)::int FROM ${unmatchedCards} u
+        WHERE u.collection_id = ${collectionId}
+          AND u.bin_number = ${binNumber}
+          AND u.is_deleted = false
+          AND (t.last_emptied_at IS NULL OR u.scanned_at > t.last_emptied_at)
+      ) AS count
+    FROM target t
+  `);
+  const row = result.rows[0] as
+    | {
+        card_limit: number | null;
+        height: number | null;
+        card_thickness: number | null;
+        count: number;
+      }
+    | undefined;
+  if (!row) return null;
 
   const effectiveCapacity = computeBinCapacity(
-    heightRow?.height,
-    game?.cardThickness,
-    bin.cardLimit,
+    row.height ?? undefined,
+    row.card_thickness,
+    row.card_limit,
   );
   if (!effectiveCapacity) return null;
 
-  const [{ value: matchedCount }] = await tx
-    .select({ value: sql<number>`count(*)::int` })
-    .from(collectionCards)
-    .where(
-      and(
-        eq(collectionCards.collectionId, collectionId),
-        eq(collectionCards.binNumber, binNumber),
-        bin.lastEmptiedAt
-          ? gt(collectionCards.scannedAt, bin.lastEmptiedAt)
-          : undefined,
-      ),
-    );
-  const [{ value: unmatchedCount }] = await tx
-    .select({ value: sql<number>`count(*)::int` })
-    .from(unmatchedCards)
-    .where(
-      and(
-        eq(unmatchedCards.collectionId, collectionId),
-        eq(unmatchedCards.binNumber, binNumber),
-        eq(unmatchedCards.isDeleted, false),
-        bin.lastEmptiedAt
-          ? gt(unmatchedCards.scannedAt, bin.lastEmptiedAt)
-          : undefined,
-      ),
-    );
-  const count = matchedCount + unmatchedCount;
-
+  const count = Number(row.count);
   if (count < effectiveCapacity) return null;
   return { binNumber, cardLimit: effectiveCapacity, count };
 }

@@ -131,6 +131,14 @@
     "routingFailedCatchAll": {
       "title": "Échec du routage",
       "description": "Aucune réponse de la trieuse pour le bac fourre-tout {{binNumber}}."
+    },
+    "saveFailed": {
+      "title": "Carte non enregistrée",
+      "description": "{{name}} a été triée mais n'a pas pu être enregistrée dans la collection. Le scan est en pause. Vérifiez votre connexion, puis ressortez la carte et scannez-la à nouveau."
+    },
+    "saveFailedUnmatched": {
+      "title": "Carte non reconnue non enregistrée",
+      "description": "Une carte est partie dans le bac fourre-tout mais n'a pas pu être enregistrée dans la collection. Le scan est en pause. Vérifiez votre connexion avant de reprendre."
     }
   },
   "cardScanner": {

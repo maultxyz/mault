@@ -131,6 +131,14 @@
     "routingFailedCatchAll": {
       "title": "Routing failed",
       "description": "No response from sorter for catch-all bin {{binNumber}}."
+    },
+    "saveFailed": {
+      "title": "Card not saved",
+      "description": "{{name}} was sorted but couldn't be saved to the collection. Scanning is paused. Check your connection, then take the card back out and rescan it."
+    },
+    "saveFailedUnmatched": {
+      "title": "Unmatched card not saved",
+      "description": "A card went to the catch-all but couldn't be saved to the collection. Scanning is paused. Check your connection before resuming."
     }
   },
   "cardScanner": {

@@ -93,6 +93,9 @@ export interface ScannedCardsContextValue {
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;
+  pause: () => void;
+  isFeedHalted: () => boolean;
+  clearFeedHalt: () => void;
   showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => void;
