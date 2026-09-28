@@ -270,6 +270,10 @@
     "confirmDescription": "Dies setzt den Füllstandszähler von Fach {{bin}} auf null zurück. Stelle sicher, dass du das Fach vorher physisch geleert hast, das übernimmt die App nicht für dich.",
     "confirmButton": "Fach leeren"
   },
+  "alphabetPassControl": {
+    "range": "Sortiert {{from}} bis {{to}}",
+    "stopFirst": "Stoppe den Scanner, bevor du zu den nächsten Buchstaben wechselst."
+  },
   "sessionStatsPanel": {
     "value": "Wert"
   },

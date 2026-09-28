@@ -133,7 +133,7 @@ export function BinConfigPanel() {
     );
   }
 
-  if (effectiveMode.isRepackMode) return null;
+  if (effectiveMode.isRepackMode || effectiveMode.isAlphabetMode) return null;
 
   if (effectiveMode.scanOnly) {
     return (

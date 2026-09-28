@@ -4,6 +4,7 @@ export const SET_NAME_MAX_LENGTH = 50;
 export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
 export const DEFAULT_BIN_CAPACITY = 250;
+export const ALPHABET_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export type DefaultBinInit = {
   binNumber: number;

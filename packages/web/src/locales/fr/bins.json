@@ -12,7 +12,8 @@
     "allUnmatched": "Toutes les cartes non associées",
     "clickToConfigure": "Cliquer pour configurer",
     "waitingForValue": "En attente de la prochaine valeur",
-    "scanOnlyDisabled": "Scan uniquement est activé"
+    "scanOnlyDisabled": "Scan uniquement est activé",
+    "alphabetLetter": "Noms commençant par {{letter}}"
   },
   "binConfigPanel": {
     "overrideLabel": "Règles prioritaires",
@@ -92,7 +93,8 @@
       "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement",
       "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement",
       "emptyBinFailed": "Échec du marquage du bac comme vidé",
-      "repackFailed": "Échec de la mise à jour des paramètres de repack"
+      "repackFailed": "Échec de la mise à jour des paramètres de repack",
+      "alphabetFailed": "Échec de la mise à jour du tri alphabétique"
     }
   },
   "binsPage": {},
@@ -117,6 +119,23 @@
     "slotsLabel": "Créneaux du pack",
     "slotCountLabel": "Nombre",
     "addSlot": "Ajouter un créneau"
+  },
+  "alphabetPanel": {
+    "heading": "Trier par ordre alphabétique",
+    "description": "Trie selon la première lettre du nom de chaque carte, une lettre par bac. Avec 8 bacs de tri, le premier passage trie de A à H et envoie tout le reste dans le bac fourre-tout. Videz les bacs, remettez les cartes du bac fourre-tout dans le chargeur et passez aux lettres suivantes jusqu'à la fin de l'alphabet.",
+    "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",
+    "passHeading": "Passage {{current}} sur {{total}}",
+    "passRange": "Tri des noms de {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
+    "unusedBin": "Inutilisé pour ce passage",
+    "nextPassHint": "Une fois ce passage terminé, videz tous les bacs, remettez les cartes du bac fourre-tout dans le chargeur, puis passez aux lettres suivantes.",
+    "lastPassHint": "C'est le dernier passage. Ce qui reste ensuite dans le bac fourre-tout a un nom qui ne commence pas par une lettre.",
+    "previous": "Lettres précédentes",
+    "next": "Lettres suivantes",
+    "startOver": "Recommencer",
+    "confirmTitle": "Passer à un nouveau groupe de lettres ?",
+    "confirmDescription": "Vérifiez que tous les bacs sont vides et que les cartes du bac fourre-tout sont de nouveau dans le chargeur. Tous les bacs seront marqués comme vidés.",
+    "cancel": "Annuler",
+    "confirm": "Les bacs sont vides"
   },
   "binLabel": "Bac {{number}}",
   "catchAll": "Fourre-tout",

@@ -44,6 +44,7 @@ export function AutoAssignPanel() {
   const isEnabled = !!effectiveMode.autoAssignField;
   const isScanOnly = effectiveMode.scanOnly;
   const isRepackMode = effectiveMode.isRepackMode;
+  const isAlphabetMode = effectiveMode.isAlphabetMode;
   const disableToggles = isPresetMutating || isSavingMode;
 
   return (
@@ -69,7 +70,8 @@ export function AutoAssignPanel() {
             disableToggles ||
             eligibleFields.length === 0 ||
             isScanOnly ||
-            isRepackMode
+            isRepackMode ||
+            isAlphabetMode
           }
           onCheckedChange={(checked) => {
             stageMode({
@@ -145,7 +147,9 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("scanOnlyPanel.heading")}
           checked={isScanOnly}
-          disabled={disableToggles || isEnabled || isRepackMode}
+          disabled={
+            disableToggles || isEnabled || isRepackMode || isAlphabetMode
+          }
           onCheckedChange={(checked) => stageMode({ scanOnly: checked })}
         />
       </div>
@@ -170,8 +174,32 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("repackPanel.heading")}
           checked={isRepackMode}
-          disabled={disableToggles || isEnabled || isScanOnly}
+          disabled={
+            disableToggles || isEnabled || isScanOnly || isAlphabetMode
+          }
           onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
+        />
+      </div>
+
+      <div className="flex items-center justify-between gap-3 border-t pt-2">
+        <span className="flex items-center gap-1.5">
+          <span className="text-sm font-medium">
+            {t("alphabetPanel.heading")}
+          </span>
+          <Tooltip>
+            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+              <IconInfoCircle className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {t("alphabetPanel.description")}
+            </TooltipContent>
+          </Tooltip>
+        </span>
+        <Switch
+          aria-label={t("alphabetPanel.heading")}
+          checked={isAlphabetMode}
+          disabled={disableToggles || isEnabled || isScanOnly || isRepackMode}
+          onCheckedChange={(checked) => stageMode({ isAlphabetMode: checked })}
         />
       </div>
 

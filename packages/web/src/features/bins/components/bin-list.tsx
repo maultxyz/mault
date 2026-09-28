@@ -4,16 +4,28 @@ import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { BinCard } from "@/features/bins/components/bin-card";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { getAlphabetPassLetters } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 export function BinList() {
   const { t } = useTranslation("bins");
-  const { configs, selectedBin, setSelectedBin, hasCatchAll, effectiveMode, isModeDirty } =
-    useBinConfigs();
+  const {
+    configs,
+    selectedBin,
+    setSelectedBin,
+    hasCatchAll,
+    effectiveMode,
+    isModeDirty,
+    selectedSet,
+  } = useBinConfigs();
   const isAutoAssign = !!effectiveMode.autoAssignField;
   const isScanOnly = effectiveMode.scanOnly;
   const isRepackMode = effectiveMode.isRepackMode;
+  const alphabetLetters =
+    effectiveMode.isAlphabetMode && !isModeDirty
+      ? getAlphabetPassLetters(configs, selectedSet?.alphabetPass ?? 0)
+      : null;
   const { activeOrg } = useOrg();
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
 
@@ -42,7 +54,12 @@ export function BinList() {
             active={config.binNumber === selectedBin}
             isAutoAssign={isAutoAssign}
             isScanOnly={isScanOnly}
-            disabled={isRepackMode || isModeDirty}
+            alphabetLetter={
+              alphabetLetters
+                ? (alphabetLetters.get(config.binNumber) ?? null)
+                : undefined
+            }
+            disabled={isRepackMode || !!alphabetLetters || isModeDirty}
             onClick={() => setSelectedBin(config.binNumber)}
           />
         ))}

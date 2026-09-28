@@ -12,7 +12,8 @@
     "allUnmatched": "All unmatched cards",
     "clickToConfigure": "Click to configure",
     "waitingForValue": "Waiting for next value",
-    "scanOnlyDisabled": "Scan only is on"
+    "scanOnlyDisabled": "Scan only is on",
+    "alphabetLetter": "Names starting with {{letter}}"
   },
   "binConfigPanel": {
     "overrideLabel": "Override rules",
@@ -92,7 +93,8 @@
       "autoAssignResetFailed": "Failed to reset auto-detected bins",
       "scanOnlyFailed": "Failed to update scan only settings",
       "emptyBinFailed": "Failed to mark bin as emptied",
-      "repackFailed": "Failed to update repack settings"
+      "repackFailed": "Failed to update repack settings",
+      "alphabetFailed": "Failed to update alphabetical sort"
     }
   },
   "binsPage": {},
@@ -117,6 +119,23 @@
     "slotsLabel": "Pack slots",
     "slotCountLabel": "Count",
     "addSlot": "Add slot"
+  },
+  "alphabetPanel": {
+    "heading": "Sort alphabetically",
+    "description": "Sorts by the first letter of each card's name, one letter per bin. With 8 sorting bins, the first pass sorts A to H and sends everything else to the catch-all. Empty the bins, put the catch-all cards back in the feeder, and move to the next letters until the alphabet is done.",
+    "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
+    "passHeading": "Pass {{current}} of {{total}}",
+    "passRange": "Sorting names starting with {{from}} to {{to}}. Everything else goes to the catch-all.",
+    "unusedBin": "Not used this pass",
+    "nextPassHint": "When this pass is done, take the cards out of every bin, put the catch-all cards back in the feeder, then move to the next letters.",
+    "lastPassHint": "This is the last pass. Anything left in the catch-all afterwards has a name that doesn't start with a letter.",
+    "previous": "Previous letters",
+    "next": "Next letters",
+    "startOver": "Start over",
+    "confirmTitle": "Move to a new set of letters?",
+    "confirmDescription": "Make sure every bin is empty and the catch-all cards are back in the feeder. All bins will be marked as emptied.",
+    "cancel": "Cancel",
+    "confirm": "Bins are empty"
   },
   "binLabel": "Bin {{number}}",
   "catchAll": "Catch-all",

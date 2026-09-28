@@ -270,6 +270,10 @@
     "confirmDescription": "This resets bin {{bin}}'s fill counter to zero. Make sure you've physically emptied the bin first - this doesn't move anything for you.",
     "confirmButton": "Empty Bin"
   },
+  "alphabetPassControl": {
+    "range": "Sorting {{from}} to {{to}}",
+    "stopFirst": "Stop the scanner before moving to the next letters."
+  },
   "sessionStatsPanel": {
     "value": "Value"
   },

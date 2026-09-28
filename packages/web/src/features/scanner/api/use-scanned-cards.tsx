@@ -6,6 +6,7 @@ import {
   type PlayingCardWithDistance,
   type ScannedCard,
   type UnmatchedCard,
+  evaluateAlphabetBin,
   evaluateCardBin,
   evaluateRepackBin,
   getCardsInBin,
@@ -189,6 +190,13 @@ export function ScannedCardsProvider({
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
       const set = selectedSetRef.current;
+      if (set?.isAlphabetMode) {
+        return evaluateAlphabetBin(
+          card,
+          binConfigsRef.current,
+          set.alphabetPass,
+        );
+      }
       if (set?.isRepackMode) {
         return evaluateRepackBin(
           card,

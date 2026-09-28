@@ -12,6 +12,27 @@ export interface BinModeDraft {
   autoAssignField: string | null;
   scanOnly: boolean;
   isRepackMode: boolean;
+  isAlphabetMode: boolean;
+}
+
+export interface AlphabetConfig {
+  isAlphabetMode: boolean;
+  alphabetPass: number;
+}
+
+export interface AlphabetPassState {
+  isActive: boolean;
+  pass: number;
+  passCount: number;
+  letters: Map<number, string>;
+  from: string | undefined;
+  to: string | undefined;
+  isLastPass: boolean;
+}
+
+export interface AlphabetPassDialogProps {
+  pendingPass: number | null;
+  onClose: () => void;
 }
 
 export interface BinConfigsContextValue {
@@ -53,6 +74,7 @@ export interface BinConfigsContextValue {
     repackSlots: RepackSlot[];
     repackAllowDuplicates: boolean;
   }) => Promise<boolean>;
+  setAlphabetPass: (pass: number) => Promise<void>;
   effectiveMode: BinModeDraft;
   isModeDirty: boolean;
   isSavingMode: boolean;
@@ -66,6 +88,7 @@ export interface BinCardProps {
   active?: boolean;
   isAutoAssign?: boolean;
   isScanOnly?: boolean;
+  alphabetLetter?: string | null;
   disabled?: boolean;
   onClick: () => void;
 }

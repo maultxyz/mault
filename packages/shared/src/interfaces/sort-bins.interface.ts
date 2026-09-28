@@ -78,6 +78,8 @@ export interface BinSet {
   isRepackMode: boolean;
   repackSlots: RepackSlot[];
   repackAllowDuplicates: boolean;
+  isAlphabetMode: boolean;
+  alphabetPass: number;
   createdAt: Date;
   updatedAt: Date;
 }

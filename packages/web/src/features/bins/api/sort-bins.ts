@@ -8,6 +8,7 @@ import type {
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type { BinSetAuditEntry } from "@/lib/interfaces/audit";
+import type { AlphabetConfig } from "@/lib/interfaces/bins";
 import { queryOptions } from "@tanstack/react-query";
 
 export type { BinSetAuditEntry };
@@ -123,6 +124,13 @@ export async function setRepackConfig(
   },
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/repack`, config);
+}
+
+export async function setAlphabetConfig(
+  guid: string,
+  config: AlphabetConfig,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/alphabet`, config);
 }
 
 export async function getBinSetHistory(setGuid: string): Promise<Result<BinSetAuditEntry[]>> {

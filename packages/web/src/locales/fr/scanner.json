@@ -270,6 +270,10 @@
     "confirmDescription": "Ceci remet à zéro le compteur de remplissage du bac {{bin}}. Assure-toi d'avoir vidé le bac physiquement au préalable, cette action ne déplace rien pour toi.",
     "confirmButton": "Vider le bac"
   },
+  "alphabetPassControl": {
+    "range": "Tri de {{from}} à {{to}}",
+    "stopFirst": "Arrêtez le scanner avant de passer aux lettres suivantes."
+  },
   "sessionStatsPanel": {
     "value": "Valeur"
   },
