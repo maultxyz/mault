@@ -105,7 +105,7 @@
             "notes": "Arduino Uno R4 ↔ host computer"
           },
           "usbCableEsp32": {
-            "notes": "ESP32-S3 dev board ↔ host computer, via the board's native USB port"
+            "notes": "ESP32-S3 dev board ↔ host computer. Plug it into the board's left USB-C port (labeled USB), not the right one (labeled UART or COM)."
           },
           "barrelJack": {
             "part": "DC barrel jack or screw-terminal pigtail",
@@ -353,7 +353,7 @@
             "text": "Easiest option: install the firmware straight from this browser.",
             "button": "Flash from browser",
             "unsupported": "(Needs a Chromium-based browser such as Chrome or Edge.)",
-            "note": "Works on a brand new ESP32-S3. Prefer the Arduino IDE? Skip this step and follow the manual steps below instead."
+            "note": "Plug the ESP32-S3 into your computer using its left USB-C port (labeled USB) first. Works on a brand new ESP32-S3. Prefer the Arduino IDE? Skip this step and follow the manual steps below instead."
           },
           "downloadCode": {
             "text": "Download the code from the <repo>GitHub repository</repo> (Code → Download ZIP) and unzip it, then open the firmware folder with the Arduino IDE (File → Open → firmware/main/main.ino).",
@@ -379,7 +379,7 @@
             "note": "Picking the exact board matters: Bluetooth is only compiled in when the WiFi board is selected."
           },
           "uploadSketchEsp32": {
-            "text": "Select board \"ESP32S3 Dev Module\", set Tools → USB Mode to \"Hardware CDC and JTAG\" and USB CDC On Boot to \"Enabled\", select the correct port, then upload firmware/main/main.ino.",
+            "text": "Plug the board into your computer using its left USB-C port (labeled USB, not UART). Select board \"ESP32S3 Dev Module\", set Tools → USB Mode to \"Hardware CDC and JTAG\" and USB CDC On Boot to \"Enabled\", select the correct port, then upload firmware/main/main.ino.",
             "note": "Uses the ESP32-S3 pin layout already in the sketch (see the IR_PINS comment in main.ino). Hardware CDC/JTAG mode with CDC On Boot enabled is required for the board to show up on its native USB port at all, and it's what lets the in-app browser flasher reset the board into bootloader mode reliably without a BOOT-button press; the tradeoff is the board enumerates under a generic Espressif name instead of \"Mault Card Sorter\"."
           },
           "confirmReady": {
@@ -469,6 +469,9 @@
           },
           "connectSerial": {
             "text": "Connect the {{board}} to the app via Web Serial, then open /app/calibrate."
+          },
+          "connectSerialEsp32": {
+            "text": "Plug the {{board}} into your computer using its left USB-C port (labeled USB, not UART), connect it to the app via Web Serial, then open /app/calibrate."
           },
           "calibrateModules": {
             "text": "Module Calibration Grid, set the open/closed pulse for each bottom and paddle, and left/neutral/right for each pusher, module by module.",

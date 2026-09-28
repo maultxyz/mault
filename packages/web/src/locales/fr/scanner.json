@@ -82,7 +82,7 @@
       "newBoard": {
         "dialogTitle": "Flasher une nouvelle carte",
         "dialogDescription": "Installe le firmware de la trieuse sur un ESP32-S3 directement depuis ce navigateur. Fonctionne sur les cartes vierges et celles qui exécutent un autre firmware.",
-        "hintPort": "Branchez la carte par son port USB natif (souvent marqué USB plutôt que UART ou COM), puis sélectionnez-la dans la fenêtre de choix du port du navigateur.",
+        "hintPort": "Branchez la carte par son port USB-C gauche (marqué USB, pas UART ou COM), puis sélectionnez-la dans la fenêtre de choix du port du navigateur.",
         "hintBootMode": "Si le flashage ne démarre pas, maintenez BOOT, appuyez sur RESET, relâchez BOOT et réessayez.",
         "startButton": "Choisir la carte et flasher",
         "success": "Firmware installé. La carte a redémarré et est prête à être connectée.",

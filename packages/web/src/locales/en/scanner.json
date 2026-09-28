@@ -82,7 +82,7 @@
       "newBoard": {
         "dialogTitle": "Flash a new board",
         "dialogDescription": "Installs the sorter firmware on an ESP32-S3 straight from this browser. It works on blank boards and boards running other firmware.",
-        "hintPort": "Plug the board in using its native USB port (often labeled USB rather than UART or COM), then pick it in the browser's port prompt.",
+        "hintPort": "Plug the board in using its left USB-C port (labeled USB, not UART or COM), then pick it in the browser's port prompt.",
         "hintBootMode": "If flashing can't start, hold BOOT, tap RESET, release BOOT, and try again.",
         "startButton": "Choose board and flash",
         "success": "Firmware installed. The board has restarted and is ready to connect.",

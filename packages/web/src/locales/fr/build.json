@@ -105,7 +105,7 @@
             "notes": "Arduino Uno R4 ↔ ordinateur hôte"
           },
           "usbCableEsp32": {
-            "notes": "Carte ESP32-S3 ↔ ordinateur hôte, via le port USB natif de la carte"
+            "notes": "Carte de développement ESP32-S3 ↔ ordinateur. Branchez-la sur le port USB-C gauche de la carte (marqué USB), pas sur celui de droite (marqué UART ou COM)."
           },
           "barrelJack": {
             "part": "Prise jack CC ou pigtail à bornier à vis",
@@ -354,7 +354,7 @@
             "text": "Option la plus simple : installez le firmware directement depuis ce navigateur.",
             "button": "Flasher depuis le navigateur",
             "unsupported": "(Nécessite un navigateur basé sur Chromium comme Chrome ou Edge.)",
-            "note": "Fonctionne sur un ESP32-S3 tout neuf. Vous préférez l'IDE Arduino ? Passez cette étape et suivez les étapes manuelles ci-dessous."
+            "note": "Branchez d'abord l'ESP32-S3 à votre ordinateur par son port USB-C gauche (marqué USB). Fonctionne sur un ESP32-S3 tout neuf. Vous préférez l'IDE Arduino ? Passez cette étape et suivez les étapes manuelles ci-dessous."
           },
           "downloadCode": {
             "text": "Télécharge le code depuis le <repo>dépôt GitHub</repo> (Code → Download ZIP) et décompresse-le, puis ouvre le dossier firmware avec l'IDE Arduino (Fichier → Ouvrir → firmware/main/main.ino).",
@@ -380,7 +380,7 @@
             "note": "Le choix exact de la carte compte : le Bluetooth n'est compilé que si la carte WiFi est sélectionnée."
           },
           "uploadSketchEsp32": {
-            "text": "Sélectionne la carte « ESP32S3 Dev Module », règle Tools → USB Mode sur « Hardware CDC and JTAG » et USB CDC On Boot sur « Enabled », sélectionne le bon port, puis téléverse firmware/main/main.ino.",
+            "text": "Branchez la carte à votre ordinateur par son port USB-C gauche (marqué USB, pas UART). Sélectionne la carte « ESP32S3 Dev Module », règle Tools → USB Mode sur « Hardware CDC and JTAG » et USB CDC On Boot sur « Enabled », sélectionne le bon port, puis téléverse firmware/main/main.ino.",
             "note": "Utilise la disposition de broches ESP32-S3 déjà présente dans le sketch (voir le commentaire IR_PINS dans main.ino). Le mode Hardware CDC/JTAG avec CDC On Boot activé est nécessaire pour que la carte soit accessible via son port USB natif, et permet à l'outil de flashage intégré à l'application de remettre la carte en mode bootloader de façon fiable, sans appuyer sur le bouton BOOT ; en contrepartie, la carte s'annonce sous un nom Espressif générique plutôt que « Mault Card Sorter »."
           },
           "confirmReady": {
@@ -470,6 +470,9 @@
           },
           "connectSerial": {
             "text": "Connecte le {{board}} à l'application via Web Serial, puis ouvre /app/calibrate."
+          },
+          "connectSerialEsp32": {
+            "text": "Branchez le {{board}} à votre ordinateur par son port USB-C gauche (marqué USB, pas UART), connectez-le à l'application via Web Serial, puis ouvrez /app/calibrate."
           },
           "calibrateModules": {
             "text": "Grille de calibration des modules - définis l'impulsion ouvert/fermé pour chaque trappe inférieure et palette, et gauche/neutre/droite pour chaque poussoir, module par module.",

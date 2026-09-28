@@ -105,7 +105,7 @@
             "notes": "Arduino Uno R4 ↔ Host-Computer"
           },
           "usbCableEsp32": {
-            "notes": "ESP32-S3-Board ↔ Host-Computer, über den nativen USB-Anschluss des Boards"
+            "notes": "ESP32-S3-Entwicklungsboard ↔ Computer. Über den linken USB-C-Anschluss der Platine (mit USB beschriftet) anschließen, nicht über den rechten (mit UART oder COM beschriftet)."
           },
           "barrelJack": {
             "part": "DC-Hohlstecker oder Schraubklemmen-Anschlusskabel",
@@ -354,7 +354,7 @@
             "text": "Einfachste Option: Installiere die Firmware direkt aus diesem Browser.",
             "button": "Im Browser flashen",
             "unsupported": "(Erfordert einen Chromium-basierten Browser wie Chrome oder Edge.)",
-            "note": "Funktioniert mit einem brandneuen ESP32-S3. Lieber die Arduino IDE? Überspringe diesen Schritt und folge den manuellen Schritten unten."
+            "note": "Schließe den ESP32-S3 zuerst über seinen linken USB-C-Anschluss (mit USB beschriftet) an deinen Computer an. Funktioniert mit einem brandneuen ESP32-S3. Lieber die Arduino IDE? Überspringe diesen Schritt und folge den manuellen Schritten unten."
           },
           "downloadCode": {
             "text": "Lade den Code aus dem <repo>GitHub-Repository</repo> herunter (Code → Download ZIP) und entpacke ihn. Öffne dann den firmware-Ordner mit der Arduino-IDE (Datei → Öffnen → firmware/main/main.ino).",
@@ -380,7 +380,7 @@
             "note": "Die genaue Board-Auswahl ist wichtig: Bluetooth wird nur einkompiliert, wenn das WiFi-Board ausgewählt ist."
           },
           "uploadSketchEsp32": {
-            "text": "Wähle das Board „ESP32S3 Dev Module“, stelle unter Tools → USB Mode „Hardware CDC and JTAG“ und USB CDC On Boot „Enabled“ ein, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
+            "text": "Schließe die Platine über ihren linken USB-C-Anschluss (mit USB beschriftet, nicht UART) an deinen Computer an. Wähle das Board „ESP32S3 Dev Module“, stelle unter Tools → USB Mode „Hardware CDC and JTAG“ und USB CDC On Boot „Enabled“ ein, wähle den richtigen Port und lade dann firmware/main/main.ino hoch.",
             "note": "Verwendet das im Sketch bereits hinterlegte ESP32-S3-Pinlayout (siehe den IR_PINS-Kommentar in main.ino). Hardware-CDC/JTAG-Modus mit aktiviertem CDC On Boot ist nötig, damit das Board überhaupt über seinen nativen USB-Port erreichbar ist, und ermöglicht es dem browserbasierten Flash-Tool in der App, das Board zuverlässig ohne Drücken der BOOT-Taste in den Bootloader-Modus zu versetzen; im Gegenzug meldet sich das Board unter einem generischen Espressif-Namen statt „Mault Card Sorter“."
           },
           "confirmReady": {
@@ -470,6 +470,9 @@
           },
           "connectSerial": {
             "text": "Verbinde den {{board}} über Web Serial mit der App und öffne dann /app/calibrate."
+          },
+          "connectSerialEsp32": {
+            "text": "Schließe den {{board}} über seinen linken USB-C-Anschluss (mit USB beschriftet, nicht UART) an deinen Computer an, verbinde ihn per Web Serial mit der App und öffne dann /app/calibrate."
           },
           "calibrateModules": {
             "text": "Modul-Kalibrierungsraster – lege modulweise den Öffnungs-/Schließimpuls für jede Boden- und Paddelklappe sowie links/neutral/rechts für jeden Schieber fest.",

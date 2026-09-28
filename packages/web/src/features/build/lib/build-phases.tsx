@@ -449,9 +449,12 @@ export function buildPhases(
         },
         {
           key: "connect-serial",
-          text: t("assembly.phases.wireAndCalibrate.steps.connectSerial.text", {
-            board: board.shortName,
-          }),
+          text: t(
+            isEsp32Family
+              ? "assembly.phases.wireAndCalibrate.steps.connectSerialEsp32.text"
+              : "assembly.phases.wireAndCalibrate.steps.connectSerial.text",
+            { board: board.shortName },
+          ),
         },
         {
           key: "install-horns",

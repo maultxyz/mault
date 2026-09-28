@@ -82,7 +82,7 @@
       "newBoard": {
         "dialogTitle": "Neue Platine flashen",
         "dialogDescription": "Installiert die Sortierer-Firmware direkt aus diesem Browser auf einem ESP32-S3. Funktioniert mit leeren Platinen und Platinen mit anderer Firmware.",
-        "hintPort": "Schließe die Platine über ihren nativen USB-Anschluss an (oft mit USB statt UART oder COM beschriftet) und wähle sie in der Port-Abfrage des Browsers aus.",
+        "hintPort": "Schließe die Platine über ihren linken USB-C-Anschluss an (mit USB beschriftet, nicht UART oder COM) und wähle sie in der Port-Abfrage des Browsers aus.",
         "hintBootMode": "Wenn das Flashen nicht startet, halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
         "startButton": "Platine wählen und flashen",
         "success": "Firmware installiert. Die Platine wurde neu gestartet und kann verbunden werden.",
