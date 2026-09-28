@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" DROP COLUMN "alphabet_depth";

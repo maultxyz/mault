@@ -37,6 +37,7 @@ function toBinSet(row: {
   repackAllowDuplicates: boolean;
   isAlphabetMode: boolean;
   alphabetPass: number;
+  alphabetPrefix: string;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -71,6 +72,7 @@ function toBinSet(row: {
     repackAllowDuplicates: row.repackAllowDuplicates,
     isAlphabetMode: row.isAlphabetMode,
     alphabetPass: row.alphabetPass,
+    alphabetPrefix: row.alphabetPrefix,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -110,6 +112,7 @@ const binSetQuery = {
     repackAllowDuplicates: true,
     isAlphabetMode: true,
     alphabetPass: true,
+    alphabetPrefix: true,
     createdAt: true,
     updatedAt: true,
   },

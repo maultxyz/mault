@@ -199,6 +199,7 @@ export function ScannedCardsProvider({
           card,
           binConfigsRef.current,
           set.alphabetPass,
+          set.alphabetPrefix,
         );
       }
       if (set?.isRepackMode) {

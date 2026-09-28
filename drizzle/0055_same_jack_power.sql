@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "alphabet_depth" integer DEFAULT 1 NOT NULL;

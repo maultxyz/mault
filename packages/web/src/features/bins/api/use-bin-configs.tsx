@@ -13,6 +13,7 @@ import type {
   BinModeDraft,
 } from "@/lib/interfaces/bins";
 import {
+  type AlphabetStep,
   BinConfig,
   BinRuleGroup,
   BinSet,
@@ -514,8 +515,12 @@ export function BinConfigsProvider({
   );
 
   const setAlphabetPassFn = useCallback(
-    (pass: number) =>
-      setAlphabetConfigFn({ isAlphabetMode: true, alphabetPass: pass }),
+    ({ pass, prefix }: AlphabetStep) =>
+      setAlphabetConfigFn({
+        isAlphabetMode: true,
+        alphabetPass: pass,
+        alphabetPrefix: prefix,
+      }),
     [setAlphabetConfigFn],
   );
 
@@ -558,6 +563,7 @@ export function BinConfigsProvider({
         await setAlphabetConfigFn({
           isAlphabetMode: modeDraft.isAlphabetMode,
           alphabetPass: 0,
+          alphabetPrefix: "",
         });
         if (modeDraft.isAlphabetMode) ensureCatchAll();
       }

@@ -137,6 +137,7 @@ export const binSets = pgTable(
       .default(false),
     isAlphabetMode: boolean("is_alphabet_mode").notNull().default(false),
     alphabetPass: integer("alphabet_pass").notNull().default(0),
+    alphabetPrefix: text("alphabet_prefix").notNull().default(""),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),

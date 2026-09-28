@@ -24,7 +24,11 @@ export function BinList() {
   const isRepackMode = effectiveMode.isRepackMode;
   const alphabetLetters =
     effectiveMode.isAlphabetMode && !isModeDirty
-      ? getAlphabetPassLetters(configs, selectedSet?.alphabetPass ?? 0)
+      ? getAlphabetPassLetters(
+          configs,
+          selectedSet?.alphabetPass ?? 0,
+          selectedSet?.alphabetPrefix ?? "",
+        )
       : null;
   const { activeOrg } = useOrg();
   const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });

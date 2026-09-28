@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "alphabet_prefix" text DEFAULT '' NOT NULL;

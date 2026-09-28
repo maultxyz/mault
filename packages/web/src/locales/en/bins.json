@@ -122,8 +122,10 @@
   },
   "alphabetPanel": {
     "heading": "Sort alphabetically",
-    "description": "Sorts by the first letter of each card's name, one letter per bin. With 8 sorting bins, the first pass sorts A to H and sends everything else to the catch-all. Empty the bins, put the catch-all cards back in the feeder, and move to the next letters until the alphabet is done.",
+    "description": "Sorts by the first letter of each card's name, one letter per bin. With 8 sorting bins, the first pass sorts A to H and sends everything else to the catch-all. Empty the bins, put the catch-all cards back in the feeder, and move to the next letters until the alphabet is done. To go further, use Sort deeper on any pile to sort it by its next letter (AA, AB, AC…).",
     "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
+    "upLevel": "Up a level",
+    "prefixRange": "Sorting the {{prefix}} pile by its next letter: {{from}} to {{to}}. Everything else goes to the catch-all.",
     "passHeading": "Pass {{current}} of {{total}}",
     "passRange": "Sorting names starting with {{from}} to {{to}}. Everything else goes to the catch-all.",
     "unusedBin": "Not used this pass",
@@ -135,7 +137,14 @@
     "confirmTitle": "Move to a new set of letters?",
     "confirmDescription": "Make sure every bin is empty and the catch-all cards are back in the feeder. All bins will be marked as emptied.",
     "cancel": "Cancel",
-    "confirm": "Bins are empty"
+    "confirm": "Bins are empty",
+    "nextPile": "Next: {{prefix}} pile",
+    "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{prefix}} pile.",
+    "confirmPileTitle": "Start the {{prefix}} pile?",
+    "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{prefix}} pile in the feeder. All bins will be marked as emptied.",
+    "sortDeeper": "Sort deeper",
+    "sortDeeperItem": "{{label}} pile by next letter",
+    "pileDoneHint": "This is the last pass for the {{prefix}} pile. Start over to go back to the whole alphabet."
   },
   "binLabel": "Bin {{number}}",
   "catchAll": "Catch-all",

@@ -80,6 +80,12 @@ export interface BinSet {
   repackAllowDuplicates: boolean;
   isAlphabetMode: boolean;
   alphabetPass: number;
+  alphabetPrefix: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface AlphabetStep {
+  pass: number;
+  prefix: string;
 }

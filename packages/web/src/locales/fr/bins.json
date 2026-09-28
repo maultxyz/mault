@@ -122,8 +122,10 @@
   },
   "alphabetPanel": {
     "heading": "Trier par ordre alphabétique",
-    "description": "Trie selon la première lettre du nom de chaque carte, une lettre par bac. Avec 8 bacs de tri, le premier passage trie de A à H et envoie tout le reste dans le bac fourre-tout. Videz les bacs, remettez les cartes du bac fourre-tout dans le chargeur et passez aux lettres suivantes jusqu'à la fin de l'alphabet.",
+    "description": "Trie selon la première lettre du nom de chaque carte, une lettre par bac. Avec 8 bacs de tri, le premier passage trie de A à H et envoie tout le reste vers le bac fourre-tout. Videz les bacs, remettez les cartes du fourre-tout dans le chargeur et passez aux lettres suivantes jusqu'à la fin de l'alphabet. Pour aller plus loin, utilisez Trier plus finement sur une pile pour la trier selon sa lettre suivante (AA, AB, AC…).",
     "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",
+    "upLevel": "Niveau précédent",
+    "prefixRange": "Tri de la pile {{prefix}} selon la lettre suivante : {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
     "passHeading": "Passage {{current}} sur {{total}}",
     "passRange": "Tri des noms de {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
     "unusedBin": "Inutilisé pour ce passage",
@@ -135,7 +137,14 @@
     "confirmTitle": "Passer à un nouveau groupe de lettres ?",
     "confirmDescription": "Vérifiez que tous les bacs sont vides et que les cartes du bac fourre-tout sont de nouveau dans le chargeur. Tous les bacs seront marqués comme vidés.",
     "cancel": "Annuler",
-    "confirm": "Les bacs sont vides"
+    "confirm": "Les bacs sont vides",
+    "nextPile": "Suivant : pile {{prefix}}",
+    "nextPileHint": "Quand ce passage est terminé, sortez les cartes de chaque bac en gardant les piles dans l'ordre. Ensuite : la pile {{prefix}}.",
+    "confirmPileTitle": "Commencer la pile {{prefix}} ?",
+    "confirmPileDescription": "Videz chaque bac en gardant les piles dans l'ordre, puis mettez la pile {{prefix}} dans le chargeur. Tous les bacs seront marqués comme vidés.",
+    "sortDeeper": "Trier plus finement",
+    "sortDeeperItem": "Pile {{label}} selon la lettre suivante",
+    "pileDoneHint": "C'est le dernier passage pour la pile {{prefix}}. Recommencez pour revenir à l'alphabet complet."
   },
   "binLabel": "Bac {{number}}",
   "catchAll": "Fourre-tout",
