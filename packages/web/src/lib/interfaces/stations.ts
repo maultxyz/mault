@@ -27,6 +27,7 @@ export interface StationsContextValue {
   activeStationId: string;
   connectedStationIds: ReadonlySet<string>;
   panelLayout: StationPanelLayout | null;
+  panelsDocked: boolean;
   maxConnectedSorters: number;
   sorterLimitIsHardCap: boolean;
   canConnectAnotherSorter: boolean;

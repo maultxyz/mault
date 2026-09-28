@@ -5,6 +5,7 @@ import { EnvBanner } from "@/components/env-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
+import { ScannerPip } from "@/features/scanner/components/scanner-pip";
 import { StationTabs } from "@/features/scanner/components/station-tabs";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -51,6 +52,7 @@ export default function AppLayout() {
               </main>
             </div>
           </div>
+          <ScannerPip />
           <div className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
             <StatusFooter />
             <div className="ml-auto flex items-center gap-3 shrink-0">

@@ -9,6 +9,14 @@
     "cameraReinitFailed": "Échec de la réinitialisation de la caméra",
     "phoneCaptureFailed": "Le téléphone n'a pas envoyé de photo à temps."
   },
+  "scannerPip": {
+    "returnToScanner": "Retour au scanner",
+    "sorting": "Tri en cours",
+    "paused": "En pause",
+    "noCollection": "Aucune collection",
+    "minimize": "Réduire sur le côté",
+    "expand": "Afficher l'aperçu du scanner"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Échec de la connexion",

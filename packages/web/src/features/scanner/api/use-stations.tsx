@@ -1,5 +1,6 @@
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { PARKED_PANELS_ROOT_CLASS } from "@/lib/constants/scanner";
 import {
   ACTIVE_COLLECTION_STORAGE_KEY,
   DEVICE_PREFS_STORAGE_KEY_PREFIX,
@@ -85,10 +86,18 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   const devicePrefsRef = useRef<Record<string, DevicePrefs>>({});
   const connectorsRef = useRef(new Map<string, StationConnector>());
   const panelElementsRef = useRef(new Map<string, HTMLElement>());
+  const parkedSlotsRef = useRef(new Map<string, HTMLElement>());
+  const parkingRootRef = useRef<HTMLElement | null>(null);
+  const [panelsDocked, setPanelsDocked] = useState(false);
 
   const setStations = useCallback((next: StationState[]) => {
     for (const id of panelElementsRef.current.keys()) {
       if (!next.some((s) => s.id === id)) panelElementsRef.current.delete(id);
+    }
+    for (const [id, slot] of parkedSlotsRef.current) {
+      if (next.some((s) => s.id === id)) continue;
+      slot.remove();
+      parkedSlotsRef.current.delete(id);
     }
     stationsRef.current = next;
     setStationsState(next);
@@ -319,10 +328,51 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     return el;
   }, []);
 
-  const attachPanels = useCallback((layout: StationPanelLayout) => {
-    setPanelLayout(layout);
-    return () => setPanelLayout(null);
+  const getParkingRoot = useCallback(() => {
+    let root = parkingRootRef.current;
+    if (!root) {
+      root = document.createElement("div");
+      root.className = PARKED_PANELS_ROOT_CLASS;
+      root.inert = true;
+      root.setAttribute("aria-hidden", "true");
+      parkingRootRef.current = root;
+    }
+    if (!root.isConnected) document.body.appendChild(root);
+    return root;
   }, []);
+
+  useEffect(() => () => parkingRootRef.current?.remove(), []);
+
+  const parkPanels = useCallback(() => {
+    const root = getParkingRoot();
+    for (const [id, el] of panelElementsRef.current) {
+      const slot = el.parentElement;
+      if (!slot || root.contains(slot)) continue;
+      const { width, height } = slot.getBoundingClientRect();
+      let parked = parkedSlotsRef.current.get(id);
+      if (!parked) {
+        parked = document.createElement("div");
+        parkedSlotsRef.current.set(id, parked);
+      }
+      parked.className = slot.className;
+      parked.style.width = `${width}px`;
+      parked.style.height = `${height}px`;
+      root.appendChild(parked);
+      parked.appendChild(el);
+    }
+  }, [getParkingRoot]);
+
+  const attachPanels = useCallback(
+    (layout: StationPanelLayout) => {
+      setPanelLayout(layout);
+      setPanelsDocked(true);
+      return () => {
+        parkPanels();
+        setPanelsDocked(false);
+      };
+    },
+    [parkPanels],
+  );
 
   const value = useMemo<StationsContextValue>(
     () => ({
@@ -330,6 +380,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       activeStationId,
       connectedStationIds,
       panelLayout,
+      panelsDocked,
       maxConnectedSorters,
       sorterLimitIsHardCap: maxConnectedSorters >= MAX_CONNECTED_SORTERS,
       canConnectAnotherSorter: connectedStationIds.size < maxConnectedSorters,
@@ -351,6 +402,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       activeStationId,
       connectedStationIds,
       panelLayout,
+      panelsDocked,
       maxConnectedSorters,
       setActiveStation,
       bindStationDevice,

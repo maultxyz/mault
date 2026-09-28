@@ -39,3 +39,5 @@ export const DEVICE_PREFS_STORAGE_KEY_PREFIX = "magic-vault:device-prefs:";
 export const CAMERA_FOCUS_STORAGE_KEY = "magic-vault:camera-focus";
 
 export const SUPPORT_PROMPT_STORAGE_KEY = "magic-vault:support-prompt";
+
+export const SCANNER_PIP_MINIMIZED_STORAGE_KEY = "magic-vault:scanner-pip-minimized";

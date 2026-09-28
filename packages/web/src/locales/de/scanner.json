@@ -9,6 +9,14 @@
     "cameraReinitFailed": "Kamera konnte nicht neu initialisiert werden",
     "phoneCaptureFailed": "Telefon hat nicht rechtzeitig mit einem Foto geantwortet."
   },
+  "scannerPip": {
+    "returnToScanner": "Zurück zum Scanner",
+    "sorting": "Sortiert",
+    "paused": "Pausiert",
+    "noCollection": "Keine Sammlung",
+    "minimize": "An den Rand minimieren",
+    "expand": "Scanner-Vorschau anzeigen"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Verbindung fehlgeschlagen",

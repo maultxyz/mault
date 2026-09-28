@@ -9,6 +9,14 @@
     "cameraReinitFailed": "Failed to reinitialize camera",
     "phoneCaptureFailed": "Phone didn't respond with a photo in time."
   },
+  "scannerPip": {
+    "returnToScanner": "Back to scanner",
+    "sorting": "Sorting",
+    "paused": "Paused",
+    "noCollection": "No collection",
+    "minimize": "Minimize to the side",
+    "expand": "Show scanner preview"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Connection failed",
