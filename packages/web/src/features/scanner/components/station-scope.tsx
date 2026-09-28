@@ -31,10 +31,19 @@ export function StationScope({
   index: number;
   children: React.ReactNode;
 }) {
-  const { activeStationId, panelLayout, getPanelElement, isStationLive } =
-    useStations();
+  const {
+    activeStationId,
+    connectedStationIds,
+    panelLayout,
+    panelsDocked,
+    getPanelElement,
+    isStationLive,
+  } = useStations();
   const isActive = station.id === activeStationId;
   const isLive = isStationLive(station.id);
+  const showsPanel = panelsDocked
+    ? isLive
+    : connectedStationIds.has(station.id);
   const value = useMemo(
     () => ({ station, index, isActive, isLive }),
     [station, index, isActive, isLive],
@@ -57,7 +66,7 @@ export function StationScope({
                               {isActive && children}
                               {isActive && <DeviceSetupWizard />}
                               {panelLayout &&
-                                isLive &&
+                                showsPanel &&
                                 createPortal(
                                   <StationPanel layout={panelLayout} />,
                                   getPanelElement(station.id),

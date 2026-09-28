@@ -25,46 +25,52 @@ export function SupportPromptToast({
           </p>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
-        <Button
-          size="sm"
-          nativeButton={false}
-          render={
-            <a href={DONATE_URL} target="_blank" rel="noopener noreferrer" />
-          }
-          onClick={close}
-        >
-          <IconCoffee />
-          {t("supportPrompt.support")}
-        </Button>
-        {showSubscribe && (
+      <div className="flex flex-col gap-2 pl-6.5">
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            nativeButton={false}
+            render={
+              <a href={DONATE_URL} target="_blank" rel="noopener noreferrer" />
+            }
+            onClick={close}
+          >
+            <IconCoffee />
+            {t("supportPrompt.support")}
+          </Button>
+          {showSubscribe && (
+            <Button
+              variant="outline"
+              onClick={() => {
+                close();
+                onSubscribe();
+              }}
+            >
+              <IconSparkles />
+              {t("supportPrompt.subscribe")}
+            </Button>
+          )}
+        </div>
+        <div className="flex justify-end gap-1">
           <Button
             size="sm"
-            variant="outline"
+            variant="ghost"
+            className="text-foreground/70"
+            onClick={close}
+          >
+            {t("supportPrompt.later")}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-foreground/70"
             onClick={() => {
+              optOutOfSupportPrompt();
               close();
-              onSubscribe();
             }}
           >
-            <IconSparkles />
-            {t("supportPrompt.subscribe")}
+            {t("supportPrompt.dontAskAgain")}
           </Button>
-        )}
-      </div>
-      <div className="flex justify-end gap-1">
-        <Button size="sm" variant="ghost" onClick={close}>
-          {t("supportPrompt.later")}
-        </Button>
-        <Button
-          size="sm"
-          variant="ghost"
-          onClick={() => {
-            optOutOfSupportPrompt();
-            close();
-          }}
-        >
-          {t("supportPrompt.dontAskAgain")}
-        </Button>
+        </div>
       </div>
     </div>
   );

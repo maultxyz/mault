@@ -12,7 +12,8 @@
     "allUnmatched": "Alle nicht zugeordneten Karten",
     "clickToConfigure": "Zum Konfigurieren klicken",
     "waitingForValue": "Wartet auf nächsten Wert",
-    "scanOnlyDisabled": "Nur Scannen ist aktiv"
+    "scanOnlyDisabled": "Nur Scannen ist aktiv",
+    "alphabetLetter": "Namen mit {{letter}}"
   },
   "binConfigPanel": {
     "overrideLabel": "Vorrangige Regeln",
@@ -92,7 +93,8 @@
       "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden",
       "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden",
       "emptyBinFailed": "Fach konnte nicht als geleert markiert werden",
-      "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden"
+      "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden",
+      "alphabetFailed": "Alphabetische Sortierung konnte nicht aktualisiert werden"
     }
   },
   "binsPage": {},
@@ -117,6 +119,32 @@
     "slotsLabel": "Pack-Slots",
     "slotCountLabel": "Anzahl",
     "addSlot": "Slot hinzufügen"
+  },
+  "alphabetPanel": {
+    "heading": "Alphabetisch sortieren",
+    "description": "Sortiert nach dem ersten Buchstaben des Kartennamens, ein Buchstabe pro Fach. Mit 8 Sortierfächern sortiert der erste Durchgang A bis H, alles andere geht ins Auffangfach. Leere die Fächer, lege die Karten aus dem Auffangfach zurück in den Einzug und mache mit den nächsten Buchstaben weiter, bis das Alphabet fertig ist. Mit „Tiefer sortieren“ sortierst du einen Stapel nach dem nächsten Buchstaben weiter (AA, AB, AC…).",
+    "needBins": "Die alphabetische Sortierung braucht neben dem Auffangfach mindestens ein weiteres Fach.",
+    "upLevel": "Eine Ebene zurück",
+    "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere geht ins Auffangfach.",
+    "passHeading": "Durchgang {{current}} von {{total}}",
+    "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere landet im Auffangfach.",
+    "unusedBin": "In diesem Durchgang nicht genutzt",
+    "nextPassHint": "Wenn dieser Durchgang fertig ist, leere alle Fächer, lege die Karten aus dem Auffangfach zurück in den Einzug und gehe zu den nächsten Buchstaben.",
+    "lastPassHint": "Das ist der letzte Durchgang. Was danach im Auffangfach bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
+    "previous": "Vorherige Buchstaben",
+    "next": "Nächste Buchstaben",
+    "startOver": "Von vorn beginnen",
+    "confirmTitle": "Zu neuen Buchstaben wechseln?",
+    "confirmDescription": "Stelle sicher, dass alle Fächer leer sind und die Karten aus dem Auffangfach wieder im Einzug liegen. Alle Fächer werden als geleert markiert.",
+    "cancel": "Abbrechen",
+    "confirm": "Fächer sind leer",
+    "nextPile": "Weiter: Stapel {{prefix}}",
+    "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus allen Fächern und halte die Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
+    "confirmPileTitle": "Stapel {{prefix}} beginnen?",
+    "confirmPileDescription": "Leere alle Fächer, halte die Stapel in Reihenfolge und lege dann den Stapel {{prefix}} in den Einzug. Alle Fächer werden als geleert markiert.",
+    "sortDeeper": "Tiefer sortieren",
+    "sortDeeperItem": "Stapel {{label}} nach nächstem Buchstaben",
+    "pileDoneHint": "Das ist der letzte Durchgang für den Stapel {{prefix}}. Mit „Von vorn beginnen“ geht es zurück zum ganzen Alphabet."
   },
   "binLabel": "Fach {{number}}",
   "catchAll": "Auffangfach",

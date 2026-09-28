@@ -203,6 +203,7 @@
     }
   },
   "calibratePage": {
+    "resetServosToDefaults": "Servos auf Standard zurücksetzen",
     "moduleHistory": {
       "bottom": "Unten",
       "paddle": "Paddel",

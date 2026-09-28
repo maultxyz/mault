@@ -1,5 +1,6 @@
 import type { ScannedCard } from "./interfaces/scanner.interface";
 import type {
+  AlphabetStep,
   BinCondition,
   BinConfig,
   BinRuleGroup,
@@ -8,6 +9,10 @@ import type {
   RepackSlot,
 } from "./interfaces/sort-bins.interface";
 import { isRuleGroup } from "./interfaces/sort-bins.interface";
+import {
+  ALPHABET_LETTERS,
+  ALPHABET_PREFIX_MAX_LENGTH,
+} from "./constants/sort-bins.constant";
 
 export type SourceCard = object;
 
@@ -307,5 +312,115 @@ export function evaluateRepackBin(
     if (openSlot) return bin;
   }
 
+  return catchAll;
+}
+
+export function getAlphabetBins(configs: BinConfig[]): BinConfig[] {
+  return configs
+    .filter((c) => !c.isCatchAll)
+    .sort((a, b) => a.binNumber - b.binNumber);
+}
+
+export function getAlphabetPassCount(configs: BinConfig[]): number {
+  const binCount = getAlphabetBins(configs).length;
+  return binCount === 0 ? 0 : Math.ceil(ALPHABET_LETTERS.length / binCount);
+}
+
+export function clampAlphabetPass(configs: BinConfig[], pass: number): number {
+  const passCount = getAlphabetPassCount(configs);
+  return Math.min(Math.max(pass, 0), Math.max(passCount - 1, 0));
+}
+
+export function normalizeAlphabetPrefix(prefix: string): string {
+  return toAlphabetSortKey(prefix).slice(0, ALPHABET_PREFIX_MAX_LENGTH);
+}
+
+function shiftLastLetter(prefix: string, offset: number): string | null {
+  if (prefix.length === 0) return null;
+  const index = ALPHABET_LETTERS.indexOf(prefix.charAt(prefix.length - 1));
+  const letter = ALPHABET_LETTERS[index + offset];
+  return letter ? prefix.slice(0, -1) + letter : null;
+}
+
+export function getNextAlphabetStep(
+  configs: BinConfig[],
+  step: AlphabetStep,
+): AlphabetStep | null {
+  const pass = clampAlphabetPass(configs, step.pass);
+  if (pass < getAlphabetPassCount(configs) - 1) {
+    return { pass: pass + 1, prefix: step.prefix };
+  }
+  const sibling = shiftLastLetter(step.prefix, 1);
+  return sibling === null ? null : { pass: 0, prefix: sibling };
+}
+
+export function getPreviousAlphabetStep(
+  configs: BinConfig[],
+  step: AlphabetStep,
+): AlphabetStep | null {
+  const pass = clampAlphabetPass(configs, step.pass);
+  if (pass > 0) return { pass: pass - 1, prefix: step.prefix };
+  const sibling = shiftLastLetter(step.prefix, -1);
+  if (sibling === null) return null;
+  return {
+    pass: Math.max(getAlphabetPassCount(configs) - 1, 0),
+    prefix: sibling,
+  };
+}
+
+export function getAlphabetPassLetters(
+  configs: BinConfig[],
+  pass: number,
+  prefix = "",
+): Map<number, string> {
+  const bins = getAlphabetBins(configs);
+  const start = clampAlphabetPass(configs, pass) * bins.length;
+  const normalizedPrefix = normalizeAlphabetPrefix(prefix);
+  const letters = new Map<number, string>();
+  bins.forEach((bin, i) => {
+    const letter = ALPHABET_LETTERS[start + i];
+    if (letter) letters.set(bin.binNumber, normalizedPrefix + letter);
+  });
+  return letters;
+}
+
+function toAlphabetSortKey(text: string): string {
+  return text
+    .replace(/æ/gi, "AE")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toUpperCase()
+    .replace(/[^A-Z]/g, "");
+}
+
+export function getCardSortKey(card: SourceCard): string | null {
+  const name = (card as { name?: unknown }).name;
+  if (typeof name !== "string") return null;
+  const key = toAlphabetSortKey(name);
+  return key.length > 0 ? key : null;
+}
+
+export function evaluateAlphabetBin(
+  card: SourceCard,
+  configs: BinConfig[],
+  pass: number,
+  prefix = "",
+): BinConfig | undefined {
+  const catchAll = getCatchAllBin(configs);
+  const key = getCardSortKey(card);
+  const normalizedPrefix = normalizeAlphabetPrefix(prefix);
+  if (!key || !key.startsWith(normalizedPrefix)) return catchAll;
+  if (key.length === normalizedPrefix.length) return catchAll;
+
+  const target = normalizedPrefix + key.charAt(normalizedPrefix.length);
+  for (const [binNumber, label] of getAlphabetPassLetters(
+    configs,
+    pass,
+    normalizedPrefix,
+  )) {
+    if (label === target) {
+      return configs.find((c) => c.binNumber === binNumber);
+    }
+  }
   return catchAll;
 }

@@ -12,6 +12,7 @@ import { useCalibrationPage } from "@/features/calibration/api/use-calibration-p
 import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
 import { useRole } from "@/hooks/use-role";
 import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
+import { SessionLock } from "@/features/scanner/components/session-lock";
 import type { CalibrationSection } from "@/lib/interfaces/calibration";
 import type { SectionNavItem } from "@/lib/interfaces/nav";
 import {
@@ -114,7 +115,7 @@ export default function CalibrateLayout() {
     typeof navigator !== "undefined" && !!navigator.bluetooth;
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">
+    <SessionLock className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">
       <SectionNav
         title={t("page.title")}
         subtitle={t("page.subtitle")}
@@ -256,6 +257,6 @@ export default function CalibrateLayout() {
         onRunTest={onRunTest}
         onCalibrateFirst={onCalibrateFirst}
       />
-    </div>
+    </SessionLock>
   );
 }

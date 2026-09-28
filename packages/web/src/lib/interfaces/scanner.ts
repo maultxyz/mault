@@ -15,6 +15,8 @@ import type {
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
+import type { Device } from "@/features/calibration/api/devices";
+import type { ByteTransport } from "@/features/scanner/lib/transports";
 
 export type PhoneCameraCaptureStatus = "idle" | "waiting" | "connected" | "error";
 
@@ -90,6 +92,8 @@ export interface ScannedCardsContextValue {
   resolveBinLimit: () => Promise<void>;
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
+  registerResumeHook: (fn: () => void) => () => void;
+  showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => void;
   correctCard: (scanId: string, card: PlayingCard) => void;
@@ -125,9 +129,15 @@ export interface FlashProgressCallbacks {
   onProgress: (fraction: number | null) => void;
 }
 
+export type ConnectTestRunner = (
+  forTransport: ByteTransport,
+  forDevice: Device | undefined,
+) => Promise<void>;
+
 export interface TestResult {
   ok: boolean;
   error: string | null;
+  blockedModule: number | null;
 }
 
 export type FirmwareCheckResult =
@@ -302,4 +312,23 @@ export interface SessionMonitorViewProps {
   toolbarLeading?: ReactNode;
   binCount?: number;
   showBinLocation: boolean;
+}
+
+export interface SessionLockProps {
+  className?: string;
+  bannerClassName?: string;
+  children: ReactNode;
+}
+
+export interface JamToastOptions {
+  module: number;
+  binNumber?: number;
+}
+
+export interface JamToastBodyProps {
+  description: string;
+  dropLabel: string;
+  markClearedLabel: string;
+  onDrop: () => void;
+  onMarkCleared: () => void;
 }

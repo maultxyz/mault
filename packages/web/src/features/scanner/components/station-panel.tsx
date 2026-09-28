@@ -1,6 +1,7 @@
 import { PresetSelector } from "@/features/bins/components/preset-selector";
 import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
@@ -25,6 +26,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
             onRemove={removeUnmatchedCard}
           />
           <BinStatusMeter />
+          <AlphabetPassControl />
         </div>
       </>
     );
@@ -40,6 +42,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         onRemove={removeUnmatchedCard}
       />
       <BinStatusMeter />
+      <AlphabetPassControl />
       <ScanStats />
     </>
   );

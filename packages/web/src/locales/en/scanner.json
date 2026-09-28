@@ -9,6 +9,18 @@
     "cameraReinitFailed": "Failed to reinitialize camera",
     "phoneCaptureFailed": "Phone didn't respond with a photo in time."
   },
+  "sessionLock": {
+    "message": "A sorting session is running on this sorter. Pause scanning to make changes here.",
+    "openScanner": "Open scanner"
+  },
+  "scannerPip": {
+    "returnToScanner": "Back to scanner",
+    "sorting": "Sorting",
+    "paused": "Paused",
+    "noCollection": "No collection",
+    "minimize": "Minimize to the side",
+    "expand": "Show scanner preview"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Connection failed",
@@ -21,6 +33,13 @@
     },
     "testingDevice": "Testing device…",
     "deviceReady": "Device ready",
+    "sensorBlocked": {
+      "title": "Card on a sensor",
+      "description": "Module {{module}}'s sensor sees a card, so the self-test didn't run. Drop the card or clear it by hand, then mark it cleared to rerun the test.",
+      "dropped": "Cards dropped. Mark it cleared to rerun the self-test.",
+      "stillBlocked": "Module {{module}} still sees a card. Clear it, then mark it cleared.",
+      "noResponse": "The sorter didn't respond. Reconnect it and try again."
+    },
     "deviceTestFailed": {
       "title": "Device test failed",
       "description": "Connected but got no response. Try reconnecting."
@@ -116,7 +135,17 @@
     "jamDetected": {
       "title": "Card jam detected",
       "description": "Card stuck at module {{module}}. Check the sorter and resume.",
-      "descriptionWithBin": "Card stuck at module {{module}} (heading to bin {{bin}}). Check the sorter and resume."
+      "descriptionWithBin": "Card stuck at module {{module}} (heading to bin {{bin}}). Check the sorter and resume.",
+      "dropCard": "Drop card",
+      "dropFailed": "The sorter didn't respond to the drop command. Clear the card by hand.",
+      "notReady": "The sorter isn't ready. Reconnect it, or clear the card by hand.",
+      "markCleared": "Mark cleared",
+      "dropped": "Cards dropped. Mark the jam cleared to start back up.",
+      "stillBlocked": "Module {{module}} still sees a card. Clear it, then mark the jam cleared."
+    },
+    "jamCleared": {
+      "title": "Jam cleared",
+      "description": "Scanning and auto-feed are back on."
     },
     "noCardDetected": {
       "title": "No card detected",
@@ -269,6 +298,10 @@
     "confirmTitle": "Empty bin {{bin}}?",
     "confirmDescription": "This resets bin {{bin}}'s fill counter to zero. Make sure you've physically emptied the bin first - this doesn't move anything for you.",
     "confirmButton": "Empty Bin"
+  },
+  "alphabetPassControl": {
+    "range": "Sorting {{from}} to {{to}}",
+    "stopFirst": "Stop the scanner before moving to the next letters."
   },
   "sessionStatsPanel": {
     "value": "Value"

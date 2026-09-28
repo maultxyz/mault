@@ -78,6 +78,14 @@ export interface BinSet {
   isRepackMode: boolean;
   repackSlots: RepackSlot[];
   repackAllowDuplicates: boolean;
+  isAlphabetMode: boolean;
+  alphabetPass: number;
+  alphabetPrefix: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface AlphabetStep {
+  pass: number;
+  prefix: string;
 }

@@ -7,6 +7,8 @@ import {
 import { BOARD_INFO } from "@/lib/constants/build";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useModuleCount } from "@/features/build/api/use-module-count";
+import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { wiringAnchorId } from "@/features/build/lib/anchors";
 import { cn } from "@/lib/utils";
 import { IconInfoCircle } from "@tabler/icons-react";
 import type { ReactNode } from "react";
@@ -121,10 +123,13 @@ export function BuildWiring() {
   ];
 
   return (
-    <section id="wiring" className="mx-auto max-w-4xl px-4 py-16">
-      <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
-        {t("wiring.heading")}
-      </h2>
+    <section id="wiring" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-16">
+      <div className="group/anchor flex items-center gap-1">
+        <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
+          {t("wiring.heading")}
+        </h2>
+        <AnchorLinkButton id="wiring" />
+      </div>
       <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
         <Trans
           t={t}
@@ -145,10 +150,13 @@ export function BuildWiring() {
           </AccordionTrigger>
           <AccordionContent className="pb-0">
             <div className="flex flex-col gap-8">
-              <div>
-                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-                  {t("wiring.sections.i2c.title")}
-                </h3>
+              <div id={wiringAnchorId("i2c")} className="scroll-mt-16">
+                <div className="group/anchor mb-2 flex items-center gap-1">
+                  <h3 className="font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                    {t("wiring.sections.i2c.title")}
+                  </h3>
+                  <AnchorLinkButton id={wiringAnchorId("i2c")} />
+                </div>
                 <MiniTable
                   columns={[t("wiring.i2cTable.colPcaPin"), board.displayName]}
                   rows={[
@@ -168,10 +176,13 @@ export function BuildWiring() {
                 )}
               </div>
 
-              <div>
-                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-                  {t("wiring.sections.servoPower.title")}
-                </h3>
+              <div id={wiringAnchorId("servo-power")} className="scroll-mt-16">
+                <div className="group/anchor mb-2 flex items-center gap-1">
+                  <h3 className="font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                    {t("wiring.sections.servoPower.title")}
+                  </h3>
+                  <AnchorLinkButton id={wiringAnchorId("servo-power")} />
+                </div>
                 <MiniTable
                   columns={[
                     t("wiring.servoPowerTable.colFrom"),
@@ -204,10 +215,13 @@ export function BuildWiring() {
                 />
               </div>
 
-              <div>
-                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-                  {t("wiring.sections.irSensors.title")}
-                </h3>
+              <div id={wiringAnchorId("ir-sensors")} className="scroll-mt-16">
+                <div className="group/anchor mb-2 flex items-center gap-1">
+                  <h3 className="font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                    {t("wiring.sections.irSensors.title")}
+                  </h3>
+                  <AnchorLinkButton id={wiringAnchorId("ir-sensors")} />
+                </div>
                 <p className="mb-3 text-sm/relaxed text-foreground/70">
                   <Trans
                     t={t}
@@ -233,10 +247,13 @@ export function BuildWiring() {
                 )}
               </div>
 
-              <div>
-                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-                  {t("wiring.sections.channelMap.title")}
-                </h3>
+              <div id={wiringAnchorId("channel-map")} className="scroll-mt-16">
+                <div className="group/anchor mb-2 flex items-center gap-1">
+                  <h3 className="font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                    {t("wiring.sections.channelMap.title")}
+                  </h3>
+                  <AnchorLinkButton id={wiringAnchorId("channel-map")} />
+                </div>
                 <MiniTable
                   columns={[
                     t("wiring.channelTable.colCh"),
@@ -251,10 +268,13 @@ export function BuildWiring() {
                 />
               </div>
 
-              <div>
-                <h3 className="mb-2 font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
-                  {t("wiring.sections.diagram.title")}
-                </h3>
+              <div id={wiringAnchorId("diagram")} className="scroll-mt-16">
+                <div className="group/anchor mb-2 flex items-center gap-1">
+                  <h3 className="font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+                    {t("wiring.sections.diagram.title")}
+                  </h3>
+                  <AnchorLinkButton id={wiringAnchorId("diagram")} />
+                </div>
                 <img
                   src={board.wiringDiagramSrc}
                   alt={t("wiring.sections.diagram.alt")}

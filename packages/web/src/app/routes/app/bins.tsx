@@ -3,6 +3,7 @@ import {
   BinConfigsProvider,
   useBinConfigs,
 } from "@/features/bins/api/use-bin-configs";
+import { AlphabetPanel } from "@/features/bins/components/alphabet-panel";
 import { AutoAssignPanel } from "@/features/bins/components/auto-assign-panel";
 import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
@@ -39,6 +40,7 @@ function MobileBins() {
       <div className="size-full overflow-y-auto @container p-4 flex flex-col gap-4">
         <BinRulesMenu className="self-end" />
         <RepackPanel />
+        <AlphabetPanel />
         <BinConfigPanel />
       </div>
       <Drawer>
@@ -100,6 +102,7 @@ export default function BinsPage() {
           <BinsHelpTour />
         </div>
         <RepackPanel />
+        <AlphabetPanel />
         <BinConfigPanel />
       </section>
     </div>

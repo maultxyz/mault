@@ -35,6 +35,15 @@ code {
   display: none;
 }
 
+.app-toaster [data-sonner-toast][data-styled="true"] [data-button] ~ [data-button] {
+  margin-left: 4px;
+}
+
+.app-toaster [data-sonner-toast][data-styled="true"] [data-icon] {
+  align-self: flex-start;
+  margin-top: 2px;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.141 0.005 285.823);

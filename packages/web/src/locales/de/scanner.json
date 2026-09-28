@@ -9,6 +9,18 @@
     "cameraReinitFailed": "Kamera konnte nicht neu initialisiert werden",
     "phoneCaptureFailed": "Telefon hat nicht rechtzeitig mit einem Foto geantwortet."
   },
+  "sessionLock": {
+    "message": "Auf diesem Sortierer läuft eine Sortiersitzung. Pausiere das Scannen, um hier Änderungen vorzunehmen.",
+    "openScanner": "Scanner öffnen"
+  },
+  "scannerPip": {
+    "returnToScanner": "Zurück zum Scanner",
+    "sorting": "Sortiert",
+    "paused": "Pausiert",
+    "noCollection": "Keine Sammlung",
+    "minimize": "An den Rand minimieren",
+    "expand": "Scanner-Vorschau anzeigen"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Verbindung fehlgeschlagen",
@@ -21,6 +33,13 @@
     },
     "testingDevice": "Gerät wird getestet…",
     "deviceReady": "Gerät bereit",
+    "sensorBlocked": {
+      "title": "Karte auf einem Sensor",
+      "description": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt. Wirf die Karte ab oder entferne sie von Hand und markiere sie dann als behoben, um den Test erneut zu starten.",
+      "dropped": "Karten abgeworfen. Markiere den Fehler als behoben, um den Selbsttest erneut zu starten.",
+      "stillBlocked": "Modul {{module}} erkennt noch eine Karte. Entferne sie und markiere den Fehler dann als behoben.",
+      "noResponse": "Der Sortierer hat nicht reagiert. Verbinde ihn erneut und versuche es noch einmal."
+    },
     "deviceTestFailed": {
       "title": "Gerätetest fehlgeschlagen",
       "description": "Verbunden, aber keine Antwort erhalten. Versuche eine erneute Verbindung."
@@ -116,7 +135,17 @@
     "jamDetected": {
       "title": "Kartenstau erkannt",
       "description": "Karte an Modul {{module}} blockiert. Überprüfe den Sortierer und setze fort.",
-      "descriptionWithBin": "Karte an Modul {{module}} blockiert (unterwegs zu Fach {{bin}}). Überprüfe den Sortierer und setze fort."
+      "descriptionWithBin": "Karte an Modul {{module}} blockiert (unterwegs zu Fach {{bin}}). Überprüfe den Sortierer und setze fort.",
+      "dropCard": "Karte abwerfen",
+      "dropFailed": "Der Sortierer hat nicht auf den Abwurfbefehl reagiert. Entferne die Karte von Hand.",
+      "notReady": "Der Sortierer ist nicht bereit. Verbinde ihn erneut oder entferne die Karte von Hand.",
+      "markCleared": "Als behoben markieren",
+      "dropped": "Karten abgeworfen. Markiere den Stau als behoben, um weiterzumachen.",
+      "stillBlocked": "Modul {{module}} erkennt noch eine Karte. Entferne sie und markiere den Stau dann als behoben."
+    },
+    "jamCleared": {
+      "title": "Stau behoben",
+      "description": "Scannen und automatischer Einzug laufen wieder."
     },
     "noCardDetected": {
       "title": "Keine Karte erkannt",
@@ -269,6 +298,10 @@
     "confirmTitle": "Fach {{bin}} leeren?",
     "confirmDescription": "Dies setzt den Füllstandszähler von Fach {{bin}} auf null zurück. Stelle sicher, dass du das Fach vorher physisch geleert hast, das übernimmt die App nicht für dich.",
     "confirmButton": "Fach leeren"
+  },
+  "alphabetPassControl": {
+    "range": "Sortiert {{from}} bis {{to}}",
+    "stopFirst": "Stoppe den Scanner, bevor du zu den nächsten Buchstaben wechselst."
   },
   "sessionStatsPanel": {
     "value": "Wert"

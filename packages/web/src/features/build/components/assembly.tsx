@@ -10,6 +10,8 @@ import {
   getYouTubeVideoId,
   optionalBadgeLabel,
 } from "@/features/build/lib/build-phases";
+import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { phaseAnchorId, stepAnchorId } from "@/features/build/lib/anchors";
 import { DISCORD_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { IconVideo } from "@tabler/icons-react";
@@ -36,10 +38,13 @@ export function BuildAssembly() {
     : 0;
 
   return (
-    <section id="assembly" className="mx-auto max-w-7xl px-4 py-16">
-      <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
-        {t("assembly.heading")}
-      </h2>
+    <section id="assembly" className="mx-auto max-w-7xl scroll-mt-14 px-4 py-16">
+      <div className="group/anchor flex items-center gap-1">
+        <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
+          {t("assembly.heading")}
+        </h2>
+        <AnchorLinkButton id="assembly" />
+      </div>
       <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("assembly.description")}
       </p>
@@ -148,8 +153,11 @@ export function BuildAssembly() {
                   ))}
                 </div>
               )}
-              <div className="min-w-0 flex-1 rounded-lg border bg-card">
-                <div className="sticky top-14 z-10 flex items-center gap-3 rounded-t-lg border-b bg-secondary px-4 py-3 md:px-5">
+              <div
+                id={phaseAnchorId(phase.key)}
+                className="min-w-0 flex-1 scroll-mt-16 rounded-lg border bg-card"
+              >
+                <div className="group/anchor sticky top-14 z-10 flex items-center gap-3 rounded-t-lg border-b bg-secondary px-4 py-3 md:px-5">
                   <span className="grid size-8 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
                     <phase.icon size={16} />
                   </span>
@@ -161,6 +169,7 @@ export function BuildAssembly() {
                       {phase.title}
                     </h3>
                   </div>
+                  <AnchorLinkButton id={phaseAnchorId(phase.key)} />
                   {hasVideos && (
                     <IconVideo
                       size={16}
@@ -173,8 +182,9 @@ export function BuildAssembly() {
                   {phase.steps.map((step) => (
                     <label
                       key={step.key}
+                      id={stepAnchorId(step.key)}
                       htmlFor={step.key}
-                      className="flex cursor-pointer items-start gap-3 py-3 first:pt-0 last:pb-0"
+                      className="group/anchor flex cursor-pointer scroll-mt-32 items-start gap-3 py-3 first:pt-0 last:pb-0"
                     >
                       <Checkbox
                         id={step.key}
@@ -215,6 +225,10 @@ export function BuildAssembly() {
                           </div>
                         )}
                       </div>
+                      <AnchorLinkButton
+                        id={stepAnchorId(step.key)}
+                        className="-my-1"
+                      />
                     </label>
                   ))}
                 </div>

@@ -22,6 +22,7 @@ export function BinCard({
   active,
   isAutoAssign,
   isScanOnly,
+  alphabetLetter,
   disabled,
   onClick,
 }: BinCardProps) {
@@ -42,6 +43,8 @@ export function BinCard({
         </p>
         {config.isCatchAll ? (
           <Badge variant="default">{t("catchAll")}</Badge>
+        ) : alphabetLetter !== undefined ? (
+          alphabetLetter && <Badge variant="secondary">{alphabetLetter}</Badge>
         ) : config.isOverride ? (
           <Badge variant="outline">{t("binCard.override")}</Badge>
         ) : (
@@ -56,6 +59,12 @@ export function BinCard({
         {config.isCatchAll ? (
           <p className="text-xs text-muted-foreground">
             {t("binCard.allUnmatched")}
+          </p>
+        ) : alphabetLetter !== undefined ? (
+          <p className="text-xs">
+            {alphabetLetter
+              ? t("binCard.alphabetLetter", { letter: alphabetLetter })
+              : t("alphabetPanel.unusedBin")}
           </p>
         ) : isEmpty ? (
           <p className="text-xs">

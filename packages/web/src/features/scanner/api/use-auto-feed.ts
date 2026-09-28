@@ -23,6 +23,7 @@ export function useAutoFeed({
   const autoFeedRef = useRef(true);
   const cardArrivedHookRef = useRef<(() => void) | null>(null);
   const pauseHookRef = useRef<(() => void) | null>(null);
+  const resumeHookRef = useRef<(() => void) | null>(null);
 
   const setAutoFeed = useCallback((enabled: boolean) => {
     autoFeedRef.current = enabled;
@@ -38,6 +39,17 @@ export function useAutoFeed({
 
   const pause = useCallback(() => {
     pauseHookRef.current?.();
+  }, []);
+
+  const resume = useCallback(() => {
+    resumeHookRef.current?.();
+  }, []);
+
+  const registerResumeHook = useCallback((fn: () => void) => {
+    resumeHookRef.current = fn;
+    return () => {
+      if (resumeHookRef.current === fn) resumeHookRef.current = null;
+    };
   }, []);
 
   const registerCardArrivedHook = useCallback((fn: () => void) => {
@@ -151,5 +163,7 @@ export function useAutoFeed({
     triggerAutoFeed,
     registerCardArrivedHook,
     registerPauseHook,
+    resume,
+    registerResumeHook,
   };
 }

@@ -8,10 +8,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type {
+  AlphabetConfig,
   BinConfigsContextValue,
   BinModeDraft,
 } from "@/lib/interfaces/bins";
 import {
+  type AlphabetStep,
   BinConfig,
   BinRuleGroup,
   BinSet,
@@ -32,6 +34,7 @@ import {
   saveBinConfig as saveBinConfigAction,
   saveSet as saveSetAction,
   setAutoAssignField as setAutoAssignFieldAction,
+  setAlphabetConfig as setAlphabetConfigAction,
   setRepackConfig as setRepackConfigAction,
   setScanOnly as setScanOnlyAction,
 } from "@/features/bins/api/sort-bins";
@@ -150,13 +153,15 @@ export function BinConfigsProvider({
     autoAssignField: selectedSet?.autoAssignField ?? null,
     scanOnly: selectedSet?.scanOnly ?? false,
     isRepackMode: selectedSet?.isRepackMode ?? false,
+    isAlphabetMode: selectedSet?.isAlphabetMode ?? false,
   };
   const effectiveMode = modeDraft ?? modeBaseline;
   const isModeDirty =
     modeDraft !== null &&
     (modeDraft.autoAssignField !== modeBaseline.autoAssignField ||
       modeDraft.scanOnly !== modeBaseline.scanOnly ||
-      modeDraft.isRepackMode !== modeBaseline.isRepackMode);
+      modeDraft.isRepackMode !== modeBaseline.isRepackMode ||
+      modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode);
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
@@ -361,6 +366,19 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.repackFailed")),
   });
 
+  const setAlphabetConfigMutation = useMutation({
+    mutationFn: ({ guid, config }: { guid: string; config: AlphabetConfig }) =>
+      setAlphabetConfigAction(guid, config),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(t("useBinConfigs.toasts.alphabetFailed"));
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.alphabetFailed")),
+  });
+
   const isPending = saveBinMutation.isPending;
   const isActivating = activateSetMutation.isPending;
   const isPresetMutating =
@@ -372,7 +390,8 @@ export function BinConfigsProvider({
     setAutoAssignFieldMutation.isPending ||
     resetAutoAssignMutation.isPending ||
     setScanOnlyMutation.isPending ||
-    setRepackConfigMutation.isPending;
+    setRepackConfigMutation.isPending ||
+    setAlphabetConfigMutation.isPending;
 
   const save = useCallback(
     (
@@ -484,11 +503,38 @@ export function BinConfigsProvider({
     [setRepackConfigMutation, selectedSet],
   );
 
+  const setAlphabetConfigFn = useCallback(
+    async (config: AlphabetConfig) => {
+      if (!selectedSet) return;
+      await setAlphabetConfigMutation.mutateAsync({
+        guid: selectedSet.guid,
+        config,
+      });
+    },
+    [setAlphabetConfigMutation, selectedSet],
+  );
+
+  const setAlphabetPassFn = useCallback(
+    ({ pass, prefix }: AlphabetStep) =>
+      setAlphabetConfigFn({
+        isAlphabetMode: true,
+        alphabetPass: pass,
+        alphabetPrefix: prefix,
+      }),
+    [setAlphabetConfigFn],
+  );
+
   const stageMode = (patch: Partial<BinModeDraft>) => {
     setModeDraft((prev) => ({ ...(prev ?? modeBaseline), ...patch }));
   };
 
   const discardMode = () => setModeDraft(null);
+
+  const ensureCatchAll = () => {
+    if (configs.some((c) => c.isCatchAll)) return;
+    const lastBin = configs[configs.length - 1];
+    if (lastBin) save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+  };
 
   const saveMode = async () => {
     if (!modeDraft || !selectedSet) return;
@@ -512,6 +558,14 @@ export function BinConfigsProvider({
             save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
           }
         }
+      }
+      if (modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode) {
+        await setAlphabetConfigFn({
+          isAlphabetMode: modeDraft.isAlphabetMode,
+          alphabetPass: 0,
+          alphabetPrefix: "",
+        });
+        if (modeDraft.isAlphabetMode) ensureCatchAll();
       }
       setModeDraft(null);
     } finally {
@@ -569,6 +623,7 @@ export function BinConfigsProvider({
         resetAutoAssign: resetAutoAssignFn,
         setScanOnly: setScanOnlyFn,
         setRepackConfig: setRepackConfigFn,
+        setAlphabetPass: setAlphabetPassFn,
         effectiveMode,
         isModeDirty,
         isSavingMode,

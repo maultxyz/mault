@@ -7,6 +7,7 @@ import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
@@ -32,6 +33,7 @@ function MobileScanner() {
           onRemove={removeUnmatchedCard}
         />
         <BinStatusMeter />
+        <AlphabetPassControl />
       </div>
       <Drawer>
         <DrawerTrigger asChild>

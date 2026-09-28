@@ -9,6 +9,18 @@
     "cameraReinitFailed": "Échec de la réinitialisation de la caméra",
     "phoneCaptureFailed": "Le téléphone n'a pas envoyé de photo à temps."
   },
+  "sessionLock": {
+    "message": "Une session de tri est en cours sur ce trieur. Mettez le scan en pause pour modifier ces réglages.",
+    "openScanner": "Ouvrir le scanner"
+  },
+  "scannerPip": {
+    "returnToScanner": "Retour au scanner",
+    "sorting": "Tri en cours",
+    "paused": "En pause",
+    "noCollection": "Aucune collection",
+    "minimize": "Réduire sur le côté",
+    "expand": "Afficher l'aperçu du scanner"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Échec de la connexion",
@@ -21,6 +33,13 @@
     },
     "testingDevice": "Test de l'appareil…",
     "deviceReady": "Appareil prêt",
+    "sensorBlocked": {
+      "title": "Carte sur un capteur",
+      "description": "Le capteur du module {{module}} détecte une carte, le test automatique n'a donc pas été lancé. Éjectez la carte ou retirez-la à la main, puis marquez le problème comme résolu pour relancer le test.",
+      "dropped": "Cartes éjectées. Marquez le problème comme résolu pour relancer le test automatique.",
+      "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le problème comme résolu.",
+      "noResponse": "Le trieur n'a pas répondu. Reconnectez-le et réessayez."
+    },
     "deviceTestFailed": {
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."
@@ -116,7 +135,17 @@
     "jamDetected": {
       "title": "Bourrage de carte détecté",
       "description": "Carte bloquée au module {{module}}. Vérifie la trieuse et reprends.",
-      "descriptionWithBin": "Carte bloquée au module {{module}} (en direction du bac {{bin}}). Vérifie la trieuse et reprends."
+      "descriptionWithBin": "Carte bloquée au module {{module}} (en direction du bac {{bin}}). Vérifie la trieuse et reprends.",
+      "dropCard": "Éjecter la carte",
+      "dropFailed": "Le trieur n'a pas répondu à la commande d'éjection. Retirez la carte à la main.",
+      "notReady": "Le trieur n'est pas prêt. Reconnectez-le ou retirez la carte à la main.",
+      "markCleared": "Marquer comme résolu",
+      "dropped": "Cartes éjectées. Marquez le bourrage comme résolu pour reprendre.",
+      "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le bourrage comme résolu."
+    },
+    "jamCleared": {
+      "title": "Bourrage résolu",
+      "description": "La numérisation et le chargement automatique ont repris."
     },
     "noCardDetected": {
       "title": "Aucune carte détectée",
@@ -269,6 +298,10 @@
     "confirmTitle": "Vider le bac {{bin}} ?",
     "confirmDescription": "Ceci remet à zéro le compteur de remplissage du bac {{bin}}. Assure-toi d'avoir vidé le bac physiquement au préalable, cette action ne déplace rien pour toi.",
     "confirmButton": "Vider le bac"
+  },
+  "alphabetPassControl": {
+    "range": "Tri de {{from}} à {{to}}",
+    "stopFirst": "Arrêtez le scanner avant de passer aux lettres suivantes."
   },
   "sessionStatsPanel": {
     "value": "Valeur"
