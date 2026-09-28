@@ -42,8 +42,10 @@ export function StationPanels({
             inert={!isActive}
             aria-hidden={!isActive}
             className={cn(
-              "absolute inset-0 overflow-hidden p-2 gap-2 bg-sidebar/70",
-              layout === "horizontal" ? "flex flex-col" : "flex items-stretch",
+              "absolute inset-0 p-2 gap-2 bg-sidebar/70",
+              layout === "horizontal"
+                ? "flex flex-col overflow-y-auto overflow-x-hidden pt-0"
+                : "flex items-stretch overflow-hidden",
               !isActive && "invisible pointer-events-none",
             )}
           />

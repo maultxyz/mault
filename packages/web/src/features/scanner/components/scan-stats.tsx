@@ -4,11 +4,16 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { formatElapsed, formatUsd } from "@/lib/format";
+import type { ScanStatsProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function ScanStats() {
+export function ScanStats({
+  className,
+  scrollable = true,
+}: ScanStatsProps) {
+  const Container = scrollable ? ScrollArea : "div";
   const { t } = useTranslation("scanner");
   const [expandedSets, setExpandedSets] = useState(false);
   const { elapsedMs, isTimerActive } = useScannedCards();
@@ -55,8 +60,20 @@ export function ScanStats() {
   );
 
   return (
-    <ScrollArea className="@container min-h-0 rounded-lg" data-tour="scan-stats">
-      <div className="flex flex-col gap-2 pr-3 text-sm @2xl:grid @2xl:grid-cols-2 @2xl:items-start @5xl:grid-cols-3">
+    <Container
+      className={cn(
+        "@container rounded-lg",
+        scrollable && "min-h-0",
+        className,
+      )}
+      data-tour="scan-stats"
+    >
+      <div
+        className={cn(
+          "flex flex-col gap-2 text-sm @2xl:grid @2xl:grid-cols-2 @2xl:items-start @5xl:grid-cols-3",
+          scrollable && "pr-3",
+        )}
+      >
         <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input">
           <div className="grid grid-cols-2">
             {statCards.map((card, i) => (
@@ -203,7 +220,7 @@ export function ScanStats() {
           )}
         </div>
       </div>
-    </ScrollArea>
+    </Container>
   );
 }
 

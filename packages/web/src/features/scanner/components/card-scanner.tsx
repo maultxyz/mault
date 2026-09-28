@@ -25,9 +25,10 @@ import {
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
-import type { CardScannerProps } from "@magic-vault/shared";
+import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
@@ -37,7 +38,8 @@ export function CardScanner({
   className,
   compact,
   controlsPosition = "bottom",
-}: CardScannerProps) {
+  controlsContainer,
+}: CardScannerComponentProps) {
   const { t } = useTranslation("scanner");
   const navigate = useNavigate();
   const { isAdmin } = useRole();
@@ -389,6 +391,22 @@ export function CardScanner({
     wasReadyRef.current = canScan;
   }, [canScan, handlePause, handleResume, status]);
 
+  const scannerControls = (
+    <ScannerControls
+      orientation={isSideControls ? "vertical" : "horizontal"}
+      status={status}
+      isConnected={isConnected}
+      isReady={isReady}
+      isFeeding={isFeeding}
+      isClearingDevice={isClearingDevice}
+      onForceScan={handleForceScanClick}
+      onPause={pause}
+      onResume={handleResumeScanning}
+      onFeed={handleFeed}
+      onClearDevice={handleClearDevice}
+    />
+  );
+
   return (
     <div
       className={cn(
@@ -399,7 +417,7 @@ export function CardScanner({
     >
       <div
         className={cn(
-          "relative overflow-hidden bg-background rounded-lg border",
+          "relative isolate overflow-hidden bg-background rounded-lg border",
           isSideControls
             ? "h-full aspect-[2.5/3.5] shrink-0"
             : "w-full h-full max-w-full",
@@ -493,21 +511,10 @@ export function CardScanner({
           onOcrEnabledChange={setOcrEnabled}
         />
       </div>
-      {isCameraActive && (
-        <ScannerControls
-          orientation={isSideControls ? "vertical" : "horizontal"}
-          status={status}
-          isConnected={isConnected}
-          isReady={isReady}
-          isFeeding={isFeeding}
-          isClearingDevice={isClearingDevice}
-          onForceScan={handleForceScanClick}
-          onPause={pause}
-          onResume={handleResumeScanning}
-          onFeed={handleFeed}
-          onClearDevice={handleClearDevice}
-        />
-      )}
+      {isCameraActive && !controlsContainer && scannerControls}
+      {isCameraActive &&
+        controlsContainer &&
+        createPortal(scannerControls, controlsContainer)}
       <PhoneCameraPairingDialog
         open={phoneDialogOpen}
         onOpenChange={handlePhoneDialogOpenChange}

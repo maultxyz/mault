@@ -2,6 +2,7 @@ import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
+  CardScannerProps,
   BinRoute,
   Collection,
   GroupedScannedCard,
@@ -334,4 +335,13 @@ export interface JamToastBodyProps {
   markClearedLabel: string;
   onDrop: () => void;
   onMarkCleared: () => void;
+}
+
+export interface ScanStatsProps {
+  className?: string;
+  scrollable?: boolean;
+}
+
+export interface CardScannerComponentProps extends CardScannerProps {
+  controlsContainer?: HTMLElement | null;
 }
