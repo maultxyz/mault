@@ -1,4 +1,6 @@
 import {
+  BLE_CONNECT_ATTEMPTS,
+  BLE_CONNECT_RETRY_DELAY_MS,
   BLE_WRITE_CHUNK_SIZE,
   NUS_RX_CHARACTERISTIC_UUID,
   NUS_SERVICE_UUID,
@@ -101,6 +103,32 @@ export class SerialTransport implements ByteTransport {
   }
 }
 
+async function connectNusCharacteristics(device: BluetoothDevice) {
+  const gatt = device.gatt!;
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= BLE_CONNECT_ATTEMPTS; attempt++) {
+    try {
+      const server = gatt.connected ? gatt : await gatt.connect();
+      const service = await server.getPrimaryService(NUS_SERVICE_UUID);
+      const rxChar = await service.getCharacteristic(NUS_RX_CHARACTERISTIC_UUID);
+      const txChar = await service.getCharacteristic(NUS_TX_CHARACTERISTIC_UUID);
+      return { rxChar, txChar };
+    } catch (e) {
+      lastError = e;
+      console.warn(`[Bluetooth] Connect attempt ${attempt} failed:`, e); // eslint-disable-line no-console -- hardware debug trace
+      try {
+        gatt.disconnect();
+      } catch {}
+      if (attempt < BLE_CONNECT_ATTEMPTS) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, BLE_CONNECT_RETRY_DELAY_MS * attempt),
+        );
+      }
+    }
+  }
+  throw lastError;
+}
+
 export class BluetoothTransport implements ByteTransport {
   readonly kind: SerialTransportType = "bluetooth";
   private readonly device: BluetoothDevice;
@@ -150,10 +178,7 @@ export class BluetoothTransport implements ByteTransport {
       return { ok: false, reason: "failed", message: "No GATT server on this device." };
     }
     try {
-      const server = await device.gatt.connect();
-      const service = await server.getPrimaryService(NUS_SERVICE_UUID);
-      const rxChar = await service.getCharacteristic(NUS_RX_CHARACTERISTIC_UUID);
-      const txChar = await service.getCharacteristic(NUS_TX_CHARACTERISTIC_UUID);
+      const { rxChar, txChar } = await connectNusCharacteristics(device);
       return { ok: true, transport: new BluetoothTransport(device, rxChar, txChar) };
     } catch (e) {
       console.error("[Bluetooth] Connect failed:", e); // eslint-disable-line no-console -- hardware debug trace
