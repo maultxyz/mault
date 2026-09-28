@@ -18,6 +18,8 @@ export const ONE_PIECE_DEFAULT_URL = "https://optcgapi.com/api";
 export const POKEMON_DEFAULT_URL = "https://api.tcgdex.net/v2/en/cards";
 export const RIFTBOUND_DEFAULT_URL = "https://api.riftcodex.com/cards";
 export const SCRYFALL_DEFAULT_URL = "https://api.scryfall.com/cards";
+export const SWU_API_ROOT = "https://api.swu-db.com";
+export const SWU_DEFAULT_URL = `${SWU_API_ROOT}/cards`;
 
 export const TCGCSV_URL = "https://tcgcsv.com";
 export const YUGIOH_DEFAULT_URL =
@@ -31,4 +33,5 @@ export const ALLOWED_IMAGE_HOSTS = new Set([
   "gundam-gcg.com",
   "www.gundam-gcg.com",
   "assets.tcgdex.net",
+  "cdn.swu-db.com",
 ]);
