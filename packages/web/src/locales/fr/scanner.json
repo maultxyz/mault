@@ -50,8 +50,10 @@
     "commLogCopyFailed": "Échec de la copie du journal de communication",
     "commLogEmpty": "Aucune communication enregistrée pour le moment",
     "firmwareOutdatedBanner": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Réimporte firmware/main/main.ino pour la mettre à jour.",
+    "firmwareOutdatedBannerBluetooth": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Pour la mettre à jour depuis le navigateur, branche l'ESP32-S3 en USB (port de gauche, marqué USB) et connecte-toi en USB plutôt qu'en Bluetooth.",
     "firmwareVersionMissingBanner": "Le firmware de ta trieuse ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
     "update": {
+      "notUsb": "Connecte la trieuse avec un câble USB pour la mettre à jour. La mise à jour ne fonctionne pas en Bluetooth.",
       "browserButton": "Mettre à jour",
       "manualButton": "Obtenir la mise à jour",
       "dialogTitle": "Mise à jour du firmware",

@@ -22,6 +22,8 @@ export function useFirmwareVersionAlert(): {
     isConnected &&
     isFirmwareVersionOutdated(firmwareVersion, LATEST_FIRMWARE_VERSION);
   const isEsp32 = (board === "esp32" && transport === "serial") || isFlashing;
+  const isEsp32OverBluetooth =
+    board === "esp32" && transport === "bluetooth" && !isFlashing;
 
   const portal = (
     <Esp32FlashDialog
@@ -37,11 +39,16 @@ export function useFirmwareVersionAlert(): {
       id: "firmware-version-outdated",
       severity: "warning",
       icon: IconAlertTriangle,
-      message: t("serial.firmwareOutdatedBanner", {
-        version: firmwareVersion,
-        latest: LATEST_FIRMWARE_VERSION,
-      }),
-      actions: isEsp32 ? (
+      message: t(
+        isEsp32OverBluetooth
+          ? "serial.firmwareOutdatedBannerBluetooth"
+          : "serial.firmwareOutdatedBanner",
+        {
+          version: firmwareVersion,
+          latest: LATEST_FIRMWARE_VERSION,
+        },
+      ),
+      actions: isEsp32OverBluetooth ? undefined : isEsp32 ? (
         <Button
           size="xs"
           variant="outline"

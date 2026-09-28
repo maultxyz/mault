@@ -50,8 +50,10 @@
     "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
     "commLogEmpty": "Noch keine Kommunikation aufgezeichnet",
     "firmwareOutdatedBanner": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Lade firmware/main/main.ino erneut hoch, um zu aktualisieren.",
+    "firmwareOutdatedBannerBluetooth": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Um ihn im Browser zu aktualisieren, schließe den ESP32-S3 per USB an (linker Anschluss, mit USB beschriftet) und verbinde dich über USB statt Bluetooth.",
     "firmwareVersionMissingBanner": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
     "update": {
+      "notUsb": "Verbinde den Sortierer per USB-Kabel, um ihn zu aktualisieren. Über Bluetooth ist kein Update möglich.",
       "browserButton": "Jetzt aktualisieren",
       "manualButton": "Update holen",
       "dialogTitle": "Firmware aktualisieren",
