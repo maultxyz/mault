@@ -8,9 +8,11 @@ import { useTranslation } from "react-i18next";
 export function AlertBanner({
   alert,
   onDismiss,
+  className,
 }: {
   alert: AppAlert;
   onDismiss?: () => void;
+  className?: string;
 }) {
   const { t } = useTranslation("common");
   const Icon = alert.icon;
@@ -20,6 +22,7 @@ export function AlertBanner({
       className={cn(
         "flex items-center justify-center gap-2 border-b px-4 py-1.5 text-xs",
         ALERT_SEVERITY_BANNER_CLASS[alert.severity],
+        className,
       )}
     >
       <Icon className="size-3.5 shrink-0" />

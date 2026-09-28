@@ -314,6 +314,12 @@ export interface SessionMonitorViewProps {
   showBinLocation: boolean;
 }
 
+export interface SessionLockProps {
+  className?: string;
+  bannerClassName?: string;
+  children: ReactNode;
+}
+
 export interface JamToastOptions {
   module: number;
   binNumber?: number;

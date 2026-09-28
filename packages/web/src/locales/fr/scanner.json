@@ -9,6 +9,10 @@
     "cameraReinitFailed": "Échec de la réinitialisation de la caméra",
     "phoneCaptureFailed": "Le téléphone n'a pas envoyé de photo à temps."
   },
+  "sessionLock": {
+    "message": "Une session de tri est en cours sur ce trieur. Mettez le scan en pause pour modifier ces réglages.",
+    "openScanner": "Ouvrir le scanner"
+  },
   "scannerPip": {
     "returnToScanner": "Retour au scanner",
     "sorting": "Tri en cours",

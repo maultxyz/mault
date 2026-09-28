@@ -35,6 +35,10 @@ code {
   display: none;
 }
 
+.app-toaster [data-sonner-toast][data-styled="true"] [data-button] ~ [data-button] {
+  margin-left: 4px;
+}
+
 .app-toaster [data-sonner-toast][data-styled="true"] [data-icon] {
   align-self: flex-start;
   margin-top: 2px;

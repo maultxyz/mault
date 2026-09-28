@@ -9,6 +9,10 @@
     "cameraReinitFailed": "Kamera konnte nicht neu initialisiert werden",
     "phoneCaptureFailed": "Telefon hat nicht rechtzeitig mit einem Foto geantwortet."
   },
+  "sessionLock": {
+    "message": "Auf diesem Sortierer läuft eine Sortiersitzung. Pausiere das Scannen, um hier Änderungen vorzunehmen.",
+    "openScanner": "Scanner öffnen"
+  },
   "scannerPip": {
     "returnToScanner": "Zurück zum Scanner",
     "sorting": "Sortiert",

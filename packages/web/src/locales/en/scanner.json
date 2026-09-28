@@ -9,6 +9,10 @@
     "cameraReinitFailed": "Failed to reinitialize camera",
     "phoneCaptureFailed": "Phone didn't respond with a photo in time."
   },
+  "sessionLock": {
+    "message": "A sorting session is running on this sorter. Pause scanning to make changes here.",
+    "openScanner": "Open scanner"
+  },
   "scannerPip": {
     "returnToScanner": "Back to scanner",
     "sorting": "Sorting",

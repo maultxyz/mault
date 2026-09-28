@@ -148,6 +148,8 @@ export function CardScanner({
       "error" in msg &&
       (msg as Record<string, unknown>).error === "jam"
     ) {
+      if (!SESSION_TIMER_RUNNING_STATUSES.includes(status)) return;
+
       const raw = msg as Record<string, unknown>;
 
       handlePause();

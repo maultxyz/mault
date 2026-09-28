@@ -405,7 +405,6 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         toast.dismiss(SENSOR_BLOCKED_TOAST_ID);
         toast.success(t("serial.deviceReady"), {
           cancel: copyAction,
-          actionButtonStyle: { marginLeft: 4 },
           action: {
             label: t("serial.dropCard"),
             onClick: () =>

@@ -11,16 +11,11 @@ export function JamToastBody({
   return (
     <div className="flex flex-col gap-2">
       <span>{description}</span>
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         <Button type="button" size="sm" variant="outline" onClick={onDrop}>
           {dropLabel}
         </Button>
-        <Button
-          type="button"
-          size="sm"
-          className="ml-auto"
-          onClick={onMarkCleared}
-        >
+        <Button type="button" size="sm" onClick={onMarkCleared}>
           {markClearedLabel}
         </Button>
       </div>

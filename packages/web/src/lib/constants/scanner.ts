@@ -38,6 +38,7 @@ export const JAM_TOAST_ID_PREFIX = "jam-module-";
 export const JAM_COMMAND_TIMEOUT_MS = 3000;
 export const JAM_CLEAR_DEVICE_TIMEOUT_MS = 10000;
 export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
+export const SESSION_LOCK_ALERT_ID = "session-lock";
 export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 
 export const PARKED_PANELS_ROOT_CLASS =
