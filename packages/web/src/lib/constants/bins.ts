@@ -7,3 +7,5 @@ export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
   "contains_all",
   "contains_none",
 ];
+
+export const DEFAULT_MAX_COPIES = 4;

@@ -19,6 +19,14 @@
     "scannerLayoutVerticalDescription": "Scanner oben, Kartenraster darunter",
     "language": "Sprache"
   },
+  "pricing": {
+    "heading": "Preise",
+    "description": "Wähle, welche Marktplatzpreise deine Organisation für Karten, Sammlungswerte und Discord-Beiträge nutzt.",
+    "sources": {
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket"
+    }
+  },
   "sessionWrapped": {
     "heading": "Sitzungs-Rückblick",
     "description": "Zeigt vor der Exportübersicht einen Wrapped-artigen Rückblick mit Highlights.",

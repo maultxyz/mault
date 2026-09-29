@@ -8,7 +8,7 @@ import {
 import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
-import { formatUsd } from "@/lib/format";
+import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import {
   IconCheck,
@@ -36,7 +36,8 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   const { t } = useTranslation("cards");
   const matchPercent =
     card.distance != null ? getMatchPercent(card) : 0;
-  const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
+  const { priceOf, format } = usePriceSource();
+  const displayPrice = priceOf(card, isFoil);
   return (
     <div
       className={cn(
@@ -177,7 +178,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
         </div>
         {displayPrice != null && (
           <p className="shrink-0 text-xs font-medium text-muted-foreground">
-            {formatUsd(displayPrice)}
+            {format(displayPrice)}
           </p>
         )}
       </div>

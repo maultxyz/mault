@@ -7,6 +7,7 @@
   },
   "binCard": {
     "override": "Override",
+    "maxCopies": "Max {{count}}×",
     "ruleCount_one": "{{count}} rule",
     "ruleCount_other": "{{count}} rules",
     "allUnmatched": "All unmatched cards",
@@ -18,6 +19,9 @@
   "binConfigPanel": {
     "overrideLabel": "Override rules",
     "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, the lowest bin number wins. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
+    "maxCopiesLabel": "Limit copies per printing",
+    "maxCopiesDescription": "Once this bin holds this many copies of the same printing (since it was last emptied), further copies skip it and go to the next bin whose rules match, or the catch-all.",
+    "maxCopiesSuffix": "copies of each printing",
     "needCatchAllError": "At least one bin must be catch-all.",
     "catchAllEnabled": "Catch-all enabled",
     "setCatchAll": "Set as catch-all",

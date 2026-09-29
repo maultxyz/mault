@@ -178,6 +178,19 @@ export function evaluateRuleGroup(
     : results.some(Boolean);
 }
 
+function hasReachedMaxCopies(
+  bin: BinConfig,
+  copiesInBin: ((bin: BinConfig) => number) | undefined,
+): boolean {
+  return (
+    bin.maxCopies != null && !!copiesInBin && copiesInBin(bin) >= bin.maxCopies
+  );
+}
+
+export function hasMaxCopiesBins(configs: BinConfig[]): boolean {
+  return configs.some((c) => !c.isCatchAll && c.maxCopies != null);
+}
+
 export function getCatchAllBin(configs: BinConfig[]): BinConfig | undefined {
   return configs.find((c) => c.isCatchAll);
 }
@@ -186,6 +199,7 @@ export function evaluateCardBin(
   card: SourceCard,
   configs: BinConfig[],
   fieldDefinitions: FieldMeta[],
+  copiesInBin?: (bin: BinConfig) => number,
 ): BinConfig | undefined {
   let catchAll: BinConfig | undefined;
   let firstMatch: BinConfig | undefined;
@@ -197,7 +211,8 @@ export function evaluateCardBin(
     }
     if (
       config.rules.conditions.length > 0 &&
-      evaluateRuleGroup(card, config.rules, fieldDefinitions)
+      evaluateRuleGroup(card, config.rules, fieldDefinitions) &&
+      !hasReachedMaxCopies(config, copiesInBin)
     ) {
       if (config.isOverride) return config;
       firstMatch ??= config;
@@ -247,6 +262,16 @@ export function getCardsInBin(
         (bin.lastEmptiedAt == null || c.scannedAt > bin.lastEmptiedAt),
     )
     .map((c) => c.card);
+}
+
+export function countCopiesInBin(
+  cards: { binNumber?: number | null; scannedAt: number; card: SourceCard }[],
+  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,
+  cardId: string,
+): number {
+  return getCardsInBin(cards, bin).filter(
+    (c) => (c as { id?: unknown }).id === cardId,
+  ).length;
 }
 
 export function countSlotMatches(

@@ -25,6 +25,14 @@
     "scannerLayoutVerticalDescription": "Scanner on top, card grid below",
     "language": "Language"
   },
+  "pricing": {
+    "heading": "Pricing",
+    "description": "Choose which marketplace prices your organization's cards, collection values and Discord posts use.",
+    "sources": {
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket"
+    }
+  },
   "sessionWrapped": {
     "heading": "Session Wrapped",
     "description": "Show a Wrapped-style recap of stat highlights before the export summary.",

@@ -70,8 +70,13 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  const { collectionCount, cardCount, totalValue, collectionName } =
-    result.data;
+  const {
+    collectionCount,
+    cardCount,
+    totalValue,
+    totalValueDisplay,
+    collectionName,
+  } = result.data;
   const embed = new EmbedBuilder()
     .setTitle(
       collectionName
@@ -92,7 +97,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
       { name: "Cards", value: String(cardCount), inline: true },
       {
         name: "Estimated value",
-        value: `$${totalValue.toFixed(2)} USD`,
+        value: totalValueDisplay ?? `$${totalValue.toFixed(2)} USD`,
         inline: true,
       },
     );

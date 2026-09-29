@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collectionCards } from "../../db/schema";
+import { markScanCorrected } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toScannedCard } from "./shared";
@@ -66,7 +67,10 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           }),
         };
       });
-      if (result.success) emitToSession(guid, "card_updated", result.data);
+      if (result.success) {
+        if (card !== undefined) void markScanCorrected(scanId);
+        emitToSession(guid, "card_updated", result.data);
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);

@@ -18,6 +18,14 @@ export async function getModuleCount(
   return Math.max(...devices.map((d) => d.moduleCount));
 }
 
+export function toMaxCopies(
+  value: number | null | undefined,
+  isCatchAll: boolean | undefined,
+): number | null {
+  if (isCatchAll || value == null) return null;
+  return Number.isInteger(value) && value >= 1 ? value : null;
+}
+
 export function emptyRules(): BinRuleGroup {
   return {
     id: crypto.randomUUID(),
@@ -47,6 +55,7 @@ function toBinSet(row: {
     isCatchAll: boolean;
     isOverride: boolean;
     cardLimit: number | null;
+    maxCopies: number | null;
     lastEmptiedAt: Date | null;
   }[];
   game: {
@@ -80,6 +89,7 @@ function toBinSet(row: {
       isCatchAll: bin.isCatchAll,
       isOverride: bin.isOverride,
       cardLimit: bin.cardLimit,
+      maxCopies: bin.maxCopies,
       lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
     game: row.game
@@ -125,6 +135,7 @@ const binSetQuery = {
         isCatchAll: true,
         isOverride: true,
         cardLimit: true,
+        maxCopies: true,
         lastEmptiedAt: true,
       },
     },
@@ -156,6 +167,7 @@ export async function snapshotBinSet(
       isCatchAll: true,
       isOverride: true,
       cardLimit: true,
+      maxCopies: true,
     },
   });
   const snapshot: BinConfig[] = rows.map((r) => ({
@@ -165,6 +177,7 @@ export async function snapshotBinSet(
     isCatchAll: r.isCatchAll,
     isOverride: r.isOverride,
     cardLimit: r.cardLimit,
+    maxCopies: r.maxCopies,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
 }
@@ -207,7 +220,12 @@ export async function binSetNameTaken(
 export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
   await tx
     .update(bins)
-    .set({ rules: emptyRules(), isOverride: false, updatedAt: new Date() })
+    .set({
+      rules: emptyRules(),
+      isOverride: false,
+      maxCopies: null,
+      updatedAt: new Date(),
+    })
     .where(and(eq(bins.binSet, binSetId), eq(bins.isCatchAll, false)));
 }
 

@@ -10,6 +10,13 @@ export interface PlayingCardPriceRange {
   printings?: number;
 }
 
+export interface PlayingCardCardmarketPrice {
+  low: number | null;
+  trend: number | null;
+  avg30: number | null;
+  printings?: number;
+}
+
 export interface PlayingCard {
   id: string;
   name: string;
@@ -29,6 +36,10 @@ export interface PlayingCard {
   priceFoil: number | null;
   priceRange?: PlayingCardPriceRange;
   priceRangeFoil?: PlayingCardPriceRange;
+  priceEur?: number | null;
+  priceEurFoil?: number | null;
+  cardmarketPrice?: PlayingCardCardmarketPrice;
+  cardmarketPriceFoil?: PlayingCardCardmarketPrice;
   sourceUrl?: string;
   tcgplayerId?: string;
   cmc?: number;

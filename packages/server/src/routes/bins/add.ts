@@ -8,7 +8,14 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { binSetNameTaken, emptyRules, getModuleCount, loadSets, resolveGameId } from "./shared";
+import {
+  binSetNameTaken,
+  emptyRules,
+  getModuleCount,
+  loadSets,
+  resolveGameId,
+  toMaxCopies,
+} from "./shared";
 
 export const addBinSetRoute = new Hono<AppEnv>().post(
   "/",
@@ -59,7 +66,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
           .insert(binSets)
           .values({ name, isActive: true, gameId, orgId })
           .returning({ id: binSets.id });
-        const binsToInsert = Array.isArray(initialBins)
+        const binsToInsert: DefaultBinInit[] = Array.isArray(initialBins)
           ? initialBins
           : Array.from(
               { length: computeBinCount(await getModuleCount(tx, orgId)) },
@@ -78,6 +85,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
             isCatchAll: b.isCatchAll,
             isOverride: !b.isCatchAll && b.isOverride === true,
             cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
+            maxCopies: toMaxCopies(b.maxCopies, b.isCatchAll),
             binSet: newBinSet.id,
             orgId,
           })),

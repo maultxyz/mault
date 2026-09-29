@@ -25,6 +25,27 @@ export interface CardSearchState {
   loadMore: () => void;
 }
 
+export interface CardImageViewerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  capturedImageUrl: string;
+  showOcrRegions: boolean;
+  onShowOcrRegionsChange: (show: boolean) => void;
+}
+
+export interface PriceTableRow {
+  label: string;
+  values: (number | null)[];
+}
+
+export interface PriceTableProps {
+  heading: string;
+  columns: string[];
+  rows: PriceTableRow[];
+  printings: number;
+  format: (value: number) => string;
+}
+
 export type { CardFilters, GroupedScannedCard } from "@magic-vault/shared";
 
 export interface CardSelectDialogProps {

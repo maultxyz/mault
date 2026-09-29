@@ -53,8 +53,12 @@ export interface CardScannerProps {
   onSearchResults?: (
     matches: PlayingCardWithDistance[],
     capturedImageUrl?: string,
+    vectorizedOn?: ScanVectorizeSource,
   ) => void;
-  onNoMatch?: (capturedImageUrl?: string) => void;
+  onNoMatch?: (
+    capturedImageUrl?: string,
+    vectorizedOn?: ScanVectorizeSource,
+  ) => void;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
   className?: string;
@@ -68,6 +72,8 @@ export interface CardMatch {
   distance: number;
 }
 
+export type ScanVectorizeSource = "server" | "web";
+
 export interface ScannedCard {
   scanId: string;
   card: PlayingCardWithDistance;
@@ -79,6 +85,7 @@ export interface ScannedCard {
   foilType?: string;
   isDownloaded?: boolean;
   corrected?: boolean;
+  vectorizedOn?: ScanVectorizeSource;
 }
 
 export interface UnmatchedCard {
@@ -86,4 +93,5 @@ export interface UnmatchedCard {
   capturedImageUrl?: string;
   scannedAt: number;
   binNumber?: number;
+  vectorizedOn?: ScanVectorizeSource;
 }

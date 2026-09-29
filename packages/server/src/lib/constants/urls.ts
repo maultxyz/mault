@@ -22,6 +22,8 @@ export const SWU_API_ROOT = "https://api.swu-db.com";
 export const SWU_DEFAULT_URL = `${SWU_API_ROOT}/cards`;
 
 export const TCGCSV_URL = "https://tcgcsv.com";
+export const CARDMARKET_CATALOG_URL =
+  "https://downloads.s3.cardmarket.com/productCatalog";
 export const YUGIOH_DEFAULT_URL =
   "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 

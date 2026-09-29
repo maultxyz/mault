@@ -20,6 +20,7 @@ import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { BIN_CAPACITY_TABLE } from "@/features/bins/lib/bin-capacity";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
+import { DEFAULT_MAX_COPIES } from "@/lib/constants/bins";
 import {
   binConfigSchema,
   type BinConfigFormValues,
@@ -61,6 +62,7 @@ export function BinConfigPanel() {
       isOverride: false,
       rules: emptyRuleGroup(),
       cardLimit: DEFAULT_BIN_CAPACITY,
+      maxCopies: null,
     },
   });
 
@@ -71,7 +73,10 @@ export function BinConfigPanel() {
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
       cardLimit:
-        config.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : config.cardLimit,
+        config.cardLimit === undefined
+          ? DEFAULT_BIN_CAPACITY
+          : config.cardLimit,
+      maxCopies: config.maxCopies ?? null,
     });
   }, [config, form]);
 
@@ -100,9 +105,10 @@ export function BinConfigPanel() {
         values.isCatchAll,
         values.cardLimit,
         !values.isCatchAll && values.isOverride,
+        values.isCatchAll || autoAssignField ? null : values.maxCopies,
       );
     },
-    [config, save, isOnlyCatchAll, form, t],
+    [config, save, isOnlyCatchAll, form, t, autoAssignField],
   );
 
   const handleClear = useCallback(() => {
@@ -118,6 +124,7 @@ export function BinConfigPanel() {
         isOverride: false,
         rules: emptyRuleGroup(),
         cardLimit: DEFAULT_BIN_CAPACITY,
+        maxCopies: null,
       },
       { keepDefaultValues: true },
     );
@@ -231,9 +238,7 @@ export function BinConfigPanel() {
                           <td className="pr-4 py-0.5">
                             {t(`binConfigPanel.${row.sizeKey}`)}
                           </td>
-                          <td className="text-right pr-3 py-0.5">
-                            {row.thin}
-                          </td>
+                          <td className="text-right pr-3 py-0.5">{row.thin}</td>
                           <td className="text-right py-0.5">{row.thick}</td>
                         </tr>
                       ))}
@@ -299,6 +304,66 @@ export function BinConfigPanel() {
                     </Tooltip>
                   </span>
                 </div>
+              </Field>
+            )}
+            {!autoAssignField && (
+              <Field
+                className="mb-6"
+                data-invalid={!!form.formState.errors.maxCopies}
+              >
+                <Controller
+                  name="maxCopies"
+                  control={form.control}
+                  render={({ field }) => (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          id="bin-max-copies"
+                          checked={field.value != null}
+                          onCheckedChange={(checked) =>
+                            field.onChange(checked ? DEFAULT_MAX_COPIES : null)
+                          }
+                        />
+                        <span className="flex items-center gap-1.5">
+                          <FieldLabel htmlFor="bin-max-copies">
+                            {t("binConfigPanel.maxCopiesLabel")}
+                          </FieldLabel>
+                          <Tooltip>
+                            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                              <IconInfoCircle className="size-3.5" />
+                            </TooltipTrigger>
+                            <TooltipContent className="max-w-xs">
+                              {t("binConfigPanel.maxCopiesDescription")}
+                            </TooltipContent>
+                          </Tooltip>
+                        </span>
+                      </div>
+                      {field.value != null && (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            id="bin-max-copies-count"
+                            type="number"
+                            min={1}
+                            className="max-w-24"
+                            aria-label={t("binConfigPanel.maxCopiesLabel")}
+                            value={Number.isNaN(field.value) ? "" : field.value}
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value === ""
+                                  ? Number.NaN
+                                  : Number(e.target.value),
+                              )
+                            }
+                          />
+                          <span className="text-sm text-muted-foreground">
+                            {t("binConfigPanel.maxCopiesSuffix")}
+                          </span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                />
+                <FieldError errors={[form.formState.errors.maxCopies]} />
               </Field>
             )}
             <div className="flex items-center justify-between mb-2">

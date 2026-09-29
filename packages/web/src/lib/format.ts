@@ -4,6 +4,10 @@ export function formatUsd(value: number): string {
   return `$${value.toFixed(2)} USD`;
 }
 
+export function formatEur(value: number): string {
+  return `€${value.toFixed(2)} EUR`;
+}
+
 export function formatElapsed(ms: number): string {
   const s = Math.floor(ms / 1000);
   const h = Math.floor(s / 3600);

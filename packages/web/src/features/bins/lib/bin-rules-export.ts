@@ -24,6 +24,7 @@ export function buildBinRulesExport(
       isCatchAll: !!c.isCatchAll,
       isOverride: !c.isCatchAll && !!c.isOverride,
       cardLimit: c.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : c.cardLimit,
+      maxCopies: c.isCatchAll ? null : (c.maxCopies ?? null),
     })),
   };
 }

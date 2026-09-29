@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  countCopiesInBin,
   evaluateCardBin,
   isBinFull,
   type BinConfig,
@@ -83,6 +84,38 @@ test("nested override rules must match before taking priority", () => {
   }], { isOverride: true });
   assert.equal(evaluateCardBin({ colors: ["W", "G"] }, [...colors, nested], fields), nested);
   assert.equal(evaluateCardBin({ colors: ["W"] }, [...colors, nested], fields), colors[0]);
+});
+
+test("a bin at its copy limit passes the card to the next matching bin, then the catch-all", () => {
+  const card = { id: "bolt-m10", colors: ["W", "U"] };
+  const limited = { ...colors[0], maxCopies: 2 };
+  const configsWithLimit = [limited, ...colors.slice(1), catchAll];
+  const contents = (count: number) =>
+    Array.from({ length: count }, (_, i) => ({ binNumber: 1, scannedAt: 10 + i, card }));
+  const copiesIn = (count: number) => (b: BinConfig) => countCopiesInBin(contents(count), b, card.id);
+
+  assert.equal(evaluateCardBin(card, configsWithLimit, fields, copiesIn(1)), limited);
+  assert.equal(evaluateCardBin(card, configsWithLimit, fields, copiesIn(2)), colors[1]);
+  assert.equal(evaluateCardBin({ ...card, colors: ["W"] }, configsWithLimit, fields, copiesIn(2)), catchAll);
+});
+
+test("copy limits count only the same printing since the bin was last emptied", () => {
+  const limited = { ...colors[0], maxCopies: 1, lastEmptiedAt: 100 };
+  const contents = [
+    { binNumber: 1, scannedAt: 50, card: { id: "a" } },
+    { binNumber: 1, scannedAt: 150, card: { id: "b" } },
+  ];
+  assert.equal(countCopiesInBin(contents, limited, "a"), 0);
+  assert.equal(countCopiesInBin(contents, limited, "b"), 1);
+  assert.equal(evaluateCardBin({ id: "a", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, "a")), limited);
+  assert.equal(evaluateCardBin({ id: "b", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, "b")), catchAll);
+});
+
+test("a copy-limited override at its limit no longer takes priority", () => {
+  const card = { id: "x", colors: ["U"], prices: { usd: 5 } };
+  const limitedOverride = { ...priceBin, maxCopies: 1 };
+  assert.equal(evaluateCardBin(card, [...colors, limitedOverride, catchAll], fields, () => 1), colors[1]);
+  assert.equal(evaluateCardBin(card, [...colors, limitedOverride, catchAll], fields), limitedOverride);
 });
 
 test("a full override remains the destination so capacity checks can stop scanning", () => {

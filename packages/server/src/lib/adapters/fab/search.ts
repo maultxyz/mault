@@ -231,4 +231,13 @@ export const fabAdapter: CardSearchAdapter = {
       };
     },
   },
+  cardmarket: {
+    gameId: 16,
+    productNames: (card) => {
+      const { card: fabCard } = card.raw as { card: FabCard };
+      return fabCard.color
+        ? [`${fabCard.name} (${fabCard.color})`, fabCard.name]
+        : [fabCard.name];
+    },
+  },
 };

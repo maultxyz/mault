@@ -197,6 +197,7 @@ export const bins = pgTable(
       .notNull()
       .references(() => binSets.id),
     cardLimit: integer("card_limit").default(250),
+    maxCopies: integer("max_copies"),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -426,6 +427,7 @@ export const orgSettings = pgTable(
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),
+    priceSource: text("price_source").notNull().default("tcgplayer"),
     discordGuildId: text("discord_guild_id"),
     discordLinkCode: text("discord_link_code"),
     discordLinkCodeExpiresAt: timestamp("discord_link_code_expires_at"),
@@ -649,14 +651,15 @@ export const platformUserRoles = pgTable("platform_user_roles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Admin-only telemetry: how many card searches vectorized on the server
-// (search-by-image) vs. in the browser (search-by-vector). Not RLS-protected
-// or org-scoped - only ever read/written by the server via `db`, exposed
-// through /admin/scan-vectorize-stats for operators to check.
-export const scanVectorizeStats = pgTable("scan_vectorize_stats", {
-  source: text("source").primaryKey(), // "server" | "web"
-  count: integer("count").notNull().default(0),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const scanStats = pgTable("scan_stats", {
+  scanId: uuid("scan_id").primaryKey(),
+  outcome: text("outcome").notNull(),
+  matchPercent: doublePrecision("match_percent"),
+  hasAlternatives: boolean("has_alternatives").notNull().default(false),
+  isCorrected: boolean("is_corrected").notNull().default(false),
+  vectorizedOn: text("vectorized_on"),
+  scannedAt: timestamp("scanned_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const tcgplayerPrices = pgTable(
@@ -690,6 +693,47 @@ export const tcgplayerProducts = pgTable(
     index("tcgplayer_products_category_number_idx").on(
       table.categoryId,
       table.number,
+    ),
+  ],
+);
+
+export const cardmarketPrices = pgTable(
+  "cardmarket_prices",
+  {
+    productId: integer("product_id").primaryKey(),
+    gameId: integer("game_id").notNull(),
+    low: doublePrecision("low"),
+    trend: doublePrecision("trend"),
+    avg: doublePrecision("avg"),
+    avg1: doublePrecision("avg1"),
+    avg7: doublePrecision("avg7"),
+    avg30: doublePrecision("avg30"),
+    lowFoil: doublePrecision("low_foil"),
+    trendFoil: doublePrecision("trend_foil"),
+    avgFoil: doublePrecision("avg_foil"),
+    avg1Foil: doublePrecision("avg1_foil"),
+    avg7Foil: doublePrecision("avg7_foil"),
+    avg30Foil: doublePrecision("avg30_foil"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [index("cardmarket_prices_game_idx").on(table.gameId)],
+);
+
+export const cardmarketProducts = pgTable(
+  "cardmarket_products",
+  {
+    productId: integer("product_id").primaryKey(),
+    gameId: integer("game_id").notNull(),
+    name: text("name").notNull(),
+    matchName: text("match_name").notNull(),
+    expansionId: integer("expansion_id"),
+    metacardId: integer("metacard_id"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("cardmarket_products_game_match_name_idx").on(
+      table.gameId,
+      table.matchName,
     ),
   ],
 );

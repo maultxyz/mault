@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.2.2"
+#define FIRMWARE_VERSION "2.3.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -430,6 +430,11 @@ int servoSlotForChannel(int channel) {
 
 void setServoPosition(int channel, int pulse) {
   int value = servoPulse(pulse);
+  int pushModule = moduleForChannel(channel);
+  if (pushModule && servoSlotForChannel(channel) == 2 &&
+      value != servoPulse(moduleConfig[pushModule - 1].pusherNeutral)) {
+    lowerPaddleForPush(pushModule);
+  }
   if (pwm.setPWM(channel, 0, value) != 0) {
     recoverServoDriver();
     pwm.setPWM(channel, 0, value);
@@ -444,27 +449,12 @@ void setServoPosition(int channel, int pulse) {
   }
 }
 
-bool cardOnPlatform(int module) {
-  return digitalRead(irPin(module)) == LOW;
-}
-
-bool paddleReadyForPush(int module) {
-  unsigned long openedAt = paddleOpenedAt[module - 1];
-  return openedAt != 0 && millis() - openedAt >= DELAY_PADDLE;
-}
-
-bool pushAllowed(int module) {
-  return !cardOnPlatform(module) || paddleReadyForPush(module);
-}
-
-bool isPusherPush(int module, int pulse) {
-  return servoPulse(pulse) != servoPulse(moduleConfig[module - 1].pusherNeutral);
-}
-
-void printPushBlocked(int module, Print& reply) {
-  reply.print(F("{\"error\":\"push_blocked\",\"reason\":\"lower the side paddle before pushing a card\",\"module\":"));
-  reply.print(module);
-  reply.println(F("}"));
+void lowerPaddleForPush(int module) {
+  if (paddleOpenedAt[module - 1] == 0) {
+    setServoPosition(getChannel(module, 1), moduleConfig[module - 1].paddleOpen);
+  }
+  unsigned long elapsed = millis() - paddleOpenedAt[module - 1];
+  if (elapsed < DELAY_PADDLE) waitMs(DELAY_PADDLE - elapsed);
 }
 
 // SG90s keep hunting around a held position and pick up supply noise as
@@ -824,7 +814,6 @@ void pushCard(int module, bool pushLeft, int holdMs, int paddleCloseDelayMs,
   ModuleConfig& c = moduleConfig[module - 1];
   setServoPosition(getChannel(module, 1), c.paddleOpen);
   waitMs(DELAY_PADDLE);
-  while (!pushAllowed(module)) waitMs(5);
   setServoPosition(getChannel(module, 2), pushLeft ? c.pusherLeft : c.pusherRight);
   unsigned long pusherFiredAt = millis();
   waitMs(holdMs);
@@ -1070,10 +1059,6 @@ void runCommand(char* json, Print& reply) {
         return;
       }
     }
-    if (offset == 2 && isPusherPush(module, pulse) && !pushAllowed(module)) {
-      printPushBlocked(module, reply);
-      return;
-    }
     setServoPosition(getChannel(module, offset), pulse);
     waitMs(200);
 
@@ -1098,12 +1083,6 @@ void runCommand(char* json, Print& reply) {
       return;
     }
     int value = doc["value"].as<int>();
-    int channelModule = moduleForChannel(channel);
-    if (channelModule && servoSlotForChannel(channel) == 2 &&
-        isPusherPush(channelModule, value) && !pushAllowed(channelModule)) {
-      printPushBlocked(channelModule, reply);
-      return;
-    }
     setServoPosition(channel, value);
     reply.print(F("{\"status\":\"ok\",\"channel\":"));
     reply.print(channel);

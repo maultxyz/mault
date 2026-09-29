@@ -58,6 +58,7 @@ export interface BinConfig {
   isCatchAll?: boolean;
   isOverride?: boolean;
   cardLimit?: number | null;
+  maxCopies?: number | null;
   lastEmptiedAt?: number | null;
 }
 

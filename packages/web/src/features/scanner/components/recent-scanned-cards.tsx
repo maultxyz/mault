@@ -2,10 +2,11 @@ import { RECENT_SCANNED_CARDS_COUNT as RECENT_COUNT } from "@/lib/constants/limi
 import type { ScannedCard } from "@magic-vault/shared";
 import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { formatUsd } from "@/lib/format";
+import { usePriceSource } from "@/hooks/use-price-source";
 
 function RecentCardRow({ card, binNumber, isFoil }: ScannedCard) {
-  const displayPrice = (isFoil ? card.priceFoil : card.price) ?? card.price;
+  const { priceOf, format } = usePriceSource();
+  const displayPrice = priceOf(card, isFoil);
   return (
     <div className="flex items-center gap-2">
       <div className="relative shrink-0 rounded-md overflow-hidden border bg-muted w-9 aspect-[2.5/3.5]">
@@ -29,7 +30,7 @@ function RecentCardRow({ card, binNumber, isFoil }: ScannedCard) {
         <p className="text-xs font-medium truncate">{card.name}</p>
         {displayPrice != null && (
           <p className="text-xs text-muted-foreground">
-            {formatUsd(displayPrice)}
+            {format(displayPrice)}
           </p>
         )}
       </div>

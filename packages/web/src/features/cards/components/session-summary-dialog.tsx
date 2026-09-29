@@ -29,7 +29,8 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
-import { formatElapsed, formatUsd } from "@/lib/format";
+import { usePriceSource } from "@/hooks/use-price-source";
+import { formatElapsed } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { ScannedCard } from "@magic-vault/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
@@ -253,6 +254,7 @@ function WrappedSlideContent({
   collectionName: string;
 }) {
   const { t } = useTranslation("cards");
+  const { format } = usePriceSource();
   const iconClass = "size-7 text-white";
   // Hoisted above the switch: hooks can't be called conditionally, so this
   // single call covers every slide type that needs a count-up number.
@@ -397,7 +399,7 @@ function WrappedSlideContent({
             {slide.name}
           </h2>
           <p className="text-2xl font-semibold tabular-nums">
-            {formatUsd(slide.price)}
+            {format(slide.price)}
           </p>
         </SlideBody>
       );
@@ -413,10 +415,10 @@ function WrappedSlideContent({
             {t("sessionWrapped.value.eyebrow")}
           </p>
           <p className="text-6xl font-heading font-bold tabular-nums">
-            {formatUsd(value)}
+            {format(value)}
           </p>
           <p className="text-white/70">
-            {t("sessionWrapped.value.avgLabel")} {formatUsd(slide.avgValue)}
+            {t("sessionWrapped.value.avgLabel")} {format(slide.avgValue)}
           </p>
         </SlideBody>
       );
@@ -496,6 +498,7 @@ export function SessionSummaryDialog({
   gridFilterCount,
 }: SessionSummaryDialogProps) {
   const { t } = useTranslation("cards");
+  const { source: priceSource, format } = usePriceSource();
   const [includeDownloaded, setIncludeDownloaded] = useState(false);
   const [applyGridFilters, setApplyGridFilters] = useState(false);
   const [combineDuplicates, setCombineDuplicates] = useState(true);
@@ -520,7 +523,10 @@ export function SessionSummaryDialog({
       ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
       : byDownloaded;
   }, [cards, includeDownloaded, applyGridFilters, gridFilters]);
-  const stats = useMemo(() => computeStats(cards), [cards]);
+  const stats = useMemo(
+    () => computeStats(cards, priceSource),
+    [cards, priceSource],
+  );
   const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
   const { fieldDefinitions } = useBinConfigs();
   const { activeOrg } = useOrg();
@@ -606,8 +612,8 @@ export function SessionSummaryDialog({
   ];
   if (stats?.hasPricing) {
     summaryCells.push(
-      { label: t("sessionSummaryDialog.totalValue"), value: formatUsd(stats.totalValue) },
-      { label: t("sessionSummaryDialog.avgValue"), value: formatUsd(stats.avgValue) },
+      { label: t("sessionSummaryDialog.totalValue"), value: format(stats.totalValue) },
+      { label: t("sessionSummaryDialog.avgValue"), value: format(stats.avgValue) },
     );
   }
   summaryCells.push(
@@ -655,7 +661,7 @@ export function SessionSummaryDialog({
                 {stats.mostValuable.name}
               </p>
               <p className="text-xs text-muted-foreground shrink-0">
-                {formatUsd(stats.mostValuable.price)}
+                {format(stats.mostValuable.price)}
               </p>
             </div>
           </div>

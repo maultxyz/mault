@@ -8,6 +8,7 @@ import {
   UNIDENTIFIED_SORTER_LEASE_KEY,
 } from "../../lib/device-leases";
 import { acquireLock } from "../../lib/scan-lock";
+import { recordMatchedScan } from "../../lib/scan-stats";
 import {
   sorterLimitForPlan,
   sorterLimitMessage,
@@ -41,6 +42,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       isFoil,
       foilType,
       alternativeMatches,
+      vectorizedOn,
       deviceGuid,
     } = await c.req.json<ScannedCard & { deviceGuid?: string }>();
 
@@ -219,6 +221,13 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         };
       });
       if (result.success) {
+        void recordMatchedScan(
+          scanId,
+          card as PlayingCardWithDistance,
+          !!alternativeMatches?.length,
+          scannedAt,
+          vectorizedOn,
+        );
         emitToSession(guid, "card_added", result.data);
         emitToOrg(orgId, "collections_changed", { guid });
 

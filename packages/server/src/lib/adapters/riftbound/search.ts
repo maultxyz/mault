@@ -156,4 +156,8 @@ export const riftboundAdapter: CardSearchAdapter = {
     categoryId: 89,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
   },
+  cardmarket: {
+    gameId: 22,
+    productNames: (card) => [card.name, card.name.replace(/\s*\([^)]*\)$/, "")],
+  },
 };

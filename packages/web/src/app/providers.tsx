@@ -10,6 +10,7 @@ import {
 import { DocumentTitleUpdater } from "@/features/scanner/components/document-title-updater";
 import { StationScope } from "@/features/scanner/components/station-scope";
 import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
+import { OrgPriceSourceProvider } from "@/hooks/use-price-source";
 import { AppStreamProvider } from "@/lib/app-stream";
 import { THEME_COLORS } from "@/lib/constants/colors";
 import { applyPrimaryColor, resetPrimaryColor } from "@/lib/primary-color";
@@ -60,21 +61,23 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <OrgThemeApplier />
-      <AppStreamProvider>
-        <StationsProvider>
-          <InitialLoadProvider>
-            <StationScopes>
-              <OnboardingProvider>
-                <AppAlertsProvider>
-                  <AppLoadingGate>{children}</AppLoadingGate>
-                </AppAlertsProvider>
-                <OrgPickerModal />
-                <DocumentTitleUpdater />
-              </OnboardingProvider>
-            </StationScopes>
-          </InitialLoadProvider>
-        </StationsProvider>
-      </AppStreamProvider>
+      <OrgPriceSourceProvider>
+        <AppStreamProvider>
+          <StationsProvider>
+            <InitialLoadProvider>
+              <StationScopes>
+                <OnboardingProvider>
+                  <AppAlertsProvider>
+                    <AppLoadingGate>{children}</AppLoadingGate>
+                  </AppAlertsProvider>
+                  <OrgPickerModal />
+                  <DocumentTitleUpdater />
+                </OnboardingProvider>
+              </StationScopes>
+            </InitialLoadProvider>
+          </StationsProvider>
+        </AppStreamProvider>
+      </OrgPriceSourceProvider>
     </QueryClientProvider>
   );
 }

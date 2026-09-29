@@ -5,12 +5,15 @@ import {
   type PlayingCard,
   type PlayingCardWithDistance,
   type ScannedCard,
+  type ScanVectorizeSource,
   type UnmatchedCard,
+  countCopiesInBin,
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateRepackBin,
   getCardsInBin,
   getCatchAllBin,
+  hasMaxCopiesBins,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
@@ -130,12 +133,15 @@ export function ScannedCardsProvider({
     const pending = pendingBinCardsRef.current.get(binNumber) ?? 0;
     return level.count + pending >= level.capacity;
   }, []);
-  const trackPendingBinCard = useCallback((binNumber: number, delta: number) => {
-    const pending = pendingBinCardsRef.current;
-    const next = (pending.get(binNumber) ?? 0) + delta;
-    if (next > 0) pending.set(binNumber, next);
-    else pending.delete(binNumber);
-  }, []);
+  const trackPendingBinCard = useCallback(
+    (binNumber: number, delta: number) => {
+      const pending = pendingBinCardsRef.current;
+      const next = (pending.get(binNumber) ?? 0) + delta;
+      if (next > 0) pending.set(binNumber, next);
+      else pending.delete(binNumber);
+    },
+    [],
+  );
 
   const binConfigsRef = useRef(binConfigs);
   const binRoutesRef = useRef(binRoutes);
@@ -229,16 +235,25 @@ export function ScannedCardsProvider({
           binConfigsRef.current,
           fieldDefinitionsRef.current,
           set,
-          (bin) =>
-            getCardsInBin(binContentsRef.current, bin),
+          (bin) => getCardsInBin(binContentsRef.current, bin),
         );
       }
       return evaluateCardBin(
         card,
         binConfigsRef.current,
         fieldDefinitionsRef.current,
+        autoAssignFieldRef.current
+          ? undefined
+          : (bin) => countCopiesInBin(binContentsRef.current, bin, card.id),
       );
     },
+    [],
+  );
+
+  const tracksBinContents = useCallback(
+    () =>
+      !!selectedSetRef.current?.isRepackMode ||
+      hasMaxCopiesBins(binConfigsRef.current),
     [],
   );
 
@@ -302,8 +317,9 @@ export function ScannedCardsProvider({
     };
   }, [activeCollection?.guid]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const isRepackMode = !!selectedSet?.isRepackMode;
-  const repackBinWindowsKey = JSON.stringify(
+  const needsBinContents =
+    !!selectedSet?.isRepackMode || hasMaxCopiesBins(binConfigs);
+  const binContentsWindowsKey = JSON.stringify(
     binConfigs
       .filter((bin) => !bin.isCatchAll)
       .map((bin) => ({
@@ -315,10 +331,10 @@ export function ScannedCardsProvider({
   useEffect(() => {
     binContentsRef.current = [];
     const guid = activeCollection?.guid;
-    if (!guid || !isRepackMode) return;
+    if (!guid || !needsBinContents) return;
 
     let cancelled = false;
-    loadBinContents(guid, JSON.parse(repackBinWindowsKey))
+    loadBinContents(guid, JSON.parse(binContentsWindowsKey))
       .then((contents) => {
         if (!cancelled) binContentsRef.current = contents;
       })
@@ -328,13 +344,14 @@ export function ScannedCardsProvider({
     return () => {
       cancelled = true;
     };
-  }, [activeCollection?.guid, isRepackMode, repackBinWindowsKey]);
+  }, [activeCollection?.guid, needsBinContents, binContentsWindowsKey]);
 
   const addCard = useCallback(
     (
       card: PlayingCardWithDistance,
       capturedImageUrl?: string,
       alternativeMatches?: PlayingCardWithDistance[],
+      vectorizedOn?: ScanVectorizeSource,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -388,11 +405,12 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forceFoilTypeRef.current != null || undefined,
         foilType: forceFoilTypeRef.current ?? undefined,
+        vectorizedOn,
       };
 
       recordSupportPromptScan();
 
-      if (record.binNumber != null && selectedSetRef.current?.isRepackMode) {
+      if (record.binNumber != null && tracksBinContents()) {
         binContentsRef.current = [
           {
             scanId: record.scanId,
@@ -497,6 +515,7 @@ export function ScannedCardsProvider({
       queryClient,
       resolveRoute,
       resolveMatchedBin,
+      tracksBinContents,
       isAutoFeedEnabled,
       isPipelinedFeedEnabled,
       pause,
@@ -550,7 +569,7 @@ export function ScannedCardsProvider({
   ]);
 
   const addUnmatchedCard = useCallback(
-    (capturedImageUrl?: string) => {
+    (capturedImageUrl?: string, vectorizedOn?: ScanVectorizeSource) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
         sendCatchAllBin();
@@ -568,6 +587,7 @@ export function ScannedCardsProvider({
         capturedImageUrl,
         scannedAt: Date.now(),
         binNumber: catchAll?.binNumber,
+        vectorizedOn,
       };
       const dropRecord = () =>
         setUnmatchedCards((prev) =>

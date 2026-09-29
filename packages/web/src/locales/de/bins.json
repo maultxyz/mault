@@ -7,6 +7,7 @@
   },
   "binCard": {
     "override": "Vorrang",
+    "maxCopies": "Max. {{count}}×",
     "ruleCount_one": "{{count}} Regel",
     "ruleCount_other": "{{count}} Regeln",
     "allUnmatched": "Alle nicht zugeordneten Karten",
@@ -17,6 +18,9 @@
   },
   "binConfigPanel": {
     "overrideLabel": "Vorrangige Regeln",
+    "maxCopiesLabel": "Kopien pro Druck begrenzen",
+    "maxCopiesDescription": "Sobald dieses Fach (seit dem letzten Leeren) so viele Kopien desselben Drucks enthält, überspringen weitere Kopien es und gehen in das nächste Fach, dessen Regeln zutreffen, oder in das Sammelfach.",
+    "maxCopiesSuffix": "Kopien je Druck",
     "overrideDescription": "Wenn diese Regeln zutreffen, hat dieses Fach Vorrang vor normalen Fächern. Treffen mehrere vorrangige Fächer zu, gewinnt die niedrigste Fachnummer. Verwende hier zum Beispiel Preis ≥ 1, um Karten ab 1 $ vor den Farbfächern in dieses Fach zu sortieren.",
     "needCatchAllError": "Mindestens ein Fach muss als Auffangfach festgelegt sein.",
     "catchAllEnabled": "Auffangfach aktiviert",

@@ -1,4 +1,4 @@
-import { formatUsd } from "@/lib/format";
+import { usePriceSource } from "@/hooks/use-price-source";
 import type { ScanStats } from "@/features/scanner/lib/compute-stats";
 import { useTranslation } from "react-i18next";
 
@@ -31,6 +31,7 @@ export function SessionStatsPanel({
   totalCards,
 }: SessionStatsPanelProps) {
   const { t } = useTranslation("scanner");
+  const { format } = usePriceSource();
   return (
     <>
       <div className="rounded-lg border bg-input/20 dark:bg-input/30">
@@ -49,7 +50,7 @@ export function SessionStatsPanel({
           {stats?.hasPricing && (
             <StatCell
               label={t("sessionStatsPanel.value")}
-              value={formatUsd(stats.totalValue)}
+              value={format(stats.totalValue)}
             />
           )}
         </div>
@@ -62,7 +63,7 @@ export function SessionStatsPanel({
               {stats.mostValuable.name}
             </p>
             <p className="text-xs text-muted-foreground">
-              {formatUsd(stats.mostValuable.price)}
+              {format(stats.mostValuable.price)}
             </p>
           </div>
         )}

@@ -63,6 +63,7 @@ export interface BinConfigsContextValue {
     isCatchAll?: boolean,
     cardLimit?: number | null,
     isOverride?: boolean,
+    maxCopies?: number | null,
   ) => void;
   emptyBin: (binNumber: number) => Promise<void>;
   activateSet: (guid: string) => Promise<void>;

@@ -12,6 +12,7 @@ import type {
   ScanRegion,
   ScannedCard,
   ScannerStatus,
+  ScanVectorizeSource,
   UnmatchedCard,
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
@@ -85,8 +86,12 @@ export interface ScannedCardsContextValue {
     card: PlayingCardWithDistance,
     capturedImageUrl?: string,
     alternativeMatches?: PlayingCardWithDistance[],
+    vectorizedOn?: ScanVectorizeSource,
   ) => void;
-  addUnmatchedCard: (capturedImageUrl?: string) => void;
+  addUnmatchedCard: (
+    capturedImageUrl?: string,
+    vectorizedOn?: ScanVectorizeSource,
+  ) => void;
   removeUnmatchedCard: (scanId: string) => void;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;

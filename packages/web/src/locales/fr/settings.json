@@ -19,6 +19,14 @@
     "scannerLayoutVerticalDescription": "Scanner en haut, grille de cartes en dessous",
     "language": "Langue"
   },
+  "pricing": {
+    "heading": "Prix",
+    "description": "Choisis les prix de quelle place de marché ton organisation utilise pour les cartes, la valeur des collections et les messages Discord.",
+    "sources": {
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket"
+    }
+  },
   "sessionWrapped": {
     "heading": "Récap de session",
     "description": "Affiche un récap façon Wrapped des temps forts avant le résumé d'export.",

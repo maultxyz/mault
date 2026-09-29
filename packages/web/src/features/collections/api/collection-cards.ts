@@ -33,7 +33,9 @@ async function unwrap<T>(request: Promise<Result<T>>): Promise<T> {
 }
 
 export const collectionCardsKeys = {
-  all: (guid: string | undefined) => ["collection-cards", guid] as const,
+  root: () => ["collection-cards"] as const,
+  all: (guid: string | undefined) =>
+    [...collectionCardsKeys.root(), guid] as const,
   page: (guid: string | undefined, query: CollectionCardsQuery, page: number) =>
     [...collectionCardsKeys.all(guid), "page", query, page] as const,
   summary: (guid: string | undefined, query: CollectionCardsQuery) =>

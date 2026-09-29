@@ -1,3 +1,4 @@
+import { isPriceSource, toPriceSource } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
@@ -15,7 +16,14 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       scannerLayout?: string | null;
       discordNotifyOnScan?: boolean;
       sessionWrappedEnabled?: boolean;
+      priceSource?: string;
     }>();
+    if ("priceSource" in body && !isPriceSource(body.priceSource)) {
+      return c.json(
+        { success: false, message: "Invalid price source." },
+        400,
+      );
+    }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const existing = await tx.query.orgSettings.findFirst({
@@ -39,6 +47,9 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             "sessionWrappedEnabled" in body
               ? (body.sessionWrappedEnabled ?? true)
               : (existing?.sessionWrappedEnabled ?? true),
+          priceSource: toPriceSource(
+            "priceSource" in body ? body.priceSource : existing?.priceSource,
+          ),
         };
         await tx
           .insert(orgSettings)
@@ -58,6 +69,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
               "horizontal",
             discordNotifyOnScan: merged.discordNotifyOnScan,
             sessionWrappedEnabled: merged.sessionWrappedEnabled,
+            priceSource: merged.priceSource,
             discordGuildId: existing?.discordGuildId ?? null,
           },
         };

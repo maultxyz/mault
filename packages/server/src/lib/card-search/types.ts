@@ -22,6 +22,12 @@ export interface TcgplayerPricing {
   productMatch?(card: PlayingCard): TcgplayerProductMatch | null;
 }
 
+export interface CardmarketPricing {
+  gameId: number;
+  productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
+  productNames?(card: PlayingCard): string[];
+}
+
 export interface CardSearchAdapter {
   defaultUrl: string;
   urlForLang?(lang: string): string;
@@ -33,6 +39,7 @@ export interface CardSearchAdapter {
   searchById(id: string, baseUrl: string): Promise<Result<PlayingCard>>;
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   tcgplayer?: TcgplayerPricing;
+  cardmarket?: CardmarketPricing;
 }
 
 export interface ResolvedCardSearch {

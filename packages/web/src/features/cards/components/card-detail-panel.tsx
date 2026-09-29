@@ -19,6 +19,7 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
+import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -90,6 +91,7 @@ export function CardDetailPanel({
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
   const [showOcrRegions, setShowOcrRegions] = useState(false);
+  const [viewerOpen, setViewerOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedSet, setSelectedSet] = useState<string | null>("all");
@@ -128,7 +130,7 @@ export function CardDetailPanel({
   }, [scanId, currentCard, alternativeMatches]);
 
   useEffect(() => {
-    if (editing) return;
+    if (editing || viewerOpen) return;
     const handler = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft" && hasPrev) onPrev?.();
       if (e.key === "ArrowRight" && hasNext) onNext?.();
@@ -136,7 +138,7 @@ export function CardDetailPanel({
     };
     document.addEventListener("keydown", handler);
     return () => document.removeEventListener("keydown", handler);
-  }, [editing, hasPrev, hasNext, onPrev, onNext, onClose]);
+  }, [editing, viewerOpen, hasPrev, hasNext, onPrev, onNext, onClose]);
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useQuery({
@@ -237,6 +239,15 @@ export function CardDetailPanel({
 
   return (
     <div className="flex h-full overflow-x-hidden">
+      {capturedImageUrl && (
+        <CardImageViewer
+          open={viewerOpen}
+          onOpenChange={setViewerOpen}
+          capturedImageUrl={capturedImageUrl}
+          showOcrRegions={showOcrRegions}
+          onShowOcrRegionsChange={setShowOcrRegions}
+        />
+      )}
       <div className="sticky top-0 p-2 shrink-0 flex flex-col gap-2">
         <Button
           size="icon"
@@ -368,9 +379,16 @@ export function CardDetailPanel({
                       <figcaption className="text-xs text-foreground/70">
                         {t("cardDetailPanel.capturedScan")}
                       </figcaption>
-                      <div className="w-56 aspect-square rounded-lg overflow-hidden border">
+                      <button
+                        type="button"
+                        onClick={() => setViewerOpen(true)}
+                        disabled={!capturedImageUrl}
+                        aria-label={t("cardDetailPanel.enlargeImage")}
+                        title={t("cardDetailPanel.enlargeImage")}
+                        className="w-56 aspect-square rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors"
+                      >
                         {capturedImage}
-                      </div>
+                      </button>
                     </figure>
                   )}
                   <figure className="flex flex-col gap-1.5">

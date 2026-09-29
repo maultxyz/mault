@@ -31,6 +31,7 @@ import {
   type PlayingCardWithDistance,
   type ScanRegion,
   type ScannerStatus,
+  type ScanVectorizeSource,
   type SearchCardMatch,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -175,6 +176,7 @@ async function searchCardImage(
   alternativeMatches: PlayingCardWithDistance[];
   debugImageUrl: string;
   detectedContour: CardContour | null;
+  vectorizedOn: ScanVectorizeSource;
 }> {
   let fallbackReason = "card not detected";
   try {
@@ -208,6 +210,7 @@ async function searchCardImage(
           debugImageUrl,
         )),
         detectedContour: detection.contour,
+        vectorizedOn: "web",
       };
     }
     fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
@@ -242,6 +245,7 @@ async function searchCardImage(
       debugImageUrl,
     )),
     detectedContour: null,
+    vectorizedOn: "server",
   };
 }
 
@@ -376,6 +380,7 @@ export function useCardScanner({
     useState<PlayingCardWithDistance | null>(null);
   const [debugImageUrl, setDebugImageUrl] = useState<string | null>(null);
   const debugImageUrlRef = useRef<string | null>(null);
+  const vectorizedOnRef = useRef<ScanVectorizeSource | undefined>(undefined);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
   // Games without a tuned OCR region (see OCR_REGIONS_BY_GAME_KEY) can't
   // usefully run OCR at all - keep the toggle off and disabled for them
@@ -460,8 +465,13 @@ export function useCardScanner({
       }
 
       try {
-        const { card, alternativeMatches, debugImageUrl, detectedContour } =
-          await searchCardImageWithConsensus(
+        const {
+          card,
+          alternativeMatches,
+          debugImageUrl,
+          detectedContour,
+          vectorizedOn,
+        } = await searchCardImageWithConsensus(
             canvas,
             fromLiveVideo ? drawLatestVideoFrame : () => {},
             contour,
@@ -472,6 +482,7 @@ export function useCardScanner({
           );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
+        vectorizedOnRef.current = vectorizedOn;
 
         const overlayCtx = overlayCanvasRef.current?.getContext("2d");
         if (overlayCtx && canvas.width && canvas.height) {
@@ -499,12 +510,13 @@ export function useCardScanner({
             onSearchResultsRef.current?.(
               [card, ...alternativeMatches],
               debugImageUrl,
+              vectorizedOn,
             );
             if (!pausedMidSearch) updateStatus("scanning");
           }
         } else {
           playDingSound();
-          onNoMatchRef.current?.(debugImageUrl);
+          onNoMatchRef.current?.(debugImageUrl, vectorizedOn);
           if (!pausedMidSearch) updateStatus("no-match");
         }
       } catch (err) {
@@ -655,6 +667,7 @@ export function useCardScanner({
       onSearchResultsRef.current?.(
         [duplicateCard],
         debugImageUrlRef.current ?? undefined,
+        vectorizedOnRef.current,
       );
       setDuplicateCard(null);
       updateStatus("scanning");

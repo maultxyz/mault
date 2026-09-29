@@ -18,6 +18,10 @@
   },
   "priceTable": {
     "heading": "TCGplayer",
+    "cardmarketHeading": "Cardmarket",
+    "from": "À partir de",
+    "trend": "Tendance",
+    "avg30": "Moy. 30 jours",
     "low": "Bas",
     "mid": "Moyen",
     "high": "Haut",
@@ -33,6 +37,7 @@
     "cardDetailsFallback": "Détails de la carte",
     "capturedScan": "Scan capturé",
     "matchedCard": "Carte correspondante",
+    "enlargeImage": "Cliquer pour agrandir",
     "similarMatches": "Correspondances similaires",
     "refetchCardData": "Actualiser les données",
     "refetchCardDataTitle": "Récupérer à nouveau les données de cette carte depuis la source et mettre à jour l'enregistrement",

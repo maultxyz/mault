@@ -339,4 +339,12 @@ export const onePieceAdapter: CardSearchAdapter = {
       };
     },
   },
+  cardmarket: {
+    gameId: 18,
+    productNames: (card) => {
+      const raw = card.raw as OptcgCard;
+      const printedId = onePiecePrintedId(raw.card_image_id || raw.card_set_id);
+      return [`${raw.card_name} (${printedId})`];
+    },
+  },
 };
