@@ -29,6 +29,9 @@ export interface PokemonPricing {
     holofoil?: PokemonTcgplayerVariant;
     "reverse-holofoil"?: PokemonTcgplayerVariant;
   };
+  cardmarket?: {
+    idProduct?: number;
+  };
 }
 
 export interface PokemonCardDetail extends PokemonCardBrief {

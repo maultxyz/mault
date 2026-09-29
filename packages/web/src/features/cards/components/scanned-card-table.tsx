@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/tooltip";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
-import { formatUsd } from "@/lib/format";
+import { usePriceSource } from "@/hooks/use-price-source";
 import type { ScannedCardTableProps } from "@/lib/interfaces/cards";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import {
@@ -35,6 +35,7 @@ export function ScannedCardTable({
   onTogglePageSelect,
 }: ScannedCardTableProps) {
   const { t } = useTranslation("cards");
+  const { priceOf, format } = usePriceSource();
   const selectable = !!onToggleSelect;
   const selectedCount = rows.filter((row) => row.isSelected).length;
   const allSelected = rows.length > 0 && selectedCount === rows.length;
@@ -85,8 +86,7 @@ export function ScannedCardTable({
           const { card } = row;
           const matchPercent =
             card.distance != null ? getMatchPercent(card) : 0;
-          const displayPrice =
-            (row.isFoil ? card.priceFoil : card.price) ?? card.price;
+          const displayPrice = priceOf(card, row.isFoil);
           const rarityLabel =
             RARITY_LABELS[card.rarity] ??
             card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1);
@@ -240,7 +240,7 @@ export function ScannedCardTable({
                 )}
               </TableCell>
               <TableCell className="text-right text-xs font-medium tabular-nums">
-                {displayPrice != null ? formatUsd(displayPrice) : "-"}
+                {displayPrice != null ? format(displayPrice) : "-"}
               </TableCell>
             </TableRow>
           );

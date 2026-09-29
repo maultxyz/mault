@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "price_source" text DEFAULT 'tcgplayer' NOT NULL;

@@ -1,7 +1,7 @@
 import type { PlayingCard } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { db } from "../db";
-import { applyTcgplayerPrices } from "./card-search/tcgplayer-prices";
+import { applyCardPrices } from "./card-search/card-prices";
 import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
 import {
   COLLECTION_CARD_PRICE_KEYS,
@@ -25,7 +25,7 @@ export async function refreshCollectionCardPrices({
 }: PriceRefreshOptions): Promise<number> {
   let totalUpdated = 0;
   for (const [gameKey, adapter] of Object.entries(ADAPTERS_BY_GAME_KEY)) {
-    if (!adapter.tcgplayer) continue;
+    if (!adapter.tcgplayer && !adapter.cardmarket) continue;
     const gameCollections = sql`(
       SELECT c.id FROM collections c JOIN games g ON g.id = c.game_id
       WHERE g.key = ${gameKey}
@@ -45,7 +45,7 @@ export async function refreshCollectionCardPrices({
       if (rows.length === 0) break;
       lastCardId = rows[rows.length - 1].card_id;
 
-      const priced = await applyTcgplayerPrices(
+      const priced = await applyCardPrices(
         adapter,
         rows.map((row) => row.card),
       );

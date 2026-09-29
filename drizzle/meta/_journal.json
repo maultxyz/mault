@@ -414,6 +414,20 @@
       "when": 1790643649486,
       "tag": "0058_jazzy_xavin",
       "breakpoints": true
+    },
+    {
+      "idx": 59,
+      "version": "7",
+      "when": 1790693761849,
+      "tag": "0059_talented_thor_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 60,
+      "version": "7",
+      "when": 1790695292971,
+      "tag": "0060_daily_ma_gnuci",
+      "breakpoints": true
     }
   ]
 }

@@ -17,6 +17,10 @@
   },
   "priceTable": {
     "heading": "TCGplayer",
+    "cardmarketHeading": "Cardmarket",
+    "from": "Ab",
+    "trend": "Preistrend",
+    "avg30": "30-Tage-Schnitt",
     "low": "Niedrig",
     "mid": "Mittel",
     "high": "Hoch",

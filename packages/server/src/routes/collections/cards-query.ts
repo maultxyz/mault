@@ -1,12 +1,14 @@
 import {
   DEFAULT_CARD_SORT,
   EMPTY_CARD_FILTERS,
+  PRICE_SOURCE_FIELDS,
   type BinWindow,
   type CardFilters,
   type CardStatsAggregate,
   type CollectionCardsQuery,
   type FieldMeta,
   type GroupedScannedCard,
+  type PriceSource,
 } from "@magic-vault/shared";
 import { and, eq, sql, type SQL } from "drizzle-orm";
 import { z } from "zod";
@@ -123,7 +125,10 @@ const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' E
 
 const DUPLICATE_KEY = sql`(COALESCE(cc.card ->> 'id', '') || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, ''))`;
 
-const CARD_PRICE = sql`COALESCE(CASE WHEN cc.is_foil THEN ${jsonNumber("priceFoil")} END, ${jsonNumber("price")}, 0)`;
+function cardPriceSql(source: PriceSource): SQL {
+  const fields = PRICE_SOURCE_FIELDS[source];
+  return sql`COALESCE(CASE WHEN cc.is_foil THEN ${jsonNumber(fields.priceFoil)} END, ${jsonNumber(fields.price)}, 0)`;
+}
 
 const SCANNED_AT_MS = sql`(extract(epoch from cc.scanned_at) * 1000)::float8`;
 
@@ -433,10 +438,11 @@ export async function loadCardStats(
   tx: Transaction,
   collectionId: number,
   filter: SQL,
+  priceSource: PriceSource,
 ): Promise<CardStatsAggregate> {
   const result = await tx.execute(sql`
     WITH f AS (
-      SELECT cc.card, cc.is_foil, cc.foil_type, cc.scanned_at, ${CARD_PRICE} AS price
+      SELECT cc.card, cc.is_foil, cc.foil_type, cc.scanned_at, ${cardPriceSql(priceSource)} AS price
       FROM collection_cards cc
       WHERE cc.collection_id = ${collectionId} AND ${filter}
     )

@@ -1,7 +1,9 @@
+import { formatPrice, PRICE_SOURCE_FIELDS } from "@magic-vault/shared";
 import { count, eq, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { collectionCards, collections } from "../../db/schema";
+import { loadOrgPriceSource } from "../../lib/price-source";
 import type { AppEnv } from "../../middleware/auth";
 import { resolveOrgByGuild, resolveOrgCollection } from "./shared";
 
@@ -23,6 +25,8 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
     return c.json({ success: false, message: "collection_not_found" }, 404);
   }
 
+  const priceSource = await loadOrgPriceSource(db, orgId);
+  const priceKey = PRICE_SOURCE_FIELDS[priceSource].price;
   const scopeCondition = collection
     ? eq(collections.id, collection.id)
     : eq(collections.orgId, orgId);
@@ -33,18 +37,20 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
       cardCount: count(collectionCards.id),
       totalValue: sql<
         string | null
-      >`sum((${collectionCards.card}->>'price')::numeric)`,
+      >`sum((${collectionCards.card}->>${priceKey}::text)::numeric)`,
     })
     .from(collections)
     .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
     .where(scopeCondition);
 
+  const totalValue = row?.totalValue ? Number(row.totalValue) : 0;
   return c.json({
     success: true,
     data: {
       collectionCount: Number(row?.collectionCount ?? 0),
       cardCount: Number(row?.cardCount ?? 0),
-      totalValue: row?.totalValue ? Number(row.totalValue) : 0,
+      totalValue,
+      totalValueDisplay: formatPrice(totalValue, priceSource),
       collectionName: collection?.name,
     },
   });

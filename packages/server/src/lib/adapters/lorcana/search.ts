@@ -128,7 +128,11 @@ export interface LorcanaDeCard {
   abilities?: LorcanaDeAbility[];
   fullText?: string;
   flavorText?: string;
-  externalLinks?: { cardmarketUrl?: string; tcgPlayerUrl?: string };
+  externalLinks?: {
+    cardmarketId?: number;
+    cardmarketUrl?: string;
+    tcgPlayerUrl?: string;
+  };
 }
 
 function tcgplayerIdFromUrl(url: string | undefined): string | undefined {
@@ -304,5 +308,11 @@ export const lorcanaAdapter: CardSearchAdapter = {
       price: ["Normal"],
       priceFoil: ["Holofoil", "Cold Foil"],
     }),
+  },
+  cardmarket: {
+    gameId: 19,
+    productIdFromRaw: (card) =>
+      (card.raw as LorcanaDeCard).externalLinks?.cardmarketId,
+    productNames: (card) => [card.name],
   },
 };

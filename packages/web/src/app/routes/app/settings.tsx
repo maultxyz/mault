@@ -1,4 +1,5 @@
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { PriceSourceToggle } from "@/components/price-source-toggle";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
 import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
@@ -110,6 +111,17 @@ export default function SettingsPage() {
             <p className="text-sm font-medium">{t("appearance.language")}</p>
             <LanguageSwitcher />
           </div>
+        </div>
+        <div className="rounded-lg border p-4 flex flex-col gap-4">
+          <div>
+            <h2 className="text-sm font-semibold font-heading">
+              {t("pricing.heading")}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {t("pricing.description")}
+            </p>
+          </div>
+          <PriceSourceToggle />
         </div>
         <div className="rounded-lg border p-4 flex flex-col gap-4">
           <div>

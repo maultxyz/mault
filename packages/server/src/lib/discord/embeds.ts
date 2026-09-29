@@ -1,4 +1,10 @@
-import type { PlayingCard } from "@magic-vault/shared";
+import {
+  DEFAULT_PRICE_SOURCE,
+  formatPrice,
+  PRICE_SOURCE_FIELDS,
+  type PlayingCard,
+  type PriceSource,
+} from "@magic-vault/shared";
 import { getWebUrl } from "../constants/urls";
 import type { DiscordEmbed } from "./types";
 
@@ -26,6 +32,7 @@ export interface CardScannedEmbedOptions {
   gameName?: string;
   collectionGuid?: string;
   capturedImageDataUrl?: string;
+  priceSource?: PriceSource;
 }
 
 export interface CardScannedEmbedResult {
@@ -44,14 +51,18 @@ export function buildCardScannedEmbed(
     gameName,
     collectionGuid,
     capturedImageDataUrl,
+    priceSource = DEFAULT_PRICE_SOURCE,
   } = options;
 
+  const fields = PRICE_SOURCE_FIELDS[priceSource];
+  const price = card[fields.price];
+  const priceFoil = card[fields.priceFoil];
   const lines = [];
-  if (card.price != null) {
-    lines.push(`**Price:** $${card.price.toFixed(2)} USD`);
+  if (price != null) {
+    lines.push(`**Price:** ${formatPrice(price, priceSource)}`);
   }
-  if (card.priceFoil != null) {
-    lines.push(`**Foil Price:** $${card.priceFoil.toFixed(2)} USD`);
+  if (priceFoil != null) {
+    lines.push(`**Foil Price:** ${formatPrice(priceFoil, priceSource)}`);
   }
   if (lines.length === 0) lines.push("**Price:** N/A");
   if (isFoil) lines.push(`**${foilType ?? "Foil"}**`);

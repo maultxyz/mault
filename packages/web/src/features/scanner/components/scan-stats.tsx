@@ -3,7 +3,8 @@ import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
-import { formatElapsed, formatUsd } from "@/lib/format";
+import { usePriceSource } from "@/hooks/use-price-source";
+import { formatElapsed } from "@/lib/format";
 import type { ScanStatsProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
@@ -20,6 +21,7 @@ export function ScanStats({
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
   const { displayStats: stats, totalCount } = useCollectionCardsSummary(query);
+  const { format } = usePriceSource();
 
   if (!stats) {
     return (
@@ -40,8 +42,8 @@ export function ScanStats({
   ];
   if (stats.hasPricing) {
     statCards.push(
-      { label: t("scanStats.totalValue"), value: formatUsd(stats.totalValue) },
-      { label: t("scanStats.avgValue"), value: formatUsd(stats.avgValue) },
+      { label: t("scanStats.totalValue"), value: format(stats.totalValue) },
+      { label: t("scanStats.avgValue"), value: format(stats.avgValue) },
     );
   }
   statCards.push(
@@ -100,7 +102,7 @@ export function ScanStats({
                   {stats.mostValuable.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {formatUsd(stats.mostValuable.price)}
+                  {format(stats.mostValuable.price)}
                 </p>
               </div>
             </div>
@@ -200,7 +202,7 @@ export function ScanStats({
                   <div className="flex items-center gap-2 shrink-0">
                     <span className="text-muted-foreground">{s.count}</span>
                     <span className="text-muted-foreground text-right">
-                      {formatUsd(s.value)}
+                      {format(s.value)}
                     </span>
                   </div>
                 </button>

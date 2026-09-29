@@ -178,4 +178,9 @@ export const pokemonAdapter: CardSearchAdapter = {
       priceFoil: ["Holofoil", "Reverse Holofoil"],
     }),
   },
+  cardmarket: {
+    gameId: 6,
+    productIdFromRaw: (card) =>
+      (card.raw as PokemonCardDetail).pricing?.cardmarket?.idProduct,
+  },
 };

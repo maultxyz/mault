@@ -1,4 +1,7 @@
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
+import {
+  toPriceSource,
+  type PlayingCardWithDistance,
+} from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { orgSettings } from "../../db/schema";
@@ -44,7 +47,7 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
   db.query.orgSettings
     .findFirst({
       where: eq(orgSettings.orgId, orgId),
-      columns: { discordNotifyOnScan: true },
+      columns: { discordNotifyOnScan: true, priceSource: true },
     })
     .then(async (row) => {
       if (!row?.discordNotifyOnScan) return;
@@ -74,6 +77,7 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
         gameName,
         collectionGuid,
         capturedImageDataUrl: capturedImageUrl,
+        priceSource: toPriceSource(row.priceSource),
       });
       void sendDiscordNotification(
         orgId,

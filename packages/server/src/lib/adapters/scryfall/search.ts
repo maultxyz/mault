@@ -46,6 +46,7 @@ interface ScryfallApiCard {
   scryfall_uri: string;
   prices: { usd: string | null; usd_foil: string | null };
   tcgplayer_id?: number;
+  cardmarket_id?: number;
 }
 
 function withPrintedFields(raw: ScryfallApiCard): ScryfallApiCard {
@@ -168,5 +169,9 @@ export const scryfallAdapter: CardSearchAdapter = {
     categoryId: 1,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
     productIdFromRaw: (card) => (card.raw as ScryfallApiCard).tcgplayer_id,
+  },
+  cardmarket: {
+    gameId: 1,
+    productIdFromRaw: (card) => (card.raw as ScryfallApiCard).cardmarket_id,
   },
 };

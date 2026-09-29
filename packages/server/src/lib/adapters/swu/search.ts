@@ -136,4 +136,8 @@ export const swuAdapter: CardSearchAdapter = {
     categoryId: 79,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
   },
+  cardmarket: {
+    gameId: 21,
+    productNames: (card) => [card.name],
+  },
 };

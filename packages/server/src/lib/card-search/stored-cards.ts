@@ -3,7 +3,7 @@ import { and, eq, ilike, isNotNull } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
-import { applyTcgplayerPrices } from "./tcgplayer-prices";
+import { applyCardPrices } from "./card-prices";
 import type { ResolvedCardSearch } from "./types";
 import { validateQuery } from "./validate";
 
@@ -25,7 +25,7 @@ async function findStoredCard(
     .limit(1);
   const card = row ? adapter.normalizeStored(row.data, cardId, lang) : null;
   if (!card) return null;
-  const [priced] = await applyTcgplayerPrices(adapter, [card]);
+  const [priced] = await applyCardPrices(adapter, [card]);
   return priced;
 }
 
@@ -51,7 +51,7 @@ async function searchStoredCards(
     const card = adapter.normalizeStored(row.data, row.cardId, lang);
     return card ? [card] : [];
   });
-  return applyTcgplayerPrices(adapter, cards);
+  return applyCardPrices(adapter, cards);
 }
 
 async function hasStoredCards({
@@ -86,7 +86,7 @@ export async function searchCardById(
   }
   const result = await resolved.adapter.searchById(id, resolved.baseUrl);
   if (!result.success || !result.data) return result;
-  const [priced] = await applyTcgplayerPrices(resolved.adapter, [result.data]);
+  const [priced] = await applyCardPrices(resolved.adapter, [result.data]);
   return { ...result, data: priced };
 }
 
@@ -104,7 +104,7 @@ export async function searchCards(
       resolved.lang,
     );
     if (!result.success || !result.data) return result;
-    const priced = await applyTcgplayerPrices(resolved.adapter, result.data);
+    const priced = await applyCardPrices(resolved.adapter, result.data);
     return { ...result, data: priced };
   }
 

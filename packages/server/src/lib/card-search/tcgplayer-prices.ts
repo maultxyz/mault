@@ -1,12 +1,7 @@
-import type {
-  PlayingCard,
-  PlayingCardPriceRange,
-  ScannedCard,
-} from "@magic-vault/shared";
+import type { PlayingCard, PlayingCardPriceRange } from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { tcgplayerPrices, tcgplayerProducts } from "../../db/schema";
-import { ADAPTERS_BY_GAME_KEY } from "./resolve";
 import type { CardSearchAdapter, TcgplayerPricing } from "./types";
 
 function productIdOf(
@@ -95,13 +90,6 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
   const pricing = adapter.tcgplayer;
   if (!pricing) return cards;
 
-  const priceable = cards.filter((card) => card.raw != null);
-  if (priceable.length < cards.length) {
-    const priced = await applyTcgplayerPrices(adapter, priceable);
-    let next = 0;
-    return cards.map((card) => (card.raw != null ? priced[next++] : card));
-  }
-
   const productIdsByCard = await resolveProductIds(pricing, cards);
   const productIds = [...new Set(productIdsByCard.flat())];
   if (productIds.length === 0) return cards;
@@ -153,17 +141,4 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       priceRangeFoil: rangeFoil ?? card.priceRangeFoil,
     };
   });
-}
-
-export async function applyTcgplayerPricesToScans<T extends ScannedCard>(
-  gameKey: string | null | undefined,
-  scans: T[],
-): Promise<T[]> {
-  const adapter = gameKey ? ADAPTERS_BY_GAME_KEY[gameKey] : undefined;
-  if (!adapter) return scans;
-  const cards = await applyTcgplayerPrices(
-    adapter,
-    scans.map((scan) => scan.card),
-  );
-  return scans.map((scan, i) => ({ ...scan, card: cards[i] }));
 }

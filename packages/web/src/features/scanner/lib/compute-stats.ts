@@ -1,7 +1,13 @@
 import { CARD_COLOR_SWATCHES } from "@/lib/constants/colors";
 import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
 import type { ScanStats } from "@/lib/interfaces/scanner";
-import type { CardStatsAggregate, ScannedCard } from "@magic-vault/shared";
+import {
+  cardPriceFor,
+  DEFAULT_PRICE_SOURCE,
+  type CardStatsAggregate,
+  type PriceSource,
+  type ScannedCard,
+} from "@magic-vault/shared";
 
 export type { ScanStats };
 
@@ -24,7 +30,10 @@ function sortRarities<T extends { key: string; count: number }>(
   });
 }
 
-export function aggregateCards(cards: ScannedCard[]): CardStatsAggregate {
+export function aggregateCards(
+  cards: ScannedCard[],
+  priceSource: PriceSource = DEFAULT_PRICE_SOURCE,
+): CardStatsAggregate {
   let totalValue = 0;
   let priceableCount = 0;
   const setMap = new Map<string, CardStatsAggregate["sets"][number]>();
@@ -36,7 +45,7 @@ export function aggregateCards(cards: ScannedCard[]): CardStatsAggregate {
 
   for (const entry of cards) {
     const c = entry.card;
-    const price = (entry.isFoil ? c.priceFoil : c.price) ?? c.price ?? 0;
+    const price = cardPriceFor(c, entry.isFoil, priceSource) ?? 0;
 
     uniqueCards.add(c.id);
 
@@ -129,8 +138,11 @@ export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
   };
 }
 
-export function computeStats(cards: ScannedCard[]): ScanStats | null {
-  return toScanStats(aggregateCards(cards));
+export function computeStats(
+  cards: ScannedCard[],
+  priceSource: PriceSource = DEFAULT_PRICE_SOURCE,
+): ScanStats | null {
+  return toScanStats(aggregateCards(cards, priceSource));
 }
 
 export function toDisplayStats(

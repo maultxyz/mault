@@ -17,6 +17,19 @@ export interface CardPriceDetailsProps {
   className?: string;
 }
 
+export interface PriceTableRow {
+  label: string;
+  values: (number | null)[];
+}
+
+export interface PriceTableProps {
+  heading: string;
+  columns: string[];
+  rows: PriceTableRow[];
+  printings: number;
+  format: (value: number) => string;
+}
+
 export type { CardFilters, GroupedScannedCard } from "@magic-vault/shared";
 
 export interface CardSelectDialogProps {

@@ -1,3 +1,4 @@
+import { toPriceSource } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -25,6 +26,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
               (row?.scannerLayout as "horizontal" | "vertical") ?? "horizontal",
             discordNotifyOnScan: row?.discordNotifyOnScan ?? false,
             sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
+            priceSource: toPriceSource(row?.priceSource),
             discordGuildId: row?.discordGuildId ?? null,
           },
         };

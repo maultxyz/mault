@@ -5,7 +5,8 @@ import {
 } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { applyTcgplayerPricesToScans } from "../../lib/card-search/tcgplayer-prices";
+import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
+import { loadOrgPriceSource } from "../../lib/price-source";
 import {
   cardFilterSql,
   findCardsCollection,
@@ -39,10 +40,7 @@ export async function readCardsPage(
     return { gameKey: collection.gameKey, data };
   });
   if (!result) return null;
-  const items = await applyTcgplayerPricesToScans(
-    result.gameKey,
-    result.data.items,
-  );
+  const items = await applyCardPricesToScans(result.gameKey, result.data.items);
   return {
     ...result.data,
     items,
@@ -61,11 +59,13 @@ export async function readCardsSummary(
   return run(async (tx) => {
     const collection = await findCardsCollection(tx, guid, orgId);
     if (!collection) return null;
-    const all = await loadCardStats(tx, collection.id, sql`TRUE`);
+    const priceSource = await loadOrgPriceSource(tx, orgId);
+    const all = await loadCardStats(tx, collection.id, sql`TRUE`, priceSource);
     const filtered = await loadCardStats(
       tx,
       collection.id,
       cardFilterSql(query),
+      priceSource,
     );
     return { all, filtered };
   });

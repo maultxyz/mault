@@ -6,4 +6,5 @@ export const HEALTH_CACHE_TTL_MS = 20_000;
 export const DISCORD_LINK_CODE_TTL_MS = 10 * 60 * 1000;
 export const FLESHCUBE_RETRY_DELAY_MS = 250;
 export const TCGCSV_REQUEST_DELAY_MS = 100;
+export const CARDMARKET_DOWNLOAD_TIMEOUT_MS = 5 * 60 * 1000;
 export const TCGPLAYER_PRODUCTS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;

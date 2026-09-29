@@ -2,7 +2,9 @@ import { Badge } from "@/components/ui/badge";
 import { verifyMonitorLink } from "@/features/collections/api/monitor-links";
 import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-session-monitor";
 import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
+import { PriceSourceProvider } from "@/hooks/use-price-source";
 import { WATCH_TOKEN_PARAM } from "@/lib/constants/nav";
+import { DEFAULT_PRICE_SOURCE } from "@magic-vault/shared";
 import { publicQueryClient } from "@/lib/query-client";
 import type { WatchLinkState } from "@/lib/interfaces/collections";
 import { IconLinkOff, IconLoader2 } from "@tabler/icons-react";
@@ -77,6 +79,7 @@ export default function WatchPage() {
 
   return (
     <QueryClientProvider client={publicQueryClient}>
+      <PriceSourceProvider value={link.info.priceSource ?? DEFAULT_PRICE_SOURCE}>
       <div className="flex h-dvh flex-col bg-background">
         <header className="flex items-center gap-2 border-b px-3 py-2">
           <p className="truncate text-sm font-semibold">
@@ -93,6 +96,7 @@ export default function WatchPage() {
           showBinLocation={false}
         />
       </div>
+      </PriceSourceProvider>
     </QueryClientProvider>
   );
 }

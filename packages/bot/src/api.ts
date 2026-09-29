@@ -63,6 +63,7 @@ export interface StatsResult {
   collectionCount: number;
   cardCount: number;
   totalValue: number;
+  totalValueDisplay?: string;
   collectionName?: string;
 }
 

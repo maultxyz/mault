@@ -196,4 +196,8 @@ export const yugiohAdapter: CardSearchAdapter = {
       };
     },
   },
+  cardmarket: {
+    gameId: 3,
+    productNames: (card) => [card.name],
+  },
 };

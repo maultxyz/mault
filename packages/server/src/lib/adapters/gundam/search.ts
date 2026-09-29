@@ -169,4 +169,11 @@ export const gundamAdapter: CardSearchAdapter = {
       };
     },
   },
+  cardmarket: {
+    gameId: 24,
+    productNames: (card) => {
+      const raw = card.raw as GundamCard;
+      return [`${raw.name} (${raw.card_number})`];
+    },
+  },
 };
