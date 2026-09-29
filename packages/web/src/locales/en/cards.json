@@ -3,6 +3,7 @@
     "remove": "Remove",
     "correctCard": "Correct Card",
     "scannedAlt": "Scanned",
+    "loadMore": "Load more",
     "selectCorrectVersion": "Your scanned card, select the correct version below",
     "multipleMatches": "Multiple close matches, select the correct version:",
     "regularPrice": "Regular: {{price}}",

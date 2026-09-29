@@ -10,14 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { searchCards } from "@/features/cards/api/card-search";
+import { useCardSearch } from "@/features/cards/api/use-card-search";
 import type { CardSelectDialogProps } from "@/lib/interfaces/cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
-  QUERY_MIN_LENGTH,
   type PlayingCard,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
@@ -30,7 +29,6 @@ import {
   IconSearch,
   IconTrash,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
@@ -57,7 +55,8 @@ export function CardSelectDialog({
 }: CardSelectDialogProps) {
   const { t } = useTranslation("cards");
   const resolvedTitle = title ?? t("cardSelectDialog.defaultTitle");
-  const resolvedDescription = description ?? t("cardSelectDialog.defaultDescription");
+  const resolvedDescription =
+    description ?? t("cardSelectDialog.defaultDescription");
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -103,23 +102,19 @@ export function CardSelectDialog({
     return () => document.removeEventListener("keydown", handler);
   }, [open, editing, hasPrev, hasNext, onPrev, onNext]);
 
-  const isQueryReady = debouncedQuery.trim().length >= QUERY_MIN_LENGTH;
-
-  const { data: results = [], isFetching: loading } = useQuery({
-    queryKey: ["scryfall", "search", debouncedQuery, activeCollection?.guid],
-    queryFn: () =>
-      searchCards(debouncedQuery, activeCollection?.guid).then(
-        (r) => r.data ?? [],
-      ),
-    enabled: isQueryReady,
-    staleTime: 60_000,
-  });
+  const { results, loading, hasMore, isLoadingMore, loadMore } = useCardSearch(
+    debouncedQuery,
+    activeCollection?.guid,
+  );
 
   const handleInputChange = (value: string) => {
     setQuery(value);
     setSelectedSet("all");
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setDebouncedQuery(value), SEARCH_DEBOUNCE_MS);
+    debounceRef.current = setTimeout(
+      () => setDebouncedQuery(value),
+      SEARCH_DEBOUNCE_MS,
+    );
   };
 
   const handleSelect = useCallback(
@@ -184,7 +179,8 @@ export function CardSelectDialog({
     candidates.find((c) => c.id === selectedId) ?? currentCard;
   const hasMultipleCandidates = candidates.length > 1;
 
-  const dialogTitle = selectedCard && !editing ? selectedCard.name : resolvedTitle;
+  const dialogTitle =
+    selectedCard && !editing ? selectedCard.name : resolvedTitle;
   const dialogDescription =
     selectedCard && !editing ? selectedCard.typeLine : resolvedDescription;
 
@@ -198,7 +194,10 @@ export function CardSelectDialog({
         description={dialogDescription}
         open={open}
         onOpenChange={handleOpenChange}
-        className="sm:max-w-lg max-h-[85vh] flex flex-col gap-2"
+        className={cn(
+          "sm:max-w-lg max-h-[85vh] flex flex-col gap-2",
+          (editing || !currentCard) && "sm:h-[85vh]",
+        )}
         footerClassName="flex-col-reverse"
         footer={
           currentCard && !editing ? (
@@ -322,7 +321,9 @@ export function CardSelectDialog({
                 <div className="flex flex-col gap-1.5 min-w-0 text-xs flex-1">
                   {selectedCard.manaCost && (
                     <p className="text-muted-foreground">
-                      {t("cardSelectDialog.manaCost", { cost: formatManaCost(selectedCard.manaCost) })}
+                      {t("cardSelectDialog.manaCost", {
+                        cost: formatManaCost(selectedCard.manaCost),
+                      })}
                     </p>
                   )}
                   {selectedCard.text && (
@@ -408,7 +409,7 @@ export function CardSelectDialog({
                 </Select>
               )}
             </div>
-            <ScrollArea className="flex-1 overflow-y-auto min-h-0 max-h-[50vh] border rounded-lg p-1 bg-sidebar">
+            <ScrollArea className="flex-1 overflow-y-auto min-h-0 max-h-[50vh] sm:max-h-none border rounded-lg p-1 bg-sidebar">
               {loading && (
                 <div className="flex items-center justify-center py-8">
                   <IconLoader2 className="size-5 animate-spin text-muted-foreground" />
@@ -429,7 +430,7 @@ export function CardSelectDialog({
                   </p>
                 )}
               {!loading && filteredResults.length > 0 && (
-                <div className="grid grid-cols-3 gap-1">
+                <div className="grid grid-cols-3 sm:grid-cols-4 gap-1">
                   {filteredResults.map((card) => (
                     <Button
                       key={card.id}
@@ -451,6 +452,19 @@ export function CardSelectDialog({
                       </div>
                     </Button>
                   ))}
+                </div>
+              )}
+              {!loading && hasMore && (
+                <div className="flex justify-center py-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={loadMore}
+                    disabled={isLoadingMore}
+                  >
+                    {isLoadingMore && <IconLoader2 className="animate-spin" />}
+                    {t("cardPicker.loadMore")}
+                  </Button>
                 </div>
               )}
             </ScrollArea>

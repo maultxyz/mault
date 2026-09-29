@@ -17,6 +17,14 @@ export interface CardPriceDetailsProps {
   className?: string;
 }
 
+export interface CardSearchState {
+  results: PlayingCard[];
+  loading: boolean;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  loadMore: () => void;
+}
+
 export interface CardImageViewerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

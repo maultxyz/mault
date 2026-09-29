@@ -3,6 +3,7 @@
     "remove": "Retirer",
     "correctCard": "Carte correcte",
     "scannedAlt": "Scannée",
+    "loadMore": "Charger plus",
     "selectCorrectVersion": "Ta carte scannée - sélectionne la bonne version ci-dessous",
     "multipleMatches": "Plusieurs correspondances proches - sélectionne la bonne version :",
     "regularPrice": "Normale : {{price}}",

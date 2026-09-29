@@ -16,7 +16,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { getCardById, searchCards } from "@/features/cards/api/card-search";
+import { getCardById } from "@/features/cards/api/card-search";
+import { useCardSearch } from "@/features/cards/api/use-card-search";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { DetailSection } from "@/features/cards/components/detail-section";
@@ -26,7 +27,6 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
-  QUERY_MIN_LENGTH,
   type PlayingCard,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
@@ -153,17 +153,10 @@ export function CardDetailPanel({
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
 
-  const isQueryReady = debouncedQuery.trim().length >= QUERY_MIN_LENGTH;
-
-  const { data: results = [], isFetching: loading } = useQuery({
-    queryKey: ["scryfall", "search", debouncedQuery, activeCollection?.guid],
-    queryFn: () =>
-      searchCards(debouncedQuery, activeCollection?.guid).then(
-        (r) => r.data ?? [],
-      ),
-    enabled: isQueryReady,
-    staleTime: 60_000,
-  });
+  const { results, loading, hasMore, isLoadingMore, loadMore } = useCardSearch(
+    debouncedQuery,
+    activeCollection?.guid,
+  );
 
   const handleInputChange = (value: string) => {
     setQuery(value);
@@ -594,7 +587,7 @@ export function CardDetailPanel({
                   </Select>
                 )}
               </div>
-              <ScrollArea className="flex-1 overflow-y-auto min-h-0 max-h-[50vh] border rounded-lg p-1 bg-sidebar">
+              <ScrollArea className="flex-1 overflow-y-auto min-h-48 border rounded-lg p-1 bg-sidebar">
                 {loading && (
                   <div className="flex items-center justify-center py-8">
                     <IconLoader2 className="size-5 animate-spin text-muted-foreground" />
@@ -615,7 +608,7 @@ export function CardDetailPanel({
                     </p>
                   )}
                 {!loading && filteredResults.length > 0 && (
-                  <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-1.5">
+                  <div className="grid grid-cols-4 @3xl:grid-cols-5 gap-1.5">
                     {filteredResults.map((card) => (
                       <Button
                         key={card.id}
@@ -637,6 +630,21 @@ export function CardDetailPanel({
                         </div>
                       </Button>
                     ))}
+                  </div>
+                )}
+                {!loading && hasMore && (
+                  <div className="flex justify-center py-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadMore}
+                      disabled={isLoadingMore}
+                    >
+                      {isLoadingMore && (
+                        <IconLoader2 className="animate-spin" />
+                      )}
+                      {t("cardPicker.loadMore")}
+                    </Button>
                   </div>
                 )}
               </ScrollArea>
