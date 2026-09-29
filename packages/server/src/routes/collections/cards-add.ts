@@ -12,12 +12,17 @@ import {
   sorterLimitForPlan,
   sorterLimitMessage,
 } from "../../lib/sorter-limit";
+import {
+  consumeDailyScan,
+  dailyScanLimitForPlan,
+  getScansToday,
+} from "../../lib/scan-usage";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { notifyCardScanned } from "./notify-card-scanned";
-import { isOverFreeScanLimit, loadOrgPlan } from "./scan-limit";
+import { loadOrgPlan } from "./scan-limit";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -95,17 +100,22 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           };
 
         const plan = await loadOrgPlan(tx, orgId);
-        if (await isOverFreeScanLimit(tx, orgId, plan)) {
-          return {
-            result: {
-              success: false,
-              message: `Free plan daily scan limit reached (${FREE_PLAN_DAILY_SCAN_LIMIT}/day). Upgrade to Business for unlimited scanning.`,
-              scanLimitReached: true,
-            },
-            collectionName: undefined,
-            gameName: undefined,
-            gameId: null,
-          };
+        const scanLimitReachedResult = {
+          result: {
+            success: false as const,
+            message: `Free plan daily scan limit reached (${FREE_PLAN_DAILY_SCAN_LIMIT}/day). Upgrade to Business for unlimited scanning.`,
+            scanLimitReached: true,
+          },
+          collectionName: undefined,
+          gameName: undefined,
+          gameId: null,
+        };
+        const dailyLimit = dailyScanLimitForPlan(plan);
+        if (
+          dailyLimit != null &&
+          (await getScansToday(tx, orgId)) >= dailyLimit
+        ) {
+          return scanLimitReachedResult;
         }
 
         // Backstop for the connect-time lease (routes/devices/lease.ts): a
@@ -153,6 +163,15 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               gameId: null,
             };
           }
+        }
+
+        const [alreadySaved] = await tx
+          .select({ id: collectionCards.id })
+          .from(collectionCards)
+          .where(eq(collectionCards.guid, scanId))
+          .limit(1);
+        if (!alreadySaved && !(await consumeDailyScan(orgId, plan))) {
+          return scanLimitReachedResult;
         }
 
         await tx

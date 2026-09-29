@@ -3,6 +3,7 @@ import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
   boolean,
   customType,
+  date,
   doublePrecision,
   index,
   integer,
@@ -466,6 +467,24 @@ export const orgBilling = pgTable(
       role: authenticatedRole,
       read: orgRls(table.orgId),
       modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const orgDailyScanUsage = pgTable(
+  "org_daily_scan_usage",
+  {
+    orgId: text("org_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    scanCount: integer("scan_count").notNull().default(0),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.day] }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: false,
     }),
   ],
 ).enableRLS();
