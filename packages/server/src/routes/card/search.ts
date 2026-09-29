@@ -19,7 +19,12 @@ export const searchCardRoute = new Hono<AppEnv>().get(
         400,
       );
     }
-    const result = await searchCards(resolved, query);
+    const offset = Number.parseInt(c.req.query("offset") ?? "0", 10);
+    const result = await searchCards(
+      resolved,
+      query,
+      Number.isFinite(offset) && offset > 0 ? offset : 0,
+    );
     return c.json(result);
   },
 );

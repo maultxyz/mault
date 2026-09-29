@@ -1,5 +1,5 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
-import { and, eq, ilike, isNotNull } from "drizzle-orm";
+import type { CardSearchPage, PlayingCard, Result } from "@magic-vault/shared";
+import { and, desc, eq, ilike, isNotNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
@@ -32,8 +32,10 @@ async function findStoredCard(
 async function searchStoredCards(
   { adapter, gameKey, lang }: ResolvedCardSearch,
   query: string,
-): Promise<PlayingCard[]> {
-  const pattern = `%${query.trim().replace(/[\\%_]/g, "\\$&")}%`;
+  offset: number,
+): Promise<CardSearchPage> {
+  const trimmed = query.trim();
+  const pattern = `%${trimmed.replace(/[\\%_]/g, "\\$&")}%`;
   const rows = await db
     .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
     .from(cardImageVectors)
@@ -45,13 +47,23 @@ async function searchStoredCards(
         isNotNull(cardImageVectors.data),
       ),
     )
-    .orderBy(cardImageVectors.name, cardImageVectors.setCode)
-    .limit(STORED_SEARCH_LIMIT);
-  const cards = rows.flatMap((row) => {
+    .orderBy(
+      desc(sql`lower(${cardImageVectors.name}) = lower(${trimmed})`),
+      cardImageVectors.name,
+      cardImageVectors.setCode,
+      cardImageVectors.cardId,
+    )
+    .offset(offset)
+    .limit(STORED_SEARCH_LIMIT + 1);
+  const hasMore = rows.length > STORED_SEARCH_LIMIT;
+  const cards = rows.slice(0, STORED_SEARCH_LIMIT).flatMap((row) => {
     const card = adapter.normalizeStored(row.data, row.cardId, lang);
     return card ? [card] : [];
   });
-  return applyTcgplayerPrices(adapter, cards);
+  return {
+    cards: await applyTcgplayerPrices(adapter, cards),
+    nextOffset: hasMore ? offset + STORED_SEARCH_LIMIT : null,
+  };
 }
 
 async function hasStoredCards({
@@ -93,23 +105,31 @@ export async function searchCardById(
 export async function searchCards(
   resolved: ResolvedCardSearch,
   query: string,
-): Promise<Result<PlayingCard[]>> {
+  offset = 0,
+): Promise<Result<CardSearchPage>> {
   const invalid = validateQuery(query);
   if (invalid) return invalid;
 
   if (!(await hasStoredCards(resolved))) {
+    if (offset > 0) {
+      return {
+        success: true,
+        message: "Cards successfully retrieved.",
+        data: { cards: [], nextOffset: null },
+      };
+    }
     const result = await resolved.adapter.search(
       query,
       resolved.baseUrl,
       resolved.lang,
     );
-    if (!result.success || !result.data) return result;
+    if (!result.success || !result.data) return { ...result, data: undefined };
     const priced = await applyTcgplayerPrices(resolved.adapter, result.data);
-    return { ...result, data: priced };
+    return { ...result, data: { cards: priced, nextOffset: null } };
   }
 
-  const cards = await searchStoredCards(resolved, query);
-  if (cards.length === 0) {
+  const page = await searchStoredCards(resolved, query, offset);
+  if (offset === 0 && page.cards.length === 0) {
     return {
       success: false,
       message: `No cards were found with the query: ${query}`,
@@ -118,6 +138,6 @@ export async function searchCards(
   return {
     success: true,
     message: "Cards successfully retrieved.",
-    data: cards,
+    data: page,
   };
 }

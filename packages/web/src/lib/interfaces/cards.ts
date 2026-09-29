@@ -17,6 +17,14 @@ export interface CardPriceDetailsProps {
   className?: string;
 }
 
+export interface CardSearchState {
+  results: PlayingCard[];
+  loading: boolean;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  loadMore: () => void;
+}
+
 export type { CardFilters, GroupedScannedCard } from "@magic-vault/shared";
 
 export interface CardSelectDialogProps {
