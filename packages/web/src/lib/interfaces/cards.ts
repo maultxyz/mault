@@ -17,6 +17,14 @@ export interface CardPriceDetailsProps {
   className?: string;
 }
 
+export interface CardImageViewerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  capturedImageUrl: string;
+  showOcrRegions: boolean;
+  onShowOcrRegionsChange: (show: boolean) => void;
+}
+
 export interface PriceTableRow {
   label: string;
   values: (number | null)[];

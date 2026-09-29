@@ -36,6 +36,7 @@
     "cardDetailsFallback": "Kartendetails",
     "capturedScan": "Aufgenommener Scan",
     "matchedCard": "Übereinstimmende Karte",
+    "enlargeImage": "Zum Vergrößern klicken",
     "similarMatches": "Ähnliche Übereinstimmungen",
     "refetchCardData": "Daten aktualisieren",
     "refetchCardDataTitle": "Kartendaten erneut von der Quelle abrufen und den gespeicherten Datensatz aktualisieren",
