@@ -35,6 +35,11 @@ export interface PlayingCard {
   raw?: unknown;
 }
 
+export interface CardSearchPage {
+  cards: PlayingCard[];
+  nextOffset: number | null;
+}
+
 export interface PlayingCardWithDistance extends PlayingCard {
   distance: number;
   confidence?: number;
