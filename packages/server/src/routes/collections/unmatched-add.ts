@@ -2,6 +2,7 @@ import type { UnmatchedCard } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { unmatchedCards } from "../../db/schema";
+import { recordUnmatchedScan } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
@@ -14,8 +15,14 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    const { scanId, scannedAt, capturedImageUrl, binNumber, deviceGuid } =
-      await c.req.json<UnmatchedCard & { deviceGuid?: string }>();
+    const {
+      scanId,
+      scannedAt,
+      capturedImageUrl,
+      binNumber,
+      vectorizedOn,
+      deviceGuid,
+    } = await c.req.json<UnmatchedCard & { deviceGuid?: string }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const collection = await tx.query.collections.findFirst({
@@ -66,7 +73,10 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           } as UnmatchedCard,
         };
       });
-      if (result.success) emitToSession(guid, "unmatched_added", result.data);
+      if (result.success) {
+        void recordUnmatchedScan(scanId, scannedAt, vectorizedOn);
+        emitToSession(guid, "unmatched_added", result.data);
+      }
       if (!result.success && "binLimitReached" in result) {
         return c.json(result, 409);
       }

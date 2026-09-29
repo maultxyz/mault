@@ -66,7 +66,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
           .insert(binSets)
           .values({ name, isActive: true, gameId, orgId })
           .returning({ id: binSets.id });
-        const binsToInsert = Array.isArray(initialBins)
+        const binsToInsert: DefaultBinInit[] = Array.isArray(initialBins)
           ? initialBins
           : Array.from(
               { length: computeBinCount(await getModuleCount(tx, orgId)) },

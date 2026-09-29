@@ -5,6 +5,7 @@ import {
   type PlayingCard,
   type PlayingCardWithDistance,
   type ScannedCard,
+  type ScanVectorizeSource,
   type UnmatchedCard,
   countCopiesInBin,
   evaluateAlphabetBin,
@@ -350,6 +351,7 @@ export function ScannedCardsProvider({
       card: PlayingCardWithDistance,
       capturedImageUrl?: string,
       alternativeMatches?: PlayingCardWithDistance[],
+      vectorizedOn?: ScanVectorizeSource,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -403,6 +405,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forceFoilTypeRef.current != null || undefined,
         foilType: forceFoilTypeRef.current ?? undefined,
+        vectorizedOn,
       };
 
       recordSupportPromptScan();
@@ -566,7 +569,7 @@ export function ScannedCardsProvider({
   ]);
 
   const addUnmatchedCard = useCallback(
-    (capturedImageUrl?: string) => {
+    (capturedImageUrl?: string, vectorizedOn?: ScanVectorizeSource) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
         sendCatchAllBin();
@@ -584,6 +587,7 @@ export function ScannedCardsProvider({
         capturedImageUrl,
         scannedAt: Date.now(),
         binNumber: catchAll?.binNumber,
+        vectorizedOn,
       };
       const dropRecord = () =>
         setUnmatchedCards((prev) =>

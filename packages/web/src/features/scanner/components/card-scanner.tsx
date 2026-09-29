@@ -122,13 +122,13 @@ export function CardScanner({
     hasPhonePhoto,
     isAtScanLimit,
   } = useCardScanner({
-    onSearchResults: (cards, capturedImageUrl) => {
+    onSearchResults: (cards, capturedImageUrl, vectorizedOn) => {
       if (cards.length > 0) {
-        addCard(cards[0], capturedImageUrl, cards.slice(1));
+        addCard(cards[0], capturedImageUrl, cards.slice(1), vectorizedOn);
       }
     },
-    onNoMatch: (capturedImageUrl) => {
-      addUnmatchedCard(capturedImageUrl);
+    onNoMatch: (capturedImageUrl, vectorizedOn) => {
+      addUnmatchedCard(capturedImageUrl, vectorizedOn);
     },
     rotated: !isMobile,
   });

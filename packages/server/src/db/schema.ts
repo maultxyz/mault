@@ -651,14 +651,15 @@ export const platformUserRoles = pgTable("platform_user_roles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-// Admin-only telemetry: how many card searches vectorized on the server
-// (search-by-image) vs. in the browser (search-by-vector). Not RLS-protected
-// or org-scoped - only ever read/written by the server via `db`, exposed
-// through /admin/scan-vectorize-stats for operators to check.
-export const scanVectorizeStats = pgTable("scan_vectorize_stats", {
-  source: text("source").primaryKey(), // "server" | "web"
-  count: integer("count").notNull().default(0),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+export const scanStats = pgTable("scan_stats", {
+  scanId: uuid("scan_id").primaryKey(),
+  outcome: text("outcome").notNull(),
+  matchPercent: doublePrecision("match_percent"),
+  hasAlternatives: boolean("has_alternatives").notNull().default(false),
+  isCorrected: boolean("is_corrected").notNull().default(false),
+  vectorizedOn: text("vectorized_on"),
+  scannedAt: timestamp("scanned_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const tcgplayerPrices = pgTable(

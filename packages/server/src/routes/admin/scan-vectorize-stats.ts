@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { getScanVectorizeStats } from "../../lib/scan-vectorize-stats";
+import { getScanVectorizeStats } from "../../lib/scan-stats";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
 export const scanVectorizeStatsRoute = new Hono<AppEnv>().get(
