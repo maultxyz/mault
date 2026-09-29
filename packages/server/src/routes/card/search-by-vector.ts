@@ -8,7 +8,7 @@ import { sendDiscordNotification } from "../../lib/discord";
 import { ocrRegions } from "../../lib/ocr";
 import { recordScanVectorizeSource } from "../../lib/scan-vectorize-stats";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { findCardMatches } from "./shared";
+import { attachMatchedCards, findCardMatches } from "./shared";
 
 function parseEmbeddingField(value: unknown): number[] | null {
   if (typeof value !== "string" || value.length === 0) return null;
@@ -33,11 +33,8 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
         : undefined;
     const ocrEnabled = body["ocrEnabled"] !== "false";
 
-    if (!file || typeof file === "string") {
-      return c.json({ success: false, message: "No image provided." }, 400);
-    }
-
-    if (!file.type.startsWith("image/")) {
+    const image = file && typeof file !== "string" ? file : null;
+    if (image && !image.type.startsWith("image/")) {
       return c.json(
         { success: false, message: "Uploaded file is not an image." },
         400,
@@ -63,10 +60,10 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
     }
     const { gameKey, lang } = resolved;
 
-    const buffer = Buffer.from(await file.arrayBuffer());
     let ocrText = "";
-    if (ocrEnabled) {
+    if (ocrEnabled && image) {
       try {
+        const buffer = Buffer.from(await image.arrayBuffer());
         ocrText = await ocrRegions(buffer, OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []);
       } catch (err) {
         console.error(err);
@@ -80,7 +77,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
         embeddings,
         ocrText,
       });
-      return c.json(result);
+      return c.json(await attachMatchedCards(result, gameKey, lang));
     } catch (err) {
       console.error(err);
       const orgId = c.req.header("X-Org-Id");

@@ -14,7 +14,6 @@ export interface RouteCardToBinParams {
   collectionGuid: string | undefined;
   isAutoFeedEnabled: () => boolean;
   isPipelinedFeedEnabled: () => boolean;
-  disableAutoFeed: () => void;
   pause: () => void;
   triggerAutoFeed: () => void;
   onJam: (options: JamToastOptions) => void;
@@ -29,17 +28,12 @@ export async function routeCardToBin({
   collectionGuid,
   isAutoFeedEnabled,
   isPipelinedFeedEnabled,
-  disableAutoFeed,
   pause,
   triggerAutoFeed,
   onJam,
 }: RouteCardToBinParams): Promise<void> {
   const feedNext = isAutoFeedEnabled() && isPipelinedFeedEnabled();
   const response = await sendRoute(route, { feedNext });
-  const stopPipeline = () => {
-    disableAutoFeed();
-    if (feedNext) pause();
-  };
 
   if (!response) {
     toast.error(t(`${failedKey}.title`), {
@@ -55,14 +49,14 @@ export async function routeCardToBin({
       binNumber: route.binNumber,
       collectionGuid,
     });
-    stopPipeline();
+    pause();
     return;
   }
 
   const res = response as Record<string, unknown>;
 
   if (res.skipped) {
-    stopPipeline();
+    pause();
     return;
   }
 
@@ -80,7 +74,6 @@ export async function routeCardToBin({
       binNumber: route.binNumber,
       collectionGuid,
     });
-    disableAutoFeed();
     pause();
     return;
   }
@@ -104,7 +97,7 @@ export async function routeCardToBin({
       binNumber: route.binNumber,
       collectionGuid,
     });
-    stopPipeline();
+    pause();
     return;
   }
 

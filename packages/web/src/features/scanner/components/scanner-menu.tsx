@@ -10,9 +10,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useCameraContext } from "@/features/scanner/api/use-camera";
 import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
-import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { OcrBetaDialog } from "@/features/scanner/components/ocr-beta-dialog";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
@@ -90,7 +88,6 @@ export function ScannerMenu({
   onUpgrade,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
-  const { focusRange } = useCameraContext();
   const [ocrDialogOpen, setOcrDialogOpen] = useState(false);
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const webSerialSupported =
@@ -137,22 +134,6 @@ export function ScannerMenu({
                       <DropdownMenuSeparator />
                     </>
                   )}
-                  <DropdownMenuItem onClick={onCameraConnect}>
-                    {t("reconnect")}
-                  </DropdownMenuItem>
-                  {focusRange && (
-                    <>
-                      <DropdownMenuSeparator />
-                      <div
-                        className="px-2 py-1.5"
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => e.stopPropagation()}
-                      >
-                        <CameraFocusControl />
-                      </div>
-                    </>
-                  )}
-                  <DropdownMenuSeparator />
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={onCameraDisconnect}

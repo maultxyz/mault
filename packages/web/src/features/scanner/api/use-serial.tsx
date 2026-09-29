@@ -730,7 +730,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     async (firmwareUrl: string): Promise<FlashEsp32Result> => {
       const activeTransport = transportRef.current;
       if (!activeTransport || activeTransport.kind !== "serial") {
-        return { success: false, error: "Not connected via USB." };
+        return { success: false, error: t("serial.update.notUsb") };
       }
       const port = (activeTransport as SerialTransport).port;
 
@@ -750,7 +750,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         setFlashProgress(null);
       }
     },
-    [disconnect],
+    [disconnect, t],
   );
 
   useEffect(() => {

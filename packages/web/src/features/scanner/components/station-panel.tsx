@@ -7,9 +7,17 @@ import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import type { StationPanelLayout } from "@/lib/interfaces/stations";
+import { useElementHeight } from "@/hooks/use-element-height";
+import { useState } from "react";
 
 export function StationPanel({ layout }: { layout: StationPanelLayout }) {
   const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
+  const [controlsContainer, setControlsContainer] =
+    useState<HTMLDivElement | null>(null);
+  const [stickyHeader, setStickyHeader] = useState<HTMLDivElement | null>(
+    null,
+  );
+  const stickyHeaderHeight = useElementHeight(stickyHeader);
 
   if (layout === "vertical") {
     return (
@@ -34,16 +42,26 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
 
   return (
     <>
-      <CollectionSwitcher />
-      <PresetSelector readOnly />
-      <CardScanner className="flex-none" />
+      <div
+        ref={setStickyHeader}
+        className="sticky top-0 z-40 -mx-2 flex flex-none flex-col gap-2 bg-sidebar/95 p-2 backdrop-blur-sm"
+      >
+        <CollectionSwitcher />
+        <PresetSelector readOnly />
+      </div>
+      <CardScanner className="flex-none" controlsContainer={controlsContainer} />
+      <div
+        ref={setControlsContainer}
+        style={{ top: stickyHeaderHeight }}
+        className="sticky z-40 -mx-2 -my-1 flex-none bg-sidebar/95 px-2 py-1 backdrop-blur-sm empty:hidden"
+      />
       <UnmatchedCardsPanel
         cards={unmatchedCards}
         onRemove={removeUnmatchedCard}
       />
       <BinStatusMeter />
       <AlphabetPassControl />
-      <ScanStats />
+      <ScanStats scrollable={false} />
     </>
   );
 }

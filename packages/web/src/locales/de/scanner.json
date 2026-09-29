@@ -50,8 +50,10 @@
     "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
     "commLogEmpty": "Noch keine Kommunikation aufgezeichnet",
     "firmwareOutdatedBanner": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Lade firmware/main/main.ino erneut hoch, um zu aktualisieren.",
+    "firmwareOutdatedBannerBluetooth": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Um ihn im Browser zu aktualisieren, schließe den ESP32-S3 per USB an (linker Anschluss, mit USB beschriftet) und verbinde dich über USB statt Bluetooth.",
     "firmwareVersionMissingBanner": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
     "update": {
+      "notUsb": "Verbinde den Sortierer per USB-Kabel, um ihn zu aktualisieren. Über Bluetooth ist kein Update möglich.",
       "browserButton": "Jetzt aktualisieren",
       "manualButton": "Update holen",
       "dialogTitle": "Firmware aktualisieren",
@@ -82,7 +84,7 @@
       "newBoard": {
         "dialogTitle": "Neue Platine flashen",
         "dialogDescription": "Installiert die Sortierer-Firmware direkt aus diesem Browser auf einem ESP32-S3. Funktioniert mit leeren Platinen und Platinen mit anderer Firmware.",
-        "hintPort": "Schließe die Platine über ihren nativen USB-Anschluss an (oft mit USB statt UART oder COM beschriftet) und wähle sie in der Port-Abfrage des Browsers aus.",
+        "hintPort": "Schließe die Platine über ihren linken USB-C-Anschluss an (mit USB beschriftet, nicht UART oder COM) und wähle sie in der Port-Abfrage des Browsers aus.",
         "hintBootMode": "Wenn das Flashen nicht startet, halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
         "startButton": "Platine wählen und flashen",
         "success": "Firmware installiert. Die Platine wurde neu gestartet und kann verbunden werden.",
@@ -129,6 +131,14 @@
     "routingFailedCatchAll": {
       "title": "Weiterleitung fehlgeschlagen",
       "description": "Keine Antwort vom Sortierer für das Sammelfach {{binNumber}}."
+    },
+    "saveFailed": {
+      "title": "Karte nicht gespeichert",
+      "description": "{{name}} wurde einsortiert, konnte aber nicht in der Sammlung gespeichert werden. Das Scannen ist pausiert. Prüfe deine Verbindung, nimm die Karte wieder heraus und scanne sie erneut."
+    },
+    "saveFailedUnmatched": {
+      "title": "Nicht erkannte Karte nicht gespeichert",
+      "description": "Eine Karte ist ins Auffangfach gegangen, konnte aber nicht in der Sammlung gespeichert werden. Das Scannen ist pausiert. Prüfe deine Verbindung, bevor du fortfährst."
     }
   },
   "cardScanner": {

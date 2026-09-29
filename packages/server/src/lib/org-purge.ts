@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import type { Transaction } from "../db";
+import { db, type Transaction } from "../db";
 import {
   binHeightAudit,
   binHeights,
@@ -83,5 +83,8 @@ export async function purgeOrgData(
   await tx.delete(feederConfigAudit).where(eq(feederConfigAudit.orgId, orgId));
 
   await tx.delete(orgSettings).where(eq(orgSettings.orgId, orgId));
-  await tx.delete(orgBilling).where(eq(orgBilling.orgId, orgId));
+}
+
+export async function purgeOrgBilling(orgId: string): Promise<void> {
+  await db.delete(orgBilling).where(eq(orgBilling.orgId, orgId));
 }

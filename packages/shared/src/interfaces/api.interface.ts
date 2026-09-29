@@ -6,6 +6,7 @@ export interface SearchCardMatch {
   cardId: string;
   distance: number;
   confidence: number;
+  card?: PlayingCard;
 }
 
 export interface CardSearchResult extends Result<SearchCardMatch[] | null> {

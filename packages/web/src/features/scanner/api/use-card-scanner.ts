@@ -17,8 +17,9 @@ import {
   embedCanvas,
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
-import { CLOSE_MATCH_DELTA, SCANNABLE_STATUSES } from "@/lib/constants/scanner";
+import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
 import {
+  CLOSE_MATCH_DELTA,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
@@ -91,13 +92,12 @@ async function resolveSearchMatches(
     (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
   );
   const resolved = await Promise.all(
-    closeMatches.map((m) =>
-      getCardById(m.cardId, collectionGuid).then((r) =>
-        r.data
-          ? { ...r.data, distance: m.distance, confidence: m.confidence }
-          : null,
-      ),
-    ),
+    closeMatches.map(async (m) => {
+      const card = m.card ?? (await getCardById(m.cardId, collectionGuid)).data;
+      return card
+        ? { ...card, distance: m.distance, confidence: m.confidence }
+        : null;
+    }),
   );
 
   const cards = resolved.filter(Boolean) as PlayingCardWithDistance[];
@@ -109,13 +109,13 @@ async function resolveSearchMatches(
 }
 
 function buildSearchFormData(
-  blob: Blob,
+  blob: Blob | null,
   embedding: number[],
   collectionGuid?: string,
   ocrEnabled?: boolean,
 ): FormData {
   const formData = new FormData();
-  formData.append("image", blob, "card.jpg");
+  if (blob) formData.append("image", blob, "card.jpg");
   if (collectionGuid) formData.append("collectionGuid", collectionGuid);
   formData.append("ocrEnabled", String(ocrEnabled ?? false));
   formData.append("embedding", JSON.stringify(embedding));
@@ -188,7 +188,7 @@ async function searchCardImage(
         checkBothOrientations,
         async (oriented) => {
           const [blob, embedding] = await Promise.all([
-            canvasToBlob(oriented),
+            ocrEnabled ? canvasToBlob(oriented) : null,
             embedCanvas(oriented),
           ]);
           return searchByVector(

@@ -6,6 +6,7 @@ import {
   IMPERSONATION_ISSUER,
   IMPERSONATION_TTL_SECONDS,
 } from "../lib/constants/auth";
+import { cachedDisplayName } from "../lib/display-name-cache";
 
 export type { OrgRole };
 
@@ -93,7 +94,7 @@ export async function verifyRequestToken(
 }
 
 export async function getUserDisplayName(userId: string): Promise<string> {
-  return authProvider.getUserDisplayName(userId);
+  return cachedDisplayName(userId, (id) => authProvider.getUserDisplayName(id));
 }
 
 export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
