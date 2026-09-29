@@ -71,7 +71,7 @@ export interface ScannedCardItemProps {
   onOpen: () => void;
   binNumber?: number;
   isSelected?: boolean;
-  onToggleSelect?: () => void;
+  onToggleSelect?: (options: SelectToggleOptions) => void;
   hasAlternatives?: boolean;
   wasCorrected?: boolean;
   isFoil?: boolean;
@@ -100,7 +100,10 @@ export interface ScannedCardTableProps {
   showQuantity?: boolean;
   showBinLocation?: boolean;
   onOpen?: (row: ScannedCardTableRow) => void;
-  onToggleSelect?: (row: ScannedCardTableRow) => void;
+  onToggleSelect?: (
+    row: ScannedCardTableRow,
+    options: SelectToggleOptions,
+  ) => void;
   onTogglePageSelect?: () => void;
 }
 
@@ -126,4 +129,8 @@ export interface ExportAdapter {
   games: "all" | string[];
   headers: (ctx: ExportContext) => string[];
   row: (entry: GroupedEntry, ctx: ExportContext) => string[];
+}
+
+export interface SelectToggleOptions {
+  shiftKey: boolean;
 }

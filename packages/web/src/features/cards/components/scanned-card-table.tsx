@@ -99,13 +99,24 @@ export function ScannedCardTable({
               className={cn(onOpen && "cursor-pointer")}
             >
               {onToggleSelect && (
-                <TableCell onClick={(e) => e.stopPropagation()}>
+                <TableCell
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => {
+                    if (e.shiftKey) e.preventDefault();
+                  }}
+                >
                   <Checkbox
                     aria-label={t("scannedCardTable.selectRow", {
                       name: card.name,
                     })}
                     checked={!!row.isSelected}
-                    onCheckedChange={() => onToggleSelect(row)}
+                    onCheckedChange={(_, details) =>
+                      onToggleSelect(row, {
+                        shiftKey:
+                          "shiftKey" in details.event &&
+                          details.event.shiftKey === true,
+                      })
+                    }
                   />
                 </TableCell>
               )}

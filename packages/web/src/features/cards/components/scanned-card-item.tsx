@@ -138,9 +138,12 @@ export const ScannedCardItem = memo(function ScannedCardItem({
       {onToggleSelect && (
         <Button
           size="icon"
+          onMouseDown={(e) => {
+            if (e.shiftKey) e.preventDefault();
+          }}
           onClick={(e) => {
             e.stopPropagation();
-            onToggleSelect();
+            onToggleSelect({ shiftKey: e.shiftKey });
           }}
           variant={isSelected ? "default" : "secondary"}
           className="absolute top-2 right-2 z-30"

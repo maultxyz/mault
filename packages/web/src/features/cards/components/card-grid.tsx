@@ -30,7 +30,10 @@ import {
   CARD_GROUP_DUPLICATES_STORAGE_KEY,
   CARD_VIEW_MODE_STORAGE_KEY,
 } from "@/lib/constants/storage-keys";
-import type { CardViewMode } from "@/lib/interfaces/cards";
+import type {
+  CardViewMode,
+  SelectToggleOptions,
+} from "@/lib/interfaces/cards";
 import {
   IconAlbum,
   IconChevronLeft,
@@ -38,7 +41,7 @@ import {
 } from "@tabler/icons-react";
 import { computeBinCount } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
@@ -179,6 +182,43 @@ export function CardGrid() {
       return next;
     });
   }, []);
+
+  const selectAnchorRef = useRef<string | null>(null);
+
+  const handleSelect = useCallback(
+    (scanId: string, { shiftKey }: SelectToggleOptions) => {
+      const index = pagedCards.findIndex((entry) => entry.scanId === scanId);
+      const entry = pagedCards[index];
+      if (!entry) return;
+      const anchorIndex = selectAnchorRef.current
+        ? pagedCards.findIndex(
+            (candidate) => candidate.scanId === selectAnchorRef.current,
+          )
+        : -1;
+      selectAnchorRef.current = scanId;
+
+      if (!shiftKey || anchorIndex === -1 || anchorIndex === index) {
+        toggleSelect(entry.scanIds);
+        return;
+      }
+
+      const [from, to] =
+        anchorIndex < index ? [anchorIndex, index] : [index, anchorIndex];
+      const rangeIds = pagedCards
+        .slice(from, to + 1)
+        .flatMap((candidate) => candidate.scanIds);
+      setSelectedIds((prev) => {
+        const select = !entry.scanIds.every((id) => prev.has(id));
+        const next = new Set(prev);
+        for (const id of rangeIds) {
+          if (select) next.add(id);
+          else next.delete(id);
+        }
+        return next;
+      });
+    },
+    [pagedCards, toggleSelect],
+  );
 
   const togglePageSelect = useCallback(() => {
     const pageIds = pagedCards.flatMap((entry) => entry.scanIds);
@@ -376,7 +416,9 @@ export function CardGrid() {
               }))}
               showQuantity={groupDuplicates}
               onOpen={(row) => setOpenScanId(row.scanId)}
-              onToggleSelect={(row) => toggleSelect(row.scanIds)}
+              onToggleSelect={(row, options) =>
+                handleSelect(row.scanId, options)
+              }
               onTogglePageSelect={togglePageSelect}
             />
           </div>
@@ -389,7 +431,9 @@ export function CardGrid() {
                 onOpen={() => setOpenScanId(entry.scanId)}
                 binNumber={entry.binNumber}
                 isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                onToggleSelect={() => toggleSelect(entry.scanIds)}
+                onToggleSelect={(options) =>
+                  handleSelect(entry.scanId, options)
+                }
                 hasAlternatives={!!entry.alternativeMatches?.length}
                 wasCorrected={entry.corrected}
                 isFoil={entry.isFoil}
