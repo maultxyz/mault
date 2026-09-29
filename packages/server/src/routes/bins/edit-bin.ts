@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { resolveGameId, snapshotBinSet } from "./shared";
+import { resolveGameId, snapshotBinSet, toMaxCopies } from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
   "/bins/:binNumber",
@@ -14,12 +14,14 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
-    const { rules, isCatchAll, isOverride, cardLimit } = await c.req.json<{
-      rules: BinRuleGroup;
-      isCatchAll?: boolean;
-      isOverride?: boolean;
-      cardLimit?: number | null;
-    }>();
+    const { rules, isCatchAll, isOverride, cardLimit, maxCopies } =
+      await c.req.json<{
+        rules: BinRuleGroup;
+        isCatchAll?: boolean;
+        isOverride?: boolean;
+        cardLimit?: number | null;
+        maxCopies?: number | null;
+      }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await resolveGameId(tx, gameGuid);
@@ -61,6 +63,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               isCatchAll: isCatchAll ?? false,
               isOverride: !isCatchAll && isOverride === true,
               cardLimit: cardLimit ?? null,
+              maxCopies: toMaxCopies(maxCopies, isCatchAll),
               updatedAt: new Date(),
             })
             .where(eq(bins.id, existing.id));
@@ -71,6 +74,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             isCatchAll: isCatchAll ?? false,
             isOverride: !isCatchAll && isOverride === true,
             cardLimit: cardLimit ?? null,
+            maxCopies: toMaxCopies(maxCopies, isCatchAll),
             binSet: activeBinSet.id,
             orgId,
           });
@@ -87,6 +91,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             isCatchAll: true,
             isOverride: true,
             cardLimit: true,
+            maxCopies: true,
             lastEmptiedAt: true,
           },
         });
@@ -102,6 +107,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               isCatchAll: b.isCatchAll,
               isOverride: b.isOverride,
               cardLimit: b.cardLimit,
+              maxCopies: b.maxCopies,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),

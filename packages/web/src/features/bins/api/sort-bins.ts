@@ -69,6 +69,7 @@ export async function saveBinConfig({
   isCatchAll,
   isOverride,
   cardLimit,
+  maxCopies,
   gameGuid,
 }: {
   binNumber: number;
@@ -76,6 +77,7 @@ export async function saveBinConfig({
   isCatchAll?: boolean;
   isOverride?: boolean;
   cardLimit?: number | null;
+  maxCopies?: number | null;
   gameGuid?: string;
 }): Promise<Result<BinConfig[]>> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
@@ -84,6 +86,7 @@ export async function saveBinConfig({
     isCatchAll,
     isOverride,
     cardLimit,
+    maxCopies,
   });
 }
 

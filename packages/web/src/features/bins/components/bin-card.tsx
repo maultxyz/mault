@@ -41,19 +41,30 @@ export function BinCard({
         <p className="font-medium text-sm font-heading">
           {t("binLabel", { number: config.binNumber })}
         </p>
-        {config.isCatchAll ? (
-          <Badge variant="default">{t("catchAll")}</Badge>
-        ) : alphabetLetter !== undefined ? (
-          alphabetLetter && <Badge variant="secondary">{alphabetLetter}</Badge>
-        ) : config.isOverride ? (
-          <Badge variant="outline">{t("binCard.override")}</Badge>
-        ) : (
-          !isEmpty && (
-            <Badge variant="secondary">
-              {t("binCard.ruleCount", { count: conditionCount })}
-            </Badge>
-          )
-        )}
+        <div className="flex items-center gap-1">
+          {!config.isCatchAll &&
+            alphabetLetter === undefined &&
+            config.maxCopies != null && (
+              <Badge variant="outline">
+                {t("binCard.maxCopies", { count: config.maxCopies })}
+              </Badge>
+            )}
+          {config.isCatchAll ? (
+            <Badge variant="default">{t("catchAll")}</Badge>
+          ) : alphabetLetter !== undefined ? (
+            alphabetLetter && (
+              <Badge variant="secondary">{alphabetLetter}</Badge>
+            )
+          ) : config.isOverride ? (
+            <Badge variant="outline">{t("binCard.override")}</Badge>
+          ) : (
+            !isEmpty && (
+              <Badge variant="secondary">
+                {t("binCard.ruleCount", { count: conditionCount })}
+              </Badge>
+            )
+          )}
+        </div>
       </div>
       <div className="w-full text-xs">
         {config.isCatchAll ? (

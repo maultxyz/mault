@@ -7,6 +7,7 @@
   },
   "binCard": {
     "override": "Prioritaire",
+    "maxCopies": "Max {{count}}×",
     "ruleCount_one": "{{count}} règle",
     "ruleCount_other": "{{count}} règles",
     "allUnmatched": "Toutes les cartes non associées",
@@ -17,6 +18,9 @@
   },
   "binConfigPanel": {
     "overrideLabel": "Règles prioritaires",
+    "maxCopiesLabel": "Limiter les copies par impression",
+    "maxCopiesDescription": "Dès que ce bac contient ce nombre de copies d'une même impression (depuis son dernier vidage), les copies suivantes l'ignorent et vont dans le bac suivant dont les règles correspondent, ou dans le bac fourre-tout.",
+    "maxCopiesSuffix": "copies de chaque impression",
     "overrideDescription": "Si ces règles correspondent, ce bac est prioritaire sur les bacs ordinaires. Si plusieurs bacs prioritaires correspondent, celui dont le numéro est le plus petit est choisi. Par exemple, utilisez Prix ≥ 1 ici pour donner la priorité à ce bac sur les bacs de couleur pour les cartes valant au moins 1 $.",
     "needCatchAllError": "Au moins un bac doit être un fourre-tout.",
     "catchAllEnabled": "Fourre-tout activé",

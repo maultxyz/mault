@@ -8,6 +8,13 @@ const exportedBinSchema = z.object({
   isCatchAll: z.boolean(),
   isOverride: z.boolean().default(false),
   cardLimit: z.number().int().min(1).max(CONDITION_NUMERIC_MAX).nullable(),
+  maxCopies: z
+    .number()
+    .int()
+    .min(1)
+    .max(CONDITION_NUMERIC_MAX)
+    .nullable()
+    .default(null),
 });
 
 export const binRulesExportSchema = z.object({

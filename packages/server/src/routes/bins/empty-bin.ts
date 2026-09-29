@@ -55,6 +55,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
             isCatchAll: true,
             isOverride: true,
             cardLimit: true,
+            maxCopies: true,
             lastEmptiedAt: true,
           },
         });
@@ -70,6 +71,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
               isCatchAll: b.isCatchAll,
               isOverride: b.isOverride,
               cardLimit: b.cardLimit,
+              maxCopies: b.maxCopies,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),

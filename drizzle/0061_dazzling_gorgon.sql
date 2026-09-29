@@ -1,0 +1,1 @@
+ALTER TABLE "bins" ADD COLUMN "max_copies" integer;
