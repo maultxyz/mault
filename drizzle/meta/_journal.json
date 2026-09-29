@@ -407,6 +407,13 @@
       "when": 1790643470318,
       "tag": "0057_lush_dazzler",
       "breakpoints": true
+    },
+    {
+      "idx": 58,
+      "version": "7",
+      "when": 1790643649486,
+      "tag": "0058_jazzy_xavin",
+      "breakpoints": true
     }
   ]
 }

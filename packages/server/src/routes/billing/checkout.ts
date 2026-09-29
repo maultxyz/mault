@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { authQuery } from "../../db";
+import { authQuery, db } from "../../db";
 import { orgBilling } from "../../db/schema";
 import {
   getBusinessPriceId,
@@ -24,31 +24,28 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
     const orgId = c.get("orgId");
     const userId = c.get("userId");
     try {
-      const stripeCustomerId = await authQuery(
-        c.get("jwtClaims"),
-        async (tx) => {
-          const existing = await tx.query.orgBilling.findFirst({
-            where: eq(orgBilling.orgId, orgId),
-          });
-          if (existing?.stripeCustomerId) return existing.stripeCustomerId;
-
-          const { email } = await getUserContact(userId);
-          const customer = await getStripe().customers.create({
-            email: email ?? undefined,
-            metadata: { orgId },
-          });
-
-          await tx
-            .insert(orgBilling)
-            .values({ orgId, stripeCustomerId: customer.id })
-            .onConflictDoUpdate({
-              target: [orgBilling.orgId],
-              set: { stripeCustomerId: customer.id, updatedAt: new Date() },
-            });
-
-          return customer.id;
-        },
+      const existing = await authQuery(c.get("jwtClaims"), (tx) =>
+        tx.query.orgBilling.findFirst({
+          where: eq(orgBilling.orgId, orgId),
+          columns: { stripeCustomerId: true },
+        }),
       );
+      let stripeCustomerId = existing?.stripeCustomerId;
+      if (!stripeCustomerId) {
+        const { email } = await getUserContact(userId);
+        const customer = await getStripe().customers.create({
+          email: email ?? undefined,
+          metadata: { orgId },
+        });
+        await db
+          .insert(orgBilling)
+          .values({ orgId, stripeCustomerId: customer.id })
+          .onConflictDoUpdate({
+            target: [orgBilling.orgId],
+            set: { stripeCustomerId: customer.id, updatedAt: new Date() },
+          });
+        stripeCustomerId = customer.id;
+      }
 
       const session = await getStripe().checkout.sessions.create({
         mode: "subscription",

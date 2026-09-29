@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getOwnAuth } from "../../auth/own-auth-instance";
 import { authQuery } from "../../db";
-import { purgeOrgData } from "../../lib/org-purge";
+import { purgeOrgBilling, purgeOrgData } from "../../lib/org-purge";
 import {
   requireAuth,
   requireOrg,
@@ -25,6 +25,7 @@ export const deleteOrganizationRoute = new Hono<AppEnv>().delete(
           actorUserId: c.get("userId"),
         });
       });
+      await purgeOrgBilling(orgId);
       return c.json({ success: true, data: null });
     } catch (err) {
       const { message, status } = authErrorResponse(err);

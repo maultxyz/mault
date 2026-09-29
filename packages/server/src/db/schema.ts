@@ -466,7 +466,7 @@ export const orgBilling = pgTable(
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
-      modify: orgRls(table.orgId),
+      modify: false,
     }),
   ],
 ).enableRLS();
