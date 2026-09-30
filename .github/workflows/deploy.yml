@@ -1,8 +1,11 @@
 name: Deploy
 
 on:
-  push:
-    branches: [master]
+  # Nightly at 09:00 UTC (early morning in the US). Scheduled runs always use
+  # the default branch (master), and only deploy when something changed since
+  # the last release tag.
+  schedule:
+    - cron: "0 9 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -24,24 +27,41 @@ jobs:
         with:
           fetch-depth: 0
 
-      # Only meaningful for a push event, which has a "before" commit to
-      # diff against - a manually dispatched run always deploys below
-      # regardless of what this reports.
-      - name: Detect changed packages
+      # Every deploy tags its release commit (vX.Y.Z), so everything after the
+      # latest tag is what's pending. A manually dispatched run always deploys
+      # below regardless of what this reports.
+      - name: Detect pending changes since the last release
         id: changes
-        if: github.event_name == 'push'
-        uses: dorny/paths-filter@v3
-        with:
-          filters: |
-            web:
-              - 'packages/web/**'
-              - 'packages/shared/**'
-              - 'Dockerfile.web'
-            server:
-              - 'packages/server/**'
-              - 'packages/shared/**'
-              - 'drizzle/**'
-              - 'Dockerfile.server'
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 --match 'v*' HEAD 2>/dev/null || true)
+          if [ -n "$LAST_TAG" ]; then
+            RANGE="$LAST_TAG..HEAD"
+            FILES=$(git diff --name-only "$LAST_TAG" HEAD)
+          else
+            RANGE="HEAD"
+            FILES=$(git ls-files)
+          fi
+
+          WEB=false
+          SERVER=false
+          if grep -qE '^(packages/web/|packages/shared/|Dockerfile\.web$)' <<< "$FILES"; then WEB=true; fi
+          if grep -qE '^(packages/server/|packages/shared/|drizzle/|Dockerfile\.server$)' <<< "$FILES"; then SERVER=true; fi
+
+          COMMITS=$(git log --no-merges --format='%s' "$RANGE" | grep -v '^chore(release):' || true)
+          COUNT=$(grep -c . <<< "$COMMITS" || true)
+          AUTHORS=$(git log --no-merges --format='%an' "$RANGE" | sort -u | paste -sd ',' - | sed 's/,/, /g')
+
+          {
+            echo "web=$WEB"
+            echo "server=$SERVER"
+            echo "last_tag=$LAST_TAG"
+            echo "count=$COUNT"
+            echo "authors=$AUTHORS"
+            echo "commits<<COMMITS_EOF"
+            head -n 15 <<< "$COMMITS"
+            echo "COMMITS_EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Pending since ${LAST_TAG:-the first commit}: web=$WEB server=$SERVER, $COUNT commit(s)"
 
       # Web and server are always deployed together: if only one of them
       # changed, deploying just that one would leave the other running an
@@ -60,17 +80,20 @@ jobs:
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Get PR info
+      - name: Describe release
         id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          PR_JSON=$(gh api "repos/${{ github.repository }}/commits/${{ github.sha }}/pulls" --jq '.[0] // {}')
-          TITLE=$(jq -r '.title // empty' <<< "$PR_JSON")
-          if [ -z "$TITLE" ]; then
-            TITLE=$(git log -1 --format=%s)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TITLE="Manual deploy"
+          else
+            TITLE="Nightly deploy (${{ steps.changes.outputs.count }} commits)"
           fi
-          echo "url=$(jq -r '.html_url // empty' <<< "$PR_JSON")" >> "$GITHUB_OUTPUT"
+          if [ -n "${{ steps.changes.outputs.last_tag }}" ]; then
+            URL="https://github.com/${{ github.repository }}/compare/${{ steps.changes.outputs.last_tag }}...${{ github.sha }}"
+          else
+            URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          fi
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
           {
             echo "title<<PR_TITLE_EOF"
             echo "$TITLE"
@@ -166,12 +189,14 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Notify Discord (success)
-        if: success()
+        if: success() && steps.deploy.outputs.should_deploy == 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           DISCORD_ROLE_ID: ${{ secrets.DISCORD_DEPLOYMENTS_ROLE_ID }}
           PR_TITLE: ${{ steps.pr.outputs.title }}
           PR_URL: ${{ steps.pr.outputs.url }}
+          COMMITS: ${{ steps.changes.outputs.commits }}
+          AUTHORS: ${{ steps.changes.outputs.authors }}
         run: |
           REDEPLOYED="None"
           if [ "${{ steps.deploy.outputs.should_deploy }}" = "true" ]; then
@@ -190,12 +215,18 @@ jobs:
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
           LINK_URL="${PR_URL:-$COMMIT_URL}"
 
+          DESCRIPTION="Mault deployed"
+          if [ -n "$COMMITS" ]; then
+            DESCRIPTION=$(printf 'Mault deployed\n\n%s' "$(sed 's/^/- /' <<< "$COMMITS")" | cut -c1-3900)
+          fi
+
           PAYLOAD=$(jq -n \
             --arg title "$PR_TITLE" \
             --arg url "$LINK_URL" \
+            --arg description "$DESCRIPTION" \
             --arg commit "${GITHUB_SHA::7}" \
             --arg commit_url "$COMMIT_URL" \
-            --arg author "${{ github.actor }}" \
+            --arg author "${AUTHORS:-${{ github.actor }}}" \
             --arg changed "$CHANGED" \
             --arg redeployed "$REDEPLOYED" \
             --arg version "${{ steps.appversion.outputs.version }}" \
@@ -206,7 +237,7 @@ jobs:
               allowed_mentions: { roles: [$role_id] },
               embeds: [{
                 title: $title,
-                description: "Mault deployed",
+                description: $description,
                 color: 5763719,
                 url: $url,
                 fields: [
