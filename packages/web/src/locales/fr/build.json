@@ -242,7 +242,8 @@
       },
       "diagram": {
         "title": "Schéma de câblage",
-        "alt": "Schéma de câblage montrant les connexions du PCA9685, du microcontrôleur, des servos et des capteurs IR"
+        "alt": "Schéma de câblage montrant les connexions du PCA9685, du microcontrôleur, des servos et des capteurs IR",
+        "anyColorNote": "Les couleurs des fils du schéma servent seulement à le rendre plus lisible. Tes fils peuvent être de n'importe quelle couleur, tant que chacun relie les bonnes broches."
       }
     },
     "i2cTable": {

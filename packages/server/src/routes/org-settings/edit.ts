@@ -16,6 +16,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       scannerLayout?: string | null;
       discordNotifyOnScan?: boolean;
       sessionWrappedEnabled?: boolean;
+      ocrEnabled?: boolean;
       priceSource?: string;
     }>();
     if ("priceSource" in body && !isPriceSource(body.priceSource)) {
@@ -47,6 +48,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             "sessionWrappedEnabled" in body
               ? (body.sessionWrappedEnabled ?? true)
               : (existing?.sessionWrappedEnabled ?? true),
+          ocrEnabled:
+            "ocrEnabled" in body
+              ? (body.ocrEnabled ?? false)
+              : (existing?.ocrEnabled ?? false),
           priceSource: toPriceSource(
             "priceSource" in body ? body.priceSource : existing?.priceSource,
           ),
@@ -69,6 +74,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
               "horizontal",
             discordNotifyOnScan: merged.discordNotifyOnScan,
             sessionWrappedEnabled: merged.sessionWrappedEnabled,
+            ocrEnabled: merged.ocrEnabled,
             priceSource: merged.priceSource,
             discordGuildId: existing?.discordGuildId ?? null,
           },

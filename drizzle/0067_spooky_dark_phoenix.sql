@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "ocr_enabled" boolean DEFAULT false NOT NULL;

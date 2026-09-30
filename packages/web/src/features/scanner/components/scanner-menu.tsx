@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
-import { OcrBetaDialog } from "@/features/scanner/components/ocr-beta-dialog";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconAdjustments,
@@ -31,8 +30,6 @@ interface ScannerMenuProps {
   isConnected: boolean;
   autoFeed: boolean;
   allowDuplicates: boolean;
-  ocrEnabled: boolean;
-  ocrSupported: boolean;
   cameras: MediaDeviceInfo[];
   selectedCameraId: string | null;
   phonePairingStatus: PhoneCameraCaptureStatus;
@@ -49,7 +46,6 @@ interface ScannerMenuProps {
   onCalibrate: () => void;
   onAutoFeedChange: (enabled: boolean) => void;
   onAllowDuplicatesChange: (enabled: boolean) => void;
-  onOcrEnabledChange: (enabled: boolean) => void;
   onConnectAnotherUsb: () => void;
   onConnectAnotherBluetooth: () => void;
   canConnectAnotherSorter: boolean;
@@ -62,8 +58,6 @@ export function ScannerMenu({
   isConnected,
   autoFeed,
   allowDuplicates,
-  ocrEnabled,
-  ocrSupported,
   cameras,
   selectedCameraId,
   phonePairingStatus,
@@ -80,7 +74,6 @@ export function ScannerMenu({
   onCalibrate,
   onAutoFeedChange,
   onAllowDuplicatesChange,
-  onOcrEnabledChange,
   onConnectAnotherUsb,
   onConnectAnotherBluetooth,
   canConnectAnotherSorter,
@@ -88,15 +81,10 @@ export function ScannerMenu({
   onUpgrade,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
-  const [ocrDialogOpen, setOcrDialogOpen] = useState(false);
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
   const webSerialSupported =
     typeof navigator !== "undefined" && !!navigator.serial;
 
-  const handleOcrCheckedChange = (checked: boolean) => {
-    if (checked) setOcrDialogOpen(true);
-    else onOcrEnabledChange(false);
-  };
 
   return (
     <div className="absolute top-2 right-2 z-40">
@@ -250,25 +238,12 @@ export function ScannerMenu({
               )}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
-          <DropdownMenuSeparator />
-          <DropdownMenuCheckboxItem
-            checked={ocrEnabled}
-            disabled={!ocrSupported}
-            onCheckedChange={handleOcrCheckedChange}
-          >
-            {t("scannerMenu.ocrTextMatching")}
-          </DropdownMenuCheckboxItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <NewBoardFlashDialog
         open={flashDialogOpen}
         onOpenChange={setFlashDialogOpen}
         onConnect={onScannerConnect}
-      />
-      <OcrBetaDialog
-        open={ocrDialogOpen}
-        onOpenChange={setOcrDialogOpen}
-        onConfirm={() => onOcrEnabledChange(true)}
       />
     </div>
   );

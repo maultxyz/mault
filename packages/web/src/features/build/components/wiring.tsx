@@ -280,6 +280,9 @@ export function BuildWiring() {
                   alt={t("wiring.sections.diagram.alt")}
                   className="w-full rounded-lg border"
                 />
+                <p className="mt-2 text-sm/relaxed text-foreground/70">
+                  {t("wiring.sections.diagram.anyColorNote")}
+                </p>
               </div>
             </div>
           </AccordionContent>

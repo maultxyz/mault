@@ -111,9 +111,6 @@ export function CardScanner({
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,
-    ocrEnabled,
-    setOcrEnabled,
-    ocrSupported,
     cameraSource,
     phonePairingStatus,
     phonePairingUrl,
@@ -488,8 +485,6 @@ export function CardScanner({
           isConnected={isConnected}
           autoFeed={autoFeed}
           allowDuplicates={allowDuplicates}
-          ocrEnabled={ocrEnabled}
-          ocrSupported={ocrSupported}
           cameras={cameras}
           selectedCameraId={selectedCameraId}
           phonePairingStatus={phonePairingStatus}
@@ -514,7 +509,6 @@ export function CardScanner({
           onUpgrade={() => navigate("/app/settings")}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
-          onOcrEnabledChange={setOcrEnabled}
         />
       </div>
       {isCameraActive && !controlsContainer && scannerControls}

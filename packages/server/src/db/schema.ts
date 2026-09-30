@@ -428,6 +428,7 @@ export const orgSettings = pgTable(
     discordNotifyOnScan: boolean("discord_notify_on_scan")
       .notNull()
       .default(false),
+    ocrEnabled: boolean("ocr_enabled").notNull().default(false),
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),

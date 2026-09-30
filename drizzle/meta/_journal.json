@@ -470,6 +470,13 @@
       "when": 1790771938283,
       "tag": "0066_youthful_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1790772798272,
+      "tag": "0067_spooky_dark_phoenix",
+      "breakpoints": true
     }
   ]
 }

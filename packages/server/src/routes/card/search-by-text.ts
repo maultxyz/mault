@@ -1,5 +1,8 @@
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { authQuery } from "../../db";
+import { orgSettings } from "../../db/schema";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import { ocrRegions } from "../../lib/ocr";
@@ -42,6 +45,19 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
       );
     }
     const { gameKey, lang } = resolved;
+
+    const settings = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx.query.orgSettings.findFirst({
+        where: eq(orgSettings.orgId, c.get("orgId")),
+        columns: { ocrEnabled: true },
+      }),
+    );
+    if (!settings?.ocrEnabled) {
+      return c.json(
+        { success: false, message: "OCR is turned off for this organization." },
+        400,
+      );
+    }
 
     const regions = OCR_REGIONS_BY_GAME_KEY[gameKey] ?? [];
     if (regions.length === 0) {

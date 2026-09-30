@@ -7,6 +7,7 @@ import {
 } from "@/features/cards/api/card";
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import {
@@ -572,15 +573,14 @@ export function useCardScanner({
   const debugImageUrlRef = useRef<string | null>(null);
   const vectorizedOnRef = useRef<ScanVectorizeSource | undefined>(undefined);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
-  // Games without a tuned OCR region (see OCR_REGIONS_BY_GAME_KEY) can't
-  // usefully run OCR at all - keep the toggle off and disabled for them
-  // rather than letting it silently do nothing.
+  const { data: orgSettings } = useQuery(
+    orgSettingsQueryOptions(activeOrg?.id),
+  );
   const ocrSupported =
     (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
     0;
-  const [ocrEnabled, setOcrEnabled] = useState(false);
-  const ocrEnabledRef = useRef(ocrEnabled && ocrSupported);
-  ocrEnabledRef.current = ocrEnabled && ocrSupported;
+  const ocrEnabledRef = useRef(false);
+  ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
   const [hasPhonePhoto, setHasPhonePhoto] = useState(false);
 
   useEffect(() => {
@@ -1080,9 +1080,6 @@ export function useCardScanner({
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,
-    ocrEnabled: ocrEnabled && ocrSupported,
-    setOcrEnabled,
-    ocrSupported,
     cameraSource,
     phonePairingStatus,
     phonePairingUrl,

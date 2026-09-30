@@ -241,7 +241,6 @@
     "calibrate": "Calibrate",
     "retryConnection": "Retry Connection",
     "phoneCameraConnected": "Phone Camera Connected",
-    "ocrTextMatching": "OCR text matching",
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
     "flashNewBoard": "Flash a new board",
