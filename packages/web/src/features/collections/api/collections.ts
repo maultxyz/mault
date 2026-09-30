@@ -95,6 +95,15 @@ export async function updateCollectionCard(
   });
 }
 
+export async function confirmCollectionCard(
+  guid: string,
+  scanId: string,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    confirmed: true,
+  });
+}
+
 export async function setCollectionCardFoilType(
   guid: string,
   scanId: string,

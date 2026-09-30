@@ -5,6 +5,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import type { UnmatchedCard } from "@magic-vault/shared";
+import { UnmatchedDiagnosticsDetails } from "@/features/scanner/components/unmatched-diagnostics-details";
 import { IconPhotoOff, IconX } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -40,6 +41,13 @@ export function UnmatchedCardsPanel({
                       <IconPhotoOff className="size-4 text-muted-foreground" />
                     </div>
                   )}
+                  {entry.diagnostics && (
+                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/60 px-1 py-0.5 text-[9px] text-white">
+                      {t(
+                        `unmatchedCardsPanel.reasons.${entry.diagnostics.reason}`,
+                      )}
+                    </span>
+                  )}
                   {onRemove && (
                     <Button
                       size="icon-xs"
@@ -56,7 +64,7 @@ export function UnmatchedCardsPanel({
                 </div>
               }
             />
-            <PopoverContent side="right" className="w-auto p-1 gap-0">
+            <PopoverContent side="right" className="w-auto p-1 gap-1">
               {entry.capturedImageUrl ? (
                 <img
                   src={entry.capturedImageUrl}
@@ -67,6 +75,9 @@ export function UnmatchedCardsPanel({
                 <p className="px-1.5 py-1 text-muted-foreground">
                   {t("unmatchedCardsPanel.noImage")}
                 </p>
+              )}
+              {entry.diagnostics && (
+                <UnmatchedDiagnosticsDetails diagnostics={entry.diagnostics} />
               )}
             </PopoverContent>
           </Popover>

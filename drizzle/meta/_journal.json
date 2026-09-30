@@ -449,6 +449,34 @@
       "when": 1790715797189,
       "tag": "0063_hesitant_microbe",
       "breakpoints": true
+    },
+    {
+      "idx": 64,
+      "version": "7",
+      "when": 1790770289782,
+      "tag": "0064_lush_quasimodo",
+      "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1790771236125,
+      "tag": "0065_illegal_zaladane",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1790771938283,
+      "tag": "0066_youthful_shaman",
+      "breakpoints": true
+    },
+    {
+      "idx": 67,
+      "version": "7",
+      "when": 1790772798272,
+      "tag": "0067_spooky_dark_phoenix",
+      "breakpoints": true
     }
   ]
 }

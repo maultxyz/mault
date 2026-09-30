@@ -79,7 +79,8 @@
       "errors": {
         "wrongChip": "Diese Platine ist ein {{chip}}. Die Sortierer-Firmware läuft nur auf dem ESP32-S3, daher wurde nichts geschrieben.",
         "noBootloader": "Der Bootloader der Platine war nicht erreichbar. Halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
-        "downloadFailed": "Die Firmware konnte nicht heruntergeladen werden. Prüfe deine Verbindung und versuche es erneut."
+        "downloadFailed": "Die Firmware konnte nicht heruntergeladen werden. Prüfe deine Verbindung und versuche es erneut.",
+        "verifyFailed": "Die Firmware wurde geschrieben, aber der Flash-Speicher der Platine stimmt nicht damit überein. Zieh die Platine ab, steck sie wieder ein und flashe erneut."
       },
       "newBoard": {
         "dialogTitle": "Neue Platine flashen",
@@ -240,7 +241,6 @@
     "calibrate": "Kalibrieren",
     "retryConnection": "Verbindung erneut versuchen",
     "phoneCameraConnected": "Telefonkamera verbunden",
-    "ocrTextMatching": "OCR-Texterkennung",
     "connectAnotherUsb": "Weiteren Sortierer verbinden (USB)",
     "connectAnotherBluetooth": "Weiteren Sortierer verbinden (Bluetooth)",
     "flashNewBoard": "Neue Platine flashen",
@@ -248,7 +248,7 @@
   },
   "ocrBetaDialog": {
     "title": "OCR-Texterkennung (Beta)",
-    "description": "Liest den Set-Code und die Sammelkartennummer auf dem gescannten Kartenbild, um die richtige Druckversion zu bestimmen. Diese Funktion befindet sich noch in der Beta-Phase und kann gelegentlich zusätzlichen Text auf der Karte erfassen oder falsch erkennen. Deaktiviere sie wieder, falls sie die Treffer verschlechtert.",
+    "description": "Wenn ein Scan nicht sicher erkannt wird, liest diese Funktion den Kartennamen und die Set-Zeile, um die Karte zu finden oder die richtige Druckversion zu wählen. Sichere Treffer überspringen das, die Scangeschwindigkeit bleibt also gleich. Die Funktion ist noch in der Beta und kann Text falsch lesen. Schalte sie wieder aus, wenn die Treffer schlechter werden.",
     "confirm": "OCR aktivieren",
     "cancel": "Abbrechen"
   },
@@ -299,7 +299,36 @@
     "heading_one": "{{count}} nicht erkannte Karte",
     "heading_other": "{{count}} nicht erkannte Karten",
     "imageAlt": "Nicht erkannte Karte",
-    "noImage": "Kein Bild aufgenommen"
+    "noImage": "Kein Bild aufgenommen",
+    "reasons": {
+      "too_far": "Kein naher Treffer",
+      "ambiguous": "Mehrdeutig",
+      "empty_index": "Nicht synchronisiert",
+      "no_consensus": "Instabil",
+      "lookup_failed": "Abruf fehlgeschlagen"
+    },
+    "reasonHints": {
+      "too_far": "Die nächste Karte lag außerhalb der Trefferdistanz. Steht die richtige Karte unten, ist das Limit eventuell zu streng. Sonst ist die Karte vielleicht nicht synchronisiert oder das Foto schlecht.",
+      "ambiguous": "Zwei verschiedene Karten lagen fast gleich nah, daher wurde keine gewählt.",
+      "empty_index": "Für dieses Spiel und diese Sprache sind noch keine Karten synchronisiert. Starte eine Synchronisierung im Admin-Bereich.",
+      "no_consensus": "Die Scanversuche erkannten unterschiedliche Karten, daher wurde die nötige Anzahl gleicher Ergebnisse nicht erreicht. Prüfe Licht, Schärfe und Kartenbewegung.",
+      "lookup_failed": "Eine Karte wurde erkannt, aber ihre Details konnten nicht geladen werden."
+    },
+    "candidates": "Nächste Karten (Trefferlimit {{threshold}})",
+    "runnerUp": "Zu nah an {{name}} mit {{distance}}",
+    "attempts": "Versuche ({{needed}} gleiche nötig)",
+    "lookupFailedIds": "Erkannte IDs: {{ids}}",
+    "detectionAi": "Karte per Eckenerkennung gefunden.",
+    "detectionFallback": "Eckenerkennung fehlgeschlagen, fester Scanbereich verwendet.",
+    "sharpness": "Schärfe {{value}}.",
+    "orientationRotated": "Nächstes Ergebnis war kopfüber.",
+    "searchedIn": "Gesucht in {{game}} ({{lang}}).",
+    "ocrHeading": "Text auf der Karte",
+    "ocrName": "Gelesener Name: {{text}}",
+    "ocrSetLine": "Gelesene Set-Zeile: {{text}}",
+    "ocrEmpty": "nichts",
+    "ocrMatchedName": "Ähnlichster Kartenname: {{name}} (Ähnlichkeit {{score}}), aber keine Druckversion war nah genug.",
+    "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",

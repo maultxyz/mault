@@ -3,7 +3,15 @@ import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
+  CardContour,
   CardScannerProps,
+  CardSearchDiagnostics,
+  CardSearchResult,
+  OcrDiagnostics,
+  ScanDetectionDiagnostics,
+  UnmatchedReason,
+  UnmatchedScanDetails,
+  UnmatchedScanDiagnostics,
   BinRoute,
   Collection,
   GroupedScannedCard,
@@ -88,10 +96,12 @@ export interface ScannedCardsContextValue {
     capturedImageUrl?: string,
     alternativeMatches?: PlayingCardWithDistance[],
     vectorizedOn?: ScanVectorizeSource,
+    needsReview?: boolean,
   ) => void;
   addUnmatchedCard: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
+    details?: UnmatchedScanDetails,
   ) => void;
   removeUnmatchedCard: (scanId: string) => void;
   sendCatchAllBin: () => void;
@@ -107,6 +117,7 @@ export interface ScannedCardsContextValue {
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => void;
   correctCard: (scanId: string, card: PlayingCard) => void;
+  confirmCard: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   markDownloaded: (scanIds: string[]) => void;
   clearCards: () => void;
@@ -122,7 +133,8 @@ export type FlashFailureReason =
   | "wrong-chip"
   | "no-bootloader"
   | "download-failed"
-  | "flash-failed";
+  | "flash-failed"
+  | "verify-failed";
 
 export interface FlashEsp32Result {
   success: boolean;
@@ -351,4 +363,57 @@ export interface ScanStatsProps {
 
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
+}
+
+export interface UnmatchedDiagnosticsDetailsProps {
+  diagnostics: UnmatchedScanDiagnostics;
+}
+
+export interface OrientedSearch {
+  result: CardSearchResult;
+  embedding: number[] | null;
+}
+
+export interface OrientedCandidate extends OrientedSearch {
+  canvas: HTMLCanvasElement;
+  orientation: "upright" | "rotated";
+}
+
+export interface OrientedSearchPick extends OrientedCandidate {
+  alternate: OrientedCandidate | null;
+}
+
+export interface TextSearchOutcome {
+  pick: OrientedSearchPick | null;
+  ocr: OcrDiagnostics | null;
+}
+
+export interface ResolvedSearchMatches {
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  noMatchReason: UnmatchedReason | null;
+  lookupFailedCardIds?: string[];
+}
+
+export interface ScanAttemptOutcome extends ResolvedSearchMatches {
+  debugImageUrl: string;
+  detectedContour: CardContour | null;
+  vectorizedOn: ScanVectorizeSource;
+  detection: ScanDetectionDiagnostics;
+  search: CardSearchDiagnostics | null;
+  orientation: "upright" | "rotated";
+  embedding: number[] | null;
+  topDistance: number | null;
+  ocr: OcrDiagnostics | null;
+  needsReview: boolean;
+}
+
+export interface ScanOutcome {
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+  detectedContour: CardContour | null;
+  vectorizedOn: ScanVectorizeSource;
+  needsReview: boolean;
+  noMatch: UnmatchedScanDetails | null;
 }

@@ -8,6 +8,7 @@ import {
 import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
+import { reviewTooltip } from "@/features/cards/lib/review-tooltip";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import {
@@ -26,6 +27,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   isSelected = false,
   onToggleSelect,
   hasAlternatives = false,
+  needsReview = false,
   wasCorrected = false,
   isFoil = false,
   foilType,
@@ -47,17 +49,13 @@ export const ScannedCardItem = memo(function ScannedCardItem({
     >
       <button type="button" className="w-full cursor-pointer" onClick={onOpen}>
         <div className="aspect-[2.5/3.5] rounded-lg overflow-hidden relative">
-          {hasAlternatives && (
+          {(hasAlternatives || needsReview) && (
             <div
               className={cn(
                 "absolute top-1 left-1 z-20 rounded-full p-0.5 shadow-md",
                 wasCorrected ? "bg-green-600" : "bg-amber-700",
               )}
-              title={
-                wasCorrected
-                  ? t("scannedCardItem.multipleMatchesResolvedTooltip")
-                  : t("scannedCardItem.multipleMatchesTooltip")
-              }
+              title={reviewTooltip(t, needsReview, wasCorrected)}
             >
               <IconHelpCircle className="size-3 text-white" />
             </div>
@@ -66,7 +64,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             <div
               className={cn(
                 "absolute top-1 z-20 rounded-full p-0.5 shadow-md bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300",
-                hasAlternatives ? "left-6" : "left-1",
+                hasAlternatives || needsReview ? "left-6" : "left-1",
               )}
               title={foilType ?? t("foil")}
             >

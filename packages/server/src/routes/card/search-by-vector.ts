@@ -1,23 +1,13 @@
-import {
-  OCR_REGIONS_BY_GAME_KEY,
-  type CardSearchEmbeddings,
-} from "@magic-vault/shared";
+import type { CardSearchEmbeddings } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
-import { ocrRegions } from "../../lib/ocr";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { attachMatchedCards, findCardMatches } from "./shared";
-
-function parseEmbeddingField(value: unknown): number[] | null {
-  if (typeof value !== "string" || value.length === 0) return null;
-  try {
-    const parsed = JSON.parse(value);
-    return Array.isArray(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
-}
+import {
+  attachMatchedCards,
+  findCardMatches,
+  parseEmbeddingField,
+} from "./shared";
 
 export const searchByVectorRoute = new Hono<AppEnv>().post(
   "/by-vector",
@@ -25,20 +15,10 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
   requireOrg,
   async (c) => {
     const body = await c.req.parseBody();
-    const file = body["image"];
     const collectionGuid =
       typeof body["collectionGuid"] === "string"
         ? body["collectionGuid"]
         : undefined;
-    const ocrEnabled = body["ocrEnabled"] !== "false";
-
-    const image = file && typeof file !== "string" ? file : null;
-    if (image && !image.type.startsWith("image/")) {
-      return c.json(
-        { success: false, message: "Uploaded file is not an image." },
-        400,
-      );
-    }
 
     const embedding = parseEmbeddingField(body["embedding"]);
     if (!embedding) {
@@ -58,22 +38,11 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
     }
     const { gameKey, lang } = resolved;
 
-    let ocrText = "";
-    if (ocrEnabled && image) {
-      try {
-        const buffer = Buffer.from(await image.arrayBuffer());
-        ocrText = await ocrRegions(buffer, OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
     try {
       const result = await findCardMatches(c.get("jwtClaims"), {
         gameKey,
         lang,
         embeddings,
-        ocrText,
       });
       return c.json(await attachMatchedCards(result, gameKey, lang));
     } catch (err) {

@@ -42,3 +42,6 @@ export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 
 export const PARKED_PANELS_ROOT_CLASS =
   "fixed top-0 left-0 -z-10 invisible pointer-events-none";
+
+export const OCR_CROP_WIDTH = 630;
+export const OCR_CROP_HEIGHT = 880;

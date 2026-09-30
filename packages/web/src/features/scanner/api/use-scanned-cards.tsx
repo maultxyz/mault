@@ -7,6 +7,7 @@ import {
   type ScannedCard,
   type ScanVectorizeSource,
   type UnmatchedCard,
+  type UnmatchedScanDetails,
   countCopiesInBin,
   evaluateAlphabetBin,
   evaluateCardBin,
@@ -30,6 +31,7 @@ import {
   removeCollectionCard,
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
+  confirmCollectionCard,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -352,6 +354,7 @@ export function ScannedCardsProvider({
       capturedImageUrl?: string,
       alternativeMatches?: PlayingCardWithDistance[],
       vectorizedOn?: ScanVectorizeSource,
+      needsReview?: boolean,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -405,6 +408,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forceFoilTypeRef.current != null || undefined,
         foilType: forceFoilTypeRef.current ?? undefined,
+        needsReview: needsReview || undefined,
         vectorizedOn,
       };
 
@@ -569,7 +573,11 @@ export function ScannedCardsProvider({
   ]);
 
   const addUnmatchedCard = useCallback(
-    (capturedImageUrl?: string, vectorizedOn?: ScanVectorizeSource) => {
+    (
+      capturedImageUrl?: string,
+      vectorizedOn?: ScanVectorizeSource,
+      details?: UnmatchedScanDetails,
+    ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
         sendCatchAllBin();
@@ -588,6 +596,7 @@ export function ScannedCardsProvider({
         scannedAt: Date.now(),
         binNumber: catchAll?.binNumber,
         vectorizedOn,
+        diagnostics: details?.diagnostics,
       };
       const dropRecord = () =>
         setUnmatchedCards((prev) =>
@@ -597,7 +606,11 @@ export function ScannedCardsProvider({
       setUnmatchedCards((prev) => [record, ...prev]);
       sendCatchAllBin();
 
-      addUnmatchedCardApi(collection.guid, record, deviceGuidRef.current)
+      addUnmatchedCardApi(
+        collection.guid,
+        { ...record, embedding: details?.embedding ?? undefined },
+        deviceGuidRef.current,
+      )
         .then((result) => {
           if (result.success) return;
           dropRecord();
@@ -715,6 +728,25 @@ export function ScannedCardsProvider({
     [saveBinConfig, resolveMatchedBin, queryClient],
   );
 
+  const confirmCard = useCallback(
+    (scanId: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, corrected: true }),
+      );
+      confirmCollectionCard(collection.guid, scanId)
+        .catch((err) => console.error("Failed to confirm card:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
   const setCardFoilType = useCallback(
     (scanId: string, foilType: string | null) => {
       const collection = activeCollectionRef.current;
@@ -790,6 +822,7 @@ export function ScannedCardsProvider({
         removeCard,
         removeCards,
         correctCard,
+        confirmCard,
         setCardFoilType,
         markDownloaded,
         clearCards,

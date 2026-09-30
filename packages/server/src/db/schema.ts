@@ -62,6 +62,7 @@ export const cardImageVectors = pgTable(
     // partial HNSW indexes are created dynamically instead, since game keys
     // are admin-defined data (Games Manager), not something this static
     // schema can enumerate.
+    index("cards_name_trgm_idx").using("gin", table.name.op("gin_trgm_ops")),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -370,6 +371,7 @@ export const collectionCards = pgTable(
     isDownloaded: boolean("is_downloaded").notNull().default(false),
     alternativeMatches: jsonb("alternative_matches"),
     isCorrected: boolean("is_corrected").notNull().default(false),
+    needsReview: boolean("needs_review").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -399,6 +401,8 @@ export const unmatchedCards = pgTable(
     capturedImageDataUrl: text("captured_image_data_url"),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
+    diagnostics: jsonb("diagnostics"),
+    embedding: vector("embedding"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -424,6 +428,7 @@ export const orgSettings = pgTable(
     discordNotifyOnScan: boolean("discord_notify_on_scan")
       .notNull()
       .default(false),
+    ocrEnabled: boolean("ocr_enabled").notNull().default(false),
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),

@@ -31,5 +31,11 @@
     "heading": "Récap de session",
     "description": "Affiche un récap façon Wrapped des temps forts avant le résumé d'export.",
     "toggleLabel": "Activer le récap de session"
+  },
+  "ocr": {
+    "heading": "Reconnaissance de texte (OCR)",
+    "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
+    "toggleLabel": "Activer la correspondance de texte OCR",
+    "badge": "Bêta"
   }
 }

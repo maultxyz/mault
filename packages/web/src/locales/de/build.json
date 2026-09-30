@@ -242,7 +242,8 @@
       },
       "diagram": {
         "title": "Verkabelungsdiagramm",
-        "alt": "Verkabelungsdiagramm mit den Anschlüssen von PCA9685, Mikrocontroller, Servos und IR-Sensoren"
+        "alt": "Verkabelungsdiagramm mit den Anschlüssen von PCA9685, Mikrocontroller, Servos und IR-Sensoren",
+        "anyColorNote": "Die Kabelfarben im Diagramm dienen nur der Übersicht. Deine Kabel können jede Farbe haben, solange jedes die richtigen Pins verbindet."
       }
     },
     "i2cTable": {

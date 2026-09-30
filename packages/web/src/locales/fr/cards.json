@@ -31,6 +31,8 @@
     "acrossPrintings": "Fourchette sur {{count}} impressions"
   },
   "cardDetailPanel": {
+    "markCorrect": "Marquer comme correcte",
+    "markCorrectTitle": "Confirme que cette correspondance est juste. La carte reste la même et n'est plus signalée pour vérification.",
     "backToList": "Retour à la liste des cartes",
     "previousCard": "Carte précédente",
     "nextCard": "Carte suivante",
@@ -118,7 +120,9 @@
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
-    "multipleMatchesResolvedTooltip": "Plusieurs correspondances proches - vérifié et corrigé",
+    "multipleMatchesResolvedTooltip": "Plusieurs correspondances proches, vérifiée",
+    "needsReviewTooltip": "Reconnue uniquement par le nom sur la carte, touche pour vérifier",
+    "needsReviewResolvedTooltip": "Reconnue par le nom sur la carte, vérifiée",
     "matchTooltip": "À quel point l'image scannée correspond à cette carte, basé sur une recherche de similarité visuelle",
     "bin": "Bac {{number}}",
     "quantityTooltip_one": "{{count}} exemplaire de cette carte dans cette collection",

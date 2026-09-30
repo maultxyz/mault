@@ -1,8 +1,10 @@
+import { Badge } from "@/components/ui/badge";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { PriceSourceToggle } from "@/components/price-source-toggle";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
 import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
+import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
 import { useDiscordBotSettings } from "@/features/companies/api/use-discord-bot";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -135,6 +137,23 @@ export default function SettingsPage() {
           <label className="flex items-center justify-between gap-3">
             <span className="text-sm">{t("sessionWrapped.toggleLabel")}</span>
             <SessionWrappedToggle />
+          </label>
+        </div>
+        <div className="rounded-lg border p-4 flex flex-col gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-semibold font-heading">
+                {t("ocr.heading")}
+              </h2>
+              <Badge variant="outline">{t("ocr.badge")}</Badge>
+            </div>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {t("ocr.description")}
+            </p>
+          </div>
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-sm">{t("ocr.toggleLabel")}</span>
+            <OcrToggle />
           </label>
         </div>
         <div className="rounded-lg border p-4 flex flex-col gap-4">

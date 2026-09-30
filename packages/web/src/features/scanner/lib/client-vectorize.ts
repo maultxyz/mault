@@ -8,6 +8,7 @@ import { dewarpCard } from "./perspective-warp";
 export interface ClientDewarpResult {
   detection: CornerDetection;
   dewarpedCanvas: HTMLCanvasElement | null;
+  frame: HTMLCanvasElement;
 }
 
 function delay(ms: number): Promise<void> {
@@ -53,8 +54,12 @@ export async function detectAndDewarpCard(
     refreshFrame,
   );
   if (!detection.cardPresent || !detection.contour) {
-    return { detection, dewarpedCanvas: null };
+    return { detection, dewarpedCanvas: null, frame };
   }
 
-  return { detection, dewarpedCanvas: dewarpCard(frame, detection.contour) };
+  return {
+    detection,
+    dewarpedCanvas: dewarpCard(frame, detection.contour),
+    frame,
+  };
 }

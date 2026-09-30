@@ -79,7 +79,8 @@
       "errors": {
         "wrongChip": "This board is an {{chip}}. The sorter firmware only runs on the ESP32-S3, so nothing was written.",
         "noBootloader": "Couldn't reach the board's bootloader. Hold the BOOT button, tap RESET, release BOOT, then try again.",
-        "downloadFailed": "Couldn't download the firmware. Check your connection and try again."
+        "downloadFailed": "Couldn't download the firmware. Check your connection and try again.",
+        "verifyFailed": "The firmware was written, but the board's flash doesn't match it. Unplug the board, plug it back in and flash again."
       },
       "newBoard": {
         "dialogTitle": "Flash a new board",
@@ -240,7 +241,6 @@
     "calibrate": "Calibrate",
     "retryConnection": "Retry Connection",
     "phoneCameraConnected": "Phone Camera Connected",
-    "ocrTextMatching": "OCR text matching",
     "connectAnotherUsb": "Connect another sorter (USB)",
     "connectAnotherBluetooth": "Connect another sorter (Bluetooth)",
     "flashNewBoard": "Flash a new board",
@@ -248,7 +248,7 @@
   },
   "ocrBetaDialog": {
     "title": "OCR text matching (beta)",
-    "description": "This reads the set code and collector number off the scanned card image to help pick the right printing. It's still in beta, so it can occasionally pick up extra text from the card or misread it. Turn it back off if it seems to be making matches worse.",
+    "description": "When a scan isn't a confident match, this reads the card's name and set line to find the card or pick the right printing. Confident matches skip it, so scanning speed is unchanged. It's still in beta and can misread text. Turn it back off if it seems to be making matches worse.",
     "confirm": "Enable OCR",
     "cancel": "Cancel"
   },
@@ -299,7 +299,36 @@
     "heading_one": "{{count}} Unmatched Card",
     "heading_other": "{{count}} Unmatched Cards",
     "imageAlt": "Unrecognized card",
-    "noImage": "No image captured"
+    "noImage": "No image captured",
+    "reasons": {
+      "too_far": "No close match",
+      "ambiguous": "Ambiguous",
+      "empty_index": "Not synced",
+      "no_consensus": "Unstable",
+      "lookup_failed": "Lookup failed"
+    },
+    "reasonHints": {
+      "too_far": "The closest card was beyond the match distance limit. If the right card is listed below, the limit may be too strict. If not, the card may not be synced or the photo may be poor.",
+      "ambiguous": "Two different cards were almost equally close, so neither was picked.",
+      "empty_index": "No cards are synced for this game and language yet. Run a sync from the admin panel.",
+      "no_consensus": "Scan attempts disagreed on the card, so none reached the required number of matching results. Check lighting, focus and card movement.",
+      "lookup_failed": "A card was matched, but its details could not be loaded."
+    },
+    "candidates": "Nearest cards (match limit {{threshold}})",
+    "runnerUp": "Too close to {{name}} at {{distance}}",
+    "attempts": "Attempts ({{needed}} matching needed)",
+    "lookupFailedIds": "Matched ids: {{ids}}",
+    "detectionAi": "Card found by corner detection.",
+    "detectionFallback": "Corner detection failed, used the static scan region.",
+    "sharpness": "Sharpness {{value}}.",
+    "orientationRotated": "Closest result was upside down.",
+    "searchedIn": "Searched {{game}} ({{lang}}).",
+    "ocrHeading": "Text on the card",
+    "ocrName": "Name read: {{text}}",
+    "ocrSetLine": "Set line read: {{text}}",
+    "ocrEmpty": "nothing",
+    "ocrMatchedName": "Closest card name: {{name}} (similarity {{score}}), but no printing was close enough.",
+    "ocrNoName": "No card name was close enough to the text read."
   },
   "binStatusMeter": {
     "heading": "Bin Levels",

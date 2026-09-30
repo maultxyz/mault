@@ -1,6 +1,10 @@
 import type {
+  CardSearchDiagnostics,
   CardSearchEmbeddings,
+  OcrDiagnostics,
+  OcrReadout,
   SearchCardMatch,
+  SearchNoMatchReason,
 } from "@magic-vault/shared";
 import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
@@ -12,6 +16,12 @@ import {
   MATCH_CONFIDENCE_TEMPERATURE,
   MATCH_MAX_DISTANCE_RATIO,
 } from "../../lib/constants/card-search";
+import {
+  OCR_MAX_NAME_LINES,
+  OCR_NAME_CANDIDATE_LIMIT,
+  OCR_NAME_MIN_LENGTH,
+  OCR_NAME_MIN_SIMILARITY,
+} from "../../lib/constants/ocr";
 
 const MATCH_LIMIT = 5;
 const RUNNER_UP_SEARCH_LIMIT = 20;
@@ -58,11 +68,22 @@ function vectorLiteral(embedding: number[] | null): string | null {
   return embedding ? `[${embedding.join(",")}]` : null;
 }
 
+export function parseEmbeddingField(value: unknown): number[] | null {
+  if (typeof value !== "string" || value.length === 0) return null;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
 export interface CardMatchSearchResult {
   message: string;
   success: true;
   data: SearchCardMatch[] | null;
   nearestDistance: number | null;
+  diagnostics?: CardSearchDiagnostics;
 }
 
 export async function findCardMatches(
@@ -71,16 +92,13 @@ export async function findCardMatches(
     gameKey,
     lang,
     embeddings,
-    ocrText,
   }: {
     gameKey: string;
     lang: string;
     embeddings: CardSearchEmbeddings;
-    ocrText: string;
   },
 ): Promise<CardMatchSearchResult> {
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
-  const ocrTokens = extractOcrTokens(ocrText);
   const showVectorLogs = process.env.SHOW_VECTOR_LOGS == "true";
 
   return authQuery(jwtClaims, async (tx) => {
@@ -122,6 +140,7 @@ export async function findCardMatches(
         matches.rows.slice(0, MATCH_LIMIT).map((row) => ({
           id: row.card_id as string,
           cardId: row.card_id as string,
+          name: row.name as string,
           setCode: row.set_code as string,
           distance: row.distance as number,
           leaderDistance: row.leader_distance as number,
@@ -145,30 +164,40 @@ export async function findCardMatches(
       ? []
       : candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
     if (rows.length === 0) {
+      const reason: SearchNoMatchReason =
+        nearestDistance == null
+          ? "empty_index"
+          : isAmbiguous
+            ? "ambiguous"
+            : "too_far";
       return {
         message: "Successfully searched for card.",
         success: true,
         data: null,
         nearestDistance,
+        diagnostics: {
+          reason,
+          gameKey,
+          lang,
+          nearestDistance,
+          runnerUpDistance,
+          runnerUpName:
+            (matches.rows.find((row) => row.name !== leaderName)?.name as
+              | string
+              | undefined) ?? null,
+          distanceThreshold: DISTANCE_THRESHOLD,
+          maxDistanceRatio: MATCH_MAX_DISTANCE_RATIO,
+          candidates: candidates.map(({ cardId, name, setCode, distance }) => ({
+            cardId,
+            name,
+            setCode,
+            distance,
+          })),
+        },
       };
     }
 
-    const ranked =
-      ocrTokens.length > 0
-        ? [...rows].sort((a, b) => {
-            const aCode = normalizeForMatch(a.setCode);
-            const bCode = normalizeForMatch(b.setCode);
-            const aMatch =
-              aCode.length >= 2 &&
-              ocrTokens.some((token) => token.includes(aCode));
-            const bMatch =
-              bCode.length >= 2 &&
-              ocrTokens.some((token) => token.includes(bCode));
-            return Number(bMatch) - Number(aMatch);
-          })
-        : rows;
-
-    const matchList: SearchCardMatch[] = ranked.map(
+    const matchList: SearchCardMatch[] = rows.map(
       ({ id, cardId, distance, confidence }) => ({
         id,
         cardId,
@@ -186,11 +215,137 @@ export async function findCardMatches(
   });
 }
 
-export async function attachMatchedCards(
-  result: CardMatchSearchResult,
+export function ocrNameQueries(text: string): string[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map(cleanOcrName)
+    .filter((line) => line.length >= OCR_NAME_MIN_LENGTH)
+    .slice(0, OCR_MAX_NAME_LINES);
+  const joined = cleanOcrName(lines.join(" "));
+  return [...new Set([joined, ...lines])].filter(
+    (query) => query.length >= OCR_NAME_MIN_LENGTH,
+  );
+}
+
+export function cleanOcrName(text: string): string {
+  return text
+    .replace(/[^\p{L}\p{N}',\- ]+/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function matchesSetLine(setCode: string, setLineTokens: string[]): boolean {
+  const code = normalizeForMatch(setCode);
+  return (
+    code.length >= 2 && setLineTokens.some((token) => token.includes(code))
+  );
+}
+
+export interface CardTextMatchResult extends CardMatchSearchResult {
+  ocr: OcrDiagnostics;
+}
+
+export async function findCardMatchesByText(
+  jwtClaims: string,
+  {
+    gameKey,
+    lang,
+    embeddings,
+    readout,
+  }: {
+    gameKey: string;
+    lang: string;
+    embeddings: CardSearchEmbeddings;
+    readout: OcrReadout;
+  },
+): Promise<CardTextMatchResult> {
+  const nameQueries = ocrNameQueries(readout.name);
+  const noMatch: CardTextMatchResult = {
+    message: "No card matched the text on the card.",
+    success: true,
+    data: null,
+    nearestDistance: null,
+    ocr: { readout, matchedName: null, nameScore: null },
+  };
+  if (nameQueries.length === 0) return noMatch;
+
+  const embeddingStr = vectorLiteral(embeddings.embedding)!;
+  const setLineTokens = extractOcrTokens(readout.setLine);
+
+  return authQuery(jwtClaims, async (tx) => {
+    await tx.execute(
+      sql.raw(
+        `SET LOCAL pg_trgm.similarity_threshold = ${OCR_NAME_MIN_SIMILARITY}`,
+      ),
+    );
+    let rows: Record<string, unknown>[] = [];
+    for (const nameQuery of nameQueries) {
+      const result = await tx.execute(sql`
+        SELECT
+          card_id,
+          name,
+          set_code,
+          similarity(name, ${nameQuery}) AS name_score,
+          embedding <=> ${embeddingStr}::vector(128) AS distance
+        FROM cards
+        WHERE game_key = ${gameKey} AND lang = ${lang} AND name % ${nameQuery}
+        ORDER BY name_score DESC, distance ASC
+        LIMIT ${OCR_NAME_CANDIDATE_LIMIT}
+      `);
+      if (
+        result.rows.length > 0 &&
+        (rows.length === 0 ||
+          (result.rows[0].name_score as number) >
+            (rows[0].name_score as number))
+      ) {
+        rows = result.rows;
+      }
+    }
+    if (rows.length === 0) return noMatch;
+
+    const matchedName = rows[0].name as string;
+    const nameScore = rows[0].name_score as number;
+    const ocr: OcrDiagnostics = { readout, matchedName, nameScore };
+
+    const printings = rows
+      .filter((row) => row.name === matchedName)
+      .map((row) => ({
+        id: row.card_id as string,
+        cardId: row.card_id as string,
+        setCode: row.set_code as string,
+        distance: row.distance as number,
+        setLineMatch: matchesSetLine(row.set_code as string, setLineTokens),
+      }))
+      .sort(
+        (a, b) =>
+          Number(b.setLineMatch) - Number(a.setLineMatch) ||
+          a.distance - b.distance,
+      );
+
+    const data: SearchCardMatch[] = withConfidence(
+      printings.slice(0, MATCH_LIMIT),
+    ).map(({ id, cardId, distance, confidence }) => ({
+      id,
+      cardId,
+      distance,
+      confidence,
+    }));
+
+    return {
+      message: "Matched card by the text on the card.",
+      success: true,
+      data,
+      nearestDistance: printings[0].distance,
+      ocr,
+    };
+  });
+}
+
+export async function attachMatchedCards<T extends CardMatchSearchResult>(
+  result: T,
   gameKey: string,
   lang: string,
-): Promise<CardMatchSearchResult> {
+): Promise<T> {
   const matches = result.data;
   const resolved = resolveCardSearchForGame(gameKey, lang);
   if (!matches || matches.length === 0 || !resolved) return result;

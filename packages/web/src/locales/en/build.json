@@ -242,7 +242,8 @@
       },
       "diagram": {
         "title": "Wiring diagram",
-        "alt": "Wiring diagram showing the PCA9685, microcontroller, servo, and IR sensor connections"
+        "alt": "Wiring diagram showing the PCA9685, microcontroller, servo, and IR sensor connections",
+        "anyColorNote": "The wire colors in the diagram are only there to make it easier to read. Your wires can be any color, as long as each one connects the right pins."
       }
     },
     "i2cTable": {

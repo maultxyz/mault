@@ -79,7 +79,8 @@
       "errors": {
         "wrongChip": "Cette carte est un {{chip}}. Le firmware de la trieuse ne fonctionne que sur l'ESP32-S3, rien n'a donc été écrit.",
         "noBootloader": "Impossible d'atteindre le bootloader de la carte. Maintenez BOOT, appuyez sur RESET, relâchez BOOT, puis réessayez.",
-        "downloadFailed": "Impossible de télécharger le firmware. Vérifiez votre connexion et réessayez."
+        "downloadFailed": "Impossible de télécharger le firmware. Vérifiez votre connexion et réessayez.",
+        "verifyFailed": "Le firmware a été écrit, mais la mémoire flash de la carte ne correspond pas. Débranchez la carte, rebranchez-la et relancez le flash."
       },
       "newBoard": {
         "dialogTitle": "Flasher une nouvelle carte",
@@ -240,7 +241,6 @@
     "calibrate": "Calibrer",
     "retryConnection": "Réessayer la connexion",
     "phoneCameraConnected": "Caméra du téléphone connectée",
-    "ocrTextMatching": "Correspondance de texte OCR",
     "connectAnotherUsb": "Connecter une autre trieuse (USB)",
     "connectAnotherBluetooth": "Connecter une autre trieuse (Bluetooth)",
     "flashNewBoard": "Flasher une nouvelle carte",
@@ -248,7 +248,7 @@
   },
   "ocrBetaDialog": {
     "title": "Correspondance de texte OCR (bêta)",
-    "description": "Cette fonctionnalité lit le code d'extension et le numéro de collection sur l'image de la carte scannée afin d'aider à identifier la bonne édition. Elle est encore en bêta et peut occasionnellement capter du texte superflu sur la carte ou le mal interpréter. Désactivez-la si elle semble dégrader les résultats.",
+    "description": "Quand un scan n'est pas une correspondance sûre, cette option lit le nom de la carte et sa ligne d'extension pour trouver la carte ou choisir la bonne impression. Les correspondances sûres l'ignorent, la vitesse de scan reste donc la même. Elle est encore en bêta et peut mal lire le texte. Désactive-la si elle semble dégrader les correspondances.",
     "confirm": "Activer l'OCR",
     "cancel": "Annuler"
   },
@@ -299,7 +299,36 @@
     "heading_one": "{{count}} carte non reconnue",
     "heading_other": "{{count}} cartes non reconnues",
     "imageAlt": "Carte non reconnue",
-    "noImage": "Aucune image capturée"
+    "noImage": "Aucune image capturée",
+    "reasons": {
+      "too_far": "Aucune correspondance proche",
+      "ambiguous": "Ambigu",
+      "empty_index": "Non synchronisé",
+      "no_consensus": "Instable",
+      "lookup_failed": "Échec du chargement"
+    },
+    "reasonHints": {
+      "too_far": "La carte la plus proche dépassait la distance limite. Si la bonne carte figure ci-dessous, la limite est peut-être trop stricte. Sinon, la carte n'est peut-être pas synchronisée ou la photo est de mauvaise qualité.",
+      "ambiguous": "Deux cartes différentes étaient presque aussi proches l'une que l'autre, aucune n'a donc été choisie.",
+      "empty_index": "Aucune carte n'est encore synchronisée pour ce jeu et cette langue. Lance une synchronisation depuis l'administration.",
+      "no_consensus": "Les tentatives de scan ne concordaient pas, le nombre de résultats identiques requis n'a donc pas été atteint. Vérifie l'éclairage, la netteté et le mouvement de la carte.",
+      "lookup_failed": "Une carte a été reconnue, mais ses détails n'ont pas pu être chargés."
+    },
+    "candidates": "Cartes les plus proches (limite {{threshold}})",
+    "runnerUp": "Trop proche de {{name}} à {{distance}}",
+    "attempts": "Tentatives ({{needed}} identiques requises)",
+    "lookupFailedIds": "Identifiants reconnus : {{ids}}",
+    "detectionAi": "Carte trouvée par la détection des coins.",
+    "detectionFallback": "Détection des coins échouée, zone de scan fixe utilisée.",
+    "sharpness": "Netteté {{value}}.",
+    "orientationRotated": "Le résultat le plus proche était à l'envers.",
+    "searchedIn": "Recherche dans {{game}} ({{lang}}).",
+    "ocrHeading": "Texte sur la carte",
+    "ocrName": "Nom lu : {{text}}",
+    "ocrSetLine": "Ligne d'extension lue : {{text}}",
+    "ocrEmpty": "rien",
+    "ocrMatchedName": "Nom de carte le plus proche : {{name}} (similarité {{score}}), mais aucune impression n'était assez proche.",
+    "ocrNoName": "Aucun nom de carte n'était assez proche du texte lu."
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",

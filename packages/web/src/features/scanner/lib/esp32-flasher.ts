@@ -1,12 +1,22 @@
 import {
   ESP32_FIRMWARE_CHIP,
   ESP32_FLASH_BAUD_RATE,
+  ESP32_HARD_RESET_SEQUENCE,
 } from "@/lib/constants/firmware";
 import type {
   FlashEsp32Result,
   FlashProgressCallbacks,
 } from "@/lib/interfaces/scanner";
-import { ESPLoader, Transport as EspLoaderTransport } from "esptool-js";
+import {
+  CustomReset,
+  ESPLoader,
+  Transport as EspLoaderTransport,
+} from "esptool-js";
+import { md5 } from "js-md5";
+
+function hardReset(transport: EspLoaderTransport) {
+  return new CustomReset(transport, ESP32_HARD_RESET_SEQUENCE).reset();
+}
 
 // Talks to the chip's ROM bootloader directly, so this works the same on a
 // board running this project's firmware, some other sketch, or nothing at
@@ -58,7 +68,7 @@ export async function flashEsp32Port(
 
     const chip = loader.chip.CHIP_NAME;
     if (chip !== ESP32_FIRMWARE_CHIP) {
-      await loader.after("hard_reset").catch(() => {});
+      await hardReset(espTransport).catch(() => {});
       return { success: false, reason: "wrong-chip", chip };
     }
 
@@ -73,7 +83,14 @@ export async function flashEsp32Port(
         callbacks.onProgress(total > 0 ? written / total : null);
       },
     });
-    await loader.after("hard_reset");
+
+    const expectedMd5 = md5.hex(firmwareData);
+    const flashedMd5 = await loader.flashMd5sum(0, firmwareData.length);
+    if (flashedMd5.toLowerCase() !== expectedMd5) {
+      return { success: false, reason: "verify-failed", chip };
+    }
+
+    await hardReset(espTransport);
     return { success: true, chip };
   } catch (e) {
     return {

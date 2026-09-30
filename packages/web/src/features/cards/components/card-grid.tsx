@@ -339,6 +339,8 @@ export function CardGrid() {
         scanId={openEntry.scanId}
         currentCard={openEntry.card}
         alternativeMatches={openEntry.alternativeMatches}
+        needsReview={openEntry.needsReview}
+        wasCorrected={openEntry.corrected}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
         binNumber={openEntry.binNumber}
@@ -411,6 +413,7 @@ export function CardGrid() {
                 foilType: entry.foilType,
                 isDownloaded: entry.isDownloaded,
                 hasAlternatives: !!entry.alternativeMatches?.length,
+                needsReview: entry.needsReview,
                 wasCorrected: entry.corrected,
                 isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
               }))}
@@ -435,6 +438,7 @@ export function CardGrid() {
                   handleSelect(entry.scanId, options)
                 }
                 hasAlternatives={!!entry.alternativeMatches?.length}
+                needsReview={entry.needsReview}
                 wasCorrected={entry.corrected}
                 isFoil={entry.isFoil}
                 foilType={entry.foilType}

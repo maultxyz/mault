@@ -6,14 +6,24 @@ import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
 
+type ScryfallImageUris = { png?: string; large?: string };
+
 type ScryfallBulkCard = {
   id: string;
   name: string;
   printed_name?: string;
   lang: string;
   set: string;
-  image_uris?: { png?: string; large?: string };
+  image_uris?: ScryfallImageUris;
+  card_faces?: { image_uris?: ScryfallImageUris }[];
 };
+
+function cardImageUrl(
+  raw: Pick<ScryfallBulkCard, "image_uris" | "card_faces">,
+) {
+  const uris = raw.image_uris ?? raw.card_faces?.[0]?.image_uris;
+  return uris?.png ?? uris?.large;
+}
 
 function apiRoot(baseUrl: string): string {
   try {
@@ -73,7 +83,7 @@ async function downloadBulkData(
       id: raw.id,
       name: raw.printed_name ?? raw.name,
       setCode: raw.set,
-      imageUrl: raw.image_uris?.png ?? raw.image_uris?.large,
+      imageUrl: cardImageUrl(raw),
       data: line,
     });
   }
@@ -99,16 +109,12 @@ async function fetchOne(id: string, baseUrl: string) {
   const res = await fetch(url, { headers: CARD_API_HEADERS });
   if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
   const data = await res.text();
-  const raw = JSON.parse(data) as {
-    name: string;
-    set: string;
-    image_uris?: { png?: string; large?: string };
-  };
+  const raw = JSON.parse(data) as ScryfallBulkCard;
   return {
     card: {
       name: raw.name,
       setCode: raw.set,
-      imageUrl: raw.image_uris?.png ?? raw.image_uris?.large,
+      imageUrl: cardImageUrl(raw),
       data,
     },
     urls: [url],

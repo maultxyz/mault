@@ -1,4 +1,9 @@
+import type {
+  CardSearchDiagnostics,
+  SearchNoMatchReason,
+} from "./api.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
+import type { OcrDiagnostics } from "./ocr-region.interface";
 
 export interface Point {
   x: number;
@@ -54,10 +59,12 @@ export interface CardScannerProps {
     matches: PlayingCardWithDistance[],
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
+    needsReview?: boolean,
   ) => void;
   onNoMatch?: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
+    details?: UnmatchedScanDetails,
   ) => void;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
@@ -85,7 +92,43 @@ export interface ScannedCard {
   foilType?: string;
   isDownloaded?: boolean;
   corrected?: boolean;
+  needsReview?: boolean;
   vectorizedOn?: ScanVectorizeSource;
+}
+
+export type UnmatchedReason =
+  | SearchNoMatchReason
+  | "no_consensus"
+  | "lookup_failed";
+
+export interface ScanDetectionDiagnostics {
+  cardDetected: boolean;
+  sharpness: number | null;
+  confidence: number | null;
+  fallbackReason: string | null;
+}
+
+export interface ScanAttemptDiagnostic {
+  reason: UnmatchedReason | null;
+  cardId: string | null;
+  cardName: string | null;
+  distance: number | null;
+}
+
+export interface UnmatchedScanDiagnostics {
+  reason: UnmatchedReason;
+  search: Omit<CardSearchDiagnostics, "embedding"> | null;
+  detection: ScanDetectionDiagnostics;
+  orientation: "upright" | "rotated";
+  matchesNeeded: number;
+  attempts: ScanAttemptDiagnostic[];
+  lookupFailedCardIds?: string[];
+  ocr?: OcrDiagnostics | null;
+}
+
+export interface UnmatchedScanDetails {
+  diagnostics: UnmatchedScanDiagnostics;
+  embedding: number[] | null;
 }
 
 export interface UnmatchedCard {
@@ -94,4 +137,6 @@ export interface UnmatchedCard {
   scannedAt: number;
   binNumber?: number;
   vectorizedOn?: ScanVectorizeSource;
+  diagnostics?: UnmatchedScanDiagnostics;
+  embedding?: number[];
 }

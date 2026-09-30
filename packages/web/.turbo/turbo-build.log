@@ -1,6 +1,6 @@
 
-> @magic-vault/web@1.0.100 build C:\Users\User\Documents\Coding\magic-vault\packages\web
+> @magic-vault/web@1.0.110 build C:\Users\User\Documents\Coding\magic-vault\packages\web
 > tsc -b && vite build
 
-src/features/calibration/components/device-setup-wizard.tsx(463,30): error TS2783: 'key' is specified more than once, so this usage will be overwritten.
+src/lib/hotkeys.ts(51,11): error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
  ELIFECYCLE  Command failed with exit code 2.

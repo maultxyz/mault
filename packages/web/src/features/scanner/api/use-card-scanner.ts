@@ -1,8 +1,13 @@
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useDevice } from "@/features/calibration/api/use-device";
-import { searchByImage, searchByVector } from "@/features/cards/api/card";
+import {
+  searchByImage,
+  searchByText,
+  searchByVector,
+} from "@/features/cards/api/card";
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import {
@@ -13,11 +18,25 @@ import {
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
+import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import {
   embedCanvas,
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
-import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
+import {
+  OCR_CROP_HEIGHT,
+  OCR_CROP_WIDTH,
+  SCANNABLE_STATUSES,
+} from "@/lib/constants/scanner";
+import type {
+  OrientedCandidate,
+  OrientedSearch,
+  OrientedSearchPick,
+  ResolvedSearchMatches,
+  ScanAttemptOutcome,
+  ScanOutcome,
+  TextSearchOutcome,
+} from "@/lib/interfaces/scanner";
 import {
   CLOSE_MATCH_DELTA,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
@@ -28,11 +47,13 @@ import {
   type CardContour,
   type CardScannerProps,
   type CardSearchResult,
+  type OcrDiagnostics,
   type PlayingCardWithDistance,
+  type ScanDetectionDiagnostics,
   type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
-  type SearchCardMatch,
+  type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -78,16 +99,16 @@ function playDingSound() {
 }
 
 async function resolveSearchMatches(
-  data: SearchCardMatch[] | null | undefined,
+  result: CardSearchResult,
   collectionGuid: string | undefined,
-  debugImageUrl: string,
-): Promise<{
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  debugImageUrl: string;
-}> {
+): Promise<ResolvedSearchMatches> {
+  const data = result.data;
   if (!data || data.length === 0)
-    return { card: null, alternativeMatches: [], debugImageUrl };
+    return {
+      card: null,
+      alternativeMatches: [],
+      noMatchReason: result.diagnostics?.reason ?? "too_far",
+    };
 
   const closeMatches = data.filter(
     (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
@@ -103,22 +124,25 @@ async function resolveSearchMatches(
 
   const cards = resolved.filter(Boolean) as PlayingCardWithDistance[];
   if (cards.length === 0)
-    return { card: null, alternativeMatches: [], debugImageUrl };
+    return {
+      card: null,
+      alternativeMatches: [],
+      noMatchReason: "lookup_failed",
+      lookupFailedCardIds: closeMatches.map((m) => m.cardId),
+    };
 
   const [card, ...alternativeMatches] = cards;
-  return { card, alternativeMatches, debugImageUrl };
+  return { card, alternativeMatches, noMatchReason: null };
 }
 
 function buildSearchFormData(
-  blob: Blob | null,
   embedding: number[],
   collectionGuid?: string,
-  ocrEnabled?: boolean,
+  image?: Blob,
 ): FormData {
   const formData = new FormData();
-  if (blob) formData.append("image", blob, "card.jpg");
+  if (image) formData.append("image", image, "card.jpg");
   if (collectionGuid) formData.append("collectionGuid", collectionGuid);
-  formData.append("ocrEnabled", String(ocrEnabled ?? false));
   formData.append("embedding", JSON.stringify(embedding));
   return formData;
 }
@@ -130,38 +154,124 @@ function hasMatch(result: CardSearchResult): boolean {
 async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,
-  search: (canvas: HTMLCanvasElement) => Promise<CardSearchResult>,
-): Promise<{ result: CardSearchResult; canvas: HTMLCanvasElement }> {
-  if (!checkBothOrientations) return { result: await search(canvas), canvas };
+  search: (canvas: HTMLCanvasElement) => Promise<OrientedSearch>,
+): Promise<OrientedSearchPick> {
+  if (!checkBothOrientations)
+    return {
+      ...(await search(canvas)),
+      canvas,
+      orientation: "upright",
+      alternate: null,
+    };
 
   const rotatedCanvas = rotateCanvas180(canvas);
   const [upright, rotated] = await Promise.all([
-    search(canvas).then((result) => ({ result, canvas })),
-    search(rotatedCanvas).then((result) => ({
-      result,
-      canvas: rotatedCanvas,
-    })),
+    search(canvas).then(
+      (found): OrientedCandidate => ({
+        ...found,
+        canvas,
+        orientation: "upright",
+      }),
+    ),
+    search(rotatedCanvas).then(
+      (found): OrientedCandidate => ({
+        ...found,
+        canvas: rotatedCanvas,
+        orientation: "rotated",
+      }),
+    ),
   ]);
 
-  if (hasMatch(upright.result) !== hasMatch(rotated.result)) {
-    return hasMatch(upright.result) ? upright : rotated;
+  const rotatedWins =
+    hasMatch(upright.result) !== hasMatch(rotated.result)
+      ? hasMatch(rotated.result)
+      : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
+        (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
+  return rotatedWins
+    ? { ...rotated, alternate: upright }
+    : { ...upright, alternate: rotated };
+}
+
+function needsTextSearch(result: CardSearchResult): boolean {
+  const reason = result.diagnostics?.reason;
+  if (reason === "too_far" || reason === "ambiguous") return true;
+  const [leader, runnerUp] = result.data ?? [];
+  return (
+    leader != null &&
+    runnerUp != null &&
+    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
+  );
+}
+
+async function searchByCardText(
+  frame: HTMLCanvasElement,
+  contour: CardContour,
+  best: OrientedSearchPick,
+  collectionGuid: string | undefined,
+): Promise<TextSearchOutcome> {
+  const uprightCrop = dewarpCard(
+    frame,
+    contour,
+    OCR_CROP_WIDTH,
+    OCR_CROP_HEIGHT,
+  );
+  let ocr: OcrDiagnostics | null = null;
+  for (const option of [best, best.alternate]) {
+    if (!option?.embedding) continue;
+    const crop =
+      option.orientation === "rotated"
+        ? rotateCanvas180(uprightCrop)
+        : uprightCrop;
+    try {
+      const result = await searchByText(
+        buildSearchFormData(
+          option.embedding,
+          collectionGuid,
+          await canvasToBlob(crop),
+        ),
+      );
+      ocr = result.ocr ?? ocr;
+      console.log(
+        `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
+      );
+      if (hasMatch(result)) {
+        return { pick: { ...option, result, alternate: null }, ocr };
+      }
+    } catch (err) {
+      console.error("[scanner] text search failed:", err);
+    }
   }
-  const rotatedCloser =
-    (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-    (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
-  return rotatedCloser ? rotated : upright;
+  return { pick: null, ocr };
 }
 
 function buildImageSearchFormData(
   blob: Blob,
   collectionGuid?: string,
-  ocrEnabled?: boolean,
 ): FormData {
   const formData = new FormData();
   formData.append("image", blob, "card.jpg");
   if (collectionGuid) formData.append("collectionGuid", collectionGuid);
-  formData.append("ocrEnabled", String(ocrEnabled ?? false));
   return formData;
+}
+
+async function toAttemptOutcome(
+  best: OrientedSearchPick,
+  collectionGuid: string | undefined,
+  context: Pick<
+    ScanAttemptOutcome,
+    "detectedContour" | "vectorizedOn" | "detection" | "ocr" | "needsReview"
+  >,
+): Promise<ScanAttemptOutcome> {
+  return {
+    ...(await resolveSearchMatches(best.result, collectionGuid)),
+    ...context,
+    debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
+    search: best.result.diagnostics ?? null,
+    orientation: best.orientation,
+    embedding: best.embedding,
+    topDistance:
+      best.result.data?.[0]?.distance ?? best.result.nearestDistance ?? null,
+  };
 }
 
 async function searchCardImage(
@@ -171,49 +281,72 @@ async function searchCardImage(
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
   checkBothOrientations: boolean,
-): Promise<{
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  debugImageUrl: string;
-  detectedContour: CardContour | null;
-  vectorizedOn: ScanVectorizeSource;
-}> {
+): Promise<ScanAttemptOutcome> {
   let fallbackReason = "card not detected";
+  let detection: ScanDetectionDiagnostics = {
+    cardDetected: false,
+    sharpness: null,
+    confidence: null,
+    fallbackReason: null,
+  };
   try {
-    const { dewarpedCanvas, detection } = await detectAndDewarpCard(
+    const {
+      dewarpedCanvas,
+      detection: corners,
+      frame,
+    } = await detectAndDewarpCard(
       canvas,
       refreshFrame,
     );
+    detection = {
+      cardDetected: corners.cardPresent,
+      sharpness: corners.sharpness,
+      confidence: corners.confidence,
+      fallbackReason: null,
+    };
     if (dewarpedCanvas) {
       const best = await searchBothOrientations(
         dewarpedCanvas,
         checkBothOrientations,
         async (oriented) => {
-          const [blob, embedding] = await Promise.all([
-            ocrEnabled ? canvasToBlob(oriented) : null,
-            embedCanvas(oriented),
-          ]);
-          return searchByVector(
-            buildSearchFormData(blob, embedding, collectionGuid, ocrEnabled),
+          const embedding = await embedCanvas(oriented);
+          const result = await searchByVector(
+            buildSearchFormData(embedding, collectionGuid),
           );
+          return { result, embedding };
         },
       );
-      const debugImageUrl = best.canvas.toDataURL("image/jpeg", 0.8);
 
       console.log(
-        `[scanner] using AI card detection (confidence=${detection.confidence.toFixed(3)})`,
+        `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
-      return {
-        ...(await resolveSearchMatches(
-          best.result.data,
-          collectionGuid,
-          debugImageUrl,
-        )),
-        detectedContour: detection.contour,
+      const runOcr =
+        !!ocrEnabled && !!corners.contour && needsTextSearch(best.result);
+      if (ocrEnabled) {
+        console.log(
+          runOcr
+            ? `[scanner] OCR running (embedding unsure: ${best.result.diagnostics?.reason ?? "close alternatives"})`
+            : "[scanner] OCR skipped (confident embedding match)",
+        );
+      }
+      const text =
+        runOcr && corners.contour
+          ? await searchByCardText(
+              frame,
+              corners.contour,
+              best,
+              collectionGuid,
+            )
+          : null;
+      return toAttemptOutcome(text?.pick ?? best, collectionGuid, {
+        detectedContour: corners.contour,
         vectorizedOn: "web",
-      };
+        detection,
+        ocr: text?.ocr ?? null,
+        needsReview: !!text?.pick && !hasMatch(best.result),
+      });
     }
-    fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
+    fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
   } catch (err) {
     fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
     console.error(
@@ -227,25 +360,77 @@ async function searchCardImage(
   const best = await searchBothOrientations(
     warpedCanvas,
     checkBothOrientations,
-    async (oriented) =>
-      searchByImage(
-        buildImageSearchFormData(
-          await canvasToBlob(oriented),
-          collectionGuid,
-          ocrEnabled,
-        ),
-      ),
+    async (oriented) => {
+      const result = await searchByImage(
+        buildImageSearchFormData(await canvasToBlob(oriented), collectionGuid),
+      );
+      return { result, embedding: result.diagnostics?.embedding ?? null };
+    },
   );
-  const debugImageUrl = best.canvas.toDataURL("image/jpeg", 0.8);
 
-  return {
-    ...(await resolveSearchMatches(
-      best.result.data,
-      collectionGuid,
-      debugImageUrl,
-    )),
+  return toAttemptOutcome(best, collectionGuid, {
     detectedContour: null,
     vectorizedOn: "server",
+    detection: { ...detection, fallbackReason },
+    ocr: null,
+    needsReview: false,
+  });
+}
+
+function toScanOutcome(
+  outcome: ScanAttemptOutcome,
+  attempts: ScanAttemptOutcome[],
+  matchesNeeded: number,
+): ScanOutcome {
+  const {
+    card,
+    alternativeMatches,
+    debugImageUrl,
+    detectedContour,
+    vectorizedOn,
+    needsReview,
+  } = outcome;
+  if (card) {
+    return {
+      card,
+      alternativeMatches,
+      debugImageUrl,
+      detectedContour,
+      vectorizedOn,
+      needsReview,
+      noMatch: null,
+    };
+  }
+
+  const searchWithoutEmbedding = outcome.search
+    ? (({ embedding: _embedding, ...rest }) => rest)(outcome.search)
+    : null;
+  const diagnostics: UnmatchedScanDiagnostics = {
+    reason: attempts.some((a) => a.card)
+      ? "no_consensus"
+      : (outcome.noMatchReason ?? "too_far"),
+    search: searchWithoutEmbedding,
+    detection: outcome.detection,
+    orientation: outcome.orientation,
+    matchesNeeded,
+    attempts: attempts.map((a) => ({
+      reason: a.noMatchReason,
+      cardId: a.card?.id ?? null,
+      cardName: a.card?.name ?? null,
+      distance: a.topDistance,
+    })),
+    lookupFailedCardIds: outcome.lookupFailedCardIds,
+    ocr: outcome.ocr,
+  };
+
+  return {
+    card: null,
+    alternativeMatches: [],
+    debugImageUrl,
+    detectedContour,
+    vectorizedOn,
+    needsReview: false,
+    noMatch: { diagnostics, embedding: outcome.embedding },
   };
 }
 
@@ -257,9 +442,10 @@ async function searchCardImageWithConsensus(
   ocrEnabled: boolean | undefined,
   matchesNeeded: number,
   checkBothOrientations: boolean,
-): Promise<Awaited<ReturnType<typeof searchCardImage>>> {
-  const attempt = () =>
-    searchCardImage(
+): Promise<ScanOutcome> {
+  const attempts: ScanAttemptOutcome[] = [];
+  const attempt = async () => {
+    const outcome = await searchCardImage(
       canvas,
       refreshFrame,
       contour,
@@ -267,15 +453,19 @@ async function searchCardImageWithConsensus(
       ocrEnabled,
       checkBothOrientations,
     );
+    attempts.push(outcome);
+    return outcome;
+  };
 
-  if (matchesNeeded <= 1) return attempt();
+  if (matchesNeeded <= 1)
+    return toScanOutcome(await attempt(), attempts, matchesNeeded);
 
   const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
 
   let streakId: string | null = null;
   let streakCount = 0;
-  let streakResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
-  let lastResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
+  let streakResult: ScanAttemptOutcome | null = null;
+  let lastResult: ScanAttemptOutcome | null = null;
 
   for (let i = 0; i < maxAttempts; i++) {
     const result = await attempt();
@@ -291,10 +481,11 @@ async function searchCardImageWithConsensus(
       streakResult = topId != null ? result : null;
     }
 
-    if (streakCount >= matchesNeeded) return streakResult!;
+    if (streakCount >= matchesNeeded)
+      return toScanOutcome(streakResult!, attempts, matchesNeeded);
   }
 
-  return { ...lastResult!, card: null };
+  return toScanOutcome({ ...lastResult!, card: null }, attempts, matchesNeeded);
 }
 
 export function useCardScanner({
@@ -382,15 +573,14 @@ export function useCardScanner({
   const debugImageUrlRef = useRef<string | null>(null);
   const vectorizedOnRef = useRef<ScanVectorizeSource | undefined>(undefined);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
-  // Games without a tuned OCR region (see OCR_REGIONS_BY_GAME_KEY) can't
-  // usefully run OCR at all - keep the toggle off and disabled for them
-  // rather than letting it silently do nothing.
+  const { data: orgSettings } = useQuery(
+    orgSettingsQueryOptions(activeOrg?.id),
+  );
   const ocrSupported =
     (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
     0;
-  const [ocrEnabled, setOcrEnabled] = useState(false);
-  const ocrEnabledRef = useRef(ocrEnabled && ocrSupported);
-  ocrEnabledRef.current = ocrEnabled && ocrSupported;
+  const ocrEnabledRef = useRef(false);
+  ocrEnabledRef.current = !!orgSettings?.ocrEnabled && ocrSupported;
   const [hasPhonePhoto, setHasPhonePhoto] = useState(false);
 
   useEffect(() => {
@@ -471,6 +661,8 @@ export function useCardScanner({
           debugImageUrl,
           detectedContour,
           vectorizedOn,
+          needsReview,
+          noMatch,
         } = await searchCardImageWithConsensus(
             canvas,
             fromLiveVideo ? drawLatestVideoFrame : () => {},
@@ -507,16 +699,26 @@ export function useCardScanner({
             if (!pausedMidSearch) updateStatus("duplicate");
           } else {
             lastScannedCardIdRef.current = card.id;
+            if (needsReview) {
+              console.log(
+                `[scanner] OCR name match used without an embedding match, flagged for review: ${card.name} (${card.id})`,
+              );
+            }
             onSearchResultsRef.current?.(
               [card, ...alternativeMatches],
               debugImageUrl,
               vectorizedOn,
+              needsReview,
             );
             if (!pausedMidSearch) updateStatus("scanning");
           }
         } else {
           playDingSound();
-          onNoMatchRef.current?.(debugImageUrl, vectorizedOn);
+          onNoMatchRef.current?.(
+            debugImageUrl,
+            vectorizedOn,
+            noMatch ?? undefined,
+          );
           if (!pausedMidSearch) updateStatus("no-match");
         }
       } catch (err) {
@@ -878,9 +1080,6 @@ export function useCardScanner({
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,
-    ocrEnabled: ocrEnabled && ocrSupported,
-    setOcrEnabled,
-    ocrSupported,
     cameraSource,
     phonePairingStatus,
     phonePairingUrl,

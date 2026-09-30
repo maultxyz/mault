@@ -111,9 +111,6 @@ export function CardScanner({
     selectCamera,
     allowDuplicates,
     setAllowDuplicates,
-    ocrEnabled,
-    setOcrEnabled,
-    ocrSupported,
     cameraSource,
     phonePairingStatus,
     phonePairingUrl,
@@ -122,13 +119,19 @@ export function CardScanner({
     hasPhonePhoto,
     isAtScanLimit,
   } = useCardScanner({
-    onSearchResults: (cards, capturedImageUrl, vectorizedOn) => {
+    onSearchResults: (cards, capturedImageUrl, vectorizedOn, needsReview) => {
       if (cards.length > 0) {
-        addCard(cards[0], capturedImageUrl, cards.slice(1), vectorizedOn);
+        addCard(
+          cards[0],
+          capturedImageUrl,
+          cards.slice(1),
+          vectorizedOn,
+          needsReview,
+        );
       }
     },
-    onNoMatch: (capturedImageUrl, vectorizedOn) => {
-      addUnmatchedCard(capturedImageUrl, vectorizedOn);
+    onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
+      addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
     rotated: !isMobile,
   });
@@ -482,8 +485,6 @@ export function CardScanner({
           isConnected={isConnected}
           autoFeed={autoFeed}
           allowDuplicates={allowDuplicates}
-          ocrEnabled={ocrEnabled}
-          ocrSupported={ocrSupported}
           cameras={cameras}
           selectedCameraId={selectedCameraId}
           phonePairingStatus={phonePairingStatus}
@@ -508,7 +509,6 @@ export function CardScanner({
           onUpgrade={() => navigate("/app/settings")}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
-          onOcrEnabledChange={setOcrEnabled}
         />
       </div>
       {isCameraActive && !controlsContainer && scannerControls}

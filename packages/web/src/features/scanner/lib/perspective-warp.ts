@@ -105,11 +105,12 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
 function warpWithWebGl(
   source: HTMLCanvasElement,
   homography: number[],
-  outputSize: number,
+  outputWidth: number,
+  outputHeight: number,
 ): HTMLCanvasElement | null {
   const output = document.createElement("canvas");
-  output.width = outputSize;
-  output.height = outputSize;
+  output.width = outputWidth;
+  output.height = outputHeight;
   const gl = output.getContext("webgl", { premultipliedAlpha: false });
   if (!gl) return null;
 
@@ -147,7 +148,7 @@ function warpWithWebGl(
   gl.uniform2f(gl.getUniformLocation(program, "uSourceSize"), source.width, source.height);
   gl.uniform1i(gl.getUniformLocation(program, "uSource"), 0);
 
-  gl.viewport(0, 0, outputSize, outputSize);
+  gl.viewport(0, 0, outputWidth, outputHeight);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
   return output;
@@ -181,29 +182,30 @@ function bilinearSample(
 function warpWithCpu(
   source: HTMLCanvasElement,
   homography: number[],
-  outputSize: number,
+  outputWidth: number,
+  outputHeight: number,
 ): HTMLCanvasElement {
   const sourceCtx = source.getContext("2d");
   if (!sourceCtx) throw new Error("Could not get canvas context");
   const sourceData = sourceCtx.getImageData(0, 0, source.width, source.height);
 
   const output = document.createElement("canvas");
-  output.width = outputSize;
-  output.height = outputSize;
+  output.width = outputWidth;
+  output.height = outputHeight;
   const outCtx = output.getContext("2d");
   if (!outCtx) throw new Error("Could not get canvas context");
-  const outData = outCtx.createImageData(outputSize, outputSize);
+  const outData = outCtx.createImageData(outputWidth, outputHeight);
 
   const h = homography;
-  for (let dy = 0; dy < outputSize; dy++) {
-    const ny = dy / outputSize;
-    for (let dx = 0; dx < outputSize; dx++) {
-      const nx = dx / outputSize;
+  for (let dy = 0; dy < outputHeight; dy++) {
+    const ny = dy / outputHeight;
+    for (let dx = 0; dx < outputWidth; dx++) {
+      const nx = dx / outputWidth;
       const w = h[6] * nx + h[7] * ny + h[8];
       const sx = (h[0] * nx + h[1] * ny + h[2]) / w;
       const sy = (h[3] * nx + h[4] * ny + h[5]) / w;
 
-      const o = (dy * outputSize + dx) * 4;
+      const o = (dy * outputWidth + dx) * 4;
       if (sx < 0 || sx > source.width - 1 || sy < 0 || sy > source.height - 1) {
         outData.data[o + 3] = 255;
         continue;
@@ -223,15 +225,16 @@ function warpWithCpu(
 export function dewarpCard(
   source: HTMLCanvasElement,
   contour: CardContour,
-  outputSize = 448,
+  outputWidth = 448,
+  outputHeight = outputWidth,
 ): HTMLCanvasElement {
   const homography = solveHomographyDstToSrc(contourToPoints(contour));
 
   try {
-    const warped = warpWithWebGl(source, homography, outputSize);
+    const warped = warpWithWebGl(source, homography, outputWidth, outputHeight);
     if (warped) return warped;
   } catch (err) {
     console.warn("[perspective-warp] WebGL warp failed, falling back to CPU:", err);
   }
-  return warpWithCpu(source, homography, outputSize);
+  return warpWithCpu(source, homography, outputWidth, outputHeight);
 }

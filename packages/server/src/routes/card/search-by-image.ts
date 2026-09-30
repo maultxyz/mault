@@ -1,8 +1,6 @@
-import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
-import { ocrRegions } from "../../lib/ocr";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { attachMatchedCards, findCardMatches } from "./shared";
@@ -18,7 +16,6 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
       typeof body["collectionGuid"] === "string"
         ? body["collectionGuid"]
         : undefined;
-    const ocrEnabled = body["ocrEnabled"] !== "false";
 
     if (!file || typeof file === "string") {
       return c.json({ success: false, message: "No image provided." }, 400);
@@ -46,18 +43,8 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
     const buffer = Buffer.from(await file.arrayBuffer());
 
     let embeddings: Awaited<ReturnType<typeof vectorizeCardImage>>;
-    let ocrText: string;
     try {
-      const [embeddingResult, ocrResult] = await Promise.all([
-        vectorizeCardImage(buffer),
-        ocrEnabled
-          ? ocrRegions(buffer, OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []).catch(
-              () => "",
-            )
-          : Promise.resolve(""),
-      ]);
-      embeddings = embeddingResult;
-      ocrText = ocrResult;
+      embeddings = await vectorizeCardImage(buffer);
     } catch (err) {
       console.error(err);
       return c.json(
@@ -71,9 +58,17 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         gameKey,
         lang,
         embeddings,
-        ocrText,
       });
-      return c.json(await attachMatchedCards(result, gameKey, lang));
+      const withEmbedding = result.diagnostics
+        ? {
+            ...result,
+            diagnostics: {
+              ...result.diagnostics,
+              embedding: embeddings.embedding,
+            },
+          }
+        : result;
+      return c.json(await attachMatchedCards(withEmbedding, gameKey, lang));
     } catch (err) {
       console.error(err);
       const orgId = c.req.header("X-Org-Id");
