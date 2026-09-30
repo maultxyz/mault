@@ -44,3 +44,5 @@ export const SCANNER_PIP_MINIMIZED_STORAGE_KEY = "magic-vault:scanner-pip-minimi
 
 export const CARD_TECHNICAL_DETAILS_STORAGE_KEY =
   "magic-vault:card-technical-details";
+
+export const BLE_DEVICE_MAP_STORAGE_KEY = "magic-vault:ble-device-map";

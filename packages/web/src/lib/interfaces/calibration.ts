@@ -1,3 +1,4 @@
+import type { DevicePatch } from "@/features/calibration/api/devices";
 import type { ReactNode } from "react";
 import type {
   BinHeight,
@@ -152,8 +153,7 @@ export interface SetupWizardContextValue {
   forceSetup: () => Promise<void>;
 }
 
-export interface ExperimentalFeaturesPanelProps {
-  pipelinedFeed: boolean;
-  isLoading: boolean;
-  onPipelinedFeedChange: (next: boolean) => void;
+export interface DeviceSettingsChange {
+  guid: string;
+  patch: DevicePatch;
 }

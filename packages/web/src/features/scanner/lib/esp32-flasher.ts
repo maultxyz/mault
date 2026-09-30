@@ -22,7 +22,26 @@ function hardReset(transport: EspLoaderTransport) {
 // board running this project's firmware, some other sketch, or nothing at
 // all. The released image is a merged bootloader + partitions + app binary,
 // which is why it's written whole at offset 0.
+let activeFlashes = 0;
+
+export function isFlashInProgress(): boolean {
+  return activeFlashes > 0;
+}
+
 export async function flashEsp32Port(
+  port: SerialPort,
+  firmwareUrl: string,
+  callbacks: FlashProgressCallbacks,
+): Promise<FlashEsp32Result> {
+  activeFlashes++;
+  try {
+    return await flashPort(port, firmwareUrl, callbacks);
+  } finally {
+    activeFlashes--;
+  }
+}
+
+async function flashPort(
   port: SerialPort,
   firmwareUrl: string,
   callbacks: FlashProgressCallbacks,

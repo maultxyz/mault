@@ -30,6 +30,16 @@ export class SerialTransport implements ByteTransport {
     this.port = port;
   }
 
+  static async openGranted(port: SerialPort): Promise<SerialTransport | null> {
+    if (port.readable || port.writable) return null;
+    try {
+      await port.open({ baudRate: 9600 });
+    } catch {
+      return null;
+    }
+    return new SerialTransport(port);
+  }
+
   static async requestAndOpen(): Promise<
     | { ok: true; transport: SerialTransport }
     | { ok: false; reason: "cancelled" | "open-failed" }
@@ -110,8 +120,12 @@ async function connectNusCharacteristics(device: BluetoothDevice) {
     try {
       const server = gatt.connected ? gatt : await gatt.connect();
       const service = await server.getPrimaryService(NUS_SERVICE_UUID);
-      const rxChar = await service.getCharacteristic(NUS_RX_CHARACTERISTIC_UUID);
-      const txChar = await service.getCharacteristic(NUS_TX_CHARACTERISTIC_UUID);
+      const rxChar = await service.getCharacteristic(
+        NUS_RX_CHARACTERISTIC_UUID,
+      );
+      const txChar = await service.getCharacteristic(
+        NUS_TX_CHARACTERISTIC_UUID,
+      );
       return { rxChar, txChar };
     } catch (e) {
       lastError = e;
@@ -149,6 +163,25 @@ export class BluetoothTransport implements ByteTransport {
     this.txChar = txChar;
   }
 
+  get bluetoothDevice(): BluetoothDevice {
+    return this.device;
+  }
+
+  static async connectDevice(
+    device: BluetoothDevice,
+  ): Promise<BluetoothTransport | null> {
+    if (!device.gatt) return null;
+    try {
+      const { rxChar, txChar } = await connectNusCharacteristics(device);
+      return new BluetoothTransport(device, rxChar, txChar);
+    } catch {
+      try {
+        device.gatt.disconnect();
+      } catch {}
+      return null;
+    }
+  }
+
   static async requestAndConnect(): Promise<
     | { ok: true; transport: BluetoothTransport }
     | { ok: false; reason: "cancelled" }
@@ -175,11 +208,18 @@ export class BluetoothTransport implements ByteTransport {
       };
     }
     if (!device.gatt) {
-      return { ok: false, reason: "failed", message: "No GATT server on this device." };
+      return {
+        ok: false,
+        reason: "failed",
+        message: "No GATT server on this device.",
+      };
     }
     try {
       const { rxChar, txChar } = await connectNusCharacteristics(device);
-      return { ok: true, transport: new BluetoothTransport(device, rxChar, txChar) };
+      return {
+        ok: true,
+        transport: new BluetoothTransport(device, rxChar, txChar),
+      };
     } catch (e) {
       console.error("[Bluetooth] Connect failed:", e); // eslint-disable-line no-console -- hardware debug trace
       try {
@@ -194,7 +234,10 @@ export class BluetoothTransport implements ByteTransport {
   }
 
   async start() {
-    this.device.addEventListener("gattserverdisconnected", this.handleGattDisconnected);
+    this.device.addEventListener(
+      "gattserverdisconnected",
+      this.handleGattDisconnected,
+    );
     this.txChar.addEventListener(
       "characteristicvaluechanged",
       this.handleValueChanged,
@@ -205,7 +248,9 @@ export class BluetoothTransport implements ByteTransport {
   private handleValueChanged = (event: Event) => {
     const value = (event.target as BluetoothRemoteGATTCharacteristic).value;
     if (!value) return;
-    this.dataCb?.(new Uint8Array(value.buffer, value.byteOffset, value.byteLength));
+    this.dataCb?.(
+      new Uint8Array(value.buffer, value.byteOffset, value.byteLength),
+    );
   };
 
   private handleGattDisconnected = () => {

@@ -32,6 +32,7 @@ export interface Device {
   channelLayout: ChannelLayout;
   setupCompletedAt: string | null;
   pipelinedFeed: boolean;
+  autoConnect: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -47,6 +48,7 @@ export interface DevicePatch {
   channelLayout?: ChannelLayout;
   setupCompleted?: boolean;
   pipelinedFeed?: boolean;
+  autoConnect?: boolean;
 }
 
 export const DEFAULT_DEVICE: Device = {
@@ -61,6 +63,7 @@ export const DEFAULT_DEVICE: Device = {
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
   setupCompletedAt: null,
   pipelinedFeed: false,
+  autoConnect: false,
   createdAt: "",
   updatedAt: "",
 };

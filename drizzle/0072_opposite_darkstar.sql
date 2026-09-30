@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD COLUMN "auto_connect" boolean DEFAULT false NOT NULL;

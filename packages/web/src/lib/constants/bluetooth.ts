@@ -6,3 +6,6 @@ export const BLE_WRITE_CHUNK_SIZE = 20;
 
 export const BLE_CONNECT_ATTEMPTS = 4;
 export const BLE_CONNECT_RETRY_DELAY_MS = 600;
+
+export const BLE_RECONNECT_BASE_DELAY_MS = 2000;
+export const BLE_RECONNECT_MAX_DELAY_MS = 30000;

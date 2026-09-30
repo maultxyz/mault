@@ -16,7 +16,6 @@ import {
   type ModuleConfigAuditEntry,
 } from "@/features/calibration/api/module-configs";
 import { useDevice } from "@/features/calibration/api/use-device";
-import { ExperimentalFeaturesPanel } from "@/features/calibration/components/experimental-features-panel";
 import { FeederCalibrationPanel } from "@/features/calibration/components/feeder-calibration-panel";
 import { ModuleCalibrationGrid } from "@/features/calibration/components/module-calibration-grid";
 import { IconClockHour3, IconRestore } from "@tabler/icons-react";
@@ -145,8 +144,6 @@ export default function CalibrateCalibrationPage() {
     handleFeederPauseDurationChange,
     handleFeederSettleDurationChange,
     handleFeederSelectContinuous,
-    pipelinedFeed,
-    handlePipelinedFeedChange,
     isFeederModuleDirty,
     isSavingFeederModule,
     handleSaveFeederModuleCalibration,
@@ -293,12 +290,6 @@ export default function CalibrateCalibrationPage() {
         onModuleDelayChange={handleModuleDelayChange}
         pushTestingModule={pushTestingModule}
         onPushTest={handlePushTest}
-      />
-
-      <ExperimentalFeaturesPanel
-        pipelinedFeed={pipelinedFeed}
-        isLoading={!device}
-        onPipelinedFeedChange={handlePipelinedFeedChange}
       />
 
       <AuditDrawer

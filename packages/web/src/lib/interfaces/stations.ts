@@ -19,6 +19,8 @@ export interface DevicePrefs {
 export interface StationConnector {
   connect: () => Promise<void>;
   connectBluetooth: () => Promise<void>;
+  connectPort: (port: SerialPort) => Promise<void>;
+  connectBluetoothDevice: (device: BluetoothDevice) => Promise<void>;
   disconnect: () => void;
 }
 
@@ -39,6 +41,8 @@ export interface StationsContextValue {
   setStationConnected: (id: string, connected: boolean) => void;
   registerConnector: (id: string, connector: StationConnector) => () => void;
   connectAnotherSorter: (kind: StationConnectKind) => void;
+  connectPortToStandby: (port: SerialPort) => Promise<void>;
+  connectBluetoothDeviceToStandby: (device: BluetoothDevice) => Promise<void>;
   disconnectStation: (id: string) => void;
   getPanelElement: (id: string) => HTMLElement;
   attachPanels: (layout: StationPanelLayout) => () => void;
@@ -52,3 +56,7 @@ export interface StationContextValue {
 }
 
 export type PreTestHook = (device: Device | undefined) => Promise<void>;
+
+export interface BleReconnectState {
+  cancel: (() => void) | null;
+}

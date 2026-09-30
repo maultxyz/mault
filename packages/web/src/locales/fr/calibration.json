@@ -39,7 +39,8 @@
     "title": "Expérimental",
     "badge": "Bêta",
     "pipelinedFeedLabel": "Scanner la carte suivante pendant le tri",
-    "pipelinedFeedDescription": "Alimente et scanne la carte suivante dès que la précédente a quitté le module 1, au lieu d'attendre qu'elle atteigne son bac. Nécessite le firmware 2.1.0 ou plus récent et l'alimentation automatique activée. Désactive cette option si des cartes se coincent ou si les scans captent la carte en mouvement."
+    "pipelinedFeedDescription": "Alimente et scanne la carte suivante dès que la précédente a quitté le module 1, au lieu d'attendre qu'elle atteigne son bac. Nécessite le firmware 2.1.0 ou plus récent et l'alimentation automatique activée. Désactive cette option si des cartes se coincent ou si les scans captent la carte en mouvement.",
+    "saveFailed": "Impossible d'enregistrer le réglage expérimental."
   },
   "sections": {
     "moduleSetup": "Modules et routage",
@@ -369,5 +370,11 @@
     "partsHeading": "Les pièces que tu vas régler",
     "aboutPart": "À propos : {{servo}}",
     "howToSet": "Comment le régler"
+  },
+  "connectionSettings": {
+    "title": "Connexion",
+    "autoConnectLabel": "Connexion automatique au branchement",
+    "autoConnectDescription": "Quand ce trieur est branché en USB pendant que l'application est ouverte (ou qu'il est déjà branché au chargement de l'application), il se connecte tout seul et lance son autotest pour être prêt à scanner. En Bluetooth, s'il se déconnecte ou redémarre, l'application tente de se reconnecter jusqu'à la fermeture de l'onglet. Connecte-le d'abord une fois manuellement dans ce navigateur, pour que le navigateur l'autorise.",
+    "saveFailed": "Impossible d'enregistrer le réglage de connexion automatique."
   }
 }

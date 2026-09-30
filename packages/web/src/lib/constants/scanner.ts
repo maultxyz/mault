@@ -69,3 +69,6 @@ export const COLOR_BAR_HUE_RANGES: Record<string, [number, number][]> = {
 };
 
 export const SCAN_IMAGE_URL_STALE_MS = 50 * 60 * 1000;
+
+export const AUTO_CONNECT_PLUG_DELAY_MS = 1000;
+export const AUTO_CONNECT_SETTLE_MS = 750;

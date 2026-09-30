@@ -505,6 +505,13 @@
       "when": 1790800012921,
       "tag": "0071_cute_madelyne_pryor",
       "breakpoints": true
+    },
+    {
+      "idx": 72,
+      "version": "7",
+      "when": 1790800921325,
+      "tag": "0072_opposite_darkstar",
+      "breakpoints": true
     }
   ]
 }

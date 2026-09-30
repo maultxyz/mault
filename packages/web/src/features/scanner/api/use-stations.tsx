@@ -159,7 +159,10 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     }
     const active = stations.find((s) => s.id === activeStationId);
     if (active?.collectionGuid) {
-      localStorage.setItem(ACTIVE_COLLECTION_STORAGE_KEY, active.collectionGuid);
+      localStorage.setItem(
+        ACTIVE_COLLECTION_STORAGE_KEY,
+        active.collectionGuid,
+      );
     }
   }, [orgId, stations, activeStationId]);
 
@@ -287,7 +290,13 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
         setActive(id);
       }
     },
-    [collectionTakenByOther, setActive, setConnected, setStations, updateStation],
+    [
+      collectionTakenByOther,
+      setActive,
+      setConnected,
+      setStations,
+      updateStation,
+    ],
   );
 
   const registerConnector = useCallback(
@@ -313,6 +322,29 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     if (!connector) return;
     void (kind === "usb" ? connector.connect() : connector.connectBluetooth());
   }, []);
+
+  const connectPortToStandby = useCallback(async (port: SerialPort) => {
+    if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
+    const standby = stationsRef.current.find(
+      (s) => !connectedRef.current.has(s.id),
+    );
+    const connector = standby && connectorsRef.current.get(standby.id);
+    if (!connector) return;
+    await connector.connectPort(port);
+  }, []);
+
+  const connectBluetoothDeviceToStandby = useCallback(
+    async (device: BluetoothDevice) => {
+      if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
+      const standby = stationsRef.current.find(
+        (s) => !connectedRef.current.has(s.id),
+      );
+      const connector = standby && connectorsRef.current.get(standby.id);
+      if (!connector) return;
+      await connector.connectBluetoothDevice(device);
+    },
+    [],
+  );
 
   const disconnectStation = useCallback((id: string) => {
     connectorsRef.current.get(id)?.disconnect();
@@ -393,6 +425,8 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       setStationConnected,
       registerConnector,
       connectAnotherSorter,
+      connectPortToStandby,
+      connectBluetoothDeviceToStandby,
       disconnectStation,
       getPanelElement,
       attachPanels,
@@ -411,6 +445,8 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       setStationConnected,
       registerConnector,
       connectAnotherSorter,
+      connectPortToStandby,
+      connectBluetoothDeviceToStandby,
       disconnectStation,
       getPanelElement,
       attachPanels,

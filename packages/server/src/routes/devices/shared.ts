@@ -19,6 +19,7 @@ export function toDevice(row: {
   channelLayout: string | null;
   setupCompletedAt: Date | null;
   pipelinedFeed: boolean;
+  autoConnect: boolean;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -36,6 +37,7 @@ export function toDevice(row: {
     channelLayout: row.channelLayout,
     setupCompletedAt: row.setupCompletedAt?.toISOString() ?? null,
     pipelinedFeed: row.pipelinedFeed,
+    autoConnect: row.autoConnect,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
