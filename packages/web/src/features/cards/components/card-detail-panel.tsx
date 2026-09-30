@@ -26,6 +26,7 @@ import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import { SCAN_IMAGE_URL_STALE_MS } from "@/lib/constants/scanner";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
@@ -172,7 +173,7 @@ export function CardDetailPanel({
           (r) => r.data?.capturedImageUrl,
         ),
       enabled: !!activeCollection?.guid && !!scanId,
-      staleTime: Infinity,
+      staleTime: SCAN_IMAGE_URL_STALE_MS,
     });
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);

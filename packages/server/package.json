@@ -13,12 +13,15 @@
     "db:migrate-local": "tsx scripts/migrate-local.ts",
     "resync:all": "tsx --env-file ../../.env scripts/resync-all.ts",
     "sync:prices": "tsx --env-file ../../.env scripts/sync-prices.ts",
+    "migrate:scan-images": "tsx --env-file ../../.env scripts/migrate-scan-images.ts",
     "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts",
     "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts",
     "backfill:devices": "tsx --env-file ../../.env scripts/backfill-devices.ts",
     "backfill:missing-devices": "tsx --env-file ../../.env scripts/backfill-missing-devices.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1144.0",
+    "@aws-sdk/s3-request-presigner": "^3.1144.0",
     "@hono/node-server": "^1.19.9",
     "@huggingface/transformers": "^3.8.1",
     "@magic-vault/shared": "workspace:*",

@@ -2,6 +2,10 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
+import {
+  collectionScanImagePrefix,
+  deleteScanImagePrefix,
+} from "../../lib/scan-images";
 import { emitToOrg } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadCollections } from "./shared";
@@ -41,7 +45,10 @@ export const deleteCollectionRoute = new Hono<AppEnv>().delete(
 
         return loadCollections(tx, orgId);
       });
-      if (result.success) emitToOrg(orgId, "collections_changed", { guid });
+      if (result.success) {
+        deleteScanImagePrefix(collectionScanImagePrefix(orgId, guid));
+        emitToOrg(orgId, "collections_changed", { guid });
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);

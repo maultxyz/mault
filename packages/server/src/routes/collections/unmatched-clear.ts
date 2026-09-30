@@ -2,6 +2,10 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { unmatchedCards } from "../../db/schema";
+import {
+  collectionScanImagePrefix,
+  deleteScanImagePrefix,
+} from "../../lib/scan-images";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -24,12 +28,21 @@ export const clearUnmatchedCardsRoute = new Hono<AppEnv>().delete(
 
         await tx
           .update(unmatchedCards)
-          .set({ isDeleted: true })
+          .set({
+            isDeleted: true,
+            capturedImageKey: null,
+            capturedImageDataUrl: null,
+          })
           .where(eq(unmatchedCards.collectionId, collection.id));
 
         return { success: true, data: null };
       });
-      if (result.success) emitToSession(guid, "unmatched_cleared", {});
+      if (result.success) {
+        deleteScanImagePrefix(
+          collectionScanImagePrefix(orgId, guid, "unmatched"),
+        );
+        emitToSession(guid, "unmatched_cleared", {});
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);

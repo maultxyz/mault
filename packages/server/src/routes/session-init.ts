@@ -10,6 +10,7 @@ import type { Transaction } from "../db";
 import { collectionCards, unmatchedCards } from "../db/schema";
 import { SESSION_INIT_UNMATCHED_IMAGE_LIMIT } from "../lib/constants/session-stream";
 import type { ViewerInfo } from "../lib/session-stream";
+import { resolveScanImageUrl } from "../lib/scan-images";
 import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 
 async function querySessionInit(
@@ -87,12 +88,17 @@ async function querySessionInit(
           .select({
             guid: unmatchedCards.guid,
             capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
+            capturedImageKey: unmatchedCards.capturedImageKey,
           })
           .from(unmatchedCards)
           .where(inArray(unmatchedCards.guid, recentUnmatchedGuids))
       : [];
   const imageByGuid = new Map(
-    recentImages.map((row) => [row.guid, row.capturedImageDataUrl]),
+    await Promise.all(
+      recentImages.map(
+        async (row) => [row.guid, await resolveScanImageUrl(row)] as const,
+      ),
+    ),
   );
 
   return {
@@ -123,7 +129,7 @@ async function querySessionInit(
     unmatchedCards: unmatchedRows.map((row) =>
       toUnmatchedCard({
         ...row,
-        capturedImageDataUrl: imageByGuid.get(row.guid) ?? null,
+        capturedImageUrl: imageByGuid.get(row.guid),
       }),
     ),
     viewers,

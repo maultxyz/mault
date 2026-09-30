@@ -67,3 +67,5 @@ export const COLOR_BAR_HUE_RANGES: Record<string, [number, number][]> = {
   Yellow: [[35, 70]],
   Blue: [[180, 260]],
 };
+
+export const SCAN_IMAGE_URL_STALE_MS = 50 * 60 * 1000;

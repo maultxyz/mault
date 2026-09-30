@@ -8,6 +8,7 @@ import {
   UNIDENTIFIED_SORTER_LEASE_KEY,
 } from "../../lib/device-leases";
 import { acquireLock } from "../../lib/scan-lock";
+import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
 import { recordMatchedScan } from "../../lib/scan-stats";
 import {
   sorterLimitForPlan,
@@ -77,6 +78,10 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           binNumber?: number;
         };
 
+    const storedImage = await storeScanImage(
+      { orgId, collectionGuid: guid, scanId, kind: "cards" },
+      capturedImageUrl,
+    );
     try {
       const { result, collectionName, gameName, gameId } = await authQuery<{
         result: AddCardResult;
@@ -187,7 +192,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             card,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
-            capturedImageDataUrl: capturedImageUrl ?? null,
+            capturedImageDataUrl: storedImage.dataUrl,
+            capturedImageKey: storedImage.key,
             isFoil: isFoil ?? false,
             foilType: foilType ?? null,
             alternativeMatches: alternativeMatches?.length
@@ -225,6 +231,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           gameId: collection.gameId,
         };
       });
+      if (!result.success) deleteScanImages([storedImage.key]);
       if (result.success) {
         void recordMatchedScan(
           scanId,
@@ -260,6 +267,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
+      deleteScanImages([storedImage.key]);
       console.error(err);
       emitToSession(guid, "scan_error", {
         message: "Failed to save card to collection.",

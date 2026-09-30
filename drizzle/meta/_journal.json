@@ -484,6 +484,13 @@
       "when": 1790786569453,
       "tag": "0068_fresh_shocker",
       "breakpoints": true
+    },
+    {
+      "idx": 69,
+      "version": "7",
+      "when": 1790795174144,
+      "tag": "0069_mature_alex_wilder",
+      "breakpoints": true
     }
   ]
 }

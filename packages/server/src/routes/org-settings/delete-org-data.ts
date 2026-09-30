@@ -6,6 +6,10 @@ import {
   purgeOrgData,
 } from "../../lib/org-purge";
 import {
+  deleteScanImagePrefix,
+  orgScanImagePrefix,
+} from "../../lib/scan-images";
+import {
   requireAuth,
   requireOrg,
   requireOrgRole,
@@ -22,6 +26,7 @@ export const deleteOrgDataRoute = new Hono<AppEnv>().delete(
     try {
       await authQuery(c.get("jwtClaims"), (tx) => purgeOrgData(tx, orgId));
       await purgeOrgBilling(orgId);
+      deleteScanImagePrefix(orgScanImagePrefix(orgId));
       return c.json({ success: true, data: null });
     } catch (err) {
       if (err instanceof ActiveSubscriptionError) {

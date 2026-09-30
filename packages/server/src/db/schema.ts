@@ -366,6 +366,7 @@ export const collectionCards = pgTable(
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
     capturedImageDataUrl: text("captured_image_data_url"),
+    capturedImageKey: text("captured_image_key"),
     isFoil: boolean("is_foil").notNull().default(false),
     foilType: text("foil_type"),
     isDownloaded: boolean("is_downloaded").notNull().default(false),
@@ -400,6 +401,7 @@ export const unmatchedCards = pgTable(
       .notNull()
       .references(() => collections.id, { onDelete: "cascade" }),
     capturedImageDataUrl: text("captured_image_data_url"),
+    capturedImageKey: text("captured_image_key"),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
     diagnostics: jsonb("diagnostics"),
