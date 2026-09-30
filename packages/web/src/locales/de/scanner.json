@@ -300,7 +300,30 @@
     "heading_one": "{{count}} nicht erkannte Karte",
     "heading_other": "{{count}} nicht erkannte Karten",
     "imageAlt": "Nicht erkannte Karte",
-    "noImage": "Kein Bild aufgenommen"
+    "noImage": "Kein Bild aufgenommen",
+    "reasons": {
+      "too_far": "Kein naher Treffer",
+      "ambiguous": "Mehrdeutig",
+      "empty_index": "Nicht synchronisiert",
+      "no_consensus": "Instabil",
+      "lookup_failed": "Abruf fehlgeschlagen"
+    },
+    "reasonHints": {
+      "too_far": "Die nächste Karte lag außerhalb der Trefferdistanz. Steht die richtige Karte unten, ist das Limit eventuell zu streng. Sonst ist die Karte vielleicht nicht synchronisiert oder das Foto schlecht.",
+      "ambiguous": "Zwei verschiedene Karten lagen fast gleich nah, daher wurde keine gewählt.",
+      "empty_index": "Für dieses Spiel und diese Sprache sind noch keine Karten synchronisiert. Starte eine Synchronisierung im Admin-Bereich.",
+      "no_consensus": "Die Scanversuche erkannten unterschiedliche Karten, daher wurde die nötige Anzahl gleicher Ergebnisse nicht erreicht. Prüfe Licht, Schärfe und Kartenbewegung.",
+      "lookup_failed": "Eine Karte wurde erkannt, aber ihre Details konnten nicht geladen werden."
+    },
+    "candidates": "Nächste Karten (Trefferlimit {{threshold}})",
+    "runnerUp": "Zu nah an {{name}} mit {{distance}}",
+    "attempts": "Versuche ({{needed}} gleiche nötig)",
+    "lookupFailedIds": "Erkannte IDs: {{ids}}",
+    "detectionAi": "Karte per Eckenerkennung gefunden.",
+    "detectionFallback": "Eckenerkennung fehlgeschlagen, fester Scanbereich verwendet.",
+    "sharpness": "Schärfe {{value}}.",
+    "orientationRotated": "Nächstes Ergebnis war kopfüber.",
+    "searchedIn": "Gesucht in {{game}} ({{lang}})."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",

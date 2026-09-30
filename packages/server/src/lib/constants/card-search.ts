@@ -33,3 +33,5 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
 export const MATCH_MAX_DISTANCE_RATIO = 0.9;
 
 export const EXIF_ORIENTATION_TRANSPOSED_FROM = 5;
+
+export const MILO_EMBEDDING_DIM = 128;

@@ -4,6 +4,7 @@ import type {
   PlayingCardWithDistance,
   ScannedCard,
   UnmatchedCard,
+  UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { count, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
@@ -83,12 +84,15 @@ export function toUnmatchedCard(row: {
   capturedImageDataUrl: string | null;
   scannedAt: Date;
   binNumber: number | null;
+  diagnostics?: unknown;
 }): UnmatchedCard {
   return {
     scanId: row.guid!,
     capturedImageUrl: row.capturedImageDataUrl ?? undefined,
     scannedAt: row.scannedAt.getTime(),
     binNumber: row.binNumber ?? undefined,
+    diagnostics:
+      (row.diagnostics as UnmatchedScanDiagnostics | null) ?? undefined,
   };
 }
 

@@ -1,6 +1,8 @@
 import type {
+  CardSearchDiagnostics,
   CardSearchEmbeddings,
   SearchCardMatch,
+  SearchNoMatchReason,
 } from "@magic-vault/shared";
 import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
@@ -63,6 +65,7 @@ export interface CardMatchSearchResult {
   success: true;
   data: SearchCardMatch[] | null;
   nearestDistance: number | null;
+  diagnostics?: CardSearchDiagnostics;
 }
 
 export async function findCardMatches(
@@ -122,6 +125,7 @@ export async function findCardMatches(
         matches.rows.slice(0, MATCH_LIMIT).map((row) => ({
           id: row.card_id as string,
           cardId: row.card_id as string,
+          name: row.name as string,
           setCode: row.set_code as string,
           distance: row.distance as number,
           leaderDistance: row.leader_distance as number,
@@ -145,11 +149,37 @@ export async function findCardMatches(
       ? []
       : candidates.filter((c) => c.distance < DISTANCE_THRESHOLD);
     if (rows.length === 0) {
+      const reason: SearchNoMatchReason =
+        nearestDistance == null
+          ? "empty_index"
+          : isAmbiguous
+            ? "ambiguous"
+            : "too_far";
       return {
         message: "Successfully searched for card.",
         success: true,
         data: null,
         nearestDistance,
+        diagnostics: {
+          reason,
+          gameKey,
+          lang,
+          nearestDistance,
+          runnerUpDistance,
+          runnerUpName:
+            (matches.rows.find((row) => row.name !== leaderName)?.name as
+              | string
+              | undefined) ?? null,
+          distanceThreshold: DISTANCE_THRESHOLD,
+          maxDistanceRatio: MATCH_MAX_DISTANCE_RATIO,
+          candidates: candidates.map(({ cardId, name, setCode, distance }) => ({
+            cardId,
+            name,
+            setCode,
+            distance,
+          })),
+          ocrText: ocrText || undefined,
+        },
       };
     }
 

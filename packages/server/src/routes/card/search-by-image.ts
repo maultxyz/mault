@@ -73,7 +73,16 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         embeddings,
         ocrText,
       });
-      return c.json(await attachMatchedCards(result, gameKey, lang));
+      const withEmbedding = result.diagnostics
+        ? {
+            ...result,
+            diagnostics: {
+              ...result.diagnostics,
+              embedding: embeddings.embedding,
+            },
+          }
+        : result;
+      return c.json(await attachMatchedCards(withEmbedding, gameKey, lang));
     } catch (err) {
       console.error(err);
       const orgId = c.req.header("X-Org-Id");

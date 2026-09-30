@@ -127,8 +127,8 @@ export function CardScanner({
         addCard(cards[0], capturedImageUrl, cards.slice(1), vectorizedOn);
       }
     },
-    onNoMatch: (capturedImageUrl, vectorizedOn) => {
-      addUnmatchedCard(capturedImageUrl, vectorizedOn);
+    onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
+      addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
     rotated: !isMobile,
   });

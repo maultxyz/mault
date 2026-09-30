@@ -399,6 +399,8 @@ export const unmatchedCards = pgTable(
     capturedImageDataUrl: text("captured_image_data_url"),
     scannedAt: timestamp("scanned_at").notNull(),
     binNumber: integer("bin_number"),
+    diagnostics: jsonb("diagnostics"),
+    embedding: vector("embedding"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

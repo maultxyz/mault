@@ -300,7 +300,30 @@
     "heading_one": "{{count}} Unmatched Card",
     "heading_other": "{{count}} Unmatched Cards",
     "imageAlt": "Unrecognized card",
-    "noImage": "No image captured"
+    "noImage": "No image captured",
+    "reasons": {
+      "too_far": "No close match",
+      "ambiguous": "Ambiguous",
+      "empty_index": "Not synced",
+      "no_consensus": "Unstable",
+      "lookup_failed": "Lookup failed"
+    },
+    "reasonHints": {
+      "too_far": "The closest card was beyond the match distance limit. If the right card is listed below, the limit may be too strict. If not, the card may not be synced or the photo may be poor.",
+      "ambiguous": "Two different cards were almost equally close, so neither was picked.",
+      "empty_index": "No cards are synced for this game and language yet. Run a sync from the admin panel.",
+      "no_consensus": "Scan attempts disagreed on the card, so none reached the required number of matching results. Check lighting, focus and card movement.",
+      "lookup_failed": "A card was matched, but its details could not be loaded."
+    },
+    "candidates": "Nearest cards (match limit {{threshold}})",
+    "runnerUp": "Too close to {{name}} at {{distance}}",
+    "attempts": "Attempts ({{needed}} matching needed)",
+    "lookupFailedIds": "Matched ids: {{ids}}",
+    "detectionAi": "Card found by corner detection.",
+    "detectionFallback": "Corner detection failed, used the static scan region.",
+    "sharpness": "Sharpness {{value}}.",
+    "orientationRotated": "Closest result was upside down.",
+    "searchedIn": "Searched {{game}} ({{lang}})."
   },
   "binStatusMeter": {
     "heading": "Bin Levels",

@@ -1,3 +1,7 @@
+import type {
+  CardSearchDiagnostics,
+  SearchNoMatchReason,
+} from "./api.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
 
 export interface Point {
@@ -58,6 +62,7 @@ export interface CardScannerProps {
   onNoMatch?: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
+    details?: UnmatchedScanDetails,
   ) => void;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
@@ -88,10 +93,46 @@ export interface ScannedCard {
   vectorizedOn?: ScanVectorizeSource;
 }
 
+export type UnmatchedReason =
+  | SearchNoMatchReason
+  | "no_consensus"
+  | "lookup_failed";
+
+export interface ScanDetectionDiagnostics {
+  cardDetected: boolean;
+  sharpness: number | null;
+  confidence: number | null;
+  fallbackReason: string | null;
+}
+
+export interface ScanAttemptDiagnostic {
+  reason: UnmatchedReason | null;
+  cardId: string | null;
+  cardName: string | null;
+  distance: number | null;
+}
+
+export interface UnmatchedScanDiagnostics {
+  reason: UnmatchedReason;
+  search: Omit<CardSearchDiagnostics, "embedding"> | null;
+  detection: ScanDetectionDiagnostics;
+  orientation: "upright" | "rotated";
+  matchesNeeded: number;
+  attempts: ScanAttemptDiagnostic[];
+  lookupFailedCardIds?: string[];
+}
+
+export interface UnmatchedScanDetails {
+  diagnostics: UnmatchedScanDiagnostics;
+  embedding: number[] | null;
+}
+
 export interface UnmatchedCard {
   scanId: string;
   capturedImageUrl?: string;
   scannedAt: number;
   binNumber?: number;
   vectorizedOn?: ScanVectorizeSource;
+  diagnostics?: UnmatchedScanDiagnostics;
+  embedding?: number[];
 }

@@ -18,6 +18,13 @@ import {
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import { SCANNABLE_STATUSES } from "@/lib/constants/scanner";
+import type {
+  OrientedSearch,
+  OrientedSearchPick,
+  ResolvedSearchMatches,
+  ScanAttemptOutcome,
+  ScanOutcome,
+} from "@/lib/interfaces/scanner";
 import {
   CLOSE_MATCH_DELTA,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
@@ -29,10 +36,11 @@ import {
   type CardScannerProps,
   type CardSearchResult,
   type PlayingCardWithDistance,
+  type ScanDetectionDiagnostics,
   type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
-  type SearchCardMatch,
+  type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -78,16 +86,16 @@ function playDingSound() {
 }
 
 async function resolveSearchMatches(
-  data: SearchCardMatch[] | null | undefined,
+  result: CardSearchResult,
   collectionGuid: string | undefined,
-  debugImageUrl: string,
-): Promise<{
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  debugImageUrl: string;
-}> {
+): Promise<ResolvedSearchMatches> {
+  const data = result.data;
   if (!data || data.length === 0)
-    return { card: null, alternativeMatches: [], debugImageUrl };
+    return {
+      card: null,
+      alternativeMatches: [],
+      noMatchReason: result.diagnostics?.reason ?? "too_far",
+    };
 
   const closeMatches = data.filter(
     (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
@@ -103,10 +111,15 @@ async function resolveSearchMatches(
 
   const cards = resolved.filter(Boolean) as PlayingCardWithDistance[];
   if (cards.length === 0)
-    return { card: null, alternativeMatches: [], debugImageUrl };
+    return {
+      card: null,
+      alternativeMatches: [],
+      noMatchReason: "lookup_failed",
+      lookupFailedCardIds: closeMatches.map((m) => m.cardId),
+    };
 
   const [card, ...alternativeMatches] = cards;
-  return { card, alternativeMatches, debugImageUrl };
+  return { card, alternativeMatches, noMatchReason: null };
 }
 
 function buildSearchFormData(
@@ -130,17 +143,27 @@ function hasMatch(result: CardSearchResult): boolean {
 async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,
-  search: (canvas: HTMLCanvasElement) => Promise<CardSearchResult>,
-): Promise<{ result: CardSearchResult; canvas: HTMLCanvasElement }> {
-  if (!checkBothOrientations) return { result: await search(canvas), canvas };
+  search: (canvas: HTMLCanvasElement) => Promise<OrientedSearch>,
+): Promise<OrientedSearchPick> {
+  if (!checkBothOrientations)
+    return { ...(await search(canvas)), canvas, orientation: "upright" };
 
   const rotatedCanvas = rotateCanvas180(canvas);
   const [upright, rotated] = await Promise.all([
-    search(canvas).then((result) => ({ result, canvas })),
-    search(rotatedCanvas).then((result) => ({
-      result,
-      canvas: rotatedCanvas,
-    })),
+    search(canvas).then(
+      (found): OrientedSearchPick => ({
+        ...found,
+        canvas,
+        orientation: "upright",
+      }),
+    ),
+    search(rotatedCanvas).then(
+      (found): OrientedSearchPick => ({
+        ...found,
+        canvas: rotatedCanvas,
+        orientation: "rotated",
+      }),
+    ),
   ]);
 
   if (hasMatch(upright.result) !== hasMatch(rotated.result)) {
@@ -164,6 +187,26 @@ function buildImageSearchFormData(
   return formData;
 }
 
+async function toAttemptOutcome(
+  best: OrientedSearchPick,
+  collectionGuid: string | undefined,
+  context: Pick<
+    ScanAttemptOutcome,
+    "detectedContour" | "vectorizedOn" | "detection"
+  >,
+): Promise<ScanAttemptOutcome> {
+  return {
+    ...(await resolveSearchMatches(best.result, collectionGuid)),
+    ...context,
+    debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
+    search: best.result.diagnostics ?? null,
+    orientation: best.orientation,
+    embedding: best.embedding,
+    topDistance:
+      best.result.data?.[0]?.distance ?? best.result.nearestDistance ?? null,
+  };
+}
+
 async function searchCardImage(
   canvas: HTMLCanvasElement,
   refreshFrame: () => void,
@@ -171,19 +214,25 @@ async function searchCardImage(
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
   checkBothOrientations: boolean,
-): Promise<{
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  debugImageUrl: string;
-  detectedContour: CardContour | null;
-  vectorizedOn: ScanVectorizeSource;
-}> {
+): Promise<ScanAttemptOutcome> {
   let fallbackReason = "card not detected";
+  let detection: ScanDetectionDiagnostics = {
+    cardDetected: false,
+    sharpness: null,
+    confidence: null,
+    fallbackReason: null,
+  };
   try {
-    const { dewarpedCanvas, detection } = await detectAndDewarpCard(
+    const { dewarpedCanvas, detection: corners } = await detectAndDewarpCard(
       canvas,
       refreshFrame,
     );
+    detection = {
+      cardDetected: corners.cardPresent,
+      sharpness: corners.sharpness,
+      confidence: corners.confidence,
+      fallbackReason: null,
+    };
     if (dewarpedCanvas) {
       const best = await searchBothOrientations(
         dewarpedCanvas,
@@ -193,27 +242,23 @@ async function searchCardImage(
             ocrEnabled ? canvasToBlob(oriented) : null,
             embedCanvas(oriented),
           ]);
-          return searchByVector(
+          const result = await searchByVector(
             buildSearchFormData(blob, embedding, collectionGuid, ocrEnabled),
           );
+          return { result, embedding };
         },
       );
-      const debugImageUrl = best.canvas.toDataURL("image/jpeg", 0.8);
 
       console.log(
-        `[scanner] using AI card detection (confidence=${detection.confidence.toFixed(3)})`,
+        `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
-      return {
-        ...(await resolveSearchMatches(
-          best.result.data,
-          collectionGuid,
-          debugImageUrl,
-        )),
-        detectedContour: detection.contour,
+      return toAttemptOutcome(best, collectionGuid, {
+        detectedContour: corners.contour,
         vectorizedOn: "web",
-      };
+        detection,
+      });
     }
-    fallbackReason = `card not detected (cardPresent=${detection.cardPresent}, sharpness=${detection.sharpness ?? "n/a"})`;
+    fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
   } catch (err) {
     fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
     console.error(
@@ -227,25 +272,75 @@ async function searchCardImage(
   const best = await searchBothOrientations(
     warpedCanvas,
     checkBothOrientations,
-    async (oriented) =>
-      searchByImage(
+    async (oriented) => {
+      const result = await searchByImage(
         buildImageSearchFormData(
           await canvasToBlob(oriented),
           collectionGuid,
           ocrEnabled,
         ),
-      ),
+      );
+      return { result, embedding: result.diagnostics?.embedding ?? null };
+    },
   );
-  const debugImageUrl = best.canvas.toDataURL("image/jpeg", 0.8);
 
-  return {
-    ...(await resolveSearchMatches(
-      best.result.data,
-      collectionGuid,
-      debugImageUrl,
-    )),
+  return toAttemptOutcome(best, collectionGuid, {
     detectedContour: null,
     vectorizedOn: "server",
+    detection: { ...detection, fallbackReason },
+  });
+}
+
+function toScanOutcome(
+  outcome: ScanAttemptOutcome,
+  attempts: ScanAttemptOutcome[],
+  matchesNeeded: number,
+): ScanOutcome {
+  const {
+    card,
+    alternativeMatches,
+    debugImageUrl,
+    detectedContour,
+    vectorizedOn,
+  } = outcome;
+  if (card) {
+    return {
+      card,
+      alternativeMatches,
+      debugImageUrl,
+      detectedContour,
+      vectorizedOn,
+      noMatch: null,
+    };
+  }
+
+  const searchWithoutEmbedding = outcome.search
+    ? (({ embedding: _embedding, ...rest }) => rest)(outcome.search)
+    : null;
+  const diagnostics: UnmatchedScanDiagnostics = {
+    reason: attempts.some((a) => a.card)
+      ? "no_consensus"
+      : (outcome.noMatchReason ?? "too_far"),
+    search: searchWithoutEmbedding,
+    detection: outcome.detection,
+    orientation: outcome.orientation,
+    matchesNeeded,
+    attempts: attempts.map((a) => ({
+      reason: a.noMatchReason,
+      cardId: a.card?.id ?? null,
+      cardName: a.card?.name ?? null,
+      distance: a.topDistance,
+    })),
+    lookupFailedCardIds: outcome.lookupFailedCardIds,
+  };
+
+  return {
+    card: null,
+    alternativeMatches: [],
+    debugImageUrl,
+    detectedContour,
+    vectorizedOn,
+    noMatch: { diagnostics, embedding: outcome.embedding },
   };
 }
 
@@ -257,9 +352,10 @@ async function searchCardImageWithConsensus(
   ocrEnabled: boolean | undefined,
   matchesNeeded: number,
   checkBothOrientations: boolean,
-): Promise<Awaited<ReturnType<typeof searchCardImage>>> {
-  const attempt = () =>
-    searchCardImage(
+): Promise<ScanOutcome> {
+  const attempts: ScanAttemptOutcome[] = [];
+  const attempt = async () => {
+    const outcome = await searchCardImage(
       canvas,
       refreshFrame,
       contour,
@@ -267,15 +363,19 @@ async function searchCardImageWithConsensus(
       ocrEnabled,
       checkBothOrientations,
     );
+    attempts.push(outcome);
+    return outcome;
+  };
 
-  if (matchesNeeded <= 1) return attempt();
+  if (matchesNeeded <= 1)
+    return toScanOutcome(await attempt(), attempts, matchesNeeded);
 
   const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
 
   let streakId: string | null = null;
   let streakCount = 0;
-  let streakResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
-  let lastResult: Awaited<ReturnType<typeof searchCardImage>> | null = null;
+  let streakResult: ScanAttemptOutcome | null = null;
+  let lastResult: ScanAttemptOutcome | null = null;
 
   for (let i = 0; i < maxAttempts; i++) {
     const result = await attempt();
@@ -291,10 +391,11 @@ async function searchCardImageWithConsensus(
       streakResult = topId != null ? result : null;
     }
 
-    if (streakCount >= matchesNeeded) return streakResult!;
+    if (streakCount >= matchesNeeded)
+      return toScanOutcome(streakResult!, attempts, matchesNeeded);
   }
 
-  return { ...lastResult!, card: null };
+  return toScanOutcome({ ...lastResult!, card: null }, attempts, matchesNeeded);
 }
 
 export function useCardScanner({
@@ -471,6 +572,7 @@ export function useCardScanner({
           debugImageUrl,
           detectedContour,
           vectorizedOn,
+          noMatch,
         } = await searchCardImageWithConsensus(
             canvas,
             fromLiveVideo ? drawLatestVideoFrame : () => {},
@@ -516,7 +618,11 @@ export function useCardScanner({
           }
         } else {
           playDingSound();
-          onNoMatchRef.current?.(debugImageUrl, vectorizedOn);
+          onNoMatchRef.current?.(
+            debugImageUrl,
+            vectorizedOn,
+            noMatch ?? undefined,
+          );
           if (!pausedMidSearch) updateStatus("no-match");
         }
       } catch (err) {

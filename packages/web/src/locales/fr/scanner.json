@@ -300,7 +300,30 @@
     "heading_one": "{{count}} carte non reconnue",
     "heading_other": "{{count}} cartes non reconnues",
     "imageAlt": "Carte non reconnue",
-    "noImage": "Aucune image capturée"
+    "noImage": "Aucune image capturée",
+    "reasons": {
+      "too_far": "Aucune correspondance proche",
+      "ambiguous": "Ambigu",
+      "empty_index": "Non synchronisé",
+      "no_consensus": "Instable",
+      "lookup_failed": "Échec du chargement"
+    },
+    "reasonHints": {
+      "too_far": "La carte la plus proche dépassait la distance limite. Si la bonne carte figure ci-dessous, la limite est peut-être trop stricte. Sinon, la carte n'est peut-être pas synchronisée ou la photo est de mauvaise qualité.",
+      "ambiguous": "Deux cartes différentes étaient presque aussi proches l'une que l'autre, aucune n'a donc été choisie.",
+      "empty_index": "Aucune carte n'est encore synchronisée pour ce jeu et cette langue. Lance une synchronisation depuis l'administration.",
+      "no_consensus": "Les tentatives de scan ne concordaient pas, le nombre de résultats identiques requis n'a donc pas été atteint. Vérifie l'éclairage, la netteté et le mouvement de la carte.",
+      "lookup_failed": "Une carte a été reconnue, mais ses détails n'ont pas pu être chargés."
+    },
+    "candidates": "Cartes les plus proches (limite {{threshold}})",
+    "runnerUp": "Trop proche de {{name}} à {{distance}}",
+    "attempts": "Tentatives ({{needed}} identiques requises)",
+    "lookupFailedIds": "Identifiants reconnus : {{ids}}",
+    "detectionAi": "Carte trouvée par la détection des coins.",
+    "detectionFallback": "Détection des coins échouée, zone de scan fixe utilisée.",
+    "sharpness": "Netteté {{value}}.",
+    "orientationRotated": "Le résultat le plus proche était à l'envers.",
+    "searchedIn": "Recherche dans {{game}} ({{lang}})."
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",

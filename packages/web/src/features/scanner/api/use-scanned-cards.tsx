@@ -7,6 +7,7 @@ import {
   type ScannedCard,
   type ScanVectorizeSource,
   type UnmatchedCard,
+  type UnmatchedScanDetails,
   countCopiesInBin,
   evaluateAlphabetBin,
   evaluateCardBin,
@@ -569,7 +570,11 @@ export function ScannedCardsProvider({
   ]);
 
   const addUnmatchedCard = useCallback(
-    (capturedImageUrl?: string, vectorizedOn?: ScanVectorizeSource) => {
+    (
+      capturedImageUrl?: string,
+      vectorizedOn?: ScanVectorizeSource,
+      details?: UnmatchedScanDetails,
+    ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
         sendCatchAllBin();
@@ -588,6 +593,7 @@ export function ScannedCardsProvider({
         scannedAt: Date.now(),
         binNumber: catchAll?.binNumber,
         vectorizedOn,
+        diagnostics: details?.diagnostics,
       };
       const dropRecord = () =>
         setUnmatchedCards((prev) =>
@@ -597,7 +603,11 @@ export function ScannedCardsProvider({
       setUnmatchedCards((prev) => [record, ...prev]);
       sendCatchAllBin();
 
-      addUnmatchedCardApi(collection.guid, record, deviceGuidRef.current)
+      addUnmatchedCardApi(
+        collection.guid,
+        { ...record, embedding: details?.embedding ?? undefined },
+        deviceGuidRef.current,
+      )
         .then((result) => {
           if (result.success) return;
           dropRecord();

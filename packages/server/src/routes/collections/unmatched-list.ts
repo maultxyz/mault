@@ -28,6 +28,7 @@ export const listUnmatchedCardsRoute = new Hono<AppEnv>().get(
             capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
             scannedAt: unmatchedCards.scannedAt,
             binNumber: unmatchedCards.binNumber,
+            diagnostics: unmatchedCards.diagnostics,
           })
           .from(unmatchedCards)
           .where(

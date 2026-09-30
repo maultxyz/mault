@@ -3,7 +3,14 @@ import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
+  CardContour,
   CardScannerProps,
+  CardSearchDiagnostics,
+  CardSearchResult,
+  ScanDetectionDiagnostics,
+  UnmatchedReason,
+  UnmatchedScanDetails,
+  UnmatchedScanDiagnostics,
   BinRoute,
   Collection,
   GroupedScannedCard,
@@ -92,6 +99,7 @@ export interface ScannedCardsContextValue {
   addUnmatchedCard: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
+    details?: UnmatchedScanDetails,
   ) => void;
   removeUnmatchedCard: (scanId: string) => void;
   sendCatchAllBin: () => void;
@@ -352,4 +360,45 @@ export interface ScanStatsProps {
 
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
+}
+
+export interface UnmatchedDiagnosticsDetailsProps {
+  diagnostics: UnmatchedScanDiagnostics;
+}
+
+export interface OrientedSearch {
+  result: CardSearchResult;
+  embedding: number[] | null;
+}
+
+export interface OrientedSearchPick extends OrientedSearch {
+  canvas: HTMLCanvasElement;
+  orientation: "upright" | "rotated";
+}
+
+export interface ResolvedSearchMatches {
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  noMatchReason: UnmatchedReason | null;
+  lookupFailedCardIds?: string[];
+}
+
+export interface ScanAttemptOutcome extends ResolvedSearchMatches {
+  debugImageUrl: string;
+  detectedContour: CardContour | null;
+  vectorizedOn: ScanVectorizeSource;
+  detection: ScanDetectionDiagnostics;
+  search: CardSearchDiagnostics | null;
+  orientation: "upright" | "rotated";
+  embedding: number[] | null;
+  topDistance: number | null;
+}
+
+export interface ScanOutcome {
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+  detectedContour: CardContour | null;
+  vectorizedOn: ScanVectorizeSource;
+  noMatch: UnmatchedScanDetails | null;
 }

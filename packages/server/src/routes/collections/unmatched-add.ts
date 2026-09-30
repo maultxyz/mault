@@ -2,6 +2,7 @@ import type { UnmatchedCard } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { unmatchedCards } from "../../db/schema";
+import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import { recordUnmatchedScan } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -21,6 +22,8 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       capturedImageUrl,
       binNumber,
       vectorizedOn,
+      diagnostics,
+      embedding,
       deviceGuid,
     } = await c.req.json<UnmatchedCard & { deviceGuid?: string }>();
     try {
@@ -59,6 +62,8 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             capturedImageDataUrl: capturedImageUrl ?? null,
             scannedAt: new Date(scannedAt),
             binNumber: binNumber ?? null,
+            diagnostics: diagnostics ?? null,
+            embedding: embedding?.length === MILO_EMBEDDING_DIM ? embedding : null,
             orgId,
           })
           .onConflictDoNothing();
@@ -70,6 +75,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             capturedImageUrl,
             scannedAt,
             binNumber,
+            diagnostics,
           } as UnmatchedCard,
         };
       });
