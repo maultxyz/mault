@@ -55,3 +55,15 @@ export const UNMATCHED_RATE_TOAST_ID = "unmatched-rate";
 export const SHOW_SCAN_LOGS = import.meta.env.VITE_SHOW_SCAN_LOGS === "true";
 
 export const ONNX_RUNTIME_FAILURE_TOAST_ID = "onnx-runtime-failure";
+
+export const COLOR_BAR_MIN_SATURATION = 0.35;
+export const COLOR_BAR_MIN_BRIGHTNESS = 64;
+export const COLOR_BAR_MIN_SHARE = 0.12;
+export const COLOR_BAR_HUE_RANGES: Record<string, [number, number][]> = {
+  Red: [
+    [0, 20],
+    [330, 360],
+  ],
+  Yellow: [[35, 70]],
+  Blue: [[180, 260]],
+};

@@ -246,6 +246,8 @@
     "cardJson": "Kartendaten (JSON)",
     "copyJson": "JSON kopieren",
     "copied": "Karten-JSON kopiert.",
-    "copyFailed": "Karten-JSON konnte nicht kopiert werden."
+    "copyFailed": "Karten-JSON konnte nicht kopiert werden.",
+    "detectedColor": "Erkannter Farbbalken",
+    "noColor": "Keiner"
   }
 }

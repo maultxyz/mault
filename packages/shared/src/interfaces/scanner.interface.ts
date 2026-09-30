@@ -145,6 +145,7 @@ export interface MatchedScanDiagnostics {
   attempts: ScanAttemptDiagnostic[];
   candidates: MatchCandidateDiagnostic[];
   ocr: OcrDiagnostics | null;
+  detectedColor?: string | null;
 }
 
 export interface MatchedScanDetails {
