@@ -145,10 +145,6 @@
     "connect": {
       "content": "Associe d'abord le trieur en USB ici - la majeure partie de cette page est désactivée tant qu'il n'est pas connecté. Lance Tester pour vérifier chaque servomoteur une fois calibré."
     },
-    "channelLayout": {
-      "title": "Disposition des canaux",
-      "content": "Indique à l'application comment les canaux du PCA9685 sont câblés aux servomoteurs de chaque module."
-    },
     "moduleCount": {
       "title": "Nombre de modules",
       "content": "Définis le nombre de modules de tri physiquement installés - cela détermine le nombre de bacs disponibles."

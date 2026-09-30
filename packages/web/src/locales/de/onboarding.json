@@ -145,10 +145,6 @@
     "connect": {
       "content": "Koppele den Sortierer zuerst hier über USB - der Großteil dieser Seite ist deaktiviert, bis er verbunden ist. Führe Testen aus, um jeden Servo nach der Kalibrierung zu prüfen."
     },
-    "channelLayout": {
-      "title": "Kanalbelegung",
-      "content": "Teile der App mit, wie die PCA9685-Kanäle mit den Servos jedes Moduls verdrahtet sind."
-    },
     "moduleCount": {
       "title": "Modulanzahl",
       "content": "Lege fest, wie viele Sortiermodule physisch installiert sind - das bestimmt, wie viele Fächer verfügbar sind."

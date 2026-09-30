@@ -25,14 +25,15 @@
       "confirm": "Modulanzahl ändern"
     }
   },
-  "channelLayoutToggle": {
-    "label": "PCA9685-Kanalbelegung",
-    "standard": "Standard",
-    "standardDescription": "Modul 1 beginnt bei Kanal 0. Unterstützt bis zu 5 Module.",
-    "legacy": "Legacy",
-    "legacyDescription": "Modul 1 beginnt bei Kanal 4 (Kanäle 0-3 für Status-LEDs reserviert). Unterstützt bis zu 3 Module. Verwende dies, wenn deine Hardware vor der Modul-Erweiterung verkabelt wurde.",
-    "legacyBanner": "Du verwendest die Legacy-Kanalbelegung, begrenzt auf 3 Module. Verkabele Modul 1 neu, sodass es bei Kanal 0 beginnt, um bis zu 5 Module zu unterstützen.",
-    "legacyBannerAction": "Auf Standard aktualisieren"
+  "channelLayoutUpgrade": {
+    "banner": "Dieser Sortierer nutzt das veraltete Legacy-Kanallayout, begrenzt auf 3 Module. Verkable Modul 1 so, dass es bei Kanal 0 beginnt, und wechsle dann zum Standard-Layout, um bis zu 5 Module zu unterstützen.",
+    "bannerAction": "Auf Standard umstellen",
+    "confirmTitle": "Zum Standard-Layout wechseln?",
+    "confirmDescription": "Mach das erst, nachdem Modul 1 so verkabelt ist, dass es bei PCA9685-Kanal 0 beginnt (Modul 2 bei 3, Modul 3 bei 6, der Einzug direkt nach dem letzten Modul). Bis dahin bewegen sich die Servos auf den falschen Kanälen. Das Legacy-Layout kann danach nicht mehr ausgewählt werden.",
+    "confirm": "Neu verkabelt, umstellen",
+    "cancel": "Abbrechen",
+    "done": "Auf das Standard-Kanallayout umgestellt.",
+    "failed": "Das Kanallayout konnte nicht umgestellt werden. Versuche es erneut."
   },
   "experimentalFeatures": {
     "title": "Experimentell",

@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { BinConfigurations } from "@/features/calibration/components/bin-configurations";
 import { BinRoutingControls } from "@/features/calibration/components/bin-routing-controls";
-import { ChannelLayoutToggle } from "@/features/calibration/components/channel-layout-toggle";
 import { IrSensorPanel } from "@/features/calibration/components/ir-sensor-panel";
 import { ModuleCountStepper } from "@/features/calibration/components/module-count-stepper";
 import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
@@ -65,10 +64,6 @@ export default function CalibrateModulesPage() {
 
   return (
     <>
-      <div className="flex flex-col gap-1.5" data-tour="channel-layout">
-        <Label>{t("channelLayoutToggle.label")}</Label>
-        <ChannelLayoutToggle />
-      </div>
       <IrSensorPanel
         modules={modules}
         irStates={irStates}
