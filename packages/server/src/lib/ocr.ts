@@ -1,7 +1,9 @@
-import { RawImage } from "@huggingface/transformers";
 import type { OcrReadout, OcrRegion } from "@magic-vault/shared";
+import sharp from "sharp";
 import { createWorker, PSM, type Worker } from "tesseract.js";
 import {
+  OCR_DARK_BACKGROUND_THRESHOLD,
+  OCR_UPSCALE_FACTOR,
   REGION_MARGIN_X,
   REGION_MARGIN_Y,
   TESSERACT_CACHE_PATH,
@@ -47,6 +49,23 @@ function regionRectangle(
   return { left, top, width: right - left, height: bottom - top };
 }
 
+async function prepareRegion(
+  buffer: Buffer,
+  rectangle: ReturnType<typeof regionRectangle>,
+): Promise<Buffer> {
+  const gray = sharp(buffer)
+    .extract(rectangle)
+    .greyscale()
+    .resize({ width: rectangle.width * OCR_UPSCALE_FACTOR, kernel: "lanczos3" })
+    .normalise();
+  const pixels = await gray.clone().raw().toBuffer();
+  const mean = pixels.reduce((sum, value) => sum + value, 0) / pixels.length;
+  const darkBackground = mean < OCR_DARK_BACKGROUND_THRESHOLD;
+  return (darkBackground ? gray.negate({ alpha: false }) : gray)
+    .png()
+    .toBuffer();
+}
+
 async function readRegions(
   buffer: Buffer,
   regions: OcrRegion[],
@@ -55,13 +74,15 @@ async function readRegions(
   if (regions.length === 0) return readout;
 
   const worker = await getWorker();
-  const image = await RawImage.fromBlob(new Blob([new Uint8Array(buffer)]));
+  const { width = 0, height = 0 } = await sharp(buffer).metadata();
 
   for (const region of regions) {
+    const rectangle = regionRectangle(region, width, height);
+    if (rectangle.width <= 0 || rectangle.height <= 0) continue;
     await setMode(worker, region.multiline ? PSM.SINGLE_BLOCK : PSM.SINGLE_LINE);
-    const { data } = await worker.recognize(buffer, {
-      rectangle: regionRectangle(region, image.width, image.height),
-    });
+    const { data } = await worker.recognize(
+      await prepareRegion(buffer, rectangle),
+    );
     const text = data.text.trim();
     readout[region.field] = readout[region.field]
       ? `${readout[region.field]}\n${text}`

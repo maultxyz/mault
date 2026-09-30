@@ -3,15 +3,36 @@ import type { OcrRegion } from "../interfaces/ocr-region.interface";
 export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   mtg: [
     { field: "name", x: 0.07, y: 0.045, width: 0.62, height: 0.055 },
-    { field: "setLine", x: 0.04, y: 0.93, width: 0.4, height: 0.05 },
+    {
+      field: "setLine",
+      x: 0.02,
+      y: 0.94,
+      width: 0.52,
+      height: 0.055,
+      multiline: true,
+    },
   ],
   pokemon: [
     { field: "name", x: 0.18, y: 0.035, width: 0.5, height: 0.055 },
-    { field: "setLine", x: 0.03, y: 0.935, width: 0.35, height: 0.045 },
+    {
+      field: "setLine",
+      x: 0.02,
+      y: 0.91,
+      width: 0.46,
+      height: 0.08,
+      multiline: true,
+    },
   ],
   yugioh: [
     { field: "name", x: 0.07, y: 0.045, width: 0.73, height: 0.06 },
-    { field: "setLine", x: 0.58, y: 0.725, width: 0.34, height: 0.04 },
+    {
+      field: "setLine",
+      x: 0.5,
+      y: 0.705,
+      width: 0.47,
+      height: 0.07,
+      multiline: true,
+    },
   ],
   lorcana: [
     {
@@ -22,11 +43,25 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.1,
       multiline: true,
     },
-    { field: "setLine", x: 0.03, y: 0.95, width: 0.4, height: 0.04 },
+    {
+      field: "setLine",
+      x: 0.02,
+      y: 0.925,
+      width: 0.5,
+      height: 0.07,
+      multiline: true,
+    },
   ],
   onepiece: [
     { field: "name", x: 0.12, y: 0.835, width: 0.76, height: 0.05 },
-    { field: "setLine", x: 0.68, y: 0.9, width: 0.28, height: 0.035 },
+    {
+      field: "setLine",
+      x: 0.58,
+      y: 0.875,
+      width: 0.4,
+      height: 0.07,
+      multiline: true,
+    },
   ],
   gundam: [
     {
@@ -37,11 +72,25 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.2,
       multiline: true,
     },
-    { field: "setLine", x: 0.76, y: 0.012, width: 0.2, height: 0.04 },
+    {
+      field: "setLine",
+      x: 0.7,
+      y: 0,
+      width: 0.29,
+      height: 0.065,
+      multiline: true,
+    },
   ],
   riftbound: [
     { field: "name", x: 0.09, y: 0.57, width: 0.8, height: 0.055 },
-    { field: "setLine", x: 0.03, y: 0.952, width: 0.25, height: 0.03 },
+    {
+      field: "setLine",
+      x: 0.02,
+      y: 0.93,
+      width: 0.36,
+      height: 0.06,
+      multiline: true,
+    },
   ],
   swu: [
     {
@@ -52,11 +101,25 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.095,
       multiline: true,
     },
-    { field: "setLine", x: 0.73, y: 0.94, width: 0.24, height: 0.035 },
+    {
+      field: "setLine",
+      x: 0.64,
+      y: 0.92,
+      width: 0.35,
+      height: 0.065,
+      multiline: true,
+    },
   ],
   fab: [
     { field: "name", x: 0.18, y: 0.035, width: 0.64, height: 0.055 },
-    { field: "setLine", x: 0.03, y: 0.945, width: 0.35, height: 0.04 },
+    {
+      field: "setLine",
+      x: 0.02,
+      y: 0.92,
+      width: 0.46,
+      height: 0.07,
+      multiline: true,
+    },
   ],
 };
 

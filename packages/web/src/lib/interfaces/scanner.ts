@@ -417,3 +417,10 @@ export interface ScanOutcome {
   needsReview: boolean;
   noMatch: UnmatchedScanDetails | null;
 }
+
+export interface UnmatchedRateToastProps {
+  toastId: string | number;
+  suggestOcr: boolean;
+  onOpenCalibration: () => void;
+  onOpenSettings: () => void;
+}

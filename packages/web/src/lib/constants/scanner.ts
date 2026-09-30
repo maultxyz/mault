@@ -45,3 +45,9 @@ export const PARKED_PANELS_ROOT_CLASS =
 
 export const OCR_CROP_WIDTH = 630;
 export const OCR_CROP_HEIGHT = 880;
+
+export const UNMATCHED_RATE_WINDOW = 20;
+export const UNMATCHED_RATE_MIN_SCANS = 10;
+export const UNMATCHED_RATE_THRESHOLD = 0.3;
+export const UNMATCHED_RATE_TOAST_COOLDOWN_MS = 30 * 60 * 1000;
+export const UNMATCHED_RATE_TOAST_ID = "unmatched-rate";
