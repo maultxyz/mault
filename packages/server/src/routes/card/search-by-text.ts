@@ -6,6 +6,7 @@ import { orgSettings } from "../../db/schema";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import { ocrRegions } from "../../lib/ocr";
+import { scanLog } from "../../lib/scan-log";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   attachMatchedCards,
@@ -78,7 +79,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
         embeddings: { embedding },
         readout,
       });
-      console.log(
+      scanLog(
         `[ocr] game=${gameKey} lang=${lang} name=${JSON.stringify(readout.name)} setLine=${JSON.stringify(readout.setLine)} closestName=${result.ocr.matchedName ? `${JSON.stringify(result.ocr.matchedName)} (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${result.data ? `matched ${result.data[0].cardId} at ${result.data[0].distance.toFixed(3)}` : "no match"}`,
       );
       return c.json(await attachMatchedCards(result, gameKey, lang));

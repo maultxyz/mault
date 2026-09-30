@@ -19,6 +19,9 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   ScanRegion,
+  MatchCandidateDiagnostic,
+  MatchedScanDetails,
+  ScanMatchSource,
   ScannedCard,
   ScannerStatus,
   ScanVectorizeSource,
@@ -96,7 +99,7 @@ export interface ScannedCardsContextValue {
     capturedImageUrl?: string,
     alternativeMatches?: PlayingCardWithDistance[],
     vectorizedOn?: ScanVectorizeSource,
-    needsReview?: boolean,
+    details?: MatchedScanDetails,
   ) => void;
   addUnmatchedCard: (
     capturedImageUrl?: string,
@@ -393,6 +396,7 @@ export interface ResolvedSearchMatches {
   alternativeMatches: PlayingCardWithDistance[];
   noMatchReason: UnmatchedReason | null;
   lookupFailedCardIds?: string[];
+  candidates: MatchCandidateDiagnostic[];
 }
 
 export interface ScanAttemptOutcome extends ResolvedSearchMatches {
@@ -406,6 +410,7 @@ export interface ScanAttemptOutcome extends ResolvedSearchMatches {
   topDistance: number | null;
   ocr: OcrDiagnostics | null;
   needsReview: boolean;
+  matchedBy: ScanMatchSource;
 }
 
 export interface ScanOutcome {
@@ -414,6 +419,13 @@ export interface ScanOutcome {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
-  needsReview: boolean;
+  matched: MatchedScanDetails | null;
   noMatch: UnmatchedScanDetails | null;
+}
+
+export interface UnmatchedRateToastProps {
+  toastId: string | number;
+  suggestOcr: boolean;
+  onOpenCalibration: () => void;
+  onOpenSettings: () => void;
 }

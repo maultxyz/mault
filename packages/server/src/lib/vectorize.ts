@@ -1,5 +1,6 @@
 import type { CardSearchEmbeddings } from "@magic-vault/shared";
 import { embedCardImage } from "./milo";
+import { scanLog } from "./scan-log";
 
 const SCAN_VECTORIZE_CONCURRENCY = parseInt(
   process.env.SCAN_VECTORIZE_CONCURRENCY ?? "4",
@@ -28,7 +29,7 @@ export async function vectorizeCardImage(
   await acquireScanVectorizeSlot();
   try {
     const embedding = await embedCardImage(buffer);
-    console.log(
+    scanLog(
       `[vectorize] Generated ${embedding.length}-dimensional Milo embedding`,
     );
     return { embedding };

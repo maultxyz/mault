@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 import type {
   FirmwareFlashState,
   FlashEsp32Result,
@@ -44,6 +45,7 @@ export function FirmwareFlashDialog({
   const { t } = useTranslation("scanner");
   const [state, setState] = useState<FirmwareFlashState>("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const flashLogRef = useStickToBottom(flashLog);
 
   useEffect(() => {
     if (!open) setState("idle");
@@ -131,7 +133,10 @@ export function FirmwareFlashDialog({
             />
           </div>
           {flashLog.length > 0 && (
-            <ScrollArea className="h-40 rounded-md border bg-muted/30 p-2">
+            <ScrollArea
+              viewportRef={flashLogRef}
+              className="h-40 rounded-md border bg-muted/30 p-2"
+            >
               <div className="flex flex-col gap-0.5 font-mono text-[11px] text-muted-foreground">
                 {flashLog.map((line, i) => (
                   // eslint-disable-next-line react/no-array-index-key -- append-only log, stable order

@@ -145,10 +145,6 @@
     "connect": {
       "content": "Pair the sorter over USB here first. Most of this page is disabled until it's connected. Run Test to sample every servo once you're calibrated."
     },
-    "channelLayout": {
-      "title": "Channel layout",
-      "content": "Tell the app how your PCA9685 channels are wired to each module's servos."
-    },
     "moduleCount": {
       "title": "Module count",
       "content": "Set how many sorting modules are physically installed. This determines how many bins are available."

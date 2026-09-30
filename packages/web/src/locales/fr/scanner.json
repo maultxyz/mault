@@ -227,6 +227,7 @@
     "simulateScan": "Simuler un scan",
     "simulateMultiMatch": "Simuler des correspondances multiples",
     "simulateNoMatch": "Simuler une carte non reconnue",
+    "showUnmatchedRateToast": "Afficher l'alerte de cartes non reconnues",
     "forceCpu": "Forcer le CPU (sans WebGPU)",
     "forceError": "Forcer une erreur"
   },
@@ -431,5 +432,13 @@
     "readOnly": "Lecture seule",
     "invalidTitle": "Ce lien ne fonctionne pas",
     "invalidDescription": "Il a peut-être expiré ou été révoqué. Demande un nouveau lien à la personne qui l'a partagé."
+  },
+  "unmatchedRateToast": {
+    "title": "Beaucoup de cartes ne sont pas reconnues",
+    "description": "Plusieurs de tes derniers scans n'ont trouvé aucune carte. Vérifie ta calibration : la zone de scan, le délai de capture et les réglages de correspondance de ce trieur.",
+    "descriptionWithOcr": "Plusieurs de tes derniers scans n'ont trouvé aucune carte. Vérifie ta calibration : la zone de scan, le délai de capture et les réglages de correspondance de ce trieur. Activer l'OCR peut aussi aider à trouver les cartes grâce au texte imprimé dessus.",
+    "calibration": "Calibration",
+    "turnOnOcr": "Activer l'OCR",
+    "dismiss": "Fermer"
   }
 }

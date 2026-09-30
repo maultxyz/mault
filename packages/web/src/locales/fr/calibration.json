@@ -25,14 +25,15 @@
       "confirm": "Modifier le nombre de modules"
     }
   },
-  "channelLayoutToggle": {
-    "label": "Disposition des canaux de servo",
-    "standard": "Standard",
-    "standardDescription": "Le module 1 commence au canal 0. Prend en charge jusqu'à 5 modules.",
-    "legacy": "Ancienne",
-    "legacyDescription": "Le module 1 commence au canal 4 (canaux 0-3 réservés aux LED d'état). Prend en charge jusqu'à 3 modules. Utilise cette option si ton matériel a été câblé avant l'ajout de l'extension de modules.",
-    "legacyBanner": "Tu utilises l'ancienne disposition des canaux, limitée à 3 modules. Recâble le module 1 pour qu'il commence au canal 0 afin de prendre en charge jusqu'à 5 modules.",
-    "legacyBannerAction": "Passer à la disposition standard"
+  "channelLayoutUpgrade": {
+    "banner": "Ce trieur utilise l'ancien agencement de canaux (legacy), obsolète et limité à 3 modules. Recâble le module 1 pour qu'il commence au canal 0, puis passe à l'agencement standard pour prendre en charge jusqu'à 5 modules.",
+    "bannerAction": "Passer au standard",
+    "confirmTitle": "Passer à l'agencement standard ?",
+    "confirmDescription": "Fais-le seulement après avoir recâblé le module 1 pour qu'il commence au canal 0 du PCA9685 (module 2 au 3, module 3 au 6, le chargeur juste après le dernier module). D'ici là, les servos bougeront sur les mauvais canaux. L'agencement legacy ne pourra plus être sélectionné ensuite.",
+    "confirm": "C'est recâblé, changer",
+    "cancel": "Annuler",
+    "done": "Passé à l'agencement de canaux standard.",
+    "failed": "Impossible de changer l'agencement des canaux. Réessaie."
   },
   "experimentalFeatures": {
     "title": "Expérimental",

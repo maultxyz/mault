@@ -25,14 +25,15 @@
       "confirm": "Change Module Count"
     }
   },
-  "channelLayoutToggle": {
-    "label": "Servo Channel layout",
-    "standard": "Standard",
-    "standardDescription": "Module 1 starts at channel 0. Supports up to 5 modules.",
-    "legacy": "Legacy",
-    "legacyDescription": "Module 1 starts at channel 4 (channels 0-3 reserved for status LEDs). Supports up to 3 modules. Use this if your hardware was wired before module expansion was added.",
-    "legacyBanner": "You're on the legacy channel layout, capped at 3 modules. Rewire module 1 to start at channel 0 to support up to 5 modules.",
-    "legacyBannerAction": "Update to Standard"
+  "channelLayoutUpgrade": {
+    "banner": "This sorter uses the deprecated legacy channel layout, capped at 3 modules. Rewire module 1 to start at channel 0, then update to the standard layout to support up to 5 modules.",
+    "bannerAction": "Update to Standard",
+    "confirmTitle": "Switch to the standard layout?",
+    "confirmDescription": "Only do this after rewiring module 1 to start at PCA9685 channel 0 (module 2 at 3, module 3 at 6, feeder right after the last module). Until then, the servos will move on the wrong channels. The legacy layout can't be selected again afterwards.",
+    "confirm": "I've rewired it, switch",
+    "cancel": "Cancel",
+    "done": "Switched to the standard channel layout.",
+    "failed": "Couldn't switch the channel layout. Try again."
   },
   "experimentalFeatures": {
     "title": "Experimental",

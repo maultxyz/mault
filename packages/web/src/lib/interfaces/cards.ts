@@ -165,3 +165,15 @@ export interface ExportAdapter {
 export interface SelectToggleOptions {
   shiftKey: boolean;
 }
+
+export interface CardTechnicalDetailsProps {
+  scanId: string;
+  card: PlayingCardWithDistance;
+  needsReview?: boolean;
+  wasCorrected?: boolean;
+}
+
+export interface TechnicalDetailRowProps {
+  label: string;
+  children: ReactNode;
+}

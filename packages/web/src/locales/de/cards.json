@@ -204,5 +204,48 @@
   },
   "foil": "Foil",
   "foilNone": "Kein Foil",
-  "downloaded": "Heruntergeladen"
+  "downloaded": "Heruntergeladen",
+  "technicalDetails": {
+    "toggle": "Technische Details",
+    "match": "Treffer",
+    "matchedBy": "Erkannt über",
+    "matchedByValue": {
+      "embedding": "Bildabgleich",
+      "ocr": "Text auf der Karte (OCR)"
+    },
+    "matchPercent": "Übereinstimmung",
+    "distance": "Distanz",
+    "confidence": "Konfidenz",
+    "needsReview": "Zur Prüfung markiert",
+    "reviewed": "Geprüft",
+    "vectorizedOn": "Vektorisiert auf",
+    "orientation": "Ausrichtung",
+    "orientationValue": {
+      "upright": "Aufrecht",
+      "rotated": "Kopfüber"
+    },
+    "yes": "Ja",
+    "no": "Nein",
+    "noDiagnostics": "Für diese Karte wurden keine Scan-Diagnosedaten gespeichert. Sie wurde gescannt, bevor diese gespeichert wurden, oder von Hand hinzugefügt.",
+    "candidates": "Nächste Kandidaten",
+    "candidateScore": "Distanz {{distance}}, Konfidenz {{confidence}}",
+    "attempts": "Versuche ({{needed}} gleiche nötig)",
+    "attemptNoMatch": "Kein Treffer",
+    "detection": "Erkennung",
+    "cornerDetection": "Eckenerkennung",
+    "cornerDetectionFound": "Karte gefunden",
+    "cornerDetectionFallback": "Fehlgeschlagen, fester Scanbereich verwendet",
+    "sharpness": "Schärfe",
+    "detectionConfidence": "Erkennungskonfidenz",
+    "fallbackReason": "Grund für den Fallback",
+    "ocr": "OCR",
+    "ocrName": "Gelesener Name",
+    "ocrSetLine": "Gelesene Set-Zeile",
+    "ocrMatchedName": "Ähnlichster Kartenname",
+    "ocrNotRun": "OCR lief für diesen Scan nicht.",
+    "cardJson": "Kartendaten (JSON)",
+    "copyJson": "JSON kopieren",
+    "copied": "Karten-JSON kopiert.",
+    "copyFailed": "Karten-JSON konnte nicht kopiert werden."
+  }
 }

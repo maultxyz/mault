@@ -16,11 +16,13 @@ import {
 } from "@/components/ui/tooltip";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
 import { getDebugCards } from "@/features/scanner/lib/debug-cards";
 import { useForceCpuVectorize } from "@/features/scanner/lib/force-cpu-vectorize";
 import { useRole } from "@/hooks/use-role";
 import { apiPost } from "@/lib/api/client";
 import {
+  IconAlertCircle,
   IconAlertTriangle,
   IconBug,
   IconCards,
@@ -38,6 +40,7 @@ export function ScannerDebug() {
   const { addCard, addUnmatchedCard } = useScannedCards();
   const { activeCollection } = useCollections();
   const [forceCpu, setForceCpu] = useForceCpuVectorize();
+  const { showToast: showUnmatchedRateToast } = useUnmatchedRateToast();
 
   if (!isAdmin) return null;
 
@@ -102,6 +105,10 @@ export function ScannerDebug() {
           <DropdownMenuItem onClick={handleSimulateNoMatch}>
             <IconPhotoOff className="size-3.5" />
             {t("scannerDebug.simulateNoMatch")}
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={showUnmatchedRateToast}>
+            <IconAlertCircle className="size-3.5" />
+            {t("scannerDebug.showUnmatchedRateToast")}
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

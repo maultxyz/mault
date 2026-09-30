@@ -227,6 +227,7 @@
     "simulateScan": "Simulate Scan",
     "simulateMultiMatch": "Simulate Multi-Match",
     "simulateNoMatch": "Simulate No Match",
+    "showUnmatchedRateToast": "Show Unmatched Warning",
     "forceCpu": "Force CPU (skip WebGPU)",
     "forceError": "Force Error"
   },
@@ -431,5 +432,13 @@
     "readOnly": "View only",
     "invalidTitle": "This link doesn't work",
     "invalidDescription": "It may have expired or been revoked. Ask the person who shared it for a new link."
+  },
+  "unmatchedRateToast": {
+    "title": "Lots of cards aren't matching",
+    "description": "Several of your recent scans didn't match any card. Check your calibration: the scan region, capture delay and match settings for this sorter.",
+    "descriptionWithOcr": "Several of your recent scans didn't match any card. Check your calibration: the scan region, capture delay and match settings for this sorter. Turning on OCR can also help find cards by the text printed on them.",
+    "calibration": "Calibration",
+    "turnOnOcr": "Turn on OCR",
+    "dismiss": "Dismiss"
   }
 }

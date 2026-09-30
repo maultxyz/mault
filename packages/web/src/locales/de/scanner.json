@@ -227,6 +227,7 @@
     "simulateScan": "Scan simulieren",
     "simulateMultiMatch": "Mehrfachtreffer simulieren",
     "simulateNoMatch": "Nicht erkannte Karte simulieren",
+    "showUnmatchedRateToast": "Warnung zu nicht erkannten Karten zeigen",
     "forceCpu": "CPU erzwingen (ohne WebGPU)",
     "forceError": "Fehler erzwingen"
   },
@@ -431,5 +432,13 @@
     "readOnly": "Nur ansehen",
     "invalidTitle": "Dieser Link funktioniert nicht",
     "invalidDescription": "Er ist möglicherweise abgelaufen oder wurde widerrufen. Bitte die Person, die ihn geteilt hat, um einen neuen Link."
+  },
+  "unmatchedRateToast": {
+    "title": "Viele Karten werden nicht erkannt",
+    "description": "Mehrere deiner letzten Scans haben keine Karte gefunden. Prüfe deine Kalibrierung: Scanbereich, Aufnahmeverzögerung und Erkennungseinstellungen dieses Sortierers.",
+    "descriptionWithOcr": "Mehrere deiner letzten Scans haben keine Karte gefunden. Prüfe deine Kalibrierung: Scanbereich, Aufnahmeverzögerung und Erkennungseinstellungen dieses Sortierers. Das Einschalten von OCR kann außerdem helfen, Karten über den aufgedruckten Text zu finden.",
+    "calibration": "Kalibrierung",
+    "turnOnOcr": "OCR einschalten",
+    "dismiss": "Schließen"
   }
 }

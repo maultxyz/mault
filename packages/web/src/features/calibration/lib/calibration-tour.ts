@@ -37,14 +37,6 @@ export const CALIBRATION_TOUR_STEPS: CalibrationTourStepConfig[] = [
     contentKey: "calibrationTour.connect.content",
   },
   {
-    id: "channel-layout",
-    section: "modules",
-    target: '[data-tour="channel-layout"]',
-    placement: "auto",
-    titleKey: "calibrationTour.channelLayout.title",
-    contentKey: "calibrationTour.channelLayout.content",
-  },
-  {
     id: "module-count",
     section: "modules",
     target: '[data-tour="module-count"]',

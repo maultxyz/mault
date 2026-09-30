@@ -37,6 +37,7 @@ import type {
   ScanOutcome,
   TextSearchOutcome,
 } from "@/lib/interfaces/scanner";
+import { scanLog } from "@/lib/scan-log";
 import {
   CLOSE_MATCH_DELTA,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
@@ -49,6 +50,7 @@ import {
   type CardSearchResult,
   type OcrDiagnostics,
   type PlayingCardWithDistance,
+  type ScanAttemptDiagnostic,
   type ScanDetectionDiagnostics,
   type ScanRegion,
   type ScannerStatus,
@@ -108,7 +110,15 @@ async function resolveSearchMatches(
       card: null,
       alternativeMatches: [],
       noMatchReason: result.diagnostics?.reason ?? "too_far",
+      candidates: [],
     };
+
+  const candidates = data.map((m) => ({
+    cardId: m.cardId,
+    name: m.card?.name ?? null,
+    distance: m.distance,
+    confidence: m.confidence,
+  }));
 
   const closeMatches = data.filter(
     (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
@@ -129,10 +139,11 @@ async function resolveSearchMatches(
       alternativeMatches: [],
       noMatchReason: "lookup_failed",
       lookupFailedCardIds: closeMatches.map((m) => m.cardId),
+      candidates,
     };
 
   const [card, ...alternativeMatches] = cards;
-  return { card, alternativeMatches, noMatchReason: null };
+  return { card, alternativeMatches, noMatchReason: null, candidates };
 }
 
 function buildSearchFormData(
@@ -231,7 +242,7 @@ async function searchByCardText(
         ),
       );
       ocr = result.ocr ?? ocr;
-      console.log(
+      scanLog(
         `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
       );
       if (hasMatch(result)) {
@@ -259,7 +270,12 @@ async function toAttemptOutcome(
   collectionGuid: string | undefined,
   context: Pick<
     ScanAttemptOutcome,
-    "detectedContour" | "vectorizedOn" | "detection" | "ocr" | "needsReview"
+    | "detectedContour"
+    | "vectorizedOn"
+    | "detection"
+    | "ocr"
+    | "needsReview"
+    | "matchedBy"
   >,
 ): Promise<ScanAttemptOutcome> {
   return {
@@ -317,13 +333,13 @@ async function searchCardImage(
         },
       );
 
-      console.log(
+      scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
       const runOcr =
         !!ocrEnabled && !!corners.contour && needsTextSearch(best.result);
       if (ocrEnabled) {
-        console.log(
+        scanLog(
           runOcr
             ? `[scanner] OCR running (embedding unsure: ${best.result.diagnostics?.reason ?? "close alternatives"})`
             : "[scanner] OCR skipped (confident embedding match)",
@@ -344,6 +360,7 @@ async function searchCardImage(
         detection,
         ocr: text?.ocr ?? null,
         needsReview: !!text?.pick && !hasMatch(best.result),
+        matchedBy: text?.pick ? "ocr" : "embedding",
       });
     }
     fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
@@ -355,7 +372,7 @@ async function searchCardImage(
     );
   }
 
-  console.log(`[scanner] using fallback scan region (${fallbackReason})`);
+  scanLog(`[scanner] using fallback scan region (${fallbackReason})`);
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
   const best = await searchBothOrientations(
     warpedCanvas,
@@ -374,7 +391,19 @@ async function searchCardImage(
     detection: { ...detection, fallbackReason },
     ocr: null,
     needsReview: false,
+    matchedBy: "embedding",
   });
+}
+
+function toAttemptDiagnostics(
+  attempts: ScanAttemptOutcome[],
+): ScanAttemptDiagnostic[] {
+  return attempts.map((a) => ({
+    reason: a.noMatchReason,
+    cardId: a.card?.id ?? null,
+    cardName: a.card?.name ?? null,
+    distance: a.topDistance,
+  }));
 }
 
 function toScanOutcome(
@@ -397,7 +426,19 @@ function toScanOutcome(
       debugImageUrl,
       detectedContour,
       vectorizedOn,
-      needsReview,
+      matched: {
+        needsReview,
+        diagnostics: {
+          matchedBy: outcome.matchedBy,
+          vectorizedOn,
+          detection: outcome.detection,
+          orientation: outcome.orientation,
+          matchesNeeded,
+          attempts: toAttemptDiagnostics(attempts),
+          candidates: outcome.candidates,
+          ocr: outcome.ocr,
+        },
+      },
       noMatch: null,
     };
   }
@@ -413,12 +454,7 @@ function toScanOutcome(
     detection: outcome.detection,
     orientation: outcome.orientation,
     matchesNeeded,
-    attempts: attempts.map((a) => ({
-      reason: a.noMatchReason,
-      cardId: a.card?.id ?? null,
-      cardName: a.card?.name ?? null,
-      distance: a.topDistance,
-    })),
+    attempts: toAttemptDiagnostics(attempts),
     lookupFailedCardIds: outcome.lookupFailedCardIds,
     ocr: outcome.ocr,
   };
@@ -429,7 +465,7 @@ function toScanOutcome(
     debugImageUrl,
     detectedContour,
     vectorizedOn,
-    needsReview: false,
+    matched: null,
     noMatch: { diagnostics, embedding: outcome.embedding },
   };
 }
@@ -661,7 +697,7 @@ export function useCardScanner({
           debugImageUrl,
           detectedContour,
           vectorizedOn,
-          needsReview,
+          matched,
           noMatch,
         } = await searchCardImageWithConsensus(
             canvas,
@@ -699,8 +735,8 @@ export function useCardScanner({
             if (!pausedMidSearch) updateStatus("duplicate");
           } else {
             lastScannedCardIdRef.current = card.id;
-            if (needsReview) {
-              console.log(
+            if (matched?.needsReview) {
+              scanLog(
                 `[scanner] OCR name match used without an embedding match, flagged for review: ${card.name} (${card.id})`,
               );
             }
@@ -708,7 +744,7 @@ export function useCardScanner({
               [card, ...alternativeMatches],
               debugImageUrl,
               vectorizedOn,
-              needsReview,
+              matched ?? undefined,
             );
             if (!pausedMidSearch) updateStatus("scanning");
           }

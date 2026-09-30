@@ -9,3 +9,5 @@ export const OCR_NAME_MIN_LENGTH = 3;
 export const OCR_NAME_MIN_SIMILARITY = 0.45;
 export const OCR_NAME_CANDIDATE_LIMIT = 60;
 export const OCR_MAX_NAME_LINES = 8;
+export const OCR_UPSCALE_FACTOR = 3;
+export const OCR_DARK_BACKGROUND_THRESHOLD = 128;

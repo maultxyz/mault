@@ -204,5 +204,48 @@
   },
   "foil": "Foil",
   "foilNone": "Non foil",
-  "downloaded": "Téléchargée"
+  "downloaded": "Téléchargée",
+  "technicalDetails": {
+    "toggle": "Détails techniques",
+    "match": "Correspondance",
+    "matchedBy": "Reconnue par",
+    "matchedByValue": {
+      "embedding": "Comparaison d'image",
+      "ocr": "Texte sur la carte (OCR)"
+    },
+    "matchPercent": "Correspondance",
+    "distance": "Distance",
+    "confidence": "Confiance",
+    "needsReview": "Signalée pour vérification",
+    "reviewed": "Vérifiée",
+    "vectorizedOn": "Vectorisée sur",
+    "orientation": "Orientation",
+    "orientationValue": {
+      "upright": "À l'endroit",
+      "rotated": "À l'envers"
+    },
+    "yes": "Oui",
+    "no": "Non",
+    "noDiagnostics": "Aucun diagnostic de scan n'a été enregistré pour cette carte. Elle a été scannée avant leur enregistrement, ou ajoutée à la main.",
+    "candidates": "Candidats les plus proches",
+    "candidateScore": "distance {{distance}}, confiance {{confidence}}",
+    "attempts": "Tentatives ({{needed}} identiques requises)",
+    "attemptNoMatch": "Aucune correspondance",
+    "detection": "Détection",
+    "cornerDetection": "Détection des coins",
+    "cornerDetectionFound": "Carte trouvée",
+    "cornerDetectionFallback": "Échec, zone de scan fixe utilisée",
+    "sharpness": "Netteté",
+    "detectionConfidence": "Confiance de détection",
+    "fallbackReason": "Raison du repli",
+    "ocr": "OCR",
+    "ocrName": "Nom lu",
+    "ocrSetLine": "Ligne d'extension lue",
+    "ocrMatchedName": "Nom de carte le plus proche",
+    "ocrNotRun": "L'OCR n'a pas été lancé pour ce scan.",
+    "cardJson": "Données de la carte (JSON)",
+    "copyJson": "Copier le JSON",
+    "copied": "JSON de la carte copié.",
+    "copyFailed": "Impossible de copier le JSON de la carte."
+  }
 }

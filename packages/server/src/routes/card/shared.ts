@@ -16,6 +16,7 @@ import {
   MATCH_CONFIDENCE_TEMPERATURE,
   MATCH_MAX_DISTANCE_RATIO,
 } from "../../lib/constants/card-search";
+import { SHOW_SCAN_LOGS } from "../../lib/constants/logging";
 import {
   OCR_MAX_NAME_LINES,
   OCR_NAME_CANDIDATE_LIMIT,
@@ -99,7 +100,6 @@ export async function findCardMatches(
   },
 ): Promise<CardMatchSearchResult> {
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
-  const showVectorLogs = process.env.SHOW_VECTOR_LOGS == "true";
 
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
@@ -148,7 +148,7 @@ export async function findCardMatches(
       ),
     );
 
-    if (showVectorLogs) {
+    if (SHOW_SCAN_LOGS) {
       console.log(
         `[card-search] nearest candidates for game=${gameKey} lang=${lang} (maxDistance=${DISTANCE_THRESHOLD}, maxRatio=${MATCH_MAX_DISTANCE_RATIO}, runnerUpDistance=${runnerUpDistance}):`,
       );

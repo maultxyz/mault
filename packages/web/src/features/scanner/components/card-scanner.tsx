@@ -30,6 +30,7 @@ import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
@@ -92,6 +93,7 @@ export function CardScanner({
   const { hasCatchAll } = useBinConfigs();
   const { activeCollection } = useCollections();
   const apiHealthCheck = useGameApiHealthCheck(activeCollection?.game?.key);
+  const { recordScanOutcome } = useUnmatchedRateToast();
   const {
     status,
     errorMessage,
@@ -119,18 +121,20 @@ export function CardScanner({
     hasPhonePhoto,
     isAtScanLimit,
   } = useCardScanner({
-    onSearchResults: (cards, capturedImageUrl, vectorizedOn, needsReview) => {
+    onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
       if (cards.length > 0) {
+        recordScanOutcome(true);
         addCard(
           cards[0],
           capturedImageUrl,
           cards.slice(1),
           vectorizedOn,
-          needsReview,
+          details,
         );
       }
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
+      recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
     rotated: !isMobile,

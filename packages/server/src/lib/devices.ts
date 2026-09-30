@@ -1,21 +1,7 @@
-import {
-  DEFAULT_CHANNEL_LAYOUT,
-  type ChannelLayout,
-} from "@magic-vault/shared";
+import { DEFAULT_CHANNEL_LAYOUT } from "@magic-vault/shared";
 import { eq, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { devices } from "../db/schema";
-
-async function detectDefaultChannelLayout(
-  tx: Transaction,
-  orgId: string,
-): Promise<ChannelLayout> {
-  const existing = await tx.query.moduleConfigs.findFirst({
-    where: (t, { eq }) => eq(t.orgId, orgId),
-    columns: { id: true },
-  });
-  return existing ? "legacy" : DEFAULT_CHANNEL_LAYOUT;
-}
 
 // devices has no per-org unique constraint to conflict on (an org can own
 // several), so concurrent first-connects are serialized per org instead.
@@ -40,10 +26,9 @@ export async function getOrCreateDevice(tx: Transaction, orgId: string) {
   const raced = await findFirstDevice(tx, orgId);
   if (raced) return raced;
 
-  const channelLayout = await detectDefaultChannelLayout(tx, orgId);
   const [inserted] = await tx
     .insert(devices)
-    .values({ orgId, channelLayout })
+    .values({ orgId, channelLayout: DEFAULT_CHANNEL_LAYOUT })
     .returning();
   return inserted;
 }

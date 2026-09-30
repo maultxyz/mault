@@ -763,7 +763,6 @@ export function useCalibrationPage() {
       try {
         await saveDevice(device.guid, {
           moduleCount: parsed.moduleCount,
-          channelLayout: parsed.channelLayout,
         });
         await queryClient.invalidateQueries({
           queryKey: devicesQueryOptions(activeOrg?.id).queryKey,

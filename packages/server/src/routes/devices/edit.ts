@@ -35,6 +35,15 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       setupCompleted?: boolean;
       pipelinedFeed?: boolean;
     }>();
+    if (
+      "channelLayout" in body &&
+      body.channelLayout !== DEFAULT_CHANNEL_LAYOUT
+    ) {
+      return c.json(
+        { success: false, message: "Only the standard channel layout can be set." },
+        400,
+      );
+    }
     if (body.setupCompleted === false && c.get("userRole") !== "admin") {
       return c.json({ success: false, message: "Forbidden." }, 403);
     }

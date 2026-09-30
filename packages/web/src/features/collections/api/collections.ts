@@ -1,5 +1,5 @@
 import { API_BASE, apiDelete, apiGet, apiPost, apiPut, getAuthHeaders, handleForbidden } from "@/lib/api/client";
-import type { Collection, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
+import type { Collection, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
@@ -56,6 +56,15 @@ export async function loadCardImage(
 ): Promise<Result<{ capturedImageUrl?: string }>> {
   return apiGet<Result<{ capturedImageUrl?: string }>>(
     `/api/collections/${guid}/cards/${scanId}/image`,
+  );
+}
+
+export async function loadCardDiagnostics(
+  guid: string,
+  scanId: string,
+): Promise<Result<MatchedScanDiagnostics | null>> {
+  return apiGet<Result<MatchedScanDiagnostics | null>>(
+    `/api/collections/${guid}/cards/${scanId}/diagnostics`,
   );
 }
 
