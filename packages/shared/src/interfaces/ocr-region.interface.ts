@@ -6,6 +6,7 @@ export interface OcrRegion {
   y: number;
   width: number;
   height: number;
+  multiline?: boolean;
 }
 
 export type OcrReadout = Record<OcrField, string>;

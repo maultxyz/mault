@@ -17,6 +17,7 @@ import {
   MATCH_MAX_DISTANCE_RATIO,
 } from "../../lib/constants/card-search";
 import {
+  OCR_MAX_NAME_LINES,
   OCR_NAME_CANDIDATE_LIMIT,
   OCR_NAME_MIN_LENGTH,
   OCR_NAME_MIN_SIMILARITY,
@@ -214,6 +215,18 @@ export async function findCardMatches(
   });
 }
 
+export function ocrNameQueries(text: string): string[] {
+  const lines = text
+    .split(/\r?\n/)
+    .map(cleanOcrName)
+    .filter((line) => line.length >= OCR_NAME_MIN_LENGTH)
+    .slice(0, OCR_MAX_NAME_LINES);
+  const joined = cleanOcrName(lines.join(" "));
+  return [...new Set([joined, ...lines])].filter(
+    (query) => query.length >= OCR_NAME_MIN_LENGTH,
+  );
+}
+
 export function cleanOcrName(text: string): string {
   return text
     .replace(/[^\p{L}\p{N}',\- ]+/gu, " ")
@@ -246,7 +259,7 @@ export async function findCardMatchesByText(
     readout: OcrReadout;
   },
 ): Promise<CardTextMatchResult> {
-  const nameQuery = cleanOcrName(readout.name);
+  const nameQueries = ocrNameQueries(readout.name);
   const noMatch: CardTextMatchResult = {
     message: "No card matched the text on the card.",
     success: true,
@@ -254,7 +267,7 @@ export async function findCardMatchesByText(
     nearestDistance: null,
     ocr: { readout, matchedName: null, nameScore: null },
   };
-  if (nameQuery.length < OCR_NAME_MIN_LENGTH) return noMatch;
+  if (nameQueries.length === 0) return noMatch;
 
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
   const setLineTokens = extractOcrTokens(readout.setLine);
@@ -265,25 +278,36 @@ export async function findCardMatchesByText(
         `SET LOCAL pg_trgm.similarity_threshold = ${OCR_NAME_MIN_SIMILARITY}`,
       ),
     );
-    const result = await tx.execute(sql`
-      SELECT
-        card_id,
-        name,
-        set_code,
-        similarity(name, ${nameQuery}) AS name_score,
-        embedding <=> ${embeddingStr}::vector(128) AS distance
-      FROM cards
-      WHERE game_key = ${gameKey} AND lang = ${lang} AND name % ${nameQuery}
-      ORDER BY name_score DESC, distance ASC
-      LIMIT ${OCR_NAME_CANDIDATE_LIMIT}
-    `);
-    if (result.rows.length === 0) return noMatch;
+    let rows: Record<string, unknown>[] = [];
+    for (const nameQuery of nameQueries) {
+      const result = await tx.execute(sql`
+        SELECT
+          card_id,
+          name,
+          set_code,
+          similarity(name, ${nameQuery}) AS name_score,
+          embedding <=> ${embeddingStr}::vector(128) AS distance
+        FROM cards
+        WHERE game_key = ${gameKey} AND lang = ${lang} AND name % ${nameQuery}
+        ORDER BY name_score DESC, distance ASC
+        LIMIT ${OCR_NAME_CANDIDATE_LIMIT}
+      `);
+      if (
+        result.rows.length > 0 &&
+        (rows.length === 0 ||
+          (result.rows[0].name_score as number) >
+            (rows[0].name_score as number))
+      ) {
+        rows = result.rows;
+      }
+    }
+    if (rows.length === 0) return noMatch;
 
-    const matchedName = result.rows[0].name as string;
-    const nameScore = result.rows[0].name_score as number;
+    const matchedName = rows[0].name as string;
+    const nameScore = rows[0].name_score as number;
     const ocr: OcrDiagnostics = { readout, matchedName, nameScore };
 
-    const printings = result.rows
+    const printings = rows
       .filter((row) => row.name === matchedName)
       .map((row) => ({
         id: row.card_id as string,
