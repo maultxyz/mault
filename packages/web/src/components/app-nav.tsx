@@ -39,6 +39,7 @@ import {
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconShoppingCart,
+  IconVolume,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -414,6 +415,12 @@ export function AppNav() {
       to: "/app/calibrate",
       icon: <IconAdjustments size={20} />,
       label: t("nav.calibrate"),
+      desktopOnly: true,
+    },
+    {
+      to: "/app/sounds",
+      icon: <IconVolume size={20} />,
+      label: t("nav.sounds"),
       desktopOnly: true,
     },
     {

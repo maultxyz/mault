@@ -14,7 +14,8 @@
     "collapse": "Réduire",
     "collapseSidebar": "Réduire la barre latérale ([)",
     "expandSidebar": "Développer la barre latérale ([)",
-    "alerts": "Alertes"
+    "alerts": "Alertes",
+    "sounds": "Sons"
   },
   "alerts": {
     "dismiss": "Ignorer",

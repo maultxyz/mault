@@ -91,3 +91,5 @@ export async function getBusinessPriceInfo(): Promise<BusinessPriceInfo | null> 
   _businessPriceCachedAt = Date.now();
   return _businessPriceCache;
 }
+export const FREE_PLAN_MAX_SOUND_RULES =
+  Number(process.env.FREE_PLAN_MAX_SOUND_RULES) || 1;

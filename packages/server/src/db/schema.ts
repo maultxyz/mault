@@ -420,6 +420,62 @@ export const unmatchedCards = pgTable(
   ],
 ).enableRLS();
 
+export const soundClips = pgTable(
+  "sound_clips",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    name: text("name").notNull(),
+    contentType: text("content_type").notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    storageKey: text("storage_key"),
+    dataUrl: text("data_url"),
+    waveform: jsonb("waveform"),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("sound_clips_guid_idx").on(table.guid),
+    index("sound_clips_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const soundRules = pgTable(
+  "sound_rules",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    name: text("name").notNull(),
+    gameId: integer("game_id")
+      .notNull()
+      .references(() => games.id, { onDelete: "cascade" }),
+    position: integer("position").notNull().default(0),
+    isEnabled: boolean("is_enabled").notNull().default(true),
+    rules: jsonb("rules").notNull(),
+    clipId: integer("clip_id").references(() => soundClips.id, {
+      onDelete: "set null",
+    }),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("sound_rules_guid_idx").on(table.guid),
+    index("sound_rules_org_game_idx").on(table.orgId, table.gameId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const orgSettings = pgTable(
   "org_settings",
   {

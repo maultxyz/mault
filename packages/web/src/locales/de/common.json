@@ -14,7 +14,8 @@
     "collapse": "Einklappen",
     "collapseSidebar": "Seitenleiste einklappen ([)",
     "expandSidebar": "Seitenleiste ausklappen ([)",
-    "alerts": "Meldungen"
+    "alerts": "Meldungen",
+    "sounds": "Sounds"
   },
   "alerts": {
     "dismiss": "Verwerfen",

@@ -14,7 +14,8 @@
     "collapse": "Collapse",
     "collapseSidebar": "Collapse sidebar ([)",
     "expandSidebar": "Expand sidebar ([)",
-    "alerts": "Alerts"
+    "alerts": "Alerts",
+    "sounds": "Sounds"
   },
   "alerts": {
     "dismiss": "Dismiss",

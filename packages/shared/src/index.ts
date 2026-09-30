@@ -34,3 +34,5 @@ export * from "./constants/sorters.constant";
 export * from "./evaluate-bin";
 export * from "./rule-fields";
 export * from "./price-source";
+export * from "./interfaces/sounds.interface";
+export * from "./constants/sounds.constant";

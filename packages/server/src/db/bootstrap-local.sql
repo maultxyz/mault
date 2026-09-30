@@ -45,7 +45,7 @@ DECLARE
     'bin_sets', 'bins', 'bin_routes', 'bin_heights', 'module_configs', 'feeder_configs',
     'collections', 'collection_cards', 'unmatched_cards', 'org_settings',
     'bin_set_audit', 'bin_route_audit', 'bin_height_audit', 'module_config_audit', 'feeder_config_audit',
-    'devices'
+    'devices', 'sound_clips', 'sound_rules'
   ];
   tbl text;
 BEGIN

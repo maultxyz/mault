@@ -19,6 +19,7 @@ import { localAuthRouter } from "./routes/local-auth";
 import { notificationsRouter } from "./routes/notifications";
 import { orgSettingsRouter } from "./routes/org-settings";
 import { publicRouter } from "./routes/public";
+import { soundsRouter } from "./routes/sounds";
 import { streamRoute } from "./routes/stream";
 import { rollbar } from "./lib/rollbar";
 
@@ -46,6 +47,7 @@ app.route("/games", gamesRouter);
 app.route("/announcements", announcementsRouter);
 app.route("/notifications", notificationsRouter);
 app.route("/org-settings", orgSettingsRouter);
+app.route("/sounds", soundsRouter);
 app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);

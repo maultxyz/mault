@@ -1,0 +1,1 @@
+ALTER TABLE "sound_clips" ADD COLUMN "waveform" jsonb;
