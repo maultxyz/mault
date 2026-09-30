@@ -1,3 +1,4 @@
+import { scanWarn } from "@/lib/scan-log";
 import type { CardContour, Point } from "@magic-vault/shared";
 import { FASTWEB_DETECTOR_MODEL } from "./model-fetch";
 import { loadOnnxSession, ort, runOnnxSession } from "./onnx-runtime";
@@ -138,7 +139,7 @@ export async function detectCardCorners(
   const cardPresent = sharpness != null ? sharpness >= minSharpness : presence >= 0.5;
 
   if (!cardPresent) {
-    console.warn(
+    scanWarn(
       `[scanner] card rejected: sharpness=${sharpness ?? "n/a"} (min ${minSharpness}), presence=${presence.toFixed(3)}`,
     );
     return { cardPresent: false, confidence: sharpness ?? presence, sharpness, contour: null };
@@ -164,7 +165,7 @@ export async function detectCardCorners(
   }));
 
   if (!isUsableQuad(orderedNormalized)) {
-    console.warn("[scanner] card rejected: corners formed an unusable quad", orderedNormalized);
+    scanWarn("[scanner] card rejected: corners formed an unusable quad", orderedNormalized);
     return { cardPresent: false, confidence: sharpness ?? presence, sharpness, contour: null };
   }
 

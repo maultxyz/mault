@@ -37,6 +37,7 @@ import type {
   ScanOutcome,
   TextSearchOutcome,
 } from "@/lib/interfaces/scanner";
+import { scanLog } from "@/lib/scan-log";
 import {
   CLOSE_MATCH_DELTA,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
@@ -241,7 +242,7 @@ async function searchByCardText(
         ),
       );
       ocr = result.ocr ?? ocr;
-      console.log(
+      scanLog(
         `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
       );
       if (hasMatch(result)) {
@@ -332,13 +333,13 @@ async function searchCardImage(
         },
       );
 
-      console.log(
+      scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
       const runOcr =
         !!ocrEnabled && !!corners.contour && needsTextSearch(best.result);
       if (ocrEnabled) {
-        console.log(
+        scanLog(
           runOcr
             ? `[scanner] OCR running (embedding unsure: ${best.result.diagnostics?.reason ?? "close alternatives"})`
             : "[scanner] OCR skipped (confident embedding match)",
@@ -371,7 +372,7 @@ async function searchCardImage(
     );
   }
 
-  console.log(`[scanner] using fallback scan region (${fallbackReason})`);
+  scanLog(`[scanner] using fallback scan region (${fallbackReason})`);
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
   const best = await searchBothOrientations(
     warpedCanvas,
@@ -735,7 +736,7 @@ export function useCardScanner({
           } else {
             lastScannedCardIdRef.current = card.id;
             if (matched?.needsReview) {
-              console.log(
+              scanLog(
                 `[scanner] OCR name match used without an embedding match, flagged for review: ${card.name} (${card.id})`,
               );
             }
