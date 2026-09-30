@@ -1,9 +1,10 @@
-import type { FieldMeta, FieldType } from "@magic-vault/shared";
+import type { FieldMeta, FieldRenames, FieldType } from "@magic-vault/shared";
 
 export interface GameInput {
   key: string;
   name: string;
   fieldDefinitions: FieldMeta[];
+  fieldRenames?: FieldRenames;
   foilTypes: string[];
   apiDocsUrl?: string | null;
   cardThickness?: number | null;

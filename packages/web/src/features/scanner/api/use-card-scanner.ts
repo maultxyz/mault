@@ -18,6 +18,7 @@ import {
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
+import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import {
   embedCanvas,
@@ -867,7 +868,7 @@ export function useCardScanner({
     if (!stream) return;
 
     const intervalId = setInterval(() => {
-      if (liveDetectingRef.current) return;
+      if (liveDetectingRef.current || getOnnxRuntimeFailure()) return;
       if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
 
       const canvas = displayCanvasRef.current;
@@ -890,7 +891,9 @@ export function useCardScanner({
           }
         })
         .catch((err) => {
-          console.error("[scanner] live detection failed:", err);
+          if (!getOnnxRuntimeFailure()) {
+            console.error("[scanner] live detection failed:", err);
+          }
         })
         .finally(() => {
           liveDetectingRef.current = false;

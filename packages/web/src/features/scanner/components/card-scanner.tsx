@@ -30,6 +30,7 @@ import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { useOnnxRuntimeFailureToast } from "@/features/scanner/api/use-onnx-runtime-failure-toast";
 import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
@@ -94,6 +95,7 @@ export function CardScanner({
   const { activeCollection } = useCollections();
   const apiHealthCheck = useGameApiHealthCheck(activeCollection?.game?.key);
   const { recordScanOutcome } = useUnmatchedRateToast();
+  useOnnxRuntimeFailureToast();
   const {
     status,
     errorMessage,

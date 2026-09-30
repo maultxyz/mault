@@ -440,5 +440,10 @@
     "calibration": "Kalibrierung",
     "turnOnOcr": "OCR einschalten",
     "dismiss": "Schließen"
+  },
+  "onnxRuntimeFailure": {
+    "title": "Kartenerkennung im Browser funktioniert nicht mehr",
+    "description": "Die KI-Erkennung ist in diesem Tab abgestürzt. Scans werden vorerst auf dem Server abgeglichen, was langsamer ist und die Eckenerkennung auslässt. Lade die Seite neu, um das zu beheben.",
+    "reload": "Neu laden"
   }
 }

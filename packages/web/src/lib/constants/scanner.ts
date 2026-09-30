@@ -53,3 +53,5 @@ export const UNMATCHED_RATE_TOAST_COOLDOWN_MS = 30 * 60 * 1000;
 export const UNMATCHED_RATE_TOAST_ID = "unmatched-rate";
 
 export const SHOW_SCAN_LOGS = import.meta.env.VITE_SHOW_SCAN_LOGS === "true";
+
+export const ONNX_RUNTIME_FAILURE_TOAST_ID = "onnx-runtime-failure";

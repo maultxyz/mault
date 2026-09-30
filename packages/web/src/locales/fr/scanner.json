@@ -440,5 +440,10 @@
     "calibration": "Calibration",
     "turnOnOcr": "Activer l'OCR",
     "dismiss": "Fermer"
+  },
+  "onnxRuntimeFailure": {
+    "title": "La détection des cartes dans le navigateur ne fonctionne plus",
+    "description": "Le moteur de détection IA a planté dans cet onglet. Les scans sont pour l'instant comparés sur le serveur, ce qui est plus lent et saute la détection des coins. Recharge la page pour corriger ça.",
+    "reload": "Recharger"
   }
 }

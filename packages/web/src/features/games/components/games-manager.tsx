@@ -10,13 +10,19 @@ import {
   updateGame,
 } from "@/features/games/api/games";
 import type { GameFormValues } from "@/schemas/games.schema";
+import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import type { Game } from "@magic-vault/shared";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-import { GameFormDialog, toFieldDefinitions, toFoilTypes } from "./game-form-dialog";
+import {
+  GameFormDialog,
+  toFieldDefinitions,
+  toFieldRenames,
+  toFoilTypes,
+} from "./game-form-dialog";
 
 export function GamesManager() {
   const { t } = useTranslation("games");
@@ -64,6 +70,7 @@ export function GamesManager() {
         cardThickness: values.cardThickness,
         isActive: values.isActive,
         fieldDefinitions: toFieldDefinitions(values.fieldDefinitions),
+        fieldRenames: toFieldRenames(values.fieldDefinitions),
       }),
     onSuccess: (r) => {
       if (!r.success || !r.data) {
@@ -80,6 +87,7 @@ export function GamesManager() {
       queryClient.invalidateQueries({
         queryKey: collectionsQueryOptions.queryKey,
       });
+      queryClient.invalidateQueries({ queryKey: binsQueryOptions.queryKey });
       toast.success(
         t("gamesManager.toasts.updateSuccess", { name: r.data.name }),
       );

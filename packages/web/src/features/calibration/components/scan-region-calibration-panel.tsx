@@ -24,6 +24,7 @@ import {
 } from "@/features/scanner/lib/card-detection";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import {
+  getOnnxRuntimeFailure,
   useExecutionProviderPreference,
   type OnnxExecutionProviderPreference,
 } from "@/features/scanner/lib/onnx-runtime";
@@ -204,7 +205,7 @@ export function ScanRegionCalibrationPanel({
     if (!videoSize) return;
 
     const interval = setInterval(() => {
-      if (liveDetectingRef.current) return;
+      if (liveDetectingRef.current || getOnnxRuntimeFailure()) return;
       const canvas = canvasRef.current;
       const overlayCanvas = overlayCanvasRef.current;
       const overlayCtx = overlayCanvas?.getContext("2d");
@@ -227,9 +228,11 @@ export function ScanRegionCalibrationPanel({
             });
           }
         })
-        .catch((err) =>
-          console.error("[calibration] live detection failed:", err),
-        )
+        .catch((err) => {
+          if (!getOnnxRuntimeFailure()) {
+            console.error("[calibration] live detection failed:", err);
+          }
+        })
         .finally(() => {
           liveDetectingRef.current = false;
         });
@@ -546,14 +549,11 @@ export function ScanRegionCalibrationPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="auto">
-                  {t("scanRegionCalibrationPanel.executionProviderAuto")}
+                <SelectItem value="wasm">
+                  {t("scanRegionCalibrationPanel.executionProviderWasm")}
                 </SelectItem>
                 <SelectItem value="webgpu">
                   {t("scanRegionCalibrationPanel.executionProviderWebGpu")}
-                </SelectItem>
-                <SelectItem value="wasm">
-                  {t("scanRegionCalibrationPanel.executionProviderWasm")}
                 </SelectItem>
               </SelectContent>
             </Select>

@@ -440,5 +440,10 @@
     "calibration": "Calibration",
     "turnOnOcr": "Turn on OCR",
     "dismiss": "Dismiss"
+  },
+  "onnxRuntimeFailure": {
+    "title": "In-browser card detection stopped working",
+    "description": "The AI detection engine crashed in this tab. Scans are being matched on the server for now, which is slower and skips corner detection. Reload the page to fix it.",
+    "reload": "Reload"
   }
 }

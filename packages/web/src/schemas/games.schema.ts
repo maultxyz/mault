@@ -8,6 +8,7 @@ export function createGameFormSchema(t: TFunction<"games">) {
     type: z.enum(["string", "numeric", "enum", "set"]),
     path: z.string().min(1, t("gameFormDialog.validation.required")),
     optionsText: z.string().optional(),
+    originalField: z.string().optional(),
   });
 
   return z.object({
