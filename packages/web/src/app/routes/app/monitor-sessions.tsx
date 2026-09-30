@@ -146,6 +146,7 @@ export default function MonitorSessionsPage() {
       {!isLoading && sorted.length > 0 && (
         <Input
           placeholder={t("monitorSessions.searchPlaceholder")}
+          data-hotkey-search
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

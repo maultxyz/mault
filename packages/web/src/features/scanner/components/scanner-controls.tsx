@@ -1,3 +1,4 @@
+import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -14,7 +15,10 @@ import {
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
+import { useHotkeys } from "@/hooks/use-hotkeys";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import type {
   ScannerControlButtonProps,
   ScannerControlsProps,
@@ -34,6 +38,7 @@ import { useTranslation } from "react-i18next";
 
 function ScannerControlButton({
   tooltip,
+  hotkey,
   onClick,
   disabled,
   selected,
@@ -54,7 +59,10 @@ function ScannerControlButton({
           </Button>
         }
       />
-      <TooltipContent>{tooltip}</TooltipContent>
+      <TooltipContent>
+        {tooltip}
+        {hotkey && <HotkeyHint id={hotkey} />}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -87,6 +95,31 @@ export function ScannerControls({
   const foilTooltip = t("scannerControls.foilTooltip", {
     type: forceFoilType ?? tCards("foilNone"),
   });
+  const { isActive } = useStation();
+  const { panelsDocked } = useStations();
+  const isMobile = useIsMobile();
+  const canFeed = isConnected && isReady && !isFeeding;
+  const canClearDevice = isConnected && isReady && !isClearingDevice;
+
+  const cycleFoilType = () => {
+    const options = [null, ...foilOptions];
+    const next = (options.indexOf(forceFoilType) + 1) % options.length;
+    setForceFoilType(options[next]);
+  };
+
+  useHotkeys(
+    {
+      scanPauseResume: status === "paused" ? onResume : onPause,
+      scanNow: canForceScan ? onForceScan : undefined,
+      scanFeed: canFeed ? onFeed : undefined,
+      scanToggleAutoFeed: isConnected
+        ? () => setAutoFeed(!autoFeed)
+        : undefined,
+      scanCycleFoil: cycleFoilType,
+      scanClearDevice: canClearDevice ? onClearDevice : undefined,
+    },
+    isActive && panelsDocked && !isMobile,
+  );
 
   return (
     <div
@@ -103,6 +136,7 @@ export function ScannerControls({
             ? t("scannerControls.scanAgain")
             : t("scannerControls.scanNow")
         }
+        hotkey="scanNow"
         onClick={onForceScan}
         disabled={!canForceScan}
       >
@@ -111,6 +145,7 @@ export function ScannerControls({
       {status === "paused" ? (
         <ScannerControlButton
           tooltip={t("scannerControls.resume")}
+          hotkey="scanPauseResume"
           onClick={onResume}
         >
           <IconPlayerPlay />
@@ -118,6 +153,7 @@ export function ScannerControls({
       ) : (
         <ScannerControlButton
           tooltip={t("scannerControls.pause")}
+          hotkey="scanPauseResume"
           onClick={onPause}
         >
           <IconPlayerPause />
@@ -140,7 +176,10 @@ export function ScannerControls({
               />
             }
           />
-          <TooltipContent>{foilTooltip}</TooltipContent>
+          <TooltipContent>
+            {foilTooltip}
+            <HotkeyHint id="scanCycleFoil" />
+          </TooltipContent>
         </Tooltip>
         <DropdownMenuContent align="start">
           <DropdownMenuRadioGroup
@@ -170,6 +209,7 @@ export function ScannerControls({
                   ? t("scannerControls.startTooltip")
                   : t("scannerControls.feedTooltip")
             }
+            hotkey="scanFeed"
             onClick={onFeed}
             disabled={!isReady || isFeeding}
           >
@@ -185,6 +225,7 @@ export function ScannerControls({
                 ? t("scannerControls.autoFeedOnTooltip")
                 : t("scannerControls.autoFeedOffTooltip")
             }
+            hotkey="scanToggleAutoFeed"
             onClick={() => setAutoFeed(!autoFeed)}
             selected={autoFeed}
           >
@@ -192,6 +233,7 @@ export function ScannerControls({
           </ScannerControlButton>
           <ScannerControlButton
             tooltip={t("scannerControls.clearDeviceTooltip")}
+            hotkey="scanClearDevice"
             onClick={onClearDevice}
             disabled={!isReady || isClearingDevice}
           >

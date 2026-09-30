@@ -1,3 +1,4 @@
+import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
@@ -215,6 +216,7 @@ export interface ScannerControlsProps {
 
 export interface ScannerControlButtonProps {
   tooltip: string;
+  hotkey?: HotkeyId;
   onClick: () => void;
   disabled?: boolean;
   selected?: boolean;

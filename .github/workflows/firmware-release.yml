@@ -11,7 +11,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc
+  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio
   BUILD_DIR: firmware/main/build/esp32.esp32.esp32s3
   FIRMWARE_DEST: packages/web/public/firmware/esp32-latest.bin
   UNO_FQBN: arduino:renesas_uno:minima
