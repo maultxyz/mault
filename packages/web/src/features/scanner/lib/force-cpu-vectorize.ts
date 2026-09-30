@@ -3,6 +3,6 @@ import { useExecutionProviderPreference } from "@/features/scanner/lib/onnx-runt
 export function useForceCpuVectorize() {
   const [preference, setPreference] = useExecutionProviderPreference();
   const setForceCpu = (value: boolean) =>
-    setPreference(value ? "wasm" : "auto");
+    setPreference(value ? "wasm" : "webgpu");
   return [preference === "wasm", setForceCpu] as const;
 }

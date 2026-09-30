@@ -3,16 +3,16 @@ import * as ort from "onnxruntime-web/webgpu";
 import { useSyncExternalStore } from "react";
 import { fetchPinnedModel, type PinnedModel } from "./model-fetch";
 
-export type OnnxExecutionProviderPreference = "auto" | "webgpu" | "wasm";
+export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
 
 const executionProviderListeners = new Set<() => void>();
 
 export function getExecutionProviderPreference(): OnnxExecutionProviderPreference {
   try {
     const value = localStorage.getItem(ONNX_EXECUTION_PROVIDER_STORAGE_KEY);
-    return value === "webgpu" || value === "wasm" ? value : "auto";
+    return value === "webgpu" ? "webgpu" : "wasm";
   } catch {
-    return "auto";
+    return "wasm";
   }
 }
 
@@ -20,7 +20,7 @@ export function setExecutionProviderPreference(
   value: OnnxExecutionProviderPreference,
 ): void {
   try {
-    if (value === "auto") {
+    if (value === "wasm") {
       localStorage.removeItem(ONNX_EXECUTION_PROVIDER_STORAGE_KEY);
     } else {
       localStorage.setItem(ONNX_EXECUTION_PROVIDER_STORAGE_KEY, value);
@@ -46,70 +46,84 @@ export function useExecutionProviderPreference() {
   return [preference, setExecutionProviderPreference] as const;
 }
 
-let webGpuSupportPromise: Promise<boolean> | null = null;
-
-function isFirefox(): boolean {
-  return /firefox/i.test(navigator.userAgent);
-}
-
-async function detectWebGpuSupport(): Promise<boolean> {
-  if (isFirefox()) return false;
-  const gpu = (
-    navigator as unknown as {
-      gpu?: { requestAdapter: () => Promise<unknown> };
-    }
-  ).gpu;
-  if (!gpu) return false;
-  try {
-    const adapter = await gpu.requestAdapter();
-    return adapter != null;
-  } catch {
-    return false;
-  }
-}
-
-export function isWebGpuSupported(): Promise<boolean> {
-  if (!webGpuSupportPromise) webGpuSupportPromise = detectWebGpuSupport();
-  return webGpuSupportPromise;
-}
-
 const sessions = new Map<string, Promise<ort.InferenceSession>>();
+
+let runtimeFailure: Error | null = null;
+const runtimeFailureListeners = new Set<() => void>();
+
+function isWasmTrap(err: unknown): err is Error {
+  return (
+    err instanceof WebAssembly.RuntimeError ||
+    (err instanceof Error && err.name === "RuntimeError")
+  );
+}
+
+function markRuntimeFailed(err: Error): void {
+  if (runtimeFailure) return;
+  runtimeFailure = err;
+  if (getExecutionProviderPreference() === "webgpu") {
+    try {
+      localStorage.removeItem(ONNX_EXECUTION_PROVIDER_STORAGE_KEY);
+    } catch {}
+    executionProviderListeners.forEach((listener) => listener());
+  }
+  runtimeFailureListeners.forEach((listener) => listener());
+}
+
+export function getOnnxRuntimeFailure(): Error | null {
+  return runtimeFailure;
+}
+
+function subscribeOnnxRuntimeFailure(listener: () => void) {
+  runtimeFailureListeners.add(listener);
+  return () => {
+    runtimeFailureListeners.delete(listener);
+  };
+}
+
+export function useOnnxRuntimeFailure(): Error | null {
+  return useSyncExternalStore(
+    subscribeOnnxRuntimeFailure,
+    getOnnxRuntimeFailure,
+  );
+}
 
 export async function loadOnnxSession(
   key: string,
   model: PinnedModel,
   extraOptions?: Partial<ort.InferenceSession.SessionOptions>,
 ): Promise<ort.InferenceSession> {
+  if (runtimeFailure) throw runtimeFailure;
   let promise = sessions.get(key);
   if (!promise) {
     promise = (async () => {
       const buffer = await fetchPinnedModel(model);
-      const preference = getExecutionProviderPreference();
-      if (preference === "wasm") {
-        return ort.InferenceSession.create(buffer, {
-          executionProviders: ["wasm"],
-          ...extraOptions,
-        });
-      }
-      const preferWebGpu =
-        preference === "webgpu" ? true : await isWebGpuSupported();
-      if (preferWebGpu) {
+      if (getExecutionProviderPreference() === "webgpu") {
         try {
           return await ort.InferenceSession.create(buffer, {
             executionProviders: ["webgpu", "wasm"],
             ...extraOptions,
           });
         } catch (err) {
+          if (isWasmTrap(err)) {
+            markRuntimeFailed(err);
+            throw err;
+          }
           console.warn(
             `[onnx-runtime] ${key}: WebGPU session failed, falling back to WASM`,
             err,
           );
         }
       }
-      return ort.InferenceSession.create(buffer, {
-        executionProviders: ["wasm"],
-        ...extraOptions,
-      });
+      try {
+        return await ort.InferenceSession.create(buffer, {
+          executionProviders: ["wasm"],
+          ...extraOptions,
+        });
+      } catch (err) {
+        if (isWasmTrap(err)) markRuntimeFailed(err);
+        throw err;
+      }
     })();
     sessions.set(key, promise);
     promise.catch(() => sessions.delete(key));
@@ -127,12 +141,14 @@ export function runOnnxSession(
   const previous = runQueues.get(key) ?? Promise.resolve();
   const next = previous
     .catch(() => {})
-    .then(() =>
-      session.run(feeds).catch((err) => {
+    .then(() => {
+      if (runtimeFailure) throw runtimeFailure;
+      return session.run(feeds).catch((err) => {
+        if (isWasmTrap(err)) markRuntimeFailed(err);
         sessions.delete(key);
         throw err;
-      }),
-    );
+      });
+    });
   runQueues.set(
     key,
     next.catch(() => {}),

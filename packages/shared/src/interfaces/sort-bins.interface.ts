@@ -2,6 +2,8 @@ import type { Game } from "./games.interface";
 
 export type ConditionField = string;
 
+export type FieldRenames = Record<ConditionField, ConditionField>;
+
 export type ConditionOperator =
   | "equals"
   | "not_equals"

@@ -23,7 +23,7 @@ import {
   type GameFormValues,
 } from "@/schemas/games.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { FieldMeta, Game } from "@magic-vault/shared";
+import type { FieldMeta, FieldRenames, Game } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
@@ -55,6 +55,7 @@ function toFormValues(game?: Game | null): GameFormValues {
       type: f.type,
       path: f.path,
       optionsText: f.options?.map((o) => o.value).join(", ") ?? "",
+      originalField: f.field,
     })),
   };
 }
@@ -66,6 +67,19 @@ export function toFoilTypes(foilTypesText: string | undefined): string[] {
       .map((v) => v.trim())
       .filter(Boolean) ?? []
   );
+}
+
+export function toFieldRenames(
+  values: GameFormValues["fieldDefinitions"],
+): FieldRenames {
+  const renames: FieldRenames = {};
+  for (const f of values) {
+    const field = f.field.trim();
+    if (f.originalField && f.originalField !== field) {
+      renames[f.originalField] = field;
+    }
+  }
+  return renames;
 }
 
 export function toFieldDefinitions(
