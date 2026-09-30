@@ -41,3 +41,6 @@ export const CAMERA_FOCUS_STORAGE_KEY = "magic-vault:camera-focus";
 export const SUPPORT_PROMPT_STORAGE_KEY = "magic-vault:support-prompt";
 
 export const SCANNER_PIP_MINIMIZED_STORAGE_KEY = "magic-vault:scanner-pip-minimized";
+
+export const CARD_TECHNICAL_DETAILS_STORAGE_KEY =
+  "magic-vault:card-technical-details";

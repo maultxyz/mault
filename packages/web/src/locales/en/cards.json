@@ -204,5 +204,48 @@
   },
   "foil": "Foil",
   "foilNone": "Not foil",
-  "downloaded": "Downloaded"
+  "downloaded": "Downloaded",
+  "technicalDetails": {
+    "toggle": "Technical details",
+    "match": "Match",
+    "matchedBy": "Matched by",
+    "matchedByValue": {
+      "embedding": "Image match",
+      "ocr": "Text on the card (OCR)"
+    },
+    "matchPercent": "Match",
+    "distance": "Distance",
+    "confidence": "Confidence",
+    "needsReview": "Flagged for review",
+    "reviewed": "Reviewed",
+    "vectorizedOn": "Vectorized on",
+    "orientation": "Orientation",
+    "orientationValue": {
+      "upright": "Upright",
+      "rotated": "Upside down"
+    },
+    "yes": "Yes",
+    "no": "No",
+    "noDiagnostics": "No scan diagnostics were recorded for this card. It was scanned before they were saved, or added by hand.",
+    "candidates": "Nearest candidates",
+    "candidateScore": "distance {{distance}}, confidence {{confidence}}",
+    "attempts": "Attempts ({{needed}} matching needed)",
+    "attemptNoMatch": "No match",
+    "detection": "Detection",
+    "cornerDetection": "Corner detection",
+    "cornerDetectionFound": "Found the card",
+    "cornerDetectionFallback": "Failed, used the static scan region",
+    "sharpness": "Sharpness",
+    "detectionConfidence": "Detection confidence",
+    "fallbackReason": "Fallback reason",
+    "ocr": "OCR",
+    "ocrName": "Name read",
+    "ocrSetLine": "Set line read",
+    "ocrMatchedName": "Closest card name",
+    "ocrNotRun": "OCR didn't run for this scan.",
+    "cardJson": "Card data (JSON)",
+    "copyJson": "Copy JSON",
+    "copied": "Card JSON copied.",
+    "copyFailed": "Couldn't copy the card JSON."
+  }
 }

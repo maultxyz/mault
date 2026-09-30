@@ -477,6 +477,13 @@
       "when": 1790772798272,
       "tag": "0067_spooky_dark_phoenix",
       "breakpoints": true
+    },
+    {
+      "idx": 68,
+      "version": "7",
+      "when": 1790786569453,
+      "tag": "0068_fresh_shocker",
+      "breakpoints": true
     }
   ]
 }

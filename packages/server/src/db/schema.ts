@@ -372,6 +372,7 @@ export const collectionCards = pgTable(
     alternativeMatches: jsonb("alternative_matches"),
     isCorrected: boolean("is_corrected").notNull().default(false),
     needsReview: boolean("needs_review").notNull().default(false),
+    diagnostics: jsonb("diagnostics"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

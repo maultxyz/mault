@@ -59,7 +59,7 @@ export interface CardScannerProps {
     matches: PlayingCardWithDistance[],
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
-    needsReview?: boolean,
+    details?: MatchedScanDetails,
   ) => void;
   onNoMatch?: (
     capturedImageUrl?: string,
@@ -94,6 +94,7 @@ export interface ScannedCard {
   corrected?: boolean;
   needsReview?: boolean;
   vectorizedOn?: ScanVectorizeSource;
+  diagnostics?: MatchedScanDiagnostics;
 }
 
 export type UnmatchedReason =
@@ -124,6 +125,31 @@ export interface UnmatchedScanDiagnostics {
   attempts: ScanAttemptDiagnostic[];
   lookupFailedCardIds?: string[];
   ocr?: OcrDiagnostics | null;
+}
+
+export type ScanMatchSource = "embedding" | "ocr";
+
+export interface MatchCandidateDiagnostic {
+  cardId: string;
+  name: string | null;
+  distance: number;
+  confidence: number;
+}
+
+export interface MatchedScanDiagnostics {
+  matchedBy: ScanMatchSource;
+  vectorizedOn: ScanVectorizeSource;
+  detection: ScanDetectionDiagnostics;
+  orientation: "upright" | "rotated";
+  matchesNeeded: number;
+  attempts: ScanAttemptDiagnostic[];
+  candidates: MatchCandidateDiagnostic[];
+  ocr: OcrDiagnostics | null;
+}
+
+export interface MatchedScanDetails {
+  needsReview: boolean;
+  diagnostics: MatchedScanDiagnostics;
 }
 
 export interface UnmatchedScanDetails {

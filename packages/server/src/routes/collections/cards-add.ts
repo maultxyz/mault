@@ -43,6 +43,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       foilType,
       alternativeMatches,
       needsReview,
+      diagnostics,
       vectorizedOn,
       deviceGuid,
     } = await c.req.json<ScannedCard & { deviceGuid?: string }>();
@@ -193,6 +194,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               ? alternativeMatches
               : null,
             needsReview: needsReview ?? false,
+            diagnostics: diagnostics ?? null,
             orgId,
           })
           .onConflictDoNothing();

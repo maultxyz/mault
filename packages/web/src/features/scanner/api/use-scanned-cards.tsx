@@ -5,6 +5,7 @@ import {
   type PlayingCard,
   type PlayingCardWithDistance,
   type ScannedCard,
+  type MatchedScanDetails,
   type ScanVectorizeSource,
   type UnmatchedCard,
   type UnmatchedScanDetails,
@@ -354,7 +355,7 @@ export function ScannedCardsProvider({
       capturedImageUrl?: string,
       alternativeMatches?: PlayingCardWithDistance[],
       vectorizedOn?: ScanVectorizeSource,
-      needsReview?: boolean,
+      details?: MatchedScanDetails,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -408,7 +409,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forceFoilTypeRef.current != null || undefined,
         foilType: forceFoilTypeRef.current ?? undefined,
-        needsReview: needsReview || undefined,
+        needsReview: details?.needsReview || undefined,
         vectorizedOn,
       };
 
@@ -459,7 +460,11 @@ export function ScannedCardsProvider({
       const pendingBin = record.binNumber;
       if (pendingBin != null) trackPendingBinCard(pendingBin, 1);
 
-      addCollectionCard(collection.guid, record, deviceGuidRef.current)
+      addCollectionCard(
+        collection.guid,
+        { ...record, diagnostics: details?.diagnostics },
+        deviceGuidRef.current,
+      )
         .then((result) => {
           if (result.success) return;
           binContentsRef.current = binContentsRef.current.filter(

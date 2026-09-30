@@ -20,10 +20,12 @@ import { getCardById } from "@/features/cards/api/card-search";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
+import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
@@ -95,6 +97,19 @@ export function CardDetailPanel({
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
   const [showOcrRegions, setShowOcrRegions] = useState(false);
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(() => {
+    try {
+      return localStorage.getItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
+  const handleTechnicalDetailsChange = (checked: boolean) => {
+    setShowTechnicalDetails(checked);
+    try {
+      localStorage.setItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY, String(checked));
+    } catch {}
+  };
   const [viewerOpen, setViewerOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -313,8 +328,8 @@ export function CardDetailPanel({
               </p>
             )}
           </div>
-          {capturedImageUrl && (
-            <div className="flex items-center gap-4 shrink-0 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4 shrink-0 text-xs text-muted-foreground">
+            {capturedImageUrl && (
               <div className="flex items-center gap-2">
                 <span>{t("cardDetailPanel.showOcrRegions")}</span>
                 <Switch
@@ -324,8 +339,19 @@ export function CardDetailPanel({
                   onCheckedChange={setShowOcrRegions}
                 />
               </div>
-            </div>
-          )}
+            )}
+            {scanId && (
+              <div className="flex items-center gap-2">
+                <span>{t("technicalDetails.toggle")}</span>
+                <Switch
+                  size="sm"
+                  aria-label={t("technicalDetails.toggle")}
+                  checked={showTechnicalDetails}
+                  onCheckedChange={handleTechnicalDetailsChange}
+                />
+              </div>
+            )}
+          </div>
         </div>
         <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
           {currentCard && !editing ? (
@@ -543,6 +569,15 @@ export function CardDetailPanel({
                   </div>
                 )}
               </div>
+
+              {showTechnicalDetails && scanId && (
+                <CardTechnicalDetails
+                  scanId={scanId}
+                  card={currentCard}
+                  needsReview={needsReview}
+                  wasCorrected={wasCorrected}
+                />
+              )}
             </>
           ) : (
             <>
