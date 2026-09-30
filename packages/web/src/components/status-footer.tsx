@@ -17,6 +17,7 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useCommLog, useSerial } from "@/features/scanner/api/use-serial";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { useRole } from "@/hooks/use-role";
+import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 import { useSyncState } from "@/lib/app-stream";
 import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
@@ -138,6 +139,7 @@ function SorterStatusItem() {
   const { isConnected, isReady, firmwareVersion, checkFirmwareVersion } =
     useSerial();
   const entries = useCommLog();
+  const commLogRef = useStickToBottom(entries);
 
   const dot = !isConnected ? "muted" : !isReady ? "warning" : "success";
   const label =
@@ -222,7 +224,7 @@ function SorterStatusItem() {
             </Button>
           </div>
         </div>
-        <ScrollArea className="h-56 rounded-md border">
+        <ScrollArea viewportRef={commLogRef} className="h-56 rounded-md border">
           {entries.length === 0 ? (
             <p className="p-2 text-xs text-muted-foreground">
               {tScanner("serial.commLogEmpty")}
