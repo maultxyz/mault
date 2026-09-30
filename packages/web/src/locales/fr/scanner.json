@@ -79,7 +79,8 @@
       "errors": {
         "wrongChip": "Cette carte est un {{chip}}. Le firmware de la trieuse ne fonctionne que sur l'ESP32-S3, rien n'a donc été écrit.",
         "noBootloader": "Impossible d'atteindre le bootloader de la carte. Maintenez BOOT, appuyez sur RESET, relâchez BOOT, puis réessayez.",
-        "downloadFailed": "Impossible de télécharger le firmware. Vérifiez votre connexion et réessayez."
+        "downloadFailed": "Impossible de télécharger le firmware. Vérifiez votre connexion et réessayez.",
+        "verifyFailed": "Le firmware a été écrit, mais la mémoire flash de la carte ne correspond pas. Débranchez la carte, rebranchez-la et relancez le flash."
       },
       "newBoard": {
         "dialogTitle": "Flasher une nouvelle carte",

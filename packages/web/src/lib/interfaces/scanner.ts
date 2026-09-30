@@ -122,7 +122,8 @@ export type FlashFailureReason =
   | "wrong-chip"
   | "no-bootloader"
   | "download-failed"
-  | "flash-failed";
+  | "flash-failed"
+  | "verify-failed";
 
 export interface FlashEsp32Result {
   success: boolean;

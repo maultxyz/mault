@@ -79,7 +79,8 @@
       "errors": {
         "wrongChip": "Diese Platine ist ein {{chip}}. Die Sortierer-Firmware läuft nur auf dem ESP32-S3, daher wurde nichts geschrieben.",
         "noBootloader": "Der Bootloader der Platine war nicht erreichbar. Halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
-        "downloadFailed": "Die Firmware konnte nicht heruntergeladen werden. Prüfe deine Verbindung und versuche es erneut."
+        "downloadFailed": "Die Firmware konnte nicht heruntergeladen werden. Prüfe deine Verbindung und versuche es erneut.",
+        "verifyFailed": "Die Firmware wurde geschrieben, aber der Flash-Speicher der Platine stimmt nicht damit überein. Zieh die Platine ab, steck sie wieder ein und flashe erneut."
       },
       "newBoard": {
         "dialogTitle": "Neue Platine flashen",

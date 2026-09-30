@@ -57,6 +57,8 @@ export function FirmwareFlashDialog({
         return t("serial.flash.errors.noBootloader");
       case "download-failed":
         return t("serial.flash.errors.downloadFailed");
+      case "verify-failed":
+        return t("serial.flash.errors.verifyFailed");
       default:
         return result.error ?? "";
     }

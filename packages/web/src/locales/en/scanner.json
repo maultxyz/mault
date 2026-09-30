@@ -79,7 +79,8 @@
       "errors": {
         "wrongChip": "This board is an {{chip}}. The sorter firmware only runs on the ESP32-S3, so nothing was written.",
         "noBootloader": "Couldn't reach the board's bootloader. Hold the BOOT button, tap RESET, release BOOT, then try again.",
-        "downloadFailed": "Couldn't download the firmware. Check your connection and try again."
+        "downloadFailed": "Couldn't download the firmware. Check your connection and try again.",
+        "verifyFailed": "The firmware was written, but the board's flash doesn't match it. Unplug the board, plug it back in and flash again."
       },
       "newBoard": {
         "dialogTitle": "Flash a new board",
