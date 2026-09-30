@@ -167,6 +167,7 @@ export default function CollectionsPage() {
       {!isLoading && collections.length > 0 && (
         <Input
           placeholder={t("page.searchPlaceholder")}
+          data-hotkey-search
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

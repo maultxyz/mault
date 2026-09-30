@@ -147,5 +147,37 @@
     "getStarted": "Commencer",
     "openApp": "Ouvrir l'application"
   },
-  "backHome": "Retour à l'accueil"
+  "backHome": "Retour à l'accueil",
+  "hotkeys": {
+    "footer": "Raccourcis",
+    "title": "Raccourcis clavier",
+    "description": "Les raccourcis sont ignorés pendant la saisie dans un champ ou lorsqu'une boîte de dialogue est ouverte.",
+    "then": "puis",
+    "keys": {
+      "space": "Espace",
+      "shift": "Maj"
+    },
+    "groups": {
+      "general": "Général",
+      "navigation": "Navigation",
+      "scanner": "Scanner"
+    },
+    "actions": {
+      "showShortcuts": "Afficher les raccourcis clavier",
+      "toggleSidebar": "Déplier ou replier la barre latérale",
+      "focusSearch": "Aller à la recherche",
+      "goScanner": "Aller au scanner",
+      "goCollections": "Aller aux collections",
+      "goMonitor": "Aller au moniteur",
+      "goCalibrate": "Aller à la calibration",
+      "goSettings": "Aller aux paramètres",
+      "goAdmin": "Aller à l'administration",
+      "scanPauseResume": "Mettre en pause ou reprendre le scan",
+      "scanNow": "Scanner maintenant",
+      "scanFeed": "Charger la carte suivante",
+      "scanToggleAutoFeed": "Activer ou désactiver l'alimentation auto",
+      "scanCycleFoil": "Changer le type de foil",
+      "scanClearDevice": "Vider l'appareil"
+    }
+  }
 }

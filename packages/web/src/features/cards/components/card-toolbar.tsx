@@ -109,6 +109,7 @@ export function CardToolbar({
       {watchers && watchers.length > 0 && <WatcherStack watchers={watchers} />}
       <Input
         placeholder={t("cardToolbar.searchPlaceholder")}
+          data-hotkey-search
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         className="flex-1 min-w-0"

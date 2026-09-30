@@ -147,5 +147,37 @@
     "getStarted": "Get started",
     "openApp": "Open app"
   },
-  "backHome": "Back to home"
+  "backHome": "Back to home",
+  "hotkeys": {
+    "footer": "Shortcuts",
+    "title": "Keyboard shortcuts",
+    "description": "Shortcuts are ignored while you're typing in a field or a dialog is open.",
+    "then": "then",
+    "keys": {
+      "space": "Space",
+      "shift": "Shift"
+    },
+    "groups": {
+      "general": "General",
+      "navigation": "Navigation",
+      "scanner": "Scanner"
+    },
+    "actions": {
+      "showShortcuts": "Show keyboard shortcuts",
+      "toggleSidebar": "Expand or collapse the sidebar",
+      "focusSearch": "Focus search",
+      "goScanner": "Go to scanner",
+      "goCollections": "Go to collections",
+      "goMonitor": "Go to monitor",
+      "goCalibrate": "Go to calibration",
+      "goSettings": "Go to settings",
+      "goAdmin": "Go to admin",
+      "scanPauseResume": "Pause or resume scanning",
+      "scanNow": "Scan now",
+      "scanFeed": "Feed next card",
+      "scanToggleAutoFeed": "Toggle auto-feed",
+      "scanCycleFoil": "Cycle foil type",
+      "scanClearDevice": "Clear device"
+    }
+  }
 }

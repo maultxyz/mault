@@ -1,8 +1,10 @@
 import { AppProviders } from "@/app/providers";
+import { AppHotkeys } from "@/components/app-hotkeys";
 import { AppNav } from "@/components/app-nav";
 import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
 import { ScannerPip } from "@/features/scanner/components/scanner-pip";
@@ -53,9 +55,12 @@ export default function AppLayout() {
             </div>
           </div>
           <ScannerPip />
+          <AppHotkeys />
           <div className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
             <StatusFooter />
             <div className="ml-auto flex items-center gap-3 shrink-0">
+              <KeyboardShortcutsButton />
+              <FooterDivider />
               {AUTH_PROVIDER !== "local" && <PlanBadge />}
               <Tooltip>
                 <TooltipTrigger

@@ -147,5 +147,37 @@
     "getStarted": "Jetzt starten",
     "openApp": "App öffnen"
   },
-  "backHome": "Zurück zur Startseite"
+  "backHome": "Zurück zur Startseite",
+  "hotkeys": {
+    "footer": "Tastenkürzel",
+    "title": "Tastenkürzel",
+    "description": "Tastenkürzel werden ignoriert, während du in ein Feld tippst oder ein Dialog geöffnet ist.",
+    "then": "dann",
+    "keys": {
+      "space": "Leertaste",
+      "shift": "Umschalt"
+    },
+    "groups": {
+      "general": "Allgemein",
+      "navigation": "Navigation",
+      "scanner": "Scanner"
+    },
+    "actions": {
+      "showShortcuts": "Tastenkürzel anzeigen",
+      "toggleSidebar": "Seitenleiste ein- oder ausklappen",
+      "focusSearch": "Suche fokussieren",
+      "goScanner": "Zum Scanner",
+      "goCollections": "Zu den Sammlungen",
+      "goMonitor": "Zum Monitor",
+      "goCalibrate": "Zur Kalibrierung",
+      "goSettings": "Zu den Einstellungen",
+      "goAdmin": "Zum Admin-Bereich",
+      "scanPauseResume": "Scannen pausieren oder fortsetzen",
+      "scanNow": "Jetzt scannen",
+      "scanFeed": "Nächste Karte zuführen",
+      "scanToggleAutoFeed": "Automatische Zuführung umschalten",
+      "scanCycleFoil": "Foil-Typ wechseln",
+      "scanClearDevice": "Gerät leeren"
+    }
+  }
 }

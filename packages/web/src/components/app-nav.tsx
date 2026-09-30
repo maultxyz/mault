@@ -21,6 +21,7 @@ import { useCollectionLocks } from "@/features/collections/api/use-collection-lo
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useLiveSessionCounts } from "@/features/collections/api/use-live-counts";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
@@ -39,7 +40,7 @@ import {
   IconLayoutSidebarLeftExpand,
   IconShoppingCart,
 } from "@tabler/icons-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BrandIcon } from "./brand-icon";
@@ -359,21 +360,7 @@ export function AppNav() {
     });
   }, []);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "[" || e.metaKey || e.ctrlKey || e.altKey) return;
-      const target = e.target as HTMLElement;
-      if (
-        target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA" ||
-        target.isContentEditable
-      )
-        return;
-      toggle();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [toggle]);
+  useHotkeys({ toggleSidebar: toggle }, !isMobile);
 
   const liveCounts = useLiveSessionCounts();
 
