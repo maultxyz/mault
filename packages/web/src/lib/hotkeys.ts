@@ -48,7 +48,7 @@ function startsAnySequence(combo: HotkeyCombo) {
     if (!registration.isEnabled()) continue;
     for (const [id, handler] of Object.entries(registration.getHandlers())) {
       const keys = HOTKEYS[id as HotkeyId].keys;
-      if (handler && keys.length > 1 && comboMatches(keys[0], combo)) {
+      if (handler !== undefined && keys.length > 1 && comboMatches(keys[0], combo)) {
         return true;
       }
     }
