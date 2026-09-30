@@ -84,6 +84,34 @@ export function UnmatchedDiagnosticsDetails({
           </p>
         )}
 
+      {diagnostics.ocr && (
+        <div>
+          <p className="font-medium">{t("unmatchedCardsPanel.ocrHeading")}</p>
+          <p className="text-foreground/70 break-all">
+            {t("unmatchedCardsPanel.ocrName", {
+              text:
+                diagnostics.ocr.readout.name ||
+                t("unmatchedCardsPanel.ocrEmpty"),
+            })}
+          </p>
+          <p className="text-foreground/70 break-all">
+            {t("unmatchedCardsPanel.ocrSetLine", {
+              text:
+                diagnostics.ocr.readout.setLine ||
+                t("unmatchedCardsPanel.ocrEmpty"),
+            })}
+          </p>
+          <p className="text-foreground/70">
+            {diagnostics.ocr.matchedName
+              ? t("unmatchedCardsPanel.ocrMatchedName", {
+                  name: diagnostics.ocr.matchedName,
+                  score: (diagnostics.ocr.nameScore ?? 0).toFixed(2),
+                })
+              : t("unmatchedCardsPanel.ocrNoName")}
+          </p>
+        </div>
+      )}
+
       <div className="text-foreground/70">
         <p>
           {detection.fallbackReason

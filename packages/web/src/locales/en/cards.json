@@ -31,6 +31,8 @@
     "acrossPrintings": "Range across {{count}} printings"
   },
   "cardDetailPanel": {
+    "markCorrect": "Mark as correct",
+    "markCorrectTitle": "Confirm this match is right. The card stays the same and is no longer flagged for review.",
     "backToList": "Back to card list",
     "previousCard": "Previous card",
     "nextCard": "Next card",
@@ -118,7 +120,9 @@
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
-    "multipleMatchesResolvedTooltip": "Multiple close matches, reviewed and corrected",
+    "multipleMatchesResolvedTooltip": "Multiple close matches, reviewed",
+    "needsReviewTooltip": "Matched by the name on the card only, tap to review",
+    "needsReviewResolvedTooltip": "Matched by the name on the card, reviewed",
     "matchTooltip": "How closely the scanned image matches this card, based on visual similarity search",
     "bin": "Bin {{number}}",
     "quantityTooltip_one": "{{count}} copy of this card in this collection",

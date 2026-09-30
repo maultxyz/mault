@@ -3,6 +3,7 @@ import type {
   SearchNoMatchReason,
 } from "./api.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
+import type { OcrDiagnostics } from "./ocr-region.interface";
 
 export interface Point {
   x: number;
@@ -58,6 +59,7 @@ export interface CardScannerProps {
     matches: PlayingCardWithDistance[],
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
+    needsReview?: boolean,
   ) => void;
   onNoMatch?: (
     capturedImageUrl?: string,
@@ -90,6 +92,7 @@ export interface ScannedCard {
   foilType?: string;
   isDownloaded?: boolean;
   corrected?: boolean;
+  needsReview?: boolean;
   vectorizedOn?: ScanVectorizeSource;
 }
 
@@ -120,6 +123,7 @@ export interface UnmatchedScanDiagnostics {
   matchesNeeded: number;
   attempts: ScanAttemptDiagnostic[];
   lookupFailedCardIds?: string[];
+  ocr?: OcrDiagnostics | null;
 }
 
 export interface UnmatchedScanDetails {

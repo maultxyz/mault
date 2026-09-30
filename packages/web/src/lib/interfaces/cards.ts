@@ -102,6 +102,7 @@ export interface ScannedCardItemProps {
   isSelected?: boolean;
   onToggleSelect?: (options: SelectToggleOptions) => void;
   hasAlternatives?: boolean;
+  needsReview?: boolean;
   wasCorrected?: boolean;
   isFoil?: boolean;
   foilType?: string;
@@ -120,6 +121,7 @@ export interface ScannedCardTableRow {
   foilType?: string;
   isDownloaded?: boolean;
   hasAlternatives?: boolean;
+  needsReview?: boolean;
   wasCorrected?: boolean;
   isSelected?: boolean;
 }

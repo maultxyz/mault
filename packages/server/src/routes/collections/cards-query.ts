@@ -183,7 +183,7 @@ export function cardFilterSql({ filters, search }: CollectionCardsQuery): SQL {
 
   if (filters.needsAttention) {
     conditions.push(
-      sql`(jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0)`,
+      sql`((jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0) OR cc.needs_review) AND NOT cc.is_corrected`,
     );
   }
 
@@ -265,6 +265,7 @@ function rankedCardsCte(
       SELECT
         cc.id, cc.guid, cc.card, cc.bin_number, cc.is_foil, cc.foil_type,
         cc.is_downloaded, cc.alternative_matches, cc.is_corrected,
+        cc.needs_review,
         ${SCANNED_AT_MS} AS scanned_at_ms,
         ${DUPLICATE_KEY} AS dup_key,
         row_number() OVER (ORDER BY ${cardOrderSql(query.sort, fieldDefinitions)}) AS rn
@@ -294,6 +295,7 @@ interface CardRow {
   is_downloaded: boolean;
   alternative_matches: unknown;
   is_corrected: boolean;
+  needs_review: boolean;
 }
 
 function toCard(row: CardRow) {
@@ -307,6 +309,7 @@ function toCard(row: CardRow) {
     isDownloaded: row.is_downloaded,
     alternativeMatches: row.alternative_matches,
     isCorrected: row.is_corrected,
+    needsReview: row.needs_review,
   });
 }
 
@@ -327,7 +330,8 @@ export async function loadCardsPage(
     tx.execute(sql`
       WITH ${cte}
       SELECT guid, card, scanned_at_ms, bin_number, is_foil, foil_type,
-        is_downloaded, alternative_matches, is_corrected, scan_ids, quantity
+        is_downloaded, alternative_matches, is_corrected, needs_review,
+        scan_ids, quantity
       FROM grouped
       WHERE rn = entry_rn
       ORDER BY entry_rn
@@ -426,7 +430,7 @@ export async function loadAllCards(tx: Transaction, collectionId: number) {
   const result = await tx.execute(sql`
     SELECT cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
       cc.is_foil, cc.foil_type, cc.is_downloaded, cc.alternative_matches,
-      cc.is_corrected
+      cc.is_corrected, cc.needs_review
     FROM collection_cards cc
     WHERE cc.collection_id = ${collectionId}
     ORDER BY cc.scanned_at DESC, cc.id DESC

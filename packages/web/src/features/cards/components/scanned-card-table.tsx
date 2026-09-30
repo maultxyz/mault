@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
+import { reviewTooltip } from "@/features/cards/lib/review-tooltip";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { ScannedCardTableProps } from "@/lib/interfaces/cards";
@@ -147,17 +148,17 @@ export function ScannedCardTable({
                   ) : (
                     <span className="truncate font-medium">{card.name}</span>
                   )}
-                  {row.hasAlternatives && (
+                  {(row.hasAlternatives || row.needsReview) && (
                     <span
                       className={cn(
                         "shrink-0 rounded-full p-0.5",
                         row.wasCorrected ? "bg-green-600" : "bg-amber-700",
                       )}
-                      title={
-                        row.wasCorrected
-                          ? t("scannedCardItem.multipleMatchesResolvedTooltip")
-                          : t("scannedCardItem.multipleMatchesTooltip")
-                      }
+                      title={reviewTooltip(
+                        t,
+                        !!row.needsReview,
+                        !!row.wasCorrected,
+                      )}
                     >
                       <IconHelpCircle className="size-3 text-white" />
                     </span>

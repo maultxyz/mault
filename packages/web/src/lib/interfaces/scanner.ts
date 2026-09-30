@@ -7,6 +7,7 @@ import type {
   CardScannerProps,
   CardSearchDiagnostics,
   CardSearchResult,
+  OcrDiagnostics,
   ScanDetectionDiagnostics,
   UnmatchedReason,
   UnmatchedScanDetails,
@@ -95,6 +96,7 @@ export interface ScannedCardsContextValue {
     capturedImageUrl?: string,
     alternativeMatches?: PlayingCardWithDistance[],
     vectorizedOn?: ScanVectorizeSource,
+    needsReview?: boolean,
   ) => void;
   addUnmatchedCard: (
     capturedImageUrl?: string,
@@ -115,6 +117,7 @@ export interface ScannedCardsContextValue {
   removeCard: (scanId: string) => void;
   removeCards: (scanIds: string[]) => void;
   correctCard: (scanId: string, card: PlayingCard) => void;
+  confirmCard: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   markDownloaded: (scanIds: string[]) => void;
   clearCards: () => void;
@@ -371,9 +374,18 @@ export interface OrientedSearch {
   embedding: number[] | null;
 }
 
-export interface OrientedSearchPick extends OrientedSearch {
+export interface OrientedCandidate extends OrientedSearch {
   canvas: HTMLCanvasElement;
   orientation: "upright" | "rotated";
+}
+
+export interface OrientedSearchPick extends OrientedCandidate {
+  alternate: OrientedCandidate | null;
+}
+
+export interface TextSearchOutcome {
+  pick: OrientedSearchPick | null;
+  ocr: OcrDiagnostics | null;
 }
 
 export interface ResolvedSearchMatches {
@@ -392,6 +404,8 @@ export interface ScanAttemptOutcome extends ResolvedSearchMatches {
   orientation: "upright" | "rotated";
   embedding: number[] | null;
   topDistance: number | null;
+  ocr: OcrDiagnostics | null;
+  needsReview: boolean;
 }
 
 export interface ScanOutcome {
@@ -400,5 +414,6 @@ export interface ScanOutcome {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
+  needsReview: boolean;
   noMatch: UnmatchedScanDetails | null;
 }

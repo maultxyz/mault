@@ -1,4 +1,5 @@
 import type { PlayingCard } from "./card.interface";
+import type { OcrDiagnostics } from "./ocr-region.interface";
 import type { Result } from "./result.interface";
 
 export interface SearchCardMatch {
@@ -28,13 +29,16 @@ export interface CardSearchDiagnostics {
   distanceThreshold: number;
   maxDistanceRatio: number;
   candidates: SearchCandidateDiagnostic[];
-  ocrText?: string;
   embedding?: number[];
 }
 
 export interface CardSearchResult extends Result<SearchCardMatch[] | null> {
   nearestDistance?: number | null;
   diagnostics?: CardSearchDiagnostics;
+}
+
+export interface CardTextSearchResult extends CardSearchResult {
+  ocr?: OcrDiagnostics;
 }
 
 export interface ScryfallListResponse {

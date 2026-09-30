@@ -57,6 +57,8 @@ interface CardDetailPanelProps {
   onRemove?: () => void;
   currentCard?: PlayingCardWithDistance;
   alternativeMatches?: PlayingCardWithDistance[];
+  needsReview?: boolean;
+  wasCorrected?: boolean;
   isFoil?: boolean;
   foilType?: string;
   binNumber?: number;
@@ -76,6 +78,8 @@ export function CardDetailPanel({
   onRemove,
   currentCard,
   alternativeMatches,
+  needsReview = false,
+  wasCorrected = false,
   isFoil = false,
   foilType,
   binNumber,
@@ -101,7 +105,12 @@ export function CardDetailPanel({
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
-  const { addCard, correctCard, setCardFoilType } = useScannedCards();
+  const { addCard, correctCard, confirmCard, setCardFoilType } =
+    useScannedCards();
+  const canConfirm =
+    !!scanId &&
+    (needsReview || !!alternativeMatches?.length) &&
+    !wasCorrected;
   const { activeCollection } = useCollections();
   const foilOptions = activeCollection?.game?.foilTypes?.length
     ? activeCollection.game.foilTypes
@@ -667,6 +676,16 @@ export function CardDetailPanel({
                   ? t("cardDetailPanel.refetching")
                   : t("cardDetailPanel.refetchCardData")}
               </Button>
+              {canConfirm && (
+                <Button
+                  variant="outline"
+                  onClick={() => scanId && confirmCard(scanId)}
+                  title={t("cardDetailPanel.markCorrectTitle")}
+                >
+                  <IconCheck className="size-4" />
+                  {t("cardDetailPanel.markCorrect")}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 onClick={() => {

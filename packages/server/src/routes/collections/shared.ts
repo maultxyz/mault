@@ -63,6 +63,7 @@ export function toScannedCard(row: {
   isDownloaded?: boolean | null;
   alternativeMatches?: unknown;
   isCorrected?: boolean | null;
+  needsReview?: boolean | null;
 }): ScannedCard {
   return {
     scanId: row.guid!,
@@ -76,6 +77,7 @@ export function toScannedCard(row: {
     alternativeMatches:
       (row.alternativeMatches as PlayingCardWithDistance[] | null) ?? undefined,
     corrected: row.isCorrected ?? undefined,
+    needsReview: row.needsReview || undefined,
   };
 }
 

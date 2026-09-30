@@ -65,6 +65,7 @@ export function MonitorCardGrid({
                 isFoil: entry.isFoil,
                 foilType: entry.foilType,
                 hasAlternatives: !!entry.alternativeMatches?.length,
+                needsReview: entry.needsReview,
                 wasCorrected: entry.corrected,
               }))}
               showQuantity={groupDuplicates}

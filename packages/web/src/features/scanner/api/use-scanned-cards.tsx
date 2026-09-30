@@ -31,6 +31,7 @@ import {
   removeCollectionCard,
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
+  confirmCollectionCard,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -353,6 +354,7 @@ export function ScannedCardsProvider({
       capturedImageUrl?: string,
       alternativeMatches?: PlayingCardWithDistance[],
       vectorizedOn?: ScanVectorizeSource,
+      needsReview?: boolean,
     ) => {
       const collection = activeCollectionRef.current;
       if (!collection) {
@@ -406,6 +408,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forceFoilTypeRef.current != null || undefined,
         foilType: forceFoilTypeRef.current ?? undefined,
+        needsReview: needsReview || undefined,
         vectorizedOn,
       };
 
@@ -725,6 +728,25 @@ export function ScannedCardsProvider({
     [saveBinConfig, resolveMatchedBin, queryClient],
   );
 
+  const confirmCard = useCallback(
+    (scanId: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, corrected: true }),
+      );
+      confirmCollectionCard(collection.guid, scanId)
+        .catch((err) => console.error("Failed to confirm card:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
   const setCardFoilType = useCallback(
     (scanId: string, foilType: string | null) => {
       const collection = activeCollectionRef.current;
@@ -800,6 +822,7 @@ export function ScannedCardsProvider({
         removeCard,
         removeCards,
         correctCard,
+        confirmCard,
         setCardFoilType,
         markDownloaded,
         clearCards,

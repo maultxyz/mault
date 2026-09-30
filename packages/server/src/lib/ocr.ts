@@ -1,6 +1,6 @@
 import { RawImage } from "@huggingface/transformers";
-import type { OcrRegion } from "@magic-vault/shared";
-import { createWorker, type Worker } from "tesseract.js";
+import type { OcrReadout, OcrRegion } from "@magic-vault/shared";
+import { createWorker, PSM, type Worker } from "tesseract.js";
 import {
   REGION_MARGIN_X,
   REGION_MARGIN_Y,
@@ -9,10 +9,19 @@ import {
 
 let workerPromise: Promise<Worker> | null = null;
 
+async function createSingleLineWorker(): Promise<Worker> {
+  const worker = await createWorker("eng", undefined, {
+    cachePath: TESSERACT_CACHE_PATH,
+  });
+  await worker.setParameters({ tessedit_pageseg_mode: PSM.SINGLE_LINE });
+  return worker;
+}
+
 async function getWorker(): Promise<Worker> {
   if (!workerPromise) {
-    workerPromise = createWorker("eng", undefined, {
-      cachePath: TESSERACT_CACHE_PATH,
+    workerPromise = createSingleLineWorker().catch((err) => {
+      workerPromise = null;
+      throw err;
     });
   }
   return workerPromise;
@@ -21,8 +30,9 @@ async function getWorker(): Promise<Worker> {
 export async function ocrRegions(
   buffer: Buffer,
   regions: OcrRegion[],
-): Promise<string> {
-  if (regions.length === 0) return "";
+): Promise<OcrReadout> {
+  const readout: OcrReadout = { name: "", setLine: "" };
+  if (regions.length === 0) return readout;
 
   const worker = await getWorker();
   const image = await RawImage.fromBlob(new Blob([new Uint8Array(buffer)]));
@@ -52,9 +62,12 @@ export async function ocrRegions(
         height: bottom - top,
       };
       const { data } = await worker.recognize(buffer, { rectangle });
-      return data.text;
+      return { field: region.field, text: data.text.trim() };
     }),
   );
 
-  return texts.join(" ");
+  for (const { field, text } of texts) {
+    readout[field] = readout[field] ? `${readout[field]} ${text}` : text;
+  }
+  return readout;
 }

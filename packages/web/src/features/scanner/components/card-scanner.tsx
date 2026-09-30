@@ -122,9 +122,15 @@ export function CardScanner({
     hasPhonePhoto,
     isAtScanLimit,
   } = useCardScanner({
-    onSearchResults: (cards, capturedImageUrl, vectorizedOn) => {
+    onSearchResults: (cards, capturedImageUrl, vectorizedOn, needsReview) => {
       if (cards.length > 0) {
-        addCard(cards[0], capturedImageUrl, cards.slice(1), vectorizedOn);
+        addCard(
+          cards[0],
+          capturedImageUrl,
+          cards.slice(1),
+          vectorizedOn,
+          needsReview,
+        );
       }
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {

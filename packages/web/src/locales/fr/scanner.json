@@ -249,7 +249,7 @@
   },
   "ocrBetaDialog": {
     "title": "Correspondance de texte OCR (bêta)",
-    "description": "Cette fonctionnalité lit le code d'extension et le numéro de collection sur l'image de la carte scannée afin d'aider à identifier la bonne édition. Elle est encore en bêta et peut occasionnellement capter du texte superflu sur la carte ou le mal interpréter. Désactivez-la si elle semble dégrader les résultats.",
+    "description": "Quand un scan n'est pas une correspondance sûre, cette option lit le nom de la carte et sa ligne d'extension pour trouver la carte ou choisir la bonne impression. Les correspondances sûres l'ignorent, la vitesse de scan reste donc la même. Elle est encore en bêta et peut mal lire le texte. Désactive-la si elle semble dégrader les correspondances.",
     "confirm": "Activer l'OCR",
     "cancel": "Annuler"
   },
@@ -323,7 +323,13 @@
     "detectionFallback": "Détection des coins échouée, zone de scan fixe utilisée.",
     "sharpness": "Netteté {{value}}.",
     "orientationRotated": "Le résultat le plus proche était à l'envers.",
-    "searchedIn": "Recherche dans {{game}} ({{lang}})."
+    "searchedIn": "Recherche dans {{game}} ({{lang}}).",
+    "ocrHeading": "Texte sur la carte",
+    "ocrName": "Nom lu : {{text}}",
+    "ocrSetLine": "Ligne d'extension lue : {{text}}",
+    "ocrEmpty": "rien",
+    "ocrMatchedName": "Nom de carte le plus proche : {{name}} (similarité {{score}}), mais aucune impression n'était assez proche.",
+    "ocrNoName": "Aucun nom de carte n'était assez proche du texte lu."
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",

@@ -62,6 +62,7 @@ export const cardImageVectors = pgTable(
     // partial HNSW indexes are created dynamically instead, since game keys
     // are admin-defined data (Games Manager), not something this static
     // schema can enumerate.
+    index("cards_name_trgm_idx").using("gin", table.name.op("gin_trgm_ops")),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -370,6 +371,7 @@ export const collectionCards = pgTable(
     isDownloaded: boolean("is_downloaded").notNull().default(false),
     alternativeMatches: jsonb("alternative_matches"),
     isCorrected: boolean("is_corrected").notNull().default(false),
+    needsReview: boolean("needs_review").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

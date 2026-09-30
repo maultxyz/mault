@@ -50,6 +50,7 @@ async function querySessionInit(
       foilType: collectionCards.foilType,
       isDownloaded: collectionCards.isDownloaded,
       alternativeMatches: collectionCards.alternativeMatches,
+      needsReview: collectionCards.needsReview,
     })
     .from(collectionCards)
     .where(eq(collectionCards.collectionId, collection.id))

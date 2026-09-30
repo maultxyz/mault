@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { imageProxyRoute } from "./image-proxy";
 import { searchByImageRoute } from "./search-by-image";
+import { searchByTextRoute } from "./search-by-text";
 import { searchByVectorRoute } from "./search-by-vector";
 import { searchCardByIdRoute } from "./search-by-id";
 import { searchCardRoute } from "./search";
@@ -9,6 +10,7 @@ import { searchCardRoute } from "./search";
 const router = new Hono<AppEnv>()
   .route("/", searchByImageRoute)
   .route("/", searchByVectorRoute)
+  .route("/", searchByTextRoute)
   .route("/", searchCardRoute)
   .route("/", searchCardByIdRoute)
   .route("/", imageProxyRoute);

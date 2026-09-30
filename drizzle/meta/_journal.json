@@ -456,6 +456,20 @@
       "when": 1790770289782,
       "tag": "0064_lush_quasimodo",
       "breakpoints": true
+    },
+    {
+      "idx": 65,
+      "version": "7",
+      "when": 1790771236125,
+      "tag": "0065_illegal_zaladane",
+      "breakpoints": true
+    },
+    {
+      "idx": 66,
+      "version": "7",
+      "when": 1790771938283,
+      "tag": "0066_youthful_shaman",
+      "breakpoints": true
     }
   ]
 }
