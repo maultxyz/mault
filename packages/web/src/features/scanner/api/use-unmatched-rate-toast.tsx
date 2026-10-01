@@ -14,6 +14,7 @@ import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function useUnmatchedRateToast() {
   const navigate = useNavigate();
@@ -40,7 +41,7 @@ export function useUnmatchedRateToast() {
           toastId={id}
           suggestOcr={withOcr}
           onOpenCalibration={() => go("/app/calibrate/scan-region")}
-          onOpenSettings={() => go("/app/settings")}
+          onOpenSettings={() => go(SETTINGS_PATHS.scanning)}
         />
       ),
       { id: UNMATCHED_RATE_TOAST_ID, duration: Infinity },

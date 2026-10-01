@@ -7,6 +7,7 @@ import {
 import { useBilling } from "@/features/billing/api/use-billing";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function PlanBadge() {
   const { t } = useTranslation("billing");
@@ -27,7 +28,7 @@ export function PlanBadge() {
     <>
       <Tooltip>
         <TooltipTrigger
-          onClick={() => navigate("/app/settings")}
+          onClick={() => navigate(SETTINGS_PATHS.billing)}
           className="flex items-center gap-1.5 cursor-pointer"
         >
           <span className="text-xs text-muted-foreground">

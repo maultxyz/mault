@@ -21,6 +21,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function NotificationRuleList({
   gameGuid,
@@ -84,7 +85,7 @@ export function NotificationRuleList({
           <p className="text-sm text-foreground/70">
             {t("rules.limitReached", { count: ruleLimit })}
           </p>
-          <Button variant="outline" onClick={() => navigate("/app/settings")}>
+          <Button variant="outline" onClick={() => navigate(SETTINGS_PATHS.billing)}>
             {t("rules.upgrade")}
           </Button>
         </div>

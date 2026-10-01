@@ -28,6 +28,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
   const { t } = useTranslation("sounds");
@@ -98,7 +99,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
           <p className="text-sm text-muted-foreground">
             {t("rules.limitReached", { count: ruleLimit })}
           </p>
-          <Button variant="outline" onClick={() => navigate("/app/settings")}>
+          <Button variant="outline" onClick={() => navigate(SETTINGS_PATHS.billing)}>
             {t("rules.upgrade")}
           </Button>
         </div>

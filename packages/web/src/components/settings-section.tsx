@@ -4,11 +4,7 @@ import type {
 } from "@/lib/interfaces/settings-section";
 
 export function SettingsSections({ children }: SettingsSectionsProps) {
-  return (
-    <div className="flex flex-col divide-y [&>section:first-child]:pt-2">
-      {children}
-    </div>
-  );
+  return <div className="flex flex-col gap-4">{children}</div>;
 }
 
 export function SettingsSection({
@@ -19,22 +15,24 @@ export function SettingsSection({
   children,
 }: SettingsSectionProps) {
   return (
-    <section className="grid gap-4 py-8 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] md:gap-10">
-      <div className="flex flex-col gap-1">
-        <div className="flex flex-wrap items-center gap-2">
-          <h2 className="font-heading text-base font-semibold">{heading}</h2>
-          {badge}
+    <section className="flex flex-col gap-4 rounded-lg border p-4">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-heading text-sm font-semibold">{heading}</h2>
+            {badge}
+          </div>
+          {description && (
+            <p className="text-sm text-foreground/70">{description}</p>
+          )}
         </div>
-        {description && (
-          <p className="text-sm text-foreground/70">{description}</p>
+        {action && (
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {action}
+          </div>
         )}
       </div>
-      {(action || children) && (
-        <div className="flex min-w-0 flex-col gap-4">
-          {action && <div className="flex flex-wrap gap-2">{action}</div>}
-          {children}
-        </div>
-      )}
+      {children}
     </section>
   );
 }

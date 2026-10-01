@@ -13,6 +13,7 @@ import { IconPlus, IconX } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 // One tab per connected sorter: a tab appears when a board connects and
 // disappears when it disconnects, including via the tab's own disconnect.
@@ -112,7 +113,7 @@ export function StationTabs() {
                 })}
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem onClick={() => navigate("/app/settings")}>
+              <DropdownMenuItem onClick={() => navigate(SETTINGS_PATHS.billing)}>
                 {t("scannerMenu.connectAnotherUpgrade")}
               </DropdownMenuItem>
             )}

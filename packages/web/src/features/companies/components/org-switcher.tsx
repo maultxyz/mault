@@ -29,6 +29,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { useOrg } from "../api/use-organization";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 function OrgBadge({
   initial,
@@ -142,7 +143,7 @@ export function OrgSwitcher({
                 <IconPlus size={14} />
                 {t("newOrganization")}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => navigate("/app/settings")}>
+              <DropdownMenuItem onClick={() => navigate(SETTINGS_PATHS.organization)}>
                 <IconSettings size={14} />
                 {t("orgSwitcher.manageOrganizations")}
               </DropdownMenuItem>

@@ -35,6 +35,7 @@ import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function CardScanner({
   className,
@@ -512,7 +513,7 @@ export function CardScanner({
           onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
           canConnectAnotherSorter={canConnectAnotherSorter}
           sorterLimitIsHardCap={sorterLimitIsHardCap}
-          onUpgrade={() => navigate("/app/settings")}
+          onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
         />

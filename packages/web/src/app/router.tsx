@@ -9,6 +9,7 @@ import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 const LandingPage = lazy(
   withNamespaces(
@@ -99,10 +100,27 @@ const AdminDeveloperPage = lazy(
 const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
-const SettingsPage = lazy(() => import("@/app/routes/app/settings"));
-const SoundsPage = lazy(() => import("@/app/routes/app/sounds"));
-const IntegrationsPage = lazy(
-  () => import("@/app/routes/app/integrations"),
+const SettingsLayout = lazy(() => import("@/app/routes/app/settings/layout"));
+const SettingsIndexRedirect = lazy(
+  () => import("@/app/routes/app/settings/index"),
+);
+const SettingsGeneralPage = lazy(
+  () => import("@/app/routes/app/settings/general"),
+);
+const SettingsOrganizationPage = lazy(
+  () => import("@/app/routes/app/settings/organization"),
+);
+const SettingsBillingPage = lazy(
+  () => import("@/app/routes/app/settings/billing"),
+);
+const SettingsScanningPage = lazy(
+  () => import("@/app/routes/app/settings/scanning"),
+);
+const SettingsSoundsPage = lazy(
+  () => import("@/app/routes/app/settings/sounds"),
+);
+const SettingsIntegrationsPage = lazy(
+  () => import("@/app/routes/app/settings/integrations"),
 );
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
@@ -318,16 +336,31 @@ export const router = createBrowserRouter([
                 element: <PhoneCameraPage />,
               },
               {
-                path: "/app/settings",
-                element: <SettingsPage />,
+                path: SETTINGS_PATHS.root,
+                element: <SettingsLayout />,
+                children: [
+                  { index: true, element: <SettingsIndexRedirect /> },
+                  { path: "general", element: <SettingsGeneralPage /> },
+                  {
+                    path: "organization",
+                    element: <SettingsOrganizationPage />,
+                  },
+                  { path: "billing", element: <SettingsBillingPage /> },
+                  { path: "scanning", element: <SettingsScanningPage /> },
+                  { path: "sounds", element: <SettingsSoundsPage /> },
+                  {
+                    path: "integrations",
+                    element: <SettingsIntegrationsPage />,
+                  },
+                ],
               },
               {
                 path: "/app/sounds",
-                element: <SoundsPage />,
+                element: <Navigate to={SETTINGS_PATHS.sounds} replace />,
               },
               {
                 path: "/app/integrations",
-                element: <IntegrationsPage />,
+                element: <Navigate to={SETTINGS_PATHS.integrations} replace />,
               },
               {
                 path: "/app/health",

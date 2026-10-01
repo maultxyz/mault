@@ -53,8 +53,8 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
         client_reference_id: orgId,
         metadata: { orgId },
         line_items: [{ price: getBusinessPriceId(), quantity: 1 }],
-        success_url: `${webUrl()}/app/settings?billing=success`,
-        cancel_url: `${webUrl()}/app/settings?billing=cancelled`,
+        success_url: `${webUrl()}/app/settings/billing?billing=success`,
+        cancel_url: `${webUrl()}/app/settings/billing?billing=cancelled`,
       });
 
       if (!session.url) {
