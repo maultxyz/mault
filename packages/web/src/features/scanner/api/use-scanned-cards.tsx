@@ -430,7 +430,6 @@ export function ScannedCardsProvider({
       };
 
       recordSupportPromptScan();
-      playSoundForCard(ruleCard);
 
       if (record.binNumber != null && tracksBinContents()) {
         binContentsRef.current = [
@@ -536,6 +535,8 @@ export function ScannedCardsProvider({
             void queryClient.invalidateQueries({ queryKey: billingQueryKey });
           }
         });
+
+      setTimeout(() => playSoundForCard(ruleCard), 0);
     },
     [
       t,
