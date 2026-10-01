@@ -332,7 +332,12 @@
     "ocrSetLine": "Gelesene Set-Zeile: {{text}}",
     "ocrEmpty": "nichts",
     "ocrMatchedName": "Ähnlichster Kartenname: {{name}} (Ähnlichkeit {{score}}), aber keine Druckversion war nah genug.",
-    "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug."
+    "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug.",
+    "identify": "Karte bestimmen",
+    "identifyTitle": "Diese Karte bestimmen",
+    "identifyDescription": "Wähle die Karte aus diesem Scan. Sie wird mit diesem Foto der Sammlung hinzugefügt, im Fach, in das sie sortiert wurde.",
+    "identified": "{{name}} wurde der Sammlung hinzugefügt.",
+    "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
@@ -358,11 +363,7 @@
     "connectFailed": "Verbindung konnte nicht hergestellt werden.",
     "noCardsScannedYet": "Noch keine Karten gescannt.",
     "noCardsMatchSearch": "Keine Karten entsprechen der Suche.",
-    "isWatchingTooltip": "{{name}} schaut zu",
-    "viewCards_one": "{{count}} Karte ansehen",
-    "viewCards_other": "{{count}} Karten ansehen",
-    "viewCardsEmpty": "Karten ansehen",
-    "scannedCardsTitle": "Gescannte Karten"
+    "isWatchingTooltip": "{{name}} schaut zu"
   },
   "monitorSessions": {
     "yourSession": "Deine Sitzung",
@@ -376,7 +377,9 @@
     "title": "Sitzungsüberwachung",
     "subtitle": "Einer laufenden Scan-Sitzung beitreten",
     "noSessionsFound": "Keine Sitzungen gefunden",
-    "noSessionsHint": "Aktive Sitzungen werden hier angezeigt"
+    "noSessionsHint": "Aktive Sitzungen werden hier angezeigt",
+    "liveNow": "Gerade live",
+    "allCollections": "Alle Sammlungen"
   },
   "binLimitDialog": {
     "title": "Fach {{number}} ist voll",
@@ -448,5 +451,24 @@
     "title": "Kartenerkennung im Browser funktioniert nicht mehr",
     "description": "Die KI-Erkennung ist in diesem Tab abgestürzt. Scans werden vorerst auf dem Server abgeglichen, was langsamer ist und die Eckenerkennung auslässt. Lade die Seite neu, um das zu beheben.",
     "reload": "Neu laden"
+  },
+  "mobileMonitor": {
+    "tabCards": "Karten",
+    "tabActivity": "Aktivität",
+    "cards": "Karten",
+    "searchPlaceholder": "Karten suchen",
+    "needsReview": "Zu prüfen",
+    "groupDuplicates": "Kopien gruppieren",
+    "back": "Zurück zu den Sitzungen",
+    "previousPage": "Vorherige Seite",
+    "nextPage": "Nächste Seite",
+    "bin": "Fach {{number}}",
+    "noActivity": "Noch nichts gescannt. Scans erscheinen hier, sobald sie passieren.",
+    "status": {
+      "connected": "Live",
+      "connecting": "Verbinde…",
+      "error": "Offline",
+      "closed": "Offline"
+    }
   }
 }

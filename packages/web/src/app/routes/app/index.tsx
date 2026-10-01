@@ -12,7 +12,7 @@ import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { StationPanels } from "@/features/scanner/components/station-panels";
-import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
+import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useResizablePanel } from "@/hooks/use-resizable-panel";
 import { IconCards } from "@tabler/icons-react";
@@ -28,7 +28,7 @@ function MobileScanner() {
     <div className="flex-1 min-h-0 relative overflow-hidden">
       <div className="p-2 size-full bg-sidebar flex flex-col gap-2">
         <CardScanner className="flex-1 min-h-0" />
-        <UnmatchedCardsPanel
+        <IdentifiableUnmatchedCardsPanel
           cards={unmatchedCards}
           onRemove={removeUnmatchedCard}
         />

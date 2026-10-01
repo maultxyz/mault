@@ -5,27 +5,44 @@ import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
+import { MobileNav } from "@/components/mobile-nav";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
 import { ScannerPip } from "@/features/scanner/components/scanner-pip";
 import { StationTabs } from "@/features/scanner/components/station-tabs";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { DONATE_URL } from "@/lib/constants/links";
+import {
+  MOBILE_NAV_HIDDEN_PATTERN,
+  MOBILE_NAV_SPACE_CLASS,
+} from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 export default function AppLayout() {
   const { t } = useTranslation("common");
   const isMobile = useIsMobile();
+  const { pathname } = useLocation();
+  const hideMobileNav = MOBILE_NAV_HIDDEN_PATTERN.test(pathname);
 
   return (
     <AppProviders>
       {isMobile ? (
-        <div className="h-dvh w-dvw overflow-hidden flex flex-col">
+        <div
+          className={cn(
+            "relative h-dvh w-dvw overflow-hidden flex flex-col bg-background pt-[env(safe-area-inset-top)]",
+            !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
+          )}
+        >
           <ImpersonationBanner />
           <AlertStack />
           <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
@@ -33,7 +50,7 @@ export default function AppLayout() {
               <Outlet />
             </PageTransition>
           </main>
-          <AppNav />
+          {!hideMobileNav && <MobileNav />}
         </div>
       ) : (
         <div className="h-dvh w-dvw overflow-hidden p-2 pb-6 bg-muted dark:bg-black relative text-muted-foreground">

@@ -28,6 +28,7 @@ import { setCollectionActiveRoute } from "./set-active";
 import { addUnmatchedCardRoute } from "./unmatched-add";
 import { clearUnmatchedCardsRoute } from "./unmatched-clear";
 import { deleteUnmatchedCardRoute } from "./unmatched-delete";
+import { identifyUnmatchedCardRoute } from "./unmatched-identify";
 import { listUnmatchedCardsRoute } from "./unmatched-list";
 
 const router = new Hono<AppEnv>()
@@ -56,6 +57,7 @@ const router = new Hono<AppEnv>()
   .route("/", addUnmatchedCardRoute)
   .route("/", clearUnmatchedCardsRoute)
   .route("/", deleteUnmatchedCardRoute)
+  .route("/", identifyUnmatchedCardRoute)
   .route("/", releaseScanLockRoute)
   .route("/", debugErrorRoute)
   .route("/", phoneCameraSignalRoute)

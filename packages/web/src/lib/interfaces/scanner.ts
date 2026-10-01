@@ -3,6 +3,7 @@ import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
+  CardFilters,
   CardContour,
   CardScannerProps,
   CardSearchDiagnostics,
@@ -14,6 +15,8 @@ import type {
   UnmatchedScanDiagnostics,
   BinRoute,
   Collection,
+  CollectionCardsQuery,
+  FieldMeta,
   GroupedScannedCard,
   HealthCheck,
   PlayingCard,
@@ -107,6 +110,7 @@ export interface ScannedCardsContextValue {
     details?: UnmatchedScanDetails,
   ) => void;
   removeUnmatchedCard: (scanId: string) => void;
+  identifyUnmatchedCard: (scanId: string, card: PlayingCard) => Promise<boolean>;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: () => Promise<void>;
@@ -327,13 +331,13 @@ export interface MonitorCardGridProps {
   cardCount: number;
   matchingCount: number;
   isLoading: boolean;
-  isMobile: boolean;
   viewMode: CardViewMode;
   groupDuplicates: boolean;
   page: number;
   pageCount: number;
   onPageChange: (page: number) => void;
   showBinLocation: boolean;
+  onOpenCard?: (scanId: string) => void;
 }
 
 export interface SessionMonitorViewProps {
@@ -343,6 +347,99 @@ export interface SessionMonitorViewProps {
   toolbarLeading?: ReactNode;
   binCount?: number;
   showBinLocation: boolean;
+  canEditCards?: boolean;
+  backHref?: string;
+}
+
+export interface MonitorCardsState {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  sortKey: string | null;
+  setSortKey: (key: string | null) => void;
+  sortableFields: FieldMeta[];
+  filters: CardFilters;
+  setFilters: (filters: CardFilters) => void;
+  activeFilterCount: number;
+  cardsQuery: CollectionCardsQuery;
+  viewMode: CardViewMode;
+  setViewMode: (mode: CardViewMode) => void;
+  groupDuplicates: boolean;
+  setGroupDuplicates: (grouped: boolean) => void;
+  entries: GroupedScannedCard[];
+  isLoading: boolean;
+  page: number;
+  pageCount: number;
+  setPage: (page: number) => void;
+  stats: ScanStats | null;
+  cardCount: number;
+  matchingCount: number;
+  filteredCount: number;
+  needsReviewCount: number;
+  openScanId: string | undefined;
+  setOpenScanId: (scanId: string | null) => void;
+}
+
+export type MobileMonitorTab = "cards" | "activity";
+
+export interface MobileMonitorTabItem {
+  key: MobileMonitorTab;
+  label: string;
+  badge?: number;
+}
+
+export interface MobileSessionMonitorProps {
+  session: SessionMonitorState;
+  cards: MonitorCardsState;
+  collectionGuid: string;
+  header?: ReactNode;
+  toolbarLeading?: ReactNode;
+  binCount?: number;
+  canEditCards: boolean;
+  backHref?: string;
+}
+
+export interface MobileMonitorCardsProps {
+  cards: MonitorCardsState;
+  status: ConnectionStatus;
+  binCount?: number;
+  canEditCards: boolean;
+}
+
+export interface MobileMonitorActivityProps {
+  session: SessionMonitorState;
+  stats: ScanStats | null;
+  canEditCards: boolean;
+  onOpenCard?: (scanId: string) => void;
+}
+
+export interface MobileCardTileProps {
+  entry: GroupedScannedCard;
+  onOpen?: () => void;
+}
+
+export interface MobileStatTileProps {
+  label: string;
+  value: string;
+}
+
+export interface MobileCardDetailDrawerProps {
+  collectionGuid: string;
+  scanId: string | undefined;
+  onClose: () => void;
+}
+
+export interface MobileCardDetailBodyProps {
+  collectionGuid: string;
+  scanId: string;
+  onClose: () => void;
+}
+
+export interface MonitorCardDetailProps {
+  collectionGuid: string;
+  scanId: string;
+  cardsQuery: CollectionCardsQuery;
+  onNavigate: (scanId: string | null) => void;
+  onClose: () => void;
 }
 
 export interface SessionLockProps {
@@ -434,4 +531,21 @@ export interface UnmatchedRateToastProps {
   suggestOcr: boolean;
   onOpenCalibration: () => void;
   onOpenSettings: () => void;
+}
+
+export interface UnmatchedCardsPanelProps {
+  cards: UnmatchedCard[];
+  onRemove?: (scanId: string) => void;
+  onIdentify?: (card: UnmatchedCard) => void;
+}
+
+export interface IdentifiableUnmatchedCardsPanelProps {
+  cards: UnmatchedCard[];
+  onRemove?: (scanId: string) => void;
+}
+
+export interface IdentifyUnmatchedDialogProps {
+  entry: UnmatchedCard | null;
+  collectionGuid: string | undefined;
+  onClose: () => void;
 }

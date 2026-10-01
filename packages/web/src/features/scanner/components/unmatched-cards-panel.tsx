@@ -4,19 +4,19 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import type { UnmatchedCard } from "@magic-vault/shared";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import type { UnmatchedCardsPanelProps } from "@/lib/interfaces/scanner";
 import { UnmatchedDiagnosticsDetails } from "@/features/scanner/components/unmatched-diagnostics-details";
-import { IconPhotoOff, IconX } from "@tabler/icons-react";
+import { IconPhotoOff, IconSearch, IconX } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function UnmatchedCardsPanel({
   cards,
   onRemove,
-}: {
-  cards: UnmatchedCard[];
-  onRemove?: (scanId: string) => void;
-}) {
+  onIdentify,
+}: UnmatchedCardsPanelProps) {
   const { t } = useTranslation("scanner");
+  const isMobile = useIsMobile();
   if (cards.length === 0) return null;
 
   return (
@@ -64,7 +64,10 @@ export function UnmatchedCardsPanel({
                 </div>
               }
             />
-            <PopoverContent side="right" className="w-auto p-1 gap-1">
+            <PopoverContent
+              side={isMobile ? "bottom" : "right"}
+              className="w-auto p-1 gap-1"
+            >
               {entry.capturedImageUrl ? (
                 <img
                   src={entry.capturedImageUrl}
@@ -78,6 +81,16 @@ export function UnmatchedCardsPanel({
               )}
               {entry.diagnostics && (
                 <UnmatchedDiagnosticsDetails diagnostics={entry.diagnostics} />
+              )}
+              {onIdentify && (
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={() => onIdentify(entry)}
+                >
+                  <IconSearch />
+                  {t("unmatchedCardsPanel.identify")}
+                </Button>
               )}
             </PopoverContent>
           </Popover>

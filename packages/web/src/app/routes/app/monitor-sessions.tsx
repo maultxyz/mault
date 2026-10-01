@@ -1,4 +1,7 @@
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { getInitials, InitialsAvatar } from "@/components/ui/initials-avatar";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,7 +14,10 @@ import type { ScanLockInfo } from "@/features/collections/api/use-collection-loc
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useSessionViewersByGuid } from "@/features/collections/api/use-live-counts";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import type { Collection } from "@magic-vault/shared";
 import {
+  IconChevronRight,
   IconHeartRateMonitor,
   IconLoader2,
   IconLockOpen,
@@ -112,6 +118,7 @@ export default function MonitorSessionsPage() {
   const allViewers = useSessionViewersByGuid();
   const { locks, currentUserId } = useCollectionLocks();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -132,123 +139,160 @@ export default function MonitorSessionsPage() {
     collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
 
-  return (
-    <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4">
-      <div>
-        <h1 className="text-lg font-semibold font-heading">
-          {t("monitorSessions.title")}
-        </h1>
-        <p className="text-xs text-muted-foreground">
-          {t("monitorSessions.subtitle")}
-        </p>
-      </div>
+  const liveCollections = filteredSorted.filter((c) => !!locks[c.guid]);
+  const otherCollections = filteredSorted.filter((c) => !locks[c.guid]);
 
-      {!isLoading && sorted.length > 0 && (
-        <Input
-          placeholder={t("monitorSessions.searchPlaceholder")}
-          data-hotkey-search
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+  const renderRow = (collection: Collection) => {
+    const rawViewers = allViewers?.[collection.guid] ?? [];
+    const scannerLock = locks[collection.guid];
+    const isOwn = scannerLock?.userId === currentUserId;
+    const watchers = rawViewers.filter(
+      (v) => v.userId !== scannerLock?.userId && v.userId !== currentUserId,
+    );
+
+    return (
+      <div
+        key={collection.guid}
+        className={`flex items-center gap-3 px-4 py-3.5 border rounded-lg ${isOwn ? "border-amber-300 bg-amber-300/5 dark:bg-amber/15" : ""}`}
+      >
+        <button
+          type="button"
+          onClick={() => navigate(`/app/monitor/${collection.guid}`)}
+          className="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 active:opacity-60 transition-opacity"
+        >
+          <StatusIcon
+            scannerLock={scannerLock}
+            watcherCount={watchers.length}
+          />
+
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium truncate">{collection.name}</p>
+            <p className="text-xs text-foreground/70">
+              {t("cardCount", {
+                count: collection.cardCount,
+              })}{" "}
+              ·{" "}
+              {new Date(collection.updatedAt).toLocaleDateString(undefined, {
+                month: "short",
+                day: "numeric",
+              })}
+            </p>
+          </div>
+        </button>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          {scannerLock && (
+            <>
+              {!isOwn && (
+                <InitialsAvatar
+                  name={scannerLock.displayName}
+                  variant="scanner"
+                  size="sm"
+                  tooltip={t("isScanningTooltip", {
+                    name: scannerLock.displayName,
+                  })}
+                />
+              )}
+              <ScanningPill isOwn={isOwn} />
+            </>
+          )}
+          {watchers.length > 0 && <WatcherStack watchers={watchers} />}
+          {isOwn && <ReleaseButton guid={collection.guid} />}
+          <IconChevronRight className="size-4 text-foreground/50" />
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {isMobile && (
+        <MobilePageHeader
+          title={t("monitorSessions.title")}
+          subtitle={t("monitorSessions.subtitle")}
         />
       )}
-
-      <div className="flex flex-col gap-2">
-        {isLoading &&
-          Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-4 py-3 border rounded-lg"
-            >
-              <Skeleton className="size-8 rounded-md shrink-0" />
-              <div className="flex-1 space-y-1.5">
-                <Skeleton className="h-3 w-32" />
-                <Skeleton className="h-2.5 w-20" />
-              </div>
+      <div
+        className={cn(
+          "flex-1 min-h-0 overflow-y-auto",
+          MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
+        <div className="flex flex-col p-3 md:p-6 max-w-4xl mx-auto w-full gap-4">
+          {!isMobile && (
+            <div>
+              <h1 className="text-lg font-semibold font-heading">
+                {t("monitorSessions.title")}
+              </h1>
+              <p className="text-xs text-muted-foreground">
+                {t("monitorSessions.subtitle")}
+              </p>
             </div>
-          ))}
+          )}
 
-        {!isLoading && sorted.length === 0 && (
-          <EmptyState
-            icon={<IconHeartRateMonitor className="size-10" />}
-            title={t("monitorSessions.noSessionsFound")}
-            description={t("monitorSessions.noSessionsHint")}
-          />
-        )}
+          {!isLoading && sorted.length > 0 && (
+            <Input
+              placeholder={t("monitorSessions.searchPlaceholder")}
+              data-hotkey-search
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          )}
 
-        {!isLoading && sorted.length > 0 && filteredSorted.length === 0 && (
-          <EmptyState
-            icon={<IconHeartRateMonitor className="size-10" />}
-            title={t("monitorSessions.noSearchResultsTitle")}
-            description={t("monitorSessions.noSearchResultsDescription")}
-          />
-        )}
+          <div className="flex flex-col gap-5">
+            {isLoading && (
+              <div className="flex flex-col gap-2">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center gap-3 px-4 py-3 border rounded-lg"
+                  >
+                    <Skeleton className="size-8 rounded-md shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                      <Skeleton className="h-3 w-32" />
+                      <Skeleton className="h-2.5 w-20" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
 
-        {filteredSorted.map((collection) => {
-          const rawViewers = allViewers?.[collection.guid] ?? [];
-          const scannerLock = locks[collection.guid];
-          const isOwn = scannerLock?.userId === currentUserId;
-          const watchers = rawViewers.filter(
-            (v) =>
-              v.userId !== scannerLock?.userId && v.userId !== currentUserId,
-          );
+            {!isLoading && sorted.length === 0 && (
+              <EmptyState
+                icon={<IconHeartRateMonitor className="size-10" />}
+                title={t("monitorSessions.noSessionsFound")}
+                description={t("monitorSessions.noSessionsHint")}
+              />
+            )}
 
-          return (
-            <div
-              key={collection.guid}
-              className={`flex items-center gap-3 px-4 py-3 border rounded-lg ${isOwn ? "border-amber-300 bg-amber-300/5 dark:bg-amber/15" : ""}`}
-            >
-              <button
-                type="button"
-                onClick={() => navigate(`/app/monitor/${collection.guid}`)}
-                className="flex items-center gap-3 flex-1 min-w-0 text-left hover:opacity-80 transition-opacity"
-              >
-                <StatusIcon
-                  scannerLock={scannerLock}
-                  watcherCount={watchers.length}
-                />
+            {!isLoading && sorted.length > 0 && filteredSorted.length === 0 && (
+              <EmptyState
+                icon={<IconHeartRateMonitor className="size-10" />}
+                title={t("monitorSessions.noSearchResultsTitle")}
+                description={t("monitorSessions.noSearchResultsDescription")}
+              />
+            )}
 
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {collection.name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("cardCount", {
-                      count: collection.cardCount,
-                    })}{" "}
-                    ·{" "}
-                    {new Date(collection.updatedAt).toLocaleDateString(
-                      undefined,
-                      {
-                        month: "short",
-                        day: "numeric",
-                      },
-                    )}
-                  </p>
-                </div>
-              </button>
-
-              <div className="flex items-center gap-1.5 shrink-0">
-                {scannerLock && (
-                  <>
-                    {!isOwn && (
-                      <InitialsAvatar
-                        name={scannerLock.displayName}
-                        variant="scanner"
-                        size="sm"
-                        tooltip={t("isScanningTooltip", {
-                          name: scannerLock.displayName,
-                        })}
-                      />
-                    )}
-                    <ScanningPill isOwn={isOwn} />
-                  </>
+            {liveCollections.length > 0 && (
+              <section className="flex flex-col gap-2">
+                <h2 className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+                  {t("monitorSessions.liveNow")}
+                </h2>
+                {liveCollections.map(renderRow)}
+              </section>
+            )}
+            {otherCollections.length > 0 && (
+              <section className="flex flex-col gap-2">
+                {liveCollections.length > 0 && (
+                  <h2 className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+                    {t("monitorSessions.allCollections")}
+                  </h2>
                 )}
-                {watchers.length > 0 && <WatcherStack watchers={watchers} />}
-                {isOwn && <ReleaseButton guid={collection.guid} />}
-              </div>
-            </div>
-          );
-        })}
+                {otherCollections.map(renderRow)}
+              </section>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -16,7 +16,8 @@
     "expandSidebar": "Seitenleiste ausklappen ([)",
     "alerts": "Meldungen",
     "sounds": "Sounds",
-    "integrations": "Integrationen"
+    "integrations": "Integrationen",
+    "more": "Mehr"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -181,5 +182,9 @@
       "scanCycleFoil": "Foil-Typ wechseln",
       "scanClearDevice": "Gerät leeren"
     }
+  },
+  "mobileMenu": {
+    "back": "Zurück",
+    "theme": "Design"
   }
 }

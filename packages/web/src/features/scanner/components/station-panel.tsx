@@ -5,7 +5,7 @@ import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
-import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
+import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
 import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { useElementHeight } from "@/hooks/use-element-height";
 import { useState } from "react";
@@ -14,9 +14,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
   const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
   const [controlsContainer, setControlsContainer] =
     useState<HTMLDivElement | null>(null);
-  const [stickyHeader, setStickyHeader] = useState<HTMLDivElement | null>(
-    null,
-  );
+  const [stickyHeader, setStickyHeader] = useState<HTMLDivElement | null>(null);
   const stickyHeaderHeight = useElementHeight(stickyHeader);
 
   if (layout === "vertical") {
@@ -29,7 +27,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         <div className="flex flex-col gap-4 w-60 shrink-0 overflow-y-auto">
           <CollectionSwitcher />
           <PresetSelector readOnly />
-          <UnmatchedCardsPanel
+          <IdentifiableUnmatchedCardsPanel
             cards={unmatchedCards}
             onRemove={removeUnmatchedCard}
           />
@@ -49,13 +47,16 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
         <CollectionSwitcher />
         <PresetSelector readOnly />
       </div>
-      <CardScanner className="flex-none" controlsContainer={controlsContainer} />
+      <CardScanner
+        className="flex-none"
+        controlsContainer={controlsContainer}
+      />
       <div
         ref={setControlsContainer}
         style={{ top: stickyHeaderHeight }}
         className="sticky z-40 -mx-2 -my-1 flex-none bg-sidebar/95 px-2 py-1 backdrop-blur-sm empty:hidden"
       />
-      <UnmatchedCardsPanel
+      <IdentifiableUnmatchedCardsPanel
         cards={unmatchedCards}
         onRemove={removeUnmatchedCard}
       />
