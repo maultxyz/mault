@@ -4,6 +4,9 @@ import {
   type FieldMeta,
   type NotificationRule,
   type PlayingCard,
+  type ScanRuleState,
+  toRuleCard,
+  withScanRuleFields,
 } from "@magic-vault/shared";
 import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { db, type Transaction } from "../db";
@@ -50,12 +53,20 @@ export async function postMatchingNotificationRules(params: {
   orgId: string;
   gameId: number | null;
   card: PlayingCard;
+  scan: ScanRuleState;
   embed: DiscordEmbed;
   attachmentDataUrl?: string;
   secondaryImageUrl?: string;
 }): Promise<void> {
-  const { orgId, gameId, card, embed, attachmentDataUrl, secondaryImageUrl } =
-    params;
+  const {
+    orgId,
+    gameId,
+    card,
+    scan,
+    embed,
+    attachmentDataUrl,
+    secondaryImageUrl,
+  } = params;
   if (gameId === null) return;
 
   const [settings] = await db
@@ -86,16 +97,22 @@ export async function postMatchingNotificationRules(params: {
 
   const game = await db.query.games.findFirst({
     where: eq(games.id, gameId),
-    columns: { fieldDefinitions: true },
+    columns: { fieldDefinitions: true, foilTypes: true },
   });
-  const fields = (game?.fieldDefinitions as FieldMeta[] | undefined) ?? [];
+  const fields = withScanRuleFields(
+    (game?.fieldDefinitions as FieldMeta[] | undefined) ?? [],
+    (game?.foilTypes as string[] | undefined) ?? [],
+  );
+  const ruleCard = toRuleCard(card, scan);
 
   const matchesByChannel = new Map<
     string,
     { names: string[]; roleIds: Set<string> }
   >();
   for (const rule of rules) {
-    if (!evaluateRuleGroup(card, rule.rules as BinRuleGroup, fields)) continue;
+    if (!evaluateRuleGroup(ruleCard, rule.rules as BinRuleGroup, fields)) {
+      continue;
+    }
     const match = matchesByChannel.get(rule.channelId!) ?? {
       names: [],
       roleIds: new Set<string>(),

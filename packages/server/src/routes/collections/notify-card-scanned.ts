@@ -66,6 +66,7 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
         orgId,
         gameId,
         card,
+        scan: { isFoil, foilType },
         embed,
         attachmentDataUrl: capturedImageUrl,
         secondaryImageUrl: referenceImageUrl,

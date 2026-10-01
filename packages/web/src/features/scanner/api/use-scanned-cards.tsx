@@ -16,6 +16,7 @@ import {
   getCardsInBin,
   getCatchAllBin,
   hasMaxCopiesBins,
+  toRuleCard,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
@@ -39,6 +40,7 @@ import {
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
+  findInCardPages,
   invalidateCollectionCards,
   removeFromCardPages,
   updateInCardPages,
@@ -83,7 +85,7 @@ export function ScannedCardsProvider({
   const [isLoading, setIsLoading] = useState(true);
   const {
     configs: binConfigs,
-    fieldDefinitions,
+    ruleFieldDefinitions: fieldDefinitions,
     selectedSet,
     save: saveBinConfig,
     emptyBin,
@@ -344,7 +346,11 @@ export function ScannedCardsProvider({
     let cancelled = false;
     loadBinContents(guid, JSON.parse(binContentsWindowsKey))
       .then((contents) => {
-        if (!cancelled) binContentsRef.current = contents;
+        if (cancelled) return;
+        binContentsRef.current = contents.map((entry) => ({
+          ...entry,
+          card: toRuleCard(entry.card, entry),
+        }));
       })
       .catch((err) => {
         if (!cancelled) console.error("Failed to load bin contents:", err);
@@ -378,11 +384,16 @@ export function ScannedCardsProvider({
         return;
       }
 
-      let matchedBin = resolveMatchedBin(card);
+      const forcedFoilType = forceFoilTypeRef.current;
+      const ruleCard = toRuleCard(card, {
+        isFoil: forcedFoilType != null,
+        foilType: forcedFoilType,
+      });
+      let matchedBin = resolveMatchedBin(ruleCard);
       const autoTarget = selectedSetRef.current?.isRepackMode
         ? null
         : findAutoAssignTarget(
-            card,
+            ruleCard,
             binConfigsRef.current,
             fieldDefinitionsRef.current,
             autoAssignFieldRef.current,
@@ -412,14 +423,14 @@ export function ScannedCardsProvider({
         alternativeMatches: alternativeMatches?.length
           ? alternativeMatches
           : undefined,
-        isFoil: forceFoilTypeRef.current != null || undefined,
-        foilType: forceFoilTypeRef.current ?? undefined,
+        isFoil: forcedFoilType != null || undefined,
+        foilType: forcedFoilType ?? undefined,
         needsReview: details?.needsReview || undefined,
         vectorizedOn,
       };
 
       recordSupportPromptScan();
-      playSoundForCard(card);
+      playSoundForCard(ruleCard);
 
       if (record.binNumber != null && tracksBinContents()) {
         binContentsRef.current = [
@@ -427,7 +438,9 @@ export function ScannedCardsProvider({
             scanId: record.scanId,
             binNumber: record.binNumber,
             scannedAt: record.scannedAt,
-            card,
+            card: ruleCard,
+            isFoil: record.isFoil,
+            foilType: record.foilType,
           },
           ...binContentsRef.current,
         ];
@@ -688,11 +701,20 @@ export function ScannedCardsProvider({
         distance: 0,
         confidence: 1,
       };
-      let matchedBin = resolveMatchedBin(corrected);
+      const scan =
+        binContentsRef.current.find((entry) => entry.scanId === scanId) ??
+        (collection
+          ? findInCardPages(queryClient, collection.guid, scanId)
+          : undefined);
+      const ruleCard = toRuleCard(corrected, {
+        isFoil: scan?.isFoil,
+        foilType: scan?.foilType,
+      });
+      let matchedBin = resolveMatchedBin(ruleCard);
       const autoTarget = selectedSetRef.current?.isRepackMode
         ? null
         : findAutoAssignTarget(
-            corrected,
+            ruleCard,
             binConfigsRef.current,
             fieldDefinitionsRef.current,
             autoAssignFieldRef.current,
@@ -711,7 +733,7 @@ export function ScannedCardsProvider({
       binContentsRef.current = binContentsRef.current.flatMap((entry) => {
         if (entry.scanId !== scanId) return [entry];
         return matchedBin
-          ? [{ ...entry, card: corrected, binNumber: matchedBin.binNumber }]
+          ? [{ ...entry, card: ruleCard, binNumber: matchedBin.binNumber }]
           : [];
       });
       if (!collection) return;
@@ -763,6 +785,16 @@ export function ScannedCardsProvider({
     (scanId: string, foilType: string | null) => {
       const collection = activeCollectionRef.current;
       const isFoil = foilType != null;
+      binContentsRef.current = binContentsRef.current.map((entry) =>
+        entry.scanId === scanId
+          ? {
+              ...entry,
+              isFoil,
+              foilType: foilType ?? undefined,
+              card: toRuleCard(entry.card, { isFoil, foilType }),
+            }
+          : entry,
+      );
       if (!collection) return;
       updateInCardPages(
         queryClient,

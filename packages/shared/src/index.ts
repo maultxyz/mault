@@ -19,6 +19,7 @@ export * from "./interfaces/scanner.interface";
 export * from "./interfaces/phone-camera.interface";
 export * from "./interfaces/price-source.interface";
 export * from "./interfaces/sort-bins.interface";
+export * from "./interfaces/scan-rule-fields.interface";
 
 export * from "./constants/collection-cards.constant";
 export * from "./constants/firmware.constant";
@@ -29,10 +30,12 @@ export * from "./constants/price-source.constant";
 export * from "./constants/rarity.constant";
 export * from "./constants/scryfall.constant";
 export * from "./constants/sort-bins.constant";
+export * from "./constants/scan-rule-fields.constant";
 export * from "./constants/sorters.constant";
 
 export * from "./evaluate-bin";
 export * from "./rule-fields";
+export * from "./scan-rule-fields";
 export * from "./price-source";
 export * from "./interfaces/sounds.interface";
 export * from "./constants/sounds.constant";

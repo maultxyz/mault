@@ -65,8 +65,8 @@ function formatGroup(
 
 export function RuleSummary({ rules }: { rules: BinRuleGroup }) {
   const { t } = useTranslation("bins");
-  const { fieldDefinitions } = useBinConfigs();
-  const text = formatGroup(rules, fieldDefinitions, t);
+  const { ruleFieldDefinitions } = useBinConfigs();
+  const text = formatGroup(rules, ruleFieldDefinitions, t);
 
   return (
     <p className="text-xs line-clamp-3 wrap-break-words text-muted-foreground truncate">

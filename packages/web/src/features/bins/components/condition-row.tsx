@@ -5,6 +5,7 @@ import {
   ConditionField,
   ConditionOperator,
   FieldMeta,
+  isScanRuleField,
 } from "@magic-vault/shared";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -125,11 +126,13 @@ export function ConditionRow({
   onRemove,
 }: ConditionRowProps) {
   const { t } = useTranslation("bins");
-  const { fieldDefinitions } = useBinConfigs();
+  const { ruleFieldDefinitions: fieldDefinitions } = useBinConfigs();
   const { activeCollection } = useCollections();
   const fieldMeta = getFieldMeta(condition.field, fieldDefinitions);
   const isFreeformOptions =
-    !!activeCollection?.lang && activeCollection.lang !== "en";
+    !!activeCollection?.lang &&
+    activeCollection.lang !== "en" &&
+    !isScanRuleField(condition.field, fieldDefinitions);
 
   const handleFieldChange = useCallback(
     (field: ConditionField) => {

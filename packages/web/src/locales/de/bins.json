@@ -172,5 +172,11 @@
       "binsSkipped_one": "{{count}} Fach wurde übersprungen, weil dieser Sortierer weniger Fächer hat.",
       "binsSkipped_other": "{{count}} Fächer wurden übersprungen, weil dieser Sortierer weniger Fächer hat."
     }
+  },
+  "scanRuleFields": {
+    "foil": "Foil",
+    "foilType": "Foil-Art",
+    "foilOption": "Foil",
+    "nonFoilOption": "Nicht-Foil"
   }
 }
