@@ -12,6 +12,7 @@ import {
   sendDiscordNotification,
 } from "../../lib/discord";
 import { postMatchingNotificationRules } from "../../lib/notification-rules";
+import { enqueueScanNotification } from "../../lib/scan-notification-queue";
 
 export interface NotifyCardScannedParams {
   orgId: string;
@@ -40,42 +41,40 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
     capturedImageUrl,
   } = params;
 
-  db.query.orgSettings
-    .findFirst({
+  enqueueScanNotification(async () => {
+    const row = await db.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, orgId),
       columns: {
         discordGuildId: true,
         discordNotifyOnScan: true,
         priceSource: true,
       },
-    })
-    .then(async (row) => {
-      if (!row?.discordGuildId) return;
+    });
+    if (!row?.discordGuildId) return;
 
-      const { embed, referenceImageUrl } = buildCardScannedEmbed(card, {
-        isFoil,
-        foilType,
-        collectionName,
-        gameName,
-        collectionGuid,
-        capturedImageDataUrl: capturedImageUrl,
-        priceSource: toPriceSource(row.priceSource),
-      });
+    const { embed, referenceImageUrl } = buildCardScannedEmbed(card, {
+      isFoil,
+      foilType,
+      collectionName,
+      gameName,
+      collectionGuid,
+      capturedImageDataUrl: capturedImageUrl,
+      priceSource: toPriceSource(row.priceSource),
+    });
 
-      void postMatchingNotificationRules({
-        orgId,
-        gameId,
-        card,
-        scan: { isFoil, foilType },
-        embed,
-        attachmentDataUrl: capturedImageUrl,
-        secondaryImageUrl: referenceImageUrl,
-      }).catch((err) => {
-        console.error("[discord] Failed to post notification rules:", err);
-      });
+    const ruleNotifications = postMatchingNotificationRules({
+      orgId,
+      gameId,
+      card,
+      scan: { isFoil, foilType },
+      embed,
+      attachmentDataUrl: capturedImageUrl,
+      secondaryImageUrl: referenceImageUrl,
+    }).catch((err) => {
+      console.error("[discord] Failed to post notification rules:", err);
+    });
 
-      if (!row.discordNotifyOnScan) return;
-
+    if (row.discordNotifyOnScan) {
       if (isNewSession) {
         const sortingLogicSummary = await buildSortingLogicSummary(
           orgId,
@@ -94,7 +93,7 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
         );
       }
 
-      void sendDiscordNotification(
+      await sendDiscordNotification(
         orgId,
         embed,
         "scan",
@@ -102,8 +101,8 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
         referenceImageUrl,
         collectionGuid,
       );
-    })
-    .catch((err) => {
-      console.error("[discord] Failed to send scan notifications:", err);
-    });
+    }
+
+    await ruleNotifications;
+  });
 }

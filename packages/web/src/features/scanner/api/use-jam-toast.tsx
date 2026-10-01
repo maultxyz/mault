@@ -2,7 +2,6 @@ import { useSerial } from "@/features/scanner/api/use-serial";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
 import {
   JAM_CLEAR_DEVICE_TIMEOUT_MS,
-  JAM_COMMAND_TIMEOUT_MS,
   JAM_TOAST_ID_PREFIX,
 } from "@/lib/constants/scanner";
 import type { JamToastOptions } from "@/lib/interfaces/scanner";
@@ -12,7 +11,7 @@ import { useTranslation } from "react-i18next";
 
 export function useJamToast(onResume: () => void) {
   const { t } = useTranslation("scanner");
-  const { isReady, sendCommand, receiveResponse } = useSerial();
+  const { isReady, sendCommand, receiveResponse, readIR } = useSerial();
   const latestRef = useRef({ t, isReady, sendCommand, receiveResponse, onResume });
   latestRef.current = { t, isReady, sendCommand, receiveResponse, onResume };
   const busyModulesRef = useRef(new Set<number>());
@@ -34,13 +33,10 @@ export function useJamToast(onResume: () => void) {
 
   const isModuleBlocked = useCallback(
     async (module: number) => {
-      const response = await runCommand(
-        { readIR: true },
-        JAM_COMMAND_TIMEOUT_MS,
-      );
-      return Array.isArray(response?.ir) ? response.ir[module - 1] === true : null;
+      const ir = await readIR();
+      return ir ? ir[module - 1] === true : null;
     },
-    [runCommand],
+    [readIR],
   );
 
   return useCallback(

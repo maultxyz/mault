@@ -86,6 +86,7 @@ export const GROUPS: Group[] = [
           t("bom.groups.electronics.items.sg90Positional.notes", {
             count: n,
           }),
+        buyUrl: "https://amzn.to/3VKQne1",
       },
       {
         key: "sg90-continuous",
@@ -93,6 +94,7 @@ export const GROUPS: Group[] = [
         name: "SG90 servo, continuous rotation",
         part: (t) => t("bom.groups.electronics.items.sg90Continuous.part"),
         notes: (t) => t("bom.groups.electronics.items.sg90Continuous.notes"),
+        buyUrl: "https://amzn.to/4yq4dAW",
       },
     ],
   },
