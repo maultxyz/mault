@@ -2,9 +2,9 @@ import { cn } from "@/lib/utils";
 import { IconCheck } from "@tabler/icons-react";
 
 const SLOTS = [
-  { label: "Bin 1", note: "3 commons", done: 3, total: 3 },
-  { label: "Bin 2", note: "2 uncommons", done: 1, total: 2 },
-  { label: "Bin 3", note: "1 rare", done: 0, total: 1 },
+  { label: "Bin 1", note: "commons", done: 3, total: 3 },
+  { label: "Bin 2", note: "uncommons", done: 1, total: 2 },
+  { label: "Bin 3", note: "rare", done: 0, total: 1 },
 ];
 
 export function DemoRepack() {

@@ -1,15 +1,12 @@
 import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import { IconCheck } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-const SHARED_FEATURE_KEYS = [
-  "collections",
-  "games",
-  "notifications",
-] as const;
+const SHARED_FEATURE_KEYS = ["collections", "games", "notifications"] as const;
 
 function formatPrice(amount: number, currency: string, locale: string) {
   const fractionDigits = amount % 100 === 0 ? 0 : 2;
@@ -65,6 +62,18 @@ export function LandingPricing() {
                   limit: pricing?.freeDailyScanLimit ?? 50,
                 })}
               </li>
+              <li className="flex items-start gap-2 text-sm">
+                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                {t("pricing.free.sorters", {
+                  count: pricing?.freeMaxConnectedSorters ?? 1,
+                })}
+              </li>
+              <li className="flex items-start gap-2 text-sm">
+                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                {t("pricing.free.soundRules", {
+                  count: pricing?.freeMaxSoundRules ?? 1,
+                })}
+              </li>
               {SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">
                   <IconCheck
@@ -104,6 +113,16 @@ export function LandingPricing() {
               <li className="flex items-start gap-2 text-sm font-medium">
                 <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
                 {t("pricing.business.unlimitedScans")}
+              </li>
+              <li className="flex items-start gap-2 text-sm font-medium">
+                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                {t("pricing.business.sorters", {
+                  count: pricing?.maxConnectedSorters ?? MAX_CONNECTED_SORTERS,
+                })}
+              </li>
+              <li className="flex items-start gap-2 text-sm font-medium">
+                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                {t("pricing.business.soundRules")}
               </li>
               {SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">

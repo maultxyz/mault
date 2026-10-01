@@ -78,6 +78,14 @@
         "title": "Créer des repacks",
         "description": "Définis des emplacements de pack par bac, par exemple 3 communes et 1 rare, et chaque bac remplit son propre pack en même temps. Vide-le pour en démarrer un nouveau."
       },
+      "alphabet": {
+        "title": "Tri alphabétique",
+        "description": "Trie une pile de A à Z, une lettre par bac. Puis descends dans n'importe quelle pile, A en AA, AB, AC, jusqu'à ce que chaque carte soit dans l'ordre."
+      },
+      "sounds": {
+        "title": "Sons personnalisés",
+        "description": "Importe tes propres clips et joue-les quand une carte correspondante est triée, comme une fanfare pour chaque mythique ou un bruit de caisse pour tout ce qui dépasse 20 $."
+      },
       "collections": {
         "title": "Plusieurs collections",
         "description": "Garde des collections séparées pour tes classeurs d'échange, tes decks ou tes boîtes de rangement, et passe de l'une à l'autre en toute simplicité."
@@ -118,7 +126,7 @@
   },
   "pricing": {
     "heading": "Des tarifs simples et transparents",
-    "subtitle": "La même appli dans les deux cas - Free couvre le tri occasionnel, Business supprime la limite de scans quotidienne.",
+    "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois et débloque les sons personnalisés illimités.",
     "shared": {
       "collections": "Collections illimitées",
       "games": "Tous les jeux de cartes pris en charge",
@@ -128,14 +136,21 @@
       "name": "Free",
       "price": "0 $",
       "description": "Pour les collectionneurs occasionnels qui débutent.",
-      "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour"
+      "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
+      "sorters_one": "{{count}} trieur connecté à la fois",
+      "sorters_other": "{{count}} trieurs connectés à la fois",
+      "soundRules_one": "{{count}} règle sonore personnalisée",
+      "soundRules_other": "{{count}} règles sonores personnalisées"
     },
     "business": {
       "name": "Business",
       "perMonth": "/mois",
       "description": "Pour les boutiques et les collectionneurs assidus.",
       "unlimitedScans": "Scans de cartes illimités",
-      "cta": "Passer au plan Business"
+      "cta": "Passer au plan Business",
+      "sorters_one": "Jusqu'à {{count}} trieur à la fois, depuis un seul navigateur",
+      "sorters_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
+      "soundRules": "Règles sonores illimitées avec tes propres clips importés"
     }
   },
   "cta": {

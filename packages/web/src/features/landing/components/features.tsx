@@ -1,6 +1,8 @@
+import { DemoAlphabetSort } from "@/features/landing/components/demo-alphabet-sort";
 import { DemoAutoAssign } from "@/features/landing/components/demo-auto-assign";
 import { DemoBinDiagram } from "@/features/landing/components/demo-bin-diagram";
 import { DemoCollectionSwitcher } from "@/features/landing/components/demo-collection-switcher";
+import { DemoCustomSounds } from "@/features/landing/components/demo-custom-sounds";
 import { DemoRecognitionPreview } from "@/features/landing/components/demo-recognition-preview";
 import { DemoRepack } from "@/features/landing/components/demo-repack";
 import { DemoRuleBuilder } from "@/features/landing/components/demo-rule-builder";
@@ -12,6 +14,8 @@ const HIGHLIGHTS = [
   { key: "rules", demo: DemoRuleBuilder },
   { key: "autoAssign", demo: DemoAutoAssign },
   { key: "repack", demo: DemoRepack },
+  { key: "alphabet", demo: DemoAlphabetSort },
+  { key: "sounds", demo: DemoCustomSounds },
   { key: "collections", demo: DemoCollectionSwitcher },
   { key: "insights", demo: DemoStatsBreakdown },
   { key: "hardware", demo: DemoBinDiagram },

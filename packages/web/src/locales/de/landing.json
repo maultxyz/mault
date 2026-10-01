@@ -78,6 +78,14 @@
         "title": "Repacks erstellen",
         "description": "Lege pro Fach Pack-Slots fest, etwa 3 Commons und 1 Rare, und jedes Fach füllt gleichzeitig sein eigenes Pack. Leere es, um das nächste zu starten."
       },
+      "alphabet": {
+        "title": "Alphabetische Sortierung",
+        "description": "Sortiere einen Stapel von A bis Z, ein Buchstabe pro Fach. Dann gehst du in jeden Stapel tiefer, A in AA, AB, AC, bis jede Karte in der richtigen Reihenfolge liegt."
+      },
+      "sounds": {
+        "title": "Eigene Sounds",
+        "description": "Lade deine eigenen Clips hoch und spiele sie ab, wenn eine passende Karte sortiert wird, etwa eine Fanfare für jede Mythic oder ein Kassenklingeln für alles über 20 $."
+      },
       "collections": {
         "title": "Mehrere Sammlungen",
         "description": "Führe separate Sammlungen für Tauschordner, Decks oder Aufbewahrungsboxen, und wechsle ganz einfach zwischen ihnen hin und her."
@@ -118,7 +126,7 @@
   },
   "pricing": {
     "heading": "Einfache, transparente Preise",
-    "subtitle": "Dieselbe App in beiden Fällen - Free deckt gelegentliches Sortieren ab, Business hebt das tägliche Scan-Limit auf.",
+    "subtitle": "Dieselbe App in beiden Fällen. Free reicht für gelegentliches Sortieren. Business hebt das tägliche Scanlimit auf, betreibt mehrere Sortierer gleichzeitig und schaltet unbegrenzte eigene Sounds frei.",
     "shared": {
       "collections": "Unbegrenzte Sammlungen",
       "games": "Jedes unterstützte Sammelkartenspiel",
@@ -128,14 +136,21 @@
       "name": "Free",
       "price": "0 $",
       "description": "Für gelegentliche Sammler, die gerade erst anfangen.",
-      "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag"
+      "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag",
+      "sorters_one": "{{count}} verbundener Sortierer gleichzeitig",
+      "sorters_other": "{{count}} verbundene Sortierer gleichzeitig",
+      "soundRules_one": "{{count}} eigene Soundregel",
+      "soundRules_other": "{{count}} eigene Soundregeln"
     },
     "business": {
       "name": "Business",
       "perMonth": "/Monat",
       "description": "Für Shops und ambitionierte Sammler.",
       "unlimitedScans": "Unbegrenzte Kartenscans",
-      "cta": "Business-Plan starten"
+      "cta": "Business-Plan starten",
+      "sorters_one": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
+      "sorters_other": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
+      "soundRules": "Unbegrenzte Soundregeln mit deinen eigenen hochgeladenen Clips"
     }
   },
   "cta": {
