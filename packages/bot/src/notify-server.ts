@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { Hono } from "hono";
 import sharp from "sharp";
+import { listNotifyChannels } from "./lib/notify-channel";
 
 const PORT = parseInt(process.env.BOT_PORT ?? "3002");
 const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
@@ -25,6 +26,7 @@ interface NotifyBody {
   embed?: APIEmbed;
   attachmentDataUrl?: string;
   secondaryImageUrl?: string;
+  guildId?: string;
 }
 
 function decodeDataUrl(dataUrl: string): Buffer | null {
@@ -78,6 +80,28 @@ async function compositeSideBySide(
 export function startNotifyServer(client: Client) {
   const app = new Hono();
 
+  app.get("/guilds/:guildId", (c) => {
+    const secret = c.req.header("X-Bot-Secret");
+    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+      return c.json({ success: false, message: "Unauthorized" }, 401);
+    }
+
+    const guild = client.guilds.cache.get(c.req.param("guildId"));
+    if (!guild) {
+      return c.json({ success: false, message: "not_in_guild" }, 404);
+    }
+
+    return c.json({
+      success: true,
+      data: {
+        id: guild.id,
+        name: guild.name,
+        iconUrl: guild.iconURL({ size: 64 }),
+        channels: listNotifyChannels(guild),
+      },
+    });
+  });
+
   app.post("/notify", async (c) => {
     const secret = c.req.header("X-Bot-Secret");
     if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
@@ -105,7 +129,8 @@ export function startNotifyServer(client: Client) {
       if (
         !channel ||
         (channel.type !== ChannelType.GuildText &&
-          channel.type !== ChannelType.GuildAnnouncement)
+          channel.type !== ChannelType.GuildAnnouncement) ||
+        (body.guildId && channel.guildId !== body.guildId)
       ) {
         return c.json(
           {

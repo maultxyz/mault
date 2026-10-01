@@ -1,6 +1,10 @@
 import { eq } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { collections, orgSettings } from "../../db/schema";
+import {
+  collections,
+  notificationRules,
+  orgSettings,
+} from "../../db/schema";
 
 export async function clearOrgDiscordReferences(
   tx: Transaction,
@@ -31,4 +35,8 @@ export async function clearOrgDiscordReferences(
       updatedAt: now,
     })
     .where(eq(collections.orgId, orgId));
+  await tx
+    .update(notificationRules)
+    .set({ channelId: null, updatedAt: now })
+    .where(eq(notificationRules.orgId, orgId));
 }

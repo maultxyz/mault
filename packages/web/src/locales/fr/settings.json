@@ -37,5 +37,10 @@
     "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
     "toggleLabel": "Activer la correspondance de texte OCR",
     "badge": "Bêta"
+  },
+  "integrations": {
+    "heading": "Intégrations",
+    "description": "La liaison Discord, les salons de notification et les règles de notification se trouvent maintenant sur la page Intégrations.",
+    "open": "Ouvrir les intégrations"
   }
 }

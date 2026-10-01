@@ -6,19 +6,17 @@ import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
 import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
 import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
-import { useDiscordBotSettings } from "@/features/companies/api/use-discord-bot";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { LocalAuditLog } from "@/features/companies/components/local-audit-log";
 import { LocalOrgInvites } from "@/features/companies/components/local-org-invites";
 import { LocalOrgSettings } from "@/features/companies/components/local-org-settings";
 import { OrgSettings } from "@/features/companies/components/org-settings";
-import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
+import { Button } from "@/components/ui/button";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "@/lib/toast";
 
 export default function SettingsPage() {
@@ -27,7 +25,6 @@ export default function SettingsPage() {
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { isLinked: isDiscordLinked } = useDiscordBotSettings();
 
   useEffect(() => {
     const billingResult = searchParams.get("billing");
@@ -156,9 +153,18 @@ export default function SettingsPage() {
             <OcrToggle />
           </label>
         </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <DiscordBotSettings />
-          {isDiscordLinked && <DiscordNotificationSettings />}
+        <div className="rounded-lg border p-4 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold font-heading">
+              {t("integrations.heading")}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {t("integrations.description")}
+            </p>
+          </div>
+          <Button variant="outline" render={<Link to="/app/integrations" />}>
+            {t("integrations.open")}
+          </Button>
         </div>
       </div>
     </div>

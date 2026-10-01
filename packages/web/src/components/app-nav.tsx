@@ -40,6 +40,7 @@ import {
   IconLayoutSidebarLeftExpand,
   IconShoppingCart,
   IconVolume,
+  IconPlug,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -421,6 +422,12 @@ export function AppNav() {
       to: "/app/sounds",
       icon: <IconVolume size={20} />,
       label: t("nav.sounds"),
+      desktopOnly: true,
+    },
+    {
+      to: "/app/integrations",
+      icon: <IconPlug size={20} />,
+      label: t("nav.integrations"),
       desktopOnly: true,
     },
     {

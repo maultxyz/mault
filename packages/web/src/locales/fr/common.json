@@ -15,7 +15,8 @@
     "collapseSidebar": "Réduire la barre latérale ([)",
     "expandSidebar": "Développer la barre latérale ([)",
     "alerts": "Alertes",
-    "sounds": "Sons"
+    "sounds": "Sons",
+    "integrations": "Intégrations"
   },
   "alerts": {
     "dismiss": "Ignorer",

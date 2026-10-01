@@ -37,5 +37,10 @@
     "description": "Wenn ein Scan nicht sicher erkannt wird, werden Kartenname und Set-Zeile gelesen, um die Karte zu finden. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
     "toggleLabel": "OCR-Texterkennung aktivieren",
     "badge": "Beta"
+  },
+  "integrations": {
+    "heading": "Integrationen",
+    "description": "Discord-Verknüpfung, Benachrichtigungskanäle und Benachrichtigungsregeln findest du jetzt auf der Seite Integrationen.",
+    "open": "Integrationen öffnen"
   }
 }

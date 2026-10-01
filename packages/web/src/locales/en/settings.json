@@ -43,5 +43,10 @@
     "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
     "toggleLabel": "Enable OCR text matching",
     "badge": "Beta"
+  },
+  "integrations": {
+    "heading": "Integrations",
+    "description": "Discord linking, notification channels and notification rules now live on the Integrations page.",
+    "open": "Open Integrations"
   }
 }

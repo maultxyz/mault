@@ -84,6 +84,7 @@ async function postEmbedToBot(
   attachmentDataUrl?: string,
   secondaryImageUrl?: string,
   useThread = true,
+  guildId?: string,
 ): Promise<{ ok: boolean; threadId: string | null }> {
   const botUrl = process.env.BOT_URL;
   const botSecret = process.env.BOT_API_SECRET;
@@ -104,6 +105,7 @@ async function postEmbedToBot(
         embed,
         attachmentDataUrl,
         secondaryImageUrl,
+        guildId,
       }),
     });
     if (!res.ok) {
@@ -182,4 +184,24 @@ export async function sendDonationDiscordNotification(
     undefined,
     false,
   );
+}
+
+export async function sendDiscordChannelMessage(
+  guildId: string,
+  channelId: string,
+  embed: DiscordEmbed,
+  attachmentDataUrl?: string,
+  secondaryImageUrl?: string,
+): Promise<boolean> {
+  const { ok } = await postEmbedToBot(
+    channelId,
+    null,
+    null,
+    embed,
+    attachmentDataUrl,
+    secondaryImageUrl,
+    false,
+    guildId,
+  );
+  return ok;
 }

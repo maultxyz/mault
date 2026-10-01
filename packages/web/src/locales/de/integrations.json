@@ -1,0 +1,61 @@
+{
+  "title": "Integrationen",
+  "subtitle": "Verbinde Magic Vault mit anderen Apps und lege fest, was wo gepostet wird.",
+  "discord": {
+    "heading": "Discord",
+    "description": "Poste Scans und Warnungen auf deinem Discord-Server.",
+    "connectedTo": "Verbunden mit {{server}}",
+    "statusLinked": "Verknüpft",
+    "statusNotLinked": "Nicht verknüpft",
+    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Kanalnamen und Berechtigungen gerade nicht angezeigt werden.",
+    "botNotInServer": "Der Bot ist nicht mehr auf deinem verknüpften Server. Füge ihn wieder hinzu und verknüpfe ihn erneut."
+  },
+  "channels": {
+    "heading": "Verknüpfte Kanäle",
+    "description": "Jeder Kanal, in den Magic Vault postet, und was dort gepostet wird. Scan- und Fehlerkanal legst du mit /scanning und /notification in Discord fest.",
+    "empty": "Noch keine Kanäle. Führe /scanning oder /notification in Discord aus oder füge unten eine Benachrichtigungsregel hinzu.",
+    "unknown": "Unbekannter Kanal ({{id}})",
+    "inCategory": "in {{category}}",
+    "missing": "Dieser Kanal wurde gelöscht oder der Bot kann ihn nicht sehen.",
+    "missingPermissions": "Dem Bot fehlt: {{permissions}}",
+    "usage": {
+      "scans": "Jeder Scan",
+      "scansPaused": "Jeder Scan (aus)",
+      "errors": "Fehler und Warnungen",
+      "collectionScans": "Scans aus {{collection}}",
+      "collectionErrors": "Fehler aus {{collection}}",
+      "rule": "Regel: {{rule}} ({{game}})"
+    }
+  },
+  "rules": {
+    "heading": "Benachrichtigungsregeln",
+    "description": "Poste eine Karte in einen Kanal, wenn sie einer Regel entspricht. Jede passende Regel postet, eine Karte kann also in mehreren Kanälen landen, aber jeder Kanal bekommt sie nur einmal.",
+    "add": "Regel hinzufügen",
+    "empty": "Noch keine Benachrichtigungsregeln.",
+    "needsGame": "Wähle eine Sammlung mit einem Spiel, um Benachrichtigungsregeln hinzuzufügen.",
+    "postsTo": "Postet in",
+    "noChannel": "Kein Kanal. Bearbeite die Regel, um einen auszuwählen.",
+    "enabled": "Aktiviert",
+    "edit": "{{name}} bearbeiten",
+    "delete": "{{name}} löschen",
+    "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden."
+  },
+  "ruleDialog": {
+    "addTitle": "Benachrichtigungsregel hinzufügen",
+    "editTitle": "Benachrichtigungsregel bearbeiten",
+    "description": "Wenn eine gescannte Karte diese Bedingungen erfüllt, wird sie in diesen Kanal gepostet.",
+    "name": "Name",
+    "channel": "Kanal",
+    "channelPlaceholder": "Kanal auswählen",
+    "enabled": "Aktiviert",
+    "conditions": "Bedingungen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden.",
+    "validation": {
+      "nameRequired": "Gib der Regel einen Namen.",
+      "channelRequired": "Wähle einen Kanal.",
+      "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
+    }
+  }
+}

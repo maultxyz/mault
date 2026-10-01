@@ -1,0 +1,61 @@
+{
+  "title": "Intégrations",
+  "subtitle": "Connecte Magic Vault à d'autres applications et choisis ce qui est publié et où.",
+  "discord": {
+    "heading": "Discord",
+    "description": "Publie les scans et les alertes sur ton serveur Discord.",
+    "connectedTo": "Connecté à {{server}}",
+    "statusLinked": "Lié",
+    "statusNotLinked": "Non lié",
+    "botUnreachable": "Impossible de joindre le bot Discord, les noms de salons et les permissions ne peuvent donc pas être affichés pour le moment.",
+    "botNotInServer": "Le bot n'est plus sur ton serveur lié. Ajoute-le à nouveau, puis relie-le."
+  },
+  "channels": {
+    "heading": "Salons liés",
+    "description": "Chaque salon où Magic Vault publie, et ce qui y est publié. Définis les salons de scans et d'erreurs avec /scanning et /notification dans Discord.",
+    "empty": "Aucun salon pour l'instant. Lance /scanning ou /notification dans Discord, ou ajoute une règle de notification ci-dessous.",
+    "unknown": "Salon inconnu ({{id}})",
+    "inCategory": "dans {{category}}",
+    "missing": "Ce salon a été supprimé ou le bot ne peut pas le voir.",
+    "missingPermissions": "Il manque au bot : {{permissions}}",
+    "usage": {
+      "scans": "Chaque scan",
+      "scansPaused": "Chaque scan (désactivé)",
+      "errors": "Erreurs et alertes",
+      "collectionScans": "Scans de {{collection}}",
+      "collectionErrors": "Erreurs de {{collection}}",
+      "rule": "Règle : {{rule}} ({{game}})"
+    }
+  },
+  "rules": {
+    "heading": "Règles de notification",
+    "description": "Publie une carte dans un salon quand elle correspond à une règle. Chaque règle correspondante publie, une carte peut donc aller dans plusieurs salons, mais chaque salon ne la reçoit qu'une fois.",
+    "add": "Ajouter une règle",
+    "empty": "Aucune règle de notification pour l'instant.",
+    "needsGame": "Choisis une collection avec un jeu pour ajouter des règles de notification.",
+    "postsTo": "Publie dans",
+    "noChannel": "Aucun salon. Modifie la règle pour en choisir un.",
+    "enabled": "Activée",
+    "edit": "Modifier {{name}}",
+    "delete": "Supprimer {{name}}",
+    "saveFailed": "Impossible d'enregistrer les règles de notification."
+  },
+  "ruleDialog": {
+    "addTitle": "Ajouter une règle de notification",
+    "editTitle": "Modifier la règle de notification",
+    "description": "Quand une carte scannée remplit ces conditions, elle est publiée dans ce salon.",
+    "name": "Nom",
+    "channel": "Salon",
+    "channelPlaceholder": "Choisir un salon",
+    "enabled": "Activée",
+    "conditions": "Conditions",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saveFailed": "Impossible d'enregistrer la règle de notification.",
+    "validation": {
+      "nameRequired": "Donne un nom à la règle.",
+      "channelRequired": "Choisis un salon.",
+      "conditionsRequired": "Ajoute au moins une condition."
+    }
+  }
+}

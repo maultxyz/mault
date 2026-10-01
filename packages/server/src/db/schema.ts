@@ -477,6 +477,34 @@ export const soundRules = pgTable(
   ],
 ).enableRLS();
 
+export const notificationRules = pgTable(
+  "notification_rules",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    name: text("name").notNull(),
+    gameId: integer("game_id")
+      .notNull()
+      .references(() => games.id, { onDelete: "cascade" }),
+    isEnabled: boolean("is_enabled").notNull().default(true),
+    rules: jsonb("rules").notNull(),
+    integration: text("integration").notNull().default("discord"),
+    channelId: text("channel_id"),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("notification_rules_guid_idx").on(table.guid),
+    index("notification_rules_org_game_idx").on(table.orgId, table.gameId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const orgSettings = pgTable(
   "org_settings",
   {

@@ -1,0 +1,61 @@
+{
+  "title": "Integrations",
+  "subtitle": "Connect Magic Vault to other apps and choose what gets posted where.",
+  "discord": {
+    "heading": "Discord",
+    "description": "Post scans and alerts to your Discord server.",
+    "connectedTo": "Connected to {{server}}",
+    "statusLinked": "Linked",
+    "statusNotLinked": "Not linked",
+    "botUnreachable": "Couldn't reach the Discord bot, so channel names and permissions can't be shown right now.",
+    "botNotInServer": "The bot isn't in your linked server anymore. Add it back, then link again."
+  },
+  "channels": {
+    "heading": "Linked channels",
+    "description": "Every channel Magic Vault posts to, and what it posts there. Set the scan and error channels with /scanning and /notification in Discord.",
+    "empty": "No channels yet. Run /scanning or /notification in Discord, or add a notification rule below.",
+    "unknown": "Unknown channel ({{id}})",
+    "inCategory": "in {{category}}",
+    "missing": "This channel was deleted or the bot can't see it.",
+    "missingPermissions": "The bot is missing: {{permissions}}",
+    "usage": {
+      "scans": "Every scan",
+      "scansPaused": "Every scan (off)",
+      "errors": "Errors and alerts",
+      "collectionScans": "Scans from {{collection}}",
+      "collectionErrors": "Errors from {{collection}}",
+      "rule": "Rule: {{rule}} ({{game}})"
+    }
+  },
+  "rules": {
+    "heading": "Notification rules",
+    "description": "Post a card to a channel when it matches a rule. Every matching rule posts, so one card can go to several channels, but each channel gets it once.",
+    "add": "Add rule",
+    "empty": "No notification rules yet.",
+    "needsGame": "Pick a collection with a game to add notification rules.",
+    "postsTo": "Posts to",
+    "noChannel": "No channel. Edit the rule to pick one.",
+    "enabled": "Enabled",
+    "edit": "Edit {{name}}",
+    "delete": "Delete {{name}}",
+    "saveFailed": "Couldn't save the notification rules."
+  },
+  "ruleDialog": {
+    "addTitle": "Add notification rule",
+    "editTitle": "Edit notification rule",
+    "description": "When a scanned card matches these conditions, it's posted to this channel.",
+    "name": "Name",
+    "channel": "Channel",
+    "channelPlaceholder": "Choose a channel",
+    "enabled": "Enabled",
+    "conditions": "Conditions",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveFailed": "Couldn't save the notification rule.",
+    "validation": {
+      "nameRequired": "Give the rule a name.",
+      "channelRequired": "Choose a channel.",
+      "conditionsRequired": "Add at least one condition."
+    }
+  }
+}

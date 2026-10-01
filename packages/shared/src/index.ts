@@ -36,3 +36,5 @@ export * from "./rule-fields";
 export * from "./price-source";
 export * from "./interfaces/sounds.interface";
 export * from "./constants/sounds.constant";
+export * from "./interfaces/integrations.interface";
+export * from "./constants/integrations.constant";
