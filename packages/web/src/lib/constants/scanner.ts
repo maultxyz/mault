@@ -44,6 +44,8 @@ export const JAM_VERIFY_SAMPLES = 3;
 export const JAM_VERIFY_INTERVAL_MS = 750;
 export const SCAN_POSITION_MODULE = 1;
 export const MONITOR_OPEN_CARD_PARAM = "card";
+export const CARD_SETS_STALE_MS = 15 * 60 * 1000;
+export const CARD_SET_PICKER_LIMIT = 100;
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
   ...ALL_CARDS_QUERY,
   filters: { ...EMPTY_CARD_FILTERS, needsAttention: true },

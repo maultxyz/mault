@@ -3,7 +3,11 @@ import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { attachMatchedCards, findCardMatches } from "./shared";
+import {
+  attachMatchedCards,
+  findCardMatches,
+  parsePreferredSetCode,
+} from "./shared";
 
 export const searchByImageRoute = new Hono<AppEnv>().post(
   "/",
@@ -58,6 +62,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         gameKey,
         lang,
         embeddings,
+        preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
       });
       const withEmbedding = result.diagnostics
         ? {

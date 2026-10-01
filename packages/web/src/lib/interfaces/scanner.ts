@@ -87,16 +87,23 @@ export interface CameraContextValue {
   sendPhoneScanRegion: (region: ScanRegion) => void;
 }
 
+export interface MatchScope {
+  collectionGuid?: string;
+  preferredSetCode?: string | null;
+}
+
 export interface ScannedCardsContextValue {
   unmatchedCards: UnmatchedCard[];
   isLoading: boolean;
   autoFeed: boolean;
   forceFoilType: string | null;
+  forceSetCode: string | null;
   elapsedMs: number;
   isTimerActive: boolean;
   setScannerRunning: (running: boolean) => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
+  setForceSetCode: (setCode: string | null) => void;
   addCard: (
     card: PlayingCardWithDistance,
     capturedImageUrl?: string,
@@ -548,4 +555,11 @@ export interface IdentifyUnmatchedDialogProps {
   entry: UnmatchedCard | null;
   collectionGuid: string | undefined;
   onClose: () => void;
+}
+
+export interface ForcedSetOptionProps {
+  label: string;
+  detail?: string;
+  active: boolean;
+  onSelect: () => void;
 }

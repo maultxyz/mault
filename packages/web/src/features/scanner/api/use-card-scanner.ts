@@ -7,6 +7,7 @@ import {
 } from "@/features/cards/api/card";
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
@@ -31,6 +32,7 @@ import {
   SCANNABLE_STATUSES,
 } from "@/lib/constants/scanner";
 import type {
+  MatchScope,
   OrientedCandidate,
   OrientedSearch,
   OrientedSearchPick,
@@ -150,14 +152,21 @@ async function resolveSearchMatches(
   return { card, alternativeMatches, noMatchReason: null, candidates };
 }
 
+function appendMatchScope(formData: FormData, scope: MatchScope): void {
+  if (scope.collectionGuid)
+    formData.append("collectionGuid", scope.collectionGuid);
+  if (scope.preferredSetCode)
+    formData.append("preferredSetCode", scope.preferredSetCode);
+}
+
 function buildSearchFormData(
   embedding: number[],
-  collectionGuid?: string,
+  scope: MatchScope,
   image?: Blob,
 ): FormData {
   const formData = new FormData();
   if (image) formData.append("image", image, "card.jpg");
-  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  appendMatchScope(formData, scope);
   formData.append("embedding", JSON.stringify(embedding));
   return formData;
 }
@@ -222,7 +231,7 @@ async function searchByCardText(
   frame: HTMLCanvasElement,
   contour: CardContour,
   best: OrientedSearchPick,
-  collectionGuid: string | undefined,
+  scope: MatchScope,
 ): Promise<TextSearchOutcome> {
   const uprightCrop = dewarpCard(
     frame,
@@ -239,11 +248,7 @@ async function searchByCardText(
         : uprightCrop;
     try {
       const result = await searchByText(
-        buildSearchFormData(
-          option.embedding,
-          collectionGuid,
-          await canvasToBlob(crop),
-        ),
+        buildSearchFormData(option.embedding, scope, await canvasToBlob(crop)),
       );
       ocr = result.ocr ?? ocr;
       scanLog(
@@ -259,13 +264,10 @@ async function searchByCardText(
   return { pick: null, ocr };
 }
 
-function buildImageSearchFormData(
-  blob: Blob,
-  collectionGuid?: string,
-): FormData {
+function buildImageSearchFormData(blob: Blob, scope: MatchScope): FormData {
   const formData = new FormData();
   formData.append("image", blob, "card.jpg");
-  if (collectionGuid) formData.append("collectionGuid", collectionGuid);
+  appendMatchScope(formData, scope);
   return formData;
 }
 
@@ -321,11 +323,12 @@ async function searchCardImage(
   canvas: HTMLCanvasElement,
   refreshFrame: () => void,
   contour: CardContour | null | undefined,
-  collectionGuid: string | undefined,
+  scope: MatchScope,
   ocrEnabled: boolean | undefined,
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
 ): Promise<ScanAttemptOutcome> {
+  const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
   let detection: ScanDetectionDiagnostics = {
     cardDetected: false,
@@ -338,10 +341,7 @@ async function searchCardImage(
       dewarpedCanvas,
       detection: corners,
       frame,
-    } = await detectAndDewarpCard(
-      canvas,
-      refreshFrame,
-    );
+    } = await detectAndDewarpCard(canvas, refreshFrame);
     detection = {
       cardDetected: corners.cardPresent,
       sharpness: corners.sharpness,
@@ -355,7 +355,7 @@ async function searchCardImage(
         async (oriented) => {
           const embedding = await embedCanvas(oriented);
           const result = await searchByVector(
-            buildSearchFormData(embedding, collectionGuid),
+            buildSearchFormData(embedding, scope),
           );
           return { result, embedding };
         },
@@ -375,21 +375,21 @@ async function searchCardImage(
       }
       const text =
         runOcr && corners.contour
-          ? await searchByCardText(
-              frame,
-              corners.contour,
-              best,
-              collectionGuid,
-            )
+          ? await searchByCardText(frame, corners.contour, best, scope)
           : null;
-      return toAttemptOutcome(text?.pick ?? best, collectionGuid, colorBarRegion, {
-        detectedContour: corners.contour,
-        vectorizedOn: "web",
-        detection,
-        ocr: text?.ocr ?? null,
-        needsReview: !!text?.pick && !hasMatch(best.result),
-        matchedBy: text?.pick ? "ocr" : "embedding",
-      });
+      return toAttemptOutcome(
+        text?.pick ?? best,
+        collectionGuid,
+        colorBarRegion,
+        {
+          detectedContour: corners.contour,
+          vectorizedOn: "web",
+          detection,
+          ocr: text?.ocr ?? null,
+          needsReview: !!text?.pick && !hasMatch(best.result),
+          matchedBy: text?.pick ? "ocr" : "embedding",
+        },
+      );
     }
     fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
   } catch (err) {
@@ -407,7 +407,7 @@ async function searchCardImage(
     checkBothOrientations,
     async (oriented) => {
       const result = await searchByImage(
-        buildImageSearchFormData(await canvasToBlob(oriented), collectionGuid),
+        buildImageSearchFormData(await canvasToBlob(oriented), scope),
       );
       return { result, embedding: result.diagnostics?.embedding ?? null };
     },
@@ -503,7 +503,7 @@ async function searchCardImageWithConsensus(
   canvas: HTMLCanvasElement,
   refreshFrame: () => void,
   contour: CardContour | null | undefined,
-  collectionGuid: string | undefined,
+  scope: MatchScope,
   ocrEnabled: boolean | undefined,
   matchesNeeded: number,
   checkBothOrientations: boolean,
@@ -515,7 +515,7 @@ async function searchCardImageWithConsensus(
       canvas,
       refreshFrame,
       contour,
-      collectionGuid,
+      scope,
       ocrEnabled,
       checkBothOrientations,
       colorBarRegion,
@@ -583,6 +583,7 @@ export function useCardScanner({
     requestPhoneCapture,
   } = useCameraContext();
   const { activeCollection } = useCollections();
+  const { forceSetCode: preferredSetCode } = useScannedCards();
   const { activeOrg } = useOrg();
   const device = useDevice();
   const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
@@ -618,6 +619,8 @@ export function useCardScanner({
 
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
+  const preferredSetCodeRef = useRef(preferredSetCode);
+  preferredSetCodeRef.current = preferredSetCode;
 
   const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
   colorBarRegionRef.current =
@@ -735,15 +738,18 @@ export function useCardScanner({
           matched,
           noMatch,
         } = await searchCardImageWithConsensus(
-            canvas,
-            fromLiveVideo ? drawLatestVideoFrame : () => {},
-            contour,
-            activeCollectionGuidRef.current,
-            ocrEnabledRef.current,
-            matchesNeededRef.current,
-            checkBothOrientationsRef.current,
-            colorBarRegionRef.current,
-          );
+          canvas,
+          fromLiveVideo ? drawLatestVideoFrame : () => {},
+          contour,
+          {
+            collectionGuid: activeCollectionGuidRef.current,
+            preferredSetCode: preferredSetCodeRef.current,
+          },
+          ocrEnabledRef.current,
+          matchesNeededRef.current,
+          checkBothOrientationsRef.current,
+          colorBarRegionRef.current,
+        );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;
         vectorizedOnRef.current = vectorizedOn;

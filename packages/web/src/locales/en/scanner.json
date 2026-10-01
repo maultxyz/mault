@@ -221,7 +221,12 @@
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
-    "foilTooltip": "Foil type for scanned cards: {{type}}"
+    "foilTooltip": "Foil type for scanned cards: {{type}}",
+    "setTooltip": "Set for scanned cards: {{set}}",
+    "anySet": "Any set",
+    "setSearchPlaceholder": "Search sets",
+    "noSets": "No sets found",
+    "setHint": "Scanned cards use their printing from this set when one exists."
   },
   "scannerDebug": {
     "heading": "Debug",

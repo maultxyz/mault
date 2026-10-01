@@ -221,7 +221,12 @@
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
     "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
-    "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}"
+    "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
+    "setTooltip": "Set für gescannte Karten: {{set}}",
+    "anySet": "Beliebiges Set",
+    "setSearchPlaceholder": "Sets suchen",
+    "noSets": "Keine Sets gefunden",
+    "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt."
   },
   "scannerDebug": {
     "heading": "Debug",
