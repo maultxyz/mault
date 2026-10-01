@@ -4,7 +4,13 @@ export const WATCH_ROUTE_PREFIX = "/watch";
 export const WATCH_TOKEN_PARAM = "t";
 
 export const MOBILE_NAV_TAB_CLASS =
-  "flex min-h-14 flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors";
+  "flex h-11 flex-col items-center justify-center rounded-xl text-[10px] leading-tight font-medium transition-colors active:bg-secondary active:text-secondary-foreground data-[state=open]:bg-secondary data-[state=open]:text-secondary-foreground";
+export const MOBILE_NAV_SPACE_CLASS =
+  "[--mobile-nav-space:calc(4.5rem+env(safe-area-inset-bottom))]";
+export const MOBILE_NAV_SCROLL_PADDING_CLASS =
+  "pb-[var(--mobile-nav-space,0px)]";
+export const MOBILE_NAV_TAB_ACTIVE_CLASS =
+  "bg-secondary text-secondary-foreground";
 export const THEME_OPTIONS = ["light", "dark", "system"] as const;
 export const MOBILE_MORE_PATHS = ["/app/account", "/app/health"];
 export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;

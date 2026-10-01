@@ -19,7 +19,11 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { DONATE_URL } from "@/lib/constants/links";
-import { MOBILE_NAV_HIDDEN_PATTERN } from "@/lib/constants/nav";
+import {
+  MOBILE_NAV_HIDDEN_PATTERN,
+  MOBILE_NAV_SPACE_CLASS,
+} from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation } from "react-router-dom";
@@ -33,7 +37,12 @@ export default function AppLayout() {
   return (
     <AppProviders>
       {isMobile ? (
-        <div className="h-dvh w-dvw overflow-hidden flex flex-col bg-background pt-[env(safe-area-inset-top)]">
+        <div
+          className={cn(
+            "relative h-dvh w-dvw overflow-hidden flex flex-col bg-background pt-[env(safe-area-inset-top)]",
+            !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
+          )}
+        >
           <ImpersonationBanner />
           <AlertStack />
           <main className="flex-1 min-h-0 overflow-hidden flex flex-col">

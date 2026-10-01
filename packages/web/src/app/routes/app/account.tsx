@@ -1,3 +1,5 @@
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import {
   SettingsSection,
@@ -47,7 +49,12 @@ export default function AccountPage() {
       {isMobile && (
         <MobilePageHeader title={t("title")} subtitle={t("subtitle")} />
       )}
-      <div className="min-h-0 flex-1 w-full overflow-y-auto">
+      <div
+        className={cn(
+          "min-h-0 flex-1 w-full overflow-y-auto",
+          MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-3 md:p-6">
           {!isMobile && (
             <div>

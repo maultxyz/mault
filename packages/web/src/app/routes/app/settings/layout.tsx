@@ -1,3 +1,5 @@
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { SectionNav } from "@/components/section-nav";
 import { useBillingCheckoutReturn } from "@/features/billing/api/use-billing-checkout-return";
@@ -28,7 +30,12 @@ export default function SettingsLayout() {
         ) : (
           <MobilePageHeader title={t("title")} subtitle={t("subtitle")} />
         )}
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto",
+            MOBILE_NAV_SCROLL_PADDING_CLASS,
+          )}
+        >
           <div className="flex w-full flex-col gap-4 p-3">
             <Outlet />
           </div>

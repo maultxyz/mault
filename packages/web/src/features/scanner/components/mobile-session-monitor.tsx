@@ -1,4 +1,7 @@
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MobileCardDetailDrawer } from "@/features/scanner/components/mobile-card-detail-drawer";
 import { MobileMonitorActivity } from "@/features/scanner/components/mobile-monitor-activity";
@@ -109,39 +112,37 @@ export function MobileSessionMonitor({
             {toolbarLeading}
           </div>
         </div>
-        <div
-          role="tablist"
-          className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1"
-        >
+        <ButtonGroup role="tablist" className="w-full">
           {tabs.map((item) => {
             const active = tab === item.key;
             return (
-              <button
+              <Button
                 key={item.key}
-                type="button"
                 role="tab"
                 aria-selected={active}
+                variant={active ? "outline-selected" : "outline"}
+                className="h-8 flex-1 text-sm"
                 onClick={() => setTab(item.key)}
-                className={cn(
-                  "flex items-center justify-center gap-1.5 rounded-md py-1.5 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground",
-                )}
               >
                 {item.label}
                 {!!item.badge && (
-                  <span className="min-w-5 rounded-full bg-amber-500 px-1.5 text-[11px] leading-5 font-semibold text-white tabular-nums">
+                  <Badge variant="secondary" className="tabular-nums">
                     {item.badge}
-                  </span>
+                  </Badge>
                 )}
-              </button>
+              </Button>
             );
           })}
-        </div>
+        </ButtonGroup>
       </header>
 
-      <div data-scroll-root className="min-h-0 flex-1 overflow-y-auto">
+      <div
+        data-scroll-root
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto",
+          MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
         <div className="grid grid-cols-3 gap-2 px-3 pt-3">
           <MobileStatTile
             label={t("mobileMonitor.cards")}

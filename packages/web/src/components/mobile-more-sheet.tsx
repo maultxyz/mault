@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { getInitials } from "@/components/ui/initials-avatar";
 import { useSignOut } from "@/features/account/api/use-sign-out";
@@ -169,24 +170,19 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
             <h2 className="px-1 text-xs font-medium uppercase tracking-wide text-foreground/70">
               {t("mobileMenu.theme")}
             </h2>
-            <div className="grid grid-cols-3 gap-1 rounded-lg bg-muted p-1">
+            <ButtonGroup className="w-full">
               {THEME_OPTIONS.map((option) => (
-                <button
+                <Button
                   key={option}
-                  type="button"
                   aria-pressed={theme === option}
+                  variant={theme === option ? "outline-selected" : "outline"}
+                  className="h-8 flex-1 text-sm"
                   onClick={() => setTheme(option)}
-                  className={cn(
-                    "rounded-md py-2 text-sm font-medium transition-colors",
-                    theme === option
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground",
-                  )}
                 >
                   {t(`theme.${option}`)}
-                </button>
+                </Button>
               ))}
-            </div>
+            </ButtonGroup>
           </section>
 
           <section className="flex flex-col divide-y overflow-hidden rounded-lg border">

@@ -1,3 +1,5 @@
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
@@ -43,7 +45,12 @@ export default function HealthPage() {
           actions={refreshButton}
         />
       )}
-      <div className="min-h-0 flex-1 overflow-y-auto w-full">
+      <div
+        className={cn(
+          "min-h-0 flex-1 overflow-y-auto w-full",
+          MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
         <div className="flex flex-col p-3 md:p-6 max-w-2xl mx-auto w-full gap-4">
           {isMobile ? (
             syncNote

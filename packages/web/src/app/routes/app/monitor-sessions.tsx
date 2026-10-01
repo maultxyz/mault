@@ -1,3 +1,5 @@
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { getInitials, InitialsAvatar } from "@/components/ui/initials-avatar";
@@ -210,7 +212,12 @@ export default function MonitorSessionsPage() {
           subtitle={t("monitorSessions.subtitle")}
         />
       )}
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div
+        className={cn(
+          "flex-1 min-h-0 overflow-y-auto",
+          MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
         <div className="flex flex-col p-3 md:p-6 max-w-4xl mx-auto w-full gap-4">
           {!isMobile && (
             <div>
