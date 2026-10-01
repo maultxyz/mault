@@ -8,6 +8,10 @@ import {
   requireOrgRole,
   type AppEnv,
 } from "../../middleware/auth";
+import {
+  deleteScanImagePrefix,
+  orgScanImagePrefix,
+} from "../../lib/scan-images";
 import { authErrorResponse } from "./shared";
 
 export const deleteOrganizationRoute = new Hono<AppEnv>().delete(
@@ -26,6 +30,7 @@ export const deleteOrganizationRoute = new Hono<AppEnv>().delete(
         });
       });
       await purgeOrgBilling(orgId);
+      deleteScanImagePrefix(orgScanImagePrefix(orgId));
       return c.json({ success: true, data: null });
     } catch (err) {
       const { message, status } = authErrorResponse(err);

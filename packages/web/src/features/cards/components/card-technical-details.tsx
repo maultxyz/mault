@@ -90,6 +90,11 @@ export function CardTechnicalDetails({
               <Row label={t("technicalDetails.orientation")}>
                 {t(`technicalDetails.orientationValue.${diagnostics.orientation}`)}
               </Row>
+              {diagnostics.detectedColor !== undefined && (
+                <Row label={t("technicalDetails.detectedColor")}>
+                  {diagnostics.detectedColor ?? t("technicalDetails.noColor")}
+                </Row>
+              )}
             </>
           )}
         </dl>

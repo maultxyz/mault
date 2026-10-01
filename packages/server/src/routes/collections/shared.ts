@@ -83,14 +83,14 @@ export function toScannedCard(row: {
 
 export function toUnmatchedCard(row: {
   guid: string | null;
-  capturedImageDataUrl: string | null;
+  capturedImageUrl: string | undefined;
   scannedAt: Date;
   binNumber: number | null;
   diagnostics?: unknown;
 }): UnmatchedCard {
   return {
     scanId: row.guid!,
-    capturedImageUrl: row.capturedImageDataUrl ?? undefined,
+    capturedImageUrl: row.capturedImageUrl,
     scannedAt: row.scannedAt.getTime(),
     binNumber: row.binNumber ?? undefined,
     diagnostics:

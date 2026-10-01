@@ -6,6 +6,7 @@ export interface BillingStatus {
   cardsScannedToday: number;
   dailyLimit: number | null;
   maxConnectedSorters?: number | null;
+  maxSoundRules?: number | null;
 }
 
 export interface SupportPromptState {

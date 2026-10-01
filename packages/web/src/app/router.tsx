@@ -100,6 +100,7 @@ const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
 const SettingsPage = lazy(() => import("@/app/routes/app/settings"));
+const SoundsPage = lazy(() => import("@/app/routes/app/sounds"));
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 
@@ -316,6 +317,10 @@ export const router = createBrowserRouter([
               {
                 path: "/app/settings",
                 element: <SettingsPage />,
+              },
+              {
+                path: "/app/sounds",
+                element: <SoundsPage />,
               },
               {
                 path: "/app/health",

@@ -16,3 +16,10 @@ export interface OcrDiagnostics {
   matchedName: string | null;
   nameScore: number | null;
 }
+
+export interface ColorBarRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}

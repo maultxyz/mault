@@ -47,6 +47,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
+import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
@@ -101,6 +102,10 @@ export function ScannedCardsProvider({
   const { sendRoute, sendCommand, receiveResponse, isConnected, isReady } =
     useSerial();
   const { activeCollection, emptyCollection } = useCollections();
+  const playSoundForCard = useSoundRulePlayer(
+    activeCollection?.game?.guid,
+    fieldDefinitions,
+  );
 
   const { locks, currentUserId } = useCollectionLocks();
   const locksRef = useRef(locks);
@@ -414,6 +419,7 @@ export function ScannedCardsProvider({
       };
 
       recordSupportPromptScan();
+      playSoundForCard(card);
 
       if (record.binNumber != null && tracksBinContents()) {
         binContentsRef.current = [
@@ -532,6 +538,7 @@ export function ScannedCardsProvider({
       showJamToast,
       isBinFullLocally,
       trackPendingBinCard,
+      playSoundForCard,
     ],
   );
 

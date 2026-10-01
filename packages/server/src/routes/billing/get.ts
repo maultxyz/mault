@@ -4,6 +4,7 @@ import { authQuery } from "../../db";
 import { orgBilling } from "../../db/schema";
 import { getScansToday } from "../../lib/scan-usage";
 import { sorterLimitForPlan } from "../../lib/sorter-limit";
+import { soundRuleLimitForPlan } from "../../lib/sound-rule-limit";
 import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -32,6 +33,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
             cardsScannedToday: count,
             dailyLimit: plan === "business" ? null : FREE_PLAN_DAILY_SCAN_LIMIT,
             maxConnectedSorters: sorterLimitForPlan(plan),
+            maxSoundRules: soundRuleLimitForPlan(plan),
           },
         };
       });

@@ -3,6 +3,8 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
 import { Label } from "@/components/ui/label";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
+import { ConnectionSettingsPanel } from "@/features/calibration/components/connection-settings-panel";
+import { ExperimentalFeaturesPanel } from "@/features/calibration/components/experimental-features-panel";
 import { BinConfigurations } from "@/features/calibration/components/bin-configurations";
 import { BinRoutingControls } from "@/features/calibration/components/bin-routing-controls";
 import { IrSensorPanel } from "@/features/calibration/components/ir-sensor-panel";
@@ -64,6 +66,8 @@ export default function CalibrateModulesPage() {
 
   return (
     <>
+      <ConnectionSettingsPanel />
+      <ExperimentalFeaturesPanel />
       <IrSensorPanel
         modules={modules}
         irStates={irStates}

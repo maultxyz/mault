@@ -18,6 +18,7 @@ import {
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
+import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import {
@@ -41,6 +42,8 @@ import type {
 import { scanLog } from "@/lib/scan-log";
 import {
   CLOSE_MATCH_DELTA,
+  COLOR_BAR_REGIONS_BY_GAME_KEY,
+  type ColorBarRegion,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
@@ -266,9 +269,25 @@ function buildImageSearchFormData(
   return formData;
 }
 
+function preferDetectedColor(
+  resolved: ResolvedSearchMatches,
+  color: string | null,
+): ResolvedSearchMatches {
+  if (!color || !resolved.card) return resolved;
+  const all = [resolved.card, ...resolved.alternativeMatches];
+  const preferred = all.find((c) => c.colorIdentity?.includes(color));
+  if (!preferred || preferred === resolved.card) return resolved;
+  return {
+    ...resolved,
+    card: preferred,
+    alternativeMatches: all.filter((c) => c !== preferred),
+  };
+}
+
 async function toAttemptOutcome(
   best: OrientedSearchPick,
   collectionGuid: string | undefined,
+  colorBarRegion: ColorBarRegion | undefined,
   context: Pick<
     ScanAttemptOutcome,
     | "detectedContour"
@@ -279,9 +298,16 @@ async function toAttemptOutcome(
     | "matchedBy"
   >,
 ): Promise<ScanAttemptOutcome> {
+  const detectedColor = colorBarRegion
+    ? detectColorBar(best.canvas, colorBarRegion)
+    : null;
   return {
-    ...(await resolveSearchMatches(best.result, collectionGuid)),
+    ...preferDetectedColor(
+      await resolveSearchMatches(best.result, collectionGuid),
+      detectedColor,
+    ),
     ...context,
+    detectedColor,
     debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
     search: best.result.diagnostics ?? null,
     orientation: best.orientation,
@@ -298,6 +324,7 @@ async function searchCardImage(
   collectionGuid: string | undefined,
   ocrEnabled: boolean | undefined,
   checkBothOrientations: boolean,
+  colorBarRegion: ColorBarRegion | undefined,
 ): Promise<ScanAttemptOutcome> {
   let fallbackReason = "card not detected";
   let detection: ScanDetectionDiagnostics = {
@@ -355,7 +382,7 @@ async function searchCardImage(
               collectionGuid,
             )
           : null;
-      return toAttemptOutcome(text?.pick ?? best, collectionGuid, {
+      return toAttemptOutcome(text?.pick ?? best, collectionGuid, colorBarRegion, {
         detectedContour: corners.contour,
         vectorizedOn: "web",
         detection,
@@ -386,7 +413,7 @@ async function searchCardImage(
     },
   );
 
-  return toAttemptOutcome(best, collectionGuid, {
+  return toAttemptOutcome(best, collectionGuid, undefined, {
     detectedContour: null,
     vectorizedOn: "server",
     detection: { ...detection, fallbackReason },
@@ -438,6 +465,7 @@ function toScanOutcome(
           attempts: toAttemptDiagnostics(attempts),
           candidates: outcome.candidates,
           ocr: outcome.ocr,
+          detectedColor: outcome.detectedColor,
         },
       },
       noMatch: null,
@@ -479,6 +507,7 @@ async function searchCardImageWithConsensus(
   ocrEnabled: boolean | undefined,
   matchesNeeded: number,
   checkBothOrientations: boolean,
+  colorBarRegion: ColorBarRegion | undefined,
 ): Promise<ScanOutcome> {
   const attempts: ScanAttemptOutcome[] = [];
   const attempt = async () => {
@@ -489,6 +518,7 @@ async function searchCardImageWithConsensus(
       collectionGuid,
       ocrEnabled,
       checkBothOrientations,
+      colorBarRegion,
     );
     attempts.push(outcome);
     return outcome;
@@ -588,6 +618,10 @@ export function useCardScanner({
 
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
+
+  const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
+  colorBarRegionRef.current =
+    COLOR_BAR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""];
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -708,6 +742,7 @@ export function useCardScanner({
             ocrEnabledRef.current,
             matchesNeededRef.current,
             checkBothOrientationsRef.current,
+            colorBarRegionRef.current,
           );
         setDebugImageUrl(debugImageUrl);
         debugImageUrlRef.current = debugImageUrl;

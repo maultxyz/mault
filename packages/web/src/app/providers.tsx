@@ -20,6 +20,7 @@ import {
   useQuery,
 } from "@tanstack/react-query";
 import { useEffect } from "react";
+import { useSerialAutoConnect } from "@/features/scanner/api/use-serial-auto-connect";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +46,11 @@ function OrgThemeApplier() {
     }
   }, [data?.primaryColor]);
 
+  return null;
+}
+
+function SerialAutoConnect() {
+  useSerialAutoConnect();
   return null;
 }
 
@@ -74,6 +80,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
                   <DocumentTitleUpdater />
                 </OnboardingProvider>
               </StationScopes>
+              <SerialAutoConnect />
             </InitialLoadProvider>
           </StationsProvider>
         </AppStreamProvider>

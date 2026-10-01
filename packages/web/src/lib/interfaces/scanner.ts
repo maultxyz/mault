@@ -411,6 +411,7 @@ export interface ScanAttemptOutcome extends ResolvedSearchMatches {
   ocr: OcrDiagnostics | null;
   needsReview: boolean;
   matchedBy: ScanMatchSource;
+  detectedColor: string | null;
 }
 
 export interface ScanOutcome {

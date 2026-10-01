@@ -14,6 +14,7 @@ import {
   MAX_COMM_LOG_ENTRIES,
   type CommLogEntry,
 } from "@/features/scanner/lib/comm-log";
+import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
 import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import {
   isBusyResponse,
@@ -27,6 +28,10 @@ import {
   SerialTransport,
   type ByteTransport,
 } from "@/features/scanner/lib/transports";
+import {
+  BLE_RECONNECT_BASE_DELAY_MS,
+  BLE_RECONNECT_MAX_DELAY_MS,
+} from "@/lib/constants/bluetooth";
 import { SERIAL_PUSH_BLOCKED_ERROR } from "@/lib/constants/firmware";
 import {
   JAM_CLEAR_DEVICE_TIMEOUT_MS,
@@ -51,7 +56,7 @@ import type {
   SkippedRouteResponse,
   TestResult,
 } from "@/lib/interfaces/scanner";
-import type { PreTestHook } from "@/lib/interfaces/stations";
+import type { BleReconnectState, PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -426,14 +431,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         disconnect();
       }
     },
-    [
-      sendTest,
-      sendCommand,
-      disconnect,
-      t,
-      copyCommLog,
-      showSensorBlockedToast,
-    ],
+    [sendTest, sendCommand, disconnect, t, copyCommLog, showSensorBlockedToast],
   );
 
   useEffect(() => {
@@ -532,7 +530,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const openTransport = useCallback(
     async (
       newTransport: ByteTransport,
-      options?: { skipAutoTest?: boolean },
+      options?: { skipAutoTest?: boolean; autoConnect?: boolean },
     ): Promise<boolean> => {
       transportRef.current = newTransport;
       newTransport.onData(handleIncomingChunk);
@@ -549,7 +547,17 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       newTransport.onDisconnect(() => {
         if (transportRef.current === newTransport) {
           console.warn("[Device] Connection lost, disconnecting");
+          const lostGuid = leasedDeviceGuidRef.current;
+          const reconnectTo =
+            newTransport.kind === "bluetooth" &&
+            lostGuid &&
+            isAutoConnectDeviceRef.current(lostGuid)
+              ? (newTransport as BluetoothTransport).bluetoothDevice
+              : null;
           disconnect();
+          if (reconnectTo && lostGuid) {
+            startBluetoothReconnectRef.current(reconnectTo, lostGuid);
+          }
         }
       });
       await newTransport.start();
@@ -607,6 +615,16 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           }
           leasedDeviceGuidRef.current = boundDevice.guid;
           setLeasedDeviceGuid(boundDevice.guid);
+          if (newTransport.kind === "bluetooth") {
+            rememberBleDevice(
+              (newTransport as BluetoothTransport).bluetoothDevice.id,
+              boundDevice.guid,
+            );
+          }
+        }
+        if (options?.autoConnect && !boundDevice?.autoConnect) {
+          disconnect();
+          return;
         }
         if (options?.skipAutoTest) return;
         if (boundDevice && !boundDevice.setupCompletedAt) return;
@@ -661,6 +679,87 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     },
     [openTransport, t],
   );
+
+  const connectPort = useCallback(
+    async (port: SerialPort) => {
+      if (disconnectingRef.current) {
+        await disconnectingRef.current;
+      }
+      if (transportRef.current) return;
+      const transport = await SerialTransport.openGranted(port);
+      if (!transport) return;
+      await openTransport(transport, { autoConnect: true });
+    },
+    [openTransport],
+  );
+
+  const connectBluetoothDevice = useCallback(
+    async (device: BluetoothDevice) => {
+      if (disconnectingRef.current) {
+        await disconnectingRef.current;
+      }
+      if (transportRef.current) return;
+      const transport = await BluetoothTransport.connectDevice(device);
+      if (!transport) return;
+      if (transportRef.current) {
+        await transport.close();
+        return;
+      }
+      await openTransport(transport, { autoConnect: true });
+    },
+    [openTransport],
+  );
+
+  const isAutoConnectDeviceRef = useRef<(guid: string) => boolean>(() => false);
+  isAutoConnectDeviceRef.current = (guid: string) => {
+    const devices = queryClient.getQueryData(
+      devicesQueryOptions(activeOrg?.id).queryKey,
+    );
+    return !!devices?.find((d) => d.guid === guid)?.autoConnect;
+  };
+
+  const [bleReconnect] = useState<BleReconnectState>(() => ({ cancel: null }));
+  const cancelBluetoothReconnect = useCallback(() => {
+    bleReconnect.cancel?.();
+    bleReconnect.cancel = null;
+  }, [bleReconnect]);
+
+  const startBluetoothReconnect = useCallback(
+    (device: BluetoothDevice, deviceGuid: string) => {
+      cancelBluetoothReconnect();
+      let cancelled = false;
+      bleReconnect.cancel = () => {
+        cancelled = true;
+      };
+      void (async () => {
+        for (let attempt = 0; !cancelled; attempt++) {
+          await new Promise((resolve) =>
+            setTimeout(
+              resolve,
+              Math.min(
+                BLE_RECONNECT_BASE_DELAY_MS * 2 ** attempt,
+                BLE_RECONNECT_MAX_DELAY_MS,
+              ),
+            ),
+          );
+          if (
+            cancelled ||
+            transportRef.current ||
+            !isAutoConnectDeviceRef.current(deviceGuid)
+          ) {
+            return;
+          }
+          await connectBluetoothDevice(device);
+          if (transportRef.current) return;
+        }
+      })();
+    },
+    [bleReconnect, cancelBluetoothReconnect, connectBluetoothDevice],
+  );
+  const startBluetoothReconnectRef = useRef(startBluetoothReconnect);
+  startBluetoothReconnectRef.current = startBluetoothReconnect;
+
+  useEffect(() => cancelBluetoothReconnect, [cancelBluetoothReconnect]);
 
   const connectBluetooth = useCallback(
     async (options?: { skipAutoTest?: boolean }) => {
@@ -721,9 +820,18 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       stationsRef.current.registerConnector(station.id, {
         connect: () => connect(),
         connectBluetooth: () => connectBluetooth(),
+        connectPort,
+        connectBluetoothDevice,
         disconnect,
       }),
-    [station.id, connect, connectBluetooth, disconnect],
+    [
+      station.id,
+      connect,
+      connectBluetooth,
+      connectPort,
+      connectBluetoothDevice,
+      disconnect,
+    ],
   );
 
   const flashEsp32 = useCallback(

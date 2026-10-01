@@ -164,21 +164,6 @@ export function useCalibrationPage() {
     device?.checkBothOrientations ??
     DEFAULT_CHECK_BOTH_ORIENTATIONS;
 
-  const [pipelinedFeedDraft, setPipelinedFeedDraft] = useState<
-    boolean | null
-  >(null);
-  const isPipelinedFeedDirty = pipelinedFeedDraft !== null;
-  const pipelinedFeed = pipelinedFeedDraft ?? device?.pipelinedFeed ?? false;
-
-  const handlePipelinedFeedChange = useCallback(
-    (next: boolean) => {
-      setPipelinedFeedDraft(
-        next === (device?.pipelinedFeed ?? false) ? null : next,
-      );
-    },
-    [device?.pipelinedFeed],
-  );
-
   const handleScanRegionChange = useCallback((next: ScanRegion) => {
     setScanRegionDraft(next);
   }, []);
@@ -517,8 +502,7 @@ export function useCalibrationPage() {
     [modules, pendingCalibration],
   );
 
-  const isFeederModuleDirty =
-    isFeederDirty || dirtyModules.length > 0 || isPipelinedFeedDirty;
+  const isFeederModuleDirty = isFeederDirty || dirtyModules.length > 0;
   const isScanRegionSectionDirty =
     isScanRegionDirty ||
     isCaptureSettleDirty ||
@@ -555,19 +539,6 @@ export function useCalibrationPage() {
           return next;
         });
       }
-      if (isPipelinedFeedDirty && device) {
-        const result = await saveDevice(device.guid, { pipelinedFeed }).catch(
-          () => null,
-        );
-        if (!result?.success) {
-          toast.error(t("useCalibrationPage.toasts.saveCalibrationFailed"));
-          return;
-        }
-        await queryClient.invalidateQueries({
-          queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
-        });
-        setPipelinedFeedDraft(null);
-      }
       toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
     } catch {
     } finally {
@@ -575,11 +546,6 @@ export function useCalibrationPage() {
     }
   }, [
     isFeederDirty,
-    isPipelinedFeedDirty,
-    device,
-    pipelinedFeed,
-    queryClient,
-    activeOrg?.id,
     dirtyModules,
     feederConfig,
     feederSpeedValue,
@@ -626,7 +592,6 @@ export function useCalibrationPage() {
 
   const handleDiscardFeederModuleCalibration = useCallback(() => {
     setPendingCalibration({});
-    setPipelinedFeedDraft(null);
     setFeederSpeedValue(feederConfig.speed);
     setFeederDurationValue(feederConfig.duration);
     setFeederPulseDurationValue(feederConfig.pulseDuration);
@@ -849,8 +814,6 @@ export function useCalibrationPage() {
     handleFeederPauseDurationChange,
     handleFeederSettleDurationChange,
     handleFeederSelectContinuous,
-    pipelinedFeed,
-    handlePipelinedFeedChange,
     scanRegion,
     captureSettleDelayMs,
     matchesNeeded,

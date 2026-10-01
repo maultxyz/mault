@@ -246,6 +246,8 @@
     "cardJson": "Card data (JSON)",
     "copyJson": "Copy JSON",
     "copied": "Card JSON copied.",
-    "copyFailed": "Couldn't copy the card JSON."
+    "copyFailed": "Couldn't copy the card JSON.",
+    "detectedColor": "Detected color bar",
+    "noColor": "None"
   }
 }

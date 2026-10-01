@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { resolveScanImageUrl } from "../../lib/scan-images";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 // GET /collections/:guid/cards/:scanId/image — the scanned photo, fetched on
@@ -18,12 +19,12 @@ export const collectionCardImageRoute = new Hono<AppEnv>().get(
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const existing = await tx.query.collectionCards.findFirst({
           where: (t, { eq, and }) => and(eq(t.guid, scanId), eq(t.orgId, orgId)),
-          columns: { capturedImageDataUrl: true },
+          columns: { capturedImageDataUrl: true, capturedImageKey: true },
         });
         if (!existing) return { success: false, message: "Card not found." };
         return {
           success: true,
-          data: { capturedImageUrl: existing.capturedImageDataUrl ?? undefined },
+          data: { capturedImageUrl: await resolveScanImageUrl(existing) },
         };
       });
       return c.json(result);
