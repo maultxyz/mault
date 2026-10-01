@@ -1,5 +1,6 @@
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -125,84 +126,45 @@ export function ScannerControls({
   return (
     <div
       className={cn(
-        "flex flex-wrap gap-1.5",
+        "flex flex-wrap gap-2",
         orientation === "vertical"
           ? "flex-col content-start"
           : "flex-row items-center",
       )}
     >
-      <ScannerControlButton
-        tooltip={
-          status === "no-match"
-            ? t("scannerControls.scanAgain")
-            : t("scannerControls.scanNow")
-        }
-        hotkey="scanNow"
-        onClick={onForceScan}
-        disabled={!canForceScan}
-      >
-        <IconFocus2 />
-      </ScannerControlButton>
-      {status === "paused" ? (
-        <ScannerControlButton
-          tooltip={t("scannerControls.resume")}
-          hotkey="scanPauseResume"
-          onClick={onResume}
-        >
-          <IconPlayerPlay />
-        </ScannerControlButton>
-      ) : (
-        <ScannerControlButton
-          tooltip={t("scannerControls.pause")}
-          hotkey="scanPauseResume"
-          onClick={onPause}
-        >
-          <IconPlayerPause />
-        </ScannerControlButton>
-      )}
-      <DropdownMenu>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant={forceFoilType ? "outline-selected" : "outline"}
-                    size="icon"
-                    aria-label={foilTooltip}
-                  >
-                    <IconSparkles />
-                  </Button>
-                }
-              />
-            }
-          />
-          <TooltipContent>
-            {foilTooltip}
-            <HotkeyHint id="scanCycleFoil" />
-          </TooltipContent>
-        </Tooltip>
-        <DropdownMenuContent align="start">
-          <DropdownMenuRadioGroup
-            value={forceFoilType ?? "none"}
-            onValueChange={(value: string) =>
-              setForceFoilType(value === "none" ? null : value)
-            }
+      <ButtonGroup orientation={orientation}>
+        {status === "paused" ? (
+          <ScannerControlButton
+            tooltip={t("scannerControls.resume")}
+            hotkey="scanPauseResume"
+            onClick={onResume}
           >
-            <DropdownMenuRadioItem value="none">
-              {tCards("foilNone")}
-            </DropdownMenuRadioItem>
-            {foilOptions.map((type) => (
-              <DropdownMenuRadioItem key={type} value={type}>
-                {type}
-              </DropdownMenuRadioItem>
-            ))}
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-      <ForcedSetPicker />
+            <IconPlayerPlay />
+          </ScannerControlButton>
+        ) : (
+          <ScannerControlButton
+            tooltip={t("scannerControls.pause")}
+            hotkey="scanPauseResume"
+            onClick={onPause}
+          >
+            <IconPlayerPause />
+          </ScannerControlButton>
+        )}
+        <ScannerControlButton
+          tooltip={
+            status === "no-match"
+              ? t("scannerControls.scanAgain")
+              : t("scannerControls.scanNow")
+          }
+          hotkey="scanNow"
+          onClick={onForceScan}
+          disabled={!canForceScan}
+        >
+          <IconFocus2 />
+        </ScannerControlButton>
+      </ButtonGroup>
       {isConnected && (
-        <>
+        <ButtonGroup orientation={orientation}>
           <ScannerControlButton
             tooltip={
               isFeeding
@@ -241,8 +203,51 @@ export function ScannerControls({
           >
             <IconArrowBarToDown />
           </ScannerControlButton>
-        </>
+        </ButtonGroup>
       )}
+      <ButtonGroup orientation={orientation}>
+        <DropdownMenu>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <DropdownMenuTrigger
+                  render={
+                    <Button
+                      variant={forceFoilType ? "outline-selected" : "outline"}
+                      size="icon"
+                      aria-label={foilTooltip}
+                    >
+                      <IconSparkles />
+                    </Button>
+                  }
+                />
+              }
+            />
+            <TooltipContent>
+              {foilTooltip}
+              <HotkeyHint id="scanCycleFoil" />
+            </TooltipContent>
+          </Tooltip>
+          <DropdownMenuContent align="start">
+            <DropdownMenuRadioGroup
+              value={forceFoilType ?? "none"}
+              onValueChange={(value: string) =>
+                setForceFoilType(value === "none" ? null : value)
+              }
+            >
+              <DropdownMenuRadioItem value="none">
+                {tCards("foilNone")}
+              </DropdownMenuRadioItem>
+              {foilOptions.map((type) => (
+                <DropdownMenuRadioItem key={type} value={type}>
+                  {type}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <ForcedSetPicker />
+      </ButtonGroup>
       <ScannerDebug />
     </div>
   );
