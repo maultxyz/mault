@@ -11,6 +11,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatchesByText,
+  parsePreferredSetCode,
   parseEmbeddingField,
 } from "./shared";
 
@@ -78,6 +79,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
         lang,
         embeddings: { embedding },
         readout,
+        preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
       });
       scanLog(
         `[ocr] game=${gameKey} lang=${lang} name=${JSON.stringify(readout.name)} setLine=${JSON.stringify(readout.setLine)} closestName=${result.ocr.matchedName ? `${JSON.stringify(result.ocr.matchedName)} (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${result.data ? `matched ${result.data[0].cardId} at ${result.data[0].distance.toFixed(3)}` : "no match"}`,

@@ -16,6 +16,7 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
+import { ForcedSetPicker } from "@/features/scanner/components/forced-set-picker";
 import { ScannerDebug } from "@/features/scanner/components/scanner-debug";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -199,6 +200,7 @@ export function ScannerControls({
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
       </DropdownMenu>
+      <ForcedSetPicker />
       {isConnected && (
         <>
           <ScannerControlButton

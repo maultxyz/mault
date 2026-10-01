@@ -55,3 +55,9 @@ export interface PlayingCardWithDistance extends PlayingCard {
   distance: number;
   confidence?: number;
 }
+
+export interface CardSetOption {
+  code: string;
+  name: string;
+  cardCount: number;
+}

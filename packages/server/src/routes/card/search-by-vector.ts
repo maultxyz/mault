@@ -7,6 +7,7 @@ import {
   attachMatchedCards,
   findCardMatches,
   parseEmbeddingField,
+  parsePreferredSetCode,
 } from "./shared";
 
 export const searchByVectorRoute = new Hono<AppEnv>().post(
@@ -43,6 +44,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
         gameKey,
         lang,
         embeddings,
+        preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
       });
       return c.json(await attachMatchedCards(result, gameKey, lang));
     } catch (err) {

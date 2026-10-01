@@ -194,6 +194,7 @@ export function ScannedCardsProvider({
 
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);
+  const [forceSetCode, setForceSetCode] = useState<string | null>(null);
 
   useEffect(() => {
     binConfigsRef.current = binConfigs;
@@ -288,6 +289,7 @@ export function ScannedCardsProvider({
     const next = activeCollection?.guid;
     if (prev && prev !== next) {
       releaseScanLock(prev).catch(() => {});
+      setForceSetCode(null);
     }
     prevCollectionGuidRef.current = next;
     activeCollectionRef.current = activeCollection;
@@ -881,11 +883,13 @@ export function ScannedCardsProvider({
         isLoading,
         autoFeed,
         forceFoilType,
+        forceSetCode,
         elapsedMs,
         isTimerActive,
         setScannerRunning,
         setAutoFeed,
         setForceFoilType,
+        setForceSetCode,
         registerCardArrivedHook,
         registerPauseHook,
         registerResumeHook,

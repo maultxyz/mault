@@ -79,6 +79,12 @@ export function parseEmbeddingField(value: unknown): number[] | null {
   }
 }
 
+export function parsePreferredSetCode(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim().length > 0
+    ? value.trim()
+    : undefined;
+}
+
 export interface CardMatchSearchResult {
   message: string;
   success: true;
@@ -93,10 +99,12 @@ export async function findCardMatches(
     gameKey,
     lang,
     embeddings,
+    preferredSetCode,
   }: {
     gameKey: string;
     lang: string;
     embeddings: CardSearchEmbeddings;
+    preferredSetCode?: string;
   },
 ): Promise<CardMatchSearchResult> {
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
@@ -197,7 +205,33 @@ export async function findCardMatches(
       };
     }
 
-    const matchList: SearchCardMatch[] = rows.map(
+    const [leader] = rows;
+    const preferred = preferredSetCode
+      ? await tx.execute(sql`
+          SELECT card_id, embedding <=> ${embeddingStr}::vector(128) AS distance
+          FROM cards
+          WHERE game_key = ${gameKey}
+            AND lang = ${lang}
+            AND name = ${leader.name}
+            AND lower(set_code) = lower(${preferredSetCode})
+          ORDER BY distance
+          LIMIT 1
+        `)
+      : null;
+    const preferredRow = preferred?.rows[0];
+    const accepted = preferredRow
+      ? [
+          {
+            ...leader,
+            id: preferredRow.card_id as string,
+            cardId: preferredRow.card_id as string,
+            distance: preferredRow.distance as number,
+          },
+          ...rows.filter((row) => row.name !== leader.name),
+        ]
+      : rows;
+
+    const matchList: SearchCardMatch[] = accepted.map(
       ({ id, cardId, distance, confidence }) => ({
         id,
         cardId,
@@ -252,11 +286,13 @@ export async function findCardMatchesByText(
     lang,
     embeddings,
     readout,
+    preferredSetCode,
   }: {
     gameKey: string;
     lang: string;
     embeddings: CardSearchEmbeddings;
     readout: OcrReadout;
+    preferredSetCode?: string;
   },
 ): Promise<CardTextMatchResult> {
   const nameQueries = ocrNameQueries(readout.name);
@@ -315,9 +351,14 @@ export async function findCardMatchesByText(
         setCode: row.set_code as string,
         distance: row.distance as number,
         setLineMatch: matchesSetLine(row.set_code as string, setLineTokens),
+        isPreferredSet:
+          !!preferredSetCode &&
+          (row.set_code as string).toLowerCase() ===
+            preferredSetCode.toLowerCase(),
       }))
       .sort(
         (a, b) =>
+          Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
           Number(b.setLineMatch) - Number(a.setLineMatch) ||
           a.distance - b.distance,
       );
@@ -355,7 +396,9 @@ export async function attachMatchedCards<T extends CardMatchSearchResult>(
     matches.map(async (match) => {
       if (match.distance - leaderDistance > CLOSE_MATCH_DELTA) return match;
       const found = await searchCardById(resolved, match.cardId);
-      return found.success && found.data ? { ...match, card: found.data } : match;
+      return found.success && found.data
+        ? { ...match, card: found.data }
+        : match;
     }),
   );
   return { ...result, data };
