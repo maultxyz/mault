@@ -95,7 +95,8 @@
     "pushBlocked": {
       "title": "Poussoir bloqué",
       "description": "Une carte se trouve sur la plateforme du module {{module}}. Abaisse d'abord sa palette latérale avant de déplacer le poussoir."
-    }
+    },
+    "deviceReadyNoTest": "Appareil prêt (autotest ignoré)"
   },
   "sessionMonitor": {
     "connectionLost": "Connexion à la session perdue."

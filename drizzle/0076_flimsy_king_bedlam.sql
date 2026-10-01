@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD COLUMN "test_on_connect" boolean DEFAULT true NOT NULL;

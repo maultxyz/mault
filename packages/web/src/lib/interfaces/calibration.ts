@@ -1,4 +1,3 @@
-import type { DevicePatch } from "@/features/calibration/api/devices";
 import type { ReactNode } from "react";
 import type {
   BinHeight,
@@ -153,7 +152,22 @@ export interface SetupWizardContextValue {
   forceSetup: () => Promise<void>;
 }
 
-export interface DeviceSettingsChange {
-  guid: string;
-  patch: DevicePatch;
+export type DeviceToggleKey = "autoConnect" | "testOnConnect" | "pipelinedFeed";
+
+export type DeviceToggles = Record<DeviceToggleKey, boolean>;
+
+export interface DeviceTogglesDraft {
+  values: DeviceToggles;
+  isLoaded: boolean;
+  isDirty: boolean;
+  isSaving: boolean;
+  set: (key: DeviceToggleKey, value: boolean) => void;
+  commit: () => Promise<void>;
+  discard: () => void;
+}
+
+export interface DeviceTogglePanelProps {
+  values: DeviceToggles;
+  isLoaded: boolean;
+  onChange: (key: DeviceToggleKey, value: boolean) => void;
 }

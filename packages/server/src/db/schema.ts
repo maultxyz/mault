@@ -173,6 +173,7 @@ export const devices = pgTable(
     setupCompletedAt: timestamp("setup_completed_at"),
     pipelinedFeed: boolean("pipelined_feed").notNull().default(false),
     autoConnect: boolean("auto_connect").notNull().default(false),
+    testOnConnect: boolean("test_on_connect").notNull().default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

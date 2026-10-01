@@ -39,8 +39,7 @@
     "title": "Experimentell",
     "badge": "Beta",
     "pipelinedFeedLabel": "Nächste Karte während des Sortierens scannen",
-    "pipelinedFeedDescription": "Führt die nächste Karte zu und scannt sie, sobald die vorherige Modul 1 verlassen hat, statt zu warten, bis sie ihr Fach erreicht. Erfordert Firmware 2.1.0 oder neuer und aktivierte automatische Zufuhr. Schalte dies aus, wenn Karten klemmen oder Scans die sich bewegende Karte erfassen.",
-    "saveFailed": "Die experimentelle Einstellung konnte nicht gespeichert werden."
+    "pipelinedFeedDescription": "Führt die nächste Karte zu und scannt sie, sobald die vorherige Modul 1 verlassen hat, statt zu warten, bis sie ihr Fach erreicht. Erfordert Firmware 2.1.0 oder neuer und aktivierte automatische Zufuhr. Schalte dies aus, wenn Karten klemmen oder Scans die sich bewegende Karte erfassen."
   },
   "sections": {
     "moduleSetup": "Module & Routing",
@@ -375,6 +374,7 @@
     "title": "Verbindung",
     "autoConnectLabel": "Beim Einstecken automatisch verbinden",
     "autoConnectDescription": "Wenn dieser Sortierer per USB eingesteckt wird, während die App offen ist (oder beim Laden der App schon eingesteckt ist), verbindet er sich selbst und führt seinen Selbsttest aus, damit er scanbereit ist. Über Bluetooth versucht die App nach einem Verbindungsabbruch oder Neustart so lange erneut zu verbinden, bis der Tab geschlossen wird. Verbinde ihn zuerst einmal manuell in diesem Browser, damit der Browser es erlaubt.",
-    "saveFailed": "Die Einstellung für automatisches Verbinden konnte nicht gespeichert werden."
+    "testOnConnectLabel": "Selbsttest beim Verbinden",
+    "testOnConnectDescription": "Wenn aktiviert, bewegt der Sortierer bei jeder Verbindung alle Servos und prüft seine Sensoren. Wenn deaktiviert, lädt er nur seine gespeicherte Kalibrierung und ist sofort bereit. Den Test kannst du weiterhin auf der Kalibrierungsseite ausführen."
   }
 }

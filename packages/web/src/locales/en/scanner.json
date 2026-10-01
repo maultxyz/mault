@@ -95,7 +95,8 @@
     "pushBlocked": {
       "title": "Pusher blocked",
       "description": "A card is on module {{module}}'s platform. Lower its side paddle before moving the pusher."
-    }
+    },
+    "deviceReadyNoTest": "Device ready (self-test skipped)"
   },
   "sessionMonitor": {
     "connectionLost": "Connection to session lost."

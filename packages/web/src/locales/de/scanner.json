@@ -95,7 +95,8 @@
     "pushBlocked": {
       "title": "Schieber blockiert",
       "description": "Auf der Plattform von Modul {{module}} liegt eine Karte. Senke zuerst das seitliche Paddel, bevor du den Schieber bewegst."
-    }
+    },
+    "deviceReadyNoTest": "Gerät bereit (Selbsttest übersprungen)"
   },
   "sessionMonitor": {
     "connectionLost": "Verbindung zur Sitzung verloren."

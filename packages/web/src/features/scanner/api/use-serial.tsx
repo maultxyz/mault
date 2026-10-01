@@ -402,15 +402,29 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return cleanup;
   }, [clearSensorBlocked]);
 
+  const runPreTestHooks = useCallback(async (forDevice: Device | undefined) => {
+    for (const hook of [...preTestHooksRef.current]) {
+      try {
+        await hook(forDevice);
+      } catch (e) {
+        console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
+      }
+    }
+  }, []);
+
+  const syncWithoutTest = useCallback(
+    async (forTransport: ByteTransport, forDevice: Device) => {
+      await runPreTestHooks(forDevice);
+      if (transportRef.current !== forTransport) return;
+      setIsReady(true);
+      toast.success(t("serial.deviceReadyNoTest"));
+    },
+    [runPreTestHooks, t],
+  );
+
   const runConnectTest = useCallback(
     async (forTransport: ByteTransport, forDevice: Device | undefined) => {
-      for (const hook of [...preTestHooksRef.current]) {
-        try {
-          await hook(forDevice);
-        } catch (e) {
-          console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
-        }
-      }
+      await runPreTestHooks(forDevice);
       if (transportRef.current !== forTransport) return;
       toast.info(t("serial.testingDevice"));
       const { ok, error: testError, blockedModule } = await sendTest();
@@ -446,7 +460,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         disconnect();
       }
     },
-    [sendTest, sendCommand, disconnect, t, copyCommLog, showSensorBlockedToast],
+    [
+      runPreTestHooks,
+      sendTest,
+      sendCommand,
+      disconnect,
+      t,
+      copyCommLog,
+      showSensorBlockedToast,
+    ],
   );
 
   useEffect(() => {
@@ -643,6 +665,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         }
         if (options?.skipAutoTest) return;
         if (boundDevice && !boundDevice.setupCompletedAt) return;
+        if (boundDevice && !boundDevice.testOnConnect) {
+          await syncWithoutTest(newTransport, boundDevice);
+          return;
+        }
         await runConnectTest(newTransport, boundDevice);
       })();
 
@@ -657,6 +683,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       bindBoard,
       bindUnidentifiedBoard,
       runConnectTest,
+      syncWithoutTest,
       disconnect,
       t,
     ],

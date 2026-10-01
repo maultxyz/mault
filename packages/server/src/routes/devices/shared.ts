@@ -20,6 +20,7 @@ export function toDevice(row: {
   setupCompletedAt: Date | null;
   pipelinedFeed: boolean;
   autoConnect: boolean;
+  testOnConnect: boolean;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -38,6 +39,7 @@ export function toDevice(row: {
     setupCompletedAt: row.setupCompletedAt?.toISOString() ?? null,
     pipelinedFeed: row.pipelinedFeed,
     autoConnect: row.autoConnect,
+    testOnConnect: row.testOnConnect,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
