@@ -172,5 +172,11 @@
       "binsSkipped_one": "{{count}} bin was skipped because this sorter has fewer bins.",
       "binsSkipped_other": "{{count}} bins were skipped because this sorter has fewer bins."
     }
+  },
+  "scanRuleFields": {
+    "foil": "Foil",
+    "foilType": "Foil type",
+    "foilOption": "Foil",
+    "nonFoilOption": "Non-foil"
   }
 }

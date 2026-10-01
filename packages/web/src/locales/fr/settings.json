@@ -1,6 +1,14 @@
 {
   "title": "Paramètres",
-  "subtitle": "Gère ton organisation, l'apparence et les notifications",
+  "subtitle": "Organisation, facturation, scan, sons et intégrations",
+  "sections": {
+    "general": "Général",
+    "organization": "Organisation",
+    "billing": "Facturation",
+    "scanning": "Scan",
+    "sounds": "Sons",
+    "integrations": "Intégrations"
+  },
   "organizations": {
     "heading": "Organisations"
   },

@@ -1,6 +1,14 @@
 {
   "title": "Settings",
-  "subtitle": "Manage your organization, appearance, and notifications",
+  "subtitle": "Organization, billing, scanning, sounds and integrations",
+  "sections": {
+    "general": "General",
+    "organization": "Organization",
+    "billing": "Billing",
+    "scanning": "Scanning",
+    "sounds": "Sounds",
+    "integrations": "Integrations"
+  },
   "organizations": {
     "heading": "Organizations"
   },

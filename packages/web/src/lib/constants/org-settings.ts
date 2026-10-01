@@ -4,6 +4,7 @@ export interface OrgSettings {
   primaryColor: string | null;
   scannerLayout: "horizontal" | "vertical";
   discordNotifyOnScan: boolean;
+  discordScanUseThreads: boolean;
   sessionWrappedEnabled: boolean;
   ocrEnabled: boolean;
   priceSource: PriceSource;
@@ -14,6 +15,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   primaryColor: null,
   scannerLayout: "horizontal",
   discordNotifyOnScan: false,
+  discordScanUseThreads: true,
   sessionWrappedEnabled: true,
   ocrEnabled: false,
   priceSource: DEFAULT_PRICE_SOURCE,

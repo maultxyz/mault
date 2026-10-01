@@ -1,14 +1,7 @@
 import { SectionHeading } from "@/components/section-heading";
 import { useTranslation } from "react-i18next";
 
-const COMMANDS = [
-  "link",
-  "stats",
-  "scanning",
-  "notification",
-  "clear",
-  "help",
-] as const;
+const COMMANDS = ["link", "stats"] as const;
 
 export function DiscordBotCommands() {
   const { t } = useTranslation("discordBot");

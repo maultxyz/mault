@@ -187,6 +187,8 @@ export interface PushTest {
 export interface SerialContextValue {
   isConnected: boolean;
   isReady: boolean;
+  sensorBlockedModule: number | null;
+  reopenSensorBlockedToast: () => void;
   firmwareVersion: string | null;
   board: SerialBoardType | null;
   deviceId: string | null;
@@ -244,6 +246,8 @@ export interface ScannerOverlayProps {
   isCameraActive: boolean;
   isConnected: boolean;
   isReady: boolean;
+  sensorBlockedModule: number | null;
+  onResolveSensorBlocked: () => void;
   firmwareVersion: string | null;
   hasCatchAll: boolean;
   autoFeed: boolean;

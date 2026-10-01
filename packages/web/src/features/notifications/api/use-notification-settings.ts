@@ -11,7 +11,10 @@ import { toast } from "@/lib/toast";
 import type { NotificationTestType } from "./notification-settings";
 import { sendTestNotification } from "./notification-settings";
 
-type NotificationSettingsPatch = Pick<OrgSettings, "discordNotifyOnScan">;
+type NotificationSettingsPatch = Pick<
+  OrgSettings,
+  "discordNotifyOnScan" | "discordScanUseThreads"
+>;
 
 export function useNotificationSettings() {
   const { t } = useTranslation("notifications");
@@ -22,6 +25,7 @@ export function useNotificationSettings() {
   const { data, isLoading } = useQuery(queryOpts);
   const settings = {
     discordNotifyOnScan: data?.discordNotifyOnScan ?? false,
+    discordScanUseThreads: data?.discordScanUseThreads ?? true,
   };
 
   const saveMutation = useMutation({

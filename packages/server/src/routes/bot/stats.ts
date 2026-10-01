@@ -1,8 +1,10 @@
-import { formatPrice, PRICE_SOURCE_FIELDS } from "@magic-vault/shared";
-import { count, eq, sql } from "drizzle-orm";
+import { formatPrice, type PlayingCard } from "@magic-vault/shared";
+import { and, count, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { collectionCards, collections } from "../../db/schema";
+import { scannedCardPriceSql } from "../../lib/card-price-sql";
+import { resolveImageUrl } from "../../lib/discord";
 import { loadOrgPriceSource } from "../../lib/price-source";
 import type { AppEnv } from "../../middleware/auth";
 import { resolveOrgByGuild, resolveOrgCollection } from "./shared";
@@ -26,7 +28,7 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
   }
 
   const priceSource = await loadOrgPriceSource(db, orgId);
-  const priceKey = PRICE_SOURCE_FIELDS[priceSource].price;
+  const cardPrice = scannedCardPriceSql(priceSource);
   const scopeCondition = collection
     ? eq(collections.id, collection.id)
     : eq(collections.orgId, orgId);
@@ -35,14 +37,27 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
     .select({
       collectionCount: sql<number>`count(distinct ${collections.id})`,
       cardCount: count(collectionCards.id),
-      totalValue: sql<
-        string | null
-      >`sum((${collectionCards.card}->>${priceKey}::text)::numeric)`,
+      totalValue: sql<number | null>`sum(${cardPrice})`,
     })
     .from(collections)
     .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
     .where(scopeCondition);
 
+  const [top] = await db
+    .select({
+      card: collectionCards.card,
+      isFoil: collectionCards.isFoil,
+      foilType: collectionCards.foilType,
+      collectionName: collections.name,
+      price: cardPrice,
+    })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .where(and(scopeCondition, isNotNull(cardPrice)))
+    .orderBy(desc(cardPrice))
+    .limit(1);
+
+  const topCard = top?.card as PlayingCard | undefined;
   const totalValue = row?.totalValue ? Number(row.totalValue) : 0;
   return c.json({
     success: true,
@@ -52,6 +67,19 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
       totalValue,
       totalValueDisplay: formatPrice(totalValue, priceSource),
       collectionName: collection?.name,
+      topCard:
+        top && topCard
+          ? {
+              name: topCard.name,
+              setName: topCard.setName || null,
+              foil: top.isFoil ? (top.foilType ?? "Foil") : null,
+              collectionName: top.collectionName,
+              priceDisplay: formatPrice(Number(top.price), priceSource),
+              imageUrl: topCard.image?.normal
+                ? resolveImageUrl(topCard.image.normal)
+                : null,
+            }
+          : null,
     },
   });
 });

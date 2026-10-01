@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Switch } from "@/components/ui/switch";
@@ -27,6 +28,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
   const { t } = useTranslation("sounds");
@@ -78,16 +80,10 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
   };
 
   return (
-    <section className="flex flex-col gap-3 rounded-lg border p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="font-heading text-sm font-semibold">
-            {t("rules.heading")}
-          </h2>
-          <p className="mt-0.5 text-sm text-foreground/70">
-            {t("rules.description")}
-          </p>
-        </div>
+    <SettingsSection
+      heading={t("rules.heading")}
+      description={t("rules.description")}
+      action={
         <Button
           onClick={() => openDialog(null)}
           disabled={clips.length === 0 || atRuleLimit}
@@ -95,14 +91,15 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
           <IconPlus />
           {t("rules.add")}
         </Button>
-      </div>
+      }
+    >
 
       {atRuleLimit && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-muted p-3">
           <p className="text-sm text-muted-foreground">
             {t("rules.limitReached", { count: ruleLimit })}
           </p>
-          <Button variant="outline" onClick={() => navigate("/app/settings")}>
+          <Button variant="outline" onClick={() => navigate(SETTINGS_PATHS.billing)}>
             {t("rules.upgrade")}
           </Button>
         </div>
@@ -199,6 +196,6 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
         gameGuid={gameGuid}
         clips={clips}
       />
-    </section>
+    </SettingsSection>
   );
 }

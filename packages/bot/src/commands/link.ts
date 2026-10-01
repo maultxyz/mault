@@ -19,7 +19,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption((opt) =>
     opt
       .setName("code")
-      .setDescription("The code shown on Magic Vault's Settings page")
+      .setDescription("The code shown on Magic Vault's Integrations page")
       .setRequired(true),
   );
 

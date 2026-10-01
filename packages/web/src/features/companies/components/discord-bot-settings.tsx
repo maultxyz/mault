@@ -53,15 +53,8 @@ export function DiscordBotSettings() {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-sm font-semibold font-heading">
-        {t("discordBot.heading")}
-      </h2>
-      <p className="text-xs text-muted-foreground">
-        {t("discordBot.description")}
-      </p>
-
       {isLinked ? (
-        <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2">
+        <div className="flex items-center justify-between gap-3">
           <span className="text-sm">{t("discordBot.linked")}</span>
           <Button
             variant="outline-destructive"
@@ -73,7 +66,7 @@ export function DiscordBotSettings() {
           </Button>
         </div>
       ) : pending ? (
-        <div className="flex flex-col gap-2 rounded-lg border px-3 py-2">
+        <div className="flex flex-col gap-2 rounded-lg bg-muted px-3 py-2">
           <p className="text-xs text-muted-foreground">
             {t("discordBot.codeInstructions")}
           </p>

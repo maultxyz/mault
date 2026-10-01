@@ -95,7 +95,8 @@
     "pushBlocked": {
       "title": "Pusher blocked",
       "description": "A card is on module {{module}}'s platform. Lower its side paddle before moving the pusher."
-    }
+    },
+    "deviceReadyNoTest": "Device ready (self-test skipped)"
   },
   "sessionMonitor": {
     "connectionLost": "Connection to session lost."
@@ -291,7 +292,9 @@
     "noCameraTitle": "No camera connected",
     "connectCameraButton": "Connect camera",
     "waitingForPhoneTitle": "Waiting for your phone",
-    "showQrCode": "Show QR code"
+    "showQrCode": "Show QR code",
+    "sensorBlocked": "Module {{module}}'s sensor sees a card, so the self-test didn't run.",
+    "resolveSensorBlocked": "Resolve"
   },
   "sessionErrorsPanel": {
     "heading": "Errors"

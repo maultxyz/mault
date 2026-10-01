@@ -44,6 +44,7 @@ export interface BinConfigsContextValue {
   configs: BinConfig[];
   sets: BinSet[];
   fieldDefinitions: FieldMeta[];
+  ruleFieldDefinitions: FieldMeta[];
   gameKey: string | null;
   hasGame: boolean;
   hasCollection: boolean;

@@ -172,5 +172,11 @@
       "binsSkipped_one": "{{count}} bac a été ignoré car ce trieur a moins de bacs.",
       "binsSkipped_other": "{{count}} bacs ont été ignorés car ce trieur a moins de bacs."
     }
+  },
+  "scanRuleFields": {
+    "foil": "Foil",
+    "foilType": "Type de foil",
+    "foilOption": "Foil",
+    "nonFoilOption": "Non foil"
   }
 }

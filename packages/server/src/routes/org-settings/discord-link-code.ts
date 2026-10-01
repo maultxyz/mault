@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
+import { DISCORD_LINK_CODE_LENGTH } from "../../lib/constants/discord";
 import { DISCORD_LINK_CODE_TTL_MS } from "../../lib/constants/timing";
 import {
   requireAuth,
@@ -19,7 +20,7 @@ export const discordLinkCodeRoute = new Hono<AppEnv>().post(
     const code = crypto
       .randomUUID()
       .replace(/-/g, "")
-      .slice(0, 6)
+      .slice(0, DISCORD_LINK_CODE_LENGTH)
       .toUpperCase();
     const expiresAt = new Date(Date.now() + DISCORD_LINK_CODE_TTL_MS);
     try {

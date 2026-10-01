@@ -33,6 +33,7 @@ export interface Device {
   setupCompletedAt: string | null;
   pipelinedFeed: boolean;
   autoConnect: boolean;
+  testOnConnect: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,6 +50,7 @@ export interface DevicePatch {
   setupCompleted?: boolean;
   pipelinedFeed?: boolean;
   autoConnect?: boolean;
+  testOnConnect?: boolean;
 }
 
 export const DEFAULT_DEVICE: Device = {
@@ -64,6 +66,7 @@ export const DEFAULT_DEVICE: Device = {
   setupCompletedAt: null,
   pipelinedFeed: false,
   autoConnect: false,
+  testOnConnect: true,
   createdAt: "",
   updatedAt: "",
 };

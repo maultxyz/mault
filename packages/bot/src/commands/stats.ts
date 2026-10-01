@@ -9,7 +9,7 @@ import { getCollections, getStats } from "../api";
 
 const DISCORD_BLURPLE = 0x5865f2;
 const NOT_LINKED_MESSAGE =
-  "This server isn't linked yet - run `/link <code>` first (generate a code from Magic Vault's Settings page).";
+  "This server isn't linked yet - run `/link <code>` first (generate a code from Magic Vault's Integrations page).";
 
 export const data = new SlashCommandBuilder()
   .setName("stats")
@@ -76,6 +76,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     totalValue,
     totalValueDisplay,
     collectionName,
+    topCard,
   } = result.data;
   const embed = new EmbedBuilder()
     .setTitle(
@@ -101,6 +102,21 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         inline: true,
       },
     );
+
+  if (topCard) {
+    const details = [
+      topCard.setName,
+      topCard.foil,
+      collectionName ? null : topCard.collectionName,
+    ].filter(Boolean);
+    embed.addFields({
+      name: "Highest value card",
+      value: `**${topCard.name}** · ${topCard.priceDisplay}${
+        details.length ? `\n${details.join(" · ")}` : ""
+      }`,
+    });
+    if (topCard.imageUrl) embed.setThumbnail(topCard.imageUrl);
+  }
 
   await interaction.editReply({ embeds: [embed] });
 }

@@ -1,0 +1,94 @@
+{
+  "title": "Intégrations",
+  "subtitle": "Connecte Magic Vault à d'autres applications et choisis ce qui est publié et où.",
+  "discord": {
+    "heading": "Discord",
+    "description": "Publie les scans et les alertes sur ton serveur Discord.",
+    "connectedTo": "Connecté à {{server}}",
+    "statusLinked": "Lié",
+    "statusNotLinked": "Non lié",
+    "botUnreachable": "Impossible de joindre le bot Discord, les noms de salons et les permissions ne peuvent donc pas être affichés pour le moment.",
+    "botNotInServer": "Le bot n'est plus sur ton serveur lié. Ajoute-le à nouveau, puis relie-le.",
+    "connection": "Connexion"
+  },
+  "channelSettings": {
+    "heading": "Salons",
+    "description": "Où publier chaque scan et chaque erreur ou alerte. Seuls les propriétaires et les admins peuvent les modifier.",
+    "scan": "Chaque scan",
+    "error": "Erreurs et alertes",
+    "none": "Ne pas publier",
+    "sameScan": "Comme chaque scan",
+    "sameError": "Comme les erreurs",
+    "saved": "Salon enregistré.",
+    "saveFailed": "Impossible d'enregistrer le salon."
+  },
+  "overrides": {
+    "heading": "Exceptions par collection",
+    "description": "Envoie les scans ou les erreurs d'une collection dans un autre salon. Les collections sans exception utilisent les salons ci-dessus.",
+    "add": "Ajouter une exception",
+    "empty": "Aucune exception. Chaque collection utilise les salons ci-dessus.",
+    "collection": "Collection",
+    "remove": "Supprimer l'exception pour {{name}}"
+  },
+  "overrideDialog": {
+    "title": "Ajouter une exception",
+    "description": "Choisis une collection et où ses scans ou ses erreurs doivent aller à la place.",
+    "collectionPlaceholder": "Rechercher des collections",
+    "noCollections": "Aucune collection correspondante sans exception.",
+    "cancel": "Annuler",
+    "save": "Ajouter l'exception",
+    "validation": {
+      "collectionRequired": "Choisis une collection.",
+      "channelRequired": "Choisis au moins un salon."
+    }
+  },
+  "channels": {
+    "unknown": "Salon inconnu ({{id}})",
+    "inCategory": "dans {{category}}"
+  },
+  "roles": {
+    "none": "Aucune mention",
+    "unknown": "rôle inconnu ({{id}})"
+  },
+  "notifications": {
+    "heading": "Notifications",
+    "description": "Active ou désactive le fil de chaque scan, et envoie un message de test pour vérifier tes salons."
+  },
+  "rules": {
+    "heading": "Règles de notification",
+    "description": "Publie une carte dans un salon quand elle correspond à une règle. Chaque règle correspondante publie, une carte peut donc aller dans plusieurs salons, mais chaque salon ne la reçoit qu'une fois.",
+    "add": "Ajouter une règle",
+    "empty": "Aucune règle de notification pour l'instant.",
+    "needsGame": "Choisis une collection avec un jeu pour ajouter des règles de notification.",
+    "postsTo": "Publie dans",
+    "noChannel": "Aucun salon. Modifie la règle pour en choisir un.",
+    "enabled": "Activée",
+    "edit": "Modifier {{name}}",
+    "delete": "Supprimer {{name}}",
+    "saveFailed": "Impossible d'enregistrer les règles de notification.",
+    "limitReached_one": "L'offre gratuite inclut {{count}} règle de notification Discord. Passe à Business pour des règles illimitées.",
+    "limitReached_other": "L'offre gratuite inclut {{count}} règles de notification Discord. Passe à Business pour des règles illimitées.",
+    "upgrade": "Mettre à niveau",
+    "andPings": "et mentionne"
+  },
+  "ruleDialog": {
+    "addTitle": "Ajouter une règle de notification",
+    "editTitle": "Modifier la règle de notification",
+    "description": "Quand une carte scannée remplit ces conditions, elle est publiée dans ce salon.",
+    "name": "Nom",
+    "channel": "Salon",
+    "channelPlaceholder": "Choisir un salon",
+    "role": "Rôle à mentionner",
+    "roleHint": "Mentionne ce rôle quand une carte correspond. Le bot ne peut pas mentionner les rôles grisés : rends-les mentionnables dans Discord, ou donne au bot la permission \"Mentionner @everyone, @here et tous les rôles\".",
+    "enabled": "Activée",
+    "conditions": "Conditions",
+    "cancel": "Annuler",
+    "save": "Enregistrer",
+    "saveFailed": "Impossible d'enregistrer la règle de notification.",
+    "validation": {
+      "nameRequired": "Donne un nom à la règle.",
+      "channelRequired": "Choisis un salon.",
+      "conditionsRequired": "Ajoute au moins une condition."
+    }
+  }
+}

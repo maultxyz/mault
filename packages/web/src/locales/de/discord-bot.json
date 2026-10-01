@@ -19,22 +19,22 @@
         "description": "Füge den Magic-Vault-Bot zu deinem Discord-Server hinzu - erfordert die Berechtigung „Server verwalten“."
       },
       {
-        "title": "Code generieren",
-        "description": "Gehe in Magic Vault zu Einstellungen → Discord-Bot und generiere einen Verknüpfungscode. Er ist nur wenige Minuten gültig."
+        "title": "Code erzeugen",
+        "description": "Öffne in Magic Vault die Integrationen und erzeuge einen Verknüpfungscode. Er ist nur wenige Minuten gültig."
       },
       {
         "title": "/link ausführen",
-        "description": "Führe in deinem Discord-Server /link <code> mit dem Code aus den Einstellungen aus. Erfordert die Berechtigung „Server verwalten“."
+        "description": "Führe auf deinem Discord-Server /link <code> mit dem Code aus den Integrationen aus. Erfordert die Berechtigung Server verwalten."
       },
       {
-        "title": "Kanäle auswählen",
-        "description": "Führe /scanning und /notification aus, um festzulegen, wo Scan- und Fehlerbenachrichtigungen gepostet werden - standardmäßig der aktuelle Kanal."
+        "title": "Kanäle wählen",
+        "description": "Lege auf der Seite Integrationen fest, wohin Scans und Warnungen gepostet werden, auf Wunsch pro Sammlung, und füge Regeln hinzu, welche Karten wohin gehen."
       }
     ]
   },
   "commands": {
     "title": "Befehle",
-    "description": "Alles, was der Bot versteht, direkt in deinem Discord-Server ausgeführt.",
+    "description": "Der Bot braucht nur zwei Befehle. Alles andere richtest du in der App ein.",
     "items": {
       "link": {
         "usage": "/link <code>",
@@ -43,22 +43,6 @@
       "stats": {
         "usage": "/stats [Sammlung]",
         "description": "Zeigt die Sammlungsstatistiken dieser Organisation, optional auf eine Sammlung beschränkt."
-      },
-      "scanning": {
-        "usage": "/scanning [Kanal] [Sammlung]",
-        "description": "Legt den Kanal für Scan-Benachrichtigungen fest, optional nur für eine Sammlung (Standard: aktueller Kanal und alle Sammlungen)."
-      },
-      "notification": {
-        "usage": "/notification [Kanal] [Sammlung]",
-        "description": "Legt den Kanal für Fehler-/Statusbenachrichtigungen fest, optional nur für eine Sammlung (Standard: aktueller Kanal und alle Sammlungen)."
-      },
-      "clear": {
-        "usage": "/clear scanning|notification [Sammlung]",
-        "description": "Entfernt eine mit /scanning oder /notification gesetzte Verknüpfung, optional nur für eine Sammlung."
-      },
-      "help": {
-        "usage": "/help",
-        "description": "Listet alle Befehle des Bots auf."
       }
     }
   },

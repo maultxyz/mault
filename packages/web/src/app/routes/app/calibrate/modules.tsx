@@ -11,6 +11,7 @@ import { IrSensorPanel } from "@/features/calibration/components/ir-sensor-panel
 import { ModuleCountStepper } from "@/features/calibration/components/module-count-stepper";
 import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
+import { useDeviceTogglesDraft } from "@/features/calibration/api/use-device-toggles-draft";
 import { useModuleCountConfig } from "@/features/calibration/api/use-module-count-config";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,19 +36,30 @@ export default function CalibrateModulesPage() {
   const binRoutes = useBinRoutes();
   const binHeights = useBinHeights();
   const moduleCountConfig = useModuleCountConfig();
+  const deviceToggles = useDeviceTogglesDraft();
   const [confirmReduceOpen, setConfirmReduceOpen] = useState(false);
 
-  const isDirty = binRoutes.isDirty || binHeights.isDirty || moduleCountConfig.isDirty;
-  const isSaving = binRoutes.isSaving || binHeights.isSaving || moduleCountConfig.isSaving;
+  const isDirty =
+    binRoutes.isDirty ||
+    binHeights.isDirty ||
+    moduleCountConfig.isDirty ||
+    deviceToggles.isDirty;
+  const isSaving =
+    binRoutes.isSaving ||
+    binHeights.isSaving ||
+    moduleCountConfig.isSaving ||
+    deviceToggles.isSaving;
 
   function handleDiscard() {
     binRoutes.discard();
     binHeights.discard();
     moduleCountConfig.discard();
+    deviceToggles.discard();
   }
 
   async function commitAll() {
     try {
+      if (deviceToggles.isDirty) await deviceToggles.commit();
       if (moduleCountConfig.isDirty) await moduleCountConfig.commit();
       if (binRoutes.isDirty) await binRoutes.commit();
       if (binHeights.isDirty) await binHeights.commit();
@@ -66,8 +78,16 @@ export default function CalibrateModulesPage() {
 
   return (
     <>
-      <ConnectionSettingsPanel />
-      <ExperimentalFeaturesPanel />
+      <ConnectionSettingsPanel
+        values={deviceToggles.values}
+        isLoaded={deviceToggles.isLoaded}
+        onChange={deviceToggles.set}
+      />
+      <ExperimentalFeaturesPanel
+        values={deviceToggles.values}
+        isLoaded={deviceToggles.isLoaded}
+        onChange={deviceToggles.set}
+      />
       <IrSensorPanel
         modules={modules}
         irStates={irStates}

@@ -8,7 +8,7 @@ import {
 } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import type { Transaction } from "../db";
-import { bins, binSets, soundRules } from "../db/schema";
+import { bins, binSets, notificationRules, soundRules } from "../db/schema";
 
 export function validFieldRenames(
   requested: FieldRenames | undefined,
@@ -82,5 +82,18 @@ export async function applyFieldRenames(
       .update(soundRules)
       .set({ rules, updatedAt: new Date() })
       .where(eq(soundRules.id, sound.id));
+  }
+
+  const notifications = await tx.query.notificationRules.findMany({
+    where: eq(notificationRules.gameId, gameId),
+    columns: { id: true, rules: true },
+  });
+  for (const notification of notifications) {
+    const rules = renameRuleFields(notification.rules as BinRuleGroup, renames);
+    if (JSON.stringify(rules) === JSON.stringify(notification.rules)) continue;
+    await tx
+      .update(notificationRules)
+      .set({ rules, updatedAt: new Date() })
+      .where(eq(notificationRules.id, notification.id));
   }
 }

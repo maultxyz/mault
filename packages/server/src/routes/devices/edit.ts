@@ -35,6 +35,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       setupCompleted?: boolean;
       pipelinedFeed?: boolean;
       autoConnect?: boolean;
+      testOnConnect?: boolean;
     }>();
     if (
       "channelLayout" in body &&
@@ -108,6 +109,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             typeof body.autoConnect === "boolean"
               ? body.autoConnect
               : device.autoConnect,
+          testOnConnect:
+            typeof body.testOnConnect === "boolean"
+              ? body.testOnConnect
+              : device.testOnConnect,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
               ? Math.min(

@@ -556,7 +556,8 @@ export async function loadBinContents(
 ) {
   if (bins.length === 0) return [];
   const result = await tx.execute(sql`
-    SELECT cc.guid::text AS guid, cc.bin_number, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms
+    SELECT cc.guid::text AS guid, cc.bin_number, cc.card, cc.is_foil, cc.foil_type,
+      ${SCANNED_AT_MS} AS scanned_at_ms
     ${binWindowsJoin(collectionId, bins)}
     ORDER BY cc.scanned_at DESC, cc.id DESC
   `);
@@ -565,6 +566,8 @@ export async function loadBinContents(
       guid: string;
       bin_number: number;
       card: GroupedScannedCard["card"];
+      is_foil: boolean;
+      foil_type: string | null;
       scanned_at_ms: number;
     }[]
   ).map((row) => ({
@@ -572,5 +575,7 @@ export async function loadBinContents(
     binNumber: row.bin_number,
     scannedAt: row.scanned_at_ms,
     card: row.card,
+    isFoil: row.is_foil,
+    foilType: row.foil_type ?? undefined,
   }));
 }

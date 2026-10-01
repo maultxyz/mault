@@ -95,7 +95,8 @@
     "pushBlocked": {
       "title": "Schieber blockiert",
       "description": "Auf der Plattform von Modul {{module}} liegt eine Karte. Senke zuerst das seitliche Paddel, bevor du den Schieber bewegst."
-    }
+    },
+    "deviceReadyNoTest": "Gerät bereit (Selbsttest übersprungen)"
   },
   "sessionMonitor": {
     "connectionLost": "Verbindung zur Sitzung verloren."
@@ -291,7 +292,9 @@
     "noCameraTitle": "Keine Kamera verbunden",
     "connectCameraButton": "Kamera verbinden",
     "waitingForPhoneTitle": "Warte auf dein Telefon",
-    "showQrCode": "QR-Code anzeigen"
+    "showQrCode": "QR-Code anzeigen",
+    "sensorBlocked": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt.",
+    "resolveSensorBlocked": "Beheben"
   },
   "sessionErrorsPanel": {
     "heading": "Fehler"

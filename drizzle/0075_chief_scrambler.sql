@@ -1,0 +1,1 @@
+ALTER TABLE "notification_rules" ADD COLUMN "role_id" text;

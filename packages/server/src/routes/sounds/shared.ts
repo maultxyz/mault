@@ -8,22 +8,10 @@ import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import type { Transaction } from "../../db";
 import { games, soundClips, soundRules } from "../../db/schema";
+import { findGameId, ruleGroupSchema } from "../../lib/rule-groups";
 import { resolveSoundClipUrl } from "../../lib/sound-clips";
 
-const conditionSchema = z.object({
-  id: z.string(),
-  field: z.string(),
-  operator: z.string(),
-  value: z.union([z.string(), z.number(), z.array(z.string())]),
-});
-
-const ruleGroupSchema: z.ZodType<BinRuleGroup> = z.lazy(() =>
-  z.object({
-    id: z.string(),
-    combinator: z.enum(["and", "or"]),
-    conditions: z.array(z.union([ruleGroupSchema, conditionSchema])),
-  }),
-) as z.ZodType<BinRuleGroup>;
+export { findGameId };
 
 export const soundRuleInputSchema = z.object({
   name: z.string().trim().min(1).max(SOUND_RULE_NAME_MAX_LENGTH),
@@ -84,17 +72,6 @@ export function toSoundRule(row: {
     rules: row.rules as BinRuleGroup,
     clipGuid: row.clipGuid,
   };
-}
-
-export async function findGameId(
-  tx: Transaction,
-  gameGuid: string,
-): Promise<number | null> {
-  const game = await tx.query.games.findFirst({
-    where: eq(games.guid, gameGuid),
-    columns: { id: true },
-  });
-  return game?.id ?? null;
 }
 
 export async function findClipId(

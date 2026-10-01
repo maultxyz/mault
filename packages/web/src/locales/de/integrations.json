@@ -1,0 +1,94 @@
+{
+  "title": "Integrationen",
+  "subtitle": "Verbinde Magic Vault mit anderen Apps und lege fest, was wo gepostet wird.",
+  "discord": {
+    "heading": "Discord",
+    "description": "Poste Scans und Warnungen auf deinem Discord-Server.",
+    "connectedTo": "Verbunden mit {{server}}",
+    "statusLinked": "Verknüpft",
+    "statusNotLinked": "Nicht verknüpft",
+    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Kanalnamen und Berechtigungen gerade nicht angezeigt werden.",
+    "botNotInServer": "Der Bot ist nicht mehr auf deinem verknüpften Server. Füge ihn wieder hinzu und verknüpfe ihn erneut.",
+    "connection": "Verbindung"
+  },
+  "channelSettings": {
+    "heading": "Kanäle",
+    "description": "Wohin jeder Scan und jeder Fehler oder jede Warnung gepostet wird. Nur Inhaber und Admins können das ändern.",
+    "scan": "Jeder Scan",
+    "error": "Fehler und Warnungen",
+    "none": "Nicht posten",
+    "sameScan": "Wie jeder Scan",
+    "sameError": "Wie Fehler",
+    "saved": "Kanal gespeichert.",
+    "saveFailed": "Der Kanal konnte nicht gespeichert werden."
+  },
+  "overrides": {
+    "heading": "Abweichungen pro Sammlung",
+    "description": "Sende die Scans oder Fehler einer Sammlung in einen anderen Kanal. Sammlungen ohne Abweichung nutzen die Kanäle oben.",
+    "add": "Abweichung hinzufügen",
+    "empty": "Keine Abweichungen. Jede Sammlung nutzt die Kanäle oben.",
+    "collection": "Sammlung",
+    "remove": "Abweichung für {{name}} entfernen"
+  },
+  "overrideDialog": {
+    "title": "Abweichung hinzufügen",
+    "description": "Wähle eine Sammlung und wohin ihre Scans oder Fehler stattdessen gehen sollen.",
+    "collectionPlaceholder": "Sammlungen durchsuchen",
+    "noCollections": "Keine passenden Sammlungen ohne Abweichung.",
+    "cancel": "Abbrechen",
+    "save": "Abweichung hinzufügen",
+    "validation": {
+      "collectionRequired": "Wähle eine Sammlung.",
+      "channelRequired": "Wähle mindestens einen Kanal."
+    }
+  },
+  "channels": {
+    "unknown": "Unbekannter Kanal ({{id}})",
+    "inCategory": "in {{category}}"
+  },
+  "roles": {
+    "none": "Kein Ping",
+    "unknown": "unbekannte Rolle ({{id}})"
+  },
+  "notifications": {
+    "heading": "Benachrichtigungen",
+    "description": "Schalte den Feed für jeden Scan ein oder aus und sende eine Testnachricht, um deine Kanäle zu prüfen."
+  },
+  "rules": {
+    "heading": "Benachrichtigungsregeln",
+    "description": "Poste eine Karte in einen Kanal, wenn sie einer Regel entspricht. Jede passende Regel postet, eine Karte kann also in mehreren Kanälen landen, aber jeder Kanal bekommt sie nur einmal.",
+    "add": "Regel hinzufügen",
+    "empty": "Noch keine Benachrichtigungsregeln.",
+    "needsGame": "Wähle eine Sammlung mit einem Spiel, um Benachrichtigungsregeln hinzuzufügen.",
+    "postsTo": "Postet in",
+    "noChannel": "Kein Kanal. Bearbeite die Regel, um einen auszuwählen.",
+    "enabled": "Aktiviert",
+    "edit": "{{name}} bearbeiten",
+    "delete": "{{name}} löschen",
+    "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden.",
+    "limitReached_one": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregel. Upgrade auf Business für unbegrenzte Regeln.",
+    "limitReached_other": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade auf Business für unbegrenzte Regeln.",
+    "upgrade": "Upgrade",
+    "andPings": "und pingt"
+  },
+  "ruleDialog": {
+    "addTitle": "Benachrichtigungsregel hinzufügen",
+    "editTitle": "Benachrichtigungsregel bearbeiten",
+    "description": "Wenn eine gescannte Karte diese Bedingungen erfüllt, wird sie in diesen Kanal gepostet.",
+    "name": "Name",
+    "channel": "Kanal",
+    "channelPlaceholder": "Kanal auswählen",
+    "role": "Rolle pingen",
+    "roleHint": "Erwähnt diese Rolle, wenn eine Karte passt. Ausgegraute Rollen kann der Bot nicht pingen: Mach sie in Discord erwähnbar oder gib dem Bot die Berechtigung \"@everyone, @here und alle Rollen erwähnen\".",
+    "enabled": "Aktiviert",
+    "conditions": "Bedingungen",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden.",
+    "validation": {
+      "nameRequired": "Gib der Regel einen Namen.",
+      "channelRequired": "Wähle einen Kanal.",
+      "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
+    }
+  }
+}

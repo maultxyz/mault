@@ -18,6 +18,7 @@ import {
   orgBilling,
   orgSettings,
   unmatchedCards,
+  notificationRules,
   soundClips,
   soundRules,
 } from "../db/schema";
@@ -68,6 +69,9 @@ export async function purgeOrgData(
   await tx.delete(collectionCards).where(eq(collectionCards.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));
+  await tx
+    .delete(notificationRules)
+    .where(eq(notificationRules.orgId, orgId));
   await tx.delete(soundClips).where(eq(soundClips.orgId, orgId));
   await tx.delete(collections).where(eq(collections.orgId, orgId));
 

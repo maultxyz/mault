@@ -74,4 +74,6 @@ export interface BinContentCard {
   binNumber: number;
   scannedAt: number;
   card: PlayingCardWithDistance;
+  isFoil?: boolean;
+  foilType?: string;
 }

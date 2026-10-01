@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { IconBrandDiscord } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function DiscordBotHero() {
   const { t } = useTranslation("discordBot");
@@ -37,7 +38,7 @@ export function DiscordBotHero() {
           {t("hero.addToDiscord")}
         </a>
         <Link
-          to={isSignedIn ? "/app/settings" : "/auth/sign-up"}
+          to={isSignedIn ? SETTINGS_PATHS.integrations : "/auth/sign-up"}
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
         >
           {isSignedIn ? t("hero.openSettings") : t("hero.getStarted")}

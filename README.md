@@ -28,7 +28,7 @@ https://makerworld.com/en/models/3066180-tcg-card-sorting-machine
 - Card grid sorting (by name, price, rarity, etc.) adapts automatically to whichever game a collection uses
 - Multiple collections per organization, each with their own bin configuration and card history
 - Remote monitoring: watch an in-progress scan session live from another device
-- Discord bot: link a Discord server to an organization from Settings, then anyone in it can run `/stats` (optionally scoped to one collection via autocomplete) to check collection stats. `/notify-channel` and `/scan-channel` independently pick where error/status alerts (sorter errors, jams, sync failures) and card-scan messages get posted — no webhook URLs to configure
+- Discord bot: link a Discord server to an organization with `/link` and a code from the Integrations page, then anyone in it can run `/stats` (optionally scoped to one collection via autocomplete) to check collection stats. Everything else is set up in the app's Integrations page: which channels get every scan and every error or alert (server-wide or per collection), and notification rules that post matching cards to their own channels. No webhook URLs to configure
 - Per-organization branding and scanner layout settings
 - Feeder, servo, and camera scan-region calibration tools: the camera's capture region can be dragged/resized live against the feed to match different webcam mountings and fields of view
 - In-app hardware build guide (`/build`) with bill of materials, wiring diagrams, and assembly instructions
@@ -105,6 +105,8 @@ cp .env.example .env
    ```
 3. Open `http://localhost:8080` and sign up. The first account ever created on a fresh instance is automatically made platform admin (Games Manager, sync job, impersonation) and gets a default "Home" organisation — from there, add at least one game in the admin Games Manager (`/app/admin`) and run its sync before scanning, or collections/scanning have nothing to match against.
 
+Prices (TCGplayer USD and Cardmarket EUR) come from the `prices` container, which starts with the stack, pulls on start and then checks every `PRICE_SYNC_INTERVAL_HOURS` (6 by default), only downloading what changed upstream. Prices attach to synced cards, so run a game's sync from `/app/admin` first; until then, or until the first pull finishes, cards show no price. Watch it with `docker compose logs -f prices`, or force a full re-pull with `docker compose exec prices node packages/server/dist/scripts/sync-prices.js --force`.
+
 The `server` container applies Drizzle migrations, own-auth's own migrations, and the RLS bootstrap (`packages/server/src/db/bootstrap-local.sql`, run via `pnpm db:migrate-local` — see that script for why plain Postgres needs a few things Neon normally provisions automatically) on every start; all three steps are idempotent.
 
 To grant a _second_ admin, update their row in `platform_user_roles` directly — there's no UI for it yet:
@@ -138,9 +140,11 @@ These target whichever Postgres `DATABASE_URL` points at. Self-hosted mode's con
 The same `docker compose up -d` flow from [Option B](#option-b-self-hosted-no-neon-account-works-offline) is the production deployment too — just point `WEB_URL` at your public URL, and use a real `POSTGRES_PASSWORD`/`OWN_AUTH_TOKEN_PEPPER`/`IMPERSONATION_SECRET` rather than dev placeholders.
 
 ```bash
-docker compose up --build -d              # server + web + local Postgres
+docker compose up --build -d              # server + web + price sync + local Postgres
 docker compose --profile bot up --build -d  # + Discord bot
 ```
+
+Inside compose the server and bot reach each other by service name (`http://server:3001`, `http://bot:3002`), so the `SERVER_URL`/`BOT_URL` values in `.env` (which point at localhost for `pnpm dev`) are overridden there. If you already run `sync-prices` from your own scheduler, set `PRICE_SYNC_INTERVAL_HOURS=0` so the `prices` container doesn't pull too.
 
 ### Deploying with Neon
 

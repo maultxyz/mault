@@ -13,6 +13,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function useSupportPrompt(status: ScannerStatus) {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ export function useSupportPrompt(status: ScannerStatus) {
         <SupportPromptToast
           toastId={id}
           showSubscribe={!!currentBilling}
-          onSubscribe={() => go("/app/settings")}
+          onSubscribe={() => go(SETTINGS_PATHS.billing)}
         />
       ),
       { id: SUPPORT_PROMPT_TOAST_ID, duration: Infinity },

@@ -1,0 +1,94 @@
+{
+  "title": "Integrations",
+  "subtitle": "Connect Magic Vault to other apps and choose what gets posted where.",
+  "discord": {
+    "heading": "Discord",
+    "description": "Post scans and alerts to your Discord server.",
+    "connectedTo": "Connected to {{server}}",
+    "statusLinked": "Linked",
+    "statusNotLinked": "Not linked",
+    "botUnreachable": "Couldn't reach the Discord bot, so channel names and permissions can't be shown right now.",
+    "botNotInServer": "The bot isn't in your linked server anymore. Add it back, then link again.",
+    "connection": "Connection"
+  },
+  "channelSettings": {
+    "heading": "Channels",
+    "description": "Where every scan and every error or alert gets posted. Only owners and admins can change these.",
+    "scan": "Every scan",
+    "error": "Errors and alerts",
+    "none": "Don't post",
+    "sameScan": "Same as every scan",
+    "sameError": "Same as errors",
+    "saved": "Channel saved.",
+    "saveFailed": "Couldn't save the channel."
+  },
+  "overrides": {
+    "heading": "Collection overrides",
+    "description": "Send one collection's scans or errors to a different channel. Collections without an override use the channels above.",
+    "add": "Add override",
+    "empty": "No overrides. Every collection uses the channels above.",
+    "collection": "Collection",
+    "remove": "Remove override for {{name}}"
+  },
+  "overrideDialog": {
+    "title": "Add collection override",
+    "description": "Pick a collection and where its scans or errors should go instead.",
+    "collectionPlaceholder": "Search collections",
+    "noCollections": "No matching collections without an override.",
+    "cancel": "Cancel",
+    "save": "Add override",
+    "validation": {
+      "collectionRequired": "Choose a collection.",
+      "channelRequired": "Pick at least one channel."
+    }
+  },
+  "channels": {
+    "unknown": "Unknown channel ({{id}})",
+    "inCategory": "in {{category}}"
+  },
+  "roles": {
+    "none": "No ping",
+    "unknown": "unknown role ({{id}})"
+  },
+  "notifications": {
+    "heading": "Notifications",
+    "description": "Turn the every-scan feed on or off, and send a test message to check your channels."
+  },
+  "rules": {
+    "heading": "Notification rules",
+    "description": "Post a card to a channel when it matches a rule. Every matching rule posts, so one card can go to several channels, but each channel gets it once.",
+    "add": "Add rule",
+    "empty": "No notification rules yet.",
+    "needsGame": "Pick a collection with a game to add notification rules.",
+    "postsTo": "Posts to",
+    "noChannel": "No channel. Edit the rule to pick one.",
+    "enabled": "Enabled",
+    "edit": "Edit {{name}}",
+    "delete": "Delete {{name}}",
+    "saveFailed": "Couldn't save the notification rules.",
+    "limitReached_one": "The free plan includes {{count}} Discord notification rule. Upgrade to Business for unlimited rules.",
+    "limitReached_other": "The free plan includes {{count}} Discord notification rules. Upgrade to Business for unlimited rules.",
+    "upgrade": "Upgrade",
+    "andPings": "and pings"
+  },
+  "ruleDialog": {
+    "addTitle": "Add notification rule",
+    "editTitle": "Edit notification rule",
+    "description": "When a scanned card matches these conditions, it's posted to this channel.",
+    "name": "Name",
+    "channel": "Channel",
+    "channelPlaceholder": "Choose a channel",
+    "role": "Ping role",
+    "roleHint": "Mentions this role when a card matches. Greyed-out roles can't be pinged by the bot: make them mentionable in Discord, or give the bot the \"Mention @everyone, @here, and All Roles\" permission.",
+    "enabled": "Enabled",
+    "conditions": "Conditions",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saveFailed": "Couldn't save the notification rule.",
+    "validation": {
+      "nameRequired": "Give the rule a name.",
+      "channelRequired": "Choose a channel.",
+      "conditionsRequired": "Add at least one condition."
+    }
+  }
+}

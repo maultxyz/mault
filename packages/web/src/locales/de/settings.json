@@ -1,6 +1,14 @@
 {
   "title": "Einstellungen",
-  "subtitle": "Verwalte deine Organisation, das Erscheinungsbild und Benachrichtigungen",
+  "subtitle": "Organisation, Abrechnung, Scannen, Sounds und Integrationen",
+  "sections": {
+    "general": "Allgemein",
+    "organization": "Organisation",
+    "billing": "Abrechnung",
+    "scanning": "Scannen",
+    "sounds": "Sounds",
+    "integrations": "Integrationen"
+  },
   "organizations": {
     "heading": "Organisationen"
   },

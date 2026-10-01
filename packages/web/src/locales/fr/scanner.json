@@ -95,7 +95,8 @@
     "pushBlocked": {
       "title": "Poussoir bloqué",
       "description": "Une carte se trouve sur la plateforme du module {{module}}. Abaisse d'abord sa palette latérale avant de déplacer le poussoir."
-    }
+    },
+    "deviceReadyNoTest": "Appareil prêt (autotest ignoré)"
   },
   "sessionMonitor": {
     "connectionLost": "Connexion à la session perdue."
@@ -291,7 +292,9 @@
     "noCameraTitle": "Aucune caméra connectée",
     "connectCameraButton": "Connecter la caméra",
     "waitingForPhoneTitle": "En attente de ton téléphone",
-    "showQrCode": "Afficher le code QR"
+    "showQrCode": "Afficher le code QR",
+    "sensorBlocked": "Le capteur du module {{module}} détecte une carte, l'autotest n'a donc pas été lancé.",
+    "resolveSensorBlocked": "Résoudre"
   },
   "sessionErrorsPanel": {
     "heading": "Erreurs"

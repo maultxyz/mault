@@ -4,6 +4,8 @@
     "description": "Fehler- und Statusbenachrichtigungen (Sortierfehler, Klemmer, Sync-Fehler, Kartensuchfehler) werden in den mit /notify-channel festgelegten Kanal deines verknüpften Discord-Servers gesendet.",
     "notifyToggleLabel": "Bei jeder gescannten Karte benachrichtigen",
     "notifyToggleDescription": "Sendet Name, Preis und Bild der Karte bei jedem Scan an Discord.",
+    "threadToggleLabel": "Scans in einem Thread posten",
+    "threadToggleDescription": "Sammelt jeden Scan in einem Thread \"Card Scans\", damit der Kanal übersichtlich bleibt. Ausschalten, um jede Karte direkt in den Kanal zu posten.",
     "testHintNotLinked": "Verknüpfe oben einen Discord-Server und führe /notify-channel aus, um Testbenachrichtigungen zu aktivieren",
     "testHintReady": "Testbenachrichtigung senden",
     "sending": "Wird gesendet…",
@@ -22,7 +24,7 @@
     "testError": "Testbenachrichtigung konnte nicht gesendet werden.",
     "testNoChannel": {
       "title": "Kein Fehlerkanal festgelegt",
-      "description": "Führe /notification auf deinem Discord-Server in dem Kanal aus, in dem Fehlermeldungen erscheinen sollen, und versuche es dann erneut."
+      "description": "Wähle auf der Seite Integrationen einen Fehlerkanal aus und versuche es dann erneut."
     }
   }
 }

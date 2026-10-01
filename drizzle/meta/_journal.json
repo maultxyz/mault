@@ -512,6 +512,34 @@
       "when": 1790800921325,
       "tag": "0072_opposite_darkstar",
       "breakpoints": true
+    },
+    {
+      "idx": 73,
+      "version": "7",
+      "when": 1790823617847,
+      "tag": "0073_empty_pixie",
+      "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1790867155319,
+      "tag": "0074_minor_toro",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1790867275427,
+      "tag": "0075_chief_scrambler",
+      "breakpoints": true
+    },
+    {
+      "idx": 76,
+      "version": "7",
+      "when": 1790871999519,
+      "tag": "0076_flimsy_king_bedlam",
+      "breakpoints": true
     }
   ]
 }

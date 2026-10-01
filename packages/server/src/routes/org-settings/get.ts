@@ -25,6 +25,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
             scannerLayout:
               (row?.scannerLayout as "horizontal" | "vertical") ?? "horizontal",
             discordNotifyOnScan: row?.discordNotifyOnScan ?? false,
+            discordScanUseThreads: row?.discordScanUseThreads ?? true,
             sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
             ocrEnabled: row?.ocrEnabled ?? false,
             priceSource: toPriceSource(row?.priceSource),

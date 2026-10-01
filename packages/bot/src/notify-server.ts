@@ -9,6 +9,7 @@ import {
 } from "discord.js";
 import { Hono } from "hono";
 import sharp from "sharp";
+import { listNotifyChannels, listPingableRoles } from "./lib/notify-channel";
 
 const PORT = parseInt(process.env.BOT_PORT ?? "3002");
 const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
@@ -25,6 +26,8 @@ interface NotifyBody {
   embed?: APIEmbed;
   attachmentDataUrl?: string;
   secondaryImageUrl?: string;
+  guildId?: string;
+  pingRoleIds?: string[];
 }
 
 function decodeDataUrl(dataUrl: string): Buffer | null {
@@ -78,6 +81,29 @@ async function compositeSideBySide(
 export function startNotifyServer(client: Client) {
   const app = new Hono();
 
+  app.get("/guilds/:guildId", (c) => {
+    const secret = c.req.header("X-Bot-Secret");
+    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+      return c.json({ success: false, message: "Unauthorized" }, 401);
+    }
+
+    const guild = client.guilds.cache.get(c.req.param("guildId"));
+    if (!guild) {
+      return c.json({ success: false, message: "not_in_guild" }, 404);
+    }
+
+    return c.json({
+      success: true,
+      data: {
+        id: guild.id,
+        name: guild.name,
+        iconUrl: guild.iconURL({ size: 64 }),
+        channels: listNotifyChannels(guild),
+        roles: listPingableRoles(guild),
+      },
+    });
+  });
+
   app.post("/notify", async (c) => {
     const secret = c.req.header("X-Bot-Secret");
     if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
@@ -99,12 +125,19 @@ export function startNotifyServer(client: Client) {
     }
 
     try {
-      const channel = await client.channels.fetch(body.channelId);
-      if (!channel || channel.type !== ChannelType.GuildText) {
+      const channel = await client.channels
+        .fetch(body.channelId)
+        .catch(() => null);
+      if (
+        !channel ||
+        (channel.type !== ChannelType.GuildText &&
+          channel.type !== ChannelType.GuildAnnouncement) ||
+        (body.guildId && channel.guildId !== body.guildId)
+      ) {
         return c.json(
           {
             success: false,
-            message: "Channel not found or not a text channel.",
+            message: "Channel not found, not accessible, or not a text channel.",
           },
           404,
         );
@@ -130,8 +163,20 @@ export function startNotifyServer(client: Client) {
         }
       }
 
+      const pingRoleIds = (body.pingRoleIds ?? []).filter((id) =>
+        channel.guild.roles.cache.has(id),
+      );
+      const message = {
+        content: pingRoleIds.length
+          ? pingRoleIds.map((id) => `<@&${id}>`).join(" ")
+          : undefined,
+        allowedMentions: { parse: [], roles: pingRoleIds },
+        embeds: [EmbedBuilder.from(body.embed)],
+        files,
+      };
+
       if (!useThread) {
-        await channel.send({ embeds: [EmbedBuilder.from(body.embed)], files });
+        await channel.send(message);
         return c.json({ success: true, data: {} });
       }
 
@@ -149,7 +194,7 @@ export function startNotifyServer(client: Client) {
         await thread.setArchived(false);
       }
 
-      await thread.send({ embeds: [EmbedBuilder.from(body.embed)], files });
+      await thread.send(message);
       return c.json({ success: true, data: { threadId: thread.id } });
     } catch (err) {
       console.error("[bot] Failed to post notification:", err);

@@ -41,6 +41,20 @@ export function updateInCardPages(
   );
 }
 
+export function findInCardPages(
+  queryClient: QueryClient,
+  guid: string,
+  scanId: string,
+): GroupedScannedCard | undefined {
+  for (const [, page] of queryClient.getQueriesData<CollectionCardsPage>({
+    queryKey: [...collectionCardsKeys.all(guid), "page"],
+  })) {
+    const item = page?.items.find((i) => i.scanIds.includes(scanId));
+    if (item) return item;
+  }
+  return undefined;
+}
+
 export function invalidateCollectionCards(
   queryClient: QueryClient,
   guid: string,

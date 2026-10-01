@@ -1,5 +1,6 @@
 import type {
   BinHeightPreset,
+  DeviceToggleKey,
   ModuleDelayField,
   ServoConfig,
   SetupIntroPart,
@@ -166,4 +167,10 @@ export const SETUP_INTRO_PARTS: { key: SetupIntroPart; icon: Icon }[] = [
   { key: "bottom", icon: IconArrowBarToDown },
   { key: "paddle", icon: IconColumns2 },
   { key: "pusher", icon: IconArrowsHorizontal },
+];
+
+export const DEVICE_TOGGLE_KEYS: DeviceToggleKey[] = [
+  "autoConnect",
+  "testOnConnect",
+  "pipelinedFeed",
 ];

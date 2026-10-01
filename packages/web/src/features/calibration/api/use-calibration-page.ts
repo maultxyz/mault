@@ -40,6 +40,7 @@ import {
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   type BinRoute,
+  type FeederCalibration,
   type ScanRegion,
   type ServoCalibration,
 } from "@magic-vault/shared";
@@ -215,12 +216,99 @@ export function useCalibrationPage() {
   const [irMonitoring, setIrMonitoring] = useState(false);
   const irBusyRef = useRef(false);
 
-  const [feederSpeedValue, setFeederSpeedValue] = useState(feederConfig.speed);
-  const [feederDurationValue, setFeederDurationValue] = useState(feederConfig.duration);
-  const [feederPulseDurationValue, setFeederPulseDurationValue] = useState(feederConfig.pulseDuration);
-  const [feederPauseDurationValue, setFeederPauseDurationValue] = useState(feederConfig.pauseDuration);
-  const [feederSettleDurationValue, setFeederSettleDurationValue] = useState(feederConfig.settleDuration);
+  const [feederDraft, setFeederDraft] = useState<Partial<FeederCalibration>>({});
+  const feederValues = useMemo<FeederCalibration>(
+    () => ({ ...feederConfig, ...feederDraft }),
+    [feederConfig, feederDraft],
+  );
+  const feederSpeedValue = feederValues.speed;
+  const feederDurationValue = feederValues.duration;
+  const feederPulseDurationValue = feederValues.pulseDuration;
+  const feederPauseDurationValue = feederValues.pauseDuration;
+  const feederSettleDurationValue = feederValues.settleDuration;
+  const setFeederDraftField = useCallback(
+    (field: keyof FeederCalibration, value: number) => {
+      setFeederDraft((prev) => ({ ...prev, [field]: value }));
+    },
+    [],
+  );
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const feederStateRef = useRef({ config: feederConfig, draft: feederDraft });
+  feederStateRef.current = { config: feederConfig, draft: feederDraft };
+
+  const draftsOnDeviceRef = useRef({
+    modules: new Set<number>(),
+    feeder: false,
+  });
+
+  const sendAndAwaitReply = useCallback(
+    async (command: object) => {
+      const reply = receiveResponse();
+      await sendCommand(JSON.stringify(command));
+      await reply;
+    },
+    [sendCommand, receiveResponse],
+  );
+
+  const applyDraftsToDevice = useCallback(async () => {
+    const onDevice = draftsOnDeviceRef.current;
+    for (const [key, pending] of Object.entries(pendingCalibrationRef.current)) {
+      if (Object.keys(pending).length === 0) continue;
+      const moduleNumber = Number(key);
+      const saved =
+        configsRef.current.find((c) => c.moduleNumber === moduleNumber)
+          ?.calibration ?? DEFAULT_CALIBRATION;
+      await sendAndAwaitReply({
+        setConfig: { module: moduleNumber, ...saved, ...pending },
+      });
+      onDevice.modules.add(moduleNumber);
+    }
+    const { config, draft } = feederStateRef.current;
+    const feederChanged = (
+      Object.keys(draft) as (keyof FeederCalibration)[]
+    ).some((field) => draft[field] !== config[field]);
+    if (feederChanged) {
+      await sendAndAwaitReply({ setFeederConfig: { ...config, ...draft } });
+      onDevice.feeder = true;
+    }
+  }, [sendAndAwaitReply]);
+
+  const restoreSavedOnDevice = useCallback(async () => {
+    const onDevice = draftsOnDeviceRef.current;
+    const modulesToRestore = [...onDevice.modules];
+    const restoreFeeder = onDevice.feeder;
+    onDevice.modules.clear();
+    onDevice.feeder = false;
+    for (const moduleNumber of modulesToRestore) {
+      const saved =
+        configsRef.current.find((c) => c.moduleNumber === moduleNumber)
+          ?.calibration ?? DEFAULT_CALIBRATION;
+      await sendAndAwaitReply({
+        setConfig: { module: moduleNumber, ...saved },
+      });
+    }
+    if (restoreFeeder) {
+      await sendAndAwaitReply({
+        setFeederConfig: feederStateRef.current.config,
+      });
+    }
+  }, [sendAndAwaitReply]);
+
+  const restoreSavedOnDeviceRef = useRef(restoreSavedOnDevice);
+  restoreSavedOnDeviceRef.current = restoreSavedOnDevice;
+
+  useEffect(
+    () => () => {
+      void restoreSavedOnDeviceRef.current();
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (isConnected) return;
+    draftsOnDeviceRef.current.modules.clear();
+    draftsOnDeviceRef.current.feeder = false;
+  }, [isConnected]);
 
   const handleControl = useCallback(
     (
@@ -232,29 +320,33 @@ export function useCalibrationPage() {
       const key = `${module}:${servo}`;
       const current = activeRef.current[key];
       const isToggleOff = current === position;
-
-      sendCommand(
-        JSON.stringify({
-          servo,
-          module,
-          position: isToggleOff ? "neutral" : position,
-        }),
-      );
-      setActive((prev) => ({ ...prev, [key]: isToggleOff ? null : position }));
+      const targetPosition = isToggleOff ? "neutral" : position;
 
       const cal = configsRef.current.find(
         (c) => c.moduleNumber === module,
       )?.calibration;
-      const calKey = getCalibrationKey(servo, isToggleOff ? "neutral" : position);
+      const calKey = getCalibrationKey(servo, targetPosition);
+      const pendingValue = calKey
+        ? pendingCalibrationRef.current[module]?.[calKey]
+        : undefined;
+
+      if (pendingValue !== undefined) {
+        moveServo(module, servo, pendingValue);
+      } else {
+        sendCommand(
+          JSON.stringify({ servo, module, position: targetPosition }),
+        );
+      }
+      setActive((prev) => ({ ...prev, [key]: isToggleOff ? null : position }));
+
       if (cal && calKey) {
-        const pendingValue = pendingCalibrationRef.current[module]?.[calKey];
         setSliderValues((prev) => ({
           ...prev,
           [key]: pendingValue ?? cal[calKey],
         }));
       }
     },
-    [canCalibrate, sendCommand],
+    [canCalibrate, sendCommand, moveServo],
   );
 
   const handleSliderChange = useCallback(
@@ -344,6 +436,7 @@ export function useCalibrationPage() {
     }
     setIsTesting(true);
     toast.info(t("useCalibrationPage.toasts.runningTest"));
+    await applyDraftsToDevice();
     const { ok, error } = await sendTest();
     setIsTesting(false);
     if (ok) {
@@ -353,13 +446,14 @@ export function useCalibrationPage() {
         description: error ?? t("toasts.noResponse"),
       });
     }
-  }, [sendTest, isUnconfigured, t]);
+  }, [sendTest, isUnconfigured, applyDraftsToDevice, t]);
 
   const handleTestBin = useCallback(
     async (bin: number) => {
       if (!isReady) return;
       setActiveBin(bin);
       try {
+        await applyDraftsToDevice();
         const response = await sendRoute(resolveRoute(bin));
         if (!response) {
           toast.error(t("useCalibrationPage.toasts.binFailed", { bin }), {
@@ -374,7 +468,7 @@ export function useCalibrationPage() {
         setActiveBin(null);
       }
     },
-    [isReady, sendRoute, resolveRoute, setActiveBin, t],
+    [isReady, sendRoute, resolveRoute, setActiveBin, applyDraftsToDevice, t],
   );
 
   const handleSampleRun = useCallback(async () => {
@@ -382,6 +476,7 @@ export function useCalibrationPage() {
     setIsSampleRunning(true);
     toast.info(t("useCalibrationPage.toasts.startingSampleRun"));
     try {
+      await applyDraftsToDevice();
       const binCount = computeBinCount(moduleCount);
       for (let bin = 1; bin <= binCount; bin++) {
         setActiveBin(bin);
@@ -406,7 +501,15 @@ export function useCalibrationPage() {
       setActiveBin(null);
       setIsSampleRunning(false);
     }
-  }, [isReady, sendRoute, resolveRoute, moduleCount, setActiveBin, t]);
+  }, [
+    isReady,
+    sendRoute,
+    resolveRoute,
+    moduleCount,
+    setActiveBin,
+    applyDraftsToDevice,
+    t,
+  ]);
 
   const [pushTestingModule, setPushTestingModule] = useState<number | null>(
     null,
@@ -417,6 +520,7 @@ export function useCalibrationPage() {
       if (!isReady) return;
       setPushTestingModule(module);
       try {
+        await applyDraftsToDevice();
         const response = await sendPushTest({
           module,
           direction,
@@ -439,7 +543,7 @@ export function useCalibrationPage() {
         setPushTestingModule(null);
       }
     },
-    [isReady, sendPushTest, moduleDelayValues, t],
+    [isReady, sendPushTest, moduleDelayValues, applyDraftsToDevice, t],
   );
 
   const handleModuleDelayChange = useCallback(
@@ -455,42 +559,44 @@ export function useCalibrationPage() {
   const handleFeederSpeedChange = useCallback(
     (value: number) => {
       if (!canCalibrate) return;
-      setFeederSpeedValue(value);
+      setFeederDraftField("speed", value);
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed],
+    [canCalibrate, previewSpeed, setFeederDraftField],
   );
 
-  const handleFeederDurationChange = useCallback((value: number) => {
-    setFeederDurationValue(value);
-  }, []);
+  const handleFeederDurationChange = useCallback(
+    (value: number) => setFeederDraftField("duration", value),
+    [setFeederDraftField],
+  );
 
-  const handleFeederPulseDurationChange = useCallback((value: number) => {
-    setFeederPulseDurationValue(value);
-  }, []);
+  const handleFeederPulseDurationChange = useCallback(
+    (value: number) => setFeederDraftField("pulseDuration", value),
+    [setFeederDraftField],
+  );
 
-  const handleFeederPauseDurationChange = useCallback((value: number) => {
-    setFeederPauseDurationValue(value);
-  }, []);
+  const handleFeederPauseDurationChange = useCallback(
+    (value: number) => setFeederDraftField("pauseDuration", value),
+    [setFeederDraftField],
+  );
 
-  const handleFeederSettleDurationChange = useCallback((value: number) => {
-    setFeederSettleDurationValue(value);
-  }, []);
+  const handleFeederSettleDurationChange = useCallback(
+    (value: number) => setFeederDraftField("settleDuration", value),
+    [setFeederDraftField],
+  );
 
-  const handleFeederSelectContinuous = useCallback(() => {
-    setFeederPulseDurationValue(0);
-  }, []);
+  const handleFeederSelectContinuous = useCallback(
+    () => setFeederDraftField("pulseDuration", 0),
+    [setFeederDraftField],
+  );
 
-  const isFeederDirty =
-    feederSpeedValue !== feederConfig.speed ||
-    feederDurationValue !== feederConfig.duration ||
-    feederPulseDurationValue !== feederConfig.pulseDuration ||
-    feederPauseDurationValue !== feederConfig.pauseDuration ||
-    feederSettleDurationValue !== feederConfig.settleDuration;
+  const isFeederDirty = (
+    Object.keys(feederDraft) as (keyof FeederCalibration)[]
+  ).some((field) => feederDraft[field] !== feederConfig[field]);
 
   const dirtyModules = useMemo(
     () =>
@@ -515,14 +621,9 @@ export function useCalibrationPage() {
     setIsSavingFeederModule(true);
     try {
       if (isFeederDirty) {
-        await saveFeeder({
-          ...feederConfig,
-          speed: feederSpeedValue,
-          duration: feederDurationValue,
-          pulseDuration: feederPulseDurationValue,
-          pauseDuration: feederPauseDurationValue,
-          settleDuration: feederSettleDurationValue,
-        });
+        await saveFeeder(feederValues);
+        draftsOnDeviceRef.current.feeder = false;
+        setFeederDraft({});
       }
       for (const moduleNumber of dirtyModules) {
         const config = configsRef.current.find(
@@ -533,6 +634,7 @@ export function useCalibrationPage() {
           ...calibration,
           ...pendingCalibrationRef.current[moduleNumber],
         });
+        draftsOnDeviceRef.current.modules.delete(moduleNumber);
         setPendingCalibration((prev) => {
           const next = { ...prev };
           delete next[moduleNumber];
@@ -547,12 +649,7 @@ export function useCalibrationPage() {
   }, [
     isFeederDirty,
     dirtyModules,
-    feederConfig,
-    feederSpeedValue,
-    feederDurationValue,
-    feederPulseDurationValue,
-    feederPauseDurationValue,
-    feederSettleDurationValue,
+    feederValues,
     saveFeeder,
     saveConfig,
     t,
@@ -592,12 +689,9 @@ export function useCalibrationPage() {
 
   const handleDiscardFeederModuleCalibration = useCallback(() => {
     setPendingCalibration({});
-    setFeederSpeedValue(feederConfig.speed);
-    setFeederDurationValue(feederConfig.duration);
-    setFeederPulseDurationValue(feederConfig.pulseDuration);
-    setFeederPauseDurationValue(feederConfig.pauseDuration);
-    setFeederSettleDurationValue(feederConfig.settleDuration);
-  }, [feederConfig]);
+    setFeederDraft({});
+    void restoreSavedOnDevice();
+  }, [restoreSavedOnDevice]);
 
   const [isSavingScanRegion, setIsSavingScanRegion] = useState(false);
 
@@ -646,10 +740,11 @@ export function useCalibrationPage() {
     setCheckBothOrientationsDraft(null);
   }, []);
 
-  const handleFeed = useCallback(() => {
+  const handleFeed = useCallback(async () => {
     if (!isReady) return;
+    await applyDraftsToDevice();
     sendCommand(JSON.stringify({ feeder: true }));
-  }, [isReady, sendCommand]);
+  }, [isReady, sendCommand, applyDraftsToDevice]);
 
   const handleDropCard = useCallback(() => {
     if (!isReady) return;

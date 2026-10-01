@@ -45,6 +45,9 @@ services:
       IMPERSONATION_SECRET: ${IMPERSONATION_SECRET:?Set IMPERSONATION_SECRET in your .env - see .env.example}
       WEB_URL: ${WEB_URL:-http://localhost:8080}
       PORT: 3001
+      # .env's BOT_URL is for `pnpm dev` (localhost). Inside the compose
+      # network the bot is reachable by its service name instead.
+      BOT_URL: ${DOCKER_BOT_URL:-http://bot:3002}
     # AUTH_PROVIDER=local only: point DATABASE_URL/DATABASE_SSL at this
     # compose stack's own Postgres (unless .env already overrides them) and
     # run the local migrate script - own-auth migrations, auth_is_org_member(),
@@ -57,14 +60,58 @@ services:
       - sh
       - -c
       - |
-        if [ "$AUTH_PROVIDER" = "local" ]; then
-          export DATABASE_URL="${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
-          export DATABASE_SSL="${DATABASE_SSL:-false}"
+        if [ "$$AUTH_PROVIDER" = "local" ]; then
+          export DATABASE_URL="$${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
+          export DATABASE_SSL="$${DATABASE_SSL:-false}"
           pnpm --filter @magic-vault/server db:migrate-local
         fi
         node packages/server/dist/index.js
     ports:
       - "3001:3001"
+    restart: unless-stopped
+
+  # Daily TCGplayer + Cardmarket price pull (scripts/sync-prices.ts). Hosted
+  # deployments run it from an external scheduler; here it loops on its own.
+  # Each run only downloads what changed upstream since the last pull (the
+  # job checks tcgcsv's last-updated.txt and Cardmarket's Last-Modified
+  # first), so checking every few hours stays within both sources' asks.
+  # A failed run (e.g. the server hasn't finished migrating a fresh database
+  # yet) retries after PRICE_SYNC_RETRY_MINUTES. PRICE_SYNC_INTERVAL_HOURS=0
+  # turns it off, e.g. when an external scheduler already runs the script.
+  prices:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    depends_on:
+      postgres:
+        condition: service_healthy
+      server:
+        condition: service_started
+    env_file: .env
+    environment:
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
+      PRICE_SYNC_INTERVAL_HOURS: ${PRICE_SYNC_INTERVAL_HOURS:-6}
+      PRICE_SYNC_RETRY_MINUTES: ${PRICE_SYNC_RETRY_MINUTES:-10}
+    command:
+      - sh
+      - -c
+      - |
+        if [ "$$PRICE_SYNC_INTERVAL_HOURS" = "0" ]; then
+          echo "[prices] PRICE_SYNC_INTERVAL_HOURS=0, price sync disabled."
+          exec sleep infinity
+        fi
+        if [ "$$AUTH_PROVIDER" = "local" ]; then
+          export DATABASE_URL="$${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
+          export DATABASE_SSL="$${DATABASE_SSL:-false}"
+        fi
+        while true; do
+          if node packages/server/dist/scripts/sync-prices.js; then
+            sleep $$(($$PRICE_SYNC_INTERVAL_HOURS * 3600))
+          else
+            echo "[prices] Sync failed, retrying in $$PRICE_SYNC_RETRY_MINUTES minutes."
+            sleep $$(($$PRICE_SYNC_RETRY_MINUTES * 60))
+          fi
+        done
     restart: unless-stopped
 
   web:
@@ -98,6 +145,10 @@ services:
       context: .
       dockerfile: Dockerfile.bot
     env_file: .env
+    environment:
+      # .env's SERVER_URL is for `pnpm dev` (localhost). Inside the compose
+      # network the server is reachable by its service name instead.
+      SERVER_URL: ${DOCKER_SERVER_URL:-http://server:3001}
     ports:
       - "3002:3002"
     depends_on:

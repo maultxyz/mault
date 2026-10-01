@@ -25,6 +25,7 @@ export const botLinkRoute = new Hono<AppEnv>().post("/link", async (c) => {
   const rows = await db
     .select({
       orgId: orgSettings.orgId,
+      discordGuildId: orgSettings.discordGuildId,
       discordLinkCodeExpiresAt: orgSettings.discordLinkCodeExpiresAt,
     })
     .from(orgSettings)
@@ -56,21 +57,22 @@ export const botLinkRoute = new Hono<AppEnv>().post("/link", async (c) => {
     });
   }
 
-  if (relinking) {
-    await db.transaction((tx) =>
-      clearOrgDiscordReferences(tx, existingOrgId),
-    );
-  }
+  const switchingGuild =
+    !!row.discordGuildId && row.discordGuildId !== guildId;
 
-  await db
-    .update(orgSettings)
-    .set({
-      discordGuildId: guildId,
-      discordLinkCode: null,
-      discordLinkCodeExpiresAt: null,
-      updatedAt: new Date(),
-    })
-    .where(eq(orgSettings.orgId, row.orgId));
+  await db.transaction(async (tx) => {
+    if (relinking) await clearOrgDiscordReferences(tx, existingOrgId);
+    if (switchingGuild) await clearOrgDiscordReferences(tx, row.orgId);
+    await tx
+      .update(orgSettings)
+      .set({
+        discordGuildId: guildId,
+        discordLinkCode: null,
+        discordLinkCodeExpiresAt: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(orgSettings.orgId, row.orgId));
+  });
 
   return c.json({
     success: true,

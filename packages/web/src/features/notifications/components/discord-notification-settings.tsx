@@ -34,7 +34,7 @@ export function DiscordNotificationSettings() {
           <span className="text-sm">
             {t("discordNotifications.notifyToggleLabel")}
           </span>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-foreground/70">
             {t("discordNotifications.notifyToggleDescription")}
           </span>
         </span>
@@ -42,6 +42,23 @@ export function DiscordNotificationSettings() {
           checked={settings.discordNotifyOnScan}
           disabled={isLoading}
           onCheckedChange={(checked) => save({ discordNotifyOnScan: checked })}
+        />
+      </label>
+      <label className="flex items-center justify-between gap-3">
+        <span className="flex flex-col gap-0.5">
+          <span className="text-sm">
+            {t("discordNotifications.threadToggleLabel")}
+          </span>
+          <span className="text-sm text-foreground/70">
+            {t("discordNotifications.threadToggleDescription")}
+          </span>
+        </span>
+        <Switch
+          checked={settings.discordScanUseThreads}
+          disabled={isLoading || !settings.discordNotifyOnScan}
+          onCheckedChange={(checked) =>
+            save({ discordScanUseThreads: checked })
+          }
         />
       </label>
       <div className="flex flex-col gap-1.5">

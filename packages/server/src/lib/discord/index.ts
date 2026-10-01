@@ -2,12 +2,15 @@ export type { DiscordEmbed, DiscordNotificationKind } from "./types";
 export {
   buildCardScannedEmbed,
   buildScanSessionStartEmbed,
+  resolveImageUrl,
   SCAN_ATTACHMENT_NAME,
   type CardScannedEmbedOptions,
   type CardScannedEmbedResult,
 } from "./embeds";
 export { buildSortingLogicSummary } from "./sorting-logic-summary";
+export { fetchDiscordGuild } from "./guild";
 export {
+  sendDiscordChannelMessage,
   sendDiscordNotification,
   sendDonationDiscordNotification,
 } from "./notify";

@@ -21,6 +21,7 @@ import {
   DEFAULT_BIN_CAPACITY,
   type DefaultBinInit,
   type RepackSlot,
+  withScanRuleFields,
 } from "@magic-vault/shared";
 
 import {
@@ -114,7 +115,21 @@ export function BinConfigsProvider({
 
   const activeGameGuid = targetCollection?.game?.guid;
   const gameKey = targetCollection?.game?.key ?? null;
-  const fieldDefinitions = targetCollection?.game?.fieldDefinitions ?? [];
+  const fieldDefinitions = useMemo(
+    () => targetCollection?.game?.fieldDefinitions ?? [],
+    [targetCollection?.game?.fieldDefinitions],
+  );
+  const foilTypes = targetCollection?.game?.foilTypes;
+  const ruleFieldDefinitions = useMemo(
+    () =>
+      withScanRuleFields(fieldDefinitions, foilTypes ?? [], {
+        foil: t("scanRuleFields.foil"),
+        foilType: t("scanRuleFields.foilType"),
+        foilOption: t("scanRuleFields.foilOption"),
+        nonFoilOption: t("scanRuleFields.nonFoilOption"),
+      }),
+    [fieldDefinitions, foilTypes, t],
+  );
   const apiDocsUrl = targetCollection?.game?.apiDocsUrl ?? null;
   const hasGame = !!targetCollection?.game;
   const hasCollection = !!targetCollection;
@@ -608,6 +623,7 @@ export function BinConfigsProvider({
         configs,
         sets,
         fieldDefinitions,
+        ruleFieldDefinitions,
         gameKey,
         hasGame,
         hasCollection,
