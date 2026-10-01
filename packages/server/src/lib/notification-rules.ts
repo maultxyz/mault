@@ -24,6 +24,7 @@ export async function loadNotificationRules(
       isEnabled: notificationRules.isEnabled,
       rules: notificationRules.rules,
       channelId: notificationRules.channelId,
+      roleId: notificationRules.roleId,
     })
     .from(notificationRules)
     .innerJoin(games, eq(games.id, notificationRules.gameId))
@@ -41,6 +42,7 @@ export async function loadNotificationRules(
     isEnabled: row.isEnabled,
     rules: row.rules as BinRuleGroup,
     channelId: row.channelId,
+    roleId: row.roleId,
   }));
 }
 
@@ -68,6 +70,7 @@ export async function postMatchingNotificationRules(params: {
       name: notificationRules.name,
       rules: notificationRules.rules,
       channelId: notificationRules.channelId,
+      roleId: notificationRules.roleId,
     })
     .from(notificationRules)
     .where(
@@ -87,26 +90,36 @@ export async function postMatchingNotificationRules(params: {
   });
   const fields = (game?.fieldDefinitions as FieldMeta[] | undefined) ?? [];
 
-  const ruleNamesByChannel = new Map<string, string[]>();
+  const matchesByChannel = new Map<
+    string,
+    { names: string[]; roleIds: Set<string> }
+  >();
   for (const rule of rules) {
     if (!evaluateRuleGroup(card, rule.rules as BinRuleGroup, fields)) continue;
-    const names = ruleNamesByChannel.get(rule.channelId!) ?? [];
-    names.push(rule.name);
-    ruleNamesByChannel.set(rule.channelId!, names);
+    const match = matchesByChannel.get(rule.channelId!) ?? {
+      names: [],
+      roleIds: new Set<string>(),
+    };
+    match.names.push(rule.name);
+    if (rule.roleId) match.roleIds.add(rule.roleId);
+    matchesByChannel.set(rule.channelId!, match);
   }
 
   await Promise.all(
-    [...ruleNamesByChannel].map(([channelId, names]) =>
-      sendDiscordChannelMessage(
-        settings.guildId!,
+    [...matchesByChannel].map(([channelId, { names, roleIds }]) =>
+      sendDiscordChannelMessage({
+        guildId: settings.guildId!,
         channelId,
-        {
+        embed: {
           ...embed,
-          footer: { text: `${NOTIFICATION_RULE_FOOTER_PREFIX}${names.join(", ")}` },
+          footer: {
+            text: `${NOTIFICATION_RULE_FOOTER_PREFIX}${names.join(", ")}`,
+          },
         },
         attachmentDataUrl,
         secondaryImageUrl,
-      ),
+        pingRoleIds: [...roleIds],
+      }),
     ),
   );
 }

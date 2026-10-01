@@ -9,7 +9,7 @@ import {
 } from "discord.js";
 import { Hono } from "hono";
 import sharp from "sharp";
-import { listNotifyChannels } from "./lib/notify-channel";
+import { listNotifyChannels, listPingableRoles } from "./lib/notify-channel";
 
 const PORT = parseInt(process.env.BOT_PORT ?? "3002");
 const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
@@ -27,6 +27,7 @@ interface NotifyBody {
   attachmentDataUrl?: string;
   secondaryImageUrl?: string;
   guildId?: string;
+  pingRoleIds?: string[];
 }
 
 function decodeDataUrl(dataUrl: string): Buffer | null {
@@ -98,6 +99,7 @@ export function startNotifyServer(client: Client) {
         name: guild.name,
         iconUrl: guild.iconURL({ size: 64 }),
         channels: listNotifyChannels(guild),
+        roles: listPingableRoles(guild),
       },
     });
   });
@@ -161,8 +163,20 @@ export function startNotifyServer(client: Client) {
         }
       }
 
+      const pingRoleIds = (body.pingRoleIds ?? []).filter((id) =>
+        channel.guild.roles.cache.has(id),
+      );
+      const message = {
+        content: pingRoleIds.length
+          ? pingRoleIds.map((id) => `<@&${id}>`).join(" ")
+          : undefined,
+        allowedMentions: { parse: [], roles: pingRoleIds },
+        embeds: [EmbedBuilder.from(body.embed)],
+        files,
+      };
+
       if (!useThread) {
-        await channel.send({ embeds: [EmbedBuilder.from(body.embed)], files });
+        await channel.send(message);
         return c.json({ success: true, data: {} });
       }
 
@@ -180,7 +194,7 @@ export function startNotifyServer(client: Client) {
         await thread.setArchived(false);
       }
 
-      await thread.send({ embeds: [EmbedBuilder.from(body.embed)], files });
+      await thread.send(message);
       return c.json({ success: true, data: { threadId: thread.id } });
     } catch (err) {
       console.error("[bot] Failed to post notification:", err);

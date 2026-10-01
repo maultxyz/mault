@@ -2,15 +2,13 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { collections, orgSettings } from "../../db/schema";
 import type {
+  BotPostRequest,
   DiscordEmbed,
   DiscordNotificationKind,
   DiscordNotifyOutcome,
 } from "./types";
 
-const THREAD_NAMES: Record<DiscordNotificationKind, string> = {
-  scan: "Card Scans",
-  error: "Notifications",
-};
+const SCAN_THREAD_NAME = "Card Scans";
 
 interface NotifyConfig {
   channelId: string | null;
@@ -77,14 +75,7 @@ async function getNotifyConfig(
 }
 
 async function postEmbedToBot(
-  channelId: string,
-  threadId: string | null,
-  threadName: string | null,
-  embed: DiscordEmbed,
-  attachmentDataUrl?: string,
-  secondaryImageUrl?: string,
-  useThread = true,
-  guildId?: string,
+  request: BotPostRequest,
 ): Promise<{ ok: boolean; threadId: string | null }> {
   const botUrl = process.env.BOT_URL;
   const botSecret = process.env.BOT_API_SECRET;
@@ -98,14 +89,8 @@ async function postEmbedToBot(
         "X-Bot-Secret": botSecret,
       },
       body: JSON.stringify({
-        channelId,
-        threadId,
-        threadName,
-        useThread,
-        embed,
-        attachmentDataUrl,
-        secondaryImageUrl,
-        guildId,
+        ...request,
+        useThread: !!request.threadName,
       }),
     });
     if (!res.ok) {
@@ -124,6 +109,15 @@ async function postEmbedToBot(
   }
 }
 
+async function scanThreadsEnabled(orgId: string): Promise<boolean> {
+  const [row] = await db
+    .select({ useThreads: orgSettings.discordScanUseThreads })
+    .from(orgSettings)
+    .where(eq(orgSettings.orgId, orgId))
+    .limit(1);
+  return row?.useThreads ?? true;
+}
+
 export async function sendDiscordNotification(
   orgId: string,
   embed: DiscordEmbed,
@@ -135,34 +129,37 @@ export async function sendDiscordNotification(
   const config = await getNotifyConfig(orgId, kind, collectionGuid);
   if (!config.channelId) return "no_channel";
 
-  const { ok, threadId: newThreadId } = await postEmbedToBot(
-    config.channelId,
-    config.threadId,
-    THREAD_NAMES[kind],
+  if (kind === "error" || !(await scanThreadsEnabled(orgId))) {
+    const { ok } = await postEmbedToBot({
+      channelId: config.channelId,
+      embed,
+      attachmentDataUrl,
+      secondaryImageUrl,
+    });
+    return ok ? "sent" : "failed";
+  }
+
+  const { ok, threadId: newThreadId } = await postEmbedToBot({
+    channelId: config.channelId,
+    threadId: config.threadId,
+    threadName: SCAN_THREAD_NAME,
     embed,
     attachmentDataUrl,
     secondaryImageUrl,
-  );
+  });
   if (newThreadId && newThreadId !== config.threadId) {
+    const update = { discordScanThreadId: newThreadId, updatedAt: new Date() };
     if (config.source === "collection" && collectionGuid) {
       await db
         .update(collections)
-        .set(
-          kind === "scan"
-            ? { discordScanThreadId: newThreadId, updatedAt: new Date() }
-            : { discordErrorThreadId: newThreadId, updatedAt: new Date() },
-        )
+        .set(update)
         .where(
           and(eq(collections.guid, collectionGuid), eq(collections.orgId, orgId)),
         );
     } else {
       await db
         .update(orgSettings)
-        .set(
-          kind === "scan"
-            ? { discordScanThreadId: newThreadId, updatedAt: new Date() }
-            : { discordErrorThreadId: newThreadId, updatedAt: new Date() },
-        )
+        .set(update)
         .where(eq(orgSettings.orgId, orgId));
     }
   }
@@ -175,33 +172,12 @@ export async function sendDonationDiscordNotification(
   const channelId = process.env.DISCORD_DONATION_CHANNEL_ID;
   if (!channelId) return;
 
-  await postEmbedToBot(
-    channelId,
-    null,
-    null,
-    embed,
-    undefined,
-    undefined,
-    false,
-  );
+  await postEmbedToBot({ channelId, embed });
 }
 
 export async function sendDiscordChannelMessage(
-  guildId: string,
-  channelId: string,
-  embed: DiscordEmbed,
-  attachmentDataUrl?: string,
-  secondaryImageUrl?: string,
+  request: Required<Pick<BotPostRequest, "guildId">> & BotPostRequest,
 ): Promise<boolean> {
-  const { ok } = await postEmbedToBot(
-    channelId,
-    null,
-    null,
-    embed,
-    attachmentDataUrl,
-    secondaryImageUrl,
-    false,
-    guildId,
-  );
+  const { ok } = await postEmbedToBot(request);
   return ok;
 }

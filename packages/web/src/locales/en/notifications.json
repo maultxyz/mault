@@ -4,6 +4,8 @@
     "description": "Error and status notifications (sorter errors, jams, sync failures, card search errors) post to the channel picked with /notify-channel in your linked Discord server.",
     "notifyToggleLabel": "Notify on every card scanned",
     "notifyToggleDescription": "Posts the card's name, price, and image to Discord each time one is scanned.",
+    "threadToggleLabel": "Post scans in a thread",
+    "threadToggleDescription": "Keeps every scan in a \"Card Scans\" thread so the channel stays tidy. Turn off to post each card straight into the channel.",
     "testHintNotLinked": "Link a Discord server above and run /notify-channel to enable test notifications",
     "testHintReady": "Send a test notification",
     "sending": "Sending…",

@@ -1,10 +1,11 @@
 import {
   ChannelType,
+  PermissionFlagsBits,
   type Guild,
   type GuildBasedChannel,
 } from "discord.js";
 import { NOTIFY_CHANNEL_PERMISSIONS, NOTIFY_CHANNEL_TYPES } from "./constants";
-import type { GuildChannelSummary } from "./interfaces";
+import type { GuildChannelSummary, GuildRoleSummary } from "./interfaces";
 
 export function isNotifyChannelType(type: number) {
   return (NOTIFY_CHANNEL_TYPES as readonly number[]).includes(type);
@@ -44,5 +45,20 @@ export function listNotifyChannels(guild: Guild): GuildChannelSummary[] {
       missingPermissions: missingNotifyPermissions(channel, guild) ?? [
         "View Channel",
       ],
+    }));
+}
+
+export function listPingableRoles(guild: Guild): GuildRoleSummary[] {
+  const canMentionAll =
+    guild.members.me?.permissions.has(PermissionFlagsBits.MentionEveryone) ??
+    false;
+  return [...guild.roles.cache.values()]
+    .filter((role) => role.id !== guild.id && !role.managed)
+    .sort((a, b) => b.position - a.position)
+    .map((role) => ({
+      id: role.id,
+      name: role.name,
+      color: role.color ? role.hexColor : null,
+      canPing: role.mentionable || canMentionAll,
     }));
 }

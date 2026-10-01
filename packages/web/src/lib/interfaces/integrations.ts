@@ -1,29 +1,14 @@
 import type {
   DiscordChannel,
+  DiscordRole,
   DiscordIntegration,
   NotificationRule,
 } from "@magic-vault/shared";
 
-export interface DiscordChannelListProps {
-  integration: DiscordIntegration;
-}
-
-export type DiscordChannelUsage =
-  | { kind: "scans"; paused: boolean }
-  | { kind: "errors" }
-  | { kind: "collectionScans"; collection: string }
-  | { kind: "collectionErrors"; collection: string }
-  | { kind: "rule"; rule: string; game: string; isEnabled: boolean };
-
-export interface DiscordChannelUsageRow {
-  channelId: string;
-  channel: DiscordChannel | null;
-  usages: DiscordChannelUsage[];
-}
-
 export interface NotificationRuleListProps {
   gameGuid: string;
   channels: DiscordChannel[];
+  roles: DiscordRole[];
 }
 
 export interface NotificationRuleDialogProps {
@@ -32,6 +17,18 @@ export interface NotificationRuleDialogProps {
   rule: NotificationRule | null;
   gameGuid: string;
   channels: DiscordChannel[];
+  roles: DiscordRole[];
+}
+
+export interface DiscordRoleLabelProps {
+  role: DiscordRole | null;
+  roleId: string;
+}
+
+export interface DiscordRoleSelectProps {
+  value: string | null;
+  roles: DiscordRole[];
+  onChange: (roleId: string | null) => void;
 }
 
 export interface DiscordChannelLabelProps {
@@ -48,5 +45,15 @@ export interface DiscordChannelSelectProps {
 }
 
 export interface DiscordChannelSettingsProps {
+  integration: DiscordIntegration;
+}
+
+export interface DiscordCollectionOverridesProps {
+  integration: DiscordIntegration;
+}
+
+export interface CollectionOverrideDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   integration: DiscordIntegration;
 }

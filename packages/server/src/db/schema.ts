@@ -490,6 +490,7 @@ export const notificationRules = pgTable(
     rules: jsonb("rules").notNull(),
     integration: text("integration").notNull().default("discord"),
     channelId: text("channel_id"),
+    roleId: text("role_id"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -516,6 +517,9 @@ export const orgSettings = pgTable(
     discordNotifyOnScan: boolean("discord_notify_on_scan")
       .notNull()
       .default(false),
+    discordScanUseThreads: boolean("discord_scan_use_threads")
+      .notNull()
+      .default(true),
     ocrEnabled: boolean("ocr_enabled").notNull().default(false),
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()

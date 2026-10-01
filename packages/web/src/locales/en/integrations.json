@@ -13,33 +13,42 @@
   },
   "channelSettings": {
     "heading": "Channels",
-    "description": "Pick where every scan and every error or alert gets posted. Only owners and admins can change these.",
+    "description": "Where every scan and every error or alert gets posted. Only owners and admins can change these.",
     "scan": "Every scan",
     "error": "Errors and alerts",
     "none": "Don't post",
-    "perCollection": "Per collection",
-    "perCollectionDescription": "Send a collection's scans or errors somewhere else instead.",
     "sameScan": "Same as every scan",
     "sameError": "Same as errors",
     "saved": "Channel saved.",
     "saveFailed": "Couldn't save the channel."
   },
-  "channels": {
-    "heading": "Linked channels",
-    "description": "Every channel Magic Vault posts to, and what it posts there.",
-    "empty": "No channels yet. Pick one above, or add a notification rule below.",
-    "unknown": "Unknown channel ({{id}})",
-    "inCategory": "in {{category}}",
-    "missing": "This channel was deleted or the bot can't see it.",
-    "missingPermissions": "The bot is missing: {{permissions}}",
-    "usage": {
-      "scans": "Every scan",
-      "scansPaused": "Every scan (off)",
-      "errors": "Errors and alerts",
-      "collectionScans": "Scans from {{collection}}",
-      "collectionErrors": "Errors from {{collection}}",
-      "rule": "Rule: {{rule}} ({{game}})"
+  "overrides": {
+    "heading": "Collection overrides",
+    "description": "Send one collection's scans or errors to a different channel. Collections without an override use the channels above.",
+    "add": "Add override",
+    "empty": "No overrides. Every collection uses the channels above.",
+    "collection": "Collection",
+    "remove": "Remove override for {{name}}"
+  },
+  "overrideDialog": {
+    "title": "Add collection override",
+    "description": "Pick a collection and where its scans or errors should go instead.",
+    "collectionPlaceholder": "Search collections",
+    "noCollections": "No matching collections without an override.",
+    "cancel": "Cancel",
+    "save": "Add override",
+    "validation": {
+      "collectionRequired": "Choose a collection.",
+      "channelRequired": "Pick at least one channel."
     }
+  },
+  "channels": {
+    "unknown": "Unknown channel ({{id}})",
+    "inCategory": "in {{category}}"
+  },
+  "roles": {
+    "none": "No ping",
+    "unknown": "unknown role ({{id}})"
   },
   "notifications": {
     "heading": "Notifications",
@@ -59,7 +68,8 @@
     "saveFailed": "Couldn't save the notification rules.",
     "limitReached_one": "The free plan includes {{count}} Discord notification rule. Upgrade to Business for unlimited rules.",
     "limitReached_other": "The free plan includes {{count}} Discord notification rules. Upgrade to Business for unlimited rules.",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "andPings": "and pings"
   },
   "ruleDialog": {
     "addTitle": "Add notification rule",
@@ -68,6 +78,8 @@
     "name": "Name",
     "channel": "Channel",
     "channelPlaceholder": "Choose a channel",
+    "role": "Ping role",
+    "roleHint": "Mentions this role when a card matches. Greyed-out roles can't be pinged by the bot: make them mentionable in Discord, or give the bot the \"Mention @everyone, @here, and All Roles\" permission.",
     "enabled": "Enabled",
     "conditions": "Conditions",
     "cancel": "Cancel",

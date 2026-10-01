@@ -5,3 +5,10 @@ export interface GuildChannelSummary {
   categoryName: string | null;
   missingPermissions: string[];
 }
+
+export interface GuildRoleSummary {
+  id: string;
+  name: string;
+  color: string | null;
+  canPing: boolean;
+}

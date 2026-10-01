@@ -4,7 +4,11 @@ import { authQuery } from "../../db";
 import { collections, orgSettings } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { DISCORD_CHANNEL_EDITOR_ROLES } from "../../lib/constants/discord";
-import { channelInputSchema, checkDiscordChannel } from "./shared";
+import {
+  channelInputSchema,
+  channelUpdate,
+  checkDiscordChannel,
+} from "./shared";
 
 export const setDiscordChannelRoute = new Hono<AppEnv>().put(
   "/discord/channels",
@@ -22,33 +26,22 @@ export const setDiscordChannelRoute = new Hono<AppEnv>().put(
     if (!input.success) {
       return c.json({ success: false, message: "Invalid channel." }, 400);
     }
-    const { kind, channelId, collectionGuid } = input.data;
+    const { scanChannelId, errorChannelId, collectionGuid } = input.data;
     try {
-      if (channelId) {
+      for (const channelId of new Set([scanChannelId, errorChannelId])) {
+        if (!channelId) continue;
         const channelError = await checkDiscordChannel(orgId, channelId);
         if (channelError) {
           return c.json({ success: false, message: channelError });
         }
       }
 
-      const updatedAt = new Date();
+      const update = channelUpdate(input.data, new Date());
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         if (collectionGuid) {
           const [updated] = await tx
             .update(collections)
-            .set(
-              kind === "scan"
-                ? {
-                    discordScanChannelId: channelId,
-                    discordScanThreadId: null,
-                    updatedAt,
-                  }
-                : {
-                    discordErrorChannelId: channelId,
-                    discordErrorThreadId: null,
-                    updatedAt,
-                  },
-            )
+            .set(update)
             .where(
               and(
                 eq(collections.guid, collectionGuid),
@@ -63,19 +56,7 @@ export const setDiscordChannelRoute = new Hono<AppEnv>().put(
 
         await tx
           .update(orgSettings)
-          .set(
-            kind === "scan"
-              ? {
-                  discordScanChannelId: channelId,
-                  discordScanThreadId: null,
-                  updatedAt,
-                }
-              : {
-                  discordErrorChannelId: channelId,
-                  discordErrorThreadId: null,
-                  updatedAt,
-                },
-          )
+          .set(update)
           .where(eq(orgSettings.orgId, orgId));
         return { success: true as const };
       });

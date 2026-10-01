@@ -13,33 +13,42 @@
   },
   "channelSettings": {
     "heading": "Salons",
-    "description": "Choisis où publier chaque scan et chaque erreur ou alerte. Seuls les propriétaires et les admins peuvent les modifier.",
+    "description": "Où publier chaque scan et chaque erreur ou alerte. Seuls les propriétaires et les admins peuvent les modifier.",
     "scan": "Chaque scan",
     "error": "Erreurs et alertes",
     "none": "Ne pas publier",
-    "perCollection": "Par collection",
-    "perCollectionDescription": "Envoie les scans ou les erreurs d'une collection ailleurs.",
     "sameScan": "Comme chaque scan",
     "sameError": "Comme les erreurs",
     "saved": "Salon enregistré.",
     "saveFailed": "Impossible d'enregistrer le salon."
   },
-  "channels": {
-    "heading": "Salons liés",
-    "description": "Chaque salon où Magic Vault publie, et ce qui y est publié.",
-    "empty": "Aucun salon pour l'instant. Choisis-en un ci-dessus, ou ajoute une règle de notification ci-dessous.",
-    "unknown": "Salon inconnu ({{id}})",
-    "inCategory": "dans {{category}}",
-    "missing": "Ce salon a été supprimé ou le bot ne peut pas le voir.",
-    "missingPermissions": "Il manque au bot : {{permissions}}",
-    "usage": {
-      "scans": "Chaque scan",
-      "scansPaused": "Chaque scan (désactivé)",
-      "errors": "Erreurs et alertes",
-      "collectionScans": "Scans de {{collection}}",
-      "collectionErrors": "Erreurs de {{collection}}",
-      "rule": "Règle : {{rule}} ({{game}})"
+  "overrides": {
+    "heading": "Exceptions par collection",
+    "description": "Envoie les scans ou les erreurs d'une collection dans un autre salon. Les collections sans exception utilisent les salons ci-dessus.",
+    "add": "Ajouter une exception",
+    "empty": "Aucune exception. Chaque collection utilise les salons ci-dessus.",
+    "collection": "Collection",
+    "remove": "Supprimer l'exception pour {{name}}"
+  },
+  "overrideDialog": {
+    "title": "Ajouter une exception",
+    "description": "Choisis une collection et où ses scans ou ses erreurs doivent aller à la place.",
+    "collectionPlaceholder": "Rechercher des collections",
+    "noCollections": "Aucune collection correspondante sans exception.",
+    "cancel": "Annuler",
+    "save": "Ajouter l'exception",
+    "validation": {
+      "collectionRequired": "Choisis une collection.",
+      "channelRequired": "Choisis au moins un salon."
     }
+  },
+  "channels": {
+    "unknown": "Salon inconnu ({{id}})",
+    "inCategory": "dans {{category}}"
+  },
+  "roles": {
+    "none": "Aucune mention",
+    "unknown": "rôle inconnu ({{id}})"
   },
   "notifications": {
     "heading": "Notifications",
@@ -59,7 +68,8 @@
     "saveFailed": "Impossible d'enregistrer les règles de notification.",
     "limitReached_one": "L'offre gratuite inclut {{count}} règle de notification Discord. Passe à Business pour des règles illimitées.",
     "limitReached_other": "L'offre gratuite inclut {{count}} règles de notification Discord. Passe à Business pour des règles illimitées.",
-    "upgrade": "Mettre à niveau"
+    "upgrade": "Mettre à niveau",
+    "andPings": "et mentionne"
   },
   "ruleDialog": {
     "addTitle": "Ajouter une règle de notification",
@@ -68,6 +78,8 @@
     "name": "Nom",
     "channel": "Salon",
     "channelPlaceholder": "Choisir un salon",
+    "role": "Rôle à mentionner",
+    "roleHint": "Mentionne ce rôle quand une carte correspond. Le bot ne peut pas mentionner les rôles grisés : rends-les mentionnables dans Discord, ou donne au bot la permission \"Mentionner @everyone, @here et tous les rôles\".",
     "enabled": "Activée",
     "conditions": "Conditions",
     "cancel": "Annuler",

@@ -41,12 +41,22 @@ export function unlinkGuild(guildId: string) {
   });
 }
 
+export interface TopCardSummary {
+  name: string;
+  setName: string | null;
+  foil: string | null;
+  collectionName: string;
+  priceDisplay: string;
+  imageUrl: string | null;
+}
+
 export interface StatsResult {
   collectionCount: number;
   cardCount: number;
   totalValue: number;
   totalValueDisplay?: string;
   collectionName?: string;
+  topCard: TopCardSummary | null;
 }
 
 export function getStats(guildId: string, collectionGuid?: string) {

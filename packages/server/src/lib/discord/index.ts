@@ -2,6 +2,7 @@ export type { DiscordEmbed, DiscordNotificationKind } from "./types";
 export {
   buildCardScannedEmbed,
   buildScanSessionStartEmbed,
+  resolveImageUrl,
   SCAN_ATTACHMENT_NAME,
   type CardScannedEmbedOptions,
   type CardScannedEmbedResult,

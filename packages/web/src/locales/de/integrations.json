@@ -13,33 +13,42 @@
   },
   "channelSettings": {
     "heading": "Kanäle",
-    "description": "Lege fest, wohin jeder Scan und jeder Fehler oder jede Warnung gepostet wird. Nur Inhaber und Admins können das ändern.",
+    "description": "Wohin jeder Scan und jeder Fehler oder jede Warnung gepostet wird. Nur Inhaber und Admins können das ändern.",
     "scan": "Jeder Scan",
     "error": "Fehler und Warnungen",
     "none": "Nicht posten",
-    "perCollection": "Pro Sammlung",
-    "perCollectionDescription": "Sende die Scans oder Fehler einer Sammlung stattdessen woanders hin.",
     "sameScan": "Wie jeder Scan",
     "sameError": "Wie Fehler",
     "saved": "Kanal gespeichert.",
     "saveFailed": "Der Kanal konnte nicht gespeichert werden."
   },
-  "channels": {
-    "heading": "Verknüpfte Kanäle",
-    "description": "Jeder Kanal, in den Magic Vault postet, und was dort gepostet wird.",
-    "empty": "Noch keine Kanäle. Wähle oben einen aus oder füge unten eine Benachrichtigungsregel hinzu.",
-    "unknown": "Unbekannter Kanal ({{id}})",
-    "inCategory": "in {{category}}",
-    "missing": "Dieser Kanal wurde gelöscht oder der Bot kann ihn nicht sehen.",
-    "missingPermissions": "Dem Bot fehlt: {{permissions}}",
-    "usage": {
-      "scans": "Jeder Scan",
-      "scansPaused": "Jeder Scan (aus)",
-      "errors": "Fehler und Warnungen",
-      "collectionScans": "Scans aus {{collection}}",
-      "collectionErrors": "Fehler aus {{collection}}",
-      "rule": "Regel: {{rule}} ({{game}})"
+  "overrides": {
+    "heading": "Abweichungen pro Sammlung",
+    "description": "Sende die Scans oder Fehler einer Sammlung in einen anderen Kanal. Sammlungen ohne Abweichung nutzen die Kanäle oben.",
+    "add": "Abweichung hinzufügen",
+    "empty": "Keine Abweichungen. Jede Sammlung nutzt die Kanäle oben.",
+    "collection": "Sammlung",
+    "remove": "Abweichung für {{name}} entfernen"
+  },
+  "overrideDialog": {
+    "title": "Abweichung hinzufügen",
+    "description": "Wähle eine Sammlung und wohin ihre Scans oder Fehler stattdessen gehen sollen.",
+    "collectionPlaceholder": "Sammlungen durchsuchen",
+    "noCollections": "Keine passenden Sammlungen ohne Abweichung.",
+    "cancel": "Abbrechen",
+    "save": "Abweichung hinzufügen",
+    "validation": {
+      "collectionRequired": "Wähle eine Sammlung.",
+      "channelRequired": "Wähle mindestens einen Kanal."
     }
+  },
+  "channels": {
+    "unknown": "Unbekannter Kanal ({{id}})",
+    "inCategory": "in {{category}}"
+  },
+  "roles": {
+    "none": "Kein Ping",
+    "unknown": "unbekannte Rolle ({{id}})"
   },
   "notifications": {
     "heading": "Benachrichtigungen",
@@ -59,7 +68,8 @@
     "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden.",
     "limitReached_one": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregel. Upgrade auf Business für unbegrenzte Regeln.",
     "limitReached_other": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade auf Business für unbegrenzte Regeln.",
-    "upgrade": "Upgrade"
+    "upgrade": "Upgrade",
+    "andPings": "und pingt"
   },
   "ruleDialog": {
     "addTitle": "Benachrichtigungsregel hinzufügen",
@@ -68,6 +78,8 @@
     "name": "Name",
     "channel": "Kanal",
     "channelPlaceholder": "Kanal auswählen",
+    "role": "Rolle pingen",
+    "roleHint": "Erwähnt diese Rolle, wenn eine Karte passt. Ausgegraute Rollen kann der Bot nicht pingen: Mach sie in Discord erwähnbar oder gib dem Bot die Berechtigung \"@everyone, @here und alle Rollen erwähnen\".",
     "enabled": "Aktiviert",
     "conditions": "Bedingungen",
     "cancel": "Abbrechen",

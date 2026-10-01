@@ -76,6 +76,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     totalValue,
     totalValueDisplay,
     collectionName,
+    topCard,
   } = result.data;
   const embed = new EmbedBuilder()
     .setTitle(
@@ -101,6 +102,21 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         inline: true,
       },
     );
+
+  if (topCard) {
+    const details = [
+      topCard.setName,
+      topCard.foil,
+      collectionName ? null : topCard.collectionName,
+    ].filter(Boolean);
+    embed.addFields({
+      name: "Highest value card",
+      value: `**${topCard.name}** · ${topCard.priceDisplay}${
+        details.length ? `\n${details.join(" · ")}` : ""
+      }`,
+    });
+    if (topCard.imageUrl) embed.setThumbnail(topCard.imageUrl);
+  }
 
   await interaction.editReply({ embeds: [embed] });
 }

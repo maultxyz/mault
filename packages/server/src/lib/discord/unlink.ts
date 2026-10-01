@@ -37,6 +37,6 @@ export async function clearOrgDiscordReferences(
     .where(eq(collections.orgId, orgId));
   await tx
     .update(notificationRules)
-    .set({ channelId: null, updatedAt: now })
+    .set({ channelId: null, roleId: null, updatedAt: now })
     .where(eq(notificationRules.orgId, orgId));
 }

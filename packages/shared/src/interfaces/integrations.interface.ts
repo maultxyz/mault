@@ -10,11 +10,19 @@ export interface DiscordChannel {
   missingPermissions: string[];
 }
 
+export interface DiscordRole {
+  id: string;
+  name: string;
+  color: string | null;
+  canPing: boolean;
+}
+
 export interface DiscordGuildInfo {
   id: string;
   name: string;
   iconUrl: string | null;
   channels: DiscordChannel[];
+  roles: DiscordRole[];
 }
 
 export interface DiscordCollectionChannels {
@@ -22,14 +30,6 @@ export interface DiscordCollectionChannels {
   name: string;
   scanChannelId: string | null;
   errorChannelId: string | null;
-}
-
-export interface DiscordRuleTarget {
-  guid: string;
-  name: string;
-  gameName: string;
-  isEnabled: boolean;
-  channelId: string;
 }
 
 export interface DiscordIntegration {
@@ -40,7 +40,6 @@ export interface DiscordIntegration {
   scanChannelId: string | null;
   errorChannelId: string | null;
   collections: DiscordCollectionChannels[];
-  rules: DiscordRuleTarget[];
 }
 
 export interface NotificationRule {
@@ -50,6 +49,7 @@ export interface NotificationRule {
   isEnabled: boolean;
   rules: BinRuleGroup;
   channelId: string | null;
+  roleId: string | null;
 }
 
 export interface NotificationRuleInput {
@@ -57,10 +57,11 @@ export interface NotificationRuleInput {
   isEnabled: boolean;
   rules: BinRuleGroup;
   channelId: string;
+  roleId: string | null;
 }
 
 export interface DiscordChannelInput {
-  kind: "scan" | "error";
-  channelId: string | null;
+  scanChannelId?: string | null;
+  errorChannelId?: string | null;
   collectionGuid?: string;
 }

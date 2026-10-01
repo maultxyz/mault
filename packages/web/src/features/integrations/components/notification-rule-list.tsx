@@ -12,6 +12,7 @@ import {
   updateNotificationRule,
 } from "@/features/integrations/api/integrations";
 import { DiscordChannelLabel } from "@/features/integrations/components/discord-channel-label";
+import { DiscordRoleLabel } from "@/features/integrations/components/discord-role-label";
 import { NotificationRuleDialog } from "@/features/integrations/components/notification-rule-dialog";
 import type { NotificationRuleListProps } from "@/lib/interfaces/integrations";
 import { toast } from "@/lib/toast";
@@ -26,6 +27,7 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 export function NotificationRuleList({
   gameGuid,
   channels,
+  roles,
 }: NotificationRuleListProps) {
   const { t } = useTranslation("integrations");
   const { activeOrg } = useOrg();
@@ -109,6 +111,15 @@ export function NotificationRuleList({
                       }
                       channelId={rule.channelId}
                     />
+                    {rule.roleId && (
+                      <>
+                        {t("rules.andPings")}
+                        <DiscordRoleLabel
+                          role={roles.find((r) => r.id === rule.roleId) ?? null}
+                          roleId={rule.roleId}
+                        />
+                      </>
+                    )}
                   </span>
                 ) : (
                   <p className="text-destructive">{t("rules.noChannel")}</p>
@@ -126,6 +137,7 @@ export function NotificationRuleList({
                       name: rule.name,
                       rules: rule.rules,
                       channelId: rule.channelId!,
+                      roleId: rule.roleId,
                       isEnabled,
                     }),
                   )
@@ -165,6 +177,7 @@ export function NotificationRuleList({
         rule={editing}
         gameGuid={gameGuid}
         channels={channels}
+        roles={roles}
       />
     </SettingsSection>
   );

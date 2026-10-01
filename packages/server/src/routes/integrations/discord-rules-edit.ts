@@ -4,7 +4,7 @@ import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { checkDiscordChannel, notificationRuleInputSchema } from "./shared";
+import { checkRuleTargets, notificationRuleInputSchema } from "./shared";
 
 export const editNotificationRuleRoute = new Hono<AppEnv>().put(
   "/discord/rules/:guid",
@@ -27,19 +27,23 @@ export const editNotificationRuleRoute = new Hono<AppEnv>().put(
             eq(notificationRules.guid, guid),
             eq(notificationRules.orgId, orgId),
           ),
-          columns: { channelId: true },
+          columns: { channelId: true, roleId: true },
         }),
       );
       if (!current) {
         return c.json({ success: false, message: "Rule not found." });
       }
-      if (current.channelId !== input.data.channelId) {
-        const channelError = await checkDiscordChannel(
+      if (
+        current.channelId !== input.data.channelId ||
+        current.roleId !== input.data.roleId
+      ) {
+        const targetError = await checkRuleTargets(
           orgId,
           input.data.channelId,
+          input.data.roleId,
         );
-        if (channelError) {
-          return c.json({ success: false, message: channelError });
+        if (targetError) {
+          return c.json({ success: false, message: targetError });
         }
       }
 
@@ -51,6 +55,7 @@ export const editNotificationRuleRoute = new Hono<AppEnv>().put(
             isEnabled: input.data.isEnabled,
             rules: input.data.rules,
             channelId: input.data.channelId,
+            roleId: input.data.roleId,
             updatedAt: new Date(),
           })
           .where(

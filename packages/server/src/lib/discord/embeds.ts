@@ -11,7 +11,7 @@ import type { DiscordEmbed } from "./types";
 const CARD_SCANNED_COLOR = 0x5865f2; // Discord blurple
 export const SCAN_ATTACHMENT_NAME = "scan.jpg";
 
-function resolveImageUrl(url: string): string {
+export function resolveImageUrl(url: string): string {
   const proxied = url.match(/\/cards\/image-proxy\?url=([^&]+)/);
   if (proxied) {
     try {

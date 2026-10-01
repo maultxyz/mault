@@ -15,6 +15,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       primaryColor?: string | null;
       scannerLayout?: string | null;
       discordNotifyOnScan?: boolean;
+      discordScanUseThreads?: boolean;
       sessionWrappedEnabled?: boolean;
       ocrEnabled?: boolean;
       priceSource?: string;
@@ -44,6 +45,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             "discordNotifyOnScan" in body
               ? (body.discordNotifyOnScan ?? false)
               : (existing?.discordNotifyOnScan ?? false),
+          discordScanUseThreads:
+            "discordScanUseThreads" in body
+              ? (body.discordScanUseThreads ?? true)
+              : (existing?.discordScanUseThreads ?? true),
           sessionWrappedEnabled:
             "sessionWrappedEnabled" in body
               ? (body.sessionWrappedEnabled ?? true)
@@ -73,6 +78,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
               (merged.scannerLayout as "horizontal" | "vertical") ??
               "horizontal",
             discordNotifyOnScan: merged.discordNotifyOnScan,
+            discordScanUseThreads: merged.discordScanUseThreads,
             sessionWrappedEnabled: merged.sessionWrappedEnabled,
             ocrEnabled: merged.ocrEnabled,
             priceSource: merged.priceSource,

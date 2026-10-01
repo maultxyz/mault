@@ -28,6 +28,7 @@ import {
   updateNotificationRule,
 } from "@/features/integrations/api/integrations";
 import { DiscordChannelLabel } from "@/features/integrations/components/discord-channel-label";
+import { DiscordRoleSelect } from "@/features/integrations/components/discord-role-select";
 import type { NotificationRuleDialogProps } from "@/lib/interfaces/integrations";
 import { toast } from "@/lib/toast";
 import {
@@ -47,6 +48,7 @@ function emptyValues(
   return {
     name: rule?.name ?? "",
     channelId: rule?.channelId ?? "",
+    roleId: rule?.roleId ?? null,
     isEnabled: rule?.isEnabled ?? true,
     rules: rule?.rules ?? {
       id: crypto.randomUUID(),
@@ -62,6 +64,7 @@ export function NotificationRuleDialog({
   rule,
   gameGuid,
   channels,
+  roles,
 }: NotificationRuleDialogProps) {
   const { t } = useTranslation("integrations");
   const { activeOrg } = useOrg();
@@ -111,6 +114,7 @@ export function NotificationRuleDialog({
     save.mutate({
       name: values.name,
       channelId: values.channelId,
+      roleId: values.roleId,
       isEnabled: values.isEnabled,
       rules: values.rules,
     });
@@ -176,6 +180,24 @@ export function NotificationRuleDialog({
               <FieldError errors={[errors.channelId]} />
             </Field>
           </div>
+
+          <Field>
+            <Label>{t("ruleDialog.role")}</Label>
+            <Controller
+              control={control}
+              name="roleId"
+              render={({ field }) => (
+                <DiscordRoleSelect
+                  value={field.value}
+                  roles={roles}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+            <p className="text-sm text-foreground/70">
+              {t("ruleDialog.roleHint")}
+            </p>
+          </Field>
 
           <Controller
             control={control}

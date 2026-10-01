@@ -10,7 +10,7 @@ import {
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { findGameId } from "../../lib/rule-groups";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { checkDiscordChannel, notificationRuleInputSchema } from "./shared";
+import { checkRuleTargets, notificationRuleInputSchema } from "./shared";
 
 export const addNotificationRuleRoute = new Hono<AppEnv>().post(
   "/discord/rules",
@@ -28,8 +28,12 @@ export const addNotificationRuleRoute = new Hono<AppEnv>().post(
     }
     const gameGuid = body.gameGuid;
     try {
-      const channelError = await checkDiscordChannel(orgId, input.data.channelId);
-      if (channelError) return c.json({ success: false, message: channelError });
+      const targetError = await checkRuleTargets(
+        orgId,
+        input.data.channelId,
+        input.data.roleId,
+      );
+      if (targetError) return c.json({ success: false, message: targetError });
 
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await findGameId(tx, gameGuid);
@@ -60,6 +64,7 @@ export const addNotificationRuleRoute = new Hono<AppEnv>().post(
           isEnabled: input.data.isEnabled,
           rules: input.data.rules,
           channelId: input.data.channelId,
+          roleId: input.data.roleId,
           gameId,
           orgId,
         });

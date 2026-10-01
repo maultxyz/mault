@@ -8,8 +8,8 @@ import { useDiscordBotSettings } from "@/features/companies/api/use-discord-bot"
 import { useOrg } from "@/features/companies/api/use-organization";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { discordIntegrationQueryOptions } from "@/features/integrations/api/integrations";
-import { DiscordChannelList } from "@/features/integrations/components/discord-channel-list";
 import { DiscordChannelSettings } from "@/features/integrations/components/discord-channel-settings";
+import { DiscordCollectionOverrides } from "@/features/integrations/components/discord-collection-overrides";
 import { NotificationRuleList } from "@/features/integrations/components/notification-rule-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
 import { IconAlertTriangle, IconBrandDiscord } from "@tabler/icons-react";
@@ -74,17 +74,12 @@ export function DiscordIntegration() {
         {isLinked && integration && (
           <>
             <DiscordChannelSettings integration={integration} />
-            <DiscordChannelList integration={integration} />
-            <SettingsSection
-              heading={t("notifications.heading")}
-              description={t("notifications.description")}
-            >
-              <DiscordNotificationSettings />
-            </SettingsSection>
+            <DiscordCollectionOverrides integration={integration} />
             {game ? (
               <NotificationRuleList
                 gameGuid={game.guid}
                 channels={guild?.channels ?? []}
+                roles={guild?.roles ?? []}
               />
             ) : (
               <SettingsSection
@@ -92,6 +87,12 @@ export function DiscordIntegration() {
                 description={t("rules.needsGame")}
               />
             )}
+            <SettingsSection
+              heading={t("notifications.heading")}
+              description={t("notifications.description")}
+            >
+              <DiscordNotificationSettings />
+            </SettingsSection>
           </>
         )}
       </SettingsSections>

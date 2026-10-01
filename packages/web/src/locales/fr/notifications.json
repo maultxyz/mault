@@ -4,6 +4,8 @@
     "description": "Les notifications d'erreur et de statut (erreurs de trieuse, bourrages, échecs de synchronisation, erreurs de recherche de carte) sont publiées dans le canal choisi avec /notify-channel sur ton serveur Discord lié.",
     "notifyToggleLabel": "Notifier à chaque carte scannée",
     "notifyToggleDescription": "Publie le nom, le prix et l'image de la carte sur Discord à chaque scan.",
+    "threadToggleLabel": "Publier les scans dans un fil",
+    "threadToggleDescription": "Regroupe chaque scan dans un fil \"Card Scans\" pour garder le salon lisible. Désactive pour publier chaque carte directement dans le salon.",
     "testHintNotLinked": "Lie un serveur Discord ci-dessus et exécute /notify-channel pour activer les notifications de test",
     "testHintReady": "Envoyer une notification de test",
     "sending": "Envoi…",

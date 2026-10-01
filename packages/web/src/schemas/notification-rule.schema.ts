@@ -15,6 +15,7 @@ export function createNotificationRuleFormSchema(
       .min(1, t("ruleDialog.validation.nameRequired"))
       .max(NOTIFICATION_RULE_NAME_MAX_LENGTH),
     channelId: z.string().min(1, t("ruleDialog.validation.channelRequired")),
+    roleId: z.string().nullable(),
     isEnabled: z.boolean(),
     rules: z.custom<BinRuleGroup>(
       (value) =>

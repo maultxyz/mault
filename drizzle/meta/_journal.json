@@ -519,6 +519,20 @@
       "when": 1790823617847,
       "tag": "0073_empty_pixie",
       "breakpoints": true
+    },
+    {
+      "idx": 74,
+      "version": "7",
+      "when": 1790867155319,
+      "tag": "0074_minor_toro",
+      "breakpoints": true
+    },
+    {
+      "idx": 75,
+      "version": "7",
+      "when": 1790867275427,
+      "tag": "0075_chief_scrambler",
+      "breakpoints": true
     }
   ]
 }

@@ -2,12 +2,7 @@ import type { DiscordIntegration } from "@magic-vault/shared";
 import { and, eq, isNotNull, or } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import {
-  collections,
-  games,
-  notificationRules,
-  orgSettings,
-} from "../../db/schema";
+import { collections, orgSettings } from "../../db/schema";
 import { fetchDiscordGuild } from "../../lib/discord";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -18,7 +13,7 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     try {
-      const { settings, collectionRows, ruleRows } = await authQuery(
+      const { settings, collectionRows } = await authQuery(
         c.get("jwtClaims"),
         async (tx) => {
           const [settings] = await tx
@@ -48,23 +43,7 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
                 ),
               ),
             );
-          const ruleRows = await tx
-            .select({
-              guid: notificationRules.guid,
-              name: notificationRules.name,
-              gameName: games.name,
-              isEnabled: notificationRules.isEnabled,
-              channelId: notificationRules.channelId,
-            })
-            .from(notificationRules)
-            .innerJoin(games, eq(games.id, notificationRules.gameId))
-            .where(
-              and(
-                eq(notificationRules.orgId, orgId),
-                isNotNull(notificationRules.channelId),
-              ),
-            );
-          return { settings, collectionRows, ruleRows };
+          return { settings, collectionRows };
         },
       );
 
@@ -85,13 +64,6 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
           name: row.name,
           scanChannelId: row.scanChannelId,
           errorChannelId: row.errorChannelId,
-        })),
-        rules: ruleRows.map((row) => ({
-          guid: row.guid!,
-          name: row.name,
-          gameName: row.gameName,
-          isEnabled: row.isEnabled,
-          channelId: row.channelId!,
         })),
       };
       return c.json({ success: true, data });

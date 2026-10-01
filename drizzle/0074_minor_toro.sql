@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "discord_scan_use_threads" boolean DEFAULT true NOT NULL;
