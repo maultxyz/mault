@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
 import type { MonitorCardGridProps } from "@/lib/interfaces/scanner";
-import { cn } from "@/lib/utils";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -17,13 +16,13 @@ export function MonitorCardGrid({
   cardCount,
   matchingCount,
   isLoading,
-  isMobile,
   viewMode,
   groupDuplicates,
   page,
   pageCount,
   onPageChange,
   showBinLocation,
+  onOpenCard,
 }: MonitorCardGridProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -70,24 +69,23 @@ export function MonitorCardGrid({
               }))}
               showQuantity={groupDuplicates}
               showBinLocation={showBinLocation}
+              onOpen={onOpenCard ? (row) => onOpenCard(row.scanId) : undefined}
             />
           </div>
         </div>
       ) : (
-        <div
-          className={cn(
-            "grid gap-2 p-4",
-            isMobile
-              ? "grid-cols-2"
-              : "grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8",
-          )}
-        >
+        <div className="grid gap-2 p-4 grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8">
           {entries.map((entry) => (
             <ScannedCardItem
               key={entry.scanId}
               card={entry.card}
               binNumber={entry.binNumber}
-              onOpen={() => {}}
+              onOpen={() => onOpenCard?.(entry.scanId)}
+              hasAlternatives={!!entry.alternativeMatches?.length}
+              needsReview={entry.needsReview}
+              wasCorrected={entry.corrected}
+              isFoil={entry.isFoil}
+              foilType={entry.foilType}
               quantity={entry.quantity}
               showBinLocation={showBinLocation}
             />

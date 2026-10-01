@@ -1,17 +1,41 @@
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { SectionNav } from "@/components/section-nav";
 import { useBillingCheckoutReturn } from "@/features/billing/api/use-billing-checkout-return";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
-import { SETTINGS_SECTIONS } from "@/lib/constants/settings";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useSettingsSections } from "@/hooks/use-settings-sections";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { useTranslation } from "react-i18next";
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 
 export default function SettingsLayout() {
   const { t } = useTranslation("settings");
+  const { pathname } = useLocation();
+  const isMobile = useIsMobile();
+  const sections = useSettingsSections();
   useBillingCheckoutReturn();
 
-  const sections = SETTINGS_SECTIONS.filter(
-    (section) => !("hostedOnly" in section) || AUTH_PROVIDER !== "local",
-  );
+  if (isMobile) {
+    const current = sections.find(
+      (section) => pathname === `${SETTINGS_PATHS.root}/${section.path}`,
+    );
+    return (
+      <div className="flex min-h-0 flex-1 flex-col">
+        {current ? (
+          <MobilePageHeader
+            title={t(current.labelKey)}
+            backTo={SETTINGS_PATHS.root}
+          />
+        ) : (
+          <MobilePageHeader title={t("title")} subtitle={t("subtitle")} />
+        )}
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="flex w-full flex-col gap-4 p-3">
+            <Outlet />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">

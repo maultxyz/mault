@@ -22,7 +22,6 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useLiveSessionCounts } from "@/features/collections/api/use-live-counts";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useHotkeys } from "@/hooks/use-hotkeys";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
@@ -272,79 +271,9 @@ function SubItem({
   );
 }
 
-function BottomNavItem({
-  to,
-  icon,
-  label,
-  end,
-  badge,
-  disabled,
-  tooltip,
-  external,
-}: NavItemDef) {
-  const inner = (
-    <>
-      <span className="relative">
-        {icon}
-        {badge && (
-          <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-green-500 ring-1 ring-background" />
-        )}
-      </span>
-      <span className="text-[10px] leading-none font-medium">{label}</span>
-    </>
-  );
-
-  if (disabled) {
-    return (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <span
-              aria-disabled="true"
-              className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md cursor-not-allowed text-muted-foreground/40"
-            />
-          }
-        >
-          {inner}
-        </TooltipTrigger>
-        <TooltipContent side="top">{tooltip}</TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (external) {
-    return (
-      <a
-        href={to}
-        target="_blank"
-        rel="noreferrer"
-        className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-all active:scale-90 text-muted-foreground"
-      >
-        {inner}
-      </a>
-    );
-  }
-
-  return (
-    <NavLink
-      to={to}
-      end={end}
-      className={({ isActive }) =>
-        cn(
-          "flex flex-col items-center gap-0.5 px-2 py-1 rounded-md transition-all active:scale-90 text-muted-foreground",
-          isActive && "text-foreground",
-        )
-      }
-    >
-      {inner}
-    </NavLink>
-  );
-}
-
 export function AppNav() {
   const { t } = useTranslation("common");
   const { isAdmin } = useRole();
-  const isMobile = useIsMobile();
   const { collections, activateCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
@@ -360,7 +289,7 @@ export function AppNav() {
     });
   }, []);
 
-  useHotkeys({ toggleSidebar: toggle }, !isMobile);
+  useHotkeys({ toggleSidebar: toggle });
 
   const liveCounts = useLiveSessionCounts();
 
@@ -384,13 +313,11 @@ export function AppNav() {
       icon: <IconCameraSpark size={20} />,
       label: t("nav.scanner"),
       end: true,
-      desktopOnly: true,
     },
     {
       to: "/app/collections",
       icon: <IconAlbum size={20} />,
       label: t("nav.collections"),
-      desktopOnly: true,
       subItems: collections.map((c) => ({
         key: c.guid,
         to: `/app/collections/${c.guid}/bins`,
@@ -414,7 +341,6 @@ export function AppNav() {
       to: "/app/calibrate",
       icon: <IconAdjustments size={20} />,
       label: t("nav.calibrate"),
-      desktopOnly: true,
     },
     {
       to: SHOP_URL,
@@ -428,45 +354,10 @@ export function AppNav() {
             to: "/app/admin",
             icon: <IconDatabaseCog size={20} />,
             label: t("nav.admin"),
-            desktopOnly: true,
           },
         ]
       : []),
   ];
-
-  if (isMobile) {
-    const mobileItems = navItems.filter((item) => !item.desktopOnly);
-    return (
-      <nav className="flex-none flex flex-row items-center justify-around bg-sidebar border-t px-1 py-1">
-        {mobileItems.map((item) => (
-          <BottomNavItem key={item.to} {...item} />
-        ))}
-        <AlertTrayTrigger
-          side="top"
-          align="center"
-          trigger={(count) => (
-            <button
-              type="button"
-              aria-label={t("alerts.tray.trigger")}
-              className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-md text-muted-foreground active:scale-90 transition-all"
-            >
-              <span className="relative">
-                <BrandIcon className="size-5" />
-                {count > 0 && (
-                  <span className="absolute -top-1 -right-1.5 min-w-3 h-3 rounded-full bg-destructive ring-1 ring-background" />
-                )}
-              </span>
-              <span className="text-[10px] leading-none font-medium">
-                {t("nav.alerts")}
-              </span>
-            </button>
-          )}
-        />
-        <OrgSwitcher variant="tab" side="top" />
-        <UserMenu variant="tab" side="top" />
-      </nav>
-    );
-  }
 
   return (
     <aside

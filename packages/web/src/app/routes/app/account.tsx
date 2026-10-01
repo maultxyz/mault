@@ -1,3 +1,4 @@
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import {
   SettingsSection,
   SettingsSections,
@@ -42,50 +43,59 @@ export default function AccountPage() {
   const isMobile = useIsMobile();
 
   return (
-    <div className="h-full w-full overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
-        <div>
-          <h1 className="font-heading text-lg font-semibold">{t("title")}</h1>
-          <p className="text-sm text-foreground/70">{t("subtitle")}</p>
-        </div>
-
-        <SettingsSections>
-          {AUTH_PROVIDER === "local" ? (
-            <>
-              <LocalAccountSummary />
-              <SettingsSection heading={t("apiKeys.heading")}>
-                <ApiKeysManager />
-              </SettingsSection>
-            </>
-          ) : (
-            <>
-              <SettingsSection heading={t("profile.heading")}>
-                <UpdateNameForm />
-              </SettingsSection>
-              <SettingsSection heading={t("email.heading")}>
-                <ChangeEmailForm />
-              </SettingsSection>
-              <SettingsSection heading={t("password.heading")}>
-                <ChangePasswordForm />
-              </SettingsSection>
-              <SettingsSection heading={t("sessions.heading")}>
-                <SessionsList />
-              </SettingsSection>
-            </>
-          )}
-
+    <div className="flex min-h-0 flex-1 flex-col">
+      {isMobile && (
+        <MobilePageHeader title={t("title")} subtitle={t("subtitle")} />
+      )}
+      <div className="min-h-0 flex-1 w-full overflow-y-auto">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-3 md:p-6">
           {!isMobile && (
-            <SettingsSection
-              heading={t("tour.heading")}
-              description={t("tour.description")}
-              action={
-                <Button variant="outline" onClick={startTour}>
-                  {t("tour.restartButton")}
-                </Button>
-              }
-            />
+            <div>
+              <h1 className="font-heading text-lg font-semibold">
+                {t("title")}
+              </h1>
+              <p className="text-sm text-foreground/70">{t("subtitle")}</p>
+            </div>
           )}
-        </SettingsSections>
+
+          <SettingsSections>
+            {AUTH_PROVIDER === "local" ? (
+              <>
+                <LocalAccountSummary />
+                <SettingsSection heading={t("apiKeys.heading")}>
+                  <ApiKeysManager />
+                </SettingsSection>
+              </>
+            ) : (
+              <>
+                <SettingsSection heading={t("profile.heading")}>
+                  <UpdateNameForm />
+                </SettingsSection>
+                <SettingsSection heading={t("email.heading")}>
+                  <ChangeEmailForm />
+                </SettingsSection>
+                <SettingsSection heading={t("password.heading")}>
+                  <ChangePasswordForm />
+                </SettingsSection>
+                <SettingsSection heading={t("sessions.heading")}>
+                  <SessionsList />
+                </SettingsSection>
+              </>
+            )}
+
+            {!isMobile && (
+              <SettingsSection
+                heading={t("tour.heading")}
+                description={t("tour.description")}
+                action={
+                  <Button variant="outline" onClick={startTour}>
+                    {t("tour.restartButton")}
+                  </Button>
+                }
+              />
+            )}
+          </SettingsSections>
+        </div>
       </div>
     </div>
   );

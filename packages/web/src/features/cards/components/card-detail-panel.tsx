@@ -18,15 +18,15 @@ import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import { getCardById } from "@/features/cards/api/card-search";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
+import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
+import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { DetailSection } from "@/features/cards/components/detail-section";
-import { loadCardImage } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
-import { SCAN_IMAGE_URL_STALE_MS } from "@/lib/constants/scanner";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
@@ -37,7 +37,6 @@ import {
   IconCheck,
   IconChevronDown,
   IconChevronUp,
-  IconExternalLink,
   IconLoader2,
   IconPencil,
   IconRefresh,
@@ -45,14 +44,9 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-
-function formatManaCost(manaCost: string): string {
-  return manaCost.replace(/[{}]/g, " ").trim().replace(/\s+/g, " ");
-}
 
 interface CardDetailPanelProps {
   scanId?: string;
@@ -166,15 +160,7 @@ export function CardDetailPanel({
   }, [editing, viewerOpen, hasPrev, hasNext, onPrev, onNext, onClose]);
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
-    useQuery({
-      queryKey: ["collection-card-image", activeCollection?.guid, scanId],
-      queryFn: () =>
-        loadCardImage(activeCollection!.guid, scanId!).then(
-          (r) => r.data?.capturedImageUrl,
-        ),
-      enabled: !!activeCollection?.guid && !!scanId,
-      staleTime: SCAN_IMAGE_URL_STALE_MS,
-    });
+    useScanImage(activeCollection?.guid, scanId);
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
 
@@ -451,68 +437,7 @@ export function CardDetailPanel({
                     </DetailSection>
 
                     <DetailSection title={t("cardDetailPanel.details")}>
-                      <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1.5 text-sm">
-                        <dt className="text-foreground/70">
-                          {t("cardDetailPanel.set")}
-                        </dt>
-                        <dd>
-                          {`${selectedCard.setName} (${selectedCard.set.toUpperCase()}) #${selectedCard.collectorNumber}`}
-                        </dd>
-                        {selectedCard.rarity && (
-                          <>
-                            <dt className="text-foreground/70">
-                              {t("cardDetailPanel.rarity")}
-                            </dt>
-                            <dd className="flex items-center gap-2 capitalize">
-                              <span
-                                className="size-2 rounded-full shrink-0"
-                                style={{
-                                  backgroundColor: `var(--${selectedCard.rarity})`,
-                                }}
-                              />
-                              {selectedCard.rarity}
-                            </dd>
-                          </>
-                        )}
-                        {selectedCard.manaCost && (
-                          <>
-                            <dt className="text-foreground/70">
-                              {t("cardDetailPanel.manaCost")}
-                            </dt>
-                            <dd>{formatManaCost(selectedCard.manaCost)}</dd>
-                          </>
-                        )}
-                        {selectedCard.power != null &&
-                          selectedCard.toughness != null && (
-                            <>
-                              <dt className="text-foreground/70">
-                                {t("cardDetailPanel.powerToughness")}
-                              </dt>
-                              <dd>
-                                {selectedCard.power}/{selectedCard.toughness}
-                              </dd>
-                            </>
-                          )}
-                        {selectedCard.artist && (
-                          <>
-                            <dt className="text-foreground/70">
-                              {t("cardDetailPanel.artist")}
-                            </dt>
-                            <dd>{selectedCard.artist}</dd>
-                          </>
-                        )}
-                      </dl>
-                      {selectedCard.sourceUrl && (
-                        <a
-                          href={selectedCard.sourceUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-sm text-primary hover:underline w-fit"
-                        >
-                          {t("cardPicker.viewSource")}
-                          <IconExternalLink className="size-3.5" />
-                        </a>
-                      )}
+                      <CardDetailsList card={selectedCard} />
                     </DetailSection>
 
                     {selectedCard.text && (

@@ -2,6 +2,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { useHealthQuery } from "@/features/health/api/health";
+import { MobilePageHeader } from "@/components/mobile-page-header";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useSyncState } from "@/lib/app-stream";
 import {
   IconAlertTriangle,
@@ -15,108 +17,125 @@ export default function HealthPage() {
   const { t: tGames } = useTranslation("games");
   const { data, isFetching, isLoading, refetch } = useHealthQuery();
   const isSyncing = useSyncState().status === "running";
+  const isMobile = useIsMobile();
+
+  const refreshButton = (
+    <Button
+      size={isMobile ? "sm" : "xs"}
+      variant="outline"
+      onClick={() => refetch()}
+      disabled={isFetching || isSyncing}
+    >
+      <IconRefresh className={`size-3.5 ${isFetching ? "animate-spin" : ""}`} />
+      {t("refresh")}
+    </Button>
+  );
+  const syncNote = isSyncing && (
+    <p className="text-xs text-foreground/70">{t("pausedDuringSync")}</p>
+  );
 
   return (
-    <div className="overflow-y-auto h-full w-full">
-      <div className="flex flex-col p-4 md:p-6 max-w-2xl mx-auto w-full gap-4">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-lg font-semibold font-heading">{t("title")}</h1>
-            <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
-          </div>
-          <div className="flex flex-col items-end gap-1">
-            <Button
-              size="xs"
-              variant="outline"
-              onClick={() => refetch()}
-              disabled={isFetching || isSyncing}
-            >
-              <IconRefresh
-                className={`size-3.5 ${isFetching ? "animate-spin" : ""}`}
-              />
-              {t("refresh")}
-            </Button>
-            {isSyncing && (
-              <p className="text-xs text-foreground/70">
-                {t("pausedDuringSync")}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {data && (
-          <div
-            className={`rounded-lg border p-4 flex items-center gap-3 ${
-              data.healthy
-                ? "border-green-500/30 bg-green-400/10"
-                : "border-red-500/30 bg-red-400/10"
-            }`}
-          >
-            {data.healthy ? (
-              <IconCircleCheck className="size-5 text-green-600 dark:text-green-400 shrink-0" />
-            ) : (
-              <IconAlertTriangle className="size-5 text-red-600 dark:text-red-400 shrink-0" />
-            )}
-            <div>
-              <p className="text-sm font-medium">
-                {data.healthy ? t("allHealthy") : t("someUnhealthy")}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t("lastChecked", {
-                  time: new Date(data.checkedAt).toLocaleTimeString(),
-                })}
-              </p>
-            </div>
-          </div>
-        )}
-
-        <div className="rounded-lg border divide-y">
-          {isLoading && (
-            <div className="p-4 text-sm text-muted-foreground">
-              {t("loading")}
+    <div className="flex min-h-0 flex-1 flex-col">
+      {isMobile && (
+        <MobilePageHeader
+          title={t("title")}
+          subtitle={t("subtitle")}
+          actions={refreshButton}
+        />
+      )}
+      <div className="min-h-0 flex-1 overflow-y-auto w-full">
+        <div className="flex flex-col p-3 md:p-6 max-w-2xl mx-auto w-full gap-4">
+          {isMobile ? (
+            syncNote
+          ) : (
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h1 className="text-lg font-semibold font-heading">
+                  {t("title")}
+                </h1>
+                <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+              </div>
+              <div className="flex flex-col items-end gap-1">
+                {refreshButton}
+                {syncNote}
+              </div>
             </div>
           )}
-          {data?.checks.map((check) => (
+
+          {data && (
             <div
-              key={check.name}
-              className="flex items-center justify-between gap-3 p-3"
+              className={`rounded-lg border p-4 flex items-center gap-3 ${
+                data.healthy
+                  ? "border-green-500/30 bg-green-400/10"
+                  : "border-red-500/30 bg-red-400/10"
+              }`}
             >
-              <div className="flex items-center gap-2 min-w-0">
-                <span
-                  className={`size-2 rounded-full shrink-0 ${
-                    check.status === "ok" ? "bg-green-500" : "bg-red-500"
-                  }`}
-                />
-                <span className="text-sm truncate">{check.name}</span>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {check.status === "error" && check.message && (
-                  <span className="text-sm text-red-600 dark:text-red-400">
-                    {check.message}
-                  </span>
-                )}
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {t("latency", { ms: check.latencyMs })}
-                </span>
-                <Badge
-                  variant={check.status === "ok" ? "success" : "destructive"}
-                >
-                  {check.status === "ok" ? t("statusOk") : t("statusError")}
-                </Badge>
+              {data.healthy ? (
+                <IconCircleCheck className="size-5 text-green-600 dark:text-green-400 shrink-0" />
+              ) : (
+                <IconAlertTriangle className="size-5 text-red-600 dark:text-red-400 shrink-0" />
+              )}
+              <div>
+                <p className="text-sm font-medium">
+                  {data.healthy ? t("allHealthy") : t("someUnhealthy")}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {t("lastChecked", {
+                    time: new Date(data.checkedAt).toLocaleTimeString(),
+                  })}
+                </p>
               </div>
             </div>
-          ))}
-        </div>
+          )}
 
-        <div>
-          <h2 className="text-sm font-semibold font-heading">
-            {tGames("gameCoverage.heading")}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            {tGames("gameCoverage.description")}
-          </p>
+          <div className="rounded-lg border divide-y">
+            {isLoading && (
+              <div className="p-4 text-sm text-muted-foreground">
+                {t("loading")}
+              </div>
+            )}
+            {data?.checks.map((check) => (
+              <div
+                key={check.name}
+                className="flex items-center justify-between gap-3 p-3"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span
+                    className={`size-2 rounded-full shrink-0 ${
+                      check.status === "ok" ? "bg-green-500" : "bg-red-500"
+                    }`}
+                  />
+                  <span className="text-sm truncate">{check.name}</span>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  {check.status === "error" && check.message && (
+                    <span className="text-sm text-red-600 dark:text-red-400">
+                      {check.message}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {t("latency", { ms: check.latencyMs })}
+                  </span>
+                  <Badge
+                    variant={check.status === "ok" ? "success" : "destructive"}
+                  >
+                    {check.status === "ok" ? t("statusOk") : t("statusError")}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div>
+            <h2 className="text-sm font-semibold font-heading">
+              {tGames("gameCoverage.heading")}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {tGames("gameCoverage.description")}
+            </p>
+          </div>
+          <GameCoverageList />
         </div>
-        <GameCoverageList />
       </div>
     </div>
   );

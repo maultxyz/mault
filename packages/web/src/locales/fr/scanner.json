@@ -358,11 +358,7 @@
     "connectFailed": "Impossible de se connecter.",
     "noCardsScannedYet": "Aucune carte scannée pour le moment.",
     "noCardsMatchSearch": "Aucune carte ne correspond à la recherche.",
-    "isWatchingTooltip": "{{name}} regarde",
-    "viewCards_one": "Voir {{count}} carte",
-    "viewCards_other": "Voir {{count}} cartes",
-    "viewCardsEmpty": "Voir les cartes",
-    "scannedCardsTitle": "Cartes scannées"
+    "isWatchingTooltip": "{{name}} regarde"
   },
   "monitorSessions": {
     "yourSession": "Ta session",
@@ -376,7 +372,9 @@
     "title": "Surveillance de session",
     "subtitle": "Rejoindre une session de scan en direct",
     "noSessionsFound": "Aucune session trouvée",
-    "noSessionsHint": "Les sessions actives apparaîtront ici"
+    "noSessionsHint": "Les sessions actives apparaîtront ici",
+    "liveNow": "En direct",
+    "allCollections": "Toutes les collections"
   },
   "binLimitDialog": {
     "title": "Le bac {{number}} est plein",
@@ -448,5 +446,24 @@
     "title": "La détection des cartes dans le navigateur ne fonctionne plus",
     "description": "Le moteur de détection IA a planté dans cet onglet. Les scans sont pour l'instant comparés sur le serveur, ce qui est plus lent et saute la détection des coins. Recharge la page pour corriger ça.",
     "reload": "Recharger"
+  },
+  "mobileMonitor": {
+    "tabCards": "Cartes",
+    "tabActivity": "Activité",
+    "cards": "Cartes",
+    "searchPlaceholder": "Rechercher des cartes",
+    "needsReview": "À vérifier",
+    "groupDuplicates": "Regrouper les copies",
+    "back": "Retour aux sessions",
+    "previousPage": "Page précédente",
+    "nextPage": "Page suivante",
+    "bin": "Bac {{number}}",
+    "noActivity": "Rien n'a encore été scanné. Les scans apparaissent ici en direct.",
+    "status": {
+      "connected": "En direct",
+      "connecting": "Connexion…",
+      "error": "Hors ligne",
+      "closed": "Hors ligne"
+    }
   }
 }

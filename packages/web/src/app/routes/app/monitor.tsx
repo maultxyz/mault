@@ -1,11 +1,14 @@
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
+import { useCollections } from "@/features/collections/api/use-collections";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { computeBinCount } from "@magic-vault/shared";
-import { useMemo } from "react";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
@@ -19,6 +22,22 @@ export default function MonitorPage() {
   );
   const { locks, currentUserId } = useCollectionLocks();
   const moduleCount = useModuleCount();
+  const isMobile = useIsMobile();
+  const { activeCollection } = useCollections();
+  const { station } = useStation();
+  const { claimStationCollection } = useStations();
+
+  useEffect(() => {
+    if (!isMobile || !collectionGuid) return;
+    if (station.collectionGuid === collectionGuid) return;
+    claimStationCollection(station.id, collectionGuid);
+  }, [
+    isMobile,
+    collectionGuid,
+    station.id,
+    station.collectionGuid,
+    claimStationCollection,
+  ]);
 
   const lock = collectionGuid ? locks[collectionGuid] : undefined;
   const otherViewers = session.viewers.filter(
@@ -57,6 +76,10 @@ export default function MonitorPage() {
       }
       binCount={computeBinCount(moduleCount)}
       showBinLocation
+      backHref="/app/monitor"
+      canEditCards={
+        !!collectionGuid && activeCollection?.guid === collectionGuid
+      }
     />
   );
 }
