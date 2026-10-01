@@ -26,9 +26,9 @@ import {
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { MULTI_VALUE_OPERATORS } from "@/lib/constants/bins";
-import { cn } from "@/lib/utils";
+import { cn, sortByLabel } from "@/lib/utils";
 import { IconChevronDown, IconX } from "@tabler/icons-react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 function FreeformMultiInput({
@@ -99,7 +99,7 @@ function MultiSelect({
         <IconChevronDown className="size-4 opacity-50 shrink-0" />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        {options.map((opt) => (
+        {sortByLabel(options).map((opt) => (
           <DropdownMenuCheckboxItem
             key={opt.value}
             checked={value.includes(opt.value)}
@@ -129,6 +129,10 @@ export function ConditionRow({
   const { ruleFieldDefinitions: fieldDefinitions } = useBinConfigs();
   const { activeCollection } = useCollections();
   const fieldMeta = getFieldMeta(condition.field, fieldDefinitions);
+  const sortedFields = useMemo(
+    () => sortByLabel(fieldDefinitions),
+    [fieldDefinitions],
+  );
   const isFreeformOptions =
     !!activeCollection?.lang &&
     activeCollection.lang !== "en" &&
@@ -219,7 +223,7 @@ export function ConditionRow({
             </SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {fieldMeta.options!.map((opt) => (
+            {sortByLabel(fieldMeta.options!).map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
                 {opt.label}
               </SelectItem>
@@ -268,7 +272,7 @@ export function ConditionRow({
           <SelectValue>{fieldMeta?.label}</SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {fieldDefinitions.map((f) => (
+          {sortedFields.map((f) => (
             <SelectItem key={f.field} value={f.field}>
               {f.label}
             </SelectItem>
