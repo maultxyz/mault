@@ -1,5 +1,6 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type {
+  DiscordChannelInput,
   DiscordIntegration,
   NotificationRule,
   NotificationRuleInput,
@@ -60,4 +61,10 @@ export function deleteNotificationRule(
   return apiDelete<Result<NotificationRule[]>>(
     `/api/integrations/discord/rules/${guid}`,
   );
+}
+
+export function setDiscordChannel(
+  input: DiscordChannelInput,
+): Promise<Result<null>> {
+  return apiPut<Result<null>>("/api/integrations/discord/channels", input);
 }

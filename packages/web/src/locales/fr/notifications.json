@@ -22,7 +22,7 @@
     "testError": "Échec de l'envoi de la notification de test.",
     "testNoChannel": {
       "title": "Aucun salon d'erreurs défini",
-      "description": "Lancez /notification sur votre serveur Discord, dans le salon où vous voulez recevoir les notifications d'erreur, puis réessayez."
+      "description": "Choisis un salon d'erreurs sur la page Intégrations, puis réessaie."
     }
   }
 }

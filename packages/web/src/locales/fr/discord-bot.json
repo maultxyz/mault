@@ -20,21 +20,21 @@
       },
       {
         "title": "Générer un code",
-        "description": "Dans Magic Vault, va dans Paramètres → Bot Discord et génère un code de liaison. Il n'est valable que quelques minutes."
+        "description": "Dans Magic Vault, ouvre Intégrations et génère un code de liaison. Il n'est valable que quelques minutes."
       },
       {
         "title": "Exécuter /link",
-        "description": "Dans ton serveur Discord, exécute /link <code> avec le code des paramètres. Nécessite la permission Gérer le serveur."
+        "description": "Sur ton serveur Discord, lance /link <code> avec le code des Intégrations. Nécessite la permission Gérer le serveur."
       },
       {
         "title": "Choisir tes salons",
-        "description": "Exécute /scanning et /notification pour choisir où les alertes de scan et d'erreur sont publiées - par défaut, le salon actuel."
+        "description": "De retour sur la page Intégrations, choisis où publier les scans et les alertes, par collection si tu veux, et ajoute des règles pour décider quelles cartes vont où."
       }
     ]
   },
   "commands": {
     "title": "Commandes",
-    "description": "Tout ce que le bot comprend, exécuté directement dans ton serveur Discord.",
+    "description": "Le bot n'a besoin que de deux commandes. Tout le reste se configure dans l'application.",
     "items": {
       "link": {
         "usage": "/link <code>",
@@ -43,22 +43,6 @@
       "stats": {
         "usage": "/stats [collection]",
         "description": "Affiche les statistiques de collection de cette organisation, éventuellement limitées à une collection."
-      },
-      "scanning": {
-        "usage": "/scanning [salon] [collection]",
-        "description": "Définit le salon pour les notifications de scan de cartes, éventuellement pour une seule collection (par défaut, le salon actuel et toutes les collections)."
-      },
-      "notification": {
-        "usage": "/notification [salon] [collection]",
-        "description": "Définit le salon pour les notifications d'erreur/de statut, éventuellement pour une seule collection (par défaut, le salon actuel et toutes les collections)."
-      },
-      "clear": {
-        "usage": "/clear scanning|notification [collection]",
-        "description": "Dissocie un salon défini par /scanning ou /notification, éventuellement pour une seule collection."
-      },
-      "help": {
-        "usage": "/help",
-        "description": "Liste toutes les commandes du bot."
       }
     }
   },

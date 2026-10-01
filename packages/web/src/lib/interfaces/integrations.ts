@@ -38,3 +38,15 @@ export interface DiscordChannelLabelProps {
   channel: DiscordChannel | null;
   channelId: string;
 }
+
+export interface DiscordChannelSelectProps {
+  value: string | null;
+  channels: DiscordChannel[];
+  emptyLabel: string;
+  disabled?: boolean;
+  onChange: (channelId: string | null) => void;
+}
+
+export interface DiscordChannelSettingsProps {
+  integration: DiscordIntegration;
+}

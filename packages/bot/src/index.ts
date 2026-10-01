@@ -11,13 +11,8 @@ import {
   type SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
 import { unlinkGuild } from "./api";
-import * as clear from "./commands/clear";
-import * as help from "./commands/help";
 import * as link from "./commands/link";
-import * as notification from "./commands/notification";
-import * as scanning from "./commands/scanning";
 import * as stats from "./commands/stats";
-import * as status from "./commands/status";
 import { startNotifyServer } from "./notify-server";
 import { startPresenceCycle } from "./presence";
 
@@ -38,15 +33,7 @@ if (!TOKEN || !CLIENT_ID) {
   throw new Error("DISCORD_BOT_TOKEN and DISCORD_CLIENT_ID must be set.");
 }
 
-const commands: BotCommand[] = [
-  link,
-  stats,
-  status,
-  notification,
-  scanning,
-  clear,
-  help,
-];
+const commands: BotCommand[] = [link, stats];
 const commandsByName = new Map(commands.map((c) => [c.data.name, c]));
 const commandBodies = commands.map((c) => c.data.toJSON());
 

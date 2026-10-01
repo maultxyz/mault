@@ -1,6 +1,5 @@
 import {
   ChannelType,
-  type ChatInputCommandInteraction,
   type Guild,
   type GuildBasedChannel,
 } from "discord.js";
@@ -46,31 +45,4 @@ export function listNotifyChannels(guild: Guild): GuildChannelSummary[] {
         "View Channel",
       ],
     }));
-}
-
-export async function resolveNotifyChannel(
-  interaction: ChatInputCommandInteraction,
-): Promise<{ channelId: string } | { error: string }> {
-  const picked =
-    interaction.options.getChannel("channel") ?? interaction.channel;
-  if (!picked || !isNotifyChannelType(picked.type) || !interaction.guild) {
-    return { error: "Pick a text or announcement channel for this." };
-  }
-
-  const channel = await interaction.guild.channels
-    .fetch(picked.id)
-    .catch(() => null);
-  const missing = channel
-    ? missingNotifyPermissions(channel, interaction.guild)
-    : null;
-  if (!missing) {
-    return { error: `I can't see <#${picked.id}>. Give me access to it first.` };
-  }
-  if (missing.length) {
-    return {
-      error: `I'm missing these permissions in <#${picked.id}>: ${missing.join(", ")}.`,
-    };
-  }
-
-  return { channelId: picked.id };
 }

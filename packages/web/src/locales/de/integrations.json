@@ -10,10 +10,23 @@
     "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Kanalnamen und Berechtigungen gerade nicht angezeigt werden.",
     "botNotInServer": "Der Bot ist nicht mehr auf deinem verknüpften Server. Füge ihn wieder hinzu und verknüpfe ihn erneut."
   },
+  "channelSettings": {
+    "heading": "Kanäle",
+    "description": "Lege fest, wohin jeder Scan und jeder Fehler oder jede Warnung gepostet wird. Nur Inhaber und Admins können das ändern.",
+    "scan": "Jeder Scan",
+    "error": "Fehler und Warnungen",
+    "none": "Nicht posten",
+    "perCollection": "Pro Sammlung",
+    "perCollectionDescription": "Sende die Scans oder Fehler einer Sammlung stattdessen woanders hin.",
+    "sameScan": "Wie jeder Scan",
+    "sameError": "Wie Fehler",
+    "saved": "Kanal gespeichert.",
+    "saveFailed": "Der Kanal konnte nicht gespeichert werden."
+  },
   "channels": {
     "heading": "Verknüpfte Kanäle",
-    "description": "Jeder Kanal, in den Magic Vault postet, und was dort gepostet wird. Scan- und Fehlerkanal legst du mit /scanning und /notification in Discord fest.",
-    "empty": "Noch keine Kanäle. Führe /scanning oder /notification in Discord aus oder füge unten eine Benachrichtigungsregel hinzu.",
+    "description": "Jeder Kanal, in den Magic Vault postet, und was dort gepostet wird.",
+    "empty": "Noch keine Kanäle. Wähle oben einen aus oder füge unten eine Benachrichtigungsregel hinzu.",
     "unknown": "Unbekannter Kanal ({{id}})",
     "inCategory": "in {{category}}",
     "missing": "Dieser Kanal wurde gelöscht oder der Bot kann ihn nicht sehen.",

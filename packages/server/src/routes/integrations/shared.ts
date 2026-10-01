@@ -16,7 +16,13 @@ export const notificationRuleInputSchema = z.object({
   channelId: z.string().regex(DISCORD_SNOWFLAKE_PATTERN),
 });
 
-export async function checkRuleChannel(
+export const channelInputSchema = z.object({
+  kind: z.enum(["scan", "error"]),
+  channelId: z.string().regex(DISCORD_SNOWFLAKE_PATTERN).nullable(),
+  collectionGuid: z.string().uuid().optional(),
+});
+
+export async function checkDiscordChannel(
   orgId: string,
   channelId: string,
 ): Promise<string | null> {

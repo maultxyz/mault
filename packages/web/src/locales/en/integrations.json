@@ -10,10 +10,23 @@
     "botUnreachable": "Couldn't reach the Discord bot, so channel names and permissions can't be shown right now.",
     "botNotInServer": "The bot isn't in your linked server anymore. Add it back, then link again."
   },
+  "channelSettings": {
+    "heading": "Channels",
+    "description": "Pick where every scan and every error or alert gets posted. Only owners and admins can change these.",
+    "scan": "Every scan",
+    "error": "Errors and alerts",
+    "none": "Don't post",
+    "perCollection": "Per collection",
+    "perCollectionDescription": "Send a collection's scans or errors somewhere else instead.",
+    "sameScan": "Same as every scan",
+    "sameError": "Same as errors",
+    "saved": "Channel saved.",
+    "saveFailed": "Couldn't save the channel."
+  },
   "channels": {
     "heading": "Linked channels",
-    "description": "Every channel Magic Vault posts to, and what it posts there. Set the scan and error channels with /scanning and /notification in Discord.",
-    "empty": "No channels yet. Run /scanning or /notification in Discord, or add a notification rule below.",
+    "description": "Every channel Magic Vault posts to, and what it posts there.",
+    "empty": "No channels yet. Pick one above, or add a notification rule below.",
     "unknown": "Unknown channel ({{id}})",
     "inCategory": "in {{category}}",
     "missing": "This channel was deleted or the bot can't see it.",

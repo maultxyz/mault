@@ -58,3 +58,9 @@ export interface NotificationRuleInput {
   rules: BinRuleGroup;
   channelId: string;
 }
+
+export interface DiscordChannelInput {
+  kind: "scan" | "error";
+  channelId: string | null;
+  collectionGuid?: string;
+}

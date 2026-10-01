@@ -20,21 +20,21 @@
       },
       {
         "title": "Generate a code",
-        "description": "In Magic Vault, go to Settings → Discord Bot and generate a link code. It's only valid for a few minutes."
+        "description": "In Magic Vault, open Integrations and generate a link code. It's only valid for a few minutes."
       },
       {
         "title": "Run /link",
-        "description": "In your Discord server, run /link <code> with the code from Settings. Requires the Manage Server permission."
+        "description": "In your Discord server, run /link <code> with the code from Integrations. Requires the Manage Server permission."
       },
       {
         "title": "Pick your channels",
-        "description": "Run /scanning and /notification to choose where card-scan and error alerts get posted. Each defaults to the current channel."
+        "description": "Back on the Integrations page, choose where scans and alerts get posted, per collection if you like, and add rules for which cards go where."
       }
     ]
   },
   "commands": {
     "title": "Commands",
-    "description": "Everything the bot understands, run directly in your Discord server.",
+    "description": "The bot only needs two commands. Everything else is set up in the app.",
     "items": {
       "link": {
         "usage": "/link <code>",
@@ -43,22 +43,6 @@
       "stats": {
         "usage": "/stats [collection]",
         "description": "Show this organization's collection stats, optionally limited to one collection."
-      },
-      "scanning": {
-        "usage": "/scanning [channel] [collection]",
-        "description": "Set the channel for card-scan notifications, optionally for just one collection (defaults to the current channel and every collection)."
-      },
-      "notification": {
-        "usage": "/notification [channel] [collection]",
-        "description": "Set the channel for error/status notifications, optionally for just one collection (defaults to the current channel and every collection)."
-      },
-      "clear": {
-        "usage": "/clear scanning|notification [collection]",
-        "description": "Unlink a channel set by /scanning or /notification, optionally for just one collection."
-      },
-      "help": {
-        "usage": "/help",
-        "description": "List all of the bot's commands."
       }
     }
   },

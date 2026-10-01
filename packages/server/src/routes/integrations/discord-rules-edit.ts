@@ -4,7 +4,7 @@ import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { checkRuleChannel, notificationRuleInputSchema } from "./shared";
+import { checkDiscordChannel, notificationRuleInputSchema } from "./shared";
 
 export const editNotificationRuleRoute = new Hono<AppEnv>().put(
   "/discord/rules/:guid",
@@ -34,7 +34,7 @@ export const editNotificationRuleRoute = new Hono<AppEnv>().put(
         return c.json({ success: false, message: "Rule not found." });
       }
       if (current.channelId !== input.data.channelId) {
-        const channelError = await checkRuleChannel(
+        const channelError = await checkDiscordChannel(
           orgId,
           input.data.channelId,
         );

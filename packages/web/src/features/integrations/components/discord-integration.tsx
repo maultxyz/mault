@@ -5,6 +5,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { discordIntegrationQueryOptions } from "@/features/integrations/api/integrations";
 import { DiscordChannelList } from "@/features/integrations/components/discord-channel-list";
+import { DiscordChannelSettings } from "@/features/integrations/components/discord-channel-settings";
 import { NotificationRuleList } from "@/features/integrations/components/notification-rule-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
 import { IconAlertTriangle, IconBrandDiscord } from "@tabler/icons-react";
@@ -62,6 +63,7 @@ export function DiscordIntegration() {
 
       {isLinked && integration && (
         <>
+          <DiscordChannelSettings integration={integration} />
           <DiscordChannelList integration={integration} />
           <DiscordNotificationSettings />
           {game ? (

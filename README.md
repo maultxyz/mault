@@ -28,7 +28,7 @@ https://makerworld.com/en/models/3066180-tcg-card-sorting-machine
 - Card grid sorting (by name, price, rarity, etc.) adapts automatically to whichever game a collection uses
 - Multiple collections per organization, each with their own bin configuration and card history
 - Remote monitoring: watch an in-progress scan session live from another device
-- Discord bot: link a Discord server to an organization from Settings, then anyone in it can run `/stats` (optionally scoped to one collection via autocomplete) to check collection stats. `/notify-channel` and `/scan-channel` independently pick where error/status alerts (sorter errors, jams, sync failures) and card-scan messages get posted — no webhook URLs to configure
+- Discord bot: link a Discord server to an organization with `/link` and a code from the Integrations page, then anyone in it can run `/stats` (optionally scoped to one collection via autocomplete) to check collection stats. Everything else is set up in the app's Integrations page: which channels get every scan and every error or alert (server-wide or per collection), and notification rules that post matching cards to their own channels. No webhook URLs to configure
 - Per-organization branding and scanner layout settings
 - Feeder, servo, and camera scan-region calibration tools: the camera's capture region can be dragged/resized live against the feed to match different webcam mountings and fields of view
 - In-app hardware build guide (`/build`) with bill of materials, wiring diagrams, and assembly instructions

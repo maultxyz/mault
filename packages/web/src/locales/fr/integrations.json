@@ -10,10 +10,23 @@
     "botUnreachable": "Impossible de joindre le bot Discord, les noms de salons et les permissions ne peuvent donc pas être affichés pour le moment.",
     "botNotInServer": "Le bot n'est plus sur ton serveur lié. Ajoute-le à nouveau, puis relie-le."
   },
+  "channelSettings": {
+    "heading": "Salons",
+    "description": "Choisis où publier chaque scan et chaque erreur ou alerte. Seuls les propriétaires et les admins peuvent les modifier.",
+    "scan": "Chaque scan",
+    "error": "Erreurs et alertes",
+    "none": "Ne pas publier",
+    "perCollection": "Par collection",
+    "perCollectionDescription": "Envoie les scans ou les erreurs d'une collection ailleurs.",
+    "sameScan": "Comme chaque scan",
+    "sameError": "Comme les erreurs",
+    "saved": "Salon enregistré.",
+    "saveFailed": "Impossible d'enregistrer le salon."
+  },
   "channels": {
     "heading": "Salons liés",
-    "description": "Chaque salon où Magic Vault publie, et ce qui y est publié. Définis les salons de scans et d'erreurs avec /scanning et /notification dans Discord.",
-    "empty": "Aucun salon pour l'instant. Lance /scanning ou /notification dans Discord, ou ajoute une règle de notification ci-dessous.",
+    "description": "Chaque salon où Magic Vault publie, et ce qui y est publié.",
+    "empty": "Aucun salon pour l'instant. Choisis-en un ci-dessus, ou ajoute une règle de notification ci-dessous.",
     "unknown": "Salon inconnu ({{id}})",
     "inCategory": "dans {{category}}",
     "missing": "Ce salon a été supprimé ou le bot ne peut pas le voir.",
