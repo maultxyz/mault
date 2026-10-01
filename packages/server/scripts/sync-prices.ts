@@ -8,9 +8,11 @@ const force = process.argv.includes("--force");
 
 async function run(): Promise<boolean> {
   let ok = true;
+  let pulled = force;
   try {
     const tcgplayer = await syncTcgplayerPrices({ force, log });
     ok &&= tcgplayer.failedGroups === 0;
+    pulled ||= tcgplayer.prices > 0 || tcgplayer.products > 0;
   } catch (err) {
     console.error("[sync-prices] TCGplayer sync failed:", err);
     ok = false;
@@ -18,11 +20,16 @@ async function run(): Promise<boolean> {
   try {
     const cardmarket = await syncCardmarketPrices({ force, log });
     ok &&= cardmarket.failedGames === 0;
+    pulled ||= cardmarket.prices > 0 || cardmarket.products > 0;
   } catch (err) {
     console.error("[sync-prices] Cardmarket sync failed:", err);
     ok = false;
   }
-  await refreshCollectionCardPrices({ log });
+  if (pulled) {
+    await refreshCollectionCardPrices({ log });
+  } else {
+    log("No new prices pulled; collection card prices are already current.");
+  }
   return ok;
 }
 
