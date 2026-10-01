@@ -8,7 +8,8 @@
     "statusLinked": "Verknüpft",
     "statusNotLinked": "Nicht verknüpft",
     "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Kanalnamen und Berechtigungen gerade nicht angezeigt werden.",
-    "botNotInServer": "Der Bot ist nicht mehr auf deinem verknüpften Server. Füge ihn wieder hinzu und verknüpfe ihn erneut."
+    "botNotInServer": "Der Bot ist nicht mehr auf deinem verknüpften Server. Füge ihn wieder hinzu und verknüpfe ihn erneut.",
+    "connection": "Verbindung"
   },
   "channelSettings": {
     "heading": "Kanäle",
@@ -40,6 +41,10 @@
       "rule": "Regel: {{rule}} ({{game}})"
     }
   },
+  "notifications": {
+    "heading": "Benachrichtigungen",
+    "description": "Schalte den Feed für jeden Scan ein oder aus und sende eine Testnachricht, um deine Kanäle zu prüfen."
+  },
   "rules": {
     "heading": "Benachrichtigungsregeln",
     "description": "Poste eine Karte in einen Kanal, wenn sie einer Regel entspricht. Jede passende Regel postet, eine Karte kann also in mehreren Kanälen landen, aber jeder Kanal bekommt sie nur einmal.",
@@ -51,7 +56,10 @@
     "enabled": "Aktiviert",
     "edit": "{{name}} bearbeiten",
     "delete": "{{name}} löschen",
-    "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden."
+    "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden.",
+    "limitReached_one": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregel. Upgrade auf Business für unbegrenzte Regeln.",
+    "limitReached_other": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade auf Business für unbegrenzte Regeln.",
+    "upgrade": "Upgrade"
   },
   "ruleDialog": {
     "addTitle": "Benachrichtigungsregel hinzufügen",

@@ -1,10 +1,13 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Switch } from "@/components/ui/switch";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { billingQueryOptions } from "@/features/billing/api/billing";
 import {
   deleteNotificationRule,
+  notificationRuleCountQueryOptions,
   notificationRulesQueryOptions,
   updateNotificationRule,
 } from "@/features/integrations/api/integrations";
@@ -17,6 +20,7 @@ import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export function NotificationRuleList({
   gameGuid,
@@ -27,6 +31,13 @@ export function NotificationRuleList({
   const queryClient = useQueryClient();
   const rulesOpts = notificationRulesQueryOptions(activeOrg?.id, gameGuid);
   const { data: rules = [], isLoading } = useQuery(rulesOpts);
+  const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
+  const { data: totalRules = 0 } = useQuery(
+    notificationRuleCountQueryOptions(activeOrg?.id),
+  );
+  const ruleLimit = billing?.maxNotificationRules ?? null;
+  const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<NotificationRule | null>(null);
 
@@ -42,6 +53,9 @@ export function NotificationRuleList({
       void queryClient.invalidateQueries({
         queryKey: ["discord-integration", activeOrg?.id],
       });
+      void queryClient.invalidateQueries({
+        queryKey: notificationRuleCountQueryOptions(activeOrg?.id).queryKey,
+      });
     },
     onError: () => toast.error(t("rules.saveFailed")),
   });
@@ -52,24 +66,31 @@ export function NotificationRuleList({
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h3 className="text-sm font-semibold">{t("rules.heading")}</h3>
-          <p className="text-sm text-foreground/70">
-            {t("rules.description")}
-          </p>
-        </div>
-        <Button onClick={() => openDialog(null)} disabled={!channels.length}>
+    <SettingsSection
+      heading={t("rules.heading")}
+      description={t("rules.description")}
+      action={
+        <Button
+          onClick={() => openDialog(null)}
+          disabled={!channels.length || atRuleLimit}
+        >
           <IconPlus />
           {t("rules.add")}
         </Button>
-      </div>
-
+      }
+    >
+      {atRuleLimit && (
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-sm text-foreground/70">
+            {t("rules.limitReached", { count: ruleLimit })}
+          </p>
+          <Button variant="outline" onClick={() => navigate("/app/settings")}>
+            {t("rules.upgrade")}
+          </Button>
+        </div>
+      )}
       {!isLoading && rules.length === 0 && (
-        <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-          {t("rules.empty")}
-        </p>
+        <p className="text-sm text-foreground/70">{t("rules.empty")}</p>
       )}
 
       {rules.length > 0 && (
@@ -144,6 +165,6 @@ export function NotificationRuleList({
         gameGuid={gameGuid}
         channels={channels}
       />
-    </div>
+    </SettingsSection>
   );
 }

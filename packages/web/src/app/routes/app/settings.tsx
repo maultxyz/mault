@@ -3,6 +3,10 @@ import { LanguageSwitcher } from "@/components/language-switcher";
 import { PriceSourceToggle } from "@/components/price-source-toggle";
 import { PrimaryColorPicker } from "@/components/primary-color-picker";
 import { ScannerLayoutToggle } from "@/components/scanner-layout-toggle";
+import {
+  SettingsSection,
+  SettingsSections,
+} from "@/components/settings-section";
 import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
 import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
@@ -47,125 +51,89 @@ export default function SettingsPage() {
 
   return (
     <div className="overflow-y-auto h-full w-full">
-      <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4 ">
+      <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-6">
         <div>
           <h1 className="text-lg font-semibold font-heading">{t("title")}</h1>
-          <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+          <p className="text-sm text-foreground/70">{t("subtitle")}</p>
         </div>
-        {AUTH_PROVIDER !== "local" && (
-          <div className="rounded-lg border p-4 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold font-heading">
-              {t("organizations.heading")}
-            </h2>
-            <OrgSettings />
-          </div>
-        )}
-        {AUTH_PROVIDER !== "local" && (
-          <div className="rounded-lg border p-4 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold font-heading">
-              {t("billing.heading")}
-            </h2>
-            <BillingSettings />
-          </div>
-        )}
-        {AUTH_PROVIDER === "local" && (
-          <div className="rounded-lg border p-4 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold font-heading">
-              {t("invites.heading")}
-            </h2>
-            <LocalOrgInvites />
-          </div>
-        )}
-        {AUTH_PROVIDER === "local" && <LocalOrgSettings />}
-        {AUTH_PROVIDER === "local" && (
-          <div className="rounded-lg border p-4 flex flex-col gap-4">
-            <h2 className="text-sm font-semibold font-heading">
-              {t("auditLog.heading")}
-            </h2>
-            <LocalAuditLog />
-          </div>
-        )}
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <div>
-            <h2 className="text-sm font-semibold font-heading">
-              {t("appearance.heading")}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {t("appearance.description")}
-            </p>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-medium">
-              {t("appearance.primaryColor")}
-            </p>
-            <PrimaryColorPicker />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-medium">
-              {t("appearance.scannerLayout")}
-            </p>
-            <ScannerLayoutToggle />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm font-medium">{t("appearance.language")}</p>
-            <LanguageSwitcher />
-          </div>
-        </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <div>
-            <h2 className="text-sm font-semibold font-heading">
-              {t("pricing.heading")}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {t("pricing.description")}
-            </p>
-          </div>
-          <PriceSourceToggle />
-        </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <div>
-            <h2 className="text-sm font-semibold font-heading">
-              {t("sessionWrapped.heading")}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {t("sessionWrapped.description")}
-            </p>
-          </div>
-          <label className="flex items-center justify-between gap-3">
-            <span className="text-sm">{t("sessionWrapped.toggleLabel")}</span>
-            <SessionWrappedToggle />
-          </label>
-        </div>
-        <div className="rounded-lg border p-4 flex flex-col gap-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold font-heading">
-                {t("ocr.heading")}
-              </h2>
-              <Badge variant="outline">{t("ocr.badge")}</Badge>
+        <SettingsSections>
+          {AUTH_PROVIDER !== "local" && (
+            <SettingsSection heading={t("organizations.heading")}>
+              <OrgSettings />
+            </SettingsSection>
+          )}
+          {AUTH_PROVIDER !== "local" && (
+            <SettingsSection heading={t("billing.heading")}>
+              <BillingSettings />
+            </SettingsSection>
+          )}
+          {AUTH_PROVIDER === "local" && (
+            <SettingsSection heading={t("invites.heading")}>
+              <LocalOrgInvites />
+            </SettingsSection>
+          )}
+          {AUTH_PROVIDER === "local" && <LocalOrgSettings />}
+          {AUTH_PROVIDER === "local" && (
+            <SettingsSection heading={t("auditLog.heading")}>
+              <LocalAuditLog />
+            </SettingsSection>
+          )}
+          <SettingsSection
+            heading={t("appearance.heading")}
+            description={t("appearance.description")}
+          >
+            <div className="flex flex-col gap-1.5">
+              <p className="text-sm font-medium">
+                {t("appearance.primaryColor")}
+              </p>
+              <PrimaryColorPicker />
             </div>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {t("ocr.description")}
-            </p>
-          </div>
-          <label className="flex items-center justify-between gap-3">
-            <span className="text-sm">{t("ocr.toggleLabel")}</span>
-            <OcrToggle />
-          </label>
-        </div>
-        <div className="rounded-lg border p-4 flex flex-wrap items-center justify-between gap-4">
-          <div>
-            <h2 className="text-sm font-semibold font-heading">
-              {t("integrations.heading")}
-            </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {t("integrations.description")}
-            </p>
-          </div>
-          <Button variant="outline" render={<Link to="/app/integrations" />}>
-            {t("integrations.open")}
-          </Button>
-        </div>
+            <div className="flex flex-col gap-1.5">
+              <p className="text-sm font-medium">
+                {t("appearance.scannerLayout")}
+              </p>
+              <ScannerLayoutToggle />
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <p className="text-sm font-medium">{t("appearance.language")}</p>
+              <LanguageSwitcher />
+            </div>
+          </SettingsSection>
+          <SettingsSection
+            heading={t("pricing.heading")}
+            description={t("pricing.description")}
+          >
+            <PriceSourceToggle />
+          </SettingsSection>
+          <SettingsSection
+            heading={t("sessionWrapped.heading")}
+            description={t("sessionWrapped.description")}
+          >
+            <label className="flex items-center justify-between gap-3">
+              <span className="text-sm">{t("sessionWrapped.toggleLabel")}</span>
+              <SessionWrappedToggle />
+            </label>
+          </SettingsSection>
+          <SettingsSection
+            heading={t("ocr.heading")}
+            badge={<Badge variant="outline">{t("ocr.badge")}</Badge>}
+            description={t("ocr.description")}
+          >
+            <label className="flex items-center justify-between gap-3">
+              <span className="text-sm">{t("ocr.toggleLabel")}</span>
+              <OcrToggle />
+            </label>
+          </SettingsSection>
+          <SettingsSection
+            heading={t("integrations.heading")}
+            description={t("integrations.description")}
+            action={
+              <Button variant="outline" render={<Link to="/app/integrations" />}>
+                {t("integrations.open")}
+              </Button>
+            }
+          />
+        </SettingsSections>
       </div>
     </div>
   );

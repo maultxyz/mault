@@ -3,6 +3,10 @@ import { count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
+import {
+  getNotificationRuleLimit,
+  notificationRuleLimitMessage,
+} from "../../lib/notification-rule-limit";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { findGameId } from "../../lib/rule-groups";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -36,6 +40,14 @@ export const addNotificationRuleRoute = new Hono<AppEnv>().post(
           .select({ total: count() })
           .from(notificationRules)
           .where(eq(notificationRules.orgId, orgId));
+        const planLimit = await getNotificationRuleLimit(tx, orgId);
+        if (planLimit !== null && total >= planLimit) {
+          return {
+            success: false as const,
+            message: notificationRuleLimitMessage(planLimit),
+            notificationRuleLimitReached: true,
+          };
+        }
         if (total >= NOTIFICATION_RULES_PER_ORG_LIMIT) {
           return {
             success: false as const,

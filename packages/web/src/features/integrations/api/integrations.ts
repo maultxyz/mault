@@ -35,6 +35,16 @@ export const notificationRulesQueryOptions = (
     staleTime: Infinity,
   });
 
+export const notificationRuleCountQueryOptions = (orgId: string | undefined) =>
+  queryOptions({
+    queryKey: ["notification-rules", orgId, "count"] as const,
+    queryFn: () =>
+      apiGet<Result<number>>("/api/integrations/discord/rules/count").then(
+        (r) => r.data ?? 0,
+      ),
+    enabled: !!orgId,
+  });
+
 export function addNotificationRule(
   gameGuid: string,
   input: NotificationRuleInput,

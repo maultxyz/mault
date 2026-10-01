@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { DiscordChannelLabel } from "@/features/integrations/components/discord-channel-label";
 import { buildChannelUsageRows } from "@/features/integrations/lib/channel-usage";
@@ -38,17 +39,12 @@ export function DiscordChannelList({ integration }: DiscordChannelListProps) {
     (usage.kind === "rule" && !usage.isEnabled);
 
   return (
-    <div className="flex flex-col gap-2">
-      <div>
-        <h3 className="text-sm font-semibold">{t("channels.heading")}</h3>
-        <p className="text-sm text-foreground/70">
-          {t("channels.description")}
-        </p>
-      </div>
+    <SettingsSection
+      heading={t("channels.heading")}
+      description={t("channels.description")}
+    >
       {rows.length === 0 ? (
-        <p className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-          {t("channels.empty")}
-        </p>
+        <p className="text-sm text-foreground/70">{t("channels.empty")}</p>
       ) : (
         <ul className="flex flex-col divide-y rounded-lg border">
           {rows.map((row) => {
@@ -89,6 +85,6 @@ export function DiscordChannelList({ integration }: DiscordChannelListProps) {
           })}
         </ul>
       )}
-    </div>
+    </SettingsSection>
   );
 }

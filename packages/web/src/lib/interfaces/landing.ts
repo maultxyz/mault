@@ -3,5 +3,6 @@ export interface PublicPricing {
   freeDailyScanLimit: number;
   freeMaxConnectedSorters?: number;
   freeMaxSoundRules?: number;
+  freeMaxNotificationRules?: number;
   maxConnectedSorters?: number;
 }

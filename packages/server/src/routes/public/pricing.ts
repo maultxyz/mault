@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import {
   FREE_PLAN_DAILY_SCAN_LIMIT,
   FREE_PLAN_MAX_CONNECTED_SORTERS,
+  FREE_PLAN_MAX_NOTIFICATION_RULES,
   FREE_PLAN_MAX_SOUND_RULES,
   getBusinessPriceInfo,
   isBillingEnabled,
@@ -16,6 +17,7 @@ const planLimits = {
     MAX_CONNECTED_SORTERS,
   ),
   freeMaxSoundRules: FREE_PLAN_MAX_SOUND_RULES,
+  freeMaxNotificationRules: FREE_PLAN_MAX_NOTIFICATION_RULES,
   maxConnectedSorters: MAX_CONNECTED_SORTERS,
 };
 

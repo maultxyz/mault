@@ -1,3 +1,4 @@
+import { SettingsSections } from "@/components/settings-section";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { SoundClipLibrary } from "@/features/sounds/components/sound-clip-library";
@@ -11,7 +12,7 @@ export default function SoundsPage() {
 
   return (
     <div className="h-full w-full overflow-y-auto">
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
         <div>
           <h1 className="font-heading text-lg font-semibold">{t("title")}</h1>
           <p className="text-sm text-foreground/70">
@@ -21,8 +22,10 @@ export default function SoundsPage() {
           </p>
         </div>
         <NoGameBanner />
-        <SoundClipLibrary />
-        {game && <SoundRuleList gameGuid={game.guid} />}
+        <SettingsSections>
+          <SoundClipLibrary />
+          {game && <SoundRuleList gameGuid={game.guid} />}
+        </SettingsSections>
       </div>
     </div>
   );

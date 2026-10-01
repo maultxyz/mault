@@ -74,6 +74,12 @@ export function LandingPricing() {
                   count: pricing?.freeMaxSoundRules ?? 1,
                 })}
               </li>
+              <li className="flex items-start gap-2 text-sm">
+                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                {t("pricing.free.notificationRules", {
+                  count: pricing?.freeMaxNotificationRules ?? 1,
+                })}
+              </li>
               {SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">
                   <IconCheck
@@ -123,6 +129,10 @@ export function LandingPricing() {
               <li className="flex items-start gap-2 text-sm font-medium">
                 <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
                 {t("pricing.business.soundRules")}
+              </li>
+              <li className="flex items-start gap-2 text-sm font-medium">
+                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                {t("pricing.business.notificationRules")}
               </li>
               {SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">

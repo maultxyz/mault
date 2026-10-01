@@ -23,6 +23,7 @@ import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
   addNotificationRule,
+  notificationRuleCountQueryOptions,
   notificationRulesQueryOptions,
   updateNotificationRule,
 } from "@/features/integrations/api/integrations";
@@ -97,6 +98,9 @@ export function NotificationRuleDialog({
       );
       void queryClient.invalidateQueries({
         queryKey: ["discord-integration", activeOrg?.id],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: notificationRuleCountQueryOptions(activeOrg?.id).queryKey,
       });
       onOpenChange(false);
     },

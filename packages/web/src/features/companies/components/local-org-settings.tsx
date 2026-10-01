@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
@@ -42,10 +43,7 @@ export function LocalOrgSettings() {
   if (activeOrg?.role !== "owner") return null;
 
   return (
-    <div className="rounded-lg border p-4 flex flex-col gap-4">
-      <h2 className="text-sm font-semibold font-heading">
-        {tSettings("organizations.heading")}
-      </h2>
+    <SettingsSection heading={tSettings("organizations.heading")}>
       <div className="flex flex-col gap-3 bg-destructive rounded-lg p-4 text-destructive-foreground">
         <h3 className="text-sm font-semibold font-heading">
           {t("orgSettings.dangerZoneHeading")}
@@ -72,6 +70,6 @@ export function LocalOrgSettings() {
         confirm={{ type: "name", name: activeOrg.name }}
         onConfirm={handleDelete}
       />
-    </div>
+    </SettingsSection>
   );
 }

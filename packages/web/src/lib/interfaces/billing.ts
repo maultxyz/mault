@@ -7,6 +7,7 @@ export interface BillingStatus {
   dailyLimit: number | null;
   maxConnectedSorters?: number | null;
   maxSoundRules?: number | null;
+  maxNotificationRules?: number | null;
 }
 
 export interface SupportPromptState {

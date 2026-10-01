@@ -126,7 +126,7 @@
   },
   "pricing": {
     "heading": "Des tarifs simples et transparents",
-    "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois et débloque les sons personnalisés illimités.",
+    "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois et débloque les sons personnalisés et les règles de notification Discord illimités.",
     "shared": {
       "collections": "Collections illimitées",
       "games": "Tous les jeux de cartes pris en charge",
@@ -140,7 +140,9 @@
       "sorters_one": "{{count}} trieur connecté à la fois",
       "sorters_other": "{{count}} trieurs connectés à la fois",
       "soundRules_one": "{{count}} règle sonore personnalisée",
-      "soundRules_other": "{{count}} règles sonores personnalisées"
+      "soundRules_other": "{{count}} règles sonores personnalisées",
+      "notificationRules_one": "{{count}} règle de notification Discord",
+      "notificationRules_other": "{{count}} règles de notification Discord"
     },
     "business": {
       "name": "Business",
@@ -150,7 +152,8 @@
       "cta": "Passer au plan Business",
       "sorters_one": "Jusqu'à {{count}} trieur à la fois, depuis un seul navigateur",
       "sorters_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
-      "soundRules": "Règles sonores illimitées avec tes propres clips importés"
+      "soundRules": "Règles sonores illimitées avec tes propres clips importés",
+      "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon"
     }
   },
   "cta": {

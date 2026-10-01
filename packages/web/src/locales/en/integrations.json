@@ -8,7 +8,8 @@
     "statusLinked": "Linked",
     "statusNotLinked": "Not linked",
     "botUnreachable": "Couldn't reach the Discord bot, so channel names and permissions can't be shown right now.",
-    "botNotInServer": "The bot isn't in your linked server anymore. Add it back, then link again."
+    "botNotInServer": "The bot isn't in your linked server anymore. Add it back, then link again.",
+    "connection": "Connection"
   },
   "channelSettings": {
     "heading": "Channels",
@@ -40,6 +41,10 @@
       "rule": "Rule: {{rule}} ({{game}})"
     }
   },
+  "notifications": {
+    "heading": "Notifications",
+    "description": "Turn the every-scan feed on or off, and send a test message to check your channels."
+  },
   "rules": {
     "heading": "Notification rules",
     "description": "Post a card to a channel when it matches a rule. Every matching rule posts, so one card can go to several channels, but each channel gets it once.",
@@ -51,7 +56,10 @@
     "enabled": "Enabled",
     "edit": "Edit {{name}}",
     "delete": "Delete {{name}}",
-    "saveFailed": "Couldn't save the notification rules."
+    "saveFailed": "Couldn't save the notification rules.",
+    "limitReached_one": "The free plan includes {{count}} Discord notification rule. Upgrade to Business for unlimited rules.",
+    "limitReached_other": "The free plan includes {{count}} Discord notification rules. Upgrade to Business for unlimited rules.",
+    "upgrade": "Upgrade"
   },
   "ruleDialog": {
     "addTitle": "Add notification rule",

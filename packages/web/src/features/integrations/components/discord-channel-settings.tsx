@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Label } from "@/components/ui/label";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -39,13 +40,10 @@ export function DiscordChannelSettings({
     integration.collections.find((c) => c.guid === guid);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div>
-        <h3 className="text-sm font-semibold">{t("channelSettings.heading")}</h3>
-        <p className="text-sm text-foreground/70">
-          {t("channelSettings.description")}
-        </p>
-      </div>
+    <SettingsSection
+      heading={t("channelSettings.heading")}
+      description={t("channelSettings.description")}
+    >
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
@@ -73,9 +71,9 @@ export function DiscordChannelSettings({
       {collections.length > 0 && (
         <div className="flex flex-col gap-2">
           <div>
-            <h4 className="text-sm font-medium">
+            <h3 className="text-sm font-medium">
               {t("channelSettings.perCollection")}
-            </h4>
+            </h3>
             <p className="text-sm text-foreground/70">
               {t("channelSettings.perCollectionDescription")}
             </p>
@@ -123,6 +121,6 @@ export function DiscordChannelSettings({
           </ul>
         </div>
       )}
-    </div>
+    </SettingsSection>
   );
 }

@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
@@ -65,35 +66,32 @@ export function SoundClipLibrary() {
   };
 
   return (
-    <section className="flex flex-col gap-3 rounded-lg border p-4">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="font-heading text-sm font-semibold">
-            {t("library.heading")}
-          </h2>
-          <p className="mt-0.5 text-sm text-foreground/70">
-            {t("library.description")}
-          </p>
-        </div>
-        <Button
-          variant="outline"
-          onClick={() => inputRef.current?.click()}
-          disabled={upload.isPending}
-        >
-          <IconUpload />
-          {upload.isPending ? t("library.uploading") : t("library.upload")}
-        </Button>
-        <input
-          ref={inputRef}
-          type="file"
-          accept={SOUND_CLIP_ACCEPT}
-          className="hidden"
-          onChange={(e) => {
-            handleFile(e.target.files?.[0]);
-            e.target.value = "";
-          }}
-        />
-      </div>
+    <SettingsSection
+      heading={t("library.heading")}
+      description={t("library.description")}
+      action={
+        <>
+          <Button
+            variant="outline"
+            onClick={() => inputRef.current?.click()}
+            disabled={upload.isPending}
+          >
+            <IconUpload />
+            {upload.isPending ? t("library.uploading") : t("library.upload")}
+          </Button>
+          <input
+            ref={inputRef}
+            type="file"
+            accept={SOUND_CLIP_ACCEPT}
+            className="hidden"
+            onChange={(e) => {
+              handleFile(e.target.files?.[0]);
+              e.target.value = "";
+            }}
+          />
+        </>
+      }
+    >
 
       {!isLoading && clips.length === 0 ? (
         <p className="text-sm text-foreground/70">{t("library.empty")}</p>
@@ -104,6 +102,6 @@ export function SoundClipLibrary() {
           ))}
         </ul>
       )}
-    </section>
+    </SettingsSection>
   );
 }

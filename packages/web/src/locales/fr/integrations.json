@@ -8,7 +8,8 @@
     "statusLinked": "Lié",
     "statusNotLinked": "Non lié",
     "botUnreachable": "Impossible de joindre le bot Discord, les noms de salons et les permissions ne peuvent donc pas être affichés pour le moment.",
-    "botNotInServer": "Le bot n'est plus sur ton serveur lié. Ajoute-le à nouveau, puis relie-le."
+    "botNotInServer": "Le bot n'est plus sur ton serveur lié. Ajoute-le à nouveau, puis relie-le.",
+    "connection": "Connexion"
   },
   "channelSettings": {
     "heading": "Salons",
@@ -40,6 +41,10 @@
       "rule": "Règle : {{rule}} ({{game}})"
     }
   },
+  "notifications": {
+    "heading": "Notifications",
+    "description": "Active ou désactive le fil de chaque scan, et envoie un message de test pour vérifier tes salons."
+  },
   "rules": {
     "heading": "Règles de notification",
     "description": "Publie une carte dans un salon quand elle correspond à une règle. Chaque règle correspondante publie, une carte peut donc aller dans plusieurs salons, mais chaque salon ne la reçoit qu'une fois.",
@@ -51,7 +56,10 @@
     "enabled": "Activée",
     "edit": "Modifier {{name}}",
     "delete": "Supprimer {{name}}",
-    "saveFailed": "Impossible d'enregistrer les règles de notification."
+    "saveFailed": "Impossible d'enregistrer les règles de notification.",
+    "limitReached_one": "L'offre gratuite inclut {{count}} règle de notification Discord. Passe à Business pour des règles illimitées.",
+    "limitReached_other": "L'offre gratuite inclut {{count}} règles de notification Discord. Passe à Business pour des règles illimitées.",
+    "upgrade": "Mettre à niveau"
   },
   "ruleDialog": {
     "addTitle": "Ajouter une règle de notification",

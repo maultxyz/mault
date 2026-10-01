@@ -126,7 +126,7 @@
   },
   "pricing": {
     "heading": "Simple, transparent pricing",
-    "subtitle": "The same app either way. Free covers casual sorting. Business removes the daily scan cap, runs several sorters at once and unlocks unlimited custom sounds.",
+    "subtitle": "The same app either way. Free covers casual sorting. Business removes the daily scan cap, runs several sorters at once, and unlocks unlimited custom sounds and Discord notification rules.",
     "shared": {
       "collections": "Unlimited collections",
       "games": "Every supported card game",
@@ -140,7 +140,9 @@
       "sorters_one": "{{count}} sorter connected at a time",
       "sorters_other": "{{count}} sorters connected at a time",
       "soundRules_one": "{{count}} custom sound rule",
-      "soundRules_other": "{{count}} custom sound rules"
+      "soundRules_other": "{{count}} custom sound rules",
+      "notificationRules_one": "{{count}} Discord notification rule",
+      "notificationRules_other": "{{count}} Discord notification rules"
     },
     "business": {
       "name": "Business",
@@ -150,7 +152,8 @@
       "cta": "Start Business plan",
       "sorters_one": "Up to {{count}} sorter at once, from one browser",
       "sorters_other": "Up to {{count}} sorters at once, from one browser",
-      "soundRules": "Unlimited sound rules with your own uploaded clips"
+      "soundRules": "Unlimited sound rules with your own uploaded clips",
+      "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel"
     }
   },
   "cta": {
