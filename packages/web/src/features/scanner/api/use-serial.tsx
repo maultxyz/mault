@@ -1084,6 +1084,22 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [sendAwaited],
   );
 
+  const readIR = useCallback((): Promise<boolean[] | null> => {
+    const queue = routeQueueRef.current;
+    const previousTail = queue.tail;
+    const reading = previousTail.then(() =>
+      sendAwaited({ readIR: true }, JAM_COMMAND_TIMEOUT_MS),
+    );
+    queue.tail = reading.then(
+      () => previousTail,
+      () => previousTail,
+    );
+    return reading.then((response) => {
+      const ir = (response as Record<string, unknown> | null)?.ir;
+      return Array.isArray(ir) ? ir.map((value) => value === true) : null;
+    });
+  }, [sendAwaited]);
+
   const reopenSensorBlockedToast = useCallback(() => {
     reopenSensorBlockedToastRef.current?.();
   }, []);
@@ -1111,6 +1127,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         sendRoute,
         sendPushTest,
         isRouteBusy,
+        readIR,
         sendTest,
         runTest: runTestOnActiveTransport,
         checkFirmwareVersion,

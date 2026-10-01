@@ -202,6 +202,7 @@ export interface SerialContextValue {
   ) => Promise<unknown | null>;
   sendPushTest: (test: PushTest) => Promise<unknown | null>;
   isRouteBusy: () => boolean;
+  readIR: () => Promise<boolean[] | null>;
   sendTest: () => Promise<TestResult>;
   runTest: () => Promise<void>;
   checkFirmwareVersion: () => Promise<FirmwareCheckResult>;

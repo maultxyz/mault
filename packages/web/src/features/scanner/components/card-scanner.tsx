@@ -11,6 +11,7 @@ import { reportSerialEvent } from "@/features/notifications/api/notification-set
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
+import { useVerifyJam } from "@/features/scanner/api/use-verify-jam";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { BinLimitDialog } from "@/features/scanner/components/bin-limit-dialog";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
@@ -158,6 +159,8 @@ export function CardScanner({
   };
   const scanningBlocked = apiHealthCheck?.status === "error" || isAtScanLimit;
 
+  const verifyJam = useVerifyJam();
+
   useSerialMessage((msg) => {
     if (
       typeof msg === "object" &&
@@ -168,17 +171,21 @@ export function CardScanner({
       if (!SESSION_TIMER_RUNNING_STATUSES.includes(status)) return;
 
       const raw = msg as Record<string, unknown>;
+      const module = Number(raw.module);
 
-      pause();
-      showJamToast({
-        module: Number(raw.module),
-        binNumber: raw.bin ? Number(raw.bin) : undefined,
-      });
-      void reportSerialEvent({
-        command: "jam",
-        sent: true,
-        response: raw,
-        collectionGuid: activeCollection?.guid,
+      void verifyJam(module).then((confirmed) => {
+        if (!confirmed) return;
+        pause();
+        showJamToast({
+          module,
+          binNumber: raw.bin ? Number(raw.bin) : undefined,
+        });
+        void reportSerialEvent({
+          command: "jam",
+          sent: true,
+          response: raw,
+          collectionGuid: activeCollection?.guid,
+        });
       });
     }
   });
