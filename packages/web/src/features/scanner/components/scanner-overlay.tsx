@@ -55,6 +55,8 @@ export function ScannerOverlay({
   isCameraActive,
   isConnected,
   isReady,
+  sensorBlockedModule,
+  onResolveSensorBlocked,
   firmwareVersion,
   hasCatchAll,
   autoFeed,
@@ -178,6 +180,20 @@ export function ScannerOverlay({
               {t("connect")}
             </Button>
           )}
+        </StatusPill>
+      );
+    }
+
+    if (sensorBlockedModule !== null) {
+      return (
+        <StatusPill variant="error">
+          <IconAlertTriangle className="size-3.5 shrink-0" />
+          <span className="flex-1">
+            {t("scannerOverlay.sensorBlocked", { module: sensorBlockedModule })}
+          </span>
+          <Button size="sm" variant="secondary" onClick={onResolveSensorBlocked}>
+            {t("scannerOverlay.resolveSensorBlocked")}
+          </Button>
         </StatusPill>
       );
     }

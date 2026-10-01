@@ -291,7 +291,9 @@
     "noCameraTitle": "No camera connected",
     "connectCameraButton": "Connect camera",
     "waitingForPhoneTitle": "Waiting for your phone",
-    "showQrCode": "Show QR code"
+    "showQrCode": "Show QR code",
+    "sensorBlocked": "Module {{module}}'s sensor sees a card, so the self-test didn't run.",
+    "resolveSensorBlocked": "Resolve"
   },
   "sessionErrorsPanel": {
     "heading": "Errors"

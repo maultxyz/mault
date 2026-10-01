@@ -80,6 +80,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
   const [isConnected, setIsConnected] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [sensorBlockedModule, setSensorBlockedModule] = useState<
+    number | null
+  >(null);
+  const reopenSensorBlockedToastRef = useRef<(() => void) | null>(null);
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<SerialBoardType | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
@@ -237,8 +241,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [pushCommLog],
   );
 
+  const clearSensorBlocked = useCallback(() => {
+    reopenSensorBlockedToastRef.current = null;
+    setSensorBlockedModule(null);
+    toast.dismiss(SENSOR_BLOCKED_TOAST_ID);
+  }, []);
+
   const sendTest = useCallback(async (): Promise<TestResult> => {
     setIsReady(false);
+    clearSensorBlocked();
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
     if (!sent) return { ok: false, error: null, blockedModule: null };
 
@@ -257,7 +268,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     } catch {
       return { ok: false, error: null, blockedModule: null };
     }
-  }, [sendCommand, waitForLine]);
+  }, [sendCommand, waitForLine, clearSensorBlocked]);
 
   const runConnectTestRef = useRef<ConnectTestRunner | null>(null);
 
@@ -316,6 +327,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           }
           const blockedIndex = response.ir.indexOf(true);
           if (blockedIndex !== -1) {
+            setSensorBlockedModule(blockedIndex + 1);
             show(
               t("serial.sensorBlocked.stillBlocked", {
                 module: blockedIndex + 1,
@@ -323,11 +335,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             );
             return;
           }
-          toast.dismiss(SENSOR_BLOCKED_TOAST_ID);
+          clearSensorBlocked();
           await runConnectTestRef.current?.(forTransport, forDevice);
         });
 
       function show(description: string) {
+        reopenSensorBlockedToastRef.current = () => show(description);
         toast.error(t("serial.sensorBlocked.title"), {
           id: SENSOR_BLOCKED_TOAST_ID,
           description: (
@@ -344,9 +357,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         });
       }
 
+      setSensorBlockedModule(module);
       show(t("serial.sensorBlocked.description", { module }));
     },
-    [sendCommand, waitForLine, t],
+    [sendCommand, waitForLine, clearSensorBlocked, t],
   );
 
   const disconnect = useCallback(() => {
@@ -361,6 +375,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     writeQueueRef.current = Promise.resolve();
     setIsConnected(false);
     setIsReady(false);
+    clearSensorBlocked();
     setFirmwareVersion(null);
     setBoard(null);
     setDeviceId(null);
@@ -385,7 +400,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     });
 
     return cleanup;
-  }, []);
+  }, [clearSensorBlocked]);
 
   const runConnectTest = useCallback(
     async (forTransport: ByteTransport, forDevice: Device | undefined) => {
@@ -1042,6 +1057,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [sendAwaited],
   );
 
+  const reopenSensorBlockedToast = useCallback(() => {
+    reopenSensorBlockedToastRef.current?.();
+  }, []);
+
   const sendPushTest = useCallback(
     (test: PushTest) =>
       sendAwaited({ pushTest: test }, PUSH_TEST_RESPONSE_TIMEOUT_MS),
@@ -1053,6 +1072,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       value={{
         isConnected,
         isReady,
+        sensorBlockedModule,
+        reopenSensorBlockedToast,
         firmwareVersion,
         board,
         deviceId,

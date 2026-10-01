@@ -73,6 +73,8 @@ export function CardScanner({
   const {
     isConnected,
     isReady,
+    sensorBlockedModule,
+    reopenSensorBlockedToast,
     firmwareVersion,
     disconnect,
     sendTest,
@@ -472,6 +474,8 @@ export function CardScanner({
           isCameraActive={isCameraActive}
           isConnected={isConnected}
           isReady={isReady}
+          sensorBlockedModule={sensorBlockedModule}
+          onResolveSensorBlocked={reopenSensorBlockedToast}
           firmwareVersion={firmwareVersion}
           hasCatchAll={hasCatchAll}
           autoFeed={autoFeed}
