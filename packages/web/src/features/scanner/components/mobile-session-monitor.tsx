@@ -169,6 +169,7 @@ export function MobileSessionMonitor({
           <MobileMonitorActivity
             session={session}
             stats={stats}
+            canEditCards={canEditCards}
             onOpenCard={canEditCards ? handleOpenCard : undefined}
           />
         )}

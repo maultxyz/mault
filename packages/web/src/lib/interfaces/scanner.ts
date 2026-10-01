@@ -110,6 +110,7 @@ export interface ScannedCardsContextValue {
     details?: UnmatchedScanDetails,
   ) => void;
   removeUnmatchedCard: (scanId: string) => void;
+  identifyUnmatchedCard: (scanId: string, card: PlayingCard) => Promise<boolean>;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: () => Promise<void>;
@@ -407,6 +408,7 @@ export interface MobileMonitorCardsProps {
 export interface MobileMonitorActivityProps {
   session: SessionMonitorState;
   stats: ScanStats | null;
+  canEditCards: boolean;
   onOpenCard?: (scanId: string) => void;
 }
 
@@ -529,4 +531,21 @@ export interface UnmatchedRateToastProps {
   suggestOcr: boolean;
   onOpenCalibration: () => void;
   onOpenSettings: () => void;
+}
+
+export interface UnmatchedCardsPanelProps {
+  cards: UnmatchedCard[];
+  onRemove?: (scanId: string) => void;
+  onIdentify?: (card: UnmatchedCard) => void;
+}
+
+export interface IdentifiableUnmatchedCardsPanelProps {
+  cards: UnmatchedCard[];
+  onRemove?: (scanId: string) => void;
+}
+
+export interface IdentifyUnmatchedDialogProps {
+  entry: UnmatchedCard | null;
+  collectionGuid: string | undefined;
+  onClose: () => void;
 }

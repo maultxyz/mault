@@ -33,6 +33,7 @@ import {
   removeCollectionCard,
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
+  identifyUnmatchedCard as identifyUnmatchedCardApi,
   confirmCollectionCard,
   setCollectionCardFoilType,
   updateCollectionCard,
@@ -667,6 +668,40 @@ export function ScannedCardsProvider({
     }
   }, []);
 
+  const identifyUnmatchedCard = useCallback(
+    async (scanId: string, card: PlayingCard) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return false;
+      try {
+        const result = await identifyUnmatchedCardApi(collection.guid, scanId, {
+          card,
+        });
+        if (!result.success || !result.data) return false;
+        const added = result.data;
+        setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+        if (added.binNumber != null) {
+          binContentsRef.current = [
+            ...binContentsRef.current,
+            {
+              scanId,
+              binNumber: added.binNumber,
+              scannedAt: added.scannedAt,
+              card: added.card,
+              isFoil: added.isFoil,
+              foilType: added.foilType,
+            },
+          ];
+        }
+        void invalidateCollectionCards(queryClient, collection.guid);
+        return true;
+      } catch (err) {
+        console.error("Failed to identify unmatched card:", err);
+        return false;
+      }
+    },
+    [queryClient],
+  );
+
   const removeCards = useCallback(
     (scanIds: string[]) => {
       const collection = activeCollectionRef.current;
@@ -861,6 +896,7 @@ export function ScannedCardsProvider({
         addCard,
         addUnmatchedCard,
         removeUnmatchedCard,
+        identifyUnmatchedCard,
         sendCatchAllBin,
         binLimitReached: binLimitBin,
         resolveBinLimit,

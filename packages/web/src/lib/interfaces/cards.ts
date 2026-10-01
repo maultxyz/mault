@@ -6,6 +6,13 @@ import type {
 } from "@magic-vault/shared";
 import type { ReactElement, ReactNode } from "react";
 
+export interface CardSearchPickerProps {
+  collectionGuid: string | undefined;
+  initialQuery?: string;
+  disabled?: boolean;
+  onSelect: (card: PlayingCard) => void;
+}
+
 export interface CardSortButtonProps {
   sortKey: string | null;
   onSortChange: (key: string | null) => void;

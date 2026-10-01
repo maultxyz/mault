@@ -332,7 +332,12 @@
     "ocrSetLine": "Gelesene Set-Zeile: {{text}}",
     "ocrEmpty": "nichts",
     "ocrMatchedName": "Ähnlichster Kartenname: {{name}} (Ähnlichkeit {{score}}), aber keine Druckversion war nah genug.",
-    "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug."
+    "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug.",
+    "identify": "Karte bestimmen",
+    "identifyTitle": "Diese Karte bestimmen",
+    "identifyDescription": "Wähle die Karte aus diesem Scan. Sie wird mit diesem Foto der Sammlung hinzugefügt, im Fach, in das sie sortiert wurde.",
+    "identified": "{{name}} wurde der Sammlung hinzugefügt.",
+    "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",

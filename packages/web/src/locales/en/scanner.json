@@ -332,7 +332,12 @@
     "ocrSetLine": "Set line read: {{text}}",
     "ocrEmpty": "nothing",
     "ocrMatchedName": "Closest card name: {{name}} (similarity {{score}}), but no printing was close enough.",
-    "ocrNoName": "No card name was close enough to the text read."
+    "ocrNoName": "No card name was close enough to the text read.",
+    "identify": "Identify card",
+    "identifyTitle": "Identify this card",
+    "identifyDescription": "Pick the card in this scan. It's added to the collection with this photo, in the bin it was sorted into.",
+    "identified": "{{name}} added to the collection.",
+    "identifyFailed": "Couldn't add the card. Try again."
   },
   "binStatusMeter": {
     "heading": "Bin Levels",

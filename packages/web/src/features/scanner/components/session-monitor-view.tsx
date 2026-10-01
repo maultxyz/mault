@@ -1,5 +1,6 @@
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { useMonitorCards } from "@/features/scanner/api/use-monitor-cards";
+import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
 import { MobileSessionMonitor } from "@/features/scanner/components/mobile-session-monitor";
 import { MonitorCardDetail } from "@/features/scanner/components/monitor-card-detail";
 import { MonitorCardGrid } from "@/features/scanner/components/monitor-card-grid";
@@ -54,7 +55,11 @@ export function SessionMonitorView({
       <aside className="col-span-5 md:col-span-5 lg:col-span-4 xl:col-span-3 2xl:col-span-2 overflow-hidden flex flex-col h-full p-2 border-r gap-2 bg-sidebar/70">
         {header}
         <SessionStatsPanel stats={stats} totalCards={cards.filteredCount} />
-        <UnmatchedCardsPanel cards={unmatchedCards} />
+        {canEditCards ? (
+          <IdentifiableUnmatchedCardsPanel cards={unmatchedCards} />
+        ) : (
+          <UnmatchedCardsPanel cards={unmatchedCards} />
+        )}
         <SessionErrorsPanel errors={errors} />
       </aside>
 

@@ -1,3 +1,4 @@
+import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { DetailSection } from "@/features/cards/components/detail-section";
@@ -10,6 +11,7 @@ import { useTranslation } from "react-i18next";
 export function MobileMonitorActivity({
   session,
   stats,
+  canEditCards,
   onOpenCard,
 }: MobileMonitorActivityProps) {
   const { t } = useTranslation("scanner");
@@ -34,7 +36,11 @@ export function MobileMonitorActivity({
   return (
     <div className="flex flex-col gap-5 p-3">
       <SessionErrorsPanel errors={errors} />
-      <UnmatchedCardsPanel cards={unmatchedCards} />
+      {canEditCards ? (
+        <IdentifiableUnmatchedCardsPanel cards={unmatchedCards} />
+      ) : (
+        <UnmatchedCardsPanel cards={unmatchedCards} />
+      )}
 
       {recent.length > 0 && (
         <DetailSection title={t("recentScannedCards.heading")}>

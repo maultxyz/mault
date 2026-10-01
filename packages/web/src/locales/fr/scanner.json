@@ -332,7 +332,12 @@
     "ocrSetLine": "Ligne d'extension lue : {{text}}",
     "ocrEmpty": "rien",
     "ocrMatchedName": "Nom de carte le plus proche : {{name}} (similarité {{score}}), mais aucune impression n'était assez proche.",
-    "ocrNoName": "Aucun nom de carte n'était assez proche du texte lu."
+    "ocrNoName": "Aucun nom de carte n'était assez proche du texte lu.",
+    "identify": "Identifier la carte",
+    "identifyTitle": "Identifier cette carte",
+    "identifyDescription": "Choisis la carte de ce scan. Elle est ajoutée à la collection avec cette photo, dans le bac où elle a été triée.",
+    "identified": "{{name}} a été ajoutée à la collection.",
+    "identifyFailed": "Impossible d'ajouter la carte. Réessaie."
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
