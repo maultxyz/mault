@@ -10,6 +10,7 @@ import {
   type SlashCommandOptionsOnlyBuilder,
   type SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
+import { unlinkGuild } from "./api";
 import * as clear from "./commands/clear";
 import * as help from "./commands/help";
 import * as link from "./commands/link";
@@ -71,21 +72,47 @@ async function registerCommands() {
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
+async function clearGuildScopedCommands(guildIds: string[]) {
+  for (const guildId of guildIds) {
+    if (guildId === DEV_GUILD_ID) continue;
+    try {
+      const existing = (await rest.get(
+        Routes.applicationGuildCommands(CLIENT_ID!, guildId),
+      )) as unknown[];
+      if (!existing.length) continue;
+      await rest.put(Routes.applicationGuildCommands(CLIENT_ID!, guildId), {
+        body: [],
+      });
+      console.log(`[bot] Cleared duplicate guild commands in ${guildId}.`);
+    } catch (err) {
+      console.error(
+        `[bot] Failed to clear guild commands in ${guildId}:`,
+        err,
+      );
+    }
+  }
+}
+
 client.once(Events.ClientReady, (readyClient) => {
-  console.log(`[bot] Logged in as ${readyClient.user.tag}`);
+  console.log(
+    `[bot] Logged in as ${readyClient.user.tag} in ${readyClient.guilds.cache.size} servers`,
+  );
   startPresenceCycle(readyClient);
+  if (!DEV_GUILD_ID) {
+    void clearGuildScopedCommands([...readyClient.guilds.cache.keys()]);
+  }
 });
 
-client.on(Events.GuildCreate, async (guild) => {
+client.on(Events.GuildCreate, (guild) => {
+  console.log(`[bot] Joined server ${guild.id}`);
+});
+
+client.on(Events.GuildDelete, async (guild) => {
+  console.log(`[bot] Removed from server ${guild.id}`);
   try {
-    await rest.put(Routes.applicationGuildCommands(CLIENT_ID!, guild.id), {
-      body: commandBodies,
-    });
+    await unlinkGuild(guild.id);
   } catch (err) {
-    console.error(
-      `[bot] Failed to register commands for new guild ${guild.id}:`,
-      err,
-    );
+    console.error(`[bot] Failed to unlink removed server ${guild.id}:`, err);
   }
 });
 

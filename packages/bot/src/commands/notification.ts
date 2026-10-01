@@ -1,5 +1,4 @@
 import {
-  ChannelType,
   MessageFlags,
   PermissionFlagsBits,
   SlashCommandBuilder,
@@ -7,6 +6,8 @@ import {
   type ChatInputCommandInteraction,
 } from "discord.js";
 import { getCollections, setChannel } from "../api";
+import { NOTIFY_CHANNEL_TYPES } from "../lib/constants";
+import { resolveNotifyChannel } from "../lib/notify-channel";
 
 const NOT_LINKED_MESSAGE =
   "This server isn't linked yet - run `/link <code>` first (generate a code from Magic Vault's Settings page).";
@@ -19,7 +20,7 @@ export const data = new SlashCommandBuilder()
     opt
       .setName("channel")
       .setDescription("Channel to post notifications in (defaults to this channel)")
-      .addChannelTypes(ChannelType.GuildText)
+      .addChannelTypes(...NOTIFY_CHANNEL_TYPES)
       .setRequired(false),
   )
   .addStringOption((opt) =>
@@ -65,22 +66,18 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     return;
   }
 
-  const channel = interaction.options.getChannel("channel") ?? interaction.channel;
-  if (!channel || channel.type !== ChannelType.GuildText) {
-    await interaction.reply({
-      content: "Pick a text channel for this.",
-      flags: MessageFlags.Ephemeral,
-    });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+  const channel = await resolveNotifyChannel(interaction);
+  if ("error" in channel) {
+    await interaction.editReply(channel.error);
     return;
   }
 
   const collectionGuid =
     interaction.options.getString("collection") ?? undefined;
-
-  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   const result = await setChannel(
     interaction.guildId,
-    channel.id,
+    channel.channelId,
     "error",
     collectionGuid,
   );
@@ -97,7 +94,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
 
   await interaction.editReply(
     collectionGuid
-      ? `Error notifications for that collection will now be posted in <#${channel.id}>.`
-      : `Error notifications will now be posted in <#${channel.id}>.`,
+      ? `Error notifications for that collection will now be posted in <#${channel.channelId}>.`
+      : `Error notifications will now be posted in <#${channel.channelId}>.`,
   );
 }

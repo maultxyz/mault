@@ -5,6 +5,7 @@ import { botListCollectionsRoute } from "./list-collections";
 import { botSetChannelRoute } from "./set-channel";
 import { botStatsRoute } from "./stats";
 import { botStatusRoute } from "./status";
+import { botUnlinkRoute } from "./unlink";
 
 const router = new Hono<AppEnv>();
 
@@ -15,5 +16,6 @@ router.route("/", botSetChannelRoute);
 router.route("/", botStatsRoute);
 router.route("/", botStatusRoute);
 router.route("/", botListCollectionsRoute);
+router.route("/", botUnlinkRoute);
 
 export { router as botRouter };

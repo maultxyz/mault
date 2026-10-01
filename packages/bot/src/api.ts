@@ -34,6 +34,13 @@ export function linkGuild(guildId: string, code: string, confirm = false) {
   });
 }
 
+export function unlinkGuild(guildId: string) {
+  return botFetch<undefined>("/bot/unlink", {
+    method: "POST",
+    body: JSON.stringify({ guildId }),
+  });
+}
+
 export type NotificationKind = "scan" | "error";
 
 export function setChannel(

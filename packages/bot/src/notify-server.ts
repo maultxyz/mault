@@ -99,12 +99,18 @@ export function startNotifyServer(client: Client) {
     }
 
     try {
-      const channel = await client.channels.fetch(body.channelId);
-      if (!channel || channel.type !== ChannelType.GuildText) {
+      const channel = await client.channels
+        .fetch(body.channelId)
+        .catch(() => null);
+      if (
+        !channel ||
+        (channel.type !== ChannelType.GuildText &&
+          channel.type !== ChannelType.GuildAnnouncement)
+      ) {
         return c.json(
           {
             success: false,
-            message: "Channel not found or not a text channel.",
+            message: "Channel not found, not accessible, or not a text channel.",
           },
           404,
         );

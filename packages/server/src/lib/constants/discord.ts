@@ -1,0 +1,1 @@
+export const DISCORD_LINK_CODE_LENGTH = 8;
