@@ -158,7 +158,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                     type="button"
                     onClick={() => toggleRarity(r.key)}
                     className={cn(
-                      "flex items-center justify-between text-xs rounded px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
+                      "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
                       active ? "bg-primary/15" : "hover:bg-muted",
                     )}
                   >
@@ -192,7 +192,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                     type="button"
                     onClick={() => toggleColor(c.key)}
                     className={cn(
-                      "flex items-center justify-between text-xs rounded px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
+                      "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
                       active ? "bg-primary/15" : "hover:bg-muted",
                     )}
                   >
@@ -225,7 +225,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                   type="button"
                   onClick={() => toggleSet(s.code)}
                   className={cn(
-                    "flex items-center justify-between text-xs gap-2 rounded px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
+                    "flex items-center justify-between text-xs gap-2 rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
                     active ? "bg-primary/15" : "hover:bg-muted",
                   )}
                 >

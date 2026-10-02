@@ -40,7 +40,7 @@ export function SaveBar({
     <div
       role="status"
       className={cn(
-        "fixed inset-x-0 bottom-8 z-50 mx-auto flex w-fit items-center gap-3 rounded-md border bg-popover px-1 pl-2 py-1 text-xs shadow-lg animate-in fade-in-0 slide-in-from-bottom-4 duration-150",
+        "fixed inset-x-0 bottom-8 z-50 mx-auto flex w-fit items-center gap-3 rounded-lg border bg-popover px-1 pl-2 py-1 text-xs shadow-lg animate-in fade-in-0 slide-in-from-bottom-4 duration-150",
         className,
       )}
     >

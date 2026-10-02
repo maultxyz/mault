@@ -16,7 +16,7 @@ import { Trans, useTranslation } from "react-i18next";
 
 function Pin({ children }: { children?: ReactNode }) {
   return (
-    <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
+    <code className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
       {children}
     </code>
   );

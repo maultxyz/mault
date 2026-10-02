@@ -123,7 +123,7 @@ function ServoControl({
       </div>
 
       {isLoading ? (
-        <Skeleton className="h-4 w-full rounded" />
+        <Skeleton className="h-4 w-full rounded-sm" />
       ) : calibration ? (
         <div className="flex w-full">
           {servo.positions.map((position) => {

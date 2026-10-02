@@ -98,7 +98,7 @@ export function MobileNav() {
 
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 flex justify-center px-4 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
-      <nav className="pointer-events-auto grid w-full max-w-xs grid-cols-4 gap-0.5 rounded-2xl border bg-sidebar/80 p-1 shadow-sm backdrop-blur-md">
+      <nav className="pointer-events-auto grid w-full max-w-xs grid-cols-4 gap-0.5 rounded-xl border bg-sidebar/80 p-1 shadow-sm backdrop-blur-md">
         <MobileNavTab
           to="/app/monitor"
           icon={<IconHeartRateMonitor size={18} />}

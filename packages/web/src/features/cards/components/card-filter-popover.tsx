@@ -19,7 +19,7 @@ function toggle<T>(arr: T[], item: T): T[] {
 }
 
 const chipBase =
-  "cursor-pointer border transition-colors rounded text-xs font-bold";
+  "cursor-pointer border transition-colors rounded-md text-xs font-bold";
 const chipInactive =
   "border-border bg-transparent text-foreground/70 hover:bg-muted hover:text-foreground";
 
