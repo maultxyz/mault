@@ -7,6 +7,7 @@ export * from "./interfaces/card.interface";
 export * from "./interfaces/card-embeddings.interface";
 export * from "./interfaces/collection-cards.interface";
 export * from "./interfaces/collections.interface";
+export * from "./interfaces/firmware.interface";
 export * from "./interfaces/games.interface";
 export * from "./interfaces/impersonation.interface";
 export * from "./interfaces/metrics.interface";

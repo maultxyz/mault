@@ -1,3 +1,4 @@
+import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,7 +19,10 @@ export function ExperimentalFeaturesPanel({
         <Label>{t("experimentalFeatures.title")}</Label>
         <Badge variant="outline">{t("experimentalFeatures.badge")}</Badge>
       </div>
-      <div className="flex flex-col gap-2 rounded-lg border p-3">
+      <FirmwareFeatureGate
+        feature="pipelinedFeed"
+        className="flex flex-col gap-2 rounded-lg border p-3"
+      >
         <label className="flex items-center justify-between gap-2">
           <span className="text-xs font-medium">
             {t("experimentalFeatures.pipelinedFeedLabel")}
@@ -35,7 +39,7 @@ export function ExperimentalFeaturesPanel({
         <p className="text-[10px] text-foreground/70">
           {t("experimentalFeatures.pipelinedFeedDescription")}
         </p>
-      </div>
+      </FirmwareFeatureGate>
     </div>
   );
 }

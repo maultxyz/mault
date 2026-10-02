@@ -1,3 +1,4 @@
+import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Slider } from "@/components/ui/slider";
@@ -19,7 +20,6 @@ import {
   signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
-import { FEEDER_ROLLBACK_MIN_FIRMWARE } from "@magic-vault/shared";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -98,7 +98,6 @@ interface FeederCalibrationPanelProps {
   settleDurationValue: number;
   reverseSpeedValue: number;
   reverseDurationValue: number;
-  rollbackSupported: boolean;
   isConnected: boolean;
   canCalibrate: boolean;
   onSpeedChange: (value: number) => void;
@@ -119,7 +118,6 @@ export function FeederCalibrationPanel({
   settleDurationValue,
   reverseSpeedValue,
   reverseDurationValue,
-  rollbackSupported,
   isConnected,
   canCalibrate,
   onSpeedChange,
@@ -384,7 +382,10 @@ export function FeederCalibrationPanel({
           )}
         </div>
 
-        <div className="flex flex-col gap-2">
+        <FirmwareFeatureGate
+          feature="feederRollback"
+          className="flex flex-col gap-2"
+        >
           <div className="flex items-center justify-between">
             <p className="text-xs text-muted-foreground">
               {t("feederCalibrationPanel.reverseDurationLabel")}
@@ -398,13 +399,6 @@ export function FeederCalibrationPanel({
           <p className="text-[10px] text-muted-foreground/70">
             {t("feederCalibrationPanel.reverseDurationDescription")}
           </p>
-          {!rollbackSupported && (
-            <p className="text-[10px] text-amber-700 dark:text-amber-400">
-              {t("feederCalibrationPanel.reverseFirmwareNote", {
-                version: FEEDER_ROLLBACK_MIN_FIRMWARE,
-              })}
-            </p>
-          )}
           <Slider
             min={0}
             max={sliderMax(
@@ -470,7 +464,7 @@ export function FeederCalibrationPanel({
               )}
             </>
           )}
-        </div>
+        </FirmwareFeatureGate>
       </div>
     </div>
   );

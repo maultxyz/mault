@@ -84,7 +84,6 @@
     "reverseDurationLabel": "Recul après l'alimentation (ms)",
     "reverseDurationDescription": "Quand une carte atteint le module 1, le rouleau tourne en arrière pendant cette durée pour retirer la carte suivante du chargeur au lieu de la laisser avancer et provoquer une double alimentation. 0 le désactive.",
     "reverseSpeedLabel": "Vitesse de recul",
-    "reverseFirmwareNote": "Nécessite le firmware {{version}} ou plus récent. Mets à jour le firmware du trieur pour que ce réglage s'applique.",
     "off": "Désactivé"
   },
   "irSensorPanel": {

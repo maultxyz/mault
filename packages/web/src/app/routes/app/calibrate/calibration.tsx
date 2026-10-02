@@ -146,7 +146,6 @@ export default function CalibrateCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
-    feederRollbackSupported,
     handleFeederSpeedChange,
     handleFeederDurationChange,
     handleFeederPulseDurationChange,
@@ -254,7 +253,6 @@ export default function CalibrateCalibrationPage() {
         settleDurationValue={feederSettleDurationValue}
         reverseSpeedValue={feederReverseSpeedValue}
         reverseDurationValue={feederReverseDurationValue}
-        rollbackSupported={feederRollbackSupported}
         isConnected={isConnected}
         canCalibrate={canCalibrate}
         onSpeedChange={handleFeederSpeedChange}

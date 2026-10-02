@@ -43,5 +43,3 @@ export const DEFAULT_FEEDER_CALIBRATION: FeederCalibration = {
   reverseSpeed: 333,
   reverseDuration: 0,
 };
-
-export const FEEDER_ROLLBACK_MIN_FIRMWARE = "2.4.0";
