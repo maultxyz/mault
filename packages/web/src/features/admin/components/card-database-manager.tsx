@@ -69,7 +69,7 @@ export function CardDatabaseManager() {
             {t("cardDatabase.heading")}
           </p>
           {cardsQuery.data && (
-            <p className="text-xs text-muted-foreground tabular-nums">
+            <p className="text-xs text-foreground/70 tabular-nums">
               {t("cardDatabase.cardCount", {
                 count: cardsQuery.data.total,
               })}
@@ -86,7 +86,7 @@ export function CardDatabaseManager() {
 
       <div className="divide-y min-h-0 overflow-y-auto">
         {cardsQuery.isLoading && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("loading")}
           </p>
         )}
@@ -100,11 +100,11 @@ export function CardDatabaseManager() {
             <p className="text-xs font-medium flex-1 min-w-0 truncate">
               {card.name}
             </p>
-            <p className="text-xs text-muted-foreground uppercase font-mono shrink-0">
+            <p className="text-xs text-foreground/70 uppercase font-mono shrink-0">
               {card.gameKey} · {card.setCode}
               {card.lang !== "en" ? ` · ${card.lang}` : ""}
             </p>
-            <p className="text-xs text-muted-foreground tabular-nums shrink-0 hidden sm:block">
+            <p className="text-xs text-foreground/70 tabular-nums shrink-0 hidden sm:block">
               {new Date(card.updatedAt).toLocaleDateString()}
             </p>
             <Button
@@ -123,7 +123,7 @@ export function CardDatabaseManager() {
           </div>
         ))}
         {cardsQuery.data?.cards.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("cardDatabase.empty")}
           </p>
         )}
@@ -131,7 +131,7 @@ export function CardDatabaseManager() {
 
       {cardsQuery.data && totalPages > 1 && (
         <div className="border-t px-4 py-2 flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-foreground/70">
             {t("cardDatabase.pageOf", {
               page: cardPage,
               total: totalPages,

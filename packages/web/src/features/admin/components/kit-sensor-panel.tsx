@@ -101,7 +101,7 @@ export function KitSensorPanel({ session, disabled }: KitPanelProps) {
               </div>
               {isSensorVerified(sensor) && (
                 <IconCircleCheck
-                  className="size-5 shrink-0 text-green-600 dark:text-green-400"
+                  className="size-5 shrink-0 text-success-foreground"
                   aria-label={t("kitTest.sensors.verified")}
                 />
               )}

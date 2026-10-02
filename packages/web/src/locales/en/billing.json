@@ -8,6 +8,7 @@
     "free": "Free plan · {{used}} of {{limit}} cards scanned today. Click to upgrade.",
     "business": "Business plan. Click to manage billing."
   },
+  "includes": "Your plan includes",
   "usage": "{{used}} / {{limit}} cards scanned today",
   "upgrade": "Upgrade to Business",
   "manage": "Manage billing",

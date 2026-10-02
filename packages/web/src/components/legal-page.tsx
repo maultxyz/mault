@@ -33,10 +33,10 @@ export function LegalPage({ page }: { page: "privacy" | "terms" }) {
           <h1 className="font-heading text-3xl font-semibold tracking-tight md:text-4xl">
             {t(`${page}.title`)}
           </h1>
-          <p className="mt-2 text-sm text-foreground/60">
+          <p className="mt-2 text-sm text-foreground/70">
             {t("effectiveDateLabel", { date: updatedDate })}
           </p>
-          <div className="mt-6 flex flex-col gap-3 text-sm/relaxed text-foreground/80">
+          <div className="mt-6 flex flex-col gap-3 text-sm/relaxed text-foreground/70">
             {intro.map((paragraph, i) => (
               <p key={i}>{withContactEmail(paragraph)}</p>
             ))}
@@ -46,7 +46,7 @@ export function LegalPage({ page }: { page: "privacy" | "terms" }) {
               <h2 className="font-heading text-xl font-semibold">
                 {section.heading}
               </h2>
-              <div className="mt-3 flex flex-col gap-3 text-sm/relaxed text-foreground/80">
+              <div className="mt-3 flex flex-col gap-3 text-sm/relaxed text-foreground/70">
                 {section.body.map((paragraph, i) => (
                   <p key={i}>{withContactEmail(paragraph)}</p>
                 ))}

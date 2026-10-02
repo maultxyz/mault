@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,14 +48,11 @@ export function DumpCardDatabasePanel() {
 
   return (
     <>
-      <div className="rounded-lg border p-4 flex items-center justify-between gap-3">
-        <div className="flex flex-col gap-0.5 min-w-0">
-          <p className="text-sm font-medium">{t("dumpDatabase.heading")}</p>
-          <p className="text-xs text-muted-foreground">
-            {t("dumpDatabase.description")}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
+      <SettingsSection
+        heading={t("dumpDatabase.heading")}
+        description={t("dumpDatabase.description")}
+      >
+        <div className="flex flex-wrap items-center gap-2">
           <Select
             value={dumpGameKey}
             onValueChange={(value) => setDumpGameKey(value ?? "__all__")}
@@ -86,7 +84,7 @@ export function DumpCardDatabasePanel() {
             {t("dumpDatabase.dumpButton")}
           </Button>
         </div>
-      </div>
+      </SettingsSection>
 
       <DeleteDialog
         open={dumpOpen}

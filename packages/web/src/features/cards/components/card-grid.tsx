@@ -458,7 +458,7 @@ export function CardGrid() {
             >
               <IconChevronLeft />
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-foreground/70">
               {t("cardGrid.pageOf", {
                 page: clampedPage + 1,
                 total: pageCount,

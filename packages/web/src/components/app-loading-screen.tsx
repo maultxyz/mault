@@ -43,7 +43,7 @@ export function AppLoadingScreen({
           <BrandIcon className="size-7" />
         </span>
         <ScanningCard />
-        <span className="text-sm text-muted-foreground font-bold sr-only">
+        <span className="text-sm text-foreground/70 font-bold sr-only">
           {t("loadingGate.loadingVault")}
         </span>
       </div>

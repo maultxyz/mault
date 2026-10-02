@@ -160,11 +160,11 @@ export function CollectionSwitcher() {
               (activeCollection && isLockedByOther(activeCollection.guid))) && (
               <InputGroupAddon align="inline-start">
                 {isActivating ? (
-                  <IconLoader2 className="size-3 animate-spin text-muted-foreground" />
+                  <IconLoader2 className="size-3 animate-spin text-foreground/70" />
                 ) : (
                   <IconLock
                     size={11}
-                    className="text-amber-800 dark:text-amber-400"
+                    className="text-warning-foreground"
                   />
                 )}
               </InputGroupAddon>
@@ -185,10 +185,10 @@ export function CollectionSwitcher() {
                     {lockedByOther && (
                       <IconLock
                         size={11}
-                        className="ml-1 shrink-0 text-muted-foreground"
+                        className="ml-1 shrink-0 text-foreground/70"
                       />
                     )}
-                    <span className="ml-auto pl-2 pr-6 pt-0.5 text-xs text-muted-foreground tabular-nums">
+                    <span className="ml-auto pl-2 pr-6 pt-0.5 text-xs text-foreground/70 tabular-nums">
                       {c.cardCount}
                     </span>
                   </ComboboxItem>
@@ -236,7 +236,7 @@ export function CollectionSwitcher() {
                   size="icon"
                   disabled={releasing}
                   onClick={handleReleaseLock}
-                  className="text-amber-800 dark:text-amber-400 border-amber-500/40 hover:bg-amber-500/10"
+                  className="text-warning-foreground border-warning-border hover:bg-warning-muted"
                 >
                   {releasing ? (
                     <IconLoader2 className="animate-spin" />

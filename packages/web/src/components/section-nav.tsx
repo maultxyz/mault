@@ -23,7 +23,7 @@ export function SectionNav({
         <h1 className="text-lg font-semibold font-heading whitespace-nowrap">
           {title}
         </h1>
-        <p className="hidden lg:block text-xs text-muted-foreground">
+        <p className="hidden lg:block text-xs text-foreground/70">
           {subtitle}
         </p>
       </div>

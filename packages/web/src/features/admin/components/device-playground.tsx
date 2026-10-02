@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -93,10 +94,9 @@ export function DevicePlayground() {
             </>
           )}
         </div>
-        <p className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400">
-          <IconAlertTriangle size={14} className="mt-0.5 shrink-0" />
+        <Callout variant="warning" icon={IconAlertTriangle}>
           {t("devicePlayground.warning")}
-        </p>
+        </Callout>
       </SettingsSection>
 
       <DeviceStopBar disabled={disabled} />

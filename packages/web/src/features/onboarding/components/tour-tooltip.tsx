@@ -31,7 +31,7 @@ export function TourTooltip({
       {step.title && (
         <h3 className="font-heading text-sm font-medium">{step.title}</h3>
       )}
-      <div className="text-xs/relaxed text-muted-foreground">
+      <div className="text-xs/relaxed text-foreground/70">
         {step.content}
       </div>
       <div className="flex items-center justify-between gap-2">

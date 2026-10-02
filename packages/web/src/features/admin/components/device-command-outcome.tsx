@@ -12,8 +12,8 @@ export function DeviceCommandOutcome({ outcome }: DeviceCommandOutcomeProps) {
       className={cn(
         "flex flex-col gap-1 rounded-md border px-2 py-1.5 text-xs",
         isError
-          ? "border-destructive/40 bg-destructive/5"
-          : "border-green-500/30 bg-green-400/10",
+          ? "border-destructive-border bg-destructive-muted"
+          : "border-success-border bg-success-muted",
       )}
     >
       <span className="text-foreground/70">

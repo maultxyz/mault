@@ -122,7 +122,7 @@ export function FirmwareFlashDialog({
 
       {state === "flashing" && isFlashing && (
         <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-foreground/70">
             <IconLoader2 className="size-3.5 shrink-0 animate-spin" />
             <span>{t("serial.update.flashing")}</span>
           </div>
@@ -137,7 +137,7 @@ export function FirmwareFlashDialog({
               viewportRef={flashLogRef}
               className="h-40 rounded-md border bg-muted/30 p-2"
             >
-              <div className="flex flex-col gap-0.5 font-mono text-[11px] text-muted-foreground">
+              <div className="flex flex-col gap-0.5 font-mono text-xs text-foreground/70">
                 {flashLog.map((line, i) => (
                   // eslint-disable-next-line react/no-array-index-key -- append-only log, stable order
                   <span key={i}>{line}</span>
@@ -149,7 +149,7 @@ export function FirmwareFlashDialog({
       )}
 
       {state === "success" && (
-        <div className="flex items-center gap-2 text-sm text-green-800 dark:text-green-400">
+        <div className="flex items-center gap-2 text-sm text-success-foreground">
           <IconCircleCheck className="size-4 shrink-0" />
           <span>{successMessage}</span>
         </div>
@@ -162,7 +162,7 @@ export function FirmwareFlashDialog({
             <span>{t("serial.update.errorTitle")}</span>
           </div>
           {errorMessage && (
-            <p className="text-xs text-muted-foreground">{errorMessage}</p>
+            <p className="text-xs text-foreground/70">{errorMessage}</p>
           )}
         </div>
       )}

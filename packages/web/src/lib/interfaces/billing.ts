@@ -21,3 +21,7 @@ export interface SupportPromptToastProps {
   showSubscribe: boolean;
   onSubscribe: () => void;
 }
+
+export interface PlanFeaturesProps {
+  billing: BillingStatus;
+}

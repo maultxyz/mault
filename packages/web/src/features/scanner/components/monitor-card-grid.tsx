@@ -1,3 +1,4 @@
+import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { Button } from "@/components/ui/button";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
@@ -5,7 +6,6 @@ import type { MonitorCardGridProps } from "@/lib/interfaces/scanner";
 import {
   IconChevronLeft,
   IconChevronRight,
-  IconLoader2,
   IconWifiOff,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -30,10 +30,7 @@ export function MonitorCardGrid({
   return (
     <>
       {isLoading && entries.length === 0 && (
-        <div className="flex items-center justify-center h-32 text-foreground/70 text-sm gap-2">
-          <IconLoader2 size={16} className="animate-spin" />
-          {t("monitorPage.loadingSession")}
-        </div>
+        <CardTileSkeletonGrid count={12} />
       )}
       {status === "error" && (
         <div className="flex items-center justify-center h-32 text-destructive text-sm gap-2">

@@ -58,7 +58,7 @@ export function AutoAssignPanel() {
             {t("autoAssignPanel.heading")}
           </span>
           <Tooltip>
-            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
               <IconInfoCircle className="size-3.5" />
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
@@ -139,7 +139,7 @@ export function AutoAssignPanel() {
             {t("scanOnlyPanel.heading")}
           </span>
           <Tooltip>
-            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
               <IconInfoCircle className="size-3.5" />
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
@@ -166,7 +166,7 @@ export function AutoAssignPanel() {
             {t("repackPanel.heading")}
           </span>
           <Tooltip>
-            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
               <IconInfoCircle className="size-3.5" />
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">
@@ -188,7 +188,7 @@ export function AutoAssignPanel() {
             {t("alphabetPanel.heading")}
           </span>
           <Tooltip>
-            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
               <IconInfoCircle className="size-3.5" />
             </TooltipTrigger>
             <TooltipContent className="max-w-xs">

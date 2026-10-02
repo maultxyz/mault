@@ -32,12 +32,12 @@ export function AutoAssignSnapshot() {
     <div className="rounded-lg border p-2 my-2 flex flex-col gap-1 text-xs max-h-40 overflow-y-auto">
       {rows.map((row) => (
         <div key={row.binNumber} className="flex gap-2">
-          <span className="w-16 shrink-0 text-muted-foreground">
+          <span className="w-16 shrink-0 text-foreground/70">
             {t("binLabel", { number: row.binNumber })}
           </span>
           <span
             className={
-              row.label ? "font-medium" : "text-muted-foreground italic"
+              row.label ? "font-medium" : "text-foreground/70 italic"
             }
           >
             {row.label ?? t("autoAssignPanel.notYetAssigned")}

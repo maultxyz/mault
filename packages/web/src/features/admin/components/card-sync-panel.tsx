@@ -155,7 +155,7 @@ export function CardSyncPanel() {
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="flex gap-4 text-xs text-muted-foreground tabular-nums">
+            <div className="flex gap-4 text-xs text-foreground/70 tabular-nums">
               <span>
                 {t("cardImageVectors.progressCount", { done, total })}
               </span>
@@ -184,7 +184,7 @@ export function CardSyncPanel() {
                 </span>
               )}
               {syncState.errors > 0 && (
-                <span className="text-red-600 dark:text-red-400">
+                <span className="text-destructive">
                   {t("cardImageVectors.errorsCount", {
                     count: syncState.errors,
                   })}
@@ -192,7 +192,7 @@ export function CardSyncPanel() {
               )}
             </div>
             {isRunning && syncState.currentCard && (
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-xs text-foreground/70 truncate">
                 {syncState.currentCard}
               </p>
             )}
@@ -202,7 +202,7 @@ export function CardSyncPanel() {
 
       <div className="rounded-lg rounded-t-none border border-t-0 overflow-hidden">
         <div className="px-3 py-2 border-b bg-muted/30">
-          <p className="text-xs font-medium text-muted-foreground">
+          <p className="text-xs font-medium text-foreground/70">
             {t("log.heading")}
           </p>
         </div>
@@ -214,13 +214,13 @@ export function CardSyncPanel() {
             syncState.logs.map((line, i) => (
               <p
                 key={i}
-                className="text-muted-foreground whitespace-pre-wrap break-all"
+                className="text-foreground/70 whitespace-pre-wrap break-all"
               >
                 {line}
               </p>
             ))
           ) : (
-            <p className="text-muted-foreground whitespace-pre-wrap break-all">
+            <p className="text-foreground/70 whitespace-pre-wrap break-all">
               {t("log.empty")}
             </p>
           )}

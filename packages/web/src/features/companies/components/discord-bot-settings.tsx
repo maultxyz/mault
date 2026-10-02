@@ -67,14 +67,14 @@ export function DiscordBotSettings() {
         </div>
       ) : pending ? (
         <div className="flex flex-col gap-2 rounded-lg bg-muted px-3 py-2">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-foreground/70">
             {t("discordBot.codeInstructions")}
           </p>
           <div className="flex items-center justify-between gap-2">
             <code className="text-lg font-mono font-semibold tracking-widest">
               {pending.code}
             </code>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs text-foreground/70">
               {t("discordBot.expiresIn", { seconds: secondsLeft })}
             </span>
           </div>

@@ -16,7 +16,7 @@ export function WatcherStack({ watchers }: { watchers: SessionViewer[] }) {
           <span
             key={w.userId}
             style={{ marginLeft: i === 0 ? 0 : -6, zIndex: MAX_STACK - i }}
-            className="relative inline-flex items-center justify-center size-5 rounded-full bg-green-500/15 text-green-800 dark:text-green-400 ring-2 ring-background text-[9px] font-semibold"
+            className="relative inline-flex items-center justify-center size-5 rounded-full bg-success-muted text-success-foreground ring-2 ring-background text-2xs font-semibold"
           >
             {getInitials(w.displayName)}
           </span>
@@ -24,14 +24,14 @@ export function WatcherStack({ watchers }: { watchers: SessionViewer[] }) {
         {overflow > 0 && (
           <span
             style={{ marginLeft: -6, zIndex: 0 }}
-            className="relative inline-flex items-center justify-center size-5 rounded-full bg-muted text-muted-foreground ring-2 ring-background text-[9px] font-semibold"
+            className="relative inline-flex items-center justify-center size-5 rounded-full bg-muted text-muted-foreground ring-2 ring-background text-2xs font-semibold"
           >
             +{overflow}
           </span>
         )}
       </PopoverTrigger>
       <PopoverContent side="bottom" align="start" className="w-48 p-1.5">
-        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide px-1.5 pb-1.5">
+        <p className="text-2xs font-medium text-muted-foreground uppercase tracking-wide px-1.5 pb-1.5">
           Watching
         </p>
         {watchers.map((w) => (

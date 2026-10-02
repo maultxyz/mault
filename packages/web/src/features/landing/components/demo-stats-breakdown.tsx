@@ -13,7 +13,7 @@ export function DemoStatsBreakdown() {
   return (
     <div className="grid grid-cols-2 gap-2">
       <div className="rounded-lg border border-input p-2 bg-background">
-        <p className="mb-1.5 text-[10px] font-medium tracking-wide text-foreground/70 uppercase">
+        <p className="mb-1.5 text-2xs font-medium tracking-wide text-foreground/70 uppercase">
           {t("byRarity")}
         </p>
         <div className="flex flex-col gap-1">
@@ -35,7 +35,7 @@ export function DemoStatsBreakdown() {
         </div>
       </div>
       <div className="rounded-lg border border-input p-2 bg-background">
-        <p className="mb-1.5 text-[10px] font-medium tracking-wide text-foreground/70 uppercase">
+        <p className="mb-1.5 text-2xs font-medium tracking-wide text-foreground/70 uppercase">
           {t("scanStats.byColor")}
         </p>
         <div className="flex flex-col gap-1">

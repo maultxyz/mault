@@ -1,3 +1,4 @@
+import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
@@ -274,7 +275,7 @@ export function CardDetailPanel({
             <div className="flex items-baseline gap-2">
               <h2 className="font-semibold text-base truncate">{cardName}</h2>
               {total != null && currentIndex != null && (
-                <span className="text-xs text-muted-foreground shrink-0">
+                <span className="text-xs text-foreground/70 shrink-0">
                   {currentIndex + 1} / {total}
                 </span>
               )}
@@ -288,12 +289,12 @@ export function CardDetailPanel({
               )}
             </div>
             {typeLine && (
-              <p className="text-sm text-muted-foreground truncate">
+              <p className="text-sm text-foreground/70 truncate">
                 {typeLine}
               </p>
             )}
           </div>
-          <div className="flex items-center gap-4 shrink-0 text-xs text-muted-foreground">
+          <div className="flex items-center gap-4 shrink-0 text-xs text-foreground/70">
             {capturedImageUrl && (
               <div className="flex items-center gap-2">
                 <span>{t("cardDetailPanel.showOcrRegions")}</span>
@@ -497,7 +498,7 @@ export function CardDetailPanel({
               )}
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+                  <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-foreground/70" />
                   <Input
                     placeholder={t("cardPicker.searchPlaceholder")}
                     value={query}
@@ -537,21 +538,19 @@ export function CardDetailPanel({
               </div>
               <ScrollArea className="flex-1 overflow-y-auto min-h-48 border rounded-lg p-1 bg-sidebar">
                 {loading && (
-                  <div className="flex items-center justify-center py-8">
-                    <IconLoader2 className="size-5 animate-spin text-muted-foreground" />
-                  </div>
+                  <CardTileSkeletonGrid className="grid-cols-4 @3xl:grid-cols-5 gap-1.5" />
                 )}
                 {!loading &&
                   filteredResults.length === 0 &&
                   query.trim().length === 0 && (
-                    <p className="text-center text-sm text-muted-foreground py-8">
+                    <p className="text-center text-sm text-foreground/70 py-8">
                       {t("cardPicker.startTyping")}
                     </p>
                   )}
                 {!loading &&
                   filteredResults.length === 0 &&
                   query.trim().length >= 2 && (
-                    <p className="text-center text-sm text-muted-foreground py-8">
+                    <p className="text-center text-sm text-foreground/70 py-8">
                       {t("cardPicker.noCardsFound")}
                     </p>
                   )}
@@ -573,7 +572,7 @@ export function CardDetailPanel({
                         ) : (
                           <div className="w-10 h-14 bg-muted rounded shrink-0" />
                         )}
-                        <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[10px] leading-tight px-1 py-0.5 text-center truncate">
+                        <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-2xs leading-tight px-1 py-0.5 text-center truncate">
                           {card.set.toUpperCase()} #{card.collectorNumber}
                         </div>
                       </Button>

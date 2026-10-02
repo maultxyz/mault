@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,7 +96,7 @@ function ServoControl({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">{t(servo.labelKey)}</p>
+        <p className="text-xs text-foreground/70">{t(servo.labelKey)}</p>
         <Tooltip>
           <TooltipTrigger
             render={
@@ -153,17 +154,16 @@ function ServoControl({
       </ButtonGroup>
 
       {showPusherOffsetWarning && (
-        <p className="flex items-start gap-1.5 text-xs/relaxed text-amber-800 dark:text-amber-400">
-          <IconAlertTriangle size={14} className="mt-0.5 shrink-0" />
+        <Callout variant="warning" icon={IconAlertTriangle}>
           {t("moduleCalibrationGrid.pusherOffsetWarning", {
             percent: PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
           })}
-        </p>
+        </Callout>
       )}
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-foreground/70">
             {activePosition
               ? t("moduleCalibrationGrid.editingPosition", {
                   position: positionLabel(activePosition),
@@ -219,11 +219,11 @@ function ServoControl({
             <TooltipTrigger
               render={
                 <div className="flex flex-row flex-1 bg-background border-y justify-between px-2 items-center">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-foreground/70">
                     {SERVO_PULSE_MIN}
                   </p>
                   <p className="font-bold text-sm">{sliderValue}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-foreground/70">
                     {SERVO_PULSE_MAX}
                   </p>
                 </div>
@@ -280,7 +280,7 @@ function ModuleDelayControl({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs font-medium">
           {t(`moduleCalibrationGrid.${field}Label`)}
         </p>
         <Tooltip>
@@ -325,11 +325,11 @@ function PushTestControl({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs font-medium">
           {t("moduleCalibrationGrid.pushTestLabel")}
         </p>
         <Tooltip>
-          <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+          <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
             <IconInfoCircle className="size-3.5" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
@@ -429,11 +429,11 @@ export function ModuleCalibrationGrid({
                 {t("moduleLabel", { module })}
               </h2>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs font-medium">
                   {t("moduleCalibrationGrid.rawPulseToggleLabel")}
                 </span>
                 <Tooltip>
-                  <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
                     <IconInfoCircle className="size-3.5" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">

@@ -149,7 +149,7 @@ export function FeederCalibrationPanel({
           <button
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}
-            className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
           >
             <IconChevronDown
               size={12}
@@ -166,7 +166,7 @@ export function FeederCalibrationPanel({
             <TooltipTrigger
               render={
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-muted-foreground w-fit">
+                  <p className="text-xs font-medium w-fit">
                     {t("feederCalibrationPanel.speedLabel")}
                   </p>
                   <span className="text-sm font-bold">
@@ -208,7 +208,7 @@ export function FeederCalibrationPanel({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium">
               {t("feederCalibrationPanel.timeoutLabel")}
             </p>
             <span className="text-sm font-bold">
@@ -244,10 +244,10 @@ export function FeederCalibrationPanel({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium">
               {t("feederCalibrationPanel.pulseDurationLabel")}
             </p>
-            <p className="text-xs text-muted-foreground italic">
+            <p className="text-xs text-foreground/70 italic">
               {pulseDurationValue <= 0
                 ? t("continuous")
                 : t("msValue", {
@@ -299,7 +299,7 @@ export function FeederCalibrationPanel({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium">
               {t("feederCalibrationPanel.pauseDurationLabel")}
             </p>
             <span className="text-sm font-bold">
@@ -340,7 +340,7 @@ export function FeederCalibrationPanel({
 
         <div className="flex flex-col gap-2">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium">
               {t("feederCalibrationPanel.settleDurationLabel")}
             </p>
             <span className="text-sm font-bold">
@@ -349,7 +349,7 @@ export function FeederCalibrationPanel({
               })}
             </span>
           </div>
-          <p className="text-[10px] text-muted-foreground/70">
+          <p className="text-2xs text-foreground/70">
             {t("feederCalibrationPanel.settleDurationDescription")}
           </p>
           <Slider
@@ -387,7 +387,7 @@ export function FeederCalibrationPanel({
           className="flex flex-col gap-2"
         >
           <div className="flex items-center justify-between">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium">
               {t("feederCalibrationPanel.reverseDurationLabel")}
             </p>
             <span className="text-sm font-bold">
@@ -396,7 +396,7 @@ export function FeederCalibrationPanel({
                 : t("msValue", { value: reverseDurationValue })}
             </span>
           </div>
-          <p className="text-[10px] text-muted-foreground/70">
+          <p className="text-2xs text-foreground/70">
             {t("feederCalibrationPanel.reverseDurationDescription")}
           </p>
           <Slider
@@ -430,7 +430,7 @@ export function FeederCalibrationPanel({
           {reverseDurationValue > 0 && (
             <>
               <div className="flex items-center justify-between pt-1">
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs font-medium">
                   {t("feederCalibrationPanel.reverseSpeedLabel")}
                 </p>
                 <span className="text-sm font-bold">

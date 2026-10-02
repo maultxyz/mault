@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { testServerRollbar } from "@/lib/api/admin";
 import { useMutation } from "@tanstack/react-query";
@@ -20,14 +21,11 @@ export function RollbarTestPanel() {
   }
 
   return (
-    <div className="rounded-lg border p-4 flex items-center justify-between gap-3">
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <p className="text-sm font-medium">{t("rollbarTest.heading")}</p>
-        <p className="text-xs text-muted-foreground">
-          {t("rollbarTest.description")}
-        </p>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
+    <SettingsSection
+      heading={t("rollbarTest.heading")}
+      description={t("rollbarTest.description")}
+    >
+      <div className="flex flex-wrap items-center gap-2">
         <Button variant="outline" onClick={handleTestClient}>
           {t("rollbarTest.testClientButton")}
         </Button>
@@ -41,6 +39,6 @@ export function RollbarTestPanel() {
             : t("rollbarTest.testServerButton")}
         </Button>
       </div>
-    </div>
+    </SettingsSection>
   );
 }

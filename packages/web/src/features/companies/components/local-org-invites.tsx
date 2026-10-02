@@ -130,7 +130,7 @@ export function LocalOrgInvites() {
 
   if (!canManage) {
     return (
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-foreground/70">
         {t("invites.membersOnly")}
       </p>
     );
@@ -139,7 +139,7 @@ export function LocalOrgInvites() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-foreground/70">
           {t("invites.description")}
         </p>
         <Button
@@ -156,7 +156,7 @@ export function LocalOrgInvites() {
       {isLoading && <Skeleton className="h-12 w-full" />}
 
       {!isLoading && invites?.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("invites.empty")}</p>
+        <p className="text-xs text-foreground/70">{t("invites.empty")}</p>
       )}
 
       {!isLoading && invites && invites.length > 0 && (
@@ -166,10 +166,10 @@ export function LocalOrgInvites() {
               key={invite.id}
               className="flex items-center gap-3 px-3 py-2.5 text-sm"
             >
-              <IconMailPlus className="size-4 shrink-0 text-muted-foreground" />
+              <IconMailPlus className="size-4 shrink-0 text-foreground/70" />
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{invite.email}</p>
-                <p className="truncate text-xs text-muted-foreground">
+                <p className="truncate text-xs text-foreground/70">
                   {invite.role} ·{" "}
                   {t("invites.expires", { date: formatDate(invite.expiresAt) })}
                 </p>

@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import {
   Dialog,
   DialogClose,
@@ -53,7 +54,7 @@ export function ChannelLayoutUpgradeButton() {
         variant="outline"
         size="xs"
         onClick={() => setOpen(true)}
-        className="border-amber-500/40 bg-transparent text-amber-900 hover:bg-amber-400/20 dark:text-amber-200 dark:hover:bg-amber-400/10"
+        className={ALERT_BANNER_ACTION_CLASS}
       >
         {t("channelLayoutUpgrade.bannerAction")}
       </Button>

@@ -30,7 +30,7 @@ export function KeyboardShortcutsButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-1 text-foreground/70 hover:text-foreground transition-colors"
       >
         <IconKeyboard size={14} />
         {t("hotkeys.footer")}
@@ -53,7 +53,7 @@ export function KeyboardShortcutsButton() {
                     .map((id) => (
                       <li
                         key={id}
-                        className="flex items-center justify-between gap-4 text-foreground/80"
+                        className="flex items-center justify-between gap-4 text-foreground/70"
                       >
                         <span>{t(`hotkeys.actions.${id}`)}</span>
                         <HotkeyHint id={id} />

@@ -75,7 +75,7 @@ export function BuildHero() {
         })}
       </p>
 
-      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-[11px] text-foreground/70">
+      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-xs text-foreground/70">
         <span>
           {t("hero.firmwareLabel")}{" "}
           <code className="rounded border border-border bg-muted px-1.5 py-0.5 text-foreground">
@@ -138,7 +138,7 @@ export function BuildHero() {
             <div className="bg-secondary/20" />
             <div className="flex items-center justify-center gap-2 dark:bg-primary/15 bg-primary/5 px-3 py-3 font-mono text-sm font-semibold dark:text-primary-foreground text-primary">
               {t("hero.binLabel", { n: catchAllBin })}
-              <span className="font-sans text-[10px] font-normal dark:text-primary-foreground/70 text-primary/70">
+              <span className="font-sans text-2xs font-normal dark:text-primary-foreground/70 text-primary/70">
                 - {t("hero.catchAllBinNote", { modules: moduleCount })}
               </span>
             </div>

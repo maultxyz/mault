@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -160,9 +161,9 @@ export function BinConfigPanel() {
 
   if (isModeDirty) {
     return (
-      <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+      <Callout>
         {t("binConfigPanel.modeChangePending")}
-      </p>
+      </Callout>
     );
   }
 
@@ -181,9 +182,9 @@ export function BinConfigPanel() {
             </Button>
           )}
         </div>
-        <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+        <Callout>
           {t("binConfigPanel.scanOnlyLocked")}
-        </p>
+        </Callout>
       </div>
     );
   }
@@ -224,7 +225,7 @@ export function BinConfigPanel() {
                     : t("binConfigPanel.setCatchAll")}
                 </Button>
                 {field.value && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-foreground/70">
                     {t("binConfigPanel.catchAllDescription")}
                   </p>
                 )}
@@ -252,7 +253,7 @@ export function BinConfigPanel() {
                     {t("binConfigPanel.overrideLabel")}
                   </FieldLabel>
                   <Tooltip>
-                    <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                    <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
                       <IconInfoCircle className="size-3.5" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
@@ -286,7 +287,7 @@ export function BinConfigPanel() {
                           {t("binConfigPanel.maxCopiesLabel")}
                         </FieldLabel>
                         <Tooltip>
-                          <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                          <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
                             <IconInfoCircle className="size-3.5" />
                           </TooltipTrigger>
                           <TooltipContent className="max-w-xs">
@@ -312,7 +313,7 @@ export function BinConfigPanel() {
                             )
                           }
                         />
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-foreground/70">
                           {t("binConfigPanel.maxCopiesSuffix")}
                         </span>
                       </div>
@@ -349,7 +350,7 @@ export function BinConfigPanel() {
                     </div>
                     {field.value != null && (
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-foreground/70">
                           {t("binConfigPanel.lowMatchPrefix")}
                         </span>
                         <Input
@@ -368,7 +369,7 @@ export function BinConfigPanel() {
                             )
                           }
                         />
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-foreground/70">
                           {t("binConfigPanel.lowMatchSuffix")}
                         </span>
                       </div>
@@ -389,7 +390,7 @@ export function BinConfigPanel() {
                   href={apiDocsUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
                 >
                   {t("binConfigPanel.apiDocsLink")}
                 </a>
@@ -400,11 +401,11 @@ export function BinConfigPanel() {
             config.rules.conditions.length > 0 ? (
               <RuleSummary rules={config.rules} />
             ) : (
-              <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+              <Callout>
                 {t("binConfigPanel.autoAssignWaiting", {
                   field: autoAssignFieldLabel,
                 })}
-              </p>
+              </Callout>
             )
           ) : (
             <Controller

@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { getPublicMetrics } from "@/lib/api/admin";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -41,23 +42,20 @@ export function MetricsStatsPanel() {
   ];
 
   return (
-    <div className="rounded-lg border p-4 flex flex-col gap-3">
-      <div className="flex flex-col gap-0.5">
-        <p className="text-sm font-medium">{t("metricsStats.heading")}</p>
-        <p className="text-xs text-muted-foreground">
-          {t("metricsStats.description")}
-        </p>
-      </div>
+    <SettingsSection
+      heading={t("metricsStats.heading")}
+      description={t("metricsStats.description")}
+    >
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         {tiles.map((tile) => (
-          <div key={tile.labelKey} className="rounded-lg bg-sidebar border p-3">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+          <div key={tile.labelKey} className="rounded-md border bg-muted p-3">
+            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide">
               {t(tile.labelKey)}
             </p>
             <p className="text-lg font-semibold">{tile.value ?? "-"}</p>
           </div>
         ))}
       </div>
-    </div>
+    </SettingsSection>
   );
 }

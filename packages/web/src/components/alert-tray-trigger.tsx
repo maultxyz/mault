@@ -48,10 +48,10 @@ export function AlertTrayTrigger({
     >
       <div className="flex items-center justify-between px-1">
         <span className="text-sm font-medium">{t("alerts.tray.title")}</span>
-        <span className="text-muted-foreground">v{__APP_VERSION__}</span>
+        <span className="text-foreground/70">v{__APP_VERSION__}</span>
       </div>
       {trayAlerts.length === 0 ? (
-        <p className="px-1 py-4 text-center text-muted-foreground">
+        <p className="px-1 py-4 text-center text-foreground/70">
           {t("alerts.tray.empty")}
         </p>
       ) : (

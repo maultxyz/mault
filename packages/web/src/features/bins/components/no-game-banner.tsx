@@ -9,7 +9,7 @@ export function NoGameBanner() {
   if (!hasCollection || hasGame) return null;
 
   return (
-    <div className="flex items-start gap-2 border-b border-amber-500/30 bg-amber-400/10 px-4 py-2 text-xs text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
+    <div className="flex items-start gap-2 border-b border-warning-border bg-warning-muted px-4 py-2 text-xs text-warning-foreground">
       <IconAlertTriangle className="size-3.5 shrink-0 mt-0.5" />
       <span>{t("noGameBanner.message")}</span>
     </div>

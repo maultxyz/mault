@@ -27,7 +27,7 @@ export function ScanStats({
     return (
       <div
         data-tour="scan-stats"
-        className="rounded-lg bg-input/20 dark:bg-input/30 border border-input text-xs font-semibold text-muted-foreground p-2"
+        className="rounded-lg bg-input/20 dark:bg-input/30 border border-input text-xs font-semibold text-foreground/70 p-2"
       >
         {t("scanStats.emptyState")}
       </div>
@@ -94,14 +94,14 @@ export function ScanStats({
           </div>
           {stats.mostValuable && (
             <div className="p-2 border-t border-input">
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+              <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide">
                 {t("mostValuable")}
               </p>
               <div className="flex flex-row justify-between items-center">
                 <p className="text-xs font-semibold truncate">
                   {stats.mostValuable.name}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-foreground/70">
                   {format(stats.mostValuable.price)}
                 </p>
               </div>
@@ -110,7 +110,7 @@ export function ScanStats({
         </div>
         {stats.rarities.length > 0 && (
           <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
               {t("byRarity")}
             </p>
             <div className="flex flex-col gap-1">
@@ -135,7 +135,7 @@ export function ScanStats({
                         {r.label}
                       </span>
                     </div>
-                    <span className="text-muted-foreground">{r.count}</span>
+                    <span className="text-foreground/70">{r.count}</span>
                   </button>
                 );
               })}
@@ -144,7 +144,7 @@ export function ScanStats({
         )}
         {stats.colors.length > 0 && (
           <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
               {t("scanStats.byColor")}
             </p>
             <div className="flex flex-col gap-1">
@@ -169,7 +169,7 @@ export function ScanStats({
                         {c.label}
                       </span>
                     </div>
-                    <span className="text-muted-foreground">{c.count}</span>
+                    <span className="text-foreground/70">{c.count}</span>
                   </button>
                 );
               })}
@@ -177,7 +177,7 @@ export function ScanStats({
           </div>
         )}
         <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+          <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
             {t("scanStats.bySet")}
           </p>
           <div className="flex flex-col gap-1">
@@ -200,8 +200,8 @@ export function ScanStats({
                     {s.name}
                   </span>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-muted-foreground">{s.count}</span>
-                    <span className="text-muted-foreground text-right">
+                    <span className="text-foreground/70">{s.count}</span>
+                    <span className="text-foreground/70 text-right">
                       {format(s.value)}
                     </span>
                   </div>
@@ -240,12 +240,12 @@ function StatCard({
   return (
     <div className={`p-2 ${className ?? ""}`}>
       <div className="flex items-center gap-1.5">
-        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">
+        <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide">
           {label}
         </p>
         {indicator !== undefined && (
           <span
-            className={`size-1.5 rounded-full shrink-0 ${indicator ? "bg-green-500 animate-pulse" : "bg-muted-foreground/40"}`}
+            className={`size-1.5 rounded-full shrink-0 ${indicator ? "bg-success animate-pulse" : "bg-muted-foreground/40"}`}
           />
         )}
       </div>

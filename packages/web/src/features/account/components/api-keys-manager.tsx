@@ -113,7 +113,7 @@ export function ApiKeysManager() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-foreground/70">
           {t("apiKeys.description")}
         </p>
         <Button
@@ -134,7 +134,7 @@ export function ApiKeysManager() {
       )}
 
       {!isLoading && activeKeys.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("apiKeys.empty")}</p>
+        <p className="text-xs text-foreground/70">{t("apiKeys.empty")}</p>
       )}
 
       {!isLoading && activeKeys.length > 0 && (
@@ -147,10 +147,10 @@ export function ApiKeysManager() {
                 key={key.id}
                 className="flex items-center gap-3 px-3 py-2.5 text-sm"
               >
-                <IconKey className="size-4 shrink-0 text-muted-foreground" />
+                <IconKey className="size-4 shrink-0 text-foreground/70" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{key.name}</p>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="truncate text-xs text-foreground/70">
                     {key.keyPrefix}···
                     {expires
                       ? ` · ${t("apiKeys.expires", { date: expires })}`

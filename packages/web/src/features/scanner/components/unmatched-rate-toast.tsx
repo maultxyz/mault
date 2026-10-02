@@ -16,7 +16,7 @@ export function UnmatchedRateToast({
   return (
     <div className="flex w-[356px] max-w-full flex-col gap-3 rounded-lg border bg-popover p-4 text-popover-foreground shadow-lg">
       <div className="flex items-start gap-2.5">
-        <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-amber-500" />
+        <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
         <div className="flex flex-col gap-1">
           <p className="text-sm font-semibold">{t("unmatchedRateToast.title")}</p>
           <p className="text-xs text-foreground/70">

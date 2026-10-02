@@ -31,14 +31,14 @@ export function PlanBadge() {
           onClick={() => navigate(SETTINGS_PATHS.billing)}
           className="flex items-center gap-1.5 cursor-pointer"
         >
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-foreground/70">
             {t("plan.label")}
           </span>
           {isBusiness ? (
             <span className="text-xs font-semibold">{t("plan.business")}</span>
           ) : (
             <div className="flex items-center gap-1.5">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-foreground/70">
                 {t("plan.free")}
               </span>
               <div className="h-1.5 w-14 rounded-full bg-muted overflow-hidden">

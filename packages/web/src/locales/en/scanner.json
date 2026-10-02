@@ -363,7 +363,6 @@
     "heading": "Recently Scanned"
   },
   "monitorPage": {
-    "loadingSession": "Loading session…",
     "connectFailed": "Could not connect.",
     "noCardsScannedYet": "No cards scanned yet.",
     "noCardsMatchSearch": "No cards match the search query.",

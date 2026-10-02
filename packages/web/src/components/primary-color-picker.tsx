@@ -54,7 +54,7 @@ export function PrimaryColorPicker({
             type="button"
             title={t("appearance.resetColor")}
             onClick={() => onChange(null)}
-            className="size-7 rounded-md shrink-0 border border-dashed border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors hover:border-foreground"
+            className="size-7 rounded-md shrink-0 border border-dashed border-border flex items-center justify-center text-foreground/70 hover:text-foreground transition-colors hover:border-foreground"
           >
             <IconRotate size={13} />
             <span className="sr-only">{t("appearance.resetColor")}</span>

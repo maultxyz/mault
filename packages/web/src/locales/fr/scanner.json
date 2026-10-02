@@ -363,7 +363,6 @@
     "heading": "Récemment scannées"
   },
   "monitorPage": {
-    "loadingSession": "Chargement de la session…",
     "connectFailed": "Impossible de se connecter.",
     "noCardsScannedYet": "Aucune carte scannée pour le moment.",
     "noCardsMatchSearch": "Aucune carte ne correspond à la recherche.",

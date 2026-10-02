@@ -69,7 +69,7 @@ export function RuleSummary({ rules }: { rules: BinRuleGroup }) {
   const text = formatGroup(rules, ruleFieldDefinitions, t);
 
   return (
-    <p className="text-xs line-clamp-3 wrap-break-words text-muted-foreground truncate">
+    <p className="text-xs line-clamp-3 wrap-break-words text-foreground/70 truncate">
       {text}
     </p>
   );

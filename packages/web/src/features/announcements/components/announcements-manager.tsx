@@ -137,7 +137,7 @@ export function AnnouncementsManager() {
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">{t("heading")}</p>
-          <p className="text-xs text-muted-foreground">{t("description")}</p>
+          <p className="text-xs text-foreground/70">{t("description")}</p>
         </div>
         <Button onClick={() => setFormTarget(null)}>
           <IconPlus size={14} />
@@ -147,7 +147,7 @@ export function AnnouncementsManager() {
 
       <div className="divide-y">
         {announcementsQuery.isLoading && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("loading")}
           </p>
         )}
@@ -179,13 +179,13 @@ export function AnnouncementsManager() {
                 </div>
                 <p className="text-sm truncate">{announcement.message}</p>
                 {announcement.link && (
-                  <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                  <p className="text-xs text-foreground/70 truncate flex items-center gap-1">
                     <IconLink size={12} className="shrink-0" />
                     {announcement.link}
                   </p>
                 )}
                 {schedule && (
-                  <p className="text-xs text-muted-foreground truncate">
+                  <p className="text-xs text-foreground/70 truncate">
                     {schedule}
                   </p>
                 )}
@@ -212,7 +212,7 @@ export function AnnouncementsManager() {
           );
         })}
         {announcementsQuery.data?.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("empty")}
           </p>
         )}

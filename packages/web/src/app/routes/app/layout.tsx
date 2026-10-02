@@ -53,7 +53,7 @@ export default function AppLayout() {
           {!hideMobileNav && <MobileNav />}
         </div>
       ) : (
-        <div className="h-dvh w-dvw overflow-hidden p-2 pb-6 bg-muted dark:bg-black relative text-muted-foreground">
+        <div className="h-dvh w-dvw overflow-hidden p-2 pb-6 bg-muted dark:bg-black relative text-foreground/70">
           <div
             aria-hidden
             className="pointer-events-none absolute top-8 left-8 -translate-x-1/2 -translate-y-1/2 size-60 rounded-full bg-primary/50 blur-[60px]"
@@ -89,7 +89,7 @@ export default function AppLayout() {
                       aria-label={t("footer.donateAriaLabel")}
                     />
                   }
-                  className="flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1 text-foreground/70 hover:text-foreground transition-colors"
                 >
                   <IconCoffee size={14} />
                   {t("footer.donate")}
@@ -100,7 +100,7 @@ export default function AppLayout() {
               </Tooltip>
               <FooterDivider />
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">
+                <span className="text-foreground/70">
                   v{__APP_VERSION__}
                 </span>
                 <EnvBanner />

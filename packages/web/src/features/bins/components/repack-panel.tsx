@@ -107,7 +107,7 @@ export function RepackPanel() {
           <span className="flex items-center gap-1.5">
             <FieldLabel>{t("repackPanel.allowDuplicatesLabel")}</FieldLabel>
             <Tooltip>
-              <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+              <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
                 <IconInfoCircle className="size-3.5" />
               </TooltipTrigger>
               <TooltipContent className="max-w-xs">

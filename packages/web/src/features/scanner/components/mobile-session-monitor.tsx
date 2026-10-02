@@ -22,7 +22,7 @@ import { Link } from "react-router-dom";
 function MobileStatTile({ label, value }: MobileStatTileProps) {
   return (
     <div className="min-w-0 rounded-lg bg-muted px-3 py-2">
-      <p className="truncate text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+      <p className="truncate text-xs font-medium text-foreground/70 uppercase tracking-wide">
         {label}
       </p>
       <p className="truncate text-base font-semibold text-foreground tabular-nums">
@@ -94,8 +94,8 @@ export function MobileSessionMonitor({
               <span
                 className={cn(
                   "size-2 shrink-0 rounded-full",
-                  status === "connected" && "bg-green-500 animate-pulse",
-                  status === "connecting" && "bg-amber-500",
+                  status === "connected" && "bg-success animate-pulse",
+                  status === "connecting" && "bg-warning",
                   (status === "error" || status === "closed") &&
                     "bg-destructive",
                 )}

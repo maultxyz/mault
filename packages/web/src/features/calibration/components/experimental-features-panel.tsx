@@ -36,7 +36,7 @@ export function ExperimentalFeaturesPanel({
             <Skeleton className="h-4 w-7 rounded-full" />
           )}
         </label>
-        <p className="text-[10px] text-foreground/70">
+        <p className="text-2xs text-foreground/70">
           {t("experimentalFeatures.pipelinedFeedDescription")}
         </p>
       </FirmwareFeatureGate>

@@ -129,7 +129,7 @@ export function SessionsList() {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-foreground/70">
           {t("sessions.description")}
         </p>
         {otherCount > 0 && (
@@ -153,7 +153,7 @@ export function SessionsList() {
       )}
 
       {!isLoading && sessions?.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("sessions.empty")}</p>
+        <p className="text-xs text-foreground/70">{t("sessions.empty")}</p>
       )}
 
       {!isLoading && sessions && sessions.length > 0 && (
@@ -169,7 +169,7 @@ export function SessionsList() {
                 key={session.id}
                 className="flex items-center gap-3 px-3 py-2.5 text-sm"
               >
-                <Icon className="size-4 shrink-0 text-muted-foreground" />
+                <Icon className="size-4 shrink-0 text-foreground/70" />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <p className="truncate font-medium">
@@ -179,7 +179,7 @@ export function SessionsList() {
                       <Badge variant="success">{t("sessions.current")}</Badge>
                     )}
                   </div>
-                  <p className="truncate text-xs text-muted-foreground">
+                  <p className="truncate text-xs text-foreground/70">
                     {session.ipAddress ?? t("sessions.noIp")} ·{" "}
                     {t("sessions.lastActive", {
                       date: formatDate(session.updatedAt),

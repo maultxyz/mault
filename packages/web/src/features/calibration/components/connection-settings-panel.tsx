@@ -28,7 +28,7 @@ export function ConnectionSettingsPanel({
             <Skeleton className="h-4 w-7 rounded-full" />
           )}
         </label>
-        <p className="text-[10px] text-foreground/70">
+        <p className="text-2xs text-foreground/70">
           {t("connectionSettings.autoConnectDescription")}
         </p>
       </div>
@@ -46,7 +46,7 @@ export function ConnectionSettingsPanel({
             <Skeleton className="h-4 w-7 rounded-full" />
           )}
         </label>
-        <p className="text-[10px] text-foreground/70">
+        <p className="text-2xs text-foreground/70">
           {t("connectionSettings.testOnConnectDescription")}
         </p>
       </div>

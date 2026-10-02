@@ -74,7 +74,7 @@ function BinSlot({
   const { t } = useTranslation("calibration");
   return (
     <div className="flex flex-col gap-1.5 p-2 bg-sidebar">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
         {label}
       </span>
       <Select
@@ -188,7 +188,7 @@ export function BinConfigurations() {
 
       {bottomRoutes.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border p-2 bg-sidebar">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
             {t("binConfigurations.bottomSectionLabel")}
           </span>
           {bottomRoutes.map((route) => (

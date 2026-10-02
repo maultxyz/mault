@@ -269,10 +269,10 @@ export function ScanRegionCalibrationPanel({
 
   return (
     <div className="flex flex-col gap-2" data-tour="scan-region-panel">
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-foreground/70">
         {t("scanRegionCalibrationPanel.instructions")}
       </p>
-      <p className="text-[10px] text-muted-foreground/70">
+      <p className="text-2xs text-foreground/70">
         {t("scanRegionCalibrationPanel.liveDetectionHint")}
       </p>
 
@@ -416,7 +416,7 @@ export function ScanRegionCalibrationPanel({
             {cameraSource === "phone"
               ? !phonePhotoUrl && (
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-foreground/70">
                       {phonePairingStatus === "connected"
                         ? t("scanRegionCalibrationPanel.takePhotoPrompt")
                         : t("scanRegionCalibrationPanel.waitingForPhone")}
@@ -425,7 +425,7 @@ export function ScanRegionCalibrationPanel({
                 )
               : !isCameraActive && (
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-foreground/70">
                       {errorMessage ||
                         t("scanRegionCalibrationPanel.waitingForCamera")}
                     </p>
@@ -448,7 +448,7 @@ export function ScanRegionCalibrationPanel({
             {isLoading ? (
               <Skeleton className="h-6 flex-1 rounded" />
             ) : (
-              <p className="text-xs text-muted-foreground flex-1">
+              <p className="text-xs text-foreground/70 flex-1">
                 {t("scanRegionCalibrationPanel.currentSummary", {
                   coverage: Math.round(region.coverage * 100),
                   offsetX: Math.round(region.offsetX * 100),
@@ -462,7 +462,7 @@ export function ScanRegionCalibrationPanel({
         <div className="flex flex-col gap-2 w-full max-w-sm mx-auto md:mx-0">
           <div className="flex flex-col gap-2 pt-2 border-t md:pt-0 md:border-t-0">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs font-medium">
                 {t("scanRegionCalibrationPanel.captureSettleLabel")}
               </p>
               {isLoading ? (
@@ -473,7 +473,7 @@ export function ScanRegionCalibrationPanel({
                 </span>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground/70">
+            <p className="text-2xs text-foreground/70">
               {t("scanRegionCalibrationPanel.captureSettleDescription")}
             </p>
             <Slider
@@ -492,7 +492,7 @@ export function ScanRegionCalibrationPanel({
 
           <div className="flex flex-col gap-2 pt-2 border-t">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs font-medium">
                 {t("scanRegionCalibrationPanel.matchesNeededLabel")}
               </p>
               {isLoading ? (
@@ -501,7 +501,7 @@ export function ScanRegionCalibrationPanel({
                 <span className="text-sm font-bold">{matchesNeeded}</span>
               )}
             </div>
-            <p className="text-[10px] text-muted-foreground/70">
+            <p className="text-2xs text-foreground/70">
               {t("scanRegionCalibrationPanel.matchesNeededDescription")}
             </p>
             <Slider
@@ -515,7 +515,7 @@ export function ScanRegionCalibrationPanel({
 
           <div className="flex flex-col gap-2 pt-2 border-t">
             <label className="flex items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs font-medium">
                 {t("scanRegionCalibrationPanel.checkBothOrientationsLabel")}
               </span>
               {isLoading ? (
@@ -527,16 +527,16 @@ export function ScanRegionCalibrationPanel({
                 />
               )}
             </label>
-            <p className="text-[10px] text-muted-foreground/70">
+            <p className="text-2xs text-foreground/70">
               {t("scanRegionCalibrationPanel.checkBothOrientationsDescription")}
             </p>
           </div>
 
           <div className="flex flex-col gap-2 pt-2 border-t">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium">
               {t("scanRegionCalibrationPanel.executionProviderLabel")}
             </p>
-            <p className="text-[10px] text-muted-foreground/70">
+            <p className="text-2xs text-foreground/70">
               {t("scanRegionCalibrationPanel.executionProviderDescription")}
             </p>
             <Select

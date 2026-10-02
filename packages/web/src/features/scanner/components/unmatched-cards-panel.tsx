@@ -20,8 +20,8 @@ export function UnmatchedCardsPanel({
   if (cards.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 overflow-hidden flex-none">
-      <p className="text-[10px] font-medium text-amber-700 dark:text-amber-400 uppercase tracking-wide px-2 pt-2 pb-1.5">
+    <div className="rounded-lg border border-warning-border bg-warning-muted overflow-hidden flex-none">
+      <p className="text-2xs font-medium text-warning-foreground uppercase tracking-wide px-2 pt-2 pb-1.5">
         {t("unmatchedCardsPanel.heading", { count: cards.length })}
       </p>
       <div className="flex gap-1.5 p-1.5 overflow-x-auto">
@@ -38,11 +38,11 @@ export function UnmatchedCardsPanel({
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <IconPhotoOff className="size-4 text-muted-foreground" />
+                      <IconPhotoOff className="size-4 text-foreground/70" />
                     </div>
                   )}
                   {entry.diagnostics && (
-                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/60 px-1 py-0.5 text-[9px] text-white">
+                    <span className="absolute inset-x-0 bottom-0 truncate bg-black/60 px-1 py-0.5 text-2xs text-white">
                       {t(
                         `unmatchedCardsPanel.reasons.${entry.diagnostics.reason}`,
                       )}
@@ -75,7 +75,7 @@ export function UnmatchedCardsPanel({
                   className="w-48 aspect-square rounded-md object-fill"
                 />
               ) : (
-                <p className="px-1.5 py-1 text-muted-foreground">
+                <p className="px-1.5 py-1 text-foreground/70">
                   {t("unmatchedCardsPanel.noImage")}
                 </p>
               )}

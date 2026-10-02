@@ -363,7 +363,6 @@
     "heading": "Zuletzt gescannt"
   },
   "monitorPage": {
-    "loadingSession": "Sitzung wird geladen…",
     "connectFailed": "Verbindung konnte nicht hergestellt werden.",
     "noCardsScannedYet": "Noch keine Karten gescannt.",
     "noCardsMatchSearch": "Keine Karten entsprechen der Suche.",

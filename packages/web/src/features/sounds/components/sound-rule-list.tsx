@@ -88,7 +88,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
 
       {atRuleLimit && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-muted p-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/70">
             {t("rules.limitReached", { count: ruleLimit })}
           </p>
           <Button variant="outline" onClick={() => navigate(SETTINGS_PATHS.billing)}>

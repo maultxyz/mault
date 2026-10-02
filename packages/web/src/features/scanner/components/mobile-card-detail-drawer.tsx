@@ -1,3 +1,4 @@
+import { CardDetailSkeleton } from "@/components/card-detail-skeleton";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
@@ -15,7 +16,7 @@ import type {
   MobileCardDetailDrawerProps,
 } from "@/lib/interfaces/scanner";
 import type { PlayingCard } from "@magic-vault/shared";
-import { IconLoader2, IconPencil, IconTrash } from "@tabler/icons-react";
+import { IconPencil, IconTrash } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -75,11 +76,11 @@ function MobileCardDetailBody({
 
   if (!card) {
     return (
-      <div className="flex flex-1 items-center justify-center text-foreground/70">
+      <div className="flex flex-1 flex-col">
         <DrawerTitle className="sr-only">
           {t("cardDetailPanel.cardDetailsFallback")}
         </DrawerTitle>
-        <IconLoader2 className="size-5 animate-spin" />
+        <CardDetailSkeleton />
       </div>
     );
   }

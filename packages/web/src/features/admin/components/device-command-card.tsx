@@ -88,7 +88,7 @@ export function DeviceCommandCard({
           </div>
         )}
 
-        <code className="rounded-md bg-muted px-2 py-1 font-mono text-[11px] text-muted-foreground break-all">
+        <code className="rounded-md bg-muted px-2 py-1 font-mono text-xs text-foreground/70 break-all">
           {preview}
         </code>
 

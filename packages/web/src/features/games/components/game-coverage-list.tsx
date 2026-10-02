@@ -41,7 +41,7 @@ export function GameCoverageList() {
               )}
             </div>
             {game.languages.length > 0 && (
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-xs text-foreground/70 truncate">
                 {game.languages
                   .map((lang) => LANGUAGE_LABELS[lang] ?? lang)
                   .join(", ")}
@@ -53,7 +53,7 @@ export function GameCoverageList() {
               {t("gameCoverage.cardCount", { count: game.cardCount })}
             </p>
             {game.lastUpdated && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-foreground/70">
                 {t("gameCoverage.lastUpdated", {
                   date: new Date(game.lastUpdated).toLocaleDateString(),
                 })}

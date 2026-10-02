@@ -22,7 +22,7 @@ function FirmwareNote({ feature }: DeviceFirmwareNoteProps) {
   const { isLocked, minVersion } = useFirmwareFeature(feature);
   if (!isLocked) return null;
   return (
-    <span className="text-[10px] text-amber-700 dark:text-amber-400">
+    <span className="text-2xs text-warning-foreground">
       {t("devicePlayground.needsFirmware", { version: minVersion })}
     </span>
   );
@@ -120,7 +120,7 @@ export function DeviceCommandFieldInput({
       />
       {field.feature && <FirmwareNote feature={field.feature} />}
       {typeof error === "string" && (
-        <span className="text-[10px] text-destructive">{error}</span>
+        <span className="text-2xs text-destructive">{error}</span>
       )}
     </div>
   );

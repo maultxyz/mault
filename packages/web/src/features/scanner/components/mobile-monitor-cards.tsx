@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -116,10 +117,9 @@ export function MobileMonitorCards({
       </div>
 
       {status === "error" && (
-        <div className="mx-3 mt-3 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-          <IconWifiOff className="size-4 shrink-0" />
+        <Callout variant="error" icon={IconWifiOff} className="mx-3 mt-3">
           {t("monitorPage.connectFailed")}
-        </div>
+        </Callout>
       )}
 
       {isLoading && entries.length === 0 ? (

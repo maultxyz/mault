@@ -44,7 +44,7 @@ function JsonNode({ path, keyName, value, onPick }: JsonNodeProps) {
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex items-center gap-1 min-w-0 text-xs font-mono w-full text-left py-0.5 text-muted-foreground hover:text-foreground"
+          className="flex items-center gap-1 min-w-0 text-xs font-mono w-full text-left py-0.5 text-foreground/70 hover:text-foreground"
         >
           {open ? (
             <IconChevronDown size={12} className="shrink-0" />
@@ -68,7 +68,7 @@ function JsonNode({ path, keyName, value, onPick }: JsonNodeProps) {
               />
             ))}
             {truncated && (
-              <p className="text-xs text-muted-foreground pl-4 py-0.5">
+              <p className="text-xs text-foreground/70 pl-4 py-0.5">
                 +{arrayLength - ARRAY_PREVIEW_LIMIT} more
               </p>
             )}
@@ -92,7 +92,7 @@ function JsonNode({ path, keyName, value, onPick }: JsonNodeProps) {
       className="flex items-center gap-1.5 min-w-0 text-xs font-mono w-full text-left py-0.5 pl-4 rounded hover:bg-accent"
     >
       <span className="text-foreground shrink-0">{keyName}</span>
-      <span className="text-muted-foreground truncate min-w-0 flex-1">
+      <span className="text-foreground/70 truncate min-w-0 flex-1">
         {previewValue(value)}
       </span>
     </button>
@@ -138,7 +138,7 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
     <div className="flex flex-col gap-2 overflow-hidden">
       <div className="flex-none">
         <p className="text-sm font-medium">{t("fieldMapping.heading")}</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-foreground/70">
           {t("fieldMapping.description")}
         </p>
       </div>
@@ -170,7 +170,7 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
       {raw && (
         <>
           {sampleName && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/70">
               {t("fieldMapping.sampleName", { name: sampleName })}
             </p>
           )}

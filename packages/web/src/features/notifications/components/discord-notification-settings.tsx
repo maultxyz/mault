@@ -70,7 +70,7 @@ export function DiscordNotificationSettings() {
         />
       </label>
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-muted-foreground">
+        <Label className="text-sm text-foreground/70">
           {isLinked
             ? t("discordNotifications.testHintReady")
             : t("discordNotifications.testHintNotLinked")}

@@ -37,9 +37,9 @@ function StatusDot({
   variant: "success" | "warning" | "error" | "muted";
 }) {
   const colors = {
-    success: "bg-green-500",
-    warning: "bg-amber-500 animate-pulse",
-    error: "bg-red-500",
+    success: "bg-success",
+    warning: "bg-warning animate-pulse",
+    error: "bg-destructive",
     muted: "bg-muted-foreground/30",
   };
   return (
@@ -67,7 +67,7 @@ function StatusItem({
         }`}
       >
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs text-foreground/70">{label}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -125,7 +125,7 @@ function SyncStatusItem() {
         }`}
       >
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+        <span className="text-xs text-foreground/70 tabular-nums shrink-0">
           {countLabel}
         </span>
       </TooltipTrigger>
@@ -201,7 +201,7 @@ function SorterStatusItem() {
     <Popover>
       <PopoverTrigger className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors">
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs text-foreground/70">{label}</span>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-96 gap-2">
         <div className="flex items-center justify-between gap-2">
@@ -230,7 +230,7 @@ function SorterStatusItem() {
           className="h-56 rounded-md border bg-muted"
         >
           {entries.length === 0 ? (
-            <p className="p-2 text-xs text-muted-foreground">
+            <p className="p-2 text-xs text-foreground/70">
               {tScanner("serial.commLogEmpty")}
             </p>
           ) : (
@@ -273,7 +273,7 @@ function HealthStatusItem() {
         className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors"
       >
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs text-foreground/70">{label}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -304,7 +304,7 @@ export function StatusFooter() {
           : t("statusFooter.cameraNone");
 
   return (
-    <div className="flex items-center gap-3 text-muted-foreground">
+    <div className="flex items-center gap-3 text-foreground/70">
       <div className="flex items-center gap-3">
         <StatusItem
           label={t("statusFooter.camera")}

@@ -55,13 +55,13 @@ export function AuditDrawer({
       <DrawerContent>
         <DrawerHeader className="flex flex-row items-center justify-between border-b pb-3">
           <div className="flex items-center gap-2">
-            <IconClockHour3 size={14} className="text-muted-foreground" />
+            <IconClockHour3 size={14} className="text-foreground/70" />
             <DrawerTitle>{title}</DrawerTitle>
           </div>
           <DrawerClose asChild>
             <button
               type="button"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-foreground/70 hover:text-foreground transition-colors"
             >
               <IconX size={14} />
             </button>
@@ -80,7 +80,7 @@ export function AuditDrawer({
               ))}
             </div>
           ) : entries.length === 0 ? (
-            <p className="p-4 text-sm text-muted-foreground">
+            <p className="p-4 text-sm text-foreground/70">
               {t("auditDrawer.noHistory")}
             </p>
           ) : (
@@ -92,11 +92,11 @@ export function AuditDrawer({
                       {entry.label && (
                         <p className="text-xs font-medium">{entry.label}</p>
                       )}
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-foreground/70">
                         {formatDate(entry.createdAt)}
                       </p>
                       {i === 0 && (
-                        <span className="text-xs text-muted-foreground italic">
+                        <span className="text-xs text-foreground/70 italic">
                           {t("auditDrawer.current")}
                         </span>
                       )}
@@ -138,7 +138,7 @@ export function AuditDrawer({
                       </div>
                     )}
                   </div>
-                  <div className="text-sm text-muted-foreground">{entry.body}</div>
+                  <div className="text-sm text-foreground/70">{entry.body}</div>
                 </div>
               ))}
             </div>

@@ -124,7 +124,7 @@ export function GamesManager() {
       <div className="px-4 py-3 border-b flex items-center justify-between">
         <div>
           <p className="text-sm font-medium">{t("gamesManager.heading")}</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-foreground/70">
             {t("gamesManager.description")}
           </p>
         </div>
@@ -136,7 +136,7 @@ export function GamesManager() {
 
       <div className="divide-y">
         {gamesQuery.isLoading && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("gamesManager.loading")}
           </p>
         )}
@@ -151,7 +151,7 @@ export function GamesManager() {
                     : t("inactive")}
                 </Badge>
               </div>
-              <p className="text-xs text-muted-foreground truncate">
+              <p className="text-xs text-foreground/70 truncate">
                 {game.key} ·{" "}
                 {t("gamesManager.fieldCount", {
                   count: game.fieldDefinitions.length,
@@ -179,7 +179,7 @@ export function GamesManager() {
           </div>
         ))}
         {gamesQuery.data?.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("noGamesConfigured")}
           </p>
         )}

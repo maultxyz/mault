@@ -60,10 +60,10 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
             className="size-2 shrink-0 rounded-full"
             style={{ backgroundColor: `var(--${card.rarity})` }}
           />
-          <p className="truncate text-[0.6rem] font-medium">{card.name}</p>
+          <p className="truncate text-2xs font-medium">{card.name}</p>
         </div>
         {displayPrice != null && (
-          <p className="shrink-0 text-[0.6rem] text-foreground/70">
+          <p className="shrink-0 text-2xs text-foreground/70">
             {formatUsd(displayPrice)}
           </p>
         )}

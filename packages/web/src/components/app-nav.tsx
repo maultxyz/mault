@@ -63,7 +63,7 @@ function CollapsedNavItem({
               aria-disabled="true"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon-lg" }),
-                "cursor-not-allowed text-muted-foreground/40 hover:bg-transparent hover:text-muted-foreground/40",
+                "cursor-not-allowed text-foreground/40 hover:bg-transparent hover:text-foreground/40",
               )}
             />
           ) : external ? (
@@ -90,7 +90,7 @@ function CollapsedNavItem({
         <span className="relative">
           {icon}
           {badge && (
-            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-green-500 ring-1 ring-background" />
+            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-success ring-1 ring-background" />
           )}
         </span>
       </TooltipTrigger>
@@ -149,12 +149,12 @@ function CollapsedNavItemWithSubItems({
               >
                 <span className="flex-1 truncate">{sub.label}</span>
                 {sub.badge && (
-                  <span className="shrink-0 size-1.5 rounded-full bg-green-500" />
+                  <span className="shrink-0 size-1.5 rounded-full bg-success" />
                 )}
               </DropdownMenuItem>
             ))
           ) : (
-            <p className="px-2 py-1.5 text-xs text-muted-foreground">
+            <p className="px-2 py-1.5 text-xs text-foreground/70">
               {t("noCollectionsYet")}
             </p>
           )}
@@ -179,7 +179,7 @@ function ExpandedNavItem({
       <span className="relative shrink-0">
         {icon}
         {badge && (
-          <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-green-500 ring-1 ring-background" />
+          <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-success ring-1 ring-background" />
         )}
       </span>
       <span className="truncate text-sm">{label}</span>
@@ -195,7 +195,7 @@ function ExpandedNavItem({
               aria-disabled="true"
               className={cn(
                 buttonVariants({ variant: "ghost" }),
-                "w-full justify-start gap-2.5 px-2.5 border-0 cursor-not-allowed text-muted-foreground/40 hover:bg-transparent hover:text-muted-foreground/40",
+                "w-full justify-start gap-2.5 px-2.5 border-0 cursor-not-allowed text-foreground/40 hover:bg-transparent hover:text-foreground/40",
               )}
             />
           }
@@ -259,13 +259,13 @@ function SubItem({
           "flex items-center gap-2 pl-9 pr-2 py-1 rounded-md text-xs transition-colors",
           isActive
             ? "text-foreground bg-secondary"
-            : "text-muted-foreground hover:text-foreground",
+            : "text-foreground/70 hover:text-foreground",
         )
       }
     >
       <span className="truncate flex-1">{label}</span>
       {badge && (
-        <span className="shrink-0 size-1.5 rounded-full bg-green-500" />
+        <span className="shrink-0 size-1.5 rounded-full bg-success" />
       )}
     </NavLink>
   );
@@ -381,7 +381,7 @@ export function AppNav() {
             <span className="relative bg-primary grid size-8 shrink-0 place-items-center rounded-lg text-primary-foreground">
               <BrandIcon className="size-7" />
               {count > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 rounded-full bg-destructive px-0.5 text-[9px] font-semibold leading-3.5 text-destructive-foreground ring-2 ring-sidebar">
+                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 rounded-full bg-destructive px-0.5 text-2xs font-semibold leading-3.5 text-destructive-foreground ring-2 ring-sidebar">
                   {count > 9 ? "9+" : count}
                 </span>
               )}

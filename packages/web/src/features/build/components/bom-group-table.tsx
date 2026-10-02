@@ -40,16 +40,16 @@ export function BomGroupTable({
           <thead>
             <tr className="bg-secondary/40">
               <th className="w-8 border-b px-3 py-2" />
-              <th className="w-16 border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-16 border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.qty")}
               </th>
-              <th className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.part")}
               </th>
-              <th className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.notes")}
               </th>
-              <th className="w-12 border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-12 border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.buy")}
               </th>
             </tr>
@@ -86,7 +86,7 @@ export function BomGroupTable({
                   >
                     {row.part(t, boardType)}
                     {row.optional && (
-                      <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-medium text-muted-foreground uppercase no-underline">
+                      <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-sm font-medium text-foreground/70 uppercase no-underline">
                         {optionalBadgeLabel(t, row.optional)}
                       </span>
                     )}

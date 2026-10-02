@@ -20,7 +20,7 @@ export function BinStatusMeter() {
 
   return (
     <div className="rounded-lg border overflow-hidden flex-none">
-      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide px-2 pt-2 pb-1.5">
+      <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide px-2 pt-2 pb-1.5">
         {t("binStatusMeter.heading")}
       </p>
       <div className="flex items-end gap-1 px-2 pb-2 h-20">
@@ -41,7 +41,7 @@ export function BinStatusMeter() {
                   level.percent >= 90
                     ? "bg-destructive"
                     : level.percent >= 70
-                      ? "bg-amber-500"
+                      ? "bg-warning"
                       : "bg-primary",
                 )}
                 style={{

@@ -79,7 +79,7 @@ export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
           {activeOrg && (
             <OrgBadge
               initial={activeOrg.name[0].toUpperCase()}
-              className="pointer-events-none absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-primary text-[0.6rem] font-bold leading-none text-primary-foreground"
+              className="pointer-events-none absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-primary text-2xs font-bold leading-none text-primary-foreground"
             />
           )}
         </div>

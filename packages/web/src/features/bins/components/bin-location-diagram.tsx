@@ -19,24 +19,24 @@ function BinCell({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center px-4 py-2 text-[11px] font-semibold",
+        "flex flex-col items-center justify-center px-4 py-2 text-xs font-semibold",
         active
           ? "bg-primary text-primary-foreground"
           : inverted
             ? "text-background/70"
-            : "text-muted-foreground",
+            : "text-foreground/70",
       )}
     >
       <span>{t("binLabel", { number: binNumber })}</span>
       {isCatchAll && (
         <span
           className={cn(
-            "text-[8px] font-normal uppercase tracking-wide",
+            "text-2xs font-normal uppercase tracking-wide",
             active
               ? "text-primary-foreground/80"
               : inverted
                 ? "text-background/50"
-                : "text-muted-foreground/70",
+                : "text-foreground/70",
           )}
         >
           {t("catchAll")}

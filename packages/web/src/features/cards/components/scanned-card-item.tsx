@@ -53,7 +53,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             <div
               className={cn(
                 "absolute top-1 left-1 z-20 rounded-full p-0.5 shadow-md",
-                wasCorrected ? "bg-green-600" : "bg-amber-700",
+                wasCorrected ? "bg-success-strong" : "bg-warning-strong",
               )}
               title={reviewTooltip(t, needsReview, wasCorrected)}
             >
@@ -162,7 +162,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
           >
             {card.set}
           </p>
-          <p className="shrink-0 text-xs text-muted-foreground">
+          <p className="shrink-0 text-xs text-foreground/70">
             #{card.collectorNumber}
           </p>
           {isDownloaded && (
@@ -170,12 +170,12 @@ export const ScannedCardItem = memo(function ScannedCardItem({
               className="shrink-0"
               title={t("downloaded")}
             >
-              <IconDownload className="size-3 text-muted-foreground shrink-0" />
+              <IconDownload className="size-3 text-foreground/70 shrink-0" />
             </span>
           )}
         </div>
         {displayPrice != null && (
-          <p className="shrink-0 text-xs font-medium text-muted-foreground">
+          <p className="shrink-0 text-xs font-medium text-foreground/70">
             {format(displayPrice)}
           </p>
         )}

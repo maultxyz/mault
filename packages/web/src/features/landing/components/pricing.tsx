@@ -1,3 +1,4 @@
+import { PRICING_SHARED_FEATURE_KEYS } from "@/lib/constants/pricing";
 import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -6,7 +7,6 @@ import { IconCheck } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-const SHARED_FEATURE_KEYS = ["collections", "games", "notifications"] as const;
 
 function formatPrice(amount: number, currency: string, locale: string) {
   const fractionDigits = amount % 100 === 0 ? 0 : 2;
@@ -80,7 +80,7 @@ export function LandingPricing() {
                   count: pricing?.freeMaxNotificationRules ?? 1,
                 })}
               </li>
-              {SHARED_FEATURE_KEYS.map((key) => (
+              {PRICING_SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">
                   <IconCheck
                     size={16}
@@ -134,7 +134,7 @@ export function LandingPricing() {
                 <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
                 {t("pricing.business.notificationRules")}
               </li>
-              {SHARED_FEATURE_KEYS.map((key) => (
+              {PRICING_SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">
                   <IconCheck
                     size={16}

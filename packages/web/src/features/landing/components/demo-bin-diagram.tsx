@@ -28,7 +28,7 @@ function BinCell({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center px-4 py-3 text-[11px] font-semibold",
+        "flex flex-col items-center justify-center px-4 py-3 text-xs font-semibold",
         active ? "bg-primary text-primary-foreground" : "text-foreground/70",
       )}
     >
@@ -36,7 +36,7 @@ function BinCell({
       {isCatchAll && (
         <span
           className={cn(
-            "text-[8px] font-normal tracking-wide uppercase",
+            "text-2xs font-normal tracking-wide uppercase",
             active ? "text-primary-foreground/80" : "text-foreground/70",
           )}
         >

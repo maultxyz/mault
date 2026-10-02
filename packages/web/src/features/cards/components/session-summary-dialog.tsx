@@ -479,7 +479,7 @@ function StatCell({
 }) {
   return (
     <div className={cn("p-2.5", className)}>
-      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+      <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
         {label}
       </p>
       <p className="text-sm font-semibold">{value}</p>
@@ -653,14 +653,14 @@ export function SessionSummaryDialog({
         </div>
         {stats?.mostValuable && (
           <div className="px-2.5 py-2 flex items-center justify-between gap-2">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide shrink-0">
+            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide shrink-0">
               {t("sessionSummaryDialog.mostValuable")}
             </p>
             <div className="flex items-center gap-2 min-w-0">
               <p className="text-xs font-semibold truncate">
                 {stats.mostValuable.name}
               </p>
-              <p className="text-xs text-muted-foreground shrink-0">
+              <p className="text-xs text-foreground/70 shrink-0">
                 {format(stats.mostValuable.price)}
               </p>
             </div>
@@ -677,7 +677,7 @@ export function SessionSummaryDialog({
         >
           {stats.rarities.length > 0 && (
             <div className="rounded-lg border bg-input/20 dark:bg-input/30 p-2.5">
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+              <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
                 {t("sessionSummaryDialog.byRarity")}
               </p>
               <div className="flex flex-col gap-1">
@@ -693,14 +693,14 @@ export function SessionSummaryDialog({
                       />
                       <span>{r.label}</span>
                     </div>
-                    <span className="text-muted-foreground">{r.count}</span>
+                    <span className="text-foreground/70">{r.count}</span>
                   </div>
                 ))}
               </div>
             </div>
           )}
           <div className="rounded-lg border bg-input/20 dark:bg-input/30 p-2.5">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
               {t("sessionSummaryDialog.topSets")}
             </p>
             <div className="flex flex-col gap-1">
@@ -710,7 +710,7 @@ export function SessionSummaryDialog({
                   className="flex items-center justify-between text-xs gap-1"
                 >
                   <span
-                    className="truncate text-muted-foreground"
+                    className="truncate text-foreground/70"
                     title={s.name}
                   >
                     {s.name}
@@ -723,7 +723,7 @@ export function SessionSummaryDialog({
         </div>
       )}
       {previouslyDownloadedCount > 0 && (
-        <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
+        <label className="flex items-center justify-between gap-1.5 text-sm text-foreground/70">
           {t("sessionSummaryDialog.includePreviouslyDownloaded")}
           <Switch
             size="sm"
@@ -733,7 +733,7 @@ export function SessionSummaryDialog({
         </label>
       )}
       {gridFilterCount > 0 && (
-        <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
+        <label className="flex items-center justify-between gap-1.5 text-sm text-foreground/70">
           {t("sessionSummaryDialog.applyGridFilters", { count: gridFilterCount })}
           <Switch
             size="sm"
@@ -742,7 +742,7 @@ export function SessionSummaryDialog({
           />
         </label>
       )}
-      <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
+      <label className="flex items-center justify-between gap-1.5 text-sm text-foreground/70">
         {t("sessionSummaryDialog.combineDuplicates")}
         <Switch
           size="sm"
@@ -751,7 +751,7 @@ export function SessionSummaryDialog({
         />
       </label>
       {wrappedEnabled && (
-        <label className="flex items-center justify-between gap-1.5 text-sm text-muted-foreground">
+        <label className="flex items-center justify-between gap-1.5 text-sm text-foreground/70">
           {t("sessionSummaryDialog.sessionWrappedToggle")}
           <SessionWrappedToggle size="sm" />
         </label>
@@ -843,7 +843,7 @@ export function SessionSummaryDialog({
             <span
               className={cn(
                 "text-xs font-medium truncate",
-                isOutro ? "text-muted-foreground" : "text-white/70",
+                isOutro ? "text-foreground/70" : "text-white/70",
               )}
             >
               {isOutro ? t("sessionSummaryDialog.title") : collectionName}
