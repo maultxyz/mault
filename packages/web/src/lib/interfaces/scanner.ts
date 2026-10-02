@@ -18,7 +18,6 @@ import type {
   CollectionCardsQuery,
   FieldMeta,
   GroupedScannedCard,
-  HealthCheck,
   PlayingCard,
   PlayingCardWithDistance,
   ScanRegion,
@@ -266,7 +265,6 @@ export interface ScannerOverlayProps {
   cameraSource: CameraSource;
   phonePairingStatus: PhoneCameraCaptureStatus;
   hasPhonePhoto: boolean;
-  apiHealthCheck: HealthCheck | null;
   dailyLimitReached: boolean;
   onRetryError: () => void;
   onConnectCamera: () => void;

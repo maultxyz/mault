@@ -1,7 +1,6 @@
 import { publicGet } from "@/lib/api/client";
 import { useSyncState } from "@/lib/app-stream";
 import type {
-  HealthCheck,
   HealthCheckResponse,
   Result,
 } from "@magic-vault/shared";
@@ -23,12 +22,4 @@ export function useHealthQuery() {
     ...healthQueryOptions,
     enabled: syncState.status !== "running",
   });
-}
-
-export function useGameApiHealthCheck(
-  gameKey: string | null | undefined,
-): HealthCheck | null {
-  const { data } = useHealthQuery();
-  if (!gameKey) return null;
-  return data?.checks.find((check) => check.gameKey === gameKey) ?? null;
 }

@@ -59,12 +59,6 @@ export const binConfigSchema = z.object({
   isCatchAll: z.boolean(),
   isOverride: z.boolean(),
   rules: binRuleGroupSchema,
-  cardLimit: z
-    .number()
-    .int()
-    .min(1, "Limit must be at least 1 card")
-    .max(CONDITION_NUMERIC_MAX)
-    .nullable(),
   maxCopies: z
     .number()
     .int()

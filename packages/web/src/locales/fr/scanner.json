@@ -276,7 +276,6 @@
     "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter."
   },
   "scannerOverlay": {
-    "apiDown": "{{api}} est actuellement hors service - le scan est désactivé pour cette collection jusqu'à son rétablissement. Consulte la page de statut pour les mises à jour.",
     "dailyLimitReached": "Limite de scans quotidienne atteinte. Passe à Entreprise pour un scan illimité.",
     "upgradeButton": "Mettre à niveau",
     "connectCamera": "Connecte la webcam installée au-dessus du trieur, ou associe ton téléphone comme caméra.",

@@ -276,7 +276,6 @@
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
   },
   "scannerOverlay": {
-    "apiDown": "{{api}} is currently down, so scanning is disabled for this collection until it's back. Check the status page for updates.",
     "dailyLimitReached": "Daily scan limit reached. Upgrade to Business for unlimited scanning.",
     "upgradeButton": "Upgrade plan",
     "connectCamera": "Connect the webcam mounted over the sorter, or pair your phone to use as the camera.",
