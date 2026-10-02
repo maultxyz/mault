@@ -10,3 +10,9 @@ export const orgInviteSchema = z.object({
 });
 
 export type OrgInviteFormValues = z.infer<typeof orgInviteSchema>;
+
+export const memberRolesSchema = z.object({
+  roles: z.record(z.string(), z.enum(["owner", "admin", "member"])),
+});
+
+export type MemberRolesFormValues = z.infer<typeof memberRolesSchema>;

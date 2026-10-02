@@ -90,5 +90,9 @@
       "channelRequired": "Choose a channel.",
       "conditionsRequired": "Add at least one condition."
     }
+  },
+  "draft": {
+    "saved": "Discord settings saved.",
+    "saveFailed": "Some Discord settings couldn't be saved. Try again."
   }
 }

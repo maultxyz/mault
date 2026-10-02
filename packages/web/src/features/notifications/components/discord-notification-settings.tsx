@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { NotificationTestType } from "../api/notification-settings";
 import { useNotificationSettings } from "../api/use-notification-settings";
@@ -15,15 +17,11 @@ const TEST_TYPES: NotificationTestType[] = [
 
 export function DiscordNotificationSettings() {
   const { t } = useTranslation("notifications");
-  const {
-    settings,
-    isLoading,
-    save,
-    isLinked,
-    sendTest,
-    isTesting,
-    testingType,
-  } = useNotificationSettings();
+  const { isLoading, isLinked, sendTest, isTesting, testingType } =
+    useNotificationSettings();
+  const { control, formState } = useFormContext<DiscordSettingsDraftValues>();
+  const notifyOnScan = useWatch({ control, name: "discordNotifyOnScan" });
+  const disabled = isLoading || formState.isSubmitting;
 
   const canTest = isLinked && !isTesting && !isLoading;
 
@@ -34,14 +32,20 @@ export function DiscordNotificationSettings() {
           <span className="text-sm">
             {t("discordNotifications.notifyToggleLabel")}
           </span>
-          <span className="text-sm text-foreground/70">
+          <span className="text-xs text-foreground/70">
             {t("discordNotifications.notifyToggleDescription")}
           </span>
         </span>
-        <Switch
-          checked={settings.discordNotifyOnScan}
-          disabled={isLoading}
-          onCheckedChange={(checked) => save({ discordNotifyOnScan: checked })}
+        <Controller
+          control={control}
+          name="discordNotifyOnScan"
+          render={({ field }) => (
+            <Switch
+              checked={field.value}
+              disabled={disabled}
+              onCheckedChange={field.onChange}
+            />
+          )}
         />
       </label>
       <label className="flex items-center justify-between gap-3">
@@ -49,16 +53,20 @@ export function DiscordNotificationSettings() {
           <span className="text-sm">
             {t("discordNotifications.threadToggleLabel")}
           </span>
-          <span className="text-sm text-foreground/70">
+          <span className="text-xs text-foreground/70">
             {t("discordNotifications.threadToggleDescription")}
           </span>
         </span>
-        <Switch
-          checked={settings.discordScanUseThreads}
-          disabled={isLoading || !settings.discordNotifyOnScan}
-          onCheckedChange={(checked) =>
-            save({ discordScanUseThreads: checked })
-          }
+        <Controller
+          control={control}
+          name="discordScanUseThreads"
+          render={({ field }) => (
+            <Switch
+              checked={field.value}
+              disabled={disabled || !notifyOnScan}
+              onCheckedChange={field.onChange}
+            />
+          )}
         />
       </label>
       <div className="flex flex-col gap-1.5">

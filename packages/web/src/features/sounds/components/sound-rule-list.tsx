@@ -1,17 +1,18 @@
+import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Switch } from "@/components/ui/switch";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
   deleteSoundRule,
-  reorderSoundRules,
   soundClipsQueryOptions,
   soundRuleCountQueryOptions,
   soundRulesQueryOptions,
-  updateSoundRule,
 } from "@/features/sounds/api/sounds";
+import { useSoundRulesDraft } from "@/features/sounds/api/use-sound-rules-draft";
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { SoundRuleDialog } from "@/features/sounds/components/sound-rule-dialog";
 import type { SoundRuleListProps } from "@/lib/interfaces/sounds";
@@ -62,17 +63,8 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
     onError: () => toast.error(t("rules.saveFailed")),
   });
 
-  const move = (index: number, offset: number) => {
-    const next = [...rules];
-    const [moved] = next.splice(index, 1);
-    next.splice(index + offset, 0, moved);
-    change.mutate(() =>
-      reorderSoundRules(
-        gameGuid,
-        next.map((r) => r.guid),
-      ),
-    );
-  };
+  const draft = useSoundRulesDraft(gameGuid, rules);
+  const locked = change.isPending || draft.isSaving;
 
   const openDialog = (rule: SoundRule | null) => {
     setEditing(rule);
@@ -112,7 +104,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
       )}
 
       <ol className="flex flex-col divide-y">
-        {rules.map((rule, index) => {
+        {draft.orderedRules.map((rule, index) => {
           const clip = clips.find((c) => c.guid === rule.clipGuid);
           return (
             <li key={rule.guid} className="flex items-center gap-3 py-2">
@@ -120,20 +112,20 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                 <Button
                   size="icon"
                   variant="outline"
-                  disabled={index === 0 || change.isPending}
+                  disabled={index === 0 || locked}
                   aria-label={t("rules.moveUp")}
                   title={t("rules.moveUp")}
-                  onClick={() => move(index, -1)}
+                  onClick={() => draft.move(index, -1)}
                 >
                   <IconArrowUp size={14} />
                 </Button>
                 <Button
                   size="icon"
                   variant="outline"
-                  disabled={index === rules.length - 1 || change.isPending}
+                  disabled={index === rules.length - 1 || locked}
                   aria-label={t("rules.moveDown")}
                   title={t("rules.moveDown")}
-                  onClick={() => move(index, 1)}
+                  onClick={() => draft.move(index, 1)}
                 >
                   <IconArrowDown size={14} />
                 </Button>
@@ -148,17 +140,11 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                 <RuleSummary rules={rule.rules} />
               </div>
               <Switch
-                checked={rule.isEnabled}
+                checked={draft.isEnabled(rule)}
+                disabled={locked}
                 aria-label={t("rules.enabled")}
                 onCheckedChange={(isEnabled) =>
-                  change.mutate(() =>
-                    updateSoundRule(rule.guid, {
-                      name: rule.name,
-                      rules: rule.rules,
-                      clipGuid: rule.clipGuid,
-                      isEnabled,
-                    }),
-                  )
+                  draft.setEnabled(rule, isEnabled)
                 }
               />
               <ButtonGroup className="shrink-0">
@@ -174,7 +160,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                 <Button
                   size="icon"
                   variant="outline-destructive"
-                  disabled={change.isPending}
+                  disabled={locked}
                   aria-label={t("rules.delete", { name: rule.name })}
                   title={t("rules.delete", { name: rule.name })}
                   onClick={() =>
@@ -196,6 +182,13 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
         gameGuid={gameGuid}
         clips={clips}
       />
+      <SaveBar
+        show={draft.isDirty}
+        isSaving={draft.isSaving}
+        onSave={draft.save}
+        onDiscard={draft.discard}
+      />
+      <UnsavedChangesGuard isDirty={draft.isDirty} onDiscard={draft.discard} />
     </SettingsSection>
   );
 }

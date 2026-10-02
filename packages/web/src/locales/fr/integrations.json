@@ -90,5 +90,9 @@
       "channelRequired": "Choisis un salon.",
       "conditionsRequired": "Ajoute au moins une condition."
     }
+  },
+  "draft": {
+    "saved": "Paramètres Discord enregistrés.",
+    "saveFailed": "Certains paramètres Discord n'ont pas pu être enregistrés. Réessaie."
   }
 }

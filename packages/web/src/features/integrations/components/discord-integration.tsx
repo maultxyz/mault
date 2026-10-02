@@ -1,19 +1,23 @@
+import { SaveBar } from "@/components/save-bar";
 import {
   SettingsSection,
   SettingsSections,
 } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useDiscordBotSettings } from "@/features/companies/api/use-discord-bot";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { DiscordBotSettings } from "@/features/companies/components/discord-bot-settings";
 import { discordIntegrationQueryOptions } from "@/features/integrations/api/integrations";
+import { useDiscordSettingsDraft } from "@/features/integrations/api/use-discord-settings-draft";
 import { DiscordChannelSettings } from "@/features/integrations/components/discord-channel-settings";
 import { DiscordCollectionOverrides } from "@/features/integrations/components/discord-collection-overrides";
 import { NotificationRuleList } from "@/features/integrations/components/notification-rule-list";
 import { DiscordNotificationSettings } from "@/features/notifications/components/discord-notification-settings";
 import { IconAlertTriangle, IconBrandDiscord } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { FormProvider } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 export function DiscordIntegration() {
@@ -27,6 +31,7 @@ export function DiscordIntegration() {
     discordIntegrationQueryOptions(activeOrg?.id, isLinked),
   );
   const guild = integration?.guild ?? null;
+  const draft = useDiscordSettingsDraft(integration, game?.guid);
 
   const warning = !integration?.linked
     ? null
@@ -72,7 +77,7 @@ export function DiscordIntegration() {
         </SettingsSection>
 
         {isLinked && integration && (
-          <>
+          <FormProvider {...draft.form}>
             <DiscordChannelSettings integration={integration} />
             <DiscordCollectionOverrides integration={integration} />
             {game ? (
@@ -93,9 +98,16 @@ export function DiscordIntegration() {
             >
               <DiscordNotificationSettings />
             </SettingsSection>
-          </>
+            <SaveBar
+              show={draft.isDirty}
+              isSaving={draft.isSaving}
+              onSave={draft.save}
+              onDiscard={draft.discard}
+            />
+          </FormProvider>
         )}
       </SettingsSections>
+      <UnsavedChangesGuard isDirty={draft.isDirty} onDiscard={draft.discard} />
     </div>
   );
 }

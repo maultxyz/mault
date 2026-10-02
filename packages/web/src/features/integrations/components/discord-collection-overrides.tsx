@@ -1,22 +1,28 @@
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
-import { useSaveDiscordChannels } from "@/features/integrations/api/use-save-discord-channels";
 import { CollectionOverrideDialog } from "@/features/integrations/components/collection-override-dialog";
 import { DiscordChannelSelect } from "@/features/integrations/components/discord-channel-select";
+import { isOverrideRemoved } from "@/features/integrations/lib/discord-settings-draft";
 import type { DiscordCollectionOverridesProps } from "@/lib/interfaces/integrations";
+import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
+import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 export function DiscordCollectionOverrides({
   integration,
 }: DiscordCollectionOverridesProps) {
   const { t } = useTranslation("integrations");
-  const save = useSaveDiscordChannels();
+  const { control, formState, setValue } =
+    useFormContext<DiscordSettingsDraftValues>();
+  const draftOverrides = useWatch({ control, name: "overrides" });
   const [dialogOpen, setDialogOpen] = useState(false);
   const channels = integration.guild?.channels ?? [];
-  const disabled = !integration.guild || save.isPending;
-  const overrides = integration.collections;
+  const disabled = !integration.guild || formState.isSubmitting;
+  const overrides = integration.collections.filter(
+    (override) => !isOverrideRemoved(override, draftOverrides),
+  );
 
   return (
     <SettingsSection
@@ -51,36 +57,44 @@ export function DiscordCollectionOverrides({
               <span className="truncate text-sm font-medium">
                 {override.name}
               </span>
-              <DiscordChannelSelect
-                value={override.scanChannelId}
-                channels={channels}
-                emptyLabel={t("channelSettings.sameScan")}
-                disabled={disabled}
-                onChange={(scanChannelId) =>
-                  save.mutate({ collectionGuid: override.guid, scanChannelId })
-                }
+              <Controller
+                control={control}
+                name={`overrides.${override.guid}.scanChannelId`}
+                render={({ field }) => (
+                  <DiscordChannelSelect
+                    value={field.value ?? null}
+                    channels={channels}
+                    emptyLabel={t("channelSettings.sameScan")}
+                    disabled={disabled}
+                    onChange={field.onChange}
+                  />
+                )}
               />
-              <DiscordChannelSelect
-                value={override.errorChannelId}
-                channels={channels}
-                emptyLabel={t("channelSettings.sameError")}
-                disabled={disabled}
-                onChange={(errorChannelId) =>
-                  save.mutate({ collectionGuid: override.guid, errorChannelId })
-                }
+              <Controller
+                control={control}
+                name={`overrides.${override.guid}.errorChannelId`}
+                render={({ field }) => (
+                  <DiscordChannelSelect
+                    value={field.value ?? null}
+                    channels={channels}
+                    emptyLabel={t("channelSettings.sameError")}
+                    disabled={disabled}
+                    onChange={field.onChange}
+                  />
+                )}
               />
               <Button
                 size="icon"
                 variant="outline-destructive"
-                disabled={save.isPending}
+                disabled={disabled}
                 aria-label={t("overrides.remove", { name: override.name })}
                 title={t("overrides.remove", { name: override.name })}
                 onClick={() =>
-                  save.mutate({
-                    collectionGuid: override.guid,
-                    scanChannelId: null,
-                    errorChannelId: null,
-                  })
+                  setValue(
+                    `overrides.${override.guid}`,
+                    { scanChannelId: null, errorChannelId: null },
+                    { shouldDirty: true },
+                  )
                 }
               >
                 <IconTrash size={14} />
