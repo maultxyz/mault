@@ -75,7 +75,7 @@
     "healthIssuesTooltip": "Having trouble: {{names}}. Click for details.",
     "health": "Health",
     "healthOk": "All systems normal",
-    "healthOkTooltip": "Database and all card APIs are reachable. Click for details.",
+    "healthOkTooltip": "The database is reachable. Click for details.",
     "healthChecking": "Checking service status…"
   },
   "appVersion": {

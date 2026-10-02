@@ -1,6 +1,6 @@
 {
   "title": "Systemstatus",
-  "subtitle": "Live-Status der Datenbank und jeder verbundenen Karten-API.",
+  "subtitle": "Live-Status der Datenbank.",
   "refresh": "Aktualisieren",
   "allHealthy": "Alles funktioniert einwandfrei.",
   "someUnhealthy": "Einige Dienste haben Probleme.",

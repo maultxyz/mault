@@ -1,58 +1,9 @@
 import type { HealthCheck, HealthCheckResponse } from "@magic-vault/shared";
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
-import { games } from "../../db/schema";
-import { fetchCardApi } from "../../lib/card-search/fetch";
 import { HEALTH_CACHE_TTL_MS } from "../../lib/constants/timing";
-import {
-  FAB_DEFAULT_URL,
-  GUNDAM_DEFAULT_URL,
-  LORCANA_DEFAULT_URL,
-  ONE_PIECE_DEFAULT_URL,
-  POKEMON_DEFAULT_URL,
-  RIFTBOUND_DEFAULT_URL,
-  SCRYFALL_DEFAULT_URL,
-  SWU_API_ROOT,
-  YUGIOH_DEFAULT_URL,
-} from "../../lib/constants/urls";
 import type { AppEnv } from "../../middleware/auth";
-
-const EXTERNAL_API_CHECKS: { name: string; url: string; gameKey: string }[] = [
-  {
-    name: "Scryfall (Magic: The Gathering)",
-    url: SCRYFALL_DEFAULT_URL,
-    gameKey: "mtg",
-  },
-  { name: "TCGdex (Pokémon)", url: POKEMON_DEFAULT_URL, gameKey: "pokemon" },
-  { name: "Gundam Card Game API", url: GUNDAM_DEFAULT_URL, gameKey: "gundam" },
-  {
-    name: "Lorcast (Disney Lorcana)",
-    url: LORCANA_DEFAULT_URL,
-    gameKey: "lorcana",
-  },
-  {
-    name: "OPTCGAPI (One Piece)",
-    url: ONE_PIECE_DEFAULT_URL,
-    gameKey: "onepiece",
-  },
-  { name: "Fleshcube (Flesh and Blood)", url: FAB_DEFAULT_URL, gameKey: "fab" },
-  {
-    name: "YGOPRODeck (Yu-Gi-Oh!)",
-    url: YUGIOH_DEFAULT_URL,
-    gameKey: "yugioh",
-  },
-  {
-    name: "Riftcodex (Riftbound)",
-    url: RIFTBOUND_DEFAULT_URL,
-    gameKey: "riftbound",
-  },
-  {
-    name: "SWU-DB (Star Wars: Unlimited)",
-    url: `${SWU_API_ROOT}/sets`,
-    gameKey: "swu",
-  },
-];
 
 async function checkDatabase(): Promise<HealthCheck> {
   const start = Date.now();
@@ -69,56 +20,15 @@ async function checkDatabase(): Promise<HealthCheck> {
   }
 }
 
-async function checkExternalApi(
-  name: string,
-  url: string,
-  gameKey: string,
-): Promise<HealthCheck> {
-  const start = Date.now();
-  try {
-    const response = await fetchCardApi(url, { method: "GET" });
-    await response.body?.cancel();
-    return { name, status: "ok", latencyMs: Date.now() - start, gameKey };
-  } catch (err) {
-    const timedOut = err instanceof Error && err.name === "TimeoutError";
-    return {
-      name,
-      status: "error",
-      latencyMs: Date.now() - start,
-      message: timedOut ? "Timed out." : "Unreachable.",
-      gameKey,
-    };
-  }
-}
-
 let cachedHealth: { data: HealthCheckResponse; expiresAt: number } | null =
   null;
 
-// GET /public/health — unauthenticated. Polled by the app footer and the
-// dedicated health page to surface upstream card-API/DB outages instead of
-// letting them show up only as a failed search with no context.
 export const healthRoute = new Hono<AppEnv>().get("/health", async (c) => {
   if (cachedHealth && cachedHealth.expiresAt > Date.now()) {
     return c.json({ success: true, data: cachedHealth.data });
   }
 
-  const activeGames = await db.query.games.findMany({
-    where: eq(games.isActive, true),
-    columns: { key: true },
-  });
-  const activeGameKeys = new Set(activeGames.map((g) => g.key));
-  const activeChecks = EXTERNAL_API_CHECKS.filter((api) =>
-    activeGameKeys.has(api.gameKey),
-  );
-
-  const [database, ...externalApis] = await Promise.all([
-    checkDatabase(),
-    ...activeChecks.map((api) =>
-      checkExternalApi(api.name, api.url, api.gameKey),
-    ),
-  ]);
-  const checks = [database, ...externalApis];
-
+  const checks = [await checkDatabase()];
   const data: HealthCheckResponse = {
     healthy: checks.every((check) => check.status === "ok"),
     checkedAt: new Date().toISOString(),
