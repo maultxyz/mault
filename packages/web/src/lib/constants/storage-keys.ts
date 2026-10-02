@@ -47,3 +47,4 @@ export const CARD_TECHNICAL_DETAILS_STORAGE_KEY =
 
 export const BLE_DEVICE_MAP_STORAGE_KEY = "magic-vault:ble-device-map";
 export const CARD_GRID_DENSITY_STORAGE_KEY = "magic-vault:card-grid-density";
+export const BIN_LEVELS_COLLAPSED_STORAGE_KEY = "magic-vault:bin-levels-collapsed";

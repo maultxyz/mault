@@ -60,7 +60,10 @@ import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
-import type { ScannedCardsContextValue } from "@/lib/interfaces/scanner";
+import type {
+  LastRoutedBin,
+  ScannedCardsContextValue,
+} from "@/lib/interfaces/scanner";
 import { toast } from "@/lib/toast";
 import { generateScanId } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
@@ -179,6 +182,9 @@ export function ScannedCardsProvider({
     timerResetSignal,
   );
   const [recentScanTimes, setRecentScanTimes] = useState<number[]>([]);
+  const [lastRoutedBin, setLastRoutedBin] = useState<LastRoutedBin | null>(
+    null,
+  );
 
   const {
     autoFeed,
@@ -442,6 +448,9 @@ export function ScannedCardsProvider({
       };
 
       recordSupportPromptScan();
+      if (record.binNumber != null) {
+        setLastRoutedBin({ binNumber: record.binNumber, at: record.scannedAt });
+      }
       setRecentScanTimes((prev) => [
         ...prev.filter((time) => time > record.scannedAt - SCAN_RATE_WINDOW_MS),
         record.scannedAt,
@@ -901,6 +910,7 @@ export function ScannedCardsProvider({
         elapsedMs,
         isTimerActive,
         recentScanTimes,
+        lastRoutedBin,
         setScannerRunning,
         setAutoFeed,
         setForceFoilType,

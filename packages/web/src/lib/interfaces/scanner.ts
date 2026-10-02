@@ -100,6 +100,7 @@ export interface ScannedCardsContextValue {
   elapsedMs: number;
   isTimerActive: boolean;
   recentScanTimes: number[];
+  lastRoutedBin: LastRoutedBin | null;
   setScannerRunning: (running: boolean) => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
@@ -301,6 +302,32 @@ export interface BinFillLevel {
   count: number;
   capacity: number | null;
   percent: number;
+}
+
+export type BinLevelStatus = "normal" | "warning" | "full";
+
+export interface LastRoutedBin {
+  binNumber: number;
+  at: number;
+}
+
+export interface BinLevelLayout {
+  rows: (number | undefined)[][];
+  bottom: number[];
+}
+
+export interface BinLevelCellProps {
+  level: BinFillLevel;
+  isCatchAll: boolean;
+  flashKey: number | null;
+  onEmpty: (binNumber: number) => void;
+  className?: string;
+}
+
+export interface BinLevelSummary {
+  totalCards: number;
+  fullest: BinFillLevel | null;
+  needsEmptying: number;
 }
 
 export interface RawCommandResult {
