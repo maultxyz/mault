@@ -366,7 +366,9 @@ Immediately cuts PWM on the feeder channel. → `{"status":"ok"}`
     "duration": 3000,
     "pulseDuration": 80,
     "pauseDuration": 0,
-    "settleDuration": 500
+    "settleDuration": 500,
+    "reverseSpeed": 333,
+    "reverseDuration": 0
   }
 }
 ```
@@ -380,6 +382,8 @@ the feeder as a side effect. → `{"status":"ok"}`
 | `pulseDuration` | If `> 0`, run in pulsed mode: drive for this many ms, then check IR (`0` = continuous-drive mode instead) |
 | `pauseDuration` | Pause (ms) between pulses in pulsed mode |
 | `settleDuration` | Extra run time (ms) after detection, only when the hopper is now empty, so the last card (with nothing behind it) still fully clears into module 1 |
+| `reverseSpeed` | Raw PWM pulse driving the feeder motor backward during rollback (the other side of the motor's stop point from `speed`). Firmware 2.4.0+ |
+| `reverseDuration` | Rollback time (ms): once a feed delivers a card to module 1 and cards remain in the hopper, the roller runs backward this long so the next card, dragged forward by friction, is pulled back instead of creeping in behind it (a double feed). `0` (the default) turns it off. Firmware 2.4.0+; older firmware ignores both fields |
 
 ### `readIR`
 ```json

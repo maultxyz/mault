@@ -1,3 +1,4 @@
+import { DEFAULT_FEEDER_CALIBRATION } from "@magic-vault/shared";
 import { z } from "zod";
 
 const servoCalibrationSchema = z.object({
@@ -23,6 +24,10 @@ const feederCalibrationSchema = z.object({
   pulseDuration: z.number(),
   pauseDuration: z.number(),
   settleDuration: z.number(),
+  reverseSpeed: z.number().default(DEFAULT_FEEDER_CALIBRATION.reverseSpeed),
+  reverseDuration: z
+    .number()
+    .default(DEFAULT_FEEDER_CALIBRATION.reverseDuration),
 });
 
 const binRouteSchema = z.object({

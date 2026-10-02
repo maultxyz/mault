@@ -80,7 +80,12 @@
     "continuousFeedButton": "Continuous Feed",
     "pauseDurationLabel": "Pause Duration (ms)",
     "settleDurationLabel": "Final Card Detection Delay (ms)",
-    "settleDurationDescription": "Extra time to keep feeding once the module 1 sensor sees the last card in the hopper, so it travels all the way into the mechanism before the motor stops."
+    "settleDurationDescription": "Extra time to keep feeding once the module 1 sensor sees the last card in the hopper, so it travels all the way into the mechanism before the motor stops.",
+    "reverseDurationLabel": "Roll Back After Feed (ms)",
+    "reverseDurationDescription": "Once a card reaches module 1, spin the roller backward this long so the next card in the hopper is pulled back instead of creeping forward into a double feed. 0 turns it off.",
+    "reverseSpeedLabel": "Roll Back Speed",
+    "reverseFirmwareNote": "Needs firmware {{version}} or newer. Update the sorter's firmware for this to take effect.",
+    "off": "Off"
   },
   "irSensorPanel": {
     "label": "IR Sensors",
@@ -215,7 +220,8 @@
       "duration": "Duration",
       "pulse": "Pulse",
       "pause": "Pause",
-      "settle": "Final Detection Delay"
+      "settle": "Final Detection Delay",
+      "rollback": "Roll Back"
     },
     "toasts": {
       "moduleReverted": "Reverted module calibration",

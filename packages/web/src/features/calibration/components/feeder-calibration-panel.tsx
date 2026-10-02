@@ -10,6 +10,7 @@ import {
   FEEDER_DURATION_SLIDER_MAX,
   FEEDER_PAUSE_DURATION_SLIDER_MAX,
   FEEDER_PULSE_DURATION_SLIDER_MAX,
+  FEEDER_REVERSE_DURATION_SLIDER_MAX,
   FEEDER_SETTLE_DURATION_SLIDER_MAX,
   pulseToDirectionalSpeed,
   pulseToSignedPercent,
@@ -18,6 +19,7 @@ import {
   signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
+import { FEEDER_ROLLBACK_MIN_FIRMWARE } from "@magic-vault/shared";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -94,6 +96,9 @@ interface FeederCalibrationPanelProps {
   pulseDurationValue: number;
   pauseDurationValue: number;
   settleDurationValue: number;
+  reverseSpeedValue: number;
+  reverseDurationValue: number;
+  rollbackSupported: boolean;
   isConnected: boolean;
   canCalibrate: boolean;
   onSpeedChange: (value: number) => void;
@@ -101,6 +106,8 @@ interface FeederCalibrationPanelProps {
   onPulseDurationChange: (value: number) => void;
   onPauseDurationChange: (value: number) => void;
   onSettleDurationChange: (value: number) => void;
+  onReverseSpeedChange: (value: number) => void;
+  onReverseDurationChange: (value: number) => void;
   onSelectContinuous: () => void;
 }
 
@@ -110,6 +117,9 @@ export function FeederCalibrationPanel({
   pulseDurationValue,
   pauseDurationValue,
   settleDurationValue,
+  reverseSpeedValue,
+  reverseDurationValue,
+  rollbackSupported,
   isConnected,
   canCalibrate,
   onSpeedChange,
@@ -117,12 +127,16 @@ export function FeederCalibrationPanel({
   onPulseDurationChange,
   onPauseDurationChange,
   onSettleDurationChange,
+  onReverseSpeedChange,
+  onReverseDurationChange,
   onSelectContinuous,
 }: FeederCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const speedSigned = pulseToSignedPercent(speedValue);
   const speed = pulseToDirectionalSpeed(speedValue);
+  const reverseSpeedSigned = pulseToSignedPercent(reverseSpeedValue);
+  const reverseSpeed = pulseToDirectionalSpeed(reverseSpeedValue);
 
   return (
     <div
@@ -367,6 +381,94 @@ export function FeederCalibrationPanel({
                 </p>
               )}
             />
+          )}
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              {t("feederCalibrationPanel.reverseDurationLabel")}
+            </p>
+            <span className="text-sm font-bold">
+              {reverseDurationValue <= 0
+                ? t("feederCalibrationPanel.off")
+                : t("msValue", { value: reverseDurationValue })}
+            </span>
+          </div>
+          <p className="text-[10px] text-muted-foreground/70">
+            {t("feederCalibrationPanel.reverseDurationDescription")}
+          </p>
+          {!rollbackSupported && (
+            <p className="text-[10px] text-amber-700 dark:text-amber-400">
+              {t("feederCalibrationPanel.reverseFirmwareNote", {
+                version: FEEDER_ROLLBACK_MIN_FIRMWARE,
+              })}
+            </p>
+          )}
+          <Slider
+            min={0}
+            max={sliderMax(
+              reverseDurationValue,
+              FEEDER_REVERSE_DURATION_SLIDER_MAX,
+            )}
+            step={1}
+            disabled={!isConnected}
+            value={reverseDurationValue}
+            onValueChange={onReverseDurationChange}
+          />
+          {showAdvanced && (
+            <RawStepperRow
+              value={reverseDurationValue}
+              min={0}
+              bigStep={10}
+              smallStep={1}
+              disabled={!isConnected}
+              onChange={onReverseDurationChange}
+              renderValue={() => (
+                <p className="font-bold text-sm">
+                  {reverseDurationValue <= 0
+                    ? t("feederCalibrationPanel.off")
+                    : t("msValue", { value: reverseDurationValue })}
+                </p>
+              )}
+            />
+          )}
+          {reverseDurationValue > 0 && (
+            <>
+              <div className="flex items-center justify-between pt-1">
+                <p className="text-xs text-muted-foreground">
+                  {t("feederCalibrationPanel.reverseSpeedLabel")}
+                </p>
+                <span className="text-sm font-bold">
+                  {t(`feederCalibrationPanel.${reverseSpeed.direction}`)}{" "}
+                  {reverseSpeed.magnitude}%
+                </span>
+              </div>
+              <Slider
+                min={-100}
+                max={100}
+                step={1}
+                disabled={!canCalibrate}
+                value={reverseSpeedSigned}
+                onValueChange={(value) =>
+                  onReverseSpeedChange(signedPercentToPulse(value))
+                }
+              />
+              {showAdvanced && (
+                <RawStepperRow
+                  value={reverseSpeedValue}
+                  min={SERVO_PULSE_MIN}
+                  max={SERVO_PULSE_MAX}
+                  bigStep={10}
+                  smallStep={1}
+                  disabled={!canCalibrate}
+                  onChange={onReverseSpeedChange}
+                  renderValue={() => (
+                    <p className="font-bold text-sm">{reverseSpeedValue}</p>
+                  )}
+                />
+              )}
+            </>
           )}
         </div>
       </div>
