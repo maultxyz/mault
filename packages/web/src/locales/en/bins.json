@@ -11,6 +11,7 @@
     "ruleCount_one": "{{count}} rule",
     "ruleCount_other": "{{count}} rules",
     "allUnmatched": "All unmatched cards",
+    "lowMatch": "Plus scans below {{percent}}% match",
     "clickToConfigure": "Click to configure",
     "waitingForValue": "Waiting for next value",
     "scanOnlyDisabled": "Scan only is on",
@@ -27,6 +28,10 @@
     "setCatchAll": "Set as catch-all",
     "catchAllDescription": "Cards that don't match any other bin will go here.",
     "rulesLabel": "Rules",
+    "lowMatchLabel": "Send low matches here",
+    "lowMatchPrefix": "Below",
+    "lowMatchSuffix": "% match",
+    "lowMatchDescription": "Scans below this match percent come here even when another bin's rules match them, override bins included.",
     "apiDocsLink": "Field reference",
     "clear": "Clear",
     "cardLimitLabel": "Bin capacity",
@@ -176,6 +181,7 @@
   "scanRuleFields": {
     "foil": "Foil",
     "foilType": "Foil type",
+    "matchPercent": "Match %",
     "foilOption": "Foil",
     "nonFoilOption": "Non-foil"
   }

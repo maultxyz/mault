@@ -2,7 +2,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import type { BinCardProps } from "@/lib/interfaces/bins";
-import { BinConfig, isRuleGroup } from "@magic-vault/shared";
+import {
+  BinConfig,
+  getCatchAllMatchThreshold,
+  isRuleGroup,
+} from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function countConditions(config: BinConfig): number {
@@ -28,6 +32,9 @@ export function BinCard({
 }: BinCardProps) {
   const { t } = useTranslation("bins");
   const isEmpty = config.rules.conditions.length === 0;
+  const lowMatchPercent = config.isCatchAll
+    ? getCatchAllMatchThreshold(config.rules)
+    : null;
   const conditionCount = countConditions(config);
 
   return (
@@ -68,9 +75,16 @@ export function BinCard({
       </div>
       <div className="w-full text-xs">
         {config.isCatchAll ? (
-          <p className="text-xs text-muted-foreground">
-            {t("binCard.allUnmatched")}
-          </p>
+          <>
+            <p className="text-xs text-muted-foreground">
+              {t("binCard.allUnmatched")}
+            </p>
+            {lowMatchPercent != null && (
+              <p className="text-xs">
+                {t("binCard.lowMatch", { percent: lowMatchPercent })}
+              </p>
+            )}
+          </>
         ) : alphabetLetter !== undefined ? (
           <p className="text-xs">
             {alphabetLetter

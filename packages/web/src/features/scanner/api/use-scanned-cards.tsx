@@ -13,6 +13,7 @@ import {
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateRepackBin,
+  findLowMatchCatchAll,
   getCardsInBin,
   getCatchAllBin,
   hasMaxCopiesBins,
@@ -232,6 +233,8 @@ export function ScannedCardsProvider({
 
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
+      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
+      if (lowMatch) return lowMatch;
       const set = selectedSetRef.current;
       if (set?.isAlphabetMode) {
         return evaluateAlphabetBin(

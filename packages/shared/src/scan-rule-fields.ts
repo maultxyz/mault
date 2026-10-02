@@ -5,6 +5,8 @@ import {
   SCAN_RULE_FOIL_TYPE_FIELD,
   SCAN_RULE_FOIL_TYPE_OPERATORS,
   SCAN_RULE_FOIL_VALUE,
+  SCAN_RULE_MATCH_PERCENT_FIELD,
+  SCAN_RULE_MATCH_PERCENT_OPERATORS,
   SCAN_RULE_NON_FOIL_VALUE,
   SCAN_RULE_ROOT,
 } from "./constants/scan-rule-fields.constant";
@@ -20,7 +22,18 @@ import type {
 const SCAN_RULE_FIELDS: ConditionField[] = [
   SCAN_RULE_FOIL_FIELD,
   SCAN_RULE_FOIL_TYPE_FIELD,
+  SCAN_RULE_MATCH_PERCENT_FIELD,
 ];
+
+export function cardMatchPercent(card: object): number | null {
+  const { distance, confidence } = card as {
+    distance?: unknown;
+    confidence?: unknown;
+  };
+  if (typeof distance !== "number") return null;
+  const score = typeof confidence === "number" ? confidence : 1 - distance;
+  return Math.max(0, Math.min(100, score * 100));
+}
 
 export function isScanRuleField(
   field: ConditionField,
@@ -48,6 +61,13 @@ export function scanRuleFieldDefinitions(
         { value: SCAN_RULE_FOIL_VALUE, label: labels.foilOption },
         { value: SCAN_RULE_NON_FOIL_VALUE, label: labels.nonFoilOption },
       ],
+    },
+    {
+      field: SCAN_RULE_MATCH_PERCENT_FIELD,
+      label: labels.matchPercent,
+      type: "numeric",
+      path: `${SCAN_RULE_ROOT}.matchPercent`,
+      operators: SCAN_RULE_MATCH_PERCENT_OPERATORS,
     },
   ];
   if (foilTypes.length > 0) {
@@ -86,6 +106,7 @@ export function toRuleCard<T extends object>(
     [SCAN_RULE_ROOT]: {
       foil: scan.isFoil ? SCAN_RULE_FOIL_VALUE : SCAN_RULE_NON_FOIL_VALUE,
       foilType: scan.isFoil ? (scan.foilType ?? "") : "",
+      matchPercent: cardMatchPercent(card),
     },
   };
 }

@@ -11,6 +11,7 @@
     "ruleCount_one": "{{count}} Regel",
     "ruleCount_other": "{{count}} Regeln",
     "allUnmatched": "Alle nicht zugeordneten Karten",
+    "lowMatch": "Dazu Scans unter {{percent}} % Übereinstimmung",
     "clickToConfigure": "Zum Konfigurieren klicken",
     "waitingForValue": "Wartet auf nächsten Wert",
     "scanOnlyDisabled": "Nur Scannen ist aktiv",
@@ -27,6 +28,10 @@
     "setCatchAll": "Als Auffangfach festlegen",
     "catchAllDescription": "Karten, die auf kein anderes Fach passen, landen hier.",
     "rulesLabel": "Regeln",
+    "lowMatchLabel": "Schwache Treffer hierher senden",
+    "lowMatchPrefix": "Unter",
+    "lowMatchSuffix": "% Übereinstimmung",
+    "lowMatchDescription": "Scans unter diesem Übereinstimmungswert landen hier, auch wenn die Regeln eines anderen Fachs passen, Vorrang-Fächer eingeschlossen.",
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
     "cardLimitLabel": "Fachkapazität",
@@ -176,6 +181,7 @@
   "scanRuleFields": {
     "foil": "Foil",
     "foilType": "Foil-Art",
+    "matchPercent": "Übereinstimmung %",
     "foilOption": "Foil",
     "nonFoilOption": "Nicht-Foil"
   }

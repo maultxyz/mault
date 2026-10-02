@@ -11,6 +11,7 @@
     "ruleCount_one": "{{count}} règle",
     "ruleCount_other": "{{count}} règles",
     "allUnmatched": "Toutes les cartes non associées",
+    "lowMatch": "Plus les scans sous {{percent}} % de correspondance",
     "clickToConfigure": "Cliquer pour configurer",
     "waitingForValue": "En attente de la prochaine valeur",
     "scanOnlyDisabled": "Scan uniquement est activé",
@@ -27,6 +28,10 @@
     "setCatchAll": "Définir comme fourre-tout",
     "catchAllDescription": "Les cartes qui ne correspondent à aucun autre bac iront ici.",
     "rulesLabel": "Règles",
+    "lowMatchLabel": "Envoyer ici les correspondances faibles",
+    "lowMatchPrefix": "Sous",
+    "lowMatchSuffix": "% de correspondance",
+    "lowMatchDescription": "Les scans sous ce pourcentage de correspondance viennent ici même si les règles d'un autre bac correspondent, bacs prioritaires compris.",
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
     "cardLimitLabel": "Capacité du bac",
@@ -176,6 +181,7 @@
   "scanRuleFields": {
     "foil": "Foil",
     "foilType": "Type de foil",
+    "matchPercent": "Correspondance %",
     "foilOption": "Foil",
     "nonFoilOption": "Non foil"
   }

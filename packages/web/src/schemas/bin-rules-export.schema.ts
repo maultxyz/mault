@@ -18,7 +18,7 @@ const exportedBinSchema = z.object({
 });
 
 export const binRulesExportSchema = z.object({
-  formatVersion: z.literal(1),
+  formatVersion: z.union([z.literal(1), z.literal(2)]),
   name: z.string().trim().min(1),
   gameKey: z.string().nullable(),
   bins: z.array(exportedBinSchema),

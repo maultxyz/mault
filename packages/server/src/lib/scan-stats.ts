@@ -1,7 +1,8 @@
-import type {
-  PlayingCardWithDistance,
-  PublicMetrics,
-  ScanVectorizeSource,
+import {
+  cardMatchPercent,
+  type PlayingCardWithDistance,
+  type PublicMetrics,
+  type ScanVectorizeSource,
 } from "@magic-vault/shared";
 import { eq, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db";
@@ -10,12 +11,6 @@ import {
   SCAN_OUTCOME_MATCHED,
   SCAN_OUTCOME_UNMATCHED,
 } from "./constants/scan-stats";
-
-function matchPercentOf(card: PlayingCardWithDistance): number | null {
-  if (typeof card.distance !== "number") return null;
-  const score = card.confidence ?? 1 - card.distance;
-  return Math.max(0, Math.min(100, score * 100));
-}
 
 function toVectorizeSource(value: unknown): ScanVectorizeSource | null {
   return value === "server" || value === "web" ? value : null;
@@ -42,7 +37,7 @@ export function recordMatchedScan(
       .values({
         scanId,
         outcome: SCAN_OUTCOME_MATCHED,
-        matchPercent: matchPercentOf(card),
+        matchPercent: cardMatchPercent(card),
         hasAlternatives,
         vectorizedOn: toVectorizeSource(vectorizedOn),
         scannedAt: new Date(scannedAt),

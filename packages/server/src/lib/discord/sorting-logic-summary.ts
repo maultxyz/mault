@@ -1,4 +1,5 @@
 import {
+  getCatchAllMatchThreshold,
   isRuleGroup,
   type BinCondition,
   type BinRuleGroup,
@@ -38,6 +39,15 @@ function describeRuleGroup(group: BinRuleGroup): string {
     isRuleGroup(c) ? `(${describeRuleGroup(c)})` : describeCondition(c),
   );
   return parts.join(group.combinator === "and" ? " AND " : " OR ");
+}
+
+function lowMatchSummary(binNumber: number, rules: BinRuleGroup): string {
+  const threshold = rules.conditions
+    ? getCatchAllMatchThreshold(rules)
+    : null;
+  return threshold == null
+    ? `**Bin ${binNumber}:** everything else`
+    : `**Bin ${binNumber}:** everything else, plus scans below ${threshold}% match`;
 }
 
 // A human-readable summary of the collection's active sorting rules, posted
@@ -80,7 +90,7 @@ export async function buildSortingLogicSummary(
 
   const lines = binRows.map((b) =>
     b.isCatchAll
-      ? `**Bin ${b.binNumber}:** everything else`
+      ? lowMatchSummary(b.binNumber, b.rules as BinRuleGroup)
       : `**Bin ${b.binNumber}${b.isOverride ? " (override)" : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per printing)` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
   );
 
