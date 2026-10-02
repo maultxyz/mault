@@ -1,4 +1,8 @@
 import {
+  BIN_RULES_EXPORT_CATCH_ALL_RULES_SINCE,
+  BIN_RULES_EXPORT_FORMAT_VERSION,
+} from "@/lib/constants/bins";
+import {
   binRulesExportSchema,
   type BinRulesExport,
 } from "@/schemas/bin-rules-export.schema";
@@ -15,7 +19,7 @@ export function buildBinRulesExport(
   configs: BinConfig[],
 ): BinRulesExport {
   return {
-    formatVersion: 1,
+    formatVersion: BIN_RULES_EXPORT_FORMAT_VERSION,
     name,
     gameKey,
     bins: configs.map((c) => ({
@@ -34,7 +38,16 @@ export function serializeBinRulesExport(data: BinRulesExport): string {
 }
 
 export function parseBinRulesExport(text: string): BinRulesExport {
-  return binRulesExportSchema.parse(JSON.parse(text));
+  const data = binRulesExportSchema.parse(JSON.parse(text));
+  if (data.formatVersion >= BIN_RULES_EXPORT_CATCH_ALL_RULES_SINCE) return data;
+  return {
+    ...data,
+    bins: data.bins.map((bin) =>
+      bin.isCatchAll
+        ? { ...bin, rules: { ...bin.rules, conditions: [] } }
+        : bin,
+    ),
+  };
 }
 
 export function downloadBinRulesExport(data: BinRulesExport): void {

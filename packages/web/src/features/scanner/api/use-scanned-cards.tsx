@@ -2,17 +2,18 @@ import {
   type BinConfig,
   type BinContentCard,
   type BinRoute,
+  type MatchedScanDetails,
   type PlayingCard,
   type PlayingCardWithDistance,
-  type ScannedCard,
-  type MatchedScanDetails,
   type ScanVectorizeSource,
+  type ScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
   countCopiesInBin,
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateRepackBin,
+  findLowMatchCatchAll,
   getCardsInBin,
   getCatchAllBin,
   hasMaxCopiesBins,
@@ -20,6 +21,7 @@ import {
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
+import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
@@ -27,14 +29,14 @@ import { loadBinContents } from "@/features/collections/api/collection-cards";
 import {
   addCollectionCard,
   addUnmatchedCard as addUnmatchedCardApi,
+  confirmCollectionCard,
+  identifyUnmatchedCard as identifyUnmatchedCardApi,
   loadUnmatchedCards,
   markCollectionCardsDownloaded,
   releaseScanLock,
   removeCollectionCard,
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
-  identifyUnmatchedCard as identifyUnmatchedCardApi,
-  confirmCollectionCard,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -48,17 +50,17 @@ import {
 } from "@/features/collections/lib/card-page-cache";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
-import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
-import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
-import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
-import { useSerial } from "@/features/scanner/api/use-serial";
-import { useStations } from "@/features/scanner/api/use-stations";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
 import { useJamToast } from "@/features/scanner/api/use-jam-toast";
+import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
+import { useSerial } from "@/features/scanner/api/use-serial";
+import { useStations } from "@/features/scanner/api/use-stations";
 import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
+import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import type { ScannedCardsContextValue } from "@/lib/interfaces/scanner";
+import { toast } from "@/lib/toast";
 import { generateScanId } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -70,7 +72,6 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,
@@ -232,6 +233,8 @@ export function ScannedCardsProvider({
 
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
+      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
+      if (lowMatch) return lowMatch;
       const set = selectedSetRef.current;
       if (set?.isAlphabetMode) {
         return evaluateAlphabetBin(
@@ -417,6 +420,10 @@ export function ScannedCardsProvider({
         setBinLimitBin(matchedBin);
         return;
       }
+      const isLowMatch =
+        !!matchedBin &&
+        findLowMatchCatchAll(ruleCard, binConfigsRef.current)?.binNumber ===
+          matchedBin.binNumber;
       const record: ScannedCard = {
         scanId: generateScanId(),
         card,
@@ -428,7 +435,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forcedFoilType != null || undefined,
         foilType: forcedFoilType ?? undefined,
-        needsReview: details?.needsReview || undefined,
+        needsReview: details?.needsReview || isLowMatch || undefined,
         vectorizedOn,
       };
 

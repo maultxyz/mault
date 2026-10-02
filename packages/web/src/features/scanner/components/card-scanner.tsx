@@ -6,7 +6,6 @@ import {
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { useGameApiHealthCheck } from "@/features/health/api/health";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -97,7 +96,6 @@ export function CardScanner({
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const { hasCatchAll } = useBinConfigs();
   const { activeCollection } = useCollections();
-  const apiHealthCheck = useGameApiHealthCheck(activeCollection?.game?.key);
   const { recordScanOutcome } = useUnmatchedRateToast();
   useOnnxRuntimeFailureToast();
   const {
@@ -157,7 +155,7 @@ export function CardScanner({
     setPhoneDialogOpen(open);
     if (!open && phonePairingStatus !== "connected") stopPhonePairing();
   };
-  const scanningBlocked = apiHealthCheck?.status === "error" || isAtScanLimit;
+  const scanningBlocked = isAtScanLimit;
 
   const verifyJam = useVerifyJam();
 
@@ -489,7 +487,6 @@ export function CardScanner({
           cameraSource={cameraSource}
           phonePairingStatus={phonePairingStatus}
           hasPhonePhoto={hasPhonePhoto}
-          apiHealthCheck={apiHealthCheck}
           dailyLimitReached={isAtScanLimit}
           onRetryError={handleRetryError}
           onConnectCamera={handleRetryError}

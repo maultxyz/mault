@@ -547,6 +547,13 @@
       "when": 1790897594429,
       "tag": "0077_quiet_ogun",
       "breakpoints": true
+    },
+    {
+      "idx": 78,
+      "version": "7",
+      "when": 1790956465505,
+      "tag": "0078_clear_catch_all_rules",
+      "breakpoints": true
     }
   ]
 }

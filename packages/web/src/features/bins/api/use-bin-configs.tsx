@@ -125,6 +125,7 @@ export function BinConfigsProvider({
       withScanRuleFields(fieldDefinitions, foilTypes ?? [], {
         foil: t("scanRuleFields.foil"),
         foilType: t("scanRuleFields.foilType"),
+        matchPercent: t("scanRuleFields.matchPercent"),
         foilOption: t("scanRuleFields.foilOption"),
         nonFoilOption: t("scanRuleFields.nonFoilOption"),
       }),

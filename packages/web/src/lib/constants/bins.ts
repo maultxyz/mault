@@ -9,3 +9,7 @@ export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
 ];
 
 export const DEFAULT_MAX_COPIES = 4;
+
+export const BIN_RULES_EXPORT_FORMAT_VERSION = 2;
+export const BIN_RULES_EXPORT_CATCH_ALL_RULES_SINCE = 2;
+export const DEFAULT_CATCH_ALL_MATCH_PERCENT = 80;

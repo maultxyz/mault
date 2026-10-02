@@ -6,6 +6,7 @@ export interface ScanRuleState {
 export interface ScanRuleFieldLabels {
   foil: string;
   foilType: string;
+  matchPercent: string;
   foilOption: string;
   nonFoilOption: string;
 }

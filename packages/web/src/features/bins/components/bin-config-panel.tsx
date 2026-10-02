@@ -17,16 +17,23 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
-import { BIN_CAPACITY_TABLE } from "@/features/bins/lib/bin-capacity";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
-import { DEFAULT_MAX_COPIES } from "@/lib/constants/bins";
+import {
+  DEFAULT_CATCH_ALL_MATCH_PERCENT,
+  DEFAULT_MAX_COPIES,
+} from "@/lib/constants/bins";
 import {
   binConfigSchema,
   type BinConfigFormValues,
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BinRuleGroup, DEFAULT_BIN_CAPACITY } from "@magic-vault/shared";
+import {
+  BinRuleGroup,
+  DEFAULT_BIN_CAPACITY,
+  getCatchAllMatchThreshold,
+  SCAN_RULE_MATCH_PERCENT_FIELD,
+} from "@magic-vault/shared";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
@@ -34,6 +41,22 @@ import { useTranslation } from "react-i18next";
 
 function emptyRuleGroup(): BinRuleGroup {
   return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
+}
+
+function lowMatchRuleGroup(percent: number | null): BinRuleGroup {
+  const group = emptyRuleGroup();
+  if (percent == null) return group;
+  return {
+    ...group,
+    conditions: [
+      {
+        id: crypto.randomUUID(),
+        field: SCAN_RULE_MATCH_PERCENT_FIELD,
+        operator: "lt",
+        value: percent,
+      },
+    ],
+  };
 }
 
 export function BinConfigPanel() {
@@ -61,8 +84,8 @@ export function BinConfigPanel() {
       isCatchAll: false,
       isOverride: false,
       rules: emptyRuleGroup(),
-      cardLimit: DEFAULT_BIN_CAPACITY,
       maxCopies: null,
+      lowMatchPercent: null,
     },
   });
 
@@ -72,11 +95,10 @@ export function BinConfigPanel() {
       isOverride: config.isOverride ?? false,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
-      cardLimit:
-        config.cardLimit === undefined
-          ? DEFAULT_BIN_CAPACITY
-          : config.cardLimit,
       maxCopies: config.maxCopies ?? null,
+      lowMatchPercent: config.isCatchAll
+        ? getCatchAllMatchThreshold(config.rules)
+        : null,
     });
   }, [config, form]);
 
@@ -101,9 +123,13 @@ export function BinConfigPanel() {
       }
       save(
         config.binNumber,
-        values.rules as BinRuleGroup,
+        values.isCatchAll
+          ? lowMatchRuleGroup(values.lowMatchPercent)
+          : (values.rules as BinRuleGroup),
         values.isCatchAll,
-        values.cardLimit,
+        config.cardLimit === undefined
+          ? DEFAULT_BIN_CAPACITY
+          : config.cardLimit,
         !values.isCatchAll && values.isOverride,
         values.isCatchAll || autoAssignField ? null : values.maxCopies,
       );
@@ -123,8 +149,8 @@ export function BinConfigPanel() {
         isCatchAll: false,
         isOverride: false,
         rules: emptyRuleGroup(),
-        cardLimit: DEFAULT_BIN_CAPACITY,
         maxCopies: null,
+        lowMatchPercent: null,
       },
       { keepDefaultValues: true },
     );
@@ -183,7 +209,15 @@ export function BinConfigPanel() {
                   variant={field.value ? "outline-selected" : "outline"}
                   size="sm"
                   data-tour="catch-all-toggle"
-                  onClick={() => field.onChange(!field.value)}
+                  onClick={() => {
+                    form.setValue("rules", emptyRuleGroup(), {
+                      shouldDirty: true,
+                    });
+                    form.setValue("lowMatchPercent", null, {
+                      shouldDirty: true,
+                    });
+                    field.onChange(!field.value);
+                  }}
                 >
                   {field.value
                     ? t("binConfigPanel.catchAllEnabled")
@@ -198,174 +232,156 @@ export function BinConfigPanel() {
             )}
           />
         </div>
-        <Field
-          className="mb-6"
-          data-invalid={!!form.formState.errors.cardLimit}
-        >
-          <span className="flex items-center gap-1.5">
-            <FieldLabel htmlFor="bin-card-limit">
-              {t("binConfigPanel.cardLimitLabel")}
-            </FieldLabel>
-            <Tooltip>
-              <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
-                <IconInfoCircle className="size-3.5" />
-              </TooltipTrigger>
-              <TooltipContent
-                side="right"
-                className="w-auto max-w-none items-start p-3"
-              >
-                <div className="flex flex-col gap-2">
-                  <p className="font-medium">
-                    {t("binConfigPanel.capacityInfoTitle")}
-                  </p>
-                  <table className="text-xs">
-                    <thead>
-                      <tr>
-                        <th className="text-left font-medium text-background/70 pr-4 pb-1">
-                          {t("binConfigPanel.capacityInfoSizeHeader")}
-                        </th>
-                        <th className="text-right font-medium text-background/70 pr-3 pb-1">
-                          0.3mm
-                        </th>
-                        <th className="text-right font-medium text-background/70 pb-1">
-                          0.4mm
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {BIN_CAPACITY_TABLE.map((row) => (
-                        <tr key={row.sizeKey}>
-                          <td className="pr-4 py-0.5">
-                            {t(`binConfigPanel.${row.sizeKey}`)}
-                          </td>
-                          <td className="text-right pr-3 py-0.5">{row.thin}</td>
-                          <td className="text-right py-0.5">{row.thick}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <p className="text-background/70">
-                    {t("binConfigPanel.capacityInfoNote")}
-                  </p>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-          </span>
-          <Controller
-            name="cardLimit"
-            control={form.control}
-            render={({ field }) => (
-              <Input
-                id="bin-card-limit"
-                type="number"
-                min={1}
-                placeholder={t("binConfigPanel.cardLimitPlaceholder")}
-                className="max-w-32"
-                value={field.value ?? ""}
-                onChange={(e) => {
-                  const raw = e.target.value;
-                  field.onChange(raw === "" ? null : Number(raw));
-                }}
-              />
-            )}
-          />
-          <FieldDescription>
-            {t("binConfigPanel.cardLimitDescription")}
-          </FieldDescription>
-          <FieldError errors={[form.formState.errors.cardLimit]} />
-        </Field>
-        {!isCatchAll && (
-          <ScrollArea>
-            {!autoAssignField && (
-              <Field className="mb-6">
-                <div className="flex items-center gap-2">
-                  <Controller
-                    name="isOverride"
-                    control={form.control}
-                    render={({ field }) => (
-                      <Switch
-                        id="bin-override"
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    )}
-                  />
-                  <span className="flex items-center gap-1.5">
-                    <FieldLabel htmlFor="bin-override">
-                      {t("binConfigPanel.overrideLabel")}
-                    </FieldLabel>
-                    <Tooltip>
-                      <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
-                        <IconInfoCircle className="size-3.5" />
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        {t("binConfigPanel.overrideDescription")}
-                      </TooltipContent>
-                    </Tooltip>
-                  </span>
-                </div>
-              </Field>
-            )}
-            {!autoAssignField && (
-              <Field
-                className="mb-6"
-                data-invalid={!!form.formState.errors.maxCopies}
-              >
+        <ScrollArea>
+          {!autoAssignField && !isCatchAll && (
+            <Field className="mb-6">
+              <div className="flex items-center gap-2">
                 <Controller
-                  name="maxCopies"
+                  name="isOverride"
                   control={form.control}
                   render={({ field }) => (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          id="bin-max-copies"
-                          checked={field.value != null}
-                          onCheckedChange={(checked) =>
-                            field.onChange(checked ? DEFAULT_MAX_COPIES : null)
-                          }
-                        />
-                        <span className="flex items-center gap-1.5">
-                          <FieldLabel htmlFor="bin-max-copies">
-                            {t("binConfigPanel.maxCopiesLabel")}
-                          </FieldLabel>
-                          <Tooltip>
-                            <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
-                              <IconInfoCircle className="size-3.5" />
-                            </TooltipTrigger>
-                            <TooltipContent className="max-w-xs">
-                              {t("binConfigPanel.maxCopiesDescription")}
-                            </TooltipContent>
-                          </Tooltip>
-                        </span>
-                      </div>
-                      {field.value != null && (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            id="bin-max-copies-count"
-                            type="number"
-                            min={1}
-                            className="max-w-24"
-                            aria-label={t("binConfigPanel.maxCopiesLabel")}
-                            value={Number.isNaN(field.value) ? "" : field.value}
-                            onChange={(e) =>
-                              field.onChange(
-                                e.target.value === ""
-                                  ? Number.NaN
-                                  : Number(e.target.value),
-                              )
-                            }
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            {t("binConfigPanel.maxCopiesSuffix")}
-                          </span>
-                        </div>
-                      )}
-                    </>
+                    <Switch
+                      id="bin-override"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   )}
                 />
-                <FieldError errors={[form.formState.errors.maxCopies]} />
-              </Field>
-            )}
+                <span className="flex items-center gap-1.5">
+                  <FieldLabel htmlFor="bin-override">
+                    {t("binConfigPanel.overrideLabel")}
+                  </FieldLabel>
+                  <Tooltip>
+                    <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                      <IconInfoCircle className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      {t("binConfigPanel.overrideDescription")}
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+              </div>
+            </Field>
+          )}
+          {!autoAssignField && !isCatchAll && (
+            <Field
+              className="mb-6"
+              data-invalid={!!form.formState.errors.maxCopies}
+            >
+              <Controller
+                name="maxCopies"
+                control={form.control}
+                render={({ field }) => (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="bin-max-copies"
+                        checked={field.value != null}
+                        onCheckedChange={(checked) =>
+                          field.onChange(checked ? DEFAULT_MAX_COPIES : null)
+                        }
+                      />
+                      <span className="flex items-center gap-1.5">
+                        <FieldLabel htmlFor="bin-max-copies">
+                          {t("binConfigPanel.maxCopiesLabel")}
+                        </FieldLabel>
+                        <Tooltip>
+                          <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                            <IconInfoCircle className="size-3.5" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            {t("binConfigPanel.maxCopiesDescription")}
+                          </TooltipContent>
+                        </Tooltip>
+                      </span>
+                    </div>
+                    {field.value != null && (
+                      <div className="flex items-center gap-2">
+                        <Input
+                          id="bin-max-copies-count"
+                          type="number"
+                          min={1}
+                          className="max-w-24"
+                          aria-label={t("binConfigPanel.maxCopiesLabel")}
+                          value={Number.isNaN(field.value) ? "" : field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ""
+                                ? Number.NaN
+                                : Number(e.target.value),
+                            )
+                          }
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {t("binConfigPanel.maxCopiesSuffix")}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+              />
+              <FieldError errors={[form.formState.errors.maxCopies]} />
+            </Field>
+          )}
+          {isCatchAll ? (
+            <Field
+              className="mb-6"
+              data-invalid={!!form.formState.errors.lowMatchPercent}
+            >
+              <Controller
+                name="lowMatchPercent"
+                control={form.control}
+                render={({ field }) => (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        id="bin-low-match"
+                        checked={field.value != null}
+                        onCheckedChange={(checked) =>
+                          field.onChange(
+                            checked ? DEFAULT_CATCH_ALL_MATCH_PERCENT : null,
+                          )
+                        }
+                      />
+                      <FieldLabel htmlFor="bin-low-match">
+                        {t("binConfigPanel.lowMatchLabel")}
+                      </FieldLabel>
+                    </div>
+                    {field.value != null && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          {t("binConfigPanel.lowMatchPrefix")}
+                        </span>
+                        <Input
+                          id="bin-low-match-percent"
+                          type="number"
+                          min={1}
+                          max={100}
+                          className="max-w-24"
+                          aria-label={t("binConfigPanel.lowMatchLabel")}
+                          value={Number.isNaN(field.value) ? "" : field.value}
+                          onChange={(e) =>
+                            field.onChange(
+                              e.target.value === ""
+                                ? Number.NaN
+                                : Number(e.target.value),
+                            )
+                          }
+                        />
+                        <span className="text-sm text-muted-foreground">
+                          {t("binConfigPanel.lowMatchSuffix")}
+                        </span>
+                      </div>
+                    )}
+                  </>
+                )}
+              />
+              <FieldDescription>
+                {t("binConfigPanel.lowMatchDescription")}
+              </FieldDescription>
+              <FieldError errors={[form.formState.errors.lowMatchPercent]} />
+            </Field>
+          ) : (
             <div className="flex items-center justify-between mb-2">
               <Label>{t("binConfigPanel.rulesLabel")}</Label>
               {apiDocsUrl && (
@@ -379,30 +395,30 @@ export function BinConfigPanel() {
                 </a>
               )}
             </div>
-            {autoAssignField ? (
-              config.rules.conditions.length > 0 ? (
-                <RuleSummary rules={config.rules} />
-              ) : (
-                <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
-                  {t("binConfigPanel.autoAssignWaiting", {
-                    field: autoAssignFieldLabel,
-                  })}
-                </p>
-              )
+          )}
+          {isCatchAll ? null : autoAssignField ? (
+            config.rules.conditions.length > 0 ? (
+              <RuleSummary rules={config.rules} />
             ) : (
-              <Controller
-                name="rules"
-                control={form.control}
-                render={({ field }) => (
-                  <RuleGroupEditor
-                    group={field.value as BinRuleGroup}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            )}
-          </ScrollArea>
-        )}
+              <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+                {t("binConfigPanel.autoAssignWaiting", {
+                  field: autoAssignFieldLabel,
+                })}
+              </p>
+            )
+          ) : (
+            <Controller
+              name="rules"
+              control={form.control}
+              render={({ field }) => (
+                <RuleGroupEditor
+                  group={field.value as BinRuleGroup}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          )}
+        </ScrollArea>
         {form.formState.errors.isCatchAll && (
           <FieldError errors={[form.formState.errors.isCatchAll]} />
         )}

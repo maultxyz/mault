@@ -11,6 +11,7 @@
     "ruleCount_one": "{{count}} Regel",
     "ruleCount_other": "{{count}} Regeln",
     "allUnmatched": "Alle nicht zugeordneten Karten",
+    "lowMatch": "Dazu Scans unter {{percent}} % Übereinstimmung",
     "clickToConfigure": "Zum Konfigurieren klicken",
     "waitingForValue": "Wartet auf nächsten Wert",
     "scanOnlyDisabled": "Nur Scannen ist aktiv",
@@ -27,17 +28,12 @@
     "setCatchAll": "Als Auffangfach festlegen",
     "catchAllDescription": "Karten, die auf kein anderes Fach passen, landen hier.",
     "rulesLabel": "Regeln",
+    "lowMatchLabel": "Schwache Treffer hierher senden",
+    "lowMatchPrefix": "Unter",
+    "lowMatchSuffix": "% Übereinstimmung",
+    "lowMatchDescription": "Scans unter diesem Übereinstimmungswert landen hier, auch wenn die Regeln eines anderen Fachs passen, Vorrang-Fächer eingeschlossen.",
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
-    "cardLimitLabel": "Fachkapazität",
-    "cardLimitPlaceholder": "Unbegrenzt",
-    "cardLimitDescription": "Stoppt das Scannen und fordert zum Leeren des Fachs auf, sobald es so viele Karten enthält. Leer lassen für kein Limit.",
-    "capacityInfoTitle": "Geschätzte Karten pro Fach, nach Kartendicke",
-    "capacityInfoSizeHeader": "Fachgröße",
-    "capacityInfoSmall": "Klein",
-    "capacityInfoMedium": "Mittel",
-    "capacityInfoLarge": "Groß",
-    "capacityInfoNote": "Jedes größere Fach fasst etwa 65% mehr als das vorherige. Dickere Karten (gesleevt, Foil, doppelt gesleevt) fassen weniger.",
     "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
     "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren.",
     "modeChangePending": "Speichere oder verwerfe die ausstehende Modusänderung oben, bevor du Fächer bearbeitest."
@@ -176,6 +172,7 @@
   "scanRuleFields": {
     "foil": "Foil",
     "foilType": "Foil-Art",
+    "matchPercent": "Übereinstimmung %",
     "foilOption": "Foil",
     "nonFoilOption": "Nicht-Foil"
   }

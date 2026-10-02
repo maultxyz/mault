@@ -99,7 +99,9 @@ export function AlphabetPassControl() {
         type="button"
         size="sm"
         variant="outline"
-        disabled={isDisabled || (isLastPass && passCount === 1 && prefix === "")}
+        disabled={
+          isDisabled || (isLastPass && passCount === 1 && prefix === "")
+        }
         onClick={() => setPending(target)}
       >
         {isLastPass ? (
@@ -139,10 +141,7 @@ export function AlphabetPassControl() {
       ) : (
         controls
       )}
-      <AlphabetPassDialog
-        pending={pending}
-        onClose={() => setPending(null)}
-      />
+      <AlphabetPassDialog pending={pending} onClose={() => setPending(null)} />
     </div>
   );
 }

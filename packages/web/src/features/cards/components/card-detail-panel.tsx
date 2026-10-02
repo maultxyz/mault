@@ -16,7 +16,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { getCardById } from "@/features/cards/api/card-search";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
 import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
@@ -39,14 +38,12 @@ import {
   IconChevronUp,
   IconLoader2,
   IconPencil,
-  IconRefresh,
   IconSearch,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
 
 interface CardDetailPanelProps {
   scanId?: string;
@@ -214,25 +211,6 @@ export function CardDetailPanel({
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
   const hasMultipleCandidates = candidates.length > 1;
-
-  const [isRefetching, setIsRefetching] = useState(false);
-  const handleRefetch = useCallback(async () => {
-    if (!scanId || !selectedCard) return;
-    setIsRefetching(true);
-    try {
-      const result = await getCardById(selectedCard.id, activeCollection?.guid);
-      if (!result.success || !result.data) {
-        toast.error(result.message || t("cardDetailPanel.refetchError"));
-        return;
-      }
-      correctCard(scanId, result.data);
-      toast.success(t("cardDetailPanel.refetchSuccess"));
-    } catch {
-      toast.error(t("cardDetailPanel.refetchError"));
-    } finally {
-      setIsRefetching(false);
-    }
-  }, [scanId, selectedCard, activeCollection?.guid, correctCard, t]);
 
   const capturedImage = capturedImageUrl ? (
     <CapturedImageThumb
@@ -624,19 +602,6 @@ export function CardDetailPanel({
         {currentCard && !editing ? (
           <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
             <div className="flex flex-wrap gap-2 items-center w-full">
-              <Button
-                variant="outline"
-                onClick={handleRefetch}
-                disabled={isRefetching || !selectedCard}
-                title={t("cardDetailPanel.refetchCardDataTitle")}
-              >
-                <IconRefresh
-                  className={cn("size-4", isRefetching && "animate-spin")}
-                />
-                {isRefetching
-                  ? t("cardDetailPanel.refetching")
-                  : t("cardDetailPanel.refetchCardData")}
-              </Button>
               {canConfirm && (
                 <Button
                   variant="outline"

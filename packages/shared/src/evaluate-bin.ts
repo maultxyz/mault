@@ -13,6 +13,8 @@ import {
   ALPHABET_LETTERS,
   ALPHABET_PREFIX_MAX_LENGTH,
 } from "./constants/sort-bins.constant";
+import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
+import { cardMatchPercent } from "./scan-rule-fields";
 
 export type SourceCard = object;
 
@@ -193,6 +195,32 @@ export function hasMaxCopiesBins(configs: BinConfig[]): boolean {
 
 export function getCatchAllBin(configs: BinConfig[]): BinConfig | undefined {
   return configs.find((c) => c.isCatchAll);
+}
+
+export function getCatchAllMatchThreshold(rules: BinRuleGroup): number | null {
+  if (rules.conditions.length !== 1) return null;
+  const [condition] = rules.conditions;
+  if (
+    isRuleGroup(condition) ||
+    condition.field !== SCAN_RULE_MATCH_PERCENT_FIELD ||
+    condition.operator !== "lt"
+  ) {
+    return null;
+  }
+  const threshold = Number(condition.value);
+  return Number.isFinite(threshold) ? threshold : null;
+}
+
+export function findLowMatchCatchAll(
+  card: SourceCard,
+  configs: BinConfig[],
+): BinConfig | undefined {
+  const catchAll = getCatchAllBin(configs);
+  if (!catchAll) return undefined;
+  const threshold = getCatchAllMatchThreshold(catchAll.rules);
+  if (threshold == null) return undefined;
+  const percent = cardMatchPercent(card);
+  return percent != null && percent < threshold ? catchAll : undefined;
 }
 
 export function evaluateCardBin(
