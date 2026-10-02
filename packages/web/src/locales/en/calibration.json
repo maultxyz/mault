@@ -84,7 +84,6 @@
     "reverseDurationLabel": "Roll Back After Feed (ms)",
     "reverseDurationDescription": "Once a card reaches module 1, spin the roller backward this long so the next card in the hopper is pulled back instead of creeping forward into a double feed. 0 turns it off.",
     "reverseSpeedLabel": "Roll Back Speed",
-    "reverseFirmwareNote": "Needs firmware {{version}} or newer. Update the sorter's firmware for this to take effect.",
     "off": "Off"
   },
   "irSensorPanel": {

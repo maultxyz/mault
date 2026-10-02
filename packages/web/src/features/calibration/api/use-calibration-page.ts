@@ -39,8 +39,6 @@ import {
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
-  FEEDER_ROLLBACK_MIN_FIRMWARE,
-  isFirmwareVersionOutdated,
   type BinRoute,
   type FeederCalibration,
   type ScanRegion,
@@ -230,10 +228,6 @@ export function useCalibrationPage() {
   const feederSettleDurationValue = feederValues.settleDuration;
   const feederReverseSpeedValue = feederValues.reverseSpeed;
   const feederReverseDurationValue = feederValues.reverseDuration;
-  const feederRollbackSupported = !isFirmwareVersionOutdated(
-    firmwareVersion,
-    FEEDER_ROLLBACK_MIN_FIRMWARE,
-  );
   const setFeederDraftField = useCallback(
     (field: keyof FeederCalibration, value: number) => {
       setFeederDraft((prev) => ({ ...prev, [field]: value }));
@@ -931,7 +925,6 @@ export function useCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
-    feederRollbackSupported,
     handleFeederSpeedChange,
     handleFeederDurationChange,
     handleFeederPulseDurationChange,

@@ -186,5 +186,8 @@
   "mobileMenu": {
     "back": "Back",
     "theme": "Theme"
+  },
+  "firmwareGate": {
+    "requires": "Requires firmware {{version}} or newer. Update your sorter's firmware to use this."
   }
 }

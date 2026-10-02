@@ -84,7 +84,6 @@
     "reverseDurationLabel": "Nach dem Einzug zurückrollen (ms)",
     "reverseDurationDescription": "Sobald eine Karte Modul 1 erreicht, dreht die Rolle so lange rückwärts, damit die nächste Karte im Magazin zurückgezogen wird, statt nachzurutschen und doppelt eingezogen zu werden. 0 schaltet es aus.",
     "reverseSpeedLabel": "Rückrollgeschwindigkeit",
-    "reverseFirmwareNote": "Benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware des Sortierers, damit es wirkt.",
     "off": "Aus"
   },
   "irSensorPanel": {

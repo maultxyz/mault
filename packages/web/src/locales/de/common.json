@@ -186,5 +186,8 @@
   "mobileMenu": {
     "back": "Zurück",
     "theme": "Design"
+  },
+  "firmwareGate": {
+    "requires": "Benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware deines Sortierers, um das zu nutzen."
   }
 }
