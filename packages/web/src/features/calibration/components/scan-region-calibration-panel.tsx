@@ -1,3 +1,5 @@
+import { SettingsSection } from "@/components/settings-section";
+import { SliderField } from "@/components/slider-field";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -7,7 +9,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
 import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
@@ -268,11 +269,12 @@ export function ScanRegionCalibrationPanel({
   }, [phonePhotoSize, canvasRef]);
 
   return (
-    <div className="flex flex-col gap-2" data-tour="scan-region-panel">
-      <p className="text-xs text-muted-foreground">
-        {t("scanRegionCalibrationPanel.instructions")}
-      </p>
-      <p className="text-[10px] text-muted-foreground/70">
+    <SettingsSection
+      dataTour="scan-region-panel"
+      heading={t("sections.scanRegion")}
+      description={t("scanRegionCalibrationPanel.instructions")}
+    >
+      <p className="-mt-2 text-xs text-foreground/70">
         {t("scanRegionCalibrationPanel.liveDetectionHint")}
       </p>
 
@@ -332,7 +334,9 @@ export function ScanRegionCalibrationPanel({
               >
                 <SelectTrigger id="calibration-camera" className="w-full">
                   <SelectValue
-                    placeholder={t("scanRegionCalibrationPanel.cameraPlaceholder")}
+                    placeholder={t(
+                      "scanRegionCalibrationPanel.cameraPlaceholder",
+                    )}
                   >
                     {(() => {
                       const index = cameras.findIndex(
@@ -416,7 +420,7 @@ export function ScanRegionCalibrationPanel({
             {cameraSource === "phone"
               ? !phonePhotoUrl && (
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-foreground/70">
                       {phonePairingStatus === "connected"
                         ? t("scanRegionCalibrationPanel.takePhotoPrompt")
                         : t("scanRegionCalibrationPanel.waitingForPhone")}
@@ -425,7 +429,7 @@ export function ScanRegionCalibrationPanel({
                 )
               : !isCameraActive && (
                   <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-foreground/70">
                       {errorMessage ||
                         t("scanRegionCalibrationPanel.waitingForCamera")}
                     </p>
@@ -448,7 +452,7 @@ export function ScanRegionCalibrationPanel({
             {isLoading ? (
               <Skeleton className="h-6 flex-1 rounded" />
             ) : (
-              <p className="text-xs text-muted-foreground flex-1">
+              <p className="text-xs text-foreground/70 flex-1">
                 {t("scanRegionCalibrationPanel.currentSummary", {
                   coverage: Math.round(region.coverage * 100),
                   offsetX: Math.round(region.offsetX * 100),
@@ -460,62 +464,53 @@ export function ScanRegionCalibrationPanel({
         </div>
 
         <div className="flex flex-col gap-2 w-full max-w-sm mx-auto md:mx-0">
-          <div className="flex flex-col gap-2 pt-2 border-t md:pt-0 md:border-t-0">
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
-                {t("scanRegionCalibrationPanel.captureSettleLabel")}
-              </p>
-              {isLoading ? (
+          <SliderField
+            className="pt-2 border-t md:pt-0 md:border-t-0"
+            label={t("scanRegionCalibrationPanel.captureSettleLabel")}
+            description={t(
+              "scanRegionCalibrationPanel.captureSettleDescription",
+            )}
+            valueLabel={
+              isLoading ? (
                 <Skeleton className="h-5 w-12 rounded" />
               ) : (
-                <span className="text-sm font-bold">
-                  {t("msValue", { value: captureSettleDelayMsValue })}
-                </span>
-              )}
-            </div>
-            <p className="text-[10px] text-muted-foreground/70">
-              {t("scanRegionCalibrationPanel.captureSettleDescription")}
-            </p>
-            <Slider
-              min={0}
-              max={sliderMax(
-                captureSettleDelayMsValue,
-                CAPTURE_SETTLE_DELAY_SLIDER_MAX,
-              )}
-              step={10}
-              value={captureSettleDelayMsValue}
-              onValueChange={onCaptureSettleChange}
-            />
-          </div>
+                t("msValue", { value: captureSettleDelayMsValue })
+              )
+            }
+            min={0}
+            max={sliderMax(
+              captureSettleDelayMsValue,
+              CAPTURE_SETTLE_DELAY_SLIDER_MAX,
+            )}
+            step={10}
+            value={captureSettleDelayMsValue}
+            onValueChange={onCaptureSettleChange}
+          />
 
           {isCameraActive && <CameraFocusControl className="pt-2 border-t" />}
 
-          <div className="flex flex-col gap-2 pt-2 border-t">
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
-                {t("scanRegionCalibrationPanel.matchesNeededLabel")}
-              </p>
-              {isLoading ? (
+          <SliderField
+            className="pt-2 border-t"
+            label={t("scanRegionCalibrationPanel.matchesNeededLabel")}
+            description={t(
+              "scanRegionCalibrationPanel.matchesNeededDescription",
+            )}
+            valueLabel={
+              isLoading ? (
                 <Skeleton className="h-5 w-6 rounded" />
               ) : (
-                <span className="text-sm font-bold">{matchesNeeded}</span>
-              )}
-            </div>
-            <p className="text-[10px] text-muted-foreground/70">
-              {t("scanRegionCalibrationPanel.matchesNeededDescription")}
-            </p>
-            <Slider
-              min={MATCHES_NEEDED_MIN}
-              max={sliderMax(matchesNeeded, MATCHES_NEEDED_SLIDER_MAX)}
-              step={1}
-              value={matchesNeeded}
-              onValueChange={onMatchesNeededChange}
-            />
-          </div>
+                matchesNeeded
+              )
+            }
+            min={MATCHES_NEEDED_MIN}
+            max={sliderMax(matchesNeeded, MATCHES_NEEDED_SLIDER_MAX)}
+            value={matchesNeeded}
+            onValueChange={onMatchesNeededChange}
+          />
 
           <div className="flex flex-col gap-2 pt-2 border-t">
             <label className="flex items-center justify-between gap-2">
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs font-medium">
                 {t("scanRegionCalibrationPanel.checkBothOrientationsLabel")}
               </span>
               {isLoading ? (
@@ -527,16 +522,16 @@ export function ScanRegionCalibrationPanel({
                 />
               )}
             </label>
-            <p className="text-[10px] text-muted-foreground/70">
+            <p className="text-2xs text-foreground/70">
               {t("scanRegionCalibrationPanel.checkBothOrientationsDescription")}
             </p>
           </div>
 
           <div className="flex flex-col gap-2 pt-2 border-t">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium">
               {t("scanRegionCalibrationPanel.executionProviderLabel")}
             </p>
-            <p className="text-[10px] text-muted-foreground/70">
+            <p className="text-2xs text-foreground/70">
               {t("scanRegionCalibrationPanel.executionProviderDescription")}
             </p>
             <Select
@@ -560,6 +555,6 @@ export function ScanRegionCalibrationPanel({
           </div>
         </div>
       </div>
-    </div>
+    </SettingsSection>
   );
 }

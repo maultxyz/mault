@@ -1,6 +1,6 @@
 {
   "title": "System Health",
-  "subtitle": "Live status of the database and each connected card API.",
+  "subtitle": "Live status of the database.",
   "refresh": "Refresh",
   "allHealthy": "Everything is operational.",
   "someUnhealthy": "Some services are having trouble.",

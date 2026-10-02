@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import type { AppAlert } from "@/lib/interfaces/alerts";
 import { neon } from "@/lib/auth/client";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
@@ -50,7 +51,7 @@ function useEmailVerificationAlertNeon(): AppAlert | null {
           size="xs"
           onClick={handleVerify}
           disabled={isSending}
-          className="border-amber-500/40 bg-transparent text-amber-900 hover:bg-amber-400/20 dark:text-amber-200 dark:hover:bg-amber-400/10"
+          className={ALERT_BANNER_ACTION_CLASS}
         >
           {isSending && <IconLoader2 className="size-3 animate-spin" />}
           {t("emailVerification.sendCode")}
@@ -59,7 +60,7 @@ function useEmailVerificationAlertNeon(): AppAlert | null {
           variant="ghost"
           size="xs"
           onClick={() => navigate("/app/verify-email")}
-          className="text-amber-900 hover:bg-amber-400/20 dark:text-amber-200 dark:hover:bg-amber-400/10"
+          className="text-warning-foreground hover:bg-warning-border/40"
         >
           {t("emailVerification.haveCode")}
         </Button>

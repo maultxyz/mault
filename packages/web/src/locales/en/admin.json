@@ -8,28 +8,96 @@
     "games": "Games",
     "users": "Users",
     "announcements": "Announcements",
-    "servos": "Servos",
+    "servos": "Kit testing",
+    "device": "Device",
     "developer": "Developer"
   },
-  "servoTester": {
-    "heading": "Servo channel test",
-    "description": "Drive a raw PCA9685 channel directly to verify a servo works, or to find which channel a given wire is on - bypasses module/bin assignment entirely.",
-    "connectButton": "Connect Device",
-    "connectUsb": "Connect via USB",
-    "connectBluetooth": "Connect via Bluetooth",
-    "channelLabel": "Channel",
-    "sweepDescription": "Click a channel to sweep that servo from one end of its range to the other and back - a full range-of-motion test.",
-    "stopButton": "Stop",
-    "runTest": "Run test",
-    "testing": "Testing…",
-    "testRequired": "Run a successful device test before driving any channel.",
-    "disconnectButton": "Disconnect",
-    "toasts": {
-      "sendFailed": "Failed to send command to the device",
-      "testPassed": "Device test passed",
-      "testFailed": "Device test failed"
+  "kitTest": {
+    "board": {
+      "heading": "Board",
+      "description": "Connect a kit board, flash firmware if it's new, and run the self-test. Connecting here skips the automatic self-test, so a bare board with nothing plugged in still works.",
+      "connect": "Connect",
+      "connectUsb": "USB",
+      "connectBluetooth": "Bluetooth",
+      "disconnect": "Disconnect",
+      "flash": "Flash firmware",
+      "notConnected": "No board connected.",
+      "firmware": "Firmware {{version}}",
+      "firmwareUnknown": "Firmware unknown",
+      "runSelfTest": "Run self-test",
+      "testing": "Testing…",
+      "selfTestPassed": "Self-test passed",
+      "selfTestFailed": "Self-test failed"
     },
-    "flashButton": "Flash firmware"
+    "servos": {
+      "heading": "Servo bench",
+      "description": "Plug a servo into a channel, run it through its range, then mark it as passed or failed. Center puts it in the middle of its range, ready for fitting the horn.",
+      "reset": "Reset tally",
+      "channel": "Channel",
+      "sweep": "Sweep",
+      "center": "Center",
+      "min": "Min",
+      "max": "Max",
+      "release": "Release",
+      "pulse": "Pulse",
+      "centerHint": "Center is pulse {{pulse}}. Release cuts power so the servo can be turned by hand.",
+      "verdictPrompt": "Servo on channel {{channel}}:",
+      "pass": "Pass",
+      "fail": "Fail",
+      "passedCount_one": "{{count}} passed",
+      "passedCount_other": "{{count}} passed",
+      "failedCount_one": "{{count}} failed",
+      "failedCount_other": "{{count}} failed",
+      "historyItem": "#{{number}} ch {{channel}}"
+    },
+    "continuous": {
+      "heading": "Continuous servo",
+      "description": "Spin a continuous-rotation servo, like the feeder motor, in either direction. It keeps spinning until you stop it.",
+      "forward": "Spin forward",
+      "reverse": "Spin reverse",
+      "stop": "Stop"
+    },
+    "sensors": {
+      "heading": "Sensors",
+      "description": "Reads the IR sensors continuously. Pass a card in front of each one: a sensor is verified once it has seen both a card and no card.",
+      "start": "Start reading",
+      "stop": "Stop reading",
+      "reset": "Reset",
+      "empty": "Start reading to see the sensors.",
+      "module": "Module {{module}}",
+      "hopper": "Hopper",
+      "card": "Card",
+      "clear": "Clear",
+      "verified": "Verified"
+    },
+    "report": {
+      "heading": "Kit report",
+      "description": "A summary of this session to keep with the kit.",
+      "copy": "Copy report",
+      "copied": "Report copied.",
+      "copyFailed": "Couldn't copy the report.",
+      "title": "Kit test report",
+      "date": "Date: {{date}}",
+      "board": "Board: {{board}}, firmware {{version}}, id {{id}}",
+      "selfTest": {
+        "notRun": "Self-test: not run",
+        "passed": "Self-test: passed",
+        "failed": "Self-test: failed {{error}}"
+      },
+      "servos": "Servos: {{passed}} passed, {{failed}} failed",
+      "failedChannels": "Failed on channels: {{channels}}",
+      "sensorVerified": "{{name}}: verified",
+      "sensorUnverified": "{{name}}: not verified"
+    },
+    "status": {
+      "ok": "OK",
+      "busy": "The board is busy with another command.",
+      "disconnected": "No board is connected.",
+      "noResponse": "No response from the board."
+    },
+    "toasts": {
+      "commandFailed": "The board didn't accept the command"
+    }
   },
   "cardImageVectors": {
     "heading": "Card Image Vectors",
@@ -149,5 +217,75 @@
   },
   "cancel": "Cancel",
   "starting": "Starting...",
-  "loading": "Loading..."
+  "loading": "Loading...",
+  "devicePlayground": {
+    "heading": "Device playground",
+    "description": "Send any firmware command to the connected sorter and see its raw response. Developer tool, see firmware/PROTOCOL.md for the full protocol.",
+    "connect": "Connect",
+    "connectUsb": "USB",
+    "connectBluetooth": "Bluetooth",
+    "disconnect": "Disconnect",
+    "statusConnected": "Connected",
+    "statusDisconnected": "Not connected",
+    "firmware": "Firmware {{version}}",
+    "firmwareUnknown": "Firmware unknown",
+    "selfTestPassed": "Self-test passed",
+    "selfTestPending": "Self-test not passed",
+    "warning": "Commands go straight to the sorter and skip the usual self-test gate. Calibration sent from here isn't saved; reconnect to restore the saved calibration.",
+    "needsFirmware": "Needs firmware {{version}}+",
+    "unchangedPlaceholder": "unchanged",
+    "send": "Send",
+    "sending": "Sending…",
+    "outcome": {
+      "ok": "Response in {{ms}} ms",
+      "busy": "The sorter is busy with another command. Try again when it's done.",
+      "disconnected": "No sorter is connected.",
+      "noResponse": "No response after {{ms}} ms."
+    },
+    "stop": {
+      "description": "Quick stops",
+      "neutral": "All to neutral",
+      "feeder": "Stop feeder"
+    },
+    "groups": {
+      "status": "Status and setup",
+      "servos": "Servos and channels",
+      "feeder": "Feeder",
+      "routing": "Routing",
+      "calibration": "Calibration (not saved)"
+    },
+    "commands": {
+      "getStatus": "Reports firmware version, board, hardware id and BLE state.",
+      "readIR": "Reads every module's IR sensor and the hopper sensor.",
+      "setChannelOffset": "Sets the channel layout (0 standard, 4 legacy) and resets every servo to neutral.",
+      "test": "Runs the full self-test. Refuses if a module sensor reads a card.",
+      "neutral": "Moves every servo to its closed or neutral position and stops the feeder.",
+      "clearDevice": "Opens every trapdoor at once to flush stuck cards, then returns to neutral.",
+      "servoPosition": "Moves one servo to a calibrated position. Trapdoor and paddle take open/closed, the pusher takes left/neutral/right.",
+      "servoValue": "Drives one servo at a raw pulse, ignoring calibration.",
+      "channel": "Drives a raw PCA9685 channel at a pulse, bypassing the module mapping.",
+      "channelStop": "Cuts PWM on a raw channel, needed to stop a continuous-rotation servo.",
+      "feeder": "Runs one feed until module 1 sees a card, the hopper is empty, or it times out.",
+      "feederValue": "Drives the feeder motor at a raw pulse. It keeps spinning until you stop it.",
+      "feederStop": "Cuts PWM on the feeder channel.",
+      "route": "Feeds a card and routes it to a module's left, right or bottom output.",
+      "pushTest": "Runs only the push step on a module, without a card or IR checks.",
+      "setConfig": "Sets a module's servo pulses and push timings. Empty fields keep their current value.",
+      "setFeederConfig": "Sets feeder speed, timings and rollback. Empty fields keep their current value."
+    },
+    "raw": {
+      "heading": "Raw console",
+      "description": "Sends exactly this line and waits for the next reply. Invalid JSON is sent as-is, which is useful for testing firmware errors.",
+      "line": "Command",
+      "timeout": "Timeout (ms)"
+    },
+    "log": {
+      "heading": "Serial log",
+      "description": "Every line sent and received on this connection, newest first, including unsolicited events like jams.",
+      "empty": "Nothing sent or received yet.",
+      "copy": "Copy log",
+      "copied": "Log copied.",
+      "copyFailed": "Couldn't copy the log."
+    }
+  }
 }

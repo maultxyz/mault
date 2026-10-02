@@ -28,22 +28,22 @@ export default function ErrorPage() {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4 text-center">
-      <IconBug className="size-16 text-muted-foreground" />
+      <IconBug className="size-16 text-foreground/70" />
       <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-xl font-semibold">
+        <h1 className="font-heading text-lg font-semibold">
           {t("errorPage.title")}
         </h1>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-foreground/70">
           {t("errorPage.description")}
         </p>
         {statusText && (
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="font-mono text-xs text-foreground/70">
             {statusText}
           </p>
         )}
       </div>
       {detail && (
-        <pre className="max-w-lg overflow-auto rounded-lg border bg-muted p-3 text-left text-[10px] text-muted-foreground">
+        <pre className="max-w-lg overflow-auto rounded-lg border bg-muted p-3 text-left text-2xs text-foreground/70">
           {detail}
         </pre>
       )}

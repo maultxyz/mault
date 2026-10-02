@@ -99,6 +99,8 @@ export interface ScannedCardsContextValue {
   forceSetCode: string | null;
   elapsedMs: number;
   isTimerActive: boolean;
+  recentScanTimes: number[];
+  lastRoutedBin: LastRoutedBin | null;
   setScannerRunning: (running: boolean) => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
@@ -211,6 +213,7 @@ export interface SerialContextValue {
     options?: RouteOptions,
   ) => Promise<unknown | null>;
   sendPushTest: (test: PushTest) => Promise<unknown | null>;
+  sendRawCommand: (line: string, timeoutMs: number) => Promise<RawCommandResult>;
   isRouteBusy: () => boolean;
   readIR: () => Promise<boolean[] | null>;
   sendTest: () => Promise<TestResult>;
@@ -301,10 +304,45 @@ export interface BinFillLevel {
   percent: number;
 }
 
+export type BinLevelStatus = "normal" | "warning" | "full";
+
+export interface LastRoutedBin {
+  binNumber: number;
+  at: number;
+}
+
+export interface BinLevelLayout {
+  rows: (number | undefined)[][];
+  bottom: number[];
+}
+
+export interface BinLevelCellProps {
+  level: BinFillLevel;
+  isCatchAll: boolean;
+  flashKey: number | null;
+  onEmpty: (binNumber: number) => void;
+  className?: string;
+}
+
+export interface BinLevelSummary {
+  totalCards: number;
+  fullest: BinFillLevel | null;
+  needsEmptying: number;
+}
+
+export interface RawCommandResult {
+  status: "ok" | "disconnected" | "busy" | "noResponse";
+  line: string | null;
+}
+
 export interface CommLogEntry {
   direction: "sent" | "received";
   text: string;
   timestamp: number;
+}
+
+export interface CommLogEntriesProps {
+  entries: CommLogEntry[];
 }
 
 export type ConnectionStatus = "connecting" | "connected" | "error" | "closed";
@@ -420,6 +458,19 @@ export interface MobileMonitorActivityProps {
 export interface MobileCardTileProps {
   entry: GroupedScannedCard;
   onOpen?: () => void;
+  onLongPress?: () => void;
+}
+
+export interface MobileCardActionsDrawerProps {
+  entry: GroupedScannedCard | null;
+  onOpenDetails: (scanId: string) => void;
+  onClose: () => void;
+}
+
+export interface MobileCardActionsBodyProps {
+  entry: GroupedScannedCard;
+  onOpenDetails: () => void;
+  onClose: () => void;
 }
 
 export interface MobileStatTileProps {
@@ -553,6 +604,11 @@ export interface IdentifyUnmatchedDialogProps {
   entry: UnmatchedCard | null;
   collectionGuid: string | undefined;
   onClose: () => void;
+}
+
+export interface ForcedSetPickerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export interface ForcedSetOptionProps {

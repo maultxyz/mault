@@ -31,7 +31,7 @@ export function ModuleCountStepper() {
           ))}
         </SelectContent>
       </Select>
-      <p className="text-xs leading-tight text-muted-foreground">
+      <p className="text-xs leading-tight text-foreground/70">
         {t("moduleCountStepper.description")}
       </p>
     </div>

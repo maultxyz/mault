@@ -217,7 +217,7 @@ export function OrgSettings() {
     <>
       <div className="flex flex-col gap-6">
         {!activeOrg && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-foreground/70">
             {t("orgSettings.noOrgSelected")}
           </p>
         )}
@@ -267,7 +267,7 @@ export function OrgSettings() {
                         {m.user.name || m.user.email}
                       </p>
                       {m.user.name && (
-                        <p className="text-xs text-muted-foreground truncate">
+                        <p className="text-xs text-foreground/70 truncate">
                           {m.user.email}
                         </p>
                       )}
@@ -301,7 +301,7 @@ export function OrgSettings() {
                         )}
                       />
                     ) : (
-                      <span className="text-xs text-muted-foreground shrink-0">
+                      <span className="text-xs text-foreground/70 shrink-0">
                         {ROLE_LABELS[m.role as OrgRole]}
                       </span>
                     )}
@@ -375,7 +375,7 @@ export function OrgSettings() {
 
                 {pendingInvites.length > 0 && (
                   <div className="flex flex-col gap-1">
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-foreground/70">
                       {t("orgSettings.pendingInvites")}
                     </p>
                     <div className="flex flex-col divide-y divide-border rounded-lg border">
@@ -384,10 +384,10 @@ export function OrgSettings() {
                           key={inv.id}
                           className="flex items-center gap-2 px-3 py-1.5 text-xs"
                         >
-                          <span className="flex-1 text-muted-foreground truncate">
+                          <span className="flex-1 text-foreground/70 truncate">
                             {inv.email}
                           </span>
-                          <span className="capitalize text-muted-foreground">
+                          <span className="capitalize text-foreground/70">
                             {inv.role}
                           </span>
                           <Button

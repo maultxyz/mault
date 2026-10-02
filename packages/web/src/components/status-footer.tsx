@@ -15,6 +15,7 @@ import { useHealthQuery } from "@/features/health/api/health";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useCommLog, useSerial } from "@/features/scanner/api/use-serial";
+import { CommLogEntries } from "@/features/scanner/components/comm-log-entries";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { useRole } from "@/hooks/use-role";
 import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
@@ -36,9 +37,9 @@ function StatusDot({
   variant: "success" | "warning" | "error" | "muted";
 }) {
   const colors = {
-    success: "bg-green-500",
-    warning: "bg-amber-500 animate-pulse",
-    error: "bg-red-500",
+    success: "bg-success",
+    warning: "bg-warning animate-pulse",
+    error: "bg-destructive",
     muted: "bg-muted-foreground/30",
   };
   return (
@@ -66,7 +67,7 @@ function StatusItem({
         }`}
       >
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs text-foreground/70">{label}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -124,7 +125,7 @@ function SyncStatusItem() {
         }`}
       >
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground tabular-nums shrink-0">
+        <span className="text-xs text-foreground/70 tabular-nums shrink-0">
           {countLabel}
         </span>
       </TooltipTrigger>
@@ -200,9 +201,9 @@ function SorterStatusItem() {
     <Popover>
       <PopoverTrigger className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors">
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs text-foreground/70">{label}</span>
       </PopoverTrigger>
-      <PopoverContent align="start" className="w-80 gap-2">
+      <PopoverContent align="start" className="w-96 gap-2">
         <div className="flex items-center justify-between gap-2">
           <PopoverTitle className="truncate">{statusText}</PopoverTitle>
           <div className="flex items-center gap-1 shrink-0">
@@ -224,30 +225,16 @@ function SorterStatusItem() {
             </Button>
           </div>
         </div>
-        <ScrollArea viewportRef={commLogRef} className="h-56 rounded-md border">
+        <ScrollArea
+          viewportRef={commLogRef}
+          className="h-56 rounded-md border bg-muted"
+        >
           {entries.length === 0 ? (
-            <p className="p-2 text-xs text-muted-foreground">
+            <p className="p-2 text-xs text-foreground/70">
               {tScanner("serial.commLogEmpty")}
             </p>
           ) : (
-            <div className="flex flex-col gap-0.5 p-2 font-mono text-[10px] leading-tight">
-              {entries.map((entry, i) => (
-                <div key={i} className="flex gap-1.5">
-                  <span
-                    className={
-                      entry.direction === "sent"
-                        ? "text-blue-500 shrink-0"
-                        : "text-green-500 shrink-0"
-                    }
-                  >
-                    {entry.direction === "sent" ? "→" : "←"}
-                  </span>
-                  <span className="break-all text-muted-foreground">
-                    {entry.text}
-                  </span>
-                </div>
-              ))}
-            </div>
+            <CommLogEntries entries={entries} />
           )}
         </ScrollArea>
       </PopoverContent>
@@ -263,7 +250,8 @@ function HealthStatusItem() {
 
   if (pathname === "/app/health") return null;
 
-  const failedChecks = data?.checks.filter((check) => check.status === "error") ?? [];
+  const failedChecks =
+    data?.checks.filter((check) => check.status === "error") ?? [];
   const dot = !data ? "muted" : data.healthy ? "success" : "error";
   const label = !data
     ? t("statusFooter.health")
@@ -285,7 +273,7 @@ function HealthStatusItem() {
         className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors"
       >
         <StatusDot variant={dot} />
-        <span className="text-xs text-muted-foreground">{label}</span>
+        <span className="text-xs text-foreground/70">{label}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -316,7 +304,7 @@ export function StatusFooter() {
           : t("statusFooter.cameraNone");
 
   return (
-    <div className="flex items-center gap-3 text-muted-foreground">
+    <div className="flex items-center gap-3 text-foreground/70">
       <div className="flex items-center gap-3">
         <StatusItem
           label={t("statusFooter.camera")}

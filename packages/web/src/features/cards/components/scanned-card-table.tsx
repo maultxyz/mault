@@ -152,7 +152,7 @@ export function ScannedCardTable({
                     <span
                       className={cn(
                         "shrink-0 rounded-full p-0.5",
-                        row.wasCorrected ? "bg-green-600" : "bg-amber-700",
+                        row.wasCorrected ? "bg-success-strong" : "bg-warning-strong",
                       )}
                       title={reviewTooltip(
                         t,

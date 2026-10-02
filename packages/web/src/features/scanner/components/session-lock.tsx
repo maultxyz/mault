@@ -1,4 +1,5 @@
 import { AlertBanner } from "@/components/alert-banner";
+import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import { Button } from "@/components/ui/button";
 import { useIsSessionActive } from "@/features/scanner/api/use-is-session-active";
 import { SESSION_LOCK_ALERT_ID } from "@/lib/constants/scanner";
@@ -32,7 +33,7 @@ export function SessionLock({
                 size="xs"
                 variant="outline"
                 onClick={() => navigate("/app")}
-                className="shrink-0 border-amber-500/40 bg-transparent text-amber-900 hover:bg-amber-400/20 dark:text-amber-200 dark:hover:bg-amber-400/10"
+                className={ALERT_BANNER_ACTION_CLASS}
               >
                 {t("sessionLock.openScanner")}
               </Button>

@@ -16,7 +16,7 @@ import { Trans, useTranslation } from "react-i18next";
 
 function Pin({ children }: { children?: ReactNode }) {
   return (
-    <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-[11px] text-foreground">
+    <code className="rounded border border-border bg-muted px-1.5 py-0.5 font-mono text-xs text-foreground">
       {children}
     </code>
   );
@@ -37,7 +37,7 @@ function MiniTable({
             {columns.map((col) => (
               <th
                 key={col}
-                className="border-b px-3 py-2 text-left font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase"
+                className="border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase"
               >
                 {col}
               </th>
@@ -170,7 +170,7 @@ export function BuildWiring() {
                   ]}
                 />
                 {isEsp32 && (
-                  <p className="mt-2 text-[11px]/relaxed text-foreground/70">
+                  <p className="mt-2 text-xs/relaxed text-foreground/70">
                     {t("wiring.sections.i2c.esp32Note")}
                   </p>
                 )}
@@ -241,7 +241,7 @@ export function BuildWiring() {
                   rows={irSensorRows}
                 />
                 {isEsp32 && (
-                  <p className="mt-2 text-[11px]/relaxed text-foreground/70">
+                  <p className="mt-2 text-xs/relaxed text-foreground/70">
                     {t("wiring.irSensors.esp32Note")}
                   </p>
                 )}

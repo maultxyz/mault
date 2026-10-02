@@ -46,7 +46,7 @@ export function LandingFeatures() {
                 <p className="font-heading text-sm font-semibold">
                   {t(`features.items.${key}.title`)}
                 </p>
-                <p className="mt-1 text-sm/relaxed text-muted-foreground">
+                <p className="mt-1 text-sm/relaxed text-foreground/70">
                   {t(`features.items.${key}.description`)}
                 </p>
               </div>

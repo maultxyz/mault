@@ -206,7 +206,10 @@
     "byColor": "Par couleur",
     "bySet": "Par set",
     "showLess": "Afficher moins",
-    "showAllSets": "Afficher les {{count}} sets"
+    "showAllSets": "Afficher les {{count}} sets",
+    "scanRateTrend": "Scans par minute sur les 12 dernières minutes",
+    "scanRateNow": "{{count}} scans cette minute",
+    "scanRatePoint": "{{count}} scans, il y a {{minutes}} min"
   },
   "scannerControls": {
     "scanAgain": "Scanner à nouveau",
@@ -345,11 +348,21 @@
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
-    "tooltipWithCapacity": "Bac {{bin}} : {{count}} / {{capacity}} cartes",
-    "tooltipNoCapacity": "Bac {{bin}} : {{count}} cartes",
     "confirmTitle": "Vider le bac {{bin}} ?",
     "confirmDescription": "Ceci remet à zéro le compteur de remplissage du bac {{bin}}. Assure-toi d'avoir vidé le bac physiquement au préalable, cette action ne déplace rien pour toi.",
-    "confirmButton": "Vider le bac"
+    "confirmButton": "Vider le bac",
+    "binLabel": "Bac {{bin}}",
+    "catchAll": "Fourre-tout",
+    "full": "Plein",
+    "nearlyFull": "Presque plein",
+    "emptyAction": "Vider le bac {{bin}}",
+    "summaryFullest_one": "{{count}} carte · bac {{bin}} le plus plein à {{percent}} %",
+    "summaryFullest_other": "{{count}} cartes · bac {{bin}} le plus plein à {{percent}} %",
+    "summaryTotal_one": "{{count}} carte dans les bacs",
+    "summaryTotal_other": "{{count}} cartes dans les bacs",
+    "expand": "Afficher les niveaux",
+    "collapse": "Masquer les niveaux",
+    "cellTitle": "Le bac {{bin}} est plein à {{percent}} %"
   },
   "alphabetPassControl": {
     "range": "Tri de {{from}} à {{to}}",
@@ -363,7 +376,6 @@
     "heading": "Récemment scannées"
   },
   "monitorPage": {
-    "loadingSession": "Chargement de la session…",
     "connectFailed": "Impossible de se connecter.",
     "noCardsScannedYet": "Aucune carte scannée pour le moment.",
     "noCardsMatchSearch": "Aucune carte ne correspond à la recherche.",

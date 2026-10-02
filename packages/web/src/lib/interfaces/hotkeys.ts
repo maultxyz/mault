@@ -17,6 +17,7 @@ export type HotkeyId =
   | "scanFeed"
   | "scanToggleAutoFeed"
   | "scanCycleFoil"
+  | "scanPickSet"
   | "scanClearDevice";
 
 export interface HotkeyCombo {

@@ -2,6 +2,10 @@ import {
   drawDetectionOverlay,
   getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
+import {
+  fitCanvasesToContainer,
+  observeContainerResize,
+} from "@/features/scanner/lib/canvas-fit";
 import type { ScanRegion } from "@magic-vault/shared";
 import { useEffect, useRef } from "react";
 
@@ -24,6 +28,7 @@ export function useVideoCanvasPreview(
     if (!stream) return;
 
     let cancelled = false;
+    let stopObservingResize: () => void = () => {};
     const video = videoRef.current;
     if (!video) return;
 
@@ -71,22 +76,18 @@ export function useVideoCanvasPreview(
           }
         }
 
-        const container = displayCanvasRef.current?.parentElement;
-        if (container) {
-          const cw = container.clientWidth;
-          const ch = container.clientHeight;
-          const scale = Math.max(cw / videoWidth, ch / videoHeight);
-          const cssW = Math.round(videoWidth * scale);
-          const cssH = Math.round(videoHeight * scale);
-          for (const ref of [displayCanvasRef, overlayCanvasRef]) {
-            if (ref.current) {
-              ref.current.style.width = `${cssW}px`;
-              ref.current.style.height = `${cssH}px`;
-              ref.current.style.left = `${(cw - cssW) / 2}px`;
-              ref.current.style.top = `${(ch - cssH) / 2}px`;
-            }
-          }
-        }
+        const fit = () =>
+          fitCanvasesToContainer(
+            [displayCanvasRef.current, overlayCanvasRef.current],
+            videoWidth,
+            videoHeight,
+            false,
+          );
+        fit();
+        stopObservingResize = observeContainerResize(
+          displayCanvasRef.current,
+          fit,
+        );
 
         drawOverlay();
         rafRef.current = requestAnimationFrame(detectionLoop);
@@ -95,6 +96,7 @@ export function useVideoCanvasPreview(
 
     return () => {
       cancelled = true;
+      stopObservingResize();
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
       video.srcObject = null;

@@ -190,7 +190,7 @@ export function GameFieldDefinitionsEditor() {
               </div>
             ))}
             {fields.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">
+              <p className="text-sm text-foreground/70 text-center py-4">
                 {t("fieldDefinitionsEditor.empty")}
               </p>
             )}

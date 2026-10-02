@@ -93,7 +93,7 @@ export function MobileMonitorActivity({
                     </span>
                   )}
                   {onOpenCard && (
-                    <IconChevronRight className="size-4 shrink-0 text-foreground/50" />
+                    <IconChevronRight className="size-4 shrink-0 text-foreground/70" />
                   )}
                 </>
               );

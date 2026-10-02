@@ -1,3 +1,4 @@
+import { latestSessionInit } from "@/lib/session-init-registry";
 import { useCollectionStream } from "@/lib/app-stream";
 import type {
   ConnectionStatus,
@@ -5,7 +6,11 @@ import type {
   SessionMonitorState,
 } from "@/lib/interfaces/scanner";
 import type { SessionViewer } from "@/lib/interfaces/collections";
-import type { Collection, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
+import type {
+  Collection,
+  ScannedCard,
+  UnmatchedCard,
+} from "@magic-vault/shared";
 import { RECENT_SCANNED_CARDS_COUNT } from "@/lib/constants/limits";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -63,13 +68,13 @@ export function useSessionEvents(
     };
     const cardsChanged = () => setCardsVersion((v) => v + 1);
 
-    on(scoped("session_init"), (e) => {
+    const applySessionInit = (data: string) => {
       const {
         collection,
         recentCards: initRecent,
         unmatchedCards: initUnmatched,
         viewers: initViewers,
-      } = JSON.parse((e as MessageEvent).data) as {
+      } = JSON.parse(data) as {
         collection: Collection;
         recentCards?: ScannedCard[];
         unmatchedCards?: UnmatchedCard[];
@@ -82,10 +87,15 @@ export function useSessionEvents(
       setUnmatchedCards(initUnmatched ?? []);
       if (initViewers) setViewers(initViewers);
       setStatus("connected");
-    });
+    };
+    on(scoped("session_init"), (e) =>
+      applySessionInit((e as MessageEvent).data),
+    );
 
     on(scoped("viewers_updated"), (e) => {
-      const { viewers: updated } = JSON.parse((e as MessageEvent).data) as { viewers: SessionViewer[] };
+      const { viewers: updated } = JSON.parse((e as MessageEvent).data) as {
+        viewers: SessionViewer[];
+      };
       setViewers(updated);
     });
 
@@ -106,20 +116,26 @@ export function useSessionEvents(
     });
 
     on(scoped("card_removed"), (e) => {
-      const { scanId } = JSON.parse((e as MessageEvent).data) as { scanId: string };
+      const { scanId } = JSON.parse((e as MessageEvent).data) as {
+        scanId: string;
+      };
       setRecentCards((prev) => prev.filter((c) => c.scanId !== scanId));
       cardsChanged();
     });
 
     on(scoped("cards_removed"), (e) => {
-      const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
+      const { scanIds } = JSON.parse((e as MessageEvent).data) as {
+        scanIds: string[];
+      };
       const ids = new Set(scanIds);
       setRecentCards((prev) => prev.filter((c) => !ids.has(c.scanId)));
       cardsChanged();
     });
 
     on(scoped("cards_downloaded"), (e) => {
-      const { scanIds } = JSON.parse((e as MessageEvent).data) as { scanIds: string[] };
+      const { scanIds } = JSON.parse((e as MessageEvent).data) as {
+        scanIds: string[];
+      };
       const ids = new Set(scanIds);
       setRecentCards((prev) =>
         prev.map((c) => (ids.has(c.scanId) ? { ...c, isDownloaded: true } : c)),
@@ -138,7 +154,9 @@ export function useSessionEvents(
     });
 
     on(scoped("unmatched_removed"), (e) => {
-      const { scanId } = JSON.parse((e as MessageEvent).data) as { scanId: string };
+      const { scanId } = JSON.parse((e as MessageEvent).data) as {
+        scanId: string;
+      };
       setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
     });
 
@@ -147,7 +165,9 @@ export function useSessionEvents(
     });
 
     on(scoped("scan_error"), (e) => {
-      const { message } = JSON.parse((e as MessageEvent).data) as { message: string };
+      const { message } = JSON.parse((e as MessageEvent).data) as {
+        message: string;
+      };
       pushError(message);
     });
 
@@ -165,9 +185,12 @@ export function useSessionEvents(
     // readyState is already OPEN when a second consumer attaches to the
     // already-connected shared EventSource - "open" won't fire again for it.
     if (es.readyState === EventSource.OPEN) setStatus("connected");
+    const missedInit = latestSessionInit(es, guid);
+    if (missedInit) applySessionInit(missedInit);
 
     return () => {
-      for (const [name, handler] of listeners) es.removeEventListener(name, handler);
+      for (const [name, handler] of listeners)
+        es.removeEventListener(name, handler);
       setStatus("closed");
     };
   }, [eventSource, collectionGuid, t]);

@@ -29,8 +29,8 @@ const statusPill = cva(
       variant: {
         default: "bg-background border-border",
         loading: "bg-background border-border",
-        warning: "bg-amber-700 border-amber-800 text-white",
-        error: "bg-red-700 border-red-800 text-white",
+        warning: "bg-warning-strong border-warning-strong text-white",
+        error: "bg-destructive-strong border-destructive-strong text-white",
       },
     },
     defaultVariants: { variant: "default" },
@@ -77,7 +77,7 @@ export function ScannerOverlay({
   if (dailyLimitReached) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-sm text-muted-foreground max-w-56 flex flex-col items-center gap-2">
+        <div className="text-center text-sm text-foreground/70 max-w-56 flex flex-col items-center gap-2">
           <IconAlertTriangle className="mx-auto size-5 text-destructive" />
           <p>{t("scannerOverlay.dailyLimitReached")}</p>
           <Button size="sm" nativeButton={false}>
@@ -131,7 +131,7 @@ export function ScannerOverlay({
   if (isPhoneMode && phonePairingStatus === "connected" && !hasPhonePhoto) {
     return (
       <div className="absolute inset-0 z-30 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg p-4">
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-foreground/70">
           <IconDeviceMobile className="mx-auto mb-2 size-5" />
           <p>{t("scannerOverlay.phoneReadyNoPhoto")}</p>
         </div>

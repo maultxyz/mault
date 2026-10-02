@@ -5,9 +5,12 @@ export interface SettingsSectionProps {
   description?: ReactNode;
   badge?: ReactNode;
   action?: ReactNode;
+  dataTour?: string;
   children?: ReactNode;
 }
 
 export interface SettingsSectionsProps {
   children: ReactNode;
 }
+
+export type SettingsSectionLayout = "card" | "flat";

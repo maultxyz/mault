@@ -74,7 +74,7 @@ export function PhoneCameraPairingDialog({
                 href={pairingUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-xs text-muted-foreground underline underline-offset-2 break-all text-center"
+                className="text-xs text-foreground/70 underline underline-offset-2 break-all text-center"
               >
                 {pairingUrl}
               </a>
@@ -82,7 +82,7 @@ export function PhoneCameraPairingDialog({
           </div>
         )}
 
-        <div className="flex items-center justify-center gap-2 py-1 text-xs text-muted-foreground">
+        <div className="flex items-center justify-center gap-2 py-1 text-xs text-foreground/70">
           {(status === "waiting" || status === "idle") && (
             <IconLoader2 className="size-3.5 animate-spin" />
           )}

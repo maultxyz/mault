@@ -1,3 +1,4 @@
+import { CARD_GRID_DENSITIES } from "@/lib/constants/card-grid";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -13,6 +14,9 @@ import {
   IconLayoutList,
   IconStack2,
   IconTrash,
+  IconZoomIn,
+  IconZoomOut,
+  IconZoomReset,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +43,8 @@ export function CardToolbar({
   cardCount,
   viewMode,
   onViewModeChange,
+  density,
+  onDensityChange,
   groupDuplicates,
   onGroupDuplicatesChange,
   leading,
@@ -56,7 +62,7 @@ export function CardToolbar({
       {watchers && watchers.length > 0 && <WatcherStack watchers={watchers} />}
       <Input
         placeholder={t("cardToolbar.searchPlaceholder")}
-          data-hotkey-search
+        data-hotkey-search
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
         className="flex-1 min-w-0"
@@ -93,6 +99,32 @@ export function CardToolbar({
           <IconLayoutList className="size-4" />
         </Button>
       </ButtonGroup>
+      {viewMode === "grid" && density && onDensityChange && (
+        <Button
+          variant="outline"
+          size="icon"
+          className="shrink-0"
+          onClick={() =>
+            onDensityChange(
+              CARD_GRID_DENSITIES[
+                (CARD_GRID_DENSITIES.indexOf(density) + 1) %
+                  CARD_GRID_DENSITIES.length
+              ],
+            )
+          }
+          title={t("cardToolbar.density", {
+            density: t(`cardToolbar.densities.${density}`),
+          })}
+        >
+          {density === "compact" ? (
+            <IconZoomOut className="size-4" />
+          ) : density === "large" ? (
+            <IconZoomIn className="size-4" />
+          ) : (
+            <IconZoomReset className="size-4" />
+          )}
+        </Button>
+      )}
       <Button
         variant={groupDuplicates ? "outline-selected" : "outline"}
         size="icon"

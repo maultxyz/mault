@@ -1,11 +1,14 @@
+import { EmptyState } from "@/components/empty-state";
+import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { Button } from "@/components/ui/button";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
 import type { MonitorCardGridProps } from "@/lib/interfaces/scanner";
 import {
+  IconCards,
   IconChevronLeft,
   IconChevronRight,
-  IconLoader2,
+  IconSearch,
   IconWifiOff,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -30,10 +33,7 @@ export function MonitorCardGrid({
   return (
     <>
       {isLoading && entries.length === 0 && (
-        <div className="flex items-center justify-center h-32 text-foreground/70 text-sm gap-2">
-          <IconLoader2 size={16} className="animate-spin" />
-          {t("monitorPage.loadingSession")}
-        </div>
+        <CardTileSkeletonGrid count={12} />
       )}
       {status === "error" && (
         <div className="flex items-center justify-center h-32 text-destructive text-sm gap-2">
@@ -42,14 +42,10 @@ export function MonitorCardGrid({
         </div>
       )}
       {!isLoading && cardCount === 0 && (
-        <div className="flex items-center justify-center h-32 text-foreground/70 text-sm">
-          {t("monitorPage.noCardsScannedYet")}
-        </div>
+        <EmptyState icon={IconCards} title={t("monitorPage.noCardsScannedYet")} />
       )}
       {!isLoading && cardCount > 0 && matchingCount === 0 && (
-        <div className="flex items-center justify-center h-32 text-foreground/70 text-sm">
-          {t("monitorPage.noCardsMatchSearch")}
-        </div>
+        <EmptyState icon={IconSearch} title={t("monitorPage.noCardsMatchSearch")} />
       )}
       {entries.length === 0 ? null : viewMode === "list" ? (
         <div className="p-4">

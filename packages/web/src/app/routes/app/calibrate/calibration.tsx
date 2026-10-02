@@ -1,6 +1,6 @@
+import { SettingsSection } from "@/components/settings-section";
 import { AuditDrawer, type AuditEntry } from "@/components/audit-drawer";
 import { SaveBar } from "@/components/save-bar";
-import { Label } from "@/components/ui/label";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
 import {
@@ -30,7 +30,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
   return (
     <div className="flex flex-col gap-0.5">
       <div className="flex gap-2">
-        <span className="w-16 shrink-0 text-muted-foreground">
+        <span className="w-16 shrink-0 text-foreground/70">
           {t("calibratePage.moduleHistory.bottom")}
         </span>
         <span>
@@ -38,7 +38,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
         </span>
       </div>
       <div className="flex gap-2">
-        <span className="w-16 shrink-0 text-muted-foreground">
+        <span className="w-16 shrink-0 text-foreground/70">
           {t("calibratePage.moduleHistory.paddle")}
         </span>
         <span>
@@ -46,7 +46,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
         </span>
       </div>
       <div className="flex gap-2">
-        <span className="w-16 shrink-0 text-muted-foreground">
+        <span className="w-16 shrink-0 text-foreground/70">
           {t("servos.pusher.label")}
         </span>
         <span>
@@ -54,7 +54,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
         </span>
       </div>
       <div className="flex gap-2">
-        <span className="w-16 shrink-0 text-muted-foreground">
+        <span className="w-16 shrink-0 text-foreground/70">
           {t("calibratePage.moduleHistory.pusherHoldDuration")}
         </span>
         <span>
@@ -62,7 +62,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
         </span>
       </div>
       <div className="flex gap-2">
-        <span className="w-16 shrink-0 text-muted-foreground">
+        <span className="w-16 shrink-0 text-foreground/70">
           {t("calibratePage.moduleHistory.paddleCloseDelay")}
         </span>
         <span>{t("calibratePage.msValue", { value: c.paddleCloseDelay })}</span>
@@ -76,15 +76,15 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
   const { calibration: c } = entry;
   return (
     <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
-      <span className="text-muted-foreground">
+      <span className="text-foreground/70">
         {t("calibratePage.feederHistory.speed")}
       </span>
       <span>{c.speed}</span>
-      <span className="text-muted-foreground">
+      <span className="text-foreground/70">
         {t("calibratePage.feederHistory.duration")}
       </span>
       <span>{t("calibratePage.msValue", { value: c.duration })}</span>
-      <span className="text-muted-foreground">
+      <span className="text-foreground/70">
         {t("calibratePage.feederHistory.pulse")}
       </span>
       <span>
@@ -94,15 +94,15 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
               value: c.pulseDuration,
             })}
       </span>
-      <span className="text-muted-foreground">
+      <span className="text-foreground/70">
         {t("calibratePage.feederHistory.pause")}
       </span>
       <span>{t("calibratePage.msValue", { value: c.pauseDuration })}</span>
-      <span className="text-muted-foreground">
+      <span className="text-foreground/70">
         {t("calibratePage.feederHistory.settle")}
       </span>
       <span>{t("calibratePage.msValue", { value: c.settleDuration })}</span>
-      <span className="text-muted-foreground">
+      <span className="text-foreground/70">
         {t("calibratePage.feederHistory.rollback")}
       </span>
       <span>
@@ -234,77 +234,83 @@ export default function CalibrateCalibrationPage() {
 
   return (
     <>
-      <div className="flex items-center justify-between">
-        <Label>{t("sections.moduleCalibration")}</Label>
-        <button
-          type="button"
-          onClick={() => setFeederHistoryOpen(true)}
-          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <IconClockHour3 size={12} />
-          {t("calibratePage.history")}
-        </button>
-      </div>
-      <FeederCalibrationPanel
-        speedValue={feederSpeedValue}
-        durationValue={feederDurationValue}
-        pulseDurationValue={feederPulseDurationValue}
-        pauseDurationValue={feederPauseDurationValue}
-        settleDurationValue={feederSettleDurationValue}
-        reverseSpeedValue={feederReverseSpeedValue}
-        reverseDurationValue={feederReverseDurationValue}
-        isConnected={isConnected}
-        canCalibrate={canCalibrate}
-        onSpeedChange={handleFeederSpeedChange}
-        onDurationChange={handleFeederDurationChange}
-        onPulseDurationChange={handleFeederPulseDurationChange}
-        onPauseDurationChange={handleFeederPauseDurationChange}
-        onSettleDurationChange={handleFeederSettleDurationChange}
-        onReverseSpeedChange={handleFeederReverseSpeedChange}
-        onReverseDurationChange={handleFeederReverseDurationChange}
-        onSelectContinuous={handleFeederSelectContinuous}
-      />
-
-      <div className="flex items-center justify-between">
-        <Label>{t("sections.moduleCalibration")}</Label>
-        <div className="flex items-center gap-3">
+      <SettingsSection
+        heading={t("feederCalibrationPanel.heading")}
+        action={
           <button
             type="button"
-            onClick={handleResetServosToDefaults}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <IconRestore size={12} />
-            {t("calibratePage.resetServosToDefaults")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setModuleHistoryOpen(true)}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setFeederHistoryOpen(true)}
+            className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
           >
             <IconClockHour3 size={12} />
             {t("calibratePage.history")}
           </button>
-        </div>
-      </div>
-      <ModuleCalibrationGrid
-        modules={modules}
-        configs={configs}
-        active={active}
-        sliderValues={sliderValues}
-        moduleDelayValues={moduleDelayValues}
-        pendingCalibration={pendingCalibration}
-        isLoading={isLoading}
-        isConnected={isConnected}
-        isReady={isReady}
-        canCalibrate={canCalibrate}
-        onControl={handleControl}
-        onSliderChange={handleSliderChange}
-        testingServos={testingServos}
-        onTest={handleServoTest}
-        onModuleDelayChange={handleModuleDelayChange}
-        pushTestingModule={pushTestingModule}
-        onPushTest={handlePushTest}
-      />
+        }
+      >
+        <FeederCalibrationPanel
+          speedValue={feederSpeedValue}
+          durationValue={feederDurationValue}
+          pulseDurationValue={feederPulseDurationValue}
+          pauseDurationValue={feederPauseDurationValue}
+          settleDurationValue={feederSettleDurationValue}
+          reverseSpeedValue={feederReverseSpeedValue}
+          reverseDurationValue={feederReverseDurationValue}
+          isConnected={isConnected}
+          canCalibrate={canCalibrate}
+          onSpeedChange={handleFeederSpeedChange}
+          onDurationChange={handleFeederDurationChange}
+          onPulseDurationChange={handleFeederPulseDurationChange}
+          onPauseDurationChange={handleFeederPauseDurationChange}
+          onSettleDurationChange={handleFeederSettleDurationChange}
+          onReverseSpeedChange={handleFeederReverseSpeedChange}
+          onReverseDurationChange={handleFeederReverseDurationChange}
+          onSelectContinuous={handleFeederSelectContinuous}
+        />
+      </SettingsSection>
+
+      <SettingsSection
+        heading={t("sections.moduleCalibration")}
+        action={
+          <>
+            <button
+              type="button"
+              onClick={handleResetServosToDefaults}
+              className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
+            >
+              <IconRestore size={12} />
+              {t("calibratePage.resetServosToDefaults")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setModuleHistoryOpen(true)}
+              className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
+            >
+              <IconClockHour3 size={12} />
+              {t("calibratePage.history")}
+            </button>
+          </>
+        }
+      >
+        <ModuleCalibrationGrid
+          modules={modules}
+          configs={configs}
+          active={active}
+          sliderValues={sliderValues}
+          moduleDelayValues={moduleDelayValues}
+          pendingCalibration={pendingCalibration}
+          isLoading={isLoading}
+          isConnected={isConnected}
+          isReady={isReady}
+          canCalibrate={canCalibrate}
+          onControl={handleControl}
+          onSliderChange={handleSliderChange}
+          testingServos={testingServos}
+          onTest={handleServoTest}
+          onModuleDelayChange={handleModuleDelayChange}
+          pushTestingModule={pushTestingModule}
+          onPushTest={handlePushTest}
+        />
+      </SettingsSection>
 
       <AuditDrawer
         open={feederHistoryOpen}

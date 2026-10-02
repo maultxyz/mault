@@ -111,7 +111,13 @@
     "deleteScannedCardsDescription": "Cela supprimera définitivement toutes les cartes de ta collection. Cette action est irréversible.",
     "clearing": "Suppression...",
     "clearAll": "Tout effacer",
-    "clearAllCardsTitle": "Effacer toutes les cartes"
+    "clearAllCardsTitle": "Effacer toutes les cartes",
+    "density": "Taille des cartes : {{density}}",
+    "densities": {
+      "compact": "compacte",
+      "comfortable": "normale",
+      "large": "grande"
+    }
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
@@ -244,5 +250,18 @@
     "copyFailed": "Impossible de copier le JSON de la carte.",
     "detectedColor": "Barre de couleur détectée",
     "noColor": "Aucune"
+  },
+  "cardContextMenu": {
+    "open": "Ouvrir les détails",
+    "select": "Sélectionner",
+    "deselect": "Désélectionner",
+    "markCorrect": "Marquer comme correcte",
+    "foil": "Foil",
+    "nonFoil": "Non foil",
+    "copyName": "Copier le nom",
+    "copied": "Nom copié.",
+    "copyFailed": "Impossible de copier le nom.",
+    "remove_one": "Retirer la carte",
+    "remove_other": "Retirer {{count}} cartes"
   }
 }

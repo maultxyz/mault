@@ -111,7 +111,13 @@
     "deleteScannedCardsDescription": "Dadurch werden alle Karten dauerhaft aus deiner Sammlung gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.",
     "clearing": "Wird geleert...",
     "clearAll": "Alle löschen",
-    "clearAllCardsTitle": "Alle Karten leeren"
+    "clearAllCardsTitle": "Alle Karten leeren",
+    "density": "Kartengröße: {{density}}",
+    "densities": {
+      "compact": "kompakt",
+      "comfortable": "normal",
+      "large": "groß"
+    }
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
@@ -244,5 +250,18 @@
     "copyFailed": "Karten-JSON konnte nicht kopiert werden.",
     "detectedColor": "Erkannter Farbbalken",
     "noColor": "Keiner"
+  },
+  "cardContextMenu": {
+    "open": "Details öffnen",
+    "select": "Auswählen",
+    "deselect": "Auswahl aufheben",
+    "markCorrect": "Als korrekt markieren",
+    "foil": "Foil",
+    "nonFoil": "Nicht-Foil",
+    "copyName": "Namen kopieren",
+    "copied": "Name kopiert.",
+    "copyFailed": "Der Name konnte nicht kopiert werden.",
+    "remove_one": "Karte entfernen",
+    "remove_other": "{{count}} Karten entfernen"
   }
 }

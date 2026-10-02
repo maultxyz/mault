@@ -1,7 +1,7 @@
+import { SettingsSection } from "@/components/settings-section";
 import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
-import { Label } from "@/components/ui/label";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { ConnectionSettingsPanel } from "@/features/calibration/components/connection-settings-panel";
 import { ExperimentalFeaturesPanel } from "@/features/calibration/components/experimental-features-panel";
@@ -104,10 +104,12 @@ export default function CalibrateModulesPage() {
         onTestBin={handleTestBin}
         onSampleRun={handleSampleRun}
       />
-      <div className="flex flex-col gap-1.5" data-tour="module-count">
-        <Label>{t("moduleCountStepper.label")}</Label>
+      <SettingsSection
+        dataTour="module-count"
+        heading={t("moduleCountStepper.label")}
+      >
         <ModuleCountStepper />
-      </div>
+      </SettingsSection>
       <BinConfigurations />
 
       <DeleteDialog

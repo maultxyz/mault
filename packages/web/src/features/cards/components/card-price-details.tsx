@@ -27,7 +27,7 @@ function PriceTable({
     <div>
       <table className="tabular-nums">
         <thead>
-          <tr className="border-b border-border text-muted-foreground">
+          <tr className="border-b border-border text-foreground/70">
             <th className="py-2 pr-6 text-left font-normal">{heading}</th>
             {columns.map((column, i) => (
               <th
@@ -45,7 +45,7 @@ function PriceTable({
         <tbody className="divide-y divide-border">
           {visibleRows.map((row) => (
             <tr key={row.label}>
-              <td className="py-2 pr-6 text-muted-foreground">{row.label}</td>
+              <td className="py-2 pr-6 text-foreground/70">{row.label}</td>
               {row.values.map((value, i) => (
                 <td
                   key={columns[i]}
@@ -63,7 +63,7 @@ function PriceTable({
         </tbody>
       </table>
       {printings > 1 && (
-        <p className="pt-2 text-xs text-muted-foreground">
+        <p className="pt-2 text-xs text-foreground/70">
           {t("priceTable.acrossPrintings", { count: printings })}
         </p>
       )}

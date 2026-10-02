@@ -206,7 +206,10 @@
     "byColor": "By Color",
     "bySet": "By Set",
     "showLess": "Show less",
-    "showAllSets": "Show all {{count}} sets"
+    "showAllSets": "Show all {{count}} sets",
+    "scanRateTrend": "Scans per minute over the last 12 minutes",
+    "scanRateNow": "{{count}} scans this minute",
+    "scanRatePoint": "{{count}} scans, {{minutes}} min ago"
   },
   "scannerControls": {
     "scanAgain": "Scan Again",
@@ -345,11 +348,21 @@
   },
   "binStatusMeter": {
     "heading": "Bin Levels",
-    "tooltipWithCapacity": "Bin {{bin}}: {{count}} / {{capacity}} cards",
-    "tooltipNoCapacity": "Bin {{bin}}: {{count}} cards",
     "confirmTitle": "Empty bin {{bin}}?",
     "confirmDescription": "This resets bin {{bin}}'s fill counter to zero. Make sure you've physically emptied the bin first - this doesn't move anything for you.",
-    "confirmButton": "Empty Bin"
+    "confirmButton": "Empty Bin",
+    "binLabel": "Bin {{bin}}",
+    "catchAll": "Catch-all",
+    "full": "Full",
+    "nearlyFull": "Nearly full",
+    "emptyAction": "Empty bin {{bin}}",
+    "summaryFullest_one": "{{count}} card · fullest Bin {{bin}} at {{percent}}%",
+    "summaryFullest_other": "{{count}} cards · fullest Bin {{bin}} at {{percent}}%",
+    "summaryTotal_one": "{{count}} card in the bins",
+    "summaryTotal_other": "{{count}} cards in the bins",
+    "expand": "Show bin levels",
+    "collapse": "Hide bin levels",
+    "cellTitle": "Bin {{bin}} is {{percent}}% full"
   },
   "alphabetPassControl": {
     "range": "Sorting {{from}} to {{to}}",
@@ -363,7 +376,6 @@
     "heading": "Recently Scanned"
   },
   "monitorPage": {
-    "loadingSession": "Loading session…",
     "connectFailed": "Could not connect.",
     "noCardsScannedYet": "No cards scanned yet.",
     "noCardsMatchSearch": "No cards match the search query.",

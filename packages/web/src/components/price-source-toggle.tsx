@@ -19,13 +19,13 @@ export function PriceSourceToggle({ value, onChange }: PriceSourceToggleProps) {
               "flex flex-col items-center gap-1 rounded-lg border p-3 w-36 transition-all",
               isSelected
                 ? "border-primary bg-primary/5 text-foreground"
-                : "border-border text-muted-foreground hover:border-foreground/40 hover:text-foreground",
+                : "border-border text-foreground/70 hover:border-foreground/40 hover:text-foreground",
             )}
           >
             <span className="text-xs font-medium">
               {t(`pricing.sources.${source}`)}
             </span>
-            <span className="text-[10px] leading-tight text-muted-foreground">
+            <span className="text-2xs leading-tight text-foreground/70">
               {PRICE_SOURCE_FIELDS[source].currency}
             </span>
           </button>

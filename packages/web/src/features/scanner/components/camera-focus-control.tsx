@@ -27,7 +27,7 @@ export function CameraFocusControl({ className }: CameraFocusControlProps) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <label className="flex items-center justify-between gap-2">
-        <span className="text-xs text-foreground/70">
+        <span className="text-xs font-medium">
           {t("cameraFocus.label")}
         </span>
         <span className="flex items-center gap-1.5 text-xs text-foreground/70">

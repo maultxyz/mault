@@ -119,7 +119,7 @@ export function DeleteDialog({
 
           {confirm.type !== "simple" && (
             <Field className="my-4" data-invalid={!!errors.input}>
-              <p className="text-sm text-muted-foreground mb-1.5">{label}</p>
+              <p className="text-sm text-foreground/70 mb-1.5">{label}</p>
               <Input
                 {...register("input")}
                 placeholder={placeholder}

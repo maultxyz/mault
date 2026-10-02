@@ -1,3 +1,4 @@
+import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
@@ -39,9 +40,7 @@ export function CardSearchPicker({
         className="max-h-[50dvh] min-h-48 flex-1 overflow-y-auto rounded-lg border bg-muted/40 p-2"
       >
         {loading && (
-          <div className="flex items-center justify-center py-8">
-            <IconLoader2 className="size-5 animate-spin text-foreground/70" />
-          </div>
+          <CardTileSkeletonGrid />
         )}
         {!loading && results.length === 0 && (
           <p className="py-8 text-center text-sm text-foreground/70">
@@ -70,7 +69,7 @@ export function CardSearchPicker({
                 ) : (
                   <div className="h-full w-full bg-muted" />
                 )}
-                <span className="absolute inset-x-0 bottom-0 truncate bg-black/70 px-1 py-0.5 text-center text-[10px] leading-tight text-white">
+                <span className="absolute inset-x-0 bottom-0 truncate bg-black/70 px-1 py-0.5 text-center text-2xs leading-tight text-white">
                   {result.set.toUpperCase()} #{result.collectorNumber}
                 </span>
               </button>

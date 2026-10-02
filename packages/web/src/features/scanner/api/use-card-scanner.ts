@@ -41,6 +41,10 @@ import type {
   ScanOutcome,
   TextSearchOutcome,
 } from "@/lib/interfaces/scanner";
+import {
+  fitCanvasesToContainer,
+  observeContainerResize,
+} from "@/features/scanner/lib/canvas-fit";
 import { scanLog } from "@/lib/scan-log";
 import {
   CLOSE_MATCH_DELTA,
@@ -836,6 +840,7 @@ export function useCardScanner({
     if (!stream) return;
 
     let cancelled = false;
+    let stopObservingResize: () => void = () => {};
     const video = videoRef.current;
     if (!video) return;
 
@@ -855,24 +860,18 @@ export function useCardScanner({
           }
         }
 
-        const container = displayCanvasRef.current?.parentElement;
-        if (container) {
-          const cw = container.clientWidth;
-          const ch = container.clientHeight;
-          const scale = rotatedRef.current
-            ? Math.max(cw / videoHeight, ch / videoWidth)
-            : Math.max(cw / videoWidth, ch / videoHeight);
-          const cssW = Math.round(videoWidth * scale);
-          const cssH = Math.round(videoHeight * scale);
-          for (const ref of [displayCanvasRef, overlayCanvasRef]) {
-            if (ref.current) {
-              ref.current.style.width = `${cssW}px`;
-              ref.current.style.height = `${cssH}px`;
-              ref.current.style.left = `${(cw - cssW) / 2}px`;
-              ref.current.style.top = `${(ch - cssH) / 2}px`;
-            }
-          }
-        }
+        const fit = () =>
+          fitCanvasesToContainer(
+            [displayCanvasRef.current, overlayCanvasRef.current],
+            videoWidth,
+            videoHeight,
+            rotatedRef.current,
+          );
+        fit();
+        stopObservingResize = observeContainerResize(
+          displayCanvasRef.current,
+          fit,
+        );
 
         updateStatus("paused");
         rafRef.current = requestAnimationFrame(detectionLoop);
@@ -889,6 +888,7 @@ export function useCardScanner({
 
     return () => {
       cancelled = true;
+      stopObservingResize();
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
       if (settleTimeoutRef.current) {

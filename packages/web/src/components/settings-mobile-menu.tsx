@@ -18,7 +18,7 @@ export function SettingsMobileMenu() {
         >
           <section.icon className="size-5 shrink-0 text-foreground/70" />
           <span className="min-w-0 flex-1 truncate">{t(section.labelKey)}</span>
-          <IconChevronRight className="size-4 shrink-0 text-foreground/50" />
+          <IconChevronRight className="size-4 shrink-0 text-foreground/70" />
         </Link>
       ))}
     </nav>

@@ -1,3 +1,4 @@
+import { useLongPress } from "@/hooks/use-long-press";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { MobileCardTileProps } from "@/lib/interfaces/scanner";
@@ -8,7 +9,9 @@ import { memo } from "react";
 export const MobileCardTile = memo(function MobileCardTile({
   entry,
   onOpen,
+  onLongPress,
 }: MobileCardTileProps) {
+  const { handlers, consumeLongPress } = useLongPress(onLongPress);
   const { priceOf, format } = usePriceSource();
   const price = priceOf(entry.card, entry.isFoil);
   const flagged = entry.needsReview || !!entry.alternativeMatches?.length;
@@ -17,21 +20,26 @@ export const MobileCardTile = memo(function MobileCardTile({
   return (
     <button
       type="button"
-      onClick={onOpen}
+      {...handlers}
+      onClick={() => {
+        if (consumeLongPress()) return;
+        onOpen?.();
+      }}
       disabled={!onOpen}
-      className="flex min-w-0 flex-col gap-1 text-left transition-transform active:scale-[0.97] disabled:active:scale-100"
+      className="flex min-w-0 select-none flex-col gap-1 text-left transition-transform [-webkit-touch-callout:none] active:scale-[0.97] disabled:active:scale-100"
     >
       <div
         className={cn(
           "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-md border bg-muted",
           awaitingReview &&
-            "ring-2 ring-amber-500 ring-offset-1 ring-offset-background",
+            "ring-2 ring-warning ring-offset-1 ring-offset-background",
         )}
       >
         <img
           src={entry.card.image?.normal || entry.card.image?.small || ""}
           alt={entry.card.name}
           loading="lazy"
+          draggable={false}
           className="h-full w-full object-cover"
         />
         {entry.isFoil && <FoilOverlay />}
@@ -39,7 +47,7 @@ export const MobileCardTile = memo(function MobileCardTile({
           <span
             className={cn(
               "absolute top-1 left-1 rounded-full p-0.5 shadow-md",
-              entry.corrected ? "bg-green-600" : "bg-amber-600",
+              entry.corrected ? "bg-success-strong" : "bg-warning-strong",
             )}
           >
             {entry.corrected ? (
@@ -50,7 +58,7 @@ export const MobileCardTile = memo(function MobileCardTile({
           </span>
         )}
         {entry.quantity > 1 && (
-          <span className="absolute top-1 right-1 rounded bg-background/90 px-1 text-[10px] font-semibold leading-4 text-foreground shadow">
+          <span className="absolute top-1 right-1 rounded bg-background/90 px-1 text-2xs font-semibold leading-4 text-foreground shadow">
             ×{entry.quantity}
           </span>
         )}
@@ -59,7 +67,7 @@ export const MobileCardTile = memo(function MobileCardTile({
         <p className="truncate text-xs font-medium text-foreground">
           {entry.card.name}
         </p>
-        <p className="truncate text-[11px] text-foreground/70">
+        <p className="truncate text-xs text-foreground/70">
           {price != null
             ? format(price)
             : `${entry.card.set.toUpperCase()} #${entry.card.collectorNumber}`}

@@ -76,7 +76,7 @@ export function BinCard({
       <div className="w-full text-xs">
         {config.isCatchAll ? (
           <>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/70">
               {t("binCard.allUnmatched")}
             </p>
             {lowMatchPercent != null && (

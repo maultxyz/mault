@@ -190,7 +190,7 @@ export default function AuthLocalPage() {
             )}
             {isSignUp ? t("local.signUp") : t("local.signIn")}
           </Button>
-          <p className="text-center text-sm text-muted-foreground">
+          <p className="text-center text-sm text-foreground/70">
             {isSignUp ? t("local.haveAccount") : t("local.noAccount")}{" "}
             <button
               type="button"

@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { CollectionOverrideDialog } from "@/features/integrations/components/collection-override-dialog";
@@ -5,7 +6,11 @@ import { DiscordChannelSelect } from "@/features/integrations/components/discord
 import { isOverrideRemoved } from "@/features/integrations/lib/discord-settings-draft";
 import type { DiscordCollectionOverridesProps } from "@/lib/interfaces/integrations";
 import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import {
+  IconFolders,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useState } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -40,7 +45,7 @@ export function DiscordCollectionOverrides({
       }
     >
       {overrides.length === 0 ? (
-        <p className="text-sm text-foreground/70">{t("overrides.empty")}</p>
+        <EmptyState size="compact" icon={IconFolders} title={t("overrides.empty")} />
       ) : (
         <ul className="flex flex-col divide-y rounded-lg border">
           <li className="hidden gap-2 px-3 py-2 text-sm font-medium text-foreground/70 sm:grid sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto]">

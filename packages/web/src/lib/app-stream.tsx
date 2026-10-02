@@ -1,3 +1,4 @@
+import { recordSessionInits } from "@/lib/session-init-registry";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { createAppStreamSource } from "@/lib/api/stream";
@@ -93,6 +94,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           es.close();
           return;
         }
+        recordSessionInits(es, watchGuids);
 
         es.addEventListener("lock_init", (e) => {
           const { locks: initial } = JSON.parse((e as MessageEvent).data) as {

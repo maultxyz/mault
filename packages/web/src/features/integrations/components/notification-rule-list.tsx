@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -17,7 +18,12 @@ import type { NotificationRuleListProps } from "@/lib/interfaces/integrations";
 import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { toast } from "@/lib/toast";
 import type { NotificationRule, Result } from "@magic-vault/shared";
-import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
+import {
+  IconBell,
+  IconPencil,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -95,7 +101,7 @@ export function NotificationRuleList({
         </div>
       )}
       {!isLoading && rules.length === 0 && (
-        <p className="text-sm text-foreground/70">{t("rules.empty")}</p>
+        <EmptyState size="compact" icon={IconBell} title={t("rules.empty")} />
       )}
 
       {rules.length > 0 && (

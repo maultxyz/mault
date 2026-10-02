@@ -29,7 +29,7 @@ function StatusDot({ isActive }: { isActive: boolean }) {
     <span
       className={cn(
         "size-2 shrink-0 rounded-full",
-        isActive ? "bg-green-500 animate-pulse" : "bg-amber-400",
+        isActive ? "bg-success animate-pulse" : "bg-warning",
       )}
     />
   );

@@ -68,7 +68,7 @@ function BinSnapshotSummary({ snapshot }: { snapshot: BinConfig[] }) {
         const count = countConditions(bin.rules);
         return (
           <div key={bin.binNumber} className="flex gap-2">
-            <span className="w-10 shrink-0 text-muted-foreground">
+            <span className="w-10 shrink-0 text-foreground/70">
               {t("binLabel", { number: bin.binNumber })}
             </span>
             <span>
@@ -284,7 +284,7 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
           >
             {isActivating && (
               <InputGroupAddon align="inline-start">
-                <IconLoader2 className="size-3 animate-spin text-muted-foreground" />
+                <IconLoader2 className="size-3 animate-spin text-foreground/70" />
               </InputGroupAddon>
             )}
           </ComboboxInput>

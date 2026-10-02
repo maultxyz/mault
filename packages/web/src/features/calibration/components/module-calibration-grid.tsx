@@ -1,3 +1,5 @@
+import { SliderField } from "@/components/slider-field";
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -95,7 +97,7 @@ function ServoControl({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-muted-foreground">{t(servo.labelKey)}</p>
+        <p className="text-xs text-foreground/70">{t(servo.labelKey)}</p>
         <Tooltip>
           <TooltipTrigger
             render={
@@ -128,7 +130,10 @@ function ServoControl({
             const key = getCalibrationKey(servo.name, position);
             if (!key) return null;
             return (
-              <p key={position} className="flex-1 text-center text-sm font-bold">
+              <p
+                key={position}
+                className="flex-1 text-center text-sm font-bold"
+              >
                 {showRaw
                   ? calibration[key]
                   : `${pulseToPercent(calibration[key])}%`}
@@ -142,7 +147,9 @@ function ServoControl({
         {servo.positions.map((position) => (
           <Button
             key={position}
-            variant={activePosition === position ? "outline-selected" : "outline"}
+            variant={
+              activePosition === position ? "outline-selected" : "outline"
+            }
             disabled={!canCalibrate}
             onClick={() => onControl(module, servo.name, position)}
             className="flex-1"
@@ -153,17 +160,16 @@ function ServoControl({
       </ButtonGroup>
 
       {showPusherOffsetWarning && (
-        <p className="flex items-start gap-1.5 text-xs/relaxed text-amber-800 dark:text-amber-400">
-          <IconAlertTriangle size={14} className="mt-0.5 shrink-0" />
+        <Callout variant="warning" icon={IconAlertTriangle}>
           {t("moduleCalibrationGrid.pusherOffsetWarning", {
             percent: PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
           })}
-        </p>
+        </Callout>
       )}
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-foreground/70">
             {activePosition
               ? t("moduleCalibrationGrid.editingPosition", {
                   position: positionLabel(activePosition),
@@ -219,11 +225,11 @@ function ServoControl({
             <TooltipTrigger
               render={
                 <div className="flex flex-row flex-1 bg-background border-y justify-between px-2 items-center">
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-foreground/70">
                     {SERVO_PULSE_MIN}
                   </p>
                   <p className="font-bold text-sm">{sliderValue}</p>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-foreground/70">
                     {SERVO_PULSE_MAX}
                   </p>
                 </div>
@@ -278,33 +284,17 @@ function ModuleDelayControl({
 }: ModuleDelayControlProps) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
-          {t(`moduleCalibrationGrid.${field}Label`)}
-        </p>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <span className="text-sm font-bold">
-                {t("msValue", { value })}
-              </span>
-            }
-          />
-          <TooltipContent>
-            {t(`moduleCalibrationGrid.${field}Description`)}
-          </TooltipContent>
-        </Tooltip>
-      </div>
-      <Slider
-        min={0}
-        max={sliderMax(value, MODULE_DELAY_SLIDER_MAX[field])}
-        step={10}
-        disabled={!isConnected}
-        value={value}
-        onValueChange={(v) => onChange(module, field, v)}
-      />
-    </div>
+    <SliderField
+      label={t(`moduleCalibrationGrid.${field}Label`)}
+      description={t(`moduleCalibrationGrid.${field}Description`)}
+      valueLabel={t("msValue", { value })}
+      min={0}
+      max={sliderMax(value, MODULE_DELAY_SLIDER_MAX[field])}
+      step={10}
+      disabled={!isConnected}
+      value={value}
+      onValueChange={(v) => onChange(module, field, v)}
+    />
   );
 }
 
@@ -325,11 +315,11 @@ function PushTestControl({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs font-medium">
           {t("moduleCalibrationGrid.pushTestLabel")}
         </p>
         <Tooltip>
-          <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+          <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
             <IconInfoCircle className="size-3.5" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
@@ -423,17 +413,17 @@ export function ModuleCalibrationGrid({
           : cal;
         const showRaw = rawModeByModule[module] ?? false;
         return (
-          <div key={module} className="p-2 flex flex-col gap-5 bg-sidebar">
+          <div key={module} className="p-2 flex flex-col gap-5 bg-background">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold font-heading">
                 {t("moduleLabel", { module })}
               </h2>
               <div className="flex items-center gap-1.5">
-                <span className="text-[11px] text-muted-foreground">
+                <span className="text-xs font-medium">
                   {t("moduleCalibrationGrid.rawPulseToggleLabel")}
                 </span>
                 <Tooltip>
-                  <TooltipTrigger className="text-muted-foreground hover:text-foreground transition-colors">
+                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
                     <IconInfoCircle className="size-3.5" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">

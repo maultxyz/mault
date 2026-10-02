@@ -206,7 +206,10 @@
     "byColor": "Nach Farbe",
     "bySet": "Nach Set",
     "showLess": "Weniger anzeigen",
-    "showAllSets": "Alle {{count}} Sets anzeigen"
+    "showAllSets": "Alle {{count}} Sets anzeigen",
+    "scanRateTrend": "Scans pro Minute in den letzten 12 Minuten",
+    "scanRateNow": "{{count}} Scans in dieser Minute",
+    "scanRatePoint": "{{count}} Scans, vor {{minutes}} Min."
   },
   "scannerControls": {
     "scanAgain": "Erneut scannen",
@@ -345,11 +348,21 @@
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
-    "tooltipWithCapacity": "Fach {{bin}}: {{count}} / {{capacity}} Karten",
-    "tooltipNoCapacity": "Fach {{bin}}: {{count}} Karten",
     "confirmTitle": "Fach {{bin}} leeren?",
     "confirmDescription": "Dies setzt den Füllstandszähler von Fach {{bin}} auf null zurück. Stelle sicher, dass du das Fach vorher physisch geleert hast, das übernimmt die App nicht für dich.",
-    "confirmButton": "Fach leeren"
+    "confirmButton": "Fach leeren",
+    "binLabel": "Fach {{bin}}",
+    "catchAll": "Auffangfach",
+    "full": "Voll",
+    "nearlyFull": "Fast voll",
+    "emptyAction": "Fach {{bin}} leeren",
+    "summaryFullest_one": "{{count}} Karte · am vollsten Fach {{bin}} mit {{percent}} %",
+    "summaryFullest_other": "{{count}} Karten · am vollsten Fach {{bin}} mit {{percent}} %",
+    "summaryTotal_one": "{{count}} Karte in den Fächern",
+    "summaryTotal_other": "{{count}} Karten in den Fächern",
+    "expand": "Füllstände anzeigen",
+    "collapse": "Füllstände ausblenden",
+    "cellTitle": "Fach {{bin}} ist zu {{percent}} % voll"
   },
   "alphabetPassControl": {
     "range": "Sortiert {{from}} bis {{to}}",
@@ -363,7 +376,6 @@
     "heading": "Zuletzt gescannt"
   },
   "monitorPage": {
-    "loadingSession": "Sitzung wird geladen…",
     "connectFailed": "Verbindung konnte nicht hergestellt werden.",
     "noCardsScannedYet": "Noch keine Karten gescannt.",
     "noCardsMatchSearch": "Keine Karten entsprechen der Suche.",

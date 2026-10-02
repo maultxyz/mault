@@ -21,7 +21,7 @@ function toggle<T>(arr: T[], item: T): T[] {
 const chipBase =
   "cursor-pointer border transition-colors rounded text-xs font-bold";
 const chipInactive =
-  "border-border bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground";
+  "border-border bg-transparent text-foreground/70 hover:bg-muted hover:text-foreground";
 
 interface CardFilterPopoverProps {
   activeFilters: CardFilters;
@@ -62,7 +62,7 @@ export function CardFilterPopover({
       <div className="flex flex-col gap-3">
         {availableColors.length > 0 && (
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
               {t("cardFilterPopover.color")}
             </p>
             <div className="flex flex-col gap-1">
@@ -107,7 +107,7 @@ export function CardFilterPopover({
 
         {availableRarities.length > 0 && (
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
               {t("cardFilterPopover.rarity")}
             </p>
             <div className="flex flex-col gap-1">
@@ -153,7 +153,7 @@ export function CardFilterPopover({
 
         {availableFoilTypes.length > 0 && (
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
               {t("cardFilterPopover.foilType")}
             </p>
             <div className="flex flex-col gap-1">
@@ -187,7 +187,7 @@ export function CardFilterPopover({
 
         {binCount !== undefined && (
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
               {t("cardFilterPopover.bin")}
             </p>
             <div className="flex gap-1 flex-wrap">
@@ -239,7 +239,7 @@ export function CardFilterPopover({
         )}
 
         <div>
-          <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading flex items-center justify-between">
+          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 flex items-center justify-between">
             <span>{t("cardFilterPopover.minMatch")}</span>
             <span className="text-foreground font-semibold">
               {activeFilters.minMatchPercent}%
@@ -260,7 +260,7 @@ export function CardFilterPopover({
         </div>
 
         <div>
-          <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
             {t("cardFilterPopover.status")}
           </p>
           <button
@@ -275,7 +275,7 @@ export function CardFilterPopover({
               chipBase,
               "flex items-center gap-1.5 px-2 h-7",
               activeFilters.needsAttention
-                ? "bg-amber-700 text-white border-amber-800"
+                ? "bg-warning-strong text-white border-warning-strong"
                 : chipInactive,
             )}
           >
@@ -285,7 +285,7 @@ export function CardFilterPopover({
         </div>
 
         <div>
-          <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
             {t("downloaded")}
           </p>
           <button
@@ -311,7 +311,7 @@ export function CardFilterPopover({
 
         {activeFilters.sets.length > 0 && (
           <div>
-            <p className="text-[11px] font-medium text-muted-foreground tracking-wide mb-1.5 font-heading">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
               {t("cardFilterPopover.sets")}
             </p>
             <div className="flex gap-1 flex-wrap">

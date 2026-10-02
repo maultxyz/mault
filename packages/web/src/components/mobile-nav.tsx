@@ -29,10 +29,10 @@ function TabIcon({ icon, dot, count }: MobileNavTabIconProps) {
     <span className="relative flex h-5 w-8 items-center justify-center">
       {icon}
       {dot && (
-        <span className="absolute top-0.5 right-2.5 size-2 rounded-full bg-green-500 ring-2 ring-sidebar" />
+        <span className="absolute top-0.5 right-2.5 size-2 rounded-full bg-success ring-2 ring-sidebar" />
       )}
       {!!count && (
-        <span className="absolute -top-0.5 right-1 min-w-4 rounded-full bg-destructive px-1 text-[10px] leading-4 font-semibold text-white ring-2 ring-sidebar">
+        <span className="absolute -top-0.5 right-1 min-w-4 rounded-full bg-destructive px-1 text-2xs leading-4 font-semibold text-white ring-2 ring-sidebar">
           {count > 9 ? "9+" : count}
         </span>
       )}
@@ -47,7 +47,7 @@ function MobileNavTab({ to, icon, label, active, badge }: MobileNavTabProps) {
       aria-current={active ? "page" : undefined}
       className={cn(
         MOBILE_NAV_TAB_CLASS,
-        active ? MOBILE_NAV_TAB_ACTIVE_CLASS : "text-foreground/60",
+        active ? MOBILE_NAV_TAB_ACTIVE_CLASS : "text-foreground/70",
       )}
     >
       <TabIcon icon={icon} dot={badge} />
@@ -69,7 +69,7 @@ function MobileNavButton({
       type="button"
       className={cn(
         MOBILE_NAV_TAB_CLASS,
-        active ? MOBILE_NAV_TAB_ACTIVE_CLASS : "text-foreground/60",
+        active ? MOBILE_NAV_TAB_ACTIVE_CLASS : "text-foreground/70",
         className,
       )}
       {...props}

@@ -63,7 +63,7 @@ export const GROUPS: Group[] = [
             }
             values={{ path: "firmware/main/main.ino" }}
             components={{
-              code: <code className="font-mono text-[11px]" />,
+              code: <code className="font-mono text-xs" />,
             }}
           />
         ),

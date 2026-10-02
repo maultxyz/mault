@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -48,26 +49,23 @@ export function SyncCardByIdPanel() {
   );
 
   return (
-    <div className="rounded-lg border p-4 flex items-center justify-between gap-3">
-      <div className="flex flex-col gap-0.5 min-w-0">
-        <p className="text-sm font-medium">{t("syncCardById.heading")}</p>
-        <p className="text-xs text-muted-foreground">
-          {t("syncCardById.description")}
-        </p>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
+    <SettingsSection
+      heading={t("syncCardById.heading")}
+      description={t("syncCardById.description")}
+    >
+      <div className="flex flex-wrap items-center gap-2">
         <Select
           value={syncCardGameKey}
           onValueChange={(value) => {
             setSyncCardGameKey(value);
-            const source = sourcesQuery.data?.find(
-              (s) => s.gameKey === value,
-            );
+            const source = sourcesQuery.data?.find((s) => s.gameKey === value);
             setSyncCardLang(source?.languages[0] ?? "en");
           }}
         >
           <SelectTrigger className="w-40">
-            <SelectValue placeholder={t("cardImageVectors.selectGamePlaceholder")}>
+            <SelectValue
+              placeholder={t("cardImageVectors.selectGamePlaceholder")}
+            >
               {selectedCardSource?.label}
             </SelectValue>
           </SelectTrigger>
@@ -85,7 +83,9 @@ export function SyncCardByIdPanel() {
             onValueChange={(value) => setSyncCardLang(value ?? "en")}
           >
             <SelectTrigger className="w-32">
-              <SelectValue placeholder={t("cardImageVectors.languagePlaceholder")}>
+              <SelectValue
+                placeholder={t("cardImageVectors.languagePlaceholder")}
+              >
                 {LANGUAGE_LABELS[syncCardLang] ?? syncCardLang}
               </SelectValue>
             </SelectTrigger>
@@ -116,6 +116,6 @@ export function SyncCardByIdPanel() {
             : t("syncCardById.syncButton")}
         </Button>
       </div>
-    </div>
+    </SettingsSection>
   );
 }

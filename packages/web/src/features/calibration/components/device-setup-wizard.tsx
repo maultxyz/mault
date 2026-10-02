@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import {
@@ -521,29 +522,21 @@ export function DeviceSetupWizard() {
                 : t("setupWizard.test.run")}
             </Button>
             {testState === "passed" && (
-              <div className="flex items-start gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3">
-                <IconCircleCheck size={18} className="shrink-0 text-primary" />
-                <p className="font-medium">{t("setupWizard.test.passed")}</p>
-              </div>
+              <Callout
+                variant="success"
+                icon={IconCircleCheck}
+                title={t("setupWizard.test.passed")}
+              />
             )}
             {testState === "failed" && (
-              <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
-                <IconAlertTriangle
-                  size={18}
-                  className="shrink-0 text-destructive"
-                />
-                <div className="flex flex-col gap-1">
-                  <p className="font-medium text-destructive">
-                    {t("setupWizard.test.failed")}
-                  </p>
-                  {testError && (
-                    <p className="text-xs text-foreground/70">{testError}</p>
-                  )}
-                  <p className="text-xs text-foreground/70">
-                    {t("setupWizard.test.failedHint")}
-                  </p>
-                </div>
-              </div>
+              <Callout
+                variant="error"
+                icon={IconAlertTriangle}
+                title={t("setupWizard.test.failed")}
+              >
+                {testError && <p>{testError}</p>}
+                <p>{t("setupWizard.test.failedHint")}</p>
+              </Callout>
             )}
           </>
         )}
@@ -581,8 +574,7 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
           : t("setupWizard.irSensors.clear")}
       </span>
       {seen ? (
-        <IconCircleCheck
-          size={18}
+        <IconCircleCheck size={18}
           className="shrink-0 text-primary"
           aria-label={t("setupWizard.irSensors.verified")}
         />
@@ -641,7 +633,7 @@ function ServoStep({
               "flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-xs font-medium",
               i === currentIndex && "border-primary bg-primary/10 text-primary",
               i < currentIndex && "text-foreground/70",
-              i > currentIndex && "text-foreground/50",
+              i > currentIndex && "text-foreground/70",
             )}
           >
             {i < currentIndex && <IconCheck size={12} />}
@@ -653,10 +645,10 @@ function ServoStep({
       <StepHeading title={t(`setupWizard.positions.${currentKey}.title`)} />
 
       <div className="rounded-lg bg-muted p-3">
-        <p className="text-xs font-medium text-muted-foreground">
+        <p className="text-xs font-medium text-foreground/70">
           {t("setupWizard.aboutPart", { servo: t(`servos.${servo}.label`) })}
         </p>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+        <p className="mt-0.5 text-xs text-foreground/70">
           {t(`setupWizard.servos.${servo}`)}
         </p>
       </div>

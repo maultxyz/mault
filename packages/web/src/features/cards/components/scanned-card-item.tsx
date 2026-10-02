@@ -1,3 +1,4 @@
+import { NEW_CARD_ANIMATION_WINDOW_MS } from "@/lib/constants/card-grid";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,11 +18,12 @@ import {
   IconHelpCircle,
   IconSparkles,
 } from "@tabler/icons-react";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export const ScannedCardItem = memo(function ScannedCardItem({
   card,
+  scannedAt,
   onOpen,
   binNumber,
   isSelected = false,
@@ -36,14 +38,20 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   showBinLocation = true,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
-  const matchPercent =
-    card.distance != null ? getMatchPercent(card) : 0;
+  const [isNew] = useState(
+    () =>
+      scannedAt != null &&
+      Date.now() - scannedAt < NEW_CARD_ANIMATION_WINDOW_MS,
+  );
+  const matchPercent = card.distance != null ? getMatchPercent(card) : 0;
   const { priceOf, format } = usePriceSource();
   const displayPrice = priceOf(card, isFoil);
   return (
     <div
       className={cn(
         "relative rounded-lg p-1 bg-muted border transition-shadow",
+        isNew &&
+          "animate-in fade-in-0 zoom-in-90 slide-in-from-top-2 duration-500 motion-reduce:animate-none",
         isSelected && "ring-2 ring-primary ring-offset-1",
       )}
     >
@@ -53,7 +61,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
             <div
               className={cn(
                 "absolute top-1 left-1 z-20 rounded-full p-0.5 shadow-md",
-                wasCorrected ? "bg-green-600" : "bg-amber-700",
+                wasCorrected ? "bg-success-strong" : "bg-warning-strong",
               )}
               title={reviewTooltip(t, needsReview, wasCorrected)}
             >
@@ -102,7 +110,9 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                     }
                   />
                   <TooltipContent>
-                    {t("scannedCardItem.quantityTooltip", { count: quantity })}
+                    {t("scannedCardItem.quantityTooltip", {
+                      count: quantity,
+                    })}
                   </TooltipContent>
                 </Tooltip>
               )}
@@ -162,20 +172,17 @@ export const ScannedCardItem = memo(function ScannedCardItem({
           >
             {card.set}
           </p>
-          <p className="shrink-0 text-xs text-muted-foreground">
+          <p className="shrink-0 text-xs text-foreground/70">
             #{card.collectorNumber}
           </p>
           {isDownloaded && (
-            <span
-              className="shrink-0"
-              title={t("downloaded")}
-            >
-              <IconDownload className="size-3 text-muted-foreground shrink-0" />
+            <span className="shrink-0" title={t("downloaded")}>
+              <IconDownload className="size-3 text-foreground/70 shrink-0" />
             </span>
           )}
         </div>
         {displayPrice != null && (
-          <p className="shrink-0 text-xs font-medium text-muted-foreground">
+          <p className="shrink-0 text-xs font-medium text-foreground/70">
             {format(displayPrice)}
           </p>
         )}

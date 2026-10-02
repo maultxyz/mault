@@ -152,7 +152,7 @@ export default function CollectionsPage() {
           <h1 className="text-lg font-semibold font-heading">
             {t("page.title")}
           </h1>
-          <p className="text-xs text-muted-foreground">{t("page.subtitle")}</p>
+          <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
         </div>
         <CreateCollectionDialog
           trigger={({ disabled }) => (
@@ -190,7 +190,7 @@ export default function CollectionsPage() {
 
         {!isLoading && collections.length === 0 && (
           <EmptyState
-            icon={<IconAlbum className="size-10" />}
+            icon={IconAlbum}
             title={t("noCollectionsYet")}
             description={t("page.emptyDescription")}
           />
@@ -200,7 +200,7 @@ export default function CollectionsPage() {
           collections.length > 0 &&
           filteredCollections.length === 0 && (
             <EmptyState
-              icon={<IconAlbum className="size-10" />}
+              icon={IconAlbum}
               title={t("noMatchingCollections")}
               description={t("page.noSearchResultsDescription")}
             />
@@ -220,7 +220,7 @@ export default function CollectionsPage() {
                 <p className="text-sm font-medium truncate">
                   {collection.name}
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-foreground/70">
                   {t("page.cardCount", { count: collection.cardCount })} ·{" "}
                   {collection.game ? collection.game.name : t("page.noGame")} ·{" "}
                   {new Date(collection.createdAt).toLocaleDateString()}
@@ -238,7 +238,7 @@ export default function CollectionsPage() {
                           disabled={isActivating}
                           onClick={() => activateCollection(collection.guid)}
                         >
-                          <IconPlayerPlay className="size-4 text-muted-foreground" />
+                          <IconPlayerPlay className="size-4 text-foreground/70" />
                         </Button>
                       }
                     ></TooltipTrigger>

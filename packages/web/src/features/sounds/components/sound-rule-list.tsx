@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -21,9 +22,11 @@ import type { Result, SoundRule } from "@magic-vault/shared";
 import {
   IconArrowDown,
   IconArrowUp,
+  IconMusic,
   IconPencil,
   IconPlus,
   IconTrash,
+  IconUpload,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -88,7 +91,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
 
       {atRuleLimit && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-md bg-muted p-3">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-foreground/70">
             {t("rules.limitReached", { count: ruleLimit })}
           </p>
           <Button variant="outline" onClick={() => navigate(SETTINGS_PATHS.billing)}>
@@ -97,17 +100,17 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
         </div>
       )}
       {clips.length === 0 && (
-        <p className="text-sm text-foreground/70">{t("rules.needsClip")}</p>
+        <EmptyState size="compact" icon={IconUpload} title={t("rules.needsClip")} />
       )}
       {!isLoading && rules.length === 0 && clips.length > 0 && (
-        <p className="text-sm text-foreground/70">{t("rules.empty")}</p>
+        <EmptyState size="compact" icon={IconMusic} title={t("rules.empty")} />
       )}
 
-      <ol className="flex flex-col divide-y">
+      <ol className="flex flex-col divide-y rounded-lg border empty:hidden">
         {draft.orderedRules.map((rule, index) => {
           const clip = clips.find((c) => c.guid === rule.clipGuid);
           return (
-            <li key={rule.guid} className="flex items-center gap-3 py-2">
+            <li key={rule.guid} className="flex items-center gap-3 px-3 py-2">
               <ButtonGroup orientation="vertical" className="shrink-0">
                 <Button
                   size="icon"

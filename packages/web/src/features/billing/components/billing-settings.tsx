@@ -2,6 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useBilling } from "../api/use-billing";
+import { PlanFeatures } from "./plan-features";
 
 export function BillingSettings() {
   const { t } = useTranslation("billing");
@@ -34,9 +35,11 @@ export function BillingSettings() {
         </Badge>
       </div>
 
+      <PlanFeatures billing={billing} />
+
       {!isBusiness && billing.dailyLimit != null && (
         <div className="flex flex-col gap-1.5">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-foreground/70">
             {t("usage", {
               used: billing.cardsScannedToday,
               limit: billing.dailyLimit,
@@ -52,7 +55,7 @@ export function BillingSettings() {
       )}
 
       {isBusiness && billing.cancelAtPeriodEnd && billing.currentPeriodEnd && (
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-foreground/70">
           {t("cancelAtPeriodEnd", {
             date: new Date(billing.currentPeriodEnd).toLocaleDateString(),
           })}

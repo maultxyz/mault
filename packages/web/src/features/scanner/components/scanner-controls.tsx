@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -13,7 +15,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
@@ -87,10 +88,7 @@ export function ScannerControls({
   const { autoFeed, setAutoFeed, forceFoilType, setForceFoilType } =
     useScannedCards();
   const { totalCount } = useCollectionCardsSummary();
-  const { activeCollection } = useCollections();
-  const foilOptions = activeCollection?.game?.foilTypes?.length
-    ? activeCollection.game.foilTypes
-    : [tCards("foil")];
+  const foilOptions = useFoilOptions();
   const canForceScan =
     status === "no-match" || status === "scanning" || status === "captured";
   const isFirstFeed = totalCount === 0;
@@ -102,6 +100,8 @@ export function ScannerControls({
   const isMobile = useIsMobile();
   const canFeed = isConnected && isReady && !isFeeding;
   const canClearDevice = isConnected && isReady && !isClearingDevice;
+
+  const [setPickerOpen, setSetPickerOpen] = useState(false);
 
   const cycleFoilType = () => {
     const options = [null, ...foilOptions];
@@ -118,6 +118,7 @@ export function ScannerControls({
         ? () => setAutoFeed(!autoFeed)
         : undefined,
       scanCycleFoil: cycleFoilType,
+      scanPickSet: () => setSetPickerOpen(true),
       scanClearDevice: canClearDevice ? onClearDevice : undefined,
     },
     isActive && panelsDocked && !isMobile,
@@ -246,7 +247,7 @@ export function ScannerControls({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <ForcedSetPicker />
+        <ForcedSetPicker open={setPickerOpen} onOpenChange={setSetPickerOpen} />
       </ButtonGroup>
       <ScannerDebug />
     </div>

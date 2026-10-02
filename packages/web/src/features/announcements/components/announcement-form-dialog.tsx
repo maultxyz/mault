@@ -186,7 +186,7 @@ export function AnnouncementFormDialog({
             <FieldError errors={[errors.endsAt]} />
           </Field>
         </div>
-        <p className="text-sm text-muted-foreground -mt-2">
+        <p className="text-sm text-foreground/70 -mt-2">
           {t("formDialog.scheduleHint")}
         </p>
 
@@ -211,7 +211,7 @@ export function AnnouncementFormDialog({
             )}
           />
         </Field>
-        <p className="text-sm text-muted-foreground -mt-2">
+        <p className="text-sm text-foreground/70 -mt-2">
           {t("formDialog.showOnLandingDescription")}
         </p>
       </form>

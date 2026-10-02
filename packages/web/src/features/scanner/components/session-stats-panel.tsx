@@ -13,7 +13,7 @@ function StatCell({
 }) {
   return (
     <div className={`p-3 ${className ?? ""}`}>
-      <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+      <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
         {label}
       </p>
       <p className="text-sm font-semibold">{value}</p>
@@ -56,13 +56,13 @@ export function SessionStatsPanel({
         </div>
         {stats?.mostValuable && (
           <div className="p-2 border-t border-input">
-            <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-0.5">
+            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
               {t("mostValuable")}
             </p>
             <p className="text-xs font-semibold truncate">
               {stats.mostValuable.name}
             </p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-foreground/70">
               {format(stats.mostValuable.price)}
             </p>
           </div>
@@ -71,7 +71,7 @@ export function SessionStatsPanel({
 
       {stats && stats.rarities.length > 0 && (
         <div className="rounded-lg border bg-input/20 dark:bg-input/30 p-2">
-          <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide mb-1.5">
+          <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
             {t("byRarity")}
           </p>
           <div className="flex flex-col gap-1">
@@ -87,7 +87,7 @@ export function SessionStatsPanel({
                   />
                   <span>{r.label}</span>
                 </div>
-                <span className="text-muted-foreground">{r.count}</span>
+                <span className="text-foreground/70">{r.count}</span>
               </div>
             ))}
           </div>

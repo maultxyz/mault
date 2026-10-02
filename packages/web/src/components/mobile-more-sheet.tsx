@@ -50,9 +50,9 @@ function MobileMenuRow({
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {value && <span className="shrink-0 text-foreground/70">{value}</span>}
       {external ? (
-        <IconExternalLink className="size-4 shrink-0 text-foreground/50" />
+        <IconExternalLink className="size-4 shrink-0 text-foreground/70" />
       ) : (
-        <IconChevronRight className="size-4 shrink-0 text-foreground/50" />
+        <IconChevronRight className="size-4 shrink-0 text-foreground/70" />
       )}
     </button>
   );
@@ -124,7 +124,7 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
                           "grid size-7 shrink-0 place-items-center rounded-md text-xs font-bold",
                           isActive
                             ? "bg-primary text-primary-foreground"
-                            : "bg-muted text-muted-foreground",
+                            : "bg-muted text-foreground/70",
                         )}
                       >
                         {org.name[0]?.toUpperCase()}
@@ -212,7 +212,7 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
             {t("userMenu.signOut")}
           </Button>
 
-          <p className="text-center text-xs text-foreground/50">
+          <p className="text-center text-xs text-foreground/70">
             v{__APP_VERSION__}
           </p>
         </div>

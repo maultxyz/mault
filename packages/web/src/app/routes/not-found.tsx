@@ -8,12 +8,12 @@ export default function NotFoundPage() {
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4 text-center">
-      <IconError404 className="size-16 text-muted-foreground" />
+      <IconError404 className="size-16 text-foreground/70" />
       <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-xl font-semibold">
+        <h1 className="font-heading text-lg font-semibold">
           {t("notFound.title")}
         </h1>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-foreground/70">
           {t("notFound.description")}
         </p>
       </div>

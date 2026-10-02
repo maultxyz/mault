@@ -98,7 +98,7 @@ export function BuildBom() {
 
       <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[11px] font-semibold tracking-wide text-foreground/70 uppercase">
+          <span className="font-mono text-xs font-semibold tracking-wide text-foreground/70 uppercase">
             {t("bom.moduleCount.label")}
           </span>
           <div className="flex items-center gap-1.5 rounded-md border p-0.5">
@@ -127,7 +127,7 @@ export function BuildBom() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="font-mono text-[11px] font-semibold tracking-wide text-foreground/70 uppercase">
+          <span className="font-mono text-xs font-semibold tracking-wide text-foreground/70 uppercase">
             {t("hero.boardType.label")}
           </span>
           <div className="flex items-center gap-1 rounded-md border p-0.5">
@@ -152,7 +152,7 @@ export function BuildBom() {
       </div>
 
       <div className="mt-6">
-        <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] text-foreground/70">
+        <div className="mb-1.5 flex items-center justify-between font-mono text-xs text-foreground/70">
           <span>
             {t("bom.progress.partsCount", {
               done: doneCount,

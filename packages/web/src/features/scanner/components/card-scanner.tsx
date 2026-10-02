@@ -468,7 +468,7 @@ export function CardScanner({
               <img
                 src={debugImageUrl}
                 alt={t("cardScanner.lastSearchImageAlt")}
-                className="w-48 aspect-square object-fill"
+                className="w-48 aspect-[2.5/3.5] object-fill"
               />
             </TooltipContent>
           </Tooltip>

@@ -1,3 +1,4 @@
+import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -24,13 +25,19 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useSessionViewersByGuid } from "@/features/collections/api/use-live-counts";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
+import {
+  CARD_GRID_CLASS,
+  CARD_GRID_DENSITIES,
+  CARD_GRID_DENSITY_CLASS,
+} from "@/lib/constants/card-grid";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
   CARD_GROUP_DUPLICATES_STORAGE_KEY,
+  CARD_GRID_DENSITY_STORAGE_KEY,
   CARD_VIEW_MODE_STORAGE_KEY,
 } from "@/lib/constants/storage-keys";
 import type {
+  CardGridDensity,
   CardViewMode,
   SelectToggleOptions,
 } from "@/lib/interfaces/cards";
@@ -105,6 +112,24 @@ export function CardGrid() {
     }
   });
 
+  const [density, setDensity] = useState<CardGridDensity>(() => {
+    try {
+      const stored = localStorage.getItem(CARD_GRID_DENSITY_STORAGE_KEY);
+      return CARD_GRID_DENSITIES.includes(stored as CardGridDensity)
+        ? (stored as CardGridDensity)
+        : "comfortable";
+    } catch {
+      return "comfortable";
+    }
+  });
+
+  const handleDensityChange = useCallback((next: CardGridDensity) => {
+    setDensity(next);
+    try {
+      localStorage.setItem(CARD_GRID_DENSITY_STORAGE_KEY, next);
+    } catch {}
+  }, []);
+
   const handleViewModeChange = useCallback((mode: CardViewMode) => {
     setViewMode(mode);
     try {
@@ -160,11 +185,7 @@ export function CardGrid() {
   }, [page, clampedPage]);
 
   const { data: openPosition } = useQuery(
-    collectionCardPositionQueryOptions(
-      collectionGuid,
-      openScanId,
-      cardsQuery,
-    ),
+    collectionCardPositionQueryOptions(collectionGuid, openScanId, cardsQuery),
   );
   const openEntry =
     openPosition && openPosition.entry.scanId === openScanId
@@ -302,7 +323,7 @@ export function CardGrid() {
   if (!collectionsLoading && !activeCollection) {
     return (
       <EmptyState
-        icon={<IconAlbum className="size-10" />}
+        icon={IconAlbum}
         title={t("cardGrid.noCollectionSelected")}
         description={t("cardGrid.createOrSelectCollection")}
         action={
@@ -388,6 +409,8 @@ export function CardGrid() {
           cardCount={totalCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
+          density={density}
+          onDensityChange={handleDensityChange}
           groupDuplicates={groupDuplicates}
           onGroupDuplicatesChange={handleGroupDuplicatesChange}
         />
@@ -426,25 +449,36 @@ export function CardGrid() {
             />
           </div>
         ) : (
-          <div className={CARD_GRID_CLASS}>
+          <div className={CARD_GRID_DENSITY_CLASS[density]}>
             {pagedCards.map((entry) => (
-              <ScannedCardItem
+              <CardContextMenu
                 key={entry.scanId}
-                card={entry.card}
-                onOpen={() => setOpenScanId(entry.scanId)}
-                binNumber={entry.binNumber}
+                entry={entry}
                 isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                onToggleSelect={(options) =>
-                  handleSelect(entry.scanId, options)
+                onOpen={() => setOpenScanId(entry.scanId)}
+                onToggleSelect={() =>
+                  handleSelect(entry.scanId, { shiftKey: false })
                 }
-                hasAlternatives={!!entry.alternativeMatches?.length}
-                needsReview={entry.needsReview}
-                wasCorrected={entry.corrected}
-                isFoil={entry.isFoil}
-                foilType={entry.foilType}
-                isDownloaded={entry.isDownloaded}
-                quantity={entry.quantity}
-              />
+              >
+                <ScannedCardItem
+                  key={entry.scanId}
+                  card={entry.card}
+                  scannedAt={entry.scannedAt}
+                  onOpen={() => setOpenScanId(entry.scanId)}
+                  binNumber={entry.binNumber}
+                  isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+                  onToggleSelect={(options) =>
+                    handleSelect(entry.scanId, options)
+                  }
+                  hasAlternatives={!!entry.alternativeMatches?.length}
+                  needsReview={entry.needsReview}
+                  wasCorrected={entry.corrected}
+                  isFoil={entry.isFoil}
+                  foilType={entry.foilType}
+                  isDownloaded={entry.isDownloaded}
+                  quantity={entry.quantity}
+                />
+              </CardContextMenu>
             ))}
           </div>
         )}
@@ -458,7 +492,7 @@ export function CardGrid() {
             >
               <IconChevronLeft />
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-foreground/70">
               {t("cardGrid.pageOf", {
                 page: clampedPage + 1,
                 total: pageCount,

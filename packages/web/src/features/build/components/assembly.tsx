@@ -67,7 +67,7 @@ export function BuildAssembly() {
 
       {boardType === "esp32" && (
         <div className="mt-4 flex items-center gap-3">
-          <span className="font-mono text-[11px] font-semibold tracking-wide text-foreground/70 uppercase">
+          <span className="font-mono text-xs font-semibold tracking-wide text-foreground/70 uppercase">
             {t("assembly.esp32MountType.label")}
           </span>
           <div className="flex items-center gap-1 rounded-md border p-0.5">
@@ -102,7 +102,7 @@ export function BuildAssembly() {
       )}
 
       <div className="mt-6">
-        <div className="mb-1.5 flex items-center justify-between font-mono text-[11px] text-foreground/70">
+        <div className="mb-1.5 flex items-center justify-between font-mono text-xs text-foreground/70">
           <span>
             {t("assembly.progress.stepsCount", {
               done: doneCount,
@@ -162,7 +162,7 @@ export function BuildAssembly() {
                     <phase.icon size={16} />
                   </span>
                   <div className="flex flex-col items-baseline">
-                    <span className="font-mono text-[10px] font-semibold tracking-wide text-foreground/70 uppercase">
+                    <span className="font-mono text-xs font-semibold tracking-wide text-foreground/70 uppercase">
                       {t("assembly.phaseLabel", { n: i + 1 })}
                     </span>
                     <h3 className="font-heading text-sm font-semibold">
@@ -171,8 +171,7 @@ export function BuildAssembly() {
                   </div>
                   <AnchorLinkButton id={phaseAnchorId(phase.key)} />
                   {hasVideos && (
-                    <IconVideo
-                      size={16}
+                    <IconVideo size={16}
                       className="ml-auto shrink-0 text-foreground/70"
                       aria-label={t("assembly.hasVideoAria")}
                     />
@@ -202,13 +201,13 @@ export function BuildAssembly() {
                         >
                           {step.text}
                           {step.optional && (
-                            <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-[9px] font-medium text-muted-foreground uppercase no-underline">
+                            <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-sm font-medium text-foreground/70 uppercase no-underline">
                               {optionalBadgeLabel(t, step.optional)}
                             </span>
                           )}
                         </p>
                         {step.note && (
-                          <p className="mt-1 text-[11px]/relaxed text-foreground/70">
+                          <p className="mt-1 text-xs/relaxed text-foreground/70">
                             {step.note}
                           </p>
                         )}

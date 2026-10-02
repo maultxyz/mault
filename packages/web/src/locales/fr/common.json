@@ -75,7 +75,7 @@
     "healthIssuesTooltip": "Problème avec : {{names}}. Cliquez pour les détails.",
     "health": "État",
     "healthOk": "Tous les systèmes sont normaux",
-    "healthOkTooltip": "La base de données et toutes les API de cartes sont accessibles. Cliquez pour les détails.",
+    "healthOkTooltip": "La base de données est accessible. Clique pour plus de détails.",
     "healthChecking": "Vérification de l’état des services…"
   },
   "appVersion": {
@@ -180,7 +180,8 @@
       "scanFeed": "Charger la carte suivante",
       "scanToggleAutoFeed": "Activer ou désactiver l'alimentation auto",
       "scanCycleFoil": "Changer le type de foil",
-      "scanClearDevice": "Vider l'appareil"
+      "scanClearDevice": "Vider l'appareil",
+      "scanPickSet": "Choisir une préférence de set"
     }
   },
   "mobileMenu": {

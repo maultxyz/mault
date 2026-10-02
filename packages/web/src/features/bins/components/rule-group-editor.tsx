@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { ConditionRow } from "@/features/bins/components/condition-row";
@@ -120,9 +121,9 @@ export function RuleGroupEditor({
           ),
         )}
         {group.conditions.length === 0 && (
-          <p className="text-muted-foreground py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+          <Callout>
             {t("ruleGroupEditor.emptyState")}
-          </p>
+          </Callout>
         )}
       </div>
 

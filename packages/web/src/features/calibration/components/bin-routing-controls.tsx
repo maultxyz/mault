@@ -1,5 +1,5 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { computeBinCount } from "@magic-vault/shared";
 import { IconPackage, IconPlayerPlay } from "@tabler/icons-react";
@@ -22,13 +22,18 @@ export function BinRoutingControls({
 }: BinRoutingControlsProps) {
   const { t } = useTranslation("calibration");
   const moduleCount = useModuleCount();
-  const bins = Array.from({ length: computeBinCount(moduleCount) }, (_, i) => i + 1);
+  const bins = Array.from(
+    { length: computeBinCount(moduleCount) },
+    (_, i) => i + 1,
+  );
   const busy = activeBin !== null || isSampleRunning;
 
   return (
-    <div className="flex flex-col gap-2" data-tour="bin-routing-controls">
-      <Label>{t("binRoutingControls.label")}</Label>
-      <div className="flex items-center gap-2">
+    <SettingsSection
+      dataTour="bin-routing-controls"
+      heading={t("binRoutingControls.label")}
+    >
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           variant={isSampleRunning ? "outline-selected" : "outline"}
           disabled={!isReady || busy}
@@ -46,7 +51,9 @@ export function BinRoutingControls({
           <Button
             key={bin}
             variant={
-              activeBin === bin && !isSampleRunning ? "outline-selected" : "outline"
+              activeBin === bin && !isSampleRunning
+                ? "outline-selected"
+                : "outline"
             }
             disabled={!isReady || busy}
             onClick={() => onTestBin(bin)}
@@ -58,6 +65,6 @@ export function BinRoutingControls({
           </Button>
         ))}
       </div>
-    </div>
+    </SettingsSection>
   );
 }

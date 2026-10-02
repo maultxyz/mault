@@ -1,3 +1,4 @@
+import type { CalloutVariant } from "@/lib/interfaces/callout";
 import type { AnnouncementSeverity, SyncState } from "@magic-vault/shared";
 
 export type ThemeColor = {
@@ -35,17 +36,34 @@ export const SYNC_STATUS_COLORS: Record<SyncState["status"], string> = {
 };
 
 export const ALERT_SEVERITY_BANNER_CLASS: Record<AnnouncementSeverity, string> = {
-  info: "border-blue-500/30 bg-blue-400/20 text-blue-900 dark:bg-blue-400/10 dark:text-blue-200",
-  warning:
-    "border-amber-500/30 bg-amber-400/20 text-amber-900 dark:bg-amber-400/10 dark:text-amber-200",
-  danger:
-    "border-red-500/30 bg-red-500/20 text-red-900 dark:bg-red-500/10 dark:text-red-300",
+  info: "border-info-border bg-info-muted text-info-foreground",
+  warning: "border-warning-border bg-warning-muted text-warning-foreground",
+  danger: "border-destructive-border bg-destructive-muted text-destructive",
 };
 
 export const ALERT_SEVERITY_ICON_CLASS: Record<AnnouncementSeverity, string> = {
-  info: "text-blue-800 dark:text-blue-400",
-  warning: "text-amber-800 dark:text-amber-400",
-  danger: "text-red-600 dark:text-red-400",
+  info: "text-info-foreground",
+  warning: "text-warning-foreground",
+  danger: "text-destructive",
+};
+
+export const ALERT_BANNER_ACTION_CLASS =
+  "shrink-0 border-warning-border bg-transparent text-warning-foreground hover:bg-warning-border/40";
+
+export const CALLOUT_VARIANT_CLASS: Record<CalloutVariant, string> = {
+  neutral: "border-border bg-muted text-foreground/70",
+  info: "border-info-border bg-info-muted text-info-foreground",
+  success: "border-success-border bg-success-muted text-success-foreground",
+  warning: "border-warning-border bg-warning-muted text-warning-foreground",
+  error: "border-destructive-border bg-destructive-muted text-destructive",
+};
+
+export const CALLOUT_ICON_CLASS: Record<CalloutVariant, string> = {
+  neutral: "text-foreground/70",
+  info: "text-info-foreground",
+  success: "text-success-foreground",
+  warning: "text-warning-foreground",
+  error: "text-destructive",
 };
 
 export const CARD_COLOR_ACTIVE_CLASS: Record<string, string> = {

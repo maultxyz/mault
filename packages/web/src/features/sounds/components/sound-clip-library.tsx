@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -14,7 +15,10 @@ import {
   SOUND_CLIP_MAX_BYTES,
   SOUND_CLIP_NAME_MAX_LENGTH,
 } from "@magic-vault/shared";
-import { IconUpload } from "@tabler/icons-react";
+import {
+  IconMusic,
+  IconUpload,
+} from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -94,9 +98,9 @@ export function SoundClipLibrary() {
     >
 
       {!isLoading && clips.length === 0 ? (
-        <p className="text-sm text-foreground/70">{t("library.empty")}</p>
+        <EmptyState size="compact" icon={IconMusic} title={t("library.empty")} />
       ) : (
-        <ul className="flex flex-col divide-y">
+        <ul className="flex flex-col divide-y rounded-lg border empty:hidden">
           {clips.map((clip) => (
             <SoundClipRow key={clip.guid} clip={clip} />
           ))}

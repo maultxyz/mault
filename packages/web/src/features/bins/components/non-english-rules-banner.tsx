@@ -13,7 +13,7 @@ export function NonEnglishRulesBanner() {
     LANGUAGE_LABELS[activeCollection.lang] ?? activeCollection.lang;
 
   return (
-    <div className="flex items-start gap-2 border-b border-blue-500/30 bg-blue-400/10 px-4 py-2 text-xs text-blue-900 dark:bg-blue-400/10 dark:text-blue-200">
+    <div className="flex items-start gap-2 border-b border-info-border bg-info-muted px-4 py-2 text-xs text-info-foreground">
       <IconInfoCircle className="size-3.5 shrink-0 mt-0.5" />
       <span>{t("nonEnglishRulesBanner.message", { language })}</span>
     </div>

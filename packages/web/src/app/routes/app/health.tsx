@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -60,7 +61,7 @@ export default function HealthPage() {
                 <h1 className="text-lg font-semibold font-heading">
                   {t("title")}
                 </h1>
-                <p className="text-xs text-muted-foreground">{t("subtitle")}</p>
+                <p className="text-xs text-foreground/70">{t("subtitle")}</p>
               </div>
               <div className="flex flex-col items-end gap-1">
                 {refreshButton}
@@ -70,34 +71,20 @@ export default function HealthPage() {
           )}
 
           {data && (
-            <div
-              className={`rounded-lg border p-4 flex items-center gap-3 ${
-                data.healthy
-                  ? "border-green-500/30 bg-green-400/10"
-                  : "border-red-500/30 bg-red-400/10"
-              }`}
+            <Callout
+              variant={data.healthy ? "success" : "error"}
+              icon={data.healthy ? IconCircleCheck : IconAlertTriangle}
+              title={data.healthy ? t("allHealthy") : t("someUnhealthy")}
             >
-              {data.healthy ? (
-                <IconCircleCheck className="size-5 text-green-600 dark:text-green-400 shrink-0" />
-              ) : (
-                <IconAlertTriangle className="size-5 text-red-600 dark:text-red-400 shrink-0" />
-              )}
-              <div>
-                <p className="text-sm font-medium">
-                  {data.healthy ? t("allHealthy") : t("someUnhealthy")}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {t("lastChecked", {
-                    time: new Date(data.checkedAt).toLocaleTimeString(),
-                  })}
-                </p>
-              </div>
-            </div>
+              {t("lastChecked", {
+                time: new Date(data.checkedAt).toLocaleTimeString(),
+              })}
+            </Callout>
           )}
 
           <div className="rounded-lg border divide-y">
             {isLoading && (
-              <div className="p-4 text-sm text-muted-foreground">
+              <div className="p-4 text-sm text-foreground/70">
                 {t("loading")}
               </div>
             )}
@@ -109,18 +96,18 @@ export default function HealthPage() {
                 <div className="flex items-center gap-2 min-w-0">
                   <span
                     className={`size-2 rounded-full shrink-0 ${
-                      check.status === "ok" ? "bg-green-500" : "bg-red-500"
+                      check.status === "ok" ? "bg-success" : "bg-destructive"
                     }`}
                   />
                   <span className="text-sm truncate">{check.name}</span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {check.status === "error" && check.message && (
-                    <span className="text-sm text-red-600 dark:text-red-400">
+                    <span className="text-sm text-destructive">
                       {check.message}
                     </span>
                   )}
-                  <span className="text-xs text-muted-foreground tabular-nums">
+                  <span className="text-xs text-foreground/70 tabular-nums">
                     {t("latency", { ms: check.latencyMs })}
                   </span>
                   <Badge
@@ -137,7 +124,7 @@ export default function HealthPage() {
             <h2 className="text-sm font-semibold font-heading">
               {tGames("gameCoverage.heading")}
             </h2>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <p className="text-sm text-foreground/70 mt-0.5">
               {tGames("gameCoverage.description")}
             </p>
           </div>

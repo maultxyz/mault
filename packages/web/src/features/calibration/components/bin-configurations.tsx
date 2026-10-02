@@ -1,5 +1,5 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -74,7 +74,7 @@ function BinSlot({
   const { t } = useTranslation("calibration");
   return (
     <div className="flex flex-col gap-1.5 p-2 bg-sidebar">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
         {label}
       </span>
       <Select
@@ -148,9 +148,10 @@ export function BinConfigurations() {
   }
 
   return (
-    <div className="flex flex-col gap-2" data-tour="bin-configurations">
-      <div className="flex items-center justify-between">
-        <Label>{t("binConfigurations.label")}</Label>
+    <SettingsSection
+      dataTour="bin-configurations"
+      heading={t("binConfigurations.label")}
+      action={
         <Button
           variant="outline"
           size="sm"
@@ -159,8 +160,8 @@ export function BinConfigurations() {
         >
           {t("binConfigurations.resetToDefaults")}
         </Button>
-      </div>
-
+      }
+    >
       <div className="overflow-hidden rounded-lg border divide-y bg-border">
         {modules.map((module) => (
           <div key={module} className="grid grid-cols-2 gap-px bg-border">
@@ -188,7 +189,7 @@ export function BinConfigurations() {
 
       {bottomRoutes.length > 0 && (
         <div className="flex flex-col gap-2 rounded-lg border p-2 bg-sidebar">
-          <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
             {t("binConfigurations.bottomSectionLabel")}
           </span>
           {bottomRoutes.map((route) => (
@@ -249,6 +250,6 @@ export function BinConfigurations() {
           ))}
         </div>
       )}
-    </div>
+    </SettingsSection>
   );
 }

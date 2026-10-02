@@ -1,3 +1,8 @@
+import type { GroupedScannedCard } from "@magic-vault/shared";
+import { useState } from "react";
+import { MobileCardActionsDrawer } from "@/features/scanner/components/mobile-card-actions-drawer";
+import { EmptyState } from "@/components/empty-state";
+import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -6,6 +11,7 @@ import { CardSortButton } from "@/features/cards/components/card-sort-button";
 import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
 import {
+  IconCards,
   IconChevronLeft,
   IconChevronRight,
   IconHelpCircle,
@@ -53,6 +59,10 @@ export function MobileMonitorCards({
     setPage(next);
     target.closest("[data-scroll-root]")?.scrollTo({ top: 0 });
   };
+
+  const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(
+    null,
+  );
 
   return (
     <>
@@ -116,10 +126,9 @@ export function MobileMonitorCards({
       </div>
 
       {status === "error" && (
-        <div className="mx-3 mt-3 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
-          <IconWifiOff className="size-4 shrink-0" />
+        <Callout variant="error" icon={IconWifiOff} className="mx-3 mt-3">
           {t("monitorPage.connectFailed")}
-        </div>
+        </Callout>
       )}
 
       {isLoading && entries.length === 0 ? (
@@ -132,13 +141,15 @@ export function MobileMonitorCards({
           ))}
         </div>
       ) : cardCount === 0 ? (
-        <p className="px-6 py-16 text-center text-sm text-foreground/70">
-          {t("monitorPage.noCardsScannedYet")}
-        </p>
+        <EmptyState
+          icon={IconCards}
+          title={t("monitorPage.noCardsScannedYet")}
+        />
       ) : matchingCount === 0 ? (
-        <p className="px-6 py-16 text-center text-sm text-foreground/70">
-          {t("monitorPage.noCardsMatchSearch")}
-        </p>
+        <EmptyState
+          icon={IconSearch}
+          title={t("monitorPage.noCardsMatchSearch")}
+        />
       ) : (
         <div className="grid grid-cols-3 gap-x-2 gap-y-3 p-3">
           {entries.map((entry) => (
@@ -147,6 +158,9 @@ export function MobileMonitorCards({
               entry={entry}
               onOpen={
                 canEditCards ? () => setOpenScanId(entry.scanId) : undefined
+              }
+              onLongPress={
+                canEditCards ? () => setActionsEntry(entry) : undefined
               }
             />
           ))}
@@ -179,6 +193,13 @@ export function MobileMonitorCards({
             <IconChevronRight />
           </Button>
         </div>
+      )}
+      {canEditCards && (
+        <MobileCardActionsDrawer
+          entry={actionsEntry}
+          onOpenDetails={setOpenScanId}
+          onClose={() => setActionsEntry(null)}
+        />
       )}
     </>
   );

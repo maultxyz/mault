@@ -75,7 +75,7 @@
     "healthIssuesTooltip": "Having trouble: {{names}}. Click for details.",
     "health": "Health",
     "healthOk": "All systems normal",
-    "healthOkTooltip": "Database and all card APIs are reachable. Click for details.",
+    "healthOkTooltip": "The database is reachable. Click for details.",
     "healthChecking": "Checking service status…"
   },
   "appVersion": {
@@ -180,7 +180,8 @@
       "scanFeed": "Feed next card",
       "scanToggleAutoFeed": "Toggle auto-feed",
       "scanCycleFoil": "Cycle foil type",
-      "scanClearDevice": "Clear device"
+      "scanClearDevice": "Clear device",
+      "scanPickSet": "Choose a set preference"
     }
   },
   "mobileMenu": {

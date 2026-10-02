@@ -30,7 +30,7 @@ export function UserMenu({ side = "right" }: { side?: "right" }) {
       <DropdownMenuTrigger
         render={
           <Button variant="ghost" size="icon-lg">
-            <span className="text-[10px] font-semibold">
+            <span className="text-2xs font-semibold">
               {getInitials(name)}
             </span>
             <span className="sr-only">{t("userMenu.trigger")}</span>
@@ -49,7 +49,7 @@ export function UserMenu({ side = "right" }: { side?: "right" }) {
               {name || email}
             </span>
             {name && email && (
-              <span className="truncate text-xs text-muted-foreground">
+              <span className="truncate text-xs text-foreground/70">
                 {email}
               </span>
             )}

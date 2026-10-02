@@ -75,7 +75,7 @@
     "healthIssuesTooltip": "Probleme bei: {{names}}. Für Details klicken.",
     "health": "Status",
     "healthOk": "Alle Systeme normal",
-    "healthOkTooltip": "Datenbank und alle Karten-APIs sind erreichbar. Für Details klicken.",
+    "healthOkTooltip": "Die Datenbank ist erreichbar. Für Details klicken.",
     "healthChecking": "Dienststatus wird geprüft…"
   },
   "appVersion": {
@@ -180,7 +180,8 @@
       "scanFeed": "Nächste Karte zuführen",
       "scanToggleAutoFeed": "Automatische Zuführung umschalten",
       "scanCycleFoil": "Foil-Typ wechseln",
-      "scanClearDevice": "Gerät leeren"
+      "scanClearDevice": "Gerät leeren",
+      "scanPickSet": "Set-Vorgabe wählen"
     }
   },
   "mobileMenu": {

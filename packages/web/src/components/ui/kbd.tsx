@@ -6,7 +6,7 @@ export function Kbd({ children, className }: KbdProps) {
     <kbd
       data-slot="kbd"
       className={cn(
-        "inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-muted px-1 font-mono text-[10px] font-medium text-foreground/80",
+        "inline-flex h-5 min-w-5 items-center justify-center rounded border border-border bg-muted px-1 font-mono text-2xs font-medium text-foreground/80",
         className,
       )}
     >

@@ -24,7 +24,7 @@ export function InitialsAvatar({
   size = "md",
   tooltip,
 }: InitialsAvatarProps) {
-  const sizeClass = size === "sm" ? "size-5 text-[9px]" : "size-6 text-[10px]";
+  const sizeClass = size === "sm" ? "size-5 text-2xs" : "size-6 text-2xs";
   const colorClass =
     variant === "scanner"
       ? "bg-amber-500/15 text-amber-800 dark:text-amber-400 ring-1 ring-amber-500/30"

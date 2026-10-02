@@ -8,6 +8,7 @@
     "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
     "business": "Plan Entreprise. Clique pour gérer la facturation."
   },
+  "includes": "Ton plan comprend",
   "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
   "upgrade": "Passer à Entreprise",
   "manage": "Gérer la facturation",

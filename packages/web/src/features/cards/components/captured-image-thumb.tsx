@@ -23,7 +23,7 @@ export function CapturedImageThumb({
       {ocrRegions.map((region, i) => (
         <div
           key={`ocr-${i}`}
-          className="pointer-events-none absolute border-2 border-amber-400/90 bg-amber-400/15"
+          className="pointer-events-none absolute border-2 border-warning bg-warning/15"
           style={{
             left: `${region.x * 100}%`,
             top: `${region.y * 100}%`,

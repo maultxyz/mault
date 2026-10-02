@@ -8,28 +8,96 @@
     "games": "Jeux",
     "users": "Utilisateurs",
     "announcements": "Annonces",
-    "servos": "Servos",
+    "servos": "Test des kits",
+    "device": "Appareil",
     "developer": "Développeur"
   },
-  "servoTester": {
-    "heading": "Test de canal servo",
-    "description": "Pilote directement un canal PCA9685 brut pour vérifier qu'un servo fonctionne, ou pour trouver sur quel canal se trouve un fil donné - contourne entièrement l'association module/bac.",
-    "connectButton": "Connecter l'appareil",
-    "connectUsb": "Connecter via USB",
-    "connectBluetooth": "Connecter via Bluetooth",
-    "channelLabel": "Canal",
-    "sweepDescription": "Clique sur un canal pour faire balayer ce servo d'une extrémité de sa course à l'autre puis retour - un test complet de la plage de mouvement.",
-    "stopButton": "Arrêter",
-    "runTest": "Lancer le test",
-    "testing": "Test en cours…",
-    "testRequired": "Lancez un test de l'appareil réussi avant de piloter un canal.",
-    "disconnectButton": "Déconnecter",
-    "toasts": {
-      "sendFailed": "Échec de l'envoi de la commande à l'appareil",
-      "testPassed": "Test de l'appareil réussi",
-      "testFailed": "Échec du test de l'appareil"
+  "kitTest": {
+    "board": {
+      "heading": "Carte",
+      "description": "Connecte une carte de kit, flashe le firmware si elle est neuve et lance l'autotest. La connexion ici saute l'autotest automatique, donc une carte nue sans rien de branché fonctionne quand même.",
+      "connect": "Connecter",
+      "connectUsb": "USB",
+      "connectBluetooth": "Bluetooth",
+      "disconnect": "Déconnecter",
+      "flash": "Flasher le firmware",
+      "notConnected": "Aucune carte connectée.",
+      "firmware": "Firmware {{version}}",
+      "firmwareUnknown": "Firmware inconnu",
+      "runSelfTest": "Lancer l'autotest",
+      "testing": "Test en cours…",
+      "selfTestPassed": "Autotest réussi",
+      "selfTestFailed": "Autotest échoué"
     },
-    "flashButton": "Flasher le firmware"
+    "servos": {
+      "heading": "Banc servo",
+      "description": "Branche un servo sur un canal, fais-lui parcourir sa course, puis marque-le comme réussi ou échoué. Centrer le met au milieu de sa course, prêt pour monter le palonnier.",
+      "reset": "Remettre à zéro",
+      "channel": "Canal",
+      "sweep": "Balayer",
+      "center": "Centrer",
+      "min": "Min",
+      "max": "Max",
+      "release": "Relâcher",
+      "pulse": "Impulsion",
+      "centerHint": "Le centre correspond à l'impulsion {{pulse}}. Relâcher coupe l'alimentation pour pouvoir tourner le servo à la main.",
+      "verdictPrompt": "Servo sur le canal {{channel}} :",
+      "pass": "Réussi",
+      "fail": "Échoué",
+      "passedCount_one": "{{count}} réussi",
+      "passedCount_other": "{{count}} réussis",
+      "failedCount_one": "{{count}} échoué",
+      "failedCount_other": "{{count}} échoués",
+      "historyItem": "#{{number}} canal {{channel}}"
+    },
+    "continuous": {
+      "heading": "Servo à rotation continue",
+      "description": "Fait tourner un servo à rotation continue, comme le moteur du chargeur, dans un sens ou dans l'autre. Il tourne jusqu'à ce que tu l'arrêtes.",
+      "forward": "Tourner en avant",
+      "reverse": "Tourner en arrière",
+      "stop": "Arrêter"
+    },
+    "sensors": {
+      "heading": "Capteurs",
+      "description": "Lit les capteurs IR en continu. Passe une carte devant chacun : un capteur est vérifié dès qu'il a vu une carte et aucune carte.",
+      "start": "Démarrer la lecture",
+      "stop": "Arrêter la lecture",
+      "reset": "Réinitialiser",
+      "empty": "Démarre la lecture pour voir les capteurs.",
+      "module": "Module {{module}}",
+      "hopper": "Bac",
+      "card": "Carte",
+      "clear": "Libre",
+      "verified": "Vérifié"
+    },
+    "report": {
+      "heading": "Rapport du kit",
+      "description": "Un résumé de cette session à garder avec le kit.",
+      "copy": "Copier le rapport",
+      "copied": "Rapport copié.",
+      "copyFailed": "Impossible de copier le rapport.",
+      "title": "Rapport de test du kit",
+      "date": "Date : {{date}}",
+      "board": "Carte : {{board}}, firmware {{version}}, id {{id}}",
+      "selfTest": {
+        "notRun": "Autotest : non lancé",
+        "passed": "Autotest : réussi",
+        "failed": "Autotest : échoué {{error}}"
+      },
+      "servos": "Servos : {{passed}} réussis, {{failed}} échoués",
+      "failedChannels": "Échecs sur les canaux : {{channels}}",
+      "sensorVerified": "{{name}} : vérifié",
+      "sensorUnverified": "{{name}} : non vérifié"
+    },
+    "status": {
+      "ok": "OK",
+      "busy": "La carte est occupée par une autre commande.",
+      "disconnected": "Aucune carte n'est connectée.",
+      "noResponse": "Pas de réponse de la carte."
+    },
+    "toasts": {
+      "commandFailed": "La carte n'a pas accepté la commande"
+    }
   },
   "cardImageVectors": {
     "heading": "Vecteurs d'image des cartes",
@@ -138,5 +206,75 @@
   },
   "cancel": "Annuler",
   "starting": "Démarrage...",
-  "loading": "Chargement..."
+  "loading": "Chargement...",
+  "devicePlayground": {
+    "heading": "Bac à sable de l'appareil",
+    "description": "Envoie n'importe quelle commande firmware au trieur connecté et vois sa réponse brute. Outil de développement, le protocole complet est dans firmware/PROTOCOL.md.",
+    "connect": "Connecter",
+    "connectUsb": "USB",
+    "connectBluetooth": "Bluetooth",
+    "disconnect": "Déconnecter",
+    "statusConnected": "Connecté",
+    "statusDisconnected": "Non connecté",
+    "firmware": "Firmware {{version}}",
+    "firmwareUnknown": "Firmware inconnu",
+    "selfTestPassed": "Autotest réussi",
+    "selfTestPending": "Autotest non réussi",
+    "warning": "Les commandes vont directement au trieur et contournent le verrou habituel de l'autotest. Le calibrage envoyé d'ici n'est pas enregistré ; reconnecte-toi pour restaurer le calibrage enregistré.",
+    "needsFirmware": "Nécessite le firmware {{version}}+",
+    "unchangedPlaceholder": "inchangé",
+    "send": "Envoyer",
+    "sending": "Envoi…",
+    "outcome": {
+      "ok": "Réponse en {{ms}} ms",
+      "busy": "Le trieur est occupé par une autre commande. Réessaie quand il a terminé.",
+      "disconnected": "Aucun trieur n'est connecté.",
+      "noResponse": "Aucune réponse après {{ms}} ms."
+    },
+    "stop": {
+      "description": "Arrêts rapides",
+      "neutral": "Tout au neutre",
+      "feeder": "Arrêter le chargeur"
+    },
+    "groups": {
+      "status": "État et configuration",
+      "servos": "Servos et canaux",
+      "feeder": "Chargeur",
+      "routing": "Tri",
+      "calibration": "Calibrage (non enregistré)"
+    },
+    "commands": {
+      "getStatus": "Indique la version du firmware, la carte, l'identifiant matériel et l'état BLE.",
+      "readIR": "Lit le capteur IR de chaque module et le capteur du bac.",
+      "setChannelOffset": "Définit la disposition des canaux (0 standard, 4 ancien) et remet chaque servo au neutre.",
+      "test": "Lance l'autotest complet. Refuse si un capteur de module détecte une carte.",
+      "neutral": "Met chaque servo en position fermée ou neutre et arrête le chargeur.",
+      "clearDevice": "Ouvre toutes les trappes à la fois pour évacuer les cartes coincées, puis revient au neutre.",
+      "servoPosition": "Déplace un servo vers une position calibrée. Trappe et palette prennent open/closed, le pousseur left/neutral/right.",
+      "servoValue": "Pilote un servo avec une impulsion brute, sans calibrage.",
+      "channel": "Pilote un canal PCA9685 brut avec une impulsion, sans correspondance de module.",
+      "channelStop": "Coupe le PWM sur un canal brut, nécessaire pour arrêter un servo à rotation continue.",
+      "feeder": "Lance un chargement jusqu'à ce que le module 1 détecte une carte, que le bac soit vide ou que le délai expire.",
+      "feederValue": "Pilote le moteur du chargeur avec une impulsion brute. Il tourne jusqu'à ce que tu l'arrêtes.",
+      "feederStop": "Coupe le PWM sur le canal du chargeur.",
+      "route": "Charge une carte et l'envoie vers la sortie gauche, droite ou du bas d'un module.",
+      "pushTest": "Exécute seulement l'étape de poussée d'un module, sans carte ni vérification IR.",
+      "setConfig": "Définit les impulsions des servos et les délais de poussée d'un module. Les champs vides gardent leur valeur actuelle.",
+      "setFeederConfig": "Définit la vitesse, les délais et le recul du chargeur. Les champs vides gardent leur valeur actuelle."
+    },
+    "raw": {
+      "heading": "Console brute",
+      "description": "Envoie exactement cette ligne et attend la réponse suivante. Le JSON invalide est envoyé tel quel, pratique pour tester les erreurs du firmware.",
+      "line": "Commande",
+      "timeout": "Délai (ms)"
+    },
+    "log": {
+      "heading": "Journal série",
+      "description": "Chaque ligne envoyée et reçue sur cette connexion, la plus récente en premier, y compris les événements spontanés comme les bourrages.",
+      "empty": "Rien d'envoyé ni de reçu pour l'instant.",
+      "copy": "Copier le journal",
+      "copied": "Journal copié.",
+      "copyFailed": "Impossible de copier le journal."
+    }
+  }
 }

@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/empty-state";
+import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -233,13 +235,13 @@ export function CardSelectDialog({
                         className="w-full h-full object-fill"
                       />
                     </div>
-                    <p className="text-xs text-muted-foreground leading-snug">
+                    <p className="text-xs text-foreground/70 leading-snug">
                       {t("cardPicker.selectCorrectVersion")}
                     </p>
                   </div>
                 )}
                 {!capturedImageUrl && (
-                  <p className="text-xs text-muted-foreground font-medium">
+                  <p className="text-xs text-foreground/70 font-medium">
                     {t("cardPicker.multipleMatches")}
                   </p>
                 )}
@@ -275,10 +277,10 @@ export function CardSelectDialog({
                           )}
                           <p
                             className={cn(
-                              "text-[10px] font-medium",
+                              "text-2xs font-medium",
                               isSelected
                                 ? "text-primary"
-                                : "text-muted-foreground",
+                                : "text-foreground/70",
                             )}
                           >
                             {c.set.toUpperCase()} #{c.collectorNumber}
@@ -303,7 +305,7 @@ export function CardSelectDialog({
                   </div>
                   {capturedImageUrl && (
                     <>
-                      <p className="text-[10px] text-muted-foreground">
+                      <p className="text-2xs text-foreground/70">
                         {t("cardSelectDialog.scanned")}
                       </p>
                       <div className="w-28 aspect-square rounded-lg overflow-hidden border">
@@ -320,7 +322,7 @@ export function CardSelectDialog({
               {selectedCard && (
                 <div className="flex flex-col gap-1.5 min-w-0 text-xs flex-1">
                   {selectedCard.manaCost && (
-                    <p className="text-muted-foreground">
+                    <p className="text-foreground/70">
                       {t("cardSelectDialog.manaCost", {
                         cost: formatManaCost(selectedCard.manaCost),
                       })}
@@ -337,7 +339,7 @@ export function CardSelectDialog({
                         {selectedCard.power}/{selectedCard.toughness}
                       </p>
                     )}
-                  <div className="flex items-center gap-1.5 text-muted-foreground flex-wrap">
+                  <div className="flex items-center gap-1.5 text-foreground/70 flex-wrap">
                     <div
                       className="size-2 rounded-full shrink-0"
                       style={{
@@ -352,7 +354,7 @@ export function CardSelectDialog({
                   </div>
                   <CardPriceDetails card={selectedCard} />
                   {selectedCard.artist && (
-                    <p className="text-muted-foreground">
+                    <p className="text-foreground/70">
                       {t("cardPicker.artBy", { artist: selectedCard.artist })}
                     </p>
                   )}
@@ -374,7 +376,7 @@ export function CardSelectDialog({
           <>
             <div className="flex gap-2">
               <div className="relative flex-1">
-                <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+                <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-foreground/70" />
                 <Input
                   placeholder={t("cardPicker.searchPlaceholder")}
                   value={query}
@@ -411,23 +413,19 @@ export function CardSelectDialog({
             </div>
             <ScrollArea className="flex-1 overflow-y-auto min-h-0 max-h-[50vh] sm:max-h-none border rounded-lg p-1 bg-sidebar">
               {loading && (
-                <div className="flex items-center justify-center py-8">
-                  <IconLoader2 className="size-5 animate-spin text-muted-foreground" />
-                </div>
+                <CardTileSkeletonGrid className="gap-1" />
               )}
               {!loading &&
                 filteredResults.length === 0 &&
                 query.trim().length === 0 && (
-                  <p className="text-center text-sm text-muted-foreground py-8">
+                  <p className="text-center text-sm text-foreground/70 py-8">
                     {t("cardPicker.startTyping")}
                   </p>
                 )}
               {!loading &&
                 filteredResults.length === 0 &&
                 query.trim().length >= 2 && (
-                  <p className="text-center text-sm text-muted-foreground py-8">
-                    {t("cardPicker.noCardsFound")}
-                  </p>
+                  <EmptyState size="compact" icon={IconSearch} title={t("cardPicker.noCardsFound")} />
                 )}
               {!loading && filteredResults.length > 0 && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-1">
@@ -447,7 +445,7 @@ export function CardSelectDialog({
                       ) : (
                         <div className="w-10 h-14 bg-muted rounded shrink-0" />
                       )}
-                      <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-[10px] leading-tight px-1 py-0.5 text-center truncate">
+                      <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-2xs leading-tight px-1 py-0.5 text-center truncate">
                         {card.set.toUpperCase()} #{card.collectorNumber}
                       </div>
                     </Button>

@@ -87,7 +87,7 @@ export function LandingHero() {
         <div className="absolute -right-4 -bottom-6 z-10 w-60 rounded-xl bg-card/95 shadow-xl shadow-black/10 ring-1 ring-foreground/10 backdrop-blur-sm sm:-right-8 sm:w-64 dark:shadow-black/40">
           <div className="grid grid-cols-2 divide-x divide-y divide-border">
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
+              <p className="text-2xs font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("totalCards")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
@@ -95,7 +95,7 @@ export function LandingHero() {
               </p>
             </div>
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
+              <p className="text-2xs font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("unique")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
@@ -103,7 +103,7 @@ export function LandingHero() {
               </p>
             </div>
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
+              <p className="text-2xs font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("scanStats.totalValue")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">
@@ -111,7 +111,7 @@ export function LandingHero() {
               </p>
             </div>
             <div className="p-2.5">
-              <p className="text-[10px] font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
+              <p className="text-2xs font-medium whitespace-nowrap text-foreground/70 uppercase tracking-wide">
                 {tScanner("scanStats.avgValue")}
               </p>
               <p className="text-sm font-semibold whitespace-nowrap">

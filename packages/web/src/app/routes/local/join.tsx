@@ -78,7 +78,7 @@ export default function AuthJoinPage() {
           <CardContent>
             {isPending || accepting ? (
               <div className="flex justify-center py-4">
-                <IconLoader2 className="animate-spin text-muted-foreground" />
+                <IconLoader2 className="animate-spin text-foreground/70" />
               </div>
             ) : !data?.user ? (
               <CardFooter className="flex flex-col gap-2 px-0">

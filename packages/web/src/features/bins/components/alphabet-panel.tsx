@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -46,9 +47,9 @@ export function AlphabetPanel() {
 
   if (passCount === 0) {
     return (
-      <p className="py-1.5 rounded-lg border px-3 text-xs bg-sidebar">
+      <Callout>
         {t("alphabetPanel.needBins")}
-      </p>
+      </Callout>
     );
   }
 
@@ -117,7 +118,7 @@ export function AlphabetPanel() {
         ))}
       </div>
 
-      <p className="py-1.5 rounded-lg border px-3 text-xs bg-sidebar">{hint}</p>
+      <Callout>{hint}</Callout>
 
       <div className="flex flex-wrap items-center justify-end gap-2">
         <Button

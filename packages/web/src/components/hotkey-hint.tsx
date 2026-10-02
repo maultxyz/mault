@@ -24,7 +24,7 @@ export function HotkeyHint({ id, className }: HotkeyHintProps) {
       {keys.map((combo, i) => (
         <Fragment key={i}>
           {i > 0 && (
-            <span className="text-[10px] opacity-70">{t("hotkeys.then")}</span>
+            <span className="text-2xs opacity-70">{t("hotkeys.then")}</span>
           )}
           <Kbd>{comboLabel(combo)}</Kbd>
         </Fragment>

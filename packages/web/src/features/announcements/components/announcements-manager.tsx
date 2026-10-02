@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -133,21 +134,19 @@ export function AnnouncementsManager() {
   }
 
   return (
-    <div className="rounded-lg border overflow-hidden">
-      <div className="px-4 py-3 border-b flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium">{t("heading")}</p>
-          <p className="text-xs text-muted-foreground">{t("description")}</p>
-        </div>
+    <SettingsSection
+      heading={t("heading")}
+      description={t("description")}
+      action={
         <Button onClick={() => setFormTarget(null)}>
           <IconPlus size={14} />
           {t("addAnnouncement")}
         </Button>
-      </div>
-
-      <div className="divide-y">
+      }
+    >
+      <div className="divide-y rounded-lg border empty:hidden">
         {announcementsQuery.isLoading && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("loading")}
           </p>
         )}
@@ -179,13 +178,13 @@ export function AnnouncementsManager() {
                 </div>
                 <p className="text-sm truncate">{announcement.message}</p>
                 {announcement.link && (
-                  <p className="text-xs text-muted-foreground truncate flex items-center gap-1">
+                  <p className="text-xs text-foreground/70 truncate flex items-center gap-1">
                     <IconLink size={12} className="shrink-0" />
                     {announcement.link}
                   </p>
                 )}
                 {schedule && (
-                  <p className="text-xs text-muted-foreground truncate">
+                  <p className="text-xs text-foreground/70 truncate">
                     {schedule}
                   </p>
                 )}
@@ -212,7 +211,7 @@ export function AnnouncementsManager() {
           );
         })}
         {announcementsQuery.data?.length === 0 && (
-          <p className="text-sm text-muted-foreground text-center py-6">
+          <p className="text-sm text-foreground/70 text-center py-6">
             {t("empty")}
           </p>
         )}
@@ -238,6 +237,6 @@ export function AnnouncementsManager() {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.guid);
         }}
       />
-    </div>
+    </SettingsSection>
   );
 }

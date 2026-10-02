@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { Esp32FlashDialog } from "@/features/scanner/components/esp32-flash-dialog";
 import type { AppAlert } from "@/lib/interfaces/alerts";
@@ -52,7 +53,7 @@ export function useFirmwareVersionAlert(): {
         <Button
           size="xs"
           variant="outline"
-          className="shrink-0 border-amber-500/40 bg-transparent text-amber-900 hover:bg-amber-500/20 dark:text-amber-200"
+          className={ALERT_BANNER_ACTION_CLASS}
           onClick={() => setFlashDialogOpen(true)}
         >
           {t("serial.update.browserButton")}
@@ -61,7 +62,7 @@ export function useFirmwareVersionAlert(): {
         <Button
           size="xs"
           variant="outline"
-          className="shrink-0 border-amber-500/40 bg-transparent text-amber-900 hover:bg-amber-500/20 dark:text-amber-200"
+          className={ALERT_BANNER_ACTION_CLASS}
           render={
             <a href={FIRMWARE_RELEASES_URL} target="_blank" rel="noreferrer" />
           }

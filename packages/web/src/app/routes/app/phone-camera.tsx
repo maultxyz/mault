@@ -129,7 +129,7 @@ export default function PhoneCameraPage() {
       <div className="absolute inset-x-0 bottom-6 flex items-center justify-center px-4">
         <div className="flex items-center gap-2 rounded-full bg-black/70 backdrop-blur-sm px-3.5 py-2 text-white text-sm shadow-lg">
           {status === "ready" ? (
-            <IconCameraSpark className="size-4 text-green-400 shrink-0" />
+            <IconCameraSpark className="size-4 text-success shrink-0" />
           ) : status === "camera-error" ? (
             <IconVideoOff className="size-4 text-destructive shrink-0" />
           ) : (

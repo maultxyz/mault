@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/empty-state";
+import { IconHistory } from "@tabler/icons-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
@@ -58,7 +60,7 @@ export function LocalAuditLog() {
 
   if (!canView) {
     return (
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-foreground/70">
         {t("auditLog.membersOnly")}
       </p>
     );
@@ -66,7 +68,7 @@ export function LocalAuditLog() {
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-xs text-muted-foreground">
+      <p className="text-xs text-foreground/70">
         {t("auditLog.description")}
       </p>
 
@@ -78,7 +80,7 @@ export function LocalAuditLog() {
       )}
 
       {!isLoading && events?.length === 0 && (
-        <p className="text-xs text-muted-foreground">{t("auditLog.empty")}</p>
+        <EmptyState size="compact" icon={IconHistory} title={t("auditLog.empty")} />
       )}
 
       {!isLoading && events && events.length > 0 && (
@@ -92,11 +94,11 @@ export function LocalAuditLog() {
                 {event.eventType}
               </span>
               {event.actor && (
-                <span className="truncate text-muted-foreground">
+                <span className="truncate text-foreground/70">
                   {event.actor}
                 </span>
               )}
-              <span className="shrink-0 text-muted-foreground">
+              <span className="shrink-0 text-foreground/70">
                 {formatDate(event.createdAt)}
               </span>
             </div>

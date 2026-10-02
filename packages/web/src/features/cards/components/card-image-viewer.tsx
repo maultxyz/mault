@@ -23,7 +23,7 @@ export function CardImageViewer({
       <DialogContent className="sm:max-w-[min(40rem,calc(100%-2rem))] max-h-[calc(100dvh-2rem)] overflow-y-auto">
         <DialogHeader className="flex-row items-center justify-between gap-4 pr-8">
           <DialogTitle>{t("cardDetailPanel.capturedScan")}</DialogTitle>
-          <label className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
+          <label className="flex items-center gap-2 text-xs text-foreground/70 shrink-0">
             {t("cardDetailPanel.showOcrRegions")}
             <Switch
               size="sm"
@@ -32,7 +32,7 @@ export function CardImageViewer({
             />
           </label>
         </DialogHeader>
-        <div className="mx-auto h-[min(75dvh,36rem)] max-w-full aspect-square rounded-lg overflow-hidden border">
+        <div className="mx-auto h-[min(75dvh,36rem)] max-w-full aspect-[2.5/3.5] rounded-lg overflow-hidden border">
           <CapturedImageThumb
             src={capturedImageUrl}
             alt={t("cardPicker.scannedAlt")}
