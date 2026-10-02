@@ -106,11 +106,11 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
         <EmptyState size="compact" icon={IconMusic} title={t("rules.empty")} />
       )}
 
-      <ol className="flex flex-col divide-y">
+      <ol className="flex flex-col divide-y rounded-lg border empty:hidden">
         {draft.orderedRules.map((rule, index) => {
           const clip = clips.find((c) => c.guid === rule.clipGuid);
           return (
-            <li key={rule.guid} className="flex items-center gap-3 py-2">
+            <li key={rule.guid} className="flex items-center gap-3 px-3 py-2">
               <ButtonGroup orientation="vertical" className="shrink-0">
                 <Button
                   size="icon"

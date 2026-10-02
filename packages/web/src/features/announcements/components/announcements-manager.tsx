@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -133,19 +134,17 @@ export function AnnouncementsManager() {
   }
 
   return (
-    <div className="rounded-lg border overflow-hidden">
-      <div className="px-4 py-3 border-b flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium">{t("heading")}</p>
-          <p className="text-xs text-foreground/70">{t("description")}</p>
-        </div>
+    <SettingsSection
+      heading={t("heading")}
+      description={t("description")}
+      action={
         <Button onClick={() => setFormTarget(null)}>
           <IconPlus size={14} />
           {t("addAnnouncement")}
         </Button>
-      </div>
-
-      <div className="divide-y">
+      }
+    >
+      <div className="divide-y rounded-lg border empty:hidden">
         {announcementsQuery.isLoading && (
           <p className="text-sm text-foreground/70 text-center py-6">
             {t("loading")}
@@ -238,6 +237,6 @@ export function AnnouncementsManager() {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.guid);
         }}
       />
-    </div>
+    </SettingsSection>
   );
 }

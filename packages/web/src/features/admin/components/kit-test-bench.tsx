@@ -12,7 +12,7 @@ export function KitTestBench() {
   const disabled = !isConnected;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <KitBoardPanel session={session} disabled={disabled} />
       <KitServoBench session={session} disabled={disabled} />
       <KitContinuousServoPanel disabled={disabled} />

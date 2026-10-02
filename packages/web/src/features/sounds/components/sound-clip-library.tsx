@@ -100,7 +100,7 @@ export function SoundClipLibrary() {
       {!isLoading && clips.length === 0 ? (
         <EmptyState size="compact" icon={IconMusic} title={t("library.empty")} />
       ) : (
-        <ul className="flex flex-col divide-y">
+        <ul className="flex flex-col divide-y rounded-lg border empty:hidden">
           {clips.map((clip) => (
             <SoundClipRow key={clip.guid} clip={clip} />
           ))}

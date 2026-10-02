@@ -130,7 +130,10 @@ function ServoControl({
             const key = getCalibrationKey(servo.name, position);
             if (!key) return null;
             return (
-              <p key={position} className="flex-1 text-center text-sm font-bold">
+              <p
+                key={position}
+                className="flex-1 text-center text-sm font-bold"
+              >
                 {showRaw
                   ? calibration[key]
                   : `${pulseToPercent(calibration[key])}%`}
@@ -144,7 +147,9 @@ function ServoControl({
         {servo.positions.map((position) => (
           <Button
             key={position}
-            variant={activePosition === position ? "outline-selected" : "outline"}
+            variant={
+              activePosition === position ? "outline-selected" : "outline"
+            }
             disabled={!canCalibrate}
             onClick={() => onControl(module, servo.name, position)}
             className="flex-1"
@@ -408,7 +413,7 @@ export function ModuleCalibrationGrid({
           : cal;
         const showRaw = rawModeByModule[module] ?? false;
         return (
-          <div key={module} className="p-2 flex flex-col gap-5 bg-sidebar">
+          <div key={module} className="p-2 flex flex-col gap-5 bg-background">
             <div className="flex items-center justify-between gap-2">
               <h2 className="text-sm font-semibold font-heading">
                 {t("moduleLabel", { module })}

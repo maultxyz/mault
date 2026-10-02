@@ -1,6 +1,6 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
@@ -29,14 +29,12 @@ export function IrSensorPanel({
 }: IrSensorPanelProps) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-2" data-tour="ir-sensor-panel">
-      <Tooltip>
-        <TooltipTrigger
-          render={<Label className="w-fit">{t("irSensorPanel.label")}</Label>}
-        />
-        <TooltipContent>{t("irSensorPanel.tooltip")}</TooltipContent>
-      </Tooltip>
-      <div className="flex items-center gap-3">
+    <SettingsSection
+      dataTour="ir-sensor-panel"
+      heading={t("irSensorPanel.label")}
+      description={t("irSensorPanel.tooltip")}
+    >
+      <div className="flex flex-wrap items-center gap-3">
         <Tooltip>
           <TooltipTrigger
             render={
@@ -57,11 +55,7 @@ export function IrSensorPanel({
           <Tooltip>
             <TooltipTrigger
               render={
-                <Button
-                  variant="outline"
-                  disabled={!isReady}
-                  onClick={onRead}
-                >
+                <Button variant="outline" disabled={!isReady} onClick={onRead}>
                   {t("irSensorPanel.read")}
                 </Button>
               }
@@ -105,6 +99,6 @@ export function IrSensorPanel({
           <TooltipContent>{t("irSensorPanel.hopperTooltip")}</TooltipContent>
         </Tooltip>
       </div>
-    </div>
+    </SettingsSection>
   );
 }

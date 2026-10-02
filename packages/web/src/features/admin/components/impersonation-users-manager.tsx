@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,7 +43,10 @@ export function ImpersonationUsersManager() {
   function handleSearchInput(value: string) {
     setSearchInput(value);
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => setSearch(value), SEARCH_DEBOUNCE_MS);
+    debounceRef.current = setTimeout(
+      () => setSearch(value),
+      SEARCH_DEBOUNCE_MS,
+    );
   }
 
   async function handleConfirmImpersonate() {
@@ -64,17 +68,11 @@ export function ImpersonationUsersManager() {
   }
 
   return (
-    <div className="rounded-lg border overflow-hidden">
-      <div className="px-4 py-3 border-b flex items-center justify-between gap-3">
-        <div>
-          <p className="text-sm font-medium">
-            {t("impersonationUsersManager.heading")}
-          </p>
-          <p className="text-xs text-foreground/70">
-            {t("impersonationUsersManager.description")}
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
+    <SettingsSection
+      heading={t("impersonationUsersManager.heading")}
+      description={t("impersonationUsersManager.description")}
+      action={
+        <>
           <Input
             placeholder={t("impersonationUsersManager.searchPlaceholder")}
             value={searchInput}
@@ -98,10 +96,10 @@ export function ImpersonationUsersManager() {
               {t("impersonationUsersManager.viewAuditLog")}
             </TooltipContent>
           </Tooltip>
-        </div>
-      </div>
-
-      <div className="divide-y max-h-80 overflow-y-auto">
+        </>
+      }
+    >
+      <div className="divide-y max-h-80 overflow-y-auto rounded-lg border">
         {!isQueryReady && (
           <p className="text-sm text-foreground/70 text-center py-6">
             {t("impersonationUsersManager.startTyping")}
@@ -189,6 +187,6 @@ export function ImpersonationUsersManager() {
       />
 
       <ImpersonationAuditDrawer open={auditOpen} onOpenChange={setAuditOpen} />
-    </div>
+    </SettingsSection>
   );
 }

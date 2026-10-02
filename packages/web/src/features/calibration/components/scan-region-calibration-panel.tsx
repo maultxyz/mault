@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { SliderField } from "@/components/slider-field";
 import { Button } from "@/components/ui/button";
 import {
@@ -268,11 +269,12 @@ export function ScanRegionCalibrationPanel({
   }, [phonePhotoSize, canvasRef]);
 
   return (
-    <div className="flex flex-col gap-2" data-tour="scan-region-panel">
-      <p className="text-xs text-foreground/70">
-        {t("scanRegionCalibrationPanel.instructions")}
-      </p>
-      <p className="text-2xs text-foreground/70">
+    <SettingsSection
+      dataTour="scan-region-panel"
+      heading={t("sections.scanRegion")}
+      description={t("scanRegionCalibrationPanel.instructions")}
+    >
+      <p className="-mt-2 text-xs text-foreground/70">
         {t("scanRegionCalibrationPanel.liveDetectionHint")}
       </p>
 
@@ -553,6 +555,6 @@ export function ScanRegionCalibrationPanel({
           </div>
         </div>
       </div>
-    </div>
+    </SettingsSection>
   );
 }

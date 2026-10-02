@@ -1,3 +1,4 @@
+import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
 import { SectionNav } from "@/components/section-nav";
 import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import { Button } from "@/components/ui/button";
@@ -246,7 +247,11 @@ export default function CalibrateLayout() {
           </div>
         </div>
 
-        <Outlet context={calibrationPage} />
+        <SettingsSectionLayoutContext value="flat">
+          <div className="flex flex-col gap-6 pb-4">
+            <Outlet context={calibrationPage} />
+          </div>
+        </SettingsSectionLayoutContext>
       </div>
 
       <StaleDeviceDialog

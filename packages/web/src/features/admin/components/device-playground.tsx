@@ -41,7 +41,7 @@ export function DevicePlayground() {
   const disabled = !isConnected;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <SettingsSection
         heading={t("devicePlayground.heading")}
         description={t("devicePlayground.description")}

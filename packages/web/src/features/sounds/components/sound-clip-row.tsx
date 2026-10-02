@@ -125,7 +125,7 @@ export function SoundClipRow({ clip }: SoundClipRowProps) {
   };
 
   return (
-    <li className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-1 py-2">
+    <li className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-x-3 gap-y-1 px-3 py-2">
       <div className="col-start-2 row-start-1 min-w-0">
         {editing ? (
           <form

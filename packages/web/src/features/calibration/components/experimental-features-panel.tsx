@@ -1,6 +1,6 @@
+import { SettingsSection } from "@/components/settings-section";
 import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import type { DeviceTogglePanelProps } from "@/lib/interfaces/calibration";
@@ -14,14 +14,13 @@ export function ExperimentalFeaturesPanel({
   const { t } = useTranslation("calibration");
 
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center gap-2">
-        <Label>{t("experimentalFeatures.title")}</Label>
-        <Badge variant="outline">{t("experimentalFeatures.badge")}</Badge>
-      </div>
+    <SettingsSection
+      heading={t("experimentalFeatures.title")}
+      badge={<Badge variant="outline">{t("experimentalFeatures.badge")}</Badge>}
+    >
       <FirmwareFeatureGate
         feature="pipelinedFeed"
-        className="flex flex-col gap-2 rounded-lg border p-3"
+        className="flex flex-col gap-1"
       >
         <label className="flex items-center justify-between gap-2">
           <span className="text-xs font-medium">
@@ -40,6 +39,6 @@ export function ExperimentalFeaturesPanel({
           {t("experimentalFeatures.pipelinedFeedDescription")}
         </p>
       </FirmwareFeatureGate>
-    </div>
+    </SettingsSection>
   );
 }

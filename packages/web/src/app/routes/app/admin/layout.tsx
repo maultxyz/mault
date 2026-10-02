@@ -8,6 +8,7 @@ import {
   IconTerminal2,
   IconUserScan,
 } from "@tabler/icons-react";
+import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
 import { Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
@@ -42,8 +43,10 @@ export default function AdminLayout() {
       />
 
       <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto">
-        <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4">
-          <Outlet />
+        <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-6">
+          <SettingsSectionLayoutContext value="flat">
+            <Outlet />
+          </SettingsSectionLayoutContext>
         </div>
       </div>
     </div>

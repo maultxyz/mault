@@ -1,3 +1,4 @@
+import { SettingsSection } from "@/components/settings-section";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -120,21 +121,17 @@ export function GamesManager() {
   }
 
   return (
-    <div className="rounded-lg border overflow-hidden">
-      <div className="px-4 py-3 border-b flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium">{t("gamesManager.heading")}</p>
-          <p className="text-xs text-foreground/70">
-            {t("gamesManager.description")}
-          </p>
-        </div>
+    <SettingsSection
+      heading={t("gamesManager.heading")}
+      description={t("gamesManager.description")}
+      action={
         <Button onClick={() => setFormGame(null)}>
           <IconPlus size={14} />
           {t("addGame")}
         </Button>
-      </div>
-
-      <div className="divide-y">
+      }
+    >
+      <div className="divide-y rounded-lg border empty:hidden">
         {gamesQuery.isLoading && (
           <p className="text-sm text-foreground/70 text-center py-6">
             {t("gamesManager.loading")}
@@ -146,9 +143,7 @@ export function GamesManager() {
               <div className="flex items-center gap-2">
                 <p className="text-sm font-medium truncate">{game.name}</p>
                 <Badge variant={game.isActive ? "success" : "outline"}>
-                  {game.isActive
-                    ? t("active")
-                    : t("inactive")}
+                  {game.isActive ? t("active") : t("inactive")}
                 </Badge>
               </div>
               <p className="text-xs text-foreground/70 truncate">
@@ -208,6 +203,6 @@ export function GamesManager() {
           if (deleteTarget) deleteMutation.mutate(deleteTarget.guid);
         }}
       />
-    </div>
+    </SettingsSection>
   );
 }

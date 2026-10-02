@@ -58,11 +58,8 @@ export function FeederCalibrationPanel({
       className="grid grid-cols-1 md:grid-cols-3"
       data-tour="feeder-calibration-panel"
     >
-      <div className="rounded-lg border bg-sidebar p-2 flex flex-col gap-5 col-span-2 lg:col-span-1">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold font-heading">
-            {t("feederCalibrationPanel.heading")}
-          </h2>
+      <div className="flex flex-col gap-5 col-span-2 lg:col-span-1">
+        <div className="flex items-center justify-end">
           <button
             type="button"
             onClick={() => setShowAdvanced((v) => !v)}

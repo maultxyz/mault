@@ -1,4 +1,4 @@
-import { Label } from "@/components/ui/label";
+import { SettingsSection } from "@/components/settings-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import type { DeviceTogglePanelProps } from "@/lib/interfaces/calibration";
@@ -12,9 +12,8 @@ export function ConnectionSettingsPanel({
   const { t } = useTranslation("calibration");
 
   return (
-    <div className="flex flex-col gap-2">
-      <Label>{t("connectionSettings.title")}</Label>
-      <div className="flex flex-col gap-2 rounded-lg border p-3">
+    <SettingsSection heading={t("connectionSettings.title")}>
+      <div className="flex flex-col gap-1">
         <label className="flex items-center justify-between gap-2">
           <span className="text-xs font-medium">
             {t("connectionSettings.autoConnectLabel")}
@@ -32,7 +31,7 @@ export function ConnectionSettingsPanel({
           {t("connectionSettings.autoConnectDescription")}
         </p>
       </div>
-      <div className="flex flex-col gap-2 rounded-lg border p-3">
+      <div className="flex flex-col gap-1">
         <label className="flex items-center justify-between gap-2">
           <span className="text-xs font-medium">
             {t("connectionSettings.testOnConnectLabel")}
@@ -50,6 +49,6 @@ export function ConnectionSettingsPanel({
           {t("connectionSettings.testOnConnectDescription")}
         </p>
       </div>
-    </div>
+    </SettingsSection>
   );
 }
