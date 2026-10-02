@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import {
   IconAlertOctagon,
   IconAlertTriangle,
-  IconBucketDroplet,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -84,10 +83,6 @@ export function BinLevelCell({
           </span>
         )}
       </span>
-      <IconBucketDroplet
-        aria-hidden
-        className="relative -mr-0.5 size-3.5 shrink-0 text-foreground/70 opacity-0 transition-opacity group-hover/bin:opacity-100 group-focus-visible/bin:opacity-100 pointer-coarse:opacity-100"
-      />
     </button>
   );
 }
