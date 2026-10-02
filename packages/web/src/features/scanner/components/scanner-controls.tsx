@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
@@ -100,6 +101,8 @@ export function ScannerControls({
   const canFeed = isConnected && isReady && !isFeeding;
   const canClearDevice = isConnected && isReady && !isClearingDevice;
 
+  const [setPickerOpen, setSetPickerOpen] = useState(false);
+
   const cycleFoilType = () => {
     const options = [null, ...foilOptions];
     const next = (options.indexOf(forceFoilType) + 1) % options.length;
@@ -115,6 +118,7 @@ export function ScannerControls({
         ? () => setAutoFeed(!autoFeed)
         : undefined,
       scanCycleFoil: cycleFoilType,
+      scanPickSet: () => setSetPickerOpen(true),
       scanClearDevice: canClearDevice ? onClearDevice : undefined,
     },
     isActive && panelsDocked && !isMobile,
@@ -243,7 +247,7 @@ export function ScannerControls({
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
-        <ForcedSetPicker />
+        <ForcedSetPicker open={setPickerOpen} onOpenChange={setSetPickerOpen} />
       </ButtonGroup>
       <ScannerDebug />
     </div>

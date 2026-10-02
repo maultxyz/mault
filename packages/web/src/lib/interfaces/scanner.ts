@@ -606,6 +606,11 @@ export interface IdentifyUnmatchedDialogProps {
   onClose: () => void;
 }
 
+export interface ForcedSetPickerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export interface ForcedSetOptionProps {
   label: string;
   detail?: string;

@@ -180,7 +180,8 @@
       "scanFeed": "Nächste Karte zuführen",
       "scanToggleAutoFeed": "Automatische Zuführung umschalten",
       "scanCycleFoil": "Foil-Typ wechseln",
-      "scanClearDevice": "Gerät leeren"
+      "scanClearDevice": "Gerät leeren",
+      "scanPickSet": "Set-Vorgabe wählen"
     }
   },
   "mobileMenu": {

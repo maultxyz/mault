@@ -40,6 +40,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   scanToggleAutoFeed: { group: "scanner", keys: [{ key: "a" }] },
   scanClearDevice: { group: "scanner", keys: [{ key: "c", shift: true }] },
   scanCycleFoil: { group: "scanner", keys: [{ key: "f", shift: true }] },
+  scanPickSet: { group: "scanner", keys: [{ key: "s", shift: true }] },
 };
 
 export const HOTKEY_ROUTES = {

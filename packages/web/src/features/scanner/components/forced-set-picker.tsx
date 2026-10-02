@@ -1,3 +1,4 @@
+import { HotkeyHint } from "@/components/hotkey-hint";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,18 +16,20 @@ import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CARD_SET_PICKER_LIMIT } from "@/lib/constants/scanner";
-import type { ForcedSetOptionProps } from "@/lib/interfaces/scanner";
+import type {
+  ForcedSetOptionProps,
+  ForcedSetPickerProps,
+} from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { IconCheck, IconStack3 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function ForcedSetPicker() {
+export function ForcedSetPicker({ open, onOpenChange }: ForcedSetPickerProps) {
   const { t } = useTranslation("scanner");
   const { forceSetCode, setForceSetCode } = useScannedCards();
   const { activeCollection } = useCollections();
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const { data: sets = [], isLoading } = useQuery({
     ...cardSetsQueryOptions(activeCollection?.guid),
@@ -53,12 +56,12 @@ export function ForcedSetPicker() {
 
   const choose = (code: string | null) => {
     setForceSetCode(code);
-    setOpen(false);
+    onOpenChange(false);
     setQuery("");
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <Tooltip>
         <TooltipTrigger
           render={
@@ -75,7 +78,10 @@ export function ForcedSetPicker() {
             />
           }
         />
-        <TooltipContent>{tooltip}</TooltipContent>
+        <TooltipContent>
+          {tooltip}
+          <HotkeyHint id="scanPickSet" />
+        </TooltipContent>
       </Tooltip>
       <PopoverContent align="start" className="w-72 gap-2 p-2">
         <p className="px-1 text-xs text-foreground/70">
@@ -86,6 +92,12 @@ export function ForcedSetPicker() {
           placeholder={t("scannerControls.setSearchPlaceholder")}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && query.trim() && filtered[0]) {
+              e.preventDefault();
+              choose(filtered[0].code);
+            }
+          }}
         />
         <div className="flex max-h-72 flex-col gap-0.5 overflow-y-auto">
           <SetOption
@@ -93,9 +105,7 @@ export function ForcedSetPicker() {
             active={!forceSetCode}
             onSelect={() => choose(null)}
           />
-          {isLoading && (
-            <ListSkeleton className="py-1" />
-          )}
+          {isLoading && <ListSkeleton className="py-1" />}
           {!isLoading && filtered.length === 0 && (
             <p className="px-2 py-3 text-center text-xs text-foreground/70">
               {t("scannerControls.noSets")}

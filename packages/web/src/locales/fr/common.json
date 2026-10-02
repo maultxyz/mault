@@ -180,7 +180,8 @@
       "scanFeed": "Charger la carte suivante",
       "scanToggleAutoFeed": "Activer ou désactiver l'alimentation auto",
       "scanCycleFoil": "Changer le type de foil",
-      "scanClearDevice": "Vider l'appareil"
+      "scanClearDevice": "Vider l'appareil",
+      "scanPickSet": "Choisir une préférence de set"
     }
   },
   "mobileMenu": {
