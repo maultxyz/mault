@@ -211,6 +211,7 @@ export interface SerialContextValue {
     options?: RouteOptions,
   ) => Promise<unknown | null>;
   sendPushTest: (test: PushTest) => Promise<unknown | null>;
+  sendRawCommand: (line: string, timeoutMs: number) => Promise<RawCommandResult>;
   isRouteBusy: () => boolean;
   readIR: () => Promise<boolean[] | null>;
   sendTest: () => Promise<TestResult>;
@@ -301,10 +302,19 @@ export interface BinFillLevel {
   percent: number;
 }
 
+export interface RawCommandResult {
+  status: "ok" | "disconnected" | "busy" | "noResponse";
+  line: string | null;
+}
+
 export interface CommLogEntry {
   direction: "sent" | "received";
   text: string;
   timestamp: number;
+}
+
+export interface CommLogEntriesProps {
+  entries: CommLogEntry[];
 }
 
 export type ConnectionStatus = "connecting" | "connected" | "error" | "closed";

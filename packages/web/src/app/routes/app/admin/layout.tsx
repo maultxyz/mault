@@ -5,6 +5,7 @@ import {
   IconDeviceGamepad2,
   IconRotate360,
   IconSpeakerphone,
+  IconTerminal2,
   IconUserScan,
 } from "@tabler/icons-react";
 import { Outlet } from "react-router-dom";
@@ -20,6 +21,7 @@ const SECTION_ITEMS = [
     labelKey: "sections.announcements",
   },
   { path: "servos", icon: IconRotate360, labelKey: "sections.servos" },
+  { path: "device", icon: IconTerminal2, labelKey: "sections.device" },
   { path: "developer", icon: IconBug, labelKey: "sections.developer" },
 ] as const;
 

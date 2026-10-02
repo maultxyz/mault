@@ -8,28 +8,96 @@
     "games": "Spiele",
     "users": "Benutzer",
     "announcements": "Ankündigungen",
-    "servos": "Servos",
+    "servos": "Bausatz-Test",
+    "device": "Gerät",
     "developer": "Entwickler"
   },
-  "servoTester": {
-    "heading": "Servokanal-Test",
-    "description": "Steuere einen rohen PCA9685-Kanal direkt an, um zu prüfen, ob ein Servo funktioniert, oder um herauszufinden, an welchem Kanal ein bestimmtes Kabel hängt - umgeht die Modul-/Fach-Zuordnung vollständig.",
-    "connectButton": "Gerät verbinden",
-    "connectUsb": "Über USB verbinden",
-    "connectBluetooth": "Über Bluetooth verbinden",
-    "channelLabel": "Kanal",
-    "sweepDescription": "Klicke auf einen Kanal, um diesen Servo einmal von einem Ende seines Bewegungsbereichs zum anderen und zurück zu fahren - ein vollständiger Bewegungsbereichstest.",
-    "stopButton": "Stoppen",
-    "runTest": "Test ausführen",
-    "testing": "Test läuft…",
-    "testRequired": "Führe einen erfolgreichen Gerätetest aus, bevor du einen Kanal ansteuerst.",
-    "disconnectButton": "Trennen",
-    "toasts": {
-      "sendFailed": "Befehl konnte nicht an das Gerät gesendet werden",
-      "testPassed": "Gerätetest bestanden",
-      "testFailed": "Gerätetest fehlgeschlagen"
+  "kitTest": {
+    "board": {
+      "heading": "Platine",
+      "description": "Verbinde eine Bausatz-Platine, flashe bei einer neuen die Firmware und führe den Selbsttest aus. Beim Verbinden hier wird der automatische Selbsttest übersprungen, damit auch eine nackte Platine ohne Anschlüsse funktioniert.",
+      "connect": "Verbinden",
+      "connectUsb": "USB",
+      "connectBluetooth": "Bluetooth",
+      "disconnect": "Trennen",
+      "flash": "Firmware flashen",
+      "notConnected": "Keine Platine verbunden.",
+      "firmware": "Firmware {{version}}",
+      "firmwareUnknown": "Firmware unbekannt",
+      "runSelfTest": "Selbsttest ausführen",
+      "testing": "Wird getestet…",
+      "selfTestPassed": "Selbsttest bestanden",
+      "selfTestFailed": "Selbsttest fehlgeschlagen"
     },
-    "flashButton": "Firmware flashen"
+    "servos": {
+      "heading": "Servo-Prüfstand",
+      "description": "Stecke ein Servo an einen Kanal, fahre seinen Bereich ab und markiere es als bestanden oder durchgefallen. Mitte stellt es in die Mitte seines Bereichs, bereit zum Aufsetzen des Hebels.",
+      "reset": "Zählung zurücksetzen",
+      "channel": "Kanal",
+      "sweep": "Durchfahren",
+      "center": "Mitte",
+      "min": "Min",
+      "max": "Max",
+      "release": "Freigeben",
+      "pulse": "Puls",
+      "centerHint": "Mitte entspricht Puls {{pulse}}. Freigeben schaltet den Strom ab, damit sich das Servo von Hand drehen lässt.",
+      "verdictPrompt": "Servo an Kanal {{channel}}:",
+      "pass": "Bestanden",
+      "fail": "Durchgefallen",
+      "passedCount_one": "{{count}} bestanden",
+      "passedCount_other": "{{count}} bestanden",
+      "failedCount_one": "{{count}} durchgefallen",
+      "failedCount_other": "{{count}} durchgefallen",
+      "historyItem": "#{{number}} K {{channel}}"
+    },
+    "continuous": {
+      "heading": "Dauerlauf-Servo",
+      "description": "Dreht ein Dauerlauf-Servo, etwa den Zuführmotor, in beide Richtungen. Es dreht weiter, bis du es stoppst.",
+      "forward": "Vorwärts drehen",
+      "reverse": "Rückwärts drehen",
+      "stop": "Stopp"
+    },
+    "sensors": {
+      "heading": "Sensoren",
+      "description": "Liest die IR-Sensoren fortlaufend. Halte eine Karte vor jeden Sensor: Er gilt als geprüft, sobald er einmal eine Karte und einmal keine gesehen hat.",
+      "start": "Lesen starten",
+      "stop": "Lesen stoppen",
+      "reset": "Zurücksetzen",
+      "empty": "Starte das Lesen, um die Sensoren zu sehen.",
+      "module": "Modul {{module}}",
+      "hopper": "Magazin",
+      "card": "Karte",
+      "clear": "Frei",
+      "verified": "Geprüft"
+    },
+    "report": {
+      "heading": "Bausatz-Bericht",
+      "description": "Eine Zusammenfassung dieser Sitzung, die du beim Bausatz aufbewahren kannst.",
+      "copy": "Bericht kopieren",
+      "copied": "Bericht kopiert.",
+      "copyFailed": "Der Bericht konnte nicht kopiert werden.",
+      "title": "Bausatz-Testbericht",
+      "date": "Datum: {{date}}",
+      "board": "Platine: {{board}}, Firmware {{version}}, ID {{id}}",
+      "selfTest": {
+        "notRun": "Selbsttest: nicht ausgeführt",
+        "passed": "Selbsttest: bestanden",
+        "failed": "Selbsttest: fehlgeschlagen {{error}}"
+      },
+      "servos": "Servos: {{passed}} bestanden, {{failed}} durchgefallen",
+      "failedChannels": "Durchgefallen an Kanälen: {{channels}}",
+      "sensorVerified": "{{name}}: geprüft",
+      "sensorUnverified": "{{name}}: nicht geprüft"
+    },
+    "status": {
+      "ok": "OK",
+      "busy": "Die Platine ist mit einem anderen Befehl beschäftigt.",
+      "disconnected": "Keine Platine verbunden.",
+      "noResponse": "Keine Antwort von der Platine."
+    },
+    "toasts": {
+      "commandFailed": "Die Platine hat den Befehl nicht angenommen"
+    }
   },
   "cardImageVectors": {
     "heading": "Kartenbild-Vektoren",
@@ -138,5 +206,75 @@
   },
   "cancel": "Abbrechen",
   "starting": "Wird gestartet...",
-  "loading": "Wird geladen..."
+  "loading": "Wird geladen...",
+  "devicePlayground": {
+    "heading": "Geräte-Spielwiese",
+    "description": "Sende einen beliebigen Firmware-Befehl an den verbundenen Sortierer und sieh dir die rohe Antwort an. Entwicklerwerkzeug, das vollständige Protokoll steht in firmware/PROTOCOL.md.",
+    "connect": "Verbinden",
+    "connectUsb": "USB",
+    "connectBluetooth": "Bluetooth",
+    "disconnect": "Trennen",
+    "statusConnected": "Verbunden",
+    "statusDisconnected": "Nicht verbunden",
+    "firmware": "Firmware {{version}}",
+    "firmwareUnknown": "Firmware unbekannt",
+    "selfTestPassed": "Selbsttest bestanden",
+    "selfTestPending": "Selbsttest nicht bestanden",
+    "warning": "Befehle gehen direkt an den Sortierer und umgehen die übliche Selbsttest-Sperre. Von hier gesendete Kalibrierung wird nicht gespeichert; verbinde neu, um die gespeicherte Kalibrierung wiederherzustellen.",
+    "needsFirmware": "Benötigt Firmware {{version}}+",
+    "unchangedPlaceholder": "unverändert",
+    "send": "Senden",
+    "sending": "Wird gesendet…",
+    "outcome": {
+      "ok": "Antwort nach {{ms}} ms",
+      "busy": "Der Sortierer ist mit einem anderen Befehl beschäftigt. Versuch es erneut, wenn er fertig ist.",
+      "disconnected": "Kein Sortierer verbunden.",
+      "noResponse": "Keine Antwort nach {{ms}} ms."
+    },
+    "stop": {
+      "description": "Schnellstopps",
+      "neutral": "Alles auf neutral",
+      "feeder": "Zuführung stoppen"
+    },
+    "groups": {
+      "status": "Status und Einrichtung",
+      "servos": "Servos und Kanäle",
+      "feeder": "Zuführung",
+      "routing": "Sortierung",
+      "calibration": "Kalibrierung (nicht gespeichert)"
+    },
+    "commands": {
+      "getStatus": "Meldet Firmware-Version, Board, Hardware-ID und BLE-Status.",
+      "readIR": "Liest den IR-Sensor jedes Moduls und den Magazinsensor.",
+      "setChannelOffset": "Setzt das Kanal-Layout (0 Standard, 4 Legacy) und stellt alle Servos auf neutral.",
+      "test": "Führt den vollständigen Selbsttest aus. Verweigert, wenn ein Modulsensor eine Karte erkennt.",
+      "neutral": "Stellt alle Servos auf geschlossen bzw. neutral und stoppt die Zuführung.",
+      "clearDevice": "Öffnet alle Klappen gleichzeitig, um festsitzende Karten zu lösen, und kehrt dann auf neutral zurück.",
+      "servoPosition": "Bewegt ein Servo auf eine kalibrierte Position. Klappe und Paddel nehmen open/closed, der Schieber left/neutral/right.",
+      "servoValue": "Steuert ein Servo mit einem rohen Puls, ohne Kalibrierung.",
+      "channel": "Steuert einen rohen PCA9685-Kanal mit einem Puls, ohne Modulzuordnung.",
+      "channelStop": "Schaltet PWM auf einem rohen Kanal ab, nötig um ein Dauerlauf-Servo zu stoppen.",
+      "feeder": "Führt eine Zuführung aus, bis Modul 1 eine Karte erkennt, das Magazin leer ist oder die Zeit abläuft.",
+      "feederValue": "Steuert den Zuführmotor mit einem rohen Puls. Er läuft weiter, bis du ihn stoppst.",
+      "feederStop": "Schaltet PWM auf dem Zuführkanal ab.",
+      "route": "Führt eine Karte zu und leitet sie an den linken, rechten oder unteren Ausgang eines Moduls.",
+      "pushTest": "Führt nur den Schiebeschritt eines Moduls aus, ohne Karte und ohne IR-Prüfung.",
+      "setConfig": "Setzt die Servopulse und Schiebezeiten eines Moduls. Leere Felder behalten ihren aktuellen Wert.",
+      "setFeederConfig": "Setzt Geschwindigkeit, Zeiten und Rücklauf der Zuführung. Leere Felder behalten ihren aktuellen Wert."
+    },
+    "raw": {
+      "heading": "Rohkonsole",
+      "description": "Sendet genau diese Zeile und wartet auf die nächste Antwort. Ungültiges JSON wird unverändert gesendet, praktisch zum Testen von Firmware-Fehlern.",
+      "line": "Befehl",
+      "timeout": "Zeitlimit (ms)"
+    },
+    "log": {
+      "heading": "Serielles Protokoll",
+      "description": "Jede gesendete und empfangene Zeile dieser Verbindung, neueste zuerst, einschließlich unaufgeforderter Ereignisse wie Staus.",
+      "empty": "Noch nichts gesendet oder empfangen.",
+      "copy": "Protokoll kopieren",
+      "copied": "Protokoll kopiert.",
+      "copyFailed": "Das Protokoll konnte nicht kopiert werden."
+    }
+  }
 }

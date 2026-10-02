@@ -49,6 +49,7 @@ import type {
   FirmwareCheckResult,
   FlashEsp32Result,
   PushTest,
+  RawCommandResult,
   RouteOptions,
   SerialBoardType,
   SerialContextValue,
@@ -1110,6 +1111,26 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [sendAwaited],
   );
 
+  const sendRawCommand = useCallback(
+    async (line: string, timeoutMs: number): Promise<RawCommandResult> => {
+      if (!transportRef.current) return { status: "disconnected", line: null };
+      if (binBusyRef.current) return { status: "busy", line: null };
+
+      binBusyRef.current = true;
+      try {
+        const sent = await sendCommand(`${line}\n`);
+        if (!sent) return { status: "noResponse", line: null };
+        const response = await waitForLine(timeoutMs);
+        return response
+          ? { status: "ok", line: response }
+          : { status: "noResponse", line: null };
+      } finally {
+        binBusyRef.current = false;
+      }
+    },
+    [sendCommand, waitForLine],
+  );
+
   return (
     <SerialContext
       value={{
@@ -1126,6 +1147,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         disconnect,
         sendRoute,
         sendPushTest,
+        sendRawCommand,
         isRouteBusy,
         readIR,
         sendTest,
