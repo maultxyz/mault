@@ -9,17 +9,18 @@ import {
   deleteNotificationRule,
   notificationRuleCountQueryOptions,
   notificationRulesQueryOptions,
-  updateNotificationRule,
 } from "@/features/integrations/api/integrations";
 import { DiscordChannelLabel } from "@/features/integrations/components/discord-channel-label";
 import { DiscordRoleLabel } from "@/features/integrations/components/discord-role-label";
 import { NotificationRuleDialog } from "@/features/integrations/components/notification-rule-dialog";
 import type { NotificationRuleListProps } from "@/lib/interfaces/integrations";
+import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { toast } from "@/lib/toast";
 import type { NotificationRule, Result } from "@magic-vault/shared";
 import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { Controller, useFormContext } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -43,6 +44,7 @@ export function NotificationRuleList({
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<NotificationRule | null>(null);
+  const { control, formState } = useFormContext<DiscordSettingsDraftValues>();
 
   const change = useMutation({
     mutationFn: (request: () => Promise<Result<NotificationRule[]>>) =>
@@ -126,22 +128,21 @@ export function NotificationRuleList({
                 )}
                 <RuleSummary rules={rule.rules} />
               </div>
-              <Switch
-                checked={rule.isEnabled}
-                disabled={!rule.channelId || change.isPending}
-                aria-label={t("rules.enabled")}
-                onCheckedChange={(isEnabled) =>
-                  rule.channelId &&
-                  change.mutate(() =>
-                    updateNotificationRule(rule.guid, {
-                      name: rule.name,
-                      rules: rule.rules,
-                      channelId: rule.channelId!,
-                      roleId: rule.roleId,
-                      isEnabled,
-                    }),
-                  )
-                }
+              <Controller
+                control={control}
+                name={`ruleEnabled.${rule.guid}`}
+                render={({ field }) => (
+                  <Switch
+                    checked={field.value ?? rule.isEnabled}
+                    disabled={
+                      !rule.channelId ||
+                      change.isPending ||
+                      formState.isSubmitting
+                    }
+                    aria-label={t("rules.enabled")}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
               />
               <ButtonGroup className="shrink-0">
                 <Button

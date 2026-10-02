@@ -39,6 +39,7 @@
     "moveDown": "Move down",
     "edit": "Edit {{name}}",
     "delete": "Delete {{name}}",
+    "saved": "Sound rules saved.",
     "saveFailed": "Couldn't save the sound rules.",
     "limitReached_one": "The free plan includes {{count}} sound rule. Upgrade to Business for unlimited sound rules.",
     "limitReached_other": "The free plan includes {{count}} sound rules. Upgrade to Business for unlimited sound rules.",

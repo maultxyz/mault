@@ -15,14 +15,16 @@ import { hasActiveSubscription } from "@/features/billing/lib/subscription";
 import { apiDelete } from "@/lib/api/client";
 import { neon } from "@/lib/auth/client";
 import {
+  memberRolesSchema,
   orgInviteSchema,
   organizationNameSchema,
+  type MemberRolesFormValues,
   type OrgInviteFormValues,
   type OrganizationNameFormValues,
 } from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
@@ -58,6 +60,24 @@ export function OrgSettings() {
     resolver: zodResolver(organizationNameSchema),
     defaultValues: { name: "" },
   });
+
+  const memberRoles = useMemo<MemberRolesFormValues>(
+    () => ({
+      roles: Object.fromEntries(
+        (activeOrg?.members ?? []).map((m) => [m.id, m.role as OrgRole]),
+      ),
+    }),
+    [activeOrg?.members],
+  );
+  const rolesForm = useForm<MemberRolesFormValues>({
+    resolver: zodResolver(memberRolesSchema),
+    values: memberRoles,
+    resetOptions: { keepDirtyValues: true },
+  });
+  const isDirty =
+    renameForm.formState.isDirty || rolesForm.formState.isDirty;
+  const isSaving =
+    renameForm.formState.isSubmitting || rolesForm.formState.isSubmitting;
 
   const inviteForm = useForm<OrgInviteFormValues>({
     resolver: zodResolver(orgInviteSchema),
@@ -116,20 +136,43 @@ export function OrgSettings() {
     }
   }
 
-  async function handleChangeRole(memberId: string, role: OrgRole) {
-    try {
-      const { error } = await neon.auth.organization.updateMemberRole({
-        memberId,
-        role,
-        organizationId: activeOrg!.id,
-      });
-      if (error) throw new Error(error.message);
-      await refetchActive();
-    } catch (e: unknown) {
-      toast.error(
-        e instanceof Error ? e.message : t("orgSettings.failedToUpdateRole"),
-      );
+  async function handleSaveRoles(draft: MemberRolesFormValues) {
+    if (!activeOrg) return;
+    const changed = activeOrg.members.filter(
+      (m) => draft.roles[m.id] && draft.roles[m.id] !== m.role,
+    );
+    let failed = false;
+    for (const member of changed) {
+      try {
+        const { error } = await neon.auth.organization.updateMemberRole({
+          memberId: member.id,
+          role: draft.roles[member.id],
+          organizationId: activeOrg.id,
+        });
+        if (error) throw new Error(error.message);
+      } catch (e: unknown) {
+        failed = true;
+        toast.error(
+          e instanceof Error ? e.message : t("orgSettings.failedToUpdateRole"),
+        );
+      }
     }
+    await refetchActive();
+    if (!failed) rolesForm.reset(draft);
+  }
+
+  async function handleSave() {
+    if (renameForm.formState.isDirty) {
+      await renameForm.handleSubmit(handleRename)();
+    }
+    if (rolesForm.formState.isDirty) {
+      await rolesForm.handleSubmit(handleSaveRoles)();
+    }
+  }
+
+  function handleDiscard() {
+    renameForm.reset();
+    rolesForm.reset(memberRoles);
   }
 
   async function handleRemoveMember() {
@@ -197,12 +240,15 @@ export function OrgSettings() {
                   />
                 </form>
                 <SaveBar
-                  show={renameForm.formState.isDirty}
-                  formId="org-rename-form"
-                  isSaving={renameForm.formState.isSubmitting}
-                  onDiscard={() => renameForm.reset()}
+                  show={isDirty}
+                  isSaving={isSaving}
+                  onSave={() => void handleSave()}
+                  onDiscard={handleDiscard}
                 />
-                <UnsavedChangesGuard isDirty={renameForm.formState.isDirty} />
+                <UnsavedChangesGuard
+                  isDirty={isDirty}
+                  onDiscard={handleDiscard}
+                />
               </>
             )}
 
@@ -227,26 +273,33 @@ export function OrgSettings() {
                       )}
                     </div>
                     {canManage && m.role !== "owner" ? (
-                      <Select
-                        value={m.role}
-                        onValueChange={(e) =>
-                          handleChangeRole(m.id, e as OrgRole)
-                        }
-                      >
-                        <SelectTrigger className="w-28 shrink-0">
-                          <SelectValue>
-                            {ROLE_LABELS[m.role as OrgRole]}
-                          </SelectValue>
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="admin">
-                            {t("roleAdmin")}
-                          </SelectItem>
-                          <SelectItem value="member">
-                            {t("roleMember")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Controller
+                        control={rolesForm.control}
+                        name={`roles.${m.id}`}
+                        render={({ field }) => (
+                          <Select
+                            value={field.value ?? m.role}
+                            disabled={isSaving}
+                            onValueChange={(role) =>
+                              role && field.onChange(role as OrgRole)
+                            }
+                          >
+                            <SelectTrigger className="w-28 shrink-0">
+                              <SelectValue>
+                                {ROLE_LABELS[(field.value ?? m.role) as OrgRole]}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">
+                                {t("roleAdmin")}
+                              </SelectItem>
+                              <SelectItem value="member">
+                                {t("roleMember")}
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                     ) : (
                       <span className="text-xs text-muted-foreground shrink-0">
                         {ROLE_LABELS[m.role as OrgRole]}

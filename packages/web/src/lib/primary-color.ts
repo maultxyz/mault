@@ -1,4 +1,4 @@
-import type { ThemeColor } from "@/lib/constants/colors";
+import { THEME_COLORS, type ThemeColor } from "@/lib/constants/colors";
 
 export type { ThemeColor };
 
@@ -10,4 +10,13 @@ export function applyPrimaryColor(color: ThemeColor) {
 export function resetPrimaryColor() {
   document.documentElement.style.removeProperty("--primary");
   document.documentElement.style.removeProperty("--primary-foreground");
+}
+
+export function applyPrimaryColorName(name: string | null) {
+  const color = name ? THEME_COLORS.find((c) => c.name === name) : null;
+  if (color) {
+    applyPrimaryColor(color);
+  } else {
+    resetPrimaryColor();
+  }
 }

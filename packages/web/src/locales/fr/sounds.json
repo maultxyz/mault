@@ -39,6 +39,7 @@
     "moveDown": "Descendre",
     "edit": "Modifier {{name}}",
     "delete": "Supprimer {{name}}",
+    "saved": "Règles sonores enregistrées.",
     "saveFailed": "Impossible d'enregistrer les règles sonores.",
     "limitReached_one": "L'offre gratuite inclut {{count}} règle sonore. Passe à Business pour des règles sonores illimitées.",
     "limitReached_other": "L'offre gratuite inclut {{count}} règles sonores. Passe à Business pour des règles sonores illimitées.",

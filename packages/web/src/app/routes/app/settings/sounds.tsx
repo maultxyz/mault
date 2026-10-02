@@ -18,7 +18,7 @@ export default function SettingsSoundsPage() {
       <NoGameBanner />
       <SettingsSections>
         <SoundClipLibrary />
-        {game && <SoundRuleList gameGuid={game.guid} />}
+        {game && <SoundRuleList key={game.guid} gameGuid={game.guid} />}
       </SettingsSections>
     </>
   );

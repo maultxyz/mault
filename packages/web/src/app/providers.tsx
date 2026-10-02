@@ -12,8 +12,7 @@ import { StationScope } from "@/features/scanner/components/station-scope";
 import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
 import { OrgPriceSourceProvider } from "@/hooks/use-price-source";
 import { AppStreamProvider } from "@/lib/app-stream";
-import { THEME_COLORS } from "@/lib/constants/colors";
-import { applyPrimaryColor, resetPrimaryColor } from "@/lib/primary-color";
+import { applyPrimaryColorName } from "@/lib/primary-color";
 import {
   QueryClient,
   QueryClientProvider,
@@ -36,14 +35,7 @@ function OrgThemeApplier() {
   const { data } = useQuery(orgSettingsQueryOptions(activeOrg?.id));
 
   useEffect(() => {
-    const color = data?.primaryColor
-      ? THEME_COLORS.find((c) => c.name === data.primaryColor)
-      : null;
-    if (color) {
-      applyPrimaryColor(color);
-    } else {
-      resetPrimaryColor();
-    }
+    applyPrimaryColorName(data?.primaryColor ?? null);
   }, [data?.primaryColor]);
 
   return null;

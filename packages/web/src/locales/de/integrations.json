@@ -90,5 +90,9 @@
       "channelRequired": "Wähle einen Kanal.",
       "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
     }
+  },
+  "draft": {
+    "saved": "Discord-Einstellungen gespeichert.",
+    "saveFailed": "Einige Discord-Einstellungen konnten nicht gespeichert werden. Versuch es erneut."
   }
 }

@@ -39,6 +39,7 @@
     "moveDown": "Nach unten",
     "edit": "{{name}} bearbeiten",
     "delete": "{{name}} löschen",
+    "saved": "Soundregeln gespeichert.",
     "saveFailed": "Die Soundregeln konnten nicht gespeichert werden.",
     "limitReached_one": "Der kostenlose Plan enthält {{count}} Soundregel. Wechsle zu Business für unbegrenzte Soundregeln.",
     "limitReached_other": "Der kostenlose Plan enthält {{count}} Soundregeln. Wechsle zu Business für unbegrenzte Soundregeln.",
