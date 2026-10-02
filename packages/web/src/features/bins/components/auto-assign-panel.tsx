@@ -48,10 +48,13 @@ export function AutoAssignPanel() {
   const disableToggles = isPresetMutating || isSavingMode;
 
   return (
-    <Field className="rounded-lg border p-2 gap-2" data-tour="auto-assign-panel">
+    <Field
+      className="rounded-lg border p-2 gap-2"
+      data-tour="auto-assign-panel"
+    >
       <div className="flex items-center justify-between gap-3">
         <span className="flex items-center gap-1.5">
-          <span className="text-sm font-medium">
+          <span className="text-xs font-medium">
             {t("autoAssignPanel.heading")}
           </span>
           <Tooltip>
@@ -132,7 +135,7 @@ export function AutoAssignPanel() {
 
       <div className="flex items-center justify-between gap-3 border-t pt-2">
         <span className="flex items-center gap-1.5">
-          <span className="text-sm font-medium">
+          <span className="text-xs font-medium">
             {t("scanOnlyPanel.heading")}
           </span>
           <Tooltip>
@@ -159,7 +162,7 @@ export function AutoAssignPanel() {
         data-tour="repack-toggle"
       >
         <span className="flex items-center gap-1.5">
-          <span className="text-sm font-medium">
+          <span className="text-xs font-medium">
             {t("repackPanel.heading")}
           </span>
           <Tooltip>
@@ -174,16 +177,14 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("repackPanel.heading")}
           checked={isRepackMode}
-          disabled={
-            disableToggles || isEnabled || isScanOnly || isAlphabetMode
-          }
+          disabled={disableToggles || isEnabled || isScanOnly || isAlphabetMode}
           onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
         />
       </div>
 
       <div className="flex items-center justify-between gap-3 border-t pt-2">
         <span className="flex items-center gap-1.5">
-          <span className="text-sm font-medium">
+          <span className="text-xs font-medium">
             {t("alphabetPanel.heading")}
           </span>
           <Tooltip>
