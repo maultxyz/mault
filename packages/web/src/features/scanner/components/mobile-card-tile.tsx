@@ -1,3 +1,4 @@
+import { useLongPress } from "@/hooks/use-long-press";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { MobileCardTileProps } from "@/lib/interfaces/scanner";
@@ -8,7 +9,9 @@ import { memo } from "react";
 export const MobileCardTile = memo(function MobileCardTile({
   entry,
   onOpen,
+  onLongPress,
 }: MobileCardTileProps) {
+  const { handlers, consumeLongPress } = useLongPress(onLongPress);
   const { priceOf, format } = usePriceSource();
   const price = priceOf(entry.card, entry.isFoil);
   const flagged = entry.needsReview || !!entry.alternativeMatches?.length;
@@ -17,9 +20,13 @@ export const MobileCardTile = memo(function MobileCardTile({
   return (
     <button
       type="button"
-      onClick={onOpen}
+      {...handlers}
+      onClick={() => {
+        if (consumeLongPress()) return;
+        onOpen?.();
+      }}
       disabled={!onOpen}
-      className="flex min-w-0 flex-col gap-1 text-left transition-transform active:scale-[0.97] disabled:active:scale-100"
+      className="flex min-w-0 select-none flex-col gap-1 text-left transition-transform [-webkit-touch-callout:none] active:scale-[0.97] disabled:active:scale-100"
     >
       <div
         className={cn(
@@ -32,6 +39,7 @@ export const MobileCardTile = memo(function MobileCardTile({
           src={entry.card.image?.normal || entry.card.image?.small || ""}
           alt={entry.card.name}
           loading="lazy"
+          draggable={false}
           className="h-full w-full object-cover"
         />
         {entry.isFoil && <FoilOverlay />}

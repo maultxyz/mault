@@ -1,3 +1,6 @@
+import type { GroupedScannedCard } from "@magic-vault/shared";
+import { useState } from "react";
+import { MobileCardActionsDrawer } from "@/features/scanner/components/mobile-card-actions-drawer";
 import { EmptyState } from "@/components/empty-state";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
@@ -56,6 +59,10 @@ export function MobileMonitorCards({
     setPage(next);
     target.closest("[data-scroll-root]")?.scrollTo({ top: 0 });
   };
+
+  const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(
+    null,
+  );
 
   return (
     <>
@@ -134,9 +141,15 @@ export function MobileMonitorCards({
           ))}
         </div>
       ) : cardCount === 0 ? (
-        <EmptyState icon={IconCards} title={t("monitorPage.noCardsScannedYet")} />
+        <EmptyState
+          icon={IconCards}
+          title={t("monitorPage.noCardsScannedYet")}
+        />
       ) : matchingCount === 0 ? (
-        <EmptyState icon={IconSearch} title={t("monitorPage.noCardsMatchSearch")} />
+        <EmptyState
+          icon={IconSearch}
+          title={t("monitorPage.noCardsMatchSearch")}
+        />
       ) : (
         <div className="grid grid-cols-3 gap-x-2 gap-y-3 p-3">
           {entries.map((entry) => (
@@ -145,6 +158,9 @@ export function MobileMonitorCards({
               entry={entry}
               onOpen={
                 canEditCards ? () => setOpenScanId(entry.scanId) : undefined
+              }
+              onLongPress={
+                canEditCards ? () => setActionsEntry(entry) : undefined
               }
             />
           ))}
@@ -177,6 +193,13 @@ export function MobileMonitorCards({
             <IconChevronRight />
           </Button>
         </div>
+      )}
+      {canEditCards && (
+        <MobileCardActionsDrawer
+          entry={actionsEntry}
+          onOpenDetails={setOpenScanId}
+          onClose={() => setActionsEntry(null)}
+        />
       )}
     </>
   );

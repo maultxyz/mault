@@ -250,5 +250,18 @@
     "copyFailed": "Couldn't copy the card JSON.",
     "detectedColor": "Detected color bar",
     "noColor": "None"
+  },
+  "cardContextMenu": {
+    "open": "Open details",
+    "select": "Select",
+    "deselect": "Deselect",
+    "markCorrect": "Mark as correct",
+    "foil": "Foil",
+    "nonFoil": "Non-foil",
+    "copyName": "Copy name",
+    "copied": "Name copied.",
+    "copyFailed": "Couldn't copy the name.",
+    "remove_one": "Remove card",
+    "remove_other": "Remove {{count}} cards"
   }
 }

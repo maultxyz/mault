@@ -1,3 +1,4 @@
+import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { EmptyState } from "@/components/empty-state";
 import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
@@ -93,7 +94,9 @@ export function CardDetailPanel({
   const [showOcrRegions, setShowOcrRegions] = useState(false);
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(() => {
     try {
-      return localStorage.getItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY) === "true";
+      return (
+        localStorage.getItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY) === "true"
+      );
     } catch {
       return false;
     }
@@ -117,13 +120,9 @@ export function CardDetailPanel({
   const { addCard, correctCard, confirmCard, setCardFoilType } =
     useScannedCards();
   const canConfirm =
-    !!scanId &&
-    (needsReview || !!alternativeMatches?.length) &&
-    !wasCorrected;
+    !!scanId && (needsReview || !!alternativeMatches?.length) && !wasCorrected;
   const { activeCollection } = useCollections();
-  const foilOptions = activeCollection?.game?.foilTypes?.length
-    ? activeCollection.game.foilTypes
-    : [t("foil")];
+  const foilOptions = useFoilOptions();
   const currentFoilType = foilType ?? (isFoil ? t("foil") : null);
 
   useEffect(() => {
@@ -290,9 +289,7 @@ export function CardDetailPanel({
               )}
             </div>
             {typeLine && (
-              <p className="text-sm text-foreground/70 truncate">
-                {typeLine}
-              </p>
+              <p className="text-sm text-foreground/70 truncate">{typeLine}</p>
             )}
           </div>
           <div className="flex items-center gap-4 shrink-0 text-xs text-foreground/70">
@@ -551,7 +548,11 @@ export function CardDetailPanel({
                 {!loading &&
                   filteredResults.length === 0 &&
                   query.trim().length >= 2 && (
-                    <EmptyState size="compact" icon={IconSearch} title={t("cardPicker.noCardsFound")} />
+                    <EmptyState
+                      size="compact"
+                      icon={IconSearch}
+                      title={t("cardPicker.noCardsFound")}
+                    />
                   )}
                 {!loading && filteredResults.length > 0 && (
                   <div className="grid grid-cols-4 @3xl:grid-cols-5 gap-1.5">

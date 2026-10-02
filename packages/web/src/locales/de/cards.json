@@ -250,5 +250,18 @@
     "copyFailed": "Karten-JSON konnte nicht kopiert werden.",
     "detectedColor": "Erkannter Farbbalken",
     "noColor": "Keiner"
+  },
+  "cardContextMenu": {
+    "open": "Details öffnen",
+    "select": "Auswählen",
+    "deselect": "Auswahl aufheben",
+    "markCorrect": "Als korrekt markieren",
+    "foil": "Foil",
+    "nonFoil": "Nicht-Foil",
+    "copyName": "Namen kopieren",
+    "copied": "Name kopiert.",
+    "copyFailed": "Der Name konnte nicht kopiert werden.",
+    "remove_one": "Karte entfernen",
+    "remove_other": "{{count}} Karten entfernen"
   }
 }

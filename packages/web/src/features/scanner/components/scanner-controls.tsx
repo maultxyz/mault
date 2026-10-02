@@ -1,3 +1,4 @@
+import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -13,7 +14,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
@@ -87,10 +87,7 @@ export function ScannerControls({
   const { autoFeed, setAutoFeed, forceFoilType, setForceFoilType } =
     useScannedCards();
   const { totalCount } = useCollectionCardsSummary();
-  const { activeCollection } = useCollections();
-  const foilOptions = activeCollection?.game?.foilTypes?.length
-    ? activeCollection.game.foilTypes
-    : [tCards("foil")];
+  const foilOptions = useFoilOptions();
   const canForceScan =
     status === "no-match" || status === "scanning" || status === "captured";
   const isFirstFeed = totalCount === 0;

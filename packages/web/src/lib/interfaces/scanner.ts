@@ -458,6 +458,19 @@ export interface MobileMonitorActivityProps {
 export interface MobileCardTileProps {
   entry: GroupedScannedCard;
   onOpen?: () => void;
+  onLongPress?: () => void;
+}
+
+export interface MobileCardActionsDrawerProps {
+  entry: GroupedScannedCard | null;
+  onOpenDetails: (scanId: string) => void;
+  onClose: () => void;
+}
+
+export interface MobileCardActionsBodyProps {
+  entry: GroupedScannedCard;
+  onOpenDetails: () => void;
+  onClose: () => void;
 }
 
 export interface MobileStatTileProps {

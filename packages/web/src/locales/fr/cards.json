@@ -250,5 +250,18 @@
     "copyFailed": "Impossible de copier le JSON de la carte.",
     "detectedColor": "Barre de couleur détectée",
     "noColor": "Aucune"
+  },
+  "cardContextMenu": {
+    "open": "Ouvrir les détails",
+    "select": "Sélectionner",
+    "deselect": "Désélectionner",
+    "markCorrect": "Marquer comme correcte",
+    "foil": "Foil",
+    "nonFoil": "Non foil",
+    "copyName": "Copier le nom",
+    "copied": "Nom copié.",
+    "copyFailed": "Impossible de copier le nom.",
+    "remove_one": "Retirer la carte",
+    "remove_other": "Retirer {{count}} cartes"
   }
 }

@@ -1,6 +1,7 @@
 import type {
   CardFilters,
   FieldMeta,
+  GroupedScannedCard,
   PlayingCard,
   PlayingCardWithDistance,
 } from "@magic-vault/shared";
@@ -119,7 +120,8 @@ export interface CardToolbarProps {
 
 export interface ScannedCardItemProps {
   card: PlayingCardWithDistance;
-  scannedAt?: number;
+  scannedAt?: number;
+
   onOpen: () => void;
   binNumber?: number;
   isSelected?: boolean;
@@ -198,5 +200,13 @@ export interface CardTechnicalDetailsProps {
 
 export interface TechnicalDetailRowProps {
   label: string;
+  children: ReactNode;
+}
+
+export interface CardContextMenuProps {
+  entry: GroupedScannedCard;
+  isSelected: boolean;
+  onOpen: () => void;
+  onToggleSelect: () => void;
   children: ReactNode;
 }

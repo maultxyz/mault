@@ -1,3 +1,4 @@
+import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -450,24 +451,34 @@ export function CardGrid() {
         ) : (
           <div className={CARD_GRID_DENSITY_CLASS[density]}>
             {pagedCards.map((entry) => (
-              <ScannedCardItem
+              <CardContextMenu
                 key={entry.scanId}
-                card={entry.card}
-                scannedAt={entry.scannedAt}
-                onOpen={() => setOpenScanId(entry.scanId)}
-                binNumber={entry.binNumber}
+                entry={entry}
                 isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                onToggleSelect={(options) =>
-                  handleSelect(entry.scanId, options)
+                onOpen={() => setOpenScanId(entry.scanId)}
+                onToggleSelect={() =>
+                  handleSelect(entry.scanId, { shiftKey: false })
                 }
-                hasAlternatives={!!entry.alternativeMatches?.length}
-                needsReview={entry.needsReview}
-                wasCorrected={entry.corrected}
-                isFoil={entry.isFoil}
-                foilType={entry.foilType}
-                isDownloaded={entry.isDownloaded}
-                quantity={entry.quantity}
-              />
+              >
+                <ScannedCardItem
+                  key={entry.scanId}
+                  card={entry.card}
+                  scannedAt={entry.scannedAt}
+                  onOpen={() => setOpenScanId(entry.scanId)}
+                  binNumber={entry.binNumber}
+                  isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+                  onToggleSelect={(options) =>
+                    handleSelect(entry.scanId, options)
+                  }
+                  hasAlternatives={!!entry.alternativeMatches?.length}
+                  needsReview={entry.needsReview}
+                  wasCorrected={entry.corrected}
+                  isFoil={entry.isFoil}
+                  foilType={entry.foilType}
+                  isDownloaded={entry.isDownloaded}
+                  quantity={entry.quantity}
+                />
+              </CardContextMenu>
             ))}
           </div>
         )}
