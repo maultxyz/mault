@@ -82,8 +82,7 @@ export function LandingPricing() {
               </li>
               {PRICING_SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">
-                  <IconCheck
-                    size={16}
+                  <IconCheck size={16}
                     className="mt-0.5 shrink-0 text-primary"
                   />
                   {t(`pricing.shared.${key}`)}
@@ -136,8 +135,7 @@ export function LandingPricing() {
               </li>
               {PRICING_SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">
-                  <IconCheck
-                    size={16}
+                  <IconCheck size={16}
                     className="mt-0.5 shrink-0 text-primary"
                   />
                   {t(`pricing.shared.${key}`)}

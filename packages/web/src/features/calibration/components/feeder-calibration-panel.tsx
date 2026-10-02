@@ -1,12 +1,7 @@
 import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
+import { SliderField } from "@/components/slider-field";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import { Slider } from "@/components/ui/slider";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { RawStepperRow } from "@/features/calibration/components/raw-stepper-row";
 import {
   FEEDER_DURATION_SLIDER_MAX,
   FEEDER_PAUSE_DURATION_SLIDER_MAX,
@@ -20,95 +15,10 @@ import {
   signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
+import type { FeederCalibrationPanelProps } from "@/lib/interfaces/calibration";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface RawStepperRowProps {
-  value: number;
-  min: number;
-  max?: number;
-  bigStep: number;
-  smallStep: number;
-  disabled: boolean;
-  onChange: (value: number) => void;
-  renderValue: () => React.ReactNode;
-}
-
-// The exact-value fallback for every feeder field: coarse/fine step buttons
-// either side of a readout, only shown once "Advanced" is toggled on.
-function RawStepperRow({
-  value,
-  min,
-  max,
-  bigStep,
-  smallStep,
-  disabled,
-  onChange,
-  renderValue,
-}: RawStepperRowProps) {
-  const clamp = (v: number) =>
-    Math.max(min, max != null ? Math.min(max, v) : v);
-  return (
-    <ButtonGroup className="w-full">
-      <Button
-        variant="outline"
-        disabled={disabled || value <= min}
-        onClick={() => onChange(clamp(value - bigStep))}
-        className="px-2 text-xs"
-      >
-        -{bigStep}
-      </Button>
-      <Button
-        variant="outline"
-        disabled={disabled || value <= min}
-        onClick={() => onChange(clamp(value - smallStep))}
-        className="px-2 text-xs"
-      >
-        -{smallStep}
-      </Button>
-      <div className="flex flex-row flex-1 bg-background border-y justify-center px-2 items-center">
-        {renderValue()}
-      </div>
-      <Button
-        variant="outline"
-        disabled={disabled || (max != null && value >= max)}
-        onClick={() => onChange(clamp(value + smallStep))}
-        className="px-2 text-xs"
-      >
-        +{smallStep}
-      </Button>
-      <Button
-        variant="outline"
-        disabled={disabled || (max != null && value >= max)}
-        onClick={() => onChange(clamp(value + bigStep))}
-        className="px-2 text-xs"
-      >
-        +{bigStep}
-      </Button>
-    </ButtonGroup>
-  );
-}
-
-interface FeederCalibrationPanelProps {
-  speedValue: number;
-  durationValue: number;
-  pulseDurationValue: number;
-  pauseDurationValue: number;
-  settleDurationValue: number;
-  reverseSpeedValue: number;
-  reverseDurationValue: number;
-  isConnected: boolean;
-  canCalibrate: boolean;
-  onSpeedChange: (value: number) => void;
-  onDurationChange: (value: number) => void;
-  onPulseDurationChange: (value: number) => void;
-  onPauseDurationChange: (value: number) => void;
-  onSettleDurationChange: (value: number) => void;
-  onReverseSpeedChange: (value: number) => void;
-  onReverseDurationChange: (value: number) => void;
-  onSelectContinuous: () => void;
-}
 
 export function FeederCalibrationPanel({
   speedValue,
@@ -131,10 +41,17 @@ export function FeederCalibrationPanel({
 }: FeederCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const speedSigned = pulseToSignedPercent(speedValue);
   const speed = pulseToDirectionalSpeed(speedValue);
-  const reverseSpeedSigned = pulseToSignedPercent(reverseSpeedValue);
   const reverseSpeed = pulseToDirectionalSpeed(reverseSpeedValue);
+  const ms = (value: number) => t("msValue", { value });
+  const speedLabel = (s: typeof speed) =>
+    `${t(`feederCalibrationPanel.${s.direction}`)} ${s.magnitude}%`;
+  const pulseLabel =
+    pulseDurationValue <= 0 ? t("continuous") : ms(pulseDurationValue);
+  const reverseLabel =
+    reverseDurationValue <= 0
+      ? t("feederCalibrationPanel.off")
+      : ms(reverseDurationValue);
 
   return (
     <div
@@ -152,8 +69,7 @@ export function FeederCalibrationPanel({
             className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
           >
             <IconChevronDown
-              size={12}
-              className={showAdvanced ? "rotate-180" : undefined}
+              className={showAdvanced ? "size-3 rotate-180" : "size-3"}
             />
             {showAdvanced
               ? t("feederCalibrationPanel.hideAdvanced")
@@ -161,35 +77,16 @@ export function FeederCalibrationPanel({
           </button>
         </div>
 
-        <div className="flex flex-col gap-2">
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <div className="flex items-center justify-between">
-                  <p className="text-xs font-medium w-fit">
-                    {t("feederCalibrationPanel.speedLabel")}
-                  </p>
-                  <span className="text-sm font-bold">
-                    {t(`feederCalibrationPanel.${speed.direction}`)}{" "}
-                    {speed.magnitude}%
-                  </span>
-                </div>
-              }
-            />
-            <TooltipContent>
-              {t("feederCalibrationPanel.speedTooltip")}
-            </TooltipContent>
-          </Tooltip>
-          <Slider
-            min={-100}
-            max={100}
-            step={1}
-            disabled={!canCalibrate}
-            value={speedSigned}
-            onValueChange={(value) =>
-              onSpeedChange(signedPercentToPulse(value))
-            }
-          />
+        <SliderField
+          label={t("feederCalibrationPanel.speedLabel")}
+          description={t("feederCalibrationPanel.speedTooltip")}
+          valueLabel={speedLabel(speed)}
+          min={-100}
+          max={100}
+          disabled={!canCalibrate}
+          value={pulseToSignedPercent(speedValue)}
+          onValueChange={(value) => onSpeedChange(signedPercentToPulse(value))}
+        >
           {showAdvanced && (
             <RawStepperRow
               value={speedValue}
@@ -199,30 +96,21 @@ export function FeederCalibrationPanel({
               smallStep={1}
               disabled={!canCalibrate}
               onChange={onSpeedChange}
-              renderValue={() => (
-                <p className="font-bold text-sm">{speedValue}</p>
-              )}
+              valueLabel={speedValue}
             />
           )}
-        </div>
+        </SliderField>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium">
-              {t("feederCalibrationPanel.timeoutLabel")}
-            </p>
-            <span className="text-sm font-bold">
-              {t("msValue", { value: durationValue })}
-            </span>
-          </div>
-          <Slider
-            min={10}
-            max={sliderMax(durationValue, FEEDER_DURATION_SLIDER_MAX)}
-            step={10}
-            disabled={!isConnected}
-            value={durationValue}
-            onValueChange={onDurationChange}
-          />
+        <SliderField
+          label={t("feederCalibrationPanel.timeoutLabel")}
+          valueLabel={ms(durationValue)}
+          min={10}
+          max={sliderMax(durationValue, FEEDER_DURATION_SLIDER_MAX)}
+          step={10}
+          disabled={!isConnected}
+          value={durationValue}
+          onValueChange={onDurationChange}
+        >
           {showAdvanced && (
             <RawStepperRow
               value={durationValue}
@@ -231,41 +119,20 @@ export function FeederCalibrationPanel({
               smallStep={10}
               disabled={!isConnected}
               onChange={onDurationChange}
-              renderValue={() => (
-                <p className="font-bold text-sm">
-                  {t("msValue", {
-                    value: durationValue,
-                  })}
-                </p>
-              )}
+              valueLabel={ms(durationValue)}
             />
           )}
-        </div>
+        </SliderField>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium">
-              {t("feederCalibrationPanel.pulseDurationLabel")}
-            </p>
-            <p className="text-xs text-foreground/70 italic">
-              {pulseDurationValue <= 0
-                ? t("continuous")
-                : t("msValue", {
-                    value: pulseDurationValue,
-                  })}
-            </p>
-          </div>
-          <Slider
-            min={0}
-            max={sliderMax(
-              pulseDurationValue,
-              FEEDER_PULSE_DURATION_SLIDER_MAX,
-            )}
-            step={1}
-            disabled={!isConnected}
-            value={pulseDurationValue}
-            onValueChange={onPulseDurationChange}
-          />
+        <SliderField
+          label={t("feederCalibrationPanel.pulseDurationLabel")}
+          valueLabel={pulseLabel}
+          min={0}
+          max={sliderMax(pulseDurationValue, FEEDER_PULSE_DURATION_SLIDER_MAX)}
+          disabled={!isConnected}
+          value={pulseDurationValue}
+          onValueChange={onPulseDurationChange}
+        >
           {showAdvanced && (
             <RawStepperRow
               value={pulseDurationValue}
@@ -274,51 +141,28 @@ export function FeederCalibrationPanel({
               smallStep={1}
               disabled={!isConnected}
               onChange={onPulseDurationChange}
-              renderValue={() => (
-                <p className="font-bold text-sm">
-                  {pulseDurationValue <= 0
-                    ? t("continuous")
-                    : t("msValue", {
-                        value: pulseDurationValue,
-                      })}
-                </p>
-              )}
+              valueLabel={pulseLabel}
             />
           )}
-          <ButtonGroup className="w-full">
-            <Button
-              variant="outline"
-              disabled={!isConnected}
-              onClick={onSelectContinuous}
-              className="flex-1"
-            >
-              {t("feederCalibrationPanel.continuousFeedButton")}
-            </Button>
-          </ButtonGroup>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium">
-              {t("feederCalibrationPanel.pauseDurationLabel")}
-            </p>
-            <span className="text-sm font-bold">
-              {t("msValue", {
-                value: pauseDurationValue,
-              })}
-            </span>
-          </div>
-          <Slider
-            min={0}
-            max={sliderMax(
-              pauseDurationValue,
-              FEEDER_PAUSE_DURATION_SLIDER_MAX,
-            )}
-            step={1}
+          <Button
+            variant="outline"
             disabled={!isConnected}
-            value={pauseDurationValue}
-            onValueChange={onPauseDurationChange}
-          />
+            onClick={onSelectContinuous}
+            className="w-full"
+          >
+            {t("feederCalibrationPanel.continuousFeedButton")}
+          </Button>
+        </SliderField>
+
+        <SliderField
+          label={t("feederCalibrationPanel.pauseDurationLabel")}
+          valueLabel={ms(pauseDurationValue)}
+          min={0}
+          max={sliderMax(pauseDurationValue, FEEDER_PAUSE_DURATION_SLIDER_MAX)}
+          disabled={!isConnected}
+          value={pauseDurationValue}
+          onValueChange={onPauseDurationChange}
+        >
           {showAdvanced && (
             <RawStepperRow
               value={pauseDurationValue}
@@ -327,42 +171,24 @@ export function FeederCalibrationPanel({
               smallStep={1}
               disabled={!isConnected}
               onChange={onPauseDurationChange}
-              renderValue={() => (
-                <p className="font-bold text-sm">
-                  {t("msValue", {
-                    value: pauseDurationValue,
-                  })}
-                </p>
-              )}
+              valueLabel={ms(pauseDurationValue)}
             />
           )}
-        </div>
+        </SliderField>
 
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium">
-              {t("feederCalibrationPanel.settleDurationLabel")}
-            </p>
-            <span className="text-sm font-bold">
-              {t("msValue", {
-                value: settleDurationValue,
-              })}
-            </span>
-          </div>
-          <p className="text-2xs text-foreground/70">
-            {t("feederCalibrationPanel.settleDurationDescription")}
-          </p>
-          <Slider
-            min={0}
-            max={sliderMax(
-              settleDurationValue,
-              FEEDER_SETTLE_DURATION_SLIDER_MAX,
-            )}
-            step={1}
-            disabled={!isConnected}
-            value={settleDurationValue}
-            onValueChange={onSettleDurationChange}
-          />
+        <SliderField
+          label={t("feederCalibrationPanel.settleDurationLabel")}
+          description={t("feederCalibrationPanel.settleDurationDescription")}
+          valueLabel={ms(settleDurationValue)}
+          min={0}
+          max={sliderMax(
+            settleDurationValue,
+            FEEDER_SETTLE_DURATION_SLIDER_MAX,
+          )}
+          disabled={!isConnected}
+          value={settleDurationValue}
+          onValueChange={onSettleDurationChange}
+        >
           {showAdvanced && (
             <RawStepperRow
               value={settleDurationValue}
@@ -371,83 +197,52 @@ export function FeederCalibrationPanel({
               smallStep={1}
               disabled={!isConnected}
               onChange={onSettleDurationChange}
-              renderValue={() => (
-                <p className="font-bold text-sm">
-                  {t("msValue", {
-                    value: settleDurationValue,
-                  })}
-                </p>
-              )}
+              valueLabel={ms(settleDurationValue)}
             />
           )}
-        </div>
+        </SliderField>
 
         <FirmwareFeatureGate
           feature="feederRollback"
-          className="flex flex-col gap-2"
+          className="flex flex-col gap-5"
         >
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-medium">
-              {t("feederCalibrationPanel.reverseDurationLabel")}
-            </p>
-            <span className="text-sm font-bold">
-              {reverseDurationValue <= 0
-                ? t("feederCalibrationPanel.off")
-                : t("msValue", { value: reverseDurationValue })}
-            </span>
-          </div>
-          <p className="text-2xs text-foreground/70">
-            {t("feederCalibrationPanel.reverseDurationDescription")}
-          </p>
-          <Slider
+          <SliderField
+            label={t("feederCalibrationPanel.reverseDurationLabel")}
+            description={t("feederCalibrationPanel.reverseDurationDescription")}
+            valueLabel={reverseLabel}
             min={0}
             max={sliderMax(
               reverseDurationValue,
               FEEDER_REVERSE_DURATION_SLIDER_MAX,
             )}
-            step={1}
             disabled={!isConnected}
             value={reverseDurationValue}
             onValueChange={onReverseDurationChange}
-          />
-          {showAdvanced && (
-            <RawStepperRow
-              value={reverseDurationValue}
-              min={0}
-              bigStep={10}
-              smallStep={1}
-              disabled={!isConnected}
-              onChange={onReverseDurationChange}
-              renderValue={() => (
-                <p className="font-bold text-sm">
-                  {reverseDurationValue <= 0
-                    ? t("feederCalibrationPanel.off")
-                    : t("msValue", { value: reverseDurationValue })}
-                </p>
-              )}
-            />
-          )}
-          {reverseDurationValue > 0 && (
-            <>
-              <div className="flex items-center justify-between pt-1">
-                <p className="text-xs font-medium">
-                  {t("feederCalibrationPanel.reverseSpeedLabel")}
-                </p>
-                <span className="text-sm font-bold">
-                  {t(`feederCalibrationPanel.${reverseSpeed.direction}`)}{" "}
-                  {reverseSpeed.magnitude}%
-                </span>
-              </div>
-              <Slider
-                min={-100}
-                max={100}
-                step={1}
-                disabled={!canCalibrate}
-                value={reverseSpeedSigned}
-                onValueChange={(value) =>
-                  onReverseSpeedChange(signedPercentToPulse(value))
-                }
+          >
+            {showAdvanced && (
+              <RawStepperRow
+                value={reverseDurationValue}
+                min={0}
+                bigStep={10}
+                smallStep={1}
+                disabled={!isConnected}
+                onChange={onReverseDurationChange}
+                valueLabel={reverseLabel}
               />
+            )}
+          </SliderField>
+          {reverseDurationValue > 0 && (
+            <SliderField
+              label={t("feederCalibrationPanel.reverseSpeedLabel")}
+              valueLabel={speedLabel(reverseSpeed)}
+              min={-100}
+              max={100}
+              disabled={!canCalibrate}
+              value={pulseToSignedPercent(reverseSpeedValue)}
+              onValueChange={(value) =>
+                onReverseSpeedChange(signedPercentToPulse(value))
+              }
+            >
               {showAdvanced && (
                 <RawStepperRow
                   value={reverseSpeedValue}
@@ -457,12 +252,10 @@ export function FeederCalibrationPanel({
                   smallStep={1}
                   disabled={!canCalibrate}
                   onChange={onReverseSpeedChange}
-                  renderValue={() => (
-                    <p className="font-bold text-sm">{reverseSpeedValue}</p>
-                  )}
+                  valueLabel={reverseSpeedValue}
                 />
               )}
-            </>
+            </SliderField>
           )}
         </FirmwareFeatureGate>
       </div>

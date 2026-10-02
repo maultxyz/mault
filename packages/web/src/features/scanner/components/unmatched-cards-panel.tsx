@@ -29,7 +29,7 @@ export function UnmatchedCardsPanel({
           <Popover key={entry.scanId}>
             <PopoverTrigger
               render={
-                <div className="relative shrink-0 rounded-md overflow-hidden border bg-muted w-20 aspect-square group cursor-pointer">
+                <div className="relative shrink-0 rounded-md overflow-hidden border bg-muted w-20 aspect-[2.5/3.5] group cursor-pointer">
                   {entry.capturedImageUrl ? (
                     <img
                       src={entry.capturedImageUrl}
@@ -72,7 +72,7 @@ export function UnmatchedCardsPanel({
                 <img
                   src={entry.capturedImageUrl}
                   alt={t("unmatchedCardsPanel.imageAlt")}
-                  className="w-48 aspect-square rounded-md object-fill"
+                  className="w-48 aspect-[2.5/3.5] rounded-md object-fill"
                 />
               ) : (
                 <p className="px-1.5 py-1 text-foreground/70">

@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -12,7 +13,12 @@ import {
   type CreateApiKeyFormValues,
 } from "@/schemas/api-keys.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconCopy, IconKey, IconLoader2, IconPlus } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconKey,
+  IconLoader2,
+  IconPlus,
+} from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -134,7 +140,7 @@ export function ApiKeysManager() {
       )}
 
       {!isLoading && activeKeys.length === 0 && (
-        <p className="text-xs text-foreground/70">{t("apiKeys.empty")}</p>
+        <EmptyState size="compact" icon={IconKey} title={t("apiKeys.empty")} />
       )}
 
       {!isLoading && activeKeys.length > 0 && (

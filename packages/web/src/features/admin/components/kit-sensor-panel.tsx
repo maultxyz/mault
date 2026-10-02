@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import {
@@ -15,6 +16,7 @@ import {
   IconCircleCheck,
   IconPlayerPause,
   IconPlayerPlay,
+  IconRadar,
 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -74,9 +76,7 @@ export function KitSensorPanel({ session, disabled }: KitPanelProps) {
       }
     >
       {session.sensors.length === 0 ? (
-        <p className="text-sm text-foreground/70">
-          {t("kitTest.sensors.empty")}
-        </p>
+        <EmptyState size="compact" icon={IconRadar} title={t("kitTest.sensors.empty")} />
       ) : (
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {session.sensors.map((sensor) => (

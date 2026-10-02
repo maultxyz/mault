@@ -38,8 +38,7 @@ export function PrimaryColorPicker({
               style={{ background: color.value }}
             >
               {isSelected && (
-                <IconCheck
-                  size={14}
+                <IconCheck size={14}
                   style={{ color: color.fg }}
                   className="mx-auto"
                 />

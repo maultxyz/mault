@@ -574,8 +574,7 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
           : t("setupWizard.irSensors.clear")}
       </span>
       {seen ? (
-        <IconCircleCheck
-          size={18}
+        <IconCircleCheck size={18}
           className="shrink-0 text-primary"
           aria-label={t("setupWizard.irSensors.verified")}
         />

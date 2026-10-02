@@ -1,7 +1,15 @@
+import { Sparkline } from "@/components/sparkline";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { bucketScanTimes } from "@/features/scanner/lib/scan-rate";
+import { useNow } from "@/hooks/use-now";
+import {
+  SCAN_RATE_BUCKET_COUNT,
+  SCAN_RATE_BUCKET_MS,
+  SCAN_RATE_REFRESH_MS,
+} from "@/lib/constants/scanner";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
@@ -10,14 +18,12 @@ import { cn } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function ScanStats({
-  className,
-  scrollable = true,
-}: ScanStatsProps) {
+export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const Container = scrollable ? ScrollArea : "div";
   const { t } = useTranslation("scanner");
   const [expandedSets, setExpandedSets] = useState(false);
-  const { elapsedMs, isTimerActive } = useScannedCards();
+  const { elapsedMs, isTimerActive, recentScanTimes } = useScannedCards();
+  const now = useNow(SCAN_RATE_REFRESH_MS);
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
   const { displayStats: stats, totalCount } = useCollectionCardsSummary(query);
@@ -36,7 +42,12 @@ export function ScanStats({
 
   const visibleSets = expandedSets ? stats.sets : stats.sets.slice(0, 5);
 
-  const statCards: { label: string; value: string; indicator?: boolean }[] = [
+  const statCards: {
+    label: string;
+    value: string;
+    indicator?: boolean;
+    trend?: number[];
+  }[] = [
     { label: t("totalCards"), value: String(stats.totalCount) },
     { label: t("unique"), value: String(stats.uniqueCount) },
   ];
@@ -58,6 +69,15 @@ export function ScanStats({
         elapsedMs > 0
           ? String(Math.round((totalCount / elapsedMs) * 3_600_000))
           : "-",
+      trend:
+        recentScanTimes.length > 0
+          ? bucketScanTimes(
+              recentScanTimes,
+              now,
+              SCAN_RATE_BUCKET_MS,
+              SCAN_RATE_BUCKET_COUNT,
+            )
+          : undefined,
     },
   );
 
@@ -89,7 +109,23 @@ export function ScanStats({
                   i < statCards.length - 2 && "border-b",
                   "border-input",
                 )}
-              />
+              >
+                {card.trend && (
+                  <Sparkline
+                    className="mt-1"
+                    values={card.trend}
+                    ariaLabel={t("scanStats.scanRateTrend")}
+                    formatPoint={(count, index) =>
+                      index === card.trend!.length - 1
+                        ? t("scanStats.scanRateNow", { count })
+                        : t("scanStats.scanRatePoint", {
+                            count,
+                            minutes: card.trend!.length - 1 - index,
+                          })
+                    }
+                  />
+                )}
+              </StatCard>
             ))}
           </div>
           {stats.mostValuable && (
@@ -231,11 +267,13 @@ function StatCard({
   value,
   className,
   indicator,
+  children,
 }: {
   label: string;
   value: string;
   className?: string;
   indicator?: boolean;
+  children?: React.ReactNode;
 }) {
   return (
     <div className={`p-2 ${className ?? ""}`}>
@@ -250,6 +288,7 @@ function StatCard({
         )}
       </div>
       <p className="text-sm font-semibold">{value}</p>
+      {children}
     </div>
   );
 }

@@ -32,7 +32,7 @@ export function CardImageViewer({
             />
           </label>
         </DialogHeader>
-        <div className="mx-auto h-[min(75dvh,36rem)] max-w-full aspect-square rounded-lg overflow-hidden border">
+        <div className="mx-auto h-[min(75dvh,36rem)] max-w-full aspect-[2.5/3.5] rounded-lg overflow-hidden border">
           <CapturedImageThumb
             src={capturedImageUrl}
             alt={t("cardPicker.scannedAlt")}

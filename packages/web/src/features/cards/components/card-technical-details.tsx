@@ -57,7 +57,7 @@ export function CardTechnicalDetails({
   };
 
   return (
-    <div className="flex flex-col gap-6 rounded-lg border p-4">
+    <div className="flex flex-col gap-6 rounded-lg border bg-muted p-4">
       <DetailSection title={t("technicalDetails.match")}>
         <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1.5 text-sm">
           <Row label={t("technicalDetails.matchedBy")}>
@@ -202,7 +202,7 @@ export function CardTechnicalDetails({
             {t("technicalDetails.copyJson")}
           </Button>
         </div>
-        <pre className="max-h-96 overflow-auto rounded-md bg-muted p-3 font-mono text-xs">
+        <pre className="max-h-96 overflow-auto rounded-md border bg-background p-3 font-mono text-xs">
           {cardJson}
         </pre>
       </DetailSection>

@@ -259,7 +259,7 @@ export default function MonitorSessionsPage() {
 
             {!isLoading && sorted.length === 0 && (
               <EmptyState
-                icon={<IconHeartRateMonitor className="size-10" />}
+                icon={IconHeartRateMonitor}
                 title={t("monitorSessions.noSessionsFound")}
                 description={t("monitorSessions.noSessionsHint")}
               />
@@ -267,7 +267,7 @@ export default function MonitorSessionsPage() {
 
             {!isLoading && sorted.length > 0 && filteredSorted.length === 0 && (
               <EmptyState
-                icon={<IconHeartRateMonitor className="size-10" />}
+                icon={IconHeartRateMonitor}
                 title={t("monitorSessions.noSearchResultsTitle")}
                 description={t("monitorSessions.noSearchResultsDescription")}
               />

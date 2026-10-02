@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -19,7 +20,12 @@ import {
   type OrgInviteFormValues,
 } from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconCopy, IconMailPlus, IconPlus } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconMailForward,
+  IconMailPlus,
+  IconPlus,
+} from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -156,7 +162,7 @@ export function LocalOrgInvites() {
       {isLoading && <Skeleton className="h-12 w-full" />}
 
       {!isLoading && invites?.length === 0 && (
-        <p className="text-xs text-foreground/70">{t("invites.empty")}</p>
+        <EmptyState size="compact" icon={IconMailForward} title={t("invites.empty")} />
       )}
 
       {!isLoading && invites && invites.length > 0 && (

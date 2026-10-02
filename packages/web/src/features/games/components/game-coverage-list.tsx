@@ -26,7 +26,7 @@ export function GameCoverageList() {
 
       {!isLoading && coverage.length === 0 && (
         <EmptyState
-          icon={<IconCards className="size-10" />}
+          icon={IconCards}
           title={t("noGamesConfigured")}
         />
       )}

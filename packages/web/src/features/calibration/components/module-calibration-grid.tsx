@@ -1,3 +1,4 @@
+import { SliderField } from "@/components/slider-field";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -278,33 +279,17 @@ function ModuleDelayControl({
 }: ModuleDelayControlProps) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs font-medium">
-          {t(`moduleCalibrationGrid.${field}Label`)}
-        </p>
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <span className="text-sm font-bold">
-                {t("msValue", { value })}
-              </span>
-            }
-          />
-          <TooltipContent>
-            {t(`moduleCalibrationGrid.${field}Description`)}
-          </TooltipContent>
-        </Tooltip>
-      </div>
-      <Slider
-        min={0}
-        max={sliderMax(value, MODULE_DELAY_SLIDER_MAX[field])}
-        step={10}
-        disabled={!isConnected}
-        value={value}
-        onValueChange={(v) => onChange(module, field, v)}
-      />
-    </div>
+    <SliderField
+      label={t(`moduleCalibrationGrid.${field}Label`)}
+      description={t(`moduleCalibrationGrid.${field}Description`)}
+      valueLabel={t("msValue", { value })}
+      min={0}
+      max={sliderMax(value, MODULE_DELAY_SLIDER_MAX[field])}
+      step={10}
+      disabled={!isConnected}
+      value={value}
+      onValueChange={(v) => onChange(module, field, v)}
+    />
   );
 }
 

@@ -99,6 +99,7 @@ export interface ScannedCardsContextValue {
   forceSetCode: string | null;
   elapsedMs: number;
   isTimerActive: boolean;
+  recentScanTimes: number[];
   setScannerRunning: (running: boolean) => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;

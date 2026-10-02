@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { Button } from "@/components/ui/button";
@@ -424,9 +425,7 @@ export function CardSelectDialog({
               {!loading &&
                 filteredResults.length === 0 &&
                 query.trim().length >= 2 && (
-                  <p className="text-center text-sm text-foreground/70 py-8">
-                    {t("cardPicker.noCardsFound")}
-                  </p>
+                  <EmptyState size="compact" icon={IconSearch} title={t("cardPicker.noCardsFound")} />
                 )}
               {!loading && filteredResults.length > 0 && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-1">

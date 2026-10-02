@@ -1,3 +1,4 @@
+import { SCAN_RATE_WINDOW_MS } from "@/lib/constants/scanner";
 import {
   type BinConfig,
   type BinContentCard,
@@ -177,6 +178,7 @@ export function ScannedCardsProvider({
     scannerRunning,
     timerResetSignal,
   );
+  const [recentScanTimes, setRecentScanTimes] = useState<number[]>([]);
 
   const {
     autoFeed,
@@ -440,6 +442,10 @@ export function ScannedCardsProvider({
       };
 
       recordSupportPromptScan();
+      setRecentScanTimes((prev) => [
+        ...prev.filter((time) => time > record.scannedAt - SCAN_RATE_WINDOW_MS),
+        record.scannedAt,
+      ]);
 
       if (record.binNumber != null && tracksBinContents()) {
         binContentsRef.current = [
@@ -873,6 +879,7 @@ export function ScannedCardsProvider({
     const collection = activeCollectionRef.current;
     binContentsRef.current = [];
     setTimerResetSignal((s) => s + 1);
+    setRecentScanTimes([]);
     if (collection) {
       emptyCollectionRef
         .current(collection.guid)
@@ -893,6 +900,7 @@ export function ScannedCardsProvider({
         forceSetCode,
         elapsedMs,
         isTimerActive,
+        recentScanTimes,
         setScannerRunning,
         setAutoFeed,
         setForceFoilType,

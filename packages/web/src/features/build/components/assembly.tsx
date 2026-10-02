@@ -171,8 +171,7 @@ export function BuildAssembly() {
                   </div>
                   <AnchorLinkButton id={phaseAnchorId(phase.key)} />
                   {hasVideos && (
-                    <IconVideo
-                      size={16}
+                    <IconVideo size={16}
                       className="ml-auto shrink-0 text-foreground/70"
                       aria-label={t("assembly.hasVideoAria")}
                     />

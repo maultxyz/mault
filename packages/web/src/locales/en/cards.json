@@ -111,7 +111,13 @@
     "deleteScannedCardsDescription": "This will permanently delete all cards from your collection. This action cannot be undone.",
     "clearing": "Clearing...",
     "clearAll": "Clear All",
-    "clearAllCardsTitle": "Clear all cards"
+    "clearAllCardsTitle": "Clear all cards",
+    "density": "Card size: {{density}}",
+    "densities": {
+      "compact": "compact",
+      "comfortable": "comfortable",
+      "large": "large"
+    }
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",

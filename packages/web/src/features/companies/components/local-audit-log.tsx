@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/empty-state";
+import { IconHistory } from "@tabler/icons-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
@@ -78,7 +80,7 @@ export function LocalAuditLog() {
       )}
 
       {!isLoading && events?.length === 0 && (
-        <p className="text-xs text-foreground/70">{t("auditLog.empty")}</p>
+        <EmptyState size="compact" icon={IconHistory} title={t("auditLog.empty")} />
       )}
 
       {!isLoading && events && events.length > 0 && (

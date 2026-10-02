@@ -28,8 +28,7 @@ export function LandingOpenSource() {
         <div className="mt-10 grid divide-y divide-border border-t border-border md:grid-cols-3 md:divide-x md:divide-y-0 md:border-t-0">
           <div className="flex flex-col gap-3 py-6 md:px-6 md:py-0 md:pl-0">
             <div className="flex items-start gap-3">
-              <IconBrandGithub
-                size={20}
+              <IconBrandGithub size={20}
                 className="mt-0.5 shrink-0 text-primary"
               />
               <div>
@@ -85,8 +84,7 @@ export function LandingOpenSource() {
 
           <div className="flex flex-col gap-3 py-6 md:px-6 md:py-0 md:pr-0">
             <div className="flex items-start gap-3">
-              <IconBrandDiscord
-                size={20}
+              <IconBrandDiscord size={20}
                 className="mt-0.5 shrink-0 text-primary"
               />
               <div>

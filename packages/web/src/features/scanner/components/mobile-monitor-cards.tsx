@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { CardSortButton } from "@/features/cards/components/card-sort-button";
 import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
 import {
+  IconCards,
   IconChevronLeft,
   IconChevronRight,
   IconHelpCircle,
@@ -132,13 +134,9 @@ export function MobileMonitorCards({
           ))}
         </div>
       ) : cardCount === 0 ? (
-        <p className="px-6 py-16 text-center text-sm text-foreground/70">
-          {t("monitorPage.noCardsScannedYet")}
-        </p>
+        <EmptyState icon={IconCards} title={t("monitorPage.noCardsScannedYet")} />
       ) : matchingCount === 0 ? (
-        <p className="px-6 py-16 text-center text-sm text-foreground/70">
-          {t("monitorPage.noCardsMatchSearch")}
-        </p>
+        <EmptyState icon={IconSearch} title={t("monitorPage.noCardsMatchSearch")} />
       ) : (
         <div className="grid grid-cols-3 gap-x-2 gap-y-3 p-3">
           {entries.map((entry) => (

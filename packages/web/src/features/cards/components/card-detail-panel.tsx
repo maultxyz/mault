@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { FoilOverlay } from "@/components/foil-overlay";
@@ -228,7 +229,7 @@ export function CardDetailPanel({
   const typeLine = selectedCard?.typeLine ?? "";
 
   return (
-    <div className="flex h-full overflow-x-hidden">
+    <div className="flex h-full overflow-x-hidden animate-in fade-in-0 slide-in-from-right-4 duration-200 motion-reduce:animate-none">
       {capturedImageUrl && (
         <CardImageViewer
           open={viewerOpen}
@@ -386,7 +387,7 @@ export function CardDetailPanel({
                         disabled={!capturedImageUrl}
                         aria-label={t("cardDetailPanel.enlargeImage")}
                         title={t("cardDetailPanel.enlargeImage")}
-                        className="w-56 aspect-square rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors"
+                        className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors"
                       >
                         {capturedImage}
                       </button>
@@ -488,7 +489,7 @@ export function CardDetailPanel({
             <>
               {showCapturedImageSlot && (
                 <div className="flex items-center gap-4">
-                  <div className="w-56 aspect-square rounded-lg overflow-hidden border shadow-sm shrink-0">
+                  <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
                     {capturedImage}
                   </div>
                   <p className="text-sm text-foreground/70 leading-snug">
@@ -550,9 +551,7 @@ export function CardDetailPanel({
                 {!loading &&
                   filteredResults.length === 0 &&
                   query.trim().length >= 2 && (
-                    <p className="text-center text-sm text-foreground/70 py-8">
-                      {t("cardPicker.noCardsFound")}
-                    </p>
+                    <EmptyState size="compact" icon={IconSearch} title={t("cardPicker.noCardsFound")} />
                   )}
                 {!loading && filteredResults.length > 0 && (
                   <div className="grid grid-cols-4 @3xl:grid-cols-5 gap-1.5">

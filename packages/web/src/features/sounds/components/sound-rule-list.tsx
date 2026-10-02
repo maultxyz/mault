@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -21,9 +22,11 @@ import type { Result, SoundRule } from "@magic-vault/shared";
 import {
   IconArrowDown,
   IconArrowUp,
+  IconMusic,
   IconPencil,
   IconPlus,
   IconTrash,
+  IconUpload,
 } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -97,10 +100,10 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
         </div>
       )}
       {clips.length === 0 && (
-        <p className="text-sm text-foreground/70">{t("rules.needsClip")}</p>
+        <EmptyState size="compact" icon={IconUpload} title={t("rules.needsClip")} />
       )}
       {!isLoading && rules.length === 0 && clips.length > 0 && (
-        <p className="text-sm text-foreground/70">{t("rules.empty")}</p>
+        <EmptyState size="compact" icon={IconMusic} title={t("rules.empty")} />
       )}
 
       <ol className="flex flex-col divide-y">

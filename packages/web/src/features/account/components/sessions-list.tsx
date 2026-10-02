@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -7,6 +8,7 @@ import type { SessionRow } from "@/lib/interfaces/account";
 import {
   IconDeviceDesktop,
   IconDeviceMobile,
+  IconDevices,
   IconLoader2,
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useState } from "react";
@@ -153,7 +155,7 @@ export function SessionsList() {
       )}
 
       {!isLoading && sessions?.length === 0 && (
-        <p className="text-xs text-foreground/70">{t("sessions.empty")}</p>
+        <EmptyState size="compact" icon={IconDevices} title={t("sessions.empty")} />
       )}
 
       {!isLoading && sessions && sessions.length > 0 && (

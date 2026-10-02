@@ -206,7 +206,10 @@
     "byColor": "Par couleur",
     "bySet": "Par set",
     "showLess": "Afficher moins",
-    "showAllSets": "Afficher les {{count}} sets"
+    "showAllSets": "Afficher les {{count}} sets",
+    "scanRateTrend": "Scans par minute sur les 12 dernières minutes",
+    "scanRateNow": "{{count}} scans cette minute",
+    "scanRatePoint": "{{count}} scans, il y a {{minutes}} min"
   },
   "scannerControls": {
     "scanAgain": "Scanner à nouveau",

@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { useCommLog } from "@/features/scanner/api/use-serial";
@@ -5,7 +6,10 @@ import { CommLogEntries } from "@/features/scanner/components/comm-log-entries";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { DEVICE_PLAYGROUND_LOG_LIMIT } from "@/lib/constants/device-playground";
 import { toast } from "@/lib/toast";
-import { IconCopy } from "@tabler/icons-react";
+import {
+  IconCopy,
+  IconTerminal2,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
 export function DeviceCommLog() {
@@ -39,9 +43,7 @@ export function DeviceCommLog() {
       }
     >
       {recent.length === 0 ? (
-        <p className="text-sm text-foreground/70">
-          {t("devicePlayground.log.empty")}
-        </p>
+        <EmptyState size="compact" icon={IconTerminal2} title={t("devicePlayground.log.empty")} />
       ) : (
         <div className="max-h-80 overflow-y-auto rounded-md border bg-muted">
           <CommLogEntries entries={recent} />

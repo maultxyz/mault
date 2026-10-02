@@ -162,10 +162,7 @@ export function CollectionSwitcher() {
                 {isActivating ? (
                   <IconLoader2 className="size-3 animate-spin text-foreground/70" />
                 ) : (
-                  <IconLock
-                    size={11}
-                    className="text-warning-foreground"
-                  />
+                  <IconLock size={11} className="text-warning-foreground" />
                 )}
               </InputGroupAddon>
             )}
@@ -183,10 +180,7 @@ export function CollectionSwitcher() {
                   <ComboboxItem key={c.guid} value={c} disabled={lockedByOther}>
                     <span className="truncate">{c.name}</span>
                     {lockedByOther && (
-                      <IconLock
-                        size={11}
-                        className="ml-1 shrink-0 text-foreground/70"
-                      />
+                      <IconLock size={11} className="ml-1 shrink-0 text-foreground/70" />
                     )}
                     <span className="ml-auto pl-2 pr-6 pt-0.5 text-xs text-foreground/70 tabular-nums">
                       {c.cardCount}

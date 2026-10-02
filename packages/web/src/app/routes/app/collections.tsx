@@ -190,7 +190,7 @@ export default function CollectionsPage() {
 
         {!isLoading && collections.length === 0 && (
           <EmptyState
-            icon={<IconAlbum className="size-10" />}
+            icon={IconAlbum}
             title={t("noCollectionsYet")}
             description={t("page.emptyDescription")}
           />
@@ -200,7 +200,7 @@ export default function CollectionsPage() {
           collections.length > 0 &&
           filteredCollections.length === 0 && (
             <EmptyState
-              icon={<IconAlbum className="size-10" />}
+              icon={IconAlbum}
               title={t("noMatchingCollections")}
               description={t("page.noSearchResultsDescription")}
             />

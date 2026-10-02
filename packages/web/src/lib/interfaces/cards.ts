@@ -85,6 +85,8 @@ export interface CardSelectDialogProps {
 
 export type CardViewMode = "grid" | "list";
 
+export type CardGridDensity = "compact" | "comfortable" | "large";
+
 export interface CardToolbarProps {
   leading?: ReactNode;
   searchQuery: string;
@@ -109,12 +111,15 @@ export interface CardToolbarProps {
   binCount?: number;
   viewMode: CardViewMode;
   onViewModeChange: (mode: CardViewMode) => void;
+  density?: CardGridDensity;
+  onDensityChange?: (density: CardGridDensity) => void;
   groupDuplicates: boolean;
   onGroupDuplicatesChange: (grouped: boolean) => void;
 }
 
 export interface ScannedCardItemProps {
   card: PlayingCardWithDistance;
+  scannedAt?: number;
   onOpen: () => void;
   binNumber?: number;
   isSelected?: boolean;

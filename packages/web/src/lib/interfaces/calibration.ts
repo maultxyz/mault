@@ -171,3 +171,23 @@ export interface DeviceTogglePanelProps {
   isLoaded: boolean;
   onChange: (key: DeviceToggleKey, value: boolean) => void;
 }
+
+export interface FeederCalibrationPanelProps {
+  speedValue: number;
+  durationValue: number;
+  pulseDurationValue: number;
+  pauseDurationValue: number;
+  settleDurationValue: number;
+  reverseSpeedValue: number;
+  reverseDurationValue: number;
+  isConnected: boolean;
+  canCalibrate: boolean;
+  onSpeedChange: (value: number) => void;
+  onDurationChange: (value: number) => void;
+  onPulseDurationChange: (value: number) => void;
+  onPauseDurationChange: (value: number) => void;
+  onSettleDurationChange: (value: number) => void;
+  onReverseSpeedChange: (value: number) => void;
+  onReverseDurationChange: (value: number) => void;
+  onSelectContinuous: () => void;
+}
