@@ -229,7 +229,7 @@ export function CardDetailPanel({
   const typeLine = selectedCard?.typeLine ?? "";
 
   return (
-    <div className="flex h-full overflow-x-hidden animate-in fade-in-0 slide-in-from-right-4 duration-200 motion-reduce:animate-none">
+    <div className="flex h-full overflow-x-hidden">
       {capturedImageUrl && (
         <CardImageViewer
           open={viewerOpen}

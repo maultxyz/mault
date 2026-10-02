@@ -13,7 +13,7 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center gap-3 text-center animate-in fade-in-0 duration-300",
+        "flex flex-col items-center justify-center gap-3 text-center",
         compact ? "py-6" : "py-16",
         className,
       )}
