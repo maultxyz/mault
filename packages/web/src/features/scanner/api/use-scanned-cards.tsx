@@ -420,6 +420,10 @@ export function ScannedCardsProvider({
         setBinLimitBin(matchedBin);
         return;
       }
+      const isLowMatch =
+        !!matchedBin &&
+        findLowMatchCatchAll(ruleCard, binConfigsRef.current)?.binNumber ===
+          matchedBin.binNumber;
       const record: ScannedCard = {
         scanId: generateScanId(),
         card,
@@ -431,7 +435,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forcedFoilType != null || undefined,
         foilType: forcedFoilType ?? undefined,
-        needsReview: details?.needsReview || undefined,
+        needsReview: details?.needsReview || isLowMatch || undefined,
         vectorizedOn,
       };
 
