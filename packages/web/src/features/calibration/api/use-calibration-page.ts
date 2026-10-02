@@ -39,6 +39,8 @@ import {
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
+  FEEDER_ROLLBACK_MIN_FIRMWARE,
+  isFirmwareVersionOutdated,
   type BinRoute,
   type FeederCalibration,
   type ScanRegion,
@@ -226,6 +228,12 @@ export function useCalibrationPage() {
   const feederPulseDurationValue = feederValues.pulseDuration;
   const feederPauseDurationValue = feederValues.pauseDuration;
   const feederSettleDurationValue = feederValues.settleDuration;
+  const feederReverseSpeedValue = feederValues.reverseSpeed;
+  const feederReverseDurationValue = feederValues.reverseDuration;
+  const feederRollbackSupported = !isFirmwareVersionOutdated(
+    firmwareVersion,
+    FEEDER_ROLLBACK_MIN_FIRMWARE,
+  );
   const setFeederDraftField = useCallback(
     (field: keyof FeederCalibration, value: number) => {
       setFeederDraft((prev) => ({ ...prev, [field]: value }));
@@ -589,6 +597,24 @@ export function useCalibrationPage() {
     [setFeederDraftField],
   );
 
+  const handleFeederReverseSpeedChange = useCallback(
+    (value: number) => {
+      if (!canCalibrate) return;
+      setFeederDraftField("reverseSpeed", value);
+      if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
+      feederDebounceRef.current = setTimeout(
+        () => previewSpeed(value),
+        CALIBRATION_PREVIEW_DEBOUNCE_MS,
+      );
+    },
+    [canCalibrate, previewSpeed, setFeederDraftField],
+  );
+
+  const handleFeederReverseDurationChange = useCallback(
+    (value: number) => setFeederDraftField("reverseDuration", value),
+    [setFeederDraftField],
+  );
+
   const handleFeederSelectContinuous = useCallback(
     () => setFeederDraftField("pulseDuration", 0),
     [setFeederDraftField],
@@ -903,11 +929,16 @@ export function useCalibrationPage() {
     feederPulseDurationValue,
     feederPauseDurationValue,
     feederSettleDurationValue,
+    feederReverseSpeedValue,
+    feederReverseDurationValue,
+    feederRollbackSupported,
     handleFeederSpeedChange,
     handleFeederDurationChange,
     handleFeederPulseDurationChange,
     handleFeederPauseDurationChange,
     handleFeederSettleDurationChange,
+    handleFeederReverseSpeedChange,
+    handleFeederReverseDurationChange,
     handleFeederSelectContinuous,
     scanRegion,
     captureSettleDelayMs,

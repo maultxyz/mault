@@ -80,7 +80,12 @@
     "continuousFeedButton": "Dauerhafte Zuführung",
     "pauseDurationLabel": "Pausendauer (ms)",
     "settleDurationLabel": "Verzögerung für letzte Kartenerkennung (ms)",
-    "settleDurationDescription": "Zusätzliche Zeit, um die Zuführung fortzusetzen, nachdem der Sensor von Modul 1 die letzte Karte im Zuführbehälter erkannt hat, damit sie vollständig in den Mechanismus einläuft, bevor der Motor stoppt."
+    "settleDurationDescription": "Zusätzliche Zeit, um die Zuführung fortzusetzen, nachdem der Sensor von Modul 1 die letzte Karte im Zuführbehälter erkannt hat, damit sie vollständig in den Mechanismus einläuft, bevor der Motor stoppt.",
+    "reverseDurationLabel": "Nach dem Einzug zurückrollen (ms)",
+    "reverseDurationDescription": "Sobald eine Karte Modul 1 erreicht, dreht die Rolle so lange rückwärts, damit die nächste Karte im Magazin zurückgezogen wird, statt nachzurutschen und doppelt eingezogen zu werden. 0 schaltet es aus.",
+    "reverseSpeedLabel": "Rückrollgeschwindigkeit",
+    "reverseFirmwareNote": "Benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware des Sortierers, damit es wirkt.",
+    "off": "Aus"
   },
   "irSensorPanel": {
     "label": "IR-Sensoren",
@@ -215,7 +220,8 @@
       "duration": "Dauer",
       "pulse": "Impuls",
       "pause": "Pause",
-      "settle": "Verzögerung (letzte Karte)"
+      "settle": "Verzögerung (letzte Karte)",
+      "rollback": "Zurückrollen"
     },
     "toasts": {
       "moduleReverted": "Modulkalibrierung zurückgesetzt",

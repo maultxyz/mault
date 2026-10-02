@@ -23,4 +23,6 @@ export interface FeederCalibration {
   pulseDuration: number;
   pauseDuration: number;
   settleDuration: number;
+  reverseSpeed: number;
+  reverseDuration: number;
 }

@@ -69,6 +69,8 @@ export function buildCalibrationDebugText({
     `  pulseDuration: ${feederConfig.pulseDuration > 0 ? `${feederConfig.pulseDuration}ms` : "continuous"}`,
     `  pauseDuration: ${feederConfig.pauseDuration}ms`,
     `  settleDuration: ${feederConfig.settleDuration}ms`,
+    `  reverseSpeed: ${feederConfig.reverseSpeed}`,
+    `  reverseDuration: ${feederConfig.reverseDuration > 0 ? `${feederConfig.reverseDuration}ms` : "off"}`,
     "",
   ];
 

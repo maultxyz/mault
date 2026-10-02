@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.3.0"
+#define FIRMWARE_VERSION "2.4.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -321,9 +321,11 @@ struct FeederConfig {
   int pauseDuration;    // ms between pulses (IR checked after each stop)
   int settleDuration;   // extra ms to feed once IR sees the card, so it
                          // clears the sensor instead of stopping right on it
+  int reverseSpeed;
+  int reverseDuration;
 };
 
-FeederConfig feederConfig = {315, 1000, 40, 100, 100};
+FeederConfig feederConfig = {315, 1000, 40, 100, 100, 295, 0};
 
 // Routing delays (ms) — tune to match your hardware timing
 #define DELAY_CARD_ENTER   300  // time for card to settle after target bottom opens
@@ -485,11 +487,19 @@ void stopFeeder() {
 
 // The last card in the hopper has nothing behind it to push it fully in, so
 // once the hopper's empty, keep the motor running settleDuration ms longer.
+void rollBackFeeder() {
+  if (feederConfig.reverseDuration <= 0 || !hopperHasCards()) return;
+  setServoPosition(getFeederChannel(), feederConfig.reverseSpeed);
+  waitMs(feederConfig.reverseDuration);
+  stopFeeder();
+}
+
 void settleAndStopFeeder() {
   if (!hopperHasCards()) {
     waitMs(feederConfig.settleDuration);
   }
   stopFeeder();
+  rollBackFeeder();
 }
 
 // Pulses the feeder, polling module 1's IR between pulses (continuous if
@@ -546,6 +556,8 @@ FeedResult runFeeder() {
         setServoPosition(getFeederChannel(), feederConfig.speed);
         waitMs(feederConfig.settleDuration);
         stopFeeder();
+      } else {
+        rollBackFeeder();
       }
       return FEED_DETECTED;
     }
@@ -1157,7 +1169,7 @@ void runCommand(char* json, Print& reply) {
     return;
   }
 
-  // {"setFeederConfig": {"speed": N, "duration": N, "pulseDuration": N, "pauseDuration": N, "settleDuration": N}}
+  // {"setFeederConfig": {"speed": N, "duration": N, "pulseDuration": N, "pauseDuration": N, "settleDuration": N, "reverseSpeed": N, "reverseDuration": N}}
   if (!doc["setFeederConfig"].isNull()) {
     JsonObject cfg = doc["setFeederConfig"];
     feederConfig.speed          = cfg["speed"]          | feederConfig.speed;
@@ -1165,6 +1177,8 @@ void runCommand(char* json, Print& reply) {
     feederConfig.pulseDuration  = cfg["pulseDuration"]  | feederConfig.pulseDuration;
     feederConfig.pauseDuration  = cfg["pauseDuration"]  | feederConfig.pauseDuration;
     feederConfig.settleDuration = cfg["settleDuration"] | feederConfig.settleDuration;
+    feederConfig.reverseSpeed    = cfg["reverseSpeed"]    | feederConfig.reverseSpeed;
+    feederConfig.reverseDuration = cfg["reverseDuration"] | feederConfig.reverseDuration;
     stopFeeder();
     reply.println(F("{\"status\":\"ok\"}"));
     return;

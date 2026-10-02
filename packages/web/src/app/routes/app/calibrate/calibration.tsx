@@ -65,9 +65,7 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
         <span className="w-16 shrink-0 text-muted-foreground">
           {t("calibratePage.moduleHistory.paddleCloseDelay")}
         </span>
-        <span>
-          {t("calibratePage.msValue", { value: c.paddleCloseDelay })}
-        </span>
+        <span>{t("calibratePage.msValue", { value: c.paddleCloseDelay })}</span>
       </div>
     </div>
   );
@@ -104,6 +102,14 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
         {t("calibratePage.feederHistory.settle")}
       </span>
       <span>{t("calibratePage.msValue", { value: c.settleDuration })}</span>
+      <span className="text-muted-foreground">
+        {t("calibratePage.feederHistory.rollback")}
+      </span>
+      <span>
+        {c.reverseDuration > 0
+          ? `${t("calibratePage.msValue", { value: c.reverseDuration })} @ ${c.reverseSpeed}`
+          : t("feederCalibrationPanel.off")}
+      </span>
     </div>
   );
 }
@@ -138,11 +144,16 @@ export default function CalibrateCalibrationPage() {
     feederPulseDurationValue,
     feederPauseDurationValue,
     feederSettleDurationValue,
+    feederReverseSpeedValue,
+    feederReverseDurationValue,
+    feederRollbackSupported,
     handleFeederSpeedChange,
     handleFeederDurationChange,
     handleFeederPulseDurationChange,
     handleFeederPauseDurationChange,
     handleFeederSettleDurationChange,
+    handleFeederReverseSpeedChange,
+    handleFeederReverseDurationChange,
     handleFeederSelectContinuous,
     isFeederModuleDirty,
     isSavingFeederModule,
@@ -241,6 +252,9 @@ export default function CalibrateCalibrationPage() {
         pulseDurationValue={feederPulseDurationValue}
         pauseDurationValue={feederPauseDurationValue}
         settleDurationValue={feederSettleDurationValue}
+        reverseSpeedValue={feederReverseSpeedValue}
+        reverseDurationValue={feederReverseDurationValue}
+        rollbackSupported={feederRollbackSupported}
         isConnected={isConnected}
         canCalibrate={canCalibrate}
         onSpeedChange={handleFeederSpeedChange}
@@ -248,6 +262,8 @@ export default function CalibrateCalibrationPage() {
         onPulseDurationChange={handleFeederPulseDurationChange}
         onPauseDurationChange={handleFeederPauseDurationChange}
         onSettleDurationChange={handleFeederSettleDurationChange}
+        onReverseSpeedChange={handleFeederReverseSpeedChange}
+        onReverseDurationChange={handleFeederReverseDurationChange}
         onSelectContinuous={handleFeederSelectContinuous}
       />
 

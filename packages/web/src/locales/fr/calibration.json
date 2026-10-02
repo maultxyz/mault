@@ -80,7 +80,12 @@
     "continuousFeedButton": "Alimentation continue",
     "pauseDurationLabel": "Durée de la pause (ms)",
     "settleDurationLabel": "Délai de détection de la dernière carte (ms)",
-    "settleDurationDescription": "Temps supplémentaire à continuer d'alimenter une fois que le capteur du module 1 détecte la dernière carte de la trémie, afin qu'elle parcoure tout le mécanisme avant l'arrêt du moteur."
+    "settleDurationDescription": "Temps supplémentaire à continuer d'alimenter une fois que le capteur du module 1 détecte la dernière carte de la trémie, afin qu'elle parcoure tout le mécanisme avant l'arrêt du moteur.",
+    "reverseDurationLabel": "Recul après l'alimentation (ms)",
+    "reverseDurationDescription": "Quand une carte atteint le module 1, le rouleau tourne en arrière pendant cette durée pour retirer la carte suivante du chargeur au lieu de la laisser avancer et provoquer une double alimentation. 0 le désactive.",
+    "reverseSpeedLabel": "Vitesse de recul",
+    "reverseFirmwareNote": "Nécessite le firmware {{version}} ou plus récent. Mets à jour le firmware du trieur pour que ce réglage s'applique.",
+    "off": "Désactivé"
   },
   "irSensorPanel": {
     "label": "Capteurs IR",
@@ -215,7 +220,8 @@
       "duration": "Durée",
       "pulse": "Impulsion",
       "pause": "Pause",
-      "settle": "Délai de détection finale"
+      "settle": "Délai de détection finale",
+      "rollback": "Recul"
     },
     "toasts": {
       "moduleReverted": "Calibration du module rétablie",
