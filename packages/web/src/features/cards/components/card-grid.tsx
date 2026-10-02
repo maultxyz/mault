@@ -323,7 +323,7 @@ export function CardGrid() {
   if (!collectionsLoading && !activeCollection) {
     return (
       <EmptyState
-        icon={<IconAlbum className="size-10" />}
+        icon={IconAlbum}
         title={t("cardGrid.noCollectionSelected")}
         description={t("cardGrid.createOrSelectCollection")}
         action={
