@@ -7,4 +7,4 @@
 firmware
 *.md
 .env
-.env.example
+.env.*.example

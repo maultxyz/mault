@@ -14,6 +14,18 @@ async function migrateTable(
   kind: ScanImageKind,
   table: typeof collectionCards | typeof unmatchedCards,
 ): Promise<{ moved: number; failed: number }> {
+  const cleared = await db
+    .update(table)
+    .set({ capturedImageDataUrl: null })
+    .where(
+      and(
+        isNotNull(table.capturedImageKey),
+        isNotNull(table.capturedImageDataUrl),
+      ),
+    )
+    .returning({ id: table.id });
+  log(`${kind}: cleared ${cleared.length} data URLs already in object storage`);
+
   let lastId = 0;
   let moved = 0;
   let failed = 0;
