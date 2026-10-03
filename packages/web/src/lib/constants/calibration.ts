@@ -116,13 +116,14 @@ export function sliderMax(value: number, defaultMax: number): number {
   return Math.max(defaultMax, value);
 }
 
-export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD = 90;
+export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT = 12;
 
-export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT = Math.round(
-  (PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD /
-    (SERVO_PULSE_MAX - SERVO_PULSE_MIN)) *
-    100,
+export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD = Math.round(
+  (PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT / 100) *
+    (SERVO_PULSE_MAX - SERVO_PULSE_MIN),
 );
+
+export const PUSHER_SUGGESTED_OFFSET_PERCENT = { min: 10, max: 12 };
 
 export const SERVOS: ServoConfig[] = [
   {

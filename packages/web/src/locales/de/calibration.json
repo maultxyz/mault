@@ -116,7 +116,7 @@
       "right": "Rechts",
       "neutral": "Neutral"
     },
-    "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt — je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
+    "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt. Der Arm sollte die Innenwand nicht berühren, und je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
     "pusherHoldDurationLabel": "Schieber-Haltezeit (ms)",
     "pusherHoldDurationDescription": "Wie lange der Schieber ausgefahren bleibt, bevor er in die Neutralstellung zurückkehrt. Länger einstellen, wenn Karten nicht vollständig hinausgeschoben werden; möglichst kurz halten, da das Drücken gegen den Anschlag das Servohorn belastet.",
     "paddleCloseDelayLabel": "Paddel-Schließverzögerung (ms)",
@@ -328,11 +328,11 @@
       },
       "pusherLeft": {
         "title": "Schieber: links",
-        "body": "Ziehe, bis der Arm ganz gegen die Innenkante des Moduls schwenkt und eine Karte auf der rechten Seite (von vorne gesehen) hinausschiebt. Hör nicht vor der Kante auf: Der Servo wird langsamer, je näher er seinem Ziel kommt, also muss der Arm mit voller Geschwindigkeit gegen die Kante schlagen, damit er den Schwung behält, der die Karte hinausschleudert. Nimm ihn nur zurück, wenn er die ganze Zeit gegen die Kante brummt statt nur am Ende."
+        "body": "Ziehe, bis der Arm zur Innenwand des Moduls schwingt und eine Karte, von vorne gesehen, rechts hinausschiebt. Stoppe, bevor der Arm die Wand berührt, etwa {{min}}-{{max}}% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo."
       },
       "pusherRight": {
         "title": "Schieber: rechts",
-        "body": "Jetzt in die andere Richtung: Ziehe, bis der Arm gegen die Innenkante auf der anderen Seite schlägt und eine Karte auf der linken Seite (von vorne gesehen) hinausschiebt. Auch hier soll er mit voller Geschwindigkeit gegen die Kante schlagen, damit er seinen Schwung behält. Nimm ihn nur zurück, wenn er die ganze Zeit gegen die Kante brummt."
+        "body": "Jetzt in die andere Richtung: Ziehe, bis der Arm zur Innenwand auf der anderen Seite schwingt und eine Karte, von vorne gesehen, links hinausschiebt. Stoppe auch hier, bevor er die Wand berührt, etwa {{min}}-{{max}}% von neutral entfernt."
       }
     },
     "irSensors": {
