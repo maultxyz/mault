@@ -21,7 +21,6 @@ export function BinList() {
   } = useBinConfigs();
   const isAutoAssign = !!effectiveMode.autoAssignField;
   const isScanOnly = effectiveMode.scanOnly;
-  const isRepackMode = effectiveMode.isRepackMode;
   const alphabetLetters =
     effectiveMode.isAlphabetMode && !isModeDirty
       ? getAlphabetPassLetters(
