@@ -58,6 +58,7 @@ export const binRuleGroupSchema: z.ZodType<BinRuleGroup, BinRuleGroup> = z.objec
 export const binConfigSchema = z.object({
   isCatchAll: z.boolean(),
   isOverride: z.boolean(),
+  isDisabled: z.boolean(),
   rules: binRuleGroupSchema,
   maxCopies: z
     .number()

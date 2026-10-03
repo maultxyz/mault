@@ -7,6 +7,8 @@
   },
   "binCard": {
     "override": "Prioritaire",
+    "disabled": "Désactivé",
+    "disabledDescription": "Les cartes ignorent ce bac",
     "maxCopies": "Max {{count}}×",
     "ruleCount_one": "{{count}} règle",
     "ruleCount_other": "{{count}} règles",
@@ -19,6 +21,9 @@
   },
   "binConfigPanel": {
     "overrideLabel": "Règles prioritaires",
+    "disabledLabel": "Désactiver ce bac",
+    "disabledDescription": "Aucune carte n'y va. Elles passent au bac suivant qui correspond, ou au fourre-tout.",
+    "disabledNotice": "Ce bac est désactivé. Ses règles sont conservées, mais aucune carte n'y est envoyée tant que tu ne le réactives pas.",
     "maxCopiesLabel": "Limiter les copies par impression",
     "maxCopiesDescription": "Dès que ce bac contient ce nombre de copies d'une même impression (depuis son dernier vidage), les copies suivantes l'ignorent et vont dans le bac suivant dont les règles correspondent, ou dans le bac fourre-tout.",
     "maxCopiesSuffix": "copies de chaque impression",

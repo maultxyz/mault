@@ -4,7 +4,12 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { resolveGameId, snapshotBinSet, toMaxCopies } from "./shared";
+import {
+  resolveGameId,
+  snapshotBinSet,
+  toIsDisabled,
+  toMaxCopies,
+} from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
   "/bins/:binNumber",
@@ -14,13 +19,14 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
-    const { rules, isCatchAll, isOverride, cardLimit, maxCopies } =
+    const { rules, isCatchAll, isOverride, cardLimit, maxCopies, isDisabled } =
       await c.req.json<{
         rules: BinRuleGroup;
         isCatchAll?: boolean;
         isOverride?: boolean;
         cardLimit?: number | null;
         maxCopies?: number | null;
+        isDisabled?: boolean;
       }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -39,7 +45,9 @@ export const editBinRoute = new Hono<AppEnv>().put(
                   eq(binSets.orgId, orgId),
                 ),
           columns: { id: true, guid: true },
-          with: { bins: { columns: { id: true, binNumber: true } } },
+          with: {
+            bins: { columns: { id: true, binNumber: true, isDisabled: true } },
+          },
         });
         if (!activeBinSet)
           return { message: "No active set found.", success: false };
@@ -64,6 +72,10 @@ export const editBinRoute = new Hono<AppEnv>().put(
               isOverride: !isCatchAll && isOverride === true,
               cardLimit: cardLimit ?? null,
               maxCopies: toMaxCopies(maxCopies, isCatchAll),
+              isDisabled: toIsDisabled(
+                isDisabled ?? existing.isDisabled,
+                isCatchAll,
+              ),
               updatedAt: new Date(),
             })
             .where(eq(bins.id, existing.id));
@@ -75,6 +87,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             isOverride: !isCatchAll && isOverride === true,
             cardLimit: cardLimit ?? null,
             maxCopies: toMaxCopies(maxCopies, isCatchAll),
+            isDisabled: toIsDisabled(isDisabled, isCatchAll),
             binSet: activeBinSet.id,
             orgId,
           });
@@ -92,6 +105,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             isOverride: true,
             cardLimit: true,
             maxCopies: true,
+            isDisabled: true,
             lastEmptiedAt: true,
           },
         });
@@ -108,6 +122,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               isOverride: b.isOverride,
               cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
+              isDisabled: b.isDisabled,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),

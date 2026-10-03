@@ -353,6 +353,7 @@
     "confirmButton": "Vider le bac",
     "binLabel": "Bac {{bin}}",
     "catchAll": "Fourre-tout",
+    "disabled": "Off",
     "full": "Plein",
     "nearlyFull": "Presque plein",
     "emptyAction": "Vider le bac {{bin}}",

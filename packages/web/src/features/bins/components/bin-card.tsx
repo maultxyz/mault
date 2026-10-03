@@ -36,6 +36,7 @@ export function BinCard({
     ? getCatchAllMatchThreshold(config.rules)
     : null;
   const conditionCount = countConditions(config);
+  const isDisabled = !config.isCatchAll && !!config.isDisabled;
 
   return (
     <Button
@@ -49,7 +50,11 @@ export function BinCard({
           {t("binLabel", { number: config.binNumber })}
         </p>
         <div className="flex items-center gap-1">
-          {!config.isCatchAll &&
+          {isDisabled && (
+            <Badge variant="outline">{t("binCard.disabled")}</Badge>
+          )}
+          {!isDisabled &&
+            !config.isCatchAll &&
             alphabetLetter === undefined &&
             config.maxCopies != null && (
               <Badge variant="outline">
@@ -58,7 +63,7 @@ export function BinCard({
             )}
           {config.isCatchAll ? (
             <Badge variant="default">{t("catchAll")}</Badge>
-          ) : alphabetLetter !== undefined ? (
+          ) : isDisabled ? null : alphabetLetter !== undefined ? (
             alphabetLetter && (
               <Badge variant="secondary">{alphabetLetter}</Badge>
             )
@@ -85,6 +90,10 @@ export function BinCard({
               </p>
             )}
           </>
+        ) : isDisabled ? (
+          <p className="text-xs text-foreground/70">
+            {t("binCard.disabledDescription")}
+          </p>
         ) : alphabetLetter !== undefined ? (
           <p className="text-xs">
             {alphabetLetter

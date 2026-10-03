@@ -18,6 +18,13 @@ export async function getModuleCount(
   return Math.max(...devices.map((d) => d.moduleCount));
 }
 
+export function toIsDisabled(
+  value: boolean | undefined,
+  isCatchAll: boolean | undefined,
+): boolean {
+  return !isCatchAll && value === true;
+}
+
 export function toMaxCopies(
   value: number | null | undefined,
   isCatchAll: boolean | undefined,
@@ -56,6 +63,7 @@ function toBinSet(row: {
     isOverride: boolean;
     cardLimit: number | null;
     maxCopies: number | null;
+    isDisabled: boolean;
     lastEmptiedAt: Date | null;
   }[];
   game: {
@@ -90,6 +98,7 @@ function toBinSet(row: {
       isOverride: bin.isOverride,
       cardLimit: bin.cardLimit,
       maxCopies: bin.maxCopies,
+      isDisabled: bin.isDisabled,
       lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
     game: row.game
@@ -136,6 +145,7 @@ const binSetQuery = {
         isOverride: true,
         cardLimit: true,
         maxCopies: true,
+        isDisabled: true,
         lastEmptiedAt: true,
       },
     },
@@ -168,6 +178,7 @@ export async function snapshotBinSet(
       isOverride: true,
       cardLimit: true,
       maxCopies: true,
+      isDisabled: true,
     },
   });
   const snapshot: BinConfig[] = rows.map((r) => ({
@@ -178,6 +189,7 @@ export async function snapshotBinSet(
     isOverride: r.isOverride,
     cardLimit: r.cardLimit,
     maxCopies: r.maxCopies,
+    isDisabled: r.isDisabled,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
 }
@@ -262,7 +274,7 @@ export async function applyScanOnlyBins(
   if (catchAllBin) {
     await tx
       .update(bins)
-      .set({ isCatchAll: true, updatedAt: new Date() })
+      .set({ isCatchAll: true, isDisabled: false, updatedAt: new Date() })
       .where(eq(bins.id, catchAllBin.id));
   } else {
     await tx.insert(bins).values({

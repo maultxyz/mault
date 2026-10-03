@@ -7,6 +7,8 @@
   },
   "binCard": {
     "override": "Vorrang",
+    "disabled": "Deaktiviert",
+    "disabledDescription": "Karten überspringen dieses Fach",
     "maxCopies": "Max. {{count}}×",
     "ruleCount_one": "{{count}} Regel",
     "ruleCount_other": "{{count}} Regeln",
@@ -19,6 +21,9 @@
   },
   "binConfigPanel": {
     "overrideLabel": "Vorrangige Regeln",
+    "disabledLabel": "Dieses Fach deaktivieren",
+    "disabledDescription": "Hier landen keine Karten. Sie gehen an das nächste passende Fach oder das Auffangfach.",
+    "disabledNotice": "Dieses Fach ist deaktiviert. Seine Regeln bleiben erhalten, aber es werden keine Karten hierher geschickt, bis du es wieder einschaltest.",
     "maxCopiesLabel": "Kopien pro Druck begrenzen",
     "maxCopiesDescription": "Sobald dieses Fach (seit dem letzten Leeren) so viele Kopien desselben Drucks enthält, überspringen weitere Kopien es und gehen in das nächste Fach, dessen Regeln zutreffen, oder in das Sammelfach.",
     "maxCopiesSuffix": "Kopien je Druck",

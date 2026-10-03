@@ -225,6 +225,7 @@ export function evaluateCardBin(
       continue;
     }
     if (
+      !config.isDisabled &&
       config.rules.conditions.length > 0 &&
       evaluateRuleGroup(card, config.rules, fieldDefinitions) &&
       !hasReachedMaxCopies(config, copiesInBin)
@@ -331,7 +332,7 @@ export function evaluateRepackBin(
   const catchAll = getCatchAllBin(configs);
 
   for (const bin of configs) {
-    if (bin.isCatchAll) continue;
+    if (bin.isCatchAll || bin.isDisabled) continue;
 
     const cardsInPack = cardsInBin(bin);
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
@@ -357,7 +358,7 @@ export function evaluateRepackBin(
 
 export function getAlphabetBins(configs: BinConfig[]): BinConfig[] {
   return configs
-    .filter((c) => !c.isCatchAll)
+    .filter((c) => !c.isCatchAll && !c.isDisabled)
     .sort((a, b) => a.binNumber - b.binNumber);
 }
 

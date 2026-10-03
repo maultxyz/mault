@@ -353,6 +353,7 @@
     "confirmButton": "Fach leeren",
     "binLabel": "Fach {{bin}}",
     "catchAll": "Auffangfach",
+    "disabled": "Aus",
     "full": "Voll",
     "nearlyFull": "Fast voll",
     "emptyAction": "Fach {{bin}} leeren",

@@ -14,6 +14,7 @@ export type DefaultBinInit = {
   isOverride?: boolean;
   cardLimit: number | null;
   maxCopies?: number | null;
+  isDisabled?: boolean;
 };
 
 export function createDefaultCatchAllOnlyBins(

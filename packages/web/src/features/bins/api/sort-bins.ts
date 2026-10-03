@@ -70,6 +70,7 @@ export async function saveBinConfig({
   isOverride,
   cardLimit,
   maxCopies,
+  isDisabled,
   gameGuid,
 }: {
   binNumber: number;
@@ -78,6 +79,7 @@ export async function saveBinConfig({
   isOverride?: boolean;
   cardLimit?: number | null;
   maxCopies?: number | null;
+  isDisabled?: boolean;
   gameGuid?: string;
 }): Promise<Result<BinConfig[]>> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
@@ -87,6 +89,7 @@ export async function saveBinConfig({
     isOverride,
     cardLimit,
     maxCopies,
+    isDisabled,
   });
 }
 

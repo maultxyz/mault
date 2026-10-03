@@ -319,6 +319,7 @@ export interface BinLevelLayout {
 export interface BinLevelCellProps {
   level: BinFillLevel;
   isCatchAll: boolean;
+  isDisabled: boolean;
   flashKey: number | null;
   onEmpty: (binNumber: number) => void;
   className?: string;
