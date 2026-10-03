@@ -63,6 +63,22 @@ function isNullish(value: string | number | string[] | null): boolean {
   return false;
 }
 
+function normalizeText(value: unknown): string {
+  return String(value).trim().toLowerCase();
+}
+
+function normalizeList(value: unknown): string[] {
+  return Array.isArray(value) ? value.map(normalizeText) : [];
+}
+
+function sameSet(a: string[], b: string[]): boolean {
+  return (
+    a.length === b.length &&
+    a.every((v) => b.includes(v)) &&
+    b.every((v) => a.includes(v))
+  );
+}
+
 function evaluateCondition(
   card: SourceCard,
   condition: BinCondition,
@@ -70,47 +86,30 @@ function evaluateCondition(
 ): boolean {
   const cardValue = getCardValue(card, condition.field, fieldDefinitions);
   const { operator, value } = condition;
+  const cardText = normalizeText(cardValue);
+  const valueText = normalizeText(value);
+  const cardList = normalizeList(cardValue);
+  const valueList = normalizeList(value);
+  const bothLists = Array.isArray(cardValue) && Array.isArray(value);
 
   switch (operator) {
     case "equals":
-      if (Array.isArray(cardValue) && Array.isArray(value)) {
-        return (
-          cardValue.length === value.length &&
-          cardValue.every((v) => value.includes(v)) &&
-          value.every((v) => cardValue.includes(v))
-        );
-      }
-      return String(cardValue) === String(value);
+      return bothLists ? sameSet(cardList, valueList) : cardText === valueText;
 
     case "not_equals":
-      if (Array.isArray(cardValue) && Array.isArray(value)) {
-        return !(
-          cardValue.length === value.length &&
-          cardValue.every((v) => value.includes(v)) &&
-          value.every((v) => cardValue.includes(v))
-        );
-      }
-      return String(cardValue) !== String(value);
+      return bothLists ? !sameSet(cardList, valueList) : cardText !== valueText;
 
     case "contains":
-      return String(cardValue)
-        .toLowerCase()
-        .includes(String(value).toLowerCase());
+      return cardText.includes(valueText);
 
     case "not_contains":
-      return !String(cardValue)
-        .toLowerCase()
-        .includes(String(value).toLowerCase());
+      return !cardText.includes(valueText);
 
     case "starts_with":
-      return String(cardValue)
-        .toLowerCase()
-        .startsWith(String(value).toLowerCase());
+      return cardText.startsWith(valueText);
 
     case "ends_with":
-      return String(cardValue)
-        .toLowerCase()
-        .endsWith(String(value).toLowerCase());
+      return cardText.endsWith(valueText);
 
     case "gt":
       return cardValue !== null && Number(cardValue) > Number(value);
@@ -131,31 +130,19 @@ function evaluateCondition(
       return !isNullish(cardValue);
 
     case "in":
-      return Array.isArray(value) && value.includes(String(cardValue));
+      return Array.isArray(value) && valueList.includes(cardText);
 
     case "not_in":
-      return Array.isArray(value) && !value.includes(String(cardValue));
+      return Array.isArray(value) && !valueList.includes(cardText);
 
     case "contains_any":
-      return (
-        Array.isArray(cardValue) &&
-        Array.isArray(value) &&
-        value.some((v) => cardValue.includes(v))
-      );
+      return bothLists && valueList.some((v) => cardList.includes(v));
 
     case "contains_all":
-      return (
-        Array.isArray(cardValue) &&
-        Array.isArray(value) &&
-        value.every((v) => cardValue.includes(v))
-      );
+      return bothLists && valueList.every((v) => cardList.includes(v));
 
     case "contains_none":
-      return (
-        Array.isArray(cardValue) &&
-        Array.isArray(value) &&
-        !value.some((v) => cardValue.includes(v))
-      );
+      return bothLists && !valueList.some((v) => cardList.includes(v));
 
     default:
       return false;
