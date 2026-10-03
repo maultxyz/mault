@@ -56,7 +56,8 @@
     "presets": {
       "small": "Small",
       "medium": "Medium",
-      "large": "Large"
+      "large": "Large",
+      "unlimited": "Unlimited"
     }
   },
   "binRoutingControls": {

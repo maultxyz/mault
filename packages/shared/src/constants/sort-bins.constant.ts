@@ -8,10 +8,13 @@ export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
 export const DEFAULT_BIN_CAPACITY = 250;
 
+export const UNLIMITED_BIN_HEIGHT = 0;
+
 export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
-  { key: "small", height: 69 },
+  { key: "small", height: 60 },
   { key: "medium", height: 113 },
   { key: "large", height: 187 },
+  { key: "unlimited", height: UNLIMITED_BIN_HEIGHT },
 ];
 
 export const DEFAULT_BIN_HEIGHT = BIN_HEIGHT_PRESETS[0].height;

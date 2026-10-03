@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
 import { CardSortButton } from "@/features/cards/components/card-sort-button";
+import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
+import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
 import {
@@ -91,6 +93,14 @@ export function MobileMonitorCards({
             availableColors={stats?.colors ?? []}
             availableFoilTypes={stats?.foilTypes ?? []}
             binCount={binCount}
+          />
+          <ClearCardQueryButton
+            searchQuery={searchQuery}
+            activeFilterCount={activeFilterCount}
+            onClear={() => {
+              setSearchQuery("");
+              setFilters(EMPTY_CARD_FILTERS);
+            }}
           />
         </div>
         <div className="-mx-3 flex gap-2 overflow-x-auto px-3">

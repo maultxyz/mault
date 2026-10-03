@@ -77,6 +77,7 @@ export async function findFullBin(
   if (!row) return null;
 
   const effectiveCapacity = computeBinCapacity(row.height, row.card_thickness);
+  if (effectiveCapacity == null) return null;
 
   const count = Number(row.count);
   if (count < effectiveCapacity) return null;

@@ -95,6 +95,7 @@
   },
   "cardToolbar": {
     "searchPlaceholder": "Search by name, set, type...",
+    "clearSearchAndFilters": "Clear search and filters",
     "sortPlaceholder": "Sort by...",
     "scanOrder": "Scan Order",
     "sortAscString": "A-Z",

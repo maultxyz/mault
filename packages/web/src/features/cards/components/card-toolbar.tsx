@@ -5,6 +5,8 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
 import { WatcherStack } from "@/components/ui/watcher-stack";
 import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
+import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
+import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { CardSortButton } from "@/features/cards/components/card-sort-button";
 import type { CardToolbarProps } from "@/lib/interfaces/cards";
 import {
@@ -80,6 +82,14 @@ export function CardToolbar({
         availableColors={availableColors ?? []}
         availableFoilTypes={availableFoilTypes ?? []}
         binCount={binCount}
+      />
+      <ClearCardQueryButton
+        searchQuery={searchQuery}
+        activeFilterCount={activeFilterCount}
+        onClear={() => {
+          onSearchChange("");
+          onFiltersChange(EMPTY_CARD_FILTERS);
+        }}
       />
       <ButtonGroup className="shrink-0">
         <Button
