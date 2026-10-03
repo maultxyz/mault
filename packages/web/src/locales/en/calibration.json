@@ -116,7 +116,7 @@
       "right": "Right",
       "neutral": "Neutral"
     },
-    "pusherOffsetWarning": "More than {{percent}}% away from neutral — the risk of skipping gears or the horn shifting on the shaft goes up the further out you push it.",
+    "pusherOffsetWarning": "More than {{percent}}% away from neutral. The arm shouldn't touch the inner wall, and the further out you push it, the higher the risk of skipping gears or the horn shifting on the shaft.",
     "pusherHoldDurationLabel": "Pusher Hold Time (ms)",
     "pusherHoldDurationDescription": "How long the pusher stays extended before returning to neutral. Longer if cards aren't pushed fully out before it retracts; keep it short, since holding against the end stop strains the servo horn.",
     "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
@@ -328,11 +328,11 @@
       },
       "pusherLeft": {
         "title": "Pusher: left",
-        "body": "Drag until the arm swings all the way into the inner edge of the module, pushing a card out on the right side as you face the sorter. Don't stop short of the edge: the servo slows as it nears its target, so the arm needs to hit the edge at full speed to keep the momentum that flings the card out. Only back it off if it buzzes against the edge the whole time instead of just at the end."
+        "body": "Drag until the arm swings toward the inner wall of the module, pushing a card out on the right side as you face the sorter. Stop before the arm touches the wall, about {{min}}-{{max}}% away from neutral. The pusher doesn't need to hit the wall to fling the card, and pressing against it strains the servo."
       },
       "pusherRight": {
         "title": "Pusher: right",
-        "body": "Now the other way: drag until the arm hits the inner edge on the other side, pushing a card out on the left side as you face the sorter. Again, let it hit the edge at full speed so it keeps its momentum, and only back it off if it buzzes against the edge the whole time."
+        "body": "Now the other way: drag until the arm swings toward the inner wall on the other side, pushing a card out on the left side as you face the sorter. Again, stop before it touches the wall, about {{min}}-{{max}}% away from neutral."
       }
     },
     "irSensors": {

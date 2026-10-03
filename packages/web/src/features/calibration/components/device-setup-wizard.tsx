@@ -23,6 +23,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   emptySetupIrSeen,
+  PUSHER_SUGGESTED_OFFSET_PERCENT,
   pulseToPercent,
   pulseToSignedPercent,
   SERVO_PULSE_MAX,
@@ -657,7 +658,12 @@ function ServoStep({
         <p className="text-xs font-medium uppercase tracking-wide text-foreground/70">
           {t("setupWizard.howToSet")}
         </p>
-        <p>{t(`setupWizard.positions.${currentKey}.body`)}</p>
+        <p>
+          {t(
+            `setupWizard.positions.${currentKey}.body`,
+            PUSHER_SUGGESTED_OFFSET_PERCENT,
+          )}
+        </p>
       </div>
 
       <ControlPanel

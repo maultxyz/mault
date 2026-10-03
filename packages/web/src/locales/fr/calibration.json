@@ -116,7 +116,7 @@
       "right": "Droite",
       "neutral": "Neutre"
     },
-    "pusherOffsetWarning": "Plus de {{percent}}% par rapport au neutre — plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
+    "pusherOffsetWarning": "Plus de {{percent}} % par rapport au neutre. Le bras ne doit pas toucher la paroi intérieure, et plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
     "pusherHoldDurationLabel": "Durée de maintien du poussoir (ms)",
     "pusherHoldDurationDescription": "Durée pendant laquelle le poussoir reste déployé avant de revenir en position neutre. Augmente-la si les cartes ne sont pas entièrement poussées avant qu'il se rétracte ; garde-la courte, car le maintien contre la butée fatigue le palonnier du servo.",
     "paddleCloseDelayLabel": "Délai de fermeture de la palette (ms)",
@@ -328,11 +328,11 @@
       },
       "pusherLeft": {
         "title": "Poussoir : gauche",
-        "body": "Fais glisser jusqu'à ce que le bras vienne taper contre le bord intérieur du module, en poussant une carte dehors du côté droit quand tu fais face au trieur. Ne t'arrête pas avant le bord : le servo ralentit en approchant de sa cible, donc le bras doit taper le bord à pleine vitesse pour garder l'élan qui éjecte la carte. Recule-le seulement s'il bourdonne contre le bord tout du long au lieu de juste à la fin."
+        "body": "Fais glisser jusqu'à ce que le bras pivote vers la paroi intérieure du module, poussant une carte vers la droite quand tu fais face au trieur. Arrête-toi avant que le bras ne touche la paroi, à environ {{min}}-{{max}} % du neutre. Le poussoir n'a pas besoin de toucher la paroi pour éjecter la carte, et appuyer dessus force le servo."
       },
       "pusherRight": {
         "title": "Poussoir : droite",
-        "body": "Maintenant dans l'autre sens : fais glisser jusqu'à ce que le bras tape le bord intérieur de l'autre côté, en poussant une carte dehors du côté gauche quand tu fais face au trieur. Là aussi, laisse-le taper le bord à pleine vitesse pour qu'il garde son élan, et recule-le seulement s'il bourdonne contre le bord tout du long."
+        "body": "Maintenant dans l'autre sens : fais glisser jusqu'à ce que le bras pivote vers la paroi intérieure de l'autre côté, poussant une carte vers la gauche quand tu fais face au trieur. Là encore, arrête-toi avant qu'il ne touche la paroi, à environ {{min}}-{{max}} % du neutre."
       }
     },
     "irSensors": {
