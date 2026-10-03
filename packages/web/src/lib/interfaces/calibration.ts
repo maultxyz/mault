@@ -34,6 +34,7 @@ export interface BinRoutesContextValue {
 
 export interface BinHeightsContextValue {
   heights: BinHeight[];
+  savedHeights: BinHeight[];
   isDirty: boolean;
   isSaving: boolean;
   setHeight: (binNumber: number, height: number) => void;

@@ -25,6 +25,7 @@ export function toCollection(row: {
   gameFieldDefinitions: unknown;
   gameFoilTypes: unknown;
   gameApiDocsUrl: string | null;
+  gameCardThickness: number | null;
   gameCreatedAt: Date | null;
   gameUpdatedAt: Date | null;
 }): Collection {
@@ -43,6 +44,7 @@ export function toCollection(row: {
           fieldDefinitions: row.gameFieldDefinitions as FieldMeta[],
           foilTypes: (row.gameFoilTypes as string[] | null) ?? [],
           apiDocsUrl: row.gameApiDocsUrl,
+          cardThickness: row.gameCardThickness,
           createdAt: row.gameCreatedAt!,
           updatedAt: row.gameUpdatedAt!,
         }
@@ -119,6 +121,7 @@ export async function loadCollections(
       gameFieldDefinitions: games.fieldDefinitions,
       gameFoilTypes: games.foilTypes,
       gameApiDocsUrl: games.apiDocsUrl,
+      gameCardThickness: games.cardThickness,
       gameCreatedAt: games.createdAt,
       gameUpdatedAt: games.updatedAt,
     })

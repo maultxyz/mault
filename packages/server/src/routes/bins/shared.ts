@@ -74,6 +74,7 @@ function toBinSet(row: {
     fieldDefinitions: unknown;
     foilTypes: unknown;
     apiDocsUrl: string | null;
+    cardThickness: number | null;
     createdAt: Date;
     updatedAt: Date;
   } | null;
@@ -110,6 +111,7 @@ function toBinSet(row: {
           fieldDefinitions: row.game.fieldDefinitions as FieldMeta[],
           foilTypes: (row.game.foilTypes as string[] | null) ?? [],
           apiDocsUrl: row.game.apiDocsUrl,
+          cardThickness: row.game.cardThickness,
           createdAt: row.game.createdAt,
           updatedAt: row.game.updatedAt,
         }

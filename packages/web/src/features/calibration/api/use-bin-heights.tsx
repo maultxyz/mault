@@ -54,7 +54,17 @@ export function BinHeightsProvider({ children }: { children: React.ReactNode }) 
   }, [device, pending, queryClient, queryOpts.queryKey]);
 
   return (
-    <BinHeightsContext value={{ heights, isDirty, isSaving, setHeight, commit, discard }}>
+    <BinHeightsContext
+      value={{
+        heights,
+        savedHeights,
+        isDirty,
+        isSaving,
+        setHeight,
+        commit,
+        discard,
+      }}
+    >
       {children}
     </BinHeightsContext>
   );

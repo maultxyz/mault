@@ -14,7 +14,7 @@ export function useComputedBinFillLevels(
   unmatchedCards: UnmatchedCard[],
 ): BinFillLevel[] {
   const { configs } = useBinConfigs();
-  const { heights } = useBinHeights();
+  const { savedHeights } = useBinHeights();
   const binWindows = useMemo(
     () =>
       configs.map((bin) => ({
@@ -31,7 +31,7 @@ export function useComputedBinFillLevels(
     () =>
       configs
         .map((bin): BinFillLevel => {
-          const height = heights.find(
+          const height = savedHeights.find(
             (h) => h.binNumber === bin.binNumber,
           )?.height;
           const capacity = computeBinCapacity(
@@ -48,6 +48,6 @@ export function useComputedBinFillLevels(
           return { binNumber: bin.binNumber, count, capacity, percent };
         })
         .sort((a, b) => a.binNumber - b.binNumber),
-    [configs, heights, matchedCounts, unmatchedCards, cardThickness],
+    [configs, savedHeights, matchedCounts, unmatchedCards, cardThickness],
   );
 }
