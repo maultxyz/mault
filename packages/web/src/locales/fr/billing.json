@@ -19,6 +19,7 @@
   "supportPrompt": {
     "title": "Tu apprécies Mault ?",
     "description": "Mault est développé de manière indépendante. S'il te fait gagner du temps, tu peux aider à le faire vivre.",
+    "starOnGithub": "Un moyen gratuit d'aider : mets une étoile à Mault sur GitHub",
     "support": "Offre-nous un café",
     "subscribe": "S'abonner",
     "later": "Plus tard",

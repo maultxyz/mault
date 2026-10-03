@@ -1,8 +1,13 @@
 import { Button } from "@/components/ui/button";
 import { optOutOfSupportPrompt } from "@/features/billing/lib/support-prompt";
-import { DONATE_URL } from "@/lib/constants/links";
+import { DONATE_URL, REPO_URL } from "@/lib/constants/links";
 import type { SupportPromptToastProps } from "@/lib/interfaces/billing";
-import { IconCoffee, IconHeart, IconSparkles } from "@tabler/icons-react";
+import {
+  IconBrandGithub,
+  IconCoffee,
+  IconHeart,
+  IconSparkles,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 
@@ -23,6 +28,16 @@ export function SupportPromptToast({
           <p className="text-xs text-foreground/70">
             {t("supportPrompt.description")}
           </p>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={close}
+            className="flex w-fit items-center gap-1 rounded-sm text-xs font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            <IconBrandGithub className="size-3.5" />
+            {t("supportPrompt.starOnGithub")}
+          </a>
         </div>
       </div>
       <div className="flex flex-col gap-2 pl-6.5">
