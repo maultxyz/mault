@@ -228,7 +228,7 @@ export function CardSelectDialog({
               <div className="flex flex-col gap-2">
                 {capturedImageUrl && (
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-12 aspect-square rounded overflow-hidden border shrink-0">
+                    <div className="w-12 aspect-square rounded-md overflow-hidden border shrink-0">
                       <img
                         src={capturedImageUrl}
                         alt={t("cardPicker.scannedAlt")}
@@ -433,7 +433,7 @@ export function CardSelectDialog({
                     <Button
                       key={card.id}
                       variant="ghost"
-                      className="relative w-full h-auto aspect-[2.5/3.5] p-0 rounded overflow-hidden group"
+                      className="relative w-full h-auto aspect-[2.5/3.5] p-0 rounded-md overflow-hidden group"
                       onClick={() => handleSelect(card)}
                     >
                       {card.image?.small ? (
@@ -443,7 +443,7 @@ export function CardSelectDialog({
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-10 h-14 bg-muted rounded shrink-0" />
+                        <div className="w-10 h-14 bg-muted rounded-md shrink-0" />
                       )}
                       <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-2xs leading-tight px-1 py-0.5 text-center truncate">
                         {card.set.toUpperCase()} #{card.collectorNumber}

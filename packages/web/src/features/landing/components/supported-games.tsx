@@ -24,9 +24,9 @@ export function LandingSupportedGames() {
           {games === null
             ? Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-2">
-                  <div className="h-4 w-28 animate-pulse rounded bg-muted" />
-                  <div className="h-3 w-20 animate-pulse rounded bg-muted" />
-                  <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+                  <div className="h-4 w-28 animate-pulse rounded-sm bg-muted" />
+                  <div className="h-3 w-20 animate-pulse rounded-sm bg-muted" />
+                  <div className="h-3 w-24 animate-pulse rounded-sm bg-muted" />
                 </div>
               ))
             : games.map((game) => (

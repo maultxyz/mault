@@ -2,13 +2,17 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import {
+  binHeightAudit,
   binHeights,
+  binRouteAudit,
   binRoutes,
   devices,
+  feederConfigAudit,
   feederConfigs,
+  moduleConfigAudit,
   moduleConfigs,
 } from "../../db/schema";
-import { releaseDeviceLease } from "../../lib/device-leases";
+import { isDeviceLeased, releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
@@ -19,6 +23,12 @@ export const deleteDeviceRoute = new Hono<AppEnv>().delete(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
+    if (isDeviceLeased(orgId, guid)) {
+      return c.json({
+        success: false,
+        message: "This sorter is connected. Disconnect it before deleting it.",
+      });
+    }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const device = await getDeviceByGuid(tx, orgId, guid);
@@ -32,6 +42,18 @@ export const deleteDeviceRoute = new Hono<AppEnv>().delete(
         await tx
           .delete(feederConfigs)
           .where(eq(feederConfigs.deviceId, device.id));
+        await tx
+          .delete(moduleConfigAudit)
+          .where(eq(moduleConfigAudit.deviceId, device.id));
+        await tx
+          .delete(binRouteAudit)
+          .where(eq(binRouteAudit.deviceId, device.id));
+        await tx
+          .delete(binHeightAudit)
+          .where(eq(binHeightAudit.deviceId, device.id));
+        await tx
+          .delete(feederConfigAudit)
+          .where(eq(feederConfigAudit.deviceId, device.id));
         await tx.delete(devices).where(eq(devices.id, device.id));
         releaseDeviceLease(orgId, guid);
 

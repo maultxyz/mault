@@ -67,10 +67,11 @@ The app needs a Postgres database with pgvector (for card-embedding search) and 
 Both providers read from the same root `.env` (Vite is configured to read up from `packages/web`, so there's no separate `packages/web/.env`):
 
 ```bash
-cp .env.example .env
+cp .env.neon.example .env      # Option A: Neon
+cp .env.docker.example .env    # Option B: self-hosted
 ```
 
-`.env.example` documents every variable each provider needs; set `AUTH_PROVIDER`/`VITE_AUTH_PROVIDER` to match the option you pick below.
+Each file holds only the variables its provider uses, with `AUTH_PROVIDER`/`VITE_AUTH_PROVIDER` already set.
 
 ### Option A: Neon
 
@@ -94,7 +95,7 @@ cp .env.example .env
 
 ### Option B: Self-hosted (no Neon account, works offline)
 
-1. In `.env`, set `AUTH_PROVIDER=local` and `VITE_AUTH_PROVIDER=local`, plus:
+1. In `.env` (copied from `.env.docker.example`), fill in:
    - `POSTGRES_PASSWORD` — the local Postgres container's password
    - `OWN_AUTH_TOKEN_PEPPER` — 32+ random bytes; own-auth uses it to hash sessions/tokens/API keys
    - `IMPERSONATION_SECRET` — any random string

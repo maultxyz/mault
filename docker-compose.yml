@@ -42,7 +42,7 @@ services:
     env_file: .env
     environment:
       AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
-      IMPERSONATION_SECRET: ${IMPERSONATION_SECRET:?Set IMPERSONATION_SECRET in your .env - see .env.example}
+      IMPERSONATION_SECRET: ${IMPERSONATION_SECRET:?Set IMPERSONATION_SECRET in your .env - see .env.docker.example}
       WEB_URL: ${WEB_URL:-http://localhost:8080}
       PORT: 3001
       # .env's BOT_URL is for `pnpm dev` (localhost). Inside the compose

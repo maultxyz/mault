@@ -12,6 +12,7 @@ import { CameraProvider } from "@/features/scanner/api/use-camera";
 import { ScannedCardsProvider } from "@/features/scanner/api/use-scanned-cards";
 import { SerialProvider } from "@/features/scanner/api/use-serial";
 import { StationContext, useStations } from "@/features/scanner/api/use-stations";
+import { StationOverviewTile } from "@/features/scanner/components/station-overview-tile";
 import { StationPanel } from "@/features/scanner/components/station-panel";
 import type { StationState } from "@/lib/interfaces/stations";
 import { useMemo } from "react";
@@ -38,12 +39,16 @@ export function StationScope({
     panelsDocked,
     getPanelElement,
     isStationLive,
+    overviewOpen,
+    getOverviewTileElement,
   } = useStations();
   const isActive = station.id === activeStationId;
   const isLive = isStationLive(station.id);
   const showsPanel = panelsDocked
     ? isLive
     : connectedStationIds.has(station.id);
+  const showsOverviewTile =
+    overviewOpen && connectedStationIds.has(station.id);
   const value = useMemo(
     () => ({ station, index, isActive, isLive }),
     [station, index, isActive, isLive],
@@ -70,6 +75,11 @@ export function StationScope({
                                 createPortal(
                                   <StationPanel layout={panelLayout} />,
                                   getPanelElement(station.id),
+                                )}
+                              {showsOverviewTile &&
+                                createPortal(
+                                  <StationOverviewTile />,
+                                  getOverviewTileElement(station.id),
                                 )}
                             </SetupWizardProvider>
                           </CardFiltersProvider>

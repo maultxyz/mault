@@ -307,10 +307,10 @@ export function CardGrid() {
                 <div className="flex flex-row justify-between items-center px-1 pb-1">
                   <div className="flex flex-row items-center gap-2">
                     <Skeleton className="size-3 rounded-full shrink-0" />
-                    <Skeleton className="h-3 w-8 rounded" />
-                    <Skeleton className="h-3 w-6 rounded" />
+                    <Skeleton className="h-3 w-8 rounded-sm" />
+                    <Skeleton className="h-3 w-6 rounded-sm" />
                   </div>
-                  <Skeleton className="h-3 w-8 rounded" />
+                  <Skeleton className="h-3 w-8 rounded-sm" />
                 </div>
               </div>
             ))}

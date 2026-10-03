@@ -45,7 +45,7 @@ export function DeviceCommLog() {
       {recent.length === 0 ? (
         <EmptyState size="compact" icon={IconTerminal2} title={t("devicePlayground.log.empty")} />
       ) : (
-        <div className="max-h-80 overflow-y-auto rounded-md border bg-muted">
+        <div className="max-h-80 overflow-y-auto rounded-lg border bg-muted">
           <CommLogEntries entries={recent} />
         </div>
       )}

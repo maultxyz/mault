@@ -35,7 +35,7 @@ export function WatcherStack({ watchers }: { watchers: SessionViewer[] }) {
           Watching
         </p>
         {watchers.map((w) => (
-          <div key={w.userId} className="flex items-center gap-2 px-1.5 py-1 rounded hover:bg-accent">
+          <div key={w.userId} className="flex items-center gap-2 px-1.5 py-1 rounded-sm hover:bg-accent">
             <InitialsAvatar name={w.displayName} variant="watcher" size="sm" />
             <span className="text-xs">{w.displayName}</span>
           </div>

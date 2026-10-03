@@ -440,6 +440,32 @@
     "tabsLabel": "Sorters",
     "connect": "Connect sorter",
     "disconnect": "Disconnect {{name}}",
+    "overview": {
+      "open": "All sorters",
+      "title": "All sorters",
+      "description": "Every sorter in this organization with the last card it scanned, plus the live camera of each connected one. Click a connected sorter to open it in the scanner.",
+      "openStation": "Switch to {{name}}",
+      "offline": "Not connected",
+      "noCamera": "No camera",
+      "noCards": "No cards scanned yet",
+      "emptyTitle": "No sorters yet",
+      "emptyDescription": "Connect a sorter from the scanner to see it here.",
+      "delete": "Delete {{name}}",
+      "deleted": "Deleted {{name}}",
+      "deleteFailed": "Couldn't delete {{name}}",
+      "rename": "Rename {{name}}",
+      "renameFailed": "Couldn't rename the sorter",
+      "renameDialog": {
+        "title": "Rename sorter",
+        "description": "The name shows on the sorter tabs and on this page.",
+        "nameLabel": "Name",
+        "submit": "Save"
+      },
+      "deleteConfirm": {
+        "title": "Delete {{name}}?",
+        "description": "This removes the sorter and everything saved for it: its calibration, bin routes, bin heights, feeder settings and their change history. Scanned cards and collections are kept. If you plug it in again, it shows up as a new, uncalibrated sorter."
+      }
+    },
     "hardCapReached": {
       "title": "Up to {{max}} sorters at a time",
       "description": "Disconnect a sorter before connecting another one."

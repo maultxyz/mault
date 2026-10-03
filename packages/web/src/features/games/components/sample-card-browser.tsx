@@ -89,7 +89,7 @@ function JsonNode({ path, keyName, value, onPick }: JsonNodeProps) {
           path,
         })
       }
-      className="flex items-center gap-1.5 min-w-0 text-xs font-mono w-full text-left py-0.5 pl-4 rounded hover:bg-accent"
+      className="flex items-center gap-1.5 min-w-0 text-xs font-mono w-full text-left py-0.5 pl-4 rounded-sm hover:bg-accent"
     >
       <span className="text-foreground shrink-0">{keyName}</span>
       <span className="text-foreground/70 truncate min-w-0 flex-1">

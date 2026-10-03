@@ -450,7 +450,7 @@ export function ScanRegionCalibrationPanel({
               </span>
             </Button>
             {isLoading ? (
-              <Skeleton className="h-6 flex-1 rounded" />
+              <Skeleton className="h-6 flex-1 rounded-sm" />
             ) : (
               <p className="text-xs text-foreground/70 flex-1">
                 {t("scanRegionCalibrationPanel.currentSummary", {
@@ -472,7 +472,7 @@ export function ScanRegionCalibrationPanel({
             )}
             valueLabel={
               isLoading ? (
-                <Skeleton className="h-5 w-12 rounded" />
+                <Skeleton className="h-5 w-12 rounded-sm" />
               ) : (
                 t("msValue", { value: captureSettleDelayMsValue })
               )
@@ -497,7 +497,7 @@ export function ScanRegionCalibrationPanel({
             )}
             valueLabel={
               isLoading ? (
-                <Skeleton className="h-5 w-6 rounded" />
+                <Skeleton className="h-5 w-6 rounded-sm" />
               ) : (
                 matchesNeeded
               )

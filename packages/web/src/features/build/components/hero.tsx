@@ -78,7 +78,7 @@ export function BuildHero() {
       <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-xs text-foreground/70">
         <span>
           {t("hero.firmwareLabel")}{" "}
-          <code className="rounded border border-border bg-muted px-1.5 py-0.5 text-foreground">
+          <code className="rounded-sm border border-border bg-muted px-1.5 py-0.5 text-foreground">
             firmware/main/main.ino
           </code>
         </span>
@@ -88,14 +88,14 @@ export function BuildHero() {
             href="https://github.com/dishwasher-detergent/mault/blob/master/3d%20model/Card%20Sorter.f3d"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded border border-border bg-muted px-1.5 py-0.5 text-foreground hover:bg-secondary"
+            className="rounded-sm border border-border bg-muted px-1.5 py-0.5 text-foreground hover:bg-secondary"
           >
             <code>3d model/Card Sorter.f3d</code>
           </a>
         </span>
         <span>
           {t("hero.calibrationLabel")}{" "}
-          <code className="rounded border border-border bg-muted px-1.5 py-0.5 text-foreground">
+          <code className="rounded-sm border border-border bg-muted px-1.5 py-0.5 text-foreground">
             /app/calibrate
           </code>
         </span>

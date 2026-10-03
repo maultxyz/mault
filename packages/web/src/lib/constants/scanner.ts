@@ -94,3 +94,5 @@ export const SCAN_RATE_REFRESH_MS = 5_000;
 
 export const BIN_LEVEL_WARNING_PERCENT = 70;
 export const BIN_LEVEL_FULL_PERCENT = 90;
+
+export const SORTERS_OVERVIEW_PATH = "/app/sorters";

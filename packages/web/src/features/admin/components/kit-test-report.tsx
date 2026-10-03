@@ -36,7 +36,7 @@ export function KitTestReport({ session }: KitTestReportProps) {
         </Button>
       }
     >
-      <pre className="whitespace-pre-wrap rounded-md border bg-muted p-2 font-mono text-xs">
+      <pre className="whitespace-pre-wrap rounded-lg border bg-muted p-2 font-mono text-xs">
         {report}
       </pre>
     </SettingsSection>

@@ -56,7 +56,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
       )}
     >
       <button type="button" className="w-full cursor-pointer" onClick={onOpen}>
-        <div className="aspect-[2.5/3.5] rounded-lg overflow-hidden relative">
+        <div className="aspect-[2.5/3.5] rounded-md overflow-hidden relative">
           {(hasAlternatives || needsReview) && (
             <div
               className={cn(

@@ -440,6 +440,32 @@
     "tabsLabel": "Trieuses",
     "connect": "Connecter une trieuse",
     "disconnect": "Déconnecter {{name}}",
+    "overview": {
+      "open": "Tous les trieurs",
+      "title": "Tous les trieurs",
+      "description": "Chaque trieur de cette organisation avec la dernière carte qu'il a scannée, ainsi que la caméra en direct de chaque trieur connecté. Cliquez sur un trieur connecté pour l'ouvrir dans le scanner.",
+      "openStation": "Basculer vers {{name}}",
+      "offline": "Non connecté",
+      "noCamera": "Aucune caméra",
+      "noCards": "Aucune carte scannée pour l'instant",
+      "emptyTitle": "Aucun trieur pour l'instant",
+      "emptyDescription": "Connectez un trieur depuis le scanner pour le voir ici.",
+      "delete": "Supprimer {{name}}",
+      "deleted": "{{name}} supprimé",
+      "deleteFailed": "Impossible de supprimer {{name}}",
+      "rename": "Renommer {{name}}",
+      "renameFailed": "Impossible de renommer le trieur",
+      "renameDialog": {
+        "title": "Renommer le trieur",
+        "description": "Le nom apparaît dans les onglets des trieurs et sur cette page.",
+        "nameLabel": "Nom",
+        "submit": "Enregistrer"
+      },
+      "deleteConfirm": {
+        "title": "Supprimer {{name}} ?",
+        "description": "Cela supprime le trieur et tout ce qui est enregistré pour lui : son étalonnage, ses routes de bacs, ses hauteurs de bacs, ses réglages du chargeur et leur historique. Les cartes scannées et les collections sont conservées. Si vous le rebranchez, il apparaîtra comme un nouveau trieur non étalonné."
+      }
+    },
     "hardCapReached": {
       "title": "{{max}} trieuses maximum à la fois",
       "description": "Déconnectez une trieuse avant d'en connecter une autre."

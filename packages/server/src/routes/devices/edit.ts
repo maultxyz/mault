@@ -1,6 +1,7 @@
 import {
   computeBinCount,
   DEFAULT_CHANNEL_LAYOUT,
+  DEVICE_NAME_MAX_LENGTH,
   maxModulesForLayout,
   type ChannelLayout,
 } from "@magic-vault/shared";
@@ -45,6 +46,19 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
         { success: false, message: "Only the standard channel layout can be set." },
         400,
       );
+    }
+    if ("name" in body) {
+      const name = typeof body.name === "string" ? body.name.trim() : "";
+      if (!name || name.length > DEVICE_NAME_MAX_LENGTH) {
+        return c.json(
+          {
+            success: false,
+            message: `Name must be 1 to ${DEVICE_NAME_MAX_LENGTH} characters.`,
+          },
+          400,
+        );
+      }
+      body.name = name;
     }
     if (body.setupCompleted === false && c.get("userRole") !== "admin") {
       return c.json({ success: false, message: "Forbidden." }, 403);

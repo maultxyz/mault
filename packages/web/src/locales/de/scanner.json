@@ -440,6 +440,32 @@
     "tabsLabel": "Sortierer",
     "connect": "Sortierer verbinden",
     "disconnect": "{{name}} trennen",
+    "overview": {
+      "open": "Alle Sortierer",
+      "title": "Alle Sortierer",
+      "description": "Jeder Sortierer dieser Organisation mit der zuletzt gescannten Karte, dazu die Live-Kamera jedes verbundenen. Klicke auf einen verbundenen Sortierer, um ihn im Scanner zu öffnen.",
+      "openStation": "Zu {{name}} wechseln",
+      "offline": "Nicht verbunden",
+      "noCamera": "Keine Kamera",
+      "noCards": "Noch keine Karten gescannt",
+      "emptyTitle": "Noch keine Sortierer",
+      "emptyDescription": "Verbinde einen Sortierer im Scanner, um ihn hier zu sehen.",
+      "delete": "{{name}} löschen",
+      "deleted": "{{name}} gelöscht",
+      "deleteFailed": "{{name}} konnte nicht gelöscht werden",
+      "rename": "{{name}} umbenennen",
+      "renameFailed": "Der Sortierer konnte nicht umbenannt werden",
+      "renameDialog": {
+        "title": "Sortierer umbenennen",
+        "description": "Der Name erscheint in den Sortierer-Tabs und auf dieser Seite.",
+        "nameLabel": "Name",
+        "submit": "Speichern"
+      },
+      "deleteConfirm": {
+        "title": "{{name}} löschen?",
+        "description": "Dadurch werden der Sortierer und alles, was für ihn gespeichert ist, entfernt: Kalibrierung, Fachzuordnungen, Fachhöhen, Feeder-Einstellungen und deren Änderungsverlauf. Gescannte Karten und Sammlungen bleiben erhalten. Wenn du ihn wieder anschließt, erscheint er als neuer, nicht kalibrierter Sortierer."
+      }
+    },
     "hardCapReached": {
       "title": "Höchstens {{max}} Sortierer gleichzeitig",
       "description": "Trenne einen Sortierer, bevor du einen weiteren verbindest."

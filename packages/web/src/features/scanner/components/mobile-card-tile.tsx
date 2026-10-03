@@ -30,7 +30,7 @@ export const MobileCardTile = memo(function MobileCardTile({
     >
       <div
         className={cn(
-          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-md border bg-muted",
+          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg border bg-muted",
           awaitingReview &&
             "ring-2 ring-warning ring-offset-1 ring-offset-background",
         )}
@@ -58,7 +58,7 @@ export const MobileCardTile = memo(function MobileCardTile({
           </span>
         )}
         {entry.quantity > 1 && (
-          <span className="absolute top-1 right-1 rounded bg-background/90 px-1 text-2xs font-semibold leading-4 text-foreground shadow">
+          <span className="absolute top-1 right-1 rounded-sm bg-background/90 px-1 text-2xs font-semibold leading-4 text-foreground shadow">
             ×{entry.quantity}
           </span>
         )}
