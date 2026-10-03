@@ -316,6 +316,12 @@ export interface BinLevelLayout {
   bottom: number[];
 }
 
+export interface BinLimitDialogProps {
+  bin: BinConfig | null;
+  capacity: number | null;
+  onContinue: () => Promise<void>;
+}
+
 export interface BinLevelCellProps {
   level: BinFillLevel;
   isCatchAll: boolean;

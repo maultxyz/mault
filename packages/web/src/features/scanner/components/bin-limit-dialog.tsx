@@ -7,17 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { BinConfig } from "@magic-vault/shared";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { BinLimitDialogProps } from "@/lib/interfaces/scanner";
 
-interface BinLimitDialogProps {
-  bin: BinConfig | null;
-  onContinue: () => Promise<void>;
-}
-
-export function BinLimitDialog({ bin, onContinue }: BinLimitDialogProps) {
+export function BinLimitDialog({
+  bin,
+  capacity,
+  onContinue,
+}: BinLimitDialogProps) {
   const { t } = useTranslation("scanner");
   const [isContinuing, setIsContinuing] = useState(false);
 
@@ -40,7 +39,7 @@ export function BinLimitDialog({ bin, onContinue }: BinLimitDialogProps) {
           <DialogDescription>
             {t("binLimitDialog.description", {
               number: bin?.binNumber,
-              limit: bin?.cardLimit,
+              limit: capacity,
             })}
           </DialogDescription>
         </DialogHeader>

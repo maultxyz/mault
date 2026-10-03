@@ -34,11 +34,7 @@ export function useComputedBinFillLevels(
           const height = savedHeights.find(
             (h) => h.binNumber === bin.binNumber,
           )?.height;
-          const capacity = computeBinCapacity(
-            height,
-            cardThickness,
-            bin.cardLimit ?? null,
-          );
+          const capacity = computeBinCapacity(height, cardThickness);
           const count =
             (matchedCounts.get(bin.binNumber) ?? 0) +
             countCardsInBin(unmatchedCards, bin);

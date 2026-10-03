@@ -12,6 +12,8 @@ import { isRuleGroup } from "./interfaces/sort-bins.interface";
 import {
   ALPHABET_LETTERS,
   ALPHABET_PREFIX_MAX_LENGTH,
+  DEFAULT_BIN_HEIGHT,
+  DEFAULT_CARD_THICKNESS_MM,
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
 import { cardMatchPercent } from "./scan-rule-fields";
@@ -260,11 +262,13 @@ export function isBinFull(
 export function computeBinCapacity(
   height: number | null | undefined,
   cardThickness: number | null | undefined,
-  manualCardLimit: number | null | undefined,
-): number | null {
-  const calculated =
-    height && cardThickness ? Math.floor(height / cardThickness) : null;
-  return calculated ?? manualCardLimit ?? null;
+): number {
+  const binHeight = height && height > 0 ? height : DEFAULT_BIN_HEIGHT;
+  const thickness =
+    cardThickness && cardThickness > 0
+      ? cardThickness
+      : DEFAULT_CARD_THICKNESS_MM;
+  return Math.floor(binHeight / thickness);
 }
 
 export function getCardsInBin(

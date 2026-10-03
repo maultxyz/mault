@@ -64,13 +64,6 @@ export type SliderKey = `${number}:${"bottom" | "paddle" | "pusher"}`;
 
 export type ActivePositions = Record<string, string | null>;
 
-export type BinSizePreset = "small" | "medium" | "large";
-
-export interface BinHeightPreset {
-  key: BinSizePreset;
-  height: number;
-}
-
 export type ModuleDelayField = "pusherHoldDuration" | "paddleCloseDelay";
 
 export type SetupServo = "bottom" | "paddle" | "pusher";

@@ -10,12 +10,13 @@ import {
 import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
+import { BIN_SLOTS_PHYSICAL_ORDER } from "@/lib/constants/calibration";
+import { cn } from "@/lib/utils";
 import {
   BIN_HEIGHT_PRESETS,
-  BIN_SLOTS_PHYSICAL_ORDER,
-} from "@/lib/constants/calibration";
-import { cn } from "@/lib/utils";
-import { computeBinCount, type BinDirection } from "@magic-vault/shared";
+  computeBinCount,
+  type BinDirection,
+} from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function SizeSelect({

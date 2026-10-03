@@ -9,6 +9,7 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { useVerifyJam } from "@/features/scanner/api/use-verify-jam";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
@@ -63,6 +64,10 @@ export function CardScanner({
     resolveBinLimit,
     setScannerRunning,
   } = useScannedCards();
+  const binFillLevels = useBinFillLevels();
+  const binLimitCapacity =
+    binFillLevels.find((level) => level.binNumber === binLimitReached?.binNumber)
+      ?.capacity ?? null;
   const { station } = useStation();
   const {
     setActiveStation,
@@ -543,6 +548,7 @@ export function CardScanner({
       />
       <BinLimitDialog
         bin={binLimitReached}
+        capacity={binLimitCapacity}
         onContinue={handleContinueAfterBinLimit}
       />
       <StaleDeviceDialog

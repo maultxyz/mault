@@ -65,6 +65,13 @@ export interface BinConfig {
   lastEmptiedAt?: number | null;
 }
 
+export type BinSizePreset = "small" | "medium" | "large";
+
+export interface BinHeightPreset {
+  key: BinSizePreset;
+  height: number;
+}
+
 export interface RepackSlot {
   id: string;
   rule: BinRuleGroup;
