@@ -1,4 +1,6 @@
 import type { Device } from "@/features/calibration/api/devices";
+import type { PlayingCard } from "@magic-vault/shared";
+import type { ReactNode } from "react";
 
 export type StationPanelLayout = "horizontal" | "vertical";
 
@@ -46,6 +48,42 @@ export interface StationsContextValue {
   disconnectStation: (id: string) => void;
   getPanelElement: (id: string) => HTMLElement;
   attachPanels: (layout: StationPanelLayout) => () => void;
+  overviewOpen: boolean;
+  attachOverview: () => () => void;
+  getDevicePrefs: (deviceGuid: string) => DevicePrefs | undefined;
+  getOverviewTileElement: (id: string) => HTMLElement;
+}
+
+export interface StationTabProps {
+  station: StationState;
+  index: number;
+  isActive: boolean;
+}
+
+export type StationStatus = "sorting" | "paused" | "offline";
+
+export interface StationStatusDotProps {
+  status: StationStatus;
+}
+
+export interface StationOverviewCardProps {
+  name: string;
+  status: StationStatus;
+  camera: ReactNode;
+  latestCard: PlayingCard | undefined;
+  collectionName: string | undefined;
+  totalCount: number;
+  onOpen?: () => void;
+  openLabel?: string;
+  action?: ReactNode;
+}
+
+export interface OfflineDeviceTileProps {
+  device: Device;
+}
+
+export interface RenameDeviceButtonProps {
+  device: Device;
 }
 
 export interface StationContextValue {

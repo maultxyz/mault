@@ -3,9 +3,9 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
+import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
 import { SCANNER_PIP_MINIMIZED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { formatElapsed } from "@/lib/format";
-import { cn } from "@/lib/utils";
 import {
   IconArrowBackUp,
   IconCamera,
@@ -22,17 +22,6 @@ function readMinimized() {
   } catch {
     return false;
   }
-}
-
-function StatusDot({ isActive }: { isActive: boolean }) {
-  return (
-    <span
-      className={cn(
-        "size-2 shrink-0 rounded-full",
-        isActive ? "bg-success animate-pulse" : "bg-warning",
-      )}
-    />
-  );
 }
 
 export function ScannerPip() {
@@ -85,7 +74,7 @@ export function ScannerPip() {
         className="fixed bottom-8 right-0 z-50 flex items-center gap-2 rounded-l-lg border border-r-0 bg-background py-2 pr-2.5 pl-1.5 text-sm font-medium text-foreground shadow-xl transition-[padding] hover:pl-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <IconChevronLeft size={16} className="text-foreground/70" />
-        <StatusDot isActive={isTimerActive} />
+        <StationStatusDot status={isTimerActive ? "sorting" : "paused"} />
         <span className="sr-only">{statusLabel}</span>
         <span className="tabular-nums">{totalCount}</span>
       </button>
@@ -118,7 +107,7 @@ export function ScannerPip() {
             {t("scannerPip.returnToScanner")}
           </div>
           <span className="absolute top-2 left-2 flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">
-            <StatusDot isActive={isTimerActive} />
+            <StationStatusDot status={isTimerActive ? "sorting" : "paused"} />
             {statusLabel}
           </span>
         </div>

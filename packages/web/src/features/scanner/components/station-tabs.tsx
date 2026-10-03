@@ -5,30 +5,58 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { devicesQueryOptions } from "@/features/calibration/api/devices";
-import { useOrg } from "@/features/companies/api/use-organization";
+import { useStationName } from "@/features/scanner/api/use-station-name";
 import { useStations } from "@/features/scanner/api/use-stations";
+import type { StationTabProps } from "@/lib/interfaces/stations";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
-import { IconPlus, IconX } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { IconLayoutGrid, IconPlus, IconX } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { Link, useMatch, useNavigate } from "react-router-dom";
+import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+
+function StationTab({ station, index, isActive }: StationTabProps) {
+  const { t } = useTranslation("scanner");
+  const { setActiveStation, disconnectStation } = useStations();
+  const name = useStationName(station, index);
+  const variant = isActive ? "default" : "ghost";
+  return (
+    <div className="flex items-center">
+      <Button
+        role="tab"
+        aria-selected={isActive}
+        size="sm"
+        variant={variant}
+        className="rounded-r-none"
+        onClick={() => setActiveStation(station.id)}
+      >
+        {name}
+      </Button>
+      <Button
+        size="icon-sm"
+        variant={variant}
+        className="rounded-l-none"
+        aria-label={t("stations.disconnect", { name })}
+        title={t("stations.disconnect", { name })}
+        onClick={() => disconnectStation(station.id)}
+      >
+        <IconX />
+      </Button>
+    </div>
+  );
+}
 
 // One tab per connected sorter: a tab appears when a board connects and
 // disappears when it disconnects, including via the tab's own disconnect.
 export function StationTabs() {
   const { t } = useTranslation("scanner");
   const navigate = useNavigate();
-  const { activeOrg } = useOrg();
-  const { data: devices = [] } = useQuery(devicesQueryOptions(activeOrg?.id));
+  const isOverview = !!useMatch(SORTERS_OVERVIEW_PATH);
   const {
     stations,
     activeStationId,
     connectedStationIds,
-    setActiveStation,
     connectAnotherSorter,
-    disconnectStation,
     canConnectAnotherSorter,
     sorterLimitIsHardCap,
   } = useStations();
@@ -40,42 +68,29 @@ export function StationTabs() {
 
   return (
     <div className="flex items-center gap-1 px-2 py-1.5 shrink-0 overflow-x-auto border-b">
+      <Button
+        size="icon-sm"
+        variant={isOverview ? "default" : "ghost"}
+        nativeButton={false}
+        aria-label={t("stations.overview.open")}
+        title={t("stations.overview.open")}
+        render={<Link to={SORTERS_OVERVIEW_PATH} />}
+      >
+        <IconLayoutGrid />
+      </Button>
       <div
         role="tablist"
         aria-label={t("stations.tabsLabel")}
         className="flex items-center gap-1"
       >
-        {connected.map((station, index) => {
-          const isActive = station.id === activeStationId;
-          const name =
-            devices.find((d) => d.guid === station.deviceGuid)?.name ??
-            t("stations.label", { number: index + 1 });
-          const variant = isActive ? "default" : "ghost";
-          return (
-            <div key={station.id} className="flex items-center">
-              <Button
-                role="tab"
-                aria-selected={isActive}
-                size="sm"
-                variant={variant}
-                className="rounded-r-none"
-                onClick={() => setActiveStation(station.id)}
-              >
-                {name}
-              </Button>
-              <Button
-                size="icon-sm"
-                variant={variant}
-                className="rounded-l-none"
-                aria-label={t("stations.disconnect", { name })}
-                title={t("stations.disconnect", { name })}
-                onClick={() => disconnectStation(station.id)}
-              >
-                <IconX />
-              </Button>
-            </div>
-          );
-        })}
+        {connected.map((station, index) => (
+          <StationTab
+            key={station.id}
+            station={station}
+            index={index}
+            isActive={station.id === activeStationId}
+          />
+        ))}
       </div>
       {canConnectAnotherSorter && !bluetoothSupported ? (
         <Button

@@ -86,13 +86,20 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   const devicePrefsRef = useRef<Record<string, DevicePrefs>>({});
   const connectorsRef = useRef(new Map<string, StationConnector>());
   const panelElementsRef = useRef(new Map<string, HTMLElement>());
+  const overviewTileElementsRef = useRef(new Map<string, HTMLElement>());
   const parkedSlotsRef = useRef(new Map<string, HTMLElement>());
   const parkingRootRef = useRef<HTMLElement | null>(null);
   const [panelsDocked, setPanelsDocked] = useState(false);
+  const [overviewOpen, setOverviewOpen] = useState(false);
 
   const setStations = useCallback((next: StationState[]) => {
     for (const id of panelElementsRef.current.keys()) {
       if (!next.some((s) => s.id === id)) panelElementsRef.current.delete(id);
+    }
+    for (const id of overviewTileElementsRef.current.keys()) {
+      if (!next.some((s) => s.id === id)) {
+        overviewTileElementsRef.current.delete(id);
+      }
     }
     for (const [id, slot] of parkedSlotsRef.current) {
       if (next.some((s) => s.id === id)) continue;
@@ -360,6 +367,26 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     return el;
   }, []);
 
+  const getOverviewTileElement = useCallback((id: string) => {
+    let el = overviewTileElementsRef.current.get(id);
+    if (!el) {
+      el = document.createElement("div");
+      el.style.display = "contents";
+      overviewTileElementsRef.current.set(id, el);
+    }
+    return el;
+  }, []);
+
+  const getDevicePrefs = useCallback(
+    (deviceGuid: string) => devicePrefsRef.current[deviceGuid],
+    [],
+  );
+
+  const attachOverview = useCallback(() => {
+    setOverviewOpen(true);
+    return () => setOverviewOpen(false);
+  }, []);
+
   const getParkingRoot = useCallback(() => {
     let root = parkingRootRef.current;
     if (!root) {
@@ -430,6 +457,10 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       disconnectStation,
       getPanelElement,
       attachPanels,
+      overviewOpen,
+      attachOverview,
+      getDevicePrefs,
+      getOverviewTileElement,
     }),
     [
       stations,
@@ -450,6 +481,10 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       disconnectStation,
       getPanelElement,
       attachPanels,
+      overviewOpen,
+      attachOverview,
+      getDevicePrefs,
+      getOverviewTileElement,
     ],
   );
 

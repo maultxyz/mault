@@ -57,3 +57,7 @@ export function releaseDeviceLease(orgId: string, deviceKey: string) {
   map.delete(deviceKey);
   if (map.size === 0) leases.delete(orgId);
 }
+
+export function isDeviceLeased(orgId: string, deviceKey: string): boolean {
+  return leases.get(orgId)?.has(deviceKey) ?? false;
+}
