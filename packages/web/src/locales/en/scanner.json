@@ -353,6 +353,7 @@
     "confirmButton": "Empty Bin",
     "binLabel": "Bin {{bin}}",
     "catchAll": "Catch-all",
+    "disabled": "Off",
     "full": "Full",
     "nearlyFull": "Nearly full",
     "emptyAction": "Empty bin {{bin}}",

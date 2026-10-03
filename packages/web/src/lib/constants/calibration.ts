@@ -1,5 +1,4 @@
 import type {
-  BinHeightPreset,
   DeviceToggleKey,
   ModuleDelayField,
   ServoConfig,
@@ -141,12 +140,6 @@ export const SERVOS: ServoConfig[] = [
     labelKey: "servos.pusher.label",
     positions: ["left", "neutral", "right"],
   },
-];
-
-export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
-  { key: "small", height: 69 },
-  { key: "medium", height: 113 },
-  { key: "large", height: 187 },
 ];
 
 export const SETUP_SERVO_POSITIONS: SetupServoPosition[] = [

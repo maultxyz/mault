@@ -7,6 +7,8 @@
   },
   "binCard": {
     "override": "Override",
+    "disabled": "Disabled",
+    "disabledDescription": "Cards skip this bin",
     "maxCopies": "Max {{count}}×",
     "ruleCount_one": "{{count}} rule",
     "ruleCount_other": "{{count}} rules",
@@ -19,6 +21,9 @@
   },
   "binConfigPanel": {
     "overrideLabel": "Override rules",
+    "disabledLabel": "Disable this bin",
+    "disabledDescription": "Cards never go here. They move on to the next bin that matches, or the catch-all.",
+    "disabledNotice": "This bin is disabled. Its rules are kept, but no cards are sent to it until you turn it back on.",
     "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, the lowest bin number wins. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
     "maxCopiesLabel": "Limit copies per printing",
     "maxCopiesDescription": "Once this bin holds this many copies of the same printing (since it was last emptied), further copies skip it and go to the next bin whose rules match, or the catch-all.",

@@ -10,6 +10,7 @@ import { useTranslation } from "react-i18next";
 export function BinLevelCell({
   level,
   isCatchAll,
+  isDisabled,
   flashKey,
   onEmpty,
   className,
@@ -62,6 +63,7 @@ export function BinLevelCell({
       <span className="relative truncate text-2xs font-medium uppercase tracking-wide text-foreground/70">
         {t("binStatusMeter.binLabel", { bin: level.binNumber })}
         {isCatchAll && ` · ${t("binStatusMeter.catchAll")}`}
+        {isDisabled && ` · ${t("binStatusMeter.disabled")}`}
       </span>
       {status === "full" && (
         <IconAlertOctagon

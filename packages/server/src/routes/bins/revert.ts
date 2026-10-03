@@ -4,7 +4,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSetAudit } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { loadSets, toMaxCopies } from "./shared";
+import { loadSets, toIsDisabled, toMaxCopies } from "./shared";
 
 export const revertBinSetRoute = new Hono<AppEnv>().post(
   "/history/:guid/revert",
@@ -50,6 +50,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
                 isOverride: !config.isCatchAll && (config.isOverride ?? false),
                 cardLimit,
                 maxCopies: toMaxCopies(config.maxCopies, config.isCatchAll),
+                isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
                 updatedAt: new Date(),
               })
               .where(eq(bins.id, existing.id));
@@ -61,6 +62,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
               isOverride: !config.isCatchAll && (config.isOverride ?? false),
               cardLimit,
               maxCopies: toMaxCopies(config.maxCopies, config.isCatchAll),
+                isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
               binSet: binSet.id,
               orgId,
             });

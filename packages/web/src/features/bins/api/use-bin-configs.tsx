@@ -188,6 +188,7 @@ export function BinConfigsProvider({
       isOverride,
       cardLimit,
       maxCopies,
+      isDisabled,
     }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
       const previous = queryClient.getQueryData<BinSet[]>(["bins"]);
@@ -203,6 +204,10 @@ export function BinConfigsProvider({
             isOverride,
             cardLimit: cardLimit ?? null,
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
+            isDisabled:
+              !isCatchAll &&
+              (isDisabled ?? (idx >= 0 ? set.bins[idx].isDisabled : false)) ===
+                true,
             lastEmptiedAt: idx >= 0 ? set.bins[idx].lastEmptiedAt : null,
           };
           const bins =
@@ -425,6 +430,7 @@ export function BinConfigsProvider({
       cardLimit?: number | null,
       isOverride?: boolean,
       maxCopies?: number | null,
+      isDisabled?: boolean,
     ) => {
       saveBinMutation.mutate({
         binNumber,
@@ -433,6 +439,7 @@ export function BinConfigsProvider({
         isOverride,
         cardLimit,
         maxCopies,
+        isDisabled,
         gameGuid: activeGameGuid,
       });
     },

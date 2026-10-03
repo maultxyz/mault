@@ -80,6 +80,7 @@ export async function buildSortingLogicSummary(
       isCatchAll: bins.isCatchAll,
       isOverride: bins.isOverride,
       maxCopies: bins.maxCopies,
+      isDisabled: bins.isDisabled,
     })
     .from(bins)
     .where(eq(bins.binSet, set.id))
@@ -91,7 +92,9 @@ export async function buildSortingLogicSummary(
   const lines = binRows.map((b) =>
     b.isCatchAll
       ? lowMatchSummary(b.binNumber, b.rules as BinRuleGroup)
-      : `**Bin ${b.binNumber}${b.isOverride ? " (override)" : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per printing)` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
+      : b.isDisabled
+        ? `**Bin ${b.binNumber}:** disabled`
+        : `**Bin ${b.binNumber}${b.isOverride ? " (override)" : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per printing)` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
   );
 
   return `**Sorting logic:** ${set.name}\n${lines.join("\n")}`;

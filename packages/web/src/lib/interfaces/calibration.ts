@@ -34,6 +34,7 @@ export interface BinRoutesContextValue {
 
 export interface BinHeightsContextValue {
   heights: BinHeight[];
+  savedHeights: BinHeight[];
   isDirty: boolean;
   isSaving: boolean;
   setHeight: (binNumber: number, height: number) => void;
@@ -62,13 +63,6 @@ export interface ServoConfig {
 export type SliderKey = `${number}:${"bottom" | "paddle" | "pusher"}`;
 
 export type ActivePositions = Record<string, string | null>;
-
-export type BinSizePreset = "small" | "medium" | "large";
-
-export interface BinHeightPreset {
-  key: BinSizePreset;
-  height: number;
-}
 
 export type ModuleDelayField = "pusherHoldDuration" | "paddleCloseDelay";
 

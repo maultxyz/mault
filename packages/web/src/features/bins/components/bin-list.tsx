@@ -21,7 +21,6 @@ export function BinList() {
   } = useBinConfigs();
   const isAutoAssign = !!effectiveMode.autoAssignField;
   const isScanOnly = effectiveMode.scanOnly;
-  const isRepackMode = effectiveMode.isRepackMode;
   const alphabetLetters =
     effectiveMode.isAlphabetMode && !isModeDirty
       ? getAlphabetPassLetters(
@@ -63,7 +62,7 @@ export function BinList() {
                 ? (alphabetLetters.get(config.binNumber) ?? null)
                 : undefined
             }
-            disabled={isRepackMode || !!alphabetLetters || isModeDirty}
+            disabled={isModeDirty}
             onClick={() => setSelectedBin(config.binNumber)}
           />
         ))}

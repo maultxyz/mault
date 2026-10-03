@@ -15,6 +15,7 @@ const exportedBinSchema = z.object({
     .max(CONDITION_NUMERIC_MAX)
     .nullable()
     .default(null),
+  isDisabled: z.boolean().default(false),
 });
 
 export const binRulesExportSchema = z.object({

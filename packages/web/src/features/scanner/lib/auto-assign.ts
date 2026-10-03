@@ -21,7 +21,9 @@ export function findAutoAssignTarget(
   if (matched && !matched.isCatchAll) return null;
 
   const nextOpen = configs
-    .filter((c) => !c.isCatchAll && c.rules.conditions.length === 0)
+    .filter(
+      (c) => !c.isCatchAll && !c.isDisabled && c.rules.conditions.length === 0,
+    )
     .sort((a, b) => a.binNumber - b.binNumber)[0];
   if (!nextOpen) return null;
 

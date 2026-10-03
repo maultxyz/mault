@@ -14,6 +14,7 @@ import {
   getModuleCount,
   loadSets,
   resolveGameId,
+  toIsDisabled,
   toMaxCopies,
 } from "./shared";
 
@@ -86,6 +87,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
             isOverride: !b.isCatchAll && b.isOverride === true,
             cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
             maxCopies: toMaxCopies(b.maxCopies, b.isCatchAll),
+            isDisabled: toIsDisabled(b.isDisabled, b.isCatchAll),
             binSet: newBinSet.id,
             orgId,
           })),

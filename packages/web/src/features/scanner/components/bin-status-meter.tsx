@@ -31,6 +31,9 @@ export function BinStatusMeter() {
   const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const catchAllBin = configs.find((c) => c.isCatchAll)?.binNumber;
+  const disabledBins = new Set(
+    configs.filter((c) => !c.isCatchAll && c.isDisabled).map((c) => c.binNumber),
+  );
 
   const layout = useMemo(
     () =>
@@ -69,6 +72,7 @@ export function BinStatusMeter() {
         className={className}
         level={level}
         isCatchAll={catchAllBin === level.binNumber}
+        isDisabled={disabledBins.has(level.binNumber)}
         flashKey={
           lastRoutedBin?.binNumber === level.binNumber ? lastRoutedBin.at : null
         }

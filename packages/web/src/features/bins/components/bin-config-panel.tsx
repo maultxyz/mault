@@ -84,6 +84,7 @@ export function BinConfigPanel() {
     defaultValues: {
       isCatchAll: false,
       isOverride: false,
+      isDisabled: false,
       rules: emptyRuleGroup(),
       maxCopies: null,
       lowMatchPercent: null,
@@ -94,6 +95,7 @@ export function BinConfigPanel() {
     form.reset({
       isCatchAll: config.isCatchAll ?? false,
       isOverride: config.isOverride ?? false,
+      isDisabled: !config.isCatchAll && !!config.isDisabled,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
       maxCopies: config.maxCopies ?? null,
@@ -114,8 +116,24 @@ export function BinConfigPanel() {
     configs.filter((c) => c.isCatchAll && c.binNumber !== config.binNumber)
       .length === 0;
 
+  const rulesLocked = effectiveMode.isRepackMode || effectiveMode.isAlphabetMode;
+
   const handleSave = useCallback(
     (values: BinConfigFormValues) => {
+      if (rulesLocked) {
+        save(
+          config.binNumber,
+          config.rules,
+          config.isCatchAll,
+          config.cardLimit === undefined
+            ? DEFAULT_BIN_CAPACITY
+            : config.cardLimit,
+          config.isOverride,
+          config.maxCopies ?? null,
+          !config.isCatchAll && values.isDisabled,
+        );
+        return;
+      }
       if (!values.isCatchAll && isOnlyCatchAll) {
         form.setError("isCatchAll", {
           message: t("binConfigPanel.needCatchAllError"),
@@ -133,9 +151,10 @@ export function BinConfigPanel() {
           : config.cardLimit,
         !values.isCatchAll && values.isOverride,
         values.isCatchAll || autoAssignField ? null : values.maxCopies,
+        !values.isCatchAll && values.isDisabled,
       );
     },
-    [config, save, isOnlyCatchAll, form, t, autoAssignField],
+    [config, save, isOnlyCatchAll, form, t, autoAssignField, rulesLocked],
   );
 
   const handleClear = useCallback(() => {
@@ -149,6 +168,7 @@ export function BinConfigPanel() {
       {
         isCatchAll: false,
         isOverride: false,
+        isDisabled: form.getValues("isDisabled"),
         rules: emptyRuleGroup(),
         maxCopies: null,
         lowMatchPercent: null,
@@ -158,6 +178,44 @@ export function BinConfigPanel() {
   }, [form, isOnlyCatchAll, t]);
 
   const isCatchAll = form.watch("isCatchAll");
+  const isDisabled = form.watch("isDisabled");
+
+  const disableToggle = !isCatchAll && (
+    <Field className="mb-6">
+      <div className="flex items-center gap-2">
+        <Controller
+          name="isDisabled"
+          control={form.control}
+          render={({ field }) => (
+            <Switch
+              id="bin-disabled"
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+          )}
+        />
+        <FieldLabel htmlFor="bin-disabled">
+          {t("binConfigPanel.disabledLabel")}
+        </FieldLabel>
+      </div>
+      <FieldDescription>
+        {t("binConfigPanel.disabledDescription")}
+      </FieldDescription>
+    </Field>
+  );
+
+  const saveControls = (
+    <>
+      <SaveBar
+        show={form.formState.isDirty}
+        formId="bin-config-form"
+        isSaving={isPending}
+        onDiscard={() => form.reset()}
+        saveButtonDataTour="save-bin-config"
+      />
+      <UnsavedChangesGuard isDirty={form.formState.isDirty} />
+    </>
+  );
 
   if (isModeDirty) {
     return (
@@ -167,7 +225,24 @@ export function BinConfigPanel() {
     );
   }
 
-  if (effectiveMode.isRepackMode || effectiveMode.isAlphabetMode) return null;
+  if (rulesLocked) {
+    if (config.isCatchAll) return null;
+    return (
+      <>
+        <form
+          id="bin-config-form"
+          onSubmit={form.handleSubmit(handleSave)}
+          className="flex flex-col"
+        >
+          <h2 className="mb-4 text-sm font-semibold font-heading">
+            {t("binLabel", { number: config.binNumber })}
+          </h2>
+          {disableToggle}
+        </form>
+        {saveControls}
+      </>
+    );
+  }
 
   if (effectiveMode.scanOnly) {
     return (
@@ -217,6 +292,7 @@ export function BinConfigPanel() {
                     form.setValue("lowMatchPercent", null, {
                       shouldDirty: true,
                     });
+                    form.setValue("isDisabled", false, { shouldDirty: true });
                     field.onChange(!field.value);
                   }}
                 >
@@ -234,6 +310,12 @@ export function BinConfigPanel() {
           />
         </div>
         <ScrollArea>
+          {disableToggle}
+          {isDisabled && (
+            <Callout className="mb-6">
+              {t("binConfigPanel.disabledNotice")}
+            </Callout>
+          )}
           {!autoAssignField && !isCatchAll && (
             <Field className="mb-6">
               <div className="flex items-center gap-2">
@@ -437,14 +519,7 @@ export function BinConfigPanel() {
           </Button>
         </div>
       </form>
-      <SaveBar
-        show={form.formState.isDirty}
-        formId="bin-config-form"
-        isSaving={isPending}
-        onDiscard={() => form.reset()}
-        saveButtonDataTour="save-bin-config"
-      />
-      <UnsavedChangesGuard isDirty={form.formState.isDirty} />
+      {saveControls}
     </>
   );
 }

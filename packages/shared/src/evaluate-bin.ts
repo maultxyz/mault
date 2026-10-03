@@ -12,6 +12,8 @@ import { isRuleGroup } from "./interfaces/sort-bins.interface";
 import {
   ALPHABET_LETTERS,
   ALPHABET_PREFIX_MAX_LENGTH,
+  DEFAULT_BIN_HEIGHT,
+  DEFAULT_CARD_THICKNESS_MM,
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
 import { cardMatchPercent } from "./scan-rule-fields";
@@ -63,6 +65,22 @@ function isNullish(value: string | number | string[] | null): boolean {
   return false;
 }
 
+function normalizeText(value: unknown): string {
+  return String(value).trim().toLowerCase();
+}
+
+function normalizeList(value: unknown): string[] {
+  return Array.isArray(value) ? value.map(normalizeText) : [];
+}
+
+function sameSet(a: string[], b: string[]): boolean {
+  return (
+    a.length === b.length &&
+    a.every((v) => b.includes(v)) &&
+    b.every((v) => a.includes(v))
+  );
+}
+
 function evaluateCondition(
   card: SourceCard,
   condition: BinCondition,
@@ -70,47 +88,30 @@ function evaluateCondition(
 ): boolean {
   const cardValue = getCardValue(card, condition.field, fieldDefinitions);
   const { operator, value } = condition;
+  const cardText = normalizeText(cardValue);
+  const valueText = normalizeText(value);
+  const cardList = normalizeList(cardValue);
+  const valueList = normalizeList(value);
+  const bothLists = Array.isArray(cardValue) && Array.isArray(value);
 
   switch (operator) {
     case "equals":
-      if (Array.isArray(cardValue) && Array.isArray(value)) {
-        return (
-          cardValue.length === value.length &&
-          cardValue.every((v) => value.includes(v)) &&
-          value.every((v) => cardValue.includes(v))
-        );
-      }
-      return String(cardValue) === String(value);
+      return bothLists ? sameSet(cardList, valueList) : cardText === valueText;
 
     case "not_equals":
-      if (Array.isArray(cardValue) && Array.isArray(value)) {
-        return !(
-          cardValue.length === value.length &&
-          cardValue.every((v) => value.includes(v)) &&
-          value.every((v) => cardValue.includes(v))
-        );
-      }
-      return String(cardValue) !== String(value);
+      return bothLists ? !sameSet(cardList, valueList) : cardText !== valueText;
 
     case "contains":
-      return String(cardValue)
-        .toLowerCase()
-        .includes(String(value).toLowerCase());
+      return cardText.includes(valueText);
 
     case "not_contains":
-      return !String(cardValue)
-        .toLowerCase()
-        .includes(String(value).toLowerCase());
+      return !cardText.includes(valueText);
 
     case "starts_with":
-      return String(cardValue)
-        .toLowerCase()
-        .startsWith(String(value).toLowerCase());
+      return cardText.startsWith(valueText);
 
     case "ends_with":
-      return String(cardValue)
-        .toLowerCase()
-        .endsWith(String(value).toLowerCase());
+      return cardText.endsWith(valueText);
 
     case "gt":
       return cardValue !== null && Number(cardValue) > Number(value);
@@ -131,31 +132,19 @@ function evaluateCondition(
       return !isNullish(cardValue);
 
     case "in":
-      return Array.isArray(value) && value.includes(String(cardValue));
+      return Array.isArray(value) && valueList.includes(cardText);
 
     case "not_in":
-      return Array.isArray(value) && !value.includes(String(cardValue));
+      return Array.isArray(value) && !valueList.includes(cardText);
 
     case "contains_any":
-      return (
-        Array.isArray(cardValue) &&
-        Array.isArray(value) &&
-        value.some((v) => cardValue.includes(v))
-      );
+      return bothLists && valueList.some((v) => cardList.includes(v));
 
     case "contains_all":
-      return (
-        Array.isArray(cardValue) &&
-        Array.isArray(value) &&
-        value.every((v) => cardValue.includes(v))
-      );
+      return bothLists && valueList.every((v) => cardList.includes(v));
 
     case "contains_none":
-      return (
-        Array.isArray(cardValue) &&
-        Array.isArray(value) &&
-        !value.some((v) => cardValue.includes(v))
-      );
+      return bothLists && !valueList.some((v) => cardList.includes(v));
 
     default:
       return false;
@@ -238,6 +227,7 @@ export function evaluateCardBin(
       continue;
     }
     if (
+      !config.isDisabled &&
       config.rules.conditions.length > 0 &&
       evaluateRuleGroup(card, config.rules, fieldDefinitions) &&
       !hasReachedMaxCopies(config, copiesInBin)
@@ -272,11 +262,13 @@ export function isBinFull(
 export function computeBinCapacity(
   height: number | null | undefined,
   cardThickness: number | null | undefined,
-  manualCardLimit: number | null | undefined,
-): number | null {
-  const calculated =
-    height && cardThickness ? Math.floor(height / cardThickness) : null;
-  return calculated ?? manualCardLimit ?? null;
+): number {
+  const binHeight = height && height > 0 ? height : DEFAULT_BIN_HEIGHT;
+  const thickness =
+    cardThickness && cardThickness > 0
+      ? cardThickness
+      : DEFAULT_CARD_THICKNESS_MM;
+  return Math.floor(binHeight / thickness);
 }
 
 export function getCardsInBin(
@@ -344,7 +336,7 @@ export function evaluateRepackBin(
   const catchAll = getCatchAllBin(configs);
 
   for (const bin of configs) {
-    if (bin.isCatchAll) continue;
+    if (bin.isCatchAll || bin.isDisabled) continue;
 
     const cardsInPack = cardsInBin(bin);
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
@@ -370,7 +362,7 @@ export function evaluateRepackBin(
 
 export function getAlphabetBins(configs: BinConfig[]): BinConfig[] {
   return configs
-    .filter((c) => !c.isCatchAll)
+    .filter((c) => !c.isCatchAll && !c.isDisabled)
     .sort((a, b) => a.binNumber - b.binNumber);
 }
 

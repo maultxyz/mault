@@ -61,7 +61,15 @@ export interface BinConfig {
   isOverride?: boolean;
   cardLimit?: number | null;
   maxCopies?: number | null;
+  isDisabled?: boolean;
   lastEmptiedAt?: number | null;
+}
+
+export type BinSizePreset = "small" | "medium" | "large";
+
+export interface BinHeightPreset {
+  key: BinSizePreset;
+  height: number;
 }
 
 export interface RepackSlot {
