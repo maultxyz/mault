@@ -1,13 +1,14 @@
 name: Deploy
 
 on:
-  # Nightly at 19:00 America/Chicago. Cron is UTC-only, so both offsets are
-  # scheduled and "Compute deploy flag" keeps only the one matching the current
-  # CDT/CST offset. Scheduled runs always use the default branch (master), and
+  # Nightly at 19:17 America/Chicago, off the top of the hour since GitHub
+  # delays or drops scheduled runs when load peaks at :00. Cron is UTC-only,
+  # so both offsets are scheduled and "Compute deploy flag" keeps only the one
+  # matching the current CDT/CST offset. Scheduled runs always use the default branch (master), and
   # only deploy when something changed since the last release tag.
   schedule:
-    - cron: "0 0 * * *"
-    - cron: "0 1 * * *"
+    - cron: "17 0 * * *"
+    - cron: "17 1 * * *"
   workflow_dispatch: {}
 
 permissions:
@@ -75,14 +76,14 @@ jobs:
         id: deploy
         run: |
           if [ "$(TZ=America/Chicago date +%Z)" = "CDT" ]; then
-            EXPECTED_CRON="0 0 * * *"
+            EXPECTED_CRON="17 0 * * *"
           else
-            EXPECTED_CRON="0 1 * * *"
+            EXPECTED_CRON="17 1 * * *"
           fi
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "should_deploy=true" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" != "$EXPECTED_CRON" ]; then
-            echo "Skipping: ${{ github.event.schedule }} is not 19:00 America/Chicago today"
+            echo "Skipping: ${{ github.event.schedule }} is not 19:17 America/Chicago today"
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
           elif [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then
             echo "should_deploy=true" >> "$GITHUB_OUTPUT"
