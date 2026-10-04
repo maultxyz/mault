@@ -1,10 +1,10 @@
 {
   "page": {
     "title": "Storage",
-    "subtitle": "Where your chaos-sorted cards are kept, box by box, in the order they went in.",
+    "subtitle": "Where your sorted cards are kept, box by box, in the order they went in.",
     "newLocation": "New location",
     "emptyTitle": "No storage locations yet",
-    "emptyDescription": "Turn on chaos sort for a preset, then empty a bin into a new location from the scanner's Bin Levels.",
+    "emptyDescription": "When you empty a bin from the scanner's Bin Levels, or when a full bin pauses scanning, pick or create a location to record where its cards went.",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "rename": "Rename location",

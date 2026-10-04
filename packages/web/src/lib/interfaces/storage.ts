@@ -12,6 +12,10 @@ export interface EmptyBinDialogStep {
 export interface EmptyBinToLocationDialogProps {
   binNumber: number | null;
   step?: EmptyBinDialogStep;
+  title?: string;
+  description?: string;
+  dismissLabel?: string;
+  preferLocation?: boolean;
   collectionGuid: string | undefined;
   onOpenChange: (open: boolean) => void;
   onConfirm: (options: EmptyBinOptions) => Promise<void>;

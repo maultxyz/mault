@@ -1,10 +1,10 @@
 {
   "page": {
     "title": "Rangement",
-    "subtitle": "Où sont rangées tes cartes triées en vrac, boîte par boîte, dans l'ordre où elles y sont entrées.",
+    "subtitle": "Où vos cartes triées sont rangées, boîte par boîte, dans l'ordre où elles y sont entrées.",
     "newLocation": "Nouvel emplacement",
     "emptyTitle": "Aucun emplacement pour l'instant",
-    "emptyDescription": "Active le tri en vrac pour un préréglage, puis vide un bac dans un nouvel emplacement depuis les niveaux des bacs du scanner.",
+    "emptyDescription": "Quand vous videz un bac depuis les niveaux du scanner, ou quand un bac plein met le scan en pause, choisissez ou créez un emplacement pour enregistrer où vont ses cartes.",
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes",
     "rename": "Renommer l'emplacement",

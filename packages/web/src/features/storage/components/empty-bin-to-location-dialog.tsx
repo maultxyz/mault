@@ -53,6 +53,10 @@ function writeLastLocation(orgId: string | undefined, guid: string) {
 export function EmptyBinToLocationDialog({
   binNumber,
   step,
+  title,
+  description,
+  dismissLabel,
+  preferLocation = true,
   collectionGuid,
   onOpenChange,
   onConfirm,
@@ -72,13 +76,17 @@ export function EmptyBinToLocationDialog({
   useEffect(() => {
     if (!open) return;
     const last = readLastLocation(activeOrg?.id);
-    const fallback = locations.length > 0 ? "" : EMPTY_BIN_NEW_LOCATION;
+    const fallback = !preferLocation
+      ? EMPTY_BIN_NO_LOCATION
+      : locations.length > 0
+        ? ""
+        : EMPTY_BIN_NEW_LOCATION;
     form.reset({
       locationGuid:
         last && locations.some((l) => l.guid === last) ? last : fallback,
       newName: "",
     });
-  }, [open, binNumber, activeOrg?.id, locations, form]);
+  }, [open, binNumber, preferLocation, activeOrg?.id, locations, form]);
 
   const locationGuid = form.watch("locationGuid");
 
@@ -113,18 +121,20 @@ export function EmptyBinToLocationDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {step
-              ? t("emptyDialog.stepTitle", {
-                  bin: binNumber,
-                  index: step.index,
-                  total: step.total,
-                })
-              : t("emptyDialog.title", { bin: binNumber })}
+            {title ??
+              (step
+                ? t("emptyDialog.stepTitle", {
+                    bin: binNumber,
+                    index: step.index,
+                    total: step.total,
+                  })
+                : t("emptyDialog.title", { bin: binNumber }))}
           </DialogTitle>
           <DialogDescription>
-            {step
-              ? t("emptyDialog.allFullDescription", { bin: binNumber })
-              : t("emptyDialog.description")}
+            {description ??
+              (step
+                ? t("emptyDialog.allFullDescription", { bin: binNumber })
+                : t("emptyDialog.description"))}
           </DialogDescription>
         </DialogHeader>
         <form
@@ -191,7 +201,8 @@ export function EmptyBinToLocationDialog({
         </form>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {step ? t("emptyDialog.notNow") : t("emptyDialog.cancel")}
+            {dismissLabel ??
+              (step ? t("emptyDialog.notNow") : t("emptyDialog.cancel"))}
           </Button>
           <Button
             type="submit"

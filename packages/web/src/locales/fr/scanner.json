@@ -348,9 +348,6 @@
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
-    "confirmTitle": "Vider le bac {{bin}} ?",
-    "confirmDescription": "Ceci remet à zéro le compteur de remplissage du bac {{bin}}. Assure-toi d'avoir vidé le bac physiquement au préalable, cette action ne déplace rien pour toi.",
-    "confirmButton": "Vider le bac",
     "binLabel": "Bac {{bin}}",
     "catchAll": "Fourre-tout",
     "disabled": "Off",
@@ -400,8 +397,8 @@
   },
   "binLimitDialog": {
     "title": "Le bac {{number}} est plein",
-    "description": "Le bac {{number}} a atteint sa limite de {{limit}} cartes. Retirez les cartes du bac, puis continuez le scan.",
-    "continueButton": "J'ai vidé le bac, continuer"
+    "description": "Le bac {{number}} a atteint sa limite de {{limit}} cartes, le scan est donc en pause. Sortez les cartes, choisissez où vous les rangez si vous voulez l'enregistrer, puis continuez.",
+    "notNow": "Plus tard"
   },
   "feederEmpty": {
     "title": "Chargeur vide",

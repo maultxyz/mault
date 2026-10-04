@@ -348,9 +348,6 @@
   },
   "binStatusMeter": {
     "heading": "Bin Levels",
-    "confirmTitle": "Empty bin {{bin}}?",
-    "confirmDescription": "This resets bin {{bin}}'s fill counter to zero. Make sure you've physically emptied the bin first - this doesn't move anything for you.",
-    "confirmButton": "Empty Bin",
     "binLabel": "Bin {{bin}}",
     "catchAll": "Catch-all",
     "disabled": "Off",
@@ -400,8 +397,8 @@
   },
   "binLimitDialog": {
     "title": "Bin {{number}} is full",
-    "description": "Bin {{number}} has reached its limit of {{limit}} cards. Remove the cards from the bin, then continue scanning.",
-    "continueButton": "I've emptied the bin, continue"
+    "description": "Bin {{number}} has reached its limit of {{limit}} cards, so scanning is paused. Take the cards out, choose where they're going if you want to record it, then continue.",
+    "notNow": "Not now"
   },
   "feederEmpty": {
     "title": "Feeder empty",

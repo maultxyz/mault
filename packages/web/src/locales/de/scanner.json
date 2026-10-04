@@ -348,9 +348,6 @@
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
-    "confirmTitle": "Fach {{bin}} leeren?",
-    "confirmDescription": "Dies setzt den Füllstandszähler von Fach {{bin}} auf null zurück. Stelle sicher, dass du das Fach vorher physisch geleert hast, das übernimmt die App nicht für dich.",
-    "confirmButton": "Fach leeren",
     "binLabel": "Fach {{bin}}",
     "catchAll": "Auffangfach",
     "disabled": "Aus",
@@ -400,8 +397,8 @@
   },
   "binLimitDialog": {
     "title": "Fach {{number}} ist voll",
-    "description": "Fach {{number}} hat sein Limit von {{limit}} Karten erreicht. Entferne die Karten aus dem Fach und setze das Scannen dann fort.",
-    "continueButton": "Ich habe das Fach geleert, weiter"
+    "description": "Fach {{number}} hat sein Limit von {{limit}} Karten erreicht, deshalb ist das Scannen pausiert. Nimm die Karten heraus, wähle bei Bedarf, wohin sie kommen, und mach dann weiter.",
+    "notNow": "Nicht jetzt"
   },
   "feederEmpty": {
     "title": "Zuführer leer",

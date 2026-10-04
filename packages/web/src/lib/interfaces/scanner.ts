@@ -122,7 +122,8 @@ export interface ScannedCardsContextValue {
   identifyUnmatchedCard: (scanId: string, card: PlayingCard) => Promise<boolean>;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
-  resolveBinLimit: () => Promise<void>;
+  resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
+  dismissBinLimit: () => void;
   fullChaosBins: number[] | null;
   fullChaosBinCount: number;
   emptyNextFullChaosBin: (options: EmptyBinOptions) => Promise<boolean>;
@@ -319,12 +320,6 @@ export interface LastRoutedBin {
 export interface BinLevelLayout {
   rows: (number | undefined)[][];
   bottom: number[];
-}
-
-export interface BinLimitDialogProps {
-  bin: BinConfig | null;
-  capacity: number | null;
-  onContinue: () => Promise<void>;
 }
 
 export interface BinLevelCellProps {

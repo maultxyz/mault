@@ -1,10 +1,10 @@
 {
   "page": {
     "title": "Lager",
-    "subtitle": "Wo deine chaotisch sortierten Karten liegen, Kiste für Kiste, in der Reihenfolge, in der sie hineinkamen.",
+    "subtitle": "Wo deine sortierten Karten liegen, Box für Box, in der Reihenfolge, in der sie hineinkamen.",
     "newLocation": "Neuer Lagerort",
     "emptyTitle": "Noch keine Lagerorte",
-    "emptyDescription": "Schalte das chaotische Sortieren für eine Vorlage ein und leere dann im Scanner unter Fach-Füllstände ein Fach in einen neuen Lagerort.",
+    "emptyDescription": "Wenn du ein Fach über die Füllstände im Scanner leerst oder ein volles Fach das Scannen pausiert, wähle oder erstelle einen Lagerort, um festzuhalten, wohin die Karten kamen.",
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
     "rename": "Lagerort umbenennen",

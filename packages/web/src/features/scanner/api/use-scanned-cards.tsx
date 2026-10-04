@@ -615,17 +615,21 @@ export function ScannedCardsProvider({
     ],
   );
 
-  const resolveBinLimit = useCallback(async () => {
-    const bin = binLimitBin;
-    if (!bin) return;
-    try {
-      await emptyBin(bin.binNumber);
-    } catch (err) {
-      console.error("Failed to mark bin as emptied:", err);
-    } finally {
-      setBinLimitBin(null);
-    }
-  }, [binLimitBin, emptyBin]);
+  const resolveBinLimit = useCallback(
+    async (options: EmptyBinOptions): Promise<boolean> => {
+      const bin = binLimitBin;
+      if (!bin) return true;
+      const emptied = await emptyBin(bin.binNumber, options).catch((err) => {
+        console.error("Failed to mark bin as emptied:", err);
+        return false;
+      });
+      if (emptied) setBinLimitBin(null);
+      return emptied;
+    },
+    [binLimitBin, emptyBin],
+  );
+
+  const dismissBinLimit = useCallback(() => setBinLimitBin(null), []);
 
   const emptyNextFullChaosBin = useCallback(
     async (options: EmptyBinOptions): Promise<boolean> => {
@@ -979,6 +983,7 @@ export function ScannedCardsProvider({
         sendCatchAllBin,
         binLimitReached: binLimitBin,
         resolveBinLimit,
+        dismissBinLimit,
         fullChaosBins,
         fullChaosBinCount,
         emptyNextFullChaosBin,

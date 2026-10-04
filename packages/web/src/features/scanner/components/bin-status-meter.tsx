@@ -1,4 +1,3 @@
-import { DeleteDialog } from "@/components/delete-dialog";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -152,36 +151,18 @@ export function BinStatusMeter() {
         </div>
       )}
 
-      {selectedSet?.isChaosMode ? (
-        <EmptyBinToLocationDialog
-          binNumber={confirmBin}
-          collectionGuid={activeCollection?.guid}
-          onOpenChange={(open) => {
-            if (!open) setConfirmBin(null);
-          }}
-          onConfirm={async (options) => {
-            if (confirmBin == null) return;
-            await emptyBin(confirmBin, options);
-            setConfirmBin(null);
-          }}
-        />
-      ) : (
-        <DeleteDialog
-          open={confirmBin != null}
-          onOpenChange={(open) => {
-            if (!open) setConfirmBin(null);
-          }}
-          title={t("binStatusMeter.confirmTitle", { bin: confirmBin })}
-          description={t("binStatusMeter.confirmDescription", {
-            bin: confirmBin,
-          })}
-          confirmLabel={t("binStatusMeter.confirmButton")}
-          onConfirm={() => {
-            if (confirmBin != null) void emptyBin(confirmBin);
-            setConfirmBin(null);
-          }}
-        />
-      )}
+      <EmptyBinToLocationDialog
+        binNumber={confirmBin}
+        preferLocation={!!selectedSet?.isChaosMode}
+        collectionGuid={activeCollection?.guid}
+        onOpenChange={(open) => {
+          if (!open) setConfirmBin(null);
+        }}
+        onConfirm={async (options) => {
+          if (confirmBin == null) return;
+          if (await emptyBin(confirmBin, options)) setConfirmBin(null);
+        }}
+      />
     </div>
   );
 }
