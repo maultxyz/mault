@@ -52,6 +52,7 @@ function writeLastLocation(orgId: string | undefined, guid: string) {
 
 export function EmptyBinToLocationDialog({
   binNumber,
+  step,
   collectionGuid,
   onOpenChange,
   onConfirm,
@@ -61,6 +62,7 @@ export function EmptyBinToLocationDialog({
   const { locations, create } = useStorageLocations();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const open = binNumber != null;
+  const isLastStep = !step || step.index >= step.total;
 
   const form = useForm<EmptyBinLocationFormValues>({
     resolver: zodResolver(emptyBinLocationSchema),
@@ -76,16 +78,16 @@ export function EmptyBinToLocationDialog({
         last && locations.some((l) => l.guid === last) ? last : fallback,
       newName: "",
     });
-  }, [open, activeOrg?.id, locations, form]);
+  }, [open, binNumber, activeOrg?.id, locations, form]);
 
   const locationGuid = form.watch("locationGuid");
 
   const handleSubmit = async (values: EmptyBinLocationFormValues) => {
-    if (binNumber == null) return;
+    if (!open) return;
     setIsSubmitting(true);
     try {
       if (values.locationGuid === EMPTY_BIN_NO_LOCATION) {
-        await onConfirm(binNumber, {});
+        await onConfirm({});
         return;
       }
       const guid =
@@ -94,7 +96,7 @@ export function EmptyBinToLocationDialog({
           : values.locationGuid;
       if (!guid) return;
       writeLastLocation(activeOrg?.id, guid);
-      await onConfirm(binNumber, { locationGuid: guid, collectionGuid });
+      await onConfirm({ locationGuid: guid, collectionGuid });
     } finally {
       setIsSubmitting(false);
     }
@@ -111,9 +113,19 @@ export function EmptyBinToLocationDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {t("emptyDialog.title", { bin: binNumber })}
+            {step
+              ? t("emptyDialog.stepTitle", {
+                  bin: binNumber,
+                  index: step.index,
+                  total: step.total,
+                })
+              : t("emptyDialog.title", { bin: binNumber })}
           </DialogTitle>
-          <DialogDescription>{t("emptyDialog.description")}</DialogDescription>
+          <DialogDescription>
+            {step
+              ? t("emptyDialog.allFullDescription", { bin: binNumber })
+              : t("emptyDialog.description")}
+          </DialogDescription>
         </DialogHeader>
         <form
           id="empty-bin-location-form"
@@ -179,7 +191,7 @@ export function EmptyBinToLocationDialog({
         </form>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {t("emptyDialog.cancel")}
+            {step ? t("emptyDialog.notNow") : t("emptyDialog.cancel")}
           </Button>
           <Button
             type="submit"
@@ -187,7 +199,11 @@ export function EmptyBinToLocationDialog({
             disabled={isSubmitting}
           >
             {isSubmitting && <IconLoader2 className="animate-spin" />}
-            {t("emptyDialog.confirm")}
+            {!step
+              ? t("emptyDialog.confirm")
+              : isLastStep
+                ? t("emptyDialog.confirmResume")
+                : t("emptyDialog.confirmNext")}
           </Button>
         </DialogFooter>
       </DialogContent>

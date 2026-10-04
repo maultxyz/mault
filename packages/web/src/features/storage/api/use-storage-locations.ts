@@ -2,6 +2,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import {
   createStorageLocation,
   deleteStorageLocation,
+  removeCardFromStorageLocation,
   renameStorageLocation,
   storageLocationKeys,
   storageLocationsQueryOptions,
@@ -23,7 +24,8 @@ export function useStorageLocations() {
       toast.error(result.message ?? t("toasts.failed"));
       return false;
     }
-    if (result.data) queryClient.setQueryData(listOptions.queryKey, result.data);
+    if (result.data)
+      queryClient.setQueryData(listOptions.queryKey, result.data);
     return true;
   };
 
@@ -86,4 +88,34 @@ export function useStorageLocations() {
     rename,
     remove,
   };
+}
+
+export function useRemoveCardFromLocation() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({ guid, scanId }: { guid: string; scanId: string }) =>
+      removeCardFromStorageLocation(guid, scanId),
+    onSuccess: (result) => {
+      if (!result.success) {
+        toast.error(result.message ?? t("toasts.failed"));
+        return;
+      }
+      toast.success(t("toasts.cardRemoved"));
+      void queryClient.invalidateQueries({
+        queryKey: storageLocationKeys.root(),
+      });
+    },
+    onError: () => toast.error(t("toasts.failed")),
+  });
+
+  const removeCard = async (guid: string, scanId: string): Promise<boolean> => {
+    const result = await mutation
+      .mutateAsync({ guid, scanId })
+      .catch(() => null);
+    return !!result?.success;
+  };
+
+  return { removeCard, isRemoving: mutation.isPending };
 }

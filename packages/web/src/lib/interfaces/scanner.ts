@@ -4,6 +4,7 @@ import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   CardFilters,
+  EmptyBinOptions,
   CardContour,
   CardScannerProps,
   CardSearchDiagnostics,
@@ -122,6 +123,10 @@ export interface ScannedCardsContextValue {
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: () => Promise<void>;
+  fullChaosBins: number[] | null;
+  fullChaosBinCount: number;
+  emptyNextFullChaosBin: (options: EmptyBinOptions) => Promise<boolean>;
+  dismissFullChaosBins: () => void;
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;

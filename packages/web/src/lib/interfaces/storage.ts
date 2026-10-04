@@ -1,10 +1,20 @@
-import type { EmptyBinOptions, StorageLocation } from "@magic-vault/shared";
+import type {
+  EmptyBinOptions,
+  StorageLocation,
+  StorageLocationSearchResult,
+} from "@magic-vault/shared";
+
+export interface EmptyBinDialogStep {
+  index: number;
+  total: number;
+}
 
 export interface EmptyBinToLocationDialogProps {
   binNumber: number | null;
+  step?: EmptyBinDialogStep;
   collectionGuid: string | undefined;
   onOpenChange: (open: boolean) => void;
-  onConfirm: (binNumber: number, options: EmptyBinOptions) => Promise<void>;
+  onConfirm: (options: EmptyBinOptions) => Promise<void>;
 }
 
 export interface StorageLocationRowProps {
@@ -29,4 +39,14 @@ export interface StorageLocationCardsProps {
 export interface CardStorageLocationSectionProps {
   scanId: string;
   collectionGuid: string | undefined;
+}
+
+export interface StorageCardListProps {
+  entries: StorageLocationSearchResult[];
+  onOpenLocation?: (guid: string) => void;
+}
+
+export interface StorageSearchResultsProps {
+  query: string;
+  onOpenLocation: (guid: string) => void;
 }

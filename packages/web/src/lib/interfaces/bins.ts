@@ -75,7 +75,7 @@ export interface BinConfigsContextValue {
     maxCopies?: number | null,
     isDisabled?: boolean,
   ) => void;
-  emptyBin: (binNumber: number, options?: EmptyBinOptions) => Promise<void>;
+  emptyBin: (binNumber: number, options?: EmptyBinOptions) => Promise<boolean>;
   activateSet: (guid: string) => Promise<void>;
   createSet: (name: string) => Promise<void>;
   importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;

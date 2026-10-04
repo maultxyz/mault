@@ -2,9 +2,14 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
+import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { usePriceSource } from "@/hooks/use-price-source";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import { IconBox, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useState } from "react";
@@ -15,10 +20,17 @@ export default function StoragePage() {
   const { t } = useTranslation("storage");
   const { locations, isLoading, isMutating, create, rename, remove } =
     useStorageLocations();
+  const { format } = usePriceSource();
   const [searchParams, setSearchParams] = useSearchParams();
   const [createOpen, setCreateOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedQuery = useDebouncedValue(
+    searchQuery.trim(),
+    SEARCH_DEBOUNCE_MS,
+  );
+  const isSearching = searchQuery.trim().length > 0;
 
   const selectedGuid = searchParams.get("location") ?? locations[0]?.guid;
   const selected = locations.find((l) => l.guid === selectedGuid);
@@ -26,10 +38,15 @@ export default function StoragePage() {
   const select = (guid: string) =>
     setSearchParams({ location: guid }, { replace: true });
 
+  const openLocation = (guid: string) => {
+    setSearchQuery("");
+    select(guid);
+  };
+
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto">
-      <div className="flex flex-col gap-4 p-4 md:p-6 w-full max-w-5xl mx-auto">
-        <div className="flex items-center justify-between gap-4">
+    <div className="flex flex-1 min-h-0 flex-col">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 min-h-0 flex-col gap-4 p-4 md:p-6">
+        <div className="flex shrink-0 items-center justify-between gap-4">
           <div>
             <h1 className="font-heading text-lg font-semibold">
               {t("page.title")}
@@ -42,6 +59,18 @@ export default function StoragePage() {
           </Button>
         </div>
 
+        {!isLoading && locations.length > 0 && (
+          <Input
+            type="search"
+            className="shrink-0"
+            placeholder={t("search.placeholder")}
+            aria-label={t("search.placeholder")}
+            data-hotkey-search
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        )}
+
         {isLoading ? (
           <ListSkeleton />
         ) : locations.length === 0 ? (
@@ -50,9 +79,20 @@ export default function StoragePage() {
             title={t("page.emptyTitle")}
             description={t("page.emptyDescription")}
           />
+        ) : isSearching ? (
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {debouncedQuery ? (
+              <StorageSearchResults
+                query={debouncedQuery}
+                onOpenLocation={openLocation}
+              />
+            ) : (
+              <ListSkeleton />
+            )}
+          </div>
         ) : (
-          <div className="grid gap-4 md:grid-cols-[16rem_minmax(0,1fr)]">
-            <ul className="divide-y self-start rounded-lg border">
+          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto md:grid md:grid-cols-[16rem_minmax(0,1fr)] md:grid-rows-[minmax(0,1fr)] md:overflow-hidden">
+            <ul className="shrink-0 divide-y self-start rounded-lg border md:max-h-full md:overflow-y-auto">
               {locations.map((location) => (
                 <li key={location.guid}>
                   <button
@@ -66,8 +106,11 @@ export default function StoragePage() {
                     <span className="truncate font-medium">
                       {location.name}
                     </span>
-                    <span className="shrink-0 text-xs tabular-nums text-foreground/70">
-                      {t("page.cardCount", { count: location.cardCount })}
+                    <span className="flex shrink-0 flex-col items-end text-xs tabular-nums text-foreground/70">
+                      <span>
+                        {t("page.cardCount", { count: location.cardCount })}
+                      </span>
+                      <span>{format(location.totalValue)}</span>
                     </span>
                   </button>
                 </li>
@@ -75,11 +118,19 @@ export default function StoragePage() {
             </ul>
 
             {selected && (
-              <section className="flex min-w-0 flex-col gap-3">
-                <div className="flex items-center justify-between gap-2">
-                  <h2 className="truncate font-heading text-base font-semibold">
-                    {selected.name}
-                  </h2>
+              <section className="flex min-w-0 flex-col gap-3 md:h-full md:overflow-y-auto">
+                <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background pb-1">
+                  <div className="min-w-0">
+                    <h2 className="truncate font-heading text-base font-semibold">
+                      {selected.name}
+                    </h2>
+                    <p className="text-xs tabular-nums text-foreground/70">
+                      {t("page.summary", {
+                        count: selected.cardCount,
+                        value: format(selected.totalValue),
+                      })}
+                    </p>
+                  </div>
                   <div className="flex shrink-0 gap-1">
                     <Button
                       variant="outline"

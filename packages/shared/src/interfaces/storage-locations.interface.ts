@@ -4,6 +4,7 @@ export interface StorageLocation {
   guid: string;
   name: string;
   cardCount: number;
+  totalValue: number;
   createdAt: Date;
 }
 
@@ -21,6 +22,11 @@ export interface StorageLocationCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+}
+
+export interface StorageLocationSearchResult extends StorageLocationCard {
+  locationGuid: string;
+  locationName: string;
 }
 
 export interface EmptyBinOptions {

@@ -125,7 +125,7 @@ const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' E
 
 const DUPLICATE_KEY = sql`(COALESCE(cc.card ->> 'id', '') || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, ''))`;
 
-function cardPriceSql(source: PriceSource): SQL {
+export function cardPriceSql(source: PriceSource): SQL {
   const fields = PRICE_SOURCE_FIELDS[source];
   return sql`COALESCE(CASE WHEN cc.is_foil THEN ${jsonNumber(fields.priceFoil)} END, ${jsonNumber(fields.price)}, 0)`;
 }

@@ -18,6 +18,7 @@ import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-ca
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
@@ -37,6 +38,7 @@ import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import type { EmptyBinOptions } from "@magic-vault/shared";
 
 export function CardScanner({
   className,
@@ -62,6 +64,10 @@ export function CardScanner({
     showJamToast,
     binLimitReached,
     resolveBinLimit,
+    fullChaosBins,
+    fullChaosBinCount,
+    emptyNextFullChaosBin,
+    dismissFullChaosBins,
     setScannerRunning,
   } = useScannedCards();
   const binFillLevels = useBinFillLevels();
@@ -401,6 +407,13 @@ export function CardScanner({
     handleResumeScanning();
   }, [resolveBinLimit, handleResumeScanning]);
 
+  const handleEmptyNextFullChaosBin = useCallback(
+    async (options: EmptyBinOptions) => {
+      if (await emptyNextFullChaosBin(options)) handleResumeScanning();
+    },
+    [emptyNextFullChaosBin, handleResumeScanning],
+  );
+
   const canScan = isCameraActive;
   const wasReadyRef = useRef(canScan);
   useEffect(() => {
@@ -550,6 +563,22 @@ export function CardScanner({
         bin={binLimitReached}
         capacity={binLimitCapacity}
         onContinue={handleContinueAfterBinLimit}
+      />
+      <EmptyBinToLocationDialog
+        binNumber={fullChaosBins?.[0] ?? null}
+        step={
+          fullChaosBins
+            ? {
+                index: fullChaosBinCount - fullChaosBins.length + 1,
+                total: fullChaosBinCount,
+              }
+            : undefined
+        }
+        collectionGuid={activeCollection?.guid}
+        onOpenChange={(open) => {
+          if (!open) dismissFullChaosBins();
+        }}
+        onConfirm={handleEmptyNextFullChaosBin}
       />
       <StaleDeviceDialog
         open={staleDialogOpen}

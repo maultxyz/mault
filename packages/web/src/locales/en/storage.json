@@ -10,7 +10,9 @@
     "rename": "Rename location",
     "delete": "Delete location",
     "deleteTitle": "Delete {{name}}?",
-    "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it."
+    "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it.",
+    "summary_one": "{{count}} card · {{value}} total",
+    "summary_other": "{{count}} cards · {{value}} total"
   },
   "nameDialog": {
     "label": "Name",
@@ -29,19 +31,42 @@
     "newLocationName": "New location name",
     "newLocationPlaceholder": "e.g. Box 12",
     "cancel": "Cancel",
-    "confirm": "Empty bin"
+    "confirm": "Empty bin",
+    "allFullDescription": "Every bin is full, so scanning is paused. Take the cards out of bin {{bin}} and pick where they're going. Each card is recorded there in the order it was scanned.",
+    "notNow": "Not now",
+    "stepTitle": "Empty bin {{bin}} ({{index}} of {{total}})",
+    "confirmNext": "Empty bin, next",
+    "confirmResume": "Empty bin and resume"
   },
   "cards": {
     "position": "#{{position}}",
     "foil": "Foil",
     "emptyTitle": "Nothing stored here",
-    "emptyDescription": "Cards show up here once a bin is emptied into this location."
+    "emptyDescription": "Cards show up here once a bin is emptied into this location.",
+    "remove": "Remove from location"
   },
   "cardLocation": {
     "heading": "Storage",
-    "value": "{{name}} · #{{position}}"
+    "value": "{{name}} · #{{position}}",
+    "remove": "Remove from box"
   },
   "toasts": {
-    "failed": "Couldn't update storage locations"
+    "failed": "Couldn't update storage locations",
+    "cardRemoved": "Card removed from its location"
+  },
+  "removeDialog": {
+    "title": "Remove {{name}} from {{location}}?",
+    "thisCard": "this card",
+    "description": "Use this when you've taken the card out, for example because you sold it or put it in a deck. It stays in your collection, and its position in the box is left empty.",
+    "confirm": "Remove"
+  },
+  "search": {
+    "placeholder": "Search cards in every location",
+    "openLocation": "Show this location",
+    "emptyTitle": "No cards found",
+    "emptyDescription": "Nothing stored matches \"{{query}}\".",
+    "count_one": "{{count}} card found",
+    "count_other": "{{count}} cards found",
+    "limited": "Showing the first {{count}} cards. Search for more of the name to narrow it down."
   }
 }

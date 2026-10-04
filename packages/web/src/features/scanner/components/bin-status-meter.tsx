@@ -159,8 +159,9 @@ export function BinStatusMeter() {
           onOpenChange={(open) => {
             if (!open) setConfirmBin(null);
           }}
-          onConfirm={async (binNumber, options) => {
-            await emptyBin(binNumber, options);
+          onConfirm={async (options) => {
+            if (confirmBin == null) return;
+            await emptyBin(confirmBin, options);
             setConfirmBin(null);
           }}
         />

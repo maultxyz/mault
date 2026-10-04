@@ -488,7 +488,8 @@ export function BinConfigsProvider({
 
   const emptyBin = useCallback(
     async (binNumber: number, options?: EmptyBinOptions) => {
-      await emptyBinMutation.mutateAsync({ binNumber, options });
+      const result = await emptyBinMutation.mutateAsync({ binNumber, options });
+      return result.success;
     },
     [emptyBinMutation],
   );

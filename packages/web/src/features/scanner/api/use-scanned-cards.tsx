@@ -3,6 +3,7 @@ import {
   type BinConfig,
   type BinContentCard,
   type BinRoute,
+  type EmptyBinOptions,
   type MatchedScanDetails,
   type PlayingCard,
   type PlayingCardWithDistance,
@@ -10,14 +11,16 @@ import {
   type ScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
+  areAllChaosBinsFull,
   countCopiesInBin,
-  evaluateChaosBin,
   evaluateAlphabetBin,
   evaluateCardBin,
+  evaluateChaosBin,
   evaluateRepackBin,
   findLowMatchCatchAll,
   getCardsInBin,
   getCatchAllBin,
+  getChaosBins,
   hasMaxCopiesBins,
   toRuleCard,
 } from "@magic-vault/shared";
@@ -98,6 +101,16 @@ export function ScannedCardsProvider({
     emptyBin,
   } = useBinConfigs();
   const [binLimitBin, setBinLimitBin] = useState<BinConfig | null>(null);
+  const [fullChaosBins, setFullChaosBinsState] = useState<number[] | null>(
+    null,
+  );
+  const [fullChaosBinCount, setFullChaosBinCount] = useState(0);
+  const setFullChaosBins = useCallback((bins: number[] | null) => {
+    setFullChaosBinsState(bins);
+    setFullChaosBinCount((count) =>
+      bins == null ? 0 : count === 0 ? bins.length : count,
+    );
+  }, []);
   const { routes: binRoutes } = useBinRoutes();
   const device = useDevice();
   const deviceGuidRef = useRef(device?.guid);
@@ -429,6 +442,20 @@ export function ScannedCardsProvider({
         );
         saveBinConfig(autoTarget.binNumber, autoTarget.rules);
       }
+      if (
+        selectedSetRef.current?.isChaosMode &&
+        matchedBin?.isCatchAll &&
+        !findLowMatchCatchAll(ruleCard, binConfigsRef.current) &&
+        areAllChaosBinsFull(binConfigsRef.current, (bin) =>
+          isBinFullLocally(bin.binNumber),
+        )
+      ) {
+        pause();
+        setFullChaosBins(
+          getChaosBins(binConfigsRef.current).map((bin) => bin.binNumber),
+        );
+        return;
+      }
       if (matchedBin && isBinFullLocally(matchedBin.binNumber)) {
         pause();
         setBinLimitBin(matchedBin);
@@ -584,6 +611,7 @@ export function ScannedCardsProvider({
       isBinFullLocally,
       trackPendingBinCard,
       playSoundForCard,
+      setFullChaosBins,
     ],
   );
 
@@ -598,6 +626,22 @@ export function ScannedCardsProvider({
       setBinLimitBin(null);
     }
   }, [binLimitBin, emptyBin]);
+
+  const emptyNextFullChaosBin = useCallback(
+    async (options: EmptyBinOptions): Promise<boolean> => {
+      const [binNumber, ...rest] = fullChaosBins ?? [];
+      if (binNumber == null) return true;
+      if (!(await emptyBin(binNumber, options))) return false;
+      setFullChaosBins(rest.length > 0 ? rest : null);
+      return rest.length === 0;
+    },
+    [fullChaosBins, emptyBin],
+  );
+
+  const dismissFullChaosBins = useCallback(
+    () => setFullChaosBins(null),
+    [setFullChaosBins],
+  );
 
   const sendCatchAllBin = useCallback(() => {
     const catchAll = getCatchAllBin(binConfigsRef.current);
@@ -935,6 +979,10 @@ export function ScannedCardsProvider({
         sendCatchAllBin,
         binLimitReached: binLimitBin,
         resolveBinLimit,
+        fullChaosBins,
+        fullChaosBinCount,
+        emptyNextFullChaosBin,
+        dismissFullChaosBins,
         removeCard,
         removeCards,
         correctCard,
