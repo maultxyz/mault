@@ -22,6 +22,7 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import { useCardSearch } from "@/features/cards/api/use-card-search";
 import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
+import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
@@ -416,6 +417,13 @@ export function CardDetailPanel({
                     <DetailSection title={t("cardDetailPanel.details")}>
                       <CardDetailsList card={selectedCard} />
                     </DetailSection>
+
+                    {scanId && (
+                      <CardStorageLocationSection
+                        scanId={scanId}
+                        collectionGuid={activeCollection?.guid}
+                      />
+                    )}
 
                     {selectedCard.text && (
                       <DetailSection title={t("cardDetailPanel.cardText")}>

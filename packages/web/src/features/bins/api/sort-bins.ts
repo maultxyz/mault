@@ -3,12 +3,13 @@ import type {
   BinRuleGroup,
   BinSet,
   DefaultBinInit,
+  EmptyBinOptions,
   RepackSlot,
   Result,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type { BinSetAuditEntry } from "@/lib/interfaces/audit";
-import type { AlphabetConfig } from "@/lib/interfaces/bins";
+import type { AlphabetConfig, ChaosConfig } from "@/lib/interfaces/bins";
 import { queryOptions } from "@tanstack/react-query";
 
 export type { BinSetAuditEntry };
@@ -96,11 +97,20 @@ export async function saveBinConfig({
 export async function emptyBin(
   binNumber: number,
   gameGuid?: string,
-): Promise<Result<BinConfig[]>> {
+  options: EmptyBinOptions = {},
+): Promise<Result<BinConfig[]> & { assignedCount?: number }> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  return apiPost<Result<BinConfig[]>>(
+  return apiPost<Result<BinConfig[]> & { assignedCount?: number }>(
     `/api/bins/bins/${binNumber}/empty${params}`,
+    options,
   );
+}
+
+export async function setChaosMode(
+  guid: string,
+  config: ChaosConfig,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/chaos`, config);
 }
 
 export async function setAutoAssignField(

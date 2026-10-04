@@ -1,8 +1,13 @@
-import type { BinConfig, BinRuleGroup } from "@magic-vault/shared";
+import type {
+  BinConfig,
+  BinRuleGroup,
+  EmptyBinOptions,
+} from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
+import { assignBinToLocation } from "../../lib/storage-locations";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resolveGameId } from "./shared";
 
@@ -16,6 +21,15 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
+    const { locationGuid, collectionGuid } = await c.req
+      .json<EmptyBinOptions>()
+      .catch((): EmptyBinOptions => ({}));
+    if (locationGuid && !collectionGuid) {
+      return c.json(
+        { success: false, message: "A collection is required." },
+        400,
+      );
+    }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await resolveGameId(tx, gameGuid);
@@ -41,6 +55,32 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
         const existing = activeBinSet.bins.find((b) => b.binNumber === binNumber);
         if (!existing) return { message: "Bin not found.", success: false };
 
+        let assignedCount = 0;
+        if (locationGuid && collectionGuid) {
+          const location = await tx.query.storageLocations.findFirst({
+            where: (t, { eq, and }) =>
+              and(eq(t.guid, locationGuid), eq(t.orgId, orgId)),
+            columns: { id: true },
+          });
+          if (!location) {
+            return { message: "Storage location not found.", success: false };
+          }
+          const collection = await tx.query.collections.findFirst({
+            where: (t, { eq, and }) =>
+              and(eq(t.guid, collectionGuid), eq(t.orgId, orgId)),
+            columns: { id: true },
+          });
+          if (!collection) {
+            return { message: "Collection not found.", success: false };
+          }
+          assignedCount = await assignBinToLocation(tx, {
+            binId: existing.id,
+            binNumber,
+            collectionId: collection.id,
+            locationId: location.id,
+          });
+        }
+
         await tx
           .update(bins)
           .set({ lastEmptiedAt: new Date(), updatedAt: new Date() })
@@ -64,6 +104,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
         return {
           message: "Bin marked as emptied.",
           success: true,
+          assignedCount,
           data: updatedBins.map(
             (b): BinConfig => ({
               guid: b.guid!,

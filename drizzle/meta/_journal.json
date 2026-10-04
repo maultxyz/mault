@@ -568,6 +568,20 @@
       "when": 1791070055307,
       "tag": "0080_small_bin_height",
       "breakpoints": true
+    },
+    {
+      "idx": 81,
+      "version": "7",
+      "when": 1791128121568,
+      "tag": "0081_melted_ogun",
+      "breakpoints": true
+    },
+    {
+      "idx": 82,
+      "version": "7",
+      "when": 1791132292076,
+      "tag": "0082_magical_rattler",
+      "breakpoints": true
     }
   ]
 }

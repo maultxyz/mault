@@ -133,6 +133,10 @@ export function LandingPricing() {
                 <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
                 {t("pricing.business.notificationRules")}
               </li>
+              <li className="flex items-start gap-2 text-sm font-medium">
+                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
+                {t("pricing.business.chaosSort")}
+              </li>
               {PRICING_SHARED_FEATURE_KEYS.map((key) => (
                 <li key={key} className="flex items-start gap-2 text-sm">
                   <IconCheck size={16}

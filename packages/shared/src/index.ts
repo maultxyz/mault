@@ -21,6 +21,7 @@ export * from "./interfaces/phone-camera.interface";
 export * from "./interfaces/price-source.interface";
 export * from "./interfaces/sort-bins.interface";
 export * from "./interfaces/scan-rule-fields.interface";
+export * from "./interfaces/storage-locations.interface";
 
 export * from "./constants/collection-cards.constant";
 export * from "./constants/firmware.constant";

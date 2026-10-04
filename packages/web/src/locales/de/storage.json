@@ -1,0 +1,47 @@
+{
+  "page": {
+    "title": "Lager",
+    "subtitle": "Wo deine chaotisch sortierten Karten liegen, Kiste für Kiste, in der Reihenfolge, in der sie hineinkamen.",
+    "newLocation": "Neuer Lagerort",
+    "emptyTitle": "Noch keine Lagerorte",
+    "emptyDescription": "Schalte das chaotische Sortieren für eine Vorlage ein und leere dann im Scanner unter Fach-Füllstände ein Fach in einen neuen Lagerort.",
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "rename": "Lagerort umbenennen",
+    "delete": "Lagerort löschen",
+    "deleteTitle": "{{name}} löschen?",
+    "deleteDescription": "Die Karten bleiben in deinen Sammlungen, verlieren aber diesen Lagerort und ihre Position darin."
+  },
+  "nameDialog": {
+    "label": "Name",
+    "placeholder": "z. B. Kiste 12",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "save": "Speichern"
+  },
+  "emptyDialog": {
+    "title": "Fach {{bin}} leeren",
+    "description": "Wähle, wohin die Karten dieses Fachs kommen. Jede Karte wird dort in der Reihenfolge gespeichert, in der sie gescannt wurde, damit du sie später findest.",
+    "locationLabel": "Lagerort",
+    "placeholder": "Lagerort wählen",
+    "newLocation": "Neuer Lagerort…",
+    "noLocation": "Keinen Lagerort speichern",
+    "newLocationName": "Name des neuen Lagerorts",
+    "newLocationPlaceholder": "z. B. Kiste 12",
+    "cancel": "Abbrechen",
+    "confirm": "Fach leeren"
+  },
+  "cards": {
+    "position": "#{{position}}",
+    "foil": "Foil",
+    "emptyTitle": "Hier ist nichts gelagert",
+    "emptyDescription": "Karten erscheinen hier, sobald ein Fach in diesen Lagerort geleert wird."
+  },
+  "cardLocation": {
+    "heading": "Lager",
+    "value": "{{name}} · #{{position}}"
+  },
+  "toasts": {
+    "failed": "Lagerorte konnten nicht aktualisiert werden"
+  }
+}

@@ -21,6 +21,7 @@ import { orgSettingsRouter } from "./routes/org-settings";
 import { publicRouter } from "./routes/public";
 import { integrationsRouter } from "./routes/integrations";
 import { soundsRouter } from "./routes/sounds";
+import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
 import { rollbar } from "./lib/rollbar";
 
@@ -49,6 +50,7 @@ app.route("/announcements", announcementsRouter);
 app.route("/notifications", notificationsRouter);
 app.route("/org-settings", orgSettingsRouter);
 app.route("/sounds", soundsRouter);
+app.route("/storage-locations", storageLocationsRouter);
 app.route("/integrations", integrationsRouter);
 app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);

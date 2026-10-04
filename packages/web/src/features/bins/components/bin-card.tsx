@@ -26,6 +26,7 @@ export function BinCard({
   active,
   isAutoAssign,
   isScanOnly,
+  isChaosMode,
   alphabetLetter,
   disabled,
   onClick,
@@ -54,6 +55,7 @@ export function BinCard({
             <Badge variant="outline">{t("binCard.disabled")}</Badge>
           )}
           {!isDisabled &&
+            !isChaosMode &&
             !config.isCatchAll &&
             alphabetLetter === undefined &&
             config.maxCopies != null && (
@@ -63,7 +65,7 @@ export function BinCard({
             )}
           {config.isCatchAll ? (
             <Badge variant="default">{t("catchAll")}</Badge>
-          ) : isDisabled ? null : alphabetLetter !== undefined ? (
+          ) : isDisabled || isChaosMode ? null : alphabetLetter !== undefined ? (
             alphabetLetter && (
               <Badge variant="secondary">{alphabetLetter}</Badge>
             )
@@ -94,6 +96,8 @@ export function BinCard({
           <p className="text-xs text-foreground/70">
             {t("binCard.disabledDescription")}
           </p>
+        ) : isChaosMode ? (
+          <p className="text-xs">{t("binCard.chaosFill")}</p>
         ) : alphabetLetter !== undefined ? (
           <p className="text-xs">
             {alphabetLetter

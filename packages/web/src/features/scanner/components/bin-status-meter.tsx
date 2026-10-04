@@ -1,9 +1,11 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
+import { useCollections } from "@/features/collections/api/use-collections";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { BinLevelCell } from "@/features/scanner/components/bin-level-cell";
+import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import {
   buildBinLevelLayout,
   summarizeBinLevels,
@@ -25,14 +27,17 @@ function readCollapsed(): boolean {
 export function BinStatusMeter() {
   const { t } = useTranslation("scanner");
   const levels = useBinFillLevels();
-  const { configs, emptyBin } = useBinConfigs();
+  const { configs, emptyBin, selectedSet } = useBinConfigs();
+  const { activeCollection } = useCollections();
   const { routes } = useBinRoutes();
   const { lastRoutedBin } = useScannedCards();
   const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [collapsed, setCollapsed] = useState(readCollapsed);
   const catchAllBin = configs.find((c) => c.isCatchAll)?.binNumber;
   const disabledBins = new Set(
-    configs.filter((c) => !c.isCatchAll && c.isDisabled).map((c) => c.binNumber),
+    configs
+      .filter((c) => !c.isCatchAll && c.isDisabled)
+      .map((c) => c.binNumber),
   );
 
   const layout = useMemo(
@@ -147,21 +152,35 @@ export function BinStatusMeter() {
         </div>
       )}
 
-      <DeleteDialog
-        open={confirmBin != null}
-        onOpenChange={(open) => {
-          if (!open) setConfirmBin(null);
-        }}
-        title={t("binStatusMeter.confirmTitle", { bin: confirmBin })}
-        description={t("binStatusMeter.confirmDescription", {
-          bin: confirmBin,
-        })}
-        confirmLabel={t("binStatusMeter.confirmButton")}
-        onConfirm={() => {
-          if (confirmBin != null) void emptyBin(confirmBin);
-          setConfirmBin(null);
-        }}
-      />
+      {selectedSet?.isChaosMode ? (
+        <EmptyBinToLocationDialog
+          binNumber={confirmBin}
+          collectionGuid={activeCollection?.guid}
+          onOpenChange={(open) => {
+            if (!open) setConfirmBin(null);
+          }}
+          onConfirm={async (binNumber, options) => {
+            await emptyBin(binNumber, options);
+            setConfirmBin(null);
+          }}
+        />
+      ) : (
+        <DeleteDialog
+          open={confirmBin != null}
+          onOpenChange={(open) => {
+            if (!open) setConfirmBin(null);
+          }}
+          title={t("binStatusMeter.confirmTitle", { bin: confirmBin })}
+          description={t("binStatusMeter.confirmDescription", {
+            bin: confirmBin,
+          })}
+          confirmLabel={t("binStatusMeter.confirmButton")}
+          onConfirm={() => {
+            if (confirmBin != null) void emptyBin(confirmBin);
+            setConfirmBin(null);
+          }}
+        />
+      )}
     </div>
   );
 }

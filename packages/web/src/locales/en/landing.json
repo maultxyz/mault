@@ -153,7 +153,8 @@
       "sorters_one": "Up to {{count}} sorter at once, from one browser",
       "sorters_other": "Up to {{count}} sorters at once, from one browser",
       "soundRules": "Unlimited sound rules with your own uploaded clips",
-      "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel"
+      "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
+      "chaosSort": "Chaos sort, with every card's storage location and position tracked"
     }
   },
   "cta": {

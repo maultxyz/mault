@@ -1,0 +1,47 @@
+{
+  "page": {
+    "title": "Storage",
+    "subtitle": "Where your chaos-sorted cards are kept, box by box, in the order they went in.",
+    "newLocation": "New location",
+    "emptyTitle": "No storage locations yet",
+    "emptyDescription": "Turn on chaos sort for a preset, then empty a bin into a new location from the scanner's Bin Levels.",
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "rename": "Rename location",
+    "delete": "Delete location",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it."
+  },
+  "nameDialog": {
+    "label": "Name",
+    "placeholder": "e.g. Box 12",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save"
+  },
+  "emptyDialog": {
+    "title": "Empty bin {{bin}}",
+    "description": "Pick where you're putting this bin's cards. Each card is recorded there in the order it was scanned, so you can find it later.",
+    "locationLabel": "Storage location",
+    "placeholder": "Choose a location",
+    "newLocation": "New location…",
+    "noLocation": "Don't record a location",
+    "newLocationName": "New location name",
+    "newLocationPlaceholder": "e.g. Box 12",
+    "cancel": "Cancel",
+    "confirm": "Empty bin"
+  },
+  "cards": {
+    "position": "#{{position}}",
+    "foil": "Foil",
+    "emptyTitle": "Nothing stored here",
+    "emptyDescription": "Cards show up here once a bin is emptied into this location."
+  },
+  "cardLocation": {
+    "heading": "Storage",
+    "value": "{{name}} · #{{position}}"
+  },
+  "toasts": {
+    "failed": "Couldn't update storage locations"
+  }
+}

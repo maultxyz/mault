@@ -8,6 +8,7 @@ export interface BillingStatus {
   maxConnectedSorters?: number | null;
   maxSoundRules?: number | null;
   maxNotificationRules?: number | null;
+  chaosSort?: boolean;
 }
 
 export interface SupportPromptState {

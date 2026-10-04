@@ -27,10 +27,12 @@ import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
 import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
+import { STORAGE_PATH } from "@/lib/constants/storage";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconAlbum,
+  IconBox,
   IconBrandDiscord,
   IconCameraSpark,
   IconDatabaseCog,
@@ -336,6 +338,11 @@ export function AppNav() {
         label: c.name,
         badge: !!locks[c.guid],
       })),
+    },
+    {
+      to: STORAGE_PATH,
+      icon: <IconBox size={20} />,
+      label: t("nav.storage"),
     },
     {
       to: "/app/calibrate",

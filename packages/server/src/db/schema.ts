@@ -140,6 +140,8 @@ export const binSets = pgTable(
     isAlphabetMode: boolean("is_alphabet_mode").notNull().default(false),
     alphabetPass: integer("alphabet_pass").notNull().default(0),
     alphabetPrefix: text("alphabet_prefix").notNull().default(""),
+    isChaosMode: boolean("is_chaos_mode").notNull().default(false),
+    chaosBinSize: integer("chaos_bin_size"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -358,6 +360,27 @@ export const collections = pgTable(
   ],
 ).enableRLS();
 
+export const storageLocations = pgTable(
+  "storage_locations",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    name: text("name").notNull(),
+    orgId: text("org_id").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("storage_locations_guid_idx").on(table.guid),
+    unique("storage_locations_org_name_idx").on(table.orgId, table.name),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const collectionCards = pgTable(
   "collection_cards",
   {
@@ -379,11 +402,19 @@ export const collectionCards = pgTable(
     isCorrected: boolean("is_corrected").notNull().default(false),
     needsReview: boolean("needs_review").notNull().default(false),
     diagnostics: jsonb("diagnostics"),
+    locationId: integer("location_id").references(() => storageLocations.id, {
+      onDelete: "set null",
+    }),
+    locationPosition: integer("location_position"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
     unique("collection_cards_guid_idx").on(table.guid),
+    index("collection_cards_location_idx").on(
+      table.locationId,
+      table.locationPosition,
+    ),
     index("collection_cards_collection_scanned_idx").on(
       table.collectionId,
       table.scannedAt,

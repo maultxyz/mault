@@ -116,7 +116,10 @@ export function BinConfigPanel() {
     configs.filter((c) => c.isCatchAll && c.binNumber !== config.binNumber)
       .length === 0;
 
-  const rulesLocked = effectiveMode.isRepackMode || effectiveMode.isAlphabetMode;
+  const rulesLocked =
+    effectiveMode.isRepackMode ||
+    effectiveMode.isAlphabetMode ||
+    effectiveMode.isChaosMode;
 
   const handleSave = useCallback(
     (values: BinConfigFormValues) => {

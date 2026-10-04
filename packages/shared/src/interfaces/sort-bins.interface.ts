@@ -92,6 +92,8 @@ export interface BinSet {
   isAlphabetMode: boolean;
   alphabetPass: number;
   alphabetPrefix: string;
+  isChaosMode: boolean;
+  chaosBinSize: number | null;
   createdAt: Date;
   updatedAt: Date;
 }

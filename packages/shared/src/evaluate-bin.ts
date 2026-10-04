@@ -362,6 +362,17 @@ export function evaluateRepackBin(
   return catchAll;
 }
 
+export function evaluateChaosBin(
+  configs: BinConfig[],
+  isBinFull: (bin: BinConfig) => boolean,
+): BinConfig | undefined {
+  const next = configs
+    .filter((c) => !c.isCatchAll && !c.isDisabled)
+    .sort((a, b) => a.binNumber - b.binNumber)
+    .find((bin) => !isBinFull(bin));
+  return next ?? getCatchAllBin(configs);
+}
+
 export function getAlphabetBins(configs: BinConfig[]): BinConfig[] {
   return configs
     .filter((c) => !c.isCatchAll && !c.isDisabled)

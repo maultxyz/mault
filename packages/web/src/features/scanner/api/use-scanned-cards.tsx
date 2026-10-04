@@ -11,6 +11,7 @@ import {
   type UnmatchedCard,
   type UnmatchedScanDetails,
   countCopiesInBin,
+  evaluateChaosBin,
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateRepackBin,
@@ -244,6 +245,11 @@ export function ScannedCardsProvider({
       const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
       if (lowMatch) return lowMatch;
       const set = selectedSetRef.current;
+      if (set?.isChaosMode) {
+        return evaluateChaosBin(binConfigsRef.current, (bin) =>
+          isBinFullLocally(bin.binNumber),
+        );
+      }
       if (set?.isAlphabetMode) {
         return evaluateAlphabetBin(
           card,
@@ -270,7 +276,7 @@ export function ScannedCardsProvider({
           : (bin) => countCopiesInBin(binContentsRef.current, bin, card.id),
       );
     },
-    [],
+    [isBinFullLocally],
   );
 
   const tracksBinContents = useCallback(

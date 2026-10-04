@@ -1,0 +1,47 @@
+{
+  "page": {
+    "title": "Rangement",
+    "subtitle": "Où sont rangées tes cartes triées en vrac, boîte par boîte, dans l'ordre où elles y sont entrées.",
+    "newLocation": "Nouvel emplacement",
+    "emptyTitle": "Aucun emplacement pour l'instant",
+    "emptyDescription": "Active le tri en vrac pour un préréglage, puis vide un bac dans un nouvel emplacement depuis les niveaux des bacs du scanner.",
+    "cardCount_one": "{{count}} carte",
+    "cardCount_other": "{{count}} cartes",
+    "rename": "Renommer l'emplacement",
+    "delete": "Supprimer l'emplacement",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteDescription": "Les cartes restent dans tes collections, mais perdent cet emplacement et leur position."
+  },
+  "nameDialog": {
+    "label": "Nom",
+    "placeholder": "ex. Boîte 12",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "save": "Enregistrer"
+  },
+  "emptyDialog": {
+    "title": "Vider le bac {{bin}}",
+    "description": "Choisis où vont les cartes de ce bac. Chaque carte y est enregistrée dans l'ordre où elle a été scannée, pour la retrouver plus tard.",
+    "locationLabel": "Emplacement",
+    "placeholder": "Choisir un emplacement",
+    "newLocation": "Nouvel emplacement…",
+    "noLocation": "Ne pas enregistrer d'emplacement",
+    "newLocationName": "Nom du nouvel emplacement",
+    "newLocationPlaceholder": "ex. Boîte 12",
+    "cancel": "Annuler",
+    "confirm": "Vider le bac"
+  },
+  "cards": {
+    "position": "#{{position}}",
+    "foil": "Foil",
+    "emptyTitle": "Rien n'est rangé ici",
+    "emptyDescription": "Les cartes apparaissent ici dès qu'un bac est vidé dans cet emplacement."
+  },
+  "cardLocation": {
+    "heading": "Rangement",
+    "value": "{{name}} · #{{position}}"
+  },
+  "toasts": {
+    "failed": "Impossible de mettre à jour les emplacements"
+  }
+}

@@ -6,6 +6,7 @@
     "message": "This collection has no game assigned, so there are no card fields to build bin rules from. Recreate the collection and select a game to enable sorting."
   },
   "binCard": {
+    "chaosFill": "Fills in turn",
     "override": "Override",
     "disabled": "Disabled",
     "disabledDescription": "Cards skip this bin",
@@ -99,7 +100,10 @@
       "scanOnlyFailed": "Failed to update scan only settings",
       "emptyBinFailed": "Failed to mark bin as emptied",
       "repackFailed": "Failed to update repack settings",
-      "alphabetFailed": "Failed to update alphabetical sort"
+      "alphabetFailed": "Failed to update alphabetical sort",
+      "chaosFailed": "Failed to update chaos sort",
+      "cardsStored_one": "Stored {{count}} card",
+      "cardsStored_other": "Stored {{count}} cards"
     }
   },
   "binsPage": {},
@@ -124,6 +128,16 @@
     "slotsLabel": "Pack slots",
     "slotCountLabel": "Count",
     "addSlot": "Add slot"
+  },
+  "chaosPanel": {
+    "heading": "Chaos sort",
+    "businessBadge": "Business",
+    "businessOnly": "Chaos sort is part of the Business plan.",
+    "upgrade": "Upgrade",
+    "description": "Ignores the rules and fills the bins one after another, moving on when a bin is full. When you empty a bin, pick the storage location you put it in, and every card is recorded there in order.",
+    "binSizeLabel": "Cards per bin",
+    "binSizePlaceholder": "Fill to bin size",
+    "binSizeDescription": "Moves to the next bin after this many cards. Leave empty to fill each bin to its calibrated size."
   },
   "alphabetPanel": {
     "heading": "Sort alphabetically",

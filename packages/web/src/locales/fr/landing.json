@@ -153,7 +153,8 @@
       "sorters_one": "Jusqu'à {{count}} trieur à la fois, depuis un seul navigateur",
       "sorters_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
       "soundRules": "Règles sonores illimitées avec tes propres clips importés",
-      "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon"
+      "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
+      "chaosSort": "Tri en vrac, avec l'emplacement et la position de chaque carte"
     }
   },
   "cta": {
