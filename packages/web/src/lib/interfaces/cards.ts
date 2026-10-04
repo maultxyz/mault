@@ -210,3 +210,9 @@ export interface CardContextMenuProps {
   onToggleSelect: () => void;
   children: ReactNode;
 }
+
+export interface ClearCardQueryButtonProps {
+  searchQuery: string;
+  activeFilterCount: number;
+  onClear: () => void;
+}

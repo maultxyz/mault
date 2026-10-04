@@ -14,6 +14,7 @@ import {
   ALPHABET_PREFIX_MAX_LENGTH,
   DEFAULT_BIN_HEIGHT,
   DEFAULT_CARD_THICKNESS_MM,
+  UNLIMITED_BIN_HEIGHT,
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
 import { cardMatchPercent } from "./scan-rule-fields";
@@ -262,7 +263,8 @@ export function isBinFull(
 export function computeBinCapacity(
   height: number | null | undefined,
   cardThickness: number | null | undefined,
-): number {
+): number | null {
+  if (height === UNLIMITED_BIN_HEIGHT) return null;
   const binHeight = height && height > 0 ? height : DEFAULT_BIN_HEIGHT;
   const thickness =
     cardThickness && cardThickness > 0

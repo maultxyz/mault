@@ -1,6 +1,6 @@
 
-> @magic-vault/web@1.0.110 build C:\Users\User\Documents\Coding\magic-vault\packages\web
+> @magic-vault/web@1.0.116 build C:\Users\User\Documents\Coding\magic-vault\packages\web
 > tsc -b && vite build
 
-src/lib/hotkeys.ts(51,11): error TS2774: This condition will always return true since this function is always defined. Did you mean to call it instead?
+src/features/bins/components/bin-list.tsx(24,9): error TS6133: 'isRepackMode' is declared but its value is never read.
  ELIFECYCLE  Command failed with exit code 2.

@@ -95,6 +95,7 @@
   },
   "cardToolbar": {
     "searchPlaceholder": "Nach Name, Edition, Typ suchen...",
+    "clearSearchAndFilters": "Suche und Filter zurücksetzen",
     "sortPlaceholder": "Sortieren nach...",
     "scanOrder": "Scan-Reihenfolge",
     "sortAscString": "A-Z",
