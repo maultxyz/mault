@@ -80,6 +80,14 @@ export function MobileMonitorCards({
               className="pl-8"
             />
           </div>
+          <ClearCardQueryButton
+            searchQuery={searchQuery}
+            activeFilterCount={activeFilterCount}
+            onClear={() => {
+              setSearchQuery("");
+              setFilters(EMPTY_CARD_FILTERS);
+            }}
+          />
           <CardSortButton
             sortKey={sortKey}
             onSortChange={setSortKey}
@@ -93,14 +101,6 @@ export function MobileMonitorCards({
             availableColors={stats?.colors ?? []}
             availableFoilTypes={stats?.foilTypes ?? []}
             binCount={binCount}
-          />
-          <ClearCardQueryButton
-            searchQuery={searchQuery}
-            activeFilterCount={activeFilterCount}
-            onClear={() => {
-              setSearchQuery("");
-              setFilters(EMPTY_CARD_FILTERS);
-            }}
           />
         </div>
         <div className="-mx-3 flex gap-2 overflow-x-auto px-3">

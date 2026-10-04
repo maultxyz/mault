@@ -69,6 +69,14 @@ export function CardToolbar({
         onChange={(e) => onSearchChange(e.target.value)}
         className="flex-1 min-w-0"
       />
+      <ClearCardQueryButton
+        searchQuery={searchQuery}
+        activeFilterCount={activeFilterCount}
+        onClear={() => {
+          onSearchChange("");
+          onFiltersChange(EMPTY_CARD_FILTERS);
+        }}
+      />
       <CardSortButton
         sortKey={sortKey}
         onSortChange={onSortChange}
@@ -82,14 +90,6 @@ export function CardToolbar({
         availableColors={availableColors ?? []}
         availableFoilTypes={availableFoilTypes ?? []}
         binCount={binCount}
-      />
-      <ClearCardQueryButton
-        searchQuery={searchQuery}
-        activeFilterCount={activeFilterCount}
-        onClear={() => {
-          onSearchChange("");
-          onFiltersChange(EMPTY_CARD_FILTERS);
-        }}
       />
       <ButtonGroup className="shrink-0">
         <Button

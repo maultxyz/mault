@@ -9,7 +9,7 @@ export function ClearCardQueryButton({
   onClear,
 }: ClearCardQueryButtonProps) {
   const { t } = useTranslation("cards");
-  if (!searchQuery.trim() && activeFilterCount === 0) return null;
+  const hasQuery = !!searchQuery.trim() || activeFilterCount > 0;
   const label = t("cardToolbar.clearSearchAndFilters");
 
   return (
@@ -19,6 +19,7 @@ export function ClearCardQueryButton({
       className="shrink-0"
       aria-label={label}
       title={label}
+      disabled={!hasQuery}
       onClick={onClear}
     >
       <IconFilterOff />
