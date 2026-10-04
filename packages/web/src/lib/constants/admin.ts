@@ -12,3 +12,5 @@ export const DEFAULT_SYNC_STATE: SyncState = {
   startedAt: null,
   logs: [],
 };
+
+export const ACTIVE_SCANNING_REFRESH_MS = 15_000;
