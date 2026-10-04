@@ -197,6 +197,15 @@
     "multipleMatchesLabel": "Mehrere Treffer",
     "percentValue": "{{percent}}%"
   },
+  "activeScanning": {
+    "heading": "Aktives Scannen",
+    "description": "Live über alle Organisationen. Jemand gilt als scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",
+    "scanners": "Scannende Personen",
+    "sessions": "Gescannte Sammlungen",
+    "orgs": "Organisationen",
+    "connectedSorters": "Verbundene Sortierer",
+    "recentScans": "Scans, letzte {{minutes}} Min."
+  },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
     "description": "Wie viele Kartenscans auf dem Server vektorisiert wurden im Vergleich zum Browser",

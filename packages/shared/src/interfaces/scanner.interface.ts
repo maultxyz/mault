@@ -167,3 +167,12 @@ export interface UnmatchedCard {
   diagnostics?: UnmatchedScanDiagnostics;
   embedding?: number[];
 }
+
+export interface ActiveScanningStats {
+  scanners: number;
+  sessions: number;
+  orgs: number;
+  connectedSorters: number;
+  recentScans: number;
+  windowMinutes: number;
+}

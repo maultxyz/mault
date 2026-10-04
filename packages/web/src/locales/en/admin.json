@@ -189,6 +189,15 @@
     "multipleMatchesLabel": "Multiple matches",
     "percentValue": "{{percent}}%"
   },
+  "activeScanning": {
+    "heading": "Active scanning",
+    "description": "Live across every organization. Someone counts as scanning while they've saved a scan in the last {{minutes}} minutes.",
+    "scanners": "People scanning",
+    "sessions": "Collections being scanned",
+    "orgs": "Organizations",
+    "connectedSorters": "Connected sorters",
+    "recentScans": "Scans, last {{minutes}} min"
+  },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
     "description": "How many card scans were vectorized on the server vs. in the browser",

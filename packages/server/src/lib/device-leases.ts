@@ -61,3 +61,9 @@ export function releaseDeviceLease(orgId: string, deviceKey: string) {
 export function isDeviceLeased(orgId: string, deviceKey: string): boolean {
   return leases.get(orgId)?.has(deviceKey) ?? false;
 }
+
+export function countConnectedSorters(): number {
+  let total = 0;
+  for (const map of leases.values()) total += map.size;
+  return total;
+}

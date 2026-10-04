@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
+import { activeScanningRoute } from "./active-scanning";
 import { cardsDumpRoute } from "./cards-dump";
 import { cardsGamesRoute } from "./cards-games";
 import { cardsListRoute } from "./cards-list";
@@ -23,6 +24,7 @@ const router = new Hono<AppEnv>()
   .route("/", cardsGamesRoute)
   .route("/", cardsDumpRoute)
   .route("/", rollbarTestRoute)
-  .route("/", scanVectorizeStatsRoute);
+  .route("/", scanVectorizeStatsRoute)
+  .route("/", activeScanningRoute);
 
 export { router as adminRouter };

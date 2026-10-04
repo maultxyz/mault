@@ -6,6 +6,7 @@ import type {
   SyncSourceInfo,
 } from "@/lib/interfaces/admin";
 import type {
+  ActiveScanningStats,
   AdminUserSummary,
   ImpersonationAuditEntry,
   ImpersonationSession,
@@ -154,4 +155,10 @@ export async function getScanVectorizeStats(): Promise<{
   return apiGet<{ success: boolean; data: { server: number; web: number } }>(
     "/api/admin/scan-vectorize-stats",
   );
+}
+
+export async function getActiveScanning(): Promise<
+  Result<ActiveScanningStats>
+> {
+  return apiGet<Result<ActiveScanningStats>>("/api/admin/active-scanning");
 }

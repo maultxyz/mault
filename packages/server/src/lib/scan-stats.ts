@@ -4,7 +4,7 @@ import {
   type PublicMetrics,
   type ScanVectorizeSource,
 } from "@magic-vault/shared";
-import { eq, isNotNull, sql } from "drizzle-orm";
+import { eq, gt, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { scanStats } from "../db/schema";
 import {
@@ -118,4 +118,12 @@ export async function computeScanMetrics(): Promise<PublicMetrics> {
     averageMatchPercent:
       avgPercent != null ? Math.round(Number(avgPercent) * 10) / 10 : null,
   };
+}
+
+export async function countRecentScans(windowMs: number): Promise<number> {
+  const [row] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(scanStats)
+    .where(gt(scanStats.createdAt, new Date(Date.now() - windowMs)));
+  return row?.count ?? 0;
 }

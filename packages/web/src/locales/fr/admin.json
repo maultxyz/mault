@@ -197,6 +197,15 @@
     "multipleMatchesLabel": "Correspondances multiples",
     "percentValue": "{{percent}}%"
   },
+  "activeScanning": {
+    "heading": "Scan en cours",
+    "description": "En direct, toutes organisations confondues. Une personne est comptée tant qu'elle a enregistré un scan au cours des {{minutes}} dernières minutes.",
+    "scanners": "Personnes qui scannent",
+    "sessions": "Collections en cours de scan",
+    "orgs": "Organisations",
+    "connectedSorters": "Trieurs connectés",
+    "recentScans": "Scans, {{minutes}} dernières min"
+  },
   "scanVectorizeStats": {
     "heading": "Source de vectorisation des scans",
     "description": "Combien de scans de cartes ont été vectorisés sur le serveur par rapport au navigateur",

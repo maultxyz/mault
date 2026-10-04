@@ -132,3 +132,16 @@ export function subscribeOrgLocks(
     if (writers!.size === 0) orgWriters.delete(orgId);
   };
 }
+
+export function getActiveScanLockStats(): {
+  scanners: number;
+  sessions: number;
+  orgs: number;
+} {
+  const entries = [...locks.values()];
+  return {
+    scanners: new Set(entries.map((e) => e.userId)).size,
+    sessions: entries.length,
+    orgs: new Set(entries.map((e) => e.orgId)).size,
+  };
+}
