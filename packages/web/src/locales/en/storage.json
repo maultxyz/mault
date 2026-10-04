@@ -36,7 +36,8 @@
     "notNow": "Not now",
     "stepTitle": "Empty bin {{bin}} ({{index}} of {{total}})",
     "confirmNext": "Empty bin, next",
-    "confirmResume": "Empty bin and resume"
+    "confirmResume": "Empty bin and resume",
+    "lockedDescription": "This resets bin {{bin}}'s fill counter to zero. Make sure you've taken the cards out first."
   },
   "cards": {
     "position": "#{{position}}",
@@ -68,5 +69,11 @@
     "count_one": "{{count}} card found",
     "count_other": "{{count}} cards found",
     "limited": "Showing the first {{count}} cards. Search for more of the name to narrow it down."
+  },
+  "upgrade": {
+    "businessOnly": "Storage locations are part of the Business plan.",
+    "link": "Upgrade",
+    "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
+    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs Business."
   }
 }

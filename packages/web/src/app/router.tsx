@@ -92,6 +92,7 @@ const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
+const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminAnnouncementsPage = lazy(
   () => import("@/app/routes/app/admin/announcements"),
 );
@@ -317,6 +318,10 @@ export const router = createBrowserRouter([
                           {
                             path: "users",
                             element: <AdminUsersPage />,
+                          },
+                          {
+                            path: "plans",
+                            element: <AdminPlansPage />,
                           },
                           {
                             path: "announcements",

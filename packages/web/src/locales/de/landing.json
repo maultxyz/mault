@@ -154,7 +154,8 @@
       "sorters_other": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
       "soundRules": "Unbegrenzte Soundregeln mit deinen eigenen hochgeladenen Clips",
       "notificationRules": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten",
-      "chaosSort": "Chaotisches Sortieren, mit Lagerort und Position jeder Karte"
+      "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
+      "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle"
     }
   },
   "cta": {

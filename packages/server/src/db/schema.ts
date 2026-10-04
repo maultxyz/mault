@@ -122,6 +122,23 @@ export const announcements = pgTable(
   ],
 ).enableRLS();
 
+export const planSettings = pgTable(
+  "plan_settings",
+  {
+    plan: text("plan").primaryKey(),
+    features: jsonb("features").notNull().default({}),
+    limits: jsonb("limits").notNull().default({}),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  () => [
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const binSets = pgTable(
   "bin_sets",
   {

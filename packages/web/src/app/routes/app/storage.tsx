@@ -1,9 +1,12 @@
+import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
+import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
 import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
@@ -21,6 +24,7 @@ export default function StoragePage() {
   const { locations, isLoading, isMutating, create, rename, remove } =
     useStorageLocations();
   const { format } = usePriceSource();
+  const { isLocked } = useStorageAccess();
   const [searchParams, setSearchParams] = useSearchParams();
   const [createOpen, setCreateOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
@@ -53,11 +57,24 @@ export default function StoragePage() {
             </h1>
             <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
           </div>
-          <Button onClick={() => setCreateOpen(true)} disabled={isMutating}>
-            <IconPlus />
-            {t("page.newLocation")}
-          </Button>
+          {!isLocked && (
+            <Button onClick={() => setCreateOpen(true)} disabled={isMutating}>
+              <IconPlus />
+              {t("page.newLocation")}
+            </Button>
+          )}
         </div>
+
+        {isLocked && (
+          <Callout variant="info" className="shrink-0">
+            {t(
+              locations.length > 0
+                ? "upgrade.lockedWithLocations"
+                : "upgrade.locked",
+            )}{" "}
+            <StorageUpgradeNote />
+          </Callout>
+        )}
 
         {!isLoading && locations.length > 0 && (
           <Input

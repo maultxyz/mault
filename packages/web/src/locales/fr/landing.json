@@ -154,7 +154,8 @@
       "sorters_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
       "soundRules": "Règles sonores illimitées avec tes propres clips importés",
       "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
-      "chaosSort": "Tri en vrac, avec l'emplacement et la position de chaque carte"
+      "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
+      "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes"
     }
   },
   "cta": {

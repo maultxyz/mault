@@ -36,7 +36,8 @@
     "notNow": "Nicht jetzt",
     "stepTitle": "Fach {{bin}} leeren ({{index}} von {{total}})",
     "confirmNext": "Fach leeren, weiter",
-    "confirmResume": "Fach leeren und fortsetzen"
+    "confirmResume": "Fach leeren und fortsetzen",
+    "lockedDescription": "Damit wird der Füllzähler von Fach {{bin}} auf null gesetzt. Nimm die Karten vorher heraus."
   },
   "cards": {
     "position": "#{{position}}",
@@ -68,5 +69,11 @@
     "count_one": "{{count}} Karte gefunden",
     "count_other": "{{count}} Karten gefunden",
     "limited": "Die ersten {{count}} Karten werden angezeigt. Gib mehr vom Namen ein, um die Suche einzugrenzen."
+  },
+  "upgrade": {
+    "businessOnly": "Lagerorte sind Teil des Business-Tarifs.",
+    "link": "Upgraden",
+    "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
+    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht Business."
   }
 }

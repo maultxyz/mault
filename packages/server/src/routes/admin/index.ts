@@ -6,6 +6,7 @@ import { cardsGamesRoute } from "./cards-games";
 import { cardsListRoute } from "./cards-list";
 import { cardsRevectorizeRoute } from "./cards-revectorize";
 import { cardsSyncRoute } from "./cards-sync";
+import { plansRoute } from "./plans";
 import { rollbarTestRoute } from "./rollbar-test";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
 import { syncCancelRoute } from "./sync-cancel";
@@ -25,6 +26,7 @@ const router = new Hono<AppEnv>()
   .route("/", cardsDumpRoute)
   .route("/", rollbarTestRoute)
   .route("/", scanVectorizeStatsRoute)
-  .route("/", activeScanningRoute);
+  .route("/", activeScanningRoute)
+  .route("/", plansRoute);
 
 export { router as adminRouter };

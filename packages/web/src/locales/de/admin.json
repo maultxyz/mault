@@ -7,6 +7,7 @@
     "cards": "Karten",
     "games": "Spiele",
     "users": "Benutzer",
+    "plans": "Tarife",
     "announcements": "Ankündigungen",
     "servos": "Bausatz-Test",
     "device": "Gerät",
@@ -284,6 +285,53 @@
       "copy": "Protokoll kopieren",
       "copied": "Protokoll kopiert.",
       "copyFailed": "Das Protokoll konnte nicht kopiert werden."
+    }
+  },
+  "plans": {
+    "planNames": {
+      "free": "Free",
+      "business": "Business"
+    },
+    "featuresHeading": "Funktionen",
+    "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",
+    "limitsHeading": "Limits",
+    "limitsDescription": "Wie viel eine Organisation in jedem Tarif von jedem haben kann. Aktiviere Unbegrenzt, um ein Limit aufzuheben.",
+    "restoreDefaults": "Standardwerte",
+    "unlimited": "Unbegrenzt",
+    "billingDisabled": "Die Abrechnung ist auf diesem Server ausgeschaltet, daher bekommt jede Organisation alle Funktionen ohne Limits. Diese Einstellungen greifen, sobald die Abrechnung aktiv ist.",
+    "saved": "Tarifeinstellungen gespeichert",
+    "saveFailed": "Tarifeinstellungen konnten nicht gespeichert werden",
+    "validation": {
+      "number": "Gib eine ganze Zahl ab 0 ein",
+      "max": "Höchstens {{max}}"
+    },
+    "features": {
+      "chaosSort": {
+        "label": "Chaotisches Sortieren",
+        "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Presets es einschalten."
+      },
+      "storage": {
+        "label": "Lagerorte",
+        "description": "Lagerorte anlegen und Fächer darin erfassen. Bestehende Lagerorte bleiben in jedem Fall sichtbar."
+      }
+    },
+    "limits": {
+      "dailyScans": {
+        "label": "Scans pro Tag",
+        "description": "Gescannte Karten pro Organisation und UTC-Tag."
+      },
+      "connectedSorters": {
+        "label": "Verbundene Sortierer",
+        "description": "Gleichzeitig verbundene Sortierer. Jeder Tarif ist zusätzlich durch das feste Maximum des Servers begrenzt."
+      },
+      "soundRules": {
+        "label": "Soundregeln",
+        "description": "Soundregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
+      },
+      "notificationRules": {
+        "label": "Benachrichtigungsregeln",
+        "description": "Discord-Benachrichtigungsregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
+      }
     }
   }
 }

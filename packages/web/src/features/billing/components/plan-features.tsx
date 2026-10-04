@@ -26,6 +26,7 @@ export function PlanFeatures({ billing }: PlanFeaturesProps) {
           count: billing.maxNotificationRules,
         }),
     billing.chaosSort && tLanding("pricing.business.chaosSort"),
+    billing.storage && tLanding("pricing.business.storage"),
     ...PRICING_SHARED_FEATURE_KEYS.map((key) =>
       tLanding(`pricing.shared.${key}`),
     ),

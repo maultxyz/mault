@@ -24,6 +24,7 @@ import { soundsRouter } from "./routes/sounds";
 import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
 import { rollbar } from "./lib/rollbar";
+import { startPlanConfigRefresh } from "./lib/plan-config";
 
 const app = new Hono<AppEnv>();
 const PORT = parseInt(process.env.PORT ?? "3001");
@@ -63,6 +64,8 @@ app.onError((err, c) => {
   rollbar.error(err, { url: c.req.url, method: c.req.method });
   return c.json({ success: false, message: "Internal server error." }, 500);
 });
+
+startPlanConfigRefresh();
 
 serve({ fetch: app.fetch, port: PORT, hostname: "0.0.0.0" }, () => {
   console.log(`[server] Running on port:${PORT}`);

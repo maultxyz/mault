@@ -17,10 +17,10 @@ import {
 import {
   consumeDailyScan,
   dailyScanLimitForPlan,
+  dailyScanLimitMessage,
   getScansToday,
 } from "../../lib/scan-usage";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
-import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { notifyCardScanned } from "./notify-card-scanned";
@@ -109,17 +109,17 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           };
 
         const plan = await loadOrgPlan(tx, orgId);
+        const dailyLimit = dailyScanLimitForPlan(plan);
         const scanLimitReachedResult = {
           result: {
             success: false as const,
-            message: `Free plan daily scan limit reached (${FREE_PLAN_DAILY_SCAN_LIMIT}/day). Upgrade to Business for unlimited scanning.`,
+            message: dailyScanLimitMessage(dailyLimit),
             scanLimitReached: true,
           },
           collectionName: undefined,
           gameName: undefined,
           gameId: null,
         };
-        const dailyLimit = dailyScanLimitForPlan(plan);
         if (
           dailyLimit != null &&
           (await getScansToday(tx, orgId)) >= dailyLimit

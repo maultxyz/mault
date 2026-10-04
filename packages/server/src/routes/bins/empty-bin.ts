@@ -7,6 +7,10 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
+import {
+  isStorageAllowed,
+  STORAGE_UPGRADE_MESSAGE,
+} from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resolveGameId } from "./shared";
@@ -57,6 +61,13 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
 
         let assignedCount = 0;
         if (locationGuid && collectionGuid) {
+          if (!(await isStorageAllowed(tx, orgId))) {
+            return {
+              message: STORAGE_UPGRADE_MESSAGE,
+              success: false,
+              upgradeRequired: true,
+            };
+          }
           const location = await tx.query.storageLocations.findFirst({
             where: (t, { eq, and }) =>
               and(eq(t.guid, locationGuid), eq(t.orgId, orgId)),

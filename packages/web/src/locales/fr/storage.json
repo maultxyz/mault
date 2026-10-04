@@ -36,7 +36,8 @@
     "notNow": "Plus tard",
     "stepTitle": "Vider le bac {{bin}} ({{index}} sur {{total}})",
     "confirmNext": "Vider le bac, suivant",
-    "confirmResume": "Vider le bac et reprendre"
+    "confirmResume": "Vider le bac et reprendre",
+    "lockedDescription": "Cela remet à zéro le compteur du bac {{bin}}. Sortez d'abord les cartes."
   },
   "cards": {
     "position": "#{{position}}",
@@ -68,5 +69,11 @@
     "count_one": "{{count}} carte trouvée",
     "count_other": "{{count}} cartes trouvées",
     "limited": "Affichage des {{count}} premières cartes. Saisissez davantage du nom pour affiner."
+  },
+  "upgrade": {
+    "businessOnly": "Les emplacements de rangement font partie de l'offre Business.",
+    "link": "Passer à Business",
+    "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
+    "lockedWithLocations": "Vous pouvez toujours parcourir, rechercher et modifier vos emplacements, mais y enregistrer de nouvelles cartes nécessite Business."
   }
 }

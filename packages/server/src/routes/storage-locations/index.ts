@@ -13,6 +13,10 @@ import {
   collections,
   storageLocations,
 } from "../../db/schema";
+import {
+  isStorageAllowed,
+  STORAGE_UPGRADE_MESSAGE,
+} from "../../lib/storage-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadLocations, locationNameTaken, parseLocationName } from "./shared";
 
@@ -98,6 +102,13 @@ const router = new Hono<AppEnv>()
     }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        if (!(await isStorageAllowed(tx, orgId))) {
+          return {
+            success: false,
+            message: STORAGE_UPGRADE_MESSAGE,
+            upgradeRequired: true,
+          };
+        }
         if (await locationNameTaken(tx, orgId, name)) {
           return { success: false, message: "That name is already used." };
         }

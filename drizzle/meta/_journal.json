@@ -582,6 +582,13 @@
       "when": 1791132292076,
       "tag": "0082_magical_rattler",
       "breakpoints": true
+    },
+    {
+      "idx": 83,
+      "version": "7",
+      "when": 1791156258545,
+      "tag": "0083_gifted_blink",
+      "breakpoints": true
     }
   ]
 }

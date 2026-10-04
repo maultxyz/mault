@@ -1,15 +1,18 @@
 import { and, eq, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { orgDailyScanUsage } from "../db/schema";
-import { FREE_PLAN_DAILY_SCAN_LIMIT, isBillingEnabled } from "./stripe";
+import { planLimit } from "./plan-config";
 
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
 export function dailyScanLimitForPlan(plan: string | undefined): number | null {
-  if (!isBillingEnabled()) return null;
-  return (plan ?? "free") === "free" ? FREE_PLAN_DAILY_SCAN_LIMIT : null;
+  return planLimit(plan, "dailyScans");
+}
+
+export function dailyScanLimitMessage(limit: number | null): string {
+  return `Daily scan limit reached (${limit ?? 0}/day). Upgrade to Business for unlimited scanning.`;
 }
 
 export async function consumeDailyScan(
