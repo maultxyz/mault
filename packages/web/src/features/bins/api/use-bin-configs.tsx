@@ -100,9 +100,7 @@ export function BinConfigsProvider({
   const moduleCount = useModuleCount();
   const [selectedBin, setSelectedBinState] = useState(1);
   const [isBinFormDirty, setBinFormDirty] = useState(false);
-  const [pendingBinNumber, setPendingBinNumber] = useState<number | null>(
-    null,
-  );
+  const [pendingBinNumber, setPendingBinNumber] = useState<number | null>(null);
 
   const { data: allSets = [] } = useQuery({
     ...binsQueryOptions,
@@ -126,6 +124,8 @@ export function BinConfigsProvider({
         foil: t("scanRuleFields.foil"),
         foilType: t("scanRuleFields.foilType"),
         matchPercent: t("scanRuleFields.matchPercent"),
+        marketValueUsd: t("scanRuleFields.marketValueUsd"),
+        marketValueEur: t("scanRuleFields.marketValueEur"),
         foilOption: t("scanRuleFields.foilOption"),
         nonFoilOption: t("scanRuleFields.nonFoilOption"),
       }),
@@ -340,7 +340,8 @@ export function BinConfigsProvider({
   });
 
   const emptyBinMutation = useMutation({
-    mutationFn: (binNumber: number) => emptyBinAction(binNumber, activeGameGuid),
+    mutationFn: (binNumber: number) =>
+      emptyBinAction(binNumber, activeGameGuid),
     onSuccess: (result) => {
       if (!result.success) {
         toast.error(t("useBinConfigs.toasts.emptyBinFailed"));
@@ -383,6 +384,7 @@ export function BinConfigsProvider({
         isRepackMode: boolean;
         repackSlots: RepackSlot[];
         repackAllowDuplicates: boolean;
+        repackSiftRules: BinRuleGroup | null;
       };
     }) => setRepackConfigAction(guid, config),
     onSuccess: (result) => {
@@ -515,7 +517,10 @@ export function BinConfigsProvider({
   const setScanOnlyFn = useCallback(
     async (enabled: boolean) => {
       if (!selectedSet) return;
-      await setScanOnlyMutation.mutateAsync({ guid: selectedSet.guid, enabled });
+      await setScanOnlyMutation.mutateAsync({
+        guid: selectedSet.guid,
+        enabled,
+      });
     },
     [setScanOnlyMutation, selectedSet],
   );
@@ -525,6 +530,7 @@ export function BinConfigsProvider({
       isRepackMode: boolean;
       repackSlots: RepackSlot[];
       repackAllowDuplicates: boolean;
+      repackSiftRules: BinRuleGroup | null;
     }) => {
       if (!selectedSet) return false;
       const result = await setRepackConfigMutation.mutateAsync({
@@ -566,7 +572,8 @@ export function BinConfigsProvider({
   const ensureCatchAll = () => {
     if (configs.some((c) => c.isCatchAll)) return;
     const lastBin = configs[configs.length - 1];
-    if (lastBin) save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+    if (lastBin)
+      save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
   };
 
   const saveMode = async () => {
@@ -584,6 +591,7 @@ export function BinConfigsProvider({
           isRepackMode: modeDraft.isRepackMode,
           repackSlots: selectedSet.repackSlots,
           repackAllowDuplicates: selectedSet.repackAllowDuplicates,
+          repackSiftRules: selectedSet.repackSiftRules,
         });
         if (modeDraft.isRepackMode) {
           const lastBin = configs[configs.length - 1];

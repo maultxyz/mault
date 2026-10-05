@@ -11,7 +11,10 @@ export const createSetSchema = z.object({
     .string()
     .trim()
     .min(1, "Name is required")
-    .max(SET_NAME_MAX_LENGTH, `Name must be ${SET_NAME_MAX_LENGTH} characters or less`),
+    .max(
+      SET_NAME_MAX_LENGTH,
+      `Name must be ${SET_NAME_MAX_LENGTH} characters or less`,
+    ),
 });
 
 export type CreateSetFormValues = z.infer<typeof createSetSchema>;
@@ -47,13 +50,14 @@ export const binConditionSchema = z.object({
   ]),
 });
 
-export const binRuleGroupSchema: z.ZodType<BinRuleGroup, BinRuleGroup> = z.object({
-  id: z.string(),
-  combinator: z.enum(["and", "or"]),
-  conditions: z.array(
-    z.union([binConditionSchema, z.lazy(() => binRuleGroupSchema)]),
-  ),
-});
+export const binRuleGroupSchema: z.ZodType<BinRuleGroup, BinRuleGroup> =
+  z.object({
+    id: z.string(),
+    combinator: z.enum(["and", "or"]),
+    conditions: z.array(
+      z.union([binConditionSchema, z.lazy(() => binRuleGroupSchema)]),
+    ),
+  });
 
 export const binConfigSchema = z.object({
   isCatchAll: z.boolean(),
@@ -89,6 +93,7 @@ export type RepackSlotFormValues = z.infer<typeof repackSlotSchema>;
 
 export const repackConfigSchema = z.object({
   repackAllowDuplicates: z.boolean(),
+  repackSiftRules: binRuleGroupSchema.nullable(),
   repackSlots: z.array(repackSlotSchema),
 });
 

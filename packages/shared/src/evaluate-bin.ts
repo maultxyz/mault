@@ -328,17 +328,39 @@ function isDuplicateInPack(
   );
 }
 
+export function getRepackSiftBin(configs: BinConfig[]): BinConfig | undefined {
+  return configs
+    .filter((c) => !c.isCatchAll && !c.isDisabled)
+    .sort((a, b) => a.binNumber - b.binNumber)[0];
+}
+
 export function evaluateRepackBin(
   card: SourceCard,
   configs: BinConfig[],
   fieldDefinitions: FieldMeta[],
-  binSet: Pick<BinSet, "repackSlots" | "repackAllowDuplicates">,
+  binSet: Pick<
+    BinSet,
+    "repackSlots" | "repackAllowDuplicates" | "repackSiftRules"
+  >,
   cardsInBin: (bin: BinConfig) => SourceCard[],
 ): BinConfig | undefined {
   const catchAll = getCatchAllBin(configs);
+  const siftRules = binSet.repackSiftRules;
+  const siftBin =
+    siftRules && siftRules.conditions.length > 0
+      ? getRepackSiftBin(configs)
+      : undefined;
+
+  if (
+    siftBin &&
+    siftRules &&
+    evaluateRuleGroup(card, siftRules, fieldDefinitions)
+  ) {
+    return siftBin;
+  }
 
   for (const bin of configs) {
-    if (bin.isCatchAll || bin.isDisabled) continue;
+    if (bin.isCatchAll || bin.isDisabled || bin === siftBin) continue;
 
     const cardsInPack = cardsInBin(bin);
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {

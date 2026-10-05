@@ -81,6 +81,7 @@ export interface BinConfigsContextValue {
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
     repackAllowDuplicates: boolean;
+    repackSiftRules: BinRuleGroup | null;
   }) => Promise<boolean>;
   setAlphabetPass: (step: AlphabetStep) => Promise<void>;
   effectiveMode: BinModeDraft;

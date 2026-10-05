@@ -123,7 +123,11 @@
     "allowDuplicatesDescription": "When off, a card already in a given pack is skipped for that bin (it can still start a different pack that doesn't have it yet) instead of being added again.",
     "slotsLabel": "Pack slots",
     "slotCountLabel": "Count",
-    "addSlot": "Add slot"
+    "addSlot": "Add slot",
+    "siftLabel": "Sift cards out",
+    "siftDescription": "Cards that match the rules below go to the first bin instead of a pack, so you can pull out cards you want to keep (by value, rarity, set or anything else) while every other bin builds packs from the rest.",
+    "siftHint": "Cards matching these rules go to bin {{bin}}. Every other bin builds packs from the rest.",
+    "siftNoBin": "Sifting needs at least one enabled bin besides the catch-all."
   },
   "alphabetPanel": {
     "heading": "Sort alphabetically",
@@ -179,6 +183,8 @@
     "foilType": "Foil type",
     "matchPercent": "Match %",
     "foilOption": "Foil",
-    "nonFoilOption": "Non-foil"
+    "nonFoilOption": "Non-foil",
+    "marketValueUsd": "Market value (USD)",
+    "marketValueEur": "Market value (EUR)"
   }
 }

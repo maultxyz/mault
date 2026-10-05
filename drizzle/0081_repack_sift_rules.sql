@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "repack_sift_rules" jsonb;

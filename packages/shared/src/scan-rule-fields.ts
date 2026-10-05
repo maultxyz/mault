@@ -5,8 +5,10 @@ import {
   SCAN_RULE_FOIL_TYPE_FIELD,
   SCAN_RULE_FOIL_TYPE_OPERATORS,
   SCAN_RULE_FOIL_VALUE,
+  SCAN_RULE_MARKET_VALUE_EUR_FIELD,
+  SCAN_RULE_MARKET_VALUE_USD_FIELD,
   SCAN_RULE_MATCH_PERCENT_FIELD,
-  SCAN_RULE_MATCH_PERCENT_OPERATORS,
+  SCAN_RULE_NUMERIC_OPERATORS,
   SCAN_RULE_NON_FOIL_VALUE,
   SCAN_RULE_ROOT,
 } from "./constants/scan-rule-fields.constant";
@@ -18,11 +20,15 @@ import type {
   ConditionField,
   FieldMeta,
 } from "./interfaces/sort-bins.interface";
+import type { PlayingCard } from "./interfaces/card.interface";
+import { cardPriceFor } from "./price-source";
 
 const SCAN_RULE_FIELDS: ConditionField[] = [
   SCAN_RULE_FOIL_FIELD,
   SCAN_RULE_FOIL_TYPE_FIELD,
   SCAN_RULE_MATCH_PERCENT_FIELD,
+  SCAN_RULE_MARKET_VALUE_USD_FIELD,
+  SCAN_RULE_MARKET_VALUE_EUR_FIELD,
 ];
 
 export function cardMatchPercent(card: object): number | null {
@@ -67,7 +73,21 @@ export function scanRuleFieldDefinitions(
       label: labels.matchPercent,
       type: "numeric",
       path: `${SCAN_RULE_ROOT}.matchPercent`,
-      operators: SCAN_RULE_MATCH_PERCENT_OPERATORS,
+      operators: SCAN_RULE_NUMERIC_OPERATORS,
+    },
+    {
+      field: SCAN_RULE_MARKET_VALUE_USD_FIELD,
+      label: labels.marketValueUsd,
+      type: "numeric",
+      path: `${SCAN_RULE_ROOT}.marketValueUsd`,
+      operators: SCAN_RULE_NUMERIC_OPERATORS,
+    },
+    {
+      field: SCAN_RULE_MARKET_VALUE_EUR_FIELD,
+      label: labels.marketValueEur,
+      type: "numeric",
+      path: `${SCAN_RULE_ROOT}.marketValueEur`,
+      operators: SCAN_RULE_NUMERIC_OPERATORS,
     },
   ];
   if (foilTypes.length > 0) {
@@ -97,16 +117,23 @@ export function withScanRuleFields(
   ];
 }
 
-export function toRuleCard<T extends object>(
-  card: T,
-  scan: ScanRuleState,
-): T {
+export function toRuleCard<T extends object>(card: T, scan: ScanRuleState): T {
   return {
     ...card,
     [SCAN_RULE_ROOT]: {
       foil: scan.isFoil ? SCAN_RULE_FOIL_VALUE : SCAN_RULE_NON_FOIL_VALUE,
       foilType: scan.isFoil ? (scan.foilType ?? "") : "",
       matchPercent: cardMatchPercent(card),
+      marketValueUsd: cardPriceFor(
+        card as PlayingCard,
+        scan.isFoil,
+        "tcgplayer",
+      ),
+      marketValueEur: cardPriceFor(
+        card as PlayingCard,
+        scan.isFoil,
+        "cardmarket",
+      ),
     },
   };
 }
