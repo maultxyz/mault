@@ -33,10 +33,17 @@ export async function createSet(
   initialBins?: DefaultBinInit[],
   gameGuid?: string,
 ): Promise<Result<BinSet[]>> {
-  return apiPost<Result<BinSet[]>>("/api/bins", { name, initialBins, gameGuid });
+  return apiPost<Result<BinSet[]>>("/api/bins", {
+    name,
+    initialBins,
+    gameGuid,
+  });
 }
 
-export async function saveSet(name: string, gameGuid?: string): Promise<Result<BinSet[]>> {
+export async function saveSet(
+  name: string,
+  gameGuid?: string,
+): Promise<Result<BinSet[]>> {
   return apiPost<Result<BinSet[]>>("/api/bins/copies", { name, gameGuid });
 }
 
@@ -137,6 +144,7 @@ export async function setRepackConfig(
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
     repackAllowDuplicates: boolean;
+    repackSiftRules: BinRuleGroup | null;
   },
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/repack`, config);
@@ -149,8 +157,12 @@ export async function setAlphabetConfig(
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/alphabet`, config);
 }
 
-export async function getBinSetHistory(setGuid: string): Promise<Result<BinSetAuditEntry[]>> {
-  return apiGet<Result<BinSetAuditEntry[]>>(`/api/bins/history?setGuid=${encodeURIComponent(setGuid)}`);
+export async function getBinSetHistory(
+  setGuid: string,
+): Promise<Result<BinSetAuditEntry[]>> {
+  return apiGet<Result<BinSetAuditEntry[]>>(
+    `/api/bins/history?setGuid=${encodeURIComponent(setGuid)}`,
+  );
 }
 
 export async function revertBinSet(guid: string): Promise<Result<BinSet[]>> {

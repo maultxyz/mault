@@ -36,7 +36,12 @@ export async function applyFieldRenames(
 
   const sets = await tx.query.binSets.findMany({
     where: eq(binSets.gameId, gameId),
-    columns: { id: true, autoAssignField: true, repackSlots: true },
+    columns: {
+      id: true,
+      autoAssignField: true,
+      repackSlots: true,
+      repackSiftRules: true,
+    },
   });
 
   for (const set of sets) {
@@ -44,16 +49,25 @@ export async function applyFieldRenames(
       ...slot,
       rule: renameRuleFields(slot.rule, renames),
     }));
+    const repackSiftRules = set.repackSiftRules
+      ? renameRuleFields(set.repackSiftRules as BinRuleGroup, renames)
+      : null;
     const autoAssignField = set.autoAssignField
       ? renamedField(set.autoAssignField, renames)
       : null;
     if (
       autoAssignField !== set.autoAssignField ||
-      JSON.stringify(repackSlots) !== JSON.stringify(set.repackSlots)
+      JSON.stringify(repackSlots) !== JSON.stringify(set.repackSlots) ||
+      JSON.stringify(repackSiftRules) !== JSON.stringify(set.repackSiftRules)
     ) {
       await tx
         .update(binSets)
-        .set({ autoAssignField, repackSlots, updatedAt: new Date() })
+        .set({
+          autoAssignField,
+          repackSlots,
+          repackSiftRules,
+          updatedAt: new Date(),
+        })
         .where(eq(binSets.id, set.id));
     }
 

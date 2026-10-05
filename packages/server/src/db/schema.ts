@@ -154,6 +154,7 @@ export const binSets = pgTable(
     repackAllowDuplicates: boolean("repack_allow_duplicates")
       .notNull()
       .default(false),
+    repackSiftRules: jsonb("repack_sift_rules"),
     isAlphabetMode: boolean("is_alphabet_mode").notNull().default(false),
     alphabetPass: integer("alphabet_pass").notNull().default(0),
     alphabetPrefix: text("alphabet_prefix").notNull().default(""),

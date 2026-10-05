@@ -127,7 +127,11 @@
     "allowDuplicatesDescription": "Ist dies aus, wird eine bereits in einem Pack enthaltene Karte für dieses Fach übersprungen (sie kann trotzdem ein anderes Pack starten, das sie noch nicht enthält), statt erneut hinzugefügt zu werden.",
     "slotsLabel": "Pack-Slots",
     "slotCountLabel": "Anzahl",
-    "addSlot": "Slot hinzufügen"
+    "addSlot": "Slot hinzufügen",
+    "siftLabel": "Karten aussortieren",
+    "siftDescription": "Karten, die den Regeln unten entsprechen, kommen statt in ein Paket in das erste Fach. So kannst du Karten, die du behalten willst (nach Wert, Seltenheit, Set oder etwas anderem), aussortieren, während alle anderen Fächer Pakete aus dem Rest bilden.",
+    "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Fach {{bin}}. Alle anderen Fächer bilden Pakete aus dem Rest.",
+    "siftNoBin": "Zum Aussortieren wird neben dem Sammelfach mindestens ein aktiviertes Fach benötigt."
   },
   "chaosPanel": {
     "heading": "Chaotisches Sortieren",
@@ -193,6 +197,8 @@
     "foilType": "Foil-Art",
     "matchPercent": "Übereinstimmung %",
     "foilOption": "Foil",
-    "nonFoilOption": "Nicht-Foil"
+    "nonFoilOption": "Nicht-Foil",
+    "marketValueUsd": "Marktwert (USD)",
+    "marketValueEur": "Marktwert (EUR)"
   }
 }
