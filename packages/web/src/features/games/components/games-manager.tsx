@@ -13,7 +13,16 @@ import {
 import type { GameFormValues } from "@/schemas/games.schema";
 import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import type { Game } from "@magic-vault/shared";
-import { IconPencil, IconPlus, IconTrash } from "@tabler/icons-react";
+import {
+  buildGamesExport,
+  downloadGamesExport,
+} from "@/features/games/lib/games-export";
+import {
+  IconDownload,
+  IconPencil,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -24,6 +33,7 @@ import {
   toFieldRenames,
   toFoilTypes,
 } from "./game-form-dialog";
+import { GamesTransferMenu } from "./games-transfer-menu";
 
 export function GamesManager() {
   const { t } = useTranslation("games");
@@ -125,10 +135,13 @@ export function GamesManager() {
       heading={t("gamesManager.heading")}
       description={t("gamesManager.description")}
       action={
-        <Button onClick={() => setFormGame(null)}>
-          <IconPlus size={14} />
-          {t("addGame")}
-        </Button>
+        <div className="flex items-center gap-2">
+          <GamesTransferMenu games={gamesQuery.data ?? []} />
+          <Button onClick={() => setFormGame(null)}>
+            <IconPlus size={14} />
+            {t("addGame")}
+          </Button>
+        </div>
       }
     >
       <div className="divide-y rounded-lg border empty:hidden">
@@ -154,6 +167,16 @@ export function GamesManager() {
               </p>
             </div>
             <ButtonGroup>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={() =>
+                  downloadGamesExport(buildGamesExport([game]), game.key)
+                }
+                title={t("gamesManager.exportTitle")}
+              >
+                <IconDownload size={14} />
+              </Button>
               <Button
                 size="icon"
                 variant="outline"
