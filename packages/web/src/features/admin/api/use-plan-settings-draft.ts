@@ -2,6 +2,7 @@ import {
   planConfigQueryOptions,
   savePlanConfig,
 } from "@/features/admin/api/plans";
+import { billingKeys } from "@/features/billing/api/billing";
 import { toast } from "@/lib/toast";
 import {
   createPlanSettingsSchema,
@@ -34,6 +35,7 @@ export function usePlanSettingsDraft() {
       }
       queryClient.setQueryData(planConfigQueryOptions.queryKey, result.data);
       form.reset(result.data.config);
+      void queryClient.invalidateQueries({ queryKey: billingKeys.root() });
       toast.success(t("plans.saved"));
     } catch {
       toast.error(t("plans.saveFailed"));

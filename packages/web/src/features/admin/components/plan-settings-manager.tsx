@@ -93,7 +93,7 @@ export function PlanSettingsManager() {
                   render={({ field }) => (
                     <Switch
                       aria-label={`${t(`plans.features.${feature}.label`)}: ${t(`plans.planNames.${plan}`)}`}
-                      checked={field.value}
+                      checked={field.value === true}
                       onCheckedChange={field.onChange}
                     />
                   )}
@@ -135,7 +135,7 @@ export function PlanSettingsManager() {
                         <PlanLimitInput
                           id={`plan-${plan}-${limit}`}
                           label={`${t(`plans.limits.${limit}.label`)}: ${t(`plans.planNames.${plan}`)}`}
-                          value={field.value}
+                          value={field.value ?? null}
                           fallback={
                             data.defaults[plan].limits[limit] ??
                             PLAN_LIMIT_FALLBACK
