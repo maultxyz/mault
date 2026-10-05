@@ -42,6 +42,7 @@ import {
   removeCollectionCard,
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
+  setCollectionCardBin,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -60,11 +61,13 @@ import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
+import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
 import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import type {
+  BinCorrection,
   LastRoutedBin,
   ScannedCardsContextValue,
 } from "@/lib/interfaces/scanner";
@@ -199,6 +202,9 @@ export function ScannedCardsProvider({
   const [lastRoutedBin, setLastRoutedBin] = useState<LastRoutedBin | null>(
     null,
   );
+  const [binCorrection, setBinCorrection] = useState<BinCorrection | null>(
+    null,
+  );
 
   const {
     autoFeed,
@@ -290,6 +296,40 @@ export function ScannedCardsProvider({
       );
     },
     [isBinFullLocally],
+  );
+
+  const resolveCorrectedBin = useCallback(
+    (
+      ruleCard: PlayingCardWithDistance,
+      currentBinNumber: number | undefined,
+    ): BinConfig | undefined => {
+      const configs = binConfigsRef.current;
+      if (selectedSetRef.current?.isChaosMode) {
+        const currentBin = configs.find(
+          (bin) => bin.binNumber === currentBinNumber,
+        );
+        if (currentBin && !currentBin.isCatchAll) return currentBin;
+      }
+      const autoTarget = selectedSetRef.current?.isRepackMode
+        ? null
+        : findAutoAssignTarget(
+            ruleCard,
+            configs,
+            fieldDefinitionsRef.current,
+            autoAssignFieldRef.current,
+          );
+      if (!autoTarget) return resolveMatchedBin(ruleCard);
+      binConfigsRef.current = configs.map((c) =>
+        c.binNumber === autoTarget.binNumber
+          ? { ...c, rules: autoTarget.rules }
+          : c,
+      );
+      saveBinConfig(autoTarget.binNumber, autoTarget.rules);
+      return binConfigsRef.current.find(
+        (c) => c.binNumber === autoTarget.binNumber,
+      );
+    },
+    [resolveMatchedBin, saveBinConfig],
   );
 
   const tracksBinContents = useCallback(
@@ -771,13 +811,27 @@ export function ScannedCardsProvider({
           ];
         }
         void invalidateCollectionCards(queryClient, collection.guid);
+        const targetBin = resolveCorrectedBin(
+          toRuleCard(
+            { ...card, distance: 0, confidence: 1 },
+            { isFoil: added.isFoil, foilType: added.foilType },
+          ),
+          added.binNumber,
+        );
+        setBinCorrection({
+          id: generateScanId(),
+          scanId,
+          cardName: card.name,
+          currentBin: added.binNumber,
+          targetBin: targetBin?.binNumber,
+        });
         return true;
       } catch (err) {
         console.error("Failed to identify unmatched card:", err);
         return false;
       }
     },
-    [queryClient],
+    [resolveCorrectedBin, queryClient],
   );
 
   const removeCards = useCallback(
@@ -824,57 +878,59 @@ export function ScannedCardsProvider({
         isFoil: scan?.isFoil,
         foilType: scan?.foilType,
       });
-      let matchedBin = resolveMatchedBin(ruleCard);
-      const autoTarget = selectedSetRef.current?.isRepackMode
-        ? null
-        : findAutoAssignTarget(
-            ruleCard,
-            binConfigsRef.current,
-            fieldDefinitionsRef.current,
-            autoAssignFieldRef.current,
-          );
-      if (autoTarget) {
-        binConfigsRef.current = binConfigsRef.current.map((c) =>
-          c.binNumber === autoTarget.binNumber
-            ? { ...c, rules: autoTarget.rules }
-            : c,
-        );
-        matchedBin = binConfigsRef.current.find(
-          (c) => c.binNumber === autoTarget.binNumber,
-        );
-        saveBinConfig(autoTarget.binNumber, autoTarget.rules);
-      }
-      binContentsRef.current = binContentsRef.current.flatMap((entry) => {
-        if (entry.scanId !== scanId) return [entry];
-        return matchedBin
-          ? [{ ...entry, card: ruleCard, binNumber: matchedBin.binNumber }]
-          : [];
+      const currentBin = scan?.binNumber;
+      const targetBin = resolveCorrectedBin(ruleCard, currentBin);
+      binContentsRef.current = binContentsRef.current.map((entry) =>
+        entry.scanId === scanId ? { ...entry, card: ruleCard } : entry,
+      );
+      setBinCorrection({
+        id: generateScanId(),
+        scanId,
+        cardName: card.name,
+        currentBin,
+        targetBin: targetBin?.binNumber,
       });
       if (!collection) return;
       updateInCardPages(
         queryClient,
         collection.guid,
         new Set([scanId]),
-        (entry) => ({
-          ...entry,
-          card: corrected,
-          binNumber: matchedBin?.binNumber,
-          corrected: true,
-        }),
+        (entry) => ({ ...entry, card: corrected, corrected: true }),
       );
-      updateCollectionCard(
-        collection.guid,
-        scanId,
-        corrected,
-        matchedBin?.binNumber,
-      )
+      updateCollectionCard(collection.guid, scanId, corrected, currentBin)
         .catch((err) => console.error("Failed to update card:", err))
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [saveBinConfig, resolveMatchedBin, queryClient],
+    [resolveCorrectedBin, queryClient],
   );
+
+  const moveCorrectedCard = useCallback(
+    ({ scanId, targetBin }: BinCorrection) => {
+      setBinCorrection(null);
+      const collection = activeCollectionRef.current;
+      if (targetBin == null) return;
+      binContentsRef.current = binContentsRef.current.map((entry) =>
+        entry.scanId === scanId ? { ...entry, binNumber: targetBin } : entry,
+      );
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, binNumber: targetBin }),
+      );
+      setCollectionCardBin(collection.guid, scanId, targetBin)
+        .catch((err) => console.error("Failed to move card:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
+  const dismissBinCorrection = useCallback(() => setBinCorrection(null), []);
 
   const confirmCard = useCallback(
     (scanId: string) => {
@@ -998,6 +1054,11 @@ export function ScannedCardsProvider({
       }}
     >
       {children}
+      <BinCorrectionDialog
+        correction={binCorrection}
+        onMoved={moveCorrectedCard}
+        onClose={dismissBinCorrection}
+      />
     </ScannedCardsContext>
   );
 }

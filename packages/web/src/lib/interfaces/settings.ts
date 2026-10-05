@@ -21,3 +21,9 @@ export interface OcrToggleProps {
   disabled?: boolean;
   onCheckedChange: (checked: boolean) => void;
 }
+
+export interface CorrectionAutoCloseSettingProps {
+  value: number | null;
+  disabled?: boolean;
+  onChange: (seconds: number | null) => void;
+}

@@ -49,5 +49,13 @@
   "draft": {
     "saved": "Paramètres enregistrés.",
     "saveFailed": "Impossible d'enregistrer tes paramètres. Réessaie."
+  },
+  "correctionAutoClose": {
+    "heading": "Invite après correction",
+    "description": "Après avoir corrigé ou identifié une carte, une invite indique dans quel bac elle se trouve et dans quel bac elle va. La fermeture automatique considère la carte comme déplacée à la fin du délai, sans clic.",
+    "toggleLabel": "Fermer automatiquement et marquer comme déplacée",
+    "secondsLabel": "Fermer après",
+    "seconds_one": "{{count}} seconde",
+    "seconds_other": "{{count}} secondes"
   }
 }

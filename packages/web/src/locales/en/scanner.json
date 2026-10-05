@@ -510,5 +510,36 @@
       "error": "Offline",
       "closed": "Offline"
     }
+  },
+  "binCorrection": {
+    "bin": "Bin {{number}}",
+    "noBinValue": "None",
+    "currentLabel": "Now in",
+    "targetLabel": "Belongs in",
+    "move": {
+      "title": "Move {{name}} to Bin {{to}}",
+      "description": "It's in Bin {{from}} now, but after the correction it belongs in Bin {{to}}. Move it, then confirm so the bin counts stay right.",
+      "descriptionNoBin": "After the correction it belongs in Bin {{to}}. Put it there, then confirm so the bin counts stay right."
+    },
+    "staysIn": {
+      "title": "{{name}} stays in Bin {{bin}}",
+      "description": "It's already in the right bin, so there's nothing to move."
+    },
+    "noBin": {
+      "title": "No bin matches {{name}}",
+      "description": "None of your bins take this card, so leave it where it is."
+    },
+    "moved": "I moved it to Bin {{bin}}",
+    "leave": "Leave it in Bin {{bin}}",
+    "notNow": "Not now",
+    "ok": "OK",
+    "autoClose": {
+      "countdownMoved_one": "Marking it as moved in {{count}} second",
+      "countdownMoved_other": "Marking it as moved in {{count}} seconds",
+      "countdown_one": "Closing in {{count}} second",
+      "countdown_other": "Closing in {{count}} seconds",
+      "doneMoved": "Marked as moved",
+      "done": "Done"
+    }
   }
 }

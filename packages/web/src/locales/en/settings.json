@@ -55,5 +55,13 @@
   "draft": {
     "saved": "Settings saved.",
     "saveFailed": "Couldn't save your settings. Try again."
+  },
+  "correctionAutoClose": {
+    "heading": "Card correction prompt",
+    "description": "After you correct or identify a card, a prompt shows which bin it's in and which bin it belongs in. Auto-close accepts that you moved the card once the time runs out, so you don't have to click.",
+    "toggleLabel": "Auto-close and mark the card as moved",
+    "secondsLabel": "Close after",
+    "seconds_one": "{{count}} second",
+    "seconds_other": "{{count}} seconds"
   }
 }

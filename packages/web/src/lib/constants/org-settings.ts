@@ -7,6 +7,7 @@ export interface OrgSettings {
   discordScanUseThreads: boolean;
   sessionWrappedEnabled: boolean;
   ocrEnabled: boolean;
+  correctionAutoCloseSeconds: number | null;
   priceSource: PriceSource;
   discordGuildId: string | null;
 }
@@ -18,6 +19,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   discordScanUseThreads: true,
   sessionWrappedEnabled: true,
   ocrEnabled: false,
+  correctionAutoCloseSeconds: null,
   priceSource: DEFAULT_PRICE_SOURCE,
   discordGuildId: null,
 };

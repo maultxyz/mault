@@ -104,6 +104,16 @@ export async function updateCollectionCard(
   });
 }
 
+export async function setCollectionCardBin(
+  guid: string,
+  scanId: string,
+  binNumber: number,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    binNumber,
+  });
+}
+
 export async function confirmCollectionCard(
   guid: string,
   scanId: string,

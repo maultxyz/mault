@@ -49,5 +49,13 @@
   "draft": {
     "saved": "Einstellungen gespeichert.",
     "saveFailed": "Deine Einstellungen konnten nicht gespeichert werden. Versuch es erneut."
+  },
+  "correctionAutoClose": {
+    "heading": "Hinweis nach Kartenkorrektur",
+    "description": "Nach dem Korrigieren oder Zuordnen einer Karte zeigt ein Hinweis, in welchem Fach sie liegt und in welches sie gehört. Mit automatischem Schließen gilt die Karte nach Ablauf der Zeit als umgelegt, ohne Klick.",
+    "toggleLabel": "Automatisch schließen und als umgelegt markieren",
+    "secondsLabel": "Schließen nach",
+    "seconds_one": "{{count}} Sekunde",
+    "seconds_other": "{{count}} Sekunden"
   }
 }

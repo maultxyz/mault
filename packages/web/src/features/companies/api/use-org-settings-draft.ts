@@ -24,6 +24,7 @@ function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftValues {
     priceSource: settings.priceSource,
     sessionWrappedEnabled: settings.sessionWrappedEnabled,
     ocrEnabled: settings.ocrEnabled,
+    correctionAutoCloseSeconds: settings.correctionAutoCloseSeconds,
   };
 }
 

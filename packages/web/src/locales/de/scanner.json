@@ -510,5 +510,36 @@
       "error": "Offline",
       "closed": "Offline"
     }
+  },
+  "binCorrection": {
+    "bin": "Fach {{number}}",
+    "noBinValue": "Keins",
+    "currentLabel": "Jetzt in",
+    "targetLabel": "Gehört in",
+    "move": {
+      "title": "{{name}} in Fach {{to}} legen",
+      "description": "Die Karte liegt jetzt in Fach {{from}}, gehört nach der Korrektur aber in Fach {{to}}. Leg sie um und bestätige es, damit die Fachzählung stimmt.",
+      "descriptionNoBin": "Nach der Korrektur gehört die Karte in Fach {{to}}. Leg sie dort hinein und bestätige es, damit die Fachzählung stimmt."
+    },
+    "staysIn": {
+      "title": "{{name}} bleibt in Fach {{bin}}",
+      "description": "Die Karte liegt bereits im richtigen Fach, es muss nichts umgelegt werden."
+    },
+    "noBin": {
+      "title": "Kein Fach passt zu {{name}}",
+      "description": "Keines deiner Fächer nimmt diese Karte auf, lass sie also, wo sie ist."
+    },
+    "moved": "In Fach {{bin}} umgelegt",
+    "leave": "In Fach {{bin}} lassen",
+    "notNow": "Nicht jetzt",
+    "ok": "OK",
+    "autoClose": {
+      "countdownMoved_one": "Wird in {{count}} Sekunde als umgelegt markiert",
+      "countdownMoved_other": "Wird in {{count}} Sekunden als umgelegt markiert",
+      "countdown_one": "Schließt in {{count}} Sekunde",
+      "countdown_other": "Schließt in {{count}} Sekunden",
+      "doneMoved": "Als umgelegt markiert",
+      "done": "Fertig"
+    }
   }
 }

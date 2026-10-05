@@ -1,4 +1,7 @@
-import { toPriceSource } from "@magic-vault/shared";
+import {
+  toCorrectionAutoCloseSeconds,
+  toPriceSource,
+} from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -28,6 +31,9 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
             discordScanUseThreads: row?.discordScanUseThreads ?? true,
             sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
             ocrEnabled: row?.ocrEnabled ?? false,
+            correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
+              row?.correctionAutoCloseSeconds,
+            ),
             priceSource: toPriceSource(row?.priceSource),
             discordGuildId: row?.discordGuildId ?? null,
           },

@@ -8,7 +8,7 @@ import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toScannedCard } from "./shared";
 
-// PUT /collections/:guid/cards/:scanId — update card (correction and/or foil status)
+// PUT /collections/:guid/cards/:scanId — update card (correction, bin and/or foil status)
 export const editCollectionCardRoute = new Hono<AppEnv>().put(
   "/:guid/cards/:scanId",
   requireAuth,
@@ -46,6 +46,8 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           updates.cardId = card.id;
           updates.binNumber = binNumber ?? null;
           updates.isCorrected = true;
+        } else if (binNumber !== undefined) {
+          updates.binNumber = binNumber;
         }
         if (confirmed) updates.isCorrected = true;
         if (isFoil !== undefined) updates.isFoil = isFoil;
@@ -63,7 +65,9 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             card: (card ?? existing.card) as PlayingCardWithDistance,
             scannedAt: existing.scannedAt,
             binNumber:
-              card !== undefined ? (binNumber ?? null) : existing.binNumber,
+              card !== undefined || binNumber !== undefined
+                ? (binNumber ?? null)
+                : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
             isCorrected:

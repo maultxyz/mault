@@ -1,4 +1,8 @@
-import { isPriceSource, toPriceSource } from "@magic-vault/shared";
+import {
+  isPriceSource,
+  toCorrectionAutoCloseSeconds,
+  toPriceSource,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
@@ -18,8 +22,18 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       discordScanUseThreads?: boolean;
       sessionWrappedEnabled?: boolean;
       ocrEnabled?: boolean;
+      correctionAutoCloseSeconds?: number | null;
       priceSource?: string;
     }>();
+    if (
+      body.correctionAutoCloseSeconds != null &&
+      toCorrectionAutoCloseSeconds(body.correctionAutoCloseSeconds) == null
+    ) {
+      return c.json(
+        { success: false, message: "Invalid auto-close time." },
+        400,
+      );
+    }
     if ("priceSource" in body && !isPriceSource(body.priceSource)) {
       return c.json(
         { success: false, message: "Invalid price source." },
@@ -57,6 +71,11 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             "ocrEnabled" in body
               ? (body.ocrEnabled ?? false)
               : (existing?.ocrEnabled ?? false),
+          correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
+            "correctionAutoCloseSeconds" in body
+              ? body.correctionAutoCloseSeconds
+              : existing?.correctionAutoCloseSeconds,
+          ),
           priceSource: toPriceSource(
             "priceSource" in body ? body.priceSource : existing?.priceSource,
           ),
@@ -81,6 +100,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             discordScanUseThreads: merged.discordScanUseThreads,
             sessionWrappedEnabled: merged.sessionWrappedEnabled,
             ocrEnabled: merged.ocrEnabled,
+            correctionAutoCloseSeconds: merged.correctionAutoCloseSeconds,
             priceSource: merged.priceSource,
             discordGuildId: existing?.discordGuildId ?? null,
           },

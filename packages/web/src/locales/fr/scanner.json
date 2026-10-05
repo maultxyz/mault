@@ -510,5 +510,36 @@
       "error": "Hors ligne",
       "closed": "Hors ligne"
     }
+  },
+  "binCorrection": {
+    "bin": "Bac {{number}}",
+    "noBinValue": "Aucun",
+    "currentLabel": "Actuellement",
+    "targetLabel": "Destination",
+    "move": {
+      "title": "Déplacez {{name}} dans le bac {{to}}",
+      "description": "La carte est dans le bac {{from}}, mais après la correction elle va dans le bac {{to}}. Déplacez-la, puis confirmez pour que le compte des bacs reste juste.",
+      "descriptionNoBin": "Après la correction, la carte va dans le bac {{to}}. Placez-la dedans, puis confirmez pour que le compte des bacs reste juste."
+    },
+    "staysIn": {
+      "title": "{{name}} reste dans le bac {{bin}}",
+      "description": "La carte est déjà dans le bon bac, rien à déplacer."
+    },
+    "noBin": {
+      "title": "Aucun bac ne correspond à {{name}}",
+      "description": "Aucun de vos bacs ne prend cette carte, laissez-la où elle est."
+    },
+    "moved": "Déplacée dans le bac {{bin}}",
+    "leave": "La laisser dans le bac {{bin}}",
+    "notNow": "Plus tard",
+    "ok": "OK",
+    "autoClose": {
+      "countdownMoved_one": "Marquée comme déplacée dans {{count}} seconde",
+      "countdownMoved_other": "Marquée comme déplacée dans {{count}} secondes",
+      "countdown_one": "Fermeture dans {{count}} seconde",
+      "countdown_other": "Fermeture dans {{count}} secondes",
+      "doneMoved": "Marquée comme déplacée",
+      "done": "Terminé"
+    }
   }
 }

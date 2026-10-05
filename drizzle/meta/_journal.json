@@ -589,6 +589,13 @@
       "when": 1791156258545,
       "tag": "0083_gifted_blink",
       "breakpoints": true
+    },
+    {
+      "idx": 84,
+      "version": "7",
+      "when": 1791226230637,
+      "tag": "0084_chief_ego",
+      "breakpoints": true
     }
   ]
 }

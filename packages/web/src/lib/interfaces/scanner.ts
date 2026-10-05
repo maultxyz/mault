@@ -624,3 +624,28 @@ export interface ForcedSetOptionProps {
   active: boolean;
   onSelect: () => void;
 }
+
+export interface BinCorrection {
+  id: string;
+  scanId: string;
+  cardName: string;
+  currentBin?: number;
+  targetBin?: number;
+}
+
+export interface BinCorrectionDialogProps {
+  correction: BinCorrection | null;
+  onMoved: (correction: BinCorrection) => void;
+  onClose: () => void;
+}
+
+export interface CorrectionAutoCloseTimerProps {
+  seconds: number;
+  willMove: boolean;
+  onElapsed: () => void;
+}
+
+export interface BinCorrectionTileProps {
+  label: string;
+  bin: number | undefined;
+}

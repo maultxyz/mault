@@ -576,6 +576,7 @@ export const orgSettings = pgTable(
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),
+    correctionAutoCloseSeconds: integer("correction_auto_close_seconds"),
     priceSource: text("price_source").notNull().default("tcgplayer"),
     discordGuildId: text("discord_guild_id"),
     discordLinkCode: text("discord_link_code"),

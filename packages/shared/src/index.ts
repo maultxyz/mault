@@ -24,6 +24,7 @@ export * from "./interfaces/scan-rule-fields.interface";
 export * from "./interfaces/storage-locations.interface";
 export * from "./interfaces/plans.interface";
 
+export * from "./constants/bin-correction.constant";
 export * from "./constants/collection-cards.constant";
 export * from "./constants/firmware.constant";
 export * from "./constants/module-configs.constant";
