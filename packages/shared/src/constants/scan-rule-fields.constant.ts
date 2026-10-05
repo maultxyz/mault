@@ -5,6 +5,8 @@ export const SCAN_RULE_ROOT = "$scan";
 export const SCAN_RULE_FOIL_FIELD = "isFoil";
 export const SCAN_RULE_FOIL_TYPE_FIELD = "foilType";
 export const SCAN_RULE_MATCH_PERCENT_FIELD = "matchPercent";
+export const SCAN_RULE_MARKET_VALUE_USD_FIELD = "marketValueUsd";
+export const SCAN_RULE_MARKET_VALUE_EUR_FIELD = "marketValueEur";
 
 export const SCAN_RULE_FOIL_VALUE = "foil";
 export const SCAN_RULE_NON_FOIL_VALUE = "nonfoil";
@@ -27,7 +29,7 @@ export const SCAN_RULE_FOIL_TYPE_OPERATORS: {
   { value: "is_not_null", label: "is not empty" },
 ];
 
-export const SCAN_RULE_MATCH_PERCENT_OPERATORS: {
+export const SCAN_RULE_NUMERIC_OPERATORS: {
   value: ConditionOperator;
   label: string;
 }[] = [
@@ -41,6 +43,8 @@ export const DEFAULT_SCAN_RULE_FIELD_LABELS = {
   foil: "Foil",
   foilType: "Foil type",
   matchPercent: "Match %",
+  marketValueUsd: "Market value (USD)",
+  marketValueEur: "Market value (EUR)",
   foilOption: "Foil",
   nonFoilOption: "Non-foil",
 };

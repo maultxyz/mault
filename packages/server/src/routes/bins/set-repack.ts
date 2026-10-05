@@ -1,10 +1,14 @@
-import type { RepackSlot } from "@magic-vault/shared";
+import type { BinRuleGroup, RepackSlot } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { clearAllBinRules, loadSets, snapshotBinSet } from "./shared";
+
+function toSiftRules(rules: BinRuleGroup | null): BinRuleGroup | null {
+  return rules && rules.conditions.length > 0 ? rules : null;
+}
 
 export const setRepackRoute = new Hono<AppEnv>().put(
   "/:guid/repack",
@@ -13,12 +17,17 @@ export const setRepackRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    const { isRepackMode, repackSlots, repackAllowDuplicates } =
-      await c.req.json<{
-        isRepackMode: boolean;
-        repackSlots: RepackSlot[];
-        repackAllowDuplicates: boolean;
-      }>();
+    const {
+      isRepackMode,
+      repackSlots,
+      repackAllowDuplicates,
+      repackSiftRules,
+    } = await c.req.json<{
+      isRepackMode: boolean;
+      repackSlots: RepackSlot[];
+      repackAllowDuplicates: boolean;
+      repackSiftRules?: BinRuleGroup | null;
+    }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const target = await tx.query.binSets.findFirst({
@@ -38,6 +47,9 @@ export const setRepackRoute = new Hono<AppEnv>().put(
             isRepackMode,
             repackSlots,
             repackAllowDuplicates,
+            ...(repackSiftRules !== undefined && {
+              repackSiftRules: toSiftRules(repackSiftRules),
+            }),
             updatedAt: new Date(),
           })
           .where(eq(binSets.id, target.id));

@@ -3,10 +3,14 @@ import { test } from "node:test";
 import {
   countCopiesInBin,
   evaluateCardBin,
+  evaluateRepackBin,
   isBinFull,
+  toRuleCard,
   type BinConfig,
   type BinRuleGroup,
   type FieldMeta,
+  type RepackSlot,
+  withScanRuleFields,
 } from "@magic-vault/shared";
 
 const fields: FieldMeta[] = [
@@ -123,4 +127,70 @@ test("a full override remains the destination so capacity checks can stop scanni
   const matched = evaluateCardBin({ colors: ["W"], prices: { usd: 2 } }, [...colors, full, catchAll], fields);
   assert.equal(matched, full);
   assert.equal(isBinFull([{ binNumber: 6, scannedAt: 1 }], matched!), true);
+});
+
+const repackBins = [1, 2, 3].map((n) => bin(n, []));
+const repackConfigs = [...repackBins, bin(4, [], { isCatchAll: true })];
+const anySlot: RepackSlot = {
+  id: "slot",
+  rule: {
+    id: "slot-rule",
+    combinator: "and",
+    conditions: [{ id: "any", field: "price", operator: "gte", value: 0 }],
+  },
+  targetCount: 10,
+};
+const siftRules: BinRuleGroup = {
+  id: "sift",
+  combinator: "and",
+  conditions: [{ id: "value", field: "marketValueUsd", operator: "gte", value: 5 }],
+};
+const ruleFields = withScanRuleFields(fields, []);
+
+function repack(card: object, rules: BinRuleGroup | null, isFoil = false) {
+  return evaluateRepackBin(
+    toRuleCard(card, { isFoil }),
+    repackConfigs,
+    ruleFields,
+    { repackSlots: [anySlot], repackAllowDuplicates: true, repackSiftRules: rules },
+    () => [],
+  );
+}
+
+test("sift rules send matching cards to the first bin and keep it out of packs", () => {
+  assert.equal(repack({ price: 5, prices: { usd: 5 } }, siftRules), repackBins[0]);
+  assert.equal(repack({ price: 1, prices: { usd: 1 } }, siftRules), repackBins[1]);
+  assert.equal(repack({ prices: { usd: 1 } }, siftRules), repackBins[1]);
+});
+
+test("sift market value uses the foil price for foil scans", () => {
+  const card = { price: 1, priceFoil: 9, prices: { usd: 1 } };
+  assert.equal(repack(card, siftRules, true), repackBins[0]);
+  assert.equal(repack(card, siftRules, false), repackBins[1]);
+});
+
+test("without sift rules every bin builds packs", () => {
+  assert.equal(repack({ price: 50, prices: { usd: 50 } }, null), repackBins[0]);
+  assert.equal(
+    repack({ price: 50, prices: { usd: 50 } }, { ...siftRules, conditions: [] }),
+    repackBins[0],
+  );
+});
+
+test("the sift bin skips disabled bins", () => {
+  const configsWithDisabled = [
+    { ...repackBins[0], isDisabled: true },
+    ...repackBins.slice(1),
+    repackConfigs[3],
+  ];
+  assert.equal(
+    evaluateRepackBin(
+      toRuleCard({ price: 9, prices: { usd: 9 } }, {}),
+      configsWithDisabled,
+      ruleFields,
+      { repackSlots: [anySlot], repackAllowDuplicates: true, repackSiftRules: siftRules },
+      () => [],
+    ),
+    configsWithDisabled[1],
+  );
 });

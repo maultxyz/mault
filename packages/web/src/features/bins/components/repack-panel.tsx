@@ -18,7 +18,11 @@ import {
   type RepackConfigFormValues,
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { BinRuleGroup, RepackSlot } from "@magic-vault/shared";
+import {
+  type BinRuleGroup,
+  getRepackSiftBin,
+  type RepackSlot,
+} from "@magic-vault/shared";
 import { IconInfoCircle, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -35,6 +39,7 @@ function createSlot(): RepackSlot {
 export function RepackPanel() {
   const { t } = useTranslation("bins");
   const {
+    configs,
     selectedSet,
     isPresetMutating,
     setRepackConfig,
@@ -46,6 +51,7 @@ export function RepackPanel() {
     resolver: zodResolver(repackConfigSchema),
     defaultValues: {
       repackAllowDuplicates: false,
+      repackSiftRules: null,
       repackSlots: [createSlot()],
     },
   });
@@ -54,6 +60,7 @@ export function RepackPanel() {
     if (!selectedSet) return;
     form.reset({
       repackAllowDuplicates: selectedSet.repackAllowDuplicates,
+      repackSiftRules: selectedSet.repackSiftRules,
       repackSlots:
         selectedSet.repackSlots.length > 0
           ? selectedSet.repackSlots
@@ -70,12 +77,15 @@ export function RepackPanel() {
           isRepackMode: true,
           repackSlots: values.repackSlots,
           repackAllowDuplicates: values.repackAllowDuplicates,
+          repackSiftRules: values.repackSiftRules,
         });
         if (saved) form.reset(values);
       } catch {}
     },
     [setRepackConfig, form],
   );
+
+  const siftBin = getRepackSiftBin(configs);
 
   if (isModeDirty) return null;
 
@@ -89,10 +99,7 @@ export function RepackPanel() {
         className="flex flex-col gap-3"
         data-tour="repack-panel"
       >
-        <div
-          className="flex items-center gap-2"
-          data-tour="repack-duplicates"
-        >
+        <div className="flex items-center gap-2" data-tour="repack-duplicates">
           <Controller
             name="repackAllowDuplicates"
             control={form.control}
@@ -116,6 +123,48 @@ export function RepackPanel() {
             </Tooltip>
           </span>
         </div>
+
+        <Controller
+          name="repackSiftRules"
+          control={form.control}
+          render={({ field }) => (
+            <div className="flex flex-col gap-2" data-tour="repack-sift">
+              <div className="flex items-center gap-2">
+                <Switch
+                  aria-label={t("repackPanel.siftLabel")}
+                  checked={field.value != null}
+                  onCheckedChange={(checked) =>
+                    field.onChange(checked ? emptyRuleGroup() : null)
+                  }
+                />
+                <span className="flex items-center gap-1.5">
+                  <FieldLabel>{t("repackPanel.siftLabel")}</FieldLabel>
+                  <Tooltip>
+                    <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                      <IconInfoCircle className="size-3.5" />
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-xs">
+                      {t("repackPanel.siftDescription")}
+                    </TooltipContent>
+                  </Tooltip>
+                </span>
+              </div>
+              {field.value != null && (
+                <div className="rounded-lg border p-2.5 flex flex-col gap-2">
+                  <p className="text-2xs text-foreground/70">
+                    {siftBin
+                      ? t("repackPanel.siftHint", { bin: siftBin.binNumber })
+                      : t("repackPanel.siftNoBin")}
+                  </p>
+                  <RuleGroupEditor
+                    group={field.value}
+                    onChange={field.onChange}
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        />
 
         <Controller
           name="repackSlots"
@@ -185,9 +234,7 @@ export function RepackPanel() {
                   variant="outline"
                   size="sm"
                   data-tour="repack-add-slot"
-                  onClick={() =>
-                    field.onChange([...field.value, createSlot()])
-                  }
+                  onClick={() => field.onChange([...field.value, createSlot()])}
                 >
                   <IconPlus /> {t("repackPanel.addSlot")}
                 </Button>

@@ -123,7 +123,11 @@
     "allowDuplicatesDescription": "Si désactivé, une carte déjà présente dans un pack donné est ignorée pour ce bac (elle peut quand même démarrer un autre pack qui ne l'a pas encore) au lieu d'être ajoutée à nouveau.",
     "slotsLabel": "Créneaux du pack",
     "slotCountLabel": "Nombre",
-    "addSlot": "Ajouter un créneau"
+    "addSlot": "Ajouter un créneau",
+    "siftLabel": "Mettre des cartes de côté",
+    "siftDescription": "Les cartes qui correspondent aux règles ci-dessous vont dans le premier bac au lieu d'un paquet. Vous pouvez ainsi mettre de côté les cartes à garder (par valeur, rareté, édition ou autre) pendant que les autres bacs forment des paquets avec le reste.",
+    "siftHint": "Les cartes qui correspondent à ces règles vont dans le bac {{bin}}. Les autres bacs forment des paquets avec le reste.",
+    "siftNoBin": "Ce tri nécessite au moins un bac activé en plus du bac fourre-tout."
   },
   "alphabetPanel": {
     "heading": "Trier par ordre alphabétique",
@@ -179,6 +183,8 @@
     "foilType": "Type de foil",
     "matchPercent": "Correspondance %",
     "foilOption": "Foil",
-    "nonFoilOption": "Non foil"
+    "nonFoilOption": "Non foil",
+    "marketValueUsd": "Valeur marchande (USD)",
+    "marketValueEur": "Valeur marchande (EUR)"
   }
 }
