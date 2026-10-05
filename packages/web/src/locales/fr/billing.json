@@ -2,11 +2,14 @@
   "plan": {
     "free": "Gratuit",
     "business": "Entreprise",
-    "label": "Plan"
+    "label": "Plan",
+    "scansToday": "{{used}}/{{limit}} aujourd'hui"
   },
   "planFooterTooltip": {
     "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
-    "business": "Plan Entreprise. Clique pour gérer la facturation."
+    "business": "Plan Entreprise. Clique pour gérer la facturation.",
+    "freeUnlimited": "Plan gratuit. Clique pour voir ton plan.",
+    "businessLimited": "Plan Entreprise · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour gérer la facturation."
   },
   "includes": "Ton plan comprend",
   "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",

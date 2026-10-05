@@ -2,11 +2,14 @@
   "plan": {
     "free": "Free",
     "business": "Business",
-    "label": "Plan"
+    "label": "Plan",
+    "scansToday": "{{used}}/{{limit}} today"
   },
   "planFooterTooltip": {
     "free": "Free plan · {{used}} of {{limit}} cards scanned today. Click to upgrade.",
-    "business": "Business plan. Click to manage billing."
+    "business": "Business plan. Click to manage billing.",
+    "freeUnlimited": "Free plan. Click to see your plan.",
+    "businessLimited": "Business plan · {{used}} of {{limit}} cards scanned today. Click to manage billing."
   },
   "includes": "Your plan includes",
   "usage": "{{used}} / {{limit}} cards scanned today",
