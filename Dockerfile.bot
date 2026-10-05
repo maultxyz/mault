@@ -1,4 +1,4 @@
-FROM node:20-slim
+FROM node:26-slim
 RUN npm install -g corepack && corepack enable && corepack prepare pnpm@latest --activate
 
 WORKDIR /app
