@@ -348,9 +348,6 @@
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
-    "confirmTitle": "Vider le bac {{bin}} ?",
-    "confirmDescription": "Ceci remet à zéro le compteur de remplissage du bac {{bin}}. Assure-toi d'avoir vidé le bac physiquement au préalable, cette action ne déplace rien pour toi.",
-    "confirmButton": "Vider le bac",
     "binLabel": "Bac {{bin}}",
     "catchAll": "Fourre-tout",
     "disabled": "Off",
@@ -400,8 +397,8 @@
   },
   "binLimitDialog": {
     "title": "Le bac {{number}} est plein",
-    "description": "Le bac {{number}} a atteint sa limite de {{limit}} cartes. Retirez les cartes du bac, puis continuez le scan.",
-    "continueButton": "J'ai vidé le bac, continuer"
+    "description": "Le bac {{number}} a atteint sa limite de {{limit}} cartes, le scan est donc en pause. Sortez les cartes, choisissez où vous les rangez si vous voulez l'enregistrer, puis continuez.",
+    "notNow": "Plus tard"
   },
   "feederEmpty": {
     "title": "Chargeur vide",
@@ -512,6 +509,37 @@
       "connecting": "Connexion…",
       "error": "Hors ligne",
       "closed": "Hors ligne"
+    }
+  },
+  "binCorrection": {
+    "bin": "Bac {{number}}",
+    "noBinValue": "Aucun",
+    "currentLabel": "Actuellement",
+    "targetLabel": "Destination",
+    "move": {
+      "title": "Déplacez {{name}} dans le bac {{to}}",
+      "description": "La carte est dans le bac {{from}}, mais après la correction elle va dans le bac {{to}}. Déplacez-la, puis confirmez pour que le compte des bacs reste juste.",
+      "descriptionNoBin": "Après la correction, la carte va dans le bac {{to}}. Placez-la dedans, puis confirmez pour que le compte des bacs reste juste."
+    },
+    "staysIn": {
+      "title": "{{name}} reste dans le bac {{bin}}",
+      "description": "La carte est déjà dans le bon bac, rien à déplacer."
+    },
+    "noBin": {
+      "title": "Aucun bac ne correspond à {{name}}",
+      "description": "Aucun de vos bacs ne prend cette carte, laissez-la où elle est."
+    },
+    "moved": "Déplacée dans le bac {{bin}}",
+    "leave": "La laisser dans le bac {{bin}}",
+    "notNow": "Plus tard",
+    "ok": "OK",
+    "autoClose": {
+      "countdownMoved_one": "Marquée comme déplacée dans {{count}} seconde",
+      "countdownMoved_other": "Marquée comme déplacée dans {{count}} secondes",
+      "countdown_one": "Fermeture dans {{count}} seconde",
+      "countdown_other": "Fermeture dans {{count}} secondes",
+      "doneMoved": "Marquée comme déplacée",
+      "done": "Terminé"
     }
   }
 }

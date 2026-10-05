@@ -2,6 +2,7 @@ import { SectionNav } from "@/components/section-nav";
 import {
   IconBug,
   IconCards,
+  IconCreditCard,
   IconDeviceGamepad2,
   IconRotate360,
   IconSpeakerphone,
@@ -16,6 +17,7 @@ const SECTION_ITEMS = [
   { path: "cards", icon: IconCards, labelKey: "sections.cards" },
   { path: "games", icon: IconDeviceGamepad2, labelKey: "sections.games" },
   { path: "users", icon: IconUserScan, labelKey: "sections.users" },
+  { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
   {
     path: "announcements",
     icon: IconSpeakerphone,

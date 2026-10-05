@@ -9,6 +9,7 @@ export const orgSettingsDraftSchema = z.object({
   ),
   sessionWrappedEnabled: z.boolean(),
   ocrEnabled: z.boolean(),
+  correctionAutoCloseSeconds: z.number().int().positive().nullable(),
 });
 
 export type OrgSettingsDraftValues = z.infer<typeof orgSettingsDraftSchema>;

@@ -1,12 +1,11 @@
-import { PRICING_SHARED_FEATURE_KEYS } from "@/lib/constants/pricing";
-import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
 import { buttonVariants } from "@/components/ui/button";
+import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
+import { PlanBullets } from "@/features/landing/components/plan-bullets";
+import { DEFAULT_PUBLIC_PLAN_CONFIG } from "@/lib/constants/pricing";
 import { cn } from "@/lib/utils";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
-import { IconCheck } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
 
 function formatPrice(amount: number, currency: string, locale: string) {
   const fractionDigits = amount % 100 === 0 ? 0 : 2;
@@ -21,6 +20,9 @@ function formatPrice(amount: number, currency: string, locale: string) {
 export function LandingPricing() {
   const { t, i18n } = useTranslation("landing");
   const pricing = usePublicPricing();
+  const plans = pricing?.plans ?? DEFAULT_PUBLIC_PLAN_CONFIG;
+  const maxConnectedSorters =
+    pricing?.maxConnectedSorters ?? MAX_CONNECTED_SORTERS;
 
   const businessPrice = pricing?.business
     ? formatPrice(
@@ -55,40 +57,10 @@ export function LandingPricing() {
                 {t("pricing.free.description")}
               </p>
             </div>
-            <ul className="flex flex-1 flex-col gap-2.5">
-              <li className="flex items-start gap-2 text-sm">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.free.scanLimit", {
-                  limit: pricing?.freeDailyScanLimit ?? 50,
-                })}
-              </li>
-              <li className="flex items-start gap-2 text-sm">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.free.sorters", {
-                  count: pricing?.freeMaxConnectedSorters ?? 1,
-                })}
-              </li>
-              <li className="flex items-start gap-2 text-sm">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.free.soundRules", {
-                  count: pricing?.freeMaxSoundRules ?? 1,
-                })}
-              </li>
-              <li className="flex items-start gap-2 text-sm">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.free.notificationRules", {
-                  count: pricing?.freeMaxNotificationRules ?? 1,
-                })}
-              </li>
-              {PRICING_SHARED_FEATURE_KEYS.map((key) => (
-                <li key={key} className="flex items-start gap-2 text-sm">
-                  <IconCheck size={16}
-                    className="mt-0.5 shrink-0 text-primary"
-                  />
-                  {t(`pricing.shared.${key}`)}
-                </li>
-              ))}
-            </ul>
+            <PlanBullets
+              settings={plans.free}
+              maxConnectedSorters={maxConnectedSorters}
+            />
             <Link
               to="/auth/sign-up"
               className={cn(buttonVariants({ variant: "outline" }))}
@@ -114,34 +86,11 @@ export function LandingPricing() {
                 {t("pricing.business.description")}
               </p>
             </div>
-            <ul className="flex flex-1 flex-col gap-2.5">
-              <li className="flex items-start gap-2 text-sm font-medium">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.business.unlimitedScans")}
-              </li>
-              <li className="flex items-start gap-2 text-sm font-medium">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.business.sorters", {
-                  count: pricing?.maxConnectedSorters ?? MAX_CONNECTED_SORTERS,
-                })}
-              </li>
-              <li className="flex items-start gap-2 text-sm font-medium">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.business.soundRules")}
-              </li>
-              <li className="flex items-start gap-2 text-sm font-medium">
-                <IconCheck size={16} className="mt-0.5 shrink-0 text-primary" />
-                {t("pricing.business.notificationRules")}
-              </li>
-              {PRICING_SHARED_FEATURE_KEYS.map((key) => (
-                <li key={key} className="flex items-start gap-2 text-sm">
-                  <IconCheck size={16}
-                    className="mt-0.5 shrink-0 text-primary"
-                  />
-                  {t(`pricing.shared.${key}`)}
-                </li>
-              ))}
-            </ul>
+            <PlanBullets
+              settings={plans.business}
+              maxConnectedSorters={maxConnectedSorters}
+              emphasized
+            />
             <Link
               to="/auth/sign-up"
               className={cn(buttonVariants({ variant: "default" }))}

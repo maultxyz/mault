@@ -14,9 +14,12 @@ import {
 } from "../../db/schema";
 import { resolveScanImageUrl } from "../../lib/scan-images";
 import { markScanCorrected } from "../../lib/scan-stats";
-import { consumeDailyScan } from "../../lib/scan-usage";
+import {
+  consumeDailyScan,
+  dailyScanLimitForPlan,
+  dailyScanLimitMessage,
+} from "../../lib/scan-usage";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
-import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
@@ -79,7 +82,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
         if (!(await consumeDailyScan(orgId, plan))) {
           return {
             status: 402 as const,
-            message: `Free plan daily scan limit reached (${FREE_PLAN_DAILY_SCAN_LIMIT}/day). Upgrade to Business for unlimited scanning.`,
+            message: dailyScanLimitMessage(dailyScanLimitForPlan(plan)),
             scanLimitReached: true,
           };
         }

@@ -1,0 +1,92 @@
+{
+  "page": {
+    "title": "Lager",
+    "subtitle": "Wo deine sortierten Karten liegen, Box für Box, in der Reihenfolge, in der sie hineinkamen.",
+    "newLocation": "Neuer Lagerort",
+    "emptyTitle": "Noch keine Lagerorte",
+    "emptyDescription": "Wenn du ein Fach über die Füllstände im Scanner leerst oder ein volles Fach das Scannen pausiert, wähle oder erstelle einen Lagerort, um festzuhalten, wohin die Karten kamen.",
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "rename": "Lagerort umbenennen",
+    "delete": "Lagerort löschen",
+    "deleteTitle": "{{name}} löschen?",
+    "deleteDescription": "Die Karten bleiben in deinen Sammlungen, verlieren aber diesen Lagerort und ihre Position darin.",
+    "summary_one": "{{count}} Karte · {{value}} gesamt",
+    "summary_other": "{{count}} Karten · {{value}} gesamt"
+  },
+  "nameDialog": {
+    "label": "Name",
+    "placeholder": "z. B. Kiste 12",
+    "cancel": "Abbrechen",
+    "create": "Erstellen",
+    "save": "Speichern"
+  },
+  "emptyDialog": {
+    "title": "Fach {{bin}} leeren",
+    "description": "Wähle, wohin die Karten dieses Fachs kommen. Jede Karte wird dort in der Reihenfolge gespeichert, in der sie gescannt wurde, damit du sie später findest.",
+    "locationLabel": "Lagerort",
+    "placeholder": "Lagerort wählen",
+    "newLocation": "Neuer Lagerort…",
+    "noLocation": "Keinen Lagerort speichern",
+    "newLocationName": "Name des neuen Lagerorts",
+    "newLocationPlaceholder": "z. B. Kiste 12",
+    "cancel": "Abbrechen",
+    "confirm": "Fach leeren",
+    "allFullDescription": "Alle Fächer sind voll, deshalb ist das Scannen pausiert. Nimm die Karten aus Fach {{bin}} und wähle, wohin sie kommen. Jede Karte wird dort in der Reihenfolge erfasst, in der sie gescannt wurde.",
+    "notNow": "Nicht jetzt",
+    "stepTitle": "Fach {{bin}} leeren ({{index}} von {{total}})",
+    "confirmNext": "Fach leeren, weiter",
+    "confirmResume": "Fach leeren und fortsetzen",
+    "lockedDescription": "Damit wird der Füllzähler von Fach {{bin}} auf null gesetzt. Nimm die Karten vorher heraus."
+  },
+  "cards": {
+    "position": "#{{position}}",
+    "foil": "Foil",
+    "emptyTitle": "Hier ist nichts gelagert",
+    "emptyDescription": "Karten erscheinen hier, sobald ein Fach in diesen Lagerort geleert wird.",
+    "remove": "Aus Lagerort entfernen",
+    "nonFoil": "Nicht-Foil",
+    "columns": {
+      "position": "#",
+      "location": "Lagerort",
+      "image": "Bild",
+      "name": "Name",
+      "set": "Set",
+      "number": "Nummer",
+      "finish": "Ausführung",
+      "collection": "Sammlung",
+      "price": "Preis",
+      "actions": "Aktionen"
+    }
+  },
+  "cardLocation": {
+    "heading": "Lager",
+    "value": "{{name}} · #{{position}}",
+    "remove": "Aus Box entfernen"
+  },
+  "toasts": {
+    "failed": "Lagerorte konnten nicht aktualisiert werden",
+    "cardRemoved": "Karte aus ihrem Lagerort entfernt"
+  },
+  "removeDialog": {
+    "title": "{{name}} aus {{location}} entfernen?",
+    "thisCard": "Diese Karte",
+    "description": "Nutze das, wenn du die Karte herausgenommen hast, zum Beispiel weil du sie verkauft oder in ein Deck gesteckt hast. Sie bleibt in deiner Sammlung, und ihr Platz in der Box bleibt leer.",
+    "confirm": "Entfernen"
+  },
+  "search": {
+    "placeholder": "Karten in allen Lagerorten suchen",
+    "openLocation": "Diesen Lagerort anzeigen",
+    "emptyTitle": "Keine Karten gefunden",
+    "emptyDescription": "Nichts Gelagertes passt zu \"{{query}}\".",
+    "count_one": "{{count}} Karte gefunden",
+    "count_other": "{{count}} Karten gefunden",
+    "limited": "Die ersten {{count}} Karten werden angezeigt. Gib mehr vom Namen ein, um die Suche einzugrenzen."
+  },
+  "upgrade": {
+    "businessOnly": "Lagerorte sind Teil des Business-Tarifs.",
+    "link": "Upgraden",
+    "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
+    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht Business."
+  }
+}

@@ -7,6 +7,7 @@
     "cards": "Cartes",
     "games": "Jeux",
     "users": "Utilisateurs",
+    "plans": "Offres",
     "announcements": "Annonces",
     "servos": "Test des kits",
     "device": "Appareil",
@@ -284,6 +285,53 @@
       "copy": "Copier le journal",
       "copied": "Journal copié.",
       "copyFailed": "Impossible de copier le journal."
+    }
+  },
+  "plans": {
+    "planNames": {
+      "free": "Free",
+      "business": "Business"
+    },
+    "featuresHeading": "Fonctionnalités",
+    "featuresDescription": "Quelles offres peuvent utiliser chaque fonctionnalité. Les fonctionnalités sont définies dans le code, une nouvelle apparaît ici une fois développée.",
+    "limitsHeading": "Limites",
+    "limitsDescription": "Combien une organisation peut avoir de chaque élément selon son offre. Activez Illimité pour retirer une limite.",
+    "restoreDefaults": "Valeurs par défaut",
+    "unlimited": "Illimité",
+    "billingDisabled": "La facturation est désactivée sur ce serveur, chaque organisation a donc toutes les fonctionnalités sans limite. Ces réglages s'appliquent une fois la facturation activée.",
+    "saved": "Réglages des offres enregistrés",
+    "saveFailed": "Impossible d'enregistrer les réglages des offres",
+    "validation": {
+      "number": "Saisissez un nombre entier, 0 ou plus",
+      "max": "{{max}} au maximum"
+    },
+    "features": {
+      "chaosSort": {
+        "label": "Tri en vrac",
+        "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
+      },
+      "storage": {
+        "label": "Emplacements de rangement",
+        "description": "Créer des emplacements et y enregistrer des bacs. Les emplacements existants restent visibles dans tous les cas."
+      }
+    },
+    "limits": {
+      "dailyScans": {
+        "label": "Scans par jour",
+        "description": "Cartes scannées par organisation et par jour UTC."
+      },
+      "connectedSorters": {
+        "label": "Trieuses connectées",
+        "description": "Trieuses connectées en même temps. Chaque offre est aussi plafonnée au maximum du serveur."
+      },
+      "soundRules": {
+        "label": "Règles sonores",
+        "description": "Règles sonores tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
+      },
+      "notificationRules": {
+        "label": "Règles de notification",
+        "description": "Règles de notification Discord tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
+      }
     }
   }
 }

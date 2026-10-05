@@ -15,6 +15,7 @@ import { revertBinSetRoute } from "./revert";
 import { setBinSetActiveRoute } from "./set-active";
 import { setAutoAssignRoute } from "./set-auto-assign";
 import { setAlphabetRoute } from "./set-alphabet";
+import { setChaosRoute } from "./set-chaos";
 import { setRepackRoute } from "./set-repack";
 import { setScanOnlyRoute } from "./set-scan-only";
 
@@ -33,6 +34,7 @@ const router = new Hono<AppEnv>()
   .route("/", setScanOnlyRoute)
   .route("/", setRepackRoute)
   .route("/", setAlphabetRoute)
+  .route("/", setChaosRoute)
   .route("/", deleteBinSetRoute)
   .route("/", binSetHistoryRoute)
   .route("/", revertBinSetRoute);

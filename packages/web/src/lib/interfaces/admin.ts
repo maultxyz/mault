@@ -25,3 +25,12 @@ export interface CardGameCount {
   gameKey: string;
   count: number;
 }
+
+export interface PlanLimitInputProps {
+  id: string;
+  label: string;
+  value: number | null;
+  fallback: number;
+  invalid: boolean;
+  onChange: (value: number | null) => void;
+}

@@ -6,6 +6,7 @@
     "fieldCount_one": "{{count}} field",
     "fieldCount_other": "{{count}} fields",
     "editTitle": "Edit",
+    "exportTitle": "Export",
     "deleteTitle": "Delete",
     "deleteDialog": {
       "title": "Delete game",
@@ -18,6 +19,29 @@
       "updateSuccess": "Saved {{name}}",
       "deleteError": "Failed to delete game",
       "deleteSuccess": "Game deleted"
+    }
+  },
+  "gamesTransfer": {
+    "label": "Import / export",
+    "importing": "Importing…",
+    "exportAll": "Export all games",
+    "import": "Import from file",
+    "confirmDialog": {
+      "title": "Overwrite existing games?",
+      "description_one": "This file replaces the settings and field definitions of {{names}}. Bin rules, sound rules and notification rules that use a field the file leaves out stop matching.",
+      "description_other": "This file replaces the settings and field definitions of {{count}} games: {{names}}. Bin rules, sound rules and notification rules that use a field the file leaves out stop matching.",
+      "creates_one": "It also adds {{names}}.",
+      "creates_other": "It also adds {{count}} new games: {{names}}.",
+      "confirm_one": "Import game",
+      "confirm_other": "Import {{count}} games"
+    },
+    "toasts": {
+      "invalid": "That isn't a valid games file",
+      "importFailed": "Couldn't import the games",
+      "imported_one": "Imported {{count}} game",
+      "imported_other": "Imported {{count}} games",
+      "partiallyImported_one": "Imported {{count}} game, {{failed}} failed",
+      "partiallyImported_other": "Imported {{count}} games, {{failed}} failed"
     }
   },
   "gameFormDialog": {

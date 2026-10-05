@@ -6,6 +6,7 @@
     "message": "Dieser Sammlung ist kein Spiel zugewiesen, daher gibt es keine Kartenfelder für Sortierregeln. Erstellen Sie die Sammlung neu und wählen Sie ein Spiel aus, um die Sortierung zu aktivieren."
   },
   "binCard": {
+    "chaosFill": "Wird der Reihe nach gefüllt",
     "override": "Vorrang",
     "disabled": "Deaktiviert",
     "disabledDescription": "Karten überspringen dieses Fach",
@@ -99,7 +100,10 @@
       "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden",
       "emptyBinFailed": "Fach konnte nicht als geleert markiert werden",
       "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden",
-      "alphabetFailed": "Alphabetische Sortierung konnte nicht aktualisiert werden"
+      "alphabetFailed": "Alphabetische Sortierung konnte nicht aktualisiert werden",
+      "chaosFailed": "Chaotisches Sortieren konnte nicht aktualisiert werden",
+      "cardsStored_one": "{{count}} Karte eingelagert",
+      "cardsStored_other": "{{count}} Karten eingelagert"
     }
   },
   "binsPage": {},
@@ -128,6 +132,16 @@
     "siftDescription": "Karten, die den Regeln unten entsprechen, kommen statt in ein Paket in das erste Fach. So kannst du Karten, die du behalten willst (nach Wert, Seltenheit, Set oder etwas anderem), aussortieren, während alle anderen Fächer Pakete aus dem Rest bilden.",
     "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Fach {{bin}}. Alle anderen Fächer bilden Pakete aus dem Rest.",
     "siftNoBin": "Zum Aussortieren wird neben dem Sammelfach mindestens ein aktiviertes Fach benötigt."
+  },
+  "chaosPanel": {
+    "heading": "Chaotisches Sortieren",
+    "businessBadge": "Business",
+    "businessOnly": "Chaotisches Sortieren ist Teil des Business-Tarifs.",
+    "upgrade": "Upgraden",
+    "description": "Ignoriert die Regeln und füllt die Fächer nacheinander, das nächste, sobald eines voll ist. Wenn du ein Fach leerst, wählst du den Lagerort, und jede Karte wird dort der Reihe nach gespeichert.",
+    "binSizeLabel": "Karten pro Fach",
+    "binSizePlaceholder": "Bis zur Fachgröße füllen",
+    "binSizeDescription": "Wechselt nach so vielen Karten zum nächsten Fach. Leer lassen, um jedes Fach bis zu seiner kalibrierten Größe zu füllen."
   },
   "alphabetPanel": {
     "heading": "Alphabetisch sortieren",

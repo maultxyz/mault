@@ -6,6 +6,7 @@
     "message": "Cette collection n'a pas de jeu associé, il n'y a donc aucun champ de carte pour créer des règles de tri. Recréez la collection et sélectionnez un jeu pour activer le tri."
   },
   "binCard": {
+    "chaosFill": "Se remplit à son tour",
     "override": "Prioritaire",
     "disabled": "Désactivé",
     "disabledDescription": "Les cartes ignorent ce bac",
@@ -99,7 +100,10 @@
       "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement",
       "emptyBinFailed": "Échec du marquage du bac comme vidé",
       "repackFailed": "Échec de la mise à jour des paramètres de repack",
-      "alphabetFailed": "Échec de la mise à jour du tri alphabétique"
+      "alphabetFailed": "Échec de la mise à jour du tri alphabétique",
+      "chaosFailed": "Impossible de mettre à jour le tri en vrac",
+      "cardsStored_one": "{{count}} carte rangée",
+      "cardsStored_other": "{{count}} cartes rangées"
     }
   },
   "binsPage": {},
@@ -128,6 +132,16 @@
     "siftDescription": "Les cartes qui correspondent aux règles ci-dessous vont dans le premier bac au lieu d'un paquet. Vous pouvez ainsi mettre de côté les cartes à garder (par valeur, rareté, édition ou autre) pendant que les autres bacs forment des paquets avec le reste.",
     "siftHint": "Les cartes qui correspondent à ces règles vont dans le bac {{bin}}. Les autres bacs forment des paquets avec le reste.",
     "siftNoBin": "Ce tri nécessite au moins un bac activé en plus du bac fourre-tout."
+  },
+  "chaosPanel": {
+    "heading": "Tri en vrac",
+    "businessBadge": "Business",
+    "businessOnly": "Le tri en vrac fait partie de l'offre Business.",
+    "upgrade": "Passer à Business",
+    "description": "Ignore les règles et remplit les bacs l'un après l'autre, en passant au suivant quand un bac est plein. Quand tu vides un bac, choisis l'emplacement où tu le ranges, et chaque carte y est enregistrée dans l'ordre.",
+    "binSizeLabel": "Cartes par bac",
+    "binSizePlaceholder": "Remplir jusqu'à la taille du bac",
+    "binSizeDescription": "Passe au bac suivant après ce nombre de cartes. Laisse vide pour remplir chaque bac jusqu'à sa taille étalonnée."
   },
   "alphabetPanel": {
     "heading": "Trier par ordre alphabétique",

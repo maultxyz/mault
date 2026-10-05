@@ -8,6 +8,7 @@ import { useRole } from "@/hooks/use-role";
 import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
+import { STORAGE_PATH } from "@/lib/constants/storage";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -91,6 +92,7 @@ const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
+const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminAnnouncementsPage = lazy(
   () => import("@/app/routes/app/admin/announcements"),
 );
@@ -127,6 +129,7 @@ const SettingsIntegrationsPage = lazy(
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
+const StoragePage = lazy(() => import("@/app/routes/app/storage"));
 
 // Otherwise the app shell's chunks only start downloading once the auth
 // session resolves, then the landing route's once the loading gate lifts.
@@ -290,6 +293,10 @@ export const router = createBrowserRouter([
                     element: <SortersPage />,
                   },
                   {
+                    path: STORAGE_PATH,
+                    element: <StoragePage />,
+                  },
+                  {
                     element: <AdminGuard />,
                     children: [
                       {
@@ -311,6 +318,10 @@ export const router = createBrowserRouter([
                           {
                             path: "users",
                             element: <AdminUsersPage />,
+                          },
+                          {
+                            path: "plans",
+                            element: <AdminPlansPage />,
                           },
                           {
                             path: "announcements",

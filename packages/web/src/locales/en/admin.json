@@ -7,6 +7,7 @@
     "cards": "Cards",
     "games": "Games",
     "users": "Users",
+    "plans": "Plans",
     "announcements": "Announcements",
     "servos": "Kit testing",
     "device": "Device",
@@ -295,6 +296,53 @@
       "copy": "Copy log",
       "copied": "Log copied.",
       "copyFailed": "Couldn't copy the log."
+    }
+  },
+  "plans": {
+    "planNames": {
+      "free": "Free",
+      "business": "Business"
+    },
+    "featuresHeading": "Features",
+    "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",
+    "limitsHeading": "Limits",
+    "limitsDescription": "How much of each thing an organization on each plan can have. Turn on Unlimited to remove a limit.",
+    "restoreDefaults": "Restore defaults",
+    "unlimited": "Unlimited",
+    "billingDisabled": "Billing is turned off on this server, so every organization gets every feature with no limits. These settings take effect once billing is on.",
+    "saved": "Plan settings saved",
+    "saveFailed": "Couldn't save plan settings",
+    "validation": {
+      "number": "Enter a whole number, 0 or more",
+      "max": "Must be {{max}} or less"
+    },
+    "features": {
+      "chaosSort": {
+        "label": "Chaos sort",
+        "description": "Fill bins in order, ignoring rules. Turning it off only stops new presets from switching it on."
+      },
+      "storage": {
+        "label": "Storage locations",
+        "description": "Create locations and record bins into them. Existing locations stay viewable either way."
+      }
+    },
+    "limits": {
+      "dailyScans": {
+        "label": "Daily scans",
+        "description": "Cards scanned per organization per UTC day."
+      },
+      "connectedSorters": {
+        "label": "Connected sorters",
+        "description": "Sorters connected at once. Every plan is also capped at the server's hard maximum."
+      },
+      "soundRules": {
+        "label": "Sound rules",
+        "description": "Sound rules across all games. Only checked when adding a rule."
+      },
+      "notificationRules": {
+        "label": "Notification rules",
+        "description": "Discord notification rules across all games. Only checked when adding a rule."
+      }
     }
   }
 }

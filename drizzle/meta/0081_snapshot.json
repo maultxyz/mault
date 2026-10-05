@@ -1,5 +1,5 @@
 {
-  "id": "d2f48851-68e7-4a13-bb4b-d52d35340f1e",
+  "id": "4c68d88c-419f-48e6-a074-91557ba82a76",
   "prevId": "ee86746c-119a-4a45-bab8-baa853df6a52",
   "version": "7",
   "dialect": "postgresql",
@@ -770,12 +770,6 @@
           "notNull": true,
           "default": false
         },
-        "repack_sift_rules": {
-          "name": "repack_sift_rules",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
         "is_alphabet_mode": {
           "name": "is_alphabet_mode",
           "type": "boolean",
@@ -796,6 +790,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "''"
+        },
+        "is_chaos_mode": {
+          "name": "is_chaos_mode",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "org_id": {
           "name": "org_id",
@@ -1502,6 +1503,18 @@
           "primaryKey": false,
           "notNull": false
         },
+        "location_id": {
+          "name": "location_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "location_position": {
+          "name": "location_position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
         "org_id": {
           "name": "org_id",
           "type": "text",
@@ -1517,6 +1530,27 @@
         }
       },
       "indexes": {
+        "collection_cards_location_idx": {
+          "name": "collection_cards_location_idx",
+          "columns": [
+            {
+              "expression": "location_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "location_position",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "collection_cards_collection_scanned_idx": {
           "name": "collection_cards_collection_scanned_idx",
           "columns": [
@@ -1566,6 +1600,19 @@
             "id"
           ],
           "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "collection_cards_location_id_storage_locations_id_fk": {
+          "name": "collection_cards_location_id_storage_locations_id_fk",
+          "tableFrom": "collection_cards",
+          "tableTo": "storage_locations",
+          "columnsFrom": [
+            "location_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
           "onUpdate": "no action"
         }
       },
@@ -3832,6 +3879,112 @@
             "authenticated"
           ],
           "using": "(\"sound_rules\".\"org_id\" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(\"sound_rules\".\"org_id\")"
+        }
+      },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.storage_locations": {
+      "name": "storage_locations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "serial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "guid": {
+          "name": "guid",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "org_id": {
+          "name": "org_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "storage_locations_guid_idx": {
+          "name": "storage_locations_guid_idx",
+          "nullsNotDistinct": false,
+          "columns": [
+            "guid"
+          ]
+        },
+        "storage_locations_org_name_idx": {
+          "name": "storage_locations_org_name_idx",
+          "nullsNotDistinct": false,
+          "columns": [
+            "org_id",
+            "name"
+          ]
+        }
+      },
+      "policies": {
+        "crud-authenticated-policy-select": {
+          "name": "crud-authenticated-policy-select",
+          "as": "PERMISSIVE",
+          "for": "SELECT",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(\"storage_locations\".\"org_id\" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(\"storage_locations\".\"org_id\")"
+        },
+        "crud-authenticated-policy-insert": {
+          "name": "crud-authenticated-policy-insert",
+          "as": "PERMISSIVE",
+          "for": "INSERT",
+          "to": [
+            "authenticated"
+          ],
+          "withCheck": "(\"storage_locations\".\"org_id\" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(\"storage_locations\".\"org_id\")"
+        },
+        "crud-authenticated-policy-update": {
+          "name": "crud-authenticated-policy-update",
+          "as": "PERMISSIVE",
+          "for": "UPDATE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(\"storage_locations\".\"org_id\" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(\"storage_locations\".\"org_id\")",
+          "withCheck": "(\"storage_locations\".\"org_id\" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(\"storage_locations\".\"org_id\")"
+        },
+        "crud-authenticated-policy-delete": {
+          "name": "crud-authenticated-policy-delete",
+          "as": "PERMISSIVE",
+          "for": "DELETE",
+          "to": [
+            "authenticated"
+          ],
+          "using": "(\"storage_locations\".\"org_id\" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(\"storage_locations\".\"org_id\")"
         }
       },
       "checkConstraints": {},

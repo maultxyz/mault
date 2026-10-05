@@ -4,6 +4,7 @@ import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   CardFilters,
+  EmptyBinOptions,
   CardContour,
   CardScannerProps,
   CardSearchDiagnostics,
@@ -121,7 +122,12 @@ export interface ScannedCardsContextValue {
   identifyUnmatchedCard: (scanId: string, card: PlayingCard) => Promise<boolean>;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
-  resolveBinLimit: () => Promise<void>;
+  resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
+  dismissBinLimit: () => void;
+  fullChaosBins: number[] | null;
+  fullChaosBinCount: number;
+  emptyNextFullChaosBin: (options: EmptyBinOptions) => Promise<boolean>;
+  dismissFullChaosBins: () => void;
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;
@@ -314,12 +320,6 @@ export interface LastRoutedBin {
 export interface BinLevelLayout {
   rows: (number | undefined)[][];
   bottom: number[];
-}
-
-export interface BinLimitDialogProps {
-  bin: BinConfig | null;
-  capacity: number | null;
-  onContinue: () => Promise<void>;
 }
 
 export interface BinLevelCellProps {
@@ -623,4 +623,29 @@ export interface ForcedSetOptionProps {
   detail?: string;
   active: boolean;
   onSelect: () => void;
+}
+
+export interface BinCorrection {
+  id: string;
+  scanId: string;
+  cardName: string;
+  currentBin?: number;
+  targetBin?: number;
+}
+
+export interface BinCorrectionDialogProps {
+  correction: BinCorrection | null;
+  onMoved: (correction: BinCorrection) => void;
+  onClose: () => void;
+}
+
+export interface CorrectionAutoCloseTimerProps {
+  seconds: number;
+  willMove: boolean;
+  onElapsed: () => void;
+}
+
+export interface BinCorrectionTileProps {
+  label: string;
+  bin: number | undefined;
 }

@@ -2,6 +2,7 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -16,8 +17,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
+import { Badge } from "@/components/ui/badge";
+import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useOrg } from "@/features/companies/api/use-organization";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
+import { CHAOS_BIN_SIZE_MAX } from "@magic-vault/shared";
 import { IconInfoCircle, IconRefresh } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -37,6 +45,8 @@ export function AutoAssignPanel() {
     discardMode,
   } = useBinConfigs();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const { activeOrg } = useOrg();
+  const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
 
   if (!selectedSet) return null;
 
@@ -45,7 +55,9 @@ export function AutoAssignPanel() {
   const isScanOnly = effectiveMode.scanOnly;
   const isRepackMode = effectiveMode.isRepackMode;
   const isAlphabetMode = effectiveMode.isAlphabetMode;
+  const isChaosMode = effectiveMode.isChaosMode;
   const disableToggles = isPresetMutating || isSavingMode;
+  const chaosLocked = billing?.chaosSort === false && !selectedSet.isChaosMode;
 
   return (
     <Field
@@ -74,7 +86,8 @@ export function AutoAssignPanel() {
             eligibleFields.length === 0 ||
             isScanOnly ||
             isRepackMode ||
-            isAlphabetMode
+            isAlphabetMode ||
+            isChaosMode
           }
           onCheckedChange={(checked) => {
             stageMode({
@@ -151,7 +164,11 @@ export function AutoAssignPanel() {
           aria-label={t("scanOnlyPanel.heading")}
           checked={isScanOnly}
           disabled={
-            disableToggles || isEnabled || isRepackMode || isAlphabetMode
+            disableToggles ||
+            isEnabled ||
+            isRepackMode ||
+            isAlphabetMode ||
+            isChaosMode
           }
           onCheckedChange={(checked) => stageMode({ scanOnly: checked })}
         />
@@ -177,7 +194,13 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("repackPanel.heading")}
           checked={isRepackMode}
-          disabled={disableToggles || isEnabled || isScanOnly || isAlphabetMode}
+          disabled={
+            disableToggles ||
+            isEnabled ||
+            isScanOnly ||
+            isAlphabetMode ||
+            isChaosMode
+          }
           onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
         />
       </div>
@@ -199,10 +222,91 @@ export function AutoAssignPanel() {
         <Switch
           aria-label={t("alphabetPanel.heading")}
           checked={isAlphabetMode}
-          disabled={disableToggles || isEnabled || isScanOnly || isRepackMode}
+          disabled={
+            disableToggles ||
+            isEnabled ||
+            isScanOnly ||
+            isRepackMode ||
+            isChaosMode
+          }
           onCheckedChange={(checked) => stageMode({ isAlphabetMode: checked })}
         />
       </div>
+
+      <div className="flex items-center justify-between gap-3 border-t pt-2">
+        <span className="flex items-center gap-1.5">
+          <span className="text-xs font-medium">
+            {t("chaosPanel.heading")}
+          </span>
+          {chaosLocked && (
+            <Badge variant="outline">{t("chaosPanel.businessBadge")}</Badge>
+          )}
+          <Tooltip>
+            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+              <IconInfoCircle className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {t("chaosPanel.description")}
+            </TooltipContent>
+          </Tooltip>
+        </span>
+        <Switch
+          aria-label={t("chaosPanel.heading")}
+          checked={isChaosMode}
+          disabled={
+            disableToggles ||
+            chaosLocked ||
+            isEnabled ||
+            isScanOnly ||
+            isRepackMode ||
+            isAlphabetMode
+          }
+          onCheckedChange={(checked) => stageMode({ isChaosMode: checked })}
+        />
+      </div>
+      {chaosLocked && (
+        <p className="pl-1 text-2xs text-foreground/70">
+          {t("chaosPanel.businessOnly")}{" "}
+          <Link
+            to={SETTINGS_PATHS.billing}
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            {t("chaosPanel.upgrade")}
+          </Link>
+        </p>
+      )}
+      {isChaosMode && (
+        <div className="flex flex-col gap-1 pl-1">
+          <label
+            htmlFor="chaos-bin-size"
+            className="text-xs font-medium"
+          >
+            {t("chaosPanel.binSizeLabel")}
+          </label>
+          <Input
+            id="chaos-bin-size"
+            type="number"
+            min={1}
+            max={CHAOS_BIN_SIZE_MAX}
+            inputMode="numeric"
+            className="h-8 max-w-32"
+            placeholder={t("chaosPanel.binSizePlaceholder")}
+            disabled={disableToggles}
+            value={effectiveMode.chaosBinSize ?? ""}
+            onChange={(e) => {
+              const parsed = Number.parseInt(e.target.value, 10);
+              stageMode({
+                chaosBinSize: Number.isFinite(parsed)
+                  ? Math.min(Math.max(parsed, 1), CHAOS_BIN_SIZE_MAX)
+                  : null,
+              });
+            }}
+          />
+          <p className="text-2xs text-foreground/70">
+            {t("chaosPanel.binSizeDescription")}
+          </p>
+        </div>
+      )}
 
       <SaveBar
         show={isModeDirty}

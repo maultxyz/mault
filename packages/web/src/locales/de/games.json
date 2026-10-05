@@ -6,6 +6,7 @@
     "fieldCount_one": "{{count}} Feld",
     "fieldCount_other": "{{count}} Felder",
     "editTitle": "Bearbeiten",
+    "exportTitle": "Exportieren",
     "deleteTitle": "Löschen",
     "deleteDialog": {
       "title": "Spiel löschen",
@@ -18,6 +19,29 @@
       "updateSuccess": "{{name}} gespeichert",
       "deleteError": "Spiel konnte nicht gelöscht werden",
       "deleteSuccess": "Spiel gelöscht"
+    }
+  },
+  "gamesTransfer": {
+    "label": "Import / Export",
+    "importing": "Wird importiert…",
+    "exportAll": "Alle Spiele exportieren",
+    "import": "Aus Datei importieren",
+    "confirmDialog": {
+      "title": "Vorhandene Spiele überschreiben?",
+      "description_one": "Diese Datei ersetzt die Einstellungen und Felddefinitionen von {{names}}. Fach-, Sound- und Benachrichtigungsregeln, die ein Feld verwenden, das in der Datei fehlt, greifen nicht mehr.",
+      "description_other": "Diese Datei ersetzt die Einstellungen und Felddefinitionen von {{count}} Spielen: {{names}}. Fach-, Sound- und Benachrichtigungsregeln, die ein Feld verwenden, das in der Datei fehlt, greifen nicht mehr.",
+      "creates_one": "Außerdem wird {{names}} hinzugefügt.",
+      "creates_other": "Außerdem werden {{count}} neue Spiele hinzugefügt: {{names}}.",
+      "confirm_one": "Spiel importieren",
+      "confirm_other": "{{count}} Spiele importieren"
+    },
+    "toasts": {
+      "invalid": "Das ist keine gültige Spieledatei",
+      "importFailed": "Die Spiele konnten nicht importiert werden",
+      "imported_one": "{{count}} Spiel importiert",
+      "imported_other": "{{count}} Spiele importiert",
+      "partiallyImported_one": "{{count}} Spiel importiert, {{failed}} fehlgeschlagen",
+      "partiallyImported_other": "{{count}} Spiele importiert, {{failed}} fehlgeschlagen"
     }
   },
   "gameFormDialog": {

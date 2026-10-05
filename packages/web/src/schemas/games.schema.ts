@@ -1,3 +1,4 @@
+import { GAME_KEY_PATTERN } from "@/lib/constants/games";
 import type { TFunction } from "i18next";
 import { z } from "zod";
 
@@ -15,7 +16,7 @@ export function createGameFormSchema(t: TFunction<"games">) {
     key: z
       .string()
       .min(1, t("gameFormDialog.validation.required"))
-      .regex(/^[a-z0-9-]+$/, t("gameFormDialog.validation.keyFormat")),
+      .regex(GAME_KEY_PATTERN, t("gameFormDialog.validation.keyFormat")),
     name: z.string().min(1, t("gameFormDialog.validation.required")),
     apiDocsUrl: z
       .string()

@@ -1,4 +1,5 @@
 import { apiGet, apiPost } from "@/lib/api/client";
+import { BILLING_STALE_MS } from "@/lib/constants/timing";
 import type { BillingStatus } from "@/lib/interfaces/billing";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -27,11 +28,16 @@ export async function createPortalSession(): Promise<{
   return apiPost("/api/billing/portal");
 }
 
+export const billingKeys = {
+  root: () => ["billing"] as const,
+};
+
 export const billingQueryOptions = (orgId: string | undefined) =>
   queryOptions({
-    queryKey: ["billing", orgId],
+    queryKey: [...billingKeys.root(), orgId],
     queryFn: () => getBillingStatus().then((r) => r.data ?? null),
     enabled: !!orgId,
+    staleTime: BILLING_STALE_MS,
     // A 404 here just means billing isn't configured (self-hosted/no Stripe
     // keys) - not worth retrying.
     retry: false,

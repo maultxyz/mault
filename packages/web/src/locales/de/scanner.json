@@ -348,9 +348,6 @@
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
-    "confirmTitle": "Fach {{bin}} leeren?",
-    "confirmDescription": "Dies setzt den Füllstandszähler von Fach {{bin}} auf null zurück. Stelle sicher, dass du das Fach vorher physisch geleert hast, das übernimmt die App nicht für dich.",
-    "confirmButton": "Fach leeren",
     "binLabel": "Fach {{bin}}",
     "catchAll": "Auffangfach",
     "disabled": "Aus",
@@ -400,8 +397,8 @@
   },
   "binLimitDialog": {
     "title": "Fach {{number}} ist voll",
-    "description": "Fach {{number}} hat sein Limit von {{limit}} Karten erreicht. Entferne die Karten aus dem Fach und setze das Scannen dann fort.",
-    "continueButton": "Ich habe das Fach geleert, weiter"
+    "description": "Fach {{number}} hat sein Limit von {{limit}} Karten erreicht, deshalb ist das Scannen pausiert. Nimm die Karten heraus, wähle bei Bedarf, wohin sie kommen, und mach dann weiter.",
+    "notNow": "Nicht jetzt"
   },
   "feederEmpty": {
     "title": "Zuführer leer",
@@ -512,6 +509,37 @@
       "connecting": "Verbinde…",
       "error": "Offline",
       "closed": "Offline"
+    }
+  },
+  "binCorrection": {
+    "bin": "Fach {{number}}",
+    "noBinValue": "Keins",
+    "currentLabel": "Jetzt in",
+    "targetLabel": "Gehört in",
+    "move": {
+      "title": "{{name}} in Fach {{to}} legen",
+      "description": "Die Karte liegt jetzt in Fach {{from}}, gehört nach der Korrektur aber in Fach {{to}}. Leg sie um und bestätige es, damit die Fachzählung stimmt.",
+      "descriptionNoBin": "Nach der Korrektur gehört die Karte in Fach {{to}}. Leg sie dort hinein und bestätige es, damit die Fachzählung stimmt."
+    },
+    "staysIn": {
+      "title": "{{name}} bleibt in Fach {{bin}}",
+      "description": "Die Karte liegt bereits im richtigen Fach, es muss nichts umgelegt werden."
+    },
+    "noBin": {
+      "title": "Kein Fach passt zu {{name}}",
+      "description": "Keines deiner Fächer nimmt diese Karte auf, lass sie also, wo sie ist."
+    },
+    "moved": "In Fach {{bin}} umgelegt",
+    "leave": "In Fach {{bin}} lassen",
+    "notNow": "Nicht jetzt",
+    "ok": "OK",
+    "autoClose": {
+      "countdownMoved_one": "Wird in {{count}} Sekunde als umgelegt markiert",
+      "countdownMoved_other": "Wird in {{count}} Sekunden als umgelegt markiert",
+      "countdown_one": "Schließt in {{count}} Sekunde",
+      "countdown_other": "Schließt in {{count}} Sekunden",
+      "doneMoved": "Als umgelegt markiert",
+      "done": "Fertig"
     }
   }
 }

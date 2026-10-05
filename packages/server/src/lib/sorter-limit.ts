@@ -1,26 +1,16 @@
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
-import { eq } from "drizzle-orm";
 import type { Transaction } from "../db";
-import { orgBilling } from "../db/schema";
-import { FREE_PLAN_MAX_CONNECTED_SORTERS, isBillingEnabled } from "./stripe";
+import { connectedSorterLimitForPlan, loadPlanForOrg } from "./plan-config";
 
 export function sorterLimitForPlan(plan: string | undefined): number {
-  if (!isBillingEnabled() || (plan ?? "free") !== "free") {
-    return MAX_CONNECTED_SORTERS;
-  }
-  return Math.min(FREE_PLAN_MAX_CONNECTED_SORTERS, MAX_CONNECTED_SORTERS);
+  return connectedSorterLimitForPlan(plan);
 }
 
 export async function getConnectedSorterLimit(
   tx: Transaction,
   orgId: string,
 ): Promise<number> {
-  if (!isBillingEnabled()) return MAX_CONNECTED_SORTERS;
-  const billing = await tx.query.orgBilling.findFirst({
-    where: eq(orgBilling.orgId, orgId),
-    columns: { plan: true },
-  });
-  return sorterLimitForPlan(billing?.plan);
+  return sorterLimitForPlan(await loadPlanForOrg(tx, orgId));
 }
 
 export function sorterLimitMessage(limit: number): string {

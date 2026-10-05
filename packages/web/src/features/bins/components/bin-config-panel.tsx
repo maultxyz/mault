@@ -116,14 +116,19 @@ export function BinConfigPanel() {
     configs.filter((c) => c.isCatchAll && c.binNumber !== config.binNumber)
       .length === 0;
 
-  const rulesLocked = effectiveMode.isRepackMode || effectiveMode.isAlphabetMode;
+  const rulesLocked =
+    effectiveMode.isRepackMode ||
+    effectiveMode.isAlphabetMode ||
+    effectiveMode.isChaosMode;
 
   const handleSave = useCallback(
     (values: BinConfigFormValues) => {
       if (rulesLocked) {
         save(
           config.binNumber,
-          config.rules,
+          config.isCatchAll
+            ? lowMatchRuleGroup(values.lowMatchPercent)
+            : config.rules,
           config.isCatchAll,
           config.cardLimit === undefined
             ? DEFAULT_BIN_CAPACITY
@@ -204,6 +209,66 @@ export function BinConfigPanel() {
     </Field>
   );
 
+  const lowMatchField = (
+    <Field
+      className="mb-6"
+      data-invalid={!!form.formState.errors.lowMatchPercent}
+    >
+      <Controller
+        name="lowMatchPercent"
+        control={form.control}
+        render={({ field }) => (
+          <>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="bin-low-match"
+                checked={field.value != null}
+                onCheckedChange={(checked) =>
+                  field.onChange(
+                    checked ? DEFAULT_CATCH_ALL_MATCH_PERCENT : null,
+                  )
+                }
+              />
+              <FieldLabel htmlFor="bin-low-match">
+                {t("binConfigPanel.lowMatchLabel")}
+              </FieldLabel>
+            </div>
+            {field.value != null && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-foreground/70">
+                  {t("binConfigPanel.lowMatchPrefix")}
+                </span>
+                <Input
+                  id="bin-low-match-percent"
+                  type="number"
+                  min={1}
+                  max={100}
+                  className="max-w-24"
+                  aria-label={t("binConfigPanel.lowMatchLabel")}
+                  value={Number.isNaN(field.value) ? "" : field.value}
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value === ""
+                        ? Number.NaN
+                        : Number(e.target.value),
+                    )
+                  }
+                />
+                <span className="text-sm text-foreground/70">
+                  {t("binConfigPanel.lowMatchSuffix")}
+                </span>
+              </div>
+            )}
+          </>
+        )}
+      />
+      <FieldDescription>
+        {t("binConfigPanel.lowMatchDescription")}
+      </FieldDescription>
+      <FieldError errors={[form.formState.errors.lowMatchPercent]} />
+    </Field>
+  );
+
   const saveControls = (
     <>
       <SaveBar
@@ -226,7 +291,6 @@ export function BinConfigPanel() {
   }
 
   if (rulesLocked) {
-    if (config.isCatchAll) return null;
     return (
       <>
         <form
@@ -234,10 +298,17 @@ export function BinConfigPanel() {
           onSubmit={form.handleSubmit(handleSave)}
           className="flex flex-col"
         >
-          <h2 className="mb-4 text-sm font-semibold font-heading">
-            {t("binLabel", { number: config.binNumber })}
-          </h2>
-          {disableToggle}
+          <div className="mb-4 flex items-center gap-4">
+            <h2 className="text-sm font-semibold font-heading">
+              {t("binLabel", { number: config.binNumber })}
+            </h2>
+            {config.isCatchAll && (
+              <p className="text-xs text-foreground/70">
+                {t("binConfigPanel.catchAllDescription")}
+              </p>
+            )}
+          </div>
+          {config.isCatchAll ? lowMatchField : disableToggle}
         </form>
         {saveControls}
       </>
@@ -407,63 +478,7 @@ export function BinConfigPanel() {
             </Field>
           )}
           {isCatchAll ? (
-            <Field
-              className="mb-6"
-              data-invalid={!!form.formState.errors.lowMatchPercent}
-            >
-              <Controller
-                name="lowMatchPercent"
-                control={form.control}
-                render={({ field }) => (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="bin-low-match"
-                        checked={field.value != null}
-                        onCheckedChange={(checked) =>
-                          field.onChange(
-                            checked ? DEFAULT_CATCH_ALL_MATCH_PERCENT : null,
-                          )
-                        }
-                      />
-                      <FieldLabel htmlFor="bin-low-match">
-                        {t("binConfigPanel.lowMatchLabel")}
-                      </FieldLabel>
-                    </div>
-                    {field.value != null && (
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-foreground/70">
-                          {t("binConfigPanel.lowMatchPrefix")}
-                        </span>
-                        <Input
-                          id="bin-low-match-percent"
-                          type="number"
-                          min={1}
-                          max={100}
-                          className="max-w-24"
-                          aria-label={t("binConfigPanel.lowMatchLabel")}
-                          value={Number.isNaN(field.value) ? "" : field.value}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === ""
-                                ? Number.NaN
-                                : Number(e.target.value),
-                            )
-                          }
-                        />
-                        <span className="text-sm text-foreground/70">
-                          {t("binConfigPanel.lowMatchSuffix")}
-                        </span>
-                      </div>
-                    )}
-                  </>
-                )}
-              />
-              <FieldDescription>
-                {t("binConfigPanel.lowMatchDescription")}
-              </FieldDescription>
-              <FieldError errors={[form.formState.errors.lowMatchPercent]} />
-            </Field>
+            lowMatchField
           ) : (
             <div className="flex items-center justify-between mb-2">
               <Label>{t("binConfigPanel.rulesLabel")}</Label>

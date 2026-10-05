@@ -6,6 +6,7 @@
     "fieldCount_one": "{{count}} champ",
     "fieldCount_other": "{{count}} champs",
     "editTitle": "Modifier",
+    "exportTitle": "Exporter",
     "deleteTitle": "Supprimer",
     "deleteDialog": {
       "title": "Supprimer le jeu",
@@ -18,6 +19,29 @@
       "updateSuccess": "{{name}} enregistré",
       "deleteError": "Échec de la suppression du jeu",
       "deleteSuccess": "Jeu supprimé"
+    }
+  },
+  "gamesTransfer": {
+    "label": "Importer / exporter",
+    "importing": "Importation…",
+    "exportAll": "Exporter tous les jeux",
+    "import": "Importer depuis un fichier",
+    "confirmDialog": {
+      "title": "Remplacer les jeux existants ?",
+      "description_one": "Ce fichier remplace les paramètres et les définitions de champs de {{names}}. Les règles de bacs, de sons et de notifications qui utilisent un champ absent du fichier ne correspondront plus.",
+      "description_other": "Ce fichier remplace les paramètres et les définitions de champs de {{count}} jeux : {{names}}. Les règles de bacs, de sons et de notifications qui utilisent un champ absent du fichier ne correspondront plus.",
+      "creates_one": "Il ajoute aussi {{names}}.",
+      "creates_other": "Il ajoute aussi {{count}} nouveaux jeux : {{names}}.",
+      "confirm_one": "Importer le jeu",
+      "confirm_other": "Importer {{count}} jeux"
+    },
+    "toasts": {
+      "invalid": "Ce n'est pas un fichier de jeux valide",
+      "importFailed": "Impossible d'importer les jeux",
+      "imported_one": "{{count}} jeu importé",
+      "imported_other": "{{count}} jeux importés",
+      "partiallyImported_one": "{{count}} jeu importé, {{failed}} en échec",
+      "partiallyImported_other": "{{count}} jeux importés, {{failed}} en échec"
     }
   },
   "gameFormDialog": {

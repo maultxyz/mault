@@ -1,5 +1,5 @@
-FROM node:20-alpine AS builder
-RUN corepack enable && corepack prepare pnpm@latest --activate
+FROM node:26-alpine AS builder
+RUN npm install -g pnpm@9.1.3
 
 WORKDIR /app
 

@@ -13,7 +13,10 @@ import { useMemo } from "react";
 export function useComputedBinFillLevels(
   unmatchedCards: UnmatchedCard[],
 ): BinFillLevel[] {
-  const { configs } = useBinConfigs();
+  const { configs, selectedSet } = useBinConfigs();
+  const chaosBinSize = selectedSet?.isChaosMode
+    ? (selectedSet.chaosBinSize ?? null)
+    : null;
   const { savedHeights } = useBinHeights();
   const binWindows = useMemo(
     () =>
@@ -34,7 +37,11 @@ export function useComputedBinFillLevels(
           const height = savedHeights.find(
             (h) => h.binNumber === bin.binNumber,
           )?.height;
-          const capacity = computeBinCapacity(height, cardThickness);
+          const physicalCapacity = computeBinCapacity(height, cardThickness);
+          const capacity =
+            chaosBinSize != null && !bin.isCatchAll
+              ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize)
+              : physicalCapacity;
           const count =
             (matchedCounts.get(bin.binNumber) ?? 0) +
             countCardsInBin(unmatchedCards, bin);
@@ -44,6 +51,13 @@ export function useComputedBinFillLevels(
           return { binNumber: bin.binNumber, count, capacity, percent };
         })
         .sort((a, b) => a.binNumber - b.binNumber),
-    [configs, savedHeights, matchedCounts, unmatchedCards, cardThickness],
+    [
+      configs,
+      savedHeights,
+      matchedCounts,
+      unmatchedCards,
+      cardThickness,
+      chaosBinSize,
+    ],
   );
 }

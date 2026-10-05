@@ -2,11 +2,12 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgBilling } from "../../db/schema";
-import { getScansToday } from "../../lib/scan-usage";
+import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
+import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
 import { sorterLimitForPlan } from "../../lib/sorter-limit";
 import { notificationRuleLimitForPlan } from "../../lib/notification-rule-limit";
 import { soundRuleLimitForPlan } from "../../lib/sound-rule-limit";
-import { FREE_PLAN_DAILY_SCAN_LIMIT } from "../../lib/stripe";
+import { storageAllowedForPlan } from "../../lib/storage-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const getBillingRoute = new Hono<AppEnv>().get(
@@ -32,10 +33,12 @@ export const getBillingRoute = new Hono<AppEnv>().get(
             cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,
             currentPeriodEnd: billing?.currentPeriodEnd ?? null,
             cardsScannedToday: count,
-            dailyLimit: plan === "business" ? null : FREE_PLAN_DAILY_SCAN_LIMIT,
+            dailyLimit: dailyScanLimitForPlan(plan),
             maxConnectedSorters: sorterLimitForPlan(plan),
             maxSoundRules: soundRuleLimitForPlan(plan),
             maxNotificationRules: notificationRuleLimitForPlan(plan),
+            chaosSort: chaosSortAllowedForPlan(plan),
+            storage: storageAllowedForPlan(plan),
           },
         };
       });

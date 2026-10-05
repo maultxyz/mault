@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
+import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
 import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -69,6 +70,22 @@ export default function SettingsScanningPage() {
             )}
           />
         </label>
+      </SettingsSection>
+      <SettingsSection
+        heading={t("correctionAutoClose.heading")}
+        description={t("correctionAutoClose.description")}
+      >
+        <Controller
+          control={draft.control}
+          name="correctionAutoCloseSeconds"
+          render={({ field }) => (
+            <CorrectionAutoCloseSetting
+              value={field.value}
+              disabled={disabled}
+              onChange={field.onChange}
+            />
+          )}
+        />
       </SettingsSection>
       <SaveBar
         show={draft.isDirty}

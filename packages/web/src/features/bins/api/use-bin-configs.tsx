@@ -11,6 +11,7 @@ import type {
   AlphabetConfig,
   BinConfigsContextValue,
   BinModeDraft,
+  ChaosConfig,
 } from "@/lib/interfaces/bins";
 import {
   type AlphabetStep,
@@ -20,6 +21,7 @@ import {
   computeBinCount,
   DEFAULT_BIN_CAPACITY,
   type DefaultBinInit,
+  type EmptyBinOptions,
   type RepackSlot,
   withScanRuleFields,
 } from "@magic-vault/shared";
@@ -36,12 +38,14 @@ import {
   saveSet as saveSetAction,
   setAutoAssignField as setAutoAssignFieldAction,
   setAlphabetConfig as setAlphabetConfigAction,
+  setChaosMode as setChaosModeAction,
   setRepackConfig as setRepackConfigAction,
   setScanOnly as setScanOnlyAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { storageLocationKeys } from "@/features/storage/api/storage-locations";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -170,6 +174,8 @@ export function BinConfigsProvider({
     scanOnly: selectedSet?.scanOnly ?? false,
     isRepackMode: selectedSet?.isRepackMode ?? false,
     isAlphabetMode: selectedSet?.isAlphabetMode ?? false,
+    isChaosMode: selectedSet?.isChaosMode ?? false,
+    chaosBinSize: selectedSet?.chaosBinSize ?? null,
   };
   const effectiveMode = modeDraft ?? modeBaseline;
   const isModeDirty =
@@ -177,7 +183,9 @@ export function BinConfigsProvider({
     (modeDraft.autoAssignField !== modeBaseline.autoAssignField ||
       modeDraft.scanOnly !== modeBaseline.scanOnly ||
       modeDraft.isRepackMode !== modeBaseline.isRepackMode ||
-      modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode);
+      modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode ||
+      modeDraft.isChaosMode !== modeBaseline.isChaosMode ||
+      modeDraft.chaosBinSize !== modeBaseline.chaosBinSize);
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
@@ -340,12 +348,29 @@ export function BinConfigsProvider({
   });
 
   const emptyBinMutation = useMutation({
-    mutationFn: (binNumber: number) =>
-      emptyBinAction(binNumber, activeGameGuid),
+    mutationFn: ({
+      binNumber,
+      options,
+    }: {
+      binNumber: number;
+      options?: EmptyBinOptions;
+    }) => emptyBinAction(binNumber, activeGameGuid, options),
     onSuccess: (result) => {
       if (!result.success) {
-        toast.error(t("useBinConfigs.toasts.emptyBinFailed"));
+        toast.error(
+          result.message ?? t("useBinConfigs.toasts.emptyBinFailed"),
+        );
         return;
+      }
+      if (result.assignedCount) {
+        toast.success(
+          t("useBinConfigs.toasts.cardsStored", {
+            count: result.assignedCount,
+          }),
+        );
+        void queryClient.invalidateQueries({
+          queryKey: storageLocationKeys.root(),
+        });
       }
       if (result.data) {
         const confirmedBins = result.data;
@@ -397,6 +422,19 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.repackFailed")),
   });
 
+  const setChaosModeMutation = useMutation({
+    mutationFn: ({ guid, config }: { guid: string; config: ChaosConfig }) =>
+      setChaosModeAction(guid, config),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(result.message ?? t("useBinConfigs.toasts.chaosFailed"));
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.chaosFailed")),
+  });
+
   const setAlphabetConfigMutation = useMutation({
     mutationFn: ({ guid, config }: { guid: string; config: AlphabetConfig }) =>
       setAlphabetConfigAction(guid, config),
@@ -422,7 +460,8 @@ export function BinConfigsProvider({
     resetAutoAssignMutation.isPending ||
     setScanOnlyMutation.isPending ||
     setRepackConfigMutation.isPending ||
-    setAlphabetConfigMutation.isPending;
+    setAlphabetConfigMutation.isPending ||
+    setChaosModeMutation.isPending;
 
   const save = useCallback(
     (
@@ -449,8 +488,9 @@ export function BinConfigsProvider({
   );
 
   const emptyBin = useCallback(
-    async (binNumber: number) => {
-      await emptyBinMutation.mutateAsync(binNumber);
+    async (binNumber: number, options?: EmptyBinOptions) => {
+      const result = await emptyBinMutation.mutateAsync({ binNumber, options });
+      return result.success;
     },
     [emptyBinMutation],
   );
@@ -599,6 +639,19 @@ export function BinConfigsProvider({
             save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
           }
         }
+      }
+      if (
+        modeDraft.isChaosMode !== modeBaseline.isChaosMode ||
+        modeDraft.chaosBinSize !== modeBaseline.chaosBinSize
+      ) {
+        await setChaosModeMutation.mutateAsync({
+          guid: selectedSet.guid,
+          config: {
+            isChaosMode: modeDraft.isChaosMode,
+            chaosBinSize: modeDraft.chaosBinSize,
+          },
+        });
+        if (modeDraft.isChaosMode) ensureCatchAll();
       }
       if (modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode) {
         await setAlphabetConfigFn({

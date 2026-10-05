@@ -1,0 +1,92 @@
+{
+  "page": {
+    "title": "Rangement",
+    "subtitle": "Où vos cartes triées sont rangées, boîte par boîte, dans l'ordre où elles y sont entrées.",
+    "newLocation": "Nouvel emplacement",
+    "emptyTitle": "Aucun emplacement pour l'instant",
+    "emptyDescription": "Quand vous videz un bac depuis les niveaux du scanner, ou quand un bac plein met le scan en pause, choisissez ou créez un emplacement pour enregistrer où vont ses cartes.",
+    "cardCount_one": "{{count}} carte",
+    "cardCount_other": "{{count}} cartes",
+    "rename": "Renommer l'emplacement",
+    "delete": "Supprimer l'emplacement",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteDescription": "Les cartes restent dans tes collections, mais perdent cet emplacement et leur position.",
+    "summary_one": "{{count}} carte · {{value}} au total",
+    "summary_other": "{{count}} cartes · {{value}} au total"
+  },
+  "nameDialog": {
+    "label": "Nom",
+    "placeholder": "ex. Boîte 12",
+    "cancel": "Annuler",
+    "create": "Créer",
+    "save": "Enregistrer"
+  },
+  "emptyDialog": {
+    "title": "Vider le bac {{bin}}",
+    "description": "Choisis où vont les cartes de ce bac. Chaque carte y est enregistrée dans l'ordre où elle a été scannée, pour la retrouver plus tard.",
+    "locationLabel": "Emplacement",
+    "placeholder": "Choisir un emplacement",
+    "newLocation": "Nouvel emplacement…",
+    "noLocation": "Ne pas enregistrer d'emplacement",
+    "newLocationName": "Nom du nouvel emplacement",
+    "newLocationPlaceholder": "ex. Boîte 12",
+    "cancel": "Annuler",
+    "confirm": "Vider le bac",
+    "allFullDescription": "Tous les bacs sont pleins, le scan est donc en pause. Sortez les cartes du bac {{bin}} et choisissez où vous les rangez. Chaque carte y est enregistrée dans l'ordre de son scan.",
+    "notNow": "Plus tard",
+    "stepTitle": "Vider le bac {{bin}} ({{index}} sur {{total}})",
+    "confirmNext": "Vider le bac, suivant",
+    "confirmResume": "Vider le bac et reprendre",
+    "lockedDescription": "Cela remet à zéro le compteur du bac {{bin}}. Sortez d'abord les cartes."
+  },
+  "cards": {
+    "position": "#{{position}}",
+    "foil": "Foil",
+    "emptyTitle": "Rien n'est rangé ici",
+    "emptyDescription": "Les cartes apparaissent ici dès qu'un bac est vidé dans cet emplacement.",
+    "remove": "Retirer de l'emplacement",
+    "nonFoil": "Non foil",
+    "columns": {
+      "position": "#",
+      "location": "Emplacement",
+      "image": "Image",
+      "name": "Nom",
+      "set": "Extension",
+      "number": "Numéro",
+      "finish": "Finition",
+      "collection": "Collection",
+      "price": "Prix",
+      "actions": "Actions"
+    }
+  },
+  "cardLocation": {
+    "heading": "Rangement",
+    "value": "{{name}} · #{{position}}",
+    "remove": "Retirer de la boîte"
+  },
+  "toasts": {
+    "failed": "Impossible de mettre à jour les emplacements",
+    "cardRemoved": "Carte retirée de son emplacement"
+  },
+  "removeDialog": {
+    "title": "Retirer {{name}} de {{location}} ?",
+    "thisCard": "cette carte",
+    "description": "À utiliser quand vous avez sorti la carte, par exemple parce que vous l'avez vendue ou mise dans un deck. Elle reste dans votre collection, et sa place dans la boîte reste vide.",
+    "confirm": "Retirer"
+  },
+  "search": {
+    "placeholder": "Rechercher des cartes dans tous les emplacements",
+    "openLocation": "Afficher cet emplacement",
+    "emptyTitle": "Aucune carte trouvée",
+    "emptyDescription": "Aucune carte rangée ne correspond à « {{query}} ».",
+    "count_one": "{{count}} carte trouvée",
+    "count_other": "{{count}} cartes trouvées",
+    "limited": "Affichage des {{count}} premières cartes. Saisissez davantage du nom pour affiner."
+  },
+  "upgrade": {
+    "businessOnly": "Les emplacements de rangement font partie de l'offre Business.",
+    "link": "Passer à Business",
+    "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
+    "lockedWithLocations": "Vous pouvez toujours parcourir, rechercher et modifier vos emplacements, mais y enregistrer de nouvelles cartes nécessite Business."
+  }
+}

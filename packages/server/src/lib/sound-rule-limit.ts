@@ -1,23 +1,15 @@
-import { eq } from "drizzle-orm";
 import type { Transaction } from "../db";
-import { orgBilling } from "../db/schema";
-import { FREE_PLAN_MAX_SOUND_RULES, isBillingEnabled } from "./stripe";
+import { loadPlanForOrg, planLimit } from "./plan-config";
 
 export function soundRuleLimitForPlan(plan: string | undefined): number | null {
-  if (!isBillingEnabled() || (plan ?? "free") !== "free") return null;
-  return FREE_PLAN_MAX_SOUND_RULES;
+  return planLimit(plan, "soundRules");
 }
 
 export async function getSoundRuleLimit(
   tx: Transaction,
   orgId: string,
 ): Promise<number | null> {
-  if (!isBillingEnabled()) return null;
-  const billing = await tx.query.orgBilling.findFirst({
-    where: eq(orgBilling.orgId, orgId),
-    columns: { plan: true },
-  });
-  return soundRuleLimitForPlan(billing?.plan);
+  return soundRuleLimitForPlan(await loadPlanForOrg(tx, orgId));
 }
 
 export function soundRuleLimitMessage(limit: number): string {

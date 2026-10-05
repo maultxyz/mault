@@ -7,6 +7,7 @@ import { CardSearchPicker } from "@/features/cards/components/card-search-picker
 import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
+import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -172,6 +173,10 @@ function MobileCardDetailBody({
         <DetailSection title={t("cardDetailPanel.details")}>
           <CardDetailsList card={card} />
         </DetailSection>
+        <CardStorageLocationSection
+          scanId={scanId}
+          collectionGuid={collectionGuid}
+        />
       </div>
       <div className="shrink-0 border-t p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] grid grid-cols-2 gap-2">
         <Button variant="outline" onClick={() => setEditing(true)}>

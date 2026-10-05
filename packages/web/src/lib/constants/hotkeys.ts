@@ -3,6 +3,7 @@ import type {
   HotkeyGroup,
   HotkeyId,
 } from "@/lib/interfaces/hotkeys";
+import { STORAGE_PATH } from "@/lib/constants/storage";
 
 export const HOTKEY_SEQUENCE_TIMEOUT_MS = 1000;
 
@@ -31,6 +32,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   goScanner: { group: "navigation", keys: [{ key: "g" }, { key: "s" }] },
   goCollections: { group: "navigation", keys: [{ key: "g" }, { key: "c" }] },
   goMonitor: { group: "navigation", keys: [{ key: "g" }, { key: "m" }] },
+  goStorage: { group: "navigation", keys: [{ key: "g" }, { key: "b" }] },
   goCalibrate: { group: "navigation", keys: [{ key: "g" }, { key: "d" }] },
   goSettings: { group: "navigation", keys: [{ key: "g" }, { key: "," }] },
   goAdmin: { group: "navigation", keys: [{ key: "g" }, { key: "a" }] },
@@ -47,6 +49,7 @@ export const HOTKEY_ROUTES = {
   goScanner: "/app",
   goCollections: "/app/collections",
   goMonitor: "/app/monitor",
+  goStorage: STORAGE_PATH,
   goCalibrate: "/app/calibrate",
   goSettings: "/app/settings",
   goAdmin: "/app/admin",
