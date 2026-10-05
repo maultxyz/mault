@@ -44,7 +44,20 @@
     "foil": "Foil",
     "emptyTitle": "Hier ist nichts gelagert",
     "emptyDescription": "Karten erscheinen hier, sobald ein Fach in diesen Lagerort geleert wird.",
-    "remove": "Aus Lagerort entfernen"
+    "remove": "Aus Lagerort entfernen",
+    "nonFoil": "Nicht-Foil",
+    "columns": {
+      "position": "#",
+      "location": "Lagerort",
+      "image": "Bild",
+      "name": "Name",
+      "set": "Set",
+      "number": "Nummer",
+      "finish": "Ausführung",
+      "collection": "Sammlung",
+      "price": "Preis",
+      "actions": "Aktionen"
+    }
   },
   "cardLocation": {
     "heading": "Lager",

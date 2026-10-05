@@ -44,7 +44,20 @@
     "foil": "Foil",
     "emptyTitle": "Rien n'est rangé ici",
     "emptyDescription": "Les cartes apparaissent ici dès qu'un bac est vidé dans cet emplacement.",
-    "remove": "Retirer de l'emplacement"
+    "remove": "Retirer de l'emplacement",
+    "nonFoil": "Non foil",
+    "columns": {
+      "position": "#",
+      "location": "Emplacement",
+      "image": "Image",
+      "name": "Nom",
+      "set": "Extension",
+      "number": "Numéro",
+      "finish": "Finition",
+      "collection": "Collection",
+      "price": "Prix",
+      "actions": "Actions"
+    }
   },
   "cardLocation": {
     "heading": "Rangement",

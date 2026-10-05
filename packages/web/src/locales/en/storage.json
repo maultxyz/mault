@@ -44,7 +44,20 @@
     "foil": "Foil",
     "emptyTitle": "Nothing stored here",
     "emptyDescription": "Cards show up here once a bin is emptied into this location.",
-    "remove": "Remove from location"
+    "remove": "Remove from location",
+    "nonFoil": "Non-foil",
+    "columns": {
+      "position": "#",
+      "location": "Location",
+      "image": "Image",
+      "name": "Name",
+      "set": "Set",
+      "number": "Number",
+      "finish": "Finish",
+      "collection": "Collection",
+      "price": "Price",
+      "actions": "Actions"
+    }
   },
   "cardLocation": {
     "heading": "Storage",
