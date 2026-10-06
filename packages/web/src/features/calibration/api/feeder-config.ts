@@ -4,7 +4,6 @@ import type { FeederCalibration, Result } from "@magic-vault/shared";
 import { DEFAULT_FEEDER_CALIBRATION } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
-export type { FeederConfigAuditEntry };
 
 export const feederQueryOptions = (deviceGuid: string | undefined) =>
   queryOptions({

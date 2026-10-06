@@ -1,6 +1,5 @@
 import { apiDelete, apiGet, apiPost, publicGet } from "@/lib/api/client";
 import type {
-  AdminCard,
   AdminCardsPage,
   CardGameCount,
   SyncSourceInfo,
@@ -15,7 +14,6 @@ import type {
   SyncState,
 } from "@magic-vault/shared";
 
-export type { AdminCard, AdminCardsPage, CardGameCount, SyncSourceInfo };
 
 export async function listSyncSources(): Promise<{
   success: boolean;

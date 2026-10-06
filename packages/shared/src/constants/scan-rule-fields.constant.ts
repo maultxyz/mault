@@ -1,4 +1,7 @@
-import type { ConditionOperator } from "../interfaces/sort-bins.interface";
+import type {
+  ConditionField,
+  ConditionOperator,
+} from "../interfaces/sort-bins.interface";
 
 export const SCAN_RULE_ROOT = "$scan";
 
@@ -48,3 +51,11 @@ export const DEFAULT_SCAN_RULE_FIELD_LABELS = {
   foilOption: "Foil",
   nonFoilOption: "Non-foil",
 };
+
+export const SCAN_RULE_FIELDS: ConditionField[] = [
+  SCAN_RULE_FOIL_FIELD,
+  SCAN_RULE_FOIL_TYPE_FIELD,
+  SCAN_RULE_MATCH_PERCENT_FIELD,
+  SCAN_RULE_MARKET_VALUE_USD_FIELD,
+  SCAN_RULE_MARKET_VALUE_EUR_FIELD,
+];

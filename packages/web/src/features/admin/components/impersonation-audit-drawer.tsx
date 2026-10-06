@@ -11,11 +11,7 @@ import { listImpersonationAudit } from "@/lib/api/admin";
 import { IconClockHour3, IconX } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-
-interface ImpersonationAuditDrawerProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+import type { ImpersonationAuditDrawerProps } from "@/lib/interfaces/admin";
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {

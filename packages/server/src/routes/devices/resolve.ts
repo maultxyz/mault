@@ -3,8 +3,7 @@ import { authQuery } from "../../db";
 import { resolveDeviceByHardwareId } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toDevice } from "./shared";
-
-const HARDWARE_ID_PATTERN = /^[0-9A-Fa-f]{6}$/;
+import { HARDWARE_ID_PATTERN } from "../../lib/constants/validation";
 
 export const resolveDeviceRoute = new Hono<AppEnv>().post(
   "/resolve",

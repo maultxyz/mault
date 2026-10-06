@@ -1,4 +1,3 @@
-import type { DemoScannedCard } from "@/features/landing/lib/demo-cards";
 import { Badge } from "@/components/ui/badge";
 import { FoilOverlay } from "@/components/foil-overlay";
 import {
@@ -10,6 +9,7 @@ import { formatUsd } from "@/lib/format";
 import { matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import type { DemoScannedCard } from "@/lib/interfaces/landing";
 
 export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
   const { t } = useTranslation("cards");

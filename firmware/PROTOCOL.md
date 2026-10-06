@@ -175,9 +175,11 @@ protocol standpoint.
 3. Send `{"setChannelOffset": 0}` or `{"setChannelOffset": 4}` depending
    on which physical layout the machine uses.
 4. Optionally push any calibration you want to (re)apply via `setConfig`
-   / `setFeederConfig` — the device only remembers calibration for as
-   long as it stays powered, so a client is responsible for restoring it
-   after every reset.
+   / `setFeederConfig`. Before 2.5.0 the device only remembered
+   calibration for as long as it stayed powered, so a client had to
+   restore it after every reset. From 2.5.0 the device loads its stored
+   calibration (`storeConfig`) on boot, so a client can read it with
+   `getStoredConfig` and only push when it differs.
 5. Optionally run `{"test": true}` to sanity-check every servo before
    normal operation.
 
@@ -384,6 +386,47 @@ the feeder as a side effect. → `{"status":"ok"}`
 | `settleDuration` | Extra run time (ms) after detection, only when the hopper is now empty, so the last card (with nothing behind it) still fully clears into module 1 |
 | `reverseSpeed` | Raw PWM pulse driving the feeder motor backward during rollback (the other side of the motor's stop point from `speed`). Firmware 2.4.0+ |
 | `reverseDuration` | Rollback time (ms): once a feed delivers a card to module 1 and cards remain in the hopper, the roller runs backward this long so the next card, dragged forward by friction, is pulled back instead of creeping in behind it (a double feed). `0` (the default) turns it off. Firmware 2.4.0+; older firmware ignores both fields |
+
+### `storeConfig` (firmware 2.5.0+)
+```json
+{"storeConfig": true}
+```
+Persists the current channel offset, every module's `setConfig` values and
+the `setFeederConfig` values to EEPROM (data flash on the Uno R4, NVS on
+ESP32), and the device applies them on every boot. `setConfig`,
+`setFeederConfig` and `setChannelOffset` never persist by themselves, so a
+client can try unsaved values freely and only send `storeConfig` once they
+are final. Writes only when something changed, to spare the flash.
+→ `{"status":"ok","written":true}` (`false` when the stored copy already
+matched).
+
+### `getStoredConfig` (firmware 2.5.0+)
+Reads back what `storeConfig` saved, one section per line so every reply
+fits the 255-byte line limit.
+
+```json
+{"getStoredConfig": true}
+```
+→ `{"status":"ok","stored":true,"dirty":false,"channelOffset":0,"modules":5}`.
+`stored` is `false` (with no other fields) until the first `storeConfig`.
+`dirty` is `true` when the values in use differ from the stored copy
+(e.g. after an unsaved `setConfig`). `modules` is how many module entries
+are stored.
+
+```json
+{"getStoredConfig": 2}
+```
+→ `{"status":"ok","module":2,"bottomClosed":300,...}` with the same fields
+as `setConfig`.
+
+```json
+{"getStoredConfig": "feeder"}
+```
+→ `{"status":"ok","feeder":{"speed":315,...}}` with the same fields as
+`setFeederConfig`.
+
+Both section forms answer `{"error":"no stored config"}` before the first
+`storeConfig`. Older firmware answers `{"error":"unknown command"}`.
 
 ### `readIR`
 ```json

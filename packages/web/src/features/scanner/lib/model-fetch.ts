@@ -1,9 +1,4 @@
-export interface PinnedModel {
-  repo: string;
-  revision: string;
-  filename: string;
-  sha256: string;
-}
+import type { PinnedModel } from "@magic-vault/shared";
 
 const DB_NAME = "magic-vault-vision-models";
 const STORE_NAME = "models";
@@ -76,17 +71,3 @@ export async function fetchPinnedModel(model: PinnedModel): Promise<ArrayBuffer>
   await writeCached(model.sha256, buffer);
   return buffer;
 }
-
-export const FASTWEB_DETECTOR_MODEL: PinnedModel = {
-  repo: "HanClinto/ccgdetector-fastweb-single",
-  revision: "66ffd4976ec57bda0f6ea2d83e15ca6a3add7dd9",
-  filename: "fastweb-single-1.39.onnx",
-  sha256: "05d2b90b928a5a3bf0f49aa90aa86211b2103d9c347c238fd18b4f544b3cb8ca",
-};
-
-export const MILO_MODEL: PinnedModel = {
-  repo: "HanClinto/milo",
-  revision: "9bcc5e809e936b8c5630d1e7101aae1de1e76621",
-  filename: "model.onnx",
-  sha256: "bd13d8d60383c69da04dce261f32e93fdaeaa8fd618fbc991e7385f71b3d45df",
-};

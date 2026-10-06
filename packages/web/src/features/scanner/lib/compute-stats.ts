@@ -9,7 +9,6 @@ import {
   type ScannedCard,
 } from "@magic-vault/shared";
 
-export type { ScanStats };
 
 function capitalize(value: string): string {
   return value.length > 0

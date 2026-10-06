@@ -1,5 +1,7 @@
 import { useCollections } from "@/features/collections/api/use-collections";
-import { usePhoneCameraCapture } from "@/features/scanner/api/use-phone-camera-capture";
+import {
+  usePhoneCameraCapture,
+} from "@/features/scanner/api/use-phone-camera-capture";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
   applyFocus,

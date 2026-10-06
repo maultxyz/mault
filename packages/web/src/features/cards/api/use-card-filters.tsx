@@ -1,17 +1,9 @@
-import type { CardFilters } from "@/lib/interfaces/cards";
-import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { createContext, useCallback, useContext, useState } from "react";
+import { EMPTY_CARD_FILTERS, type CardFilters } from "@magic-vault/shared";
+import type { CardFiltersContextValue } from "@/lib/interfaces/cards";
 
 function toggleItem<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
-}
-
-interface CardFiltersContextValue {
-  filters: CardFilters;
-  setFilters: (filters: CardFilters) => void;
-  toggleRarity: (rarity: string) => void;
-  toggleColor: (color: string) => void;
-  toggleSet: (setCode: string) => void;
 }
 
 const CardFiltersContext = createContext<CardFiltersContextValue | null>(null);

@@ -21,7 +21,12 @@ import {
   getScansToday,
 } from "../../lib/scan-usage";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
-import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  getUserDisplayName,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";

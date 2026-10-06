@@ -190,6 +190,43 @@
       "saveFailed": "Failed to save module config"
     }
   },
+  "storedCalibration": {
+    "dialog": {
+      "title": "Calibration differs from the sorter",
+      "description": "{{name}} has calibration saved on it that doesn't match the calibration saved in the app. Choose which one to keep.",
+      "setting": "Setting",
+      "app": "App",
+      "sorter": "Sorter",
+      "module": "Module {{module}}",
+      "feeder": "Feeder",
+      "hint": "Using the app's calibration overwrites the sorter's. Using the sorter's saves its values to the app, where you can still undo them from the calibration history.",
+      "useSorter": "Use sorter's",
+      "useApp": "Use app's"
+    },
+    "fields": {
+      "bottomClosed": "Bottom closed",
+      "bottomOpen": "Bottom open",
+      "paddleClosed": "Paddles closed",
+      "paddleOpen": "Paddles open",
+      "pusherLeft": "Pusher left",
+      "pusherNeutral": "Pusher neutral",
+      "pusherRight": "Pusher right",
+      "pusherHoldDuration": "Pusher hold time (ms)",
+      "paddleCloseDelay": "Paddle close delay (ms)",
+      "speed": "Speed",
+      "duration": "Timeout (ms)",
+      "pulseDuration": "Pulse (ms)",
+      "pauseDuration": "Pause (ms)",
+      "settleDuration": "Final detection delay (ms)",
+      "reverseSpeed": "Roll back speed",
+      "reverseDuration": "Roll back time (ms)"
+    },
+    "toasts": {
+      "adopted": "Saved the sorter's calibration to the app",
+      "adoptFailed": "Couldn't save the sorter's calibration, using the app's instead",
+      "storeFailed": "Couldn't save calibration on the sorter"
+    }
+  },
   "useBinRoutes": {
     "toasts": {
       "saveFailed": "Failed to save bin route",
@@ -382,5 +419,21 @@
     "autoConnectDescription": "When this sorter is plugged in over USB while the app is open (or is already plugged in when the app loads), it connects on its own and runs its self-test so it's ready to scan. Over Bluetooth, if it drops or is power-cycled, the app keeps trying to reconnect until the tab is closed. Connect it by hand once in this browser first, so the browser allows it.",
     "testOnConnectLabel": "Run self-test on connect",
     "testOnConnectDescription": "When on, the sorter cycles every servo and checks its sensors each time it connects. When off, it only loads its saved calibration and is ready right away. You can still run the test from the calibration page."
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "Check which firmware the sorter is running and update it from this browser.",
+    "installed": "Installed",
+    "latest": "Latest",
+    "outdated": "Update available",
+    "unknownVersion": "Unknown",
+    "notConnected": "Not connected",
+    "flashConnected": "Flash firmware",
+    "flashBoard": "Flash a board",
+    "getRelease": "Download firmware",
+    "bluetoothNote": "Flashing doesn't work over Bluetooth. Connect the sorter with a USB cable to flash it.",
+    "unoNote": "Arduino Uno R4 boards can't be flashed from the browser. Download the firmware and upload it with the Arduino IDE.",
+    "notConnectedHint": "Connect a sorter to see its version, or flash an ESP32-S3 over USB without connecting it first.",
+    "unsupported": "This browser can't flash boards. Use Chrome or Edge on a computer."
   }
 }

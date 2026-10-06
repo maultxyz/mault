@@ -3,10 +3,10 @@ import {
   SettingsSections,
 } from "@/components/settings-section";
 import { BillingSettings } from "@/features/billing/components/billing-settings";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 export default function SettingsBillingPage() {
   const { t } = useTranslation("settings");

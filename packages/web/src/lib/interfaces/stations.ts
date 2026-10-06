@@ -1,6 +1,6 @@
-import type { Device } from "@/features/calibration/api/devices";
 import type { PlayingCard } from "@magic-vault/shared";
 import type { ReactNode } from "react";
+import type { Device } from "@/lib/interfaces/calibration";
 
 export type StationPanelLayout = "horizontal" | "vertical";
 

@@ -2,20 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-
-interface PinnedModel {
-  repo: string;
-  revision: string;
-  filename: string;
-  sha256: string;
-}
-
-export const MILO_MODEL: PinnedModel = {
-  repo: "HanClinto/milo",
-  revision: "9bcc5e809e936b8c5630d1e7101aae1de1e76621",
-  filename: "model.onnx",
-  sha256: "bd13d8d60383c69da04dce261f32e93fdaeaa8fd618fbc991e7385f71b3d45df",
-};
+import { MILO_MODEL, type PinnedModel } from "@magic-vault/shared";
 
 function cacheRoot(): string {
   return (

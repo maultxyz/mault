@@ -1,12 +1,12 @@
 import {
   deleteDevice,
   devicesQueryOptions,
-  type Device,
 } from "@/features/calibration/api/devices";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { toast } from "@/lib/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import type { Device } from "@/lib/interfaces/calibration";
 
 export function useDeleteDevice() {
   const { t } = useTranslation("scanner");

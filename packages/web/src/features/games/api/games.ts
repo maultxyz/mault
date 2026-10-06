@@ -1,13 +1,8 @@
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
-import type { GameInput, SampleCard } from "@/lib/interfaces/games";
-import type {
-  Game,
-  GameCoverage,
-  Result,
-} from "@magic-vault/shared";
+import type { SampleCard } from "@/lib/interfaces/games";
+import type { Game, GameCoverage, Result, GameInput } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
-export type { GameInput, SampleCard };
 
 export async function listGames(): Promise<Result<Game[]>> {
   return apiGet<Result<Game[]>>("/api/games");

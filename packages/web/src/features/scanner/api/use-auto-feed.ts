@@ -1,15 +1,13 @@
-import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import {
+  reportSerialEvent,
+} from "@/features/notifications/api/notification-settings";
 import { useSerialMessage } from "@/features/scanner/api/use-serial";
 import { isFedEvent } from "@/features/scanner/lib/serial-messages";
 import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-
-interface AutoFeedSerial {
-  sendCommand: (data: string) => Promise<boolean>;
-  receiveResponse: (timeoutMs?: number) => Promise<string>;
-}
+import type { AutoFeedSerial } from "@/lib/interfaces/scanner";
 
 export function useAutoFeed({
   serialRef,

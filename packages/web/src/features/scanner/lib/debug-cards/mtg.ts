@@ -1,5 +1,5 @@
 import type { PlayingCardWithDistance } from "@magic-vault/shared";
-import type { DebugCardSet } from "./types";
+import type { DebugCardSet } from "@/lib/interfaces/scanner";
 
 const LIGHTNING_BOLT_M11: PlayingCardWithDistance = {
   id: "e3285e6b-3e79-4d7c-bf96-d920f973b122",

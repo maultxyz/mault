@@ -1,19 +1,7 @@
 import { DEFAULT_CALIBRATION, type ModuleConfig } from "@magic-vault/shared";
+import type { ModuleCalibrationRow } from "../../lib/interfaces/calibration";
 
-export type CalibRow = {
-  moduleNumber: number;
-  bottomClosed: number;
-  bottomOpen: number;
-  paddleClosed: number;
-  paddleOpen: number;
-  pusherLeft: number;
-  pusherNeutral: number;
-  pusherRight: number;
-  pusherHoldDuration: number;
-  paddleCloseDelay: number;
-};
-
-export function toModuleConfig(row: CalibRow): ModuleConfig {
+export function toModuleConfig(row: ModuleCalibrationRow): ModuleConfig {
   return {
     moduleNumber: row.moduleNumber,
     calibration: {
@@ -30,7 +18,7 @@ export function toModuleConfig(row: CalibRow): ModuleConfig {
   };
 }
 
-export function buildConfigs(rows: CalibRow[], moduleCount: number): ModuleConfig[] {
+export function buildConfigs(rows: ModuleCalibrationRow[], moduleCount: number): ModuleConfig[] {
   return Array.from({ length: moduleCount }, (_, i) => i + 1).map((n) => {
     const row = rows.find((r) => r.moduleNumber === n);
     return row ? toModuleConfig(row) : { moduleNumber: n, calibration: { ...DEFAULT_CALIBRATION } };

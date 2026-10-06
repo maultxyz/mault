@@ -1,5 +1,4 @@
 import {
-  API_BASE,
   apiDelete,
   apiGet,
   apiPost,
@@ -7,69 +6,10 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import {
-  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
-  DEFAULT_CHANNEL_LAYOUT,
-  DEFAULT_CHECK_BOTH_ORIENTATIONS,
-  DEFAULT_MATCHES_NEEDED,
-  DEFAULT_MODULE_COUNT,
-  DEFAULT_SCAN_REGION,
-  type ChannelLayout,
-  type Result,
-  type ScanRegion,
-} from "@magic-vault/shared";
+import type { Device } from "@/lib/interfaces/calibration";
+import type { DevicePatch, Result } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
-
-export interface Device {
-  guid: string;
-  name: string;
-  hardwareId: string | null;
-  scanRegion: ScanRegion;
-  captureSettleDelayMs: number;
-  matchesNeeded: number;
-  checkBothOrientations: boolean;
-  moduleCount: number;
-  channelLayout: ChannelLayout;
-  setupCompletedAt: string | null;
-  pipelinedFeed: boolean;
-  autoConnect: boolean;
-  testOnConnect: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface DevicePatch {
-  name?: string;
-  hardwareId?: string | null;
-  scanRegion?: ScanRegion | null;
-  captureSettleDelayMs?: number | null;
-  matchesNeeded?: number | null;
-  checkBothOrientations?: boolean | null;
-  moduleCount?: number;
-  channelLayout?: ChannelLayout;
-  setupCompleted?: boolean;
-  pipelinedFeed?: boolean;
-  autoConnect?: boolean;
-  testOnConnect?: boolean;
-}
-
-export const DEFAULT_DEVICE: Device = {
-  guid: "",
-  name: "Card Sorter",
-  hardwareId: null,
-  scanRegion: DEFAULT_SCAN_REGION,
-  captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
-  matchesNeeded: DEFAULT_MATCHES_NEEDED,
-  checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
-  moduleCount: DEFAULT_MODULE_COUNT,
-  channelLayout: DEFAULT_CHANNEL_LAYOUT,
-  setupCompletedAt: null,
-  pipelinedFeed: false,
-  autoConnect: false,
-  testOnConnect: true,
-  createdAt: "",
-  updatedAt: "",
-};
+import { API_BASE } from "@/lib/constants/api";
 
 export const devicesQueryOptions = (orgId: string | undefined) =>
   queryOptions({

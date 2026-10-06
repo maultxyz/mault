@@ -1,8 +1,13 @@
-import type { Device } from "@/features/calibration/api/devices";
-import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
+import {
+  devicesQueryOptions,
+  saveDevice,
+} from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
-import type { ModuleCountConfigContextValue } from "@/lib/interfaces/calibration";
+import type {
+  ModuleCountConfigContextValue,
+  Device,
+} from "@/lib/interfaces/calibration";
 import {
   DEFAULT_CHANNEL_LAYOUT,
   DEFAULT_MODULE_COUNT,

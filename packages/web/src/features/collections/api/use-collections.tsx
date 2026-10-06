@@ -30,19 +30,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-
-interface CollectionsContextValue {
-  collections: Collection[];
-  activeCollection: Collection | null;
-  isLoading: boolean;
-  isActivating: boolean;
-  isMutating: boolean;
-  createCollection: (name: string, gameGuid: string, lang: string) => Promise<void>;
-  updateCollection: (guid: string, name: string) => Promise<void>;
-  activateCollection: (guid: string) => Promise<void>;
-  deleteCollection: (guid: string) => Promise<void>;
-  emptyCollection: (guid: string) => Promise<void>;
-}
+import type { CollectionsContextValue } from "@/lib/interfaces/collections";
 
 const CollectionsContext = createContext<CollectionsContextValue | null>(null);
 

@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import type { AppAlert } from "@/lib/interfaces/alerts";
 import { neon } from "@/lib/auth/client";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { IconAlertTriangle, IconLoader2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 function useEmailVerificationAlertNeon(): AppAlert | null {
   const { t } = useTranslation("common");

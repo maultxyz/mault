@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { Slider } from "@/components/ui/slider";
-import type { CardFilters } from "@/lib/interfaces/cards";
-import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { RARITY_TEXT_CLASS } from "@/lib/constants/rarity";
 import { cn } from "@/lib/utils";
@@ -13,6 +11,8 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
+import type { CardFilterPopoverProps } from "@/lib/interfaces/cards";
 
 function toggle<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
@@ -22,16 +22,6 @@ const chipBase =
   "cursor-pointer border transition-colors rounded-md text-xs font-bold";
 const chipInactive =
   "border-border bg-transparent text-foreground/70 hover:bg-muted hover:text-foreground";
-
-interface CardFilterPopoverProps {
-  activeFilters: CardFilters;
-  onFiltersChange: (filters: CardFilters) => void;
-  activeFilterCount: number;
-  availableRarities: { key: string; label: string }[];
-  availableColors: { key: string; label: string; bg: string }[];
-  availableFoilTypes: { key: string; label: string }[];
-  binCount?: number;
-}
 
 export function CardFilterPopover({
   activeFilters,

@@ -1,4 +1,4 @@
-import { CardDetailSkeleton } from "@/components/card-detail-skeleton";
+import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -25,9 +25,7 @@ export function MonitorCardDetail({
   }, [isMissing, onClose]);
 
   if (!entry) {
-    return (
-      <CardDetailSkeleton />
-    );
+    return <CardDetailPanelSkeleton />;
   }
 
   return (

@@ -1,9 +1,7 @@
 import { apiGet, apiPost, apiPut } from "@/lib/api/client";
-import { DEFAULT_ORG_SETTINGS, type OrgSettings } from "@/lib/constants/org-settings";
 import { queryOptions } from "@tanstack/react-query";
+import { type OrgSettings, DEFAULT_ORG_SETTINGS } from "@magic-vault/shared";
 
-export type { OrgSettings };
-export { DEFAULT_ORG_SETTINGS };
 
 export async function getOrgSettings(): Promise<{
   success: boolean;

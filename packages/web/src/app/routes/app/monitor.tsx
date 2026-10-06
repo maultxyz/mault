@@ -1,5 +1,4 @@
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
@@ -11,6 +10,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
+import { useCollectionLocks } from "@/lib/app-stream";
 
 export default function MonitorPage() {
   const { t } = useTranslation("scanner");

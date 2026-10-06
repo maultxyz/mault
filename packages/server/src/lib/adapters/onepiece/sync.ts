@@ -1,16 +1,12 @@
 import type {
   SyncSource,
   SyncSourceCard,
-} from "../../card-search/sync-types";
+} from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { ONE_PIECE_DEFAULT_URL } from "../../constants/urls";
-import {
-  dedupeOnePieceRows,
-  findCardVersion,
-  onePieceSetCode,
-  type OptcgCard,
-} from "./search";
+import { dedupeOnePieceRows, findCardVersion, onePieceSetCode } from "./search";
+import type { OptcgCard } from "../../interfaces/onepiece";
 
 // Booster sets, starter decks, and promos are separate catalogs. DON!! cards
 // (/allDonCards/) are deliberately not enrolled: they have no printed card id

@@ -2,14 +2,12 @@ import {
   CARD_DETECTION_RETRY_INTERVAL_MS,
   CARD_DETECTION_RETRY_TIMEOUT_MS,
 } from "@/lib/constants/timing";
-import { detectCardCorners, type CornerDetection } from "./cornelius";
+import { detectCardCorners } from "./cornelius";
 import { dewarpCard } from "./perspective-warp";
-
-export interface ClientDewarpResult {
-  detection: CornerDetection;
-  dewarpedCanvas: HTMLCanvasElement | null;
-  frame: HTMLCanvasElement;
-}
+import type {
+  CornerDetection,
+  ClientDewarpResult,
+} from "@/lib/interfaces/scanner";
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

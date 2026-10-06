@@ -1,18 +1,9 @@
-type SseWriter = (event: string, data: unknown) => void;
-
-export interface ViewerInfo {
-  userId: string;
-  displayName: string;
-}
-
-interface ViewerEntry extends ViewerInfo {
-  writer: SseWriter;
-}
-
-interface SessionEntry {
-  orgId: string;
-  viewers: Set<ViewerEntry>;
-}
+import type { SseWriter } from "./interfaces/sse";
+import type {
+  SessionEntry,
+  ViewerEntry,
+  ViewerInfo,
+} from "./interfaces/session-stream";
 
 const sessions = new Map<string, SessionEntry>();
 const orgCountWriters = new Map<string, Set<SseWriter>>();

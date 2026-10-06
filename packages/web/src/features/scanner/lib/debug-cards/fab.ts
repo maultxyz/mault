@@ -1,5 +1,5 @@
 import type { PlayingCardWithDistance } from "@magic-vault/shared";
-import type { DebugCardSet } from "./types";
+import type { DebugCardSet } from "@/lib/interfaces/scanner";
 
 const ENLIGHTENED_STRIKE_IMG =
   "https://storage.googleapis.com/fabmaster/media/images/1HP361.width-450.png";

@@ -9,19 +9,20 @@ import {
   type FieldMeta,
   type GroupedScannedCard,
   type PriceSource,
+  SORTABLE_FIELD_TYPES,
 } from "@magic-vault/shared";
 import { and, eq, sql, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import type { Transaction } from "../../db";
 import { collections, games } from "../../db/schema";
 import { toScannedCard } from "./shared";
+import type { CollectionCardRow } from "../../lib/interfaces/collections";
+import { UUID_PATTERN } from "../../lib/constants/validation";
+import {
+  CARD_SEARCH_FIELDS,
+  NUMERIC_PREFIX_SQL_PATTERN,
+} from "../../lib/constants/collections";
 
-const SORTABLE_TYPES: FieldMeta["type"][] = ["string", "numeric", "enum"];
-
-const NUMERIC_PREFIX_PATTERN = String.raw`^\s*([+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?)`;
-
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const cardFiltersSchema = z.object({
   colors: z.array(z.string()).default([]),
@@ -132,15 +133,6 @@ export function cardPriceSql(source: PriceSource): SQL {
 
 const SCANNED_AT_MS = sql`(extract(epoch from cc.scanned_at) * 1000)::float8`;
 
-const SEARCH_FIELDS = [
-  "name",
-  "setName",
-  "set",
-  "typeLine",
-  "collectorNumber",
-  "text",
-];
-
 function fieldValueSql(path: string): SQL {
   const segments = path.split(".");
   return sql`COALESCE(cc.card #> ${pgTextArray(["raw", ...segments])}::text[], cc.card #> ${pgTextArray(segments)}::text[])`;
@@ -206,7 +198,7 @@ export function cardFilterSql({ filters, search }: CollectionCardsQuery): SQL {
   }
 
   if (search) {
-    const matches = SEARCH_FIELDS.map(
+    const matches = CARD_SEARCH_FIELDS.map(
       (key) =>
         sql`strpos(lower(COALESCE(cc.card ->> ${key}::text, '')), ${search}::text) > 0`,
     );
@@ -229,7 +221,7 @@ export function cardOrderSql(
   if (dir !== "asc" && dir !== "desc") return newestFirst;
 
   const meta = fieldDefinitions.find(
-    (f) => f.field === field && SORTABLE_TYPES.includes(f.type),
+    (f) => f.field === field && SORTABLE_FIELD_TYPES.includes(f.type),
   );
   if (!meta) return newestFirst;
 
@@ -237,7 +229,7 @@ export function cardOrderSql(
   const text = sql`COALESCE(${value} #>> '{}', '')`;
   let key: SQL;
   if (meta.type === "numeric") {
-    key = sql`(substring(${value} #>> '{}' from ${NUMERIC_PREFIX_PATTERN}::text))::float8`;
+    key = sql`(substring(${value} #>> '{}' from ${NUMERIC_PREFIX_SQL_PATTERN}::text))::float8`;
   } else if (meta.type === "enum" && meta.options) {
     const whens = meta.options.map(
       (option, i) =>
@@ -285,20 +277,7 @@ function rankedCardsCte(
     )`;
 }
 
-interface CardRow {
-  guid: string;
-  card: unknown;
-  scanned_at_ms: number;
-  bin_number: number | null;
-  is_foil: boolean;
-  foil_type: string | null;
-  is_downloaded: boolean;
-  alternative_matches: unknown;
-  is_corrected: boolean;
-  needs_review: boolean;
-}
-
-function toCard(row: CardRow) {
+function toCard(row: CollectionCardRow) {
   return toScannedCard({
     guid: row.guid,
     card: row.card,
@@ -351,7 +330,7 @@ export async function loadCardsPage(
     | undefined;
   return {
     items: (
-      items.rows as unknown as (CardRow & {
+      items.rows as unknown as (CollectionCardRow & {
         scan_ids: string[];
         quantity: number;
       })[]
@@ -392,7 +371,7 @@ export async function loadCardPosition(
   `);
 
   const row = result.rows[0] as unknown as
-    | (CardRow & {
+    | (CollectionCardRow & {
         pos: number;
         total: number;
         copy_index: number;
@@ -435,7 +414,7 @@ export async function loadAllCards(tx: Transaction, collectionId: number) {
     WHERE cc.collection_id = ${collectionId}
     ORDER BY cc.scanned_at DESC, cc.id DESC
   `);
-  return (result.rows as unknown as CardRow[]).map(toCard);
+  return (result.rows as unknown as CollectionCardRow[]).map(toCard);
 }
 
 export async function loadCardStats(

@@ -3,11 +3,7 @@ import { LIVE_CLOCK_TICK_MS } from "@/lib/constants/timing";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useDiscordBotSettings } from "../api/use-discord-bot";
-
-interface PendingCode {
-  code: string;
-  expiresAt: number;
-}
+import type { PendingDiscordLinkCode } from "@/lib/interfaces/integrations";
 
 export function DiscordBotSettings() {
   const { t } = useTranslation("companies");
@@ -19,7 +15,7 @@ export function DiscordBotSettings() {
     unlink,
     isUnlinking,
   } = useDiscordBotSettings();
-  const [pending, setPending] = useState<PendingCode | null>(null);
+  const [pending, setPending] = useState<PendingDiscordLinkCode | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {

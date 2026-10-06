@@ -131,3 +131,8 @@ export interface RuleGroupEditorProps {
 export interface BinRulesMenuProps {
   className?: string;
 }
+
+export interface BinLocationDiagramProps {
+  binNumber?: number;
+  inverted?: boolean;
+}

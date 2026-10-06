@@ -1,18 +1,11 @@
 import type {
   SyncSource,
   SyncSourceCard,
-} from "../../card-search/sync-types";
+} from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { GUNDAM_DEFAULT_URL } from "../../constants/urls";
-
-interface GundamListCard {
-  product_id: string;
-  card_number: string;
-  name: string;
-  set_code: string;
-  image_url: string;
-}
+import type { GundamListCard } from "../../interfaces/gundam";
 
 const PAGE_LIMIT = 250;
 

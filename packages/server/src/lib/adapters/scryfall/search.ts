@@ -1,53 +1,14 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
-import type { CardSearchAdapter } from "../../card-search/types";
+import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
-
-interface ScryfallImageUris {
-  small: string;
-  normal: string;
-}
-
-interface ScryfallCardFace {
-  name?: string;
-  printed_name?: string;
-  mana_cost?: string;
-  oracle_text?: string;
-  printed_text?: string;
-  power?: string;
-  toughness?: string;
-  artist?: string;
-  image_uris?: ScryfallImageUris;
-}
-
-interface ScryfallApiCard {
-  id: string;
-  lang?: string;
-  name: string;
-  printed_name?: string;
-  image_uris?: ScryfallImageUris;
-  card_faces?: ScryfallCardFace[];
-  mana_cost?: string;
-  cmc?: number;
-  type_line: string;
-  printed_type_line?: string;
-  oracle_text?: string;
-  printed_text?: string;
-  power?: string;
-  toughness?: string;
-  color_identity: string[];
-  set: string;
-  set_name: string;
-  collector_number: string;
-  rarity: string;
-  artist?: string;
-  scryfall_uri: string;
-  prices: { usd: string | null; usd_foil: string | null };
-  tcgplayer_id?: number;
-  cardmarket_id?: number;
-}
+import type {
+  ScryfallImageUris,
+  ScryfallCardFace,
+  ScryfallApiCard,
+} from "../../interfaces/scryfall";
 
 function withPrintedFields(raw: ScryfallApiCard): ScryfallApiCard {
   const face = raw.card_faces?.[0];

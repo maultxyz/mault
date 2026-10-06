@@ -12,7 +12,6 @@ import {
 import {
   devicesQueryOptions,
   saveDevice,
-  type Device,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -20,6 +19,7 @@ import { toast } from "@/lib/toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { Device } from "@/lib/interfaces/calibration";
 
 export function ChannelLayoutUpgradeButton() {
   const { t } = useTranslation("calibration");

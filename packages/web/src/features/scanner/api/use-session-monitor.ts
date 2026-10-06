@@ -6,16 +6,15 @@ import type {
   SessionMonitorState,
 } from "@/lib/interfaces/scanner";
 import type { SessionViewer } from "@/lib/interfaces/collections";
-import type {
-  Collection,
-  ScannedCard,
-  UnmatchedCard,
+import {
+  type Collection,
+  type ScannedCard,
+  type UnmatchedCard,
+  RECENT_SCANNED_CARDS_COUNT,
 } from "@magic-vault/shared";
-import { RECENT_SCANNED_CARDS_COUNT } from "@/lib/constants/limits";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export type { SessionError, SessionMonitorState };
 
 export function useSessionMonitor(
   collectionGuid: string | undefined,

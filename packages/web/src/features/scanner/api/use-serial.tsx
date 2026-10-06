@@ -3,17 +3,14 @@ import {
   devicesQueryOptions,
   releaseDeviceLease,
   resolveDevice,
-  type Device,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
-import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
-  formatCommLog,
-  MAX_COMM_LOG_ENTRIES,
-  type CommLogEntry,
-} from "@/features/scanner/lib/comm-log";
+  reportSerialEvent,
+} from "@/features/notifications/api/notification-settings";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
+import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
 import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import {
@@ -26,7 +23,6 @@ import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
 import {
   BluetoothTransport,
   SerialTransport,
-  type ByteTransport,
 } from "@/features/scanner/lib/transports";
 import {
   BLE_RECONNECT_BASE_DELAY_MS,
@@ -40,6 +36,7 @@ import {
 } from "@/lib/constants/scanner";
 import {
   DEVICE_LEASE_HEARTBEAT_MS,
+  NEUTRAL_RESPONSE_TIMEOUT_MS,
   PUSH_TEST_RESPONSE_TIMEOUT_MS,
   ROUTE_RESPONSE_TIMEOUT_MS,
   ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS,
@@ -56,6 +53,8 @@ import type {
   SerialMessageListener,
   SkippedRouteResponse,
   TestResult,
+  ByteTransport,
+  CommLogEntry,
 } from "@/lib/interfaces/scanner";
 import type { BleReconnectState, PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
@@ -72,8 +71,9 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import type { Device } from "@/lib/interfaces/calibration";
+import { MAX_COMM_LOG_ENTRIES } from "@/lib/constants/limits";
 
-export type { SerialMessageListener } from "@/lib/interfaces/scanner";
 
 const SerialContext = createContext<SerialContextValue | null>(null);
 
@@ -417,10 +417,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     async (forTransport: ByteTransport, forDevice: Device) => {
       await runPreTestHooks(forDevice);
       if (transportRef.current !== forTransport) return;
+      if (await sendCommand(JSON.stringify({ neutral: true }) + "\n")) {
+        await waitForLine(NEUTRAL_RESPONSE_TIMEOUT_MS);
+      }
+      if (transportRef.current !== forTransport) return;
       setIsReady(true);
       toast.success(t("serial.deviceReadyNoTest"));
     },
-    [runPreTestHooks, t],
+    [runPreTestHooks, sendCommand, waitForLine, t],
   );
 
   const runConnectTest = useCallback(

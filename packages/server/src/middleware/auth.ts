@@ -2,14 +2,14 @@ import { timingSafeEqual } from "node:crypto";
 import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
 import { authProvider } from "../auth";
-import type { OrgRole } from "../auth/types";
 import {
   IMPERSONATION_ISSUER,
   IMPERSONATION_TTL_SECONDS,
 } from "../lib/constants/auth";
 import { cachedDisplayName } from "../lib/display-name-cache";
+import type { OrgRole } from "@magic-vault/shared";
+import type { ImpersonationPayload } from "../lib/interfaces/auth";
 
-export type { OrgRole };
 
 export type AppVariables = {
   jwtClaims: string;
@@ -55,11 +55,6 @@ export async function signImpersonationToken(
     .setExpirationTime(Math.floor(expiresAt.getTime() / 1000))
     .sign(impersonationSecret());
   return { token, expiresAt };
-}
-
-interface ImpersonationPayload {
-  sub: string;
-  act?: { sub?: string };
 }
 
 async function verifyImpersonationToken(

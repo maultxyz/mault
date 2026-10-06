@@ -3,10 +3,10 @@ import { SessionErrorsPanel } from "@/features/scanner/components/session-errors
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { RECENT_SCANNED_CARDS_COUNT } from "@/lib/constants/limits";
 import type { MobileMonitorActivityProps } from "@/lib/interfaces/scanner";
 import { IconChevronRight, IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { RECENT_SCANNED_CARDS_COUNT } from "@magic-vault/shared";
 
 export function MobileMonitorActivity({
   session,

@@ -1,5 +1,5 @@
 import type { PlayingCardWithDistance } from "@magic-vault/shared";
-import type { DebugCardSet } from "./types";
+import type { DebugCardSet } from "@/lib/interfaces/scanner";
 
 const ARIEL_IMG =
   "https://cards.lorcast.io/card/digital/normal/crd_d9f3b86af85f48579ed9d0d7ce0de129.avif?1709690747";

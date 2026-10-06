@@ -1,16 +1,5 @@
-import type { FieldMeta, FieldRenames, FieldType, Game } from "@magic-vault/shared";
+import type { FieldType, Game } from "@magic-vault/shared";
 import type { ExportedGame } from "@/schemas/games-export.schema";
-
-export interface GameInput {
-  key: string;
-  name: string;
-  fieldDefinitions: FieldMeta[];
-  fieldRenames?: FieldRenames;
-  foilTypes: string[];
-  apiDocsUrl?: string | null;
-  cardThickness?: number | null;
-  isActive: boolean;
-}
 
 export interface SampleCard {
   name: string;
@@ -31,4 +20,20 @@ export interface GamesImportPlan {
 
 export interface GamesTransferMenuProps {
   games: Game[];
+}
+
+export interface GameEditorProps {
+  game: Game | null;
+}
+
+export interface JsonNodeProps {
+  path: string;
+  keyName: string;
+  value: unknown;
+  onPick: (field: PickedField) => void;
+}
+
+export interface SampleCardBrowserProps {
+  gameKey: string;
+  onPick: (field: PickedField) => void;
 }

@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { STRIPE_PRICE_CACHE_TTL_MS as PRICE_CACHE_TTL_MS } from "./constants/timing";
+import type { BusinessPriceInfo } from "./interfaces/billing";
 
 let _stripe: Stripe | null = null;
 
@@ -58,12 +59,6 @@ export async function getCancelAtPeriodEndPortalConfigurationId(): Promise<
 
   _portalConfigurationId = config.id;
   return config.id;
-}
-
-export interface BusinessPriceInfo {
-  amount: number;
-  currency: string;
-  interval: string;
 }
 
 let _businessPriceCache: BusinessPriceInfo | null = null;

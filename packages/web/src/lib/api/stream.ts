@@ -1,4 +1,5 @@
-import { API_BASE, getRequestAuth } from "@/lib/api/client";
+import { getRequestAuth } from "@/lib/api/client";
+import { API_BASE } from "@/lib/constants/api";
 
 export async function createAppStreamSource(
   orgId: string,

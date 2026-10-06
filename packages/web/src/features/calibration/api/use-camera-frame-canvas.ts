@@ -1,10 +1,6 @@
 import { fitFrameToContainer } from "@/features/calibration/lib/scan-region-geometry";
 import { useEffect, useRef, useState } from "react";
-
-interface Size {
-  width: number;
-  height: number;
-}
+import type { FrameSize } from "@/lib/interfaces/calibration";
 
 export function useCameraFrameCanvas({
   stream,
@@ -17,8 +13,8 @@ export function useCameraFrameCanvas({
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
-  const [videoSize, setVideoSize] = useState<Size | null>(null);
-  const [phonePhotoSize, setPhonePhotoSize] = useState<Size | null>(null);
+  const [videoSize, setVideoSize] = useState<FrameSize | null>(null);
+  const [phonePhotoSize, setPhonePhotoSize] = useState<FrameSize | null>(null);
 
   useEffect(() => {
     if (!stream) return;

@@ -9,8 +9,7 @@ import {
   type ChatInputCommandInteraction,
 } from "discord.js";
 import { linkGuild } from "../api";
-
-const CONFIRM_TIMEOUT_MS = 30_000;
+import { LINK_CONFIRM_TIMEOUT_MS } from "../lib/constants";
 
 export const data = new SlashCommandBuilder()
   .setName("link")
@@ -59,7 +58,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     try {
       const button = await message.awaitMessageComponent({
         componentType: ComponentType.Button,
-        time: CONFIRM_TIMEOUT_MS,
+        time: LINK_CONFIRM_TIMEOUT_MS,
         filter: (i) => i.user.id === interaction.user.id,
       });
 

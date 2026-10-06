@@ -1,6 +1,6 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
-import type { CardSearchAdapter } from "../../card-search/types";
+import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import {
@@ -8,36 +8,13 @@ import {
   LORCANA_DE_DEFAULT_URL,
   LORCANA_DEFAULT_URL,
 } from "../../constants/urls";
-
-interface LorcastImageUris {
-  small: string;
-  normal: string;
-  large: string;
-}
-
-export interface LorcastCard {
-  id: string;
-  name: string;
-  version?: string | null;
-  released_at?: string;
-  image_uris?: { digital: LorcastImageUris };
-  cost: number;
-  inkwell: boolean;
-  ink: string | null;
-  type: string[];
-  classifications?: string[] | null;
-  text?: string;
-  strength?: number | null;
-  willpower?: number | null;
-  lore?: number | null;
-  rarity: string;
-  illustrators?: string[];
-  collector_number: string;
-  lang: string;
-  set: { id: string; code: string; name: string };
-  prices?: { usd: string | number | null; usd_foil: string | number | null };
-  tcgplayer_id?: number | null;
-}
+import type {
+  LorcastImageUris,
+  LorcastCard,
+  LorcanaDeCardImages,
+  LorcanaDeAbility,
+  LorcanaDeCard,
+} from "../../interfaces/lorcana";
 
 export function lorcanaCardId(
   setCode: string,
@@ -87,51 +64,6 @@ export function normalizeLorcanaCard(raw: LorcastCard): PlayingCard {
       raw.tcgplayer_id != null ? String(raw.tcgplayer_id) : undefined,
     cmc: raw.cost,
     raw,
-  };
-}
-
-export interface LorcanaDeCardImages {
-  thumbnail: string;
-  full: string;
-  foilMask?: string;
-}
-
-export interface LorcanaDeAbility {
-  name: string;
-  effect: string;
-  fullText: string;
-  type: string;
-}
-
-export interface LorcanaDeCard {
-  id: number;
-  name: string;
-  version?: string | null;
-  fullName: string;
-  code: string;
-  number: number;
-  setCode: string;
-  rarity: string;
-  type: string;
-  subtypes?: string[];
-  subtypesText?: string;
-  cost: number;
-  inkwell: boolean;
-  color: string;
-  strength?: number | null;
-  willpower?: number | null;
-  lore?: number | null;
-  story?: string;
-  artists?: string[];
-  artistsText?: string;
-  images?: LorcanaDeCardImages;
-  abilities?: LorcanaDeAbility[];
-  fullText?: string;
-  flavorText?: string;
-  externalLinks?: {
-    cardmarketId?: number;
-    cardmarketUrl?: string;
-    tcgPlayerUrl?: string;
   };
 }
 

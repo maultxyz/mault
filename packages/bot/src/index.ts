@@ -15,21 +15,13 @@ import * as link from "./commands/link";
 import * as stats from "./commands/stats";
 import { startNotifyServer } from "./notify-server";
 import { startPresenceCycle } from "./presence";
+import type { BotCommand } from "./lib/interfaces";
 
-interface BotCommand {
-  data:
-    | SlashCommandOptionsOnlyBuilder
-    | SlashCommandSubcommandsOnlyBuilder
-    | { name: string; toJSON: () => unknown };
-  execute: (interaction: ChatInputCommandInteraction) => Promise<void>;
-  autocomplete?: (interaction: AutocompleteInteraction) => Promise<void>;
-}
+const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID;
+const DISCORD_DEV_GUILD_ID = process.env.DISCORD_DEV_GUILD_ID;
 
-const TOKEN = process.env.DISCORD_BOT_TOKEN;
-const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const DEV_GUILD_ID = process.env.DISCORD_DEV_GUILD_ID;
-
-if (!TOKEN || !CLIENT_ID) {
+if (!DISCORD_BOT_TOKEN || !DISCORD_CLIENT_ID) {
   throw new Error("DISCORD_BOT_TOKEN and DISCORD_CLIENT_ID must be set.");
 }
 
@@ -37,19 +29,19 @@ const commands: BotCommand[] = [link, stats];
 const commandsByName = new Map(commands.map((c) => [c.data.name, c]));
 const commandBodies = commands.map((c) => c.data.toJSON());
 
-const rest = new REST().setToken(TOKEN);
+const rest = new REST().setToken(DISCORD_BOT_TOKEN);
 
 async function registerCommands() {
-  if (DEV_GUILD_ID) {
-    await rest.put(Routes.applicationGuildCommands(CLIENT_ID!, DEV_GUILD_ID), {
+  if (DISCORD_DEV_GUILD_ID) {
+    await rest.put(Routes.applicationGuildCommands(DISCORD_CLIENT_ID!, DISCORD_DEV_GUILD_ID), {
       body: commandBodies,
     });
     console.log(
-      `[bot] Registered ${commands.length} commands to dev guild ${DEV_GUILD_ID}.`,
+      `[bot] Registered ${commands.length} commands to dev guild ${DISCORD_DEV_GUILD_ID}.`,
     );
     return;
   }
-  await rest.put(Routes.applicationCommands(CLIENT_ID!), {
+  await rest.put(Routes.applicationCommands(DISCORD_CLIENT_ID!), {
     body: commandBodies,
   });
   console.log(
@@ -61,13 +53,13 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 async function clearGuildScopedCommands(guildIds: string[]) {
   for (const guildId of guildIds) {
-    if (guildId === DEV_GUILD_ID) continue;
+    if (guildId === DISCORD_DEV_GUILD_ID) continue;
     try {
       const existing = (await rest.get(
-        Routes.applicationGuildCommands(CLIENT_ID!, guildId),
+        Routes.applicationGuildCommands(DISCORD_CLIENT_ID!, guildId),
       )) as unknown[];
       if (!existing.length) continue;
-      await rest.put(Routes.applicationGuildCommands(CLIENT_ID!, guildId), {
+      await rest.put(Routes.applicationGuildCommands(DISCORD_CLIENT_ID!, guildId), {
         body: [],
       });
       console.log(`[bot] Cleared duplicate guild commands in ${guildId}.`);
@@ -85,7 +77,7 @@ client.once(Events.ClientReady, (readyClient) => {
     `[bot] Logged in as ${readyClient.user.tag} in ${readyClient.guilds.cache.size} servers`,
   );
   startPresenceCycle(readyClient);
-  if (!DEV_GUILD_ID) {
+  if (!DISCORD_DEV_GUILD_ID) {
     void clearGuildScopedCommands([...readyClient.guilds.cache.keys()]);
   }
 });
@@ -139,7 +131,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 async function main() {
   await registerCommands();
-  await client.login(TOKEN);
+  await client.login(DISCORD_BOT_TOKEN);
   startNotifyServer(client);
 }
 

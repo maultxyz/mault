@@ -4,16 +4,8 @@ import { Switch } from "@/components/ui/switch";
 import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import type { NotificationTestType } from "../api/notification-settings";
 import { useNotificationSettings } from "../api/use-notification-settings";
-
-const TEST_TYPES: NotificationTestType[] = [
-  "sorter-error",
-  "feeder-empty",
-  "card-jam",
-  "card-search-error",
-  "sync-failure",
-];
+import { NOTIFICATION_TEST_TYPES } from "@/lib/constants/notifications";
 
 export function DiscordNotificationSettings() {
   const { t } = useTranslation("notifications");
@@ -76,7 +68,7 @@ export function DiscordNotificationSettings() {
             : t("discordNotifications.testHintNotLinked")}
         </Label>
         <div className="flex flex-wrap gap-2">
-          {TEST_TYPES.map((type) => (
+          {NOTIFICATION_TEST_TYPES.map((type) => (
             <Button
               key={type}
               variant="outline"

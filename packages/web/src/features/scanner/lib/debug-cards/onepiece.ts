@@ -1,5 +1,5 @@
 import type { PlayingCardWithDistance } from "@magic-vault/shared";
-import type { DebugCardSet } from "./types";
+import type { DebugCardSet } from "@/lib/interfaces/scanner";
 
 const NAMI_IMG = "https://optcgapi.com/media/static/Card_Images/OP01-016.jpg";
 

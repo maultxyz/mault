@@ -3,7 +3,6 @@ import {
   type CollectionCardsQuery,
 } from "@magic-vault/shared";
 
-export { EMPTY_CARD_FILTERS };
 
 export const ALL_CARDS_QUERY: CollectionCardsQuery = {
   search: "",

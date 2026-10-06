@@ -1,5 +1,8 @@
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
-import { proxiedImageUrl, type DebugCardSet } from "./types";
+import {
+  type PlayingCardWithDistance,
+  proxiedImageUrl,
+} from "@magic-vault/shared";
+import type { DebugCardSet } from "@/lib/interfaces/scanner";
 
 const RISING_FREEDOM_GUNDAM_IMG = proxiedImageUrl(
   "https://www.gundam-gcg.com/en/images/cards/card/EB01-039.webp?260715",

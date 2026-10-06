@@ -1,4 +1,4 @@
-import { API_BASE, apiPost, getAuthHeaders } from "@/lib/api/client";
+import { apiPost, getAuthHeaders } from "@/lib/api/client";
 import { neon } from "@/lib/auth/client";
 import { localPost } from "@/lib/auth/local-api";
 import { getLocalToken, setLocalToken } from "@/lib/auth/local-token";
@@ -6,11 +6,11 @@ import {
   notifyLocalSessionChanged,
   useLocalAuthSession,
 } from "@/lib/auth/local-session-store";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { PENDING_INVITE_STORAGE_KEY as PENDING_INVITE_KEY } from "@/lib/constants/storage-keys";
 import type { LocalAuthResult } from "@/lib/interfaces/auth";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { API_BASE } from "@/lib/constants/api";
 
-export { AUTH_PROVIDER };
 
 // Same return shape as Neon's neon.auth.useSession() - data.user.{id,name,
 // email,role} - so call sites (use-role.ts, user-menu.tsx, nav components)

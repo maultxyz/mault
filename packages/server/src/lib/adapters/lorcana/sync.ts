@@ -2,29 +2,22 @@ import type {
   FetchOneResult,
   SyncSource,
   SyncSourceCard,
-} from "../../card-search/sync-types";
+} from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { LORCANA_DE_API_ROOT, LORCANA_DEFAULT_URL } from "../../constants/urls";
 import {
-  type LorcanaDeCard,
-  type LorcastCard,
   lorcanaCardId,
   lorcanaCardName,
   lorcanaDeCardName,
   parseLorcanaCardId,
 } from "./search";
-
-interface LorcastSet {
-  id: string;
-  code: string;
-  name: string;
-}
-
-interface LorcanaDeSet {
-  code: string;
-  name: string;
-}
+import type {
+  LorcastSet,
+  LorcanaDeSet,
+  LorcanaDeCard,
+  LorcastCard,
+} from "../../interfaces/lorcana";
 
 function toSyncCardDe(raw: LorcanaDeCard): SyncSourceCard {
   return withRawData(

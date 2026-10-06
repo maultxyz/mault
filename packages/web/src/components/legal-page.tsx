@@ -4,11 +4,7 @@ import { PublicNav } from "@/components/public-nav";
 import { LEGAL_EFFECTIVE_DATE as EFFECTIVE_DATE } from "@/lib/constants/legal";
 import { CONTACT_EMAIL } from "@/lib/constants/links";
 import { useTranslation } from "react-i18next";
-
-interface LegalSection {
-  heading: string;
-  body: string[];
-}
+import type { LegalSection } from "@/lib/interfaces/legal";
 
 function withContactEmail(text: string) {
   return text.replace("{{email}}", CONTACT_EMAIL);

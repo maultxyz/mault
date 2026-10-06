@@ -6,15 +6,10 @@ import type {
   DiscordEmbed,
   DiscordNotificationKind,
   DiscordNotifyOutcome,
-} from "./types";
+  NotifyConfig,
+} from "../interfaces/discord";
 
 const SCAN_THREAD_NAME = "Card Scans";
-
-interface NotifyConfig {
-  channelId: string | null;
-  threadId: string | null;
-  source: "collection" | "org";
-}
 
 async function getNotifyConfig(
   orgId: string,

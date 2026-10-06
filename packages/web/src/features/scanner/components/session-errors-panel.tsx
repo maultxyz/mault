@@ -1,5 +1,5 @@
-import type { SessionError } from "@/features/scanner/api/use-session-monitor";
 import { useTranslation } from "react-i18next";
+import type { SessionError } from "@/lib/interfaces/scanner";
 
 export function SessionErrorsPanel({ errors }: { errors: SessionError[] }) {
   const { t } = useTranslation("scanner");

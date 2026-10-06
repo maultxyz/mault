@@ -1,4 +1,5 @@
-import { API_BASE, getAuthHeaders } from "@/lib/api/client";
+import { getAuthHeaders } from "@/lib/api/client";
+import { API_BASE } from "@/lib/constants/api";
 
 // apiPost/apiDelete (lib/api/client.ts) throw a generic "API error: <status>"
 // without reading the body, losing real messages like "Invalid email or

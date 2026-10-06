@@ -1,12 +1,14 @@
 import {
   devicesQueryOptions,
   saveDevice,
-  type Device,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import type { SetupWizardContextValue } from "@/lib/interfaces/calibration";
+import type {
+  SetupWizardContextValue,
+  Device,
+} from "@/lib/interfaces/calibration";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";

@@ -1,23 +1,9 @@
-import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import {
+  reportSerialEvent,
+} from "@/features/notifications/api/notification-settings";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/scanner";
-import type { JamToastOptions, RouteOptions } from "@/lib/interfaces/scanner";
-import type { BinRoute } from "@magic-vault/shared";
-import type { TFunction } from "i18next";
+import type { RouteCardToBinParams } from "@/lib/interfaces/scanner";
 import { toast } from "@/lib/toast";
-
-export interface RouteCardToBinParams {
-  route: BinRoute;
-  sendRoute: (route: BinRoute, options?: RouteOptions) => Promise<unknown | null>;
-  t: TFunction;
-  failedKey: string;
-  cardName?: string;
-  collectionGuid: string | undefined;
-  isAutoFeedEnabled: () => boolean;
-  isPipelinedFeedEnabled: () => boolean;
-  pause: () => void;
-  triggerAutoFeed: () => void;
-  onJam: (options: JamToastOptions) => void;
-}
 
 export async function routeCardToBin({
   route,

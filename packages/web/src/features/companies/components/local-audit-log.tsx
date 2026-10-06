@@ -5,14 +5,7 @@ import { useOrgLocal } from "@/features/companies/api/use-organization.local";
 import { apiGet } from "@/lib/api/client";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface AuditEventRow {
-  id: string;
-  eventType: string;
-  actor: string | null;
-  target: string | null;
-  createdAt: string;
-}
+import type { LocalAuditEventRow } from "@/lib/interfaces/auth";
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleString(undefined, {
@@ -29,7 +22,7 @@ function formatDate(value: string): string {
 export function LocalAuditLog() {
   const { t } = useTranslation("companies");
   const { activeOrg } = useOrgLocal();
-  const [events, setEvents] = useState<AuditEventRow[] | null>(null);
+  const [events, setEvents] = useState<LocalAuditEventRow[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const canView = activeOrg?.role === "owner" || activeOrg?.role === "admin";
@@ -41,7 +34,7 @@ export function LocalAuditLog() {
     }
     let cancelled = false;
     setIsLoading(true);
-    apiGet<{ success: boolean; data?: AuditEventRow[] }>(
+    apiGet<{ success: boolean; data?: LocalAuditEventRow[] }>(
       "/api/local-auth/audit-events",
     )
       .then((res) => {

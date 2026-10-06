@@ -4,7 +4,11 @@ import { collectionsQueryOptions } from "@/features/collections/api/collections"
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
 import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
-import type { ScanLockInfo, SessionViewer } from "@/lib/interfaces/collections";
+import type {
+  ScanLockInfo,
+  SessionViewer,
+  AppStreamContextValue,
+} from "@/lib/interfaces/collections";
 import type { SyncState } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -16,20 +20,8 @@ import {
   useRef,
   useState,
 } from "react";
+import { APP_STREAM_GUID_DEBOUNCE_MS } from "@/lib/constants/timing";
 
-export type { ScanLockInfo, SessionViewer };
-
-const GUID_DEBOUNCE_MS = 50;
-
-interface AppStreamContextValue {
-  eventSource: EventSource | null;
-  locks: Record<string, ScanLockInfo>;
-  currentUserId: string | undefined;
-  liveCounts: Record<string, number>;
-  viewersByGuid: Record<string, SessionViewer[]>;
-  syncState: SyncState;
-  watchCollection: (guid: string) => () => void;
-}
 
 const AppStreamContext = createContext<AppStreamContextValue>({
   eventSource: null,
@@ -65,7 +57,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setGuidsKey(Array.from(refCounts.current.keys()).sort().join(","));
-    }, GUID_DEBOUNCE_MS);
+    }, APP_STREAM_GUID_DEBOUNCE_MS);
   }, []);
 
   const watchCollection = useCallback(

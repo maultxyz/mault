@@ -2,7 +2,7 @@ import type { SyncState } from "@magic-vault/shared";
 import { type ChildProcess, fork } from "node:child_process";
 import path from "node:path";
 import { sendDiscordNotification } from "../discord";
-import type { StartMessage, WorkerToParentMessage } from "./protocol";
+import type { StartMessage, WorkerToParentMessage } from "../interfaces/sync-job";
 import { SYNC_SOURCES } from "./sources";
 import {
   addLog,

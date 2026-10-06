@@ -1,5 +1,5 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
-import type { CardSearchAdapter } from "./types";
+import type { CardSearchAdapter } from "../interfaces/card-search";
 
 function toFailure<T>(err: unknown): Result<T> {
   const message =
