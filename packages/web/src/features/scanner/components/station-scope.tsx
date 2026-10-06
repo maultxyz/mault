@@ -1,6 +1,7 @@
 import { BinConfigsProvider } from "@/features/bins/api/use-bin-configs";
 import { BinHeightsProvider } from "@/features/calibration/api/use-bin-heights";
 import { BinRoutesProvider } from "@/features/calibration/api/use-bin-routes";
+import { DeviceCalibrationSyncProvider } from "@/features/calibration/api/use-device-calibration-sync";
 import { FeederConfigProvider } from "@/features/calibration/api/use-feeder-config";
 import { ModuleConfigsProvider } from "@/features/calibration/api/use-module-configs";
 import { ModuleCountConfigProvider } from "@/features/calibration/api/use-module-count-config";
@@ -63,29 +64,31 @@ export function StationScope({
               <BinHeightsProvider>
                 <ModuleCountConfigProvider>
                   <BinConfigsProvider>
-                    <ModuleConfigsProvider>
-                      <FeederConfigProvider>
-                        <ScannedCardsProvider>
-                          <CardFiltersProvider>
-                            <SetupWizardProvider>
-                              {isActive && children}
-                              {isActive && <DeviceSetupWizard />}
-                              {panelLayout &&
-                                showsPanel &&
-                                createPortal(
-                                  <StationPanel layout={panelLayout} />,
-                                  getPanelElement(station.id),
-                                )}
-                              {showsOverviewTile &&
-                                createPortal(
-                                  <StationOverviewTile />,
-                                  getOverviewTileElement(station.id),
-                                )}
-                            </SetupWizardProvider>
-                          </CardFiltersProvider>
-                        </ScannedCardsProvider>
-                      </FeederConfigProvider>
-                    </ModuleConfigsProvider>
+                    <DeviceCalibrationSyncProvider>
+                      <ModuleConfigsProvider>
+                        <FeederConfigProvider>
+                          <ScannedCardsProvider>
+                            <CardFiltersProvider>
+                              <SetupWizardProvider>
+                                {isActive && children}
+                                {isActive && <DeviceSetupWizard />}
+                                {panelLayout &&
+                                  showsPanel &&
+                                  createPortal(
+                                    <StationPanel layout={panelLayout} />,
+                                    getPanelElement(station.id),
+                                  )}
+                                {showsOverviewTile &&
+                                  createPortal(
+                                    <StationOverviewTile />,
+                                    getOverviewTileElement(station.id),
+                                  )}
+                              </SetupWizardProvider>
+                            </CardFiltersProvider>
+                          </ScannedCardsProvider>
+                        </FeederConfigProvider>
+                      </ModuleConfigsProvider>
+                    </DeviceCalibrationSyncProvider>
                   </BinConfigsProvider>
                 </ModuleCountConfigProvider>
               </BinHeightsProvider>

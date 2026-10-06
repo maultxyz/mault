@@ -40,6 +40,7 @@ import {
 } from "@/lib/constants/scanner";
 import {
   DEVICE_LEASE_HEARTBEAT_MS,
+  NEUTRAL_RESPONSE_TIMEOUT_MS,
   PUSH_TEST_RESPONSE_TIMEOUT_MS,
   ROUTE_RESPONSE_TIMEOUT_MS,
   ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS,
@@ -417,10 +418,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     async (forTransport: ByteTransport, forDevice: Device) => {
       await runPreTestHooks(forDevice);
       if (transportRef.current !== forTransport) return;
+      if (await sendCommand(JSON.stringify({ neutral: true }) + "\n")) {
+        await waitForLine(NEUTRAL_RESPONSE_TIMEOUT_MS);
+      }
+      if (transportRef.current !== forTransport) return;
       setIsReady(true);
       toast.success(t("serial.deviceReadyNoTest"));
     },
-    [runPreTestHooks, t],
+    [runPreTestHooks, sendCommand, waitForLine, t],
   );
 
   const runConnectTest = useCallback(

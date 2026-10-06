@@ -3,6 +3,7 @@ import {
   saveFeederConfig,
 } from "@/features/calibration/api/feeder-config";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { useDeviceCalibrationSync } from "@/features/calibration/api/use-device-calibration-sync";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { FEEDER_PREVIEW_STOP_MS } from "@/lib/constants/timing";
 import {
@@ -36,35 +37,12 @@ export function FeederConfigProvider({
   const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
   const device = useDevice();
-  const { sendCommand, receiveResponse, registerPreTestHook } = useSerial();
+  const { sendCommand } = useSerial();
+  const { applyToDevice } = useDeviceCalibrationSync();
 
   const queryOpts = feederQueryOptions(device?.guid);
   const { data: feederConfig = { ...DEFAULT_FEEDER_CALIBRATION } } =
     useQuery(queryOpts);
-
-  useEffect(() => {
-    return registerPreTestHook(async (target) => {
-      if (!target) return;
-      const fresh = await queryClient.fetchQuery(feederQueryOptions(target.guid));
-      const p = receiveResponse();
-      await sendCommand(JSON.stringify({ setFeederConfig: fresh }));
-      const response = await p;
-      try {
-        const parsed = response ? JSON.parse(response) : null;
-        if (parsed?.error) {
-          toast.error(t("useFeederConfig.toasts.notSynced"), {
-            description: String(parsed.error),
-          });
-        }
-      } catch {
-        toast.error(t("useFeederConfig.toasts.notSynced"), {
-          description: response
-            ? t("toasts.unexpectedResponse", { response })
-            : t("toasts.noResponse"),
-        });
-      }
-    });
-  }, [registerPreTestHook, queryClient, sendCommand, receiveResponse, t]);
 
   const saveConfigMutation = useMutation({
     mutationFn: (calibration: FeederCalibration) =>
@@ -88,7 +66,7 @@ export function FeederConfigProvider({
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.setQueryData(queryOpts.queryKey, result.data);
-        sendCommand(JSON.stringify({ setFeederConfig: result.data }));
+        void applyToDevice({ feeder: result.data });
       }
     },
   });

@@ -190,6 +190,43 @@
       "saveFailed": "Modulkonfiguration konnte nicht gespeichert werden"
     }
   },
+  "storedCalibration": {
+    "dialog": {
+      "title": "Kalibrierung weicht vom Sortierer ab",
+      "description": "Auf {{name}} ist eine Kalibrierung gespeichert, die nicht mit der in der App gespeicherten übereinstimmt. Wähle, welche du behalten möchtest.",
+      "setting": "Einstellung",
+      "app": "App",
+      "sorter": "Sortierer",
+      "module": "Modul {{module}}",
+      "feeder": "Zuführung",
+      "hint": "Mit der Kalibrierung der App wird die des Sortierers überschrieben. Mit der des Sortierers werden seine Werte in der App gespeichert, wo du sie über den Kalibrierungsverlauf weiterhin rückgängig machen kannst.",
+      "useSorter": "Vom Sortierer",
+      "useApp": "Aus der App"
+    },
+    "fields": {
+      "bottomClosed": "Boden geschlossen",
+      "bottomOpen": "Boden offen",
+      "paddleClosed": "Klappen geschlossen",
+      "paddleOpen": "Klappen offen",
+      "pusherLeft": "Schieber links",
+      "pusherNeutral": "Schieber neutral",
+      "pusherRight": "Schieber rechts",
+      "pusherHoldDuration": "Haltezeit Schieber (ms)",
+      "paddleCloseDelay": "Schließverzögerung Klappen (ms)",
+      "speed": "Geschwindigkeit",
+      "duration": "Zeitlimit (ms)",
+      "pulseDuration": "Impuls (ms)",
+      "pauseDuration": "Pause (ms)",
+      "settleDuration": "Verzögerung letzte Erkennung (ms)",
+      "reverseSpeed": "Rücklaufgeschwindigkeit",
+      "reverseDuration": "Rücklaufzeit (ms)"
+    },
+    "toasts": {
+      "adopted": "Kalibrierung des Sortierers in der App gespeichert",
+      "adoptFailed": "Kalibrierung des Sortierers konnte nicht gespeichert werden, die der App wird verwendet",
+      "storeFailed": "Kalibrierung konnte nicht auf dem Sortierer gespeichert werden"
+    }
+  },
   "useBinRoutes": {
     "toasts": {
       "saveFailed": "Fach-Route konnte nicht gespeichert werden",
@@ -382,5 +419,21 @@
     "autoConnectDescription": "Wenn dieser Sortierer per USB eingesteckt wird, während die App offen ist (oder beim Laden der App schon eingesteckt ist), verbindet er sich selbst und führt seinen Selbsttest aus, damit er scanbereit ist. Über Bluetooth versucht die App nach einem Verbindungsabbruch oder Neustart so lange erneut zu verbinden, bis der Tab geschlossen wird. Verbinde ihn zuerst einmal manuell in diesem Browser, damit der Browser es erlaubt.",
     "testOnConnectLabel": "Selbsttest beim Verbinden",
     "testOnConnectDescription": "Wenn aktiviert, bewegt der Sortierer bei jeder Verbindung alle Servos und prüft seine Sensoren. Wenn deaktiviert, lädt er nur seine gespeicherte Kalibrierung und ist sofort bereit. Den Test kannst du weiterhin auf der Kalibrierungsseite ausführen."
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "Prüfe, welche Firmware der Sortierer verwendet, und aktualisiere sie direkt in diesem Browser.",
+    "installed": "Installiert",
+    "latest": "Neueste",
+    "outdated": "Update verfügbar",
+    "unknownVersion": "Unbekannt",
+    "notConnected": "Nicht verbunden",
+    "flashConnected": "Firmware flashen",
+    "flashBoard": "Board flashen",
+    "getRelease": "Firmware herunterladen",
+    "bluetoothNote": "Flashen funktioniert nicht über Bluetooth. Verbinde den Sortierer per USB-Kabel, um ihn zu flashen.",
+    "unoNote": "Arduino Uno R4 Boards können nicht im Browser geflasht werden. Lade die Firmware herunter und spiele sie mit der Arduino IDE auf.",
+    "notConnectedHint": "Verbinde einen Sortierer, um seine Version zu sehen, oder flashe einen ESP32-S3 per USB, ohne ihn vorher zu verbinden.",
+    "unsupported": "Dieser Browser kann keine Boards flashen. Verwende Chrome oder Edge auf einem Computer."
   }
 }

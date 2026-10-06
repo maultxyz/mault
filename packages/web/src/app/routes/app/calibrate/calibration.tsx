@@ -16,6 +16,7 @@ import {
   type ModuleConfigAuditEntry,
 } from "@/features/calibration/api/module-configs";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { useDeviceCalibrationSync } from "@/features/calibration/api/use-device-calibration-sync";
 import { FeederCalibrationPanel } from "@/features/calibration/components/feeder-calibration-panel";
 import { ModuleCalibrationGrid } from "@/features/calibration/components/module-calibration-grid";
 import { IconClockHour3, IconRestore } from "@tabler/icons-react";
@@ -118,6 +119,7 @@ export default function CalibrateCalibrationPage() {
   const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
   const device = useDevice();
+  const { applyToDevice } = useDeviceCalibrationSync();
   const [moduleHistoryOpen, setModuleHistoryOpen] = useState(false);
   const [feederHistoryOpen, setFeederHistoryOpen] = useState(false);
 
@@ -185,6 +187,7 @@ export default function CalibrateCalibrationPage() {
           modulesQueryOptions(device?.guid).queryKey,
           result.data,
         );
+        void applyToDevice({ modules: result.data });
         queryClient.invalidateQueries({ queryKey: ["modules", "history"] });
         setModuleHistoryOpen(false);
         toast.success(t("calibratePage.toasts.moduleReverted"));
@@ -201,6 +204,7 @@ export default function CalibrateCalibrationPage() {
           feederQueryOptions(device?.guid).queryKey,
           result.data,
         );
+        void applyToDevice({ feeder: result.data });
         queryClient.invalidateQueries({ queryKey: ["feeder", "history"] });
         setFeederHistoryOpen(false);
         toast.success(t("calibratePage.toasts.feederReverted"));

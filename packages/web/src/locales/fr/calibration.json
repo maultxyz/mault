@@ -190,6 +190,43 @@
       "saveFailed": "Échec de l'enregistrement de la configuration du module"
     }
   },
+  "storedCalibration": {
+    "dialog": {
+      "title": "L'étalonnage diffère de celui du trieur",
+      "description": "{{name}} contient un étalonnage enregistré qui ne correspond pas à celui enregistré dans l'application. Choisissez lequel conserver.",
+      "setting": "Réglage",
+      "app": "Application",
+      "sorter": "Trieur",
+      "module": "Module {{module}}",
+      "feeder": "Chargeur",
+      "hint": "Utiliser l'étalonnage de l'application remplace celui du trieur. Utiliser celui du trieur enregistre ses valeurs dans l'application, où vous pouvez toujours les annuler depuis l'historique d'étalonnage.",
+      "useSorter": "Celui du trieur",
+      "useApp": "Celui de l'application"
+    },
+    "fields": {
+      "bottomClosed": "Fond fermé",
+      "bottomOpen": "Fond ouvert",
+      "paddleClosed": "Volets fermés",
+      "paddleOpen": "Volets ouverts",
+      "pusherLeft": "Poussoir gauche",
+      "pusherNeutral": "Poussoir neutre",
+      "pusherRight": "Poussoir droite",
+      "pusherHoldDuration": "Maintien du poussoir (ms)",
+      "paddleCloseDelay": "Délai de fermeture des volets (ms)",
+      "speed": "Vitesse",
+      "duration": "Délai maximal (ms)",
+      "pulseDuration": "Impulsion (ms)",
+      "pauseDuration": "Pause (ms)",
+      "settleDuration": "Délai de détection finale (ms)",
+      "reverseSpeed": "Vitesse de recul",
+      "reverseDuration": "Durée de recul (ms)"
+    },
+    "toasts": {
+      "adopted": "Étalonnage du trieur enregistré dans l'application",
+      "adoptFailed": "Impossible d'enregistrer l'étalonnage du trieur, celui de l'application est utilisé",
+      "storeFailed": "Impossible d'enregistrer l'étalonnage sur le trieur"
+    }
+  },
   "useBinRoutes": {
     "toasts": {
       "saveFailed": "Échec de l'enregistrement du routage du bac",
@@ -382,5 +419,21 @@
     "autoConnectDescription": "Quand ce trieur est branché en USB pendant que l'application est ouverte (ou qu'il est déjà branché au chargement de l'application), il se connecte tout seul et lance son autotest pour être prêt à scanner. En Bluetooth, s'il se déconnecte ou redémarre, l'application tente de se reconnecter jusqu'à la fermeture de l'onglet. Connecte-le d'abord une fois manuellement dans ce navigateur, pour que le navigateur l'autorise.",
     "testOnConnectLabel": "Autotest à la connexion",
     "testOnConnectDescription": "Activé, le trieur fait bouger chaque servo et vérifie ses capteurs à chaque connexion. Désactivé, il charge seulement sa calibration enregistrée et est prêt tout de suite. Tu peux toujours lancer le test depuis la page de calibration."
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "Vérifiez quel firmware le trieur utilise et mettez-le à jour depuis ce navigateur.",
+    "installed": "Installé",
+    "latest": "Dernière",
+    "outdated": "Mise à jour disponible",
+    "unknownVersion": "Inconnue",
+    "notConnected": "Non connecté",
+    "flashConnected": "Flasher le firmware",
+    "flashBoard": "Flasher une carte",
+    "getRelease": "Télécharger le firmware",
+    "bluetoothNote": "Le flashage ne fonctionne pas en Bluetooth. Connectez le trieur avec un câble USB pour le flasher.",
+    "unoNote": "Les cartes Arduino Uno R4 ne peuvent pas être flashées depuis le navigateur. Téléchargez le firmware et téléversez-le avec l'IDE Arduino.",
+    "notConnectedHint": "Connectez un trieur pour voir sa version, ou flashez un ESP32-S3 en USB sans le connecter d'abord.",
+    "unsupported": "Ce navigateur ne peut pas flasher de cartes. Utilisez Chrome ou Edge sur un ordinateur."
   }
 }
