@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import type {
   BinHeight,
   BinRoute,
+  FeederCalibration,
   ModuleConfig,
   ServoCalibration,
 } from "@magic-vault/shared";
@@ -184,4 +185,44 @@ export interface FeederCalibrationPanelProps {
   onReverseSpeedChange: (value: number) => void;
   onReverseDurationChange: (value: number) => void;
   onSelectContinuous: () => void;
+}
+
+export interface StoredCalibration {
+  channelOffset: number;
+  dirty: boolean;
+  modules: ModuleConfig[];
+  feeder: FeederCalibration;
+}
+
+export type StoredCalibrationRead =
+  | { status: "unsupported" }
+  | { status: "empty" }
+  | { status: "stored"; calibration: StoredCalibration };
+
+export type CalibrationSource = "app" | "device";
+
+export interface CalibrationDifference {
+  moduleNumber: number | null;
+  field: keyof ServoCalibration | keyof FeederCalibration;
+  appValue: number;
+  deviceValue: number;
+}
+
+export interface CalibrationConflict {
+  deviceName: string;
+  differences: CalibrationDifference[];
+}
+
+export interface DeviceCalibration {
+  modules: ModuleConfig[];
+  feeder: FeederCalibration;
+}
+
+export interface DeviceCalibrationSyncContextValue {
+  applyToDevice: (changes: Partial<DeviceCalibration>) => Promise<void>;
+}
+
+export interface CalibrationConflictDialogProps {
+  conflict: CalibrationConflict | null;
+  onChoose: (source: CalibrationSource) => void;
 }

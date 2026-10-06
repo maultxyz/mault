@@ -14,6 +14,29 @@ import {
   IconStack2,
   type Icon,
 } from "@tabler/icons-react";
+import type { FeederCalibration, ServoCalibration } from "@magic-vault/shared";
+
+export const SERVO_CALIBRATION_FIELDS: (keyof ServoCalibration)[] = [
+  "bottomClosed",
+  "bottomOpen",
+  "paddleClosed",
+  "paddleOpen",
+  "pusherLeft",
+  "pusherNeutral",
+  "pusherRight",
+  "pusherHoldDuration",
+  "paddleCloseDelay",
+];
+
+export const FEEDER_CALIBRATION_FIELDS: (keyof FeederCalibration)[] = [
+  "speed",
+  "duration",
+  "pulseDuration",
+  "pauseDuration",
+  "settleDuration",
+  "reverseSpeed",
+  "reverseDuration",
+];
 
 export const SERVO_PULSE_MIN = 120;
 export const SERVO_PULSE_MAX = 490;
