@@ -1,11 +1,6 @@
 import { useCollections } from "@/features/collections/api/use-collections";
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
-
-interface CapturedImageThumbProps {
-  src: string;
-  alt: string;
-  showOcrRegions?: boolean;
-}
+import type { CapturedImageThumbProps } from "@/lib/interfaces/cards";
 
 export function CapturedImageThumb({
   src,

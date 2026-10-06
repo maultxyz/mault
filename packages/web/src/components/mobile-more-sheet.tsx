@@ -6,10 +6,7 @@ import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useAuthSession } from "@/lib/auth";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
-import {
-  LANGUAGE_NATIVE_NAMES,
-  type SupportedLanguage,
-} from "@/lib/constants/languages";
+import { LANGUAGE_NATIVE_NAMES } from "@/lib/constants/languages";
 import { THEME_OPTIONS } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type {
@@ -32,6 +29,7 @@ import {
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import type { SupportedLanguage } from "@/lib/interfaces/languages";
 
 function MobileMenuRow({
   icon,

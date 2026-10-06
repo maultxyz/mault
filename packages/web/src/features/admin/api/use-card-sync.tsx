@@ -1,8 +1,7 @@
 import { cancelSync, listSyncSources, startSync } from "@/lib/api/admin";
 import { useSyncState } from "@/lib/app-stream";
 import { LIVE_CLOCK_TICK_MS } from "@/lib/constants/timing";
-import type { SyncSourceInfo } from "@/lib/interfaces/admin";
-import type { SyncState } from "@magic-vault/shared";
+import type { CardSyncContextValue } from "@/lib/interfaces/admin";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import {
   createContext,
@@ -11,21 +10,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
-interface CardSyncContextValue {
-  syncState: SyncState;
-  sources: SyncSourceInfo[];
-  isRunning: boolean;
-  total: number;
-  done: number;
-  progress: number;
-  elapsedMs: number;
-  etaMs: number | null;
-  start: (gameKey: string, lang: string, forceResync?: boolean) => void;
-  isStarting: boolean;
-  cancel: () => void;
-  isCancelling: boolean;
-}
 
 const CardSyncContext = createContext<CardSyncContextValue | null>(null);
 

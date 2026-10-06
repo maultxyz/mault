@@ -8,7 +8,6 @@ import {
 } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
-export type { BinRouteAuditEntry };
 
 function defaultRoutes(): BinRoute[] {
   return createDefaultBinRoutes(DEFAULT_MODULE_COUNT);

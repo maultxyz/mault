@@ -1,8 +1,6 @@
 import { ERROR_TOAST_DURATION_MS } from "@/lib/constants/toast";
 import { toast as sonnerToast } from "sonner";
-
-type ToastMessage = Parameters<typeof sonnerToast.error>[0];
-type ToastData = Parameters<typeof sonnerToast.error>[1];
+import type { ToastMessage, ToastData } from "@/lib/interfaces/toast";
 
 function error(message: ToastMessage, data?: ToastData) {
   return sonnerToast.error(message, {

@@ -1,15 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-
-interface UseResizablePanelOptions {
-  axis: "width" | "height";
-  defaultSize: number;
-  min: number;
-  max: number;
-  storageKey: string;
-  // Flip drag direction, e.g. when the handle is on the leading edge of the
-  // panel so dragging toward it should shrink rather than grow.
-  invert?: boolean;
-}
+import type { UseResizablePanelOptions } from "@/lib/interfaces/layout";
 
 export function useResizablePanel({
   axis,

@@ -1,4 +1,4 @@
-import { AuditDrawer, type AuditEntry } from "@/components/audit-drawer";
+import { AuditDrawer } from "@/components/audit-drawer";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -25,7 +25,6 @@ import {
   checkSetName,
   getBinSetHistory,
   revertBinSet,
-  type BinSetAuditEntry,
 } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
@@ -52,6 +51,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { toast } from "@/lib/toast";
+import type { AuditEntry, BinSetAuditEntry } from "@/lib/interfaces/audit";
 
 function countConditions(group: BinRuleGroup): number {
   return group.conditions.reduce((n, c) => {

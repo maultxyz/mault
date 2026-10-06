@@ -1,5 +1,11 @@
-import { binRoutesQueryOptions, saveBinRoute } from "@/features/calibration/api/bin-routes";
-import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
+import {
+  binRoutesQueryOptions,
+  saveBinRoute,
+} from "@/features/calibration/api/bin-routes";
+import {
+  devicesQueryOptions,
+  saveDevice,
+} from "@/features/calibration/api/devices";
 import { modulesQueryOptions } from "@/features/calibration/api/module-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useChannelLayout } from "@/features/calibration/api/use-channel-layout";
@@ -23,6 +29,7 @@ import type {
   ActivePositions,
   ModuleDelayField,
   SliderKey,
+  ServoName,
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { SETUP_SERVO_POSITIONS } from "@/lib/constants/calibration";
@@ -315,7 +322,7 @@ export function useCalibrationPage() {
   const handleControl = useCallback(
     (
       module: number,
-      servo: "bottom" | "paddle" | "pusher",
+      servo: ServoName,
       position: string,
     ) => {
       if (!canCalibrate) return;
@@ -352,7 +359,7 @@ export function useCalibrationPage() {
   );
 
   const handleSliderChange = useCallback(
-    (module: number, servo: "bottom" | "paddle" | "pusher", value: number) => {
+    (module: number, servo: ServoName, value: number) => {
       if (!canCalibrate) return;
       const key = `${module}:${servo}`;
       setSliderValues((prev) => ({ ...prev, [key]: value }));
@@ -375,7 +382,7 @@ export function useCalibrationPage() {
   );
 
   const handleServoTest = useCallback(
-    (module: number, servo: "bottom" | "paddle" | "pusher") => {
+    (module: number, servo: ServoName) => {
       if (!canCalibrate) return;
       const key = `${module}:${servo}` as SliderKey;
       const cal = configsRef.current.find(
@@ -699,7 +706,7 @@ export function useCalibrationPage() {
       const next = { ...prev };
       for (const [key, position] of Object.entries(activeRef.current)) {
         if (!position) continue;
-        const servo = key.split(":")[1] as "bottom" | "paddle" | "pusher";
+        const servo = key.split(":")[1] as ServoName;
         const calKey = getCalibrationKey(servo, position);
         if (calKey) next[key as SliderKey] = DEFAULT_CALIBRATION[calKey];
       }

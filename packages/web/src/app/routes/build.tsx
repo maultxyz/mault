@@ -3,7 +3,9 @@ import { BuildBom } from "@/features/build/components/bom";
 import { BuildFooter } from "@/features/build/components/footer";
 import { BuildHero } from "@/features/build/components/hero";
 import { BoardTypeProvider } from "@/features/build/api/use-board-type";
-import { Esp32MountTypeProvider } from "@/features/build/api/use-esp32-mount-type";
+import {
+  Esp32MountTypeProvider,
+} from "@/features/build/api/use-esp32-mount-type";
 import { KitModeProvider } from "@/features/build/api/use-kit-mode";
 import { ModuleCountProvider } from "@/features/build/api/use-module-count";
 import { BuildWiring } from "@/features/build/components/wiring";

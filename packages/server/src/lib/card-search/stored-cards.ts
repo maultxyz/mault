@@ -4,7 +4,7 @@ import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
 import { applyCardPrices } from "./card-prices";
-import type { ResolvedCardSearch } from "./types";
+import type { ResolvedCardSearch } from "../interfaces/card-search";
 import { validateQuery } from "./validate";
 
 async function findStoredCard(

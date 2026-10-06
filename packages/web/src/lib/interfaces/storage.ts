@@ -27,6 +27,13 @@ export interface StorageLocationRowProps {
   onSelect: () => void;
 }
 
+export interface StorageLocationListProps {
+  locations: StorageLocation[];
+  selectedGuid: string | undefined;
+  isLoading: boolean;
+  onSelect: (guid: string) => void;
+}
+
 export interface StorageLocationNameDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

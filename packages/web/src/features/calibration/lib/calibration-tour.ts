@@ -1,15 +1,4 @@
-import type { CalibrationSection } from "@/lib/interfaces/calibration";
-import { CALIBRATION_TOUR_COMPLETED_KEY } from "@/lib/constants/storage-keys";
-import type { Step } from "react-joyride";
-
-export interface CalibrationTourStepConfig {
-  id: string;
-  section: CalibrationSection;
-  target: string;
-  placement?: Step["placement"];
-  titleKey: string;
-  contentKey: string;
-}
+import type { CalibrationTourStepConfig } from "@/lib/interfaces/tours";
 
 export const CALIBRATION_TOUR_STEPS: CalibrationTourStepConfig[] = [
   {
@@ -101,19 +90,3 @@ export const CALIBRATION_TOUR_STEPS: CalibrationTourStepConfig[] = [
     contentKey: "calibrationTour.done.content",
   },
 ];
-
-export function isCalibrationTourCompleted(): boolean {
-  try {
-    return localStorage.getItem(CALIBRATION_TOUR_COMPLETED_KEY) === "true";
-  } catch {
-    return true;
-  }
-}
-
-export function markCalibrationTourCompleted(): void {
-  try {
-    localStorage.setItem(CALIBRATION_TOUR_COMPLETED_KEY, "true");
-  } catch {
-    // Storage unavailable (private browsing, disabled cookies) - skip persisting.
-  }
-}

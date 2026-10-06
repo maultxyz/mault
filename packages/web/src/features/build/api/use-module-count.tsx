@@ -11,13 +11,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { ModuleCountContextValue } from "@/lib/interfaces/build";
 
-export { DEFAULT_MODULES, MAX_MODULES, MIN_MODULES };
-
-interface ModuleCountContextValue {
-  moduleCount: number;
-  setModuleCount: (value: number) => void;
-}
 
 const ModuleCountContext = createContext<ModuleCountContextValue | null>(
   null,

@@ -3,7 +3,6 @@ import type { PublicPricing } from "@/lib/interfaces/landing";
 import type { Result } from "@magic-vault/shared";
 import { useEffect, useState } from "react";
 
-export type { PublicPricing };
 
 export function usePublicPricing() {
   const [pricing, setPricing] = useState<PublicPricing | null>(null);

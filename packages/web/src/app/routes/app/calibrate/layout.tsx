@@ -14,7 +14,10 @@ import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
 import { useRole } from "@/hooks/use-role";
 import { CalibrationTour } from "@/features/calibration/components/calibration-tour";
 import { SessionLock } from "@/features/scanner/components/session-lock";
-import type { CalibrationSection } from "@/lib/interfaces/calibration";
+import type {
+  CalibrationSection,
+  CalibrationPageState,
+} from "@/lib/interfaces/calibration";
 import type { SectionNavItem } from "@/lib/interfaces/nav";
 import {
   IconAdjustmentsHorizontal,
@@ -38,20 +41,10 @@ import {
   useNavigate,
   useOutletContext,
 } from "react-router-dom";
-
-const SECTION_PATHS: Record<CalibrationSection, string> = {
-  modules: "modules",
-  scanRegion: "scan-region",
-  calibration: "calibration",
-};
-
-const PATH_SECTIONS: Record<string, CalibrationSection> = {
-  modules: "modules",
-  "scan-region": "scanRegion",
-  calibration: "calibration",
-};
-
-type CalibrationPageState = ReturnType<typeof useCalibrationPage>;
+import {
+  CALIBRATION_PATH_SECTIONS,
+  CALIBRATION_SECTION_PATHS,
+} from "@/lib/constants/calibration";
 
 export function useCalibrationOutletContext() {
   return useOutletContext<CalibrationPageState>();
@@ -63,23 +56,23 @@ export default function CalibrateLayout() {
   const navigate = useNavigate();
 
   const activePathSegment = location.pathname.split("/").pop() ?? "modules";
-  const section = PATH_SECTIONS[activePathSegment] ?? "modules";
+  const section = CALIBRATION_PATH_SECTIONS[activePathSegment] ?? "modules";
   const setSection = (next: CalibrationSection) =>
-    navigate(`/app/calibrate/${SECTION_PATHS[next]}`);
+    navigate(`/app/calibrate/${CALIBRATION_SECTION_PATHS[next]}`);
 
   const sectionNavItems: SectionNavItem[] = [
     {
-      to: SECTION_PATHS.modules,
+      to: CALIBRATION_SECTION_PATHS.modules,
       icon: <IconAdjustmentsHorizontal size={16} />,
       label: t("sections.moduleSetup"),
     },
     {
-      to: SECTION_PATHS.scanRegion,
+      to: CALIBRATION_SECTION_PATHS.scanRegion,
       icon: <IconFocus2 size={16} />,
       label: t("sections.scanRegion"),
     },
     {
-      to: SECTION_PATHS.calibration,
+      to: CALIBRATION_SECTION_PATHS.calibration,
       icon: <IconSettingsCog size={16} />,
       label: t("sections.calibration"),
     },

@@ -30,14 +30,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-
-interface Invitation {
-  id: string;
-  email: string;
-  role: "owner" | "admin" | "member";
-  status: string;
-  expiresAt: string;
-}
+import type { LocalOrgInvitation } from "@/lib/interfaces/auth";
 
 function formatDate(value: string): string {
   return new Date(value).toLocaleDateString(undefined, {
@@ -53,10 +46,10 @@ function formatDate(value: string): string {
 export function LocalOrgInvites() {
   const { t } = useTranslation("companies");
   const { activeOrg } = useOrgLocal();
-  const [invites, setInvites] = useState<Invitation[] | null>(null);
+  const [invites, setInvites] = useState<LocalOrgInvitation[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showInvite, setShowInvite] = useState(false);
-  const [revokeTarget, setRevokeTarget] = useState<Invitation | null>(null);
+  const [revokeTarget, setRevokeTarget] = useState<LocalOrgInvitation | null>(null);
   const [newInviteUrl, setNewInviteUrl] = useState<string | null>(null);
   const [newInviteEmailSent, setNewInviteEmailSent] = useState(false);
 
@@ -74,7 +67,7 @@ export function LocalOrgInvites() {
     }
     setIsLoading(true);
     try {
-      const res = await apiGet<{ success: boolean; data?: Invitation[] }>(
+      const res = await apiGet<{ success: boolean; data?: LocalOrgInvitation[] }>(
         "/api/local-auth/invites",
       );
       setInvites((res.data ?? []).filter((i) => i.status === "pending"));

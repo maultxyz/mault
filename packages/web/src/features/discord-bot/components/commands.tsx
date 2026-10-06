@@ -1,7 +1,6 @@
 import { SectionHeading } from "@/components/section-heading";
 import { useTranslation } from "react-i18next";
-
-const COMMANDS = ["link", "stats"] as const;
+import { DISCORD_BOT_COMMANDS } from "@/lib/constants/discord-bot";
 
 export function DiscordBotCommands() {
   const { t } = useTranslation("discordBot");
@@ -17,7 +16,7 @@ export function DiscordBotCommands() {
 
         <div className="mt-8 overflow-hidden rounded-lg border bg-card">
           <div className="divide-y">
-            {COMMANDS.map((key) => (
+            {DISCORD_BOT_COMMANDS.map((key) => (
               <div
                 key={key}
                 className="flex flex-col gap-1 px-5 py-3.5 sm:flex-row sm:items-baseline sm:gap-4"

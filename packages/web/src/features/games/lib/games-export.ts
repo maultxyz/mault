@@ -1,12 +1,12 @@
 import { DEFAULT_OPERATORS_BY_TYPE } from "@/lib/constants/field-operators";
 import { GAMES_EXPORT_FORMAT_VERSION } from "@/lib/constants/games";
-import type { GameInput, GamesImportPlan } from "@/lib/interfaces/games";
+import type { GamesImportPlan } from "@/lib/interfaces/games";
 import {
   gamesExportSchema,
   type ExportedGame,
   type GamesExport,
 } from "@/schemas/games-export.schema";
-import type { Game } from "@magic-vault/shared";
+import type { Game, GameInput } from "@magic-vault/shared";
 
 export function buildGamesExport(games: Game[]): GamesExport {
   return {

@@ -1,9 +1,9 @@
-import type { AdminUserSummary } from "@magic-vault/shared";
+import type { AdminUserSummary, OrgRole } from "@magic-vault/shared";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { platformUserRoles } from "../db/schema";
 import { getOwnAuth } from "./own-auth-instance";
-import type { AuthProvider, OrgRole } from "./types";
+import type { AuthProvider } from "../lib/interfaces/auth";
 
 export const localAuthProvider: AuthProvider = {
   async verifyToken(token) {

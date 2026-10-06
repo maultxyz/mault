@@ -15,10 +15,10 @@ import {
 import {
   LANGUAGE_NATIVE_NAMES,
   SUPPORTED_LANGUAGES,
-  type SupportedLanguage,
 } from "@/lib/constants/languages";
 import { IconCheck, IconLanguage } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import type { SupportedLanguage } from "@/lib/interfaces/languages";
 
 export function LanguageSwitcher() {
   const { i18n } = useTranslation();

@@ -12,7 +12,8 @@ import { and, asc, eq, isNotNull } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { games, notificationRules, orgSettings } from "../db/schema";
 import { NOTIFICATION_RULE_FOOTER_PREFIX } from "./constants/discord";
-import { sendDiscordChannelMessage, type DiscordEmbed } from "./discord";
+import { sendDiscordChannelMessage } from "./discord";
+import type { DiscordEmbed } from "./interfaces/discord";
 
 export async function loadNotificationRules(
   tx: Transaction,

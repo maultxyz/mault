@@ -14,8 +14,8 @@ import { UpdateNameForm } from "@/features/account/components/update-name-form";
 import { useOnboarding } from "@/features/onboarding/api/use-onboarding";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useAuthSession } from "@/lib/auth";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useTranslation } from "react-i18next";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 function LocalAccountSummary() {
   const { t } = useTranslation("account");

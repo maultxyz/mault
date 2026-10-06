@@ -14,22 +14,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
-
-type ConfirmMode =
-  | { type: "simple" }
-  | { type: "name"; name: string }
-  | { type: "keyword" };
-
-interface DeleteDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-  confirm?: ConfirmMode;
-  confirmLabel?: string;
-  onConfirm: () => void;
-}
+import type { DeleteDialogProps } from "@/lib/interfaces/delete-dialog";
 
 export function DeleteDialog({
   open,

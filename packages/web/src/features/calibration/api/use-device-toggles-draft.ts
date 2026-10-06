@@ -1,7 +1,6 @@
 import {
   devicesQueryOptions,
   saveDevice,
-  type Device,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -10,6 +9,7 @@ import type {
   DeviceToggleKey,
   DeviceToggles,
   DeviceTogglesDraft,
+  Device,
 } from "@/lib/interfaces/calibration";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";

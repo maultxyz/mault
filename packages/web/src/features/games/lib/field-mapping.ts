@@ -1,7 +1,5 @@
-import type { PickedField } from "@/lib/interfaces/games";
 import type { FieldType } from "@magic-vault/shared";
 
-export type { PickedField };
 
 export function humanizeKey(key: string): string {
   const spaced = key

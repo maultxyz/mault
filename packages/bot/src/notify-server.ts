@@ -10,25 +10,15 @@ import {
 import { Hono } from "hono";
 import sharp from "sharp";
 import { listNotifyChannels, listPingableRoles } from "./lib/notify-channel";
-
-const PORT = parseInt(process.env.BOT_PORT ?? "3002");
-const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
-const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:3001";
-const COMPOSITE_HEIGHT = 480;
-const COMPOSITE_GAP = 16;
-const SCAN_ATTACHMENT_NAME = "scan.jpg";
-
-interface NotifyBody {
-  channelId?: string;
-  threadId?: string | null;
-  threadName?: string | null;
-  useThread?: boolean;
-  embed?: APIEmbed;
-  attachmentDataUrl?: string;
-  secondaryImageUrl?: string;
-  guildId?: string;
-  pingRoleIds?: string[];
-}
+import {
+  BOT_API_SECRET,
+  COMPOSITE_GAP,
+  COMPOSITE_HEIGHT,
+  NOTIFY_SERVER_PORT,
+  SCAN_ATTACHMENT_NAME,
+  SERVER_URL,
+} from "./lib/constants";
+import type { NotifyBody } from "./lib/interfaces";
 
 function decodeDataUrl(dataUrl: string): Buffer | null {
   const match = /^data:[^;]+;base64,(.+)$/.exec(dataUrl);
@@ -202,7 +192,7 @@ export function startNotifyServer(client: Client) {
     }
   });
 
-  serve({ fetch: app.fetch, port: PORT, hostname: "0.0.0.0" }, () => {
-    console.log(`[bot] Notify server listening on port ${PORT}`);
+  serve({ fetch: app.fetch, port: NOTIFY_SERVER_PORT, hostname: "0.0.0.0" }, () => {
+    console.log(`[bot] Notify server listening on port ${NOTIFY_SERVER_PORT}`);
   });
 }

@@ -5,7 +5,7 @@ import type {
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { cardmarketPrices, cardmarketProducts } from "../../db/schema";
-import type { CardSearchAdapter, CardmarketPricing } from "./types";
+import type { CardSearchAdapter, CardmarketPricing } from "../interfaces/card-search";
 
 export function cardmarketMatchName(name: string): string {
   return name

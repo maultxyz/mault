@@ -1,6 +1,14 @@
-import { API_BASE, apiDelete, apiGet, apiPost, apiPut, getAuthHeaders, handleForbidden } from "@/lib/api/client";
+import {
+  apiDelete,
+  apiGet,
+  apiPost,
+  apiPut,
+  getAuthHeaders,
+  handleForbidden,
+} from "@/lib/api/client";
 import type { Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
+import { API_BASE } from "@/lib/constants/api";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
   return apiGet<Result<Collection[]>>("/api/collections");

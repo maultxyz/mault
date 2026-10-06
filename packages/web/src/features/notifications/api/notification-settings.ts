@@ -1,16 +1,11 @@
-import {
-  apiPost,
-  API_BASE,
-  getAuthHeaders,
-  handleForbidden,
-} from "@/lib/api/client";
+import { apiPost, getAuthHeaders, handleForbidden } from "@/lib/api/client";
 import type {
   NotificationTestOutcome,
   NotificationTestType,
 } from "@/lib/interfaces/notifications";
 import type { SerialEventReport } from "@magic-vault/shared";
+import { API_BASE } from "@/lib/constants/api";
 
-export type { NotificationTestType };
 
 // 409 means the org has no Discord error channel set and 502 that the bot
 // couldn't post; both carry a `reason` worth telling the user apart from a

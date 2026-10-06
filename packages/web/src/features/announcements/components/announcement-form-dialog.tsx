@@ -21,6 +21,9 @@ import type { Announcement } from "@magic-vault/shared";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import type {
+  AnnouncementFormDialogProps,
+} from "@/lib/interfaces/announcements";
 
 function toDatetimeLocalValue(value: Date | string | null): string {
   if (!value) return "";
@@ -58,13 +61,6 @@ function toFormValues(
     startsAt: toDatetimeLocalValue(announcement.startsAt),
     endsAt: toDatetimeLocalValue(announcement.endsAt),
   };
-}
-
-interface AnnouncementFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  announcement?: Announcement | null;
-  onSubmit: (values: AnnouncementFormValues) => Promise<void>;
 }
 
 export function AnnouncementFormDialog({

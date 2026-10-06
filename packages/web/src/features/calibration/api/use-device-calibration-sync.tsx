@@ -1,4 +1,3 @@
-import type { Device } from "@/features/calibration/api/devices";
 import {
   feederQueryOptions,
   saveFeederConfig,
@@ -24,6 +23,7 @@ import type {
   DeviceCalibrationSyncContextValue,
   StoredCalibration,
   StoredCalibrationRead,
+  Device,
 } from "@/lib/interfaces/calibration";
 import { toast } from "@/lib/toast";
 import {

@@ -1,17 +1,5 @@
-import {
-  IconLayoutGrid,
-  IconRoute,
-  IconSparkles,
-  IconStack2,
-} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-
-const STEPS = [
-  { key: "showCard", icon: IconStack2 },
-  { key: "recognized", icon: IconSparkles },
-  { key: "sorted", icon: IconRoute },
-  { key: "organized", icon: IconLayoutGrid },
-] as const;
+import { LANDING_PIPELINE_STEPS } from "@/lib/constants/landing";
 
 export function LandingPipeline() {
   const { t } = useTranslation("landing");
@@ -29,7 +17,7 @@ export function LandingPipeline() {
         </div>
 
         <div className="mt-10 grid divide-y divide-border border-t border-border md:grid-cols-4 md:divide-x md:divide-y-0 md:border-t-0">
-          {STEPS.map((step, i) => (
+          {LANDING_PIPELINE_STEPS.map((step, i) => (
             <div
               key={step.key}
               className="flex items-start gap-4 py-6 md:px-6 md:py-0 md:first:pl-0 md:last:pr-0"

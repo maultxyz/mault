@@ -13,19 +13,7 @@ import {
 } from "../../lib/discord";
 import { postMatchingNotificationRules } from "../../lib/notification-rules";
 import { enqueueScanNotification } from "../../lib/scan-notification-queue";
-
-export interface NotifyCardScannedParams {
-  orgId: string;
-  collectionGuid: string;
-  isNewSession: boolean;
-  card: PlayingCardWithDistance;
-  isFoil?: boolean;
-  foilType?: string;
-  collectionName: string | undefined;
-  gameName: string | undefined;
-  gameId: number | null;
-  capturedImageUrl?: string;
-}
+import type { NotifyCardScannedParams } from "../../lib/interfaces/collections";
 
 export function notifyCardScanned(params: NotifyCardScannedParams): void {
   const {

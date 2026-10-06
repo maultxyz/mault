@@ -1,7 +1,5 @@
 import { AlertTrayTrigger } from "@/components/alert-tray-trigger";
 import { MobileMoreSheet } from "@/components/mobile-more-sheet";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
-import { useLiveSessionCounts } from "@/features/collections/api/use-live-counts";
 import {
   MOBILE_MORE_PATHS,
   MOBILE_NAV_TAB_ACTIVE_CLASS,
@@ -23,6 +21,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
+import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 
 function TabIcon({ icon, dot, count }: MobileNavTabIconProps) {
   return (

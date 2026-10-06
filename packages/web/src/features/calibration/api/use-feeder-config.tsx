@@ -20,12 +20,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-
-interface FeederConfigContextValue {
-  feederConfig: FeederCalibration;
-  saveConfig: (calibration: FeederCalibration) => Promise<void>;
-  previewSpeed: (value: number) => void;
-}
+import type { FeederConfigContextValue } from "@/lib/interfaces/calibration";
 
 const FeederConfigContext = createContext<FeederConfigContextValue | null>(null);
 

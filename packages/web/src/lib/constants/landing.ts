@@ -1,4 +1,10 @@
 import { SOUND_CLIP_WAVEFORM_BARS } from "@magic-vault/shared";
+import {
+  IconLayoutGrid,
+  IconRoute,
+  IconSparkles,
+  IconStack2,
+} from "@tabler/icons-react";
 
 export const DEMO_ALPHABET_BINS = [
   { letter: "A", card: "Arcane Signet" },
@@ -34,3 +40,33 @@ export const DEMO_SOUND_RULES = [
     progress: 0,
   },
 ];
+
+export const DEMO_AUTO_ASSIGN_ROWS = [
+  { value: "Mythic", bin: 1 },
+  { value: "Rare", bin: 2 },
+  { value: "Uncommon", bin: 3 },
+  { value: "Common", bin: 4 },
+];
+
+export const DEMO_BIN_DIAGRAM_MODULES = [
+  { module: 1, left: 1, right: 2 },
+  { module: 2, left: 3, right: 4 },
+  { module: 3, left: 5, right: 6 },
+];
+
+export const DEMO_REPACK_SLOTS = [
+  { label: "Bin 1", note: "commons", done: 3, total: 3 },
+  { label: "Bin 2", note: "uncommons", done: 1, total: 2 },
+  { label: "Bin 3", note: "rare", done: 0, total: 1 },
+];
+
+export const DEMO_RULE_FIELD_OPTIONS = ["Rarity", "Color", "Set", "Type"];
+
+export const DEMO_RULE_OPERATOR_OPTIONS = ["is", "is not", "includes"];
+
+export const LANDING_PIPELINE_STEPS = [
+  { key: "showCard", icon: IconStack2 },
+  { key: "recognized", icon: IconSparkles },
+  { key: "sorted", icon: IconRoute },
+  { key: "organized", icon: IconLayoutGrid },
+] as const;

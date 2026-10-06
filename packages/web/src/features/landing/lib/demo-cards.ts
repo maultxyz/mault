@@ -1,10 +1,5 @@
-import type { PlayingCardWithDistance, ScannedCard } from "@magic-vault/shared";
-
-export interface DemoScannedCard {
-  card: PlayingCardWithDistance;
-  binNumber: number;
-  isFoil?: boolean;
-}
+import type { ScannedCard } from "@magic-vault/shared";
+import type { DemoScannedCard } from "@/lib/interfaces/landing";
 
 // Adapts the demo data to the real ScannedCard shape so it can be fed
 // straight into features/scanner/lib/compute-stats.ts - a pure function,

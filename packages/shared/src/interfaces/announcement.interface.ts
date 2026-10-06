@@ -12,3 +12,13 @@ export interface Announcement {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface AnnouncementInput {
+  severity: AnnouncementSeverity;
+  message: string;
+  isActive?: boolean;
+  showOnLanding?: boolean;
+  link?: string | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+}

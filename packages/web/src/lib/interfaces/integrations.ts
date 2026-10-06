@@ -57,3 +57,8 @@ export interface CollectionOverrideDialogProps {
   onOpenChange: (open: boolean) => void;
   integration: DiscordIntegration;
 }
+
+export interface PendingDiscordLinkCode {
+  code: string;
+  expiresAt: number;
+}

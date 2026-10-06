@@ -1,4 +1,3 @@
-import type { OrgSettings } from "@/features/companies/api/org-settings";
 import type {
   DiscordChannelsDraft,
   DiscordSettingsDraftValues,
@@ -7,6 +6,7 @@ import type {
   DiscordCollectionChannels,
   DiscordIntegration,
   NotificationRule,
+  OrgSettings,
 } from "@magic-vault/shared";
 
 export function toDiscordSettingsDraft(

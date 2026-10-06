@@ -18,7 +18,8 @@ import {
   useWatch,
 } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { uniqueFieldKey, type PickedField } from "../lib/field-mapping";
+import type { PickedField } from "@/lib/interfaces/games";
+import { uniqueFieldKey } from "../lib/field-mapping";
 import { SampleCardBrowser } from "./sample-card-browser";
 
 export function GameFieldDefinitionsEditor() {

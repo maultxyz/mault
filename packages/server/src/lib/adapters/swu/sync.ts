@@ -2,7 +2,7 @@ import type {
   FetchOneResult,
   SyncSource,
   SyncSourceCard,
-} from "../../card-search/sync-types";
+} from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { SWU_API_ROOT, SWU_DEFAULT_URL } from "../../constants/urls";

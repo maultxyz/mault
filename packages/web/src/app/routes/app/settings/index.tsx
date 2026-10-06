@@ -1,8 +1,8 @@
 import { SettingsMobileMenu } from "@/components/settings-mobile-menu";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { BILLING_RETURN_PARAM } from "@/lib/constants/settings";
 import { Navigate, useLocation } from "react-router-dom";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 export default function SettingsIndexRedirect() {
   const location = useLocation();

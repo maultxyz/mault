@@ -30,6 +30,9 @@ import {
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   SCANNABLE_STATUSES,
+  SCANNER_LIVE_DETECTION_INTERVAL_MS,
+  LIVE_DETECTION_STATUSES,
+  CONSENSUS_RETRY_BUDGET,
 } from "@/lib/constants/scanner";
 import type {
   MatchScope,
@@ -70,14 +73,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const LIVE_DETECTION_INTERVAL_MS = 300;
-const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
-  "scanning",
-  "paused",
-  "settling",
-];
-const CONSENSUS_RETRY_BUDGET = 3;
 
 // Singleton AudioContext - browsers cap concurrent contexts (~6).
 // Creating one per scan exhausts the limit quickly.
@@ -939,7 +934,7 @@ export function useCardScanner({
         .finally(() => {
           liveDetectingRef.current = false;
         });
-    }, LIVE_DETECTION_INTERVAL_MS);
+    }, SCANNER_LIVE_DETECTION_INTERVAL_MS);
 
     return () => clearInterval(intervalId);
   }, [stream]);

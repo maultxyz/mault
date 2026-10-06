@@ -16,16 +16,6 @@ export function toAnnouncement(row: typeof announcements.$inferSelect): Announce
   };
 }
 
-export interface AnnouncementInput {
-  severity: AnnouncementSeverity;
-  message: string;
-  isActive?: boolean;
-  showOnLanding?: boolean;
-  link?: string | null;
-  startsAt?: string | null;
-  endsAt?: string | null;
-}
-
 export function parseAnnouncementLink(
   link: string | null | undefined,
 ): { ok: true; value: string | null } | { ok: false } {

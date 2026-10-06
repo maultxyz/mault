@@ -8,7 +8,6 @@ import type {
 import { DEFAULT_CALIBRATION, DEFAULT_MODULE_COUNT } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
-export type { ModuleConfigAuditEntry };
 
 function defaultModuleConfigs(): ModuleConfig[] {
   return Array.from({ length: DEFAULT_MODULE_COUNT }, (_, i) => ({

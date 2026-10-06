@@ -27,16 +27,15 @@ import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import {
   getOnnxRuntimeFailure,
   useExecutionProviderPreference,
-  type OnnxExecutionProviderPreference,
 } from "@/features/scanner/lib/onnx-runtime";
 import {
   CAPTURE_SETTLE_DELAY_SLIDER_MAX,
   MATCHES_NEEDED_MIN,
   MATCHES_NEEDED_SLIDER_MAX,
   sliderMax,
+  CALIBRATION_LIVE_DETECTION_INTERVAL_MS,
 } from "@/lib/constants/calibration";
 import { SCAN_REGION_PHONE_SYNC_DELAY_MS } from "@/lib/constants/timing";
-import type { ScanRegion } from "@magic-vault/shared";
 import {
   IconCameraSpark,
   IconDeviceMobile,
@@ -44,21 +43,10 @@ import {
 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const LIVE_DETECTION_INTERVAL_MS = 200;
-
-interface ScanRegionCalibrationPanelProps {
-  scanRegion: ScanRegion;
-  captureSettleDelayMs: number;
-  matchesNeeded: number;
-  checkBothOrientations: boolean;
-  isLoading: boolean;
-  onRegionChange: (region: ScanRegion) => void;
-  onResetRegion: () => void;
-  onCaptureSettleChange: (value: number) => void;
-  onMatchesNeededChange: (value: number) => void;
-  onCheckBothOrientationsChange: (value: boolean) => void;
-}
+import type { OnnxExecutionProviderPreference } from "@/lib/interfaces/scanner";
+import type {
+  ScanRegionCalibrationPanelProps,
+} from "@/lib/interfaces/calibration";
 
 export function ScanRegionCalibrationPanel({
   scanRegion: region,
@@ -237,7 +225,7 @@ export function ScanRegionCalibrationPanel({
         .finally(() => {
           liveDetectingRef.current = false;
         });
-    }, LIVE_DETECTION_INTERVAL_MS);
+    }, CALIBRATION_LIVE_DETECTION_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [videoSize, canvasRef]);

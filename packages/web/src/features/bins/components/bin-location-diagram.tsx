@@ -3,6 +3,7 @@ import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { BIN_SLOTS_PHYSICAL_ORDER } from "@/lib/constants/calibration";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import type { BinLocationDiagramProps } from "@/lib/interfaces/bins";
 
 function BinCell({
   binNumber,
@@ -44,13 +45,6 @@ function BinCell({
       )}
     </div>
   );
-}
-
-interface BinLocationDiagramProps {
-  binNumber?: number;
-  // Set false when rendering directly on a normal page/card surface rather
-  // than inside a dark Tooltip (bg-foreground/text-background) popup.
-  inverted?: boolean;
 }
 
 export function BinLocationDiagram({

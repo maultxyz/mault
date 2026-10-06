@@ -1,3 +1,4 @@
+import type { SourceCard } from "./interfaces/card.interface";
 import type { ScannedCard } from "./interfaces/scanner.interface";
 import type {
   AlphabetStep,
@@ -18,8 +19,6 @@ import {
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
 import { cardMatchPercent } from "./scan-rule-fields";
-
-export type SourceCard = object;
 
 export function getByPath(card: SourceCard, path: string): unknown {
   return path.split(".").reduce<unknown>((value, key) => {

@@ -6,7 +6,9 @@ import {
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import {
+  reportSerialEvent,
+} from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";

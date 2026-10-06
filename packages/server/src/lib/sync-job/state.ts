@@ -1,6 +1,5 @@
 import type { SyncState } from "@magic-vault/shared";
-
-type SseWriter = (event: string, data: unknown) => void;
+import type { SseWriter } from "../interfaces/sse";
 
 const INITIAL_STATE: SyncState = {
   status: "idle",

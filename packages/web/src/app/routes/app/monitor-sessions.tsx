@@ -10,9 +10,6 @@ import {
   collectionsQueryOptions,
   releaseScanLock,
 } from "@/features/collections/api/collections";
-import type { ScanLockInfo } from "@/features/collections/api/use-collection-locks";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
-import { useSessionViewersByGuid } from "@/features/collections/api/use-live-counts";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { Collection } from "@magic-vault/shared";
@@ -27,6 +24,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
+import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
+import type { ScanLockInfo } from "@/lib/interfaces/collections";
 
 function ScanningPill({ isOwn }: { isOwn?: boolean }) {
   const { t } = useTranslation("scanner");

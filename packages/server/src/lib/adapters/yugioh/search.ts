@@ -1,57 +1,16 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
-import type { CardSearchAdapter } from "../../card-search/types";
+import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
-
-export interface YgoCardSet {
-  set_name: string;
-  set_code: string;
-  set_rarity: string;
-  set_rarity_code?: string;
-  set_price?: string;
-}
-
-export interface YgoCardImage {
-  id: number;
-  image_url: string;
-  image_url_small: string;
-  image_url_cropped?: string;
-}
-
-export interface YgoCardPrice {
-  cardmarket_price?: string;
-  tcgplayer_price?: string;
-  ebay_price?: string;
-  amazon_price?: string;
-  coolstuffinc_price?: string;
-}
-
-export interface YgoCard {
-  id: number;
-  name: string;
-  type: string;
-  frameType?: string;
-  desc: string;
-  atk?: number;
-  def?: number;
-  level?: number;
-  scale?: number;
-  linkval?: number;
-  race?: string;
-  attribute?: string;
-  archetype?: string;
-  ygoprodeck_url?: string;
-  card_sets?: YgoCardSet[];
-  card_images?: YgoCardImage[];
-  card_prices?: YgoCardPrice[];
-}
-
-interface YgoApiResponse {
-  data?: YgoCard[];
-  error?: string;
-}
+import type {
+  YgoCardSet,
+  YgoCardImage,
+  YgoCardPrice,
+  YgoCard,
+  YgoApiResponse,
+} from "../../interfaces/yugioh";
 
 export function splitSetCode(setCode: string): { set: string; number: string } {
   const idx = setCode.lastIndexOf("-");

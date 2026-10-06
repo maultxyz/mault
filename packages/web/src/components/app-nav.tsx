@@ -17,9 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UserMenu } from "@/features/account/components/user-menu";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { useLiveSessionCounts } from "@/features/collections/api/use-live-counts";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
@@ -45,6 +43,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BrandIcon } from "./brand-icon";
+import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 
 function CollapsedNavItem({
   icon,

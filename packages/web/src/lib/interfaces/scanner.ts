@@ -32,8 +32,8 @@ import type {
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
-import type { Device } from "@/features/calibration/api/devices";
-import type { ByteTransport } from "@/features/scanner/lib/transports";
+import type { Device } from "@/lib/interfaces/calibration";
+import type { TFunction } from "i18next";
 
 export type PhoneCameraCaptureStatus = "idle" | "waiting" | "connected" | "error";
 
@@ -648,4 +648,111 @@ export interface CorrectionAutoCloseTimerProps {
 export interface BinCorrectionTileProps {
   label: string;
   bin: number | undefined;
+}
+
+export interface ByteTransport {
+  kind: SerialTransportType;
+  start(): void;
+  write(data: Uint8Array<ArrayBuffer>): Promise<void>;
+  onData(cb: (chunk: Uint8Array) => void): void;
+  onDisconnect(cb: () => void): void;
+  onError(cb: (error: unknown) => void): void;
+  close(): Promise<void>;
+}
+
+export interface CornerDetection {
+  cardPresent: boolean;
+  confidence: number;
+  sharpness: number | null;
+  contour: CardContour | null;
+}
+
+export interface ClientDewarpResult {
+  detection: CornerDetection;
+  dewarpedCanvas: HTMLCanvasElement | null;
+  frame: HTMLCanvasElement;
+}
+
+export interface RouteCardToBinParams {
+  route: BinRoute;
+  sendRoute: (route: BinRoute, options?: RouteOptions) => Promise<unknown | null>;
+  t: TFunction;
+  failedKey: string;
+  cardName?: string;
+  collectionGuid: string | undefined;
+  isAutoFeedEnabled: () => boolean;
+  isPipelinedFeedEnabled: () => boolean;
+  pause: () => void;
+  triggerAutoFeed: () => void;
+  onJam: (options: JamToastOptions) => void;
+}
+
+export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
+
+export interface AutoFeedSerial {
+  sendCommand: (data: string) => Promise<boolean>;
+  receiveResponse: (timeoutMs?: number) => Promise<string>;
+}
+
+export interface PendingCapture {
+  requestId: string;
+  resolve: (dataUrl: string | null) => void;
+  timeout: ReturnType<typeof setTimeout>;
+}
+
+export interface OcrBetaDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: () => void;
+}
+
+export interface PhoneCameraPairingDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  status: PhoneCameraCaptureStatus;
+  pairingUrl: string | null;
+  onRetry: () => void;
+  onDisconnect: () => void;
+}
+
+export interface ScannerMenuProps {
+  isCameraActive: boolean;
+  isConnected: boolean;
+  autoFeed: boolean;
+  allowDuplicates: boolean;
+  cameras: MediaDeviceInfo[];
+  selectedCameraId: string | null;
+  phonePairingStatus: PhoneCameraCaptureStatus;
+  scanningBlocked: boolean;
+  onCameraConnect: () => void;
+  onCameraDisconnect: () => void;
+  onCameraSelect: (deviceId: string) => void;
+  onOpenPhonePairing: () => void;
+  onScannerConnect: () => void;
+  onScannerConnectBluetooth: () => void;
+  bluetoothSupported: boolean;
+  onScannerDisconnect: () => void;
+  onScannerRetry: () => void;
+  onCalibrate: () => void;
+  onAutoFeedChange: (enabled: boolean) => void;
+  onAllowDuplicatesChange: (enabled: boolean) => void;
+  onConnectAnotherUsb: () => void;
+  onConnectAnotherBluetooth: () => void;
+  canConnectAnotherSorter: boolean;
+  sorterLimitIsHardCap: boolean;
+  onUpgrade: () => void;
+}
+
+export interface SessionStatsPanelProps {
+  stats: ScanStats | null;
+  totalCards: number;
+}
+
+export interface DebugCardSet {
+  mockCards: PlayingCardWithDistance[];
+  multiMatch: {
+    card: PlayingCardWithDistance;
+    imageUrl: string;
+    alternates: PlayingCardWithDistance[];
+  };
 }
