@@ -1,1 +1,1 @@
-ALTER TABLE "org_settings" ADD COLUMN "correction_auto_close_seconds" integer;
+ALTER TABLE "org_settings" ADD COLUMN IF NOT EXISTS "correction_auto_close_seconds" integer;

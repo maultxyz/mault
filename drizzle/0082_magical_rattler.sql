@@ -1,1 +1,1 @@
-ALTER TABLE "bin_sets" ADD COLUMN "chaos_bin_size" integer;
+ALTER TABLE "bin_sets" ADD COLUMN IF NOT EXISTS "chaos_bin_size" integer;
