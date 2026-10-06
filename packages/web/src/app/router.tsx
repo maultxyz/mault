@@ -91,6 +91,9 @@ const CalibrateCalibrationPage = lazy(
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
+const AdminGameEditorPage = lazy(
+  () => import("@/app/routes/app/admin/game-editor"),
+);
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminAnnouncementsPage = lazy(
@@ -314,6 +317,14 @@ export const router = createBrowserRouter([
                           {
                             path: "games",
                             element: <AdminGamesPage />,
+                          },
+                          {
+                            path: "games/new",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
+                            path: "games/:guid",
+                            element: <AdminGameEditorPage />,
                           },
                           {
                             path: "users",

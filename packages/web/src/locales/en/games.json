@@ -44,9 +44,19 @@
       "partiallyImported_other": "Imported {{count}} games, {{failed}} failed"
     }
   },
-  "gameFormDialog": {
+  "gameForm": {
+    "newTitle": "New game",
+    "back": "Games",
+    "notFound": "This game doesn't exist or was deleted.",
+    "general": {
+      "heading": "General",
+      "description": "Which card source this game uses and how it's listed."
+    },
+    "physical": {
+      "heading": "Cards",
+      "description": "Physical card properties, used for foil options and working out when a bin is full."
+    },
     "editTitle": "Edit {{name}}",
-    "description": "Define which fields bin rules can filter on for this game.",
     "keyLabel": "Key",
     "keyPlaceholder": "Select a game",
     "nameLabel": "Name",
@@ -54,14 +64,11 @@
     "apiDocsUrlLabel": "API documentation URL",
     "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
     "foilTypesLabel": "Foil types",
-    "foilTypesPlaceholder": "Comma separated (e.g. Reverse Holo, Holo). Leave blank for a plain Foil option.",
+    "foilTypesPlaceholder": "Reverse Holo, Holo",
+    "foilTypesDescription": "Comma separated (e.g. Reverse Holo, Holo). Leave blank for a plain Foil option.",
     "cardThicknessLabel": "Card thickness (mm)",
     "cardThicknessPlaceholder": "e.g. 0.3",
     "cardThicknessDescription": "Used with each bin's calibrated height (set on the Calibration page) to automatically work out when a bin is full.",
-    "cancel": "Cancel",
-    "saving": "Saving…",
-    "saveChanges": "Save changes",
-    "createGame": "Create game",
     "validation": {
       "required": "Required",
       "keyFormat": "Lowercase letters, numbers, and hyphens only",
@@ -80,12 +87,23 @@
     "sampleName": "Sample: {{name}}"
   },
   "fieldDefinitionsEditor": {
-    "heading": "Field definitions",
+    "heading": "Fields",
+    "description": "Define which fields bin rules, sorting and notifications can use for this game.",
     "addField": "Add field",
-    "fieldKeyPlaceholder": "Field key (e.g. rarity)",
-    "labelPlaceholder": "Label (e.g. Rarity)",
-    "dataPathPlaceholder": "Data path (e.g. prices.usd)",
-    "optionsPlaceholder": "Options, comma separated (e.g. common, uncommon, rare)",
+    "columns": {
+      "key": "Key",
+      "label": "Label",
+      "type": "Type",
+      "path": "Data path",
+      "options": "Options"
+    },
+    "fieldKeyPlaceholder": "rarity",
+    "labelPlaceholder": "Rarity",
+    "dataPathPlaceholder": "prices.usd",
+    "optionsPlaceholder": "common, rare",
+    "pickFromSample": "Pick from a card",
+    "hideSample": "Hide card browser",
+    "removeField": "Remove field",
     "empty": "No fields yet. Add at least one for bin rules to filter on."
   },
   "fieldTypes": {

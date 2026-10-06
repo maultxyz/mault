@@ -44,9 +44,19 @@
       "partiallyImported_other": "{{count}} Spiele importiert, {{failed}} fehlgeschlagen"
     }
   },
-  "gameFormDialog": {
+  "gameForm": {
+    "newTitle": "Neues Spiel",
+    "back": "Spiele",
+    "notFound": "Dieses Spiel existiert nicht oder wurde gelöscht.",
+    "general": {
+      "heading": "Allgemein",
+      "description": "Welche Kartenquelle dieses Spiel nutzt und wie es angezeigt wird."
+    },
+    "physical": {
+      "heading": "Karten",
+      "description": "Physische Karteneigenschaften, genutzt für Foil-Optionen und um zu bestimmen, wann ein Fach voll ist."
+    },
     "editTitle": "{{name}} bearbeiten",
-    "description": "Lege fest, welche Felder Fach-Regeln für dieses Spiel filtern können.",
     "keyLabel": "Schlüssel",
     "keyPlaceholder": "Spiel auswählen",
     "nameLabel": "Name",
@@ -54,14 +64,11 @@
     "apiDocsUrlLabel": "URL der API-Dokumentation",
     "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
     "foilTypesLabel": "Foil-Typen",
-    "foilTypesPlaceholder": "Kommagetrennt (z. B. Reverse Holo, Holo). Leer lassen für eine einfache Foil-Option.",
+    "foilTypesPlaceholder": "Reverse Holo, Holo",
+    "foilTypesDescription": "Kommagetrennt (z. B. Reverse Holo, Holo). Leer lassen für eine einfache Foil-Option.",
     "cardThicknessLabel": "Kartenstärke (mm)",
     "cardThicknessPlaceholder": "z. B. 0.3",
     "cardThicknessDescription": "Wird zusammen mit der kalibrierten Höhe jedes Fachs (auf der Kalibrierungsseite festgelegt) verwendet, um automatisch zu bestimmen, wann ein Fach voll ist.",
-    "cancel": "Abbrechen",
-    "saving": "Wird gespeichert…",
-    "saveChanges": "Änderungen speichern",
-    "createGame": "Spiel erstellen",
     "validation": {
       "required": "Erforderlich",
       "keyFormat": "Nur Kleinbuchstaben, Zahlen und Bindestriche",
@@ -80,13 +87,24 @@
     "sampleName": "Beispiel: {{name}}"
   },
   "fieldDefinitionsEditor": {
-    "heading": "Feld-Definitionen",
+    "heading": "Felder",
+    "description": "Lege fest, welche Felder Fach-Regeln, Sortierung und Benachrichtigungen für dieses Spiel nutzen können.",
     "addField": "Feld hinzufügen",
-    "fieldKeyPlaceholder": "Feldschlüssel (z. B. rarity)",
-    "labelPlaceholder": "Beschriftung (z. B. Seltenheit)",
-    "dataPathPlaceholder": "Datenpfad (z. B. prices.usd)",
-    "optionsPlaceholder": "Optionen, kommagetrennt (z. B. common, uncommon, rare)",
-    "empty": "Noch keine Felder — füge mindestens eines hinzu, damit Fach-Regeln filtern können."
+    "columns": {
+      "key": "Schlüssel",
+      "label": "Beschriftung",
+      "type": "Typ",
+      "path": "Datenpfad",
+      "options": "Optionen"
+    },
+    "fieldKeyPlaceholder": "rarity",
+    "labelPlaceholder": "Seltenheit",
+    "dataPathPlaceholder": "prices.usd",
+    "optionsPlaceholder": "common, rare",
+    "pickFromSample": "Aus einer Karte wählen",
+    "hideSample": "Kartenbrowser ausblenden",
+    "removeField": "Feld entfernen",
+    "empty": "Noch keine Felder. Füge mindestens eines hinzu, damit Fach-Regeln filtern können."
   },
   "fieldTypes": {
     "string": "Text",

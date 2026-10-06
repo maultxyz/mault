@@ -4,14 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import {
-  createGame,
-  deleteGame,
-  gamesQueryOptions,
-  updateGame,
-} from "@/features/games/api/games";
-import type { GameFormValues } from "@/schemas/games.schema";
-import { binsQueryOptions } from "@/features/bins/api/sort-bins";
+import { deleteGame, gamesQueryOptions } from "@/features/games/api/games";
 import type { Game } from "@magic-vault/shared";
 import {
   buildGamesExport,
@@ -27,18 +20,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-import {
-  GameFormDialog,
-  toFieldDefinitions,
-  toFieldRenames,
-  toFoilTypes,
-} from "./game-form-dialog";
+import { GAMES_ADMIN_PATH, NEW_GAME_PATH } from "@/lib/constants/games";
+import { Link } from "react-router-dom";
 import { GamesTransferMenu } from "./games-transfer-menu";
 
 export function GamesManager() {
   const { t } = useTranslation("games");
   const queryClient = useQueryClient();
-  const [formGame, setFormGame] = useState<Game | null | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<Game | null>(null);
 
   const gamesQuery = useQuery(gamesQueryOptions);
@@ -46,65 +34,6 @@ export function GamesManager() {
   function setGames(games: Game[]) {
     queryClient.setQueryData(gamesQueryOptions.queryKey, games);
   }
-
-  const createMutation = useMutation({
-    mutationFn: (values: GameFormValues) =>
-      createGame({
-        key: values.key,
-        name: values.name,
-        apiDocsUrl: values.apiDocsUrl || null,
-        foilTypes: toFoilTypes(values.foilTypesText),
-        cardThickness: values.cardThickness,
-        isActive: values.isActive,
-        fieldDefinitions: toFieldDefinitions(values.fieldDefinitions),
-      }),
-    onSuccess: (r) => {
-      if (!r.success || !r.data) {
-        toast.error(r.message || t("gamesManager.toasts.createError"));
-        return;
-      }
-      setGames([...(gamesQuery.data ?? []), r.data]);
-      toast.success(
-        t("gamesManager.toasts.createSuccess", { name: r.data.name }),
-      );
-    },
-    onError: () => toast.error(t("gamesManager.toasts.createError")),
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ guid, values }: { guid: string; values: GameFormValues }) =>
-      updateGame(guid, {
-        key: values.key,
-        name: values.name,
-        apiDocsUrl: values.apiDocsUrl || null,
-        foilTypes: toFoilTypes(values.foilTypesText),
-        cardThickness: values.cardThickness,
-        isActive: values.isActive,
-        fieldDefinitions: toFieldDefinitions(values.fieldDefinitions),
-        fieldRenames: toFieldRenames(values.fieldDefinitions),
-      }),
-    onSuccess: (r) => {
-      if (!r.success || !r.data) {
-        toast.error(r.message || t("gamesManager.toasts.updateError"));
-        return;
-      }
-      setGames(
-        (gamesQuery.data ?? []).map((g) =>
-          g.guid === r.data!.guid ? r.data! : g,
-        ),
-      );
-      // Collections embed a snapshot of their game (including
-      // fieldDefinitions), so it goes stale here until refetched.
-      queryClient.invalidateQueries({
-        queryKey: collectionsQueryOptions.queryKey,
-      });
-      queryClient.invalidateQueries({ queryKey: binsQueryOptions.queryKey });
-      toast.success(
-        t("gamesManager.toasts.updateSuccess", { name: r.data.name }),
-      );
-    },
-    onError: () => toast.error(t("gamesManager.toasts.updateError")),
-  });
 
   const deleteMutation = useMutation({
     mutationFn: (guid: string) => deleteGame(guid),
@@ -122,14 +51,6 @@ export function GamesManager() {
     onError: () => toast.error(t("gamesManager.toasts.deleteError")),
   });
 
-  async function handleSubmit(values: GameFormValues) {
-    if (formGame) {
-      await updateMutation.mutateAsync({ guid: formGame.guid, values });
-    } else {
-      await createMutation.mutateAsync(values);
-    }
-  }
-
   return (
     <SettingsSection
       heading={t("gamesManager.heading")}
@@ -137,7 +58,7 @@ export function GamesManager() {
       action={
         <div className="flex items-center gap-2">
           <GamesTransferMenu games={gamesQuery.data ?? []} />
-          <Button onClick={() => setFormGame(null)}>
+          <Button nativeButton={false} render={<Link to={NEW_GAME_PATH} />}>
             <IconPlus size={14} />
             {t("addGame")}
           </Button>
@@ -180,7 +101,8 @@ export function GamesManager() {
               <Button
                 size="icon"
                 variant="outline"
-                onClick={() => setFormGame(game)}
+                nativeButton={false}
+                render={<Link to={`${GAMES_ADMIN_PATH}/${game.guid}`} />}
                 title={t("gamesManager.editTitle")}
               >
                 <IconPencil size={14} />
@@ -202,15 +124,6 @@ export function GamesManager() {
           </p>
         )}
       </div>
-
-      <GameFormDialog
-        open={formGame !== undefined}
-        onOpenChange={(open) => {
-          if (!open) setFormGame(undefined);
-        }}
-        game={formGame}
-        onSubmit={handleSubmit}
-      />
 
       <DeleteDialog
         open={!!deleteTarget}

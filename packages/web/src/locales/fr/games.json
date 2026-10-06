@@ -44,9 +44,19 @@
       "partiallyImported_other": "{{count}} jeux importés, {{failed}} en échec"
     }
   },
-  "gameFormDialog": {
+  "gameForm": {
+    "newTitle": "Nouveau jeu",
+    "back": "Jeux",
+    "notFound": "Ce jeu n'existe pas ou a été supprimé.",
+    "general": {
+      "heading": "Général",
+      "description": "La source de cartes utilisée par ce jeu et son affichage."
+    },
+    "physical": {
+      "heading": "Cartes",
+      "description": "Propriétés physiques des cartes, utilisées pour les options foil et pour savoir quand un bac est plein."
+    },
     "editTitle": "Modifier {{name}}",
-    "description": "Définis quels champs les règles des bacs peuvent filtrer pour ce jeu.",
     "keyLabel": "Clé",
     "keyPlaceholder": "Sélectionner un jeu",
     "nameLabel": "Nom",
@@ -54,14 +64,11 @@
     "apiDocsUrlLabel": "URL de la documentation de l'API",
     "apiDocsUrlPlaceholder": "https://scryfall.com/docs/api/cards/id",
     "foilTypesLabel": "Types de foil",
-    "foilTypesPlaceholder": "Séparés par des virgules (ex. Reverse Holo, Holo). Laisser vide pour une simple option Foil.",
+    "foilTypesPlaceholder": "Reverse Holo, Holo",
+    "foilTypesDescription": "Séparés par des virgules (ex. Reverse Holo, Holo). Laisser vide pour une simple option Foil.",
     "cardThicknessLabel": "Épaisseur de carte (mm)",
     "cardThicknessPlaceholder": "ex. 0.3",
     "cardThicknessDescription": "Utilisée avec la hauteur calibrée de chaque bac (définie sur la page Calibration) pour déterminer automatiquement quand un bac est plein.",
-    "cancel": "Annuler",
-    "saving": "Enregistrement…",
-    "saveChanges": "Enregistrer les modifications",
-    "createGame": "Créer le jeu",
     "validation": {
       "required": "Obligatoire",
       "keyFormat": "Lettres minuscules, chiffres et tirets uniquement",
@@ -80,13 +87,24 @@
     "sampleName": "Exemple : {{name}}"
   },
   "fieldDefinitionsEditor": {
-    "heading": "Définitions des champs",
+    "heading": "Champs",
+    "description": "Définis quels champs les règles des bacs, le tri et les notifications peuvent utiliser pour ce jeu.",
     "addField": "Ajouter un champ",
-    "fieldKeyPlaceholder": "Clé du champ (ex. rarity)",
-    "labelPlaceholder": "Libellé (ex. Rareté)",
-    "dataPathPlaceholder": "Chemin de donnée (ex. prices.usd)",
-    "optionsPlaceholder": "Options, séparées par des virgules (ex. commune, peu commune, rare)",
-    "empty": "Pas encore de champs — ajoute-en au moins un pour pouvoir filtrer les règles des bacs."
+    "columns": {
+      "key": "Clé",
+      "label": "Libellé",
+      "type": "Type",
+      "path": "Chemin de donnée",
+      "options": "Options"
+    },
+    "fieldKeyPlaceholder": "rarity",
+    "labelPlaceholder": "Rareté",
+    "dataPathPlaceholder": "prices.usd",
+    "optionsPlaceholder": "commune, rare",
+    "pickFromSample": "Choisir depuis une carte",
+    "hideSample": "Masquer le navigateur de cartes",
+    "removeField": "Retirer le champ",
+    "empty": "Pas encore de champs. Ajoute-en au moins un pour pouvoir filtrer les règles des bacs."
   },
   "fieldTypes": {
     "string": "Texte",
