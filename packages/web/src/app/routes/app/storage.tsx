@@ -6,11 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
-import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
 import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
 import { StorageLocationList } from "@/features/storage/components/storage-location-list";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
+import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
@@ -70,6 +70,7 @@ export default function StoragePage() {
               data-hotkey-search
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-none"
             />
           )}
           <StorageLocationList
