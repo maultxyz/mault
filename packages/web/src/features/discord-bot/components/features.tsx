@@ -1,18 +1,7 @@
 import { SectionHeading } from "@/components/section-heading";
-import {
-  IconAlertTriangle,
-  IconChartBar,
-  IconMoodSmile,
-  IconPhotoCog,
-} from "@tabler/icons-react";
+import { IconPhotoCog } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-
-const FEATURE_ICONS = [
-  IconPhotoCog,
-  IconAlertTriangle,
-  IconChartBar,
-  IconMoodSmile,
-] as const;
+import { DISCORD_BOT_FEATURE_ICONS } from "@/lib/constants/discord-bot";
 
 export function DiscordBotFeatures() {
   const { t } = useTranslation("discordBot");
@@ -32,7 +21,7 @@ export function DiscordBotFeatures() {
 
         <div className="mt-8 grid gap-8 sm:grid-cols-2">
           {features.map((feature, i) => {
-            const Icon = FEATURE_ICONS[i] ?? IconPhotoCog;
+            const Icon = DISCORD_BOT_FEATURE_ICONS[i] ?? IconPhotoCog;
             return (
               <div key={feature.title} className="flex items-start gap-3">
                 <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">

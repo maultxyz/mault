@@ -5,8 +5,7 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import { DOCUMENT_TITLE_CYCLE_MS as CYCLE_MS } from "@/lib/constants/timing";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const BASE_TITLE = "MAULT";
+import { DOCUMENT_TITLE_BASE } from "@/lib/constants/scanner";
 
 export function DocumentTitleUpdater() {
   const { t } = useTranslation("scanner");
@@ -49,12 +48,12 @@ export function DocumentTitleUpdater() {
 
   useEffect(() => {
     const slide = slides[index % slides.length];
-    document.title = slide ? `${slide} - ${BASE_TITLE}` : BASE_TITLE;
+    document.title = slide ? `${slide} - ${DOCUMENT_TITLE_BASE}` : DOCUMENT_TITLE_BASE;
   }, [slides, index]);
 
   useEffect(
     () => () => {
-      document.title = BASE_TITLE;
+      document.title = DOCUMENT_TITLE_BASE;
     },
     [],
   );

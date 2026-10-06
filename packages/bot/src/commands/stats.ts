@@ -6,10 +6,7 @@ import {
   type ChatInputCommandInteraction,
 } from "discord.js";
 import { getCollections, getStats } from "../api";
-
-const DISCORD_BLURPLE = 0x5865f2;
-const NOT_LINKED_MESSAGE =
-  "This server isn't linked yet - run `/link <code>` first (generate a code from Magic Vault's Integrations page).";
+import { DISCORD_BLURPLE, NOT_LINKED_MESSAGE } from "../lib/constants";
 
 export const data = new SlashCommandBuilder()
   .setName("stats")

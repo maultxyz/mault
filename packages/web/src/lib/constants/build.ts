@@ -1,4 +1,4 @@
-export type BoardType = "uno_r4" | "esp32";
+import type { BoardInfo, BoardType } from "@/lib/interfaces/build";
 
 export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
 
@@ -8,18 +8,6 @@ export const DEFAULT_MODULES = 3;
 
 export const KIT_MODULE_COUNT = 3;
 export const KIT_BOARD_TYPE: BoardType = "esp32";
-
-export interface BoardInfo {
-  displayName: string;
-  shortName: string;
-  irPins: number[];
-  hopperIrPin: number;
-  logicVoltage: "5V" | "3.3V";
-  usbCableName: string;
-  i2cSda: string;
-  i2cScl: string;
-  wiringDiagramSrc: string;
-}
 
 export const BOARD_INFO: Record<BoardType, BoardInfo> = {
   uno_r4: {

@@ -1,5 +1,8 @@
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
-import { proxiedImageUrl, type DebugCardSet } from "./types";
+import {
+  type PlayingCardWithDistance,
+  proxiedImageUrl,
+} from "@magic-vault/shared";
+import type { DebugCardSet } from "@/lib/interfaces/scanner";
 
 const PIKACHU_IMG = proxiedImageUrl(
   "https://assets.tcgdex.net/en/base/base1/58/high.webp",

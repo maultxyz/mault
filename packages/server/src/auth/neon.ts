@@ -1,8 +1,8 @@
-import type { AdminUserSummary } from "@magic-vault/shared";
+import type { AdminUserSummary, OrgRole } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import * as jose from "jose";
 import { db } from "../db";
-import type { AuthProvider, OrgRole } from "./types";
+import type { AuthProvider } from "../lib/interfaces/auth";
 
 let jwks: ReturnType<typeof jose.createRemoteJWKSet> | undefined;
 function getJwks() {

@@ -1,15 +1,6 @@
-import { REPACK_TOUR_COMPLETED_KEY } from "@/lib/constants/storage-keys";
-import type { Step } from "react-joyride";
+import type { TourStepConfig } from "@/lib/interfaces/tours";
 
-export interface RepackTourStepConfig {
-  id: string;
-  target: string;
-  placement?: Step["placement"];
-  titleKey: string;
-  contentKey: string;
-}
-
-export const REPACK_TOUR_STEPS: RepackTourStepConfig[] = [
+export const REPACK_TOUR_STEPS: TourStepConfig[] = [
   {
     id: "welcome",
     target: "body",
@@ -60,19 +51,3 @@ export const REPACK_TOUR_STEPS: RepackTourStepConfig[] = [
     contentKey: "repackTour.done.content",
   },
 ];
-
-export function isRepackTourCompleted(): boolean {
-  try {
-    return localStorage.getItem(REPACK_TOUR_COMPLETED_KEY) === "true";
-  } catch {
-    return true;
-  }
-}
-
-export function markRepackTourCompleted(): void {
-  try {
-    localStorage.setItem(REPACK_TOUR_COMPLETED_KEY, "true");
-  } catch {
-    // Storage unavailable (private browsing, disabled cookies) - skip persisting.
-  }
-}

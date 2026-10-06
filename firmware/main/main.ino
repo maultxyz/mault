@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.4.0"
+#define FIRMWARE_VERSION "2.5.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -133,17 +133,12 @@ void initDeviceIdFromEspMac() {
 
 // Last-resort fallback for a board with no factory-unique hardware ID to
 // read at all (only the Uno R4 Minima, which has no radio - see deviceId's
-// comment above). Unlike servo calibration, which this firmware intentionally
-// does NOT remember across power-off (see setConfig's docs in PROTOCOL.md), a
-// board's identity has to survive a reset or it's useless for keying a saved
-// device record to a specific physical unit - so this one value does get
-// persisted, to EEPROM (which the Renesas UNO R4 core emulates over its
-// internal data flash).
+// comment above). A board's identity has to survive a reset or it's useless
+// for keying a saved device record to a specific physical unit, so it's
+// persisted to EEPROM (which the Renesas UNO R4 core emulates over its
+// internal data flash), next to the stored calibration (see storeConfig in
+// PROTOCOL.md).
 void loadOrCreateDeviceId() {
-#if defined(ARDUINO_ARCH_ESP32)
-  EEPROM.begin(8);
-#endif
-
   if (EEPROM.read(DEVICE_ID_EEPROM_ADDR) == DEVICE_ID_EEPROM_MAGIC) {
     for (int i = 0; i < 6; i++) {
       deviceId[i] = (char)EEPROM.read(DEVICE_ID_EEPROM_ADDR + 1 + i);
@@ -326,6 +321,119 @@ struct FeederConfig {
 };
 
 FeederConfig feederConfig = {315, 1000, 40, 100, 100, 295, 0};
+
+#define CONFIG_EEPROM_ADDR 16
+#define CONFIG_EEPROM_MAGIC 0xC7
+#define CONFIG_EEPROM_LAYOUT 1
+
+struct StoredConfig {
+  int channelOffset;
+  ModuleConfig modules[MAX_MODULES];
+  FeederConfig feeder;
+};
+
+void captureConfig(StoredConfig& out);
+
+#define EEPROM_SIZE (CONFIG_EEPROM_ADDR + 2 + sizeof(StoredConfig))
+
+StoredConfig storedConfig;
+bool hasStoredConfig = false;
+
+void beginEeprom() {
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.begin(EEPROM_SIZE);
+#endif
+}
+
+void captureConfig(StoredConfig& out) {
+  out.channelOffset = moduleChannelOffset;
+  memcpy(out.modules, moduleConfig, sizeof(moduleConfig));
+  out.feeder = feederConfig;
+}
+
+bool configMatchesStored() {
+  if (!hasStoredConfig) return false;
+  StoredConfig current;
+  captureConfig(current);
+  return memcmp(&current, &storedConfig, sizeof(StoredConfig)) == 0;
+}
+
+void loadStoredConfig() {
+  if (EEPROM.read(CONFIG_EEPROM_ADDR) != CONFIG_EEPROM_MAGIC ||
+      EEPROM.read(CONFIG_EEPROM_ADDR + 1) != CONFIG_EEPROM_LAYOUT) {
+    return;
+  }
+  EEPROM.get(CONFIG_EEPROM_ADDR + 2, storedConfig);
+  hasStoredConfig = true;
+  moduleChannelOffset = storedConfig.channelOffset;
+  memcpy(moduleConfig, storedConfig.modules, sizeof(moduleConfig));
+  feederConfig = storedConfig.feeder;
+}
+
+void writeEepromByte(int addr, uint8_t value) {
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.write(addr, value);
+#else
+  EEPROM.update(addr, value);
+#endif
+}
+
+bool persistConfig() {
+  StoredConfig current;
+  captureConfig(current);
+  if (hasStoredConfig &&
+      memcmp(&current, &storedConfig, sizeof(StoredConfig)) == 0) {
+    return false;
+  }
+  writeEepromByte(CONFIG_EEPROM_ADDR, 0);
+  const uint8_t* bytes = (const uint8_t*)&current;
+  for (size_t i = 0; i < sizeof(StoredConfig); i++) {
+    writeEepromByte(CONFIG_EEPROM_ADDR + 2 + i, bytes[i]);
+    feedWatchdog();
+  }
+  writeEepromByte(CONFIG_EEPROM_ADDR + 1, CONFIG_EEPROM_LAYOUT);
+  writeEepromByte(CONFIG_EEPROM_ADDR, CONFIG_EEPROM_MAGIC);
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.commit();
+#endif
+  storedConfig = current;
+  hasStoredConfig = true;
+  return true;
+}
+
+void printStoredModule(int module, Print& reply) {
+  const ModuleConfig& c = storedConfig.modules[module - 1];
+  JsonDocument out;
+  out["status"] = "ok";
+  out["module"] = module;
+  out["bottomClosed"] = c.bottomClosed;
+  out["bottomOpen"] = c.bottomOpen;
+  out["paddleClosed"] = c.paddleClosed;
+  out["paddleOpen"] = c.paddleOpen;
+  out["pusherLeft"] = c.pusherLeft;
+  out["pusherNeutral"] = c.pusherNeutral;
+  out["pusherRight"] = c.pusherRight;
+  out["pusherHoldDuration"] = c.pusherHoldDuration;
+  out["paddleCloseDelay"] = c.paddleCloseDelay;
+  serializeJson(out, reply);
+  reply.println();
+}
+
+void printStoredFeeder(Print& reply) {
+  const FeederConfig& f = storedConfig.feeder;
+  JsonDocument out;
+  out["status"] = "ok";
+  JsonObject feeder = out["feeder"].to<JsonObject>();
+  feeder["speed"] = f.speed;
+  feeder["duration"] = f.duration;
+  feeder["pulseDuration"] = f.pulseDuration;
+  feeder["pauseDuration"] = f.pauseDuration;
+  feeder["settleDuration"] = f.settleDuration;
+  feeder["reverseSpeed"] = f.reverseSpeed;
+  feeder["reverseDuration"] = f.reverseDuration;
+  serializeJson(out, reply);
+  reply.println();
+}
 
 // Routing delays (ms) — tune to match your hardware timing
 #define DELAY_CARD_ENTER   300  // time for card to settle after target bottom opens
@@ -1184,6 +1292,53 @@ void runCommand(char* json, Print& reply) {
     return;
   }
 
+  if (doc["getStoredConfig"].is<bool>() && doc["getStoredConfig"].as<bool>()) {
+    reply.print(F("{\"status\":\"ok\",\"stored\":"));
+    reply.print(hasStoredConfig ? F("true") : F("false"));
+    reply.print(F(",\"dirty\":"));
+    reply.print(configMatchesStored() ? F("false") : F("true"));
+    if (hasStoredConfig) {
+      reply.print(F(",\"channelOffset\":"));
+      reply.print(storedConfig.channelOffset);
+      reply.print(F(",\"modules\":"));
+      reply.print(MAX_MODULES);
+    }
+    reply.println(F("}"));
+    return;
+  }
+  if (!doc["getStoredConfig"].isNull() && !doc["getStoredConfig"].is<bool>()) {
+    if (!hasStoredConfig) {
+      reply.println(F("{\"error\":\"no stored config\"}"));
+      return;
+    }
+    if (doc["getStoredConfig"].is<int>()) {
+      int module = doc["getStoredConfig"].as<int>();
+      if (module < 1 || module > MAX_MODULES) {
+        reply.print(F("{\"error\":\"module must be 1 to "));
+        reply.print(MAX_MODULES);
+        reply.println(F("\"}"));
+        return;
+      }
+      printStoredModule(module, reply);
+      return;
+    }
+    const char* section = doc["getStoredConfig"] | "";
+    if (strcmp(section, "feeder") == 0) {
+      printStoredFeeder(reply);
+      return;
+    }
+    reply.println(F("{\"error\":\"getStoredConfig must be true, feeder or a module number\"}"));
+    return;
+  }
+
+  if (doc["storeConfig"].is<bool>() && doc["storeConfig"].as<bool>()) {
+    bool written = persistConfig();
+    reply.print(F("{\"status\":\"ok\",\"written\":"));
+    reply.print(written ? F("true") : F("false"));
+    reply.println(F("}"));
+    return;
+  }
+
   // {"readIR": true} — read current IR sensor state for all modules + hopper
   if (doc["readIR"].is<bool>() && doc["readIR"].as<bool>()) {
     reply.print(F("{\"status\":\"ok\",\"ir\":["));
@@ -1262,6 +1417,8 @@ void setup() {
   for (int m = 0; m < MAX_MODULES; m++) {
     moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, DELAY_PUSHER_HOLD, 150};
   }
+  beginEeprom();
+  loadStoredConfig();
 
   // All MAX_MODULES pins are set up regardless of the eventual offset/module
   // count - harmless, and the app hasn't told us the offset yet.

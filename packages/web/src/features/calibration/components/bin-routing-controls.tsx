@@ -4,14 +4,7 @@ import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { computeBinCount } from "@magic-vault/shared";
 import { IconPackage, IconPlayerPlay } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-
-interface BinRoutingControlsProps {
-  activeBin: number | null;
-  isReady: boolean;
-  isSampleRunning: boolean;
-  onTestBin: (bin: number) => void;
-  onSampleRun: () => void;
-}
+import type { BinRoutingControlsProps } from "@/lib/interfaces/calibration";
 
 export function BinRoutingControls({
   activeBin,

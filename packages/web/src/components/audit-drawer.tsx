@@ -7,22 +7,11 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
-import type { AuditEntry } from "@/lib/interfaces/audit";
+import type { AuditDrawerProps } from "@/lib/interfaces/audit";
 import { IconClockHour3, IconRotateClockwise2, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export type { AuditEntry };
-
-interface AuditDrawerProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  entries: AuditEntry[];
-  isLoading: boolean;
-  onRevert: (guid: string) => void;
-  isReverting: boolean;
-}
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {

@@ -4,9 +4,8 @@ import { lorcanaDebugCards } from "./lorcana";
 import { mtgDebugCards } from "./mtg";
 import { onePieceDebugCards } from "./onepiece";
 import { pokemonDebugCards } from "./pokemon";
-import type { DebugCardSet } from "./types";
+import type { DebugCardSet } from "@/lib/interfaces/scanner";
 
-export type { DebugCardSet };
 
 const DEBUG_CARDS_BY_GAME_KEY: Record<string, DebugCardSet> = {
   gundam: gundamDebugCards,

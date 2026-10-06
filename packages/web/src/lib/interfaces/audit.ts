@@ -41,3 +41,13 @@ export interface ModuleConfigAuditEntry {
   calibration: ServoCalibration;
   createdAt: string;
 }
+
+export interface AuditDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  entries: AuditEntry[];
+  isLoading: boolean;
+  onRevert: (guid: string) => void;
+  isReverting: boolean;
+}

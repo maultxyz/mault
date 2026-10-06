@@ -10,12 +10,7 @@ import {
   games,
   unmatchedCards,
 } from "../../db/schema";
-
-export interface BinLimitStatus {
-  binNumber: number;
-  cardLimit: number;
-  count: number;
-}
+import type { BinLimitStatus } from "../../lib/interfaces/collections";
 
 export async function findFullBin(
   tx: Transaction,

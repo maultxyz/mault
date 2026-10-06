@@ -10,6 +10,7 @@ import {
   SCAN_RULE_MATCH_PERCENT_FIELD,
   SCAN_RULE_NUMERIC_OPERATORS,
   SCAN_RULE_NON_FOIL_VALUE,
+  SCAN_RULE_FIELDS,
   SCAN_RULE_ROOT,
 } from "./constants/scan-rule-fields.constant";
 import type {
@@ -22,14 +23,6 @@ import type {
 } from "./interfaces/sort-bins.interface";
 import type { PlayingCard } from "./interfaces/card.interface";
 import { cardPriceFor } from "./price-source";
-
-const SCAN_RULE_FIELDS: ConditionField[] = [
-  SCAN_RULE_FOIL_FIELD,
-  SCAN_RULE_FOIL_TYPE_FIELD,
-  SCAN_RULE_MATCH_PERCENT_FIELD,
-  SCAN_RULE_MARKET_VALUE_USD_FIELD,
-  SCAN_RULE_MARKET_VALUE_EUR_FIELD,
-];
 
 export function cardMatchPercent(card: object): number | null {
   const { distance, confidence } = card as {

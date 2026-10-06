@@ -9,6 +9,7 @@ import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
+import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
@@ -20,9 +21,7 @@ import {
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { useSessionViewersByGuid } from "@/features/collections/api/use-live-counts";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
@@ -51,6 +50,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 
 export function CardGrid() {
   const { t } = useTranslation("cards");
@@ -184,7 +184,7 @@ export function CardGrid() {
     if (page !== clampedPage) setPage(clampedPage);
   }, [page, clampedPage]);
 
-  const { data: openPosition } = useQuery(
+  const { data: openPosition, isPending: openPositionPending } = useQuery(
     collectionCardPositionQueryOptions(collectionGuid, openScanId, cardsQuery),
   );
   const openEntry =
@@ -352,6 +352,10 @@ export function CardGrid() {
         />
       </>
     );
+  }
+
+  if (openScanId && !openEntry && openPositionPending) {
+    return <CardDetailPanelSkeleton />;
   }
 
   if (openEntry) {

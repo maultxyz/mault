@@ -6,13 +6,10 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
-export type Esp32MountType = "breakout" | "bare";
-
-interface Esp32MountTypeContextValue {
-  mountType: Esp32MountType;
-  setMountType: (value: Esp32MountType) => void;
-}
+import type {
+  Esp32MountType,
+  Esp32MountTypeContextValue,
+} from "@/lib/interfaces/build";
 
 const Esp32MountTypeContext = createContext<Esp32MountTypeContextValue | null>(
   null,

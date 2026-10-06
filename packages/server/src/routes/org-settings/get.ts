@@ -1,6 +1,7 @@
 import {
   toCorrectionAutoCloseSeconds,
   toPriceSource,
+  type OrgSettings,
 } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
@@ -26,7 +27,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
           data: {
             primaryColor: row?.primaryColor ?? null,
             scannerLayout:
-              (row?.scannerLayout as "horizontal" | "vertical") ?? "horizontal",
+              (row?.scannerLayout as OrgSettings["scannerLayout"]) ?? "horizontal",
             discordNotifyOnScan: row?.discordNotifyOnScan ?? false,
             discordScanUseThreads: row?.discordScanUseThreads ?? true,
             sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
@@ -36,7 +37,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
             ),
             priceSource: toPriceSource(row?.priceSource),
             discordGuildId: row?.discordGuildId ?? null,
-          },
+          } satisfies OrgSettings,
         };
       });
       return c.json(result);

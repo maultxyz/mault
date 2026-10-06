@@ -15,8 +15,7 @@ import {
   parseCardsQuery,
   parsePage,
 } from "./cards-query";
-
-type TransactionRunner = <T>(fn: (tx: Transaction) => Promise<T>) => Promise<T>;
+import type { TransactionRunner } from "../../lib/interfaces/collections";
 
 export async function readCardsPage(
   run: TransactionRunner,

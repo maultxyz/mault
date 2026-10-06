@@ -3,7 +3,9 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera-responder";
-import { usePhoneLocalCamera } from "@/features/scanner/api/use-phone-local-camera";
+import {
+  usePhoneLocalCamera,
+} from "@/features/scanner/api/use-phone-local-camera";
 import { useVideoCanvasPreview } from "@/features/scanner/api/use-video-canvas-preview";
 import { CAPTURE_FLASH_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";

@@ -1,11 +1,11 @@
 import {
-  DEFAULT_ORG_SETTINGS,
   orgSettingsQueryOptions,
   saveOrgSettings,
 } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { Switch } from "@/components/ui/switch";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { DEFAULT_ORG_SETTINGS } from "@magic-vault/shared";
 
 export function SessionWrappedToggle({ size }: { size?: "sm" | "default" }) {
   const { activeOrg } = useOrg();

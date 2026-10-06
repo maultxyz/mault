@@ -1,6 +1,6 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
-import type { CardSearchAdapter } from "../../card-search/types";
+import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
 import {
   CARD_API_HEADERS,

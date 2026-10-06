@@ -1,9 +1,9 @@
 import { ONNX_EXECUTION_PROVIDER_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import * as ort from "onnxruntime-web/webgpu";
 import { useSyncExternalStore } from "react";
-import { fetchPinnedModel, type PinnedModel } from "./model-fetch";
-
-export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
+import type { PinnedModel } from "@magic-vault/shared";
+import { fetchPinnedModel } from "./model-fetch";
+import type { OnnxExecutionProviderPreference } from "@/lib/interfaces/scanner";
 
 const executionProviderListeners = new Set<() => void>();
 

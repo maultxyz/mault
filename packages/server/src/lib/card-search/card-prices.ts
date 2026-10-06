@@ -2,7 +2,7 @@ import type { PlayingCard, ScannedCard } from "@magic-vault/shared";
 import { applyCardmarketPrices } from "./cardmarket-prices";
 import { ADAPTERS_BY_GAME_KEY } from "./resolve";
 import { applyTcgplayerPrices } from "./tcgplayer-prices";
-import type { CardSearchAdapter } from "./types";
+import type { CardSearchAdapter } from "../interfaces/card-search";
 
 export async function applyCardPrices<T extends PlayingCard>(
   adapter: CardSearchAdapter,

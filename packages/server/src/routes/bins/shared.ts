@@ -9,6 +9,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit } from "../../db/schema";
+import { SCAN_ONLY_CATCH_ALL_BIN } from "../../lib/constants/bins";
 
 export async function getModuleCount(
   tx: Transaction,
@@ -258,8 +259,6 @@ export async function clearAllBinRules(tx: Transaction, binSetId: number) {
     .set({ rules: emptyRules(), updatedAt: new Date() })
     .where(eq(bins.binSet, binSetId));
 }
-
-const SCAN_ONLY_CATCH_ALL_BIN = 7;
 
 export async function applyScanOnlyBins(
   tx: Transaction,

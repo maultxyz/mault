@@ -10,9 +10,10 @@ import {
 import { IconPlus, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-const FIELD_OPTIONS = ["Rarity", "Color", "Set", "Type"];
-const OPERATOR_OPTIONS = ["is", "is not", "includes"];
+import {
+  DEMO_RULE_FIELD_OPTIONS,
+  DEMO_RULE_OPERATOR_OPTIONS,
+} from "@/lib/constants/landing";
 
 // A read-only stand-in for features/bins/components/condition-row.tsx,
 // reusing the same Select/Button primitives - the real row pulls its field
@@ -41,7 +42,7 @@ function DemoConditionRow({
           <SelectValue>{f}</SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {FIELD_OPTIONS.map((o) => (
+          {DEMO_RULE_FIELD_OPTIONS.map((o) => (
             <SelectItem key={o} value={o}>
               {o}
             </SelectItem>
@@ -53,7 +54,7 @@ function DemoConditionRow({
           <SelectValue>{op}</SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {OPERATOR_OPTIONS.map((o) => (
+          {DEMO_RULE_OPERATOR_OPTIONS.map((o) => (
             <SelectItem key={o} value={o}>
               {o}
             </SelectItem>

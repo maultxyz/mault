@@ -1,3 +1,5 @@
+import type { PriceSource } from "@magic-vault/shared";
+
 export type DiscordEmbed = {
   title: string;
   description: string;
@@ -21,4 +23,25 @@ export interface BotPostRequest {
   secondaryImageUrl?: string;
   guildId?: string;
   pingRoleIds?: string[];
+}
+
+export interface CardScannedEmbedOptions {
+  isFoil?: boolean;
+  foilType?: string;
+  collectionName?: string;
+  gameName?: string;
+  collectionGuid?: string;
+  capturedImageDataUrl?: string;
+  priceSource?: PriceSource;
+}
+
+export interface CardScannedEmbedResult {
+  embed: DiscordEmbed;
+  referenceImageUrl?: string;
+}
+
+export interface NotifyConfig {
+  channelId: string | null;
+  threadId: string | null;
+  source: "collection" | "org";
 }

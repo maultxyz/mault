@@ -3,7 +3,6 @@ import type { BinHeightAuditEntry } from "@/lib/interfaces/audit";
 import type { BinHeight, Result } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
-export type { BinHeightAuditEntry };
 
 export const binHeightsQueryOptions = (deviceGuid: string | undefined) =>
   queryOptions({

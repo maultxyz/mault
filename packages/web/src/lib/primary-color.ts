@@ -1,6 +1,6 @@
-import { THEME_COLORS, type ThemeColor } from "@/lib/constants/colors";
+import { THEME_COLORS } from "@/lib/constants/colors";
+import type { ThemeColor } from "@/lib/interfaces/colors";
 
-export type { ThemeColor };
 
 export function applyPrimaryColor(color: ThemeColor) {
   document.documentElement.style.setProperty("--primary", color.value);

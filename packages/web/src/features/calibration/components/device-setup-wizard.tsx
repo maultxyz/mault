@@ -12,7 +12,6 @@ import { Slider } from "@/components/ui/slider";
 import {
   devicesQueryOptions,
   saveDevice,
-  type Device,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
@@ -48,6 +47,7 @@ import type {
   SetupStepHeadingProps,
   SetupTestState,
   SetupWizardStep,
+  Device,
 } from "@/lib/interfaces/calibration";
 import { cn } from "@/lib/utils";
 import {

@@ -5,13 +5,13 @@ import { RequireCollectionDialog } from "@/components/require-collection-dialog"
 import { RouteLoadingFallback } from "@/components/route-loading-fallback";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH } from "@/lib/constants/storage";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 const LandingPage = lazy(
   withNamespaces(
@@ -91,6 +91,9 @@ const CalibrateCalibrationPage = lazy(
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
+const AdminGameEditorPage = lazy(
+  () => import("@/app/routes/app/admin/game-editor"),
+);
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminAnnouncementsPage = lazy(
@@ -314,6 +317,14 @@ export const router = createBrowserRouter([
                           {
                             path: "games",
                             element: <AdminGamesPage />,
+                          },
+                          {
+                            path: "games/new",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
+                            path: "games/:guid",
+                            element: <AdminGameEditorPage />,
                           },
                           {
                             path: "users",

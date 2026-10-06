@@ -2,9 +2,13 @@ import type { ReactNode } from "react";
 import type {
   BinHeight,
   BinRoute,
+  FeederCalibration,
   ModuleConfig,
   ServoCalibration,
+  ChannelLayout,
+  ScanRegion,
 } from "@magic-vault/shared";
+import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 
 export type CalibrationSection = "modules" | "scanRegion" | "calibration";
 
@@ -16,7 +20,7 @@ export interface ModuleConfigsContextValue {
   ) => Promise<void>;
   moveServo: (
     module: number,
-    servo: "bottom" | "paddle" | "pusher",
+    servo: ServoName,
     value: number,
   ) => void;
 }
@@ -55,21 +59,21 @@ export interface ModuleCountConfigContextValue {
 }
 
 export interface ServoConfig {
-  name: "bottom" | "paddle" | "pusher";
+  name: ServoName;
   labelKey: string;
   positions: string[];
 }
 
-export type SliderKey = `${number}:${"bottom" | "paddle" | "pusher"}`;
+export type SliderKey = `${number}:${ServoName}`;
 
 export type ActivePositions = Record<string, string | null>;
 
 export type ModuleDelayField = "pusherHoldDuration" | "paddleCloseDelay";
 
-export type SetupServo = "bottom" | "paddle" | "pusher";
+export type ServoName = "bottom" | "paddle" | "pusher";
 
 export interface SetupServoPosition {
-  servo: SetupServo;
+  servo: ServoName;
   position: "closed" | "open" | "neutral" | "left" | "right";
   calKey:
     | "bottomClosed"
@@ -90,7 +94,7 @@ export type SetupWizardStep =
   | { kind: "feeder" }
   | { kind: "test" };
 
-export type SetupIntroPart = "feeder" | "module" | "bottom" | "paddle" | "pusher";
+export type SetupIntroPart = "feeder" | "module" | ServoName;
 
 export interface SetupIrReading {
   modules: boolean[];
@@ -131,7 +135,7 @@ export interface SetupControlPanelProps {
 }
 
 export interface SetupServoStepProps {
-  servo: SetupServo;
+  servo: ServoName;
   currentKey: SetupServoPosition["calKey"];
   value: number;
   onChange: (value: number) => void;
@@ -185,3 +189,228 @@ export interface FeederCalibrationPanelProps {
   onReverseDurationChange: (value: number) => void;
   onSelectContinuous: () => void;
 }
+
+export interface StoredCalibration {
+  channelOffset: number;
+  dirty: boolean;
+  modules: ModuleConfig[];
+  feeder: FeederCalibration;
+}
+
+export type StoredCalibrationRead =
+  | { status: "unsupported" }
+  | { status: "empty" }
+  | { status: "stored"; calibration: StoredCalibration };
+
+export type CalibrationSource = "app" | "device";
+
+export interface CalibrationDifference {
+  moduleNumber: number | null;
+  field: keyof ServoCalibration | keyof FeederCalibration;
+  appValue: number;
+  deviceValue: number;
+}
+
+export interface CalibrationConflict {
+  deviceName: string;
+  differences: CalibrationDifference[];
+}
+
+export interface DeviceCalibration {
+  modules: ModuleConfig[];
+  feeder: FeederCalibration;
+}
+
+export interface DeviceCalibrationSyncContextValue {
+  applyToDevice: (changes: Partial<DeviceCalibration>) => Promise<void>;
+}
+
+export interface CalibrationConflictDialogProps {
+  conflict: CalibrationConflict | null;
+  onChoose: (source: CalibrationSource) => void;
+}
+
+export interface Device {
+  guid: string;
+  name: string;
+  hardwareId: string | null;
+  scanRegion: ScanRegion;
+  captureSettleDelayMs: number;
+  matchesNeeded: number;
+  checkBothOrientations: boolean;
+  moduleCount: number;
+  channelLayout: ChannelLayout;
+  setupCompletedAt: string | null;
+  pipelinedFeed: boolean;
+  autoConnect: boolean;
+  testOnConnect: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CalibrationDebugParams {
+  channelLayout: ChannelLayout;
+  moduleCount: number;
+  configs: ModuleConfig[];
+  feederConfig: FeederCalibration;
+  binRoutes: BinRoute[];
+  firmwareVersion: string | null;
+  board: string | null;
+}
+
+export type CalibrationPageState = ReturnType<typeof useCalibrationPage>;
+
+export interface StaleDeviceDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onRunTest: () => void;
+  onCalibrateFirst: () => void;
+}
+
+export interface DirectionalSpeed {
+  direction: "forward" | "reverse";
+  magnitude: number;
+}
+
+export interface CalibrationTourProps {
+  section: CalibrationSection;
+  setSection: (section: CalibrationSection) => void;
+  className?: string;
+}
+
+export interface FrameSize {
+  width: number;
+  height: number;
+}
+
+export interface FeederConfigContextValue {
+  feederConfig: FeederCalibration;
+  saveConfig: (calibration: FeederCalibration) => Promise<void>;
+  previewSpeed: (value: number) => void;
+}
+
+export type RegionDragState =
+  | {
+      type: "move";
+      startClientX: number;
+      startClientY: number;
+      startOffsetX: number;
+      startOffsetY: number;
+    }
+  | {
+      type: "resize";
+      centerClientX: number;
+      centerClientY: number;
+      startDist: number;
+      startCoverage: number;
+    };
+
+export interface RegionBox {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface BinRoutingControlsProps {
+  activeBin: number | null;
+  isReady: boolean;
+  isSampleRunning: boolean;
+  onTestBin: (bin: number) => void;
+  onSampleRun: () => void;
+}
+
+export interface IrSensorPanelProps {
+  modules: number[];
+  irStates: boolean[] | null;
+  hopperHasCards: boolean | null;
+  isReady: boolean;
+  isMonitoring: boolean;
+  onRead: () => void;
+  onToggleMonitor: () => void;
+}
+
+export interface ServoControlProps {
+  module: number;
+  servo: ServoConfig;
+  sliderValue: number;
+  activePosition: string | null | undefined;
+  calibration: ServoCalibration | undefined;
+  isLoading: boolean;
+  canCalibrate: boolean;
+  isTesting: boolean;
+  showRaw: boolean;
+  onControl: (
+    module: number,
+    servo: ServoName,
+    position: string,
+  ) => void;
+  onSliderChange: (
+    module: number,
+    servo: ServoName,
+    value: number,
+  ) => void;
+  onTest: (module: number, servo: ServoName) => void;
+}
+
+export interface ModuleDelayControlProps {
+  module: number;
+  field: ModuleDelayField;
+  value: number;
+  isConnected: boolean;
+  onChange: (module: number, field: ModuleDelayField, value: number) => void;
+}
+
+export interface PushTestControlProps {
+  module: number;
+  isReady: boolean;
+  isTesting: boolean;
+  onTest: (module: number, direction: "left" | "right") => void;
+}
+
+export interface ModuleCalibrationGridProps {
+  modules: number[];
+  configs: ModuleConfig[];
+  active: ActivePositions;
+  sliderValues: Record<SliderKey, number>;
+  moduleDelayValues: Record<number, Record<ModuleDelayField, number>>;
+  pendingCalibration: Record<number, Partial<ServoCalibration>>;
+  isLoading: boolean;
+  isConnected: boolean;
+  isReady: boolean;
+  canCalibrate: boolean;
+  onControl: (
+    module: number,
+    servo: ServoName,
+    position: string,
+  ) => void;
+  onSliderChange: (
+    module: number,
+    servo: ServoName,
+    value: number,
+  ) => void;
+  onModuleDelayChange: (
+    module: number,
+    field: ModuleDelayField,
+    value: number,
+  ) => void;
+  testingServos: Record<SliderKey, boolean>;
+  onTest: (module: number, servo: ServoName) => void;
+  pushTestingModule: number | null;
+  onPushTest: (module: number, direction: "left" | "right") => void;
+}
+
+export interface ScanRegionCalibrationPanelProps {
+  scanRegion: ScanRegion;
+  captureSettleDelayMs: number;
+  matchesNeeded: number;
+  checkBothOrientations: boolean;
+  isLoading: boolean;
+  onRegionChange: (region: ScanRegion) => void;
+  onResetRegion: () => void;
+  onCaptureSettleChange: (value: number) => void;
+  onMatchesNeededChange: (value: number) => void;
+  onCheckBothOrientationsChange: (value: boolean) => void;
+}
+
+export type PendingConnectKind = "usb" | "bluetooth";

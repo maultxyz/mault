@@ -1,8 +1,9 @@
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
-  ALL_CARDS_QUERY,
+  type CollectionCardsQuery,
+  type ScannerStatus,
   EMPTY_CARD_FILTERS,
-} from "@/lib/constants/card-filters";
-import type { CollectionCardsQuery, ScannerStatus } from "@magic-vault/shared";
+} from "@magic-vault/shared";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
@@ -102,3 +103,17 @@ export const CORRECTION_AUTO_CLOSE_DONE_DELAY_MS = 700;
 export const CORRECTION_TIMER_RADIUS = 16;
 export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
+
+export const DEFAULT_MIN_SHARPNESS = 0.02;
+
+export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
+
+export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "paused",
+  "settling",
+];
+
+export const CONSENSUS_RETRY_BUDGET = 3;
+
+export const DOCUMENT_TITLE_BASE = "MAULT";

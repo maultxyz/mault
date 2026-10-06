@@ -1,16 +1,13 @@
 import { DEVICE_LEASE_TTL_MS } from "./constants/timing";
+import type { DeviceLease } from "./interfaces/device-leases";
 
-// Lease key for a scan whose client couldn't say which device it came from.
+// DeviceLease key for a scan whose client couldn't say which device it came from.
 export const UNIDENTIFIED_SORTER_LEASE_KEY = "unidentified";
-
-interface Lease {
-  timer: ReturnType<typeof setTimeout>;
-}
 
 // orgId -> deviceGuid -> lease. In process memory like scan-lock.ts, so it
 // resets on a server restart; clients renew on a heartbeat and simply
 // re-acquire.
-const leases = new Map<string, Map<string, Lease>>();
+const leases = new Map<string, Map<string, DeviceLease>>();
 
 function orgLeases(orgId: string) {
   let map = leases.get(orgId);

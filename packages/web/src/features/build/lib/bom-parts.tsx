@@ -1,41 +1,27 @@
-import type { BoardType } from "@/features/build/api/use-board-type";
 import { BOARD_BUY_URLS, BOARD_INFO } from "@/lib/constants/build";
-import type { TFunction } from "i18next";
-import type { ReactNode } from "react";
 import { Trans } from "react-i18next";
-
-type BuildT = TFunction<"build">;
-
-export interface Row {
-  key: string;
-  qty: (moduleCount: number) => string;
-  name: string | ((boardType: BoardType) => string);
-  part: (t: BuildT, boardType: BoardType) => ReactNode;
-  notes: (t: BuildT, moduleCount: number, boardType: BoardType) => ReactNode;
-  buyUrl?: string | ((boardType: BoardType) => string | undefined);
-  optional?: true | "classic-hopper" | "new-hopper";
-}
+import type {
+  BoardType,
+  BomGroup,
+  BomRow,
+  BuildTFunction,
+} from "@/lib/interfaces/build";
 
 export function optionalBadgeLabel(
-  t: BuildT,
-  optional: Row["optional"],
+  t: BuildTFunction,
+  optional: BomRow["optional"],
 ): string {
   if (optional === "classic-hopper") return t("optionalClassicHopperBadge");
   if (optional === "new-hopper") return t("optionalNewHopperBadge");
   return t("optionalBadge");
 }
 
-export interface Group {
-  key: string;
-  rows: Row[];
-}
-
-export function resolveRowName(row: Row, boardType: BoardType): string {
+export function resolveRowName(row: BomRow, boardType: BoardType): string {
   return typeof row.name === "function" ? row.name(boardType) : row.name;
 }
 
 export function resolveRowBuyUrl(
-  row: Row,
+  row: BomRow,
   boardType: BoardType,
 ): string | undefined {
   return typeof row.buyUrl === "function" ? row.buyUrl(boardType) : row.buyUrl;
@@ -44,7 +30,7 @@ export function resolveRowBuyUrl(
 // The bill of materials content, grouped by category - separate from
 // bom.tsx's rendering so the huge parts literal doesn't drown out the
 // component that displays it.
-export const GROUPS: Group[] = [
+export const GROUPS: BomGroup[] = [
   {
     key: "electronics",
     rows: [

@@ -10,7 +10,7 @@ import { scryfallAdapter } from "../adapters/scryfall/search";
 import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withCache } from "./cache";
 import { withErrorHandling } from "./error-handling";
-import type { CardSearchAdapter, ResolvedCardSearch } from "./types";
+import type { CardSearchAdapter, ResolvedCardSearch } from "../interfaces/card-search";
 
 export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   mtg: withCache(withErrorHandling(scryfallAdapter)),

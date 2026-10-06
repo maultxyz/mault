@@ -1,11 +1,9 @@
-import type { AnnouncementSeverity } from "@magic-vault/shared";
+import type { Announcement } from "@magic-vault/shared";
+import type { AnnouncementFormValues } from "@/schemas/announcements.schema";
 
-export interface AnnouncementInput {
-  severity: AnnouncementSeverity;
-  message: string;
-  isActive: boolean;
-  showOnLanding: boolean;
-  link: string | null;
-  startsAt: string | null;
-  endsAt: string | null;
+export interface AnnouncementFormDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  announcement?: Announcement | null;
+  onSubmit: (values: AnnouncementFormValues) => Promise<void>;
 }

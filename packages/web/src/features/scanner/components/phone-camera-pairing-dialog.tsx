@@ -6,20 +6,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
 import { IconDeviceMobile, IconLoader2 } from "@tabler/icons-react";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface PhoneCameraPairingDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  status: PhoneCameraCaptureStatus;
-  pairingUrl: string | null;
-  onRetry: () => void;
-  onDisconnect: () => void;
-}
+import type { PhoneCameraPairingDialogProps } from "@/lib/interfaces/scanner";
 
 export function PhoneCameraPairingDialog({
   open,

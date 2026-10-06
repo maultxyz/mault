@@ -1,32 +1,8 @@
 import { SectionNav } from "@/components/section-nav";
-import {
-  IconBug,
-  IconCards,
-  IconCreditCard,
-  IconDeviceGamepad2,
-  IconRotate360,
-  IconSpeakerphone,
-  IconTerminal2,
-  IconUserScan,
-} from "@tabler/icons-react";
 import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
 import { Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-
-const SECTION_ITEMS = [
-  { path: "cards", icon: IconCards, labelKey: "sections.cards" },
-  { path: "games", icon: IconDeviceGamepad2, labelKey: "sections.games" },
-  { path: "users", icon: IconUserScan, labelKey: "sections.users" },
-  { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
-  {
-    path: "announcements",
-    icon: IconSpeakerphone,
-    labelKey: "sections.announcements",
-  },
-  { path: "servos", icon: IconRotate360, labelKey: "sections.servos" },
-  { path: "device", icon: IconTerminal2, labelKey: "sections.device" },
-  { path: "developer", icon: IconBug, labelKey: "sections.developer" },
-] as const;
+import { ADMIN_SECTIONS } from "@/lib/constants/admin";
 
 export default function AdminLayout() {
   const { t } = useTranslation("admin");
@@ -36,7 +12,7 @@ export default function AdminLayout() {
       <SectionNav
         title={t("page.title")}
         subtitle={t("page.subtitle")}
-        items={SECTION_ITEMS.map((item) => ({
+        items={ADMIN_SECTIONS.map((item) => ({
           to: item.path,
           icon: <item.icon size={16} />,
           label: t(item.labelKey),

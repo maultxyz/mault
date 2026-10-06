@@ -103,3 +103,13 @@ export interface AlphabetStep {
   pass: number;
   prefix: string;
 }
+
+export type DefaultBinInit = {
+  binNumber: number;
+  rules: BinRuleGroup;
+  isCatchAll: boolean;
+  isOverride?: boolean;
+  cardLimit: number | null;
+  maxCopies?: number | null;
+  isDisabled?: boolean;
+};

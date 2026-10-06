@@ -1,11 +1,6 @@
 import type { CalloutVariant } from "@/lib/interfaces/callout";
 import type { AnnouncementSeverity, SyncState } from "@magic-vault/shared";
-
-export type ThemeColor = {
-  name: string;
-  value: string;
-  fg: string;
-};
+import type { ThemeColor } from "@/lib/interfaces/colors";
 
 export const THEME_COLORS: ThemeColor[] = [
   { name: "Red", value: "#ef4444", fg: "#ffffff" },

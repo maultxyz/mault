@@ -2,13 +2,7 @@ import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { IconAdjustments, IconPlayerPlay } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-
-interface StaleDeviceDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onRunTest: () => void;
-  onCalibrateFirst: () => void;
-}
+import type { StaleDeviceDialogProps } from "@/lib/interfaces/calibration";
 
 export function StaleDeviceDialog({
   open,

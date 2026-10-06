@@ -38,8 +38,8 @@ import {
 } from "@magic-vault/shared";
 import {
   IconCheck,
-  IconChevronDown,
   IconChevronUp,
+  IconChevronDown,
   IconLoader2,
   IconPencil,
   IconSearch,
@@ -48,27 +48,7 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface CardDetailPanelProps {
-  scanId?: string;
-  onClose: () => void;
-  onRemove?: () => void;
-  currentCard?: PlayingCardWithDistance;
-  alternativeMatches?: PlayingCardWithDistance[];
-  needsReview?: boolean;
-  wasCorrected?: boolean;
-  isFoil?: boolean;
-  foilType?: string;
-  binNumber?: number;
-  onPrev?: () => void;
-  onNext?: () => void;
-  hasPrev?: boolean;
-  hasNext?: boolean;
-  currentIndex?: number;
-  total?: number;
-  copyIndex?: number;
-  copyCount?: number;
-}
+import type { CardDetailPanelProps } from "@/lib/interfaces/cards";
 
 export function CardDetailPanel({
   scanId,
@@ -239,60 +219,28 @@ export function CardDetailPanel({
           onShowOcrRegionsChange={setShowOcrRegions}
         />
       )}
-      <div className="sticky top-0 p-2 shrink-0 flex flex-col gap-2">
-        <Button
-          size="icon"
-          variant="ghost"
-          className="shrink-0 size-7"
-          onClick={onClose}
-          aria-label={t("cardDetailPanel.backToList")}
-        >
-          <IconX />
-        </Button>
-        <ButtonGroup orientation="vertical">
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={onPrev}
-            disabled={!hasPrev}
-            aria-label={t("cardDetailPanel.previousCard")}
-          >
-            <IconChevronUp />
-          </Button>
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={onNext}
-            disabled={!hasNext}
-            aria-label={t("cardDetailPanel.nextCard")}
-          >
-            <IconChevronDown />
-          </Button>
-        </ButtonGroup>
-      </div>
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 border-l">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-baseline gap-2">
-              <h2 className="font-semibold text-base truncate">{cardName}</h2>
-              {total != null && currentIndex != null && (
-                <span className="text-xs text-foreground/70 shrink-0">
-                  {currentIndex + 1} / {total}
-                </span>
-              )}
-              {copyCount != null && copyCount > 1 && (
-                <Badge variant="secondary" className="shrink-0">
-                  {t("cardDetailPanel.copyOf", {
-                    index: (copyIndex ?? 0) + 1,
-                    count: copyCount,
-                  })}
-                </Badge>
-              )}
-            </div>
-            {typeLine && (
-              <p className="text-sm text-foreground/70 truncate">{typeLine}</p>
-            )}
-          </div>
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
+        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2">
+          <ButtonGroup>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={onPrev}
+              disabled={!hasPrev}
+              aria-label={t("cardDetailPanel.previousCard")}
+            >
+              <IconChevronUp />
+            </Button>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={onNext}
+              disabled={!hasNext}
+              aria-label={t("cardDetailPanel.nextCard")}
+            >
+              <IconChevronDown />
+            </Button>
+          </ButtonGroup>
           <div className="flex items-center gap-4 shrink-0 text-xs text-foreground/70">
             {capturedImageUrl && (
               <div className="flex items-center gap-2">
@@ -316,9 +264,38 @@ export function CardDetailPanel({
                 />
               </div>
             )}
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={onClose}
+              aria-label={t("cardDetailPanel.backToList")}
+            >
+              <IconX />
+            </Button>
           </div>
         </div>
         <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
+          <div className="min-w-0">
+            <div className="flex items-baseline gap-2">
+              <h2 className="font-semibold text-base truncate">{cardName}</h2>
+              {total != null && currentIndex != null && (
+                <span className="text-xs text-foreground/70 shrink-0">
+                  {currentIndex + 1} / {total}
+                </span>
+              )}
+              {copyCount != null && copyCount > 1 && (
+                <Badge variant="secondary" className="shrink-0">
+                  {t("cardDetailPanel.copyOf", {
+                    index: (copyIndex ?? 0) + 1,
+                    count: copyCount,
+                  })}
+                </Badge>
+              )}
+            </div>
+            {typeLine && (
+              <p className="text-sm text-foreground/70 truncate">{typeLine}</p>
+            )}
+          </div>
           {currentCard && !editing ? (
             <>
               {hasMultipleCandidates && (

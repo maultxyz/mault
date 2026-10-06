@@ -1,4 +1,4 @@
-import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
+import type { SyncSource, SyncSourceCard } from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { POKEMON_DEFAULT_URL } from "../../constants/urls";

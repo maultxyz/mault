@@ -1,5 +1,5 @@
 import { AlertBanner } from "@/components/alert-banner";
-import { usePublicAnnouncementAlerts } from "@/hooks/alerts/use-public-announcement-alerts";
+import { usePublicAnnouncementAlerts } from "@/hooks/alerts/use-announcement-alerts";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // The public marketing pages (landing, build guide) render outside the

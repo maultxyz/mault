@@ -20,11 +20,7 @@ import {
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
-import {
-  buildWrappedSlides,
-  type WrappedSlide,
-} from "@/features/cards/lib/wrapped-slides";
-import type { CardFilters } from "@/lib/interfaces/cards";
+import { buildWrappedSlides } from "@/features/cards/lib/wrapped-slides";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -32,7 +28,6 @@ import { computeStats } from "@/features/scanner/lib/compute-stats";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import type { ScannedCard } from "@magic-vault/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -62,79 +57,25 @@ import {
   type TouchEvent,
 } from "react";
 import { useTranslation } from "react-i18next";
-
-interface SessionSummaryDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  cards: ScannedCard[];
-  elapsedMs: number;
-  collectionName: string;
-  onMarkDownloaded: (scanIds: string[]) => void;
-  gridFilters: CardFilters;
-  gridFilterCount: number;
-}
-
-// A story slide is any wrapped slide except the final "outro" one - that
-// one is rendered separately as a themed stats recap, not a story beat.
-type StorySlide = Exclude<WrappedSlide, { type: "outro" }>;
-
-const SLIDE_DURATION_MS = 5000;
-
-// Each slide gets a hand-placed "mesh" of soft color blobs (a stack of
-// radial-gradients) over a deep base tone, instead of a flat linear
-// gradient - the layered/organic look modern "wrapped"-style recaps use.
-const BLOB_POSITIONS = ["15% 15%", "85% 10%", "10% 95%", "90% 85%"];
+import type {
+  SessionSummaryDialogProps,
+  WrappedStorySlide,
+} from "@/lib/interfaces/cards";
+import {
+  WRAPPED_BLOB_POSITIONS,
+  WRAPPED_GRAIN_OVERLAY,
+  WRAPPED_SLIDE_DURATION_MS,
+  WRAPPED_SLIDE_MESH,
+} from "@/lib/constants/cards";
 
 function meshBackground(colors: string[]): string {
   return colors
     .map(
       (color, i) =>
-        `radial-gradient(at ${BLOB_POSITIONS[i % BLOB_POSITIONS.length]}, ${color}, transparent 60%)`,
+        `radial-gradient(at ${WRAPPED_BLOB_POSITIONS[i % WRAPPED_BLOB_POSITIONS.length]}, ${color}, transparent 60%)`,
     )
     .join(", ");
 }
-
-const SLIDE_MESH: Record<StorySlide["type"], { base: string; colors: string[] }> = {
-  intro: {
-    base: "#2e1065",
-    colors: ["#f0abfc", "#a855f7", "#4f46e5", "#e879f9"],
-  },
-  total: {
-    base: "#172554",
-    colors: ["#38bdf8", "#2563eb", "#4338ca", "#22d3ee"],
-  },
-  unique: {
-    base: "#022c22",
-    colors: ["#34d399", "#0d9488", "#0e7490", "#4ade80"],
-  },
-  set: {
-    base: "#431407",
-    colors: ["#fbbf24", "#ea580c", "#dc2626", "#fb923c"],
-  },
-  rarity: {
-    base: "#4a0519",
-    colors: ["#fb7185", "#db2777", "#a21caf", "#f9a8d4"],
-  },
-  color: {
-    base: "#2e1065",
-    colors: ["#c4b5fd", "#9333ea", "#a21caf", "#818cf8"],
-  },
-  mvp: {
-    base: "#451a03",
-    colors: ["#fde047", "#f59e0b", "#ea580c", "#fbbf24"],
-  },
-  value: {
-    base: "#022c22",
-    colors: ["#86efac", "#059669", "#0f766e", "#a3e635"],
-  },
-  speed: {
-    base: "#450a0a",
-    colors: ["#fca5a5", "#e11d48", "#ea580c", "#fbbf24"],
-  },
-};
-
-const GRAIN_OVERLAY =
-  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
 
 function MeshBackground({ base, colors }: { base: string; colors: string[] }) {
   // Random each mount (a fresh mount per slide, via `key`) so the spin
@@ -229,7 +170,7 @@ function SlideBody({ children }: { children: ReactNode }) {
   );
 }
 
-function countUpTarget(slide: StorySlide): number {
+function countUpTarget(slide: WrappedStorySlide): number {
   switch (slide.type) {
     case "total":
       return slide.count;
@@ -249,7 +190,7 @@ function WrappedSlideContent({
   active,
   collectionName,
 }: {
-  slide: StorySlide;
+  slide: WrappedStorySlide;
   active: boolean;
   collectionName: string;
 }) {
@@ -797,10 +738,10 @@ export function SessionSummaryDialog({
         >
           {!isOutro && (
             <>
-              <MeshBackground key={slide.key} {...SLIDE_MESH[slide.type]} />
+              <MeshBackground key={slide.key} {...WRAPPED_SLIDE_MESH[slide.type]} />
               <div
                 className="pointer-events-none absolute -z-10 inset-0 opacity-[0.15] mix-blend-overlay"
-                style={{ backgroundImage: GRAIN_OVERLAY }}
+                style={{ backgroundImage: WRAPPED_GRAIN_OVERLAY }}
               />
             </>
           )}
@@ -826,7 +767,7 @@ export function SessionSummaryDialog({
                       className="h-full w-full bg-white origin-left animate-[wrapped-progress_5s_linear_forwards]"
                       style={{
                         animationPlayState: paused ? "paused" : "running",
-                        animationDuration: `${SLIDE_DURATION_MS}ms`,
+                        animationDuration: `${WRAPPED_SLIDE_DURATION_MS}ms`,
                       }}
                       onAnimationEnd={goNext}
                     />

@@ -7,15 +7,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useKitMode } from "@/features/build/api/use-kit-mode";
-import {
-  MAX_MODULES,
-  MIN_MODULES,
-  useModuleCount,
-} from "@/features/build/api/use-module-count";
+import { useModuleCount } from "@/features/build/api/use-module-count";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { BomGroupTable } from "@/features/build/components/bom-group-table";
-import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
+import {
+  BOM_ANCHOR_PREFIX,
+  MAX_MODULES,
+  MIN_MODULES,
+} from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
 import { GROUPS } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";

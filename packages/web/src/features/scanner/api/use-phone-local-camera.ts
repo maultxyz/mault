@@ -1,7 +1,6 @@
 import type { PhoneLocalCameraStatus } from "@/lib/interfaces/scanner";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export type { PhoneLocalCameraStatus };
 
 // Phone side of "use a phone as a webcam": just acquires and holds the
 // back camera. Whether/when it's actually used comes from
