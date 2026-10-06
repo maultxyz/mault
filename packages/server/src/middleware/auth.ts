@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { createMiddleware } from "hono/factory";
 import * as jose from "jose";
 import { authProvider } from "../auth";
@@ -187,6 +188,19 @@ export const requireBotSecret = createMiddleware<AppEnv>(async (c, next) => {
     !secret ||
     !process.env.BOT_API_SECRET ||
     secret !== process.env.BOT_API_SECRET
+  ) {
+    return c.json({ success: false, message: "Unauthorized" }, 401);
+  }
+  await next();
+});
+
+export const requireDeployKey = createMiddleware<AppEnv>(async (c, next) => {
+  const expected = Buffer.from(process.env.DEPLOY_API_KEY ?? "");
+  const provided = Buffer.from(c.req.header("X-Deploy-Key") ?? "");
+  if (
+    expected.length === 0 ||
+    provided.length !== expected.length ||
+    !timingSafeEqual(provided, expected)
   ) {
     return c.json({ success: false, message: "Unauthorized" }, 401);
   }

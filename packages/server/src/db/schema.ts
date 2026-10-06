@@ -106,6 +106,7 @@ export const announcements = pgTable(
     message: text("message").notNull(),
     isActive: boolean("is_active").notNull().default(true),
     showOnLanding: boolean("show_on_landing").notNull().default(false),
+    isDeploy: boolean("is_deploy").notNull().default(false),
     link: text("link"),
     startsAt: timestamp("starts_at"),
     endsAt: timestamp("ends_at"),

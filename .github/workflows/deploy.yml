@@ -156,6 +156,21 @@ jobs:
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 
+      # Shows an in-app banner while the deploy runs. Non-fatal: a failure
+      # here must never block the deploy itself. The announcement expires on
+      # its own (durationMinutes) if the removal step below never runs.
+      - name: Announce deploy
+        if: steps.deploy.outputs.should_deploy == 'true'
+        continue-on-error: true
+        env:
+          API_URL: ${{ secrets.MAULT_API_URL }}
+          DEPLOY_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
+        run: |
+          curl -sf --max-time 15 -X POST "$API_URL/announcements/deploy" \
+            -H "X-Deploy-Key: $DEPLOY_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{"durationMinutes": 60}'
+
       - name: Trigger Coolify deployment (web)
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
@@ -198,6 +213,40 @@ jobs:
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_SERVER }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
+      # The Coolify webhook returns as soon as the deploy is queued, so the
+      # deploy only counts as finished once the server reports the new
+      # version. Skipped when no release commit was pushed, since Coolify
+      # builds from git and the version wouldn't change.
+      - name: Wait for new server version
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.appcommit.outputs.changed == 'true'
+        continue-on-error: true
+        timeout-minutes: 30
+        env:
+          API_URL: ${{ secrets.MAULT_API_URL }}
+          EXPECTED: ${{ steps.appversion.outputs.version }}
+        run: |
+          until [ "$(curl -sf --max-time 10 "$API_URL/public/version" | jq -r '.data.version' 2>/dev/null)" = "$EXPECTED" ]; do
+            echo "Waiting for server v$EXPECTED..."
+            sleep 15
+          done
+          echo "Server is running v$EXPECTED"
+
+      - name: Remove deploy announcement
+        if: always() && steps.deploy.outputs.should_deploy == 'true'
+        continue-on-error: true
+        env:
+          API_URL: ${{ secrets.MAULT_API_URL }}
+          DEPLOY_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
+        run: |
+          for attempt in 1 2 3 4 5; do
+            if curl -sf --max-time 15 -X DELETE "$API_URL/announcements/deploy" \
+              -H "X-Deploy-Key: $DEPLOY_API_KEY"; then
+              exit 0
+            fi
+            sleep 20
+          done
+          exit 1
 
       - name: Notify Discord (success)
         if: success() && steps.deploy.outputs.should_deploy == 'true'
