@@ -2,11 +2,12 @@ import type {
   FetchOneResult,
   SyncSource,
   SyncSourceCard,
-} from "../../card-search/sync-types";
+} from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
-import { splitSetCode, type YgoCard } from "./search";
+import { splitSetCode } from "./search";
+import type { YgoCard } from "../../interfaces/yugioh";
 
 function toSyncCards(raw: YgoCard): SyncSourceCard[] {
   const primarySet = raw.card_sets?.[0];

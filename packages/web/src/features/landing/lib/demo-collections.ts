@@ -1,10 +1,4 @@
-export interface DemoCollection {
-  guid: string;
-  name: string;
-  game: string;
-  lang: string;
-  cardCount: number;
-}
+import type { DemoCollection } from "@/lib/interfaces/landing";
 
 export const DEMO_COLLECTIONS: DemoCollection[] = [
   {

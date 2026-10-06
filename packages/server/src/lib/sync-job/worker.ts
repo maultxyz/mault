@@ -2,11 +2,11 @@ import type { SyncState, SyncStatus } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
-import type { SyncSource, SyncSourceCard } from "../card-search/sync-types";
+import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
 import { SYNC_DATA_REFRESH_BATCH_SIZE } from "../constants/sync";
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
-import type { ParentToWorkerMessage, WorkerToParentMessage } from "./protocol";
+import type { ParentToWorkerMessage, WorkerToParentMessage } from "../interfaces/sync-job";
 import { SYNC_SOURCES } from "./sources";
 
 function errorMessage(err: unknown): string {

@@ -3,24 +3,7 @@ import { cn } from "@/lib/utils";
 import { IconLoader2 } from "@tabler/icons-react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-
-type SaveBarProps = {
-  show: boolean;
-  isSaving?: boolean;
-  saveDisabled?: boolean;
-  onDiscard: () => void;
-  className?: string;
-  saveButtonDataTour?: string;
-} & (
-  | {
-      formId: string;
-      onSave?: never;
-    }
-  | {
-      formId?: never;
-      onSave: () => void;
-    }
-);
+import type { SaveBarProps } from "@/lib/interfaces/save-bar";
 
 export function SaveBar({
   show,

@@ -6,11 +6,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-
-interface KitModeContextValue {
-  usingKit: boolean;
-  setUsingKit: (value: boolean) => void;
-}
+import type { KitModeContextValue } from "@/lib/interfaces/build";
 
 const KitModeContext = createContext<KitModeContextValue | null>(null);
 

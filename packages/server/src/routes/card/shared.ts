@@ -15,6 +15,8 @@ import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
   MATCH_MAX_DISTANCE_RATIO,
+  CARD_MATCH_LIMIT,
+  CARD_MATCH_RUNNER_UP_SEARCH_LIMIT,
 } from "../../lib/constants/card-search";
 import { SHOW_SCAN_LOGS } from "../../lib/constants/logging";
 import {
@@ -23,9 +25,10 @@ import {
   OCR_NAME_MIN_LENGTH,
   OCR_NAME_MIN_SIMILARITY,
 } from "../../lib/constants/ocr";
-
-const MATCH_LIMIT = 5;
-const RUNNER_UP_SEARCH_LIMIT = 20;
+import type {
+  CardMatchSearchResult,
+  CardTextMatchResult,
+} from "../../lib/interfaces/card-search";
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -85,14 +88,6 @@ export function parsePreferredSetCode(value: unknown): string | undefined {
     : undefined;
 }
 
-export interface CardMatchSearchResult {
-  message: string;
-  success: true;
-  data: SearchCardMatch[] | null;
-  nearestDistance: number | null;
-  diagnostics?: CardSearchDiagnostics;
-}
-
 export async function findCardMatches(
   jwtClaims: string,
   {
@@ -125,7 +120,7 @@ export async function findCardMatches(
         FROM cards
         WHERE game_key = ${gameKey} AND lang = ${lang}
         ORDER BY embedding <=> ${embeddingStr}::vector(128)
-        LIMIT ${RUNNER_UP_SEARCH_LIMIT}
+        LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
       )
       SELECT
         card_id,
@@ -145,7 +140,7 @@ export async function findCardMatches(
 
     const candidates = poolDuplicatePrintings(
       withConfidence(
-        matches.rows.slice(0, MATCH_LIMIT).map((row) => ({
+        matches.rows.slice(0, CARD_MATCH_LIMIT).map((row) => ({
           id: row.card_id as string,
           cardId: row.card_id as string,
           name: row.name as string,
@@ -275,10 +270,6 @@ function matchesSetLine(setCode: string, setLineTokens: string[]): boolean {
   );
 }
 
-export interface CardTextMatchResult extends CardMatchSearchResult {
-  ocr: OcrDiagnostics;
-}
-
 export async function findCardMatchesByText(
   jwtClaims: string,
   {
@@ -364,7 +355,7 @@ export async function findCardMatchesByText(
       );
 
     const data: SearchCardMatch[] = withConfidence(
-      printings.slice(0, MATCH_LIMIT),
+      printings.slice(0, CARD_MATCH_LIMIT),
     ).map(({ id, cardId, distance, confidence }) => ({
       id,
       cardId,

@@ -6,7 +6,11 @@ import {
   type PriceSource,
 } from "@magic-vault/shared";
 import { getWebUrl } from "../constants/urls";
-import type { DiscordEmbed } from "./types";
+import type {
+  DiscordEmbed,
+  CardScannedEmbedOptions,
+  CardScannedEmbedResult,
+} from "../interfaces/discord";
 
 const CARD_SCANNED_COLOR = 0x5865f2; // Discord blurple
 export const SCAN_ATTACHMENT_NAME = "scan.jpg";
@@ -23,21 +27,6 @@ export function resolveImageUrl(url: string): string {
   if (/^https?:\/\//i.test(url)) return url;
   const base = getWebUrl();
   return `${base}${url.startsWith("/") ? "" : "/"}${url}`;
-}
-
-export interface CardScannedEmbedOptions {
-  isFoil?: boolean;
-  foilType?: string;
-  collectionName?: string;
-  gameName?: string;
-  collectionGuid?: string;
-  capturedImageDataUrl?: string;
-  priceSource?: PriceSource;
-}
-
-export interface CardScannedEmbedResult {
-  embed: DiscordEmbed;
-  referenceImageUrl?: string;
 }
 
 export function buildCardScannedEmbed(

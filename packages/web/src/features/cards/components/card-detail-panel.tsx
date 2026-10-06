@@ -48,27 +48,7 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface CardDetailPanelProps {
-  scanId?: string;
-  onClose: () => void;
-  onRemove?: () => void;
-  currentCard?: PlayingCardWithDistance;
-  alternativeMatches?: PlayingCardWithDistance[];
-  needsReview?: boolean;
-  wasCorrected?: boolean;
-  isFoil?: boolean;
-  foilType?: string;
-  binNumber?: number;
-  onPrev?: () => void;
-  onNext?: () => void;
-  hasPrev?: boolean;
-  hasNext?: boolean;
-  currentIndex?: number;
-  total?: number;
-  copyIndex?: number;
-  copyCount?: number;
-}
+import type { CardDetailPanelProps } from "@/lib/interfaces/cards";
 
 export function CardDetailPanel({
   scanId,

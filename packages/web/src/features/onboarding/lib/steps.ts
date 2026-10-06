@@ -1,17 +1,9 @@
-import type { Step } from "react-joyride";
+import type {
+  OnboardingTourStepConfig,
+  TourPage,
+} from "@/lib/interfaces/tours";
 
-export type TourPage = "scanner" | "collections" | "bins";
-
-export interface TourStepConfig {
-  id: string;
-  page: TourPage;
-  target: string;
-  placement?: Step["placement"];
-  titleKey: string;
-  contentKey: string;
-}
-
-export const TOUR_STEP_CONFIGS: TourStepConfig[] = [
+export const ONBOARDING_TOUR_STEPS: OnboardingTourStepConfig[] = [
   {
     id: "welcome",
     page: "scanner",

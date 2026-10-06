@@ -4,7 +4,10 @@ import {
 } from "@/features/calibration/api/module-configs";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useDeviceCalibrationSync } from "@/features/calibration/api/use-device-calibration-sync";
-import type { ModuleConfigsContextValue } from "@/lib/interfaces/calibration";
+import type {
+  ModuleConfigsContextValue,
+  ServoName,
+} from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   DEFAULT_CALIBRATION,
@@ -86,7 +89,7 @@ export function ModuleConfigsProvider({
   );
 
   const moveServo = useCallback(
-    (module: number, servo: "bottom" | "paddle" | "pusher", value: number) => {
+    (module: number, servo: ServoName, value: number) => {
       sendCommand(JSON.stringify({ servo, module, value }));
     },
     [sendCommand],

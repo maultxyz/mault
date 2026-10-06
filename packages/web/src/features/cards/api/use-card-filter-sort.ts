@@ -1,10 +1,11 @@
-import type { CardFilters } from "@/lib/interfaces/cards";
-import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { matchPercent } from "@/lib/utils";
 import {
   DEFAULT_CARD_SORT,
   type FieldMeta,
   type ScannedCard,
+  EMPTY_CARD_FILTERS,
+  type CardFilters,
+  SORTABLE_FIELD_TYPES,
 } from "@magic-vault/shared";
 import { useEffect, useMemo, useState } from "react";
 
@@ -67,7 +68,6 @@ export function applyCardFilters(
   return result;
 }
 
-const SORTABLE_TYPES: FieldMeta["type"][] = ["string", "numeric", "enum"];
 
 function splitSortKey(sortKey: string): { field: string; dir: "asc" | "desc" } {
   const i = sortKey.lastIndexOf("-");
@@ -92,7 +92,7 @@ export function useCardQueryState(
   const setFilters = external?.setFilters ?? setInternalFilters;
 
   const sortableFields = useMemo(
-    () => fieldDefinitions.filter((f) => SORTABLE_TYPES.includes(f.type)),
+    () => fieldDefinitions.filter((f) => SORTABLE_FIELD_TYPES.includes(f.type)),
     [fieldDefinitions],
   );
 

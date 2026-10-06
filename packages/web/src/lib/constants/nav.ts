@@ -1,3 +1,5 @@
+import { SHOP_URL } from "@/lib/constants/links";
+
 export const NAV_SUBITEMS_LIMIT = 5;
 
 export const WATCH_ROUTE_PREFIX = "/watch";
@@ -14,3 +16,10 @@ export const MOBILE_NAV_TAB_ACTIVE_CLASS =
 export const THEME_OPTIONS = ["light", "dark", "system"] as const;
 export const MOBILE_MORE_PATHS = ["/app/account", "/app/health"];
 export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
+
+export const PUBLIC_NAV_PAGES = [
+  { key: "home", to: "/" },
+  { key: "build", to: "/build" },
+  { key: "discordBot", to: "/discord-bot" },
+  { key: "shop", to: SHOP_URL, external: true },
+] as const;

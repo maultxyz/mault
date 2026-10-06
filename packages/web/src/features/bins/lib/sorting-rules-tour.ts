@@ -1,15 +1,6 @@
-import { SORTING_RULES_TOUR_COMPLETED_KEY } from "@/lib/constants/storage-keys";
-import type { Step } from "react-joyride";
+import type { TourStepConfig } from "@/lib/interfaces/tours";
 
-export interface SortingRulesTourStepConfig {
-  id: string;
-  target: string;
-  placement?: Step["placement"];
-  titleKey: string;
-  contentKey: string;
-}
-
-export const SORTING_RULES_TOUR_STEPS: SortingRulesTourStepConfig[] = [
+export const SORTING_RULES_TOUR_STEPS: TourStepConfig[] = [
   {
     id: "welcome",
     target: "body",
@@ -95,19 +86,3 @@ export const MANUAL_RULES_TOUR_STEP_IDS = new Set([
   "condition-row",
   "add-group",
 ]);
-
-export function isSortingRulesTourCompleted(): boolean {
-  try {
-    return localStorage.getItem(SORTING_RULES_TOUR_COMPLETED_KEY) === "true";
-  } catch {
-    return true;
-  }
-}
-
-export function markSortingRulesTourCompleted(): void {
-  try {
-    localStorage.setItem(SORTING_RULES_TOUR_COMPLETED_KEY, "true");
-  } catch {
-    // Storage unavailable (private browsing, disabled cookies) - skip persisting.
-  }
-}

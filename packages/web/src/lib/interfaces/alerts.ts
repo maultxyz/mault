@@ -11,3 +11,10 @@ export interface AppAlert {
   link?: string | null;
   actions?: ReactNode;
 }
+
+export interface AppAlertsContextValue {
+  visibleAlerts: AppAlert[];
+  trayAlerts: AppAlert[];
+  portals: ReactNode;
+  dismiss: (id: string) => void;
+}

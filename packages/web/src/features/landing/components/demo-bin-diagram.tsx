@@ -1,12 +1,7 @@
 import { CATCH_ALL_BIN } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-
-const MODULES = [
-  { module: 1, left: 1, right: 2 },
-  { module: 2, left: 3, right: 4 },
-  { module: 3, left: 5, right: 6 },
-];
+import { DEMO_BIN_DIAGRAM_MODULES } from "@/lib/constants/landing";
 
 // A read-only stand-in for features/bins/components/bin-location-diagram.tsx,
 // reusing its cell layout and translations - the real diagram pulls its
@@ -50,7 +45,7 @@ function BinCell({
 export function DemoBinDiagram({ activeBin = 4 }: { activeBin?: number }) {
   return (
     <div className="divide-y divide-border overflow-hidden rounded-lg border bg-background">
-      {MODULES.map((m) => (
+      {DEMO_BIN_DIAGRAM_MODULES.map((m) => (
         <div key={m.module} className="grid grid-cols-2 divide-x divide-border">
           <BinCell
             binNumber={m.left}

@@ -3,7 +3,8 @@ import { db } from "../../db";
 import { games } from "../../db/schema";
 import { ensureGameVectorIndex } from "../../lib/game-vector-index";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
-import { type GameInput, keyIsTaken, toGame } from "./shared";
+import { keyIsTaken, toGame } from "./shared";
+import type { GameInput } from "@magic-vault/shared";
 
 export const addGameRoute = new Hono<AppEnv>().post(
   "/",

@@ -74,3 +74,8 @@ export interface MobilePageHeaderProps {
   backTo?: string;
   actions?: ReactNode;
 }
+
+export interface AppVersionResponse {
+  success: boolean;
+  data: { version: string };
+}

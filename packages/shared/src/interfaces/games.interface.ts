@@ -1,4 +1,4 @@
-import type { FieldMeta } from "./sort-bins.interface";
+import type { FieldMeta, FieldRenames } from "./sort-bins.interface";
 
 export interface Game {
   guid: string;
@@ -28,4 +28,15 @@ export interface GameCoverage {
   cardCount: number;
   languages: string[];
   lastUpdated: string | null;
+}
+
+export interface GameInput {
+  key: string;
+  name: string;
+  fieldDefinitions: FieldMeta[];
+  fieldRenames?: FieldRenames;
+  foilTypes?: string[];
+  apiDocsUrl?: string | null;
+  cardThickness?: number | null;
+  isActive?: boolean;
 }

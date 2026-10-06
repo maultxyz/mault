@@ -29,6 +29,7 @@ import { useEffect } from "react";
 import { Controller, FormProvider, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { GameFieldDefinitionsEditor } from "./game-field-definitions-editor";
+import type { GameFormDialogProps } from "@/lib/interfaces/games";
 
 function toFormValues(game?: Game | null): GameFormValues {
   if (!game) {
@@ -104,13 +105,6 @@ export function toFieldDefinitions(
       ...(options?.length ? { options } : {}),
     };
   });
-}
-
-interface GameFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  game?: Game | null;
-  onSubmit: (values: GameFormValues) => Promise<void>;
 }
 
 export function GameFormDialog({

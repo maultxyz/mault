@@ -5,6 +5,9 @@ import type {
   SetupIntroPart,
   SetupIrSeen,
   SetupServoPosition,
+  Device,
+  CalibrationSection,
+  DirectionalSpeed,
 } from "@/lib/interfaces/calibration";
 import {
   IconArrowBarToDown,
@@ -14,7 +17,16 @@ import {
   IconStack2,
   type Icon,
 } from "@tabler/icons-react";
-import type { FeederCalibration, ServoCalibration } from "@magic-vault/shared";
+import {
+  type FeederCalibration,
+  type ServoCalibration,
+  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_CHANNEL_LAYOUT,
+  DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  DEFAULT_MATCHES_NEEDED,
+  DEFAULT_MODULE_COUNT,
+  DEFAULT_SCAN_REGION,
+} from "@magic-vault/shared";
 
 export const SERVO_CALIBRATION_FIELDS: (keyof ServoCalibration)[] = [
   "bottomClosed",
@@ -54,11 +66,6 @@ export function percentToPulse(percent: number): number {
 }
 
 export const SERVO_PULSE_CENTER = (SERVO_PULSE_MIN + SERVO_PULSE_MAX) / 2;
-
-export interface DirectionalSpeed {
-  direction: "forward" | "reverse";
-  magnitude: number;
-}
 
 export function pulseToDirectionalSpeed(pulse: number): DirectionalSpeed {
   if (pulse <= SERVO_PULSE_CENTER) {
@@ -192,3 +199,35 @@ export const DEVICE_TOGGLE_KEYS: DeviceToggleKey[] = [
   "testOnConnect",
   "pipelinedFeed",
 ];
+
+export const DEFAULT_DEVICE: Device = {
+  guid: "",
+  name: "Card Sorter",
+  hardwareId: null,
+  scanRegion: DEFAULT_SCAN_REGION,
+  captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  matchesNeeded: DEFAULT_MATCHES_NEEDED,
+  checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  moduleCount: DEFAULT_MODULE_COUNT,
+  channelLayout: DEFAULT_CHANNEL_LAYOUT,
+  setupCompletedAt: null,
+  pipelinedFeed: false,
+  autoConnect: false,
+  testOnConnect: true,
+  createdAt: "",
+  updatedAt: "",
+};
+
+export const CALIBRATION_SECTION_PATHS: Record<CalibrationSection, string> = {
+  modules: "modules",
+  scanRegion: "scan-region",
+  calibration: "calibration",
+};
+
+export const CALIBRATION_PATH_SECTIONS: Record<string, CalibrationSection> = {
+  modules: "modules",
+  "scan-region": "scanRegion",
+  calibration: "calibration",
+};
+
+export const CALIBRATION_LIVE_DETECTION_INTERVAL_MS = 200;

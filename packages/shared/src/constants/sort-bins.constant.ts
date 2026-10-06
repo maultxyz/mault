@@ -1,6 +1,8 @@
 import type {
   BinHeightPreset,
   BinRuleGroup,
+  DefaultBinInit,
+  FieldType,
 } from "../interfaces/sort-bins.interface";
 
 export const SET_NAME_MAX_LENGTH = 50;
@@ -23,15 +25,7 @@ export const DEFAULT_CARD_THICKNESS_MM = 0.3;
 export const ALPHABET_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 export const ALPHABET_PREFIX_MAX_LENGTH = 10;
 
-export type DefaultBinInit = {
-  binNumber: number;
-  rules: BinRuleGroup;
-  isCatchAll: boolean;
-  isOverride?: boolean;
-  cardLimit: number | null;
-  maxCopies?: number | null;
-  isDisabled?: boolean;
-};
+export const SORTABLE_FIELD_TYPES: FieldType[] = ["string", "numeric", "enum"];
 
 export function createDefaultCatchAllOnlyBins(
   binCount: number,

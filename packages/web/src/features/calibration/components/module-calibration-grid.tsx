@@ -26,16 +26,13 @@ import {
   sliderMax,
 } from "@/lib/constants/calibration";
 import type {
-  ActivePositions,
-  ModuleDelayField,
-  ServoConfig,
   SliderKey,
+  ServoControlProps,
+  ModuleDelayControlProps,
+  PushTestControlProps,
+  ModuleCalibrationGridProps,
 } from "@/lib/interfaces/calibration";
-import {
-  DEFAULT_CALIBRATION,
-  type ModuleConfig,
-  type ServoCalibration,
-} from "@magic-vault/shared";
+import { DEFAULT_CALIBRATION } from "@magic-vault/shared";
 import {
   IconAlertTriangle,
   IconInfoCircle,
@@ -43,29 +40,6 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface ServoControlProps {
-  module: number;
-  servo: ServoConfig;
-  sliderValue: number;
-  activePosition: string | null | undefined;
-  calibration: ServoCalibration | undefined;
-  isLoading: boolean;
-  canCalibrate: boolean;
-  isTesting: boolean;
-  showRaw: boolean;
-  onControl: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    position: string,
-  ) => void;
-  onSliderChange: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    value: number,
-  ) => void;
-  onTest: (module: number, servo: "bottom" | "paddle" | "pusher") => void;
-}
 
 function ServoControl({
   module,
@@ -267,14 +241,6 @@ function ServoControl({
   );
 }
 
-interface ModuleDelayControlProps {
-  module: number;
-  field: ModuleDelayField;
-  value: number;
-  isConnected: boolean;
-  onChange: (module: number, field: ModuleDelayField, value: number) => void;
-}
-
 function ModuleDelayControl({
   module,
   field,
@@ -296,13 +262,6 @@ function ModuleDelayControl({
       onValueChange={(v) => onChange(module, field, v)}
     />
   );
-}
-
-interface PushTestControlProps {
-  module: number;
-  isReady: boolean;
-  isTesting: boolean;
-  onTest: (module: number, direction: "left" | "right") => void;
 }
 
 function PushTestControl({
@@ -343,38 +302,6 @@ function PushTestControl({
       </ButtonGroup>
     </div>
   );
-}
-
-interface ModuleCalibrationGridProps {
-  modules: number[];
-  configs: ModuleConfig[];
-  active: ActivePositions;
-  sliderValues: Record<SliderKey, number>;
-  moduleDelayValues: Record<number, Record<ModuleDelayField, number>>;
-  pendingCalibration: Record<number, Partial<ServoCalibration>>;
-  isLoading: boolean;
-  isConnected: boolean;
-  isReady: boolean;
-  canCalibrate: boolean;
-  onControl: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    position: string,
-  ) => void;
-  onSliderChange: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    value: number,
-  ) => void;
-  onModuleDelayChange: (
-    module: number,
-    field: ModuleDelayField,
-    value: number,
-  ) => void;
-  testingServos: Record<SliderKey, boolean>;
-  onTest: (module: number, servo: "bottom" | "paddle" | "pusher") => void;
-  pushTestingModule: number | null;
-  onPushTest: (module: number, direction: "left" | "right") => void;
 }
 
 export function ModuleCalibrationGrid({

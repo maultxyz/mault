@@ -10,7 +10,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { PhoneCameraCaptureStatus } from "@/features/scanner/api/use-phone-camera-capture";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
@@ -24,34 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface ScannerMenuProps {
-  isCameraActive: boolean;
-  isConnected: boolean;
-  autoFeed: boolean;
-  allowDuplicates: boolean;
-  cameras: MediaDeviceInfo[];
-  selectedCameraId: string | null;
-  phonePairingStatus: PhoneCameraCaptureStatus;
-  scanningBlocked: boolean;
-  onCameraConnect: () => void;
-  onCameraDisconnect: () => void;
-  onCameraSelect: (deviceId: string) => void;
-  onOpenPhonePairing: () => void;
-  onScannerConnect: () => void;
-  onScannerConnectBluetooth: () => void;
-  bluetoothSupported: boolean;
-  onScannerDisconnect: () => void;
-  onScannerRetry: () => void;
-  onCalibrate: () => void;
-  onAutoFeedChange: (enabled: boolean) => void;
-  onAllowDuplicatesChange: (enabled: boolean) => void;
-  onConnectAnotherUsb: () => void;
-  onConnectAnotherBluetooth: () => void;
-  canConnectAnotherSorter: boolean;
-  sorterLimitIsHardCap: boolean;
-  onUpgrade: () => void;
-}
+import type { ScannerMenuProps } from "@/lib/interfaces/scanner";
 
 export function ScannerMenu({
   isCameraActive,

@@ -1,3 +1,5 @@
+export type SourceCard = object;
+
 export interface PlayingCardImage {
   small: string;
   normal: string;

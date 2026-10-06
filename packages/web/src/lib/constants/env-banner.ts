@@ -12,3 +12,5 @@ export const ENV_BANNER_CONFIG = {
     className: "bg-violet-500/90 text-violet-50",
   },
 } satisfies Record<string, { label: string; className: string }>;
+
+export const APP_ENV = import.meta.env.VITE_APP_ENV as string | undefined;

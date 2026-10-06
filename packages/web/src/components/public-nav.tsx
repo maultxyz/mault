@@ -9,19 +9,13 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { useAuthSession } from "@/lib/auth";
-import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
+import { DISCORD_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
 import { IconBrandDiscord, IconMenu2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
-
-const PAGES = [
-  { key: "home", to: "/" },
-  { key: "build", to: "/build" },
-  { key: "discordBot", to: "/discord-bot" },
-  { key: "shop", to: SHOP_URL, external: true },
-] as const;
+import { PUBLIC_NAV_PAGES } from "@/lib/constants/nav";
 
 function PageLinks({
   className,
@@ -37,7 +31,7 @@ function PageLinks({
 
   return (
     <nav className={className} aria-label={t("publicNav.pagesAria")}>
-      {PAGES.map((page) => {
+      {PUBLIC_NAV_PAGES.map((page) => {
         if ("external" in page && page.external) {
           return (
             <a

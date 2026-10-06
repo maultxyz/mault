@@ -1,5 +1,5 @@
 import { SettingsSection } from "@/components/settings-section";
-import { AuditDrawer, type AuditEntry } from "@/components/audit-drawer";
+import { AuditDrawer } from "@/components/audit-drawer";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
@@ -7,13 +7,11 @@ import {
   feederQueryOptions,
   getFeederHistory,
   revertFeederConfig,
-  type FeederConfigAuditEntry,
 } from "@/features/calibration/api/feeder-config";
 import {
   getModuleHistory,
   modulesQueryOptions,
   revertModuleConfig,
-  type ModuleConfigAuditEntry,
 } from "@/features/calibration/api/module-configs";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useDeviceCalibrationSync } from "@/features/calibration/api/use-device-calibration-sync";
@@ -24,6 +22,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import type {
+  AuditEntry,
+  FeederConfigAuditEntry,
+  ModuleConfigAuditEntry,
+} from "@/lib/interfaces/audit";
 
 function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
   const { t } = useTranslation("calibration");

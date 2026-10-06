@@ -1,4 +1,4 @@
-import { DEFAULT_BOARD_TYPE, type BoardType } from "@/lib/constants/build";
+import { DEFAULT_BOARD_TYPE } from "@/lib/constants/build";
 import { BUILD_BOARD_TYPE_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
   createContext,
@@ -7,14 +7,8 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { BoardType, BoardTypeContextValue } from "@/lib/interfaces/build";
 
-export type { BoardType };
-export { DEFAULT_BOARD_TYPE };
-
-interface BoardTypeContextValue {
-  boardType: BoardType;
-  setBoardType: (value: BoardType) => void;
-}
 
 const BoardTypeContext = createContext<BoardTypeContextValue | null>(null);
 

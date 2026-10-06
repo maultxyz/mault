@@ -1,4 +1,6 @@
-import { useExecutionProviderPreference } from "@/features/scanner/lib/onnx-runtime";
+import {
+  useExecutionProviderPreference,
+} from "@/features/scanner/lib/onnx-runtime";
 
 export function useForceCpuVectorize() {
   const [preference, setPreference] = useExecutionProviderPreference();

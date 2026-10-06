@@ -6,20 +6,23 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
-import { useSerial } from "@/features/scanner/api/use-serial";
+import { CALIBRATION_TOUR_STEPS } from "@/features/calibration/lib/calibration-tour";
+import { useTour } from "@/features/onboarding/api/use-tour";
 import {
-  CALIBRATION_TOUR_STEPS,
-  isCalibrationTourCompleted,
-  markCalibrationTourCompleted,
-} from "@/features/calibration/lib/calibration-tour";
-import type { CalibrationSection } from "@/lib/interfaces/calibration";
-import { TourTooltip } from "@/features/onboarding/components/tour-tooltip";
-import { TOUR_STEP_NAVIGATION_DELAY_MS } from "@/lib/constants/timing";
+  toTourStep,
+  waitForTourNavigation,
+} from "@/features/onboarding/lib/tour-steps";
+import { useSerial } from "@/features/scanner/api/use-serial";
+import { CALIBRATION_TOUR_COMPLETED_KEY } from "@/lib/constants/storage-keys";
+import type {
+  CalibrationSection,
+  CalibrationTourProps,
+} from "@/lib/interfaces/calibration";
 import { cn } from "@/lib/utils";
 import { IconHelpCircle, IconRoute, IconWand } from "@tabler/icons-react";
 import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { EVENTS, STATUS, useJoyride, type Step } from "react-joyride";
+import type { Step } from "react-joyride";
 
 function createSectionBeforeHook(
   targetSection: CalibrationSection,
@@ -29,16 +32,8 @@ function createSectionBeforeHook(
   return async () => {
     if (getSection() === targetSection) return;
     setSection(targetSection);
-    await new Promise((resolve) =>
-      setTimeout(resolve, TOUR_STEP_NAVIGATION_DELAY_MS),
-    );
+    await waitForTourNavigation();
   };
-}
-
-interface CalibrationTourProps {
-  section: CalibrationSection;
-  setSection: (section: CalibrationSection) => void;
-  className?: string;
 }
 
 export function CalibrationTour({
@@ -57,11 +52,7 @@ export function CalibrationTour({
   const steps: Step[] = useMemo(
     () =>
       CALIBRATION_TOUR_STEPS.map((config) => ({
-        target: config.target,
-        placement: config.placement,
-        title: t(config.titleKey),
-        content: t(config.contentKey),
-        skipScroll: config.target === "body",
+        ...toTourStep(config, t),
         before: createSectionBeforeHook(
           config.section,
           () => sectionRef.current,
@@ -71,47 +62,10 @@ export function CalibrationTour({
     [t, setSection],
   );
 
-  const { controls, state, Tour, on } = useJoyride({
+  const { controls, Tour } = useTour({
     steps,
-    continuous: true,
-    scrollToFirstStep: true,
-    tooltipComponent: TourTooltip,
-    options: {
-      targetWaitTimeout: 4000,
-      showProgress: true,
-      skipBeacon: true,
-      zIndex: 10000,
-      arrowColor: "var(--popover)",
-      overlayColor: "rgba(0, 0, 0, 0.8)",
-    },
-    locale: {
-      back: t("nav.back"),
-      close: t("nav.close"),
-      last: t("nav.done"),
-      next: t("nav.next"),
-      nextWithProgress: t("nav.nextWithProgress"),
-      skip: t("nav.skip"),
-    },
+    completedKey: CALIBRATION_TOUR_COMPLETED_KEY,
   });
-
-  useEffect(
-    () => on(EVENTS.TARGET_NOT_FOUND, (_data, ctrl) => ctrl.next()),
-    [on],
-  );
-
-  useEffect(() => {
-    if (state.status === STATUS.FINISHED || state.status === STATUS.SKIPPED) {
-      markCalibrationTourCompleted();
-    }
-  }, [state.status]);
-
-  const autoStartChecked = useRef(false);
-  useEffect(() => {
-    if (autoStartChecked.current) return;
-    autoStartChecked.current = true;
-    if (!isCalibrationTourCompleted()) controls.start(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>

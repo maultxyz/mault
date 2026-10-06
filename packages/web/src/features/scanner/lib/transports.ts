@@ -6,17 +6,10 @@ import {
   NUS_SERVICE_UUID,
   NUS_TX_CHARACTERISTIC_UUID,
 } from "@/lib/constants/bluetooth";
-import type { SerialTransportType } from "@/lib/interfaces/scanner";
-
-export interface ByteTransport {
-  kind: SerialTransportType;
-  start(): void;
-  write(data: Uint8Array<ArrayBuffer>): Promise<void>;
-  onData(cb: (chunk: Uint8Array) => void): void;
-  onDisconnect(cb: () => void): void;
-  onError(cb: (error: unknown) => void): void;
-  close(): Promise<void>;
-}
+import type {
+  SerialTransportType,
+  ByteTransport,
+} from "@/lib/interfaces/scanner";
 
 export class SerialTransport implements ByteTransport {
   readonly kind: SerialTransportType = "serial";

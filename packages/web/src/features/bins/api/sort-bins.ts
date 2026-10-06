@@ -12,7 +12,6 @@ import type { BinSetAuditEntry } from "@/lib/interfaces/audit";
 import type { AlphabetConfig, ChaosConfig } from "@/lib/interfaces/bins";
 import { queryOptions } from "@tanstack/react-query";
 
-export type { BinSetAuditEntry };
 
 export async function loadSets(): Promise<Result<BinSet[]>> {
   return apiGet<Result<BinSet[]>>("/api/bins");

@@ -17,7 +17,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { DONATE_URL } from "@/lib/constants/links";
 import {
   MOBILE_NAV_HIDDEN_PATTERN,
@@ -27,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation } from "react-router-dom";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 export default function AppLayout() {
   const { t } = useTranslation("common");

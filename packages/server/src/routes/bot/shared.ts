@@ -2,9 +2,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { authProvider } from "../../auth";
 import { db } from "../../db";
 import { collections, orgSettings } from "../../db/schema";
-
-const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+import { UUID_PATTERN } from "../../lib/constants/validation";
 
 export async function resolveOrgByGuild(
   guildId: string,

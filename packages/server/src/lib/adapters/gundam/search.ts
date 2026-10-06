@@ -1,33 +1,17 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
+import {
+  type PlayingCard,
+  type Result,
+  proxiedImageUrl,
+} from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
-import type { CardSearchAdapter } from "../../card-search/types";
+import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { validateQuery } from "../../card-search/validate";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { GUNDAM_DEFAULT_URL } from "../../constants/urls";
-
-interface GundamCard {
-  product_id: string;
-  card_number: string;
-  name: string;
-  set_code: string;
-  set_name: string;
-  rarity: string;
-  card_type: string;
-  color: string | null;
-  cost: number | null;
-  ap: number | null;
-  hp: number | null;
-  effect: string;
-  image_url: string;
-  detail_url: string | null;
-}
+import type { GundamCard } from "../../interfaces/gundam";
 
 function parallelSuffix(productName: string): string | null {
   return /\(([A-Z]+\+)\)$/.exec(productName)?.[1] ?? null;
-}
-
-function proxiedImageUrl(url: string): string {
-  return `/api/cards/image-proxy?url=${encodeURIComponent(url)}`;
 }
 
 function normalizeGundamCard(raw: GundamCard): PlayingCard {

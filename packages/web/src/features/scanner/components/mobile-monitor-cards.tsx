@@ -1,4 +1,7 @@
-import type { GroupedScannedCard } from "@magic-vault/shared";
+import {
+  type GroupedScannedCard,
+  EMPTY_CARD_FILTERS,
+} from "@magic-vault/shared";
 import { useState } from "react";
 import { MobileCardActionsDrawer } from "@/features/scanner/components/mobile-card-actions-drawer";
 import { EmptyState } from "@/components/empty-state";
@@ -9,7 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
 import { CardSortButton } from "@/features/cards/components/card-sort-button";
 import { ClearCardQueryButton } from "@/features/cards/components/clear-card-query-button";
-import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { MobileCardTile } from "@/features/scanner/components/mobile-card-tile";
 import type { MobileMonitorCardsProps } from "@/lib/interfaces/scanner";
 import {

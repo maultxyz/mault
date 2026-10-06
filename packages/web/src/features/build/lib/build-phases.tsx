@@ -1,5 +1,3 @@
-import type { BoardType } from "@/features/build/api/use-board-type";
-import type { Esp32MountType } from "@/features/build/api/use-esp32-mount-type";
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
 import { BOARD_INFO } from "@/lib/constants/build";
 import { REPO_URL } from "@/lib/constants/links";
@@ -11,32 +9,21 @@ import {
   IconTool,
 } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
-import type { ReactNode } from "react";
 import { Trans } from "react-i18next";
-
-export interface Step {
-  key: string;
-  text: ReactNode;
-  note?: ReactNode;
-  images?: string[];
-  optional?: true | "classic-hopper" | "new-hopper";
-}
+import type {
+  BoardType,
+  BuildPhase,
+  BuildStep,
+  Esp32MountType,
+} from "@/lib/interfaces/build";
 
 export function optionalBadgeLabel(
   t: TFunction<"build">,
-  optional: Step["optional"],
+  optional: BuildStep["optional"],
 ): string {
   if (optional === "classic-hopper") return t("optionalClassicHopperBadge");
   if (optional === "new-hopper") return t("optionalNewHopperBadge");
   return t("optionalBadge");
-}
-
-export interface Phase {
-  key: string;
-  title: string;
-  icon: typeof IconCube;
-  steps: Step[];
-  videos?: string[];
 }
 
 export function getYouTubeVideoId(url: string): string | null {
@@ -65,7 +52,7 @@ export function buildPhases(
   boardType: BoardType,
   mountType: Esp32MountType,
   usingKit: boolean,
-): Phase[] {
+): BuildPhase[] {
   const board = BOARD_INFO[boardType];
   const isEsp32Family = boardType !== "uno_r4";
   const isEsp32Breakout = boardType === "esp32" && mountType === "breakout";
@@ -78,7 +65,7 @@ export function buildPhases(
       : 1
     : null;
 
-  const phases: Phase[] = [
+  const phases: BuildPhase[] = [
     {
       key: "print",
       title: t("assembly.phases.print.title"),

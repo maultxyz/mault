@@ -10,7 +10,7 @@ import { LandingSupportedGames } from "@/features/landing/components/supported-g
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 export default function LandingPage() {
   return (

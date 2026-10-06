@@ -1,9 +1,10 @@
-import { MILO_MODEL } from "./model-fetch";
+import {
+  IMAGENET_MEAN,
+  IMAGENET_STD,
+  MILO_INPUT_SIZE,
+  MILO_MODEL,
+} from "@magic-vault/shared";
 import { loadOnnxSession, ort, runOnnxSession } from "./onnx-runtime";
-
-const INPUT_SIZE = 448;
-const IMAGENET_MEAN = [0.485, 0.456, 0.406];
-const IMAGENET_STD = [0.229, 0.224, 0.225];
 
 function getSession() {
   return loadOnnxSession("milo", MILO_MODEL);
@@ -47,7 +48,7 @@ function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
 export async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
   const session = await getSession();
   const chw = toChwTensor(canvas);
-  const tensor = new ort.Tensor("float32", chw, [1, 3, INPUT_SIZE, INPUT_SIZE]);
+  const tensor = new ort.Tensor("float32", chw, [1, 3, MILO_INPUT_SIZE, MILO_INPUT_SIZE]);
   const outputs = await runOnnxSession("milo", session, {
     [session.inputNames[0]]: tensor,
   });

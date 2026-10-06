@@ -46,7 +46,6 @@ import {
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   findInCardPages,
@@ -83,6 +82,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useCollectionLocks } from "@/lib/app-stream";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,

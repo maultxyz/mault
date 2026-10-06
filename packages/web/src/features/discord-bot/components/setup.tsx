@@ -1,14 +1,8 @@
 import { SectionHeading } from "@/components/section-heading";
 import { DISCORD_BOT_INSTALL_URL } from "@/lib/constants/links";
-import {
-  IconBrandDiscord,
-  IconKey,
-  IconLink,
-  IconSettingsBolt,
-} from "@tabler/icons-react";
+import { IconKey } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-
-const STEP_ICONS = [IconBrandDiscord, IconKey, IconLink, IconSettingsBolt];
+import { DISCORD_BOT_SETUP_STEP_ICONS } from "@/lib/constants/discord-bot";
 
 export function DiscordBotSetup() {
   const { t } = useTranslation("discordBot");
@@ -28,7 +22,7 @@ export function DiscordBotSetup() {
 
         <ol className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => {
-            const Icon = STEP_ICONS[i] ?? IconKey;
+            const Icon = DISCORD_BOT_SETUP_STEP_ICONS[i] ?? IconKey;
             return (
               <li key={step.title} className="flex items-start gap-3">
                 <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">

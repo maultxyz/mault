@@ -2,7 +2,7 @@ import type { PlayingCard, PlayingCardPriceRange } from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { tcgplayerPrices, tcgplayerProducts } from "../../db/schema";
-import type { CardSearchAdapter, TcgplayerPricing } from "./types";
+import type { CardSearchAdapter, TcgplayerPricing } from "../interfaces/card-search";
 
 function productIdOf(
   pricing: TcgplayerPricing,

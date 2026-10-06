@@ -3,11 +3,8 @@ import { db } from "../../db";
 import { announcements } from "../../db/schema";
 import { ANNOUNCEMENT_SEVERITIES as SEVERITIES } from "../../lib/constants/announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
-import {
-  type AnnouncementInput,
-  parseAnnouncementLink,
-  toAnnouncement,
-} from "./shared";
+import { parseAnnouncementLink, toAnnouncement } from "./shared";
+import type { AnnouncementInput } from "@magic-vault/shared";
 
 export const addAnnouncementRoute = new Hono<AppEnv>().post(
   "/",

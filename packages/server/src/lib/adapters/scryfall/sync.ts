@@ -2,21 +2,10 @@ import { createInterface } from "node:readline";
 import { Readable } from "node:stream";
 import type { ReadableStream as NodeWebReadableStream } from "node:stream/web";
 import { createGunzip } from "node:zlib";
-import type { SyncSource, SyncSourceCard } from "../../card-search/sync-types";
+import type { SyncSource, SyncSourceCard } from "../../interfaces/card-search";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
-
-type ScryfallImageUris = { png?: string; large?: string };
-
-type ScryfallBulkCard = {
-  id: string;
-  name: string;
-  printed_name?: string;
-  lang: string;
-  set: string;
-  image_uris?: ScryfallImageUris;
-  card_faces?: { image_uris?: ScryfallImageUris }[];
-};
+import type { ScryfallBulkCard } from "../../interfaces/scryfall";
 
 function cardImageUrl(
   raw: Pick<ScryfallBulkCard, "image_uris" | "card_faces">,

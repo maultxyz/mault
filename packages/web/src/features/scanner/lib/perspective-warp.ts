@@ -1,12 +1,7 @@
-import type { CardContour } from "@magic-vault/shared";
+import type { CardContour, Point } from "@magic-vault/shared";
 
-interface Point2 {
-  x: number;
-  y: number;
-}
-
-function solveHomographyDstToSrc(srcCorners: Point2[]): number[] {
-  const dst: Point2[] = [
+function solveHomographyDstToSrc(srcCorners: Point[]): number[] {
+  const dst: Point[] = [
     { x: 0, y: 0 },
     { x: 1, y: 0 },
     { x: 1, y: 1 },
@@ -56,7 +51,7 @@ function solveLinearSystem(A: number[][], b: number[]): number[] {
   return M.map((row) => row[n]);
 }
 
-function contourToPoints(contour: CardContour): Point2[] {
+function contourToPoints(contour: CardContour): Point[] {
   return [contour.topLeft, contour.topRight, contour.bottomRight, contour.bottomLeft];
 }
 

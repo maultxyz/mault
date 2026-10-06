@@ -2,27 +2,15 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { orgSettings } from "../db/schema";
 import { SCAN_LOCK_TTL_MS as LOCK_TTL_MS } from "./constants/timing";
-
-export interface ScanLock {
-  userId: string;
-  displayName: string;
-  expiresAt: number;
-}
-
-export interface AcquireLockResult {
-  ok: boolean;
-  isNewSession: boolean;
-}
-
-type LockWriter = (event: string, data: unknown) => void;
-
-interface LockEntry extends ScanLock {
-  orgId: string;
-  timer: ReturnType<typeof setTimeout>;
-}
+import type { SseWriter } from "./interfaces/sse";
+import type {
+  AcquireLockResult,
+  LockEntry,
+  ScanLock,
+} from "./interfaces/scan-lock";
 
 const locks = new Map<string, LockEntry>();
-const orgWriters = new Map<string, Set<LockWriter>>();
+const orgWriters = new Map<string, Set<SseWriter>>();
 
 function emitToOrg(orgId: string, event: string, data: unknown) {
   const writers = orgWriters.get(orgId);
@@ -119,7 +107,7 @@ export function getLocksForGuids(guids: string[]): Record<string, ScanLock> {
 
 export function subscribeOrgLocks(
   orgId: string,
-  writer: LockWriter,
+  writer: SseWriter,
 ): () => void {
   let writers = orgWriters.get(orgId);
   if (!writers) {

@@ -7,23 +7,19 @@ import {
   isObjectArray,
   isPlainObject,
   pathToFieldKey,
-  type PickedField,
 } from "@/features/games/lib/field-mapping";
 import { ARRAY_PREVIEW_LIMIT } from "@/lib/constants/limits";
 import { IconChevronDown, IconChevronRight } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import type {
+  JsonNodeProps,
+  SampleCardBrowserProps,
+} from "@/lib/interfaces/games";
 
 function previewValue(value: unknown): string {
   if (Array.isArray(value)) return `[${value.join(", ")}]`;
   return JSON.stringify(value);
-}
-
-interface JsonNodeProps {
-  path: string;
-  keyName: string;
-  value: unknown;
-  onPick: (field: PickedField) => void;
 }
 
 function JsonNode({ path, keyName, value, onPick }: JsonNodeProps) {
@@ -97,11 +93,6 @@ function JsonNode({ path, keyName, value, onPick }: JsonNodeProps) {
       </span>
     </button>
   );
-}
-
-interface SampleCardBrowserProps {
-  gameKey: string;
-  onPick: (field: PickedField) => void;
 }
 
 export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {

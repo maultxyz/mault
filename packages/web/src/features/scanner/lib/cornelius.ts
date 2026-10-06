@@ -1,39 +1,33 @@
 import { scanWarn } from "@/lib/scan-log";
-import type { CardContour, Point } from "@magic-vault/shared";
-import { FASTWEB_DETECTOR_MODEL } from "./model-fetch";
+import {
+  CORNER_DETECTOR_INPUT_SIZE,
+  CORNER_DETECTOR_MODEL,
+  IMAGENET_MEAN,
+  IMAGENET_STD,
+  type Point,
+} from "@magic-vault/shared";
 import { loadOnnxSession, ort, runOnnxSession } from "./onnx-runtime";
-
-const INPUT_SIZE = 384;
-const IMAGENET_MEAN = [0.485, 0.456, 0.406];
-const IMAGENET_STD = [0.229, 0.224, 0.225];
-
-export const DEFAULT_MIN_SHARPNESS = 0.02;
-
-export interface CornerDetection {
-  cardPresent: boolean;
-  confidence: number;
-  sharpness: number | null;
-  contour: CardContour | null;
-}
+import type { CornerDetection } from "@/lib/interfaces/scanner";
+import { DEFAULT_MIN_SHARPNESS } from "@/lib/constants/scanner";
 
 function getSession() {
-  return loadOnnxSession("detector", FASTWEB_DETECTOR_MODEL, {
+  return loadOnnxSession("detector", CORNER_DETECTOR_MODEL, {
     graphOptimizationLevel: "disabled",
   });
 }
 
 function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
   const cropCanvas = document.createElement("canvas");
-  cropCanvas.width = INPUT_SIZE;
-  cropCanvas.height = INPUT_SIZE;
+  cropCanvas.width = CORNER_DETECTOR_INPUT_SIZE;
+  cropCanvas.height = CORNER_DETECTOR_INPUT_SIZE;
   const ctx = cropCanvas.getContext("2d");
   if (!ctx) throw new Error("Could not get canvas context");
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, INPUT_SIZE, INPUT_SIZE);
+  ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE);
 
-  const { data } = ctx.getImageData(0, 0, INPUT_SIZE, INPUT_SIZE);
-  const plane = INPUT_SIZE * INPUT_SIZE;
+  const { data } = ctx.getImageData(0, 0, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE);
+  const plane = CORNER_DETECTOR_INPUT_SIZE * CORNER_DETECTOR_INPUT_SIZE;
   const chw = new Float32Array(3 * plane);
   for (let i = 0; i < plane; i++) {
     const o = i * 4;
@@ -125,7 +119,7 @@ export async function detectCardCorners(
   const session = await getSession();
   const chw = toChwTensor(canvas);
 
-  const tensor = new ort.Tensor("float32", chw, [1, 3, INPUT_SIZE, INPUT_SIZE]);
+  const tensor = new ort.Tensor("float32", chw, [1, 3, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE]);
   const outputs = await runOnnxSession("detector", session, {
     [session.inputNames[0]]: tensor,
   });

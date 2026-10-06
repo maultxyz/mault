@@ -1,5 +1,5 @@
 import type { PlayingCard, Result } from "@magic-vault/shared";
-import type { CardSearchAdapter } from "./types";
+import type { CardSearchAdapter } from "../interfaces/card-search";
 
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const MAX_ENTRIES = 500;

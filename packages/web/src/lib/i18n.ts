@@ -1,10 +1,8 @@
-import {
-  SUPPORTED_LANGUAGES,
-  type SupportedLanguage,
-} from "@/lib/constants/languages";
+import { SUPPORTED_LANGUAGES } from "@/lib/constants/languages";
 import { LANGUAGE_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import i18n, { type BackendModule } from "i18next";
 import { initReactI18next } from "react-i18next";
+import type { SupportedLanguage } from "@/lib/interfaces/languages";
 
 const NAMESPACE_FILE_NAMES: Record<string, string> = {
   discordBot: "discord-bot",

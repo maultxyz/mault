@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { BMC_URL } from "./constants/urls";
-import type { DiscordEmbed } from "./discord";
+import type { BuyMeACoffeeWebhookEnvelope } from "./interfaces/buymeacoffee";
+import type { DiscordEmbed } from "./interfaces/discord";
 
 const BMC_COLOR = 0xffdd00;
 
@@ -18,15 +19,6 @@ export function verifyBuyMeACoffeeSignature(
     expectedBuf.length === actualBuf.length &&
     timingSafeEqual(expectedBuf, actualBuf)
   );
-}
-
-interface BuyMeACoffeeWebhookEnvelope {
-  event_id?: number;
-  type?: string;
-  live_mode?: boolean;
-  created?: number;
-  attempt?: number;
-  data?: Record<string, unknown>;
 }
 
 export function parseBuyMeACoffeeWebhook(

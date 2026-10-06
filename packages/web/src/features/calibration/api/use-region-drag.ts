@@ -6,29 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from "react";
-
-type DragState =
-  | {
-      type: "move";
-      startClientX: number;
-      startClientY: number;
-      startOffsetX: number;
-      startOffsetY: number;
-    }
-  | {
-      type: "resize";
-      centerClientX: number;
-      centerClientY: number;
-      startDist: number;
-      startCoverage: number;
-    };
-
-interface Box {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
+import type { RegionDragState, RegionBox } from "@/lib/interfaces/calibration";
 
 export function useRegionDrag({
   frameRef,
@@ -40,10 +18,10 @@ export function useRegionDrag({
   frameRef: RefObject<HTMLDivElement | null>;
   regionRef: RefObject<ScanRegion>;
   cameraSource: CameraSource;
-  box: Box | null;
+  box: RegionBox | null;
   onRegionChange: (region: ScanRegion) => void;
 }) {
-  const dragStateRef = useRef<DragState | null>(null);
+  const dragStateRef = useRef<RegionDragState | null>(null);
 
   const handleBoxPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     e.preventDefault();
