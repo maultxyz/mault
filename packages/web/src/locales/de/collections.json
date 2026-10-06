@@ -50,7 +50,7 @@
     "submit": "Speichern"
   },
   "deleteDialog": {
-    "description": "Löscht \"{{name}}\" und alle enthaltenen Karten dauerhaft. Dies kann nicht rückgängig gemacht werden."
+    "description": "Löscht \"{{name}}\" und blendet alle enthaltenen Karten aus. Wende dich an den Support, wenn du sie zurück brauchst."
   },
   "emptyDialog": {
     "description": "Entfernt dauerhaft alle Karten aus \"{{name}}\", behält aber die Sammlung selbst. Dies kann nicht rückgängig gemacht werden.",

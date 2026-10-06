@@ -36,6 +36,7 @@ export async function loadNotificationRules(
       and(
         eq(notificationRules.orgId, orgId),
         eq(notificationRules.gameId, gameId),
+        eq(notificationRules.isDeleted, false),
       ),
     )
     .orderBy(asc(notificationRules.id));
@@ -90,6 +91,7 @@ export async function postMatchingNotificationRules(params: {
         eq(notificationRules.orgId, orgId),
         eq(notificationRules.gameId, gameId),
         eq(notificationRules.isEnabled, true),
+        eq(notificationRules.isDeleted, false),
         isNotNull(notificationRules.channelId),
       ),
     )

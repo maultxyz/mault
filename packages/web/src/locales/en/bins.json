@@ -72,7 +72,7 @@
     "duplicateName": "A set with this name already exists",
     "editSortingLogic": "Edit Sorting Logic",
     "deleteSetTitle": "Delete Set",
-    "deleteSetDescription": "Permanently deletes \"{{name}}\". This cannot be undone.",
+    "deleteSetDescription": "Deletes \"{{name}}\". Contact support if you need it back.",
     "revertSuccess": "Reverted to previous bin set state",
     "revertFailed": "Failed to revert",
     "renameSetTitle": "Rename Set",

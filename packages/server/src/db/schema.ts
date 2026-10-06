@@ -14,6 +14,7 @@ import {
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
@@ -83,11 +84,14 @@ export const games = pgTable(
     apiDocsUrl: text("api_docs_url"),
     cardThickness: doublePrecision("card_thickness"),
     isActive: boolean("is_active").notNull().default(true),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("games_key_idx").on(table.key),
+    uniqueIndex("games_key_idx")
+      .on(table.key)
+      .where(sql`${table.isDeleted} = false`),
     unique("games_guid_idx").on(table.guid),
     crudPolicy({
       role: authenticatedRole,
@@ -110,6 +114,7 @@ export const announcements = pgTable(
     link: text("link"),
     startsAt: timestamp("starts_at"),
     endsAt: timestamp("ends_at"),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -162,6 +167,7 @@ export const binSets = pgTable(
     isChaosMode: boolean("is_chaos_mode").notNull().default(false),
     chaosBinSize: integer("chaos_bin_size"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -195,11 +201,14 @@ export const devices = pgTable(
     pipelinedFeed: boolean("pipelined_feed").notNull().default(false),
     autoConnect: boolean("auto_connect").notNull().default(false),
     testOnConnect: boolean("test_on_connect").notNull().default(true),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("devices_org_hardware_idx").on(table.orgId, table.hardwareId),
+    uniqueIndex("devices_org_hardware_idx")
+      .on(table.orgId, table.hardwareId)
+      .where(sql`${table.isDeleted} = false`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -225,6 +234,7 @@ export const bins = pgTable(
     isDisabled: boolean("is_disabled").notNull().default(false),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -250,6 +260,7 @@ export const binRoutes = pgTable(
     deviceId: integer("device_id")
       .notNull()
       .references(() => devices.id),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -274,6 +285,7 @@ export const binHeights = pgTable(
     deviceId: integer("device_id")
       .notNull()
       .references(() => devices.id),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -306,6 +318,7 @@ export const moduleConfigs = pgTable(
     pusherRight: integer("pusher_right").notNull().default(460),
     pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -366,6 +379,7 @@ export const collections = pgTable(
     discordErrorChannelId: text("discord_error_channel_id"),
     discordErrorThreadId: text("discord_error_thread_id"),
     monitorLinkVersion: integer("monitor_link_version").notNull().default(0),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -386,12 +400,15 @@ export const storageLocations = pgTable(
     guid: uuid("guid").defaultRandom(),
     name: text("name").notNull(),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("storage_locations_guid_idx").on(table.guid),
-    unique("storage_locations_org_name_idx").on(table.orgId, table.name),
+    uniqueIndex("storage_locations_org_name_idx")
+      .on(table.orgId, table.name)
+      .where(sql`${table.isDeleted} = false`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -487,6 +504,7 @@ export const soundClips = pgTable(
     dataUrl: text("data_url"),
     waveform: jsonb("waveform"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -517,6 +535,7 @@ export const soundRules = pgTable(
       onDelete: "set null",
     }),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -546,6 +565,7 @@ export const notificationRules = pgTable(
     channelId: text("channel_id"),
     roleId: text("role_id"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

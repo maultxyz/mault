@@ -32,13 +32,14 @@ export const editBinRouteRoute = new Hono<AppEnv>().put(
           .values(values)
           .onConflictDoUpdate({
             target: [binRoutes.deviceId, binRoutes.binNumber],
-            set: { ...values, updatedAt: new Date() },
+            set: { ...values, isDeleted: false, updatedAt: new Date() },
           });
 
         await tx.insert(binRouteAudit).values(values);
 
         const rows = await tx.query.binRoutes.findMany({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
         });
         return {
           success: true,

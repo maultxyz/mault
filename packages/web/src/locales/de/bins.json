@@ -72,7 +72,7 @@
     "duplicateName": "Ein Set mit diesem Namen existiert bereits",
     "editSortingLogic": "Sortierlogik bearbeiten",
     "deleteSetTitle": "Set löschen",
-    "deleteSetDescription": "Löscht \"{{name}}\" endgültig. Dies kann nicht rückgängig gemacht werden.",
+    "deleteSetDescription": "Löscht \"{{name}}\". Wende dich an den Support, wenn du sie zurück brauchst.",
     "revertSuccess": "Auf vorherigen Fach-Set-Stand zurückgesetzt",
     "revertFailed": "Zurücksetzen fehlgeschlagen",
     "renameSetTitle": "Set umbenennen",

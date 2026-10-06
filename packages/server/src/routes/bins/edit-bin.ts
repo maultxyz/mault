@@ -38,15 +38,20 @@ export const editBinRoute = new Hono<AppEnv>().put(
                   eq(binSets.isActive, true),
                   isNull(binSets.gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 )
               : and(
                   eq(binSets.isActive, true),
                   eq(binSets.gameId, gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 ),
           columns: { id: true, guid: true },
           with: {
-            bins: { columns: { id: true, binNumber: true, isDisabled: true } },
+            bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
+              columns: { id: true, binNumber: true, isDisabled: true },
+            },
           },
         });
         if (!activeBinSet)
@@ -96,7 +101,8 @@ export const editBinRoute = new Hono<AppEnv>().put(
         await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
 
         const updatedBins = await tx.query.bins.findMany({
-          where: (t, { eq }) => eq(t.binSet, activeBinSet.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.binSet, activeBinSet.id), eq(t.isDeleted, false)),
           columns: {
             guid: true,
             binNumber: true,

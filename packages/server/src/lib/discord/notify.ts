@@ -26,7 +26,11 @@ async function getNotifyConfig(
       })
       .from(collections)
       .where(
-        and(eq(collections.guid, collectionGuid), eq(collections.orgId, orgId)),
+        and(
+          eq(collections.guid, collectionGuid),
+          eq(collections.orgId, orgId),
+          eq(collections.isDeleted, false),
+        ),
       )
       .limit(1);
     const collectionRow = collectionRows[0];

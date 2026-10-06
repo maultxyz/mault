@@ -40,7 +40,9 @@ export const addSoundRuleRoute = new Hono<AppEnv>().post(
           const [{ total }] = await tx
             .select({ total: count() })
             .from(soundRules)
-            .where(eq(soundRules.orgId, orgId));
+            .where(
+              and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
+            );
           if (total >= limit) {
             return {
               success: false as const,
@@ -54,7 +56,11 @@ export const addSoundRuleRoute = new Hono<AppEnv>().post(
           .select({ last: max(soundRules.position) })
           .from(soundRules)
           .where(
-            and(eq(soundRules.orgId, orgId), eq(soundRules.gameId, gameId)),
+            and(
+              eq(soundRules.orgId, orgId),
+              eq(soundRules.gameId, gameId),
+              eq(soundRules.isDeleted, false),
+            ),
           );
         await tx.insert(soundRules).values({
           name: input.data.name,

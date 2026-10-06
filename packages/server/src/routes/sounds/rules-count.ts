@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { soundRules } from "../../db/schema";
@@ -15,7 +15,9 @@ export const countSoundRulesRoute = new Hono<AppEnv>().get(
         tx
           .select({ total: count() })
           .from(soundRules)
-          .where(eq(soundRules.orgId, orgId)),
+          .where(
+            and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
+          ),
       );
       return c.json({ success: true, data: total });
     } catch (err) {

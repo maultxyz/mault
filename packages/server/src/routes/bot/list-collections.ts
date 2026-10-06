@@ -1,4 +1,4 @@
-import { count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { collectionCards, collections } from "../../db/schema";
@@ -24,7 +24,7 @@ export const botListCollectionsRoute = new Hono<AppEnv>().get("/collections", as
     })
     .from(collections)
     .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
-    .where(eq(collections.orgId, orgId))
+    .where(and(eq(collections.orgId, orgId), eq(collections.isDeleted, false)))
     .groupBy(
       collections.id,
       collections.guid,

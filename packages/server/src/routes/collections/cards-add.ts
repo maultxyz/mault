@@ -103,7 +103,13 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           })
           .from(collections)
           .leftJoin(games, eq(games.id, collections.gameId))
-          .where(and(eq(collections.guid, guid), eq(collections.orgId, orgId)))
+          .where(
+            and(
+              eq(collections.guid, guid),
+              eq(collections.orgId, orgId),
+              eq(collections.isDeleted, false),
+            ),
+          )
           .limit(1);
         if (!collection)
           return {

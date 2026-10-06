@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { cardImageVectors, games } from "../../db/schema";
@@ -10,7 +10,7 @@ export const publicGamesRoute = new Hono<AppEnv>().get("/games", async (c) => {
     const rows = await db
       .select({ key: games.key, name: games.name })
       .from(games)
-      .where(eq(games.isActive, true))
+      .where(and(eq(games.isActive, true), eq(games.isDeleted, false)))
       .orderBy(games.name);
 
     const countRows = await db

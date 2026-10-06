@@ -65,9 +65,14 @@ export async function buildSortingLogicSummary(
         ? and(
             eq(binSets.orgId, orgId),
             eq(binSets.isActive, true),
+            eq(binSets.isDeleted, false),
             eq(binSets.gameId, gameId),
           )
-        : and(eq(binSets.orgId, orgId), eq(binSets.isActive, true)),
+        : and(
+            eq(binSets.orgId, orgId),
+            eq(binSets.isActive, true),
+            eq(binSets.isDeleted, false),
+          ),
     )
     .limit(1);
   const set = setRows[0];
@@ -83,7 +88,7 @@ export async function buildSortingLogicSummary(
       isDisabled: bins.isDisabled,
     })
     .from(bins)
-    .where(eq(bins.binSet, set.id))
+    .where(and(eq(bins.binSet, set.id), eq(bins.isDeleted, false)))
     .orderBy(bins.binNumber);
 
   if (binRows.length === 0)

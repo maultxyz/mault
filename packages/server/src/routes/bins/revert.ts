@@ -22,9 +22,18 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
 
         const binSet = await tx.query.binSets.findFirst({
           where: (t, { eq, and }) =>
-            and(eq(t.guid, entry.binSetGuid), eq(t.orgId, orgId)),
+            and(
+              eq(t.guid, entry.binSetGuid),
+              eq(t.orgId, orgId),
+              eq(t.isDeleted, false),
+            ),
           columns: { id: true, guid: true },
-          with: { bins: { columns: { id: true, binNumber: true } } },
+          with: {
+            bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
+              columns: { id: true, binNumber: true },
+            },
+          },
         });
         if (!binSet) return { success: false, message: "Bin set not found." };
 

@@ -50,7 +50,7 @@
     "submit": "Save"
   },
   "deleteDialog": {
-    "description": "Permanently deletes \"{{name}}\" and all its cards. This cannot be undone."
+    "description": "Deletes \"{{name}}\" and hides all its cards. Contact support if you need it back."
   },
   "emptyDialog": {
     "description": "Permanently removes all cards from \"{{name}}\", but keeps the collection itself. This cannot be undone.",

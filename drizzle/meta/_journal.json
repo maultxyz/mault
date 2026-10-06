@@ -610,6 +610,13 @@
       "when": 1791245820187,
       "tag": "0086_deploy_announcements",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1791327706380,
+      "tag": "0087_fancy_ma_gnuci",
+      "breakpoints": true
     }
   ]
 }

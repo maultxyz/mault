@@ -21,7 +21,7 @@
     "description": "Nombre de modules de tri physiques câblés. Modifie le nombre de bacs disponibles et les sections ci-dessous.",
     "reduceConfirm": {
       "title": "Réduire le nombre de modules ?",
-      "description": "Passer à {{count}} modules supprimera définitivement les règles de tri et les données de calibration pour les modules et bacs au-delà de ce nombre, dans tous les préréglages de bacs. Cette action est irréversible.",
+      "description": "Passer à {{count}} modules retirera les règles de tri et les données de calibration pour les modules et bacs au-delà de ce nombre, dans tous les préréglages de bacs.",
       "confirm": "Modifier le nombre de modules"
     }
   },

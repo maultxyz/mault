@@ -1,4 +1,4 @@
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
@@ -15,7 +15,12 @@ export const countNotificationRulesRoute = new Hono<AppEnv>().get(
         tx
           .select({ total: count() })
           .from(notificationRules)
-          .where(eq(notificationRules.orgId, orgId)),
+          .where(
+            and(
+              eq(notificationRules.orgId, orgId),
+              eq(notificationRules.isDeleted, false),
+            ),
+          ),
       );
       return c.json({ success: true, data: total });
     } catch (err) {

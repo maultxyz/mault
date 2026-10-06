@@ -23,7 +23,10 @@ export const collectionCardLocationRoute = new Hono<AppEnv>().get(
           .from(collectionCards)
           .innerJoin(
             storageLocations,
-            eq(storageLocations.id, collectionCards.locationId),
+            and(
+              eq(storageLocations.id, collectionCards.locationId),
+              eq(storageLocations.isDeleted, false),
+            ),
           )
           .where(
             and(eq(collectionCards.guid, scanId), eq(collectionCards.orgId, orgId)),

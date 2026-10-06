@@ -30,6 +30,7 @@ export async function resolveOrgCollection(orgId: string, ref: string) {
     .where(
       and(
         eq(collections.orgId, orgId),
+        eq(collections.isDeleted, false),
         UUID_PATTERN.test(trimmed)
           ? eq(collections.guid, trimmed)
           : sql`lower(${collections.name}) = lower(${trimmed})`,

@@ -2,7 +2,6 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
-import { deleteObjects } from "../../lib/object-storage";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const deleteSoundClipRoute = new Hono<AppEnv>().delete(
@@ -13,13 +12,18 @@ export const deleteSoundClipRoute = new Hono<AppEnv>().delete(
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     try {
-      const deleted = await authQuery(c.get("jwtClaims"), (tx) =>
+      await authQuery(c.get("jwtClaims"), (tx) =>
         tx
-          .delete(soundClips)
-          .where(and(eq(soundClips.guid, guid), eq(soundClips.orgId, orgId)))
-          .returning({ storageKey: soundClips.storageKey }),
+          .update(soundClips)
+          .set({ isDeleted: true })
+          .where(
+            and(
+              eq(soundClips.guid, guid),
+              eq(soundClips.orgId, orgId),
+              eq(soundClips.isDeleted, false),
+            ),
+          ),
       );
-      deleteObjects(deleted.map((row) => row.storageKey));
       return c.json({ success: true, data: null });
     } catch (err) {
       console.error(err);
