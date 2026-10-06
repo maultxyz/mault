@@ -1,6 +1,5 @@
 import type { FieldType, Game } from "@magic-vault/shared";
 import type { ExportedGame } from "@/schemas/games-export.schema";
-import type { GameFormValues } from "@/schemas/games.schema";
 
 export interface SampleCard {
   name: string;
@@ -23,11 +22,8 @@ export interface GamesTransferMenuProps {
   games: Game[];
 }
 
-export interface GameFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  game?: Game | null;
-  onSubmit: (values: GameFormValues) => Promise<void>;
+export interface GameEditorProps {
+  game: Game | null;
 }
 
 export interface JsonNodeProps {

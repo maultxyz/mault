@@ -126,7 +126,7 @@ export function SampleCardBrowser({ gameKey, onPick }: SampleCardBrowserProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2 overflow-hidden">
+    <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
       <div className="flex-none">
         <p className="text-sm font-medium">{t("fieldMapping.heading")}</p>
         <p className="text-xs text-foreground/70">
