@@ -4,6 +4,7 @@ import {
   IconCards,
   IconCreditCard,
   IconDeviceGamepad2,
+  IconRestore,
   IconRotate360,
   IconSpeakerphone,
   IconTerminal2,
@@ -25,6 +26,8 @@ export const DEFAULT_SYNC_STATE: SyncState = {
 
 export const ACTIVE_SCANNING_REFRESH_MS = 15_000;
 
+export const ALL_DELETED_ITEM_TYPES = "all";
+
 export const ADMIN_SECTIONS = [
   { path: "cards", icon: IconCards, labelKey: "sections.cards" },
   { path: "games", icon: IconDeviceGamepad2, labelKey: "sections.games" },
@@ -35,6 +38,7 @@ export const ADMIN_SECTIONS = [
     icon: IconSpeakerphone,
     labelKey: "sections.announcements",
   },
+  { path: "deleted", icon: IconRestore, labelKey: "sections.deleted" },
   { path: "servos", icon: IconRotate360, labelKey: "sections.servos" },
   { path: "device", icon: IconTerminal2, labelKey: "sections.device" },
   { path: "developer", icon: IconBug, labelKey: "sections.developer" },

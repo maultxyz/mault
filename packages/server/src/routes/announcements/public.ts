@@ -17,6 +17,7 @@ export const publicAnnouncementsRoute = new Hono<AppEnv>().get(
         .where(
           and(
             eq(announcements.isActive, true),
+            eq(announcements.isDeleted, false),
             eq(announcements.showOnLanding, true),
             or(isNull(announcements.startsAt), lte(announcements.startsAt, now)),
             or(isNull(announcements.endsAt), gte(announcements.endsAt, now)),

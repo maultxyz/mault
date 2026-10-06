@@ -26,6 +26,7 @@ export const editNotificationRuleRoute = new Hono<AppEnv>().put(
           where: and(
             eq(notificationRules.guid, guid),
             eq(notificationRules.orgId, orgId),
+            eq(notificationRules.isDeleted, false),
           ),
           columns: { channelId: true, roleId: true },
         }),
@@ -62,6 +63,7 @@ export const editNotificationRuleRoute = new Hono<AppEnv>().put(
             and(
               eq(notificationRules.guid, guid),
               eq(notificationRules.orgId, orgId),
+              eq(notificationRules.isDeleted, false),
             ),
           )
           .returning({ gameId: notificationRules.gameId });

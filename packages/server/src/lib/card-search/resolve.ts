@@ -31,7 +31,8 @@ export async function resolveGameKeyAndLang(
   if (!collectionGuid) return null;
   return authQuery(jwtClaims, async (tx) => {
     const collection = await tx.query.collections.findFirst({
-      where: (t, { eq }) => eq(t.guid, collectionGuid),
+      where: (t, { eq, and }) =>
+        and(eq(t.guid, collectionGuid), eq(t.isDeleted, false)),
       columns: { gameId: true, lang: true },
     });
     if (!collection?.gameId) return null;

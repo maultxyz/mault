@@ -9,6 +9,7 @@
     "users": "Benutzer",
     "plans": "Tarife",
     "announcements": "Ankündigungen",
+    "deleted": "Gelöschte Elemente",
     "servos": "Bausatz-Test",
     "device": "Gerät",
     "developer": "Entwickler"
@@ -332,6 +333,35 @@
         "label": "Benachrichtigungsregeln",
         "description": "Discord-Benachrichtigungsregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
       }
+    }
+  },
+  "deletedItems": {
+    "heading": "Gelöschte Elemente",
+    "description": "Alles, was in einer Organisation gelöscht wurde, außer gescannten Karten. Beim Wiederherstellen wird ein Element genau so zurückgesetzt, wie es war.",
+    "searchPlaceholder": "Nach Name oder Organisation suchen",
+    "allTypes": "Alle Typen",
+    "empty": "Es wurde nichts gelöscht",
+    "restore": "Wiederherstellen",
+    "global": "Global",
+    "lastUpdated": "Zuletzt geändert {{date}}",
+    "types": {
+      "collection": "Sammlung",
+      "binSet": "Fach-Vorlage",
+      "bin": "Fach",
+      "device": "Sortierer",
+      "binRoute": "Fach-Route",
+      "binHeight": "Fachhöhe",
+      "moduleConfig": "Modulkalibrierung",
+      "storageLocation": "Lagerort",
+      "soundClip": "Soundclip",
+      "soundRule": "Sound-Regel",
+      "notificationRule": "Benachrichtigungsregel",
+      "game": "Spiel",
+      "announcement": "Ankündigung"
+    },
+    "toasts": {
+      "restored": "{{name}} wiederhergestellt",
+      "restoreError": "Das Element konnte nicht wiederhergestellt werden"
     }
   }
 }

@@ -149,10 +149,18 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
         if (merged.moduleCount < previousModuleCount) {
           const newBinCount = computeBinCount(merged.moduleCount);
           await tx
-            .delete(bins)
-            .where(and(eq(bins.orgId, orgId), gt(bins.binNumber, newBinCount)));
+            .update(bins)
+            .set({ isDeleted: true })
+            .where(
+              and(
+                eq(bins.orgId, orgId),
+                gt(bins.binNumber, newBinCount),
+                eq(bins.isDeleted, false),
+              ),
+            );
           await tx
-            .delete(binRoutes)
+            .update(binRoutes)
+            .set({ isDeleted: true })
             .where(
               and(
                 eq(binRoutes.deviceId, device.id),
@@ -160,7 +168,8 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
               ),
             );
           await tx
-            .delete(moduleConfigs)
+            .update(moduleConfigs)
+            .set({ isDeleted: true })
             .where(
               and(
                 eq(moduleConfigs.deviceId, device.id),

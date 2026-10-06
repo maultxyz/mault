@@ -36,7 +36,8 @@ export const addCollectionRoute = new Hono<AppEnv>().post(
         let gameId: number | null = null;
         if (gameGuid) {
           const game = await tx.query.games.findFirst({
-            where: (t, { eq }) => eq(t.guid, gameGuid),
+            where: (t, { eq, and }) =>
+              and(eq(t.guid, gameGuid), eq(t.isDeleted, false)),
             columns: { id: true },
           });
           gameId = game?.id ?? null;

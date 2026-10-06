@@ -11,7 +11,8 @@ export const gameLanguagesRoute = new Hono<AppEnv>().get(
     const guid = c.req.param("guid");
     try {
       const game = await db.query.games.findFirst({
-        where: (t, { eq }) => eq(t.guid, guid),
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.isDeleted, false)),
         columns: { key: true },
       });
       if (!game)

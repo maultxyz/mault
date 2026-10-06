@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { announcements } from "../../db/schema";
@@ -14,6 +15,7 @@ export const listAnnouncementsRoute = new Hono<AppEnv>().get(
       const rows = await db
         .select()
         .from(announcements)
+        .where(eq(announcements.isDeleted, false))
         .orderBy(announcements.createdAt);
       return c.json({ success: true, data: rows.map(toAnnouncement) });
     } catch (err) {

@@ -31,13 +31,14 @@ export const editBinHeightRoute = new Hono<AppEnv>().put(
           .values(values)
           .onConflictDoUpdate({
             target: [binHeights.deviceId, binHeights.binNumber],
-            set: { ...values, updatedAt: new Date() },
+            set: { ...values, isDeleted: false, updatedAt: new Date() },
           });
 
         await tx.insert(binHeightAudit).values(values);
 
         const rows = await tx.query.binHeights.findMany({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
         });
         return {
           success: true,

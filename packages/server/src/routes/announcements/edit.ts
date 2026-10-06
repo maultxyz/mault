@@ -44,7 +44,8 @@ export const editAnnouncementRoute = new Hono<AppEnv>().put(
 
     try {
       const target = await db.query.announcements.findFirst({
-        where: (t, { eq }) => eq(t.guid, guid),
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.isDeleted, false)),
         columns: { id: true },
       });
       if (!target)

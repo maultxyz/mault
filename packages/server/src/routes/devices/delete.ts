@@ -1,17 +1,7 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import {
-  binHeightAudit,
-  binHeights,
-  binRouteAudit,
-  binRoutes,
-  devices,
-  feederConfigAudit,
-  feederConfigs,
-  moduleConfigAudit,
-  moduleConfigs,
-} from "../../db/schema";
+import { devices } from "../../db/schema";
 import { isDeviceLeased, releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -35,26 +25,9 @@ export const deleteDeviceRoute = new Hono<AppEnv>().delete(
         if (!device) return { success: false, message: "Device not found." };
 
         await tx
-          .delete(moduleConfigs)
-          .where(eq(moduleConfigs.deviceId, device.id));
-        await tx.delete(binRoutes).where(eq(binRoutes.deviceId, device.id));
-        await tx.delete(binHeights).where(eq(binHeights.deviceId, device.id));
-        await tx
-          .delete(feederConfigs)
-          .where(eq(feederConfigs.deviceId, device.id));
-        await tx
-          .delete(moduleConfigAudit)
-          .where(eq(moduleConfigAudit.deviceId, device.id));
-        await tx
-          .delete(binRouteAudit)
-          .where(eq(binRouteAudit.deviceId, device.id));
-        await tx
-          .delete(binHeightAudit)
-          .where(eq(binHeightAudit.deviceId, device.id));
-        await tx
-          .delete(feederConfigAudit)
-          .where(eq(feederConfigAudit.deviceId, device.id));
-        await tx.delete(devices).where(eq(devices.id, device.id));
+          .update(devices)
+          .set({ isDeleted: true })
+          .where(eq(devices.id, device.id));
         releaseDeviceLease(orgId, guid);
 
         return { success: true, message: "Deleted device." };

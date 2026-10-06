@@ -16,7 +16,7 @@
   },
   "deleteDialog": {
     "title": "Delete announcement",
-    "description": "Permanently delete this announcement? It will disappear from everyone's notification tray immediately."
+    "description": "Delete this announcement? It will disappear from everyone's notification tray immediately."
   },
   "toasts": {
     "createError": "Failed to create announcement",

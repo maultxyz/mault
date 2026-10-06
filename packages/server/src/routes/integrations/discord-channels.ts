@@ -46,6 +46,7 @@ export const setDiscordChannelRoute = new Hono<AppEnv>().put(
               and(
                 eq(collections.guid, collectionGuid),
                 eq(collections.orgId, orgId),
+                eq(collections.isDeleted, false),
               ),
             )
             .returning({ id: collections.id });

@@ -16,7 +16,7 @@
   },
   "deleteDialog": {
     "title": "Supprimer l'annonce",
-    "description": "Supprimer définitivement cette annonce ? Elle disparaîtra immédiatement du tiroir de notifications de tout le monde."
+    "description": "Supprimer cette annonce ? Elle disparaîtra immédiatement du tiroir de notifications de tout le monde."
   },
   "toasts": {
     "createError": "Échec de la création de l'annonce",

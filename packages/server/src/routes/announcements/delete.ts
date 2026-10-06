@@ -12,13 +12,17 @@ export const deleteAnnouncementRoute = new Hono<AppEnv>().delete(
     const guid = c.req.param("guid");
     try {
       const target = await db.query.announcements.findFirst({
-        where: (t, { eq }) => eq(t.guid, guid),
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.isDeleted, false)),
         columns: { id: true },
       });
       if (!target)
         return c.json({ success: false, message: "Announcement not found." }, 404);
 
-      await db.delete(announcements).where(eq(announcements.id, target.id));
+      await db
+        .update(announcements)
+        .set({ isDeleted: true })
+        .where(eq(announcements.id, target.id));
       return c.json({ success: true, data: null });
     } catch (err) {
       console.error(err);

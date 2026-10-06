@@ -16,7 +16,8 @@ export const getBinHeightsRoute = new Hono<AppEnv>().get(
         const device = await getDeviceByGuid(tx, orgId, deviceGuid);
         if (!device) return { success: false, message: "Device not found." };
         const rows = await tx.query.binHeights.findMany({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
         });
         return {
           success: true,

@@ -16,7 +16,7 @@
   },
   "deleteDialog": {
     "title": "Ankündigung löschen",
-    "description": "Diese Ankündigung endgültig löschen? Sie verschwindet sofort aus dem Benachrichtigungsfach aller Nutzer."
+    "description": "Diese Ankündigung löschen? Sie verschwindet sofort aus dem Benachrichtigungsfach aller Nutzer."
   },
   "toasts": {
     "createError": "Ankündigung konnte nicht erstellt werden",

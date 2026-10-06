@@ -44,14 +44,21 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
                   eq(binSets.isActive, true),
                   isNull(binSets.gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 )
               : and(
                   eq(binSets.isActive, true),
                   eq(binSets.gameId, gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 ),
           columns: { id: true },
-          with: { bins: { columns: { id: true, binNumber: true } } },
+          with: {
+            bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
+              columns: { id: true, binNumber: true },
+            },
+          },
         });
         if (!activeBinSet)
           return { message: "No active set found.", success: false };
@@ -70,7 +77,11 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           }
           const location = await tx.query.storageLocations.findFirst({
             where: (t, { eq, and }) =>
-              and(eq(t.guid, locationGuid), eq(t.orgId, orgId)),
+              and(
+                eq(t.guid, locationGuid),
+                eq(t.orgId, orgId),
+                eq(t.isDeleted, false),
+              ),
             columns: { id: true },
           });
           if (!location) {
@@ -78,7 +89,11 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           }
           const collection = await tx.query.collections.findFirst({
             where: (t, { eq, and }) =>
-              and(eq(t.guid, collectionGuid), eq(t.orgId, orgId)),
+              and(
+                eq(t.guid, collectionGuid),
+                eq(t.orgId, orgId),
+                eq(t.isDeleted, false),
+              ),
             columns: { id: true },
           });
           if (!collection) {
@@ -98,7 +113,8 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           .where(eq(bins.id, existing.id));
 
         const updatedBins = await tx.query.bins.findMany({
-          where: (t, { eq }) => eq(t.binSet, activeBinSet.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.binSet, activeBinSet.id), eq(t.isDeleted, false)),
           columns: {
             guid: true,
             binNumber: true,

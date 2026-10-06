@@ -99,6 +99,7 @@ const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminAnnouncementsPage = lazy(
   () => import("@/app/routes/app/admin/announcements"),
 );
+const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
 const AdminServosPage = lazy(() => import("@/app/routes/app/admin/servos"));
 const AdminDevicePage = lazy(() => import("@/app/routes/app/admin/device"));
 const AdminDeveloperPage = lazy(
@@ -337,6 +338,10 @@ export const router = createBrowserRouter([
                           {
                             path: "announcements",
                             element: <AdminAnnouncementsPage />,
+                          },
+                          {
+                            path: "deleted",
+                            element: <AdminDeletedPage />,
                           },
                           {
                             path: "servos",

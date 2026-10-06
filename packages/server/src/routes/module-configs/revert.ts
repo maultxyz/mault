@@ -47,7 +47,7 @@ export const revertModuleConfigRoute = new Hono<AppEnv>().post(
           })
           .onConflictDoUpdate({
             target: [moduleConfigs.deviceId, moduleConfigs.moduleNumber],
-            set: { ...calibration, updatedAt: new Date() },
+            set: { ...calibration, isDeleted: false, updatedAt: new Date() },
           });
 
         await tx.insert(moduleConfigAudit).values({
@@ -58,7 +58,8 @@ export const revertModuleConfigRoute = new Hono<AppEnv>().post(
         });
 
         const rows = await tx.query.moduleConfigs.findMany({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
         });
         return {
           success: true,

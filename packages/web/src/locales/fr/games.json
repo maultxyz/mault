@@ -10,7 +10,7 @@
     "deleteTitle": "Supprimer",
     "deleteDialog": {
       "title": "Supprimer le jeu",
-      "description": "Supprimer définitivement « {{name}} » ? Les collections utilisant ce jeu conserveront leurs cartes scannées, mais aucune nouvelle carte ne pourra y être associée."
+      "description": "Supprimer « {{name}} » ? Les collections utilisant ce jeu conserveront leurs cartes scannées, mais aucune nouvelle carte ne pourra y être associée."
     },
     "toasts": {
       "createError": "Échec de la création du jeu",

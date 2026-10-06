@@ -15,11 +15,13 @@ export const deleteNotificationRuleRoute = new Hono<AppEnv>().delete(
     try {
       const rules = await authQuery(c.get("jwtClaims"), async (tx) => {
         const [deleted] = await tx
-          .delete(notificationRules)
+          .update(notificationRules)
+          .set({ isDeleted: true })
           .where(
             and(
               eq(notificationRules.guid, guid),
               eq(notificationRules.orgId, orgId),
+              eq(notificationRules.isDeleted, false),
             ),
           )
           .returning({ gameId: notificationRules.gameId });

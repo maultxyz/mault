@@ -4,7 +4,11 @@ import {
 } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { collectionCards, storageLocations } from "../../db/schema";
+import {
+  collectionCards,
+  collections,
+  storageLocations,
+} from "../../db/schema";
 import type { StorageLocationRow } from "../../lib/interfaces/storage-locations";
 import { loadOrgPriceSource } from "../../lib/price-source";
 import { cardPriceSql } from "../collections/cards-query";
@@ -24,7 +28,11 @@ export async function locationNameTaken(
 ): Promise<boolean> {
   const existing = await tx.query.storageLocations.findFirst({
     where: (t, { eq, and }) =>
-      and(eq(t.orgId, orgId), sql`lower(${t.name}) = ${name.toLowerCase()}`),
+      and(
+        eq(t.orgId, orgId),
+        eq(t.isDeleted, false),
+        sql`lower(${t.name}) = ${name.toLowerCase()}`,
+      ),
     columns: { guid: true },
   });
   return !!existing && existing.guid !== excludeGuid;
@@ -41,7 +49,12 @@ export async function loadLocations(
       COALESCE(sum(${cardPriceSql(priceSource)}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
     FROM ${storageLocations} sl
     LEFT JOIN ${collectionCards} cc ON cc.location_id = sl.id
+      AND EXISTS (
+        SELECT 1 FROM ${collections} col
+        WHERE col.id = cc.collection_id AND col.is_deleted = false
+      )
     WHERE sl.org_id = ${orgId}
+      AND sl.is_deleted = false
     GROUP BY sl.id
     ORDER BY sl.name
   `);

@@ -19,7 +19,7 @@ export function toGame(row: typeof games.$inferSelect): Game {
 
 export async function keyIsTaken(key: string, excludeGuid?: string): Promise<boolean> {
   const existing = await db.query.games.findFirst({
-    where: (t, { eq }) => eq(t.key, key),
+    where: (t, { eq, and }) => and(eq(t.key, key), eq(t.isDeleted, false)),
     columns: { guid: true },
   });
   if (!existing) return false;
