@@ -3,6 +3,7 @@ import { getGames } from "./api";
 
 const CYCLE_MS = 20_000;
 const REFRESH_MS = 10 * 60 * 1000;
+const RETRY_MS = 15_000;
 const FALLBACK_STATUS = "for cards to sort";
 
 export function startPresenceCycle(client: Client<true>) {
@@ -17,7 +18,12 @@ export function startPresenceCycle(client: Client<true>) {
         index = 0;
       }
     } catch (err) {
-      console.error("[bot] Failed to refresh games list for presence:", err);
+      if (games.length) {
+        console.error("[bot] Failed to refresh games list for presence:", err);
+        return;
+      }
+      console.warn(`[bot] Server not reachable yet, retrying games list in ${RETRY_MS / 1000}s`);
+      setTimeout(() => void refreshGames(), RETRY_MS);
     }
   };
 

@@ -1,0 +1,1 @@
+ALTER TABLE "announcements" ADD COLUMN "is_deploy" boolean DEFAULT false NOT NULL;
