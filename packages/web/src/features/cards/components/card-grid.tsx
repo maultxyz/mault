@@ -9,6 +9,7 @@ import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
+import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
@@ -183,7 +184,7 @@ export function CardGrid() {
     if (page !== clampedPage) setPage(clampedPage);
   }, [page, clampedPage]);
 
-  const { data: openPosition } = useQuery(
+  const { data: openPosition, isPending: openPositionPending } = useQuery(
     collectionCardPositionQueryOptions(collectionGuid, openScanId, cardsQuery),
   );
   const openEntry =
@@ -351,6 +352,10 @@ export function CardGrid() {
         />
       </>
     );
+  }
+
+  if (openScanId && !openEntry && openPositionPending) {
+    return <CardDetailPanelSkeleton />;
   }
 
   if (openEntry) {
