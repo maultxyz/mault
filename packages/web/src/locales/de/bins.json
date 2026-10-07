@@ -18,7 +18,9 @@
     "clickToConfigure": "Zum Konfigurieren klicken",
     "waitingForValue": "Wartet auf nächsten Wert",
     "scanOnlyDisabled": "Nur Scannen ist aktiv",
-    "alphabetLetter": "Namen mit {{letter}}"
+    "alphabetLetter": "Namen mit {{letter}}",
+    "priority": "Priorität {{priority}}",
+    "catchAllOverride": "Dazu Karten mit:"
   },
   "binConfigPanel": {
     "overrideLabel": "Vorrangige Regeln",
@@ -28,7 +30,7 @@
     "maxCopiesLabel": "Kopien pro Druck begrenzen",
     "maxCopiesDescription": "Sobald dieses Fach (seit dem letzten Leeren) so viele Kopien desselben Drucks enthält, überspringen weitere Kopien es und gehen in das nächste Fach, dessen Regeln zutreffen, oder in das Sammelfach.",
     "maxCopiesSuffix": "Kopien je Druck",
-    "overrideDescription": "Wenn diese Regeln zutreffen, hat dieses Fach Vorrang vor normalen Fächern. Treffen mehrere vorrangige Fächer zu, gewinnt die niedrigste Fachnummer. Verwende hier zum Beispiel Preis ≥ 1, um Karten ab 1 $ vor den Farbfächern in dieses Fach zu sortieren.",
+    "overrideDescription": "Wenn diese Regeln zutreffen, hat dieses Fach Vorrang vor normalen Fächern. Treffen mehrere vorrangige Fächer zu, gewinnt Priorität 1 vor 2 und so weiter. Vorrangige Fächer mit derselben Priorität schicken die Karte in das leerste Fach. Verwende hier zum Beispiel Preis ≥ 1, um Karten ab 1 $ vor den Farbfächern in dieses Fach zu sortieren.",
     "needCatchAllError": "Mindestens ein Fach muss als Auffangfach festgelegt sein.",
     "catchAllEnabled": "Auffangfach aktiviert",
     "setCatchAll": "Als Auffangfach festlegen",
@@ -42,7 +44,15 @@
     "clear": "Leeren",
     "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
     "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren.",
-    "modeChangePending": "Speichere oder verwerfe die ausstehende Modusänderung oben, bevor du Fächer bearbeitest."
+    "modeChangePending": "Speichere oder verwerfe die ausstehende Modusänderung oben, bevor du Fächer bearbeitest.",
+    "priorityLabel": "Prioritätsstufe",
+    "priorityPlaceholder": "Keine",
+    "priorityDescription": "1 ist die höchste Priorität. Treffen mehrere vorrangige Regeln auf eine Karte zu, gewinnt die niedrigste Zahl, und bei gleicher Stufe geht die Karte in das leerste dieser Fächer. Fächer ohne Stufe kommen zuletzt, in Fachreihenfolge.",
+    "priorityOrder": "Vorrangige Fächer werden in dieser Reihenfolge geprüft: {{order}}",
+    "priorityOrderCatchAll": "Fach {{number}} (Auffangfach)",
+    "catchAllRulesLabel": "Vorrangige Regeln",
+    "catchAllRulesDescription": "Karten, auf die diese Regeln zutreffen, landen hier, auch wenn die Regeln eines anderen Fachs passen, etwa eine farbige Karte in einem farblosen Stapel. Leer lassen, um nur Karten aufzufangen, die kein anderes Fach nimmt.",
+    "priorityOrderTie": "{{bins}} (leerstes zuerst)"
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."

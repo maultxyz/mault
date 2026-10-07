@@ -32,6 +32,7 @@ export const DEFAULT_CALIBRATION: ServoCalibration = {
   pusherRight: 342,
   pusherHoldDuration: 150,
   paddleCloseDelay: 0,
+  paddleOpenDelay: 300,
 };
 
 export const DEFAULT_FEEDER_CALIBRATION: FeederCalibration = {

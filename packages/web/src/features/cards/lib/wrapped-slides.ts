@@ -4,6 +4,7 @@ import type { WrappedSlide } from "@/lib/interfaces/cards";
 export function buildWrappedSlides(
   stats: ScanStats | null,
   elapsedMs: number,
+  sessionScanCount: number,
   wrappedEnabled = true,
 ): WrappedSlide[] {
   if (!wrappedEnabled) return [{ key: "outro", type: "outro" }];
@@ -73,7 +74,7 @@ export function buildWrappedSlides(
 
   const cardsPerHour =
     elapsedMs > 0
-      ? Math.round((stats.totalCount / elapsedMs) * 3_600_000)
+      ? Math.round((sessionScanCount / elapsedMs) * 3_600_000)
       : null;
   slides.push({ key: "speed", type: "speed", cardsPerHour, elapsedMs });
 

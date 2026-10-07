@@ -118,6 +118,8 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt. Der Arm sollte die Innenwand nicht berühren, und je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
+    "paddleOpenDelayLabel": "Paddel-Öffnungsverzögerung (ms)",
+    "paddleOpenDelayDescription": "Wie lange sich das Paddel absenken kann, bevor der Schieber auslöst. Länger einstellen, wenn der Schieber die Karte trifft, bevor das Paddel ganz unten ist; kürzer für schnelleres Sortieren.",
     "pusherHoldDurationLabel": "Schieber-Haltezeit (ms)",
     "pusherHoldDurationDescription": "Wie lange der Schieber ausgefahren bleibt, bevor er in die Neutralstellung zurückkehrt. Länger einstellen, wenn Karten nicht vollständig hinausgeschoben werden; möglichst kurz halten, da das Drücken gegen den Anschlag das Servohorn belastet.",
     "paddleCloseDelayLabel": "Paddel-Schließverzögerung (ms)",
@@ -213,6 +215,7 @@
       "pusherRight": "Schieber rechts",
       "pusherHoldDuration": "Haltezeit Schieber (ms)",
       "paddleCloseDelay": "Schließverzögerung Klappen (ms)",
+      "paddleOpenDelay": "Öffnungsverzögerung Klappen (ms)",
       "speed": "Geschwindigkeit",
       "duration": "Zeitlimit (ms)",
       "pulseDuration": "Impuls (ms)",
@@ -247,6 +250,7 @@
   "calibratePage": {
     "resetServosToDefaults": "Servos auf Standard zurücksetzen",
     "moduleHistory": {
+      "paddleOpenDelay": "Paddel-Öffnungsverzögerung",
       "bottom": "Unten",
       "paddle": "Paddel",
       "pusherHoldDuration": "Schieber-Haltezeit",

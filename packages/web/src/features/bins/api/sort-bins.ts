@@ -9,7 +9,11 @@ import type {
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type { BinSetAuditEntry } from "@/lib/interfaces/audit";
-import type { AlphabetConfig, ChaosConfig } from "@/lib/interfaces/bins";
+import type {
+  AlphabetConfig,
+  BinConfigSaveInput,
+  ChaosConfig,
+} from "@/lib/interfaces/bins";
 import { queryOptions } from "@tanstack/react-query";
 
 
@@ -72,32 +76,16 @@ export async function checkSetName(
 
 export async function saveBinConfig({
   binNumber,
-  rules,
-  isCatchAll,
-  isOverride,
-  cardLimit,
-  maxCopies,
-  isDisabled,
   gameGuid,
-}: {
-  binNumber: number;
-  rules: BinRuleGroup;
-  isCatchAll?: boolean;
-  isOverride?: boolean;
-  cardLimit?: number | null;
-  maxCopies?: number | null;
-  isDisabled?: boolean;
-  gameGuid?: string;
-}): Promise<Result<BinConfig[]>> {
+  ...body
+}: BinConfigSaveInput & { gameGuid?: string }): Promise<
+  Result<BinConfig[]>
+> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  return apiPut<Result<BinConfig[]>>(`/api/bins/bins/${binNumber}${params}`, {
-    rules,
-    isCatchAll,
-    isOverride,
-    cardLimit,
-    maxCopies,
-    isDisabled,
-  });
+  return apiPut<Result<BinConfig[]>>(
+    `/api/bins/bins/${binNumber}${params}`,
+    body,
+  );
 }
 
 export async function emptyBin(

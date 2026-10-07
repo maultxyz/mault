@@ -8,6 +8,7 @@
     "games": "Games",
     "users": "Users",
     "plans": "Plans",
+    "discordStats": "Discord stats",
     "announcements": "Announcements",
     "deleted": "Deleted items",
     "servos": "Kit testing",
@@ -374,5 +375,53 @@
       "restored": "Restored {{name}}",
       "restoreError": "Couldn't restore that item"
     }
+  },
+  "platformStats": {
+    "destinationHeading": "Destination",
+    "destinationDescription": "The Discord server and channel the platform stats are posted to. The bot must be in the server and able to post in the channel.",
+    "server": "Server",
+    "channel": "Channel",
+    "noServer": "No server",
+    "noChannel": "No channel",
+    "loadingChannels": "Loading channels...",
+    "botUnreachable": "The Discord bot isn't reachable, so servers and channels can't be listed right now.",
+    "statsHeading": "Stats",
+    "statsDescription": "Which numbers to include in each post, across every organization.",
+    "stats": {
+      "scannedCards": {
+        "label": "Scanned cards",
+        "description": "Every scan ever saved, matched or not. Deleting cards doesn't lower it."
+      },
+      "scansLast24Hours": {
+        "label": "Scans in the last 24 hours",
+        "description": "Scans saved in the 24 hours before the post."
+      },
+      "devices": {
+        "label": "Devices",
+        "description": "Sorters registered to an organization, excluding deleted ones."
+      },
+      "users": {
+        "label": "Users",
+        "description": "Accounts that have signed up."
+      },
+      "organizations": {
+        "label": "Organizations",
+        "description": "Organizations that exist."
+      },
+      "collections": {
+        "label": "Collections",
+        "description": "Collections across every organization, excluding deleted ones."
+      }
+    },
+    "scheduleHeading": "Schedule",
+    "scheduleDescription": "Posts are sent when this command runs. Add it as a scheduled task in Coolify on the server app, with whatever cron you want.",
+    "postNow": "Post now",
+    "lastPosted": "Last posted {{date}}.",
+    "neverPosted": "Not posted yet.",
+    "saveBeforePosting": "Save your changes before posting.",
+    "saved": "Stats settings saved.",
+    "saveFailed": "Couldn't save the stats settings.",
+    "posted": "Stats posted to Discord.",
+    "postFailed": "Couldn't post the stats."
   }
 }

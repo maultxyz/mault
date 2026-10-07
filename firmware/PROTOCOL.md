@@ -260,7 +260,8 @@ or, to bypass calibrated positions and drive a raw pulse directly:
 
 A pusher never moves off neutral unless its module's side paddle has been
 commanded to its calibrated `paddleOpen` position and has had
-`DELAY_PADDLE` (300 ms) to get there. The firmware has no paddle position
+that module's `paddleOpenDelay` (300 ms by default, set with `setConfig`
+since 2.6.0; a fixed 300 ms before) to get there. The firmware has no paddle position
 sensor, so it tracks the last position it commanded: any other paddle
 pulse, or the idle servo release, counts as not open.
 
@@ -269,8 +270,8 @@ so it covers every pusher move (`servo`, `channel` writes that land on a
 module's pusher channel, `route`, `pushTest`, the connect `test`) whether or
 not a card is on the platform. Instead of refusing, a pusher move with the
 paddle not known to be down lowers the paddle itself, waits out the rest of
-`DELAY_PADDLE`, then moves the pusher, so the command just takes up to
-300 ms longer and the paddle is left lowered. Returning a pusher to neutral
+`paddleOpenDelay`, then moves the pusher, so the command just takes up to
+`paddleOpenDelay` ms longer and the paddle is left lowered. Returning a pusher to neutral
 never touches the paddle.
 
 2.2.x only applied the check while the module's IR sensor read a card, and
@@ -309,7 +310,8 @@ stops it on its own. → `{"status":"ok","channel":7}`, or
     "paddleClosed": 420, "paddleOpen": 150,
     "pusherLeft": 150, "pusherNeutral": 230, "pusherRight": 300,
     "pusherHoldDuration": 150,
-    "paddleCloseDelay": 150
+    "paddleCloseDelay": 150,
+    "paddleOpenDelay": 300
   }
 }
 ```
@@ -317,19 +319,20 @@ Every field except `module` is optional — omitted fields keep their
 current stored value. `bottomClosed`/`bottomOpen`/`paddleClosed`/`paddleOpen`/
 `pusherLeft`/`pusherNeutral`/`pusherRight` are raw PWM pulse values (same
 `120–490` range as `servo`'s `value`), one pair/triple per servo defining
-its two or three named positions. `pusherHoldDuration` and
-`paddleCloseDelay` are different: they're durations in milliseconds, not
-pulses - see `route` below for how they're used. `pusherHoldDuration`
-defaults to 150. → `{"status":"ok","module":1}`
+its two or three named positions. `pusherHoldDuration`,
+`paddleCloseDelay` and `paddleOpenDelay` (firmware 2.6.0+, clamped to
+0-5000) are different: they're durations in milliseconds, not pulses - see
+`route` below for how they're used. `pusherHoldDuration` defaults to 150,
+`paddleOpenDelay` to 300. → `{"status":"ok","module":1}`
 
 ### `pushTest` (tune push timings without a card)
 ```json
-{"pushTest": {"module": 2, "direction": "left", "pusherHoldDuration": 150, "paddleCloseDelay": 1000}}
+{"pushTest": {"module": 2, "direction": "left", "paddleOpenDelay": 300, "pusherHoldDuration": 150, "paddleCloseDelay": 1000}}
 ```
 Runs only the left/right push step of `route` on `module`: opens its
-paddle, fires the pusher, retracts it after `pusherHoldDuration` ms, and
+paddle, waits `paddleOpenDelay` ms (2.6.0+), fires the pusher, retracts it after `pusherHoldDuration` ms, and
 closes the paddle `paddleCloseDelay` ms after the pusher fired. No feed and
-no IR checks. Both timings are optional (default: the module's stored
+no IR checks. All timings are optional (default: the module's stored
 `setConfig` values) and clamped to 0–5000 ms, so unsaved values can be
 tried before committing them with `setConfig`.
 → `{"status":"pushed","module":2,"direction":"left"}`, or
@@ -409,6 +412,8 @@ fits the 255-byte line limit.
 ```
 → `{"status":"ok","stored":true,"dirty":false,"channelOffset":0,"modules":5}`.
 `stored` is `false` (with no other fields) until the first `storeConfig`.
+Since 2.6.0 the stored layout includes `paddleOpenDelay`; calibration
+stored by 2.5.0 still loads, with `paddleOpenDelay` at its 300 ms default.
 `dirty` is `true` when the values in use differ from the stored copy
 (e.g. after an unsaved `setConfig`). `modules` is how many module entries
 are stored.
@@ -451,8 +456,10 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
   either opens the target module's paddle and drives its pusher in the
   requested direction (`"left"`/`"right"`), or opens just the target
   module's own bottom to drop the card there (`"bottom"`).
-- For a `"left"`/`"right"` push, two timings run independently once the
-  pusher fires: the pusher itself returns to neutral after
+- For a `"left"`/`"right"` push, the target module's paddle opens first
+  and gets `paddleOpenDelay` ms (per-module, via `setConfig`, firmware
+  2.6.0+; a fixed 300 ms before) to lower before the pusher fires. Then
+  two timings run independently once the pusher fires: the pusher itself returns to neutral after
   `pusherHoldDuration` ms (per-module, via `setConfig`: long enough to
   complete its stroke and fling the card, short enough not to stall
   against the mechanical stop for long); the

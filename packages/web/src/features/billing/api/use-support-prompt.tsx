@@ -1,4 +1,5 @@
 import { billingQueryOptions } from "@/features/billing/api/billing";
+import { githubStarsQueryOptions } from "@/features/billing/api/github-stars";
 import { SupportPromptToast } from "@/features/billing/components/support-prompt-toast";
 import {
   markSupportPromptShown,
@@ -19,9 +20,15 @@ export function useSupportPrompt(status: ScannerStatus) {
   const navigate = useNavigate();
   const { activeOrg } = useOrg();
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
+  const { data: githubStars } = useQuery(
+    githubStarsQueryOptions(
+      !hasActiveSubscription(billing ?? null) &&
+        shouldShowSupportPrompt(Date.now()),
+    ),
+  );
 
-  const latestRef = useRef({ billing, navigate });
-  latestRef.current = { billing, navigate };
+  const latestRef = useRef({ billing, navigate, githubStars });
+  latestRef.current = { billing, navigate, githubStars };
   const previousStatusRef = useRef(status);
 
   useEffect(() => {
@@ -33,7 +40,11 @@ export function useSupportPrompt(status: ScannerStatus) {
 
     const now = Date.now();
     if (!shouldShowSupportPrompt(now)) return;
-    const { billing: currentBilling, navigate: go } = latestRef.current;
+    const {
+      billing: currentBilling,
+      navigate: go,
+      githubStars: stars,
+    } = latestRef.current;
     if (hasActiveSubscription(currentBilling ?? null)) return;
 
     markSupportPromptShown(now);
@@ -42,6 +53,7 @@ export function useSupportPrompt(status: ScannerStatus) {
         <SupportPromptToast
           toastId={id}
           showSubscribe={!!currentBilling}
+          githubStars={stars}
           onSubscribe={() => go(SETTINGS_PATHS.billing)}
         />
       ),

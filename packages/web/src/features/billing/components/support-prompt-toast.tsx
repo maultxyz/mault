@@ -7,6 +7,7 @@ import {
   IconCoffee,
   IconHeart,
   IconSparkles,
+  IconStarFilled,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
@@ -15,8 +16,9 @@ export function SupportPromptToast({
   toastId,
   showSubscribe,
   onSubscribe,
+  githubStars,
 }: SupportPromptToastProps) {
-  const { t } = useTranslation("billing");
+  const { t, i18n } = useTranslation("billing");
   const close = () => toast.dismiss(toastId);
 
   return (
@@ -37,6 +39,19 @@ export function SupportPromptToast({
           >
             <IconBrandGithub className="size-3.5" />
             {t("supportPrompt.starOnGithub")}
+            {githubStars != null && (
+              <span
+                className="ml-0.5 inline-flex items-center gap-0.5 rounded-full border bg-muted px-1.5 text-2xs text-foreground/80"
+                aria-label={t("supportPrompt.githubStars", {
+                  count: githubStars,
+                })}
+              >
+                <IconStarFilled className="size-3 text-warning" />
+                {new Intl.NumberFormat(i18n.language, {
+                  notation: "compact",
+                }).format(githubStars)}
+              </span>
+            )}
           </a>
         </div>
       </div>

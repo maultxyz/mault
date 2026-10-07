@@ -159,12 +159,16 @@
     "then": "then",
     "keys": {
       "space": "Space",
-      "shift": "Shift"
+      "shift": "Shift",
+      "left": "←",
+      "right": "→",
+      "escape": "Esc"
     },
     "groups": {
       "general": "General",
       "navigation": "Navigation",
-      "scanner": "Scanner"
+      "scanner": "Scanner",
+      "cardDetail": "Card details"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
@@ -183,7 +187,13 @@
       "scanToggleAutoFeed": "Toggle auto-feed",
       "scanCycleFoil": "Cycle foil type",
       "scanClearDevice": "Clear device",
-      "scanPickSet": "Choose a set preference"
+      "scanPickSet": "Choose a set preference",
+      "cardPrevious": "Previous card",
+      "cardNext": "Next card",
+      "cardCorrect": "Correct the card (arrows pick a result, Enter selects, Shift Enter stays while reviewing)",
+      "cardClose": "Close the card, or cancel correcting",
+      "reviewStart": "Start reviewing cards one by one",
+      "reviewAccept": "While reviewing: card looks right, go to next"
     }
   },
   "mobileMenu": {

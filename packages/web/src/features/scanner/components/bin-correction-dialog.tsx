@@ -1,4 +1,6 @@
 import { Button } from "@/components/ui/button";
+import { Kbd } from "@/components/ui/kbd";
+import { BIN_CORRECTION_CONFIRM_KEYS } from "@/lib/constants/scanner";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -9,6 +11,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import type { KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 function BinTile({ label, bin }: BinCorrectionTileProps) {
@@ -61,6 +64,20 @@ export function BinCorrectionDialog({
           : t("binCorrection.move.descriptionNoBin", { to: targetBin })
         : t("binCorrection.staysIn.description");
 
+  const confirm = () => {
+    if (!correction) return;
+    if (needsMove) onMoved(correction);
+    else onClose();
+  };
+
+  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (!BIN_CORRECTION_CONFIRM_KEYS.includes(event.key)) return;
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
+    event.preventDefault();
+    if (event.repeat) return;
+    confirm();
+  };
+
   return (
     <DynamicDialog
       open={!!correction}
@@ -70,6 +87,7 @@ export function BinCorrectionDialog({
       title={title}
       description={description}
       className="sm:max-w-md"
+      onKeyDown={handleKeyDown}
       footer={
         needsMove && correction ? (
           <>
@@ -77,13 +95,18 @@ export function BinCorrectionDialog({
               {currentBin != null
                 ? t("binCorrection.leave", { bin: currentBin })
                 : t("binCorrection.notNow")}
+              <Kbd>{t("binCorrection.keys.escape")}</Kbd>
             </Button>
-            <Button onClick={() => onMoved(correction)}>
+            <Button onClick={confirm}>
               {t("binCorrection.moved", { bin: targetBin })}
+              <Kbd>{t("binCorrection.keys.enter")}</Kbd>
             </Button>
           </>
         ) : (
-          <Button onClick={onClose}>{t("binCorrection.ok")}</Button>
+          <Button onClick={confirm}>
+            {t("binCorrection.ok")}
+            <Kbd>{t("binCorrection.keys.enter")}</Kbd>
+          </Button>
         )
       }
     >
@@ -94,7 +117,7 @@ export function BinCorrectionDialog({
               key={correction.id}
               seconds={autoCloseSeconds}
               willMove={needsMove}
-              onElapsed={() => (needsMove ? onMoved(correction) : onClose())}
+              onElapsed={confirm}
             />
           </div>
         )}

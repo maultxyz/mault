@@ -2,12 +2,13 @@ import type { PriceSource } from "@magic-vault/shared";
 
 export type DiscordEmbed = {
   title: string;
-  description: string;
+  description?: string;
   color: number;
   timestamp: string;
   url?: string;
   image?: { url: string };
   footer?: { text: string };
+  fields?: { name: string; value: string; inline?: boolean }[];
 };
 
 export type DiscordNotificationKind = "scan" | "error";

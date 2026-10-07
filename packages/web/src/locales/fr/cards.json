@@ -118,7 +118,8 @@
       "compact": "compacte",
       "comfortable": "normale",
       "large": "grande"
-    }
+    },
+    "reviewCards": "Vérifier les cartes une par une (R)"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
@@ -264,5 +265,19 @@
     "copyFailed": "Impossible de copier le nom.",
     "remove_one": "Retirer la carte",
     "remove_other": "Retirer {{count}} cartes"
+  },
+  "review": {
+    "badge": "Vérification",
+    "acceptNext": "C'est bon, suivante",
+    "acceptFinish": "C'est bon, terminer",
+    "correctNext": "corriger et passer à la suivante",
+    "correctFinish": "corriger et terminer",
+    "correctStay": "corriger et rester sur cette carte",
+    "keys": {
+      "enter": "Entrée",
+      "shiftEnter": "Maj Entrée"
+    },
+    "complete_one": "Vérification terminée : {{count}} carte vérifiée",
+    "complete_other": "Vérification terminée : {{count}} cartes vérifiées"
   }
 }

@@ -2,6 +2,7 @@ import {
   evaluateCardBin,
   findLowMatchCatchAll,
   getCardValue,
+  matchesCatchAllRules,
   type BinConfig,
   type BinRuleGroup,
   type FieldMeta,
@@ -16,6 +17,7 @@ export function findAutoAssignTarget(
 ): { binNumber: number; rules: BinRuleGroup } | null {
   if (!autoAssignField) return null;
   if (findLowMatchCatchAll(card, configs)) return null;
+  if (matchesCatchAllRules(card, configs, fieldDefinitions)) return null;
 
   const matched = evaluateCardBin(card, configs, fieldDefinitions);
   if (matched && !matched.isCatchAll) return null;

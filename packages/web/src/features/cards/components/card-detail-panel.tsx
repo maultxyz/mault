@@ -1,9 +1,14 @@
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
+import { useCardResultKeyboardNav } from "@/features/cards/api/use-card-result-keyboard-nav";
+import { HotkeyHint } from "@/components/hotkey-hint";
+import { useHotkeys } from "@/hooks/use-hotkeys";
+import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
 import { EmptyState } from "@/components/empty-state";
 import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
+import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -48,7 +53,10 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { CardDetailPanelProps } from "@/lib/interfaces/cards";
+import type {
+  CardCorrectionOptions,
+  CardDetailPanelProps,
+} from "@/lib/interfaces/cards";
 
 export function CardDetailPanel({
   scanId,
@@ -69,6 +77,8 @@ export function CardDetailPanel({
   total,
   copyIndex,
   copyCount,
+  reviewMode = false,
+  onReviewComplete,
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
@@ -127,17 +137,6 @@ export function CardDetailPanel({
     }
   }, [scanId, currentCard, alternativeMatches]);
 
-  useEffect(() => {
-    if (editing || viewerOpen) return;
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "ArrowLeft" && hasPrev) onPrev?.();
-      if (e.key === "ArrowRight" && hasNext) onNext?.();
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [editing, viewerOpen, hasPrev, hasNext, onPrev, onNext, onClose]);
-
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(activeCollection?.guid, scanId);
   const showCapturedImageSlot =
@@ -158,13 +157,47 @@ export function CardDetailPanel({
     );
   };
 
+  const stopEditing = useCallback(() => {
+    setEditing(false);
+    setQuery("");
+    setDebouncedQuery("");
+    setSelectedSet("all");
+  }, []);
+
+  const goToNextInReview = useCallback(() => {
+    if (hasNext) onNext?.();
+    else onReviewComplete?.();
+  }, [hasNext, onNext, onReviewComplete]);
+
   const handleSelect = useCallback(
-    (card: PlayingCard) => {
-      if (scanId) correctCard(scanId, card);
-      else addCard({ ...card, distance: 0, confidence: 1 });
-      onClose();
+    (card: PlayingCard, { stay }: CardCorrectionOptions = { stay: false }) => {
+      if (!scanId) {
+        addCard({ ...card, distance: 0, confidence: 1 });
+        onClose();
+        return;
+      }
+      correctCard(scanId, card);
+      if (reviewMode && !stay) {
+        goToNextInReview();
+        return;
+      }
+      setCandidates((prev) =>
+        prev.some((c) => c.id === card.id)
+          ? prev
+          : [...prev, { ...card, distance: 0, confidence: 1 }],
+      );
+      setSelectedId(card.id);
+      stopEditing();
     },
-    [scanId, addCard, correctCard, onClose],
+    [
+      scanId,
+      addCard,
+      correctCard,
+      onClose,
+      stopEditing,
+      reviewMode,
+      goToNextInReview,
+    ],
   );
 
   const handleSelectCandidate = useCallback(
@@ -193,6 +226,38 @@ export function CardDetailPanel({
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
   const hasMultipleCandidates = candidates.length > 1;
+  const isViewing = !!currentCard && !editing;
+
+  const startEditing = () => {
+    setEditing(true);
+    if (selectedCard) handleInputChange(selectedCard.name);
+  };
+
+  const { inputRef, gridRef, onInputKeyDown, onResultKeyDown } =
+    useCardResultKeyboardNav({
+      onSelect: (index, options) => {
+        const card = filteredResults[index];
+        if (card) handleSelect(card, options);
+      },
+      onCancel: stopEditing,
+    });
+
+  const acceptInReview = () => {
+    if (canConfirm && scanId) confirmCard(scanId);
+    goToNextInReview();
+  };
+
+  useHotkeys(
+    {
+      cardPrevious: isViewing && hasPrev ? onPrev : undefined,
+      cardNext: isViewing && hasNext ? onNext : undefined,
+      cardCorrect: isViewing ? startEditing : undefined,
+      cardClose: editing ? stopEditing : onClose,
+      reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
+    },
+    true,
+    HOTKEY_PRIORITY_OVERRIDE,
+  );
 
   const capturedImage = capturedImageUrl ? (
     <CapturedImageThumb
@@ -282,6 +347,11 @@ export function CardDetailPanel({
                 <span className="text-xs text-foreground/70 shrink-0">
                   {currentIndex + 1} / {total}
                 </span>
+              )}
+              {reviewMode && (
+                <Badge variant="outline" className="shrink-0">
+                  {t("review.badge")}
+                </Badge>
               )}
               {copyCount != null && copyCount > 1 && (
                 <Badge variant="secondary" className="shrink-0">
@@ -486,6 +556,8 @@ export function CardDetailPanel({
                     placeholder={t("cardPicker.searchPlaceholder")}
                     value={query}
                     onChange={(e) => handleInputChange(e.target.value)}
+                    onKeyDown={onInputKeyDown}
+                    ref={inputRef}
                     className="pl-7"
                     autoFocus
                   />
@@ -540,13 +612,19 @@ export function CardDetailPanel({
                     />
                   )}
                 {!loading && filteredResults.length > 0 && (
-                  <div className="grid grid-cols-4 @3xl:grid-cols-5 gap-1.5">
+                  <div
+                    ref={gridRef}
+                    className="grid grid-cols-4 @3xl:grid-cols-5 gap-1.5"
+                  >
                     {filteredResults.map((card) => (
                       <Button
                         key={card.id}
+                        onKeyDown={onResultKeyDown}
                         variant="ghost"
                         className="relative w-full h-auto aspect-[2.5/3.5] p-0 rounded-md overflow-hidden group"
-                        onClick={() => handleSelect(card)}
+                        onClick={(e) =>
+                          handleSelect(card, { stay: e.shiftKey })
+                        }
                       >
                         {card.image?.small ? (
                           <img
@@ -586,7 +664,14 @@ export function CardDetailPanel({
         {currentCard && !editing ? (
           <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
             <div className="flex flex-wrap gap-2 items-center w-full">
-              {canConfirm && (
+              {reviewMode && (
+                <Button onClick={acceptInReview}>
+                  <IconCheck className="size-4" />
+                  {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
+                  <HotkeyHint id="reviewAccept" />
+                </Button>
+              )}
+              {canConfirm && !reviewMode && (
                 <Button
                   variant="outline"
                   onClick={() => scanId && confirmCard(scanId)}
@@ -596,15 +681,10 @@ export function CardDetailPanel({
                   {t("cardDetailPanel.markCorrect")}
                 </Button>
               )}
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setEditing(true);
-                  if (selectedCard) handleInputChange(selectedCard.name);
-                }}
-              >
+              <Button variant="outline" onClick={startEditing}>
                 <IconPencil className="size-4" />
                 {t("cardPicker.correctCard")}
+                <HotkeyHint id="cardCorrect" />
               </Button>
               <Button variant="destructive" onClick={() => onRemove?.()}>
                 <IconTrash className="size-4" />
@@ -615,17 +695,24 @@ export function CardDetailPanel({
         ) : (
           <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
             <div className="flex items-center w-full">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setEditing(false);
-                  setQuery("");
-                  setDebouncedQuery("");
-                  setSelectedSet("all");
-                }}
-              >
+              <Button variant="outline" onClick={stopEditing}>
                 {t("cardDetailPanel.cancel")}
+                <HotkeyHint id="cardClose" />
               </Button>
+              {reviewMode && scanId && (
+                <p className="ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/70">
+                  <span className="inline-flex items-center gap-1">
+                    <Kbd>{t("review.keys.enter")}</Kbd>
+                    {hasNext
+                      ? t("review.correctNext")
+                      : t("review.correctFinish")}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Kbd>{t("review.keys.shiftEnter")}</Kbd>
+                    {t("review.correctStay")}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
         )}

@@ -1,6 +1,7 @@
 import {
   FEEDER_CALIBRATION_FIELDS,
   SERVO_CALIBRATION_FIELDS,
+  STORED_SERVO_CALIBRATION_OPTIONAL_FIELDS,
 } from "@/lib/constants/calibration";
 import type {
   CalibrationDifference,
@@ -30,7 +31,14 @@ function pickNumbers<K extends string>(
 }
 
 export function parseStoredModule(reply: unknown): ServoCalibration | null {
-  return pickNumbers(reply, SERVO_CALIBRATION_FIELDS);
+  if (!reply || typeof reply !== "object") return null;
+  const withDefaults = { ...(reply as Record<string, unknown>) };
+  for (const field of STORED_SERVO_CALIBRATION_OPTIONAL_FIELDS) {
+    if (typeof withDefaults[field] !== "number") {
+      withDefaults[field] = DEFAULT_CALIBRATION[field];
+    }
+  }
+  return pickNumbers(withDefaults, SERVO_CALIBRATION_FIELDS);
 }
 
 export function parseStoredFeeder(reply: unknown): FeederCalibration | null {

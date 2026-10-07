@@ -1,6 +1,8 @@
 import { DELETED_ITEM_TYPES, type SyncState } from "@magic-vault/shared";
 import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
+import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import {
+  IconBrandDiscord,
   IconBug,
   IconCards,
   IconCreditCard,
@@ -40,6 +42,11 @@ export const ADMIN_SECTIONS = [
   { path: "users", icon: IconUserScan, labelKey: "sections.users" },
   { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
   {
+    path: "discord-stats",
+    icon: IconBrandDiscord,
+    labelKey: "sections.discordStats",
+  },
+  {
     path: "announcements",
     icon: IconSpeakerphone,
     labelKey: "sections.announcements",
@@ -49,3 +56,14 @@ export const ADMIN_SECTIONS = [
   { path: "device", icon: IconTerminal2, labelKey: "sections.device" },
   { path: "developer", icon: IconBug, labelKey: "sections.developer" },
 ] as const;
+
+export const NO_DISCORD_GUILD = "none";
+
+export const PLATFORM_STATS_SCRIPT_COMMAND =
+  "node packages/server/dist/scripts/post-platform-stats.js";
+
+export const EMPTY_PLATFORM_STATS_FORM: PlatformStatsFormValues = {
+  guildId: null,
+  channelId: null,
+  stats: [],
+};

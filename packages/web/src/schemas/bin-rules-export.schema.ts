@@ -1,5 +1,9 @@
 import { binRuleGroupSchema } from "@/schemas/sort-bins.schema";
-import { CONDITION_NUMERIC_MAX } from "@magic-vault/shared";
+import {
+  CONDITION_NUMERIC_MAX,
+  LOW_MATCH_PERCENT_MAX,
+  OVERRIDE_PRIORITY_MAX,
+} from "@magic-vault/shared";
 import { z } from "zod";
 
 const exportedBinSchema = z.object({
@@ -7,6 +11,19 @@ const exportedBinSchema = z.object({
   rules: binRuleGroupSchema,
   isCatchAll: z.boolean(),
   isOverride: z.boolean().default(false),
+  overridePriority: z
+    .number()
+    .int()
+    .min(1)
+    .max(OVERRIDE_PRIORITY_MAX)
+    .nullable()
+    .default(null),
+  lowMatchPercent: z
+    .number()
+    .positive()
+    .max(LOW_MATCH_PERCENT_MAX)
+    .nullable()
+    .default(null),
   cardLimit: z.number().int().min(1).max(CONDITION_NUMERIC_MAX).nullable(),
   maxCopies: z
     .number()
@@ -19,7 +36,7 @@ const exportedBinSchema = z.object({
 });
 
 export const binRulesExportSchema = z.object({
-  formatVersion: z.union([z.literal(1), z.literal(2)]),
+  formatVersion: z.union([z.literal(1), z.literal(2), z.literal(3)]),
   name: z.string().trim().min(1),
   gameKey: z.string().nullable(),
   bins: z.array(exportedBinSchema),

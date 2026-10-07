@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import type {
   AlphabetConfig,
+  BinConfigSaveInput,
   BinConfigsContextValue,
   BinModeDraft,
   ChaosConfig,
@@ -194,6 +195,8 @@ export function BinConfigsProvider({
       rules,
       isCatchAll,
       isOverride,
+      overridePriority,
+      lowMatchPercent,
       cardLimit,
       maxCopies,
       isDisabled,
@@ -210,6 +213,9 @@ export function BinConfigsProvider({
             rules: rules!,
             isCatchAll,
             isOverride,
+            overridePriority:
+              isCatchAll || isOverride ? (overridePriority ?? null) : null,
+            lowMatchPercent: isCatchAll ? (lowMatchPercent ?? null) : null,
             cardLimit: cardLimit ?? null,
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
             isDisabled:
@@ -464,25 +470,8 @@ export function BinConfigsProvider({
     setChaosModeMutation.isPending;
 
   const save = useCallback(
-    (
-      binNumber: number,
-      rules: BinRuleGroup,
-      isCatchAll?: boolean,
-      cardLimit?: number | null,
-      isOverride?: boolean,
-      maxCopies?: number | null,
-      isDisabled?: boolean,
-    ) => {
-      saveBinMutation.mutate({
-        binNumber,
-        rules,
-        isCatchAll,
-        isOverride,
-        cardLimit,
-        maxCopies,
-        isDisabled,
-        gameGuid: activeGameGuid,
-      });
+    (input: BinConfigSaveInput) => {
+      saveBinMutation.mutate({ ...input, gameGuid: activeGameGuid });
     },
     [saveBinMutation, activeGameGuid],
   );
@@ -613,7 +602,12 @@ export function BinConfigsProvider({
     if (configs.some((c) => c.isCatchAll)) return;
     const lastBin = configs[configs.length - 1];
     if (lastBin)
-      save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+      save({
+        binNumber: lastBin.binNumber,
+        rules: emptyRules(),
+        isCatchAll: true,
+        cardLimit: lastBin.cardLimit,
+      });
   };
 
   const saveMode = async () => {
@@ -636,7 +630,12 @@ export function BinConfigsProvider({
         if (modeDraft.isRepackMode) {
           const lastBin = configs[configs.length - 1];
           if (lastBin && !lastBin.isCatchAll) {
-            save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+            save({
+              binNumber: lastBin.binNumber,
+              rules: emptyRules(),
+              isCatchAll: true,
+              cardLimit: lastBin.cardLimit,
+            });
           }
         }
       }
