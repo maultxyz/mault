@@ -219,17 +219,28 @@ export function isOverrideBin(config: BinConfig): boolean {
     : !!config.isOverride;
 }
 
-function overrideRank(config: BinConfig): number {
-  return config.overridePriority ?? Number.POSITIVE_INFINITY;
+function compareOverrides(
+  a: BinConfig,
+  b: BinConfig,
+  cardsInBin?: (bin: BinConfig) => number,
+): number {
+  const rankA = a.overridePriority ?? Number.POSITIVE_INFINITY;
+  const rankB = b.overridePriority ?? Number.POSITIVE_INFINITY;
+  if (rankA !== rankB) return rankA - rankB;
+  if (a.overridePriority == null || !cardsInBin) return 0;
+  return cardsInBin(a) - cardsInBin(b);
 }
 
-export function sortOverrideBins(configs: BinConfig[]): BinConfig[] {
+export function sortOverrideBins(
+  configs: BinConfig[],
+  cardsInBin?: (bin: BinConfig) => number,
+): BinConfig[] {
   return configs
     .filter(isOverrideBin)
     .map((config, index) => ({ config, index }))
     .sort(
       (a, b) =>
-        overrideRank(a.config) - overrideRank(b.config) || a.index - b.index,
+        compareOverrides(a.config, b.config, cardsInBin) || a.index - b.index,
     )
     .map(({ config }) => config);
 }
@@ -252,6 +263,7 @@ export function evaluateCardBin(
   configs: BinConfig[],
   fieldDefinitions: FieldMeta[],
   copiesInBin?: (bin: BinConfig) => number,
+  cardsInBin?: (bin: BinConfig) => number,
 ): BinConfig | undefined {
   let catchAll: BinConfig | undefined;
   let firstMatch: BinConfig | undefined;
@@ -264,7 +276,9 @@ export function evaluateCardBin(
       (config.isDisabled && !config.isCatchAll) ||
       config.rules.conditions.length === 0 ||
       (!isOverride && firstMatch) ||
-      (isOverride && override && overrideRank(override) <= overrideRank(config))
+      (isOverride &&
+        override &&
+        compareOverrides(config, override, cardsInBin) >= 0)
     ) {
       continue;
     }
