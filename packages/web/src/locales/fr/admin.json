@@ -386,8 +386,8 @@
         "description": "Scans enregistrés dans les 24 heures précédant la publication."
       },
       "devices": {
-        "label": "Appareils",
-        "description": "Trieuses enregistrées dans une organisation, hors appareils supprimés."
+        "label": "Appareils calibrés",
+        "description": "Trieuses calibrées : au moins un module enregistré avec des valeurs de servo différentes des valeurs par défaut. Les appareils supprimés sont exclus."
       },
       "users": {
         "label": "Utilisateurs",

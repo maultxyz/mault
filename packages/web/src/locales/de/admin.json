@@ -386,8 +386,8 @@
         "description": "Scans, die in den 24 Stunden vor dem Beitrag gespeichert wurden."
       },
       "devices": {
-        "label": "Geräte",
-        "description": "Bei einer Organisation registrierte Sortierer, ohne gelöschte."
+        "label": "Kalibrierte Geräte",
+        "description": "Kalibrierte Sortierer: mindestens ein Modul mit gespeicherten Servowerten, die von den Standardwerten abweichen. Gelöschte zählen nicht."
       },
       "users": {
         "label": "Benutzer",

@@ -1,16 +1,19 @@
 import {
+  DEFAULT_CALIBRATION,
   DEFAULT_PLATFORM_STAT_KEYS,
   PLATFORM_STAT_KEYS,
   type PlatformStatKey,
   type PlatformStatsSettings,
   type PlatformStatValues,
+  type ServoCalibration,
 } from "@magic-vault/shared";
-import { count, eq, gt } from "drizzle-orm";
+import { and, count, eq, exists, gt, ne, or } from "drizzle-orm";
 import { authProvider } from "../auth";
 import { db } from "../db";
 import {
   collections,
   devices,
+  moduleConfigs,
   platformStatsSettings,
   scanStats,
 } from "../db/schema";
@@ -30,6 +33,23 @@ import type {
 
 const countRows = async (query: Promise<{ count: number }[]>) =>
   (await query)[0]?.count ?? 0;
+
+const hasCalibratedModule = exists(
+  db
+    .select({ id: moduleConfigs.id })
+    .from(moduleConfigs)
+    .where(
+      and(
+        eq(moduleConfigs.deviceId, devices.id),
+        eq(moduleConfigs.isDeleted, false),
+        or(
+          ...(Object.keys(DEFAULT_CALIBRATION) as (keyof ServoCalibration)[]).map(
+            (key) => ne(moduleConfigs[key], DEFAULT_CALIBRATION[key]),
+          ),
+        ),
+      ),
+    ),
+);
 
 const STAT_LOADERS: Record<
   Exclude<PlatformStatKey, "users" | "organizations">,
@@ -53,7 +73,7 @@ const STAT_LOADERS: Record<
       db
         .select({ count: count() })
         .from(devices)
-        .where(eq(devices.isDeleted, false)),
+        .where(and(eq(devices.isDeleted, false), hasCalibratedModule)),
     ),
   collections: () =>
     countRows(
