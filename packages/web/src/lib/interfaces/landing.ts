@@ -29,3 +29,10 @@ export interface DemoCollection {
   lang: string;
   cardCount: number;
 }
+
+export interface LandingSectionHeaderProps {
+  eyebrow: string;
+  heading: string;
+  subtitle: string;
+  centered?: boolean;
+}

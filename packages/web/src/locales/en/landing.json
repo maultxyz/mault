@@ -1,7 +1,6 @@
 {
   "nav": {
     "features": "Features",
-    "howItWorks": "How it works",
     "openSource": "Open source",
     "build": "Build",
     "discordBot": "Discord Bot",
@@ -16,13 +15,14 @@
   "hero": {
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
     "subtitle": "Load your cards into the hopper and Mault takes it from there. The feeder pushes each one past the camera to be recognized, then sorts it into bins using rules you set: rarity, color, set, type, or anything else. No spreadsheets, no guesswork.",
-    "seeHowItWorks": "See how it works",
+    "seeFeatures": "Explore features",
     "currentSession": "Current session",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards"
   },
   "stats": {
     "items": {
+      "totalScanned": "cards scanned so far",
       "bins": "sort bins, expandable",
       "games": "trading card games supported",
       "collections": "collections, no limit",
@@ -31,34 +31,11 @@
   },
   "supportedGames": {
     "heading": "Easily sorts any TCG you love",
-    "subtitle": "New games get added right into the sorter's database, not hard-coded into the app. Here's what's supported today.",
     "cardsIndexed_one": "{{formatted}} card indexed",
     "cardsIndexed_other": "{{formatted}} cards indexed"
   },
-  "pipeline": {
-    "heading": "How it works",
-    "subtitle": "From a loose pile to a tidy collection, in four easy steps.",
-    "stepLabel": "Step {{number}}",
-    "steps": {
-      "showCard": {
-        "title": "Load up the hopper",
-        "description": "Drop your cards in and the feeder pushes each one past the camera automatically. No scanner or phone app needed."
-      },
-      "recognized": {
-        "title": "It's recognized instantly",
-        "description": "Mault matches it against the full card database in an instant, rarity, set, and all."
-      },
-      "sorted": {
-        "title": "Sorted by your rules",
-        "description": "Set your rules once, by rarity, color, set, type, or whatever you like, and every card finds its own way."
-      },
-      "organized": {
-        "title": "Always organized",
-        "description": "Every card gets logged and stays searchable, across as many collections as you'd like to keep."
-      }
-    }
-  },
   "features": {
+    "eyebrow": "Features",
     "heading": "Everything you need to feel organized",
     "subtitle": "Let Mault handle the sorting, so you can spend more time playing and less time digging through boxes.",
     "items": {
@@ -105,6 +82,7 @@
     }
   },
   "openSource": {
+    "eyebrow": "Open source",
     "heading": "Fully open source",
     "subtitle": "The software and the physical sorter are both free to build, inspect, and tinker with. Grab the code and print one of your own.",
     "sourceCode": {
@@ -125,6 +103,7 @@
     }
   },
   "pricing": {
+    "eyebrow": "Pricing",
     "heading": "Simple, transparent pricing",
     "subtitle": "The same app either way. Free covers casual sorting. Business removes the daily scan cap, runs several sorters at once, and unlocks unlimited custom sounds and Discord notification rules.",
     "shared": {

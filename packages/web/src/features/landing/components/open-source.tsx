@@ -9,23 +9,25 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { LandingSectionHeader } from "@/features/landing/components/section-header";
 
 export function LandingOpenSource() {
   const { t } = useTranslation("landing");
 
   return (
-    <section id="open-source" className="border-t bg-secondary/20">
-      <div className="mx-auto max-w-6xl px-4 py-14 md:py-16">
-        <div className="max-w-2xl">
-          <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
-            {t("openSource.heading")}
-          </h2>
-          <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
-            {t("openSource.subtitle")}
-          </p>
-        </div>
+    <section id="open-source" className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+      <div className="relative overflow-hidden rounded-3xl border bg-card p-6 md:p-10">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-primary/15 blur-3xl"
+        />
+        <LandingSectionHeader
+          eyebrow={t("openSource.eyebrow")}
+          heading={t("openSource.heading")}
+          subtitle={t("openSource.subtitle")}
+        />
 
-        <div className="mt-10 grid divide-y divide-border border-t border-border md:grid-cols-3 md:divide-x md:divide-y-0 md:border-t-0">
+        <div className="relative mt-10 grid divide-y divide-border border-t border-border md:grid-cols-3 md:divide-x md:divide-y-0 md:border-t-0">
           <div className="flex flex-col gap-3 py-6 md:px-6 md:py-0 md:pl-0">
             <div className="flex items-start gap-3">
               <IconBrandGithub size={20}

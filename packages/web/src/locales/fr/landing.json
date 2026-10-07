@@ -1,7 +1,6 @@
 {
   "nav": {
     "features": "Fonctionnalités",
-    "howItWorks": "Comment ça marche",
     "openSource": "Open source",
     "build": "Construire",
     "discordBot": "Bot Discord",
@@ -16,13 +15,14 @@
   "hero": {
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
     "subtitle": "Charge tes cartes dans la trémie, et Mault s'occupe du reste - le chargeur fait passer chaque carte devant la caméra pour la reconnaître, puis la trie dans un bac selon les règles que tu définis : rareté, couleur, set, type, ou ce que tu préfères. Plus de tableurs, plus de suppositions.",
-    "seeHowItWorks": "Voir comment ça marche",
+    "seeFeatures": "Découvrir les fonctionnalités",
     "currentSession": "Session en cours",
     "cardCount_one": "{{count}} carte",
     "cardCount_other": "{{count}} cartes"
   },
   "stats": {
     "items": {
+      "totalScanned": "cartes scannées à ce jour",
       "bins": "bacs de tri, extensibles",
       "games": "jeux de cartes à collectionner pris en charge",
       "collections": "collections, sans limite",
@@ -31,34 +31,11 @@
   },
   "supportedGames": {
     "heading": "Trie facilement n'importe quel JCC que tu aimes",
-    "subtitle": "Les nouveaux jeux rejoignent directement la base de données de la trieuse, plutôt que d'être codés en dur dans l'application - voici ce qui est pris en charge aujourd'hui.",
     "cardsIndexed_one": "{{formatted}} carte indexée",
     "cardsIndexed_other": "{{formatted}} cartes indexées"
   },
-  "pipeline": {
-    "heading": "Comment ça marche",
-    "subtitle": "D'un tas de cartes en vrac à une collection bien rangée, en quatre étapes toutes simples.",
-    "stepLabel": "Étape {{number}}",
-    "steps": {
-      "showCard": {
-        "title": "Charge la trémie",
-        "description": "Dépose tes cartes dedans - le chargeur fait passer chacune devant la caméra automatiquement. Pas besoin de scanner ni d'application sur ton téléphone."
-      },
-      "recognized": {
-        "title": "Elle est reconnue instantanément",
-        "description": "Mault la compare à la base de données complète des cartes en un clin d'œil - rareté, set et tout le reste."
-      },
-      "sorted": {
-        "title": "Triée selon tes règles",
-        "description": "Configure tes règles une bonne fois pour toutes - rareté, couleur, set, type, ou ce que tu préfères - et chaque carte trouve son chemin toute seule."
-      },
-      "organized": {
-        "title": "Toujours organisée",
-        "description": "Chaque carte est enregistrée et reste facile à retrouver, dans autant de collections que tu le souhaites."
-      }
-    }
-  },
   "features": {
+    "eyebrow": "Fonctionnalités",
     "heading": "Tout ce qu'il faut pour te sentir organisé",
     "subtitle": "Laisse Mault s'occuper du tri, pour que tu passes plus de temps à jouer et moins de temps à fouiller dans des boîtes.",
     "items": {
@@ -105,6 +82,7 @@
     }
   },
   "openSource": {
+    "eyebrow": "Open source",
     "heading": "Entièrement open source",
     "subtitle": "Le logiciel et la trieuse physique sont tous deux libres à construire, explorer et bidouiller. Récupère le code et imprime la tienne.",
     "sourceCode": {
@@ -125,6 +103,7 @@
     }
   },
   "pricing": {
+    "eyebrow": "Tarifs",
     "heading": "Des tarifs simples et transparents",
     "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois et débloque les sons personnalisés et les règles de notification Discord illimités.",
     "shared": {

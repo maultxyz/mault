@@ -1,10 +1,8 @@
 import { SOUND_CLIP_WAVEFORM_BARS } from "@magic-vault/shared";
-import {
-  IconLayoutGrid,
-  IconRoute,
-  IconSparkles,
-  IconStack2,
-} from "@tabler/icons-react";
+
+export const GAMES_MARQUEE_MIN_ITEMS = 12;
+
+export const GAMES_MARQUEE_SECONDS_PER_ITEM = 4;
 
 export const DEMO_ALPHABET_BINS = [
   { letter: "A", card: "Arcane Signet" },
@@ -63,10 +61,3 @@ export const DEMO_REPACK_SLOTS = [
 export const DEMO_RULE_FIELD_OPTIONS = ["Rarity", "Color", "Set", "Type"];
 
 export const DEMO_RULE_OPERATOR_OPTIONS = ["is", "is not", "includes"];
-
-export const LANDING_PIPELINE_STEPS = [
-  { key: "showCard", icon: IconStack2 },
-  { key: "recognized", icon: IconSparkles },
-  { key: "sorted", icon: IconRoute },
-  { key: "organized", icon: IconLayoutGrid },
-] as const;
