@@ -1,7 +1,6 @@
 {
   "nav": {
     "features": "Funktionen",
-    "howItWorks": "So funktioniert's",
     "openSource": "Open Source",
     "build": "Bauanleitung",
     "discordBot": "Discord-Bot",
@@ -16,13 +15,14 @@
   "hero": {
     "title": "Jede Karte,<br></br><highlight>schön dort, wo sie hingehört.</highlight>",
     "subtitle": "Lade deine Karten in den Trichter, und Mault übernimmt den Rest - die Zuführung schiebt jede Karte an der Kamera vorbei zur Erkennung und sortiert sie danach in Fächer, ganz nach den Regeln, die du selbst festlegst: Seltenheit, Farbe, Set, Typ oder was du sonst magst. Keine Tabellen, kein Rätselraten.",
-    "seeHowItWorks": "So funktioniert's",
+    "seeFeatures": "Funktionen ansehen",
     "currentSession": "Aktuelle Sitzung",
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten"
   },
   "stats": {
     "items": {
+      "totalScanned": "bisher gescannte Karten",
       "bins": "Sortierfächer, erweiterbar",
       "games": "unterstützte Sammelkartenspiele",
       "collections": "Sammlungen, ohne Limit",
@@ -31,34 +31,11 @@
   },
   "supportedGames": {
     "heading": "Sortiert jedes Sammelkartenspiel, das du liebst",
-    "subtitle": "Neue Spiele wandern direkt in die Datenbank des Sortierers, statt fest in die App einprogrammiert zu werden - hier siehst du, was heute schon unterstützt wird.",
     "cardsIndexed_one": "{{formatted}} Karte indexiert",
     "cardsIndexed_other": "{{formatted}} Karten indexiert"
   },
-  "pipeline": {
-    "heading": "So funktioniert's",
-    "subtitle": "Vom losen Stapel zur ordentlichen Sammlung, in vier einfachen Schritten.",
-    "stepLabel": "Schritt {{number}}",
-    "steps": {
-      "showCard": {
-        "title": "Trichter befüllen",
-        "description": "Leg deine Karten ein - die Zuführung schiebt jede Karte automatisch an der Kamera vorbei. Kein Scanner, keine App nötig."
-      },
-      "recognized": {
-        "title": "Sofort erkannt",
-        "description": "Mault gleicht sie im Nu mit der vollständigen Kartendatenbank ab - Seltenheit, Set und alles Weitere inklusive."
-      },
-      "sorted": {
-        "title": "Sortiert nach deinen Regeln",
-        "description": "Leg einmal deine Regeln fest - nach Seltenheit, Farbe, Set, Typ oder was du magst - und jede Karte findet ganz von selbst ihren Platz."
-      },
-      "organized": {
-        "title": "Immer organisiert",
-        "description": "Jede Karte wird erfasst und bleibt durchsuchbar - über so viele Sammlungen hinweg, wie du möchtest."
-      }
-    }
-  },
   "features": {
+    "eyebrow": "Funktionen",
     "heading": "Alles, was du brauchst, um dich organisiert zu fühlen",
     "subtitle": "Lass Mault das Sortieren übernehmen, damit du mehr Zeit zum Spielen hast und weniger Zeit mit dem Durchsuchen von Kisten verbringst.",
     "items": {
@@ -105,6 +82,7 @@
     }
   },
   "openSource": {
+    "eyebrow": "Open Source",
     "heading": "Vollständig Open Source",
     "subtitle": "Die Software und der physische Sortierer sind beide frei zum Nachbauen, Erkunden und Herumtüfteln. Hol dir den Code und druck dir deinen eigenen.",
     "sourceCode": {
@@ -125,6 +103,7 @@
     }
   },
   "pricing": {
+    "eyebrow": "Preise",
     "heading": "Einfache, transparente Preise",
     "subtitle": "Dieselbe App in beiden Fällen. Free reicht für gelegentliches Sortieren. Business hebt das tägliche Scanlimit auf, betreibt mehrere Sortierer gleichzeitig und schaltet unbegrenzte eigene Sounds und Discord-Benachrichtigungsregeln frei.",
     "shared": {

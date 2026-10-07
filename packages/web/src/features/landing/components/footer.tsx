@@ -21,12 +21,6 @@ export function LandingFooter() {
             {t("nav.features")}
           </a>
           <a
-            href="#how-it-works"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.howItWorks")}
-          </a>
-          <a
             href="#open-source"
             className="transition-colors hover:text-foreground"
           >
