@@ -395,6 +395,9 @@
     "liveNow": "Gerade live",
     "allCollections": "Alle Sammlungen"
   },
+  "repackCompleteDialog": {
+    "description": "Alle Packs sind fertig, deshalb ist das Scannen pausiert. Nimm das Pack aus Fach {{bin}} und wähle, wohin es kommt. Jede Karte wird dort in der Reihenfolge erfasst, in der sie gescannt wurde."
+  },
   "binLimitDialog": {
     "title": "Fach {{number}} ist voll",
     "description": "Fach {{number}} hat sein Limit von {{limit}} Karten erreicht, deshalb ist das Scannen pausiert. Nimm die Karten heraus, wähle bei Bedarf, wohin sie kommen, und mach dann weiter.",

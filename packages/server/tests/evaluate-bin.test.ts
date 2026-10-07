@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  areAllRepackPacksComplete,
   countCopiesInBin,
   evaluateCardBin,
   evaluateRepackBin,
@@ -193,4 +194,25 @@ test("the sift bin skips disabled bins", () => {
     ),
     configsWithDisabled[1],
   );
+});
+
+const fullPack = Array.from({ length: 10 }, (_, i) => ({ id: `c${i}`, price: 1, prices: { usd: 1 } }));
+
+function packsComplete(rules: BinRuleGroup | null, fullBins: number[]) {
+  return areAllRepackPacksComplete(
+    repackConfigs,
+    ruleFields,
+    { repackSlots: [anySlot], repackSiftRules: rules },
+    (b) => (fullBins.includes(b.binNumber) ? fullPack : []),
+  );
+}
+
+test("repack is complete once every pack bin has met its pack limit", () => {
+  assert.equal(packsComplete(null, [1, 2]), false);
+  assert.equal(packsComplete(null, [1, 2, 3]), true);
+});
+
+test("the sift bin doesn't need a complete pack for repack to finish", () => {
+  assert.equal(packsComplete(siftRules, [2, 3]), true);
+  assert.equal(packsComplete(siftRules, [1, 2]), false);
 });

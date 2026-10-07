@@ -333,6 +333,41 @@ export function getRepackSiftBin(configs: BinConfig[]): BinConfig | undefined {
     .sort((a, b) => a.binNumber - b.binNumber)[0];
 }
 
+function getActiveRepackSiftBin(
+  configs: BinConfig[],
+  binSet: Pick<BinSet, "repackSiftRules">,
+): BinConfig | undefined {
+  const siftRules = binSet.repackSiftRules;
+  return siftRules && siftRules.conditions.length > 0
+    ? getRepackSiftBin(configs)
+    : undefined;
+}
+
+export function getRepackPackBins(
+  configs: BinConfig[],
+  binSet: Pick<BinSet, "repackSiftRules">,
+): BinConfig[] {
+  const siftBin = getActiveRepackSiftBin(configs, binSet);
+  return configs.filter(
+    (bin) => !bin.isCatchAll && !bin.isDisabled && bin !== siftBin,
+  );
+}
+
+export function areAllRepackPacksComplete(
+  configs: BinConfig[],
+  fieldDefinitions: FieldMeta[],
+  binSet: Pick<BinSet, "repackSlots" | "repackSiftRules">,
+  cardsInBin: (bin: BinConfig) => SourceCard[],
+): boolean {
+  const packBins = getRepackPackBins(configs, binSet);
+  return (
+    packBins.length > 0 &&
+    packBins.every((bin) =>
+      isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInBin(bin)),
+    )
+  );
+}
+
 export function evaluateRepackBin(
   card: SourceCard,
   configs: BinConfig[],
@@ -345,10 +380,7 @@ export function evaluateRepackBin(
 ): BinConfig | undefined {
   const catchAll = getCatchAllBin(configs);
   const siftRules = binSet.repackSiftRules;
-  const siftBin =
-    siftRules && siftRules.conditions.length > 0
-      ? getRepackSiftBin(configs)
-      : undefined;
+  const siftBin = getActiveRepackSiftBin(configs, binSet);
 
   if (
     siftBin &&
@@ -358,9 +390,7 @@ export function evaluateRepackBin(
     return siftBin;
   }
 
-  for (const bin of configs) {
-    if (bin.isCatchAll || bin.isDisabled || bin === siftBin) continue;
-
+  for (const bin of getRepackPackBins(configs, binSet)) {
     const cardsInPack = cardsInBin(bin);
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
       continue;
