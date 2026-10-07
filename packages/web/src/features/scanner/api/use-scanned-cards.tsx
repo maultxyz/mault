@@ -12,6 +12,7 @@ import {
   type UnmatchedCard,
   type UnmatchedScanDetails,
   areAllChaosBinsFull,
+  areAllRepackPacksComplete,
   countCopiesInBin,
   evaluateAlphabetBin,
   evaluateCardBin,
@@ -21,6 +22,7 @@ import {
   getCardsInBin,
   getCatchAllBin,
   getChaosBins,
+  getRepackPackBins,
   hasMaxCopiesBins,
   toRuleCard,
 } from "@magic-vault/shared";
@@ -104,13 +106,13 @@ export function ScannedCardsProvider({
     emptyBin,
   } = useBinConfigs();
   const [binLimitBin, setBinLimitBin] = useState<BinConfig | null>(null);
-  const [fullChaosBins, setFullChaosBinsState] = useState<number[] | null>(
+  const [fullBins, setFullBinsState] = useState<number[] | null>(
     null,
   );
-  const [fullChaosBinCount, setFullChaosBinCount] = useState(0);
-  const setFullChaosBins = useCallback((bins: number[] | null) => {
-    setFullChaosBinsState(bins);
-    setFullChaosBinCount((count) =>
+  const [fullBinCount, setFullBinCount] = useState(0);
+  const setFullBins = useCallback((bins: number[] | null) => {
+    setFullBinsState(bins);
+    setFullBinCount((count) =>
       bins == null ? 0 : count === 0 ? bins.length : count,
     );
   }, []);
@@ -332,6 +334,30 @@ export function ScannedCardsProvider({
     [resolveMatchedBin, saveBinConfig],
   );
 
+  const areAllPacksComplete = useCallback(() => {
+    const set = selectedSetRef.current;
+    return (
+      !!set?.isRepackMode &&
+      areAllRepackPacksComplete(
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+        set,
+        (bin) => getCardsInBin(binContentsRef.current, bin),
+      )
+    );
+  }, []);
+
+  const pauseForCompletePacks = useCallback(() => {
+    const set = selectedSetRef.current;
+    if (!set) return;
+    pause();
+    setFullBins(
+      getRepackPackBins(binConfigsRef.current, set)
+        .map((bin) => bin.binNumber)
+        .sort((a, b) => a - b),
+    );
+  }, [pause, setFullBins]);
+
   const tracksBinContents = useCallback(
     () =>
       !!selectedSetRef.current?.isRepackMode ||
@@ -491,9 +517,17 @@ export function ScannedCardsProvider({
         )
       ) {
         pause();
-        setFullChaosBins(
+        setFullBins(
           getChaosBins(binConfigsRef.current).map((bin) => bin.binNumber),
         );
+        return;
+      }
+      if (
+        matchedBin?.isCatchAll &&
+        !findLowMatchCatchAll(ruleCard, binConfigsRef.current) &&
+        areAllPacksComplete()
+      ) {
+        pauseForCompletePacks();
         return;
       }
       if (matchedBin && isBinFullLocally(matchedBin.binNumber)) {
@@ -541,6 +575,14 @@ export function ScannedCardsProvider({
           },
           ...binContentsRef.current,
         ];
+        const filledPackBin =
+          !!selectedSetRef.current?.isRepackMode &&
+          getRepackPackBins(binConfigsRef.current, selectedSetRef.current).some(
+            (bin) => bin.binNumber === record.binNumber,
+          );
+        if (filledPackBin && areAllPacksComplete()) {
+          pauseForCompletePacks();
+        }
       }
 
       const orgId = activeOrgIdRef.current;
@@ -651,7 +693,9 @@ export function ScannedCardsProvider({
       isBinFullLocally,
       trackPendingBinCard,
       playSoundForCard,
-      setFullChaosBins,
+      setFullBins,
+      areAllPacksComplete,
+      pauseForCompletePacks,
     ],
   );
 
@@ -671,20 +715,20 @@ export function ScannedCardsProvider({
 
   const dismissBinLimit = useCallback(() => setBinLimitBin(null), []);
 
-  const emptyNextFullChaosBin = useCallback(
+  const emptyNextFullBin = useCallback(
     async (options: EmptyBinOptions): Promise<boolean> => {
-      const [binNumber, ...rest] = fullChaosBins ?? [];
+      const [binNumber, ...rest] = fullBins ?? [];
       if (binNumber == null) return true;
       if (!(await emptyBin(binNumber, options))) return false;
-      setFullChaosBins(rest.length > 0 ? rest : null);
+      setFullBins(rest.length > 0 ? rest : null);
       return rest.length === 0;
     },
-    [fullChaosBins, emptyBin],
+    [fullBins, emptyBin],
   );
 
-  const dismissFullChaosBins = useCallback(
-    () => setFullChaosBins(null),
-    [setFullChaosBins],
+  const dismissFullBins = useCallback(
+    () => setFullBins(null),
+    [setFullBins],
   );
 
   const sendCatchAllBin = useCallback(() => {
@@ -1040,10 +1084,10 @@ export function ScannedCardsProvider({
         binLimitReached: binLimitBin,
         resolveBinLimit,
         dismissBinLimit,
-        fullChaosBins,
-        fullChaosBinCount,
-        emptyNextFullChaosBin,
-        dismissFullChaosBins,
+        fullBins,
+        fullBinCount,
+        emptyNextFullBin,
+        dismissFullBins,
         removeCard,
         removeCards,
         correctCard,

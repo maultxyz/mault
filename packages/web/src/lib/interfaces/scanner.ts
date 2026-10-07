@@ -124,10 +124,10 @@ export interface ScannedCardsContextValue {
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
   dismissBinLimit: () => void;
-  fullChaosBins: number[] | null;
-  fullChaosBinCount: number;
-  emptyNextFullChaosBin: (options: EmptyBinOptions) => Promise<boolean>;
-  dismissFullChaosBins: () => void;
+  fullBins: number[] | null;
+  fullBinCount: number;
+  emptyNextFullBin: (options: EmptyBinOptions) => Promise<boolean>;
+  dismissFullBins: () => void;
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;

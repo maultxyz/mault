@@ -395,6 +395,9 @@
     "liveNow": "Live now",
     "allCollections": "All collections"
   },
+  "repackCompleteDialog": {
+    "description": "Every pack is complete, so scanning is paused. Take the pack out of bin {{bin}} and pick where it's going. Each card is recorded there in the order it was scanned."
+  },
   "binLimitDialog": {
     "title": "Bin {{number}} is full",
     "description": "Bin {{number}} has reached its limit of {{limit}} cards, so scanning is paused. Take the cards out, choose where they're going if you want to record it, then continue.",

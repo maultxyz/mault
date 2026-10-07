@@ -395,6 +395,9 @@
     "liveNow": "En direct",
     "allCollections": "Toutes les collections"
   },
+  "repackCompleteDialog": {
+    "description": "Tous les paquets sont complets, le scan est donc en pause. Sortez le paquet du bac {{bin}} et choisissez où vous le rangez. Chaque carte y est enregistrée dans l'ordre où elle a été scannée."
+  },
   "binLimitDialog": {
     "title": "Le bac {{number}} est plein",
     "description": "Le bac {{number}} a atteint sa limite de {{limit}} cartes, le scan est donc en pause. Sortez les cartes, choisissez où vous les rangez si vous voulez l'enregistrer, puis continuez.",
