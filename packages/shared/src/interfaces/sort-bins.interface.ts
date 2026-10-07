@@ -59,6 +59,8 @@ export interface BinConfig {
   rules: BinRuleGroup;
   isCatchAll?: boolean;
   isOverride?: boolean;
+  overridePriority?: number | null;
+  lowMatchPercent?: number | null;
   cardLimit?: number | null;
   maxCopies?: number | null;
   isDisabled?: boolean;
@@ -109,6 +111,8 @@ export type DefaultBinInit = {
   rules: BinRuleGroup;
   isCatchAll: boolean;
   isOverride?: boolean;
+  overridePriority?: number | null;
+  lowMatchPercent?: number | null;
   cardLimit: number | null;
   maxCopies?: number | null;
   isDisabled?: boolean;

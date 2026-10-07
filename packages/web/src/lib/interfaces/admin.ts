@@ -1,4 +1,8 @@
-import type { DeletedItemType, SyncState } from "@magic-vault/shared";
+import type {
+  DeletedItemType,
+  PlatformStatsGuildSummary,
+  SyncState,
+} from "@magic-vault/shared";
 
 export type DeletedItemTypeFilter = DeletedItemType | "all";
 
@@ -57,4 +61,12 @@ export interface CardSyncContextValue {
 export interface ImpersonationAuditDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+}
+
+export interface DiscordGuildSelectProps {
+  value: string | null;
+  guilds: PlatformStatsGuildSummary[];
+  emptyLabel: string;
+  disabled?: boolean;
+  onChange: (guildId: string | null) => void;
 }

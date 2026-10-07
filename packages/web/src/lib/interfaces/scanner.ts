@@ -101,6 +101,7 @@ export interface ScannedCardsContextValue {
   elapsedMs: number;
   isTimerActive: boolean;
   recentScanTimes: number[];
+  sessionScanCount: number;
   lastRoutedBin: LastRoutedBin | null;
   setScannerRunning: (running: boolean) => void;
   setAutoFeed: (enabled: boolean) => void;
@@ -124,10 +125,10 @@ export interface ScannedCardsContextValue {
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
   dismissBinLimit: () => void;
-  fullChaosBins: number[] | null;
-  fullChaosBinCount: number;
-  emptyNextFullChaosBin: (options: EmptyBinOptions) => Promise<boolean>;
-  dismissFullChaosBins: () => void;
+  fullBins: number[] | null;
+  fullBinCount: number;
+  emptyNextFullBin: (options: EmptyBinOptions) => Promise<boolean>;
+  dismissFullBins: () => void;
   registerCardArrivedHook: (fn: () => void) => () => void;
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;
@@ -198,6 +199,7 @@ export interface SkippedRouteResponse {
 export interface PushTest {
   module: number;
   direction: "left" | "right";
+  paddleOpenDelay: number;
   pusherHoldDuration: number;
   paddleCloseDelay: number;
 }

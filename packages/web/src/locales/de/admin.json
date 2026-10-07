@@ -8,6 +8,7 @@
     "games": "Spiele",
     "users": "Benutzer",
     "plans": "Tarife",
+    "discordStats": "Discord-Statistiken",
     "announcements": "Ankündigungen",
     "deleted": "Gelöschte Elemente",
     "servos": "Bausatz-Test",
@@ -363,5 +364,53 @@
       "restored": "{{name}} wiederhergestellt",
       "restoreError": "Das Element konnte nicht wiederhergestellt werden"
     }
+  },
+  "platformStats": {
+    "destinationHeading": "Ziel",
+    "destinationDescription": "Der Discord-Server und Kanal, in den die Plattformstatistiken gepostet werden. Der Bot muss auf dem Server sein und im Kanal posten dürfen.",
+    "server": "Server",
+    "channel": "Kanal",
+    "noServer": "Kein Server",
+    "noChannel": "Kein Kanal",
+    "loadingChannels": "Kanäle werden geladen...",
+    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Server und Kanäle gerade nicht angezeigt werden.",
+    "statsHeading": "Statistiken",
+    "statsDescription": "Welche Zahlen jeder Beitrag enthält, über alle Organisationen hinweg.",
+    "stats": {
+      "scannedCards": {
+        "label": "Gescannte Karten",
+        "description": "Jeder jemals gespeicherte Scan, erkannt oder nicht. Gelöschte Karten senken den Wert nicht."
+      },
+      "scansLast24Hours": {
+        "label": "Scans der letzten 24 Stunden",
+        "description": "Scans, die in den 24 Stunden vor dem Beitrag gespeichert wurden."
+      },
+      "devices": {
+        "label": "Geräte",
+        "description": "Bei einer Organisation registrierte Sortierer, ohne gelöschte."
+      },
+      "users": {
+        "label": "Benutzer",
+        "description": "Registrierte Konten."
+      },
+      "organizations": {
+        "label": "Organisationen",
+        "description": "Bestehende Organisationen."
+      },
+      "collections": {
+        "label": "Sammlungen",
+        "description": "Sammlungen aller Organisationen, ohne gelöschte."
+      }
+    },
+    "scheduleHeading": "Zeitplan",
+    "scheduleDescription": "Beiträge werden gesendet, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, mit beliebigem Cron.",
+    "postNow": "Jetzt posten",
+    "lastPosted": "Zuletzt gepostet am {{date}}.",
+    "neverPosted": "Noch nicht gepostet.",
+    "saveBeforePosting": "Speichere deine Änderungen vor dem Posten.",
+    "saved": "Statistik-Einstellungen gespeichert.",
+    "saveFailed": "Die Statistik-Einstellungen konnten nicht gespeichert werden.",
+    "posted": "Statistiken auf Discord gepostet.",
+    "postFailed": "Die Statistiken konnten nicht gepostet werden."
   }
 }

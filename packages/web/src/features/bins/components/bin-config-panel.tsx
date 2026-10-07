@@ -30,34 +30,35 @@ import {
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  BinConfig,
   BinRuleGroup,
   DEFAULT_BIN_CAPACITY,
-  getCatchAllMatchThreshold,
-  SCAN_RULE_MATCH_PERCENT_FIELD,
+  OVERRIDE_PRIORITY_MAX,
+  sortOverrideBins,
 } from "@magic-vault/shared";
-import { IconInfoCircle } from "@tabler/icons-react";
-import { useCallback, useEffect } from "react";
+import { IconHelpCircle, IconInfoCircle } from "@tabler/icons-react";
+import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-function emptyRuleGroup(): BinRuleGroup {
-  return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
+function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
+  return order.reduce<BinConfig[][]>((groups, config) => {
+    const last = groups[groups.length - 1];
+    if (
+      last &&
+      config.overridePriority != null &&
+      last[0].overridePriority === config.overridePriority
+    ) {
+      last.push(config);
+    } else {
+      groups.push([config]);
+    }
+    return groups;
+  }, []);
 }
 
-function lowMatchRuleGroup(percent: number | null): BinRuleGroup {
-  const group = emptyRuleGroup();
-  if (percent == null) return group;
-  return {
-    ...group,
-    conditions: [
-      {
-        id: crypto.randomUUID(),
-        field: SCAN_RULE_MATCH_PERCENT_FIELD,
-        operator: "lt",
-        value: percent,
-      },
-    ],
-  };
+function emptyRuleGroup(): BinRuleGroup {
+  return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
 }
 
 export function BinConfigPanel() {
@@ -84,6 +85,7 @@ export function BinConfigPanel() {
     defaultValues: {
       isCatchAll: false,
       isOverride: false,
+      overridePriority: null,
       isDisabled: false,
       rules: emptyRuleGroup(),
       maxCopies: null,
@@ -95,12 +97,13 @@ export function BinConfigPanel() {
     form.reset({
       isCatchAll: config.isCatchAll ?? false,
       isOverride: config.isOverride ?? false,
+      overridePriority: config.overridePriority ?? null,
       isDisabled: !config.isCatchAll && !!config.isDisabled,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
       maxCopies: config.maxCopies ?? null,
       lowMatchPercent: config.isCatchAll
-        ? getCatchAllMatchThreshold(config.rules)
+        ? (config.lowMatchPercent ?? null)
         : null,
     });
   }, [config, form]);
@@ -129,37 +132,37 @@ export function BinConfigPanel() {
         });
         return;
       }
+      const cardLimit =
+        config.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : config.cardLimit;
+      const keepsRole = !!config.isCatchAll === values.isCatchAll;
       if (rulesLocked) {
-        save(
-          config.binNumber,
-          values.isCatchAll
-            ? lowMatchRuleGroup(values.lowMatchPercent)
-            : config.isCatchAll
-              ? emptyRuleGroup()
-              : config.rules,
-          values.isCatchAll,
-          config.cardLimit === undefined
-            ? DEFAULT_BIN_CAPACITY
-            : config.cardLimit,
-          !values.isCatchAll && config.isOverride,
-          values.isCatchAll ? null : (config.maxCopies ?? null),
-          !values.isCatchAll && values.isDisabled,
-        );
+        save({
+          binNumber: config.binNumber,
+          rules: keepsRole ? config.rules : emptyRuleGroup(),
+          isCatchAll: values.isCatchAll,
+          cardLimit,
+          isOverride: !values.isCatchAll && config.isOverride,
+          overridePriority: keepsRole ? (config.overridePriority ?? null) : null,
+          lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
+          maxCopies: values.isCatchAll ? null : (config.maxCopies ?? null),
+          isDisabled: !values.isCatchAll && values.isDisabled,
+        });
         return;
       }
-      save(
-        config.binNumber,
-        values.isCatchAll
-          ? lowMatchRuleGroup(values.lowMatchPercent)
-          : (values.rules as BinRuleGroup),
-        values.isCatchAll,
-        config.cardLimit === undefined
-          ? DEFAULT_BIN_CAPACITY
-          : config.cardLimit,
-        !values.isCatchAll && values.isOverride,
-        values.isCatchAll || autoAssignField ? null : values.maxCopies,
-        !values.isCatchAll && values.isDisabled,
-      );
+      const isOverride = !values.isCatchAll && values.isOverride;
+      save({
+        binNumber: config.binNumber,
+        rules: values.rules as BinRuleGroup,
+        isCatchAll: values.isCatchAll,
+        cardLimit,
+        isOverride,
+        overridePriority:
+          values.isCatchAll || isOverride ? values.overridePriority : null,
+        lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
+        maxCopies:
+          values.isCatchAll || autoAssignField ? null : values.maxCopies,
+        isDisabled: !values.isCatchAll && values.isDisabled,
+      });
     },
     [config, save, isOnlyCatchAll, form, t, autoAssignField, rulesLocked],
   );
@@ -175,6 +178,7 @@ export function BinConfigPanel() {
       {
         isCatchAll: false,
         isOverride: false,
+        overridePriority: null,
         isDisabled: form.getValues("isDisabled"),
         rules: emptyRuleGroup(),
         maxCopies: null,
@@ -186,6 +190,105 @@ export function BinConfigPanel() {
 
   const isCatchAll = form.watch("isCatchAll");
   const isDisabled = form.watch("isDisabled");
+  const isOverride = form.watch("isOverride");
+  const draftRules = form.watch("rules") as BinRuleGroup;
+  const draftPriority = form.watch("overridePriority");
+  const hasCatchAllRules = isCatchAll && draftRules.conditions.length > 0;
+  const showPriority =
+    !autoAssignField && (hasCatchAllRules || (!isCatchAll && isOverride));
+
+  const overrideOrder = useMemo(
+    () =>
+      sortOverrideBins(
+        configs.map((c) =>
+          c.binNumber === config.binNumber
+            ? {
+                ...c,
+                rules: draftRules,
+                isCatchAll,
+                isOverride: !isCatchAll && isOverride,
+                isDisabled: !isCatchAll && isDisabled,
+                overridePriority: Number.isNaN(draftPriority)
+                  ? null
+                  : draftPriority,
+              }
+            : isCatchAll && c.isCatchAll
+              ? { ...c, isCatchAll: false }
+              : c,
+        ),
+      ).filter((c) => c.isCatchAll || !c.isDisabled),
+    [
+      configs,
+      config.binNumber,
+      draftRules,
+      isCatchAll,
+      isOverride,
+      isDisabled,
+      draftPriority,
+    ],
+  );
+
+  const priorityField = showPriority && (
+    <Field
+      className="mb-6"
+      data-invalid={!!form.formState.errors.overridePriority}
+    >
+      <FieldLabel htmlFor="bin-override-priority">
+        {t("binConfigPanel.priorityLabel")}
+      </FieldLabel>
+      <Controller
+        name="overridePriority"
+        control={form.control}
+        render={({ field }) => (
+          <Input
+            id="bin-override-priority"
+            type="number"
+            min={1}
+            max={OVERRIDE_PRIORITY_MAX}
+            step={1}
+            className="max-w-24"
+            placeholder={t("binConfigPanel.priorityPlaceholder")}
+            value={
+              field.value == null || Number.isNaN(field.value)
+                ? ""
+                : field.value
+            }
+            onChange={(e) =>
+              field.onChange(
+                e.target.value === "" ? null : Number(e.target.value),
+              )
+            }
+          />
+        )}
+      />
+      <FieldDescription>
+        {t("binConfigPanel.priorityDescription")}
+      </FieldDescription>
+      {overrideOrder.length > 1 && (
+        <p className="text-2xs text-foreground/70">
+          {t("binConfigPanel.priorityOrder", {
+            order: groupOverridesByPriority(overrideOrder)
+              .map((group) => {
+                const names = group.map((c) =>
+                  c.isCatchAll
+                    ? t("binConfigPanel.priorityOrderCatchAll", {
+                        number: c.binNumber,
+                      })
+                    : t("binLabel", { number: c.binNumber }),
+                );
+                return names.length > 1
+                  ? t("binConfigPanel.priorityOrderTie", {
+                      bins: names.join(" / "),
+                    })
+                  : names[0];
+              })
+              .join(", "),
+          })}
+        </p>
+      )}
+      <FieldError errors={[form.formState.errors.overridePriority]} />
+    </Field>
+  );
 
   const disableToggle = !isCatchAll && (
     <Field className="mb-6">
@@ -289,6 +392,8 @@ export function BinConfigPanel() {
               form.setValue("lowMatchPercent", null, {
                 shouldDirty: true,
               });
+              form.setValue("isOverride", false, { shouldDirty: true });
+              form.setValue("overridePriority", null, { shouldDirty: true });
               form.setValue("isDisabled", false, { shouldDirty: true });
               field.onChange(!field.value);
             }}
@@ -424,6 +529,7 @@ export function BinConfigPanel() {
               </div>
             </Field>
           )}
+          {!isCatchAll && priorityField}
           {!autoAssignField && !isCatchAll && (
             <Field
               className="mb-6"
@@ -484,24 +590,39 @@ export function BinConfigPanel() {
               <FieldError errors={[form.formState.errors.maxCopies]} />
             </Field>
           )}
-          {isCatchAll ? (
-            lowMatchField
-          ) : (
-            <div className="flex items-center justify-between mb-2">
+          {isCatchAll && lowMatchField}
+          {isCatchAll && priorityField}
+          <div className="flex items-center justify-between mb-2">
+            {isCatchAll ? (
+              <span className="flex items-center gap-1.5">
+                <Label>{t("binConfigPanel.catchAllRulesLabel")}</Label>
+                <Tooltip>
+                  <TooltipTrigger
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                    aria-label={t("binConfigPanel.catchAllRulesDescription")}
+                  >
+                    <IconHelpCircle className="size-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    {t("binConfigPanel.catchAllRulesDescription")}
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+            ) : (
               <Label>{t("binConfigPanel.rulesLabel")}</Label>
-              {apiDocsUrl && (
-                <a
-                  href={apiDocsUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
-                >
-                  {t("binConfigPanel.apiDocsLink")}
-                </a>
-              )}
-            </div>
-          )}
-          {isCatchAll ? null : autoAssignField ? (
+            )}
+            {apiDocsUrl && (
+              <a
+                href={apiDocsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
+              >
+                {t("binConfigPanel.apiDocsLink")}
+              </a>
+            )}
+          </div>
+          {!isCatchAll && autoAssignField ? (
             config.rules.conditions.length > 0 ? (
               <RuleSummary rules={config.rules} />
             ) : (

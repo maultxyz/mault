@@ -8,7 +8,9 @@ import {
   resolveGameId,
   snapshotBinSet,
   toIsDisabled,
+  toLowMatchPercent,
   toMaxCopies,
+  toOverridePriority,
 } from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
@@ -19,11 +21,21 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
-    const { rules, isCatchAll, isOverride, cardLimit, maxCopies, isDisabled } =
-      await c.req.json<{
+    const {
+      rules,
+      isCatchAll,
+      isOverride,
+      overridePriority,
+      lowMatchPercent,
+      cardLimit,
+      maxCopies,
+      isDisabled,
+    } = await c.req.json<{
         rules: BinRuleGroup;
         isCatchAll?: boolean;
         isOverride?: boolean;
+        overridePriority?: number | null;
+        lowMatchPercent?: number | null;
         cardLimit?: number | null;
         maxCopies?: number | null;
         isDisabled?: boolean;
@@ -75,6 +87,12 @@ export const editBinRoute = new Hono<AppEnv>().put(
               rules,
               isCatchAll: isCatchAll ?? false,
               isOverride: !isCatchAll && isOverride === true,
+              overridePriority: toOverridePriority(
+                overridePriority,
+                isCatchAll,
+                isOverride,
+              ),
+              lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
               cardLimit: cardLimit ?? null,
               maxCopies: toMaxCopies(maxCopies, isCatchAll),
               isDisabled: toIsDisabled(
@@ -90,6 +108,12 @@ export const editBinRoute = new Hono<AppEnv>().put(
             rules,
             isCatchAll: isCatchAll ?? false,
             isOverride: !isCatchAll && isOverride === true,
+            overridePriority: toOverridePriority(
+              overridePriority,
+              isCatchAll,
+              isOverride,
+            ),
+            lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
             cardLimit: cardLimit ?? null,
             maxCopies: toMaxCopies(maxCopies, isCatchAll),
             isDisabled: toIsDisabled(isDisabled, isCatchAll),
@@ -109,6 +133,8 @@ export const editBinRoute = new Hono<AppEnv>().put(
             rules: true,
             isCatchAll: true,
             isOverride: true,
+            overridePriority: true,
+            lowMatchPercent: true,
             cardLimit: true,
             maxCopies: true,
             isDisabled: true,
@@ -126,6 +152,8 @@ export const editBinRoute = new Hono<AppEnv>().put(
               rules: b.rules as BinRuleGroup,
               isCatchAll: b.isCatchAll,
               isOverride: b.isOverride,
+              overridePriority: b.overridePriority,
+              lowMatchPercent: b.lowMatchPercent,
               cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
               isDisabled: b.isDisabled,

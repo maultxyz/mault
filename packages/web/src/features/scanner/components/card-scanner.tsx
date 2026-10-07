@@ -66,10 +66,10 @@ export function CardScanner({
     binLimitReached,
     resolveBinLimit,
     dismissBinLimit,
-    fullChaosBins,
-    fullChaosBinCount,
-    emptyNextFullChaosBin,
-    dismissFullChaosBins,
+    fullBins,
+    fullBinCount,
+    emptyNextFullBin,
+    dismissFullBins,
     setScannerRunning,
   } = useScannedCards();
   const binFillLevels = useBinFillLevels();
@@ -411,11 +411,11 @@ export function CardScanner({
     [resolveBinLimit, handleResumeScanning],
   );
 
-  const handleEmptyNextFullChaosBin = useCallback(
+  const handleEmptyNextFullBin = useCallback(
     async (options: EmptyBinOptions) => {
-      if (await emptyNextFullChaosBin(options)) handleResumeScanning();
+      if (await emptyNextFullBin(options)) handleResumeScanning();
     },
-    [emptyNextFullChaosBin, handleResumeScanning],
+    [emptyNextFullBin, handleResumeScanning],
   );
 
   const canScan = isCameraActive;
@@ -581,20 +581,25 @@ export function CardScanner({
         onConfirm={handleContinueAfterBinLimit}
       />
       <EmptyBinToLocationDialog
-        binNumber={fullChaosBins?.[0] ?? null}
+        binNumber={fullBins?.[0] ?? null}
+        description={
+          selectedSet?.isRepackMode
+            ? t("repackCompleteDialog.description", { bin: fullBins?.[0] })
+            : undefined
+        }
         step={
-          fullChaosBins
+          fullBins
             ? {
-                index: fullChaosBinCount - fullChaosBins.length + 1,
-                total: fullChaosBinCount,
+                index: fullBinCount - fullBins.length + 1,
+                total: fullBinCount,
               }
             : undefined
         }
         collectionGuid={activeCollection?.guid}
         onOpenChange={(open) => {
-          if (!open) dismissFullChaosBins();
+          if (!open) dismissFullBins();
         }}
-        onConfirm={handleEmptyNextFullChaosBin}
+        onConfirm={handleEmptyNextFullBin}
       />
       <StaleDeviceDialog
         open={staleDialogOpen}

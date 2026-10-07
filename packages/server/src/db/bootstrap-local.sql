@@ -73,10 +73,11 @@ BEGIN
 END
 $$;
 
--- platform_user_roles, impersonation_audit, and scan_stats are
--- intentionally not granted here - the app only ever touches them via `db`
--- directly (see auth/local.ts, routes/impersonation.ts,
--- lib/scan-stats.ts), never through an authQuery()/authenticated
+-- platform_user_roles, impersonation_audit, scan_stats and
+-- platform_stats_settings are intentionally not granted here - the app only
+-- ever touches them via `db` directly (see auth/local.ts,
+-- routes/impersonation.ts, lib/scan-stats.ts, lib/platform-stats.ts),
+-- never through an authQuery()/authenticated
 -- session, so authenticated has no need to read or write them.
 
 -- SECURITY DEFINER: evaluated with the privileges of the function's owner

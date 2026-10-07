@@ -10,6 +10,18 @@ import type {
   RepackSlot,
 } from "@magic-vault/shared";
 
+export interface BinConfigSaveInput {
+  binNumber: number;
+  rules: BinRuleGroup;
+  isCatchAll?: boolean;
+  cardLimit?: number | null;
+  isOverride?: boolean;
+  overridePriority?: number | null;
+  lowMatchPercent?: number | null;
+  maxCopies?: number | null;
+  isDisabled?: boolean;
+}
+
 export interface BinModeDraft {
   autoAssignField: string | null;
   scanOnly: boolean;
@@ -66,15 +78,7 @@ export interface BinConfigsContextValue {
   setSelectedBin: (bin: number) => void;
   setBinFormDirty: (dirty: boolean) => void;
   selectedConfig: BinConfig;
-  save: (
-    binNumber: number,
-    rules: BinRuleGroup,
-    isCatchAll?: boolean,
-    cardLimit?: number | null,
-    isOverride?: boolean,
-    maxCopies?: number | null,
-    isDisabled?: boolean,
-  ) => void;
+  save: (input: BinConfigSaveInput) => void;
   emptyBin: (binNumber: number, options?: EmptyBinOptions) => Promise<boolean>;
   activateSet: (guid: string) => Promise<void>;
   createSet: (name: string) => Promise<void>;

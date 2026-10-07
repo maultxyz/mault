@@ -13,6 +13,7 @@ import {
   IconDownload,
   IconLayoutGrid,
   IconLayoutList,
+  IconListCheck,
   IconStack2,
   IconTrash,
   IconZoomIn,
@@ -30,6 +31,7 @@ export function CardToolbar({
   onSortChange,
   sortableFields,
   onExport,
+  onStartReview,
   onClearAll,
   hasCards,
   activeFilters,
@@ -158,6 +160,19 @@ export function CardToolbar({
           }
         >
           <IconCheckbox className="size-4" />
+        </Button>
+      )}
+      {onStartReview && (
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={onStartReview}
+          disabled={!hasCards}
+          className="shrink-0"
+          title={t("cardToolbar.reviewCards")}
+          aria-label={t("cardToolbar.reviewCards")}
+        >
+          <IconListCheck className="size-4" />
         </Button>
       )}
       {(onExport || onClearAll) && (

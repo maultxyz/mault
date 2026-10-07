@@ -118,6 +118,8 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "More than {{percent}}% away from neutral. The arm shouldn't touch the inner wall, and the further out you push it, the higher the risk of skipping gears or the horn shifting on the shaft.",
+    "paddleOpenDelayLabel": "Paddle Open Delay (ms)",
+    "paddleOpenDelayDescription": "How long the paddle gets to lower before the pusher fires. Longer if the pusher hits the card before the paddle is fully down; shorter to sort faster.",
     "pusherHoldDurationLabel": "Pusher Hold Time (ms)",
     "pusherHoldDurationDescription": "How long the pusher stays extended before returning to neutral. Longer if cards aren't pushed fully out before it retracts; keep it short, since holding against the end stop strains the servo horn.",
     "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
@@ -213,6 +215,7 @@
       "pusherRight": "Pusher right",
       "pusherHoldDuration": "Pusher hold time (ms)",
       "paddleCloseDelay": "Paddle close delay (ms)",
+      "paddleOpenDelay": "Paddle open delay (ms)",
       "speed": "Speed",
       "duration": "Timeout (ms)",
       "pulseDuration": "Pulse (ms)",
@@ -247,6 +250,7 @@
   "calibratePage": {
     "resetServosToDefaults": "Reset servos to defaults",
     "moduleHistory": {
+      "paddleOpenDelay": "Paddle Open Delay",
       "bottom": "Bottom",
       "paddle": "Paddle",
       "pusherHoldDuration": "Pusher Hold Time",

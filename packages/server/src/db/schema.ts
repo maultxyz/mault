@@ -225,6 +225,8 @@ export const bins = pgTable(
     rules: jsonb("rules").notNull(),
     isCatchAll: boolean("is_catch_all").notNull().default(false),
     isOverride: boolean("is_override").notNull().default(false),
+    overridePriority: integer("override_priority"),
+    lowMatchPercent: doublePrecision("low_match_percent"),
     binNumber: integer("bin_number").notNull(),
     binSet: integer("bin_set")
       .notNull()
@@ -318,6 +320,7 @@ export const moduleConfigs = pgTable(
     pusherRight: integer("pusher_right").notNull().default(460),
     pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
+    paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -751,6 +754,7 @@ export const moduleConfigAudit = pgTable(
     // migration adding it can backfill existing audit rows - every new row
     // always supplies it explicitly, same as the rest.
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
+    paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
@@ -834,6 +838,16 @@ export const scanStats = pgTable("scan_stats", {
   vectorizedOn: text("vectorized_on"),
   scannedAt: timestamp("scanned_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const platformStatsSettings = pgTable("platform_stats_settings", {
+  id: text("id").primaryKey(),
+  guildId: text("guild_id"),
+  channelId: text("channel_id"),
+  stats: jsonb("stats").notNull().default([]),
+  lastPostedAt: timestamp("last_posted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const tcgplayerPrices = pgTable(

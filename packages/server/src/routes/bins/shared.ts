@@ -1,9 +1,12 @@
-import type {
-  BinConfig,
-  BinRuleGroup,
-  BinSet,
-  FieldMeta,
-  RepackSlot,
+import {
+  LOW_MATCH_PERCENT_MAX,
+  OVERRIDE_PRIORITY_MAX,
+  parseLegacyCatchAllThreshold,
+  type BinConfig,
+  type BinRuleGroup,
+  type BinSet,
+  type FieldMeta,
+  type RepackSlot,
 } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
 import { listOrgDevices } from "../../lib/devices";
@@ -32,6 +35,42 @@ export function toMaxCopies(
 ): number | null {
   if (isCatchAll || value == null) return null;
   return Number.isInteger(value) && value >= 1 ? value : null;
+}
+
+export function toOverridePriority(
+  value: number | null | undefined,
+  isCatchAll: boolean | undefined,
+  isOverride: boolean | undefined,
+): number | null {
+  if ((!isCatchAll && !isOverride) || value == null) return null;
+  return Number.isInteger(value) && value >= 1 && value <= OVERRIDE_PRIORITY_MAX
+    ? value
+    : null;
+}
+
+export function toLowMatchPercent(
+  value: number | null | undefined,
+  isCatchAll: boolean | undefined,
+): number | null {
+  if (!isCatchAll || value == null) return null;
+  return Number.isFinite(value) && value > 0 && value <= LOW_MATCH_PERCENT_MAX
+    ? value
+    : null;
+}
+
+export function fromLegacyCatchAllRules(config: {
+  rules: BinRuleGroup;
+  isCatchAll?: boolean;
+  lowMatchPercent?: number | null;
+}): { rules: BinRuleGroup; lowMatchPercent: number | null } {
+  if (!config.isCatchAll) return { rules: config.rules, lowMatchPercent: null };
+  if (config.lowMatchPercent !== undefined) {
+    return { rules: config.rules, lowMatchPercent: config.lowMatchPercent };
+  }
+  const legacy = parseLegacyCatchAllThreshold(config.rules);
+  return legacy == null
+    ? { rules: config.rules, lowMatchPercent: null }
+    : { rules: { ...config.rules, conditions: [] }, lowMatchPercent: legacy };
 }
 
 export function emptyRules(): BinRuleGroup {
@@ -65,6 +104,8 @@ function toBinSet(row: {
     rules: unknown;
     isCatchAll: boolean;
     isOverride: boolean;
+    overridePriority: number | null;
+    lowMatchPercent: number | null;
     cardLimit: number | null;
     maxCopies: number | null;
     isDisabled: boolean;
@@ -104,6 +145,8 @@ function toBinSet(row: {
       rules: bin.rules as BinRuleGroup,
       isCatchAll: bin.isCatchAll,
       isOverride: bin.isOverride,
+      overridePriority: bin.overridePriority,
+      lowMatchPercent: bin.lowMatchPercent,
       cardLimit: bin.cardLimit,
       maxCopies: bin.maxCopies,
       isDisabled: bin.isDisabled,
@@ -156,6 +199,8 @@ const binSetQuery = {
         rules: true,
         isCatchAll: true,
         isOverride: true,
+        overridePriority: true,
+        lowMatchPercent: true,
         cardLimit: true,
         maxCopies: true,
         isDisabled: true,
@@ -191,6 +236,8 @@ export async function snapshotBinSet(
       rules: true,
       isCatchAll: true,
       isOverride: true,
+      overridePriority: true,
+      lowMatchPercent: true,
       cardLimit: true,
       maxCopies: true,
       isDisabled: true,
@@ -202,6 +249,8 @@ export async function snapshotBinSet(
     rules: r.rules as BinRuleGroup,
     isCatchAll: r.isCatchAll,
     isOverride: r.isOverride,
+    overridePriority: r.overridePriority,
+    lowMatchPercent: r.lowMatchPercent,
     cardLimit: r.cardLimit,
     maxCopies: r.maxCopies,
     isDisabled: r.isDisabled,
@@ -252,6 +301,7 @@ export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
     .set({
       rules: emptyRules(),
       isOverride: false,
+      overridePriority: null,
       maxCopies: null,
       updatedAt: new Date(),
     })
@@ -282,6 +332,8 @@ export async function applyScanOnlyBins(
       rules: emptyRules(),
       isCatchAll: false,
       isOverride: false,
+      overridePriority: null,
+      lowMatchPercent: null,
       updatedAt: new Date(),
     })
     .where(and(eq(bins.binSet, binSetId), eq(bins.isDeleted, false)));

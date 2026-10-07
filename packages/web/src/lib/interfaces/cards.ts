@@ -96,6 +96,7 @@ export interface CardToolbarProps {
   onSortChange: (key: string | null) => void;
   sortableFields: FieldMeta[];
   onExport?: () => void;
+  onStartReview?: () => void;
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
@@ -222,6 +223,7 @@ export interface SessionSummaryDialogProps {
   onOpenChange: (open: boolean) => void;
   cards: ScannedCard[];
   elapsedMs: number;
+  sessionScanCount: number;
   collectionName: string;
   onMarkDownloaded: (scanIds: string[]) => void;
   gridFilters: CardFilters;
@@ -292,6 +294,8 @@ export interface CardDetailPanelProps {
   total?: number;
   copyIndex?: number;
   copyCount?: number;
+  reviewMode?: boolean;
+  onReviewComplete?: () => void;
 }
 
 export interface CardFilterPopoverProps {
@@ -302,4 +306,19 @@ export interface CardFilterPopoverProps {
   availableColors: { key: string; label: string; bg: string }[];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
+}
+
+export type GridNavigationKey =
+  | "ArrowLeft"
+  | "ArrowRight"
+  | "ArrowUp"
+  | "ArrowDown";
+
+export interface CardResultKeyboardNavOptions {
+  onSelect: (index: number, options: CardCorrectionOptions) => void;
+  onCancel: () => void;
+}
+
+export interface CardCorrectionOptions {
+  stay: boolean;
 }

@@ -2,7 +2,11 @@ import { registerHotkeys } from "@/lib/hotkeys";
 import type { HotkeyHandlers } from "@/lib/interfaces/hotkeys";
 import { useEffect, useRef } from "react";
 
-export function useHotkeys(handlers: HotkeyHandlers, enabled = true) {
+export function useHotkeys(
+  handlers: HotkeyHandlers,
+  enabled = true,
+  priority = 0,
+) {
   const handlersRef = useRef(handlers);
   const enabledRef = useRef(enabled);
 
@@ -16,7 +20,8 @@ export function useHotkeys(handlers: HotkeyHandlers, enabled = true) {
       registerHotkeys({
         getHandlers: () => handlersRef.current,
         isEnabled: () => enabledRef.current,
+        priority,
       }),
-    [],
+    [priority],
   );
 }

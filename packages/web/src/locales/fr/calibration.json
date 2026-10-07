@@ -118,6 +118,8 @@
       "neutral": "Neutre"
     },
     "pusherOffsetWarning": "Plus de {{percent}} % par rapport au neutre. Le bras ne doit pas toucher la paroi intérieure, et plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
+    "paddleOpenDelayLabel": "Délai d'ouverture de la palette (ms)",
+    "paddleOpenDelayDescription": "Temps laissé à la palette pour s'abaisser avant le déclenchement du poussoir. Augmente-le si le poussoir touche la carte avant que la palette soit complètement baissée ; réduis-le pour trier plus vite.",
     "pusherHoldDurationLabel": "Durée de maintien du poussoir (ms)",
     "pusherHoldDurationDescription": "Durée pendant laquelle le poussoir reste déployé avant de revenir en position neutre. Augmente-la si les cartes ne sont pas entièrement poussées avant qu'il se rétracte ; garde-la courte, car le maintien contre la butée fatigue le palonnier du servo.",
     "paddleCloseDelayLabel": "Délai de fermeture de la palette (ms)",
@@ -213,6 +215,7 @@
       "pusherRight": "Poussoir droite",
       "pusherHoldDuration": "Maintien du poussoir (ms)",
       "paddleCloseDelay": "Délai de fermeture des volets (ms)",
+      "paddleOpenDelay": "Délai d'ouverture des volets (ms)",
       "speed": "Vitesse",
       "duration": "Délai maximal (ms)",
       "pulseDuration": "Impulsion (ms)",
@@ -247,6 +250,7 @@
   "calibratePage": {
     "resetServosToDefaults": "Réinitialiser les servos",
     "moduleHistory": {
+      "paddleOpenDelay": "Délai d'ouverture de la palette",
       "bottom": "Bas",
       "paddle": "Palette",
       "pusherHoldDuration": "Maintien du poussoir",

@@ -22,8 +22,13 @@ export interface SupportPromptToastProps {
   toastId: string | number;
   showSubscribe: boolean;
   onSubscribe: () => void;
+  githubStars?: number;
 }
 
 export interface PlanFeaturesProps {
   billing: BillingStatus;
+}
+
+export interface GithubRepoResponse {
+  stargazers_count: number;
 }

@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.5.0"
+#define FIRMWARE_VERSION "2.6.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -295,6 +295,8 @@ int findBlockedModule() {
   return 0;
 }
 
+#define DELAY_PADDLE 300  // default paddleOpenDelay: time for paddle to engage
+
 struct ModuleConfig {
   int bottomClosed, bottomOpen;
   int paddleClosed, paddleOpen;
@@ -305,6 +307,7 @@ struct ModuleConfig {
                           // paddle closes again - independent of
                           // DELAY_PUSHER_HOLD, which governs when the pusher
                           // itself returns to neutral (see routeCard())
+  int paddleOpenDelay;  // ms the paddle gets to lower before the pusher fires
 };
 
 ModuleConfig moduleConfig[MAX_MODULES];
@@ -324,11 +327,26 @@ FeederConfig feederConfig = {315, 1000, 40, 100, 100, 295, 0};
 
 #define CONFIG_EEPROM_ADDR 16
 #define CONFIG_EEPROM_MAGIC 0xC7
-#define CONFIG_EEPROM_LAYOUT 1
+#define CONFIG_EEPROM_LAYOUT 2
+#define CONFIG_EEPROM_LAYOUT_V1 1
 
 struct StoredConfig {
   int channelOffset;
   ModuleConfig modules[MAX_MODULES];
+  FeederConfig feeder;
+};
+
+struct ModuleConfigV1 {
+  int bottomClosed, bottomOpen;
+  int paddleClosed, paddleOpen;
+  int pusherLeft, pusherNeutral, pusherRight;
+  int pusherHoldDuration;
+  int paddleCloseDelay;
+};
+
+struct StoredConfigV1 {
+  int channelOffset;
+  ModuleConfigV1 modules[MAX_MODULES];
   FeederConfig feeder;
 };
 
@@ -358,12 +376,31 @@ bool configMatchesStored() {
   return memcmp(&current, &storedConfig, sizeof(StoredConfig)) == 0;
 }
 
+void loadStoredConfigV1() {
+  StoredConfigV1 legacy;
+  EEPROM.get(CONFIG_EEPROM_ADDR + 2, legacy);
+  storedConfig.channelOffset = legacy.channelOffset;
+  for (int m = 0; m < MAX_MODULES; m++) {
+    const ModuleConfigV1& old = legacy.modules[m];
+    storedConfig.modules[m] = {old.bottomClosed, old.bottomOpen,
+                               old.paddleClosed, old.paddleOpen,
+                               old.pusherLeft, old.pusherNeutral, old.pusherRight,
+                               old.pusherHoldDuration, old.paddleCloseDelay,
+                               DELAY_PADDLE};
+  }
+  storedConfig.feeder = legacy.feeder;
+}
+
 void loadStoredConfig() {
-  if (EEPROM.read(CONFIG_EEPROM_ADDR) != CONFIG_EEPROM_MAGIC ||
-      EEPROM.read(CONFIG_EEPROM_ADDR + 1) != CONFIG_EEPROM_LAYOUT) {
+  if (EEPROM.read(CONFIG_EEPROM_ADDR) != CONFIG_EEPROM_MAGIC) return;
+  uint8_t layout = EEPROM.read(CONFIG_EEPROM_ADDR + 1);
+  if (layout == CONFIG_EEPROM_LAYOUT) {
+    EEPROM.get(CONFIG_EEPROM_ADDR + 2, storedConfig);
+  } else if (layout == CONFIG_EEPROM_LAYOUT_V1) {
+    loadStoredConfigV1();
+  } else {
     return;
   }
-  EEPROM.get(CONFIG_EEPROM_ADDR + 2, storedConfig);
   hasStoredConfig = true;
   moduleChannelOffset = storedConfig.channelOffset;
   memcpy(moduleConfig, storedConfig.modules, sizeof(moduleConfig));
@@ -415,6 +452,7 @@ void printStoredModule(int module, Print& reply) {
   out["pusherRight"] = c.pusherRight;
   out["pusherHoldDuration"] = c.pusherHoldDuration;
   out["paddleCloseDelay"] = c.paddleCloseDelay;
+  out["paddleOpenDelay"] = c.paddleOpenDelay;
   serializeJson(out, reply);
   reply.println();
 }
@@ -437,7 +475,6 @@ void printStoredFeeder(Print& reply) {
 
 // Routing delays (ms) — tune to match your hardware timing
 #define DELAY_CARD_ENTER   300  // time for card to settle after target bottom opens
-#define DELAY_PADDLE       300  // time for paddle to engage
 #define DELAY_PUSH         600  // time for pusher to complete its stroke
 // A servo is positional, not velocity-controlled - commanding it to (or past)
 // a hard mechanical stop makes it stall at full torque against that stop for
@@ -563,8 +600,9 @@ void lowerPaddleForPush(int module) {
   if (paddleOpenedAt[module - 1] == 0) {
     setServoPosition(getChannel(module, 1), moduleConfig[module - 1].paddleOpen);
   }
+  unsigned long openDelay = (unsigned long)max(moduleConfig[module - 1].paddleOpenDelay, 0);
   unsigned long elapsed = millis() - paddleOpenedAt[module - 1];
-  if (elapsed < DELAY_PADDLE) waitMs(DELAY_PADDLE - elapsed);
+  if (elapsed < openDelay) waitMs(openDelay - elapsed);
 }
 
 // SG90s keep hunting around a held position and pick up supply noise as
@@ -918,7 +956,8 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
     waitMs(200);
   } else {
     ModuleConfig& c = moduleConfig[targetModule - 1];
-    pushCard(targetModule, pushLeft, c.pusherHoldDuration, c.paddleCloseDelay, true);
+    pushCard(targetModule, pushLeft, c.paddleOpenDelay, c.pusherHoldDuration,
+             c.paddleCloseDelay, true);
   }
 
   if (feedNext && !nextFed) feedAndReportEvent(reply);
@@ -927,13 +966,14 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
 
 // The left/right push at the end of a route, also run standalone by
 // pushTest so the timings can be tuned without feeding a card.
-// paddleCloseDelayMs counts from when the pusher fired, independently of
-// holdMs (which only governs when the pusher itself retracts).
-void pushCard(int module, bool pushLeft, int holdMs, int paddleCloseDelayMs,
-              bool resetPrecedingModules) {
+// paddleOpenDelayMs is how long the paddle gets to lower before the pusher
+// fires. paddleCloseDelayMs counts from when the pusher fired, independently
+// of holdMs (which only governs when the pusher itself retracts).
+void pushCard(int module, bool pushLeft, int paddleOpenDelayMs, int holdMs,
+              int paddleCloseDelayMs, bool resetPrecedingModules) {
   ModuleConfig& c = moduleConfig[module - 1];
   setServoPosition(getChannel(module, 1), c.paddleOpen);
-  waitMs(DELAY_PADDLE);
+  waitMs(paddleOpenDelayMs);
   setServoPosition(getChannel(module, 2), pushLeft ? c.pusherLeft : c.pusherRight);
   unsigned long pusherFiredAt = millis();
   waitMs(holdMs);
@@ -1245,6 +1285,7 @@ void runCommand(char* json, Print& reply) {
     c.pusherRight   = cfg["pusherRight"]   | c.pusherRight;
     c.paddleCloseDelay = cfg["paddleCloseDelay"] | c.paddleCloseDelay;
     c.pusherHoldDuration = cfg["pusherHoldDuration"] | c.pusherHoldDuration;
+    c.paddleOpenDelay = constrain((int)(cfg["paddleOpenDelay"] | c.paddleOpenDelay), 0, 5000);
 
     reply.print(F("{\"status\":\"ok\",\"module\":"));
     reply.print(module);
@@ -1371,7 +1412,8 @@ void runCommand(char* json, Print& reply) {
   }
 
   // {"pushTest": {"module": N, "direction": "left"|"right",
-  //   "pusherHoldDuration": ms, "paddleCloseDelay": ms}} - timings optional,
+  //   "paddleOpenDelay": ms, "pusherHoldDuration": ms, "paddleCloseDelay": ms}}
+  //   - timings optional,
   // default to the module's stored config
   if (!doc["pushTest"].isNull()) {
     JsonObject test = doc["pushTest"];
@@ -1388,8 +1430,9 @@ void runCommand(char* json, Print& reply) {
     ModuleConfig& c = moduleConfig[module - 1];
     int holdMs = constrain((int)(test["pusherHoldDuration"] | c.pusherHoldDuration), 0, 5000);
     int paddleMs = constrain((int)(test["paddleCloseDelay"] | c.paddleCloseDelay), 0, 5000);
+    int openMs = constrain((int)(test["paddleOpenDelay"] | c.paddleOpenDelay), 0, 5000);
     ensureServoDriver();
-    pushCard(module, strcmp(direction, "left") == 0, holdMs, paddleMs, false);
+    pushCard(module, strcmp(direction, "left") == 0, openMs, holdMs, paddleMs, false);
 
     reply.print(F("{\"status\":\"pushed\",\"module\":"));
     reply.print(module);
@@ -1415,7 +1458,7 @@ void setup() {
 #endif
 
   for (int m = 0; m < MAX_MODULES; m++) {
-    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, DELAY_PUSHER_HOLD, 150};
+    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, DELAY_PUSHER_HOLD, 150, DELAY_PADDLE};
   }
   beginEeprom();
   loadStoredConfig();

@@ -5,7 +5,7 @@ export {
   SCAN_ATTACHMENT_NAME,
 } from "./embeds";
 export { buildSortingLogicSummary } from "./sorting-logic-summary";
-export { fetchDiscordGuild } from "./guild";
+export { fetchDiscordGuild, fetchDiscordGuilds } from "./guild";
 export {
   sendDiscordChannelMessage,
   sendDiscordNotification,

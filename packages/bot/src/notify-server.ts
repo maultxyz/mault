@@ -71,6 +71,24 @@ async function compositeSideBySide(
 export function startNotifyServer(client: Client) {
   const app = new Hono();
 
+  app.get("/guilds", (c) => {
+    const secret = c.req.header("X-Bot-Secret");
+    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+      return c.json({ success: false, message: "Unauthorized" }, 401);
+    }
+
+    return c.json({
+      success: true,
+      data: [...client.guilds.cache.values()]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map((guild) => ({
+          id: guild.id,
+          name: guild.name,
+          iconUrl: guild.iconURL({ size: 64 }),
+        })),
+    });
+  });
+
   app.get("/guilds/:guildId", (c) => {
     const secret = c.req.header("X-Bot-Secret");
     if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
