@@ -838,6 +838,16 @@ export const scanStats = pgTable("scan_stats", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const platformStatsSettings = pgTable("platform_stats_settings", {
+  id: text("id").primaryKey(),
+  guildId: text("guild_id"),
+  channelId: text("channel_id"),
+  stats: jsonb("stats").notNull().default([]),
+  lastPostedAt: timestamp("last_posted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const tcgplayerPrices = pgTable(
   "tcgplayer_prices",
   {

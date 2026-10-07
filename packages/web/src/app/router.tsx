@@ -96,6 +96,9 @@ const AdminGameEditorPage = lazy(
 );
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
+const AdminDiscordStatsPage = lazy(
+  () => import("@/app/routes/app/admin/discord-stats"),
+);
 const AdminAnnouncementsPage = lazy(
   () => import("@/app/routes/app/admin/announcements"),
 );
@@ -334,6 +337,10 @@ export const router = createBrowserRouter([
                           {
                             path: "plans",
                             element: <AdminPlansPage />,
+                          },
+                          {
+                            path: "discord-stats",
+                            element: <AdminDiscordStatsPage />,
                           },
                           {
                             path: "announcements",

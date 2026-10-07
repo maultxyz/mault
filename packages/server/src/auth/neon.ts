@@ -136,4 +136,16 @@ export const neonAuthProvider: AuthProvider = {
     );
     return rows.rows[0]?.name ?? "your organization";
   },
+
+  async countUsersAndOrganisations() {
+    const rows = await db.execute<{ users: number; organisations: number }>(
+      sql`SELECT
+        (SELECT count(*)::int FROM neon_auth.user) AS users,
+        (SELECT count(*)::int FROM neon_auth.organization) AS organisations`,
+    );
+    return {
+      users: rows.rows[0]?.users ?? 0,
+      organisations: rows.rows[0]?.organisations ?? 0,
+    };
+  },
 };
