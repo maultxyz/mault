@@ -209,6 +209,7 @@ export function ScannedCardsProvider({
     timerResetSignal,
   );
   const [recentScanTimes, setRecentScanTimes] = useState<number[]>([]);
+  const [sessionScanCount, setSessionScanCount] = useState(0);
   const [lastRoutedBin, setLastRoutedBin] = useState<LastRoutedBin | null>(
     null,
   );
@@ -577,6 +578,7 @@ export function ScannedCardsProvider({
         ...prev.filter((time) => time > record.scannedAt - SCAN_RATE_WINDOW_MS),
         record.scannedAt,
       ]);
+      setSessionScanCount((count) => count + 1);
 
       if (record.binNumber != null && tracksBinContents()) {
         binContentsRef.current = [
@@ -1058,6 +1060,7 @@ export function ScannedCardsProvider({
     binContentsRef.current = [];
     setTimerResetSignal((s) => s + 1);
     setRecentScanTimes([]);
+    setSessionScanCount(0);
     if (collection) {
       emptyCollectionRef
         .current(collection.guid)
@@ -1079,6 +1082,7 @@ export function ScannedCardsProvider({
         elapsedMs,
         isTimerActive,
         recentScanTimes,
+        sessionScanCount,
         lastRoutedBin,
         setScannerRunning,
         setAutoFeed,

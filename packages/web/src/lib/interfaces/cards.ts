@@ -222,6 +222,7 @@ export interface SessionSummaryDialogProps {
   onOpenChange: (open: boolean) => void;
   cards: ScannedCard[];
   elapsedMs: number;
+  sessionScanCount: number;
   collectionName: string;
   onMarkDownloaded: (scanIds: string[]) => void;
   gridFilters: CardFilters;

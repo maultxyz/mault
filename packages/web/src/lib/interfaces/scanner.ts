@@ -101,6 +101,7 @@ export interface ScannedCardsContextValue {
   elapsedMs: number;
   isTimerActive: boolean;
   recentScanTimes: number[];
+  sessionScanCount: number;
   lastRoutedBin: LastRoutedBin | null;
   setScannerRunning: (running: boolean) => void;
   setAutoFeed: (enabled: boolean) => void;

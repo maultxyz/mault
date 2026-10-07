@@ -433,6 +433,7 @@ export function SessionSummaryDialog({
   onOpenChange,
   cards,
   elapsedMs,
+  sessionScanCount,
   collectionName,
   onMarkDownloaded,
   gridFilters,
@@ -482,8 +483,9 @@ export function SessionSummaryDialog({
   );
 
   const slides = useMemo(
-    () => buildWrappedSlides(stats, elapsedMs, wrappedEnabled),
-    [stats, elapsedMs, wrappedEnabled],
+    () =>
+      buildWrappedSlides(stats, elapsedMs, sessionScanCount, wrappedEnabled),
+    [stats, elapsedMs, sessionScanCount, wrappedEnabled],
   );
 
   useEffect(() => {
@@ -545,7 +547,9 @@ export function SessionSummaryDialog({
   const autoAdvance = !isLast;
 
   const cardsPerHour =
-    elapsedMs > 0 ? Math.round((cards.length / elapsedMs) * 3_600_000) : null;
+    elapsedMs > 0
+      ? Math.round((sessionScanCount / elapsedMs) * 3_600_000)
+      : null;
 
   const summaryCells: { label: string; value: string }[] = [
     { label: t("sessionSummaryDialog.totalCards"), value: String(cards.length) },
