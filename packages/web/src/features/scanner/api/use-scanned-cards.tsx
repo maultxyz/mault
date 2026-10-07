@@ -326,7 +326,10 @@ export function ScannedCardsProvider({
           ? { ...c, rules: autoTarget.rules }
           : c,
       );
-      saveBinConfig(autoTarget.binNumber, autoTarget.rules);
+      saveBinConfig({
+        binNumber: autoTarget.binNumber,
+        rules: autoTarget.rules,
+      });
       return binConfigsRef.current.find(
         (c) => c.binNumber === autoTarget.binNumber,
       );
@@ -506,7 +509,10 @@ export function ScannedCardsProvider({
         matchedBin = binConfigsRef.current.find(
           (c) => c.binNumber === autoTarget.binNumber,
         );
-        saveBinConfig(autoTarget.binNumber, autoTarget.rules);
+        saveBinConfig({
+          binNumber: autoTarget.binNumber,
+          rules: autoTarget.rules,
+        });
       }
       if (
         selectedSetRef.current?.isChaosMode &&

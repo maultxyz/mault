@@ -225,6 +225,8 @@ export const bins = pgTable(
     rules: jsonb("rules").notNull(),
     isCatchAll: boolean("is_catch_all").notNull().default(false),
     isOverride: boolean("is_override").notNull().default(false),
+    overridePriority: integer("override_priority"),
+    lowMatchPercent: doublePrecision("low_match_percent"),
     binNumber: integer("bin_number").notNull(),
     binSet: integer("bin_set")
       .notNull()

@@ -18,7 +18,9 @@
     "clickToConfigure": "Cliquer pour configurer",
     "waitingForValue": "En attente de la prochaine valeur",
     "scanOnlyDisabled": "Scan uniquement est activé",
-    "alphabetLetter": "Noms commençant par {{letter}}"
+    "alphabetLetter": "Noms commençant par {{letter}}",
+    "priority": "Priorité {{priority}}",
+    "catchAllOverride": "Plus les cartes avec :"
   },
   "binConfigPanel": {
     "overrideLabel": "Règles prioritaires",
@@ -28,7 +30,7 @@
     "maxCopiesLabel": "Limiter les copies par impression",
     "maxCopiesDescription": "Dès que ce bac contient ce nombre de copies d'une même impression (depuis son dernier vidage), les copies suivantes l'ignorent et vont dans le bac suivant dont les règles correspondent, ou dans le bac fourre-tout.",
     "maxCopiesSuffix": "copies de chaque impression",
-    "overrideDescription": "Si ces règles correspondent, ce bac est prioritaire sur les bacs ordinaires. Si plusieurs bacs prioritaires correspondent, celui dont le numéro est le plus petit est choisi. Par exemple, utilisez Prix ≥ 1 ici pour donner la priorité à ce bac sur les bacs de couleur pour les cartes valant au moins 1 $.",
+    "overrideDescription": "Si ces règles correspondent, ce bac est prioritaire sur les bacs ordinaires. Si plusieurs bacs prioritaires correspondent, celui avec le plus petit numéro de priorité est choisi, puis le plus petit numéro de bac. Par exemple, utilisez Prix ≥ 1 ici pour donner la priorité à ce bac sur les bacs de couleur pour les cartes valant au moins 1 $.",
     "needCatchAllError": "Au moins un bac doit être un fourre-tout.",
     "catchAllEnabled": "Fourre-tout activé",
     "setCatchAll": "Définir comme fourre-tout",
@@ -42,7 +44,14 @@
     "clear": "Effacer",
     "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
     "scanOnlyLocked": "Scan uniquement est activé — chaque carte va directement dans le bac 7. Désactive-le ci-dessus pour configurer les bacs.",
-    "modeChangePending": "Enregistre ou ignore le changement de mode en attente ci-dessus avant de modifier les bacs."
+    "modeChangePending": "Enregistre ou ignore le changement de mode en attente ci-dessus avant de modifier les bacs.",
+    "priorityLabel": "Priorité",
+    "priorityPlaceholder": "Aucune",
+    "priorityDescription": "Si plusieurs bacs prioritaires correspondent à une carte, le plus petit nombre l'emporte. Les bacs sans priorité passent ensuite, dans l'ordre des bacs.",
+    "priorityOrder": "Les bacs prioritaires sont vérifiés dans cet ordre : {{order}}",
+    "priorityOrderCatchAll": "Bac {{number}} (fourre-tout)",
+    "catchAllRulesLabel": "Règles prioritaires",
+    "catchAllRulesDescription": "Les cartes qui correspondent à ces règles viennent ici même si les règles d'un autre bac correspondent, par exemple une carte de couleur glissée dans une pile incolore. Laissez vide pour ne recevoir que les cartes qu'aucun autre bac ne prend."
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."

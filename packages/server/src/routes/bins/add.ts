@@ -14,8 +14,11 @@ import {
   getModuleCount,
   loadSets,
   resolveGameId,
+  fromLegacyCatchAllRules,
   toIsDisabled,
+  toLowMatchPercent,
   toMaxCopies,
+  toOverridePriority,
 } from "./shared";
 
 export const addBinSetRoute = new Hono<AppEnv>().post(
@@ -80,17 +83,26 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
               }),
             );
         await tx.insert(bins).values(
-          binsToInsert.map((b) => ({
-            binNumber: b.binNumber,
-            rules: b.rules,
-            isCatchAll: b.isCatchAll,
-            isOverride: !b.isCatchAll && b.isOverride === true,
-            cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
-            maxCopies: toMaxCopies(b.maxCopies, b.isCatchAll),
-            isDisabled: toIsDisabled(b.isDisabled, b.isCatchAll),
-            binSet: newBinSet.id,
-            orgId,
-          })),
+          binsToInsert.map((b) => {
+            const { rules, lowMatchPercent } = fromLegacyCatchAllRules(b);
+            return {
+              binNumber: b.binNumber,
+              rules,
+              isCatchAll: b.isCatchAll,
+              isOverride: !b.isCatchAll && b.isOverride === true,
+              overridePriority: toOverridePriority(
+                b.overridePriority,
+                b.isCatchAll,
+                b.isOverride,
+              ),
+              lowMatchPercent: toLowMatchPercent(lowMatchPercent, b.isCatchAll),
+              cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
+              maxCopies: toMaxCopies(b.maxCopies, b.isCatchAll),
+              isDisabled: toIsDisabled(b.isDisabled, b.isCatchAll),
+              binSet: newBinSet.id,
+              orgId,
+            };
+          }),
         );
         return loadSets(tx, orgId);
       });
