@@ -304,3 +304,14 @@ export interface CardFilterPopoverProps {
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
 }
+
+export type GridNavigationKey =
+  | "ArrowLeft"
+  | "ArrowRight"
+  | "ArrowUp"
+  | "ArrowDown";
+
+export interface CardResultKeyboardNavOptions {
+  onSelectFirst: () => void;
+  onCancel: () => void;
+}

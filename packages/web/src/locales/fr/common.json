@@ -159,12 +159,16 @@
     "then": "puis",
     "keys": {
       "space": "Espace",
-      "shift": "Maj"
+      "shift": "Maj",
+      "left": "←",
+      "right": "→",
+      "escape": "Échap"
     },
     "groups": {
       "general": "Général",
       "navigation": "Navigation",
-      "scanner": "Scanner"
+      "scanner": "Scanner",
+      "cardDetail": "Détails de la carte"
     },
     "actions": {
       "showShortcuts": "Afficher les raccourcis clavier",
@@ -183,7 +187,11 @@
       "scanToggleAutoFeed": "Activer ou désactiver l'alimentation auto",
       "scanCycleFoil": "Changer le type de foil",
       "scanClearDevice": "Vider l'appareil",
-      "scanPickSet": "Choisir une préférence de set"
+      "scanPickSet": "Choisir une préférence de set",
+      "cardPrevious": "Carte précédente",
+      "cardNext": "Carte suivante",
+      "cardCorrect": "Corriger la carte (les flèches choisissent un résultat, Entrée valide)",
+      "cardClose": "Fermer la carte ou annuler la correction"
     }
   },
   "mobileMenu": {
