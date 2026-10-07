@@ -13,7 +13,7 @@ import {
 } from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { resolveGameId } from "./shared";
+import { emptyRules, resolveGameId } from "./shared";
 
 // Marks a physical bin as emptied - cards scanned before now stop counting
 // toward its cardLimit, without touching the collection's card history.
@@ -24,6 +24,9 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
   async (c) => {
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
+    if (!Number.isInteger(binNumber) || binNumber < 1) {
+      return c.json({ success: false, message: "Invalid bin number." }, 400);
+    }
     const gameGuid = c.req.query("gameGuid");
     const { locationGuid, collectionGuid } = await c.req
       .json<EmptyBinOptions>()
@@ -63,8 +66,19 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
         if (!activeBinSet)
           return { message: "No active set found.", success: false };
 
-        const existing = activeBinSet.bins.find((b) => b.binNumber === binNumber);
-        if (!existing) return { message: "Bin not found.", success: false };
+        const existing =
+          activeBinSet.bins.find((b) => b.binNumber === binNumber) ??
+          (
+            await tx
+              .insert(bins)
+              .values({
+                binNumber,
+                rules: emptyRules(),
+                binSet: activeBinSet.id,
+                orgId,
+              })
+              .returning({ id: bins.id })
+          )[0];
 
         let assignedCount = 0;
         if (locationGuid && collectionGuid) {
