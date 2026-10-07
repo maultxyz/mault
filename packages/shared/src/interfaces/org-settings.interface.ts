@@ -7,6 +7,7 @@ export interface OrgSettings {
   discordScanUseThreads: boolean;
   sessionWrappedEnabled: boolean;
   ocrEnabled: boolean;
+  correctionBinPrompt: boolean;
   correctionAutoCloseSeconds: number | null;
   priceSource: PriceSource;
   discordGuildId: string | null;

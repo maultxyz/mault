@@ -52,6 +52,8 @@
   },
   "correctionAutoClose": {
     "heading": "Invite après correction",
+    "promptToggleLabel": "Me demander de déplacer les cartes corrigées",
+    "promptToggleDescription": "Désactivez cette option si vous laissez les cartes corrigées là où elles ont été triées. La carte garde son bac actuel et aucune invite ne s'affiche.",
     "description": "Après avoir corrigé ou identifié une carte, une invite indique dans quel bac elle se trouve et dans quel bac elle va. La fermeture automatique considère la carte comme déplacée à la fin du délai, sans clic.",
     "toggleLabel": "Fermer automatiquement et marquer comme déplacée",
     "secondsLabel": "Fermer après",

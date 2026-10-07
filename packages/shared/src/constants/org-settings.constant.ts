@@ -8,6 +8,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   discordScanUseThreads: true,
   sessionWrappedEnabled: true,
   ocrEnabled: false,
+  correctionBinPrompt: true,
   correctionAutoCloseSeconds: null,
   priceSource: DEFAULT_PRICE_SOURCE,
   discordGuildId: null,
