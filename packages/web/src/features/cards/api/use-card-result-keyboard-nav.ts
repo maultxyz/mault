@@ -7,7 +7,7 @@ import type { CardResultKeyboardNavOptions } from "@/lib/interfaces/cards";
 import { useCallback, useRef, type KeyboardEvent } from "react";
 
 export function useCardResultKeyboardNav({
-  onSelectFirst,
+  onSelect,
   onCancel,
 }: CardResultKeyboardNavOptions) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,13 +30,13 @@ export function useCardResultKeyboardNav({
         first.focus();
       } else if (event.key === "Enter") {
         event.preventDefault();
-        onSelectFirst();
+        onSelect(0, { stay: event.shiftKey });
       } else if (event.key === "Escape") {
         event.preventDefault();
         onCancel();
       }
     },
-    [getResults, onSelectFirst, onCancel],
+    [getResults, onSelect, onCancel],
   );
 
   const onResultKeyDown = useCallback(
@@ -46,10 +46,15 @@ export function useCardResultKeyboardNav({
         onCancel();
         return;
       }
-      if (!isGridNavigationKey(event.key)) return;
       const results = getResults();
       const index = results.indexOf(event.currentTarget);
       if (index === -1) return;
+      if (event.key === "Enter") {
+        event.preventDefault();
+        onSelect(index, { stay: event.shiftKey });
+        return;
+      }
+      if (!isGridNavigationKey(event.key)) return;
       event.preventDefault();
       const next = nextGridIndex(
         index,
@@ -60,7 +65,7 @@ export function useCardResultKeyboardNav({
       if (next === null) inputRef.current?.focus();
       else results[next].focus();
     },
-    [getResults, onCancel],
+    [getResults, onSelect, onCancel],
   );
 
   return { inputRef, gridRef, onInputKeyDown, onResultKeyDown };

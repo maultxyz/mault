@@ -190,8 +190,10 @@
       "scanPickSet": "Choisir une préférence de set",
       "cardPrevious": "Carte précédente",
       "cardNext": "Carte suivante",
-      "cardCorrect": "Corriger la carte (les flèches choisissent un résultat, Entrée valide)",
-      "cardClose": "Fermer la carte ou annuler la correction"
+      "cardCorrect": "Corriger la carte (les flèches choisissent un résultat, Entrée valide, Maj Entrée reste sur la carte pendant la vérification)",
+      "cardClose": "Fermer la carte ou annuler la correction",
+      "reviewStart": "Vérifier les cartes une par une",
+      "reviewAccept": "Pendant la vérification : la carte est bonne, suivante"
     }
   },
   "mobileMenu": {

@@ -7,6 +7,8 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 
 export const HOTKEY_SEQUENCE_TIMEOUT_MS = 1000;
 
+export const HOTKEY_PRIORITY_OVERRIDE = 1;
+
 export const HOTKEY_SEARCH_ATTRIBUTE = "data-hotkey-search";
 
 export const HOTKEY_IGNORED_TARGET_SELECTOR =
@@ -51,6 +53,8 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardNext: { group: "cardDetail", keys: [{ key: "arrowright" }] },
   cardCorrect: { group: "cardDetail", keys: [{ key: "c" }] },
   cardClose: { group: "cardDetail", keys: [{ key: "escape" }] },
+  reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
+  reviewAccept: { group: "cardDetail", keys: [{ key: " " }] },
 };
 
 export const HOTKEY_ROUTES = {

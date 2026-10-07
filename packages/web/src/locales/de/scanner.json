@@ -543,6 +543,10 @@
       "countdown_other": "Schließt in {{count}} Sekunden",
       "doneMoved": "Als umgelegt markiert",
       "done": "Fertig"
+    },
+    "keys": {
+      "enter": "Enter",
+      "escape": "Esc"
     }
   }
 }

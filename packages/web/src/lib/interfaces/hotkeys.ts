@@ -23,7 +23,9 @@ export type HotkeyId =
   | "cardPrevious"
   | "cardNext"
   | "cardCorrect"
-  | "cardClose";
+  | "cardClose"
+  | "reviewStart"
+  | "reviewAccept";
 
 export interface HotkeyCombo {
   key: string;
@@ -40,6 +42,7 @@ export type HotkeyHandlers = Partial<Record<HotkeyId, () => void>>;
 export interface HotkeyRegistration {
   getHandlers: () => HotkeyHandlers;
   isEnabled: () => boolean;
+  priority: number;
 }
 
 export interface HotkeyHintProps {

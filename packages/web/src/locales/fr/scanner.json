@@ -543,6 +543,10 @@
       "countdown_other": "Fermeture dans {{count}} secondes",
       "doneMoved": "Marquée comme déplacée",
       "done": "Terminé"
+    },
+    "keys": {
+      "enter": "Entrée",
+      "escape": "Échap"
     }
   }
 }

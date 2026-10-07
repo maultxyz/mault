@@ -46,10 +46,18 @@ import {
   IconChevronRight,
 } from "@tabler/icons-react";
 import { computeBinCount } from "@magic-vault/shared";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import { useHotkeys } from "@/hooks/use-hotkeys";
+import { toast } from "@/lib/toast";
+import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 
 export function CardGrid() {
@@ -96,14 +104,20 @@ export function CardGrid() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { scanId: openScanId } = useParams<{ scanId?: string }>();
+  const [searchParams] = useSearchParams();
+  const isReviewing = searchParams.get(CARD_REVIEW_SEARCH_PARAM) === "1";
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   // Keeps the open card in the URL (/app/cards/:scanId) so it's shareable
   // and survives a refresh, rather than living only in component state.
   // Replaces history instead of pushing, so browser back always returns to
   // the grid rather than stepping back through every previously viewed card.
   const setOpenScanId = useCallback(
-    (scanId: string | null) => {
-      navigate(scanId ? `/app/cards/${scanId}` : "/app", { replace: true });
+    (scanId: string | null, review = false) => {
+      const reviewSuffix = review ? `?${CARD_REVIEW_SEARCH_PARAM}=1` : "";
+      navigate(scanId ? `/app/cards/${scanId}${reviewSuffix}` : "/app", {
+        replace: true,
+      });
     },
     [navigate],
   );
@@ -197,6 +211,35 @@ export function CardGrid() {
     openPosition && openPosition.entry.scanId === openScanId
       ? openPosition.entry
       : null;
+
+  const startReview = useCallback(async () => {
+    if (!collectionGuid) return;
+    try {
+      const firstPage =
+        page === 0 && pageData
+          ? pageData
+          : await queryClient.fetchQuery(
+              collectionCardsPageQueryOptions(collectionGuid, cardsQuery, 0),
+            );
+      const first = firstPage.items[0];
+      if (first) setOpenScanId(first.scanId, true);
+    } catch (err) {
+      console.error("Failed to start card review:", err);
+    }
+  }, [collectionGuid, page, pageData, queryClient, cardsQuery, setOpenScanId]);
+
+  const finishReview = useCallback(
+    (count: number) => {
+      setOpenScanId(null);
+      toast.success(t("review.complete", { count }));
+    },
+    [setOpenScanId, t],
+  );
+
+  useHotkeys({
+    reviewStart:
+      !openScanId && totalCards > 0 ? () => void startReview() : undefined,
+  });
 
   const toggleSelect = useCallback((scanIds: string[]) => {
     setSelectedIds((prev) => {
@@ -380,14 +423,20 @@ export function CardGrid() {
           removeCard(openEntry.scanId);
           setOpenScanId(null);
         }}
-        onPrev={() => setOpenScanId(openPosition?.prevScanId ?? null)}
-        onNext={() => setOpenScanId(openPosition?.nextScanId ?? null)}
+        onPrev={() =>
+          setOpenScanId(openPosition?.prevScanId ?? null, isReviewing)
+        }
+        onNext={() =>
+          setOpenScanId(openPosition?.nextScanId ?? null, isReviewing)
+        }
         hasPrev={!!openPosition?.prevScanId}
         hasNext={!!openPosition?.nextScanId}
         currentIndex={openPosition?.index ?? 0}
         total={openPosition?.total ?? 0}
         copyIndex={openPosition?.copyIndex ?? -1}
         copyCount={openPosition?.copyCount ?? 1}
+        reviewMode={isReviewing}
+        onReviewComplete={() => finishReview(openPosition?.total ?? 0)}
       />
     );
   }
@@ -403,6 +452,7 @@ export function CardGrid() {
           onSortChange={setSortKey}
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
+          onStartReview={() => void startReview()}
           collectionName={activeCollection?.name}
           onClearAll={handleClearSession}
           hasCards={totalCards > 0}

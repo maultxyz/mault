@@ -543,6 +543,10 @@
       "countdown_other": "Closing in {{count}} seconds",
       "doneMoved": "Marked as moved",
       "done": "Done"
+    },
+    "keys": {
+      "enter": "Enter",
+      "escape": "Esc"
     }
   }
 }

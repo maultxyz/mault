@@ -117,3 +117,5 @@ export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
 export const CONSENSUS_RETRY_BUDGET = 3;
 
 export const DOCUMENT_TITLE_BASE = "MAULT";
+
+export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
