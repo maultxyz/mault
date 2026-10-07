@@ -19,6 +19,7 @@ import {
 } from "@tabler/icons-react";
 import {
   type FeederCalibration,
+  type FirmwareFeature,
   type ServoCalibration,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHANNEL_LAYOUT,
@@ -38,7 +39,11 @@ export const SERVO_CALIBRATION_FIELDS: (keyof ServoCalibration)[] = [
   "pusherRight",
   "pusherHoldDuration",
   "paddleCloseDelay",
+  "paddleOpenDelay",
 ];
+
+export const STORED_SERVO_CALIBRATION_OPTIONAL_FIELDS: (keyof ServoCalibration)[] =
+  ["paddleOpenDelay"];
 
 export const FEEDER_CALIBRATION_FIELDS: (keyof FeederCalibration)[] = [
   "speed",
@@ -119,9 +124,11 @@ export const FEEDER_PAUSE_DURATION_SLIDER_MAX = 1_000;
 export const FEEDER_SETTLE_DURATION_SLIDER_MAX = 2_000;
 export const FEEDER_REVERSE_DURATION_SLIDER_MAX = 1_000;
 export const PADDLE_CLOSE_DELAY_SLIDER_MAX = 1_000;
+export const PADDLE_OPEN_DELAY_SLIDER_MAX = 1_000;
 export const PUSHER_HOLD_DURATION_SLIDER_MAX = 1_000;
 
 export const MODULE_DELAY_FIELDS: ModuleDelayField[] = [
+  "paddleOpenDelay",
   "pusherHoldDuration",
   "paddleCloseDelay",
 ];
@@ -136,6 +143,13 @@ export const BIN_SLOTS_PHYSICAL_ORDER = [
 export const MODULE_DELAY_SLIDER_MAX: Record<ModuleDelayField, number> = {
   pusherHoldDuration: PUSHER_HOLD_DURATION_SLIDER_MAX,
   paddleCloseDelay: PADDLE_CLOSE_DELAY_SLIDER_MAX,
+  paddleOpenDelay: PADDLE_OPEN_DELAY_SLIDER_MAX,
+};
+
+export const MODULE_DELAY_FIRMWARE_FEATURES: Partial<
+  Record<ModuleDelayField, FirmwareFeature>
+> = {
+  paddleOpenDelay: "paddleOpenDelay",
 };
 export const CAPTURE_SETTLE_DELAY_SLIDER_MAX = 2_000;
 export const MATCHES_NEEDED_MIN = 1;

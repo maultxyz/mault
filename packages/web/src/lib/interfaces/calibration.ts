@@ -68,7 +68,10 @@ export type SliderKey = `${number}:${ServoName}`;
 
 export type ActivePositions = Record<string, string | null>;
 
-export type ModuleDelayField = "pusherHoldDuration" | "paddleCloseDelay";
+export type ModuleDelayField =
+  | "paddleOpenDelay"
+  | "pusherHoldDuration"
+  | "paddleCloseDelay";
 
 export type ServoName = "bottom" | "paddle" | "pusher";
 

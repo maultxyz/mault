@@ -137,6 +137,7 @@ export function useCalibrationPage() {
         cal?.[field] ??
         DEFAULT_CALIBRATION[field];
       vals[m] = {
+        paddleOpenDelay: valueOf("paddleOpenDelay"),
         pusherHoldDuration: valueOf("pusherHoldDuration"),
         paddleCloseDelay: valueOf("paddleCloseDelay"),
       };

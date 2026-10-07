@@ -14,6 +14,7 @@ export function toModuleConfig(row: ModuleCalibrationRow): ModuleConfig {
       pusherRight: row.pusherRight,
       pusherHoldDuration: row.pusherHoldDuration,
       paddleCloseDelay: row.paddleCloseDelay,
+      paddleOpenDelay: row.paddleOpenDelay,
     },
   };
 }

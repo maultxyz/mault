@@ -35,6 +35,7 @@ export const revertModuleConfigRoute = new Hono<AppEnv>().post(
           pusherRight: entry.pusherRight,
           pusherHoldDuration: entry.pusherHoldDuration,
           paddleCloseDelay: entry.paddleCloseDelay,
+          paddleOpenDelay: entry.paddleOpenDelay,
         };
 
         await tx

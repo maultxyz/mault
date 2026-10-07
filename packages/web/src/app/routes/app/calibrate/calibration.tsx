@@ -59,6 +59,12 @@ function ModuleHistoryBody({ entry }: { entry: ModuleConfigAuditEntry }) {
       </div>
       <div className="flex gap-2">
         <span className="w-16 shrink-0 text-foreground/70">
+          {t("calibratePage.moduleHistory.paddleOpenDelay")}
+        </span>
+        <span>{t("calibratePage.msValue", { value: c.paddleOpenDelay })}</span>
+      </div>
+      <div className="flex gap-2">
+        <span className="w-16 shrink-0 text-foreground/70">
           {t("calibratePage.moduleHistory.pusherHoldDuration")}
         </span>
         <span>

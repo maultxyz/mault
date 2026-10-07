@@ -20,6 +20,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   pipelinedFeed: "2.1.0",
   feederRollback: "2.4.0",
   storedCalibration: "2.5.0",
+  paddleOpenDelay: "2.6.0",
 };
 
 export function isFirmwareFeatureSupported(
