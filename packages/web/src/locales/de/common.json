@@ -159,12 +159,16 @@
     "then": "dann",
     "keys": {
       "space": "Leertaste",
-      "shift": "Umschalt"
+      "shift": "Umschalt",
+      "left": "←",
+      "right": "→",
+      "escape": "Esc"
     },
     "groups": {
       "general": "Allgemein",
       "navigation": "Navigation",
-      "scanner": "Scanner"
+      "scanner": "Scanner",
+      "cardDetail": "Kartendetails"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
@@ -183,7 +187,11 @@
       "scanToggleAutoFeed": "Automatische Zuführung umschalten",
       "scanCycleFoil": "Foil-Typ wechseln",
       "scanClearDevice": "Gerät leeren",
-      "scanPickSet": "Set-Vorgabe wählen"
+      "scanPickSet": "Set-Vorgabe wählen",
+      "cardPrevious": "Vorherige Karte",
+      "cardNext": "Nächste Karte",
+      "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt)",
+      "cardClose": "Karte schließen oder Korrektur abbrechen"
     }
   },
   "mobileMenu": {

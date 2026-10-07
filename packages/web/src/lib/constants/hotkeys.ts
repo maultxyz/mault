@@ -17,12 +17,16 @@ export const HOTKEY_BLOCKING_OVERLAY_SELECTOR =
 
 export const HOTKEY_KEY_LABEL_KEYS: Record<string, string> = {
   " ": "hotkeys.keys.space",
+  arrowleft: "hotkeys.keys.left",
+  arrowright: "hotkeys.keys.right",
+  escape: "hotkeys.keys.escape",
 };
 
 export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "general",
   "navigation",
   "scanner",
+  "cardDetail",
 ];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
@@ -43,6 +47,10 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   scanClearDevice: { group: "scanner", keys: [{ key: "c", shift: true }] },
   scanCycleFoil: { group: "scanner", keys: [{ key: "f", shift: true }] },
   scanPickSet: { group: "scanner", keys: [{ key: "s", shift: true }] },
+  cardPrevious: { group: "cardDetail", keys: [{ key: "arrowleft" }] },
+  cardNext: { group: "cardDetail", keys: [{ key: "arrowright" }] },
+  cardCorrect: { group: "cardDetail", keys: [{ key: "c" }] },
+  cardClose: { group: "cardDetail", keys: [{ key: "escape" }] },
 };
 
 export const HOTKEY_ROUTES = {

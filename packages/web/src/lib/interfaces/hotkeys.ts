@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-export type HotkeyGroup = "general" | "navigation" | "scanner";
+export type HotkeyGroup = "general" | "navigation" | "scanner" | "cardDetail";
 
 export type HotkeyId =
   | "showShortcuts"
@@ -19,7 +19,11 @@ export type HotkeyId =
   | "scanToggleAutoFeed"
   | "scanCycleFoil"
   | "scanPickSet"
-  | "scanClearDevice";
+  | "scanClearDevice"
+  | "cardPrevious"
+  | "cardNext"
+  | "cardCorrect"
+  | "cardClose";
 
 export interface HotkeyCombo {
   key: string;
