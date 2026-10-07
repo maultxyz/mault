@@ -138,4 +138,16 @@ export const localAuthProvider: AuthProvider = {
     );
     return rows.rows[0]?.name ?? "your organization";
   },
+
+  async countUsersAndOrganisations() {
+    const rows = await db.execute<{ users: number; organisations: number }>(
+      sql`SELECT
+        (SELECT count(*)::int FROM own_auth_users) AS users,
+        (SELECT count(*)::int FROM own_auth_organisations) AS organisations`,
+    );
+    return {
+      users: rows.rows[0]?.users ?? 0,
+      organisations: rows.rows[0]?.organisations ?? 0,
+    };
+  },
 };

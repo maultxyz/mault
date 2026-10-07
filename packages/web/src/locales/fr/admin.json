@@ -8,6 +8,7 @@
     "games": "Jeux",
     "users": "Utilisateurs",
     "plans": "Offres",
+    "discordStats": "Statistiques Discord",
     "announcements": "Annonces",
     "deleted": "Éléments supprimés",
     "servos": "Test des kits",
@@ -363,5 +364,53 @@
       "restored": "{{name}} restauré",
       "restoreError": "Impossible de restaurer cet élément"
     }
+  },
+  "platformStats": {
+    "destinationHeading": "Destination",
+    "destinationDescription": "Le serveur et le salon Discord où les statistiques de la plateforme sont publiées. Le bot doit être sur le serveur et pouvoir publier dans le salon.",
+    "server": "Serveur",
+    "channel": "Salon",
+    "noServer": "Aucun serveur",
+    "noChannel": "Aucun salon",
+    "loadingChannels": "Chargement des salons...",
+    "botUnreachable": "Le bot Discord est injoignable, les serveurs et salons ne peuvent donc pas être listés pour le moment.",
+    "statsHeading": "Statistiques",
+    "statsDescription": "Les chiffres à inclure dans chaque publication, toutes organisations confondues.",
+    "stats": {
+      "scannedCards": {
+        "label": "Cartes scannées",
+        "description": "Chaque scan enregistré, reconnu ou non. Supprimer des cartes ne le fait pas baisser."
+      },
+      "scansLast24Hours": {
+        "label": "Scans des dernières 24 heures",
+        "description": "Scans enregistrés dans les 24 heures précédant la publication."
+      },
+      "devices": {
+        "label": "Appareils",
+        "description": "Trieuses enregistrées dans une organisation, hors appareils supprimés."
+      },
+      "users": {
+        "label": "Utilisateurs",
+        "description": "Comptes inscrits."
+      },
+      "organizations": {
+        "label": "Organisations",
+        "description": "Organisations existantes."
+      },
+      "collections": {
+        "label": "Collections",
+        "description": "Collections de toutes les organisations, hors collections supprimées."
+      }
+    },
+    "scheduleHeading": "Planification",
+    "scheduleDescription": "Les publications sont envoyées quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, avec le cron de ton choix.",
+    "postNow": "Publier maintenant",
+    "lastPosted": "Dernière publication le {{date}}.",
+    "neverPosted": "Pas encore publié.",
+    "saveBeforePosting": "Enregistre tes modifications avant de publier.",
+    "saved": "Paramètres des statistiques enregistrés.",
+    "saveFailed": "Impossible d'enregistrer les paramètres des statistiques.",
+    "posted": "Statistiques publiées sur Discord.",
+    "postFailed": "Impossible de publier les statistiques."
   }
 }
