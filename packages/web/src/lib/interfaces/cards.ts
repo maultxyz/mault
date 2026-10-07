@@ -96,6 +96,7 @@ export interface CardToolbarProps {
   onSortChange: (key: string | null) => void;
   sortableFields: FieldMeta[];
   onExport?: () => void;
+  onStartReview?: () => void;
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
@@ -293,6 +294,8 @@ export interface CardDetailPanelProps {
   total?: number;
   copyIndex?: number;
   copyCount?: number;
+  reviewMode?: boolean;
+  onReviewComplete?: () => void;
 }
 
 export interface CardFilterPopoverProps {
@@ -312,6 +315,10 @@ export type GridNavigationKey =
   | "ArrowDown";
 
 export interface CardResultKeyboardNavOptions {
-  onSelectFirst: () => void;
+  onSelect: (index: number, options: CardCorrectionOptions) => void;
   onCancel: () => void;
+}
+
+export interface CardCorrectionOptions {
+  stay: boolean;
 }

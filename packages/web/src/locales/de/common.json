@@ -190,8 +190,10 @@
       "scanPickSet": "Set-Vorgabe wählen",
       "cardPrevious": "Vorherige Karte",
       "cardNext": "Nächste Karte",
-      "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt)",
-      "cardClose": "Karte schließen oder Korrektur abbrechen"
+      "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt, Umschalt Enter bleibt beim Prüfen auf der Karte)",
+      "cardClose": "Karte schließen oder Korrektur abbrechen",
+      "reviewStart": "Karten einzeln prüfen",
+      "reviewAccept": "Beim Prüfen: Karte stimmt, weiter"
     }
   },
   "mobileMenu": {

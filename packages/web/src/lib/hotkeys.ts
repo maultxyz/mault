@@ -31,16 +31,22 @@ function sequenceMatches(expected: HotkeyCombo[], actual: HotkeyCombo[]) {
 }
 
 function findHandler(sequence: HotkeyCombo[]) {
+  let best: { handler: () => void; priority: number } | null = null;
   for (const registration of registrations) {
     if (!registration.isEnabled()) continue;
+    if (best && registration.priority <= best.priority) continue;
     const handlers = registration.getHandlers();
     for (const [id, handler] of Object.entries(handlers)) {
-      if (handler && sequenceMatches(HOTKEYS[id as HotkeyId].keys, sequence)) {
-        return handler;
+      if (
+        handler !== undefined &&
+        sequenceMatches(HOTKEYS[id as HotkeyId].keys, sequence)
+      ) {
+        best = { handler, priority: registration.priority };
+        break;
       }
     }
   }
-  return null;
+  return best?.handler ?? null;
 }
 
 function startsAnySequence(combo: HotkeyCombo) {
@@ -48,7 +54,11 @@ function startsAnySequence(combo: HotkeyCombo) {
     if (!registration.isEnabled()) continue;
     for (const [id, handler] of Object.entries(registration.getHandlers())) {
       const keys = HOTKEYS[id as HotkeyId].keys;
-      if (handler !== undefined && keys.length > 1 && comboMatches(keys[0], combo)) {
+      if (
+        handler !== undefined &&
+        keys.length > 1 &&
+        comboMatches(keys[0], combo)
+      ) {
         return true;
       }
     }

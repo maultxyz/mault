@@ -2,11 +2,13 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { useCardResultKeyboardNav } from "@/features/cards/api/use-card-result-keyboard-nav";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { useHotkeys } from "@/hooks/use-hotkeys";
+import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
 import { EmptyState } from "@/components/empty-state";
 import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
+import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Input } from "@/components/ui/input";
@@ -51,7 +53,10 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import type { CardDetailPanelProps } from "@/lib/interfaces/cards";
+import type {
+  CardCorrectionOptions,
+  CardDetailPanelProps,
+} from "@/lib/interfaces/cards";
 
 export function CardDetailPanel({
   scanId,
@@ -72,6 +77,8 @@ export function CardDetailPanel({
   total,
   copyIndex,
   copyCount,
+  reviewMode = false,
+  onReviewComplete,
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
@@ -157,14 +164,23 @@ export function CardDetailPanel({
     setSelectedSet("all");
   }, []);
 
+  const goToNextInReview = useCallback(() => {
+    if (hasNext) onNext?.();
+    else onReviewComplete?.();
+  }, [hasNext, onNext, onReviewComplete]);
+
   const handleSelect = useCallback(
-    (card: PlayingCard) => {
+    (card: PlayingCard, { stay }: CardCorrectionOptions = { stay: false }) => {
       if (!scanId) {
         addCard({ ...card, distance: 0, confidence: 1 });
         onClose();
         return;
       }
       correctCard(scanId, card);
+      if (reviewMode && !stay) {
+        goToNextInReview();
+        return;
+      }
       setCandidates((prev) =>
         prev.some((c) => c.id === card.id)
           ? prev
@@ -173,7 +189,15 @@ export function CardDetailPanel({
       setSelectedId(card.id);
       stopEditing();
     },
-    [scanId, addCard, correctCard, onClose, stopEditing],
+    [
+      scanId,
+      addCard,
+      correctCard,
+      onClose,
+      stopEditing,
+      reviewMode,
+      goToNextInReview,
+    ],
   );
 
   const handleSelectCandidate = useCallback(
@@ -211,18 +235,29 @@ export function CardDetailPanel({
 
   const { inputRef, gridRef, onInputKeyDown, onResultKeyDown } =
     useCardResultKeyboardNav({
-      onSelectFirst: () => {
-        if (filteredResults[0]) handleSelect(filteredResults[0]);
+      onSelect: (index, options) => {
+        const card = filteredResults[index];
+        if (card) handleSelect(card, options);
       },
       onCancel: stopEditing,
     });
 
-  useHotkeys({
-    cardPrevious: isViewing && hasPrev ? onPrev : undefined,
-    cardNext: isViewing && hasNext ? onNext : undefined,
-    cardCorrect: isViewing ? startEditing : undefined,
-    cardClose: editing ? stopEditing : onClose,
-  });
+  const acceptInReview = () => {
+    if (canConfirm && scanId) confirmCard(scanId);
+    goToNextInReview();
+  };
+
+  useHotkeys(
+    {
+      cardPrevious: isViewing && hasPrev ? onPrev : undefined,
+      cardNext: isViewing && hasNext ? onNext : undefined,
+      cardCorrect: isViewing ? startEditing : undefined,
+      cardClose: editing ? stopEditing : onClose,
+      reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
+    },
+    true,
+    HOTKEY_PRIORITY_OVERRIDE,
+  );
 
   const capturedImage = capturedImageUrl ? (
     <CapturedImageThumb
@@ -312,6 +347,11 @@ export function CardDetailPanel({
                 <span className="text-xs text-foreground/70 shrink-0">
                   {currentIndex + 1} / {total}
                 </span>
+              )}
+              {reviewMode && (
+                <Badge variant="outline" className="shrink-0">
+                  {t("review.badge")}
+                </Badge>
               )}
               {copyCount != null && copyCount > 1 && (
                 <Badge variant="secondary" className="shrink-0">
@@ -582,7 +622,9 @@ export function CardDetailPanel({
                         onKeyDown={onResultKeyDown}
                         variant="ghost"
                         className="relative w-full h-auto aspect-[2.5/3.5] p-0 rounded-md overflow-hidden group"
-                        onClick={() => handleSelect(card)}
+                        onClick={(e) =>
+                          handleSelect(card, { stay: e.shiftKey })
+                        }
                       >
                         {card.image?.small ? (
                           <img
@@ -622,7 +664,14 @@ export function CardDetailPanel({
         {currentCard && !editing ? (
           <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
             <div className="flex flex-wrap gap-2 items-center w-full">
-              {canConfirm && (
+              {reviewMode && (
+                <Button onClick={acceptInReview}>
+                  <IconCheck className="size-4" />
+                  {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
+                  <HotkeyHint id="reviewAccept" />
+                </Button>
+              )}
+              {canConfirm && !reviewMode && (
                 <Button
                   variant="outline"
                   onClick={() => scanId && confirmCard(scanId)}
@@ -650,6 +699,20 @@ export function CardDetailPanel({
                 {t("cardDetailPanel.cancel")}
                 <HotkeyHint id="cardClose" />
               </Button>
+              {reviewMode && scanId && (
+                <p className="ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/70">
+                  <span className="inline-flex items-center gap-1">
+                    <Kbd>{t("review.keys.enter")}</Kbd>
+                    {hasNext
+                      ? t("review.correctNext")
+                      : t("review.correctFinish")}
+                  </span>
+                  <span className="inline-flex items-center gap-1">
+                    <Kbd>{t("review.keys.shiftEnter")}</Kbd>
+                    {t("review.correctStay")}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
         )}

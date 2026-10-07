@@ -118,7 +118,8 @@
       "compact": "compact",
       "comfortable": "comfortable",
       "large": "large"
-    }
+    },
+    "reviewCards": "Review cards one by one (R)"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
@@ -264,5 +265,19 @@
     "copyFailed": "Couldn't copy the name.",
     "remove_one": "Remove card",
     "remove_other": "Remove {{count}} cards"
+  },
+  "review": {
+    "badge": "Reviewing",
+    "acceptNext": "Looks right, next",
+    "acceptFinish": "Looks right, finish",
+    "correctNext": "correct and go to next",
+    "correctFinish": "correct and finish",
+    "correctStay": "correct and stay on this card",
+    "keys": {
+      "enter": "Enter",
+      "shiftEnter": "Shift Enter"
+    },
+    "complete_one": "Review complete: {{count}} card checked",
+    "complete_other": "Review complete: {{count}} cards checked"
   }
 }
