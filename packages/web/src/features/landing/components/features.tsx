@@ -8,6 +8,7 @@ import { DemoRepack } from "@/features/landing/components/demo-repack";
 import { DemoRuleBuilder } from "@/features/landing/components/demo-rule-builder";
 import { DemoStatsBreakdown } from "@/features/landing/components/demo-stats-breakdown";
 import { useTranslation } from "react-i18next";
+import { LandingSectionHeader } from "@/features/landing/components/section-header";
 
 const HIGHLIGHTS = [
   { key: "recognition", demo: DemoRecognitionPreview },
@@ -25,22 +26,19 @@ export function LandingFeatures() {
   const { t } = useTranslation("landing");
 
   return (
-    <section id="features" className="border-t">
-      <div className="mx-auto max-w-6xl px-4 py-14 md:py-16">
-        <div className="max-w-2xl">
-          <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
-            {t("features.heading")}
-          </h2>
-          <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
-            {t("features.subtitle")}
-          </p>
-        </div>
+    <section id="features" className="border-y bg-secondary/30">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+        <LandingSectionHeader
+          eyebrow={t("features.eyebrow")}
+          heading={t("features.heading")}
+          subtitle={t("features.subtitle")}
+        />
 
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {HIGHLIGHTS.map(({ key, demo: Demo }) => (
             <div
               key={key}
-              className="flex flex-col gap-4 rounded-xl bg-muted p-6"
+              className="flex flex-col gap-4 rounded-xl bg-card p-6 shadow-sm ring-1 ring-foreground/10"
             >
               <div>
                 <p className="font-heading text-sm font-semibold">
