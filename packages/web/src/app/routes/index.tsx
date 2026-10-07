@@ -3,7 +3,6 @@ import { LandingFeatures } from "@/features/landing/components/features";
 import { LandingFooter } from "@/features/landing/components/footer";
 import { LandingHero } from "@/features/landing/components/hero";
 import { LandingOpenSource } from "@/features/landing/components/open-source";
-import { LandingPipeline } from "@/features/landing/components/pipeline";
 import { LandingPricing } from "@/features/landing/components/pricing";
 import { LandingStats } from "@/features/landing/components/stats";
 import { LandingSupportedGames } from "@/features/landing/components/supported-games";
@@ -20,9 +19,8 @@ export default function LandingPage() {
       <PublicNav />
       <main className="flex-1">
         <LandingHero />
-        <LandingStats />
         <LandingSupportedGames />
-        <LandingPipeline />
+        <LandingStats />
         <LandingFeatures />
         <LandingOpenSource />
         {AUTH_PROVIDER !== "local" && <LandingPricing />}

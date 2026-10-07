@@ -53,10 +53,10 @@ export function LandingHero() {
             <IconArrowRight size={16} />
           </Link>
           <a
-            href="#how-it-works"
+            href="#features"
             className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
           >
-            {t("hero.seeHowItWorks")}
+            {t("hero.seeFeatures")}
           </a>
         </div>
       </div>

@@ -1,4 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
+import { LandingSectionHeader } from "@/features/landing/components/section-header";
 import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
 import { PlanBullets } from "@/features/landing/components/plan-bullets";
 import { DEFAULT_PUBLIC_PLAN_CONFIG } from "@/lib/constants/pricing";
@@ -34,17 +35,15 @@ export function LandingPricing() {
 
   return (
     <section id="pricing" className="border-t">
-      <div className="mx-auto max-w-6xl px-4 py-14 md:py-16">
-        <div className="max-w-2xl">
-          <h2 className="font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
-            {t("pricing.heading")}
-          </h2>
-          <p className="mt-3 text-sm/relaxed text-foreground/70 md:text-base/relaxed">
-            {t("pricing.subtitle")}
-          </p>
-        </div>
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+        <LandingSectionHeader
+          eyebrow={t("pricing.eyebrow")}
+          heading={t("pricing.heading")}
+          subtitle={t("pricing.subtitle")}
+          centered
+        />
 
-        <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        <div className="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2">
           <div className="flex flex-col gap-6 rounded-xl border p-6">
             <div>
               <p className="font-heading text-sm font-semibold">
