@@ -1,6 +1,7 @@
 import {
   BIN_RULES_EXPORT_CATCH_ALL_RULES_SINCE,
   BIN_RULES_EXPORT_FORMAT_VERSION,
+  BIN_RULES_EXPORT_LOW_MATCH_COLUMN_SINCE,
 } from "@/lib/constants/bins";
 import {
   binRulesExportSchema,
@@ -8,6 +9,7 @@ import {
 } from "@/schemas/bin-rules-export.schema";
 import {
   DEFAULT_BIN_CAPACITY,
+  parseLegacyCatchAllThreshold,
   SET_NAME_MAX_LENGTH,
   type BinConfig,
   type BinSet,
@@ -27,6 +29,9 @@ export function buildBinRulesExport(
       rules: c.rules,
       isCatchAll: !!c.isCatchAll,
       isOverride: !c.isCatchAll && !!c.isOverride,
+      overridePriority:
+        c.isCatchAll || c.isOverride ? (c.overridePriority ?? null) : null,
+      lowMatchPercent: c.isCatchAll ? (c.lowMatchPercent ?? null) : null,
       cardLimit: c.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : c.cardLimit,
       maxCopies: c.isCatchAll ? null : (c.maxCopies ?? null),
       isDisabled: !c.isCatchAll && !!c.isDisabled,
@@ -40,12 +45,20 @@ export function serializeBinRulesExport(data: BinRulesExport): string {
 
 export function parseBinRulesExport(text: string): BinRulesExport {
   const data = binRulesExportSchema.parse(JSON.parse(text));
-  if (data.formatVersion >= BIN_RULES_EXPORT_CATCH_ALL_RULES_SINCE) return data;
+  if (data.formatVersion >= BIN_RULES_EXPORT_LOW_MATCH_COLUMN_SINCE) return data;
+  const keepsThreshold =
+    data.formatVersion >= BIN_RULES_EXPORT_CATCH_ALL_RULES_SINCE;
   return {
     ...data,
     bins: data.bins.map((bin) =>
       bin.isCatchAll
-        ? { ...bin, rules: { ...bin.rules, conditions: [] } }
+        ? {
+            ...bin,
+            rules: { ...bin.rules, conditions: [] },
+            lowMatchPercent: keepsThreshold
+              ? parseLegacyCatchAllThreshold(bin.rules)
+              : null,
+          }
         : bin,
     ),
   };

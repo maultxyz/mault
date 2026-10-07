@@ -186,7 +186,9 @@ export function getCatchAllBin(configs: BinConfig[]): BinConfig | undefined {
   return configs.find((c) => c.isCatchAll);
 }
 
-export function getCatchAllMatchThreshold(rules: BinRuleGroup): number | null {
+export function parseLegacyCatchAllThreshold(
+  rules: BinRuleGroup,
+): number | null {
   if (rules.conditions.length !== 1) return null;
   const [condition] = rules.conditions;
   if (
@@ -205,11 +207,44 @@ export function findLowMatchCatchAll(
   configs: BinConfig[],
 ): BinConfig | undefined {
   const catchAll = getCatchAllBin(configs);
-  if (!catchAll) return undefined;
-  const threshold = getCatchAllMatchThreshold(catchAll.rules);
-  if (threshold == null) return undefined;
+  const threshold = catchAll?.lowMatchPercent;
+  if (!catchAll || threshold == null) return undefined;
   const percent = cardMatchPercent(card);
   return percent != null && percent < threshold ? catchAll : undefined;
+}
+
+export function isOverrideBin(config: BinConfig): boolean {
+  return config.isCatchAll
+    ? config.rules.conditions.length > 0
+    : !!config.isOverride;
+}
+
+function overrideRank(config: BinConfig): number {
+  return config.overridePriority ?? Number.POSITIVE_INFINITY;
+}
+
+export function sortOverrideBins(configs: BinConfig[]): BinConfig[] {
+  return configs
+    .filter(isOverrideBin)
+    .map((config, index) => ({ config, index }))
+    .sort(
+      (a, b) =>
+        overrideRank(a.config) - overrideRank(b.config) || a.index - b.index,
+    )
+    .map(({ config }) => config);
+}
+
+export function matchesCatchAllRules(
+  card: SourceCard,
+  configs: BinConfig[],
+  fieldDefinitions: FieldMeta[],
+): boolean {
+  const catchAll = getCatchAllBin(configs);
+  return (
+    !!catchAll &&
+    catchAll.rules.conditions.length > 0 &&
+    evaluateRuleGroup(card, catchAll.rules, fieldDefinitions)
+  );
 }
 
 export function evaluateCardBin(
@@ -220,24 +255,30 @@ export function evaluateCardBin(
 ): BinConfig | undefined {
   let catchAll: BinConfig | undefined;
   let firstMatch: BinConfig | undefined;
+  let override: BinConfig | undefined;
 
   for (const config of configs) {
-    if (config.isCatchAll) {
-      catchAll = config;
+    if (config.isCatchAll) catchAll = config;
+    const isOverride = isOverrideBin(config);
+    if (
+      (config.isDisabled && !config.isCatchAll) ||
+      config.rules.conditions.length === 0 ||
+      (!isOverride && firstMatch) ||
+      (isOverride && override && overrideRank(override) <= overrideRank(config))
+    ) {
       continue;
     }
     if (
-      !config.isDisabled &&
-      config.rules.conditions.length > 0 &&
-      evaluateRuleGroup(card, config.rules, fieldDefinitions) &&
-      !hasReachedMaxCopies(config, copiesInBin)
+      !evaluateRuleGroup(card, config.rules, fieldDefinitions) ||
+      hasReachedMaxCopies(config, copiesInBin)
     ) {
-      if (config.isOverride) return config;
-      firstMatch ??= config;
+      continue;
     }
+    if (isOverride) override = config;
+    else firstMatch = config;
   }
 
-  return firstMatch ?? catchAll;
+  return override ?? firstMatch ?? catchAll;
 }
 
 export function countCardsInBin(

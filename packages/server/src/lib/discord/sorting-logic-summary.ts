@@ -1,5 +1,4 @@
 import {
-  getCatchAllMatchThreshold,
   isRuleGroup,
   type BinCondition,
   type BinRuleGroup,
@@ -41,13 +40,26 @@ function describeRuleGroup(group: BinRuleGroup): string {
   return parts.join(group.combinator === "and" ? " AND " : " OR ");
 }
 
-function lowMatchSummary(binNumber: number, rules: BinRuleGroup): string {
-  const threshold = rules.conditions
-    ? getCatchAllMatchThreshold(rules)
-    : null;
-  return threshold == null
-    ? `**Bin ${binNumber}:** everything else`
-    : `**Bin ${binNumber}:** everything else, plus scans below ${threshold}% match`;
+function priorityLabel(priority: number | null): string {
+  return priority == null ? "" : `, priority ${priority}`;
+}
+
+function catchAllSummary(bin: {
+  binNumber: number;
+  rules: BinRuleGroup;
+  lowMatchPercent: number | null;
+  overridePriority: number | null;
+}): string {
+  const parts = ["everything else"];
+  if (bin.rules.conditions?.length > 0) {
+    parts.push(
+      `plus override (${describeRuleGroup(bin.rules)})${priorityLabel(bin.overridePriority)}`,
+    );
+  }
+  if (bin.lowMatchPercent != null) {
+    parts.push(`plus scans below ${bin.lowMatchPercent}% match`);
+  }
+  return `**Bin ${bin.binNumber}:** ${parts.join(", ")}`;
 }
 
 // A human-readable summary of the collection's active sorting rules, posted
@@ -84,6 +96,8 @@ export async function buildSortingLogicSummary(
       rules: bins.rules,
       isCatchAll: bins.isCatchAll,
       isOverride: bins.isOverride,
+      overridePriority: bins.overridePriority,
+      lowMatchPercent: bins.lowMatchPercent,
       maxCopies: bins.maxCopies,
       isDisabled: bins.isDisabled,
     })
@@ -96,10 +110,10 @@ export async function buildSortingLogicSummary(
 
   const lines = binRows.map((b) =>
     b.isCatchAll
-      ? lowMatchSummary(b.binNumber, b.rules as BinRuleGroup)
+      ? catchAllSummary({ ...b, rules: b.rules as BinRuleGroup })
       : b.isDisabled
         ? `**Bin ${b.binNumber}:** disabled`
-        : `**Bin ${b.binNumber}${b.isOverride ? " (override)" : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per printing)` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
+        : `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per printing)` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
   );
 
   return `**Sorting logic:** ${set.name}\n${lines.join("\n")}`;

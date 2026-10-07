@@ -9,6 +9,8 @@ export const SET_NAME_MAX_LENGTH = 50;
 export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
 export const DEFAULT_BIN_CAPACITY = 250;
+export const OVERRIDE_PRIORITY_MAX = 100;
+export const LOW_MATCH_PERCENT_MAX = 100;
 
 export const UNLIMITED_BIN_HEIGHT = 0;
 

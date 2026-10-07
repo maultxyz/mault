@@ -2,11 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import type { BinCardProps } from "@/lib/interfaces/bins";
-import {
-  BinConfig,
-  getCatchAllMatchThreshold,
-  isRuleGroup,
-} from "@magic-vault/shared";
+import { BinConfig, isRuleGroup } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function countConditions(config: BinConfig): number {
@@ -34,7 +30,7 @@ export function BinCard({
   const { t } = useTranslation("bins");
   const isEmpty = config.rules.conditions.length === 0;
   const lowMatchPercent = config.isCatchAll
-    ? getCatchAllMatchThreshold(config.rules)
+    ? (config.lowMatchPercent ?? null)
     : null;
   const conditionCount = countConditions(config);
   const isDisabled = !config.isCatchAll && !!config.isDisabled;
@@ -61,6 +57,16 @@ export function BinCard({
             config.maxCopies != null && (
               <Badge variant="outline">
                 {t("binCard.maxCopies", { count: config.maxCopies })}
+              </Badge>
+            )}
+          {(config.isCatchAll || config.isOverride) &&
+            !isDisabled &&
+            !isChaosMode &&
+            alphabetLetter === undefined &&
+            !isEmpty &&
+            config.overridePriority != null && (
+              <Badge variant="outline">
+                {t("binCard.priority", { priority: config.overridePriority })}
               </Badge>
             )}
           {config.isCatchAll ? (
@@ -90,6 +96,12 @@ export function BinCard({
               <p className="text-xs">
                 {t("binCard.lowMatch", { percent: lowMatchPercent })}
               </p>
+            )}
+            {!isEmpty && !isChaosMode && alphabetLetter === undefined && (
+              <>
+                <p className="text-xs">{t("binCard.catchAllOverride")}</p>
+                <RuleSummary rules={config.rules} />
+              </>
             )}
           </>
         ) : isDisabled ? (

@@ -18,14 +18,16 @@
     "clickToConfigure": "Click to configure",
     "waitingForValue": "Waiting for next value",
     "scanOnlyDisabled": "Scan only is on",
-    "alphabetLetter": "Names starting with {{letter}}"
+    "alphabetLetter": "Names starting with {{letter}}",
+    "priority": "Priority {{priority}}",
+    "catchAllOverride": "Plus cards matching:"
   },
   "binConfigPanel": {
     "overrideLabel": "Override rules",
     "disabledLabel": "Disable this bin",
     "disabledDescription": "Cards never go here. They move on to the next bin that matches, or the catch-all.",
     "disabledNotice": "This bin is disabled. Its rules are kept, but no cards are sent to it until you turn it back on.",
-    "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, the lowest bin number wins. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
+    "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, the one with the lowest priority number wins, then the lowest bin number. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
     "maxCopiesLabel": "Limit copies per printing",
     "maxCopiesDescription": "Once this bin holds this many copies of the same printing (since it was last emptied), further copies skip it and go to the next bin whose rules match, or the catch-all.",
     "maxCopiesSuffix": "copies of each printing",
@@ -42,7 +44,14 @@
     "clear": "Clear",
     "autoAssignWaiting": "Waiting for a new {{field}} to appear",
     "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins.",
-    "modeChangePending": "Save or discard the pending mode change above before editing bins."
+    "modeChangePending": "Save or discard the pending mode change above before editing bins.",
+    "priorityLabel": "Override priority",
+    "priorityPlaceholder": "None",
+    "priorityDescription": "When several overrides match a card, the lowest number wins. Overrides without a priority come after, in bin order.",
+    "priorityOrder": "Overrides are checked in this order: {{order}}",
+    "priorityOrderCatchAll": "Bin {{number}} (catch-all)",
+    "catchAllRulesLabel": "Override rules",
+    "catchAllRulesDescription": "Cards matching these rules come here even when another bin's rules match them, like a color card that snuck into a colorless pile. Leave empty to only catch cards no other bin takes."
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."
