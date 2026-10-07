@@ -15,10 +15,13 @@ import {
   deletedItemsQueryOptions,
   restoreDeletedItem,
 } from "@/features/admin/api/deleted-items";
-import { ALL_DELETED_ITEM_TYPES } from "@/lib/constants/admin";
+import {
+  ALL_DELETED_ITEM_TYPES,
+  DELETED_ITEM_TYPE_FILTERS,
+} from "@/lib/constants/admin";
 import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
 import { toast } from "@/lib/toast";
-import { DELETED_ITEM_TYPES, type DeletedItem } from "@magic-vault/shared";
+import type { DeletedItem } from "@magic-vault/shared";
 import { IconLoader2, IconRestore, IconTrashOff } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -85,7 +88,7 @@ export function DeletedItemsManager() {
             <SelectValue>{typeLabel(typeFilter)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
-            {[ALL_DELETED_ITEM_TYPES, ...DELETED_ITEM_TYPES].map((type) => (
+            {DELETED_ITEM_TYPE_FILTERS.map((type) => (
               <SelectItem key={type} value={type}>
                 {typeLabel(type)}
               </SelectItem>
