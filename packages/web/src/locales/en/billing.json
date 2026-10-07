@@ -26,6 +26,8 @@
     "support": "Buy us a coffee",
     "subscribe": "Subscribe",
     "later": "Maybe later",
-    "dontAskAgain": "Don't ask again"
+    "dontAskAgain": "Don't ask again",
+    "githubStars_one": "{{count}} star on GitHub",
+    "githubStars_other": "{{count}} stars on GitHub"
   }
 }

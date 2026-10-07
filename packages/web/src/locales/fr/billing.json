@@ -26,6 +26,8 @@
     "support": "Offre-nous un café",
     "subscribe": "S'abonner",
     "later": "Plus tard",
-    "dontAskAgain": "Ne plus demander"
+    "dontAskAgain": "Ne plus demander",
+    "githubStars_one": "{{count}} étoile sur GitHub",
+    "githubStars_other": "{{count}} étoiles sur GitHub"
   }
 }

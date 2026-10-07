@@ -9,3 +9,4 @@ export const CONTACT_EMAIL = "support@mault.xyz";
 
 export const DISCORD_BOT_INSTALL_URL =
   "https://discord.com/oauth2/authorize?client_id=1541929124338208798";
+export const REPO_API_URL = "https://api.github.com/repos/maultxyz/mault";
