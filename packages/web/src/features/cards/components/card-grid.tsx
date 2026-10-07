@@ -55,8 +55,14 @@ import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 export function CardGrid() {
   const { t } = useTranslation("cards");
   const { activeCollection, isLoading: collectionsLoading } = useCollections();
-  const { removeCard, removeCards, clearCards, markDownloaded, elapsedMs } =
-    useScannedCards();
+  const {
+    removeCard,
+    removeCards,
+    clearCards,
+    markDownloaded,
+    elapsedMs,
+    sessionScanCount,
+  } = useScannedCards();
   const collectionGuid = activeCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
   const { locks, currentUserId } = useCollectionLocks();
@@ -546,6 +552,7 @@ export function CardGrid() {
         onOpenChange={setSummaryOpen}
         cards={exportCards ?? []}
         elapsedMs={elapsedMs}
+        sessionScanCount={sessionScanCount}
         collectionName={activeCollection?.name ?? "collection"}
         onMarkDownloaded={markDownloaded}
         gridFilters={filters}

@@ -22,11 +22,12 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const Container = scrollable ? ScrollArea : "div";
   const { t } = useTranslation("scanner");
   const [expandedSets, setExpandedSets] = useState(false);
-  const { elapsedMs, isTimerActive, recentScanTimes } = useScannedCards();
+  const { elapsedMs, isTimerActive, recentScanTimes, sessionScanCount } =
+    useScannedCards();
   const now = useNow(SCAN_RATE_REFRESH_MS);
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
-  const { displayStats: stats, totalCount } = useCollectionCardsSummary(query);
+  const { displayStats: stats } = useCollectionCardsSummary(query);
   const { format } = usePriceSource();
 
   if (!stats) {
@@ -67,7 +68,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
       label: t("scanStats.cardsPerHour"),
       value:
         elapsedMs > 0
-          ? String(Math.round((totalCount / elapsedMs) * 3_600_000))
+          ? String(Math.round((sessionScanCount / elapsedMs) * 3_600_000))
           : "-",
       trend:
         recentScanTimes.length > 0
