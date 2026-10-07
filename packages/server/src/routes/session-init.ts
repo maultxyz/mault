@@ -21,7 +21,7 @@ async function querySessionInit(
 ) {
   const collection = await tx.query.collections.findFirst({
     where: (t, { eq, and }) =>
-      and(eq(t.guid, guid), eq(t.orgId, orgId)),
+      and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
     columns: {
       id: true,
       guid: true,

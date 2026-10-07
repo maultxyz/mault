@@ -23,19 +23,31 @@ export const deleteBinRoute = new Hono<AppEnv>().delete(
                   eq(binSets.isActive, true),
                   isNull(binSets.gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 )
               : and(
                   eq(binSets.isActive, true),
                   eq(binSets.gameId, gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 ),
           columns: { id: true },
-          with: { bins: { columns: { id: true, binNumber: true } } },
+          with: {
+            bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
+              columns: { id: true, binNumber: true },
+            },
+          },
         });
         if (!activeBinSet)
           return { message: "No active set found.", success: false };
         const existing = activeBinSet.bins.find((b) => b.binNumber === binNumber);
-        if (existing) await tx.delete(bins).where(eq(bins.id, existing.id));
+        if (existing) {
+          await tx
+            .update(bins)
+            .set({ isDeleted: true })
+            .where(eq(bins.id, existing.id));
+        }
         return {
           message: "Successfully cleared bin config.",
           success: true,

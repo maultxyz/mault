@@ -149,6 +149,7 @@ const binSetQuery = {
   },
   with: {
     bins: {
+      where: eq(bins.isDeleted, false),
       columns: {
         guid: true,
         binNumber: true,
@@ -168,7 +169,8 @@ const binSetQuery = {
 export async function loadSets(tx: Transaction, orgId: string) {
   const rows = await tx.query.binSets.findMany({
     ...binSetQuery,
-    where: (binSets, { eq }) => eq(binSets.orgId, orgId),
+    where: (binSets, { eq, and }) =>
+      and(eq(binSets.orgId, orgId), eq(binSets.isDeleted, false)),
     orderBy: (binSets, { desc }) => [desc(binSets.updatedAt)],
   });
   return { message: "Loaded sets.", success: true, data: rows.map(toBinSet) };
@@ -181,7 +183,8 @@ export async function snapshotBinSet(
   orgId: string,
 ) {
   const rows = await tx.query.bins.findMany({
-    where: (bins, { eq }) => eq(bins.binSet, binSetId),
+    where: (bins, { eq, and }) =>
+      and(eq(bins.binSet, binSetId), eq(bins.isDeleted, false)),
     columns: {
       guid: true,
       binNumber: true,
@@ -214,7 +217,8 @@ export async function resolveGameId(
 ): Promise<number | null> {
   if (!gameGuid) return null;
   const game = await tx.query.games.findFirst({
-    where: (t, { eq }) => eq(t.guid, gameGuid),
+    where: (t, { eq, and }) =>
+      and(eq(t.guid, gameGuid), eq(t.isDeleted, false)),
     columns: { id: true },
   });
   return game?.id ?? null;
@@ -232,6 +236,7 @@ export async function binSetNameTaken(
     where: (t, { eq, and, isNull }) =>
       and(
         eq(t.orgId, orgId),
+        eq(t.isDeleted, false),
         gameId === null ? isNull(t.gameId) : eq(t.gameId, gameId),
         sql`lower(trim(${t.name})) = ${trimmed}`,
       ),
@@ -250,14 +255,20 @@ export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
       maxCopies: null,
       updatedAt: new Date(),
     })
-    .where(and(eq(bins.binSet, binSetId), eq(bins.isCatchAll, false)));
+    .where(
+      and(
+        eq(bins.binSet, binSetId),
+        eq(bins.isCatchAll, false),
+        eq(bins.isDeleted, false),
+      ),
+    );
 }
 
 export async function clearAllBinRules(tx: Transaction, binSetId: number) {
   await tx
     .update(bins)
     .set({ rules: emptyRules(), updatedAt: new Date() })
-    .where(eq(bins.binSet, binSetId));
+    .where(and(eq(bins.binSet, binSetId), eq(bins.isDeleted, false)));
 }
 
 export async function applyScanOnlyBins(
@@ -273,11 +284,15 @@ export async function applyScanOnlyBins(
       isOverride: false,
       updatedAt: new Date(),
     })
-    .where(eq(bins.binSet, binSetId));
+    .where(and(eq(bins.binSet, binSetId), eq(bins.isDeleted, false)));
 
   const catchAllBin = await tx.query.bins.findFirst({
     where: (t, { eq, and }) =>
-      and(eq(t.binSet, binSetId), eq(t.binNumber, SCAN_ONLY_CATCH_ALL_BIN)),
+      and(
+        eq(t.binSet, binSetId),
+        eq(t.binNumber, SCAN_ONLY_CATCH_ALL_BIN),
+        eq(t.isDeleted, false),
+      ),
     columns: { id: true },
   });
 

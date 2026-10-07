@@ -55,7 +55,11 @@ export async function verifyMonitorLink(
     }
     const collection = await db.query.collections.findFirst({
       where: (t, { eq, and }) =>
-        and(eq(t.guid, payload.sub!), eq(t.orgId, payload.org as string)),
+        and(
+          eq(t.guid, payload.sub!),
+          eq(t.orgId, payload.org as string),
+          eq(t.isDeleted, false),
+        ),
       columns: { name: true, monitorLinkVersion: true },
     });
     if (!collection || collection.monitorLinkVersion !== payload.ver) {

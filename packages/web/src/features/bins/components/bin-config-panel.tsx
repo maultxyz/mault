@@ -123,26 +123,28 @@ export function BinConfigPanel() {
 
   const handleSave = useCallback(
     (values: BinConfigFormValues) => {
-      if (rulesLocked) {
-        save(
-          config.binNumber,
-          config.isCatchAll
-            ? lowMatchRuleGroup(values.lowMatchPercent)
-            : config.rules,
-          config.isCatchAll,
-          config.cardLimit === undefined
-            ? DEFAULT_BIN_CAPACITY
-            : config.cardLimit,
-          config.isOverride,
-          config.maxCopies ?? null,
-          !config.isCatchAll && values.isDisabled,
-        );
-        return;
-      }
       if (!values.isCatchAll && isOnlyCatchAll) {
         form.setError("isCatchAll", {
           message: t("binConfigPanel.needCatchAllError"),
         });
+        return;
+      }
+      if (rulesLocked) {
+        save(
+          config.binNumber,
+          values.isCatchAll
+            ? lowMatchRuleGroup(values.lowMatchPercent)
+            : config.isCatchAll
+              ? emptyRuleGroup()
+              : config.rules,
+          values.isCatchAll,
+          config.cardLimit === undefined
+            ? DEFAULT_BIN_CAPACITY
+            : config.cardLimit,
+          !values.isCatchAll && config.isOverride,
+          values.isCatchAll ? null : (config.maxCopies ?? null),
+          !values.isCatchAll && values.isDisabled,
+        );
         return;
       }
       save(
@@ -269,6 +271,46 @@ export function BinConfigPanel() {
     </Field>
   );
 
+  const catchAllToggle = (
+    <Controller
+      name="isCatchAll"
+      control={form.control}
+      render={({ field }) => (
+        <div className="flex items-center gap-2">
+          <Button
+            type="button"
+            variant={field.value ? "outline-selected" : "outline"}
+            size="sm"
+            data-tour="catch-all-toggle"
+            onClick={() => {
+              form.setValue("rules", emptyRuleGroup(), {
+                shouldDirty: true,
+              });
+              form.setValue("lowMatchPercent", null, {
+                shouldDirty: true,
+              });
+              form.setValue("isDisabled", false, { shouldDirty: true });
+              field.onChange(!field.value);
+            }}
+          >
+            {field.value
+              ? t("binConfigPanel.catchAllEnabled")
+              : t("binConfigPanel.setCatchAll")}
+          </Button>
+          {field.value && (
+            <p className="text-xs text-foreground/70">
+              {t("binConfigPanel.catchAllDescription")}
+            </p>
+          )}
+        </div>
+      )}
+    />
+  );
+
+  const catchAllError = form.formState.errors.isCatchAll && (
+    <FieldError errors={[form.formState.errors.isCatchAll]} />
+  );
+
   const saveControls = (
     <>
       <SaveBar
@@ -302,13 +344,10 @@ export function BinConfigPanel() {
             <h2 className="text-sm font-semibold font-heading">
               {t("binLabel", { number: config.binNumber })}
             </h2>
-            {config.isCatchAll && (
-              <p className="text-xs text-foreground/70">
-                {t("binConfigPanel.catchAllDescription")}
-              </p>
-            )}
+            {catchAllToggle}
           </div>
-          {config.isCatchAll ? lowMatchField : disableToggle}
+          {isCatchAll ? lowMatchField : disableToggle}
+          {catchAllError}
         </form>
         {saveControls}
       </>
@@ -346,39 +385,7 @@ export function BinConfigPanel() {
           <h2 className="text-sm font-semibold font-heading">
             {t("binLabel", { number: config.binNumber })}
           </h2>
-          <Controller
-            name="isCatchAll"
-            control={form.control}
-            render={({ field }) => (
-              <div className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant={field.value ? "outline-selected" : "outline"}
-                  size="sm"
-                  data-tour="catch-all-toggle"
-                  onClick={() => {
-                    form.setValue("rules", emptyRuleGroup(), {
-                      shouldDirty: true,
-                    });
-                    form.setValue("lowMatchPercent", null, {
-                      shouldDirty: true,
-                    });
-                    form.setValue("isDisabled", false, { shouldDirty: true });
-                    field.onChange(!field.value);
-                  }}
-                >
-                  {field.value
-                    ? t("binConfigPanel.catchAllEnabled")
-                    : t("binConfigPanel.setCatchAll")}
-                </Button>
-                {field.value && (
-                  <p className="text-xs text-foreground/70">
-                    {t("binConfigPanel.catchAllDescription")}
-                  </p>
-                )}
-              </div>
-            )}
-          />
+          {catchAllToggle}
         </div>
         <ScrollArea>
           {disableToggle}
@@ -517,9 +524,7 @@ export function BinConfigPanel() {
             />
           )}
         </ScrollArea>
-        {form.formState.errors.isCatchAll && (
-          <FieldError errors={[form.formState.errors.isCatchAll]} />
-        )}
+        {catchAllError}
         {form.formState.errors.rules && (
           <FieldError errors={[form.formState.errors.rules]} />
         )}

@@ -9,6 +9,7 @@
     "users": "Utilisateurs",
     "plans": "Offres",
     "announcements": "Annonces",
+    "deleted": "Éléments supprimés",
     "servos": "Test des kits",
     "device": "Appareil",
     "developer": "Développeur"
@@ -332,6 +333,35 @@
         "label": "Règles de notification",
         "description": "Règles de notification Discord tous jeux confondus. Vérifié uniquement à l'ajout d'une règle."
       }
+    }
+  },
+  "deletedItems": {
+    "heading": "Éléments supprimés",
+    "description": "Tout ce qui a été supprimé dans une organisation, sauf les cartes scannées. La restauration remet un élément exactement dans son état d'origine.",
+    "searchPlaceholder": "Rechercher par nom ou organisation",
+    "allTypes": "Tous les types",
+    "empty": "Rien n'a été supprimé",
+    "restore": "Restaurer",
+    "global": "Global",
+    "lastUpdated": "Dernière modification {{date}}",
+    "types": {
+      "collection": "Collection",
+      "binSet": "Préréglage de bacs",
+      "bin": "Bac",
+      "device": "Trieuse",
+      "binRoute": "Route de bac",
+      "binHeight": "Hauteur de bac",
+      "moduleConfig": "Calibration de module",
+      "storageLocation": "Emplacement de stockage",
+      "soundClip": "Clip sonore",
+      "soundRule": "Règle sonore",
+      "notificationRule": "Règle de notification",
+      "game": "Jeu",
+      "announcement": "Annonce"
+    },
+    "toasts": {
+      "restored": "{{name}} restauré",
+      "restoreError": "Impossible de restaurer cet élément"
     }
   }
 }

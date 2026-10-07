@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
 import { authProvider } from "../auth";
@@ -136,7 +136,12 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
           tx
             .select({ guid: collections.guid })
             .from(collections)
-            .where(eq(collections.orgId, orgId)),
+            .where(
+              and(
+                eq(collections.orgId, orgId),
+                eq(collections.isDeleted, false),
+              ),
+            ),
         );
         const orgGuids = guids.map((r) => r.guid!).filter(Boolean);
         write("lock_init", { locks: getLocksForGuids(orgGuids) });

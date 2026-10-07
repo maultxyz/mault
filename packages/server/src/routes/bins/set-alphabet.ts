@@ -1,5 +1,5 @@
 import { normalizeAlphabetPrefix } from "@magic-vault/shared";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSets } from "../../db/schema";
@@ -31,7 +31,8 @@ export const setAlphabetRoute = new Hono<AppEnv>().put(
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const target = await tx.query.binSets.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
           columns: {
             id: true,
             isAlphabetMode: true,
@@ -55,7 +56,7 @@ export const setAlphabetRoute = new Hono<AppEnv>().put(
           await tx
             .update(bins)
             .set({ lastEmptiedAt: now, updatedAt: now })
-            .where(eq(bins.binSet, target.id));
+            .where(and(eq(bins.binSet, target.id), eq(bins.isDeleted, false)));
         }
 
         await tx

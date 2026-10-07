@@ -72,7 +72,7 @@
     "duplicateName": "Un ensemble avec ce nom existe déjà",
     "editSortingLogic": "Modifier la logique de tri",
     "deleteSetTitle": "Supprimer l'ensemble",
-    "deleteSetDescription": "Supprimer définitivement « {{name}} ». Cette action est irréversible.",
+    "deleteSetDescription": "Supprime « {{name}} ». Contacte le support si tu as besoin de le récupérer.",
     "revertSuccess": "Rétabli à l'état précédent de l'ensemble de bacs",
     "revertFailed": "Échec du rétablissement",
     "renameSetTitle": "Renommer l'ensemble",

@@ -17,7 +17,11 @@ export const setAutoAssignRoute = new Hono<AppEnv>().put(
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const target = await tx.query.binSets.findFirst({
           where: (binSets, { eq, and }) =>
-            and(eq(binSets.guid, guid), eq(binSets.orgId, orgId)),
+            and(
+              eq(binSets.guid, guid),
+              eq(binSets.orgId, orgId),
+              eq(binSets.isDeleted, false),
+            ),
           columns: { id: true, guid: true, autoAssignField: true },
         });
         if (!target) return { message: "Set not found.", success: false };

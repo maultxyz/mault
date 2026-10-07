@@ -26,6 +26,8 @@ export async function findFullBin(
       FROM ${bins} b
       JOIN ${binSets} s ON s.id = b.bin_set
       WHERE s.is_active
+        AND s.is_deleted = false
+        AND b.is_deleted = false
         AND s.org_id = ${orgId}
         AND ${gameId === null ? sql`s.game_id IS NULL` : sql`s.game_id = ${gameId}`}
         AND b.bin_number = ${binNumber}
@@ -37,9 +39,11 @@ export async function findFullBin(
         SELECT bh.height
         FROM ${binHeights} bh
         WHERE bh.bin_number = ${binNumber}
+          AND bh.is_deleted = false
           AND bh.device_id = (
             SELECT d.id FROM ${devices} d
             WHERE d.org_id = ${orgId}
+              AND d.is_deleted = false
               ${deviceGuid ? sql`AND d.guid = ${deviceGuid}` : sql``}
             ORDER BY d.id
             LIMIT 1

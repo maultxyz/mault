@@ -30,7 +30,13 @@ export const editSoundRuleRoute = new Hono<AppEnv>().put(
             clipId,
             updatedAt: new Date(),
           })
-          .where(and(eq(soundRules.guid, guid), eq(soundRules.orgId, orgId)))
+          .where(
+            and(
+              eq(soundRules.guid, guid),
+              eq(soundRules.orgId, orgId),
+              eq(soundRules.isDeleted, false),
+            ),
+          )
           .returning({ gameId: soundRules.gameId });
         if (!updated)
           return { success: false as const, message: "Rule not found." };
