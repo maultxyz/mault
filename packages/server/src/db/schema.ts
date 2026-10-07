@@ -318,6 +318,7 @@ export const moduleConfigs = pgTable(
     pusherRight: integer("pusher_right").notNull().default(460),
     pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
+    paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -751,6 +752,7 @@ export const moduleConfigAudit = pgTable(
     // migration adding it can backfill existing audit rows - every new row
     // always supplies it explicitly, same as the rest.
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
+    paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

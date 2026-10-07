@@ -36,6 +36,7 @@ export const moduleConfigHistoryRoute = new Hono<AppEnv>().get(
               pusherRight: r.pusherRight,
               pusherHoldDuration: r.pusherHoldDuration,
               paddleCloseDelay: r.paddleCloseDelay,
+              paddleOpenDelay: r.paddleOpenDelay,
             } satisfies ServoCalibration,
             createdAt: r.createdAt.toISOString(),
           })),

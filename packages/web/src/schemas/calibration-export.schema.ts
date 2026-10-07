@@ -1,4 +1,7 @@
-import { DEFAULT_FEEDER_CALIBRATION } from "@magic-vault/shared";
+import {
+  DEFAULT_CALIBRATION,
+  DEFAULT_FEEDER_CALIBRATION,
+} from "@magic-vault/shared";
 import { z } from "zod";
 
 const servoCalibrationSchema = z.object({
@@ -11,6 +14,7 @@ const servoCalibrationSchema = z.object({
   pusherRight: z.number(),
   pusherHoldDuration: z.number().default(150),
   paddleCloseDelay: z.number().default(150),
+  paddleOpenDelay: z.number().default(DEFAULT_CALIBRATION.paddleOpenDelay),
 });
 
 const moduleConfigSchema = z.object({

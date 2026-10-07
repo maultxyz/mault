@@ -198,6 +198,7 @@ export interface SkippedRouteResponse {
 export interface PushTest {
   module: number;
   direction: "left" | "right";
+  paddleOpenDelay: number;
   pusherHoldDuration: number;
   paddleCloseDelay: number;
 }

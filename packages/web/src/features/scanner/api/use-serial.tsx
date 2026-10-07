@@ -130,6 +130,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const clearCommLog = useCallback(() => {
+    commLogRef.current = [];
+    commLogSnapshotRef.current = [];
+    for (const listener of commLogListenersRef.current) listener();
+  }, []);
+
   const getCommLog = useCallback(() => commLogSnapshotRef.current, []);
 
   const subscribeCommLog = useCallback((listener: () => void) => {
@@ -574,6 +580,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       newTransport: ByteTransport,
       options?: { skipAutoTest?: boolean; autoConnect?: boolean },
     ): Promise<boolean> => {
+      clearCommLog();
       transportRef.current = newTransport;
       newTransport.onData(handleIncomingChunk);
       newTransport.onError(() => {
@@ -680,6 +687,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       return true;
     },
     [
+      clearCommLog,
       handleIncomingChunk,
       waitForLine,
       sendCommand,

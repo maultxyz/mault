@@ -1,3 +1,4 @@
+import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
 import { SliderField } from "@/components/slider-field";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { getCalibrationKey } from "@/features/calibration/lib/calibration-utils"
 import { cn } from "@/lib/utils";
 import {
   MODULE_DELAY_FIELDS,
+  MODULE_DELAY_FIRMWARE_FEATURES,
   MODULE_DELAY_SLIDER_MAX,
   PUSH_TEST_DIRECTIONS,
   percentToPulse,
@@ -249,7 +251,8 @@ function ModuleDelayControl({
   onChange,
 }: ModuleDelayControlProps) {
   const { t } = useTranslation("calibration");
-  return (
+  const feature = MODULE_DELAY_FIRMWARE_FEATURES[field];
+  const slider = (
     <SliderField
       label={t(`moduleCalibrationGrid.${field}Label`)}
       description={t(`moduleCalibrationGrid.${field}Description`)}
@@ -262,6 +265,8 @@ function ModuleDelayControl({
       onValueChange={(v) => onChange(module, field, v)}
     />
   );
+  if (!feature) return slider;
+  return <FirmwareFeatureGate feature={feature}>{slider}</FirmwareFeatureGate>;
 }
 
 function PushTestControl({
