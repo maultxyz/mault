@@ -39,15 +39,18 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
                   eq(binSets.isActive, true),
                   isNull(binSets.gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 )
               : and(
                   eq(binSets.isActive, true),
                   eq(binSets.gameId, gameId),
                   eq(binSets.orgId, orgId),
+                  eq(binSets.isDeleted, false),
                 ),
           columns: { id: true },
           with: {
             bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
               columns: {
                 binNumber: true,
                 rules: true,

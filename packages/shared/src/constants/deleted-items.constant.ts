@@ -1,0 +1,15 @@
+export const DELETED_ITEM_TYPES = [
+  "collection",
+  "binSet",
+  "bin",
+  "device",
+  "binRoute",
+  "binHeight",
+  "moduleConfig",
+  "storageLocation",
+  "soundClip",
+  "soundRule",
+  "notificationRule",
+  "game",
+  "announcement",
+] as const;

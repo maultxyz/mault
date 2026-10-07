@@ -13,7 +13,7 @@ async function lockOrgDevices(tx: Transaction, orgId: string) {
 
 async function findFirstDevice(tx: Transaction, orgId: string) {
   return tx.query.devices.findFirst({
-    where: (t, { eq }) => eq(t.orgId, orgId),
+    where: (t, { eq, and }) => and(eq(t.orgId, orgId), eq(t.isDeleted, false)),
     orderBy: (t, { asc }) => asc(t.id),
   });
 }
@@ -36,7 +36,7 @@ export async function getOrCreateDevice(tx: Transaction, orgId: string) {
 export async function listOrgDevices(tx: Transaction, orgId: string) {
   await getOrCreateDevice(tx, orgId);
   return tx.query.devices.findMany({
-    where: (t, { eq }) => eq(t.orgId, orgId),
+    where: (t, { eq, and }) => and(eq(t.orgId, orgId), eq(t.isDeleted, false)),
     orderBy: (t, { asc }) => asc(t.id),
   });
 }
@@ -54,13 +54,17 @@ export async function resolveDeviceByHardwareId(
 
   const existing = await tx.query.devices.findFirst({
     where: (t, { and, eq }) =>
-      and(eq(t.orgId, orgId), eq(t.hardwareId, hardwareId)),
+      and(
+        eq(t.orgId, orgId),
+        eq(t.hardwareId, hardwareId),
+        eq(t.isDeleted, false),
+      ),
   });
   if (existing) return existing;
 
   const unclaimed = await tx.query.devices.findFirst({
     where: (t, { and, eq, isNull }) =>
-      and(eq(t.orgId, orgId), isNull(t.hardwareId)),
+      and(eq(t.orgId, orgId), isNull(t.hardwareId), eq(t.isDeleted, false)),
     orderBy: (t, { asc }) => asc(t.id),
   });
   if (unclaimed) {
@@ -90,7 +94,8 @@ export async function getDeviceByGuid(
   guid: string,
 ) {
   const row = await tx.query.devices.findFirst({
-    where: (t, { and, eq }) => and(eq(t.orgId, orgId), eq(t.guid, guid)),
+    where: (t, { and, eq }) =>
+      and(eq(t.orgId, orgId), eq(t.guid, guid), eq(t.isDeleted, false)),
   });
   return row ?? null;
 }

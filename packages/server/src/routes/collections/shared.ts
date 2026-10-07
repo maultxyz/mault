@@ -6,7 +6,7 @@ import type {
   UnmatchedCard,
   UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
-import { count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { collectionCards, collections, games } from "../../db/schema";
 
@@ -128,7 +128,7 @@ export async function loadCollections(
     .from(collections)
     .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
     .leftJoin(games, eq(games.id, collections.gameId))
-    .where(eq(collections.orgId, orgId))
+    .where(and(eq(collections.orgId, orgId), eq(collections.isDeleted, false)))
     .groupBy(
       collections.id,
       collections.guid,
@@ -153,7 +153,11 @@ export async function collectionNameTaken(
   const trimmed = name.trim().toLowerCase();
   const existing = await tx.query.collections.findFirst({
     where: (t, { eq, and }) =>
-      and(eq(t.orgId, orgId), sql`lower(trim(${t.name})) = ${trimmed}`),
+      and(
+        eq(t.orgId, orgId),
+        eq(t.isDeleted, false),
+        sql`lower(trim(${t.name})) = ${trimmed}`,
+      ),
     columns: { guid: true },
   });
   if (!existing) return false;

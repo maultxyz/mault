@@ -1,4 +1,6 @@
-import type { SyncState } from "@magic-vault/shared";
+import type { DeletedItemType, SyncState } from "@magic-vault/shared";
+
+export type DeletedItemTypeFilter = DeletedItemType | "all";
 
 export interface AdminCard {
   id: number;

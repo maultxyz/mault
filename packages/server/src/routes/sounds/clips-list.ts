@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
@@ -16,7 +16,9 @@ export const listSoundClipsRoute = new Hono<AppEnv>().get(
         tx
           .select()
           .from(soundClips)
-          .where(eq(soundClips.orgId, orgId))
+          .where(
+            and(eq(soundClips.orgId, orgId), eq(soundClips.isDeleted, false)),
+          )
           .orderBy(asc(soundClips.name)),
       );
       return c.json({

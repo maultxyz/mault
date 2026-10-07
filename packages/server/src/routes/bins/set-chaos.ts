@@ -35,7 +35,8 @@ export const setChaosRoute = new Hono<AppEnv>().put(
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const target = await tx.query.binSets.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
           columns: { id: true, isChaosMode: true },
         });
         if (!target) return { message: "Set not found.", success: false };

@@ -21,7 +21,7 @@
     "description": "How many physical sorting modules are wired up. Changes the number of bins available and the sections below.",
     "reduceConfirm": {
       "title": "Reduce module count?",
-      "description": "Dropping to {{count}} modules will permanently delete the sorting rules and calibration data for modules and bins beyond that count, across every bin preset. This can't be undone.",
+      "description": "Dropping to {{count}} modules will remove the sorting rules and calibration data for modules and bins beyond that count, across every bin preset.",
       "confirm": "Change Module Count"
     }
   },

@@ -81,7 +81,11 @@ export async function findClipId(
 ): Promise<number | null | undefined> {
   if (!clipGuid) return null;
   const clip = await tx.query.soundClips.findFirst({
-    where: and(eq(soundClips.guid, clipGuid), eq(soundClips.orgId, orgId)),
+    where: and(
+      eq(soundClips.guid, clipGuid),
+      eq(soundClips.orgId, orgId),
+      eq(soundClips.isDeleted, false),
+    ),
     columns: { id: true },
   });
   return clip?.id;
@@ -104,8 +108,20 @@ export async function loadSoundRules(
     })
     .from(soundRules)
     .innerJoin(games, eq(games.id, soundRules.gameId))
-    .leftJoin(soundClips, eq(soundClips.id, soundRules.clipId))
-    .where(and(eq(soundRules.orgId, orgId), eq(soundRules.gameId, gameId)))
+    .leftJoin(
+      soundClips,
+      and(
+        eq(soundClips.id, soundRules.clipId),
+        eq(soundClips.isDeleted, false),
+      ),
+    )
+    .where(
+      and(
+        eq(soundRules.orgId, orgId),
+        eq(soundRules.gameId, gameId),
+        eq(soundRules.isDeleted, false),
+      ),
+    )
     .orderBy(asc(soundRules.position), asc(soundRules.id));
   return rows.map(toSoundRule);
 }

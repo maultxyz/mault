@@ -10,7 +10,7 @@
     "deleteTitle": "Delete",
     "deleteDialog": {
       "title": "Delete game",
-      "description": "Permanently delete \"{{name}}\"? Collections using this game will keep their scanned cards, but no new cards can be matched against it."
+      "description": "Delete \"{{name}}\"? Collections using this game will keep their scanned cards, but no new cards can be matched against it."
     },
     "toasts": {
       "createError": "Failed to create game",

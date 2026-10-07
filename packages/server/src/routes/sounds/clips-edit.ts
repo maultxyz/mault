@@ -23,7 +23,13 @@ export const editSoundClipRoute = new Hono<AppEnv>().put(
         tx
           .update(soundClips)
           .set({ name: name.data, updatedAt: new Date() })
-          .where(and(eq(soundClips.guid, guid), eq(soundClips.orgId, orgId)))
+          .where(
+            and(
+              eq(soundClips.guid, guid),
+              eq(soundClips.orgId, orgId),
+              eq(soundClips.isDeleted, false),
+            ),
+          )
           .returning(),
       );
       if (!row) {

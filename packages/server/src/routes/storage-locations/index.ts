@@ -66,6 +66,8 @@ const router = new Hono<AppEnv>()
           .where(
             and(
               eq(storageLocations.orgId, orgId),
+              eq(storageLocations.isDeleted, false),
+              eq(collections.isDeleted, false),
               sql`strpos(lower(${collectionCards.card} ->> 'name'), ${query}) > 0`,
             ),
           )
@@ -150,6 +152,7 @@ const router = new Hono<AppEnv>()
             and(
               eq(storageLocations.guid, guid),
               eq(storageLocations.orgId, orgId),
+              eq(storageLocations.isDeleted, false),
             ),
           )
           .returning({ id: storageLocations.id });
@@ -170,18 +173,16 @@ const router = new Hono<AppEnv>()
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const location = await tx.query.storageLocations.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
           columns: { id: true },
         });
         if (!location) {
           return { success: false, message: "Storage location not found." };
         }
         await tx
-          .update(collectionCards)
-          .set({ locationId: null, locationPosition: null })
-          .where(eq(collectionCards.locationId, location.id));
-        await tx
-          .delete(storageLocations)
+          .update(storageLocations)
+          .set({ isDeleted: true })
           .where(eq(storageLocations.id, location.id));
         return { success: true, data: await loadLocations(tx, orgId) };
       });
@@ -197,7 +198,8 @@ const router = new Hono<AppEnv>()
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const location = await tx.query.storageLocations.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
           columns: { id: true },
         });
         if (!location) {
@@ -218,7 +220,12 @@ const router = new Hono<AppEnv>()
             collections,
             eq(collections.id, collectionCards.collectionId),
           )
-          .where(eq(collectionCards.locationId, location.id))
+          .where(
+            and(
+              eq(collectionCards.locationId, location.id),
+              eq(collections.isDeleted, false),
+            ),
+          )
           .orderBy(asc(collectionCards.locationPosition));
         const data: StorageLocationCard[] = rows.map((r) => ({
           scanId: r.scanId!,
@@ -244,7 +251,8 @@ const router = new Hono<AppEnv>()
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const location = await tx.query.storageLocations.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
           columns: { id: true },
         });
         if (!location) {

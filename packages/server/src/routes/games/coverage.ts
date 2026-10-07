@@ -1,5 +1,5 @@
 import type { GameCoverage } from "@magic-vault/shared";
-import { count, max } from "drizzle-orm";
+import { count, eq, max } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { cardImageVectors, games } from "../../db/schema";
@@ -7,7 +7,11 @@ import { requireAuth, type AppEnv } from "../../middleware/auth";
 
 export const gameCoverageRoute = new Hono<AppEnv>().get("/coverage", requireAuth, async (c) => {
   try {
-    const gameRows = await db.select().from(games).orderBy(games.name);
+    const gameRows = await db
+      .select()
+      .from(games)
+      .where(eq(games.isDeleted, false))
+      .orderBy(games.name);
 
     const countRows = await db
       .select({

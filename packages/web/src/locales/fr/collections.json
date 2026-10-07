@@ -50,7 +50,7 @@
     "submit": "Enregistrer"
   },
   "deleteDialog": {
-    "description": "Supprime définitivement « {{name}} » et toutes ses cartes. Cette action est irréversible."
+    "description": "Supprime « {{name}} » et masque toutes ses cartes. Contacte le support si tu as besoin de la récupérer."
   },
   "emptyDialog": {
     "description": "Retire définitivement toutes les cartes de « {{name}} », mais conserve la collection elle-même. Cette action est irréversible.",

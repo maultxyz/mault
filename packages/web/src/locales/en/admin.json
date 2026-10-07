@@ -9,6 +9,7 @@
     "users": "Users",
     "plans": "Plans",
     "announcements": "Announcements",
+    "deleted": "Deleted items",
     "servos": "Kit testing",
     "device": "Device",
     "developer": "Developer"
@@ -343,6 +344,35 @@
         "label": "Notification rules",
         "description": "Discord notification rules across all games. Only checked when adding a rule."
       }
+    }
+  },
+  "deletedItems": {
+    "heading": "Deleted items",
+    "description": "Everything deleted in any organization, except scanned cards. Restoring puts an item back exactly as it was.",
+    "searchPlaceholder": "Search by name or organization",
+    "allTypes": "All types",
+    "empty": "Nothing has been deleted",
+    "restore": "Restore",
+    "global": "Global",
+    "lastUpdated": "Last changed {{date}}",
+    "types": {
+      "collection": "Collection",
+      "binSet": "Bin preset",
+      "bin": "Bin",
+      "device": "Sorter",
+      "binRoute": "Bin route",
+      "binHeight": "Bin height",
+      "moduleConfig": "Module calibration",
+      "storageLocation": "Storage location",
+      "soundClip": "Sound clip",
+      "soundRule": "Sound rule",
+      "notificationRule": "Notification rule",
+      "game": "Game",
+      "announcement": "Announcement"
+    },
+    "toasts": {
+      "restored": "Restored {{name}}",
+      "restoreError": "Couldn't restore that item"
     }
   }
 }

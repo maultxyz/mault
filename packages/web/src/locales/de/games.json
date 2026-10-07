@@ -10,7 +10,7 @@
     "deleteTitle": "Löschen",
     "deleteDialog": {
       "title": "Spiel löschen",
-      "description": "„{{name}}“ dauerhaft löschen? Sammlungen, die dieses Spiel verwenden, behalten ihre gescannten Karten, aber es können keine neuen Karten mehr damit abgeglichen werden."
+      "description": "„{{name}}“ löschen? Sammlungen, die dieses Spiel verwenden, behalten ihre gescannten Karten, aber es können keine neuen Karten mehr damit abgeglichen werden."
     },
     "toasts": {
       "createError": "Spiel konnte nicht erstellt werden",

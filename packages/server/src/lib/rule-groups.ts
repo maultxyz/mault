@@ -1,5 +1,5 @@
 import type { BinRuleGroup } from "@magic-vault/shared";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import type { Transaction } from "../db";
 import { games } from "../db/schema";
@@ -24,7 +24,7 @@ export async function findGameId(
   gameGuid: string,
 ): Promise<number | null> {
   const game = await tx.query.games.findFirst({
-    where: eq(games.guid, gameGuid),
+    where: and(eq(games.guid, gameGuid), eq(games.isDeleted, false)),
     columns: { id: true },
   });
   return game?.id ?? null;

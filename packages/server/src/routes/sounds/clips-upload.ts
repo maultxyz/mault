@@ -3,7 +3,7 @@ import {
   SOUND_CLIP_MAX_BYTES,
   SOUND_CLIPS_PER_ORG_LIMIT,
 } from "@magic-vault/shared";
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { randomUUID } from "node:crypto";
 import { authQuery } from "../../db";
@@ -47,7 +47,9 @@ export const uploadSoundClipRoute = new Hono<AppEnv>().post(
         tx
           .select({ total: count() })
           .from(soundClips)
-          .where(eq(soundClips.orgId, orgId)),
+          .where(
+            and(eq(soundClips.orgId, orgId), eq(soundClips.isDeleted, false)),
+          ),
       );
       if ((existing[0]?.total ?? 0) >= SOUND_CLIPS_PER_ORG_LIMIT) {
         return c.json(

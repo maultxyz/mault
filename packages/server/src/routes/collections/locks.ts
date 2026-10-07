@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collections } from "../../db/schema";
@@ -17,7 +17,9 @@ export const locksRoute = new Hono<AppEnv>().get(
         tx
           .select({ guid: collections.guid })
           .from(collections)
-          .where(eq(collections.orgId, orgId)),
+          .where(
+            and(eq(collections.orgId, orgId), eq(collections.isDeleted, false)),
+          ),
       );
       const data = getLocksForGuids(guids.map((r) => r.guid!).filter(Boolean));
       return c.json({ success: true, data });

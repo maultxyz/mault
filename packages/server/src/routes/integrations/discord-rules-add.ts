@@ -1,5 +1,5 @@
 import { NOTIFICATION_RULES_PER_ORG_LIMIT } from "@magic-vault/shared";
-import { count, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
@@ -43,7 +43,12 @@ export const addNotificationRuleRoute = new Hono<AppEnv>().post(
         const [{ total }] = await tx
           .select({ total: count() })
           .from(notificationRules)
-          .where(eq(notificationRules.orgId, orgId));
+          .where(
+            and(
+              eq(notificationRules.orgId, orgId),
+              eq(notificationRules.isDeleted, false),
+            ),
+          );
         const planLimit = await getNotificationRuleLimit(tx, orgId);
         if (planLimit !== null && total >= planLimit) {
           return {
