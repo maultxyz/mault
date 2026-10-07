@@ -79,7 +79,7 @@ test("catch-all stays a fallback even if flagged as an override", () => {
   assert.equal(evaluateCardBin({}, colors, fields), undefined);
 });
 
-test("override priority beats configuration order", () => {
+test("priority 1 beats every other override level and configuration order", () => {
   const card = { colors: ["U"], prices: { usd: 2 } };
   const blueOverride = { ...colors[1], isOverride: true, overridePriority: 2 };
   const pricedFirst = { ...priceBin, overridePriority: 1 };
@@ -101,7 +101,7 @@ test("catch-all override rules pull matching cards away from other bins", () => 
   assert.equal(matchesCatchAllRules({ colors: ["W"] }, configs, fields), false);
 });
 
-test("sortOverrideBins orders by priority, then configuration order", () => {
+test("sortOverrideBins orders by priority, lowest number first, unranked last", () => {
   const a = { ...colors[0], isOverride: true };
   const b = { ...colors[1], isOverride: true, overridePriority: 3 };
   const c = { ...colors[2], isOverride: true, overridePriority: 1 };
@@ -116,6 +116,19 @@ test("the low-match threshold reads its own column", () => {
   assert.equal(findLowMatchCatchAll({ distance: 0.1 }, [threshold]), undefined);
   assert.equal(findLowMatchCatchAll({ distance: 0.9 }, [catchAll]), undefined);
   assert.equal(findLowMatchCatchAll({}, [catchAll]), undefined);
+});
+
+test("overrides on the same priority send the card to the emptiest bin", () => {
+  const card = { colors: ["W", "U"], prices: { usd: 2 } };
+  const white = { ...colors[0], isOverride: true, overridePriority: 1 };
+  const blue = { ...colors[1], isOverride: true, overridePriority: 1 };
+  const counts = new Map([[1, 40], [2, 10]]);
+  const fill = (b: BinConfig) => counts.get(b.binNumber) ?? 0;
+  assert.equal(evaluateCardBin(card, [white, blue, catchAll], fields, undefined, fill), blue);
+  assert.equal(evaluateCardBin(card, [white, blue, catchAll], fields), white);
+  assert.deepEqual(sortOverrideBins([white, blue], fill).map((x) => x.binNumber), [2, 1]);
+  const unranked = [{ ...white, overridePriority: null }, { ...blue, overridePriority: null }];
+  assert.equal(evaluateCardBin(card, [...unranked, catchAll], fields, undefined, fill), unranked[0]);
 });
 
 test("empty overrides do not capture unmatched cards", () => {

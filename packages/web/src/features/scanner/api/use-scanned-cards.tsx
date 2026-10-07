@@ -168,6 +168,14 @@ export function ScannedCardsProvider({
     const pending = pendingBinCardsRef.current.get(binNumber) ?? 0;
     return level.count + pending >= level.capacity;
   }, []);
+  const countCardsLocally = useCallback((binNumber: number) => {
+    const level = binFillLevelsRef.current.find(
+      (l) => l.binNumber === binNumber,
+    );
+    return (
+      (level?.count ?? 0) + (pendingBinCardsRef.current.get(binNumber) ?? 0)
+    );
+  }, []);
   const trackPendingBinCard = useCallback(
     (binNumber: number, delta: number) => {
       const pending = pendingBinCardsRef.current;
@@ -295,9 +303,10 @@ export function ScannedCardsProvider({
         autoAssignFieldRef.current
           ? undefined
           : (bin) => countCopiesInBin(binContentsRef.current, bin, card.id),
+        (bin) => countCardsLocally(bin.binNumber),
       );
     },
-    [isBinFullLocally],
+    [isBinFullLocally, countCardsLocally],
   );
 
   const resolveCorrectedBin = useCallback(

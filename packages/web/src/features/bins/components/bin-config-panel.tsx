@@ -30,6 +30,7 @@ import {
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  BinConfig,
   BinRuleGroup,
   DEFAULT_BIN_CAPACITY,
   OVERRIDE_PRIORITY_MAX,
@@ -39,6 +40,22 @@ import { IconHelpCircle, IconInfoCircle } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+
+function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
+  return order.reduce<BinConfig[][]>((groups, config) => {
+    const last = groups[groups.length - 1];
+    if (
+      last &&
+      config.overridePriority != null &&
+      last[0].overridePriority === config.overridePriority
+    ) {
+      last.push(config);
+    } else {
+      groups.push([config]);
+    }
+    return groups;
+  }, []);
+}
 
 function emptyRuleGroup(): BinRuleGroup {
   return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
@@ -250,14 +267,21 @@ export function BinConfigPanel() {
       {overrideOrder.length > 1 && (
         <p className="text-2xs text-foreground/70">
           {t("binConfigPanel.priorityOrder", {
-            order: overrideOrder
-              .map((c) =>
-                c.isCatchAll
-                  ? t("binConfigPanel.priorityOrderCatchAll", {
-                      number: c.binNumber,
+            order: groupOverridesByPriority(overrideOrder)
+              .map((group) => {
+                const names = group.map((c) =>
+                  c.isCatchAll
+                    ? t("binConfigPanel.priorityOrderCatchAll", {
+                        number: c.binNumber,
+                      })
+                    : t("binLabel", { number: c.binNumber }),
+                );
+                return names.length > 1
+                  ? t("binConfigPanel.priorityOrderTie", {
+                      bins: names.join(" / "),
                     })
-                  : t("binLabel", { number: c.binNumber }),
-              )
+                  : names[0];
+              })
               .join(", "),
           })}
         </p>
