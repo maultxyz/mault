@@ -58,6 +58,8 @@
   },
   "correctionAutoClose": {
     "heading": "Card correction prompt",
+    "promptToggleLabel": "Ask me to move corrected cards",
+    "promptToggleDescription": "Turn this off if you leave corrected cards where they were sorted. The card keeps its current bin and no prompt is shown.",
     "description": "After you correct or identify a card, a prompt shows which bin it's in and which bin it belongs in. Auto-close accepts that you moved the card once the time runs out, so you don't have to click.",
     "toggleLabel": "Auto-close and mark the card as moved",
     "secondsLabel": "Close after",

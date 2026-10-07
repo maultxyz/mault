@@ -397,8 +397,8 @@
         "description": "Scans saved in the 24 hours before the post."
       },
       "devices": {
-        "label": "Devices",
-        "description": "Sorters registered to an organization, excluding deleted ones."
+        "label": "Calibrated devices",
+        "description": "Calibrated sorters: at least one module saved with servo values other than the defaults. Deleted ones are excluded."
       },
       "users": {
         "label": "Users",

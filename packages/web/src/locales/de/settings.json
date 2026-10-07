@@ -52,6 +52,8 @@
   },
   "correctionAutoClose": {
     "heading": "Hinweis nach Kartenkorrektur",
+    "promptToggleLabel": "Fragen, ob korrigierte Karten umgelegt werden",
+    "promptToggleDescription": "Schalte das aus, wenn korrigierte Karten dort bleiben, wo sie einsortiert wurden. Die Karte behält ihr aktuelles Fach und es erscheint kein Hinweis.",
     "description": "Nach dem Korrigieren oder Zuordnen einer Karte zeigt ein Hinweis, in welchem Fach sie liegt und in welches sie gehört. Mit automatischem Schließen gilt die Karte nach Ablauf der Zeit als umgelegt, ohne Klick.",
     "toggleLabel": "Automatisch schließen und als umgelegt markieren",
     "secondsLabel": "Schließen nach",

@@ -55,6 +55,7 @@ import {
   removeFromCardPages,
   updateInCardPages,
 } from "@/features/collections/lib/card-page-cache";
+import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
@@ -74,7 +75,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { toast } from "@/lib/toast";
 import { generateScanId } from "@/lib/utils";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
   useCallback,
@@ -144,6 +145,11 @@ export function ScannedCardsProvider({
   const sorterLimitIsHardCapRef = useRef(sorterLimitIsHardCap);
   sorterLimitIsHardCapRef.current = sorterLimitIsHardCap;
   const queryClient = useQueryClient();
+  const { data: orgSettings } = useQuery(
+    orgSettingsQueryOptions(activeOrg?.id),
+  );
+  const correctionBinPromptRef = useRef(true);
+  correctionBinPromptRef.current = orgSettings?.correctionBinPrompt ?? true;
 
   useEffect(() => {
     locksRef.current = locks;
@@ -872,6 +878,7 @@ export function ScannedCardsProvider({
           ];
         }
         void invalidateCollectionCards(queryClient, collection.guid);
+        if (!correctionBinPromptRef.current) return true;
         const targetBin = resolveCorrectedBin(
           toRuleCard(
             { ...card, distance: 0, confidence: 1 },
@@ -940,17 +947,18 @@ export function ScannedCardsProvider({
         foilType: scan?.foilType,
       });
       const currentBin = scan?.binNumber;
-      const targetBin = resolveCorrectedBin(ruleCard, currentBin);
       binContentsRef.current = binContentsRef.current.map((entry) =>
         entry.scanId === scanId ? { ...entry, card: ruleCard } : entry,
       );
-      setBinCorrection({
-        id: generateScanId(),
-        scanId,
-        cardName: card.name,
-        currentBin,
-        targetBin: targetBin?.binNumber,
-      });
+      if (correctionBinPromptRef.current) {
+        setBinCorrection({
+          id: generateScanId(),
+          scanId,
+          cardName: card.name,
+          currentBin,
+          targetBin: resolveCorrectedBin(ruleCard, currentBin)?.binNumber,
+        });
+      }
       if (!collection) return;
       updateInCardPages(
         queryClient,
