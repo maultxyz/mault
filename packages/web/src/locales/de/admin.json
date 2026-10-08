@@ -190,7 +190,8 @@
   },
   "metricsStats": {
     "heading": "Scan-Statistiken",
-    "description": "App-weite Kartenscan-Summen über alle Organisationen hinweg",
+    "description": "App-weite Scan-Aktivität über alle Organisationen hinweg und ob jeder Scan auf dem Server oder im Browser vektorisiert wurde. Jemand gilt als aktiv scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",
+    "allTimeHeading": "Gesamt",
     "totalScannedLabel": "Gesamt gescannt",
     "matchedLabel": "Erkannt",
     "unidentifiedLabel": "Nicht erkannt",
@@ -202,7 +203,6 @@
   },
   "activeScanning": {
     "heading": "Aktives Scannen",
-    "description": "Live über alle Organisationen. Jemand gilt als scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",
     "scanners": "Scannende Personen",
     "sessions": "Gescannte Sammlungen",
     "orgs": "Organisationen",
@@ -211,7 +211,6 @@
   },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
-    "description": "Wie viele Kartenscans auf dem Server vektorisiert wurden im Vergleich zum Browser",
     "serverLabel": "Server",
     "webLabel": "Web",
     "percentOfTotal": "{{percent}}% der Scans"

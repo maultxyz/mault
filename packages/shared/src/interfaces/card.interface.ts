@@ -22,6 +22,13 @@ export interface PlayingCardCardmarketPrice {
   printings?: number;
 }
 
+export interface PlayingCardCardKingdomPrice {
+  retail: number | null;
+  buylist: number | null;
+  inStock: number | null;
+  url: string | null;
+}
+
 export interface PlayingCard {
   id: string;
   name: string;
@@ -45,6 +52,10 @@ export interface PlayingCard {
   priceEurFoil?: number | null;
   cardmarketPrice?: PlayingCardCardmarketPrice;
   cardmarketPriceFoil?: PlayingCardCardmarketPrice;
+  priceCardKingdom?: number | null;
+  priceCardKingdomFoil?: number | null;
+  cardKingdomPrice?: PlayingCardCardKingdomPrice;
+  cardKingdomPriceFoil?: PlayingCardCardKingdomPrice;
   sourceUrl?: string;
   tcgplayerId?: string;
   cmc?: number;

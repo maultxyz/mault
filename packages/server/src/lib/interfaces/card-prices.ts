@@ -16,6 +16,8 @@ export interface StoredCardPrices {
   priceFoil: number | null;
   priceEur: number | null;
   priceEurFoil: number | null;
+  priceCardKingdom: number | null;
+  priceCardKingdomFoil: number | null;
   details: CardPriceDetails | null;
 }
 

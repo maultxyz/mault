@@ -42,6 +42,8 @@ export const SUPPORT_PROMPT_STORAGE_KEY = "magic-vault:support-prompt";
 
 export const SCANNER_PIP_MINIMIZED_STORAGE_KEY = "magic-vault:scanner-pip-minimized";
 
+export const CARD_PRICE_TABLES_STORAGE_KEY = "magic-vault:card-price-tables-open";
+
 export const CARD_TECHNICAL_DETAILS_STORAGE_KEY =
   "magic-vault:card-technical-details";
 

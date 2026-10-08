@@ -135,4 +135,7 @@ export const scryfallAdapter: CardSearchAdapter = {
     gameId: 1,
     productIdFromRaw: (card) => (card.raw as ScryfallApiCard).cardmarket_id,
   },
+  cardkingdom: {
+    scryfallIdFromRaw: (card) => (card.raw as ScryfallApiCard | undefined)?.id,
+  },
 };

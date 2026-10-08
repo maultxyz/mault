@@ -1,4 +1,5 @@
 import { fabSyncSource } from "../adapters/fab/sync";
+import { grandArchiveSyncSource } from "../adapters/grand-archive/sync";
 import { gundamSyncSource } from "../adapters/gundam/sync";
 import { lorcanaSyncSource } from "../adapters/lorcana/sync";
 import { onePieceSyncSource } from "../adapters/onepiece/sync";
@@ -19,4 +20,5 @@ export const SYNC_SOURCES: Record<string, SyncSource> = {
   yugioh: yugiohSyncSource,
   riftbound: riftboundSyncSource,
   swu: swuSyncSource,
+  grandarchive: grandArchiveSyncSource,
 };

@@ -182,7 +182,8 @@
   },
   "metricsStats": {
     "heading": "Scan stats",
-    "description": "App-wide card scan totals across every organization",
+    "description": "App-wide scan activity across every organization, and whether each scan was vectorized on the server or in the browser. Someone counts as actively scanning while they've saved a scan in the last {{minutes}} minutes.",
+    "allTimeHeading": "All time",
     "totalScannedLabel": "Total scanned",
     "matchedLabel": "Matched",
     "unidentifiedLabel": "Unidentified",
@@ -194,7 +195,6 @@
   },
   "activeScanning": {
     "heading": "Active scanning",
-    "description": "Live across every organization. Someone counts as scanning while they've saved a scan in the last {{minutes}} minutes.",
     "scanners": "People scanning",
     "sessions": "Collections being scanned",
     "orgs": "Organizations",
@@ -203,7 +203,6 @@
   },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
-    "description": "How many card scans were vectorized on the server vs. in the browser",
     "serverLabel": "Server",
     "webLabel": "Web",
     "percentOfTotal": "{{percent}}% of scans"
