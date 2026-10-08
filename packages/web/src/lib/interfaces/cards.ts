@@ -34,6 +34,7 @@ export interface DetailSectionProps {
 
 export interface CardPriceDetailsProps {
   card: PlayingCard;
+  isFoil?: boolean;
   className?: string;
 }
 
@@ -71,6 +72,7 @@ export interface PriceHeadlineProps {
   label: string;
   price: number | null;
   foilPrice: number | null;
+  isFoil: boolean;
   format: (value: number) => string;
 }
 

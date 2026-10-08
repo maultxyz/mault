@@ -1,3 +1,4 @@
+import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import { sql } from "drizzle-orm";
 import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
@@ -931,6 +932,29 @@ export const cardmarketProducts = pgTable(
     ),
   ],
 );
+
+export const cardPrices = pgTable(
+  "card_prices",
+  {
+    gameKey: text("game_key").notNull(),
+    lang: text("lang").notNull(),
+    cardId: text("card_id").notNull(),
+    price: doublePrecision("price"),
+    priceFoil: doublePrecision("price_foil"),
+    priceEur: doublePrecision("price_eur"),
+    priceEurFoil: doublePrecision("price_eur_foil"),
+    details: jsonb("details").$type<CardPriceDetails>(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.gameKey, table.lang, table.cardId] }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
 
 export const binSetRelations = relations(binSets, ({ many, one }) => ({
   bins: many(bins),

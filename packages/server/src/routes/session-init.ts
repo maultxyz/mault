@@ -5,9 +5,10 @@ import {
   type PlayingCardWithDistance,
   type ScannedCard,
 } from "@magic-vault/shared";
-import { and, count, desc, eq, inArray } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { collectionCards, unmatchedCards } from "../db/schema";
+import { cardWithStoredPricesSql } from "../lib/card-price-sql";
 import { SESSION_INIT_UNMATCHED_IMAGE_LIMIT } from "../lib/constants/session-stream";
 import type { ViewerInfo } from "../lib/session-stream";
 import { resolveScanImageUrl } from "../lib/scan-images";
@@ -44,7 +45,7 @@ async function querySessionInit(
   const cardRows = await tx
     .select({
       guid: collectionCards.guid,
-      card: collectionCards.card,
+      card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`${collectionCards.card}`)}`,
       scannedAt: collectionCards.scannedAt,
       binNumber: collectionCards.binNumber,
       isFoil: collectionCards.isFoil,
