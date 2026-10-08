@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
+import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import type { CardImageViewerProps } from "@/lib/interfaces/cards";
 import { useTranslation } from "react-i18next";
 
@@ -36,9 +37,9 @@ export function CardImageViewer({
           <CapturedImageThumb
             src={capturedImageUrl}
             alt={t("cardPicker.scannedAlt")}
-            showOcrRegions={showOcrRegions}
           />
         </div>
+        {showOcrRegions && <OcrRegionCrops src={capturedImageUrl} />}
       </DialogContent>
     </Dialog>
   );

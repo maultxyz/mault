@@ -60,6 +60,12 @@
     "artist": "Artist",
     "binLocation": "Bin location",
     "showOcrRegions": "Show OCR regions",
+    "ocrRegions": "OCR regions",
+    "noOcrRegions": "This game has no OCR regions.",
+    "ocrFields": {
+      "name": "Name",
+      "setLine": "Set line"
+    },
     "copyOf": "Copy {{index}} of {{count}}"
   },
   "cardFilterPopover": {

@@ -60,6 +60,12 @@
     "artist": "Künstler",
     "binLocation": "Fachposition",
     "showOcrRegions": "OCR-Bereiche anzeigen",
+    "ocrRegions": "OCR-Bereiche",
+    "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
+    "ocrFields": {
+      "name": "Name",
+      "setLine": "Setzeile"
+    },
     "copyOf": "Exemplar {{index}} von {{count}}"
   },
   "cardFilterPopover": {
