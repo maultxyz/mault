@@ -1,5 +1,6 @@
 import type {
   CardFilters,
+  CardSetOption,
   FieldMeta,
   GroupedScannedCard,
   PlayingCard,
@@ -40,6 +41,8 @@ export interface CardPriceDetailsProps {
 
 export interface CardSearchState {
   results: PlayingCard[];
+  sets: CardSetOption[];
+  totalCount: number;
   loading: boolean;
   hasMore: boolean;
   isLoadingMore: boolean;

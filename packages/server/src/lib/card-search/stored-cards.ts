@@ -1,9 +1,15 @@
-import type { CardSearchPage, PlayingCard, Result } from "@magic-vault/shared";
+import type {
+  CardSearchPage,
+  CardSetOption,
+  PlayingCard,
+  Result,
+} from "@magic-vault/shared";
 import { and, desc, eq, ilike, isNotNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
 import { applyCardPrices } from "./card-prices";
+import { listCardSets } from "./card-sets";
 import type { ResolvedCardSearch } from "../interfaces/card-search";
 import { validateQuery } from "./validate";
 import { parsePrintingQueries } from "./printing-query";
@@ -45,12 +51,7 @@ function printingMatches({ setCode, number }: PrintingQuery): SQL {
   return sql`(lower(${cardImageVectors.setCode}) = ${set} AND (${numberMatches(number)} OR ${collectorNumber} = ${`${set}-${wanted}`} OR ${collectorNumber} = ${`${set}${wanted}`}))`;
 }
 
-async function searchStoredCards(
-  { adapter, gameKey, lang }: ResolvedCardSearch,
-  query: string,
-  offset: number,
-): Promise<CardSearchPage> {
-  const trimmed = query.trim();
+function storedSearchMatch(trimmed: string) {
   const pattern = `%${trimmed.replace(/[\\%_]/g, "\\$&")}%`;
   const printingQueries = parsePrintingQueries(trimmed);
   const printingMatch = printingQueries.length
@@ -59,6 +60,20 @@ async function searchStoredCards(
   const setMatch = printingQueries.some((q) => !q.setCode)
     ? sql`lower(${cardImageVectors.setCode}) = ${trimmed.toLowerCase()}`
     : undefined;
+  return {
+    printingMatch,
+    match: or(ilike(cardImageVectors.name, pattern), printingMatch, setMatch),
+  };
+}
+
+async function searchStoredCards(
+  { adapter, gameKey, lang }: ResolvedCardSearch,
+  query: string,
+  offset: number,
+  setCode?: string,
+): Promise<CardSearchPage> {
+  const trimmed = query.trim();
+  const { match, printingMatch } = storedSearchMatch(trimmed);
   const rows = await db
     .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
     .from(cardImageVectors)
@@ -66,7 +81,8 @@ async function searchStoredCards(
       and(
         eq(cardImageVectors.gameKey, gameKey),
         eq(cardImageVectors.lang, lang),
-        or(ilike(cardImageVectors.name, pattern), printingMatch, setMatch),
+        match,
+        setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
         isNotNull(cardImageVectors.data),
       ),
     )
@@ -132,6 +148,7 @@ export async function searchCards(
   resolved: ResolvedCardSearch,
   query: string,
   offset = 0,
+  setCode?: string,
 ): Promise<Result<CardSearchPage>> {
   const invalid = validateQuery(query);
   if (invalid) return invalid;
@@ -153,12 +170,14 @@ export async function searchCards(
     const priced = await applyCardPrices(
       resolved.adapter,
       resolved,
-      result.data,
+      setCode
+        ? result.data.filter((card) => card.set === setCode)
+        : result.data,
     );
     return { ...result, data: { cards: priced, nextOffset: null } };
   }
 
-  const page = await searchStoredCards(resolved, query, offset);
+  const page = await searchStoredCards(resolved, query, offset, setCode);
   if (offset === 0 && page.cards.length === 0) {
     return {
       success: false,
@@ -170,4 +189,38 @@ export async function searchCards(
     message: "Cards successfully retrieved.",
     data: page,
   };
+}
+
+export async function searchCardSets(
+  resolved: ResolvedCardSearch,
+  query: string,
+): Promise<CardSetOption[]> {
+  if (validateQuery(query)) return [];
+  const { match } = storedSearchMatch(query.trim());
+  const rows = await db
+    .select({
+      code: cardImageVectors.setCode,
+      cardCount: sql<number>`count(*)::int`,
+    })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, resolved.gameKey),
+        eq(cardImageVectors.lang, resolved.lang),
+        match,
+        isNotNull(cardImageVectors.data),
+      ),
+    )
+    .groupBy(cardImageVectors.setCode);
+  if (rows.length === 0) return [];
+  const names = new Map(
+    (await listCardSets(resolved)).map((set) => [set.code, set.name]),
+  );
+  return rows
+    .map(({ code, cardCount }) => ({
+      code,
+      name: names.get(code) ?? code.toUpperCase(),
+      cardCount,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
