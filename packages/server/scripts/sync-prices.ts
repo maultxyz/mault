@@ -1,6 +1,6 @@
 import { pool } from "../src/db";
+import { refreshCardPrices } from "../src/lib/card-price-refresh";
 import { syncCardmarketPrices } from "../src/lib/cardmarket-price-sync";
-import { refreshCollectionCardPrices } from "../src/lib/collection-card-prices";
 import { syncTcgplayerPrices } from "../src/lib/tcgplayer-price-sync";
 
 const log = (msg: string) => console.log(`[sync-prices] ${msg}`);
@@ -25,10 +25,14 @@ async function run(): Promise<boolean> {
     console.error("[sync-prices] Cardmarket sync failed:", err);
     ok = false;
   }
-  if (pulled) {
-    await refreshCollectionCardPrices({ log });
-  } else {
-    log("No new prices pulled; collection card prices are already current.");
+  try {
+    if (!pulled) {
+      log("No new prices pulled; only pricing cards that have no price row.");
+    }
+    await refreshCardPrices({ log, onlyMissing: !pulled });
+  } catch (err) {
+    console.error("[sync-prices] Card price refresh failed:", err);
+    ok = false;
   }
   return ok;
 }

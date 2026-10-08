@@ -73,9 +73,22 @@ function PriceTable({
   );
 }
 
-function PriceHeadline({ label, price, foilPrice, format }: PriceHeadlineProps) {
+function PriceHeadline({
+  label,
+  price,
+  foilPrice,
+  isFoil,
+  format,
+}: PriceHeadlineProps) {
   const { t } = useTranslation("cards");
   if (price == null && foilPrice == null) return null;
+
+  const showFoil = isFoil && foilPrice != null;
+  const headline = showFoil ? foilPrice : price;
+  const secondary = showFoil ? price : foilPrice;
+  const secondaryKey = showFoil
+    ? "priceTable.nonFoilPrice"
+    : "priceTable.foilPrice";
 
   return (
     <div className="flex min-w-36 flex-col gap-0.5 rounded-md border bg-muted px-3 py-2">
@@ -83,18 +96,22 @@ function PriceHeadline({ label, price, foilPrice, format }: PriceHeadlineProps) 
         {label}
       </span>
       <span className="font-heading text-lg font-semibold tabular-nums">
-        {price != null ? format(price) : t("priceTable.noPrice")}
+        {headline != null ? format(headline) : t("priceTable.noPrice")}
       </span>
-      {foilPrice != null && (
+      {secondary != null && (
         <span className="text-xs tabular-nums text-foreground/70">
-          {t("priceTable.foilPrice", { price: format(foilPrice) })}
+          {t(secondaryKey, { price: format(secondary) })}
         </span>
       )}
     </div>
   );
 }
 
-export function CardPriceDetails({ card, className }: CardPriceDetailsProps) {
+export function CardPriceDetails({
+  card,
+  isFoil = false,
+  className,
+}: CardPriceDetailsProps) {
   const { t } = useTranslation("cards");
   const { source } = usePriceSource();
 
@@ -155,12 +172,14 @@ export function CardPriceDetails({ card, className }: CardPriceDetailsProps) {
           label={t("priceTable.tcgplayerMarket")}
           price={card.price}
           foilPrice={card.priceFoil}
+          isFoil={isFoil}
           format={formatUsd}
         />
         <PriceHeadline
           label={t("priceTable.cardmarketAvg")}
           price={card.priceEur ?? null}
           foilPrice={card.priceEurFoil ?? null}
+          isFoil={isFoil}
           format={formatEur}
         />
       </div>

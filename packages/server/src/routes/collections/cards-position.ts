@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   findCardsCollection,
@@ -33,9 +34,22 @@ export const collectionCardPositionRoute = new Hono<AppEnv>().get(
           query,
           scanId,
         );
-        return { success: true, data };
+        return {
+          success: true,
+          gameKey: collection.gameKey,
+          lang: collection.lang,
+          data,
+        };
       });
-      return c.json(result);
+      if (!result.success || !("data" in result) || !result.data) {
+        return c.json(result);
+      }
+      const [entry] = await applyCardPricesToScans(
+        result.gameKey,
+        result.lang,
+        [result.data.entry],
+      );
+      return c.json({ success: true, data: { ...result.data, entry } });
     } catch (err) {
       console.error(err);
       return c.json({ success: false, message: "Database error." }, 500);

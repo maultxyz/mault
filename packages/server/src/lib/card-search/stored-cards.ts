@@ -25,7 +25,7 @@ async function findStoredCard(
     .limit(1);
   const card = row ? adapter.normalizeStored(row.data, cardId, lang) : null;
   if (!card) return null;
-  const [priced] = await applyCardPrices(adapter, [card]);
+  const [priced] = await applyCardPrices(adapter, { gameKey, lang }, [card]);
   return priced;
 }
 
@@ -61,7 +61,7 @@ async function searchStoredCards(
     return card ? [card] : [];
   });
   return {
-    cards: await applyCardPrices(adapter, cards),
+    cards: await applyCardPrices(adapter, { gameKey, lang }, cards),
     nextOffset: hasMore ? offset + STORED_SEARCH_LIMIT : null,
   };
 }
@@ -98,7 +98,9 @@ export async function searchCardById(
   }
   const result = await resolved.adapter.searchById(id, resolved.baseUrl);
   if (!result.success || !result.data) return result;
-  const [priced] = await applyCardPrices(resolved.adapter, [result.data]);
+  const [priced] = await applyCardPrices(resolved.adapter, resolved, [
+    result.data,
+  ]);
   return { ...result, data: priced };
 }
 
@@ -124,7 +126,11 @@ export async function searchCards(
       resolved.lang,
     );
     if (!result.success || !result.data) return { ...result, data: undefined };
-    const priced = await applyCardPrices(resolved.adapter, result.data);
+    const priced = await applyCardPrices(
+      resolved.adapter,
+      resolved,
+      result.data,
+    );
     return { ...result, data: { cards: priced, nextOffset: null } };
   }
 
