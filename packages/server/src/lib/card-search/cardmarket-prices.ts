@@ -78,19 +78,21 @@ function combinePrices(
   prices: PlayingCardCardmarketPrice[],
 ): PlayingCardCardmarketPrice | undefined {
   if (prices.length <= 1) return prices[0];
-  const present = (key: "low" | "trend" | "avg30") =>
+  const present = (key: "low" | "trend" | "avg" | "avg7" | "avg30") =>
     prices.flatMap((p) => (p[key] != null ? [p[key]] : []));
   const lows = present("low");
   return {
     low: lows.length ? Math.min(...lows) : null,
     trend: median(present("trend")),
+    avg: median(present("avg")),
+    avg7: median(present("avg7")),
     avg30: median(present("avg30")),
     printings: prices.length,
   };
 }
 
 function hasPrice(price: PlayingCardCardmarketPrice): boolean {
-  return price.trend != null || price.low != null;
+  return price.avg != null || price.trend != null || price.low != null;
 }
 
 export async function applyCardmarketPrices<T extends PlayingCard>(
@@ -119,7 +121,13 @@ export async function applyCardmarketPrices<T extends PlayingCard>(
 
     const regular = combinePrices(
       products
-        .map((row) => ({ low: row.low, trend: row.trend, avg30: row.avg30 }))
+        .map((row) => ({
+          low: row.low,
+          trend: row.trend,
+          avg: row.avg,
+          avg7: row.avg7,
+          avg30: row.avg30,
+        }))
         .filter(hasPrice),
     );
     const foil = combinePrices(
@@ -127,14 +135,16 @@ export async function applyCardmarketPrices<T extends PlayingCard>(
         .map((row) => ({
           low: row.lowFoil,
           trend: row.trendFoil,
+          avg: row.avgFoil,
+          avg7: row.avg7Foil,
           avg30: row.avg30Foil,
         }))
         .filter(hasPrice),
     );
     return {
       ...card,
-      priceEur: regular?.trend ?? card.priceEur,
-      priceEurFoil: foil?.trend ?? card.priceEurFoil,
+      priceEur: regular?.avg ?? regular?.trend ?? card.priceEur,
+      priceEurFoil: foil?.avg ?? foil?.trend ?? card.priceEurFoil,
       cardmarketPrice: regular ?? card.cardmarketPrice,
       cardmarketPriceFoil: foil ?? card.cardmarketPriceFoil,
     };
