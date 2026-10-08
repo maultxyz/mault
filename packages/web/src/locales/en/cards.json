@@ -60,11 +60,11 @@
     "artist": "Artist",
     "binLocation": "Bin location",
     "showOcrRegions": "Show OCR regions",
-    "ocrRegions": "OCR regions",
     "noOcrRegions": "This game has no OCR regions.",
     "ocrFields": {
       "name": "Name",
-      "setLine": "Set line"
+      "setLine": "Set line",
+      "number": "Number"
     },
     "copyOf": "Copy {{index}} of {{count}}"
   },
@@ -256,6 +256,7 @@
     "ocr": "OCR",
     "ocrName": "Name read",
     "ocrSetLine": "Set line read",
+    "ocrNumber": "Number read",
     "ocrMatchedName": "Closest card name",
     "ocrNotRun": "OCR didn't run for this scan.",
     "cardJson": "Card data (JSON)",

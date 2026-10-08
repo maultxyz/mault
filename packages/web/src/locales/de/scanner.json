@@ -337,6 +337,7 @@
     "ocrHeading": "Text auf der Karte",
     "ocrName": "Gelesener Name: {{text}}",
     "ocrSetLine": "Gelesene Set-Zeile: {{text}}",
+    "ocrNumber": "Gelesene Nummer: {{text}}",
     "ocrEmpty": "nichts",
     "ocrMatchedName": "Ähnlichster Kartenname: {{name}} (Ähnlichkeit {{score}}), aber keine Druckversion war nah genug.",
     "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug.",

@@ -60,11 +60,11 @@
     "artist": "Künstler",
     "binLocation": "Fachposition",
     "showOcrRegions": "OCR-Bereiche anzeigen",
-    "ocrRegions": "OCR-Bereiche",
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
     "ocrFields": {
       "name": "Name",
-      "setLine": "Setzeile"
+      "setLine": "Setzeile",
+      "number": "Nummer"
     },
     "copyOf": "Exemplar {{index}} von {{count}}"
   },
@@ -256,6 +256,7 @@
     "ocr": "OCR",
     "ocrName": "Gelesener Name",
     "ocrSetLine": "Gelesene Set-Zeile",
+    "ocrNumber": "Gelesene Nummer",
     "ocrMatchedName": "Ähnlichster Kartenname",
     "ocrNotRun": "OCR lief für diesen Scan nicht.",
     "cardJson": "Kartendaten (JSON)",

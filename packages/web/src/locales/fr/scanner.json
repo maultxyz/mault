@@ -337,6 +337,7 @@
     "ocrHeading": "Texte sur la carte",
     "ocrName": "Nom lu : {{text}}",
     "ocrSetLine": "Ligne d'extension lue : {{text}}",
+    "ocrNumber": "Numéro lu : {{text}}",
     "ocrEmpty": "rien",
     "ocrMatchedName": "Nom de carte le plus proche : {{name}} (similarité {{score}}), mais aucune impression n'était assez proche.",
     "ocrNoName": "Aucun nom de carte n'était assez proche du texte lu.",

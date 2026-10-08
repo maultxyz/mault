@@ -14,6 +14,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.055,
       multiline: true,
     },
+    { field: "number", x: 0.03, y: 0.925, width: 0.2, height: 0.028 },
   ],
   pokemon: [
     { field: "name", x: 0.18, y: 0.035, width: 0.5, height: 0.055 },
@@ -25,6 +26,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.08,
       multiline: true,
     },
+    { field: "number", x: 0.03, y: 0.925, width: 0.3, height: 0.045 },
   ],
   yugioh: [
     { field: "name", x: 0.07, y: 0.045, width: 0.73, height: 0.06 },
@@ -54,6 +56,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.07,
       multiline: true,
     },
+    { field: "number", x: 0.03, y: 0.935, width: 0.28, height: 0.04 },
   ],
   onepiece: [
     { field: "name", x: 0.12, y: 0.835, width: 0.76, height: 0.05 },

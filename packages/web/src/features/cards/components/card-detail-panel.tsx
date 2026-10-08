@@ -438,6 +438,12 @@ export function CardDetailPanel({
                       >
                         {capturedImage}
                       </button>
+                      {showOcrRegions && capturedImageUrl && (
+                        <OcrRegionCrops
+                          src={capturedImageUrl}
+                          className="w-56 mt-1.5"
+                        />
+                      )}
                     </figure>
                   )}
                   <figure className="flex flex-col gap-1.5">
@@ -459,15 +465,6 @@ export function CardDetailPanel({
 
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
-                    {showOcrRegions && capturedImageUrl && (
-                      <DetailSection title={t("cardDetailPanel.ocrRegions")}>
-                        <OcrRegionCrops
-                          src={capturedImageUrl}
-                          className="max-w-lg"
-                        />
-                      </DetailSection>
-                    )}
-
                     <DetailSection title={t("cardDetailPanel.prices")}>
                       <CardPriceDetails card={selectedCard} isFoil={isFoil} />
                     </DetailSection>
