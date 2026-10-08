@@ -1,9 +1,9 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { loadSets } from "./shared";
+import { loadSets, activeBinSetWhere } from "./shared";
 
 export const setBinSetActiveRoute = new Hono<AppEnv>().put(
   "/:guid/active",
@@ -30,19 +30,7 @@ export const setBinSetActiveRoute = new Hono<AppEnv>().put(
         await tx
           .update(binSets)
           .set({ isActive: false })
-          .where(
-            target.gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, target.gameId),
-                  eq(binSets.orgId, orgId),
-                ),
-          );
+          .where(activeBinSetWhere(binSets, orgId, target.gameId));
         await tx
           .update(binSets)
           .set({ isActive: true })

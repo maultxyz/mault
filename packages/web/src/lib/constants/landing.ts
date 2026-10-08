@@ -61,3 +61,6 @@ export const DEMO_REPACK_SLOTS = [
 export const DEMO_RULE_FIELD_OPTIONS = ["Rarity", "Color", "Set", "Type"];
 
 export const DEMO_RULE_OPERATOR_OPTIONS = ["is", "is not", "includes"];
+
+export const MARKETING_FOOTER_LINK_CLASS =
+  "transition-colors hover:text-foreground";

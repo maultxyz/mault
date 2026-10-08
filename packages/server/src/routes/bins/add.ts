@@ -3,7 +3,6 @@ import {
   DEFAULT_BIN_CAPACITY,
   type DefaultBinInit,
 } from "@magic-vault/shared";
-import { and, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSets } from "../../db/schema";
@@ -19,6 +18,7 @@ import {
   toLowMatchPercent,
   toMaxCopies,
   toOverridePriority,
+  activeBinSetWhere,
 } from "./shared";
 
 export const addBinSetRoute = new Hono<AppEnv>().post(
@@ -52,19 +52,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
         await tx
           .update(binSets)
           .set({ isActive: false })
-          .where(
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                ),
-          );
+          .where(activeBinSetWhere(binSets, orgId, gameId));
 
         const [newBinSet] = await tx
           .insert(binSets)

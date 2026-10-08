@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui/button";
+import { RuleDialogFields } from "@/components/rule-dialog-fields";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -18,8 +16,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
   addSoundRule,
@@ -28,6 +24,7 @@ import {
   updateSoundRule,
 } from "@/features/sounds/api/sounds";
 import type { SoundRuleDialogProps } from "@/lib/interfaces/sounds";
+import { emptyRuleGroup } from "@/lib/rule-groups";
 import { toast } from "@/lib/toast";
 import {
   createSoundRuleFormSchema,
@@ -45,11 +42,7 @@ function emptyValues(rule: SoundRuleDialogProps["rule"]): SoundRuleFormValues {
     name: rule?.name ?? "",
     clipGuid: rule?.clipGuid ?? "",
     isEnabled: rule?.isEnabled ?? true,
-    rules: rule?.rules ?? {
-      id: crypto.randomUUID(),
-      combinator: "and",
-      conditions: [],
-    },
+    rules: rule?.rules ?? emptyRuleGroup(),
   };
 }
 
@@ -152,45 +145,17 @@ export function SoundRuleDialog({
             </Field>
           </div>
 
-          <Controller
+          <RuleDialogFields
             control={control}
-            name="isEnabled"
-            render={({ field }) => (
-              <label className="flex items-center justify-between gap-3">
-                <span className="text-sm">{t("ruleDialog.enabled")}</span>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              </label>
-            )}
+            rulesError={errors.rules}
+            isPending={save.isPending}
+            labels={{
+              enabled: t("ruleDialog.enabled"),
+              conditions: t("ruleDialog.conditions"),
+              cancel: t("ruleDialog.cancel"),
+              save: t("ruleDialog.save"),
+            }}
           />
-
-          <Field data-invalid={!!errors.rules}>
-            <Label>{t("ruleDialog.conditions")}</Label>
-            <div className="max-h-[50vh] overflow-y-auto">
-              <Controller
-                control={control}
-                name="rules"
-                render={({ field }) => (
-                  <RuleGroupEditor
-                    group={field.value}
-                    onChange={field.onChange}
-                  />
-                )}
-              />
-            </div>
-            <FieldError errors={[errors.rules]} />
-          </Field>
-
-          <DialogFooter>
-            <DialogClose render={<Button type="button" variant="outline" />}>
-              {t("ruleDialog.cancel")}
-            </DialogClose>
-            <Button type="submit" disabled={save.isPending}>
-              {t("ruleDialog.save")}
-            </Button>
-          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

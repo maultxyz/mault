@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { resolveGameId } from "./shared";
+import { resolveGameId, activeBinSetWhere } from "./shared";
 
 export const deleteBinRoute = new Hono<AppEnv>().delete(
   "/bins/:binNumber",
@@ -17,20 +17,7 @@ export const deleteBinRoute = new Hono<AppEnv>().delete(
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await resolveGameId(tx, gameGuid);
         const activeBinSet = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and, isNull }) =>
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                ),
+          where: (t) => activeBinSetWhere(t, orgId, gameId),
           columns: { id: true },
           with: {
             bins: {
@@ -41,7 +28,9 @@ export const deleteBinRoute = new Hono<AppEnv>().delete(
         });
         if (!activeBinSet)
           return { message: "No active set found.", success: false };
-        const existing = activeBinSet.bins.find((b) => b.binNumber === binNumber);
+        const existing = activeBinSet.bins.find(
+          (b) => b.binNumber === binNumber,
+        );
         if (existing) {
           await tx
             .update(bins)

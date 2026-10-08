@@ -57,17 +57,14 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { emptyRuleGroup } from "@/lib/rule-groups";
 import { toast } from "@/lib/toast";
-
-function emptyRules(): BinRuleGroup {
-  return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
-}
 
 function createEmptyConfig(binNumber: number): BinConfig {
   return {
     guid: crypto.randomUUID(),
     binNumber,
-    rules: emptyRules(),
+    rules: emptyRuleGroup(),
     cardLimit: DEFAULT_BIN_CAPACITY,
   };
 }
@@ -363,9 +360,7 @@ export function BinConfigsProvider({
     }) => emptyBinAction(binNumber, activeGameGuid, options),
     onSuccess: (result) => {
       if (!result.success) {
-        toast.error(
-          result.message ?? t("useBinConfigs.toasts.emptyBinFailed"),
-        );
+        toast.error(result.message ?? t("useBinConfigs.toasts.emptyBinFailed"));
         return;
       }
       if (result.assignedCount) {
@@ -604,7 +599,7 @@ export function BinConfigsProvider({
     if (lastBin)
       save({
         binNumber: lastBin.binNumber,
-        rules: emptyRules(),
+        rules: emptyRuleGroup(),
         isCatchAll: true,
         cardLimit: lastBin.cardLimit,
       });
@@ -632,7 +627,7 @@ export function BinConfigsProvider({
           if (lastBin && !lastBin.isCatchAll) {
             save({
               binNumber: lastBin.binNumber,
-              rules: emptyRules(),
+              rules: emptyRuleGroup(),
               isCatchAll: true,
               cardLimit: lastBin.cardLimit,
             });

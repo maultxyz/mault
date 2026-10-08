@@ -1,6 +1,7 @@
-import { SOUND_RULE_NAME_MAX_LENGTH, type BinRuleGroup } from "@magic-vault/shared";
+import { SOUND_RULE_NAME_MAX_LENGTH } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { z } from "zod";
+import { nonEmptyRuleGroupSchema } from "./rule-group.schema";
 
 export function createSoundRuleFormSchema(t: TFunction<"sounds">) {
   return z.object({
@@ -11,12 +12,7 @@ export function createSoundRuleFormSchema(t: TFunction<"sounds">) {
       .max(SOUND_RULE_NAME_MAX_LENGTH),
     clipGuid: z.string().min(1, t("ruleDialog.validation.clipRequired")),
     isEnabled: z.boolean(),
-    rules: z.custom<BinRuleGroup>(
-      (value) =>
-        !!value &&
-        typeof value === "object" &&
-        Array.isArray((value as BinRuleGroup).conditions) &&
-        (value as BinRuleGroup).conditions.length > 0,
+    rules: nonEmptyRuleGroupSchema(
       t("ruleDialog.validation.conditionsRequired"),
     ),
   });

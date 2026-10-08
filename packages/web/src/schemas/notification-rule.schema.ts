@@ -1,13 +1,9 @@
-import {
-  NOTIFICATION_RULE_NAME_MAX_LENGTH,
-  type BinRuleGroup,
-} from "@magic-vault/shared";
+import { NOTIFICATION_RULE_NAME_MAX_LENGTH } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { z } from "zod";
+import { nonEmptyRuleGroupSchema } from "./rule-group.schema";
 
-export function createNotificationRuleFormSchema(
-  t: TFunction<"integrations">,
-) {
+export function createNotificationRuleFormSchema(t: TFunction<"integrations">) {
   return z.object({
     name: z
       .string()
@@ -17,12 +13,7 @@ export function createNotificationRuleFormSchema(
     channelId: z.string().min(1, t("ruleDialog.validation.channelRequired")),
     roleId: z.string().nullable(),
     isEnabled: z.boolean(),
-    rules: z.custom<BinRuleGroup>(
-      (value) =>
-        !!value &&
-        typeof value === "object" &&
-        Array.isArray((value as BinRuleGroup).conditions) &&
-        (value as BinRuleGroup).conditions.length > 0,
+    rules: nonEmptyRuleGroupSchema(
       t("ruleDialog.validation.conditionsRequired"),
     ),
   });

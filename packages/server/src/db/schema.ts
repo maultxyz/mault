@@ -180,6 +180,7 @@ export const binSets = pgTable(
   },
   (table) => [
     unique("bin_sets_guid_idx").on(table.guid),
+    index("bin_sets_org_game_idx").on(table.orgId, table.gameId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -249,6 +250,7 @@ export const bins = pgTable(
   },
   (table) => [
     unique("bins_guid_idx").on(table.guid),
+    index("bins_bin_set_number_idx").on(table.binSet, table.binNumber),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -395,6 +397,7 @@ export const collections = pgTable(
   },
   (table) => [
     unique("collections_guid_idx").on(table.guid),
+    index("collections_org_idx").on(table.orgId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -466,6 +469,11 @@ export const collectionCards = pgTable(
       table.scannedAt,
     ),
     index("collection_cards_card_id_idx").on(table.cardId),
+    index("collection_cards_collection_bin_scanned_idx").on(
+      table.collectionId,
+      table.binNumber,
+      table.scannedAt,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -494,6 +502,10 @@ export const unmatchedCards = pgTable(
   },
   (table) => [
     unique("unmatched_cards_guid_idx").on(table.guid),
+    index("unmatched_cards_collection_scanned_idx").on(
+      table.collectionId,
+      table.scannedAt,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

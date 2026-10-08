@@ -13,7 +13,7 @@ import {
 } from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { emptyRules, resolveGameId } from "./shared";
+import { emptyRules, resolveGameId, activeBinSetWhere } from "./shared";
 
 // Marks a physical bin as emptied - cards scanned before now stop counting
 // toward its cardLimit, without touching the collection's card history.
@@ -41,20 +41,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await resolveGameId(tx, gameGuid);
         const activeBinSet = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and, isNull }) =>
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                ),
+          where: (t) => activeBinSetWhere(t, orgId, gameId),
           columns: { id: true },
           with: {
             bins: {

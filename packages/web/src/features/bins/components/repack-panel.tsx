@@ -18,19 +18,12 @@ import {
   type RepackConfigFormValues,
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  type BinRuleGroup,
-  getRepackSiftBin,
-  type RepackSlot,
-} from "@magic-vault/shared";
+import { getRepackSiftBin, type RepackSlot } from "@magic-vault/shared";
 import { IconInfoCircle, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useCallback, useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-
-function emptyRuleGroup(): BinRuleGroup {
-  return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
-}
+import { emptyRuleGroup } from "@/lib/rule-groups";
 
 function createSlot(): RepackSlot {
   return { id: crypto.randomUUID(), rule: emptyRuleGroup(), targetCount: 1 };
