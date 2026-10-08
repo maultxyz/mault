@@ -6,6 +6,11 @@ import type {
   SearchCardMatch,
 } from "@magic-vault/shared";
 
+export interface PrintingQuery {
+  setCode: string | null;
+  number: string;
+}
+
 export interface TcgplayerSubTypes {
   price: string[];
   priceFoil: string[];

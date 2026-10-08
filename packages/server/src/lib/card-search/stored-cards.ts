@@ -1,11 +1,13 @@
 import type { CardSearchPage, PlayingCard, Result } from "@magic-vault/shared";
-import { and, desc, eq, ilike, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, isNotNull, or, sql, type SQL } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
 import { applyCardPrices } from "./card-prices";
 import type { ResolvedCardSearch } from "../interfaces/card-search";
 import { validateQuery } from "./validate";
+import { parsePrintingQueries } from "./printing-query";
+import type { PrintingQuery } from "../interfaces/card-search";
 
 async function findStoredCard(
   { adapter, gameKey, lang }: ResolvedCardSearch,
@@ -29,6 +31,20 @@ async function findStoredCard(
   return priced;
 }
 
+function numberMatches(number: string): SQL {
+  const collectorNumber = sql`lower(${cardImageVectors.collectorNumber})`;
+  const wanted = number.toLowerCase();
+  return sql`(${collectorNumber} = ${wanted} OR ltrim(${collectorNumber}, '0') = ltrim(${wanted}, '0'))`;
+}
+
+function printingMatches({ setCode, number }: PrintingQuery): SQL {
+  if (!setCode) return numberMatches(number);
+  const collectorNumber = sql`lower(${cardImageVectors.collectorNumber})`;
+  const set = setCode.toLowerCase();
+  const wanted = number.toLowerCase();
+  return sql`(lower(${cardImageVectors.setCode}) = ${set} AND (${numberMatches(number)} OR ${collectorNumber} = ${`${set}-${wanted}`} OR ${collectorNumber} = ${`${set}${wanted}`}))`;
+}
+
 async function searchStoredCards(
   { adapter, gameKey, lang }: ResolvedCardSearch,
   query: string,
@@ -36,6 +52,13 @@ async function searchStoredCards(
 ): Promise<CardSearchPage> {
   const trimmed = query.trim();
   const pattern = `%${trimmed.replace(/[\\%_]/g, "\\$&")}%`;
+  const printingQueries = parsePrintingQueries(trimmed);
+  const printingMatch = printingQueries.length
+    ? or(...printingQueries.map(printingMatches))
+    : undefined;
+  const setMatch = printingQueries.some((q) => !q.setCode)
+    ? sql`lower(${cardImageVectors.setCode}) = ${trimmed.toLowerCase()}`
+    : undefined;
   const rows = await db
     .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
     .from(cardImageVectors)
@@ -43,11 +66,12 @@ async function searchStoredCards(
       and(
         eq(cardImageVectors.gameKey, gameKey),
         eq(cardImageVectors.lang, lang),
-        ilike(cardImageVectors.name, pattern),
+        or(ilike(cardImageVectors.name, pattern), printingMatch, setMatch),
         isNotNull(cardImageVectors.data),
       ),
     )
     .orderBy(
+      ...(printingMatch ? [desc(sql`coalesce(${printingMatch}, false)`)] : []),
       desc(sql`lower(${cardImageVectors.name}) = lower(${trimmed})`),
       cardImageVectors.name,
       cardImageVectors.setCode,

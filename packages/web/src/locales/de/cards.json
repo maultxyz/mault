@@ -10,7 +10,7 @@
     "foilPrice": "Foil: {{price}}",
     "artBy": "Illustration von {{artist}}",
     "viewSource": "Quelle ansehen",
-    "searchPlaceholder": "Nach Kartenname suchen...",
+    "searchPlaceholder": "Nach Name, Nummer oder Set suchen (z. B. MH3 123)...",
     "allSets": "Alle Editionen",
     "allSetsCount": "Alle Editionen ({{count}})",
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",

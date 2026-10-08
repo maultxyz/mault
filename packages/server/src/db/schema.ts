@@ -47,6 +47,7 @@ export const cardImageVectors = pgTable(
     lang: text("lang").notNull().default("en"),
     name: text("name").notNull(),
     setCode: text("set_code").notNull(),
+    collectorNumber: text("collector_number"),
     embedding: vector("embedding").notNull(),
     data: jsonb("data"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -65,6 +66,11 @@ export const cardImageVectors = pgTable(
     // are admin-defined data (Games Manager), not something this static
     // schema can enumerate.
     index("cards_name_trgm_idx").using("gin", table.name.op("gin_trgm_ops")),
+    index("cards_collector_number_idx").on(
+      table.gameKey,
+      table.lang,
+      sql`lower(${table.collectorNumber})`,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: true,

@@ -8,6 +8,7 @@ import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
 import type { ParentToWorkerMessage, WorkerToParentMessage } from "../interfaces/sync-job";
 import { SYNC_SOURCES } from "./sources";
+import { storedCollectorNumber } from "../card-search/collector-number";
 
 function errorMessage(err: unknown): string {
   if (!(err instanceof Error)) return String(err);
@@ -112,16 +113,28 @@ async function refreshStoredData(
     if (isCancelled()) return;
     const batch = cards.slice(i, i + SYNC_DATA_REFRESH_BATCH_SIZE);
     const rows = `[${batch
-      .map((c) => `{"card_id":${JSON.stringify(c.id)},"data":${c.data}}`)
+      .map((c) => {
+        const collectorNumber = storedCollectorNumber(
+          source.gameKey,
+          lang,
+          c.id,
+          JSON.parse(c.data),
+        );
+        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"data":${c.data}}`;
+      })
       .join(",")}]`;
     const result = await db.execute(sql`
       UPDATE cards AS c
-      SET data = x.data
-      FROM jsonb_to_recordset(${rows}::jsonb) AS x(card_id text, data jsonb)
+      SET data = x.data, collector_number = x.collector_number
+      FROM jsonb_to_recordset(${rows}::jsonb)
+        AS x(card_id text, collector_number text, data jsonb)
       WHERE c.game_key = ${source.gameKey}
         AND c.lang = ${lang}
         AND c.card_id = x.card_id
-        AND c.data IS DISTINCT FROM x.data
+        AND (
+          c.data IS DISTINCT FROM x.data
+          OR c.collector_number IS DISTINCT FROM x.collector_number
+        )
     `);
     updated += result.rowCount ?? 0;
   }
@@ -260,6 +273,7 @@ async function runSync(
           set: {
             name: sql`excluded.name`,
             setCode: sql`excluded.set_code`,
+            collectorNumber: sql`excluded.collector_number`,
             embedding: sql`excluded.embedding`,
             data: sql`excluded.data`,
             updatedAt: sql`now()`,
@@ -313,6 +327,7 @@ async function runSync(
         Buffer.from(await imageRes.arrayBuffer()),
       );
       const { embedding } = await vectorizeCardImage(buffer);
+      const data: unknown = JSON.parse(card.data);
 
       pendingInserts.push({
         cardId: card.id,
@@ -320,8 +335,14 @@ async function runSync(
         lang,
         name: card.name,
         setCode: card.setCode,
+        collectorNumber: storedCollectorNumber(
+          source.gameKey,
+          lang,
+          card.id,
+          data,
+        ),
         embedding,
-        data: JSON.parse(card.data),
+        data,
       });
       pendingCards.push(card);
       patchState({ queued: pendingCards.length });

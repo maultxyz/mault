@@ -7,6 +7,7 @@ export default defineConfig({
     "scripts/sync-prices": "scripts/sync-prices.ts",
     "scripts/post-platform-stats": "scripts/post-platform-stats.ts",
     "scripts/migrate-scan-images": "scripts/migrate-scan-images.ts",
+    "scripts/backfill-collector-numbers": "scripts/backfill-collector-numbers.ts",
   },
   format: ["cjs"],
   outDir: "dist",

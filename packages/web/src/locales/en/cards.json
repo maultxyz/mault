@@ -10,7 +10,7 @@
     "foilPrice": "Foil: {{price}}",
     "artBy": "Art by {{artist}}",
     "viewSource": "View source",
-    "searchPlaceholder": "Search by card name...",
+    "searchPlaceholder": "Search by name, number or set (e.g. MH3 123)...",
     "allSets": "All sets",
     "allSetsCount": "All sets ({{count}})",
     "startTyping": "Start typing to search for cards",
