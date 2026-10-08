@@ -58,6 +58,7 @@ import {
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
+import { useDeployScanPause } from "@/features/scanner/api/use-deploy-pause";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
 import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
@@ -237,6 +238,11 @@ export function ScannedCardsProvider({
     registerResumeHook,
   } = useAutoFeed({ serialRef, activeCollectionRef });
   const showJamToast = useJamToast(resume);
+  useDeployScanPause(
+    scannerRunning && (orgSettings?.pauseScanningOnDeploy ?? true),
+    pause,
+    resume,
+  );
 
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);

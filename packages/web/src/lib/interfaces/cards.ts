@@ -63,6 +63,14 @@ export interface PriceTableProps {
   columns: string[];
   rows: PriceTableRow[];
   printings: number;
+  highlightColumn: number;
+  format: (value: number) => string;
+}
+
+export interface PriceHeadlineProps {
+  label: string;
+  price: number | null;
+  foilPrice: number | null;
   format: (value: number) => string;
 }
 

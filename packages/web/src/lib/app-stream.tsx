@@ -9,7 +9,11 @@ import type {
   SessionViewer,
   AppStreamContextValue,
 } from "@/lib/interfaces/collections";
-import type { SyncState } from "@magic-vault/shared";
+import {
+  DEPLOY_STATUS_EVENT,
+  type DeployNotice,
+  type SyncState,
+} from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -30,6 +34,7 @@ const AppStreamContext = createContext<AppStreamContextValue>({
   liveCounts: {},
   viewersByGuid: {},
   syncState: DEFAULT_SYNC_STATE,
+  deployNotice: null,
   watchCollection: () => () => {},
 });
 
@@ -48,6 +53,9 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     Record<string, SessionViewer[]>
   >({});
   const [syncState, setSyncState] = useState<SyncState>(DEFAULT_SYNC_STATE);
+  const [deployNotice, setDeployNotice] = useState<DeployNotice | null>(
+    null,
+  );
 
   const refCounts = useRef(new Map<string, number>());
   const [guidsKey, setGuidsKey] = useState("");
@@ -185,6 +193,12 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           }));
         });
 
+        es.addEventListener(DEPLOY_STATUS_EVENT, (e) => {
+          setDeployNotice(
+            JSON.parse((e as MessageEvent).data) as DeployNotice | null,
+          );
+        });
+
         es.addEventListener("sync_error", (e) => {
           const { message } = JSON.parse((e as MessageEvent).data) as {
             message: string;
@@ -217,6 +231,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
       liveCounts,
       viewersByGuid,
       syncState,
+      deployNotice,
       watchCollection,
     }),
     [
@@ -226,6 +241,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
       liveCounts,
       viewersByGuid,
       syncState,
+      deployNotice,
       watchCollection,
     ],
   );
@@ -255,6 +271,10 @@ export function useSessionViewersByGuid(): Record<string, SessionViewer[]> {
 
 export function useSyncState(): SyncState {
   return useContext(AppStreamContext).syncState;
+}
+
+export function useDeployNotice(): DeployNotice | null {
+  return useContext(AppStreamContext).deployNotice;
 }
 
 export function useCollectionStream(

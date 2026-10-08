@@ -65,5 +65,10 @@
     "secondsLabel": "Close after",
     "seconds_one": "{{count}} second",
     "seconds_other": "{{count}} seconds"
+  },
+  "deployPause": {
+    "heading": "Updates",
+    "description": "When Mault is being updated, any sorter that's scanning is paused and a prompt explains why, so no cards are lost if a save fails mid-update. You can resume straight away from the prompt.",
+    "toggleLabel": "Pause scanning during updates"
   }
 }

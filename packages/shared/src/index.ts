@@ -1,4 +1,5 @@
 export * from "./interfaces/announcement.interface";
+export * from "./constants/announcement.constant";
 export * from "./interfaces/api.interface";
 export * from "./interfaces/bin-heights.interface";
 export * from "./interfaces/bin-routes.interface";
