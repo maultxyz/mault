@@ -579,7 +579,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     async (
       newTransport: ByteTransport,
       options?: { skipAutoTest?: boolean; autoConnect?: boolean },
-    ): Promise<boolean> => {
+    ): Promise<{ identified: Promise<unknown> }> => {
       clearCommLog();
       transportRef.current = newTransport;
       newTransport.onData(handleIncomingChunk);
@@ -614,7 +614,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       setIsConnected(true);
       setTransport(newTransport.kind);
 
-      (async () => {
+      const identify = async (): Promise<{ device?: Device } | null> => {
         // ESP32s reset when the port opens, so the first lines can be ROM
         // bootloader noise rather than JSON - skip ahead to the status line
         // (the boot banner or the getStatus reply, whichever comes first).
@@ -632,7 +632,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (status || remaining <= 0) break;
           line = await waitForLine(remaining);
         }
-        if (transportRef.current !== newTransport) return;
+        if (transportRef.current !== newTransport) return null;
         if (typeof status?.version === "string") {
           setFirmwareVersion(status.version);
         }
@@ -644,23 +644,23 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (hardwareId) setDeviceId(hardwareId);
         if (exceedsSorterLimit()) {
           disconnect();
-          return;
+          return null;
         }
         const boundDevice = hardwareId
           ? await bindBoard(hardwareId)
           : await bindUnidentifiedBoard();
-        if (transportRef.current !== newTransport) return;
+        if (transportRef.current !== newTransport) return null;
         if (boundDevice === null) {
           disconnect();
-          return;
+          return null;
         }
         if (boundDevice) {
           const leased = await acquireDeviceLease(boundDevice.guid);
-          if (transportRef.current !== newTransport) return;
+          if (transportRef.current !== newTransport) return null;
           if (!leased) {
             notifySorterLimit();
             disconnect();
-            return;
+            return null;
           }
           leasedDeviceGuidRef.current = boundDevice.guid;
           setLeasedDeviceGuid(boundDevice.guid);
@@ -673,18 +673,24 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         }
         if (options?.autoConnect && !boundDevice?.autoConnect) {
           disconnect();
-          return;
+          return null;
         }
-        if (options?.skipAutoTest) return;
+        return { device: boundDevice };
+      };
+
+      const identified = identify();
+      void identified.then(async (result) => {
+        if (!result || options?.skipAutoTest) return;
+        const boundDevice = result.device;
         if (boundDevice && !boundDevice.setupCompletedAt) return;
         if (boundDevice && !boundDevice.testOnConnect) {
           await syncWithoutTest(newTransport, boundDevice);
           return;
         }
         await runConnectTest(newTransport, boundDevice);
-      })();
+      });
 
-      return true;
+      return { identified };
     },
     [
       clearCommLog,
@@ -743,7 +749,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       if (transportRef.current) return;
       const transport = await SerialTransport.openGranted(port);
       if (!transport) return;
-      await openTransport(transport, { autoConnect: true });
+      const { identified } = await openTransport(transport, {
+        autoConnect: true,
+      });
+      await identified;
     },
     [openTransport],
   );
@@ -800,7 +809,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (
             cancelled ||
             transportRef.current ||
-            !isAutoConnectDeviceRef.current(deviceGuid)
+            !isAutoConnectDeviceRef.current(deviceGuid) ||
+            stationsRef.current.isDeviceConnected(deviceGuid)
           ) {
             return;
           }
