@@ -1,5 +1,10 @@
 export type AnnouncementSeverity = "info" | "warning" | "danger";
 
+export interface DeployNotice {
+  guid: string;
+  message: string;
+}
+
 export interface Announcement {
   guid: string;
   severity: AnnouncementSeverity;

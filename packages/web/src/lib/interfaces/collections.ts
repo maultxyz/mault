@@ -1,6 +1,7 @@
 import type {
   MonitorLinkInfo,
   Collection,
+  DeployNotice,
   SyncState,
 } from "@magic-vault/shared";
 import type { ReactElement } from "react";
@@ -57,5 +58,6 @@ export interface AppStreamContextValue {
   liveCounts: Record<string, number>;
   viewersByGuid: Record<string, SessionViewer[]>;
   syncState: SyncState;
+  deployNotice: DeployNotice | null;
   watchCollection: (guid: string) => () => void;
 }
