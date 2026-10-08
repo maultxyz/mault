@@ -190,7 +190,8 @@
   },
   "metricsStats": {
     "heading": "Statistiques de scan",
-    "description": "Totaux de scans de cartes à l'échelle de l'application, toutes organisations confondues",
+    "description": "Activité de scan à l'échelle de l'application, toutes organisations confondues, et si chaque scan a été vectorisé sur le serveur ou dans le navigateur. Une personne est comptée comme scannant tant qu'elle a enregistré un scan au cours des {{minutes}} dernières minutes.",
+    "allTimeHeading": "Depuis le début",
     "totalScannedLabel": "Total scanné",
     "matchedLabel": "Trouvés",
     "unidentifiedLabel": "Non identifiés",
@@ -202,7 +203,6 @@
   },
   "activeScanning": {
     "heading": "Scan en cours",
-    "description": "En direct, toutes organisations confondues. Une personne est comptée tant qu'elle a enregistré un scan au cours des {{minutes}} dernières minutes.",
     "scanners": "Personnes qui scannent",
     "sessions": "Collections en cours de scan",
     "orgs": "Organisations",
@@ -211,7 +211,6 @@
   },
   "scanVectorizeStats": {
     "heading": "Source de vectorisation des scans",
-    "description": "Combien de scans de cartes ont été vectorisés sur le serveur par rapport au navigateur",
     "serverLabel": "Serveur",
     "webLabel": "Web",
     "percentOfTotal": "{{percent}}% des scans"
