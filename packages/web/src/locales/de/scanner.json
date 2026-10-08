@@ -274,6 +274,8 @@
     "tryAgain": "Erneut versuchen",
     "ready": "Kamera bereit",
     "streamingTo": "Bereit für {{name}}",
+    "switchCamera": "Kamera wechseln",
+    "cameraFallbackLabel": "Kamera {{number}}",
     "disconnected": "Vom Sortierer getrennt.",
     "sessionEndedTitle": "Sitzung beendet",
     "sessionEndedDescription": "Der Scanner hat diese Kamera getrennt. Du kannst die Kamera ausschalten oder einen neuen QR-Code scannen, um dich wieder zu verbinden."
