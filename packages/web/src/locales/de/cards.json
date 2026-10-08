@@ -19,8 +19,12 @@
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",
-    "from": "Ab",
+    "avg": "Durchschnitt",
     "trend": "Preistrend",
+    "avg7": "7-Tage-Schnitt",
+    "tcgplayerMarket": "TCGplayer Marktpreis",
+    "cardmarketAvg": "Cardmarket Durchschnitt",
+    "foilPrice": "Foil {{price}}",
     "avg30": "30-Tage-Schnitt",
     "market": "Markt",
     "low": "Niedrig",
