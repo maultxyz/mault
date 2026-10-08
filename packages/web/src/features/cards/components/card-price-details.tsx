@@ -1,4 +1,3 @@
-import { useTranslation } from "react-i18next";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatEur, formatUsd } from "@/lib/format";
 import type {
@@ -7,6 +6,7 @@ import type {
   PriceTableProps,
 } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function PriceTable({
   heading,
@@ -91,7 +91,7 @@ function PriceHeadline({
     : "priceTable.foilPrice";
 
   return (
-    <div className="flex min-w-36 flex-col gap-0.5 rounded-md border bg-muted px-3 py-2">
+    <div className="flex min-w-36 flex-col gap-0.5 rounded-md bg-muted px-3 py-2">
       <span className="text-xs font-medium uppercase tracking-wide text-foreground/70">
         {label}
       </span>

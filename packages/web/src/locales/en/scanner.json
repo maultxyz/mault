@@ -337,6 +337,7 @@
     "ocrHeading": "Text on the card",
     "ocrName": "Name read: {{text}}",
     "ocrSetLine": "Set line read: {{text}}",
+    "ocrNumber": "Number read: {{text}}",
     "ocrEmpty": "nothing",
     "ocrMatchedName": "Closest card name: {{name}} (similarity {{score}}), but no printing was close enough.",
     "ocrNoName": "No card name was close enough to the text read.",

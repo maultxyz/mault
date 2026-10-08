@@ -60,11 +60,11 @@
     "artist": "Artiste",
     "binLocation": "Emplacement du bac",
     "showOcrRegions": "Afficher les zones OCR",
-    "ocrRegions": "Zones OCR",
     "noOcrRegions": "Ce jeu n'a pas de zones OCR.",
     "ocrFields": {
       "name": "Nom",
-      "setLine": "Ligne d'extension"
+      "setLine": "Ligne d'extension",
+      "number": "Numéro"
     },
     "copyOf": "Exemplaire {{index}} sur {{count}}"
   },
@@ -256,6 +256,7 @@
     "ocr": "OCR",
     "ocrName": "Nom lu",
     "ocrSetLine": "Ligne d'extension lue",
+    "ocrNumber": "Numéro lu",
     "ocrMatchedName": "Nom de carte le plus proche",
     "ocrNotRun": "L'OCR n'a pas été lancé pour ce scan.",
     "cardJson": "Données de la carte (JSON)",

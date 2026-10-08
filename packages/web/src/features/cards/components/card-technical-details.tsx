@@ -180,6 +180,11 @@ export function CardTechnicalDetails({
                     {diagnostics.ocr.readout.setLine || "n/a"}
                   </span>
                 </Row>
+                <Row label={t("technicalDetails.ocrNumber")}>
+                  <span className="whitespace-pre-line font-mono">
+                    {diagnostics.ocr.readout.number || "n/a"}
+                  </span>
+                </Row>
                 <Row label={t("technicalDetails.ocrMatchedName")}>
                   {diagnostics.ocr.matchedName
                     ? `${diagnostics.ocr.matchedName} (${formatNumber(diagnostics.ocr.nameScore, 2)})`

@@ -1,4 +1,4 @@
-export type OcrField = "name" | "setLine";
+export type OcrField = "name" | "setLine" | "number";
 
 export interface OcrRegion {
   field: OcrField;

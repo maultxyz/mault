@@ -270,6 +270,24 @@ function matchesSetLine(setCode: string, setLineTokens: string[]): boolean {
   );
 }
 
+function stripLeadingZeros(digits: string): string {
+  return digits.replace(/^0+(?=\d)/, "");
+}
+
+function ocrNumberCandidates(text: string): string[] {
+  return (text.replace(/\/\s*\d+/g, " ").match(/\d+/g) ?? []).map(
+    stripLeadingZeros,
+  );
+}
+
+function matchesCollectorNumber(
+  collectorNumber: string | null,
+  numberCandidates: string[],
+): boolean {
+  const digits = collectorNumber?.match(/\d+/g)?.at(-1);
+  return !!digits && numberCandidates.includes(stripLeadingZeros(digits));
+}
+
 export async function findCardMatchesByText(
   jwtClaims: string,
   {
@@ -298,6 +316,9 @@ export async function findCardMatchesByText(
 
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
   const setLineTokens = extractOcrTokens(readout.setLine);
+  const numberCandidates = ocrNumberCandidates(
+    readout.number || readout.setLine,
+  );
 
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(
@@ -312,6 +333,7 @@ export async function findCardMatchesByText(
           card_id,
           name,
           set_code,
+          collector_number,
           similarity(name, ${nameQuery}) AS name_score,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
@@ -342,6 +364,10 @@ export async function findCardMatchesByText(
         setCode: row.set_code as string,
         distance: row.distance as number,
         setLineMatch: matchesSetLine(row.set_code as string, setLineTokens),
+        numberMatch: matchesCollectorNumber(
+          row.collector_number as string | null,
+          numberCandidates,
+        ),
         isPreferredSet:
           !!preferredSetCode &&
           (row.set_code as string).toLowerCase() ===
@@ -351,6 +377,7 @@ export async function findCardMatchesByText(
         (a, b) =>
           Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
           Number(b.setLineMatch) - Number(a.setLineMatch) ||
+          Number(b.numberMatch) - Number(a.numberMatch) ||
           a.distance - b.distance,
       );
 

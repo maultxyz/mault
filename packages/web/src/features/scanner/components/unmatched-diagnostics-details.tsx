@@ -101,6 +101,13 @@ export function UnmatchedDiagnosticsDetails({
                 t("unmatchedCardsPanel.ocrEmpty"),
             })}
           </p>
+          <p className="text-foreground/70 break-all">
+            {t("unmatchedCardsPanel.ocrNumber", {
+              text:
+                diagnostics.ocr.readout.number ||
+                t("unmatchedCardsPanel.ocrEmpty"),
+            })}
+          </p>
           <p className="text-foreground/70">
             {diagnostics.ocr.matchedName
               ? t("unmatchedCardsPanel.ocrMatchedName", {

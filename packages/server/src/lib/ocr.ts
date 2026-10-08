@@ -70,7 +70,7 @@ async function readRegions(
   buffer: Buffer,
   regions: OcrRegion[],
 ): Promise<OcrReadout> {
-  const readout: OcrReadout = { name: "", setLine: "" };
+  const readout: OcrReadout = { name: "", setLine: "", number: "" };
   if (regions.length === 0) return readout;
 
   const worker = await getWorker();
