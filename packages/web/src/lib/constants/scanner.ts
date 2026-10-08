@@ -37,6 +37,7 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";
 export const JAM_COMMAND_TIMEOUT_MS = 3000;

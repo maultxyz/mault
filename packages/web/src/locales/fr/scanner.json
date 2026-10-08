@@ -274,6 +274,8 @@
     "tryAgain": "Réessayer",
     "ready": "Caméra prête",
     "streamingTo": "Prêt pour {{name}}",
+    "switchCamera": "Changer de caméra",
+    "cameraFallbackLabel": "Caméra {{number}}",
     "disconnected": "Déconnecté de la trieuse.",
     "sessionEndedTitle": "Session terminée",
     "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter."

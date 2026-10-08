@@ -274,6 +274,8 @@
     "tryAgain": "Try Again",
     "ready": "Camera ready",
     "streamingTo": "Ready for {{name}}",
+    "switchCamera": "Switch camera",
+    "cameraFallbackLabel": "Camera {{number}}",
     "disconnected": "Disconnected from the sorter.",
     "sessionEndedTitle": "Session ended",
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
