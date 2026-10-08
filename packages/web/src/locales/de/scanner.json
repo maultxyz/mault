@@ -548,5 +548,13 @@
       "enter": "Enter",
       "escape": "Esc"
     }
+  },
+  "deployPause": {
+    "title": "Update läuft",
+    "description_one": "Mault wird gerade aktualisiert, deshalb wurde das Scannen pausiert, damit keine Karten verloren gehen. Du kannst jetzt fortfahren, aber Scans können fehlschlagen, bis das Update abgeschlossen ist.",
+    "description_other": "Mault wird gerade aktualisiert, deshalb wurde das Scannen auf {{count}} Sortierern pausiert, damit keine Karten verloren gehen. Du kannst jetzt fortfahren, aber Scans können fehlschlagen, bis das Update abgeschlossen ist.",
+    "stayPaused": "Pausiert lassen",
+    "resume_one": "Scannen fortsetzen",
+    "resume_other": "Alle {{count}} fortsetzen"
   }
 }

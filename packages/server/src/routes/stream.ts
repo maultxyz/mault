@@ -13,6 +13,11 @@ import {
   trackMonitorLinkStream,
   verifyMonitorLink,
 } from "../lib/monitor-links";
+import { DEPLOY_STATUS_EVENT } from "@magic-vault/shared";
+import {
+  loadActiveDeployNotice,
+  subscribeDeployNotice,
+} from "../lib/deploy-notice";
 import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
 import {
   getAllSessionViewers,
@@ -125,7 +130,12 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       subscribeSSE((event, data) =>
         write(event === "error" ? "sync_error" : event, data),
       ),
+      subscribeDeployNotice(write),
     ];
+
+    loadActiveDeployNotice()
+      .then((notice) => write(DEPLOY_STATUS_EVENT, notice))
+      .catch((err) => console.error("[stream] Failed to load deploy notice:", err));
 
     if (orgId) {
       unsubs.push(subscribeOrgLocks(orgId, write));

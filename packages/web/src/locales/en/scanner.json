@@ -548,5 +548,13 @@
       "enter": "Enter",
       "escape": "Esc"
     }
+  },
+  "deployPause": {
+    "title": "Update in progress",
+    "description_one": "Mault is being updated, so scanning has been paused to make sure no cards are lost. You can resume now, but scans may fail until the update finishes.",
+    "description_other": "Mault is being updated, so scanning has been paused on {{count}} sorters to make sure no cards are lost. You can resume now, but scans may fail until the update finishes.",
+    "stayPaused": "Stay paused",
+    "resume_one": "Resume scanning",
+    "resume_other": "Resume all {{count}}"
   }
 }
