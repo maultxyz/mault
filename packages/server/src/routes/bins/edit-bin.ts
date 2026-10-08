@@ -11,6 +11,7 @@ import {
   toLowMatchPercent,
   toMaxCopies,
   toOverridePriority,
+  activeBinSetWhere,
 } from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
@@ -31,33 +32,20 @@ export const editBinRoute = new Hono<AppEnv>().put(
       maxCopies,
       isDisabled,
     } = await c.req.json<{
-        rules: BinRuleGroup;
-        isCatchAll?: boolean;
-        isOverride?: boolean;
-        overridePriority?: number | null;
-        lowMatchPercent?: number | null;
-        cardLimit?: number | null;
-        maxCopies?: number | null;
-        isDisabled?: boolean;
-      }>();
+      rules: BinRuleGroup;
+      isCatchAll?: boolean;
+      isOverride?: boolean;
+      overridePriority?: number | null;
+      lowMatchPercent?: number | null;
+      cardLimit?: number | null;
+      maxCopies?: number | null;
+      isDisabled?: boolean;
+    }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await resolveGameId(tx, gameGuid);
         const activeBinSet = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and, isNull }) =>
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                ),
+          where: (t) => activeBinSetWhere(t, orgId, gameId),
           columns: { id: true, guid: true },
           with: {
             bins: {
@@ -78,7 +66,9 @@ export const editBinRoute = new Hono<AppEnv>().put(
             );
         }
 
-        const existing = activeBinSet.bins.find((b) => b.binNumber === binNumber);
+        const existing = activeBinSet.bins.find(
+          (b) => b.binNumber === binNumber,
+        );
 
         if (existing) {
           await tx

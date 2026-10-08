@@ -8,10 +8,10 @@ import {
   type FieldMeta,
   type RepackSlot,
 } from "@magic-vault/shared";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
-import { bins, binSetAudit } from "../../db/schema";
+import { bins, binSetAudit, binSets } from "../../db/schema";
 import { SCAN_ONLY_CATCH_ALL_BIN } from "../../lib/constants/bins";
 
 export async function getModuleCount(
@@ -271,6 +271,19 @@ export async function resolveGameId(
     columns: { id: true },
   });
   return game?.id ?? null;
+}
+
+export function activeBinSetWhere(
+  t: (typeof binSets)["_"]["columns"],
+  orgId: string,
+  gameId: number | null,
+) {
+  return and(
+    eq(t.isActive, true),
+    gameId === null ? isNull(t.gameId) : eq(t.gameId, gameId),
+    eq(t.orgId, orgId),
+    eq(t.isDeleted, false),
+  );
 }
 
 export async function binSetNameTaken(

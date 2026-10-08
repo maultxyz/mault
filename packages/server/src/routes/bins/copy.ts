@@ -1,9 +1,13 @@
-import { and, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { binSetNameTaken, loadSets, resolveGameId } from "./shared";
+import {
+  binSetNameTaken,
+  loadSets,
+  resolveGameId,
+  activeBinSetWhere,
+} from "./shared";
 
 export const copyBinSetRoute = new Hono<AppEnv>().post(
   "/copies",
@@ -33,20 +37,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
         const gameId = await resolveGameId(tx, gameGuid);
 
         const active = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and, isNull }) =>
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                  eq(binSets.isDeleted, false),
-                ),
+          where: (t) => activeBinSetWhere(t, orgId, gameId),
           columns: { id: true },
           with: {
             bins: {

@@ -4,7 +4,17 @@ import type {
   PlayingCard,
   Result,
 } from "@magic-vault/shared";
-import { and, desc, eq, ilike, isNotNull, or, sql, type SQL } from "drizzle-orm";
+import {
+  and,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNotNull,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
@@ -15,26 +25,33 @@ import { validateQuery } from "./validate";
 import { parsePrintingQueries } from "./printing-query";
 import type { PrintingQuery } from "../interfaces/card-search";
 
-async function findStoredCard(
+async function findStoredCards(
   { adapter, gameKey, lang }: ResolvedCardSearch,
-  cardId: string,
-): Promise<PlayingCard | null> {
-  const [row] = await db
-    .select({ data: cardImageVectors.data })
+  cardIds: string[],
+): Promise<Map<string, PlayingCard>> {
+  const ids = [...new Set(cardIds)];
+  if (ids.length === 0) return new Map();
+  const rows = await db
+    .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
     .from(cardImageVectors)
     .where(
       and(
         eq(cardImageVectors.gameKey, gameKey),
         eq(cardImageVectors.lang, lang),
-        eq(cardImageVectors.cardId, cardId),
+        inArray(cardImageVectors.cardId, ids),
         isNotNull(cardImageVectors.data),
       ),
-    )
-    .limit(1);
-  const card = row ? adapter.normalizeStored(row.data, cardId, lang) : null;
-  if (!card) return null;
-  const [priced] = await applyCardPrices(adapter, { gameKey, lang }, [card]);
-  return priced;
+    );
+  const cards = rows.flatMap((row) => {
+    const card = adapter.normalizeStored(row.data, row.cardId, lang);
+    return card ? [{ cardId: row.cardId, card }] : [];
+  });
+  const priced = await applyCardPrices(
+    adapter,
+    { gameKey, lang },
+    cards.map(({ card }) => card),
+  );
+  return new Map(cards.map(({ cardId }, i) => [cardId, priced[i]]));
 }
 
 function numberMatches(number: string): SQL {
@@ -124,11 +141,23 @@ async function hasStoredCards({
   return !!row;
 }
 
+async function fetchUpstreamCard(
+  resolved: ResolvedCardSearch,
+  id: string,
+): Promise<Result<PlayingCard>> {
+  const result = await resolved.adapter.searchById(id, resolved.baseUrl);
+  if (!result.success || !result.data) return result;
+  const [priced] = await applyCardPrices(resolved.adapter, resolved, [
+    result.data,
+  ]);
+  return { ...result, data: priced };
+}
+
 export async function searchCardById(
   resolved: ResolvedCardSearch,
   id: string,
 ): Promise<Result<PlayingCard>> {
-  const stored = await findStoredCard(resolved, id);
+  const stored = (await findStoredCards(resolved, [id])).get(id);
   if (stored) {
     return {
       success: true,
@@ -136,12 +165,24 @@ export async function searchCardById(
       data: stored,
     };
   }
-  const result = await resolved.adapter.searchById(id, resolved.baseUrl);
-  if (!result.success || !result.data) return result;
-  const [priced] = await applyCardPrices(resolved.adapter, resolved, [
-    result.data,
-  ]);
-  return { ...result, data: priced };
+  return fetchUpstreamCard(resolved, id);
+}
+
+export async function searchCardsByIds(
+  resolved: ResolvedCardSearch,
+  ids: string[],
+): Promise<Map<string, PlayingCard>> {
+  const stored = await findStoredCards(resolved, ids);
+  const missing = [...new Set(ids)].filter((id) => !stored.has(id));
+  const fetched = await Promise.all(
+    missing.map(
+      async (id) => [id, await fetchUpstreamCard(resolved, id)] as const,
+    ),
+  );
+  for (const [id, result] of fetched) {
+    if (result.success && result.data) stored.set(id, result.data);
+  }
+  return stored;
 }
 
 export async function searchCards(

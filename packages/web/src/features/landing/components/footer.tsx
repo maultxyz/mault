@@ -1,57 +1,25 @@
-import { BrandMark } from "@/components/brand-mark";
+import { MarketingFooter } from "@/components/marketing-footer";
 import { DISCORD_URL, DONATE_URL } from "@/lib/constants/links";
 import { IconBrandDiscord, IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
 export function LandingFooter() {
   const { t } = useTranslation("landing");
   const { t: tCommon } = useTranslation("common");
 
   return (
-    <footer className="border-t">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row">
-        <BrandMark />
-
-        <nav className="flex flex-col items-center gap-2 text-sm text-foreground/70 sm:flex-row sm:gap-5">
-          <a
-            href="#features"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.features")}
-          </a>
-          <a
-            href="#open-source"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.openSource")}
-          </a>
-          <Link to="/build" className="transition-colors hover:text-foreground">
-            {t("nav.build")}
-          </Link>
-          <Link
-            to="/discord-bot"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.discordBot")}
-          </Link>
-          <Link
-            to="/auth/sign-in"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.signIn")}
-          </Link>
-          <Link
-            to="/privacy"
-            className="transition-colors hover:text-foreground"
-          >
-            {t("nav.privacy")}
-          </Link>
-          <Link to="/terms" className="transition-colors hover:text-foreground">
-            {t("nav.terms")}
-          </Link>
-        </nav>
-
+    <MarketingFooter
+      wide
+      links={[
+        { label: t("nav.features"), href: "#features" },
+        { label: t("nav.openSource"), href: "#open-source" },
+        { label: t("nav.build"), to: "/build" },
+        { label: t("nav.discordBot"), to: "/discord-bot" },
+        { label: t("nav.signIn"), to: "/auth/sign-in" },
+        { label: t("nav.privacy"), to: "/privacy" },
+        { label: t("nav.terms"), to: "/terms" },
+      ]}
+      end={
         <div className="flex flex-col items-center gap-2 sm:flex-row sm:gap-4">
           <a
             href={DONATE_URL}
@@ -79,7 +47,7 @@ export function LandingFooter() {
             })}
           </p>
         </div>
-      </div>
-    </footer>
+      }
+    />
   );
 }

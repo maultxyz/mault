@@ -1,5 +1,5 @@
 import { PRICE_SOURCE_FIELDS, type PriceSource } from "@magic-vault/shared";
-import { sql, type SQL } from "drizzle-orm";
+import { sql, type AnyColumn, type SQL } from "drizzle-orm";
 import {
   CARD_PRICE_COLUMNS,
   COLLECTION_CARD_SQL_COLUMNS,
@@ -9,10 +9,7 @@ import type {
   ScannedCardSqlColumns,
 } from "./interfaces/card-prices";
 
-function storedCardPriceSelect(
-  cols: ScannedCardSqlColumns,
-  select: SQL,
-): SQL {
+function storedCardPriceSelect(cols: ScannedCardSqlColumns, select: SQL): SQL {
   return sql`(
     SELECT ${select}
     FROM card_prices cp
@@ -26,7 +23,9 @@ export function storedCardPriceSql(
   key: CardPriceKey,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL<number | null> {
-  return sql<number | null>`${storedCardPriceSelect(cols, sql.raw(`cp.${CARD_PRICE_COLUMNS[key]}`))}`;
+  return sql<
+    number | null
+  >`${storedCardPriceSelect(cols, sql.raw(`cp.${CARD_PRICE_COLUMNS[key]}`))}`;
 }
 
 export function storedCardPriceDetailSql(
@@ -36,7 +35,10 @@ export function storedCardPriceDetailSql(
   return storedCardPriceSelect(cols, sql`cp.details #> ${path}`);
 }
 
-function savedCardPriceSql(key: CardPriceKey, cols: ScannedCardSqlColumns): SQL {
+function savedCardPriceSql(
+  key: CardPriceKey,
+  cols: ScannedCardSqlColumns,
+): SQL {
   return sql`(CASE WHEN jsonb_typeof(${cols.card} -> ${key}::text) = 'number' THEN (${cols.card} ->> ${key}::text)::float8 END)`;
 }
 
@@ -44,15 +46,48 @@ export function cardPriceValueSql(
   key: CardPriceKey,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL<number | null> {
-  return sql<number | null>`COALESCE(${storedCardPriceSql(key, cols)}, ${savedCardPriceSql(key, cols)})`;
+  return sql<
+    number | null
+  >`COALESCE(${storedCardPriceSql(key, cols)}, ${savedCardPriceSql(key, cols)})`;
+}
+
+function scannedPriceFrom(
+  source: PriceSource,
+  cols: ScannedCardSqlColumns,
+  stored: (key: CardPriceKey) => SQL,
+): SQL<number | null> {
+  const fields = PRICE_SOURCE_FIELDS[source];
+  const value = (key: CardPriceKey) =>
+    sql`COALESCE(${stored(key)}, ${savedCardPriceSql(key, cols)})`;
+  return sql<
+    number | null
+  >`COALESCE(CASE WHEN ${cols.isFoil} THEN ${value(fields.priceFoil)} END, ${value(fields.price)})`;
 }
 
 export function scannedCardPriceSql(
   source: PriceSource,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL<number | null> {
-  const fields = PRICE_SOURCE_FIELDS[source];
-  return sql<number | null>`COALESCE(CASE WHEN ${cols.isFoil} THEN ${cardPriceValueSql(fields.priceFoil, cols)} END, ${cardPriceValueSql(fields.price, cols)})`;
+  return scannedPriceFrom(source, cols, (key) => storedCardPriceSql(key, cols));
+}
+
+export function joinedScannedCardPriceSql(
+  source: PriceSource,
+  cols: ScannedCardSqlColumns,
+  cardPricesAlias: string,
+): SQL<number | null> {
+  return scannedPriceFrom(source, cols, (key) =>
+    sql.raw(`${cardPricesAlias}.${CARD_PRICE_COLUMNS[key]}`),
+  );
+}
+
+export function cardPricesJoinSql(
+  cardPricesAlias: string,
+  { gameKey, lang }: { gameKey: string | null; lang: string },
+  cardId: SQL | AnyColumn,
+): SQL {
+  const cp = sql.raw(cardPricesAlias);
+  return sql`LEFT JOIN card_prices ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = ${lang} AND ${cp}.card_id = ${cardId}`;
 }
 
 export function cardWithStoredPricesSql(

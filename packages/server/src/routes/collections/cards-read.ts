@@ -3,7 +3,6 @@ import {
   type CollectionCardsPage,
   type CollectionCardsSummary,
 } from "@magic-vault/shared";
-import { sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import { loadOrgPriceSource } from "../../lib/price-source";
@@ -63,13 +62,6 @@ export async function readCardsSummary(
     const collection = await findCardsCollection(tx, guid, orgId);
     if (!collection) return null;
     const priceSource = await loadOrgPriceSource(tx, orgId);
-    const all = await loadCardStats(tx, collection.id, sql`TRUE`, priceSource);
-    const filtered = await loadCardStats(
-      tx,
-      collection.id,
-      cardFilterSql(query),
-      priceSource,
-    );
-    return { all, filtered };
+    return loadCardStats(tx, collection, cardFilterSql(query), priceSource);
   });
 }

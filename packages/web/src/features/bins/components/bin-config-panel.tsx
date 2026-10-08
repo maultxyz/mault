@@ -40,6 +40,7 @@ import { IconHelpCircle, IconInfoCircle } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { emptyRuleGroup } from "@/lib/rule-groups";
 
 function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
   return order.reduce<BinConfig[][]>((groups, config) => {
@@ -55,10 +56,6 @@ function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
     }
     return groups;
   }, []);
-}
-
-function emptyRuleGroup(): BinRuleGroup {
-  return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
 }
 
 export function BinConfigPanel() {
@@ -133,7 +130,9 @@ export function BinConfigPanel() {
         return;
       }
       const cardLimit =
-        config.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : config.cardLimit;
+        config.cardLimit === undefined
+          ? DEFAULT_BIN_CAPACITY
+          : config.cardLimit;
       const keepsRole = !!config.isCatchAll === values.isCatchAll;
       if (rulesLocked) {
         save({
@@ -142,7 +141,9 @@ export function BinConfigPanel() {
           isCatchAll: values.isCatchAll,
           cardLimit,
           isOverride: !values.isCatchAll && config.isOverride,
-          overridePriority: keepsRole ? (config.overridePriority ?? null) : null,
+          overridePriority: keepsRole
+            ? (config.overridePriority ?? null)
+            : null,
           lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
           maxCopies: values.isCatchAll ? null : (config.maxCopies ?? null),
           isDisabled: !values.isCatchAll && values.isDisabled,
@@ -430,11 +431,7 @@ export function BinConfigPanel() {
   );
 
   if (isModeDirty) {
-    return (
-      <Callout>
-        {t("binConfigPanel.modeChangePending")}
-      </Callout>
-    );
+    return <Callout>{t("binConfigPanel.modeChangePending")}</Callout>;
   }
 
   if (rulesLocked) {
@@ -472,9 +469,7 @@ export function BinConfigPanel() {
             </Button>
           )}
         </div>
-        <Callout>
-          {t("binConfigPanel.scanOnlyLocked")}
-        </Callout>
+        <Callout>{t("binConfigPanel.scanOnlyLocked")}</Callout>
       </div>
     );
   }

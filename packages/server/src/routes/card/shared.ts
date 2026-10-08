@@ -10,7 +10,7 @@ import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { authQuery } from "../../db";
 import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
-import { searchCardById } from "../../lib/card-search/stored-cards";
+import { searchCardsByIds } from "../../lib/card-search/stored-cards";
 import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
@@ -105,9 +105,12 @@ export async function findCardMatches(
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
 
   return authQuery(jwtClaims, async (tx) => {
-    await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
-    await tx.execute(sql`SET LOCAL hnsw.max_scan_tuples = 100000`);
-    await tx.execute(sql`SET LOCAL hnsw.ef_search = 200`);
+    await tx.execute(sql`
+      SELECT
+        set_config('hnsw.iterative_scan', 'strict_order', true),
+        set_config('hnsw.max_scan_tuples', '100000', true),
+        set_config('hnsw.ef_search', '200', true)
+    `);
 
     const matches = await tx.execute(sql`
       WITH nearest AS (
@@ -410,14 +413,15 @@ export async function attachMatchedCards<T extends CardMatchSearchResult>(
   if (!matches || matches.length === 0 || !resolved) return result;
 
   const leaderDistance = matches[0].distance;
-  const data = await Promise.all(
-    matches.map(async (match) => {
-      if (match.distance - leaderDistance > CLOSE_MATCH_DELTA) return match;
-      const found = await searchCardById(resolved, match.cardId);
-      return found.success && found.data
-        ? { ...match, card: found.data }
-        : match;
-    }),
+  const isClose = (match: SearchCardMatch) =>
+    match.distance - leaderDistance <= CLOSE_MATCH_DELTA;
+  const cards = await searchCardsByIds(
+    resolved,
+    matches.filter(isClose).map((match) => match.cardId),
   );
+  const data = matches.map((match) => {
+    const card = isClose(match) ? cards.get(match.cardId) : undefined;
+    return card ? { ...match, card } : match;
+  });
   return { ...result, data };
 }

@@ -22,14 +22,10 @@ export async function authQuery<T>(
 ): Promise<T> {
   return db.transaction(async (tx) => {
     await tx.execute(
-      sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`,
+      process.env.AUTH_PROVIDER === "local"
+        ? sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true), set_config('role', 'authenticated', true)`
+        : sql`SELECT set_config('request.jwt.claims', ${jwtClaims}, true)`,
     );
-    // Neon's connection-level JWT-to-role mechanism (pg_session_jwt) maps the
-    // claim above to the `authenticated` role automatically. A plain Postgres
-    // instance has no such extension, so local mode must switch role itself.
-    if (process.env.AUTH_PROVIDER === "local") {
-      await tx.execute(sql`SET LOCAL ROLE authenticated`);
-    }
     return callback(tx);
   });
 }
