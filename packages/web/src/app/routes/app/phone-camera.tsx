@@ -1,16 +1,22 @@
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera-responder";
-import {
-  usePhoneLocalCamera,
-} from "@/features/scanner/api/use-phone-local-camera";
+import { usePhoneLocalCamera } from "@/features/scanner/api/use-phone-local-camera";
 import { useVideoCanvasPreview } from "@/features/scanner/api/use-video-canvas-preview";
 import { CAPTURE_FLASH_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import { DEFAULT_SCAN_REGION, type ScanRegion } from "@magic-vault/shared";
 import {
+  IconCameraRotate,
   IconCameraSpark,
   IconLoader2,
   IconPlugOff,
@@ -25,8 +31,16 @@ import { useParams } from "react-router-dom";
 export default function PhoneCameraPage() {
   const { t } = useTranslation("scanner");
   const { collectionGuid } = useParams<{ collectionGuid: string }>();
-  const { status, localStream, errorMessage, disconnect, reconnect } =
-    usePhoneLocalCamera();
+  const {
+    status,
+    localStream,
+    errorMessage,
+    cameras,
+    activeDeviceId,
+    switchCamera,
+    disconnect,
+    reconnect,
+  } = usePhoneLocalCamera();
   const { data: collections } = useQuery(collectionsQueryOptions);
   const collection = collections?.find((c) => c.guid === collectionGuid);
   const device = useDevice();
@@ -117,16 +131,54 @@ export default function PhoneCameraPage() {
             ? t("phoneCamera.streamingTo", { name: collection.name })
             : t("usePhoneAsCamera")}
         </p>
-        {status === "requesting-camera" && (
-          <Button
-            variant="secondary"
-            size="icon-sm"
-            onClick={disconnect}
-            title={t("disconnect")}
-          >
-            <IconPlugOff />
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {cameras.length > 1 && (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="secondary"
+                    size="icon-sm"
+                    title={t("phoneCamera.switchCamera")}
+                    aria-label={t("phoneCamera.switchCamera")}
+                  >
+                    <IconCameraRotate />
+                  </Button>
+                }
+              />
+              <DropdownMenuContent align="end">
+                <DropdownMenuRadioGroup
+                  value={activeDeviceId ?? ""}
+                  onValueChange={(value: string) => {
+                    if (value !== activeDeviceId) switchCamera(value);
+                  }}
+                >
+                  {cameras.map((camera, index) => (
+                    <DropdownMenuRadioItem
+                      key={camera.deviceId}
+                      value={camera.deviceId}
+                    >
+                      {camera.label ||
+                        t("phoneCamera.cameraFallbackLabel", {
+                          number: index + 1,
+                        })}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+          {status === "requesting-camera" && (
+            <Button
+              variant="secondary"
+              size="icon-sm"
+              onClick={disconnect}
+              title={t("disconnect")}
+            >
+              <IconPlugOff />
+            </Button>
+          )}
+        </div>
       </div>
       <div className="absolute inset-x-0 bottom-6 flex items-center justify-center px-4">
         <div className="flex items-center gap-2 rounded-full bg-black/70 backdrop-blur-sm px-3.5 py-2 text-white text-sm shadow-lg">
