@@ -163,7 +163,8 @@
       "left": "←",
       "right": "→",
       "escape": "Échap",
-      "enter": "Entrée"
+      "enter": "Entrée",
+      "delete": "Suppr"
     },
     "groups": {
       "general": "Général",
@@ -194,6 +195,7 @@
       "cardCorrect": "Corriger la carte (les flèches choisissent un résultat, Entrée valide, Maj Entrée reste sur la carte pendant la vérification)",
       "cardToggleFoil": "Basculer en foil (premier type de foil, ou retour en non-foil)",
       "cardClose": "Fermer la carte ou annuler la correction",
+      "cardRemove": "Retirer la carte (de sa boîte si ouverte depuis le Rangement)",
       "reviewStart": "Vérifier les cartes une par une",
       "reviewAccept": "Pendant la vérification : la carte est bonne, suivante"
     }

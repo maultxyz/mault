@@ -292,5 +292,9 @@
     },
     "complete_one": "Review complete: {{count}} card checked",
     "complete_other": "Review complete: {{count}} cards checked"
+  },
+  "removeDialog": {
+    "title": "Remove {{name}}?",
+    "description": "This deletes the scan from the collection, including its photo. It can't be undone."
   }
 }

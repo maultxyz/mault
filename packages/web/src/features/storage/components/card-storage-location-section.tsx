@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 export function CardStorageLocationSection({
   scanId,
   collectionGuid,
+  canRemove = true,
 }: CardStorageLocationSectionProps) {
   const { t } = useTranslation("storage");
   const { data: location } = useQuery(
@@ -38,16 +39,18 @@ export function CardStorageLocationSection({
             })}
           </span>
         </Link>
-        <Button
-          variant="outline-destructive"
-          size="sm"
-          className="shrink-0"
-          disabled={isRemoving}
-          onClick={() => setConfirmOpen(true)}
-        >
-          <IconBoxOff />
-          {t("cardLocation.remove")}
-        </Button>
+        {canRemove && (
+          <Button
+            variant="outline-destructive"
+            size="sm"
+            className="shrink-0"
+            disabled={isRemoving}
+            onClick={() => setConfirmOpen(true)}
+          >
+            <IconBoxOff />
+            {t("cardLocation.remove")}
+          </Button>
+        )}
       </div>
       <DeleteDialog
         open={confirmOpen}

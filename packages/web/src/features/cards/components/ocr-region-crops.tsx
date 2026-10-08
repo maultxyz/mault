@@ -1,4 +1,4 @@
-import { useCollections } from "@/features/collections/api/use-collections";
+import { useCardDetailCollection } from "@/features/cards/api/use-card-detail-scope";
 import { MTG_ASPECT_RATIO } from "@/lib/constants/scanner";
 import type { OcrRegionCropsProps } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
@@ -7,8 +7,8 @@ import { useTranslation } from "react-i18next";
 
 export function OcrRegionCrops({ src, className }: OcrRegionCropsProps) {
   const { t } = useTranslation("cards");
-  const { activeCollection } = useCollections();
-  const gameKey = activeCollection?.game?.key;
+  const collection = useCardDetailCollection();
+  const gameKey = collection?.game?.key;
   const regions = gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : [];
 
   if (regions.length === 0) {

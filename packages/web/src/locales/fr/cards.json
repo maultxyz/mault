@@ -292,5 +292,9 @@
     },
     "complete_one": "Vérification terminée : {{count}} carte vérifiée",
     "complete_other": "Vérification terminée : {{count}} cartes vérifiées"
+  },
+  "removeDialog": {
+    "title": "Retirer {{name}} ?",
+    "description": "Le scan est supprimé de la collection, photo comprise. Cette action est irréversible."
   }
 }

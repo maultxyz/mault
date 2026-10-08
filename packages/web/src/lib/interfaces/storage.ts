@@ -45,19 +45,31 @@ export interface StorageLocationNameDialogProps {
 
 export interface StorageLocationCardsProps {
   location: StorageLocation;
+  onOpenCard: (entry: StorageLocationSearchResult) => void;
 }
 
 export interface CardStorageLocationSectionProps {
   scanId: string;
   collectionGuid: string | undefined;
+  canRemove?: boolean;
 }
 
 export interface StorageCardListProps {
   entries: StorageLocationSearchResult[];
   onOpenLocation?: (guid: string) => void;
+  onOpenCard: (entry: StorageLocationSearchResult) => void;
 }
 
 export interface StorageSearchResultsProps {
   query: string;
   onOpenLocation: (guid: string) => void;
+  onOpenCard: (entry: StorageLocationSearchResult) => void;
+}
+
+export interface StorageCardDetailProps {
+  location: StorageLocation;
+  scanId: string;
+  reviewMode: boolean;
+  onNavigate: (scanId: string) => void;
+  onClose: () => void;
 }

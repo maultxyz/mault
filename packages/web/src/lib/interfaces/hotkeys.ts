@@ -25,6 +25,7 @@ export type HotkeyId =
   | "cardCorrect"
   | "cardToggleFoil"
   | "cardClose"
+  | "cardRemove"
   | "reviewStart"
   | "reviewAccept";
 

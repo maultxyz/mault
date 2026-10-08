@@ -8,7 +8,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-export function StorageLocationCards({ location }: StorageLocationCardsProps) {
+export function StorageLocationCards({
+  location,
+  onOpenCard,
+}: StorageLocationCardsProps) {
   const { t } = useTranslation("storage");
   const { data: cards, isPending } = useQuery(
     storageLocationCardsQueryOptions(location.guid),
@@ -36,5 +39,5 @@ export function StorageLocationCards({ location }: StorageLocationCardsProps) {
     );
   }
 
-  return <StorageCardList entries={entries} />;
+  return <StorageCardList entries={entries} onOpenCard={onOpenCard} />;
 }

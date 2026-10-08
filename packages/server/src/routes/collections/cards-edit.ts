@@ -44,7 +44,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         if (card !== undefined) {
           updates.card = card;
           updates.cardId = card.id;
-          updates.binNumber = binNumber ?? null;
+          if (binNumber !== undefined) updates.binNumber = binNumber;
           updates.isCorrected = true;
         } else if (binNumber !== undefined) {
           updates.binNumber = binNumber;
@@ -64,10 +64,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             guid: scanId,
             card: (card ?? existing.card) as PlayingCardWithDistance,
             scannedAt: existing.scannedAt,
-            binNumber:
-              card !== undefined || binNumber !== undefined
-                ? (binNumber ?? null)
-                : existing.binNumber,
+            binNumber: binNumber !== undefined ? binNumber : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
             isCorrected:

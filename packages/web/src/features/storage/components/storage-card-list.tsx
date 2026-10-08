@@ -20,6 +20,7 @@ import { useTranslation } from "react-i18next";
 export function StorageCardList({
   entries,
   onOpenLocation,
+  onOpenCard,
 }: StorageCardListProps) {
   const { t } = useTranslation("storage");
   const { priceOf, format } = usePriceSource();
@@ -68,7 +69,11 @@ export function StorageCardList({
             {entries.map((entry) => {
               const price = priceOf(entry.card, entry.isFoil);
               return (
-                <TableRow key={entry.scanId}>
+                <TableRow
+                  key={entry.scanId}
+                  className="cursor-pointer"
+                  onClick={() => onOpenCard(entry)}
+                >
                   {onOpenLocation ? (
                     <TableCell>
                       <Button
@@ -76,7 +81,10 @@ export function StorageCardList({
                         size="sm"
                         className="max-w-40"
                         title={t("search.openLocation")}
-                        onClick={() => onOpenLocation(entry.locationGuid)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenLocation(entry.locationGuid);
+                        }}
                       >
                         <IconBox />
                         <span className="truncate">
@@ -105,7 +113,16 @@ export function StorageCardList({
                     </div>
                   </TableCell>
                   <TableCell className="max-w-48 truncate font-medium">
-                    {entry.card.name}
+                    <button
+                      type="button"
+                      className="max-w-full truncate rounded-sm text-left hover:underline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOpenCard(entry);
+                      }}
+                    >
+                      {entry.card.name}
+                    </button>
                   </TableCell>
                   <TableCell className="hidden max-w-40 truncate text-xs text-foreground/70 sm:table-cell">
                     {`${entry.card.setName} (${entry.card.set.toUpperCase()})`}
@@ -131,7 +148,10 @@ export function StorageCardList({
                       aria-label={t("cards.remove")}
                       title={t("cards.remove")}
                       disabled={isRemoving}
-                      onClick={() => setPendingRemoval(entry)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPendingRemoval(entry);
+                      }}
                     >
                       <IconBoxOff />
                     </Button>

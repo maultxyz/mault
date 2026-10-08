@@ -1,6 +1,7 @@
 import type {
   CardFilters,
   CardSetOption,
+  Collection,
   FieldMeta,
   GroupedScannedCard,
   PlayingCard,
@@ -292,6 +293,17 @@ export interface OcrRegionCropsProps {
   className?: string;
 }
 
+export interface CardDetailActions {
+  correctCard: (scanId: string, card: PlayingCard) => void;
+  confirmCard: (scanId: string) => void;
+  setCardFoilType: (scanId: string, foilType: string | null) => void;
+}
+
+export interface CardDetailScope {
+  collection: Collection | null;
+  actions?: CardDetailActions;
+}
+
 export interface CardDetailPanelProps {
   scanId?: string;
   onClose: () => void;
@@ -313,6 +325,8 @@ export interface CardDetailPanelProps {
   copyCount?: number;
   reviewMode?: boolean;
   onReviewComplete?: () => void;
+  footerActions?: ReactNode;
+  onRemoveShortcut?: () => void;
 }
 
 export interface CardFilterPopoverProps {
@@ -338,4 +352,13 @@ export interface CardResultKeyboardNavOptions {
 
 export interface CardCorrectionOptions {
   stay: boolean;
+}
+
+export interface CardCorrectionSearchProps {
+  collectionGuid: string | undefined;
+  initialQuery?: string;
+  capturedImage?: ReactNode;
+  disabled?: boolean;
+  onSelect: (card: PlayingCard, options: CardCorrectionOptions) => void;
+  onCancel: () => void;
 }

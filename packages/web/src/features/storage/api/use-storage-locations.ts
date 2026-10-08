@@ -1,3 +1,9 @@
+import {
+  confirmCollectionCard,
+  setCollectionCardFoilType,
+  updateCollectionCard,
+} from "@/features/collections/api/collections";
+import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
   createStorageLocation,
@@ -7,9 +13,22 @@ import {
   storageLocationKeys,
   storageLocationsQueryOptions,
 } from "@/features/storage/api/storage-locations";
+import type { CardDetailActions } from "@/lib/interfaces/cards";
 import { toast } from "@/lib/toast";
-import type { Result, StorageLocation } from "@magic-vault/shared";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type {
+  PlayingCard,
+  PlayingCardWithDistance,
+  Result,
+  StorageLocation,
+  StorageLocationCard,
+  StorageLocationSearchResult,
+} from "@magic-vault/shared";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type QueryClient,
+} from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
 export function useStorageLocations() {
@@ -118,4 +137,139 @@ export function useRemoveCardFromLocation() {
   };
 
   return { removeCard, isRemoving: mutation.isPending };
+}
+
+function patchStoredCard(
+  queryClient: QueryClient,
+  entry: StorageLocationSearchResult,
+  patch: Partial<StorageLocationCard>,
+) {
+  queryClient.setQueryData<StorageLocationCard[]>(
+    storageLocationKeys.cards(entry.locationGuid),
+    (cards) =>
+      cards?.map((card) =>
+        card.scanId === entry.scanId ? { ...card, ...patch } : card,
+      ),
+  );
+}
+
+function refreshStoredCard(
+  queryClient: QueryClient,
+  entry: StorageLocationSearchResult,
+) {
+  void queryClient.invalidateQueries({ queryKey: storageLocationKeys.root() });
+  void invalidateCollectionCards(queryClient, entry.collectionGuid);
+}
+
+export function useCorrectStoredCard() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({
+      entry,
+      card,
+    }: {
+      entry: StorageLocationSearchResult;
+      card: PlayingCardWithDistance;
+    }) => updateCollectionCard(entry.collectionGuid, entry.scanId, card),
+    onMutate: ({ entry, card }) =>
+      patchStoredCard(queryClient, entry, { card, corrected: true }),
+    onSuccess: (result) => {
+      if (!result.success)
+        toast.error(result.message ?? t("toasts.correctFailed"));
+    },
+    onError: () => toast.error(t("toasts.correctFailed")),
+    onSettled: (_result, _error, { entry }) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  const correctCard = async (
+    entry: StorageLocationSearchResult,
+    card: PlayingCard,
+  ): Promise<boolean> => {
+    const result = await mutation
+      .mutateAsync({ entry, card: { ...card, distance: 0, confidence: 1 } })
+      .catch(() => null);
+    return !!result?.success;
+  };
+
+  return { correctCard, isCorrecting: mutation.isPending };
+}
+
+export function useConfirmStoredCard() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (entry: StorageLocationSearchResult) =>
+      confirmCollectionCard(entry.collectionGuid, entry.scanId),
+    onMutate: (entry) =>
+      patchStoredCard(queryClient, entry, { corrected: true }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, entry) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return { confirmCard: (entry: StorageLocationSearchResult) => mutation.mutate(entry) };
+}
+
+export function useSetStoredCardFoilType() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({
+      entry,
+      foilType,
+    }: {
+      entry: StorageLocationSearchResult;
+      foilType: string | null;
+    }) =>
+      setCollectionCardFoilType(
+        entry.collectionGuid,
+        entry.scanId,
+        foilType != null,
+        foilType,
+      ),
+    onMutate: ({ entry, foilType }) =>
+      patchStoredCard(queryClient, entry, {
+        isFoil: foilType != null,
+        foilType,
+      }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, { entry }) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    setFoilType: (entry: StorageLocationSearchResult, foilType: string | null) =>
+      mutation.mutate({ entry, foilType }),
+  };
+}
+
+export function useStoredCardActions(
+  entry: StorageLocationSearchResult | null,
+): CardDetailActions {
+  const { correctCard } = useCorrectStoredCard();
+  const { confirmCard } = useConfirmStoredCard();
+  const { setFoilType } = useSetStoredCardFoilType();
+
+  return {
+    correctCard: (_scanId, card) => {
+      if (entry) void correctCard(entry, card);
+    },
+    confirmCard: () => {
+      if (entry) confirmCard(entry);
+    },
+    setCardFoilType: (_scanId, foilType) => {
+      if (entry) setFoilType(entry, foilType);
+    },
+  };
 }

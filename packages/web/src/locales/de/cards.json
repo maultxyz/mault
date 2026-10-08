@@ -292,5 +292,9 @@
     },
     "complete_one": "Prüfung abgeschlossen: {{count}} Karte geprüft",
     "complete_other": "Prüfung abgeschlossen: {{count}} Karten geprüft"
+  },
+  "removeDialog": {
+    "title": "{{name}} entfernen?",
+    "description": "Der Scan wird samt Foto aus der Sammlung gelöscht. Das kann nicht rückgängig gemacht werden."
   }
 }

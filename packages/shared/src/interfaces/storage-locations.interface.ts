@@ -22,6 +22,8 @@ export interface StorageLocationCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  needsReview: boolean;
+  corrected: boolean;
 }
 
 export interface StorageLocationSearchResult extends StorageLocationCard {

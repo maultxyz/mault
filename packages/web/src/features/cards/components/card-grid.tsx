@@ -421,7 +421,10 @@ export function CardGrid() {
         onClose={() => setOpenScanId(null)}
         onRemove={() => {
           removeCard(openEntry.scanId);
-          setOpenScanId(null);
+          setOpenScanId(
+            isReviewing ? (openPosition?.nextScanId ?? null) : null,
+            isReviewing,
+          );
         }}
         onPrev={() =>
           setOpenScanId(openPosition?.prevScanId ?? null, isReviewing)
