@@ -35,10 +35,11 @@
   },
   "pricing": {
     "heading": "Pricing",
-    "description": "Choose which marketplace prices your organization's cards, collection values and Discord posts use.",
+    "description": "Choose which marketplace prices your organization's cards, collection values and Discord posts use. Card Kingdom only prices Magic: The Gathering cards.",
     "sources": {
       "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket"
+      "cardmarket": "Cardmarket",
+      "cardkingdom": "Card Kingdom"
     }
   },
   "sessionWrapped": {

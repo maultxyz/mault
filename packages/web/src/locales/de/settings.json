@@ -29,10 +29,11 @@
   },
   "pricing": {
     "heading": "Preise",
-    "description": "Wähle, welche Marktplatzpreise deine Organisation für Karten, Sammlungswerte und Discord-Beiträge nutzt.",
+    "description": "Wähle, welche Marktplatzpreise deine Organisation für Karten, Sammlungswerte und Discord-Beiträge nutzt. Card Kingdom liefert nur Preise für Magic: The Gathering.",
     "sources": {
       "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket"
+      "cardmarket": "Cardmarket",
+      "cardkingdom": "Card Kingdom"
     }
   },
   "sessionWrapped": {

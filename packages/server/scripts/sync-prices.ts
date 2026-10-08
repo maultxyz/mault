@@ -1,5 +1,6 @@
 import { pool } from "../src/db";
 import { refreshCardPrices } from "../src/lib/card-price-refresh";
+import { syncCardKingdomPrices } from "../src/lib/cardkingdom-price-sync";
 import { syncCardmarketPrices } from "../src/lib/cardmarket-price-sync";
 import { syncTcgplayerPrices } from "../src/lib/tcgplayer-price-sync";
 
@@ -23,6 +24,13 @@ async function run(): Promise<boolean> {
     pulled ||= cardmarket.prices > 0 || cardmarket.products > 0;
   } catch (err) {
     console.error("[sync-prices] Cardmarket sync failed:", err);
+    ok = false;
+  }
+  try {
+    const cardKingdom = await syncCardKingdomPrices({ force, log });
+    pulled ||= cardKingdom.prices > 0;
+  } catch (err) {
+    console.error("[sync-prices] Card Kingdom sync failed:", err);
     ok = false;
   }
   try {
