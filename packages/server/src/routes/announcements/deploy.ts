@@ -10,6 +10,7 @@ import {
   DEPLOY_ANNOUNCEMENT_MAX_MINUTES,
 } from "../../lib/constants/announcements";
 import type { DeployAnnouncementInput } from "../../lib/interfaces/announcements";
+import { emitDeployNotice } from "../../lib/deploy-notice";
 import { requireDeployKey, type AppEnv } from "../../middleware/auth";
 import { parseAnnouncementLink, toAnnouncement } from "./shared";
 
@@ -63,6 +64,7 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
           .returning();
         return inserted;
       });
+      emitDeployNotice({ guid: row.guid!, message: row.message });
       return c.json({ success: true, data: toAnnouncement(row) });
     } catch (err) {
       console.error(err);
@@ -81,6 +83,7 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
           ),
         )
         .returning({ id: announcements.id });
+      emitDeployNotice(null);
       return c.json({ success: true, data: { removed: removed.length } });
     } catch (err) {
       console.error(err);

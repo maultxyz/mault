@@ -9,12 +9,15 @@ export interface PlayingCardPriceRange {
   low: number | null;
   mid: number | null;
   high: number | null;
+  market: number | null;
   printings?: number;
 }
 
 export interface PlayingCardCardmarketPrice {
   low: number | null;
   trend: number | null;
+  avg: number | null;
+  avg7: number | null;
   avg30: number | null;
   printings?: number;
 }

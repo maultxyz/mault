@@ -605,6 +605,9 @@ export const orgSettings = pgTable(
       .notNull()
       .default(true),
     correctionAutoCloseSeconds: integer("correction_auto_close_seconds"),
+    pauseScanningOnDeploy: boolean("pause_scanning_on_deploy")
+      .notNull()
+      .default(true),
     priceSource: text("price_source").notNull().default("tcgplayer"),
     discordGuildId: text("discord_guild_id"),
     discordLinkCode: text("discord_link_code"),

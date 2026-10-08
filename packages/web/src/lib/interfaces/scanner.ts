@@ -758,3 +758,14 @@ export interface DebugCardSet {
     alternates: PlayingCardWithDistance[];
   };
 }
+
+export interface DeployPauseContextValue {
+  reportDeployPause: (resume: () => void) => void;
+}
+
+export interface DeployPauseDialogProps {
+  open: boolean;
+  pausedCount: number;
+  onResume: () => void;
+  onClose: () => void;
+}

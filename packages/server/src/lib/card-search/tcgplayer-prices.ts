@@ -71,7 +71,7 @@ function combineRanges(
   ranges: PlayingCardPriceRange[],
 ): PlayingCardPriceRange | undefined {
   if (ranges.length <= 1) return ranges[0];
-  const present = (key: "low" | "mid" | "high") =>
+  const present = (key: "low" | "mid" | "high" | "market") =>
     ranges.flatMap((r) => (r[key] != null ? [r[key]] : []));
   const lows = present("low");
   const highs = present("high");
@@ -79,6 +79,7 @@ function combineRanges(
     low: lows.length ? Math.min(...lows) : null,
     mid: median(present("mid")),
     high: highs.length ? Math.max(...highs) : null,
+    market: median(present("market")),
     printings: ranges.length,
   };
 }
@@ -101,6 +102,7 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       low: tcgplayerPrices.lowPrice,
       mid: tcgplayerPrices.midPrice,
       high: tcgplayerPrices.highPrice,
+      market: tcgplayerPrices.marketPrice,
     })
     .from(tcgplayerPrices)
     .where(
@@ -110,9 +112,9 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       ),
     );
   const ranges = new Map<string, PlayingCardPriceRange>(
-    rows.map(({ productId, subType, low, mid, high }) => [
+    rows.map(({ productId, subType, low, mid, high, market }) => [
       `${productId}:${subType}`,
-      { low, mid, high },
+      { low, mid, high, market },
     ]),
   );
 
@@ -125,7 +127,7 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
         cardProductIds.flatMap((productId) => {
           const range = subTypes
             .map((subType) => ranges.get(`${productId}:${subType}`))
-            .find((r) => r?.mid != null);
+            .find((r) => r?.market != null || r?.mid != null);
           return range ? [range] : [];
         }),
       );
@@ -135,8 +137,8 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
     const rangeFoil = rangeFor(subTypes.priceFoil);
     return {
       ...card,
-      price: range?.mid ?? card.price,
-      priceFoil: rangeFoil?.mid ?? card.priceFoil,
+      price: range?.market ?? range?.mid ?? card.price,
+      priceFoil: rangeFoil?.market ?? rangeFoil?.mid ?? card.priceFoil,
       priceRange: range ?? card.priceRange,
       priceRangeFoil: rangeFoil ?? card.priceRangeFoil,
     };
