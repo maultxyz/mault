@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { authQuery } from "../../db";
 import { collections, games } from "../../db/schema";
 import { fabAdapter } from "../adapters/fab/search";
+import { grandArchiveAdapter } from "../adapters/grand-archive/search";
 import { gundamAdapter } from "../adapters/gundam/search";
 import { lorcanaAdapter } from "../adapters/lorcana/search";
 import { onePieceAdapter } from "../adapters/onepiece/search";
@@ -27,6 +28,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   yugioh: withCache(withErrorHandling(yugiohAdapter)),
   riftbound: withCache(withErrorHandling(riftboundAdapter)),
   swu: withCache(withErrorHandling(swuAdapter)),
+  grandarchive: withCache(withErrorHandling(grandArchiveAdapter)),
 };
 
 export async function resolveGameKeyAndLang(
