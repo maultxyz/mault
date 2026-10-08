@@ -9,6 +9,7 @@ export interface PlayingCardPriceRange {
   low: number | null;
   mid: number | null;
   high: number | null;
+  market: number | null;
   printings?: number;
 }
 

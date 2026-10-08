@@ -79,16 +79,18 @@ export function CardPriceDetails({ card, className }: CardPriceDetailsProps) {
     {
       label: t("priceTable.regular"),
       values: [
+        card.priceRange?.market ?? card.price,
         card.priceRange?.low ?? null,
-        card.priceRange?.mid ?? card.price,
+        card.priceRange?.mid ?? null,
         card.priceRange?.high ?? null,
       ],
     },
     {
       label: t("priceTable.foil"),
       values: [
+        card.priceRangeFoil?.market ?? card.priceFoil,
         card.priceRangeFoil?.low ?? null,
-        card.priceRangeFoil?.mid ?? card.priceFoil,
+        card.priceRangeFoil?.mid ?? null,
         card.priceRangeFoil?.high ?? null,
       ],
     },
@@ -128,6 +130,7 @@ export function CardPriceDetails({ card, className }: CardPriceDetailsProps) {
       <PriceTable
         heading={t("priceTable.heading")}
         columns={[
+          t("priceTable.market"),
           t("priceTable.low"),
           t("priceTable.mid"),
           t("priceTable.high"),
