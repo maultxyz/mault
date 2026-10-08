@@ -1,4 +1,5 @@
 import { fabDebugCards } from "./fab";
+import { grandArchiveDebugCards } from "./grand-archive";
 import { gundamDebugCards } from "./gundam";
 import { lorcanaDebugCards } from "./lorcana";
 import { mtgDebugCards } from "./mtg";
@@ -13,6 +14,7 @@ const DEBUG_CARDS_BY_GAME_KEY: Record<string, DebugCardSet> = {
   lorcana: lorcanaDebugCards,
   onepiece: onePieceDebugCards,
   fab: fabDebugCards,
+  grandarchive: grandArchiveDebugCards,
 };
 
 export function getDebugCards(gameKey: string | undefined): DebugCardSet {
