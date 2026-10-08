@@ -285,7 +285,11 @@ export interface CardFiltersContextValue {
 export interface CapturedImageThumbProps {
   src: string;
   alt: string;
-  showOcrRegions?: boolean;
+}
+
+export interface OcrRegionCropsProps {
+  src: string;
+  className?: string;
 }
 
 export interface CardDetailPanelProps {

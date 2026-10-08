@@ -31,6 +31,7 @@ import { CardStorageLocationSection } from "@/features/storage/components/card-s
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
+import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -265,7 +266,6 @@ export function CardDetailPanel({
     <CapturedImageThumb
       src={capturedImageUrl}
       alt={t("cardPicker.scannedAlt")}
-      showOcrRegions={showOcrRegions}
     />
   ) : (
     <Skeleton className="h-full w-full rounded-none" />
@@ -459,6 +459,15 @@ export function CardDetailPanel({
 
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
+                    {showOcrRegions && capturedImageUrl && (
+                      <DetailSection title={t("cardDetailPanel.ocrRegions")}>
+                        <OcrRegionCrops
+                          src={capturedImageUrl}
+                          className="max-w-lg"
+                        />
+                      </DetailSection>
+                    )}
+
                     <DetailSection title={t("cardDetailPanel.prices")}>
                       <CardPriceDetails card={selectedCard} isFoil={isFoil} />
                     </DetailSection>

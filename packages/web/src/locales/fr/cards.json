@@ -60,6 +60,12 @@
     "artist": "Artiste",
     "binLocation": "Emplacement du bac",
     "showOcrRegions": "Afficher les zones OCR",
+    "ocrRegions": "Zones OCR",
+    "noOcrRegions": "Ce jeu n'a pas de zones OCR.",
+    "ocrFields": {
+      "name": "Nom",
+      "setLine": "Ligne d'extension"
+    },
     "copyOf": "Exemplaire {{index}} sur {{count}}"
   },
   "cardFilterPopover": {
