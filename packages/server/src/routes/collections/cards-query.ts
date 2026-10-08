@@ -1,7 +1,6 @@
 import {
   DEFAULT_CARD_SORT,
   EMPTY_CARD_FILTERS,
-  PRICE_SOURCE_FIELDS,
   type BinWindow,
   type CardFilters,
   type CardStatsAggregate,
@@ -22,6 +21,21 @@ import {
   CARD_SEARCH_FIELDS,
   NUMERIC_PREFIX_SQL_PATTERN,
 } from "../../lib/constants/collections";
+import {
+  CARD_PRICE_COLUMNS,
+  CARD_PRICE_DETAIL_KEYS,
+  CC_ALIAS_SQL_COLUMNS,
+} from "../../lib/constants/card-prices";
+import {
+  cardWithStoredPricesSql,
+  scannedCardPriceSql,
+  storedCardPriceDetailSql,
+  storedCardPriceSql,
+} from "../../lib/card-price-sql";
+import type {
+  CardPriceDetailKey,
+  CardPriceKey,
+} from "../../lib/interfaces/card-prices";
 
 
 const cardFiltersSchema = z.object({
@@ -88,6 +102,7 @@ export async function findCardsCollection(
 ): Promise<{
   id: number;
   gameKey: string | null;
+  lang: string;
   fieldDefinitions: FieldMeta[];
 } | null> {
   if (!isUuid(guid)) return null;
@@ -95,6 +110,7 @@ export async function findCardsCollection(
     .select({
       id: collections.id,
       gameKey: games.key,
+      lang: collections.lang,
       fieldDefinitions: games.fieldDefinitions,
     })
     .from(collections)
@@ -111,6 +127,7 @@ export async function findCardsCollection(
   return {
     id: collection.id,
     gameKey: collection.gameKey,
+    lang: collection.lang,
     fieldDefinitions: (collection.fieldDefinitions as FieldMeta[] | null) ?? [],
   };
 }
@@ -133,15 +150,33 @@ const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' E
 const DUPLICATE_KEY = sql`(COALESCE(cc.card ->> 'id', '') || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, ''))`;
 
 export function cardPriceSql(source: PriceSource): SQL {
-  const fields = PRICE_SOURCE_FIELDS[source];
-  return sql`COALESCE(CASE WHEN cc.is_foil THEN ${jsonNumber(fields.priceFoil)} END, ${jsonNumber(fields.price)}, 0)`;
+  return sql`COALESCE(${scannedCardPriceSql(source, CC_ALIAS_SQL_COLUMNS)}, 0)`;
+}
+
+function isCardPriceKey(path: string): path is CardPriceKey {
+  return path in CARD_PRICE_COLUMNS;
+}
+
+function isCardPriceDetailKey(key: string): key is CardPriceDetailKey {
+  return (CARD_PRICE_DETAIL_KEYS as readonly string[]).includes(key);
 }
 
 const SCANNED_AT_MS = sql`(extract(epoch from cc.scanned_at) * 1000)::float8`;
 
 function fieldValueSql(path: string): SQL {
   const segments = path.split(".");
-  return sql`COALESCE(cc.card #> ${pgTextArray(["raw", ...segments])}::text[], cc.card #> ${pgTextArray(segments)}::text[])`;
+  const saved = sql`COALESCE(cc.card #> ${pgTextArray(["raw", ...segments])}::text[], cc.card #> ${pgTextArray(segments)}::text[])`;
+  if (isCardPriceKey(path)) {
+    return sql`COALESCE(to_jsonb(${storedCardPriceSql(path, CC_ALIAS_SQL_COLUMNS)}), ${saved})`;
+  }
+  if (isCardPriceDetailKey(segments[0])) {
+    const stored = storedCardPriceDetailSql(
+      sql`${pgTextArray(segments)}::text[]`,
+      CC_ALIAS_SQL_COLUMNS,
+    );
+    return sql`COALESCE(${stored}, ${saved})`;
+  }
+  return saved;
 }
 
 function anyOf(values: string[]): SQL {
@@ -413,7 +448,8 @@ export async function loadCardIds(
 
 export async function loadAllCards(tx: Transaction, collectionId: number) {
   const result = await tx.execute(sql`
-    SELECT cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
+    SELECT cc.guid, ${cardWithStoredPricesSql(sql`cc.card`, CC_ALIAS_SQL_COLUMNS)} AS card,
+      ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
       cc.is_foil, cc.foil_type, cc.is_downloaded, cc.alternative_matches,
       cc.is_corrected, cc.needs_review
     FROM collection_cards cc

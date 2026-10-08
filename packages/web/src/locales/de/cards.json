@@ -25,6 +25,7 @@
     "tcgplayerMarket": "TCGplayer Marktpreis",
     "cardmarketAvg": "Cardmarket Durchschnitt",
     "foilPrice": "Foil {{price}}",
+    "nonFoilPrice": "Nicht-Foil {{price}}",
     "avg30": "30-Tage-Schnitt",
     "market": "Markt",
     "low": "Niedrig",
