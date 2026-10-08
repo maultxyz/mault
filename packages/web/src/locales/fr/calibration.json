@@ -57,8 +57,13 @@
       "small": "Petit",
       "medium": "Moyen",
       "large": "Grand",
-      "unlimited": "Illimité"
-    }
+      "unlimited": "Illimité",
+      "custom": "Personnalisé"
+    },
+    "customHeightLabel": "Hauteur personnalisée du bac {{bin}}",
+    "customHeightUnit": "mm",
+    "customHeightHint": "Environ {{count}} cartes à {{thickness}} mm chacune",
+    "customHeightInvalid": "Saisissez entre {{min}} et {{max}} mm"
   },
   "binRoutingControls": {
     "label": "Routage des bacs",

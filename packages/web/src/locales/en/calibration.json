@@ -57,8 +57,13 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
-      "unlimited": "Unlimited"
-    }
+      "unlimited": "Unlimited",
+      "custom": "Custom"
+    },
+    "customHeightLabel": "Custom bin height for bin {{bin}}",
+    "customHeightUnit": "mm",
+    "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
+    "customHeightInvalid": "Enter {{min}} to {{max}} mm"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
