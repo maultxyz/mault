@@ -238,7 +238,11 @@ export function ScannedCardsProvider({
     registerResumeHook,
   } = useAutoFeed({ serialRef, activeCollectionRef });
   const showJamToast = useJamToast(resume);
-  useDeployScanPause(scannerRunning, pause, resume);
+  useDeployScanPause(
+    scannerRunning && (orgSettings?.pauseScanningOnDeploy ?? true),
+    pause,
+    resume,
+  );
 
   const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
   const forceFoilTypeRef = useRef<string | null>(null);

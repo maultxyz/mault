@@ -8,6 +8,7 @@ export interface OrgSettings {
   sessionWrappedEnabled: boolean;
   ocrEnabled: boolean;
   correctionBinPrompt: boolean;
+  pauseScanningOnDeploy: boolean;
   correctionAutoCloseSeconds: number | null;
   priceSource: PriceSource;
   discordGuildId: string | null;

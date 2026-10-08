@@ -116,6 +116,25 @@ export default function SettingsScanningPage() {
           )}
         </div>
       </SettingsSection>
+      <SettingsSection
+        heading={t("deployPause.heading")}
+        description={t("deployPause.description")}
+      >
+        <label className="flex items-center justify-between gap-3">
+          <span className="text-sm">{t("deployPause.toggleLabel")}</span>
+          <Controller
+            control={draft.control}
+            name="pauseScanningOnDeploy"
+            render={({ field }) => (
+              <Switch
+                checked={field.value}
+                disabled={disabled}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+        </label>
+      </SettingsSection>
       <SaveBar
         show={draft.isDirty}
         isSaving={draft.isSaving}
