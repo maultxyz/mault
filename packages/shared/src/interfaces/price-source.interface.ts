@@ -1,8 +1,8 @@
-export type PriceSource = "tcgplayer" | "cardmarket";
+export type PriceSource = "tcgplayer" | "cardmarket" | "cardkingdom";
 
 export interface PriceSourceFields {
-  price: "price" | "priceEur";
-  priceFoil: "priceFoil" | "priceEurFoil";
+  price: "price" | "priceEur" | "priceCardKingdom";
+  priceFoil: "priceFoil" | "priceEurFoil" | "priceCardKingdomFoil";
   currency: string;
   symbol: string;
 }

@@ -10,6 +10,9 @@ export const BMC_URL = "https://buymeacoffee.com/mault";
 // Default upstream API base URL for each supported TCG's card-search
 // adapter (see lib/adapters/<game>/search.ts and sync.ts).
 export const FAB_DEFAULT_URL = "https://api.fleshcube.com/card";
+export const GRAND_ARCHIVE_API_ROOT = "https://api.gatcg.com";
+export const GRAND_ARCHIVE_DEFAULT_URL = `${GRAND_ARCHIVE_API_ROOT}/cards`;
+export const GRAND_ARCHIVE_INDEX_URL = "https://index.gatcg.com";
 export const GUNDAM_DEFAULT_URL = "https://api.gcgapi.com/v1/cards";
 export const LORCANA_DEFAULT_URL = "https://api.lorcast.com/v0/cards";
 export const LORCANA_DE_API_ROOT = "https://lorcana-de-api.onrender.com/api";
@@ -24,6 +27,9 @@ export const SWU_DEFAULT_URL = `${SWU_API_ROOT}/cards`;
 export const TCGCSV_URL = "https://tcgcsv.com";
 export const CARDMARKET_CATALOG_URL =
   "https://downloads.s3.cardmarket.com/productCatalog";
+export const CARDKINGDOM_PRICELIST_URL =
+  "https://api.cardkingdom.com/api/v2/pricelist";
+export const CARDKINGDOM_SITE_URL = "https://www.cardkingdom.com/";
 export const YUGIOH_DEFAULT_URL =
   "https://db.ygoprodeck.com/api/v7/cardinfo.php";
 

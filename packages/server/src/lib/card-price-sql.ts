@@ -100,7 +100,9 @@ export function cardWithStoredPricesSql(
       'price', cp.price,
       'priceFoil', cp.price_foil,
       'priceEur', cp.price_eur,
-      'priceEurFoil', cp.price_eur_foil
+      'priceEurFoil', cp.price_eur_foil,
+      'priceCardKingdom', cp.price_card_kingdom,
+      'priceCardKingdomFoil', cp.price_card_kingdom_foil
     ) || COALESCE(cp.details, '{}'::jsonb))`,
   );
   return sql`(${card} || COALESCE(${prices}, '{}'::jsonb))`;

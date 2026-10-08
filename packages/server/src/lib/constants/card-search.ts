@@ -36,6 +36,20 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   U: "Unlimited Edition ",
 };
 
+export const GRAND_ARCHIVE_SEARCH_PAGE_SIZE = 30;
+export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
+  1: "Common",
+  2: "Uncommon",
+  3: "Rare",
+  4: "Super Rare",
+  5: "Ultra Rare",
+  6: "Promotional Rare",
+  7: "Collector Super Rare",
+  8: "Collector Ultra Rare",
+  9: "Collector Promo Rare",
+};
+export const GRAND_ARCHIVE_PROMO_RARITIES = new Set([6, 9]);
+
 export const MATCH_MAX_DISTANCE_RATIO = 0.9;
 
 export const EXIF_ORIENTATION_TRANSPOSED_FROM = 5;

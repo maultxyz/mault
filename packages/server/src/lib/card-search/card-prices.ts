@@ -7,6 +7,7 @@ import type {
   StoredCardPrices,
 } from "../interfaces/card-prices";
 import type { CardSearchAdapter } from "../interfaces/card-search";
+import { applyCardKingdomPrices } from "./cardkingdom-prices";
 import { applyCardmarketPrices } from "./cardmarket-prices";
 import { ADAPTERS_BY_GAME_KEY } from "./resolve";
 import { applyTcgplayerPrices } from "./tcgplayer-prices";
@@ -15,9 +16,12 @@ export async function resolveLiveCardPrices<T extends PlayingCard>(
   adapter: CardSearchAdapter,
   cards: T[],
 ): Promise<T[]> {
-  return applyCardmarketPrices(
+  return applyCardKingdomPrices(
     adapter,
-    await applyTcgplayerPrices(adapter, cards),
+    await applyCardmarketPrices(
+      adapter,
+      await applyTcgplayerPrices(adapter, cards),
+    ),
   );
 }
 
@@ -34,6 +38,8 @@ async function loadStoredCardPrices(
       priceFoil: cardPrices.priceFoil,
       priceEur: cardPrices.priceEur,
       priceEurFoil: cardPrices.priceEurFoil,
+      priceCardKingdom: cardPrices.priceCardKingdom,
+      priceCardKingdomFoil: cardPrices.priceCardKingdomFoil,
       details: cardPrices.details,
     })
     .from(cardPrices)
@@ -58,11 +64,17 @@ function withStoredPrices<T extends PlayingCard>(
     priceFoil: stored.priceFoil ?? card.priceFoil,
     priceEur: stored.priceEur ?? card.priceEur,
     priceEurFoil: stored.priceEurFoil ?? card.priceEurFoil,
+    priceCardKingdom: stored.priceCardKingdom ?? card.priceCardKingdom,
+    priceCardKingdomFoil:
+      stored.priceCardKingdomFoil ?? card.priceCardKingdomFoil,
     priceRange: details.priceRange ?? card.priceRange,
     priceRangeFoil: details.priceRangeFoil ?? card.priceRangeFoil,
     cardmarketPrice: details.cardmarketPrice ?? card.cardmarketPrice,
     cardmarketPriceFoil:
       details.cardmarketPriceFoil ?? card.cardmarketPriceFoil,
+    cardKingdomPrice: details.cardKingdomPrice ?? card.cardKingdomPrice,
+    cardKingdomPriceFoil:
+      details.cardKingdomPriceFoil ?? card.cardKingdomPriceFoil,
   };
 }
 
