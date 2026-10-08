@@ -353,6 +353,14 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const isDeviceConnected = useCallback(
+    (deviceGuid: string) =>
+      stationsRef.current.some(
+        (s) => s.deviceGuid === deviceGuid && connectedRef.current.has(s.id),
+      ),
+    [],
+  );
+
   const disconnectStation = useCallback((id: string) => {
     connectorsRef.current.get(id)?.disconnect();
   }, []);
@@ -454,6 +462,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       connectAnotherSorter,
       connectPortToStandby,
       connectBluetoothDeviceToStandby,
+      isDeviceConnected,
       disconnectStation,
       getPanelElement,
       attachPanels,
@@ -478,6 +487,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       connectAnotherSorter,
       connectPortToStandby,
       connectBluetoothDeviceToStandby,
+      isDeviceConnected,
       disconnectStation,
       getPanelElement,
       attachPanels,
