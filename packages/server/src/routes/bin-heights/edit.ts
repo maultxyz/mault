@@ -1,4 +1,4 @@
-import type { BinHeight } from "@magic-vault/shared";
+import { isValidBinHeight, type BinHeight } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binHeightAudit, binHeights } from "../../db/schema";
@@ -15,6 +15,9 @@ export const editBinHeightRoute = new Hono<AppEnv>().put(
     const deviceGuid = c.req.param("guid") as string;
     const binNumber = parseInt(c.req.param("binNumber"));
     const { height } = await c.req.json<BinHeight>();
+    if (!Number.isInteger(binNumber) || !isValidBinHeight(height)) {
+      return c.json({ success: false, message: "Invalid bin height." }, 400);
+    }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const device = await getDeviceByGuid(tx, orgId, deviceGuid);

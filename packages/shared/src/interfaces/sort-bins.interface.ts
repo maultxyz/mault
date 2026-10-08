@@ -69,6 +69,8 @@ export interface BinConfig {
 
 export type BinSizePreset = "small" | "medium" | "large" | "unlimited";
 
+export type BinSizeOption = BinSizePreset | "custom";
+
 export interface BinHeightPreset {
   key: BinSizePreset;
   height: number;

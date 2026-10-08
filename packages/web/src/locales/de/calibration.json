@@ -57,8 +57,13 @@
       "small": "Klein",
       "medium": "Mittel",
       "large": "Groß",
-      "unlimited": "Unbegrenzt"
-    }
+      "unlimited": "Unbegrenzt",
+      "custom": "Benutzerdefiniert"
+    },
+    "customHeightLabel": "Benutzerdefinierte Fachhöhe für Fach {{bin}}",
+    "customHeightUnit": "mm",
+    "customHeightHint": "Etwa {{count}} Karten bei {{thickness}} mm pro Karte",
+    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben"
   },
   "binRoutingControls": {
     "label": "Fach-Routing",

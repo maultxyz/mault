@@ -13,6 +13,8 @@ import { isRuleGroup } from "./interfaces/sort-bins.interface";
 import {
   ALPHABET_LETTERS,
   ALPHABET_PREFIX_MAX_LENGTH,
+  CUSTOM_BIN_HEIGHT_MAX_MM,
+  CUSTOM_BIN_HEIGHT_MIN_MM,
   DEFAULT_BIN_HEIGHT,
   DEFAULT_CARD_THICKNESS_MM,
   UNLIMITED_BIN_HEIGHT,
@@ -312,6 +314,16 @@ export function isBinFull(
 ): boolean {
   if (bin.cardLimit == null) return false;
   return countCardsInBin(cards, bin) >= bin.cardLimit;
+}
+
+export function isValidBinHeight(height: unknown): height is number {
+  return (
+    typeof height === "number" &&
+    Number.isFinite(height) &&
+    (height === UNLIMITED_BIN_HEIGHT ||
+      (height >= CUSTOM_BIN_HEIGHT_MIN_MM &&
+        height <= CUSTOM_BIN_HEIGHT_MAX_MM))
+  );
 }
 
 export function computeBinCapacity(

@@ -36,6 +36,19 @@ export interface BinRoutesContextValue {
   discard: () => void;
 }
 
+export interface BinSizeSelectProps {
+  binNumber: number;
+  height: number | undefined;
+  onChange: (binNumber: number, height: number) => void;
+  className?: string;
+}
+
+export interface CustomBinHeightInputProps {
+  binNumber: number;
+  height: number | undefined;
+  onChange: (binNumber: number, height: number) => void;
+}
+
 export interface BinHeightsContextValue {
   heights: BinHeight[];
   savedHeights: BinHeight[];
