@@ -162,7 +162,8 @@
       "shift": "Umschalt",
       "left": "←",
       "right": "→",
-      "escape": "Esc"
+      "escape": "Esc",
+      "enter": "Enter"
     },
     "groups": {
       "general": "Allgemein",
@@ -191,6 +192,7 @@
       "cardPrevious": "Vorherige Karte",
       "cardNext": "Nächste Karte",
       "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt, Umschalt Enter bleibt beim Prüfen auf der Karte)",
+      "cardToggleFoil": "Foil umschalten (erste Foil-Art oder zurück zu Nicht-Foil)",
       "cardClose": "Karte schließen oder Korrektur abbrechen",
       "reviewStart": "Karten einzeln prüfen",
       "reviewAccept": "Beim Prüfen: Karte stimmt, weiter"

@@ -23,6 +23,7 @@ export type HotkeyId =
   | "cardPrevious"
   | "cardNext"
   | "cardCorrect"
+  | "cardToggleFoil"
   | "cardClose"
   | "reviewStart"
   | "reviewAccept";
