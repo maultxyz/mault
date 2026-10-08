@@ -39,6 +39,10 @@ export interface CardmarketPricing {
   productNames?(card: PlayingCard): string[];
 }
 
+export interface CardKingdomPricing {
+  scryfallIdFromRaw(card: PlayingCard): string | null | undefined;
+}
+
 export interface CardSearchAdapter {
   defaultUrl: string;
   urlForLang?(lang: string): string;
@@ -51,6 +55,7 @@ export interface CardSearchAdapter {
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
+  cardkingdom?: CardKingdomPricing;
 }
 
 export interface ResolvedCardSearch {

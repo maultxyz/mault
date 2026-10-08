@@ -19,6 +19,12 @@
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",
+    "cardKingdomHeading": "Card Kingdom",
+    "showDetails": "Preisdetails anzeigen",
+    "hideDetails": "Preisdetails ausblenden",
+    "cardKingdomRetail": "Card Kingdom Verkaufspreis",
+    "retail": "Verkauf",
+    "buylist": "Ankauf",
     "avg": "Durchschnitt",
     "trend": "Preistrend",
     "avg7": "7-Tage-Schnitt",

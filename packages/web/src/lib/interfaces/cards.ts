@@ -6,6 +6,7 @@ import type {
   GroupedScannedCard,
   PlayingCard,
   PlayingCardWithDistance,
+  PriceSource,
   ScannedCard,
 } from "@magic-vault/shared";
 import type { ReactElement, ReactNode } from "react";
@@ -78,6 +79,12 @@ export interface PriceHeadlineProps {
   foilPrice: number | null;
   isFoil: boolean;
   format: (value: number) => string;
+}
+
+export interface PriceSourceSection {
+  source: PriceSource;
+  headline: Omit<PriceHeadlineProps, "isFoil">;
+  table: PriceTableProps;
 }
 
 

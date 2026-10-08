@@ -29,10 +29,12 @@ const MISSING_PRICE_ROW = sql`NOT EXISTS (
 
 const PRICES_CHANGED = sql`(
   ${cardPrices.price}, ${cardPrices.priceFoil}, ${cardPrices.priceEur},
-  ${cardPrices.priceEurFoil}, ${cardPrices.details}
+  ${cardPrices.priceEurFoil}, ${cardPrices.priceCardKingdom},
+  ${cardPrices.priceCardKingdomFoil}, ${cardPrices.details}
 ) IS DISTINCT FROM (
   excluded.price, excluded.price_foil, excluded.price_eur,
-  excluded.price_eur_foil, excluded.details
+  excluded.price_eur_foil, excluded.price_card_kingdom,
+  excluded.price_card_kingdom_foil, excluded.details
 )`;
 
 export async function refreshCardPrices({
@@ -41,7 +43,9 @@ export async function refreshCardPrices({
 }: CardPriceRefreshOptions): Promise<number> {
   let total = 0;
   for (const [gameKey, adapter] of Object.entries(ADAPTERS_BY_GAME_KEY)) {
-    if (!adapter.tcgplayer && !adapter.cardmarket) continue;
+    if (!adapter.tcgplayer && !adapter.cardmarket && !adapter.cardkingdom) {
+      continue;
+    }
 
     let written = 0;
     let lastId = 0;
@@ -85,6 +89,8 @@ export async function refreshCardPrices({
         priceFoil: priced[i].priceFoil ?? null,
         priceEur: priced[i].priceEur ?? null,
         priceEurFoil: priced[i].priceEurFoil ?? null,
+        priceCardKingdom: priced[i].priceCardKingdom ?? null,
+        priceCardKingdomFoil: priced[i].priceCardKingdomFoil ?? null,
         details: detailsOf(priced[i]),
       }));
 
@@ -98,6 +104,8 @@ export async function refreshCardPrices({
             priceFoil: sql`excluded.price_foil`,
             priceEur: sql`excluded.price_eur`,
             priceEurFoil: sql`excluded.price_eur_foil`,
+            priceCardKingdom: sql`excluded.price_card_kingdom`,
+            priceCardKingdomFoil: sql`excluded.price_card_kingdom_foil`,
             details: sql`excluded.details`,
             updatedAt: new Date(),
           },

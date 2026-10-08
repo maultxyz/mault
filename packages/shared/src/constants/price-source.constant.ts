@@ -3,7 +3,11 @@ import type {
   PriceSourceFields,
 } from "../interfaces/price-source.interface";
 
-export const PRICE_SOURCES: PriceSource[] = ["tcgplayer", "cardmarket"];
+export const PRICE_SOURCES: PriceSource[] = [
+  "tcgplayer",
+  "cardmarket",
+  "cardkingdom",
+];
 
 export const DEFAULT_PRICE_SOURCE: PriceSource = "tcgplayer";
 
@@ -19,5 +23,11 @@ export const PRICE_SOURCE_FIELDS: Record<PriceSource, PriceSourceFields> = {
     priceFoil: "priceEurFoil",
     currency: "EUR",
     symbol: "€",
+  },
+  cardkingdom: {
+    price: "priceCardKingdom",
+    priceFoil: "priceCardKingdomFoil",
+    currency: "USD",
+    symbol: "$",
   },
 };

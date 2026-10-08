@@ -951,6 +951,26 @@ export const cardmarketProducts = pgTable(
   ],
 );
 
+export const cardKingdomPrices = pgTable(
+  "cardkingdom_prices",
+  {
+    productId: integer("product_id").primaryKey(),
+    scryfallId: text("scryfall_id"),
+    isFoil: boolean("is_foil").notNull(),
+    setCode: text("set_code").notNull(),
+    number: text("number").notNull(),
+    retail: doublePrecision("retail"),
+    retailQty: integer("retail_qty"),
+    buylist: doublePrecision("buylist"),
+    url: text("url"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("cardkingdom_prices_scryfall_idx").on(table.scryfallId),
+    index("cardkingdom_prices_set_number_idx").on(table.setCode, table.number),
+  ],
+);
+
 export const cardPrices = pgTable(
   "card_prices",
   {
@@ -961,6 +981,8 @@ export const cardPrices = pgTable(
     priceFoil: doublePrecision("price_foil"),
     priceEur: doublePrecision("price_eur"),
     priceEurFoil: doublePrecision("price_eur_foil"),
+    priceCardKingdom: doublePrecision("price_card_kingdom"),
+    priceCardKingdomFoil: doublePrecision("price_card_kingdom_foil"),
     details: jsonb("details").$type<CardPriceDetails>(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

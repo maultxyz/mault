@@ -7,6 +7,8 @@ export const CARD_PRICE_COLUMNS = {
   priceFoil: "price_foil",
   priceEur: "price_eur",
   priceEurFoil: "price_eur_foil",
+  priceCardKingdom: "price_card_kingdom",
+  priceCardKingdomFoil: "price_card_kingdom_foil",
 } as const;
 
 export const CARD_PRICE_DETAIL_KEYS = [
@@ -14,6 +16,8 @@ export const CARD_PRICE_DETAIL_KEYS = [
   "priceRangeFoil",
   "cardmarketPrice",
   "cardmarketPriceFoil",
+  "cardKingdomPrice",
+  "cardKingdomPriceFoil",
 ] as const;
 
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
