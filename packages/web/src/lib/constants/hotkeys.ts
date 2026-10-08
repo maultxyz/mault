@@ -23,6 +23,7 @@ export const HOTKEY_KEY_LABEL_KEYS: Record<string, string> = {
   arrowleft: "hotkeys.keys.left",
   arrowright: "hotkeys.keys.right",
   escape: "hotkeys.keys.escape",
+  delete: "hotkeys.keys.delete",
 };
 
 export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
@@ -55,6 +56,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardCorrect: { group: "cardDetail", keys: [{ key: "c" }] },
   cardToggleFoil: { group: "cardDetail", keys: [{ key: "f" }] },
   cardClose: { group: "cardDetail", keys: [{ key: "escape" }] },
+  cardRemove: { group: "cardDetail", keys: [{ key: "delete" }] },
   reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
   reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
 };

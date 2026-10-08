@@ -10,7 +10,7 @@ import {
 import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -24,9 +24,11 @@ export function DeleteDialog({
   children,
   confirm = { type: "simple" },
   confirmLabel,
+  focusConfirm = false,
   onConfirm,
 }: DeleteDialogProps) {
   const { t } = useTranslation("common");
+  const confirmRef = useRef<HTMLButtonElement>(null);
   const schema = z.object({ input: z.string() }).superRefine((data, ctx) => {
     if (confirm.type === "keyword" && data.input !== "delete") {
       ctx.addIssue({
@@ -93,7 +95,11 @@ export function DeleteDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        initialFocus={
+          focusConfirm && confirm.type === "simple" ? confirmRef : undefined
+        }
+      >
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
@@ -124,6 +130,7 @@ export function DeleteDialog({
               {t("actions.cancel")}
             </Button>
             <Button
+              ref={confirmRef}
               type="submit"
               variant="destructive"
               disabled={confirm.type !== "simple" && !isValid}

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { loadCardDiagnostics } from "@/features/collections/api/collections";
-import { useCollections } from "@/features/collections/api/use-collections";
+import { useCardDetailCollection } from "@/features/cards/api/use-card-detail-scope";
 import type {
   CardTechnicalDetailsProps,
   TechnicalDetailRowProps,
@@ -32,8 +32,8 @@ export function CardTechnicalDetails({
   wasCorrected = false,
 }: CardTechnicalDetailsProps) {
   const { t } = useTranslation("cards");
-  const { activeCollection } = useCollections();
-  const guid = activeCollection?.guid;
+  const collection = useCardDetailCollection();
+  const guid = collection?.guid;
 
   const { data: diagnostics, isLoading } = useQuery({
     queryKey: ["collection-card-diagnostics", guid, scanId],

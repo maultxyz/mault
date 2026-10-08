@@ -1,19 +1,19 @@
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
-import { useCardResultKeyboardNav } from "@/features/cards/api/use-card-result-keyboard-nav";
+import {
+  useCardDetailActions,
+  useCardDetailCollection,
+} from "@/features/cards/api/use-card-detail-scope";
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
-import { EmptyState } from "@/components/empty-state";
-import { CardTileSkeletonGrid } from "@/components/card-tile-skeleton-grid";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
+import { DeleteDialog } from "@/components/delete-dialog";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -24,19 +24,17 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { useCardSearch } from "@/features/cards/api/use-card-search";
 import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
+import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { DetailSection } from "@/features/cards/components/detail-section";
-import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
-import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { cn } from "@/lib/utils";
 import {
   type PlayingCard,
@@ -46,9 +44,7 @@ import {
   IconCheck,
   IconChevronUp,
   IconChevronDown,
-  IconLoader2,
   IconPencil,
-  IconSearch,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -80,9 +76,12 @@ export function CardDetailPanel({
   copyCount,
   reviewMode = false,
   onReviewComplete,
+  footerActions,
+  onRemoveShortcut,
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
+  const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [showOcrRegions, setShowOcrRegions] = useState(false);
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(() => {
     try {
@@ -100,20 +99,16 @@ export function CardDetailPanel({
     } catch {}
   };
   const [viewerOpen, setViewerOpen] = useState(false);
-  const [query, setQuery] = useState("");
-  const [debouncedQuery, setDebouncedQuery] = useState("");
-  const [selectedSet, setSelectedSet] = useState<string | null>("all");
-  const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
-  const { addCard, correctCard, confirmCard, setCardFoilType } =
-    useScannedCards();
+  const { addCard } = useScannedCards();
+  const { correctCard, confirmCard, setCardFoilType } = useCardDetailActions();
   const canConfirm =
     !!scanId && (needsReview || !!alternativeMatches?.length) && !wasCorrected;
-  const { activeCollection } = useCollections();
+  const collection = useCardDetailCollection();
   const foilOptions = useFoilOptions();
   const currentFoilType = foilType ?? (isFoil ? t("foil") : null);
 
@@ -132,47 +127,15 @@ export function CardDetailPanel({
       setCandidates(all);
       setSelectedId(currentCard.id);
       setEditing(false);
-      setQuery("");
-      setDebouncedQuery("");
-      setSelectedSet("all");
     }
   }, [scanId, currentCard, alternativeMatches]);
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
-    useScanImage(activeCollection?.guid, scanId);
+    useScanImage(collection?.guid, scanId);
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
 
-  const {
-    results,
-    sets,
-    totalCount,
-    loading,
-    hasMore,
-    isLoadingMore,
-    loadMore,
-  } = useCardSearch(
-    debouncedQuery,
-    activeCollection?.guid,
-    selectedSet && selectedSet !== "all" ? selectedSet : undefined,
-  );
-
-  const handleInputChange = (value: string) => {
-    setQuery(value);
-    setSelectedSet("all");
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(
-      () => setDebouncedQuery(value),
-      SEARCH_DEBOUNCE_MS,
-    );
-  };
-
-  const stopEditing = useCallback(() => {
-    setEditing(false);
-    setQuery("");
-    setDebouncedQuery("");
-    setSelectedSet("all");
-  }, []);
+  const stopEditing = useCallback(() => setEditing(false), []);
 
   const goToNextInReview = useCallback(() => {
     if (hasNext) onNext?.();
@@ -223,19 +186,7 @@ export function CardDetailPanel({
   const hasMultipleCandidates = candidates.length > 1;
   const isViewing = !!currentCard && !editing;
 
-  const startEditing = () => {
-    setEditing(true);
-    if (selectedCard) handleInputChange(selectedCard.name);
-  };
-
-  const { inputRef, gridRef, onInputKeyDown, onResultKeyDown } =
-    useCardResultKeyboardNav({
-      onSelect: (index, options) => {
-        const card = results[index];
-        if (card) handleSelect(card, options);
-      },
-      onCancel: stopEditing,
-    });
+  const startEditing = () => setEditing(true);
 
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -249,6 +200,9 @@ export function CardDetailPanel({
     goToNextInReview();
   };
 
+  const requestRemove =
+    onRemoveShortcut ?? (onRemove ? () => setConfirmRemoveOpen(true) : undefined);
+
   useHotkeys(
     {
       cardPrevious: isViewing && hasPrev ? onPrev : undefined,
@@ -257,6 +211,7 @@ export function CardDetailPanel({
       cardToggleFoil: isViewing && scanId ? toggleFoil : undefined,
       cardClose: editing ? stopEditing : onClose,
       reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
+      cardRemove: isViewing ? requestRemove : undefined,
     },
     true,
     HOTKEY_PRIORITY_OVERRIDE,
@@ -476,7 +431,8 @@ export function CardDetailPanel({
                     {scanId && (
                       <CardStorageLocationSection
                         scanId={scanId}
-                        collectionGuid={activeCollection?.guid}
+                        collectionGuid={collection?.guid}
+                        canRemove={!footerActions}
                       />
                     )}
 
@@ -552,127 +508,13 @@ export function CardDetailPanel({
               )}
             </>
           ) : (
-            <>
-              {showCapturedImageSlot && (
-                <div className="flex items-center gap-4">
-                  <div className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm shrink-0">
-                    {capturedImage}
-                  </div>
-                  <p className="text-sm text-foreground/70 leading-snug">
-                    {t("cardDetailPanel.searchForCorrectVersion")}
-                  </p>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3 text-foreground/70" />
-                  <Input
-                    placeholder={t("cardPicker.searchPlaceholder")}
-                    value={query}
-                    onChange={(e) => handleInputChange(e.target.value)}
-                    onKeyDown={onInputKeyDown}
-                    ref={inputRef}
-                    className="pl-7"
-                    autoFocus
-                  />
-                </div>
-                {sets.length > 1 && (
-                  <Select
-                    value={selectedSet}
-                    onValueChange={(value) => setSelectedSet(value)}
-                  >
-                    <SelectTrigger className="w-40 shrink-0">
-                      <SelectValue placeholder={t("cardPicker.allSets")}>
-                        {selectedSet === "all"
-                          ? t("cardPicker.allSetsCount", {
-                              count: totalCount,
-                            })
-                          : sets.find((s) => s.code === selectedSet)?.name}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">
-                        {t("cardPicker.allSetsCount", {
-                          count: totalCount,
-                        })}
-                      </SelectItem>
-                      {sets.map((s) => (
-                        <SelectItem key={s.code} value={s.code}>
-                          {s.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-              </div>
-              <ScrollArea className="flex-1 overflow-y-auto min-h-48 border rounded-lg p-1 bg-sidebar">
-                {loading && (
-                  <CardTileSkeletonGrid className="grid-cols-4 @3xl:grid-cols-5 gap-1.5" />
-                )}
-                {!loading &&
-                  results.length === 0 &&
-                  query.trim().length === 0 && (
-                    <p className="text-center text-sm text-foreground/70 py-8">
-                      {t("cardPicker.startTyping")}
-                    </p>
-                  )}
-                {!loading &&
-                  results.length === 0 &&
-                  query.trim().length >= 2 && (
-                    <EmptyState
-                      size="compact"
-                      icon={IconSearch}
-                      title={t("cardPicker.noCardsFound")}
-                    />
-                  )}
-                {!loading && results.length > 0 && (
-                  <div
-                    ref={gridRef}
-                    className="grid grid-cols-4 @3xl:grid-cols-5 gap-1.5"
-                  >
-                    {results.map((card) => (
-                      <Button
-                        key={card.id}
-                        onKeyDown={onResultKeyDown}
-                        variant="ghost"
-                        className="relative w-full h-auto aspect-[2.5/3.5] p-0 rounded-md overflow-hidden group"
-                        onClick={(e) =>
-                          handleSelect(card, { stay: e.shiftKey })
-                        }
-                      >
-                        {card.image?.small ? (
-                          <img
-                            src={card.image.small}
-                            alt={card.name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-10 h-14 bg-muted rounded-md shrink-0" />
-                        )}
-                        <div className="absolute bottom-0 inset-x-0 bg-black/70 text-white text-2xs leading-tight px-1 py-0.5 text-center truncate">
-                          {card.set.toUpperCase()} #{card.collectorNumber}
-                        </div>
-                      </Button>
-                    ))}
-                  </div>
-                )}
-                {!loading && hasMore && (
-                  <div className="flex justify-center py-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={loadMore}
-                      disabled={isLoadingMore}
-                    >
-                      {isLoadingMore && (
-                        <IconLoader2 className="animate-spin" />
-                      )}
-                      {t("cardPicker.loadMore")}
-                    </Button>
-                  </div>
-                )}
-              </ScrollArea>
-            </>
+            <CardCorrectionSearch
+              collectionGuid={collection?.guid}
+              initialQuery={selectedCard?.name}
+              capturedImage={showCapturedImageSlot ? capturedImage : undefined}
+              onSelect={handleSelect}
+              onCancel={stopEditing}
+            />
           )}
         </div>
         {currentCard && !editing ? (
@@ -700,10 +542,14 @@ export function CardDetailPanel({
                 {t("cardPicker.correctCard")}
                 <HotkeyHint id="cardCorrect" />
               </Button>
-              <Button variant="destructive" onClick={() => onRemove?.()}>
-                <IconTrash className="size-4" />
-                {t("cardPicker.remove")}
-              </Button>
+              {footerActions}
+              {onRemove && (
+                <Button variant="destructive" onClick={onRemove}>
+                  <IconTrash className="size-4" />
+                  {t("cardPicker.remove")}
+                  <HotkeyHint id="cardRemove" />
+                </Button>
+              )}
             </div>
           </div>
         ) : (
@@ -731,6 +577,17 @@ export function CardDetailPanel({
           </div>
         )}
       </div>
+      {onRemove && (
+        <DeleteDialog
+          open={confirmRemoveOpen}
+          onOpenChange={setConfirmRemoveOpen}
+          title={t("removeDialog.title", { name: cardName })}
+          description={t("removeDialog.description")}
+          confirmLabel={t("cardPicker.remove")}
+          focusConfirm
+          onConfirm={onRemove}
+        />
+      )}
     </div>
   );
 }

@@ -66,7 +66,8 @@
   },
   "toasts": {
     "failed": "Couldn't update storage locations",
-    "cardRemoved": "Card removed from its location"
+    "cardRemoved": "Card removed from its location",
+    "correctFailed": "Couldn't correct the card"
   },
   "removeDialog": {
     "title": "Remove {{name}} from {{location}}?",
@@ -88,5 +89,9 @@
     "link": "Upgrade",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
     "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs Business."
+  },
+  "review": {
+    "start": "Review cards",
+    "startTitle": "Go through every card in this location one by one, in box order"
   }
 }

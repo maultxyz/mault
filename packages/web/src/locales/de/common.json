@@ -163,7 +163,8 @@
       "left": "←",
       "right": "→",
       "escape": "Esc",
-      "enter": "Enter"
+      "enter": "Enter",
+      "delete": "Entf"
     },
     "groups": {
       "general": "Allgemein",
@@ -194,6 +195,7 @@
       "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt, Umschalt Enter bleibt beim Prüfen auf der Karte)",
       "cardToggleFoil": "Foil umschalten (erste Foil-Art oder zurück zu Nicht-Foil)",
       "cardClose": "Karte schließen oder Korrektur abbrechen",
+      "cardRemove": "Karte entfernen (aus ihrer Box, wenn aus dem Lager geöffnet)",
       "reviewStart": "Karten einzeln prüfen",
       "reviewAccept": "Beim Prüfen: Karte stimmt, weiter"
     }

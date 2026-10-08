@@ -66,7 +66,8 @@
   },
   "toasts": {
     "failed": "Lagerorte konnten nicht aktualisiert werden",
-    "cardRemoved": "Karte aus ihrem Lagerort entfernt"
+    "cardRemoved": "Karte aus ihrem Lagerort entfernt",
+    "correctFailed": "Die Karte konnte nicht korrigiert werden"
   },
   "removeDialog": {
     "title": "{{name}} aus {{location}} entfernen?",
@@ -88,5 +89,9 @@
     "link": "Upgraden",
     "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
     "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht Business."
+  },
+  "review": {
+    "start": "Karten prüfen",
+    "startTitle": "Alle Karten dieses Lagerorts nacheinander in Box-Reihenfolge durchgehen"
   }
 }

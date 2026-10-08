@@ -66,7 +66,8 @@
   },
   "toasts": {
     "failed": "Impossible de mettre à jour les emplacements",
-    "cardRemoved": "Carte retirée de son emplacement"
+    "cardRemoved": "Carte retirée de son emplacement",
+    "correctFailed": "Impossible de corriger la carte"
   },
   "removeDialog": {
     "title": "Retirer {{name}} de {{location}} ?",
@@ -88,5 +89,9 @@
     "link": "Passer à Business",
     "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
     "lockedWithLocations": "Vous pouvez toujours parcourir, rechercher et modifier vos emplacements, mais y enregistrer de nouvelles cartes nécessite Business."
+  },
+  "review": {
+    "start": "Vérifier les cartes",
+    "startTitle": "Parcourir toutes les cartes de cet emplacement une par une, dans l'ordre de la boîte"
   }
 }

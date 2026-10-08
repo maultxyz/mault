@@ -163,7 +163,8 @@
       "left": "←",
       "right": "→",
       "escape": "Esc",
-      "enter": "Enter"
+      "enter": "Enter",
+      "delete": "Del"
     },
     "groups": {
       "general": "General",
@@ -194,6 +195,7 @@
       "cardCorrect": "Correct the card (arrows pick a result, Enter selects, Shift Enter stays while reviewing)",
       "cardToggleFoil": "Toggle foil (first foil type, or back to non-foil)",
       "cardClose": "Close the card, or cancel correcting",
+      "cardRemove": "Remove the card (from its box when opened from Storage)",
       "reviewStart": "Start reviewing cards one by one",
       "reviewAccept": "While reviewing: card looks right, go to next"
     }

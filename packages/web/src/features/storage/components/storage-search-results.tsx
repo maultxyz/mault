@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 export function StorageSearchResults({
   query,
   onOpenLocation,
+  onOpenCard,
 }: StorageSearchResultsProps) {
   const { t } = useTranslation("storage");
   const { data: results = [], isPending } = useQuery(
@@ -37,7 +38,11 @@ export function StorageSearchResults({
           ? t("search.limited", { count: results.length })
           : t("search.count", { count: results.length })}
       </p>
-      <StorageCardList entries={results} onOpenLocation={onOpenLocation} />
+      <StorageCardList
+        entries={results}
+        onOpenLocation={onOpenLocation}
+        onOpenCard={onOpenCard}
+      />
     </section>
   );
 }
