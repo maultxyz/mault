@@ -51,7 +51,7 @@ import {
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type {
   CardCorrectionOptions,
@@ -142,9 +142,18 @@ export function CardDetailPanel({
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
 
-  const { results, loading, hasMore, isLoadingMore, loadMore } = useCardSearch(
+  const {
+    results,
+    sets,
+    totalCount,
+    loading,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+  } = useCardSearch(
     debouncedQuery,
     activeCollection?.guid,
+    selectedSet && selectedSet !== "all" ? selectedSet : undefined,
   );
 
   const handleInputChange = (value: string) => {
@@ -208,21 +217,6 @@ export function CardDetailPanel({
     [scanId, correctCard],
   );
 
-  const sets = useMemo(() => {
-    const setMap = new Map<string, string>();
-    for (const card of results) {
-      if (!setMap.has(card.set)) setMap.set(card.set, card.setName);
-    }
-    return Array.from(setMap.entries())
-      .map(([code, name]) => ({ code, name }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [results]);
-
-  const filteredResults = useMemo(() => {
-    if (selectedSet === "all") return results;
-    return results.filter((card) => card.set === selectedSet);
-  }, [results, selectedSet]);
-
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
   const hasMultipleCandidates = candidates.length > 1;
@@ -236,7 +230,7 @@ export function CardDetailPanel({
   const { inputRef, gridRef, onInputKeyDown, onResultKeyDown } =
     useCardResultKeyboardNav({
       onSelect: (index, options) => {
-        const card = filteredResults[index];
+        const card = results[index];
         if (card) handleSelect(card, options);
       },
       onCancel: stopEditing,
@@ -585,7 +579,7 @@ export function CardDetailPanel({
                       <SelectValue placeholder={t("cardPicker.allSets")}>
                         {selectedSet === "all"
                           ? t("cardPicker.allSetsCount", {
-                              count: results.length,
+                              count: totalCount,
                             })
                           : sets.find((s) => s.code === selectedSet)?.name}
                       </SelectValue>
@@ -593,7 +587,7 @@ export function CardDetailPanel({
                     <SelectContent>
                       <SelectItem value="all">
                         {t("cardPicker.allSetsCount", {
-                          count: results.length,
+                          count: totalCount,
                         })}
                       </SelectItem>
                       {sets.map((s) => (
@@ -610,14 +604,14 @@ export function CardDetailPanel({
                   <CardTileSkeletonGrid className="grid-cols-4 @3xl:grid-cols-5 gap-1.5" />
                 )}
                 {!loading &&
-                  filteredResults.length === 0 &&
+                  results.length === 0 &&
                   query.trim().length === 0 && (
                     <p className="text-center text-sm text-foreground/70 py-8">
                       {t("cardPicker.startTyping")}
                     </p>
                   )}
                 {!loading &&
-                  filteredResults.length === 0 &&
+                  results.length === 0 &&
                   query.trim().length >= 2 && (
                     <EmptyState
                       size="compact"
@@ -625,12 +619,12 @@ export function CardDetailPanel({
                       title={t("cardPicker.noCardsFound")}
                     />
                   )}
-                {!loading && filteredResults.length > 0 && (
+                {!loading && results.length > 0 && (
                   <div
                     ref={gridRef}
                     className="grid grid-cols-4 @3xl:grid-cols-5 gap-1.5"
                   >
-                    {filteredResults.map((card) => (
+                    {results.map((card) => (
                       <Button
                         key={card.id}
                         onKeyDown={onResultKeyDown}

@@ -24,6 +24,7 @@ export const searchCardRoute = new Hono<AppEnv>().get(
       resolved,
       query,
       Number.isFinite(offset) && offset > 0 ? offset : 0,
+      c.req.query("set") || undefined,
     );
     return c.json(result);
   },
