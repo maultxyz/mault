@@ -542,3 +542,63 @@ export async function loadCardStats(
   };
   return { all: row.all_stats, filtered: row.filtered_stats };
 }
+
+function binWindowsJoin(collectionId: number, bins: BinWindow[]): SQL {
+  return sql`
+    FROM jsonb_to_recordset(${JSON.stringify(bins)}::jsonb)
+      AS b("binNumber" int, "lastEmptiedAt" float8)
+    JOIN collection_cards cc
+      ON cc.collection_id = ${collectionId}
+      AND cc.bin_number = b."binNumber"
+      AND (
+        b."lastEmptiedAt" IS NULL
+        OR cc.scanned_at > to_timestamp(b."lastEmptiedAt" / 1000.0) AT TIME ZONE 'UTC'
+      )`;
+}
+
+export async function loadBinCounts(
+  tx: Transaction,
+  collectionId: number,
+  bins: BinWindow[],
+) {
+  if (bins.length === 0) return [];
+  const result = await tx.execute(sql`
+    SELECT b."binNumber" AS bin_number, count(cc.id)::int AS count
+    ${binWindowsJoin(collectionId, bins)}
+    GROUP BY b."binNumber"
+  `);
+  return (
+    result.rows as unknown as { bin_number: number; count: number }[]
+  ).map((row) => ({ binNumber: row.bin_number, count: row.count }));
+}
+
+export async function loadBinContents(
+  tx: Transaction,
+  collectionId: number,
+  bins: BinWindow[],
+) {
+  if (bins.length === 0) return [];
+  const result = await tx.execute(sql`
+    SELECT cc.guid::text AS guid, cc.bin_number, cc.card, cc.is_foil, cc.foil_type,
+      ${SCANNED_AT_MS} AS scanned_at_ms
+    ${binWindowsJoin(collectionId, bins)}
+    ORDER BY cc.scanned_at DESC, cc.id DESC
+  `);
+  return (
+    result.rows as unknown as {
+      guid: string;
+      bin_number: number;
+      card: GroupedScannedCard["card"];
+      is_foil: boolean;
+      foil_type: string | null;
+      scanned_at_ms: number;
+    }[]
+  ).map((row) => ({
+    scanId: row.guid,
+    binNumber: row.bin_number,
+    scannedAt: row.scanned_at_ms,
+    card: row.card,
+    isFoil: row.is_foil,
+    foilType: row.foil_type ?? undefined,
+  }));
+}
