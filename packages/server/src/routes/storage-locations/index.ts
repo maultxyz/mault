@@ -1,3 +1,4 @@
+import { cardWithStoredPricesSql } from "../../lib/card-price-sql";
 import {
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
@@ -46,7 +47,7 @@ const router = new Hono<AppEnv>()
           .select({
             scanId: collectionCards.guid,
             position: collectionCards.locationPosition,
-            card: sql<PlayingCardWithDistance>`${collectionCards.card} - 'raw'`,
+            card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
             isFoil: collectionCards.isFoil,
             foilType: collectionCards.foilType,
             collectionGuid: collections.guid,
@@ -209,7 +210,7 @@ const router = new Hono<AppEnv>()
           .select({
             scanId: collectionCards.guid,
             position: collectionCards.locationPosition,
-            card: sql<PlayingCardWithDistance>`${collectionCards.card} - 'raw'`,
+            card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
             isFoil: collectionCards.isFoil,
             foilType: collectionCards.foilType,
             collectionGuid: collections.guid,

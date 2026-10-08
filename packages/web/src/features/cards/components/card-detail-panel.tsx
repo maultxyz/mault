@@ -458,7 +458,7 @@ export function CardDetailPanel({
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
                     <DetailSection title={t("cardDetailPanel.prices")}>
-                      <CardPriceDetails card={selectedCard} />
+                      <CardPriceDetails card={selectedCard} isFoil={isFoil} />
                     </DetailSection>
 
                     <DetailSection title={t("cardDetailPanel.details")}>

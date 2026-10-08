@@ -36,10 +36,14 @@ export async function readCardsPage(
       page,
       COLLECTION_CARDS_PAGE_SIZE,
     );
-    return { gameKey: collection.gameKey, data };
+    return { gameKey: collection.gameKey, lang: collection.lang, data };
   });
   if (!result) return null;
-  const items = await applyCardPricesToScans(result.gameKey, result.data.items);
+  const items = await applyCardPricesToScans(
+    result.gameKey,
+    result.lang,
+    result.data.items,
+  );
   return {
     ...result.data,
     items,
