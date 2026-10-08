@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "pause_scanning_on_deploy" boolean DEFAULT true NOT NULL;

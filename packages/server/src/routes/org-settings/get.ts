@@ -33,6 +33,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
             sessionWrappedEnabled: row?.sessionWrappedEnabled ?? true,
             ocrEnabled: row?.ocrEnabled ?? false,
             correctionBinPrompt: row?.correctionBinPrompt ?? true,
+            pauseScanningOnDeploy: row?.pauseScanningOnDeploy ?? true,
             correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
               row?.correctionAutoCloseSeconds,
             ),

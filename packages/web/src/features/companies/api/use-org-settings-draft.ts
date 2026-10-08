@@ -24,6 +24,7 @@ function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftValues {
     sessionWrappedEnabled: settings.sessionWrappedEnabled,
     ocrEnabled: settings.ocrEnabled,
     correctionBinPrompt: settings.correctionBinPrompt,
+    pauseScanningOnDeploy: settings.pauseScanningOnDeploy,
     correctionAutoCloseSeconds: settings.correctionAutoCloseSeconds,
   };
 }
