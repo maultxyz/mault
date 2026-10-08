@@ -162,7 +162,8 @@
       "shift": "Maj",
       "left": "←",
       "right": "→",
-      "escape": "Échap"
+      "escape": "Échap",
+      "enter": "Entrée"
     },
     "groups": {
       "general": "Général",
@@ -191,6 +192,7 @@
       "cardPrevious": "Carte précédente",
       "cardNext": "Carte suivante",
       "cardCorrect": "Corriger la carte (les flèches choisissent un résultat, Entrée valide, Maj Entrée reste sur la carte pendant la vérification)",
+      "cardToggleFoil": "Basculer en foil (premier type de foil, ou retour en non-foil)",
       "cardClose": "Fermer la carte ou annuler la correction",
       "reviewStart": "Vérifier les cartes une par une",
       "reviewAccept": "Pendant la vérification : la carte est bonne, suivante"

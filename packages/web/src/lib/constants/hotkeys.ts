@@ -19,6 +19,7 @@ export const HOTKEY_BLOCKING_OVERLAY_SELECTOR =
 
 export const HOTKEY_KEY_LABEL_KEYS: Record<string, string> = {
   " ": "hotkeys.keys.space",
+  enter: "hotkeys.keys.enter",
   arrowleft: "hotkeys.keys.left",
   arrowright: "hotkeys.keys.right",
   escape: "hotkeys.keys.escape",
@@ -52,9 +53,10 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardPrevious: { group: "cardDetail", keys: [{ key: "arrowleft" }] },
   cardNext: { group: "cardDetail", keys: [{ key: "arrowright" }] },
   cardCorrect: { group: "cardDetail", keys: [{ key: "c" }] },
+  cardToggleFoil: { group: "cardDetail", keys: [{ key: "f" }] },
   cardClose: { group: "cardDetail", keys: [{ key: "escape" }] },
   reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
-  reviewAccept: { group: "cardDetail", keys: [{ key: " " }] },
+  reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
 };
 
 export const HOTKEY_ROUTES = {

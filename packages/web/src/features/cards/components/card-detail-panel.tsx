@@ -242,6 +242,13 @@ export function CardDetailPanel({
       onCancel: stopEditing,
     });
 
+  const foilTriggerRef = useRef<HTMLButtonElement>(null);
+
+  const toggleFoil = () => {
+    if (!scanId) return;
+    setCardFoilType(scanId, currentFoilType ? null : foilOptions[0]);
+  };
+
   const acceptInReview = () => {
     if (canConfirm && scanId) confirmCard(scanId);
     goToNextInReview();
@@ -252,6 +259,7 @@ export function CardDetailPanel({
       cardPrevious: isViewing && hasPrev ? onPrev : undefined,
       cardNext: isViewing && hasNext ? onNext : undefined,
       cardCorrect: isViewing ? startEditing : undefined,
+      cardToggleFoil: isViewing && scanId ? toggleFoil : undefined,
       cardClose: editing ? stopEditing : onClose,
       reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
     },
@@ -495,8 +503,14 @@ export function CardDetailPanel({
                               }
                             }}
                             disabled={!scanId}
+                            onOpenChangeComplete={(open) => {
+                              if (!open) foilTriggerRef.current?.blur();
+                            }}
                           >
-                            <SelectTrigger className="w-40">
+                            <SelectTrigger
+                              ref={foilTriggerRef}
+                              className="w-40"
+                            >
                               <SelectValue placeholder={t("foilNone")} />
                             </SelectTrigger>
                             <SelectContent>
