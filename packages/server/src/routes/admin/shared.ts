@@ -4,6 +4,7 @@ import { cardImageVectors } from "../../db/schema";
 import { SYNC_SOURCES } from "../../lib/sync-job";
 import { toPortraitCardImage } from "../../lib/card-image";
 import { vectorizeCardImage } from "../../lib/vectorize";
+import { storedCollectorNumber } from "../../lib/card-search/collector-number";
 
 export async function syncOneCard(
   gameKey: string,
@@ -52,6 +53,12 @@ export async function syncOneCard(
     Buffer.from(await imageRes.arrayBuffer()),
   );
   const { embedding } = await vectorizeCardImage(buffer);
+  const collectorNumber = storedCollectorNumber(
+    gameKey,
+    lang,
+    cardId,
+    JSON.parse(card.data),
+  );
 
   await db
     .insert(cardImageVectors)
@@ -61,6 +68,7 @@ export async function syncOneCard(
       lang,
       name: card.name,
       setCode: card.setCode,
+      collectorNumber,
       embedding,
       data: sql`${card.data}::jsonb`,
     })
@@ -73,6 +81,7 @@ export async function syncOneCard(
       set: {
         name: card.name,
         setCode: card.setCode,
+        collectorNumber,
         embedding,
         data: sql`${card.data}::jsonb`,
         updatedAt: new Date(),

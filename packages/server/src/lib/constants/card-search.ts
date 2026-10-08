@@ -16,6 +16,12 @@ export const DUPLICATE_PRINTING_MAX_DISTANCE = 0.02;
 
 export const STORED_SEARCH_LIMIT = 60;
 
+export const COLLECTOR_NUMBER_BACKFILL_BATCH_SIZE = 1000;
+
+export const PRINTED_TOTAL_NUMBER_PATTERN = /^#?([a-z0-9-]+)\/\d+$/i;
+export const SET_AND_NUMBER_PATTERN = /^([a-z0-9]+)[\s#/-]+#?([a-z0-9]+)$/i;
+export const SINGLE_TOKEN_PATTERN = /^#?([a-z0-9-]+)$/i;
+
 export const FAB_SEARCH_CARD_LIMIT = 12;
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {

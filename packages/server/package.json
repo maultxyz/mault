@@ -15,6 +15,7 @@
     "sync:prices": "tsx --env-file ../../.env scripts/sync-prices.ts",
     "post:platform-stats": "tsx --env-file ../../.env scripts/post-platform-stats.ts",
     "migrate:scan-images": "tsx --env-file ../../.env scripts/migrate-scan-images.ts",
+    "backfill:collector-numbers": "tsx --env-file ../../.env scripts/backfill-collector-numbers.ts",
     "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts",
     "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts",
     "backfill:devices": "tsx --env-file ../../.env scripts/backfill-devices.ts",
