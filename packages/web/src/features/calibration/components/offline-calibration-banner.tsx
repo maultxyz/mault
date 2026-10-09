@@ -1,14 +1,6 @@
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { OfflineCalibrationWarningDialog } from "@/features/calibration/components/offline-calibration-warning-dialog";
 import type { OfflineCalibrationBannerProps } from "@/lib/interfaces/calibration";
 import { IconAlertTriangle, IconPlugConnectedX } from "@tabler/icons-react";
 import { useState } from "react";
@@ -56,35 +48,11 @@ export function OfflineCalibrationBanner({
         </Callout>
       )}
 
-      <Dialog open={warningOpen} onOpenChange={setWarningOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t("offlineCalibration.warningTitle")}</DialogTitle>
-            <DialogDescription>
-              {t("offlineCalibration.warningDescription")}
-            </DialogDescription>
-          </DialogHeader>
-          <ul className="flex list-disc flex-col gap-1 pl-5 text-sm">
-            <li>{t("offlineCalibration.warningNoPreview")}</li>
-            <li>{t("offlineCalibration.warningDamage")}</li>
-            <li>{t("offlineCalibration.warningSync")}</li>
-          </ul>
-          <DialogFooter>
-            <DialogClose render={<Button variant="outline" />}>
-              {t("offlineCalibration.cancel")}
-            </DialogClose>
-            <Button
-              variant="destructive"
-              onClick={() => {
-                onStart();
-                setWarningOpen(false);
-              }}
-            >
-              {t("offlineCalibration.accept")}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <OfflineCalibrationWarningDialog
+        open={warningOpen}
+        onOpenChange={setWarningOpen}
+        onAccept={onStart}
+      />
     </>
   );
 }

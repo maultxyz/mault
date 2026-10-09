@@ -253,6 +253,7 @@
     }
   },
   "offlineCalibration": {
+    "wizardBody": "Nothing moves while you adjust, so you can't check these positions. The sensor check and self-test are skipped, and the saved values are sent to the sorter the next time it connects.",
     "notConnectedTitle": "No sorter connected",
     "notConnectedBody": "Connect a sorter to calibrate it live, or edit its saved calibration without one.",
     "start": "Calibrate without a sorter",

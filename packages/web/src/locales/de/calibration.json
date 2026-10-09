@@ -253,6 +253,7 @@
     }
   },
   "offlineCalibration": {
+    "wizardBody": "Beim Einstellen bewegt sich nichts, daher kannst du diese Positionen nicht prüfen. Sensorprüfung und Selbsttest werden übersprungen, und die gespeicherten Werte werden beim nächsten Verbinden an den Sortierer gesendet.",
     "notConnectedTitle": "Kein Sortierer verbunden",
     "notConnectedBody": "Verbinde einen Sortierer, um ihn live zu kalibrieren, oder bearbeite seine gespeicherte Kalibrierung ohne ihn.",
     "start": "Ohne Sortierer kalibrieren",

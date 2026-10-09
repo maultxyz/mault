@@ -3,6 +3,7 @@ import {
   saveDevice,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import type {
@@ -23,6 +24,7 @@ export function SetupWizardProvider({
 }) {
   const { t } = useTranslation("calibration");
   const { isConnected } = useSerial();
+  const { isOffline } = useOfflineCalibration();
   const device = useDevice();
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
@@ -67,7 +69,10 @@ export function SetupWizardProvider({
   return (
     <SetupWizardContext
       value={{
-        isOpen: isConnected && (manuallyOpen || needsSetup),
+        isOpen:
+          (isConnected && (manuallyOpen || needsSetup)) ||
+          (isOffline && manuallyOpen),
+        isOffline,
         open,
         close,
         forceSetup,
