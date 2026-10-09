@@ -176,6 +176,7 @@
       "showShortcuts": "Show keyboard shortcuts",
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
+      "dismissToasts": "Clear all notifications",
       "goScanner": "Go to scanner",
       "goCollections": "Go to collections",
       "goMonitor": "Go to monitor",
