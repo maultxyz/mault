@@ -19,7 +19,8 @@
     "alerts": "Meldungen",
     "sounds": "Sounds",
     "integrations": "Integrationen",
-    "more": "Mehr"
+    "more": "Mehr",
+    "stats": "Statistiken"
   },
   "alerts": {
     "dismiss": "Verwerfen",

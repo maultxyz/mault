@@ -584,6 +584,7 @@
     "activityPoint_other": "{{date}}: {{count}} Karten",
     "today": "Heute",
     "mostValuable": "Wertvollste",
-    "recentlyScanned": "Zuletzt gescannt"
+    "recentlyScanned": "Zuletzt gescannt",
+    "seeAllStats": "Alle Statistiken"
   }
 }

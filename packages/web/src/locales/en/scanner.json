@@ -584,6 +584,7 @@
     "activityPoint_other": "{{date}}: {{count}} cards",
     "today": "Today",
     "mostValuable": "Most valuable",
-    "recentlyScanned": "Recently scanned"
+    "recentlyScanned": "Recently scanned",
+    "seeAllStats": "See all stats"
   }
 }

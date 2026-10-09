@@ -13,6 +13,7 @@ import type {
   MobileHomeOverviewProps,
   ScanActivityChartProps,
 } from "@/lib/interfaces/home";
+import { STATS_PATH } from "@/lib/constants/stats";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -197,9 +198,17 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
 
       {data.scansByDay.length > 1 && (
         <section className={MOBILE_SECTION_CLASS}>
-          <h2 className={MOBILE_SECTION_LABEL_CLASS}>
-            {t("home.activityTitle")}
-          </h2>
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className={MOBILE_SECTION_LABEL_CLASS}>
+              {t("home.activityTitle")}
+            </h2>
+            <Link
+              to={STATS_PATH}
+              className="text-xs font-medium text-primary dark:text-sidebar-primary"
+            >
+              {t("home.seeAllStats")}
+            </Link>
+          </div>
           <ScanActivityChart days={data.scansByDay} />
         </section>
       )}

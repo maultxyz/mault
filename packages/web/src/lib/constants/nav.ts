@@ -1,3 +1,4 @@
+import { STATS_PATH } from "@/lib/constants/stats";
 import { SHOP_URL } from "@/lib/constants/links";
 
 export const NAV_SUBITEMS_LIMIT = 5;
@@ -36,7 +37,7 @@ export const MOBILE_SEARCH_INPUT_CLASS =
   "h-9 rounded-lg border-transparent bg-muted pl-9 dark:bg-muted";
 export const MOBILE_ICON_BUTTON_CLASS = "size-9";
 export const THEME_OPTIONS = ["light", "dark", "system"] as const;
-export const MOBILE_MORE_PATHS = ["/app/account", "/app/health"];
+export const MOBILE_MORE_PATHS = ["/app/account", "/app/health", STATS_PATH];
 export const MOBILE_SCAN_PATH = "/app/scan";
 export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 
