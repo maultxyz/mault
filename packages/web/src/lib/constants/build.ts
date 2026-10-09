@@ -1,4 +1,16 @@
-import type { BoardInfo, BoardType } from "@/lib/interfaces/build";
+import {
+  IconBluetooth,
+  IconCpu,
+  IconLayoutBoard,
+  IconUsb,
+  type Icon,
+} from "@tabler/icons-react";
+import type {
+  BoardInfo,
+  BoardType,
+  BuildSectionNavItem,
+  Esp32MountType,
+} from "@/lib/interfaces/build";
 
 export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
 
@@ -49,3 +61,26 @@ export const BUILD_ANCHOR_HIGHLIGHT_CLASSES = [
   "rounded-md",
 ];
 export const BOM_ANCHOR_PREFIX = "parts-";
+
+export const BUILD_SETUP_ANCHOR = "setup";
+
+export const BUILD_SECTION_NAV: BuildSectionNavItem[] = [
+  { id: BUILD_SETUP_ANCHOR, labelKey: "hero.nav.setup" },
+  { id: "parts", labelKey: "hero.nav.parts" },
+  { id: "wiring", labelKey: "hero.nav.wiring" },
+  { id: "assembly", labelKey: "hero.nav.assembly" },
+];
+
+export const BOARD_TYPES: BoardType[] = ["uno_r4", "esp32"];
+
+export const ESP32_MOUNT_TYPES: Esp32MountType[] = ["breakout", "bare"];
+
+export const BOARD_ICONS: Record<BoardType, Icon> = {
+  uno_r4: IconUsb,
+  esp32: IconBluetooth,
+};
+
+export const ESP32_MOUNT_ICONS: Record<Esp32MountType, Icon> = {
+  breakout: IconLayoutBoard,
+  bare: IconCpu,
+};

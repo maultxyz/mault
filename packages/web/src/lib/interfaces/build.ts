@@ -79,3 +79,28 @@ export interface ModuleCountContextValue {
   moduleCount: number;
   setModuleCount: (value: number) => void;
 }
+
+export interface BuildOptionCardProps {
+  icon: Icon;
+  title: string;
+  description: string;
+  selected: boolean;
+  disabled?: boolean;
+  onSelect: () => void;
+}
+
+export interface BuildSetupStepProps {
+  step: number;
+  label: string;
+  hint?: ReactNode;
+  children: ReactNode;
+}
+
+export interface BuildSectionNavItem {
+  id: string;
+  labelKey:
+    | "hero.nav.setup"
+    | "hero.nav.parts"
+    | "hero.nav.wiring"
+    | "hero.nav.assembly";
+}
