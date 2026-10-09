@@ -315,7 +315,13 @@ export function ScannedCardsProvider({
         fieldDefinitionsRef.current,
         autoAssignFieldRef.current
           ? undefined
-          : (bin) => countCopiesInBin(binContentsRef.current, bin, card.id),
+          : (bin) =>
+              countCopiesInBin(
+                binContentsRef.current,
+                bin,
+                card,
+                fieldDefinitionsRef.current,
+              ),
         (bin) => countCardsLocally(bin.binNumber),
       );
     },

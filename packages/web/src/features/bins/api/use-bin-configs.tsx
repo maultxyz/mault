@@ -196,6 +196,7 @@ export function BinConfigsProvider({
       lowMatchPercent,
       cardLimit,
       maxCopies,
+      maxCopiesBy,
       isDisabled,
     }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
@@ -215,6 +216,8 @@ export function BinConfigsProvider({
             lowMatchPercent: isCatchAll ? (lowMatchPercent ?? null) : null,
             cardLimit: cardLimit ?? null,
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
+            maxCopiesBy:
+              isCatchAll || maxCopies == null ? null : (maxCopiesBy ?? null),
             isDisabled:
               !isCatchAll &&
               (isDisabled ?? (idx >= 0 ? set.bins[idx].isDisabled : false)) ===

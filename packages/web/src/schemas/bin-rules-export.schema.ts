@@ -32,6 +32,7 @@ const exportedBinSchema = z.object({
     .max(CONDITION_NUMERIC_MAX)
     .nullable()
     .default(null),
+  maxCopiesBy: z.string().trim().min(1).nullable().default(null),
   isDisabled: z.boolean().default(false),
 });
 

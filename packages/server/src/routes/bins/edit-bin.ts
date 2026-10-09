@@ -10,6 +10,7 @@ import {
   toIsDisabled,
   toLowMatchPercent,
   toMaxCopies,
+  toMaxCopiesBy,
   toOverridePriority,
   activeBinSetWhere,
 } from "./shared";
@@ -30,6 +31,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       lowMatchPercent,
       cardLimit,
       maxCopies,
+      maxCopiesBy,
       isDisabled,
     } = await c.req.json<{
       rules: BinRuleGroup;
@@ -39,6 +41,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       lowMatchPercent?: number | null;
       cardLimit?: number | null;
       maxCopies?: number | null;
+      maxCopiesBy?: string | null;
       isDisabled?: boolean;
     }>();
     try {
@@ -85,6 +88,11 @@ export const editBinRoute = new Hono<AppEnv>().put(
               lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
               cardLimit: cardLimit ?? null,
               maxCopies: toMaxCopies(maxCopies, isCatchAll),
+              maxCopiesBy: toMaxCopiesBy(
+                maxCopiesBy,
+                isCatchAll,
+                toMaxCopies(maxCopies, isCatchAll),
+              ),
               isDisabled: toIsDisabled(
                 isDisabled ?? existing.isDisabled,
                 isCatchAll,
@@ -106,6 +114,11 @@ export const editBinRoute = new Hono<AppEnv>().put(
             lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
             cardLimit: cardLimit ?? null,
             maxCopies: toMaxCopies(maxCopies, isCatchAll),
+            maxCopiesBy: toMaxCopiesBy(
+              maxCopiesBy,
+              isCatchAll,
+              toMaxCopies(maxCopies, isCatchAll),
+            ),
             isDisabled: toIsDisabled(isDisabled, isCatchAll),
             binSet: activeBinSet.id,
             orgId,
@@ -127,6 +140,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             lowMatchPercent: true,
             cardLimit: true,
             maxCopies: true,
+            maxCopiesBy: true,
             isDisabled: true,
             lastEmptiedAt: true,
           },
@@ -146,6 +160,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               lowMatchPercent: b.lowMatchPercent,
               cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
+              maxCopiesBy: b.maxCopiesBy,
               isDisabled: b.isDisabled,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),

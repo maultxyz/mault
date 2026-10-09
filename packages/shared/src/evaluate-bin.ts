@@ -356,11 +356,15 @@ export function getCardsInBin(
 
 export function countCopiesInBin(
   cards: { binNumber?: number | null; scannedAt: number; card: SourceCard }[],
-  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,
-  cardId: string,
+  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt" | "maxCopiesBy">,
+  card: SourceCard,
+  fieldDefinitions: FieldMeta[],
 ): number {
+  const copiesBy = bin.maxCopiesBy ?? REPACK_UNIQUE_BY_PRINTING;
+  const key = repackDuplicateKey(card, copiesBy, fieldDefinitions);
+  if (key == null) return 0;
   return getCardsInBin(cards, bin).filter(
-    (c) => (c as { id?: unknown }).id === cardId,
+    (c) => repackDuplicateKey(c, copiesBy, fieldDefinitions) === key,
   ).length;
 }
 
