@@ -15,6 +15,7 @@ import {
   feederConfigs,
   moduleConfigAudit,
   moduleConfigs,
+  orgApiKeys,
   orgBilling,
   orgSettings,
   unmatchedCards,
@@ -68,6 +69,7 @@ export async function purgeOrgData(
   await assertNoActiveSubscription(tx, orgId);
 
   await tx.delete(collectionCards).where(eq(collectionCards.orgId, orgId));
+  await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
   await tx.delete(storageLocations).where(eq(storageLocations.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));

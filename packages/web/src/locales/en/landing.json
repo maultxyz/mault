@@ -134,7 +134,8 @@
       "soundRules": "Unlimited sound rules with your own uploaded clips",
       "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
       "chaosSort": "Chaos sort, the fastest way to put away a big pile",
-      "storage": "Storage locations: record which box every card is in and where, then search across them"
+      "storage": "Storage locations: record which box every card is in and where, then search across them",
+      "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders"
     }
   },
   "cta": {

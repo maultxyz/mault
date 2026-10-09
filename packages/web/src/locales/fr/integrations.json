@@ -94,5 +94,43 @@
   "draft": {
     "saved": "Paramètres Discord enregistrés.",
     "saveFailed": "Certains paramètres Discord n'ont pas pu être enregistrés. Réessaie."
+  },
+  "apiKeys": {
+    "heading": "Clés API",
+    "description": "Permettez à vos propres systèmes, comme une boutique en ligne, de lire les cartes et les emplacements de cette organisation. Les clés appartiennent à l'organisation, pas à vous : elles continuent de fonctionner si vous la quittez.",
+    "docs": "Documentation de l'API",
+    "create": "Créer une clé",
+    "empty": "Aucune clé API pour l'instant.",
+    "readOnly": "Lecture seule",
+    "readWrite": "Lecture et écriture",
+    "createdBy": "Créée par {{name}} le {{date}}",
+    "lastUsed": "Dernière utilisation {{date}}",
+    "neverUsed": "Jamais utilisée",
+    "revoke": "Révoquer",
+    "revoked": "Clé API révoquée.",
+    "revokeFailed": "Impossible de révoquer la clé API.",
+    "revokeConfirmTitle": "Révoquer cette clé API ?",
+    "revokeConfirmDescription": "Tout ce qui l'utilise cesse de fonctionner immédiatement. Cette action est irréversible.",
+    "createTitle": "Créer une clé API",
+    "createDescription": "Donnez un nom à la clé pour savoir plus tard ce qui l'utilise.",
+    "nameLabel": "Nom",
+    "namePlaceholder": "Synchronisation de la boutique",
+    "writeLabel": "Autoriser l'écriture",
+    "writeDescription": "Les clés en lecture seule peuvent lister les cartes, les collections et les emplacements. Les clés avec accès en écriture pourront aussi retirer et déplacer des cartes.",
+    "createFailed": "Impossible de créer la clé API.",
+    "revealTitle": "Copiez votre clé API",
+    "revealDescription": "C'est la seule fois que la clé complète est affichée. Conservez-la en lieu sûr, par exemple dans les paramètres secrets de votre boutique.",
+    "revealDone": "Je l'ai copiée",
+    "copied": "Clé API copiée.",
+    "copyFailed": "Impossible de copier la clé API.",
+    "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent créer ou révoquer des clés API.",
+    "loadFailed": "Impossible de charger les clés API.",
+    "upgrade": "Les clés API font partie de l'offre Business.",
+    "upgradeLink": "Passer à Business",
+    "copy": "Copier la clé"
+  },
+  "api": {
+    "heading": "API",
+    "subtitle": "Permettez à vos propres systèmes, comme une boutique en ligne, de savoir dans quelle boîte se trouve chaque carte."
   }
 }
