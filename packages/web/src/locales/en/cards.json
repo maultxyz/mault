@@ -101,6 +101,8 @@
     "cardsSelected_other": "{{count}} cards selected",
     "clear": "Clear",
     "delete": "Delete",
+    "export": "Export",
+    "exportSelectedFailed": "Couldn't export the selected cards",
     "deleteCardsTitle_one": "Delete {{count}} card?",
     "deleteCardsTitle_other": "Delete {{count}} cards?",
     "deleteCardsDescription_one": "This will permanently remove the selected card from your collection. This action cannot be undone.",
