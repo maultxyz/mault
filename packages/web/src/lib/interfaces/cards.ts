@@ -4,6 +4,7 @@ import type {
   Collection,
   FieldMeta,
   GroupedScannedCard,
+  OcrRegion,
   PlayingCard,
   PlayingCardWithDistance,
   PriceSource,
@@ -50,6 +51,11 @@ export interface CardSearchState {
   isLoadingMore: boolean;
   loadMore: () => void;
 }
+
+export type GameCardSearchState = Pick<
+  CardSearchState,
+  "results" | "loading" | "hasMore" | "isLoadingMore" | "loadMore"
+>;
 
 export interface CardImageViewerProps {
   open: boolean;
@@ -297,6 +303,7 @@ export interface CapturedImageThumbProps {
 
 export interface OcrRegionOverlayProps {
   showLabels?: boolean;
+  regions?: OcrRegion[];
 }
 
 export interface OcrRegionCropsProps {

@@ -155,8 +155,22 @@ export interface SetupServoStepProps {
 
 export type SetupTestState = "idle" | "running" | "passed" | "failed";
 
+export interface OfflineCalibrationContextValue {
+  isOffline: boolean;
+  canGoOffline: boolean;
+  accept: () => void;
+  stop: () => void;
+}
+
+export interface OfflineCalibrationWarningDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onAccept: () => void;
+}
+
 export interface SetupWizardContextValue {
   isOpen: boolean;
+  isOffline: boolean;
   open: () => void;
   close: () => void;
   forceSetup: () => Promise<void>;

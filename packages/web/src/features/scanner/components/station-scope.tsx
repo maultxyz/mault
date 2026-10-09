@@ -5,6 +5,7 @@ import { DeviceCalibrationSyncProvider } from "@/features/calibration/api/use-de
 import { FeederConfigProvider } from "@/features/calibration/api/use-feeder-config";
 import { ModuleConfigsProvider } from "@/features/calibration/api/use-module-configs";
 import { ModuleCountConfigProvider } from "@/features/calibration/api/use-module-count-config";
+import { OfflineCalibrationProvider } from "@/features/calibration/api/use-offline-calibration";
 import { SetupWizardProvider } from "@/features/calibration/api/use-setup-wizard";
 import { DeviceSetupWizard } from "@/features/calibration/components/device-setup-wizard";
 import { CardFiltersProvider } from "@/features/cards/api/use-card-filters";
@@ -12,7 +13,10 @@ import { CollectionsProvider } from "@/features/collections/api/use-collections"
 import { CameraProvider } from "@/features/scanner/api/use-camera";
 import { ScannedCardsProvider } from "@/features/scanner/api/use-scanned-cards";
 import { SerialProvider } from "@/features/scanner/api/use-serial";
-import { StationContext, useStations } from "@/features/scanner/api/use-stations";
+import {
+  StationContext,
+  useStations,
+} from "@/features/scanner/api/use-stations";
 import { StationOverviewTile } from "@/features/scanner/components/station-overview-tile";
 import { StationPanel } from "@/features/scanner/components/station-panel";
 import type { StationState } from "@/lib/interfaces/stations";
@@ -48,8 +52,7 @@ export function StationScope({
   const showsPanel = panelsDocked
     ? isLive
     : connectedStationIds.has(station.id);
-  const showsOverviewTile =
-    overviewOpen && connectedStationIds.has(station.id);
+  const showsOverviewTile = overviewOpen && connectedStationIds.has(station.id);
   const value = useMemo(
     () => ({ station, index, isActive, isLive }),
     [station, index, isActive, isLive],
@@ -69,21 +72,23 @@ export function StationScope({
                         <FeederConfigProvider>
                           <ScannedCardsProvider>
                             <CardFiltersProvider>
-                              <SetupWizardProvider>
-                                {isActive && children}
-                                {isActive && <DeviceSetupWizard />}
-                                {panelLayout &&
-                                  showsPanel &&
-                                  createPortal(
-                                    <StationPanel layout={panelLayout} />,
-                                    getPanelElement(station.id),
-                                  )}
-                                {showsOverviewTile &&
-                                  createPortal(
-                                    <StationOverviewTile />,
-                                    getOverviewTileElement(station.id),
-                                  )}
-                              </SetupWizardProvider>
+                              <OfflineCalibrationProvider>
+                                <SetupWizardProvider>
+                                  {isActive && children}
+                                  {isActive && <DeviceSetupWizard />}
+                                  {panelLayout &&
+                                    showsPanel &&
+                                    createPortal(
+                                      <StationPanel layout={panelLayout} />,
+                                      getPanelElement(station.id),
+                                    )}
+                                  {showsOverviewTile &&
+                                    createPortal(
+                                      <StationOverviewTile />,
+                                      getOverviewTileElement(station.id),
+                                    )}
+                                </SetupWizardProvider>
+                              </OfflineCalibrationProvider>
                             </CardFiltersProvider>
                           </ScannedCardsProvider>
                         </FeederConfigProvider>

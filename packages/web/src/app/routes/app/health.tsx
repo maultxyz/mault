@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { GameCoverageList } from "@/features/games/components/game-coverage-list";
 import { useHealthQuery } from "@/features/health/api/health";
+import { CardLookup } from "@/features/health/components/card-lookup";
+import { OcrRegionGallery } from "@/features/health/components/ocr-region-gallery";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useSyncState } from "@/lib/app-stream";
@@ -129,6 +131,26 @@ export default function HealthPage() {
             </p>
           </div>
           <GameCoverageList />
+
+          <div>
+            <h2 className="text-sm font-semibold font-heading">
+              {t("cardLookup.heading")}
+            </h2>
+            <p className="text-sm text-foreground/70 mt-0.5">
+              {t("cardLookup.description")}
+            </p>
+          </div>
+          <CardLookup />
+
+          <div>
+            <h2 className="text-sm font-semibold font-heading">
+              {t("ocrRegions.heading")}
+            </h2>
+            <p className="text-sm text-foreground/70 mt-0.5">
+              {t("ocrRegions.description")}
+            </p>
+          </div>
+          <OcrRegionGallery />
         </div>
       </div>
     </div>

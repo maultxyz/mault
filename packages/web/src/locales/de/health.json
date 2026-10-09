@@ -9,5 +9,24 @@
   "latency": "{{ms}} ms",
   "statusOk": "OK",
   "statusError": "Fehler",
-  "pausedDuringSync": "Pausiert, während eine Datenbanksynchronisierung läuft"
+  "pausedDuringSync": "Pausiert, während eine Datenbanksynchronisierung läuft",
+  "ocrRegions": {
+    "heading": "OCR-Bereiche",
+    "description": "Wo auf den Karten jedes Spiels Text gelesen wird, wenn OCR aktiv ist, gezeigt auf einer Beispielkarte aus der Datenbank. Durchgezogene Rahmen werden zuerst gelesen, gestrichelte Ausweichbereiche nur, wenn der erste Durchgang die Karte nicht findet.",
+    "fallback": "Ausweichbereich",
+    "multiline": "mehrzeilig",
+    "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
+    "anotherCard": "Andere Karte zeigen",
+    "sample": "{{name}} · {{set}} #{{number}}"
+  },
+  "cardLookup": {
+    "heading": "Kartensuche",
+    "description": "Prüfe, ob eine Karte in der Kartendatenbank ist. Suche nach Name, Set-Code oder Sammlernummer (z. B. MH3 123).",
+    "game": "Spiel",
+    "language": "Sprache",
+    "noGames": "Keine synchronisierten Spiele",
+    "searchPlaceholder": "Karten suchen...",
+    "noResults": "Keine Karten gefunden. Sie ist möglicherweise noch nicht synchronisiert.",
+    "loadMore": "Mehr laden"
+  }
 }

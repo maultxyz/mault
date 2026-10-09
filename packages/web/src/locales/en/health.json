@@ -9,5 +9,24 @@
   "latency": "{{ms}}ms",
   "statusOk": "OK",
   "statusError": "Error",
-  "pausedDuringSync": "Paused while a database sync is running"
+  "pausedDuringSync": "Paused while a database sync is running",
+  "ocrRegions": {
+    "heading": "OCR regions",
+    "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card.",
+    "fallback": "fallback",
+    "multiline": "multiline",
+    "coords": "x {{x}}%, y {{y}}%, {{width}} × {{height}}%",
+    "anotherCard": "Show another card",
+    "sample": "{{name}} · {{set}} #{{number}}"
+  },
+  "cardLookup": {
+    "heading": "Card lookup",
+    "description": "Check whether a card is in the card database. Search by name, set code or collector number (e.g. MH3 123).",
+    "game": "Game",
+    "language": "Language",
+    "noGames": "No synced games",
+    "searchPlaceholder": "Search cards...",
+    "noResults": "No cards found. It may not be synced yet.",
+    "loadMore": "Load more"
+  }
 }
