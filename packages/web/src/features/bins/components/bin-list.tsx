@@ -57,6 +57,13 @@ export function BinList() {
             active={config.binNumber === selectedBin}
             isAutoAssign={isAutoAssign}
             isScanOnly={isScanOnly}
+            isScanOnlyTarget={
+              isScanOnly &&
+              !isModeDirty &&
+              config.binNumber ===
+                (selectedSet?.scanOnlyBin ??
+                  configs.find((c) => c.isCatchAll)?.binNumber)
+            }
             isChaosMode={effectiveMode.isChaosMode && !isModeDirty}
             alphabetLetter={
               alphabetLetters

@@ -24,6 +24,8 @@ import {
   type DefaultBinInit,
   type EmptyBinOptions,
   type RepackSlot,
+  SCAN_ONLY_DEFAULT_BIN,
+  type ScanOnlyConfig,
   withScanRuleFields,
 } from "@magic-vault/shared";
 
@@ -171,6 +173,14 @@ export function BinConfigsProvider({
   const modeBaseline: BinModeDraft = {
     autoAssignField: selectedSet?.autoAssignField ?? null,
     scanOnly: selectedSet?.scanOnly ?? false,
+    scanOnlyMatchedBin: selectedSet?.scanOnly
+      ? (selectedSet.scanOnlyBin ??
+        configs.find((c) => c.isCatchAll)?.binNumber ??
+        null)
+      : null,
+    scanOnlyUnmatchedBin: selectedSet?.scanOnly
+      ? (configs.find((c) => c.isCatchAll)?.binNumber ?? null)
+      : null,
     isRepackMode: selectedSet?.isRepackMode ?? false,
     isAlphabetMode: selectedSet?.isAlphabetMode ?? false,
     isChaosMode: selectedSet?.isChaosMode ?? false,
@@ -181,6 +191,8 @@ export function BinConfigsProvider({
     modeDraft !== null &&
     (modeDraft.autoAssignField !== modeBaseline.autoAssignField ||
       modeDraft.scanOnly !== modeBaseline.scanOnly ||
+      modeDraft.scanOnlyMatchedBin !== modeBaseline.scanOnlyMatchedBin ||
+      modeDraft.scanOnlyUnmatchedBin !== modeBaseline.scanOnlyUnmatchedBin ||
       modeDraft.isRepackMode !== modeBaseline.isRepackMode ||
       modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode ||
       modeDraft.isChaosMode !== modeBaseline.isChaosMode ||
@@ -407,8 +419,8 @@ export function BinConfigsProvider({
   });
 
   const setScanOnlyMutation = useMutation({
-    mutationFn: ({ guid, enabled }: { guid: string; enabled: boolean }) =>
-      setScanOnlyAction(guid, enabled),
+    mutationFn: ({ guid, config }: { guid: string; config: ScanOnlyConfig }) =>
+      setScanOnlyAction(guid, config),
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.setQueryData(["bins"], result.data);
@@ -566,11 +578,11 @@ export function BinConfigsProvider({
   }, [resetAutoAssignMutation, selectedSet]);
 
   const setScanOnlyFn = useCallback(
-    async (enabled: boolean) => {
+    async (config: ScanOnlyConfig) => {
       if (!selectedSet) return;
       await setScanOnlyMutation.mutateAsync({
         guid: selectedSet.guid,
-        enabled,
+        config,
       });
     },
     [setScanOnlyMutation, selectedSet],
@@ -639,8 +651,22 @@ export function BinConfigsProvider({
       if (modeDraft.autoAssignField !== modeBaseline.autoAssignField) {
         await setAutoAssignFieldFn(modeDraft.autoAssignField);
       }
-      if (modeDraft.scanOnly !== modeBaseline.scanOnly) {
-        await setScanOnlyFn(modeDraft.scanOnly);
+      if (
+        modeDraft.scanOnly !== modeBaseline.scanOnly ||
+        modeDraft.scanOnlyMatchedBin !== modeBaseline.scanOnlyMatchedBin ||
+        modeDraft.scanOnlyUnmatchedBin !== modeBaseline.scanOnlyUnmatchedBin
+      ) {
+        await setScanOnlyFn(
+          modeDraft.scanOnly
+            ? {
+                enabled: true,
+                matchedBin:
+                  modeDraft.scanOnlyMatchedBin ?? SCAN_ONLY_DEFAULT_BIN,
+                unmatchedBin:
+                  modeDraft.scanOnlyUnmatchedBin ?? SCAN_ONLY_DEFAULT_BIN,
+              }
+            : { enabled: false },
+        );
       }
       if (modeDraft.isRepackMode !== modeBaseline.isRepackMode) {
         await setRepackConfigFn({

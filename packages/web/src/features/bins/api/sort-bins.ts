@@ -7,6 +7,7 @@ import type {
   EmptyBinOptions,
   RepackSlot,
   Result,
+  ScanOnlyConfig,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type { BinSetAuditEntry } from "@/lib/interfaces/audit";
@@ -127,9 +128,9 @@ export async function resetAutoAssign(guid: string): Promise<Result<BinSet[]>> {
 
 export async function setScanOnly(
   guid: string,
-  enabled: boolean,
+  config: ScanOnlyConfig,
 ): Promise<Result<BinSet[]>> {
-  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, { enabled });
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, config);
 }
 
 export async function setRepackConfig(

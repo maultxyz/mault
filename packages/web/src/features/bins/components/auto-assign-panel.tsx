@@ -25,7 +25,8 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
-import { CHAOS_BIN_SIZE_MAX } from "@magic-vault/shared";
+import { ScanOnlyBinSelect } from "@/features/bins/components/scan-only-bin-select";
+import { CHAOS_BIN_SIZE_MAX, SCAN_ONLY_DEFAULT_BIN } from "@magic-vault/shared";
 import { IconInfoCircle, IconRefresh } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,6 +35,7 @@ export function AutoAssignPanel() {
   const { t } = useTranslation("bins");
   const {
     selectedSet,
+    configs,
     fieldDefinitions,
     isPresetMutating,
     resetAutoAssign,
@@ -173,6 +175,33 @@ export function AutoAssignPanel() {
           onCheckedChange={(checked) => stageMode({ scanOnly: checked })}
         />
       </div>
+
+      {isScanOnly && (
+        <div className="flex flex-col gap-2">
+          <ScanOnlyBinSelect
+            id="scan-only-matched-bin"
+            label={t("scanOnlyPanel.matchedBin")}
+            description={t("scanOnlyPanel.matchedBinDescription")}
+            value={effectiveMode.scanOnlyMatchedBin ?? SCAN_ONLY_DEFAULT_BIN}
+            binNumbers={configs.map((c) => c.binNumber)}
+            disabled={disableToggles}
+            onChange={(binNumber) =>
+              stageMode({ scanOnlyMatchedBin: binNumber })
+            }
+          />
+          <ScanOnlyBinSelect
+            id="scan-only-unmatched-bin"
+            label={t("scanOnlyPanel.unmatchedBin")}
+            description={t("scanOnlyPanel.unmatchedBinDescription")}
+            value={effectiveMode.scanOnlyUnmatchedBin ?? SCAN_ONLY_DEFAULT_BIN}
+            binNumbers={configs.map((c) => c.binNumber)}
+            disabled={disableToggles}
+            onChange={(binNumber) =>
+              stageMode({ scanOnlyUnmatchedBin: binNumber })
+            }
+          />
+        </div>
+      )}
 
       <div
         className="flex items-center justify-between gap-3 border-t pt-2"

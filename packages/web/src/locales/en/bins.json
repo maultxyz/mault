@@ -20,7 +20,10 @@
     "scanOnlyDisabled": "Scan only is on",
     "alphabetLetter": "Names starting with {{letter}}",
     "priority": "Priority {{priority}}",
-    "catchAllOverride": "Plus cards matching:"
+    "catchAllOverride": "Plus cards matching:",
+    "scanOnlyScanned": "Scanned cards go here",
+    "scanOnlyUnidentified": "Unidentified cards go here",
+    "scanOnlyEverything": "Scanned and unidentified cards go here"
   },
   "binConfigPanel": {
     "overrideLabel": "Override rules",
@@ -42,7 +45,7 @@
     "apiDocsLink": "Field reference",
     "clear": "Clear",
     "autoAssignWaiting": "Waiting for a new {{field}} to appear",
-    "scanOnlyLocked": "Scan Only is on — every card routes straight to bin 7. Turn it off above to configure bins.",
+    "scanOnlyLocked": "Scan only is on. Scanned and unidentified cards go to the bins picked above. Turn it off to configure bins.",
     "modeChangePending": "Save or discard the pending mode change above before editing bins.",
     "priorityLabel": "Priority level",
     "priorityPlaceholder": "None",
@@ -135,7 +138,11 @@
   },
   "scanOnlyPanel": {
     "heading": "Scan only",
-    "description": "Sends every card straight to bin 7, the catch-all, without checking any sorting rules. Turn this off to configure bins manually."
+    "description": "Skips every sorting rule. Scanned cards go to one bin and unidentified cards to another (or the same one). Turn this off to configure bins manually.",
+    "matchedBin": "Scanned cards",
+    "matchedBinDescription": "Cards that were identified",
+    "unmatchedBin": "Unidentified cards",
+    "unmatchedBinDescription": "Cards that couldn't be matched"
   },
   "repackPanel": {
     "heading": "Build repacks",

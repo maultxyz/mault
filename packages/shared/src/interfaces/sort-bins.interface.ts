@@ -91,6 +91,7 @@ export interface BinSet {
   game: Game | null;
   autoAssignField: string | null;
   scanOnly: boolean;
+  scanOnlyBin: number | null;
   isRepackMode: boolean;
   repackSlots: RepackSlot[];
   repackUniqueBy: string | null;
@@ -121,6 +122,12 @@ export type DefaultBinInit = {
   maxCopiesBy?: string | null;
   isDisabled?: boolean;
 };
+
+export interface ScanOnlyConfig {
+  enabled: boolean;
+  matchedBin?: number | null;
+  unmatchedBin?: number;
+}
 
 export interface EmptyAllBinsInput {
   binNumbers: number[];
