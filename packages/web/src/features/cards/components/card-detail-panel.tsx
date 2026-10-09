@@ -32,6 +32,7 @@ import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
+import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
@@ -389,9 +390,12 @@ export function CardDetailPanel({
                         disabled={!capturedImageUrl}
                         aria-label={t("cardDetailPanel.enlargeImage")}
                         title={t("cardDetailPanel.enlargeImage")}
-                        className="w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors"
+                        className="relative w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors"
                       >
                         {capturedImage}
+                        {showOcrRegions && capturedImageUrl && (
+                          <OcrRegionOverlay />
+                        )}
                       </button>
                       {showOcrRegions && capturedImageUrl && (
                         <OcrRegionCrops

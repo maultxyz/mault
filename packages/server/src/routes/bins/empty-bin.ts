@@ -6,7 +6,7 @@ import type {
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { bins } from "../../db/schema";
+import { bins, storageLocations } from "../../db/schema";
 import {
   isStorageAllowed,
   STORAGE_UPGRADE_MESSAGE,
@@ -106,6 +106,10 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
             collectionId: collection.id,
             locationId: location.id,
           });
+          await tx
+            .update(storageLocations)
+            .set({ lastUsedAt: new Date() })
+            .where(eq(storageLocations.id, location.id));
         }
 
         await tx

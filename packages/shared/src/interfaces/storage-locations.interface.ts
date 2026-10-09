@@ -5,6 +5,7 @@ export interface StorageLocation {
   name: string;
   cardCount: number;
   totalValue: number;
+  lastUsedAt: Date | null;
   createdAt: Date;
 }
 
