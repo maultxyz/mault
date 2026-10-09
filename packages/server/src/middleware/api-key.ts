@@ -7,14 +7,12 @@ import {
 } from "../lib/constants/api-keys";
 import type { ApiKeyEnv } from "../lib/interfaces/api-keys";
 import { consumeRateLimit } from "../lib/public-api/rate-limit";
+import { apiError } from "../lib/public-api/responses";
 
 export const requireApiKey = createMiddleware<ApiKeyEnv>(async (c, next) => {
   const token = c.req.header(API_KEY_HEADER)?.trim() ?? "";
   if (!token.startsWith(API_KEY_PREFIX)) {
-    return c.json(
-      { success: false, message: "Missing or invalid API key." },
-      401,
-    );
+    return apiError(c, 401, "unauthorized", "Missing or invalid API key.");
   }
   const keyHash = hashApiKey(token);
   const rate = consumeRateLimit(keyHash);
@@ -27,20 +25,19 @@ export const requireApiKey = createMiddleware<ApiKeyEnv>(async (c, next) => {
   c.header("X-RateLimit-Reset", String(resetSeconds));
   if (!rate.allowed) {
     c.header("Retry-After", String(resetSeconds));
-    return c.json(
-      { success: false, message: "Too many requests. Slow down and retry." },
+    return apiError(
+      c,
       429,
+      "rate_limited",
+      "Too many requests. Slow down and retry.",
     );
   }
   const key = await resolveApiKey(keyHash);
   if (!key) {
-    return c.json(
-      { success: false, message: "Missing or invalid API key." },
-      401,
-    );
+    return apiError(c, 401, "unauthorized", "Missing or invalid API key.");
   }
   if (!key.apiAccessAllowed) {
-    return c.json({ success: false, message: API_ACCESS_UPGRADE_MESSAGE }, 403);
+    return apiError(c, 403, "forbidden", API_ACCESS_UPGRADE_MESSAGE);
   }
   c.set("orgId", key.orgId);
   c.set("apiKeyGuid", key.guid);

@@ -1,4 +1,4 @@
-import type { PublicApiCard } from "./api-keys.interface";
+import type { ApiLocationRef, ApiScannedCard } from "./api-keys.interface";
 import type {
   WEBHOOK_EVENTS,
   WEBHOOK_TEST_EVENT,
@@ -46,21 +46,22 @@ export interface WebhookTestResult {
 }
 
 export interface WebhookPayload<T> {
+  object: "event";
   id: string;
   type: WebhookEventType;
-  createdAt: string;
+  created_at: string;
   data: T;
 }
 
-export interface CardScannedWebhookData {
-  card: PublicApiCard;
-}
+export type CardScannedWebhookData = ApiScannedCard;
 
 export interface CardsStoredWebhookData {
-  location: { guid: string; name: string };
-  cards: PublicApiCard[];
+  object: "stored_cards";
+  location: ApiLocationRef;
+  cards: ApiScannedCard[];
 }
 
 export interface WebhookTestData {
+  object: "test";
   message: string;
 }

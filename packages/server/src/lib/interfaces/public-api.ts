@@ -12,8 +12,17 @@ export interface PublicApiCardFilters {
   cardIds: string[] | null;
   name: string | null;
   set: string | null;
-  number: string | null;
+  collectorNumber: string | null;
   foil: boolean | null;
+}
+
+export interface PublicApiCursorPage<T> {
+  items: T[];
+  nextCursor: string | null;
+}
+
+export interface PublicApiChangePage<T> extends PublicApiCursorPage<T> {
+  nextSince: string;
 }
 
 export interface PublicApiLocationCursor {
@@ -50,7 +59,10 @@ export interface PublicApiCardRow {
   set_name: string;
   collector_number: string;
   rarity: string;
-  price: number | string | null;
+  price_usd: number | string | null;
+  price_usd_foil: number | string | null;
+  price_eur: number | string | null;
+  price_eur_foil: number | string | null;
   collection_guid: string;
   collection_name: string;
   lang: string;

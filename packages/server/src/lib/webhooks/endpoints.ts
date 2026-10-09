@@ -56,6 +56,7 @@ export async function sendTestWebhook(
   target: WebhookTarget,
 ): Promise<WebhookTestResult> {
   const payload = buildWebhookPayload<WebhookTestData>(WEBHOOK_TEST_EVENT, {
+    object: "test",
     message: "This is a test delivery from Mault.",
   });
   const result = await sendWebhook(target.url, target.secret, {

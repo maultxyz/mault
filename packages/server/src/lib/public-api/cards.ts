@@ -1,21 +1,17 @@
-import {
-  PRICE_SOURCE_FIELDS,
-  type PublicApiCard,
-  type PublicApiCursorPage,
-  type PublicApiPage,
-} from "@magic-vault/shared";
+import type { ApiScannedCard } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import { scannedCardPriceSql } from "../card-price-sql";
+import { cardPriceValueSql } from "../card-price-sql";
 import { CC_ALIAS_SQL_COLUMNS } from "../constants/card-prices";
 import type {
   PublicApiCardCursor,
   PublicApiCardFilters,
   PublicApiCardRow,
+  PublicApiChangePage,
+  PublicApiCursorPage,
   PublicApiLocationCardFilters,
   PublicApiLocationCursor,
 } from "../interfaces/public-api";
-import { loadOrgPriceSource } from "../price-source";
 import {
   encodeCursor,
   isoTimestampSql,
@@ -30,8 +26,7 @@ async function selectCards(
   conditions: SQL[],
   orderBy: SQL,
   limit: number,
-): Promise<{ rows: PublicApiCardRow[]; currency: string }> {
-  const priceSource = await loadOrgPriceSource(tx, orgId);
+): Promise<PublicApiCardRow[]> {
   const where = sql.join(
     [sql`cc.org_id = ${orgId}`, ...conditions],
     sql` AND `,
@@ -43,7 +38,10 @@ async function selectCards(
       cc.card ->> 'setName' AS set_name,
       cc.card ->> 'collectorNumber' AS collector_number,
       cc.card ->> 'rarity' AS rarity,
-      ${scannedCardPriceSql(priceSource, CC_ALIAS_SQL_COLUMNS)} AS price,
+      ${cardPriceValueSql("price", CC_ALIAS_SQL_COLUMNS)} AS price_usd,
+      ${cardPriceValueSql("priceFoil", CC_ALIAS_SQL_COLUMNS)} AS price_usd_foil,
+      ${cardPriceValueSql("priceEur", CC_ALIAS_SQL_COLUMNS)} AS price_eur,
+      ${cardPriceValueSql("priceEurFoil", CC_ALIAS_SQL_COLUMNS)} AS price_eur_foil,
       col.guid::text AS collection_guid, col.name AS collection_name, col.lang,
       g.key AS game,
       sl.guid::text AS location_guid, sl.name AS location_name,
@@ -60,43 +58,53 @@ async function selectCards(
     ORDER BY ${orderBy}
     LIMIT ${limit}
   `);
-  return {
-    rows: result.rows as unknown as PublicApiCardRow[],
-    currency: PRICE_SOURCE_FIELDS[priceSource].currency,
-  };
+  return result.rows as unknown as PublicApiCardRow[];
 }
 
-function toPublicApiCard(
-  row: PublicApiCardRow,
-  currency: string,
-): PublicApiCard {
+function formatPrice(value: number | string | null): string | null {
+  if (value === null) return null;
+  const price = Number(value);
+  return Number.isFinite(price) ? price.toFixed(2) : null;
+}
+
+export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
   return {
-    scanId: row.scan_id,
-    collection: { guid: row.collection_guid, name: row.collection_name },
-    game: row.game,
-    lang: row.lang,
-    cardId: row.card_id,
+    object: "scanned_card",
+    id: row.scan_id,
+    card_id: row.card_id,
     name: row.name,
     set: row.set_code,
-    setName: row.set_name,
-    collectorNumber: row.collector_number,
+    set_name: row.set_name,
+    collector_number: row.collector_number,
     rarity: row.rarity,
-    isFoil: row.is_foil,
-    foilType: row.foil_type,
-    price: row.price == null ? null : Number(row.price),
-    currency,
-    needsReview: row.needs_review,
+    lang: row.lang,
+    game: row.game,
+    finish: row.is_foil ? "foil" : "nonfoil",
+    foil_type: row.is_foil ? row.foil_type : null,
+    prices: {
+      usd: formatPrice(row.price_usd),
+      usd_foil: formatPrice(row.price_usd_foil),
+      eur: formatPrice(row.price_eur),
+      eur_foil: formatPrice(row.price_eur_foil),
+    },
     location:
       row.location_guid && row.location_name
         ? {
-            guid: row.location_guid,
+            object: "location",
+            id: row.location_guid,
             name: row.location_name,
             position: row.location_position ?? 0,
           }
         : null,
-    scannedAt: row.scanned_at,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
+    collection: {
+      object: "collection",
+      id: row.collection_guid,
+      name: row.collection_name,
+    },
+    needs_review: row.needs_review,
+    scanned_at: row.scanned_at,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
   };
 }
 
@@ -133,9 +141,9 @@ function filterConditions(filters: PublicApiCardFilters): SQL[] {
   if (filters.set) {
     conditions.push(sql`lower(cc.card ->> 'set') = lower(${filters.set})`);
   }
-  if (filters.number) {
+  if (filters.collectorNumber) {
     conditions.push(
-      sql`ltrim(lower(cc.card ->> 'collectorNumber'), '0') = ltrim(lower(${filters.number}), '0')`,
+      sql`ltrim(lower(cc.card ->> 'collectorNumber'), '0') = ltrim(lower(${filters.collectorNumber}), '0')`,
     );
   }
   if (filters.foil !== null) {
@@ -148,7 +156,7 @@ export async function loadPublicApiCards(
   tx: Transaction,
   orgId: string,
   filters: PublicApiCardFilters,
-): Promise<PublicApiPage<PublicApiCard>> {
+): Promise<PublicApiChangePage<ApiScannedCard>> {
   const byChange = filters.since !== null;
   const conditions = filterConditions(filters);
   if (filters.cursor) {
@@ -164,7 +172,7 @@ export async function loadPublicApiCards(
     }
   }
   const nextSince = await loadNextSince(tx);
-  const { rows, currency } = await selectCards(
+  const rows = await selectCards(
     tx,
     orgId,
     conditions,
@@ -180,7 +188,7 @@ export async function loadPublicApiCards(
         : { i: last.id }
       : null;
   return {
-    items: page.map((row) => toPublicApiCard(row, currency)),
+    items: page.map(toApiScannedCard),
     nextCursor: nextCursor ? encodeCursor(nextCursor) : null,
     nextSince,
   };
@@ -190,15 +198,15 @@ export async function loadPublicApiCard(
   tx: Transaction,
   orgId: string,
   scanId: string,
-): Promise<PublicApiCard | null> {
-  const { rows, currency } = await selectCards(
+): Promise<ApiScannedCard | null> {
+  const [row] = await selectCards(
     tx,
     orgId,
     [sql`cc.guid = ${scanId}::uuid`],
     sql`cc.id`,
     1,
   );
-  return rows[0] ? toPublicApiCard(rows[0], currency) : null;
+  return row ? toApiScannedCard(row) : null;
 }
 
 export async function loadPublicApiLocationCards(
@@ -206,7 +214,7 @@ export async function loadPublicApiLocationCards(
   orgId: string,
   locationGuid: string,
   filters: PublicApiLocationCardFilters,
-): Promise<PublicApiCursorPage<PublicApiCard> | null> {
+): Promise<PublicApiCursorPage<ApiScannedCard> | null> {
   const location = await tx.execute(sql`
     SELECT id FROM storage_locations
     WHERE guid = ${locationGuid}::uuid AND org_id = ${orgId} AND is_deleted = false
@@ -220,7 +228,7 @@ export async function loadPublicApiLocationCards(
       sql`(${position}, cc.id) > (${filters.cursor.p}::int, ${filters.cursor.i}::int)`,
     );
   }
-  const { rows, currency } = await selectCards(
+  const rows = await selectCards(
     tx,
     orgId,
     conditions,
@@ -234,7 +242,7 @@ export async function loadPublicApiLocationCards(
       ? { p: last.location_position ?? 0, i: last.id }
       : null;
   return {
-    items: page.map((row) => toPublicApiCard(row, currency)),
+    items: page.map(toApiScannedCard),
     nextCursor: nextCursor ? encodeCursor(nextCursor) : null,
   };
 }
@@ -243,9 +251,9 @@ export async function loadPublicApiCardsByScanIds(
   tx: Transaction,
   orgId: string,
   scanIds: string[],
-): Promise<PublicApiCard[]> {
+): Promise<ApiScannedCard[]> {
   if (scanIds.length === 0) return [];
-  const { rows, currency } = await selectCards(
+  const rows = await selectCards(
     tx,
     orgId,
     [
@@ -257,5 +265,5 @@ export async function loadPublicApiCardsByScanIds(
     sql`COALESCE(cc.location_position, 0), cc.id`,
     scanIds.length,
   );
-  return rows.map((row) => toPublicApiCard(row, currency));
+  return rows.map(toApiScannedCard);
 }
