@@ -355,7 +355,7 @@
     "positions": {
       "bottomClosed": {
         "title": "Bottom paddle: closed",
-        "body": "Drag until the trapdoor sits flat and fully shut, so a card resting on it can't slip through. Stop as soon as it's closed; pushing further strains the servo."
+        "body": "Drag until the trapdoor closes off the bottom of the module, so a card resting on it can't fall through. It doesn't have to be perfectly level. Stop as soon as it's closed; pushing further strains the servo."
       },
       "bottomOpen": {
         "title": "Bottom paddle: open",

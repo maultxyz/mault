@@ -518,7 +518,7 @@
             "note": "Bei pusherLeft/pusherRight den Arm zur Innenwand schwingen lassen, aber stoppen, bevor er sie berührt, etwa 10-12% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo. Ab 12% zeigt die App eine Warnung."
           },
           "installHorns": {
-            "text": "Stelle im Modul-Kalibrierungsraster unter /app/calibrate jede Paddelklappe in ihre offene Position und jeden Schieber in seine neutrale Position. Drücke dann das Horn (mit bereits montierter Klappe bzw. Schieberarm) auf die Servowelle und sichere es mit der Hornschraube: Bodenklappe, Paddelklappen und Schieberarm, für alle {{count}} Modul-Servos.",
+            "text": "Montiere im Einrichtungsassistenten (Sortierer einrichten, öffnet sich beim ersten Verbinden des Sortierers oder über das Hilfemenü (?) unter /app/calibrate) die Hörner (mit bereits montierter Klappe bzw. Schieberarm) Servo für Servo. Für die Bodenklappe und die Seitenpaddel stellst du den Schieberegler auf 90 % und drückst das Horn dann in geschlossener Position der Klappe auf die Servowelle. Für den Schieber stellst du den Schieberegler auf 50 % und drückst dann das Horn auf die Welle. Sichere jedes Horn mit seiner Hornschraube, für alle {{count}} Modul-Servos.",
             "note": "Ein außermittig montiertes Horn verzerrt das gesamte Gestänge. Die genauen Öffnungs-/Schließ- und Links-/Rechts-Impulse werden im nächsten Schritt feinjustiert."
           },
           "calibrateFeeder": {
