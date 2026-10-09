@@ -3,6 +3,7 @@
     "scanner": "Scanner",
     "collections": "Collections",
     "monitor": "Surveillance",
+    "scan": "Scanner",
     "storage": "Rangement",
     "calibrate": "Calibrer",
     "settings": "Paramètres",
@@ -18,7 +19,8 @@
     "alerts": "Alertes",
     "sounds": "Sons",
     "integrations": "Intégrations",
-    "more": "Plus"
+    "more": "Plus",
+    "stats": "Statistiques"
   },
   "alerts": {
     "dismiss": "Ignorer",
@@ -176,6 +178,7 @@
       "showShortcuts": "Afficher les raccourcis clavier",
       "toggleSidebar": "Déplier ou replier la barre latérale",
       "focusSearch": "Aller à la recherche",
+      "dismissToasts": "Fermer toutes les notifications",
       "goScanner": "Aller au scanner",
       "goCollections": "Aller aux collections",
       "goMonitor": "Aller au moniteur",

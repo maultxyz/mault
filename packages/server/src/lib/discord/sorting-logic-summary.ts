@@ -1,5 +1,7 @@
 import {
   isRuleGroup,
+  REPACK_UNIQUE_BY_NAME,
+  REPACK_UNIQUE_BY_PRINTING,
   type BinCondition,
   type BinRuleGroup,
 } from "@magic-vault/shared";
@@ -65,6 +67,12 @@ function catchAllSummary(bin: {
 // A human-readable summary of the collection's active sorting rules, posted
 // to Discord at the start of a scan session so viewers can see what's
 // configured without opening the app.
+function copiesByLabel(copiesBy: string | null): string {
+  if (!copiesBy || copiesBy === REPACK_UNIQUE_BY_PRINTING) return "printing";
+  if (copiesBy === REPACK_UNIQUE_BY_NAME) return "name";
+  return copiesBy;
+}
+
 export async function buildSortingLogicSummary(
   orgId: string,
   gameId: number | null,
@@ -99,6 +107,7 @@ export async function buildSortingLogicSummary(
       overridePriority: bins.overridePriority,
       lowMatchPercent: bins.lowMatchPercent,
       maxCopies: bins.maxCopies,
+      maxCopiesBy: bins.maxCopiesBy,
       isDisabled: bins.isDisabled,
     })
     .from(bins)
@@ -113,7 +122,7 @@ export async function buildSortingLogicSummary(
       ? catchAllSummary({ ...b, rules: b.rules as BinRuleGroup })
       : b.isDisabled
         ? `**Bin ${b.binNumber}:** disabled`
-        : `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per printing)` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
+        : `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per ${copiesByLabel(b.maxCopiesBy)})` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
   );
 
   return `**Sorting logic:** ${set.name}\n${lines.join("\n")}`;

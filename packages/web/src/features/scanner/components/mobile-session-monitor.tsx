@@ -1,7 +1,12 @@
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
-import { Badge } from "@/components/ui/badge";
+import { MobileTabStrip } from "@/components/mobile-tab-strip";
+import {
+  MOBILE_HEADER_BUTTON_CLASS,
+  MOBILE_HEADER_BODY_CLASS,
+  MOBILE_HEADER_CLASS,
+  MOBILE_HEADER_FADE_CLASS,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MobileCardDetailDrawer } from "@/features/scanner/components/mobile-card-detail-drawer";
 import { MobileMonitorActivity } from "@/features/scanner/components/mobile-monitor-activity";
@@ -11,26 +16,12 @@ import type {
   MobileMonitorTab,
   MobileMonitorTabItem,
   MobileSessionMonitorProps,
-  MobileStatTileProps,
 } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { IconChevronLeft } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-
-function MobileStatTile({ label, value }: MobileStatTileProps) {
-  return (
-    <div className="min-w-0 rounded-lg bg-muted px-3 py-2">
-      <p className="truncate text-xs font-medium text-foreground/70 uppercase tracking-wide">
-        {label}
-      </p>
-      <p className="truncate text-base font-semibold text-foreground tabular-nums">
-        {value}
-      </p>
-    </div>
-  );
-}
 
 export function MobileSessionMonitor({
   session,
@@ -48,6 +39,7 @@ export function MobileSessionMonitor({
   const { collection, status, unmatchedCards, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
   const alertCount = unmatchedCards.length + errors.length;
+  const hasPricing = !!stats?.hasPricing;
 
   const handleOpenCard = useCallback(
     (scanId: string) => setOpenScanId(scanId),
@@ -69,72 +61,78 @@ export function MobileSessionMonitor({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <header className="flex shrink-0 flex-col gap-2 border-b bg-sidebar px-2 pt-2 pb-2">
-        <div className="flex items-center gap-1">
-          {backHref && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="shrink-0"
-              aria-label={t("mobileMonitor.back")}
-              render={<Link to={backHref} />}
-            >
-              <IconChevronLeft />
-            </Button>
-          )}
-          <div className={cn("min-w-0 flex-1", !backHref && "pl-1")}>
-            {collection ? (
-              <h1 className="truncate text-base font-semibold text-foreground">
-                {collection.name}
-              </h1>
-            ) : (
-              <Skeleton className="h-5 w-40" />
+      <header className={MOBILE_HEADER_CLASS}>
+        <div className={MOBILE_HEADER_BODY_CLASS}>
+          <div className="flex min-h-9 items-center gap-1">
+            {backHref && (
+              <Button
+                variant="ghost"
+                size="icon-lg"
+                className={MOBILE_HEADER_BUTTON_CLASS}
+                aria-label={t("mobileMonitor.back")}
+                render={<Link to={backHref} />}
+              >
+                <IconChevronLeft />
+              </Button>
             )}
-            <div className="flex items-center gap-1.5 text-xs text-foreground/70">
-              <span
-                className={cn(
-                  "size-2 shrink-0 rounded-full",
-                  status === "connected" && "bg-success animate-pulse",
-                  status === "connecting" && "bg-warning",
-                  (status === "error" || status === "closed") &&
-                    "bg-destructive",
-                )}
-              />
-              <span className="truncate">
-                {[t(`mobileMonitor.status.${status}`), collection?.game?.name]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </span>
+            <div className="min-w-0 flex-1">
+              {collection ? (
+                <h1 className="truncate font-heading text-lg leading-tight font-semibold">
+                  {collection.name}
+                </h1>
+              ) : (
+                <Skeleton className="h-5 w-40 bg-primary-foreground/20" />
+              )}
+              <div className="flex items-center gap-1.5 text-xs text-primary-foreground/80">
+                <span
+                  className={cn(
+                    "size-2 shrink-0 rounded-full ring-1 ring-primary-foreground/40",
+                    status === "connected" &&
+                      "bg-success animate-pulse motion-reduce:animate-none",
+                    status === "connecting" && "bg-warning",
+                    (status === "error" || status === "closed") &&
+                      "bg-destructive",
+                  )}
+                />
+                <span className="truncate">
+                  {[t(`mobileMonitor.status.${status}`), collection?.game?.name]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </span>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-1.5">
+              {header}
+              {toolbarLeading}
             </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1">
-            {header}
-            {toolbarLeading}
+          <div className="flex items-end justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-2xs font-medium uppercase tracking-wide text-primary-foreground/80">
+                {hasPricing
+                  ? t("sessionStatsPanel.value")
+                  : t("mobileMonitor.cards")}
+              </p>
+              <p className="truncate font-heading text-2xl leading-tight font-semibold tabular-nums">
+                {stats?.hasPricing
+                  ? format(stats.totalValue)
+                  : String(cardCount)}
+              </p>
+            </div>
+            <p className="shrink-0 pb-0.5 text-xs text-primary-foreground/80 tabular-nums">
+              {[
+                hasPricing && `${cardCount} ${t("mobileMonitor.cards")}`,
+                stats && `${stats.uniqueCount} ${t("unique")}`,
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
           </div>
         </div>
-        <ButtonGroup role="tablist" className="w-full">
-          {tabs.map((item) => {
-            const active = tab === item.key;
-            return (
-              <Button
-                key={item.key}
-                role="tab"
-                aria-selected={active}
-                variant={active ? "outline-selected" : "outline"}
-                className="h-8 flex-1 text-sm"
-                onClick={() => setTab(item.key)}
-              >
-                {item.label}
-                {!!item.badge && (
-                  <Badge variant="secondary" className="tabular-nums">
-                    {item.badge}
-                  </Badge>
-                )}
-              </Button>
-            );
-          })}
-        </ButtonGroup>
+        <div aria-hidden className={MOBILE_HEADER_FADE_CLASS} />
       </header>
+
+      <MobileTabStrip items={tabs} value={tab} onChange={setTab} />
 
       <div
         data-scroll-root
@@ -143,21 +141,6 @@ export function MobileSessionMonitor({
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <div className="grid grid-cols-3 gap-2 px-3 pt-3">
-          <MobileStatTile
-            label={t("mobileMonitor.cards")}
-            value={String(cardCount)}
-          />
-          <MobileStatTile
-            label={t("unique")}
-            value={stats ? String(stats.uniqueCount) : "-"}
-          />
-          <MobileStatTile
-            label={t("sessionStatsPanel.value")}
-            value={stats?.hasPricing ? format(stats.totalValue) : "-"}
-          />
-        </div>
-
         {tab === "cards" ? (
           <MobileMonitorCards
             cards={cards}

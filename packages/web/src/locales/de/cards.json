@@ -106,7 +106,9 @@
     "deleteCardsTitle_one": "{{count}} Karte löschen?",
     "deleteCardsTitle_other": "{{count}} Karten löschen?",
     "deleteCardsDescription_one": "Dadurch wird die ausgewählte Karte dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
-    "deleteCardsDescription_other": "Dadurch werden die ausgewählten Karten dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden."
+    "deleteCardsDescription_other": "Dadurch werden die ausgewählten Karten dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
+    "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet."
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",

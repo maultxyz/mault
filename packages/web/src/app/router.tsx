@@ -1,3 +1,4 @@
+import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
@@ -8,6 +9,7 @@ import { useRole } from "@/hooks/use-role";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { STATS_PATH } from "@/lib/constants/stats";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -111,6 +113,7 @@ const AdminDeveloperPage = lazy(
 const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
+const ScanPage = lazy(() => import("@/app/routes/app/scan"));
 const SettingsLayout = lazy(() => import("@/app/routes/app/settings/layout"));
 const SettingsIndexRedirect = lazy(
   () => import("@/app/routes/app/settings/index"),
@@ -137,6 +140,7 @@ const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 
 // Otherwise the app shell's chunks only start downloading once the auth
 // session resolves, then the landing route's once the loading gate lifts.
@@ -381,6 +385,10 @@ export const router = createBrowserRouter([
                 element: <PhoneCameraPage />,
               },
               {
+                path: MOBILE_SCAN_PATH,
+                element: <ScanPage />,
+              },
+              {
                 path: SETTINGS_PATHS.root,
                 element: <SettingsLayout />,
                 children: [
@@ -410,6 +418,10 @@ export const router = createBrowserRouter([
               {
                 path: "/app/health",
                 element: <HealthPage />,
+              },
+              {
+                path: STATS_PATH,
+                element: <StatsPage />,
               },
               {
                 path: "/app/account/:path",

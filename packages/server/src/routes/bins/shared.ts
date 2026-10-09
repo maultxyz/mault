@@ -7,6 +7,7 @@ import {
   type BinSet,
   type FieldMeta,
   type RepackSlot,
+  REPACK_UNIQUE_BY_PRINTING,
 } from "@magic-vault/shared";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { listOrgDevices } from "../../lib/devices";
@@ -35,6 +36,16 @@ export function toMaxCopies(
 ): number | null {
   if (isCatchAll || value == null) return null;
   return Number.isInteger(value) && value >= 1 ? value : null;
+}
+
+export function toMaxCopiesBy(
+  value: string | null | undefined,
+  isCatchAll: boolean | undefined,
+  maxCopies: number | null,
+): string | null {
+  if (isCatchAll || maxCopies == null) return null;
+  const trimmed = value?.trim();
+  return trimmed && trimmed !== REPACK_UNIQUE_BY_PRINTING ? trimmed : null;
 }
 
 export function toOverridePriority(
@@ -108,6 +119,7 @@ function toBinSet(row: {
     lowMatchPercent: number | null;
     cardLimit: number | null;
     maxCopies: number | null;
+    maxCopiesBy: string | null;
     isDisabled: boolean;
     lastEmptiedAt: Date | null;
   }[];
@@ -149,6 +161,7 @@ function toBinSet(row: {
       lowMatchPercent: bin.lowMatchPercent,
       cardLimit: bin.cardLimit,
       maxCopies: bin.maxCopies,
+      maxCopiesBy: bin.maxCopiesBy,
       isDisabled: bin.isDisabled,
       lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
@@ -203,6 +216,7 @@ const binSetQuery = {
         lowMatchPercent: true,
         cardLimit: true,
         maxCopies: true,
+        maxCopiesBy: true,
         isDisabled: true,
         lastEmptiedAt: true,
       },
@@ -240,6 +254,7 @@ export async function snapshotBinSet(
       lowMatchPercent: true,
       cardLimit: true,
       maxCopies: true,
+      maxCopiesBy: true,
       isDisabled: true,
     },
   });
@@ -253,6 +268,7 @@ export async function snapshotBinSet(
     lowMatchPercent: r.lowMatchPercent,
     cardLimit: r.cardLimit,
     maxCopies: r.maxCopies,
+    maxCopiesBy: r.maxCopiesBy,
     isDisabled: r.isDisabled,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
@@ -316,6 +332,7 @@ export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
       isOverride: false,
       overridePriority: null,
       maxCopies: null,
+      maxCopiesBy: null,
       updatedAt: new Date(),
     })
     .where(

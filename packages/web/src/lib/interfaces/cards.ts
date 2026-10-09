@@ -87,7 +87,6 @@ export interface PriceSourceSection {
   table: PriceTableProps;
 }
 
-
 export interface CardSelectDialogProps {
   trigger?: ReactElement;
   title?: string;
@@ -237,6 +236,7 @@ export interface ClearCardQueryButtonProps {
   searchQuery: string;
   activeFilterCount: number;
   onClear: () => void;
+  className?: string;
 }
 
 export interface SessionSummaryDialogProps {
@@ -348,6 +348,7 @@ export interface CardFilterPopoverProps {
   availableColors: { key: string; label: string; bg: string }[];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
+  triggerClassName?: string;
 }
 
 export type GridNavigationKey =

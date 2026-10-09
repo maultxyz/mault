@@ -1,4 +1,5 @@
 import { CardContextMenu } from "@/features/cards/components/card-context-menu";
+import { useHiddenDownloadedCount } from "@/features/cards/api/use-hidden-downloaded-count";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -209,6 +210,10 @@ export function CardGrid() {
   );
   const pagedCards = pageData?.items ?? [];
   const totalCards = pageData?.totalCards ?? 0;
+  const hiddenDownloadedCount = useHiddenDownloadedCount(
+    cardsQuery,
+    !!pageData && totalCards === 0,
+  );
   const pageCount = pageData
     ? Math.max(1, Math.ceil(pageData.totalEntries / pageData.pageSize))
     : 1;
@@ -545,7 +550,25 @@ export function CardGrid() {
         <EmptyState
           className="flex-1"
           title={t("cardGrid.noCardsMatchFilters")}
-          description={t("cardGrid.tryAdjusting")}
+          description={
+            hiddenDownloadedCount > 0
+              ? t("cardGrid.downloadedHidden", {
+                  count: hiddenDownloadedCount,
+                })
+              : t("cardGrid.tryAdjusting")
+          }
+          action={
+            hiddenDownloadedCount > 0 ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setFilters({ ...filters, showDownloaded: true })}
+              >
+                <IconDownload />
+                {t("cardFilterPopover.showDownloadedCards")}
+              </Button>
+            ) : undefined
+          }
         />
       )}
       <div className="p-2 flex-1">

@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { getInitials } from "@/components/ui/initials-avatar";
 import { useSignOut } from "@/features/account/api/use-sign-out";
@@ -7,20 +6,30 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useAuthSession } from "@/lib/auth";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { LANGUAGE_NATIVE_NAMES } from "@/lib/constants/languages";
-import { THEME_OPTIONS } from "@/lib/constants/nav";
+import {
+  MOBILE_ICON_TILE_CLASS,
+  MOBILE_LIST_CLASS,
+  MOBILE_LIST_ROW_CLASS,
+  MOBILE_SECTION_CLASS,
+  MOBILE_SECTION_LABEL_CLASS,
+  THEME_OPTIONS,
+} from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { STATS_PATH } from "@/lib/constants/stats";
 import type {
   MobileMenuRowProps,
   MobileMoreSheetProps,
+  ThemeOption,
 } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import {
   IconActivityHeartbeat,
+  IconArrowUpRight,
+  IconChartBar,
   IconBrandDiscord,
   IconBuilding,
   IconCheck,
   IconChevronRight,
-  IconExternalLink,
   IconLanguage,
   IconLogout,
   IconShoppingCart,
@@ -39,16 +48,12 @@ function MobileMenuRow({
   onClick,
 }: MobileMenuRowProps) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="flex min-h-12 w-full items-center gap-3 px-3 text-left text-sm text-foreground active:bg-muted"
-    >
-      <span className="shrink-0 text-foreground/70">{icon}</span>
+    <button type="button" onClick={onClick} className={MOBILE_LIST_ROW_CLASS}>
+      <span className={MOBILE_ICON_TILE_CLASS}>{icon}</span>
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {value && <span className="shrink-0 text-foreground/70">{value}</span>}
       {external ? (
-        <IconExternalLink className="size-4 shrink-0 text-foreground/70" />
+        <IconArrowUpRight className="size-4 shrink-0 text-foreground/70" />
       ) : (
         <IconChevronRight className="size-4 shrink-0 text-foreground/70" />
       )}
@@ -85,27 +90,27 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[90dvh]">
         <DrawerTitle className="sr-only">{t("nav.more")}</DrawerTitle>
-        <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <div className="flex items-center gap-3">
+        <div className="flex min-h-0 flex-col gap-5 overflow-y-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <div className="flex items-center gap-3.5">
             <span className="grid size-11 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
               {getInitials(name)}
             </span>
-            <div className="min-w-0">
-              <p className="truncate text-base font-semibold text-foreground">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-base font-medium text-foreground">
                 {name || email}
               </p>
               {name && email && (
-                <p className="truncate text-sm text-foreground/70">{email}</p>
+                <p className="truncate text-xs text-foreground/70">{email}</p>
               )}
             </div>
           </div>
 
           {orgs.length > 0 && (
-            <section className="flex flex-col gap-2">
-              <h2 className="px-1 text-xs font-medium uppercase tracking-wide text-foreground/70">
+            <section className={MOBILE_SECTION_CLASS}>
+              <h2 className={MOBILE_SECTION_LABEL_CLASS}>
                 {tCompanies("orgSwitcher.organizations")}
               </h2>
-              <div className="flex flex-col divide-y overflow-hidden rounded-lg border">
+              <div className={MOBILE_LIST_CLASS}>
                 {orgs.map((org) => {
                   const isActive = org.id === activeOrg?.id;
                   return (
@@ -115,11 +120,11 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
                       onClick={() => {
                         if (!isActive) void setActiveOrg(org.id);
                       }}
-                      className="flex min-h-12 items-center gap-3 px-3 text-left text-sm text-foreground active:bg-muted"
+                      className={MOBILE_LIST_ROW_CLASS}
                     >
                       <span
                         className={cn(
-                          "grid size-7 shrink-0 place-items-center rounded-md text-xs font-bold",
+                          "grid size-6 shrink-0 place-items-center rounded-md text-xs font-bold",
                           isActive
                             ? "bg-primary text-primary-foreground"
                             : "bg-muted text-foreground/70",
@@ -145,7 +150,7 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
             </section>
           )}
 
-          <section className="flex flex-col divide-y overflow-hidden rounded-lg border">
+          <section className={MOBILE_LIST_CLASS}>
             <MobileMenuRow
               icon={<IconUserCircle className="size-5" />}
               label={t("breadcrumb.account")}
@@ -158,6 +163,11 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
               onClick={() => go(SETTINGS_PATHS.general)}
             />
             <MobileMenuRow
+              icon={<IconChartBar className="size-5" />}
+              label={t("nav.stats")}
+              onClick={() => go(STATS_PATH)}
+            />
+            <MobileMenuRow
               icon={<IconActivityHeartbeat className="size-5" />}
               label={tHealth("title")}
               onClick={() => go("/app/health")}
@@ -165,25 +175,21 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
           </section>
 
           <section className="flex flex-col gap-2">
-            <h2 className="px-1 text-xs font-medium uppercase tracking-wide text-foreground/70">
+            <h2 className={MOBILE_SECTION_LABEL_CLASS}>
               {t("mobileMenu.theme")}
             </h2>
-            <ButtonGroup className="w-full">
-              {THEME_OPTIONS.map((option) => (
-                <Button
-                  key={option}
-                  aria-pressed={theme === option}
-                  variant={theme === option ? "outline-selected" : "outline"}
-                  className="h-8 flex-1 text-sm"
-                  onClick={() => setTheme(option)}
-                >
-                  {t(`theme.${option}`)}
-                </Button>
-              ))}
-            </ButtonGroup>
+            <MobileSegmentedControl
+              label={t("mobileMenu.theme")}
+              items={THEME_OPTIONS.map((option) => ({
+                key: option,
+                label: t(`theme.${option}`),
+              }))}
+              value={(theme ?? "system") as ThemeOption}
+              onChange={setTheme}
+            />
           </section>
 
-          <section className="flex flex-col divide-y overflow-hidden rounded-lg border">
+          <section className={MOBILE_LIST_CLASS}>
             <MobileMenuRow
               icon={<IconShoppingCart className="size-5" />}
               label={t("nav.cart")}
@@ -198,17 +204,21 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
             />
           </section>
 
-          <Button
-            variant="outline"
-            className="h-11 w-full text-destructive"
-            onClick={() => {
-              onOpenChange(false);
-              void signOut();
-            }}
-          >
-            <IconLogout className="size-4" />
-            {t("userMenu.signOut")}
-          </Button>
+          <div className={MOBILE_LIST_CLASS}>
+            <button
+              type="button"
+              className={cn(MOBILE_LIST_ROW_CLASS, "text-destructive")}
+              onClick={() => {
+                onOpenChange(false);
+                void signOut();
+              }}
+            >
+              <span className={cn(MOBILE_ICON_TILE_CLASS, "text-destructive")}>
+                <IconLogout className="size-5" />
+              </span>
+              {t("userMenu.signOut")}
+            </button>
+          </div>
 
           <p className="text-center text-xs text-foreground/70">
             v{__APP_VERSION__}

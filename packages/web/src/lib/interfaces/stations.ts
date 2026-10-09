@@ -38,7 +38,10 @@ export interface StationsContextValue {
   isStationLive: (id: string) => boolean;
   setActiveStation: (id: string) => void;
   bindStationDevice: (id: string, deviceGuid: string) => void;
-  claimStationCollection: (id: string, collectionGuid: string | null) => boolean;
+  claimStationCollection: (
+    id: string,
+    collectionGuid: string | null,
+  ) => boolean;
   setStationCamera: (id: string, cameraId: string | null) => void;
   setStationConnected: (id: string, connected: boolean) => void;
   registerConnector: (id: string, connector: StationConnector) => () => void;
