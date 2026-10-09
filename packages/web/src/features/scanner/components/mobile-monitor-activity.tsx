@@ -1,10 +1,19 @@
 import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
-import { DetailSection } from "@/features/cards/components/detail-section";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { MobileMonitorActivityProps } from "@/lib/interfaces/scanner";
-import { IconChevronRight, IconSparkles } from "@tabler/icons-react";
+import { EmptyState } from "@/components/empty-state";
+import {
+  MOBILE_LIST_CLASS,
+  MOBILE_SECTION_CLASS,
+  MOBILE_SECTION_LABEL_CLASS,
+} from "@/lib/constants/nav";
+import {
+  IconActivity,
+  IconChevronRight,
+  IconSparkles,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { RECENT_SCANNED_CARDS_COUNT } from "@magic-vault/shared";
 
@@ -27,14 +36,12 @@ export function MobileMonitorActivity({
 
   if (isEmpty) {
     return (
-      <p className="px-6 py-16 text-center text-sm text-foreground/70">
-        {t("mobileMonitor.noActivity")}
-      </p>
+      <EmptyState icon={IconActivity} title={t("mobileMonitor.noActivity")} />
     );
   }
 
   return (
-    <div className="flex flex-col gap-5 p-3">
+    <div className="flex flex-col gap-6 p-4">
       <SessionErrorsPanel errors={errors} />
       {canEditCards ? (
         <IdentifiableUnmatchedCardsPanel cards={unmatchedCards} />
@@ -43,8 +50,11 @@ export function MobileMonitorActivity({
       )}
 
       {recent.length > 0 && (
-        <DetailSection title={t("recentScannedCards.heading")}>
-          <ul className="flex flex-col divide-y rounded-lg border">
+        <section className={MOBILE_SECTION_CLASS}>
+          <h3 className={MOBILE_SECTION_LABEL_CLASS}>
+            {t("recentScannedCards.heading")}
+          </h3>
+          <ul className={MOBILE_LIST_CLASS}>
             {recent.map((entry) => {
               const price = priceOf(entry.card, entry.isFoil);
               const content = (
@@ -103,12 +113,12 @@ export function MobileMonitorActivity({
                     <button
                       type="button"
                       onClick={() => onOpenCard(entry.scanId)}
-                      className="flex w-full items-center gap-3 px-3 py-2 text-left active:bg-muted"
+                      className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors active:bg-muted"
                     >
                       {content}
                     </button>
                   ) : (
-                    <div className="flex items-center gap-3 px-3 py-2">
+                    <div className="flex items-center gap-3 px-2 py-2">
                       {content}
                     </div>
                   )}
@@ -116,12 +126,13 @@ export function MobileMonitorActivity({
               );
             })}
           </ul>
-        </DetailSection>
+        </section>
       )}
 
       {stats?.mostValuable && (
-        <DetailSection title={t("mostValuable")}>
-          <div className="flex items-center justify-between gap-3 rounded-lg border px-3 py-2.5">
+        <section className={MOBILE_SECTION_CLASS}>
+          <h3 className={MOBILE_SECTION_LABEL_CLASS}>{t("mostValuable")}</h3>
+          <div className="flex min-h-11 items-center justify-between gap-3">
             <p className="truncate text-sm font-medium text-foreground">
               {stats.mostValuable.name}
             </p>
@@ -129,12 +140,13 @@ export function MobileMonitorActivity({
               {format(stats.mostValuable.price)}
             </span>
           </div>
-        </DetailSection>
+        </section>
       )}
 
       {hasRarities && (
-        <DetailSection title={t("byRarity")}>
-          <div className="flex flex-col gap-2 rounded-lg border px-3 py-2.5">
+        <section className={MOBILE_SECTION_CLASS}>
+          <h3 className={MOBILE_SECTION_LABEL_CLASS}>{t("byRarity")}</h3>
+          <div className="flex flex-col gap-2.5 py-1.5">
             {stats.rarities.map((rarity) => (
               <div
                 key={rarity.key}
@@ -153,7 +165,7 @@ export function MobileMonitorActivity({
               </div>
             ))}
           </div>
-        </DetailSection>
+        </section>
       )}
     </div>
   );

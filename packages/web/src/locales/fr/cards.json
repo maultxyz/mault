@@ -106,7 +106,9 @@
     "deleteCardsTitle_one": "Supprimer {{count}} carte ?",
     "deleteCardsTitle_other": "Supprimer {{count}} cartes ?",
     "deleteCardsDescription_one": "Cela retirera définitivement la carte sélectionnée de ta collection. Cette action est irréversible.",
-    "deleteCardsDescription_other": "Cela retirera définitivement les cartes sélectionnées de ta collection. Cette action est irréversible."
+    "deleteCardsDescription_other": "Cela retirera définitivement les cartes sélectionnées de ta collection. Cette action est irréversible.",
+    "downloadedHidden_one": "1 carte téléchargée est masquée par le filtre des téléchargements.",
+    "downloadedHidden_other": "{{count}} cartes téléchargées sont masquées par le filtre des téléchargements."
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",

@@ -63,6 +63,7 @@ export interface BinConfig {
   lowMatchPercent?: number | null;
   cardLimit?: number | null;
   maxCopies?: number | null;
+  maxCopiesBy?: string | null;
   isDisabled?: boolean;
   lastEmptiedAt?: number | null;
 }
@@ -117,5 +118,6 @@ export type DefaultBinInit = {
   lowMatchPercent?: number | null;
   cardLimit: number | null;
   maxCopies?: number | null;
+  maxCopiesBy?: string | null;
   isDisabled?: boolean;
 };

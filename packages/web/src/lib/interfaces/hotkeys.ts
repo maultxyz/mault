@@ -6,6 +6,7 @@ export type HotkeyId =
   | "showShortcuts"
   | "toggleSidebar"
   | "focusSearch"
+  | "dismissToasts"
   | "goScanner"
   | "goCollections"
   | "goMonitor"

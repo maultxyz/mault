@@ -28,9 +28,8 @@
     "disabledDescription": "Cards never go here. They move on to the next bin that matches, or the catch-all.",
     "disabledNotice": "This bin is disabled. Its rules are kept, but no cards are sent to it until you turn it back on.",
     "overrideDescription": "When these rules match, this bin takes priority over ordinary bins. If several override bins match, priority 1 wins over 2, and so on. Override bins on the same priority send the card to whichever is emptiest. For example, use Price ≥ 1 here to override color bins for cards worth $1 or more.",
-    "maxCopiesLabel": "Limit copies per printing",
-    "maxCopiesDescription": "Once this bin holds this many copies of the same printing (since it was last emptied), further copies skip it and go to the next bin whose rules match, or the catch-all.",
-    "maxCopiesSuffix": "copies of each printing",
+    "maxCopiesDescription": "Once this bin holds this many cards that share the chosen value (since it was last emptied), more of them skip it and go to the next bin whose rules match, or the catch-all. Limiting by name also counts different printings of the same card together.",
+    "maxCopiesSuffix": "copies",
     "needCatchAllError": "At least one bin must be catch-all.",
     "catchAllEnabled": "Catch-all enabled",
     "setCatchAll": "Set as catch-all",
@@ -52,7 +51,14 @@
     "priorityOrderCatchAll": "Bin {{number}} (catch-all)",
     "catchAllRulesLabel": "Override rules",
     "catchAllRulesDescription": "Cards matching these rules come here even when another bin's rules match them, like a color card that snuck into a colorless pile. Leave empty to only catch cards no other bin takes.",
-    "priorityOrderTie": "{{bins}} (emptiest first)"
+    "priorityOrderTie": "{{bins}} (emptiest first)",
+    "copiesLabel": "Duplicates in this bin",
+    "copiesAllow": "Allow duplicates",
+    "copiesByPrinting": "Limit copies of each printing",
+    "copiesByName": "Limit copies of each name",
+    "copiesByField": "Limit copies of each {{field}}",
+    "maxCopiesPrefix": "Up to",
+    "maxCopiesCountLabel": "Copies allowed"
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."

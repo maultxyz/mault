@@ -11,3 +11,4 @@ export const CARDKINGDOM_DOWNLOAD_TIMEOUT_MS = 5 * 60 * 1000;
 export const CARDKINGDOM_MIN_PULL_INTERVAL_MS = 20 * 60 * 60 * 1000;
 export const TCGPLAYER_PRODUCTS_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 export const PLAN_CONFIG_REFRESH_MS = 60_000;
+export const ONE_DAY_MS = 24 * 60 * 60 * 1000;

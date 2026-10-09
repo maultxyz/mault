@@ -40,7 +40,11 @@ export interface CollectionsContextValue {
   isLoading: boolean;
   isActivating: boolean;
   isMutating: boolean;
-  createCollection: (name: string, gameGuid: string, lang: string) => Promise<void>;
+  createCollection: (
+    name: string,
+    gameGuid: string,
+    lang: string,
+  ) => Promise<void>;
   updateCollection: (guid: string, name: string) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;

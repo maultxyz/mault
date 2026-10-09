@@ -10,6 +10,7 @@ import {
   toIsDisabled,
   toLowMatchPercent,
   toMaxCopies,
+  toMaxCopiesBy,
   toOverridePriority,
 } from "./shared";
 
@@ -25,7 +26,8 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
         const entry = await tx.query.binSetAudit.findFirst({
           where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
         });
-        if (!entry) return { success: false, message: "Audit record not found." };
+        if (!entry)
+          return { success: false, message: "Audit record not found." };
 
         const binSet = await tx.query.binSets.findFirst({
           where: (t, { eq, and }) =>
@@ -70,6 +72,11 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
             ),
             cardLimit,
             maxCopies: toMaxCopies(config.maxCopies, config.isCatchAll),
+            maxCopiesBy: toMaxCopiesBy(
+              config.maxCopiesBy,
+              config.isCatchAll,
+              toMaxCopies(config.maxCopies, config.isCatchAll),
+            ),
             isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
           };
           const existing = binSet.bins.find(

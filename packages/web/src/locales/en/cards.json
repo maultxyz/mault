@@ -106,7 +106,9 @@
     "deleteCardsTitle_one": "Delete {{count}} card?",
     "deleteCardsTitle_other": "Delete {{count}} cards?",
     "deleteCardsDescription_one": "This will permanently remove the selected card from your collection. This action cannot be undone.",
-    "deleteCardsDescription_other": "This will permanently remove the selected cards from your collection. This action cannot be undone."
+    "deleteCardsDescription_other": "This will permanently remove the selected cards from your collection. This action cannot be undone.",
+    "downloadedHidden_one": "1 downloaded card is hidden by the downloaded filter.",
+    "downloadedHidden_other": "{{count}} downloaded cards are hidden by the downloaded filter."
   },
   "cardSelectDialog": {
     "defaultTitle": "Select Card",

@@ -8,6 +8,8 @@ export * from "./interfaces/card.interface";
 export * from "./interfaces/card-embeddings.interface";
 export * from "./interfaces/collection-cards.interface";
 export * from "./interfaces/collections.interface";
+export * from "./interfaces/org-overview.interface";
+export * from "./interfaces/stats.interface";
 export * from "./interfaces/firmware.interface";
 export * from "./interfaces/games.interface";
 export * from "./interfaces/impersonation.interface";
@@ -49,6 +51,8 @@ export * from "./constants/plans.constant";
 export * from "./constants/scanner.constant";
 export * from "./constants/vision-model.constant";
 export * from "./constants/org-settings.constant";
+export * from "./constants/org-overview.constant";
+export * from "./constants/stats.constant";
 
 export * from "./evaluate-bin";
 export * from "./rule-fields";

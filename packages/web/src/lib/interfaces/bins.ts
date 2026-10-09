@@ -19,6 +19,7 @@ export interface BinConfigSaveInput {
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
+  maxCopiesBy?: string | null;
   isDisabled?: boolean;
 }
 

@@ -35,7 +35,11 @@ import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
 
-export type PhoneCameraCaptureStatus = "idle" | "waiting" | "connected" | "error";
+export type PhoneCameraCaptureStatus =
+  | "idle"
+  | "waiting"
+  | "connected"
+  | "error";
 
 export type PhoneLocalCameraStatus =
   | "requesting-camera"
@@ -120,7 +124,10 @@ export interface ScannedCardsContextValue {
     details?: UnmatchedScanDetails,
   ) => void;
   removeUnmatchedCard: (scanId: string) => void;
-  identifyUnmatchedCard: (scanId: string, card: PlayingCard) => Promise<boolean>;
+  identifyUnmatchedCard: (
+    scanId: string,
+    card: PlayingCard,
+  ) => Promise<boolean>;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
@@ -221,7 +228,10 @@ export interface SerialContextValue {
     options?: RouteOptions,
   ) => Promise<unknown | null>;
   sendPushTest: (test: PushTest) => Promise<unknown | null>;
-  sendRawCommand: (line: string, timeoutMs: number) => Promise<RawCommandResult>;
+  sendRawCommand: (
+    line: string,
+    timeoutMs: number,
+  ) => Promise<RawCommandResult>;
   isRouteBusy: () => boolean;
   readIR: () => Promise<boolean[] | null>;
   sendTest: () => Promise<TestResult>;
@@ -482,11 +492,6 @@ export interface MobileCardActionsBodyProps {
   onClose: () => void;
 }
 
-export interface MobileStatTileProps {
-  label: string;
-  value: string;
-}
-
 export interface MobileCardDetailDrawerProps {
   collectionGuid: string;
   scanId: string | undefined;
@@ -677,7 +682,10 @@ export interface ClientDewarpResult {
 
 export interface RouteCardToBinParams {
   route: BinRoute;
-  sendRoute: (route: BinRoute, options?: RouteOptions) => Promise<unknown | null>;
+  sendRoute: (
+    route: BinRoute,
+    options?: RouteOptions,
+  ) => Promise<unknown | null>;
   t: TFunction;
   failedKey: string;
   cardName?: string;
@@ -768,4 +776,10 @@ export interface DeployPauseDialogProps {
   pausedCount: number;
   onResume: () => void;
   onClose: () => void;
+}
+
+export type QrScannerStatus = "starting" | "scanning" | "error";
+
+export interface QrPairingScannerProps {
+  onResult: (text: string) => void;
 }

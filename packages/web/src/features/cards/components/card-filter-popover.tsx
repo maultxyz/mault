@@ -31,6 +31,7 @@ export function CardFilterPopover({
   availableColors,
   availableFoilTypes,
   binCount,
+  triggerClassName,
 }: CardFilterPopoverProps) {
   const { t } = useTranslation("cards");
   const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
@@ -41,7 +42,7 @@ export function CardFilterPopover({
         <Button
           variant={activeFilterCount > 0 ? "outline-selected" : "outline"}
           size="icon"
-          className="shrink-0"
+          className={cn("shrink-0", triggerClassName)}
         >
           <IconFilter className="size-4" />
         </Button>
@@ -156,7 +157,10 @@ export function CardFilterPopover({
                     onClick={() =>
                       onFiltersChange({
                         ...activeFilters,
-                        foilTypes: toggle(activeFilters.foilTypes, foilType.key),
+                        foilTypes: toggle(
+                          activeFilters.foilTypes,
+                          foilType.key,
+                        ),
                       })
                     }
                     className={cn(

@@ -79,14 +79,22 @@ export async function applyFieldRenames(
 
     const setBins = await tx.query.bins.findMany({
       where: eq(bins.binSet, set.id),
-      columns: { id: true, rules: true },
+      columns: { id: true, rules: true, maxCopiesBy: true },
     });
     for (const bin of setBins) {
       const rules = renameRuleFields(bin.rules as BinRuleGroup, renames);
-      if (JSON.stringify(rules) === JSON.stringify(bin.rules)) continue;
+      const maxCopiesBy = bin.maxCopiesBy
+        ? renamedField(bin.maxCopiesBy, renames)
+        : null;
+      if (
+        JSON.stringify(rules) === JSON.stringify(bin.rules) &&
+        maxCopiesBy === bin.maxCopiesBy
+      ) {
+        continue;
+      }
       await tx
         .update(bins)
-        .set({ rules, updatedAt: new Date() })
+        .set({ rules, maxCopiesBy, updatedAt: new Date() })
         .where(eq(bins.id, bin.id));
     }
   }

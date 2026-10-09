@@ -34,6 +34,8 @@ export function buildBinRulesExport(
       lowMatchPercent: c.isCatchAll ? (c.lowMatchPercent ?? null) : null,
       cardLimit: c.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : c.cardLimit,
       maxCopies: c.isCatchAll ? null : (c.maxCopies ?? null),
+      maxCopiesBy:
+        c.isCatchAll || c.maxCopies == null ? null : (c.maxCopiesBy ?? null),
       isDisabled: !c.isCatchAll && !!c.isDisabled,
     })),
   };
@@ -45,7 +47,8 @@ export function serializeBinRulesExport(data: BinRulesExport): string {
 
 export function parseBinRulesExport(text: string): BinRulesExport {
   const data = binRulesExportSchema.parse(JSON.parse(text));
-  if (data.formatVersion >= BIN_RULES_EXPORT_LOW_MATCH_COLUMN_SINCE) return data;
+  if (data.formatVersion >= BIN_RULES_EXPORT_LOW_MATCH_COLUMN_SINCE)
+    return data;
   const keepsThreshold =
     data.formatVersion >= BIN_RULES_EXPORT_CATCH_ALL_RULES_SINCE;
   return {

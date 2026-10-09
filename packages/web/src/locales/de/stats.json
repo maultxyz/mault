@@ -1,0 +1,102 @@
+{
+  "title": "Statistiken",
+  "subtitle": "Diagramme und Zahlen zu deinen Sammlungen",
+  "error": "Statistiken konnten nicht geladen werden. Versuch es gleich noch einmal.",
+  "empty": {
+    "title": "Noch keine Karten",
+    "description": "Statistiken erscheinen hier, sobald du Karten gescannt hast."
+  },
+  "controls": {
+    "collection": "Sammlung",
+    "allCollections": "Alle Sammlungen",
+    "range": "Zeitraum",
+    "ranges": {
+      "7d": "7 T",
+      "30d": "30 T",
+      "90d": "90 T",
+      "1y": "1 J"
+    }
+  },
+  "tiles": {
+    "totalValue": "Gesamtwert",
+    "collectionCount_one": "{{count}} Sammlung",
+    "collectionCount_other": "{{count}} Sammlungen",
+    "cards": "Karten",
+    "uniqueHint": "{{count}} verschiedene",
+    "avgValue": "Durchschnittskarte",
+    "pricedHint": "{{count}} mit Preis",
+    "scanned": {
+      "7d": "Gescannt, letzte 7 Tage",
+      "30d": "Gescannt, letzte 30 Tage",
+      "90d": "Gescannt, letzte 90 Tage",
+      "1y": "Gescannt, letztes Jahr"
+    },
+    "valueAddedHint": "{{value}} hinzugefügt",
+    "foils": "Foils",
+    "shareHint": "{{percent}} % der Karten",
+    "needsReview": "Zu prüfen",
+    "correctedHint": "{{count}} geprüft"
+  },
+  "activity": {
+    "title": "Scan-Aktivität",
+    "description": {
+      "day": "Gescannte Karten pro Tag",
+      "week": "Gescannte Karten pro Woche"
+    },
+    "metrics": {
+      "count": "Karten",
+      "value": "Wertzuwachs"
+    },
+    "weekOf": "Woche vom {{date}}",
+    "thisWeek": "Diese Woche",
+    "today": "Heute"
+  },
+  "compare": {
+    "title": "Sammlungen vergleichen",
+    "description": "So schneiden deine Sammlungen ab. Wähle eine aus, um ihre eigenen Statistiken zu sehen.",
+    "metrics": {
+      "totalValue": "Wert",
+      "cardCount": "Karten",
+      "scansInRange": "Gescannt"
+    },
+    "share": "{{percent}} %",
+    "never": "Nie",
+    "columns": {
+      "name": "Sammlung",
+      "cardCount": "Karten",
+      "uniqueCount": "Verschiedene",
+      "totalValue": "Wert",
+      "avgValue": "Ø Karte",
+      "scansInRange": "Gescannt",
+      "lastScanAt": "Letzter Scan"
+    }
+  },
+  "prices": {
+    "title": "Preisverteilung",
+    "description": "Karten mit Preis nach Wert gruppiert",
+    "atLeast": "Ab {{min}}",
+    "under": "Unter {{max}}",
+    "between": "{{min}} bis {{max}}"
+  },
+  "games": {
+    "title": "Nach Spiel",
+    "none": "Kein Spiel"
+  },
+  "sets": {
+    "title": "Wertvollste Sets"
+  },
+  "rarities": {
+    "title": "Seltenheit"
+  },
+  "colors": {
+    "title": "Farben"
+  },
+  "foils": {
+    "title": "Foil-Arten"
+  },
+  "topCards": {
+    "title": "Wertvollste Karten"
+  },
+  "cardCount_one": "{{count}} Karte",
+  "cardCount_other": "{{count}} Karten"
+}

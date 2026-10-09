@@ -1,4 +1,5 @@
 import { Callout } from "@/components/callout";
+import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -8,22 +9,32 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SaveBar } from "@/components/save-bar";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import {
   DEFAULT_CATCH_ALL_MATCH_PERCENT,
   DEFAULT_MAX_COPIES,
+  REPACK_ALLOW_DUPLICATES_VALUE,
 } from "@/lib/constants/bins";
+import { emptyRuleGroup } from "@/lib/rule-groups";
 import {
   binConfigSchema,
   type BinConfigFormValues,
@@ -34,13 +45,14 @@ import {
   BinRuleGroup,
   DEFAULT_BIN_CAPACITY,
   OVERRIDE_PRIORITY_MAX,
+  REPACK_UNIQUE_BY_NAME,
+  REPACK_UNIQUE_BY_PRINTING,
   sortOverrideBins,
 } from "@magic-vault/shared";
 import { IconHelpCircle, IconInfoCircle } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { emptyRuleGroup } from "@/lib/rule-groups";
 
 function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
   return order.reduce<BinConfig[][]>((groups, config) => {
@@ -86,6 +98,7 @@ export function BinConfigPanel() {
       isDisabled: false,
       rules: emptyRuleGroup(),
       maxCopies: null,
+      maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
       lowMatchPercent: null,
     },
   });
@@ -99,6 +112,7 @@ export function BinConfigPanel() {
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
       maxCopies: config.maxCopies ?? null,
+      maxCopiesBy: config.maxCopiesBy ?? REPACK_UNIQUE_BY_PRINTING,
       lowMatchPercent: config.isCatchAll
         ? (config.lowMatchPercent ?? null)
         : null,
@@ -146,6 +160,7 @@ export function BinConfigPanel() {
             : null,
           lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
           maxCopies: values.isCatchAll ? null : (config.maxCopies ?? null),
+          maxCopiesBy: values.isCatchAll ? null : (config.maxCopiesBy ?? null),
           isDisabled: !values.isCatchAll && values.isDisabled,
         });
         return;
@@ -162,6 +177,10 @@ export function BinConfigPanel() {
         lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
         maxCopies:
           values.isCatchAll || autoAssignField ? null : values.maxCopies,
+        maxCopiesBy:
+          values.isCatchAll || autoAssignField || values.maxCopies == null
+            ? null
+            : values.maxCopiesBy,
         isDisabled: !values.isCatchAll && values.isDisabled,
       });
     },
@@ -183,6 +202,7 @@ export function BinConfigPanel() {
         isDisabled: form.getValues("isDisabled"),
         rules: emptyRuleGroup(),
         maxCopies: null,
+        maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
         lowMatchPercent: null,
       },
       { keepDefaultValues: true },
@@ -190,6 +210,24 @@ export function BinConfigPanel() {
   }, [form, isOnlyCatchAll, t]);
 
   const isCatchAll = form.watch("isCatchAll");
+  const maxCopies = form.watch("maxCopies");
+  const maxCopiesBy = form.watch("maxCopiesBy");
+  const copiesSelection =
+    maxCopies == null ? REPACK_ALLOW_DUPLICATES_VALUE : maxCopiesBy;
+  const copiesByFields = useMemo(
+    () => fieldDefinitions.filter((field) => field.field !== "name"),
+    [fieldDefinitions],
+  );
+  const copiesByLabel = (value: string) => {
+    if (value === REPACK_ALLOW_DUPLICATES_VALUE)
+      return t("binConfigPanel.copiesAllow");
+    if (value === REPACK_UNIQUE_BY_PRINTING)
+      return t("binConfigPanel.copiesByPrinting");
+    if (value === REPACK_UNIQUE_BY_NAME)
+      return t("binConfigPanel.copiesByName");
+    const field = fieldDefinitions.find((f) => f.field === value);
+    return t("binConfigPanel.copiesByField", { field: field?.label ?? value });
+  };
   const isDisabled = form.watch("isDisabled");
   const isOverride = form.watch("isOverride");
   const draftRules = form.watch("rules") as BinRuleGroup;
@@ -527,61 +565,107 @@ export function BinConfigPanel() {
           {!isCatchAll && priorityField}
           {!autoAssignField && !isCatchAll && (
             <Field
-              className="mb-6"
+              className="mb-6 gap-1.5"
               data-invalid={!!form.formState.errors.maxCopies}
             >
-              <Controller
-                name="maxCopies"
-                control={form.control}
-                render={({ field }) => (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        id="bin-max-copies"
-                        checked={field.value != null}
-                        onCheckedChange={(checked) =>
-                          field.onChange(checked ? DEFAULT_MAX_COPIES : null)
+              <span className="flex items-center gap-1.5">
+                <FieldLabel htmlFor="bin-copies-by">
+                  {t("binConfigPanel.copiesLabel")}
+                </FieldLabel>
+                <Tooltip>
+                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                    <IconInfoCircle className="size-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    {t("binConfigPanel.maxCopiesDescription")}
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+              <Select
+                value={copiesSelection}
+                onValueChange={(value) => {
+                  if (!value || value === REPACK_ALLOW_DUPLICATES_VALUE) {
+                    form.setValue("maxCopies", null, { shouldDirty: true });
+                    return;
+                  }
+                  form.setValue("maxCopiesBy", value, { shouldDirty: true });
+                  if (maxCopies == null) {
+                    form.setValue("maxCopies", DEFAULT_MAX_COPIES, {
+                      shouldDirty: true,
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger
+                  id="bin-copies-by"
+                  className="w-full max-w-72"
+                  aria-label={t("binConfigPanel.copiesLabel")}
+                >
+                  <SelectValue>{copiesByLabel(copiesSelection)}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value={REPACK_ALLOW_DUPLICATES_VALUE}>
+                      {t("binConfigPanel.copiesAllow")}
+                    </SelectItem>
+                    <SelectItem value={REPACK_UNIQUE_BY_PRINTING}>
+                      {t("binConfigPanel.copiesByPrinting")}
+                    </SelectItem>
+                    <SelectItem value={REPACK_UNIQUE_BY_NAME}>
+                      {t("binConfigPanel.copiesByName")}
+                    </SelectItem>
+                  </SelectGroup>
+                  {copiesByFields.length > 0 && (
+                    <>
+                      <SelectSeparator />
+                      <SelectGroup>
+                        {copiesByFields.map((meta) => (
+                          <SelectItem key={meta.field} value={meta.field}>
+                            {t("binConfigPanel.copiesByField", {
+                              field: meta.label,
+                            })}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </>
+                  )}
+                </SelectContent>
+              </Select>
+              {maxCopies != null && (
+                <Controller
+                  name="maxCopies"
+                  control={form.control}
+                  render={({ field }) => (
+                    <div className="mt-1 flex items-center gap-2">
+                      <span className="text-xs text-foreground/70">
+                        {t("binConfigPanel.maxCopiesPrefix")}
+                      </span>
+                      <Input
+                        id="bin-max-copies-count"
+                        type="number"
+                        min={1}
+                        className="max-w-24"
+                        aria-label={t("binConfigPanel.maxCopiesCountLabel")}
+                        value={
+                          field.value == null || Number.isNaN(field.value)
+                            ? ""
+                            : field.value
+                        }
+                        onChange={(e) =>
+                          field.onChange(
+                            e.target.value === ""
+                              ? Number.NaN
+                              : Number(e.target.value),
+                          )
                         }
                       />
-                      <span className="flex items-center gap-1.5">
-                        <FieldLabel htmlFor="bin-max-copies">
-                          {t("binConfigPanel.maxCopiesLabel")}
-                        </FieldLabel>
-                        <Tooltip>
-                          <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-                            <IconInfoCircle className="size-3.5" />
-                          </TooltipTrigger>
-                          <TooltipContent className="max-w-xs">
-                            {t("binConfigPanel.maxCopiesDescription")}
-                          </TooltipContent>
-                        </Tooltip>
+                      <span className="text-xs text-foreground/70">
+                        {t("binConfigPanel.maxCopiesSuffix")}
                       </span>
                     </div>
-                    {field.value != null && (
-                      <div className="flex items-center gap-2">
-                        <Input
-                          id="bin-max-copies-count"
-                          type="number"
-                          min={1}
-                          className="max-w-24"
-                          aria-label={t("binConfigPanel.maxCopiesLabel")}
-                          value={Number.isNaN(field.value) ? "" : field.value}
-                          onChange={(e) =>
-                            field.onChange(
-                              e.target.value === ""
-                                ? Number.NaN
-                                : Number(e.target.value),
-                            )
-                          }
-                        />
-                        <span className="text-sm text-foreground/70">
-                          {t("binConfigPanel.maxCopiesSuffix")}
-                        </span>
-                      </div>
-                    )}
-                  </>
-                )}
-              />
+                  )}
+                />
+              )}
               <FieldError errors={[form.formState.errors.maxCopies]} />
             </Field>
           )}

@@ -1,4 +1,11 @@
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_LIST_CLASS,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+  MOBILE_HEADER_SEARCH_CLASS,
+  MOBILE_SECTION_CLASS,
+  MOBILE_SECTION_LABEL_CLASS,
+} from "@/lib/constants/nav";
+import { MobileSearchInput } from "@/components/mobile-search-input";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
 import { MobilePageHeader } from "@/components/mobile-page-header";
@@ -12,6 +19,13 @@ import {
 } from "@/features/collections/api/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePriceSource } from "@/hooks/use-price-source";
+import { useAuthSession } from "@/lib/auth";
+import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
+import {
+  MobileHomeHero,
+  MobileHomeOverview,
+} from "@/features/collections/components/mobile-home-overview";
 import type { Collection } from "@magic-vault/shared";
 import {
   IconChevronRight,
@@ -67,7 +81,7 @@ function StatusIcon({
     );
   }
   return (
-    <div className="size-8 rounded-md border flex items-center justify-center shrink-0">
+    <div className="size-8 rounded-md border bg-muted flex items-center justify-center shrink-0">
       <span className="size-2 rounded-full bg-muted-foreground/30" />
     </div>
   );
@@ -120,6 +134,20 @@ export default function MonitorSessionsPage() {
   const isMobile = useIsMobile();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: session } = useAuthSession();
+  const firstName = session?.user?.name?.trim().split(/\s+/)[0];
+  const { data: overview } = useQuery({
+    ...orgOverviewQueryOptions(activeOrg?.id),
+    enabled: isMobile && !!activeOrg,
+  });
+  const { format } = usePriceSource();
+  const listClass = isMobile
+    ? MOBILE_LIST_CLASS
+    : "flex flex-col divide-y overflow-hidden rounded-lg border";
+  const sectionClass = isMobile ? MOBILE_SECTION_CLASS : "flex flex-col gap-2";
+  const sectionLabelClass = isMobile
+    ? MOBILE_SECTION_LABEL_CLASS
+    : "text-xs font-medium uppercase tracking-wide text-foreground/70";
 
   const sorted = [...(collections ?? [])].sort((a, b) => {
     const aOwn = locks[a.guid]?.userId === currentUserId;
@@ -152,7 +180,11 @@ export default function MonitorSessionsPage() {
     return (
       <div
         key={collection.guid}
-        className={`flex items-center gap-3 px-4 py-3.5 border rounded-lg ${isOwn ? "border-warning-border bg-warning-muted" : ""}`}
+        className={cn(
+          "flex items-center gap-3",
+          isMobile ? "min-h-14 rounded-md px-2 py-2" : "px-4 py-3.5",
+          isOwn && "bg-warning-muted",
+        )}
       >
         <button
           type="button"
@@ -167,14 +199,17 @@ export default function MonitorSessionsPage() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate">{collection.name}</p>
             <p className="text-xs text-foreground/70">
-              {t("cardCount", {
-                count: collection.cardCount,
-              })}{" "}
-              ·{" "}
-              {new Date(collection.updatedAt).toLocaleDateString(undefined, {
-                month: "short",
-                day: "numeric",
-              })}
+              {[
+                t("cardCount", { count: collection.cardCount }),
+                overview?.collectionValues[collection.guid] != null &&
+                  format(overview.collectionValues[collection.guid]),
+                new Date(collection.updatedAt).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                }),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
             </p>
           </div>
         </button>
@@ -207,9 +242,24 @@ export default function MonitorSessionsPage() {
     <div className="flex min-h-0 flex-1 flex-col">
       {isMobile && (
         <MobilePageHeader
-          title={t("monitorSessions.title")}
-          subtitle={t("monitorSessions.subtitle")}
-        />
+          variant="brand"
+          title={
+            firstName
+              ? t("home.greeting", { name: firstName })
+              : t("home.greetingNoName")
+          }
+          subtitle={activeOrg?.name}
+        >
+          <MobileHomeHero orgId={activeOrg?.id} />
+          {!isLoading && sorted.length > 0 && (
+            <MobileSearchInput
+              placeholder={t("monitorSessions.searchPlaceholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={MOBILE_HEADER_SEARCH_CLASS}
+            />
+          )}
+        </MobilePageHeader>
       )}
       <div
         className={cn(
@@ -217,7 +267,7 @@ export default function MonitorSessionsPage() {
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <div className="flex flex-col p-3 md:p-6 max-w-4xl mx-auto w-full gap-4">
+        <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-5">
           {!isMobile && (
             <div>
               <h1 className="text-lg font-semibold font-heading">
@@ -229,7 +279,7 @@ export default function MonitorSessionsPage() {
             </div>
           )}
 
-          {!isLoading && sorted.length > 0 && (
+          {!isMobile && !isLoading && sorted.length > 0 && (
             <Input
               placeholder={t("monitorSessions.searchPlaceholder")}
               data-hotkey-search
@@ -238,13 +288,17 @@ export default function MonitorSessionsPage() {
             />
           )}
 
+          {isMobile && !searchQuery.trim() && (
+            <MobileHomeOverview orgId={activeOrg?.id} />
+          )}
+
           <div className="flex flex-col gap-5">
             {isLoading && (
-              <div className="flex flex-col gap-2">
+              <div className={listClass}>
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="flex items-center gap-3 px-4 py-3 border rounded-lg"
+                    className="flex items-center gap-3.5 px-4 py-3.5"
                   >
                     <Skeleton className="size-8 rounded-md shrink-0" />
                     <div className="flex-1 space-y-1.5">
@@ -273,21 +327,25 @@ export default function MonitorSessionsPage() {
             )}
 
             {liveCollections.length > 0 && (
-              <section className="flex flex-col gap-2">
-                <h2 className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+              <section className={sectionClass}>
+                <h2 className={sectionLabelClass}>
                   {t("monitorSessions.liveNow")}
                 </h2>
-                {liveCollections.map(renderRow)}
+                <div className={listClass}>
+                  {liveCollections.map(renderRow)}
+                </div>
               </section>
             )}
             {otherCollections.length > 0 && (
-              <section className="flex flex-col gap-2">
-                {liveCollections.length > 0 && (
-                  <h2 className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+              <section className={sectionClass}>
+                {(isMobile || liveCollections.length > 0) && (
+                  <h2 className={sectionLabelClass}>
                     {t("monitorSessions.allCollections")}
                   </h2>
                 )}
-                {otherCollections.map(renderRow)}
+                <div className={listClass}>
+                  {otherCollections.map(renderRow)}
+                </div>
               </section>
             )}
           </div>
