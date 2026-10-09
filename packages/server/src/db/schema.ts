@@ -163,6 +163,7 @@ export const binSets = pgTable(
     gameId: integer("game_id").references(() => games.id),
     autoAssignField: text("auto_assign_field"),
     scanOnly: boolean("scan_only").notNull().default(false),
+    scanOnlyBin: integer("scan_only_bin"),
     isRepackMode: boolean("is_repack_mode").notNull().default(false),
     repackSlots: jsonb("repack_slots").notNull().default([]),
     repackUniqueBy: text("repack_unique_by").default(REPACK_UNIQUE_BY_PRINTING),
