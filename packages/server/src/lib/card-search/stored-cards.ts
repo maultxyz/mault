@@ -153,6 +153,27 @@ async function fetchUpstreamCard(
   return { ...result, data: priced };
 }
 
+export async function sampleStoredCard(
+  { adapter, gameKey, lang }: ResolvedCardSearch,
+  index: number,
+): Promise<PlayingCard | null> {
+  const [row] = await db
+    .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, gameKey),
+        eq(cardImageVectors.lang, lang),
+        isNotNull(cardImageVectors.data),
+      ),
+    )
+    .orderBy(sql`md5(${cardImageVectors.cardId})`)
+    .offset(index)
+    .limit(1);
+  if (!row) return null;
+  return adapter.normalizeStored(row.data, row.cardId, lang) ?? null;
+}
+
 export async function searchCardById(
   resolved: ResolvedCardSearch,
   id: string,

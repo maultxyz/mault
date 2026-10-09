@@ -29,6 +29,15 @@ export async function searchGameCards(
   return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
 }
 
+export async function getSampleCard(
+  gameKey: string,
+  lang: string,
+  index: number,
+): Promise<Result<PlayingCard | null>> {
+  const params = new URLSearchParams({ gameKey, lang, index: String(index) });
+  return apiGet<Result<PlayingCard | null>>(`/api/cards/sample?${params}`);
+}
+
 export async function getCardById(
   id: string,
   collectionGuid?: string,

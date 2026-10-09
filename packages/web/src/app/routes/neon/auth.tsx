@@ -1,5 +1,6 @@
 import { BrandMark } from "@/components/brand-mark";
 import { neon } from "@/lib/auth/client";
+import { NEON_SOCIAL_PROVIDERS } from "@/lib/constants/auth";
 import {
   AuthView,
   NeonAuthUIProvider,
@@ -13,10 +14,12 @@ export default function AuthPage() {
     <NeonAuthUIProvider
       defaultTheme="system"
       authClient={neon.auth}
+      baseURL={window.location.origin}
       redirectTo="/app"
       account={{
         basePath: "/app/account",
       }}
+      social={{ providers: [...NEON_SOCIAL_PROVIDERS] }}
     >
       <div className="bg-muted flex min-h-screen flex-col items-center justify-center gap-6 p-4">
         <BrandMark />
