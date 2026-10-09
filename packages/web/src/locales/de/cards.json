@@ -101,6 +101,8 @@
     "cardsSelected_other": "{{count}} Karten ausgewählt",
     "clear": "Leeren",
     "delete": "Löschen",
+    "export": "Exportieren",
+    "exportSelectedFailed": "Die ausgewählten Karten konnten nicht exportiert werden",
     "deleteCardsTitle_one": "{{count}} Karte löschen?",
     "deleteCardsTitle_other": "{{count}} Karten löschen?",
     "deleteCardsDescription_one": "Dadurch wird die ausgewählte Karte dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
