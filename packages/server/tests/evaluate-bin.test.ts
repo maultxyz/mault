@@ -154,7 +154,7 @@ test("a bin at its copy limit passes the card to the next matching bin, then the
   const configsWithLimit = [limited, ...colors.slice(1), catchAll];
   const contents = (count: number) =>
     Array.from({ length: count }, (_, i) => ({ binNumber: 1, scannedAt: 10 + i, card }));
-  const copiesIn = (count: number) => (b: BinConfig) => countCopiesInBin(contents(count), b, card.id);
+  const copiesIn = (count: number) => (b: BinConfig) => countCopiesInBin(contents(count), b, card, fields);
 
   assert.equal(evaluateCardBin(card, configsWithLimit, fields, copiesIn(1)), limited);
   assert.equal(evaluateCardBin(card, configsWithLimit, fields, copiesIn(2)), colors[1]);
@@ -167,10 +167,26 @@ test("copy limits count only the same printing since the bin was last emptied", 
     { binNumber: 1, scannedAt: 50, card: { id: "a" } },
     { binNumber: 1, scannedAt: 150, card: { id: "b" } },
   ];
-  assert.equal(countCopiesInBin(contents, limited, "a"), 0);
-  assert.equal(countCopiesInBin(contents, limited, "b"), 1);
-  assert.equal(evaluateCardBin({ id: "a", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, "a")), limited);
-  assert.equal(evaluateCardBin({ id: "b", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, "b")), catchAll);
+  assert.equal(countCopiesInBin(contents, limited, { id: "a" }, fields), 0);
+  assert.equal(countCopiesInBin(contents, limited, { id: "b" }, fields), 1);
+  assert.equal(evaluateCardBin({ id: "a", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, { id: "a" }, fields)), limited);
+  assert.equal(evaluateCardBin({ id: "b", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, { id: "b" }, fields)), catchAll);
+});
+
+test("copy limits can count by name or by a field instead of printing", () => {
+  const contents = [
+    { binNumber: 1, scannedAt: 10, card: { id: "bolt-m10", name: "Lightning Bolt", colors: ["R"] } },
+    { binNumber: 1, scannedAt: 11, card: { id: "bolt-2x2", name: " lightning bolt", colors: ["R"] } },
+  ];
+  const byPrinting = { ...colors[0], maxCopies: 2, maxCopiesBy: REPACK_UNIQUE_BY_PRINTING };
+  const byName = { ...colors[0], maxCopies: 2, maxCopiesBy: REPACK_UNIQUE_BY_NAME };
+  const byColor = { ...colors[0], maxCopies: 2, maxCopiesBy: "color" };
+  const reprint = { id: "bolt-sta", name: "Lightning Bolt", colors: ["R"] };
+  assert.equal(countCopiesInBin(contents, byPrinting, reprint, fields), 0);
+  assert.equal(countCopiesInBin(contents, byName, reprint, fields), 2);
+  assert.equal(countCopiesInBin(contents, byColor, { id: "x", name: "Shock", colors: ["R"] }, fields), 2);
+  assert.equal(countCopiesInBin(contents, { ...colors[0], maxCopies: 2 }, { id: "bolt-m10" }, fields), 1);
+  assert.equal(countCopiesInBin(contents, byName, { id: "nameless" }, fields), 0);
 });
 
 test("a copy-limited override at its limit no longer takes priority", () => {

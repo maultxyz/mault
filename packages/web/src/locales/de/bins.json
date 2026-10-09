@@ -27,9 +27,8 @@
     "disabledLabel": "Dieses Fach deaktivieren",
     "disabledDescription": "Hier landen keine Karten. Sie gehen an das nächste passende Fach oder das Auffangfach.",
     "disabledNotice": "Dieses Fach ist deaktiviert. Seine Regeln bleiben erhalten, aber es werden keine Karten hierher geschickt, bis du es wieder einschaltest.",
-    "maxCopiesLabel": "Kopien pro Druck begrenzen",
-    "maxCopiesDescription": "Sobald dieses Fach (seit dem letzten Leeren) so viele Kopien desselben Drucks enthält, überspringen weitere Kopien es und gehen in das nächste Fach, dessen Regeln zutreffen, oder in das Sammelfach.",
-    "maxCopiesSuffix": "Kopien je Druck",
+    "maxCopiesDescription": "Sobald dieses Fach (seit dem letzten Leeren) so viele Karten mit demselben gewählten Wert enthält, überspringen weitere es und gehen in das nächste Fach, dessen Regeln zutreffen, oder in das Sammelfach. Beim Begrenzen nach Name zählen verschiedene Drucke derselben Karte zusammen.",
+    "maxCopiesSuffix": "Kopien",
     "overrideDescription": "Wenn diese Regeln zutreffen, hat dieses Fach Vorrang vor normalen Fächern. Treffen mehrere vorrangige Fächer zu, gewinnt Priorität 1 vor 2 und so weiter. Vorrangige Fächer mit derselben Priorität schicken die Karte in das leerste Fach. Verwende hier zum Beispiel Preis ≥ 1, um Karten ab 1 $ vor den Farbfächern in dieses Fach zu sortieren.",
     "needCatchAllError": "Mindestens ein Fach muss als Auffangfach festgelegt sein.",
     "catchAllEnabled": "Auffangfach aktiviert",
@@ -52,7 +51,14 @@
     "priorityOrderCatchAll": "Fach {{number}} (Auffangfach)",
     "catchAllRulesLabel": "Vorrangige Regeln",
     "catchAllRulesDescription": "Karten, auf die diese Regeln zutreffen, landen hier, auch wenn die Regeln eines anderen Fachs passen, etwa eine farbige Karte in einem farblosen Stapel. Leer lassen, um nur Karten aufzufangen, die kein anderes Fach nimmt.",
-    "priorityOrderTie": "{{bins}} (leerstes zuerst)"
+    "priorityOrderTie": "{{bins}} (leerstes zuerst)",
+    "copiesLabel": "Duplikate in diesem Fach",
+    "copiesAllow": "Duplikate erlauben",
+    "copiesByPrinting": "Kopien je Druck begrenzen",
+    "copiesByName": "Kopien je Name begrenzen",
+    "copiesByField": "Kopien je {{field}} begrenzen",
+    "maxCopiesPrefix": "Bis zu",
+    "maxCopiesCountLabel": "Erlaubte Kopien"
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."

@@ -78,6 +78,7 @@ export const binConfigSchema = z.object({
     .min(1, "Must allow at least 1 copy")
     .max(CONDITION_NUMERIC_MAX)
     .nullable(),
+  maxCopiesBy: z.string(),
   lowMatchPercent: z
     .number()
     .min(1, "Must be at least 1%")

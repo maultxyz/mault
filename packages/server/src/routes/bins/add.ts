@@ -17,6 +17,7 @@ import {
   toIsDisabled,
   toLowMatchPercent,
   toMaxCopies,
+  toMaxCopiesBy,
   toOverridePriority,
   activeBinSetWhere,
 } from "./shared";
@@ -86,6 +87,11 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
               lowMatchPercent: toLowMatchPercent(lowMatchPercent, b.isCatchAll),
               cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
               maxCopies: toMaxCopies(b.maxCopies, b.isCatchAll),
+              maxCopiesBy: toMaxCopiesBy(
+                b.maxCopiesBy,
+                b.isCatchAll,
+                toMaxCopies(b.maxCopies, b.isCatchAll),
+              ),
               isDisabled: toIsDisabled(b.isDisabled, b.isCatchAll),
               binSet: newBinSet.id,
               orgId,
