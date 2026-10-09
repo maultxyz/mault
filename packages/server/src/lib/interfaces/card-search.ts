@@ -1,6 +1,8 @@
 import type {
   CardSearchDiagnostics,
+  CardSearchEmbeddings,
   OcrDiagnostics,
+  OcrReadout,
   PlayingCard,
   Result,
   SearchCardMatch,
@@ -106,6 +108,14 @@ export interface CardMatchSearchResult {
   data: SearchCardMatch[] | null;
   nearestDistance: number | null;
   diagnostics?: CardSearchDiagnostics;
+}
+
+export interface CardTextMatchParams {
+  gameKey: string;
+  lang: string;
+  embeddings: CardSearchEmbeddings;
+  readout: OcrReadout;
+  preferredSetCode?: string;
 }
 
 export interface CardTextMatchResult extends CardMatchSearchResult {

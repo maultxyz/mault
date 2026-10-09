@@ -1,6 +1,8 @@
 import type { OcrReadout, OcrRegion } from "@magic-vault/shared";
 import sharp from "sharp";
-import { createWorker, PSM, type Worker } from "tesseract.js";
+import { createWorker, PSM, type Bbox, type Worker } from "tesseract.js";
+import { OCR_CALIBRATION_MIN_WORD_CONFIDENCE } from "./constants/ocr-calibration";
+import type { OcrBox, OcrPageLine } from "./interfaces/ocr-calibration";
 import {
   OCR_DARK_BACKGROUND_THRESHOLD,
   OCR_UPSCALE_FACTOR,
@@ -91,11 +93,54 @@ async function readRegions(
   return readout;
 }
 
+function normalizeBbox(bbox: Bbox, width: number, height: number): OcrBox {
+  return {
+    x0: bbox.x0 / width,
+    y0: bbox.y0 / height,
+    x1: bbox.x1 / width,
+    y1: bbox.y1 / height,
+  };
+}
+
+async function readPageLines(buffer: Buffer): Promise<OcrPageLine[]> {
+  const worker = await getWorker();
+  const { width = 0, height = 0 } = await sharp(buffer).metadata();
+  if (width === 0 || height === 0) return [];
+  await setMode(worker, PSM.SPARSE_TEXT);
+  const { data } = await worker.recognize(buffer, {}, { blocks: true });
+  return (data.blocks ?? []).flatMap((block) =>
+    block.paragraphs.flatMap((paragraph) =>
+      paragraph.lines.flatMap((line) => {
+        const words = line.words
+          .filter(
+            (word) =>
+              word.text.trim() &&
+              word.confidence >= OCR_CALIBRATION_MIN_WORD_CONFIDENCE,
+          )
+          .map((word) => ({
+            text: word.text.trim(),
+            box: normalizeBbox(word.bbox, width, height),
+          }));
+        if (words.length === 0) return [];
+        return [{ words, box: normalizeBbox(line.bbox, width, height) }];
+      }),
+    ),
+  );
+}
+
+function enqueue<T>(task: () => Promise<T>): Promise<T> {
+  const run = queue.then(task);
+  queue = run.catch(() => undefined);
+  return run;
+}
+
 export function ocrRegions(
   buffer: Buffer,
   regions: OcrRegion[],
 ): Promise<OcrReadout> {
-  const run = queue.then(() => readRegions(buffer, regions));
-  queue = run.catch(() => undefined);
-  return run;
+  return enqueue(() => readRegions(buffer, regions));
+}
+
+export function ocrPageLines(buffer: Buffer): Promise<OcrPageLine[]> {
+  return enqueue(() => readPageLines(buffer));
 }

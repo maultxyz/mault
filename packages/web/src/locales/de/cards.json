@@ -67,6 +67,7 @@
     "binLocation": "Fachposition",
     "showOcrRegions": "OCR-Bereiche anzeigen",
     "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
+    "ocrFallback": "{{field}} (Ausweichbereich)",
     "ocrFields": {
       "name": "Name",
       "setLine": "Setzeile",
@@ -264,6 +265,9 @@
     "ocrSetLine": "Gelesene Set-Zeile",
     "ocrNumber": "Gelesene Nummer",
     "ocrMatchedName": "Ähnlichster Kartenname",
+    "ocrUsedFallback": "Ausweichbereiche genutzt",
+    "ocrUsedFallbackYes": "Ja",
+    "ocrUsedFallbackNo": "Nein",
     "ocrNotRun": "OCR lief für diesen Scan nicht.",
     "cardJson": "Kartendaten (JSON)",
     "copyJson": "JSON kopieren",

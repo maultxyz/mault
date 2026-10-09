@@ -2,7 +2,9 @@ import type {
   CardSearchDiagnostics,
   CardSearchEmbeddings,
   OcrDiagnostics,
+  OcrField,
   OcrReadout,
+  OcrRegion,
   SearchCardMatch,
   SearchNoMatchReason,
 } from "@magic-vault/shared";
@@ -27,8 +29,10 @@ import {
 } from "../../lib/constants/ocr";
 import type {
   CardMatchSearchResult,
+  CardTextMatchParams,
   CardTextMatchResult,
 } from "../../lib/interfaces/card-search";
+import { ocrRegions } from "../../lib/ocr";
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -293,19 +297,7 @@ function matchesCollectorNumber(
 
 export async function findCardMatchesByText(
   jwtClaims: string,
-  {
-    gameKey,
-    lang,
-    embeddings,
-    readout,
-    preferredSetCode,
-  }: {
-    gameKey: string;
-    lang: string;
-    embeddings: CardSearchEmbeddings;
-    readout: OcrReadout;
-    preferredSetCode?: string;
-  },
+  { gameKey, lang, embeddings, readout, preferredSetCode }: CardTextMatchParams,
 ): Promise<CardTextMatchResult> {
   const nameQueries = ocrNameQueries(readout.name);
   const noMatch: CardTextMatchResult = {
@@ -357,7 +349,6 @@ export async function findCardMatchesByText(
 
     const matchedName = rows[0].name as string;
     const nameScore = rows[0].name_score as number;
-    const ocr: OcrDiagnostics = { readout, matchedName, nameScore };
 
     const printings = rows
       .filter((row) => row.name === matchedName)
@@ -384,6 +375,13 @@ export async function findCardMatchesByText(
           a.distance - b.distance,
       );
 
+    const ocr: OcrDiagnostics = {
+      readout,
+      matchedName,
+      nameScore,
+      printingConfirmed: printings[0].setLineMatch || printings[0].numberMatch,
+    };
+
     const data: SearchCardMatch[] = withConfidence(
       printings.slice(0, CARD_MATCH_LIMIT),
     ).map(({ id, cardId, distance, confidence }) => ({
@@ -401,6 +399,45 @@ export async function findCardMatchesByText(
       ocr,
     };
   });
+}
+
+function mergeReadouts(primary: OcrReadout, fallback: OcrReadout): OcrReadout {
+  const merge = (field: OcrField) =>
+    [primary[field], fallback[field]].filter(Boolean).join("\n");
+  return {
+    name: merge("name"),
+    setLine: merge("setLine"),
+    number: merge("number"),
+  };
+}
+
+export async function findCardMatchesByOcr(
+  jwtClaims: string,
+  buffer: Buffer,
+  regions: OcrRegion[],
+  params: Omit<CardTextMatchParams, "readout">,
+): Promise<CardTextMatchResult> {
+  const readout = await ocrRegions(
+    buffer,
+    regions.filter((region) => !region.fallback),
+  );
+  const first = await findCardMatchesByText(jwtClaims, { ...params, readout });
+
+  const needsName = !first.data;
+  const needsPrinting = !!first.data && !first.ocr.printingConfirmed;
+  const fallbacks = regions.filter(
+    (region) =>
+      region.fallback &&
+      (needsName || (needsPrinting && region.field !== "name")),
+  );
+  if (fallbacks.length === 0) return first;
+
+  const second = await findCardMatchesByText(jwtClaims, {
+    ...params,
+    readout: mergeReadouts(readout, await ocrRegions(buffer, fallbacks)),
+  });
+  const used = second.data ? second : first;
+  return { ...used, ocr: { ...used.ocr, usedFallback: true } };
 }
 
 export async function attachMatchedCards<T extends CardMatchSearchResult>(
