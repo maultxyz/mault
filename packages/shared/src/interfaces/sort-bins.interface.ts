@@ -92,7 +92,7 @@ export interface BinSet {
   scanOnly: boolean;
   isRepackMode: boolean;
   repackSlots: RepackSlot[];
-  repackAllowDuplicates: boolean;
+  repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
   isAlphabetMode: boolean;
   alphabetPass: number;

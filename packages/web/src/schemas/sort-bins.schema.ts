@@ -100,7 +100,7 @@ export const repackSlotSchema = z.object({
 export type RepackSlotFormValues = z.infer<typeof repackSlotSchema>;
 
 export const repackConfigSchema = z.object({
-  repackAllowDuplicates: z.boolean(),
+  repackUniqueBy: z.string().min(1),
   repackSiftRules: binRuleGroupSchema.nullable(),
   repackSlots: z.array(repackSlotSchema),
 });

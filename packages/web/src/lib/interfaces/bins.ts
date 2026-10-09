@@ -92,7 +92,7 @@ export interface BinConfigsContextValue {
   setRepackConfig: (config: {
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
-    repackAllowDuplicates: boolean;
+    repackUniqueBy: string | null;
     repackSiftRules: BinRuleGroup | null;
   }) => Promise<boolean>;
   setAlphabetPass: (step: AlphabetStep) => Promise<void>;

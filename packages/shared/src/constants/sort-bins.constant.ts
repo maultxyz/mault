@@ -47,3 +47,6 @@ export function createDefaultCatchAllOnlyBins(
     } satisfies BinRuleGroup,
   }));
 }
+
+export const REPACK_UNIQUE_BY_PRINTING = "$printing";
+export const REPACK_UNIQUE_BY_NAME = "$name";
