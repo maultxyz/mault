@@ -15,17 +15,65 @@
     "moduleLabel": "Modul {{n}}",
     "binLabel": "Fach {{n}}",
     "catchAllBinNote": "Sammelfach, alle {{modules}} Bodenklappen offen",
-    "boardType": {
-      "label": "Board",
-      "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+    "nav": {
+      "label": "Abschnitte der Anleitung",
+      "setup": "Einrichtung",
+      "parts": "Teile",
+      "wiring": "Verkabelung",
+      "assembly": "Zusammenbau"
+    }
+  },
+  "setup": {
+    "heading": "Richte deinen Bau ein",
+    "description": "Wähle, wie du den Sortierer baust. Teileliste, Verkabelung und Montageschritte unten richten sich nach dieser Auswahl, die in diesem Browser gespeichert wird.",
+    "stepLabel": "Schritt {{n}}",
+    "source": {
+      "label": "Woher kommen deine Teile?",
+      "kit": {
+        "title": "Ein Mault-Kit",
+        "description": "ESP32-S3 auf seiner Breakout-Platine, 3 Module und bereits geflashte Firmware."
+      },
+      "diy": {
+        "title": "Ich besorge sie selbst",
+        "description": "Kaufe die Teile aus der Liste unten und wähle Board und Modulanzahl selbst."
+      }
     },
-    "kit": {
-      "title": "Baust du mit einem Bausatz?",
-      "description": "Du nutzt einen Mault-Bausatz? Wir passen die Anleitung dafür an: 3 Module, der ESP32-S3 mit Breakout-Board und kein Flashen der Firmware, da das Board einsatzbereit geliefert wird.",
-      "activeDescription": "Anleitung für den Bausatz eingerichtet: 3 Module, der ESP32-S3 mit Breakout-Board. Die Firmware-Phase entfällt, da das Board bereits geflasht geliefert wird.",
-      "button": "Ich nutze einen Bausatz",
-      "active": "Bausatz aktiv"
+    "board": {
+      "label": "Steuerplatine",
+      "uno_r4": {
+        "description": "5V-Logik. Verbindet sich per USB mit der App."
+      },
+      "esp32": {
+        "description": "3,3V-Logik. Verbindet sich per USB oder Bluetooth mit der App."
+      },
+      "kitLocked": "Vom Kit vorgegeben. Wähle \"Ich besorge sie selbst\", um es zu ändern."
+    },
+    "mount": {
+      "label": "ESP32-Montage",
+      "breakout": {
+        "title": "Auf einer Breakout-Platine",
+        "description": "Der ESP32 steckt auf einer Breakout-Platine. Nutzt die Breakout-Versionen der Platinenplatte und einer Basisstütze."
+      },
+      "bare": {
+        "title": "Blanke Platine",
+        "description": "Verkabelung direkt an den Pins des ESP32. Nutzt dieselbe Platinenplatte wie der Arduino."
+      }
+    },
+    "modules": {
+      "label": "Sortiermodule",
+      "description": "Jedes Modul bringt zwei Fächer. Mit dem Sammelfach unten sind es {{bins}} Fächer.",
+      "decreaseAria": "Modulanzahl verringern",
+      "increaseAria": "Modulanzahl erhöhen"
+    },
+    "summary": {
+      "label": "Gebaut für",
+      "change": "Ändern",
+      "kit": "Mault-Kit",
+      "diy": "Eigene Teile",
+      "breakout": "Breakout-Platine",
+      "bare": "Blanke Platine",
+      "modules_one": "{{count}} Modul",
+      "modules_other": "{{count}} Module"
     }
   },
   "footer": {
@@ -43,11 +91,6 @@
     "hopperNote": "Es gibt zwei Trichter-Varianten: den klassischen Trichter und ein neueres Design, das sich leichter an unterschiedliche Kartenstärken anpasst. Die unten mit Optional, klassischer Trichter bzw. Optional, neuer Trichter markierten Teile gehören zu der Variante, die du nicht baust – du brauchst nur einen Satz.",
     "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
     "partsListLabel": "Vollständige Teileliste",
-    "moduleCount": {
-      "label": "Module",
-      "decreaseAria": "Modulanzahl verringern",
-      "increaseAria": "Modulanzahl erhöhen"
-    },
     "progress": {
       "partsCount": "{{done}} von {{total}} Teilen"
     },
@@ -289,11 +332,6 @@
     "helpText": "Bei einem Schritt nicht weiter? <a>Tritt dem Discord bei</a>, wenn du Hilfe brauchst.",
     "hasVideoAria": "Enthält ein Video zur Anleitung",
     "videoTitle": "Montagevideo",
-    "esp32MountType": {
-      "label": "ESP32-Montage",
-      "breakout": "Mit Breakout-Platine",
-      "bare": "Ohne Breakout-Platine"
-    },
     "progress": {
       "stepsCount": "{{done}} von {{total}} Schritten"
     },
@@ -313,8 +351,8 @@
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} Base-Support-Teile mit 1 Stufe aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die beiden Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren.",
-            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} mit 1 Stufe, dazu 1 Breakout-Basisstütze mit {{breakoutHeight}} Stufen anstelle eines der regulären Teile mit {{breakoutHeight}} Stufen. Die Breakout-Variante bietet den zusätzlichen Freiraum, den die Breakout-Platine benötigt. Die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} Base-Support-Teile mit 1 Stufe aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die beiden Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren.",
+            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} mit 1 Stufe, dazu 1 Breakout-Basisstütze mit {{breakoutHeight}} Stufen anstelle eines der regulären Teile mit {{breakoutHeight}} Stufen. Die Breakout-Variante bietet den zusätzlichen Freiraum, den die Breakout-Platine benötigt. Die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren."
           },
           "printPlateBaseBottom": {
             "esp32OrArduino": "Drucke 1 Circuit-Board-Platte (ESP32 / Arduino). Diese Platte deckt jetzt sowohl die Arduino- als auch die ESP32-Montage ohne Breakout-Platine ab, in beiden Fällen dieselbe Platte.",
@@ -327,7 +365,7 @@
             "text": "Drucke 1 End-Platte."
           },
           "printGenericBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren."
           },
           "printBinsPlate": {
             "text": "Drucke 2 Bins-Platten.",

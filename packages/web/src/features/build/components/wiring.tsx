@@ -8,6 +8,8 @@ import { BOARD_INFO } from "@/lib/constants/build";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useModuleCount } from "@/features/build/api/use-module-count";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
+import { Callout } from "@/components/callout";
 import { wiringAnchorId } from "@/features/build/lib/anchors";
 import { cn } from "@/lib/utils";
 import { IconInfoCircle } from "@tabler/icons-react";
@@ -138,10 +140,14 @@ export function BuildWiring() {
           components={{ pin: <Pin /> }}
         />
       </p>
-      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2.5 text-sm/relaxed text-blue-900 dark:bg-blue-500/10 dark:text-blue-300">
-        <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
-        <span>{t("wiring.wireColorNote")}</span>
-      </div>
+      <BuildSelectionSummary />
+      <Callout
+        variant="info"
+        icon={IconInfoCircle}
+        className="mt-4 max-w-2xl px-3 py-2.5 text-sm/relaxed"
+      >
+        {t("wiring.wireColorNote")}
+      </Callout>
 
       <Accordion multiple defaultValue={["wiring"]} className="mt-8">
         <AccordionItem value="wiring" className="border-b-0">

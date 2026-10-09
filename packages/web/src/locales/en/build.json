@@ -15,17 +15,65 @@
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bin {{n}}",
     "catchAllBinNote": "catch-all, all {{modules}} bottoms open",
-    "boardType": {
-      "label": "Board",
-      "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+    "nav": {
+      "label": "Guide sections",
+      "setup": "Set up",
+      "parts": "Parts",
+      "wiring": "Wiring",
+      "assembly": "Assembly"
+    }
+  },
+  "setup": {
+    "heading": "Set up your build",
+    "description": "Choose how you're building the sorter. The parts list, wiring and assembly steps below follow these choices, which are saved in this browser.",
+    "stepLabel": "Step {{n}}",
+    "source": {
+      "label": "Where are your parts from?",
+      "kit": {
+        "title": "A Mault kit",
+        "description": "ESP32-S3 on its breakout board, 3 modules, and the firmware already flashed."
+      },
+      "diy": {
+        "title": "Sourcing my own",
+        "description": "Buy the parts from the list below and pick your own board and module count."
+      }
     },
-    "kit": {
-      "title": "Building from a kit?",
-      "description": "Using a Mault kit? We'll set up the guide for it: 3 modules, the ESP32-S3 with its breakout board, and no firmware flashing since the board ships ready to go.",
-      "activeDescription": "Guide set up for the kit: 3 modules, the ESP32-S3 with its breakout board. The firmware phase is skipped because the board ships pre-flashed.",
-      "button": "I'm using a kit",
-      "active": "Using a kit"
+    "board": {
+      "label": "Controller board",
+      "uno_r4": {
+        "description": "5V logic. Connects to the app over USB."
+      },
+      "esp32": {
+        "description": "3.3V logic. Connects to the app over USB or Bluetooth."
+      },
+      "kitLocked": "Set by the kit. Choose \"Sourcing my own\" to change it."
+    },
+    "mount": {
+      "label": "ESP32 mounting",
+      "breakout": {
+        "title": "On a breakout board",
+        "description": "The ESP32 plugs into a breakout board. Uses the breakout versions of the circuit board plate and one base support."
+      },
+      "bare": {
+        "title": "Bare board",
+        "description": "Wire straight to the ESP32's pins. Uses the same circuit board plate as the Arduino."
+      }
+    },
+    "modules": {
+      "label": "Sorting modules",
+      "description": "Each module adds two bins. With the catch-all at the bottom, that's {{bins}} bins.",
+      "decreaseAria": "Decrease module count",
+      "increaseAria": "Increase module count"
+    },
+    "summary": {
+      "label": "Building for",
+      "change": "Change",
+      "kit": "Mault kit",
+      "diy": "Own parts",
+      "breakout": "Breakout board",
+      "bare": "Bare board",
+      "modules_one": "{{count}} module",
+      "modules_other": "{{count}} modules"
     }
   },
   "footer": {
@@ -43,11 +91,6 @@
     "hopperNote": "There are two hopper styles: the classic hopper and a newer design that accommodates different card thicknesses more easily. Parts tagged Optional, classic hopper or Optional, new hopper below belong to whichever style you aren't building. You only need one set.",
     "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
     "partsListLabel": "Full parts list",
-    "moduleCount": {
-      "label": "Modules",
-      "decreaseAria": "Decrease module count",
-      "increaseAria": "Increase module count"
-    },
     "progress": {
       "partsCount": "{{done}} of {{total}} parts"
     },
@@ -289,11 +332,6 @@
     "helpText": "Stuck on a step? <a>Join the Discord</a> if you need help.",
     "hasVideoAria": "Includes walkthrough video",
     "videoTitle": "Assembly video",
-    "esp32MountType": {
-      "label": "ESP32 mount",
-      "breakout": "With breakout board",
-      "bare": "Without breakout board"
-    },
     "progress": {
       "stepsCount": "{{done}} of {{total}} steps"
     },
@@ -312,8 +350,8 @@
             "text": "Print 1 Sorting Module Shroud. Only one needed. The cover that sits over the stacked modules."
           },
           "printPlateBase": {
-            "text": "For {{modules}} sorting modules, print {{threeTall}} 3-tall Base Support pieces and {{oneTall}} 1-tall Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the two piece heights to build up each tier. Change the module count in the parts list above to update this.",
-            "breakoutText": "For {{modules}} sorting modules, print {{threeTall}} 3-tall and {{oneTall}} 1-tall Base Support pieces, plus 1 {{breakoutHeight}}-tall Breakout Base Support in place of one of the regular {{breakoutHeight}}-tall pieces. The breakout variant has the extra clearance the breakout board's footprint needs. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the piece heights to build up each tier. Change the module count in the parts list above to update this."
+            "text": "For {{modules}} sorting modules, print {{threeTall}} 3-tall Base Support pieces and {{oneTall}} 1-tall Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the two piece heights to build up each tier. Change the module count in the setup above to update this.",
+            "breakoutText": "For {{modules}} sorting modules, print {{threeTall}} 3-tall and {{oneTall}} 1-tall Base Support pieces, plus 1 {{breakoutHeight}}-tall Breakout Base Support in place of one of the regular {{breakoutHeight}}-tall pieces. The breakout variant has the extra clearance the breakout board's footprint needs. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the piece heights to build up each tier. Change the module count in the setup above to update this."
           },
           "printPlateBaseBottom": {
             "esp32OrArduino": "Print 1 Circuit Board Plate (ESP32 / Arduino). This plate now covers both the Arduino and the bare ESP32 mount, the same plate either way.",
@@ -326,7 +364,7 @@
             "text": "Print 1 End Plate."
           },
           "printGenericBase": {
-            "text": "For {{modules}} sorting modules, print {{count}} Generic Plates. Change the module count in the parts list above to update this."
+            "text": "For {{modules}} sorting modules, print {{count}} Generic Plates. Change the module count in the setup above to update this."
           },
           "printBinsPlate": {
             "text": "Print 2 Bins Plates.",
