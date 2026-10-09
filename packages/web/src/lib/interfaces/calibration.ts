@@ -233,6 +233,11 @@ export interface DeviceCalibration {
   feeder: FeederCalibration;
 }
 
+export interface QueuedDeviceApply {
+  changes: Partial<DeviceCalibration>;
+  promise: Promise<void>;
+}
+
 export interface DeviceCalibrationSyncContextValue {
   applyToDevice: (changes: Partial<DeviceCalibration>) => Promise<void>;
 }
