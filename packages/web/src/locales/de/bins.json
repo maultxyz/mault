@@ -115,6 +115,7 @@
       "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden",
       "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden",
       "emptyBinFailed": "Fach konnte nicht als geleert markiert werden",
+      "emptyAllBinsFailed": "Fächer konnten nicht geleert werden",
       "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden",
       "alphabetFailed": "Alphabetische Sortierung konnte nicht aktualisiert werden",
       "chaosFailed": "Chaotisches Sortieren konnte nicht aktualisiert werden",

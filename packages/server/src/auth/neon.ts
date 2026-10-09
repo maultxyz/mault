@@ -95,6 +95,12 @@ export const neonAuthProvider: AuthProvider = {
             LEFT JOIN neon_auth.member m ON m."userId" = u.id
             LEFT JOIN neon_auth.organization o ON o.id = m."organizationId"
             WHERE u.name ILIKE ${pattern} OR u.email ILIKE ${pattern}
+              OR EXISTS (
+                SELECT 1
+                FROM neon_auth.member om
+                JOIN neon_auth.organization oo ON oo.id = om."organizationId"
+                WHERE om."userId" = u.id AND oo.name ILIKE ${pattern}
+              )
             GROUP BY u.id, u.name, u.email, u.role
             ORDER BY u.email
             LIMIT ${limit}

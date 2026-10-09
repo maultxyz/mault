@@ -163,8 +163,8 @@
   "impersonationUsersManager": {
     "heading": "Als Benutzer anmelden",
     "description": "Suche einen Benutzer, um die App aus dessen Sicht zu sehen (für Support/Debugging)",
-    "searchPlaceholder": "Nach Name oder E-Mail suchen...",
-    "startTyping": "Beginne mit der Eingabe eines Namens oder einer E-Mail, um zu suchen",
+    "searchPlaceholder": "Nach Name, E-Mail oder Organisation suchen...",
+    "startTyping": "Beginne mit der Eingabe eines Namens, einer E-Mail oder einer Organisation, um zu suchen",
     "empty": "Keine Benutzer gefunden",
     "noOrgs": "Keine Organisationen",
     "adminBadge": "Admin",

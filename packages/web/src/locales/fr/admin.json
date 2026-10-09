@@ -163,8 +163,8 @@
   "impersonationUsersManager": {
     "heading": "Emprunter l'identité d'un utilisateur",
     "description": "Recherche un utilisateur pour voir l'application comme lui, à des fins de support/débogage",
-    "searchPlaceholder": "Rechercher par nom ou email...",
-    "startTyping": "Commence à taper un nom ou un email pour rechercher",
+    "searchPlaceholder": "Rechercher par nom, email ou organisation...",
+    "startTyping": "Commence à taper un nom, un email ou une organisation pour rechercher",
     "empty": "Aucun utilisateur trouvé",
     "noOrgs": "Aucune organisation",
     "adminBadge": "Admin",

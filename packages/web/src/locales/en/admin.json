@@ -163,8 +163,8 @@
   "impersonationUsersManager": {
     "heading": "Impersonate User",
     "description": "Search for a user to view the app as them, for support/debugging",
-    "searchPlaceholder": "Search by name or email...",
-    "startTyping": "Start typing a name or email to search",
+    "searchPlaceholder": "Search by name, email or organization...",
+    "startTyping": "Start typing a name, email or organization to search",
     "empty": "No users found",
     "noOrgs": "No organizations",
     "adminBadge": "Admin",
