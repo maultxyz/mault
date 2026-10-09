@@ -538,6 +538,37 @@ export const orgApiKeys = pgTable(
   ],
 ).enableRLS();
 
+export const webhookEndpoints = pgTable(
+  "webhook_endpoints",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    url: text("url").notNull(),
+    description: text("description"),
+    events: jsonb("events").$type<string[]>().notNull().default([]),
+    secret: text("secret").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    disabledAt: timestamp("disabled_at"),
+    disabledReason: text("disabled_reason"),
+    lastDeliveryAt: timestamp("last_delivery_at"),
+    lastStatus: integer("last_status"),
+    lastError: text("last_error"),
+    consecutiveFailures: integer("consecutive_failures").notNull().default(0),
+  },
+  (table) => [
+    unique("webhook_endpoints_guid_idx").on(table.guid),
+    index("webhook_endpoints_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
 export const unmatchedCards = pgTable(
   "unmatched_cards",
   {

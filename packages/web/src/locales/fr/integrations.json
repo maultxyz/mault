@@ -132,5 +132,57 @@
   "api": {
     "heading": "API",
     "subtitle": "Permettez à vos propres systèmes, comme une boutique en ligne, de savoir dans quelle boîte se trouve chaque carte."
+  },
+  "webhooks": {
+    "heading": "Webhooks",
+    "description": "Mault envoie un événement à votre URL quand des cartes sont scannées ou rangées dans un emplacement. Chaque webhook a son propre secret de signature pour vérifier qu'une requête vient bien de Mault.",
+    "add": "Ajouter un webhook",
+    "addTitle": "Ajouter un webhook",
+    "editTitle": "Modifier le webhook",
+    "dialogDescription": "Mault envoie une requête POST signée avec un corps JSON à cette URL. Elle doit être une adresse https:// publique.",
+    "save": "Enregistrer",
+    "saved": "Webhook enregistré.",
+    "saveFailed": "Impossible d'enregistrer le webhook.",
+    "urlLabel": "URL",
+    "invalidUrl": "Saisissez une URL https:// publique.",
+    "descriptionLabel": "Nom (facultatif)",
+    "descriptionPlaceholder": "Boutique en ligne",
+    "eventsLabel": "Événements",
+    "eventsRequired": "Choisissez au moins un événement.",
+    "events": {
+      "card": {
+        "scanned": "Une carte a été scannée et enregistrée dans une collection."
+      },
+      "cards": {
+        "stored": "Un bac a été rangé dans un emplacement. Inclut la boîte et la position de chaque carte."
+      }
+    },
+    "empty": "Aucun webhook pour l'instant.",
+    "disabled": "Désactivé",
+    "actions": "Actions du webhook",
+    "sendTest": "Envoyer un événement de test",
+    "edit": "Modifier",
+    "enable": "Réactiver",
+    "delete": "Supprimer",
+    "enabled": "Webhook réactivé.",
+    "enableFailed": "Impossible de réactiver le webhook.",
+    "testSucceeded": "Test livré (HTTP {{status}}).",
+    "testRejected": "Échec du test : {{error}}",
+    "testFailed": "Impossible d'envoyer l'événement de test.",
+    "unknownError": "Erreur inconnue",
+    "neverDelivered": "Rien livré pour l'instant",
+    "lastSucceeded": "Dernière livraison {{date}} : HTTP {{status}}",
+    "lastFailed": "Échec de la dernière livraison {{date}} : {{error}}",
+    "deleted": "Webhook supprimé.",
+    "deleteFailed": "Impossible de supprimer le webhook.",
+    "deleteConfirmTitle": "Supprimer ce webhook ?",
+    "deleteConfirmDescription": "Mault cesse immédiatement d'envoyer des événements à cette URL. Cette action est irréversible.",
+    "secretTitle": "Copiez votre secret de signature",
+    "secretDescription": "Utilisez-le pour vérifier l'en-tête X-Mault-Signature de chaque requête. Il n'est affiché qu'une seule fois.",
+    "copySecret": "Copier le secret",
+    "secretCopied": "Secret de signature copié.",
+    "copyFailed": "Impossible de copier le secret.",
+    "upgrade": "Les webhooks font partie de l'offre Business.",
+    "loadFailed": "Impossible de charger les webhooks."
   }
 }

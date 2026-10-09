@@ -100,6 +100,7 @@ Each file holds only the variables its provider uses, with `AUTH_PROVIDER`/`VITE
    - `OWN_AUTH_TOKEN_PEPPER` — 32+ random bytes; own-auth uses it to hash sessions/tokens/API keys
    - `IMPERSONATION_SECRET` — any random string
    - `MONITOR_LINK_SECRET` — any random string (optional; enables shareable no-login monitor links)
+   - `WEBHOOK_ALLOW_INSECURE_URLS`: `true` lets webhooks use `http://` and private addresses such as LAN or `localhost` targets (optional; off by default, keep it off on any server reachable from the internet)
 2. Start the stack:
    ```bash
    docker compose up -d

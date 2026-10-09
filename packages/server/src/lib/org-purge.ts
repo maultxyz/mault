@@ -23,6 +23,7 @@ import {
   soundClips,
   soundRules,
   storageLocations,
+  webhookEndpoints,
 } from "../db/schema";
 const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "canceled",
@@ -70,6 +71,7 @@ export async function purgeOrgData(
 
   await tx.delete(collectionCards).where(eq(collectionCards.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
+  await tx.delete(webhookEndpoints).where(eq(webhookEndpoints.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
   await tx.delete(storageLocations).where(eq(storageLocations.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));

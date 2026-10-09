@@ -1,0 +1,9 @@
+export const WEBHOOK_EVENTS = ["card.scanned", "cards.stored"] as const;
+export const WEBHOOK_TEST_EVENT = "webhook.test";
+export const WEBHOOK_ENDPOINTS_PER_ORG_LIMIT = 10;
+export const WEBHOOK_URL_MAX_LENGTH = 2048;
+export const WEBHOOK_DESCRIPTION_MAX_LENGTH = 60;
+export const WEBHOOK_SECRET_PREFIX = "whsec_";
+export const WEBHOOK_SIGNATURE_HEADER = "X-Mault-Signature";
+export const WEBHOOK_EVENT_HEADER = "X-Mault-Event";
+export const WEBHOOK_DELIVERY_HEADER = "X-Mault-Delivery";

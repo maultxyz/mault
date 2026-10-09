@@ -3,6 +3,8 @@ import type {
   DiscordRole,
   DiscordIntegration,
   NotificationRule,
+  WebhookEndpoint,
+  WebhookEndpointInput,
 } from "@magic-vault/shared";
 
 export interface NotificationRuleListProps {
@@ -61,4 +63,12 @@ export interface CollectionOverrideDialogProps {
 export interface PendingDiscordLinkCode {
   code: string;
   expiresAt: number;
+}
+
+export interface WebhookDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  endpoint: WebhookEndpoint | null;
+  isSaving: boolean;
+  onSubmit: (input: WebhookEndpointInput) => void;
 }

@@ -121,3 +121,66 @@ GET /v1/cards?cardId=<printing id>&foil=false&inStorage=true
 ```
 
 Each item's `location.name` and `location.position` say which box and where in it. If your shop doesn't store Mault's `cardId`, use `set` and `number` (or `name`) instead.
+
+## Webhooks
+
+Instead of polling, Mault can POST events to your server. Add a webhook in **Settings > Integrations > Webhooks** (organization owners and admins) with a public `https://` URL and the events it should receive. You get a signing secret (`whsec_...`) once, when you create it.
+
+### Events
+
+| Event | Sent when | `data` |
+| --- | --- | --- |
+| `card.scanned` | A card is scanned and saved, or an unmatched scan is identified. | `{ "card": <card> }` |
+| `cards.stored` | A bin is put away into a storage location. | `{ "location": { "guid", "name" }, "cards": [<card>, ...] }`, in position order, at most 200 cards per event (a bigger bin sends several events) |
+
+`<card>` is the same shape `/v1/cards` returns. At scan time a card has no `location` yet; it gets one when its bin is put away, which is the `cards.stored` event. "Send test event" posts a `webhook.test` event with `{ "message": ... }`.
+
+Every request body looks like:
+
+```json
+{
+  "id": "6f1c2b7e-...",
+  "type": "cards.stored",
+  "createdAt": "2026-10-09T15:20:02.118Z",
+  "data": { ... }
+}
+```
+
+with these headers:
+
+| Header | Value |
+| --- | --- |
+| `X-Mault-Event` | The event type. |
+| `X-Mault-Delivery` | The event `id`. Retries reuse it, so use it to ignore duplicates. |
+| `X-Mault-Signature` | `t=<unix seconds>,v1=<hex HMAC-SHA256 of "<t>.<raw body>" with your secret>` |
+
+### Verifying the signature
+
+Compute the HMAC over the raw request body exactly as received (before parsing JSON), compare in constant time, and reject old timestamps:
+
+```js
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+function verifyMaultWebhook(rawBody, signatureHeader, secret) {
+  const parts = Object.fromEntries(
+    signatureHeader.split(",").map((part) => part.split("=")),
+  );
+  const timestamp = Number(parts.t);
+  if (!timestamp || Math.abs(Date.now() / 1000 - timestamp) > 300) return false;
+  const expected = createHmac("sha256", secret)
+    .update(`${parts.t}.${rawBody}`)
+    .digest("hex");
+  return (
+    expected.length === parts.v1?.length &&
+    timingSafeEqual(Buffer.from(expected), Buffer.from(parts.v1))
+  );
+}
+```
+
+### Delivery and retries
+
+- Answer with any `2xx` within 10 seconds. Anything else (including redirects, which aren't followed) counts as a failure.
+- A failed delivery is retried after 10 seconds, 1 minute, 5 minutes and 30 minutes, then dropped.
+- After 20 failed deliveries in a row the webhook is disabled. Fix your endpoint, then use **Re-enable**. Events from while it was disabled aren't sent.
+- Deliveries can arrive more than once and out of order. Deduplicate on `X-Mault-Delivery` (or the card's `scanId`).
+- Webhooks are part of the Business plan; deliveries stop if the organization leaves it.
