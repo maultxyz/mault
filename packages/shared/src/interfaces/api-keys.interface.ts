@@ -1,4 +1,3 @@
-import type { PlayingCard } from "./card.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
 import type { API_KEY_SCOPES } from "../constants/api-keys.constant";
 
@@ -64,11 +63,13 @@ export interface PublicApiCard {
   scannedAt: string;
   createdAt: string;
   updatedAt: string;
-  card: PlayingCard;
 }
 
-export interface PublicApiPage<T> {
+export interface PublicApiCursorPage<T> {
   items: T[];
   nextCursor: string | null;
+}
+
+export interface PublicApiPage<T> extends PublicApiCursorPage<T> {
   nextSince: string;
 }

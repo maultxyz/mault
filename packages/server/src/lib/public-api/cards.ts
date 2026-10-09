@@ -1,19 +1,19 @@
 import {
   PRICE_SOURCE_FIELDS,
   type PublicApiCard,
+  type PublicApiCursorPage,
   type PublicApiPage,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
-import {
-  cardWithStoredPricesSql,
-  scannedCardPriceSql,
-} from "../card-price-sql";
+import { scannedCardPriceSql } from "../card-price-sql";
 import { CC_ALIAS_SQL_COLUMNS } from "../constants/card-prices";
 import type {
   PublicApiCardCursor,
   PublicApiCardFilters,
   PublicApiCardRow,
+  PublicApiLocationCardFilters,
+  PublicApiLocationCursor,
 } from "../interfaces/public-api";
 import { loadOrgPriceSource } from "../price-source";
 import {
@@ -39,7 +39,10 @@ async function selectCards(
   const result = await tx.execute(sql`
     SELECT cc.id, cc.guid::text AS scan_id, cc.card_id, cc.is_foil, cc.foil_type,
       (cc.needs_review OR (cc.alternative_matches IS NOT NULL AND cc.alternative_matches <> '[]'::jsonb)) AS needs_review,
-      ${cardWithStoredPricesSql(sql`(cc.card - 'raw' - 'distance' - 'confidence')`, CC_ALIAS_SQL_COLUMNS)} AS card,
+      cc.card ->> 'name' AS name, cc.card ->> 'set' AS set_code,
+      cc.card ->> 'setName' AS set_name,
+      cc.card ->> 'collectorNumber' AS collector_number,
+      cc.card ->> 'rarity' AS rarity,
       ${scannedCardPriceSql(priceSource, CC_ALIAS_SQL_COLUMNS)} AS price,
       col.guid::text AS collection_guid, col.name AS collection_name, col.lang,
       g.key AS game,
@@ -73,11 +76,11 @@ function toPublicApiCard(
     game: row.game,
     lang: row.lang,
     cardId: row.card_id,
-    name: row.card.name,
-    set: row.card.set,
-    setName: row.card.setName,
-    collectorNumber: row.card.collectorNumber,
-    rarity: row.card.rarity,
+    name: row.name,
+    set: row.set_code,
+    setName: row.set_name,
+    collectorNumber: row.collector_number,
+    rarity: row.rarity,
     isFoil: row.is_foil,
     foilType: row.foil_type,
     price: row.price == null ? null : Number(row.price),
@@ -94,7 +97,6 @@ function toPublicApiCard(
     scannedAt: row.scanned_at,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
-    card: row.card,
   };
 }
 
@@ -109,9 +111,6 @@ function filterConditions(filters: PublicApiCardFilters): SQL[] {
   }
   if (filters.collectionGuid) {
     conditions.push(sql`col.guid = ${filters.collectionGuid}::uuid`);
-  }
-  if (filters.locationGuid) {
-    conditions.push(sql`sl.guid = ${filters.locationGuid}::uuid`);
   }
   if (filters.inStorage !== null) {
     conditions.push(
@@ -200,4 +199,42 @@ export async function loadPublicApiCard(
     1,
   );
   return rows[0] ? toPublicApiCard(rows[0], currency) : null;
+}
+
+export async function loadPublicApiLocationCards(
+  tx: Transaction,
+  orgId: string,
+  locationGuid: string,
+  filters: PublicApiLocationCardFilters,
+): Promise<PublicApiCursorPage<PublicApiCard> | null> {
+  const location = await tx.execute(sql`
+    SELECT id FROM storage_locations
+    WHERE guid = ${locationGuid}::uuid AND org_id = ${orgId} AND is_deleted = false
+  `);
+  const locationId = (location.rows[0] as { id: number } | undefined)?.id;
+  if (locationId === undefined) return null;
+  const position = sql`COALESCE(cc.location_position, 0)`;
+  const conditions: SQL[] = [sql`cc.location_id = ${locationId}`];
+  if (filters.cursor) {
+    conditions.push(
+      sql`(${position}, cc.id) > (${filters.cursor.p}::int, ${filters.cursor.i}::int)`,
+    );
+  }
+  const { rows, currency } = await selectCards(
+    tx,
+    orgId,
+    conditions,
+    sql`${position}, cc.id`,
+    filters.limit + 1,
+  );
+  const page = rows.slice(0, filters.limit);
+  const last = page[page.length - 1];
+  const nextCursor: PublicApiLocationCursor | null =
+    rows.length > filters.limit && last
+      ? { p: last.location_position ?? 0, i: last.id }
+      : null;
+  return {
+    items: page.map((row) => toPublicApiCard(row, currency)),
+    nextCursor: nextCursor ? encodeCursor(nextCursor) : null,
+  };
 }

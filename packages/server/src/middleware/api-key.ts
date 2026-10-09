@@ -1,13 +1,15 @@
 import { API_KEY_PREFIX } from "@magic-vault/shared";
 import { createMiddleware } from "hono/factory";
 import { hashApiKey, resolveApiKey } from "../lib/api-keys";
-import { API_ACCESS_UPGRADE_MESSAGE } from "../lib/constants/api-keys";
+import {
+  API_ACCESS_UPGRADE_MESSAGE,
+  API_KEY_HEADER,
+} from "../lib/constants/api-keys";
 import type { ApiKeyEnv } from "../lib/interfaces/api-keys";
 import { consumeRateLimit } from "../lib/public-api/rate-limit";
 
 export const requireApiKey = createMiddleware<ApiKeyEnv>(async (c, next) => {
-  const header = c.req.header("Authorization");
-  const token = header?.startsWith("Bearer ") ? header.slice(7).trim() : "";
+  const token = c.req.header(API_KEY_HEADER)?.trim() ?? "";
   if (!token.startsWith(API_KEY_PREFIX)) {
     return c.json(
       { success: false, message: "Missing or invalid API key." },
