@@ -15,6 +15,7 @@ import {
   THEME_OPTIONS,
 } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { STATS_PATH } from "@/lib/constants/stats";
 import type {
   MobileMenuRowProps,
   MobileMoreSheetProps,
@@ -24,6 +25,7 @@ import { cn } from "@/lib/utils";
 import {
   IconActivityHeartbeat,
   IconArrowUpRight,
+  IconChartBar,
   IconBrandDiscord,
   IconBuilding,
   IconCheck,
@@ -159,6 +161,11 @@ export function MobileMoreSheet({ open, onOpenChange }: MobileMoreSheetProps) {
               label={tSettings("appearance.language")}
               value={LANGUAGE_NATIVE_NAMES[language] ?? language}
               onClick={() => go(SETTINGS_PATHS.general)}
+            />
+            <MobileMenuRow
+              icon={<IconChartBar className="size-5" />}
+              label={t("nav.stats")}
+              onClick={() => go(STATS_PATH)}
             />
             <MobileMenuRow
               icon={<IconActivityHeartbeat className="size-5" />}

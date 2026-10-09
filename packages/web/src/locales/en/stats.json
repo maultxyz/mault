@@ -1,0 +1,102 @@
+{
+  "title": "Stats",
+  "subtitle": "Charts and numbers across your collections",
+  "error": "Couldn't load stats. Try again in a moment.",
+  "empty": {
+    "title": "No cards yet",
+    "description": "Stats show up here once you've scanned some cards."
+  },
+  "controls": {
+    "collection": "Collection",
+    "allCollections": "All collections",
+    "range": "Time range",
+    "ranges": {
+      "7d": "7d",
+      "30d": "30d",
+      "90d": "90d",
+      "1y": "1y"
+    }
+  },
+  "tiles": {
+    "totalValue": "Total value",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "cards": "Cards",
+    "uniqueHint": "{{count}} unique",
+    "avgValue": "Average card",
+    "pricedHint": "{{count}} with a price",
+    "scanned": {
+      "7d": "Scanned, last 7 days",
+      "30d": "Scanned, last 30 days",
+      "90d": "Scanned, last 90 days",
+      "1y": "Scanned, last year"
+    },
+    "valueAddedHint": "{{value}} added",
+    "foils": "Foils",
+    "shareHint": "{{percent}}% of cards",
+    "needsReview": "Needs review",
+    "correctedHint": "{{count}} reviewed"
+  },
+  "activity": {
+    "title": "Scanning activity",
+    "description": {
+      "day": "Cards scanned each day",
+      "week": "Cards scanned each week"
+    },
+    "metrics": {
+      "count": "Cards",
+      "value": "Value added"
+    },
+    "weekOf": "Week of {{date}}",
+    "thisWeek": "This week",
+    "today": "Today"
+  },
+  "compare": {
+    "title": "Compare collections",
+    "description": "How your collections stack up. Pick one to see its own stats.",
+    "metrics": {
+      "totalValue": "Value",
+      "cardCount": "Cards",
+      "scansInRange": "Scanned"
+    },
+    "share": "{{percent}}%",
+    "never": "Never",
+    "columns": {
+      "name": "Collection",
+      "cardCount": "Cards",
+      "uniqueCount": "Unique",
+      "totalValue": "Value",
+      "avgValue": "Avg card",
+      "scansInRange": "Scanned",
+      "lastScanAt": "Last scan"
+    }
+  },
+  "prices": {
+    "title": "Price distribution",
+    "description": "Priced cards grouped by value",
+    "atLeast": "{{min}} and up",
+    "under": "Under {{max}}",
+    "between": "{{min}} to {{max}}"
+  },
+  "games": {
+    "title": "By game",
+    "none": "No game"
+  },
+  "sets": {
+    "title": "Top sets by value"
+  },
+  "rarities": {
+    "title": "Rarity"
+  },
+  "colors": {
+    "title": "Colors"
+  },
+  "foils": {
+    "title": "Foil types"
+  },
+  "topCards": {
+    "title": "Most valuable cards"
+  },
+  "cardCount_one": "{{count}} card",
+  "cardCount_other": "{{count}} cards"
+}

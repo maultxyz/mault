@@ -26,11 +26,13 @@ import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
 import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { STATS_PATH } from "@/lib/constants/stats";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconAlbum,
   IconBox,
+  IconChartBar,
   IconBrandDiscord,
   IconCameraSpark,
   IconDatabaseCog,
@@ -265,9 +267,7 @@ function SubItem({
       }
     >
       <span className="truncate flex-1">{label}</span>
-      {badge && (
-        <span className="shrink-0 size-1.5 rounded-full bg-success" />
-      )}
+      {badge && <span className="shrink-0 size-1.5 rounded-full bg-success" />}
     </NavLink>
   );
 }
@@ -337,6 +337,11 @@ export function AppNav() {
         label: c.name,
         badge: !!locks[c.guid],
       })),
+    },
+    {
+      to: STATS_PATH,
+      icon: <IconChartBar size={20} />,
+      label: t("nav.stats"),
     },
     {
       to: STORAGE_PATH,
