@@ -1,5 +1,4 @@
 import { Checkbox } from "@/components/ui/checkbox";
-import { buttonVariants } from "@/components/ui/button";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
 import { useEsp32MountType } from "@/features/build/api/use-esp32-mount-type";
@@ -11,6 +10,7 @@ import {
   optionalBadgeLabel,
 } from "@/features/build/lib/build-phases";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { phaseAnchorId, stepAnchorId } from "@/features/build/lib/anchors";
 import { DISCORD_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
@@ -23,7 +23,7 @@ export function BuildAssembly() {
   const { checked, toggle } = useBuildChecklist();
   const { moduleCount } = useModuleCount();
   const { boardType } = useBoardType();
-  const { mountType, setMountType } = useEsp32MountType();
+  const { mountType } = useEsp32MountType();
   const { usingKit } = useKitMode();
 
   const PHASES = useMemo(
@@ -65,41 +65,7 @@ export function BuildAssembly() {
         />
       </p>
 
-      {boardType === "esp32" && (
-        <div className="mt-4 flex items-center gap-3">
-          <span className="font-mono text-xs font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("assembly.esp32MountType.label")}
-          </span>
-          <div className="flex items-center gap-1 rounded-md border p-0.5">
-            <button
-              type="button"
-              onClick={() => setMountType("breakout")}
-              className={cn(
-                buttonVariants({
-                  variant: mountType === "breakout" ? "secondary" : "ghost",
-                  size: "sm",
-                }),
-                mountType !== "breakout" && "text-foreground/70",
-              )}
-            >
-              {t("assembly.esp32MountType.breakout")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMountType("bare")}
-              className={cn(
-                buttonVariants({
-                  variant: mountType === "bare" ? "secondary" : "ghost",
-                  size: "sm",
-                }),
-                mountType !== "bare" && "text-foreground/70",
-              )}
-            >
-              {t("assembly.esp32MountType.bare")}
-            </button>
-          </div>
-        </div>
-      )}
+      <BuildSelectionSummary />
 
       <div className="mt-6">
         <div className="mb-1.5 flex items-center justify-between font-mono text-xs text-foreground/70">
