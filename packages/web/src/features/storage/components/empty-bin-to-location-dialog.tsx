@@ -16,11 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useOrg } from "@/features/companies/api/use-organization";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
-import { LAST_STORAGE_LOCATION_STORAGE_KEY_PREFIX } from "@/lib/constants/storage-keys";
 import {
   EMPTY_BIN_NEW_LOCATION,
   EMPTY_BIN_NO_LOCATION,
@@ -30,31 +28,24 @@ import {
   emptyBinLocationSchema,
   type EmptyBinLocationFormValues,
 } from "@/schemas/storage.schema";
+import type { StorageLocation } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-function readLastLocation(orgId: string | undefined): string | null {
-  if (!orgId) return null;
-  try {
-    return localStorage.getItem(
-      LAST_STORAGE_LOCATION_STORAGE_KEY_PREFIX + orgId,
-    );
-  } catch {
-    return null;
+function lastUsedLocationGuid(locations: StorageLocation[]): string | null {
+  let latest: StorageLocation | null = null;
+  for (const location of locations) {
+    if (!location.lastUsedAt) continue;
+    if (
+      !latest?.lastUsedAt ||
+      new Date(location.lastUsedAt) > new Date(latest.lastUsedAt)
+    )
+      latest = location;
   }
-}
-
-function writeLastLocation(orgId: string | undefined, guid: string) {
-  if (!orgId) return;
-  try {
-    localStorage.setItem(
-      LAST_STORAGE_LOCATION_STORAGE_KEY_PREFIX + orgId,
-      guid,
-    );
-  } catch {}
+  return latest?.guid ?? null;
 }
 
 export function EmptyBinToLocationDialog({
@@ -69,8 +60,8 @@ export function EmptyBinToLocationDialog({
   onConfirm,
 }: EmptyBinToLocationDialogProps) {
   const { t } = useTranslation("storage");
-  const { activeOrg } = useOrg();
-  const { locations, create } = useStorageLocations();
+  const { locations, isLoading: locationsLoading, create } =
+    useStorageLocations();
   const { isLocked } = useStorageAccess();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const open = binNumber != null;
@@ -81,29 +72,29 @@ export function EmptyBinToLocationDialog({
     defaultValues: { locationGuid: "", newName: "" },
   });
 
+  const lastPickedRef = useRef<string | null>(null);
+  const latestRef = useRef({ locations, preferLocation, isLocked });
+  latestRef.current = { locations, preferLocation, isLocked };
+
   useEffect(() => {
-    if (!open) return;
-    const last = readLastLocation(activeOrg?.id);
+    if (!open || locationsLoading) return;
+    const { locations, preferLocation, isLocked } = latestRef.current;
     const fallback =
       isLocked || !preferLocation
         ? EMPTY_BIN_NO_LOCATION
         : locations.length > 0
           ? ""
           : EMPTY_BIN_NEW_LOCATION;
+    const lastPicked = lastPickedRef.current;
+    const lastUsed =
+      lastPicked && locations.some((l) => l.guid === lastPicked)
+        ? lastPicked
+        : lastUsedLocationGuid(locations);
     form.reset({
-      locationGuid:
-        last && locations.some((l) => l.guid === last) ? last : fallback,
+      locationGuid: isLocked ? fallback : (lastUsed ?? fallback),
       newName: "",
     });
-  }, [
-    open,
-    binNumber,
-    preferLocation,
-    isLocked,
-    activeOrg?.id,
-    locations,
-    form,
-  ]);
+  }, [open, binNumber, locationsLoading, form]);
 
   const locationGuid = form.watch("locationGuid");
 
@@ -120,7 +111,7 @@ export function EmptyBinToLocationDialog({
           ? await create(values.newName)
           : values.locationGuid;
       if (!guid) return;
-      writeLastLocation(activeOrg?.id, guid);
+      lastPickedRef.current = guid;
       await onConfirm({ locationGuid: guid, collectionGuid });
     } finally {
       setIsSubmitting(false);
