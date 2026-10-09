@@ -517,7 +517,7 @@
             "note": "For pusherLeft/pusherRight, swing the arm toward the inner wall but stop before it touches, about 10-12% away from neutral. The pusher doesn't need to hit the wall to fling the card, and pressing against it strains the servo. The app warns you past 12%."
           },
           "installHorns": {
-            "text": "In the Module Calibration Grid on /app/calibrate, put each paddle in its open position and each pusher in its neutral position, then press the horn (with its flapper or pusher arm already fitted) onto the servo shaft and secure it with the horn screw: bottom flapper, paddle flappers, and pusher arm, for all {{count}} module servos.",
+            "text": "In the setup wizard (Set up your sorter, which opens the first time the sorter connects, or from the help (?) menu on /app/calibrate), install the horns (with their flapper or pusher arm already fitted) one servo at a time. For the bottom paddle and the side paddles, move the slider to 90%, then press the horn onto the servo shaft with the paddle in its closed position. For the pusher, move the slider to 50%, then press the horn onto the shaft. Secure each horn with its horn screw, for all {{count}} module servos.",
             "note": "Fitting a horn off-center biases the whole linkage. The exact open/closed and left/right pulses get fine-tuned in the next step."
           },
           "calibrateFeeder": {
