@@ -1,6 +1,9 @@
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
+import { Children, isValidElement, type ReactNode } from "react";
 
+import { HotkeyHint } from "@/components/hotkey-hint";
+import { Kbd } from "@/components/ui/kbd";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
@@ -25,10 +28,10 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-7 gap-1 px-2 text-xs/relaxed has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-        xs: "h-5 gap-1 rounded-sm px-2 text-2xs has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-2.5",
-        sm: "h-6 gap-1 px-2 text-xs/relaxed has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",
-        lg: "h-8 gap-1 px-2.5 text-xs/relaxed has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 [&_svg:not([class*='size-'])]:size-4",
+          "h-7 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.5 data-icon-end:pr-1.5 data-kbd-end:pr-0.75 [&_svg:not([class*='size-'])]:size-3.5",
+        xs: "h-5 gap-1.25 rounded-sm px-2 text-2xs data-icon-start:pl-1 data-icon-end:pr-1 [&_svg:not([class*='size-'])]:size-2.5",
+        sm: "h-6 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.25 data-icon-end:pr-1.25 data-kbd-end:pr-0.25 [&_svg:not([class*='size-'])]:size-3",
+        lg: "h-8 gap-2 px-2.5 text-xs/relaxed data-icon-start:pl-1.75 data-icon-end:pr-1.75 data-kbd-end:pr-1.25 [&_svg:not([class*='size-'])]:size-4",
         icon: "size-7 [&_svg:not([class*='size-'])]:size-3.5",
         "icon-xs": "size-5 rounded-sm [&_svg:not([class*='size-'])]:size-2.5",
         "icon-sm": "size-6 [&_svg:not([class*='size-'])]:size-3",
@@ -42,18 +45,43 @@ const buttonVariants = cva(
   },
 );
 
+function isKeyHint(node: ReactNode): boolean {
+  return isValidElement(node) && (node.type === Kbd || node.type === HotkeyHint);
+}
+
+function isAdornment(node: ReactNode): boolean {
+  if (!isValidElement(node)) return false;
+  return typeof node.type !== "string" || node.type === "svg" || node.type === "img";
+}
+
+function adornmentAttributes(children: ReactNode) {
+  const parts = Children.toArray(children);
+  const first = parts[0];
+  const last = parts[parts.length - 1];
+  const kbdEnd = isKeyHint(last);
+  return {
+    "data-icon-start": isAdornment(first) && !isKeyHint(first) ? "" : undefined,
+    "data-icon-end": isAdornment(last) && !kbdEnd ? "" : undefined,
+    "data-kbd-end": kbdEnd ? "" : undefined,
+  };
+}
+
 function Button({
   className,
   variant = "default",
   size = "default",
+  children,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
   return (
     <ButtonPrimitive
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      {...adornmentAttributes(children)}
       {...props}
-    />
+    >
+      {children}
+    </ButtonPrimitive>
   );
 }
 

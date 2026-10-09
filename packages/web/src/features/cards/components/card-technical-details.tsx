@@ -190,6 +190,11 @@ export function CardTechnicalDetails({
                     ? `${diagnostics.ocr.matchedName} (${formatNumber(diagnostics.ocr.nameScore, 2)})`
                     : "n/a"}
                 </Row>
+                <Row label={t("technicalDetails.ocrUsedFallback")}>
+                  {diagnostics.ocr.usedFallback
+                    ? t("technicalDetails.ocrUsedFallbackYes")
+                    : t("technicalDetails.ocrUsedFallbackNo")}
+                </Row>
               </dl>
             ) : (
               <p className="text-sm text-foreground/70">

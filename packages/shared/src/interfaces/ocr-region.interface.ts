@@ -7,6 +7,7 @@ export interface OcrRegion {
   width: number;
   height: number;
   multiline?: boolean;
+  fallback?: boolean;
 }
 
 export type OcrReadout = Record<OcrField, string>;
@@ -15,6 +16,8 @@ export interface OcrDiagnostics {
   readout: OcrReadout;
   matchedName: string | null;
   nameScore: number | null;
+  printingConfirmed?: boolean;
+  usedFallback?: boolean;
 }
 
 export interface ColorBarRegion {

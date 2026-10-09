@@ -295,6 +295,10 @@ export interface CapturedImageThumbProps {
   alt: string;
 }
 
+export interface OcrRegionOverlayProps {
+  showLabels?: boolean;
+}
+
 export interface OcrRegionCropsProps {
   src: string;
   className?: string;

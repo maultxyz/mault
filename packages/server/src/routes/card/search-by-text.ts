@@ -5,12 +5,11 @@ import { authQuery } from "../../db";
 import { orgSettings } from "../../db/schema";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
-import { ocrRegions } from "../../lib/ocr";
 import { scanLog } from "../../lib/scan-log";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   attachMatchedCards,
-  findCardMatchesByText,
+  findCardMatchesByOcr,
   parsePreferredSetCode,
   parseEmbeddingField,
 } from "./shared";
@@ -70,19 +69,20 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
     }
 
     try {
-      const readout = await ocrRegions(
+      const result = await findCardMatchesByOcr(
+        c.get("jwtClaims"),
         Buffer.from(await file.arrayBuffer()),
         regions,
+        {
+          gameKey,
+          lang,
+          embeddings: { embedding },
+          preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
+        },
       );
-      const result = await findCardMatchesByText(c.get("jwtClaims"), {
-        gameKey,
-        lang,
-        embeddings: { embedding },
-        readout,
-        preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
-      });
+      const { readout } = result.ocr;
       scanLog(
-        `[ocr] game=${gameKey} lang=${lang} name=${JSON.stringify(readout.name)} setLine=${JSON.stringify(readout.setLine)} number=${JSON.stringify(readout.number)} closestName=${result.ocr.matchedName ? `${JSON.stringify(result.ocr.matchedName)} (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${result.data ? `matched ${result.data[0].cardId} at ${result.data[0].distance.toFixed(3)}` : "no match"}`,
+        `[ocr] game=${gameKey} lang=${lang} name=${JSON.stringify(readout.name)} setLine=${JSON.stringify(readout.setLine)} number=${JSON.stringify(readout.number)} closestName=${result.ocr.matchedName ? `${JSON.stringify(result.ocr.matchedName)} (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} ${result.ocr.usedFallback ? " fallback" : ""} -> ${result.data ? `matched ${result.data[0].cardId} at ${result.data[0].distance.toFixed(3)}` : "no match"}`,
       );
       return c.json(await attachMatchedCards(result, gameKey, lang));
     } catch (err) {

@@ -19,6 +19,7 @@
     "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts",
     "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts",
     "backfill:devices": "tsx --env-file ../../.env scripts/backfill-devices.ts",
+    "calibrate:ocr-regions": "tsx --env-file ../../.env scripts/calibrate-ocr-regions.ts",
     "backfill:missing-devices": "tsx --env-file ../../.env scripts/backfill-missing-devices.ts"
   },
   "dependencies": {

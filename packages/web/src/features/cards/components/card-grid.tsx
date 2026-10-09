@@ -2,6 +2,12 @@ import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
@@ -14,6 +20,12 @@ import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
+import {
+  allExportAdapters,
+  runExport,
+  supportsGame,
+  type ExportAdapter,
+} from "@/features/cards/lib/export";
 import {
   collectionCardPositionQueryOptions,
   collectionCardsExportQueryOptions,
@@ -42,8 +54,10 @@ import type {
 } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
+  IconChevronDown,
   IconChevronLeft,
   IconChevronRight,
+  IconDownload,
 } from "@tabler/icons-react";
 import { computeBinCount } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -327,6 +341,55 @@ export function CardGrid() {
     collectionCardsExportQueryOptions(collectionGuid, summaryOpen),
   );
 
+  const gameKey = activeCollection?.game?.key;
+  const exportAdapters = useMemo(
+    () =>
+      allExportAdapters.filter((adapter) => supportsGame(adapter, gameKey)),
+    [gameKey],
+  );
+  const [exportingSelected, setExportingSelected] = useState(false);
+
+  const handleExportSelected = useCallback(
+    async (adapter: ExportAdapter) => {
+      if (!collectionGuid) return;
+      setExportingSelected(true);
+      try {
+        const allCards = await queryClient.fetchQuery(
+          collectionCardsExportQueryOptions(collectionGuid, true),
+        );
+        const selectedCards = allCards.filter((card) =>
+          selectedIds.has(card.scanId),
+        );
+        const slug = (activeCollection?.name ?? "collection")
+          .replace(/\s+/g, "-")
+          .toLowerCase();
+        runExport(
+          adapter,
+          selectedCards,
+          slug,
+          { isMtg: gameKey === "mtg", fieldDefinitions },
+          true,
+        );
+        markDownloaded(selectedCards.map((card) => card.scanId));
+      } catch (err) {
+        console.error("Failed to export selected cards:", err);
+        toast.error(t("cardGrid.exportSelectedFailed"));
+      } finally {
+        setExportingSelected(false);
+      }
+    },
+    [
+      collectionGuid,
+      queryClient,
+      selectedIds,
+      activeCollection?.name,
+      gameKey,
+      fieldDefinitions,
+      markDownloaded,
+      t,
+    ],
+  );
+
   const handleBulkDelete = useCallback(() => {
     removeCards(Array.from(selectedIds));
     setSelectedIds(new Set());
@@ -589,6 +652,31 @@ export function CardGrid() {
             >
               {t("cardGrid.clear")}
             </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    disabled={exportingSelected || exportAdapters.length === 0}
+                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                  />
+                }
+              >
+                <IconDownload />
+                {t("cardGrid.export")}
+                <IconChevronDown />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" side="top">
+                {exportAdapters.map((adapter) => (
+                  <DropdownMenuItem
+                    key={adapter.key}
+                    onClick={() => handleExportSelected(adapter)}
+                  >
+                    {adapter.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="destructive"
               className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
