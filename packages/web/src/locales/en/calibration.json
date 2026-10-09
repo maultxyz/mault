@@ -252,6 +252,21 @@
       "saveFailed": "Failed to save changes"
     }
   },
+  "offlineCalibration": {
+    "notConnectedTitle": "No sorter connected",
+    "notConnectedBody": "Connect a sorter to calibrate it live, or edit its saved calibration without one.",
+    "start": "Calibrate without a sorter",
+    "activeTitle": "Calibrating without a sorter",
+    "activeBody": "Nothing moves while you adjust, so you can't check these positions. Saved values are sent to the sorter the next time it connects.",
+    "stop": "Stop",
+    "warningTitle": "Calibrate without a sorter?",
+    "warningDescription": "You can change and save this sorter's calibration without it connected, but read this first.",
+    "warningNoPreview": "The servos don't move while you adjust, so you can't see whether a position is right.",
+    "warningDamage": "A wrong position can drive a servo into its end stop the next time the sorter runs, which strains or strips the servo and can jam cards.",
+    "warningSync": "Saved values are sent to the sorter the next time it connects. If they differ from what the sorter has stored, you'll be asked which to keep.",
+    "cancel": "Cancel",
+    "accept": "I understand, continue"
+  },
   "calibratePage": {
     "resetServosToDefaults": "Reset servos to defaults",
     "moduleHistory": {

@@ -190,7 +190,7 @@ export interface FeederCalibrationPanelProps {
   settleDurationValue: number;
   reverseSpeedValue: number;
   reverseDurationValue: number;
-  isConnected: boolean;
+  canEditTimings: boolean;
   canCalibrate: boolean;
   onSpeedChange: (value: number) => void;
   onDurationChange: (value: number) => void;
@@ -350,6 +350,7 @@ export interface ServoControlProps {
   calibration: ServoCalibration | undefined;
   isLoading: boolean;
   canCalibrate: boolean;
+  canTest: boolean;
   isTesting: boolean;
   showRaw: boolean;
   onControl: (module: number, servo: ServoName, position: string) => void;
@@ -361,7 +362,7 @@ export interface ModuleDelayControlProps {
   module: number;
   field: ModuleDelayField;
   value: number;
-  isConnected: boolean;
+  canEdit: boolean;
   onChange: (module: number, field: ModuleDelayField, value: number) => void;
 }
 
@@ -372,6 +373,12 @@ export interface PushTestControlProps {
   onTest: (module: number, direction: "left" | "right") => void;
 }
 
+export interface OfflineCalibrationBannerProps {
+  isOffline: boolean;
+  onStart: () => void;
+  onStop: () => void;
+}
+
 export interface ModuleCalibrationGridProps {
   modules: number[];
   configs: ModuleConfig[];
@@ -380,7 +387,8 @@ export interface ModuleCalibrationGridProps {
   moduleDelayValues: Record<number, Record<ModuleDelayField, number>>;
   pendingCalibration: Record<number, Partial<ServoCalibration>>;
   isLoading: boolean;
-  isConnected: boolean;
+  canEditTimings: boolean;
+  canTestServos: boolean;
   isReady: boolean;
   canCalibrate: boolean;
   onControl: (module: number, servo: ServoName, position: string) => void;

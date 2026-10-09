@@ -51,6 +51,7 @@ function ServoControl({
   calibration,
   isLoading,
   canCalibrate,
+  canTest,
   isTesting,
   showRaw,
   onControl,
@@ -80,7 +81,7 @@ function ServoControl({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                disabled={!canCalibrate || !calibration}
+                disabled={!canTest || !calibration}
                 onClick={() => onTest(module, servo.name)}
                 className={cn(isTesting && "text-primary")}
               >
@@ -247,7 +248,7 @@ function ModuleDelayControl({
   module,
   field,
   value,
-  isConnected,
+  canEdit,
   onChange,
 }: ModuleDelayControlProps) {
   const { t } = useTranslation("calibration");
@@ -260,7 +261,7 @@ function ModuleDelayControl({
       min={0}
       max={sliderMax(value, MODULE_DELAY_SLIDER_MAX[field])}
       step={10}
-      disabled={!isConnected}
+      disabled={!canEdit}
       value={value}
       onValueChange={(v) => onChange(module, field, v)}
     />
@@ -317,7 +318,8 @@ export function ModuleCalibrationGrid({
   moduleDelayValues,
   pendingCalibration,
   isLoading,
-  isConnected,
+  canEditTimings,
+  canTestServos,
   isReady,
   canCalibrate,
   onControl,
@@ -385,6 +387,7 @@ export function ModuleCalibrationGrid({
                   calibration={effectiveCal}
                   isLoading={isLoading}
                   canCalibrate={canCalibrate}
+                  canTest={canTestServos}
                   isTesting={testingServos[sliderKey] ?? false}
                   showRaw={showRaw}
                   onControl={onControl}
@@ -402,7 +405,7 @@ export function ModuleCalibrationGrid({
                   moduleDelayValues[module]?.[field] ??
                   DEFAULT_CALIBRATION[field]
                 }
-                isConnected={isConnected}
+                canEdit={canEditTimings}
                 onChange={onModuleDelayChange}
               />
             ))}

@@ -116,7 +116,23 @@ export function useCalibrationPage() {
         (key) => c.calibration[key] === DEFAULT_CALIBRATION[key],
       ),
     );
-  const canCalibrate = isReady || (isConnected && isUnconfigured);
+  const [offlineAccepted, setOfflineAccepted] = useState(false);
+  const isOfflineCalibration = offlineAccepted && !isConnected && !!device;
+  const canCalibrate =
+    isReady || (isConnected && isUnconfigured) || isOfflineCalibration;
+
+  useEffect(() => {
+    if (isConnected) setOfflineAccepted(false);
+  }, [isConnected]);
+
+  const startOfflineCalibration = useCallback(
+    () => setOfflineAccepted(true),
+    [],
+  );
+  const stopOfflineCalibration = useCallback(
+    () => setOfflineAccepted(false),
+    [],
+  );
 
   const [sliderValues, setSliderValues] = useState<Record<SliderKey, number>>(
     () => defaultSliderValues(modules),
@@ -384,7 +400,7 @@ export function useCalibrationPage() {
 
   const handleServoTest = useCallback(
     (module: number, servo: ServoName) => {
-      if (!canCalibrate) return;
+      if (!canCalibrate || !isConnected) return;
       const key = `${module}:${servo}` as SliderKey;
       const cal = configsRef.current.find(
         (c) => c.moduleNumber === module,
@@ -434,7 +450,7 @@ export function useCalibrationPage() {
       setTestingServos((prev) => ({ ...prev, [key]: true }));
       runStep(0);
     },
-    [canCalibrate, moveServo],
+    [canCalibrate, isConnected, moveServo],
   );
 
   const handleTest = useCallback(async () => {
@@ -899,6 +915,9 @@ export function useCalibrationPage() {
     isConnected,
     isReady,
     canCalibrate,
+    isOfflineCalibration,
+    startOfflineCalibration,
+    stopOfflineCalibration,
     connect,
     connectBluetooth,
     staleDialogOpen,
