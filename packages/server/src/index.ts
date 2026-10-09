@@ -27,6 +27,7 @@ import { soundsRouter } from "./routes/sounds";
 import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
 import { publicApiRouter } from "./routes/v1";
+import { webhooksRouter } from "./routes/webhooks";
 import { rollbar } from "./lib/rollbar";
 import { startPlanConfigRefresh } from "./lib/plan-config";
 
@@ -60,6 +61,7 @@ app.route("/sounds", soundsRouter);
 app.route("/storage-locations", storageLocationsRouter);
 app.route("/integrations", integrationsRouter);
 app.route("/api-keys", apiKeysRouter);
+app.route("/webhooks", webhooksRouter);
 app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);

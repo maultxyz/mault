@@ -132,5 +132,57 @@
   "api": {
     "heading": "API",
     "subtitle": "Let your own systems, like an online shop, look up which box every card is in."
+  },
+  "webhooks": {
+    "heading": "Webhooks",
+    "description": "Mault posts an event to your URL when cards are scanned or put away into a storage location. Each webhook has its own signing secret so you can check a request really came from Mault.",
+    "add": "Add webhook",
+    "addTitle": "Add webhook",
+    "editTitle": "Edit webhook",
+    "dialogDescription": "Mault sends a signed POST request with a JSON body to this URL. It must be a public https:// address.",
+    "save": "Save",
+    "saved": "Webhook saved.",
+    "saveFailed": "Couldn't save the webhook.",
+    "urlLabel": "URL",
+    "invalidUrl": "Enter a public https:// URL.",
+    "descriptionLabel": "Name (optional)",
+    "descriptionPlaceholder": "Online shop",
+    "eventsLabel": "Events",
+    "eventsRequired": "Pick at least one event.",
+    "events": {
+      "card": {
+        "scanned": "A card was scanned and saved to a collection."
+      },
+      "cards": {
+        "stored": "A bin was put away into a storage location. Includes each card's box and position."
+      }
+    },
+    "empty": "No webhooks yet.",
+    "disabled": "Disabled",
+    "actions": "Webhook actions",
+    "sendTest": "Send test event",
+    "edit": "Edit",
+    "enable": "Re-enable",
+    "delete": "Delete",
+    "enabled": "Webhook re-enabled.",
+    "enableFailed": "Couldn't re-enable the webhook.",
+    "testSucceeded": "Test delivered (HTTP {{status}}).",
+    "testRejected": "Test failed: {{error}}",
+    "testFailed": "Couldn't send the test event.",
+    "unknownError": "Unknown error",
+    "neverDelivered": "Nothing delivered yet",
+    "lastSucceeded": "Last delivery {{date}}: HTTP {{status}}",
+    "lastFailed": "Last delivery {{date}} failed: {{error}}",
+    "deleted": "Webhook deleted.",
+    "deleteFailed": "Couldn't delete the webhook.",
+    "deleteConfirmTitle": "Delete this webhook?",
+    "deleteConfirmDescription": "Mault stops sending events to this URL right away. This can't be undone.",
+    "secretTitle": "Copy your signing secret",
+    "secretDescription": "Use it to verify the X-Mault-Signature header on every request. This is the only time it's shown.",
+    "copySecret": "Copy secret",
+    "secretCopied": "Signing secret copied.",
+    "copyFailed": "Couldn't copy the secret.",
+    "upgrade": "Webhooks are part of the Business plan.",
+    "loadFailed": "Couldn't load webhooks."
   }
 }

@@ -722,6 +722,13 @@
       "when": 1791580368079,
       "tag": "0102_cynical_retro_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1791581704850,
+      "tag": "0103_cultured_logan",
+      "breakpoints": true
     }
   ]
 }

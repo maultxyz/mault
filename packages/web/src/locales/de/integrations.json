@@ -132,5 +132,57 @@
   "api": {
     "heading": "API",
     "subtitle": "Lass deine eigenen Systeme, etwa einen Onlineshop, nachschlagen, in welcher Box jede Karte liegt."
+  },
+  "webhooks": {
+    "heading": "Webhooks",
+    "description": "Mault sendet ein Ereignis an deine URL, wenn Karten gescannt oder in einen Lagerort einsortiert werden. Jeder Webhook hat ein eigenes Signaturgeheimnis, mit dem du prüfen kannst, dass eine Anfrage wirklich von Mault kommt.",
+    "add": "Webhook hinzufügen",
+    "addTitle": "Webhook hinzufügen",
+    "editTitle": "Webhook bearbeiten",
+    "dialogDescription": "Mault sendet eine signierte POST-Anfrage mit JSON-Inhalt an diese URL. Sie muss eine öffentliche https://-Adresse sein.",
+    "save": "Speichern",
+    "saved": "Webhook gespeichert.",
+    "saveFailed": "Der Webhook konnte nicht gespeichert werden.",
+    "urlLabel": "URL",
+    "invalidUrl": "Gib eine öffentliche https://-URL ein.",
+    "descriptionLabel": "Name (optional)",
+    "descriptionPlaceholder": "Onlineshop",
+    "eventsLabel": "Ereignisse",
+    "eventsRequired": "Wähle mindestens ein Ereignis.",
+    "events": {
+      "card": {
+        "scanned": "Eine Karte wurde gescannt und in einer Sammlung gespeichert."
+      },
+      "cards": {
+        "stored": "Ein Fach wurde in einen Lagerort einsortiert. Enthält Box und Position jeder Karte."
+      }
+    },
+    "empty": "Noch keine Webhooks.",
+    "disabled": "Deaktiviert",
+    "actions": "Webhook-Aktionen",
+    "sendTest": "Testereignis senden",
+    "edit": "Bearbeiten",
+    "enable": "Wieder aktivieren",
+    "delete": "Löschen",
+    "enabled": "Webhook wieder aktiviert.",
+    "enableFailed": "Der Webhook konnte nicht wieder aktiviert werden.",
+    "testSucceeded": "Test zugestellt (HTTP {{status}}).",
+    "testRejected": "Test fehlgeschlagen: {{error}}",
+    "testFailed": "Das Testereignis konnte nicht gesendet werden.",
+    "unknownError": "Unbekannter Fehler",
+    "neverDelivered": "Noch nichts zugestellt",
+    "lastSucceeded": "Letzte Zustellung {{date}}: HTTP {{status}}",
+    "lastFailed": "Letzte Zustellung {{date}} fehlgeschlagen: {{error}}",
+    "deleted": "Webhook gelöscht.",
+    "deleteFailed": "Der Webhook konnte nicht gelöscht werden.",
+    "deleteConfirmTitle": "Diesen Webhook löschen?",
+    "deleteConfirmDescription": "Mault sendet sofort keine Ereignisse mehr an diese URL. Das lässt sich nicht rückgängig machen.",
+    "secretTitle": "Signaturgeheimnis kopieren",
+    "secretDescription": "Prüfe damit den X-Mault-Signature-Header jeder Anfrage. Es wird nur dieses eine Mal angezeigt.",
+    "copySecret": "Geheimnis kopieren",
+    "secretCopied": "Signaturgeheimnis kopiert.",
+    "copyFailed": "Das Geheimnis konnte nicht kopiert werden.",
+    "upgrade": "Webhooks sind Teil des Business-Plans.",
+    "loadFailed": "Webhooks konnten nicht geladen werden."
   }
 }

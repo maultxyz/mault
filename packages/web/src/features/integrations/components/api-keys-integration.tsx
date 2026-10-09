@@ -19,6 +19,7 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
+import { WebhooksSection } from "@/features/integrations/components/webhooks-section";
 import { PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { toast } from "@/lib/toast";
@@ -214,6 +215,7 @@ export function ApiKeysIntegration() {
             </div>
           )}
         </SettingsSection>
+        <WebhooksSection />
       </SettingsSections>
 
       <DynamicDialog

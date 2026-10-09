@@ -238,3 +238,24 @@ export async function loadPublicApiLocationCards(
     nextCursor: nextCursor ? encodeCursor(nextCursor) : null,
   };
 }
+
+export async function loadPublicApiCardsByScanIds(
+  tx: Transaction,
+  orgId: string,
+  scanIds: string[],
+): Promise<PublicApiCard[]> {
+  if (scanIds.length === 0) return [];
+  const { rows, currency } = await selectCards(
+    tx,
+    orgId,
+    [
+      sql`cc.guid IN (${sql.join(
+        scanIds.map((id) => sql`${id}::uuid`),
+        sql`, `,
+      )})`,
+    ],
+    sql`COALESCE(cc.location_position, 0), cc.id`,
+    scanIds.length,
+  );
+  return rows.map((row) => toPublicApiCard(row, currency));
+}

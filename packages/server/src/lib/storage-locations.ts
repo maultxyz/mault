@@ -6,7 +6,7 @@ import type { AssignBinToLocationInput } from "./interfaces/storage-locations";
 export async function assignBinToLocation(
   tx: Transaction,
   { binId, binNumber, collectionId, locationId }: AssignBinToLocationInput,
-): Promise<number> {
+): Promise<string[]> {
   const result = await tx.execute(sql`
     WITH emptied AS (
       SELECT last_emptied_at FROM ${bins} WHERE id = ${binId}
@@ -40,6 +40,7 @@ export async function assignBinToLocation(
         location_position = base.start + numbered.rn
     FROM numbered, base
     WHERE numbered.kind = 'card' AND cc.id = numbered.id
+    RETURNING cc.guid::text AS scan_id
   `);
-  return result.rowCount ?? 0;
+  return (result.rows as { scan_id: string }[]).map((row) => row.scan_id);
 }

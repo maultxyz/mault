@@ -12,6 +12,7 @@ import {
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
+import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { emptyRules, resolveGameId, activeBinSetWhere } from "./shared";
 
@@ -67,7 +68,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
               .returning({ id: bins.id })
           )[0];
 
-        let assignedCount = 0;
+        let storedScanIds: string[] = [];
         if (locationGuid && collectionGuid) {
           if (!(await isStorageAllowed(tx, orgId))) {
             return {
@@ -100,7 +101,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           if (!collection) {
             return { message: "Collection not found.", success: false };
           }
-          assignedCount = await assignBinToLocation(tx, {
+          storedScanIds = await assignBinToLocation(tx, {
             binId: existing.id,
             binNumber,
             collectionId: collection.id,
@@ -139,7 +140,8 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
         return {
           message: "Bin marked as emptied.",
           success: true,
-          assignedCount,
+          assignedCount: storedScanIds.length,
+          storedScanIds,
           data: updatedBins.map(
             (b): BinConfig => ({
               guid: b.guid!,
@@ -158,6 +160,9 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           ),
         };
       });
+      if (result.success && "storedScanIds" in result && locationGuid) {
+        emitCardsStoredWebhook(orgId, locationGuid, result.storedScanIds);
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);

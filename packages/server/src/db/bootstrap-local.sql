@@ -46,7 +46,7 @@ DECLARE
     'collections', 'collection_cards', 'unmatched_cards', 'org_settings',
     'bin_set_audit', 'bin_route_audit', 'bin_height_audit', 'module_config_audit', 'feeder_config_audit',
     'devices', 'sound_clips', 'sound_rules', 'notification_rules',
-    'storage_locations', 'org_api_keys'
+    'storage_locations', 'org_api_keys', 'webhook_endpoints'
   ];
   tbl text;
 BEGIN
