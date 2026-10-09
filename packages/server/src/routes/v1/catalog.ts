@@ -12,40 +12,42 @@ import {
   decodeCursor,
   parsePageLimit,
 } from "../../lib/public-api/pagination";
+import {
+  apiError,
+  apiErrorFrom,
+  toApiList,
+  toCompleteApiList,
+} from "../../lib/public-api/responses";
 import { requireApiKey } from "../../middleware/api-key";
-import { publicApiError } from "./shared";
 
 export const publicCatalogRoute = new Hono<ApiKeyEnv>()
   .get("/collections", requireApiKey, async (c) => {
     const orgId = c.get("orgId");
     try {
-      const data = await apiKeyQuery(orgId, (tx) =>
+      const collections = await apiKeyQuery(orgId, (tx) =>
         loadPublicApiCollections(tx, orgId),
       );
-      return c.json({ success: true, data });
+      return c.json(toCompleteApiList(collections));
     } catch (err) {
-      return publicApiError(c, err);
+      return apiErrorFrom(c, err);
     }
   })
   .get("/locations", requireApiKey, async (c) => {
     const orgId = c.get("orgId");
     try {
-      const data = await apiKeyQuery(orgId, (tx) =>
+      const locations = await apiKeyQuery(orgId, (tx) =>
         loadPublicApiLocations(tx, orgId),
       );
-      return c.json({ success: true, data });
+      return c.json(toCompleteApiList(locations));
     } catch (err) {
-      return publicApiError(c, err);
+      return apiErrorFrom(c, err);
     }
   })
-  .get("/locations/:guid/cards", requireApiKey, async (c) => {
+  .get("/locations/:id/cards", requireApiKey, async (c) => {
     const orgId = c.get("orgId");
-    const guid = c.req.param("guid");
-    if (!UUID_PATTERN.test(guid)) {
-      return c.json(
-        { success: false, message: "Storage location not found." },
-        404,
-      );
+    const locationId = c.req.param("id");
+    if (!UUID_PATTERN.test(locationId)) {
+      return apiError(c, 404, "not_found", "No location found with that id.");
     }
     try {
       const filters = {
@@ -55,16 +57,13 @@ export const publicCatalogRoute = new Hono<ApiKeyEnv>()
         ),
         limit: parsePageLimit(c.req.query("limit")),
       };
-      const data = await apiKeyQuery(orgId, (tx) =>
-        loadPublicApiLocationCards(tx, orgId, guid, filters),
+      const page = await apiKeyQuery(orgId, (tx) =>
+        loadPublicApiLocationCards(tx, orgId, locationId, filters),
       );
-      return data
-        ? c.json({ success: true, data })
-        : c.json(
-            { success: false, message: "Storage location not found." },
-            404,
-          );
+      return page
+        ? c.json(toApiList(c, page))
+        : apiError(c, 404, "not_found", "No location found with that id.");
     } catch (err) {
-      return publicApiError(c, err);
+      return apiErrorFrom(c, err);
     }
   });

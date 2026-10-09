@@ -43,9 +43,10 @@ export function buildWebhookPayload<T>(
   data: T,
 ): WebhookPayload<T> {
   return {
+    object: "event",
     id: randomUUID(),
     type,
-    createdAt: new Date().toISOString(),
+    created_at: new Date().toISOString(),
     data,
   };
 }
@@ -76,7 +77,7 @@ export function emitCardScannedWebhook(orgId: string, scanId: string): void {
       loadPublicApiCard(tx, orgId, scanId),
     );
     if (!card) return;
-    dispatch<CardScannedWebhookData>(endpointIds, "card.scanned", { card });
+    dispatch<CardScannedWebhookData>(endpointIds, "card.scanned", card);
   });
 }
 
@@ -93,7 +94,7 @@ export function emitCardsStoredWebhook(
       await apiKeyQuery(orgId, (tx) =>
         loadPublicApiCardsByScanIds(tx, orgId, scanIds),
       )
-    ).filter((card) => card.location?.guid === locationGuid);
+    ).filter((card) => card.location?.id === locationGuid);
     const location = cards[0]?.location;
     if (!location) return;
     for (
@@ -102,7 +103,8 @@ export function emitCardsStoredWebhook(
       start += WEBHOOK_STORED_CARDS_PER_EVENT
     ) {
       dispatch<CardsStoredWebhookData>(endpointIds, "cards.stored", {
-        location: { guid: location.guid, name: location.name },
+        object: "stored_cards",
+        location: { object: "location", id: location.id, name: location.name },
         cards: cards.slice(start, start + WEBHOOK_STORED_CARDS_PER_EVENT),
       });
     }

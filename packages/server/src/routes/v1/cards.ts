@@ -1,3 +1,4 @@
+import type { ApiScannedCardList } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { apiKeyQuery } from "../../db";
 import { UUID_PATTERN } from "../../lib/constants/validation";
@@ -11,13 +12,18 @@ import {
   decodeCursor,
   parseBooleanParam,
   parseCardIds,
+  parseFinish,
   parseGuidParam,
   parsePageLimit,
   parseSince,
   parseTextParam,
 } from "../../lib/public-api/pagination";
+import {
+  apiError,
+  apiErrorFrom,
+  toApiList,
+} from "../../lib/public-api/responses";
 import { requireApiKey } from "../../middleware/api-key";
-import { publicApiError } from "./shared";
 
 export const publicCardsRoute = new Hono<ApiKeyEnv>()
   .get("/cards", requireApiKey, async (c) => {
@@ -33,35 +39,39 @@ export const publicCardsRoute = new Hono<ApiKeyEnv>()
         ),
         limit: parsePageLimit(c.req.query("limit")),
         collectionGuid: parseGuidParam("collection", c.req.query("collection")),
-        inStorage: parseBooleanParam("inStorage", c.req.query("inStorage")),
-        cardIds: parseCardIds(c.req.query("cardId")),
+        inStorage: parseBooleanParam("in_storage", c.req.query("in_storage")),
+        cardIds: parseCardIds(c.req.query("card_id")),
         name: parseTextParam(c.req.query("name")),
         set: parseTextParam(c.req.query("set")),
-        number: parseTextParam(c.req.query("number")),
-        foil: parseBooleanParam("foil", c.req.query("foil")),
+        collectorNumber: parseTextParam(c.req.query("collector_number")),
+        foil: parseFinish(c.req.query("finish")),
       };
-      const data = await apiKeyQuery(orgId, (tx) =>
+      const page = await apiKeyQuery(orgId, (tx) =>
         loadPublicApiCards(tx, orgId, filters),
       );
-      return c.json({ success: true, data });
+      const body: ApiScannedCardList = {
+        ...toApiList(c, page),
+        next_since: page.nextSince,
+      };
+      return c.json(body);
     } catch (err) {
-      return publicApiError(c, err);
+      return apiErrorFrom(c, err);
     }
   })
-  .get("/cards/:scanId", requireApiKey, async (c) => {
+  .get("/cards/:id", requireApiKey, async (c) => {
     const orgId = c.get("orgId");
-    const scanId = c.req.param("scanId");
+    const scanId = c.req.param("id");
     if (!UUID_PATTERN.test(scanId)) {
-      return c.json({ success: false, message: "Card not found." }, 404);
+      return apiError(c, 404, "not_found", "No card found with that id.");
     }
     try {
-      const data = await apiKeyQuery(orgId, (tx) =>
+      const card = await apiKeyQuery(orgId, (tx) =>
         loadPublicApiCard(tx, orgId, scanId),
       );
-      return data
-        ? c.json({ success: true, data })
-        : c.json({ success: false, message: "Card not found." }, 404);
+      return card
+        ? c.json(card)
+        : apiError(c, 404, "not_found", "No card found with that id.");
     } catch (err) {
-      return publicApiError(c, err);
+      return apiErrorFrom(c, err);
     }
   });

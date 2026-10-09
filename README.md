@@ -100,6 +100,7 @@ Each file holds only the variables its provider uses, with `AUTH_PROVIDER`/`VITE
    - `OWN_AUTH_TOKEN_PEPPER` — 32+ random bytes; own-auth uses it to hash sessions/tokens/API keys
    - `IMPERSONATION_SECRET` — any random string
    - `MONITOR_LINK_SECRET` — any random string (optional; enables shareable no-login monitor links)
+   - `API_URL`: the API server's public base URL, e.g. `https://mault.example.com/api` (optional; used for `next_page` links in the public API, which otherwise come from the request's host)
    - `WEBHOOK_ALLOW_INSECURE_URLS`: `true` lets webhooks use `http://` and private addresses such as LAN or `localhost` targets (optional; off by default, keep it off on any server reachable from the internet)
 2. Start the stack:
    ```bash

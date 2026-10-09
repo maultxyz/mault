@@ -49,6 +49,13 @@ export function parseBooleanParam(
   throw new PublicApiInputError(`${name} must be true or false.`);
 }
 
+export function parseFinish(value: string | undefined): boolean | null {
+  if (value === undefined || value === "") return null;
+  if (value === "foil") return true;
+  if (value === "nonfoil") return false;
+  throw new PublicApiInputError("finish must be foil or nonfoil.");
+}
+
 export function parseGuidParam(
   name: string,
   value: string | undefined,
@@ -77,7 +84,7 @@ export function parseCardIds(value: string | undefined): string[] | null {
   if (ids.length === 0) return null;
   if (ids.length > PUBLIC_API_CARD_ID_FILTER_MAX) {
     throw new PublicApiInputError(
-      `cardId takes at most ${PUBLIC_API_CARD_ID_FILTER_MAX} ids.`,
+      `card_id takes at most ${PUBLIC_API_CARD_ID_FILTER_MAX} ids.`,
     );
   }
   return ids;
