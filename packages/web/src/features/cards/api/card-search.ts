@@ -18,6 +18,17 @@ export async function searchCards(
   return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
 }
 
+export async function searchGameCards(
+  query: string,
+  gameKey: string,
+  lang: string,
+  offset = 0,
+): Promise<Result<CardSearchPage>> {
+  const params = new URLSearchParams({ q: query, gameKey, lang });
+  if (offset > 0) params.set("offset", String(offset));
+  return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
+}
+
 export async function getCardById(
   id: string,
   collectionGuid?: string,
