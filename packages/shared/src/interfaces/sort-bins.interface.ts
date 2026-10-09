@@ -121,3 +121,7 @@ export type DefaultBinInit = {
   maxCopiesBy?: string | null;
   isDisabled?: boolean;
 };
+
+export interface EmptyAllBinsInput {
+  binNumbers: number[];
+}

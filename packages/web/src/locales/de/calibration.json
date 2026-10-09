@@ -252,6 +252,21 @@
       "saveFailed": "Änderungen konnten nicht gespeichert werden"
     }
   },
+  "offlineCalibration": {
+    "notConnectedTitle": "Kein Sortierer verbunden",
+    "notConnectedBody": "Verbinde einen Sortierer, um ihn live zu kalibrieren, oder bearbeite seine gespeicherte Kalibrierung ohne ihn.",
+    "start": "Ohne Sortierer kalibrieren",
+    "activeTitle": "Kalibrierung ohne Sortierer",
+    "activeBody": "Beim Einstellen bewegt sich nichts, daher kannst du diese Positionen nicht prüfen. Gespeicherte Werte werden beim nächsten Verbinden an den Sortierer gesendet.",
+    "stop": "Beenden",
+    "warningTitle": "Ohne Sortierer kalibrieren?",
+    "warningDescription": "Du kannst die Kalibrierung dieses Sortierers ohne Verbindung ändern und speichern, lies aber zuerst Folgendes.",
+    "warningNoPreview": "Die Servos bewegen sich beim Einstellen nicht, daher siehst du nicht, ob eine Position stimmt.",
+    "warningDamage": "Eine falsche Position kann einen Servo beim nächsten Lauf gegen seinen Anschlag fahren. Das belastet oder zerstört den Servo und kann Karten verklemmen.",
+    "warningSync": "Gespeicherte Werte werden beim nächsten Verbinden an den Sortierer gesendet. Weichen sie von den im Sortierer gespeicherten ab, wirst du gefragt, welche du behalten willst.",
+    "cancel": "Abbrechen",
+    "accept": "Verstanden, weiter"
+  },
   "calibratePage": {
     "resetServosToDefaults": "Servos auf Standard zurücksetzen",
     "moduleHistory": {
@@ -355,7 +370,7 @@
     "positions": {
       "bottomClosed": {
         "title": "Bodenpaddel: geschlossen",
-        "body": "Ziehe, bis die Falltür flach und ganz geschlossen ist, sodass eine aufliegende Karte nicht durchrutschen kann. Hör auf, sobald sie zu ist; weiter drücken belastet den Servo."
+        "body": "Ziehe, bis die Falltür den Boden des Moduls verschließt, sodass eine aufliegende Karte nicht durchfallen kann. Sie muss nicht ganz waagerecht sein. Hör auf, sobald sie zu ist; weiter drücken belastet den Servo."
       },
       "bottomOpen": {
         "title": "Bodenpaddel: offen",

@@ -115,6 +115,7 @@
       "autoAssignResetFailed": "Failed to reset auto-detected bins",
       "scanOnlyFailed": "Failed to update scan only settings",
       "emptyBinFailed": "Failed to mark bin as emptied",
+      "emptyAllBinsFailed": "Failed to empty bins",
       "repackFailed": "Failed to update repack settings",
       "alphabetFailed": "Failed to update alphabetical sort",
       "chaosFailed": "Failed to update chaos sort",

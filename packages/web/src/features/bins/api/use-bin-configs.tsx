@@ -32,6 +32,7 @@ import {
   binsQueryOptions,
   createSet as createSetAction,
   deleteSet as deleteSetAction,
+  emptyAllBins as emptyAllBinsAction,
   emptyBin as emptyBinAction,
   renameSet as renameSetAction,
   resetAutoAssign as resetAutoAssignAction,
@@ -390,6 +391,21 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.emptyBinFailed")),
   });
 
+  const emptyAllBinsMutation = useMutation({
+    mutationFn: (binNumbers: number[]) =>
+      emptyAllBinsAction(binNumbers, activeGameGuid),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(
+          result.message ?? t("useBinConfigs.toasts.emptyAllBinsFailed"),
+        );
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.emptyAllBinsFailed")),
+  });
+
   const setScanOnlyMutation = useMutation({
     mutationFn: ({ guid, enabled }: { guid: string; enabled: boolean }) =>
       setScanOnlyAction(guid, enabled),
@@ -480,6 +496,14 @@ export function BinConfigsProvider({
       return result.success;
     },
     [emptyBinMutation],
+  );
+
+  const emptyAllBins = useCallback(
+    async (binNumbers: number[]) => {
+      const result = await emptyAllBinsMutation.mutateAsync(binNumbers);
+      return result.success;
+    },
+    [emptyAllBinsMutation],
   );
 
   const activateSetFn = useCallback(
@@ -705,6 +729,7 @@ export function BinConfigsProvider({
         selectedSet,
         save,
         emptyBin,
+        emptyAllBins,
         activateSet: activateSetFn,
         createSet: createSetFn,
         importSet: importSetFn,

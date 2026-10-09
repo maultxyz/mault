@@ -17,6 +17,7 @@ import { useDevice } from "@/features/calibration/api/use-device";
 import { useDeviceCalibrationSync } from "@/features/calibration/api/use-device-calibration-sync";
 import { FeederCalibrationPanel } from "@/features/calibration/components/feeder-calibration-panel";
 import { ModuleCalibrationGrid } from "@/features/calibration/components/module-calibration-grid";
+import { OfflineCalibrationBanner } from "@/features/calibration/components/offline-calibration-banner";
 import { IconClockHour3, IconRestore } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -143,6 +144,9 @@ export default function CalibrateCalibrationPage() {
     isConnected,
     isReady,
     canCalibrate,
+    isOfflineCalibration,
+    startOfflineCalibration,
+    stopOfflineCalibration,
     handleControl,
     handleSliderChange,
     testingServos,
@@ -247,6 +251,14 @@ export default function CalibrateCalibrationPage() {
 
   return (
     <>
+      {!isConnected && device && (
+        <OfflineCalibrationBanner
+          isOffline={isOfflineCalibration}
+          onStart={startOfflineCalibration}
+          onStop={stopOfflineCalibration}
+        />
+      )}
+
       <SettingsSection
         heading={t("feederCalibrationPanel.heading")}
         action={
@@ -268,7 +280,7 @@ export default function CalibrateCalibrationPage() {
           settleDurationValue={feederSettleDurationValue}
           reverseSpeedValue={feederReverseSpeedValue}
           reverseDurationValue={feederReverseDurationValue}
-          isConnected={isConnected}
+          canEditTimings={isConnected || isOfflineCalibration}
           canCalibrate={canCalibrate}
           onSpeedChange={handleFeederSpeedChange}
           onDurationChange={handleFeederDurationChange}
@@ -312,7 +324,8 @@ export default function CalibrateCalibrationPage() {
           moduleDelayValues={moduleDelayValues}
           pendingCalibration={pendingCalibration}
           isLoading={isLoading}
-          isConnected={isConnected}
+          canEditTimings={isConnected || isOfflineCalibration}
+          canTestServos={canCalibrate && isConnected}
           isReady={isReady}
           canCalibrate={canCalibrate}
           onControl={handleControl}

@@ -252,6 +252,21 @@
       "saveFailed": "Échec de l'enregistrement des modifications"
     }
   },
+  "offlineCalibration": {
+    "notConnectedTitle": "Aucun trieur connecté",
+    "notConnectedBody": "Connecte un trieur pour le calibrer en direct, ou modifie sa calibration enregistrée sans lui.",
+    "start": "Calibrer sans trieur",
+    "activeTitle": "Calibration sans trieur",
+    "activeBody": "Rien ne bouge pendant les réglages, tu ne peux donc pas vérifier ces positions. Les valeurs enregistrées sont envoyées au trieur à sa prochaine connexion.",
+    "stop": "Arrêter",
+    "warningTitle": "Calibrer sans trieur ?",
+    "warningDescription": "Tu peux modifier et enregistrer la calibration de ce trieur sans qu'il soit connecté, mais lis ceci d'abord.",
+    "warningNoPreview": "Les servos ne bougent pas pendant les réglages, tu ne peux donc pas voir si une position est correcte.",
+    "warningDamage": "Une mauvaise position peut pousser un servo contre sa butée au prochain fonctionnement du trieur, ce qui le fatigue ou l'abîme et peut coincer des cartes.",
+    "warningSync": "Les valeurs enregistrées sont envoyées au trieur à sa prochaine connexion. Si elles diffèrent de celles stockées dans le trieur, on te demandera lesquelles garder.",
+    "cancel": "Annuler",
+    "accept": "J'ai compris, continuer"
+  },
   "calibratePage": {
     "resetServosToDefaults": "Réinitialiser les servos",
     "moduleHistory": {
@@ -355,7 +370,7 @@
     "positions": {
       "bottomClosed": {
         "title": "Palette du bas : fermée",
-        "body": "Fais glisser jusqu'à ce que la trappe soit à plat et bien fermée, pour qu'une carte posée dessus ne puisse pas passer. Arrête dès qu'elle est fermée ; forcer davantage fatigue le servo."
+        "body": "Fais glisser jusqu'à ce que la trappe ferme le fond du module, pour qu'une carte posée dessus ne puisse pas tomber. Elle n'a pas besoin d'être parfaitement à l'horizontale. Arrête dès qu'elle est fermée ; forcer davantage fatigue le servo."
       },
       "bottomOpen": {
         "title": "Palette du bas : ouverte",

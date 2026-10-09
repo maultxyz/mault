@@ -3,6 +3,7 @@ import type {
   BinRuleGroup,
   BinSet,
   DefaultBinInit,
+  EmptyAllBinsInput,
   EmptyBinOptions,
   RepackSlot,
   Result,
@@ -15,7 +16,6 @@ import type {
   ChaosConfig,
 } from "@/lib/interfaces/bins";
 import { queryOptions } from "@tanstack/react-query";
-
 
 export async function loadSets(): Promise<Result<BinSet[]>> {
   return apiGet<Result<BinSet[]>>("/api/bins");
@@ -78,9 +78,7 @@ export async function saveBinConfig({
   binNumber,
   gameGuid,
   ...body
-}: BinConfigSaveInput & { gameGuid?: string }): Promise<
-  Result<BinConfig[]>
-> {
+}: BinConfigSaveInput & { gameGuid?: string }): Promise<Result<BinConfig[]>> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
   return apiPut<Result<BinConfig[]>>(
     `/api/bins/bins/${binNumber}${params}`,
@@ -98,6 +96,15 @@ export async function emptyBin(
     `/api/bins/bins/${binNumber}/empty${params}`,
     options,
   );
+}
+
+export async function emptyAllBins(
+  binNumbers: number[],
+  gameGuid?: string,
+): Promise<Result<BinSet[]>> {
+  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+  const input: EmptyAllBinsInput = { binNumbers };
+  return apiPost<Result<BinSet[]>>(`/api/bins/bins/empty-all${params}`, input);
 }
 
 export async function setChaosMode(

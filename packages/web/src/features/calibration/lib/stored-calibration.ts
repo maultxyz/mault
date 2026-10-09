@@ -89,6 +89,30 @@ export function diffCalibration(
   return differences;
 }
 
+export function mergeCalibrationChanges(
+  base: Partial<DeviceCalibration>,
+  next: Partial<DeviceCalibration>,
+): Partial<DeviceCalibration> {
+  const modules = new Map(
+    (base.modules ?? []).map((c) => [c.moduleNumber, c]),
+  );
+  for (const config of next.modules ?? []) {
+    modules.set(config.moduleNumber, config);
+  }
+  return {
+    ...(modules.size > 0
+      ? {
+          modules: [...modules.values()].sort(
+            (a, b) => a.moduleNumber - b.moduleNumber,
+          ),
+        }
+      : {}),
+    ...((next.feeder ?? base.feeder)
+      ? { feeder: next.feeder ?? base.feeder }
+      : {}),
+  };
+}
+
 export function adoptStoredModules(
   modules: ModuleConfig[],
   stored: StoredCalibration,
