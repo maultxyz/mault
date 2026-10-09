@@ -19,6 +19,7 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { DONATE_URL } from "@/lib/constants/links";
 import {
+  MOBILE_BRAND_SHELL_PATTERN,
   MOBILE_NAV_HIDDEN_PATTERN,
   MOBILE_NAV_SPACE_CLASS,
 } from "@/lib/constants/nav";
@@ -39,13 +40,16 @@ export default function AppLayout() {
       {isMobile ? (
         <div
           className={cn(
-            "relative h-dvh w-dvw overflow-hidden flex flex-col bg-background pt-[env(safe-area-inset-top)]",
+            "relative h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
+            MOBILE_BRAND_SHELL_PATTERN.test(pathname)
+              ? "bg-primary"
+              : "bg-background",
             !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
           )}
         >
           <ImpersonationBanner />
           <AlertStack />
-          <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <main className="flex-1 min-h-0 overflow-hidden flex flex-col bg-background">
             <PageTransition>
               <Outlet />
             </PageTransition>
@@ -100,9 +104,7 @@ export default function AppLayout() {
               </Tooltip>
               <FooterDivider />
               <div className="flex items-center gap-2">
-                <span className="text-foreground/70">
-                  v{__APP_VERSION__}
-                </span>
+                <span className="text-foreground/70">v{__APP_VERSION__}</span>
                 <EnvBanner />
               </div>
             </div>

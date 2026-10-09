@@ -52,7 +52,7 @@ export default function HealthPage() {
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <div className="flex flex-col p-3 md:p-6 max-w-2xl mx-auto w-full gap-4">
+        <div className="flex flex-col p-4 md:p-6 max-w-2xl mx-auto w-full gap-5">
           {isMobile ? (
             syncNote
           ) : (

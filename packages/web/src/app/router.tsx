@@ -1,3 +1,4 @@
+import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
@@ -111,6 +112,7 @@ const AdminDeveloperPage = lazy(
 const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
+const ScanPage = lazy(() => import("@/app/routes/app/scan"));
 const SettingsLayout = lazy(() => import("@/app/routes/app/settings/layout"));
 const SettingsIndexRedirect = lazy(
   () => import("@/app/routes/app/settings/index"),
@@ -379,6 +381,10 @@ export const router = createBrowserRouter([
               {
                 path: "/app/monitor/:collectionGuid/camera",
                 element: <PhoneCameraPage />,
+              },
+              {
+                path: MOBILE_SCAN_PATH,
+                element: <ScanPage />,
               },
               {
                 path: SETTINGS_PATHS.root,

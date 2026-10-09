@@ -26,13 +26,13 @@ export const MobileCardTile = memo(function MobileCardTile({
         onOpen?.();
       }}
       disabled={!onOpen}
-      className="flex min-w-0 select-none flex-col gap-1 text-left transition-transform [-webkit-touch-callout:none] active:scale-[0.97] disabled:active:scale-100"
+      className="flex min-w-0 select-none flex-col gap-1.5 text-left transition-transform [-webkit-touch-callout:none] active:scale-[0.97] disabled:active:scale-100"
     >
       <div
         className={cn(
-          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg border bg-muted",
+          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-foreground/10",
           awaitingReview &&
-            "ring-2 ring-warning ring-offset-1 ring-offset-background",
+            "ring-2 ring-warning ring-offset-2 ring-offset-background",
         )}
       >
         <img
@@ -58,7 +58,7 @@ export const MobileCardTile = memo(function MobileCardTile({
           </span>
         )}
         {entry.quantity > 1 && (
-          <span className="absolute top-1 right-1 rounded-sm bg-background/90 px-1 text-2xs font-semibold leading-4 text-foreground shadow">
+          <span className="absolute top-1 right-1 rounded-sm bg-background/90 px-1 text-2xs font-semibold leading-4 text-foreground shadow backdrop-blur">
             ×{entry.quantity}
           </span>
         )}
@@ -67,7 +67,7 @@ export const MobileCardTile = memo(function MobileCardTile({
         <p className="truncate text-xs font-medium text-foreground">
           {entry.card.name}
         </p>
-        <p className="truncate text-xs text-foreground/70">
+        <p className="truncate text-xs text-foreground/70 tabular-nums">
           {price != null
             ? format(price)
             : `${entry.card.set.toUpperCase()} #${entry.card.collectorNumber}`}

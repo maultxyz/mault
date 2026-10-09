@@ -559,5 +559,31 @@
     "stayPaused": "Pausiert lassen",
     "resume_one": "Scannen fortsetzen",
     "resume_other": "Alle {{count}} fortsetzen"
+  },
+  "qrPairing": {
+    "title": "Zum Verbinden scannen",
+    "subtitle": "Dieses Telefon als Scanner-Kamera verwenden",
+    "invalidTitle": "Das ist kein Kamera-Link",
+    "invalidDescription": "Scanne den QR-Code von {{option}} auf der Scanner-Seite deines Computers.",
+    "cameraErrorTitle": "Kamera konnte nicht geöffnet werden",
+    "cameraErrorDescription": "Erlaube dieser Website in den Browser-Einstellungen den Kamerazugriff und versuche es erneut.",
+    "retry": "Erneut versuchen"
+  },
+  "home": {
+    "greeting": "Hallo, {{name}}",
+    "greetingNoName": "Willkommen zurück",
+    "totalValue": "Sammlungswert",
+    "collectionCount_one": "{{count}} Sammlung",
+    "collectionCount_other": "{{count}} Sammlungen",
+    "scannedToday": "Heute gescannt",
+    "thisWeek": "Diese Woche",
+    "collections": "Sammlungen",
+    "activityTitle": "Scans, letzte 14 Tage",
+    "activityLabel": "Gescannte Karten pro Tag in den letzten 14 Tagen",
+    "activityPoint_one": "{{date}}: {{count}} Karte",
+    "activityPoint_other": "{{date}}: {{count}} Karten",
+    "today": "Heute",
+    "mostValuable": "Wertvollste",
+    "recentlyScanned": "Zuletzt gescannt"
   }
 }

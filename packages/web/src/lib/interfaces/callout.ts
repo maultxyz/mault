@@ -1,6 +1,11 @@
 import type { ComponentType, ReactNode } from "react";
 
-export type CalloutVariant = "neutral" | "info" | "success" | "warning" | "error";
+export type CalloutVariant =
+  | "neutral"
+  | "info"
+  | "success"
+  | "warning"
+  | "error";
 
 export interface CalloutProps {
   variant?: CalloutVariant;

@@ -120,3 +120,7 @@ export const CONSENSUS_RETRY_BUDGET = 3;
 export const DOCUMENT_TITLE_BASE = "MAULT";
 
 export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
+
+export const PHONE_CAMERA_PATH_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
+export const QR_SCAN_INTERVAL_MS = 250;
+export const QR_SCAN_MAX_DIMENSION = 640;

@@ -1,4 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
+import type { THEME_OPTIONS } from "@/lib/constants/nav";
 
 export interface NavSubItemDef {
   key: string;
@@ -73,9 +74,39 @@ export interface MobilePageHeaderProps {
   subtitle?: string;
   backTo?: string;
   actions?: ReactNode;
+  children?: ReactNode;
+  variant?: MobilePageHeaderVariant;
 }
+
+export type MobilePageHeaderVariant = "brand" | "plain";
 
 export interface AppVersionResponse {
   success: boolean;
   data: { version: string };
+}
+
+export interface MobileSegmentedControlItem<T extends string> {
+  key: T;
+  label: string;
+  badge?: number;
+}
+
+export interface MobileSegmentedControlProps<T extends string> {
+  items: MobileSegmentedControlItem<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  label?: string;
+}
+
+export interface MobileSearchInputProps extends ComponentProps<"input"> {
+  placeholder: string;
+}
+
+export type ThemeOption = (typeof THEME_OPTIONS)[number];
+
+export interface MobileTabStripProps<T extends string> {
+  items: MobileSegmentedControlItem<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  label?: string;
 }
