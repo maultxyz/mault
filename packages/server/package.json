@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/server",
-  "version": "1.0.137",
+  "version": "1.0.138",
   "private": true,
   "scripts": {
     "dev": "tsx watch --env-file ../../.env src/index.ts",
