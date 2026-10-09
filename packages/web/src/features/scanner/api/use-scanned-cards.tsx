@@ -17,6 +17,7 @@ import {
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateChaosBin,
+  evaluateScanOnlyBin,
   evaluateRepackBin,
   findLowMatchCatchAll,
   getCardsInBin,
@@ -287,6 +288,9 @@ export function ScannedCardsProvider({
       const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
       if (lowMatch) return lowMatch;
       const set = selectedSetRef.current;
+      if (set?.scanOnly) {
+        return evaluateScanOnlyBin(binConfigsRef.current, set.scanOnlyBin);
+      }
       if (set?.isChaosMode) {
         return evaluateChaosBin(binConfigsRef.current, (bin) =>
           isBinFullLocally(bin.binNumber),

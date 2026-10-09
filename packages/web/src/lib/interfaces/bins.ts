@@ -8,6 +8,7 @@ import type {
   EmptyBinOptions,
   FieldMeta,
   RepackSlot,
+  ScanOnlyConfig,
 } from "@magic-vault/shared";
 
 export interface BinConfigSaveInput {
@@ -26,6 +27,8 @@ export interface BinConfigSaveInput {
 export interface BinModeDraft {
   autoAssignField: string | null;
   scanOnly: boolean;
+  scanOnlyMatchedBin: number | null;
+  scanOnlyUnmatchedBin: number | null;
   isRepackMode: boolean;
   isAlphabetMode: boolean;
   isChaosMode: boolean;
@@ -90,7 +93,7 @@ export interface BinConfigsContextValue {
   deleteSet: (guid: string) => Promise<void>;
   setAutoAssignField: (field: string | null) => Promise<void>;
   resetAutoAssign: () => Promise<void>;
-  setScanOnly: (enabled: boolean) => Promise<void>;
+  setScanOnly: (config: ScanOnlyConfig) => Promise<void>;
   setRepackConfig: (config: {
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
@@ -106,11 +109,22 @@ export interface BinConfigsContextValue {
   discardMode: () => void;
 }
 
+export interface ScanOnlyBinSelectProps {
+  id: string;
+  label: string;
+  description: string;
+  value: number;
+  binNumbers: number[];
+  disabled: boolean;
+  onChange: (binNumber: number) => void;
+}
+
 export interface BinCardProps {
   config: BinConfig;
   active?: boolean;
   isAutoAssign?: boolean;
   isScanOnly?: boolean;
+  isScanOnlyTarget?: boolean;
   isChaosMode?: boolean;
   alphabetLetter?: string | null;
   disabled?: boolean;

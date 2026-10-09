@@ -20,7 +20,10 @@
     "scanOnlyDisabled": "Scan uniquement est activé",
     "alphabetLetter": "Noms commençant par {{letter}}",
     "priority": "Priorité {{priority}}",
-    "catchAllOverride": "Plus les cartes avec :"
+    "catchAllOverride": "Plus les cartes avec :",
+    "scanOnlyScanned": "Les cartes scannées vont ici",
+    "scanOnlyUnidentified": "Les cartes non identifiées vont ici",
+    "scanOnlyEverything": "Les cartes scannées et non identifiées vont ici"
   },
   "binConfigPanel": {
     "overrideLabel": "Règles prioritaires",
@@ -42,7 +45,7 @@
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
     "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
-    "scanOnlyLocked": "Scan uniquement est activé — chaque carte va directement dans le bac 7. Désactive-le ci-dessus pour configurer les bacs.",
+    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis ci-dessus. Désactive-le pour configurer les bacs.",
     "modeChangePending": "Enregistre ou ignore le changement de mode en attente ci-dessus avant de modifier les bacs.",
     "priorityLabel": "Niveau de priorité",
     "priorityPlaceholder": "Aucun",
@@ -135,7 +138,11 @@
   },
   "scanOnlyPanel": {
     "heading": "Scan uniquement",
-    "description": "Envoie chaque carte directement au bac 7, le fourre-tout, sans vérifier aucune règle de tri. Désactive ceci pour configurer les bacs manuellement."
+    "description": "Ignore toutes les règles de tri. Les cartes scannées vont dans un bac et les cartes non identifiées dans un autre (ou le même). Désactive-le pour configurer les bacs manuellement.",
+    "matchedBin": "Cartes scannées",
+    "matchedBinDescription": "Cartes identifiées",
+    "unmatchedBin": "Cartes non identifiées",
+    "unmatchedBinDescription": "Cartes qui n'ont pas pu être reconnues"
   },
   "repackPanel": {
     "heading": "Créer des repacks",

@@ -8,12 +8,12 @@ import {
   type FieldMeta,
   type RepackSlot,
   REPACK_UNIQUE_BY_PRINTING,
+  SCAN_ONLY_DEFAULT_BIN,
 } from "@magic-vault/shared";
 import { and, eq, isNull, sql } from "drizzle-orm";
 import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit, binSets } from "../../db/schema";
-import { SCAN_ONLY_CATCH_ALL_BIN } from "../../lib/constants/bins";
 
 export async function getModuleCount(
   tx: Transaction,
@@ -98,6 +98,7 @@ function toBinSet(row: {
   isActive: boolean;
   autoAssignField: string | null;
   scanOnly: boolean;
+  scanOnlyBin: number | null;
   isRepackMode: boolean;
   repackSlots: unknown;
   repackUniqueBy: string | null;
@@ -142,6 +143,7 @@ function toBinSet(row: {
     isActive: row.isActive,
     autoAssignField: row.autoAssignField,
     scanOnly: row.scanOnly,
+    scanOnlyBin: row.scanOnlyBin,
     isRepackMode: row.isRepackMode,
     repackSlots: (row.repackSlots as RepackSlot[] | null) ?? [],
     repackUniqueBy: row.repackUniqueBy,
@@ -191,6 +193,7 @@ const binSetQuery = {
     isActive: true,
     autoAssignField: true,
     scanOnly: true,
+    scanOnlyBin: true,
     isRepackMode: true,
     repackSlots: true,
     repackUniqueBy: true,
@@ -355,6 +358,7 @@ export async function applyScanOnlyBins(
   tx: Transaction,
   binSetId: number,
   orgId: string,
+  catchAllBinNumber: number = SCAN_ONLY_DEFAULT_BIN,
 ) {
   await tx
     .update(bins)
@@ -372,7 +376,7 @@ export async function applyScanOnlyBins(
     where: (t, { eq, and }) =>
       and(
         eq(t.binSet, binSetId),
-        eq(t.binNumber, SCAN_ONLY_CATCH_ALL_BIN),
+        eq(t.binNumber, catchAllBinNumber),
         eq(t.isDeleted, false),
       ),
     columns: { id: true },
@@ -385,7 +389,7 @@ export async function applyScanOnlyBins(
       .where(eq(bins.id, catchAllBin.id));
   } else {
     await tx.insert(bins).values({
-      binNumber: SCAN_ONLY_CATCH_ALL_BIN,
+      binNumber: catchAllBinNumber,
       rules: emptyRules(),
       isCatchAll: true,
       isOverride: false,
