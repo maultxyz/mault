@@ -67,6 +67,7 @@
     "binLocation": "Bin location",
     "showOcrRegions": "Show OCR regions",
     "noOcrRegions": "This game has no OCR regions.",
+    "ocrFallback": "{{field}} (fallback)",
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",
@@ -264,6 +265,9 @@
     "ocrSetLine": "Set line read",
     "ocrNumber": "Number read",
     "ocrMatchedName": "Closest card name",
+    "ocrUsedFallback": "Fallback regions used",
+    "ocrUsedFallbackYes": "Yes",
+    "ocrUsedFallbackNo": "No",
     "ocrNotRun": "OCR didn't run for this scan.",
     "cardJson": "Card data (JSON)",
     "copyJson": "Copy JSON",
