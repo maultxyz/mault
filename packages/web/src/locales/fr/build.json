@@ -15,17 +15,65 @@
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bac {{n}}",
     "catchAllBinNote": "fourre-tout, les {{modules}} fonds ouverts",
-    "boardType": {
-      "label": "Carte",
-      "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+    "nav": {
+      "label": "Sections du guide",
+      "setup": "Configuration",
+      "parts": "Pièces",
+      "wiring": "Câblage",
+      "assembly": "Assemblage"
+    }
+  },
+  "setup": {
+    "heading": "Configure ton montage",
+    "description": "Choisis comment tu construis le trieur. La liste des pièces, le câblage et les étapes d'assemblage ci-dessous suivent ces choix, enregistrés dans ce navigateur.",
+    "stepLabel": "Étape {{n}}",
+    "source": {
+      "label": "D'où viennent tes pièces ?",
+      "kit": {
+        "title": "Un kit Mault",
+        "description": "ESP32-S3 sur sa carte de breakout, 3 modules et le firmware déjà flashé."
+      },
+      "diy": {
+        "title": "Je les achète moi-même",
+        "description": "Achète les pièces de la liste ci-dessous et choisis ta carte et ton nombre de modules."
+      }
     },
-    "kit": {
-      "title": "Vous montez un kit ?",
-      "description": "Vous utilisez un kit Mault ? Nous adaptons le guide : 3 modules, l'ESP32-S3 avec sa carte d'extension, et aucun flashage du firmware puisque la carte est livrée prête à l'emploi.",
-      "activeDescription": "Guide configuré pour le kit : 3 modules, l'ESP32-S3 avec sa carte d'extension. L'étape du firmware est ignorée car la carte est livrée déjà flashée.",
-      "button": "J'utilise un kit",
-      "active": "Kit utilisé"
+    "board": {
+      "label": "Carte de contrôle",
+      "uno_r4": {
+        "description": "Logique 5V. Se connecte à l'app en USB."
+      },
+      "esp32": {
+        "description": "Logique 3,3V. Se connecte à l'app en USB ou en Bluetooth."
+      },
+      "kitLocked": "Imposé par le kit. Choisis \"Je les achète moi-même\" pour le changer."
+    },
+    "mount": {
+      "label": "Montage de l'ESP32",
+      "breakout": {
+        "title": "Sur une carte de breakout",
+        "description": "L'ESP32 se branche sur une carte de breakout. Utilise les versions breakout de la plaque de circuit et d'un support de base."
+      },
+      "bare": {
+        "title": "Carte nue",
+        "description": "Câblage directement sur les broches de l'ESP32. Utilise la même plaque de circuit que l'Arduino."
+      }
+    },
+    "modules": {
+      "label": "Modules de tri",
+      "description": "Chaque module ajoute deux bacs. Avec le bac fourre-tout en bas, cela fait {{bins}} bacs.",
+      "decreaseAria": "Réduire le nombre de modules",
+      "increaseAria": "Augmenter le nombre de modules"
+    },
+    "summary": {
+      "label": "Montage pour",
+      "change": "Modifier",
+      "kit": "Kit Mault",
+      "diy": "Pièces perso",
+      "breakout": "Carte de breakout",
+      "bare": "Carte nue",
+      "modules_one": "{{count}} module",
+      "modules_other": "{{count}} modules"
     }
   },
   "footer": {
@@ -43,11 +91,6 @@
     "hopperNote": "Il existe deux styles de trémie : la trémie classique et un nouveau modèle qui s'adapte plus facilement à différentes épaisseurs de cartes. Les pièces marquées Optionnel, trémie classique ou Optionnel, nouvelle trémie ci-dessous appartiennent au style que tu ne construis pas - un seul jeu suffit.",
     "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
     "partsListLabel": "Liste complète des pièces",
-    "moduleCount": {
-      "label": "Modules",
-      "decreaseAria": "Diminuer le nombre de modules",
-      "increaseAria": "Augmenter le nombre de modules"
-    },
     "progress": {
       "partsCount": "{{done}} sur {{total}} pièces"
     },
@@ -289,11 +332,6 @@
     "helpText": "Bloqué sur une étape ? <a>Rejoins le Discord</a> si tu as besoin d'aide.",
     "hasVideoAria": "Comprend une vidéo explicative",
     "videoTitle": "Vidéo de montage",
-    "esp32MountType": {
-      "label": "Montage ESP32",
-      "breakout": "Avec carte de breakout",
-      "bare": "Sans carte de breakout"
-    },
     "progress": {
       "stepsCount": "{{done}} sur {{total}} étapes"
     },
@@ -313,8 +351,8 @@
             "text": "Imprime 1 Sorting Module Shroud - une seule suffit. Le capot qui recouvre les modules empilés."
           },
           "printPlateBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces Base Support 1 niveau à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les deux hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour.",
-            "breakoutText": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces 1 niveau, plus 1 support de base pour breakout de {{breakoutHeight}} niveau(x) à la place d'une des pièces standard de {{breakoutHeight}} niveau(x). La variante breakout offre le dégagement supplémentaire dont la carte de breakout a besoin. Les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
+            "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces Base Support 1 niveau à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les deux hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour.",
+            "breakoutText": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces 1 niveau, plus 1 support de base pour breakout de {{breakoutHeight}} niveau(x) à la place d'une des pièces standard de {{breakoutHeight}} niveau(x). La variante breakout offre le dégagement supplémentaire dont la carte de breakout a besoin. Les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour."
           },
           "printPlateBaseBottom": {
             "esp32OrArduino": "Imprime 1 plaque Circuit Board (ESP32 / Arduino). Cette plaque couvre maintenant à la fois l'Arduino et l'ESP32 sans carte de breakout, la même plaque dans les deux cas.",
@@ -327,7 +365,7 @@
             "text": "Imprime 1 plaque End."
           },
           "printGenericBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
+            "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour."
           },
           "printBinsPlate": {
             "text": "Imprime 2 plaques Bins.",

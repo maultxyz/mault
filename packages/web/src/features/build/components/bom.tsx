@@ -4,36 +4,27 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+import { Callout } from "@/components/callout";
 import { useBoardType } from "@/features/build/api/use-board-type";
 import { useKitMode } from "@/features/build/api/use-kit-mode";
 import { useModuleCount } from "@/features/build/api/use-module-count";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { BomGroupTable } from "@/features/build/components/bom-group-table";
-import {
-  BOM_ANCHOR_PREFIX,
-  MAX_MODULES,
-  MIN_MODULES,
-} from "@/lib/constants/build";
+import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
+import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
 import { GROUPS } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";
-import { cn } from "@/lib/utils";
-import {
-  IconInfoCircle,
-  IconMinus,
-  IconPlus,
-  IconShoppingCart,
-} from "@tabler/icons-react";
+import { IconInfoCircle, IconShoppingCart } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
 export function BuildBom() {
   const { t } = useTranslation("build");
   const { checked, toggle } = usePartsChecklist();
-  const { moduleCount, setModuleCount } = useModuleCount();
-  const { boardType, setBoardType } = useBoardType();
+  const { moduleCount } = useModuleCount();
+  const { boardType } = useBoardType();
   const { usingKit } = useKitMode();
   const [openSections, setOpenSections] = useState<string[]>(["parts"]);
 
@@ -73,10 +64,14 @@ export function BuildBom() {
           channelsFree: 16 - channelsUsed,
         })}
       </p>
-      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2.5 text-sm/relaxed text-blue-900 dark:bg-blue-500/10 dark:text-blue-300">
-        <IconInfoCircle className="mt-0.5 size-4 shrink-0" />
-        <span>{t("bom.hopperNote")}</span>
-      </div>
+      <BuildSelectionSummary />
+      <Callout
+        variant="info"
+        icon={IconInfoCircle}
+        className="mt-4 max-w-2xl px-3 py-2.5 text-sm/relaxed"
+      >
+        {t("bom.hopperNote")}
+      </Callout>
       <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm/relaxed text-primary">
         <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
         <span>
@@ -94,61 +89,6 @@ export function BuildBom() {
             ]}
           />
         </span>
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("bom.moduleCount.label")}
-          </span>
-          <div className="flex items-center gap-1.5 rounded-md border p-0.5">
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("bom.moduleCount.decreaseAria")}
-              disabled={moduleCount <= MIN_MODULES}
-              onClick={() => setModuleCount(moduleCount - 1)}
-            >
-              <IconMinus />
-            </Button>
-            <span className="w-4 text-center font-mono text-sm font-medium tabular-nums">
-              {moduleCount}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label={t("bom.moduleCount.increaseAria")}
-              disabled={moduleCount >= MAX_MODULES}
-              onClick={() => setModuleCount(moduleCount + 1)}
-            >
-              <IconPlus />
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs font-semibold tracking-wide text-foreground/70 uppercase">
-            {t("hero.boardType.label")}
-          </span>
-          <div className="flex items-center gap-1 rounded-md border p-0.5">
-            <Button
-              variant={boardType === "uno_r4" ? "secondary" : "ghost"}
-              size="sm"
-              className={cn(boardType !== "uno_r4" && "text-foreground/70")}
-              onClick={() => setBoardType("uno_r4")}
-            >
-              {t("hero.boardType.unoR4")}
-            </Button>
-            <Button
-              variant={boardType === "esp32" ? "secondary" : "ghost"}
-              size="sm"
-              className={cn(boardType !== "esp32" && "text-foreground/70")}
-              onClick={() => setBoardType("esp32")}
-            >
-              {t("hero.boardType.esp32")}
-            </Button>
-          </div>
-        </div>
       </div>
 
       <div className="mt-6">

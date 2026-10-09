@@ -2,6 +2,7 @@ import { BuildAssembly } from "@/features/build/components/assembly";
 import { BuildBom } from "@/features/build/components/bom";
 import { BuildFooter } from "@/features/build/components/footer";
 import { BuildHero } from "@/features/build/components/hero";
+import { BuildSetup } from "@/features/build/components/setup";
 import { BoardTypeProvider } from "@/features/build/api/use-board-type";
 import {
   Esp32MountTypeProvider,
@@ -28,6 +29,7 @@ export default function BuildGuidePage() {
             <ModuleCountProvider>
               <Esp32MountTypeProvider>
                 <BuildHero />
+                <BuildSetup />
                 <BuildBom />
                 <BuildWiring />
                 <BuildAssembly />
