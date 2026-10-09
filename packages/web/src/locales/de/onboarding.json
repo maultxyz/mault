@@ -110,7 +110,7 @@
     },
     "duplicates": {
       "title": "Doppelte Karten",
-      "content": "Schalte dies aus, damit ein Pack nicht zwei Exemplare derselben Karte erhält - ein Duplikat wird für dieses Fach übersprungen, kann aber trotzdem das Pack eines anderen Fachs starten, das es noch nicht enthält."
+      "content": "Lege fest, was ein Pack nicht doppelt haben darf: denselben Druck, denselben Namen (jeder Druck einer Karte) oder denselben Wert eines Felds des Spiels. Ein Duplikat wird für dieses Fach übersprungen, kann aber trotzdem das Pack eines anderen Fachs starten, das es noch nicht enthält."
     },
     "slots": {
       "title": "Lege den Packinhalt fest",

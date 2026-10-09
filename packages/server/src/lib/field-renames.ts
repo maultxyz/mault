@@ -41,6 +41,7 @@ export async function applyFieldRenames(
       autoAssignField: true,
       repackSlots: true,
       repackSiftRules: true,
+      repackUniqueBy: true,
     },
   });
 
@@ -55,8 +56,12 @@ export async function applyFieldRenames(
     const autoAssignField = set.autoAssignField
       ? renamedField(set.autoAssignField, renames)
       : null;
+    const repackUniqueBy = set.repackUniqueBy
+      ? renamedField(set.repackUniqueBy, renames)
+      : null;
     if (
       autoAssignField !== set.autoAssignField ||
+      repackUniqueBy !== set.repackUniqueBy ||
       JSON.stringify(repackSlots) !== JSON.stringify(set.repackSlots) ||
       JSON.stringify(repackSiftRules) !== JSON.stringify(set.repackSiftRules)
     ) {
@@ -64,6 +69,7 @@ export async function applyFieldRenames(
         .update(binSets)
         .set({
           autoAssignField,
+          repackUniqueBy,
           repackSlots,
           repackSiftRules,
           updatedAt: new Date(),

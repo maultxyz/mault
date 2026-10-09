@@ -409,7 +409,7 @@ export function BinConfigsProvider({
       config: {
         isRepackMode: boolean;
         repackSlots: RepackSlot[];
-        repackAllowDuplicates: boolean;
+        repackUniqueBy: string | null;
         repackSiftRules: BinRuleGroup | null;
       };
     }) => setRepackConfigAction(guid, config),
@@ -553,7 +553,7 @@ export function BinConfigsProvider({
     async (config: {
       isRepackMode: boolean;
       repackSlots: RepackSlot[];
-      repackAllowDuplicates: boolean;
+      repackUniqueBy: string | null;
       repackSiftRules: BinRuleGroup | null;
     }) => {
       if (!selectedSet) return false;
@@ -619,7 +619,7 @@ export function BinConfigsProvider({
         await setRepackConfigFn({
           isRepackMode: modeDraft.isRepackMode,
           repackSlots: selectedSet.repackSlots,
-          repackAllowDuplicates: selectedSet.repackAllowDuplicates,
+          repackUniqueBy: selectedSet.repackUniqueBy,
           repackSiftRules: selectedSet.repackSiftRules,
         });
         if (modeDraft.isRepackMode) {

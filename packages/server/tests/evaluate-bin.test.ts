@@ -8,6 +8,8 @@ import {
   findLowMatchCatchAll,
   isBinFull,
   matchesCatchAllRules,
+  REPACK_UNIQUE_BY_NAME,
+  REPACK_UNIQUE_BY_PRINTING,
   sortOverrideBins,
   toRuleCard,
   type BinConfig,
@@ -208,7 +210,7 @@ function repack(card: object, rules: BinRuleGroup | null, isFoil = false) {
     toRuleCard(card, { isFoil }),
     repackConfigs,
     ruleFields,
-    { repackSlots: [anySlot], repackAllowDuplicates: true, repackSiftRules: rules },
+    { repackSlots: [anySlot], repackUniqueBy: null, repackSiftRules: rules },
     () => [],
   );
 }
@@ -244,7 +246,7 @@ test("the sift bin skips disabled bins", () => {
       toRuleCard({ price: 9, prices: { usd: 9 } }, {}),
       configsWithDisabled,
       ruleFields,
-      { repackSlots: [anySlot], repackAllowDuplicates: true, repackSiftRules: siftRules },
+      { repackSlots: [anySlot], repackUniqueBy: null, repackSiftRules: siftRules },
       () => [],
     ),
     configsWithDisabled[1],
@@ -270,4 +272,47 @@ test("repack is complete once every pack bin has met its pack limit", () => {
 test("the sift bin doesn't need a complete pack for repack to finish", () => {
   assert.equal(packsComplete(siftRules, [2, 3]), true);
   assert.equal(packsComplete(siftRules, [1, 2]), false);
+});
+
+function repackUnique(card: object, uniqueBy: string | null, inFirstPack: object[]) {
+  return evaluateRepackBin(
+    toRuleCard(card, {}),
+    repackConfigs,
+    ruleFields,
+    { repackSlots: [anySlot], repackUniqueBy: uniqueBy, repackSiftRules: null },
+    (b) => (b === repackBins[0] ? inFirstPack.map((c) => toRuleCard(c, {})) : []),
+  );
+}
+
+const bolt = { id: "bolt-m10", name: "Lightning Bolt", colors: ["R"], price: 1, prices: { usd: 1 } };
+const boltReprint = { ...bolt, id: "bolt-2x2", name: " lightning bolt " };
+const shock = { id: "shock", name: "Shock", colors: ["R"], price: 1, prices: { usd: 1 } };
+
+test("repack duplicates: allowed keeps adding to the same pack", () => {
+  assert.equal(repackUnique(bolt, null, [bolt]), repackBins[0]);
+});
+
+test("repack duplicates: printing only skips the exact same printing", () => {
+  assert.equal(repackUnique(bolt, REPACK_UNIQUE_BY_PRINTING, [bolt]), repackBins[1]);
+  assert.equal(repackUnique(boltReprint, REPACK_UNIQUE_BY_PRINTING, [bolt]), repackBins[0]);
+});
+
+test("repack duplicates: name skips any printing with the same name", () => {
+  assert.equal(repackUnique(boltReprint, REPACK_UNIQUE_BY_NAME, [bolt]), repackBins[1]);
+  assert.equal(repackUnique(shock, REPACK_UNIQUE_BY_NAME, [bolt]), repackBins[0]);
+});
+
+test("repack duplicates: a game field compares that field's value", () => {
+  assert.equal(repackUnique(shock, "color", [bolt]), repackBins[1]);
+  assert.equal(
+    repackUnique({ ...shock, colors: ["U"] }, "color", [bolt]),
+    repackBins[0],
+  );
+});
+
+test("repack duplicates: a card without the field is never a duplicate", () => {
+  assert.equal(
+    repackUnique({ ...shock, colors: [] }, "color", [{ ...bolt, colors: [] }]),
+    repackBins[0],
+  );
 });

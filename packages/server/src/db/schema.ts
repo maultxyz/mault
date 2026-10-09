@@ -1,4 +1,5 @@
 import type { CardPriceDetails } from "../lib/interfaces/card-prices";
+import { REPACK_UNIQUE_BY_PRINTING } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
@@ -164,9 +165,7 @@ export const binSets = pgTable(
     scanOnly: boolean("scan_only").notNull().default(false),
     isRepackMode: boolean("is_repack_mode").notNull().default(false),
     repackSlots: jsonb("repack_slots").notNull().default([]),
-    repackAllowDuplicates: boolean("repack_allow_duplicates")
-      .notNull()
-      .default(false),
+    repackUniqueBy: text("repack_unique_by").default(REPACK_UNIQUE_BY_PRINTING),
     repackSiftRules: jsonb("repack_sift_rules"),
     isAlphabetMode: boolean("is_alphabet_mode").notNull().default(false),
     alphabetPass: integer("alphabet_pass").notNull().default(0),

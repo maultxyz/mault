@@ -10,6 +10,11 @@ function toSiftRules(rules: BinRuleGroup | null): BinRuleGroup | null {
   return rules && rules.conditions.length > 0 ? rules : null;
 }
 
+function toUniqueBy(uniqueBy: string | null): string | null {
+  const trimmed = uniqueBy?.trim();
+  return trimmed ? trimmed : null;
+}
+
 export const setRepackRoute = new Hono<AppEnv>().put(
   "/:guid/repack",
   requireAuth,
@@ -20,12 +25,12 @@ export const setRepackRoute = new Hono<AppEnv>().put(
     const {
       isRepackMode,
       repackSlots,
-      repackAllowDuplicates,
+      repackUniqueBy,
       repackSiftRules,
     } = await c.req.json<{
       isRepackMode: boolean;
       repackSlots: RepackSlot[];
-      repackAllowDuplicates: boolean;
+      repackUniqueBy?: string | null;
       repackSiftRules?: BinRuleGroup | null;
     }>();
     try {
@@ -47,7 +52,9 @@ export const setRepackRoute = new Hono<AppEnv>().put(
           .set({
             isRepackMode,
             repackSlots,
-            repackAllowDuplicates,
+            ...(repackUniqueBy !== undefined && {
+              repackUniqueBy: toUniqueBy(repackUniqueBy),
+            }),
             ...(repackSiftRules !== undefined && {
               repackSiftRules: toSiftRules(repackSiftRules),
             }),
