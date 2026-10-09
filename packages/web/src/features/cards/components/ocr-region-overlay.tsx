@@ -4,11 +4,16 @@ import { cn } from "@/lib/utils";
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
-export function OcrRegionOverlay({ showLabels = false }: OcrRegionOverlayProps) {
+export function OcrRegionOverlay({
+  showLabels = false,
+  regions: regionsOverride,
+}: OcrRegionOverlayProps) {
   const { t } = useTranslation("cards");
   const collection = useCardDetailCollection();
   const gameKey = collection?.game?.key;
-  const regions = gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : [];
+  const regions =
+    regionsOverride ??
+    (gameKey ? (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []) : []);
 
   if (regions.length === 0) return null;
 

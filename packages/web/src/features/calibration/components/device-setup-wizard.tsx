@@ -69,20 +69,24 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function buildSteps(moduleCount: number): SetupWizardStep[] {
+function buildSteps(
+  moduleCount: number,
+  isOffline: boolean,
+): SetupWizardStep[] {
   const steps: SetupWizardStep[] = [{ kind: "intro" }, { kind: "moduleCount" }];
   for (let module = 1; module <= moduleCount; module++) {
     for (const position of SETUP_SERVO_POSITIONS) {
       steps.push({ kind: "servo", module, position });
     }
   }
-  steps.push({ kind: "irSensors" }, { kind: "feeder" }, { kind: "test" });
+  if (isOffline) steps.push({ kind: "feeder" });
+  else steps.push({ kind: "irSensors" }, { kind: "feeder" }, { kind: "test" });
   return steps;
 }
 
 export function DeviceSetupWizard() {
   const { t } = useTranslation("calibration");
-  const { isOpen, close } = useSetupWizard();
+  const { isOpen, isOffline, close } = useSetupWizard();
   const device = useDevice();
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
@@ -108,8 +112,8 @@ export function DeviceSetupWizard() {
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const steps = useMemo(
-    () => buildSteps(moduleCount.displayCount),
-    [moduleCount.displayCount],
+    () => buildSteps(moduleCount.displayCount, isOffline),
+    [moduleCount.displayCount, isOffline],
   );
   const step = steps[Math.min(stepIndex, steps.length - 1)];
 
@@ -300,7 +304,7 @@ export function DeviceSetupWizard() {
     void sendCommand(JSON.stringify({ feederStop: true }));
     await markSetupComplete();
     close();
-    if (!isReady) void runTest();
+    if (!isReady && !isOffline) void runTest();
   };
 
   const isLast = stepIndex === steps.length - 1;
@@ -337,7 +341,10 @@ export function DeviceSetupWizard() {
             {t("setupWizard.back")}
           </Button>
           {isLast ? (
-            <Button disabled={testState !== "passed"} onClick={handleFinish}>
+            <Button
+              disabled={!isOffline && testState !== "passed"}
+              onClick={handleFinish}
+            >
               <IconCheck />
               {t("setupWizard.finish")}
             </Button>
@@ -364,6 +371,16 @@ export function DeviceSetupWizard() {
           })}
         </p>
       </div>
+
+      {isOffline && (
+        <Callout
+          variant="warning"
+          icon={IconAlertTriangle}
+          title={t("offlineCalibration.activeTitle")}
+        >
+          {t("offlineCalibration.wizardBody")}
+        </Callout>
+      )}
 
       <div className="flex min-h-80 flex-col gap-4 overflow-y-auto py-1 text-sm">
         {step.kind === "intro" && (
