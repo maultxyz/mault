@@ -50,3 +50,5 @@ export function createDefaultCatchAllOnlyBins(
 
 export const REPACK_UNIQUE_BY_PRINTING = "$printing";
 export const REPACK_UNIQUE_BY_NAME = "$name";
+
+export const SCAN_ONLY_DEFAULT_BIN = 7;

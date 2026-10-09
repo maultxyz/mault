@@ -22,6 +22,7 @@ export function BinCard({
   active,
   isAutoAssign,
   isScanOnly,
+  isScanOnlyTarget,
   isChaosMode,
   alphabetLetter,
   disabled,
@@ -87,7 +88,15 @@ export function BinCard({
         </div>
       </div>
       <div className="w-full text-xs">
-        {config.isCatchAll ? (
+        {isScanOnly && (config.isCatchAll || isScanOnlyTarget) ? (
+          <p className="text-xs">
+            {config.isCatchAll
+              ? isScanOnlyTarget
+                ? t("binCard.scanOnlyEverything")
+                : t("binCard.scanOnlyUnidentified")
+              : t("binCard.scanOnlyScanned")}
+          </p>
+        ) : config.isCatchAll ? (
           <>
             <p className="text-xs text-foreground/70">
               {t("binCard.allUnmatched")}

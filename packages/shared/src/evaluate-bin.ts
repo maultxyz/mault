@@ -528,6 +528,17 @@ export function evaluateChaosBin(
   return next ?? getCatchAllBin(configs);
 }
 
+export function evaluateScanOnlyBin(
+  configs: BinConfig[],
+  scanOnlyBin: number | null,
+): BinConfig | undefined {
+  const target =
+    scanOnlyBin == null
+      ? undefined
+      : configs.find((c) => c.binNumber === scanOnlyBin && !c.isDisabled);
+  return target ?? getCatchAllBin(configs);
+}
+
 export function areAllChaosBinsFull(
   configs: BinConfig[],
   isBinFull: (bin: BinConfig) => boolean,

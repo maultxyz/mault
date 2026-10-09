@@ -20,7 +20,10 @@
     "scanOnlyDisabled": "Nur Scannen ist aktiv",
     "alphabetLetter": "Namen mit {{letter}}",
     "priority": "Priorität {{priority}}",
-    "catchAllOverride": "Dazu Karten mit:"
+    "catchAllOverride": "Dazu Karten mit:",
+    "scanOnlyScanned": "Gescannte Karten kommen hierher",
+    "scanOnlyUnidentified": "Nicht erkannte Karten kommen hierher",
+    "scanOnlyEverything": "Gescannte und nicht erkannte Karten kommen hierher"
   },
   "binConfigPanel": {
     "overrideLabel": "Vorrangige Regeln",
@@ -42,7 +45,7 @@
     "apiDocsLink": "Feldreferenz",
     "clear": "Leeren",
     "autoAssignWaiting": "Wartet auf einen neuen Wert für {{field}}",
-    "scanOnlyLocked": "Nur Scannen ist aktiv — jede Karte geht direkt in Fach 7. Schalte es oben aus, um Fächer zu konfigurieren.",
+    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die oben gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
     "modeChangePending": "Speichere oder verwerfe die ausstehende Modusänderung oben, bevor du Fächer bearbeitest.",
     "priorityLabel": "Prioritätsstufe",
     "priorityPlaceholder": "Keine",
@@ -135,7 +138,11 @@
   },
   "scanOnlyPanel": {
     "heading": "Nur Scannen",
-    "description": "Schickt jede Karte direkt in Fach 7, das Auffangfach, ohne Sortierregeln zu prüfen. Schalte dies aus, um Fächer manuell zu konfigurieren."
+    "description": "Überspringt alle Sortierregeln. Gescannte Karten gehen in ein Fach, nicht erkannte in ein anderes (oder dasselbe). Schalte es aus, um Fächer manuell zu konfigurieren.",
+    "matchedBin": "Gescannte Karten",
+    "matchedBinDescription": "Karten, die erkannt wurden",
+    "unmatchedBin": "Nicht erkannte Karten",
+    "unmatchedBinDescription": "Karten, die nicht zugeordnet werden konnten"
   },
   "repackPanel": {
     "heading": "Repacks erstellen",
