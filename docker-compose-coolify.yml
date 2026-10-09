@@ -1,0 +1,141 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: mault
+      POSTGRES_USER: mault
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - mault-postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mault -d mault"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    env_file:
+      - .env
+
+    environment:
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
+      IMPERSONATION_SECRET: ${IMPERSONATION_SECRET:?Set IMPERSONATION_SECRET}
+      WEB_URL: ${WEB_URL}
+      PORT: 3001
+
+      # Internal Docker networking
+      BOT_URL: ${DOCKER_BOT_URL:-http://bot:3002}
+
+    command:
+      - sh
+      - -c
+      - |
+        if [ "$$AUTH_PROVIDER" = "local" ]; then
+          export DATABASE_URL="$${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
+          export DATABASE_SSL="$${DATABASE_SSL:-false}"
+          pnpm --filter @magic-vault/server db:migrate-local
+        fi
+        exec node packages/server/dist/index.js
+
+    expose:
+      - "3001"
+
+    restart: unless-stopped
+
+  prices:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      server:
+        condition: service_started
+
+    env_file:
+      - .env
+
+    environment:
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
+      PRICE_SYNC_INTERVAL_HOURS: ${PRICE_SYNC_INTERVAL_HOURS:-6}
+      PRICE_SYNC_RETRY_MINUTES: ${PRICE_SYNC_RETRY_MINUTES:-10}
+
+    command:
+      - sh
+      - -c
+      - |
+        if [ "$$PRICE_SYNC_INTERVAL_HOURS" = "0" ]; then
+          echo "[prices] PRICE_SYNC_INTERVAL_HOURS=0, price sync disabled."
+          exec sleep infinity
+        fi
+
+        if [ "$$AUTH_PROVIDER" = "local" ]; then
+          export DATABASE_URL="$${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
+          export DATABASE_SSL="$${DATABASE_SSL:-false}"
+        fi
+
+        while true; do
+          if node packages/server/dist/scripts/sync-prices.js; then
+            sleep $$(($$PRICE_SYNC_INTERVAL_HOURS * 3600))
+          else
+            echo "[prices] Sync failed, retrying in $$PRICE_SYNC_RETRY_MINUTES minutes."
+            sleep $$(($$PRICE_SYNC_RETRY_MINUTES * 60))
+          fi
+        done
+
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        VITE_API_URL: ${VITE_API_URL:-}
+        VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-neon}
+        VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL:-}
+        VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
+        VITE_APP_ENV: ${VITE_APP_ENV:-}
+        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-}
+        VITE_ROLLBAR_ACCESS_TOKEN: ${VITE_ROLLBAR_ACCESS_TOKEN:-}
+        VITE_SHOW_SCAN_LOGS: ${VITE_SHOW_SCAN_LOGS:-}
+
+    depends_on:
+      - server
+
+    expose:
+      - "80"
+
+    restart: unless-stopped
+
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+
+    env_file:
+      - .env
+
+    environment:
+      SERVER_URL: ${DOCKER_SERVER_URL:-http://server:3001}
+
+    expose:
+      - "3002"
+
+    depends_on:
+      server:
+        condition: service_started
+        
+    restart: unless-stopped
+
+volumes:
+  mault-postgres:
