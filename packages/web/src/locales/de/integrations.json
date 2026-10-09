@@ -94,5 +94,43 @@
   "draft": {
     "saved": "Discord-Einstellungen gespeichert.",
     "saveFailed": "Einige Discord-Einstellungen konnten nicht gespeichert werden. Versuch es erneut."
+  },
+  "apiKeys": {
+    "heading": "API-Schlüssel",
+    "description": "Lass deine eigenen Systeme, etwa einen Onlineshop, die Karten und Lagerorte dieser Organisation lesen. Schlüssel gehören der Organisation, nicht dir, und funktionieren daher weiter, wenn du sie verlässt.",
+    "docs": "API-Dokumentation",
+    "create": "Schlüssel erstellen",
+    "empty": "Noch keine API-Schlüssel.",
+    "readOnly": "Nur lesen",
+    "readWrite": "Lesen und schreiben",
+    "createdBy": "Erstellt von {{name}} am {{date}}",
+    "lastUsed": "Zuletzt verwendet {{date}}",
+    "neverUsed": "Nie verwendet",
+    "revoke": "Widerrufen",
+    "revoked": "API-Schlüssel widerrufen.",
+    "revokeFailed": "Der API-Schlüssel konnte nicht widerrufen werden.",
+    "revokeConfirmTitle": "Diesen API-Schlüssel widerrufen?",
+    "revokeConfirmDescription": "Alles, was ihn verwendet, funktioniert sofort nicht mehr. Das lässt sich nicht rückgängig machen.",
+    "createTitle": "API-Schlüssel erstellen",
+    "createDescription": "Gib dem Schlüssel einen Namen, damit du später weißt, was ihn verwendet.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Onlineshop-Abgleich",
+    "writeLabel": "Schreibzugriff erlauben",
+    "writeDescription": "Schlüssel mit Lesezugriff können Karten, Sammlungen und Lagerorte abrufen. Schlüssel mit Schreibzugriff werden außerdem Karten entfernen und verschieben können.",
+    "createFailed": "Der API-Schlüssel konnte nicht erstellt werden.",
+    "revealTitle": "API-Schlüssel kopieren",
+    "revealDescription": "Der vollständige Schlüssel wird nur dieses eine Mal angezeigt. Bewahre ihn sicher auf, etwa in den geheimen Einstellungen deines Shops.",
+    "revealDone": "Ich habe ihn kopiert",
+    "copied": "API-Schlüssel kopiert.",
+    "copyFailed": "Der API-Schlüssel konnte nicht kopiert werden.",
+    "managersOnly": "Nur Inhaber und Admins der Organisation können API-Schlüssel erstellen oder widerrufen.",
+    "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
+    "upgrade": "API-Schlüssel sind Teil des Business-Plans.",
+    "upgradeLink": "Upgraden",
+    "copy": "Schlüssel kopieren"
+  },
+  "api": {
+    "heading": "API",
+    "subtitle": "Lass deine eigenen Systeme, etwa einen Onlineshop, nachschlagen, in welcher Box jede Karte liegt."
   }
 }

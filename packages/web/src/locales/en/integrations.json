@@ -94,5 +94,43 @@
   "draft": {
     "saved": "Discord settings saved.",
     "saveFailed": "Some Discord settings couldn't be saved. Try again."
+  },
+  "apiKeys": {
+    "heading": "API keys",
+    "description": "Let your own systems, like an online shop, read this organization's cards and storage locations. Keys belong to the organization, not to you, so they keep working if you leave.",
+    "docs": "API documentation",
+    "create": "Create key",
+    "empty": "No API keys yet.",
+    "readOnly": "Read only",
+    "readWrite": "Read and write",
+    "createdBy": "Created by {{name}} on {{date}}",
+    "lastUsed": "Last used {{date}}",
+    "neverUsed": "Never used",
+    "revoke": "Revoke",
+    "revoked": "API key revoked.",
+    "revokeFailed": "Couldn't revoke the API key.",
+    "revokeConfirmTitle": "Revoke this API key?",
+    "revokeConfirmDescription": "Anything using it stops working right away. This can't be undone.",
+    "createTitle": "Create API key",
+    "createDescription": "Give the key a name so you can tell later what uses it.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Online shop sync",
+    "writeLabel": "Allow write access",
+    "writeDescription": "Read-only keys can list cards, collections and storage locations. Keys with write access will also be able to remove and move cards.",
+    "createFailed": "Couldn't create the API key.",
+    "revealTitle": "Copy your API key",
+    "revealDescription": "This is the only time the full key is shown. Store it somewhere safe, like your shop's secret settings.",
+    "revealDone": "I've copied it",
+    "copied": "API key copied.",
+    "copyFailed": "Couldn't copy the API key.",
+    "managersOnly": "Only organization owners and admins can create or revoke API keys.",
+    "loadFailed": "Couldn't load API keys.",
+    "upgrade": "API keys are part of the Business plan.",
+    "upgradeLink": "Upgrade",
+    "copy": "Copy key"
+  },
+  "api": {
+    "heading": "API",
+    "subtitle": "Let your own systems, like an online shop, look up which box every card is in."
   }
 }

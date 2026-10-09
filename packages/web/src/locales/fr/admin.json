@@ -314,6 +314,10 @@
       "storage": {
         "label": "Emplacements de rangement",
         "description": "Créer des emplacements et y enregistrer des bacs. Les emplacements existants restent visibles dans tous les cas."
+      },
+      "apiAccess": {
+        "label": "Accès API",
+        "description": "Créer des clés API d'organisation et lire les cartes et les emplacements via l'API publique. Révoquer une clé existante reste toujours possible."
       }
     },
     "limits": {

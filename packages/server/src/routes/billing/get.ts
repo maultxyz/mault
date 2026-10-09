@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgBilling } from "../../db/schema";
+import { apiAccessAllowedForPlan } from "../../lib/api-access";
 import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
 import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
 import { sorterLimitForPlan } from "../../lib/sorter-limit";
@@ -39,6 +40,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
             maxNotificationRules: notificationRuleLimitForPlan(plan),
             chaosSort: chaosSortAllowedForPlan(plan),
             storage: storageAllowedForPlan(plan),
+            apiAccess: apiAccessAllowedForPlan(plan),
           },
         };
       });

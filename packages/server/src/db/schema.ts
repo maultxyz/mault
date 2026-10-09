@@ -10,6 +10,8 @@ import {
   index,
   integer,
   jsonb,
+  pgPolicy,
+  pgRole,
   pgTable,
   primaryKey,
   serial,
@@ -35,6 +37,21 @@ const vector = customType<{ data: number[]; driverData: string }>({
 
 const orgRls = (orgId: any) =>
   sql`(${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(${orgId})`;
+
+export const apiServiceRole = pgRole("api_service").existing();
+
+const apiServiceRead = (using: ReturnType<typeof sql>) =>
+  pgPolicy("api-service-policy-select", {
+    as: "permissive",
+    for: "select",
+    to: apiServiceRole,
+    using,
+  });
+
+const apiServiceOrgRead = (orgId: any) =>
+  apiServiceRead(
+    sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+  );
 
 // ─── Global card vectors (no org scope) ──────────────────────────────────────
 
@@ -106,6 +123,7 @@ export const games = pgTable(
       read: true,
       modify: false,
     }),
+    apiServiceRead(sql`true`),
   ],
 ).enableRLS();
 
@@ -404,6 +422,7 @@ export const collections = pgTable(
       read: orgRls(table.orgId),
       modify: orgRls(table.orgId),
     }),
+    apiServiceOrgRead(table.orgId),
   ],
 ).enableRLS();
 
@@ -429,6 +448,7 @@ export const storageLocations = pgTable(
       read: orgRls(table.orgId),
       modify: orgRls(table.orgId),
     }),
+    apiServiceOrgRead(table.orgId),
   ],
 ).enableRLS();
 
@@ -459,9 +479,15 @@ export const collectionCards = pgTable(
     locationPosition: integer("location_position"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("collection_cards_guid_idx").on(table.guid),
+    index("collection_cards_org_updated_idx").on(
+      table.orgId,
+      table.updatedAt,
+      table.id,
+    ),
     index("collection_cards_location_idx").on(
       table.locationId,
       table.locationPosition,
@@ -476,6 +502,34 @@ export const collectionCards = pgTable(
       table.binNumber,
       table.scannedAt,
     ),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+    apiServiceOrgRead(table.orgId),
+  ],
+).enableRLS();
+
+export const orgApiKeys = pgTable(
+  "org_api_keys",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    name: text("name").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    scope: text("scope").notNull().default("read"),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at"),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    unique("org_api_keys_guid_idx").on(table.guid),
+    unique("org_api_keys_hash_idx").on(table.keyHash),
+    index("org_api_keys_org_idx").on(table.orgId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -647,6 +701,7 @@ export const orgSettings = pgTable(
       read: orgRls(table.orgId),
       modify: orgRls(table.orgId),
     }),
+    apiServiceOrgRead(table.orgId),
   ],
 ).enableRLS();
 
@@ -995,6 +1050,7 @@ export const cardPrices = pgTable(
       read: true,
       modify: false,
     }),
+    apiServiceRead(sql`true`),
   ],
 ).enableRLS();
 

@@ -7,6 +7,7 @@ import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
+import { apiKeysRouter } from "./routes/api-keys";
 import { billingRouter } from "./routes/billing";
 import { sortBinsRouter } from "./routes/bins";
 import { botRouter } from "./routes/bot";
@@ -25,6 +26,7 @@ import { integrationsRouter } from "./routes/integrations";
 import { soundsRouter } from "./routes/sounds";
 import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
+import { publicApiRouter } from "./routes/v1";
 import { rollbar } from "./lib/rollbar";
 import { startPlanConfigRefresh } from "./lib/plan-config";
 
@@ -57,11 +59,13 @@ app.route("/org-settings", orgSettingsRouter);
 app.route("/sounds", soundsRouter);
 app.route("/storage-locations", storageLocationsRouter);
 app.route("/integrations", integrationsRouter);
+app.route("/api-keys", apiKeysRouter);
 app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
 app.route("/stream", streamRoute);
+app.route("/v1", publicApiRouter);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);

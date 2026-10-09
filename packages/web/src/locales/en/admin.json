@@ -325,6 +325,10 @@
       "storage": {
         "label": "Storage locations",
         "description": "Create locations and record bins into them. Existing locations stay viewable either way."
+      },
+      "apiAccess": {
+        "label": "API access",
+        "description": "Create organization API keys and read cards and storage locations through the public API. Revoking existing keys always works."
       }
     },
     "limits": {

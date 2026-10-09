@@ -10,6 +10,7 @@ export interface BillingStatus {
   maxNotificationRules?: number | null;
   chaosSort?: boolean;
   storage?: boolean;
+  apiAccess?: boolean;
 }
 
 export interface SupportPromptState {
