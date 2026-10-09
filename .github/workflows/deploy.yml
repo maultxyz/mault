@@ -111,6 +111,33 @@ jobs:
             echo "PR_TITLE_EOF"
           } >> "$GITHUB_OUTPUT"
 
+      # Build checks run before the release commit and tag are pushed, so a
+      # failed build (or a Docker Hub timeout pulling BuildKit) never leaves a
+      # tag behind that makes the next nightly run think nothing is pending.
+      - name: Set up Docker Buildx
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build web image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.web
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+      - name: Build server image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.server
+          push: false
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,mode=max,scope=server
+
       - name: Compute app version
         id: appversion
         if: steps.deploy.outputs.should_deploy == 'true'
@@ -142,20 +169,6 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Set up Docker Buildx
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build web image
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.web
-          push: false
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,mode=max,scope=web
-
       # Shows an in-app banner while the deploy runs. Non-fatal: a failure
       # here must never block the deploy itself. The announcement expires on
       # its own (durationMinutes) if the removal step below never runs.
@@ -176,16 +189,6 @@ jobs:
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
-
-      - name: Build server image
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.server
-          push: false
-          cache-from: type=gha,scope=server
-          cache-to: type=gha,mode=max,scope=server
 
       - name: Set up pnpm
         if: steps.deploy.outputs.should_deploy == 'true'
