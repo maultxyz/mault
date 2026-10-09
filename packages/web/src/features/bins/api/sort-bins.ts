@@ -130,7 +130,7 @@ export async function setRepackConfig(
   config: {
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
-    repackAllowDuplicates: boolean;
+    repackUniqueBy: string | null;
     repackSiftRules: BinRuleGroup | null;
   },
 ): Promise<Result<BinSet[]>> {

@@ -17,6 +17,8 @@ import {
   CUSTOM_BIN_HEIGHT_MIN_MM,
   DEFAULT_BIN_HEIGHT,
   DEFAULT_CARD_THICKNESS_MM,
+  REPACK_UNIQUE_BY_NAME,
+  REPACK_UNIQUE_BY_PRINTING,
   UNLIMITED_BIN_HEIGHT,
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
@@ -384,13 +386,38 @@ export function isRepackComplete(
   );
 }
 
+export function repackDuplicateKey(
+  card: SourceCard,
+  uniqueBy: string,
+  fieldDefinitions: FieldMeta[],
+): string | null {
+  if (uniqueBy === REPACK_UNIQUE_BY_PRINTING) {
+    const id = (card as { id?: unknown }).id;
+    return id == null ? null : String(id);
+  }
+  const value =
+    uniqueBy === REPACK_UNIQUE_BY_NAME
+      ? (card as { name?: unknown }).name
+      : getCardValue(card, uniqueBy, fieldDefinitions);
+  if (value == null) return null;
+  const key = Array.isArray(value)
+    ? normalizeList(value).sort().join(" ")
+    : normalizeText(value);
+  return key.length > 0 ? key : null;
+}
+
 function isDuplicateInPack(
   card: SourceCard,
   cardsInPack: SourceCard[],
+  uniqueBy: string,
+  fieldDefinitions: FieldMeta[],
 ): boolean {
-  const id = (card as { id?: unknown }).id;
+  const key = repackDuplicateKey(card, uniqueBy, fieldDefinitions);
   return (
-    id != null && cardsInPack.some((c) => (c as { id?: unknown }).id === id)
+    key != null &&
+    cardsInPack.some(
+      (c) => repackDuplicateKey(c, uniqueBy, fieldDefinitions) === key,
+    )
   );
 }
 
@@ -441,7 +468,7 @@ export function evaluateRepackBin(
   fieldDefinitions: FieldMeta[],
   binSet: Pick<
     BinSet,
-    "repackSlots" | "repackAllowDuplicates" | "repackSiftRules"
+    "repackSlots" | "repackUniqueBy" | "repackSiftRules"
   >,
   cardsInBin: (bin: BinConfig) => SourceCard[],
 ): BinConfig | undefined {
@@ -462,7 +489,10 @@ export function evaluateRepackBin(
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
       continue;
     }
-    if (!binSet.repackAllowDuplicates && isDuplicateInPack(card, cardsInPack)) {
+    if (
+      binSet.repackUniqueBy &&
+      isDuplicateInPack(card, cardsInPack, binSet.repackUniqueBy, fieldDefinitions)
+    ) {
       continue;
     }
 

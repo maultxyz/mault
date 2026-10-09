@@ -110,7 +110,7 @@
     },
     "duplicates": {
       "title": "Duplicate cards",
-      "content": "Turn this off to keep a pack from getting two copies of the same card - a duplicate is skipped for that bin, but can still start a different bin's pack that doesn't have it yet."
+      "content": "Choose what a pack can't have twice: the same printing, the same name (any printing of a card), or the same value of one of the game's fields. A duplicate is skipped for that bin, but can still start a different bin's pack that doesn't have it yet."
     },
     "slots": {
       "title": "Define what goes in a pack",
