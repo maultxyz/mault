@@ -14,6 +14,7 @@ import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
+import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
 import {
   buildCalibrationDebugText,
   defaultSliderValues,
@@ -116,23 +117,13 @@ export function useCalibrationPage() {
         (key) => c.calibration[key] === DEFAULT_CALIBRATION[key],
       ),
     );
-  const [offlineAccepted, setOfflineAccepted] = useState(false);
-  const isOfflineCalibration = offlineAccepted && !isConnected && !!device;
+  const {
+    isOffline: isOfflineCalibration,
+    accept: startOfflineCalibration,
+    stop: stopOfflineCalibration,
+  } = useOfflineCalibration();
   const canCalibrate =
     isReady || (isConnected && isUnconfigured) || isOfflineCalibration;
-
-  useEffect(() => {
-    if (isConnected) setOfflineAccepted(false);
-  }, [isConnected]);
-
-  const startOfflineCalibration = useCallback(
-    () => setOfflineAccepted(true),
-    [],
-  );
-  const stopOfflineCalibration = useCallback(
-    () => setOfflineAccepted(false),
-    [],
-  );
 
   const [sliderValues, setSliderValues] = useState<Record<SliderKey, number>>(
     () => defaultSliderValues(modules),

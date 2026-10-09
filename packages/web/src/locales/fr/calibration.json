@@ -253,6 +253,7 @@
     }
   },
   "offlineCalibration": {
+    "wizardBody": "Rien ne bouge pendant les réglages, tu ne peux donc pas vérifier ces positions. La vérification des capteurs et l'autotest sont ignorés, et les valeurs enregistrées sont envoyées au trieur à sa prochaine connexion.",
     "notConnectedTitle": "Aucun trieur connecté",
     "notConnectedBody": "Connecte un trieur pour le calibrer en direct, ou modifie sa calibration enregistrée sans lui.",
     "start": "Calibrer sans trieur",

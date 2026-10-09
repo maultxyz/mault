@@ -5,7 +5,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
 import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
+import { OfflineCalibrationWarningDialog } from "@/features/calibration/components/offline-calibration-warning-dialog";
 import { CALIBRATION_TOUR_STEPS } from "@/features/calibration/lib/calibration-tour";
 import { useTour } from "@/features/onboarding/api/use-tour";
 import {
@@ -20,7 +22,7 @@ import type {
 } from "@/lib/interfaces/calibration";
 import { cn } from "@/lib/utils";
 import { IconHelpCircle, IconRoute, IconWand } from "@tabler/icons-react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { Step } from "react-joyride";
 
@@ -44,6 +46,8 @@ export function CalibrationTour({
   const { t } = useTranslation("onboarding");
   const setupWizard = useSetupWizard();
   const { isConnected } = useSerial();
+  const offline = useOfflineCalibration();
+  const [offlineWarningOpen, setOfflineWarningOpen] = useState(false);
   const sectionRef = useRef(section);
   useEffect(() => {
     sectionRef.current = section;
@@ -87,13 +91,27 @@ export function CalibrationTour({
             <IconRoute />
             {t("calibrationTour.menu.pageTour")}
           </DropdownMenuItem>
-          <DropdownMenuItem disabled={!isConnected} onClick={setupWizard.open}>
+          <DropdownMenuItem
+            disabled={!isConnected && !offline.canGoOffline}
+            onClick={() => {
+              if (isConnected || offline.isOffline) setupWizard.open();
+              else setOfflineWarningOpen(true);
+            }}
+          >
             <IconWand />
             {t("calibrationTour.menu.setupWizard")}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       {Tour}
+      <OfflineCalibrationWarningDialog
+        open={offlineWarningOpen}
+        onOpenChange={setOfflineWarningOpen}
+        onAccept={() => {
+          offline.accept();
+          setupWizard.open();
+        }}
+      />
     </>
   );
 }
