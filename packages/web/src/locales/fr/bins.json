@@ -115,6 +115,7 @@
       "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement",
       "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement",
       "emptyBinFailed": "Échec du marquage du bac comme vidé",
+      "emptyAllBinsFailed": "Échec du vidage des bacs",
       "repackFailed": "Échec de la mise à jour des paramètres de repack",
       "alphabetFailed": "Échec de la mise à jour du tri alphabétique",
       "chaosFailed": "Impossible de mettre à jour le tri en vrac",

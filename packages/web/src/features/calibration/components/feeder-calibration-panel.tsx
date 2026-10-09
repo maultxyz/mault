@@ -28,7 +28,7 @@ export function FeederCalibrationPanel({
   settleDurationValue,
   reverseSpeedValue,
   reverseDurationValue,
-  isConnected,
+  canEditTimings,
   canCalibrate,
   onSpeedChange,
   onDurationChange,
@@ -104,7 +104,7 @@ export function FeederCalibrationPanel({
           min={10}
           max={sliderMax(durationValue, FEEDER_DURATION_SLIDER_MAX)}
           step={10}
-          disabled={!isConnected}
+          disabled={!canEditTimings}
           value={durationValue}
           onValueChange={onDurationChange}
         >
@@ -114,7 +114,7 @@ export function FeederCalibrationPanel({
               min={10}
               bigStep={100}
               smallStep={10}
-              disabled={!isConnected}
+              disabled={!canEditTimings}
               onChange={onDurationChange}
               valueLabel={ms(durationValue)}
             />
@@ -126,7 +126,7 @@ export function FeederCalibrationPanel({
           valueLabel={pulseLabel}
           min={0}
           max={sliderMax(pulseDurationValue, FEEDER_PULSE_DURATION_SLIDER_MAX)}
-          disabled={!isConnected}
+          disabled={!canEditTimings}
           value={pulseDurationValue}
           onValueChange={onPulseDurationChange}
         >
@@ -136,14 +136,14 @@ export function FeederCalibrationPanel({
               min={0}
               bigStep={10}
               smallStep={1}
-              disabled={!isConnected}
+              disabled={!canEditTimings}
               onChange={onPulseDurationChange}
               valueLabel={pulseLabel}
             />
           )}
           <Button
             variant="outline"
-            disabled={!isConnected}
+            disabled={!canEditTimings}
             onClick={onSelectContinuous}
             className="w-full"
           >
@@ -156,7 +156,7 @@ export function FeederCalibrationPanel({
           valueLabel={ms(pauseDurationValue)}
           min={0}
           max={sliderMax(pauseDurationValue, FEEDER_PAUSE_DURATION_SLIDER_MAX)}
-          disabled={!isConnected}
+          disabled={!canEditTimings}
           value={pauseDurationValue}
           onValueChange={onPauseDurationChange}
         >
@@ -166,7 +166,7 @@ export function FeederCalibrationPanel({
               min={0}
               bigStep={10}
               smallStep={1}
-              disabled={!isConnected}
+              disabled={!canEditTimings}
               onChange={onPauseDurationChange}
               valueLabel={ms(pauseDurationValue)}
             />
@@ -182,7 +182,7 @@ export function FeederCalibrationPanel({
             settleDurationValue,
             FEEDER_SETTLE_DURATION_SLIDER_MAX,
           )}
-          disabled={!isConnected}
+          disabled={!canEditTimings}
           value={settleDurationValue}
           onValueChange={onSettleDurationChange}
         >
@@ -192,7 +192,7 @@ export function FeederCalibrationPanel({
               min={0}
               bigStep={10}
               smallStep={1}
-              disabled={!isConnected}
+              disabled={!canEditTimings}
               onChange={onSettleDurationChange}
               valueLabel={ms(settleDurationValue)}
             />
@@ -212,7 +212,7 @@ export function FeederCalibrationPanel({
               reverseDurationValue,
               FEEDER_REVERSE_DURATION_SLIDER_MAX,
             )}
-            disabled={!isConnected}
+            disabled={!canEditTimings}
             value={reverseDurationValue}
             onValueChange={onReverseDurationChange}
           >
@@ -222,7 +222,7 @@ export function FeederCalibrationPanel({
                 min={0}
                 bigStep={10}
                 smallStep={1}
-                disabled={!isConnected}
+                disabled={!canEditTimings}
                 onChange={onReverseDurationChange}
                 valueLabel={reverseLabel}
               />

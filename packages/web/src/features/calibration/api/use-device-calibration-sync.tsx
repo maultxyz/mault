@@ -10,6 +10,7 @@ import { CalibrationConflictDialog } from "@/features/calibration/components/cal
 import {
   adoptStoredModules,
   diffCalibration,
+  mergeCalibrationChanges,
   parseStoredFeeder,
   parseStoredModule,
 } from "@/features/calibration/lib/stored-calibration";
@@ -24,6 +25,7 @@ import type {
   StoredCalibration,
   StoredCalibrationRead,
   Device,
+  QueuedDeviceApply,
 } from "@/lib/interfaces/calibration";
 import { toast } from "@/lib/toast";
 import {
@@ -64,6 +66,8 @@ export function DeviceCalibrationSyncProvider({
   const resolveConflictRef = useRef<
     ((source: CalibrationSource | null) => void) | null
   >(null);
+  const applyChainRef = useRef<Promise<void>>(Promise.resolve());
+  const queuedApplyRef = useRef<QueuedDeviceApply | null>(null);
 
   const request = useCallback(
     async (command: object, timeoutMs?: number) => {
@@ -313,12 +317,27 @@ export function DeviceCalibrationSyncProvider({
   ]);
 
   const applyToDevice = useCallback(
-    async (changes: Partial<DeviceCalibration>) => {
-      if (!isConnected) return;
-      await pushCalibration(changes);
-      if (isFirmwareFeatureSupported(firmwareVersion, "storedCalibration")) {
-        await storeOnDevice();
+    (changes: Partial<DeviceCalibration>) => {
+      if (!isConnected) return Promise.resolve();
+      const queued = queuedApplyRef.current;
+      if (queued) {
+        queued.changes = mergeCalibrationChanges(queued.changes, changes);
+        return queued.promise;
       }
+      const entry: QueuedDeviceApply = {
+        changes,
+        promise: Promise.resolve(),
+      };
+      entry.promise = applyChainRef.current.then(async () => {
+        if (queuedApplyRef.current === entry) queuedApplyRef.current = null;
+        await pushCalibration(entry.changes);
+        if (isFirmwareFeatureSupported(firmwareVersion, "storedCalibration")) {
+          await storeOnDevice();
+        }
+      });
+      queuedApplyRef.current = entry;
+      applyChainRef.current = entry.promise.catch(() => {});
+      return entry.promise;
     },
     [isConnected, firmwareVersion, pushCalibration, storeOnDevice],
   );

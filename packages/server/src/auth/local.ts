@@ -95,6 +95,14 @@ export const localAuthProvider: AuthProvider = {
               ON m.user_id = u.id AND m.status = 'active'
             LEFT JOIN own_auth_organisations o ON o.id = m.organisation_id
             WHERE u.name ILIKE ${pattern} OR u.email ILIKE ${pattern}
+              OR EXISTS (
+                SELECT 1
+                FROM own_auth_organisation_members om
+                JOIN own_auth_organisations oo ON oo.id = om.organisation_id
+                WHERE om.user_id = u.id
+                  AND om.status = 'active'
+                  AND oo.name ILIKE ${pattern}
+              )
             GROUP BY u.id, u.name, u.email, r.role
             ORDER BY u.email
             LIMIT ${limit}

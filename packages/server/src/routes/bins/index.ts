@@ -7,6 +7,7 @@ import { deleteBinSetRoute } from "./delete";
 import { deleteBinRoute } from "./delete-bin";
 import { editBinSetRoute } from "./edit";
 import { editBinRoute } from "./edit-bin";
+import { emptyAllBinsRoute } from "./empty-all-bins";
 import { emptyBinRoute } from "./empty-bin";
 import { binSetHistoryRoute } from "./history";
 import { listBinSetsRoute } from "./list";
@@ -26,6 +27,7 @@ const router = new Hono<AppEnv>()
   .route("/", addBinSetRoute)
   .route("/", copyBinSetRoute)
   .route("/", editBinRoute)
+  .route("/", emptyAllBinsRoute)
   .route("/", emptyBinRoute)
   .route("/", deleteBinRoute)
   .route("/", editBinSetRoute)
