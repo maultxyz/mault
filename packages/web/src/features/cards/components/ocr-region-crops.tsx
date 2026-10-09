@@ -24,7 +24,11 @@ export function OcrRegionCrops({ src, className }: OcrRegionCropsProps) {
       {regions.map((region, i) => (
         <figure key={`${region.field}-${i}`} className="flex flex-col gap-1.5">
           <figcaption className="text-xs font-medium">
-            {t(`cardDetailPanel.ocrFields.${region.field}`)}
+            {region.fallback
+              ? t("cardDetailPanel.ocrFallback", {
+                  field: t(`cardDetailPanel.ocrFields.${region.field}`),
+                })
+              : t(`cardDetailPanel.ocrFields.${region.field}`)}
           </figcaption>
           <div
             className="relative w-full overflow-hidden rounded-md border bg-muted"

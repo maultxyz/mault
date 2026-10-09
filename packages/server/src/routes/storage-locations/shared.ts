@@ -44,7 +44,7 @@ export async function loadLocations(
 ): Promise<StorageLocation[]> {
   const priceSource = await loadOrgPriceSource(tx, orgId);
   const result = await tx.execute(sql`
-    SELECT sl.guid, sl.name, sl.created_at,
+    SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at,
       count(cc.id)::int AS card_count,
       COALESCE(sum(${cardPriceSql(priceSource)}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
     FROM ${storageLocations} sl
@@ -62,6 +62,7 @@ export async function loadLocations(
     guid: r.guid,
     name: r.name,
     createdAt: new Date(r.created_at),
+    lastUsedAt: r.last_used_at ? new Date(r.last_used_at) : null,
     cardCount: Number(r.card_count),
     totalValue: Number(r.total_value),
   }));

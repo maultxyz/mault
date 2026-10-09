@@ -7,6 +7,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
+import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import type { CardImageViewerProps } from "@/lib/interfaces/cards";
 import { useTranslation } from "react-i18next";
 
@@ -33,11 +34,12 @@ export function CardImageViewer({
             />
           </label>
         </DialogHeader>
-        <div className="mx-auto h-[min(75dvh,36rem)] max-w-full aspect-[2.5/3.5] rounded-lg overflow-hidden border">
+        <div className="relative mx-auto h-[min(75dvh,36rem)] max-w-full aspect-[2.5/3.5] rounded-lg overflow-hidden border">
           <CapturedImageThumb
             src={capturedImageUrl}
             alt={t("cardPicker.scannedAlt")}
           />
+          {showOcrRegions && <OcrRegionOverlay showLabels />}
         </div>
         {showOcrRegions && <OcrRegionCrops src={capturedImageUrl} />}
       </DialogContent>
