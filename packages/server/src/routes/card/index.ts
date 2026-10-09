@@ -7,12 +7,14 @@ import { searchByVectorRoute } from "./search-by-vector";
 import { searchCardByIdRoute } from "./search-by-id";
 import { searchCardRoute } from "./search";
 import { cardSetsRoute } from "./sets";
+import { sampleCardRoute } from "./sample";
 
 const router = new Hono<AppEnv>()
   .route("/", searchByImageRoute)
   .route("/", searchByVectorRoute)
   .route("/", searchByTextRoute)
   .route("/", cardSetsRoute)
+  .route("/", sampleCardRoute)
   .route("/", searchCardRoute)
   .route("/", searchCardByIdRoute)
   .route("/", imageProxyRoute);

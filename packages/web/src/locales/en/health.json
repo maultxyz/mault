@@ -12,10 +12,12 @@
   "pausedDuringSync": "Paused while a database sync is running",
   "ocrRegions": {
     "heading": "OCR regions",
-    "description": "Where text is read on each game's cards when OCR is on. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card.",
+    "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card.",
     "fallback": "fallback",
     "multiline": "multiline",
-    "coords": "x {{x}}%, y {{y}}%, {{width}} × {{height}}%"
+    "coords": "x {{x}}%, y {{y}}%, {{width}} × {{height}}%",
+    "anotherCard": "Show another card",
+    "sample": "{{name}} · {{set}} #{{number}}"
   },
   "cardLookup": {
     "heading": "Card lookup",

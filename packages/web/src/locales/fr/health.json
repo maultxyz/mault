@@ -12,10 +12,12 @@
   "pausedDuringSync": "Suspendu pendant une synchronisation de la base de données",
   "ocrRegions": {
     "heading": "Zones OCR",
-    "description": "Où le texte est lu sur les cartes de chaque jeu quand l'OCR est activé. Les cadres pleins sont lus en premier ; les zones de repli en pointillés ne sont lues que si le premier passage ne trouve pas la carte.",
+    "description": "Où le texte est lu sur les cartes de chaque jeu quand l'OCR est activé, affiché sur une carte d'exemple de la base. Les cadres pleins sont lus en premier ; les zones de repli en pointillés ne sont lues que si le premier passage ne trouve pas la carte.",
     "fallback": "repli",
     "multiline": "multiligne",
-    "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %"
+    "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
+    "anotherCard": "Afficher une autre carte",
+    "sample": "{{name}} · {{set}} #{{number}}"
   },
   "cardLookup": {
     "heading": "Recherche de cartes",
