@@ -1,5 +1,3 @@
-import type { PlayingCard } from "@magic-vault/shared";
-
 export interface PublicApiCardCursor {
   t?: string;
   i: number;
@@ -10,13 +8,22 @@ export interface PublicApiCardFilters {
   cursor: PublicApiCardCursor | null;
   limit: number;
   collectionGuid: string | null;
-  locationGuid: string | null;
   inStorage: boolean | null;
   cardIds: string[] | null;
   name: string | null;
   set: string | null;
   number: string | null;
   foil: boolean | null;
+}
+
+export interface PublicApiLocationCursor {
+  p: number;
+  i: number;
+}
+
+export interface PublicApiLocationCardFilters {
+  cursor: PublicApiLocationCursor | null;
+  limit: number;
 }
 
 export interface RateLimitWindow {
@@ -38,7 +45,11 @@ export interface PublicApiCardRow {
   is_foil: boolean;
   foil_type: string | null;
   needs_review: boolean;
-  card: PlayingCard;
+  name: string;
+  set_code: string;
+  set_name: string;
+  collector_number: string;
+  rarity: string;
   price: number | string | null;
   collection_guid: string;
   collection_name: string;

@@ -33,7 +33,6 @@ export const publicCardsRoute = new Hono<ApiKeyEnv>()
         ),
         limit: parsePageLimit(c.req.query("limit")),
         collectionGuid: parseGuidParam("collection", c.req.query("collection")),
-        locationGuid: parseGuidParam("location", c.req.query("location")),
         inStorage: parseBooleanParam("inStorage", c.req.query("inStorage")),
         cardIds: parseCardIds(c.req.query("cardId")),
         name: parseTextParam(c.req.query("name")),

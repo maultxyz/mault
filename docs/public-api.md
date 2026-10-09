@@ -8,11 +8,11 @@ API access is part of the Business plan.
 
 Create a key in **Settings > Integrations > API keys** (organization owners and admins). The full key is shown once. It starts with `mv_`.
 
-Send it as a bearer token:
+Send it in the `X-API-Key` header on every request, over HTTPS only:
 
 ```http
 GET /v1/cards?cardId=e3285e6b-3e79-4d7c-bf96-d920f973b122
-Authorization: Bearer mv_...
+X-API-Key: mv_...
 ```
 
 Keys belong to the organization, not to the person who created them, so they keep working if that person leaves. Revoking a key stops it immediately.
@@ -45,9 +45,13 @@ Every collection, with `guid`, `name`, `game` (game key, e.g. `mtg`), `lang` and
 
 Every storage location, with `guid`, `name`, `cardCount` and `createdAt`.
 
+### `GET /v1/locations/{guid}/cards`
+
+What's in one box, in position order (the order cards were put away), in the same card shape as `/v1/cards`. Takes `limit` and `cursor`; the response has `items` and `nextCursor`. `404` if the location doesn't exist.
+
 ### `GET /v1/cards`
 
-Scanned cards. One entry is one physical card (one scan), so three copies of a printing are three entries, each with its own `scanId` and location.
+Find copies across every box. One entry is one physical card (one scan), so three copies of a printing are three entries, each with its own `scanId` and location.
 
 | Parameter | Description |
 | --- | --- |
@@ -57,7 +61,6 @@ Scanned cards. One entry is one physical card (one scan), so three copies of a p
 | `number` | Collector number. Leading zeros are ignored. |
 | `foil` | `true` or `false`. |
 | `inStorage` | `true` for cards in a storage location, `false` for cards that aren't. |
-| `location` | Only cards in this storage location (guid). |
 | `collection` | Only cards in this collection (guid). |
 | `since` | Only cards that changed after this timestamp. |
 | `limit` | Page size, 1 to 500, default 100. |
@@ -87,8 +90,7 @@ Response `data`:
       "location": { "guid": "c3d4...", "name": "Box 12", "position": 87 },
       "scannedAt": "2026-10-09T14:03:11.204Z",
       "createdAt": "2026-10-09T14:03:11.391Z",
-      "updatedAt": "2026-10-09T15:20:02.118Z",
-      "card": { "...": "the full card record, including image URLs and every price" }
+      "updatedAt": "2026-10-09T15:20:02.118Z"
     }
   ],
   "nextCursor": "eyJpIjo...",
@@ -99,6 +101,7 @@ Response `data`:
 - `cardId` identifies the printing, so it's the value to map to a product in your shop. `scanId` identifies one physical copy.
 - `location` is null when the card isn't in a storage location. `position` is its place in that box, counting up in the order cards were put away. Positions are never renumbered, so there can be gaps.
 - `price` and `currency` follow the organization's price source (Settings > Pricing), foil price for a foil copy.
+- Only these summary fields are returned, not the full card record from the card's source database.
 - `needsReview` is true when the scan wasn't certain and nobody has confirmed it yet.
 
 Without `since`, results are in a stable order and `nextCursor` pages through all of them. With `since`, they're ordered by `updatedAt`. A card counts as changed when anything about the card itself changes (corrected, foil changed, put into or taken out of a storage location). Price updates and renaming a collection or location don't count. `nextSince` is set a minute before the request, so passing it as the next `since` may return a card twice but never misses one.
@@ -107,7 +110,7 @@ Removed cards (sold, deleted) simply stop appearing; the API doesn't report them
 
 ### `GET /v1/cards/{scanId}`
 
-One card, in the same shape. `404` if it doesn't exist.
+One copy, wherever it is now, in the same shape. `404` if it doesn't exist.
 
 ## Picking an order
 
