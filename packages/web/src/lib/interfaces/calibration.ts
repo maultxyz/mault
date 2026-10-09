@@ -18,11 +18,7 @@ export interface ModuleConfigsContextValue {
     moduleNumber: number,
     calibration: ServoCalibration,
   ) => Promise<void>;
-  moveServo: (
-    module: number,
-    servo: ServoName,
-    value: number,
-  ) => void;
+  moveServo: (module: number, servo: ServoName, value: number) => void;
 }
 
 export interface BinRoutesContextValue {
@@ -356,16 +352,8 @@ export interface ServoControlProps {
   canCalibrate: boolean;
   isTesting: boolean;
   showRaw: boolean;
-  onControl: (
-    module: number,
-    servo: ServoName,
-    position: string,
-  ) => void;
-  onSliderChange: (
-    module: number,
-    servo: ServoName,
-    value: number,
-  ) => void;
+  onControl: (module: number, servo: ServoName, position: string) => void;
+  onSliderChange: (module: number, servo: ServoName, value: number) => void;
   onTest: (module: number, servo: ServoName) => void;
 }
 
@@ -395,16 +383,8 @@ export interface ModuleCalibrationGridProps {
   isConnected: boolean;
   isReady: boolean;
   canCalibrate: boolean;
-  onControl: (
-    module: number,
-    servo: ServoName,
-    position: string,
-  ) => void;
-  onSliderChange: (
-    module: number,
-    servo: ServoName,
-    value: number,
-  ) => void;
+  onControl: (module: number, servo: ServoName, position: string) => void;
+  onSliderChange: (module: number, servo: ServoName, value: number) => void;
   onModuleDelayChange: (
     module: number,
     field: ModuleDelayField,

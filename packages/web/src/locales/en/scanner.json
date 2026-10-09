@@ -559,5 +559,31 @@
     "stayPaused": "Stay paused",
     "resume_one": "Resume scanning",
     "resume_other": "Resume all {{count}}"
+  },
+  "qrPairing": {
+    "title": "Scan to link",
+    "subtitle": "Use this phone as a scanner camera",
+    "invalidTitle": "That isn't a camera link",
+    "invalidDescription": "Scan the QR code from {{option}} on your computer's scanner page.",
+    "cameraErrorTitle": "Couldn't open the camera",
+    "cameraErrorDescription": "Allow camera access for this site in your browser settings, then try again.",
+    "retry": "Try again"
+  },
+  "home": {
+    "greeting": "Hi, {{name}}",
+    "greetingNoName": "Welcome back",
+    "totalValue": "Collection value",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "scannedToday": "Scanned today",
+    "thisWeek": "This week",
+    "collections": "Collections",
+    "activityTitle": "Scans, last 14 days",
+    "activityLabel": "Cards scanned per day over the last 14 days",
+    "activityPoint_one": "{{date}}: {{count}} card",
+    "activityPoint_other": "{{date}}: {{count}} cards",
+    "today": "Today",
+    "mostValuable": "Most valuable",
+    "recentlyScanned": "Recently scanned"
   }
 }

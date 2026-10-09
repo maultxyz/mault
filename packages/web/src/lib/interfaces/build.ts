@@ -28,7 +28,11 @@ export interface BomRow {
   qty: (moduleCount: number) => string;
   name: string | ((boardType: BoardType) => string);
   part: (t: BuildTFunction, boardType: BoardType) => ReactNode;
-  notes: (t: BuildTFunction, moduleCount: number, boardType: BoardType) => ReactNode;
+  notes: (
+    t: BuildTFunction,
+    moduleCount: number,
+    boardType: BoardType,
+  ) => ReactNode;
   buyUrl?: string | ((boardType: BoardType) => string | undefined);
   optional?: true | "classic-hopper" | "new-hopper";
 }
