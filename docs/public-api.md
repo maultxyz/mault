@@ -128,7 +128,7 @@ All timestamps are UTC ISO 8601.
 
 ## Rate limits
 
-Each key can make 120 requests per minute. Every response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (seconds until the window resets). Past the limit you get a `rate_limited` error with a `Retry-After` header.
+Each key can make 60 requests per minute. Every response carries `X-RateLimit-Limit`, `X-RateLimit-Remaining` and `X-RateLimit-Reset` (seconds until the window resets). Past the limit you get a `rate_limited` error with a `Retry-After` header.
 
 ## Endpoints
 
