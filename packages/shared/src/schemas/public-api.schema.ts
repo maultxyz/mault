@@ -225,7 +225,9 @@ export const apiListCardsQuerySchema = z.object({
   card_id: z
     .string()
     .refine(
-      (value) => value.split(",").filter(Boolean).length <= PUBLIC_API_CARD_ID_FILTER_MAX,
+      (value) =>
+        value.split(",").filter(Boolean).length <=
+        PUBLIC_API_CARD_ID_FILTER_MAX,
       `At most ${PUBLIC_API_CARD_ID_FILTER_MAX} ids.`,
     )
     .optional()
@@ -256,3 +258,13 @@ export const apiListCardsQuerySchema = z.object({
   limit: limitParam,
   cursor: cursorParam,
 });
+
+export const apiMoveCardBodySchema = z
+  .object({
+    location: z
+      .guid()
+      .describe(
+        "The storage location to move the card into. It's added at the end of that box.",
+      ),
+  })
+  .meta({ id: "MoveCardRequest" });

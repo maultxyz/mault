@@ -1,12 +1,13 @@
 {
   "title": "Settings",
-  "subtitle": "Organization, billing, scanning, sounds and integrations",
+  "subtitle": "Organization, billing, scanning, sounds, notifications and integrations",
   "sections": {
     "general": "General",
     "organization": "Organization",
     "billing": "Billing",
     "scanning": "Scanning",
     "sounds": "Sounds",
+    "notifications": "Notifications",
     "integrations": "Integrations"
   },
   "organizations": {

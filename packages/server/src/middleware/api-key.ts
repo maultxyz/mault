@@ -1,7 +1,10 @@
 import { API_KEY_PREFIX, PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
 import { createMiddleware } from "hono/factory";
 import { hashApiKey, resolveApiKey } from "../lib/api-keys";
-import { API_ACCESS_UPGRADE_MESSAGE } from "../lib/constants/api-keys";
+import {
+  API_ACCESS_UPGRADE_MESSAGE,
+  PUBLIC_API_READ_ONLY_KEY,
+} from "../lib/constants/api-keys";
 import type { ApiKeyEnv } from "../lib/interfaces/api-keys";
 import { consumeRateLimit } from "../lib/public-api/rate-limit";
 import { apiError } from "../lib/public-api/responses";
@@ -41,3 +44,12 @@ export const requireApiKey = createMiddleware<ApiKeyEnv>(async (c, next) => {
   c.set("apiKeyScope", key.scope);
   await next();
 });
+
+export const requireWriteScope = createMiddleware<ApiKeyEnv>(
+  async (c, next) => {
+    if (c.get("apiKeyScope") !== "read_write") {
+      return apiError(c, 403, "forbidden", PUBLIC_API_READ_ONLY_KEY);
+    }
+    await next();
+  },
+);

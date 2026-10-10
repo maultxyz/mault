@@ -11,6 +11,10 @@ export const PUBLIC_API_CHANGE_OVERLAP_SECONDS = 60;
 export const PUBLIC_API_RATE_LIMIT_REQUESTS = 120;
 export const PUBLIC_API_RATE_LIMIT_WINDOW_MS = 60_000;
 export const PUBLIC_API_RATE_LIMIT_SWEEP_SIZE = 1000;
+export const PUBLIC_API_CARD_NOT_FOUND = "No card found with that id.";
+export const PUBLIC_API_LOCATION_NOT_FOUND = "No location found with that id.";
+export const PUBLIC_API_READ_ONLY_KEY =
+  "This API key is read-only. Create a key with write access to change cards.";
 export const PUBLIC_API_TIMESTAMP_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"';
 
 export const ORG_API_KEY_COLUMNS = {

@@ -116,7 +116,7 @@
     "nameLabel": "Name",
     "namePlaceholder": "Online shop sync",
     "writeLabel": "Allow write access",
-    "writeDescription": "Read-only keys can list cards, collections and storage locations. Keys with write access will also be able to remove and move cards.",
+    "writeDescription": "Read-only keys can list cards, collections and storage locations. Keys with write access can also take cards out of their box, move them to another box and delete them.",
     "createFailed": "Couldn't create the API key.",
     "revealTitle": "Copy your API key",
     "revealDescription": "This is the only time the full key is shown. Store it somewhere safe, like your shop's secret settings.",

@@ -1,3 +1,5 @@
+import type { ApiScannedCard } from "@magic-vault/shared";
+
 export interface PublicApiCardCursor {
   t?: string;
   i: number;
@@ -89,4 +91,14 @@ export interface PublicApiLocationRow {
   name: string;
   card_count: number;
   created_at: string;
+}
+
+export type PublicApiCardWriteResult =
+  | { status: "ok"; card: ApiScannedCard }
+  | { status: "card_not_found" }
+  | { status: "location_not_found" };
+
+export interface PublicApiDeletedCard {
+  imageKey: string | null;
+  collectionGuid: string;
 }

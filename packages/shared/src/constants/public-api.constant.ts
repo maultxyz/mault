@@ -5,6 +5,7 @@ import {
   apiListCardsQuerySchema,
   apiLocationCardsQuerySchema,
   apiLocationListSchema,
+  apiMoveCardBodySchema,
   apiScannedCardListSchema,
   apiScannedCardPageSchema,
   apiScannedCardSchema,
@@ -16,6 +17,7 @@ export const PUBLIC_API_KEY_HEADER = "X-API-Key";
 export const PUBLIC_API_ENDPOINTS = [
   {
     operationId: "listCollections",
+    scope: "read",
     method: "get",
     path: "/v1/collections",
     tag: "Collections",
@@ -25,6 +27,7 @@ export const PUBLIC_API_ENDPOINTS = [
   },
   {
     operationId: "listLocations",
+    scope: "read",
     method: "get",
     path: "/v1/locations",
     tag: "Locations",
@@ -34,6 +37,7 @@ export const PUBLIC_API_ENDPOINTS = [
   },
   {
     operationId: "listLocationCards",
+    scope: "read",
     method: "get",
     path: "/v1/locations/{id}/cards",
     tag: "Locations",
@@ -46,6 +50,7 @@ export const PUBLIC_API_ENDPOINTS = [
   },
   {
     operationId: "listCards",
+    scope: "read",
     method: "get",
     path: "/v1/cards",
     tag: "Cards",
@@ -57,6 +62,7 @@ export const PUBLIC_API_ENDPOINTS = [
   },
   {
     operationId: "getCard",
+    scope: "read",
     method: "get",
     path: "/v1/cards/{id}",
     tag: "Cards",
@@ -64,5 +70,42 @@ export const PUBLIC_API_ENDPOINTS = [
     description: "One physical copy, wherever it is now.",
     pathParams: apiIdParamsSchema,
     response: apiScannedCardSchema,
+  },
+  {
+    operationId: "removeCardFromLocation",
+    scope: "read_write",
+    method: "delete",
+    path: "/v1/cards/{id}/location",
+    tag: "Cards",
+    summary: "Remove a card from its box",
+    description:
+      "Takes a card out of its storage location, e.g. once it's picked for an order. The card stays in its collection. Does nothing to a card that isn't in a location. Needs a read and write key.",
+    pathParams: apiIdParamsSchema,
+    response: apiScannedCardSchema,
+  },
+  {
+    operationId: "moveCard",
+    scope: "read_write",
+    method: "post",
+    path: "/v1/cards/{id}/move",
+    tag: "Cards",
+    summary: "Move a card to another box",
+    description:
+      "Puts a card at the end of another storage location. Positions are never renumbered, so its old place stays a gap. Needs a read and write key.",
+    pathParams: apiIdParamsSchema,
+    body: apiMoveCardBodySchema,
+    response: apiScannedCardSchema,
+  },
+  {
+    operationId: "deleteCard",
+    scope: "read_write",
+    method: "delete",
+    path: "/v1/cards/{id}",
+    tag: "Cards",
+    summary: "Delete a card",
+    description:
+      "Permanently deletes a card, e.g. once it's sold, along with its scan photo. This can't be undone. Needs a read and write key.",
+    pathParams: apiIdParamsSchema,
+    response: null,
   },
 ] as const satisfies readonly PublicApiEndpoint[];
