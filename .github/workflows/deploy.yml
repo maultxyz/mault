@@ -50,7 +50,7 @@ jobs:
           DOCS=false
           if grep -qE '^(packages/web/|packages/shared/|Dockerfile\.web$)' <<< "$FILES"; then WEB=true; fi
           if grep -qE '^(packages/server/|packages/shared/|drizzle/|Dockerfile\.server$)' <<< "$FILES"; then SERVER=true; fi
-          if grep -qE '^(packages/api-docs/|packages/shared/|Dockerfile\.api-docs$|nginx\.api-docs\.conf$)' <<< "$FILES"; then DOCS=true; fi
+          if grep -qE '^(packages/api-docs/|packages/shared/|Dockerfile\.api-docs$)' <<< "$FILES"; then DOCS=true; fi
 
           COMMITS=$(git log --no-merges --format='%s' "$RANGE" | grep -v '^chore(release):' || true)
           COUNT=$(grep -c . <<< "$COMMITS" || true)
