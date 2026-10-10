@@ -4,6 +4,7 @@ import {
 } from "@magic-vault/shared";
 import type { Handler } from "hono";
 import { apiKeyQuery } from "../../db";
+import { PUBLIC_API_CARD_NOT_FOUND } from "../../lib/constants/api-keys";
 import type { ApiKeyEnv } from "../../lib/interfaces/api-keys";
 import {
   loadPublicApiCard,
@@ -37,7 +38,7 @@ export const getCardHandler: Handler<ApiKeyEnv> = async (c) => {
   const orgId = c.get("orgId");
   const params = apiIdParamsSchema.safeParse(c.req.param());
   if (!params.success) {
-    return apiError(c, 404, "not_found", "No card found with that id.");
+    return apiError(c, 404, "not_found", PUBLIC_API_CARD_NOT_FOUND);
   }
   try {
     const card = await apiKeyQuery(orgId, (tx) =>
@@ -45,7 +46,7 @@ export const getCardHandler: Handler<ApiKeyEnv> = async (c) => {
     );
     return card
       ? c.json(card)
-      : apiError(c, 404, "not_found", "No card found with that id.");
+      : apiError(c, 404, "not_found", PUBLIC_API_CARD_NOT_FOUND);
   } catch (err) {
     return apiErrorFrom(c, err);
   }

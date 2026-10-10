@@ -1,12 +1,13 @@
 {
   "title": "Paramètres",
-  "subtitle": "Organisation, facturation, scan, sons et intégrations",
+  "subtitle": "Organisation, facturation, scan, sons, notifications et intégrations",
   "sections": {
     "general": "Général",
     "organization": "Organisation",
     "billing": "Facturation",
     "scanning": "Scan",
     "sounds": "Sons",
+    "notifications": "Notifications",
     "integrations": "Intégrations"
   },
   "organizations": {

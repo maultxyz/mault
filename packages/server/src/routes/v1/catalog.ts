@@ -1,6 +1,7 @@
 import { apiIdParamsSchema } from "@magic-vault/shared";
 import type { Handler } from "hono";
 import { apiKeyQuery } from "../../db";
+import { PUBLIC_API_LOCATION_NOT_FOUND } from "../../lib/constants/api-keys";
 import type { ApiKeyEnv } from "../../lib/interfaces/api-keys";
 import { loadPublicApiLocationCards } from "../../lib/public-api/cards";
 import {
@@ -43,7 +44,7 @@ export const listLocationCardsHandler: Handler<ApiKeyEnv> = async (c) => {
   const orgId = c.get("orgId");
   const params = apiIdParamsSchema.safeParse(c.req.param());
   if (!params.success) {
-    return apiError(c, 404, "not_found", "No location found with that id.");
+    return apiError(c, 404, "not_found", PUBLIC_API_LOCATION_NOT_FOUND);
   }
   try {
     const filters = toLocationCardFilters(c.req.query());
@@ -52,7 +53,7 @@ export const listLocationCardsHandler: Handler<ApiKeyEnv> = async (c) => {
     );
     return page
       ? c.json(toApiList(c, page))
-      : apiError(c, 404, "not_found", "No location found with that id.");
+      : apiError(c, 404, "not_found", PUBLIC_API_LOCATION_NOT_FOUND);
   } catch (err) {
     return apiErrorFrom(c, err);
   }

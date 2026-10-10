@@ -116,7 +116,7 @@
     "nameLabel": "Name",
     "namePlaceholder": "Onlineshop-Abgleich",
     "writeLabel": "Schreibzugriff erlauben",
-    "writeDescription": "Schlüssel mit Lesezugriff können Karten, Sammlungen und Lagerorte abrufen. Schlüssel mit Schreibzugriff werden außerdem Karten entfernen und verschieben können.",
+    "writeDescription": "Schlüssel mit Lesezugriff können Karten, Sammlungen und Lagerorte abrufen. Schlüssel mit Schreibzugriff können Karten außerdem aus ihrer Box nehmen, in eine andere Box verschieben und löschen.",
     "createFailed": "Der API-Schlüssel konnte nicht erstellt werden.",
     "revealTitle": "API-Schlüssel kopieren",
     "revealDescription": "Der vollständige Schlüssel wird nur dieses eine Mal angezeigt. Bewahre ihn sicher auf, etwa in den geheimen Einstellungen deines Shops.",

@@ -1,12 +1,13 @@
 {
   "title": "Einstellungen",
-  "subtitle": "Organisation, Abrechnung, Scannen, Sounds und Integrationen",
+  "subtitle": "Organisation, Abrechnung, Scannen, Sounds, Benachrichtigungen und Integrationen",
   "sections": {
     "general": "Allgemein",
     "organization": "Organisation",
     "billing": "Abrechnung",
     "scanning": "Scannen",
     "sounds": "Sounds",
+    "notifications": "Benachrichtigungen",
     "integrations": "Integrationen"
   },
   "organizations": {

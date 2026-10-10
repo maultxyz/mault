@@ -137,6 +137,9 @@ const SettingsSoundsPage = lazy(
 const SettingsIntegrationsPage = lazy(
   () => import("@/app/routes/app/settings/integrations"),
 );
+const SettingsNotificationsPage = lazy(
+  () => import("@/app/routes/app/settings/notifications"),
+);
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
@@ -407,6 +410,10 @@ export const router = createBrowserRouter([
                   { path: "billing", element: <SettingsBillingPage /> },
                   { path: "scanning", element: <SettingsScanningPage /> },
                   { path: "sounds", element: <SettingsSoundsPage /> },
+                  {
+                    path: "notifications",
+                    element: <SettingsNotificationsPage />,
+                  },
                   {
                     path: "integrations",
                     element: <SettingsIntegrationsPage />,

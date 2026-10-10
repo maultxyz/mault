@@ -1,6 +1,6 @@
 # Mault public API
 
-Look up where your cards are from your own systems, for example so an online shop can tell staff which box and position to pick an ordered card from. It's read-only: orders and stock stay in your shop.
+Look up where your cards are from your own systems, for example so an online shop can tell staff which box and position to pick an ordered card from, and update Mault once a card is picked, moved or sold. Orders and stock stay in your shop.
 
 The API follows [Scryfall's](https://scryfall.com/docs/api) conventions: every object has an `object` field naming its type, field names are `snake_case`, lists are paged `list` objects with `has_more` and `next_page`, errors are `error` objects, and prices are strings. Card fields use Scryfall's names (`set`, `set_name`, `collector_number`, `rarity`, `lang`, `prices`), for every game, not just Magic.
 
@@ -57,7 +57,7 @@ Every error responds with a matching HTTP status and an `error` object:
 | --- | --- | --- |
 | `bad_request` | 400 | A parameter is invalid. `details` says which. |
 | `unauthorized` | 401 | The key is missing, invalid or revoked. |
-| `forbidden` | 403 | The organization's plan doesn't include API access. |
+| `forbidden` | 403 | The organization's plan doesn't include API access, or a read-only key called a write endpoint. |
 | `not_found` | 404 | No object with that id. |
 | `rate_limited` | 429 | Too many requests. See [Rate limits](#rate-limits). |
 | `internal_error` | 500 | Something went wrong on Mault's side. |
@@ -168,6 +168,28 @@ Removed cards (sold, deleted) simply stop appearing; the API doesn't report them
 
 One `scanned_card`, wherever it is now. `not_found` if it doesn't exist.
 
+### Changing cards
+
+These need a key created with **Allow write access**. A read-only key gets a `forbidden` error. The app's open screens update straight away.
+
+#### `DELETE /v1/cards/{id}/location`
+
+Takes a card out of its storage location, for example once it's picked for an order. It stays in its collection. Returns the updated `scanned_card` (with `location: null`). Calling it on a card that isn't in a location just returns the card.
+
+#### `POST /v1/cards/{id}/move`
+
+Moves a card to the end of another storage location. Its old position stays a gap, since positions are never renumbered. Returns the updated `scanned_card`.
+
+```json
+{ "location": "c3d4..." }
+```
+
+`not_found` if the card or the location doesn't exist.
+
+#### `DELETE /v1/cards/{id}`
+
+Permanently deletes a card and its scan photo, for example once it's sold. This can't be undone. Responds `204 No Content`.
+
 ## Picking an order
 
 For each order line, look the card up when you pick:
@@ -177,6 +199,8 @@ GET /v1/cards?card_id=<printing id>&finish=nonfoil&in_storage=true
 ```
 
 Each card's `location.name` and `location.position` say which box and where in it. If your shop doesn't store Mault's `card_id`, use `set` and `collector_number` (or `name`) instead.
+
+Once the card is pulled, call `DELETE /v1/cards/{id}/location` so it stops showing up in that box, or `DELETE /v1/cards/{id}` if you don't want to keep it in Mault at all.
 
 ## Webhooks
 

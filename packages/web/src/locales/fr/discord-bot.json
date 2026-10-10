@@ -20,15 +20,15 @@
       },
       {
         "title": "Générer un code",
-        "description": "Dans Magic Vault, ouvre Intégrations et génère un code de liaison. Il n'est valable que quelques minutes."
+        "description": "Dans Magic Vault, ouvre Paramètres > Notifications et génère un code de liaison. Il n'est valable que quelques minutes."
       },
       {
         "title": "Exécuter /link",
-        "description": "Sur ton serveur Discord, lance /link <code> avec le code des Intégrations. Nécessite la permission Gérer le serveur."
+        "description": "Sur ton serveur Discord, lance /link <code> avec le code des Notifications. Nécessite la permission Gérer le serveur."
       },
       {
         "title": "Choisir tes salons",
-        "description": "De retour sur la page Intégrations, choisis où publier les scans et les alertes, par collection si tu veux, et ajoute des règles pour décider quelles cartes vont où."
+        "description": "De retour sur la page Notifications, choisis où publier les scans et les alertes, par collection si tu veux, et ajoute des règles pour décider quelles cartes vont où."
       }
     ]
   },

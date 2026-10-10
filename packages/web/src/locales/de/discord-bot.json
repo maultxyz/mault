@@ -20,15 +20,15 @@
       },
       {
         "title": "Code erzeugen",
-        "description": "Öffne in Magic Vault die Integrationen und erzeuge einen Verknüpfungscode. Er ist nur wenige Minuten gültig."
+        "description": "Öffne in Magic Vault Einstellungen > Benachrichtigungen und erzeuge einen Verknüpfungscode. Er ist nur wenige Minuten gültig."
       },
       {
         "title": "/link ausführen",
-        "description": "Führe auf deinem Discord-Server /link <code> mit dem Code aus den Integrationen aus. Erfordert die Berechtigung Server verwalten."
+        "description": "Führe auf deinem Discord-Server /link <code> mit dem Code aus den Benachrichtigungen aus. Erfordert die Berechtigung Server verwalten."
       },
       {
         "title": "Kanäle wählen",
-        "description": "Lege auf der Seite Integrationen fest, wohin Scans und Warnungen gepostet werden, auf Wunsch pro Sammlung, und füge Regeln hinzu, welche Karten wohin gehen."
+        "description": "Lege auf der Seite Benachrichtigungen fest, wohin Scans und Warnungen gepostet werden, auf Wunsch pro Sammlung, und füge Regeln hinzu, welche Karten wohin gehen."
       }
     ]
   },

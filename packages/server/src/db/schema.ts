@@ -53,6 +53,25 @@ const apiServiceOrgRead = (orgId: any) =>
     sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
   );
 
+const apiServiceOrgWrite = (orgId: any) => {
+  const ownOrg = sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`;
+  return [
+    pgPolicy("api-service-policy-update", {
+      as: "permissive",
+      for: "update",
+      to: apiServiceRole,
+      using: ownOrg,
+      withCheck: ownOrg,
+    }),
+    pgPolicy("api-service-policy-delete", {
+      as: "permissive",
+      for: "delete",
+      to: apiServiceRole,
+      using: ownOrg,
+    }),
+  ];
+};
+
 // ─── Global card vectors (no org scope) ──────────────────────────────────────
 
 export const cardImageVectors = pgTable(
@@ -508,6 +527,7 @@ export const collectionCards = pgTable(
       modify: orgRls(table.orgId),
     }),
     apiServiceOrgRead(table.orgId),
+    ...apiServiceOrgWrite(table.orgId),
   ],
 ).enableRLS();
 

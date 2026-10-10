@@ -51,7 +51,8 @@ function parameters(
     return {
       name,
       in: location,
-      required: location === "path" || !fieldSchema.safeParse(undefined).success,
+      required:
+        location === "path" || !fieldSchema.safeParse(undefined).success,
       description,
       schema: json,
     };
@@ -84,14 +85,37 @@ function operation(endpoint: PublicApiEndpoint) {
       ...parameters("path", endpoint.pathParams),
       ...parameters("query", endpoint.query),
     ],
+    ...(endpoint.body
+      ? {
+          requestBody: {
+            required: true,
+            ...jsonBody(endpoint.body, "The request body."),
+          },
+        }
+      : {}),
     responses: {
-      "200": {
-        ...jsonBody(endpoint.response, "Success."),
-        headers: rateLimitHeaders,
-      },
-      ...(endpoint.query ? { "400": error("A parameter is invalid.") } : {}),
+      ...(endpoint.response
+        ? {
+            "200": {
+              ...jsonBody(endpoint.response, "Success."),
+              headers: rateLimitHeaders,
+            },
+          }
+        : {
+            "204": {
+              description: "Success. There's no response body.",
+              headers: rateLimitHeaders,
+            },
+          }),
+      ...(endpoint.query || endpoint.body
+        ? { "400": error("A parameter or the request body is invalid.") }
+        : {}),
       "401": error("The API key is missing, invalid or revoked."),
-      "403": error("The organization's plan doesn't include API access."),
+      "403": error(
+        endpoint.scope === "read_write"
+          ? "The organization's plan doesn't include API access, or the key is read-only."
+          : "The organization's plan doesn't include API access.",
+      ),
       ...(endpoint.pathParams
         ? { "404": error("No object with that id.") }
         : {}),
@@ -180,13 +204,13 @@ export function buildPublicApiOpenApiDocument({
     info: {
       title: PUBLIC_API_TITLE,
       version,
-      description: `Read-only lookup of where an organization's scanned cards are stored. Lists are paged with has_more and next_page (at most ${PUBLIC_API_PAGE_SIZE_MAX} per page), and every object carries an object field naming its type, like Scryfall's API.`,
+      description: `Look up where an organization's scanned cards are stored, and take them out of their box, move or delete them with a read and write key. Lists are paged with has_more and next_page (at most ${PUBLIC_API_PAGE_SIZE_MAX} per page), and every object carries an object field naming its type, like Scryfall's API.`,
     },
     servers: [{ url: "/", description: "Your Mault API server" }],
     security: [{ apiKey: [] }],
-    tags: [...new Set(PUBLIC_API_ENDPOINTS.map((e) => e.tag))].map(
-      (name) => ({ name }),
-    ),
+    tags: [...new Set(PUBLIC_API_ENDPOINTS.map((e) => e.tag))].map((name) => ({
+      name,
+    })),
     paths,
     webhooks: {
       "card.scanned": webhook(

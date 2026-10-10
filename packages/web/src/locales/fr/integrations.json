@@ -116,7 +116,7 @@
     "nameLabel": "Nom",
     "namePlaceholder": "Synchronisation de la boutique",
     "writeLabel": "Autoriser l'écriture",
-    "writeDescription": "Les clés en lecture seule peuvent lister les cartes, les collections et les emplacements. Les clés avec accès en écriture pourront aussi retirer et déplacer des cartes.",
+    "writeDescription": "Les clés en lecture seule peuvent lister les cartes, les collections et les emplacements. Les clés avec accès en écriture peuvent aussi retirer des cartes de leur boîte, les déplacer dans une autre boîte et les supprimer.",
     "createFailed": "Impossible de créer la clé API.",
     "revealTitle": "Copiez votre clé API",
     "revealDescription": "C'est la seule fois que la clé complète est affichée. Conservez-la en lieu sûr, par exemple dans les paramètres secrets de votre boutique.",
