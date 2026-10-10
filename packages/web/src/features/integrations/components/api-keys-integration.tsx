@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
 import { WebhooksSection } from "@/features/integrations/components/webhooks-section";
+import { API_PLAYGROUND_PATH } from "@/lib/constants/api-playground";
 import { PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { toast } from "@/lib/toast";
@@ -36,6 +37,7 @@ import {
   IconKey,
   IconLoader2,
   IconPlus,
+  IconTerminal2,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -98,6 +100,15 @@ export function ApiKeysIntegration() {
             {t("api.subtitle")}
           </p>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          nativeButton={false}
+          render={<Link to={API_PLAYGROUND_PATH} />}
+        >
+          <IconTerminal2 />
+          {t("playground.open")}
+        </Button>
         <Button
           variant="outline"
           size="sm"

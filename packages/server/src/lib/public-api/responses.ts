@@ -61,3 +61,7 @@ export function toApiList<T>(
 export function toCompleteApiList<T>(data: T[]): ApiList<T> {
   return { object: "list", has_more: false, next_page: null, data };
 }
+
+export function toPublicApiRoutePath(path: string): string {
+  return path.replace(/^\/v1/, "").replace(/\{(\w+)\}/g, ":$1");
+}
