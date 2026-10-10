@@ -332,6 +332,12 @@
     "helpText": "Bloqué sur une étape ? <a>Rejoins le Discord</a> si tu as besoin d'aide.",
     "hasVideoAria": "Comprend une vidéo explicative",
     "videoTitle": "Vidéo de montage",
+    "videoChapters": {
+      "sortingModule": "Module de tri",
+      "feederModule": "Module d'alimentation",
+      "completeAssembly": "Assemblage complet",
+      "calibration": "Calibrage"
+    },
     "progress": {
       "stepsCount": "{{done}} sur {{total}} étapes"
     },
@@ -376,13 +382,6 @@
           },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
-          },
-          "mountBoardsToPanels": {
-            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×6."
-          },
-          "attachBasePanels": {
-            "text": "Fixe les panneaux de base à la base avec 8 vis M3×6 et 8 écrous M3.",
-            "note": "Fais ceci après avoir monté le {{board}} et le PCA9685 sur les panneaux - les cartes sont bien plus difficiles à atteindre une fois les panneaux fixés à la base."
           }
         }
       },

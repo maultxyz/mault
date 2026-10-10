@@ -332,6 +332,12 @@
     "helpText": "Stuck on a step? <a>Join the Discord</a> if you need help.",
     "hasVideoAria": "Includes walkthrough video",
     "videoTitle": "Assembly video",
+    "videoChapters": {
+      "sortingModule": "Sorting module",
+      "feederModule": "Feeder module",
+      "completeAssembly": "Complete assembly",
+      "calibration": "Calibration"
+    },
     "progress": {
       "stepsCount": "{{done}} of {{total}} steps"
     },
@@ -375,13 +381,6 @@
           },
           "dryFit": {
             "text": "Dry-fit each module housing before inserting any electronics. Sand or adjust any tight servo pockets now."
-          },
-          "mountBoardsToPanels": {
-            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 7 M2×6 screws."
-          },
-          "attachBasePanels": {
-            "text": "Attach the base panels to the base with 8 M3×6 screws and 8 M3 nuts.",
-            "note": "Do this after the {{board}} and PCA9685 are mounted to the panels. The boards are much harder to reach once the panels are on the base."
           }
         }
       },

@@ -332,6 +332,12 @@
     "helpText": "Bei einem Schritt nicht weiter? <a>Tritt dem Discord bei</a>, wenn du Hilfe brauchst.",
     "hasVideoAria": "Enthält ein Video zur Anleitung",
     "videoTitle": "Montagevideo",
+    "videoChapters": {
+      "sortingModule": "Sortiermodul",
+      "feederModule": "Zuführmodul",
+      "completeAssembly": "Gesamtmontage",
+      "calibration": "Kalibrierung"
+    },
     "progress": {
       "stepsCount": "{{done}} von {{total}} Schritten"
     },
@@ -376,13 +382,6 @@
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
-          },
-          "mountBoardsToPanels": {
-            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×6-Schrauben an den Bodenplatten."
-          },
-          "attachBasePanels": {
-            "text": "Befestige die Bodenplatten mit 8 M3×6-Schrauben und 8 M3-Muttern an der Basis.",
-            "note": "Mache dies, nachdem {{board}} und PCA9685 an den Platten montiert sind – die Platinen sind viel schwerer zu erreichen, sobald die Platten auf der Basis sitzen."
           }
         }
       },

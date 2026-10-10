@@ -6,10 +6,10 @@ import { useKitMode } from "@/features/build/api/use-kit-mode";
 import { useModuleCount } from "@/features/build/api/use-module-count";
 import {
   buildPhases,
-  getYouTubeVideoId,
   optionalBadgeLabel,
 } from "@/features/build/lib/build-phases";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { PhaseVideo } from "@/features/build/components/phase-video";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { phaseAnchorId, stepAnchorId } from "@/features/build/lib/anchors";
 import { DISCORD_URL } from "@/lib/constants/links";
@@ -87,10 +87,7 @@ export function BuildAssembly() {
 
       <div className="mt-8 flex flex-col gap-6">
         {PHASES.map((phase, i) => {
-          const videoIds = (phase.videos ?? [])
-            .map((url) => [url, getYouTubeVideoId(url)] as const)
-            .filter((pair): pair is [string, string] => pair[1] !== null);
-          const hasVideos = videoIds.length > 0;
+          const hasVideos = !!phase.video;
           return (
             <div
               key={phase.key}
@@ -99,24 +96,9 @@ export function BuildAssembly() {
                 hasVideos && "lg:flex-row lg:items-start",
               )}
             >
-              {hasVideos && (
-                <div className="flex flex-col gap-3 lg:sticky lg:top-20 lg:w-3/5 lg:shrink-0">
-                  {videoIds.map(([url, id]) => (
-                    <div
-                      key={url}
-                      className="aspect-video w-full overflow-hidden rounded-lg border bg-black"
-                    >
-                      <iframe
-                        src={`https://www.youtube-nocookie.com/embed/${id}`}
-                        title={t("assembly.videoTitle")}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                        loading="lazy"
-                        className="size-full"
-                      />
-                    </div>
-                  ))}
+              {phase.video && (
+                <div className="lg:sticky lg:top-20 lg:w-3/5 lg:shrink-0">
+                  <PhaseVideo video={phase.video} />
                 </div>
               )}
               <div

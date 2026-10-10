@@ -1,5 +1,9 @@
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
-import { BOARD_INFO } from "@/lib/constants/build";
+import {
+  ASSEMBLE_MODULES_VIDEO,
+  BOARD_INFO,
+  WIRE_AND_CALIBRATE_VIDEO,
+} from "@/lib/constants/build";
 import { REPO_URL } from "@/lib/constants/links";
 import {
   IconCpu,
@@ -31,6 +35,12 @@ export function getYouTubeVideoId(url: string): string | null {
     /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/,
   );
   return match?.[1] ?? null;
+}
+
+export function formatVideoTimestamp(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 function countBaseSupportPieces(moduleCount: number): {
@@ -170,103 +180,13 @@ export function buildPhases(
           text: t("assembly.phases.print.steps.dryFit.text"),
           images: ["/instructions/v5.jpg"],
         },
-        {
-          key: "mount-boards-to-panels",
-          text: t("assembly.phases.print.steps.mountBoardsToPanels.text", {
-            board: board.shortName,
-          }),
-        },
-        {
-          key: "attach-base-panels",
-          text: t("assembly.phases.print.steps.attachBasePanels.text"),
-          note: t("assembly.phases.print.steps.attachBasePanels.note", {
-            board: board.shortName,
-          }),
-        },
-      ],
-    },
-    {
-      key: "firmware",
-      title: t("assembly.phases.firmware.title"),
-      icon: IconCpu,
-      steps: [
-        ...(isEsp32Family
-          ? [
-              {
-                key: "flash-in-browser",
-                text: <FlashInBrowserStep />,
-                note: t("assembly.phases.firmware.steps.flashInBrowser.note"),
-              },
-            ]
-          : []),
-        {
-          key: "download-code",
-          text: (
-            <Trans
-              t={t}
-              i18nKey="assembly.phases.firmware.steps.downloadCode.text"
-              components={{
-                repo: (
-                  <a
-                    href={REPO_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline underline-offset-2 hover:text-foreground"
-                  />
-                ),
-              }}
-            />
-          ),
-          note: t("assembly.phases.firmware.steps.downloadCode.note"),
-        },
-        ...(isEsp32Family
-          ? [
-              {
-                key: "install-esp32-core",
-                text: t("assembly.phases.firmware.steps.installEsp32Core.text"),
-                note: t("assembly.phases.firmware.steps.installEsp32Core.note"),
-              },
-            ]
-          : []),
-        isEsp32Family
-          ? {
-              key: "install-libraries",
-              text: t("assembly.phases.firmware.steps.installLibraries.text"),
-              note: t(
-                "assembly.phases.firmware.steps.installLibrariesEsp32.note",
-              ),
-            }
-          : {
-              key: "install-libraries",
-              text: t(
-                "assembly.phases.firmware.steps.installLibrariesUnoR4.text",
-              ),
-              note: t(
-                "assembly.phases.firmware.steps.installLibrariesUnoR4.note",
-              ),
-            },
-        isEsp32Family
-          ? {
-              key: "upload-sketch",
-              text: t("assembly.phases.firmware.steps.uploadSketchEsp32.text"),
-              note: t("assembly.phases.firmware.steps.uploadSketchEsp32.note"),
-            }
-          : {
-              key: "upload-sketch",
-              text: t("assembly.phases.firmware.steps.uploadSketch.text"),
-              note: t("assembly.phases.firmware.steps.uploadSketch.note"),
-            },
-        {
-          key: "confirm-ready",
-          text: t("assembly.phases.firmware.steps.confirmReady.text"),
-        },
       ],
     },
     {
       key: "assemble-modules",
       title: t("assembly.phases.assembleModules.title"),
       icon: IconTool,
-      videos: ["https://youtu.be/sCH3U6oM2xk", "https://youtu.be/JoBkcryvFWo"],
+      video: ASSEMBLE_MODULES_VIDEO,
       steps: [
         {
           key: "mount-module-servos",
@@ -395,10 +315,87 @@ export function buildPhases(
       ],
     },
     {
+      key: "firmware",
+      title: t("assembly.phases.firmware.title"),
+      icon: IconCpu,
+      steps: [
+        ...(isEsp32Family
+          ? [
+              {
+                key: "flash-in-browser",
+                text: <FlashInBrowserStep />,
+                note: t("assembly.phases.firmware.steps.flashInBrowser.note"),
+              },
+            ]
+          : []),
+        {
+          key: "download-code",
+          text: (
+            <Trans
+              t={t}
+              i18nKey="assembly.phases.firmware.steps.downloadCode.text"
+              components={{
+                repo: (
+                  <a
+                    href={REPO_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground"
+                  />
+                ),
+              }}
+            />
+          ),
+          note: t("assembly.phases.firmware.steps.downloadCode.note"),
+        },
+        ...(isEsp32Family
+          ? [
+              {
+                key: "install-esp32-core",
+                text: t("assembly.phases.firmware.steps.installEsp32Core.text"),
+                note: t("assembly.phases.firmware.steps.installEsp32Core.note"),
+              },
+            ]
+          : []),
+        isEsp32Family
+          ? {
+              key: "install-libraries",
+              text: t("assembly.phases.firmware.steps.installLibraries.text"),
+              note: t(
+                "assembly.phases.firmware.steps.installLibrariesEsp32.note",
+              ),
+            }
+          : {
+              key: "install-libraries",
+              text: t(
+                "assembly.phases.firmware.steps.installLibrariesUnoR4.text",
+              ),
+              note: t(
+                "assembly.phases.firmware.steps.installLibrariesUnoR4.note",
+              ),
+            },
+        isEsp32Family
+          ? {
+              key: "upload-sketch",
+              text: t("assembly.phases.firmware.steps.uploadSketchEsp32.text"),
+              note: t("assembly.phases.firmware.steps.uploadSketchEsp32.note"),
+            }
+          : {
+              key: "upload-sketch",
+              text: t("assembly.phases.firmware.steps.uploadSketch.text"),
+              note: t("assembly.phases.firmware.steps.uploadSketch.note"),
+            },
+        {
+          key: "confirm-ready",
+          text: t("assembly.phases.firmware.steps.confirmReady.text"),
+        },
+      ],
+    },
+    {
       key: "wire-and-calibrate",
       title: t("assembly.phases.wireAndCalibrate.title"),
       icon: IconPlugConnected,
-      videos: ["https://youtu.be/ZKFTkpGLBB4", "https://youtu.be/FTFXHQ4d4Jk"],
+      video: WIRE_AND_CALIBRATE_VIDEO,
       steps: [
         {
           key: "wire-i2c",

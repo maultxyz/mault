@@ -55,7 +55,27 @@ export interface BuildPhase {
   title: string;
   icon: Icon;
   steps: BuildStep[];
-  videos?: string[];
+  video?: BuildVideo;
+}
+
+export interface BuildVideoChapter {
+  key: BuildVideoChapterKey;
+  startSeconds: number;
+}
+
+export type BuildVideoChapterKey =
+  | "sortingModule"
+  | "feederModule"
+  | "completeAssembly"
+  | "calibration";
+
+export interface BuildVideo {
+  url: string;
+  chapters: BuildVideoChapter[];
+}
+
+export interface PhaseVideoProps {
+  video: BuildVideo;
 }
 
 export interface BoardTypeContextValue {
