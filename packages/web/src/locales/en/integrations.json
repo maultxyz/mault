@@ -127,7 +127,9 @@
     "loadFailed": "Couldn't load API keys.",
     "upgrade": "API keys are part of the Business plan.",
     "upgradeLink": "Upgrade",
-    "copy": "Copy key"
+    "copy": "Copy key",
+    "reference": "API reference",
+    "tryIt": "Try it in the API reference"
   },
   "api": {
     "heading": "API",
@@ -184,11 +186,5 @@
     "copyFailed": "Couldn't copy the secret.",
     "upgrade": "Webhooks are part of the Business plan.",
     "loadFailed": "Couldn't load webhooks."
-  },
-  "playground": {
-    "open": "API playground",
-    "back": "Integrations",
-    "getKey": "Get an API key",
-    "server": "This Mault server"
   }
 }

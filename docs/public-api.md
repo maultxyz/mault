@@ -6,7 +6,7 @@ The API follows [Scryfall's](https://scryfall.com/docs/api) conventions: every o
 
 API access is part of the Business plan.
 
-The full OpenAPI 3.1 spec, including the webhook events, is served by the web app at `/openapi.json`, and you can try every endpoint in the **API playground** (Settings > Integrations > API playground).
+The full OpenAPI 3.1 spec, including the webhook events, is published with the API reference site at `/openapi.json`, where you can also try every endpoint (Settings > Integrations > API reference).
 
 ## Authentication
 

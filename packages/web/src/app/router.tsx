@@ -9,7 +9,6 @@ import { useRole } from "@/hooks/use-role";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH } from "@/lib/constants/storage";
-import { API_PLAYGROUND_PATH } from "@/lib/constants/api-playground";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
@@ -145,7 +144,6 @@ const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
-const ApiPlaygroundPage = lazy(() => import("@/app/routes/app/api-playground"));
 
 // Otherwise the app shell's chunks only start downloading once the auth
 // session resolves, then the landing route's once the loading gate lifts.
@@ -311,10 +309,6 @@ export const router = createBrowserRouter([
                   {
                     path: STORAGE_PATH,
                     element: <StoragePage />,
-                  },
-                  {
-                    path: API_PLAYGROUND_PATH,
-                    element: <ApiPlaygroundPage />,
                   },
                   {
                     element: <AdminGuard />,

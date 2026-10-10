@@ -127,7 +127,9 @@
     "loadFailed": "Impossible de charger les clés API.",
     "upgrade": "Les clés API font partie de l'offre Business.",
     "upgradeLink": "Passer à Business",
-    "copy": "Copier la clé"
+    "copy": "Copier la clé",
+    "reference": "Référence de l'API",
+    "tryIt": "L'essayer dans la référence de l'API"
   },
   "api": {
     "heading": "API",
@@ -184,11 +186,5 @@
     "copyFailed": "Impossible de copier le secret.",
     "upgrade": "Les webhooks font partie de l'offre Business.",
     "loadFailed": "Impossible de charger les webhooks."
-  },
-  "playground": {
-    "open": "Bac à sable API",
-    "back": "Intégrations",
-    "getKey": "Obtenir une clé API",
-    "server": "Ce serveur Mault"
   }
 }
