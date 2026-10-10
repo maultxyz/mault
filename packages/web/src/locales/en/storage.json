@@ -93,5 +93,9 @@
   "review": {
     "start": "Review cards",
     "startTitle": "Go through every card in this location one by one, in box order"
+  },
+  "export": {
+    "button": "Export",
+    "loading": "Loading cards"
   }
 }

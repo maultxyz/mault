@@ -93,5 +93,9 @@
   "review": {
     "start": "Karten prüfen",
     "startTitle": "Alle Karten dieses Lagerorts nacheinander in Box-Reihenfolge durchgehen"
+  },
+  "export": {
+    "button": "Exportieren",
+    "loading": "Karten werden geladen"
   }
 }
