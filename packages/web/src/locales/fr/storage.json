@@ -93,5 +93,9 @@
   "review": {
     "start": "Vérifier les cartes",
     "startTitle": "Parcourir toutes les cartes de cet emplacement une par une, dans l'ordre de la boîte"
+  },
+  "export": {
+    "button": "Exporter",
+    "loading": "Chargement des cartes"
   }
 }
