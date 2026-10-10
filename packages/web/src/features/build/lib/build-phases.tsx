@@ -17,18 +17,8 @@ import { Trans } from "react-i18next";
 import type {
   BoardType,
   BuildPhase,
-  BuildStep,
   Esp32MountType,
 } from "@/lib/interfaces/build";
-
-export function optionalBadgeLabel(
-  t: TFunction<"build">,
-  optional: BuildStep["optional"],
-): string {
-  if (optional === "classic-hopper") return t("optionalClassicHopperBadge");
-  if (optional === "new-hopper") return t("optionalNewHopperBadge");
-  return t("optionalBadge");
-}
 
 export function getYouTubeVideoId(url: string): string | null {
   const match = url.match(
@@ -253,17 +243,6 @@ export function buildPhases(
           images: ["/instructions/feeder_servo_mounted.jpg"],
         },
         {
-          key: "mount-feeder-wall",
-          text: t("assembly.phases.assembleModules.steps.mountFeederWall.text"),
-          note: t("assembly.phases.assembleModules.steps.mountFeederWall.note"),
-          images: [
-            "/instructions/rube_disassembled.jpg",
-            "/instructions/tube_assembled.jpg",
-            "/instructions/feeder_tube_wall.jpg",
-          ],
-          optional: "classic-hopper",
-        },
-        {
           key: "fit-hopper-roller-orings",
           text: t(
             "assembly.phases.assembleModules.steps.fitHopperRollerOrings.text",
@@ -271,7 +250,6 @@ export function buildPhases(
           note: t(
             "assembly.phases.assembleModules.steps.fitHopperRollerOrings.note",
           ),
-          optional: "new-hopper",
         },
         {
           key: "mount-hopper-roller",
@@ -282,14 +260,12 @@ export function buildPhases(
             "assembly.phases.assembleModules.steps.mountHopperRoller.note",
           ),
           images: ["/instructions/new_hopper.JPG"],
-          optional: "new-hopper",
         },
         {
           key: "calibrate-hopper-roller",
           text: t(
             "assembly.phases.assembleModules.steps.calibrateHopperRoller.text",
           ),
-          optional: "new-hopper",
         },
         {
           key: "mount-hopper-riser",
@@ -297,7 +273,6 @@ export function buildPhases(
             "assembly.phases.assembleModules.steps.mountHopperRiser.text",
           ),
           images: ["/instructions/feeder_riser.JPG"],
-          optional: "new-hopper",
         },
         {
           key: "mount-module-ir",

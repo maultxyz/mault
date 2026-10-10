@@ -1,13 +1,10 @@
+import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Callout } from "@/components/callout";
-import { useBoardType } from "@/features/build/api/use-board-type";
-import { useKitMode } from "@/features/build/api/use-kit-mode";
-import { useModuleCount } from "@/features/build/api/use-module-count";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { BomGroupTable } from "@/features/build/components/bom-group-table";
@@ -16,16 +13,14 @@ import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
 import { GROUPS } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";
-import { IconInfoCircle, IconShoppingCart } from "@tabler/icons-react";
+import { IconShoppingCart } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
 export function BuildBom() {
   const { t } = useTranslation("build");
+  const { moduleCount, boardType, usingKit } = useBuildSetup();
   const { checked, toggle } = usePartsChecklist();
-  const { moduleCount } = useModuleCount();
-  const { boardType } = useBoardType();
-  const { usingKit } = useKitMode();
   const [openSections, setOpenSections] = useState<string[]>(["parts"]);
 
   useEffect(() => {
@@ -65,14 +60,7 @@ export function BuildBom() {
         })}
       </p>
       <BuildSelectionSummary />
-      <Callout
-        variant="info"
-        icon={IconInfoCircle}
-        className="mt-4 max-w-2xl px-3 py-2.5 text-sm/relaxed"
-      >
-        {t("bom.hopperNote")}
-      </Callout>
-      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm/relaxed text-primary">
+      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm/relaxed text-primary">
         <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
         <span>
           <Trans

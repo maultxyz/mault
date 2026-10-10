@@ -9,6 +9,7 @@ import type {
   BoardInfo,
   BoardType,
   BuildSectionNavItem,
+  BuildSetupState,
   BuildVideo,
   BuildVideoChapter,
   Esp32MountType,
@@ -110,4 +111,20 @@ export const WIRE_AND_CALIBRATE_VIDEO: BuildVideo = {
     ASSEMBLY_VIDEO_CHAPTERS.completeAssembly,
     ASSEMBLY_VIDEO_CHAPTERS.calibration,
   ],
+};
+
+export const BUILD_SETUP_PARAMS = {
+  boardType: "board",
+  mountType: "mount",
+  moduleCount: "modules",
+  usingKit: "kit",
+} as const;
+
+export const DEFAULT_ESP32_MOUNT_TYPE: Esp32MountType = "breakout";
+
+export const DEFAULT_BUILD_SETUP: BuildSetupState = {
+  boardType: DEFAULT_BOARD_TYPE,
+  mountType: DEFAULT_ESP32_MOUNT_TYPE,
+  moduleCount: DEFAULT_MODULES,
+  usingKit: false,
 };

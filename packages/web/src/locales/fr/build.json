@@ -88,7 +88,6 @@
     "heading": "Nomenclature",
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
-    "hopperNote": "Il existe deux styles de trémie : la trémie classique et un nouveau modèle qui s'adapte plus facilement à différentes épaisseurs de cartes. Les pièces marquées Optionnel, trémie classique ou Optionnel, nouvelle trémie ci-dessous appartiennent au style que tu ne construis pas - un seul jeu suffit.",
     "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
     "partsListLabel": "Liste complète des pièces",
     "progress": {
@@ -173,7 +172,7 @@
           },
           "hopperORing": {
             "part": "Joint torique 9,2mm DI 14mm DE section 2,4mm",
-            "notes": "Nouvelle trémie - s'adapte plus facilement à différentes épaisseurs de cartes que la trémie classique"
+            "notes": "Se monte sur le rouleau de la trémie"
           },
           "servoControllerPlate": {
             "part": "Plaque Servo Controller imprimée en 3D",
@@ -200,24 +199,21 @@
             "part": "Écrou M3",
             "notes": "Associé aux vis M3×6 des panneaux de base"
           },
-          "m3x10Screw": {
-            "part": "Vis M3×10",
-            "notes": "Fixe la paroi à hauteur variable au tube de la trémie"
-          },
           "m3Washer": {
             "part": "Rondelle M3",
-            "notes": "Utilisée avec les vis M3×10 sur la paroi à hauteur variable de la trémie classique, ou avec les fixations de la nouvelle trémie - nécessaire dans les deux cas"
+            "notes": "Utilisée avec les vis M3×8 qui fixent le rouleau de la trémie"
           },
           "m3x8Screw": {
             "part": "Vis M3×8",
-            "notes": "Nouvelle trémie"
+            "notes": "Fixe le rouleau de la trémie"
           },
           "m3x25Screw": {
-            "part": "Vis M3×25"
+            "part": "Vis M3×25",
+            "notes": "Règle la tension du rouleau de la trémie avec le ressort"
           },
           "hopperSpring": {
             "part": "Ressort 7/32\" x 11/16\"",
-            "notes": "Nouvelle trémie - tend la paroi ajustable contre la pile de cartes"
+            "notes": "Tend la paroi ajustable contre la pile de cartes"
           },
           "m2x6Screw": {
             "part": "Vis M2×6",
@@ -459,10 +455,6 @@
           "mountFeederServo": {
             "text": "Installe le servo de chargeur à rotation continue sur le rouleau, à la base de la trémie."
           },
-          "mountFeederWall": {
-            "text": "Fixe la paroi à la trémie avec les 2 vis M3×10 et les rondelles M3 - elle guide les cartes de la trémie vers le rouleau du chargeur.",
-            "note": "Lors du montage de la paroi, fixe-la d'abord au module du chargeur, puis place 2 cartes sous la paroi et fais-la glisser vers le bas avant de la serrer en place."
-          },
           "fitHopperRollerOrings": {
             "text": "Monte des joints toriques sur le rouleau de la trémie.",
             "note": "Comme pour le rouleau du chargeur, ils lui donnent de l'adhérence sur la carte."
@@ -558,7 +550,5 @@
       }
     }
   },
-  "optionalBadge": "Optionnel",
-  "optionalClassicHopperBadge": "Optionnel, trémie classique",
-  "optionalNewHopperBadge": "Optionnel, nouvelle trémie"
+  "optionalBadge": "Optionnel"
 }

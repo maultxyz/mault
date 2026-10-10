@@ -88,7 +88,6 @@
     "heading": "Bill of materials",
     "description": "Quantities scale with the number of modules you're building: {{modules}} modules × 3 servos, 1 feeder, {{irSensors}} IR sensors, {{channelsUsed}} of the PCA9685's 16 channels in use. The remaining channels are free for additional sorting modules (up to 5 modules on a single PCA9685). Check off each part as you gather it. Checkmarks are saved in this browser.",
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links. We may earn a small commission on qualifying purchases at no extra cost to you.",
-    "hopperNote": "There are two hopper styles: the classic hopper and a newer design that accommodates different card thicknesses more easily. Parts tagged Optional, classic hopper or Optional, new hopper below belong to whichever style you aren't building. You only need one set.",
     "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
     "partsListLabel": "Full parts list",
     "progress": {
@@ -173,7 +172,7 @@
           },
           "hopperORing": {
             "part": "9.2mm ID 14mm OD 2.4mm Section O-Ring",
-            "notes": "New hopper style, accommodates different card thicknesses more easily than the classic hopper"
+            "notes": "Fits onto the hopper roller"
           },
           "servoControllerPlate": {
             "part": "3D-printed Servo Controller Plate",
@@ -200,24 +199,21 @@
             "part": "M3 nut",
             "notes": "Paired with the base panel M3×6 screws"
           },
-          "m3x10Screw": {
-            "part": "M3×10 screw",
-            "notes": "Attaches the variable-height wall to the hopper tube"
-          },
           "m3Washer": {
             "part": "M3 washer",
-            "notes": "Used with the M3×10 screws on the classic hopper's variable-height wall, or with the new hopper's fasteners. Needed either way"
+            "notes": "Used with the M3×8 screws that mount the hopper roller"
           },
           "m3x8Screw": {
             "part": "M3×8 screw",
-            "notes": "New hopper style"
+            "notes": "Mounts the hopper roller"
           },
           "m3x25Screw": {
-            "part": "M3×25 screw"
+            "part": "M3×25 screw",
+            "notes": "Adjusts the hopper roller tension with the spring"
           },
           "hopperSpring": {
             "part": "7/32\" x 11/16\" spring",
-            "notes": "New hopper style, tensions the adjustable wall against the card stack"
+            "notes": "Tensions the adjustable wall against the card stack"
           },
           "m2x6Screw": {
             "part": "M2×6 screw",
@@ -458,10 +454,6 @@
           "mountFeederServo": {
             "text": "Install the continuous-rotation feeder servo to the roller, at the base of the hopper."
           },
-          "mountFeederWall": {
-            "text": "Attach the wall piece to the hopper using the 2 M3×10 screws and M3 washers. It guides cards from the hopper to the feeder roller.",
-            "note": "When mounting the wall, attach it to the feeder module first, then put 2 cards below the wall and slide it down before tighting it into place."
-          },
           "fitHopperRollerOrings": {
             "text": "Fit o-rings onto the hopper roller.",
             "note": "Same as the feeder roller, these give it grip on the card face."
@@ -557,7 +549,5 @@
       }
     }
   },
-  "optionalBadge": "Optional",
-  "optionalClassicHopperBadge": "Optional, classic hopper",
-  "optionalNewHopperBadge": "Optional, new hopper"
+  "optionalBadge": "Optional"
 }

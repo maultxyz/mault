@@ -1,23 +1,16 @@
 export const SIDEBAR_EXPANDED_STORAGE_KEY = "sidebarExpanded";
 
-export const ESP32_MOUNT_TYPE_STORAGE_KEY =
-  "magic-vault:build-esp32-mount-type";
 export const BUILD_CHECKLIST_STORAGE_KEY = "magic-vault:build-checklist";
 export const ONNX_EXECUTION_PROVIDER_STORAGE_KEY =
   "magic-vault:scanner-onnx-execution-provider";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =
   "magic-vault:build-parts-checklist";
-export const BUILD_BOARD_TYPE_STORAGE_KEY = "magic-vault:build-board-type";
-export const BUILD_MODULE_COUNT_STORAGE_KEY =
-  "magic-vault:build-parts-module-count";
-export const BUILD_USING_KIT_STORAGE_KEY = "magic-vault:build-using-kit";
 
 export const SORTING_RULES_TOUR_COMPLETED_KEY =
   "magic-vault:sorting-rules-tour-completed";
 export const CALIBRATION_TOUR_COMPLETED_KEY =
   "magic-vault:calibration-tour-completed";
-export const REPACK_TOUR_COMPLETED_KEY =
-  "magic-vault:repack-tour-completed";
+export const REPACK_TOUR_COMPLETED_KEY = "magic-vault:repack-tour-completed";
 export const ONBOARDING_COMPLETED_KEY = "magic-vault:onboarding-completed";
 
 export const ACTIVE_COLLECTION_STORAGE_KEY = "activeCollectionGuid";
@@ -40,13 +33,16 @@ export const CAMERA_FOCUS_STORAGE_KEY = "magic-vault:camera-focus";
 
 export const SUPPORT_PROMPT_STORAGE_KEY = "magic-vault:support-prompt";
 
-export const SCANNER_PIP_MINIMIZED_STORAGE_KEY = "magic-vault:scanner-pip-minimized";
+export const SCANNER_PIP_MINIMIZED_STORAGE_KEY =
+  "magic-vault:scanner-pip-minimized";
 
-export const CARD_PRICE_TABLES_STORAGE_KEY = "magic-vault:card-price-tables-open";
+export const CARD_PRICE_TABLES_STORAGE_KEY =
+  "magic-vault:card-price-tables-open";
 
 export const CARD_TECHNICAL_DETAILS_STORAGE_KEY =
   "magic-vault:card-technical-details";
 
 export const BLE_DEVICE_MAP_STORAGE_KEY = "magic-vault:ble-device-map";
 export const CARD_GRID_DENSITY_STORAGE_KEY = "magic-vault:card-grid-density";
-export const BIN_LEVELS_COLLAPSED_STORAGE_KEY = "magic-vault:bin-levels-collapsed";
+export const BIN_LEVELS_COLLAPSED_STORAGE_KEY =
+  "magic-vault:bin-levels-collapsed";
