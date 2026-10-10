@@ -30,28 +30,31 @@ import { streamRoute } from "./routes/stream";
 import { publicApiRouter } from "./routes/v1";
 import { webhooksRouter } from "./routes/webhooks";
 import { rollbar } from "./lib/rollbar";
+import {
+  PUBLIC_API_EXPOSED_HEADERS,
+  PUBLIC_API_PATH_PREFIX,
+} from "./lib/constants/api-keys";
 import { startPlanConfigRefresh } from "./lib/plan-config";
 
 const app = new Hono<AppEnv>();
 const PORT = parseInt(process.env.PORT ?? "3001");
 
-app.use(
-  cors({
-    origin: getWebUrl(),
-    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Org-Id",
-      PUBLIC_API_KEY_HEADER,
-    ],
-    exposeHeaders: [
-      "X-RateLimit-Limit",
-      "X-RateLimit-Remaining",
-      "X-RateLimit-Reset",
-      "Retry-After",
-    ],
-  }),
+const appCors = cors({
+  origin: getWebUrl(),
+  allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
+});
+const publicApiCors = cors({
+  origin: "*",
+  allowMethods: ["GET", "POST", "DELETE"],
+  allowHeaders: ["Content-Type", PUBLIC_API_KEY_HEADER],
+  exposeHeaders: PUBLIC_API_EXPOSED_HEADERS,
+});
+
+app.use((c, next) =>
+  c.req.path.startsWith(PUBLIC_API_PATH_PREFIX)
+    ? publicApiCors(c, next)
+    : appCors(c, next),
 );
 
 if (process.env.AUTH_PROVIDER === "local") {

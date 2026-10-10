@@ -8,6 +8,13 @@ export const API_KEY_RANDOM_BYTES = 32;
 export const API_KEY_VISIBLE_PREFIX_LENGTH = 8;
 export const API_KEY_LAST_USED_THROTTLE_MS = 60_000;
 export const PUBLIC_API_CHANGE_OVERLAP_SECONDS = 60;
+export const PUBLIC_API_PATH_PREFIX = "/v1/";
+export const PUBLIC_API_EXPOSED_HEADERS = [
+  "X-RateLimit-Limit",
+  "X-RateLimit-Remaining",
+  "X-RateLimit-Reset",
+  "Retry-After",
+];
 export const PUBLIC_API_RATE_LIMIT_REQUESTS = 60;
 export const PUBLIC_API_RATE_LIMIT_WINDOW_MS = 60_000;
 export const PUBLIC_API_RATE_LIMIT_SWEEP_SIZE = 1000;

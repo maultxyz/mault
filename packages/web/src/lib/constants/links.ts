@@ -12,4 +12,8 @@ export const DISCORD_BOT_INSTALL_URL =
   "https://discord.com/oauth2/authorize?client_id=1541929124338208798";
 export const REPO_API_URL = "https://api.github.com/repos/maultxyz/mault";
 
+export const LOCAL_API_DOCS_URL = "http://localhost:5174";
+export const API_REFERENCE_URL: string | undefined =
+  import.meta.env.VITE_API_DOCS_URL ||
+  (import.meta.env.DEV ? LOCAL_API_DOCS_URL : undefined);
 export const PUBLIC_API_DOCS_URL = `${REPO_URL}/blob/master/docs/public-api.md`;

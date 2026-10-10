@@ -1,0 +1,23 @@
+{
+  "name": "@magic-vault/api-docs",
+  "version": "1.0.134",
+  "private": true,
+  "scripts": {
+    "openapi": "tsx scripts/generate-openapi.ts",
+    "dev": "pnpm openapi && vite",
+    "build": "pnpm openapi && tsc --noEmit && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@fontsource-variable/figtree": "^5.2.10",
+    "@fontsource-variable/geist-mono": "^5.2.7",
+    "@magic-vault/shared": "workspace:*",
+    "@scalar/api-reference": "^1.73.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "tsx": "^4.19.3",
+    "typescript": "^5",
+    "vite": "^6.3.5"
+  }
+}

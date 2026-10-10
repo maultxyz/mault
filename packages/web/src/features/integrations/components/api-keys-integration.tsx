@@ -20,8 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
 import { WebhooksSection } from "@/features/integrations/components/webhooks-section";
-import { API_PLAYGROUND_PATH } from "@/lib/constants/api-playground";
-import { PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
+import { API_REFERENCE_URL, PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { toast } from "@/lib/toast";
 import {
@@ -100,15 +99,23 @@ export function ApiKeysIntegration() {
             {t("api.subtitle")}
           </p>
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          nativeButton={false}
-          render={<Link to={API_PLAYGROUND_PATH} />}
-        >
-          <IconTerminal2 />
-          {t("playground.open")}
-        </Button>
+        {API_REFERENCE_URL && (
+          <Button
+            variant="outline"
+            size="sm"
+            nativeButton={false}
+            render={
+              <a
+                href={API_REFERENCE_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            }
+          >
+            <IconTerminal2 />
+            {t("apiKeys.reference")}
+          </Button>
+        )}
         <Button
           variant="outline"
           size="sm"
@@ -298,13 +305,33 @@ export function ApiKeysIntegration() {
         title={t("apiKeys.revealTitle")}
         description={t("apiKeys.revealDescription")}
         footer={
-          <Button
-            type="button"
-            className="w-full"
-            onClick={() => setNewRawKey(null)}
-          >
-            {t("apiKeys.revealDone")}
-          </Button>
+          <div className="flex w-full flex-col gap-2">
+            {API_REFERENCE_URL && (
+              <Button
+                variant="outline"
+                className="w-full"
+                nativeButton={false}
+                render={
+                  <a
+                    href={API_REFERENCE_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  />
+                }
+              >
+                <IconTerminal2 />
+                {t("apiKeys.tryIt")}
+                <IconExternalLink />
+              </Button>
+            )}
+            <Button
+              type="button"
+              className="w-full"
+              onClick={() => setNewRawKey(null)}
+            >
+              {t("apiKeys.revealDone")}
+            </Button>
+          </div>
         }
       >
         <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
