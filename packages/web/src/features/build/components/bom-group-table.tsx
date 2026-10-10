@@ -2,7 +2,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { bomGroupAnchorId } from "@/features/build/lib/anchors";
 import {
-  optionalBadgeLabel,
   resolveRowBuyUrl,
   resolveRowName,
 } from "@/features/build/lib/bom-parts";
@@ -86,7 +85,7 @@ export function BomGroupTable({
                     {row.part(t, boardType)}
                     {row.optional && (
                       <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-sm font-medium text-foreground/70 uppercase no-underline">
-                        {optionalBadgeLabel(t, row.optional)}
+                        {t("optionalBadge")}
                       </span>
                     )}
                   </td>

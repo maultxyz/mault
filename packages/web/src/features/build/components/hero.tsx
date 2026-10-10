@@ -1,20 +1,16 @@
+import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import { BOARD_INFO, BUILD_SECTION_NAV } from "@/lib/constants/build";
-import { useBoardType } from "@/features/build/api/use-board-type";
-import { useModuleCount } from "@/features/build/api/use-module-count";
 import { useTranslation } from "react-i18next";
 
 export function BuildHero() {
   const { t } = useTranslation("build");
-  const { moduleCount } = useModuleCount();
-  const { boardType } = useBoardType();
+  const { moduleCount, boardType } = useBuildSetup();
   const board = BOARD_INFO[boardType];
   const catchAllBin = moduleCount * 2 + 1;
 
   return (
     <section className="mx-auto max-w-4xl px-4 pt-12 pb-4">
-      <p className="text-sm font-semibold text-primary">
-        {t("hero.eyebrow")}
-      </p>
+      <p className="text-sm font-semibold text-primary">{t("hero.eyebrow")}</p>
       <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
         {t("hero.title")}
       </h1>

@@ -9,6 +9,9 @@ import type {
   BoardInfo,
   BoardType,
   BuildSectionNavItem,
+  BuildSetupState,
+  BuildVideo,
+  BuildVideoChapter,
   Esp32MountType,
 } from "@/lib/interfaces/build";
 
@@ -83,4 +86,45 @@ export const BOARD_ICONS: Record<BoardType, Icon> = {
 export const ESP32_MOUNT_ICONS: Record<Esp32MountType, Icon> = {
   breakout: IconLayoutBoard,
   bare: IconCpu,
+};
+
+export const ASSEMBLY_VIDEO_URL = "https://youtu.be/X9Evh9qDk74";
+
+export const ASSEMBLY_VIDEO_CHAPTERS = {
+  sortingModule: { key: "sortingModule", startSeconds: 0 },
+  feederModule: { key: "feederModule", startSeconds: 770 },
+  completeAssembly: { key: "completeAssembly", startSeconds: 1155 },
+  calibration: { key: "calibration", startSeconds: 2625 },
+} satisfies Record<string, BuildVideoChapter>;
+
+export const ASSEMBLE_MODULES_VIDEO: BuildVideo = {
+  url: ASSEMBLY_VIDEO_URL,
+  chapters: [
+    ASSEMBLY_VIDEO_CHAPTERS.sortingModule,
+    ASSEMBLY_VIDEO_CHAPTERS.feederModule,
+  ],
+};
+
+export const WIRE_AND_CALIBRATE_VIDEO: BuildVideo = {
+  url: ASSEMBLY_VIDEO_URL,
+  chapters: [
+    ASSEMBLY_VIDEO_CHAPTERS.completeAssembly,
+    ASSEMBLY_VIDEO_CHAPTERS.calibration,
+  ],
+};
+
+export const BUILD_SETUP_PARAMS = {
+  boardType: "board",
+  mountType: "mount",
+  moduleCount: "modules",
+  usingKit: "kit",
+} as const;
+
+export const DEFAULT_ESP32_MOUNT_TYPE: Esp32MountType = "breakout";
+
+export const DEFAULT_BUILD_SETUP: BuildSetupState = {
+  boardType: DEFAULT_BOARD_TYPE,
+  mountType: DEFAULT_ESP32_MOUNT_TYPE,
+  moduleCount: DEFAULT_MODULES,
+  usingKit: false,
 };

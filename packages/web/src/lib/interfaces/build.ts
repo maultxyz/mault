@@ -34,7 +34,7 @@ export interface BomRow {
     boardType: BoardType,
   ) => ReactNode;
   buyUrl?: string | ((boardType: BoardType) => string | undefined);
-  optional?: true | "classic-hopper" | "new-hopper";
+  optional?: true;
 }
 
 export interface BomGroup {
@@ -47,7 +47,7 @@ export interface BuildStep {
   text: ReactNode;
   note?: ReactNode;
   images?: string[];
-  optional?: true | "classic-hopper" | "new-hopper";
+  optional?: true;
 }
 
 export interface BuildPhase {
@@ -55,29 +55,40 @@ export interface BuildPhase {
   title: string;
   icon: Icon;
   steps: BuildStep[];
-  videos?: string[];
+  video?: BuildVideo;
 }
 
-export interface BoardTypeContextValue {
-  boardType: BoardType;
-  setBoardType: (value: BoardType) => void;
+export interface BuildVideoChapter {
+  key: BuildVideoChapterKey;
+  startSeconds: number;
+}
+
+export type BuildVideoChapterKey =
+  | "sortingModule"
+  | "feederModule"
+  | "completeAssembly"
+  | "calibration";
+
+export interface BuildVideo {
+  url: string;
+  chapters: BuildVideoChapter[];
+}
+
+export interface PhaseVideoProps {
+  video: BuildVideo;
 }
 
 export type Esp32MountType = "breakout" | "bare";
 
-export interface Esp32MountTypeContextValue {
+export interface BuildSetupState {
+  boardType: BoardType;
   mountType: Esp32MountType;
-  setMountType: (value: Esp32MountType) => void;
-}
-
-export interface KitModeContextValue {
-  usingKit: boolean;
-  setUsingKit: (value: boolean) => void;
-}
-
-export interface ModuleCountContextValue {
   moduleCount: number;
-  setModuleCount: (value: number) => void;
+  usingKit: boolean;
+}
+
+export interface BuildSetupValue extends BuildSetupState {
+  updateSetup: (patch: Partial<BuildSetupState>) => void;
 }
 
 export interface BuildOptionCardProps {
