@@ -204,6 +204,8 @@ export interface GroupedEntry {
 
 export type GroupBy = "card" | "card-foil";
 
+export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType">;
+
 export interface ExportAdapter {
   key: string;
   label: string;

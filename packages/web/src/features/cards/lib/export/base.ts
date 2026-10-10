@@ -1,12 +1,19 @@
 import type {
+  ExportableCard,
   ExportAdapter,
   ExportContext,
   GroupBy,
   GroupedEntry,
 } from "@/lib/interfaces/cards";
-import type { PlayingCardWithDistance, ScannedCard } from "@magic-vault/shared";
+import type { PlayingCardWithDistance } from "@magic-vault/shared";
 
-export type { ExportAdapter, ExportContext, GroupBy, GroupedEntry };
+export type {
+  ExportableCard,
+  ExportAdapter,
+  ExportContext,
+  GroupBy,
+  GroupedEntry,
+};
 
 export function supportsGame(
   adapter: ExportAdapter,
@@ -28,7 +35,7 @@ export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
 }
 
 function groupCards(
-  cards: ScannedCard[],
+  cards: ExportableCard[],
   groupBy: GroupBy,
   combineDuplicates: boolean,
 ): GroupedEntry[] {
@@ -73,7 +80,7 @@ const dateSuffix = () => new Date().toISOString().slice(0, 10);
 
 export function runExport(
   adapter: ExportAdapter,
-  cards: ScannedCard[],
+  cards: ExportableCard[],
   collection: string,
   ctx: ExportContext,
   combineDuplicates: boolean,

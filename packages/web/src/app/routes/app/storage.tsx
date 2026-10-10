@@ -9,6 +9,7 @@ import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { storageLocationCardsQueryOptions } from "@/features/storage/api/storage-locations";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
+import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
 import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
 import { StorageLocationList } from "@/features/storage/components/storage-location-list";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
@@ -157,15 +158,18 @@ export default function StoragePage() {
             {selected && !isSearching && (
               <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
                 {selected.cardCount > 0 && (
-                  <Button
-                    variant="outline"
-                    title={t("review.startTitle")}
-                    onClick={() => void startReview()}
-                  >
-                    <IconListCheck />
-                    {t("review.start")}
-                    <HotkeyHint id="reviewStart" />
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      title={t("review.startTitle")}
+                      onClick={() => void startReview()}
+                    >
+                      <IconListCheck />
+                      {t("review.start")}
+                      <HotkeyHint id="reviewStart" />
+                    </Button>
+                    <StorageExportMenu location={selected} />
+                  </>
                 )}
                 <Button
                   variant="outline"
