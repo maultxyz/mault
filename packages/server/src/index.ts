@@ -2,6 +2,7 @@ import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
@@ -38,7 +39,18 @@ app.use(
   cors({
     origin: getWebUrl(),
     allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
+    allowHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Org-Id",
+      PUBLIC_API_KEY_HEADER,
+    ],
+    exposeHeaders: [
+      "X-RateLimit-Limit",
+      "X-RateLimit-Remaining",
+      "X-RateLimit-Reset",
+      "Retry-After",
+    ],
   }),
 );
 

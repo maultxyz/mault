@@ -184,5 +184,11 @@
     "copyFailed": "Impossible de copier le secret.",
     "upgrade": "Les webhooks font partie de l'offre Business.",
     "loadFailed": "Impossible de charger les webhooks."
+  },
+  "playground": {
+    "open": "Bac à sable API",
+    "back": "Intégrations",
+    "getKey": "Obtenir une clé API",
+    "server": "Ce serveur Mault"
   }
 }

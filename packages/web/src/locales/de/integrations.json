@@ -184,5 +184,11 @@
     "copyFailed": "Das Geheimnis konnte nicht kopiert werden.",
     "upgrade": "Webhooks sind Teil des Business-Plans.",
     "loadFailed": "Webhooks konnten nicht geladen werden."
+  },
+  "playground": {
+    "open": "API-Playground",
+    "back": "Integrationen",
+    "getKey": "API-Schlüssel holen",
+    "server": "Dieser Mault-Server"
   }
 }

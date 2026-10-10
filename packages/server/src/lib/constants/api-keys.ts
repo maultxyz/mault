@@ -3,7 +3,6 @@ import { orgApiKeys } from "../../db/schema";
 
 export const API_ACCESS_UPGRADE_MESSAGE =
   "API access is part of the Business plan. Upgrade to Business to create API keys.";
-export const API_KEY_HEADER = "X-API-Key";
 export const API_KEY_MANAGER_ROLES: OrgRole[] = ["owner", "admin"];
 export const API_KEY_RANDOM_BYTES = 32;
 export const API_KEY_VISIBLE_PREFIX_LENGTH = 8;

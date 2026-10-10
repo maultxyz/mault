@@ -184,5 +184,11 @@
     "copyFailed": "Couldn't copy the secret.",
     "upgrade": "Webhooks are part of the Business plan.",
     "loadFailed": "Couldn't load webhooks."
+  },
+  "playground": {
+    "open": "API playground",
+    "back": "Integrations",
+    "getKey": "Get an API key",
+    "server": "This Mault server"
   }
 }
