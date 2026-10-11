@@ -11,7 +11,9 @@ import {
   toLowMatchPercent,
   toMaxCopies,
   toMaxCopiesBy,
+  toOverflowBin,
   toOverridePriority,
+  normalizeOverflowBins,
 } from "./shared";
 
 export const revertBinSetRoute = new Hono<AppEnv>().post(
@@ -77,6 +79,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
               config.isCatchAll,
               toMaxCopies(config.maxCopies, config.isCatchAll),
             ),
+            overflowBin: toOverflowBin(config.overflowBin, config.binNumber),
             isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
           };
           const existing = binSet.bins.find(
@@ -96,6 +99,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
             });
           }
         }
+        await normalizeOverflowBins(tx, binSet.id);
 
         await tx.insert(binSetAudit).values({
           binSetGuid: entry.binSetGuid,

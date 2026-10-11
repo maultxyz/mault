@@ -4,7 +4,11 @@ import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { BinCard } from "@/features/bins/components/bin-card";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { getAlphabetPassLetters } from "@magic-vault/shared";
+import {
+  getAlphabetPassLetters,
+  getOverflowSources,
+  isRulesMode,
+} from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +25,7 @@ export function BinList() {
   } = useBinConfigs();
   const isAutoAssign = !!effectiveMode.autoAssignField;
   const isScanOnly = effectiveMode.scanOnly;
+  const showOverflow = isRulesMode(effectiveMode) && !isModeDirty;
   const alphabetLetters =
     effectiveMode.isAlphabetMode && !isModeDirty
       ? getAlphabetPassLetters(
@@ -69,6 +74,14 @@ export function BinList() {
               alphabetLetters
                 ? (alphabetLetters.get(config.binNumber) ?? null)
                 : undefined
+            }
+            showOverflow={showOverflow}
+            overflowSources={
+              showOverflow
+                ? getOverflowSources(configs, config.binNumber).map(
+                    (source) => source.binNumber,
+                  )
+                : []
             }
             disabled={isModeDirty}
             onClick={() => setSelectedBin(config.binNumber)}

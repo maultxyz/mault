@@ -210,6 +210,7 @@ export function BinConfigsProvider({
       cardLimit,
       maxCopies,
       maxCopiesBy,
+      overflowBin,
       isDisabled,
     }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
@@ -231,6 +232,12 @@ export function BinConfigsProvider({
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
             maxCopiesBy:
               isCatchAll || maxCopies == null ? null : (maxCopiesBy ?? null),
+            overflowBin:
+              overflowBin === undefined
+                ? idx >= 0
+                  ? (set.bins[idx].overflowBin ?? null)
+                  : null
+                : overflowBin,
             isDisabled:
               !isCatchAll &&
               (isDisabled ?? (idx >= 0 ? set.bins[idx].isDisabled : false)) ===

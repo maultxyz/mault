@@ -279,6 +279,7 @@ export const bins = pgTable(
     cardLimit: integer("card_limit").default(250),
     maxCopies: integer("max_copies"),
     maxCopiesBy: text("max_copies_by"),
+    overflowBin: integer("overflow_bin"),
     isDisabled: boolean("is_disabled").notNull().default(false),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),

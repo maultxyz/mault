@@ -7,6 +7,7 @@ import {
   evaluateRepackBin,
   findLowMatchCatchAll,
   isBinFull,
+  isOverflowTarget,
   matchesCatchAllRules,
   REPACK_UNIQUE_BY_NAME,
   REPACK_UNIQUE_BY_PRINTING,
@@ -330,5 +331,58 @@ test("repack duplicates: a card without the field is never a duplicate", () => {
   assert.equal(
     repackUnique({ ...shock, colors: [] }, "color", [{ ...bolt, colors: [] }]),
     repackBins[0],
+  );
+});
+
+const greenFull = bin(5, colors[4].rules.conditions, { overflowBin: 6 });
+const overflowBin = bin(6, []);
+const overflowConfigs = [...colors.slice(0, 4), greenFull, overflowBin, catchAll];
+const green = { colors: ["G"] };
+const fullBins = (...numbers: number[]) => (b: BinConfig) => numbers.includes(b.binNumber);
+
+test("overflow: a full bin sends the card to its overflow bin", () => {
+  assert.equal(evaluateCardBin(green, overflowConfigs, fields, undefined, undefined, fullBins(5)), overflowBin);
+});
+
+test("overflow: a bin with room keeps the card", () => {
+  assert.equal(evaluateCardBin(green, overflowConfigs, fields, undefined, undefined, fullBins()), greenFull);
+});
+
+test("overflow: chains through full overflow bins", () => {
+  const chained = [...colors.slice(0, 4), greenFull, { ...overflowBin, overflowBin: 8 }, catchAll, bin(8, [])];
+  assert.equal(
+    evaluateCardBin(green, chained, fields, undefined, undefined, fullBins(5, 6))?.binNumber,
+    8,
+  );
+});
+
+test("overflow: stays on the last bin when the whole chain is full", () => {
+  assert.equal(evaluateCardBin(green, overflowConfigs, fields, undefined, undefined, fullBins(5, 6)), overflowBin);
+});
+
+test("overflow: a disabled or catch-all target is ignored", () => {
+  const disabled = [...colors.slice(0, 4), greenFull, { ...overflowBin, isDisabled: true }, catchAll];
+  assert.equal(evaluateCardBin(green, disabled, fields, undefined, undefined, fullBins(5))?.binNumber, 5);
+  const toCatchAll = [...colors.slice(0, 4), { ...greenFull, overflowBin: 7 }, catchAll];
+  assert.equal(evaluateCardBin(green, toCatchAll, fields, undefined, undefined, fullBins(5))?.binNumber, 5);
+});
+
+test("overflow: a bin at its copy limit overflows instead of falling through", () => {
+  const limited = [...colors.slice(0, 4), { ...greenFull, maxCopies: 1 }, overflowBin, catchAll];
+  assert.equal(evaluateCardBin(green, limited, fields, () => 1)?.binNumber, 6);
+});
+
+test("overflow: an overflow bin's own rules are ignored", () => {
+  const ruled = [...colors.slice(0, 4), greenFull, { ...overflowBin, rules: priceBin.rules }, catchAll];
+  assert.equal(evaluateCardBin({ colors: [], prices: { usd: 5 } }, ruled, fields)?.binNumber, 7);
+  assert.equal(isOverflowTarget(ruled, 6), true);
+  assert.equal(isOverflowTarget(ruled, 5), false);
+});
+
+test("overflow: the catch-all can overflow too", () => {
+  const catchAllOverflow = [...colors, { ...catchAll, overflowBin: 8 }, bin(8, [])];
+  assert.equal(
+    evaluateCardBin({ colors: [] }, catchAllOverflow, fields, undefined, undefined, fullBins(7))?.binNumber,
+    8,
   );
 });

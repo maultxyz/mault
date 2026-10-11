@@ -51,6 +51,7 @@ function catchAllSummary(bin: {
   rules: BinRuleGroup;
   lowMatchPercent: number | null;
   overridePriority: number | null;
+  overflowBin: number | null;
 }): string {
   const parts = ["everything else"];
   if (bin.rules.conditions?.length > 0) {
@@ -60,6 +61,9 @@ function catchAllSummary(bin: {
   }
   if (bin.lowMatchPercent != null) {
     parts.push(`plus scans below ${bin.lowMatchPercent}% match`);
+  }
+  if (bin.overflowBin != null) {
+    parts.push(`overflows to bin ${bin.overflowBin}`);
   }
   return `**Bin ${bin.binNumber}:** ${parts.join(", ")}`;
 }
@@ -108,6 +112,7 @@ export async function buildSortingLogicSummary(
       lowMatchPercent: bins.lowMatchPercent,
       maxCopies: bins.maxCopies,
       maxCopiesBy: bins.maxCopiesBy,
+      overflowBin: bins.overflowBin,
       isDisabled: bins.isDisabled,
     })
     .from(bins)
@@ -117,13 +122,24 @@ export async function buildSortingLogicSummary(
   if (binRows.length === 0)
     return `**Sorting logic:** ${set.name} (no bins configured)`;
 
-  const lines = binRows.map((b) =>
-    b.isCatchAll
-      ? catchAllSummary({ ...b, rules: b.rules as BinRuleGroup })
-      : b.isDisabled
-        ? `**Bin ${b.binNumber}:** disabled`
-        : `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per ${copiesByLabel(b.maxCopiesBy)})` : ""}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`,
-  );
+  const overflowSources = (binNumber: number) =>
+    binRows
+      .filter((s) => s.overflowBin === binNumber && s.binNumber !== binNumber)
+      .map((s) => s.binNumber);
+  const overflowLabel = (overflowBin: number | null) =>
+    overflowBin == null ? "" : ` (overflows to bin ${overflowBin})`;
+
+  const lines = binRows.map((b) => {
+    if (b.isCatchAll) {
+      return catchAllSummary({ ...b, rules: b.rules as BinRuleGroup });
+    }
+    if (b.isDisabled) return `**Bin ${b.binNumber}:** disabled`;
+    const sources = overflowSources(b.binNumber);
+    if (sources.length > 0) {
+      return `**Bin ${b.binNumber}${overflowLabel(b.overflowBin)}:** overflow for bin ${sources.join(", ")}`;
+    }
+    return `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per ${copiesByLabel(b.maxCopiesBy)})` : ""}${overflowLabel(b.overflowBin)}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`;
+  });
 
   return `**Sorting logic:** ${set.name}\n${lines.join("\n")}`;
 }

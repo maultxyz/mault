@@ -18,6 +18,8 @@ import {
   toLowMatchPercent,
   toMaxCopies,
   toMaxCopiesBy,
+  toOverflowBin,
+  normalizeOverflowBins,
   toOverridePriority,
   activeBinSetWhere,
 } from "./shared";
@@ -92,12 +94,14 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
                 b.isCatchAll,
                 toMaxCopies(b.maxCopies, b.isCatchAll),
               ),
+              overflowBin: toOverflowBin(b.overflowBin, b.binNumber),
               isDisabled: toIsDisabled(b.isDisabled, b.isCatchAll),
               binSet: newBinSet.id,
               orgId,
             };
           }),
         );
+        await normalizeOverflowBins(tx, newBinSet.id);
         return loadSets(tx, orgId);
       });
       return c.json(result);

@@ -11,8 +11,10 @@ import {
   toLowMatchPercent,
   toMaxCopies,
   toMaxCopiesBy,
+  toOverflowBin,
   toOverridePriority,
   activeBinSetWhere,
+  normalizeOverflowBins,
 } from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
@@ -32,6 +34,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       cardLimit,
       maxCopies,
       maxCopiesBy,
+      overflowBin,
       isDisabled,
     } = await c.req.json<{
       rules: BinRuleGroup;
@@ -42,6 +45,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       cardLimit?: number | null;
       maxCopies?: number | null;
       maxCopiesBy?: string | null;
+      overflowBin?: number | null;
       isDisabled?: boolean;
     }>();
     try {
@@ -53,7 +57,12 @@ export const editBinRoute = new Hono<AppEnv>().put(
           with: {
             bins: {
               where: (bin, { eq }) => eq(bin.isDeleted, false),
-              columns: { id: true, binNumber: true, isDisabled: true },
+              columns: {
+                id: true,
+                binNumber: true,
+                isDisabled: true,
+                overflowBin: true,
+              },
             },
           },
         });
@@ -93,6 +102,10 @@ export const editBinRoute = new Hono<AppEnv>().put(
                 isCatchAll,
                 toMaxCopies(maxCopies, isCatchAll),
               ),
+              overflowBin:
+                overflowBin === undefined
+                  ? existing.overflowBin
+                  : toOverflowBin(overflowBin, binNumber),
               isDisabled: toIsDisabled(
                 isDisabled ?? existing.isDisabled,
                 isCatchAll,
@@ -119,12 +132,14 @@ export const editBinRoute = new Hono<AppEnv>().put(
               isCatchAll,
               toMaxCopies(maxCopies, isCatchAll),
             ),
+            overflowBin: toOverflowBin(overflowBin, binNumber),
             isDisabled: toIsDisabled(isDisabled, isCatchAll),
             binSet: activeBinSet.id,
             orgId,
           });
         }
 
+        await normalizeOverflowBins(tx, activeBinSet.id);
         await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
 
         const updatedBins = await tx.query.bins.findMany({
@@ -141,6 +156,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             cardLimit: true,
             maxCopies: true,
             maxCopiesBy: true,
+            overflowBin: true,
             isDisabled: true,
             lastEmptiedAt: true,
           },
@@ -161,6 +177,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
               maxCopiesBy: b.maxCopiesBy,
+              overflowBin: b.overflowBin,
               isDisabled: b.isDisabled,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),

@@ -79,6 +79,7 @@ export const binConfigSchema = z.object({
     .max(CONDITION_NUMERIC_MAX)
     .nullable(),
   maxCopiesBy: z.string(),
+  overflowBin: z.number().int().positive().nullable(),
   lowMatchPercent: z
     .number()
     .min(1, "Must be at least 1%")

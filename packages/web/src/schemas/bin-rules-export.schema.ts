@@ -33,6 +33,7 @@ const exportedBinSchema = z.object({
     .nullable()
     .default(null),
   maxCopiesBy: z.string().trim().min(1).nullable().default(null),
+  overflowBin: z.number().int().positive().nullable().default(null),
   isDisabled: z.boolean().default(false),
 });
 

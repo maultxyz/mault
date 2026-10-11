@@ -20,6 +20,8 @@ import {
   evaluateScanOnlyBin,
   evaluateRepackBin,
   findLowMatchCatchAll,
+  isRulesMode,
+  resolveOverflowBin,
   getCardsInBin,
   getCatchAllBin,
   getChaosBins,
@@ -285,9 +287,15 @@ export function ScannedCardsProvider({
 
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
-      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
-      if (lowMatch) return lowMatch;
       const set = selectedSetRef.current;
+      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
+      if (lowMatch) {
+        return isRulesMode(set)
+          ? resolveOverflowBin(lowMatch, binConfigsRef.current, (bin) =>
+              isBinFullLocally(bin.binNumber),
+            )
+          : lowMatch;
+      }
       if (set?.scanOnly) {
         return evaluateScanOnlyBin(binConfigsRef.current, set.scanOnlyBin);
       }
@@ -327,6 +335,7 @@ export function ScannedCardsProvider({
                 fieldDefinitionsRef.current,
               ),
         (bin) => countCardsLocally(bin.binNumber),
+        (bin) => isBinFullLocally(bin.binNumber),
       );
     },
     [isBinFullLocally, countCardsLocally],

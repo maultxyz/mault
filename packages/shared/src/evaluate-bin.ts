@@ -203,6 +203,69 @@ export function getCatchAllBin(configs: BinConfig[]): BinConfig | undefined {
   return configs.find((c) => c.isCatchAll);
 }
 
+export function getOverflowSources(
+  configs: BinConfig[],
+  binNumber: number,
+): BinConfig[] {
+  const target = configs.find((c) => c.binNumber === binNumber);
+  if (target?.isCatchAll) return [];
+  return configs.filter(
+    (c) => c.overflowBin === binNumber && c.binNumber !== binNumber,
+  );
+}
+
+export function isOverflowTarget(
+  configs: BinConfig[],
+  binNumber: number,
+): boolean {
+  return getOverflowSources(configs, binNumber).length > 0;
+}
+
+function getOverflowTarget(
+  bin: BinConfig,
+  configs: BinConfig[],
+): BinConfig | undefined {
+  if (bin.overflowBin == null || bin.overflowBin === bin.binNumber) {
+    return undefined;
+  }
+  const target = configs.find((c) => c.binNumber === bin.overflowBin);
+  return target && !target.isCatchAll && !target.isDisabled
+    ? target
+    : undefined;
+}
+
+export function isRulesMode(
+  set:
+    | Pick<
+        BinSet,
+        "scanOnly" | "isChaosMode" | "isAlphabetMode" | "isRepackMode"
+      >
+    | undefined,
+): boolean {
+  return (
+    !set?.scanOnly &&
+    !set?.isChaosMode &&
+    !set?.isAlphabetMode &&
+    !set?.isRepackMode
+  );
+}
+
+export function resolveOverflowBin(
+  bin: BinConfig,
+  configs: BinConfig[],
+  isBlocked: (bin: BinConfig) => boolean,
+): BinConfig {
+  const visited = new Set([bin.binNumber]);
+  let current = bin;
+  while (isBlocked(current)) {
+    const next = getOverflowTarget(current, configs);
+    if (!next || visited.has(next.binNumber)) break;
+    visited.add(next.binNumber);
+    current = next;
+  }
+  return current;
+}
+
 export function parseLegacyCatchAllThreshold(
   rules: BinRuleGroup,
 ): number | null {
@@ -281,6 +344,7 @@ export function evaluateCardBin(
   fieldDefinitions: FieldMeta[],
   copiesInBin?: (bin: BinConfig) => number,
   cardsInBin?: (bin: BinConfig) => number,
+  isBinFull?: (bin: BinConfig) => boolean,
 ): BinConfig | undefined {
   let catchAll: BinConfig | undefined;
   let firstMatch: BinConfig | undefined;
@@ -292,6 +356,7 @@ export function evaluateCardBin(
     if (
       (config.isDisabled && !config.isCatchAll) ||
       config.rules.conditions.length === 0 ||
+      isOverflowTarget(configs, config.binNumber) ||
       (!isOverride && firstMatch) ||
       (isOverride &&
         override &&
@@ -301,7 +366,8 @@ export function evaluateCardBin(
     }
     if (
       !evaluateRuleGroup(card, config.rules, fieldDefinitions) ||
-      hasReachedMaxCopies(config, copiesInBin)
+      (hasReachedMaxCopies(config, copiesInBin) &&
+        !getOverflowTarget(config, configs))
     ) {
       continue;
     }
@@ -309,7 +375,14 @@ export function evaluateCardBin(
     else firstMatch = config;
   }
 
-  return override ?? firstMatch ?? catchAll;
+  const isBlocked = (bin: BinConfig) =>
+    hasReachedMaxCopies(bin, copiesInBin) || !!isBinFull?.(bin);
+  const matched = override ?? firstMatch;
+  if (matched) {
+    const target = resolveOverflowBin(matched, configs, isBlocked);
+    if (!hasReachedMaxCopies(target, copiesInBin)) return target;
+  }
+  return catchAll && resolveOverflowBin(catchAll, configs, isBlocked);
 }
 
 export function countCardsInBin(
