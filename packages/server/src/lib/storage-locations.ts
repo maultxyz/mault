@@ -27,7 +27,7 @@ export async function assignBinToLocation(
         AND (e.last_emptied_at IS NULL OR u.scanned_at > e.last_emptied_at)
     ),
     numbered AS (
-      SELECT kind, id, row_number() OVER (ORDER BY scanned_at, kind, id) AS rn
+      SELECT kind, id, row_number() OVER (ORDER BY scanned_at DESC, kind DESC, id DESC) AS rn
       FROM stack
     ),
     base AS (
