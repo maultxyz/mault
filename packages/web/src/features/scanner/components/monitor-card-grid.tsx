@@ -59,6 +59,7 @@ export function MonitorCardGrid({
                 quantity: entry.quantity,
                 isFoil: entry.isFoil,
                 foilType: entry.foilType,
+                condition: entry.condition,
                 hasAlternatives: !!entry.alternativeMatches?.length,
                 needsReview: entry.needsReview,
                 wasCorrected: entry.corrected,
@@ -82,6 +83,7 @@ export function MonitorCardGrid({
               wasCorrected={entry.corrected}
               isFoil={entry.isFoil}
               foilType={entry.foilType}
+              condition={entry.condition}
               quantity={entry.quantity}
               showBinLocation={showBinLocation}
             />

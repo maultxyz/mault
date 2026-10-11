@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { CARD_CONDITIONS } from "../constants/card-condition.constant";
+import type { CardCondition } from "../interfaces/card-condition.interface";
 import {
   API_FINISHES,
   PUBLIC_API_CARD_ID_FILTER_MAX,
@@ -108,6 +110,11 @@ export const apiScannedCardSchema = z
       .string()
       .nullable()
       .describe("The game's foil type for foils, when recorded."),
+    condition: z
+      .enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]])
+      .describe(
+        "The copy's condition: NM, LP, MP, HP or DMG. NM until someone sets it. The prices block is always the NM market price.",
+      ),
     prices: apiPricesSchema,
     location: apiCardLocationSchema
       .nullable()

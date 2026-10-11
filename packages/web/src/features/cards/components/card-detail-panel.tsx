@@ -38,9 +38,15 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
+  CARD_CONDITIONS,
+  DEFAULT_CARD_CONDITION,
+  isCardCondition,
+  toCardCondition,
+  type CardCondition,
   type PlayingCard,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
+import { usePriceSource } from "@/hooks/use-price-source";
 import {
   IconCheck,
   IconChevronUp,
@@ -66,6 +72,7 @@ export function CardDetailPanel({
   wasCorrected = false,
   isFoil = false,
   foilType,
+  condition,
   binNumber,
   onPrev,
   onNext,
@@ -106,7 +113,10 @@ export function CardDetailPanel({
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
   const { addCard } = useScannedCards();
-  const { correctCard, confirmCard, setCardFoilType } = useCardDetailActions();
+  const { correctCard, confirmCard, setCardFoilType, setCardCondition } =
+    useCardDetailActions();
+  const { priceOf, format, conditionMultipliers } = usePriceSource();
+  const currentCondition = toCardCondition(condition);
   const canConfirm =
     !!scanId && (needsReview || !!alternativeMatches?.length) && !wasCorrected;
   const collection = useCardDetailCollection();
@@ -190,6 +200,12 @@ export function CardDetailPanel({
   const startEditing = () => setEditing(true);
 
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
+  const conditionTriggerRef = useRef<HTMLButtonElement>(null);
+  const conditionPrice = selectedCard
+    ? priceOf(selectedCard, isFoil, currentCondition)
+    : null;
+  const conditionHandler = (value: CardCondition) =>
+    isViewing && scanId ? () => setCardCondition(scanId, value) : undefined;
 
   const toggleFoil = () => {
     if (!scanId) return;
@@ -210,6 +226,11 @@ export function CardDetailPanel({
       cardNext: isViewing && hasNext ? onNext : undefined,
       cardCorrect: isViewing ? startEditing : undefined,
       cardToggleFoil: isViewing && scanId ? toggleFoil : undefined,
+      cardConditionNM: conditionHandler("NM"),
+      cardConditionLP: conditionHandler("LP"),
+      cardConditionMP: conditionHandler("MP"),
+      cardConditionHP: conditionHandler("HP"),
+      cardConditionDMG: conditionHandler("DMG"),
       cardClose: editing ? stopEditing : onClose,
       reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
       cardRemove: isViewing ? requestRemove : undefined,
@@ -484,6 +505,47 @@ export function CardDetailPanel({
                               ))}
                             </SelectContent>
                           </Select>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <Label>{t("condition.label")}</Label>
+                          <Select
+                            value={currentCondition}
+                            onValueChange={(value) => {
+                              if (scanId && isCardCondition(value)) {
+                                setCardCondition(scanId, value);
+                              }
+                            }}
+                            disabled={!scanId}
+                            onOpenChangeComplete={(open) => {
+                              if (!open) conditionTriggerRef.current?.blur();
+                            }}
+                          >
+                            <SelectTrigger
+                              ref={conditionTriggerRef}
+                              className="w-40"
+                            >
+                              <SelectValue>
+                                {t(`condition.names.${currentCondition}`)}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CARD_CONDITIONS.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {t(`condition.names.${option}`)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {conditionPrice != null &&
+                            currentCondition !== DEFAULT_CARD_CONDITION && (
+                              <p className="text-2xs text-foreground/70">
+                                {t("condition.priceHint", {
+                                  price: format(conditionPrice),
+                                  percent:
+                                    conditionMultipliers[currentCondition],
+                                })}
+                              </p>
+                            )}
                         </div>
                         {binNumber != null && (
                           <div className="flex flex-col gap-1.5">

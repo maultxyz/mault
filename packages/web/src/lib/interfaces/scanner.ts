@@ -3,6 +3,7 @@ import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
+  CardCondition,
   CardFilters,
   EmptyBinOptions,
   CardContour,
@@ -148,6 +149,8 @@ export interface ScannedCardsContextValue {
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
+  setCardCondition: (scanId: string, condition: CardCondition) => void;
+  setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
   markDownloaded: (scanIds: string[]) => void;
   clearCards: () => void;
 }

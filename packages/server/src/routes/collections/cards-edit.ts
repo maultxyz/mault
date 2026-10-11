@@ -1,4 +1,8 @@
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
+import {
+  isCardCondition,
+  type CardCondition,
+  type PlayingCardWithDistance,
+} from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -16,13 +20,18 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const { guid, scanId } = c.req.param();
-    const { card, binNumber, isFoil, foilType, confirmed } = await c.req.json<{
-      confirmed?: boolean;
-      card?: PlayingCardWithDistance;
-      binNumber?: number;
-      isFoil?: boolean;
-      foilType?: string | null;
-    }>();
+    const { card, binNumber, isFoil, foilType, condition, confirmed } =
+      await c.req.json<{
+        confirmed?: boolean;
+        card?: PlayingCardWithDistance;
+        binNumber?: number;
+        isFoil?: boolean;
+        foilType?: string | null;
+        condition?: CardCondition;
+      }>();
+    if (condition !== undefined && !isCardCondition(condition)) {
+      return c.json({ success: false, message: "Invalid condition." }, 400);
+    }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const existing = await tx.query.collectionCards.findFirst({
@@ -34,6 +43,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             binNumber: true,
             isFoil: true,
             foilType: true,
+            condition: true,
             isCorrected: true,
             needsReview: true,
           },
@@ -52,6 +62,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         if (confirmed) updates.isCorrected = true;
         if (isFoil !== undefined) updates.isFoil = isFoil;
         if (foilType !== undefined) updates.foilType = foilType;
+        if (condition !== undefined) updates.condition = condition;
 
         await tx
           .update(collectionCards)
@@ -67,6 +78,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             binNumber: binNumber !== undefined ? binNumber : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
+            condition: condition ?? existing.condition,
             isCorrected:
               card !== undefined || confirmed ? true : existing.isCorrected,
             needsReview: existing.needsReview,

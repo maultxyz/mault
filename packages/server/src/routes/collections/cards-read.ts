@@ -5,7 +5,7 @@ import {
 } from "@magic-vault/shared";
 import type { Transaction } from "../../db";
 import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
-import { loadOrgPriceSource } from "../../lib/price-source";
+import { loadOrgPricing } from "../../lib/price-source";
 import {
   cardFilterSql,
   findCardsCollection,
@@ -61,7 +61,7 @@ export async function readCardsSummary(
   return run(async (tx) => {
     const collection = await findCardsCollection(tx, guid, orgId);
     if (!collection) return null;
-    const priceSource = await loadOrgPriceSource(tx, orgId);
-    return loadCardStats(tx, collection, cardFilterSql(query), priceSource);
+    const pricing = await loadOrgPricing(tx, orgId);
+    return loadCardStats(tx, collection, cardFilterSql(query), pricing);
   });
 }

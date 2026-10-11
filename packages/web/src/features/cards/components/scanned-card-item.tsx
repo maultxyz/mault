@@ -18,6 +18,7 @@ import {
   IconHelpCircle,
   IconSparkles,
 } from "@tabler/icons-react";
+import { DEFAULT_CARD_CONDITION } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -33,6 +34,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   wasCorrected = false,
   isFoil = false,
   foilType,
+  condition,
   isDownloaded = false,
   quantity = 1,
   showBinLocation = true,
@@ -45,7 +47,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   );
   const matchPercent = card.distance != null ? getMatchPercent(card) : 0;
   const { priceOf, format } = usePriceSource();
-  const displayPrice = priceOf(card, isFoil);
+  const displayPrice = priceOf(card, isFoil, condition);
   return (
     <div
       className={cn(
@@ -115,6 +117,11 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                     })}
                   </TooltipContent>
                 </Tooltip>
+              )}
+              {condition && condition !== DEFAULT_CARD_CONDITION && (
+                <Badge variant="secondary" className="shadow-md">
+                  {condition}
+                </Badge>
               )}
             </div>
             {showBinLocation ? (

@@ -7,6 +7,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import {
+  type CardCondition,
   type Collection,
   type ScannedCard,
   type UnmatchedCard,
@@ -138,6 +139,17 @@ export function useSessionEvents(
       const ids = new Set(scanIds);
       setRecentCards((prev) =>
         prev.map((c) => (ids.has(c.scanId) ? { ...c, isDownloaded: true } : c)),
+      );
+      cardsChanged();
+    });
+
+    on(scoped("cards_condition_changed"), (e) => {
+      const { scanIds, condition } = JSON.parse(
+        (e as MessageEvent).data,
+      ) as { scanIds: string[]; condition: CardCondition };
+      const ids = new Set(scanIds);
+      setRecentCards((prev) =>
+        prev.map((c) => (ids.has(c.scanId) ? { ...c, condition } : c)),
       );
       cardsChanged();
     });

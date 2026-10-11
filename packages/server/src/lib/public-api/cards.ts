@@ -1,4 +1,4 @@
-import type { ApiScannedCard } from "@magic-vault/shared";
+import { toCardCondition, type ApiScannedCard } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { cardPriceValueSql } from "../card-price-sql";
@@ -33,6 +33,7 @@ async function selectCards(
   );
   const result = await tx.execute(sql`
     SELECT cc.id, cc.guid::text AS scan_id, cc.card_id, cc.is_foil, cc.foil_type,
+      cc.condition,
       (cc.needs_review OR (cc.alternative_matches IS NOT NULL AND cc.alternative_matches <> '[]'::jsonb)) AS needs_review,
       cc.card ->> 'name' AS name, cc.card ->> 'set' AS set_code,
       cc.card ->> 'setName' AS set_name,
@@ -81,6 +82,7 @@ export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
     game: row.game,
     finish: row.is_foil ? "foil" : "nonfoil",
     foil_type: row.is_foil ? row.foil_type : null,
+    condition: toCardCondition(row.condition),
     prices: {
       usd: formatPrice(row.price_usd),
       usd_foil: formatPrice(row.price_usd_foil),

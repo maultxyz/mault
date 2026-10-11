@@ -310,5 +310,17 @@
   "removeDialog": {
     "title": "Retirer {{name}} ?",
     "description": "Le scan est supprimé de la collection, photo comprise. Cette action est irréversible."
+  },
+  "condition": {
+    "label": "État",
+    "names": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Endommagée (DMG)"
+    },
+    "priceHint": "{{price}} à {{percent}} % du prix NM",
+    "setSelected": "État"
   }
 }

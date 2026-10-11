@@ -19,6 +19,14 @@ export function useCardDetailCollection(): Collection | null {
 
 export function useCardDetailActions(): CardDetailActions {
   const scope = useContext(CardDetailScopeContext);
-  const { correctCard, confirmCard, setCardFoilType } = useScannedCards();
-  return scope?.actions ?? { correctCard, confirmCard, setCardFoilType };
+  const { correctCard, confirmCard, setCardFoilType, setCardCondition } =
+    useScannedCards();
+  return (
+    scope?.actions ?? {
+      correctCard,
+      confirmCard,
+      setCardFoilType,
+      setCardCondition,
+    }
+  );
 }

@@ -2,6 +2,7 @@ import { SCAN_RATE_WINDOW_MS } from "@/lib/constants/scanner";
 import {
   type BinConfig,
   type BinContentCard,
+  type CardCondition,
   type BinRoute,
   type EmptyBinOptions,
   type MatchedScanDetails,
@@ -48,6 +49,7 @@ import {
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
   setCollectionCardBin,
+  setCollectionCardsCondition,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -1075,6 +1077,31 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
+  const setCardsCondition = useCallback(
+    (scanIds: string[], condition: CardCondition) => {
+      const collection = activeCollectionRef.current;
+      if (!collection || scanIds.length === 0) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set(scanIds),
+        (entry) => ({ ...entry, condition }),
+      );
+      setCollectionCardsCondition(collection.guid, scanIds, condition)
+        .catch((err) => console.error("Failed to update condition:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
+  const setCardCondition = useCallback(
+    (scanId: string, condition: CardCondition) =>
+      setCardsCondition([scanId], condition),
+    [setCardsCondition],
+  );
+
   const markDownloaded = useCallback(
     (scanIds: string[]) => {
       const collection = activeCollectionRef.current;
@@ -1145,6 +1172,8 @@ export function ScannedCardsProvider({
         correctCard,
         confirmCard,
         setCardFoilType,
+        setCardCondition,
+        setCardsCondition,
         markDownloaded,
         clearCards,
       }}

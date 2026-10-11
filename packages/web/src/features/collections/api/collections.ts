@@ -6,7 +6,7 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
+import type { CardCondition, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
 
@@ -143,6 +143,16 @@ export async function setCollectionCardFoilType(
   });
 }
 
+export async function setCollectionCardCondition(
+  guid: string,
+  scanId: string,
+  condition: CardCondition,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    condition,
+  });
+}
+
 export async function removeCollectionCard(
   guid: string,
   scanId: string,
@@ -162,6 +172,17 @@ export async function markCollectionCardsDownloaded(
   scanIds: string[],
 ): Promise<Result<null>> {
   return apiPost<Result<null>>(`/api/collections/${guid}/cards/mark-downloaded`, { scanIds });
+}
+
+export async function setCollectionCardsCondition(
+  guid: string,
+  scanIds: string[],
+  condition: CardCondition,
+): Promise<Result<null>> {
+  return apiPost<Result<null>>(`/api/collections/${guid}/cards/condition`, {
+    scanIds,
+    condition,
+  });
 }
 
 export async function clearCollectionCards(guid: string): Promise<Result<null>> {

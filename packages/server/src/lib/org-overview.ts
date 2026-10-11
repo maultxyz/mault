@@ -22,7 +22,7 @@ import type { Transaction } from "../db";
 import { collectionCards, collections } from "../db/schema";
 import { scannedCardPriceSql } from "./card-price-sql";
 import { ONE_DAY_MS } from "./constants/timing";
-import { loadOrgPriceSource } from "./price-source";
+import { loadOrgPricing } from "./price-source";
 
 function utcDayKey(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -43,8 +43,8 @@ export async function loadOrgOverview(
   tx: Transaction,
   orgId: string,
 ): Promise<OrgOverview> {
-  const priceSource = await loadOrgPriceSource(tx, orgId);
-  const cardPrice = scannedCardPriceSql(priceSource);
+  const pricing = await loadOrgPricing(tx, orgId);
+  const cardPrice = scannedCardPriceSql(pricing);
   const liveCollections = and(
     eq(collections.orgId, orgId),
     eq(collections.isDeleted, false),

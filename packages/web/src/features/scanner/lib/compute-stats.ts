@@ -3,6 +3,7 @@ import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 import {
   cardPriceFor,
+  type ConditionMultipliers,
   DEFAULT_PRICE_SOURCE,
   type CardStatsAggregate,
   type PriceSource,
@@ -32,6 +33,7 @@ function sortRarities<T extends { key: string; count: number }>(
 export function aggregateCards(
   cards: ScannedCard[],
   priceSource: PriceSource = DEFAULT_PRICE_SOURCE,
+  conditionMultipliers?: ConditionMultipliers,
 ): CardStatsAggregate {
   let totalValue = 0;
   let priceableCount = 0;
@@ -44,7 +46,14 @@ export function aggregateCards(
 
   for (const entry of cards) {
     const c = entry.card;
-    const price = cardPriceFor(c, entry.isFoil, priceSource) ?? 0;
+    const price =
+      cardPriceFor(
+        c,
+        entry.isFoil,
+        priceSource,
+        entry.condition,
+        conditionMultipliers,
+      ) ?? 0;
 
     uniqueCards.add(c.id);
 
@@ -140,8 +149,9 @@ export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
 export function computeStats(
   cards: ScannedCard[],
   priceSource: PriceSource = DEFAULT_PRICE_SOURCE,
+  conditionMultipliers?: ConditionMultipliers,
 ): ScanStats | null {
-  return toScanStats(aggregateCards(cards, priceSource));
+  return toScanStats(aggregateCards(cards, priceSource, conditionMultipliers));
 }
 
 export function toDisplayStats(

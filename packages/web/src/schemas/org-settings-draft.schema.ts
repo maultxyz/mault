@@ -1,4 +1,10 @@
-import { PRICE_SOURCES, type PriceSource } from "@magic-vault/shared";
+import {
+  CARD_CONDITIONS,
+  isConditionMultiplier,
+  PRICE_SOURCES,
+  type ConditionMultipliers,
+  type PriceSource,
+} from "@magic-vault/shared";
 import { z } from "zod";
 
 export const orgSettingsDraftSchema = z.object({
@@ -13,6 +19,17 @@ export const orgSettingsDraftSchema = z.object({
   pauseScanningOnDeploy: z.boolean(),
   leaderboardOptIn: z.boolean(),
   correctionAutoCloseSeconds: z.number().int().positive().nullable(),
+  conditionMultipliers: z.custom<ConditionMultipliers>(
+    (value) =>
+      !!value &&
+      typeof value === "object" &&
+      CARD_CONDITIONS.every((condition) =>
+        isConditionMultiplier(
+          (value as Record<string, unknown>)[condition],
+        ),
+      ),
+    "Each condition needs a percentage from 0 to 100.",
+  ),
 });
 
 export type OrgSettingsDraftValues = z.infer<typeof orgSettingsDraftSchema>;

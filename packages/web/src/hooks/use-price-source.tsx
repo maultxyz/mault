@@ -6,14 +6,15 @@ import type {
 } from "@/lib/interfaces/pricing";
 import {
   cardPriceFor,
-  DEFAULT_PRICE_SOURCE,
+  DEFAULT_ORG_PRICING,
   formatPrice,
-  type PriceSource,
+  toConditionMultipliers,
+  type OrgPricing,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { createContext, useContext, useMemo, type ReactNode } from "react";
 
-const PriceSourceContext = createContext<PriceSource>(DEFAULT_PRICE_SOURCE);
+const PriceSourceContext = createContext<OrgPricing>(DEFAULT_ORG_PRICING);
 
 export function PriceSourceProvider({
   value,
@@ -29,21 +30,26 @@ export function PriceSourceProvider({
 export function OrgPriceSourceProvider({ children }: { children: ReactNode }) {
   const { activeOrg } = useOrg();
   const { data } = useQuery(orgSettingsQueryOptions(activeOrg?.id));
-  return (
-    <PriceSourceProvider value={data?.priceSource ?? DEFAULT_PRICE_SOURCE}>
-      {children}
-    </PriceSourceProvider>
+  const pricing = useMemo<OrgPricing>(
+    () => ({
+      source: data?.priceSource ?? DEFAULT_ORG_PRICING.source,
+      conditionMultipliers: toConditionMultipliers(data?.conditionMultipliers),
+    }),
+    [data?.priceSource, data?.conditionMultipliers],
   );
+  return <PriceSourceProvider value={pricing}>{children}</PriceSourceProvider>;
 }
 
 export function usePriceSource(): PriceFormatter {
-  const source = useContext(PriceSourceContext);
+  const { source, conditionMultipliers } = useContext(PriceSourceContext);
   return useMemo(
     () => ({
       source,
-      priceOf: (card, isFoil) => cardPriceFor(card, isFoil, source),
+      conditionMultipliers,
+      priceOf: (card, isFoil, condition) =>
+        cardPriceFor(card, isFoil, source, condition, conditionMultipliers),
       format: (value) => formatPrice(value, source),
     }),
-    [source],
+    [source, conditionMultipliers],
   );
 }

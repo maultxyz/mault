@@ -5,7 +5,7 @@ import { db } from "../../db";
 import { collectionCards, collections } from "../../db/schema";
 import { scannedCardPriceSql } from "../../lib/card-price-sql";
 import { resolveImageUrl } from "../../lib/discord";
-import { loadOrgPriceSource } from "../../lib/price-source";
+import { loadOrgPricing } from "../../lib/price-source";
 import type { AppEnv } from "../../middleware/auth";
 import { resolveOrgByGuild, resolveOrgCollection } from "./shared";
 
@@ -27,8 +27,9 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
     return c.json({ success: false, message: "collection_not_found" }, 404);
   }
 
-  const priceSource = await loadOrgPriceSource(db, orgId);
-  const cardPrice = scannedCardPriceSql(priceSource);
+  const pricing = await loadOrgPricing(db, orgId);
+  const priceSource = pricing.source;
+  const cardPrice = scannedCardPriceSql(pricing);
   const scopeCondition = collection
     ? eq(collections.id, collection.id)
     : and(eq(collections.orgId, orgId), eq(collections.isDeleted, false));

@@ -13,6 +13,7 @@ import { exportCollectionCardsRoute } from "./cards-export";
 import { collectionCardIdsRoute } from "./cards-ids";
 import { listCollectionCardsRoute } from "./cards-list";
 import { markCollectionCardsDownloadedRoute } from "./cards-mark-downloaded";
+import { setCollectionCardsConditionRoute } from "./cards-set-condition";
 import { collectionCardPositionRoute } from "./cards-position";
 import { removeBulkCollectionCardsRoute } from "./cards-remove-bulk";
 import { collectionCardsSummaryRoute } from "./cards-summary";
@@ -54,6 +55,7 @@ const router = new Hono<AppEnv>()
   .route("/", clearCollectionCardsRoute)
   .route("/", removeBulkCollectionCardsRoute)
   .route("/", markCollectionCardsDownloadedRoute)
+  .route("/", setCollectionCardsConditionRoute)
   .route("/", deleteCollectionCardRoute)
   .route("/", listUnmatchedCardsRoute)
   .route("/", addUnmatchedCardRoute)

@@ -3,7 +3,12 @@ import {
   PRICE_SOURCE_FIELDS,
   PRICE_SOURCES,
 } from "./constants/price-source.constant";
+import { conditionFactor } from "./card-condition";
 import type { PlayingCard } from "./interfaces/card.interface";
+import type {
+  CardCondition,
+  ConditionMultipliers,
+} from "./interfaces/card-condition.interface";
 import type { PriceSource } from "./interfaces/price-source.interface";
 
 export function isPriceSource(value: unknown): value is PriceSource {
@@ -18,10 +23,13 @@ export function cardPriceFor(
   card: PlayingCard,
   isFoil: boolean | undefined,
   source: PriceSource,
+  condition?: CardCondition | null,
+  multipliers?: ConditionMultipliers,
 ): number | null {
   const fields = PRICE_SOURCE_FIELDS[source];
   const regular = card[fields.price] ?? null;
-  return (isFoil ? card[fields.priceFoil] : regular) ?? regular;
+  const price = (isFoil ? card[fields.priceFoil] : regular) ?? regular;
+  return price == null ? null : price * conditionFactor(condition, multipliers);
 }
 
 export function formatPrice(value: number, source: PriceSource): string {

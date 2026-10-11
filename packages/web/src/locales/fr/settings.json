@@ -37,6 +37,11 @@
       "cardkingdom": "Card Kingdom"
     }
   },
+  "conditionPricing": {
+    "heading": "Prix selon l'état",
+    "description": "La part du prix Near Mint que vaut une carte dans chaque état. Les valeurs des cartes, les totaux des collections, les statistiques et les valeurs de stockage les utilisent.",
+    "baseNote": "Near Mint correspond toujours au prix du marché complet. Les valeurs par défaut sont celles de la plupart des grands vendeurs."
+  },
   "sessionWrapped": {
     "heading": "Récap de session",
     "description": "Affiche un récap façon Wrapped des temps forts avant le résumé d'export.",

@@ -80,6 +80,7 @@ One physical copy of a card, so three copies of a printing are three `scanned_ca
   "game": "mtg",
   "finish": "nonfoil",
   "foil_type": null,
+  "condition": "NM",
   "prices": {
     "usd": "1.42",
     "usd_foil": "6.10",
@@ -111,6 +112,7 @@ One physical copy of a card, so three copies of a printing are three `scanned_ca
 | `game` | Game key, e.g. `mtg`, `pokemon`, `lorcana`. |
 | `finish` | `nonfoil` or `foil`. |
 | `foil_type` | For foils, the game's foil type (e.g. reverse holo), when the scan recorded one. `null` otherwise. |
+| `condition` | The copy's condition: `NM`, `LP`, `MP`, `HP` or `DMG`. Every scan starts as `NM` until someone sets it in the app. `prices` is always the Near Mint market price, so apply your own condition discount. |
 | `prices` | The printing's current prices as strings, like Scryfall: `usd`/`usd_foil` from TCGplayer, `eur`/`eur_foil` from Cardmarket. `null` when there's no price. Pick the one matching `finish`. |
 | `location` | Where this copy is stored, or `null` when it isn't in a storage location. `position` is its place in that box, counting up in the order cards were put away. Positions are never renumbered, so there can be gaps. |
 | `needs_review` | `true` when the scan wasn't certain and nobody has confirmed it yet. |

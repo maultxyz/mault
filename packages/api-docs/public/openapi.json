@@ -1646,6 +1646,17 @@
             ],
             "description": "The game's foil type for foils, when recorded."
           },
+          "condition": {
+            "type": "string",
+            "enum": [
+              "NM",
+              "LP",
+              "MP",
+              "HP",
+              "DMG"
+            ],
+            "description": "The copy's condition: NM, LP, MP, HP or DMG. NM until someone sets it. The prices block is always the NM market price."
+          },
           "prices": {
             "$ref": "#/components/schemas/Prices"
           },
@@ -1699,6 +1710,7 @@
           "game",
           "finish",
           "foil_type",
+          "condition",
           "prices",
           "location",
           "collection",

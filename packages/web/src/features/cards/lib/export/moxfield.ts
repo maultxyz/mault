@@ -1,4 +1,9 @@
-import { csvEscape, purchasePrice, type ExportAdapter } from "./base";
+import {
+  conditionLabel,
+  csvEscape,
+  purchasePrice,
+  type ExportAdapter,
+} from "./base";
 
 export const moxfieldAdapter: ExportAdapter = {
   key: "moxfield",
@@ -18,11 +23,11 @@ export const moxfieldAdapter: ExportAdapter = {
     "Proxy",
     "Purchase Price (USD)",
   ],
-  row: ({ card, quantity, isFoil }) => [
+  row: ({ card, quantity, isFoil, condition }) => [
     String(quantity),
     csvEscape(card.name),
     card.set.toUpperCase(),
-    "Near Mint",
+    conditionLabel(condition),
     "EN",
     isFoil ? "foil" : "",
     card.collectorNumber,
