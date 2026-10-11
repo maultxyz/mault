@@ -4,6 +4,7 @@ import {
   STORAGE_SEARCH_RESULT_LIMIT,
   type PlayingCardWithDistance,
   type StorageLocationCard,
+  type StorageLocationExportCard,
   type StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import { and, asc, eq, sql } from "drizzle-orm";
@@ -12,6 +13,7 @@ import { authQuery } from "../../db";
 import {
   collectionCards,
   collections,
+  games,
   storageLocations,
 } from "../../db/schema";
 import {
@@ -253,7 +255,60 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Database error." }, 500);
     }
   })
-  .delete("/:guid/cards/:scanId", requireAuth, requireOrg, async (c) => {
+  .get("/:guid/cards/export", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        const location = await tx.query.storageLocations.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+          columns: { id: true },
+        });
+        if (!location) {
+          return { success: false, message: "Storage location not found." };
+        }
+        const rows = await tx
+          .select({
+            scanId: collectionCards.guid,
+            position: collectionCards.locationPosition,
+            card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`${collectionCards.card}`)}`,
+            isFoil: collectionCards.isFoil,
+            foilType: collectionCards.foilType,
+            collectionName: collections.name,
+            gameKey: games.key,
+          })
+          .from(collectionCards)
+          .innerJoin(
+            collections,
+            eq(collections.id, collectionCards.collectionId),
+          )
+          .leftJoin(games, eq(games.id, collections.gameId))
+          .where(
+            and(
+              eq(collectionCards.locationId, location.id),
+              eq(collections.isDeleted, false),
+            ),
+          )
+          .orderBy(asc(collectionCards.locationPosition));
+        const data: StorageLocationExportCard[] = rows.map((r) => ({
+          scanId: r.scanId!,
+          position: r.position ?? 0,
+          collectionName: r.collectionName,
+          gameKey: r.gameKey,
+          card: r.card,
+          isFoil: r.isFoil,
+          foilType: r.foilType,
+        }));
+        return { success: true, data };
+      });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .delete("/:guid/cards/:scanId",requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const scanId = c.req.param("scanId");

@@ -21,6 +21,10 @@ export interface EmptyBinToLocationDialogProps {
   onConfirm: (options: EmptyBinOptions) => Promise<void>;
 }
 
+export interface StorageExportMenuProps {
+  location: StorageLocation;
+}
+
 export interface StorageLocationRowProps {
   location: StorageLocation;
   isSelected: boolean;

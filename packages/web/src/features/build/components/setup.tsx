@@ -1,8 +1,5 @@
+import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import { Button } from "@/components/ui/button";
-import { useBoardType } from "@/features/build/api/use-board-type";
-import { useEsp32MountType } from "@/features/build/api/use-esp32-mount-type";
-import { useKitMode } from "@/features/build/api/use-kit-mode";
-import { useModuleCount } from "@/features/build/api/use-module-count";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { BuildOptionCard } from "@/features/build/components/option-card";
 import {
@@ -10,6 +7,7 @@ import {
   BOARD_INFO,
   BOARD_TYPES,
   BUILD_SETUP_ANCHOR,
+  DEFAULT_ESP32_MOUNT_TYPE,
   ESP32_MOUNT_ICONS,
   ESP32_MOUNT_TYPES,
   KIT_BOARD_TYPE,
@@ -40,9 +38,7 @@ function SetupStep({ step, label, hint, children }: BuildSetupStepProps) {
         />
       </div>
       <div className="min-w-0 flex-1 pb-10 group-last/step:pb-0">
-        <h3 className="pt-0.5 font-heading text-base font-semibold">
-          {label}
-        </h3>
+        <h3 className="pt-0.5 font-heading text-base font-semibold">{label}</h3>
         {hint && (
           <div className="mt-0.5 text-sm/relaxed text-foreground/70">
             {hint}
@@ -56,17 +52,17 @@ function SetupStep({ step, label, hint, children }: BuildSetupStepProps) {
 
 export function BuildSetup() {
   const { t } = useTranslation("build");
-  const { moduleCount, setModuleCount } = useModuleCount();
-  const { boardType, setBoardType } = useBoardType();
-  const { mountType, setMountType } = useEsp32MountType();
-  const { usingKit, setUsingKit } = useKitMode();
+  const { moduleCount, boardType, mountType, usingKit, updateSetup } =
+    useBuildSetup();
   const isEsp32 = boardType === "esp32";
 
   const chooseKit = () => {
-    setModuleCount(KIT_MODULE_COUNT);
-    setBoardType(KIT_BOARD_TYPE);
-    setMountType("breakout");
-    setUsingKit(true);
+    updateSetup({
+      moduleCount: KIT_MODULE_COUNT,
+      boardType: KIT_BOARD_TYPE,
+      mountType: DEFAULT_ESP32_MOUNT_TYPE,
+      usingKit: true,
+    });
   };
 
   const catchAllBin = moduleCount * 2 + 1;
@@ -110,7 +106,7 @@ export function BuildSetup() {
               title={t("setup.source.diy.title")}
               description={t("setup.source.diy.description")}
               selected={!usingKit}
-              onSelect={() => setUsingKit(false)}
+              onSelect={() => updateSetup({ usingKit: false })}
             />
           </div>
         </SetupStep>
@@ -140,7 +136,7 @@ export function BuildSetup() {
                 description={t(`setup.board.${type}.description`)}
                 selected={boardType === type}
                 disabled={usingKit}
-                onSelect={() => setBoardType(type)}
+                onSelect={() => updateSetup({ boardType: type })}
               />
             ))}
           </div>
@@ -161,7 +157,7 @@ export function BuildSetup() {
                   description={t(`setup.mount.${type}.description`)}
                   selected={mountType === type}
                   disabled={usingKit}
-                  onSelect={() => setMountType(type)}
+                  onSelect={() => updateSetup({ mountType: type })}
                 />
               ))}
             </div>
@@ -180,7 +176,7 @@ export function BuildSetup() {
                 size="icon-lg"
                 aria-label={t("setup.modules.decreaseAria")}
                 disabled={moduleCount <= MIN_MODULES}
-                onClick={() => setModuleCount(moduleCount - 1)}
+                onClick={() => updateSetup({ moduleCount: moduleCount - 1 })}
               >
                 <IconMinus />
               </Button>
@@ -192,7 +188,7 @@ export function BuildSetup() {
                 size="icon-lg"
                 aria-label={t("setup.modules.increaseAria")}
                 disabled={moduleCount >= MAX_MODULES}
-                onClick={() => setModuleCount(moduleCount + 1)}
+                onClick={() => updateSetup({ moduleCount: moduleCount + 1 })}
               >
                 <IconPlus />
               </Button>

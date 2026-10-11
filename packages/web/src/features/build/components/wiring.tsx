@@ -1,3 +1,4 @@
+import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import {
   Accordion,
   AccordionContent,
@@ -5,8 +6,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { BOARD_INFO } from "@/lib/constants/build";
-import { useBoardType } from "@/features/build/api/use-board-type";
-import { useModuleCount } from "@/features/build/api/use-module-count";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { Callout } from "@/components/callout";
@@ -70,8 +69,7 @@ function MiniTable({
 
 export function BuildWiring() {
   const { t } = useTranslation("build");
-  const { moduleCount } = useModuleCount();
-  const { boardType } = useBoardType();
+  const { moduleCount, boardType } = useBuildSetup();
   const board = BOARD_INFO[boardType];
   const isEsp32 = boardType !== "uno_r4";
 

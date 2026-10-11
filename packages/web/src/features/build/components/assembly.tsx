@@ -1,15 +1,9 @@
+import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useBoardType } from "@/features/build/api/use-board-type";
 import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
-import { useEsp32MountType } from "@/features/build/api/use-esp32-mount-type";
-import { useKitMode } from "@/features/build/api/use-kit-mode";
-import { useModuleCount } from "@/features/build/api/use-module-count";
-import {
-  buildPhases,
-  getYouTubeVideoId,
-  optionalBadgeLabel,
-} from "@/features/build/lib/build-phases";
+import { buildPhases } from "@/features/build/lib/build-phases";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { PhaseVideo } from "@/features/build/components/phase-video";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { phaseAnchorId, stepAnchorId } from "@/features/build/lib/anchors";
 import { DISCORD_URL } from "@/lib/constants/links";
@@ -20,11 +14,8 @@ import { Trans, useTranslation } from "react-i18next";
 
 export function BuildAssembly() {
   const { t } = useTranslation("build");
+  const { moduleCount, boardType, mountType, usingKit } = useBuildSetup();
   const { checked, toggle } = useBuildChecklist();
-  const { moduleCount } = useModuleCount();
-  const { boardType } = useBoardType();
-  const { mountType } = useEsp32MountType();
-  const { usingKit } = useKitMode();
 
   const PHASES = useMemo(
     () => buildPhases(t, moduleCount, boardType, mountType, usingKit),
@@ -38,7 +29,10 @@ export function BuildAssembly() {
     : 0;
 
   return (
-    <section id="assembly" className="mx-auto max-w-7xl scroll-mt-14 px-4 py-16">
+    <section
+      id="assembly"
+      className="mx-auto max-w-7xl scroll-mt-14 px-4 py-16"
+    >
       <div className="group/anchor flex items-center gap-1">
         <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
           {t("assembly.heading")}
@@ -87,10 +81,7 @@ export function BuildAssembly() {
 
       <div className="mt-8 flex flex-col gap-6">
         {PHASES.map((phase, i) => {
-          const videoIds = (phase.videos ?? [])
-            .map((url) => [url, getYouTubeVideoId(url)] as const)
-            .filter((pair): pair is [string, string] => pair[1] !== null);
-          const hasVideos = videoIds.length > 0;
+          const hasVideos = !!phase.video;
           return (
             <div
               key={phase.key}
@@ -99,24 +90,9 @@ export function BuildAssembly() {
                 hasVideos && "lg:flex-row lg:items-start",
               )}
             >
-              {hasVideos && (
-                <div className="flex flex-col gap-3 lg:sticky lg:top-20 lg:w-3/5 lg:shrink-0">
-                  {videoIds.map(([url, id]) => (
-                    <div
-                      key={url}
-                      className="aspect-video w-full overflow-hidden rounded-lg border bg-black"
-                    >
-                      <iframe
-                        src={`https://www.youtube-nocookie.com/embed/${id}`}
-                        title={t("assembly.videoTitle")}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                        loading="lazy"
-                        className="size-full"
-                      />
-                    </div>
-                  ))}
+              {phase.video && (
+                <div className="lg:sticky lg:top-20 lg:w-3/5 lg:shrink-0">
+                  <PhaseVideo video={phase.video} />
                 </div>
               )}
               <div
@@ -137,7 +113,8 @@ export function BuildAssembly() {
                   </div>
                   <AnchorLinkButton id={phaseAnchorId(phase.key)} />
                   {hasVideos && (
-                    <IconVideo size={16}
+                    <IconVideo
+                      size={16}
                       className="ml-auto shrink-0 text-foreground/70"
                       aria-label={t("assembly.hasVideoAria")}
                     />
@@ -168,7 +145,7 @@ export function BuildAssembly() {
                           {step.text}
                           {step.optional && (
                             <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-sm font-medium text-foreground/70 uppercase no-underline">
-                              {optionalBadgeLabel(t, step.optional)}
+                              {t("optionalBadge")}
                             </span>
                           )}
                         </p>
