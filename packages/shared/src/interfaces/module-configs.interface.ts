@@ -8,6 +8,7 @@ export interface ServoCalibration {
   pusherRight: number;
   pusherHoldDuration: number;
   paddleCloseDelay: number;
+  paddleOpenDelay: number;
 }
 
 export interface ModuleConfig {

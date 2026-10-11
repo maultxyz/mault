@@ -23,13 +23,10 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-
-interface CreateCollectionDialogProps {
-  trigger: (ctx: { disabled: boolean; noGames: boolean }) => ReactElement;
-}
+import type { CreateCollectionDialogProps } from "@/lib/interfaces/collections";
 
 export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps) {
   const { t } = useTranslation("collections");

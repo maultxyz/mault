@@ -1,16 +1,14 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { bomGroupAnchorId } from "@/features/build/lib/anchors";
-import type { BoardType } from "@/features/build/api/use-board-type";
 import {
-  optionalBadgeLabel,
   resolveRowBuyUrl,
   resolveRowName,
-  type Group,
 } from "@/features/build/lib/bom-parts";
 import { cn } from "@/lib/utils";
 import { IconExternalLink } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import type { BoardType, BomGroup } from "@/lib/interfaces/build";
 
 export function BomGroupTable({
   group,
@@ -19,7 +17,7 @@ export function BomGroupTable({
   checked,
   toggle,
 }: {
-  group: Group;
+  group: BomGroup;
   moduleCount: number;
   boardType: BoardType;
   checked: Record<string, boolean>;
@@ -87,7 +85,7 @@ export function BomGroupTable({
                     {row.part(t, boardType)}
                     {row.optional && (
                       <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-sm font-medium text-foreground/70 uppercase no-underline">
-                        {optionalBadgeLabel(t, row.optional)}
+                        {t("optionalBadge")}
                       </span>
                     )}
                   </td>

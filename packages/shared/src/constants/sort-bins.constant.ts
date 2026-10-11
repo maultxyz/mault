@@ -1,12 +1,16 @@
 import type {
   BinHeightPreset,
   BinRuleGroup,
+  DefaultBinInit,
+  FieldType,
 } from "../interfaces/sort-bins.interface";
 
 export const SET_NAME_MAX_LENGTH = 50;
 export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
 export const DEFAULT_BIN_CAPACITY = 250;
+export const OVERRIDE_PRIORITY_MAX = 100;
+export const LOW_MATCH_PERCENT_MAX = 100;
 
 export const UNLIMITED_BIN_HEIGHT = 0;
 
@@ -19,19 +23,15 @@ export const BIN_HEIGHT_PRESETS: BinHeightPreset[] = [
 
 export const DEFAULT_BIN_HEIGHT = BIN_HEIGHT_PRESETS[0].height;
 
+export const CUSTOM_BIN_SIZE_KEY = "custom";
+export const CUSTOM_BIN_HEIGHT_MIN_MM = 1;
+export const CUSTOM_BIN_HEIGHT_MAX_MM = 1000;
+
 export const DEFAULT_CARD_THICKNESS_MM = 0.3;
 export const ALPHABET_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 export const ALPHABET_PREFIX_MAX_LENGTH = 10;
 
-export type DefaultBinInit = {
-  binNumber: number;
-  rules: BinRuleGroup;
-  isCatchAll: boolean;
-  isOverride?: boolean;
-  cardLimit: number | null;
-  maxCopies?: number | null;
-  isDisabled?: boolean;
-};
+export const SORTABLE_FIELD_TYPES: FieldType[] = ["string", "numeric", "enum"];
 
 export function createDefaultCatchAllOnlyBins(
   binCount: number,
@@ -47,3 +47,8 @@ export function createDefaultCatchAllOnlyBins(
     } satisfies BinRuleGroup,
   }));
 }
+
+export const REPACK_UNIQUE_BY_PRINTING = "$printing";
+export const REPACK_UNIQUE_BY_NAME = "$name";
+
+export const SCAN_ONLY_DEFAULT_BIN = 7;

@@ -31,7 +31,7 @@ import {
   IconSearch,
   IconTrash,
 } from "@tabler/icons-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
@@ -104,9 +104,18 @@ export function CardSelectDialog({
     return () => document.removeEventListener("keydown", handler);
   }, [open, editing, hasPrev, hasNext, onPrev, onNext]);
 
-  const { results, loading, hasMore, isLoadingMore, loadMore } = useCardSearch(
+  const {
+    results,
+    sets,
+    totalCount,
+    loading,
+    hasMore,
+    isLoadingMore,
+    loadMore,
+  } = useCardSearch(
     debouncedQuery,
     activeCollection?.guid,
+    selectedSet && selectedSet !== "all" ? selectedSet : undefined,
   );
 
   const handleInputChange = (value: string) => {
@@ -161,21 +170,6 @@ export function CardSelectDialog({
     onRemove?.();
     handleOpenChange(false);
   }, [onRemove, handleOpenChange]);
-
-  const sets = useMemo(() => {
-    const setMap = new Map<string, string>();
-    for (const card of results) {
-      if (!setMap.has(card.set)) setMap.set(card.set, card.setName);
-    }
-    return Array.from(setMap.entries())
-      .map(([code, name]) => ({ code, name }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-  }, [results]);
-
-  const filteredResults = useMemo(() => {
-    if (selectedSet === "all") return results;
-    return results.filter((card) => card.set === selectedSet);
-  }, [results, selectedSet]);
 
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
@@ -393,14 +387,14 @@ export function CardSelectDialog({
                     <SelectValue placeholder={t("cardPicker.allSets")}>
                       {selectedSet === "all"
                         ? t("cardPicker.allSetsCount", {
-                            count: results.length,
+                            count: totalCount,
                           })
                         : sets.find((s) => s.code === selectedSet)?.name}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">
-                      {t("cardPicker.allSetsCount", { count: results.length })}
+                      {t("cardPicker.allSetsCount", { count: totalCount })}
                     </SelectItem>
                     {sets.map((s) => (
                       <SelectItem key={s.code} value={s.code}>
@@ -416,20 +410,20 @@ export function CardSelectDialog({
                 <CardTileSkeletonGrid className="gap-1" />
               )}
               {!loading &&
-                filteredResults.length === 0 &&
+                results.length === 0 &&
                 query.trim().length === 0 && (
                   <p className="text-center text-sm text-foreground/70 py-8">
                     {t("cardPicker.startTyping")}
                   </p>
                 )}
               {!loading &&
-                filteredResults.length === 0 &&
+                results.length === 0 &&
                 query.trim().length >= 2 && (
                   <EmptyState size="compact" icon={IconSearch} title={t("cardPicker.noCardsFound")} />
                 )}
-              {!loading && filteredResults.length > 0 && (
+              {!loading && results.length > 0 && (
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-1">
-                  {filteredResults.map((card) => (
+                  {results.map((card) => (
                     <Button
                       key={card.id}
                       variant="ghost"

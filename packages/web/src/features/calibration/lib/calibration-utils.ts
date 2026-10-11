@@ -1,15 +1,12 @@
-import type { SliderKey } from "@/lib/interfaces/calibration";
-import {
-  CHANNEL_OFFSET,
-  type BinRoute,
-  type ChannelLayout,
-  type FeederCalibration,
-  type ModuleConfig,
-  type ServoCalibration,
-} from "@magic-vault/shared";
+import type {
+  SliderKey,
+  CalibrationDebugParams,
+  ServoName,
+} from "@/lib/interfaces/calibration";
+import { CHANNEL_OFFSET, type ServoCalibration } from "@magic-vault/shared";
 
 export function getCalibrationKey(
-  servo: "bottom" | "paddle" | "pusher",
+  servo: ServoName,
   position: string,
 ): keyof ServoCalibration | null {
   if (servo === "bottom")
@@ -32,16 +29,6 @@ export function defaultSliderValues(modules: number[]): Record<SliderKey, number
     vals[`${m}:pusher`] = 307;
   }
   return vals;
-}
-
-export interface CalibrationDebugParams {
-  channelLayout: ChannelLayout;
-  moduleCount: number;
-  configs: ModuleConfig[];
-  feederConfig: FeederCalibration;
-  binRoutes: BinRoute[];
-  firmwareVersion: string | null;
-  board: string | null;
 }
 
 // Plain-text dump of every calibration value, meant to be pasted into a
@@ -80,6 +67,7 @@ export function buildCalibrationDebugText({
       `  bottom: closed=${c.calibration.bottomClosed} open=${c.calibration.bottomOpen}`,
       `  paddle: closed=${c.calibration.paddleClosed} open=${c.calibration.paddleOpen}`,
       `  pusher: left=${c.calibration.pusherLeft} neutral=${c.calibration.pusherNeutral} right=${c.calibration.pusherRight}`,
+      `  paddleOpenDelay: ${c.calibration.paddleOpenDelay}ms`,
       `  pusherHoldDuration: ${c.calibration.pusherHoldDuration}ms`,
       `  paddleCloseDelay: ${c.calibration.paddleCloseDelay}ms`,
     );

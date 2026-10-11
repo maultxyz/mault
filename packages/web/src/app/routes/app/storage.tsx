@@ -1,21 +1,38 @@
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { HotkeyHint } from "@/components/hotkey-hint";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
+import { storageLocationCardsQueryOptions } from "@/features/storage/api/storage-locations";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
-import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
+import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
+import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
 import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
+import { StorageLocationList } from "@/features/storage/components/storage-location-list";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
+import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { usePriceSource } from "@/hooks/use-price-source";
+import {
+  STORAGE_CARD_SEARCH_PARAM,
+  STORAGE_LOCATION_SEARCH_PARAM,
+  STORAGE_REVIEW_SEARCH_PARAM,
+} from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import { cn } from "@/lib/utils";
-import { IconBox, IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
-import { useState } from "react";
+import {
+  IconBox,
+  IconEdit,
+  IconListCheck,
+  IconPlus,
+  IconTrash,
+} from "@tabler/icons-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
@@ -36,111 +53,185 @@ export default function StoragePage() {
   );
   const isSearching = searchQuery.trim().length > 0;
 
-  const selectedGuid = searchParams.get("location") ?? locations[0]?.guid;
+  const queryClient = useQueryClient();
+  const selectedGuid =
+    searchParams.get(STORAGE_LOCATION_SEARCH_PARAM) ?? locations[0]?.guid;
   const selected = locations.find((l) => l.guid === selectedGuid);
+  const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
+  const isReviewing = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM) === "1";
+  const isCardOpen = !!selected && !isSearching && !!openScanId;
 
-  const select = (guid: string) =>
-    setSearchParams({ location: guid }, { replace: true });
+  const select = useCallback(
+    (guid: string) =>
+      setSearchParams(
+        { [STORAGE_LOCATION_SEARCH_PARAM]: guid },
+        { replace: true },
+      ),
+    [setSearchParams],
+  );
+
+  const openCard = (guid: string, scanId: string, review = isReviewing) =>
+    setSearchParams(
+      {
+        [STORAGE_LOCATION_SEARCH_PARAM]: guid,
+        [STORAGE_CARD_SEARCH_PARAM]: scanId,
+        ...(review ? { [STORAGE_REVIEW_SEARCH_PARAM]: "1" } : {}),
+      },
+      { replace: true },
+    );
+
+  const closeCard = useCallback(() => {
+    if (selected) select(selected.guid);
+  }, [selected, select]);
+
+  const startReview = async () => {
+    if (!selected) return;
+    const cards = await queryClient
+      .fetchQuery(storageLocationCardsQueryOptions(selected.guid))
+      .catch(() => []);
+    if (cards[0]) openCard(selected.guid, cards[0].scanId, true);
+  };
+
+  const canStartReview =
+    !!selected && !isSearching && !isCardOpen && selected.cardCount > 0;
+
+  useHotkeys({
+    reviewStart: canStartReview ? () => void startReview() : undefined,
+  });
 
   const openLocation = (guid: string) => {
     setSearchQuery("");
     select(guid);
   };
 
+  const openStoredCard = (guid: string, scanId: string) => {
+    setSearchQuery("");
+    openCard(guid, scanId, false);
+  };
+
   return (
-    <div className="flex flex-1 min-h-0 flex-col">
-      <div className="mx-auto flex w-full max-w-5xl flex-1 min-h-0 flex-col gap-4 p-4 md:p-6">
-        <div className="flex shrink-0 items-center justify-between gap-4">
-          <div>
-            <h1 className="font-heading text-lg font-semibold">
-              {t("page.title")}
-            </h1>
-            <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
-          </div>
+    <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
+      <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
+        <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
           {!isLocked && (
-            <Button onClick={() => setCreateOpen(true)} disabled={isMutating}>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => setCreateOpen(true)}
+              disabled={isMutating}
+            >
               <IconPlus />
               {t("page.newLocation")}
             </Button>
           )}
-        </div>
-
-        {isLocked && (
-          <Callout variant="info" className="shrink-0">
-            {t(
-              locations.length > 0
-                ? "upgrade.lockedWithLocations"
-                : "upgrade.locked",
-            )}{" "}
-            <StorageUpgradeNote />
-          </Callout>
-        )}
-
-        {!isLoading && locations.length > 0 && (
-          <Input
-            type="search"
-            className="shrink-0"
-            placeholder={t("search.placeholder")}
-            aria-label={t("search.placeholder")}
-            data-hotkey-search
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+          {!isLoading && locations.length > 0 && (
+            <Input
+              type="search"
+              placeholder={t("search.placeholder")}
+              aria-label={t("search.placeholder")}
+              data-hotkey-search
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-none"
+            />
+          )}
+          <StorageLocationList
+            locations={locations}
+            selectedGuid={isSearching ? undefined : selected?.guid}
+            isLoading={isLoading}
+            onSelect={openLocation}
           />
-        )}
+        </section>
 
-        {isLoading ? (
-          <ListSkeleton />
-        ) : locations.length === 0 ? (
-          <EmptyState
-            icon={IconBox}
-            title={t("page.emptyTitle")}
-            description={t("page.emptyDescription")}
-          />
-        ) : isSearching ? (
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            {debouncedQuery ? (
-              <StorageSearchResults
-                query={debouncedQuery}
-                onOpenLocation={openLocation}
-              />
-            ) : (
-              <ListSkeleton />
-            )}
-          </div>
+        {isCardOpen && selected && openScanId ? (
+          <section className="col-span-8 flex min-h-0 flex-col overflow-hidden lg:col-span-9">
+            <StorageCardDetail
+              location={selected}
+              scanId={openScanId}
+              reviewMode={isReviewing}
+              onNavigate={(scanId) => openCard(selected.guid, scanId)}
+              onClose={closeCard}
+            />
+          </section>
         ) : (
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto md:grid md:grid-cols-[16rem_minmax(0,1fr)] md:grid-rows-[minmax(0,1fr)] md:overflow-hidden">
-            <ul className="shrink-0 divide-y self-start rounded-lg border md:max-h-full md:overflow-y-auto">
-              {locations.map((location) => (
-                <li key={location.guid}>
-                  <button
-                    type="button"
-                    onClick={() => select(location.guid)}
-                    className={cn(
-                      "flex w-full items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
-                      location.guid === selected?.guid && "bg-muted",
-                    )}
-                  >
-                    <span className="truncate font-medium">
-                      {location.name}
-                    </span>
-                    <span className="flex shrink-0 flex-col items-end text-xs tabular-nums text-foreground/70">
-                      <span>
-                        {t("page.cardCount", { count: location.cardCount })}
-                      </span>
-                      <span>{format(location.totalValue)}</span>
-                    </span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+          <section className="relative col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 pt-14 lg:col-span-9">
+            {selected && !isSearching && (
+              <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+                {selected.cardCount > 0 && (
+                  <>
+                    <Button
+                      variant="outline"
+                      title={t("review.startTitle")}
+                      onClick={() => void startReview()}
+                    >
+                      <IconListCheck />
+                      {t("review.start")}
+                      <HotkeyHint id="reviewStart" />
+                    </Button>
+                    <StorageExportMenu location={selected} />
+                  </>
+                )}
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("page.rename")}
+                  title={t("page.rename")}
+                  disabled={isMutating}
+                  onClick={() => setRenameOpen(true)}
+                >
+                  <IconEdit />
+                </Button>
+                <Button
+                  variant="outline-destructive"
+                  size="icon"
+                  aria-label={t("page.delete")}
+                  title={t("page.delete")}
+                  disabled={isMutating}
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <IconTrash />
+                </Button>
+              </div>
+            )}
 
-            {selected && (
-              <section className="flex min-w-0 flex-col gap-3 md:h-full md:overflow-y-auto">
-                <div className="sticky top-0 z-10 flex items-center justify-between gap-2 bg-background pb-1">
+            {isLocked && (
+              <Callout variant="info" className="shrink-0">
+                {t(
+                  locations.length > 0
+                    ? "upgrade.lockedWithLocations"
+                    : "upgrade.locked",
+                )}{" "}
+                <StorageUpgradeNote />
+              </Callout>
+            )}
+
+            {isLoading ? (
+              <ListSkeleton />
+            ) : locations.length === 0 ? (
+              <EmptyState
+                icon={IconBox}
+                title={t("page.emptyTitle")}
+                description={t("page.emptyDescription")}
+              />
+            ) : isSearching ? (
+              debouncedQuery ? (
+                <StorageSearchResults
+                  query={debouncedQuery}
+                  onOpenLocation={openLocation}
+                  onOpenCard={(entry) =>
+                    openStoredCard(entry.locationGuid, entry.scanId)
+                  }
+                />
+              ) : (
+                <ListSkeleton />
+              )
+            ) : (
+              selected && (
+                <>
                   <div className="min-w-0">
-                    <h2 className="truncate font-heading text-base font-semibold">
+                    <h1 className="truncate font-heading text-lg font-semibold">
                       {selected.name}
-                    </h2>
+                    </h1>
                     <p className="text-xs tabular-nums text-foreground/70">
                       {t("page.summary", {
                         count: selected.cardCount,
@@ -148,33 +239,16 @@ export default function StoragePage() {
                       })}
                     </p>
                   </div>
-                  <div className="flex shrink-0 gap-1">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      aria-label={t("page.rename")}
-                      title={t("page.rename")}
-                      disabled={isMutating}
-                      onClick={() => setRenameOpen(true)}
-                    >
-                      <IconEdit />
-                    </Button>
-                    <Button
-                      variant="outline-destructive"
-                      size="icon"
-                      aria-label={t("page.delete")}
-                      title={t("page.delete")}
-                      disabled={isMutating}
-                      onClick={() => setDeleteOpen(true)}
-                    >
-                      <IconTrash />
-                    </Button>
-                  </div>
-                </div>
-                <StorageLocationCards location={selected} />
-              </section>
+                  <StorageLocationCards
+                    location={selected}
+                    onOpenCard={(entry) =>
+                      openStoredCard(entry.locationGuid, entry.scanId)
+                    }
+                  />
+                </>
+              )
             )}
-          </div>
+          </section>
         )}
       </div>
 

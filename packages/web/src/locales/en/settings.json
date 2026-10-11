@@ -1,12 +1,13 @@
 {
   "title": "Settings",
-  "subtitle": "Organization, billing, scanning, sounds and integrations",
+  "subtitle": "Organization, billing, scanning, sounds, notifications and integrations",
   "sections": {
     "general": "General",
     "organization": "Organization",
     "billing": "Billing",
     "scanning": "Scanning",
     "sounds": "Sounds",
+    "notifications": "Notifications",
     "integrations": "Integrations"
   },
   "organizations": {
@@ -35,10 +36,11 @@
   },
   "pricing": {
     "heading": "Pricing",
-    "description": "Choose which marketplace prices your organization's cards, collection values and Discord posts use.",
+    "description": "Choose which marketplace prices your organization's cards, collection values and Discord posts use. Card Kingdom only prices Magic: The Gathering cards.",
     "sources": {
       "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket"
+      "cardmarket": "Cardmarket",
+      "cardkingdom": "Card Kingdom"
     }
   },
   "sessionWrapped": {
@@ -58,10 +60,17 @@
   },
   "correctionAutoClose": {
     "heading": "Card correction prompt",
+    "promptToggleLabel": "Ask me to move corrected cards",
+    "promptToggleDescription": "Turn this off if you leave corrected cards where they were sorted. The card keeps its current bin and no prompt is shown.",
     "description": "After you correct or identify a card, a prompt shows which bin it's in and which bin it belongs in. Auto-close accepts that you moved the card once the time runs out, so you don't have to click.",
     "toggleLabel": "Auto-close and mark the card as moved",
     "secondsLabel": "Close after",
     "seconds_one": "{{count}} second",
     "seconds_other": "{{count}} seconds"
+  },
+  "deployPause": {
+    "heading": "Updates",
+    "description": "When Mault is being updated, any sorter that's scanning is paused and a prompt explains why, so no cards are lost if a save fails mid-update. You can resume straight away from the prompt.",
+    "toggleLabel": "Pause scanning during updates"
   }
 }

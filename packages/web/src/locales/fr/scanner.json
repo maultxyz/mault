@@ -224,6 +224,7 @@
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
     "setTooltip": "Extension des cartes scannées : {{set}}",
     "anySet": "N'importe quelle extension",
@@ -274,6 +275,8 @@
     "tryAgain": "Réessayer",
     "ready": "Caméra prête",
     "streamingTo": "Prêt pour {{name}}",
+    "switchCamera": "Changer de caméra",
+    "cameraFallbackLabel": "Caméra {{number}}",
     "disconnected": "Déconnecté de la trieuse.",
     "sessionEndedTitle": "Session terminée",
     "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter."
@@ -337,6 +340,7 @@
     "ocrHeading": "Texte sur la carte",
     "ocrName": "Nom lu : {{text}}",
     "ocrSetLine": "Ligne d'extension lue : {{text}}",
+    "ocrNumber": "Numéro lu : {{text}}",
     "ocrEmpty": "rien",
     "ocrMatchedName": "Nom de carte le plus proche : {{name}} (similarité {{score}}), mais aucune impression n'était assez proche.",
     "ocrNoName": "Aucun nom de carte n'était assez proche du texte lu.",
@@ -354,6 +358,11 @@
     "full": "Plein",
     "nearlyFull": "Presque plein",
     "emptyAction": "Vider le bac {{bin}}",
+    "emptyAll": "Tout vider",
+    "emptyAllTitle": "Vider tous les bacs ?",
+    "emptyAllDescription_one": "Marquer tous les bacs comme vidés. La {{count}} carte dans les bacs reste dans la collection, mais ne compte plus dans le remplissage des bacs.",
+    "emptyAllDescription_other": "Marquer tous les bacs comme vidés. Les {{count}} cartes dans les bacs restent dans la collection, mais ne comptent plus dans le remplissage des bacs.",
+    "emptyAllConfirm": "Vider tous les bacs",
     "summaryFullest_one": "{{count}} carte · bac {{bin}} le plus plein à {{percent}} %",
     "summaryFullest_other": "{{count}} cartes · bac {{bin}} le plus plein à {{percent}} %",
     "summaryTotal_one": "{{count}} carte dans les bacs",
@@ -394,6 +403,9 @@
     "noSessionsHint": "Les sessions actives apparaîtront ici",
     "liveNow": "En direct",
     "allCollections": "Toutes les collections"
+  },
+  "repackCompleteDialog": {
+    "description": "Tous les paquets sont complets, le scan est donc en pause. Sortez le paquet du bac {{bin}} et choisissez où vous le rangez. Chaque carte y est enregistrée dans l'ordre où elle a été scannée."
   },
   "binLimitDialog": {
     "title": "Le bac {{number}} est plein",
@@ -540,6 +552,52 @@
       "countdown_other": "Fermeture dans {{count}} secondes",
       "doneMoved": "Marquée comme déplacée",
       "done": "Terminé"
+    },
+    "keys": {
+      "enter": "Entrée",
+      "escape": "Échap"
+    }
+  },
+  "deployPause": {
+    "title": "Mise à jour en cours",
+    "description_one": "Mault est en cours de mise à jour, le scan a donc été mis en pause pour qu'aucune carte ne soit perdue. Vous pouvez reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour.",
+    "description_other": "Mault est en cours de mise à jour, le scan a donc été mis en pause sur {{count}} trieuses pour qu'aucune carte ne soit perdue. Vous pouvez reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour.",
+    "stayPaused": "Rester en pause",
+    "resume_one": "Reprendre le scan",
+    "resume_other": "Tout reprendre ({{count}})"
+  },
+  "qrPairing": {
+    "title": "Scanner pour associer",
+    "subtitle": "Utiliser ce téléphone comme caméra du scanner",
+    "invalidTitle": "Ce n'est pas un lien de caméra",
+    "invalidDescription": "Scanne le QR code de {{option}} sur la page du scanner de ton ordinateur.",
+    "cameraErrorTitle": "Impossible d'ouvrir la caméra",
+    "cameraErrorDescription": "Autorise l'accès à la caméra pour ce site dans les réglages du navigateur, puis réessaie.",
+    "retry": "Réessayer"
+  },
+  "home": {
+    "greeting": "Bonjour, {{name}}",
+    "greetingNoName": "Bon retour",
+    "totalValue": "Valeur de la collection",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "scannedToday": "Scannées aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "collections": "Collections",
+    "activityTitle": "Scans, 14 derniers jours",
+    "activityLabel": "Cartes scannées par jour sur les 14 derniers jours",
+    "activityPoint_one": "{{date}} : {{count}} carte",
+    "activityPoint_other": "{{date}} : {{count}} cartes",
+    "today": "Aujourd'hui",
+    "mostValuable": "Les plus chères",
+    "recentlyScanned": "Scannées récemment",
+    "seeAllStats": "Toutes les statistiques"
+  },
+  "resetToNeutral": {
+    "done": "Trieuse remise en position neutre",
+    "failed": {
+      "title": "Impossible de réinitialiser la trieuse",
+      "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
     }
   }
 }

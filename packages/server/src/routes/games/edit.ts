@@ -1,4 +1,4 @@
-import type { FieldMeta } from "@magic-vault/shared";
+import type { FieldMeta, GameInput } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
@@ -6,7 +6,7 @@ import { games } from "../../db/schema";
 import { applyFieldRenames, validFieldRenames } from "../../lib/field-renames";
 import { ensureGameVectorIndex } from "../../lib/game-vector-index";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
-import { type GameInput, keyIsTaken, toGame } from "./shared";
+import { keyIsTaken, toGame } from "./shared";
 
 export const editGameRoute = new Hono<AppEnv>().put(
   "/:guid",
@@ -27,7 +27,8 @@ export const editGameRoute = new Hono<AppEnv>().put(
 
     try {
       const target = await db.query.games.findFirst({
-        where: (t, { eq }) => eq(t.guid, guid),
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.isDeleted, false)),
         columns: { id: true, key: true, fieldDefinitions: true },
       });
       if (!target)

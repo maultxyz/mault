@@ -15,8 +15,15 @@ export const deleteSoundRuleRoute = new Hono<AppEnv>().delete(
     try {
       const rules = await authQuery(c.get("jwtClaims"), async (tx) => {
         const [deleted] = await tx
-          .delete(soundRules)
-          .where(and(eq(soundRules.guid, guid), eq(soundRules.orgId, orgId)))
+          .update(soundRules)
+          .set({ isDeleted: true })
+          .where(
+            and(
+              eq(soundRules.guid, guid),
+              eq(soundRules.orgId, orgId),
+              eq(soundRules.isDeleted, false),
+            ),
+          )
           .returning({ gameId: soundRules.gameId });
         return deleted ? loadSoundRules(tx, orgId, deleted.gameId) : [];
       });

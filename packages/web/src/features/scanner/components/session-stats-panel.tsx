@@ -1,6 +1,6 @@
 import { usePriceSource } from "@/hooks/use-price-source";
-import type { ScanStats } from "@/features/scanner/lib/compute-stats";
 import { useTranslation } from "react-i18next";
+import type { SessionStatsPanelProps } from "@/lib/interfaces/scanner";
 
 function StatCell({
   label,
@@ -19,11 +19,6 @@ function StatCell({
       <p className="text-sm font-semibold">{value}</p>
     </div>
   );
-}
-
-interface SessionStatsPanelProps {
-  stats: ScanStats | null;
-  totalCards: number;
 }
 
 export function SessionStatsPanel({

@@ -1,0 +1,102 @@
+{
+  "title": "Statistiques",
+  "subtitle": "Graphiques et chiffres de vos collections",
+  "error": "Impossible de charger les statistiques. Réessayez dans un instant.",
+  "empty": {
+    "title": "Aucune carte pour l'instant",
+    "description": "Les statistiques apparaîtront ici dès que vous aurez scanné des cartes."
+  },
+  "controls": {
+    "collection": "Collection",
+    "allCollections": "Toutes les collections",
+    "range": "Période",
+    "ranges": {
+      "7d": "7 j",
+      "30d": "30 j",
+      "90d": "90 j",
+      "1y": "1 an"
+    }
+  },
+  "tiles": {
+    "totalValue": "Valeur totale",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "cards": "Cartes",
+    "uniqueHint": "{{count}} différentes",
+    "avgValue": "Carte moyenne",
+    "pricedHint": "{{count}} avec un prix",
+    "scanned": {
+      "7d": "Scannées, 7 derniers jours",
+      "30d": "Scannées, 30 derniers jours",
+      "90d": "Scannées, 90 derniers jours",
+      "1y": "Scannées, dernière année"
+    },
+    "valueAddedHint": "{{value}} ajoutés",
+    "foils": "Foils",
+    "shareHint": "{{percent}} % des cartes",
+    "needsReview": "À vérifier",
+    "correctedHint": "{{count}} vérifiées"
+  },
+  "activity": {
+    "title": "Activité de scan",
+    "description": {
+      "day": "Cartes scannées par jour",
+      "week": "Cartes scannées par semaine"
+    },
+    "metrics": {
+      "count": "Cartes",
+      "value": "Valeur ajoutée"
+    },
+    "weekOf": "Semaine du {{date}}",
+    "thisWeek": "Cette semaine",
+    "today": "Aujourd'hui"
+  },
+  "compare": {
+    "title": "Comparer les collections",
+    "description": "Comment vos collections se comparent. Choisissez-en une pour voir ses propres statistiques.",
+    "metrics": {
+      "totalValue": "Valeur",
+      "cardCount": "Cartes",
+      "scansInRange": "Scannées"
+    },
+    "share": "{{percent}} %",
+    "never": "Jamais",
+    "columns": {
+      "name": "Collection",
+      "cardCount": "Cartes",
+      "uniqueCount": "Différentes",
+      "totalValue": "Valeur",
+      "avgValue": "Carte moy.",
+      "scansInRange": "Scannées",
+      "lastScanAt": "Dernier scan"
+    }
+  },
+  "prices": {
+    "title": "Répartition des prix",
+    "description": "Cartes avec un prix, regroupées par valeur",
+    "atLeast": "{{min}} et plus",
+    "under": "Moins de {{max}}",
+    "between": "De {{min}} à {{max}}"
+  },
+  "games": {
+    "title": "Par jeu",
+    "none": "Aucun jeu"
+  },
+  "sets": {
+    "title": "Extensions les plus précieuses"
+  },
+  "rarities": {
+    "title": "Rareté"
+  },
+  "colors": {
+    "title": "Couleurs"
+  },
+  "foils": {
+    "title": "Types de foil"
+  },
+  "topCards": {
+    "title": "Cartes les plus précieuses"
+  },
+  "cardCount_one": "{{count}} carte",
+  "cardCount_other": "{{count}} cartes"
+}

@@ -1,6 +1,8 @@
 import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
+  LOW_MATCH_PERCENT_MAX,
+  OVERRIDE_PRIORITY_MAX,
   SET_NAME_MAX_LENGTH,
   type BinRuleGroup,
 } from "@magic-vault/shared";
@@ -62,6 +64,12 @@ export const binRuleGroupSchema: z.ZodType<BinRuleGroup, BinRuleGroup> =
 export const binConfigSchema = z.object({
   isCatchAll: z.boolean(),
   isOverride: z.boolean(),
+  overridePriority: z
+    .number()
+    .int("Must be a whole number")
+    .min(1, "Must be at least 1")
+    .max(OVERRIDE_PRIORITY_MAX, `Must be at most ${OVERRIDE_PRIORITY_MAX}`)
+    .nullable(),
   isDisabled: z.boolean(),
   rules: binRuleGroupSchema,
   maxCopies: z
@@ -70,10 +78,11 @@ export const binConfigSchema = z.object({
     .min(1, "Must allow at least 1 copy")
     .max(CONDITION_NUMERIC_MAX)
     .nullable(),
+  maxCopiesBy: z.string(),
   lowMatchPercent: z
     .number()
     .min(1, "Must be at least 1%")
-    .max(100, "Must be at most 100%")
+    .max(LOW_MATCH_PERCENT_MAX, `Must be at most ${LOW_MATCH_PERCENT_MAX}%`)
     .nullable(),
 });
 
@@ -92,7 +101,7 @@ export const repackSlotSchema = z.object({
 export type RepackSlotFormValues = z.infer<typeof repackSlotSchema>;
 
 export const repackConfigSchema = z.object({
-  repackAllowDuplicates: z.boolean(),
+  repackUniqueBy: z.string().min(1),
   repackSiftRules: binRuleGroupSchema.nullable(),
   repackSlots: z.array(repackSlotSchema),
 });

@@ -7,55 +7,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BinSizeSelect } from "@/features/calibration/components/bin-size-select";
 import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { BIN_SLOTS_PHYSICAL_ORDER } from "@/lib/constants/calibration";
-import { cn } from "@/lib/utils";
-import {
-  BIN_HEIGHT_PRESETS,
-  computeBinCount,
-  type BinDirection,
-} from "@magic-vault/shared";
+import { computeBinCount, type BinDirection } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
-
-function SizeSelect({
-  binNumber,
-  height,
-  onChange,
-  className,
-}: {
-  binNumber: number;
-  height: number | undefined;
-  onChange: (binNumber: number, height: number) => void;
-  className?: string;
-}) {
-  const { t } = useTranslation("calibration");
-  const sizeKey =
-    BIN_HEIGHT_PRESETS.find((preset) => preset.height === height)?.key ??
-    BIN_HEIGHT_PRESETS[0].key;
-
-  return (
-    <Select
-      value={sizeKey}
-      onValueChange={(key) => {
-        const preset = BIN_HEIGHT_PRESETS.find((p) => p.key === key)!;
-        onChange(binNumber, preset.height);
-      }}
-    >
-      <SelectTrigger className={cn("h-8 w-full text-xs", className)}>
-        <SelectValue>{t(`binConfigurations.presets.${sizeKey}`)}</SelectValue>
-      </SelectTrigger>
-      <SelectContent>
-        {BIN_HEIGHT_PRESETS.map((preset) => (
-          <SelectItem key={preset.key} value={preset.key}>
-            {t(`binConfigurations.presets.${preset.key}`)}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
-  );
-}
 
 function BinSlot({
   label,
@@ -96,7 +54,7 @@ function BinSlot({
         </SelectContent>
       </Select>
       {binNumber != null && (
-        <SizeSelect
+        <BinSizeSelect
           binNumber={binNumber}
           height={height}
           onChange={onHeightChange}
@@ -194,7 +152,7 @@ export function BinConfigurations() {
             {t("binConfigurations.bottomSectionLabel")}
           </span>
           {bottomRoutes.map((route) => (
-            <div key={route.binNumber} className="flex items-center gap-2">
+            <div key={route.binNumber} className="flex items-start gap-2">
               <Select
                 value={String(route.module)}
                 onValueChange={(value) =>
@@ -241,7 +199,7 @@ export function BinConfigurations() {
                   ))}
                 </SelectContent>
               </Select>
-              <SizeSelect
+              <BinSizeSelect
                 binNumber={route.binNumber}
                 height={heightFor(route.binNumber)}
                 onChange={setHeight}

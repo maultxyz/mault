@@ -4,6 +4,7 @@ import type {
   Result,
   StorageLocation,
   StorageLocationCard,
+  StorageLocationExportCard,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
@@ -14,6 +15,8 @@ export const storageLocationKeys = {
     [...storageLocationKeys.root(), orgId] as const,
   cards: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "cards", guid] as const,
+  export: (guid: string | undefined) =>
+    [...storageLocationKeys.root(), "export", guid] as const,
   card: (scanId: string | undefined) =>
     [...storageLocationKeys.root(), "card", scanId] as const,
   search: (query: string) =>
@@ -49,6 +52,19 @@ export const storageLocationCardsQueryOptions = (guid: string | undefined) =>
         `/api/storage-locations/${guid}/cards`,
       ).then((r) => r.data ?? []),
     enabled: !!guid,
+  });
+
+export const storageLocationExportQueryOptions = (
+  guid: string | undefined,
+  enabled: boolean,
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.export(guid),
+    queryFn: () =>
+      apiGet<Result<StorageLocationExportCard[]>>(
+        `/api/storage-locations/${guid}/cards/export`,
+      ).then((r) => r.data ?? []),
+    enabled: !!guid && enabled,
   });
 
 export const cardStorageLocationQueryOptions = (

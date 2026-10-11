@@ -1,8 +1,5 @@
+import type { OnboardingContextValue } from "@/lib/interfaces/tours";
 import { createContext, useContext } from "react";
-
-export interface OnboardingContextValue {
-  startTour: () => void;
-}
 
 export const OnboardingContext = createContext<OnboardingContextValue | null>(
   null,

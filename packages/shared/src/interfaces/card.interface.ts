@@ -1,3 +1,5 @@
+export type SourceCard = object;
+
 export interface PlayingCardImage {
   small: string;
   normal: string;
@@ -7,14 +9,24 @@ export interface PlayingCardPriceRange {
   low: number | null;
   mid: number | null;
   high: number | null;
+  market: number | null;
   printings?: number;
 }
 
 export interface PlayingCardCardmarketPrice {
   low: number | null;
   trend: number | null;
+  avg: number | null;
+  avg7: number | null;
   avg30: number | null;
   printings?: number;
+}
+
+export interface PlayingCardCardKingdomPrice {
+  retail: number | null;
+  buylist: number | null;
+  inStock: number | null;
+  url: string | null;
 }
 
 export interface PlayingCard {
@@ -40,6 +52,10 @@ export interface PlayingCard {
   priceEurFoil?: number | null;
   cardmarketPrice?: PlayingCardCardmarketPrice;
   cardmarketPriceFoil?: PlayingCardCardmarketPrice;
+  priceCardKingdom?: number | null;
+  priceCardKingdomFoil?: number | null;
+  cardKingdomPrice?: PlayingCardCardKingdomPrice;
+  cardKingdomPriceFoil?: PlayingCardCardKingdomPrice;
   sourceUrl?: string;
   tcgplayerId?: string;
   cmc?: number;

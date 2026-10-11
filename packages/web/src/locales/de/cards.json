@@ -10,7 +10,7 @@
     "foilPrice": "Foil: {{price}}",
     "artBy": "Illustration von {{artist}}",
     "viewSource": "Quelle ansehen",
-    "searchPlaceholder": "Nach Kartenname suchen...",
+    "searchPlaceholder": "Nach Name, Nummer oder Set suchen (z. B. MH3 123)...",
     "allSets": "Alle Editionen",
     "allSetsCount": "Alle Editionen ({{count}})",
     "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
@@ -19,9 +19,21 @@
   "priceTable": {
     "heading": "TCGplayer",
     "cardmarketHeading": "Cardmarket",
-    "from": "Ab",
+    "cardKingdomHeading": "Card Kingdom",
+    "showDetails": "Preisdetails anzeigen",
+    "hideDetails": "Preisdetails ausblenden",
+    "cardKingdomRetail": "Card Kingdom Verkaufspreis",
+    "retail": "Verkauf",
+    "buylist": "Ankauf",
+    "avg": "Durchschnitt",
     "trend": "Preistrend",
+    "avg7": "7-Tage-Schnitt",
+    "tcgplayerMarket": "TCGplayer Marktpreis",
+    "cardmarketAvg": "Cardmarket Durchschnitt",
+    "foilPrice": "Foil {{price}}",
+    "nonFoilPrice": "Nicht-Foil {{price}}",
     "avg30": "30-Tage-Schnitt",
+    "market": "Markt",
     "low": "Niedrig",
     "mid": "Mittel",
     "high": "Hoch",
@@ -54,6 +66,13 @@
     "artist": "Künstler",
     "binLocation": "Fachposition",
     "showOcrRegions": "OCR-Bereiche anzeigen",
+    "noOcrRegions": "Für dieses Spiel gibt es keine OCR-Bereiche.",
+    "ocrFallback": "{{field}} (Ausweichbereich)",
+    "ocrFields": {
+      "name": "Name",
+      "setLine": "Setzeile",
+      "number": "Nummer"
+    },
     "copyOf": "Exemplar {{index}} von {{count}}"
   },
   "cardFilterPopover": {
@@ -82,10 +101,14 @@
     "cardsSelected_other": "{{count}} Karten ausgewählt",
     "clear": "Leeren",
     "delete": "Löschen",
+    "export": "Exportieren",
+    "exportSelectedFailed": "Die ausgewählten Karten konnten nicht exportiert werden",
     "deleteCardsTitle_one": "{{count}} Karte löschen?",
     "deleteCardsTitle_other": "{{count}} Karten löschen?",
     "deleteCardsDescription_one": "Dadurch wird die ausgewählte Karte dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
-    "deleteCardsDescription_other": "Dadurch werden die ausgewählten Karten dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden."
+    "deleteCardsDescription_other": "Dadurch werden die ausgewählten Karten dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+    "downloadedHidden_one": "1 heruntergeladene Karte wird vom Download-Filter ausgeblendet.",
+    "downloadedHidden_other": "{{count}} heruntergeladene Karten werden vom Download-Filter ausgeblendet."
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
@@ -118,7 +141,8 @@
       "compact": "kompakt",
       "comfortable": "normal",
       "large": "groß"
-    }
+    },
+    "reviewCards": "Karten einzeln prüfen (R)"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
@@ -243,7 +267,11 @@
     "ocr": "OCR",
     "ocrName": "Gelesener Name",
     "ocrSetLine": "Gelesene Set-Zeile",
+    "ocrNumber": "Gelesene Nummer",
     "ocrMatchedName": "Ähnlichster Kartenname",
+    "ocrUsedFallback": "Ausweichbereiche genutzt",
+    "ocrUsedFallbackYes": "Ja",
+    "ocrUsedFallbackNo": "Nein",
     "ocrNotRun": "OCR lief für diesen Scan nicht.",
     "cardJson": "Kartendaten (JSON)",
     "copyJson": "JSON kopieren",
@@ -264,5 +292,23 @@
     "copyFailed": "Der Name konnte nicht kopiert werden.",
     "remove_one": "Karte entfernen",
     "remove_other": "{{count}} Karten entfernen"
+  },
+  "review": {
+    "badge": "Prüfung",
+    "acceptNext": "Stimmt, weiter",
+    "acceptFinish": "Stimmt, beenden",
+    "correctNext": "korrigieren und weiter",
+    "correctFinish": "korrigieren und beenden",
+    "correctStay": "korrigieren und bei dieser Karte bleiben",
+    "keys": {
+      "enter": "Enter",
+      "shiftEnter": "Umschalt Enter"
+    },
+    "complete_one": "Prüfung abgeschlossen: {{count}} Karte geprüft",
+    "complete_other": "Prüfung abgeschlossen: {{count}} Karten geprüft"
+  },
+  "removeDialog": {
+    "title": "{{name}} entfernen?",
+    "description": "Der Scan wird samt Foto aus der Sammlung gelöscht. Das kann nicht rückgängig gemacht werden."
   }
 }

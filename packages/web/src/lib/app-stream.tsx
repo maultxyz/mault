@@ -4,8 +4,16 @@ import { collectionsQueryOptions } from "@/features/collections/api/collections"
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
 import { DEFAULT_SYNC_STATE } from "@/lib/constants/admin";
-import type { ScanLockInfo, SessionViewer } from "@/lib/interfaces/collections";
-import type { SyncState } from "@magic-vault/shared";
+import type {
+  ScanLockInfo,
+  SessionViewer,
+  AppStreamContextValue,
+} from "@/lib/interfaces/collections";
+import {
+  DEPLOY_STATUS_EVENT,
+  type DeployNotice,
+  type SyncState,
+} from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -16,20 +24,8 @@ import {
   useRef,
   useState,
 } from "react";
+import { APP_STREAM_GUID_DEBOUNCE_MS } from "@/lib/constants/timing";
 
-export type { ScanLockInfo, SessionViewer };
-
-const GUID_DEBOUNCE_MS = 50;
-
-interface AppStreamContextValue {
-  eventSource: EventSource | null;
-  locks: Record<string, ScanLockInfo>;
-  currentUserId: string | undefined;
-  liveCounts: Record<string, number>;
-  viewersByGuid: Record<string, SessionViewer[]>;
-  syncState: SyncState;
-  watchCollection: (guid: string) => () => void;
-}
 
 const AppStreamContext = createContext<AppStreamContextValue>({
   eventSource: null,
@@ -38,6 +34,7 @@ const AppStreamContext = createContext<AppStreamContextValue>({
   liveCounts: {},
   viewersByGuid: {},
   syncState: DEFAULT_SYNC_STATE,
+  deployNotice: null,
   watchCollection: () => () => {},
 });
 
@@ -56,6 +53,9 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     Record<string, SessionViewer[]>
   >({});
   const [syncState, setSyncState] = useState<SyncState>(DEFAULT_SYNC_STATE);
+  const [deployNotice, setDeployNotice] = useState<DeployNotice | null>(
+    null,
+  );
 
   const refCounts = useRef(new Map<string, number>());
   const [guidsKey, setGuidsKey] = useState("");
@@ -65,7 +65,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setGuidsKey(Array.from(refCounts.current.keys()).sort().join(","));
-    }, GUID_DEBOUNCE_MS);
+    }, APP_STREAM_GUID_DEBOUNCE_MS);
   }, []);
 
   const watchCollection = useCallback(
@@ -193,6 +193,12 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           }));
         });
 
+        es.addEventListener(DEPLOY_STATUS_EVENT, (e) => {
+          setDeployNotice(
+            JSON.parse((e as MessageEvent).data) as DeployNotice | null,
+          );
+        });
+
         es.addEventListener("sync_error", (e) => {
           const { message } = JSON.parse((e as MessageEvent).data) as {
             message: string;
@@ -225,6 +231,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
       liveCounts,
       viewersByGuid,
       syncState,
+      deployNotice,
       watchCollection,
     }),
     [
@@ -234,6 +241,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
       liveCounts,
       viewersByGuid,
       syncState,
+      deployNotice,
       watchCollection,
     ],
   );
@@ -263,6 +271,10 @@ export function useSessionViewersByGuid(): Record<string, SessionViewer[]> {
 
 export function useSyncState(): SyncState {
   return useContext(AppStreamContext).syncState;
+}
+
+export function useDeployNotice(): DeployNotice | null {
+  return useContext(AppStreamContext).deployNotice;
 }
 
 export function useCollectionStream(

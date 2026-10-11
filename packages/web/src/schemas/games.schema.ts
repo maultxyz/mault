@@ -4,10 +4,10 @@ import { z } from "zod";
 
 export function createGameFormSchema(t: TFunction<"games">) {
   const fieldMetaFormSchema = z.object({
-    field: z.string().min(1, t("gameFormDialog.validation.required")),
-    label: z.string().min(1, t("gameFormDialog.validation.required")),
+    field: z.string().min(1, t("gameForm.validation.required")),
+    label: z.string().min(1, t("gameForm.validation.required")),
     type: z.enum(["string", "numeric", "enum", "set"]),
-    path: z.string().min(1, t("gameFormDialog.validation.required")),
+    path: z.string().min(1, t("gameForm.validation.required")),
     optionsText: z.string().optional(),
     originalField: z.string().optional(),
   });
@@ -15,13 +15,13 @@ export function createGameFormSchema(t: TFunction<"games">) {
   return z.object({
     key: z
       .string()
-      .min(1, t("gameFormDialog.validation.required"))
-      .regex(GAME_KEY_PATTERN, t("gameFormDialog.validation.keyFormat")),
-    name: z.string().min(1, t("gameFormDialog.validation.required")),
+      .min(1, t("gameForm.validation.required"))
+      .regex(GAME_KEY_PATTERN, t("gameForm.validation.keyFormat")),
+    name: z.string().min(1, t("gameForm.validation.required")),
     apiDocsUrl: z
       .string()
       .trim()
-      .url(t("gameFormDialog.validation.urlFormat"))
+      .url(t("gameForm.validation.urlFormat"))
       .optional()
       .or(z.literal("")),
     foilTypesText: z.string().optional(),
@@ -29,7 +29,7 @@ export function createGameFormSchema(t: TFunction<"games">) {
     isActive: z.boolean(),
     fieldDefinitions: z
       .array(fieldMetaFormSchema)
-      .min(1, t("gameFormDialog.validation.minFields")),
+      .min(1, t("gameForm.validation.minFields")),
   });
 }
 

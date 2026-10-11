@@ -40,13 +40,13 @@ GRANT USAGE ON SCHEMA public TO authenticated;
 
 DO $$
 DECLARE
-  read_only_tables text[] := ARRAY['cards', 'games', 'announcements', 'org_daily_scan_usage', 'org_billing', 'plan_settings'];
+  read_only_tables text[] := ARRAY['cards', 'card_prices', 'games', 'announcements', 'org_daily_scan_usage', 'org_billing', 'plan_settings'];
   read_write_tables text[] := ARRAY[
     'bin_sets', 'bins', 'bin_routes', 'bin_heights', 'module_configs', 'feeder_configs',
     'collections', 'collection_cards', 'unmatched_cards', 'org_settings',
     'bin_set_audit', 'bin_route_audit', 'bin_height_audit', 'module_config_audit', 'feeder_config_audit',
     'devices', 'sound_clips', 'sound_rules', 'notification_rules',
-    'storage_locations'
+    'storage_locations', 'org_api_keys', 'webhook_endpoints'
   ];
   tbl text;
 BEGIN
@@ -73,10 +73,11 @@ BEGIN
 END
 $$;
 
--- platform_user_roles, impersonation_audit, and scan_stats are
--- intentionally not granted here - the app only ever touches them via `db`
--- directly (see auth/local.ts, routes/impersonation.ts,
--- lib/scan-stats.ts), never through an authQuery()/authenticated
+-- platform_user_roles, impersonation_audit, scan_stats and
+-- platform_stats_settings are intentionally not granted here - the app only
+-- ever touches them via `db` directly (see auth/local.ts,
+-- routes/impersonation.ts, lib/scan-stats.ts, lib/platform-stats.ts),
+-- never through an authQuery()/authenticated
 -- session, so authenticated has no need to read or write them.
 
 -- SECURITY DEFINER: evaluated with the privileges of the function's owner

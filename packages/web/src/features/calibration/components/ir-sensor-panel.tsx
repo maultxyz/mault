@@ -7,16 +7,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useTranslation } from "react-i18next";
-
-interface IrSensorPanelProps {
-  modules: number[];
-  irStates: boolean[] | null;
-  hopperHasCards: boolean | null;
-  isReady: boolean;
-  isMonitoring: boolean;
-  onRead: () => void;
-  onToggleMonitor: () => void;
-}
+import type { IrSensorPanelProps } from "@/lib/interfaces/calibration";
 
 export function IrSensorPanel({
   modules,

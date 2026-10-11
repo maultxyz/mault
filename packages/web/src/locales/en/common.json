@@ -3,6 +3,7 @@
     "scanner": "Scanner",
     "collections": "Collections",
     "monitor": "Monitor",
+    "scan": "Scan",
     "storage": "Storage",
     "calibrate": "Calibrate",
     "settings": "Settings",
@@ -18,7 +19,8 @@
     "alerts": "Alerts",
     "sounds": "Sounds",
     "integrations": "Integrations",
-    "more": "More"
+    "more": "More",
+    "stats": "Stats"
   },
   "alerts": {
     "dismiss": "Dismiss",
@@ -159,17 +161,24 @@
     "then": "then",
     "keys": {
       "space": "Space",
-      "shift": "Shift"
+      "shift": "Shift",
+      "left": "←",
+      "right": "→",
+      "escape": "Esc",
+      "enter": "Enter",
+      "delete": "Del"
     },
     "groups": {
       "general": "General",
       "navigation": "Navigation",
-      "scanner": "Scanner"
+      "scanner": "Scanner",
+      "cardDetail": "Card details"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
+      "dismissToasts": "Clear all notifications",
       "goScanner": "Go to scanner",
       "goCollections": "Go to collections",
       "goMonitor": "Go to monitor",
@@ -183,7 +192,15 @@
       "scanToggleAutoFeed": "Toggle auto-feed",
       "scanCycleFoil": "Cycle foil type",
       "scanClearDevice": "Clear device",
-      "scanPickSet": "Choose a set preference"
+      "scanPickSet": "Choose a set preference",
+      "cardPrevious": "Previous card",
+      "cardNext": "Next card",
+      "cardCorrect": "Correct the card (arrows pick a result, Enter selects, Shift Enter stays while reviewing)",
+      "cardToggleFoil": "Toggle foil (first foil type, or back to non-foil)",
+      "cardClose": "Close the card, or cancel correcting",
+      "cardRemove": "Remove the card (from its box when opened from Storage)",
+      "reviewStart": "Start reviewing cards one by one",
+      "reviewAccept": "While reviewing: card looks right, go to next"
     }
   },
   "mobileMenu": {

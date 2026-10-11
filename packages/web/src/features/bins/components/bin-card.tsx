@@ -2,11 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import type { BinCardProps } from "@/lib/interfaces/bins";
-import {
-  BinConfig,
-  getCatchAllMatchThreshold,
-  isRuleGroup,
-} from "@magic-vault/shared";
+import { BinConfig, isRuleGroup } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function countConditions(config: BinConfig): number {
@@ -26,6 +22,7 @@ export function BinCard({
   active,
   isAutoAssign,
   isScanOnly,
+  isScanOnlyTarget,
   isChaosMode,
   alphabetLetter,
   disabled,
@@ -34,7 +31,7 @@ export function BinCard({
   const { t } = useTranslation("bins");
   const isEmpty = config.rules.conditions.length === 0;
   const lowMatchPercent = config.isCatchAll
-    ? getCatchAllMatchThreshold(config.rules)
+    ? (config.lowMatchPercent ?? null)
     : null;
   const conditionCount = countConditions(config);
   const isDisabled = !config.isCatchAll && !!config.isDisabled;
@@ -63,6 +60,16 @@ export function BinCard({
                 {t("binCard.maxCopies", { count: config.maxCopies })}
               </Badge>
             )}
+          {(config.isCatchAll || config.isOverride) &&
+            !isDisabled &&
+            !isChaosMode &&
+            alphabetLetter === undefined &&
+            !isEmpty &&
+            config.overridePriority != null && (
+              <Badge variant="outline">
+                {t("binCard.priority", { priority: config.overridePriority })}
+              </Badge>
+            )}
           {config.isCatchAll ? (
             <Badge variant="default">{t("catchAll")}</Badge>
           ) : isDisabled || isChaosMode ? null : alphabetLetter !== undefined ? (
@@ -81,7 +88,15 @@ export function BinCard({
         </div>
       </div>
       <div className="w-full text-xs">
-        {config.isCatchAll ? (
+        {isScanOnly && (config.isCatchAll || isScanOnlyTarget) ? (
+          <p className="text-xs">
+            {config.isCatchAll
+              ? isScanOnlyTarget
+                ? t("binCard.scanOnlyEverything")
+                : t("binCard.scanOnlyUnidentified")
+              : t("binCard.scanOnlyScanned")}
+          </p>
+        ) : config.isCatchAll ? (
           <>
             <p className="text-xs text-foreground/70">
               {t("binCard.allUnmatched")}
@@ -90,6 +105,12 @@ export function BinCard({
               <p className="text-xs">
                 {t("binCard.lowMatch", { percent: lowMatchPercent })}
               </p>
+            )}
+            {!isEmpty && !isChaosMode && alphabetLetter === undefined && (
+              <>
+                <p className="text-xs">{t("binCard.catchAllOverride")}</p>
+                <RuleSummary rules={config.rules} />
+              </>
             )}
           </>
         ) : isDisabled ? (

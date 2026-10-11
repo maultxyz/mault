@@ -3,16 +3,20 @@ import type {
   BinRuleGroup,
   BinSet,
   DefaultBinInit,
+  EmptyAllBinsInput,
   EmptyBinOptions,
   RepackSlot,
   Result,
+  ScanOnlyConfig,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type { BinSetAuditEntry } from "@/lib/interfaces/audit";
-import type { AlphabetConfig, ChaosConfig } from "@/lib/interfaces/bins";
+import type {
+  AlphabetConfig,
+  BinConfigSaveInput,
+  ChaosConfig,
+} from "@/lib/interfaces/bins";
 import { queryOptions } from "@tanstack/react-query";
-
-export type { BinSetAuditEntry };
 
 export async function loadSets(): Promise<Result<BinSet[]>> {
   return apiGet<Result<BinSet[]>>("/api/bins");
@@ -73,32 +77,14 @@ export async function checkSetName(
 
 export async function saveBinConfig({
   binNumber,
-  rules,
-  isCatchAll,
-  isOverride,
-  cardLimit,
-  maxCopies,
-  isDisabled,
   gameGuid,
-}: {
-  binNumber: number;
-  rules: BinRuleGroup;
-  isCatchAll?: boolean;
-  isOverride?: boolean;
-  cardLimit?: number | null;
-  maxCopies?: number | null;
-  isDisabled?: boolean;
-  gameGuid?: string;
-}): Promise<Result<BinConfig[]>> {
+  ...body
+}: BinConfigSaveInput & { gameGuid?: string }): Promise<Result<BinConfig[]>> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  return apiPut<Result<BinConfig[]>>(`/api/bins/bins/${binNumber}${params}`, {
-    rules,
-    isCatchAll,
-    isOverride,
-    cardLimit,
-    maxCopies,
-    isDisabled,
-  });
+  return apiPut<Result<BinConfig[]>>(
+    `/api/bins/bins/${binNumber}${params}`,
+    body,
+  );
 }
 
 export async function emptyBin(
@@ -111,6 +97,15 @@ export async function emptyBin(
     `/api/bins/bins/${binNumber}/empty${params}`,
     options,
   );
+}
+
+export async function emptyAllBins(
+  binNumbers: number[],
+  gameGuid?: string,
+): Promise<Result<BinSet[]>> {
+  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+  const input: EmptyAllBinsInput = { binNumbers };
+  return apiPost<Result<BinSet[]>>(`/api/bins/bins/empty-all${params}`, input);
 }
 
 export async function setChaosMode(
@@ -133,9 +128,9 @@ export async function resetAutoAssign(guid: string): Promise<Result<BinSet[]>> {
 
 export async function setScanOnly(
   guid: string,
-  enabled: boolean,
+  config: ScanOnlyConfig,
 ): Promise<Result<BinSet[]>> {
-  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, { enabled });
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/scan-only`, config);
 }
 
 export async function setRepackConfig(
@@ -143,7 +138,7 @@ export async function setRepackConfig(
   config: {
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
-    repackAllowDuplicates: boolean;
+    repackUniqueBy: string | null;
     repackSiftRules: BinRuleGroup | null;
   },
 ): Promise<Result<BinSet[]>> {

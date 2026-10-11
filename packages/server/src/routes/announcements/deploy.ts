@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { announcements } from "../../db/schema";
@@ -10,6 +10,7 @@ import {
   DEPLOY_ANNOUNCEMENT_MAX_MINUTES,
 } from "../../lib/constants/announcements";
 import type { DeployAnnouncementInput } from "../../lib/interfaces/announcements";
+import { emitDeployNotice } from "../../lib/deploy-notice";
 import { requireDeployKey, type AppEnv } from "../../middleware/auth";
 import { parseAnnouncementLink, toAnnouncement } from "./shared";
 
@@ -40,7 +41,15 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
 
     try {
       const row = await db.transaction(async (tx) => {
-        await tx.delete(announcements).where(eq(announcements.isDeploy, true));
+        await tx
+          .update(announcements)
+          .set({ isDeleted: true })
+          .where(
+            and(
+              eq(announcements.isDeploy, true),
+              eq(announcements.isDeleted, false),
+            ),
+          );
         const [inserted] = await tx
           .insert(announcements)
           .values({
@@ -55,6 +64,7 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
           .returning();
         return inserted;
       });
+      emitDeployNotice({ guid: row.guid!, message: row.message });
       return c.json({ success: true, data: toAnnouncement(row) });
     } catch (err) {
       console.error(err);
@@ -64,9 +74,16 @@ export const deployAnnouncementRoute = new Hono<AppEnv>()
   .delete("/deploy", requireDeployKey, async (c) => {
     try {
       const removed = await db
-        .delete(announcements)
-        .where(eq(announcements.isDeploy, true))
+        .update(announcements)
+        .set({ isDeleted: true })
+        .where(
+          and(
+            eq(announcements.isDeploy, true),
+            eq(announcements.isDeleted, false),
+          ),
+        )
         .returning({ id: announcements.id });
+      emitDeployNotice(null);
       return c.json({ success: true, data: { removed: removed.length } });
     } catch (err) {
       console.error(err);

@@ -2,8 +2,7 @@ import {
   SCAN_NOTIFICATION_CONCURRENCY,
   SCAN_NOTIFICATION_QUEUE_LIMIT,
 } from "./constants/discord";
-
-type ScanNotificationJob = () => Promise<void>;
+import type { ScanNotificationJob } from "./interfaces/scan-notification-queue";
 
 const pendingJobs: ScanNotificationJob[] = [];
 let runningJobs = 0;

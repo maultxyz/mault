@@ -224,6 +224,7 @@
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
     "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
     "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
     "setTooltip": "Set für gescannte Karten: {{set}}",
     "anySet": "Beliebiges Set",
@@ -274,6 +275,8 @@
     "tryAgain": "Erneut versuchen",
     "ready": "Kamera bereit",
     "streamingTo": "Bereit für {{name}}",
+    "switchCamera": "Kamera wechseln",
+    "cameraFallbackLabel": "Kamera {{number}}",
     "disconnected": "Vom Sortierer getrennt.",
     "sessionEndedTitle": "Sitzung beendet",
     "sessionEndedDescription": "Der Scanner hat diese Kamera getrennt. Du kannst die Kamera ausschalten oder einen neuen QR-Code scannen, um dich wieder zu verbinden."
@@ -337,6 +340,7 @@
     "ocrHeading": "Text auf der Karte",
     "ocrName": "Gelesener Name: {{text}}",
     "ocrSetLine": "Gelesene Set-Zeile: {{text}}",
+    "ocrNumber": "Gelesene Nummer: {{text}}",
     "ocrEmpty": "nichts",
     "ocrMatchedName": "Ähnlichster Kartenname: {{name}} (Ähnlichkeit {{score}}), aber keine Druckversion war nah genug.",
     "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug.",
@@ -354,6 +358,11 @@
     "full": "Voll",
     "nearlyFull": "Fast voll",
     "emptyAction": "Fach {{bin}} leeren",
+    "emptyAll": "Alle leeren",
+    "emptyAllTitle": "Alle Fächer leeren?",
+    "emptyAllDescription_one": "Alle Fächer als geleert markieren. Die {{count}} Karte in den Fächern bleibt in der Sammlung, zählt aber nicht mehr zum Füllstand.",
+    "emptyAllDescription_other": "Alle Fächer als geleert markieren. Die {{count}} Karten in den Fächern bleiben in der Sammlung, zählen aber nicht mehr zum Füllstand.",
+    "emptyAllConfirm": "Alle Fächer leeren",
     "summaryFullest_one": "{{count}} Karte · am vollsten Fach {{bin}} mit {{percent}} %",
     "summaryFullest_other": "{{count}} Karten · am vollsten Fach {{bin}} mit {{percent}} %",
     "summaryTotal_one": "{{count}} Karte in den Fächern",
@@ -394,6 +403,9 @@
     "noSessionsHint": "Aktive Sitzungen werden hier angezeigt",
     "liveNow": "Gerade live",
     "allCollections": "Alle Sammlungen"
+  },
+  "repackCompleteDialog": {
+    "description": "Alle Packs sind fertig, deshalb ist das Scannen pausiert. Nimm das Pack aus Fach {{bin}} und wähle, wohin es kommt. Jede Karte wird dort in der Reihenfolge erfasst, in der sie gescannt wurde."
   },
   "binLimitDialog": {
     "title": "Fach {{number}} ist voll",
@@ -540,6 +552,52 @@
       "countdown_other": "Schließt in {{count}} Sekunden",
       "doneMoved": "Als umgelegt markiert",
       "done": "Fertig"
+    },
+    "keys": {
+      "enter": "Enter",
+      "escape": "Esc"
+    }
+  },
+  "deployPause": {
+    "title": "Update läuft",
+    "description_one": "Mault wird gerade aktualisiert, deshalb wurde das Scannen pausiert, damit keine Karten verloren gehen. Du kannst jetzt fortfahren, aber Scans können fehlschlagen, bis das Update abgeschlossen ist.",
+    "description_other": "Mault wird gerade aktualisiert, deshalb wurde das Scannen auf {{count}} Sortierern pausiert, damit keine Karten verloren gehen. Du kannst jetzt fortfahren, aber Scans können fehlschlagen, bis das Update abgeschlossen ist.",
+    "stayPaused": "Pausiert lassen",
+    "resume_one": "Scannen fortsetzen",
+    "resume_other": "Alle {{count}} fortsetzen"
+  },
+  "qrPairing": {
+    "title": "Zum Verbinden scannen",
+    "subtitle": "Dieses Telefon als Scanner-Kamera verwenden",
+    "invalidTitle": "Das ist kein Kamera-Link",
+    "invalidDescription": "Scanne den QR-Code von {{option}} auf der Scanner-Seite deines Computers.",
+    "cameraErrorTitle": "Kamera konnte nicht geöffnet werden",
+    "cameraErrorDescription": "Erlaube dieser Website in den Browser-Einstellungen den Kamerazugriff und versuche es erneut.",
+    "retry": "Erneut versuchen"
+  },
+  "home": {
+    "greeting": "Hallo, {{name}}",
+    "greetingNoName": "Willkommen zurück",
+    "totalValue": "Sammlungswert",
+    "collectionCount_one": "{{count}} Sammlung",
+    "collectionCount_other": "{{count}} Sammlungen",
+    "scannedToday": "Heute gescannt",
+    "thisWeek": "Diese Woche",
+    "collections": "Sammlungen",
+    "activityTitle": "Scans, letzte 14 Tage",
+    "activityLabel": "Gescannte Karten pro Tag in den letzten 14 Tagen",
+    "activityPoint_one": "{{date}}: {{count}} Karte",
+    "activityPoint_other": "{{date}}: {{count}} Karten",
+    "today": "Heute",
+    "mostValuable": "Wertvollste",
+    "recentlyScanned": "Zuletzt gescannt",
+    "seeAllStats": "Alle Statistiken"
+  },
+  "resetToNeutral": {
+    "done": "Sortierer in Grundstellung",
+    "failed": {
+      "title": "Sortierer konnte nicht zurückgesetzt werden",
+      "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
     }
   }
 }

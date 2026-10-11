@@ -17,15 +17,20 @@ function delay(ms: number): Promise<void> {
 export function useSerialAutoConnect() {
   const { activeOrg } = useOrg();
   const { data: devices = [] } = useQuery(devicesQueryOptions(activeOrg?.id));
-  const { connectPortToStandby, connectBluetoothDeviceToStandby } =
-    useStations();
+  const {
+    connectPortToStandby,
+    connectBluetoothDeviceToStandby,
+    isDeviceConnected,
+  } = useStations();
   const connectRef = useRef({
     port: connectPortToStandby,
     bluetooth: connectBluetoothDeviceToStandby,
+    isDeviceConnected,
   });
   connectRef.current = {
     port: connectPortToStandby,
     bluetooth: connectBluetoothDeviceToStandby,
+    isDeviceConnected,
   };
   const autoConnectGuids = devices
     .filter((device) => device.autoConnect)
@@ -51,6 +56,7 @@ export function useSerialAutoConnect() {
         .catch((err) => console.error("[auto-connect] failed:", err));
     };
 
+    let serialPortsQueued: Promise<void> = Promise.resolve();
     const serial = navigator.serial;
     if (serial) {
       const tryPort = (port: SerialPort, waitMs: number) =>
@@ -58,9 +64,10 @@ export function useSerialAutoConnect() {
           if (port.readable) return;
           await connectRef.current.port(port);
         });
-      void serial
+      serialPortsQueued = serial
         .getPorts()
-        .then((ports) => ports.forEach((port) => tryPort(port, 0)));
+        .then((ports) => ports.forEach((port) => tryPort(port, 0)))
+        .catch(() => {});
       serial.addEventListener(
         "connect",
         (event) =>
@@ -78,7 +85,10 @@ export function useSerialAutoConnect() {
         pendingBluetooth.add(device.id);
         enqueue(0, async () => {
           try {
-            if (!device.gatt?.connected) {
+            if (
+              !device.gatt?.connected &&
+              !connectRef.current.isDeviceConnected(bleMap[device.id])
+            ) {
               await connectRef.current.bluetooth(device);
             }
           } finally {
@@ -86,8 +96,8 @@ export function useSerialAutoConnect() {
           }
         });
       };
-      void bluetooth
-        .getDevices()
+      void serialPortsQueued
+        .then(() => bluetooth.getDevices())
         .then((granted) => {
           for (const device of granted) {
             if (!autoGuids.has(bleMap[device.id])) continue;

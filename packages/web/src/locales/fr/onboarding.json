@@ -110,7 +110,7 @@
     },
     "duplicates": {
       "title": "Cartes en double",
-      "content": "Désactive ceci pour éviter qu'un pack reçoive deux exemplaires de la même carte - un doublon est ignoré pour ce bac, mais peut quand même démarrer le pack d'un autre bac qui ne l'a pas encore."
+      "content": "Choisis ce qu'un pack ne peut pas avoir deux fois : la même impression, le même nom (toute impression d'une carte) ou la même valeur d'un des champs du jeu. Un doublon est ignoré pour ce bac, mais peut quand même démarrer le pack d'un autre bac qui ne l'a pas encore."
     },
     "slots": {
       "title": "Définis le contenu d'un pack",

@@ -21,10 +21,21 @@ export interface EmptyBinToLocationDialogProps {
   onConfirm: (options: EmptyBinOptions) => Promise<void>;
 }
 
+export interface StorageExportMenuProps {
+  location: StorageLocation;
+}
+
 export interface StorageLocationRowProps {
   location: StorageLocation;
   isSelected: boolean;
   onSelect: () => void;
+}
+
+export interface StorageLocationListProps {
+  locations: StorageLocation[];
+  selectedGuid: string | undefined;
+  isLoading: boolean;
+  onSelect: (guid: string) => void;
 }
 
 export interface StorageLocationNameDialogProps {
@@ -38,19 +49,31 @@ export interface StorageLocationNameDialogProps {
 
 export interface StorageLocationCardsProps {
   location: StorageLocation;
+  onOpenCard: (entry: StorageLocationSearchResult) => void;
 }
 
 export interface CardStorageLocationSectionProps {
   scanId: string;
   collectionGuid: string | undefined;
+  canRemove?: boolean;
 }
 
 export interface StorageCardListProps {
   entries: StorageLocationSearchResult[];
   onOpenLocation?: (guid: string) => void;
+  onOpenCard: (entry: StorageLocationSearchResult) => void;
 }
 
 export interface StorageSearchResultsProps {
   query: string;
   onOpenLocation: (guid: string) => void;
+  onOpenCard: (entry: StorageLocationSearchResult) => void;
+}
+
+export interface StorageCardDetailProps {
+  location: StorageLocation;
+  scanId: string;
+  reviewMode: boolean;
+  onNavigate: (scanId: string) => void;
+  onClose: () => void;
 }

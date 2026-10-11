@@ -6,14 +6,15 @@ import type {
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { bins } from "../../db/schema";
+import { bins, storageLocations } from "../../db/schema";
 import {
   isStorageAllowed,
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
+import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { resolveGameId } from "./shared";
+import { emptyRules, resolveGameId, activeBinSetWhere } from "./shared";
 
 // Marks a physical bin as emptied - cards scanned before now stop counting
 // toward its cardLimit, without touching the collection's card history.
@@ -24,6 +25,9 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
   async (c) => {
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
+    if (!Number.isInteger(binNumber) || binNumber < 1) {
+      return c.json({ success: false, message: "Invalid bin number." }, 400);
+    }
     const gameGuid = c.req.query("gameGuid");
     const { locationGuid, collectionGuid } = await c.req
       .json<EmptyBinOptions>()
@@ -38,28 +42,33 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await resolveGameId(tx, gameGuid);
         const activeBinSet = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and, isNull }) =>
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                ),
+          where: (t) => activeBinSetWhere(t, orgId, gameId),
           columns: { id: true },
-          with: { bins: { columns: { id: true, binNumber: true } } },
+          with: {
+            bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
+              columns: { id: true, binNumber: true },
+            },
+          },
         });
         if (!activeBinSet)
           return { message: "No active set found.", success: false };
 
-        const existing = activeBinSet.bins.find((b) => b.binNumber === binNumber);
-        if (!existing) return { message: "Bin not found.", success: false };
+        const existing =
+          activeBinSet.bins.find((b) => b.binNumber === binNumber) ??
+          (
+            await tx
+              .insert(bins)
+              .values({
+                binNumber,
+                rules: emptyRules(),
+                binSet: activeBinSet.id,
+                orgId,
+              })
+              .returning({ id: bins.id })
+          )[0];
 
-        let assignedCount = 0;
+        let storedScanIds: string[] = [];
         if (locationGuid && collectionGuid) {
           if (!(await isStorageAllowed(tx, orgId))) {
             return {
@@ -70,7 +79,11 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           }
           const location = await tx.query.storageLocations.findFirst({
             where: (t, { eq, and }) =>
-              and(eq(t.guid, locationGuid), eq(t.orgId, orgId)),
+              and(
+                eq(t.guid, locationGuid),
+                eq(t.orgId, orgId),
+                eq(t.isDeleted, false),
+              ),
             columns: { id: true },
           });
           if (!location) {
@@ -78,18 +91,26 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           }
           const collection = await tx.query.collections.findFirst({
             where: (t, { eq, and }) =>
-              and(eq(t.guid, collectionGuid), eq(t.orgId, orgId)),
+              and(
+                eq(t.guid, collectionGuid),
+                eq(t.orgId, orgId),
+                eq(t.isDeleted, false),
+              ),
             columns: { id: true },
           });
           if (!collection) {
             return { message: "Collection not found.", success: false };
           }
-          assignedCount = await assignBinToLocation(tx, {
+          storedScanIds = await assignBinToLocation(tx, {
             binId: existing.id,
             binNumber,
             collectionId: collection.id,
             locationId: location.id,
           });
+          await tx
+            .update(storageLocations)
+            .set({ lastUsedAt: new Date() })
+            .where(eq(storageLocations.id, location.id));
         }
 
         await tx
@@ -98,15 +119,19 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           .where(eq(bins.id, existing.id));
 
         const updatedBins = await tx.query.bins.findMany({
-          where: (t, { eq }) => eq(t.binSet, activeBinSet.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.binSet, activeBinSet.id), eq(t.isDeleted, false)),
           columns: {
             guid: true,
             binNumber: true,
             rules: true,
             isCatchAll: true,
             isOverride: true,
+            overridePriority: true,
+            lowMatchPercent: true,
             cardLimit: true,
             maxCopies: true,
+            maxCopiesBy: true,
             isDisabled: true,
             lastEmptiedAt: true,
           },
@@ -115,7 +140,8 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
         return {
           message: "Bin marked as emptied.",
           success: true,
-          assignedCount,
+          assignedCount: storedScanIds.length,
+          storedScanIds,
           data: updatedBins.map(
             (b): BinConfig => ({
               guid: b.guid!,
@@ -123,14 +149,20 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
               rules: b.rules as BinRuleGroup,
               isCatchAll: b.isCatchAll,
               isOverride: b.isOverride,
+              overridePriority: b.overridePriority,
+              lowMatchPercent: b.lowMatchPercent,
               cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
+              maxCopiesBy: b.maxCopiesBy,
               isDisabled: b.isDisabled,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),
         };
       });
+      if (result.success && "storedScanIds" in result && locationGuid) {
+        emitCardsStoredWebhook(orgId, locationGuid, result.storedScanIds);
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);

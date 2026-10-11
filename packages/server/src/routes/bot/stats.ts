@@ -31,7 +31,7 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
   const cardPrice = scannedCardPriceSql(priceSource);
   const scopeCondition = collection
     ? eq(collections.id, collection.id)
-    : eq(collections.orgId, orgId);
+    : and(eq(collections.orgId, orgId), eq(collections.isDeleted, false));
 
   const [row] = await db
     .select({

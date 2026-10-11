@@ -224,6 +224,7 @@
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "resetToNeutralTooltip": "Reset to neutral (closes every bottom and paddle, centers the pushers)",
     "foilTooltip": "Foil type for scanned cards: {{type}}",
     "setTooltip": "Set for scanned cards: {{set}}",
     "anySet": "Any set",
@@ -274,6 +275,8 @@
     "tryAgain": "Try Again",
     "ready": "Camera ready",
     "streamingTo": "Ready for {{name}}",
+    "switchCamera": "Switch camera",
+    "cameraFallbackLabel": "Camera {{number}}",
     "disconnected": "Disconnected from the sorter.",
     "sessionEndedTitle": "Session ended",
     "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect."
@@ -337,6 +340,7 @@
     "ocrHeading": "Text on the card",
     "ocrName": "Name read: {{text}}",
     "ocrSetLine": "Set line read: {{text}}",
+    "ocrNumber": "Number read: {{text}}",
     "ocrEmpty": "nothing",
     "ocrMatchedName": "Closest card name: {{name}} (similarity {{score}}), but no printing was close enough.",
     "ocrNoName": "No card name was close enough to the text read.",
@@ -354,6 +358,11 @@
     "full": "Full",
     "nearlyFull": "Nearly full",
     "emptyAction": "Empty bin {{bin}}",
+    "emptyAll": "Empty all",
+    "emptyAllTitle": "Empty all bins?",
+    "emptyAllDescription_one": "Mark every bin as emptied. The {{count}} card in the bins stays in the collection, but stops counting toward bin levels.",
+    "emptyAllDescription_other": "Mark every bin as emptied. The {{count}} cards in the bins stay in the collection, but stop counting toward bin levels.",
+    "emptyAllConfirm": "Empty all bins",
     "summaryFullest_one": "{{count}} card · fullest Bin {{bin}} at {{percent}}%",
     "summaryFullest_other": "{{count}} cards · fullest Bin {{bin}} at {{percent}}%",
     "summaryTotal_one": "{{count}} card in the bins",
@@ -394,6 +403,9 @@
     "noSessionsHint": "Active sessions will appear here",
     "liveNow": "Live now",
     "allCollections": "All collections"
+  },
+  "repackCompleteDialog": {
+    "description": "Every pack is complete, so scanning is paused. Take the pack out of bin {{bin}} and pick where it's going. Each card is recorded there in the order it was scanned."
   },
   "binLimitDialog": {
     "title": "Bin {{number}} is full",
@@ -540,6 +552,52 @@
       "countdown_other": "Closing in {{count}} seconds",
       "doneMoved": "Marked as moved",
       "done": "Done"
+    },
+    "keys": {
+      "enter": "Enter",
+      "escape": "Esc"
+    }
+  },
+  "deployPause": {
+    "title": "Update in progress",
+    "description_one": "Mault is being updated, so scanning has been paused to make sure no cards are lost. You can resume now, but scans may fail until the update finishes.",
+    "description_other": "Mault is being updated, so scanning has been paused on {{count}} sorters to make sure no cards are lost. You can resume now, but scans may fail until the update finishes.",
+    "stayPaused": "Stay paused",
+    "resume_one": "Resume scanning",
+    "resume_other": "Resume all {{count}}"
+  },
+  "qrPairing": {
+    "title": "Scan to link",
+    "subtitle": "Use this phone as a scanner camera",
+    "invalidTitle": "That isn't a camera link",
+    "invalidDescription": "Scan the QR code from {{option}} on your computer's scanner page.",
+    "cameraErrorTitle": "Couldn't open the camera",
+    "cameraErrorDescription": "Allow camera access for this site in your browser settings, then try again.",
+    "retry": "Try again"
+  },
+  "home": {
+    "greeting": "Hi, {{name}}",
+    "greetingNoName": "Welcome back",
+    "totalValue": "Collection value",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "scannedToday": "Scanned today",
+    "thisWeek": "This week",
+    "collections": "Collections",
+    "activityTitle": "Scans, last 14 days",
+    "activityLabel": "Cards scanned per day over the last 14 days",
+    "activityPoint_one": "{{date}}: {{count}} card",
+    "activityPoint_other": "{{date}}: {{count}} cards",
+    "today": "Today",
+    "mostValuable": "Most valuable",
+    "recentlyScanned": "Recently scanned",
+    "seeAllStats": "See all stats"
+  },
+  "resetToNeutral": {
+    "done": "Sorter reset to neutral",
+    "failed": {
+      "title": "Couldn't reset the sorter",
+      "description": "The sorter didn't confirm the reset. Check the connection and try again."
     }
   }
 }

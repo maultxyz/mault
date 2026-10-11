@@ -8,7 +8,11 @@ import {
   resolveGameId,
   snapshotBinSet,
   toIsDisabled,
+  toLowMatchPercent,
   toMaxCopies,
+  toMaxCopiesBy,
+  toOverridePriority,
+  activeBinSetWhere,
 } from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
@@ -19,34 +23,38 @@ export const editBinRoute = new Hono<AppEnv>().put(
     const orgId = c.get("orgId");
     const binNumber = parseInt(c.req.param("binNumber"));
     const gameGuid = c.req.query("gameGuid");
-    const { rules, isCatchAll, isOverride, cardLimit, maxCopies, isDisabled } =
-      await c.req.json<{
-        rules: BinRuleGroup;
-        isCatchAll?: boolean;
-        isOverride?: boolean;
-        cardLimit?: number | null;
-        maxCopies?: number | null;
-        isDisabled?: boolean;
-      }>();
+    const {
+      rules,
+      isCatchAll,
+      isOverride,
+      overridePriority,
+      lowMatchPercent,
+      cardLimit,
+      maxCopies,
+      maxCopiesBy,
+      isDisabled,
+    } = await c.req.json<{
+      rules: BinRuleGroup;
+      isCatchAll?: boolean;
+      isOverride?: boolean;
+      overridePriority?: number | null;
+      lowMatchPercent?: number | null;
+      cardLimit?: number | null;
+      maxCopies?: number | null;
+      maxCopiesBy?: string | null;
+      isDisabled?: boolean;
+    }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const gameId = await resolveGameId(tx, gameGuid);
         const activeBinSet = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and, isNull }) =>
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                ),
+          where: (t) => activeBinSetWhere(t, orgId, gameId),
           columns: { id: true, guid: true },
           with: {
-            bins: { columns: { id: true, binNumber: true, isDisabled: true } },
+            bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
+              columns: { id: true, binNumber: true, isDisabled: true },
+            },
           },
         });
         if (!activeBinSet)
@@ -61,7 +69,9 @@ export const editBinRoute = new Hono<AppEnv>().put(
             );
         }
 
-        const existing = activeBinSet.bins.find((b) => b.binNumber === binNumber);
+        const existing = activeBinSet.bins.find(
+          (b) => b.binNumber === binNumber,
+        );
 
         if (existing) {
           await tx
@@ -70,8 +80,19 @@ export const editBinRoute = new Hono<AppEnv>().put(
               rules,
               isCatchAll: isCatchAll ?? false,
               isOverride: !isCatchAll && isOverride === true,
+              overridePriority: toOverridePriority(
+                overridePriority,
+                isCatchAll,
+                isOverride,
+              ),
+              lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
               cardLimit: cardLimit ?? null,
               maxCopies: toMaxCopies(maxCopies, isCatchAll),
+              maxCopiesBy: toMaxCopiesBy(
+                maxCopiesBy,
+                isCatchAll,
+                toMaxCopies(maxCopies, isCatchAll),
+              ),
               isDisabled: toIsDisabled(
                 isDisabled ?? existing.isDisabled,
                 isCatchAll,
@@ -85,8 +106,19 @@ export const editBinRoute = new Hono<AppEnv>().put(
             rules,
             isCatchAll: isCatchAll ?? false,
             isOverride: !isCatchAll && isOverride === true,
+            overridePriority: toOverridePriority(
+              overridePriority,
+              isCatchAll,
+              isOverride,
+            ),
+            lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
             cardLimit: cardLimit ?? null,
             maxCopies: toMaxCopies(maxCopies, isCatchAll),
+            maxCopiesBy: toMaxCopiesBy(
+              maxCopiesBy,
+              isCatchAll,
+              toMaxCopies(maxCopies, isCatchAll),
+            ),
             isDisabled: toIsDisabled(isDisabled, isCatchAll),
             binSet: activeBinSet.id,
             orgId,
@@ -96,15 +128,19 @@ export const editBinRoute = new Hono<AppEnv>().put(
         await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
 
         const updatedBins = await tx.query.bins.findMany({
-          where: (t, { eq }) => eq(t.binSet, activeBinSet.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.binSet, activeBinSet.id), eq(t.isDeleted, false)),
           columns: {
             guid: true,
             binNumber: true,
             rules: true,
             isCatchAll: true,
             isOverride: true,
+            overridePriority: true,
+            lowMatchPercent: true,
             cardLimit: true,
             maxCopies: true,
+            maxCopiesBy: true,
             isDisabled: true,
             lastEmptiedAt: true,
           },
@@ -120,8 +156,11 @@ export const editBinRoute = new Hono<AppEnv>().put(
               rules: b.rules as BinRuleGroup,
               isCatchAll: b.isCatchAll,
               isOverride: b.isOverride,
+              overridePriority: b.overridePriority,
+              lowMatchPercent: b.lowMatchPercent,
               cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
+              maxCopiesBy: b.maxCopiesBy,
               isDisabled: b.isDisabled,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),

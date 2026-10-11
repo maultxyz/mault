@@ -1,10 +1,11 @@
-import { API_BASE, apiPost } from "@/lib/api/client";
+import { apiPost } from "@/lib/api/client";
 import { WATCH_ROUTE_PREFIX, WATCH_TOKEN_PARAM } from "@/lib/constants/nav";
 import type {
   MonitorLink,
   MonitorLinkInfo,
   Result,
 } from "@magic-vault/shared";
+import { API_BASE } from "@/lib/constants/api";
 
 export function createMonitorLink(
   collectionGuid: string,

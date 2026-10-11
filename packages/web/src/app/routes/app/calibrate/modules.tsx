@@ -4,6 +4,7 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { ConnectionSettingsPanel } from "@/features/calibration/components/connection-settings-panel";
+import { FirmwarePanel } from "@/features/calibration/components/firmware-panel";
 import { ExperimentalFeaturesPanel } from "@/features/calibration/components/experimental-features-panel";
 import { BinConfigurations } from "@/features/calibration/components/bin-configurations";
 import { BinRoutingControls } from "@/features/calibration/components/bin-routing-controls";
@@ -83,6 +84,7 @@ export default function CalibrateModulesPage() {
         isLoaded={deviceToggles.isLoaded}
         onChange={deviceToggles.set}
       />
+      <FirmwarePanel />
       <ExperimentalFeaturesPanel
         values={deviceToggles.values}
         isLoaded={deviceToggles.isLoaded}

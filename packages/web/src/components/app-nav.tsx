@@ -17,9 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UserMenu } from "@/features/account/components/user-menu";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { useLiveSessionCounts } from "@/features/collections/api/use-live-counts";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
@@ -28,11 +26,13 @@ import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
 import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { STATS_PATH } from "@/lib/constants/stats";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconAlbum,
   IconBox,
+  IconChartBar,
   IconBrandDiscord,
   IconCameraSpark,
   IconDatabaseCog,
@@ -45,6 +45,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
 import { BrandIcon } from "./brand-icon";
+import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 
 function CollapsedNavItem({
   icon,
@@ -266,9 +267,7 @@ function SubItem({
       }
     >
       <span className="truncate flex-1">{label}</span>
-      {badge && (
-        <span className="shrink-0 size-1.5 rounded-full bg-success" />
-      )}
+      {badge && <span className="shrink-0 size-1.5 rounded-full bg-success" />}
     </NavLink>
   );
 }
@@ -338,6 +337,11 @@ export function AppNav() {
         label: c.name,
         badge: !!locks[c.guid],
       })),
+    },
+    {
+      to: STATS_PATH,
+      icon: <IconChartBar size={20} />,
+      label: t("nav.stats"),
     },
     {
       to: STORAGE_PATH,

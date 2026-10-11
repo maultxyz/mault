@@ -1,6 +1,0 @@
-
-> @magic-vault/web@1.0.116 build C:\Users\User\Documents\Coding\magic-vault\packages\web
-> tsc -b && vite build
-
-src/features/bins/components/bin-list.tsx(24,9): error TS6133: 'isRepackMode' is declared but its value is never read.
- ELIFECYCLE  Command failed with exit code 2.

@@ -1,7 +1,9 @@
-import type { BoardType } from "@/features/build/api/use-board-type";
-import type { Esp32MountType } from "@/features/build/api/use-esp32-mount-type";
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
-import { BOARD_INFO } from "@/lib/constants/build";
+import {
+  ASSEMBLE_MODULES_VIDEO,
+  BOARD_INFO,
+  WIRE_AND_CALIBRATE_VIDEO,
+} from "@/lib/constants/build";
 import { REPO_URL } from "@/lib/constants/links";
 import {
   IconCpu,
@@ -11,39 +13,24 @@ import {
   IconTool,
 } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
-import type { ReactNode } from "react";
 import { Trans } from "react-i18next";
-
-export interface Step {
-  key: string;
-  text: ReactNode;
-  note?: ReactNode;
-  images?: string[];
-  optional?: true | "classic-hopper" | "new-hopper";
-}
-
-export function optionalBadgeLabel(
-  t: TFunction<"build">,
-  optional: Step["optional"],
-): string {
-  if (optional === "classic-hopper") return t("optionalClassicHopperBadge");
-  if (optional === "new-hopper") return t("optionalNewHopperBadge");
-  return t("optionalBadge");
-}
-
-export interface Phase {
-  key: string;
-  title: string;
-  icon: typeof IconCube;
-  steps: Step[];
-  videos?: string[];
-}
+import type {
+  BoardType,
+  BuildPhase,
+  Esp32MountType,
+} from "@/lib/interfaces/build";
 
 export function getYouTubeVideoId(url: string): string | null {
   const match = url.match(
     /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([\w-]{11})/,
   );
   return match?.[1] ?? null;
+}
+
+export function formatVideoTimestamp(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
 function countBaseSupportPieces(moduleCount: number): {
@@ -65,7 +52,7 @@ export function buildPhases(
   boardType: BoardType,
   mountType: Esp32MountType,
   usingKit: boolean,
-): Phase[] {
+): BuildPhase[] {
   const board = BOARD_INFO[boardType];
   const isEsp32Family = boardType !== "uno_r4";
   const isEsp32Breakout = boardType === "esp32" && mountType === "breakout";
@@ -78,7 +65,7 @@ export function buildPhases(
       : 1
     : null;
 
-  const phases: Phase[] = [
+  const phases: BuildPhase[] = [
     {
       key: "print",
       title: t("assembly.phases.print.title"),
@@ -183,18 +170,122 @@ export function buildPhases(
           text: t("assembly.phases.print.steps.dryFit.text"),
           images: ["/instructions/v5.jpg"],
         },
+      ],
+    },
+    {
+      key: "assemble-modules",
+      title: t("assembly.phases.assembleModules.title"),
+      icon: IconTool,
+      video: ASSEMBLE_MODULES_VIDEO,
+      steps: [
         {
-          key: "mount-boards-to-panels",
-          text: t("assembly.phases.print.steps.mountBoardsToPanels.text", {
-            board: board.shortName,
-          }),
+          key: "mount-module-servos",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountModuleServos.text",
+          ),
         },
         {
-          key: "attach-base-panels",
-          text: t("assembly.phases.print.steps.attachBasePanels.text"),
-          note: t("assembly.phases.print.steps.attachBasePanels.note", {
-            board: board.shortName,
+          key: "mount-bottom-flapper",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountBottomFlapper.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.mountBottomFlapper.note",
+          ),
+          images: [
+            "/instructions/bottom_paddle_disassembled.jpg",
+            "/instructions/bottom_paddle_assembled.jpg",
+            "/instructions/bottom_paddle_attached.jpg",
+          ],
+        },
+        {
+          key: "mount-side-flappers",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountSideFlappers.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.mountSideFlappers.note",
+          ),
+          images: [
+            "/instructions/side_paddles_disassembled.jpg",
+            "/instructions/side_paddles_assembled.jpg",
+            "/instructions/side_paddles_attached.jpg",
+          ],
+        },
+        {
+          key: "mount-pusher-arm",
+          text: t("assembly.phases.assembleModules.steps.mountPusherArm.text"),
+          note: t("assembly.phases.assembleModules.steps.mountPusherArm.note"),
+          images: [
+            "/instructions/pusher_disassembled.jpg",
+            "/instructions/pusher_assembled.jpg",
+            "/instructions/pusher_attached.jpg",
+          ],
+        },
+        {
+          key: "fit-feeder-orings",
+          text: t("assembly.phases.assembleModules.steps.fitFeederOrings.text"),
+          note: t("assembly.phases.assembleModules.steps.fitFeederOrings.note"),
+          images: ["/instructions/roller_o_rings_mounted.jpg"],
+        },
+        {
+          key: "mount-feeder-roller",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountFeederRoller.text",
+          ),
+          images: ["/instructions/assembling_feeder.jpg"],
+        },
+        {
+          key: "mount-feeder-servo",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountFeederServo.text",
+          ),
+          images: ["/instructions/feeder_servo_mounted.jpg"],
+        },
+        {
+          key: "fit-hopper-roller-orings",
+          text: t(
+            "assembly.phases.assembleModules.steps.fitHopperRollerOrings.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.fitHopperRollerOrings.note",
+          ),
+        },
+        {
+          key: "mount-hopper-roller",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountHopperRoller.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.mountHopperRoller.note",
+          ),
+          images: ["/instructions/new_hopper.JPG"],
+        },
+        {
+          key: "calibrate-hopper-roller",
+          text: t(
+            "assembly.phases.assembleModules.steps.calibrateHopperRoller.text",
+          ),
+        },
+        {
+          key: "mount-hopper-riser",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountHopperRiser.text",
+          ),
+          images: ["/instructions/feeder_riser.JPG"],
+        },
+        {
+          key: "mount-module-ir",
+          text: t("assembly.phases.assembleModules.steps.mountModuleIr.text", {
+            modules: moduleCount,
           }),
+          images: ["/instructions/sorter_ir_sensor_mounted.jpg"],
+        },
+        {
+          key: "mount-hopper-ir",
+          text: t("assembly.phases.assembleModules.steps.mountHopperIr.text"),
+          note: t("assembly.phases.assembleModules.steps.mountHopperIr.note"),
+          images: ["/instructions/feeder_ir_sensor_mounted.jpg"],
         },
       ],
     },
@@ -276,142 +367,10 @@ export function buildPhases(
       ],
     },
     {
-      key: "assemble-modules",
-      title: t("assembly.phases.assembleModules.title"),
-      icon: IconTool,
-      videos: ["https://youtu.be/sCH3U6oM2xk", "https://youtu.be/JoBkcryvFWo"],
-      steps: [
-        {
-          key: "mount-module-servos",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountModuleServos.text",
-          ),
-        },
-        {
-          key: "mount-bottom-flapper",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountBottomFlapper.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.mountBottomFlapper.note",
-          ),
-          images: [
-            "/instructions/bottom_paddle_disassembled.jpg",
-            "/instructions/bottom_paddle_assembled.jpg",
-            "/instructions/bottom_paddle_attached.jpg",
-          ],
-        },
-        {
-          key: "mount-side-flappers",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountSideFlappers.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.mountSideFlappers.note",
-          ),
-          images: [
-            "/instructions/side_paddles_disassembled.jpg",
-            "/instructions/side_paddles_assembled.jpg",
-            "/instructions/side_paddles_attached.jpg",
-          ],
-        },
-        {
-          key: "mount-pusher-arm",
-          text: t("assembly.phases.assembleModules.steps.mountPusherArm.text"),
-          note: t("assembly.phases.assembleModules.steps.mountPusherArm.note"),
-          images: [
-            "/instructions/pusher_disassembled.jpg",
-            "/instructions/pusher_assembled.jpg",
-            "/instructions/pusher_attached.jpg",
-          ],
-        },
-        {
-          key: "fit-feeder-orings",
-          text: t("assembly.phases.assembleModules.steps.fitFeederOrings.text"),
-          note: t("assembly.phases.assembleModules.steps.fitFeederOrings.note"),
-          images: ["/instructions/roller_o_rings_mounted.jpg"],
-        },
-        {
-          key: "mount-feeder-roller",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountFeederRoller.text",
-          ),
-          images: ["/instructions/assembling_feeder.jpg"],
-        },
-        {
-          key: "mount-feeder-servo",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountFeederServo.text",
-          ),
-          images: ["/instructions/feeder_servo_mounted.jpg"],
-        },
-        {
-          key: "mount-feeder-wall",
-          text: t("assembly.phases.assembleModules.steps.mountFeederWall.text"),
-          note: t("assembly.phases.assembleModules.steps.mountFeederWall.note"),
-          images: [
-            "/instructions/rube_disassembled.jpg",
-            "/instructions/tube_assembled.jpg",
-            "/instructions/feeder_tube_wall.jpg",
-          ],
-          optional: "classic-hopper",
-        },
-        {
-          key: "fit-hopper-roller-orings",
-          text: t(
-            "assembly.phases.assembleModules.steps.fitHopperRollerOrings.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.fitHopperRollerOrings.note",
-          ),
-          optional: "new-hopper",
-        },
-        {
-          key: "mount-hopper-roller",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountHopperRoller.text",
-          ),
-          note: t(
-            "assembly.phases.assembleModules.steps.mountHopperRoller.note",
-          ),
-          images: ["/instructions/new_hopper.JPG"],
-          optional: "new-hopper",
-        },
-        {
-          key: "calibrate-hopper-roller",
-          text: t(
-            "assembly.phases.assembleModules.steps.calibrateHopperRoller.text",
-          ),
-          optional: "new-hopper",
-        },
-        {
-          key: "mount-hopper-riser",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountHopperRiser.text",
-          ),
-          images: ["/instructions/feeder_riser.JPG"],
-          optional: "new-hopper",
-        },
-        {
-          key: "mount-module-ir",
-          text: t("assembly.phases.assembleModules.steps.mountModuleIr.text", {
-            modules: moduleCount,
-          }),
-          images: ["/instructions/sorter_ir_sensor_mounted.jpg"],
-        },
-        {
-          key: "mount-hopper-ir",
-          text: t("assembly.phases.assembleModules.steps.mountHopperIr.text"),
-          note: t("assembly.phases.assembleModules.steps.mountHopperIr.note"),
-          images: ["/instructions/feeder_ir_sensor_mounted.jpg"],
-        },
-      ],
-    },
-    {
       key: "wire-and-calibrate",
       title: t("assembly.phases.wireAndCalibrate.title"),
       icon: IconPlugConnected,
-      videos: ["https://youtu.be/ZKFTkpGLBB4", "https://youtu.be/FTFXHQ4d4Jk"],
+      video: WIRE_AND_CALIBRATE_VIDEO,
       steps: [
         {
           key: "wire-i2c",

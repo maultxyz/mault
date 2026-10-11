@@ -10,6 +10,11 @@ function toSiftRules(rules: BinRuleGroup | null): BinRuleGroup | null {
   return rules && rules.conditions.length > 0 ? rules : null;
 }
 
+function toUniqueBy(uniqueBy: string | null): string | null {
+  const trimmed = uniqueBy?.trim();
+  return trimmed ? trimmed : null;
+}
+
 export const setRepackRoute = new Hono<AppEnv>().put(
   "/:guid/repack",
   requireAuth,
@@ -20,18 +25,19 @@ export const setRepackRoute = new Hono<AppEnv>().put(
     const {
       isRepackMode,
       repackSlots,
-      repackAllowDuplicates,
+      repackUniqueBy,
       repackSiftRules,
     } = await c.req.json<{
       isRepackMode: boolean;
       repackSlots: RepackSlot[];
-      repackAllowDuplicates: boolean;
+      repackUniqueBy?: string | null;
       repackSiftRules?: BinRuleGroup | null;
     }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const target = await tx.query.binSets.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
           columns: { id: true, guid: true, isRepackMode: true },
         });
         if (!target) return { message: "Set not found.", success: false };
@@ -46,7 +52,9 @@ export const setRepackRoute = new Hono<AppEnv>().put(
           .set({
             isRepackMode,
             repackSlots,
-            repackAllowDuplicates,
+            ...(repackUniqueBy !== undefined && {
+              repackUniqueBy: toUniqueBy(repackUniqueBy),
+            }),
             ...(repackSiftRules !== undefined && {
               repackSiftRules: toSiftRules(repackSiftRules),
             }),

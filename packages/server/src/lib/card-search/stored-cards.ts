@@ -1,41 +1,36 @@
-import type { CardSearchPage, PlayingCard, Result } from "@magic-vault/shared";
-import { and, desc, eq, ilike, isNotNull, sql } from "drizzle-orm";
+import type {
+  CardSearchPage,
+  CardSetOption,
+  PlayingCard,
+  Result,
+} from "@magic-vault/shared";
+import {
+  and,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  isNotNull,
+  or,
+  sql,
+  type SQL,
+} from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
 import { applyCardPrices } from "./card-prices";
-import type { ResolvedCardSearch } from "./types";
+import { listCardSets } from "./card-sets";
+import type { ResolvedCardSearch } from "../interfaces/card-search";
 import { validateQuery } from "./validate";
+import { parsePrintingQueries } from "./printing-query";
+import type { PrintingQuery } from "../interfaces/card-search";
 
-async function findStoredCard(
+async function findStoredCards(
   { adapter, gameKey, lang }: ResolvedCardSearch,
-  cardId: string,
-): Promise<PlayingCard | null> {
-  const [row] = await db
-    .select({ data: cardImageVectors.data })
-    .from(cardImageVectors)
-    .where(
-      and(
-        eq(cardImageVectors.gameKey, gameKey),
-        eq(cardImageVectors.lang, lang),
-        eq(cardImageVectors.cardId, cardId),
-        isNotNull(cardImageVectors.data),
-      ),
-    )
-    .limit(1);
-  const card = row ? adapter.normalizeStored(row.data, cardId, lang) : null;
-  if (!card) return null;
-  const [priced] = await applyCardPrices(adapter, [card]);
-  return priced;
-}
-
-async function searchStoredCards(
-  { adapter, gameKey, lang }: ResolvedCardSearch,
-  query: string,
-  offset: number,
-): Promise<CardSearchPage> {
-  const trimmed = query.trim();
-  const pattern = `%${trimmed.replace(/[\\%_]/g, "\\$&")}%`;
+  cardIds: string[],
+): Promise<Map<string, PlayingCard>> {
+  const ids = [...new Set(cardIds)];
+  if (ids.length === 0) return new Map();
   const rows = await db
     .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
     .from(cardImageVectors)
@@ -43,11 +38,73 @@ async function searchStoredCards(
       and(
         eq(cardImageVectors.gameKey, gameKey),
         eq(cardImageVectors.lang, lang),
-        ilike(cardImageVectors.name, pattern),
+        inArray(cardImageVectors.cardId, ids),
+        isNotNull(cardImageVectors.data),
+      ),
+    );
+  const cards = rows.flatMap((row) => {
+    const card = adapter.normalizeStored(row.data, row.cardId, lang);
+    return card ? [{ cardId: row.cardId, card }] : [];
+  });
+  const priced = await applyCardPrices(
+    adapter,
+    { gameKey, lang },
+    cards.map(({ card }) => card),
+  );
+  return new Map(cards.map(({ cardId }, i) => [cardId, priced[i]]));
+}
+
+function numberMatches(number: string): SQL {
+  const collectorNumber = sql`lower(${cardImageVectors.collectorNumber})`;
+  const wanted = number.toLowerCase();
+  return sql`(${collectorNumber} = ${wanted} OR ltrim(${collectorNumber}, '0') = ltrim(${wanted}, '0'))`;
+}
+
+function printingMatches({ setCode, number }: PrintingQuery): SQL {
+  if (!setCode) return numberMatches(number);
+  const collectorNumber = sql`lower(${cardImageVectors.collectorNumber})`;
+  const set = setCode.toLowerCase();
+  const wanted = number.toLowerCase();
+  return sql`(lower(${cardImageVectors.setCode}) = ${set} AND (${numberMatches(number)} OR ${collectorNumber} = ${`${set}-${wanted}`} OR ${collectorNumber} = ${`${set}${wanted}`}))`;
+}
+
+function storedSearchMatch(trimmed: string) {
+  const pattern = `%${trimmed.replace(/[\\%_]/g, "\\$&")}%`;
+  const printingQueries = parsePrintingQueries(trimmed);
+  const printingMatch = printingQueries.length
+    ? or(...printingQueries.map(printingMatches))
+    : undefined;
+  const setMatch = printingQueries.some((q) => !q.setCode)
+    ? sql`lower(${cardImageVectors.setCode}) = ${trimmed.toLowerCase()}`
+    : undefined;
+  return {
+    printingMatch,
+    match: or(ilike(cardImageVectors.name, pattern), printingMatch, setMatch),
+  };
+}
+
+async function searchStoredCards(
+  { adapter, gameKey, lang }: ResolvedCardSearch,
+  query: string,
+  offset: number,
+  setCode?: string,
+): Promise<CardSearchPage> {
+  const trimmed = query.trim();
+  const { match, printingMatch } = storedSearchMatch(trimmed);
+  const rows = await db
+    .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, gameKey),
+        eq(cardImageVectors.lang, lang),
+        match,
+        setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
         isNotNull(cardImageVectors.data),
       ),
     )
     .orderBy(
+      ...(printingMatch ? [desc(sql`coalesce(${printingMatch}, false)`)] : []),
       desc(sql`lower(${cardImageVectors.name}) = lower(${trimmed})`),
       cardImageVectors.name,
       cardImageVectors.setCode,
@@ -61,7 +118,7 @@ async function searchStoredCards(
     return card ? [card] : [];
   });
   return {
-    cards: await applyCardPrices(adapter, cards),
+    cards: await applyCardPrices(adapter, { gameKey, lang }, cards),
     nextOffset: hasMore ? offset + STORED_SEARCH_LIMIT : null,
   };
 }
@@ -84,11 +141,44 @@ async function hasStoredCards({
   return !!row;
 }
 
+async function fetchUpstreamCard(
+  resolved: ResolvedCardSearch,
+  id: string,
+): Promise<Result<PlayingCard>> {
+  const result = await resolved.adapter.searchById(id, resolved.baseUrl);
+  if (!result.success || !result.data) return result;
+  const [priced] = await applyCardPrices(resolved.adapter, resolved, [
+    result.data,
+  ]);
+  return { ...result, data: priced };
+}
+
+export async function sampleStoredCard(
+  { adapter, gameKey, lang }: ResolvedCardSearch,
+  index: number,
+): Promise<PlayingCard | null> {
+  const [row] = await db
+    .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, gameKey),
+        eq(cardImageVectors.lang, lang),
+        isNotNull(cardImageVectors.data),
+      ),
+    )
+    .orderBy(sql`md5(${cardImageVectors.cardId})`)
+    .offset(index)
+    .limit(1);
+  if (!row) return null;
+  return adapter.normalizeStored(row.data, row.cardId, lang) ?? null;
+}
+
 export async function searchCardById(
   resolved: ResolvedCardSearch,
   id: string,
 ): Promise<Result<PlayingCard>> {
-  const stored = await findStoredCard(resolved, id);
+  const stored = (await findStoredCards(resolved, [id])).get(id);
   if (stored) {
     return {
       success: true,
@@ -96,16 +186,31 @@ export async function searchCardById(
       data: stored,
     };
   }
-  const result = await resolved.adapter.searchById(id, resolved.baseUrl);
-  if (!result.success || !result.data) return result;
-  const [priced] = await applyCardPrices(resolved.adapter, [result.data]);
-  return { ...result, data: priced };
+  return fetchUpstreamCard(resolved, id);
+}
+
+export async function searchCardsByIds(
+  resolved: ResolvedCardSearch,
+  ids: string[],
+): Promise<Map<string, PlayingCard>> {
+  const stored = await findStoredCards(resolved, ids);
+  const missing = [...new Set(ids)].filter((id) => !stored.has(id));
+  const fetched = await Promise.all(
+    missing.map(
+      async (id) => [id, await fetchUpstreamCard(resolved, id)] as const,
+    ),
+  );
+  for (const [id, result] of fetched) {
+    if (result.success && result.data) stored.set(id, result.data);
+  }
+  return stored;
 }
 
 export async function searchCards(
   resolved: ResolvedCardSearch,
   query: string,
   offset = 0,
+  setCode?: string,
 ): Promise<Result<CardSearchPage>> {
   const invalid = validateQuery(query);
   if (invalid) return invalid;
@@ -124,11 +229,17 @@ export async function searchCards(
       resolved.lang,
     );
     if (!result.success || !result.data) return { ...result, data: undefined };
-    const priced = await applyCardPrices(resolved.adapter, result.data);
+    const priced = await applyCardPrices(
+      resolved.adapter,
+      resolved,
+      setCode
+        ? result.data.filter((card) => card.set === setCode)
+        : result.data,
+    );
     return { ...result, data: { cards: priced, nextOffset: null } };
   }
 
-  const page = await searchStoredCards(resolved, query, offset);
+  const page = await searchStoredCards(resolved, query, offset, setCode);
   if (offset === 0 && page.cards.length === 0) {
     return {
       success: false,
@@ -140,4 +251,38 @@ export async function searchCards(
     message: "Cards successfully retrieved.",
     data: page,
   };
+}
+
+export async function searchCardSets(
+  resolved: ResolvedCardSearch,
+  query: string,
+): Promise<CardSetOption[]> {
+  if (validateQuery(query)) return [];
+  const { match } = storedSearchMatch(query.trim());
+  const rows = await db
+    .select({
+      code: cardImageVectors.setCode,
+      cardCount: sql<number>`count(*)::int`,
+    })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, resolved.gameKey),
+        eq(cardImageVectors.lang, resolved.lang),
+        match,
+        isNotNull(cardImageVectors.data),
+      ),
+    )
+    .groupBy(cardImageVectors.setCode);
+  if (rows.length === 0) return [];
+  const names = new Map(
+    (await listCardSets(resolved)).map((set) => [set.code, set.name]),
+  );
+  return rows
+    .map(({ code, cardCount }) => ({
+      code,
+      name: names.get(code) ?? code.toUpperCase(),
+      cardCount,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
 }

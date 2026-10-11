@@ -2,7 +2,7 @@ import type { CardSetOption } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { CARD_SETS_CACHE_TTL_MS } from "../constants/card-search";
-import type { ResolvedCardSearch } from "./types";
+import type { ResolvedCardSearch } from "../interfaces/card-search";
 
 const cache = new Map<string, { sets: CardSetOption[]; expiresAt: number }>();
 const inFlight = new Map<string, Promise<CardSetOption[]>>();

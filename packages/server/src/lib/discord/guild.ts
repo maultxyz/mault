@@ -1,4 +1,7 @@
-import type { DiscordGuildInfo } from "@magic-vault/shared";
+import type {
+  DiscordGuildInfo,
+  PlatformStatsGuildSummary,
+} from "@magic-vault/shared";
 import { DISCORD_GUILD_FETCH_TIMEOUT_MS } from "../constants/discord";
 
 export async function fetchDiscordGuild(
@@ -23,5 +26,27 @@ export async function fetchDiscordGuild(
   } catch (err) {
     console.error("[discord] Failed to fetch guild from bot:", err);
     return { reachable: false, guild: null };
+  }
+}
+
+export async function fetchDiscordGuilds(): Promise<{
+  reachable: boolean;
+  guilds: PlatformStatsGuildSummary[];
+}> {
+  const botUrl = process.env.BOT_URL;
+  const botSecret = process.env.BOT_API_SECRET;
+  if (!botUrl || !botSecret) return { reachable: false, guilds: [] };
+
+  try {
+    const res = await fetch(`${botUrl}/guilds`, {
+      headers: { "X-Bot-Secret": botSecret },
+      signal: AbortSignal.timeout(DISCORD_GUILD_FETCH_TIMEOUT_MS),
+    });
+    if (!res.ok) return { reachable: false, guilds: [] };
+    const body = (await res.json()) as { data?: PlatformStatsGuildSummary[] };
+    return { reachable: true, guilds: body.data ?? [] };
+  } catch (err) {
+    console.error("[discord] Failed to list guilds from bot:", err);
+    return { reachable: false, guilds: [] };
   }
 }

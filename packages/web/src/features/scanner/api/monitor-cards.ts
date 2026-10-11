@@ -2,7 +2,7 @@ import {
   cardsQueryParams,
   collectionCardsKeys,
 } from "@/features/collections/api/collection-cards";
-import { API_BASE, apiGet } from "@/lib/api/client";
+import { apiGet } from "@/lib/api/client";
 import { MONITOR_LINK_CARDS_QUERY_KEY } from "@/lib/constants/query";
 import type { MonitorCardsSource } from "@/lib/interfaces/scanner";
 import type {
@@ -12,6 +12,7 @@ import type {
   Result,
 } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
+import { API_BASE } from "@/lib/constants/api";
 
 async function loadMonitorCards<T>(
   source: MonitorCardsSource,

@@ -175,9 +175,11 @@ protocol standpoint.
 3. Send `{"setChannelOffset": 0}` or `{"setChannelOffset": 4}` depending
    on which physical layout the machine uses.
 4. Optionally push any calibration you want to (re)apply via `setConfig`
-   / `setFeederConfig` — the device only remembers calibration for as
-   long as it stays powered, so a client is responsible for restoring it
-   after every reset.
+   / `setFeederConfig`. Before 2.5.0 the device only remembered
+   calibration for as long as it stayed powered, so a client had to
+   restore it after every reset. From 2.5.0 the device loads its stored
+   calibration (`storeConfig`) on boot, so a client can read it with
+   `getStoredConfig` and only push when it differs.
 5. Optionally run `{"test": true}` to sanity-check every servo before
    normal operation.
 
@@ -212,10 +214,13 @@ neutral. → `{"status":"ok"}`
 ```json
 {"test": true}
 ```
-Runs a full self-test sequence: opens every module's bottom + paddle →
-sweeps every pusher left → sweeps every pusher right → resets all to
-neutral → briefly spins the feeder (500ms) → stops it.
-→ `{"status":"test_complete"}`
+Runs a full self-test sequence, one module at a time so only one module's
+servos draw current at once: resets all to neutral, then for each module
+opens its bottom + paddle → sweeps its pusher left → sweeps it right →
+returns it to neutral, then briefly spins the feeder (500ms) → stops it.
+Each servo's start is staggered, so the supply never sees every servo
+starting together. Takes roughly 2 s per module, so up to about 12 s on a
+5-module board. → `{"status":"test_complete"}`
 
 Refuses to run (and reports which module) if any module's gate sensor
 already reads a card present, since the sequence sweeps every
@@ -258,7 +263,8 @@ or, to bypass calibrated positions and drive a raw pulse directly:
 
 A pusher never moves off neutral unless its module's side paddle has been
 commanded to its calibrated `paddleOpen` position and has had
-`DELAY_PADDLE` (300 ms) to get there. The firmware has no paddle position
+that module's `paddleOpenDelay` (300 ms by default, set with `setConfig`
+since 2.6.0; a fixed 300 ms before) to get there. The firmware has no paddle position
 sensor, so it tracks the last position it commanded: any other paddle
 pulse, or the idle servo release, counts as not open.
 
@@ -267,8 +273,8 @@ so it covers every pusher move (`servo`, `channel` writes that land on a
 module's pusher channel, `route`, `pushTest`, the connect `test`) whether or
 not a card is on the platform. Instead of refusing, a pusher move with the
 paddle not known to be down lowers the paddle itself, waits out the rest of
-`DELAY_PADDLE`, then moves the pusher, so the command just takes up to
-300 ms longer and the paddle is left lowered. Returning a pusher to neutral
+`paddleOpenDelay`, then moves the pusher, so the command just takes up to
+`paddleOpenDelay` ms longer and the paddle is left lowered. Returning a pusher to neutral
 never touches the paddle.
 
 2.2.x only applied the check while the module's IR sensor read a card, and
@@ -307,7 +313,8 @@ stops it on its own. → `{"status":"ok","channel":7}`, or
     "paddleClosed": 420, "paddleOpen": 150,
     "pusherLeft": 150, "pusherNeutral": 230, "pusherRight": 300,
     "pusherHoldDuration": 150,
-    "paddleCloseDelay": 150
+    "paddleCloseDelay": 150,
+    "paddleOpenDelay": 300
   }
 }
 ```
@@ -315,19 +322,20 @@ Every field except `module` is optional — omitted fields keep their
 current stored value. `bottomClosed`/`bottomOpen`/`paddleClosed`/`paddleOpen`/
 `pusherLeft`/`pusherNeutral`/`pusherRight` are raw PWM pulse values (same
 `120–490` range as `servo`'s `value`), one pair/triple per servo defining
-its two or three named positions. `pusherHoldDuration` and
-`paddleCloseDelay` are different: they're durations in milliseconds, not
-pulses - see `route` below for how they're used. `pusherHoldDuration`
-defaults to 150. → `{"status":"ok","module":1}`
+its two or three named positions. `pusherHoldDuration`,
+`paddleCloseDelay` and `paddleOpenDelay` (firmware 2.6.0+, clamped to
+0-5000) are different: they're durations in milliseconds, not pulses - see
+`route` below for how they're used. `pusherHoldDuration` defaults to 150,
+`paddleOpenDelay` to 300. → `{"status":"ok","module":1}`
 
 ### `pushTest` (tune push timings without a card)
 ```json
-{"pushTest": {"module": 2, "direction": "left", "pusherHoldDuration": 150, "paddleCloseDelay": 1000}}
+{"pushTest": {"module": 2, "direction": "left", "paddleOpenDelay": 300, "pusherHoldDuration": 150, "paddleCloseDelay": 1000}}
 ```
 Runs only the left/right push step of `route` on `module`: opens its
-paddle, fires the pusher, retracts it after `pusherHoldDuration` ms, and
+paddle, waits `paddleOpenDelay` ms (2.6.0+), fires the pusher, retracts it after `pusherHoldDuration` ms, and
 closes the paddle `paddleCloseDelay` ms after the pusher fired. No feed and
-no IR checks. Both timings are optional (default: the module's stored
+no IR checks. All timings are optional (default: the module's stored
 `setConfig` values) and clamped to 0–5000 ms, so unsaved values can be
 tried before committing them with `setConfig`.
 → `{"status":"pushed","module":2,"direction":"left"}`, or
@@ -385,6 +393,49 @@ the feeder as a side effect. → `{"status":"ok"}`
 | `reverseSpeed` | Raw PWM pulse driving the feeder motor backward during rollback (the other side of the motor's stop point from `speed`). Firmware 2.4.0+ |
 | `reverseDuration` | Rollback time (ms): once a feed delivers a card to module 1 and cards remain in the hopper, the roller runs backward this long so the next card, dragged forward by friction, is pulled back instead of creeping in behind it (a double feed). `0` (the default) turns it off. Firmware 2.4.0+; older firmware ignores both fields |
 
+### `storeConfig` (firmware 2.5.0+)
+```json
+{"storeConfig": true}
+```
+Persists the current channel offset, every module's `setConfig` values and
+the `setFeederConfig` values to EEPROM (data flash on the Uno R4, NVS on
+ESP32), and the device applies them on every boot. `setConfig`,
+`setFeederConfig` and `setChannelOffset` never persist by themselves, so a
+client can try unsaved values freely and only send `storeConfig` once they
+are final. Writes only when something changed, to spare the flash.
+→ `{"status":"ok","written":true}` (`false` when the stored copy already
+matched).
+
+### `getStoredConfig` (firmware 2.5.0+)
+Reads back what `storeConfig` saved, one section per line so every reply
+fits the 255-byte line limit.
+
+```json
+{"getStoredConfig": true}
+```
+→ `{"status":"ok","stored":true,"dirty":false,"channelOffset":0,"modules":5}`.
+`stored` is `false` (with no other fields) until the first `storeConfig`.
+Since 2.6.0 the stored layout includes `paddleOpenDelay`; calibration
+stored by 2.5.0 still loads, with `paddleOpenDelay` at its 300 ms default.
+`dirty` is `true` when the values in use differ from the stored copy
+(e.g. after an unsaved `setConfig`). `modules` is how many module entries
+are stored.
+
+```json
+{"getStoredConfig": 2}
+```
+→ `{"status":"ok","module":2,"bottomClosed":300,...}` with the same fields
+as `setConfig`.
+
+```json
+{"getStoredConfig": "feeder"}
+```
+→ `{"status":"ok","feeder":{"speed":315,...}}` with the same fields as
+`setFeederConfig`.
+
+Both section forms answer `{"error":"no stored config"}` before the first
+`storeConfig`. Older firmware answers `{"error":"unknown command"}`.
+
 ### `readIR`
 ```json
 {"readIR": true}
@@ -408,8 +459,10 @@ is present. `hopper` is `true` while cards remain in the feeder stack.
   either opens the target module's paddle and drives its pusher in the
   requested direction (`"left"`/`"right"`), or opens just the target
   module's own bottom to drop the card there (`"bottom"`).
-- For a `"left"`/`"right"` push, two timings run independently once the
-  pusher fires: the pusher itself returns to neutral after
+- For a `"left"`/`"right"` push, the target module's paddle opens first
+  and gets `paddleOpenDelay` ms (per-module, via `setConfig`, firmware
+  2.6.0+; a fixed 300 ms before) to lower before the pusher fires. Then
+  two timings run independently once the pusher fires: the pusher itself returns to neutral after
   `pusherHoldDuration` ms (per-module, via `setConfig`: long enough to
   complete its stroke and fling the card, short enough not to stall
   against the mechanical stop for long); the

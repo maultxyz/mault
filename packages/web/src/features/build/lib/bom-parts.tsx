@@ -1,41 +1,17 @@
-import type { BoardType } from "@/features/build/api/use-board-type";
 import { BOARD_BUY_URLS, BOARD_INFO } from "@/lib/constants/build";
-import type { TFunction } from "i18next";
-import type { ReactNode } from "react";
 import { Trans } from "react-i18next";
+import type {
+  BoardType,
+  BomGroup,
+  BomRow,
+} from "@/lib/interfaces/build";
 
-type BuildT = TFunction<"build">;
-
-export interface Row {
-  key: string;
-  qty: (moduleCount: number) => string;
-  name: string | ((boardType: BoardType) => string);
-  part: (t: BuildT, boardType: BoardType) => ReactNode;
-  notes: (t: BuildT, moduleCount: number, boardType: BoardType) => ReactNode;
-  buyUrl?: string | ((boardType: BoardType) => string | undefined);
-  optional?: true | "classic-hopper" | "new-hopper";
-}
-
-export function optionalBadgeLabel(
-  t: BuildT,
-  optional: Row["optional"],
-): string {
-  if (optional === "classic-hopper") return t("optionalClassicHopperBadge");
-  if (optional === "new-hopper") return t("optionalNewHopperBadge");
-  return t("optionalBadge");
-}
-
-export interface Group {
-  key: string;
-  rows: Row[];
-}
-
-export function resolveRowName(row: Row, boardType: BoardType): string {
+export function resolveRowName(row: BomRow, boardType: BoardType): string {
   return typeof row.name === "function" ? row.name(boardType) : row.name;
 }
 
 export function resolveRowBuyUrl(
-  row: Row,
+  row: BomRow,
   boardType: BoardType,
 ): string | undefined {
   return typeof row.buyUrl === "function" ? row.buyUrl(boardType) : row.buyUrl;
@@ -44,7 +20,7 @@ export function resolveRowBuyUrl(
 // The bill of materials content, grouped by category - separate from
 // bom.tsx's rendering so the huge parts literal doesn't drown out the
 // component that displays it.
-export const GROUPS: Group[] = [
+export const GROUPS: BomGroup[] = [
   {
     key: "electronics",
     rows: [
@@ -185,7 +161,6 @@ export const GROUPS: Group[] = [
         name: "9.2mm ID 14mm OD 2.4mm Section O-Ring",
         part: (t) => t("bom.groups.structural.items.hopperORing.part"),
         notes: (t) => t("bom.groups.structural.items.hopperORing.notes"),
-        optional: "new-hopper",
         buyUrl: "https://amzn.to/4gPYxJc",
       },
       {
@@ -232,15 +207,6 @@ export const GROUPS: Group[] = [
         buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
-        key: "m3x10-screw",
-        qty: () => "2",
-        name: "M3x10 screw",
-        part: (t) => t("bom.groups.fasteners.items.m3x10Screw.part"),
-        notes: (t) => t("bom.groups.fasteners.items.m3x10Screw.notes"),
-        buyUrl: "https://amzn.to/3VfNwJN",
-        optional: "classic-hopper",
-      },
-      {
         key: "m3-washer",
         qty: () => "2",
         name: "M3 washer",
@@ -255,15 +221,13 @@ export const GROUPS: Group[] = [
         part: (t) => t("bom.groups.fasteners.items.m3x8Screw.part"),
         notes: (t) => t("bom.groups.fasteners.items.m3x8Screw.notes"),
         buyUrl: "https://amzn.to/3VfNwJN",
-        optional: "new-hopper",
       },
       {
         key: "m3x25-screw",
         qty: () => "1",
         name: "M3x25 screw",
         part: (t) => t("bom.groups.fasteners.items.m3x25Screw.part"),
-        notes: (t) => t("bom.groups.fasteners.items.m3x8Screw.notes"),
-        optional: "new-hopper",
+        notes: (t) => t("bom.groups.fasteners.items.m3x25Screw.notes"),
         buyUrl: "https://amzn.to/3VfNwJN",
       },
       {
@@ -272,7 +236,6 @@ export const GROUPS: Group[] = [
         name: '7/32" x 11/16" spring',
         part: (t) => t("bom.groups.fasteners.items.hopperSpring.part"),
         notes: (t) => t("bom.groups.fasteners.items.hopperSpring.notes"),
-        optional: "new-hopper",
         buyUrl: "https://amzn.to/4r1tbUv",
       },
       {

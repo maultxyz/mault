@@ -5,6 +5,9 @@ import type {
   SetupIntroPart,
   SetupIrSeen,
   SetupServoPosition,
+  Device,
+  CalibrationSection,
+  DirectionalSpeed,
 } from "@/lib/interfaces/calibration";
 import {
   IconArrowBarToDown,
@@ -14,6 +17,43 @@ import {
   IconStack2,
   type Icon,
 } from "@tabler/icons-react";
+import {
+  type FeederCalibration,
+  type FirmwareFeature,
+  type ServoCalibration,
+  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  DEFAULT_CHANNEL_LAYOUT,
+  DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  DEFAULT_MATCHES_NEEDED,
+  DEFAULT_MODULE_COUNT,
+  DEFAULT_SCAN_REGION,
+} from "@magic-vault/shared";
+
+export const SERVO_CALIBRATION_FIELDS: (keyof ServoCalibration)[] = [
+  "bottomClosed",
+  "bottomOpen",
+  "paddleClosed",
+  "paddleOpen",
+  "pusherLeft",
+  "pusherNeutral",
+  "pusherRight",
+  "pusherHoldDuration",
+  "paddleCloseDelay",
+  "paddleOpenDelay",
+];
+
+export const STORED_SERVO_CALIBRATION_OPTIONAL_FIELDS: (keyof ServoCalibration)[] =
+  ["paddleOpenDelay"];
+
+export const FEEDER_CALIBRATION_FIELDS: (keyof FeederCalibration)[] = [
+  "speed",
+  "duration",
+  "pulseDuration",
+  "pauseDuration",
+  "settleDuration",
+  "reverseSpeed",
+  "reverseDuration",
+];
 
 export const SERVO_PULSE_MIN = 120;
 export const SERVO_PULSE_MAX = 490;
@@ -31,11 +71,6 @@ export function percentToPulse(percent: number): number {
 }
 
 export const SERVO_PULSE_CENTER = (SERVO_PULSE_MIN + SERVO_PULSE_MAX) / 2;
-
-export interface DirectionalSpeed {
-  direction: "forward" | "reverse";
-  magnitude: number;
-}
 
 export function pulseToDirectionalSpeed(pulse: number): DirectionalSpeed {
   if (pulse <= SERVO_PULSE_CENTER) {
@@ -89,9 +124,11 @@ export const FEEDER_PAUSE_DURATION_SLIDER_MAX = 1_000;
 export const FEEDER_SETTLE_DURATION_SLIDER_MAX = 2_000;
 export const FEEDER_REVERSE_DURATION_SLIDER_MAX = 1_000;
 export const PADDLE_CLOSE_DELAY_SLIDER_MAX = 1_000;
+export const PADDLE_OPEN_DELAY_SLIDER_MAX = 1_000;
 export const PUSHER_HOLD_DURATION_SLIDER_MAX = 1_000;
 
 export const MODULE_DELAY_FIELDS: ModuleDelayField[] = [
+  "paddleOpenDelay",
   "pusherHoldDuration",
   "paddleCloseDelay",
 ];
@@ -106,6 +143,13 @@ export const BIN_SLOTS_PHYSICAL_ORDER = [
 export const MODULE_DELAY_SLIDER_MAX: Record<ModuleDelayField, number> = {
   pusherHoldDuration: PUSHER_HOLD_DURATION_SLIDER_MAX,
   paddleCloseDelay: PADDLE_CLOSE_DELAY_SLIDER_MAX,
+  paddleOpenDelay: PADDLE_OPEN_DELAY_SLIDER_MAX,
+};
+
+export const MODULE_DELAY_FIRMWARE_FEATURES: Partial<
+  Record<ModuleDelayField, FirmwareFeature>
+> = {
+  paddleOpenDelay: "paddleOpenDelay",
 };
 export const CAPTURE_SETTLE_DELAY_SLIDER_MAX = 2_000;
 export const MATCHES_NEEDED_MIN = 1;
@@ -169,3 +213,35 @@ export const DEVICE_TOGGLE_KEYS: DeviceToggleKey[] = [
   "testOnConnect",
   "pipelinedFeed",
 ];
+
+export const DEFAULT_DEVICE: Device = {
+  guid: "",
+  name: "Card Sorter",
+  hardwareId: null,
+  scanRegion: DEFAULT_SCAN_REGION,
+  captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+  matchesNeeded: DEFAULT_MATCHES_NEEDED,
+  checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  moduleCount: DEFAULT_MODULE_COUNT,
+  channelLayout: DEFAULT_CHANNEL_LAYOUT,
+  setupCompletedAt: null,
+  pipelinedFeed: false,
+  autoConnect: false,
+  testOnConnect: true,
+  createdAt: "",
+  updatedAt: "",
+};
+
+export const CALIBRATION_SECTION_PATHS: Record<CalibrationSection, string> = {
+  modules: "modules",
+  scanRegion: "scan-region",
+  calibration: "calibration",
+};
+
+export const CALIBRATION_PATH_SECTIONS: Record<string, CalibrationSection> = {
+  modules: "modules",
+  "scan-region": "scanRegion",
+  calibration: "calibration",
+};
+
+export const CALIBRATION_LIVE_DETECTION_INTERVAL_MS = 200;

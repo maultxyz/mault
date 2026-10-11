@@ -1,11 +1,11 @@
-const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:3001";
-const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
-
-export interface ApiResult<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-}
+import type {
+  ApiResult,
+  CollectionSummary,
+  GameSummary,
+  LinkResult,
+  StatsResult,
+} from "./lib/interfaces";
+import { BOT_API_SECRET, SERVER_URL } from "./lib/constants";
 
 async function botFetch<T>(
   path: string,
@@ -22,11 +22,6 @@ async function botFetch<T>(
   return res.json();
 }
 
-export interface LinkResult {
-  orgName?: string;
-  currentOrgName?: string;
-}
-
 export function linkGuild(guildId: string, code: string, confirm = false) {
   return botFetch<LinkResult>("/bot/link", {
     method: "POST",
@@ -41,45 +36,16 @@ export function unlinkGuild(guildId: string) {
   });
 }
 
-export interface TopCardSummary {
-  name: string;
-  setName: string | null;
-  foil: string | null;
-  collectionName: string;
-  priceDisplay: string;
-  imageUrl: string | null;
-}
-
-export interface StatsResult {
-  collectionCount: number;
-  cardCount: number;
-  totalValue: number;
-  totalValueDisplay?: string;
-  collectionName?: string;
-  topCard: TopCardSummary | null;
-}
-
 export function getStats(guildId: string, collectionGuid?: string) {
   const query = new URLSearchParams({ guildId });
   if (collectionGuid) query.set("collection", collectionGuid);
   return botFetch<StatsResult>(`/bot/stats?${query.toString()}`);
 }
 
-export interface CollectionSummary {
-  guid: string | null;
-  name: string;
-  cardCount: number;
-}
-
 export function getCollections(guildId: string) {
   return botFetch<CollectionSummary[]>(
     `/bot/collections?guildId=${encodeURIComponent(guildId)}`,
   );
-}
-
-export interface GameSummary {
-  key: string;
-  name: string;
 }
 
 export function getGames() {

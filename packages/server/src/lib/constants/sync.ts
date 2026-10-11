@@ -1,24 +1,15 @@
 export const SYNC_DATA_REFRESH_BATCH_SIZE = 500;
-export const COLLECTION_CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
 export const TCGPLAYER_PRICE_UPSERT_BATCH_SIZE = 1000;
 export const TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE = 1000;
 export const CARDMARKET_PRICE_UPSERT_BATCH_SIZE = 1000;
 export const CARDMARKET_PRODUCT_UPSERT_BATCH_SIZE = 1000;
+export const CARDKINGDOM_PRICE_UPSERT_BATCH_SIZE = 1000;
 
 export const FAB_SYNC_PAGE_SIZE = 1000;
 export const FAB_SYNC_LOG_EVERY = 250;
 
+export const GRAND_ARCHIVE_SYNC_PAGE_SIZE = 50;
+
 export const POKEMON_SYNC_PAGE_LIMIT = 1000;
 export const POKEMON_DETAIL_CONCURRENCY = 8;
 export const POKEMON_DETAIL_LOG_EVERY = 1000;
-
-export const COLLECTION_CARD_PRICE_KEYS = [
-  "price",
-  "priceFoil",
-  "priceRange",
-  "priceRangeFoil",
-  "priceEur",
-  "priceEurFoil",
-  "cardmarketPrice",
-  "cardmarketPriceFoil",
-] as const;

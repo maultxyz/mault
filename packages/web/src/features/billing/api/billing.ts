@@ -3,7 +3,6 @@ import { BILLING_STALE_MS } from "@/lib/constants/timing";
 import type { BillingStatus } from "@/lib/interfaces/billing";
 import { queryOptions } from "@tanstack/react-query";
 
-export type { BillingStatus };
 
 export async function getBillingStatus(): Promise<{
   success: boolean;

@@ -1,5 +1,8 @@
+import { and, eq } from "drizzle-orm";
 import { authQuery } from "../../db";
+import { collections, games } from "../../db/schema";
 import { fabAdapter } from "../adapters/fab/search";
+import { grandArchiveAdapter } from "../adapters/grand-archive/search";
 import { gundamAdapter } from "../adapters/gundam/search";
 import { lorcanaAdapter } from "../adapters/lorcana/search";
 import { onePieceAdapter } from "../adapters/onepiece/search";
@@ -10,7 +13,10 @@ import { scryfallAdapter } from "../adapters/scryfall/search";
 import { yugiohAdapter } from "../adapters/yugioh/search";
 import { withCache } from "./cache";
 import { withErrorHandling } from "./error-handling";
-import type { CardSearchAdapter, ResolvedCardSearch } from "./types";
+import type {
+  CardSearchAdapter,
+  ResolvedCardSearch,
+} from "../interfaces/card-search";
 
 export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   mtg: withCache(withErrorHandling(scryfallAdapter)),
@@ -22,6 +28,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   yugioh: withCache(withErrorHandling(yugiohAdapter)),
   riftbound: withCache(withErrorHandling(riftboundAdapter)),
   swu: withCache(withErrorHandling(swuAdapter)),
+  grandarchive: withCache(withErrorHandling(grandArchiveAdapter)),
 };
 
 export async function resolveGameKeyAndLang(
@@ -30,17 +37,18 @@ export async function resolveGameKeyAndLang(
 ): Promise<{ gameKey: string; lang: string } | null> {
   if (!collectionGuid) return null;
   return authQuery(jwtClaims, async (tx) => {
-    const collection = await tx.query.collections.findFirst({
-      where: (t, { eq }) => eq(t.guid, collectionGuid),
-      columns: { gameId: true, lang: true },
-    });
-    if (!collection?.gameId) return null;
-    const game = await tx.query.games.findFirst({
-      where: (t, { eq }) => eq(t.id, collection.gameId!),
-      columns: { key: true },
-    });
-    if (!game) return null;
-    return { gameKey: game.key, lang: collection.lang };
+    const [row] = await tx
+      .select({ gameKey: games.key, lang: collections.lang })
+      .from(collections)
+      .innerJoin(games, eq(games.id, collections.gameId))
+      .where(
+        and(
+          eq(collections.guid, collectionGuid),
+          eq(collections.isDeleted, false),
+        ),
+      )
+      .limit(1);
+    return row ?? null;
   });
 }
 

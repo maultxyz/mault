@@ -1,11 +1,12 @@
 import type { ReactNode } from "react";
 
-export type HotkeyGroup = "general" | "navigation" | "scanner";
+export type HotkeyGroup = "general" | "navigation" | "scanner" | "cardDetail";
 
 export type HotkeyId =
   | "showShortcuts"
   | "toggleSidebar"
   | "focusSearch"
+  | "dismissToasts"
   | "goScanner"
   | "goCollections"
   | "goMonitor"
@@ -19,7 +20,15 @@ export type HotkeyId =
   | "scanToggleAutoFeed"
   | "scanCycleFoil"
   | "scanPickSet"
-  | "scanClearDevice";
+  | "scanClearDevice"
+  | "cardPrevious"
+  | "cardNext"
+  | "cardCorrect"
+  | "cardToggleFoil"
+  | "cardClose"
+  | "cardRemove"
+  | "reviewStart"
+  | "reviewAccept";
 
 export interface HotkeyCombo {
   key: string;
@@ -36,6 +45,7 @@ export type HotkeyHandlers = Partial<Record<HotkeyId, () => void>>;
 export interface HotkeyRegistration {
   getHandlers: () => HotkeyHandlers;
   isEnabled: () => boolean;
+  priority: number;
 }
 
 export interface HotkeyHintProps {

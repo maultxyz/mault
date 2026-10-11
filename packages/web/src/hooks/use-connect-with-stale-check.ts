@@ -3,8 +3,7 @@ import { useSerial } from "@/features/scanner/api/use-serial";
 import { STALE_DEVICE_THRESHOLD_DAYS } from "@/lib/constants/scanner";
 import { useCallback, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
-type PendingConnectKind = "usb" | "bluetooth";
+import type { PendingConnectKind } from "@/lib/interfaces/calibration";
 
 export function useConnectWithStaleCheck() {
   const { connect, connectBluetooth, runTest } = useSerial();

@@ -1,10 +1,7 @@
 import { InferenceSession, Tensor } from "onnxruntime-node";
 import sharp from "sharp";
+import { IMAGENET_MEAN, IMAGENET_STD, MILO_INPUT_SIZE } from "@magic-vault/shared";
 import { resolveMiloModelPath } from "./models/model-registry";
-
-const INPUT_SIZE = 448;
-const IMAGENET_MEAN = [0.485, 0.456, 0.406];
-const IMAGENET_STD = [0.229, 0.224, 0.225];
 
 let sessionPromise: Promise<InferenceSession> | null = null;
 
@@ -28,7 +25,7 @@ async function toChwTensor(buffer: Buffer): Promise<Float32Array> {
   const { data, info } = await sharp(buffer)
     .rotate()
     .toColourspace("srgb")
-    .resize(INPUT_SIZE, INPUT_SIZE, { fit: "fill", kernel: "linear" })
+    .resize(MILO_INPUT_SIZE, MILO_INPUT_SIZE, { fit: "fill", kernel: "linear" })
     .removeAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
@@ -39,7 +36,7 @@ async function toChwTensor(buffer: Buffer): Promise<Float32Array> {
     );
   }
 
-  const plane = INPUT_SIZE * INPUT_SIZE;
+  const plane = MILO_INPUT_SIZE * MILO_INPUT_SIZE;
   const chw = new Float32Array(3 * plane);
   for (let i = 0; i < plane; i++) {
     const o = i * 3;
@@ -53,7 +50,7 @@ async function toChwTensor(buffer: Buffer): Promise<Float32Array> {
 export async function embedCardImage(buffer: Buffer): Promise<number[]> {
   const session = await getSession();
   const chw = await toChwTensor(buffer);
-  const tensor = new Tensor("float32", chw, [1, 3, INPUT_SIZE, INPUT_SIZE]);
+  const tensor = new Tensor("float32", chw, [1, 3, MILO_INPUT_SIZE, MILO_INPUT_SIZE]);
   const inputName = session.inputNames[0];
   const outputName = session.outputNames[0];
   const outputs = await session.run({ [inputName]: tensor });

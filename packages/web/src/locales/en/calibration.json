@@ -21,7 +21,7 @@
     "description": "How many physical sorting modules are wired up. Changes the number of bins available and the sections below.",
     "reduceConfirm": {
       "title": "Reduce module count?",
-      "description": "Dropping to {{count}} modules will permanently delete the sorting rules and calibration data for modules and bins beyond that count, across every bin preset. This can't be undone.",
+      "description": "Dropping to {{count}} modules will remove the sorting rules and calibration data for modules and bins beyond that count, across every bin preset.",
       "confirm": "Change Module Count"
     }
   },
@@ -57,8 +57,13 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
-      "unlimited": "Unlimited"
-    }
+      "unlimited": "Unlimited",
+      "custom": "Custom"
+    },
+    "customHeightLabel": "Custom bin height for bin {{bin}}",
+    "customHeightUnit": "mm",
+    "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
+    "customHeightInvalid": "Enter {{min}} to {{max}} mm"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
@@ -66,7 +71,8 @@
     "dropCard": "Drop Card",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
-    "sampleRun": "Sample Run"
+    "sampleRun": "Sample Run",
+    "resetToNeutral": "Reset to neutral"
   },
   "feederCalibrationPanel": {
     "heading": "Feeder",
@@ -118,6 +124,8 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "More than {{percent}}% away from neutral. The arm shouldn't touch the inner wall, and the further out you push it, the higher the risk of skipping gears or the horn shifting on the shaft.",
+    "paddleOpenDelayLabel": "Paddle Open Delay (ms)",
+    "paddleOpenDelayDescription": "How long the paddle gets to lower before the pusher fires. Longer if the pusher hits the card before the paddle is fully down; shorter to sort faster.",
     "pusherHoldDurationLabel": "Pusher Hold Time (ms)",
     "pusherHoldDurationDescription": "How long the pusher stays extended before returning to neutral. Longer if cards aren't pushed fully out before it retracts; keep it short, since holding against the end stop strains the servo horn.",
     "paddleCloseDelayLabel": "Paddle Close Delay (ms)",
@@ -190,6 +198,44 @@
       "saveFailed": "Failed to save module config"
     }
   },
+  "storedCalibration": {
+    "dialog": {
+      "title": "Calibration differs from the sorter",
+      "description": "{{name}} has calibration saved on it that doesn't match the calibration saved in the app. Choose which one to keep.",
+      "setting": "Setting",
+      "app": "App",
+      "sorter": "Sorter",
+      "module": "Module {{module}}",
+      "feeder": "Feeder",
+      "hint": "Using the app's calibration overwrites the sorter's. Using the sorter's saves its values to the app, where you can still undo them from the calibration history.",
+      "useSorter": "Use sorter's",
+      "useApp": "Use app's"
+    },
+    "fields": {
+      "bottomClosed": "Bottom closed",
+      "bottomOpen": "Bottom open",
+      "paddleClosed": "Paddles closed",
+      "paddleOpen": "Paddles open",
+      "pusherLeft": "Pusher left",
+      "pusherNeutral": "Pusher neutral",
+      "pusherRight": "Pusher right",
+      "pusherHoldDuration": "Pusher hold time (ms)",
+      "paddleCloseDelay": "Paddle close delay (ms)",
+      "paddleOpenDelay": "Paddle open delay (ms)",
+      "speed": "Speed",
+      "duration": "Timeout (ms)",
+      "pulseDuration": "Pulse (ms)",
+      "pauseDuration": "Pause (ms)",
+      "settleDuration": "Final detection delay (ms)",
+      "reverseSpeed": "Roll back speed",
+      "reverseDuration": "Roll back time (ms)"
+    },
+    "toasts": {
+      "adopted": "Saved the sorter's calibration to the app",
+      "adoptFailed": "Couldn't save the sorter's calibration, using the app's instead",
+      "storeFailed": "Couldn't save calibration on the sorter"
+    }
+  },
   "useBinRoutes": {
     "toasts": {
       "saveFailed": "Failed to save bin route",
@@ -207,9 +253,26 @@
       "saveFailed": "Failed to save changes"
     }
   },
+  "offlineCalibration": {
+    "wizardBody": "Nothing moves while you adjust, so you can't check these positions. The sensor check and self-test are skipped, and the saved values are sent to the sorter the next time it connects.",
+    "notConnectedTitle": "No sorter connected",
+    "notConnectedBody": "Connect a sorter to calibrate it live, or edit its saved calibration without one.",
+    "start": "Calibrate without a sorter",
+    "activeTitle": "Calibrating without a sorter",
+    "activeBody": "Nothing moves while you adjust, so you can't check these positions. Saved values are sent to the sorter the next time it connects.",
+    "stop": "Stop",
+    "warningTitle": "Calibrate without a sorter?",
+    "warningDescription": "You can change and save this sorter's calibration without it connected, but read this first.",
+    "warningNoPreview": "The servos don't move while you adjust, so you can't see whether a position is right.",
+    "warningDamage": "A wrong position can drive a servo into its end stop the next time the sorter runs, which strains or strips the servo and can jam cards.",
+    "warningSync": "Saved values are sent to the sorter the next time it connects. If they differ from what the sorter has stored, you'll be asked which to keep.",
+    "cancel": "Cancel",
+    "accept": "I understand, continue"
+  },
   "calibratePage": {
     "resetServosToDefaults": "Reset servos to defaults",
     "moduleHistory": {
+      "paddleOpenDelay": "Paddle Open Delay",
       "bottom": "Bottom",
       "paddle": "Paddle",
       "pusherHoldDuration": "Pusher Hold Time",
@@ -309,7 +372,7 @@
     "positions": {
       "bottomClosed": {
         "title": "Bottom paddle: closed",
-        "body": "Drag until the trapdoor sits flat and fully shut, so a card resting on it can't slip through. Stop as soon as it's closed; pushing further strains the servo."
+        "body": "Drag until the trapdoor closes off the bottom of the module, so a card resting on it can't fall through. It doesn't have to be perfectly level. Stop as soon as it's closed; pushing further strains the servo."
       },
       "bottomOpen": {
         "title": "Bottom paddle: open",
@@ -382,5 +445,21 @@
     "autoConnectDescription": "When this sorter is plugged in over USB while the app is open (or is already plugged in when the app loads), it connects on its own and runs its self-test so it's ready to scan. Over Bluetooth, if it drops or is power-cycled, the app keeps trying to reconnect until the tab is closed. Connect it by hand once in this browser first, so the browser allows it.",
     "testOnConnectLabel": "Run self-test on connect",
     "testOnConnectDescription": "When on, the sorter cycles every servo and checks its sensors each time it connects. When off, it only loads its saved calibration and is ready right away. You can still run the test from the calibration page."
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "Check which firmware the sorter is running and update it from this browser.",
+    "installed": "Installed",
+    "latest": "Latest",
+    "outdated": "Update available",
+    "unknownVersion": "Unknown",
+    "notConnected": "Not connected",
+    "flashConnected": "Flash firmware",
+    "flashBoard": "Flash a board",
+    "getRelease": "Download firmware",
+    "bluetoothNote": "Flashing doesn't work over Bluetooth. Connect the sorter with a USB cable to flash it.",
+    "unoNote": "Arduino Uno R4 boards can't be flashed from the browser. Download the firmware and upload it with the Arduino IDE.",
+    "notConnectedHint": "Connect a sorter to see its version, or flash an ESP32-S3 over USB without connecting it first.",
+    "unsupported": "This browser can't flash boards. Use Chrome or Edge on a computer."
   }
 }

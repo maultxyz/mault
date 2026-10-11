@@ -1,17 +1,13 @@
-import { ONBOARDING_COMPLETED_KEY } from "@/lib/constants/storage-keys";
-
-export function isOnboardingCompleted(): boolean {
+export function isTourCompleted(key: string): boolean {
   try {
-    return localStorage.getItem(ONBOARDING_COMPLETED_KEY) === "true";
+    return localStorage.getItem(key) === "true";
   } catch {
     return true;
   }
 }
 
-export function markOnboardingCompleted(): void {
+export function markTourCompleted(key: string): void {
   try {
-    localStorage.setItem(ONBOARDING_COMPLETED_KEY, "true");
-  } catch {
-    // Storage unavailable (private browsing, disabled cookies) - skip persisting.
-  }
+    localStorage.setItem(key, "true");
+  } catch {}
 }

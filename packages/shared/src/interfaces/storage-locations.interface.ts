@@ -5,6 +5,7 @@ export interface StorageLocation {
   name: string;
   cardCount: number;
   totalValue: number;
+  lastUsedAt: Date | null;
   createdAt: Date;
 }
 
@@ -19,6 +20,18 @@ export interface StorageLocationCard {
   position: number;
   collectionGuid: string;
   collectionName: string;
+  card: PlayingCardWithDistance;
+  isFoil: boolean;
+  foilType: string | null;
+  needsReview: boolean;
+  corrected: boolean;
+}
+
+export interface StorageLocationExportCard {
+  scanId: string;
+  position: number;
+  collectionName: string;
+  gameKey: string | null;
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;

@@ -20,15 +20,15 @@
       },
       {
         "title": "Generate a code",
-        "description": "In Magic Vault, open Integrations and generate a link code. It's only valid for a few minutes."
+        "description": "In Magic Vault, open Settings > Notifications and generate a link code. It's only valid for a few minutes."
       },
       {
         "title": "Run /link",
-        "description": "In your Discord server, run /link <code> with the code from Integrations. Requires the Manage Server permission."
+        "description": "In your Discord server, run /link <code> with the code from Notifications. Requires the Manage Server permission."
       },
       {
         "title": "Pick your channels",
-        "description": "Back on the Integrations page, choose where scans and alerts get posted, per collection if you like, and add rules for which cards go where."
+        "description": "Back on the Notifications page, choose where scans and alerts get posted, per collection if you like, and add rules for which cards go where."
       }
     ]
   },

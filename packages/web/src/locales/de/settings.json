@@ -1,12 +1,13 @@
 {
   "title": "Einstellungen",
-  "subtitle": "Organisation, Abrechnung, Scannen, Sounds und Integrationen",
+  "subtitle": "Organisation, Abrechnung, Scannen, Sounds, Benachrichtigungen und Integrationen",
   "sections": {
     "general": "Allgemein",
     "organization": "Organisation",
     "billing": "Abrechnung",
     "scanning": "Scannen",
     "sounds": "Sounds",
+    "notifications": "Benachrichtigungen",
     "integrations": "Integrationen"
   },
   "organizations": {
@@ -29,10 +30,11 @@
   },
   "pricing": {
     "heading": "Preise",
-    "description": "Wähle, welche Marktplatzpreise deine Organisation für Karten, Sammlungswerte und Discord-Beiträge nutzt.",
+    "description": "Wähle, welche Marktplatzpreise deine Organisation für Karten, Sammlungswerte und Discord-Beiträge nutzt. Card Kingdom liefert nur Preise für Magic: The Gathering.",
     "sources": {
       "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket"
+      "cardmarket": "Cardmarket",
+      "cardkingdom": "Card Kingdom"
     }
   },
   "sessionWrapped": {
@@ -52,10 +54,17 @@
   },
   "correctionAutoClose": {
     "heading": "Hinweis nach Kartenkorrektur",
+    "promptToggleLabel": "Fragen, ob korrigierte Karten umgelegt werden",
+    "promptToggleDescription": "Schalte das aus, wenn korrigierte Karten dort bleiben, wo sie einsortiert wurden. Die Karte behält ihr aktuelles Fach und es erscheint kein Hinweis.",
     "description": "Nach dem Korrigieren oder Zuordnen einer Karte zeigt ein Hinweis, in welchem Fach sie liegt und in welches sie gehört. Mit automatischem Schließen gilt die Karte nach Ablauf der Zeit als umgelegt, ohne Klick.",
     "toggleLabel": "Automatisch schließen und als umgelegt markieren",
     "secondsLabel": "Schließen nach",
     "seconds_one": "{{count}} Sekunde",
     "seconds_other": "{{count}} Sekunden"
+  },
+  "deployPause": {
+    "heading": "Updates",
+    "description": "Während Mault aktualisiert wird, werden scannende Sortierer pausiert und ein Hinweis erklärt den Grund, damit keine Karten verloren gehen, falls ein Speichern während des Updates fehlschlägt. Über den Hinweis kannst du sofort fortfahren.",
+    "toggleLabel": "Scannen während Updates pausieren"
   }
 }

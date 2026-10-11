@@ -8,7 +8,9 @@
     "games": "Games",
     "users": "Users",
     "plans": "Plans",
+    "discordStats": "Discord stats",
     "announcements": "Announcements",
+    "deleted": "Deleted items",
     "servos": "Kit testing",
     "device": "Device",
     "developer": "Developer"
@@ -161,8 +163,8 @@
   "impersonationUsersManager": {
     "heading": "Impersonate User",
     "description": "Search for a user to view the app as them, for support/debugging",
-    "searchPlaceholder": "Search by name or email...",
-    "startTyping": "Start typing a name or email to search",
+    "searchPlaceholder": "Search by name, email or organization...",
+    "startTyping": "Start typing a name, email or organization to search",
     "empty": "No users found",
     "noOrgs": "No organizations",
     "adminBadge": "Admin",
@@ -180,7 +182,8 @@
   },
   "metricsStats": {
     "heading": "Scan stats",
-    "description": "App-wide card scan totals across every organization",
+    "description": "App-wide scan activity across every organization, and whether each scan was vectorized on the server or in the browser. Someone counts as actively scanning while they've saved a scan in the last {{minutes}} minutes.",
+    "allTimeHeading": "All time",
     "totalScannedLabel": "Total scanned",
     "matchedLabel": "Matched",
     "unidentifiedLabel": "Unidentified",
@@ -192,7 +195,6 @@
   },
   "activeScanning": {
     "heading": "Active scanning",
-    "description": "Live across every organization. Someone counts as scanning while they've saved a scan in the last {{minutes}} minutes.",
     "scanners": "People scanning",
     "sessions": "Collections being scanned",
     "orgs": "Organizations",
@@ -201,7 +203,6 @@
   },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
-    "description": "How many card scans were vectorized on the server vs. in the browser",
     "serverLabel": "Server",
     "webLabel": "Web",
     "percentOfTotal": "{{percent}}% of scans"
@@ -324,6 +325,10 @@
       "storage": {
         "label": "Storage locations",
         "description": "Create locations and record bins into them. Existing locations stay viewable either way."
+      },
+      "apiAccess": {
+        "label": "API access",
+        "description": "Create organization API keys and read cards and storage locations through the public API. Revoking existing keys always works."
       }
     },
     "limits": {
@@ -344,5 +349,82 @@
         "description": "Discord notification rules across all games. Only checked when adding a rule."
       }
     }
+  },
+  "deletedItems": {
+    "heading": "Deleted items",
+    "description": "Everything deleted in any organization, except scanned cards. Restoring puts an item back exactly as it was.",
+    "searchPlaceholder": "Search by name or organization",
+    "allTypes": "All types",
+    "empty": "Nothing has been deleted",
+    "restore": "Restore",
+    "global": "Global",
+    "lastUpdated": "Last changed {{date}}",
+    "types": {
+      "collection": "Collection",
+      "binSet": "Bin preset",
+      "bin": "Bin",
+      "device": "Sorter",
+      "binRoute": "Bin route",
+      "binHeight": "Bin height",
+      "moduleConfig": "Module calibration",
+      "storageLocation": "Storage location",
+      "soundClip": "Sound clip",
+      "soundRule": "Sound rule",
+      "notificationRule": "Notification rule",
+      "game": "Game",
+      "announcement": "Announcement"
+    },
+    "toasts": {
+      "restored": "Restored {{name}}",
+      "restoreError": "Couldn't restore that item"
+    }
+  },
+  "platformStats": {
+    "destinationHeading": "Destination",
+    "destinationDescription": "The Discord server and channel the platform stats are posted to. The bot must be in the server and able to post in the channel.",
+    "server": "Server",
+    "channel": "Channel",
+    "noServer": "No server",
+    "noChannel": "No channel",
+    "loadingChannels": "Loading channels...",
+    "botUnreachable": "The Discord bot isn't reachable, so servers and channels can't be listed right now.",
+    "statsHeading": "Stats",
+    "statsDescription": "Which numbers to include in each post, across every organization.",
+    "stats": {
+      "scannedCards": {
+        "label": "Scanned cards",
+        "description": "Every scan ever saved, matched or not. Deleting cards doesn't lower it."
+      },
+      "scansLast24Hours": {
+        "label": "Scans in the last 24 hours",
+        "description": "Scans saved in the 24 hours before the post."
+      },
+      "devices": {
+        "label": "Calibrated devices",
+        "description": "Calibrated sorters: at least one module saved with servo values other than the defaults. Deleted ones are excluded."
+      },
+      "users": {
+        "label": "Users",
+        "description": "Accounts that have signed up."
+      },
+      "organizations": {
+        "label": "Organizations",
+        "description": "Organizations that exist."
+      },
+      "collections": {
+        "label": "Collections",
+        "description": "Collections across every organization, excluding deleted ones."
+      }
+    },
+    "scheduleHeading": "Schedule",
+    "scheduleDescription": "Posts are sent when this command runs. Add it as a scheduled task in Coolify on the server app, with whatever cron you want.",
+    "postNow": "Post now",
+    "lastPosted": "Last posted {{date}}.",
+    "neverPosted": "Not posted yet.",
+    "saveBeforePosting": "Save your changes before posting.",
+    "saved": "Stats settings saved.",
+    "saveFailed": "Couldn't save the stats settings.",
+    "posted": "Stats posted to Discord.",
+    "postFailed": "Couldn't post the stats."
   }
 }

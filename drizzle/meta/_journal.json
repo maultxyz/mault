@@ -610,6 +610,132 @@
       "when": 1791245820187,
       "tag": "0086_deploy_announcements",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1791327706380,
+      "tag": "0087_fancy_ma_gnuci",
+      "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1791391635230,
+      "tag": "0088_watery_tiger_shark",
+      "breakpoints": true
+    },
+    {
+      "idx": 89,
+      "version": "7",
+      "when": 1791402054929,
+      "tag": "0089_lively_bloodstorm",
+      "breakpoints": true
+    },
+    {
+      "idx": 90,
+      "version": "7",
+      "when": 1791403077350,
+      "tag": "0090_mixed_mantis",
+      "breakpoints": true
+    },
+    {
+      "idx": 91,
+      "version": "7",
+      "when": 1791411035951,
+      "tag": "0091_foamy_the_liberteens",
+      "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1791427644028,
+      "tag": "0092_wakeful_luminals",
+      "breakpoints": true
+    },
+    {
+      "idx": 93,
+      "version": "7",
+      "when": 1791430142948,
+      "tag": "0093_watery_jean_grey",
+      "breakpoints": true
+    },
+    {
+      "idx": 94,
+      "version": "7",
+      "when": 1791468603329,
+      "tag": "0094_mute_brood",
+      "breakpoints": true
+    },
+    {
+      "idx": 95,
+      "version": "7",
+      "when": 1791472811450,
+      "tag": "0095_bitter_reavers",
+      "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1791477421049,
+      "tag": "0096_blue_screwball",
+      "breakpoints": true
+    },
+    {
+      "idx": 97,
+      "version": "7",
+      "when": 1791505369454,
+      "tag": "0097_lumpy_exiles",
+      "breakpoints": true
+    },
+    {
+      "idx": 98,
+      "version": "7",
+      "when": 1791506742399,
+      "tag": "0098_amazing_shen",
+      "breakpoints": true
+    },
+    {
+      "idx": 99,
+      "version": "7",
+      "when": 1791506749817,
+      "tag": "0099_military_stryfe",
+      "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1791514992210,
+      "tag": "0100_blue_hammerhead",
+      "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1791577334472,
+      "tag": "0101_bent_dreadnoughts",
+      "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1791580368079,
+      "tag": "0102_cynical_retro_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1791581704850,
+      "tag": "0103_cultured_logan",
+      "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1791591138543,
+      "tag": "0104_brave_black_tarantula",
+      "breakpoints": true
     }
   ]
 }

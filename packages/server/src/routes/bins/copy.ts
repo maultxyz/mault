@@ -1,9 +1,13 @@
-import { and, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { binSetNameTaken, loadSets, resolveGameId } from "./shared";
+import {
+  binSetNameTaken,
+  loadSets,
+  resolveGameId,
+  activeBinSetWhere,
+} from "./shared";
 
 export const copyBinSetRoute = new Hono<AppEnv>().post(
   "/copies",
@@ -33,28 +37,21 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
         const gameId = await resolveGameId(tx, gameGuid);
 
         const active = await tx.query.binSets.findFirst({
-          where: (binSets, { eq, and, isNull }) =>
-            gameId === null
-              ? and(
-                  eq(binSets.isActive, true),
-                  isNull(binSets.gameId),
-                  eq(binSets.orgId, orgId),
-                )
-              : and(
-                  eq(binSets.isActive, true),
-                  eq(binSets.gameId, gameId),
-                  eq(binSets.orgId, orgId),
-                ),
+          where: (t) => activeBinSetWhere(t, orgId, gameId),
           columns: { id: true },
           with: {
             bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
               columns: {
                 binNumber: true,
                 rules: true,
                 isCatchAll: true,
                 isOverride: true,
+                overridePriority: true,
+                lowMatchPercent: true,
                 cardLimit: true,
                 maxCopies: true,
+                maxCopiesBy: true,
                 isDisabled: true,
               },
             },
@@ -72,8 +69,11 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
               rules: bin.rules,
               isCatchAll: bin.isCatchAll,
               isOverride: bin.isOverride,
+              overridePriority: bin.overridePriority,
+              lowMatchPercent: bin.lowMatchPercent,
               cardLimit: bin.cardLimit,
               maxCopies: bin.maxCopies,
+              maxCopiesBy: bin.maxCopiesBy,
               isDisabled: bin.isDisabled,
               binSet: newBinSet.id,
               orgId,

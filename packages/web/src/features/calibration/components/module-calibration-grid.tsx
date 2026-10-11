@@ -1,3 +1,4 @@
+import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
 import { SliderField } from "@/components/slider-field";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { getCalibrationKey } from "@/features/calibration/lib/calibration-utils"
 import { cn } from "@/lib/utils";
 import {
   MODULE_DELAY_FIELDS,
+  MODULE_DELAY_FIRMWARE_FEATURES,
   MODULE_DELAY_SLIDER_MAX,
   PUSH_TEST_DIRECTIONS,
   percentToPulse,
@@ -26,16 +28,13 @@ import {
   sliderMax,
 } from "@/lib/constants/calibration";
 import type {
-  ActivePositions,
-  ModuleDelayField,
-  ServoConfig,
   SliderKey,
+  ServoControlProps,
+  ModuleDelayControlProps,
+  PushTestControlProps,
+  ModuleCalibrationGridProps,
 } from "@/lib/interfaces/calibration";
-import {
-  DEFAULT_CALIBRATION,
-  type ModuleConfig,
-  type ServoCalibration,
-} from "@magic-vault/shared";
+import { DEFAULT_CALIBRATION } from "@magic-vault/shared";
 import {
   IconAlertTriangle,
   IconInfoCircle,
@@ -43,29 +42,6 @@ import {
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-
-interface ServoControlProps {
-  module: number;
-  servo: ServoConfig;
-  sliderValue: number;
-  activePosition: string | null | undefined;
-  calibration: ServoCalibration | undefined;
-  isLoading: boolean;
-  canCalibrate: boolean;
-  isTesting: boolean;
-  showRaw: boolean;
-  onControl: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    position: string,
-  ) => void;
-  onSliderChange: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    value: number,
-  ) => void;
-  onTest: (module: number, servo: "bottom" | "paddle" | "pusher") => void;
-}
 
 function ServoControl({
   module,
@@ -75,6 +51,7 @@ function ServoControl({
   calibration,
   isLoading,
   canCalibrate,
+  canTest,
   isTesting,
   showRaw,
   onControl,
@@ -104,7 +81,7 @@ function ServoControl({
               <Button
                 variant="ghost"
                 size="icon-xs"
-                disabled={!canCalibrate || !calibration}
+                disabled={!canTest || !calibration}
                 onClick={() => onTest(module, servo.name)}
                 className={cn(isTesting && "text-primary")}
               >
@@ -267,23 +244,16 @@ function ServoControl({
   );
 }
 
-interface ModuleDelayControlProps {
-  module: number;
-  field: ModuleDelayField;
-  value: number;
-  isConnected: boolean;
-  onChange: (module: number, field: ModuleDelayField, value: number) => void;
-}
-
 function ModuleDelayControl({
   module,
   field,
   value,
-  isConnected,
+  canEdit,
   onChange,
 }: ModuleDelayControlProps) {
   const { t } = useTranslation("calibration");
-  return (
+  const feature = MODULE_DELAY_FIRMWARE_FEATURES[field];
+  const slider = (
     <SliderField
       label={t(`moduleCalibrationGrid.${field}Label`)}
       description={t(`moduleCalibrationGrid.${field}Description`)}
@@ -291,18 +261,13 @@ function ModuleDelayControl({
       min={0}
       max={sliderMax(value, MODULE_DELAY_SLIDER_MAX[field])}
       step={10}
-      disabled={!isConnected}
+      disabled={!canEdit}
       value={value}
       onValueChange={(v) => onChange(module, field, v)}
     />
   );
-}
-
-interface PushTestControlProps {
-  module: number;
-  isReady: boolean;
-  isTesting: boolean;
-  onTest: (module: number, direction: "left" | "right") => void;
+  if (!feature) return slider;
+  return <FirmwareFeatureGate feature={feature}>{slider}</FirmwareFeatureGate>;
 }
 
 function PushTestControl({
@@ -345,38 +310,6 @@ function PushTestControl({
   );
 }
 
-interface ModuleCalibrationGridProps {
-  modules: number[];
-  configs: ModuleConfig[];
-  active: ActivePositions;
-  sliderValues: Record<SliderKey, number>;
-  moduleDelayValues: Record<number, Record<ModuleDelayField, number>>;
-  pendingCalibration: Record<number, Partial<ServoCalibration>>;
-  isLoading: boolean;
-  isConnected: boolean;
-  isReady: boolean;
-  canCalibrate: boolean;
-  onControl: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    position: string,
-  ) => void;
-  onSliderChange: (
-    module: number,
-    servo: "bottom" | "paddle" | "pusher",
-    value: number,
-  ) => void;
-  onModuleDelayChange: (
-    module: number,
-    field: ModuleDelayField,
-    value: number,
-  ) => void;
-  testingServos: Record<SliderKey, boolean>;
-  onTest: (module: number, servo: "bottom" | "paddle" | "pusher") => void;
-  pushTestingModule: number | null;
-  onPushTest: (module: number, direction: "left" | "right") => void;
-}
-
 export function ModuleCalibrationGrid({
   modules,
   configs,
@@ -385,7 +318,8 @@ export function ModuleCalibrationGrid({
   moduleDelayValues,
   pendingCalibration,
   isLoading,
-  isConnected,
+  canEditTimings,
+  canTestServos,
   isReady,
   canCalibrate,
   onControl,
@@ -453,6 +387,7 @@ export function ModuleCalibrationGrid({
                   calibration={effectiveCal}
                   isLoading={isLoading}
                   canCalibrate={canCalibrate}
+                  canTest={canTestServos}
                   isTesting={testingServos[sliderKey] ?? false}
                   showRaw={showRaw}
                   onControl={onControl}
@@ -470,7 +405,7 @@ export function ModuleCalibrationGrid({
                   moduleDelayValues[module]?.[field] ??
                   DEFAULT_CALIBRATION[field]
                 }
-                isConnected={isConnected}
+                canEdit={canEditTimings}
                 onChange={onModuleDelayChange}
               />
             ))}

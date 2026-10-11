@@ -1,3 +1,4 @@
+import type { SourceCard } from "./interfaces/card.interface";
 import type { ScannedCard } from "./interfaces/scanner.interface";
 import type {
   AlphabetStep,
@@ -12,14 +13,16 @@ import { isRuleGroup } from "./interfaces/sort-bins.interface";
 import {
   ALPHABET_LETTERS,
   ALPHABET_PREFIX_MAX_LENGTH,
+  CUSTOM_BIN_HEIGHT_MAX_MM,
+  CUSTOM_BIN_HEIGHT_MIN_MM,
   DEFAULT_BIN_HEIGHT,
   DEFAULT_CARD_THICKNESS_MM,
+  REPACK_UNIQUE_BY_NAME,
+  REPACK_UNIQUE_BY_PRINTING,
   UNLIMITED_BIN_HEIGHT,
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
 import { cardMatchPercent } from "./scan-rule-fields";
-
-export type SourceCard = object;
 
 export function getByPath(card: SourceCard, path: string): unknown {
   return path.split(".").reduce<unknown>((value, key) => {
@@ -187,7 +190,9 @@ export function getCatchAllBin(configs: BinConfig[]): BinConfig | undefined {
   return configs.find((c) => c.isCatchAll);
 }
 
-export function getCatchAllMatchThreshold(rules: BinRuleGroup): number | null {
+export function parseLegacyCatchAllThreshold(
+  rules: BinRuleGroup,
+): number | null {
   if (rules.conditions.length !== 1) return null;
   const [condition] = rules.conditions;
   if (
@@ -206,11 +211,55 @@ export function findLowMatchCatchAll(
   configs: BinConfig[],
 ): BinConfig | undefined {
   const catchAll = getCatchAllBin(configs);
-  if (!catchAll) return undefined;
-  const threshold = getCatchAllMatchThreshold(catchAll.rules);
-  if (threshold == null) return undefined;
+  const threshold = catchAll?.lowMatchPercent;
+  if (!catchAll || threshold == null) return undefined;
   const percent = cardMatchPercent(card);
   return percent != null && percent < threshold ? catchAll : undefined;
+}
+
+export function isOverrideBin(config: BinConfig): boolean {
+  return config.isCatchAll
+    ? config.rules.conditions.length > 0
+    : !!config.isOverride;
+}
+
+function compareOverrides(
+  a: BinConfig,
+  b: BinConfig,
+  cardsInBin?: (bin: BinConfig) => number,
+): number {
+  const rankA = a.overridePriority ?? Number.POSITIVE_INFINITY;
+  const rankB = b.overridePriority ?? Number.POSITIVE_INFINITY;
+  if (rankA !== rankB) return rankA - rankB;
+  if (a.overridePriority == null || !cardsInBin) return 0;
+  return cardsInBin(a) - cardsInBin(b);
+}
+
+export function sortOverrideBins(
+  configs: BinConfig[],
+  cardsInBin?: (bin: BinConfig) => number,
+): BinConfig[] {
+  return configs
+    .filter(isOverrideBin)
+    .map((config, index) => ({ config, index }))
+    .sort(
+      (a, b) =>
+        compareOverrides(a.config, b.config, cardsInBin) || a.index - b.index,
+    )
+    .map(({ config }) => config);
+}
+
+export function matchesCatchAllRules(
+  card: SourceCard,
+  configs: BinConfig[],
+  fieldDefinitions: FieldMeta[],
+): boolean {
+  const catchAll = getCatchAllBin(configs);
+  return (
+    !!catchAll &&
+    catchAll.rules.conditions.length > 0 &&
+    evaluateRuleGroup(card, catchAll.rules, fieldDefinitions)
+  );
 }
 
 export function evaluateCardBin(
@@ -218,27 +267,36 @@ export function evaluateCardBin(
   configs: BinConfig[],
   fieldDefinitions: FieldMeta[],
   copiesInBin?: (bin: BinConfig) => number,
+  cardsInBin?: (bin: BinConfig) => number,
 ): BinConfig | undefined {
   let catchAll: BinConfig | undefined;
   let firstMatch: BinConfig | undefined;
+  let override: BinConfig | undefined;
 
   for (const config of configs) {
-    if (config.isCatchAll) {
-      catchAll = config;
+    if (config.isCatchAll) catchAll = config;
+    const isOverride = isOverrideBin(config);
+    if (
+      (config.isDisabled && !config.isCatchAll) ||
+      config.rules.conditions.length === 0 ||
+      (!isOverride && firstMatch) ||
+      (isOverride &&
+        override &&
+        compareOverrides(config, override, cardsInBin) >= 0)
+    ) {
       continue;
     }
     if (
-      !config.isDisabled &&
-      config.rules.conditions.length > 0 &&
-      evaluateRuleGroup(card, config.rules, fieldDefinitions) &&
-      !hasReachedMaxCopies(config, copiesInBin)
+      !evaluateRuleGroup(card, config.rules, fieldDefinitions) ||
+      hasReachedMaxCopies(config, copiesInBin)
     ) {
-      if (config.isOverride) return config;
-      firstMatch ??= config;
+      continue;
     }
+    if (isOverride) override = config;
+    else firstMatch = config;
   }
 
-  return firstMatch ?? catchAll;
+  return override ?? firstMatch ?? catchAll;
 }
 
 export function countCardsInBin(
@@ -258,6 +316,16 @@ export function isBinFull(
 ): boolean {
   if (bin.cardLimit == null) return false;
   return countCardsInBin(cards, bin) >= bin.cardLimit;
+}
+
+export function isValidBinHeight(height: unknown): height is number {
+  return (
+    typeof height === "number" &&
+    Number.isFinite(height) &&
+    (height === UNLIMITED_BIN_HEIGHT ||
+      (height >= CUSTOM_BIN_HEIGHT_MIN_MM &&
+        height <= CUSTOM_BIN_HEIGHT_MAX_MM))
+  );
 }
 
 export function computeBinCapacity(
@@ -288,11 +356,15 @@ export function getCardsInBin(
 
 export function countCopiesInBin(
   cards: { binNumber?: number | null; scannedAt: number; card: SourceCard }[],
-  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,
-  cardId: string,
+  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt" | "maxCopiesBy">,
+  card: SourceCard,
+  fieldDefinitions: FieldMeta[],
 ): number {
+  const copiesBy = bin.maxCopiesBy ?? REPACK_UNIQUE_BY_PRINTING;
+  const key = repackDuplicateKey(card, copiesBy, fieldDefinitions);
+  if (key == null) return 0;
   return getCardsInBin(cards, bin).filter(
-    (c) => (c as { id?: unknown }).id === cardId,
+    (c) => repackDuplicateKey(c, copiesBy, fieldDefinitions) === key,
   ).length;
 }
 
@@ -318,13 +390,38 @@ export function isRepackComplete(
   );
 }
 
+export function repackDuplicateKey(
+  card: SourceCard,
+  uniqueBy: string,
+  fieldDefinitions: FieldMeta[],
+): string | null {
+  if (uniqueBy === REPACK_UNIQUE_BY_PRINTING) {
+    const id = (card as { id?: unknown }).id;
+    return id == null ? null : String(id);
+  }
+  const value =
+    uniqueBy === REPACK_UNIQUE_BY_NAME
+      ? (card as { name?: unknown }).name
+      : getCardValue(card, uniqueBy, fieldDefinitions);
+  if (value == null) return null;
+  const key = Array.isArray(value)
+    ? normalizeList(value).sort().join(" ")
+    : normalizeText(value);
+  return key.length > 0 ? key : null;
+}
+
 function isDuplicateInPack(
   card: SourceCard,
   cardsInPack: SourceCard[],
+  uniqueBy: string,
+  fieldDefinitions: FieldMeta[],
 ): boolean {
-  const id = (card as { id?: unknown }).id;
+  const key = repackDuplicateKey(card, uniqueBy, fieldDefinitions);
   return (
-    id != null && cardsInPack.some((c) => (c as { id?: unknown }).id === id)
+    key != null &&
+    cardsInPack.some(
+      (c) => repackDuplicateKey(c, uniqueBy, fieldDefinitions) === key,
+    )
   );
 }
 
@@ -334,22 +431,54 @@ export function getRepackSiftBin(configs: BinConfig[]): BinConfig | undefined {
     .sort((a, b) => a.binNumber - b.binNumber)[0];
 }
 
+function getActiveRepackSiftBin(
+  configs: BinConfig[],
+  binSet: Pick<BinSet, "repackSiftRules">,
+): BinConfig | undefined {
+  const siftRules = binSet.repackSiftRules;
+  return siftRules && siftRules.conditions.length > 0
+    ? getRepackSiftBin(configs)
+    : undefined;
+}
+
+export function getRepackPackBins(
+  configs: BinConfig[],
+  binSet: Pick<BinSet, "repackSiftRules">,
+): BinConfig[] {
+  const siftBin = getActiveRepackSiftBin(configs, binSet);
+  return configs.filter(
+    (bin) => !bin.isCatchAll && !bin.isDisabled && bin !== siftBin,
+  );
+}
+
+export function areAllRepackPacksComplete(
+  configs: BinConfig[],
+  fieldDefinitions: FieldMeta[],
+  binSet: Pick<BinSet, "repackSlots" | "repackSiftRules">,
+  cardsInBin: (bin: BinConfig) => SourceCard[],
+): boolean {
+  const packBins = getRepackPackBins(configs, binSet);
+  return (
+    packBins.length > 0 &&
+    packBins.every((bin) =>
+      isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInBin(bin)),
+    )
+  );
+}
+
 export function evaluateRepackBin(
   card: SourceCard,
   configs: BinConfig[],
   fieldDefinitions: FieldMeta[],
   binSet: Pick<
     BinSet,
-    "repackSlots" | "repackAllowDuplicates" | "repackSiftRules"
+    "repackSlots" | "repackUniqueBy" | "repackSiftRules"
   >,
   cardsInBin: (bin: BinConfig) => SourceCard[],
 ): BinConfig | undefined {
   const catchAll = getCatchAllBin(configs);
   const siftRules = binSet.repackSiftRules;
-  const siftBin =
-    siftRules && siftRules.conditions.length > 0
-      ? getRepackSiftBin(configs)
-      : undefined;
+  const siftBin = getActiveRepackSiftBin(configs, binSet);
 
   if (
     siftBin &&
@@ -359,14 +488,15 @@ export function evaluateRepackBin(
     return siftBin;
   }
 
-  for (const bin of configs) {
-    if (bin.isCatchAll || bin.isDisabled || bin === siftBin) continue;
-
+  for (const bin of getRepackPackBins(configs, binSet)) {
     const cardsInPack = cardsInBin(bin);
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
       continue;
     }
-    if (!binSet.repackAllowDuplicates && isDuplicateInPack(card, cardsInPack)) {
+    if (
+      binSet.repackUniqueBy &&
+      isDuplicateInPack(card, cardsInPack, binSet.repackUniqueBy, fieldDefinitions)
+    ) {
       continue;
     }
 
@@ -396,6 +526,17 @@ export function evaluateChaosBin(
 ): BinConfig | undefined {
   const next = getChaosBins(configs).find((bin) => !isBinFull(bin));
   return next ?? getCatchAllBin(configs);
+}
+
+export function evaluateScanOnlyBin(
+  configs: BinConfig[],
+  scanOnlyBin: number | null,
+): BinConfig | undefined {
+  const target =
+    scanOnlyBin == null
+      ? undefined
+      : configs.find((c) => c.binNumber === scanOnlyBin && !c.isDisabled);
+  return target ?? getCatchAllBin(configs);
 }
 
 export function areAllChaosBinsFull(

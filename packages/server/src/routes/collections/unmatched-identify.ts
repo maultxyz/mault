@@ -21,6 +21,7 @@ import {
 } from "../../lib/scan-usage";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { toScannedCard } from "./shared";
@@ -56,7 +57,13 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           })
           .from(collections)
           .leftJoin(games, eq(games.id, collections.gameId))
-          .where(and(eq(collections.guid, guid), eq(collections.orgId, orgId)))
+          .where(
+            and(
+              eq(collections.guid, guid),
+              eq(collections.orgId, orgId),
+              eq(collections.isDeleted, false),
+            ),
+          )
           .limit(1);
         if (!collection) {
           return { status: 404 as const, message: "Collection not found." };
@@ -167,6 +174,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
         gameId: outcome.collection.gameId,
         capturedImageUrl: await resolveScanImageUrl(outcome.image),
       });
+      emitCardScannedWebhook(orgId, scanId);
 
       return c.json({ success: true, data });
     } catch (err) {

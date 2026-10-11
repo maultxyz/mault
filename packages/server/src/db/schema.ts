@@ -1,3 +1,5 @@
+import type { CardPriceDetails } from "../lib/interfaces/card-prices";
+import { REPACK_UNIQUE_BY_PRINTING } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
 import {
@@ -8,12 +10,15 @@ import {
   index,
   integer,
   jsonb,
+  pgPolicy,
+  pgRole,
   pgTable,
   primaryKey,
   serial,
   text,
   timestamp,
   unique,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
@@ -33,6 +38,40 @@ const vector = customType<{ data: number[]; driverData: string }>({
 const orgRls = (orgId: any) =>
   sql`(${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(${orgId})`;
 
+export const apiServiceRole = pgRole("api_service").existing();
+
+const apiServiceRead = (using: ReturnType<typeof sql>) =>
+  pgPolicy("api-service-policy-select", {
+    as: "permissive",
+    for: "select",
+    to: apiServiceRole,
+    using,
+  });
+
+const apiServiceOrgRead = (orgId: any) =>
+  apiServiceRead(
+    sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+  );
+
+const apiServiceOrgWrite = (orgId: any) => {
+  const ownOrg = sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`;
+  return [
+    pgPolicy("api-service-policy-update", {
+      as: "permissive",
+      for: "update",
+      to: apiServiceRole,
+      using: ownOrg,
+      withCheck: ownOrg,
+    }),
+    pgPolicy("api-service-policy-delete", {
+      as: "permissive",
+      for: "delete",
+      to: apiServiceRole,
+      using: ownOrg,
+    }),
+  ];
+};
+
 // ─── Global card vectors (no org scope) ──────────────────────────────────────
 
 export const cardImageVectors = pgTable(
@@ -45,6 +84,7 @@ export const cardImageVectors = pgTable(
     lang: text("lang").notNull().default("en"),
     name: text("name").notNull(),
     setCode: text("set_code").notNull(),
+    collectorNumber: text("collector_number"),
     embedding: vector("embedding").notNull(),
     data: jsonb("data"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -63,6 +103,11 @@ export const cardImageVectors = pgTable(
     // are admin-defined data (Games Manager), not something this static
     // schema can enumerate.
     index("cards_name_trgm_idx").using("gin", table.name.op("gin_trgm_ops")),
+    index("cards_collector_number_idx").on(
+      table.gameKey,
+      table.lang,
+      sql`lower(${table.collectorNumber})`,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -83,17 +128,21 @@ export const games = pgTable(
     apiDocsUrl: text("api_docs_url"),
     cardThickness: doublePrecision("card_thickness"),
     isActive: boolean("is_active").notNull().default(true),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("games_key_idx").on(table.key),
+    uniqueIndex("games_key_idx")
+      .on(table.key)
+      .where(sql`${table.isDeleted} = false`),
     unique("games_guid_idx").on(table.guid),
     crudPolicy({
       role: authenticatedRole,
       read: true,
       modify: false,
     }),
+    apiServiceRead(sql`true`),
   ],
 ).enableRLS();
 
@@ -110,6 +159,7 @@ export const announcements = pgTable(
     link: text("link"),
     startsAt: timestamp("starts_at"),
     endsAt: timestamp("ends_at"),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -150,11 +200,10 @@ export const binSets = pgTable(
     gameId: integer("game_id").references(() => games.id),
     autoAssignField: text("auto_assign_field"),
     scanOnly: boolean("scan_only").notNull().default(false),
+    scanOnlyBin: integer("scan_only_bin"),
     isRepackMode: boolean("is_repack_mode").notNull().default(false),
     repackSlots: jsonb("repack_slots").notNull().default([]),
-    repackAllowDuplicates: boolean("repack_allow_duplicates")
-      .notNull()
-      .default(false),
+    repackUniqueBy: text("repack_unique_by").default(REPACK_UNIQUE_BY_PRINTING),
     repackSiftRules: jsonb("repack_sift_rules"),
     isAlphabetMode: boolean("is_alphabet_mode").notNull().default(false),
     alphabetPass: integer("alphabet_pass").notNull().default(0),
@@ -162,11 +211,13 @@ export const binSets = pgTable(
     isChaosMode: boolean("is_chaos_mode").notNull().default(false),
     chaosBinSize: integer("chaos_bin_size"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("bin_sets_guid_idx").on(table.guid),
+    index("bin_sets_org_game_idx").on(table.orgId, table.gameId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -195,11 +246,14 @@ export const devices = pgTable(
     pipelinedFeed: boolean("pipelined_feed").notNull().default(false),
     autoConnect: boolean("auto_connect").notNull().default(false),
     testOnConnect: boolean("test_on_connect").notNull().default(true),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
-    unique("devices_org_hardware_idx").on(table.orgId, table.hardwareId),
+    uniqueIndex("devices_org_hardware_idx")
+      .on(table.orgId, table.hardwareId)
+      .where(sql`${table.isDeleted} = false`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -216,20 +270,25 @@ export const bins = pgTable(
     rules: jsonb("rules").notNull(),
     isCatchAll: boolean("is_catch_all").notNull().default(false),
     isOverride: boolean("is_override").notNull().default(false),
+    overridePriority: integer("override_priority"),
+    lowMatchPercent: doublePrecision("low_match_percent"),
     binNumber: integer("bin_number").notNull(),
     binSet: integer("bin_set")
       .notNull()
       .references(() => binSets.id),
     cardLimit: integer("card_limit").default(250),
     maxCopies: integer("max_copies"),
+    maxCopiesBy: text("max_copies_by"),
     isDisabled: boolean("is_disabled").notNull().default(false),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("bins_guid_idx").on(table.guid),
+    index("bins_bin_set_number_idx").on(table.binSet, table.binNumber),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -250,6 +309,7 @@ export const binRoutes = pgTable(
     deviceId: integer("device_id")
       .notNull()
       .references(() => devices.id),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -274,6 +334,7 @@ export const binHeights = pgTable(
     deviceId: integer("device_id")
       .notNull()
       .references(() => devices.id),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -306,6 +367,8 @@ export const moduleConfigs = pgTable(
     pusherRight: integer("pusher_right").notNull().default(460),
     pusherHoldDuration: integer("pusher_hold_duration").notNull().default(150),
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
+    paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -366,16 +429,19 @@ export const collections = pgTable(
     discordErrorChannelId: text("discord_error_channel_id"),
     discordErrorThreadId: text("discord_error_thread_id"),
     monitorLinkVersion: integer("monitor_link_version").notNull().default(0),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("collections_guid_idx").on(table.guid),
+    index("collections_org_idx").on(table.orgId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
       modify: orgRls(table.orgId),
     }),
+    apiServiceOrgRead(table.orgId),
   ],
 ).enableRLS();
 
@@ -386,17 +452,22 @@ export const storageLocations = pgTable(
     guid: uuid("guid").defaultRandom(),
     name: text("name").notNull(),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    lastUsedAt: timestamp("last_used_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("storage_locations_guid_idx").on(table.guid),
-    unique("storage_locations_org_name_idx").on(table.orgId, table.name),
+    uniqueIndex("storage_locations_org_name_idx")
+      .on(table.orgId, table.name)
+      .where(sql`${table.isDeleted} = false`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
       modify: orgRls(table.orgId),
     }),
+    apiServiceOrgRead(table.orgId),
   ],
 ).enableRLS();
 
@@ -427,9 +498,15 @@ export const collectionCards = pgTable(
     locationPosition: integer("location_position"),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("collection_cards_guid_idx").on(table.guid),
+    index("collection_cards_org_updated_idx").on(
+      table.orgId,
+      table.updatedAt,
+      table.id,
+    ),
     index("collection_cards_location_idx").on(
       table.locationId,
       table.locationPosition,
@@ -439,6 +516,71 @@ export const collectionCards = pgTable(
       table.scannedAt,
     ),
     index("collection_cards_card_id_idx").on(table.cardId),
+    index("collection_cards_collection_bin_scanned_idx").on(
+      table.collectionId,
+      table.binNumber,
+      table.scannedAt,
+    ),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+    apiServiceOrgRead(table.orgId),
+    ...apiServiceOrgWrite(table.orgId),
+  ],
+).enableRLS();
+
+export const orgApiKeys = pgTable(
+  "org_api_keys",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    name: text("name").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    scope: text("scope").notNull().default("read"),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastUsedAt: timestamp("last_used_at"),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    unique("org_api_keys_guid_idx").on(table.guid),
+    unique("org_api_keys_hash_idx").on(table.keyHash),
+    index("org_api_keys_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const webhookEndpoints = pgTable(
+  "webhook_endpoints",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    url: text("url").notNull(),
+    description: text("description"),
+    events: jsonb("events").$type<string[]>().notNull().default([]),
+    secret: text("secret").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    disabledAt: timestamp("disabled_at"),
+    disabledReason: text("disabled_reason"),
+    lastDeliveryAt: timestamp("last_delivery_at"),
+    lastStatus: integer("last_status"),
+    lastError: text("last_error"),
+    consecutiveFailures: integer("consecutive_failures").notNull().default(0),
+  },
+  (table) => [
+    unique("webhook_endpoints_guid_idx").on(table.guid),
+    index("webhook_endpoints_org_idx").on(table.orgId),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -467,6 +609,10 @@ export const unmatchedCards = pgTable(
   },
   (table) => [
     unique("unmatched_cards_guid_idx").on(table.guid),
+    index("unmatched_cards_collection_scanned_idx").on(
+      table.collectionId,
+      table.scannedAt,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -487,6 +633,7 @@ export const soundClips = pgTable(
     dataUrl: text("data_url"),
     waveform: jsonb("waveform"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -517,6 +664,7 @@ export const soundRules = pgTable(
       onDelete: "set null",
     }),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -546,6 +694,7 @@ export const notificationRules = pgTable(
     channelId: text("channel_id"),
     roleId: text("role_id"),
     orgId: text("org_id").notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -578,7 +727,13 @@ export const orgSettings = pgTable(
     sessionWrappedEnabled: boolean("session_wrapped_enabled")
       .notNull()
       .default(true),
+    correctionBinPrompt: boolean("correction_bin_prompt")
+      .notNull()
+      .default(true),
     correctionAutoCloseSeconds: integer("correction_auto_close_seconds"),
+    pauseScanningOnDeploy: boolean("pause_scanning_on_deploy")
+      .notNull()
+      .default(true),
     priceSource: text("price_source").notNull().default("tcgplayer"),
     discordGuildId: text("discord_guild_id"),
     discordLinkCode: text("discord_link_code"),
@@ -597,6 +752,7 @@ export const orgSettings = pgTable(
       read: orgRls(table.orgId),
       modify: orgRls(table.orgId),
     }),
+    apiServiceOrgRead(table.orgId),
   ],
 ).enableRLS();
 
@@ -731,6 +887,7 @@ export const moduleConfigAudit = pgTable(
     // migration adding it can backfill existing audit rows - every new row
     // always supplies it explicitly, same as the rest.
     paddleCloseDelay: integer("paddle_close_delay").notNull().default(150),
+    paddleOpenDelay: integer("paddle_open_delay").notNull().default(300),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
@@ -816,6 +973,16 @@ export const scanStats = pgTable("scan_stats", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const platformStatsSettings = pgTable("platform_stats_settings", {
+  id: text("id").primaryKey(),
+  guildId: text("guild_id"),
+  channelId: text("channel_id"),
+  stats: jsonb("stats").notNull().default([]),
+  lastPostedAt: timestamp("last_posted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const tcgplayerPrices = pgTable(
   "tcgplayer_prices",
   {
@@ -891,6 +1058,52 @@ export const cardmarketProducts = pgTable(
     ),
   ],
 );
+
+export const cardKingdomPrices = pgTable(
+  "cardkingdom_prices",
+  {
+    productId: integer("product_id").primaryKey(),
+    scryfallId: text("scryfall_id"),
+    isFoil: boolean("is_foil").notNull(),
+    setCode: text("set_code").notNull(),
+    number: text("number").notNull(),
+    retail: doublePrecision("retail"),
+    retailQty: integer("retail_qty"),
+    buylist: doublePrecision("buylist"),
+    url: text("url"),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("cardkingdom_prices_scryfall_idx").on(table.scryfallId),
+    index("cardkingdom_prices_set_number_idx").on(table.setCode, table.number),
+  ],
+);
+
+export const cardPrices = pgTable(
+  "card_prices",
+  {
+    gameKey: text("game_key").notNull(),
+    lang: text("lang").notNull(),
+    cardId: text("card_id").notNull(),
+    price: doublePrecision("price"),
+    priceFoil: doublePrecision("price_foil"),
+    priceEur: doublePrecision("price_eur"),
+    priceEurFoil: doublePrecision("price_eur_foil"),
+    priceCardKingdom: doublePrecision("price_card_kingdom"),
+    priceCardKingdomFoil: doublePrecision("price_card_kingdom_foil"),
+    details: jsonb("details").$type<CardPriceDetails>(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.gameKey, table.lang, table.cardId] }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+    apiServiceRead(sql`true`),
+  ],
+).enableRLS();
 
 export const binSetRelations = relations(binSets, ({ many, one }) => ({
   bins: many(bins),

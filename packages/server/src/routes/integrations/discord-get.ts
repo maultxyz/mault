@@ -37,6 +37,7 @@ export const getDiscordIntegrationRoute = new Hono<AppEnv>().get(
             .where(
               and(
                 eq(collections.orgId, orgId),
+                eq(collections.isDeleted, false),
                 or(
                   isNotNull(collections.discordScanChannelId),
                   isNotNull(collections.discordErrorChannelId),

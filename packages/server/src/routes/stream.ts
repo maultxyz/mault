@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
 import { authProvider } from "../auth";
@@ -13,6 +13,11 @@ import {
   trackMonitorLinkStream,
   verifyMonitorLink,
 } from "../lib/monitor-links";
+import { DEPLOY_STATUS_EVENT } from "@magic-vault/shared";
+import {
+  loadActiveDeployNotice,
+  subscribeDeployNotice,
+} from "../lib/deploy-notice";
 import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
 import {
   getAllSessionViewers,
@@ -125,7 +130,12 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       subscribeSSE((event, data) =>
         write(event === "error" ? "sync_error" : event, data),
       ),
+      subscribeDeployNotice(write),
     ];
+
+    loadActiveDeployNotice()
+      .then((notice) => write(DEPLOY_STATUS_EVENT, notice))
+      .catch((err) => console.error("[stream] Failed to load deploy notice:", err));
 
     if (orgId) {
       unsubs.push(subscribeOrgLocks(orgId, write));
@@ -136,7 +146,12 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
           tx
             .select({ guid: collections.guid })
             .from(collections)
-            .where(eq(collections.orgId, orgId)),
+            .where(
+              and(
+                eq(collections.orgId, orgId),
+                eq(collections.isDeleted, false),
+              ),
+            ),
         );
         const orgGuids = guids.map((r) => r.guid!).filter(Boolean);
         write("lock_init", { locks: getLocksForGuids(orgGuids) });

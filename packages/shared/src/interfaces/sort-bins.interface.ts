@@ -59,13 +59,18 @@ export interface BinConfig {
   rules: BinRuleGroup;
   isCatchAll?: boolean;
   isOverride?: boolean;
+  overridePriority?: number | null;
+  lowMatchPercent?: number | null;
   cardLimit?: number | null;
   maxCopies?: number | null;
+  maxCopiesBy?: string | null;
   isDisabled?: boolean;
   lastEmptiedAt?: number | null;
 }
 
 export type BinSizePreset = "small" | "medium" | "large" | "unlimited";
+
+export type BinSizeOption = BinSizePreset | "custom";
 
 export interface BinHeightPreset {
   key: BinSizePreset;
@@ -86,9 +91,10 @@ export interface BinSet {
   game: Game | null;
   autoAssignField: string | null;
   scanOnly: boolean;
+  scanOnlyBin: number | null;
   isRepackMode: boolean;
   repackSlots: RepackSlot[];
-  repackAllowDuplicates: boolean;
+  repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
   isAlphabetMode: boolean;
   alphabetPass: number;
@@ -102,4 +108,27 @@ export interface BinSet {
 export interface AlphabetStep {
   pass: number;
   prefix: string;
+}
+
+export type DefaultBinInit = {
+  binNumber: number;
+  rules: BinRuleGroup;
+  isCatchAll: boolean;
+  isOverride?: boolean;
+  overridePriority?: number | null;
+  lowMatchPercent?: number | null;
+  cardLimit: number | null;
+  maxCopies?: number | null;
+  maxCopiesBy?: string | null;
+  isDisabled?: boolean;
+};
+
+export interface ScanOnlyConfig {
+  enabled: boolean;
+  matchedBin?: number | null;
+  unmatchedBin?: number;
+}
+
+export interface EmptyAllBinsInput {
+  binNumbers: number[];
 }

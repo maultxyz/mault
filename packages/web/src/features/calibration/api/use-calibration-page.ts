@@ -1,5 +1,11 @@
-import { binRoutesQueryOptions, saveBinRoute } from "@/features/calibration/api/bin-routes";
-import { devicesQueryOptions, saveDevice } from "@/features/calibration/api/devices";
+import {
+  binRoutesQueryOptions,
+  saveBinRoute,
+} from "@/features/calibration/api/bin-routes";
+import {
+  devicesQueryOptions,
+  saveDevice,
+} from "@/features/calibration/api/devices";
 import { modulesQueryOptions } from "@/features/calibration/api/module-configs";
 import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useChannelLayout } from "@/features/calibration/api/use-channel-layout";
@@ -8,6 +14,8 @@ import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
+import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
+import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import {
   buildCalibrationDebugText,
   defaultSliderValues,
@@ -23,6 +31,7 @@ import type {
   ActivePositions,
   ModuleDelayField,
   SliderKey,
+  ServoName,
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { SETUP_SERVO_POSITIONS } from "@/lib/constants/calibration";
@@ -63,6 +72,7 @@ export function useCalibrationPage() {
     firmwareVersion,
     board,
   } = useSerial();
+  const { resetToNeutral } = useResetToNeutral();
   const {
     connect,
     connectBluetooth,
@@ -109,7 +119,13 @@ export function useCalibrationPage() {
         (key) => c.calibration[key] === DEFAULT_CALIBRATION[key],
       ),
     );
-  const canCalibrate = isReady || (isConnected && isUnconfigured);
+  const {
+    isOffline: isOfflineCalibration,
+    accept: startOfflineCalibration,
+    stop: stopOfflineCalibration,
+  } = useOfflineCalibration();
+  const canCalibrate =
+    isReady || (isConnected && isUnconfigured) || isOfflineCalibration;
 
   const [sliderValues, setSliderValues] = useState<Record<SliderKey, number>>(
     () => defaultSliderValues(modules),
@@ -130,6 +146,7 @@ export function useCalibrationPage() {
         cal?.[field] ??
         DEFAULT_CALIBRATION[field];
       vals[m] = {
+        paddleOpenDelay: valueOf("paddleOpenDelay"),
         pusherHoldDuration: valueOf("pusherHoldDuration"),
         paddleCloseDelay: valueOf("paddleCloseDelay"),
       };
@@ -315,7 +332,7 @@ export function useCalibrationPage() {
   const handleControl = useCallback(
     (
       module: number,
-      servo: "bottom" | "paddle" | "pusher",
+      servo: ServoName,
       position: string,
     ) => {
       if (!canCalibrate) return;
@@ -352,7 +369,7 @@ export function useCalibrationPage() {
   );
 
   const handleSliderChange = useCallback(
-    (module: number, servo: "bottom" | "paddle" | "pusher", value: number) => {
+    (module: number, servo: ServoName, value: number) => {
       if (!canCalibrate) return;
       const key = `${module}:${servo}`;
       setSliderValues((prev) => ({ ...prev, [key]: value }));
@@ -375,8 +392,8 @@ export function useCalibrationPage() {
   );
 
   const handleServoTest = useCallback(
-    (module: number, servo: "bottom" | "paddle" | "pusher") => {
-      if (!canCalibrate) return;
+    (module: number, servo: ServoName) => {
+      if (!canCalibrate || !isConnected) return;
       const key = `${module}:${servo}` as SliderKey;
       const cal = configsRef.current.find(
         (c) => c.moduleNumber === module,
@@ -426,7 +443,7 @@ export function useCalibrationPage() {
       setTestingServos((prev) => ({ ...prev, [key]: true }));
       runStep(0);
     },
-    [canCalibrate, moveServo],
+    [canCalibrate, isConnected, moveServo],
   );
 
   const handleTest = useCallback(async () => {
@@ -456,6 +473,7 @@ export function useCalibrationPage() {
       setActiveBin(bin);
       try {
         await applyDraftsToDevice();
+        if (!(await resetToNeutral())) return;
         const response = await sendRoute(resolveRoute(bin));
         if (!response) {
           toast.error(t("useCalibrationPage.toasts.binFailed", { bin }), {
@@ -470,7 +488,15 @@ export function useCalibrationPage() {
         setActiveBin(null);
       }
     },
-    [isReady, sendRoute, resolveRoute, setActiveBin, applyDraftsToDevice, t],
+    [
+      isReady,
+      sendRoute,
+      resolveRoute,
+      setActiveBin,
+      applyDraftsToDevice,
+      resetToNeutral,
+      t,
+    ],
   );
 
   const handleSampleRun = useCallback(async () => {
@@ -479,6 +505,7 @@ export function useCalibrationPage() {
     toast.info(t("useCalibrationPage.toasts.startingSampleRun"));
     try {
       await applyDraftsToDevice();
+      if (!(await resetToNeutral())) return;
       const binCount = computeBinCount(moduleCount);
       for (let bin = 1; bin <= binCount; bin++) {
         setActiveBin(bin);
@@ -510,6 +537,7 @@ export function useCalibrationPage() {
     moduleCount,
     setActiveBin,
     applyDraftsToDevice,
+    resetToNeutral,
     t,
   ]);
 
@@ -523,6 +551,7 @@ export function useCalibrationPage() {
       setPushTestingModule(module);
       try {
         await applyDraftsToDevice();
+        if (!(await resetToNeutral())) return;
         const response = await sendPushTest({
           module,
           direction,
@@ -545,7 +574,14 @@ export function useCalibrationPage() {
         setPushTestingModule(null);
       }
     },
-    [isReady, sendPushTest, moduleDelayValues, applyDraftsToDevice, t],
+    [
+      isReady,
+      sendPushTest,
+      moduleDelayValues,
+      applyDraftsToDevice,
+      resetToNeutral,
+      t,
+    ],
   );
 
   const handleModuleDelayChange = useCallback(
@@ -699,7 +735,7 @@ export function useCalibrationPage() {
       const next = { ...prev };
       for (const [key, position] of Object.entries(activeRef.current)) {
         if (!position) continue;
-        const servo = key.split(":")[1] as "bottom" | "paddle" | "pusher";
+        const servo = key.split(":")[1] as ServoName;
         const calKey = getCalibrationKey(servo, position);
         if (calKey) next[key as SliderKey] = DEFAULT_CALIBRATION[calKey];
       }
@@ -891,6 +927,9 @@ export function useCalibrationPage() {
     isConnected,
     isReady,
     canCalibrate,
+    isOfflineCalibration,
+    startOfflineCalibration,
+    stopOfflineCalibration,
     connect,
     connectBluetooth,
     staleDialogOpen,

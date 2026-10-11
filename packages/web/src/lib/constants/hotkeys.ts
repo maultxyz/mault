@@ -7,6 +7,8 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 
 export const HOTKEY_SEQUENCE_TIMEOUT_MS = 1000;
 
+export const HOTKEY_PRIORITY_OVERRIDE = 1;
+
 export const HOTKEY_SEARCH_ATTRIBUTE = "data-hotkey-search";
 
 export const HOTKEY_IGNORED_TARGET_SELECTOR =
@@ -17,18 +19,25 @@ export const HOTKEY_BLOCKING_OVERLAY_SELECTOR =
 
 export const HOTKEY_KEY_LABEL_KEYS: Record<string, string> = {
   " ": "hotkeys.keys.space",
+  enter: "hotkeys.keys.enter",
+  arrowleft: "hotkeys.keys.left",
+  arrowright: "hotkeys.keys.right",
+  escape: "hotkeys.keys.escape",
+  delete: "hotkeys.keys.delete",
 };
 
 export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "general",
   "navigation",
   "scanner",
+  "cardDetail",
 ];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   showShortcuts: { group: "general", keys: [{ key: "?" }] },
   toggleSidebar: { group: "general", keys: [{ key: "[" }] },
   focusSearch: { group: "general", keys: [{ key: "/" }] },
+  dismissToasts: { group: "general", keys: [{ key: "x", shift: true }] },
   goScanner: { group: "navigation", keys: [{ key: "g" }, { key: "s" }] },
   goCollections: { group: "navigation", keys: [{ key: "g" }, { key: "c" }] },
   goMonitor: { group: "navigation", keys: [{ key: "g" }, { key: "m" }] },
@@ -43,6 +52,14 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   scanClearDevice: { group: "scanner", keys: [{ key: "c", shift: true }] },
   scanCycleFoil: { group: "scanner", keys: [{ key: "f", shift: true }] },
   scanPickSet: { group: "scanner", keys: [{ key: "s", shift: true }] },
+  cardPrevious: { group: "cardDetail", keys: [{ key: "arrowleft" }] },
+  cardNext: { group: "cardDetail", keys: [{ key: "arrowright" }] },
+  cardCorrect: { group: "cardDetail", keys: [{ key: "c" }] },
+  cardToggleFoil: { group: "cardDetail", keys: [{ key: "f" }] },
+  cardClose: { group: "cardDetail", keys: [{ key: "escape" }] },
+  cardRemove: { group: "cardDetail", keys: [{ key: "delete" }] },
+  reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
+  reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
 };
 
 export const HOTKEY_ROUTES = {

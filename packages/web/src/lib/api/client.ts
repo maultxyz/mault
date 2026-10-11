@@ -4,11 +4,10 @@ import {
   getImpersonationState,
 } from "@/lib/auth/impersonation";
 import { setLocalToken } from "@/lib/auth/local-token";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { getAuthSession, getOrgId } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
-export { API_BASE };
 
 export async function getRequestAuth(): Promise<{
   token: string | null;

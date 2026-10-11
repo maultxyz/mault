@@ -100,6 +100,8 @@ Each file holds only the variables its provider uses, with `AUTH_PROVIDER`/`VITE
    - `OWN_AUTH_TOKEN_PEPPER` — 32+ random bytes; own-auth uses it to hash sessions/tokens/API keys
    - `IMPERSONATION_SECRET` — any random string
    - `MONITOR_LINK_SECRET` — any random string (optional; enables shareable no-login monitor links)
+   - `API_URL`: the API server's public base URL, e.g. `https://mault.example.com/api` (optional; used for `next_page` links in the public API, which otherwise come from the request's host)
+   - `WEBHOOK_ALLOW_INSECURE_URLS`: `true` lets webhooks use `http://` and private addresses such as LAN or `localhost` targets (optional; off by default, keep it off on any server reachable from the internet)
 2. Start the stack:
    ```bash
    docker compose up -d
@@ -132,7 +134,7 @@ These target whichever Postgres `DATABASE_URL` points at. Self-hosted mode's con
 
 ## Deployment
 
-`Dockerfile.server` builds the Hono API (and pre-downloads the pinned CollectorVision Milo model at build time — `packages/server/src/lib/models/model-registry.ts`). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` (and `VITE_AUTH_PROVIDER`) must be supplied as build args since they're baked into the client bundle. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
+`Dockerfile.server` builds the Hono API (and pre-downloads the pinned CollectorVision Milo model at build time — `packages/server/src/lib/models/model-registry.ts`). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` (and `VITE_AUTH_PROVIDER`) must be supplied as build args since they're baked into the client bundle. `Dockerfile.api-docs` builds the public API reference site (`packages/api-docs`, Scalar over the generated OpenAPI spec) as its own nginx image, kept out of the web image so the web build stays light; it takes the same `VITE_API_URL` build arg, and the web app links to it when its own build has `VITE_API_DOCS_URL`. The self-hosted compose stack serves it on `http://localhost:8081`. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
 
 > If you're running a Pi-hole or similar DNS-level blocker on your network, it may block `huggingface.co`, which will cause the Milo model download to fail. Allowlist that domain if you hit download errors during the server build/startup.
 

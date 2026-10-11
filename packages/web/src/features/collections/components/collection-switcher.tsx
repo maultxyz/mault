@@ -21,7 +21,6 @@ import {
   collectionsQueryOptions,
   releaseScanLock,
 } from "@/features/collections/api/collections";
-import { useCollectionLocks } from "@/features/collections/api/use-collection-locks";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   buildMonitorLinkUrl,
@@ -48,6 +47,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { toast } from "@/lib/toast";
+import { useCollectionLocks } from "@/lib/app-stream";
 
 export function CollectionSwitcher() {
   const { t } = useTranslation("collections");

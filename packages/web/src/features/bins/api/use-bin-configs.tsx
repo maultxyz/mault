@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import type {
   AlphabetConfig,
+  BinConfigSaveInput,
   BinConfigsContextValue,
   BinModeDraft,
   ChaosConfig,
@@ -23,6 +24,8 @@ import {
   type DefaultBinInit,
   type EmptyBinOptions,
   type RepackSlot,
+  SCAN_ONLY_DEFAULT_BIN,
+  type ScanOnlyConfig,
   withScanRuleFields,
 } from "@magic-vault/shared";
 
@@ -31,6 +34,7 @@ import {
   binsQueryOptions,
   createSet as createSetAction,
   deleteSet as deleteSetAction,
+  emptyAllBins as emptyAllBinsAction,
   emptyBin as emptyBinAction,
   renameSet as renameSetAction,
   resetAutoAssign as resetAutoAssignAction,
@@ -56,17 +60,14 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { emptyRuleGroup } from "@/lib/rule-groups";
 import { toast } from "@/lib/toast";
-
-function emptyRules(): BinRuleGroup {
-  return { id: crypto.randomUUID(), combinator: "and", conditions: [] };
-}
 
 function createEmptyConfig(binNumber: number): BinConfig {
   return {
     guid: crypto.randomUUID(),
     binNumber,
-    rules: emptyRules(),
+    rules: emptyRuleGroup(),
     cardLimit: DEFAULT_BIN_CAPACITY,
   };
 }
@@ -172,6 +173,14 @@ export function BinConfigsProvider({
   const modeBaseline: BinModeDraft = {
     autoAssignField: selectedSet?.autoAssignField ?? null,
     scanOnly: selectedSet?.scanOnly ?? false,
+    scanOnlyMatchedBin: selectedSet?.scanOnly
+      ? (selectedSet.scanOnlyBin ??
+        configs.find((c) => c.isCatchAll)?.binNumber ??
+        null)
+      : null,
+    scanOnlyUnmatchedBin: selectedSet?.scanOnly
+      ? (configs.find((c) => c.isCatchAll)?.binNumber ?? null)
+      : null,
     isRepackMode: selectedSet?.isRepackMode ?? false,
     isAlphabetMode: selectedSet?.isAlphabetMode ?? false,
     isChaosMode: selectedSet?.isChaosMode ?? false,
@@ -182,6 +191,8 @@ export function BinConfigsProvider({
     modeDraft !== null &&
     (modeDraft.autoAssignField !== modeBaseline.autoAssignField ||
       modeDraft.scanOnly !== modeBaseline.scanOnly ||
+      modeDraft.scanOnlyMatchedBin !== modeBaseline.scanOnlyMatchedBin ||
+      modeDraft.scanOnlyUnmatchedBin !== modeBaseline.scanOnlyUnmatchedBin ||
       modeDraft.isRepackMode !== modeBaseline.isRepackMode ||
       modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode ||
       modeDraft.isChaosMode !== modeBaseline.isChaosMode ||
@@ -194,8 +205,11 @@ export function BinConfigsProvider({
       rules,
       isCatchAll,
       isOverride,
+      overridePriority,
+      lowMatchPercent,
       cardLimit,
       maxCopies,
+      maxCopiesBy,
       isDisabled,
     }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
@@ -210,8 +224,13 @@ export function BinConfigsProvider({
             rules: rules!,
             isCatchAll,
             isOverride,
+            overridePriority:
+              isCatchAll || isOverride ? (overridePriority ?? null) : null,
+            lowMatchPercent: isCatchAll ? (lowMatchPercent ?? null) : null,
             cardLimit: cardLimit ?? null,
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
+            maxCopiesBy:
+              isCatchAll || maxCopies == null ? null : (maxCopiesBy ?? null),
             isDisabled:
               !isCatchAll &&
               (isDisabled ?? (idx >= 0 ? set.bins[idx].isDisabled : false)) ===
@@ -357,9 +376,7 @@ export function BinConfigsProvider({
     }) => emptyBinAction(binNumber, activeGameGuid, options),
     onSuccess: (result) => {
       if (!result.success) {
-        toast.error(
-          result.message ?? t("useBinConfigs.toasts.emptyBinFailed"),
-        );
+        toast.error(result.message ?? t("useBinConfigs.toasts.emptyBinFailed"));
         return;
       }
       if (result.assignedCount) {
@@ -386,9 +403,24 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.emptyBinFailed")),
   });
 
+  const emptyAllBinsMutation = useMutation({
+    mutationFn: (binNumbers: number[]) =>
+      emptyAllBinsAction(binNumbers, activeGameGuid),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(
+          result.message ?? t("useBinConfigs.toasts.emptyAllBinsFailed"),
+        );
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.emptyAllBinsFailed")),
+  });
+
   const setScanOnlyMutation = useMutation({
-    mutationFn: ({ guid, enabled }: { guid: string; enabled: boolean }) =>
-      setScanOnlyAction(guid, enabled),
+    mutationFn: ({ guid, config }: { guid: string; config: ScanOnlyConfig }) =>
+      setScanOnlyAction(guid, config),
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.setQueryData(["bins"], result.data);
@@ -408,7 +440,7 @@ export function BinConfigsProvider({
       config: {
         isRepackMode: boolean;
         repackSlots: RepackSlot[];
-        repackAllowDuplicates: boolean;
+        repackUniqueBy: string | null;
         repackSiftRules: BinRuleGroup | null;
       };
     }) => setRepackConfigAction(guid, config),
@@ -464,25 +496,8 @@ export function BinConfigsProvider({
     setChaosModeMutation.isPending;
 
   const save = useCallback(
-    (
-      binNumber: number,
-      rules: BinRuleGroup,
-      isCatchAll?: boolean,
-      cardLimit?: number | null,
-      isOverride?: boolean,
-      maxCopies?: number | null,
-      isDisabled?: boolean,
-    ) => {
-      saveBinMutation.mutate({
-        binNumber,
-        rules,
-        isCatchAll,
-        isOverride,
-        cardLimit,
-        maxCopies,
-        isDisabled,
-        gameGuid: activeGameGuid,
-      });
+    (input: BinConfigSaveInput) => {
+      saveBinMutation.mutate({ ...input, gameGuid: activeGameGuid });
     },
     [saveBinMutation, activeGameGuid],
   );
@@ -493,6 +508,14 @@ export function BinConfigsProvider({
       return result.success;
     },
     [emptyBinMutation],
+  );
+
+  const emptyAllBins = useCallback(
+    async (binNumbers: number[]) => {
+      const result = await emptyAllBinsMutation.mutateAsync(binNumbers);
+      return result.success;
+    },
+    [emptyAllBinsMutation],
   );
 
   const activateSetFn = useCallback(
@@ -555,11 +578,11 @@ export function BinConfigsProvider({
   }, [resetAutoAssignMutation, selectedSet]);
 
   const setScanOnlyFn = useCallback(
-    async (enabled: boolean) => {
+    async (config: ScanOnlyConfig) => {
       if (!selectedSet) return;
       await setScanOnlyMutation.mutateAsync({
         guid: selectedSet.guid,
-        enabled,
+        config,
       });
     },
     [setScanOnlyMutation, selectedSet],
@@ -569,7 +592,7 @@ export function BinConfigsProvider({
     async (config: {
       isRepackMode: boolean;
       repackSlots: RepackSlot[];
-      repackAllowDuplicates: boolean;
+      repackUniqueBy: string | null;
       repackSiftRules: BinRuleGroup | null;
     }) => {
       if (!selectedSet) return false;
@@ -613,7 +636,12 @@ export function BinConfigsProvider({
     if (configs.some((c) => c.isCatchAll)) return;
     const lastBin = configs[configs.length - 1];
     if (lastBin)
-      save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+      save({
+        binNumber: lastBin.binNumber,
+        rules: emptyRuleGroup(),
+        isCatchAll: true,
+        cardLimit: lastBin.cardLimit,
+      });
   };
 
   const saveMode = async () => {
@@ -623,20 +651,39 @@ export function BinConfigsProvider({
       if (modeDraft.autoAssignField !== modeBaseline.autoAssignField) {
         await setAutoAssignFieldFn(modeDraft.autoAssignField);
       }
-      if (modeDraft.scanOnly !== modeBaseline.scanOnly) {
-        await setScanOnlyFn(modeDraft.scanOnly);
+      if (
+        modeDraft.scanOnly !== modeBaseline.scanOnly ||
+        modeDraft.scanOnlyMatchedBin !== modeBaseline.scanOnlyMatchedBin ||
+        modeDraft.scanOnlyUnmatchedBin !== modeBaseline.scanOnlyUnmatchedBin
+      ) {
+        await setScanOnlyFn(
+          modeDraft.scanOnly
+            ? {
+                enabled: true,
+                matchedBin:
+                  modeDraft.scanOnlyMatchedBin ?? SCAN_ONLY_DEFAULT_BIN,
+                unmatchedBin:
+                  modeDraft.scanOnlyUnmatchedBin ?? SCAN_ONLY_DEFAULT_BIN,
+              }
+            : { enabled: false },
+        );
       }
       if (modeDraft.isRepackMode !== modeBaseline.isRepackMode) {
         await setRepackConfigFn({
           isRepackMode: modeDraft.isRepackMode,
           repackSlots: selectedSet.repackSlots,
-          repackAllowDuplicates: selectedSet.repackAllowDuplicates,
+          repackUniqueBy: selectedSet.repackUniqueBy,
           repackSiftRules: selectedSet.repackSiftRules,
         });
         if (modeDraft.isRepackMode) {
           const lastBin = configs[configs.length - 1];
           if (lastBin && !lastBin.isCatchAll) {
-            save(lastBin.binNumber, lastBin.rules, true, lastBin.cardLimit);
+            save({
+              binNumber: lastBin.binNumber,
+              rules: emptyRuleGroup(),
+              isCatchAll: true,
+              cardLimit: lastBin.cardLimit,
+            });
           }
         }
       }
@@ -708,6 +755,7 @@ export function BinConfigsProvider({
         selectedSet,
         save,
         emptyBin,
+        emptyAllBins,
         activateSet: activateSetFn,
         createSet: createSetFn,
         importSet: importSetFn,

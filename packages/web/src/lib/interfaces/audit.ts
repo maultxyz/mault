@@ -1,4 +1,10 @@
-import type { BinConfig, BinHeight, BinRoute, FeederCalibration, ServoCalibration } from "@magic-vault/shared";
+import type {
+  BinConfig,
+  BinHeight,
+  BinRoute,
+  FeederCalibration,
+  ServoCalibration,
+} from "@magic-vault/shared";
 import type { ReactNode } from "react";
 
 // Generic display shape the shared AuditDrawer component renders — each
@@ -40,4 +46,14 @@ export interface ModuleConfigAuditEntry {
   moduleNumber: number;
   calibration: ServoCalibration;
   createdAt: string;
+}
+
+export interface AuditDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  entries: AuditEntry[];
+  isLoading: boolean;
+  onRevert: (guid: string) => void;
+  isReverting: boolean;
 }

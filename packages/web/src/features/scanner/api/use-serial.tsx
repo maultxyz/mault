@@ -3,17 +3,14 @@ import {
   devicesQueryOptions,
   releaseDeviceLease,
   resolveDevice,
-  type Device,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
-import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
-  formatCommLog,
-  MAX_COMM_LOG_ENTRIES,
-  type CommLogEntry,
-} from "@/features/scanner/lib/comm-log";
+  reportSerialEvent,
+} from "@/features/notifications/api/notification-settings";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
+import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
 import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import {
@@ -26,7 +23,6 @@ import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
 import {
   BluetoothTransport,
   SerialTransport,
-  type ByteTransport,
 } from "@/features/scanner/lib/transports";
 import {
   BLE_RECONNECT_BASE_DELAY_MS,
@@ -40,9 +36,11 @@ import {
 } from "@/lib/constants/scanner";
 import {
   DEVICE_LEASE_HEARTBEAT_MS,
+  NEUTRAL_RESPONSE_TIMEOUT_MS,
   PUSH_TEST_RESPONSE_TIMEOUT_MS,
   ROUTE_RESPONSE_TIMEOUT_MS,
   ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS,
+  SELF_TEST_RESPONSE_TIMEOUT_MS,
 } from "@/lib/constants/timing";
 import type {
   ConnectTestRunner,
@@ -56,6 +54,8 @@ import type {
   SerialMessageListener,
   SkippedRouteResponse,
   TestResult,
+  ByteTransport,
+  CommLogEntry,
 } from "@/lib/interfaces/scanner";
 import type { BleReconnectState, PreTestHook } from "@/lib/interfaces/stations";
 import type { BinRoute } from "@magic-vault/shared";
@@ -72,8 +72,9 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import type { Device } from "@/lib/interfaces/calibration";
+import { MAX_COMM_LOG_ENTRIES } from "@/lib/constants/limits";
 
-export type { SerialMessageListener } from "@/lib/interfaces/scanner";
 
 const SerialContext = createContext<SerialContextValue | null>(null);
 
@@ -129,6 +130,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     },
     [],
   );
+
+  const clearCommLog = useCallback(() => {
+    commLogRef.current = [];
+    commLogSnapshotRef.current = [];
+    for (const listener of commLogListenersRef.current) listener();
+  }, []);
 
   const getCommLog = useCallback(() => commLogSnapshotRef.current, []);
 
@@ -254,7 +261,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
     if (!sent) return { ok: false, error: null, blockedModule: null };
 
-    const response = await waitForLine(10000);
+    const response = await waitForLine(SELF_TEST_RESPONSE_TIMEOUT_MS);
     if (!response) return { ok: false, error: null, blockedModule: null };
 
     try {
@@ -417,10 +424,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     async (forTransport: ByteTransport, forDevice: Device) => {
       await runPreTestHooks(forDevice);
       if (transportRef.current !== forTransport) return;
+      if (await sendCommand(JSON.stringify({ neutral: true }) + "\n")) {
+        await waitForLine(NEUTRAL_RESPONSE_TIMEOUT_MS);
+      }
+      if (transportRef.current !== forTransport) return;
       setIsReady(true);
       toast.success(t("serial.deviceReadyNoTest"));
     },
-    [runPreTestHooks, t],
+    [runPreTestHooks, sendCommand, waitForLine, t],
   );
 
   const runConnectTest = useCallback(
@@ -569,7 +580,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     async (
       newTransport: ByteTransport,
       options?: { skipAutoTest?: boolean; autoConnect?: boolean },
-    ): Promise<boolean> => {
+    ): Promise<{ identified: Promise<unknown> }> => {
+      clearCommLog();
       transportRef.current = newTransport;
       newTransport.onData(handleIncomingChunk);
       newTransport.onError(() => {
@@ -603,7 +615,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       setIsConnected(true);
       setTransport(newTransport.kind);
 
-      (async () => {
+      const identify = async (): Promise<{ device?: Device } | null> => {
         // ESP32s reset when the port opens, so the first lines can be ROM
         // bootloader noise rather than JSON - skip ahead to the status line
         // (the boot banner or the getStatus reply, whichever comes first).
@@ -621,7 +633,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (status || remaining <= 0) break;
           line = await waitForLine(remaining);
         }
-        if (transportRef.current !== newTransport) return;
+        if (transportRef.current !== newTransport) return null;
         if (typeof status?.version === "string") {
           setFirmwareVersion(status.version);
         }
@@ -633,23 +645,23 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (hardwareId) setDeviceId(hardwareId);
         if (exceedsSorterLimit()) {
           disconnect();
-          return;
+          return null;
         }
         const boundDevice = hardwareId
           ? await bindBoard(hardwareId)
           : await bindUnidentifiedBoard();
-        if (transportRef.current !== newTransport) return;
+        if (transportRef.current !== newTransport) return null;
         if (boundDevice === null) {
           disconnect();
-          return;
+          return null;
         }
         if (boundDevice) {
           const leased = await acquireDeviceLease(boundDevice.guid);
-          if (transportRef.current !== newTransport) return;
+          if (transportRef.current !== newTransport) return null;
           if (!leased) {
             notifySorterLimit();
             disconnect();
-            return;
+            return null;
           }
           leasedDeviceGuidRef.current = boundDevice.guid;
           setLeasedDeviceGuid(boundDevice.guid);
@@ -662,20 +674,27 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         }
         if (options?.autoConnect && !boundDevice?.autoConnect) {
           disconnect();
-          return;
+          return null;
         }
-        if (options?.skipAutoTest) return;
+        return { device: boundDevice };
+      };
+
+      const identified = identify();
+      void identified.then(async (result) => {
+        if (!result || options?.skipAutoTest) return;
+        const boundDevice = result.device;
         if (boundDevice && !boundDevice.setupCompletedAt) return;
         if (boundDevice && !boundDevice.testOnConnect) {
           await syncWithoutTest(newTransport, boundDevice);
           return;
         }
         await runConnectTest(newTransport, boundDevice);
-      })();
+      });
 
-      return true;
+      return { identified };
     },
     [
+      clearCommLog,
       handleIncomingChunk,
       waitForLine,
       sendCommand,
@@ -731,7 +750,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       if (transportRef.current) return;
       const transport = await SerialTransport.openGranted(port);
       if (!transport) return;
-      await openTransport(transport, { autoConnect: true });
+      const { identified } = await openTransport(transport, {
+        autoConnect: true,
+      });
+      await identified;
     },
     [openTransport],
   );
@@ -788,7 +810,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           if (
             cancelled ||
             transportRef.current ||
-            !isAutoConnectDeviceRef.current(deviceGuid)
+            !isAutoConnectDeviceRef.current(deviceGuid) ||
+            stationsRef.current.isDeviceConnected(deviceGuid)
           ) {
             return;
           }
@@ -1101,6 +1124,22 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     });
   }, [sendAwaited]);
 
+  const sendNeutral = useCallback((): Promise<boolean> => {
+    const queue = routeQueueRef.current;
+    const previousTail = queue.tail;
+    const reset = previousTail.then(() =>
+      sendAwaited({ neutral: true }, NEUTRAL_RESPONSE_TIMEOUT_MS),
+    );
+    queue.tail = reset.then(
+      () => previousTail,
+      () => previousTail,
+    );
+    return reset.then(
+      (response) =>
+        (response as Record<string, unknown> | null)?.status === "ok",
+    );
+  }, [sendAwaited]);
+
   const reopenSensorBlockedToast = useCallback(() => {
     reopenSensorBlockedToastRef.current?.();
   }, []);
@@ -1150,6 +1189,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         sendRawCommand,
         isRouteBusy,
         readIR,
+        sendNeutral,
         sendTest,
         runTest: runTestOnActiveTransport,
         checkFirmwareVersion,

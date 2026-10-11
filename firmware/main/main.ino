@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.4.0"
+#define FIRMWARE_VERSION "2.6.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -133,17 +133,12 @@ void initDeviceIdFromEspMac() {
 
 // Last-resort fallback for a board with no factory-unique hardware ID to
 // read at all (only the Uno R4 Minima, which has no radio - see deviceId's
-// comment above). Unlike servo calibration, which this firmware intentionally
-// does NOT remember across power-off (see setConfig's docs in PROTOCOL.md), a
-// board's identity has to survive a reset or it's useless for keying a saved
-// device record to a specific physical unit - so this one value does get
-// persisted, to EEPROM (which the Renesas UNO R4 core emulates over its
-// internal data flash).
+// comment above). A board's identity has to survive a reset or it's useless
+// for keying a saved device record to a specific physical unit, so it's
+// persisted to EEPROM (which the Renesas UNO R4 core emulates over its
+// internal data flash), next to the stored calibration (see storeConfig in
+// PROTOCOL.md).
 void loadOrCreateDeviceId() {
-#if defined(ARDUINO_ARCH_ESP32)
-  EEPROM.begin(8);
-#endif
-
   if (EEPROM.read(DEVICE_ID_EEPROM_ADDR) == DEVICE_ID_EEPROM_MAGIC) {
     for (int i = 0; i < 6; i++) {
       deviceId[i] = (char)EEPROM.read(DEVICE_ID_EEPROM_ADDR + 1 + i);
@@ -212,6 +207,7 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 // Gap between consecutive servo moves in setAllNeutral(), so a full reset
 // doesn't start every servo at once and pull the supply down.
 #define SERVO_STAGGER_MS 25
+#define SELF_TEST_MODULE_SETTLE_MS 250
 
 // If a card sits at a module this long with no route in progress, something's
 // stuck - just report it. Paddle-flap recovery only happens while a route is
@@ -300,6 +296,8 @@ int findBlockedModule() {
   return 0;
 }
 
+#define DELAY_PADDLE 300  // default paddleOpenDelay: time for paddle to engage
+
 struct ModuleConfig {
   int bottomClosed, bottomOpen;
   int paddleClosed, paddleOpen;
@@ -310,6 +308,7 @@ struct ModuleConfig {
                           // paddle closes again - independent of
                           // DELAY_PUSHER_HOLD, which governs when the pusher
                           // itself returns to neutral (see routeCard())
+  int paddleOpenDelay;  // ms the paddle gets to lower before the pusher fires
 };
 
 ModuleConfig moduleConfig[MAX_MODULES];
@@ -327,9 +326,156 @@ struct FeederConfig {
 
 FeederConfig feederConfig = {315, 1000, 40, 100, 100, 295, 0};
 
+#define CONFIG_EEPROM_ADDR 16
+#define CONFIG_EEPROM_MAGIC 0xC7
+#define CONFIG_EEPROM_LAYOUT 2
+#define CONFIG_EEPROM_LAYOUT_V1 1
+
+struct StoredConfig {
+  int channelOffset;
+  ModuleConfig modules[MAX_MODULES];
+  FeederConfig feeder;
+};
+
+struct ModuleConfigV1 {
+  int bottomClosed, bottomOpen;
+  int paddleClosed, paddleOpen;
+  int pusherLeft, pusherNeutral, pusherRight;
+  int pusherHoldDuration;
+  int paddleCloseDelay;
+};
+
+struct StoredConfigV1 {
+  int channelOffset;
+  ModuleConfigV1 modules[MAX_MODULES];
+  FeederConfig feeder;
+};
+
+void captureConfig(StoredConfig& out);
+
+#define EEPROM_SIZE (CONFIG_EEPROM_ADDR + 2 + sizeof(StoredConfig))
+
+StoredConfig storedConfig;
+bool hasStoredConfig = false;
+
+void beginEeprom() {
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.begin(EEPROM_SIZE);
+#endif
+}
+
+void captureConfig(StoredConfig& out) {
+  out.channelOffset = moduleChannelOffset;
+  memcpy(out.modules, moduleConfig, sizeof(moduleConfig));
+  out.feeder = feederConfig;
+}
+
+bool configMatchesStored() {
+  if (!hasStoredConfig) return false;
+  StoredConfig current;
+  captureConfig(current);
+  return memcmp(&current, &storedConfig, sizeof(StoredConfig)) == 0;
+}
+
+void loadStoredConfigV1() {
+  StoredConfigV1 legacy;
+  EEPROM.get(CONFIG_EEPROM_ADDR + 2, legacy);
+  storedConfig.channelOffset = legacy.channelOffset;
+  for (int m = 0; m < MAX_MODULES; m++) {
+    const ModuleConfigV1& old = legacy.modules[m];
+    storedConfig.modules[m] = {old.bottomClosed, old.bottomOpen,
+                               old.paddleClosed, old.paddleOpen,
+                               old.pusherLeft, old.pusherNeutral, old.pusherRight,
+                               old.pusherHoldDuration, old.paddleCloseDelay,
+                               DELAY_PADDLE};
+  }
+  storedConfig.feeder = legacy.feeder;
+}
+
+void loadStoredConfig() {
+  if (EEPROM.read(CONFIG_EEPROM_ADDR) != CONFIG_EEPROM_MAGIC) return;
+  uint8_t layout = EEPROM.read(CONFIG_EEPROM_ADDR + 1);
+  if (layout == CONFIG_EEPROM_LAYOUT) {
+    EEPROM.get(CONFIG_EEPROM_ADDR + 2, storedConfig);
+  } else if (layout == CONFIG_EEPROM_LAYOUT_V1) {
+    loadStoredConfigV1();
+  } else {
+    return;
+  }
+  hasStoredConfig = true;
+  moduleChannelOffset = storedConfig.channelOffset;
+  memcpy(moduleConfig, storedConfig.modules, sizeof(moduleConfig));
+  feederConfig = storedConfig.feeder;
+}
+
+void writeEepromByte(int addr, uint8_t value) {
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.write(addr, value);
+#else
+  EEPROM.update(addr, value);
+#endif
+}
+
+bool persistConfig() {
+  StoredConfig current;
+  captureConfig(current);
+  if (hasStoredConfig &&
+      memcmp(&current, &storedConfig, sizeof(StoredConfig)) == 0) {
+    return false;
+  }
+  writeEepromByte(CONFIG_EEPROM_ADDR, 0);
+  const uint8_t* bytes = (const uint8_t*)&current;
+  for (size_t i = 0; i < sizeof(StoredConfig); i++) {
+    writeEepromByte(CONFIG_EEPROM_ADDR + 2 + i, bytes[i]);
+    feedWatchdog();
+  }
+  writeEepromByte(CONFIG_EEPROM_ADDR + 1, CONFIG_EEPROM_LAYOUT);
+  writeEepromByte(CONFIG_EEPROM_ADDR, CONFIG_EEPROM_MAGIC);
+#if defined(ARDUINO_ARCH_ESP32)
+  EEPROM.commit();
+#endif
+  storedConfig = current;
+  hasStoredConfig = true;
+  return true;
+}
+
+void printStoredModule(int module, Print& reply) {
+  const ModuleConfig& c = storedConfig.modules[module - 1];
+  JsonDocument out;
+  out["status"] = "ok";
+  out["module"] = module;
+  out["bottomClosed"] = c.bottomClosed;
+  out["bottomOpen"] = c.bottomOpen;
+  out["paddleClosed"] = c.paddleClosed;
+  out["paddleOpen"] = c.paddleOpen;
+  out["pusherLeft"] = c.pusherLeft;
+  out["pusherNeutral"] = c.pusherNeutral;
+  out["pusherRight"] = c.pusherRight;
+  out["pusherHoldDuration"] = c.pusherHoldDuration;
+  out["paddleCloseDelay"] = c.paddleCloseDelay;
+  out["paddleOpenDelay"] = c.paddleOpenDelay;
+  serializeJson(out, reply);
+  reply.println();
+}
+
+void printStoredFeeder(Print& reply) {
+  const FeederConfig& f = storedConfig.feeder;
+  JsonDocument out;
+  out["status"] = "ok";
+  JsonObject feeder = out["feeder"].to<JsonObject>();
+  feeder["speed"] = f.speed;
+  feeder["duration"] = f.duration;
+  feeder["pulseDuration"] = f.pulseDuration;
+  feeder["pauseDuration"] = f.pauseDuration;
+  feeder["settleDuration"] = f.settleDuration;
+  feeder["reverseSpeed"] = f.reverseSpeed;
+  feeder["reverseDuration"] = f.reverseDuration;
+  serializeJson(out, reply);
+  reply.println();
+}
+
 // Routing delays (ms) — tune to match your hardware timing
 #define DELAY_CARD_ENTER   300  // time for card to settle after target bottom opens
-#define DELAY_PADDLE       300  // time for paddle to engage
 #define DELAY_PUSH         600  // time for pusher to complete its stroke
 // A servo is positional, not velocity-controlled - commanding it to (or past)
 // a hard mechanical stop makes it stall at full torque against that stop for
@@ -455,8 +601,9 @@ void lowerPaddleForPush(int module) {
   if (paddleOpenedAt[module - 1] == 0) {
     setServoPosition(getChannel(module, 1), moduleConfig[module - 1].paddleOpen);
   }
+  unsigned long openDelay = (unsigned long)max(moduleConfig[module - 1].paddleOpenDelay, 0);
   unsigned long elapsed = millis() - paddleOpenedAt[module - 1];
-  if (elapsed < DELAY_PADDLE) waitMs(DELAY_PADDLE - elapsed);
+  if (elapsed < openDelay) waitMs(openDelay - elapsed);
 }
 
 // SG90s keep hunting around a held position and pick up supply noise as
@@ -679,6 +826,24 @@ void setAllNeutral() {
   waitMs(200);
 }
 
+void testModule(int module) {
+  ModuleConfig& c = moduleConfig[module - 1];
+  setServoPosition(getChannel(module, 0), c.bottomOpen);
+  waitMs(SERVO_STAGGER_MS);
+  setServoPosition(getChannel(module, 1), c.paddleOpen);
+  waitMs(DELAY_PUSH);
+  setServoPosition(getChannel(module, 2), c.pusherLeft);
+  waitMs(DELAY_PUSH);
+  setServoPosition(getChannel(module, 2), c.pusherRight);
+  waitMs(DELAY_PUSH);
+  setServoPosition(getChannel(module, 2), c.pusherNeutral);
+  waitMs(SERVO_STAGGER_MS);
+  setServoPosition(getChannel(module, 1), c.paddleClosed);
+  waitMs(SERVO_STAGGER_MS);
+  setServoPosition(getChannel(module, 0), c.bottomClosed);
+  waitMs(SELF_TEST_MODULE_SETTLE_MS);
+}
+
 int getPositionPulse(int module, int servoOffset, const char* position) {
   ModuleConfig& c = moduleConfig[module - 1];
   if (servoOffset == 0) {
@@ -810,7 +975,8 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
     waitMs(200);
   } else {
     ModuleConfig& c = moduleConfig[targetModule - 1];
-    pushCard(targetModule, pushLeft, c.pusherHoldDuration, c.paddleCloseDelay, true);
+    pushCard(targetModule, pushLeft, c.paddleOpenDelay, c.pusherHoldDuration,
+             c.paddleCloseDelay, true);
   }
 
   if (feedNext && !nextFed) feedAndReportEvent(reply);
@@ -819,13 +985,14 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
 
 // The left/right push at the end of a route, also run standalone by
 // pushTest so the timings can be tuned without feeding a card.
-// paddleCloseDelayMs counts from when the pusher fired, independently of
-// holdMs (which only governs when the pusher itself retracts).
-void pushCard(int module, bool pushLeft, int holdMs, int paddleCloseDelayMs,
-              bool resetPrecedingModules) {
+// paddleOpenDelayMs is how long the paddle gets to lower before the pusher
+// fires. paddleCloseDelayMs counts from when the pusher fired, independently
+// of holdMs (which only governs when the pusher itself retracts).
+void pushCard(int module, bool pushLeft, int paddleOpenDelayMs, int holdMs,
+              int paddleCloseDelayMs, bool resetPrecedingModules) {
   ModuleConfig& c = moduleConfig[module - 1];
   setServoPosition(getChannel(module, 1), c.paddleOpen);
-  waitMs(DELAY_PADDLE);
+  waitMs(paddleOpenDelayMs);
   setServoPosition(getChannel(module, 2), pushLeft ? c.pusherLeft : c.pusherRight);
   unsigned long pusherFiredAt = millis();
   waitMs(holdMs);
@@ -998,24 +1165,10 @@ void runCommand(char* json, Print& reply) {
       return;
     }
 
-    for (int m = 1; m <= maxModuleForOffset(); m++) {
-      setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
-      setServoPosition(getChannel(m, 1), moduleConfig[m - 1].paddleOpen);
-    }
-    waitMs(DELAY_PUSH);
-
-    for (int m = 1; m <= maxModuleForOffset(); m++) {
-      setServoPosition(getChannel(m, 2), moduleConfig[m - 1].pusherLeft);
-    }
-    waitMs(DELAY_PUSH);
-
-    for (int m = 1; m <= maxModuleForOffset(); m++) {
-      setServoPosition(getChannel(m, 2), moduleConfig[m - 1].pusherRight);
-    }
-    waitMs(DELAY_PUSH);
-
     setAllNeutral();
-    waitMs(200);
+    for (int m = 1; m <= maxModuleForOffset(); m++) {
+      testModule(m);
+    }
 
     setServoPosition(getFeederChannel(), feederConfig.speed);
     waitMs(500);
@@ -1137,6 +1290,7 @@ void runCommand(char* json, Print& reply) {
     c.pusherRight   = cfg["pusherRight"]   | c.pusherRight;
     c.paddleCloseDelay = cfg["paddleCloseDelay"] | c.paddleCloseDelay;
     c.pusherHoldDuration = cfg["pusherHoldDuration"] | c.pusherHoldDuration;
+    c.paddleOpenDelay = constrain((int)(cfg["paddleOpenDelay"] | c.paddleOpenDelay), 0, 5000);
 
     reply.print(F("{\"status\":\"ok\",\"module\":"));
     reply.print(module);
@@ -1184,6 +1338,53 @@ void runCommand(char* json, Print& reply) {
     return;
   }
 
+  if (doc["getStoredConfig"].is<bool>() && doc["getStoredConfig"].as<bool>()) {
+    reply.print(F("{\"status\":\"ok\",\"stored\":"));
+    reply.print(hasStoredConfig ? F("true") : F("false"));
+    reply.print(F(",\"dirty\":"));
+    reply.print(configMatchesStored() ? F("false") : F("true"));
+    if (hasStoredConfig) {
+      reply.print(F(",\"channelOffset\":"));
+      reply.print(storedConfig.channelOffset);
+      reply.print(F(",\"modules\":"));
+      reply.print(MAX_MODULES);
+    }
+    reply.println(F("}"));
+    return;
+  }
+  if (!doc["getStoredConfig"].isNull() && !doc["getStoredConfig"].is<bool>()) {
+    if (!hasStoredConfig) {
+      reply.println(F("{\"error\":\"no stored config\"}"));
+      return;
+    }
+    if (doc["getStoredConfig"].is<int>()) {
+      int module = doc["getStoredConfig"].as<int>();
+      if (module < 1 || module > MAX_MODULES) {
+        reply.print(F("{\"error\":\"module must be 1 to "));
+        reply.print(MAX_MODULES);
+        reply.println(F("\"}"));
+        return;
+      }
+      printStoredModule(module, reply);
+      return;
+    }
+    const char* section = doc["getStoredConfig"] | "";
+    if (strcmp(section, "feeder") == 0) {
+      printStoredFeeder(reply);
+      return;
+    }
+    reply.println(F("{\"error\":\"getStoredConfig must be true, feeder or a module number\"}"));
+    return;
+  }
+
+  if (doc["storeConfig"].is<bool>() && doc["storeConfig"].as<bool>()) {
+    bool written = persistConfig();
+    reply.print(F("{\"status\":\"ok\",\"written\":"));
+    reply.print(written ? F("true") : F("false"));
+    reply.println(F("}"));
+    return;
+  }
+
   // {"readIR": true} — read current IR sensor state for all modules + hopper
   if (doc["readIR"].is<bool>() && doc["readIR"].as<bool>()) {
     reply.print(F("{\"status\":\"ok\",\"ir\":["));
@@ -1216,7 +1417,8 @@ void runCommand(char* json, Print& reply) {
   }
 
   // {"pushTest": {"module": N, "direction": "left"|"right",
-  //   "pusherHoldDuration": ms, "paddleCloseDelay": ms}} - timings optional,
+  //   "paddleOpenDelay": ms, "pusherHoldDuration": ms, "paddleCloseDelay": ms}}
+  //   - timings optional,
   // default to the module's stored config
   if (!doc["pushTest"].isNull()) {
     JsonObject test = doc["pushTest"];
@@ -1233,8 +1435,9 @@ void runCommand(char* json, Print& reply) {
     ModuleConfig& c = moduleConfig[module - 1];
     int holdMs = constrain((int)(test["pusherHoldDuration"] | c.pusherHoldDuration), 0, 5000);
     int paddleMs = constrain((int)(test["paddleCloseDelay"] | c.paddleCloseDelay), 0, 5000);
+    int openMs = constrain((int)(test["paddleOpenDelay"] | c.paddleOpenDelay), 0, 5000);
     ensureServoDriver();
-    pushCard(module, strcmp(direction, "left") == 0, holdMs, paddleMs, false);
+    pushCard(module, strcmp(direction, "left") == 0, openMs, holdMs, paddleMs, false);
 
     reply.print(F("{\"status\":\"pushed\",\"module\":"));
     reply.print(module);
@@ -1260,8 +1463,10 @@ void setup() {
 #endif
 
   for (int m = 0; m < MAX_MODULES; m++) {
-    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, DELAY_PUSHER_HOLD, 150};
+    moduleConfig[m] = {300, 310, 300, 310, 295, 300, 305, DELAY_PUSHER_HOLD, 150, DELAY_PADDLE};
   }
+  beginEeprom();
+  loadStoredConfig();
 
   // All MAX_MODULES pins are set up regardless of the eventual offset/module
   // count - harmless, and the app hasn't told us the offset yet.

@@ -2,7 +2,9 @@ import type {
   CardSearchDiagnostics,
   CardSearchEmbeddings,
   OcrDiagnostics,
+  OcrField,
   OcrReadout,
+  OcrRegion,
   SearchCardMatch,
   SearchNoMatchReason,
 } from "@magic-vault/shared";
@@ -10,11 +12,13 @@ import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { authQuery } from "../../db";
 import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
-import { searchCardById } from "../../lib/card-search/stored-cards";
+import { searchCardsByIds } from "../../lib/card-search/stored-cards";
 import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
   MATCH_MAX_DISTANCE_RATIO,
+  CARD_MATCH_LIMIT,
+  CARD_MATCH_RUNNER_UP_SEARCH_LIMIT,
 } from "../../lib/constants/card-search";
 import { SHOW_SCAN_LOGS } from "../../lib/constants/logging";
 import {
@@ -23,9 +27,12 @@ import {
   OCR_NAME_MIN_LENGTH,
   OCR_NAME_MIN_SIMILARITY,
 } from "../../lib/constants/ocr";
-
-const MATCH_LIMIT = 5;
-const RUNNER_UP_SEARCH_LIMIT = 20;
+import type {
+  CardMatchSearchResult,
+  CardTextMatchParams,
+  CardTextMatchResult,
+} from "../../lib/interfaces/card-search";
+import { ocrRegions } from "../../lib/ocr";
 
 export function normalizeForMatch(text: string): string {
   return text.toUpperCase().replace(/[^A-Z0-9]/g, "");
@@ -85,14 +92,6 @@ export function parsePreferredSetCode(value: unknown): string | undefined {
     : undefined;
 }
 
-export interface CardMatchSearchResult {
-  message: string;
-  success: true;
-  data: SearchCardMatch[] | null;
-  nearestDistance: number | null;
-  diagnostics?: CardSearchDiagnostics;
-}
-
 export async function findCardMatches(
   jwtClaims: string,
   {
@@ -110,9 +109,12 @@ export async function findCardMatches(
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
 
   return authQuery(jwtClaims, async (tx) => {
-    await tx.execute(sql`SET LOCAL hnsw.iterative_scan = strict_order`);
-    await tx.execute(sql`SET LOCAL hnsw.max_scan_tuples = 100000`);
-    await tx.execute(sql`SET LOCAL hnsw.ef_search = 200`);
+    await tx.execute(sql`
+      SELECT
+        set_config('hnsw.iterative_scan', 'strict_order', true),
+        set_config('hnsw.max_scan_tuples', '100000', true),
+        set_config('hnsw.ef_search', '200', true)
+    `);
 
     const matches = await tx.execute(sql`
       WITH nearest AS (
@@ -125,7 +127,7 @@ export async function findCardMatches(
         FROM cards
         WHERE game_key = ${gameKey} AND lang = ${lang}
         ORDER BY embedding <=> ${embeddingStr}::vector(128)
-        LIMIT ${RUNNER_UP_SEARCH_LIMIT}
+        LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
       )
       SELECT
         card_id,
@@ -145,7 +147,7 @@ export async function findCardMatches(
 
     const candidates = poolDuplicatePrintings(
       withConfidence(
-        matches.rows.slice(0, MATCH_LIMIT).map((row) => ({
+        matches.rows.slice(0, CARD_MATCH_LIMIT).map((row) => ({
           id: row.card_id as string,
           cardId: row.card_id as string,
           name: row.name as string,
@@ -275,25 +277,27 @@ function matchesSetLine(setCode: string, setLineTokens: string[]): boolean {
   );
 }
 
-export interface CardTextMatchResult extends CardMatchSearchResult {
-  ocr: OcrDiagnostics;
+function stripLeadingZeros(digits: string): string {
+  return digits.replace(/^0+(?=\d)/, "");
+}
+
+function ocrNumberCandidates(text: string): string[] {
+  return (text.replace(/\/\s*\d+/g, " ").match(/\d+/g) ?? []).map(
+    stripLeadingZeros,
+  );
+}
+
+function matchesCollectorNumber(
+  collectorNumber: string | null,
+  numberCandidates: string[],
+): boolean {
+  const digits = collectorNumber?.match(/\d+/g)?.at(-1);
+  return !!digits && numberCandidates.includes(stripLeadingZeros(digits));
 }
 
 export async function findCardMatchesByText(
   jwtClaims: string,
-  {
-    gameKey,
-    lang,
-    embeddings,
-    readout,
-    preferredSetCode,
-  }: {
-    gameKey: string;
-    lang: string;
-    embeddings: CardSearchEmbeddings;
-    readout: OcrReadout;
-    preferredSetCode?: string;
-  },
+  { gameKey, lang, embeddings, readout, preferredSetCode }: CardTextMatchParams,
 ): Promise<CardTextMatchResult> {
   const nameQueries = ocrNameQueries(readout.name);
   const noMatch: CardTextMatchResult = {
@@ -307,6 +311,9 @@ export async function findCardMatchesByText(
 
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
   const setLineTokens = extractOcrTokens(readout.setLine);
+  const numberCandidates = ocrNumberCandidates(
+    readout.number || readout.setLine,
+  );
 
   return authQuery(jwtClaims, async (tx) => {
     await tx.execute(
@@ -321,6 +328,7 @@ export async function findCardMatchesByText(
           card_id,
           name,
           set_code,
+          collector_number,
           similarity(name, ${nameQuery}) AS name_score,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
@@ -341,7 +349,6 @@ export async function findCardMatchesByText(
 
     const matchedName = rows[0].name as string;
     const nameScore = rows[0].name_score as number;
-    const ocr: OcrDiagnostics = { readout, matchedName, nameScore };
 
     const printings = rows
       .filter((row) => row.name === matchedName)
@@ -351,6 +358,10 @@ export async function findCardMatchesByText(
         setCode: row.set_code as string,
         distance: row.distance as number,
         setLineMatch: matchesSetLine(row.set_code as string, setLineTokens),
+        numberMatch: matchesCollectorNumber(
+          row.collector_number as string | null,
+          numberCandidates,
+        ),
         isPreferredSet:
           !!preferredSetCode &&
           (row.set_code as string).toLowerCase() ===
@@ -360,11 +371,19 @@ export async function findCardMatchesByText(
         (a, b) =>
           Number(b.isPreferredSet) - Number(a.isPreferredSet) ||
           Number(b.setLineMatch) - Number(a.setLineMatch) ||
+          Number(b.numberMatch) - Number(a.numberMatch) ||
           a.distance - b.distance,
       );
 
+    const ocr: OcrDiagnostics = {
+      readout,
+      matchedName,
+      nameScore,
+      printingConfirmed: printings[0].setLineMatch || printings[0].numberMatch,
+    };
+
     const data: SearchCardMatch[] = withConfidence(
-      printings.slice(0, MATCH_LIMIT),
+      printings.slice(0, CARD_MATCH_LIMIT),
     ).map(({ id, cardId, distance, confidence }) => ({
       id,
       cardId,
@@ -382,6 +401,45 @@ export async function findCardMatchesByText(
   });
 }
 
+function mergeReadouts(primary: OcrReadout, fallback: OcrReadout): OcrReadout {
+  const merge = (field: OcrField) =>
+    [primary[field], fallback[field]].filter(Boolean).join("\n");
+  return {
+    name: merge("name"),
+    setLine: merge("setLine"),
+    number: merge("number"),
+  };
+}
+
+export async function findCardMatchesByOcr(
+  jwtClaims: string,
+  buffer: Buffer,
+  regions: OcrRegion[],
+  params: Omit<CardTextMatchParams, "readout">,
+): Promise<CardTextMatchResult> {
+  const readout = await ocrRegions(
+    buffer,
+    regions.filter((region) => !region.fallback),
+  );
+  const first = await findCardMatchesByText(jwtClaims, { ...params, readout });
+
+  const needsName = !first.data;
+  const needsPrinting = !!first.data && !first.ocr.printingConfirmed;
+  const fallbacks = regions.filter(
+    (region) =>
+      region.fallback &&
+      (needsName || (needsPrinting && region.field !== "name")),
+  );
+  if (fallbacks.length === 0) return first;
+
+  const second = await findCardMatchesByText(jwtClaims, {
+    ...params,
+    readout: mergeReadouts(readout, await ocrRegions(buffer, fallbacks)),
+  });
+  const used = second.data ? second : first;
+  return { ...used, ocr: { ...used.ocr, usedFallback: true } };
+}
+
 export async function attachMatchedCards<T extends CardMatchSearchResult>(
   result: T,
   gameKey: string,
@@ -392,14 +450,15 @@ export async function attachMatchedCards<T extends CardMatchSearchResult>(
   if (!matches || matches.length === 0 || !resolved) return result;
 
   const leaderDistance = matches[0].distance;
-  const data = await Promise.all(
-    matches.map(async (match) => {
-      if (match.distance - leaderDistance > CLOSE_MATCH_DELTA) return match;
-      const found = await searchCardById(resolved, match.cardId);
-      return found.success && found.data
-        ? { ...match, card: found.data }
-        : match;
-    }),
+  const isClose = (match: SearchCardMatch) =>
+    match.distance - leaderDistance <= CLOSE_MATCH_DELTA;
+  const cards = await searchCardsByIds(
+    resolved,
+    matches.filter(isClose).map((match) => match.cardId),
   );
+  const data = matches.map((match) => {
+    const card = isClose(match) ? cards.get(match.cardId) : undefined;
+    return card ? { ...match, card } : match;
+  });
   return { ...result, data };
 }

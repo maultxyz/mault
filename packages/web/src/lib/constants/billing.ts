@@ -7,3 +7,4 @@ export const SUPPORT_PROMPT_FIRST_AFTER_SCANS = 100;
 export const SUPPORT_PROMPT_EVERY_SCANS = 500;
 export const SUPPORT_PROMPT_MIN_INTERVAL_MS = 14 * 24 * 60 * 60 * 1000;
 export const SUPPORT_PROMPT_TOAST_ID = "support-prompt";
+export const GITHUB_STARS_STALE_MS = 60 * 60 * 1000;

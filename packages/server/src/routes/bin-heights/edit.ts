@@ -1,4 +1,4 @@
-import type { BinHeight } from "@magic-vault/shared";
+import { isValidBinHeight, type BinHeight } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binHeightAudit, binHeights } from "../../db/schema";
@@ -15,6 +15,9 @@ export const editBinHeightRoute = new Hono<AppEnv>().put(
     const deviceGuid = c.req.param("guid") as string;
     const binNumber = parseInt(c.req.param("binNumber"));
     const { height } = await c.req.json<BinHeight>();
+    if (!Number.isInteger(binNumber) || !isValidBinHeight(height)) {
+      return c.json({ success: false, message: "Invalid bin height." }, 400);
+    }
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const device = await getDeviceByGuid(tx, orgId, deviceGuid);
@@ -31,13 +34,14 @@ export const editBinHeightRoute = new Hono<AppEnv>().put(
           .values(values)
           .onConflictDoUpdate({
             target: [binHeights.deviceId, binHeights.binNumber],
-            set: { ...values, updatedAt: new Date() },
+            set: { ...values, isDeleted: false, updatedAt: new Date() },
           });
 
         await tx.insert(binHeightAudit).values(values);
 
         const rows = await tx.query.binHeights.findMany({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
         });
         return {
           success: true,

@@ -2,7 +2,6 @@ import { IMPERSONATION_STORAGE_KEY as STORAGE_KEY } from "@/lib/constants/storag
 import type { ImpersonationState } from "@/lib/interfaces/auth";
 import type { ImpersonationSession } from "@magic-vault/shared";
 
-export type { ImpersonationState };
 
 function readInitialState(): ImpersonationState | null {
   try {

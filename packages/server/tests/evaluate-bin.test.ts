@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  areAllRepackPacksComplete,
   countCopiesInBin,
   evaluateCardBin,
   evaluateRepackBin,
+  findLowMatchCatchAll,
   isBinFull,
+  matchesCatchAllRules,
+  REPACK_UNIQUE_BY_NAME,
+  REPACK_UNIQUE_BY_PRINTING,
+  sortOverrideBins,
   toRuleCard,
   type BinConfig,
   type BinRuleGroup,
@@ -75,6 +81,58 @@ test("catch-all stays a fallback even if flagged as an override", () => {
   assert.equal(evaluateCardBin({}, colors, fields), undefined);
 });
 
+test("priority 1 beats every other override level and configuration order", () => {
+  const card = { colors: ["U"], prices: { usd: 2 } };
+  const blueOverride = { ...colors[1], isOverride: true, overridePriority: 2 };
+  const pricedFirst = { ...priceBin, overridePriority: 1 };
+  assert.equal(evaluateCardBin(card, [colors[0], blueOverride, pricedFirst, catchAll], fields), pricedFirst);
+  assert.equal(evaluateCardBin(card, [colors[0], blueOverride, priceBin, catchAll], fields), blueOverride);
+  const blueUnranked = { ...blueOverride, overridePriority: null };
+  assert.equal(evaluateCardBin(card, [colors[0], blueUnranked, priceBin, catchAll], fields), blueUnranked);
+});
+
+test("catch-all override rules pull matching cards away from other bins", () => {
+  const colored = { ...catchAll, rules: { id: "colored", combinator: "and" as const, conditions: [{ id: "c", field: "color", operator: "is_not_null" as const, value: "" }] } };
+  const configsWithRules = [...colors, priceBin, colored];
+  assert.equal(evaluateCardBin({ colors: ["W"], prices: { usd: 0.1 } }, configsWithRules, fields), colored);
+  assert.equal(evaluateCardBin({ colors: [], prices: { usd: 0.1 } }, configsWithRules, fields), colored);
+  assert.equal(evaluateCardBin({ colors: ["W"], prices: { usd: 5 } }, configsWithRules, fields), priceBin);
+  const coloredFirst = { ...colored, overridePriority: 1 };
+  assert.equal(evaluateCardBin({ colors: ["W"], prices: { usd: 5 } }, [...colors, priceBin, coloredFirst], fields), coloredFirst);
+  assert.equal(matchesCatchAllRules({ colors: ["W"] }, configsWithRules, fields), true);
+  assert.equal(matchesCatchAllRules({ colors: ["W"] }, configs, fields), false);
+});
+
+test("sortOverrideBins orders by priority, lowest number first, unranked last", () => {
+  const a = { ...colors[0], isOverride: true };
+  const b = { ...colors[1], isOverride: true, overridePriority: 3 };
+  const c = { ...colors[2], isOverride: true, overridePriority: 1 };
+  const ruled = { ...catchAll, rules: colors[3].rules };
+  assert.deepEqual(sortOverrideBins([a, b, colors[4], c, ruled]).map((x) => x.binNumber), [3, 2, 1, 7]);
+  assert.deepEqual(sortOverrideBins([a, catchAll]).map((x) => x.binNumber), [1]);
+});
+
+test("the low-match threshold reads its own column", () => {
+  const threshold = { ...catchAll, lowMatchPercent: 80 };
+  assert.equal(findLowMatchCatchAll({ distance: 0.9 }, [threshold]), threshold);
+  assert.equal(findLowMatchCatchAll({ distance: 0.1 }, [threshold]), undefined);
+  assert.equal(findLowMatchCatchAll({ distance: 0.9 }, [catchAll]), undefined);
+  assert.equal(findLowMatchCatchAll({}, [catchAll]), undefined);
+});
+
+test("overrides on the same priority send the card to the emptiest bin", () => {
+  const card = { colors: ["W", "U"], prices: { usd: 2 } };
+  const white = { ...colors[0], isOverride: true, overridePriority: 1 };
+  const blue = { ...colors[1], isOverride: true, overridePriority: 1 };
+  const counts = new Map([[1, 40], [2, 10]]);
+  const fill = (b: BinConfig) => counts.get(b.binNumber) ?? 0;
+  assert.equal(evaluateCardBin(card, [white, blue, catchAll], fields, undefined, fill), blue);
+  assert.equal(evaluateCardBin(card, [white, blue, catchAll], fields), white);
+  assert.deepEqual(sortOverrideBins([white, blue], fill).map((x) => x.binNumber), [2, 1]);
+  const unranked = [{ ...white, overridePriority: null }, { ...blue, overridePriority: null }];
+  assert.equal(evaluateCardBin(card, [...unranked, catchAll], fields, undefined, fill), unranked[0]);
+});
+
 test("empty overrides do not capture unmatched cards", () => {
   assert.equal(evaluateCardBin({}, [bin(1, [], { isOverride: true }), catchAll], fields), catchAll);
 });
@@ -96,7 +154,7 @@ test("a bin at its copy limit passes the card to the next matching bin, then the
   const configsWithLimit = [limited, ...colors.slice(1), catchAll];
   const contents = (count: number) =>
     Array.from({ length: count }, (_, i) => ({ binNumber: 1, scannedAt: 10 + i, card }));
-  const copiesIn = (count: number) => (b: BinConfig) => countCopiesInBin(contents(count), b, card.id);
+  const copiesIn = (count: number) => (b: BinConfig) => countCopiesInBin(contents(count), b, card, fields);
 
   assert.equal(evaluateCardBin(card, configsWithLimit, fields, copiesIn(1)), limited);
   assert.equal(evaluateCardBin(card, configsWithLimit, fields, copiesIn(2)), colors[1]);
@@ -109,10 +167,26 @@ test("copy limits count only the same printing since the bin was last emptied", 
     { binNumber: 1, scannedAt: 50, card: { id: "a" } },
     { binNumber: 1, scannedAt: 150, card: { id: "b" } },
   ];
-  assert.equal(countCopiesInBin(contents, limited, "a"), 0);
-  assert.equal(countCopiesInBin(contents, limited, "b"), 1);
-  assert.equal(evaluateCardBin({ id: "a", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, "a")), limited);
-  assert.equal(evaluateCardBin({ id: "b", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, "b")), catchAll);
+  assert.equal(countCopiesInBin(contents, limited, { id: "a" }, fields), 0);
+  assert.equal(countCopiesInBin(contents, limited, { id: "b" }, fields), 1);
+  assert.equal(evaluateCardBin({ id: "a", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, { id: "a" }, fields)), limited);
+  assert.equal(evaluateCardBin({ id: "b", colors: ["W"] }, [limited, catchAll], fields, (b) => countCopiesInBin(contents, b, { id: "b" }, fields)), catchAll);
+});
+
+test("copy limits can count by name or by a field instead of printing", () => {
+  const contents = [
+    { binNumber: 1, scannedAt: 10, card: { id: "bolt-m10", name: "Lightning Bolt", colors: ["R"] } },
+    { binNumber: 1, scannedAt: 11, card: { id: "bolt-2x2", name: " lightning bolt", colors: ["R"] } },
+  ];
+  const byPrinting = { ...colors[0], maxCopies: 2, maxCopiesBy: REPACK_UNIQUE_BY_PRINTING };
+  const byName = { ...colors[0], maxCopies: 2, maxCopiesBy: REPACK_UNIQUE_BY_NAME };
+  const byColor = { ...colors[0], maxCopies: 2, maxCopiesBy: "color" };
+  const reprint = { id: "bolt-sta", name: "Lightning Bolt", colors: ["R"] };
+  assert.equal(countCopiesInBin(contents, byPrinting, reprint, fields), 0);
+  assert.equal(countCopiesInBin(contents, byName, reprint, fields), 2);
+  assert.equal(countCopiesInBin(contents, byColor, { id: "x", name: "Shock", colors: ["R"] }, fields), 2);
+  assert.equal(countCopiesInBin(contents, { ...colors[0], maxCopies: 2 }, { id: "bolt-m10" }, fields), 1);
+  assert.equal(countCopiesInBin(contents, byName, { id: "nameless" }, fields), 0);
 });
 
 test("a copy-limited override at its limit no longer takes priority", () => {
@@ -152,7 +226,7 @@ function repack(card: object, rules: BinRuleGroup | null, isFoil = false) {
     toRuleCard(card, { isFoil }),
     repackConfigs,
     ruleFields,
-    { repackSlots: [anySlot], repackAllowDuplicates: true, repackSiftRules: rules },
+    { repackSlots: [anySlot], repackUniqueBy: null, repackSiftRules: rules },
     () => [],
   );
 }
@@ -188,9 +262,73 @@ test("the sift bin skips disabled bins", () => {
       toRuleCard({ price: 9, prices: { usd: 9 } }, {}),
       configsWithDisabled,
       ruleFields,
-      { repackSlots: [anySlot], repackAllowDuplicates: true, repackSiftRules: siftRules },
+      { repackSlots: [anySlot], repackUniqueBy: null, repackSiftRules: siftRules },
       () => [],
     ),
     configsWithDisabled[1],
+  );
+});
+
+const fullPack = Array.from({ length: 10 }, (_, i) => ({ id: `c${i}`, price: 1, prices: { usd: 1 } }));
+
+function packsComplete(rules: BinRuleGroup | null, fullBins: number[]) {
+  return areAllRepackPacksComplete(
+    repackConfigs,
+    ruleFields,
+    { repackSlots: [anySlot], repackSiftRules: rules },
+    (b) => (fullBins.includes(b.binNumber) ? fullPack : []),
+  );
+}
+
+test("repack is complete once every pack bin has met its pack limit", () => {
+  assert.equal(packsComplete(null, [1, 2]), false);
+  assert.equal(packsComplete(null, [1, 2, 3]), true);
+});
+
+test("the sift bin doesn't need a complete pack for repack to finish", () => {
+  assert.equal(packsComplete(siftRules, [2, 3]), true);
+  assert.equal(packsComplete(siftRules, [1, 2]), false);
+});
+
+function repackUnique(card: object, uniqueBy: string | null, inFirstPack: object[]) {
+  return evaluateRepackBin(
+    toRuleCard(card, {}),
+    repackConfigs,
+    ruleFields,
+    { repackSlots: [anySlot], repackUniqueBy: uniqueBy, repackSiftRules: null },
+    (b) => (b === repackBins[0] ? inFirstPack.map((c) => toRuleCard(c, {})) : []),
+  );
+}
+
+const bolt = { id: "bolt-m10", name: "Lightning Bolt", colors: ["R"], price: 1, prices: { usd: 1 } };
+const boltReprint = { ...bolt, id: "bolt-2x2", name: " lightning bolt " };
+const shock = { id: "shock", name: "Shock", colors: ["R"], price: 1, prices: { usd: 1 } };
+
+test("repack duplicates: allowed keeps adding to the same pack", () => {
+  assert.equal(repackUnique(bolt, null, [bolt]), repackBins[0]);
+});
+
+test("repack duplicates: printing only skips the exact same printing", () => {
+  assert.equal(repackUnique(bolt, REPACK_UNIQUE_BY_PRINTING, [bolt]), repackBins[1]);
+  assert.equal(repackUnique(boltReprint, REPACK_UNIQUE_BY_PRINTING, [bolt]), repackBins[0]);
+});
+
+test("repack duplicates: name skips any printing with the same name", () => {
+  assert.equal(repackUnique(boltReprint, REPACK_UNIQUE_BY_NAME, [bolt]), repackBins[1]);
+  assert.equal(repackUnique(shock, REPACK_UNIQUE_BY_NAME, [bolt]), repackBins[0]);
+});
+
+test("repack duplicates: a game field compares that field's value", () => {
+  assert.equal(repackUnique(shock, "color", [bolt]), repackBins[1]);
+  assert.equal(
+    repackUnique({ ...shock, colors: ["U"] }, "color", [bolt]),
+    repackBins[0],
+  );
+});
+
+test("repack duplicates: a card without the field is never a duplicate", () => {
+  assert.equal(
+    repackUnique({ ...shock, colors: [] }, "color", [{ ...bolt, colors: [] }]),
+    repackBins[0],
   );
 });

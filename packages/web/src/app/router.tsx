@@ -1,3 +1,4 @@
+import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
@@ -5,13 +6,14 @@ import { RequireCollectionDialog } from "@/components/require-collection-dialog"
 import { RouteLoadingFallback } from "@/components/route-loading-fallback";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useRole } from "@/hooks/use-role";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { STATS_PATH } from "@/lib/constants/stats";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 const LandingPage = lazy(
   withNamespaces(
@@ -91,11 +93,18 @@ const CalibrateCalibrationPage = lazy(
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
+const AdminGameEditorPage = lazy(
+  () => import("@/app/routes/app/admin/game-editor"),
+);
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
+const AdminDiscordStatsPage = lazy(
+  () => import("@/app/routes/app/admin/discord-stats"),
+);
 const AdminAnnouncementsPage = lazy(
   () => import("@/app/routes/app/admin/announcements"),
 );
+const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
 const AdminServosPage = lazy(() => import("@/app/routes/app/admin/servos"));
 const AdminDevicePage = lazy(() => import("@/app/routes/app/admin/device"));
 const AdminDeveloperPage = lazy(
@@ -104,6 +113,7 @@ const AdminDeveloperPage = lazy(
 const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
+const ScanPage = lazy(() => import("@/app/routes/app/scan"));
 const SettingsLayout = lazy(() => import("@/app/routes/app/settings/layout"));
 const SettingsIndexRedirect = lazy(
   () => import("@/app/routes/app/settings/index"),
@@ -126,10 +136,14 @@ const SettingsSoundsPage = lazy(
 const SettingsIntegrationsPage = lazy(
   () => import("@/app/routes/app/settings/integrations"),
 );
+const SettingsNotificationsPage = lazy(
+  () => import("@/app/routes/app/settings/notifications"),
+);
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 
 // Otherwise the app shell's chunks only start downloading once the auth
 // session resolves, then the landing route's once the loading gate lifts.
@@ -316,6 +330,14 @@ export const router = createBrowserRouter([
                             element: <AdminGamesPage />,
                           },
                           {
+                            path: "games/new",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
+                            path: "games/:guid",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
                             path: "users",
                             element: <AdminUsersPage />,
                           },
@@ -324,8 +346,16 @@ export const router = createBrowserRouter([
                             element: <AdminPlansPage />,
                           },
                           {
+                            path: "discord-stats",
+                            element: <AdminDiscordStatsPage />,
+                          },
+                          {
                             path: "announcements",
                             element: <AdminAnnouncementsPage />,
+                          },
+                          {
+                            path: "deleted",
+                            element: <AdminDeletedPage />,
                           },
                           {
                             path: "servos",
@@ -358,6 +388,10 @@ export const router = createBrowserRouter([
                 element: <PhoneCameraPage />,
               },
               {
+                path: MOBILE_SCAN_PATH,
+                element: <ScanPage />,
+              },
+              {
                 path: SETTINGS_PATHS.root,
                 element: <SettingsLayout />,
                 children: [
@@ -370,6 +404,10 @@ export const router = createBrowserRouter([
                   { path: "billing", element: <SettingsBillingPage /> },
                   { path: "scanning", element: <SettingsScanningPage /> },
                   { path: "sounds", element: <SettingsSoundsPage /> },
+                  {
+                    path: "notifications",
+                    element: <SettingsNotificationsPage />,
+                  },
                   {
                     path: "integrations",
                     element: <SettingsIntegrationsPage />,
@@ -387,6 +425,10 @@ export const router = createBrowserRouter([
               {
                 path: "/app/health",
                 element: <HealthPage />,
+              },
+              {
+                path: STATS_PATH,
+                element: <StatsPage />,
               },
               {
                 path: "/app/account/:path",

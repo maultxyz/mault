@@ -1,8 +1,9 @@
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
-  ALL_CARDS_QUERY,
+  type CollectionCardsQuery,
+  type ScannerStatus,
   EMPTY_CARD_FILTERS,
-} from "@/lib/constants/card-filters";
-import type { CollectionCardsQuery, ScannerStatus } from "@magic-vault/shared";
+} from "@magic-vault/shared";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
@@ -36,6 +37,7 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";
 export const JAM_COMMAND_TIMEOUT_MS = 3000;
@@ -102,3 +104,23 @@ export const CORRECTION_AUTO_CLOSE_DONE_DELAY_MS = 700;
 export const CORRECTION_TIMER_RADIUS = 16;
 export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
+
+export const DEFAULT_MIN_SHARPNESS = 0.02;
+
+export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
+
+export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "paused",
+  "settling",
+];
+
+export const CONSENSUS_RETRY_BUDGET = 3;
+
+export const DOCUMENT_TITLE_BASE = "MAULT";
+
+export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
+
+export const PHONE_CAMERA_PATH_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
+export const QR_SCAN_INTERVAL_MS = 250;
+export const QR_SCAN_MAX_DIMENSION = 640;

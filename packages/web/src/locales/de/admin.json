@@ -8,7 +8,9 @@
     "games": "Spiele",
     "users": "Benutzer",
     "plans": "Tarife",
+    "discordStats": "Discord-Statistiken",
     "announcements": "Ankündigungen",
+    "deleted": "Gelöschte Elemente",
     "servos": "Bausatz-Test",
     "device": "Gerät",
     "developer": "Entwickler"
@@ -161,8 +163,8 @@
   "impersonationUsersManager": {
     "heading": "Als Benutzer anmelden",
     "description": "Suche einen Benutzer, um die App aus dessen Sicht zu sehen (für Support/Debugging)",
-    "searchPlaceholder": "Nach Name oder E-Mail suchen...",
-    "startTyping": "Beginne mit der Eingabe eines Namens oder einer E-Mail, um zu suchen",
+    "searchPlaceholder": "Nach Name, E-Mail oder Organisation suchen...",
+    "startTyping": "Beginne mit der Eingabe eines Namens, einer E-Mail oder einer Organisation, um zu suchen",
     "empty": "Keine Benutzer gefunden",
     "noOrgs": "Keine Organisationen",
     "adminBadge": "Admin",
@@ -188,7 +190,8 @@
   },
   "metricsStats": {
     "heading": "Scan-Statistiken",
-    "description": "App-weite Kartenscan-Summen über alle Organisationen hinweg",
+    "description": "App-weite Scan-Aktivität über alle Organisationen hinweg und ob jeder Scan auf dem Server oder im Browser vektorisiert wurde. Jemand gilt als aktiv scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",
+    "allTimeHeading": "Gesamt",
     "totalScannedLabel": "Gesamt gescannt",
     "matchedLabel": "Erkannt",
     "unidentifiedLabel": "Nicht erkannt",
@@ -200,7 +203,6 @@
   },
   "activeScanning": {
     "heading": "Aktives Scannen",
-    "description": "Live über alle Organisationen. Jemand gilt als scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",
     "scanners": "Scannende Personen",
     "sessions": "Gescannte Sammlungen",
     "orgs": "Organisationen",
@@ -209,7 +211,6 @@
   },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
-    "description": "Wie viele Kartenscans auf dem Server vektorisiert wurden im Vergleich zum Browser",
     "serverLabel": "Server",
     "webLabel": "Web",
     "percentOfTotal": "{{percent}}% der Scans"
@@ -313,6 +314,10 @@
       "storage": {
         "label": "Lagerorte",
         "description": "Lagerorte anlegen und Fächer darin erfassen. Bestehende Lagerorte bleiben in jedem Fall sichtbar."
+      },
+      "apiAccess": {
+        "label": "API-Zugriff",
+        "description": "Organisations-API-Schlüssel anlegen und Karten und Lagerorte über die öffentliche API lesen. Bestehende Schlüssel lassen sich immer widerrufen."
       }
     },
     "limits": {
@@ -333,5 +338,82 @@
         "description": "Discord-Benachrichtigungsregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
       }
     }
+  },
+  "deletedItems": {
+    "heading": "Gelöschte Elemente",
+    "description": "Alles, was in einer Organisation gelöscht wurde, außer gescannten Karten. Beim Wiederherstellen wird ein Element genau so zurückgesetzt, wie es war.",
+    "searchPlaceholder": "Nach Name oder Organisation suchen",
+    "allTypes": "Alle Typen",
+    "empty": "Es wurde nichts gelöscht",
+    "restore": "Wiederherstellen",
+    "global": "Global",
+    "lastUpdated": "Zuletzt geändert {{date}}",
+    "types": {
+      "collection": "Sammlung",
+      "binSet": "Fach-Vorlage",
+      "bin": "Fach",
+      "device": "Sortierer",
+      "binRoute": "Fach-Route",
+      "binHeight": "Fachhöhe",
+      "moduleConfig": "Modulkalibrierung",
+      "storageLocation": "Lagerort",
+      "soundClip": "Soundclip",
+      "soundRule": "Sound-Regel",
+      "notificationRule": "Benachrichtigungsregel",
+      "game": "Spiel",
+      "announcement": "Ankündigung"
+    },
+    "toasts": {
+      "restored": "{{name}} wiederhergestellt",
+      "restoreError": "Das Element konnte nicht wiederhergestellt werden"
+    }
+  },
+  "platformStats": {
+    "destinationHeading": "Ziel",
+    "destinationDescription": "Der Discord-Server und Kanal, in den die Plattformstatistiken gepostet werden. Der Bot muss auf dem Server sein und im Kanal posten dürfen.",
+    "server": "Server",
+    "channel": "Kanal",
+    "noServer": "Kein Server",
+    "noChannel": "Kein Kanal",
+    "loadingChannels": "Kanäle werden geladen...",
+    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Server und Kanäle gerade nicht angezeigt werden.",
+    "statsHeading": "Statistiken",
+    "statsDescription": "Welche Zahlen jeder Beitrag enthält, über alle Organisationen hinweg.",
+    "stats": {
+      "scannedCards": {
+        "label": "Gescannte Karten",
+        "description": "Jeder jemals gespeicherte Scan, erkannt oder nicht. Gelöschte Karten senken den Wert nicht."
+      },
+      "scansLast24Hours": {
+        "label": "Scans der letzten 24 Stunden",
+        "description": "Scans, die in den 24 Stunden vor dem Beitrag gespeichert wurden."
+      },
+      "devices": {
+        "label": "Kalibrierte Geräte",
+        "description": "Kalibrierte Sortierer: mindestens ein Modul mit gespeicherten Servowerten, die von den Standardwerten abweichen. Gelöschte zählen nicht."
+      },
+      "users": {
+        "label": "Benutzer",
+        "description": "Registrierte Konten."
+      },
+      "organizations": {
+        "label": "Organisationen",
+        "description": "Bestehende Organisationen."
+      },
+      "collections": {
+        "label": "Sammlungen",
+        "description": "Sammlungen aller Organisationen, ohne gelöschte."
+      }
+    },
+    "scheduleHeading": "Zeitplan",
+    "scheduleDescription": "Beiträge werden gesendet, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, mit beliebigem Cron.",
+    "postNow": "Jetzt posten",
+    "lastPosted": "Zuletzt gepostet am {{date}}.",
+    "neverPosted": "Noch nicht gepostet.",
+    "saveBeforePosting": "Speichere deine Änderungen vor dem Posten.",
+    "saved": "Statistik-Einstellungen gespeichert.",
+    "saveFailed": "Die Statistik-Einstellungen konnten nicht gespeichert werden.",
+    "posted": "Statistiken auf Discord gepostet.",
+    "postFailed": "Die Statistiken konnten nicht gepostet werden."
   }
 }

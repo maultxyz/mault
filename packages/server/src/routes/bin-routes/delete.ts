@@ -19,7 +19,8 @@ export const deleteBinRouteRoute = new Hono<AppEnv>().delete(
         const device = await getDeviceByGuid(tx, orgId, deviceGuid);
         if (!device) return { success: false, message: "Device not found." };
         await tx
-          .delete(binRoutes)
+          .update(binRoutes)
+          .set({ isDeleted: true })
           .where(
             and(
               eq(binRoutes.deviceId, device.id),
@@ -28,7 +29,8 @@ export const deleteBinRouteRoute = new Hono<AppEnv>().delete(
           );
 
         const rows = await tx.query.binRoutes.findMany({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
         });
         return {
           success: true,

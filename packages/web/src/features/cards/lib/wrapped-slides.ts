@@ -1,37 +1,10 @@
 import type { ScanStats } from "@/lib/interfaces/scanner";
-
-export type WrappedSlide =
-  | { key: string; type: "intro" }
-  | { key: string; type: "total"; count: number }
-  | { key: string; type: "unique"; uniqueCount: number; totalCount: number }
-  | { key: string; type: "set"; name: string; count: number }
-  | {
-      key: string;
-      type: "rarity";
-      rarities: { key: string; label: string; count: number }[];
-      total: number;
-    }
-  | {
-      key: string;
-      type: "color";
-      label: string;
-      bg: string;
-      count: number;
-      total: number;
-    }
-  | { key: string; type: "mvp"; name: string; price: number }
-  | { key: string; type: "value"; totalValue: number; avgValue: number }
-  | {
-      key: string;
-      type: "speed";
-      cardsPerHour: number | null;
-      elapsedMs: number;
-    }
-  | { key: string; type: "outro" };
+import type { WrappedSlide } from "@/lib/interfaces/cards";
 
 export function buildWrappedSlides(
   stats: ScanStats | null,
   elapsedMs: number,
+  sessionScanCount: number,
   wrappedEnabled = true,
 ): WrappedSlide[] {
   if (!wrappedEnabled) return [{ key: "outro", type: "outro" }];
@@ -101,7 +74,7 @@ export function buildWrappedSlides(
 
   const cardsPerHour =
     elapsedMs > 0
-      ? Math.round((stats.totalCount / elapsedMs) * 3_600_000)
+      ? Math.round((sessionScanCount / elapsedMs) * 3_600_000)
       : null;
   slides.push({ key: "speed", type: "speed", cardsPerHour, elapsedMs });
 

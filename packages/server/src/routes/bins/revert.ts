@@ -4,7 +4,15 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins, binSetAudit } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { loadSets, toIsDisabled, toMaxCopies } from "./shared";
+import {
+  fromLegacyCatchAllRules,
+  loadSets,
+  toIsDisabled,
+  toLowMatchPercent,
+  toMaxCopies,
+  toMaxCopiesBy,
+  toOverridePriority,
+} from "./shared";
 
 export const revertBinSetRoute = new Hono<AppEnv>().post(
   "/history/:guid/revert",
@@ -18,13 +26,23 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
         const entry = await tx.query.binSetAudit.findFirst({
           where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
         });
-        if (!entry) return { success: false, message: "Audit record not found." };
+        if (!entry)
+          return { success: false, message: "Audit record not found." };
 
         const binSet = await tx.query.binSets.findFirst({
           where: (t, { eq, and }) =>
-            and(eq(t.guid, entry.binSetGuid), eq(t.orgId, orgId)),
+            and(
+              eq(t.guid, entry.binSetGuid),
+              eq(t.orgId, orgId),
+              eq(t.isDeleted, false),
+            ),
           columns: { id: true, guid: true },
-          with: { bins: { columns: { id: true, binNumber: true } } },
+          with: {
+            bins: {
+              where: (bin, { eq }) => eq(bin.isDeleted, false),
+              columns: { id: true, binNumber: true },
+            },
+          },
         });
         if (!binSet) return { success: false, message: "Bin set not found." };
 
@@ -38,31 +56,41 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
             config.cardLimit === undefined
               ? DEFAULT_BIN_CAPACITY
               : config.cardLimit;
+          const { rules, lowMatchPercent } = fromLegacyCatchAllRules(config);
+          const restored = {
+            rules,
+            isCatchAll: config.isCatchAll,
+            isOverride: !config.isCatchAll && (config.isOverride ?? false),
+            overridePriority: toOverridePriority(
+              config.overridePriority,
+              config.isCatchAll,
+              config.isOverride,
+            ),
+            lowMatchPercent: toLowMatchPercent(
+              lowMatchPercent,
+              config.isCatchAll,
+            ),
+            cardLimit,
+            maxCopies: toMaxCopies(config.maxCopies, config.isCatchAll),
+            maxCopiesBy: toMaxCopiesBy(
+              config.maxCopiesBy,
+              config.isCatchAll,
+              toMaxCopies(config.maxCopies, config.isCatchAll),
+            ),
+            isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
+          };
           const existing = binSet.bins.find(
             (b) => b.binNumber === config.binNumber,
           );
           if (existing) {
             await tx
               .update(bins)
-              .set({
-                rules: config.rules,
-                isCatchAll: config.isCatchAll,
-                isOverride: !config.isCatchAll && (config.isOverride ?? false),
-                cardLimit,
-                maxCopies: toMaxCopies(config.maxCopies, config.isCatchAll),
-                isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
-                updatedAt: new Date(),
-              })
+              .set({ ...restored, updatedAt: new Date() })
               .where(eq(bins.id, existing.id));
           } else {
             await tx.insert(bins).values({
               binNumber: config.binNumber,
-              rules: config.rules,
-              isCatchAll: config.isCatchAll,
-              isOverride: !config.isCatchAll && (config.isOverride ?? false),
-              cardLimit,
-              maxCopies: toMaxCopies(config.maxCopies, config.isCatchAll),
-                isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
+              ...restored,
               binSet: binSet.id,
               orgId,
             });

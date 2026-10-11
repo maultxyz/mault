@@ -22,6 +22,8 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       discordScanUseThreads?: boolean;
       sessionWrappedEnabled?: boolean;
       ocrEnabled?: boolean;
+      correctionBinPrompt?: boolean;
+      pauseScanningOnDeploy?: boolean;
       correctionAutoCloseSeconds?: number | null;
       priceSource?: string;
     }>();
@@ -71,6 +73,14 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             "ocrEnabled" in body
               ? (body.ocrEnabled ?? false)
               : (existing?.ocrEnabled ?? false),
+          correctionBinPrompt:
+            "correctionBinPrompt" in body
+              ? (body.correctionBinPrompt ?? true)
+              : (existing?.correctionBinPrompt ?? true),
+          pauseScanningOnDeploy:
+            "pauseScanningOnDeploy" in body
+              ? (body.pauseScanningOnDeploy ?? true)
+              : (existing?.pauseScanningOnDeploy ?? true),
           correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
             "correctionAutoCloseSeconds" in body
               ? body.correctionAutoCloseSeconds
@@ -100,6 +110,8 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             discordScanUseThreads: merged.discordScanUseThreads,
             sessionWrappedEnabled: merged.sessionWrappedEnabled,
             ocrEnabled: merged.ocrEnabled,
+            correctionBinPrompt: merged.correctionBinPrompt,
+            pauseScanningOnDeploy: merged.pauseScanningOnDeploy,
             correctionAutoCloseSeconds: merged.correctionAutoCloseSeconds,
             priceSource: merged.priceSource,
             discordGuildId: existing?.discordGuildId ?? null,

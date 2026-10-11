@@ -15,17 +15,65 @@
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bac {{n}}",
     "catchAllBinNote": "fourre-tout, les {{modules}} fonds ouverts",
-    "boardType": {
-      "label": "Carte",
-      "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+    "nav": {
+      "label": "Sections du guide",
+      "setup": "Configuration",
+      "parts": "Pièces",
+      "wiring": "Câblage",
+      "assembly": "Assemblage"
+    }
+  },
+  "setup": {
+    "heading": "Configure ton montage",
+    "description": "Choisis comment tu construis le trieur. La liste des pièces, le câblage et les étapes d'assemblage ci-dessous suivent ces choix, enregistrés dans ce navigateur.",
+    "stepLabel": "Étape {{n}}",
+    "source": {
+      "label": "D'où viennent tes pièces ?",
+      "kit": {
+        "title": "Un kit Mault",
+        "description": "ESP32-S3 sur sa carte de breakout, 3 modules et le firmware déjà flashé."
+      },
+      "diy": {
+        "title": "Je les achète moi-même",
+        "description": "Achète les pièces de la liste ci-dessous et choisis ta carte et ton nombre de modules."
+      }
     },
-    "kit": {
-      "title": "Vous montez un kit ?",
-      "description": "Vous utilisez un kit Mault ? Nous adaptons le guide : 3 modules, l'ESP32-S3 avec sa carte d'extension, et aucun flashage du firmware puisque la carte est livrée prête à l'emploi.",
-      "activeDescription": "Guide configuré pour le kit : 3 modules, l'ESP32-S3 avec sa carte d'extension. L'étape du firmware est ignorée car la carte est livrée déjà flashée.",
-      "button": "J'utilise un kit",
-      "active": "Kit utilisé"
+    "board": {
+      "label": "Carte de contrôle",
+      "uno_r4": {
+        "description": "Logique 5V. Se connecte à l'app en USB."
+      },
+      "esp32": {
+        "description": "Logique 3,3V. Se connecte à l'app en USB ou en Bluetooth."
+      },
+      "kitLocked": "Imposé par le kit. Choisis \"Je les achète moi-même\" pour le changer."
+    },
+    "mount": {
+      "label": "Montage de l'ESP32",
+      "breakout": {
+        "title": "Sur une carte de breakout",
+        "description": "L'ESP32 se branche sur une carte de breakout. Utilise les versions breakout de la plaque de circuit et d'un support de base."
+      },
+      "bare": {
+        "title": "Carte nue",
+        "description": "Câblage directement sur les broches de l'ESP32. Utilise la même plaque de circuit que l'Arduino."
+      }
+    },
+    "modules": {
+      "label": "Modules de tri",
+      "description": "Chaque module ajoute deux bacs. Avec le bac fourre-tout en bas, cela fait {{bins}} bacs.",
+      "decreaseAria": "Réduire le nombre de modules",
+      "increaseAria": "Augmenter le nombre de modules"
+    },
+    "summary": {
+      "label": "Montage pour",
+      "change": "Modifier",
+      "kit": "Kit Mault",
+      "diy": "Pièces perso",
+      "breakout": "Carte de breakout",
+      "bare": "Carte nue",
+      "modules_one": "{{count}} module",
+      "modules_other": "{{count}} modules"
     }
   },
   "footer": {
@@ -40,14 +88,8 @@
     "heading": "Nomenclature",
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
-    "hopperNote": "Il existe deux styles de trémie : la trémie classique et un nouveau modèle qui s'adapte plus facilement à différentes épaisseurs de cartes. Les pièces marquées Optionnel, trémie classique ou Optionnel, nouvelle trémie ci-dessous appartiennent au style que tu ne construis pas - un seul jeu suffit.",
     "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
     "partsListLabel": "Liste complète des pièces",
-    "moduleCount": {
-      "label": "Modules",
-      "decreaseAria": "Diminuer le nombre de modules",
-      "increaseAria": "Augmenter le nombre de modules"
-    },
     "progress": {
       "partsCount": "{{done}} sur {{total}} pièces"
     },
@@ -130,7 +172,7 @@
           },
           "hopperORing": {
             "part": "Joint torique 9,2mm DI 14mm DE section 2,4mm",
-            "notes": "Nouvelle trémie - s'adapte plus facilement à différentes épaisseurs de cartes que la trémie classique"
+            "notes": "Se monte sur le rouleau de la trémie"
           },
           "servoControllerPlate": {
             "part": "Plaque Servo Controller imprimée en 3D",
@@ -157,24 +199,21 @@
             "part": "Écrou M3",
             "notes": "Associé aux vis M3×6 des panneaux de base"
           },
-          "m3x10Screw": {
-            "part": "Vis M3×10",
-            "notes": "Fixe la paroi à hauteur variable au tube de la trémie"
-          },
           "m3Washer": {
             "part": "Rondelle M3",
-            "notes": "Utilisée avec les vis M3×10 sur la paroi à hauteur variable de la trémie classique, ou avec les fixations de la nouvelle trémie - nécessaire dans les deux cas"
+            "notes": "Utilisée avec les vis M3×8 qui fixent le rouleau de la trémie"
           },
           "m3x8Screw": {
             "part": "Vis M3×8",
-            "notes": "Nouvelle trémie"
+            "notes": "Fixe le rouleau de la trémie"
           },
           "m3x25Screw": {
-            "part": "Vis M3×25"
+            "part": "Vis M3×25",
+            "notes": "Règle la tension du rouleau de la trémie avec le ressort"
           },
           "hopperSpring": {
             "part": "Ressort 7/32\" x 11/16\"",
-            "notes": "Nouvelle trémie - tend la paroi ajustable contre la pile de cartes"
+            "notes": "Tend la paroi ajustable contre la pile de cartes"
           },
           "m2x6Screw": {
             "part": "Vis M2×6",
@@ -289,10 +328,11 @@
     "helpText": "Bloqué sur une étape ? <a>Rejoins le Discord</a> si tu as besoin d'aide.",
     "hasVideoAria": "Comprend une vidéo explicative",
     "videoTitle": "Vidéo de montage",
-    "esp32MountType": {
-      "label": "Montage ESP32",
-      "breakout": "Avec carte de breakout",
-      "bare": "Sans carte de breakout"
+    "videoChapters": {
+      "sortingModule": "Module de tri",
+      "feederModule": "Module d'alimentation",
+      "completeAssembly": "Assemblage complet",
+      "calibration": "Calibrage"
     },
     "progress": {
       "stepsCount": "{{done}} sur {{total}} étapes"
@@ -313,8 +353,8 @@
             "text": "Imprime 1 Sorting Module Shroud - une seule suffit. Le capot qui recouvre les modules empilés."
           },
           "printPlateBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces Base Support 1 niveau à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les deux hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour.",
-            "breakoutText": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces 1 niveau, plus 1 support de base pour breakout de {{breakoutHeight}} niveau(x) à la place d'une des pièces standard de {{breakoutHeight}} niveau(x). La variante breakout offre le dégagement supplémentaire dont la carte de breakout a besoin. Les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
+            "text": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces Base Support 1 niveau à partir du même fichier - les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les deux hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour.",
+            "breakoutText": "Pour {{modules}} modules de tri, imprime {{threeTall}} pièces Base Support 3 niveaux et {{oneTall}} pièces 1 niveau, plus 1 support de base pour breakout de {{breakoutHeight}} niveau(x) à la place d'une des pièces standard de {{breakoutHeight}} niveau(x). La variante breakout offre le dégagement supplémentaire dont la carte de breakout a besoin. Les modules s'empilent en escalier, donc chaque niveau ajouté nécessite une unité de hauteur de plus que le niveau au-dessus. Combine les hauteurs de pièces pour construire chaque niveau. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour."
           },
           "printPlateBaseBottom": {
             "esp32OrArduino": "Imprime 1 plaque Circuit Board (ESP32 / Arduino). Cette plaque couvre maintenant à la fois l'Arduino et l'ESP32 sans carte de breakout, la même plaque dans les deux cas.",
@@ -327,7 +367,7 @@
             "text": "Imprime 1 plaque End."
           },
           "printGenericBase": {
-            "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic. Change le nombre de modules dans la liste des pièces ci-dessus pour mettre ce nombre à jour."
+            "text": "Pour {{modules}} modules de tri, imprime {{count}} plaques Generic. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour."
           },
           "printBinsPlate": {
             "text": "Imprime 2 plaques Bins.",
@@ -338,13 +378,6 @@
           },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
-          },
-          "mountBoardsToPanels": {
-            "text": "Fixe le {{board}} et la carte driver de servo PCA9685 aux panneaux de base avec 7 vis M2×6."
-          },
-          "attachBasePanels": {
-            "text": "Fixe les panneaux de base à la base avec 8 vis M3×6 et 8 écrous M3.",
-            "note": "Fais ceci après avoir monté le {{board}} et le PCA9685 sur les panneaux - les cartes sont bien plus difficiles à atteindre une fois les panneaux fixés à la base."
           }
         }
       },
@@ -422,10 +455,6 @@
           "mountFeederServo": {
             "text": "Installe le servo de chargeur à rotation continue sur le rouleau, à la base de la trémie."
           },
-          "mountFeederWall": {
-            "text": "Fixe la paroi à la trémie avec les 2 vis M3×10 et les rondelles M3 - elle guide les cartes de la trémie vers le rouleau du chargeur.",
-            "note": "Lors du montage de la paroi, fixe-la d'abord au module du chargeur, puis place 2 cartes sous la paroi et fais-la glisser vers le bas avant de la serrer en place."
-          },
           "fitHopperRollerOrings": {
             "text": "Monte des joints toriques sur le rouleau de la trémie.",
             "note": "Comme pour le rouleau du chargeur, ils lui donnent de l'adhérence sur la carte."
@@ -480,7 +509,7 @@
             "note": "Pour pusherLeft/pusherRight, fais pivoter le bras vers la paroi intérieure mais arrête-toi avant qu'il ne la touche, à environ 10-12 % du neutre. Le poussoir n'a pas besoin de toucher la paroi pour éjecter la carte, et appuyer dessus force le servo. L'app affiche un avertissement au-delà de 12 %."
           },
           "installHorns": {
-            "text": "Dans la grille de calibration des modules sur /app/calibrate, mets chaque palette en position ouverte et chaque poussoir en position neutre, puis appuie le palonnier (avec sa trappe ou son bras poussoir déjà fixé) sur l'axe du servo et fixe-le avec la vis de palonnier : trappe inférieure, trappes latérales et bras poussoir, pour les {{count}} servos du module.",
+            "text": "Dans l'assistant de configuration (Configurer ton trieur, qui s'ouvre à la première connexion du trieur ou depuis le menu d'aide (?) sur /app/calibrate), installe les palonniers (avec leur trappe ou bras poussoir déjà fixé) un servo à la fois. Pour la trappe inférieure et les palettes latérales, mets le curseur à 90 %, puis appuie le palonnier sur l'axe du servo avec la palette en position fermée. Pour le poussoir, mets le curseur à 50 %, puis appuie le palonnier sur l'axe. Fixe chaque palonnier avec sa vis de palonnier, pour les {{count}} servos du module.",
             "note": "Fixer un palonnier de façon décentrée biaise toute la liaison. Les impulsions exactes d'ouverture/fermeture et gauche/droite seront affinées à l'étape suivante."
           },
           "calibrateFeeder": {
@@ -521,7 +550,5 @@
       }
     }
   },
-  "optionalBadge": "Optionnel",
-  "optionalClassicHopperBadge": "Optionnel, trémie classique",
-  "optionalNewHopperBadge": "Optionnel, nouvelle trémie"
+  "optionalBadge": "Optionnel"
 }

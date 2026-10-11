@@ -15,17 +15,65 @@
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bin {{n}}",
     "catchAllBinNote": "catch-all, all {{modules}} bottoms open",
-    "boardType": {
-      "label": "Board",
-      "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+    "nav": {
+      "label": "Guide sections",
+      "setup": "Set up",
+      "parts": "Parts",
+      "wiring": "Wiring",
+      "assembly": "Assembly"
+    }
+  },
+  "setup": {
+    "heading": "Set up your build",
+    "description": "Choose how you're building the sorter. The parts list, wiring and assembly steps below follow these choices, which are saved in this browser.",
+    "stepLabel": "Step {{n}}",
+    "source": {
+      "label": "Where are your parts from?",
+      "kit": {
+        "title": "A Mault kit",
+        "description": "ESP32-S3 on its breakout board, 3 modules, and the firmware already flashed."
+      },
+      "diy": {
+        "title": "Sourcing my own",
+        "description": "Buy the parts from the list below and pick your own board and module count."
+      }
     },
-    "kit": {
-      "title": "Building from a kit?",
-      "description": "Using a Mault kit? We'll set up the guide for it: 3 modules, the ESP32-S3 with its breakout board, and no firmware flashing since the board ships ready to go.",
-      "activeDescription": "Guide set up for the kit: 3 modules, the ESP32-S3 with its breakout board. The firmware phase is skipped because the board ships pre-flashed.",
-      "button": "I'm using a kit",
-      "active": "Using a kit"
+    "board": {
+      "label": "Controller board",
+      "uno_r4": {
+        "description": "5V logic. Connects to the app over USB."
+      },
+      "esp32": {
+        "description": "3.3V logic. Connects to the app over USB or Bluetooth."
+      },
+      "kitLocked": "Set by the kit. Choose \"Sourcing my own\" to change it."
+    },
+    "mount": {
+      "label": "ESP32 mounting",
+      "breakout": {
+        "title": "On a breakout board",
+        "description": "The ESP32 plugs into a breakout board. Uses the breakout versions of the circuit board plate and one base support."
+      },
+      "bare": {
+        "title": "Bare board",
+        "description": "Wire straight to the ESP32's pins. Uses the same circuit board plate as the Arduino."
+      }
+    },
+    "modules": {
+      "label": "Sorting modules",
+      "description": "Each module adds two bins. With the catch-all at the bottom, that's {{bins}} bins.",
+      "decreaseAria": "Decrease module count",
+      "increaseAria": "Increase module count"
+    },
+    "summary": {
+      "label": "Building for",
+      "change": "Change",
+      "kit": "Mault kit",
+      "diy": "Own parts",
+      "breakout": "Breakout board",
+      "bare": "Bare board",
+      "modules_one": "{{count}} module",
+      "modules_other": "{{count}} modules"
     }
   },
   "footer": {
@@ -40,14 +88,8 @@
     "heading": "Bill of materials",
     "description": "Quantities scale with the number of modules you're building: {{modules}} modules × 3 servos, 1 feeder, {{irSensors}} IR sensors, {{channelsUsed}} of the PCA9685's 16 channels in use. The remaining channels are free for additional sorting modules (up to 5 modules on a single PCA9685). Check off each part as you gather it. Checkmarks are saved in this browser.",
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links. We may earn a small commission on qualifying purchases at no extra cost to you.",
-    "hopperNote": "There are two hopper styles: the classic hopper and a newer design that accommodates different card thicknesses more easily. Parts tagged Optional, classic hopper or Optional, new hopper below belong to whichever style you aren't building. You only need one set.",
     "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
     "partsListLabel": "Full parts list",
-    "moduleCount": {
-      "label": "Modules",
-      "decreaseAria": "Decrease module count",
-      "increaseAria": "Increase module count"
-    },
     "progress": {
       "partsCount": "{{done}} of {{total}} parts"
     },
@@ -130,7 +172,7 @@
           },
           "hopperORing": {
             "part": "9.2mm ID 14mm OD 2.4mm Section O-Ring",
-            "notes": "New hopper style, accommodates different card thicknesses more easily than the classic hopper"
+            "notes": "Fits onto the hopper roller"
           },
           "servoControllerPlate": {
             "part": "3D-printed Servo Controller Plate",
@@ -157,24 +199,21 @@
             "part": "M3 nut",
             "notes": "Paired with the base panel M3×6 screws"
           },
-          "m3x10Screw": {
-            "part": "M3×10 screw",
-            "notes": "Attaches the variable-height wall to the hopper tube"
-          },
           "m3Washer": {
             "part": "M3 washer",
-            "notes": "Used with the M3×10 screws on the classic hopper's variable-height wall, or with the new hopper's fasteners. Needed either way"
+            "notes": "Used with the M3×8 screws that mount the hopper roller"
           },
           "m3x8Screw": {
             "part": "M3×8 screw",
-            "notes": "New hopper style"
+            "notes": "Mounts the hopper roller"
           },
           "m3x25Screw": {
-            "part": "M3×25 screw"
+            "part": "M3×25 screw",
+            "notes": "Adjusts the hopper roller tension with the spring"
           },
           "hopperSpring": {
             "part": "7/32\" x 11/16\" spring",
-            "notes": "New hopper style, tensions the adjustable wall against the card stack"
+            "notes": "Tensions the adjustable wall against the card stack"
           },
           "m2x6Screw": {
             "part": "M2×6 screw",
@@ -289,10 +328,11 @@
     "helpText": "Stuck on a step? <a>Join the Discord</a> if you need help.",
     "hasVideoAria": "Includes walkthrough video",
     "videoTitle": "Assembly video",
-    "esp32MountType": {
-      "label": "ESP32 mount",
-      "breakout": "With breakout board",
-      "bare": "Without breakout board"
+    "videoChapters": {
+      "sortingModule": "Sorting module",
+      "feederModule": "Feeder module",
+      "completeAssembly": "Complete assembly",
+      "calibration": "Calibration"
     },
     "progress": {
       "stepsCount": "{{done}} of {{total}} steps"
@@ -312,8 +352,8 @@
             "text": "Print 1 Sorting Module Shroud. Only one needed. The cover that sits over the stacked modules."
           },
           "printPlateBase": {
-            "text": "For {{modules}} sorting modules, print {{threeTall}} 3-tall Base Support pieces and {{oneTall}} 1-tall Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the two piece heights to build up each tier. Change the module count in the parts list above to update this.",
-            "breakoutText": "For {{modules}} sorting modules, print {{threeTall}} 3-tall and {{oneTall}} 1-tall Base Support pieces, plus 1 {{breakoutHeight}}-tall Breakout Base Support in place of one of the regular {{breakoutHeight}}-tall pieces. The breakout variant has the extra clearance the breakout board's footprint needs. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the piece heights to build up each tier. Change the module count in the parts list above to update this."
+            "text": "For {{modules}} sorting modules, print {{threeTall}} 3-tall Base Support pieces and {{oneTall}} 1-tall Base Support pieces from the same file. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the two piece heights to build up each tier. Change the module count in the setup above to update this.",
+            "breakoutText": "For {{modules}} sorting modules, print {{threeTall}} 3-tall and {{oneTall}} 1-tall Base Support pieces, plus 1 {{breakoutHeight}}-tall Breakout Base Support in place of one of the regular {{breakoutHeight}}-tall pieces. The breakout variant has the extra clearance the breakout board's footprint needs. The modules stack in a staircase, so each added tier needs one more unit of height than the tier above it. Mix the piece heights to build up each tier. Change the module count in the setup above to update this."
           },
           "printPlateBaseBottom": {
             "esp32OrArduino": "Print 1 Circuit Board Plate (ESP32 / Arduino). This plate now covers both the Arduino and the bare ESP32 mount, the same plate either way.",
@@ -326,7 +366,7 @@
             "text": "Print 1 End Plate."
           },
           "printGenericBase": {
-            "text": "For {{modules}} sorting modules, print {{count}} Generic Plates. Change the module count in the parts list above to update this."
+            "text": "For {{modules}} sorting modules, print {{count}} Generic Plates. Change the module count in the setup above to update this."
           },
           "printBinsPlate": {
             "text": "Print 2 Bins Plates.",
@@ -337,13 +377,6 @@
           },
           "dryFit": {
             "text": "Dry-fit each module housing before inserting any electronics. Sand or adjust any tight servo pockets now."
-          },
-          "mountBoardsToPanels": {
-            "text": "Mount the {{board}} and PCA9685 servo driver board to the base panels with 7 M2×6 screws."
-          },
-          "attachBasePanels": {
-            "text": "Attach the base panels to the base with 8 M3×6 screws and 8 M3 nuts.",
-            "note": "Do this after the {{board}} and PCA9685 are mounted to the panels. The boards are much harder to reach once the panels are on the base."
           }
         }
       },
@@ -421,10 +454,6 @@
           "mountFeederServo": {
             "text": "Install the continuous-rotation feeder servo to the roller, at the base of the hopper."
           },
-          "mountFeederWall": {
-            "text": "Attach the wall piece to the hopper using the 2 M3×10 screws and M3 washers. It guides cards from the hopper to the feeder roller.",
-            "note": "When mounting the wall, attach it to the feeder module first, then put 2 cards below the wall and slide it down before tighting it into place."
-          },
           "fitHopperRollerOrings": {
             "text": "Fit o-rings onto the hopper roller.",
             "note": "Same as the feeder roller, these give it grip on the card face."
@@ -479,7 +508,7 @@
             "note": "For pusherLeft/pusherRight, swing the arm toward the inner wall but stop before it touches, about 10-12% away from neutral. The pusher doesn't need to hit the wall to fling the card, and pressing against it strains the servo. The app warns you past 12%."
           },
           "installHorns": {
-            "text": "In the Module Calibration Grid on /app/calibrate, put each paddle in its open position and each pusher in its neutral position, then press the horn (with its flapper or pusher arm already fitted) onto the servo shaft and secure it with the horn screw: bottom flapper, paddle flappers, and pusher arm, for all {{count}} module servos.",
+            "text": "In the setup wizard (Set up your sorter, which opens the first time the sorter connects, or from the help (?) menu on /app/calibrate), install the horns (with their flapper or pusher arm already fitted) one servo at a time. For the bottom paddle and the side paddles, move the slider to 90%, then press the horn onto the servo shaft with the paddle in its closed position. For the pusher, move the slider to 50%, then press the horn onto the shaft. Secure each horn with its horn screw, for all {{count}} module servos.",
             "note": "Fitting a horn off-center biases the whole linkage. The exact open/closed and left/right pulses get fine-tuned in the next step."
           },
           "calibrateFeeder": {
@@ -520,7 +549,5 @@
       }
     }
   },
-  "optionalBadge": "Optional",
-  "optionalClassicHopperBadge": "Optional, classic hopper",
-  "optionalNewHopperBadge": "Optional, new hopper"
+  "optionalBadge": "Optional"
 }

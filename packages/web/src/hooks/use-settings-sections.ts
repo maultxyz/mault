@@ -1,5 +1,5 @@
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { SETTINGS_SECTIONS } from "@/lib/constants/settings";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 export function useSettingsSections() {
   return SETTINGS_SECTIONS.filter(

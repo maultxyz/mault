@@ -6,7 +6,9 @@ import {
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
+import {
+  reportSerialEvent,
+} from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
@@ -29,6 +31,7 @@ import { cn } from "@/lib/utils";
 import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useOnnxRuntimeFailureToast } from "@/features/scanner/api/use-onnx-runtime-failure-toast";
@@ -64,10 +67,10 @@ export function CardScanner({
     binLimitReached,
     resolveBinLimit,
     dismissBinLimit,
-    fullChaosBins,
-    fullChaosBinCount,
-    emptyNextFullChaosBin,
-    dismissFullChaosBins,
+    fullBins,
+    fullBinCount,
+    emptyNextFullBin,
+    dismissFullBins,
     setScannerRunning,
   } = useScannedCards();
   const binFillLevels = useBinFillLevels();
@@ -104,6 +107,11 @@ export function CardScanner({
     typeof navigator !== "undefined" && !!navigator.bluetooth;
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
+  const {
+    resetToNeutral,
+    handleResetToNeutral,
+    isResetting: isResettingDevice,
+  } = useResetToNeutral();
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
@@ -245,10 +253,23 @@ export function CardScanner({
       document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [pause, t]);
 
+  const deviceNeutralRef = useRef(false);
+
+  useEffect(() => {
+    if (status === "paused" || !isReady) deviceNeutralRef.current = false;
+  }, [status, isReady]);
+
+  const prepareDevice = useCallback(async () => {
+    if (!isReady || deviceNeutralRef.current) return true;
+    deviceNeutralRef.current = await resetToNeutral();
+    return deviceNeutralRef.current;
+  }, [isReady, resetToNeutral]);
+
   const handleFeed = useCallback(async () => {
     if (!isReady) return;
     setIsFeeding(true);
     try {
+      if (!(await prepareDevice())) return;
       const sent = await sendCommand(JSON.stringify({ feeder: true }));
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
@@ -321,6 +342,7 @@ export function CardScanner({
     }
   }, [
     isReady,
+    prepareDevice,
     sendCommand,
     receiveResponse,
     handleCardArrived,
@@ -388,7 +410,8 @@ export function CardScanner({
     return registerPauseHook(handlePause);
   }, [registerPauseHook, handlePause]);
 
-  const handleResumeScanning = useCallback(() => {
+  const handleResumeScanning = useCallback(async () => {
+    if (!(await prepareDevice())) return;
     clearFeedHalt();
     if (heldCardArrivalRef.current) {
       handleResumeClick();
@@ -396,7 +419,14 @@ export function CardScanner({
     }
     handleResume();
     if (autoFeed) void handleFeed();
-  }, [clearFeedHalt, handleResumeClick, handleResume, handleFeed, autoFeed]);
+  }, [
+    prepareDevice,
+    clearFeedHalt,
+    handleResumeClick,
+    handleResume,
+    handleFeed,
+    autoFeed,
+  ]);
 
   useEffect(() => {
     return registerResumeHook(handleResumeScanning);
@@ -409,11 +439,11 @@ export function CardScanner({
     [resolveBinLimit, handleResumeScanning],
   );
 
-  const handleEmptyNextFullChaosBin = useCallback(
+  const handleEmptyNextFullBin = useCallback(
     async (options: EmptyBinOptions) => {
-      if (await emptyNextFullChaosBin(options)) handleResumeScanning();
+      if (await emptyNextFullBin(options)) handleResumeScanning();
     },
-    [emptyNextFullChaosBin, handleResumeScanning],
+    [emptyNextFullBin, handleResumeScanning],
   );
 
   const canScan = isCameraActive;
@@ -441,6 +471,8 @@ export function CardScanner({
       onResume={handleResumeScanning}
       onFeed={handleFeed}
       onClearDevice={handleClearDevice}
+      isResettingDevice={isResettingDevice}
+      onResetDevice={handleResetToNeutral}
     />
   );
 
@@ -579,20 +611,25 @@ export function CardScanner({
         onConfirm={handleContinueAfterBinLimit}
       />
       <EmptyBinToLocationDialog
-        binNumber={fullChaosBins?.[0] ?? null}
+        binNumber={fullBins?.[0] ?? null}
+        description={
+          selectedSet?.isRepackMode
+            ? t("repackCompleteDialog.description", { bin: fullBins?.[0] })
+            : undefined
+        }
         step={
-          fullChaosBins
+          fullBins
             ? {
-                index: fullChaosBinCount - fullChaosBins.length + 1,
-                total: fullChaosBinCount,
+                index: fullBinCount - fullBins.length + 1,
+                total: fullBinCount,
               }
             : undefined
         }
         collectionGuid={activeCollection?.guid}
         onOpenChange={(open) => {
-          if (!open) dismissFullChaosBins();
+          if (!open) dismissFullBins();
         }}
-        onConfirm={handleEmptyNextFullChaosBin}
+        onConfirm={handleEmptyNextFullBin}
       />
       <StaleDeviceDialog
         open={staleDialogOpen}

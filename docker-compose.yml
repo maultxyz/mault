@@ -140,6 +140,20 @@ services:
       - "8080:80"
     restart: unless-stopped
 
+  api-docs:
+    build:
+      context: .
+      dockerfile: Dockerfile.api-docs
+      args:
+        # Empty for the same reason as the web service: nginx.conf proxies
+        # /api to the server container.
+        VITE_API_URL: ${VITE_API_URL:-}
+    depends_on:
+      - server
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
   bot:
     build:
       context: .

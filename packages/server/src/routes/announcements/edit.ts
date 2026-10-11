@@ -4,11 +4,8 @@ import { db } from "../../db";
 import { announcements } from "../../db/schema";
 import { ANNOUNCEMENT_SEVERITIES as SEVERITIES } from "../../lib/constants/announcements";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
-import {
-  type AnnouncementInput,
-  parseAnnouncementLink,
-  toAnnouncement,
-} from "./shared";
+import { parseAnnouncementLink, toAnnouncement } from "./shared";
+import type { AnnouncementInput } from "@magic-vault/shared";
 
 export const editAnnouncementRoute = new Hono<AppEnv>().put(
   "/:guid",
@@ -47,7 +44,8 @@ export const editAnnouncementRoute = new Hono<AppEnv>().put(
 
     try {
       const target = await db.query.announcements.findFirst({
-        where: (t, { eq }) => eq(t.guid, guid),
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.isDeleted, false)),
         columns: { id: true },
       });
       if (!target)

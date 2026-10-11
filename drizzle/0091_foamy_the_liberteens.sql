@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "correction_bin_prompt" boolean DEFAULT true NOT NULL;

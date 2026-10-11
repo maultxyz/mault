@@ -8,11 +8,27 @@ import type {
   EmptyBinOptions,
   FieldMeta,
   RepackSlot,
+  ScanOnlyConfig,
 } from "@magic-vault/shared";
+
+export interface BinConfigSaveInput {
+  binNumber: number;
+  rules: BinRuleGroup;
+  isCatchAll?: boolean;
+  cardLimit?: number | null;
+  isOverride?: boolean;
+  overridePriority?: number | null;
+  lowMatchPercent?: number | null;
+  maxCopies?: number | null;
+  maxCopiesBy?: string | null;
+  isDisabled?: boolean;
+}
 
 export interface BinModeDraft {
   autoAssignField: string | null;
   scanOnly: boolean;
+  scanOnlyMatchedBin: number | null;
+  scanOnlyUnmatchedBin: number | null;
   isRepackMode: boolean;
   isAlphabetMode: boolean;
   isChaosMode: boolean;
@@ -66,16 +82,9 @@ export interface BinConfigsContextValue {
   setSelectedBin: (bin: number) => void;
   setBinFormDirty: (dirty: boolean) => void;
   selectedConfig: BinConfig;
-  save: (
-    binNumber: number,
-    rules: BinRuleGroup,
-    isCatchAll?: boolean,
-    cardLimit?: number | null,
-    isOverride?: boolean,
-    maxCopies?: number | null,
-    isDisabled?: boolean,
-  ) => void;
+  save: (input: BinConfigSaveInput) => void;
   emptyBin: (binNumber: number, options?: EmptyBinOptions) => Promise<boolean>;
+  emptyAllBins: (binNumbers: number[]) => Promise<boolean>;
   activateSet: (guid: string) => Promise<void>;
   createSet: (name: string) => Promise<void>;
   importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;
@@ -84,11 +93,11 @@ export interface BinConfigsContextValue {
   deleteSet: (guid: string) => Promise<void>;
   setAutoAssignField: (field: string | null) => Promise<void>;
   resetAutoAssign: () => Promise<void>;
-  setScanOnly: (enabled: boolean) => Promise<void>;
+  setScanOnly: (config: ScanOnlyConfig) => Promise<void>;
   setRepackConfig: (config: {
     isRepackMode: boolean;
     repackSlots: RepackSlot[];
-    repackAllowDuplicates: boolean;
+    repackUniqueBy: string | null;
     repackSiftRules: BinRuleGroup | null;
   }) => Promise<boolean>;
   setAlphabetPass: (step: AlphabetStep) => Promise<void>;
@@ -100,11 +109,22 @@ export interface BinConfigsContextValue {
   discardMode: () => void;
 }
 
+export interface ScanOnlyBinSelectProps {
+  id: string;
+  label: string;
+  description: string;
+  value: number;
+  binNumbers: number[];
+  disabled: boolean;
+  onChange: (binNumber: number) => void;
+}
+
 export interface BinCardProps {
   config: BinConfig;
   active?: boolean;
   isAutoAssign?: boolean;
   isScanOnly?: boolean;
+  isScanOnlyTarget?: boolean;
   isChaosMode?: boolean;
   alphabetLetter?: string | null;
   disabled?: boolean;
@@ -130,4 +150,9 @@ export interface RuleGroupEditorProps {
 
 export interface BinRulesMenuProps {
   className?: string;
+}
+
+export interface BinLocationDiagramProps {
+  binNumber?: number;
+  inverted?: boolean;
 }

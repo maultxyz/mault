@@ -1,9 +1,9 @@
-import type { AdminUserSummary } from "@magic-vault/shared";
+import type { AdminUserSummary, OrgRole } from "@magic-vault/shared";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../db";
 import { platformUserRoles } from "../db/schema";
 import { getOwnAuth } from "./own-auth-instance";
-import type { AuthProvider, OrgRole } from "./types";
+import type { AuthProvider } from "../lib/interfaces/auth";
 
 export const localAuthProvider: AuthProvider = {
   async verifyToken(token) {
@@ -95,6 +95,14 @@ export const localAuthProvider: AuthProvider = {
               ON m.user_id = u.id AND m.status = 'active'
             LEFT JOIN own_auth_organisations o ON o.id = m.organisation_id
             WHERE u.name ILIKE ${pattern} OR u.email ILIKE ${pattern}
+              OR EXISTS (
+                SELECT 1
+                FROM own_auth_organisation_members om
+                JOIN own_auth_organisations oo ON oo.id = om.organisation_id
+                WHERE om.user_id = u.id
+                  AND om.status = 'active'
+                  AND oo.name ILIKE ${pattern}
+              )
             GROUP BY u.id, u.name, u.email, r.role
             ORDER BY u.email
             LIMIT ${limit}
@@ -137,5 +145,17 @@ export const localAuthProvider: AuthProvider = {
       sql`SELECT name FROM own_auth_organisations WHERE id = ${orgId} LIMIT 1`,
     );
     return rows.rows[0]?.name ?? "your organization";
+  },
+
+  async countUsersAndOrganisations() {
+    const rows = await db.execute<{ users: number; organisations: number }>(
+      sql`SELECT
+        (SELECT count(*)::int FROM own_auth_users) AS users,
+        (SELECT count(*)::int FROM own_auth_organisations) AS organisations`,
+    );
+    return {
+      users: rows.rows[0]?.users ?? 0,
+      organisations: rows.rows[0]?.organisations ?? 0,
+    };
   },
 };

@@ -25,7 +25,7 @@ export const editModuleConfigRoute = new Hono<AppEnv>().put(
           .values({ moduleNumber, ...calibration, orgId, deviceId: device.id })
           .onConflictDoUpdate({
             target: [moduleConfigs.deviceId, moduleConfigs.moduleNumber],
-            set: { ...calibration, updatedAt: new Date() },
+            set: { ...calibration, isDeleted: false, updatedAt: new Date() },
           });
 
         await tx
@@ -33,7 +33,8 @@ export const editModuleConfigRoute = new Hono<AppEnv>().put(
           .values({ moduleNumber, ...calibration, orgId, deviceId: device.id });
 
         const rows = await tx.query.moduleConfigs.findMany({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
+          where: (t, { eq, and }) =>
+            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
         });
         return {
           success: true,

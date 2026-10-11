@@ -21,8 +21,14 @@ import {
   getScansToday,
 } from "../../lib/scan-usage";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
-import { getUserDisplayName, requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  getUserDisplayName,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
+import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 
@@ -98,7 +104,13 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           })
           .from(collections)
           .leftJoin(games, eq(games.id, collections.gameId))
-          .where(and(eq(collections.guid, guid), eq(collections.orgId, orgId)))
+          .where(
+            and(
+              eq(collections.guid, guid),
+              eq(collections.orgId, orgId),
+              eq(collections.isDeleted, false),
+            ),
+          )
           .limit(1);
         if (!collection)
           return {
@@ -255,6 +267,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           gameId,
           capturedImageUrl,
         });
+        emitCardScannedWebhook(orgId, scanId);
       }
       if (
         !result.success &&

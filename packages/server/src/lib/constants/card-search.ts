@@ -16,6 +16,12 @@ export const DUPLICATE_PRINTING_MAX_DISTANCE = 0.02;
 
 export const STORED_SEARCH_LIMIT = 60;
 
+export const COLLECTOR_NUMBER_BACKFILL_BATCH_SIZE = 1000;
+
+export const PRINTED_TOTAL_NUMBER_PATTERN = /^#?([a-z0-9-]+)\/\d+$/i;
+export const SET_AND_NUMBER_PATTERN = /^([a-z0-9]+)[\s#/-]+#?([a-z0-9]+)$/i;
+export const SINGLE_TOKEN_PATTERN = /^#?([a-z0-9-]+)$/i;
+
 export const FAB_SEARCH_CARD_LIMIT = 12;
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {
@@ -30,6 +36,20 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   U: "Unlimited Edition ",
 };
 
+export const GRAND_ARCHIVE_SEARCH_PAGE_SIZE = 30;
+export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
+  1: "Common",
+  2: "Uncommon",
+  3: "Rare",
+  4: "Super Rare",
+  5: "Ultra Rare",
+  6: "Promotional Rare",
+  7: "Collector Super Rare",
+  8: "Collector Ultra Rare",
+  9: "Collector Promo Rare",
+};
+export const GRAND_ARCHIVE_PROMO_RARITIES = new Set([6, 9]);
+
 export const MATCH_MAX_DISTANCE_RATIO = 0.9;
 
 export const EXIF_ORIENTATION_TRANSPOSED_FROM = 5;
@@ -37,3 +57,7 @@ export const EXIF_ORIENTATION_TRANSPOSED_FROM = 5;
 export const MILO_EMBEDDING_DIM = 128;
 
 export const CARD_SETS_CACHE_TTL_MS = 15 * 60 * 1000;
+
+export const CARD_MATCH_LIMIT = 5;
+
+export const CARD_MATCH_RUNNER_UP_SEARCH_LIMIT = 20;

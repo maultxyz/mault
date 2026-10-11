@@ -15,17 +15,65 @@
     "moduleLabel": "Modul {{n}}",
     "binLabel": "Fach {{n}}",
     "catchAllBinNote": "Sammelfach, alle {{modules}} Bodenklappen offen",
-    "boardType": {
-      "label": "Board",
-      "unoR4": "Arduino",
-      "esp32": "ESP32-S3"
+    "nav": {
+      "label": "Abschnitte der Anleitung",
+      "setup": "Einrichtung",
+      "parts": "Teile",
+      "wiring": "Verkabelung",
+      "assembly": "Zusammenbau"
+    }
+  },
+  "setup": {
+    "heading": "Richte deinen Bau ein",
+    "description": "Wähle, wie du den Sortierer baust. Teileliste, Verkabelung und Montageschritte unten richten sich nach dieser Auswahl, die in diesem Browser gespeichert wird.",
+    "stepLabel": "Schritt {{n}}",
+    "source": {
+      "label": "Woher kommen deine Teile?",
+      "kit": {
+        "title": "Ein Mault-Kit",
+        "description": "ESP32-S3 auf seiner Breakout-Platine, 3 Module und bereits geflashte Firmware."
+      },
+      "diy": {
+        "title": "Ich besorge sie selbst",
+        "description": "Kaufe die Teile aus der Liste unten und wähle Board und Modulanzahl selbst."
+      }
     },
-    "kit": {
-      "title": "Baust du mit einem Bausatz?",
-      "description": "Du nutzt einen Mault-Bausatz? Wir passen die Anleitung dafür an: 3 Module, der ESP32-S3 mit Breakout-Board und kein Flashen der Firmware, da das Board einsatzbereit geliefert wird.",
-      "activeDescription": "Anleitung für den Bausatz eingerichtet: 3 Module, der ESP32-S3 mit Breakout-Board. Die Firmware-Phase entfällt, da das Board bereits geflasht geliefert wird.",
-      "button": "Ich nutze einen Bausatz",
-      "active": "Bausatz aktiv"
+    "board": {
+      "label": "Steuerplatine",
+      "uno_r4": {
+        "description": "5V-Logik. Verbindet sich per USB mit der App."
+      },
+      "esp32": {
+        "description": "3,3V-Logik. Verbindet sich per USB oder Bluetooth mit der App."
+      },
+      "kitLocked": "Vom Kit vorgegeben. Wähle \"Ich besorge sie selbst\", um es zu ändern."
+    },
+    "mount": {
+      "label": "ESP32-Montage",
+      "breakout": {
+        "title": "Auf einer Breakout-Platine",
+        "description": "Der ESP32 steckt auf einer Breakout-Platine. Nutzt die Breakout-Versionen der Platinenplatte und einer Basisstütze."
+      },
+      "bare": {
+        "title": "Blanke Platine",
+        "description": "Verkabelung direkt an den Pins des ESP32. Nutzt dieselbe Platinenplatte wie der Arduino."
+      }
+    },
+    "modules": {
+      "label": "Sortiermodule",
+      "description": "Jedes Modul bringt zwei Fächer. Mit dem Sammelfach unten sind es {{bins}} Fächer.",
+      "decreaseAria": "Modulanzahl verringern",
+      "increaseAria": "Modulanzahl erhöhen"
+    },
+    "summary": {
+      "label": "Gebaut für",
+      "change": "Ändern",
+      "kit": "Mault-Kit",
+      "diy": "Eigene Teile",
+      "breakout": "Breakout-Platine",
+      "bare": "Blanke Platine",
+      "modules_one": "{{count}} Modul",
+      "modules_other": "{{count}} Module"
     }
   },
   "footer": {
@@ -40,14 +88,8 @@
     "heading": "Stückliste",
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
-    "hopperNote": "Es gibt zwei Trichter-Varianten: den klassischen Trichter und ein neueres Design, das sich leichter an unterschiedliche Kartenstärken anpasst. Die unten mit Optional, klassischer Trichter bzw. Optional, neuer Trichter markierten Teile gehören zu der Variante, die du nicht baust – du brauchst nur einen Satz.",
     "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
     "partsListLabel": "Vollständige Teileliste",
-    "moduleCount": {
-      "label": "Module",
-      "decreaseAria": "Modulanzahl verringern",
-      "increaseAria": "Modulanzahl erhöhen"
-    },
     "progress": {
       "partsCount": "{{done}} von {{total}} Teilen"
     },
@@ -130,7 +172,7 @@
           },
           "hopperORing": {
             "part": "O-Ring 9,2mm ID 14mm OD 2,4mm Schnurstärke",
-            "notes": "Neuer Trichter – passt sich leichter an unterschiedliche Kartenstärken an als der klassische Trichter"
+            "notes": "Wird auf die Trichterrolle gezogen"
           },
           "servoControllerPlate": {
             "part": "3D-gedruckte Servo-Controller-Platte",
@@ -157,24 +199,21 @@
             "part": "M3-Mutter",
             "notes": "Passend zu den M3×6-Schrauben der Bodenplatte"
           },
-          "m3x10Screw": {
-            "part": "M3×10-Schraube",
-            "notes": "Befestigt die höhenverstellbare Wand am Trichterrohr"
-          },
           "m3Washer": {
             "part": "M3-Unterlegscheibe",
-            "notes": "Wird zusammen mit den M3×10-Schrauben an der höhenverstellbaren Wand des klassischen Trichters verwendet, oder mit den Befestigungen des neuen Trichters - in beiden Fällen benötigt"
+            "notes": "Wird mit den M3×8-Schrauben verwendet, mit denen die Trichterrolle montiert wird"
           },
           "m3x8Screw": {
             "part": "M3×8-Schraube",
-            "notes": "Neuer Trichter"
+            "notes": "Befestigt die Trichterrolle"
           },
           "m3x25Screw": {
-            "part": "M3×25-Schraube"
+            "part": "M3×25-Schraube",
+            "notes": "Stellt zusammen mit der Feder die Spannung der Trichterrolle ein"
           },
           "hopperSpring": {
             "part": "Feder 7/32\" x 11/16\"",
-            "notes": "Neuer Trichter – spannt die verstellbare Wand gegen den Kartenstapel"
+            "notes": "Spannt die verstellbare Wand gegen den Kartenstapel"
           },
           "m2x6Screw": {
             "part": "M2×6-Schraube",
@@ -289,10 +328,11 @@
     "helpText": "Bei einem Schritt nicht weiter? <a>Tritt dem Discord bei</a>, wenn du Hilfe brauchst.",
     "hasVideoAria": "Enthält ein Video zur Anleitung",
     "videoTitle": "Montagevideo",
-    "esp32MountType": {
-      "label": "ESP32-Montage",
-      "breakout": "Mit Breakout-Platine",
-      "bare": "Ohne Breakout-Platine"
+    "videoChapters": {
+      "sortingModule": "Sortiermodul",
+      "feederModule": "Zuführmodul",
+      "completeAssembly": "Gesamtmontage",
+      "calibration": "Kalibrierung"
     },
     "progress": {
       "stepsCount": "{{done}} von {{total}} Schritten"
@@ -313,8 +353,8 @@
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
           },
           "printPlateBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} Base-Support-Teile mit 1 Stufe aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die beiden Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren.",
-            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} mit 1 Stufe, dazu 1 Breakout-Basisstütze mit {{breakoutHeight}} Stufen anstelle eines der regulären Teile mit {{breakoutHeight}} Stufen. Die Breakout-Variante bietet den zusätzlichen Freiraum, den die Breakout-Platine benötigt. Die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} Base-Support-Teile mit 1 Stufe aus derselben Datei – die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die beiden Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren.",
+            "breakoutText": "Für {{modules}} Sortiermodule drucke {{threeTall}} Base-Support-Teile mit 3 Stufen und {{oneTall}} mit 1 Stufe, dazu 1 Breakout-Basisstütze mit {{breakoutHeight}} Stufen anstelle eines der regulären Teile mit {{breakoutHeight}} Stufen. Die Breakout-Variante bietet den zusätzlichen Freiraum, den die Breakout-Platine benötigt. Die Module sind treppenförmig gestapelt, sodass jede zusätzliche Stufe eine Höheneinheit mehr benötigt als die Stufe darüber. Kombiniere die Teilhöhen, um jede Stufe aufzubauen. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren."
           },
           "printPlateBaseBottom": {
             "esp32OrArduino": "Drucke 1 Circuit-Board-Platte (ESP32 / Arduino). Diese Platte deckt jetzt sowohl die Arduino- als auch die ESP32-Montage ohne Breakout-Platine ab, in beiden Fällen dieselbe Platte.",
@@ -327,7 +367,7 @@
             "text": "Drucke 1 End-Platte."
           },
           "printGenericBase": {
-            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Teileliste oben, um dies zu aktualisieren."
+            "text": "Für {{modules}} Sortiermodule drucke {{count}} Generic-Platten. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren."
           },
           "printBinsPlate": {
             "text": "Drucke 2 Bins-Platten.",
@@ -338,13 +378,6 @@
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
-          },
-          "mountBoardsToPanels": {
-            "text": "Befestige den {{board}} und die PCA9685-Servotreiberplatine mit 7 M2×6-Schrauben an den Bodenplatten."
-          },
-          "attachBasePanels": {
-            "text": "Befestige die Bodenplatten mit 8 M3×6-Schrauben und 8 M3-Muttern an der Basis.",
-            "note": "Mache dies, nachdem {{board}} und PCA9685 an den Platten montiert sind – die Platinen sind viel schwerer zu erreichen, sobald die Platten auf der Basis sitzen."
           }
         }
       },
@@ -422,10 +455,6 @@
           "mountFeederServo": {
             "text": "Montiere den Dauerdreh-Zuführservo an der Rolle, am Fuß des Trichters."
           },
-          "mountFeederWall": {
-            "text": "Befestige das Wandstück mit den 2 M3×10-Schrauben und M3-Unterlegscheiben am Trichter - er führt Karten vom Trichter zur Zuführrolle.",
-            "note": "Befestige beim Montieren der Wand diese zuerst am Zuführmodul, lege dann 2 Karten unter die Wand und schiebe sie nach unten, bevor du sie festziehst."
-          },
           "fitHopperRollerOrings": {
             "text": "Ziehe O-Ringe auf die Trichterrolle auf.",
             "note": "Wie bei der Zuführrolle geben diese ihr Griffigkeit auf der Kartenoberfläche."
@@ -480,7 +509,7 @@
             "note": "Bei pusherLeft/pusherRight den Arm zur Innenwand schwingen lassen, aber stoppen, bevor er sie berührt, etwa 10-12% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo. Ab 12% zeigt die App eine Warnung."
           },
           "installHorns": {
-            "text": "Stelle im Modul-Kalibrierungsraster unter /app/calibrate jede Paddelklappe in ihre offene Position und jeden Schieber in seine neutrale Position. Drücke dann das Horn (mit bereits montierter Klappe bzw. Schieberarm) auf die Servowelle und sichere es mit der Hornschraube: Bodenklappe, Paddelklappen und Schieberarm, für alle {{count}} Modul-Servos.",
+            "text": "Montiere im Einrichtungsassistenten (Sortierer einrichten, öffnet sich beim ersten Verbinden des Sortierers oder über das Hilfemenü (?) unter /app/calibrate) die Hörner (mit bereits montierter Klappe bzw. Schieberarm) Servo für Servo. Für die Bodenklappe und die Seitenpaddel stellst du den Schieberegler auf 90 % und drückst das Horn dann in geschlossener Position der Klappe auf die Servowelle. Für den Schieber stellst du den Schieberegler auf 50 % und drückst dann das Horn auf die Welle. Sichere jedes Horn mit seiner Hornschraube, für alle {{count}} Modul-Servos.",
             "note": "Ein außermittig montiertes Horn verzerrt das gesamte Gestänge. Die genauen Öffnungs-/Schließ- und Links-/Rechts-Impulse werden im nächsten Schritt feinjustiert."
           },
           "calibrateFeeder": {
@@ -521,7 +550,5 @@
       }
     }
   },
-  "optionalBadge": "Optional",
-  "optionalClassicHopperBadge": "Optional, klassischer Trichter",
-  "optionalNewHopperBadge": "Optional, neuer Trichter"
+  "optionalBadge": "Optional"
 }

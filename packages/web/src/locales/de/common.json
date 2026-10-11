@@ -3,6 +3,7 @@
     "scanner": "Scanner",
     "collections": "Sammlungen",
     "monitor": "Überwachung",
+    "scan": "Scannen",
     "storage": "Lager",
     "calibrate": "Kalibrieren",
     "settings": "Einstellungen",
@@ -18,7 +19,8 @@
     "alerts": "Meldungen",
     "sounds": "Sounds",
     "integrations": "Integrationen",
-    "more": "Mehr"
+    "more": "Mehr",
+    "stats": "Statistiken"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -159,17 +161,24 @@
     "then": "dann",
     "keys": {
       "space": "Leertaste",
-      "shift": "Umschalt"
+      "shift": "Umschalt",
+      "left": "←",
+      "right": "→",
+      "escape": "Esc",
+      "enter": "Enter",
+      "delete": "Entf"
     },
     "groups": {
       "general": "Allgemein",
       "navigation": "Navigation",
-      "scanner": "Scanner"
+      "scanner": "Scanner",
+      "cardDetail": "Kartendetails"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
       "toggleSidebar": "Seitenleiste ein- oder ausklappen",
       "focusSearch": "Suche fokussieren",
+      "dismissToasts": "Alle Benachrichtigungen schließen",
       "goScanner": "Zum Scanner",
       "goCollections": "Zu den Sammlungen",
       "goMonitor": "Zum Monitor",
@@ -183,7 +192,15 @@
       "scanToggleAutoFeed": "Automatische Zuführung umschalten",
       "scanCycleFoil": "Foil-Typ wechseln",
       "scanClearDevice": "Gerät leeren",
-      "scanPickSet": "Set-Vorgabe wählen"
+      "scanPickSet": "Set-Vorgabe wählen",
+      "cardPrevious": "Vorherige Karte",
+      "cardNext": "Nächste Karte",
+      "cardCorrect": "Karte korrigieren (Pfeiltasten wählen ein Ergebnis, Enter übernimmt, Umschalt Enter bleibt beim Prüfen auf der Karte)",
+      "cardToggleFoil": "Foil umschalten (erste Foil-Art oder zurück zu Nicht-Foil)",
+      "cardClose": "Karte schließen oder Korrektur abbrechen",
+      "cardRemove": "Karte entfernen (aus ihrer Box, wenn aus dem Lager geöffnet)",
+      "reviewStart": "Karten einzeln prüfen",
+      "reviewAccept": "Beim Prüfen: Karte stimmt, weiter"
     }
   },
   "mobileMenu": {

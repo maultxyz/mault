@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { Slider } from "@/components/ui/slider";
-import type { CardFilters } from "@/lib/interfaces/cards";
-import { EMPTY_CARD_FILTERS } from "@/lib/constants/card-filters";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { RARITY_TEXT_CLASS } from "@/lib/constants/rarity";
 import { cn } from "@/lib/utils";
@@ -13,6 +11,8 @@ import {
   IconX,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
+import type { CardFilterPopoverProps } from "@/lib/interfaces/cards";
 
 function toggle<T>(arr: T[], item: T): T[] {
   return arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
@@ -23,16 +23,6 @@ const chipBase =
 const chipInactive =
   "border-border bg-transparent text-foreground/70 hover:bg-muted hover:text-foreground";
 
-interface CardFilterPopoverProps {
-  activeFilters: CardFilters;
-  onFiltersChange: (filters: CardFilters) => void;
-  activeFilterCount: number;
-  availableRarities: { key: string; label: string }[];
-  availableColors: { key: string; label: string; bg: string }[];
-  availableFoilTypes: { key: string; label: string }[];
-  binCount?: number;
-}
-
 export function CardFilterPopover({
   activeFilters,
   onFiltersChange,
@@ -41,6 +31,7 @@ export function CardFilterPopover({
   availableColors,
   availableFoilTypes,
   binCount,
+  triggerClassName,
 }: CardFilterPopoverProps) {
   const { t } = useTranslation("cards");
   const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
@@ -51,7 +42,7 @@ export function CardFilterPopover({
         <Button
           variant={activeFilterCount > 0 ? "outline-selected" : "outline"}
           size="icon"
-          className="shrink-0"
+          className={cn("shrink-0", triggerClassName)}
         >
           <IconFilter className="size-4" />
         </Button>
@@ -166,7 +157,10 @@ export function CardFilterPopover({
                     onClick={() =>
                       onFiltersChange({
                         ...activeFilters,
-                        foilTypes: toggle(activeFilters.foilTypes, foilType.key),
+                        foilTypes: toggle(
+                          activeFilters.foilTypes,
+                          foilType.key,
+                        ),
                       })
                     }
                     className={cn(

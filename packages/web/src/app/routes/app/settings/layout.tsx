@@ -36,7 +36,7 @@ export default function SettingsLayout() {
             MOBILE_NAV_SCROLL_PADDING_CLASS,
           )}
         >
-          <div className="flex w-full flex-col gap-4 p-3">
+          <div className="flex w-full flex-col gap-5 p-4">
             <Outlet />
           </div>
         </div>

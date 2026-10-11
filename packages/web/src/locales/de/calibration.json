@@ -21,7 +21,7 @@
     "description": "Wie viele physische Sortiermodule verbaut sind. Ändert die Anzahl der verfügbaren Fächer sowie die Abschnitte unten.",
     "reduceConfirm": {
       "title": "Modulanzahl verringern?",
-      "description": "Eine Reduzierung auf {{count}} Module löscht dauerhaft die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen. Dies kann nicht rückgängig gemacht werden.",
+      "description": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen.",
       "confirm": "Modulanzahl ändern"
     }
   },
@@ -57,8 +57,13 @@
       "small": "Klein",
       "medium": "Mittel",
       "large": "Groß",
-      "unlimited": "Unbegrenzt"
-    }
+      "unlimited": "Unbegrenzt",
+      "custom": "Benutzerdefiniert"
+    },
+    "customHeightLabel": "Benutzerdefinierte Fachhöhe für Fach {{bin}}",
+    "customHeightUnit": "mm",
+    "customHeightHint": "Etwa {{count}} Karten bei {{thickness}} mm pro Karte",
+    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben"
   },
   "binRoutingControls": {
     "label": "Fach-Routing",
@@ -66,7 +71,8 @@
     "dropCard": "Karte abwerfen",
     "binActive": "Fach {{bin}}…",
     "running": "Läuft…",
-    "sampleRun": "Testlauf"
+    "sampleRun": "Testlauf",
+    "resetToNeutral": "Grundstellung"
   },
   "feederCalibrationPanel": {
     "heading": "Zuführung",
@@ -118,6 +124,8 @@
       "neutral": "Neutral"
     },
     "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt. Der Arm sollte die Innenwand nicht berühren, und je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
+    "paddleOpenDelayLabel": "Paddel-Öffnungsverzögerung (ms)",
+    "paddleOpenDelayDescription": "Wie lange sich das Paddel absenken kann, bevor der Schieber auslöst. Länger einstellen, wenn der Schieber die Karte trifft, bevor das Paddel ganz unten ist; kürzer für schnelleres Sortieren.",
     "pusherHoldDurationLabel": "Schieber-Haltezeit (ms)",
     "pusherHoldDurationDescription": "Wie lange der Schieber ausgefahren bleibt, bevor er in die Neutralstellung zurückkehrt. Länger einstellen, wenn Karten nicht vollständig hinausgeschoben werden; möglichst kurz halten, da das Drücken gegen den Anschlag das Servohorn belastet.",
     "paddleCloseDelayLabel": "Paddel-Schließverzögerung (ms)",
@@ -190,6 +198,44 @@
       "saveFailed": "Modulkonfiguration konnte nicht gespeichert werden"
     }
   },
+  "storedCalibration": {
+    "dialog": {
+      "title": "Kalibrierung weicht vom Sortierer ab",
+      "description": "Auf {{name}} ist eine Kalibrierung gespeichert, die nicht mit der in der App gespeicherten übereinstimmt. Wähle, welche du behalten möchtest.",
+      "setting": "Einstellung",
+      "app": "App",
+      "sorter": "Sortierer",
+      "module": "Modul {{module}}",
+      "feeder": "Zuführung",
+      "hint": "Mit der Kalibrierung der App wird die des Sortierers überschrieben. Mit der des Sortierers werden seine Werte in der App gespeichert, wo du sie über den Kalibrierungsverlauf weiterhin rückgängig machen kannst.",
+      "useSorter": "Vom Sortierer",
+      "useApp": "Aus der App"
+    },
+    "fields": {
+      "bottomClosed": "Boden geschlossen",
+      "bottomOpen": "Boden offen",
+      "paddleClosed": "Klappen geschlossen",
+      "paddleOpen": "Klappen offen",
+      "pusherLeft": "Schieber links",
+      "pusherNeutral": "Schieber neutral",
+      "pusherRight": "Schieber rechts",
+      "pusherHoldDuration": "Haltezeit Schieber (ms)",
+      "paddleCloseDelay": "Schließverzögerung Klappen (ms)",
+      "paddleOpenDelay": "Öffnungsverzögerung Klappen (ms)",
+      "speed": "Geschwindigkeit",
+      "duration": "Zeitlimit (ms)",
+      "pulseDuration": "Impuls (ms)",
+      "pauseDuration": "Pause (ms)",
+      "settleDuration": "Verzögerung letzte Erkennung (ms)",
+      "reverseSpeed": "Rücklaufgeschwindigkeit",
+      "reverseDuration": "Rücklaufzeit (ms)"
+    },
+    "toasts": {
+      "adopted": "Kalibrierung des Sortierers in der App gespeichert",
+      "adoptFailed": "Kalibrierung des Sortierers konnte nicht gespeichert werden, die der App wird verwendet",
+      "storeFailed": "Kalibrierung konnte nicht auf dem Sortierer gespeichert werden"
+    }
+  },
   "useBinRoutes": {
     "toasts": {
       "saveFailed": "Fach-Route konnte nicht gespeichert werden",
@@ -207,9 +253,26 @@
       "saveFailed": "Änderungen konnten nicht gespeichert werden"
     }
   },
+  "offlineCalibration": {
+    "wizardBody": "Beim Einstellen bewegt sich nichts, daher kannst du diese Positionen nicht prüfen. Sensorprüfung und Selbsttest werden übersprungen, und die gespeicherten Werte werden beim nächsten Verbinden an den Sortierer gesendet.",
+    "notConnectedTitle": "Kein Sortierer verbunden",
+    "notConnectedBody": "Verbinde einen Sortierer, um ihn live zu kalibrieren, oder bearbeite seine gespeicherte Kalibrierung ohne ihn.",
+    "start": "Ohne Sortierer kalibrieren",
+    "activeTitle": "Kalibrierung ohne Sortierer",
+    "activeBody": "Beim Einstellen bewegt sich nichts, daher kannst du diese Positionen nicht prüfen. Gespeicherte Werte werden beim nächsten Verbinden an den Sortierer gesendet.",
+    "stop": "Beenden",
+    "warningTitle": "Ohne Sortierer kalibrieren?",
+    "warningDescription": "Du kannst die Kalibrierung dieses Sortierers ohne Verbindung ändern und speichern, lies aber zuerst Folgendes.",
+    "warningNoPreview": "Die Servos bewegen sich beim Einstellen nicht, daher siehst du nicht, ob eine Position stimmt.",
+    "warningDamage": "Eine falsche Position kann einen Servo beim nächsten Lauf gegen seinen Anschlag fahren. Das belastet oder zerstört den Servo und kann Karten verklemmen.",
+    "warningSync": "Gespeicherte Werte werden beim nächsten Verbinden an den Sortierer gesendet. Weichen sie von den im Sortierer gespeicherten ab, wirst du gefragt, welche du behalten willst.",
+    "cancel": "Abbrechen",
+    "accept": "Verstanden, weiter"
+  },
   "calibratePage": {
     "resetServosToDefaults": "Servos auf Standard zurücksetzen",
     "moduleHistory": {
+      "paddleOpenDelay": "Paddel-Öffnungsverzögerung",
       "bottom": "Unten",
       "paddle": "Paddel",
       "pusherHoldDuration": "Schieber-Haltezeit",
@@ -309,7 +372,7 @@
     "positions": {
       "bottomClosed": {
         "title": "Bodenpaddel: geschlossen",
-        "body": "Ziehe, bis die Falltür flach und ganz geschlossen ist, sodass eine aufliegende Karte nicht durchrutschen kann. Hör auf, sobald sie zu ist; weiter drücken belastet den Servo."
+        "body": "Ziehe, bis die Falltür den Boden des Moduls verschließt, sodass eine aufliegende Karte nicht durchfallen kann. Sie muss nicht ganz waagerecht sein. Hör auf, sobald sie zu ist; weiter drücken belastet den Servo."
       },
       "bottomOpen": {
         "title": "Bodenpaddel: offen",
@@ -382,5 +445,21 @@
     "autoConnectDescription": "Wenn dieser Sortierer per USB eingesteckt wird, während die App offen ist (oder beim Laden der App schon eingesteckt ist), verbindet er sich selbst und führt seinen Selbsttest aus, damit er scanbereit ist. Über Bluetooth versucht die App nach einem Verbindungsabbruch oder Neustart so lange erneut zu verbinden, bis der Tab geschlossen wird. Verbinde ihn zuerst einmal manuell in diesem Browser, damit der Browser es erlaubt.",
     "testOnConnectLabel": "Selbsttest beim Verbinden",
     "testOnConnectDescription": "Wenn aktiviert, bewegt der Sortierer bei jeder Verbindung alle Servos und prüft seine Sensoren. Wenn deaktiviert, lädt er nur seine gespeicherte Kalibrierung und ist sofort bereit. Den Test kannst du weiterhin auf der Kalibrierungsseite ausführen."
+  },
+  "firmware": {
+    "title": "Firmware",
+    "description": "Prüfe, welche Firmware der Sortierer verwendet, und aktualisiere sie direkt in diesem Browser.",
+    "installed": "Installiert",
+    "latest": "Neueste",
+    "outdated": "Update verfügbar",
+    "unknownVersion": "Unbekannt",
+    "notConnected": "Nicht verbunden",
+    "flashConnected": "Firmware flashen",
+    "flashBoard": "Board flashen",
+    "getRelease": "Firmware herunterladen",
+    "bluetoothNote": "Flashen funktioniert nicht über Bluetooth. Verbinde den Sortierer per USB-Kabel, um ihn zu flashen.",
+    "unoNote": "Arduino Uno R4 Boards können nicht im Browser geflasht werden. Lade die Firmware herunter und spiele sie mit der Arduino IDE auf.",
+    "notConnectedHint": "Verbinde einen Sortierer, um seine Version zu sehen, oder flashe einen ESP32-S3 per USB, ohne ihn vorher zu verbinden.",
+    "unsupported": "Dieser Browser kann keine Boards flashen. Verwende Chrome oder Edge auf einem Computer."
   }
 }

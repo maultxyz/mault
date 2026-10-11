@@ -1,6 +1,6 @@
-import type { Device } from "@/features/calibration/api/devices";
 import type { PlayingCard } from "@magic-vault/shared";
 import type { ReactNode } from "react";
+import type { Device } from "@/lib/interfaces/calibration";
 
 export type StationPanelLayout = "horizontal" | "vertical";
 
@@ -38,13 +38,17 @@ export interface StationsContextValue {
   isStationLive: (id: string) => boolean;
   setActiveStation: (id: string) => void;
   bindStationDevice: (id: string, deviceGuid: string) => void;
-  claimStationCollection: (id: string, collectionGuid: string | null) => boolean;
+  claimStationCollection: (
+    id: string,
+    collectionGuid: string | null,
+  ) => boolean;
   setStationCamera: (id: string, cameraId: string | null) => void;
   setStationConnected: (id: string, connected: boolean) => void;
   registerConnector: (id: string, connector: StationConnector) => () => void;
   connectAnotherSorter: (kind: StationConnectKind) => void;
   connectPortToStandby: (port: SerialPort) => Promise<void>;
   connectBluetoothDeviceToStandby: (device: BluetoothDevice) => Promise<void>;
+  isDeviceConnected: (deviceGuid: string) => boolean;
   disconnectStation: (id: string) => void;
   getPanelElement: (id: string) => HTMLElement;
   attachPanels: (layout: StationPanelLayout) => () => void;

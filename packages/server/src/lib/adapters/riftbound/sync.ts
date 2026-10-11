@@ -2,21 +2,16 @@ import type {
   FetchOneResult,
   SyncSource,
   SyncSourceCard,
-} from "../../card-search/sync-types";
+} from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { RIFTBOUND_DEFAULT_URL } from "../../constants/urls";
-import { type RiftboundCard } from "./search";
+import type {
+  RiftboundListResponse,
+  RiftboundCard,
+} from "../../interfaces/riftbound";
 
 const SYNC_PAGE_SIZE = 100;
-
-interface RiftboundListResponse {
-  items: RiftboundCard[];
-  total: number;
-  page: number;
-  size: number;
-  pages: number;
-}
 
 function toSyncCard(raw: RiftboundCard): SyncSourceCard {
   return withRawData(

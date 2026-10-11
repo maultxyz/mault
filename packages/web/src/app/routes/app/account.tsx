@@ -14,8 +14,8 @@ import { UpdateNameForm } from "@/features/account/components/update-name-form";
 import { useOnboarding } from "@/features/onboarding/api/use-onboarding";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useAuthSession } from "@/lib/auth";
-import { AUTH_PROVIDER } from "@/lib/auth/provider";
 import { useTranslation } from "react-i18next";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
 function LocalAccountSummary() {
   const { t } = useTranslation("account");
@@ -55,7 +55,7 @@ export default function AccountPage() {
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-3 md:p-6">
+        <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
           {!isMobile && (
             <div>
               <h1 className="font-heading text-lg font-semibold">

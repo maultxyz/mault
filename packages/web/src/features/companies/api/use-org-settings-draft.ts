@@ -2,10 +2,8 @@ import { collectionCardsKeys } from "@/features/collections/api/collection-cards
 import {
   orgSettingsQueryOptions,
   saveOrgSettings,
-  type OrgSettings,
 } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { DEFAULT_ORG_SETTINGS } from "@/lib/constants/org-settings";
 import { toast } from "@/lib/toast";
 import {
   orgSettingsDraftSchema,
@@ -16,6 +14,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { type OrgSettings, DEFAULT_ORG_SETTINGS } from "@magic-vault/shared";
 
 function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftValues {
   return {
@@ -24,6 +23,8 @@ function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftValues {
     priceSource: settings.priceSource,
     sessionWrappedEnabled: settings.sessionWrappedEnabled,
     ocrEnabled: settings.ocrEnabled,
+    correctionBinPrompt: settings.correctionBinPrompt,
+    pauseScanningOnDeploy: settings.pauseScanningOnDeploy,
     correctionAutoCloseSeconds: settings.correctionAutoCloseSeconds,
   };
 }

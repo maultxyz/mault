@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { authProvider } from "../../auth";
 import { inviteCaptureStorage, type InviteCapture } from "../../auth/invite-capture";
 import { getOwnAuth } from "../../auth/own-auth-instance";
-import type { OrgRole } from "../../auth/types";
 import { getWebUrl } from "../../lib/constants/urls";
 import {
   requireAuth,
@@ -11,6 +10,7 @@ import {
   type AppEnv,
 } from "../../middleware/auth";
 import { authErrorResponse } from "./shared";
+import type { OrgRole } from "@magic-vault/shared";
 
 // Org invites - code/link-based rather than requiring a real email provider
 // to be configured (see LocalEmailProvider/inviteCaptureStorage for why:

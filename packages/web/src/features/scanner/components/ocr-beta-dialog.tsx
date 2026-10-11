@@ -9,12 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useTranslation } from "react-i18next";
-
-interface OcrBetaDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
-}
+import type { OcrBetaDialogProps } from "@/lib/interfaces/scanner";
 
 export function OcrBetaDialog({
   open,

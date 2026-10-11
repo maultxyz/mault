@@ -1,8 +1,8 @@
-import type { AdminUserSummary } from "@magic-vault/shared";
+import type { AdminUserSummary, OrgRole } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import * as jose from "jose";
 import { db } from "../db";
-import type { AuthProvider, OrgRole } from "./types";
+import type { AuthProvider } from "../lib/interfaces/auth";
 
 let jwks: ReturnType<typeof jose.createRemoteJWKSet> | undefined;
 function getJwks() {
@@ -95,6 +95,12 @@ export const neonAuthProvider: AuthProvider = {
             LEFT JOIN neon_auth.member m ON m."userId" = u.id
             LEFT JOIN neon_auth.organization o ON o.id = m."organizationId"
             WHERE u.name ILIKE ${pattern} OR u.email ILIKE ${pattern}
+              OR EXISTS (
+                SELECT 1
+                FROM neon_auth.member om
+                JOIN neon_auth.organization oo ON oo.id = om."organizationId"
+                WHERE om."userId" = u.id AND oo.name ILIKE ${pattern}
+              )
             GROUP BY u.id, u.name, u.email, u.role
             ORDER BY u.email
             LIMIT ${limit}
@@ -135,5 +141,17 @@ export const neonAuthProvider: AuthProvider = {
       sql`SELECT name FROM neon_auth.organization WHERE id = ${orgId} LIMIT 1`,
     );
     return rows.rows[0]?.name ?? "your organization";
+  },
+
+  async countUsersAndOrganisations() {
+    const rows = await db.execute<{ users: number; organisations: number }>(
+      sql`SELECT
+        (SELECT count(*)::int FROM neon_auth.user) AS users,
+        (SELECT count(*)::int FROM neon_auth.organization) AS organisations`,
+    );
+    return {
+      users: rows.rows[0]?.users ?? 0,
+      organisations: rows.rows[0]?.organisations ?? 0,
+    };
   },
 };

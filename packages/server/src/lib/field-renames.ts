@@ -41,6 +41,7 @@ export async function applyFieldRenames(
       autoAssignField: true,
       repackSlots: true,
       repackSiftRules: true,
+      repackUniqueBy: true,
     },
   });
 
@@ -55,8 +56,12 @@ export async function applyFieldRenames(
     const autoAssignField = set.autoAssignField
       ? renamedField(set.autoAssignField, renames)
       : null;
+    const repackUniqueBy = set.repackUniqueBy
+      ? renamedField(set.repackUniqueBy, renames)
+      : null;
     if (
       autoAssignField !== set.autoAssignField ||
+      repackUniqueBy !== set.repackUniqueBy ||
       JSON.stringify(repackSlots) !== JSON.stringify(set.repackSlots) ||
       JSON.stringify(repackSiftRules) !== JSON.stringify(set.repackSiftRules)
     ) {
@@ -64,6 +69,7 @@ export async function applyFieldRenames(
         .update(binSets)
         .set({
           autoAssignField,
+          repackUniqueBy,
           repackSlots,
           repackSiftRules,
           updatedAt: new Date(),
@@ -73,14 +79,22 @@ export async function applyFieldRenames(
 
     const setBins = await tx.query.bins.findMany({
       where: eq(bins.binSet, set.id),
-      columns: { id: true, rules: true },
+      columns: { id: true, rules: true, maxCopiesBy: true },
     });
     for (const bin of setBins) {
       const rules = renameRuleFields(bin.rules as BinRuleGroup, renames);
-      if (JSON.stringify(rules) === JSON.stringify(bin.rules)) continue;
+      const maxCopiesBy = bin.maxCopiesBy
+        ? renamedField(bin.maxCopiesBy, renames)
+        : null;
+      if (
+        JSON.stringify(rules) === JSON.stringify(bin.rules) &&
+        maxCopiesBy === bin.maxCopiesBy
+      ) {
+        continue;
+      }
       await tx
         .update(bins)
-        .set({ rules, updatedAt: new Date() })
+        .set({ rules, maxCopiesBy, updatedAt: new Date() })
         .where(eq(bins.id, bin.id));
     }
   }

@@ -37,7 +37,8 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     try {
       const collection = await authQuery(c.get("jwtClaims"), (tx) =>
         tx.query.collections.findFirst({
-          where: (t, { eq, and }) => and(eq(t.guid, guid), eq(t.orgId, orgId)),
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
           columns: { monitorLinkVersion: true },
         }),
       );
@@ -70,7 +71,13 @@ export const monitorLinkRoute = new Hono<AppEnv>()
           .set({
             monitorLinkVersion: sql`${collections.monitorLinkVersion} + 1`,
           })
-          .where(and(eq(collections.guid, guid), eq(collections.orgId, orgId)))
+          .where(
+            and(
+              eq(collections.guid, guid),
+              eq(collections.orgId, orgId),
+              eq(collections.isDeleted, false),
+            ),
+          )
           .returning({ id: collections.id }),
       );
       if (updated.length === 0) {

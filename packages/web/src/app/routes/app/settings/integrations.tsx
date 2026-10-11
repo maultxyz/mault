@@ -1,5 +1,5 @@
-import { DiscordIntegration } from "@/features/integrations/components/discord-integration";
+import { ApiKeysIntegration } from "@/features/integrations/components/api-keys-integration";
 
 export default function SettingsIntegrationsPage() {
-  return <DiscordIntegration />;
+  return <ApiKeysIntegration />;
 }
