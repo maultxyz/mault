@@ -96,6 +96,7 @@
   },
   "export": {
     "button": "Exportieren",
-    "loading": "Karten werden geladen"
+    "loading": "Karten werden geladen",
+    "combineDuplicates": "Duplikate zusammenfassen"
   }
 }

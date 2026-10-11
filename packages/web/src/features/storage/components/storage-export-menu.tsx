@@ -1,8 +1,10 @@
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -22,6 +24,7 @@ import { useTranslation } from "react-i18next";
 export function StorageExportMenu({ location }: StorageExportMenuProps) {
   const { t } = useTranslation("storage");
   const [open, setOpen] = useState(false);
+  const [combineDuplicates, setCombineDuplicates] = useState(true);
   const { data: cards } = useQuery(
     storageLocationExportQueryOptions(location.guid, open),
   );
@@ -56,7 +59,7 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
       })),
       slug,
       { isMtg: singleGameKey === "mtg", fieldDefinitions },
-      true,
+      combineDuplicates,
     );
   };
 
@@ -68,6 +71,13 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
         <IconChevronDown />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuCheckboxItem
+          checked={combineDuplicates}
+          onCheckedChange={setCombineDuplicates}
+        >
+          {t("export.combineDuplicates")}
+        </DropdownMenuCheckboxItem>
+        <DropdownMenuSeparator />
         {cards ? (
           adapters.map((adapter) => (
             <DropdownMenuItem

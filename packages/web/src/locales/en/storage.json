@@ -96,6 +96,7 @@
   },
   "export": {
     "button": "Export",
-    "loading": "Loading cards"
+    "loading": "Loading cards",
+    "combineDuplicates": "Combine duplicates"
   }
 }
