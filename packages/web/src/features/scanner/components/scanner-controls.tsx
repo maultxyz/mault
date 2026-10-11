@@ -33,6 +33,7 @@ import {
   IconLoader2,
   IconPlayerPause,
   IconPlayerPlay,
+  IconRotate2,
   IconSparkles,
   IconStackPop,
 } from "@tabler/icons-react";
@@ -77,11 +78,13 @@ export function ScannerControls({
   isReady,
   isFeeding,
   isClearingDevice,
+  isResettingDevice,
   onForceScan,
   onPause,
   onResume,
   onFeed,
   onClearDevice,
+  onResetDevice,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -203,6 +206,17 @@ export function ScannerControls({
             disabled={!isReady || isClearingDevice}
           >
             <IconArrowBarToDown />
+          </ScannerControlButton>
+          <ScannerControlButton
+            tooltip={t("scannerControls.resetToNeutralTooltip")}
+            onClick={onResetDevice}
+            disabled={!isReady || isResettingDevice}
+          >
+            {isResettingDevice ? (
+              <IconLoader2 className="animate-spin" />
+            ) : (
+              <IconRotate2 />
+            )}
           </ScannerControlButton>
         </ButtonGroup>
       )}

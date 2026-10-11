@@ -28,6 +28,7 @@ import {
   type AppEnv,
 } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
+import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 
@@ -266,6 +267,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           gameId,
           capturedImageUrl,
         });
+        emitCardScannedWebhook(orgId, scanId);
       }
       if (
         !result.success &&

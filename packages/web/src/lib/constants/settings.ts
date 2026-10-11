@@ -1,5 +1,6 @@
 import {
   IconAdjustments,
+  IconBell,
   IconBuilding,
   IconCreditCard,
   IconPlug,
@@ -14,6 +15,7 @@ export const SETTINGS_PATHS = {
   billing: "/app/settings/billing",
   scanning: "/app/settings/scanning",
   sounds: "/app/settings/sounds",
+  notifications: "/app/settings/notifications",
   integrations: "/app/settings/integrations",
 } as const;
 
@@ -32,6 +34,11 @@ export const SETTINGS_SECTIONS = [
   },
   { path: "scanning", icon: IconScan, labelKey: "sections.scanning" },
   { path: "sounds", icon: IconVolume, labelKey: "sections.sounds" },
+  {
+    path: "notifications",
+    icon: IconBell,
+    labelKey: "sections.notifications",
+  },
   { path: "integrations", icon: IconPlug, labelKey: "sections.integrations" },
 ] as const;
 

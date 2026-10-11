@@ -2,11 +2,13 @@ import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
+import { apiKeysRouter } from "./routes/api-keys";
 import { billingRouter } from "./routes/billing";
 import { sortBinsRouter } from "./routes/bins";
 import { botRouter } from "./routes/bot";
@@ -25,18 +27,34 @@ import { integrationsRouter } from "./routes/integrations";
 import { soundsRouter } from "./routes/sounds";
 import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
+import { publicApiRouter } from "./routes/v1";
+import { webhooksRouter } from "./routes/webhooks";
 import { rollbar } from "./lib/rollbar";
+import {
+  PUBLIC_API_EXPOSED_HEADERS,
+  PUBLIC_API_PATH_PREFIX,
+} from "./lib/constants/api-keys";
 import { startPlanConfigRefresh } from "./lib/plan-config";
 
 const app = new Hono<AppEnv>();
 const PORT = parseInt(process.env.PORT ?? "3001");
 
-app.use(
-  cors({
-    origin: getWebUrl(),
-    allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
-  }),
+const appCors = cors({
+  origin: getWebUrl(),
+  allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
+});
+const publicApiCors = cors({
+  origin: "*",
+  allowMethods: ["GET", "POST", "DELETE"],
+  allowHeaders: ["Content-Type", PUBLIC_API_KEY_HEADER],
+  exposeHeaders: PUBLIC_API_EXPOSED_HEADERS,
+});
+
+app.use((c, next) =>
+  c.req.path.startsWith(PUBLIC_API_PATH_PREFIX)
+    ? publicApiCors(c, next)
+    : appCors(c, next),
 );
 
 if (process.env.AUTH_PROVIDER === "local") {
@@ -57,11 +75,14 @@ app.route("/org-settings", orgSettingsRouter);
 app.route("/sounds", soundsRouter);
 app.route("/storage-locations", storageLocationsRouter);
 app.route("/integrations", integrationsRouter);
+app.route("/api-keys", apiKeysRouter);
+app.route("/webhooks", webhooksRouter);
 app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
 app.route("/stream", streamRoute);
+app.route("/v1", publicApiRouter);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);

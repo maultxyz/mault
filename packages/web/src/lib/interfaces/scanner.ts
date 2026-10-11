@@ -234,6 +234,7 @@ export interface SerialContextValue {
   ) => Promise<RawCommandResult>;
   isRouteBusy: () => boolean;
   readIR: () => Promise<boolean[] | null>;
+  sendNeutral: () => Promise<boolean>;
   sendTest: () => Promise<TestResult>;
   runTest: () => Promise<void>;
   checkFirmwareVersion: () => Promise<FirmwareCheckResult>;
@@ -256,11 +257,13 @@ export interface ScannerControlsProps {
   isReady: boolean;
   isFeeding: boolean;
   isClearingDevice: boolean;
+  isResettingDevice: boolean;
   onForceScan: () => void;
   onPause: () => void;
   onResume: () => void;
   onFeed: () => void;
   onClearDevice: () => void;
+  onResetDevice: () => void;
 }
 
 export interface ScannerControlButtonProps {

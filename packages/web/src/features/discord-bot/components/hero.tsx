@@ -38,7 +38,7 @@ export function DiscordBotHero() {
           {t("hero.addToDiscord")}
         </a>
         <Link
-          to={isSignedIn ? SETTINGS_PATHS.integrations : "/auth/sign-up"}
+          to={isSignedIn ? SETTINGS_PATHS.notifications : "/auth/sign-up"}
           className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
         >
           {isSignedIn ? t("hero.openSettings") : t("hero.getStarted")}

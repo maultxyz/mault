@@ -314,6 +314,10 @@
       "storage": {
         "label": "Lagerorte",
         "description": "Lagerorte anlegen und Fächer darin erfassen. Bestehende Lagerorte bleiben in jedem Fall sichtbar."
+      },
+      "apiAccess": {
+        "label": "API-Zugriff",
+        "description": "Organisations-API-Schlüssel anlegen und Karten und Lagerorte über die öffentliche API lesen. Bestehende Schlüssel lassen sich immer widerrufen."
       }
     },
     "limits": {

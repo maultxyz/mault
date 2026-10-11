@@ -47,8 +47,10 @@ jobs:
 
           WEB=false
           SERVER=false
+          DOCS=false
           if grep -qE '^(packages/web/|packages/shared/|Dockerfile\.web$)' <<< "$FILES"; then WEB=true; fi
           if grep -qE '^(packages/server/|packages/shared/|drizzle/|Dockerfile\.server$)' <<< "$FILES"; then SERVER=true; fi
+          if grep -qE '^(packages/api-docs/|packages/shared/|Dockerfile\.api-docs$)' <<< "$FILES"; then DOCS=true; fi
 
           COMMITS=$(git log --no-merges --format='%s' "$RANGE" | grep -v '^chore(release):' || true)
           COUNT=$(grep -c . <<< "$COMMITS" || true)
@@ -57,6 +59,7 @@ jobs:
           {
             echo "web=$WEB"
             echo "server=$SERVER"
+            echo "docs=$DOCS"
             echo "last_tag=$LAST_TAG"
             echo "count=$COUNT"
             echo "authors=$AUTHORS"
@@ -85,7 +88,7 @@ jobs:
           elif [ "${{ github.event.schedule }}" != "$EXPECTED_CRON" ]; then
             echo "Skipping: ${{ github.event.schedule }} is not 19:17 America/Chicago today"
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
-          elif [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then
+          elif [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ] || [ "${{ steps.changes.outputs.docs }}" = "true" ]; then
             echo "should_deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
@@ -138,6 +141,16 @@ jobs:
           cache-from: type=gha,scope=server
           cache-to: type=gha,mode=max,scope=server
 
+      - name: Build API docs image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.api-docs
+          push: false
+          cache-from: type=gha,scope=api-docs
+          cache-to: type=gha,mode=max,scope=api-docs
+
       - name: Compute app version
         id: appversion
         if: steps.deploy.outputs.should_deploy == 'true'
@@ -152,13 +165,33 @@ jobs:
           node scripts/set-version.mjs "$VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
+      - name: Set up pnpm
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # The API reference site serves this file as-is, and Coolify builds that
+      # image from git, so the spec is regenerated here (with the new version)
+      # and committed with the release rather than generated at build time.
+      - name: Generate OpenAPI spec
+        if: steps.deploy.outputs.should_deploy == 'true'
+        run: |
+          pnpm install --frozen-lockfile --filter @magic-vault/api-docs...
+          pnpm --filter @magic-vault/api-docs openapi
+
       - name: Commit and tag app version
         id: appcommit
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json packages/web/package.json packages/server/package.json packages/shared/package.json
+          git add package.json packages/web/package.json packages/server/package.json packages/shared/package.json packages/api-docs/package.json packages/api-docs/public/openapi.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -190,16 +223,16 @@ jobs:
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
-      - name: Set up pnpm
+      - name: Trigger Coolify deployment (API docs)
         if: steps.deploy.outputs.should_deploy == 'true'
-        uses: pnpm/action-setup@v4
-
-      - name: Set up Node
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
+        env:
+          WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_API_DOCS }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "COOLIFY_WEBHOOK_API_DOCS isn't set, skipping the API docs deploy."
+            exit 0
+          fi
+          curl -sf --request POST "$WEBHOOK"             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Install server dependencies
         if: steps.deploy.outputs.should_deploy == 'true'

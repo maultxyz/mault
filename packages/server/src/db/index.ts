@@ -29,3 +29,15 @@ export async function authQuery<T>(
     return callback(tx);
   });
 }
+
+export async function apiKeyQuery<T>(
+  orgId: string,
+  callback: (tx: Transaction) => Promise<T>,
+): Promise<T> {
+  return db.transaction(async (tx) => {
+    await tx.execute(
+      sql`SELECT set_config('request.jwt.claims', ${JSON.stringify({ org_id: orgId })}, true), set_config('role', 'api_service', true)`,
+    );
+    return callback(tx);
+  });
+}

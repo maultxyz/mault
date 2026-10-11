@@ -71,7 +71,8 @@
     "dropCard": "Lâcher la carte",
     "binActive": "Bac {{bin}}…",
     "running": "En cours…",
-    "sampleRun": "Test d'exécution"
+    "sampleRun": "Test d'exécution",
+    "resetToNeutral": "Position neutre"
   },
   "feederCalibrationPanel": {
     "heading": "Chargeur",

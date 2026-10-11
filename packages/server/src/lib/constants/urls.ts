@@ -5,6 +5,10 @@ export function getWebUrl(): string {
   return process.env.WEB_URL ?? "http://localhost:5173";
 }
 
+export function getApiUrl(): string | null {
+  return process.env.API_URL || null;
+}
+
 export const BMC_URL = "https://buymeacoffee.com/mault";
 
 // Default upstream API base URL for each supported TCG's card-search

@@ -40,6 +40,7 @@ import {
   PUSH_TEST_RESPONSE_TIMEOUT_MS,
   ROUTE_RESPONSE_TIMEOUT_MS,
   ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS,
+  SELF_TEST_RESPONSE_TIMEOUT_MS,
 } from "@/lib/constants/timing";
 import type {
   ConnectTestRunner,
@@ -260,7 +261,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     const sent = await sendCommand(JSON.stringify({ test: true }) + "\n");
     if (!sent) return { ok: false, error: null, blockedModule: null };
 
-    const response = await waitForLine(10000);
+    const response = await waitForLine(SELF_TEST_RESPONSE_TIMEOUT_MS);
     if (!response) return { ok: false, error: null, blockedModule: null };
 
     try {
@@ -1123,6 +1124,22 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     });
   }, [sendAwaited]);
 
+  const sendNeutral = useCallback((): Promise<boolean> => {
+    const queue = routeQueueRef.current;
+    const previousTail = queue.tail;
+    const reset = previousTail.then(() =>
+      sendAwaited({ neutral: true }, NEUTRAL_RESPONSE_TIMEOUT_MS),
+    );
+    queue.tail = reset.then(
+      () => previousTail,
+      () => previousTail,
+    );
+    return reset.then(
+      (response) =>
+        (response as Record<string, unknown> | null)?.status === "ok",
+    );
+  }, [sendAwaited]);
+
   const reopenSensorBlockedToast = useCallback(() => {
     reopenSensorBlockedToastRef.current?.();
   }, []);
@@ -1172,6 +1189,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         sendRawCommand,
         isRouteBusy,
         readIR,
+        sendNeutral,
         sendTest,
         runTest: runTestOnActiveTransport,
         checkFirmwareVersion,

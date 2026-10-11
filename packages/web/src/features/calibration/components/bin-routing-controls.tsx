@@ -1,8 +1,14 @@
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
+import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import { computeBinCount } from "@magic-vault/shared";
-import { IconPackage, IconPlayerPlay } from "@tabler/icons-react";
+import {
+  IconLoader2,
+  IconPackage,
+  IconPlayerPlay,
+  IconRotate2,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { BinRoutingControlsProps } from "@/lib/interfaces/calibration";
 
@@ -15,16 +21,32 @@ export function BinRoutingControls({
 }: BinRoutingControlsProps) {
   const { t } = useTranslation("calibration");
   const moduleCount = useModuleCount();
+  const { handleResetToNeutral, isResetting } = useResetToNeutral();
   const bins = Array.from(
     { length: computeBinCount(moduleCount) },
     (_, i) => i + 1,
   );
-  const busy = activeBin !== null || isSampleRunning;
+  const busy = activeBin !== null || isSampleRunning || isResetting;
 
   return (
     <SettingsSection
       dataTour="bin-routing-controls"
       heading={t("binRoutingControls.label")}
+      action={
+        <Button
+          variant="outline"
+          size="sm"
+          disabled={!isReady || busy}
+          onClick={handleResetToNeutral}
+        >
+          {isResetting ? (
+            <IconLoader2 className="animate-spin" />
+          ) : (
+            <IconRotate2 />
+          )}
+          {t("binRoutingControls.resetToNeutral")}
+        </Button>
+      }
     >
       <div className="flex flex-wrap items-center gap-2">
         <Button

@@ -24,7 +24,7 @@
     "testError": "Testbenachrichtigung konnte nicht gesendet werden.",
     "testNoChannel": {
       "title": "Kein Fehlerkanal festgelegt",
-      "description": "Wähle auf der Seite Integrationen einen Fehlerkanal aus und versuche es dann erneut."
+      "description": "Wähle auf der Seite Benachrichtigungen einen Fehlerkanal aus und versuche es dann erneut."
     }
   }
 }

@@ -31,6 +31,7 @@ import { cn } from "@/lib/utils";
 import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useOnnxRuntimeFailureToast } from "@/features/scanner/api/use-onnx-runtime-failure-toast";
@@ -106,6 +107,11 @@ export function CardScanner({
     typeof navigator !== "undefined" && !!navigator.bluetooth;
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
+  const {
+    resetToNeutral,
+    handleResetToNeutral,
+    isResetting: isResettingDevice,
+  } = useResetToNeutral();
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
@@ -247,10 +253,23 @@ export function CardScanner({
       document.removeEventListener("visibilitychange", onVisibilityChange);
   }, [pause, t]);
 
+  const deviceNeutralRef = useRef(false);
+
+  useEffect(() => {
+    if (status === "paused" || !isReady) deviceNeutralRef.current = false;
+  }, [status, isReady]);
+
+  const prepareDevice = useCallback(async () => {
+    if (!isReady || deviceNeutralRef.current) return true;
+    deviceNeutralRef.current = await resetToNeutral();
+    return deviceNeutralRef.current;
+  }, [isReady, resetToNeutral]);
+
   const handleFeed = useCallback(async () => {
     if (!isReady) return;
     setIsFeeding(true);
     try {
+      if (!(await prepareDevice())) return;
       const sent = await sendCommand(JSON.stringify({ feeder: true }));
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
@@ -323,6 +342,7 @@ export function CardScanner({
     }
   }, [
     isReady,
+    prepareDevice,
     sendCommand,
     receiveResponse,
     handleCardArrived,
@@ -390,7 +410,8 @@ export function CardScanner({
     return registerPauseHook(handlePause);
   }, [registerPauseHook, handlePause]);
 
-  const handleResumeScanning = useCallback(() => {
+  const handleResumeScanning = useCallback(async () => {
+    if (!(await prepareDevice())) return;
     clearFeedHalt();
     if (heldCardArrivalRef.current) {
       handleResumeClick();
@@ -398,7 +419,14 @@ export function CardScanner({
     }
     handleResume();
     if (autoFeed) void handleFeed();
-  }, [clearFeedHalt, handleResumeClick, handleResume, handleFeed, autoFeed]);
+  }, [
+    prepareDevice,
+    clearFeedHalt,
+    handleResumeClick,
+    handleResume,
+    handleFeed,
+    autoFeed,
+  ]);
 
   useEffect(() => {
     return registerResumeHook(handleResumeScanning);
@@ -443,6 +471,8 @@ export function CardScanner({
       onResume={handleResumeScanning}
       onFeed={handleFeed}
       onClearDevice={handleClearDevice}
+      isResettingDevice={isResettingDevice}
+      onResetDevice={handleResetToNeutral}
     />
   );
 

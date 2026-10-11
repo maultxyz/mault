@@ -224,6 +224,7 @@
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
     "setTooltip": "Extension des cartes scannées : {{set}}",
     "anySet": "N'importe quelle extension",
@@ -591,5 +592,12 @@
     "mostValuable": "Les plus chères",
     "recentlyScanned": "Scannées récemment",
     "seeAllStats": "Toutes les statistiques"
+  },
+  "resetToNeutral": {
+    "done": "Trieuse remise en position neutre",
+    "failed": {
+      "title": "Impossible de réinitialiser la trieuse",
+      "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
+    }
   }
 }
