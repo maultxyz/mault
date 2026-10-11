@@ -98,5 +98,25 @@
     "title": "Most valuable cards"
   },
   "cardCount_one": "{{count}} card",
-  "cardCount_other": "{{count}} cards"
+  "cardCount_other": "{{count}} cards",
+  "leaderboard": {
+    "title": "Leaderboard",
+    "description_one": "The {{count}} organization that has scanned the most cards with Mault.",
+    "description_other": "The {{count}} organizations that have scanned the most cards with Mault.",
+    "error": "Couldn't load the leaderboard. Try again in a moment.",
+    "rank": "#{{rank}}",
+    "you": "You",
+    "hidden": "Not listed",
+    "unknownOrg": "Unknown organization",
+    "columns": {
+      "rank": "Rank",
+      "organization": "Organization",
+      "scans": "Cards scanned"
+    },
+    "optIn": {
+      "title": "Your organization isn't on the leaderboard",
+      "description": "Other organizations can't see you. Your row shows where you would rank. Join from Settings to appear in the list.",
+      "action": "Join leaderboard"
+    }
+  }
 }

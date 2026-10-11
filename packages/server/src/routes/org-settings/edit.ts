@@ -5,6 +5,7 @@ import {
 } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { invalidateLeaderboardCache } from "../../lib/leaderboard";
 import { orgSettings } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -24,6 +25,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       ocrEnabled?: boolean;
       correctionBinPrompt?: boolean;
       pauseScanningOnDeploy?: boolean;
+      leaderboardOptIn?: boolean;
       correctionAutoCloseSeconds?: number | null;
       priceSource?: string;
     }>();
@@ -81,6 +83,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             "pauseScanningOnDeploy" in body
               ? (body.pauseScanningOnDeploy ?? true)
               : (existing?.pauseScanningOnDeploy ?? true),
+          leaderboardOptIn:
+            "leaderboardOptIn" in body
+              ? (body.leaderboardOptIn ?? false)
+              : (existing?.leaderboardOptIn ?? false),
           correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
             "correctionAutoCloseSeconds" in body
               ? body.correctionAutoCloseSeconds
@@ -112,12 +118,14 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             ocrEnabled: merged.ocrEnabled,
             correctionBinPrompt: merged.correctionBinPrompt,
             pauseScanningOnDeploy: merged.pauseScanningOnDeploy,
+            leaderboardOptIn: merged.leaderboardOptIn,
             correctionAutoCloseSeconds: merged.correctionAutoCloseSeconds,
             priceSource: merged.priceSource,
             discordGuildId: existing?.discordGuildId ?? null,
           },
         };
       });
+      if ("leaderboardOptIn" in body) invalidateLeaderboardCache();
       return c.json(result);
     } catch (err) {
       console.error(err);

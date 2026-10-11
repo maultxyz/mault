@@ -4,6 +4,7 @@ import {
   saveOrgSettings,
 } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { leaderboardKeys } from "@/features/stats/api/leaderboard";
 import { toast } from "@/lib/toast";
 import {
   orgSettingsDraftSchema,
@@ -25,6 +26,7 @@ function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftValues {
     ocrEnabled: settings.ocrEnabled,
     correctionBinPrompt: settings.correctionBinPrompt,
     pauseScanningOnDeploy: settings.pauseScanningOnDeploy,
+    leaderboardOptIn: settings.leaderboardOptIn,
     correctionAutoCloseSeconds: settings.correctionAutoCloseSeconds,
   };
 }
@@ -68,6 +70,11 @@ export function useOrgSettingsDraft() {
       if ("priceSource" in patch) {
         void queryClient.invalidateQueries({
           queryKey: collectionCardsKeys.root(),
+        });
+      }
+      if ("leaderboardOptIn" in patch) {
+        void queryClient.invalidateQueries({
+          queryKey: leaderboardKeys.root(),
         });
       }
       toast.success(t("draft.saved"));

@@ -66,5 +66,10 @@
     "heading": "Updates",
     "description": "Während Mault aktualisiert wird, werden scannende Sortierer pausiert und ein Hinweis erklärt den Grund, damit keine Karten verloren gehen, falls ein Speichern während des Updates fehlschlägt. Über den Hinweis kannst du sofort fortfahren.",
     "toggleLabel": "Scannen während Updates pausieren"
+  },
+  "leaderboard": {
+    "heading": "Bestenliste",
+    "description": "Zeigt den Namen deiner Organisation und die Anzahl gescannter Karten in der Bestenliste unter Statistiken. Jede Organisation kann die Bestenliste sehen.",
+    "toggleLabel": "Meine Organisation in der Bestenliste zeigen"
   }
 }

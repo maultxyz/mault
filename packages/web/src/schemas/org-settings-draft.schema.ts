@@ -11,6 +11,7 @@ export const orgSettingsDraftSchema = z.object({
   ocrEnabled: z.boolean(),
   correctionBinPrompt: z.boolean(),
   pauseScanningOnDeploy: z.boolean(),
+  leaderboardOptIn: z.boolean(),
   correctionAutoCloseSeconds: z.number().int().positive().nullable(),
 });
 

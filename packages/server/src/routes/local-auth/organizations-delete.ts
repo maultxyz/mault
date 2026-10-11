@@ -12,6 +12,7 @@ import {
   deleteScanImagePrefix,
   orgScanImagePrefix,
 } from "../../lib/scan-images";
+import { detachOrgScanStats } from "../../lib/scan-stats";
 import { authErrorResponse } from "./shared";
 
 export const deleteOrganizationRoute = new Hono<AppEnv>().delete(
@@ -30,6 +31,7 @@ export const deleteOrganizationRoute = new Hono<AppEnv>().delete(
         });
       });
       await purgeOrgBilling(orgId);
+      await detachOrgScanStats(orgId);
       deleteScanImagePrefix(orgScanImagePrefix(orgId));
       return c.json({ success: true, data: null });
     } catch (err) {

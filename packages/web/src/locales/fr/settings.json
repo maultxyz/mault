@@ -66,5 +66,10 @@
     "heading": "Mises à jour",
     "description": "Pendant une mise à jour de Mault, les trieuses en cours de scan sont mises en pause et une invite en explique la raison, pour qu'aucune carte ne soit perdue si un enregistrement échoue pendant la mise à jour. Vous pouvez reprendre immédiatement depuis l'invite.",
     "toggleLabel": "Mettre le scan en pause pendant les mises à jour"
+  },
+  "leaderboard": {
+    "heading": "Classement",
+    "description": "Affiche le nom de votre organisation et le nombre de cartes scannées dans le classement des statistiques. Toutes les organisations peuvent voir le classement.",
+    "toggleLabel": "Afficher mon organisation dans le classement"
   }
 }

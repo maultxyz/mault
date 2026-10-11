@@ -98,5 +98,25 @@
     "title": "Cartes les plus précieuses"
   },
   "cardCount_one": "{{count}} carte",
-  "cardCount_other": "{{count}} cartes"
+  "cardCount_other": "{{count}} cartes",
+  "leaderboard": {
+    "title": "Classement",
+    "description_one": "L'organisation qui a scanné le plus de cartes avec Mault.",
+    "description_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+    "error": "Impossible de charger le classement. Réessayez dans un instant.",
+    "rank": "#{{rank}}",
+    "you": "Vous",
+    "hidden": "Non classée",
+    "unknownOrg": "Organisation inconnue",
+    "columns": {
+      "rank": "Rang",
+      "organization": "Organisation",
+      "scans": "Cartes scannées"
+    },
+    "optIn": {
+      "title": "Votre organisation n'apparaît pas dans le classement",
+      "description": "Les autres organisations ne vous voient pas. Votre ligne indique le rang que vous auriez. Rejoignez-le depuis les paramètres pour apparaître dans la liste.",
+      "action": "Rejoindre le classement"
+    }
+  }
 }

@@ -6,6 +6,7 @@ import {
   SettingsSection,
   SettingsSections,
 } from "@/components/settings-section";
+import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -16,6 +17,7 @@ export default function SettingsGeneralPage() {
   const { t } = useTranslation("settings");
   const isMobile = useIsMobile();
   const draft = useOrgSettingsDraft();
+  const disabled = draft.isLoading || draft.isSaving;
 
   return (
     <SettingsSections>
@@ -57,6 +59,25 @@ export default function SettingsGeneralPage() {
       </SettingsSection>
       <SettingsSection heading={t("appearance.language")}>
         <LanguageSwitcher />
+      </SettingsSection>
+      <SettingsSection
+        heading={t("leaderboard.heading")}
+        description={t("leaderboard.description")}
+      >
+        <label className="flex items-center justify-between gap-3">
+          <span className="text-sm">{t("leaderboard.toggleLabel")}</span>
+          <Controller
+            control={draft.control}
+            name="leaderboardOptIn"
+            render={({ field }) => (
+              <Switch
+                checked={field.value}
+                disabled={disabled}
+                onCheckedChange={field.onChange}
+              />
+            )}
+          />
+        </label>
       </SettingsSection>
       <SaveBar
         show={draft.isDirty}

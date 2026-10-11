@@ -88,7 +88,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       });
       if (!result.success) deleteScanImages([storedImage.key]);
       if (result.success) {
-        void recordUnmatchedScan(scanId, scannedAt, vectorizedOn);
+        void recordUnmatchedScan(orgId, scanId, scannedAt, vectorizedOn);
         emitToSession(guid, "unmatched_added", result.data);
       }
       if (!result.success && "binLimitReached" in result) {

@@ -72,5 +72,10 @@
     "heading": "Updates",
     "description": "When Mault is being updated, any sorter that's scanning is paused and a prompt explains why, so no cards are lost if a save fails mid-update. You can resume straight away from the prompt.",
     "toggleLabel": "Pause scanning during updates"
+  },
+  "leaderboard": {
+    "heading": "Leaderboard",
+    "description": "Show your organization's name and how many cards it has scanned on the leaderboard in Stats. Every organization can see the leaderboard.",
+    "toggleLabel": "Show my organization on the leaderboard"
   }
 }

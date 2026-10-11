@@ -98,5 +98,25 @@
     "title": "Wertvollste Karten"
   },
   "cardCount_one": "{{count}} Karte",
-  "cardCount_other": "{{count}} Karten"
+  "cardCount_other": "{{count}} Karten",
+  "leaderboard": {
+    "title": "Bestenliste",
+    "description_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
+    "description_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+    "error": "Die Bestenliste konnte nicht geladen werden. Versuch es gleich noch einmal.",
+    "rank": "#{{rank}}",
+    "you": "Du",
+    "hidden": "Nicht gelistet",
+    "unknownOrg": "Unbekannte Organisation",
+    "columns": {
+      "rank": "Rang",
+      "organization": "Organisation",
+      "scans": "Gescannte Karten"
+    },
+    "optIn": {
+      "title": "Deine Organisation ist nicht in der Bestenliste",
+      "description": "Andere Organisationen sehen dich nicht. Deine Zeile zeigt, auf welchem Rang du wärst. Tritt in den Einstellungen bei, um in der Liste zu erscheinen.",
+      "action": "Bestenliste beitreten"
+    }
+  }
 }

@@ -4,6 +4,7 @@ import type {
   STATS_COLLECTION_TABLE_COLUMNS,
 } from "@/lib/constants/stats";
 import type {
+  LeaderboardEntry,
   OrgOverviewCard,
   StatsCollectionRow,
   StatsReport,
@@ -86,4 +87,9 @@ export interface StatsControlsProps {
   onCollectionChange: (guid: string | null) => void;
   range: StatsReport["range"];
   onRangeChange: (range: StatsReport["range"]) => void;
+}
+
+export interface LeaderboardRow {
+  key: string;
+  entry: LeaderboardEntry;
 }

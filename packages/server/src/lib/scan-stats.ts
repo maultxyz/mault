@@ -25,6 +25,7 @@ async function record(write: () => Promise<unknown>): Promise<void> {
 }
 
 export function recordMatchedScan(
+  orgId: string,
   scanId: string,
   card: PlayingCardWithDistance,
   hasAlternatives: boolean,
@@ -36,6 +37,7 @@ export function recordMatchedScan(
       .insert(scanStats)
       .values({
         scanId,
+        orgId,
         outcome: SCAN_OUTCOME_MATCHED,
         matchPercent: cardMatchPercent(card),
         hasAlternatives,
@@ -47,6 +49,7 @@ export function recordMatchedScan(
 }
 
 export function recordUnmatchedScan(
+  orgId: string,
   scanId: string,
   scannedAt: number,
   vectorizedOn: unknown,
@@ -56,6 +59,7 @@ export function recordUnmatchedScan(
       .insert(scanStats)
       .values({
         scanId,
+        orgId,
         outcome: SCAN_OUTCOME_UNMATCHED,
         vectorizedOn: toVectorizeSource(vectorizedOn),
         scannedAt: new Date(scannedAt),
@@ -71,6 +75,13 @@ export function markScanCorrected(scanId: string): Promise<void> {
       .set({ isCorrected: true })
       .where(eq(scanStats.scanId, scanId)),
   );
+}
+
+export async function detachOrgScanStats(orgId: string): Promise<void> {
+  await db
+    .update(scanStats)
+    .set({ orgId: null })
+    .where(eq(scanStats.orgId, orgId));
 }
 
 export async function getScanVectorizeStats(): Promise<

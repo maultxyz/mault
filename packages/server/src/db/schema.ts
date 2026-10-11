@@ -734,6 +734,7 @@ export const orgSettings = pgTable(
     pauseScanningOnDeploy: boolean("pause_scanning_on_deploy")
       .notNull()
       .default(true),
+    leaderboardOptIn: boolean("leaderboard_opt_in").notNull().default(false),
     priceSource: text("price_source").notNull().default("tcgplayer"),
     discordGuildId: text("discord_guild_id"),
     discordLinkCode: text("discord_link_code"),
@@ -962,16 +963,21 @@ export const platformUserRoles = pgTable("platform_user_roles", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
-export const scanStats = pgTable("scan_stats", {
-  scanId: uuid("scan_id").primaryKey(),
-  outcome: text("outcome").notNull(),
-  matchPercent: doublePrecision("match_percent"),
-  hasAlternatives: boolean("has_alternatives").notNull().default(false),
-  isCorrected: boolean("is_corrected").notNull().default(false),
-  vectorizedOn: text("vectorized_on"),
-  scannedAt: timestamp("scanned_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const scanStats = pgTable(
+  "scan_stats",
+  {
+    scanId: uuid("scan_id").primaryKey(),
+    orgId: text("org_id"),
+    outcome: text("outcome").notNull(),
+    matchPercent: doublePrecision("match_percent"),
+    hasAlternatives: boolean("has_alternatives").notNull().default(false),
+    isCorrected: boolean("is_corrected").notNull().default(false),
+    vectorizedOn: text("vectorized_on"),
+    scannedAt: timestamp("scanned_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("scan_stats_org_idx").on(table.orgId)],
+);
 
 export const platformStatsSettings = pgTable("platform_stats_settings", {
   id: text("id").primaryKey(),
