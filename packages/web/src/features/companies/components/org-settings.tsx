@@ -1,3 +1,4 @@
+import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
@@ -172,7 +173,7 @@ export function OrgSettings() {
 
   function handleDiscard() {
     renameForm.reset();
-    rolesForm.reset(memberRoles);
+    rolesForm.reset(memberRoles, DISCARD_RESET_OPTIONS);
   }
 
   async function handleRemoveMember() {

@@ -1,3 +1,4 @@
+import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { Callout } from "@/components/callout";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { SaveBar } from "@/components/save-bar";
@@ -160,7 +161,7 @@ export function PlanSettingsManager() {
         show={isDirty}
         formId="plan-settings-form"
         isSaving={isSubmitting}
-        onDiscard={() => form.reset()}
+        onDiscard={() => form.reset(undefined, DISCARD_RESET_OPTIONS)}
       />
       <UnsavedChangesGuard isDirty={isDirty} />
     </form>

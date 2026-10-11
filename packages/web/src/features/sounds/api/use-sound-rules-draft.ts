@@ -1,3 +1,4 @@
+import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
   reorderSoundRules,
@@ -98,6 +99,6 @@ export function useSoundRulesDraft(gameGuid: string, rules: SoundRule[]) {
     isDirty: form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     save: () => void form.handleSubmit(save)(),
-    discard: () => form.reset(values),
+    discard: () => form.reset(values, DISCARD_RESET_OPTIONS),
   };
 }

@@ -47,6 +47,9 @@ import {
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { SaveBar } from "@/components/save-bar";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
+import { useScanDraft } from "@/features/cards/api/use-scan-draft";
 import {
   IconCheck,
   IconChevronUp,
@@ -116,12 +119,21 @@ export function CardDetailPanel({
   const { correctCard, confirmCard, setCardFoilType, setCardCondition } =
     useCardDetailActions();
   const { priceOf, format, conditionMultipliers } = usePriceSource();
-  const currentCondition = toCardCondition(condition);
   const canConfirm =
     !!scanId && (needsReview || !!alternativeMatches?.length) && !wasCorrected;
   const collection = useCardDetailCollection();
   const foilOptions = useFoilOptions();
-  const currentFoilType = foilType ?? (isFoil ? t("foil") : null);
+  const scanDraft = useScanDraft({
+    scanId,
+    savedFoilType: foilType ?? (isFoil ? t("foil") : null),
+    savedCondition: toCardCondition(condition),
+    setCardFoilType,
+    setCardCondition,
+  });
+  const currentFoilType = scanDraft.foilType;
+  const currentCondition = scanDraft.condition;
+  const draftIsFoil = currentFoilType != null;
+  const { runAfterCommit } = scanDraft;
 
   useEffect(() => {
     if (!currentCard) return;
@@ -162,7 +174,7 @@ export function CardDetailPanel({
       }
       correctCard(scanId, card);
       if (reviewMode && !stay) {
-        goToNextInReview();
+        runAfterCommit(goToNextInReview);
         return;
       }
       setCandidates((prev) =>
@@ -181,6 +193,7 @@ export function CardDetailPanel({
       stopEditing,
       reviewMode,
       goToNextInReview,
+      runAfterCommit,
     ],
   );
 
@@ -202,19 +215,19 @@ export function CardDetailPanel({
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionPrice = selectedCard
-    ? priceOf(selectedCard, isFoil, currentCondition)
+    ? priceOf(selectedCard, draftIsFoil, currentCondition)
     : null;
   const conditionHandler = (value: CardCondition) =>
-    isViewing && scanId ? () => setCardCondition(scanId, value) : undefined;
+    isViewing && scanId ? () => scanDraft.setCondition(value) : undefined;
 
   const toggleFoil = () => {
     if (!scanId) return;
-    setCardFoilType(scanId, currentFoilType ? null : foilOptions[0]);
+    scanDraft.setFoilType(currentFoilType ? null : foilOptions[0]);
   };
 
   const acceptInReview = () => {
     if (canConfirm && scanId) confirmCard(scanId);
-    goToNextInReview();
+    runAfterCommit(goToNextInReview);
   };
 
   const requestRemove =
@@ -438,7 +451,7 @@ export function CardDetailPanel({
                         alt={selectedCard?.name}
                         className="w-full h-full object-cover"
                       />
-                      {isFoil && <FoilOverlay />}
+                      {draftIsFoil && <FoilOverlay />}
                     </div>
                   </figure>
                 </div>
@@ -446,7 +459,10 @@ export function CardDetailPanel({
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
                     <DetailSection title={t("cardDetailPanel.prices")}>
-                      <CardPriceDetails card={selectedCard} isFoil={isFoil} />
+                      <CardPriceDetails
+                        card={selectedCard}
+                        isFoil={draftIsFoil}
+                      />
                     </DetailSection>
 
                     <DetailSection title={t("cardDetailPanel.details")}>
@@ -477,8 +493,7 @@ export function CardDetailPanel({
                             value={currentFoilType ?? "none"}
                             onValueChange={(value) => {
                               if (scanId) {
-                                setCardFoilType(
-                                  scanId,
+                                scanDraft.setFoilType(
                                   value === "none" ? null : value,
                                 );
                               }
@@ -512,7 +527,7 @@ export function CardDetailPanel({
                             value={currentCondition}
                             onValueChange={(value) => {
                               if (scanId && isCardCondition(value)) {
-                                setCardCondition(scanId, value);
+                                scanDraft.setCondition(value);
                               }
                             }}
                             disabled={!scanId}
@@ -654,6 +669,16 @@ export function CardDetailPanel({
           onConfirm={onRemove}
         />
       )}
+      <SaveBar
+        show={scanDraft.isDirty}
+        isSaving={scanDraft.isSaving}
+        onSave={scanDraft.save}
+        onDiscard={scanDraft.discard}
+      />
+      <UnsavedChangesGuard
+        isDirty={scanDraft.isDirty}
+        onDiscard={scanDraft.discard}
+      />
     </div>
   );
 }

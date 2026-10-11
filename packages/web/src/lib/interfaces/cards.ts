@@ -327,6 +327,14 @@ export interface CardDetailActions {
   setCardCondition: (scanId: string, condition: CardCondition) => void;
 }
 
+export interface ScanDraftOptions {
+  scanId?: string;
+  savedFoilType: string | null;
+  savedCondition: CardCondition;
+  setCardFoilType: CardDetailActions["setCardFoilType"];
+  setCardCondition: CardDetailActions["setCardCondition"];
+}
+
 export interface CardDetailScope {
   collection: Collection | null;
   actions?: CardDetailActions;

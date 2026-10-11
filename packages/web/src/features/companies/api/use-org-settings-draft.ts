@@ -1,3 +1,4 @@
+import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { collectionCardsKeys } from "@/features/collections/api/collection-cards";
 import {
   orgSettingsQueryOptions,
@@ -93,6 +94,6 @@ export function useOrgSettingsDraft() {
     isDirty: form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     save: () => void form.handleSubmit(save)(),
-    discard: () => form.reset(values),
+    discard: () => form.reset(values, DISCARD_RESET_OPTIONS),
   };
 }
