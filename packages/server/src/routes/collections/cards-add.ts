@@ -246,6 +246,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       if (!result.success) deleteScanImages([storedImage.key]);
       if (result.success) {
         void recordMatchedScan(
+          orgId,
           scanId,
           card as PlayingCardWithDistance,
           !!alternativeMatches?.length,

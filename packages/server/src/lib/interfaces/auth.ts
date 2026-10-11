@@ -24,6 +24,7 @@ export interface AuthProvider {
   // name, bypassing RLS via `db` directly the same way the rest of that
   // route does (the bot has no per-user session/claims to scope a query to).
   getOrganisationName(orgId: string): Promise<string>;
+  getOrganisationNames(orgIds: string[]): Promise<Map<string, string>>;
 
   countUsersAndOrganisations(): Promise<{ users: number; organisations: number }>;
 }

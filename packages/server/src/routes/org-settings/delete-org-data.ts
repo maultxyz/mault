@@ -9,6 +9,7 @@ import {
   deleteScanImagePrefix,
   orgScanImagePrefix,
 } from "../../lib/scan-images";
+import { detachOrgScanStats } from "../../lib/scan-stats";
 import {
   requireAuth,
   requireOrg,
@@ -26,6 +27,7 @@ export const deleteOrgDataRoute = new Hono<AppEnv>().delete(
     try {
       await authQuery(c.get("jwtClaims"), (tx) => purgeOrgData(tx, orgId));
       await purgeOrgBilling(orgId);
+      await detachOrgScanStats(orgId);
       deleteScanImagePrefix(orgScanImagePrefix(orgId));
       return c.json({ success: true, data: null });
     } catch (err) {

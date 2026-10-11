@@ -147,6 +147,17 @@ export const localAuthProvider: AuthProvider = {
     return rows.rows[0]?.name ?? "your organization";
   },
 
+  async getOrganisationNames(orgIds) {
+    if (orgIds.length === 0) return new Map();
+    const rows = await db.execute<{ id: string; name: string }>(
+      sql`SELECT id::text AS id, name FROM own_auth_organisations WHERE id::text IN (${sql.join(
+        orgIds.map((id) => sql`${id}`),
+        sql`, `,
+      )})`,
+    );
+    return new Map(rows.rows.map((row) => [row.id, row.name]));
+  },
+
   async countUsersAndOrganisations() {
     const rows = await db.execute<{ users: number; organisations: number }>(
       sql`SELECT

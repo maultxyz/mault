@@ -10,6 +10,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   ocrEnabled: false,
   correctionBinPrompt: true,
   pauseScanningOnDeploy: true,
+  leaderboardOptIn: false,
   correctionAutoCloseSeconds: null,
   priceSource: DEFAULT_PRICE_SOURCE,
   discordGuildId: null,

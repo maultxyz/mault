@@ -71,3 +71,5 @@ export * from "./schemas/public-api.schema";
 export * from "./interfaces/public-api.interface";
 export * from "./constants/public-api.constant";
 export * from "./openapi";
+export * from "./interfaces/leaderboard.interface";
+export * from "./constants/leaderboard.constant";

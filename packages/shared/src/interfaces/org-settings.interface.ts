@@ -9,6 +9,7 @@ export interface OrgSettings {
   ocrEnabled: boolean;
   correctionBinPrompt: boolean;
   pauseScanningOnDeploy: boolean;
+  leaderboardOptIn: boolean;
   correctionAutoCloseSeconds: number | null;
   priceSource: PriceSource;
   discordGuildId: string | null;

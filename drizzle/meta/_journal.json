@@ -736,6 +736,13 @@
       "when": 1791591138543,
       "tag": "0104_brave_black_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1791690618148,
+      "tag": "0105_flawless_shotgun",
+      "breakpoints": true
     }
   ]
 }

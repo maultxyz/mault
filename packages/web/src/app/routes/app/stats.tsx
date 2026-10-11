@@ -6,6 +6,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { statsReportQueryOptions } from "@/features/stats/api/stats";
 import { StatsControls } from "@/features/stats/components/stats-controls";
 import { StatsDashboard } from "@/features/stats/components/stats-dashboard";
+import { StatsLeaderboard } from "@/features/stats/components/stats-leaderboard";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import {
@@ -123,6 +124,7 @@ export default function StatsPage() {
               </div>
             )}
             {body}
+            {!collectionGuid && <StatsLeaderboard />}
           </div>
         </SettingsSectionLayoutContext>
       </div>
