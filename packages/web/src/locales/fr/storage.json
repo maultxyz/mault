@@ -96,6 +96,7 @@
   },
   "export": {
     "button": "Exporter",
-    "loading": "Chargement des cartes"
+    "loading": "Chargement des cartes",
+    "combineDuplicates": "Regrouper les doublons"
   }
 }
