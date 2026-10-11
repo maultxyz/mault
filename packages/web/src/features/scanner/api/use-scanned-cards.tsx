@@ -2,6 +2,7 @@ import { SCAN_RATE_WINDOW_MS } from "@/lib/constants/scanner";
 import {
   type BinConfig,
   type BinContentCard,
+  type CardCondition,
   type BinRoute,
   type EmptyBinOptions,
   type MatchedScanDetails,
@@ -20,6 +21,8 @@ import {
   evaluateScanOnlyBin,
   evaluateRepackBin,
   findLowMatchCatchAll,
+  isRulesMode,
+  resolveOverflowBin,
   getCardsInBin,
   getCatchAllBin,
   getChaosBins,
@@ -46,6 +49,7 @@ import {
   removeCollectionCards,
   removeUnmatchedCard as removeUnmatchedCardApi,
   setCollectionCardBin,
+  setCollectionCardsCondition,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -285,9 +289,15 @@ export function ScannedCardsProvider({
 
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
-      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
-      if (lowMatch) return lowMatch;
       const set = selectedSetRef.current;
+      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
+      if (lowMatch) {
+        return isRulesMode(set)
+          ? resolveOverflowBin(lowMatch, binConfigsRef.current, (bin) =>
+              isBinFullLocally(bin.binNumber),
+            )
+          : lowMatch;
+      }
       if (set?.scanOnly) {
         return evaluateScanOnlyBin(binConfigsRef.current, set.scanOnlyBin);
       }
@@ -327,6 +337,7 @@ export function ScannedCardsProvider({
                 fieldDefinitionsRef.current,
               ),
         (bin) => countCardsLocally(bin.binNumber),
+        (bin) => isBinFullLocally(bin.binNumber),
       );
     },
     [isBinFullLocally, countCardsLocally],
@@ -1066,6 +1077,31 @@ export function ScannedCardsProvider({
     [queryClient],
   );
 
+  const setCardsCondition = useCallback(
+    (scanIds: string[], condition: CardCondition) => {
+      const collection = activeCollectionRef.current;
+      if (!collection || scanIds.length === 0) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set(scanIds),
+        (entry) => ({ ...entry, condition }),
+      );
+      setCollectionCardsCondition(collection.guid, scanIds, condition)
+        .catch((err) => console.error("Failed to update condition:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
+  const setCardCondition = useCallback(
+    (scanId: string, condition: CardCondition) =>
+      setCardsCondition([scanId], condition),
+    [setCardsCondition],
+  );
+
   const markDownloaded = useCallback(
     (scanIds: string[]) => {
       const collection = activeCollectionRef.current;
@@ -1136,6 +1172,8 @@ export function ScannedCardsProvider({
         correctCard,
         confirmCard,
         setCardFoilType,
+        setCardCondition,
+        setCardsCondition,
         markDownloaded,
         clearCards,
       }}

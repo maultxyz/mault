@@ -310,5 +310,17 @@
   "removeDialog": {
     "title": "{{name}} entfernen?",
     "description": "Der Scan wird samt Foto aus der Sammlung gelöscht. Das kann nicht rückgängig gemacht werden."
+  },
+  "condition": {
+    "label": "Zustand",
+    "names": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Beschädigt (DMG)"
+    },
+    "priceHint": "{{price}} bei {{percent}} % des NM-Preises",
+    "setSelected": "Zustand"
   }
 }

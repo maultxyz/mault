@@ -2,6 +2,7 @@ import {
   evaluateCardBin,
   findLowMatchCatchAll,
   getCardValue,
+  isOverflowTarget,
   matchesCatchAllRules,
   type BinConfig,
   type BinRuleGroup,
@@ -24,7 +25,11 @@ export function findAutoAssignTarget(
 
   const nextOpen = configs
     .filter(
-      (c) => !c.isCatchAll && !c.isDisabled && c.rules.conditions.length === 0,
+      (c) =>
+        !c.isCatchAll &&
+        !c.isDisabled &&
+        c.rules.conditions.length === 0 &&
+        !isOverflowTarget(configs, c.binNumber),
     )
     .sort((a, b) => a.binNumber - b.binNumber)[0];
   if (!nextOpen) return null;

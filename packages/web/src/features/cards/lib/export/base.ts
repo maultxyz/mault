@@ -5,7 +5,12 @@ import type {
   GroupBy,
   GroupedEntry,
 } from "@/lib/interfaces/cards";
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
+import { CONDITION_EXPORT_LABELS } from "@/lib/constants/cards";
+import {
+  toCardCondition,
+  type CardCondition,
+  type PlayingCardWithDistance,
+} from "@magic-vault/shared";
 
 export type {
   ExportableCard,
@@ -29,6 +34,10 @@ export function csvEscape(val: string): string {
   return /[",\r\n]/.test(val) ? `"${val.replace(/"/g, '""')}"` : val;
 }
 
+export function conditionLabel(condition: CardCondition): string {
+  return CONDITION_EXPORT_LABELS[condition];
+}
+
 export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
   const price = (isFoil ? card.priceFoil : card.price) ?? card.price;
   return price != null ? price.toFixed(2) : "";
@@ -45,14 +54,16 @@ function groupCards(
       quantity: 1,
       isFoil: !!entry.isFoil,
       foilType: entry.foilType,
+      condition: toCardCondition(entry.condition),
     }));
   const grouped = new Map<string, GroupedEntry>();
   for (const entry of cards) {
     const isFoil = !!entry.isFoil;
+    const condition = toCardCondition(entry.condition);
     const key =
       groupBy === "card-foil"
-        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}`
-        : entry.card.id;
+        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}:${condition}`
+        : `${entry.card.id}:${condition}`;
     const existing = grouped.get(key);
     if (existing) existing.quantity++;
     else
@@ -61,6 +72,7 @@ function groupCards(
         quantity: 1,
         isFoil,
         foilType: entry.foilType,
+        condition,
       });
   }
   return Array.from(grouped.values());

@@ -1,3 +1,4 @@
+import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { collectionCardsKeys } from "@/features/collections/api/collection-cards";
 import {
   orgSettingsQueryOptions,
@@ -28,6 +29,7 @@ function toOrgSettingsDraft(settings: OrgSettings): OrgSettingsDraftValues {
     pauseScanningOnDeploy: settings.pauseScanningOnDeploy,
     leaderboardOptIn: settings.leaderboardOptIn,
     correctionAutoCloseSeconds: settings.correctionAutoCloseSeconds,
+    conditionMultipliers: settings.conditionMultipliers,
   };
 }
 
@@ -51,7 +53,9 @@ export function useOrgSettingsDraft() {
   const save = async (draft: OrgSettingsDraftValues) => {
     const patch = Object.fromEntries(
       Object.entries(draft).filter(
-        ([key, value]) => values[key as keyof OrgSettingsDraftValues] !== value,
+        ([key, value]) =>
+          JSON.stringify(values[key as keyof OrgSettingsDraftValues]) !==
+          JSON.stringify(value),
       ),
     ) as Partial<OrgSettingsDraftValues>;
     if (!Object.keys(patch).length) {
@@ -67,7 +71,7 @@ export function useOrgSettingsDraft() {
       }
       queryClient.setQueryData(queryOpts.queryKey, result.data);
       form.reset(toOrgSettingsDraft(result.data));
-      if ("priceSource" in patch) {
+      if ("priceSource" in patch || "conditionMultipliers" in patch) {
         void queryClient.invalidateQueries({
           queryKey: collectionCardsKeys.root(),
         });
@@ -90,6 +94,6 @@ export function useOrgSettingsDraft() {
     isDirty: form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     save: () => void form.handleSubmit(save)(),
-    discard: () => form.reset(values),
+    discard: () => form.reset(values, DISCARD_RESET_OPTIONS),
   };
 }

@@ -7,7 +7,7 @@ import {
   type CollectionCardsQuery,
   type FieldMeta,
   type GroupedScannedCard,
-  type PriceSource,
+  type OrgPricing,
   SORTABLE_FIELD_TYPES,
 } from "@magic-vault/shared";
 import { and, eq, sql, type SQL } from "drizzle-orm";
@@ -148,10 +148,10 @@ const COLOR_IDENTITY = sql`(CASE WHEN jsonb_typeof(cc.card -> 'colorIdentity') =
 
 const FOIL_LABEL = sql`COALESCE(cc.foil_type, CASE WHEN cc.is_foil THEN 'Foil' END)`;
 
-const DUPLICATE_KEY = sql`(COALESCE(cc.card ->> 'id', '') || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, ''))`;
+const DUPLICATE_KEY = sql`(COALESCE(cc.card ->> 'id', '') || ':' || cc.is_foil::text || ':' || COALESCE(cc.foil_type, '') || ':' || cc.condition)`;
 
-export function cardPriceSql(source: PriceSource): SQL {
-  return sql`COALESCE(${scannedCardPriceSql(source, CC_ALIAS_SQL_COLUMNS)}, 0)`;
+export function cardPriceSql(pricing: OrgPricing): SQL {
+  return sql`COALESCE(${scannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS)}, 0)`;
 }
 
 function isCardPriceKey(path: string): path is CardPriceKey {
@@ -298,7 +298,7 @@ function rankedCardsCte(
     ranked AS (
       SELECT
         cc.id, cc.guid, cc.card, cc.bin_number, cc.is_foil, cc.foil_type,
-        cc.is_downloaded, cc.alternative_matches, cc.is_corrected,
+        cc.condition, cc.is_downloaded, cc.alternative_matches, cc.is_corrected,
         cc.needs_review,
         ${SCANNED_AT_MS} AS scanned_at_ms,
         ${DUPLICATE_KEY} AS dup_key,
@@ -327,6 +327,7 @@ function toCard(row: CollectionCardRow) {
     binNumber: row.bin_number,
     isFoil: row.is_foil,
     foilType: row.foil_type,
+    condition: row.condition,
     isDownloaded: row.is_downloaded,
     alternativeMatches: row.alternative_matches,
     isCorrected: row.is_corrected,
@@ -350,7 +351,7 @@ export async function loadCardsPage(
   const result = await tx.execute(sql`
     WITH ${cte}
     SELECT guid, card, scanned_at_ms, bin_number, is_foil, foil_type,
-      is_downloaded, alternative_matches, is_corrected, needs_review,
+      condition, is_downloaded, alternative_matches, is_corrected, needs_review,
       scan_ids, quantity,
       count(*) OVER ()::int AS total_entries,
       sum(quantity) OVER ()::int AS total_cards
@@ -459,8 +460,8 @@ export async function loadAllCards(tx: Transaction, collectionId: number) {
   const result = await tx.execute(sql`
     SELECT cc.guid, ${cardWithStoredPricesSql(sql`cc.card`, CC_ALIAS_SQL_COLUMNS)} AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
-      cc.is_foil, cc.foil_type, cc.is_downloaded, cc.alternative_matches,
-      cc.is_corrected, cc.needs_review
+      cc.is_foil, cc.foil_type, cc.condition, cc.is_downloaded,
+      cc.alternative_matches, cc.is_corrected, cc.needs_review
     FROM collection_cards cc
     WHERE cc.collection_id = ${collectionId}
     ORDER BY cc.scanned_at DESC, cc.id DESC
@@ -520,9 +521,9 @@ export async function loadCardStats(
   tx: Transaction,
   collection: { id: number; gameKey: string | null; lang: string },
   filter: SQL,
-  priceSource: PriceSource,
+  pricing: OrgPricing,
 ): Promise<{ all: CardStatsAggregate; filtered: CardStatsAggregate }> {
-  const price = sql`COALESCE(${joinedScannedCardPriceSql(priceSource, CC_ALIAS_SQL_COLUMNS, "cp")}, 0)`;
+  const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}, 0)`;
   const result = await tx.execute(sql`
     WITH base AS MATERIALIZED (
       SELECT cc.card, cc.is_foil, cc.foil_type, cc.scanned_at,

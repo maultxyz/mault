@@ -96,6 +96,7 @@ export function StorageCardDetail({
         wasCorrected={stored.corrected}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
+        condition={stored.condition}
         binNumber={scanned.binNumber}
         onClose={onClose}
         onPrev={() => previous && onNavigate(previous.scanId)}

@@ -2,7 +2,7 @@ import type { MonitorLinkInfo } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { db } from "../../db";
 import { verifyMonitorLink } from "../../lib/monitor-links";
-import { loadOrgPriceSource } from "../../lib/price-source";
+import { loadOrgPricing } from "../../lib/price-source";
 import type { MonitorLinkClaims } from "../../lib/interfaces/monitor-links";
 import type { AppEnv } from "../../middleware/auth";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
@@ -19,6 +19,7 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
     if (!claims) {
       return c.json({ success: false, message: MONITOR_LINK_INVALID_MESSAGE }, 401);
     }
+    const pricing = await loadOrgPricing(db, claims.orgId);
     return c.json({
       success: true,
       message: "Valid monitor link.",
@@ -26,7 +27,8 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
         collectionGuid: claims.collectionGuid,
         collectionName: claims.collectionName,
         expiresAt: claims.expiresAt.toISOString(),
-        priceSource: await loadOrgPriceSource(db, claims.orgId),
+        priceSource: pricing.source,
+        conditionMultipliers: pricing.conditionMultipliers,
       } satisfies MonitorLinkInfo,
     });
   })

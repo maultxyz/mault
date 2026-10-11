@@ -2,6 +2,7 @@ import { cardWithStoredPricesSql } from "../../lib/card-price-sql";
 import {
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
+  toCardCondition,
   type PlayingCardWithDistance,
   type StorageLocationCard,
   type StorageLocationExportCard,
@@ -52,6 +53,7 @@ const router = new Hono<AppEnv>()
             card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
             isFoil: collectionCards.isFoil,
             foilType: collectionCards.foilType,
+            condition: collectionCards.condition,
             needsReview: sql<boolean>`(${collectionCards.needsReview} OR (${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb))`,
             corrected: collectionCards.isCorrected,
             collectionGuid: collections.guid,
@@ -89,6 +91,7 @@ const router = new Hono<AppEnv>()
         card: r.card,
         isFoil: r.isFoil,
         foilType: r.foilType,
+        condition: toCardCondition(r.condition),
         needsReview: r.needsReview,
         corrected: r.corrected,
         collectionGuid: r.collectionGuid!,
@@ -219,6 +222,7 @@ const router = new Hono<AppEnv>()
             card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
             isFoil: collectionCards.isFoil,
             foilType: collectionCards.foilType,
+            condition: collectionCards.condition,
             needsReview: sql<boolean>`(${collectionCards.needsReview} OR (${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb))`,
             corrected: collectionCards.isCorrected,
             collectionGuid: collections.guid,
@@ -242,6 +246,7 @@ const router = new Hono<AppEnv>()
           card: r.card,
           isFoil: r.isFoil,
           foilType: r.foilType,
+          condition: toCardCondition(r.condition),
           needsReview: r.needsReview,
           corrected: r.corrected,
           collectionGuid: r.collectionGuid!,
@@ -275,6 +280,7 @@ const router = new Hono<AppEnv>()
             card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`${collectionCards.card}`)}`,
             isFoil: collectionCards.isFoil,
             foilType: collectionCards.foilType,
+            condition: collectionCards.condition,
             collectionName: collections.name,
             gameKey: games.key,
           })
@@ -299,6 +305,7 @@ const router = new Hono<AppEnv>()
           card: r.card,
           isFoil: r.isFoil,
           foilType: r.foilType,
+          condition: toCardCondition(r.condition),
         }));
         return { success: true, data };
       });

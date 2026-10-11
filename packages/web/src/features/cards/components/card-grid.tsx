@@ -59,8 +59,9 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconDownload,
+  IconRosette,
 } from "@tabler/icons-react";
-import { computeBinCount } from "@magic-vault/shared";
+import { CARD_CONDITIONS, computeBinCount } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -83,6 +84,7 @@ export function CardGrid() {
     removeCards,
     clearCards,
     markDownloaded,
+    setCardsCondition,
     elapsedMs,
     sessionScanCount,
   } = useScannedCards();
@@ -485,6 +487,7 @@ export function CardGrid() {
         wasCorrected={openEntry.corrected}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
+        condition={openEntry.condition}
         binNumber={openEntry.binNumber}
         onClose={() => setOpenScanId(null)}
         onRemove={() => {
@@ -583,6 +586,7 @@ export function CardGrid() {
                 quantity: entry.quantity,
                 isFoil: entry.isFoil,
                 foilType: entry.foilType,
+                condition: entry.condition,
                 isDownloaded: entry.isDownloaded,
                 hasAlternatives: !!entry.alternativeMatches?.length,
                 needsReview: entry.needsReview,
@@ -624,6 +628,7 @@ export function CardGrid() {
                   wasCorrected={entry.corrected}
                   isFoil={entry.isFoil}
                   foilType={entry.foilType}
+                  condition={entry.condition}
                   isDownloaded={entry.isDownloaded}
                   quantity={entry.quantity}
                 />
@@ -696,6 +701,32 @@ export function CardGrid() {
                     onClick={() => handleExportSelected(adapter)}
                   >
                     {adapter.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                  />
+                }
+              >
+                <IconRosette />
+                {t("condition.setSelected")}
+                <IconChevronDown />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="center" side="top">
+                {CARD_CONDITIONS.map((option) => (
+                  <DropdownMenuItem
+                    key={option}
+                    onClick={() =>
+                      setCardsCondition(Array.from(selectedIds), option)
+                    }
+                  >
+                    {t(`condition.names.${option}`)}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>

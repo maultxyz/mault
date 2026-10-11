@@ -43,6 +43,11 @@
       "cardkingdom": "Card Kingdom"
     }
   },
+  "conditionPricing": {
+    "heading": "Condition pricing",
+    "description": "How much of the Near Mint price a card in each condition is worth. Card values, collection totals, stats and storage values all use these.",
+    "baseNote": "Near Mint is always the full market price. The defaults match what most big sellers use."
+  },
   "sessionWrapped": {
     "heading": "Session Wrapped",
     "description": "Show a Wrapped-style recap of stat highlights before the export summary.",

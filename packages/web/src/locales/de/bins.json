@@ -6,6 +6,10 @@
     "message": "Dieser Sammlung ist kein Spiel zugewiesen, daher gibt es keine Kartenfelder für Sortierregeln. Erstellen Sie die Sammlung neu und wählen Sie ein Spiel aus, um die Sortierung zu aktivieren."
   },
   "binCard": {
+    "overflow": "Überlauf",
+    "overflowFor_one": "Überlauf für Fach {{bins}}",
+    "overflowFor_other": "Überlauf für Fächer {{bins}}",
+    "overflowsTo": "Läuft über in Fach {{number}}",
     "chaosFill": "Wird der Reihe nach gefüllt",
     "override": "Vorrang",
     "disabled": "Deaktiviert",
@@ -26,6 +30,12 @@
     "scanOnlyEverything": "Gescannte und nicht erkannte Karten kommen hierher"
   },
   "binConfigPanel": {
+    "overflowLabel": "Wenn voll, überlaufen in",
+    "overflowNone": "Kein Überlauf",
+    "overflowDescription": "Wenn dieses Fach voll ist oder sein Kopienlimit erreicht hat, gehen passende Karten in das gewählte Fach, statt den Scan anzuhalten. Nur Fächer ohne eigene Regeln stehen zur Auswahl, und ein Überlauffach kann keine eigenen Regeln haben.",
+    "overflowNoOptions": "Keine freien Fächer. Lösche die Regeln eines Fachs, um es als Überlauf zu nutzen.",
+    "overflowTargetNotice_one": "Dieses Fach ist der Überlauf für Fach {{bins}}. Karten landen hier, wenn dieses Fach voll ist, daher kann es keine eigenen Regeln haben. Ändere den Überlauf von Fach {{bins}}, um diesem Fach wieder Regeln zu geben.",
+    "overflowTargetNotice_other": "Dieses Fach ist der Überlauf für die Fächer {{bins}}. Karten landen hier, wenn diese Fächer voll sind, daher kann es keine eigenen Regeln haben. Ändere ihren Überlauf, um diesem Fach wieder Regeln zu geben.",
     "overrideLabel": "Vorrangige Regeln",
     "disabledLabel": "Dieses Fach deaktivieren",
     "disabledDescription": "Hier landen keine Karten. Sie gehen an das nächste passende Fach oder das Auffangfach.",

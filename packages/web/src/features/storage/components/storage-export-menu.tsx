@@ -56,6 +56,7 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
         card: entry.card,
         isFoil: entry.isFoil,
         foilType: entry.foilType ?? undefined,
+        condition: entry.condition,
       })),
       slug,
       { isMtg: singleGameKey === "mtg", fieldDefinitions },

@@ -6,6 +6,10 @@
     "message": "Cette collection n'a pas de jeu associé, il n'y a donc aucun champ de carte pour créer des règles de tri. Recréez la collection et sélectionnez un jeu pour activer le tri."
   },
   "binCard": {
+    "overflow": "Débordement",
+    "overflowFor_one": "Débordement du bac {{bins}}",
+    "overflowFor_other": "Débordement des bacs {{bins}}",
+    "overflowsTo": "Déborde dans le bac {{number}}",
     "chaosFill": "Se remplit à son tour",
     "override": "Prioritaire",
     "disabled": "Désactivé",
@@ -26,6 +30,12 @@
     "scanOnlyEverything": "Les cartes scannées et non identifiées vont ici"
   },
   "binConfigPanel": {
+    "overflowLabel": "Une fois plein, déborder dans",
+    "overflowNone": "Pas de débordement",
+    "overflowDescription": "Quand ce bac est plein ou a atteint sa limite de copies, les cartes qui lui correspondent vont dans le bac choisi au lieu de mettre le scan en pause. Seuls les bacs sans règles propres peuvent être choisis, et un bac de débordement ne peut pas avoir ses propres règles.",
+    "overflowNoOptions": "Aucun bac libre. Efface les règles d'un bac pour l'utiliser comme débordement.",
+    "overflowTargetNotice_one": "Ce bac est le débordement du bac {{bins}}. Les cartes arrivent ici quand ce bac est plein, il ne peut donc pas avoir ses propres règles. Change le débordement du bac {{bins}} pour redonner des règles à ce bac.",
+    "overflowTargetNotice_other": "Ce bac est le débordement des bacs {{bins}}. Les cartes arrivent ici quand ces bacs sont pleins, il ne peut donc pas avoir ses propres règles. Change leur débordement pour redonner des règles à ce bac.",
     "overrideLabel": "Règles prioritaires",
     "disabledLabel": "Désactiver ce bac",
     "disabledDescription": "Aucune carte n'y va. Elles passent au bac suivant qui correspond, ou au fourre-tout.",

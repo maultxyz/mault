@@ -32,6 +32,7 @@ import { RuleSummary } from "@/features/bins/components/rule-summary";
 import {
   DEFAULT_CATCH_ALL_MATCH_PERCENT,
   DEFAULT_MAX_COPIES,
+  NO_OVERFLOW_VALUE,
   REPACK_ALLOW_DUPLICATES_VALUE,
 } from "@/lib/constants/bins";
 import { emptyRuleGroup } from "@/lib/rule-groups";
@@ -44,6 +45,8 @@ import {
   BinConfig,
   BinRuleGroup,
   DEFAULT_BIN_CAPACITY,
+  getOverflowSources,
+  isOverflowTarget,
   OVERRIDE_PRIORITY_MAX,
   REPACK_UNIQUE_BY_NAME,
   REPACK_UNIQUE_BY_PRINTING,
@@ -99,6 +102,7 @@ export function BinConfigPanel() {
       rules: emptyRuleGroup(),
       maxCopies: null,
       maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
+      overflowBin: null,
       lowMatchPercent: null,
     },
   });
@@ -113,6 +117,7 @@ export function BinConfigPanel() {
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
       maxCopies: config.maxCopies ?? null,
       maxCopiesBy: config.maxCopiesBy ?? REPACK_UNIQUE_BY_PRINTING,
+      overflowBin: config.overflowBin ?? null,
       lowMatchPercent: config.isCatchAll
         ? (config.lowMatchPercent ?? null)
         : null,
@@ -134,6 +139,12 @@ export function BinConfigPanel() {
     effectiveMode.isRepackMode ||
     effectiveMode.isAlphabetMode ||
     effectiveMode.isChaosMode;
+
+  const overflowSources = useMemo(
+    () =>
+      getOverflowSources(configs, config.binNumber).map((c) => c.binNumber),
+    [configs, config.binNumber],
+  );
 
   const handleSave = useCallback(
     (values: BinConfigFormValues) => {
@@ -165,15 +176,17 @@ export function BinConfigPanel() {
         });
         return;
       }
-      const isOverride = !values.isCatchAll && values.isOverride;
+      const claimed = !values.isCatchAll && overflowSources.length > 0;
+      const isOverride = !values.isCatchAll && !claimed && values.isOverride;
       save({
         binNumber: config.binNumber,
-        rules: values.rules as BinRuleGroup,
+        rules: claimed ? emptyRuleGroup() : (values.rules as BinRuleGroup),
         isCatchAll: values.isCatchAll,
         cardLimit,
         isOverride,
         overridePriority:
           values.isCatchAll || isOverride ? values.overridePriority : null,
+        overflowBin: values.isDisabled ? null : values.overflowBin,
         lowMatchPercent: values.isCatchAll ? values.lowMatchPercent : null,
         maxCopies:
           values.isCatchAll || autoAssignField ? null : values.maxCopies,
@@ -184,7 +197,16 @@ export function BinConfigPanel() {
         isDisabled: !values.isCatchAll && values.isDisabled,
       });
     },
-    [config, save, isOnlyCatchAll, form, t, autoAssignField, rulesLocked],
+    [
+      config,
+      save,
+      isOnlyCatchAll,
+      form,
+      t,
+      autoAssignField,
+      rulesLocked,
+      overflowSources,
+    ],
   );
 
   const handleClear = useCallback(() => {
@@ -203,6 +225,7 @@ export function BinConfigPanel() {
         rules: emptyRuleGroup(),
         maxCopies: null,
         maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
+        overflowBin: null,
         lowMatchPercent: null,
       },
       { keepDefaultValues: true },
@@ -230,11 +253,27 @@ export function BinConfigPanel() {
   };
   const isDisabled = form.watch("isDisabled");
   const isOverride = form.watch("isOverride");
+  const overflowBin = form.watch("overflowBin");
+  const isClaimedOverflow = !isCatchAll && overflowSources.length > 0;
+  const overflowOptions = useMemo(
+    () =>
+      configs.filter(
+        (c) =>
+          c.binNumber !== config.binNumber &&
+          !c.isCatchAll &&
+          !c.isDisabled &&
+          (c.binNumber === config.overflowBin ||
+            isOverflowTarget(configs, c.binNumber) ||
+            (c.rules.conditions.length === 0 && !c.isOverride)),
+      ),
+    [configs, config.binNumber, config.overflowBin],
+  );
   const draftRules = form.watch("rules") as BinRuleGroup;
   const draftPriority = form.watch("overridePriority");
   const hasCatchAllRules = isCatchAll && draftRules.conditions.length > 0;
   const showPriority =
-    !autoAssignField && (hasCatchAllRules || (!isCatchAll && isOverride));
+    !autoAssignField &&
+    (hasCatchAllRules || (!isCatchAll && !isClaimedOverflow && isOverride));
 
   const overrideOrder = useMemo(
     () =>
@@ -350,6 +389,63 @@ export function BinConfigPanel() {
       <FieldDescription>
         {t("binConfigPanel.disabledDescription")}
       </FieldDescription>
+    </Field>
+  );
+
+  const overflowField = !isDisabled && (
+    <Field className="mb-6 gap-1.5">
+      <span className="flex items-center gap-1.5">
+        <FieldLabel htmlFor="bin-overflow">
+          {t("binConfigPanel.overflowLabel")}
+        </FieldLabel>
+        <Tooltip>
+          <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+            <IconInfoCircle className="size-3.5" />
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs">
+            {t("binConfigPanel.overflowDescription")}
+          </TooltipContent>
+        </Tooltip>
+      </span>
+      <Select
+        value={overflowBin == null ? NO_OVERFLOW_VALUE : String(overflowBin)}
+        onValueChange={(value) =>
+          form.setValue(
+            "overflowBin",
+            !value || value === NO_OVERFLOW_VALUE ? null : Number(value),
+            { shouldDirty: true },
+          )
+        }
+      >
+        <SelectTrigger
+          id="bin-overflow"
+          className="w-full max-w-72"
+          aria-label={t("binConfigPanel.overflowLabel")}
+        >
+          <SelectValue>
+            {overflowBin == null
+              ? t("binConfigPanel.overflowNone")
+              : t("binLabel", { number: overflowBin })}
+          </SelectValue>
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value={NO_OVERFLOW_VALUE}>
+              {t("binConfigPanel.overflowNone")}
+            </SelectItem>
+            {overflowOptions.map((c) => (
+              <SelectItem key={c.binNumber} value={String(c.binNumber)}>
+                {t("binLabel", { number: c.binNumber })}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      {overflowOptions.length === 0 && (
+        <FieldDescription>
+          {t("binConfigPanel.overflowNoOptions")}
+        </FieldDescription>
+      )}
     </Field>
   );
 
@@ -532,7 +628,16 @@ export function BinConfigPanel() {
               {t("binConfigPanel.disabledNotice")}
             </Callout>
           )}
-          {!autoAssignField && !isCatchAll && (
+          {overflowField}
+          {isClaimedOverflow && (
+            <Callout className="mb-6">
+              {t("binConfigPanel.overflowTargetNotice", {
+                bins: overflowSources.join(", "),
+                count: overflowSources.length,
+              })}
+            </Callout>
+          )}
+          {!autoAssignField && !isCatchAll && !isClaimedOverflow && (
             <Field className="mb-6">
               <div className="flex items-center gap-2">
                 <Controller
@@ -563,7 +668,7 @@ export function BinConfigPanel() {
             </Field>
           )}
           {!isCatchAll && priorityField}
-          {!autoAssignField && !isCatchAll && (
+          {!autoAssignField && !isCatchAll && !isClaimedOverflow && (
             <Field
               className="mb-6 gap-1.5"
               data-invalid={!!form.formState.errors.maxCopies}
@@ -671,57 +776,61 @@ export function BinConfigPanel() {
           )}
           {isCatchAll && lowMatchField}
           {isCatchAll && priorityField}
-          <div className="flex items-center justify-between mb-2">
-            {isCatchAll ? (
-              <span className="flex items-center gap-1.5">
-                <Label>{t("binConfigPanel.catchAllRulesLabel")}</Label>
-                <Tooltip>
-                  <TooltipTrigger
-                    className="text-foreground/70 hover:text-foreground transition-colors"
-                    aria-label={t("binConfigPanel.catchAllRulesDescription")}
+          {!isClaimedOverflow && (
+            <>
+              <div className="flex items-center justify-between mb-2">
+                {isCatchAll ? (
+                  <span className="flex items-center gap-1.5">
+                    <Label>{t("binConfigPanel.catchAllRulesLabel")}</Label>
+                    <Tooltip>
+                      <TooltipTrigger
+                        className="text-foreground/70 hover:text-foreground transition-colors"
+                        aria-label={t("binConfigPanel.catchAllRulesDescription")}
+                      >
+                        <IconHelpCircle className="size-3.5" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        {t("binConfigPanel.catchAllRulesDescription")}
+                      </TooltipContent>
+                    </Tooltip>
+                  </span>
+                ) : (
+                  <Label>{t("binConfigPanel.rulesLabel")}</Label>
+                )}
+                {apiDocsUrl && (
+                  <a
+                    href={apiDocsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
                   >
-                    <IconHelpCircle className="size-3.5" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    {t("binConfigPanel.catchAllRulesDescription")}
-                  </TooltipContent>
-                </Tooltip>
-              </span>
-            ) : (
-              <Label>{t("binConfigPanel.rulesLabel")}</Label>
-            )}
-            {apiDocsUrl && (
-              <a
-                href={apiDocsUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
-              >
-                {t("binConfigPanel.apiDocsLink")}
-              </a>
-            )}
-          </div>
-          {!isCatchAll && autoAssignField ? (
-            config.rules.conditions.length > 0 ? (
-              <RuleSummary rules={config.rules} />
-            ) : (
-              <Callout>
-                {t("binConfigPanel.autoAssignWaiting", {
-                  field: autoAssignFieldLabel,
-                })}
-              </Callout>
-            )
-          ) : (
-            <Controller
-              name="rules"
-              control={form.control}
-              render={({ field }) => (
-                <RuleGroupEditor
-                  group={field.value as BinRuleGroup}
-                  onChange={field.onChange}
+                    {t("binConfigPanel.apiDocsLink")}
+                  </a>
+                )}
+              </div>
+              {!isCatchAll && autoAssignField ? (
+                config.rules.conditions.length > 0 ? (
+                  <RuleSummary rules={config.rules} />
+                ) : (
+                  <Callout>
+                    {t("binConfigPanel.autoAssignWaiting", {
+                      field: autoAssignFieldLabel,
+                    })}
+                  </Callout>
+                )
+              ) : (
+                <Controller
+                  name="rules"
+                  control={form.control}
+                  render={({ field }) => (
+                    <RuleGroupEditor
+                      group={field.value as BinRuleGroup}
+                      onChange={field.onChange}
+                    />
+                  )}
                 />
               )}
-            />
+            </>
           )}
         </ScrollArea>
         {catchAllError}

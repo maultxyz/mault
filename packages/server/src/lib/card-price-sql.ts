@@ -1,4 +1,10 @@
-import { PRICE_SOURCE_FIELDS, type PriceSource } from "@magic-vault/shared";
+import {
+  CARD_CONDITIONS,
+  conditionFactor,
+  PRICE_SOURCE_FIELDS,
+  type ConditionMultipliers,
+  type OrgPricing,
+} from "@magic-vault/shared";
 import { sql, type AnyColumn, type SQL } from "drizzle-orm";
 import {
   CARD_PRICE_COLUMNS,
@@ -51,32 +57,45 @@ export function cardPriceValueSql(
   >`COALESCE(${storedCardPriceSql(key, cols)}, ${savedCardPriceSql(key, cols)})`;
 }
 
+export function conditionFactorSql(
+  condition: SQL | AnyColumn,
+  multipliers: ConditionMultipliers,
+): SQL<number> {
+  const cases = CARD_CONDITIONS.map(
+    (c) =>
+      sql`WHEN ${c}::text THEN ${conditionFactor(c, multipliers)}::float8`,
+  );
+  return sql<number>`(CASE ${condition} ${sql.join(cases, sql` `)} ELSE 1::float8 END)`;
+}
+
 function scannedPriceFrom(
-  source: PriceSource,
+  pricing: OrgPricing,
   cols: ScannedCardSqlColumns,
   stored: (key: CardPriceKey) => SQL,
 ): SQL<number | null> {
-  const fields = PRICE_SOURCE_FIELDS[source];
+  const fields = PRICE_SOURCE_FIELDS[pricing.source];
   const value = (key: CardPriceKey) =>
     sql`COALESCE(${stored(key)}, ${savedCardPriceSql(key, cols)})`;
   return sql<
     number | null
-  >`COALESCE(CASE WHEN ${cols.isFoil} THEN ${value(fields.priceFoil)} END, ${value(fields.price)})`;
+  >`(COALESCE(CASE WHEN ${cols.isFoil} THEN ${value(fields.priceFoil)} END, ${value(fields.price)}) * ${conditionFactorSql(cols.condition, pricing.conditionMultipliers)})`;
 }
 
 export function scannedCardPriceSql(
-  source: PriceSource,
+  pricing: OrgPricing,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL<number | null> {
-  return scannedPriceFrom(source, cols, (key) => storedCardPriceSql(key, cols));
+  return scannedPriceFrom(pricing, cols, (key) =>
+    storedCardPriceSql(key, cols),
+  );
 }
 
 export function joinedScannedCardPriceSql(
-  source: PriceSource,
+  pricing: OrgPricing,
   cols: ScannedCardSqlColumns,
   cardPricesAlias: string,
 ): SQL<number | null> {
-  return scannedPriceFrom(source, cols, (key) =>
+  return scannedPriceFrom(pricing, cols, (key) =>
     sql.raw(`${cardPricesAlias}.${CARD_PRICE_COLUMNS[key]}`),
   );
 }

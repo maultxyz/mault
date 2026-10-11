@@ -1,5 +1,5 @@
 import type { PlayingCard } from "@magic-vault/shared";
-import { csvEscape, type ExportAdapter } from "./base";
+import { conditionLabel, csvEscape, type ExportAdapter } from "./base";
 
 // Cards scanned before PlayingCard.tcgplayerId existed only carry the ID in
 // their stored source payload, under whichever key that source API uses.
@@ -32,13 +32,13 @@ export const tcgplayerAdapter: ExportAdapter = {
     "Printing",
     "Language",
   ],
-  row: ({ card, quantity }) => [
+  row: ({ card, quantity, condition }) => [
     tcgplayerId(card),
     String(quantity),
     csvEscape(card.name),
     csvEscape(card.setName),
     card.collectorNumber,
-    "Near Mint",
+    conditionLabel(condition),
     "Normal",
     "English",
   ],

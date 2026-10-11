@@ -1,5 +1,5 @@
 import { getCardValue } from "@magic-vault/shared";
-import { csvEscape, type ExportAdapter } from "./base";
+import { conditionLabel, csvEscape, type ExportAdapter } from "./base";
 
 export const csvAdapter: ExportAdapter = {
   key: "csv",
@@ -11,14 +11,16 @@ export const csvAdapter: ExportAdapter = {
     "Quantity",
     "Foil",
     "Foil Type",
+    "Condition",
     "Set",
     "Card Number",
     ...ctx.fieldDefinitions.map((f) => csvEscape(f.label)),
   ],
-  row: ({ card, quantity, isFoil, foilType }, ctx) => [
+  row: ({ card, quantity, isFoil, foilType, condition }, ctx) => [
     String(quantity),
     isFoil ? "True" : "False",
     foilType ? csvEscape(foilType) : "",
+    conditionLabel(condition),
     card.set.toUpperCase(),
     card.collectorNumber,
     ...ctx.fieldDefinitions.map((f) => {

@@ -54,6 +54,7 @@ export interface PublicApiCardRow {
   scan_id: string;
   card_id: string;
   is_foil: boolean;
+  condition: string;
   foil_type: string | null;
   needs_review: boolean;
   name: string;

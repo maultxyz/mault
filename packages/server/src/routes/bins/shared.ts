@@ -10,7 +10,7 @@ import {
   REPACK_UNIQUE_BY_PRINTING,
   SCAN_ONLY_DEFAULT_BIN,
 } from "@magic-vault/shared";
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit, binSets } from "../../db/schema";
@@ -46,6 +46,16 @@ export function toMaxCopiesBy(
   if (isCatchAll || maxCopies == null) return null;
   const trimmed = value?.trim();
   return trimmed && trimmed !== REPACK_UNIQUE_BY_PRINTING ? trimmed : null;
+}
+
+export function toOverflowBin(
+  value: number | null | undefined,
+  binNumber: number,
+): number | null {
+  if (value == null) return null;
+  return Number.isInteger(value) && value >= 1 && value !== binNumber
+    ? value
+    : null;
 }
 
 export function toOverridePriority(
@@ -121,6 +131,7 @@ function toBinSet(row: {
     cardLimit: number | null;
     maxCopies: number | null;
     maxCopiesBy: string | null;
+    overflowBin: number | null;
     isDisabled: boolean;
     lastEmptiedAt: Date | null;
   }[];
@@ -164,6 +175,7 @@ function toBinSet(row: {
       cardLimit: bin.cardLimit,
       maxCopies: bin.maxCopies,
       maxCopiesBy: bin.maxCopiesBy,
+      overflowBin: bin.overflowBin,
       isDisabled: bin.isDisabled,
       lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
@@ -220,6 +232,7 @@ const binSetQuery = {
         cardLimit: true,
         maxCopies: true,
         maxCopiesBy: true,
+        overflowBin: true,
         isDisabled: true,
         lastEmptiedAt: true,
       },
@@ -258,6 +271,7 @@ export async function snapshotBinSet(
       cardLimit: true,
       maxCopies: true,
       maxCopiesBy: true,
+      overflowBin: true,
       isDisabled: true,
     },
   });
@@ -272,6 +286,7 @@ export async function snapshotBinSet(
     cardLimit: r.cardLimit,
     maxCopies: r.maxCopies,
     maxCopiesBy: r.maxCopiesBy,
+    overflowBin: r.overflowBin,
     isDisabled: r.isDisabled,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
@@ -325,6 +340,62 @@ export async function binSetNameTaken(
   });
   if (!existing) return false;
   return existing.guid !== excludeGuid;
+}
+
+export async function normalizeOverflowBins(
+  tx: Transaction,
+  binSetId: number,
+) {
+  const rows = await tx.query.bins.findMany({
+    where: (t, { eq, and }) =>
+      and(eq(t.binSet, binSetId), eq(t.isDeleted, false)),
+    columns: {
+      id: true,
+      binNumber: true,
+      isCatchAll: true,
+      isOverride: true,
+      overflowBin: true,
+      rules: true,
+    },
+  });
+  const catchAllNumbers = new Set(
+    rows.filter((r) => r.isCatchAll).map((r) => r.binNumber),
+  );
+  const isInvalid = (r: (typeof rows)[number]) =>
+    r.overflowBin != null &&
+    (r.overflowBin === r.binNumber || catchAllNumbers.has(r.overflowBin));
+
+  const invalidIds = rows.filter(isInvalid).map((r) => r.id);
+  if (invalidIds.length > 0) {
+    await tx
+      .update(bins)
+      .set({ overflowBin: null, updatedAt: new Date() })
+      .where(inArray(bins.id, invalidIds));
+  }
+
+  const targets = new Set(
+    rows
+      .filter((r) => r.overflowBin != null && !isInvalid(r))
+      .map((r) => r.overflowBin),
+  );
+  const claimedIds = rows
+    .filter(
+      (r) =>
+        targets.has(r.binNumber) &&
+        (r.isOverride || (r.rules as BinRuleGroup).conditions.length > 0),
+    )
+    .map((r) => r.id);
+  if (claimedIds.length > 0) {
+    await tx
+      .update(bins)
+      .set({
+        rules: emptyRules(),
+        isOverride: false,
+        overridePriority: null,
+        updatedAt: new Date(),
+      })
+      .where(inArray(bins.id, claimedIds));
+  }
 }
 
 export async function resetAutoAssignBins(tx: Transaction, binSetId: number) {
@@ -397,4 +468,5 @@ export async function applyScanOnlyBins(
       orgId,
     });
   }
+  await normalizeOverflowBins(tx, binSetId);
 }

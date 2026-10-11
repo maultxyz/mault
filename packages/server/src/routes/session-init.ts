@@ -50,6 +50,7 @@ async function querySessionInit(
       binNumber: collectionCards.binNumber,
       isFoil: collectionCards.isFoil,
       foilType: collectionCards.foilType,
+      condition: collectionCards.condition,
       isDownloaded: collectionCards.isDownloaded,
       alternativeMatches: collectionCards.alternativeMatches,
       needsReview: collectionCards.needsReview,

@@ -10,7 +10,7 @@ import {
   storageLocations,
 } from "../../db/schema";
 import type { StorageLocationRow } from "../../lib/interfaces/storage-locations";
-import { loadOrgPriceSource } from "../../lib/price-source";
+import { loadOrgPricing } from "../../lib/price-source";
 import { cardPriceSql } from "../collections/cards-query";
 
 export function parseLocationName(value: unknown): string | null {
@@ -42,11 +42,11 @@ export async function loadLocations(
   tx: Transaction,
   orgId: string,
 ): Promise<StorageLocation[]> {
-  const priceSource = await loadOrgPriceSource(tx, orgId);
+  const pricing = await loadOrgPricing(tx, orgId);
   const result = await tx.execute(sql`
     SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at,
       count(cc.id)::int AS card_count,
-      COALESCE(sum(${cardPriceSql(priceSource)}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
+      COALESCE(sum(${cardPriceSql(pricing)}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
     FROM ${storageLocations} sl
     LEFT JOIN ${collectionCards} cc ON cc.location_id = sl.id
       AND EXISTS (

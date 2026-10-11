@@ -21,6 +21,7 @@ export interface BinConfigSaveInput {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  overflowBin?: number | null;
   isDisabled?: boolean;
 }
 
@@ -127,6 +128,8 @@ export interface BinCardProps {
   isScanOnlyTarget?: boolean;
   isChaosMode?: boolean;
   alphabetLetter?: string | null;
+  showOverflow?: boolean;
+  overflowSources?: number[];
   disabled?: boolean;
   onClick: () => void;
 }

@@ -1,4 +1,4 @@
-import type { PriceSource } from "@magic-vault/shared";
+import type { ConditionMultipliers, PriceSource } from "@magic-vault/shared";
 
 export interface PrimaryColorPickerProps {
   value: string | null;
@@ -9,6 +9,13 @@ export interface PrimaryColorPickerProps {
 export interface ScannerLayoutToggleProps {
   value: "horizontal" | "vertical";
   onChange: (scannerLayout: "horizontal" | "vertical") => void;
+}
+
+export interface ConditionMultipliersSettingProps {
+  value: ConditionMultipliers;
+  disabled?: boolean;
+  errors?: Array<{ message?: string } | undefined>;
+  onChange: (value: ConditionMultipliers) => void;
 }
 
 export interface PriceSourceToggleProps {

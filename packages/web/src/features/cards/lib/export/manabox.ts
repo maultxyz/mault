@@ -1,4 +1,9 @@
-import { csvEscape, purchasePrice, type ExportAdapter } from "./base";
+import {
+  conditionLabel,
+  csvEscape,
+  purchasePrice,
+  type ExportAdapter,
+} from "./base";
 
 export const manaboxAdapter: ExportAdapter = {
   key: "manabox",
@@ -18,7 +23,7 @@ export const manaboxAdapter: ExportAdapter = {
     "Language",
     "Purchase price (USD)",
   ],
-  row: ({ card, quantity, isFoil }) => [
+  row: ({ card, quantity, isFoil, condition }) => [
     csvEscape(card.name),
     card.set.toUpperCase(),
     csvEscape(card.setName),
@@ -26,7 +31,7 @@ export const manaboxAdapter: ExportAdapter = {
     isFoil ? "foil" : "",
     String(quantity),
     card.id,
-    "Near Mint",
+    conditionLabel(condition),
     "en",
     purchasePrice(card, isFoil),
   ],

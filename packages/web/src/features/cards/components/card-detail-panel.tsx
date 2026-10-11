@@ -38,9 +38,18 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
+  CARD_CONDITIONS,
+  DEFAULT_CARD_CONDITION,
+  isCardCondition,
+  toCardCondition,
+  type CardCondition,
   type PlayingCard,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
+import { usePriceSource } from "@/hooks/use-price-source";
+import { SaveBar } from "@/components/save-bar";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
+import { useScanDraft } from "@/features/cards/api/use-scan-draft";
 import {
   IconCheck,
   IconChevronUp,
@@ -66,6 +75,7 @@ export function CardDetailPanel({
   wasCorrected = false,
   isFoil = false,
   foilType,
+  condition,
   binNumber,
   onPrev,
   onNext,
@@ -106,12 +116,24 @@ export function CardDetailPanel({
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
   const { addCard } = useScannedCards();
-  const { correctCard, confirmCard, setCardFoilType } = useCardDetailActions();
+  const { correctCard, confirmCard, setCardFoilType, setCardCondition } =
+    useCardDetailActions();
+  const { priceOf, format, conditionMultipliers } = usePriceSource();
   const canConfirm =
     !!scanId && (needsReview || !!alternativeMatches?.length) && !wasCorrected;
   const collection = useCardDetailCollection();
   const foilOptions = useFoilOptions();
-  const currentFoilType = foilType ?? (isFoil ? t("foil") : null);
+  const scanDraft = useScanDraft({
+    scanId,
+    savedFoilType: foilType ?? (isFoil ? t("foil") : null),
+    savedCondition: toCardCondition(condition),
+    setCardFoilType,
+    setCardCondition,
+  });
+  const currentFoilType = scanDraft.foilType;
+  const currentCondition = scanDraft.condition;
+  const draftIsFoil = currentFoilType != null;
+  const { runAfterCommit } = scanDraft;
 
   useEffect(() => {
     if (!currentCard) return;
@@ -152,7 +174,7 @@ export function CardDetailPanel({
       }
       correctCard(scanId, card);
       if (reviewMode && !stay) {
-        goToNextInReview();
+        runAfterCommit(goToNextInReview);
         return;
       }
       setCandidates((prev) =>
@@ -171,6 +193,7 @@ export function CardDetailPanel({
       stopEditing,
       reviewMode,
       goToNextInReview,
+      runAfterCommit,
     ],
   );
 
@@ -190,15 +213,21 @@ export function CardDetailPanel({
   const startEditing = () => setEditing(true);
 
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
+  const conditionTriggerRef = useRef<HTMLButtonElement>(null);
+  const conditionPrice = selectedCard
+    ? priceOf(selectedCard, draftIsFoil, currentCondition)
+    : null;
+  const conditionHandler = (value: CardCondition) =>
+    isViewing && scanId ? () => scanDraft.setCondition(value) : undefined;
 
   const toggleFoil = () => {
     if (!scanId) return;
-    setCardFoilType(scanId, currentFoilType ? null : foilOptions[0]);
+    scanDraft.setFoilType(currentFoilType ? null : foilOptions[0]);
   };
 
   const acceptInReview = () => {
     if (canConfirm && scanId) confirmCard(scanId);
-    goToNextInReview();
+    runAfterCommit(goToNextInReview);
   };
 
   const requestRemove =
@@ -210,6 +239,11 @@ export function CardDetailPanel({
       cardNext: isViewing && hasNext ? onNext : undefined,
       cardCorrect: isViewing ? startEditing : undefined,
       cardToggleFoil: isViewing && scanId ? toggleFoil : undefined,
+      cardConditionNM: conditionHandler("NM"),
+      cardConditionLP: conditionHandler("LP"),
+      cardConditionMP: conditionHandler("MP"),
+      cardConditionHP: conditionHandler("HP"),
+      cardConditionDMG: conditionHandler("DMG"),
       cardClose: editing ? stopEditing : onClose,
       reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
       cardRemove: isViewing ? requestRemove : undefined,
@@ -417,7 +451,7 @@ export function CardDetailPanel({
                         alt={selectedCard?.name}
                         className="w-full h-full object-cover"
                       />
-                      {isFoil && <FoilOverlay />}
+                      {draftIsFoil && <FoilOverlay />}
                     </div>
                   </figure>
                 </div>
@@ -425,7 +459,10 @@ export function CardDetailPanel({
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
                     <DetailSection title={t("cardDetailPanel.prices")}>
-                      <CardPriceDetails card={selectedCard} isFoil={isFoil} />
+                      <CardPriceDetails
+                        card={selectedCard}
+                        isFoil={draftIsFoil}
+                      />
                     </DetailSection>
 
                     <DetailSection title={t("cardDetailPanel.details")}>
@@ -456,8 +493,7 @@ export function CardDetailPanel({
                             value={currentFoilType ?? "none"}
                             onValueChange={(value) => {
                               if (scanId) {
-                                setCardFoilType(
-                                  scanId,
+                                scanDraft.setFoilType(
                                   value === "none" ? null : value,
                                 );
                               }
@@ -484,6 +520,47 @@ export function CardDetailPanel({
                               ))}
                             </SelectContent>
                           </Select>
+                        </div>
+                        <div className="flex flex-col gap-1.5">
+                          <Label>{t("condition.label")}</Label>
+                          <Select
+                            value={currentCondition}
+                            onValueChange={(value) => {
+                              if (scanId && isCardCondition(value)) {
+                                scanDraft.setCondition(value);
+                              }
+                            }}
+                            disabled={!scanId}
+                            onOpenChangeComplete={(open) => {
+                              if (!open) conditionTriggerRef.current?.blur();
+                            }}
+                          >
+                            <SelectTrigger
+                              ref={conditionTriggerRef}
+                              className="w-40"
+                            >
+                              <SelectValue>
+                                {t(`condition.names.${currentCondition}`)}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {CARD_CONDITIONS.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {t(`condition.names.${option}`)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {conditionPrice != null &&
+                            currentCondition !== DEFAULT_CARD_CONDITION && (
+                              <p className="text-2xs text-foreground/70">
+                                {t("condition.priceHint", {
+                                  price: format(conditionPrice),
+                                  percent:
+                                    conditionMultipliers[currentCondition],
+                                })}
+                              </p>
+                            )}
                         </div>
                         {binNumber != null && (
                           <div className="flex flex-col gap-1.5">
@@ -592,6 +669,16 @@ export function CardDetailPanel({
           onConfirm={onRemove}
         />
       )}
+      <SaveBar
+        show={scanDraft.isDirty}
+        isSaving={scanDraft.isSaving}
+        onSave={scanDraft.save}
+        onDiscard={scanDraft.discard}
+      />
+      <UnsavedChangesGuard
+        isDirty={scanDraft.isDirty}
+        onDiscard={scanDraft.discard}
+      />
     </div>
   );
 }

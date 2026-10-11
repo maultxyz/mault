@@ -67,7 +67,7 @@ export function StorageCardList({
           </TableHeader>
           <TableBody>
             {entries.map((entry) => {
-              const price = priceOf(entry.card, entry.isFoil);
+              const price = priceOf(entry.card, entry.isFoil, entry.condition);
               return (
                 <TableRow
                   key={entry.scanId}

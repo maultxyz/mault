@@ -16,11 +16,13 @@ import {
   IconCheck,
   IconCopy,
   IconExternalLink,
+  IconRosette,
   IconSparkles,
   IconSquareCheck,
   IconSquare,
   IconTrash,
 } from "@tabler/icons-react";
+import { CARD_CONDITIONS } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 export function CardContextMenu({
@@ -35,8 +37,10 @@ export function CardContextMenu({
     canConfirm,
     currentFoil,
     foilOptions,
+    currentCondition,
     confirm,
     setFoil,
+    setCondition,
     copyName,
     remove,
   } = useCardActions(entry);
@@ -86,6 +90,27 @@ export function CardContextMenu({
                   <span className="size-3.5" />
                 )}
                 {option}
+              </ContextMenuItem>
+            ))}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>
+            <IconRosette />
+            {t("condition.label")}
+          </ContextMenuSubTrigger>
+          <ContextMenuSubContent>
+            {CARD_CONDITIONS.map((option) => (
+              <ContextMenuItem
+                key={option}
+                onClick={() => setCondition(option)}
+              >
+                {currentCondition === option ? (
+                  <IconCheck />
+                ) : (
+                  <span className="size-3.5" />
+                )}
+                {t(`condition.names.${option}`)}
               </ContextMenuItem>
             ))}
           </ContextMenuSubContent>

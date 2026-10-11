@@ -1,3 +1,4 @@
+import type { ConditionMultipliers } from "./card-condition.interface";
 import type { PriceSource } from "./price-source.interface";
 
 export interface OrgSettings {
@@ -12,5 +13,6 @@ export interface OrgSettings {
   leaderboardOptIn: boolean;
   correctionAutoCloseSeconds: number | null;
   priceSource: PriceSource;
+  conditionMultipliers: ConditionMultipliers;
   discordGuildId: string | null;
 }

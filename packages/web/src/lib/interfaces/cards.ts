@@ -1,4 +1,5 @@
 import type {
+  CardCondition,
   CardFilters,
   CardSetOption,
   Collection,
@@ -158,6 +159,7 @@ export interface ScannedCardItemProps {
   wasCorrected?: boolean;
   isFoil?: boolean;
   foilType?: string;
+  condition?: CardCondition;
   isDownloaded?: boolean;
   quantity?: number;
   showBinLocation?: boolean;
@@ -171,6 +173,7 @@ export interface ScannedCardTableRow {
   quantity: number;
   isFoil?: boolean;
   foilType?: string;
+  condition?: CardCondition;
   isDownloaded?: boolean;
   hasAlternatives?: boolean;
   needsReview?: boolean;
@@ -200,11 +203,15 @@ export interface GroupedEntry {
   quantity: number;
   isFoil: boolean;
   foilType?: string;
+  condition: CardCondition;
 }
 
 export type GroupBy = "card" | "card-foil";
 
-export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType">;
+export type ExportableCard = Pick<
+  ScannedCard,
+  "card" | "isFoil" | "foilType" | "condition"
+>;
 
 export interface ExportAdapter {
   key: string;
@@ -317,6 +324,15 @@ export interface CardDetailActions {
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
+  setCardCondition: (scanId: string, condition: CardCondition) => void;
+}
+
+export interface ScanDraftOptions {
+  scanId?: string;
+  savedFoilType: string | null;
+  savedCondition: CardCondition;
+  setCardFoilType: CardDetailActions["setCardFoilType"];
+  setCardCondition: CardDetailActions["setCardCondition"];
 }
 
 export interface CardDetailScope {
@@ -334,6 +350,7 @@ export interface CardDetailPanelProps {
   wasCorrected?: boolean;
   isFoil?: boolean;
   foilType?: string;
+  condition?: CardCondition;
   binNumber?: number;
   onPrev?: () => void;
   onNext?: () => void;

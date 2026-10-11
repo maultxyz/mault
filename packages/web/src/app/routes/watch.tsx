@@ -4,7 +4,11 @@ import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-sessi
 import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
 import { WATCH_TOKEN_PARAM } from "@/lib/constants/nav";
-import { DEFAULT_PRICE_SOURCE } from "@magic-vault/shared";
+import {
+  DEFAULT_ORG_PRICING,
+  toConditionMultipliers,
+  type OrgPricing,
+} from "@magic-vault/shared";
 import { publicQueryClient } from "@/lib/query-client";
 import type { WatchLinkState } from "@/lib/interfaces/collections";
 import { IconLinkOff, IconLoader2 } from "@tabler/icons-react";
@@ -52,6 +56,16 @@ export default function WatchPage() {
     () => ({ collectionGuid: collectionGuid ?? "", shareToken: token }),
     [collectionGuid, token],
   );
+  const linkInfo = link.status === "valid" ? link.info : undefined;
+  const pricing = useMemo<OrgPricing>(
+    () => ({
+      source: linkInfo?.priceSource ?? DEFAULT_ORG_PRICING.source,
+      conditionMultipliers: toConditionMultipliers(
+        linkInfo?.conditionMultipliers,
+      ),
+    }),
+    [linkInfo?.priceSource, linkInfo?.conditionMultipliers],
+  );
 
   useEffect(() => {
     if (session.status === "error") setCheckCount((n) => n + 1);
@@ -79,7 +93,7 @@ export default function WatchPage() {
 
   return (
     <QueryClientProvider client={publicQueryClient}>
-      <PriceSourceProvider value={link.info.priceSource ?? DEFAULT_PRICE_SOURCE}>
+      <PriceSourceProvider value={pricing}>
       <div className="flex h-dvh flex-col bg-background">
         <header className="flex items-center gap-2 border-b px-3 py-2">
           <p className="truncate text-sm font-semibold">

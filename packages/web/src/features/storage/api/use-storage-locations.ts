@@ -1,5 +1,6 @@
 import {
   confirmCollectionCard,
+  setCollectionCardCondition,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -16,6 +17,7 @@ import {
 import type { CardDetailActions } from "@/lib/interfaces/cards";
 import { toast } from "@/lib/toast";
 import type {
+  CardCondition,
   PlayingCard,
   PlayingCardWithDistance,
   Result,
@@ -254,12 +256,44 @@ export function useSetStoredCardFoilType() {
   };
 }
 
+export function useSetStoredCardCondition() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: ({
+      entry,
+      condition,
+    }: {
+      entry: StorageLocationSearchResult;
+      condition: CardCondition;
+    }) =>
+      setCollectionCardCondition(entry.collectionGuid, entry.scanId, condition),
+    onMutate: ({ entry, condition }) =>
+      patchStoredCard(queryClient, entry, { condition }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, { entry }) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    setCondition: (
+      entry: StorageLocationSearchResult,
+      condition: CardCondition,
+    ) => mutation.mutate({ entry, condition }),
+  };
+}
+
 export function useStoredCardActions(
   entry: StorageLocationSearchResult | null,
 ): CardDetailActions {
   const { correctCard } = useCorrectStoredCard();
   const { confirmCard } = useConfirmStoredCard();
   const { setFoilType } = useSetStoredCardFoilType();
+  const { setCondition } = useSetStoredCardCondition();
 
   return {
     correctCard: (_scanId, card) => {
@@ -270,6 +304,9 @@ export function useStoredCardActions(
     },
     setCardFoilType: (_scanId, foilType) => {
       if (entry) setFoilType(entry, foilType);
+    },
+    setCardCondition: (_scanId, condition) => {
+      if (entry) setCondition(entry, condition);
     },
   };
 }

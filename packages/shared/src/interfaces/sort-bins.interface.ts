@@ -64,6 +64,7 @@ export interface BinConfig {
   cardLimit?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  overflowBin?: number | null;
   isDisabled?: boolean;
   lastEmptiedAt?: number | null;
 }
@@ -120,6 +121,7 @@ export type DefaultBinInit = {
   cardLimit: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  overflowBin?: number | null;
   isDisabled?: boolean;
 };
 

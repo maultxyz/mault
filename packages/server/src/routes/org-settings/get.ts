@@ -1,5 +1,6 @@
 import {
   toCorrectionAutoCloseSeconds,
+  toConditionMultipliers,
   toPriceSource,
   type OrgSettings,
 } from "@magic-vault/shared";
@@ -39,6 +40,9 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
               row?.correctionAutoCloseSeconds,
             ),
             priceSource: toPriceSource(row?.priceSource),
+            conditionMultipliers: toConditionMultipliers(
+              row?.conditionMultipliers,
+            ),
             discordGuildId: row?.discordGuildId ?? null,
           } satisfies OrgSettings,
         };

@@ -17,6 +17,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
+import { CARD_CONDITIONS } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function MobileCardActionsBody({
@@ -29,6 +30,8 @@ function MobileCardActionsBody({
     canConfirm,
     currentFoil,
     foilOptions,
+    currentCondition,
+    setCondition,
     confirm,
     setFoil,
     copyName,
@@ -105,6 +108,25 @@ function MobileCardActionsBody({
               onClick={run(() => setFoil(option))}
             >
               {option ?? t("cardContextMenu.nonFoil")}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <p className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+          {t("condition.label")}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {CARD_CONDITIONS.map((option) => (
+            <Button
+              key={option}
+              variant={
+                currentCondition === option ? "outline-selected" : "outline"
+              }
+              onClick={run(() => setCondition(option))}
+            >
+              {option}
             </Button>
           ))}
         </div>

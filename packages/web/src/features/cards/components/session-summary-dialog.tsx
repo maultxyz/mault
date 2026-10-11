@@ -440,7 +440,8 @@ export function SessionSummaryDialog({
   gridFilterCount,
 }: SessionSummaryDialogProps) {
   const { t } = useTranslation("cards");
-  const { source: priceSource, format } = usePriceSource();
+  const { source: priceSource, conditionMultipliers, format } =
+    usePriceSource();
   const [includeDownloaded, setIncludeDownloaded] = useState(false);
   const [applyGridFilters, setApplyGridFilters] = useState(false);
   const [combineDuplicates, setCombineDuplicates] = useState(true);
@@ -466,8 +467,8 @@ export function SessionSummaryDialog({
       : byDownloaded;
   }, [cards, includeDownloaded, applyGridFilters, gridFilters]);
   const stats = useMemo(
-    () => computeStats(cards, priceSource),
-    [cards, priceSource],
+    () => computeStats(cards, priceSource, conditionMultipliers),
+    [cards, priceSource, conditionMultipliers],
   );
   const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
   const { fieldDefinitions } = useBinConfigs();

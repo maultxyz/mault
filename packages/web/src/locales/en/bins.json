@@ -6,6 +6,10 @@
     "message": "This collection has no game assigned, so there are no card fields to build bin rules from. Recreate the collection and select a game to enable sorting."
   },
   "binCard": {
+    "overflow": "Overflow",
+    "overflowFor_one": "Overflow for bin {{bins}}",
+    "overflowFor_other": "Overflow for bins {{bins}}",
+    "overflowsTo": "Overflows to bin {{number}}",
     "chaosFill": "Fills in turn",
     "override": "Override",
     "disabled": "Disabled",
@@ -26,6 +30,12 @@
     "scanOnlyEverything": "Scanned and unidentified cards go here"
   },
   "binConfigPanel": {
+    "overflowLabel": "When full, overflow to",
+    "overflowNone": "Don't overflow",
+    "overflowDescription": "When this bin is full or at its copy limit, cards that match it go to the bin you pick instead of pausing the scan. Only bins without rules of their own can be picked, and a bin can't have its own rules while it's an overflow.",
+    "overflowNoOptions": "No free bins. Clear a bin's rules to use it as an overflow.",
+    "overflowTargetNotice_one": "This bin is the overflow for bin {{bins}}. Cards land here when that bin is full, so it can't have rules of its own. Change the overflow on bin {{bins}} to give this bin rules again.",
+    "overflowTargetNotice_other": "This bin is the overflow for bins {{bins}}. Cards land here when those bins are full, so it can't have rules of its own. Change their overflow to give this bin rules again.",
     "overrideLabel": "Override rules",
     "disabledLabel": "Disable this bin",
     "disabledDescription": "Cards never go here. They move on to the next bin that matches, or the catch-all.",

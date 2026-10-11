@@ -37,6 +37,7 @@ export function MonitorCardDetail({
       wasCorrected={entry.corrected}
       isFoil={entry.isFoil}
       foilType={entry.foilType}
+      condition={entry.condition}
       binNumber={entry.binNumber}
       onClose={onClose}
       onRemove={() => {

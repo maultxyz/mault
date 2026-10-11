@@ -25,6 +25,7 @@ export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
 export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
   card: collectionCards.card,
   isFoil: collectionCards.isFoil,
+  condition: collectionCards.condition,
   cardId: collectionCards.cardId,
   collectionId: collectionCards.collectionId,
 };
@@ -32,6 +33,7 @@ export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
 export const CC_ALIAS_SQL_COLUMNS: ScannedCardSqlColumns = {
   card: sql`cc.card`,
   isFoil: sql`cc.is_foil`,
+  condition: sql`cc.condition`,
   cardId: sql`cc.card_id`,
   collectionId: sql`cc.collection_id`,
 };

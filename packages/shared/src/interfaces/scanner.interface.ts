@@ -3,6 +3,7 @@ import type {
   SearchNoMatchReason,
 } from "./api.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
+import type { CardCondition } from "./card-condition.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
 
 export interface Point {
@@ -78,6 +79,7 @@ export interface ScannedCard {
   alternativeMatches?: PlayingCardWithDistance[];
   isFoil?: boolean;
   foilType?: string;
+  condition?: CardCondition;
   isDownloaded?: boolean;
   corrected?: boolean;
   needsReview?: boolean;

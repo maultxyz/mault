@@ -16,7 +16,7 @@ import {
 import { scannedCardPriceSql } from "./card-price-sql";
 import { ONE_DAY_MS } from "./constants/timing";
 import type { StatsReportRow } from "./interfaces/stats";
-import { loadOrgPriceSource } from "./price-source";
+import { loadOrgPricing } from "./price-source";
 
 function priceBucketsSql(): SQL {
   const buckets = STATS_PRICE_BUCKETS.map(({ key, min, max }) => {
@@ -41,8 +41,8 @@ export async function loadStatsReport(
     : null;
   if (collectionGuid && !collection) return null;
 
-  const priceSource = await loadOrgPriceSource(tx, orgId);
-  const cardPrice = scannedCardPriceSql(priceSource);
+  const pricing = await loadOrgPricing(tx, orgId);
+  const cardPrice = scannedCardPriceSql(pricing);
   const days = STATS_RANGE_DAYS[range];
   const bucket = days >= STATS_WEEKLY_BUCKET_MIN_DAYS ? "week" : "day";
   const unit = sql.raw(`'${bucket}'`);
@@ -153,7 +153,7 @@ export async function loadStatsReport(
   const row = result.rows[0] as unknown as StatsReportRow;
 
   const breakdown = collection
-    ? (await loadCardStats(tx, collection, sql`true`, priceSource)).all
+    ? (await loadCardStats(tx, collection, sql`true`, pricing)).all
     : null;
 
   return {

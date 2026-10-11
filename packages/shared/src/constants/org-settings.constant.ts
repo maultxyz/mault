@@ -1,4 +1,5 @@
 import type { OrgSettings } from "../interfaces/org-settings.interface";
+import { DEFAULT_CONDITION_MULTIPLIERS } from "./card-condition.constant";
 import { DEFAULT_PRICE_SOURCE } from "./price-source.constant";
 
 export const DEFAULT_ORG_SETTINGS: OrgSettings = {
@@ -13,5 +14,6 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   leaderboardOptIn: false,
   correctionAutoCloseSeconds: null,
   priceSource: DEFAULT_PRICE_SOURCE,
+  conditionMultipliers: DEFAULT_CONDITION_MULTIPLIERS,
   discordGuildId: null,
 };

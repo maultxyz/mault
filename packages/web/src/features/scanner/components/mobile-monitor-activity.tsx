@@ -56,7 +56,7 @@ export function MobileMonitorActivity({
           </h3>
           <ul className={MOBILE_LIST_CLASS}>
             {recent.map((entry) => {
-              const price = priceOf(entry.card, entry.isFoil);
+              const price = priceOf(entry.card, entry.isFoil, entry.condition);
               const content = (
                 <>
                   <div className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-md border bg-muted">

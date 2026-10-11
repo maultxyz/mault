@@ -87,7 +87,7 @@ export function ScannedCardTable({
           const { card } = row;
           const matchPercent =
             card.distance != null ? getMatchPercent(card) : 0;
-          const displayPrice = priceOf(card, row.isFoil);
+          const displayPrice = priceOf(card, row.isFoil, row.condition);
           const rarityLabel =
             RARITY_LABELS[card.rarity] ??
             card.rarity.charAt(0).toUpperCase() + card.rarity.slice(1);

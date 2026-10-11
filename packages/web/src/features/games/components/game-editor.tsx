@@ -1,3 +1,4 @@
+import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { SaveBar } from "@/components/save-bar";
 import {
   SettingsSection,
@@ -264,11 +265,11 @@ export function GameEditor({ game }: GameEditorProps) {
         show={isDirty}
         formId={GAME_FORM_ID}
         isSaving={isSubmitting}
-        onDiscard={() => reset()}
+        onDiscard={() => reset(undefined, DISCARD_RESET_OPTIONS)}
       />
       <UnsavedChangesGuard
         isDirty={isDirty && !isSubmitting}
-        onDiscard={() => reset()}
+        onDiscard={() => reset(undefined, DISCARD_RESET_OPTIONS)}
       />
     </div>
   );

@@ -1,10 +1,11 @@
-import type {
-  Collection,
-  FieldMeta,
-  PlayingCardWithDistance,
-  ScannedCard,
-  UnmatchedCard,
-  UnmatchedScanDiagnostics,
+import {
+  toCardCondition,
+  type Collection,
+  type FieldMeta,
+  type PlayingCardWithDistance,
+  type ScannedCard,
+  type UnmatchedCard,
+  type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { and, count, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
@@ -62,6 +63,7 @@ export function toScannedCard(row: {
   capturedImageDataUrl?: string | null;
   isFoil?: boolean | null;
   foilType?: string | null;
+  condition?: string | null;
   isDownloaded?: boolean | null;
   alternativeMatches?: unknown;
   isCorrected?: boolean | null;
@@ -75,6 +77,7 @@ export function toScannedCard(row: {
     capturedImageUrl: row.capturedImageDataUrl ?? undefined,
     isFoil: row.isFoil ?? undefined,
     foilType: row.foilType ?? undefined,
+    condition: toCardCondition(row.condition),
     isDownloaded: row.isDownloaded ?? undefined,
     alternativeMatches:
       (row.alternativeMatches as PlayingCardWithDistance[] | null) ?? undefined,

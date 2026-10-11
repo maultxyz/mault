@@ -1,5 +1,9 @@
 import {
+  CARD_CONDITIONS,
+  DEFAULT_CARD_CONDITION,
+  isConditionMultiplier,
   isPriceSource,
+  toConditionMultipliers,
   toCorrectionAutoCloseSeconds,
   toPriceSource,
 } from "@magic-vault/shared";
@@ -28,6 +32,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       leaderboardOptIn?: boolean;
       correctionAutoCloseSeconds?: number | null;
       priceSource?: string;
+      conditionMultipliers?: Record<string, unknown>;
     }>();
     if (
       body.correctionAutoCloseSeconds != null &&
@@ -41,6 +46,19 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
     if ("priceSource" in body && !isPriceSource(body.priceSource)) {
       return c.json(
         { success: false, message: "Invalid price source." },
+        400,
+      );
+    }
+    if (
+      "conditionMultipliers" in body &&
+      CARD_CONDITIONS.some(
+        (condition) =>
+          condition !== DEFAULT_CARD_CONDITION &&
+          !isConditionMultiplier(body.conditionMultipliers?.[condition]),
+      )
+    ) {
+      return c.json(
+        { success: false, message: "Invalid condition multipliers." },
         400,
       );
     }
@@ -95,6 +113,11 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           priceSource: toPriceSource(
             "priceSource" in body ? body.priceSource : existing?.priceSource,
           ),
+          conditionMultipliers: toConditionMultipliers(
+            "conditionMultipliers" in body
+              ? body.conditionMultipliers
+              : existing?.conditionMultipliers,
+          ),
         };
         await tx
           .insert(orgSettings)
@@ -121,6 +144,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
             leaderboardOptIn: merged.leaderboardOptIn,
             correctionAutoCloseSeconds: merged.correctionAutoCloseSeconds,
             priceSource: merged.priceSource,
+            conditionMultipliers: merged.conditionMultipliers,
             discordGuildId: existing?.discordGuildId ?? null,
           },
         };

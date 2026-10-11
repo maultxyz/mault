@@ -1,4 +1,5 @@
 import type { PlayingCardWithDistance } from "./card.interface";
+import type { CardCondition } from "./card-condition.interface";
 
 export interface StorageLocation {
   guid: string;
@@ -23,6 +24,7 @@ export interface StorageLocationCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  condition: CardCondition;
   needsReview: boolean;
   corrected: boolean;
 }
@@ -35,6 +37,7 @@ export interface StorageLocationExportCard {
   card: PlayingCardWithDistance;
   isFoil: boolean;
   foilType: string | null;
+  condition: CardCondition;
 }
 
 export interface StorageLocationSearchResult extends StorageLocationCard {

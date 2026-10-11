@@ -1,0 +1,1 @@
+ALTER TABLE "bins" ADD COLUMN "overflow_bin" integer;

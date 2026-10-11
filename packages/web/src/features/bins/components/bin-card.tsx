@@ -25,6 +25,8 @@ export function BinCard({
   isScanOnlyTarget,
   isChaosMode,
   alphabetLetter,
+  showOverflow,
+  overflowSources = [],
   disabled,
   onClick,
 }: BinCardProps) {
@@ -35,6 +37,9 @@ export function BinCard({
     : null;
   const conditionCount = countConditions(config);
   const isDisabled = !config.isCatchAll && !!config.isDisabled;
+  const isOverflow = !config.isCatchAll && overflowSources.length > 0;
+  const overflowTo =
+    showOverflow && !isDisabled ? (config.overflowBin ?? null) : null;
 
   return (
     <Button
@@ -72,7 +77,9 @@ export function BinCard({
             )}
           {config.isCatchAll ? (
             <Badge variant="default">{t("catchAll")}</Badge>
-          ) : isDisabled || isChaosMode ? null : alphabetLetter !== undefined ? (
+          ) : isDisabled || isChaosMode ? null : isOverflow ? (
+            <Badge variant="outline">{t("binCard.overflow")}</Badge>
+          ) : alphabetLetter !== undefined ? (
             alphabetLetter && (
               <Badge variant="secondary">{alphabetLetter}</Badge>
             )
@@ -117,6 +124,13 @@ export function BinCard({
           <p className="text-xs text-foreground/70">
             {t("binCard.disabledDescription")}
           </p>
+        ) : isOverflow ? (
+          <p className="text-xs">
+            {t("binCard.overflowFor", {
+              bins: overflowSources.join(", "),
+              count: overflowSources.length,
+            })}
+          </p>
         ) : isChaosMode ? (
           <p className="text-xs">{t("binCard.chaosFill")}</p>
         ) : alphabetLetter !== undefined ? (
@@ -135,6 +149,11 @@ export function BinCard({
           </p>
         ) : (
           <RuleSummary rules={config.rules} />
+        )}
+        {overflowTo != null && (
+          <p className="text-xs text-foreground/70">
+            {t("binCard.overflowsTo", { number: overflowTo })}
+          </p>
         )}
       </div>
     </Button>

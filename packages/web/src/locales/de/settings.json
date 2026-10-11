@@ -37,6 +37,11 @@
       "cardkingdom": "Card Kingdom"
     }
   },
+  "conditionPricing": {
+    "heading": "Preise nach Zustand",
+    "description": "Wie viel des Near-Mint-Preises eine Karte in jedem Zustand wert ist. Kartenwerte, Sammlungssummen, Statistiken und Lagerwerte verwenden diese Werte.",
+    "baseNote": "Near Mint ist immer der volle Marktpreis. Die Standardwerte entsprechen denen der meisten großen Händler."
+  },
   "sessionWrapped": {
     "heading": "Sitzungs-Rückblick",
     "description": "Zeigt vor der Exportübersicht einen Wrapped-artigen Rückblick mit Highlights.",
