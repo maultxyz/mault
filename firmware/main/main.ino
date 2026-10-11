@@ -207,6 +207,7 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 // Gap between consecutive servo moves in setAllNeutral(), so a full reset
 // doesn't start every servo at once and pull the supply down.
 #define SERVO_STAGGER_MS 25
+#define SELF_TEST_MODULE_SETTLE_MS 250
 
 // If a card sits at a module this long with no route in progress, something's
 // stuck - just report it. Paddle-flap recovery only happens while a route is
@@ -825,6 +826,24 @@ void setAllNeutral() {
   waitMs(200);
 }
 
+void testModule(int module) {
+  ModuleConfig& c = moduleConfig[module - 1];
+  setServoPosition(getChannel(module, 0), c.bottomOpen);
+  waitMs(SERVO_STAGGER_MS);
+  setServoPosition(getChannel(module, 1), c.paddleOpen);
+  waitMs(DELAY_PUSH);
+  setServoPosition(getChannel(module, 2), c.pusherLeft);
+  waitMs(DELAY_PUSH);
+  setServoPosition(getChannel(module, 2), c.pusherRight);
+  waitMs(DELAY_PUSH);
+  setServoPosition(getChannel(module, 2), c.pusherNeutral);
+  waitMs(SERVO_STAGGER_MS);
+  setServoPosition(getChannel(module, 1), c.paddleClosed);
+  waitMs(SERVO_STAGGER_MS);
+  setServoPosition(getChannel(module, 0), c.bottomClosed);
+  waitMs(SELF_TEST_MODULE_SETTLE_MS);
+}
+
 int getPositionPulse(int module, int servoOffset, const char* position) {
   ModuleConfig& c = moduleConfig[module - 1];
   if (servoOffset == 0) {
@@ -1146,24 +1165,10 @@ void runCommand(char* json, Print& reply) {
       return;
     }
 
-    for (int m = 1; m <= maxModuleForOffset(); m++) {
-      setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
-      setServoPosition(getChannel(m, 1), moduleConfig[m - 1].paddleOpen);
-    }
-    waitMs(DELAY_PUSH);
-
-    for (int m = 1; m <= maxModuleForOffset(); m++) {
-      setServoPosition(getChannel(m, 2), moduleConfig[m - 1].pusherLeft);
-    }
-    waitMs(DELAY_PUSH);
-
-    for (int m = 1; m <= maxModuleForOffset(); m++) {
-      setServoPosition(getChannel(m, 2), moduleConfig[m - 1].pusherRight);
-    }
-    waitMs(DELAY_PUSH);
-
     setAllNeutral();
-    waitMs(200);
+    for (int m = 1; m <= maxModuleForOffset(); m++) {
+      testModule(m);
+    }
 
     setServoPosition(getFeederChannel(), feederConfig.speed);
     waitMs(500);

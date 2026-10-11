@@ -71,7 +71,8 @@
     "dropCard": "Drop Card",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
-    "sampleRun": "Sample Run"
+    "sampleRun": "Sample Run",
+    "resetToNeutral": "Reset to neutral"
   },
   "feederCalibrationPanel": {
     "heading": "Feeder",

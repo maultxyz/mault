@@ -224,6 +224,7 @@
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "resetToNeutralTooltip": "Reset to neutral (closes every bottom and paddle, centers the pushers)",
     "foilTooltip": "Foil type for scanned cards: {{type}}",
     "setTooltip": "Set for scanned cards: {{set}}",
     "anySet": "Any set",
@@ -591,5 +592,12 @@
     "mostValuable": "Most valuable",
     "recentlyScanned": "Recently scanned",
     "seeAllStats": "See all stats"
+  },
+  "resetToNeutral": {
+    "done": "Sorter reset to neutral",
+    "failed": {
+      "title": "Couldn't reset the sorter",
+      "description": "The sorter didn't confirm the reset. Check the connection and try again."
+    }
   }
 }

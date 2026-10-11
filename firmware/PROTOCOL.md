@@ -214,10 +214,13 @@ neutral. → `{"status":"ok"}`
 ```json
 {"test": true}
 ```
-Runs a full self-test sequence: opens every module's bottom + paddle →
-sweeps every pusher left → sweeps every pusher right → resets all to
-neutral → briefly spins the feeder (500ms) → stops it.
-→ `{"status":"test_complete"}`
+Runs a full self-test sequence, one module at a time so only one module's
+servos draw current at once: resets all to neutral, then for each module
+opens its bottom + paddle → sweeps its pusher left → sweeps it right →
+returns it to neutral, then briefly spins the feeder (500ms) → stops it.
+Each servo's start is staggered, so the supply never sees every servo
+starting together. Takes roughly 2 s per module, so up to about 12 s on a
+5-module board. → `{"status":"test_complete"}`
 
 Refuses to run (and reports which module) if any module's gate sensor
 already reads a card present, since the sequence sweeps every

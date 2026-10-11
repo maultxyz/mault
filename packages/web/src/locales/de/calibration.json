@@ -71,7 +71,8 @@
     "dropCard": "Karte abwerfen",
     "binActive": "Fach {{bin}}…",
     "running": "Läuft…",
-    "sampleRun": "Testlauf"
+    "sampleRun": "Testlauf",
+    "resetToNeutral": "Grundstellung"
   },
   "feederCalibrationPanel": {
     "heading": "Zuführung",
