@@ -38,6 +38,19 @@ function getRawRoot(card: SourceCard): SourceCard | undefined {
   return raw && typeof raw === "object" ? (raw as SourceCard) : undefined;
 }
 
+function getFrontFace(root: SourceCard): SourceCard | undefined {
+  const faces = (root as { card_faces?: unknown }).card_faces;
+  const front = Array.isArray(faces) ? faces[0] : undefined;
+  return front && typeof front === "object" ? (front as SourceCard) : undefined;
+}
+
+function getRawValue(rawRoot: SourceCard, path: string): unknown {
+  const value = getByPath(rawRoot, path);
+  if (value !== undefined) return value;
+  const front = getFrontFace(rawRoot);
+  return front ? getByPath(front, path) : undefined;
+}
+
 export function getCardValue(
   card: SourceCard,
   field: BinCondition["field"],
@@ -47,7 +60,7 @@ export function getCardValue(
   if (!meta) return "";
 
   const rawRoot = getRawRoot(card);
-  const rawValue = rawRoot ? getByPath(rawRoot, meta.path) : undefined;
+  const rawValue = rawRoot ? getRawValue(rawRoot, meta.path) : undefined;
   const value = rawValue !== undefined ? rawValue : getByPath(card, meta.path);
 
   if (meta.type === "numeric") {
