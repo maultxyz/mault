@@ -178,6 +178,78 @@ docker compose --profile bot up --build  # + Discord bot
 
 `.env` must already point `DATABASE_URL`/`NEON_AUTH_URL` at a real Neon project — the `postgres` service in `docker-compose.yml` still starts alongside it, but sits unused since nothing points at it in this mode.
 
+### Deploying with Coolify
+
+Mault can be self-hosted with [Coolify](https://coolify.io/) using `docker-compose-coolify.yml`. This runs the web app, API, PostgreSQL with pgvector, and automatic price updates. No Neon account is required.
+
+#### 1. Add the repository
+
+1. Open your project and environment in Coolify, then select **+ New**.
+2. Choose **Public Repository**, or use a Git provider integration for a private repository.
+3. Enter the URL of the repository containing `docker-compose-coolify.yml` and select **Check Repository**.
+4. Select the branch containing the file.
+5. Choose **Docker Compose** as the build strategy.
+6. Set **Base Directory** to `/` and **Docker Compose Location** to `/docker-compose-coolify.yml`.
+7. Save and load the Compose configuration.
+
+#### 2. Configure the environment
+
+Coolify detects the variables referenced in the Compose file. Open **Environment Variables** and configure:
+
+| Variable | Value |
+| --- | --- |
+| `AUTH_PROVIDER` | `local` |
+| `VITE_AUTH_PROVIDER` | `local` |
+| `VITE_APP_ENV` | `local` |
+| `WEB_URL` | Your public origin, e.g. `https://mault.example.com`, without a trailing slash |
+| `POSTGRES_PASSWORD` | A strong database password |
+| `IMPERSONATION_SECRET` | A random secret |
+| `OWN_AUTH_TOKEN_PEPPER` | A separate random secret |
+
+Generate each password or secret separately, for example:
+
+```sh
+openssl rand -hex 32
+```
+
+Leave `VITE_API_URL` empty: the web container proxies `/api` requests to the API internally. The Neon variables can also remain empty when using local authentication.
+
+Other variables have defaults or enable optional features. Email, S3 storage, Discord and Rollbar can remain unconfigured. See `.env.docker.example` for details.
+
+The `VITE_*` values are embedded into the frontend during its build. Changing them requires rebuilding and redeploying the web image.
+
+#### 3. Configure the domain
+
+Point your domain’s DNS record at the Coolify server.
+
+In Coolify’s domain configuration, select the **web** service and route your domain to its internal port **80**, for example:
+
+```text
+https://mault.example.com:80
+```
+
+The `:80` suffix selects the container port; visitors still access `https://mault.example.com` over HTTPS.
+
+Set `WEB_URL` to the visitor-facing URL, without the internal port suffix. Only the web service needs a public domain.
+
+#### 4. Deploy
+
+Select **Deploy** and monitor the deployment logs. The API runs database migrations before starting, and the remaining application services wait for it to become healthy.
+
+Once deployment completes, open your configured domain.
+
+#### Optional Discord bot
+
+To enable Discord, configure `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and a random `BOT_API_SECRET`, then redeploy. The same `BOT_API_SECRET` is supplied to both the API and bot automatically.
+
+When the Discord credentials are empty, the bot container remains idle.
+
+#### Persistent data
+
+PostgreSQL data is stored in the `mault-postgres` named volume. Preserve this volume when updating the application and back it up regularly.
+
+For an existing database, changing `POSTGRES_PASSWORD` in Coolify does not update the database role’s password. Update the database password separately and keep the application’s setting in sync. Preserve `OWN_AUTH_TOKEN_PEPPER` between deployments; changing it invalidates existing sessions.
+
 ## Hardware
 
 The full bill of materials, wiring diagrams, and assembly instructions live in the app at `/build`. In short:
