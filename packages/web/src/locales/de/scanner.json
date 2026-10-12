@@ -262,7 +262,8 @@
     "simulateNoMatch": "Nicht erkannte Karte simulieren",
     "showUnmatchedRateToast": "Warnung zu nicht erkannten Karten zeigen",
     "forceCpu": "CPU erzwingen (ohne WebGPU)",
-    "forceError": "Fehler erzwingen"
+    "forceError": "Fehler erzwingen",
+    "ignoreIrSensors": "IR-Sensoren ignorieren (ohne Sortieren)"
   },
   "scannerMenu": {
     "camera": "Kamera",

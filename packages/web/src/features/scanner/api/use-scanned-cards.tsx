@@ -91,6 +91,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useCollectionLocks } from "@/lib/app-stream";
+import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,
@@ -204,11 +205,13 @@ export function ScannedCardsProvider({
   const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
   const selectedSetRef = useRef(selectedSet);
   const binContentsRef = useRef<BinContentCard[]>([]);
+  const [ignoreIrSensors] = useIgnoreIrSensors();
   const serialRef = useRef({
     sendRoute,
     sendRequest,
     isConnected,
     isReady,
+    ignoreIrSensors,
   });
   const activeCollectionRef = useRef(activeCollection);
   const emptyCollectionRef = useRef(emptyCollection);
@@ -282,8 +285,9 @@ export function ScannedCardsProvider({
       sendRequest,
       isConnected,
       isReady,
+      ignoreIrSensors,
     };
-  }, [sendRoute, sendRequest, isConnected, isReady]);
+  }, [sendRoute, sendRequest, isConnected, isReady, ignoreIrSensors]);
 
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
@@ -647,7 +651,8 @@ export function ScannedCardsProvider({
       if (
         matchedBin &&
         serialRef.current.isConnected &&
-        serialRef.current.isReady
+        serialRef.current.isReady &&
+        !serialRef.current.ignoreIrSensors
       ) {
         void routeCardToBin({
           route: resolveRoute(matchedBin.binNumber),
@@ -787,7 +792,8 @@ export function ScannedCardsProvider({
     if (
       catchAll &&
       serialRef.current.isConnected &&
-      serialRef.current.isReady
+      serialRef.current.isReady &&
+      !serialRef.current.ignoreIrSensors
     ) {
       void routeCardToBin({
         route: resolveRoute(catchAll.binNumber),

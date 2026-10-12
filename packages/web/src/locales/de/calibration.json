@@ -433,11 +433,18 @@
       "module": "Modul {{module}} von {{total}} · {{servo}}",
       "irSensors": "Sensoren",
       "feeder": "Zuführung",
-      "test": "Selbsttest"
+      "test": "Selbsttest",
+      "moduleDelays": "Modul {{module}} von {{total}} · Timing"
     },
     "partsHeading": "Die Teile, die du einstellst",
     "aboutPart": "Über: {{servo}}",
-    "howToSet": "So stellst du es ein"
+    "howToSet": "So stellst du es ein",
+    "moduleDelays": {
+      "heading": "Timing",
+      "body": "Diese Verzögerungen steuern, wie eine Karte von diesem Modul geschoben wird. Die Standardwerte passen für die meisten Sortierer. Ändere sie nur, wenn Karten geschoben werden, bevor die Klappe unten ist, oder der Schieber zu früh zurückfährt. Die Info-Symbole erklären jeden Wert.",
+      "testHint": "Mit dem Schiebetest siehst du einen kompletten Schiebevorgang mit diesen Werten. Er läuft auf einem leeren Modul.",
+      "offlineHint": "Schiebetests brauchen einen verbundenen Sortierer. Du kannst diese Werte später auf der Kalibrierungsseite anpassen."
+    }
   },
   "connectionSettings": {
     "title": "Verbindung",

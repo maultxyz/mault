@@ -18,10 +18,16 @@ import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import { useModuleCountConfig } from "@/features/calibration/api/use-module-count-config";
 import { useSetupWizard } from "@/features/calibration/api/use-setup-wizard";
+import {
+  ModuleDelayControl,
+  PushTestControl,
+} from "@/features/calibration/components/module-calibration-grid";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   emptySetupIrSeen,
+  MODULE_DELAY_FIELDS,
   PUSHER_SUGGESTED_OFFSET_PERCENT,
   pulseToPercent,
   pulseToSignedPercent,
@@ -48,7 +54,9 @@ import type {
   SetupTestState,
   SetupWizardStep,
   Device,
+  ModuleDelayField,
 } from "@/lib/interfaces/calibration";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import {
   CHANNEL_OFFSET,
@@ -78,6 +86,7 @@ function buildSteps(
     for (const position of SETUP_SERVO_POSITIONS) {
       steps.push({ kind: "servo", module, position });
     }
+    steps.push({ kind: "moduleDelays", module });
   }
   if (isOffline) steps.push({ kind: "feeder" });
   else steps.push({ kind: "irSensors" }, { kind: "feeder" }, { kind: "test" });
@@ -90,8 +99,16 @@ export function DeviceSetupWizard() {
   const device = useDevice();
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const { sendCommand, sendRequest, sendTest, runTest, isReady } =
-    useSerial();
+  const {
+    sendCommand,
+    sendRequest,
+    sendTest,
+    sendPushTest,
+    runTest,
+    isReady,
+    isConnected,
+  } = useSerial();
+  const { resetToNeutral } = useResetToNeutral();
   const { configs, saveConfig, moveServo } = useModuleConfigs();
   const {
     feederConfig,
@@ -108,6 +125,9 @@ export function DeviceSetupWizard() {
   const [testError, setTestError] = useState<string | null>(null);
   const [irReading, setIrReading] = useState<SetupIrReading | null>(null);
   const [irSeen, setIrSeen] = useState<SetupIrSeen>(emptySetupIrSeen);
+  const [pushTestingModule, setPushTestingModule] = useState<number | null>(
+    null,
+  );
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -222,6 +242,51 @@ export function DeviceSetupWizard() {
     );
   };
 
+  const handleDelayChange = (
+    module: number,
+    field: ModuleDelayField,
+    value: number,
+  ) => {
+    setDrafts((prev) => ({
+      ...prev,
+      [module]: { ...calibrationFor(module), [field]: value },
+    }));
+  };
+
+  const handlePushTest = async (
+    module: number,
+    direction: "left" | "right",
+  ) => {
+    setPushTestingModule(module);
+    try {
+      const cal = calibrationFor(module);
+      await sendRequest({ setConfig: { module, ...cal } });
+      if (!(await resetToNeutral())) return;
+      const response = await sendPushTest({
+        module,
+        direction,
+        paddleOpenDelay: cal.paddleOpenDelay,
+        pusherHoldDuration: cal.pusherHoldDuration,
+        paddleCloseDelay: cal.paddleCloseDelay,
+      });
+      if (!response) {
+        toast.error(t("useCalibrationPage.toasts.pushTestFailed"), {
+          description: t("toasts.noResponse"),
+        });
+      } else if (typeof response === "object" && "error" in response) {
+        const error = (response as { error: string }).error;
+        toast.error(t("useCalibrationPage.toasts.pushTestFailed"), {
+          description:
+            error === "unknown command"
+              ? t("useCalibrationPage.toasts.pushTestUnsupported")
+              : error,
+        });
+      }
+    } finally {
+      setPushTestingModule(null);
+    }
+  };
+
   const handleFeederChange = (signedPercent: number) => {
     const pulse = signedPercentToPulse(signedPercent);
     setFeederSpeed(pulse);
@@ -245,9 +310,9 @@ export function DeviceSetupWizard() {
         next.module !== module ||
         next.position.servo !== position.servo;
       if (servoDone) moveServo(module, position.servo, cal[position.restKey]);
-      if (next?.kind !== "servo" || next.module !== module) {
-        await saveConfig(module, cal);
-      }
+    }
+    if (step.kind === "moduleDelays") {
+      await saveConfig(step.module, calibrationFor(step.module));
     }
     if (step.kind === "feeder") {
       void sendCommand(JSON.stringify({ feederStop: true }));
@@ -311,7 +376,12 @@ export function DeviceSetupWizard() {
           total: moduleCount.displayCount,
           servo: t(`servos.${step.position.servo}.label`),
         })
-      : t(`setupWizard.sections.${step.kind}`);
+      : step.kind === "moduleDelays"
+        ? t("setupWizard.sections.moduleDelays", {
+            module: step.module,
+            total: moduleCount.displayCount,
+          })
+        : t(`setupWizard.sections.${step.kind}`);
 
   return (
     <DynamicDialog
@@ -448,6 +518,40 @@ export function DeviceSetupWizard() {
             value={calibrationFor(step.module)[step.position.calKey]}
             onChange={handleServoChange}
           />
+        )}
+
+        {step.kind === "moduleDelays" && (
+          <>
+            <StepHeading
+              title={t("setupWizard.moduleDelays.heading")}
+              body={t("setupWizard.moduleDelays.body")}
+            />
+            <div className="flex flex-col gap-4 rounded-lg border p-4">
+              {MODULE_DELAY_FIELDS.map((field) => (
+                <ModuleDelayControl
+                  key={field}
+                  module={step.module}
+                  field={field}
+                  value={calibrationFor(step.module)[field]}
+                  canEdit
+                  onChange={handleDelayChange}
+                />
+              ))}
+              <PushTestControl
+                module={step.module}
+                isReady={isConnected && !isOffline}
+                isTesting={pushTestingModule !== null}
+                onTest={(module, direction) =>
+                  void handlePushTest(module, direction)
+                }
+              />
+            </div>
+            <p className="text-xs text-foreground/70">
+              {isOffline
+                ? t("setupWizard.moduleDelays.offlineHint")
+                : t("setupWizard.moduleDelays.testHint")}
+            </p>
+          </>
         )}
 
         {step.kind === "irSensors" && (

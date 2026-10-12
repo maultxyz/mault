@@ -72,7 +72,7 @@ export function useAutoFeed({
 
   const handleFeedResult = useCallback(
     (parsed: Record<string, unknown>) => {
-      if (parsed.empty) {
+      if (parsed.empty && !serialRef.current.ignoreIrSensors) {
         pause();
         toast.error(t("feederEmpty.title"), {
           description: t("feederEmpty.description"),
@@ -102,7 +102,7 @@ export function useAutoFeed({
         cardArrivedHookRef.current?.();
       }
     },
-    [t, activeCollectionRef, pause],
+    [t, serialRef, activeCollectionRef, pause],
   );
 
   useSerialMessage((message) => {

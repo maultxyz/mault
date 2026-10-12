@@ -738,6 +738,7 @@ export interface AutoFeedSerial {
     command: object,
     timeoutMs?: number,
   ) => Promise<SerialRequestResult>;
+  ignoreIrSensors: boolean;
 }
 
 export interface PendingCapture {

@@ -102,6 +102,7 @@ export type SetupWizardStep =
   | { kind: "intro" }
   | { kind: "moduleCount" }
   | { kind: "servo"; module: number; position: SetupServoPosition }
+  | { kind: "moduleDelays"; module: number }
   | { kind: "irSensors" }
   | { kind: "feeder" }
   | { kind: "test" };

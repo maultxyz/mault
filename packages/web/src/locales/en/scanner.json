@@ -262,7 +262,8 @@
     "simulateNoMatch": "Simulate No Match",
     "showUnmatchedRateToast": "Show Unmatched Warning",
     "forceCpu": "Force CPU (skip WebGPU)",
-    "forceError": "Force Error"
+    "forceError": "Force Error",
+    "ignoreIrSensors": "Ignore IR sensors (no routing)"
   },
   "scannerMenu": {
     "camera": "Camera",

@@ -19,6 +19,7 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
 import { getDebugCards } from "@/features/scanner/lib/debug-cards";
 import { useForceCpuVectorize } from "@/features/scanner/lib/force-cpu-vectorize";
+import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 import { useRole } from "@/hooks/use-role";
 import { apiPost } from "@/lib/api/client";
 import {
@@ -27,6 +28,7 @@ import {
   IconBug,
   IconCards,
   IconCpu,
+  IconEyeOff,
   IconPhotoOff,
   IconStack2,
 } from "@tabler/icons-react";
@@ -40,6 +42,7 @@ export function ScannerDebug() {
   const { addCard, addUnmatchedCard } = useScannedCards();
   const { activeCollection } = useCollections();
   const [forceCpu, setForceCpu] = useForceCpuVectorize();
+  const [ignoreIrSensors, setIgnoreIrSensors] = useIgnoreIrSensors();
   const { showToast: showUnmatchedRateToast } = useUnmatchedRateToast();
 
   if (!isAdmin) return null;
@@ -119,6 +122,13 @@ export function ScannerDebug() {
           >
             <IconCpu className="size-3.5" />
             {t("scannerDebug.forceCpu")}
+          </DropdownMenuCheckboxItem>
+          <DropdownMenuCheckboxItem
+            checked={ignoreIrSensors}
+            onCheckedChange={setIgnoreIrSensors}
+          >
+            <IconEyeOff className="size-3.5" />
+            {t("scannerDebug.ignoreIrSensors")}
           </DropdownMenuCheckboxItem>
           <DropdownMenuItem
             onClick={handleForceError}

@@ -1,6 +1,8 @@
 export const SIDEBAR_EXPANDED_STORAGE_KEY = "sidebarExpanded";
 
 export const BUILD_CHECKLIST_STORAGE_KEY = "magic-vault:build-checklist";
+export const IGNORE_IR_SENSORS_STORAGE_KEY =
+  "magic-vault:scanner-ignore-ir-sensors";
 export const ONNX_EXECUTION_PROVIDER_STORAGE_KEY =
   "magic-vault:scanner-onnx-execution-provider";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =

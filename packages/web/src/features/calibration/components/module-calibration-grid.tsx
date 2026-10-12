@@ -244,7 +244,7 @@ function ServoControl({
   );
 }
 
-function ModuleDelayControl({
+export function ModuleDelayControl({
   module,
   field,
   value,
@@ -270,7 +270,7 @@ function ModuleDelayControl({
   return <FirmwareFeatureGate feature={feature}>{slider}</FirmwareFeatureGate>;
 }
 
-function PushTestControl({
+export function PushTestControl({
   module,
   isReady,
   isTesting,

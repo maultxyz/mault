@@ -433,11 +433,18 @@
       "module": "Module {{module}} sur {{total}} · {{servo}}",
       "irSensors": "Capteurs",
       "feeder": "Alimentation",
-      "test": "Autotest"
+      "test": "Autotest",
+      "moduleDelays": "Module {{module}} sur {{total}} · Délais"
     },
     "partsHeading": "Les pièces que tu vas régler",
     "aboutPart": "À propos : {{servo}}",
-    "howToSet": "Comment le régler"
+    "howToSet": "Comment le régler",
+    "moduleDelays": {
+      "heading": "Délais",
+      "body": "Ces délais contrôlent la façon dont une carte est poussée hors de ce module. Les valeurs par défaut conviennent à la plupart des trieuses : ne les modifiez que si les cartes sont poussées avant que la palette soit baissée ou si le poussoir recule trop tôt. Survolez les icônes d'info pour le rôle de chacun.",
+      "testHint": "Utilisez le test de poussée pour voir une poussée complète avec ces valeurs. Il se fait sur un module vide.",
+      "offlineHint": "Les tests de poussée nécessitent une trieuse connectée. Vous pourrez ajuster ces valeurs plus tard depuis la page de calibration."
+    }
   },
   "connectionSettings": {
     "title": "Connexion",
