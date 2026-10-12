@@ -11,7 +11,7 @@ import {
   useRemoveCardFromLocation,
   useStoredCardActions,
 } from "@/features/storage/api/use-storage-locations";
-import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import { IconBoxOff } from "@tabler/icons-react";
@@ -52,7 +52,7 @@ export function StorageCardDetail({
     collectionCardPositionQueryOptions(
       stored?.collectionGuid,
       scanId,
-      ALL_CARDS_QUERY,
+      CARD_LOOKUP_QUERY,
     ),
   );
   const scanned = position?.entry.scanId === scanId ? position.entry : null;
@@ -72,7 +72,7 @@ export function StorageCardDetail({
       collectionCardPositionQueryOptions(
         next.collectionGuid,
         next.scanId,
-        ALL_CARDS_QUERY,
+        CARD_LOOKUP_QUERY,
       ),
     );
   }, [next, queryClient]);
