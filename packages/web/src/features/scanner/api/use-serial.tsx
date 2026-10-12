@@ -380,6 +380,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     if (leased) void releaseDeviceLease(leased);
 
     transportRef.current = null;
+    stationsRef.current.releaseHardware(station.id);
     writeQueueRef.current = Promise.resolve();
     setIsConnected(false);
     setIsReady(false);
@@ -408,7 +409,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     });
 
     return cleanup;
-  }, [clearSensorBlocked]);
+  }, [station.id, clearSensorBlocked]);
 
   const runPreTestHooks = useCallback(async (forDevice: Device | undefined) => {
     for (const hook of [...preTestHooksRef.current]) {
@@ -589,6 +590,21 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [activeOrg?.id, queryClient],
   );
 
+  const notifyBoardInUse = useCallback(
+    (hardwareId: string) => {
+      const devices = queryClient.getQueryData(
+        devicesQueryOptions(activeOrg?.id).queryKey,
+      );
+      const name =
+        devices?.find((device) => device.hardwareId === hardwareId)?.name ??
+        hardwareId;
+      toast.error(t("serial.deviceInUse.title"), {
+        description: t("serial.deviceInUse.description", { name }),
+      });
+    },
+    [activeOrg?.id, queryClient, t],
+  );
+
   const openTransport = useCallback(
     async (
       newTransport: ByteTransport,
@@ -652,6 +668,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (transportRef.current !== newTransport) return null;
         const hardwareId =
           typeof status?.id === "string" && status.id ? status.id : null;
+        if (
+          hardwareId &&
+          !stationsRef.current.claimHardware(station.id, hardwareId)
+        ) {
+          if (!options?.autoConnect) notifyBoardInUse(hardwareId);
+          disconnect();
+          return null;
+        }
         if (options?.autoConnect) {
           const known = hardwareId
             ? await findAutoConnectDevice(hardwareId)
@@ -730,6 +754,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       bindBoard,
       bindUnidentifiedBoard,
       findAutoConnectDevice,
+      notifyBoardInUse,
+      station.id,
       runConnectTest,
       syncWithoutTest,
       disconnect,
