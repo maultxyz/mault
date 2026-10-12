@@ -130,7 +130,8 @@ async function resolveSearchMatches(
   );
   const resolved = await Promise.all(
     closeMatches.map(async (m) => {
-      const card = m.card ?? (await getCardById(m.cardId, collectionGuid)).data;
+      const card =
+        m.card ?? (await getCardById(m.cardId, collectionGuid, m.lang)).data;
       return card
         ? { ...card, distance: m.distance, confidence: m.confidence }
         : null;

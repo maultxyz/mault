@@ -41,9 +41,11 @@ export async function getSampleCard(
 export async function getCardById(
   id: string,
   collectionGuid?: string,
+  lang?: string,
 ): Promise<Result<PlayingCard>> {
-  const params = collectionGuid
-    ? `?${new URLSearchParams({ collectionGuid })}`
-    : "";
-  return apiGet<Result<PlayingCard>>(`/api/cards/search/${id}${params}`);
+  const params = new URLSearchParams();
+  if (collectionGuid) params.set("collectionGuid", collectionGuid);
+  if (lang) params.set("lang", lang);
+  const query = params.size > 0 ? `?${params}` : "";
+  return apiGet<Result<PlayingCard>>(`/api/cards/search/${id}${query}`);
 }

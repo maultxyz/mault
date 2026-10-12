@@ -24,7 +24,10 @@
     "gameLabel": "Spiel",
     "gamePlaceholder": "Spiel auswählen...",
     "langLabel": "Sprache",
-    "langPlaceholder": "Sprache auswählen..."
+    "langPlaceholder": "Sprache auswählen...",
+    "matchAllLanguagesLabel": "Karten in allen Sprachen erkennen",
+    "matchAllLanguagesDescription": "Scans erkennen Drucke in jeder Sprache dieses Spiels statt nur in der oben gewählten. Suche und Korrektur nutzen weiterhin die gewählte Sprache.",
+    "experimental": "Experimentell"
   },
   "requireDialog": {
     "title": "Erstelle deine erste Sammlung",

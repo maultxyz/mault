@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { checkCollectionName } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
@@ -37,7 +39,12 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
 
   const form = useForm({
     resolver: zodResolver(createCollectionSchema),
-    defaultValues: { name: "", gameGuid: "", lang: "" },
+    defaultValues: {
+      name: "",
+      gameGuid: "",
+      lang: "",
+      matchAllLanguages: false,
+    },
     mode: "onChange",
   });
 
@@ -87,6 +94,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
           name: firstGame?.name ?? "",
           gameGuid: firstGame?.guid ?? "",
           lang: "",
+          matchAllLanguages: false,
         });
         setNameEdited(false);
       } else {
@@ -98,7 +106,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
 
   const handleCreate = useCallback(
     async (values: CreateCollectionFormValues) => {
-      await createCollection(values.name, values.gameGuid, values.lang);
+      await createCollection(values);
       form.reset();
       setOpen(false);
     },
@@ -150,6 +158,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
                 onValueChange={(guid) => {
                   field.onChange(guid);
                   form.setValue("lang", "", { shouldValidate: true });
+                  form.setValue("matchAllLanguages", false);
                   if (!nameEdited) {
                     const game = activeGames.find((g) => g.guid === guid);
                     form.setValue("name", game?.name ?? "", {
@@ -224,6 +233,30 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
               </Select>
               {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
             </Field>
+          )}
+        />
+        <Controller
+          name="matchAllLanguages"
+          control={form.control}
+          render={({ field }) => (
+            <div className="flex flex-col gap-1">
+              <label className="flex items-center justify-between gap-2">
+                <span className="flex items-center gap-2 text-xs font-medium">
+                  {t("createDialog.matchAllLanguagesLabel")}
+                  <Badge variant="outline">
+                    {t("createDialog.experimental")}
+                  </Badge>
+                </span>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                  disabled={gameLanguages.length <= 1}
+                />
+              </label>
+              <p className="text-2xs text-foreground/70">
+                {t("createDialog.matchAllLanguagesDescription")}
+              </p>
+            </div>
           )}
         />
       </form>

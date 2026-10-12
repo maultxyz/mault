@@ -74,8 +74,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
         Buffer.from(await file.arrayBuffer()),
         regions,
         {
-          gameKey,
-          lang,
+          ...resolved,
           embeddings: { embedding },
           preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
         },

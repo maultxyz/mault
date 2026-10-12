@@ -8,6 +8,7 @@ export interface Collection {
   cardCount: number;
   game: Game | null;
   lang: string;
+  matchAllLanguages: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

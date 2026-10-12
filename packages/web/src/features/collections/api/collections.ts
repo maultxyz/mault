@@ -15,6 +15,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { queryOptions } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
+import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
   return apiGet<Result<Collection[]>>("/api/collections");
@@ -27,15 +28,9 @@ export const collectionsQueryOptions = queryOptions({
 });
 
 export async function createCollection(
-  name: string,
-  gameGuid: string,
-  lang: string,
+  values: CreateCollectionFormValues,
 ): Promise<Result<Collection[]>> {
-  return apiPost<Result<Collection[]>>("/api/collections", {
-    name,
-    gameGuid,
-    lang,
-  });
+  return apiPost<Result<Collection[]>>("/api/collections", values);
 }
 
 export async function updateCollection(

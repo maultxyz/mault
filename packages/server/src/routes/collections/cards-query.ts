@@ -529,7 +529,7 @@ export async function loadCardStats(
       SELECT cc.card, cc.is_foil, cc.foil_type, cc.scanned_at,
         ${price} AS price, (${filter}) AS in_filter
       FROM collection_cards cc
-      ${cardPricesJoinSql("cp", collection, sql`cc.card_id`)}
+      ${cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS)}
       WHERE cc.collection_id = ${collection.id}
     ),
     filtered AS (SELECT * FROM base WHERE in_filter)

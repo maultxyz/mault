@@ -20,6 +20,7 @@ import {
   type BinSet,
   type Collection,
 } from "@magic-vault/shared";
+import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -107,15 +108,8 @@ export function CollectionsProvider({
   }
 
   const createMutation = useMutation({
-    mutationFn: ({
-      name,
-      gameGuid,
-      lang,
-    }: {
-      name: string;
-      gameGuid: string;
-      lang: string;
-    }) => createCollectionFn(name, gameGuid, lang),
+    mutationFn: (values: CreateCollectionFormValues) =>
+      createCollectionFn(values),
     onSuccess: async (r, { name }) => {
       if (r.success && r.data) {
         setCollections(r.data);
@@ -186,8 +180,8 @@ export function CollectionsProvider({
     emptyMutation.isPending;
 
   const create = useCallback(
-    async (name: string, gameGuid: string, lang: string) => {
-      await createMutation.mutateAsync({ name, gameGuid, lang });
+    async (values: CreateCollectionFormValues) => {
+      await createMutation.mutateAsync(values);
     },
     [createMutation],
   );

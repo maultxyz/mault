@@ -17,6 +17,7 @@ export function toCollection(row: {
   isActive: boolean;
   cardCount: string | number;
   lang: string;
+  matchAllLanguages: boolean;
   createdAt: Date;
   updatedAt: Date;
   gameGuid: string | null;
@@ -36,6 +37,7 @@ export function toCollection(row: {
     isActive: row.isActive,
     cardCount: Number(row.cardCount),
     lang: row.lang,
+    matchAllLanguages: row.matchAllLanguages,
     game: row.gameGuid
       ? {
           guid: row.gameGuid,
@@ -115,6 +117,7 @@ export async function loadCollections(
       isActive: collections.isActive,
       cardCount: count(collectionCards.id),
       lang: collections.lang,
+      matchAllLanguages: collections.matchAllLanguages,
       createdAt: collections.createdAt,
       updatedAt: collections.updatedAt,
       gameGuid: games.guid,
@@ -138,6 +141,7 @@ export async function loadCollections(
       collections.name,
       collections.isActive,
       collections.lang,
+      collections.matchAllLanguages,
       collections.createdAt,
       collections.updatedAt,
       games.id,

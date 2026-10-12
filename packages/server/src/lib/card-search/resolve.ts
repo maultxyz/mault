@@ -15,6 +15,7 @@ import { withCache } from "./cache";
 import { withErrorHandling } from "./error-handling";
 import type {
   CardSearchAdapter,
+  CollectionMatchScope,
   ResolvedCardSearch,
 } from "../interfaces/card-search";
 
@@ -34,11 +35,15 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
 export async function resolveGameKeyAndLang(
   jwtClaims: string,
   collectionGuid: string | undefined,
-): Promise<{ gameKey: string; lang: string } | null> {
+): Promise<CollectionMatchScope | null> {
   if (!collectionGuid) return null;
   return authQuery(jwtClaims, async (tx) => {
     const [row] = await tx
-      .select({ gameKey: games.key, lang: collections.lang })
+      .select({
+        gameKey: games.key,
+        lang: collections.lang,
+        matchAllLanguages: collections.matchAllLanguages,
+      })
       .from(collections)
       .innerJoin(games, eq(games.id, collections.gameId))
       .where(

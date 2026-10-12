@@ -5,11 +5,12 @@ import type {
   OcrField,
   OcrReadout,
   OcrRegion,
+  PlayingCard,
   SearchCardMatch,
   SearchNoMatchReason,
 } from "@magic-vault/shared";
 import { CLOSE_MATCH_DELTA, DISTANCE_THRESHOLD } from "@magic-vault/shared";
-import { sql } from "drizzle-orm";
+import { sql, type SQL } from "drizzle-orm";
 import { authQuery } from "../../db";
 import { resolveCardSearchForGame } from "../../lib/card-search/resolve";
 import { searchCardsByIds } from "../../lib/card-search/stored-cards";
@@ -31,6 +32,7 @@ import type {
   CardMatchSearchResult,
   CardTextMatchParams,
   CardTextMatchResult,
+  CollectionMatchScope,
 } from "../../lib/interfaces/card-search";
 import { ocrRegions } from "../../lib/ocr";
 
@@ -86,6 +88,10 @@ export function parseEmbeddingField(value: unknown): number[] | null {
   }
 }
 
+function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): SQL {
+  return matchAllLanguages ? sql`` : sql`AND lang = ${lang}`;
+}
+
 export function parsePreferredSetCode(value: unknown): string | undefined {
   return typeof value === "string" && value.trim().length > 0
     ? value.trim()
@@ -95,17 +101,15 @@ export function parsePreferredSetCode(value: unknown): string | undefined {
 export async function findCardMatches(
   jwtClaims: string,
   {
-    gameKey,
-    lang,
     embeddings,
     preferredSetCode,
-  }: {
-    gameKey: string;
-    lang: string;
+    ...scope
+  }: CollectionMatchScope & {
     embeddings: CardSearchEmbeddings;
     preferredSetCode?: string;
   },
 ): Promise<CardMatchSearchResult> {
+  const { gameKey, lang } = scope;
   const embeddingStr = vectorLiteral(embeddings.embedding)!;
 
   return authQuery(jwtClaims, async (tx) => {
@@ -120,17 +124,19 @@ export async function findCardMatches(
       WITH nearest AS (
         SELECT
           card_id,
+          lang,
           name,
           set_code,
           embedding,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
-        WHERE game_key = ${gameKey} AND lang = ${lang}
+        WHERE game_key = ${gameKey} ${langFilter(scope)}
         ORDER BY embedding <=> ${embeddingStr}::vector(128)
         LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
       )
       SELECT
         card_id,
+        lang,
         name,
         set_code,
         distance,
@@ -150,6 +156,7 @@ export async function findCardMatches(
         matches.rows.slice(0, CARD_MATCH_LIMIT).map((row) => ({
           id: row.card_id as string,
           cardId: row.card_id as string,
+          lang: row.lang as string,
           name: row.name as string,
           setCode: row.set_code as string,
           distance: row.distance as number,
@@ -213,7 +220,7 @@ export async function findCardMatches(
           SELECT card_id, embedding <=> ${embeddingStr}::vector(128) AS distance
           FROM cards
           WHERE game_key = ${gameKey}
-            AND lang = ${lang}
+            AND lang = ${leader.lang}
             AND name = ${leader.name}
             AND lower(set_code) = lower(${preferredSetCode})
           ORDER BY distance
@@ -234,9 +241,10 @@ export async function findCardMatches(
       : rows;
 
     const matchList: SearchCardMatch[] = accepted.map(
-      ({ id, cardId, distance, confidence }) => ({
+      ({ id, cardId, lang: matchLang, distance, confidence }) => ({
         id,
         cardId,
+        lang: matchLang,
         distance,
         confidence,
       }),
@@ -297,8 +305,9 @@ function matchesCollectorNumber(
 
 export async function findCardMatchesByText(
   jwtClaims: string,
-  { gameKey, lang, embeddings, readout, preferredSetCode }: CardTextMatchParams,
+  { embeddings, readout, preferredSetCode, ...scope }: CardTextMatchParams,
 ): Promise<CardTextMatchResult> {
+  const { gameKey } = scope;
   const nameQueries = ocrNameQueries(readout.name);
   const noMatch: CardTextMatchResult = {
     message: "No card matched the text on the card.",
@@ -326,13 +335,14 @@ export async function findCardMatchesByText(
       const result = await tx.execute(sql`
         SELECT
           card_id,
+          lang,
           name,
           set_code,
           collector_number,
           similarity(name, ${nameQuery}) AS name_score,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
-        WHERE game_key = ${gameKey} AND lang = ${lang} AND name % ${nameQuery}
+        WHERE game_key = ${gameKey} ${langFilter(scope)} AND name % ${nameQuery}
         ORDER BY name_score DESC, distance ASC
         LIMIT ${OCR_NAME_CANDIDATE_LIMIT}
       `);
@@ -355,6 +365,7 @@ export async function findCardMatchesByText(
       .map((row) => ({
         id: row.card_id as string,
         cardId: row.card_id as string,
+        lang: row.lang as string,
         setCode: row.set_code as string,
         distance: row.distance as number,
         setLineMatch: matchesSetLine(row.set_code as string, setLineTokens),
@@ -384,9 +395,10 @@ export async function findCardMatchesByText(
 
     const data: SearchCardMatch[] = withConfidence(
       printings.slice(0, CARD_MATCH_LIMIT),
-    ).map(({ id, cardId, distance, confidence }) => ({
+    ).map(({ id, cardId, lang, distance, confidence }) => ({
       id,
       cardId,
+      lang,
       distance,
       confidence,
     }));
@@ -446,19 +458,39 @@ export async function attachMatchedCards<T extends CardMatchSearchResult>(
   lang: string,
 ): Promise<T> {
   const matches = result.data;
-  const resolved = resolveCardSearchForGame(gameKey, lang);
-  if (!matches || matches.length === 0 || !resolved) return result;
+  if (!matches || matches.length === 0) return result;
 
   const leaderDistance = matches[0].distance;
   const isClose = (match: SearchCardMatch) =>
     match.distance - leaderDistance <= CLOSE_MATCH_DELTA;
-  const cards = await searchCardsByIds(
-    resolved,
-    matches.filter(isClose).map((match) => match.cardId),
+  const matchLang = (match: SearchCardMatch) => match.lang ?? lang;
+  const closeMatches = matches.filter(isClose);
+  const cardsByLang = new Map(
+    await Promise.all(
+      [...new Set(closeMatches.map(matchLang))].map(async (cardLang) => {
+        const resolved = resolveCardSearchForGame(gameKey, cardLang);
+        const cards = resolved
+          ? await searchCardsByIds(
+              resolved,
+              closeMatches
+                .filter((match) => matchLang(match) === cardLang)
+                .map((match) => match.cardId),
+            )
+          : new Map<string, PlayingCard>();
+        return [cardLang, cards] as const;
+      }),
+    ),
   );
   const data = matches.map((match) => {
-    const card = isClose(match) ? cards.get(match.cardId) : undefined;
-    return card ? { ...match, card } : match;
+    const cardLang = matchLang(match);
+    const card = isClose(match)
+      ? cardsByLang.get(cardLang)?.get(match.cardId)
+      : undefined;
+    if (!card) return match;
+    return {
+      ...match,
+      card: cardLang === lang ? card : { ...card, lang: cardLang },
+    };
   });
   return { ...result, data };
 }

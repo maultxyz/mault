@@ -24,7 +24,10 @@
     "gameLabel": "Jeu",
     "gamePlaceholder": "Sélectionner un jeu...",
     "langLabel": "Langue",
-    "langPlaceholder": "Sélectionner une langue..."
+    "langPlaceholder": "Sélectionner une langue...",
+    "matchAllLanguagesLabel": "Reconnaître les cartes dans toutes les langues",
+    "matchAllLanguagesDescription": "Les scans reconnaissent les impressions dans toutes les langues de ce jeu, pas seulement celle choisie ci-dessus. La recherche et la correction utilisent toujours la langue choisie.",
+    "experimental": "Expérimental"
   },
   "requireDialog": {
     "title": "Crée ta première collection",

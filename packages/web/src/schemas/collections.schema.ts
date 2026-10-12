@@ -11,6 +11,7 @@ export const createCollectionSchema = z.object({
   name: nameSchema,
   gameGuid: z.string().min(1, "Game is required"),
   lang: z.string().min(1, "Language is required"),
+  matchAllLanguages: z.boolean(),
 });
 
 export type CreateCollectionFormValues = z.infer<typeof createCollectionSchema>;

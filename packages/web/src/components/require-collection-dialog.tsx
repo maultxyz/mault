@@ -37,7 +37,12 @@ export function RequireCollectionDialog() {
 
   const form = useForm({
     resolver: zodResolver(createCollectionSchema),
-    defaultValues: { name: "", gameGuid: "", lang: "" },
+    defaultValues: {
+      name: "",
+      gameGuid: "",
+      lang: "",
+      matchAllLanguages: false,
+    },
     mode: "onChange",
   });
 
@@ -64,7 +69,7 @@ export function RequireCollectionDialog() {
 
   const handleCreate = useCallback(
     async (values: CreateCollectionFormValues) => {
-      await createCollection(values.name, values.gameGuid, values.lang);
+      await createCollection(values);
       form.reset();
     },
     [createCollection, form],

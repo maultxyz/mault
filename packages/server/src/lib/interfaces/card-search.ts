@@ -67,6 +67,12 @@ export interface ResolvedCardSearch {
   lang: string;
 }
 
+export interface CollectionMatchScope {
+  gameKey: string;
+  lang: string;
+  matchAllLanguages: boolean;
+}
+
 export interface SyncSourceCard {
   id: string;
   name: string;
@@ -113,6 +119,7 @@ export interface CardMatchSearchResult {
 export interface CardTextMatchParams {
   gameKey: string;
   lang: string;
+  matchAllLanguages: boolean;
   embeddings: CardSearchEmbeddings;
   readout: OcrReadout;
   preferredSetCode?: string;

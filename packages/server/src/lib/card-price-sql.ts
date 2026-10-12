@@ -21,7 +21,7 @@ function storedCardPriceSelect(cols: ScannedCardSqlColumns, select: SQL): SQL {
     FROM card_prices cp
     JOIN collections pc ON pc.id = ${cols.collectionId}
     JOIN games pg ON pg.id = pc.game_id
-    WHERE cp.game_key = pg.key AND cp.lang = pc.lang AND cp.card_id = ${cols.cardId}
+    WHERE cp.game_key = pg.key AND cp.lang = COALESCE(${cols.card} ->> 'lang', pc.lang) AND cp.card_id = ${cols.cardId}
   )`;
 }
 
@@ -103,10 +103,10 @@ export function joinedScannedCardPriceSql(
 export function cardPricesJoinSql(
   cardPricesAlias: string,
   { gameKey, lang }: { gameKey: string | null; lang: string },
-  cardId: SQL | AnyColumn,
+  { cardId, card }: Pick<ScannedCardSqlColumns, "cardId" | "card">,
 ): SQL {
   const cp = sql.raw(cardPricesAlias);
-  return sql`LEFT JOIN card_prices ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = ${lang} AND ${cp}.card_id = ${cardId}`;
+  return sql`LEFT JOIN card_prices ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = COALESCE(${card} ->> 'lang', ${lang}) AND ${cp}.card_id = ${cardId}`;
 }
 
 export function cardWithStoredPricesSql(
