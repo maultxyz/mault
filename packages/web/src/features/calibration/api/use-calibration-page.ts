@@ -68,7 +68,7 @@ export function useCalibrationPage() {
     sendRoute,
     sendPushTest,
     sendTest,
-    receiveResponse,
+    sendRequest,
     firmwareVersion,
     board,
   } = useSerial();
@@ -262,11 +262,9 @@ export function useCalibrationPage() {
 
   const sendAndAwaitReply = useCallback(
     async (command: object) => {
-      const reply = receiveResponse();
-      await sendCommand(JSON.stringify(command));
-      await reply;
+      await sendRequest(command);
     },
-    [sendCommand, receiveResponse],
+    [sendRequest],
   );
 
   const applyDraftsToDevice = useCallback(async () => {
@@ -811,9 +809,7 @@ export function useCalibrationPage() {
     if (!isReady || irBusyRef.current || activeBinRef.current !== null) return;
     irBusyRef.current = true;
     try {
-      const sent = await sendCommand(JSON.stringify({ readIR: true }));
-      if (!sent) return;
-      const response = await receiveResponse(2000);
+      const { line: response } = await sendRequest({ readIR: true }, 2000);
       if (!response) return;
       const parsed = JSON.parse(response);
       if (Array.isArray(parsed.ir)) setIrStates(parsed.ir as boolean[]);
@@ -822,7 +818,7 @@ export function useCalibrationPage() {
     } finally {
       irBusyRef.current = false;
     }
-  }, [isReady, sendCommand, receiveResponse]);
+  }, [isReady, sendRequest]);
 
   const handleToggleIrMonitor = useCallback(() => {
     setIrMonitoring((prev) => !prev);

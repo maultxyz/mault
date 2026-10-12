@@ -111,8 +111,9 @@ export function useAutoFeed({
   });
 
   const triggerAutoFeed = useCallback(async () => {
-    const sent = await serialRef.current.sendCommand(
-      JSON.stringify({ feeder: true }),
+    const { sent, line: response } = await serialRef.current.sendRequest(
+      { feeder: true },
+      10000,
     );
     if (!sent) {
       pause();
@@ -127,7 +128,6 @@ export function useAutoFeed({
       });
       return;
     }
-    const response = await serialRef.current.receiveResponse(10000);
     if (!response) {
       pause();
       toast.error(t("scannedCards.autoFeedTimeout.title"), {

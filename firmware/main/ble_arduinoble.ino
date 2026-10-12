@@ -101,18 +101,18 @@ const char* bleState() {
   return BLE.connected() ? "connected" : "advertising";
 }
 
+uint16_t bleMtu() { return 0; }
+
 void bleSendLine(const char* s) {
   if (!bleIsConnected()) return;
-  size_t len = strlen(s);
-  // Chunk the line across multiple writeValue() calls, then send a trailing
-  // "\n" chunk so the client's byte-stream line-splitter (the same logic it
-  // already uses for Serial's byte stream) sees identical framing over BLE
-  // as over USB, regardless of chunk boundaries.
+  static char line[MAX_REPLY_LEN + 2];
+  size_t len = strnlen(s, MAX_REPLY_LEN);
+  memcpy(line, s, len);
+  line[len++] = '\n';
   for (size_t offset = 0; offset < len; offset += BLE_CHUNK_SIZE) {
+    if (offset > 0) delay(10);
     size_t chunkLen = len - offset < BLE_CHUNK_SIZE ? len - offset : BLE_CHUNK_SIZE;
-    txChar.writeValue((const uint8_t*)(s + offset), chunkLen);
-    delay(10);  // verify on hardware whether this is actually needed
+    txChar.writeValue((const uint8_t*)(line + offset), chunkLen);
   }
-  txChar.writeValue((const uint8_t*)"\n", 1);
 }
 #endif  // BLE_BACKEND_ARDUINOBLE

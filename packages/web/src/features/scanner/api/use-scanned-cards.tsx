@@ -133,7 +133,7 @@ export function ScannedCardsProvider({
     () => pipelinedFeedRef.current,
     [],
   );
-  const { sendRoute, sendCommand, receiveResponse, isConnected, isReady } =
+  const { sendRoute, sendRequest, isConnected, isReady } =
     useSerial();
   const { activeCollection, emptyCollection } = useCollections();
   const playSoundForCard = useSoundRulePlayer(
@@ -206,8 +206,7 @@ export function ScannedCardsProvider({
   const binContentsRef = useRef<BinContentCard[]>([]);
   const serialRef = useRef({
     sendRoute,
-    sendCommand,
-    receiveResponse,
+    sendRequest,
     isConnected,
     isReady,
   });
@@ -280,12 +279,11 @@ export function ScannedCardsProvider({
   useEffect(() => {
     serialRef.current = {
       sendRoute,
-      sendCommand,
-      receiveResponse,
+      sendRequest,
       isConnected,
       isReady,
     };
-  }, [sendRoute, sendCommand, receiveResponse, isConnected, isReady]);
+  }, [sendRoute, sendRequest, isConnected, isReady]);
 
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {

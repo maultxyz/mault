@@ -9,3 +9,5 @@ export const SERIAL_FED_EVENT = "fed";
 export const SERIAL_JAM_ERROR = "jam";
 export const SERIAL_BUSY_ERROR = "busy";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
+export const SERIAL_SEQ_MAX = 2_000_000_000;
+export const SERIAL_IDENTIFY_ATTEMPTS = 5;

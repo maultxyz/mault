@@ -1,6 +1,8 @@
 import {
+  BLE_ATT_HEADER_SIZE,
   BLE_CONNECT_ATTEMPTS,
   BLE_CONNECT_RETRY_DELAY_MS,
+  BLE_MAX_WRITE_CHUNK_SIZE,
   BLE_WRITE_CHUNK_SIZE,
   NUS_RX_CHARACTERISTIC_UUID,
   NUS_SERVICE_UUID,
@@ -145,6 +147,7 @@ export class BluetoothTransport implements ByteTransport {
   private disconnectCb: (() => void) | null = null;
   private errorCb: ((error: unknown) => void) | null = null;
   private closing = false;
+  private writeChunkSize = BLE_WRITE_CHUNK_SIZE;
 
   private constructor(
     device: BluetoothDevice,
@@ -265,10 +268,27 @@ export class BluetoothTransport implements ByteTransport {
     this.errorCb = cb;
   }
 
+  setMtu(mtu: number) {
+    this.writeChunkSize = Math.min(
+      Math.max(mtu - BLE_ATT_HEADER_SIZE, BLE_WRITE_CHUNK_SIZE),
+      BLE_MAX_WRITE_CHUNK_SIZE,
+    );
+  }
+
   async write(data: Uint8Array<ArrayBuffer>): Promise<void> {
-    for (let offset = 0; offset < data.length; offset += BLE_WRITE_CHUNK_SIZE) {
-      const chunk = data.subarray(offset, offset + BLE_WRITE_CHUNK_SIZE);
-      await this.rxChar.writeValueWithoutResponse(chunk);
+    let offset = 0;
+    while (offset < data.length) {
+      const size = this.writeChunkSize;
+      try {
+        await this.rxChar.writeValueWithoutResponse(
+          data.subarray(offset, offset + size),
+        );
+      } catch (e) {
+        if (size === BLE_WRITE_CHUNK_SIZE) throw e;
+        this.writeChunkSize = BLE_WRITE_CHUNK_SIZE;
+        continue;
+      }
+      offset += size;
     }
   }
 
