@@ -106,6 +106,8 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
           isFoil: isFoil ?? foilType != null,
           foilType: foilType ?? null,
           isCorrected: true,
+          scannedByUserId: unmatched.scannedByUserId,
+          scannedByDeviceId: unmatched.scannedByDeviceId,
           orgId,
         });
 

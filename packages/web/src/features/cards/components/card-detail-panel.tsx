@@ -28,6 +28,7 @@ import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
+import { CardScanOriginSection } from "@/features/cards/components/card-scan-origin-section";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
@@ -474,6 +475,13 @@ export function CardDetailPanel({
                         scanId={scanId}
                         collectionGuid={collection?.guid}
                         canRemove={!footerActions}
+                      />
+                    )}
+
+                    {scanId && (
+                      <CardScanOriginSection
+                        scanId={scanId}
+                        collectionGuid={collection?.guid}
                       />
                     )}
 

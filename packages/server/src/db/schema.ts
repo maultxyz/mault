@@ -499,6 +499,11 @@ export const collectionCards = pgTable(
       onDelete: "set null",
     }),
     locationPosition: integer("location_position"),
+    scannedByUserId: text("scanned_by_user_id"),
+    scannedByDeviceId: integer("scanned_by_device_id").references(
+      () => devices.id,
+      { onDelete: "set null" },
+    ),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -626,6 +631,11 @@ export const unmatchedCards = pgTable(
     binNumber: integer("bin_number"),
     diagnostics: jsonb("diagnostics"),
     embedding: vector("embedding"),
+    scannedByUserId: text("scanned_by_user_id"),
+    scannedByDeviceId: integer("scanned_by_device_id").references(
+      () => devices.id,
+      { onDelete: "set null" },
+    ),
     isDeleted: boolean("is_deleted").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

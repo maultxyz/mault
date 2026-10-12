@@ -8,6 +8,7 @@ import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
+import { CardScanOriginSection } from "@/features/cards/components/card-scan-origin-section";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -178,6 +179,10 @@ function MobileCardDetailBody({
           <CardDetailsList card={card} />
         </DetailSection>
         <CardStorageLocationSection
+          scanId={scanId}
+          collectionGuid={collectionGuid}
+        />
+        <CardScanOriginSection
           scanId={scanId}
           collectionGuid={collectionGuid}
         />

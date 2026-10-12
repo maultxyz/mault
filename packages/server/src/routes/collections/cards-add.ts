@@ -36,6 +36,7 @@ import { isScanSaved } from "./scan-saved";
 import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
+import { resolveScanDeviceId } from "../../lib/scan-origin";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -211,6 +212,11 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return scanLimitReachedResult;
         }
 
+        const scannedByDeviceId = await resolveScanDeviceId(
+          tx,
+          orgId,
+          deviceGuid,
+        );
         await tx
           .insert(collectionCards)
           .values({
@@ -229,6 +235,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               : null,
             needsReview: needsReview ?? false,
             diagnostics: diagnostics ?? null,
+            scannedByUserId: userId,
+            scannedByDeviceId,
             orgId,
           })
           .onConflictDoNothing();

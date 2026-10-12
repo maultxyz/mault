@@ -6,6 +6,7 @@ import { collectionCardBinsRoute } from "./cards-bins";
 import { clearCollectionCardsRoute } from "./cards-clear";
 import { deleteCollectionCardRoute } from "./cards-delete";
 import { collectionCardLocationRoute } from "./cards-location";
+import { collectionCardOriginRoute } from "./cards-origin";
 import { collectionCardDiagnosticsRoute } from "./cards-diagnostics";
 import { collectionCardImageRoute } from "./cards-image";
 import { editCollectionCardRoute } from "./cards-edit";
@@ -51,6 +52,7 @@ const router = new Hono<AppEnv>()
   .route("/", collectionCardImageRoute)
   .route("/", collectionCardDiagnosticsRoute)
   .route("/", collectionCardLocationRoute)
+  .route("/", collectionCardOriginRoute)
   .route("/", editCollectionCardRoute)
   .route("/", clearCollectionCardsRoute)
   .route("/", removeBulkCollectionCardsRoute)

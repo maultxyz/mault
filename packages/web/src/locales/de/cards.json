@@ -322,5 +322,11 @@
     },
     "priceHint": "{{price}} bei {{percent}} % des NM-Preises",
     "setSelected": "Zustand"
+  },
+  "scanOrigin": {
+    "heading": "Gescannt",
+    "scannedBy": "Von",
+    "sorter": "Sortierer",
+    "deletedSorter": "{{name}} (gelöscht)"
   }
 }

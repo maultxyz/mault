@@ -12,6 +12,7 @@ import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
+import { resolveScanDeviceId } from "../../lib/scan-origin";
 
 // POST /collections/:guid/unmatched — record a scan that found no card match
 export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
@@ -74,6 +75,11 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           }
         }
 
+        const scannedByDeviceId = await resolveScanDeviceId(
+          tx,
+          orgId,
+          deviceGuid,
+        );
         await tx
           .insert(unmatchedCards)
           .values({
@@ -85,6 +91,8 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             binNumber: binNumber ?? null,
             diagnostics: diagnostics ?? null,
             embedding: embedding?.length === MILO_EMBEDDING_DIM ? embedding : null,
+            scannedByUserId: c.get("userId"),
+            scannedByDeviceId,
             orgId,
           })
           .onConflictDoNothing();

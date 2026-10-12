@@ -32,6 +32,11 @@ export interface CardDetailsListProps {
   card: PlayingCard;
 }
 
+export interface CardScanOriginSectionProps {
+  scanId: string;
+  collectionGuid: string | undefined;
+}
+
 export interface DetailSectionProps {
   title: string;
   children: ReactNode;

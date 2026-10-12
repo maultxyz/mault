@@ -6,7 +6,7 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { CardCondition, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
+import type { CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import type {
   CardSaveResult,
@@ -76,6 +76,20 @@ export async function loadCardDiagnostics(
     `/api/collections/${guid}/cards/${scanId}/diagnostics`,
   );
 }
+
+export const cardScanOriginQueryOptions = (
+  collectionGuid: string | undefined,
+  scanId: string,
+) =>
+  queryOptions({
+    queryKey: ["card-scan-origin", scanId] as const,
+    queryFn: () =>
+      apiGet<Result<CardScanOrigin | null>>(
+        `/api/collections/${collectionGuid}/cards/${scanId}/origin`,
+      ).then((r) => r.data ?? null),
+    enabled: !!collectionGuid,
+    staleTime: Infinity,
+  });
 
 async function scanSaveHeaders(orgId: string | null | undefined) {
   return {
