@@ -140,8 +140,8 @@ export interface CardToolbarProps {
   watchers?: { userId: string; displayName: string }[];
   allSelected?: boolean;
   onToggleSelectAll?: () => void;
-  availableRarities?: { key: string; label: string }[];
-  availableColors?: { key: string; label: string; bg: string }[];
+  availableRarities?: ScanStats["rarities"];
+  availableColors?: ScanStats["colors"];
   availableFoilTypes?: { key: string; label: string }[];
   binCount?: number;
   viewMode: CardViewMode;
@@ -376,8 +376,8 @@ export interface CardFilterPopoverProps {
   activeFilters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
   activeFilterCount: number;
-  availableRarities: { key: string; label: string }[];
-  availableColors: { key: string; label: string; bg: string }[];
+  availableRarities: ScanStats["rarities"];
+  availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
   triggerClassName?: string;
