@@ -576,6 +576,19 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return current;
   }, [activeOrg?.id, queryClient, claimForStation, t]);
 
+  const findAutoConnectDevice = useCallback(
+    async (hardwareId: string): Promise<Device | undefined> => {
+      if (!activeOrg?.id) return undefined;
+      const devices = await queryClient
+        .ensureQueryData(devicesQueryOptions(activeOrg.id))
+        .catch(() => []);
+      return devices.find(
+        (device) => device.hardwareId === hardwareId && device.autoConnect,
+      );
+    },
+    [activeOrg?.id, queryClient],
+  );
+
   const openTransport = useCallback(
     async (
       newTransport: ByteTransport,
@@ -612,8 +625,11 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       });
       await newTransport.start();
 
-      setIsConnected(true);
-      setTransport(newTransport.kind);
+      const markConnected = () => {
+        setIsConnected(true);
+        setTransport(newTransport.kind);
+      };
+      if (!options?.autoConnect) markConnected();
 
       const identify = async (): Promise<{ device?: Device } | null> => {
         // ESP32s reset when the port opens, so the first lines can be ROM
@@ -634,14 +650,25 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           line = await waitForLine(remaining);
         }
         if (transportRef.current !== newTransport) return null;
+        const hardwareId =
+          typeof status?.id === "string" && status.id ? status.id : null;
+        if (options?.autoConnect) {
+          const known = hardwareId
+            ? await findAutoConnectDevice(hardwareId)
+            : undefined;
+          if (transportRef.current !== newTransport) return null;
+          if (!known) {
+            disconnect();
+            return null;
+          }
+          markConnected();
+        }
         if (typeof status?.version === "string") {
           setFirmwareVersion(status.version);
         }
         if (status?.board === "esp32" || status?.board === "uno_r4") {
           setBoard(status.board);
         }
-        const hardwareId =
-          typeof status?.id === "string" && status.id ? status.id : null;
         if (hardwareId) setDeviceId(hardwareId);
         if (exceedsSorterLimit()) {
           disconnect();
@@ -702,6 +729,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       notifySorterLimit,
       bindBoard,
       bindUnidentifiedBoard,
+      findAutoConnectDevice,
       runConnectTest,
       syncWithoutTest,
       disconnect,
