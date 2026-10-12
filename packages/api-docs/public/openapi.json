@@ -1614,6 +1614,19 @@
           "rarity": {
             "type": "string"
           },
+          "tcgplayer_product_id": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The printing's TCGplayer product id, or null when its card database doesn't list one."
+          },
           "lang": {
             "type": "string"
           },
@@ -1706,6 +1719,7 @@
           "set_name",
           "collector_number",
           "rarity",
+          "tcgplayer_product_id",
           "lang",
           "game",
           "finish",

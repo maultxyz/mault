@@ -62,6 +62,7 @@ export interface PublicApiCardRow {
   set_name: string;
   collector_number: string;
   rarity: string;
+  tcgplayer_product_id: string | null;
   price_usd: number | string | null;
   price_usd_foil: number | string | null;
   price_eur: number | string | null;

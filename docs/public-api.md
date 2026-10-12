@@ -76,6 +76,7 @@ One physical copy of a card, so three copies of a printing are three `scanned_ca
   "set_name": "Magic 2010",
   "collector_number": "146",
   "rarity": "common",
+  "tcgplayer_product_id": 33470,
   "lang": "en",
   "game": "mtg",
   "finish": "nonfoil",
@@ -109,6 +110,7 @@ One physical copy of a card, so three copies of a printing are three `scanned_ca
 | --- | --- |
 | `id` | This copy (the scan). |
 | `card_id` | The printing. For Magic this is the Scryfall card `id`; for other games it's the id from that game's card database. Map this to a product in your shop. |
+| `tcgplayer_product_id` | The printing's TCGplayer product id, as an integer, so you can match it to a TCGplayer listing. `null` when the game's card database doesn't list one (One Piece, Gundam and Yu-Gi-Oh! never do). |
 | `game` | Game key, e.g. `mtg`, `pokemon`, `lorcana`. |
 | `finish` | `nonfoil` or `foil`. |
 | `foil_type` | For foils, the game's foil type (e.g. reverse holo), when the scan recorded one. `null` otherwise. |
