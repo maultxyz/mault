@@ -6,7 +6,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { statsReportQueryOptions } from "@/features/stats/api/stats";
 import { StatsControls } from "@/features/stats/components/stats-controls";
 import { StatsDashboard } from "@/features/stats/components/stats-dashboard";
-import { StatsLeaderboard } from "@/features/stats/components/stats-leaderboard";
+import { StatsLeaderboardButton } from "@/features/stats/components/stats-leaderboard";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import {
@@ -99,7 +99,11 @@ export default function StatsPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {isMobile && (
-        <MobilePageHeader title={t("title")} subtitle={t("subtitle")} />
+        <MobilePageHeader
+          title={t("title")}
+          subtitle={t("subtitle")}
+          actions={<StatsLeaderboardButton iconOnly />}
+        />
       )}
       <div
         ref={scrollRef}
@@ -120,11 +124,13 @@ export default function StatsPage() {
                   </h1>
                   <p className="text-xs text-foreground/70">{t("subtitle")}</p>
                 </div>
-                {controls}
+                <div className="flex flex-wrap items-end gap-2">
+                  {controls}
+                  <StatsLeaderboardButton />
+                </div>
               </div>
             )}
             {body}
-            {!collectionGuid && <StatsLeaderboard />}
           </div>
         </SettingsSectionLayoutContext>
       </div>
