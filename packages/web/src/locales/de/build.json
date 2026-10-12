@@ -120,7 +120,7 @@
             "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber"
           },
           "sg90Continuous": {
-            "part": "SG90-Servo, umgebaut für Dauerdrehung",
+            "part": "MG90S-Servo, 360° Dauerdrehung",
             "notes": "Zuführung – befördert Karten aus dem Trichter in Modul 1"
           }
         }

@@ -255,7 +255,7 @@ For an existing database, changing `POSTGRES_PASSWORD` in Coolify does not updat
 The full bill of materials, wiring diagrams, and assembly instructions live in the app at `/build`. In short:
 
 - Arduino Uno R4 or ESP32 Dev Module, driving a PCA9685 servo controller over I2C
-- 3 positional SG90 servos per sorting module (trapdoor, paddle gate, pusher) plus 1 continuous-rotation SG90 for the feeder — module count is configurable (up to 5 on a single PCA9685) in Calibration
+- 3 positional SG90 servos per sorting module (trapdoor, paddle gate, pusher) plus 1 360° continuous-rotation MG90S for the feeder — module count is configurable (up to 5 on a single PCA9685) in Calibration
 - IR sensor for card-feed detection
 - Enclosure and module parts are in `3d model/` (Fusion 360 source + printable `.3mf`)
 

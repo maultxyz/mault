@@ -120,7 +120,7 @@
             "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher"
           },
           "sg90Continuous": {
-            "part": "SG90 servo, continuous rotation",
+            "part": "MG90S servo, 360° continuous rotation",
             "notes": "Feeder, drives cards out of the hopper into module 1"
           }
         }

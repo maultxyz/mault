@@ -120,7 +120,7 @@
             "notes": "3 par module × {{count}} modules - trappe inférieure, porte à palette, poussoir"
           },
           "sg90Continuous": {
-            "part": "Servo SG90, modifié pour rotation continue",
+            "part": "Servo MG90S, rotation continue 360°",
             "notes": "Chargeur - fait sortir les cartes de la trémie vers le module 1"
           }
         }

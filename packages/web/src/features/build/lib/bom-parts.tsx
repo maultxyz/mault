@@ -67,10 +67,10 @@ export const GROUPS: BomGroup[] = [
       {
         key: "sg90-continuous",
         qty: () => "1",
-        name: "SG90 servo, continuous rotation",
+        name: "MG90S servo, 360° continuous rotation",
         part: (t) => t("bom.groups.electronics.items.sg90Continuous.part"),
         notes: (t) => t("bom.groups.electronics.items.sg90Continuous.notes"),
-        buyUrl: "https://amzn.to/4yq4dAW",
+        buyUrl: "https://amzn.to/4dyAkpZ",
       },
     ],
   },
