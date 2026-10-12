@@ -321,8 +321,20 @@ export interface ScanStats {
   hasPricing: boolean;
   mostValuable: { name: string; price: number } | null;
   sets: SetStats[];
-  rarities: { key: string; label: string; count: number }[];
-  colors: { key: string; label: string; bg: string; count: number }[];
+  rarities: {
+    key: string;
+    label: string;
+    bg: string;
+    textClass: string;
+    count: number;
+  }[];
+  colors: {
+    key: string;
+    label: string;
+    bg: string;
+    textClass: string;
+    count: number;
+  }[];
   foilTypes: { key: string; label: string; count: number }[];
 }
 

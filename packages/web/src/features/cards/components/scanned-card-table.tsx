@@ -26,6 +26,7 @@ import {
   IconSparkles,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { raritySwatch } from "@/lib/card-swatches";
 
 export function ScannedCardTable({
   rows,
@@ -189,7 +190,7 @@ export function ScannedCardTable({
                 <div className="flex items-center gap-1.5">
                   <div
                     className="size-2.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: `var(--${card.rarity})` }}
+                    style={{ backgroundColor: raritySwatch(card.rarity).bg }}
                   />
                   <span className="text-foreground/70">{rarityLabel}</span>
                 </div>

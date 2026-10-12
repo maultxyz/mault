@@ -166,7 +166,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                     <div className="flex items-center gap-1.5">
                       <div
                         className="size-2.5 rounded-full"
-                        style={{ backgroundColor: `var(--${r.key})` }}
+                        style={{ backgroundColor: r.bg }}
                       />
                       <span className={active ? "font-medium" : undefined}>
                         {r.label}

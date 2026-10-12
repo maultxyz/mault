@@ -34,6 +34,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { raritySwatch } from "@/lib/card-swatches";
 
 function formatManaCost(manaCost: string): string {
   return manaCost.replace(/[{}]/g, " ").trim().replace(/\s+/g, " ");
@@ -336,7 +337,7 @@ export function CardSelectDialog({
                     <div
                       className="size-2 rounded-full shrink-0"
                       style={{
-                        backgroundColor: `var(--${selectedCard.rarity})`,
+                        backgroundColor: raritySwatch(selectedCard.rarity).bg,
                       }}
                     />
                     <span className="capitalize">{selectedCard.rarity}</span>

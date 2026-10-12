@@ -445,7 +445,7 @@ export function StatsDashboard({
                 secondary: t("compare.share", {
                   percent: percent(rarity.count, totals.cardCount),
                 }),
-                swatch: `var(--${rarity.key})`,
+                swatch: rarity.bg,
               }))}
             />
           </SettingsSection>

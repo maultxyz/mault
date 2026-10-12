@@ -21,6 +21,7 @@ import {
 import { DEFAULT_CARD_CONDITION } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { raritySwatch } from "@/lib/card-swatches";
 
 export const ScannedCardItem = memo(function ScannedCardItem({
   card,
@@ -171,7 +172,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
         <div className="flex min-w-0 flex-row items-center gap-2">
           <div
             className="size-3 rounded-full shrink-0"
-            style={{ backgroundColor: `var(--${card.rarity})` }}
+            style={{ backgroundColor: raritySwatch(card.rarity).bg }}
           />
           <p
             className="truncate text-xs font-semibold uppercase"

@@ -1,5 +1,9 @@
-import { CARD_COLOR_SWATCHES } from "@/lib/constants/colors";
-import { RARITY_LABELS, RARITY_ORDER } from "@/lib/constants/rarity";
+import { colorSwatch, raritySwatch } from "@/lib/card-swatches";
+import {
+  RARITY_LABELS,
+  RARITY_ORDER,
+  RARITY_TIER_ORDER,
+} from "@/lib/constants/rarity";
 import type { ScanStats } from "@/lib/interfaces/scanner";
 import {
   cardPriceFor,
@@ -17,6 +21,11 @@ function capitalize(value: string): string {
     : value;
 }
 
+function rarityRank(key: string): number {
+  const tier = raritySwatch(key).tier;
+  return tier ? RARITY_TIER_ORDER.indexOf(tier) : RARITY_TIER_ORDER.length;
+}
+
 function sortRarities<T extends { key: string; count: number }>(
   entries: T[],
 ): T[] {
@@ -24,9 +33,7 @@ function sortRarities<T extends { key: string; count: number }>(
     const orderA = RARITY_ORDER.indexOf(a.key);
     const orderB = RARITY_ORDER.indexOf(b.key);
     if (orderA !== -1 && orderB !== -1) return orderA - orderB;
-    if (orderA !== -1) return -1;
-    if (orderB !== -1) return 1;
-    return b.count - a.count;
+    return rarityRank(a.key) - rarityRank(b.key) || b.count - a.count;
   });
 }
 
@@ -126,20 +133,20 @@ export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
       (a, b) => b.value - a.value || b.count - a.count,
     ),
     rarities: sortRarities(
-      aggregate.rarities.map(({ key, count }) => ({
-        key,
-        label: RARITY_LABELS[key] ?? capitalize(key),
-        count,
-      })),
+      aggregate.rarities.map(({ key, count }) => {
+        const { bg, textClass } = raritySwatch(key);
+        return {
+          key,
+          label: RARITY_LABELS[key] ?? capitalize(key),
+          bg,
+          textClass,
+          count,
+        };
+      }),
     ),
     colors: [...aggregate.colors]
       .sort((a, b) => b.count - a.count)
-      .map(({ key, count }) => ({
-        key,
-        label: CARD_COLOR_SWATCHES[key]?.label ?? key,
-        bg: CARD_COLOR_SWATCHES[key]?.bg ?? key.toLowerCase(),
-        count,
-      })),
+      .map(({ key, count }) => ({ key, ...colorSwatch(key), count })),
     foilTypes: [...aggregate.foilTypes]
       .sort((a, b) => b.count - a.count)
       .map(({ key, count }) => ({ key, label: key, count })),

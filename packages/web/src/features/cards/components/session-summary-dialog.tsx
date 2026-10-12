@@ -294,7 +294,7 @@ function WrappedSlideContent({
                 <ProportionBar
                   pct={slide.total > 0 ? (r.count / slide.total) * 100 : 0}
                   active={active}
-                  color={`var(--${r.key})`}
+                  color={r.bg}
                 />
               </div>
             ))}
@@ -635,7 +635,7 @@ export function SessionSummaryDialog({
                     <div className="flex items-center gap-1.5">
                       <div
                         className="size-2 rounded-full shrink-0"
-                        style={{ backgroundColor: `var(--${r.key})` }}
+                        style={{ backgroundColor: r.bg }}
                       />
                       <span>{r.label}</span>
                     </div>

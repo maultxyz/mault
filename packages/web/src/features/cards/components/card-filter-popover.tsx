@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { Slider } from "@/components/ui/slider";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
-import { RARITY_TEXT_CLASS } from "@/lib/constants/rarity";
 import { cn } from "@/lib/utils";
 import {
   IconDownload,
@@ -75,7 +74,7 @@ export function CardFilterPopover({
                       "flex items-center gap-1.5 px-2 h-7 font-medium",
                       active
                         ? (knownActiveClass ??
-                            "border-transparent text-background")
+                            cn("border-transparent", color.textClass))
                         : chipInactive,
                     )}
                     style={
@@ -120,19 +119,19 @@ export function CardFilterPopover({
                       active
                         ? cn(
                             "border-transparent",
-                            RARITY_TEXT_CLASS[rarity.key] ?? "text-foreground",
+                            rarity.textClass,
                           )
                         : chipInactive,
                     )}
                     style={
                       active
-                        ? { backgroundColor: `var(--${rarity.key})` }
+                        ? { backgroundColor: rarity.bg }
                         : undefined
                     }
                   >
                     <span
                       className="size-2 rounded-full shrink-0"
-                      style={{ backgroundColor: `var(--${rarity.key})` }}
+                      style={{ backgroundColor: rarity.bg }}
                     />
                     {rarity.label}
                   </button>
