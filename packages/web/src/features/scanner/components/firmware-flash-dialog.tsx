@@ -139,7 +139,6 @@ export function FirmwareFlashDialog({
             >
               <div className="flex flex-col gap-0.5 font-mono text-xs text-foreground/70">
                 {flashLog.map((line, i) => (
-                  // eslint-disable-next-line react/no-array-index-key -- append-only log, stable order
                   <span key={i}>{line}</span>
                 ))}
               </div>

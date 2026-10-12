@@ -433,11 +433,18 @@
       "module": "Module {{module}} of {{total}} · {{servo}}",
       "irSensors": "Sensors",
       "feeder": "Feeder",
-      "test": "Self-test"
+      "test": "Self-test",
+      "moduleDelays": "Module {{module}} of {{total}} · Timing"
     },
     "partsHeading": "The parts you'll set",
     "aboutPart": "About the {{servo}}",
-    "howToSet": "How to set it"
+    "howToSet": "How to set it",
+    "moduleDelays": {
+      "heading": "Timing",
+      "body": "These delays control how a card is pushed off this module. The defaults suit most sorters, so only change them if cards are pushed before the paddle is down or the pusher pulls back too early. Hover the info icons for what each one does.",
+      "testHint": "Use the push test to watch a full push with these values. It runs on an empty module.",
+      "offlineHint": "Push tests need a connected sorter. You can tune these later from the calibration page."
+    }
   },
   "connectionSettings": {
     "title": "Connection",

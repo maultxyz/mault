@@ -158,6 +158,11 @@ export interface UnmatchedCard {
   embedding?: number[];
 }
 
+export interface ScanSaveRequestFields {
+  deviceGuid?: string;
+  isRetry?: boolean;
+}
+
 export interface ActiveScanningStats {
   scanners: number;
   sessions: number;
@@ -165,4 +170,20 @@ export interface ActiveScanningStats {
   connectedSorters: number;
   recentScans: number;
   windowMinutes: number;
+}
+
+export interface ScanOriginUser {
+  userId: string;
+  name: string;
+}
+
+export interface ScanOriginDevice {
+  guid: string;
+  name: string;
+  isDeleted: boolean;
+}
+
+export interface CardScanOrigin {
+  scannedBy: ScanOriginUser | null;
+  device: ScanOriginDevice | null;
 }

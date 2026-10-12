@@ -59,6 +59,7 @@ export interface PlayingCard {
   sourceUrl?: string;
   tcgplayerId?: string;
   cmc?: number;
+  lang?: string;
   raw?: unknown;
 }
 

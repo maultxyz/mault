@@ -5,6 +5,7 @@ import type {
   SyncState,
 } from "@magic-vault/shared";
 import type { ReactElement } from "react";
+import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 
 export interface ScanLockInfo {
   userId: string;
@@ -40,11 +41,7 @@ export interface CollectionsContextValue {
   isLoading: boolean;
   isActivating: boolean;
   isMutating: boolean;
-  createCollection: (
-    name: string,
-    gameGuid: string,
-    lang: string,
-  ) => Promise<void>;
+  createCollection: (values: CreateCollectionFormValues) => Promise<void>;
   updateCollection: (guid: string, name: string) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;

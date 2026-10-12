@@ -124,3 +124,12 @@ export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
 export const PHONE_CAMERA_PATH_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const QR_SCAN_INTERVAL_MS = 250;
 export const QR_SCAN_MAX_DIMENSION = 640;
+
+export const PENDING_SCAN_SAVES_DB_NAME = "magic-vault-pending-scan-saves";
+export const PENDING_SCAN_SAVES_STORE_NAME = "saves";
+export const PENDING_SCAN_SAVES_DB_VERSION = 1;
+export const PENDING_SCAN_SAVE_RETRY_DELAYS_MS = [
+  2000, 5000, 10_000, 30_000, 60_000,
+];
+export const PENDING_SCAN_SAVE_RETRYABLE_STATUSES = [401, 408, 429];
+export const PENDING_SCAN_SAVES_TOAST_ID = "pending-scan-saves";

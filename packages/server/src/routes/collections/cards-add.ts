@@ -1,4 +1,8 @@
-import type { PlayingCardWithDistance, ScannedCard } from "@magic-vault/shared";
+import type {
+  PlayingCardWithDistance,
+  ScanSaveRequestFields,
+  ScannedCard,
+} from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -28,9 +32,11 @@ import {
   type AppEnv,
 } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
+import { isScanSaved } from "./scan-saved";
 import { emitCardScannedWebhook } from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
+import { resolveScanDeviceId } from "../../lib/scan-origin";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -53,7 +59,18 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       diagnostics,
       vectorizedOn,
       deviceGuid,
-    } = await c.req.json<ScannedCard & { deviceGuid?: string }>();
+      isRetry,
+    } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
+
+    if (
+      isRetry &&
+      (await isScanSaved(c.get("jwtClaims"), collectionCards, scanId))
+    ) {
+      return c.json({
+        success: true,
+        data: { scanId, card, scannedAt, binNumber } as ScannedCard,
+      });
+    }
 
     const displayName = await getUserDisplayName(userId);
     const { ok: lockOk, isNewSession } = acquireLock(
@@ -162,7 +179,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           };
         }
 
-        if (binNumber != null) {
+        if (binNumber != null && !isRetry) {
           const fullBin = await findFullBin(
             tx,
             orgId,
@@ -195,6 +212,11 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return scanLimitReachedResult;
         }
 
+        const scannedByDeviceId = await resolveScanDeviceId(
+          tx,
+          orgId,
+          deviceGuid,
+        );
         await tx
           .insert(collectionCards)
           .values({
@@ -213,6 +235,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               : null,
             needsReview: needsReview ?? false,
             diagnostics: diagnostics ?? null,
+            scannedByUserId: userId,
+            scannedByDeviceId,
             orgId,
           })
           .onConflictDoNothing();

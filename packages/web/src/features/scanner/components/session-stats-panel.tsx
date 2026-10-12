@@ -78,7 +78,7 @@ export function SessionStatsPanel({
                 <div className="flex items-center gap-1.5">
                   <div
                     className="size-2.5 rounded-full"
-                    style={{ backgroundColor: `var(--${r.key})` }}
+                    style={{ backgroundColor: r.bg }}
                   />
                   <span>{r.label}</span>
                 </div>

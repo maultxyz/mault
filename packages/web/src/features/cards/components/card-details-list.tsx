@@ -2,6 +2,7 @@ import { formatManaCost } from "@/features/cards/lib/format-mana-cost";
 import type { CardDetailsListProps } from "@/lib/interfaces/cards";
 import { IconExternalLink } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { raritySwatch } from "@/lib/card-swatches";
 
 export function CardDetailsList({ card }: CardDetailsListProps) {
   const { t } = useTranslation("cards");
@@ -21,7 +22,7 @@ export function CardDetailsList({ card }: CardDetailsListProps) {
             <dd className="flex items-center gap-2 capitalize">
               <span
                 className="size-2 rounded-full shrink-0"
-                style={{ backgroundColor: `var(--${card.rarity})` }}
+                style={{ backgroundColor: raritySwatch(card.rarity).bg }}
               />
               {card.rarity}
             </dd>

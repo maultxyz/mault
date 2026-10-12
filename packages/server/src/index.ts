@@ -36,6 +36,7 @@ import {
   PUBLIC_API_PATH_PREFIX,
 } from "./lib/constants/api-keys";
 import { startPlanConfigRefresh } from "./lib/plan-config";
+import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
 
 const app = new Hono<AppEnv>();
 const PORT = parseInt(process.env.PORT ?? "3001");
@@ -93,6 +94,7 @@ app.onError((err, c) => {
 });
 
 startPlanConfigRefresh();
+startWebhookDeliveryWorker();
 
 serve({ fetch: app.fetch, port: PORT, hostname: "0.0.0.0" }, () => {
   console.log(`[server] Running on port:${PORT}`);

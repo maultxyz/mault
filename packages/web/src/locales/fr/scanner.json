@@ -96,7 +96,30 @@
       "title": "Poussoir bloqué",
       "description": "Une carte se trouve sur la plateforme du module {{module}}. Abaisse d'abord sa palette latérale avant de déplacer le poussoir."
     },
-    "deviceReadyNoTest": "Appareil prêt (autotest ignoré)"
+    "deviceReadyNoTest": "Appareil prêt (autotest ignoré)",
+    "unexpectedReset": {
+      "title": "Trieuse redémarrée",
+      "description": "La trieuse a redémarré d'elle-même : {{reason}} Une carte en mouvement n'a pas été triée, vérifiez donc les modules avant de reprendre. La trieuse est en cours de revérification."
+    },
+    "abnormalBoot": {
+      "title": "Trieuse redémarrée avant la connexion",
+      "description": "Le dernier redémarrage de la trieuse n'était pas normal : {{reason}}"
+    },
+    "heartbeatLost": {
+      "title": "La trieuse ne répond plus",
+      "description": "Elle n'a pas répondu à deux vérifications d'état de suite, elle a donc été déconnectée. Vérifiez son alimentation et son câble, puis reconnectez-la."
+    },
+    "resetReasons": {
+      "power_on": "l'alimentation a été coupée ou elle a été branchée.",
+      "external": "le bouton de réinitialisation a été pressé.",
+      "software": "le firmware a redémarré de lui-même, ou il a été flashé.",
+      "watchdog": "elle s'est figée et le watchdog l'a redémarrée.",
+      "brownout": "sa tension d'alimentation a chuté, généralement parce que les servos tirent trop de courant. Vérifiez l'alimentation et le câblage.",
+      "panic": "le firmware a planté.",
+      "usb": "la connexion USB l'a réinitialisée.",
+      "other": "une cause peu courante.",
+      "unknown": "la cause est inconnue."
+    }
   },
   "sessionMonitor": {
     "connectionLost": "Connexion à la session perdue."
@@ -136,11 +159,11 @@
     },
     "saveFailed": {
       "title": "Carte non enregistrée",
-      "description": "{{name}} a été triée mais n'a pas pu être enregistrée dans la collection. Le scan est en pause. Vérifiez votre connexion, puis ressortez la carte et scannez-la à nouveau."
+      "description": "{{name}} a été triée mais le serveur a refusé de l'enregistrer. Le scan est en pause. Ressortez la carte et scannez-la à nouveau."
     },
     "saveFailedUnmatched": {
       "title": "Carte non reconnue non enregistrée",
-      "description": "Une carte est partie dans le bac fourre-tout mais n'a pas pu être enregistrée dans la collection. Le scan est en pause. Vérifiez votre connexion avant de reprendre."
+      "description": "Une carte est partie dans le bac fourre-tout mais le serveur a refusé de l'enregistrer. Le scan est en pause. Ressortez la carte et scannez-la à nouveau."
     }
   },
   "cardScanner": {
@@ -239,7 +262,8 @@
     "simulateNoMatch": "Simuler une carte non reconnue",
     "showUnmatchedRateToast": "Afficher l'alerte de cartes non reconnues",
     "forceCpu": "Forcer le CPU (sans WebGPU)",
-    "forceError": "Forcer une erreur"
+    "forceError": "Forcer une erreur",
+    "ignoreIrSensors": "Ignorer les capteurs IR (sans tri)"
   },
   "scannerMenu": {
     "camera": "Caméra",
@@ -598,6 +622,20 @@
     "failed": {
       "title": "Impossible de réinitialiser la trieuse",
       "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
+    }
+  },
+  "pendingScanSaves": {
+    "saving": {
+      "title_one": "Enregistrement de {{count}} scan",
+      "title_other": "Enregistrement de {{count}} scans",
+      "description": "Le serveur est injoignable. Les scans sont conservés dans ce navigateur et renvoyés automatiquement, même après un rechargement."
+    },
+    "saved": {
+      "title": "Tous les scans sont enregistrés"
+    },
+    "rejected": {
+      "title": "Un scan en attente n'a pas pu être enregistré",
+      "description": "Le serveur a refusé un scan en attente d'enregistrement. Vérifiez qu'il ne manque pas de carte dans la collection."
     }
   }
 }

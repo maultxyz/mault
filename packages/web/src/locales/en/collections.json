@@ -24,7 +24,10 @@
     "gameLabel": "Game",
     "gamePlaceholder": "Select a game...",
     "langLabel": "Language",
-    "langPlaceholder": "Select a language..."
+    "langPlaceholder": "Select a language...",
+    "matchAllLanguagesLabel": "Match cards in every language",
+    "matchAllLanguagesDescription": "Scans match printings in any of this game's languages instead of only the one picked above. Searching and correcting still use the picked language.",
+    "experimental": "Experimental"
   },
   "requireDialog": {
     "title": "Create your first collection",

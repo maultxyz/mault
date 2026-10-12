@@ -1,7 +1,7 @@
 import { Callout } from "@/components/callout";
-import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
@@ -15,6 +15,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { leaderboardQueryOptions } from "@/features/stats/api/leaderboard";
 import { buildLeaderboardRows } from "@/features/stats/lib/leaderboard-rows";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import type { StatsLeaderboardButtonProps } from "@/lib/interfaces/stats";
 import { cn } from "@/lib/utils";
 import { LEADERBOARD_SIZE } from "@magic-vault/shared";
 import { IconAlertTriangle, IconTrophy } from "@tabler/icons-react";
@@ -22,7 +23,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-export function StatsLeaderboard() {
+function StatsLeaderboardContent() {
   const { t } = useTranslation("stats");
   const { activeOrg } = useOrg();
   const {
@@ -31,7 +32,7 @@ export function StatsLeaderboard() {
     isError,
   } = useQuery(leaderboardQueryOptions(activeOrg?.id));
 
-  const body = isError ? (
+  return isError ? (
     <Callout variant="error" icon={IconAlertTriangle}>
       {t("leaderboard.error")}
     </Callout>
@@ -42,7 +43,7 @@ export function StatsLeaderboard() {
       ))}
     </div>
   ) : (
-    <div className="flex flex-col gap-3">
+    <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
       {!leaderboard.optedIn && (
         <Callout
           variant="info"
@@ -109,12 +110,30 @@ export function StatsLeaderboard() {
     </div>
   );
 
+}
+
+export function StatsLeaderboardButton({
+  iconOnly,
+}: StatsLeaderboardButtonProps) {
+  const { t } = useTranslation("stats");
+
   return (
-    <SettingsSection
-      heading={t("leaderboard.title")}
+    <DynamicDialog
+      title={t("leaderboard.title")}
       description={t("leaderboard.description", { count: LEADERBOARD_SIZE })}
+      className="max-h-[85vh] sm:max-w-lg"
+      trigger={
+        <Button
+          variant={iconOnly ? "ghost" : "outline"}
+          size={iconOnly ? "icon" : "default"}
+          aria-label={iconOnly ? t("leaderboard.title") : undefined}
+        >
+          <IconTrophy />
+          {!iconOnly && t("leaderboard.title")}
+        </Button>
+      }
     >
-      {body}
-    </SettingsSection>
+      <StatsLeaderboardContent />
+    </DynamicDialog>
   );
 }

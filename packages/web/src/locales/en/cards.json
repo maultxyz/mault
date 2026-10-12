@@ -322,5 +322,11 @@
     },
     "priceHint": "{{price}} at {{percent}}% of the NM price",
     "setSelected": "Condition"
+  },
+  "scanOrigin": {
+    "heading": "Scanned",
+    "scannedBy": "By",
+    "sorter": "Sorter",
+    "deletedSorter": "{{name}} (deleted)"
   }
 }

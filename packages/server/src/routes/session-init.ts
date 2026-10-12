@@ -30,6 +30,7 @@ async function querySessionInit(
       isActive: true,
       gameId: true,
       lang: true,
+      matchAllLanguages: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -110,6 +111,7 @@ async function querySessionInit(
       isActive: collection.isActive,
       cardCount,
       lang: collection.lang,
+      matchAllLanguages: collection.matchAllLanguages,
       game: game
         ? {
             guid: game.guid!,

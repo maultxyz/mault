@@ -38,8 +38,6 @@ import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { loadBinContents } from "@/features/collections/api/collection-cards";
 import {
-  addCollectionCard,
-  addUnmatchedCard as addUnmatchedCardApi,
   confirmCollectionCard,
   identifyUnmatchedCard as identifyUnmatchedCardApi,
   loadUnmatchedCards,
@@ -66,6 +64,7 @@ import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useDeployScanPause } from "@/features/scanner/api/use-deploy-pause";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
 import { useJamToast } from "@/features/scanner/api/use-jam-toast";
+import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
@@ -92,6 +91,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { useCollectionLocks } from "@/lib/app-stream";
+import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,
@@ -147,6 +147,7 @@ export function ScannedCardsProvider({
 
   const { activeOrg } = useOrg();
   const activeOrgIdRef = useRef(activeOrg?.id);
+  const { saveCard, saveUnmatched } = usePendingScanSaves();
   const { sorterLimitIsHardCap } = useStations();
   const sorterLimitIsHardCapRef = useRef(sorterLimitIsHardCap);
   sorterLimitIsHardCapRef.current = sorterLimitIsHardCap;
@@ -204,11 +205,13 @@ export function ScannedCardsProvider({
   const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
   const selectedSetRef = useRef(selectedSet);
   const binContentsRef = useRef<BinContentCard[]>([]);
+  const [ignoreIrSensors] = useIgnoreIrSensors();
   const serialRef = useRef({
     sendRoute,
     sendRequest,
     isConnected,
     isReady,
+    ignoreIrSensors,
   });
   const activeCollectionRef = useRef(activeCollection);
   const emptyCollectionRef = useRef(emptyCollection);
@@ -282,8 +285,9 @@ export function ScannedCardsProvider({
       sendRequest,
       isConnected,
       isReady,
+      ignoreIrSensors,
     };
-  }, [sendRoute, sendRequest, isConnected, isReady]);
+  }, [sendRoute, sendRequest, isConnected, isReady, ignoreIrSensors]);
 
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
@@ -442,8 +446,9 @@ export function ScannedCardsProvider({
     };
   }, []);
 
+  const activeCollectionGuid = activeCollection?.guid;
   useEffect(() => {
-    if (!activeCollection) {
+    if (!activeCollectionGuid) {
       setUnmatchedCards([]);
       setIsLoading(false);
       return;
@@ -453,7 +458,7 @@ export function ScannedCardsProvider({
     setUnmatchedCards([]);
     setIsLoading(true);
 
-    loadUnmatchedCards(activeCollection.guid)
+    loadUnmatchedCards(activeCollectionGuid)
       .then((unmatchedResult) => {
         if (cancelled) return;
         setUnmatchedCards(unmatchedResult.data ?? []);
@@ -468,7 +473,7 @@ export function ScannedCardsProvider({
     return () => {
       cancelled = true;
     };
-  }, [activeCollection?.guid]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeCollectionGuid]);
 
   const needsBinContents =
     !!selectedSet?.isRepackMode || hasMaxCopiesBins(binConfigs);
@@ -646,7 +651,8 @@ export function ScannedCardsProvider({
       if (
         matchedBin &&
         serialRef.current.isConnected &&
-        serialRef.current.isReady
+        serialRef.current.isReady &&
+        !serialRef.current.ignoreIrSensors
       ) {
         void routeCardToBin({
           route: resolveRoute(matchedBin.binNumber),
@@ -666,11 +672,12 @@ export function ScannedCardsProvider({
       const pendingBin = record.binNumber;
       if (pendingBin != null) trackPendingBinCard(pendingBin, 1);
 
-      addCollectionCard(
-        collection.guid,
-        { ...record, diagnostics: details?.diagnostics },
-        deviceGuidRef.current,
-      )
+      saveCard({
+        orgId: orgId ?? null,
+        collectionGuid: collection.guid,
+        deviceGuid: deviceGuidRef.current,
+        record: { ...record, diagnostics: details?.diagnostics },
+      })
         .then((result) => {
           if (result.success) return;
           binContentsRef.current = binContentsRef.current.filter(
@@ -744,6 +751,7 @@ export function ScannedCardsProvider({
       setFullBins,
       areAllPacksComplete,
       pauseForCompletePacks,
+      saveCard,
     ],
   );
 
@@ -784,7 +792,8 @@ export function ScannedCardsProvider({
     if (
       catchAll &&
       serialRef.current.isConnected &&
-      serialRef.current.isReady
+      serialRef.current.isReady &&
+      !serialRef.current.ignoreIrSensors
     ) {
       void routeCardToBin({
         route: resolveRoute(catchAll.binNumber),
@@ -843,11 +852,12 @@ export function ScannedCardsProvider({
       setUnmatchedCards((prev) => [record, ...prev]);
       sendCatchAllBin();
 
-      addUnmatchedCardApi(
-        collection.guid,
-        { ...record, embedding: details?.embedding ?? undefined },
-        deviceGuidRef.current,
-      )
+      saveUnmatched({
+        orgId: activeOrgIdRef.current ?? null,
+        collectionGuid: collection.guid,
+        deviceGuid: deviceGuidRef.current,
+        record: { ...record, embedding: details?.embedding ?? undefined },
+      })
         .then((result) => {
           if (result.success) return;
           dropRecord();
@@ -865,7 +875,7 @@ export function ScannedCardsProvider({
           });
         });
     },
-    [sendCatchAllBin, pause, isBinFullLocally, t],
+    [sendCatchAllBin, pause, isBinFullLocally, t, saveUnmatched],
   );
 
   const removeUnmatchedCard = useCallback((scanId: string) => {

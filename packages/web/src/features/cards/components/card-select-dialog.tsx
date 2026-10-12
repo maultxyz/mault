@@ -34,6 +34,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
+import { raritySwatch } from "@/lib/card-swatches";
 
 function formatManaCost(manaCost: string): string {
   return manaCost.replace(/[{}]/g, " ").trim().replace(/\s+/g, " ");
@@ -128,19 +129,6 @@ export function CardSelectDialog({
     );
   };
 
-  const handleSelect = useCallback(
-    (card: PlayingCard) => {
-      if (scanId) {
-        correctCard(scanId, card);
-      } else {
-        addCard({ ...card, distance: 0 });
-      }
-      handleOpenChange(false);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scanId, addCard, correctCard],
-  );
-
   const handleSelectCandidate = useCallback(
     (card: PlayingCardWithDistance) => {
       setSelectedId(card.id);
@@ -164,6 +152,18 @@ export function CardSelectDialog({
       }
     },
     [isControlled, controlledOnOpenChange, currentCard],
+  );
+
+  const handleSelect = useCallback(
+    (card: PlayingCard) => {
+      if (scanId) {
+        correctCard(scanId, card);
+      } else {
+        addCard({ ...card, distance: 0 });
+      }
+      handleOpenChange(false);
+    },
+    [scanId, addCard, correctCard, handleOpenChange],
   );
 
   const handleRemove = useCallback(() => {
@@ -337,7 +337,7 @@ export function CardSelectDialog({
                     <div
                       className="size-2 rounded-full shrink-0"
                       style={{
-                        backgroundColor: `var(--${selectedCard.rarity})`,
+                        backgroundColor: raritySwatch(selectedCard.rarity).bg,
                       }}
                     />
                     <span className="capitalize">{selectedCard.rarity}</span>

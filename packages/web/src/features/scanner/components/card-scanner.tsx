@@ -41,6 +41,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
+import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 
 export function CardScanner({
   className,
@@ -176,6 +177,7 @@ export function CardScanner({
   const scanningBlocked = isAtScanLimit;
 
   const verifyJam = useVerifyJam();
+  const [ignoreIrSensors] = useIgnoreIrSensors();
 
   useSerialMessage((msg) => {
     if (
@@ -185,6 +187,7 @@ export function CardScanner({
       (msg as Record<string, unknown>).error === "jam"
     ) {
       if (!SESSION_TIMER_RUNNING_STATUSES.includes(status)) return;
+      if (ignoreIrSensors) return;
 
       const raw = msg as Record<string, unknown>;
       const module = Number(raw.module);
@@ -299,7 +302,7 @@ export function CardScanner({
       }
       try {
         const parsed = JSON.parse(response) as Record<string, unknown>;
-        if (parsed.empty) {
+        if (parsed.empty && !ignoreIrSensors) {
           pause();
           toast.error(t("feederEmpty.title"), {
             description: t("feederEmpty.description"),
@@ -343,6 +346,7 @@ export function CardScanner({
     }
   }, [
     isReady,
+    ignoreIrSensors,
     prepareDevice,
     sendRequest,
     handleCardArrived,
@@ -380,7 +384,7 @@ export function CardScanner({
   }, [isReady, sendRequest, t]);
 
   const handleForceScanClick = useCallback(async () => {
-    if (!isReady) {
+    if (!isReady || ignoreIrSensors) {
       handleForceScan();
       return;
     }
@@ -399,7 +403,7 @@ export function CardScanner({
       // Malformed/missing response - fall through to the scan attempt.
     }
     handleForceScan();
-  }, [isReady, sendRequest, handleForceScan, t]);
+  }, [isReady, ignoreIrSensors, sendRequest, handleForceScan, t]);
 
   useEffect(() => {
     return registerCardArrivedHook(handleCardArrived);

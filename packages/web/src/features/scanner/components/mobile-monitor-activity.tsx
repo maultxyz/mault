@@ -155,7 +155,7 @@ export function MobileMonitorActivity({
                 <div className="flex items-center gap-2">
                   <span
                     className="size-2.5 rounded-full"
-                    style={{ backgroundColor: `var(--${rarity.key})` }}
+                    style={{ backgroundColor: rarity.bg }}
                   />
                   <span className="text-foreground">{rarity.label}</span>
                 </div>

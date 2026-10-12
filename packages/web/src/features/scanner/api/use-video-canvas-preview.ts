@@ -104,6 +104,7 @@ export function useVideoCanvasPreview(
   }, [stream]);
 
   // Redraw the box if the calibrated region changes while streaming.
+  const { coverage, offsetX, offsetY } = scanRegion;
   useEffect(() => {
     const canvas = overlayCanvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -111,11 +112,14 @@ export function useVideoCanvasPreview(
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawDetectionOverlay(ctx, {
       detected: true,
-      contour: getDefaultCardContour(canvas.width, canvas.height, scanRegion),
+      contour: getDefaultCardContour(canvas.width, canvas.height, {
+        coverage,
+        offsetX,
+        offsetY,
+      }),
       confidence: 1,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scanRegion.coverage, scanRegion.offsetX, scanRegion.offsetY]);
+  }, [coverage, offsetX, offsetY]);
 
   return { videoRef, displayCanvasRef, overlayCanvasRef };
 }

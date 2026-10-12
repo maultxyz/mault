@@ -29,12 +29,14 @@ import type {
   ScannedCard,
   ScannerStatus,
   ScanVectorizeSource,
+  Result,
   UnmatchedCard,
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
+import type { SERIAL_RESET_REASONS } from "@/lib/constants/firmware";
 
 export type PhoneCameraCaptureStatus =
   | "idle"
@@ -319,8 +321,20 @@ export interface ScanStats {
   hasPricing: boolean;
   mostValuable: { name: string; price: number } | null;
   sets: SetStats[];
-  rarities: { key: string; label: string; count: number }[];
-  colors: { key: string; label: string; bg: string; count: number }[];
+  rarities: {
+    key: string;
+    label: string;
+    bg: string;
+    textClass: string;
+    count: number;
+  }[];
+  colors: {
+    key: string;
+    label: string;
+    bg: string;
+    textClass: string;
+    count: number;
+  }[];
   foilTypes: { key: string; label: string; count: number }[];
 }
 
@@ -724,6 +738,7 @@ export interface AutoFeedSerial {
     command: object,
     timeoutMs?: number,
   ) => Promise<SerialRequestResult>;
+  ignoreIrSensors: boolean;
 }
 
 export interface PendingCapture {
@@ -787,6 +802,54 @@ export interface DebugCardSet {
     imageUrl: string;
     alternates: PlayingCardWithDistance[];
   };
+}
+
+export type SerialResetReason = (typeof SERIAL_RESET_REASONS)[number];
+
+export interface ScanSaveOptions {
+  deviceGuid?: string;
+  orgId?: string | null;
+  isRetry?: boolean;
+}
+
+export type CardSaveResult = Result<ScannedCard> & {
+  scanLimitReached?: boolean;
+  sorterLimitReached?: boolean;
+  binLimitReached?: boolean;
+  binNumber?: number;
+};
+
+export type UnmatchedSaveResult = Result<UnmatchedCard> & {
+  binLimitReached?: boolean;
+  binNumber?: number;
+};
+
+interface ScanSaveTarget {
+  orgId: string | null;
+  collectionGuid: string;
+  deviceGuid?: string;
+}
+
+export interface CardScanSave extends ScanSaveTarget {
+  record: ScannedCard;
+}
+
+export interface UnmatchedScanSave extends ScanSaveTarget {
+  record: UnmatchedCard;
+}
+
+export type PendingScanSave =
+  | (CardScanSave & { kind: "card"; scanId: string; queuedAt: number })
+  | (UnmatchedScanSave & {
+      kind: "unmatched";
+      scanId: string;
+      queuedAt: number;
+    });
+
+export interface PendingScanSavesContextValue {
+  saveCard: (save: CardScanSave) => Promise<CardSaveResult>;
+  saveUnmatched: (save: UnmatchedScanSave) => Promise<UnmatchedSaveResult>;
+  pendingCount: number;
 }
 
 export interface DeployPauseContextValue {

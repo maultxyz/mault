@@ -15,7 +15,7 @@ import {
   loadPublicApiCard,
   loadPublicApiCardsByScanIds,
 } from "../public-api/cards";
-import { enqueueWebhookDelivery, enqueueWebhookJob } from "./queue";
+import { enqueueWebhookJob, queueWebhookDeliveries } from "./queue";
 
 async function loadSubscribedEndpointIds(
   orgId: string,
@@ -55,18 +55,17 @@ function dispatch<T>(
   endpointIds: number[],
   type: WebhookEvent,
   data: T,
-): void {
+): Promise<void> {
   const payload = buildWebhookPayload(type, data);
   const body = JSON.stringify(payload);
-  for (const endpointId of endpointIds) {
-    enqueueWebhookDelivery({
+  return queueWebhookDeliveries(
+    endpointIds.map((endpointId) => ({
       endpointId,
       eventId: payload.id,
       type,
       body,
-      attempt: 0,
-    });
-  }
+    })),
+  );
 }
 
 export function emitCardScannedWebhook(orgId: string, scanId: string): void {
@@ -77,7 +76,7 @@ export function emitCardScannedWebhook(orgId: string, scanId: string): void {
       loadPublicApiCard(tx, orgId, scanId),
     );
     if (!card) return;
-    dispatch<CardScannedWebhookData>(endpointIds, "card.scanned", card);
+    await dispatch<CardScannedWebhookData>(endpointIds, "card.scanned", card);
   });
 }
 
@@ -102,7 +101,7 @@ export function emitCardsStoredWebhook(
       start < cards.length;
       start += WEBHOOK_STORED_CARDS_PER_EVENT
     ) {
-      dispatch<CardsStoredWebhookData>(endpointIds, "cards.stored", {
+      await dispatch<CardsStoredWebhookData>(endpointIds, "cards.stored", {
         object: "stored_cards",
         location: { object: "location", id: location.id, name: location.name },
         cards: cards.slice(start, start + WEBHOOK_STORED_CARDS_PER_EVENT),

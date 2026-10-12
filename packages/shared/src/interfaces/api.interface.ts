@@ -7,6 +7,7 @@ export interface SearchCardMatch {
   cardId: string;
   distance: number;
   confidence: number;
+  lang?: string;
   card?: PlayingCard;
 }
 

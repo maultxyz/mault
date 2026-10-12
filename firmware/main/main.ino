@@ -5,6 +5,7 @@
 #include <Adafruit_PWMServoDriver.h>
 #if defined(ARDUINO_ARCH_ESP32)
 #include "esp_mac.h"
+#include "esp_system.h"
 #else
 #include <WDT.h>
 #endif
@@ -26,7 +27,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.7.0"
+#define FIRMWARE_VERSION "2.8.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -253,6 +254,43 @@ void feedWatchdog() {
   feedLoopWDT();
 #else
   WDT.refresh();
+#endif
+}
+
+const char* resetReason = "unknown";
+
+void captureResetReason() {
+#if defined(ARDUINO_ARCH_ESP32)
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON: resetReason = "power_on"; break;
+    case ESP_RST_EXT: resetReason = "external"; break;
+    case ESP_RST_SW: resetReason = "software"; break;
+    case ESP_RST_PANIC: resetReason = "panic"; break;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT: resetReason = "watchdog"; break;
+    case ESP_RST_BROWNOUT:
+    case ESP_RST_PWR_GLITCH: resetReason = "brownout"; break;
+    case ESP_RST_USB:
+    case ESP_RST_JTAG: resetReason = "usb"; break;
+    default: resetReason = "other"; break;
+  }
+#else
+  if (R_SYSTEM->RSTSR1_b.WDTRF || R_SYSTEM->RSTSR1_b.IWDTRF) {
+    resetReason = "watchdog";
+  } else if (R_SYSTEM->RSTSR0_b.LVD0RF || R_SYSTEM->RSTSR0_b.LVD1RF ||
+             R_SYSTEM->RSTSR0_b.LVD2RF) {
+    resetReason = "brownout";
+  } else if (R_SYSTEM->RSTSR1_b.SWRF) {
+    resetReason = "software";
+  } else if (R_SYSTEM->RSTSR0_b.PORF || !R_SYSTEM->RSTSR2_b.CWSF) {
+    resetReason = "power_on";
+  } else {
+    resetReason = "external";
+  }
+  R_SYSTEM->RSTSR0 = 0;
+  R_SYSTEM->RSTSR1 = 0;
+  R_SYSTEM->RSTSR2_b.CWSF = 1;
 #endif
 }
 
@@ -1198,7 +1236,10 @@ void runCommand(char* json, Print& reply) {
     reply.print(deviceId);
     reply.print(F("\",\"ble\":\""));
     reply.print(bleStatus());
-    reply.print(F("\""));
+    reply.print(F("\",\"resetReason\":\""));
+    reply.print(resetReason);
+    reply.print(F("\",\"uptimeMs\":"));
+    reply.print(millis());
 #if BLE_SUPPORTED
     if (bleMtu() > 0) {
       reply.print(F(",\"bleMtu\":"));
@@ -1515,6 +1556,7 @@ void runCommand(char* json, Print& reply) {
 }
 
 void setup() {
+  captureResetReason();
 #if defined(RGB_BUILTIN)
   rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);  // blue - powered, not yet connected
 #endif
@@ -1559,10 +1601,10 @@ void setup() {
     loadOrCreateDeviceId();
   }
 
-  char bootLine[160];
+  char bootLine[200];
   snprintf(bootLine, sizeof(bootLine),
-           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\",\"ble\":\"%s\"}",
-           FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus());
+           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\",\"ble\":\"%s\",\"resetReason\":\"%s\"}",
+           FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus(), resetReason);
   broadcastLine(bootLine);
 
   startWatchdog();

@@ -424,6 +424,7 @@ export const collections = pgTable(
     isActive: boolean("is_active").notNull().default(false),
     gameId: integer("game_id").references(() => games.id),
     lang: text("lang").notNull().default("en"),
+    matchAllLanguages: boolean("match_all_languages").notNull().default(false),
     orgId: text("org_id").notNull(),
     discordScanChannelId: text("discord_scan_channel_id"),
     discordScanThreadId: text("discord_scan_thread_id"),
@@ -498,6 +499,11 @@ export const collectionCards = pgTable(
       onDelete: "set null",
     }),
     locationPosition: integer("location_position"),
+    scannedByUserId: text("scanned_by_user_id"),
+    scannedByDeviceId: integer("scanned_by_device_id").references(
+      () => devices.id,
+      { onDelete: "set null" },
+    ),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -591,6 +597,26 @@ export const webhookEndpoints = pgTable(
   ],
 ).enableRLS();
 
+export const webhookDeliveries = pgTable(
+  "webhook_deliveries",
+  {
+    id: serial().primaryKey(),
+    endpointId: integer("endpoint_id")
+      .notNull()
+      .references(() => webhookEndpoints.id, { onDelete: "cascade" }),
+    eventId: uuid("event_id").notNull(),
+    type: text("type").notNull(),
+    body: text("body").notNull(),
+    attempt: integer("attempt").notNull().default(0),
+    nextAttemptAt: timestamp("next_attempt_at").defaultNow().notNull(),
+    lockedUntil: timestamp("locked_until"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    index("webhook_deliveries_next_attempt_idx").on(table.nextAttemptAt),
+  ],
+).enableRLS();
+
 export const unmatchedCards = pgTable(
   "unmatched_cards",
   {
@@ -605,6 +631,11 @@ export const unmatchedCards = pgTable(
     binNumber: integer("bin_number"),
     diagnostics: jsonb("diagnostics"),
     embedding: vector("embedding"),
+    scannedByUserId: text("scanned_by_user_id"),
+    scannedByDeviceId: integer("scanned_by_device_id").references(
+      () => devices.id,
+      { onDelete: "set null" },
+    ),
     isDeleted: boolean("is_deleted").notNull().default(false),
     orgId: text("org_id").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),

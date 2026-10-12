@@ -96,7 +96,30 @@
       "title": "Pusher blocked",
       "description": "A card is on module {{module}}'s platform. Lower its side paddle before moving the pusher."
     },
-    "deviceReadyNoTest": "Device ready (self-test skipped)"
+    "deviceReadyNoTest": "Device ready (self-test skipped)",
+    "unexpectedReset": {
+      "title": "Sorter restarted",
+      "description": "The sorter restarted on its own: {{reason}} A card that was moving wasn't routed, so check the modules before resuming. The sorter is being checked again now."
+    },
+    "abnormalBoot": {
+      "title": "Sorter restarted before connecting",
+      "description": "The sorter's last restart wasn't a normal one: {{reason}}"
+    },
+    "heartbeatLost": {
+      "title": "Sorter stopped responding",
+      "description": "It didn't answer two status checks in a row, so it was disconnected. Check its power and cable, then reconnect."
+    },
+    "resetReasons": {
+      "power_on": "power was cut or it was plugged in.",
+      "external": "the reset button was pressed.",
+      "software": "the firmware restarted itself, or it was flashed.",
+      "watchdog": "it froze and the watchdog restarted it.",
+      "brownout": "its supply voltage dipped, usually from the servos drawing too much current. Check the power supply and wiring.",
+      "panic": "the firmware crashed.",
+      "usb": "the USB connection reset it.",
+      "other": "an uncommon cause.",
+      "unknown": "the cause is unknown."
+    }
   },
   "sessionMonitor": {
     "connectionLost": "Connection to session lost."
@@ -136,11 +159,11 @@
     },
     "saveFailed": {
       "title": "Card not saved",
-      "description": "{{name}} was sorted but couldn't be saved to the collection. Scanning is paused. Check your connection, then take the card back out and rescan it."
+      "description": "{{name}} was sorted but the server refused to save it. Scanning is paused. Take the card back out and rescan it."
     },
     "saveFailedUnmatched": {
       "title": "Unmatched card not saved",
-      "description": "A card went to the catch-all but couldn't be saved to the collection. Scanning is paused. Check your connection before resuming."
+      "description": "A card went to the catch-all but the server refused to save it. Scanning is paused. Take the card back out and rescan it."
     }
   },
   "cardScanner": {
@@ -239,7 +262,8 @@
     "simulateNoMatch": "Simulate No Match",
     "showUnmatchedRateToast": "Show Unmatched Warning",
     "forceCpu": "Force CPU (skip WebGPU)",
-    "forceError": "Force Error"
+    "forceError": "Force Error",
+    "ignoreIrSensors": "Ignore IR sensors (no routing)"
   },
   "scannerMenu": {
     "camera": "Camera",
@@ -598,6 +622,20 @@
     "failed": {
       "title": "Couldn't reset the sorter",
       "description": "The sorter didn't confirm the reset. Check the connection and try again."
+    }
+  },
+  "pendingScanSaves": {
+    "saving": {
+      "title_one": "Saving {{count}} scan",
+      "title_other": "Saving {{count}} scans",
+      "description": "The server couldn't be reached. Scans are kept in this browser and retried automatically, even after a reload."
+    },
+    "saved": {
+      "title": "All scans saved"
+    },
+    "rejected": {
+      "title": "A queued scan couldn't be saved",
+      "description": "The server refused a scan that was waiting to be saved. Check the collection for the missing card."
     }
   }
 }

@@ -12,6 +12,7 @@ import type {
   ScannedCard,
 } from "@magic-vault/shared";
 import type { ReactElement, ReactNode } from "react";
+import type { ScanStats } from "@/lib/interfaces/scanner";
 
 export interface CardSearchPickerProps {
   collectionGuid: string | undefined;
@@ -29,6 +30,11 @@ export interface CardSortButtonProps {
 
 export interface CardDetailsListProps {
   card: PlayingCard;
+}
+
+export interface CardScanOriginSectionProps {
+  scanId: string;
+  collectionGuid: string | undefined;
 }
 
 export interface DetailSectionProps {
@@ -134,8 +140,8 @@ export interface CardToolbarProps {
   watchers?: { userId: string; displayName: string }[];
   allSelected?: boolean;
   onToggleSelectAll?: () => void;
-  availableRarities?: { key: string; label: string }[];
-  availableColors?: { key: string; label: string; bg: string }[];
+  availableRarities?: ScanStats["rarities"];
+  availableColors?: ScanStats["colors"];
   availableFoilTypes?: { key: string; label: string }[];
   binCount?: number;
   viewMode: CardViewMode;
@@ -276,7 +282,7 @@ export type WrappedSlide =
   | {
       key: string;
       type: "rarity";
-      rarities: { key: string; label: string; count: number }[];
+      rarities: ScanStats["rarities"];
       total: number;
     }
   | {
@@ -370,8 +376,8 @@ export interface CardFilterPopoverProps {
   activeFilters: CardFilters;
   onFiltersChange: (filters: CardFilters) => void;
   activeFilterCount: number;
-  availableRarities: { key: string; label: string }[];
-  availableColors: { key: string; label: string; bg: string }[];
+  availableRarities: ScanStats["rarities"];
+  availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
   triggerClassName?: string;

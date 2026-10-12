@@ -322,5 +322,11 @@
     },
     "priceHint": "{{price}} à {{percent}} % du prix NM",
     "setSelected": "État"
+  },
+  "scanOrigin": {
+    "heading": "Scanné",
+    "scannedBy": "Par",
+    "sorter": "Trieuse",
+    "deletedSorter": "{{name}} (supprimée)"
   }
 }

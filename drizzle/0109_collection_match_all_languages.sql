@@ -1,0 +1,1 @@
+ALTER TABLE "collections" ADD COLUMN "match_all_languages" boolean DEFAULT false NOT NULL;

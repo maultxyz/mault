@@ -93,3 +93,7 @@ export interface LeaderboardRow {
   key: string;
   entry: LeaderboardEntry;
 }
+
+export interface StatsLeaderboardButtonProps {
+  iconOnly?: boolean;
+}

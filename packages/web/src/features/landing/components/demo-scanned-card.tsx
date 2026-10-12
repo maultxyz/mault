@@ -10,6 +10,7 @@ import { matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconSparkles } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { DemoScannedCard } from "@/lib/interfaces/landing";
+import { raritySwatch } from "@/lib/card-swatches";
 
 export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
   const { t } = useTranslation("cards");
@@ -58,7 +59,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
         <div className="flex min-w-0 items-center gap-1.5">
           <span
             className="size-2 shrink-0 rounded-full"
-            style={{ backgroundColor: `var(--${card.rarity})` }}
+            style={{ backgroundColor: raritySwatch(card.rarity).bg }}
           />
           <p className="truncate text-2xs font-medium">{card.name}</p>
         </div>
