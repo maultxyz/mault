@@ -242,7 +242,10 @@ export interface SerialContextValue {
   runTest: () => Promise<void>;
   checkFirmwareVersion: () => Promise<FirmwareCheckResult>;
   sendCommand: (data: string) => Promise<boolean>;
-  receiveResponse: (timeoutMs?: number) => Promise<string>;
+  sendRequest: (
+    command: object,
+    timeoutMs?: number,
+  ) => Promise<SerialRequestResult>;
   subscribe: (listener: SerialMessageListener) => () => void;
   registerPreTestHook: (fn: PreTestHook) => () => void;
   getCommLog: () => CommLogEntry[];
@@ -353,6 +356,16 @@ export interface BinLevelSummary {
   totalCards: number;
   fullest: BinFillLevel | null;
   needsEmptying: number;
+}
+
+export interface SerialRequestResult {
+  sent: boolean;
+  line: string;
+}
+
+export interface PendingSerialReply {
+  seq: number | null;
+  resolve: (line: string) => void;
 }
 
 export interface RawCommandResult {
@@ -671,6 +684,7 @@ export interface ByteTransport {
   onDisconnect(cb: () => void): void;
   onError(cb: (error: unknown) => void): void;
   close(): Promise<void>;
+  setMtu?(mtu: number): void;
 }
 
 export interface CornerDetection {
@@ -706,8 +720,10 @@ export interface RouteCardToBinParams {
 export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
 
 export interface AutoFeedSerial {
-  sendCommand: (data: string) => Promise<boolean>;
-  receiveResponse: (timeoutMs?: number) => Promise<string>;
+  sendRequest: (
+    command: object,
+    timeoutMs?: number,
+  ) => Promise<SerialRequestResult>;
 }
 
 export interface PendingCapture {

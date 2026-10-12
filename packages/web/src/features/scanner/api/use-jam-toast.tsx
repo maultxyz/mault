@@ -11,16 +11,14 @@ import { useTranslation } from "react-i18next";
 
 export function useJamToast(onResume: () => void) {
   const { t } = useTranslation("scanner");
-  const { isReady, sendCommand, receiveResponse, readIR } = useSerial();
-  const latestRef = useRef({ t, isReady, sendCommand, receiveResponse, onResume });
-  latestRef.current = { t, isReady, sendCommand, receiveResponse, onResume };
+  const { isReady, sendRequest, readIR } = useSerial();
+  const latestRef = useRef({ t, isReady, sendRequest, onResume });
+  latestRef.current = { t, isReady, sendRequest, onResume };
   const busyModulesRef = useRef(new Set<number>());
 
   const runCommand = useCallback(
     async (command: object, timeoutMs: number) => {
-      const { sendCommand, receiveResponse } = latestRef.current;
-      if (!(await sendCommand(JSON.stringify(command)))) return null;
-      const line = await receiveResponse(timeoutMs);
+      const { line } = await latestRef.current.sendRequest(command, timeoutMs);
       if (!line) return null;
       try {
         return JSON.parse(line) as Record<string, unknown>;

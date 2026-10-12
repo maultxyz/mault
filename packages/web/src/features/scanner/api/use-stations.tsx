@@ -85,6 +85,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   const connectedRef = useRef(connectedStationIds);
   const devicePrefsRef = useRef<Record<string, DevicePrefs>>({});
   const connectorsRef = useRef(new Map<string, StationConnector>());
+  const hardwareClaimsRef = useRef(new Map<string, string>());
   const panelElementsRef = useRef(new Map<string, HTMLElement>());
   const overviewTileElementsRef = useRef(new Map<string, HTMLElement>());
   const parkedSlotsRef = useRef(new Map<string, HTMLElement>());
@@ -361,6 +362,29 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
+  const releaseHardware = useCallback((id: string) => {
+    for (const [hardwareId, holder] of hardwareClaimsRef.current) {
+      if (holder === id) hardwareClaimsRef.current.delete(hardwareId);
+    }
+  }, []);
+
+  const claimHardware = useCallback(
+    (id: string, hardwareId: string) => {
+      const holder = hardwareClaimsRef.current.get(hardwareId);
+      if (
+        holder &&
+        holder !== id &&
+        stationsRef.current.some((s) => s.id === holder)
+      ) {
+        return false;
+      }
+      releaseHardware(id);
+      hardwareClaimsRef.current.set(hardwareId, id);
+      return true;
+    },
+    [releaseHardware],
+  );
+
   const disconnectStation = useCallback((id: string) => {
     connectorsRef.current.get(id)?.disconnect();
   }, []);
@@ -463,6 +487,8 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       connectPortToStandby,
       connectBluetoothDeviceToStandby,
       isDeviceConnected,
+      claimHardware,
+      releaseHardware,
       disconnectStation,
       getPanelElement,
       attachPanels,
@@ -488,6 +514,8 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       connectPortToStandby,
       connectBluetoothDeviceToStandby,
       isDeviceConnected,
+      claimHardware,
+      releaseHardware,
       disconnectStation,
       getPanelElement,
       attachPanels,

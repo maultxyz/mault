@@ -90,7 +90,7 @@ export function DeviceSetupWizard() {
   const device = useDevice();
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const { sendCommand, receiveResponse, sendTest, runTest, isReady } =
+  const { sendCommand, sendRequest, sendTest, runTest, isReady } =
     useSerial();
   const { configs, saveConfig, moveServo } = useModuleConfigs();
   const {
@@ -131,8 +131,7 @@ export function DeviceSetupWizard() {
     step,
     calibrationFor,
     moveServo,
-    sendCommand,
-    receiveResponse,
+    sendRequest,
   });
   latest.current = {
     feederSpeed: feederConfig.speed,
@@ -140,8 +139,7 @@ export function DeviceSetupWizard() {
     step,
     calibrationFor,
     moveServo,
-    sendCommand,
-    receiveResponse,
+    sendRequest,
   };
 
   useEffect(() => {
@@ -154,14 +152,9 @@ export function DeviceSetupWizard() {
     setTestError(null);
     setIrReading(null);
     setIrSeen(emptySetupIrSeen());
-    const response = current.receiveResponse();
-    void current
-      .sendCommand(
-        JSON.stringify({
-          setChannelOffset: CHANNEL_OFFSET[current.channelLayout],
-        }),
-      )
-      .then(() => response);
+    void current.sendRequest({
+      setChannelOffset: CHANNEL_OFFSET[current.channelLayout],
+    });
   }, [isOpen]);
 
   useEffect(() => {
@@ -183,9 +176,10 @@ export function DeviceSetupWizard() {
       if (busy) return;
       busy = true;
       try {
-        const response = receiveResponse(SETUP_IR_RESPONSE_TIMEOUT_MS);
-        if (!(await sendCommand(JSON.stringify({ readIR: true })))) return;
-        const line = await response;
+        const { line } = await sendRequest(
+          { readIR: true },
+          SETUP_IR_RESPONSE_TIMEOUT_MS,
+        );
         if (cancelled || !line) return;
         const parsed = JSON.parse(line) as ReadIrResponse;
         if (!Array.isArray(parsed.ir)) return;
@@ -212,7 +206,7 @@ export function DeviceSetupWizard() {
       cancelled = true;
       clearInterval(id);
     };
-  }, [isOpen, step.kind, sendCommand, receiveResponse]);
+  }, [isOpen, step.kind, sendRequest]);
 
   const handleServoChange = (value: number) => {
     if (step.kind !== "servo") return;

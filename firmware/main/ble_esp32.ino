@@ -22,13 +22,13 @@
 #define BLE_RX_UUID "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
 #define BLE_TX_UUID "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
 
-// BLEDevice::setMTU()'s actual effect has shifted across arduino-esp32 core
-// versions (CI installs whatever's latest, unpinned - see BLE_SUPPORTED's
-// comment in main.ino), so don't rely on a negotiated larger MTU actually
-// taking effect. Chunk conservatively at the default ATT MTU's usable
-// payload (23-byte MTU - 3-byte ATT header) instead - verify on hardware
-// whether this can safely be raised.
-#define BLE_CHUNK_SIZE 20
+#define BLE_PREFERRED_MTU 517
+#define BLE_DEFAULT_MTU 23
+#define BLE_ATT_HEADER_SIZE 3
+#define BLE_CHUNK_GAP_MS 5
+#define BLE_CONN_INTERVAL_MIN 6
+#define BLE_CONN_INTERVAL_MAX 24
+#define BLE_CONN_SUPERVISION_TIMEOUT 400
 #define BLE_RX_RING_SIZE 512
 
 char bleRxRing[BLE_RX_RING_SIZE];
@@ -54,6 +54,17 @@ volatile bool bleConnected = false;
 
 class SorterServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer* server) override { bleConnected = true; }
+#if defined(CONFIG_NIMBLE_ENABLED)
+  void onConnect(BLEServer* server, ble_gap_conn_desc* desc) override {
+    server->requestConnParams(desc->conn_handle, BLE_CONN_INTERVAL_MIN, BLE_CONN_INTERVAL_MAX, 0,
+                              BLE_CONN_SUPERVISION_TIMEOUT);
+  }
+#elif defined(CONFIG_BLUEDROID_ENABLED)
+  void onConnect(BLEServer* server, esp_ble_gatts_cb_param_t* param) override {
+    server->requestConnParams(param->connect.remote_bda, BLE_CONN_INTERVAL_MIN,
+                              BLE_CONN_INTERVAL_MAX, 0, BLE_CONN_SUPERVISION_TIMEOUT);
+  }
+#endif
   void onDisconnect(BLEServer* server) override {
     bleConnected = false;
     // Bluedroid stops advertising once connected and doesn't resume on its
@@ -88,6 +99,7 @@ void bleInit() {
   snprintf(localName, sizeof(localName), "Mault Sorter %s", deviceId);
 
   BLEDevice::init(localName);
+  BLEDevice::setMTU(BLE_PREFERRED_MTU);
   bleServer = BLEDevice::createServer();
   bleServer->setCallbacks(new SorterServerCallbacks());
 
@@ -121,21 +133,24 @@ bool bleIsConnected() { return bleConnected; }
 
 const char* bleState() { return bleConnected ? "connected" : "advertising"; }
 
+uint16_t bleMtu() {
+  if (!bleConnected || bleServer == nullptr) return 0;
+  return bleServer->getPeerMTU(bleServer->getConnId());
+}
+
 void bleSendLine(const char* s) {
   if (!bleConnected || bleTxChar == nullptr) return;
-  size_t len = strlen(s);
-  // Chunk the line across multiple notify() calls, then send a trailing
-  // "\n" chunk so the client's byte-stream line-splitter (the same logic
-  // it already uses for Serial's byte stream) sees identical framing over
-  // BLE as over USB, regardless of chunk boundaries.
-  for (size_t offset = 0; offset < len; offset += BLE_CHUNK_SIZE) {
-    size_t chunkLen = len - offset < BLE_CHUNK_SIZE ? len - offset : BLE_CHUNK_SIZE;
-    bleTxChar->setValue((uint8_t*)(s + offset), chunkLen);
+  static char line[MAX_REPLY_LEN + 2];
+  size_t len = strnlen(s, MAX_REPLY_LEN);
+  memcpy(line, s, len);
+  line[len++] = '\n';
+  uint16_t mtu = bleMtu();
+  size_t chunkSize = (mtu > BLE_DEFAULT_MTU ? mtu : BLE_DEFAULT_MTU) - BLE_ATT_HEADER_SIZE;
+  for (size_t offset = 0; offset < len; offset += chunkSize) {
+    if (offset > 0) delay(BLE_CHUNK_GAP_MS);
+    size_t chunkLen = len - offset < chunkSize ? len - offset : chunkSize;
+    bleTxChar->setValue((uint8_t*)(line + offset), chunkLen);
     bleTxChar->notify();
-    delay(10);  // let the stack drain the notify queue - verify on hardware
-                // whether this can be shortened/removed
   }
-  bleTxChar->setValue((uint8_t*)"\n", 1);
-  bleTxChar->notify();
 }
 #endif  // BLE_BACKEND_ESP32

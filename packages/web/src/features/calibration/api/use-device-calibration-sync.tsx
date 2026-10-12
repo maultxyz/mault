@@ -56,8 +56,7 @@ export function DeviceCalibrationSyncProvider({
   const { t } = useTranslation("calibration");
   const queryClient = useQueryClient();
   const {
-    sendCommand,
-    receiveResponse,
+    sendRequest,
     registerPreTestHook,
     isConnected,
     firmwareVersion,
@@ -71,9 +70,7 @@ export function DeviceCalibrationSyncProvider({
 
   const request = useCallback(
     async (command: object, timeoutMs?: number) => {
-      const reply = receiveResponse(timeoutMs);
-      const sent = await sendCommand(JSON.stringify(command));
-      const line = sent ? await reply : "";
+      const { line } = await sendRequest(command, timeoutMs);
       let parsed: Record<string, unknown> | null = null;
       try {
         const value: unknown = line ? JSON.parse(line) : null;
@@ -83,7 +80,7 @@ export function DeviceCalibrationSyncProvider({
       } catch {}
       return { line, parsed };
     },
-    [sendCommand, receiveResponse],
+    [sendRequest],
   );
 
   const sendChecked = useCallback(

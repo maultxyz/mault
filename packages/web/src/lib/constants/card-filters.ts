@@ -10,3 +10,8 @@ export const ALL_CARDS_QUERY: CollectionCardsQuery = {
   filters: EMPTY_CARD_FILTERS,
   grouped: false,
 };
+
+export const CARD_LOOKUP_QUERY: CollectionCardsQuery = {
+  ...ALL_CARDS_QUERY,
+  filters: { ...EMPTY_CARD_FILTERS, showDownloaded: true },
+};

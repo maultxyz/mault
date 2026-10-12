@@ -103,6 +103,13 @@ export const apiScannedCardSchema = z
     set_name: z.string(),
     collector_number: z.string(),
     rarity: z.string(),
+    tcgplayer_product_id: z
+      .number()
+      .int()
+      .nullable()
+      .describe(
+        "The printing's TCGplayer product id, or null when its card database doesn't list one.",
+      ),
     lang: z.string(),
     game: z.string().nullable().describe("Game key, e.g. mtg."),
     finish: z.enum(API_FINISHES),

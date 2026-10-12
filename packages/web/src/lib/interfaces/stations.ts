@@ -49,6 +49,8 @@ export interface StationsContextValue {
   connectPortToStandby: (port: SerialPort) => Promise<void>;
   connectBluetoothDeviceToStandby: (device: BluetoothDevice) => Promise<void>;
   isDeviceConnected: (deviceGuid: string) => boolean;
+  claimHardware: (id: string, hardwareId: string) => boolean;
+  releaseHardware: (id: string) => void;
   disconnectStation: (id: string) => void;
   getPanelElement: (id: string) => HTMLElement;
   attachPanels: (layout: StationPanelLayout) => () => void;

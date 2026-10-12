@@ -26,7 +26,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.6.0"
+#define FIRMWARE_VERSION "2.7.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -196,12 +196,15 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 #define IR_TIMEOUT_MS 3000
 #define SERIAL_CONNECT_WAIT_MS 1500
 
-// Uno R4 only (its WDT tops out at ~5.6s). Every blocking wait goes through
-// waitMs(), which keeps it fed, so it only fires if the board truly hangs,
-// e.g. after a supply dip from servos moving together leaves the MCU or
-// its I2C peripheral wedged. The reboot drops USB, so the app sees a
-// disconnect instead of a sorter that silently stops answering.
+// Every blocking wait goes through waitMs(), which keeps the watchdog fed,
+// so it only fires if the board truly hangs, e.g. after a supply dip from
+// servos moving together leaves the MCU or its I2C peripheral wedged. The
+// reboot drops USB, so the app sees a disconnect instead of a sorter that
+// silently stops answering. Uno R4 uses its hardware WDT (tops out at
+// ~5.6s); ESP32 subscribes the loop task to the core's task watchdog, whose
+// timeout comes from the prebuilt sdkconfig (5s).
 #define WATCHDOG_TIMEOUT_MS 4000
+#define SERIAL_BUFFER_SIZE 1024
 
 #define SERVO_PWM_FREQ 50
 // Gap between consecutive servo moves in setAllNeutral(), so a full reset
@@ -246,8 +249,18 @@ bool hopperHasCards() {
 }
 
 void feedWatchdog() {
-#if !defined(ARDUINO_ARCH_ESP32)
+#if defined(ARDUINO_ARCH_ESP32)
+  feedLoopWDT();
+#else
   WDT.refresh();
+#endif
+}
+
+void startWatchdog() {
+#if defined(ARDUINO_ARCH_ESP32)
+  enableLoopWDT();
+#else
+  WDT.begin(WATCHDOG_TIMEOUT_MS);
 #endif
 }
 
@@ -489,6 +502,7 @@ void printStoredFeeder(Print& reply) {
 #define DELAY_PUSHER_HOLD  150
 
 #define MAX_CMD_LEN 255
+#define MAX_REPLY_LEN 320
 
 // One InputState per transport - a command's response must go back out the
 // same transport it arrived on (the protocol has no request IDs; a client
@@ -1042,8 +1056,8 @@ class BlePrint : public Print {
   using Print::write;
 
  private:
-  char buf[MAX_CMD_LEN + 1];
-  uint8_t len = 0;
+  char buf[MAX_REPLY_LEN + 1];
+  uint16_t len = 0;
 };
 BlePrint bleReply;
 #endif
@@ -1090,20 +1104,63 @@ void printJsonEscaped(const char* s, Print& reply) {
   }
 }
 
+class SeqPrint : public Print {
+ public:
+  SeqPrint(Print& out, bool hasSeq, uint32_t seq) : out(out), hasSeq(hasSeq), seq(seq) {}
+
+  size_t write(uint8_t c) override { return write(&c, 1); }
+
+  size_t write(const uint8_t* buffer, size_t size) override {
+    size_t start = 0;
+    for (size_t i = 0; i < size; i++) {
+      bool tagHere = hasSeq && atLineStart && buffer[i] == '{';
+      atLineStart = buffer[i] == '\n';
+      if (!tagHere) continue;
+      out.write(buffer + start, i + 1 - start);
+      out.print(F("\"seq\":"));
+      out.print(seq);
+      out.write(',');
+      start = i + 1;
+    }
+    if (start < size) out.write(buffer + start, size - start);
+    return size;
+  }
+  using Print::write;
+
+ private:
+  Print& out;
+  bool hasSeq;
+  uint32_t seq;
+  bool atLineStart = true;
+};
+
+bool readCommandSeq(const char* json, uint32_t& seq) {
+  JsonDocument filter;
+  filter["seq"] = true;
+  JsonDocument doc;
+  if (deserializeJson(doc, json, DeserializationOption::Filter(filter))) return false;
+  if (!doc["seq"].is<uint32_t>()) return false;
+  seq = doc["seq"].as<uint32_t>();
+  return true;
+}
+
 bool commandInProgress = false;
 char activeCommand[MAX_CMD_LEN + 1];
 
 void runCommand(char* json, Print& reply);
 
 void handleCommand(char* json, Print& reply) {
+  uint32_t seq = 0;
+  bool hasSeq = readCommandSeq((const char*)json, seq);
+  SeqPrint tagged(reply, hasSeq, seq);
   if (commandInProgress) {
-    reply.println(F("{\"error\":\"busy\",\"reason\":\"another command is in progress\"}"));
+    tagged.println(F("{\"error\":\"busy\",\"reason\":\"another command is in progress\"}"));
     return;
   }
   commandInProgress = true;
   strncpy(activeCommand, json, MAX_CMD_LEN);
   activeCommand[MAX_CMD_LEN] = '\0';
-  runCommand(activeCommand, reply);
+  runCommand(activeCommand, tagged);
   commandInProgress = false;
 }
 
@@ -1141,7 +1198,14 @@ void runCommand(char* json, Print& reply) {
     reply.print(deviceId);
     reply.print(F("\",\"ble\":\""));
     reply.print(bleStatus());
-    reply.println(F("\"}"));
+    reply.print(F("\""));
+#if BLE_SUPPORTED
+    if (bleMtu() > 0) {
+      reply.print(F(",\"bleMtu\":"));
+      reply.print(bleMtu());
+    }
+#endif
+    reply.println(F("}"));
     return;
   }
 
@@ -1455,6 +1519,10 @@ void setup() {
   rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);  // blue - powered, not yet connected
 #endif
 
+#if defined(ARDUINO_ARCH_ESP32) && ARDUINO_USB_MODE && ARDUINO_USB_CDC_ON_BOOT
+  Serial.setRxBufferSize(SERIAL_BUFFER_SIZE);
+  Serial.setTxBufferSize(SERIAL_BUFFER_SIZE);
+#endif
   Serial.begin(9600);
   unsigned long serialWaitStart = millis();
   while (!Serial && millis() - serialWaitStart < SERIAL_CONNECT_WAIT_MS) delay(10);
@@ -1497,9 +1565,7 @@ void setup() {
            FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus());
   broadcastLine(bootLine);
 
-#if !defined(ARDUINO_ARCH_ESP32)
-  WDT.begin(WATCHDOG_TIMEOUT_MS);
-#endif
+  startWatchdog();
 }
 
 void loop() {

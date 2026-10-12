@@ -11,7 +11,7 @@ import { CardStorageLocationSection } from "@/features/storage/components/card-s
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import type {
   MobileCardDetailBodyProps,
   MobileCardDetailDrawerProps,
@@ -59,7 +59,11 @@ function MobileCardDetailBody({
   const { t } = useTranslation("cards");
   const { correctCard, removeCard } = useScannedCards();
   const { data: position, isPending } = useQuery(
-    collectionCardPositionQueryOptions(collectionGuid, scanId, ALL_CARDS_QUERY),
+    collectionCardPositionQueryOptions(
+      collectionGuid,
+      scanId,
+      CARD_LOOKUP_QUERY,
+    ),
   );
   const entry = position?.entry.scanId === scanId ? position.entry : null;
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =

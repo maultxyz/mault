@@ -92,8 +92,7 @@ export function CardScanner({
     firmwareVersion,
     disconnect,
     sendTest,
-    sendCommand,
-    receiveResponse,
+    sendRequest,
   } = useSerial();
   const {
     connect,
@@ -270,7 +269,10 @@ export function CardScanner({
     setIsFeeding(true);
     try {
       if (!(await prepareDevice())) return;
-      const sent = await sendCommand(JSON.stringify({ feeder: true }));
+      const { sent, line: response } = await sendRequest(
+        { feeder: true },
+        10000,
+      );
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
           description: t("feederCommandFailedDescription"),
@@ -283,7 +285,6 @@ export function CardScanner({
         });
         return;
       }
-      const response = await receiveResponse(10000);
       if (!response) {
         toast.error(t("cardScanner.feedTimeout.title"), {
           description: t("feederTimeoutDescription"),
@@ -343,8 +344,7 @@ export function CardScanner({
   }, [
     isReady,
     prepareDevice,
-    sendCommand,
-    receiveResponse,
+    sendRequest,
     handleCardArrived,
     handlePause,
     t,
@@ -355,14 +355,16 @@ export function CardScanner({
     if (!isReady) return;
     setIsClearingDevice(true);
     try {
-      const sent = await sendCommand(JSON.stringify({ clearDevice: true }));
+      const { sent, line: response } = await sendRequest(
+        { clearDevice: true },
+        10000,
+      );
       if (!sent) {
         toast.error(t("cardScanner.clearFailed.title"), {
           description: t("cardScanner.clearFailed.description"),
         });
         return;
       }
-      const response = await receiveResponse(10000);
       if (!response) {
         toast.error(t("cardScanner.clearTimeout.title"), {
           description: t("cardScanner.clearTimeout.description"),
@@ -375,7 +377,7 @@ export function CardScanner({
     } finally {
       setIsClearingDevice(false);
     }
-  }, [isReady, sendCommand, receiveResponse, t]);
+  }, [isReady, sendRequest, t]);
 
   const handleForceScanClick = useCallback(async () => {
     if (!isReady) {
@@ -383,24 +385,21 @@ export function CardScanner({
       return;
     }
     try {
-      const sent = await sendCommand(JSON.stringify({ readIR: true }));
-      if (sent) {
-        const response = await receiveResponse(2000);
-        if (response) {
-          const parsed = JSON.parse(response) as Record<string, unknown>;
-          if (Array.isArray(parsed.ir) && !parsed.ir[0]) {
-            toast.error(t("cardScanner.noCardDetected.title"), {
-              description: t("cardScanner.noCardDetected.description"),
-            });
-            return;
-          }
+      const { line: response } = await sendRequest({ readIR: true }, 2000);
+      if (response) {
+        const parsed = JSON.parse(response) as Record<string, unknown>;
+        if (Array.isArray(parsed.ir) && !parsed.ir[0]) {
+          toast.error(t("cardScanner.noCardDetected.title"), {
+            description: t("cardScanner.noCardDetected.description"),
+          });
+          return;
         }
       }
     } catch {
       // Malformed/missing response - fall through to the scan attempt.
     }
     handleForceScan();
-  }, [isReady, sendCommand, receiveResponse, handleForceScan, t]);
+  }, [isReady, sendRequest, handleForceScan, t]);
 
   useEffect(() => {
     return registerCardArrivedHook(handleCardArrived);

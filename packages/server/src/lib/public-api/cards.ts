@@ -39,6 +39,11 @@ async function selectCards(
       cc.card ->> 'setName' AS set_name,
       cc.card ->> 'collectorNumber' AS collector_number,
       cc.card ->> 'rarity' AS rarity,
+      COALESCE(
+        cc.card ->> 'tcgplayerId',
+        cc.card -> 'raw' ->> 'tcgplayer_id',
+        cc.card -> 'raw' -> 'printing' ->> 'tcgplayer_product_id'
+      ) AS tcgplayer_product_id,
       ${cardPriceValueSql("price", CC_ALIAS_SQL_COLUMNS)} AS price_usd,
       ${cardPriceValueSql("priceFoil", CC_ALIAS_SQL_COLUMNS)} AS price_usd_foil,
       ${cardPriceValueSql("priceEur", CC_ALIAS_SQL_COLUMNS)} AS price_eur,
@@ -62,6 +67,12 @@ async function selectCards(
   return result.rows as unknown as PublicApiCardRow[];
 }
 
+function toProductId(value: string | null): number | null {
+  if (!value || !/^\d+$/.test(value)) return null;
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+}
+
 function formatPrice(value: number | string | null): string | null {
   if (value === null) return null;
   const price = Number(value);
@@ -78,6 +89,7 @@ export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
     set_name: row.set_name,
     collector_number: row.collector_number,
     rarity: row.rarity,
+    tcgplayer_product_id: toProductId(row.tcgplayer_product_id),
     lang: row.lang,
     game: row.game,
     finish: row.is_foil ? "foil" : "nonfoil",

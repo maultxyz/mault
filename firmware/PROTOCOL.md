@@ -35,16 +35,27 @@ a serial connection to the device can drive it by following this spec
   change.
 - **Framing:** one JSON object per line, terminated by `\n` (`\r` is
   also accepted as a line terminator). Every request produces exactly
-  **one** JSON-line response, in the order it was sent — there is no
-  request ID, so a client must correlate responses positionally (send
-  one command, read one response line, before sending the next).
+  **one** JSON-line response, in the order it was sent.
+- **Request sequence numbers (firmware 2.7.0+).** A command may carry
+  `"seq": N` (an unsigned 32-bit integer, any position in the object). Every
+  line written in response to it then starts with the same `"seq":N`, e.g.
+  `{"seq":42,"route":{...}}` → `{"seq":42,"status":"routed",...}`. This
+  includes `busy` rejections and the `fed` event emitted during that route.
+  A client should match replies to requests by `seq` and drop any reply
+  whose `seq` it isn't waiting for (a reply that arrives after its request
+  timed out). Lines with no `seq` are the boot banner, unsolicited `jam`
+  alerts, `command too long`, and `invalid JSON` (the device couldn't read a
+  `seq` from those). Older firmware ignores `seq` and never echoes it, so a
+  client can always send it and fall back to positional matching (send one
+  command, read one response line) until it first sees a tagged reply.
 - **One command at a time, across every transport.** While a command is
   executing (a `route` can take several seconds), the device keeps reading
   input and answers any new line immediately with
   `{"error":"busy","reason":"another command is in progress"}`, without
   running it. That rejection arrives **before** the in-progress command's own
-  response, so a client that sent a second command while waiting on a first
-  must match the `busy` reply to the second one, not the first. Nothing is
+  response. Without `seq`, a client that sent a second command while waiting
+  on a first must match the `busy` reply to the second one, not the first;
+  with `seq` the rejection carries the rejected command's number. Nothing is
   queued: resend once the first response has arrived. One exception: on the
   Uno R4 WiFi (ArduinoBLE backend), BLE input can't be read while a
   BLE-originated command is running, so a BLE line sent during a BLE command
@@ -82,9 +93,11 @@ a serial connection to the device can drive it by following this spec
   below). Any line carrying an `event` key is never a command's
   response, so a client correlating responses positionally must skip it.
 
-- Uno R4 builds run a hardware watchdog (about 4s). If the board ever
-  hangs mid-command (typically a supply dip from servos wedging the MCU or
-  its I2C bus), it reboots instead of going silent: the pending command
+- Every build runs a watchdog: the Uno R4's hardware WDT (about 4s) and,
+  from 2.7.0, the ESP32 task watchdog on the loop task (5s, the core's
+  prebuilt setting). If the board ever hangs mid-command (typically a
+  supply dip from servos wedging the MCU or its I2C bus), it reboots
+  instead of going silent: the pending command
   never gets a response, USB/BLE drops, and the boot banner is sent again
   once a client reconnects. Configuration is back to defaults after that,
   so a client must re-send it exactly as on a fresh connect.
@@ -110,15 +123,21 @@ protocol standpoint.
 - **Framing:** identical to Serial — one JSON object per line, `\n`-
   terminated. A single command or response line is **not** guaranteed to
   arrive in one BLE write/notify packet: both directions get chunked to the
-  connection's negotiated MTU (the device chunks conservatively at 20 bytes
-  unless testing shows a given board/central negotiates higher), so a client
-  must reassemble by simply appending received bytes to a buffer and
-  splitting on `\n`, exactly as it already does for Serial's byte stream.
+  connection's negotiated MTU, so a client must reassemble by simply
+  appending received bytes to a buffer and splitting on `\n`, exactly as it
+  already does for Serial's byte stream. From 2.7.0 the ESP32-S3 accepts an
+  MTU up to 517, sends each line (with its `\n`) in `MTU - 3` byte notifies,
+  usually one per line, and reports the negotiated MTU as `bleMtu` in
+  `getStatus` while a central is connected, so a client can size its own
+  writes to `bleMtu - 3` instead of 20. It also asks the central for a 7.5
+  to 30 ms connection interval on connect; a central may refuse, which
+  leaves its default. The Uno R4 WiFi (ArduinoBLE) stays at the default
+  23-byte MTU, so it chunks at 20 bytes and reports no `bleMtu`.
 - **Response routing:** a command's response is sent back only on the
   transport it arrived on — if both Serial and BLE are connected at once,
   each keeps its own independent request/response correlation (the protocol
-  has no request IDs, so a client must still send one command and read one
-  response before sending the next — see Transport above). The boot banner
+  is matched by `seq` on 2.7.0+, or positionally before that, see Transport
+  above). The boot banner
   and the unsolicited `{"error":"jam",...}` message are the exception: they
   broadcast to every currently-connected transport, not just one.
 - **Reliability:** BLE notifications aren't guaranteed delivery. A dropped
@@ -126,6 +145,8 @@ protocol standpoint.
   based recovery (waiting for a response line, per the framing note above)
   handles this as a failed/garbled response, but there's no automatic retry
   of the specific request. This matches how generic BLE UART bridges behave.
+  With `seq` (2.7.0+) a lost reply only fails its own request; without it,
+  a client matching positionally can end up one reply behind.
 - **Power-only operation:** BLE works with no USB host at all (e.g. only
   VIN powered). On boot the firmware waits at most 1.5s for a USB serial
   host before starting BLE, and on ESP32-S3 Hardware CDC builds USB writes
@@ -202,6 +223,10 @@ firmware's Bluedroid backend accept one connection at a time),
 co-processor didn't answer `BLE.begin()` after 5 attempts; the device keeps
 working over Serial), or `"none"` (a board with no BLE hardware, such as the
 Uno R4 Minima).
+
+Firmware 2.7.0+ on the ESP32-S3 also adds `"bleMtu": N` to the `getStatus`
+reply (not the boot banner) while a central is connected: the negotiated
+ATT MTU, so a BLE client can write up to `N - 3` bytes per packet.
 
 ### `setChannelOffset`
 ```json
