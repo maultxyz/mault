@@ -99,8 +99,18 @@ a serial connection to the device can drive it by following this spec
   supply dip from servos wedging the MCU or its I2C bus), it reboots
   instead of going silent: the pending command
   never gets a response, USB/BLE drops, and the boot banner is sent again
-  once a client reconnects. Configuration is back to defaults after that,
-  so a client must re-send it exactly as on a fresh connect.
+  once a client reconnects. From 2.5.0 the device reloads its stored
+  calibration (`storeConfig`) on boot, but anything only sent with
+  `setConfig`/`setFeederConfig`/`setChannelOffset` and never stored is back
+  to defaults, so a client should run the same sync as on a fresh connect.
+  On a board whose port survives the reset (an ESP32 on its USB-to-UART
+  bridge port), the link doesn't drop: the boot banner just arrives
+  unprompted, with no `seq`, while the client still thinks it's connected.
+  A client that has seen tagged replies on that connection should treat an
+  untagged `{"status":"ready",...}` line as a reset: fail every pending
+  request and redo the connect sync. From 2.8.0 `getStatus` also reports
+  `uptimeMs`, so a client polling it can spot a reset whose banner it
+  missed (the uptime goes down).
 
 ## BLE transport
 
@@ -227,6 +237,17 @@ Uno R4 Minima).
 Firmware 2.7.0+ on the ESP32-S3 also adds `"bleMtu": N` to the `getStatus`
 reply (not the boot banner) while a central is connected: the negotiated
 ATT MTU, so a BLE client can write up to `N - 3` bytes per packet.
+
+Firmware 2.8.0+ adds `"resetReason"` to both the boot banner and the
+`getStatus` reply: why the board last started. One of `"power_on"`,
+`"external"` (reset pin or button), `"software"` (a firmware restart, or a
+flash or upload), `"watchdog"` (the board hung and the watchdog rebooted it),
+`"brownout"` (supply voltage dipped, usually servo current on a weak supply),
+`"panic"` (ESP32 crash), `"usb"` (ESP32 USB/JTAG reset, e.g. opening the
+native USB port), `"other"` or `"unknown"`. The Uno R4 only reports
+`"brownout"` when a voltage monitor reset is enabled. `getStatus` (not the
+banner) also reports `"uptimeMs"`, milliseconds since boot (wraps after
+about 49 days).
 
 ### `setChannelOffset`
 ```json

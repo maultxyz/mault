@@ -660,6 +660,9 @@ export function useCardScanner({
     if (cameraSource !== "phone") setHasPhonePhoto(false);
   }, [cameraSource]);
 
+  const tRef = useRef(t);
+  tRef.current = t;
+
   const updateStatus = useCallback((newStatus: ScannerStatus) => {
     statusRef.current = newStatus;
     setStatus(newStatus);
@@ -875,7 +878,7 @@ export function useCardScanner({
           handleErrorRef.current(
             err instanceof Error
               ? err.message
-              : t("scanEngine.videoStartFailed"),
+              : tRef.current("scanEngine.videoStartFailed"),
           );
         }
       }
@@ -893,8 +896,7 @@ export function useCardScanner({
       }
       video.srcObject = null;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stream]);
+  }, [stream, updateStatus, detectionLoop]);
 
   // Continuous live-preview overlay showing what would be captured - purely
   // visual feedback, decoupled from when an actual capture/match fires

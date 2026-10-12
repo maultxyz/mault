@@ -7,6 +7,12 @@ import {
   handleForbidden,
 } from "@/lib/api/client";
 import type { CardCondition, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
+import { ApiStatusError } from "@/lib/api/api-status-error";
+import type {
+  CardSaveResult,
+  ScanSaveOptions,
+  UnmatchedSaveResult,
+} from "@/lib/interfaces/scanner";
 import { queryOptions } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
 
@@ -76,28 +82,29 @@ export async function loadCardDiagnostics(
   );
 }
 
+async function scanSaveHeaders(orgId: string | null | undefined) {
+  return {
+    "Content-Type": "application/json",
+    ...(await getAuthHeaders()),
+    ...(orgId ? { "X-Org-Id": orgId } : {}),
+  };
+}
+
 export async function addCollectionCard(
   guid: string,
   record: ScannedCard,
-  deviceGuid: string | undefined,
-): Promise<
-  Result<ScannedCard> & {
-    scanLimitReached?: boolean;
-    sorterLimitReached?: boolean;
-    binLimitReached?: boolean;
-    binNumber?: number;
-  }
-> {
+  { deviceGuid, orgId, isRetry }: ScanSaveOptions,
+): Promise<CardSaveResult> {
   const res = await fetch(`${API_BASE}/api/collections/${guid}/cards`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
-    body: JSON.stringify({ ...record, deviceGuid }),
+    headers: await scanSaveHeaders(orgId),
+    body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
   // Return body for success, 423 (locked), 402 (free-plan scan or connected-sorter limit reached), and 409 (bin full)
   if (res.ok || res.status === 423 || res.status === 402 || res.status === 409)
     return res.json();
-  throw new Error(`API error: ${res.status}`);
+  throw new ApiStatusError(res.status);
 }
 
 export async function updateCollectionCard(
@@ -200,18 +207,16 @@ export async function loadUnmatchedCards(guid: string): Promise<Result<Unmatched
 export async function addUnmatchedCard(
   guid: string,
   record: UnmatchedCard,
-  deviceGuid: string | undefined,
-): Promise<
-  Result<UnmatchedCard> & { binLimitReached?: boolean; binNumber?: number }
-> {
+  { deviceGuid, orgId, isRetry }: ScanSaveOptions,
+): Promise<UnmatchedSaveResult> {
   const res = await fetch(`${API_BASE}/api/collections/${guid}/unmatched`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...(await getAuthHeaders()) },
-    body: JSON.stringify({ ...record, deviceGuid }),
+    headers: await scanSaveHeaders(orgId),
+    body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
   if (res.ok || res.status === 409) return res.json();
-  throw new Error(`API error: ${res.status}`);
+  throw new ApiStatusError(res.status);
 }
 
 export async function removeUnmatchedCard(

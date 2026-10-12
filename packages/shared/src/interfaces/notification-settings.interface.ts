@@ -4,7 +4,8 @@ export type SerialCommand =
   | "feeder"
   | "auto-feed"
   | "bin"
-  | "jam";
+  | "jam"
+  | "reset";
 
 export interface SerialEventReport {
   command: SerialCommand;

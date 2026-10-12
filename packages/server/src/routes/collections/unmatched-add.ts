@@ -1,4 +1,7 @@
-import type { UnmatchedCard } from "@magic-vault/shared";
+import type {
+  ScanSaveRequestFields,
+  UnmatchedCard,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { unmatchedCards } from "../../db/schema";
@@ -8,6 +11,7 @@ import { recordUnmatchedScan } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
+import { isScanSaved } from "./scan-saved";
 
 // POST /collections/:guid/unmatched — record a scan that found no card match
 export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
@@ -26,7 +30,17 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       diagnostics,
       embedding,
       deviceGuid,
-    } = await c.req.json<UnmatchedCard & { deviceGuid?: string }>();
+      isRetry,
+    } = await c.req.json<UnmatchedCard & ScanSaveRequestFields>();
+    if (
+      isRetry &&
+      (await isScanSaved(c.get("jwtClaims"), unmatchedCards, scanId))
+    ) {
+      return c.json({
+        success: true,
+        data: { scanId, scannedAt, binNumber } as UnmatchedCard,
+      });
+    }
     const storedImage = await storeScanImage(
       { orgId, collectionGuid: guid, scanId, kind: "unmatched" },
       capturedImageUrl,
@@ -41,7 +55,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
         if (!collection)
           return { success: false, message: "Collection not found." };
 
-        if (binNumber != null) {
+        if (binNumber != null && !isRetry) {
           const fullBin = await findFullBin(
             tx,
             orgId,

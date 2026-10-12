@@ -128,19 +128,6 @@ export function CardSelectDialog({
     );
   };
 
-  const handleSelect = useCallback(
-    (card: PlayingCard) => {
-      if (scanId) {
-        correctCard(scanId, card);
-      } else {
-        addCard({ ...card, distance: 0 });
-      }
-      handleOpenChange(false);
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [scanId, addCard, correctCard],
-  );
-
   const handleSelectCandidate = useCallback(
     (card: PlayingCardWithDistance) => {
       setSelectedId(card.id);
@@ -164,6 +151,18 @@ export function CardSelectDialog({
       }
     },
     [isControlled, controlledOnOpenChange, currentCard],
+  );
+
+  const handleSelect = useCallback(
+    (card: PlayingCard) => {
+      if (scanId) {
+        correctCard(scanId, card);
+      } else {
+        addCard({ ...card, distance: 0 });
+      }
+      handleOpenChange(false);
+    },
+    [scanId, addCard, correctCard, handleOpenChange],
   );
 
   const handleRemove = useCallback(() => {

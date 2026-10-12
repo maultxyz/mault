@@ -1,12 +1,19 @@
-import { eq } from "drizzle-orm";
+import type { WebhookEventType } from "@magic-vault/shared";
+import { and, asc, eq, inArray, isNull, lt, lte, or, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { webhookEndpoints } from "../../db/schema";
+import { webhookDeliveries, webhookEndpoints } from "../../db/schema";
 import {
   WEBHOOK_DELIVERY_CONCURRENCY,
+  WEBHOOK_DELIVERY_LOCK_SECONDS,
+  WEBHOOK_DELIVERY_POLL_INTERVAL_MS,
   WEBHOOK_QUEUE_LIMIT,
   WEBHOOK_RETRY_DELAYS_MS,
 } from "../constants/webhooks";
-import type { WebhookDeliveryJob, WebhookJob } from "../interfaces/webhooks";
+import type {
+  ClaimedWebhookDelivery,
+  NewWebhookDelivery,
+  WebhookJob,
+} from "../interfaces/webhooks";
 import { recordWebhookDelivery, sendWebhook } from "./delivery";
 
 const pendingJobs: WebhookJob[] = [];
@@ -36,23 +43,113 @@ export function enqueueWebhookJob(job: WebhookJob): void {
   setImmediate(drainQueue);
 }
 
-async function runDelivery(job: WebhookDeliveryJob): Promise<void> {
+let activeDeliveries = 0;
+let pumping = false;
+
+async function claimDueDeliveries(
+  limit: number,
+): Promise<ClaimedWebhookDelivery[]> {
+  const due = db
+    .select({ id: webhookDeliveries.id })
+    .from(webhookDeliveries)
+    .where(
+      and(
+        lte(webhookDeliveries.nextAttemptAt, sql`now()`),
+        or(
+          isNull(webhookDeliveries.lockedUntil),
+          lt(webhookDeliveries.lockedUntil, sql`now()`),
+        ),
+      ),
+    )
+    .orderBy(asc(webhookDeliveries.nextAttemptAt))
+    .limit(limit)
+    .for("update", { skipLocked: true });
+  const rows = await db
+    .update(webhookDeliveries)
+    .set({
+      lockedUntil: sql`now() + make_interval(secs => ${WEBHOOK_DELIVERY_LOCK_SECONDS})`,
+    })
+    .where(inArray(webhookDeliveries.id, due))
+    .returning({
+      id: webhookDeliveries.id,
+      endpointId: webhookDeliveries.endpointId,
+      eventId: webhookDeliveries.eventId,
+      type: webhookDeliveries.type,
+      body: webhookDeliveries.body,
+      attempt: webhookDeliveries.attempt,
+    });
+  return rows.map((row) => ({ ...row, type: row.type as WebhookEventType }));
+}
+
+async function finishDelivery(id: number): Promise<void> {
+  await db.delete(webhookDeliveries).where(eq(webhookDeliveries.id, id));
+}
+
+async function runDelivery(delivery: ClaimedWebhookDelivery): Promise<void> {
   const endpoint = await db.query.webhookEndpoints.findFirst({
-    where: eq(webhookEndpoints.id, job.endpointId),
+    where: eq(webhookEndpoints.id, delivery.endpointId),
     columns: { url: true, secret: true, disabledAt: true },
   });
-  if (!endpoint || endpoint.disabledAt) return;
-  const result = await sendWebhook(endpoint.url, endpoint.secret, job);
-  await recordWebhookDelivery(job.endpointId, result);
-  const delay = WEBHOOK_RETRY_DELAYS_MS[job.attempt];
-  if (!result.ok && delay !== undefined) {
-    setTimeout(
-      () => enqueueWebhookDelivery({ ...job, attempt: job.attempt + 1 }),
-      delay,
-    ).unref();
+  if (!endpoint || endpoint.disabledAt) {
+    await finishDelivery(delivery.id);
+    return;
+  }
+  const result = await sendWebhook(endpoint.url, endpoint.secret, delivery);
+  await recordWebhookDelivery(delivery.endpointId, result);
+  const delayMs = WEBHOOK_RETRY_DELAYS_MS[delivery.attempt];
+  if (result.ok || delayMs === undefined) {
+    await finishDelivery(delivery.id);
+    return;
+  }
+  await db
+    .update(webhookDeliveries)
+    .set({
+      attempt: delivery.attempt + 1,
+      nextAttemptAt: sql`now() + make_interval(secs => ${delayMs / 1000})`,
+      lockedUntil: null,
+    })
+    .where(eq(webhookDeliveries.id, delivery.id));
+}
+
+async function pumpDeliveries(): Promise<void> {
+  if (pumping) return;
+  pumping = true;
+  try {
+    for (;;) {
+      const free = WEBHOOK_DELIVERY_CONCURRENCY - activeDeliveries;
+      if (free <= 0) return;
+      const claimed = await claimDueDeliveries(free);
+      if (claimed.length === 0) return;
+      for (const delivery of claimed) {
+        activeDeliveries++;
+        runDelivery(delivery)
+          .catch((err) => {
+            console.error("[webhooks] Delivery failed:", err);
+          })
+          .finally(() => {
+            activeDeliveries--;
+            void pumpDeliveries();
+          });
+      }
+    }
+  } catch (err) {
+    console.error("[webhooks] Couldn't claim deliveries:", err);
+  } finally {
+    pumping = false;
   }
 }
 
-export function enqueueWebhookDelivery(job: WebhookDeliveryJob): void {
-  enqueueWebhookJob(() => runDelivery(job));
+export async function queueWebhookDeliveries(
+  deliveries: NewWebhookDelivery[],
+): Promise<void> {
+  if (deliveries.length === 0) return;
+  await db.insert(webhookDeliveries).values(deliveries);
+  void pumpDeliveries();
+}
+
+export function startWebhookDeliveryWorker(): void {
+  setInterval(() => {
+    void pumpDeliveries();
+  }, WEBHOOK_DELIVERY_POLL_INTERVAL_MS).unref();
+  void pumpDeliveries();
 }

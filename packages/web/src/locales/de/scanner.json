@@ -96,7 +96,30 @@
       "title": "Schieber blockiert",
       "description": "Auf der Plattform von Modul {{module}} liegt eine Karte. Senke zuerst das seitliche Paddel, bevor du den Schieber bewegst."
     },
-    "deviceReadyNoTest": "Gerät bereit (Selbsttest übersprungen)"
+    "deviceReadyNoTest": "Gerät bereit (Selbsttest übersprungen)",
+    "unexpectedReset": {
+      "title": "Sortierer neu gestartet",
+      "description": "Der Sortierer hat sich selbst neu gestartet: {{reason}} Eine Karte in Bewegung wurde nicht einsortiert, prüfe also die Module, bevor du fortfährst. Der Sortierer wird jetzt erneut geprüft."
+    },
+    "abnormalBoot": {
+      "title": "Sortierer vor dem Verbinden neu gestartet",
+      "description": "Der letzte Neustart des Sortierers war nicht normal: {{reason}}"
+    },
+    "heartbeatLost": {
+      "title": "Sortierer antwortet nicht mehr",
+      "description": "Er hat zwei Statusabfragen hintereinander nicht beantwortet und wurde getrennt. Prüfe Stromversorgung und Kabel und verbinde ihn erneut."
+    },
+    "resetReasons": {
+      "power_on": "der Strom war weg oder er wurde eingesteckt.",
+      "external": "die Reset-Taste wurde gedrückt.",
+      "software": "die Firmware hat sich selbst neu gestartet oder wurde geflasht.",
+      "watchdog": "er ist hängen geblieben und der Watchdog hat ihn neu gestartet.",
+      "brownout": "die Versorgungsspannung ist eingebrochen, meist weil die Servos zu viel Strom ziehen. Prüfe Netzteil und Verkabelung.",
+      "panic": "die Firmware ist abgestürzt.",
+      "usb": "die USB-Verbindung hat ihn zurückgesetzt.",
+      "other": "eine seltene Ursache.",
+      "unknown": "die Ursache ist unbekannt."
+    }
   },
   "sessionMonitor": {
     "connectionLost": "Verbindung zur Sitzung verloren."
@@ -136,11 +159,11 @@
     },
     "saveFailed": {
       "title": "Karte nicht gespeichert",
-      "description": "{{name}} wurde einsortiert, konnte aber nicht in der Sammlung gespeichert werden. Das Scannen ist pausiert. Prüfe deine Verbindung, nimm die Karte wieder heraus und scanne sie erneut."
+      "description": "{{name}} wurde einsortiert, aber der Server hat das Speichern abgelehnt. Das Scannen ist pausiert. Nimm die Karte wieder heraus und scanne sie erneut."
     },
     "saveFailedUnmatched": {
       "title": "Nicht erkannte Karte nicht gespeichert",
-      "description": "Eine Karte ist ins Auffangfach gegangen, konnte aber nicht in der Sammlung gespeichert werden. Das Scannen ist pausiert. Prüfe deine Verbindung, bevor du fortfährst."
+      "description": "Eine Karte ist ins Auffangfach gegangen, aber der Server hat das Speichern abgelehnt. Das Scannen ist pausiert. Nimm die Karte wieder heraus und scanne sie erneut."
     }
   },
   "cardScanner": {
@@ -598,6 +621,20 @@
     "failed": {
       "title": "Sortierer konnte nicht zurückgesetzt werden",
       "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
+    }
+  },
+  "pendingScanSaves": {
+    "saving": {
+      "title_one": "{{count}} Scan wird gespeichert",
+      "title_other": "{{count}} Scans werden gespeichert",
+      "description": "Der Server ist nicht erreichbar. Scans bleiben in diesem Browser gespeichert und werden automatisch erneut gesendet, auch nach einem Neuladen."
+    },
+    "saved": {
+      "title": "Alle Scans gespeichert"
+    },
+    "rejected": {
+      "title": "Ein wartender Scan konnte nicht gespeichert werden",
+      "description": "Der Server hat einen Scan abgelehnt, der noch gespeichert werden sollte. Prüfe die Sammlung auf die fehlende Karte."
     }
   }
 }

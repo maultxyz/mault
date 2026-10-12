@@ -2,7 +2,10 @@ import {
   SERIAL_BUSY_ERROR,
   SERIAL_FED_EVENT,
   SERIAL_JAM_ERROR,
+  SERIAL_READY_STATUS,
+  SERIAL_RESET_REASONS,
 } from "@/lib/constants/firmware";
+import type { SerialResetReason } from "@/lib/interfaces/scanner";
 
 function asFields(message: unknown): Record<string, unknown> | null {
   return typeof message === "object" && message !== null
@@ -46,4 +49,24 @@ export function withSeq(
 export function replySeq(message: unknown): number | null {
   const seq = asFields(message)?.seq;
   return typeof seq === "number" ? seq : null;
+}
+
+export function isBootBanner(message: unknown): boolean {
+  return (
+    asFields(message)?.status === SERIAL_READY_STATUS &&
+    replySeq(message) === null
+  );
+}
+
+export function statusUptimeMs(message: unknown): number | null {
+  const uptime = asFields(message)?.uptimeMs;
+  return typeof uptime === "number" ? uptime : null;
+}
+
+export function statusResetReason(message: unknown): SerialResetReason | null {
+  const reason = asFields(message)?.resetReason;
+  if (typeof reason !== "string") return null;
+  return (SERIAL_RESET_REASONS as readonly string[]).includes(reason)
+    ? (reason as SerialResetReason)
+    : "other";
 }

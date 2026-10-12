@@ -35,7 +35,7 @@ import {
   type RepackSlot,
 } from "@magic-vault/shared";
 import { IconInfoCircle, IconPlus, IconTrash } from "@tabler/icons-react";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { emptyRuleGroup } from "@/lib/rule-groups";
@@ -65,20 +65,19 @@ export function RepackPanel() {
     },
   });
 
+  const selectedSetRef = useRef(selectedSet);
+  selectedSetRef.current = selectedSet;
+  const selectedSetGuid = selectedSet?.guid;
   useEffect(() => {
-    if (!selectedSet) return;
+    const set = selectedSetRef.current;
+    if (!selectedSetGuid || !set) return;
     form.reset({
-      repackUniqueBy:
-        selectedSet.repackUniqueBy ?? REPACK_ALLOW_DUPLICATES_VALUE,
-      repackSiftRules: selectedSet.repackSiftRules,
+      repackUniqueBy: set.repackUniqueBy ?? REPACK_ALLOW_DUPLICATES_VALUE,
+      repackSiftRules: set.repackSiftRules,
       repackSlots:
-        selectedSet.repackSlots.length > 0
-          ? selectedSet.repackSlots
-          : [createSlot()],
+        set.repackSlots.length > 0 ? set.repackSlots : [createSlot()],
     });
-    // Only re-sync when the active set changes - not on every keystroke.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSet?.guid]);
+  }, [selectedSetGuid, form]);
 
   const handleSave = useCallback(
     async (values: RepackConfigFormValues) => {

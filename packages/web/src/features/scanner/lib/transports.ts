@@ -67,7 +67,7 @@ export class SerialTransport implements ByteTransport {
         }
       } catch (e) {
         if (!(e instanceof DOMException && e.name === "NetworkError")) {
-          console.error("[Serial] Read error:", e); // eslint-disable-line no-console -- hardware debug trace
+          console.error("[Serial] Read error:", e);
           this.errorCb?.(e);
         }
       } finally {
@@ -124,7 +124,7 @@ async function connectNusCharacteristics(device: BluetoothDevice) {
       return { rxChar, txChar };
     } catch (e) {
       lastError = e;
-      console.warn(`[Bluetooth] Connect attempt ${attempt} failed:`, e); // eslint-disable-line no-console -- hardware debug trace
+      console.warn(`[Bluetooth] Connect attempt ${attempt} failed:`, e);
       try {
         gatt.disconnect();
       } catch {}
@@ -196,7 +196,7 @@ export class BluetoothTransport implements ByteTransport {
       if (e instanceof DOMException && e.name === "NotAllowedError") {
         return { ok: false, reason: "permission-blocked" };
       }
-      console.error("[Bluetooth] requestDevice failed:", e); // eslint-disable-line no-console -- hardware debug trace
+      console.error("[Bluetooth] requestDevice failed:", e);
       return {
         ok: false,
         reason: "failed",
@@ -217,7 +217,7 @@ export class BluetoothTransport implements ByteTransport {
         transport: new BluetoothTransport(device, rxChar, txChar),
       };
     } catch (e) {
-      console.error("[Bluetooth] Connect failed:", e); // eslint-disable-line no-console -- hardware debug trace
+      console.error("[Bluetooth] Connect failed:", e);
       try {
         device.gatt?.disconnect();
       } catch {}

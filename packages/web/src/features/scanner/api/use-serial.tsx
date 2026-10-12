@@ -14,12 +14,16 @@ import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
 import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import {
+  isBootBanner,
   isBusyResponse,
   isFailedRouteResponse,
   isUnsolicitedSerialMessage,
   replySeq,
+  statusResetReason,
+  statusUptimeMs,
   withSeq,
 } from "@/features/scanner/lib/serial-messages";
+import { claimBootNotice } from "@/features/scanner/lib/sorter-boot-notice";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
 import {
@@ -31,6 +35,8 @@ import {
   BLE_RECONNECT_MAX_DELAY_MS,
 } from "@/lib/constants/bluetooth";
 import {
+  SERIAL_ABNORMAL_RESET_REASONS,
+  SERIAL_HEARTBEAT_MAX_MISSES,
   SERIAL_IDENTIFY_ATTEMPTS,
   SERIAL_PUSH_BLOCKED_ERROR,
   SERIAL_SEQ_MAX,
@@ -48,6 +54,8 @@ import {
   ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS,
   SELF_TEST_RESPONSE_TIMEOUT_MS,
   SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
+  SERIAL_HEARTBEAT_INTERVAL_MS,
+  SERIAL_HEARTBEAT_TIMEOUT_MS,
   SERIAL_IDENTIFY_ATTEMPT_TIMEOUT_MS,
   SERIAL_IDENTIFY_TIMEOUT_MS,
 } from "@/lib/constants/timing";
@@ -113,6 +121,11 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const pendingRef = useRef<PendingSerialReply[]>([]);
   const seqRef = useRef(Math.floor(Math.random() * SERIAL_SEQ_MAX));
   const taggedRepliesRef = useRef(false);
+  const resetWatchArmedRef = useRef(false);
+  const lastUptimeMsRef = useRef<number | null>(null);
+  const handleUnexpectedResetRef = useRef<(status: unknown) => void>(
+    () => {},
+  );
   const listenersRef = useRef(new Set<SerialMessageListener>());
   const disconnectingRef = useRef<Promise<void> | null>(null);
   const preTestHooksRef = useRef(new Set<PreTestHook>());
@@ -199,6 +212,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         }
         for (const listener of listenersRef.current) {
           listener(parsed);
+        }
+        if (isBootBanner(parsed) && resetWatchArmedRef.current) {
+          handleUnexpectedResetRef.current(parsed);
+          continue;
         }
         if (isUnsolicitedSerialMessage(parsed)) continue;
 
@@ -448,6 +465,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     }
     pendingRef.current = [];
     taggedRepliesRef.current = false;
+    resetWatchArmedRef.current = false;
+    lastUptimeMsRef.current = null;
     bufferRef.current = "";
 
     const cleanup = (async () => {
@@ -470,7 +489,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       try {
         await hook(forDevice);
       } catch (e) {
-        console.error("[Serial] Pre-test hook failed:", e); // eslint-disable-line no-console -- hardware debug trace
+        console.error("[Serial] Pre-test hook failed:", e);
       }
     }
   }, []);
@@ -657,6 +676,103 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [activeOrg?.id, queryClient, t],
   );
 
+  const handleConnectionLost = useCallback(
+    (lostTransport: ByteTransport) => {
+      if (transportRef.current !== lostTransport) return;
+      console.warn("[Device] Connection lost, disconnecting");
+      const lostGuid = leasedDeviceGuidRef.current;
+      const reconnectTo =
+        lostTransport.kind === "bluetooth" &&
+        lostGuid &&
+        isAutoConnectDeviceRef.current(lostGuid)
+          ? (lostTransport as BluetoothTransport).bluetoothDevice
+          : null;
+      disconnect();
+      if (reconnectTo && lostGuid) {
+        startBluetoothReconnectRef.current(reconnectTo, lostGuid);
+      }
+    },
+    [disconnect],
+  );
+
+  const resetReasonText = useCallback(
+    (status: unknown) =>
+      t(`serial.resetReasons.${statusResetReason(status) ?? "unknown"}`),
+    [t],
+  );
+
+  const noticeAbnormalBoot = useCallback(
+    (hardwareId: string, status: unknown) => {
+      const reason = statusResetReason(status);
+      const uptimeMs = statusUptimeMs(status);
+      if (
+        !reason ||
+        uptimeMs === null ||
+        !SERIAL_ABNORMAL_RESET_REASONS.includes(reason) ||
+        !claimBootNotice(hardwareId, uptimeMs)
+      ) {
+        return;
+      }
+      toast.warning(t("serial.abnormalBoot.title"), {
+        description: t("serial.abnormalBoot.description", {
+          reason: resetReasonText(status),
+        }),
+      });
+      void reportSerialEvent({
+        command: "reset",
+        sent: true,
+        response: status,
+      });
+    },
+    [t, resetReasonText],
+  );
+
+  const handleUnexpectedReset = useCallback(
+    (status: unknown) => {
+      const activeTransport = transportRef.current;
+      if (!activeTransport) return;
+      console.warn("[Device] Sorter restarted unexpectedly", status);
+      resetWatchArmedRef.current = false;
+      lastUptimeMsRef.current = statusUptimeMs(status);
+      for (const pending of pendingRef.current) pending.resolve("");
+      pendingRef.current = [];
+      setIsReady(false);
+      const hardwareId = deviceRef.current?.hardwareId;
+      const uptimeMs = statusUptimeMs(status);
+      if (hardwareId && uptimeMs !== null) {
+        claimBootNotice(hardwareId, uptimeMs);
+      }
+      toast.warning(t("serial.unexpectedReset.title"), {
+        description: t("serial.unexpectedReset.description", {
+          reason: resetReasonText(status),
+        }),
+      });
+      void reportSerialEvent({
+        command: "reset",
+        sent: true,
+        response: status,
+      });
+      const forDevice = deviceRef.current;
+      void (async () => {
+        if (!forDevice || forDevice.setupCompletedAt) {
+          if (forDevice && !forDevice.testOnConnect) {
+            await syncWithoutTest(activeTransport, forDevice);
+          } else {
+            await runConnectTest(activeTransport, forDevice);
+          }
+        }
+        if (transportRef.current === activeTransport) {
+          resetWatchArmedRef.current = true;
+        }
+      })();
+    },
+    [t, resetReasonText, syncWithoutTest, runConnectTest],
+  );
+
+  useEffect(() => {
+    handleUnexpectedResetRef.current = handleUnexpectedReset;
+  }, [handleUnexpectedReset]);
+
   const openTransport = useCallback(
     async (
       newTransport: ByteTransport,
@@ -664,6 +780,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     ): Promise<{ identified: Promise<unknown> }> => {
       clearCommLog();
       taggedRepliesRef.current = false;
+      resetWatchArmedRef.current = false;
+      lastUptimeMsRef.current = null;
       transportRef.current = newTransport;
       newTransport.onData(handleIncomingChunk);
       newTransport.onError(() => {
@@ -676,22 +794,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           response: null,
         });
       });
-      newTransport.onDisconnect(() => {
-        if (transportRef.current === newTransport) {
-          console.warn("[Device] Connection lost, disconnecting");
-          const lostGuid = leasedDeviceGuidRef.current;
-          const reconnectTo =
-            newTransport.kind === "bluetooth" &&
-            lostGuid &&
-            isAutoConnectDeviceRef.current(lostGuid)
-              ? (newTransport as BluetoothTransport).bluetoothDevice
-              : null;
-          disconnect();
-          if (reconnectTo && lostGuid) {
-            startBluetoothReconnectRef.current(reconnectTo, lostGuid);
-          }
-        }
-      });
+      newTransport.onDisconnect(() => handleConnectionLost(newTransport));
       await newTransport.start();
 
       const markConnected = () => {
@@ -752,6 +855,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           setBoard(status.board);
         }
         if (hardwareId) setDeviceId(hardwareId);
+        lastUptimeMsRef.current = statusUptimeMs(status);
+        if (hardwareId) noticeAbnormalBoot(hardwareId, status);
         if (exceedsSorterLimit()) {
           disconnect();
           return null;
@@ -790,6 +895,13 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       const identified = identify();
       void identified.then(async (result) => {
+        if (
+          result &&
+          transportRef.current === newTransport &&
+          taggedRepliesRef.current
+        ) {
+          resetWatchArmedRef.current = true;
+        }
         if (!result || options?.skipAutoTest) return;
         const boundDevice = result.device;
         if (boundDevice && !boundDevice.setupCompletedAt) return;
@@ -816,6 +928,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       runConnectTest,
       syncWithoutTest,
       disconnect,
+      handleConnectionLost,
+      noticeAbnormalBoot,
       t,
     ],
   );
@@ -1113,6 +1227,63 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const binBusyRef = useRef(false);
   const isRouteBusy = useCallback(() => binBusyRef.current, []);
+
+  useEffect(() => {
+    if (!isConnected || !isReady || isFlashing) return;
+    let misses = 0;
+    let checking = false;
+    const interval = setInterval(async () => {
+      const activeTransport = transportRef.current;
+      if (
+        checking ||
+        !activeTransport ||
+        !resetWatchArmedRef.current ||
+        binBusyRef.current ||
+        pendingRef.current.length > 0
+      ) {
+        return;
+      }
+      checking = true;
+      try {
+        const { sent, line } = await sendRequest(
+          { getStatus: true },
+          SERIAL_HEARTBEAT_TIMEOUT_MS,
+        );
+        if (transportRef.current !== activeTransport) return;
+        if (!sent || !line) {
+          misses += 1;
+          if (misses < SERIAL_HEARTBEAT_MAX_MISSES) return;
+          toast.error(t("serial.heartbeatLost.title"), {
+            description: t("serial.heartbeatLost.description"),
+          });
+          void reportSerialEvent({
+            command: "connect",
+            sent,
+            response: null,
+          });
+          handleConnectionLost(activeTransport);
+          return;
+        }
+        misses = 0;
+        let status: unknown;
+        try {
+          status = JSON.parse(line);
+        } catch {
+          return;
+        }
+        const uptimeMs = statusUptimeMs(status);
+        if (uptimeMs === null) return;
+        const previous = lastUptimeMsRef.current;
+        lastUptimeMsRef.current = uptimeMs;
+        if (previous !== null && uptimeMs < previous) {
+          handleUnexpectedResetRef.current(status);
+        }
+      } finally {
+        checking = false;
+      }
+    }, SERIAL_HEARTBEAT_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [isConnected, isReady, isFlashing, sendRequest, handleConnectionLost, t]);
 
   const checkFirmwareVersion =
     useCallback(async (): Promise<FirmwareCheckResult> => {

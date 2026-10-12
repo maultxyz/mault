@@ -8,6 +8,7 @@ import {
   useStations,
 } from "@/features/scanner/api/use-stations";
 import { DeployPauseProvider } from "@/features/scanner/api/use-deploy-pause";
+import { PendingScanSavesProvider } from "@/features/scanner/api/use-pending-scan-saves";
 import { DocumentTitleUpdater } from "@/features/scanner/components/document-title-updater";
 import { StationScope } from "@/features/scanner/components/station-scope";
 import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
@@ -64,17 +65,19 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         <AppStreamProvider>
           <StationsProvider>
             <InitialLoadProvider>
-              <DeployPauseProvider>
-                <StationScopes>
-                  <OnboardingProvider>
-                    <AppAlertsProvider>
-                      <AppLoadingGate>{children}</AppLoadingGate>
-                    </AppAlertsProvider>
-                    <OrgPickerModal />
-                    <DocumentTitleUpdater />
-                  </OnboardingProvider>
-                </StationScopes>
-              </DeployPauseProvider>
+              <PendingScanSavesProvider>
+                <DeployPauseProvider>
+                  <StationScopes>
+                    <OnboardingProvider>
+                      <AppAlertsProvider>
+                        <AppLoadingGate>{children}</AppLoadingGate>
+                      </AppAlertsProvider>
+                      <OrgPickerModal />
+                      <DocumentTitleUpdater />
+                    </OnboardingProvider>
+                  </StationScopes>
+                </DeployPauseProvider>
+              </PendingScanSavesProvider>
               <SerialAutoConnect />
             </InitialLoadProvider>
           </StationsProvider>

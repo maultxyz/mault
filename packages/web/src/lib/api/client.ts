@@ -1,3 +1,4 @@
+import { ApiStatusError } from "@/lib/api/api-status-error";
 import { neon } from "@/lib/auth/client";
 import {
   clearImpersonation,
@@ -45,7 +46,7 @@ export async function handleForbidden(res: Response): Promise<void> {
     }
     window.location.href = "/auth/sign-in";
   }
-  throw new Error("API error: 403");
+  throw new ApiStatusError(403);
 }
 
 async function checkResponse(

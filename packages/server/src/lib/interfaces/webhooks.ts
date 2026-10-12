@@ -10,6 +10,12 @@ export interface WebhookDeliveryJob {
   attempt: number;
 }
 
+export type NewWebhookDelivery = Omit<WebhookDeliveryJob, "attempt">;
+
+export interface ClaimedWebhookDelivery extends WebhookDeliveryJob {
+  id: number;
+}
+
 export interface WebhookDeliveryResult {
   ok: boolean;
   status: number | null;

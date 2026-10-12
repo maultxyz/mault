@@ -7,6 +7,18 @@ const COMMAND_LABELS: Record<SerialCommand, string> = {
   "auto-feed": "Auto-Feed",
   bin: "Sorter",
   jam: "Sorter",
+  reset: "Sorter",
+};
+
+const RESET_REASON_LABELS: Record<string, string> = {
+  power_on: "Power was cut or the board was plugged in.",
+  external: "The reset button or reset pin was used.",
+  software: "The firmware restarted itself, or it was flashed.",
+  watchdog: "The board froze and the watchdog restarted it.",
+  brownout:
+    "The supply voltage dipped. Check the servo power supply and wiring.",
+  panic: "The firmware crashed.",
+  usb: "The USB connection reset the board.",
 };
 
 function contextLines(event: SerialEventReport): string[] {
@@ -21,6 +33,23 @@ export function classifySerialEvent(
 ): { title: string; description: string } | null {
   const label = COMMAND_LABELS[event.command];
   const lines = contextLines(event);
+
+  if (event.command === "reset") {
+    const reason =
+      typeof event.response === "object" && event.response !== null
+        ? (event.response as Record<string, unknown>).resetReason
+        : undefined;
+    return {
+      title: "Sorter Restarted",
+      description: [
+        ...lines,
+        `**Cause:** ${
+          (typeof reason === "string" && RESET_REASON_LABELS[reason]) ||
+          "Unknown."
+        }`,
+      ].join("\n"),
+    };
+  }
 
   if (!event.sent) {
     return {
