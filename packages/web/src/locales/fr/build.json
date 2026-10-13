@@ -288,7 +288,7 @@
     },
     "i2cTable": {
       "colPcaPin": "Broche PCA9685",
-      "vccLogic": "VCC (logique)"
+      "vccLogic": "<pin>VCC</pin> (logique)"
     },
     "servoPowerTable": {
       "colFrom": "De",

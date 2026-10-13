@@ -288,7 +288,7 @@
     },
     "i2cTable": {
       "colPcaPin": "PCA9685-Pin",
-      "vccLogic": "VCC (Logik)"
+      "vccLogic": "<pin>VCC</pin> (Logik)"
     },
     "servoPowerTable": {
       "colFrom": "Von",

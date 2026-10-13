@@ -74,6 +74,9 @@ export const BUILD_SETUP_ANCHOR = "setup";
 export const BUILD_SELECTION_BADGE_CLASS =
   "h-6 rounded-md border-foreground/15 bg-foreground/10 px-2 text-sm font-medium text-foreground";
 
+export const BUILD_PIN_BADGE_CLASS =
+  "inline-flex h-6 items-center rounded-md border border-foreground/15 bg-foreground/10 px-2 align-middle font-mono text-sm font-medium text-foreground";
+
 export const BUILD_OPTIONAL_BADGE_CLASS =
   "ml-2 h-6 rounded-md border-foreground/15 bg-foreground/10 px-2 align-middle text-sm font-medium text-foreground no-underline";
 

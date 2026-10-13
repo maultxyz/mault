@@ -111,7 +111,13 @@ export function I2cWiringReference() {
             <WireSwatch key="c" wire="scl" />,
           ],
           [
-            t("wiring.i2cTable.vccLogic"),
+            <span key="a">
+              <Trans
+                t={t}
+                i18nKey="wiring.i2cTable.vccLogic"
+                components={{ pin: <Pin /> }}
+              />
+            </span>,
             <Pin key="b">{board.logicVoltage}</Pin>,
             <WireSwatch key="c" wire="vcc" />,
           ],

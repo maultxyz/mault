@@ -6,6 +6,7 @@ import { wiringAnchorId } from "@/features/build/lib/anchors";
 import {
   BOARD_INFO,
   BOARD_WIRE_COLORS,
+  BUILD_PIN_BADGE_CLASS,
   WIRE_COLOR_CLASSES,
   WIRING_VIEW_MODE_ICONS,
   WIRING_VIEW_MODES,
@@ -24,7 +25,7 @@ import { useTranslation } from "react-i18next";
 
 export function Pin({ children }: WiringPinProps) {
   return (
-    <code className="rounded-sm border border-border bg-muted px-1.5 py-0.5 font-mono text-sm text-foreground">
+    <code className={BUILD_PIN_BADGE_CLASS}>
       {children}
     </code>
   );
