@@ -119,7 +119,7 @@ export function findPickListEntry(
 ): PickListEntry | undefined {
   const keys = new Set(cardPickListKeys(cardName));
   return pickList.entries.find((entry) =>
-    keys.has(pickListNameKey(entry.name)),
+    cardPickListKeys(entry.name).some((key) => keys.has(key)),
   );
 }
 

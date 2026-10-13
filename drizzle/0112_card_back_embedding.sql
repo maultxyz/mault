@@ -1,0 +1,2 @@
+ALTER TABLE "cards" ADD COLUMN "back_embedding" vector(128);--> statement-breakpoint
+CREATE INDEX "cards_back_embedding_hnsw" ON "cards" USING hnsw ("back_embedding" vector_cosine_ops) WHERE "cards"."back_embedding" IS NOT NULL;

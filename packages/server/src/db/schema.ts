@@ -86,6 +86,7 @@ export const cardImageVectors = pgTable(
     setCode: text("set_code").notNull(),
     collectorNumber: text("collector_number"),
     embedding: vector("embedding").notNull(),
+    backEmbedding: vector("back_embedding"),
     data: jsonb("data"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -102,6 +103,9 @@ export const cardImageVectors = pgTable(
     // partial HNSW indexes are created dynamically instead, since game keys
     // are admin-defined data (Games Manager), not something this static
     // schema can enumerate.
+    index("cards_back_embedding_hnsw")
+      .using("hnsw", table.backEmbedding.op("vector_cosine_ops"))
+      .where(sql`${table.backEmbedding} IS NOT NULL`),
     index("cards_name_trgm_idx").using("gin", table.name.op("gin_trgm_ops")),
     index("cards_collector_number_idx").on(
       table.gameKey,
