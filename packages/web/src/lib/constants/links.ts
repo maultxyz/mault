@@ -1,5 +1,7 @@
 export const REPO_URL = "https://github.com/dishwasher-detergent/mault";
 export const MODEL_URL = `${REPO_URL}/tree/master/3d%20model`;
+export const PRINT_FILES_URL =
+  "https://makerworld.com/en/models/3066180-tcg-card-sorting-machine";
 export const DISCORD_URL = "https://discord.gg/fYvw5PcvGg";
 export const REPORT_ISSUE_URL = `${REPO_URL}/issues/new`;
 export const FIRMWARE_RELEASES_URL = `${REPO_URL}/releases`;

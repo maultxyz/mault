@@ -7,10 +7,6 @@
   "hero": {
     "eyebrow": "Bauanleitung für die Hardware",
     "title": "Den Kartensortierer bauen",
-    "description": "Teileliste und Montageanleitung für die physische Sortiereinheit: Ein Trichter führt Karten einzeln durch {{modules}} übereinander gestapelte Verteilermodule, von denen jedes eine Karte in eines von zwei seitlichen Fächern fallen lassen oder an das nächste Modul weiterreichen kann – insgesamt {{bins}} Fächer, gesteuert von einem {{board}} über I²C.",
-    "firmwareLabel": "Firmware",
-    "enclosureLabel": "Gehäuse",
-    "calibrationLabel": "Kalibrierung",
     "modulesIntro": "Jedes Modul hat drei Servos – eine <0>Bodenklappe</0>, ein <1>Paddel</1>-Tor und einen Links/Rechts-<2>Schieber</2> – sowie einen IR-Sensor. Wenn alle Bodenklappen oberhalb des Zielfachs geschlossen bleiben und nur die darunter liegenden geöffnet werden, fällt die Karte bis zum richtigen Modul, bevor der Schieber sie auswirft.",
     "moduleLabel": "Modul {{n}}",
     "binLabel": "Fach {{n}}",
@@ -364,7 +360,7 @@
         "title": "Die Strukturteile drucken",
         "steps": {
           "printSortingModule": {
-            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus <mesh>card_sorter.3mf</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>).",
+            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>).",
             "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {

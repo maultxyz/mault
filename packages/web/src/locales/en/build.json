@@ -7,10 +7,6 @@
   "hero": {
     "eyebrow": "Hardware build guide",
     "title": "Build the card sorter",
-    "description": "Parts list and assembly instructions for the physical sorting unit: a hopper feeds cards one at a time through {{modules}} stacked routing modules, each capable of dropping a card into one of two side bins or passing it down to the next module, {{bins}} bins total, driven by an {{board}} over I²C.",
-    "firmwareLabel": "Firmware",
-    "enclosureLabel": "Enclosure",
-    "calibrationLabel": "Calibration",
     "modulesIntro": "Each module has three servos, a <0>bottom</0> trapdoor, a <1>paddle</1> gate, and a left/right <2>pusher</2>, plus an IR sensor. Closing every trapdoor above the target bin and opening only the ones beneath it lets a card fall to the right module before the pusher ejects it.",
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bin {{n}}",
@@ -364,7 +360,7 @@
         "title": "Print the structural parts",
         "steps": {
           "printSortingModule": {
-            "text": "Slice and print {{count}} Sorting Module plates, one per sorting module, from <mesh>card_sorter.3mf</mesh> (or re-export from <source>Card Sorter.f3d</source>)."
+            "text": "Slice and print {{count}} Sorting Module plates, one per sorting module, from the <mesh>MakerWorld model</mesh> (or re-export from <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
             "text": "Print 1 Feeder Module from the same file. Only one needed, regardless of module count. Houses the feeder roller and hopper throat."

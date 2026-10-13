@@ -11,7 +11,7 @@ import {
   BOARD_INFO,
   WIRE_AND_CALIBRATE_VIDEO,
 } from "@/lib/constants/build";
-import { REPO_URL } from "@/lib/constants/links";
+import { PRINT_FILES_URL, REPO_URL } from "@/lib/constants/links";
 import {
   IconCpu,
   IconCube,
@@ -88,7 +88,7 @@ export function buildPhases(
               components={{
                 mesh: (
                   <a
-                    href="https://github.com/dishwasher-detergent/mault/blob/master/3d%20model/card_sorter.3mf"
+                    href={PRINT_FILES_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline underline-offset-2 hover:text-foreground"

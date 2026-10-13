@@ -7,10 +7,6 @@
   "hero": {
     "eyebrow": "Guide de montage du matériel",
     "title": "Construire la trieuse de cartes",
-    "description": "Liste des pièces et instructions de montage pour l'unité de tri physique : une trémie fait passer les cartes une par une à travers {{modules}} modules de routage empilés, chacun capable de faire tomber une carte dans l'un de ses deux bacs latéraux ou de la transmettre au module suivant - {{bins}} bacs au total, pilotés par un {{board}} via I²C.",
-    "firmwareLabel": "Firmware",
-    "enclosureLabel": "Boîtier",
-    "calibrationLabel": "Calibration",
     "modulesIntro": "Chaque module possède trois servos - une trappe <0>inférieure</0>, une <1>palette</1> de porte, et un <2>poussoir</2> gauche/droite - plus un capteur IR. Fermer chaque trappe au-dessus du bac cible et n'ouvrir que celles en dessous permet à une carte de tomber jusqu'au bon module avant que le poussoir ne l'éjecte.",
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bac {{n}}",
@@ -364,7 +360,7 @@
         "title": "Imprimer les pièces structurelles",
         "steps": {
           "printSortingModule": {
-            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir de <mesh>card_sorter.3mf</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>).",
+            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir du <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>).",
             "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
           },
           "printFeederModule": {
