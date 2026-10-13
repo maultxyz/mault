@@ -9,6 +9,11 @@ import {
   type RepackSlot,
   REPACK_UNIQUE_BY_PRINTING,
   SCAN_ONLY_DEFAULT_BIN,
+  mergePickListEntries,
+  PICK_LIST_MODES,
+  toPickList,
+  type PickList,
+  type PickListInput,
 } from "@magic-vault/shared";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { listOrgDevices } from "../../lib/devices";
@@ -46,6 +51,34 @@ export function toMaxCopiesBy(
   if (isCatchAll || maxCopies == null) return null;
   const trimmed = value?.trim();
   return trimmed && trimmed !== REPACK_UNIQUE_BY_PRINTING ? trimmed : null;
+}
+
+export function toBinPickList(
+  value: PickListInput | null | undefined,
+  isCatchAll: boolean | undefined,
+  previous: unknown,
+): PickList | null {
+  const current = toPickList(previous);
+  if (isCatchAll) return null;
+  if (value === undefined) return current;
+  if (value === null || !PICK_LIST_MODES.includes(value.mode)) return null;
+  return {
+    mode: value.mode,
+    entries: mergePickListEntries(
+      Array.isArray(value.entries) ? value.entries : [],
+      current?.entries ?? [],
+    ),
+  };
+}
+
+export function resetPickList(value: unknown): PickList | null {
+  const pickList = toPickList(value);
+  return pickList
+    ? {
+        ...pickList,
+        entries: pickList.entries.map((entry) => ({ ...entry, found: 0 })),
+      }
+    : null;
 }
 
 export function toOverflowBin(
@@ -133,6 +166,7 @@ function toBinSet(row: {
     maxCopiesBy: string | null;
     overflowBin: number | null;
     isDisabled: boolean;
+    pickList: unknown;
     lastEmptiedAt: Date | null;
   }[];
   game: {
@@ -177,6 +211,7 @@ function toBinSet(row: {
       maxCopiesBy: bin.maxCopiesBy,
       overflowBin: bin.overflowBin,
       isDisabled: bin.isDisabled,
+      pickList: bin.isCatchAll ? null : toPickList(bin.pickList),
       lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
     game: row.game
@@ -234,6 +269,7 @@ const binSetQuery = {
         maxCopiesBy: true,
         overflowBin: true,
         isDisabled: true,
+        pickList: true,
         lastEmptiedAt: true,
       },
     },
@@ -273,6 +309,7 @@ export async function snapshotBinSet(
       maxCopiesBy: true,
       overflowBin: true,
       isDisabled: true,
+      pickList: true,
     },
   });
   const snapshot: BinConfig[] = rows.map((r) => ({
@@ -288,6 +325,7 @@ export async function snapshotBinSet(
     maxCopiesBy: r.maxCopiesBy,
     overflowBin: r.overflowBin,
     isDisabled: r.isDisabled,
+    pickList: r.isCatchAll ? null : toPickList(r.pickList),
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
 }
@@ -356,14 +394,19 @@ export async function normalizeOverflowBins(
       isOverride: true,
       overflowBin: true,
       rules: true,
+      pickList: true,
     },
   });
-  const catchAllNumbers = new Set(
-    rows.filter((r) => r.isCatchAll).map((r) => r.binNumber),
+  const unusableTargets = new Set(
+    rows
+      .filter((r) => r.isCatchAll || r.pickList != null)
+      .map((r) => r.binNumber),
   );
   const isInvalid = (r: (typeof rows)[number]) =>
     r.overflowBin != null &&
-    (r.overflowBin === r.binNumber || catchAllNumbers.has(r.overflowBin));
+    (r.overflowBin === r.binNumber ||
+      r.pickList != null ||
+      unusableTargets.has(r.overflowBin));
 
   const invalidIds = rows.filter(isInvalid).map((r) => r.id);
   if (invalidIds.length > 0) {

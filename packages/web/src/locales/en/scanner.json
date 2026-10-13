@@ -164,6 +164,10 @@
     "saveFailedUnmatched": {
       "title": "Unmatched card not saved",
       "description": "A card went to the catch-all but the server refused to save it. Scanning is paused. Take the card back out and rescan it."
+    },
+    "pickListComplete": {
+      "title": "Pick list complete",
+      "description": "Every card on the list is in bin {{bin}}."
     }
   },
   "cardScanner": {

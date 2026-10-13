@@ -14,6 +14,7 @@ import {
   toOverflowBin,
   toOverridePriority,
   normalizeOverflowBins,
+  toBinPickList,
 } from "./shared";
 
 export const revertBinSetRoute = new Hono<AppEnv>().post(
@@ -42,7 +43,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
           with: {
             bins: {
               where: (bin, { eq }) => eq(bin.isDeleted, false),
-              columns: { id: true, binNumber: true },
+              columns: { id: true, binNumber: true, pickList: true },
             },
           },
         });
@@ -85,15 +86,21 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
           const existing = binSet.bins.find(
             (b) => b.binNumber === config.binNumber,
           );
+          const pickList = toBinPickList(
+            config.pickList ?? null,
+            config.isCatchAll,
+            existing?.pickList,
+          );
           if (existing) {
             await tx
               .update(bins)
-              .set({ ...restored, updatedAt: new Date() })
+              .set({ ...restored, pickList, updatedAt: new Date() })
               .where(eq(bins.id, existing.id));
           } else {
             await tx.insert(bins).values({
               binNumber: config.binNumber,
               ...restored,
+              pickList,
               binSet: binSet.id,
               orgId,
             });

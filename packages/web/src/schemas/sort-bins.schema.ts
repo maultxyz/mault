@@ -7,6 +7,7 @@ import {
   type BinRuleGroup,
 } from "@magic-vault/shared";
 import { z } from "zod";
+import { PICK_LIST_DECKLIST_MAX_LENGTH } from "@/lib/constants/bins";
 
 export const createSetSchema = z.object({
   name: z
@@ -85,6 +86,12 @@ export const binConfigSchema = z.object({
     .min(1, "Must be at least 1%")
     .max(LOW_MATCH_PERCENT_MAX, `Must be at most ${LOW_MATCH_PERCENT_MAX}%`)
     .nullable(),
+  pickList: z
+    .object({
+      mode: z.enum(["until_found", "all"]),
+      decklist: z.string().max(PICK_LIST_DECKLIST_MAX_LENGTH),
+    })
+    .nullable(),
 });
 
 export type BinConfigFormValues = z.infer<typeof binConfigSchema>;
@@ -108,3 +115,4 @@ export const repackConfigSchema = z.object({
 });
 
 export type RepackConfigFormValues = z.infer<typeof repackConfigSchema>;
+

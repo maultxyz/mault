@@ -281,6 +281,7 @@ export const bins = pgTable(
     maxCopiesBy: text("max_copies_by"),
     overflowBin: integer("overflow_bin"),
     isDisabled: boolean("is_disabled").notNull().default(false),
+    pickList: jsonb("pick_list"),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),

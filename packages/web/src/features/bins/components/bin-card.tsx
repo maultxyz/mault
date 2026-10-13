@@ -2,7 +2,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import type { BinCardProps } from "@/lib/interfaces/bins";
-import { BinConfig, isRuleGroup } from "@magic-vault/shared";
+import {
+  BinConfig,
+  getPickListTotals,
+  isPickListBin as isPickListConfig,
+  isRuleGroup,
+} from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function countConditions(config: BinConfig): number {
@@ -19,6 +24,7 @@ function countConditions(config: BinConfig): number {
 
 export function BinCard({
   config,
+  showPickList,
   active,
   isAutoAssign,
   isScanOnly,
@@ -38,6 +44,10 @@ export function BinCard({
   const conditionCount = countConditions(config);
   const isDisabled = !config.isCatchAll && !!config.isDisabled;
   const isOverflow = !config.isCatchAll && overflowSources.length > 0;
+  const pickList = config.pickList ?? null;
+  const isPickListBin = !!showPickList && isPickListConfig(config);
+  const pickListTotals =
+    isPickListBin && pickList ? getPickListTotals(pickList) : null;
   const overflowTo =
     showOverflow && !isDisabled ? (config.overflowBin ?? null) : null;
 
@@ -53,49 +63,69 @@ export function BinCard({
           {t("binLabel", { number: config.binNumber })}
         </p>
         <div className="flex items-center gap-1">
-          {isDisabled && (
-            <Badge variant="outline">{t("binCard.disabled")}</Badge>
-          )}
-          {!isDisabled &&
-            !isChaosMode &&
-            !config.isCatchAll &&
-            alphabetLetter === undefined &&
-            config.maxCopies != null && (
-              <Badge variant="outline">
-                {t("binCard.maxCopies", { count: config.maxCopies })}
-              </Badge>
-            )}
-          {(config.isCatchAll || config.isOverride) &&
-            !isDisabled &&
-            !isChaosMode &&
-            alphabetLetter === undefined &&
-            !isEmpty &&
-            config.overridePriority != null && (
-              <Badge variant="outline">
-                {t("binCard.priority", { priority: config.overridePriority })}
-              </Badge>
-            )}
-          {config.isCatchAll ? (
-            <Badge variant="default">{t("catchAll")}</Badge>
-          ) : isDisabled || isChaosMode ? null : isOverflow ? (
-            <Badge variant="outline">{t("binCard.overflow")}</Badge>
-          ) : alphabetLetter !== undefined ? (
-            alphabetLetter && (
-              <Badge variant="secondary">{alphabetLetter}</Badge>
-            )
-          ) : config.isOverride ? (
-            <Badge variant="outline">{t("binCard.override")}</Badge>
+          {isPickListBin ? (
+            <>
+              {isDisabled && (
+                <Badge variant="outline">{t("binCard.disabled")}</Badge>
+              )}
+              <Badge variant="default">{t("binCard.pickList")}</Badge>
+            </>
           ) : (
-            !isEmpty && (
-              <Badge variant="secondary">
-                {t("binCard.ruleCount", { count: conditionCount })}
-              </Badge>
-            )
+            <>
+              {isDisabled && (
+                <Badge variant="outline">{t("binCard.disabled")}</Badge>
+              )}
+              {!isDisabled &&
+                !isChaosMode &&
+                !config.isCatchAll &&
+                alphabetLetter === undefined &&
+                config.maxCopies != null && (
+                  <Badge variant="outline">
+                    {t("binCard.maxCopies", { count: config.maxCopies })}
+                  </Badge>
+                )}
+              {(config.isCatchAll || config.isOverride) &&
+                !isDisabled &&
+                !isChaosMode &&
+                alphabetLetter === undefined &&
+                !isEmpty &&
+                config.overridePriority != null && (
+                  <Badge variant="outline">
+                    {t("binCard.priority", { priority: config.overridePriority })}
+                  </Badge>
+                )}
+              {config.isCatchAll ? (
+                <Badge variant="default">{t("catchAll")}</Badge>
+              ) : isDisabled || isChaosMode ? null : isOverflow ? (
+                <Badge variant="outline">{t("binCard.overflow")}</Badge>
+              ) : alphabetLetter !== undefined ? (
+                alphabetLetter && (
+                  <Badge variant="secondary">{alphabetLetter}</Badge>
+                )
+              ) : config.isOverride ? (
+                <Badge variant="outline">{t("binCard.override")}</Badge>
+              ) : (
+                !isEmpty && (
+                  <Badge variant="secondary">
+                    {t("binCard.ruleCount", { count: conditionCount })}
+                  </Badge>
+                )
+              )}
+            </>
           )}
         </div>
       </div>
       <div className="w-full text-xs">
-        {isScanOnly && (config.isCatchAll || isScanOnlyTarget) ? (
+        {isPickListBin ? (
+          <p className="text-xs">
+            {pickList?.mode !== "all"
+              ? t("binCard.pickListProgress", {
+                  found: pickListTotals?.found ?? 0,
+                  total: pickListTotals?.wanted ?? 0,
+                })
+              : t("binCard.pickListAll", { count: pickListTotals?.found ?? 0 })}
+          </p>
+        ) : isScanOnly && (config.isCatchAll || isScanOnlyTarget) ? (
           <p className="text-xs">
             {config.isCatchAll
               ? isScanOnlyTarget

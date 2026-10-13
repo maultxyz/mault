@@ -164,6 +164,10 @@
     "saveFailedUnmatched": {
       "title": "Nicht erkannte Karte nicht gespeichert",
       "description": "Eine Karte ist ins Auffangfach gegangen, aber der Server hat das Speichern abgelehnt. Das Scannen ist pausiert. Nimm die Karte wieder heraus und scanne sie erneut."
+    },
+    "pickListComplete": {
+      "title": "Pickliste vollständig",
+      "description": "Jede Karte der Liste liegt in Fach {{bin}}."
     }
   },
   "cardScanner": {
