@@ -11,6 +11,7 @@ import type {
 export interface PrintingQuery {
   setCode: string | null;
   number: string;
+  name?: string;
 }
 
 export interface TcgplayerSubTypes {

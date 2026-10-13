@@ -21,6 +21,8 @@ export const COLLECTOR_NUMBER_BACKFILL_BATCH_SIZE = 1000;
 export const PRINTED_TOTAL_NUMBER_PATTERN = /^#?([a-z0-9-]+)\/\d+$/i;
 export const SET_AND_NUMBER_PATTERN = /^([a-z0-9]+)[\s#/-]+#?([a-z0-9]+)$/i;
 export const SINGLE_TOKEN_PATTERN = /^#?([a-z0-9-]+)$/i;
+export const NAME_AND_NUMBER_PATTERN =
+  /^(.*\S)\s+#?([a-z0-9-]*\d[a-z0-9-]*)(?:\/\d+)?$/i;
 
 export const FAB_SEARCH_CARD_LIMIT = 12;
 export const FAB_STANDARD_FOILING = "S";

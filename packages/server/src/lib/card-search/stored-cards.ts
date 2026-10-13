@@ -60,7 +60,14 @@ function numberMatches(number: string): SQL {
   return sql`(${collectorNumber} = ${wanted} OR ltrim(${collectorNumber}, '0') = ltrim(${wanted}, '0'))`;
 }
 
-function printingMatches({ setCode, number }: PrintingQuery): SQL {
+function likePattern(text: string): string {
+  return `%${text.replace(/[\\%_]/g, "\\$&")}%`;
+}
+
+function printingMatches({ setCode, number, name }: PrintingQuery): SQL {
+  if (name) {
+    return sql`(${ilike(cardImageVectors.name, likePattern(name))} AND ${numberMatches(number)})`;
+  }
   if (!setCode) return numberMatches(number);
   const collectorNumber = sql`lower(${cardImageVectors.collectorNumber})`;
   const set = setCode.toLowerCase();
@@ -69,12 +76,12 @@ function printingMatches({ setCode, number }: PrintingQuery): SQL {
 }
 
 function storedSearchMatch(trimmed: string) {
-  const pattern = `%${trimmed.replace(/[\\%_]/g, "\\$&")}%`;
+  const pattern = likePattern(trimmed);
   const printingQueries = parsePrintingQueries(trimmed);
   const printingMatch = printingQueries.length
     ? or(...printingQueries.map(printingMatches))
     : undefined;
-  const setMatch = printingQueries.some((q) => !q.setCode)
+  const setMatch = printingQueries.some((q) => !q.setCode && !q.name)
     ? sql`lower(${cardImageVectors.setCode}) = ${trimmed.toLowerCase()}`
     : undefined;
   return {

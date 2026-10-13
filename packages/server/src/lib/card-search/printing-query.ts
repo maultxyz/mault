@@ -1,4 +1,5 @@
 import {
+  NAME_AND_NUMBER_PATTERN,
   PRINTED_TOTAL_NUMBER_PATTERN,
   SET_AND_NUMBER_PATTERN,
   SINGLE_TOKEN_PATTERN,
@@ -16,6 +17,14 @@ export function parsePrintingQueries(query: string): PrintingQuery[] {
   const setAndNumber = SET_AND_NUMBER_PATTERN.exec(trimmed);
   if (setAndNumber) {
     queries.push({ setCode: setAndNumber[1], number: setAndNumber[2] });
+  }
+  const nameAndNumber = NAME_AND_NUMBER_PATTERN.exec(trimmed);
+  if (nameAndNumber) {
+    queries.push({
+      setCode: null,
+      number: nameAndNumber[2],
+      name: nameAndNumber[1].trim(),
+    });
   }
   return queries;
 }
