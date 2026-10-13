@@ -68,7 +68,7 @@
     "foilTypesDescription": "Kommagetrennt (z. B. Reverse Holo, Holo). Leer lassen für eine einfache Foil-Option.",
     "cardThicknessLabel": "Kartenstärke (mm)",
     "cardThicknessPlaceholder": "z. B. 0.3",
-    "cardThicknessDescription": "Wird zusammen mit der kalibrierten Höhe jedes Fachs (auf der Kalibrierungsseite festgelegt) verwendet, um automatisch zu bestimmen, wann ein Fach voll ist.",
+    "cardThicknessDescription": "Wird zusammen mit der kalibrierten Höhe jedes Fachs (unter Sortierer einrichten festgelegt) verwendet, um automatisch zu bestimmen, wann ein Fach voll ist.",
     "validation": {
       "required": "Erforderlich",
       "keyFormat": "Nur Kleinbuchstaben, Zahlen und Bindestriche",

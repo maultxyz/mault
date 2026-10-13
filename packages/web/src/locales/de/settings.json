@@ -1,14 +1,15 @@
 {
   "title": "Einstellungen",
-  "subtitle": "Organisation, Abrechnung, Scannen, Sounds, Benachrichtigungen und Integrationen",
+  "subtitle": "Lege fest, wie deine Organisation arbeitet. Wähle einen Bereich aus, um ihn zu ändern.",
   "sections": {
     "general": "Allgemein",
     "organization": "Organisation",
     "billing": "Abrechnung",
     "scanning": "Scannen",
-    "sounds": "Sounds",
-    "notifications": "Benachrichtigungen",
-    "integrations": "Integrationen"
+    "sounds": "Scan-Sounds",
+    "notifications": "Discord",
+    "integrations": "API & Webhooks",
+    "pricing": "Preise"
   },
   "organizations": {
     "heading": "Organisationen"
@@ -76,5 +77,15 @@
     "heading": "Bestenliste",
     "description": "Zeigt den Namen deiner Organisation und die Anzahl gescannter Karten in der Bestenliste unter Statistiken. Jede Organisation kann die Bestenliste sehen.",
     "toggleLabel": "Meine Organisation in der Bestenliste zeigen"
+  },
+  "sectionIntros": {
+    "general": "Deine Sprache, Akzentfarbe und Scanner-Anordnung und ob deine Organisation in der Bestenliste erscheint.",
+    "organization": "Benenne deine Organisation um, lade Leute ein und lege fest, was jedes Mitglied darf.",
+    "billing": "Sieh dir deinen Tarif und deine Nutzung an und verwalte oder upgrade dein Abo.",
+    "scanning": "Lege fest, wie Karten erkannt werden und was passiert, wenn ein Scan korrigiert werden muss.",
+    "pricing": "Lege fest, woher Kartenpreise kommen und wie viel jeder Zustand wert ist.",
+    "sounds": "Spiele einen Sound ab, wenn eine gescannte Karte eine Regel erfüllt, zum Beispiel bei wertvollen Karten.",
+    "notifications": "Verknüpfe deinen Discord-Server und lege fest, welche Scans und Warnungen wo gepostet werden.",
+    "integrations": "Erstelle API-Schlüssel und Webhooks, damit dein Shop oder andere Tools sehen, wo deine Karten lagern."
   }
 }

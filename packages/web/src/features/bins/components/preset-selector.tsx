@@ -28,6 +28,7 @@ import {
 } from "@/features/bins/api/sort-bins";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snapshot";
+import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import type { PresetSelectorProps } from "@/lib/interfaces/bins";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -312,9 +313,7 @@ export function PresetSelector({ readOnly }: PresetSelectorProps) {
                     size="icon"
                     disabled={!activeCollection}
                   >
-                    <Link
-                      to={`/app/collections/${activeCollection?.guid}/bins`}
-                    >
+                    <Link to={SORTING_RULES_PATH}>
                       <IconEdit />
                     </Link>
                   </Button>

@@ -16,6 +16,7 @@ export function AppHotkeys() {
     goScanner: go(HOTKEY_ROUTES.goScanner),
     goCollections: go(HOTKEY_ROUTES.goCollections),
     goMonitor: go(HOTKEY_ROUTES.goMonitor),
+    goSortingRules: go(HOTKEY_ROUTES.goSortingRules),
     goStorage: go(HOTKEY_ROUTES.goStorage),
     goCalibrate: go(HOTKEY_ROUTES.goCalibrate),
     goSettings: go(HOTKEY_ROUTES.goSettings),

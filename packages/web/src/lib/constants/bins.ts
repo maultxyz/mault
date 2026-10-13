@@ -1,5 +1,7 @@
 import type { ConditionOperator } from "@magic-vault/shared";
 
+export const SORTING_RULES_PATH = "/app/rules";
+
 export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
   "in",
   "not_in",

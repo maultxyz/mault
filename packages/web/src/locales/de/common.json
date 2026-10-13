@@ -1,11 +1,11 @@
 {
   "nav": {
-    "scanner": "Scanner",
+    "scanner": "Sortieren",
     "collections": "Sammlungen",
-    "monitor": "Überwachung",
-    "scan": "Scannen",
-    "storage": "Lager",
-    "calibrate": "Kalibrieren",
+    "monitor": "Live-Ansicht",
+    "scan": "Kamera koppeln",
+    "storage": "Lagerboxen",
+    "calibrate": "Sortierer einrichten",
     "settings": "Einstellungen",
     "organization": "Org",
     "cart": "Shop",
@@ -17,10 +17,11 @@
     "collapseSidebar": "Seitenleiste einklappen ([)",
     "expandSidebar": "Seitenleiste ausklappen ([)",
     "alerts": "Meldungen",
-    "sounds": "Sounds",
-    "integrations": "Integrationen",
+    "sounds": "Scan-Sounds",
+    "integrations": "API & Webhooks",
     "more": "Mehr",
-    "stats": "Statistiken"
+    "stats": "Statistiken",
+    "sortingRules": "Sortierregeln"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -179,11 +180,11 @@
       "toggleSidebar": "Seitenleiste ein- oder ausklappen",
       "focusSearch": "Suche fokussieren",
       "dismissToasts": "Alle Benachrichtigungen schließen",
-      "goScanner": "Zum Scanner",
+      "goScanner": "Zum Sortieren",
       "goCollections": "Zu den Sammlungen",
-      "goMonitor": "Zum Monitor",
-      "goStorage": "Zum Lager",
-      "goCalibrate": "Zur Kalibrierung",
+      "goMonitor": "Zur Live-Ansicht",
+      "goStorage": "Zu den Lagerboxen",
+      "goCalibrate": "Zur Sortierer-Einrichtung",
       "goSettings": "Zu den Einstellungen",
       "goAdmin": "Zum Admin-Bereich",
       "scanPauseResume": "Scannen pausieren oder fortsetzen",
@@ -205,7 +206,8 @@
       "cardClose": "Karte schließen oder Korrektur abbrechen",
       "cardRemove": "Karte entfernen (aus ihrer Box, wenn aus dem Lager geöffnet)",
       "reviewStart": "Karten einzeln prüfen",
-      "reviewAccept": "Beim Prüfen: Karte stimmt, weiter"
+      "reviewAccept": "Beim Prüfen: Karte stimmt, weiter",
+      "goSortingRules": "Zu den Sortierregeln"
     }
   },
   "mobileMenu": {

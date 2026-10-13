@@ -1,11 +1,11 @@
 {
   "nav": {
-    "scanner": "Scanner",
+    "scanner": "Sort",
     "collections": "Collections",
-    "monitor": "Monitor",
-    "scan": "Scan",
-    "storage": "Storage",
-    "calibrate": "Calibrate",
+    "monitor": "Live view",
+    "scan": "Link camera",
+    "storage": "Storage boxes",
+    "calibrate": "Sorter setup",
     "settings": "Settings",
     "organization": "Org",
     "cart": "Shop",
@@ -17,10 +17,11 @@
     "collapseSidebar": "Collapse sidebar ([)",
     "expandSidebar": "Expand sidebar ([)",
     "alerts": "Alerts",
-    "sounds": "Sounds",
-    "integrations": "Integrations",
+    "sounds": "Scan sounds",
+    "integrations": "API & webhooks",
     "more": "More",
-    "stats": "Stats"
+    "stats": "Stats",
+    "sortingRules": "Sorting rules"
   },
   "alerts": {
     "dismiss": "Dismiss",
@@ -179,11 +180,11 @@
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
       "dismissToasts": "Clear all notifications",
-      "goScanner": "Go to scanner",
+      "goScanner": "Go to sorting",
       "goCollections": "Go to collections",
-      "goMonitor": "Go to monitor",
-      "goStorage": "Go to storage",
-      "goCalibrate": "Go to calibration",
+      "goMonitor": "Go to live view",
+      "goStorage": "Go to storage boxes",
+      "goCalibrate": "Go to sorter setup",
       "goSettings": "Go to settings",
       "goAdmin": "Go to admin",
       "scanPauseResume": "Pause or resume scanning",
@@ -205,7 +206,8 @@
       "cardClose": "Close the card, or cancel correcting",
       "cardRemove": "Remove the card (from its box when opened from Storage)",
       "reviewStart": "Start reviewing cards one by one",
-      "reviewAccept": "While reviewing: card looks right, go to next"
+      "reviewAccept": "While reviewing: card looks right, go to next",
+      "goSortingRules": "Go to sorting rules"
     }
   },
   "mobileMenu": {

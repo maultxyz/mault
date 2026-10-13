@@ -36,7 +36,7 @@
   },
   "page": {
     "title": "Sammlungen",
-    "subtitle": "Organisiere gescannte Karten in benannten Sammlungen",
+    "subtitle": "Jede Sammlung hat ihre eigenen Karten. Neue Scans landen in der aktiven Sammlung.",
     "emptyDescription": "Erstelle eine Sammlung, um mit dem Scannen von Karten zu beginnen",
     "searchPlaceholder": "Sammlungen durchsuchen...",
     "noSearchResultsDescription": "Versuche einen anderen Suchbegriff",
@@ -44,7 +44,6 @@
     "cardCount_other": "{{count}} Karten",
     "noGame": "Kein Spiel",
     "setActiveCollection": "Als aktive Sammlung festlegen",
-    "editSortingRules": "Sortierregeln bearbeiten",
     "edit": "Bearbeiten"
   },
   "editDialog": {

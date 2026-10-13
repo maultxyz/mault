@@ -33,7 +33,7 @@
     },
     "createCollection": {
       "title": "Create a collection",
-      "content": "Collections keep separate scan histories and sorting rules, one per game, box, or project. Click here to start a new one."
+      "content": "Collections keep separate scan histories, one per game, box, or project. Click here to start a new one."
     },
     "editCollection": {
       "title": "Edit a collection",
@@ -41,7 +41,7 @@
     },
     "createSortingRules": {
       "title": "Create sorting rules",
-      "content": "Sorting rules live in named sets, so you can save multiple sorting strategies per collection and switch between them. Click here to create a new set."
+      "content": "Sorting rules live in named presets for each game, so you can save several sorting strategies and switch between them. Click here to create a new preset."
     },
     "editSortingRules": {
       "title": "Edit sorting rules",
@@ -59,8 +59,8 @@
       "content": "Let's walk through how to build the rules that decide which bin each scanned card lands in. Skip anytime. You can replay this from the same help icon."
     },
     "sets": {
-      "title": "Rule sets",
-      "content": "Sorting rules are grouped into named sets, so you can save multiple sorting strategies for a collection and switch between them. Click here to create a new set."
+      "title": "Rule presets",
+      "content": "Sorting rules are grouped into named presets for each game, so you can save several sorting strategies and switch between them. Click here to create a new preset."
     },
     "selectBin": {
       "title": "Select a bin",
@@ -139,8 +139,8 @@
       "content": "Let's walk through connecting your sorter and dialing in each servo. Skip anytime. You can replay this from the same help icon."
     },
     "sections": {
-      "title": "Three sections",
-      "content": "Module setup connects the sorter and maps bins to physical slots, Scan region frames how the camera crops each card, and Servo calibration fine-tunes each servo's positions. Switch between them here."
+      "title": "Five steps",
+      "content": "Setting up a sorter goes in order: Connection, Layout, Servos & feeder, Camera, then Test. Switch between the steps here."
     },
     "connect": {
       "content": "Pair the sorter over USB here first. Most of this page is disabled until it's connected. Run Test to sample every servo once you're calibrated."

@@ -1,3 +1,4 @@
+import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import type {
   OnboardingTourStepConfig,
   TourPage,
@@ -104,7 +105,7 @@ export function resolvePagePath(
     case "collections":
       return "/app/collections";
     case "bins":
-      return collectionGuid ? `/app/collections/${collectionGuid}/bins` : null;
+      return collectionGuid ? SORTING_RULES_PATH : null;
     default:
       return null;
   }

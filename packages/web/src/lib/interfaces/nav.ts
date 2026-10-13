@@ -110,3 +110,9 @@ export interface MobileTabStripProps<T extends string> {
   onChange: (value: T) => void;
   label?: string;
 }
+
+export interface PageIntroProps {
+  title: string;
+  description: string;
+  className?: string;
+}

@@ -10,6 +10,7 @@ export type HotkeyId =
   | "goScanner"
   | "goCollections"
   | "goMonitor"
+  | "goSortingRules"
   | "goStorage"
   | "goCalibrate"
   | "goSettings"

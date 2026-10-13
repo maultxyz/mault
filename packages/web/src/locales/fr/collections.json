@@ -36,7 +36,7 @@
   },
   "page": {
     "title": "Collections",
-    "subtitle": "Organise les cartes scannées en collections nommées",
+    "subtitle": "Chaque collection garde ses propres cartes. Les nouveaux scans vont dans la collection active.",
     "emptyDescription": "Crée une collection pour commencer à scanner des cartes",
     "searchPlaceholder": "Rechercher des collections...",
     "noSearchResultsDescription": "Essaie un autre terme de recherche",
@@ -44,7 +44,6 @@
     "cardCount_other": "{{count}} cartes",
     "noGame": "Aucun jeu",
     "setActiveCollection": "Définir comme collection active",
-    "editSortingRules": "Modifier les règles de tri",
     "edit": "Modifier"
   },
   "editDialog": {

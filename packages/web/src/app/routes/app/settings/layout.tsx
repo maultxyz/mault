@@ -1,6 +1,7 @@
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
+import { PageIntro } from "@/components/page-intro";
 import { SectionNav } from "@/components/section-nav";
 import { useBillingCheckoutReturn } from "@/features/billing/api/use-billing-checkout-return";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -16,15 +17,17 @@ export default function SettingsLayout() {
   const sections = useSettingsSections();
   useBillingCheckoutReturn();
 
+  const current = sections.find(
+    (section) => pathname === `${SETTINGS_PATHS.root}/${section.path}`,
+  );
+
   if (isMobile) {
-    const current = sections.find(
-      (section) => pathname === `${SETTINGS_PATHS.root}/${section.path}`,
-    );
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         {current ? (
           <MobilePageHeader
             title={t(current.labelKey)}
+            subtitle={t(`sectionIntros.${current.path}`)}
             backTo={SETTINGS_PATHS.root}
           />
         ) : (
@@ -59,6 +62,13 @@ export default function SettingsLayout() {
 
       <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto">
         <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4">
+          {current && (
+            <PageIntro
+              className="mb-2"
+              title={t(current.labelKey)}
+              description={t(`sectionIntros.${current.path}`)}
+            />
+          )}
           <Outlet />
         </div>
       </div>

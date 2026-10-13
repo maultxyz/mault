@@ -38,7 +38,6 @@ import {
   IconAlbum,
   IconEdit,
   IconEraser,
-  IconLayoutGrid,
   IconLoader2,
   IconPlayerPlay,
   IconPlus,
@@ -48,7 +47,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
@@ -247,22 +245,6 @@ export default function CollectionsPage() {
                     </TooltipContent>
                   </Tooltip>
                 )}
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        render={
-                          <Link to={`/app/collections/${collection.guid}/bins`}>
-                            <IconLayoutGrid />
-                          </Link>
-                        }
-                      />
-                    }
-                  ></TooltipTrigger>
-                  <TooltipContent>{t("page.editSortingRules")}</TooltipContent>
-                </Tooltip>
                 <Tooltip>
                   <TooltipTrigger
                     render={

@@ -68,7 +68,7 @@
     "foilTypesDescription": "Séparés par des virgules (ex. Reverse Holo, Holo). Laisser vide pour une simple option Foil.",
     "cardThicknessLabel": "Épaisseur de carte (mm)",
     "cardThicknessPlaceholder": "ex. 0.3",
-    "cardThicknessDescription": "Utilisée avec la hauteur calibrée de chaque bac (définie sur la page Calibration) pour déterminer automatiquement quand un bac est plein.",
+    "cardThicknessDescription": "Utilisée avec la hauteur calibrée de chaque bac (définie dans Réglage du trieur) pour déterminer automatiquement quand un bac est plein.",
     "validation": {
       "required": "Obligatoire",
       "keyFormat": "Lettres minuscules, chiffres et tirets uniquement",

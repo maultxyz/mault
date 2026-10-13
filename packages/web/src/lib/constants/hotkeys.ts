@@ -1,3 +1,4 @@
+import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import type {
   HotkeyDefinition,
   HotkeyGroup,
@@ -40,6 +41,10 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   dismissToasts: { group: "general", keys: [{ key: "x", shift: true }] },
   goScanner: { group: "navigation", keys: [{ key: "g" }, { key: "s" }] },
   goCollections: { group: "navigation", keys: [{ key: "g" }, { key: "c" }] },
+  goSortingRules: {
+    group: "navigation",
+    keys: [{ key: "g" }, { key: "r" }],
+  },
   goMonitor: { group: "navigation", keys: [{ key: "g" }, { key: "m" }] },
   goStorage: { group: "navigation", keys: [{ key: "g" }, { key: "b" }] },
   goCalibrate: { group: "navigation", keys: [{ key: "g" }, { key: "d" }] },
@@ -70,6 +75,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
 export const HOTKEY_ROUTES = {
   goScanner: "/app",
   goCollections: "/app/collections",
+  goSortingRules: SORTING_RULES_PATH,
   goMonitor: "/app/monitor",
   goStorage: STORAGE_PATH,
   goCalibrate: "/app/calibrate",

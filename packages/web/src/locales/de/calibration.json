@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "Kalibrieren",
-    "subtitle": "Modulverkabelung, Kamera-Scanbereich und Servokalibrierung konfigurieren"
+    "title": "Sortierer einrichten",
+    "subtitle": "Geh diese Schritte der Reihe nach durch, um einen Sortierer startklar zu machen."
   },
   "servos": {
     "bottom": {
@@ -42,10 +42,12 @@
     "pipelinedFeedDescription": "Führt die nächste Karte zu und scannt sie, sobald die vorherige Modul 1 verlassen hat, statt zu warten, bis sie ihr Fach erreicht. Erfordert Firmware 2.1.0 oder neuer und aktivierte automatische Zufuhr. Schalte dies aus, wenn Karten klemmen oder Scans die sich bewegende Karte erfassen."
   },
   "sections": {
-    "moduleSetup": "Module & Routing",
-    "scanRegion": "Scanbereich",
-    "calibration": "Zuführungs- & Modulkalibrierung",
-    "moduleCalibration": "Modulkalibrierung"
+    "scanRegion": "Kamera",
+    "calibration": "Servos & Zuführung",
+    "moduleCalibration": "Modulkalibrierung",
+    "connection": "Verbindung",
+    "layout": "Aufbau",
+    "test": "Test"
   },
   "binConfigurations": {
     "label": "Fach-Konfiguration",
@@ -162,7 +164,8 @@
     "phoneCaptureFailed": "Das Telefon hat nicht rechtzeitig mit einem Foto geantwortet.",
     "cameraLabel": "Kamera",
     "cameraPlaceholder": "Kamera auswählen",
-    "cameraFallbackLabel": "Kamera {{index}}"
+    "cameraFallbackLabel": "Kamera {{index}}",
+    "heading": "Scanbereich"
   },
   "useCalibrationPage": {
     "toasts": {
@@ -358,7 +361,7 @@
           "desc": "Der Arm, der die Karte seitlich in ein Fach schiebt."
         }
       },
-      "skipNote": "Du kannst das überspringen und später auf der Kalibrierungsseite kalibrieren."
+      "skipNote": "Du kannst das überspringen und später unter Sortierer einrichten kalibrieren."
     },
     "moduleCount": {
       "heading": "Wie viele Module hat dieser Sortierer?",
@@ -443,7 +446,7 @@
       "heading": "Timing",
       "body": "Diese Verzögerungen steuern, wie eine Karte von diesem Modul geschoben wird. Die Standardwerte passen für die meisten Sortierer. Ändere sie nur, wenn Karten geschoben werden, bevor die Klappe unten ist, oder der Schieber zu früh zurückfährt. Die Info-Symbole erklären jeden Wert.",
       "testHint": "Mit dem Schiebetest siehst du einen kompletten Schiebevorgang mit diesen Werten. Er läuft auf einem leeren Modul.",
-      "offlineHint": "Schiebetests brauchen einen verbundenen Sortierer. Du kannst diese Werte später auf der Kalibrierungsseite anpassen."
+      "offlineHint": "Schiebetests brauchen einen verbundenen Sortierer. Du kannst diese Werte später unter Sortierer einrichten anpassen."
     }
   },
   "connectionSettings": {
@@ -451,7 +454,7 @@
     "autoConnectLabel": "Beim Einstecken automatisch verbinden",
     "autoConnectDescription": "Wenn dieser Sortierer per USB eingesteckt wird, während die App offen ist (oder beim Laden der App schon eingesteckt ist), verbindet er sich selbst und führt seinen Selbsttest aus, damit er scanbereit ist. Über Bluetooth versucht die App nach einem Verbindungsabbruch oder Neustart so lange erneut zu verbinden, bis der Tab geschlossen wird. Verbinde ihn zuerst einmal manuell in diesem Browser, damit der Browser es erlaubt.",
     "testOnConnectLabel": "Selbsttest beim Verbinden",
-    "testOnConnectDescription": "Wenn aktiviert, bewegt der Sortierer bei jeder Verbindung alle Servos und prüft seine Sensoren. Wenn deaktiviert, lädt er nur seine gespeicherte Kalibrierung und ist sofort bereit. Den Test kannst du weiterhin auf der Kalibrierungsseite ausführen."
+    "testOnConnectDescription": "Wenn aktiviert, bewegt der Sortierer bei jeder Verbindung alle Servos und prüft seine Sensoren. Wenn deaktiviert, lädt er nur seine gespeicherte Kalibrierung und ist sofort bereit. Den Test kannst du weiterhin unter Sortierer einrichten ausführen."
   },
   "firmware": {
     "title": "Firmware",
@@ -468,5 +471,12 @@
     "unoNote": "Arduino Uno R4 Boards können nicht im Browser geflasht werden. Lade die Firmware herunter und spiele sie mit der Arduino IDE auf.",
     "notConnectedHint": "Verbinde einen Sortierer, um seine Version zu sehen, oder flashe einen ESP32-S3 per USB, ohne ihn vorher zu verbinden.",
     "unsupported": "Dieser Browser kann keine Boards flashen. Verwende Chrome oder Edge auf einem Computer."
+  },
+  "sectionIntros": {
+    "connection": "Verbinde den Sortierer per USB oder Bluetooth, halte seine Firmware aktuell und lege fest, was beim Verbinden passiert.",
+    "layout": "Sag der App, wie viele Module verbaut sind, in welchem Platz jedes Fach sitzt und wie groß jedes Fach ist.",
+    "calibration": "Stimme die Zuführung und die Servos jedes Moduls ab, bis Karten sauber laufen, und speichere dann.",
+    "scanRegion": "Rahme den Teil des Kamerabilds ein, in dem die Karte liegt, und lege fest, wie genau jeder Scan abgeglichen wird.",
+    "test": "Prüfe vor dem Sortieren, ob die Sensoren Karten erkennen und jedes Fach sie erhält."
   }
 }
