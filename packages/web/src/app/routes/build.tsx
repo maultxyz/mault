@@ -3,7 +3,6 @@ import { BuildBom } from "@/features/build/components/bom";
 import { BuildFooter } from "@/features/build/components/footer";
 import { BuildHero } from "@/features/build/components/hero";
 import { BuildSetup } from "@/features/build/components/setup";
-import { BuildWiring } from "@/features/build/components/wiring";
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
@@ -21,7 +20,6 @@ export default function BuildGuidePage() {
         <BuildHero />
         <BuildSetup />
         <BuildBom />
-        <BuildWiring />
         <BuildAssembly />
       </main>
       <BuildFooter />

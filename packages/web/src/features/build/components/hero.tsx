@@ -1,5 +1,6 @@
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
-import { BOARD_INFO, BUILD_SECTION_NAV } from "@/lib/constants/build";
+import { BuildTableOfContents } from "@/features/build/components/table-of-contents";
+import { BOARD_INFO } from "@/lib/constants/build";
 import { useTranslation } from "react-i18next";
 
 export function BuildHero() {
@@ -9,12 +10,12 @@ export function BuildHero() {
   const catchAllBin = moduleCount * 2 + 1;
 
   return (
-    <section className="mx-auto max-w-4xl px-4 pt-12 pb-4">
+    <section className="mx-auto max-w-4xl px-4 pt-8 pb-2">
       <p className="text-sm font-semibold text-primary">{t("hero.eyebrow")}</p>
-      <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
+      <h1 className="mt-2 font-heading text-2xl font-semibold tracking-tight text-balance md:text-3xl lg:text-4xl">
         {t("hero.title")}
       </h1>
-      <p className="mt-4 max-w-2xl text-sm/relaxed text-foreground/70 md:text-base/relaxed">
+      <p className="mt-2 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("hero.description", {
           board: board.displayName,
           modules: moduleCount,
@@ -22,7 +23,7 @@ export function BuildHero() {
         })}
       </p>
 
-      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-xs text-foreground/70">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 font-mono text-xs text-foreground/70">
         <span>
           {t("hero.firmwareLabel")}{" "}
           <code className="rounded-sm border border-border bg-muted px-1.5 py-0.5 text-foreground">
@@ -48,23 +49,7 @@ export function BuildHero() {
         </span>
       </div>
 
-      <nav
-        aria-label={t("hero.nav.label")}
-        className="mt-8 grid grid-cols-2 gap-px overflow-hidden rounded-md border bg-border sm:flex sm:w-fit"
-      >
-        {BUILD_SECTION_NAV.map((item, i) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            className="flex items-center gap-2 bg-card px-3 py-2 text-sm font-medium transition-colors hover:bg-secondary hover:text-primary sm:px-4"
-          >
-            <span className="grid size-6 shrink-0 place-items-center rounded-sm bg-muted font-mono text-sm text-foreground">
-              {i + 1}
-            </span>
-            {t(item.labelKey)}
-          </a>
-        ))}
-      </nav>
+      <BuildTableOfContents />
     </section>
   );
 }

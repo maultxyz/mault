@@ -47,6 +47,7 @@ export interface BuildStep {
   text: ReactNode;
   note?: ReactNode;
   images?: string[];
+  reference?: ReactNode;
   optional?: true;
 }
 
@@ -55,6 +56,7 @@ export interface BuildPhase {
   title: string;
   icon: Icon;
   steps: BuildStep[];
+  intro?: ReactNode;
   video?: BuildVideo;
 }
 
@@ -107,11 +109,56 @@ export interface BuildSetupStepProps {
   children: ReactNode;
 }
 
-export interface BuildSectionNavItem {
+export type WireColor = "yellow" | "green" | "blue" | "red" | "black" | "white";
+
+export type WireKey =
+  | "sda"
+  | "scl"
+  | "vcc"
+  | "gnd"
+  | "psuPositive"
+  | "psuNegative"
+  | "irSignal";
+
+export type WiringViewMode = "table" | "diagram";
+
+export interface WireSwatchProps {
+  wire: WireKey;
+}
+
+export interface WiringPinProps {
+  children?: ReactNode;
+}
+
+export interface WiringTableProps {
+  columns: string[];
+  rows: ReactNode[][];
+}
+
+export interface WiringReferenceProps {
+  anchorKey: string;
+  title: string;
+  description?: ReactNode;
+  footnote?: ReactNode;
+  children: ReactNode;
+}
+
+export interface ChecklistStore {
+  subscribe: (listener: () => void) => () => void;
+  getSnapshot: () => Record<string, boolean>;
+  toggle: (key: string) => void;
+}
+
+export interface BuildTocEntry {
   id: string;
-  labelKey:
-    | "hero.nav.setup"
-    | "hero.nav.parts"
-    | "hero.nav.wiring"
-    | "hero.nav.assembly";
+  label: string;
+  done?: number;
+  total?: number;
+  depth: 0 | 1;
+  number?: number;
+}
+
+export interface BuildTocListProps {
+  entries: BuildTocEntry[];
+  onNavigate?: () => void;
 }

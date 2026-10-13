@@ -19,9 +19,11 @@
       "label": "Abschnitte der Anleitung",
       "setup": "Einrichtung",
       "parts": "Teile",
-      "wiring": "Verkabelung",
       "assembly": "Zusammenbau"
     }
+  },
+  "toc": {
+    "label": "Inhalt"
   },
   "setup": {
     "heading": "Richte deinen Bau ein",
@@ -261,10 +263,8 @@
     }
   },
   "wiring": {
-    "heading": "Verkabelung",
     "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Logikseite des PCA9685 wird über die Onboard-Versorgung des {{board}} gespeist; seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein – eine schwebende Servomasse ist der häufigste Grund, warum sich ein frisch verkabeltes Gerät nicht bewegt.",
     "wireColorNote": "Kabelfarben unterscheiden sich je nach Bauteil und Hersteller, verlass dich also nicht auf die Farben im Schaltplan oder auf den Fotos. Verfolge jedes Kabel ab seiner Pin-Beschriftung und stelle sicher, dass es an der richtigen Stelle ankommt.",
-    "detailsLabel": "Verkabelungsdetails",
     "sections": {
       "i2c": {
         "title": "I²C-Bus",
@@ -320,6 +320,26 @@
       "bottom": "Boden",
       "paddle": "Paddel",
       "pusher": "Schieber"
+    },
+    "reference": {
+      "viewMode": "Anzeigen als",
+      "table": "Tabelle",
+      "diagram": "Schaltplan",
+      "openFullSize": "In voller Größe öffnen",
+      "colWire": "Kabel im Schaltplan",
+      "colSignalWire": "Signalkabel im Schaltplan"
+    },
+    "overview": {
+      "fullDiagram": "Vollständiger Schaltplan"
+    },
+    "wireColor": "Kabelfarbe im Schaltplan: {{color}}",
+    "colors": {
+      "yellow": "Gelb",
+      "green": "Grün",
+      "blue": "Blau",
+      "red": "Rot",
+      "black": "Schwarz",
+      "white": "Weiß"
     }
   },
   "assembly": {
@@ -483,7 +503,7 @@
         "steps": {
           "wireI2c": {
             "text": "Verbinde den PCA9685 mit dem I²C-Bus des {{board}} (SDA/SCL) sowie mit der Logikversorgung/GND.",
-            "note": "Siehe den Abschnitt Verkabelung oben - die Logikspannung ist beim ESP32 3.3V, nicht 5V.",
+            "note": "Nutze die Tabelle unten. Die Logikspannung ist beim ESP32 3.3V, nicht 5V.",
             "bendPinsNote": "Die Header-Pins des PCA9685 zeigen seitlich nach außen - eventuell müssen sie um 90° nach oben gebogen werden, damit sie das Panel nicht berühren und beim Verkabeln mit dem {{board}} gut erreichbar bleiben."
           },
           "wireServos": {
@@ -491,7 +511,7 @@
             "note": "An der Seite der Basis gibt es Kabelkanäle mit Kabelbindern, die alles ordentlich halten."
           },
           "wireSensors": {
-            "text": "Verkabele die {{count}} IR-Sensoren mit den im Abschnitt „Verkabelung“ oben aufgeführten digitalen Pins - Modultore und der Trichterhals-Sensor liegen nicht durchgehend auf aufeinanderfolgenden Pins.",
+            "text": "Verkabele die {{count}} IR-Sensoren mit den digitalen Pins aus der Tabelle unten. Modultore und der Trichterhals-Sensor liegen nicht durchgehend auf aufeinanderfolgenden Pins.",
             "note": "Für Versorgung und Masse musst du {{count}} Leitungen zu einer zusammenführen, entweder mit einem Breadboard oder indem du sie verdrillst und verlötest. Du musst die Sensoren manuell auf eine kürzere Reichweite kalibrieren, um Fehlauslösungen zu vermeiden."
           },
           "wirePower": {

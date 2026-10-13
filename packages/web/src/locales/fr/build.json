@@ -19,9 +19,11 @@
       "label": "Sections du guide",
       "setup": "Configuration",
       "parts": "Pièces",
-      "wiring": "Câblage",
       "assembly": "Assemblage"
     }
+  },
+  "toc": {
+    "label": "Sommaire"
   },
   "setup": {
     "heading": "Configure ton montage",
@@ -261,10 +263,8 @@
     }
   },
   "wiring": {
-    "heading": "Câblage",
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
     "wireColorNote": "Les couleurs des fils varient selon les pièces et les fournisseurs, donc ne te fie pas aux couleurs du schéma ou des photos. Suis chaque fil depuis l'étiquette de sa broche et vérifie qu'il arrive au bon endroit.",
-    "detailsLabel": "Détails du câblage",
     "sections": {
       "i2c": {
         "title": "Bus I²C",
@@ -320,6 +320,26 @@
       "bottom": "bas",
       "paddle": "palette",
       "pusher": "poussoir"
+    },
+    "reference": {
+      "viewMode": "Afficher en",
+      "table": "Tableau",
+      "diagram": "Schéma",
+      "openFullSize": "Ouvrir en taille réelle",
+      "colWire": "Fil sur le schéma",
+      "colSignalWire": "Fil de signal sur le schéma"
+    },
+    "overview": {
+      "fullDiagram": "Schéma de câblage complet"
+    },
+    "wireColor": "Couleur du fil sur le schéma : {{color}}",
+    "colors": {
+      "yellow": "jaune",
+      "green": "vert",
+      "blue": "bleu",
+      "red": "rouge",
+      "black": "noir",
+      "white": "blanc"
     }
   },
   "assembly": {
@@ -483,7 +503,7 @@
         "steps": {
           "wireI2c": {
             "text": "Câble le PCA9685 au bus I²C du {{board}} (SDA/SCL) et à l'alimentation logique/GND.",
-            "note": "Voir la section Câblage ci-dessus - la tension logique est de 3.3V sur ESP32, pas 5V.",
+            "note": "Utilise le tableau ci-dessous. La tension logique est de 3.3V sur ESP32, pas 5V.",
             "bendPinsNote": "Les broches d'en-tête du PCA9685 pointent horizontalement vers l'extérieur - il faudra peut-être les plier à 90° vers le haut pour qu'elles dégagent le panneau et restent faciles d'accès lors du câblage vers le {{board}}."
           },
           "wireServos": {
@@ -491,7 +511,7 @@
             "note": "Des passages de câbles, avec des colliers de serrage, sont prévus sur le côté de la base pour garder tout bien rangé."
           },
           "wireSensors": {
-            "text": "Câble les {{count}} capteurs IR aux broches numériques indiquées dans la section Câblage ci-dessus - les portes des modules et le capteur de la gorge de la trémie ne se trouvent pas tous sur des broches consécutives.",
+            "text": "Câble les {{count}} capteurs IR aux broches numériques du tableau ci-dessous. Les portes des modules et le capteur de la gorge de la trémie ne se trouvent pas tous sur des broches consécutives.",
             "note": "Pour l'alimentation et la masse, tu devras combiner {{count}} fils en un seul, soit avec une plaque d'essai, soit en les torsadant et en les soudant ensemble. Tu devras calibrer manuellement les capteurs pour avoir une portée plus courte, afin d'éviter les faux positifs."
           },
           "wirePower": {

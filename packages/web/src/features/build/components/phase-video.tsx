@@ -21,7 +21,7 @@ export function PhaseVideo({ video }: PhaseVideoProps) {
   if (autoplay) params.set("autoplay", "1");
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2">
       <div className="aspect-video w-full overflow-hidden rounded-lg border bg-black">
         <iframe
           key={`${activeChapter?.key}-${autoplay}`}
@@ -35,7 +35,7 @@ export function PhaseVideo({ video }: PhaseVideoProps) {
         />
       </div>
       {video.chapters.length > 1 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {video.chapters.map((chapter) => (
             <Button
               key={chapter.key}

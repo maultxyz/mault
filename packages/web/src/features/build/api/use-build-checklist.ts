@@ -1,25 +1,13 @@
-import { BUILD_CHECKLIST_STORAGE_KEY } from "@/lib/constants/storage-keys";
-import { useEffect, useState } from "react";
+import { buildChecklistStore } from "@/features/build/lib/checklist-store";
+import { EMPTY_CHECKLIST } from "@/lib/constants/build";
+import { useSyncExternalStore } from "react";
 
 export function useBuildChecklist() {
-  const [checked, setChecked] = useState<Record<string, boolean>>({});
+  const checked = useSyncExternalStore(
+    buildChecklistStore.subscribe,
+    buildChecklistStore.getSnapshot,
+    () => EMPTY_CHECKLIST,
+  );
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(BUILD_CHECKLIST_STORAGE_KEY);
-      if (raw) setChecked(JSON.parse(raw));
-    } catch {}
-  }, []);
-
-  const toggle = (key: string) => {
-    setChecked((prev) => {
-      const next = { ...prev, [key]: !prev[key] };
-      try {
-        localStorage.setItem(BUILD_CHECKLIST_STORAGE_KEY, JSON.stringify(next));
-      } catch {}
-      return next;
-    });
-  };
-
-  return { checked, toggle };
+  return { checked, toggle: buildChecklistStore.toggle };
 }

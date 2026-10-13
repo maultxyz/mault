@@ -19,9 +19,11 @@
       "label": "Guide sections",
       "setup": "Set up",
       "parts": "Parts",
-      "wiring": "Wiring",
       "assembly": "Assembly"
     }
+  },
+  "toc": {
+    "label": "Contents"
   },
   "setup": {
     "heading": "Set up your build",
@@ -261,10 +263,8 @@
     }
   },
   "wiring": {
-    "heading": "Wiring",
     "description": "Everything hangs off one I²C bus (PCA9685) and {{count}} digital input pins (IR sensors). The PCA9685's logic side runs off the {{board}}'s onboard supply; its <pin>V+</pin> servo rail must come from the external supply, and that supply's ground must be tied back to the {{board}}'s ground. A floating servo ground is the most common reason a freshly wired unit won't move.",
     "wireColorNote": "Wire colors vary between parts and suppliers, so don't rely on the colors in the diagram or photos. Trace each wire from its pin label and make sure it ends up at the correct place.",
-    "detailsLabel": "Wiring details",
     "sections": {
       "i2c": {
         "title": "I²C bus",
@@ -320,6 +320,26 @@
       "bottom": "bottom",
       "paddle": "paddle",
       "pusher": "pusher"
+    },
+    "reference": {
+      "viewMode": "Show as",
+      "table": "Table",
+      "diagram": "Diagram",
+      "openFullSize": "Open full size",
+      "colWire": "Wire in diagram",
+      "colSignalWire": "Signal wire in diagram"
+    },
+    "overview": {
+      "fullDiagram": "Full wiring diagram"
+    },
+    "wireColor": "{{color}} wire in the diagram",
+    "colors": {
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "red": "Red",
+      "black": "Black",
+      "white": "White"
     }
   },
   "assembly": {
@@ -482,7 +502,7 @@
         "steps": {
           "wireI2c": {
             "text": "Wire the PCA9685 to the {{board}}'s I²C bus (SDA/SCL) and logic power/GND.",
-            "note": "See the Wiring section above. The logic voltage is 3.3V on ESP32, not 5V.",
+            "note": "Use the table below. The logic voltage is 3.3V on ESP32, not 5V.",
             "bendPinsNote": "The PCA9685's header pins point straight out to the side. You may need to bend them 90° upward so they clear the panel and stay easy to reach when wiring to the {{board}}."
           },
           "wireServos": {
@@ -490,7 +510,7 @@
             "note": "There are wire channels, that use zip ties, in the side of the base to help keep everything neat."
           },
           "wireSensors": {
-            "text": "Wire the {{count}} IR sensors to the digital pins listed in the Wiring section above. Module gates and the hopper throat sensor don't all fall on consecutive pins.",
+            "text": "Wire the {{count}} IR sensors to the digital pins in the table below. Module gates and the hopper throat sensor don't all fall on consecutive pins.",
             "note": "For the power and ground, you will have to combine {{count}} wires into one, either with a breadboard or by twisting and soldering them together. You will need to manually calibrate the sensors to have a shorter throw, as to not get false positives."
           },
           "wirePower": {
