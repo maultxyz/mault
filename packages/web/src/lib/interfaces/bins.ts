@@ -179,3 +179,7 @@ export interface BinLocationDiagramProps {
   binNumber?: number;
   inverted?: boolean;
 }
+
+export interface SortingRulesIntroProps {
+  className?: string;
+}

@@ -12,6 +12,7 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { lazy, Suspense, useEffect } from "react";
 import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
+import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 
@@ -81,8 +82,14 @@ const ScannerPage = lazy(loadScannerPage);
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
 const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
-const CalibrateModulesPage = lazy(
-  () => import("@/app/routes/app/calibrate/modules"),
+const CalibrateConnectionPage = lazy(
+  () => import("@/app/routes/app/calibrate/connection"),
+);
+const CalibrateSorterLayoutPage = lazy(
+  () => import("@/app/routes/app/calibrate/sorter-layout"),
+);
+const CalibrateTestPage = lazy(
+  () => import("@/app/routes/app/calibrate/test"),
 );
 const CalibrateScanRegionPage = lazy(
   () => import("@/app/routes/app/calibrate/scan-region"),
@@ -129,6 +136,9 @@ const SettingsBillingPage = lazy(
 );
 const SettingsScanningPage = lazy(
   () => import("@/app/routes/app/settings/scanning"),
+);
+const SettingsPricingPage = lazy(
+  () => import("@/app/routes/app/settings/pricing"),
 );
 const SettingsSoundsPage = lazy(
   () => import("@/app/routes/app/settings/sounds"),
@@ -275,8 +285,12 @@ export const router = createBrowserRouter([
                         element: <CollectionsPage />,
                       },
                       {
-                        path: "/app/collections/:collectionGuid/bins",
+                        path: SORTING_RULES_PATH,
                         element: <BinsPage />,
+                      },
+                      {
+                        path: "/app/collections/:collectionGuid/bins",
+                        element: <Navigate to={SORTING_RULES_PATH} replace />,
                       },
                       {
                         path: "/app/calibrate",
@@ -284,11 +298,19 @@ export const router = createBrowserRouter([
                         children: [
                           {
                             index: true,
-                            element: <Navigate to="modules" replace />,
+                            element: <Navigate to="connection" replace />,
                           },
                           {
                             path: "modules",
-                            element: <CalibrateModulesPage />,
+                            element: <Navigate to="../layout" replace />,
+                          },
+                          {
+                            path: "connection",
+                            element: <CalibrateConnectionPage />,
+                          },
+                          {
+                            path: "layout",
+                            element: <CalibrateSorterLayoutPage />,
                           },
                           {
                             path: "scan-region",
@@ -297,6 +319,10 @@ export const router = createBrowserRouter([
                           {
                             path: "calibration",
                             element: <CalibrateCalibrationPage />,
+                          },
+                          {
+                            path: "test",
+                            element: <CalibrateTestPage />,
                           },
                         ],
                       },
@@ -403,6 +429,7 @@ export const router = createBrowserRouter([
                   },
                   { path: "billing", element: <SettingsBillingPage /> },
                   { path: "scanning", element: <SettingsScanningPage /> },
+                  { path: "pricing", element: <SettingsPricingPage /> },
                   { path: "sounds", element: <SettingsSoundsPage /> },
                   {
                     path: "notifications",

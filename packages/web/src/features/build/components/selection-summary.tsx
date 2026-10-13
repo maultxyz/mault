@@ -1,5 +1,10 @@
+import { Badge } from "@/components/ui/badge";
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
-import { BOARD_INFO, BUILD_SETUP_ANCHOR } from "@/lib/constants/build";
+import {
+  BOARD_INFO,
+  BUILD_SELECTION_BADGE_CLASS,
+  BUILD_SETUP_ANCHOR,
+} from "@/lib/constants/build";
 import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -15,15 +20,12 @@ export function BuildSelectionSummary() {
   ];
 
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+    <div className="mt-2.5 flex flex-wrap items-center gap-1.5 text-sm">
       <span className="text-foreground/70">{t("setup.summary.label")}</span>
       {items.map((item) => (
-        <span
-          key={item}
-          className="rounded-md border bg-card px-2 py-0.5 font-medium"
-        >
+        <Badge key={item} className={BUILD_SELECTION_BADGE_CLASS}>
           {item}
-        </span>
+        </Badge>
       ))}
       <a
         href={`#${BUILD_SETUP_ANCHOR}`}

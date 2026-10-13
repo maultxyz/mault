@@ -26,11 +26,13 @@ import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
 import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconAlbum,
+  IconArrowsSplit2,
   IconBox,
   IconChartBar,
   IconBrandDiscord,
@@ -275,7 +277,7 @@ function SubItem({
 export function AppNav() {
   const { t } = useTranslation("common");
   const { isAdmin } = useRole();
-  const { collections, activateCollection } = useCollections();
+  const { collections } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
   const [expanded, setExpanded] = useState(
@@ -319,12 +321,11 @@ export function AppNav() {
       to: "/app/collections",
       icon: <IconAlbum size={20} />,
       label: t("nav.collections"),
-      subItems: collections.map((c) => ({
-        key: c.guid,
-        to: `/app/collections/${c.guid}/bins`,
-        label: c.name,
-        onClick: () => activateCollection(c.guid),
-      })),
+    },
+    {
+      to: SORTING_RULES_PATH,
+      icon: <IconArrowsSplit2 size={20} />,
+      label: t("nav.sortingRules"),
     },
     {
       to: "/app/monitor",

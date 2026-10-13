@@ -36,7 +36,7 @@
   },
   "page": {
     "title": "Collections",
-    "subtitle": "Organize scanned cards into named collections",
+    "subtitle": "Each collection keeps its own cards. New scans are saved to the active one.",
     "emptyDescription": "Create a collection to start scanning cards",
     "searchPlaceholder": "Search collections...",
     "noSearchResultsDescription": "Try a different search term",
@@ -44,7 +44,6 @@
     "cardCount_other": "{{count}} cards",
     "noGame": "No game",
     "setActiveCollection": "Set as active collection",
-    "editSortingRules": "Edit sorting rules",
     "edit": "Edit"
   },
   "editDialog": {

@@ -1,5 +1,3 @@
-import { ConditionMultipliersSetting } from "@/components/condition-multipliers-setting";
-import { PriceSourceToggle } from "@/components/price-source-toggle";
 import { SaveBar } from "@/components/save-bar";
 import {
   SettingsSection,
@@ -25,35 +23,6 @@ export default function SettingsScanningPage() {
 
   return (
     <SettingsSections>
-      <SettingsSection
-        heading={t("pricing.heading")}
-        description={t("pricing.description")}
-      >
-        <Controller
-          control={draft.control}
-          name="priceSource"
-          render={({ field }) => (
-            <PriceSourceToggle value={field.value} onChange={field.onChange} />
-          )}
-        />
-      </SettingsSection>
-      <SettingsSection
-        heading={t("conditionPricing.heading")}
-        description={t("conditionPricing.description")}
-      >
-        <Controller
-          control={draft.control}
-          name="conditionMultipliers"
-          render={({ field, fieldState }) => (
-            <ConditionMultipliersSetting
-              value={field.value}
-              disabled={disabled}
-              errors={[fieldState.error]}
-              onChange={field.onChange}
-            />
-          )}
-        />
-      </SettingsSection>
       <SettingsSection
         heading={t("sessionWrapped.heading")}
         description={t("sessionWrapped.description")}

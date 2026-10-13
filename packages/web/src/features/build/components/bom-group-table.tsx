@@ -1,3 +1,5 @@
+import { Badge } from "@/components/ui/badge";
+import { BUILD_OPTIONAL_BADGE_CLASS } from "@/lib/constants/build";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { bomGroupAnchorId } from "@/features/build/lib/anchors";
@@ -27,7 +29,7 @@ export function BomGroupTable({
 
   return (
     <div id={bomGroupAnchorId(group.key)} className="scroll-mt-16">
-      <div className="group/anchor mb-2 flex items-center gap-1">
+      <div className="group/anchor mb-1.5 flex items-center gap-1">
         <h3 className="font-heading text-sm font-semibold tracking-wide text-foreground/70 uppercase">
           {t(`bom.groups.${group.key}.title`)}
         </h3>
@@ -37,17 +39,17 @@ export function BomGroupTable({
         <table className="w-full min-w-120 border-collapse text-sm/relaxed">
           <thead>
             <tr className="bg-secondary/40">
-              <th className="w-8 border-b px-3 py-2" />
-              <th className="w-16 border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-8 border-b px-2.5 py-1.5" />
+              <th className="w-16 border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.qty")}
               </th>
-              <th className="border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.part")}
               </th>
-              <th className="border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.notes")}
               </th>
-              <th className="w-12 border-b px-3 py-2 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-12 border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.buy")}
               </th>
             </tr>
@@ -63,7 +65,7 @@ export function BomGroupTable({
                     i !== group.rows.length - 1 && "border-b",
                   )}
                 >
-                  <td className="px-3 py-2.5">
+                  <td className="px-2.5 py-1.5">
                     <Checkbox
                       aria-label={t("bom.checkboxAriaLabel", {
                         qty: qty === "-" ? "" : qty,
@@ -72,27 +74,27 @@ export function BomGroupTable({
                       onCheckedChange={() => toggle(row.key)}
                     />
                   </td>
-                  <td className="px-3 py-2.5 font-mono text-foreground/70 tabular-nums">
+                  <td className="px-2.5 py-1.5 font-mono text-foreground/70 tabular-nums">
                     {qty}
                   </td>
                   <td
                     className={cn(
-                      "px-3 py-2.5 font-medium",
+                      "px-2.5 py-1.5 font-medium",
                       checked[row.key] &&
                         "text-foreground/70 line-through decoration-foreground/70",
                     )}
                   >
                     {row.part(t, boardType)}
                     {row.optional && (
-                      <span className="ml-2 rounded-full border px-1.5 py-0.5 font-mono text-sm font-medium text-foreground/70 uppercase no-underline">
+                      <Badge className={BUILD_OPTIONAL_BADGE_CLASS}>
                         {t("optionalBadge")}
-                      </span>
+                      </Badge>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-foreground/70">
+                  <td className="px-2.5 py-1.5 text-foreground/70">
                     {row.notes(t, moduleCount, boardType)}
                   </td>
-                  <td className="px-3 py-2.5">
+                  <td className="px-2.5 py-1.5">
                     {resolveRowBuyUrl(row, boardType) && (
                       <a
                         href={resolveRowBuyUrl(row, boardType)}

@@ -27,24 +27,24 @@ import { Trans, useTranslation } from "react-i18next";
 
 function SetupStep({ step, label, hint, children }: BuildSetupStepProps) {
   return (
-    <div className="group/step flex gap-4">
+    <div className="group/step flex gap-3">
       <div className="flex flex-col items-center">
-        <span className="grid size-7 shrink-0 place-items-center rounded-md bg-primary font-mono text-sm font-semibold text-primary-foreground">
+        <span className="grid size-6 shrink-0 place-items-center rounded-md bg-primary font-mono text-sm font-semibold text-primary-foreground">
           {step}
         </span>
         <span
           aria-hidden
-          className="my-2 w-0.5 flex-1 bg-primary/25 group-last/step:hidden"
+          className="my-1.5 w-0.5 flex-1 bg-primary/25 group-last/step:hidden"
         />
       </div>
-      <div className="min-w-0 flex-1 pb-10 group-last/step:pb-0">
-        <h3 className="pt-0.5 font-heading text-base font-semibold">{label}</h3>
+      <div className="min-w-0 flex-1 pb-5 group-last/step:pb-0">
+        <h3 className="font-heading text-sm font-semibold">{label}</h3>
         {hint && (
           <div className="mt-0.5 text-sm/relaxed text-foreground/70">
             {hint}
           </div>
         )}
-        <div className="mt-4">{children}</div>
+        <div className="mt-2">{children}</div>
       </div>
     </div>
   );
@@ -75,24 +75,24 @@ export function BuildSetup() {
   return (
     <section
       id={BUILD_SETUP_ANCHOR}
-      className="mx-auto max-w-4xl scroll-mt-14 px-4 py-16"
+      className="mx-auto max-w-4xl scroll-mt-14 px-4 py-8"
     >
       <div className="group/anchor flex items-center gap-1">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
+        <h2 className="font-heading text-xl font-semibold tracking-tight md:text-2xl">
           {t("setup.heading")}
         </h2>
         <AnchorLinkButton id={BUILD_SETUP_ANCHOR} />
       </div>
-      <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
+      <p className="mt-1.5 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("setup.description")}
       </p>
 
-      <div className="mt-8 flex flex-col">
+      <div className="mt-5 flex flex-col">
         <SetupStep step={1} label={t("setup.source.label")}>
           <div
             role="radiogroup"
             aria-label={t("setup.source.label")}
-            className="grid gap-3 sm:grid-cols-2"
+            className="grid gap-2 sm:grid-cols-2"
           >
             <BuildOptionCard
               icon={IconPackage}
@@ -126,7 +126,7 @@ export function BuildSetup() {
           <div
             role="radiogroup"
             aria-label={t("setup.board.label")}
-            className="grid gap-3 sm:grid-cols-2"
+            className="grid gap-2 sm:grid-cols-2"
           >
             {BOARD_TYPES.map((type) => (
               <BuildOptionCard
@@ -147,7 +147,7 @@ export function BuildSetup() {
             <div
               role="radiogroup"
               aria-label={t("setup.mount.label")}
-              className="grid gap-3 sm:grid-cols-2"
+              className="grid gap-2 sm:grid-cols-2"
             >
               {ESP32_MOUNT_TYPES.map((type) => (
                 <BuildOptionCard
@@ -169,23 +169,23 @@ export function BuildSetup() {
           label={t("setup.modules.label")}
           hint={t("setup.modules.description", { bins: catchAllBin })}
         >
-          <div className="flex flex-col gap-4">
-            <div className="flex w-fit items-center gap-2 rounded-lg border bg-background p-1">
+          <div className="flex flex-col gap-2.5">
+            <div className="flex w-fit items-center gap-1.5 rounded-lg border bg-background p-0.5">
               <Button
                 variant="ghost"
-                size="icon-lg"
+                size="icon"
                 aria-label={t("setup.modules.decreaseAria")}
                 disabled={moduleCount <= MIN_MODULES}
                 onClick={() => updateSetup({ moduleCount: moduleCount - 1 })}
               >
                 <IconMinus />
               </Button>
-              <span className="w-8 text-center font-mono text-lg font-semibold tabular-nums">
+              <span className="w-7 text-center font-mono text-base font-semibold tabular-nums">
                 {moduleCount}
               </span>
               <Button
                 variant="ghost"
-                size="icon-lg"
+                size="icon"
                 aria-label={t("setup.modules.increaseAria")}
                 disabled={moduleCount >= MAX_MODULES}
                 onClick={() => updateSetup({ moduleCount: moduleCount + 1 })}
@@ -199,24 +199,24 @@ export function BuildSetup() {
                 {moduleBins.map((bins, i) => (
                   <div
                     key={i}
-                    className="grid grid-cols-[110px_1fr_1fr] divide-x divide-border"
+                    className="grid grid-cols-[96px_1fr_1fr] divide-x divide-border"
                   >
-                    <div className="flex items-center justify-center bg-secondary/40 px-3 py-2.5 font-mono text-sm font-medium">
+                    <div className="flex items-center justify-center bg-secondary/40 px-2.5 py-1.5 font-mono text-sm font-medium">
                       {t("hero.moduleLabel", { n: i + 1 })}
                     </div>
                     {bins.map((bin) => (
                       <div
                         key={bin}
-                        className="flex items-center justify-center bg-primary/5 px-3 py-2.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground"
+                        className="flex items-center justify-center bg-primary/5 px-2.5 py-1.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground"
                       >
                         {t("hero.binLabel", { n: bin })}
                       </div>
                     ))}
                   </div>
                 ))}
-                <div className="grid grid-cols-[110px_1fr] divide-x divide-border">
+                <div className="grid grid-cols-[96px_1fr] divide-x divide-border">
                   <div className="bg-secondary/20" />
-                  <div className="flex flex-wrap items-center justify-center gap-x-2 bg-primary/5 px-3 py-2.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground">
+                  <div className="flex flex-wrap items-center justify-center gap-x-2 bg-primary/5 px-2.5 py-1.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground">
                     {t("hero.binLabel", { n: catchAllBin })}
                     <span className="font-sans text-sm font-normal text-primary/80 dark:text-primary-foreground/80">
                       {t("hero.catchAllBinNote", { modules: moduleCount })}

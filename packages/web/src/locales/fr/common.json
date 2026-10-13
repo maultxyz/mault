@@ -1,11 +1,11 @@
 {
   "nav": {
-    "scanner": "Scanner",
+    "scanner": "Trier",
     "collections": "Collections",
-    "monitor": "Surveillance",
-    "scan": "Scanner",
-    "storage": "Rangement",
-    "calibrate": "Calibrer",
+    "monitor": "Vue en direct",
+    "scan": "Lier la caméra",
+    "storage": "Boîtes de rangement",
+    "calibrate": "Réglage du trieur",
     "settings": "Paramètres",
     "organization": "Org",
     "cart": "Boutique",
@@ -17,10 +17,11 @@
     "collapseSidebar": "Réduire la barre latérale ([)",
     "expandSidebar": "Développer la barre latérale ([)",
     "alerts": "Alertes",
-    "sounds": "Sons",
-    "integrations": "Intégrations",
+    "sounds": "Sons de scan",
+    "integrations": "API et webhooks",
     "more": "Plus",
-    "stats": "Statistiques"
+    "stats": "Statistiques",
+    "sortingRules": "Règles de tri"
   },
   "alerts": {
     "dismiss": "Ignorer",
@@ -179,11 +180,11 @@
       "toggleSidebar": "Déplier ou replier la barre latérale",
       "focusSearch": "Aller à la recherche",
       "dismissToasts": "Fermer toutes les notifications",
-      "goScanner": "Aller au scanner",
+      "goScanner": "Aller au tri",
       "goCollections": "Aller aux collections",
-      "goMonitor": "Aller au moniteur",
-      "goStorage": "Aller au rangement",
-      "goCalibrate": "Aller à la calibration",
+      "goMonitor": "Aller à la vue en direct",
+      "goStorage": "Aller aux boîtes de rangement",
+      "goCalibrate": "Aller au réglage du trieur",
       "goSettings": "Aller aux paramètres",
       "goAdmin": "Aller à l'administration",
       "scanPauseResume": "Mettre en pause ou reprendre le scan",
@@ -205,7 +206,8 @@
       "cardClose": "Fermer la carte ou annuler la correction",
       "cardRemove": "Retirer la carte (de sa boîte si ouverte depuis le Rangement)",
       "reviewStart": "Vérifier les cartes une par une",
-      "reviewAccept": "Pendant la vérification : la carte est bonne, suivante"
+      "reviewAccept": "Pendant la vérification : la carte est bonne, suivante",
+      "goSortingRules": "Aller aux règles de tri"
     }
   },
   "mobileMenu": {

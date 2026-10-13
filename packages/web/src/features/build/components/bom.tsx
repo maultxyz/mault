@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import {
   Accordion,
@@ -13,7 +14,7 @@ import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
 import { GROUPS } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";
-import { IconShoppingCart } from "@tabler/icons-react";
+import { IconPackage, IconShoppingCart } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
@@ -44,14 +45,14 @@ export function BuildBom() {
   const channelsUsed = moduleCount * 3 + 1;
 
   return (
-    <section id="parts" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-16">
+    <section id="parts" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-8">
       <div className="group/anchor flex items-center gap-1">
-        <h2 className="font-heading text-2xl font-semibold tracking-tight md:text-3xl">
+        <h2 className="font-heading text-xl font-semibold tracking-tight md:text-2xl">
           {t("bom.heading")}
         </h2>
         <AnchorLinkButton id="parts" />
       </div>
-      <p className="mt-3 max-w-2xl text-sm/relaxed text-foreground/70">
+      <p className="mt-1.5 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("bom.description", {
           modules: moduleCount,
           irSensors: moduleCount + 1,
@@ -60,7 +61,7 @@ export function BuildBom() {
         })}
       </p>
       <BuildSelectionSummary />
-      <div className="mt-4 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2.5 text-sm/relaxed text-primary">
+      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm/relaxed text-primary">
         <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
         <span>
           <Trans
@@ -79,8 +80,8 @@ export function BuildBom() {
         </span>
       </div>
 
-      <div className="mt-6">
-        <div className="mb-1.5 flex items-center justify-between font-mono text-xs text-foreground/70">
+      <div className="mt-4">
+        <div className="mb-1 flex items-center justify-between font-mono text-sm text-foreground/70">
           <span>
             {t("bom.progress.partsCount", {
               done: doneCount,
@@ -97,18 +98,28 @@ export function BuildBom() {
         </div>
       </div>
 
+      {usingKit && !openSections.includes("parts") && (
+        <Callout
+          variant="neutral"
+          icon={IconPackage}
+          className="mt-4 max-w-2xl px-3 py-2 text-sm/relaxed"
+        >
+          {t("bom.kitCollapsedNote")}
+        </Callout>
+      )}
+
       <Accordion
         multiple
         value={openSections}
         onValueChange={setOpenSections}
-        className="mt-8"
+        className="mt-4"
       >
         <AccordionItem value="parts" className="border-b-0">
           <AccordionTrigger className="font-heading text-base font-semibold tracking-wide text-foreground uppercase">
             {t("bom.partsListLabel")}
           </AccordionTrigger>
           <AccordionContent className="pb-0">
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-5">
               {GROUPS.map((group) => (
                 <BomGroupTable
                   key={group.key}
@@ -124,7 +135,7 @@ export function BuildBom() {
         </AccordionItem>
       </Accordion>
 
-      <p className="mt-6 max-w-2xl text-xs/relaxed text-foreground/70">
+      <p className="mt-4 max-w-2xl text-sm/relaxed text-foreground/70">
         {t("bom.affiliateDisclaimer")}
       </p>
     </section>

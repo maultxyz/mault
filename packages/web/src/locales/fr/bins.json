@@ -104,35 +104,35 @@
     "noRules": "aucune règle",
     "conditionCount_one": "{{count}} condition",
     "conditionCount_other": "{{count}} conditions",
-    "sortingLogic": "Logique de tri",
-    "selectSetPlaceholder": "Sélectionner un ensemble...",
-    "noMatchingSets": "Aucun ensemble correspondant",
-    "duplicateName": "Un ensemble avec ce nom existe déjà",
-    "editSortingLogic": "Modifier la logique de tri",
-    "deleteSetTitle": "Supprimer l'ensemble",
+    "sortingLogic": "Préréglage de règles",
+    "selectSetPlaceholder": "Choisir un préréglage...",
+    "noMatchingSets": "Aucun préréglage correspondant",
+    "duplicateName": "Un préréglage porte déjà ce nom",
+    "editSortingLogic": "Modifier les règles de tri",
+    "deleteSetTitle": "Supprimer le préréglage",
     "deleteSetDescription": "Supprime « {{name}} ». Contacte le support si tu as besoin de le récupérer.",
-    "revertSuccess": "Rétabli à l'état précédent de l'ensemble de bacs",
+    "revertSuccess": "Préréglage rétabli à son état précédent",
     "revertFailed": "Échec du rétablissement",
-    "renameSetTitle": "Renommer l'ensemble",
-    "renameSetDescription": "Saisis un nouveau nom pour cet ensemble.",
+    "renameSetTitle": "Renommer le préréglage",
+    "renameSetDescription": "Saisis un nouveau nom pour ce préréglage.",
     "cancel": "Annuler",
     "rename": "Renommer",
-    "setNameLabel": "Nom de l'ensemble",
-    "setNamePlaceholder": "Nom de l'ensemble...",
-    "newSetTitle": "Nouvel ensemble",
-    "newSetDescription": "Crée un nouvel ensemble avec 7 bacs vides.",
+    "setNameLabel": "Nom du préréglage",
+    "setNamePlaceholder": "Nom du préréglage...",
+    "newSetTitle": "Nouveau préréglage",
+    "newSetDescription": "Crée un nouveau préréglage avec 7 bacs vides.",
     "create": "Créer",
     "viewHistory": "Voir l'historique",
-    "historyTitle": "Historique de l'ensemble de bacs"
+    "historyTitle": "Historique du préréglage"
   },
   "useBinConfigs": {
     "toasts": {
       "saveBinFailed": "Échec de l'enregistrement de la configuration du bac",
-      "activateSetFailed": "Échec de l'activation de l'ensemble",
-      "createSetFailed": "Échec de la création de l'ensemble",
-      "saveSetFailed": "Échec de l'enregistrement de l'ensemble",
-      "renameSetFailed": "Échec du renommage de l'ensemble",
-      "deleteSetFailed": "Échec de la suppression de l'ensemble",
+      "activateSetFailed": "Impossible d'activer le préréglage",
+      "createSetFailed": "Impossible de créer le préréglage",
+      "saveSetFailed": "Impossible d'enregistrer le préréglage",
+      "renameSetFailed": "Impossible de renommer le préréglage",
+      "deleteSetFailed": "Impossible de supprimer le préréglage",
       "autoAssignFailed": "Échec de la mise à jour des paramètres de détection automatique",
       "autoAssignResetFailed": "Échec de la réinitialisation des bacs détectés automatiquement",
       "scanOnlyFailed": "Échec de la mise à jour des paramètres de scan uniquement",
@@ -152,7 +152,7 @@
     "fieldPlaceholder": "Choisir un champ...",
     "reset": "Réinitialiser",
     "resetConfirmTitle": "Réinitialiser les bacs détectés automatiquement ?",
-    "resetConfirmDescription": "Efface la valeur apprise de chaque bac de cet ensemble. Les prochains scans les rempliront à nouveau depuis le début.",
+    "resetConfirmDescription": "Efface la valeur apprise de chaque bac de ce préréglage. Les prochains scans les rempliront à nouveau depuis le début.",
     "notYetAssigned": "Pas encore attribué"
   },
   "scanOnlyPanel": {
@@ -276,5 +276,10 @@
       "saveFailed": "Impossible d'enregistrer la liste de tri",
       "resetFailed": "Impossible de réinitialiser la liste de tri"
     }
+  },
+  "page": {
+    "title": "Règles de tri",
+    "description": "Décide dans quel bac va chaque carte. Ces règles s'appliquent à chaque collection {{game}}.",
+    "descriptionNoGame": "Décide dans quel bac va chaque carte. Choisis une collection pour sélectionner le jeu dont tu modifies les règles."
   }
 }

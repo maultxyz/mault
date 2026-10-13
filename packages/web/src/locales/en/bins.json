@@ -104,35 +104,35 @@
     "noRules": "no rules",
     "conditionCount_one": "{{count}} condition",
     "conditionCount_other": "{{count}} conditions",
-    "sortingLogic": "Sorting Logic",
-    "selectSetPlaceholder": "Select a set...",
-    "noMatchingSets": "No matching sets",
-    "duplicateName": "A set with this name already exists",
-    "editSortingLogic": "Edit Sorting Logic",
-    "deleteSetTitle": "Delete Set",
+    "sortingLogic": "Rule preset",
+    "selectSetPlaceholder": "Select a preset...",
+    "noMatchingSets": "No matching presets",
+    "duplicateName": "A preset with this name already exists",
+    "editSortingLogic": "Edit sorting rules",
+    "deleteSetTitle": "Delete preset",
     "deleteSetDescription": "Deletes \"{{name}}\". Contact support if you need it back.",
-    "revertSuccess": "Reverted to previous bin set state",
+    "revertSuccess": "Reverted the preset to its previous state",
     "revertFailed": "Failed to revert",
-    "renameSetTitle": "Rename Set",
-    "renameSetDescription": "Enter a new name for this set.",
+    "renameSetTitle": "Rename preset",
+    "renameSetDescription": "Enter a new name for this preset.",
     "cancel": "Cancel",
     "rename": "Rename",
-    "setNameLabel": "Set name",
-    "setNamePlaceholder": "Set name...",
-    "newSetTitle": "New Set",
-    "newSetDescription": "Create a new set with 7 empty bins.",
+    "setNameLabel": "Preset name",
+    "setNamePlaceholder": "Preset name...",
+    "newSetTitle": "New preset",
+    "newSetDescription": "Create a new preset with 7 empty bins.",
     "create": "Create",
     "viewHistory": "View History",
-    "historyTitle": "Bin Set History"
+    "historyTitle": "Preset history"
   },
   "useBinConfigs": {
     "toasts": {
       "saveBinFailed": "Failed to save bin config",
-      "activateSetFailed": "Failed to activate set",
-      "createSetFailed": "Failed to create set",
-      "saveSetFailed": "Failed to save set",
-      "renameSetFailed": "Failed to rename set",
-      "deleteSetFailed": "Failed to delete set",
+      "activateSetFailed": "Failed to activate preset",
+      "createSetFailed": "Failed to create preset",
+      "saveSetFailed": "Failed to save preset",
+      "renameSetFailed": "Failed to rename preset",
+      "deleteSetFailed": "Failed to delete preset",
       "autoAssignFailed": "Failed to update auto-detect settings",
       "autoAssignResetFailed": "Failed to reset auto-detected bins",
       "scanOnlyFailed": "Failed to update scan only settings",
@@ -152,7 +152,7 @@
     "fieldPlaceholder": "Choose a field...",
     "reset": "Reset",
     "resetConfirmTitle": "Reset auto-detected bins?",
-    "resetConfirmDescription": "Clears every bin's learned value in this set. New scans will refill them from scratch.",
+    "resetConfirmDescription": "Clears every bin's learned value in this preset. New scans will refill them from scratch.",
     "notYetAssigned": "Not yet assigned"
   },
   "scanOnlyPanel": {
@@ -276,5 +276,10 @@
       "saveFailed": "Couldn't save the pick list",
       "resetFailed": "Couldn't reset the pick list"
     }
+  },
+  "page": {
+    "title": "Sorting rules",
+    "description": "Decide which bin each card goes to. These rules apply to every {{game}} collection.",
+    "descriptionNoGame": "Decide which bin each card goes to. Pick a collection to choose which game's rules you're editing."
   }
 }

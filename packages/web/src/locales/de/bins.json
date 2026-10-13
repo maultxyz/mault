@@ -104,35 +104,35 @@
     "noRules": "keine Regeln",
     "conditionCount_one": "{{count}} Bedingung",
     "conditionCount_other": "{{count}} Bedingungen",
-    "sortingLogic": "Sortierlogik",
-    "selectSetPlaceholder": "Set auswählen...",
-    "noMatchingSets": "Keine passenden Sets",
-    "duplicateName": "Ein Set mit diesem Namen existiert bereits",
-    "editSortingLogic": "Sortierlogik bearbeiten",
-    "deleteSetTitle": "Set löschen",
+    "sortingLogic": "Regel-Vorlage",
+    "selectSetPlaceholder": "Vorlage auswählen...",
+    "noMatchingSets": "Keine passenden Vorlagen",
+    "duplicateName": "Eine Vorlage mit diesem Namen existiert bereits",
+    "editSortingLogic": "Sortierregeln bearbeiten",
+    "deleteSetTitle": "Vorlage löschen",
     "deleteSetDescription": "Löscht \"{{name}}\". Wende dich an den Support, wenn du sie zurück brauchst.",
-    "revertSuccess": "Auf vorherigen Fach-Set-Stand zurückgesetzt",
+    "revertSuccess": "Vorlage auf den vorherigen Stand zurückgesetzt",
     "revertFailed": "Zurücksetzen fehlgeschlagen",
-    "renameSetTitle": "Set umbenennen",
-    "renameSetDescription": "Gib einen neuen Namen für dieses Set ein.",
+    "renameSetTitle": "Vorlage umbenennen",
+    "renameSetDescription": "Gib einen neuen Namen für diese Vorlage ein.",
     "cancel": "Abbrechen",
     "rename": "Umbenennen",
-    "setNameLabel": "Set-Name",
-    "setNamePlaceholder": "Set-Name...",
-    "newSetTitle": "Neues Set",
-    "newSetDescription": "Erstellt ein neues Set mit 7 leeren Fächern.",
+    "setNameLabel": "Name der Vorlage",
+    "setNamePlaceholder": "Name der Vorlage...",
+    "newSetTitle": "Neue Vorlage",
+    "newSetDescription": "Erstelle eine neue Vorlage mit 7 leeren Fächern.",
     "create": "Erstellen",
     "viewHistory": "Verlauf anzeigen",
-    "historyTitle": "Fach-Set-Verlauf"
+    "historyTitle": "Verlauf der Vorlage"
   },
   "useBinConfigs": {
     "toasts": {
       "saveBinFailed": "Fach-Konfiguration konnte nicht gespeichert werden",
-      "activateSetFailed": "Set konnte nicht aktiviert werden",
-      "createSetFailed": "Set konnte nicht erstellt werden",
-      "saveSetFailed": "Set konnte nicht gespeichert werden",
-      "renameSetFailed": "Set konnte nicht umbenannt werden",
-      "deleteSetFailed": "Set konnte nicht gelöscht werden",
+      "activateSetFailed": "Vorlage konnte nicht aktiviert werden",
+      "createSetFailed": "Vorlage konnte nicht erstellt werden",
+      "saveSetFailed": "Vorlage konnte nicht gespeichert werden",
+      "renameSetFailed": "Vorlage konnte nicht umbenannt werden",
+      "deleteSetFailed": "Vorlage konnte nicht gelöscht werden",
       "autoAssignFailed": "Auto-Erkennungseinstellungen konnten nicht aktualisiert werden",
       "autoAssignResetFailed": "Automatisch erkannte Fächer konnten nicht zurückgesetzt werden",
       "scanOnlyFailed": "Nur-Scannen-Einstellungen konnten nicht aktualisiert werden",
@@ -152,7 +152,7 @@
     "fieldPlaceholder": "Feld auswählen...",
     "reset": "Zurücksetzen",
     "resetConfirmTitle": "Automatisch erkannte Fächer zurücksetzen?",
-    "resetConfirmDescription": "Löscht den gelernten Wert jedes Fachs in diesem Set. Neue Scans füllen sie von Grund auf neu.",
+    "resetConfirmDescription": "Löscht den gelernten Wert jedes Fachs in dieser Vorlage. Neue Scans füllen sie von Grund auf neu.",
     "notYetAssigned": "Noch nicht zugewiesen"
   },
   "scanOnlyPanel": {
@@ -276,5 +276,10 @@
       "saveFailed": "Pickliste konnte nicht gespeichert werden",
       "resetFailed": "Pickliste konnte nicht zurückgesetzt werden"
     }
+  },
+  "page": {
+    "title": "Sortierregeln",
+    "description": "Lege fest, in welches Fach jede Karte kommt. Diese Regeln gelten für jede {{game}}-Sammlung.",
+    "descriptionNoGame": "Lege fest, in welches Fach jede Karte kommt. Wähle eine Sammlung, um festzulegen, für welches Spiel du die Regeln bearbeitest."
   }
 }

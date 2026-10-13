@@ -20,16 +20,13 @@ import type {
 } from "@/lib/interfaces/calibration";
 import type { SectionNavItem } from "@/lib/interfaces/nav";
 import {
-  IconAdjustmentsHorizontal,
   IconChevronDown,
   IconClipboard,
   IconDeviceUsb,
   IconDeviceUsbFilled,
   IconDownload,
   IconFileSettings,
-  IconFocus2,
   IconLoader2,
-  IconSettingsCog,
   IconRotateClockwise,
   IconUpload,
 } from "@tabler/icons-react";
@@ -44,7 +41,10 @@ import {
 import {
   CALIBRATION_PATH_SECTIONS,
   CALIBRATION_SECTION_PATHS,
+  CALIBRATION_SECTIONS,
+  DEFAULT_CALIBRATION_SECTION,
 } from "@/lib/constants/calibration";
+import { PageIntro } from "@/components/page-intro";
 
 export function useCalibrationOutletContext() {
   return useOutletContext<CalibrationPageState>();
@@ -55,28 +55,20 @@ export default function CalibrateLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const activePathSegment = location.pathname.split("/").pop() ?? "modules";
-  const section = CALIBRATION_PATH_SECTIONS[activePathSegment] ?? "modules";
+  const activePathSegment = location.pathname.split("/").pop() ?? "";
+  const section =
+    CALIBRATION_PATH_SECTIONS[activePathSegment] ??
+    DEFAULT_CALIBRATION_SECTION;
   const setSection = (next: CalibrationSection) =>
     navigate(`/app/calibrate/${CALIBRATION_SECTION_PATHS[next]}`);
 
-  const sectionNavItems: SectionNavItem[] = [
-    {
-      to: CALIBRATION_SECTION_PATHS.modules,
-      icon: <IconAdjustmentsHorizontal size={16} />,
-      label: t("sections.moduleSetup"),
-    },
-    {
-      to: CALIBRATION_SECTION_PATHS.scanRegion,
-      icon: <IconFocus2 size={16} />,
-      label: t("sections.scanRegion"),
-    },
-    {
-      to: CALIBRATION_SECTION_PATHS.calibration,
-      icon: <IconSettingsCog size={16} />,
-      label: t("sections.calibration"),
-    },
-  ];
+  const sectionNavItems: SectionNavItem[] = CALIBRATION_SECTIONS.map(
+    ({ section: key, icon: Icon }) => ({
+      to: CALIBRATION_SECTION_PATHS[key],
+      icon: <Icon size={16} />,
+      label: t(`sections.${key}`),
+    }),
+  );
 
   const calibrationPage = useCalibrationPage();
   const {
@@ -242,6 +234,10 @@ export default function CalibrateLayout() {
 
         <SettingsSectionLayoutContext value="flat">
           <div className="flex flex-col gap-6 pb-4">
+            <PageIntro
+              title={t(`sections.${section}`)}
+              description={t(`sectionIntros.${section}`)}
+            />
             <Outlet context={calibrationPage} />
           </div>
         </SettingsSectionLayoutContext>

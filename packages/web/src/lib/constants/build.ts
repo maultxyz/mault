@@ -2,17 +2,21 @@ import {
   IconBluetooth,
   IconCpu,
   IconLayoutBoard,
+  IconPhoto,
+  IconTable,
   IconUsb,
   type Icon,
 } from "@tabler/icons-react";
 import type {
   BoardInfo,
   BoardType,
-  BuildSectionNavItem,
   BuildSetupState,
   BuildVideo,
   BuildVideoChapter,
   Esp32MountType,
+  WireColor,
+  WireKey,
+  WiringViewMode,
 } from "@/lib/interfaces/build";
 
 export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
@@ -67,12 +71,62 @@ export const BOM_ANCHOR_PREFIX = "parts-";
 
 export const BUILD_SETUP_ANCHOR = "setup";
 
-export const BUILD_SECTION_NAV: BuildSectionNavItem[] = [
-  { id: BUILD_SETUP_ANCHOR, labelKey: "hero.nav.setup" },
-  { id: "parts", labelKey: "hero.nav.parts" },
-  { id: "wiring", labelKey: "hero.nav.wiring" },
-  { id: "assembly", labelKey: "hero.nav.assembly" },
-];
+export const BUILD_SELECTION_BADGE_CLASS =
+  "h-6 rounded-md border-foreground/15 bg-foreground/10 px-2 text-sm font-medium text-foreground";
+
+export const BUILD_PIN_BADGE_CLASS =
+  "inline-flex h-6 items-center rounded-md border border-foreground/15 bg-foreground/10 px-2 align-middle font-mono text-sm font-medium text-foreground";
+
+export const BUILD_OPTIONAL_BADGE_CLASS =
+  "ml-2 h-6 rounded-md border-foreground/15 bg-foreground/10 px-2 align-middle text-sm font-medium text-foreground no-underline";
+
+export const BUILD_PARTS_ANCHOR = "parts";
+export const BUILD_ASSEMBLY_ANCHOR = "assembly";
+export const BUILD_WIRING_ANCHOR = "wiring";
+
+export const EMPTY_CHECKLIST: Record<string, boolean> = {};
+
+export const WIRE_COLOR_CLASSES: Record<WireColor, string> = {
+  yellow: "bg-yellow-400",
+  green: "bg-green-600",
+  blue: "bg-blue-600",
+  red: "bg-red-500",
+  black: "bg-neutral-950",
+  white: "bg-white",
+};
+
+export const BOARD_WIRE_COLORS: Record<
+  BoardType,
+  Record<WireKey, WireColor>
+> = {
+  uno_r4: {
+    sda: "yellow",
+    scl: "green",
+    vcc: "red",
+    gnd: "black",
+    psuPositive: "red",
+    psuNegative: "black",
+    irSignal: "white",
+  },
+  esp32: {
+    sda: "blue",
+    scl: "yellow",
+    vcc: "red",
+    gnd: "black",
+    psuPositive: "red",
+    psuNegative: "black",
+    irSignal: "white",
+  },
+};
+
+export const WIRING_VIEW_MODES: WiringViewMode[] = ["table", "diagram"];
+
+export const WIRING_VIEW_MODE_ICONS: Record<WiringViewMode, Icon> = {
+  table: IconTable,
+  diagram: IconPhoto,
+};
+
+export const PCA9685_FEEDER_CHANNEL = 15;
 
 export const BOARD_TYPES: BoardType[] = ["uno_r4", "esp32"];
 

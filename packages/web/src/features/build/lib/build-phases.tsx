@@ -1,10 +1,17 @@
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
 import {
+  ChannelMapWiringReference,
+  I2cWiringReference,
+  IrSensorWiringReference,
+  ServoPowerWiringReference,
+  WiringOverview,
+} from "@/features/build/components/wiring-tables";
+import {
   ASSEMBLE_MODULES_VIDEO,
   BOARD_INFO,
   WIRE_AND_CALIBRATE_VIDEO,
 } from "@/lib/constants/build";
-import { REPO_URL } from "@/lib/constants/links";
+import { PRINT_FILES_URL, REPO_URL } from "@/lib/constants/links";
 import {
   IconCpu,
   IconCube,
@@ -81,7 +88,7 @@ export function buildPhases(
               components={{
                 mesh: (
                   <a
-                    href="https://github.com/dishwasher-detergent/mault/blob/master/3d%20model/card_sorter.3mf"
+                    href={PRINT_FILES_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline underline-offset-2 hover:text-foreground"
@@ -371,6 +378,7 @@ export function buildPhases(
       title: t("assembly.phases.wireAndCalibrate.title"),
       icon: IconPlugConnected,
       video: WIRE_AND_CALIBRATE_VIDEO,
+      intro: <WiringOverview />,
       steps: [
         {
           key: "wire-i2c",
@@ -381,6 +389,7 @@ export function buildPhases(
             "assembly.phases.wireAndCalibrate.steps.wireI2c.bendPinsNote",
             { board: board.shortName },
           )} ${t("assembly.phases.wireAndCalibrate.steps.wireI2c.note")}`,
+          reference: <I2cWiringReference />,
         },
         {
           key: "wire-servos",
@@ -389,6 +398,7 @@ export function buildPhases(
             lastChannel: moduleCount * 3 - 1,
           }),
           note: t("assembly.phases.wireAndCalibrate.steps.wireServos.note"),
+          reference: <ChannelMapWiringReference />,
         },
         {
           key: "wire-sensors",
@@ -398,6 +408,7 @@ export function buildPhases(
           note: t("assembly.phases.wireAndCalibrate.steps.wireSensors.note", {
             count: moduleCount + 1,
           }),
+          reference: <IrSensorWiringReference />,
         },
         {
           key: "wire-power",
@@ -405,6 +416,7 @@ export function buildPhases(
             board: board.shortName,
           }),
           note: t("assembly.phases.wireAndCalibrate.steps.wirePower.note"),
+          reference: <ServoPowerWiringReference />,
         },
         {
           key: "connect-serial",

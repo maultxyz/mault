@@ -7,10 +7,6 @@
   "hero": {
     "eyebrow": "Guide de montage du matériel",
     "title": "Construire la trieuse de cartes",
-    "description": "Liste des pièces et instructions de montage pour l'unité de tri physique : une trémie fait passer les cartes une par une à travers {{modules}} modules de routage empilés, chacun capable de faire tomber une carte dans l'un de ses deux bacs latéraux ou de la transmettre au module suivant - {{bins}} bacs au total, pilotés par un {{board}} via I²C.",
-    "firmwareLabel": "Firmware",
-    "enclosureLabel": "Boîtier",
-    "calibrationLabel": "Calibration",
     "modulesIntro": "Chaque module possède trois servos - une trappe <0>inférieure</0>, une <1>palette</1> de porte, et un <2>poussoir</2> gauche/droite - plus un capteur IR. Fermer chaque trappe au-dessus du bac cible et n'ouvrir que celles en dessous permet à une carte de tomber jusqu'au bon module avant que le poussoir ne l'éjecte.",
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bac {{n}}",
@@ -19,9 +15,11 @@
       "label": "Sections du guide",
       "setup": "Configuration",
       "parts": "Pièces",
-      "wiring": "Câblage",
       "assembly": "Assemblage"
     }
+  },
+  "toc": {
+    "label": "Sommaire"
   },
   "setup": {
     "heading": "Configure ton montage",
@@ -90,6 +88,7 @@
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
     "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
     "partsListLabel": "Liste complète des pièces",
+    "kitCollapsedNote": "Tu construis à partir d'un kit, la liste des pièces est donc repliée. Ouvre-la si tu veux vérifier une pièce.",
     "progress": {
       "partsCount": "{{done}} sur {{total}} pièces"
     },
@@ -261,10 +260,8 @@
     }
   },
   "wiring": {
-    "heading": "Câblage",
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
     "wireColorNote": "Les couleurs des fils varient selon les pièces et les fournisseurs, donc ne te fie pas aux couleurs du schéma ou des photos. Suis chaque fil depuis l'étiquette de sa broche et vérifie qu'il arrive au bon endroit.",
-    "detailsLabel": "Détails du câblage",
     "sections": {
       "i2c": {
         "title": "Bus I²C",
@@ -287,7 +284,7 @@
     },
     "i2cTable": {
       "colPcaPin": "Broche PCA9685",
-      "vccLogic": "VCC (logique)"
+      "vccLogic": "<pin>VCC</pin> (logique)"
     },
     "servoPowerTable": {
       "colFrom": "De",
@@ -320,6 +317,26 @@
       "bottom": "bas",
       "paddle": "palette",
       "pusher": "poussoir"
+    },
+    "reference": {
+      "viewMode": "Afficher en",
+      "table": "Tableau",
+      "diagram": "Schéma",
+      "openFullSize": "Ouvrir en taille réelle",
+      "colWire": "Fil sur le schéma",
+      "colSignalWire": "Fil de signal sur le schéma"
+    },
+    "overview": {
+      "fullDiagram": "Schéma de câblage complet"
+    },
+    "wireColor": "Couleur du fil sur le schéma : {{color}}",
+    "colors": {
+      "yellow": "jaune",
+      "green": "vert",
+      "blue": "bleu",
+      "red": "rouge",
+      "black": "noir",
+      "white": "blanc"
     }
   },
   "assembly": {
@@ -343,7 +360,7 @@
         "title": "Imprimer les pièces structurelles",
         "steps": {
           "printSortingModule": {
-            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir de <mesh>card_sorter.3mf</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>).",
+            "text": "Tranche et imprime {{count}} plaques Sorting Module - une par module de tri - à partir du <mesh>modèle MakerWorld</mesh> (ou réexporte depuis <source>Card Sorter.f3d</source>).",
             "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
           },
           "printFeederModule": {
@@ -483,7 +500,7 @@
         "steps": {
           "wireI2c": {
             "text": "Câble le PCA9685 au bus I²C du {{board}} (SDA/SCL) et à l'alimentation logique/GND.",
-            "note": "Voir la section Câblage ci-dessus - la tension logique est de 3.3V sur ESP32, pas 5V.",
+            "note": "Utilise le tableau ci-dessous. La tension logique est de 3.3V sur ESP32, pas 5V.",
             "bendPinsNote": "Les broches d'en-tête du PCA9685 pointent horizontalement vers l'extérieur - il faudra peut-être les plier à 90° vers le haut pour qu'elles dégagent le panneau et restent faciles d'accès lors du câblage vers le {{board}}."
           },
           "wireServos": {
@@ -491,7 +508,7 @@
             "note": "Des passages de câbles, avec des colliers de serrage, sont prévus sur le côté de la base pour garder tout bien rangé."
           },
           "wireSensors": {
-            "text": "Câble les {{count}} capteurs IR aux broches numériques indiquées dans la section Câblage ci-dessus - les portes des modules et le capteur de la gorge de la trémie ne se trouvent pas tous sur des broches consécutives.",
+            "text": "Câble les {{count}} capteurs IR aux broches numériques du tableau ci-dessous. Les portes des modules et le capteur de la gorge de la trémie ne se trouvent pas tous sur des broches consécutives.",
             "note": "Pour l'alimentation et la masse, tu devras combiner {{count}} fils en un seul, soit avec une plaque d'essai, soit en les torsadant et en les soudant ensemble. Tu devras calibrer manuellement les capteurs pour avoir une portée plus courte, afin d'éviter les faux positifs."
           },
           "wirePower": {

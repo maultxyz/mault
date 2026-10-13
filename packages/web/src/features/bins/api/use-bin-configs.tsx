@@ -93,15 +93,13 @@ const BinConfigsContext = createContext<BinConfigsContextValue | null>(null);
 
 export function BinConfigsProvider({
   children,
-  collectionGuid,
 }: {
   children: React.ReactNode;
-  collectionGuid?: string;
 }) {
   const { t } = useTranslation("bins");
   const queryClient = useQueryClient();
   const { activeOrg } = useOrg();
-  const { activeCollection, collections } = useCollections();
+  const { activeCollection } = useCollections();
   const { t: tCommon } = useTranslation("common");
   const moduleCount = useModuleCount();
   const [selectedBin, setSelectedBinState] = useState(1);
@@ -113,9 +111,7 @@ export function BinConfigsProvider({
     enabled: !!activeOrg,
   });
 
-  const targetCollection = collectionGuid
-    ? (collections.find((c) => c.guid === collectionGuid) ?? null)
-    : activeCollection;
+  const targetCollection = activeCollection;
 
   const activeGameGuid = targetCollection?.game?.guid;
   const gameKey = targetCollection?.game?.key ?? null;

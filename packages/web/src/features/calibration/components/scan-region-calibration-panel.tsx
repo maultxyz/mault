@@ -259,7 +259,7 @@ export function ScanRegionCalibrationPanel({
   return (
     <SettingsSection
       dataTour="scan-region-panel"
-      heading={t("sections.scanRegion")}
+      heading={t("scanRegionCalibrationPanel.heading")}
       description={t("scanRegionCalibrationPanel.instructions")}
     >
       <p className="-mt-2 text-xs text-foreground/70">

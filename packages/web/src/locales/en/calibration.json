@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "Calibrate",
-    "subtitle": "Configure module routing, the camera scan region, and servo calibration"
+    "title": "Sorter setup",
+    "subtitle": "Work through these steps in order to get a sorter ready to sort."
   },
   "servos": {
     "bottom": {
@@ -42,10 +42,12 @@
     "pipelinedFeedDescription": "Feeds and scans the next card as soon as the previous one has left module 1, instead of waiting for it to reach its bin. Needs firmware 2.1.0 or newer and auto-feed turned on. Turn this off if cards jam or scans start picking up the moving card."
   },
   "sections": {
-    "moduleSetup": "Modules & Routing",
-    "scanRegion": "Scan Region",
-    "calibration": "Feeder & Module Calibration",
-    "moduleCalibration": "Module Calibration"
+    "scanRegion": "Camera",
+    "calibration": "Servos & feeder",
+    "moduleCalibration": "Module Calibration",
+    "connection": "Connection",
+    "layout": "Layout",
+    "test": "Test"
   },
   "binConfigurations": {
     "label": "Bin Configurations",
@@ -162,7 +164,8 @@
     "phoneCaptureFailed": "Phone didn't respond with a photo in time.",
     "cameraLabel": "Camera",
     "cameraPlaceholder": "Select a camera",
-    "cameraFallbackLabel": "Camera {{index}}"
+    "cameraFallbackLabel": "Camera {{index}}",
+    "heading": "Scan region"
   },
   "useCalibrationPage": {
     "toasts": {
@@ -358,7 +361,7 @@
           "desc": "The arm that sweeps the card sideways into a bin."
         }
       },
-      "skipNote": "You can skip this and calibrate later from the Calibration page."
+      "skipNote": "You can skip this and calibrate later from Sorter setup."
     },
     "moduleCount": {
       "heading": "How many modules does this sorter have?",
@@ -443,7 +446,7 @@
       "heading": "Timing",
       "body": "These delays control how a card is pushed off this module. The defaults suit most sorters, so only change them if cards are pushed before the paddle is down or the pusher pulls back too early. Hover the info icons for what each one does.",
       "testHint": "Use the push test to watch a full push with these values. It runs on an empty module.",
-      "offlineHint": "Push tests need a connected sorter. You can tune these later from the calibration page."
+      "offlineHint": "Push tests need a connected sorter. You can tune these later from Sorter setup."
     }
   },
   "connectionSettings": {
@@ -451,7 +454,7 @@
     "autoConnectLabel": "Auto-connect when plugged in",
     "autoConnectDescription": "When this sorter is plugged in over USB while the app is open (or is already plugged in when the app loads), it connects on its own and runs its self-test so it's ready to scan. Over Bluetooth, if it drops or is power-cycled, the app keeps trying to reconnect until the tab is closed. Connect it by hand once in this browser first, so the browser allows it.",
     "testOnConnectLabel": "Run self-test on connect",
-    "testOnConnectDescription": "When on, the sorter cycles every servo and checks its sensors each time it connects. When off, it only loads its saved calibration and is ready right away. You can still run the test from the calibration page."
+    "testOnConnectDescription": "When on, the sorter cycles every servo and checks its sensors each time it connects. When off, it only loads its saved calibration and is ready right away. You can still run the test from Sorter setup."
   },
   "firmware": {
     "title": "Firmware",
@@ -468,5 +471,12 @@
     "unoNote": "Arduino Uno R4 boards can't be flashed from the browser. Download the firmware and upload it with the Arduino IDE.",
     "notConnectedHint": "Connect a sorter to see its version, or flash an ESP32-S3 over USB without connecting it first.",
     "unsupported": "This browser can't flash boards. Use Chrome or Edge on a computer."
+  },
+  "sectionIntros": {
+    "connection": "Connect the sorter over USB or Bluetooth, keep its firmware up to date and choose what happens when it connects.",
+    "layout": "Tell the app how many modules are installed, which slot each bin is in and how big each bin is.",
+    "calibration": "Fine-tune the feeder and each module's servos until cards move cleanly, then save.",
+    "scanRegion": "Frame the part of the camera image that holds the card, and choose how carefully each scan is matched.",
+    "test": "Check that the sensors see cards and that every bin receives them before you start sorting."
   }
 }

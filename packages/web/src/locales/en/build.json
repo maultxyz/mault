@@ -7,10 +7,6 @@
   "hero": {
     "eyebrow": "Hardware build guide",
     "title": "Build the card sorter",
-    "description": "Parts list and assembly instructions for the physical sorting unit: a hopper feeds cards one at a time through {{modules}} stacked routing modules, each capable of dropping a card into one of two side bins or passing it down to the next module, {{bins}} bins total, driven by an {{board}} over I²C.",
-    "firmwareLabel": "Firmware",
-    "enclosureLabel": "Enclosure",
-    "calibrationLabel": "Calibration",
     "modulesIntro": "Each module has three servos, a <0>bottom</0> trapdoor, a <1>paddle</1> gate, and a left/right <2>pusher</2>, plus an IR sensor. Closing every trapdoor above the target bin and opening only the ones beneath it lets a card fall to the right module before the pusher ejects it.",
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bin {{n}}",
@@ -19,9 +15,11 @@
       "label": "Guide sections",
       "setup": "Set up",
       "parts": "Parts",
-      "wiring": "Wiring",
       "assembly": "Assembly"
     }
+  },
+  "toc": {
+    "label": "Contents"
   },
   "setup": {
     "heading": "Set up your build",
@@ -90,6 +88,7 @@
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links. We may earn a small commission on qualifying purchases at no extra cost to you.",
     "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
     "partsListLabel": "Full parts list",
+    "kitCollapsedNote": "You're building from a kit, so the parts list is collapsed. Open it if you want to check any part.",
     "progress": {
       "partsCount": "{{done}} of {{total}} parts"
     },
@@ -261,10 +260,8 @@
     }
   },
   "wiring": {
-    "heading": "Wiring",
     "description": "Everything hangs off one I²C bus (PCA9685) and {{count}} digital input pins (IR sensors). The PCA9685's logic side runs off the {{board}}'s onboard supply; its <pin>V+</pin> servo rail must come from the external supply, and that supply's ground must be tied back to the {{board}}'s ground. A floating servo ground is the most common reason a freshly wired unit won't move.",
     "wireColorNote": "Wire colors vary between parts and suppliers, so don't rely on the colors in the diagram or photos. Trace each wire from its pin label and make sure it ends up at the correct place.",
-    "detailsLabel": "Wiring details",
     "sections": {
       "i2c": {
         "title": "I²C bus",
@@ -287,7 +284,7 @@
     },
     "i2cTable": {
       "colPcaPin": "PCA9685 pin",
-      "vccLogic": "VCC (logic)"
+      "vccLogic": "<pin>VCC</pin> (logic)"
     },
     "servoPowerTable": {
       "colFrom": "From",
@@ -320,6 +317,26 @@
       "bottom": "bottom",
       "paddle": "paddle",
       "pusher": "pusher"
+    },
+    "reference": {
+      "viewMode": "Show as",
+      "table": "Table",
+      "diagram": "Diagram",
+      "openFullSize": "Open full size",
+      "colWire": "Wire in diagram",
+      "colSignalWire": "Signal wire in diagram"
+    },
+    "overview": {
+      "fullDiagram": "Full wiring diagram"
+    },
+    "wireColor": "{{color}} wire in the diagram",
+    "colors": {
+      "yellow": "Yellow",
+      "green": "Green",
+      "blue": "Blue",
+      "red": "Red",
+      "black": "Black",
+      "white": "White"
     }
   },
   "assembly": {
@@ -343,7 +360,7 @@
         "title": "Print the structural parts",
         "steps": {
           "printSortingModule": {
-            "text": "Slice and print {{count}} Sorting Module plates, one per sorting module, from <mesh>card_sorter.3mf</mesh> (or re-export from <source>Card Sorter.f3d</source>)."
+            "text": "Slice and print {{count}} Sorting Module plates, one per sorting module, from the <mesh>MakerWorld model</mesh> (or re-export from <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
             "text": "Print 1 Feeder Module from the same file. Only one needed, regardless of module count. Houses the feeder roller and hopper throat."
@@ -482,7 +499,7 @@
         "steps": {
           "wireI2c": {
             "text": "Wire the PCA9685 to the {{board}}'s I²C bus (SDA/SCL) and logic power/GND.",
-            "note": "See the Wiring section above. The logic voltage is 3.3V on ESP32, not 5V.",
+            "note": "Use the table below. The logic voltage is 3.3V on ESP32, not 5V.",
             "bendPinsNote": "The PCA9685's header pins point straight out to the side. You may need to bend them 90° upward so they clear the panel and stay easy to reach when wiring to the {{board}}."
           },
           "wireServos": {
@@ -490,7 +507,7 @@
             "note": "There are wire channels, that use zip ties, in the side of the base to help keep everything neat."
           },
           "wireSensors": {
-            "text": "Wire the {{count}} IR sensors to the digital pins listed in the Wiring section above. Module gates and the hopper throat sensor don't all fall on consecutive pins.",
+            "text": "Wire the {{count}} IR sensors to the digital pins in the table below. Module gates and the hopper throat sensor don't all fall on consecutive pins.",
             "note": "For the power and ground, you will have to combine {{count}} wires into one, either with a breadboard or by twisting and soldering them together. You will need to manually calibrate the sensors to have a shorter throw, as to not get false positives."
           },
           "wirePower": {

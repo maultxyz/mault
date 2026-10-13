@@ -10,7 +10,12 @@ import type {
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 
-export type CalibrationSection = "modules" | "scanRegion" | "calibration";
+export type CalibrationSection =
+  | "connection"
+  | "layout"
+  | "calibration"
+  | "scanRegion"
+  | "test";
 
 export interface ModuleConfigsContextValue {
   configs: ModuleConfig[];

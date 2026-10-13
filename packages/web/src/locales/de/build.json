@@ -7,10 +7,6 @@
   "hero": {
     "eyebrow": "Bauanleitung für die Hardware",
     "title": "Den Kartensortierer bauen",
-    "description": "Teileliste und Montageanleitung für die physische Sortiereinheit: Ein Trichter führt Karten einzeln durch {{modules}} übereinander gestapelte Verteilermodule, von denen jedes eine Karte in eines von zwei seitlichen Fächern fallen lassen oder an das nächste Modul weiterreichen kann – insgesamt {{bins}} Fächer, gesteuert von einem {{board}} über I²C.",
-    "firmwareLabel": "Firmware",
-    "enclosureLabel": "Gehäuse",
-    "calibrationLabel": "Kalibrierung",
     "modulesIntro": "Jedes Modul hat drei Servos – eine <0>Bodenklappe</0>, ein <1>Paddel</1>-Tor und einen Links/Rechts-<2>Schieber</2> – sowie einen IR-Sensor. Wenn alle Bodenklappen oberhalb des Zielfachs geschlossen bleiben und nur die darunter liegenden geöffnet werden, fällt die Karte bis zum richtigen Modul, bevor der Schieber sie auswirft.",
     "moduleLabel": "Modul {{n}}",
     "binLabel": "Fach {{n}}",
@@ -19,9 +15,11 @@
       "label": "Abschnitte der Anleitung",
       "setup": "Einrichtung",
       "parts": "Teile",
-      "wiring": "Verkabelung",
       "assembly": "Zusammenbau"
     }
+  },
+  "toc": {
+    "label": "Inhalt"
   },
   "setup": {
     "heading": "Richte deinen Bau ein",
@@ -90,6 +88,7 @@
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
     "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
     "partsListLabel": "Vollständige Teileliste",
+    "kitCollapsedNote": "Du baust mit einem Bausatz, deshalb ist die Teileliste eingeklappt. Öffne sie, wenn du ein Teil nachsehen möchtest.",
     "progress": {
       "partsCount": "{{done}} von {{total}} Teilen"
     },
@@ -261,10 +260,8 @@
     }
   },
   "wiring": {
-    "heading": "Verkabelung",
     "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Logikseite des PCA9685 wird über die Onboard-Versorgung des {{board}} gespeist; seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein – eine schwebende Servomasse ist der häufigste Grund, warum sich ein frisch verkabeltes Gerät nicht bewegt.",
     "wireColorNote": "Kabelfarben unterscheiden sich je nach Bauteil und Hersteller, verlass dich also nicht auf die Farben im Schaltplan oder auf den Fotos. Verfolge jedes Kabel ab seiner Pin-Beschriftung und stelle sicher, dass es an der richtigen Stelle ankommt.",
-    "detailsLabel": "Verkabelungsdetails",
     "sections": {
       "i2c": {
         "title": "I²C-Bus",
@@ -287,7 +284,7 @@
     },
     "i2cTable": {
       "colPcaPin": "PCA9685-Pin",
-      "vccLogic": "VCC (Logik)"
+      "vccLogic": "<pin>VCC</pin> (Logik)"
     },
     "servoPowerTable": {
       "colFrom": "Von",
@@ -320,6 +317,26 @@
       "bottom": "Boden",
       "paddle": "Paddel",
       "pusher": "Schieber"
+    },
+    "reference": {
+      "viewMode": "Anzeigen als",
+      "table": "Tabelle",
+      "diagram": "Schaltplan",
+      "openFullSize": "In voller Größe öffnen",
+      "colWire": "Kabel im Schaltplan",
+      "colSignalWire": "Signalkabel im Schaltplan"
+    },
+    "overview": {
+      "fullDiagram": "Vollständiger Schaltplan"
+    },
+    "wireColor": "Kabelfarbe im Schaltplan: {{color}}",
+    "colors": {
+      "yellow": "Gelb",
+      "green": "Grün",
+      "blue": "Blau",
+      "red": "Rot",
+      "black": "Schwarz",
+      "white": "Weiß"
     }
   },
   "assembly": {
@@ -343,7 +360,7 @@
         "title": "Die Strukturteile drucken",
         "steps": {
           "printSortingModule": {
-            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus <mesh>card_sorter.3mf</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>).",
+            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>).",
             "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {
@@ -483,7 +500,7 @@
         "steps": {
           "wireI2c": {
             "text": "Verbinde den PCA9685 mit dem I²C-Bus des {{board}} (SDA/SCL) sowie mit der Logikversorgung/GND.",
-            "note": "Siehe den Abschnitt Verkabelung oben - die Logikspannung ist beim ESP32 3.3V, nicht 5V.",
+            "note": "Nutze die Tabelle unten. Die Logikspannung ist beim ESP32 3.3V, nicht 5V.",
             "bendPinsNote": "Die Header-Pins des PCA9685 zeigen seitlich nach außen - eventuell müssen sie um 90° nach oben gebogen werden, damit sie das Panel nicht berühren und beim Verkabeln mit dem {{board}} gut erreichbar bleiben."
           },
           "wireServos": {
@@ -491,7 +508,7 @@
             "note": "An der Seite der Basis gibt es Kabelkanäle mit Kabelbindern, die alles ordentlich halten."
           },
           "wireSensors": {
-            "text": "Verkabele die {{count}} IR-Sensoren mit den im Abschnitt „Verkabelung“ oben aufgeführten digitalen Pins - Modultore und der Trichterhals-Sensor liegen nicht durchgehend auf aufeinanderfolgenden Pins.",
+            "text": "Verkabele die {{count}} IR-Sensoren mit den digitalen Pins aus der Tabelle unten. Modultore und der Trichterhals-Sensor liegen nicht durchgehend auf aufeinanderfolgenden Pins.",
             "note": "Für Versorgung und Masse musst du {{count}} Leitungen zu einer zusammenführen, entweder mit einem Breadboard oder indem du sie verdrillst und verlötest. Du musst die Sensoren manuell auf eine kürzere Reichweite kalibrieren, um Fehlauslösungen zu vermeiden."
           },
           "wirePower": {

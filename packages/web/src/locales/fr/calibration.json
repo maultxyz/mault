@@ -1,7 +1,7 @@
 {
   "page": {
-    "title": "Calibrer",
-    "subtitle": "Configure le routage des modules, la zone de scan de la caméra et la calibration des servos"
+    "title": "Réglage du trieur",
+    "subtitle": "Suis ces étapes dans l'ordre pour préparer un trieur."
   },
   "servos": {
     "bottom": {
@@ -42,10 +42,12 @@
     "pipelinedFeedDescription": "Alimente et scanne la carte suivante dès que la précédente a quitté le module 1, au lieu d'attendre qu'elle atteigne son bac. Nécessite le firmware 2.1.0 ou plus récent et l'alimentation automatique activée. Désactive cette option si des cartes se coincent ou si les scans captent la carte en mouvement."
   },
   "sections": {
-    "moduleSetup": "Modules et routage",
-    "scanRegion": "Zone de scan",
-    "calibration": "Calibration du chargeur et des modules",
-    "moduleCalibration": "Calibration des modules"
+    "scanRegion": "Caméra",
+    "calibration": "Servos et chargeur",
+    "moduleCalibration": "Calibration des modules",
+    "connection": "Connexion",
+    "layout": "Disposition",
+    "test": "Test"
   },
   "binConfigurations": {
     "label": "Configuration des bacs",
@@ -162,7 +164,8 @@
     "phoneCaptureFailed": "Le téléphone n'a pas répondu avec une photo à temps.",
     "cameraLabel": "Caméra",
     "cameraPlaceholder": "Choisir une caméra",
-    "cameraFallbackLabel": "Caméra {{index}}"
+    "cameraFallbackLabel": "Caméra {{index}}",
+    "heading": "Zone de scan"
   },
   "useCalibrationPage": {
     "toasts": {
@@ -358,7 +361,7 @@
           "desc": "Le bras qui balaie la carte sur le côté dans un bac."
         }
       },
-      "skipNote": "Tu peux passer cette étape et calibrer plus tard depuis la page Calibrage."
+      "skipNote": "Tu peux passer cette étape et calibrer plus tard depuis Réglage du trieur."
     },
     "moduleCount": {
       "heading": "Combien de modules a ce trieur ?",
@@ -443,7 +446,7 @@
       "heading": "Délais",
       "body": "Ces délais contrôlent la façon dont une carte est poussée hors de ce module. Les valeurs par défaut conviennent à la plupart des trieuses : ne les modifiez que si les cartes sont poussées avant que la palette soit baissée ou si le poussoir recule trop tôt. Survolez les icônes d'info pour le rôle de chacun.",
       "testHint": "Utilisez le test de poussée pour voir une poussée complète avec ces valeurs. Il se fait sur un module vide.",
-      "offlineHint": "Les tests de poussée nécessitent une trieuse connectée. Vous pourrez ajuster ces valeurs plus tard depuis la page de calibration."
+      "offlineHint": "Les tests de poussée nécessitent une trieuse connectée. Vous pourrez ajuster ces valeurs plus tard depuis Réglage du trieur."
     }
   },
   "connectionSettings": {
@@ -451,7 +454,7 @@
     "autoConnectLabel": "Connexion automatique au branchement",
     "autoConnectDescription": "Quand ce trieur est branché en USB pendant que l'application est ouverte (ou qu'il est déjà branché au chargement de l'application), il se connecte tout seul et lance son autotest pour être prêt à scanner. En Bluetooth, s'il se déconnecte ou redémarre, l'application tente de se reconnecter jusqu'à la fermeture de l'onglet. Connecte-le d'abord une fois manuellement dans ce navigateur, pour que le navigateur l'autorise.",
     "testOnConnectLabel": "Autotest à la connexion",
-    "testOnConnectDescription": "Activé, le trieur fait bouger chaque servo et vérifie ses capteurs à chaque connexion. Désactivé, il charge seulement sa calibration enregistrée et est prêt tout de suite. Tu peux toujours lancer le test depuis la page de calibration."
+    "testOnConnectDescription": "Activé, le trieur fait bouger chaque servo et vérifie ses capteurs à chaque connexion. Désactivé, il charge seulement sa calibration enregistrée et est prêt tout de suite. Tu peux toujours lancer le test depuis Réglage du trieur."
   },
   "firmware": {
     "title": "Firmware",
@@ -468,5 +471,12 @@
     "unoNote": "Les cartes Arduino Uno R4 ne peuvent pas être flashées depuis le navigateur. Téléchargez le firmware et téléversez-le avec l'IDE Arduino.",
     "notConnectedHint": "Connectez un trieur pour voir sa version, ou flashez un ESP32-S3 en USB sans le connecter d'abord.",
     "unsupported": "Ce navigateur ne peut pas flasher de cartes. Utilisez Chrome ou Edge sur un ordinateur."
+  },
+  "sectionIntros": {
+    "connection": "Connecte le trieur en USB ou Bluetooth, garde son firmware à jour et choisis ce qui se passe à la connexion.",
+    "layout": "Indique à l'application combien de modules sont installés, où se trouve chaque bac et quelle est sa taille.",
+    "calibration": "Ajuste le chargeur et les servos de chaque module jusqu'à ce que les cartes passent proprement, puis enregistre.",
+    "scanRegion": "Cadre la partie de l'image de la caméra où se trouve la carte, et choisis avec quelle précision chaque scan est comparé.",
+    "test": "Vérifie que les capteurs détectent les cartes et que chaque bac les reçoit avant de commencer à trier."
   }
 }

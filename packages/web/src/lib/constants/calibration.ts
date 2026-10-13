@@ -10,9 +10,14 @@ import type {
   DirectionalSpeed,
 } from "@/lib/interfaces/calibration";
 import {
+  IconAdjustmentsHorizontal,
   IconArrowBarToDown,
   IconArrowsHorizontal,
+  IconChecklist,
   IconColumns2,
+  IconFocus2,
+  IconLayoutBoardSplit,
+  IconPlugConnected,
   IconRotateClockwise,
   IconStack2,
   type Icon,
@@ -233,15 +238,32 @@ export const DEFAULT_DEVICE: Device = {
 };
 
 export const CALIBRATION_SECTION_PATHS: Record<CalibrationSection, string> = {
-  modules: "modules",
-  scanRegion: "scan-region",
+  connection: "connection",
+  layout: "layout",
   calibration: "calibration",
+  scanRegion: "scan-region",
+  test: "test",
 };
 
 export const CALIBRATION_PATH_SECTIONS: Record<string, CalibrationSection> = {
-  modules: "modules",
-  "scan-region": "scanRegion",
+  connection: "connection",
+  layout: "layout",
   calibration: "calibration",
+  "scan-region": "scanRegion",
+  test: "test",
 };
+
+export const DEFAULT_CALIBRATION_SECTION: CalibrationSection = "connection";
+
+export const CALIBRATION_SECTIONS = [
+  { section: "connection", icon: IconPlugConnected },
+  { section: "layout", icon: IconLayoutBoardSplit },
+  { section: "calibration", icon: IconAdjustmentsHorizontal },
+  { section: "scanRegion", icon: IconFocus2 },
+  { section: "test", icon: IconChecklist },
+] as const satisfies readonly {
+  section: CalibrationSection;
+  icon: Icon;
+}[];
 
 export const CALIBRATION_LIVE_DETECTION_INTERVAL_MS = 200;

@@ -13,14 +13,12 @@ import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-ru
 import { PresetSelector } from "@/features/bins/components/preset-selector";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
 import { RepackTour } from "@/features/bins/components/repack-tour";
+import { SortingRulesIntro } from "@/features/bins/components/sorting-rules-intro";
 import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
-import { useCollections } from "@/features/collections/api/use-collections";
 import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { IconLayoutGrid } from "@tabler/icons-react";
-import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
 
 function BinsHelpTour({ className }: { className?: string }) {
   const { selectedSet } = useBinConfigs();
@@ -38,7 +36,10 @@ function MobileBins() {
   return (
     <div className="flex-1 min-h-0 relative overflow-hidden">
       <div className="size-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <BinRulesMenu className="self-end" />
+        <div className="flex items-start justify-between gap-3">
+          <SortingRulesIntro />
+          <BinRulesMenu className="shrink-0" />
+        </div>
         <RepackPanel />
         <AlphabetPanel />
         <BinConfigPanel />
@@ -68,23 +69,6 @@ function MobileBins() {
 
 export default function BinsPage() {
   const isMobile = useIsMobile();
-  const { collectionGuid } = useParams<{ collectionGuid: string }>();
-  const { activeCollection } = useCollections();
-  const navigate = useNavigate();
-
-  const seenGuid = useRef(activeCollection?.guid);
-  useEffect(() => {
-    if (
-      activeCollection &&
-      activeCollection.guid !== seenGuid.current &&
-      activeCollection.guid !== collectionGuid
-    ) {
-      navigate(`/app/collections/${activeCollection.guid}/bins`, {
-        replace: true,
-      });
-    }
-    seenGuid.current = activeCollection?.guid;
-  }, [activeCollection, collectionGuid, navigate]);
 
   const content = isMobile ? (
     <MobileBins />
@@ -96,10 +80,13 @@ export default function BinsPage() {
         <AutoAssignPanel />
         <BinList />
       </section>
-      <section className="relative col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 pt-14 flex flex-col gap-4">
-        <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
-          <BinRulesMenu />
-          <BinsHelpTour />
+      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 flex flex-col gap-4">
+        <div className="flex items-start justify-between gap-4">
+          <SortingRulesIntro />
+          <div className="flex shrink-0 items-center gap-2">
+            <BinRulesMenu />
+            <BinsHelpTour />
+          </div>
         </div>
         <RepackPanel />
         <AlphabetPanel />
@@ -109,7 +96,7 @@ export default function BinsPage() {
   );
 
   return (
-    <BinConfigsProvider collectionGuid={collectionGuid}>
+    <BinConfigsProvider>
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
         <NoGameBanner />
         <NonEnglishRulesBanner />
