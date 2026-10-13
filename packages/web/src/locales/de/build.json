@@ -92,6 +92,7 @@
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
     "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
     "partsListLabel": "Vollständige Teileliste",
+    "kitCollapsedNote": "Du baust mit einem Bausatz, deshalb ist die Teileliste eingeklappt. Öffne sie, wenn du ein Teil nachsehen möchtest.",
     "progress": {
       "partsCount": "{{done}} von {{total}} Teilen"
     },

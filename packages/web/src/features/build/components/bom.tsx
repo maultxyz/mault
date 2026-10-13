@@ -1,3 +1,4 @@
+import { Callout } from "@/components/callout";
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import {
   Accordion,
@@ -13,7 +14,7 @@ import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
 import { GROUPS } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";
-import { IconShoppingCart } from "@tabler/icons-react";
+import { IconPackage, IconShoppingCart } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
@@ -96,6 +97,16 @@ export function BuildBom() {
           />
         </div>
       </div>
+
+      {usingKit && !openSections.includes("parts") && (
+        <Callout
+          variant="neutral"
+          icon={IconPackage}
+          className="mt-4 max-w-2xl px-3 py-2 text-sm/relaxed"
+        >
+          {t("bom.kitCollapsedNote")}
+        </Callout>
+      )}
 
       <Accordion
         multiple

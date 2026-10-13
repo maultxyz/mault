@@ -92,6 +92,7 @@
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
     "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
     "partsListLabel": "Liste complète des pièces",
+    "kitCollapsedNote": "Tu construis à partir d'un kit, la liste des pièces est donc repliée. Ouvre-la si tu veux vérifier une pièce.",
     "progress": {
       "partsCount": "{{done}} sur {{total}} pièces"
     },

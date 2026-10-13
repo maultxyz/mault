@@ -92,6 +92,7 @@
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links. We may earn a small commission on qualifying purchases at no extra cost to you.",
     "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
     "partsListLabel": "Full parts list",
+    "kitCollapsedNote": "You're building from a kit, so the parts list is collapsed. Open it if you want to check any part.",
     "progress": {
       "partsCount": "{{done}} of {{total}} parts"
     },
