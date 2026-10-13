@@ -7,7 +7,7 @@ export function LandingStats() {
 
   return (
     <section className="border-b bg-muted dark:bg-black/30">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 divide-foreground/10 px-4 py-6 md:grid-cols-5 md:divide-x md:py-8">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 divide-foreground/10 px-4 py-6 md:grid-cols-4 md:divide-x md:py-8">
         {stats.map((stat) => (
           <div
             key={stat.key}

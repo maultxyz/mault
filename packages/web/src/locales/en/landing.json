@@ -25,7 +25,6 @@
       "totalScanned": "cards scanned so far",
       "bins": "sort bins, expandable",
       "games": "trading card games supported",
-      "collections": "collections, no limit",
       "cardsPerHour": "cards sorted per hour"
     }
   },
@@ -63,21 +62,74 @@
         "title": "Custom sounds",
         "description": "Upload your own clips and play them when a matching card is sorted, like a fanfare for every mythic or a cha-ching for anything over $20."
       },
-      "collections": {
-        "title": "Multiple collections",
-        "description": "Keep separate collections for trade binders, decks, or storage boxes, and hop between them whenever you like."
-      },
       "insights": {
         "title": "Know what you own",
         "description": "See counts, rarities, and sets across your whole library, so you never have to guess what's in the box."
       },
-      "logging": {
-        "title": "Every card logged",
-        "description": "Every scan is saved automatically, so your collection stays accurate without any extra bookkeeping."
-      },
       "hardware": {
         "title": "Built for the table",
         "description": "Pairs with a physical sorter, so your cards land in real bins, not just another spreadsheet. Add more sorting modules any time to grow up to 11 bins."
+      },
+      "storage": {
+        "title": "Know which box every card is in",
+        "description": "When a bin is full, empty it into a storage box and Mault records each card's exact position in the stack. Search every box by name, see what each one is worth, and export a box as CSV."
+      },
+      "pickList": {
+        "title": "Pull cards from a decklist",
+        "description": "Paste a decklist into any bin and Mault pulls those cards out of the pile as they're scanned, crossing each one off until the list is complete. Everything else sorts as usual."
+      },
+      "pricing": {
+        "title": "Prices from three markets",
+        "description": "Value your collection with TCGplayer, Cardmarket or Card Kingdom prices, refreshed daily. Set each card's condition and its price adjusts to match."
+      }
+    },
+    "new": "New",
+    "priceSources": {
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket",
+      "cardkingdom": "Card Kingdom"
+    },
+    "demo": {
+      "cardCount_one": "{{count}} card",
+      "cardCount_other": "{{count}} cards",
+      "pickListBin": "Bin {{number}} pick list",
+      "found": "{{found}}/{{wanted}} found"
+    },
+    "more": {
+      "heading": "And a whole lot more",
+      "items": {
+        "chaos": {
+          "title": "Chaos sort",
+          "description": "Fill bins in order, no rules needed, then empty each one into a box when it's full."
+        },
+        "overflow": {
+          "title": "Overflow bins",
+          "description": "When a bin fills up or hits its copy limit, the next card spills into the bin you pick."
+        },
+        "monitor": {
+          "title": "Watch from your phone",
+          "description": "Follow a scan session live from anywhere, or share a read-only link with a friend."
+        },
+        "discord": {
+          "title": "Discord alerts",
+          "description": "Post every scan, or only the cards that match your rules, to your server and ping a role."
+        },
+        "stations": {
+          "title": "Several sorters at once",
+          "description": "Run more than one sorter from a single browser tab, each with its own camera and collection."
+        },
+        "ocr": {
+          "title": "Reads the card text",
+          "description": "When two printings look alike, Mault reads the name, set and number to tell them apart."
+        },
+        "languages": {
+          "title": "Every language",
+          "description": "Scan cards in other languages, or mix them all in one collection."
+        },
+        "api": {
+          "title": "API and webhooks",
+          "description": "Connect your shop: look up where any card is stored and get notified as cards are scanned."
+        }
       }
     }
   },

@@ -1,4 +1,19 @@
 import { SOUND_CLIP_WAVEFORM_BARS } from "@magic-vault/shared";
+import {
+  IconApi,
+  IconArrowsShuffle,
+  IconArrowsSplit2,
+  IconBrandDiscord,
+  IconBroadcast,
+  IconLanguage,
+  IconLayoutGrid,
+  IconTextRecognition,
+} from "@tabler/icons-react";
+import type {
+  DemoPickListEntry,
+  DemoStorageBox,
+  LandingFeatureExtra,
+} from "@/lib/interfaces/landing";
 
 export const GAMES_MARQUEE_MIN_ITEMS = 12;
 
@@ -64,3 +79,56 @@ export const DEMO_RULE_OPERATOR_OPTIONS = ["is", "is not", "includes"];
 
 export const MARKETING_FOOTER_LINK_CLASS =
   "transition-colors hover:text-foreground";
+
+export const DEMO_STORAGE_BOXES: DemoStorageBox[] = [
+  { name: "Box 1 · Rares", cardCount: 248, value: 1284.5 },
+  { name: "Box 2 · Commons", cardCount: 812, value: 96.4 },
+  { name: "Box 3 · Trades", cardCount: 96, value: 412.75 },
+];
+
+export const DEMO_STORAGE_ACTIVE_BOX = 0;
+
+export const DEMO_STORAGE_SEARCH = "Ragavan";
+
+export const DEMO_STORAGE_FIRST_POSITION = 117;
+
+export const DEMO_STORAGE_HIGHLIGHT_INDEX = 1;
+
+export const DEMO_STORAGE_CARD_INDEXES = [1, 5, 4];
+
+export const DEMO_PICK_LIST_BIN = 3;
+
+export const DEMO_PICK_LIST_ENTRIES: DemoPickListEntry[] = [
+  { name: "Lightning Bolt", quantity: 4, found: 4 },
+  { name: "Sol Ring", quantity: 1, found: 1 },
+  { name: "Counterspell", quantity: 2, found: 1 },
+  { name: "Brainstorm", quantity: 4, found: 0 },
+];
+
+export const DEMO_PRICING_CARD_INDEX = 5;
+
+export const DEMO_PRICING_PRICES = {
+  tcgplayer: 42.16,
+  cardmarket: 38.9,
+  cardkingdom: 49.99,
+};
+
+export const LANDING_FEATURE_EXTRAS: LandingFeatureExtra[] = [
+  { key: "chaos", icon: IconArrowsShuffle },
+  { key: "overflow", icon: IconArrowsSplit2 },
+  { key: "monitor", icon: IconBroadcast },
+  { key: "discord", icon: IconBrandDiscord },
+  { key: "stations", icon: IconLayoutGrid },
+  { key: "ocr", icon: IconTextRecognition },
+  { key: "languages", icon: IconLanguage },
+  { key: "api", icon: IconApi },
+];
+
+export const LANDING_FEATURE_GRID_CLASS =
+  "mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-2 lg:grid-cols-6";
+
+export const LANDING_FEATURE_TILE_CLASS =
+  "flex flex-col gap-5 bg-card p-6 md:p-8";
+
+export const LANDING_FEATURE_DEMO_CLASS =
+  "flex flex-1 items-center justify-center rounded-md bg-muted/40 p-4 ring-1 ring-foreground/5";

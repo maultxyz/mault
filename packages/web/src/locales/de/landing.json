@@ -25,7 +25,6 @@
       "totalScanned": "bisher gescannte Karten",
       "bins": "Sortierfächer, erweiterbar",
       "games": "unterstützte Sammelkartenspiele",
-      "collections": "Sammlungen, ohne Limit",
       "cardsPerHour": "sortierte Karten pro Stunde"
     }
   },
@@ -63,21 +62,74 @@
         "title": "Eigene Sounds",
         "description": "Lade deine eigenen Clips hoch und spiele sie ab, wenn eine passende Karte sortiert wird, etwa eine Fanfare für jede Mythic oder ein Kassenklingeln für alles über 20 $."
       },
-      "collections": {
-        "title": "Mehrere Sammlungen",
-        "description": "Führe separate Sammlungen für Tauschordner, Decks oder Aufbewahrungsboxen, und wechsle ganz einfach zwischen ihnen hin und her."
-      },
       "insights": {
         "title": "Wisse, was du besitzt",
         "description": "Sieh Anzahlen, Seltenheiten und Sets über deine gesamte Sammlung hinweg, damit du nie wieder raten musst, was in der Kiste steckt."
       },
-      "logging": {
-        "title": "Jede Karte erfasst",
-        "description": "Jeder Scan wird automatisch gespeichert, damit deine Sammlung ganz ohne zusätzlichen Aufwand aktuell bleibt."
-      },
       "hardware": {
         "title": "Gebaut für den Tisch",
         "description": "Funktioniert mit einem physischen Sortierer, damit deine Karten in echten Fächern landen - nicht nur in einer weiteren Tabelle. Füg jederzeit weitere Sortiermodule hinzu und wachse auf bis zu 11 Fächer."
+      },
+      "storage": {
+        "title": "Wisse, in welcher Box jede Karte liegt",
+        "description": "Ist ein Fach voll, leerst du es in eine Aufbewahrungsbox, und Mault merkt sich die genaue Position jeder Karte im Stapel. Durchsuche alle Boxen nach Namen, sieh ihren Wert und exportiere eine Box als CSV."
+      },
+      "pickList": {
+        "title": "Karten aus einer Deckliste ziehen",
+        "description": "Füge eine Deckliste in ein beliebiges Fach ein, und Mault zieht diese Karten beim Scannen aus dem Stapel und hakt jede ab, bis die Liste vollständig ist. Alles andere wird wie gewohnt sortiert."
+      },
+      "pricing": {
+        "title": "Preise von drei Märkten",
+        "description": "Bewerte deine Sammlung mit Preisen von TCGplayer, Cardmarket oder Card Kingdom, täglich aktualisiert. Lege den Zustand jeder Karte fest, und ihr Preis passt sich an."
+      }
+    },
+    "new": "Neu",
+    "priceSources": {
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket",
+      "cardkingdom": "Card Kingdom"
+    },
+    "demo": {
+      "cardCount_one": "{{count}} Karte",
+      "cardCount_other": "{{count}} Karten",
+      "pickListBin": "Pickliste Fach {{number}}",
+      "found": "{{found}}/{{wanted}} gefunden"
+    },
+    "more": {
+      "heading": "Und noch viel mehr",
+      "items": {
+        "chaos": {
+          "title": "Chaos-Sortierung",
+          "description": "Fülle die Fächer der Reihe nach, ganz ohne Regeln, und leere jedes in eine Box, sobald es voll ist."
+        },
+        "overflow": {
+          "title": "Überlauffächer",
+          "description": "Ist ein Fach voll oder am Kopienlimit, landet die nächste Karte im Fach deiner Wahl."
+        },
+        "monitor": {
+          "title": "Vom Handy aus zusehen",
+          "description": "Verfolge eine Scan-Sitzung live von überall oder teile einen Link nur zum Ansehen mit Freunden."
+        },
+        "discord": {
+          "title": "Discord-Benachrichtigungen",
+          "description": "Poste jeden Scan oder nur Karten, die deinen Regeln entsprechen, auf deinem Server und pinge eine Rolle."
+        },
+        "stations": {
+          "title": "Mehrere Sortierer gleichzeitig",
+          "description": "Steuere mehr als einen Sortierer aus einem Browser-Tab, jeder mit eigener Kamera und Sammlung."
+        },
+        "ocr": {
+          "title": "Liest den Kartentext",
+          "description": "Sehen sich zwei Drucke ähnlich, liest Mault Name, Set und Nummer, um sie zu unterscheiden."
+        },
+        "languages": {
+          "title": "Jede Sprache",
+          "description": "Scanne Karten in anderen Sprachen oder mische sie alle in einer Sammlung."
+        },
+        "api": {
+          "title": "API und Webhooks",
+          "description": "Verbinde deinen Shop: Finde heraus, wo eine Karte liegt, und werde benachrichtigt, wenn Karten gescannt werden."
+        }
       }
     }
   },

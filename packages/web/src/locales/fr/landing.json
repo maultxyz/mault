@@ -25,7 +25,6 @@
       "totalScanned": "cartes scannées à ce jour",
       "bins": "bacs de tri, extensibles",
       "games": "jeux de cartes à collectionner pris en charge",
-      "collections": "collections, sans limite",
       "cardsPerHour": "cartes triées par heure"
     }
   },
@@ -63,21 +62,74 @@
         "title": "Sons personnalisés",
         "description": "Importe tes propres clips et joue-les quand une carte correspondante est triée, comme une fanfare pour chaque mythique ou un bruit de caisse pour tout ce qui dépasse 20 $."
       },
-      "collections": {
-        "title": "Plusieurs collections",
-        "description": "Garde des collections séparées pour tes classeurs d'échange, tes decks ou tes boîtes de rangement, et passe de l'une à l'autre en toute simplicité."
-      },
       "insights": {
         "title": "Sache ce que tu possèdes",
         "description": "Consulte les quantités, raretés et sets de toute ta collection, pour ne plus jamais avoir à deviner ce qu'il y a dans la boîte."
       },
-      "logging": {
-        "title": "Chaque carte enregistrée",
-        "description": "Chaque scan est enregistré automatiquement, pour que ta collection reste à jour sans aucune tenue de registre en plus."
-      },
       "hardware": {
         "title": "Conçu pour la table",
         "description": "S'associe à une trieuse physique, pour que tes cartes atterrissent dans de vrais bacs - pas seulement dans un autre tableur. Ajoute des modules de tri quand tu veux pour grandir jusqu'à 11 bacs."
+      },
+      "storage": {
+        "title": "Sache dans quelle boîte est chaque carte",
+        "description": "Quand un bac est plein, vide-le dans une boîte de rangement et Mault note la position exacte de chaque carte dans la pile. Cherche dans toutes tes boîtes par nom, vois ce que chacune vaut et exporte une boîte en CSV."
+      },
+      "pickList": {
+        "title": "Sors les cartes d'une decklist",
+        "description": "Colle une decklist dans n'importe quel bac et Mault sort ces cartes de la pile au fil du scan, en cochant chacune jusqu'à ce que la liste soit complète. Le reste est trié comme d'habitude."
+      },
+      "pricing": {
+        "title": "Les prix de trois marchés",
+        "description": "Évalue ta collection avec les prix de TCGplayer, Cardmarket ou Card Kingdom, mis à jour chaque jour. Indique l'état de chaque carte et son prix s'ajuste."
+      }
+    },
+    "new": "Nouveau",
+    "priceSources": {
+      "tcgplayer": "TCGplayer",
+      "cardmarket": "Cardmarket",
+      "cardkingdom": "Card Kingdom"
+    },
+    "demo": {
+      "cardCount_one": "{{count}} carte",
+      "cardCount_other": "{{count}} cartes",
+      "pickListBin": "Liste du bac {{number}}",
+      "found": "{{found}}/{{wanted}} trouvées"
+    },
+    "more": {
+      "heading": "Et bien plus encore",
+      "items": {
+        "chaos": {
+          "title": "Tri chaos",
+          "description": "Remplis les bacs dans l'ordre, sans aucune règle, puis vide chacun dans une boîte quand il est plein."
+        },
+        "overflow": {
+          "title": "Bacs de débordement",
+          "description": "Quand un bac est plein ou atteint sa limite d'exemplaires, la carte suivante va dans le bac de ton choix."
+        },
+        "monitor": {
+          "title": "Suis tout depuis ton téléphone",
+          "description": "Suis une session de scan en direct où que tu sois, ou partage un lien en lecture seule avec un ami."
+        },
+        "discord": {
+          "title": "Alertes Discord",
+          "description": "Publie chaque scan, ou seulement les cartes qui correspondent à tes règles, sur ton serveur et mentionne un rôle."
+        },
+        "stations": {
+          "title": "Plusieurs trieuses à la fois",
+          "description": "Pilote plus d'une trieuse depuis un seul onglet, chacune avec sa propre caméra et sa collection."
+        },
+        "ocr": {
+          "title": "Lit le texte de la carte",
+          "description": "Quand deux impressions se ressemblent, Mault lit le nom, le set et le numéro pour les distinguer."
+        },
+        "languages": {
+          "title": "Toutes les langues",
+          "description": "Scanne des cartes dans d'autres langues, ou mélange-les toutes dans une collection."
+        },
+        "api": {
+          "title": "API et webhooks",
+          "description": "Connecte ta boutique : retrouve où est rangée une carte et sois notifié à chaque scan."
+        }
       }
     }
   },

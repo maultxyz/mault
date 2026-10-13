@@ -17,7 +17,6 @@ export function useLandingStats() {
     },
     { key: "bins", value: "11" },
     { key: "games", value: games === null ? "–" : String(games.length) },
-    { key: "collections", value: "∞" },
     { key: "cardsPerHour", value: "1,000" },
   ] as const;
 }

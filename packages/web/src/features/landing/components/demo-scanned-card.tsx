@@ -22,7 +22,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
       <div className="relative aspect-5/7 overflow-hidden rounded-lg">
         {isFoil && (
           <div
-            className="absolute top-1 left-1 z-20 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5 shadow-md"
+            className="absolute top-1 left-1 z-20 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5"
             title={t("foil")}
           >
             <IconSparkles className="size-3 text-white" />
@@ -44,7 +44,7 @@ export function DemoCardTile({ card, binNumber, isFoil }: DemoScannedCard) {
             />
             <TooltipContent>{t("scannedCardItem.matchTooltip")}</TooltipContent>
           </Tooltip>
-          <Badge variant="secondary" className="shadow-md">
+          <Badge variant="secondary">
             {t("scannedCardItem.bin", { number: binNumber })}
           </Badge>
         </div>
