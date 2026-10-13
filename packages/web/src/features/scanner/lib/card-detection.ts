@@ -1,4 +1,8 @@
-import { MTG_ASPECT_RATIO } from "@/lib/constants/scanner";
+import {
+  MTG_ASPECT_RATIO,
+  SCAN_REGION_MASK_FILL,
+  SCAN_REGION_MASK_STROKE,
+} from "@/lib/constants/scanner";
 import {
   DEFAULT_SCAN_REGION,
   type CardContour,
@@ -125,5 +129,33 @@ export function drawDetectionOverlay(
   ctx.closePath();
   ctx.stroke();
 
+  ctx.restore();
+}
+
+export function drawScanRegionMask(
+  ctx: CanvasRenderingContext2D,
+  contour: CardContour,
+): void {
+  const { width, height } = ctx.canvas;
+  const { topLeft, bottomRight } = contour;
+  const shortSide = Math.min(width, height);
+  const radius = Math.max(6, Math.round(shortSide * 0.025));
+  const lineWidth = Math.max(2, Math.round(shortSide * 0.006));
+  const boxW = bottomRight.x - topLeft.x;
+  const boxH = bottomRight.y - topLeft.y;
+
+  ctx.save();
+  ctx.fillStyle = SCAN_REGION_MASK_FILL;
+  ctx.fillRect(0, 0, width, height);
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.beginPath();
+  ctx.roundRect(topLeft.x, topLeft.y, boxW, boxH, radius);
+  ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+  ctx.strokeStyle = SCAN_REGION_MASK_STROKE;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  ctx.roundRect(topLeft.x, topLeft.y, boxW, boxH, radius);
+  ctx.stroke();
   ctx.restore();
 }

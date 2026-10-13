@@ -1,5 +1,5 @@
 import {
-  drawDetectionOverlay,
+  drawScanRegionMask,
   getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
 import {
@@ -8,6 +8,19 @@ import {
 } from "@/features/scanner/lib/canvas-fit";
 import type { ScanRegion } from "@magic-vault/shared";
 import { useEffect, useRef } from "react";
+
+function drawRegion(
+  canvas: HTMLCanvasElement | null,
+  region: ScanRegion,
+): void {
+  const ctx = canvas?.getContext("2d");
+  if (!canvas || !ctx || !canvas.width || !canvas.height) return;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawScanRegionMask(
+    ctx,
+    getDefaultCardContour(canvas.width, canvas.height, region),
+  );
+}
 
 // Standalone version of use-card-scanner.ts's stream-attach + overlay logic:
 // no capture or identification, just showing where the scan region is so a
@@ -33,22 +46,6 @@ export function useVideoCanvasPreview(
     if (!video) return;
 
     video.srcObject = stream;
-
-    const drawOverlay = () => {
-      const canvas = overlayCanvasRef.current;
-      const ctx = canvas?.getContext("2d");
-      if (!canvas || !ctx || !canvas.width || !canvas.height) return;
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawDetectionOverlay(ctx, {
-        detected: true,
-        contour: getDefaultCardContour(
-          canvas.width,
-          canvas.height,
-          scanRegionRef.current,
-        ),
-        confidence: 1,
-      });
-    };
 
     const detectionLoop = () => {
       const displayCanvas = displayCanvasRef.current;
@@ -89,7 +86,7 @@ export function useVideoCanvasPreview(
           fit,
         );
 
-        drawOverlay();
+        drawRegion(overlayCanvasRef.current, scanRegionRef.current);
         rafRef.current = requestAnimationFrame(detectionLoop);
       } catch {}
     })();
@@ -106,19 +103,7 @@ export function useVideoCanvasPreview(
   // Redraw the box if the calibrated region changes while streaming.
   const { coverage, offsetX, offsetY } = scanRegion;
   useEffect(() => {
-    const canvas = overlayCanvasRef.current;
-    const ctx = canvas?.getContext("2d");
-    if (!canvas || !ctx || !canvas.width || !canvas.height) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawDetectionOverlay(ctx, {
-      detected: true,
-      contour: getDefaultCardContour(canvas.width, canvas.height, {
-        coverage,
-        offsetX,
-        offsetY,
-      }),
-      confidence: 1,
-    });
+    drawRegion(overlayCanvasRef.current, { coverage, offsetX, offsetY });
   }, [coverage, offsetX, offsetY]);
 
   return { videoRef, displayCanvasRef, overlayCanvasRef };
