@@ -6,6 +6,19 @@ import { toPortraitCardImage } from "../../lib/card-image";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { storedCollectorNumber } from "../../lib/card-search/collector-number";
 
+async function embedImageUrl(
+  url: string,
+  headers: Record<string, string>,
+): Promise<number[] | null> {
+  const imageRes = await fetch(url, { headers });
+  if (!imageRes.ok) return null;
+  const buffer = await toPortraitCardImage(
+    Buffer.from(await imageRes.arrayBuffer()),
+  );
+  const { embedding } = await vectorizeCardImage(buffer);
+  return embedding;
+}
+
 export async function syncOneCard(
   gameKey: string,
   cardId: string,
@@ -41,18 +54,17 @@ export async function syncOneCard(
     };
   }
 
-  const imageRes = await fetch(card.imageUrl, { headers: source.fetchHeaders });
-  if (!imageRes.ok) {
+  const embedding = await embedImageUrl(card.imageUrl, source.fetchHeaders);
+  if (!embedding) {
     return {
       success: false,
       message: `Failed to download card image (GET ${card.imageUrl})`,
       status: 502,
     };
   }
-  const buffer = await toPortraitCardImage(
-    Buffer.from(await imageRes.arrayBuffer()),
-  );
-  const { embedding } = await vectorizeCardImage(buffer);
+  const backEmbedding = card.backImageUrl
+    ? await embedImageUrl(card.backImageUrl, source.fetchHeaders)
+    : null;
   const collectorNumber = storedCollectorNumber(
     gameKey,
     lang,
@@ -70,6 +82,7 @@ export async function syncOneCard(
       setCode: card.setCode,
       collectorNumber,
       embedding,
+      backEmbedding,
       data: sql`${card.data}::jsonb`,
     })
     .onConflictDoUpdate({
@@ -83,6 +96,7 @@ export async function syncOneCard(
         setCode: card.setCode,
         collectorNumber,
         embedding,
+        backEmbedding,
         data: sql`${card.data}::jsonb`,
         updatedAt: new Date(),
       },

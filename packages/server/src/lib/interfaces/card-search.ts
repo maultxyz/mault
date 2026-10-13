@@ -11,6 +11,7 @@ import type {
 export interface PrintingQuery {
   setCode: string | null;
   number: string;
+  name?: string;
 }
 
 export interface TcgplayerSubTypes {
@@ -78,6 +79,7 @@ export interface SyncSourceCard {
   name: string;
   setCode: string;
   imageUrl: string | undefined;
+  backImageUrl?: string;
   data: string;
 }
 

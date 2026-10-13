@@ -5,6 +5,8 @@ import type {
   DefaultBinInit,
   EmptyAllBinsInput,
   EmptyBinOptions,
+  PickListFoundInput,
+  PickListFoundResult,
   RepackSlot,
   Result,
   ScanOnlyConfig,
@@ -150,6 +152,24 @@ export async function setAlphabetConfig(
   config: AlphabetConfig,
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/alphabet`, config);
+}
+
+export async function markPickListFound(
+  binGuid: string,
+  input: PickListFoundInput,
+): Promise<Result<PickListFoundResult>> {
+  return apiPost<Result<PickListFoundResult>>(
+    `/api/bins/bins/${binGuid}/pick-list/found`,
+    input,
+  );
+}
+
+export async function resetPickList(
+  binGuid: string,
+): Promise<Result<PickListFoundResult>> {
+  return apiPost<Result<PickListFoundResult>>(
+    `/api/bins/bins/${binGuid}/pick-list/reset`,
+  );
 }
 
 export async function getBinSetHistory(

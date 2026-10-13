@@ -14,6 +14,14 @@ function cardImageUrl(
   return uris?.png ?? uris?.large;
 }
 
+function cardBackImageUrl(
+  raw: Pick<ScryfallBulkCard, "image_uris" | "card_faces">,
+) {
+  if (raw.image_uris) return undefined;
+  const uris = raw.card_faces?.[1]?.image_uris;
+  return uris?.png ?? uris?.large;
+}
+
 function apiRoot(baseUrl: string): string {
   try {
     return new URL(baseUrl).origin;
@@ -73,6 +81,7 @@ async function downloadBulkData(
       name: raw.printed_name ?? raw.name,
       setCode: raw.set,
       imageUrl: cardImageUrl(raw),
+      backImageUrl: cardBackImageUrl(raw),
       data: line,
     });
   }
@@ -104,6 +113,7 @@ async function fetchOne(id: string, baseUrl: string) {
       name: raw.name,
       setCode: raw.set,
       imageUrl: cardImageUrl(raw),
+      backImageUrl: cardBackImageUrl(raw),
       data,
     },
     urls: [url],

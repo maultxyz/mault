@@ -164,6 +164,10 @@
     "saveFailedUnmatched": {
       "title": "Carte non reconnue non enregistrée",
       "description": "Une carte est partie dans le bac fourre-tout mais le serveur a refusé de l'enregistrer. Le scan est en pause. Ressortez la carte et scannez-la à nouveau."
+    },
+    "pickListComplete": {
+      "title": "Liste de tri terminée",
+      "description": "Chaque carte de la liste est dans le bac {{bin}}."
     }
   },
   "cardScanner": {

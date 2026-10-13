@@ -59,6 +59,7 @@ export function BinList() {
           <BinCard
             key={config.binNumber}
             config={config}
+            showPickList={isRulesMode(effectiveMode) && !isModeDirty}
             active={config.binNumber === selectedBin}
             isAutoAssign={isAutoAssign}
             isScanOnly={isScanOnly}

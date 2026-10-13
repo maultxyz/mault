@@ -100,6 +100,36 @@ function throttleImageFetch(): Promise<void> {
   return thisTurn;
 }
 
+async function embedCardImageUrl(
+  source: SyncSource,
+  url: string,
+): Promise<number[]> {
+  await throttleImageFetch();
+  const imageRes = await fetch(url, {
+    headers: source.fetchHeaders,
+    signal: getAbortSignal(),
+  });
+  if (!imageRes.ok) throw new Error(`Image fetch failed: ${imageRes.status}`);
+  const buffer = await toPortraitCardImage(
+    Buffer.from(await imageRes.arrayBuffer()),
+  );
+  const { embedding } = await vectorizeCardImage(buffer);
+  return embedding;
+}
+
+async function embedBackFace(
+  source: SyncSource,
+  card: SyncSourceCard,
+): Promise<number[] | null> {
+  if (!card.backImageUrl) return null;
+  try {
+    return await embedCardImageUrl(source, card.backImageUrl);
+  } catch (err) {
+    addLog(`Back face skipped: ${card.name}: ${errorMessage(err)}`);
+    return null;
+  }
+}
+
 async function refreshStoredData(
   source: SyncSource,
   lang: string,
@@ -198,6 +228,7 @@ async function runSync(
     .select({
       id: cardImageVectors.cardId,
       updatedAt: cardImageVectors.updatedAt,
+      hasBack: sql<boolean>`${cardImageVectors.backEmbedding} IS NOT NULL`,
     })
     .from(cardImageVectors)
     .where(
@@ -207,6 +238,9 @@ async function runSync(
       ),
     );
   const existingSet = new Set(existing.map((r) => r.id));
+  const vectorizedBacks = new Set(
+    existing.filter((r) => r.hasBack).map((r) => r.id),
+  );
 
   const recentlyUpdated = new Set<string>();
   if (skipUpdatedWithinMs && skipUpdatedWithinMs > 0) {
@@ -227,13 +261,16 @@ async function runSync(
       ".",
   );
 
-  const isAlreadyVectorized = (id: string) =>
-    (!forceResync && existingSet.has(id)) || recentlyUpdated.has(id);
+  const isAlreadyVectorized = (card: SyncSourceCard) =>
+    (!forceResync &&
+      existingSet.has(card.id) &&
+      (!card.backImageUrl || vectorizedBacks.has(card.id))) ||
+    recentlyUpdated.has(card.id);
 
   await refreshStoredData(
     source,
     lang,
-    cards.filter((c) => isAlreadyVectorized(c.id)),
+    cards.filter(isAlreadyVectorized),
   );
   if (isCancelled()) {
     emitCancelledDone();
@@ -275,12 +312,14 @@ async function runSync(
             setCode: sql`excluded.set_code`,
             collectorNumber: sql`excluded.collector_number`,
             embedding: sql`excluded.embedding`,
+            backEmbedding: sql`excluded.back_embedding`,
             data: sql`excluded.data`,
             updatedAt: sql`now()`,
           },
         });
       for (const c of batchCards) {
         existingSet.add(c.id);
+        if (c.backImageUrl) vectorizedBacks.add(c.id);
       }
       incrementCounters({ processed: batchCards.length });
       const s = getState();
@@ -303,7 +342,7 @@ async function runSync(
   }
 
   async function processCard(card: SyncSourceCard): Promise<void> {
-    if (!card.imageUrl || isAlreadyVectorized(card.id)) {
+    if (!card.imageUrl || isAlreadyVectorized(card)) {
       incrementCounters({ skipped: 1 });
       const s = getState();
       emitEvent("progress", {
@@ -316,17 +355,8 @@ async function runSync(
     }
 
     try {
-      await throttleImageFetch();
-      const imageRes = await fetch(card.imageUrl, {
-        headers: source.fetchHeaders,
-        signal: getAbortSignal(),
-      });
-      if (!imageRes.ok)
-        throw new Error(`Image fetch failed: ${imageRes.status}`);
-      const buffer = await toPortraitCardImage(
-        Buffer.from(await imageRes.arrayBuffer()),
-      );
-      const { embedding } = await vectorizeCardImage(buffer);
+      const embedding = await embedCardImageUrl(source, card.imageUrl);
+      const backEmbedding = await embedBackFace(source, card);
       const data: unknown = JSON.parse(card.data);
 
       pendingInserts.push({
@@ -342,6 +372,7 @@ async function runSync(
           data,
         ),
         embedding,
+        backEmbedding,
         data,
       });
       pendingCards.push(card);

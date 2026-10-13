@@ -671,6 +671,13 @@ export interface BinCorrection {
   cardName: string;
   currentBin?: number;
   targetBin?: number;
+  pickListName?: string;
+  releasedPickListName?: string;
+}
+
+export interface CorrectedBinTarget {
+  bin?: BinConfig;
+  pickListName?: string;
 }
 
 export interface BinCorrectionDialogProps {

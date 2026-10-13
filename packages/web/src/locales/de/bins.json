@@ -27,7 +27,11 @@
     "catchAllOverride": "Dazu Karten mit:",
     "scanOnlyScanned": "Gescannte Karten kommen hierher",
     "scanOnlyUnidentified": "Nicht erkannte Karten kommen hierher",
-    "scanOnlyEverything": "Gescannte und nicht erkannte Karten kommen hierher"
+    "scanOnlyEverything": "Gescannte und nicht erkannte Karten kommen hierher",
+    "pickList": "Pickliste",
+    "pickListProgress": "Karten der Pickliste, {{found}} von {{total}} gefunden",
+    "pickListAll_one": "Jede Kopie der Pickliste, {{count}} gefunden",
+    "pickListAll_other": "Jede Kopie der Pickliste, {{count}} gefunden"
   },
   "binConfigPanel": {
     "overflowLabel": "Wenn voll, überlaufen in",
@@ -71,7 +75,12 @@
     "copiesByName": "Kopien je Name begrenzen",
     "copiesByField": "Kopien je {{field}} begrenzen",
     "maxCopiesPrefix": "Bis zu",
-    "maxCopiesCountLabel": "Erlaubte Kopien"
+    "maxCopiesCountLabel": "Erlaubte Kopien",
+    "sortSourceLabel": "Dieses Fach nimmt",
+    "sortSourceRules": "Sortierregeln",
+    "sortSourcePickList": "Pickliste",
+    "sortSourceRulesDescription": "Karten, die den Regeln unten entsprechen.",
+    "sortSourcePickListDescription": "Nur Karten auf der Liste unten, etwa eine Deckliste. Wird vor den Regeln aller anderen Fächer geprüft."
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."
@@ -238,5 +247,34 @@
     "nonFoilOption": "Nicht-Foil",
     "marketValueUsd": "Marktwert (USD)",
     "marketValueEur": "Marktwert (EUR)"
+  },
+  "pickList": {
+    "modeLabel": "Wenn eine Karte gefunden wird",
+    "modes": {
+      "untilFound": "Abhaken",
+      "all": "Jede Kopie ziehen",
+      "untilFoundDescription": "Zieht Kopien, bis die Anzahl auf der Liste gefunden ist, und hakt die Karte dann ab. Weitere Kopien werden normal sortiert.",
+      "allDescription": "Zieht jede Kopie jeder Karte auf der Liste, egal wie viele es sind."
+    },
+    "decklistLabel": "Karten",
+    "cardCount_one": "{{count}} Karte, max. {{max}}",
+    "cardCount_other": "{{count}} Karten, max. {{max}}",
+    "decklistPlaceholder": "4 Lightning Bolt\n1 Sol Ring\nCounterspell",
+    "decklistHint": "Eine Karte pro Zeile, optional mit Anzahl. Set-Codes, Sammlernummern und Abschnittsüberschriften aus Moxfield-, Arena- oder MTGO-Exporten werden ignoriert. Doppelseitige Karten passen auf beide Seiten.",
+    "progressLabel": "Fortschritt",
+    "progress": {
+      "foundOf": "{{found}} von {{total}} gefunden",
+      "foundAll_one": "{{count}} Kopie gezogen",
+      "foundAll_other": "{{count}} Kopien gezogen",
+      "entryCount": "{{found}}/{{total}}",
+      "reset": "Zurücksetzen",
+      "increase": "Eine weitere {{name}} als gefunden markieren",
+      "decrease": "Eine {{name}} weniger als gefunden markieren"
+    },
+    "toasts": {
+      "saved": "Pickliste gespeichert",
+      "saveFailed": "Pickliste konnte nicht gespeichert werden",
+      "resetFailed": "Pickliste konnte nicht zurückgesetzt werden"
+    }
   }
 }

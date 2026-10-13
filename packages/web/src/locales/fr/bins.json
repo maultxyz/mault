@@ -27,7 +27,11 @@
     "catchAllOverride": "Plus les cartes avec :",
     "scanOnlyScanned": "Les cartes scannées vont ici",
     "scanOnlyUnidentified": "Les cartes non identifiées vont ici",
-    "scanOnlyEverything": "Les cartes scannées et non identifiées vont ici"
+    "scanOnlyEverything": "Les cartes scannées et non identifiées vont ici",
+    "pickList": "Liste de tri",
+    "pickListProgress": "Cartes de la liste, {{found}} sur {{total}} trouvées",
+    "pickListAll_one": "Chaque exemplaire de la liste, {{count}} trouvé",
+    "pickListAll_other": "Chaque exemplaire de la liste, {{count}} trouvés"
   },
   "binConfigPanel": {
     "overflowLabel": "Une fois plein, déborder dans",
@@ -71,7 +75,12 @@
     "copiesByName": "Limiter les copies de chaque nom",
     "copiesByField": "Limiter les copies de chaque {{field}}",
     "maxCopiesPrefix": "Jusqu'à",
-    "maxCopiesCountLabel": "Copies autorisées"
+    "maxCopiesCountLabel": "Copies autorisées",
+    "sortSourceLabel": "Ce bac reçoit",
+    "sortSourceRules": "Règles de tri",
+    "sortSourcePickList": "Liste de tri",
+    "sortSourceRulesDescription": "Les cartes qui correspondent aux règles ci-dessous.",
+    "sortSourcePickListDescription": "Uniquement les cartes de la liste ci-dessous, comme une liste de deck. Vérifiée avant les règles de tous les autres bacs."
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."
@@ -238,5 +247,34 @@
     "nonFoilOption": "Non foil",
     "marketValueUsd": "Valeur marchande (USD)",
     "marketValueEur": "Valeur marchande (EUR)"
+  },
+  "pickList": {
+    "modeLabel": "Quand une carte est trouvée",
+    "modes": {
+      "untilFound": "La rayer",
+      "all": "Extraire chaque exemplaire",
+      "untilFoundDescription": "Extrait des exemplaires jusqu'à atteindre la quantité de la liste, puis raye la carte. Les exemplaires suivants sont triés normalement.",
+      "allDescription": "Extrait chaque exemplaire de chaque carte de la liste, quel que soit leur nombre."
+    },
+    "decklistLabel": "Cartes",
+    "cardCount_one": "{{count}} carte, max. {{max}}",
+    "cardCount_other": "{{count}} cartes, max. {{max}}",
+    "decklistPlaceholder": "4 Lightning Bolt\n1 Sol Ring\nCounterspell",
+    "decklistHint": "Une carte par ligne, avec une quantité facultative. Les codes d'édition, numéros de collection et titres de section des exports Moxfield, Arena ou MTGO sont ignorés. Les cartes recto verso correspondent à chaque face.",
+    "progressLabel": "Progression",
+    "progress": {
+      "foundOf": "{{found}} sur {{total}} trouvées",
+      "foundAll_one": "{{count}} exemplaire extrait",
+      "foundAll_other": "{{count}} exemplaires extraits",
+      "entryCount": "{{found}}/{{total}}",
+      "reset": "Réinitialiser",
+      "increase": "Marquer un autre {{name}} comme trouvé",
+      "decrease": "Marquer un {{name}} de moins comme trouvé"
+    },
+    "toasts": {
+      "saved": "Liste de tri enregistrée",
+      "saveFailed": "Impossible d'enregistrer la liste de tri",
+      "resetFailed": "Impossible de réinitialiser la liste de tri"
+    }
   }
 }

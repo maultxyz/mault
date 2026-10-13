@@ -41,7 +41,7 @@ export default function AppLayout() {
         <div
           className={cn(
             "relative h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
-            MOBILE_BRAND_SHELL_PATTERN.test(pathname)
+            MOBILE_BRAND_SHELL_PATTERN.test(pathname) && !hideMobileNav
               ? "bg-primary"
               : "bg-background",
             !hideMobileNav && MOBILE_NAV_SPACE_CLASS,

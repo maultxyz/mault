@@ -1,6 +1,7 @@
 import { Callout } from "@/components/callout";
 import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   Field,
   FieldDescription,
@@ -27,6 +28,7 @@ import {
 } from "@/components/ui/tooltip";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { BinPickListFields } from "@/features/bins/components/bin-pick-list-fields";
 import { RuleGroupEditor } from "@/features/bins/components/rule-group-editor";
 import { RuleSummary } from "@/features/bins/components/rule-summary";
 import {
@@ -45,9 +47,11 @@ import {
   BinConfig,
   BinRuleGroup,
   DEFAULT_BIN_CAPACITY,
+  formatDecklist,
   getOverflowSources,
   isOverflowTarget,
   OVERRIDE_PRIORITY_MAX,
+  parseDecklist,
   REPACK_UNIQUE_BY_NAME,
   REPACK_UNIQUE_BY_PRINTING,
   sortOverrideBins,
@@ -55,6 +59,7 @@ import {
 import { IconHelpCircle, IconInfoCircle } from "@tabler/icons-react";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
+import type { BinSortSource } from "@/lib/interfaces/bins";
 import { useTranslation } from "react-i18next";
 
 function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
@@ -104,6 +109,7 @@ export function BinConfigPanel() {
       maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
       overflowBin: null,
       lowMatchPercent: null,
+      pickList: null,
     },
   });
 
@@ -121,6 +127,13 @@ export function BinConfigPanel() {
       lowMatchPercent: config.isCatchAll
         ? (config.lowMatchPercent ?? null)
         : null,
+      pickList:
+        config.pickList && !config.isCatchAll
+          ? {
+              mode: config.pickList.mode,
+              decklist: formatDecklist(config.pickList.entries),
+            }
+          : null,
     });
   }, [config, form]);
 
@@ -141,8 +154,7 @@ export function BinConfigPanel() {
     effectiveMode.isChaosMode;
 
   const overflowSources = useMemo(
-    () =>
-      getOverflowSources(configs, config.binNumber).map((c) => c.binNumber),
+    () => getOverflowSources(configs, config.binNumber).map((c) => c.binNumber),
     [configs, config.binNumber],
   );
 
@@ -176,6 +188,26 @@ export function BinConfigPanel() {
         });
         return;
       }
+      if (values.pickList && !values.isCatchAll) {
+        save({
+          binNumber: config.binNumber,
+          rules: emptyRuleGroup(),
+          isCatchAll: false,
+          cardLimit,
+          isOverride: false,
+          overridePriority: null,
+          lowMatchPercent: null,
+          maxCopies: null,
+          maxCopiesBy: null,
+          overflowBin: null,
+          isDisabled: values.isDisabled,
+          pickList: {
+            mode: values.pickList.mode,
+            entries: parseDecklist(values.pickList.decklist),
+          },
+        });
+        return;
+      }
       const claimed = !values.isCatchAll && overflowSources.length > 0;
       const isOverride = !values.isCatchAll && !claimed && values.isOverride;
       save({
@@ -195,6 +227,7 @@ export function BinConfigPanel() {
             ? null
             : values.maxCopiesBy,
         isDisabled: !values.isCatchAll && values.isDisabled,
+        pickList: null,
       });
     },
     [
@@ -227,6 +260,7 @@ export function BinConfigPanel() {
         maxCopiesBy: REPACK_UNIQUE_BY_PRINTING,
         overflowBin: null,
         lowMatchPercent: null,
+        pickList: null,
       },
       { keepDefaultValues: true },
     );
@@ -255,6 +289,53 @@ export function BinConfigPanel() {
   const isOverride = form.watch("isOverride");
   const overflowBin = form.watch("overflowBin");
   const isClaimedOverflow = !isCatchAll && overflowSources.length > 0;
+  const draftPickList = form.watch("pickList");
+  const isPickList = !isCatchAll && draftPickList != null;
+  const sortSourceItems: { key: BinSortSource; label: string }[] = [
+    { key: "rules", label: t("binConfigPanel.sortSourceRules") },
+    { key: "pickList", label: t("binConfigPanel.sortSourcePickList") },
+  ];
+  const sortSourceField = !isCatchAll && !isClaimedOverflow && (
+    <Field className="mb-6 max-w-md gap-1.5">
+      <FieldLabel>{t("binConfigPanel.sortSourceLabel")}</FieldLabel>
+      <ButtonGroup aria-label={t("binConfigPanel.sortSourceLabel")}>
+        {sortSourceItems.map((item) => {
+          const active = (isPickList ? "pickList" : "rules") === item.key;
+          return (
+            <Button
+              key={item.key}
+              type="button"
+              size="sm"
+              variant={active ? "outline-selected" : "outline"}
+              aria-pressed={active}
+              onClick={() => {
+                if (active) return;
+                form.setValue(
+                  "pickList",
+                  item.key === "pickList"
+                    ? {
+                        mode: config.pickList?.mode ?? "until_found",
+                        decklist: config.pickList
+                          ? formatDecklist(config.pickList.entries)
+                          : "",
+                      }
+                    : null,
+                  { shouldDirty: true },
+                );
+              }}
+            >
+              {item.label}
+            </Button>
+          );
+        })}
+      </ButtonGroup>
+      <FieldDescription>
+        {isPickList
+          ? t("binConfigPanel.sortSourcePickListDescription")
+          : t("binConfigPanel.sortSourceRulesDescription")}
+      </FieldDescription>
+    </Field>
+  );
   const overflowOptions = useMemo(
     () =>
       configs.filter(
@@ -530,6 +611,7 @@ export function BinConfigPanel() {
               form.setValue("isOverride", false, { shouldDirty: true });
               form.setValue("overridePriority", null, { shouldDirty: true });
               form.setValue("isDisabled", false, { shouldDirty: true });
+              form.setValue("pickList", null, { shouldDirty: true });
               field.onChange(!field.value);
             }}
           >
@@ -628,207 +710,224 @@ export function BinConfigPanel() {
               {t("binConfigPanel.disabledNotice")}
             </Callout>
           )}
-          {overflowField}
-          {isClaimedOverflow && (
-            <Callout className="mb-6">
-              {t("binConfigPanel.overflowTargetNotice", {
-                bins: overflowSources.join(", "),
-                count: overflowSources.length,
-              })}
-            </Callout>
-          )}
-          {!autoAssignField && !isCatchAll && !isClaimedOverflow && (
-            <Field className="mb-6">
-              <div className="flex items-center gap-2">
-                <Controller
-                  name="isOverride"
-                  control={form.control}
-                  render={({ field }) => (
-                    <Switch
-                      id="bin-override"
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  )}
-                />
-                <span className="flex items-center gap-1.5">
-                  <FieldLabel htmlFor="bin-override">
-                    {t("binConfigPanel.overrideLabel")}
-                  </FieldLabel>
-                  <Tooltip>
-                    <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-                      <IconInfoCircle className="size-3.5" />
-                    </TooltipTrigger>
-                    <TooltipContent className="max-w-xs">
-                      {t("binConfigPanel.overrideDescription")}
-                    </TooltipContent>
-                  </Tooltip>
-                </span>
-              </div>
-            </Field>
-          )}
-          {!isCatchAll && priorityField}
-          {!autoAssignField && !isCatchAll && !isClaimedOverflow && (
-            <Field
-              className="mb-6 gap-1.5"
-              data-invalid={!!form.formState.errors.maxCopies}
-            >
-              <span className="flex items-center gap-1.5">
-                <FieldLabel htmlFor="bin-copies-by">
-                  {t("binConfigPanel.copiesLabel")}
-                </FieldLabel>
-                <Tooltip>
-                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
-                    <IconInfoCircle className="size-3.5" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    {t("binConfigPanel.maxCopiesDescription")}
-                  </TooltipContent>
-                </Tooltip>
-              </span>
-              <Select
-                value={copiesSelection}
-                onValueChange={(value) => {
-                  if (!value || value === REPACK_ALLOW_DUPLICATES_VALUE) {
-                    form.setValue("maxCopies", null, { shouldDirty: true });
-                    return;
-                  }
-                  form.setValue("maxCopiesBy", value, { shouldDirty: true });
-                  if (maxCopies == null) {
-                    form.setValue("maxCopies", DEFAULT_MAX_COPIES, {
-                      shouldDirty: true,
-                    });
-                  }
-                }}
-              >
-                <SelectTrigger
-                  id="bin-copies-by"
-                  className="w-full max-w-72"
-                  aria-label={t("binConfigPanel.copiesLabel")}
-                >
-                  <SelectValue>{copiesByLabel(copiesSelection)}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value={REPACK_ALLOW_DUPLICATES_VALUE}>
-                      {t("binConfigPanel.copiesAllow")}
-                    </SelectItem>
-                    <SelectItem value={REPACK_UNIQUE_BY_PRINTING}>
-                      {t("binConfigPanel.copiesByPrinting")}
-                    </SelectItem>
-                    <SelectItem value={REPACK_UNIQUE_BY_NAME}>
-                      {t("binConfigPanel.copiesByName")}
-                    </SelectItem>
-                  </SelectGroup>
-                  {copiesByFields.length > 0 && (
-                    <>
-                      <SelectSeparator />
-                      <SelectGroup>
-                        {copiesByFields.map((meta) => (
-                          <SelectItem key={meta.field} value={meta.field}>
-                            {t("binConfigPanel.copiesByField", {
-                              field: meta.label,
-                            })}
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </>
-                  )}
-                </SelectContent>
-              </Select>
-              {maxCopies != null && (
-                <Controller
-                  name="maxCopies"
-                  control={form.control}
-                  render={({ field }) => (
-                    <div className="mt-1 flex items-center gap-2">
-                      <span className="text-xs text-foreground/70">
-                        {t("binConfigPanel.maxCopiesPrefix")}
-                      </span>
-                      <Input
-                        id="bin-max-copies-count"
-                        type="number"
-                        min={1}
-                        className="max-w-24"
-                        aria-label={t("binConfigPanel.maxCopiesCountLabel")}
-                        value={
-                          field.value == null || Number.isNaN(field.value)
-                            ? ""
-                            : field.value
-                        }
-                        onChange={(e) =>
-                          field.onChange(
-                            e.target.value === ""
-                              ? Number.NaN
-                              : Number(e.target.value),
-                          )
-                        }
-                      />
-                      <span className="text-xs text-foreground/70">
-                        {t("binConfigPanel.maxCopiesSuffix")}
-                      </span>
-                    </div>
-                  )}
-                />
-              )}
-              <FieldError errors={[form.formState.errors.maxCopies]} />
-            </Field>
-          )}
-          {isCatchAll && lowMatchField}
-          {isCatchAll && priorityField}
-          {!isClaimedOverflow && (
+          {sortSourceField}
+          {isPickList ? (
+            <BinPickListFields
+              control={form.control}
+              binGuid={config.pickList ? config.guid : undefined}
+              savedPickList={config.pickList}
+            />
+          ) : (
             <>
-              <div className="flex items-center justify-between mb-2">
-                {isCatchAll ? (
+              {overflowField}
+              {isClaimedOverflow && (
+                <Callout className="mb-6">
+                  {t("binConfigPanel.overflowTargetNotice", {
+                    bins: overflowSources.join(", "),
+                    count: overflowSources.length,
+                  })}
+                </Callout>
+              )}
+              {!autoAssignField && !isCatchAll && !isClaimedOverflow && (
+                <Field className="mb-6">
+                  <div className="flex items-center gap-2">
+                    <Controller
+                      name="isOverride"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Switch
+                          id="bin-override"
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      )}
+                    />
+                    <span className="flex items-center gap-1.5">
+                      <FieldLabel htmlFor="bin-override">
+                        {t("binConfigPanel.overrideLabel")}
+                      </FieldLabel>
+                      <Tooltip>
+                        <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                          <IconInfoCircle className="size-3.5" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          {t("binConfigPanel.overrideDescription")}
+                        </TooltipContent>
+                      </Tooltip>
+                    </span>
+                  </div>
+                </Field>
+              )}
+              {!isCatchAll && priorityField}
+              {!autoAssignField && !isCatchAll && !isClaimedOverflow && (
+                <Field
+                  className="mb-6 gap-1.5"
+                  data-invalid={!!form.formState.errors.maxCopies}
+                >
                   <span className="flex items-center gap-1.5">
-                    <Label>{t("binConfigPanel.catchAllRulesLabel")}</Label>
+                    <FieldLabel htmlFor="bin-copies-by">
+                      {t("binConfigPanel.copiesLabel")}
+                    </FieldLabel>
                     <Tooltip>
-                      <TooltipTrigger
-                        className="text-foreground/70 hover:text-foreground transition-colors"
-                        aria-label={t("binConfigPanel.catchAllRulesDescription")}
-                      >
-                        <IconHelpCircle className="size-3.5" />
+                      <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                        <IconInfoCircle className="size-3.5" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
-                        {t("binConfigPanel.catchAllRulesDescription")}
+                        {t("binConfigPanel.maxCopiesDescription")}
                       </TooltipContent>
                     </Tooltip>
                   </span>
-                ) : (
-                  <Label>{t("binConfigPanel.rulesLabel")}</Label>
-                )}
-                {apiDocsUrl && (
-                  <a
-                    href={apiDocsUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
+                  <Select
+                    value={copiesSelection}
+                    onValueChange={(value) => {
+                      if (!value || value === REPACK_ALLOW_DUPLICATES_VALUE) {
+                        form.setValue("maxCopies", null, { shouldDirty: true });
+                        return;
+                      }
+                      form.setValue("maxCopiesBy", value, {
+                        shouldDirty: true,
+                      });
+                      if (maxCopies == null) {
+                        form.setValue("maxCopies", DEFAULT_MAX_COPIES, {
+                          shouldDirty: true,
+                        });
+                      }
+                    }}
                   >
-                    {t("binConfigPanel.apiDocsLink")}
-                  </a>
-                )}
-              </div>
-              {!isCatchAll && autoAssignField ? (
-                config.rules.conditions.length > 0 ? (
-                  <RuleSummary rules={config.rules} />
-                ) : (
-                  <Callout>
-                    {t("binConfigPanel.autoAssignWaiting", {
-                      field: autoAssignFieldLabel,
-                    })}
-                  </Callout>
-                )
-              ) : (
-                <Controller
-                  name="rules"
-                  control={form.control}
-                  render={({ field }) => (
-                    <RuleGroupEditor
-                      group={field.value as BinRuleGroup}
-                      onChange={field.onChange}
+                    <SelectTrigger
+                      id="bin-copies-by"
+                      className="w-full max-w-72"
+                      aria-label={t("binConfigPanel.copiesLabel")}
+                    >
+                      <SelectValue>
+                        {copiesByLabel(copiesSelection)}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value={REPACK_ALLOW_DUPLICATES_VALUE}>
+                          {t("binConfigPanel.copiesAllow")}
+                        </SelectItem>
+                        <SelectItem value={REPACK_UNIQUE_BY_PRINTING}>
+                          {t("binConfigPanel.copiesByPrinting")}
+                        </SelectItem>
+                        <SelectItem value={REPACK_UNIQUE_BY_NAME}>
+                          {t("binConfigPanel.copiesByName")}
+                        </SelectItem>
+                      </SelectGroup>
+                      {copiesByFields.length > 0 && (
+                        <>
+                          <SelectSeparator />
+                          <SelectGroup>
+                            {copiesByFields.map((meta) => (
+                              <SelectItem key={meta.field} value={meta.field}>
+                                {t("binConfigPanel.copiesByField", {
+                                  field: meta.label,
+                                })}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </>
+                      )}
+                    </SelectContent>
+                  </Select>
+                  {maxCopies != null && (
+                    <Controller
+                      name="maxCopies"
+                      control={form.control}
+                      render={({ field }) => (
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="text-xs text-foreground/70">
+                            {t("binConfigPanel.maxCopiesPrefix")}
+                          </span>
+                          <Input
+                            id="bin-max-copies-count"
+                            type="number"
+                            min={1}
+                            className="max-w-24"
+                            aria-label={t("binConfigPanel.maxCopiesCountLabel")}
+                            value={
+                              field.value == null || Number.isNaN(field.value)
+                                ? ""
+                                : field.value
+                            }
+                            onChange={(e) =>
+                              field.onChange(
+                                e.target.value === ""
+                                  ? Number.NaN
+                                  : Number(e.target.value),
+                              )
+                            }
+                          />
+                          <span className="text-xs text-foreground/70">
+                            {t("binConfigPanel.maxCopiesSuffix")}
+                          </span>
+                        </div>
+                      )}
                     />
                   )}
-                />
+                  <FieldError errors={[form.formState.errors.maxCopies]} />
+                </Field>
+              )}
+              {isCatchAll && lowMatchField}
+              {isCatchAll && priorityField}
+              {!isClaimedOverflow && (
+                <>
+                  <div className="flex items-center justify-between mb-2">
+                    {isCatchAll ? (
+                      <span className="flex items-center gap-1.5">
+                        <Label>{t("binConfigPanel.catchAllRulesLabel")}</Label>
+                        <Tooltip>
+                          <TooltipTrigger
+                            className="text-foreground/70 hover:text-foreground transition-colors"
+                            aria-label={t(
+                              "binConfigPanel.catchAllRulesDescription",
+                            )}
+                          >
+                            <IconHelpCircle className="size-3.5" />
+                          </TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            {t("binConfigPanel.catchAllRulesDescription")}
+                          </TooltipContent>
+                        </Tooltip>
+                      </span>
+                    ) : (
+                      <Label>{t("binConfigPanel.rulesLabel")}</Label>
+                    )}
+                    {apiDocsUrl && (
+                      <a
+                        href={apiDocsUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
+                      >
+                        {t("binConfigPanel.apiDocsLink")}
+                      </a>
+                    )}
+                  </div>
+                  {!isCatchAll && autoAssignField ? (
+                    config.rules.conditions.length > 0 ? (
+                      <RuleSummary rules={config.rules} />
+                    ) : (
+                      <Callout>
+                        {t("binConfigPanel.autoAssignWaiting", {
+                          field: autoAssignFieldLabel,
+                        })}
+                      </Callout>
+                    )
+                  ) : (
+                    <Controller
+                      name="rules"
+                      control={form.control}
+                      render={({ field }) => (
+                        <RuleGroupEditor
+                          group={field.value as BinRuleGroup}
+                          onChange={field.onChange}
+                        />
+                      )}
+                    />
+                  )}
+                </>
               )}
             </>
           )}

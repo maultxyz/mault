@@ -133,3 +133,6 @@ export const PENDING_SCAN_SAVE_RETRY_DELAYS_MS = [
 ];
 export const PENDING_SCAN_SAVE_RETRYABLE_STATUSES = [401, 408, 429];
 export const PENDING_SCAN_SAVES_TOAST_ID = "pending-scan-saves";
+
+export const SCAN_REGION_MASK_FILL = "rgb(0 0 0 / 0.4)";
+export const SCAN_REGION_MASK_STROKE = "rgb(255 255 255 / 0.9)";

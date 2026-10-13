@@ -21,6 +21,7 @@ import {
   BinSet,
   computeBinCount,
   DEFAULT_BIN_CAPACITY,
+  mergePickListEntries,
   type DefaultBinInit,
   type EmptyBinOptions,
   type RepackSlot,
@@ -212,6 +213,7 @@ export function BinConfigsProvider({
       maxCopiesBy,
       overflowBin,
       isDisabled,
+      pickList,
     }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
       const previous = queryClient.getQueryData<BinSet[]>(["bins"]);
@@ -219,6 +221,18 @@ export function BinConfigsProvider({
         old.map((set) => {
           if (!set.isActive || !matchesGame(set, activeGameGuid)) return set;
           const idx = set.bins.findIndex((b) => b.binNumber === binNumber);
+          const previousPickList = idx >= 0 ? set.bins[idx].pickList : null;
+          const nextPickList = isCatchAll
+            ? null
+            : pickList === undefined
+              ? (previousPickList ?? null)
+              : pickList && {
+                  mode: pickList.mode,
+                  entries: mergePickListEntries(
+                    pickList.entries,
+                    previousPickList?.entries ?? [],
+                  ),
+                };
           const updated: BinConfig = {
             guid: idx >= 0 ? set.bins[idx].guid : crypto.randomUUID(),
             binNumber,
@@ -242,6 +256,7 @@ export function BinConfigsProvider({
               !isCatchAll &&
               (isDisabled ?? (idx >= 0 ? set.bins[idx].isDisabled : false)) ===
                 true,
+            pickList: nextPickList,
             lastEmptiedAt: idx >= 0 ? set.bins[idx].lastEmptiedAt : null,
           };
           const bins =

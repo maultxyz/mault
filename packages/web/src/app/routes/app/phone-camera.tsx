@@ -1,11 +1,5 @@
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -97,118 +91,103 @@ export default function PhoneCameraPage() {
     />
   );
 
-  if (status === "disconnected") {
-    return (
-      <div className="flex flex-col flex-1 min-h-0 items-center justify-center gap-4 bg-black text-white p-6 text-center">
-        <IconPlugOff className="size-8 text-white/70" />
-        <p className="text-sm font-medium">{statusText.disconnected}</p>
-        <Button variant="secondary" onClick={reconnect}>
-          <IconRefresh />
-          {t("reconnect")}
-        </Button>
-        {sessionEndedDialog}
-      </div>
-    );
-  }
+  const activeCameraIndex = Math.max(
+    0,
+    cameras.findIndex((camera) => camera.deviceId === activeDeviceId),
+  );
+  const activeCamera = cameras[activeCameraIndex];
+  const activeCameraLabel =
+    activeCamera?.label ||
+    t("phoneCamera.cameraFallbackLabel", { number: activeCameraIndex + 1 });
+  const handleSwitchCamera = () => {
+    const next = cameras[(activeCameraIndex + 1) % cameras.length];
+    if (next && next.deviceId !== activeDeviceId) switchCamera(next.deviceId);
+  };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0 relative overflow-hidden bg-black">
-      <video ref={videoRef} className="hidden" playsInline muted />
-      <canvas ref={displayCanvasRef} className="absolute" />
-      <canvas
-        ref={overlayCanvasRef}
-        className="absolute z-10 pointer-events-none"
-      />
-      <div
-        className={cn(
-          "absolute inset-0 z-20 bg-white pointer-events-none transition-opacity duration-300",
-          justCaptured ? "opacity-70" : "opacity-0",
-        )}
-      />
-      <div className="absolute inset-x-0 top-0 p-4 flex items-center justify-between gap-2 bg-gradient-to-b from-black/70 to-transparent text-white">
-        <p className="text-sm font-medium">
-          {collection
+    <div className="flex min-h-0 flex-1 flex-col">
+      <MobilePageHeader
+        title={t("usePhoneAsCamera")}
+        subtitle={
+          collection
             ? t("phoneCamera.streamingTo", { name: collection.name })
-            : t("usePhoneAsCamera")}
-        </p>
-        <div className="flex items-center gap-2">
-          {cameras.length > 1 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="secondary"
-                    size="icon-sm"
-                    title={t("phoneCamera.switchCamera")}
-                    aria-label={t("phoneCamera.switchCamera")}
-                  >
-                    <IconCameraRotate />
-                  </Button>
-                }
+            : undefined
+        }
+      />
+      <div className="flex min-h-0 w-full flex-1 flex-col gap-3 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="relative min-h-0 flex-1 overflow-hidden rounded-xl bg-black">
+          {status === "disconnected" ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 text-center text-white">
+              <IconPlugOff className="size-8 text-white/70" />
+              <p className="text-sm font-medium">{statusText.disconnected}</p>
+              <Button variant="secondary" onClick={reconnect}>
+                <IconRefresh />
+                {t("reconnect")}
+              </Button>
+            </div>
+          ) : (
+            <>
+              <video ref={videoRef} className="hidden" playsInline muted />
+              <canvas ref={displayCanvasRef} className="absolute" />
+              <canvas
+                ref={overlayCanvasRef}
+                className="pointer-events-none absolute z-10"
               />
-              <DropdownMenuContent align="end">
-                <DropdownMenuRadioGroup
-                  value={activeDeviceId ?? ""}
-                  onValueChange={(value: string) => {
-                    if (value !== activeDeviceId) switchCamera(value);
-                  }}
-                >
-                  {cameras.map((camera, index) => (
-                    <DropdownMenuRadioItem
-                      key={camera.deviceId}
-                      value={camera.deviceId}
-                    >
-                      {camera.label ||
-                        t("phoneCamera.cameraFallbackLabel", {
-                          number: index + 1,
-                        })}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              <div
+                className={cn(
+                  "pointer-events-none absolute inset-0 z-20 bg-white transition-opacity duration-300 motion-reduce:transition-none",
+                  justCaptured ? "opacity-70" : "opacity-0",
+                )}
+              />
+              <div className="absolute inset-x-0 bottom-4 z-30 flex flex-col items-center gap-2 px-4">
+                {status === "camera-error" && errorMessage && (
+                  <p className="rounded-lg bg-black/70 px-3 py-1.5 text-center text-sm text-white/80 backdrop-blur-sm">
+                    {errorMessage}
+                  </p>
+                )}
+                <div className="flex items-center gap-2 rounded-full bg-black/70 px-3.5 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
+                  {status === "ready" ? (
+                    <IconCameraSpark className="size-4 shrink-0 text-success" />
+                  ) : status === "camera-error" ? (
+                    <IconVideoOff className="size-4 shrink-0 text-destructive" />
+                  ) : (
+                    <IconLoader2 className="size-4 shrink-0 animate-spin motion-reduce:animate-none" />
+                  )}
+                  <span>{statusText[status]}</span>
+                </div>
+              </div>
+            </>
           )}
-          {status === "requesting-camera" && (
+        </div>
+        {status !== "disconnected" && (
+          <div className="flex items-stretch gap-2">
+            {cameras.length > 1 && (
+              <Button
+                size="lg"
+                className="h-12 min-w-0 flex-1 text-sm"
+                onClick={handleSwitchCamera}
+              >
+                <IconCameraRotate />
+                <span className="flex min-w-0 flex-col items-start leading-tight">
+                  <span>{t("phoneCamera.switchCamera")}</span>
+                  <span className="max-w-full truncate text-xs font-normal opacity-80">
+                    {activeCameraLabel}
+                  </span>
+                </span>
+              </Button>
+            )}
             <Button
-              variant="secondary"
-              size="icon-sm"
+              variant="outline"
+              size="lg"
+              className={cn("h-12 text-sm", cameras.length <= 1 && "flex-1")}
               onClick={disconnect}
-              title={t("disconnect")}
             >
               <IconPlugOff />
+              {t("disconnect")}
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-      <div className="absolute inset-x-0 bottom-6 flex items-center justify-center px-4">
-        <div className="flex items-center gap-2 rounded-full bg-black/70 backdrop-blur-sm px-3.5 py-2 text-white text-sm shadow-lg">
-          {status === "ready" ? (
-            <IconCameraSpark className="size-4 text-success shrink-0" />
-          ) : status === "camera-error" ? (
-            <IconVideoOff className="size-4 text-destructive shrink-0" />
-          ) : (
-            <IconLoader2 className="size-4 animate-spin shrink-0" />
-          )}
-          <span>{statusText[status]}</span>
-          {status === "ready" && (
-            <button
-              type="button"
-              onClick={disconnect}
-              title={t("disconnect")}
-              className="ml-1 -mr-1 shrink-0 rounded-full p-1 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              <IconPlugOff className="size-3.5" />
-            </button>
-          )}
-        </div>
-      </div>
-      {status === "camera-error" && errorMessage && (
-        <div className="absolute inset-x-0 bottom-20 flex items-center justify-center px-6">
-          <p className="rounded-lg bg-black/70 backdrop-blur-sm px-3 py-1.5 text-center text-sm text-white/70">
-            {errorMessage}
-          </p>
-        </div>
-      )}
       {sessionEndedDialog}
     </div>
   );

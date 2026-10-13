@@ -88,6 +88,10 @@ export function parseEmbeddingField(value: unknown): number[] | null {
   }
 }
 
+function cardDistanceSql(embeddingStr: string): SQL {
+  return sql`LEAST(embedding <=> ${embeddingStr}::vector(128), back_embedding <=> ${embeddingStr}::vector(128))`;
+}
+
 function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): SQL {
   return matchAllLanguages ? sql`` : sql`AND lang = ${lang}`;
 }
@@ -121,18 +125,41 @@ export async function findCardMatches(
     `);
 
     const matches = await tx.execute(sql`
-      WITH nearest AS (
+      WITH front_faces AS (
         SELECT
           card_id,
           lang,
           name,
           set_code,
-          embedding,
+          embedding AS face_embedding,
           embedding <=> ${embeddingStr}::vector(128) AS distance
         FROM cards
         WHERE game_key = ${gameKey} ${langFilter(scope)}
         ORDER BY embedding <=> ${embeddingStr}::vector(128)
         LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
+      ),
+      back_faces AS (
+        SELECT
+          card_id,
+          lang,
+          name,
+          set_code,
+          back_embedding AS face_embedding,
+          back_embedding <=> ${embeddingStr}::vector(128) AS distance
+        FROM cards
+        WHERE back_embedding IS NOT NULL
+          AND game_key = ${gameKey} ${langFilter(scope)}
+        ORDER BY back_embedding <=> ${embeddingStr}::vector(128)
+        LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
+      ),
+      nearest AS (
+        SELECT DISTINCT ON (card_id, lang) *
+        FROM (
+          SELECT * FROM front_faces
+          UNION ALL
+          SELECT * FROM back_faces
+        ) faces
+        ORDER BY card_id, lang, distance
       )
       SELECT
         card_id,
@@ -140,9 +167,10 @@ export async function findCardMatches(
         name,
         set_code,
         distance,
-        embedding <=> first_value(embedding) OVER (ORDER BY distance) AS leader_distance
+        face_embedding <=> first_value(face_embedding) OVER (ORDER BY distance) AS leader_distance
       FROM nearest
       ORDER BY distance
+      LIMIT ${CARD_MATCH_RUNNER_UP_SEARCH_LIMIT}
     `);
 
     const leaderName = matches.rows[0]?.name as string | undefined;
@@ -217,7 +245,7 @@ export async function findCardMatches(
     const [leader] = rows;
     const preferred = preferredSetCode
       ? await tx.execute(sql`
-          SELECT card_id, embedding <=> ${embeddingStr}::vector(128) AS distance
+          SELECT card_id, ${cardDistanceSql(embeddingStr)} AS distance
           FROM cards
           WHERE game_key = ${gameKey}
             AND lang = ${leader.lang}
@@ -340,7 +368,7 @@ export async function findCardMatchesByText(
           set_code,
           collector_number,
           similarity(name, ${nameQuery}) AS name_score,
-          embedding <=> ${embeddingStr}::vector(128) AS distance
+          ${cardDistanceSql(embeddingStr)} AS distance
         FROM cards
         WHERE game_key = ${gameKey} ${langFilter(scope)} AND name % ${nameQuery}
         ORDER BY name_score DESC, distance ASC

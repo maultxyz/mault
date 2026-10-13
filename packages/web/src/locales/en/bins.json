@@ -27,7 +27,11 @@
     "catchAllOverride": "Plus cards matching:",
     "scanOnlyScanned": "Scanned cards go here",
     "scanOnlyUnidentified": "Unidentified cards go here",
-    "scanOnlyEverything": "Scanned and unidentified cards go here"
+    "scanOnlyEverything": "Scanned and unidentified cards go here",
+    "pickList": "Pick list",
+    "pickListProgress": "Cards on the pick list, {{found}} of {{total}} found",
+    "pickListAll_one": "Every copy of the pick list, {{count}} found",
+    "pickListAll_other": "Every copy of the pick list, {{count}} found"
   },
   "binConfigPanel": {
     "overflowLabel": "When full, overflow to",
@@ -71,7 +75,12 @@
     "copiesByName": "Limit copies of each name",
     "copiesByField": "Limit copies of each {{field}}",
     "maxCopiesPrefix": "Up to",
-    "maxCopiesCountLabel": "Copies allowed"
+    "maxCopiesCountLabel": "Copies allowed",
+    "sortSourceLabel": "This bin takes",
+    "sortSourceRules": "Sorting rules",
+    "sortSourcePickList": "Pick list",
+    "sortSourceRulesDescription": "Cards that match the rules below.",
+    "sortSourcePickListDescription": "Only cards on the list below, like a decklist. Checked before every other bin's rules."
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."
@@ -238,5 +247,34 @@
     "nonFoilOption": "Non-foil",
     "marketValueUsd": "Market value (USD)",
     "marketValueEur": "Market value (EUR)"
+  },
+  "pickList": {
+    "modeLabel": "When a card is found",
+    "modes": {
+      "untilFound": "Cross it off",
+      "all": "Pull every copy",
+      "untilFoundDescription": "Pulls copies until the quantity on the list is found, then crosses the card off. Later copies sort normally.",
+      "allDescription": "Pulls every copy of every card on the list, however many there are."
+    },
+    "decklistLabel": "Cards",
+    "cardCount_one": "{{count}} card, max {{max}}",
+    "cardCount_other": "{{count}} cards, max {{max}}",
+    "decklistPlaceholder": "4 Lightning Bolt\n1 Sol Ring\nCounterspell",
+    "decklistHint": "One card per line, with an optional quantity. Set codes, collector numbers and section headers from Moxfield, Arena or MTGO exports are ignored. Double-faced cards match either face.",
+    "progressLabel": "Progress",
+    "progress": {
+      "foundOf": "{{found}} of {{total}} found",
+      "foundAll_one": "{{count}} copy pulled",
+      "foundAll_other": "{{count}} copies pulled",
+      "entryCount": "{{found}}/{{total}}",
+      "reset": "Reset",
+      "increase": "Mark another {{name}} as found",
+      "decrease": "Mark one less {{name}} as found"
+    },
+    "toasts": {
+      "saved": "Pick list saved",
+      "saveFailed": "Couldn't save the pick list",
+      "resetFailed": "Couldn't reset the pick list"
+    }
   }
 }

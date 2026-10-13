@@ -7,6 +7,7 @@ import {
   loadSets,
   resolveGameId,
   activeBinSetWhere,
+  resetPickList,
 } from "./shared";
 
 export const copyBinSetRoute = new Hono<AppEnv>().post(
@@ -54,6 +55,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
                 maxCopiesBy: true,
                 overflowBin: true,
                 isDisabled: true,
+                pickList: true,
               },
             },
           },
@@ -77,6 +79,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
               maxCopiesBy: bin.maxCopiesBy,
               overflowBin: bin.overflowBin,
               isDisabled: bin.isDisabled,
+              pickList: resetPickList(bin.pickList),
               binSet: newBinSet.id,
               orgId,
             })),

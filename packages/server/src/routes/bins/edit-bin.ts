@@ -1,4 +1,9 @@
-import type { BinConfig, BinRuleGroup } from "@magic-vault/shared";
+import {
+  toPickList,
+  type BinConfig,
+  type BinRuleGroup,
+  type PickListInput,
+} from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -14,7 +19,9 @@ import {
   toOverflowBin,
   toOverridePriority,
   activeBinSetWhere,
+  emptyRules,
   normalizeOverflowBins,
+  toBinPickList,
 } from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
@@ -36,6 +43,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       maxCopiesBy,
       overflowBin,
       isDisabled,
+      pickList,
     } = await c.req.json<{
       rules: BinRuleGroup;
       isCatchAll?: boolean;
@@ -47,6 +55,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       maxCopiesBy?: string | null;
       overflowBin?: number | null;
       isDisabled?: boolean;
+      pickList?: PickListInput | null;
     }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -62,6 +71,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
                 binNumber: true,
                 isDisabled: true,
                 overflowBin: true,
+                pickList: true,
               },
             },
           },
@@ -82,28 +92,37 @@ export const editBinRoute = new Hono<AppEnv>().put(
           (b) => b.binNumber === binNumber,
         );
 
+        const nextPickList = toBinPickList(
+          pickList,
+          isCatchAll,
+          existing?.pickList,
+        );
+        const isPickList = nextPickList != null;
+        const nextMaxCopies = isPickList
+          ? null
+          : toMaxCopies(maxCopies, isCatchAll);
+        const values = {
+          rules: isPickList ? emptyRules() : rules,
+          isCatchAll: isCatchAll ?? false,
+          isOverride: !isCatchAll && !isPickList && isOverride === true,
+          overridePriority: isPickList
+            ? null
+            : toOverridePriority(overridePriority, isCatchAll, isOverride),
+          lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
+          cardLimit: cardLimit ?? null,
+          maxCopies: nextMaxCopies,
+          maxCopiesBy: toMaxCopiesBy(maxCopiesBy, isCatchAll, nextMaxCopies),
+          pickList: nextPickList,
+        };
+
         if (existing) {
           await tx
             .update(bins)
             .set({
-              rules,
-              isCatchAll: isCatchAll ?? false,
-              isOverride: !isCatchAll && isOverride === true,
-              overridePriority: toOverridePriority(
-                overridePriority,
-                isCatchAll,
-                isOverride,
-              ),
-              lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
-              cardLimit: cardLimit ?? null,
-              maxCopies: toMaxCopies(maxCopies, isCatchAll),
-              maxCopiesBy: toMaxCopiesBy(
-                maxCopiesBy,
-                isCatchAll,
-                toMaxCopies(maxCopies, isCatchAll),
-              ),
-              overflowBin:
-                overflowBin === undefined
+              ...values,
+              overflowBin: isPickList
+                ? null
+                : overflowBin === undefined
                   ? existing.overflowBin
                   : toOverflowBin(overflowBin, binNumber),
               isDisabled: toIsDisabled(
@@ -115,24 +134,9 @@ export const editBinRoute = new Hono<AppEnv>().put(
             .where(eq(bins.id, existing.id));
         } else {
           await tx.insert(bins).values({
+            ...values,
             binNumber,
-            rules,
-            isCatchAll: isCatchAll ?? false,
-            isOverride: !isCatchAll && isOverride === true,
-            overridePriority: toOverridePriority(
-              overridePriority,
-              isCatchAll,
-              isOverride,
-            ),
-            lowMatchPercent: toLowMatchPercent(lowMatchPercent, isCatchAll),
-            cardLimit: cardLimit ?? null,
-            maxCopies: toMaxCopies(maxCopies, isCatchAll),
-            maxCopiesBy: toMaxCopiesBy(
-              maxCopiesBy,
-              isCatchAll,
-              toMaxCopies(maxCopies, isCatchAll),
-            ),
-            overflowBin: toOverflowBin(overflowBin, binNumber),
+            overflowBin: isPickList ? null : toOverflowBin(overflowBin, binNumber),
             isDisabled: toIsDisabled(isDisabled, isCatchAll),
             binSet: activeBinSet.id,
             orgId,
@@ -158,6 +162,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             maxCopiesBy: true,
             overflowBin: true,
             isDisabled: true,
+            pickList: true,
             lastEmptiedAt: true,
           },
         });
@@ -179,6 +184,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               maxCopiesBy: b.maxCopiesBy,
               overflowBin: b.overflowBin,
               isDisabled: b.isDisabled,
+              pickList: b.isCatchAll ? null : toPickList(b.pickList),
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),

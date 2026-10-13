@@ -1,4 +1,5 @@
 import type { Game } from "./games.interface";
+import type { PickList } from "./pick-list.interface";
 
 export type ConditionField = string;
 
@@ -66,6 +67,7 @@ export interface BinConfig {
   maxCopiesBy?: string | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
+  pickList?: PickList | null;
   lastEmptiedAt?: number | null;
 }
 
@@ -123,6 +125,7 @@ export type DefaultBinInit = {
   maxCopiesBy?: string | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
+  pickList?: PickList | null;
 };
 
 export interface ScanOnlyConfig {

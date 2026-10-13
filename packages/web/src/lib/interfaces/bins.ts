@@ -7,9 +7,13 @@ import type {
   DefaultBinInit,
   EmptyBinOptions,
   FieldMeta,
+  PickList,
+  PickListInput,
   RepackSlot,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
+import type { Control } from "react-hook-form";
+import type { BinConfigFormValues } from "@/schemas/sort-bins.schema";
 
 export interface BinConfigSaveInput {
   binNumber: number;
@@ -23,6 +27,7 @@ export interface BinConfigSaveInput {
   maxCopiesBy?: string | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
+  pickList?: PickListInput | null;
 }
 
 export interface BinModeDraft {
@@ -122,6 +127,7 @@ export interface ScanOnlyBinSelectProps {
 
 export interface BinCardProps {
   config: BinConfig;
+  showPickList?: boolean;
   active?: boolean;
   isAutoAssign?: boolean;
   isScanOnly?: boolean;
@@ -149,6 +155,20 @@ export interface RuleGroupEditorProps {
   onChange: (updated: BinRuleGroup) => void;
   onRemove?: () => void;
   depth?: number;
+}
+
+export type BinSortSource = "rules" | "pickList";
+
+export interface BinPickListFieldsProps {
+  control: Control<BinConfigFormValues>;
+  binGuid?: string;
+  savedPickList?: PickList | null;
+}
+
+export interface PickListProgressProps {
+  binGuid: string;
+  pickList: PickList;
+  canAdjust?: boolean;
 }
 
 export interface BinRulesMenuProps {
