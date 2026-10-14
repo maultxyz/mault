@@ -568,15 +568,16 @@
   },
   "optionalBadge": "Optional",
   "printModel": {
-    "description": "Every printed part of a {{count}}-module sorter, colored by what to print. The key lists how many of each you need. Change the module count or board in the setup above and the model and counts update.",
+    "description": "Every printed part of a {{count}}-module sorter, colored by what to print. The key lists how many of each you need, numbered by plate in the print file. Change the module count or board in the setup above and the model and counts update.",
     "label": "3D model of a {{count}}-module card sorter, colored by printed part",
     "hint": "Drag to rotate, scroll to zoom, right-drag to pan. Hover or tap a part in the key to show only that part.",
     "resetView": "Reset view",
     "loadFailed": "The 3D model couldn't be loaded.",
     "key": "Parts to print",
     "count": "×{{count}}",
+    "plate": "Plate {{plate}}",
     "parts": {
-      "sortingModule": "Sorting Module plate",
+      "sortingModule": "Sorting Module",
       "feederModule": "Feeder Module",
       "shroud": "Sorting Module Shroud",
       "baseSupportTall": "3-tall Base Support",
@@ -587,10 +588,10 @@
       "servoControllerPlate": "Servo Controller Plate",
       "genericPlate": "Generic Plate",
       "endPlate": "End Plate",
-      "binsPlate": "Bins Plate",
-      "endBinPlate": "End Bin Plate",
-      "otherPrinted": "Camera mount",
-      "hardware": "Servos (not printed)"
+      "binsPlate": "Bins",
+      "endBinPlate": "End Bin",
+      "optionalPlate": "Back and Front Plates (optional)",
+      "otherPrinted": "Camera mount"
     },
     "xray": "X-ray"
   }

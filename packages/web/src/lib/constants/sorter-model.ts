@@ -2,10 +2,10 @@ import type { ModuleDelayField, ServoName } from "@/lib/interfaces/calibration";
 import type {
   SorterBaseNode,
   SorterGatePose,
-  SorterModelPart,
-  SorterPrintPart,
   SorterGateServo,
   SorterMechanism,
+  SorterModelPart,
+  SorterPrintPart,
   Vec3,
 } from "@/lib/interfaces/sorter-model";
 
@@ -32,6 +32,8 @@ export const SORTER_MODULE_SPACING_MM = 90.5;
 export const SORTER_MODULE_CENTER: Vec3 = [75, 36, 185];
 
 export const SERVO_DEGREES_PER_TICK = 0.486;
+export const SORTER_BOTTOM_DEGREES_PER_TICK = 0.28;
+export const SORTER_PUSHER_DEGREES_PER_TICK = 0.35;
 export const SORTER_SOLVER_STEP_DEGREES = 2;
 export const SERVO_DEGREES_PER_SECOND = 360;
 export const SERVO_TEST_STEP_MS = 700;
@@ -113,8 +115,16 @@ export const SORTER_MECHANISMS: Record<ServoName, SorterMechanism> = {
 
 export const SORTER_GATE_POSE_DEGREES: Record<SorterGateServo, SorterGatePose> =
   {
-    paddle: { closed: 0, open: 70 },
-    bottom: { closed: -167.7, open: 0 },
+    paddle: {
+      closed: 0,
+      openDirection: 1,
+      degreesPerTick: SERVO_DEGREES_PER_TICK,
+    },
+    bottom: {
+      closed: -167.7,
+      openDirection: 1,
+      degreesPerTick: SORTER_BOTTOM_DEGREES_PER_TICK,
+    },
   };
 
 export const SORTER_MODEL_VIEW_DIRECTION: Vec3 = [0.62, 0.5, 0.6];
@@ -147,6 +157,7 @@ export const SORTER_PRINT_PART_COLORS: Record<SorterPrintPart, string> = {
   genericPlate: "#d37295",
   binsPlate: "#e8e3d3",
   endBinPlate: "#499894",
+  optionalPlate: "#b6992d",
   otherPrinted: "#a1a1aa",
   hardware: "#3f3f46",
 };
@@ -174,6 +185,7 @@ export const SORTER_HOTSPOT_POINTS: Record<ServoName, Vec3> = {
 };
 export const SORTER_FEEDER_HOTSPOT_POINT: Vec3 = [-17, 36, 270];
 export const SORTER_FEEDER_HOTSPOT_KEY = "feeder";
+export const SORTER_FEEDER_ROLLER_NODE = "feederRoller";
 
 export const SORTER_DRAWER_DELAY_FIELDS: Record<ServoName, ModuleDelayField[]> =
   {

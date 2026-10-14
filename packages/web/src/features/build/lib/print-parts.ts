@@ -24,26 +24,38 @@ export function printPartEntries(
 ): PrintPartEntry[] {
   const { threeTall, oneTall } = countBaseSupportPieces(moduleCount);
   const entries: PrintPartEntry[] = [
-    { part: "sortingModule", count: moduleCount },
-    { part: "feederModule", count: 1 },
-    { part: "shroud", count: 1 },
+    { part: "sortingModule", plate: 1, count: moduleCount },
+    { part: "feederModule", plate: 2, count: 1 },
+    { part: "shroud", plate: 3, count: 1 },
+    { part: "otherPrinted", plate: 3, count: null },
     {
       part: "baseSupportTall",
+      plate: 4,
       count: threeTall - (breakoutHeight === 3 ? 1 : 0),
     },
     {
       part: "baseSupportShort",
+      plate: 4,
       count: oneTall - (breakoutHeight === 1 ? 1 : 0),
     },
-    { part: "baseSupportBreakout", count: breakoutHeight === null ? 0 : 1 },
-    { part: "circuitBoardPlate", count: 1 },
-    { part: "servoControllerPlate", count: 1 },
-    { part: "genericPlate", count: Math.max(0, moduleCount - 2) },
-    { part: "endPlate", count: 1 },
-    { part: "binsPlate", count: 2 },
-    { part: "endBinPlate", count: 1 },
-    { part: "otherPrinted", count: null },
-    { part: "hardware", count: null },
+    { part: "servoControllerPlate", plate: 5, count: 1 },
+    { part: "endPlate", plate: 6, count: 1 },
+    { part: "genericPlate", plate: 7, count: Math.max(0, moduleCount - 2) },
+    { part: "binsPlate", plate: 8, count: 2 },
+    { part: "endBinPlate", plate: 9, count: 1 },
+    {
+      part: "baseSupportBreakout",
+      plate: 10,
+      count: breakoutHeight === null ? 0 : 1,
+    },
+    {
+      part: "circuitBoardPlate",
+      plate: breakoutHeight === null ? 12 : 10,
+      count: 1,
+    },
+    { part: "optionalPlate", plate: 13, count: null },
   ];
-  return entries.filter((entry) => entry.count !== 0);
+  return entries
+    .filter((entry) => entry.count !== 0)
+    .sort((a, b) => a.plate - b.plate);
 }

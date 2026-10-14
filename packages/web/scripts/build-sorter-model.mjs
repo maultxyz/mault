@@ -27,6 +27,8 @@ const FEEDER_EXCLUDED = new Set([
   "roller horn mg90s",
 ]);
 
+const FEEDER_ROLLER = "roller";
+
 const BASE_EXCLUDED = new Set([
   "module pin",
   "bin riser bottom",
@@ -79,6 +81,9 @@ const BASE_GENERATED = new Set(["base module", "card sleeve md", "card sleeve lg
 const PRINT_PARTS = {
   shroud: "shroud",
   "card base wing end": "endBinPlate",
+  "back plate": "optionalPlate",
+  "arduino back plate": "optionalPlate",
+  "front plate": "optionalPlate",
   "": "endBinPlate",
 };
 
@@ -310,7 +315,10 @@ const findNode = (name) => {
   return node;
 };
 
-const feeder = nodeMeshes(findNode("feeder module")).filter((m) => !isExcluded(m.name, FEEDER_EXCLUDED));
+const feederMeshes = nodeMeshes(findNode("feeder module")).filter((m) => !isExcluded(m.name, FEEDER_EXCLUDED));
+const feeder = feederMeshes.filter((m) => m.name !== FEEDER_ROLLER);
+const feederRoller = feederMeshes.filter((m) => m.name === FEEDER_ROLLER);
+if (!feederRoller.length) throw new Error("Missing feeder part: roller");
 const baseMeshes = nodeMeshes(findNode("base")).filter((m) => !isExcluded(m.name, BASE_EXCLUDED));
 const base = [];
 const baseRoles = new Map();
@@ -353,7 +361,7 @@ if (!platform.length) throw new Error("Missing module part: platform");
 
 const builder = new GlbBuilder();
 
-function printGroup(name, meshes, fallback) {
+function printGroup(name, meshes, fallback, extraChildren = []) {
   const parts = new Map();
   for (const mesh of meshes) {
     const part = PRINT_PARTS[mesh.name] ?? fallback;
@@ -361,7 +369,7 @@ function printGroup(name, meshes, fallback) {
     parts.get(part).push(mesh);
   }
   const children = [...parts].map(([part, group]) => builder.meshNode(`print-${part}`, group));
-  return builder.groupNode(name, children);
+  return builder.groupNode(name, [...children, ...extraChildren]);
 }
 
 const moduleChildren = [
@@ -372,7 +380,9 @@ const moduleChildren = [
 for (const [role, meshes] of roles) moduleChildren.push(builder.meshNode(role, meshes));
 
 const glb = builder.write([
-  printGroup("feeder", feeder, "feederModule"),
+  printGroup("feeder", feeder, "feederModule", [
+    builder.groupNode("feederRoller", [builder.meshNode("print-feederModule", feederRoller)]),
+  ]),
   ...(base.length ? [printGroup("base", base, "otherPrinted")] : []),
   ...[...baseRoles].map(([role, meshes]) => printGroup(role, meshes, BASE_PRINT_PARTS[role])),
   printGroup("top", top, "otherPrinted"),

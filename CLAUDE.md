@@ -88,6 +88,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Pusher directions are mirrored: `"left"` lands on the physical right. Render bin layouts through `BIN_SLOTS_PHYSICAL_ORDER`; never change default routes to fix the display.
 - Controls that send serial commands require `useSerial().isReady` (passed self-test). Hardware-editing pages are wrapped in `SessionLock`. A new firmware command gets an entry in `DEVICE_COMMANDS`.
 - Changing `BIN_HEIGHT_PRESETS` needs a data migration (see `drizzle/0080_small_bin_height.sql`).
+- The 3D model maps raw pulses (never percentages) to horn degrees, anchored at the CAD closed pose (gates) or neutral (pusher). `SORTER_BOTTOM_DEGREES_PER_TICK` is fit to a real gate: closed 453 to flat with the card bed at 231 (the CAD paddle pose sits ~13 degrees below the bed, not flat).
 - The 3D sorter model is built from `3d model/Card Sorter.step` by `pnpm --filter @magic-vault/web model`; rerun after changing the STEP file and update `MODULE_ROLES`/mechanism points if parts move.
 
 ### Discord bot

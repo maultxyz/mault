@@ -143,13 +143,13 @@ export default function SorterModelViewer({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <div className="relative flex min-h-0 flex-1 overflow-hidden rounded-lg border bg-muted/40">
+      <div className="relative flex min-h-64 flex-1 overflow-hidden rounded-lg border bg-muted/40">
         <div className="relative min-w-0 flex-1">
           <div
             ref={containerRef}
             role="img"
             aria-label={t("sorterModel.label")}
-            className="size-full cursor-grab active:cursor-grabbing"
+            className="absolute inset-0 cursor-grab active:cursor-grabbing"
           />
           <div className="pointer-events-none absolute inset-0 overflow-hidden [&>button]:pointer-events-auto">
             {status === "ready" &&

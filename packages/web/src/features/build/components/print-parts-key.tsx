@@ -17,7 +17,7 @@ export function PrintPartsKey({
       aria-label={t("printModel.key")}
       className="grid gap-x-4 gap-y-0.5 sm:grid-cols-2"
     >
-      {entries.map(({ part, count }) => {
+      {entries.map(({ part, plate, count }) => {
         const active = selected === part;
         const label =
           part === "circuitBoardPlate" && breakoutHeight !== null
@@ -38,6 +38,12 @@ export function PrintPartsKey({
                 active && "bg-muted font-medium",
               )}
             >
+              <span
+                aria-label={t("printModel.plate", { plate })}
+                className="w-5 shrink-0 font-mono text-xs text-foreground/70 tabular-nums"
+              >
+                {String(plate).padStart(2, "0")}
+              </span>
               <span
                 aria-hidden
                 className="size-4 shrink-0 rounded-sm ring-1 ring-foreground/20"

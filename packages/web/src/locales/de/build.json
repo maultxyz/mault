@@ -569,15 +569,16 @@
   },
   "optionalBadge": "Optional",
   "printModel": {
-    "description": "Alle Druckteile eines Sortierers mit {{count}} Modulen, eingefärbt nach Druckteil. Die Legende zeigt, wie viele du von jedem brauchst. Ändere oben in der Einrichtung die Modulanzahl oder die Platine, dann passen sich Modell und Anzahlen an.",
+    "description": "Alle Druckteile eines Sortierers mit {{count}} Modulen, eingefärbt nach Druckteil. Die Legende zeigt, wie viele du von jedem brauchst, nummeriert nach Platte in der Druckdatei. Ändere oben in der Einrichtung die Modulanzahl oder die Platine, dann passen sich Modell und Anzahlen an.",
     "label": "3D-Modell eines Kartensortierers mit {{count}} Modulen, eingefärbt nach Druckteil",
     "hint": "Ziehen zum Drehen, scrollen zum Zoomen, mit rechter Maustaste ziehen zum Verschieben. Fahre über ein Teil in der Legende oder tippe darauf, um nur dieses Teil zu zeigen.",
     "resetView": "Ansicht zurücksetzen",
     "loadFailed": "Das 3D-Modell konnte nicht geladen werden.",
     "key": "Zu druckende Teile",
     "count": "×{{count}}",
+    "plate": "Platte {{plate}}",
     "parts": {
-      "sortingModule": "Sorting-Module-Platte",
+      "sortingModule": "Sorting Module",
       "feederModule": "Feeder Module",
       "shroud": "Sorting-Module-Shroud",
       "baseSupportTall": "Base Support mit 3 Stufen",
@@ -588,10 +589,10 @@
       "servoControllerPlate": "Servo-Controller-Platte",
       "genericPlate": "Generic-Platte",
       "endPlate": "End-Platte",
-      "binsPlate": "Bins-Platte",
-      "endBinPlate": "End-Bin-Platte",
-      "otherPrinted": "Kamerahalterung",
-      "hardware": "Servos (nicht gedruckt)"
+      "binsPlate": "Bins",
+      "endBinPlate": "End Bin",
+      "optionalPlate": "Back- und Front-Platte (optional)",
+      "otherPrinted": "Kamerahalterung"
     },
     "xray": "Röntgenblick"
   }

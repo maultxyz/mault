@@ -58,7 +58,8 @@ export type SorterGateServo = Exclude<ServoName, "pusher">;
 
 export interface SorterGatePose {
   closed: number;
-  open: number;
+  openDirection: 1 | -1;
+  degreesPerTick: number;
 }
 
 export interface SorterPartPose {
@@ -105,6 +106,7 @@ export type SorterPrintPart =
   | "genericPlate"
   | "binsPlate"
   | "endBinPlate"
+  | "optionalPlate"
   | "otherPrinted"
   | "hardware";
 
