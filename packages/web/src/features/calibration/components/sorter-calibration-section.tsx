@@ -47,7 +47,7 @@ export function SorterCalibrationSection({
           />
         </>
       }
-      className={enabled ? "min-h-[32rem] flex-1" : undefined}
+      className={enabled ? "min-h-0 flex-1" : undefined}
     >
       {enabled && (
         <Suspense fallback={<Skeleton className="min-h-0 flex-1 rounded-lg" />}>

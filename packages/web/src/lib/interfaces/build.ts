@@ -166,6 +166,7 @@ export interface BuildTocListProps {
 
 export interface PrintPartEntry {
   part: SorterPrintPart;
+  plate: number;
   count: number | null;
 }
 

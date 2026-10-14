@@ -1,6 +1,6 @@
 import {
-  SERVO_DEGREES_PER_TICK,
   SORTER_GATE_POSE_DEGREES,
+  SORTER_PUSHER_DEGREES_PER_TICK,
   SORTER_PUSHER_NEUTRAL_DEGREES,
   SORTER_SOLVER_STEP_DEGREES,
 } from "@/lib/constants/sorter-model";
@@ -144,32 +144,39 @@ function gateKeys(servo: SorterGateServo) {
     : ({ closed: "paddleClosed", open: "paddleOpen" } as const);
 }
 
+function pulseDirection(from: number, to: number, defaults: [number, number]) {
+  return directionOf(from, to, directionOf(defaults[0], defaults[1], 1));
+}
+
 export function servoHornDegrees(
   servo: ServoName,
   pulse: number,
   saved: ServoCalibration,
 ) {
   if (servo === "pusher") {
-    const toRight = directionOf(
-      saved.pusherLeft,
-      saved.pusherRight,
-      directionOf(
-        DEFAULT_CALIBRATION.pusherLeft,
-        DEFAULT_CALIBRATION.pusherRight,
-        1,
-      ),
-    );
+    const toRight = pulseDirection(saved.pusherLeft, saved.pusherRight, [
+      DEFAULT_CALIBRATION.pusherLeft,
+      DEFAULT_CALIBRATION.pusherRight,
+    ]);
     return (
       SORTER_PUSHER_NEUTRAL_DEGREES +
-      (pulse - saved.pusherNeutral) * SERVO_DEGREES_PER_TICK * toRight
+      (pulse - saved.pusherNeutral) * SORTER_PUSHER_DEGREES_PER_TICK * toRight
     );
   }
 
   const keys = gateKeys(servo);
   const pose = SORTER_GATE_POSE_DEGREES[servo];
-  const span = saved[keys.open] - saved[keys.closed];
-  const travel = span === 0 ? 0 : (pulse - saved[keys.closed]) / span;
-  return pose.closed + travel * (pose.open - pose.closed);
+  const toOpen = pulseDirection(saved[keys.closed], saved[keys.open], [
+    DEFAULT_CALIBRATION[keys.closed],
+    DEFAULT_CALIBRATION[keys.open],
+  ]);
+  return (
+    pose.closed +
+    (pulse - saved[keys.closed]) *
+      pose.degreesPerTick *
+      toOpen *
+      pose.openDirection
+  );
 }
 
 function restPulse(servo: ServoName, calibration: ServoCalibration) {
