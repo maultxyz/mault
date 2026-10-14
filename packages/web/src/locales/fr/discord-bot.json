@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Bot Discord pour ta trieuse de cartes | MAULT",
+    "description": "Ajoute le bot MAULT à ton serveur Discord pour publier chaque carte triée, recevoir des alertes en cas de problème et consulter tes statistiques avec /stats."
+  },
   "hero": {
     "eyebrow": "Intégration Discord",
     "title": "Amène ton trieur de cartes dans Discord",

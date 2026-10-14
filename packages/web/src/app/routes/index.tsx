@@ -9,9 +9,18 @@ import { LandingSupportedGames } from "@/features/landing/components/supported-g
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { useTranslation } from "react-i18next";
 
 export default function LandingPage() {
+  const { t } = useTranslation("landing");
+  usePageMeta({
+    title: t("meta.title"),
+    description: t("meta.description"),
+    path: "/",
+  });
+
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
       <PublicGlow />

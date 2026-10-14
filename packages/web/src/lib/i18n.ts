@@ -56,11 +56,14 @@ function getInitialLanguage(): SupportedLanguage {
   return "en";
 }
 
+const initialLanguage = getInitialLanguage();
+document.documentElement.lang = initialLanguage;
+
 void i18n
   .use(lazyJsonBackend)
   .use(initReactI18next)
   .init({
-    lng: getInitialLanguage(),
+    lng: initialLanguage,
     fallbackLng: "en",
     // Only "common" up front: loading all ~21 namespaces (42 for a non-English
     // browser, counting the English fallback) at startup competed with the
@@ -73,6 +76,7 @@ void i18n
   });
 
 i18n.on("languageChanged", (lng) => {
+  document.documentElement.lang = lng;
   try {
     localStorage.setItem(LANGUAGE_STORAGE_KEY, lng);
   } catch {

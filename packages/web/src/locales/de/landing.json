@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "MAULT: Automatischer Sortierer und Scanner für Sammelkarten",
+    "description": "Scanne und sortiere Magic: The Gathering und andere Sammelkarten automatisch. Baue einen Open-Source-Kartensortierer, lege Fächerregeln fest und kenne den Wert deiner Sammlung."
+  },
   "nav": {
     "features": "Funktionen",
     "openSource": "Open Source",

@@ -1,4 +1,14 @@
 {
+  "meta": {
+    "privacy": {
+      "title": "Politique de confidentialité | MAULT",
+      "description": "Comment Mault LLC collecte, utilise et protège tes données lorsque tu utilises le service de tri de cartes MAULT hébergé."
+    },
+    "terms": {
+      "title": "Conditions d'utilisation | MAULT",
+      "description": "Les conditions qui s'appliquent à l'utilisation du service de tri de cartes MAULT hébergé, exploité par Mault LLC."
+    }
+  },
   "effectiveDateLabel": "Dernière mise à jour : {{date}}",
   "privacy": {
     "title": "Politique de confidentialité",
