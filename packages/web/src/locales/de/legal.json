@@ -1,4 +1,14 @@
 {
+  "meta": {
+    "privacy": {
+      "title": "Datenschutzerklärung | MAULT",
+      "description": "Wie Mault LLC deine Daten erhebt, verwendet und schützt, wenn du den gehosteten MAULT-Kartensortierdienst nutzt."
+    },
+    "terms": {
+      "title": "Nutzungsbedingungen | MAULT",
+      "description": "Die Bedingungen für die Nutzung des gehosteten MAULT-Kartensortierdienstes, betrieben von Mault LLC."
+    }
+  },
   "effectiveDateLabel": "Zuletzt aktualisiert am {{date}}",
   "privacy": {
     "title": "Datenschutzerklärung",

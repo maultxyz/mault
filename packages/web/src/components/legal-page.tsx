@@ -3,6 +3,7 @@ import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
 import { LEGAL_EFFECTIVE_DATE as EFFECTIVE_DATE } from "@/lib/constants/legal";
 import { CONTACT_EMAIL } from "@/lib/constants/links";
+import { usePageMeta } from "@/hooks/use-page-meta";
 import { useTranslation } from "react-i18next";
 import type { LegalSection } from "@/lib/interfaces/legal";
 
@@ -12,6 +13,11 @@ function withContactEmail(text: string) {
 
 export function LegalPage({ page }: { page: "privacy" | "terms" }) {
   const { t, i18n } = useTranslation("legal");
+  usePageMeta({
+    title: t(`meta.${page}.title`),
+    description: t(`meta.${page}.description`),
+    path: `/${page}`,
+  });
   const intro = t(`${page}.intro`, { returnObjects: true }) as string[];
   const sections = t(`${page}.sections`, {
     returnObjects: true,

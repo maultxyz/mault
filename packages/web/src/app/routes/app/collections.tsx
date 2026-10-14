@@ -28,11 +28,17 @@ import {
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
+import {
+  COLLECTIONS_LIST_CLASS,
+  COLLECTIONS_SECTION_CLASS,
+  COLLECTIONS_SECTION_LABEL_CLASS,
+} from "@/lib/constants/collections";
 import { cn } from "@/lib/utils";
 import {
   editCollectionSchema,
   type EditCollectionFormValues,
 } from "@/schemas/collections.schema";
+import type { Collection } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconAlbum,
@@ -69,6 +75,13 @@ export default function CollectionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const filteredCollections = collections.filter((collection) =>
     collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+  );
+
+  const activeCollections = filteredCollections.filter(
+    (collection) => collection.guid === activeCollection?.guid,
+  );
+  const otherCollections = filteredCollections.filter(
+    (collection) => collection.guid !== activeCollection?.guid,
   );
 
   const [editTarget, setEditTarget] = useState<{
@@ -143,8 +156,114 @@ export default function CollectionsPage() {
     if (!open) setEmptyTarget(null);
   }, []);
 
+  const renderRow = (collection: Collection) => {
+    const isActive = collection.guid === activeCollection?.guid;
+    return (
+      <div
+        key={collection.guid}
+        className={cn(
+          "flex items-center gap-3 px-4 py-3.5",
+          isActive && "bg-primary/5 dark:bg-primary/15",
+        )}
+      >
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">
+            {collection.name}
+          </p>
+          <p className="text-xs text-foreground/70">
+            {t("page.cardCount", { count: collection.cardCount })} ·{" "}
+            {collection.game ? collection.game.name : t("page.noGame")} ·{" "}
+            {new Date(collection.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+
+        <ButtonGroup className="shrink-0">
+          {!isActive && (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    disabled={isActivating}
+                    onClick={() => activateCollection(collection.guid)}
+                  >
+                    <IconPlayerPlay className="size-4 text-foreground/70" />
+                  </Button>
+                }
+              ></TooltipTrigger>
+              <TooltipContent>
+                {t("page.setActiveCollection")}
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  disabled={isMutating}
+                  data-tour="edit-collection"
+                  onClick={() => {
+                    editForm.reset({ name: collection.name });
+                    setEditTarget({
+                      guid: collection.guid,
+                      name: collection.name,
+                    });
+                  }}
+                >
+                  <IconEdit />
+                </Button>
+              }
+            ></TooltipTrigger>
+            <TooltipContent>{t("page.edit")}</TooltipContent>
+          </Tooltip>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline-destructive"
+                  size="icon"
+                  disabled={isMutating}
+                >
+                  <IconTrash />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() =>
+                  setEmptyTarget({
+                    guid: collection.guid,
+                    name: collection.name,
+                  })
+                }
+              >
+                <IconEraser />
+                {t("emptyCollection")}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                variant="destructive"
+                onClick={() =>
+                  setDeleteTarget({
+                    guid: collection.guid,
+                    name: collection.name,
+                  })
+                }
+              >
+                <IconTrash />
+                {t("deleteCollection")}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ButtonGroup>
+      </div>
+    );
+  };
+
   return (
-    <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4">
+    <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-5">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold font-heading">
@@ -171,20 +290,20 @@ export default function CollectionsPage() {
         />
       )}
 
-      <div className="flex flex-col gap-2">
-        {isLoading &&
-          Array.from({ length: 3 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-3 px-4 py-3 border rounded-lg"
-            >
-              <Skeleton className="size-8 rounded-md shrink-0" />
-              <div className="flex-1 space-y-1.5">
-                <Skeleton className="h-3 w-32" />
-                <Skeleton className="h-2.5 w-20" />
+      <div className="flex flex-col gap-5">
+        {isLoading && (
+          <div className={COLLECTIONS_LIST_CLASS}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3.5">
+                <Skeleton className="size-8 rounded-md shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <Skeleton className="h-3 w-32" />
+                  <Skeleton className="h-2.5 w-20" />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        )}
 
         {!isLoading && collections.length === 0 && (
           <EmptyState
@@ -204,111 +323,28 @@ export default function CollectionsPage() {
             />
           )}
 
-        {filteredCollections.map((collection) => {
-          const isActive = collection.guid === activeCollection?.guid;
-          return (
-            <div
-              key={collection.guid}
-              className={cn(
-                "flex items-center gap-3 px-4 py-3 border rounded-lg",
-                isActive && "border-primary bg-primary/5 dark:bg-primary/15",
-              )}
-            >
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">
-                  {collection.name}
-                </p>
-                <p className="text-xs text-foreground/70">
-                  {t("page.cardCount", { count: collection.cardCount })} ·{" "}
-                  {collection.game ? collection.game.name : t("page.noGame")} ·{" "}
-                  {new Date(collection.createdAt).toLocaleDateString()}
-                </p>
-              </div>
-
-              <ButtonGroup className="shrink-0">
-                {!isActive && (
-                  <Tooltip>
-                    <TooltipTrigger
-                      render={
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          disabled={isActivating}
-                          onClick={() => activateCollection(collection.guid)}
-                        >
-                          <IconPlayerPlay className="size-4 text-foreground/70" />
-                        </Button>
-                      }
-                    ></TooltipTrigger>
-                    <TooltipContent>
-                      {t("page.setActiveCollection")}
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-                <Tooltip>
-                  <TooltipTrigger
-                    render={
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        disabled={isMutating}
-                        data-tour="edit-collection"
-                        onClick={() => {
-                          editForm.reset({ name: collection.name });
-                          setEditTarget({
-                            guid: collection.guid,
-                            name: collection.name,
-                          });
-                        }}
-                      >
-                        <IconEdit />
-                      </Button>
-                    }
-                  ></TooltipTrigger>
-                  <TooltipContent>{t("page.edit")}</TooltipContent>
-                </Tooltip>
-                <DropdownMenu>
-                  <DropdownMenuTrigger
-                    render={
-                      <Button
-                        variant="outline-destructive"
-                        size="icon"
-                        disabled={isMutating}
-                      >
-                        <IconTrash />
-                      </Button>
-                    }
-                  />
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem
-                      onClick={() =>
-                        setEmptyTarget({
-                          guid: collection.guid,
-                          name: collection.name,
-                        })
-                      }
-                    >
-                      <IconEraser />
-                      {t("emptyCollection")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      variant="destructive"
-                      onClick={() =>
-                        setDeleteTarget({
-                          guid: collection.guid,
-                          name: collection.name,
-                        })
-                      }
-                    >
-                      <IconTrash />
-                      {t("deleteCollection")}
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </ButtonGroup>
+        {activeCollections.length > 0 && (
+          <section className={COLLECTIONS_SECTION_CLASS}>
+            <h2 className={COLLECTIONS_SECTION_LABEL_CLASS}>
+              {t("page.activeSection")}
+            </h2>
+            <div className={COLLECTIONS_LIST_CLASS}>
+              {activeCollections.map(renderRow)}
             </div>
-          );
-        })}
+          </section>
+        )}
+        {otherCollections.length > 0 && (
+          <section className={COLLECTIONS_SECTION_CLASS}>
+            {activeCollections.length > 0 && (
+              <h2 className={COLLECTIONS_SECTION_LABEL_CLASS}>
+                {t("page.otherSection")}
+              </h2>
+            )}
+            <div className={COLLECTIONS_LIST_CLASS}>
+              {otherCollections.map(renderRow)}
+            </div>
+          </section>
+        )}
       </div>
       <DynamicDialog
         open={!!editTarget}

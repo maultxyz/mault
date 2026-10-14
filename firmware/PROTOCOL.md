@@ -249,6 +249,12 @@ native USB port), `"other"` or `"unknown"`. The Uno R4 only reports
 banner) also reports `"uptimeMs"`, milliseconds since boot (wraps after
 about 49 days).
 
+Firmware 2.9.0+ adds `"servoDriver"` to both the boot banner and the
+`getStatus` reply: `"ok"` if the PCA9685 acknowledges its I2C address
+(`0x40`), `"missing"` if it doesn't even after an I2C restart (unplugged,
+unpowered logic side, or miswired SDA/SCL). It only checks the logic side: a
+driver whose V+ servo supply is missing still reports `"ok"`.
+
 ### `setChannelOffset`
 ```json
 {"setChannelOffset": 0}
@@ -274,6 +280,10 @@ trapdoor/paddle/pusher without regard for something already sitting in the
 mechanism - clear it first (`clearDevice`) and retry. Doesn't check the
 hopper sensor, since cards waiting to be fed are a normal state, not a jam.
 → `{"error":"module 2 sensor is blocked - clear the device before testing","module":2}`
+
+Firmware 2.9.0+ also refuses, before moving anything, if the PCA9685 doesn't
+answer on I2C.
+→ `{"error":"servo driver not detected - check the PCA9685 I2C wiring and power","servoDriver":"missing"}`
 
 ### `neutral`
 ```json
@@ -559,6 +569,7 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"empty: feeder hopper is out of cards","empty":true}` | feed attempted with no cards in the hopper |
 | `{"error":"timeout: feeder did not deliver card to module 1","empty":false}` | feeder ran its full configured `duration` without module 1's IR triggering |
 | `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
+| `{"error":"servo driver not detected - ...","servoDriver":"missing"}` | firmware 2.9.0+: `test` while the PCA9685 doesn't answer on I2C |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 255 characters |
 | `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}` | firmware 2.2.x only: a `servo`/`channel` pusher move while a card is on module *N*'s platform and its side paddle isn't down (see Push safeguard) |

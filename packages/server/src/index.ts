@@ -35,7 +35,7 @@ import {
   PUBLIC_API_EXPOSED_HEADERS,
   PUBLIC_API_PATH_PREFIX,
 } from "./lib/constants/api-keys";
-import { startPlanConfigRefresh } from "./lib/plan-config";
+import { loadPlanConfig } from "./lib/plan-config";
 import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
 
 const app = new Hono<AppEnv>();
@@ -93,7 +93,7 @@ app.onError((err, c) => {
   return c.json({ success: false, message: "Internal server error." }, 500);
 });
 
-startPlanConfigRefresh();
+loadPlanConfig();
 startWebhookDeliveryWorker();
 
 serve({ fetch: app.fetch, port: PORT, hostname: "0.0.0.0" }, () => {

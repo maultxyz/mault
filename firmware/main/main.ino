@@ -27,7 +27,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.8.0"
+#define FIRMWARE_VERSION "2.9.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -74,7 +74,9 @@
 #include <BLEUtils.h>
 #endif
 
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
+#define SERVO_DRIVER_I2C_ADDR 0x40
+
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(SERVO_DRIVER_I2C_ADDR);
 
 // Short, human-distinguishable ID identifying this specific physical board -
 // the same value regardless of which transport (Serial or BLE) a client
@@ -609,6 +611,18 @@ void recoverServoDriver() {
 void ensureServoDriver() {
   uint8_t expected = (uint8_t)(round(25000000.0 / (4096.0 * SERVO_PWM_FREQ)) - 1);
   if (pwm.readPrescale() != expected) recoverServoDriver();
+}
+
+bool servoDriverPresent() {
+  Wire.beginTransmission(SERVO_DRIVER_I2C_ADDR);
+  if (Wire.endTransmission() == 0) return true;
+  recoverServoDriver();
+  Wire.beginTransmission(SERVO_DRIVER_I2C_ADDR);
+  return Wire.endTransmission() == 0;
+}
+
+const char* servoDriverStatus() {
+  return servoDriverPresent() ? "ok" : "missing";
 }
 
 unsigned long paddleOpenedAt[MAX_MODULES] = {0};
@@ -1238,6 +1252,8 @@ void runCommand(char* json, Print& reply) {
     reply.print(bleStatus());
     reply.print(F("\",\"resetReason\":\""));
     reply.print(resetReason);
+    reply.print(F("\",\"servoDriver\":\""));
+    reply.print(servoDriverStatus());
     reply.print(F("\",\"uptimeMs\":"));
     reply.print(millis());
 #if BLE_SUPPORTED
@@ -1260,6 +1276,12 @@ void runCommand(char* json, Print& reply) {
 
   // {"test": true} — run a full mechanical test sequence then confirm connection
   if (doc["test"].is<bool>() && doc["test"].as<bool>()) {
+    if (!servoDriverPresent()) {
+      reply.println(F("{\"error\":\"servo driver not detected - check the PCA9685 I2C wiring and power\",\"servoDriver\":\"missing\"}"));
+      return;
+    }
+    ensureServoDriver();
+
     int blockedModule = findBlockedModule();
     if (blockedModule > 0) {
       reply.print(F("{\"error\":\"module "));
@@ -1601,10 +1623,10 @@ void setup() {
     loadOrCreateDeviceId();
   }
 
-  char bootLine[200];
+  char bootLine[220];
   snprintf(bootLine, sizeof(bootLine),
-           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\",\"ble\":\"%s\",\"resetReason\":\"%s\"}",
-           FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus(), resetReason);
+           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\",\"ble\":\"%s\",\"resetReason\":\"%s\",\"servoDriver\":\"%s\"}",
+           FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus(), resetReason, servoDriverStatus());
   broadcastLine(bootLine);
 
   startWatchdog();

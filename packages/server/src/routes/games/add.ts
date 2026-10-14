@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { db } from "../../db";
 import { games } from "../../db/schema";
 import { ensureGameVectorIndex } from "../../lib/game-vector-index";
+import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken, toGame } from "./shared";
 import type { GameInput } from "@magic-vault/shared";
@@ -57,6 +58,7 @@ export const addGameRoute = new Hono<AppEnv>().post(
       // Fire-and-forget: a build against an already-populated table can take
       // minutes, well past any HTTP request timeout in front of this route.
       void ensureGameVectorIndex(row.key);
+      publicGamesCache.invalidate();
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
       // Backstop for a race between the check above and this insert (two

@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "MAULT: Automated Trading Card Sorter and Scanner",
+    "description": "Scan and sort Magic: The Gathering and other trading cards automatically. Build an open-source card sorter, set bin rules, and track your collection's value."
+  },
   "nav": {
     "features": "Features",
     "openSource": "Open source",

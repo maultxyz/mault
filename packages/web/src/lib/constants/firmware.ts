@@ -12,6 +12,7 @@ export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
 export const SERIAL_SEQ_MAX = 2_000_000_000;
 export const SERIAL_IDENTIFY_ATTEMPTS = 5;
 export const SERIAL_READY_STATUS = "ready";
+export const SERIAL_SERVO_DRIVER_MISSING = "missing";
 export const SERIAL_HEARTBEAT_MAX_MISSES = 2;
 export const SERIAL_RESET_REASONS = [
   "power_on",

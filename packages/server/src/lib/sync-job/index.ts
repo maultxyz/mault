@@ -3,6 +3,7 @@ import { type ChildProcess, fork } from "node:child_process";
 import path from "node:path";
 import { sendDiscordNotification } from "../discord";
 import type { StartMessage, WorkerToParentMessage } from "../interfaces/sync-job";
+import { publicGamesCache } from "../public-games";
 import { SYNC_SOURCES } from "./sources";
 import {
   addLog,
@@ -118,6 +119,7 @@ export function startSync(
 
   child.on("close", (code) => {
     currentWorker = null;
+    publicGamesCache.invalidate();
     if (reachedTerminalStatus) return;
     const msg = `Sync worker exited unexpectedly (code ${code ?? "unknown"}).`;
     patchState({ status: "failed" });

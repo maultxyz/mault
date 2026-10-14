@@ -44,6 +44,10 @@
       "title": "Échec du test de l'appareil",
       "description": "Connecté, mais aucune réponse reçue. Essaie de te reconnecter."
     },
+    "servoDriverMissing": {
+      "title": "Pilote de servos non détecté",
+      "description": "Le trieur est connecté, mais sa carte pilote de servos PCA9685 ne répond pas. Vérifie les fils SDA/SCL et VCC/GND entre le contrôleur et la carte pilote, puis reconnecte-toi."
+    },
     "dropCard": "Lâcher la carte",
     "copyCommunication": "Copier la communication",
     "commLogCopied": "Journal de communication copié dans le presse-papiers",
