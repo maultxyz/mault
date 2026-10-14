@@ -128,7 +128,7 @@ export interface SorterSceneOptions {
 
 export type SorterModelStatus = "loading" | "ready" | "error";
 
-export interface SorterModelViewerProps {
+export interface SorterServoState {
   modules: number[];
   configs: ModuleConfig[];
   pendingCalibration: Record<number, Partial<ServoCalibration>>;
@@ -136,6 +136,9 @@ export interface SorterModelViewerProps {
   sliderValues: Record<SliderKey, number>;
   testingServos: Record<SliderKey, boolean>;
   pushTestingModule: number | null;
+}
+
+export interface SorterModelViewerProps extends SorterServoState {
   selectedHotspot: string | null;
   onSelectHotspot: (hotspot: SorterHotspot) => void;
   children?: ReactNode;

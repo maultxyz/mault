@@ -10,7 +10,7 @@ import type {
   SorterGateServo,
   SorterLinkage,
   SorterMechanism,
-  SorterModelViewerProps,
+  SorterServoState,
   SorterPartPose,
   SorterServoTargets,
   Vec2,
@@ -214,7 +214,7 @@ export function sorterServoTargets({
   sliderValues,
   testingServos,
   pushTestingModule,
-}: SorterModelViewerProps): SorterServoTargets {
+}: SorterServoState): SorterServoTargets {
   const targets: SorterServoTargets = {};
   for (const module of modules) {
     const saved: ServoCalibration = {
