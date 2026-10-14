@@ -44,6 +44,10 @@
       "title": "Device test failed",
       "description": "Connected but got no response. Try reconnecting."
     },
+    "servoDriverMissing": {
+      "title": "Servo driver not detected",
+      "description": "The sorter is connected, but its PCA9685 servo driver board isn't answering. Check the SDA/SCL and VCC/GND wires between the controller and the driver board, then reconnect."
+    },
     "dropCard": "Drop Card",
     "copyCommunication": "Copy Communication",
     "commLogCopied": "Communication log copied to clipboard",

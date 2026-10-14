@@ -44,6 +44,10 @@
       "title": "Gerätetest fehlgeschlagen",
       "description": "Verbunden, aber keine Antwort erhalten. Versuche eine erneute Verbindung."
     },
+    "servoDriverMissing": {
+      "title": "Servotreiber nicht erkannt",
+      "description": "Der Sortierer ist verbunden, aber die PCA9685-Servotreiberplatine antwortet nicht. Prüfe die SDA/SCL- und VCC/GND-Leitungen zwischen Controller und Treiberplatine und verbinde dich dann erneut."
+    },
     "dropCard": "Karte abwerfen",
     "copyCommunication": "Kommunikation kopieren",
     "commLogCopied": "Kommunikationsprotokoll in die Zwischenablage kopiert",

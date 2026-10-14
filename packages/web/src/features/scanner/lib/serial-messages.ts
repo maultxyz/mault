@@ -4,6 +4,7 @@ import {
   SERIAL_JAM_ERROR,
   SERIAL_READY_STATUS,
   SERIAL_RESET_REASONS,
+  SERIAL_SERVO_DRIVER_MISSING,
 } from "@/lib/constants/firmware";
 import type { SerialResetReason } from "@/lib/interfaces/scanner";
 
@@ -69,4 +70,8 @@ export function statusResetReason(message: unknown): SerialResetReason | null {
   return (SERIAL_RESET_REASONS as readonly string[]).includes(reason)
     ? (reason as SerialResetReason)
     : "other";
+}
+
+export function isServoDriverMissing(message: unknown): boolean {
+  return asFields(message)?.servoDriver === SERIAL_SERVO_DRIVER_MISSING;
 }
