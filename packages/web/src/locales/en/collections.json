@@ -44,7 +44,9 @@
     "cardCount_other": "{{count}} cards",
     "noGame": "No game",
     "setActiveCollection": "Set as active collection",
-    "edit": "Edit"
+    "edit": "Edit",
+    "activeSection": "Active collection",
+    "otherSection": "Other collections"
   },
   "editDialog": {
     "title": "Edit Collection",
