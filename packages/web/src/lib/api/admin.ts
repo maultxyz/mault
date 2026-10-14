@@ -146,6 +146,10 @@ export async function getPublicMetrics(): Promise<Result<PublicMetrics>> {
   return publicGet<Result<PublicMetrics>>("/api/public/metrics");
 }
 
+export async function getAdminScanMetrics(): Promise<Result<PublicMetrics>> {
+  return apiGet<Result<PublicMetrics>>("/api/admin/scan-metrics");
+}
+
 export async function getScanVectorizeStats(): Promise<{
   success: boolean;
   data: { server: number; web: number };

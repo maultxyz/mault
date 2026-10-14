@@ -28,7 +28,7 @@ export const DEFAULT_SYNC_STATE: SyncState = {
 };
 
 export const ACTIVE_SCANNING_REFRESH_MS = 15_000;
-export const PUBLIC_METRICS_REFRESH_MS = 30_000;
+export const SCAN_METRICS_REFRESH_MS = 60_000;
 export const SCAN_VECTORIZE_STATS_REFRESH_MS = 30_000;
 
 export const ALL_DELETED_ITEM_TYPES = "all";

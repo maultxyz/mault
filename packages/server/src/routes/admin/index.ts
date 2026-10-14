@@ -10,6 +10,7 @@ import { deletedItemsRoute } from "./deleted-items";
 import { plansRoute } from "./plans";
 import { platformStatsRoute } from "./platform-stats";
 import { rollbarTestRoute } from "./rollbar-test";
+import { scanMetricsRoute } from "./scan-metrics";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
 import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
@@ -27,6 +28,7 @@ const router = new Hono<AppEnv>()
   .route("/", cardsGamesRoute)
   .route("/", cardsDumpRoute)
   .route("/", rollbarTestRoute)
+  .route("/", scanMetricsRoute)
   .route("/", scanVectorizeStatsRoute)
   .route("/", activeScanningRoute)
   .route("/", plansRoute)
