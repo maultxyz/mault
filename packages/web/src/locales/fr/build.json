@@ -567,5 +567,32 @@
       }
     }
   },
-  "optionalBadge": "Optionnel"
+  "optionalBadge": "Optionnel",
+  "printModel": {
+    "description": "Toutes les pièces imprimées d'un trieur à {{count}} modules, colorées selon ce qu'il faut imprimer. La légende indique combien il en faut de chaque. Change le nombre de modules ou la carte dans la configuration ci-dessus et le modèle et les quantités se mettent à jour.",
+    "label": "Modèle 3D d'un trieur de cartes à {{count}} modules, coloré par pièce imprimée",
+    "hint": "Fais glisser pour pivoter, fais défiler pour zoomer, clic droit pour déplacer. Survole ou touche une pièce dans la légende pour n'afficher que celle-ci.",
+    "resetView": "Réinitialiser la vue",
+    "loadFailed": "Le modèle 3D n'a pas pu être chargé.",
+    "key": "Pièces à imprimer",
+    "count": "×{{count}}",
+    "parts": {
+      "sortingModule": "Plaque Sorting Module",
+      "feederModule": "Feeder Module",
+      "shroud": "Sorting Module Shroud",
+      "baseSupportTall": "Base Support 3 niveaux",
+      "baseSupportShort": "Base Support 1 niveau",
+      "baseSupportBreakout": "Support de base pour breakout de {{height}} niveau(x)",
+      "circuitBoardPlate": "Plaque Circuit Board (ESP32 / Arduino)",
+      "circuitBoardPlateBreakout": "Plaque Circuit Board (ESP32 + carte de breakout)",
+      "servoControllerPlate": "Plaque Servo Controller",
+      "genericPlate": "Plaque Generic",
+      "endPlate": "Plaque End",
+      "binsPlate": "Plaque Bins",
+      "endBinPlate": "Plaque End Bin",
+      "otherPrinted": "Support de caméra",
+      "hardware": "Servos (non imprimés)"
+    },
+    "xray": "Rayons X"
+  }
 }

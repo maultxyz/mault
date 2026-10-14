@@ -478,5 +478,36 @@
     "calibration": "Stimme die Zuführung und die Servos jedes Moduls ab, bis Karten sauber laufen, und speichere dann.",
     "scanRegion": "Rahme den Teil des Kamerabilds ein, in dem die Karte liegt, und lege fest, wie genau jeder Scan abgeglichen wird.",
     "test": "Prüfe vor dem Sortieren, ob die Sensoren Karten erkennen und jedes Fach sie erhält."
+  },
+  "sorterModel": {
+    "heading": "3D-Kalibrierung",
+    "description": "Klicke auf eine Markierung, um dieses Teil zu kalibrieren. Das Teil, das du einstellst, leuchtet auf und die Ansicht zoomt auf sein Modul. Deine gespeicherten Positionen werden als die Stellungen gezeigt, für die die Teile konstruiert sind.",
+    "label": "3D-Modell des Kartensortierers",
+    "hint": "Ziehen zum Drehen, scrollen zum Zoomen, mit rechter Maustaste ziehen zum Verschieben.",
+    "resetView": "Ansicht zurücksetzen",
+    "showCover": "Abdeckung anzeigen",
+    "loadFailed": "Das 3D-Modell konnte nicht geladen werden.",
+    "legend": "Farblegende",
+    "moduleNumber": "Modul {{module}}",
+    "parts": {
+      "paddle": "Seitenklappen",
+      "bottom": "Bodenklappe",
+      "pusher": "Schieber",
+      "servo": "Servos",
+      "platform": "Plattform",
+      "feeder": "Einzug",
+      "frame": "Rahmen und Fächer"
+    },
+    "betaDescription": "Einschalten, um an einem 3D-Modell des Sortierers zu kalibrieren: Klicke auf eine Markierung an einem Teil, um es einzustellen, und sieh zu, wie es sich bewegt.",
+    "betaToggle": "3D-Kalibrierung verwenden",
+    "hotspotLabel": "Modul {{module}}: {{part}}",
+    "closeDrawer": "Schließen",
+    "drawerDescriptions": {
+      "paddle": "Senkt die Seitenklappen, damit der Schieber eine Karte in ein seitliches Fach schieben kann.",
+      "bottom": "Öffnet sich, damit eine Karte zum nächsten Modul weiterrutscht.",
+      "pusher": "Schiebt die Karte nach links oder rechts von der Plattform.",
+      "feeder": "Zieht eine Karte aus dem Magazin auf Modul 1."
+    },
+    "xray": "Röntgenblick"
   }
 }

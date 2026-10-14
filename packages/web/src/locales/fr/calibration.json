@@ -478,5 +478,36 @@
     "calibration": "Ajuste le chargeur et les servos de chaque module jusqu'à ce que les cartes passent proprement, puis enregistre.",
     "scanRegion": "Cadre la partie de l'image de la caméra où se trouve la carte, et choisis avec quelle précision chaque scan est comparé.",
     "test": "Vérifie que les capteurs détectent les cartes et que chaque bac les reçoit avant de commencer à trier."
+  },
+  "sorterModel": {
+    "heading": "Calibrage 3D",
+    "description": "Cliquez sur un repère pour calibrer cette pièce. La pièce que vous ajustez s'illumine et la vue zoome sur son module. Vos positions enregistrées sont affichées comme les positions prévues pour les pièces.",
+    "label": "Modèle 3D du trieur de cartes",
+    "hint": "Faites glisser pour pivoter, faites défiler pour zoomer, clic droit pour déplacer.",
+    "resetView": "Réinitialiser la vue",
+    "showCover": "Afficher le capot",
+    "loadFailed": "Le modèle 3D n'a pas pu être chargé.",
+    "legend": "Légende des couleurs",
+    "moduleNumber": "module {{module}}",
+    "parts": {
+      "paddle": "Volets latéraux",
+      "bottom": "Trappe inférieure",
+      "pusher": "Poussoir",
+      "servo": "Servos",
+      "platform": "Plateforme",
+      "feeder": "Chargeur",
+      "frame": "Châssis et bacs"
+    },
+    "betaDescription": "Activez pour calibrer à partir d'un modèle 3D du trieur : cliquez sur un repère sur une pièce pour la régler et la voir bouger.",
+    "betaToggle": "Utiliser le calibrage 3D",
+    "hotspotLabel": "Module {{module}} : {{part}}",
+    "closeDrawer": "Fermer",
+    "drawerDescriptions": {
+      "paddle": "Abaisse les volets latéraux pour que le poussoir puisse pousser une carte dans un bac latéral.",
+      "bottom": "S'ouvre pour laisser la carte glisser vers le module suivant.",
+      "pusher": "Pousse la carte à gauche ou à droite hors de la plateforme.",
+      "feeder": "Fait entrer une carte du chargeur sur le module 1."
+    },
+    "xray": "Rayons X"
   }
 }

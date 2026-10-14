@@ -233,7 +233,7 @@ export default function CalibrateLayout() {
         </div>
 
         <SettingsSectionLayoutContext value="flat">
-          <div className="flex flex-col gap-6 pb-4">
+          <div className="flex flex-1 flex-col gap-6 pb-4">
             <PageIntro
               title={t(`sections.${section}`)}
               description={t(`sectionIntros.${section}`)}

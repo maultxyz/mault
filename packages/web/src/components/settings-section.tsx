@@ -20,6 +20,7 @@ export function SettingsSection({
   badge,
   action,
   dataTour,
+  className,
   children,
 }: SettingsSectionProps) {
   const layout = useContext(SettingsSectionLayoutContext);
@@ -42,6 +43,7 @@ export function SettingsSection({
         layout === "flat"
           ? "border-t pt-6 first:border-t-0 first:pt-0"
           : "rounded-lg border p-4",
+        className,
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">

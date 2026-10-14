@@ -6,6 +6,7 @@ export interface SettingsSectionProps {
   badge?: ReactNode;
   action?: ReactNode;
   dataTour?: string;
+  className?: string;
   children?: ReactNode;
 }
 

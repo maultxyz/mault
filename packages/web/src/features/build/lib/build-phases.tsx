@@ -1,4 +1,5 @@
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
+import { PrintPartsModel } from "@/features/build/components/print-parts-model";
 import {
   ChannelMapWiringReference,
   I2cWiringReference,
@@ -12,6 +13,10 @@ import {
   WIRE_AND_CALIBRATE_VIDEO,
 } from "@/lib/constants/build";
 import { PRINT_FILES_URL, REPO_URL } from "@/lib/constants/links";
+import {
+  breakoutSupportHeight as breakoutHeightFor,
+  countBaseSupportPieces,
+} from "@/lib/sorter-model/base-support";
 import {
   IconCpu,
   IconCube,
@@ -40,19 +45,6 @@ export function formatVideoTimestamp(totalSeconds: number): string {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
-function countBaseSupportPieces(moduleCount: number): {
-  threeTall: number;
-  oneTall: number;
-} {
-  let threeTall = 0;
-  let oneTall = 0;
-  for (let tier = 1; tier <= moduleCount + 1; tier++) {
-    threeTall += Math.floor(tier / 3);
-    oneTall += tier % 3;
-  }
-  return { threeTall, oneTall };
-}
-
 export function buildPhases(
   t: TFunction<"build">,
   moduleCount: number,
@@ -67,9 +59,7 @@ export function buildPhases(
   const baseSupportPieces = countBaseSupportPieces(moduleCount);
   const genericBase = Math.max(0, moduleCount - 2);
   const breakoutSupportHeight = isEsp32Breakout
-    ? moduleCount >= 3
-      ? 3
-      : 1
+    ? breakoutHeightFor(moduleCount)
     : null;
 
   const phases: BuildPhase[] = [
@@ -77,6 +67,7 @@ export function buildPhases(
       key: "print",
       title: t("assembly.phases.print.title"),
       icon: IconCube,
+      intro: <PrintPartsModel />,
       steps: [
         {
           key: "print-sorting-module",
