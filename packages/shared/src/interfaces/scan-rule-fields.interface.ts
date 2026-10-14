@@ -9,6 +9,7 @@ export interface ScanRuleFieldLabels {
   matchPercent: string;
   marketValueUsd: string;
   marketValueEur: string;
+  collectorNumber: string;
   foilOption: string;
   nonFoilOption: string;
 }
