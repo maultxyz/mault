@@ -580,7 +580,7 @@
     "parts": {
       "sortingModule": "Sorting Module",
       "feederModule": "Feeder Module",
-      "shroud": "Sorting Module Shroud",
+      "shroud": "Sorting Module Shroud et support de caméra",
       "baseSupportTall": "Base Support 3 niveaux",
       "baseSupportShort": "Base Support 1 niveau",
       "baseSupportBreakout": "Support de base pour breakout de {{height}} niveau(x)",
@@ -588,11 +588,10 @@
       "circuitBoardPlateBreakout": "Plaque Circuit Board (ESP32 + carte de breakout)",
       "servoControllerPlate": "Plaque Servo Controller",
       "genericPlate": "Plaque Generic",
-      "endPlate": "Plaque End",
+      "endPlate": "Plaque End et support End Bin",
       "binsPlate": "Bins",
       "endBinPlate": "End Bin",
-      "optionalPlate": "Plaques Back et Front (optionnelles)",
-      "otherPrinted": "Support de caméra"
+      "optionalPlate": "Plaques Back et Front (optionnelles)"
     },
     "xray": "Rayons X"
   }

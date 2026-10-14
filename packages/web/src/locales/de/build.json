@@ -580,7 +580,7 @@
     "parts": {
       "sortingModule": "Sorting Module",
       "feederModule": "Feeder Module",
-      "shroud": "Sorting-Module-Shroud",
+      "shroud": "Sorting-Module-Shroud und Kamerahalterung",
       "baseSupportTall": "Base Support mit 3 Stufen",
       "baseSupportShort": "Base Support mit 1 Stufe",
       "baseSupportBreakout": "Breakout-Basisstütze mit {{height}} Stufen",
@@ -588,11 +588,10 @@
       "circuitBoardPlateBreakout": "Circuit-Board-Platte (ESP32 + Breakout-Platine)",
       "servoControllerPlate": "Servo-Controller-Platte",
       "genericPlate": "Generic-Platte",
-      "endPlate": "End-Platte",
+      "endPlate": "End-Platte und End-Bin-Halter",
       "binsPlate": "Bins",
       "endBinPlate": "End Bin",
-      "optionalPlate": "Back- und Front-Platte (optional)",
-      "otherPrinted": "Kamerahalterung"
+      "optionalPlate": "Back- und Front-Platte (optional)"
     },
     "xray": "Röntgenblick"
   }

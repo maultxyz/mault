@@ -80,7 +80,8 @@ const BASE_GENERATED = new Set(["base module", "card sleeve md", "card sleeve lg
 
 const PRINT_PARTS = {
   shroud: "shroud",
-  "card base wing end": "endBinPlate",
+  "camera mount": "shroud",
+  "card base wing end": "endPlate",
   "back plate": "optionalPlate",
   "arduino back plate": "optionalPlate",
   "front plate": "optionalPlate",

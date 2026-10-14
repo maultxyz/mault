@@ -27,7 +27,6 @@ export function printPartEntries(
     { part: "sortingModule", plate: 1, count: moduleCount },
     { part: "feederModule", plate: 2, count: 1 },
     { part: "shroud", plate: 3, count: 1 },
-    { part: "otherPrinted", plate: 3, count: null },
     {
       part: "baseSupportTall",
       plate: 4,
