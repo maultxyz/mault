@@ -13,7 +13,8 @@ import {
   findCardsCollection,
   loadCardStats,
 } from "../routes/collections/cards-query";
-import { scannedCardPriceSql } from "./card-price-sql";
+import { joinedScannedCardPriceSql } from "./card-price-sql";
+import { COLLECTION_CARD_SQL_COLUMNS } from "./constants/card-prices";
 import { ONE_DAY_MS } from "./constants/timing";
 import type { StatsReportRow } from "./interfaces/stats";
 import { loadOrgPricing } from "./price-source";
@@ -42,7 +43,11 @@ export async function loadStatsReport(
   if (collectionGuid && !collection) return null;
 
   const pricing = await loadOrgPricing(tx, orgId);
-  const cardPrice = scannedCardPriceSql(pricing);
+  const cardPrice = joinedScannedCardPriceSql(
+    pricing,
+    COLLECTION_CARD_SQL_COLUMNS,
+    "cp",
+  );
   const days = STATS_RANGE_DAYS[range];
   const bucket = days >= STATS_WEEKLY_BUCKET_MIN_DAYS ? "week" : "day";
   const unit = sql.raw(`'${bucket}'`);
@@ -60,13 +65,12 @@ export async function loadStatsReport(
   const result = await tx.execute(sql`
     WITH base AS MATERIALIZED (
       SELECT
+        ${collectionCards.id} AS row_id,
         ${collectionCards.guid}::text AS scan_id,
-        ${collectionCards.card} AS card,
         ${collectionCards.cardId} AS card_id,
         ${collectionCards.isFoil} AS is_foil,
-        ${collectionCards.needsReview} AS needs_review,
+        (${collectionCards.needsReview} OR (jsonb_typeof(${collectionCards.alternativeMatches}) = 'array' AND jsonb_array_length(${collectionCards.alternativeMatches}) > 0)) AS needs_review,
         ${collectionCards.isCorrected} AS is_corrected,
-        ${collectionCards.alternativeMatches} AS alternative_matches,
         ${collectionCards.createdAt} AS created_at,
         ${collectionCards.scannedAt} AS scanned_at,
         ${collections.id} AS collection_id,
@@ -78,6 +82,9 @@ export async function loadStatsReport(
       FROM ${collectionCards}
       JOIN ${collections} ON ${collections.id} = ${collectionCards.collectionId}
       LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
+      LEFT JOIN card_prices cp ON cp.game_key = ${games.key}
+        AND cp.lang = COALESCE(${collectionCards.card} ->> 'lang', ${collections.lang})
+        AND cp.card_id = ${collectionCards.cardId}
       WHERE ${scope}
     )
     SELECT
@@ -88,7 +95,7 @@ export async function loadStatsReport(
         'avgValue', (SELECT COALESCE(avg(price) FILTER (WHERE price > 0), 0)::float8 FROM base),
         'priceableCount', (SELECT (count(*) FILTER (WHERE price > 0))::int FROM base),
         'foilCount', (SELECT (count(*) FILTER (WHERE is_foil))::int FROM base),
-        'needsReviewCount', (SELECT (count(*) FILTER (WHERE NOT is_corrected AND (needs_review OR (jsonb_typeof(alternative_matches) = 'array' AND jsonb_array_length(alternative_matches) > 0))))::int FROM base),
+        'needsReviewCount', (SELECT (count(*) FILTER (WHERE NOT is_corrected AND needs_review))::int FROM base),
         'correctedCount', (SELECT (count(*) FILTER (WHERE is_corrected))::int FROM base),
         'scansInRange', (SELECT (count(*) FILTER (WHERE ${inRange}))::int FROM base),
         'valueAddedInRange', (SELECT COALESCE(sum(price) FILTER (WHERE price > 0 AND ${inRange}), 0)::float8 FROM base)
@@ -114,14 +121,21 @@ export async function loadStatsReport(
       ) AS activity,
       ${priceBucketsSql()} AS price_buckets,
       (
-        SELECT COALESCE(json_agg(t), '[]'::json) FROM (
-          SELECT scan_id AS "scanId", collection_guid AS "collectionGuid",
-            collection_name AS "collectionName", card, is_foil AS "isFoil",
-            price, to_char(scanned_at, ${isoTimestamp}) AS "scannedAt"
-          FROM base WHERE price > 0
+        SELECT COALESCE(json_agg(json_build_object(
+          'scanId', top.scan_id,
+          'collectionGuid', top.collection_guid,
+          'collectionName', top.collection_name,
+          'card', cc.card,
+          'isFoil', top.is_foil,
+          'price', top.price,
+          'scannedAt', to_char(top.scanned_at, ${isoTimestamp})
+        ) ORDER BY top.price DESC, top.scanned_at DESC), '[]'::json)
+        FROM (
+          SELECT * FROM base WHERE price > 0
           ORDER BY price DESC, scanned_at DESC
           LIMIT ${STATS_TOP_CARDS_LIMIT}
-        ) t
+        ) top
+        JOIN collection_cards cc ON cc.id = top.row_id
       ) AS top_cards,
       (
         SELECT COALESCE(json_agg(r ORDER BY r."totalValue" DESC, r.name), '[]'::json) FROM (
