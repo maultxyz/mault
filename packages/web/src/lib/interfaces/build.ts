@@ -1,6 +1,7 @@
 import type { Icon } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
+import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
 export interface AnchorLinkButtonProps {
   id: string;
@@ -161,4 +162,23 @@ export interface BuildTocEntry {
 export interface BuildTocListProps {
   entries: BuildTocEntry[];
   onNavigate?: () => void;
+}
+
+export interface PrintPartEntry {
+  part: SorterPrintPart;
+  count: number | null;
+}
+
+export interface PrintPartsViewerProps {
+  moduleCount: number;
+  breakoutHeight: number | null;
+  entries: PrintPartEntry[];
+}
+
+export interface PrintPartsKeyProps {
+  entries: PrintPartEntry[];
+  breakoutHeight: number | null;
+  selected: SorterPrintPart | null;
+  onSelect: (part: SorterPrintPart | null) => void;
+  onPreview: (part: SorterPrintPart | null) => void;
 }

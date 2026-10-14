@@ -478,5 +478,36 @@
     "calibration": "Fine-tune the feeder and each module's servos until cards move cleanly, then save.",
     "scanRegion": "Frame the part of the camera image that holds the card, and choose how carefully each scan is matched.",
     "test": "Check that the sensors see cards and that every bin receives them before you start sorting."
+  },
+  "sorterModel": {
+    "heading": "3D calibration",
+    "description": "Click a marker to calibrate that part. The part you're adjusting glows and the view zooms in on its module. Your saved positions are shown as the positions the parts are designed to reach.",
+    "label": "3D model of the card sorter",
+    "hint": "Drag to rotate, scroll to zoom, right-drag to pan.",
+    "resetView": "Reset view",
+    "showCover": "Show cover",
+    "loadFailed": "The 3D model couldn't be loaded.",
+    "legend": "Color key",
+    "moduleNumber": "module {{module}}",
+    "parts": {
+      "paddle": "Side paddles",
+      "bottom": "Bottom gate",
+      "pusher": "Pusher",
+      "servo": "Servos",
+      "platform": "Platform",
+      "feeder": "Feeder",
+      "frame": "Frame and bins"
+    },
+    "betaDescription": "Turn on to calibrate from a 3D model of the sorter: click a marker on a part to adjust it and watch it move.",
+    "betaToggle": "Use 3D calibration",
+    "hotspotLabel": "Module {{module}}: {{part}}",
+    "closeDrawer": "Close",
+    "drawerDescriptions": {
+      "paddle": "Lower the side paddles so the pusher can move a card into a side bin.",
+      "bottom": "Opens to let a card slide on to the next module.",
+      "pusher": "Pushes the card left or right off the platform.",
+      "feeder": "Feeds one card from the hopper onto module 1."
+    },
+    "xray": "X-ray"
   }
 }

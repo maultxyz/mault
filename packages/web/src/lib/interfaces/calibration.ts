@@ -220,6 +220,7 @@ export interface FeederCalibrationPanelProps {
   onReverseSpeedChange: (value: number) => void;
   onReverseDurationChange: (value: number) => void;
   onSelectContinuous: () => void;
+  fullWidth?: boolean;
 }
 
 export interface StoredCalibration {

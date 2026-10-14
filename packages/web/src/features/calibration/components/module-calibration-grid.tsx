@@ -43,7 +43,7 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function ServoControl({
+export function ServoControl({
   module,
   servo,
   sliderValue,

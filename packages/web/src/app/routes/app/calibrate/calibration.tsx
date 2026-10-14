@@ -18,6 +18,8 @@ import { useDeviceCalibrationSync } from "@/features/calibration/api/use-device-
 import { FeederCalibrationPanel } from "@/features/calibration/components/feeder-calibration-panel";
 import { ModuleCalibrationGrid } from "@/features/calibration/components/module-calibration-grid";
 import { OfflineCalibrationBanner } from "@/features/calibration/components/offline-calibration-banner";
+import { SorterCalibrationSection } from "@/features/calibration/components/sorter-calibration-section";
+import { useSorterModelBeta } from "@/features/calibration/lib/sorter-model-beta";
 import { IconClockHour3, IconRestore } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -132,6 +134,8 @@ export default function CalibrateCalibrationPage() {
   const { applyToDevice } = useDeviceCalibrationSync();
   const [moduleHistoryOpen, setModuleHistoryOpen] = useState(false);
   const [feederHistoryOpen, setFeederHistoryOpen] = useState(false);
+  const calibrationState = useCalibrationOutletContext();
+  const [modelEnabled, setModelEnabled] = useSorterModelBeta();
 
   const {
     configs,
@@ -174,7 +178,7 @@ export default function CalibrateCalibrationPage() {
     handleSaveFeederModuleCalibration,
     handleDiscardFeederModuleCalibration,
     handleResetServosToDefaults,
-  } = useCalibrationOutletContext();
+  } = calibrationState;
 
   const { data: moduleHistoryResult, isLoading: moduleHistoryLoading } =
     useQuery({
@@ -249,6 +253,45 @@ export default function CalibrateCalibrationPage() {
     );
   }, [feederHistoryResult]);
 
+  const historyButtonClass =
+    "flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors";
+  const resetServosAction = (
+    <button
+      type="button"
+      onClick={handleResetServosToDefaults}
+      className={historyButtonClass}
+    >
+      <IconRestore size={12} />
+      {t("calibratePage.resetServosToDefaults")}
+    </button>
+  );
+  const feederHistoryAction = (
+    <button
+      type="button"
+      onClick={() => setFeederHistoryOpen(true)}
+      className={historyButtonClass}
+    >
+      <IconClockHour3 size={12} />
+      {t("calibratePage.history")}
+    </button>
+  );
+  const moduleHistoryAction = (
+    <button
+      type="button"
+      onClick={() => setModuleHistoryOpen(true)}
+      className={historyButtonClass}
+    >
+      <IconClockHour3 size={12} />
+      {t("calibratePage.history")}
+    </button>
+  );
+  const moduleActions = (
+    <>
+      {resetServosAction}
+      {moduleHistoryAction}
+    </>
+  );
+
   return (
     <>
       {!isConnected && device && (
@@ -259,84 +302,87 @@ export default function CalibrateCalibrationPage() {
         />
       )}
 
-      <SettingsSection
-        heading={t("feederCalibrationPanel.heading")}
-        action={
-          <button
-            type="button"
-            onClick={() => setFeederHistoryOpen(true)}
-            className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
-          >
-            <IconClockHour3 size={12} />
-            {t("calibratePage.history")}
-          </button>
-        }
-      >
-        <FeederCalibrationPanel
-          speedValue={feederSpeedValue}
-          durationValue={feederDurationValue}
-          pulseDurationValue={feederPulseDurationValue}
-          pauseDurationValue={feederPauseDurationValue}
-          settleDurationValue={feederSettleDurationValue}
-          reverseSpeedValue={feederReverseSpeedValue}
-          reverseDurationValue={feederReverseDurationValue}
-          canEditTimings={isConnected || isOfflineCalibration}
-          canCalibrate={canCalibrate}
-          onSpeedChange={handleFeederSpeedChange}
-          onDurationChange={handleFeederDurationChange}
-          onPulseDurationChange={handleFeederPulseDurationChange}
-          onPauseDurationChange={handleFeederPauseDurationChange}
-          onSettleDurationChange={handleFeederSettleDurationChange}
-          onReverseSpeedChange={handleFeederReverseSpeedChange}
-          onReverseDurationChange={handleFeederReverseDurationChange}
-          onSelectContinuous={handleFeederSelectContinuous}
-        />
-      </SettingsSection>
-
-      <SettingsSection
-        heading={t("sections.moduleCalibration")}
-        action={
+      <SorterCalibrationSection
+        state={calibrationState}
+        enabled={modelEnabled}
+        onEnabledChange={setModelEnabled}
+        actions={
           <>
+            {resetServosAction}
             <button
               type="button"
-              onClick={handleResetServosToDefaults}
-              className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
+              onClick={() => setFeederHistoryOpen(true)}
+              className={historyButtonClass}
             >
-              <IconRestore size={12} />
-              {t("calibratePage.resetServosToDefaults")}
+              <IconClockHour3 size={12} />
+              {t("calibratePage.feederHistoryTitle")}
             </button>
             <button
               type="button"
               onClick={() => setModuleHistoryOpen(true)}
-              className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
+              className={historyButtonClass}
             >
               <IconClockHour3 size={12} />
-              {t("calibratePage.history")}
+              {t("calibratePage.moduleHistoryTitle")}
             </button>
           </>
         }
-      >
-        <ModuleCalibrationGrid
-          modules={modules}
-          configs={configs}
-          active={active}
-          sliderValues={sliderValues}
-          moduleDelayValues={moduleDelayValues}
-          pendingCalibration={pendingCalibration}
-          isLoading={isLoading}
-          canEditTimings={isConnected || isOfflineCalibration}
-          canTestServos={canCalibrate && isConnected}
-          isReady={isReady}
-          canCalibrate={canCalibrate}
-          onControl={handleControl}
-          onSliderChange={handleSliderChange}
-          testingServos={testingServos}
-          onTest={handleServoTest}
-          onModuleDelayChange={handleModuleDelayChange}
-          pushTestingModule={pushTestingModule}
-          onPushTest={handlePushTest}
-        />
-      </SettingsSection>
+      />
+
+      {!modelEnabled && (
+        <>
+          <SettingsSection
+            heading={t("feederCalibrationPanel.heading")}
+            action={feederHistoryAction}
+          >
+            <FeederCalibrationPanel
+              speedValue={feederSpeedValue}
+              durationValue={feederDurationValue}
+              pulseDurationValue={feederPulseDurationValue}
+              pauseDurationValue={feederPauseDurationValue}
+              settleDurationValue={feederSettleDurationValue}
+              reverseSpeedValue={feederReverseSpeedValue}
+              reverseDurationValue={feederReverseDurationValue}
+              canEditTimings={isConnected || isOfflineCalibration}
+              canCalibrate={canCalibrate}
+              onSpeedChange={handleFeederSpeedChange}
+              onDurationChange={handleFeederDurationChange}
+              onPulseDurationChange={handleFeederPulseDurationChange}
+              onPauseDurationChange={handleFeederPauseDurationChange}
+              onSettleDurationChange={handleFeederSettleDurationChange}
+              onReverseSpeedChange={handleFeederReverseSpeedChange}
+              onReverseDurationChange={handleFeederReverseDurationChange}
+              onSelectContinuous={handleFeederSelectContinuous}
+            />
+          </SettingsSection>
+
+          <SettingsSection
+            heading={t("sections.moduleCalibration")}
+            action={moduleActions}
+          >
+            <ModuleCalibrationGrid
+              modules={modules}
+              configs={configs}
+              active={active}
+              sliderValues={sliderValues}
+              moduleDelayValues={moduleDelayValues}
+              pendingCalibration={pendingCalibration}
+              isLoading={isLoading}
+              canEditTimings={isConnected || isOfflineCalibration}
+              canTestServos={canCalibrate && isConnected}
+              isReady={isReady}
+              canCalibrate={canCalibrate}
+              onControl={handleControl}
+              onSliderChange={handleSliderChange}
+              testingServos={testingServos}
+              onTest={handleServoTest}
+              onModuleDelayChange={handleModuleDelayChange}
+              pushTestingModule={pushTestingModule}
+              onPushTest={handlePushTest}
+            />
+          </SettingsSection>
+        </>
+      )}
 
       <AuditDrawer
         open={feederHistoryOpen}

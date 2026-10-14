@@ -16,6 +16,7 @@ import {
   sliderMax,
 } from "@/lib/constants/calibration";
 import type { FeederCalibrationPanelProps } from "@/lib/interfaces/calibration";
+import { cn } from "@/lib/utils";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,6 +39,7 @@ export function FeederCalibrationPanel({
   onReverseSpeedChange,
   onReverseDurationChange,
   onSelectContinuous,
+  fullWidth = false,
 }: FeederCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -55,10 +57,15 @@ export function FeederCalibrationPanel({
 
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-3"
+      className={cn("grid grid-cols-1", !fullWidth && "md:grid-cols-3")}
       data-tour="feeder-calibration-panel"
     >
-      <div className="flex flex-col gap-5 col-span-2 lg:col-span-1">
+      <div
+        className={cn(
+          "flex flex-col gap-5",
+          !fullWidth && "col-span-2 lg:col-span-1",
+        )}
+      >
         <div className="flex items-center justify-end">
           <button
             type="button"
