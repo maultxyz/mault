@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { games } from "../../db/schema";
+import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
 export const deleteGameRoute = new Hono<AppEnv>().delete(
@@ -23,6 +24,7 @@ export const deleteGameRoute = new Hono<AppEnv>().delete(
         .update(games)
         .set({ isDeleted: true })
         .where(eq(games.id, target.id));
+      publicGamesCache.invalidate();
       return c.json({ success: true, data: null });
     } catch (err) {
       console.error(err);

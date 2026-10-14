@@ -44,7 +44,9 @@
     "cardCount_other": "{{count}} Karten",
     "noGame": "Kein Spiel",
     "setActiveCollection": "Als aktive Sammlung festlegen",
-    "edit": "Bearbeiten"
+    "edit": "Bearbeiten",
+    "activeSection": "Aktive Sammlung",
+    "otherSection": "Weitere Sammlungen"
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",

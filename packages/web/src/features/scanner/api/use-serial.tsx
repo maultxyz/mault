@@ -17,6 +17,7 @@ import {
   isBootBanner,
   isBusyResponse,
   isFailedRouteResponse,
+  isServoDriverMissing,
   isUnsolicitedSerialMessage,
   replySeq,
   statusResetReason,
@@ -332,8 +333,13 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       { test: true },
       SELF_TEST_RESPONSE_TIMEOUT_MS,
     );
-    if (!sent) return { ok: false, error: null, blockedModule: null };
-    if (!response) return { ok: false, error: null, blockedModule: null };
+    const failed: TestResult = {
+      ok: false,
+      error: null,
+      blockedModule: null,
+      servoDriverMissing: false,
+    };
+    if (!sent || !response) return failed;
 
     try {
       const parsed = JSON.parse(response);
@@ -343,9 +349,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         error: !ok && typeof parsed.error === "string" ? parsed.error : null,
         blockedModule:
           !ok && typeof parsed.module === "number" ? parsed.module : null,
+        servoDriverMissing: !ok && isServoDriverMissing(parsed),
       };
     } catch {
-      return { ok: false, error: null, blockedModule: null };
+      return failed;
     }
   }, [sendRequest, clearSensorBlocked]);
 
@@ -498,12 +505,25 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     async (forTransport: ByteTransport, forDevice: Device) => {
       await runPreTestHooks(forDevice);
       if (transportRef.current !== forTransport) return;
+      const { line } = await sendRequest({ getStatus: true });
+      if (transportRef.current !== forTransport) return;
+      let status: unknown = null;
+      try {
+        status = JSON.parse(line);
+      } catch {}
+      if (isServoDriverMissing(status)) {
+        toast.error(t("serial.servoDriverMissing.title"), {
+          description: t("serial.servoDriverMissing.description"),
+        });
+        disconnect();
+        return;
+      }
       await sendRequest({ neutral: true }, NEUTRAL_RESPONSE_TIMEOUT_MS);
       if (transportRef.current !== forTransport) return;
       setIsReady(true);
       toast.success(t("serial.deviceReadyNoTest"));
     },
-    [runPreTestHooks, sendRequest, t],
+    [runPreTestHooks, sendRequest, disconnect, t],
   );
 
   const runConnectTest = useCallback(
@@ -511,7 +531,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       await runPreTestHooks(forDevice);
       if (transportRef.current !== forTransport) return;
       toast.info(t("serial.testingDevice"));
-      const { ok, error: testError, blockedModule } = await sendTest();
+      const {
+        ok,
+        error: testError,
+        blockedModule,
+        servoDriverMissing,
+      } = await sendTest();
       if (transportRef.current !== forTransport) return;
       const copyAction = {
         label: (
@@ -531,6 +556,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         });
       } else if (blockedModule !== null) {
         showSensorBlockedToast(blockedModule, forTransport, forDevice);
+      } else if (servoDriverMissing) {
+        toast.error(t("serial.servoDriverMissing.title"), {
+          description: t("serial.servoDriverMissing.description"),
+          action: copyAction,
+        });
+        disconnect();
       } else {
         toast.error(t("serial.deviceTestFailed.title"), {
           description: testError ?? t("serial.deviceTestFailed.description"),

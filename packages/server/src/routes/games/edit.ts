@@ -5,6 +5,7 @@ import { db } from "../../db";
 import { games } from "../../db/schema";
 import { applyFieldRenames, validFieldRenames } from "../../lib/field-renames";
 import { ensureGameVectorIndex } from "../../lib/game-vector-index";
+import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken, toGame } from "./shared";
 
@@ -77,6 +78,7 @@ export const editGameRoute = new Hono<AppEnv>().put(
         await applyFieldRenames(tx, target.id, renames);
         return updated;
       });
+      publicGamesCache.invalidate();
       if (newKey !== undefined && newKey !== target.key) {
         // Fire-and-forget - see add.ts for why this isn't awaited.
         void ensureGameVectorIndex(newKey);

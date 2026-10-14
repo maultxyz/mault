@@ -13,7 +13,7 @@ import {
 import { eq } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { orgBilling, planSettings } from "../db/schema";
-import { PLAN_CONFIG_REFRESH_MS } from "./constants/timing";
+import { PLAN_CONFIG_LOAD_RETRY_MS } from "./constants/timing";
 import {
   FREE_PLAN_DAILY_SCAN_LIMIT,
   FREE_PLAN_MAX_CONNECTED_SORTERS,
@@ -125,13 +125,11 @@ export async function savePlanConfig(config: PlanConfig): Promise<PlanConfig> {
   return refreshPlanConfig();
 }
 
-export function startPlanConfigRefresh(): void {
-  const refresh = () =>
-    refreshPlanConfig().catch((err) =>
-      console.error("Failed to load plan settings:", err),
-    );
-  void refresh();
-  setInterval(refresh, PLAN_CONFIG_REFRESH_MS).unref();
+export function loadPlanConfig(): void {
+  refreshPlanConfig().catch((err) => {
+    console.error("Failed to load plan settings:", err);
+    setTimeout(loadPlanConfig, PLAN_CONFIG_LOAD_RETRY_MS).unref();
+  });
 }
 
 export function getPlanConfig(): PlanConfig {

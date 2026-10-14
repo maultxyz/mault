@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /app
+Disallow: /auth
+Disallow: /watch
+Disallow: /api
+
+Sitemap: https://mault.xyz/sitemap.xml

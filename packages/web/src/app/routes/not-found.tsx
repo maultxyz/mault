@@ -1,10 +1,19 @@
 import { Button } from "@/components/ui/button";
+import { usePageMeta } from "@/hooks/use-page-meta";
+import { SITE_NAME } from "@/lib/constants/seo";
 import { IconError404 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function NotFoundPage() {
   const { t } = useTranslation("common");
+  const { pathname } = useLocation();
+  usePageMeta({
+    title: `${t("notFound.title")} | ${SITE_NAME}`,
+    description: t("notFound.description"),
+    path: pathname,
+    noIndex: true,
+  });
 
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-4 p-4 text-center">

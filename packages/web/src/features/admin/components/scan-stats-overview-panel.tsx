@@ -2,12 +2,12 @@ import { SettingsSection } from "@/components/settings-section";
 import { AdminStatGroup } from "@/features/admin/components/admin-stat-group";
 import {
   getActiveScanning,
-  getPublicMetrics,
+  getAdminScanMetrics,
   getScanVectorizeStats,
 } from "@/lib/api/admin";
 import {
   ACTIVE_SCANNING_REFRESH_MS,
-  PUBLIC_METRICS_REFRESH_MS,
+  SCAN_METRICS_REFRESH_MS,
   SCAN_VECTORIZE_STATS_REFRESH_MS,
 } from "@/lib/constants/admin";
 import { useQuery } from "@tanstack/react-query";
@@ -23,9 +23,9 @@ export function ScanStatsOverviewPanel() {
   });
 
   const { data: metrics } = useQuery({
-    queryKey: ["admin", "public-metrics"],
-    queryFn: () => getPublicMetrics().then((r) => r.data),
-    refetchInterval: PUBLIC_METRICS_REFRESH_MS,
+    queryKey: ["admin", "scan-metrics"],
+    queryFn: () => getAdminScanMetrics().then((r) => r.data),
+    refetchInterval: SCAN_METRICS_REFRESH_MS,
   });
 
   const { data: vectorize } = useQuery({

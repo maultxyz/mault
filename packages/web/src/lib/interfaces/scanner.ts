@@ -194,6 +194,7 @@ export interface TestResult {
   ok: boolean;
   error: string | null;
   blockedModule: number | null;
+  servoDriverMissing: boolean;
 }
 
 export type FirmwareCheckResult =

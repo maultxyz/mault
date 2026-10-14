@@ -1,4 +1,8 @@
 {
+  "meta": {
+    "title": "Build Your Own Trading Card Sorting Machine | MAULT",
+    "description": "Step-by-step guide to building the MAULT card sorter: bill of materials, wiring diagrams, 3D printed parts, firmware and assembly instructions."
+  },
   "anchorLink": {
     "copy": "Copy link to this section",
     "copied": "Link copied",
