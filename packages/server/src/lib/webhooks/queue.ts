@@ -4,8 +4,9 @@ import { db } from "../../db";
 import { webhookDeliveries, webhookEndpoints } from "../../db/schema";
 import {
   WEBHOOK_DELIVERY_CONCURRENCY,
+  WEBHOOK_DELIVERY_ERROR_RETRY_MS,
   WEBHOOK_DELIVERY_LOCK_SECONDS,
-  WEBHOOK_DELIVERY_POLL_INTERVAL_MS,
+  WEBHOOK_DELIVERY_MIN_WAKE_MS,
   WEBHOOK_QUEUE_LIMIT,
   WEBHOOK_RETRY_DELAYS_MS,
 } from "../constants/webhooks";
@@ -45,6 +46,35 @@ export function enqueueWebhookJob(job: WebhookJob): void {
 
 let activeDeliveries = 0;
 let pumping = false;
+let wakeTimer: ReturnType<typeof setTimeout> | null = null;
+
+function wakeAfter(delayMs: number): void {
+  if (wakeTimer) clearTimeout(wakeTimer);
+  wakeTimer = setTimeout(
+    () => {
+      wakeTimer = null;
+      void pumpDeliveries();
+    },
+    Math.max(delayMs, WEBHOOK_DELIVERY_MIN_WAKE_MS),
+  );
+  wakeTimer.unref();
+}
+
+async function scheduleNextPump(): Promise<void> {
+  const [row] = await db
+    .select({
+      delayMs: sql<number | null>`extract(epoch from min(greatest(${webhookDeliveries.nextAttemptAt}, coalesce(${webhookDeliveries.lockedUntil}, ${webhookDeliveries.nextAttemptAt}))) - now()) * 1000`.mapWith(
+        (value) => (value === null ? null : Number(value)),
+      ),
+    })
+    .from(webhookDeliveries);
+  if (row?.delayMs == null) {
+    if (wakeTimer) clearTimeout(wakeTimer);
+    wakeTimer = null;
+    return;
+  }
+  wakeAfter(row.delayMs);
+}
 
 async function claimDueDeliveries(
   limit: number,
@@ -119,7 +149,10 @@ async function pumpDeliveries(): Promise<void> {
       const free = WEBHOOK_DELIVERY_CONCURRENCY - activeDeliveries;
       if (free <= 0) return;
       const claimed = await claimDueDeliveries(free);
-      if (claimed.length === 0) return;
+      if (claimed.length === 0) {
+        await scheduleNextPump();
+        return;
+      }
       for (const delivery of claimed) {
         activeDeliveries++;
         runDelivery(delivery)
@@ -134,6 +167,7 @@ async function pumpDeliveries(): Promise<void> {
     }
   } catch (err) {
     console.error("[webhooks] Couldn't claim deliveries:", err);
+    wakeAfter(WEBHOOK_DELIVERY_ERROR_RETRY_MS);
   } finally {
     pumping = false;
   }
@@ -148,8 +182,5 @@ export async function queueWebhookDeliveries(
 }
 
 export function startWebhookDeliveryWorker(): void {
-  setInterval(() => {
-    void pumpDeliveries();
-  }, WEBHOOK_DELIVERY_POLL_INTERVAL_MS).unref();
   void pumpDeliveries();
 }

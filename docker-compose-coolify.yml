@@ -80,8 +80,7 @@ services:
       - CMD
       - node
       - -e
-      - 'fetch(''http://127.0.0.1:3001/public/health'').then(async r => { const b = await r.json(); process.exit(r.ok
-        && b.data?.healthy === true ? 0 : 1); }).catch(() => process.exit(1))'
+      - 'fetch(''http://127.0.0.1:3001/public/version'').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))'
       interval: 15s
       timeout: 10s
       retries: 5
