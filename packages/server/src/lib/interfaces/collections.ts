@@ -18,7 +18,11 @@ export interface CollectionCardRow {
   is_downloaded: boolean;
   alternative_matches: unknown;
   is_corrected: boolean;
-  needs_review: boolean;
+  low_confidence_match: boolean;
+  is_reviewed: boolean;
+  location_guid?: string | null;
+  location_name?: string | null;
+  location_position?: number | null;
 }
 
 export type TransactionRunner = <T>(fn: (tx: Transaction) => Promise<T>) => Promise<T>;

@@ -55,7 +55,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       isFoil,
       foilType,
       alternativeMatches,
-      needsReview,
+      lowConfidenceMatch,
       diagnostics,
       vectorizedOn,
       deviceGuid,
@@ -233,7 +233,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             alternativeMatches: alternativeMatches?.length
               ? alternativeMatches
               : null,
-            needsReview: needsReview ?? false,
+            lowConfidenceMatch: lowConfidenceMatch ?? false,
             diagnostics: diagnostics ?? null,
             scannedByUserId: userId,
             scannedByDeviceId,
@@ -259,7 +259,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               isFoil,
               foilType,
               alternativeMatches,
-              needsReview,
+              lowConfidenceMatch,
             } as ScannedCard,
           },
           collectionName: collection.name,

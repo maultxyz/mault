@@ -1,4 +1,5 @@
 import type {
+  EmptyAllBinsOptions,
   EmptyBinOptions,
   StorageLocation,
   StorageLocationSearchResult,
@@ -7,6 +8,29 @@ import type {
 export interface EmptyBinDialogStep {
   index: number;
   total: number;
+}
+
+export interface StorageLocationSelectProps {
+  value: string;
+  onChange: (value: string) => void;
+  id?: string;
+  invalid?: boolean;
+  includeNone?: boolean;
+}
+
+export interface EmptyAllBinsDialogProps {
+  open: boolean;
+  bins: { binNumber: number; count: number }[];
+  preferLocation: boolean;
+  collectionGuid: string | undefined;
+  onOpenChange: (open: boolean) => void;
+  onConfirm: (options: EmptyAllBinsOptions) => Promise<boolean>;
+}
+
+export interface MoveCardsToLocationInput {
+  guid: string;
+  scanIds: string[];
+  collectionGuid: string | undefined;
 }
 
 export interface EmptyBinToLocationDialogProps {

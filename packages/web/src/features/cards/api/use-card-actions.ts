@@ -17,7 +17,7 @@ export function useCardActions(entry: GroupedScannedCard) {
   return {
     foilOptions,
     canConfirm:
-      (entry.needsReview || !!entry.alternativeMatches?.length) &&
+      (entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) &&
       !entry.corrected,
     currentFoil: entry.foilType ?? (entry.isFoil ? t("foil") : null),
     currentCondition: toCardCondition(entry.condition),

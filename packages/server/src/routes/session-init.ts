@@ -54,7 +54,7 @@ async function querySessionInit(
       condition: collectionCards.condition,
       isDownloaded: collectionCards.isDownloaded,
       alternativeMatches: collectionCards.alternativeMatches,
-      needsReview: collectionCards.needsReview,
+      lowConfidenceMatch: collectionCards.lowConfidenceMatch,
     })
     .from(collectionCards)
     .where(eq(collectionCards.collectionId, collection.id))

@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { useRemoveCardFromLocation } from "@/features/storage/api/use-storage-locations";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageCardListProps } from "@/lib/interfaces/storage";
@@ -112,17 +113,25 @@ export function StorageCardList({
                       {entry.isFoil && <FoilOverlay />}
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-48 truncate font-medium">
-                    <button
-                      type="button"
-                      className="max-w-full truncate rounded-sm text-left hover:underline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onOpenCard(entry);
-                      }}
-                    >
-                      {entry.card.name}
-                    </button>
+                  <TableCell className="max-w-48 font-medium">
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <button
+                        type="button"
+                        className="min-w-0 truncate rounded-sm text-left hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onOpenCard(entry);
+                        }}
+                      >
+                        {entry.card.name}
+                      </button>
+                      <ReviewStatusIcon
+                        hasAlternatives={entry.hasAlternatives}
+                        lowConfidenceMatch={entry.lowConfidenceMatch}
+                        wasCorrected={entry.corrected}
+                        isReviewed={entry.reviewed}
+                      />
+                    </div>
                   </TableCell>
                   <TableCell className="hidden max-w-40 truncate text-xs text-foreground/70 sm:table-cell">
                     {`${entry.card.setName} (${entry.card.set.toUpperCase()})`}

@@ -61,8 +61,10 @@ export function MonitorCardGrid({
                 foilType: entry.foilType,
                 condition: entry.condition,
                 hasAlternatives: !!entry.alternativeMatches?.length,
-                needsReview: entry.needsReview,
+                lowConfidenceMatch: entry.lowConfidenceMatch,
                 wasCorrected: entry.corrected,
+                isReviewed: entry.reviewed,
+                storageLocation: entry.storageLocation,
               }))}
               showQuantity={groupDuplicates}
               showBinLocation={showBinLocation}
@@ -79,8 +81,10 @@ export function MonitorCardGrid({
               binNumber={entry.binNumber}
               onOpen={() => onOpenCard?.(entry.scanId)}
               hasAlternatives={!!entry.alternativeMatches?.length}
-              needsReview={entry.needsReview}
+              lowConfidenceMatch={entry.lowConfidenceMatch}
               wasCorrected={entry.corrected}
+              isReviewed={entry.reviewed}
+              storageLocation={entry.storageLocation}
               isFoil={entry.isFoil}
               foilType={entry.foilType}
               condition={entry.condition}

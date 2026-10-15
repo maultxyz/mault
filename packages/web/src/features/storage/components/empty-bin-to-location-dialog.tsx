@@ -19,6 +19,7 @@ import {
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
+import { lastUsedLocationGuid } from "@/features/storage/lib/last-used-location";
 import {
   EMPTY_BIN_NEW_LOCATION,
   EMPTY_BIN_NO_LOCATION,
@@ -28,25 +29,11 @@ import {
   emptyBinLocationSchema,
   type EmptyBinLocationFormValues,
 } from "@/schemas/storage.schema";
-import type { StorageLocation } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-
-function lastUsedLocationGuid(locations: StorageLocation[]): string | null {
-  let latest: StorageLocation | null = null;
-  for (const location of locations) {
-    if (!location.lastUsedAt) continue;
-    if (
-      !latest?.lastUsedAt ||
-      new Date(location.lastUsedAt) > new Date(latest.lastUsedAt)
-    )
-      latest = location;
-  }
-  return latest?.guid ?? null;
-}
 
 export function EmptyBinToLocationDialog({
   binNumber,

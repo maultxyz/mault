@@ -24,6 +24,7 @@ export function DeleteDialog({
   children,
   confirm = { type: "simple" },
   confirmLabel,
+  cancelLabel,
   focusConfirm = false,
   onConfirm,
 }: DeleteDialogProps) {
@@ -127,7 +128,7 @@ export function DeleteDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              {t("actions.cancel")}
+              {cancelLabel ?? t("actions.cancel")}
             </Button>
             <Button
               ref={confirmRef}

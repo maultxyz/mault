@@ -17,11 +17,13 @@ export interface CollectionCardsQuery {
   sort: string | null;
   filters: CardFilters;
   grouped: boolean;
+  unreviewed?: boolean;
 }
 
 export interface GroupedScannedCard extends ScannedCard {
   scanIds: string[];
   quantity: number;
+  storedCount?: number;
 }
 
 export interface CollectionCardsPage {

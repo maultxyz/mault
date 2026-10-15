@@ -67,7 +67,9 @@
   "toasts": {
     "failed": "Impossible de mettre à jour les emplacements",
     "cardRemoved": "Carte retirée de son emplacement",
-    "correctFailed": "Impossible de corriger la carte"
+    "correctFailed": "Impossible de corriger la carte",
+    "cardsMoved_one": "1 carte rangée en stockage",
+    "cardsMoved_other": "{{count}} cartes rangées en stockage"
   },
   "removeDialog": {
     "title": "Retirer {{name}} de {{location}} ?",
@@ -92,11 +94,21 @@
   },
   "review": {
     "start": "Vérifier les cartes",
-    "startTitle": "Parcourir toutes les cartes de cet emplacement une par une, dans l'ordre de la boîte"
+    "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
+    "startTitle": "Parcourir les cartes de cet emplacement pas encore vérifiées, dans l'ordre de la boîte"
   },
   "export": {
     "button": "Exporter",
     "loading": "Chargement des cartes",
     "combineDuplicates": "Regrouper les doublons"
+  },
+  "emptyAllDialog": {
+    "title": "Vider tous les bacs",
+    "description_one": "Marque tous les bacs comme vidés. Choisis où la carte est rangée pour la retrouver plus tard.",
+    "description_other": "Marque tous les bacs comme vidés. Choisis où les {{count}} cartes sont rangées pour les retrouver plus tard.",
+    "perBin": "Choisir un emplacement pour chaque bac",
+    "binLabel_one": "Bac {{bin}} · {{count}} carte",
+    "binLabel_other": "Bac {{bin}} · {{count}} cartes",
+    "confirm": "Vider tous les bacs"
   }
 }

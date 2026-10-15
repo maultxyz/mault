@@ -7,6 +7,12 @@ export interface StorageLocationRow {
   total_value: number;
 }
 
+export interface MoveCardsToLocationInput {
+  orgId: string;
+  locationId: number;
+  scanIds: string[];
+}
+
 export interface AssignBinToLocationInput {
   binId: number;
   binNumber: number;

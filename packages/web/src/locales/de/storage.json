@@ -67,7 +67,9 @@
   "toasts": {
     "failed": "Lagerorte konnten nicht aktualisiert werden",
     "cardRemoved": "Karte aus ihrem Lagerort entfernt",
-    "correctFailed": "Die Karte konnte nicht korrigiert werden"
+    "correctFailed": "Die Karte konnte nicht korrigiert werden",
+    "cardsMoved_one": "1 Karte ins Lager verschoben",
+    "cardsMoved_other": "{{count}} Karten ins Lager verschoben"
   },
   "removeDialog": {
     "title": "{{name}} aus {{location}} entfernen?",
@@ -92,11 +94,21 @@
   },
   "review": {
     "start": "Karten prüfen",
-    "startTitle": "Alle Karten dieses Lagerorts nacheinander in Box-Reihenfolge durchgehen"
+    "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft.",
+    "startTitle": "Noch nicht geprüfte Karten dieses Lagerorts in Box-Reihenfolge durchgehen"
   },
   "export": {
     "button": "Exportieren",
     "loading": "Karten werden geladen",
     "combineDuplicates": "Duplikate zusammenfassen"
+  },
+  "emptyAllDialog": {
+    "title": "Alle Fächer leeren",
+    "description_one": "Markiert alle Fächer als geleert. Wähle, wohin die {{count}} Karte gekommen ist, damit du sie später wiederfindest.",
+    "description_other": "Markiert alle Fächer als geleert. Wähle, wohin die {{count}} Karten gekommen sind, damit du sie später wiederfindest.",
+    "perBin": "Für jedes Fach einen Lagerort wählen",
+    "binLabel_one": "Fach {{bin}} · {{count}} Karte",
+    "binLabel_other": "Fach {{bin}} · {{count}} Karten",
+    "confirm": "Alle Fächer leeren"
   }
 }

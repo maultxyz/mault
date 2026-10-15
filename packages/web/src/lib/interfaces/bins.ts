@@ -5,6 +5,7 @@ import type {
   BinRuleGroup,
   BinSet,
   DefaultBinInit,
+  EmptyAllBinsOptions,
   EmptyBinOptions,
   FieldMeta,
   PickList,
@@ -90,7 +91,10 @@ export interface BinConfigsContextValue {
   selectedConfig: BinConfig;
   save: (input: BinConfigSaveInput) => void;
   emptyBin: (binNumber: number, options?: EmptyBinOptions) => Promise<boolean>;
-  emptyAllBins: (binNumbers: number[]) => Promise<boolean>;
+  emptyAllBins: (
+    binNumbers: number[],
+    options?: EmptyAllBinsOptions,
+  ) => Promise<boolean>;
   activateSet: (guid: string) => Promise<void>;
   createSet: (name: string) => Promise<void>;
   importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;

@@ -1,5 +1,6 @@
 import { cardWithStoredPricesSql } from "../../lib/card-price-sql";
 import {
+  STORAGE_MOVE_CARDS_MAX,
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
   toCardCondition,
@@ -21,6 +22,9 @@ import {
   isStorageAllowed,
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
+import { UUID_PATTERN } from "../../lib/constants/validation";
+import { moveCardsToLocation } from "../../lib/storage-locations";
+import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadLocations, locationNameTaken, parseLocationName } from "./shared";
 
@@ -54,8 +58,10 @@ const router = new Hono<AppEnv>()
             isFoil: collectionCards.isFoil,
             foilType: collectionCards.foilType,
             condition: collectionCards.condition,
-            needsReview: sql<boolean>`(${collectionCards.needsReview} OR (${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb))`,
+            lowConfidenceMatch: collectionCards.lowConfidenceMatch,
+            hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
             corrected: collectionCards.isCorrected,
+            reviewed: collectionCards.isReviewed,
             collectionGuid: collections.guid,
             collectionName: collections.name,
             locationGuid: storageLocations.guid,
@@ -92,8 +98,10 @@ const router = new Hono<AppEnv>()
         isFoil: r.isFoil,
         foilType: r.foilType,
         condition: toCardCondition(r.condition),
-        needsReview: r.needsReview,
+        lowConfidenceMatch: r.lowConfidenceMatch,
+        hasAlternatives: r.hasAlternatives,
         corrected: r.corrected,
+        reviewed: r.reviewed,
         collectionGuid: r.collectionGuid!,
         collectionName: r.collectionName,
         locationGuid: r.locationGuid!,
@@ -223,8 +231,10 @@ const router = new Hono<AppEnv>()
             isFoil: collectionCards.isFoil,
             foilType: collectionCards.foilType,
             condition: collectionCards.condition,
-            needsReview: sql<boolean>`(${collectionCards.needsReview} OR (${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb))`,
+            lowConfidenceMatch: collectionCards.lowConfidenceMatch,
+            hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
             corrected: collectionCards.isCorrected,
+            reviewed: collectionCards.isReviewed,
             collectionGuid: collections.guid,
             collectionName: collections.name,
           })
@@ -247,8 +257,10 @@ const router = new Hono<AppEnv>()
           isFoil: r.isFoil,
           foilType: r.foilType,
           condition: toCardCondition(r.condition),
-          needsReview: r.needsReview,
+          lowConfidenceMatch: r.lowConfidenceMatch,
+          hasAlternatives: r.hasAlternatives,
           corrected: r.corrected,
+          reviewed: r.reviewed,
           collectionGuid: r.collectionGuid!,
           collectionName: r.collectionName,
         }));
@@ -309,6 +321,70 @@ const router = new Hono<AppEnv>()
         }));
         return { success: true, data };
       });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .post("/:guid/cards", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const body = await c.req
+      .json<{ scanIds?: unknown }>()
+      .catch(() => ({ scanIds: undefined }));
+    const scanIds = Array.isArray(body.scanIds)
+      ? body.scanIds.filter(
+          (id): id is string => typeof id === "string" && UUID_PATTERN.test(id),
+        )
+      : [];
+    if (
+      !UUID_PATTERN.test(guid) ||
+      scanIds.length === 0 ||
+      scanIds.length > STORAGE_MOVE_CARDS_MAX
+    ) {
+      return c.json({ success: false, message: "Invalid cards." }, 400);
+    }
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        if (!(await isStorageAllowed(tx, orgId))) {
+          return {
+            success: false,
+            message: STORAGE_UPGRADE_MESSAGE,
+            upgradeRequired: true,
+          };
+        }
+        const location = await tx.query.storageLocations.findFirst({
+          where: (t, { eq, and }) =>
+            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+          columns: { id: true },
+        });
+        if (!location) {
+          return { success: false, message: "Storage location not found." };
+        }
+        const movedScanIds = await moveCardsToLocation(tx, {
+          orgId,
+          locationId: location.id,
+          scanIds,
+        });
+        await tx
+          .update(storageLocations)
+          .set({ lastUsedAt: new Date() })
+          .where(eq(storageLocations.id, location.id));
+        return {
+          success: true,
+          movedScanIds,
+          data: {
+            moved: movedScanIds.length,
+            locations: await loadLocations(tx, orgId),
+          },
+        };
+      });
+      if (result.success && "movedScanIds" in result && result.movedScanIds) {
+        const { movedScanIds, ...body } = result;
+        emitCardsStoredWebhook(orgId, guid, movedScanIds);
+        return c.json(body);
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);

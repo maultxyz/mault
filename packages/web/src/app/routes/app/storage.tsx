@@ -24,6 +24,7 @@ import {
   STORAGE_REVIEW_SEARCH_PARAM,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
+import { toast } from "@/lib/toast";
 import {
   IconBox,
   IconEdit,
@@ -89,7 +90,9 @@ export default function StoragePage() {
     const cards = await queryClient
       .fetchQuery(storageLocationCardsQueryOptions(selected.guid))
       .catch(() => []);
-    if (cards[0]) openCard(selected.guid, cards[0].scanId, true);
+    const first = cards.find((card) => !card.reviewed);
+    if (first) openCard(selected.guid, first.scanId, true);
+    else toast.info(t("review.nothingLeft"));
   };
 
   const canStartReview =

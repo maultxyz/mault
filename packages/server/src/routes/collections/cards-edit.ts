@@ -20,9 +20,10 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const { guid, scanId } = c.req.param();
-    const { card, binNumber, isFoil, foilType, condition, confirmed } =
+    const { card, binNumber, isFoil, foilType, condition, confirmed, reviewed } =
       await c.req.json<{
         confirmed?: boolean;
+        reviewed?: boolean;
         card?: PlayingCardWithDistance;
         binNumber?: number;
         isFoil?: boolean;
@@ -45,7 +46,8 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             foilType: true,
             condition: true,
             isCorrected: true,
-            needsReview: true,
+            lowConfidenceMatch: true,
+            isReviewed: true,
           },
         });
         if (!existing) return { success: false, message: "Card not found." };
@@ -60,6 +62,11 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
           updates.binNumber = binNumber;
         }
         if (confirmed) updates.isCorrected = true;
+        const resolvesReview = card !== undefined || !!confirmed || !!reviewed;
+        if (resolvesReview) {
+          updates.isReviewed = true;
+          updates.lowConfidenceMatch = false;
+        }
         if (isFoil !== undefined) updates.isFoil = isFoil;
         if (foilType !== undefined) updates.foilType = foilType;
         if (condition !== undefined) updates.condition = condition;
@@ -81,7 +88,8 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             condition: condition ?? existing.condition,
             isCorrected:
               card !== undefined || confirmed ? true : existing.isCorrected,
-            needsReview: existing.needsReview,
+            lowConfidenceMatch: resolvesReview ? false : existing.lowConfidenceMatch,
+            isReviewed: resolvesReview ? true : existing.isReviewed,
           }),
         };
       });

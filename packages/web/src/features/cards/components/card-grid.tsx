@@ -18,9 +18,13 @@ import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
+import { ExportedCardsDialog } from "@/features/cards/components/exported-cards-dialog";
+import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
+import { useStorageAccess } from "@/features/storage/api/use-storage-access";
+import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
 import {
   allExportAdapters,
   runExport,
@@ -83,7 +87,6 @@ export function CardGrid() {
     removeCard,
     removeCards,
     clearCards,
-    markDownloaded,
     setCardsCondition,
     elapsedMs,
     sessionScanCount,
@@ -202,6 +205,11 @@ export function CardGrid() {
     }),
     [debouncedSearch, sortKey, filters, groupDuplicates],
   );
+  const reviewQuery = useMemo(
+    () => ({ ...cardsQuery, unreviewed: true }),
+    [cardsQuery],
+  );
+  const reviewTotalRef = useRef<number | null>(null);
 
   useEffect(() => {
     setPage(0);
@@ -226,7 +234,11 @@ export function CardGrid() {
   }, [page, clampedPage]);
 
   const { data: openPosition, isPending: openPositionPending } = useQuery(
-    collectionCardPositionQueryOptions(collectionGuid, openScanId, cardsQuery),
+    collectionCardPositionQueryOptions(
+      collectionGuid,
+      openScanId,
+      isReviewing ? reviewQuery : cardsQuery,
+    ),
   );
   const openEntry =
     openPosition && openPosition.entry.scanId === openScanId
@@ -236,23 +248,28 @@ export function CardGrid() {
   const startReview = useCallback(async () => {
     if (!collectionGuid) return;
     try {
-      const firstPage =
-        page === 0 && pageData
-          ? pageData
-          : await queryClient.fetchQuery(
-              collectionCardsPageQueryOptions(collectionGuid, cardsQuery, 0),
-            );
+      const firstPage = await queryClient.fetchQuery(
+        collectionCardsPageQueryOptions(collectionGuid, reviewQuery, 0),
+      );
       const first = firstPage.items[0];
-      if (first) setOpenScanId(first.scanId, true);
+      if (!first) {
+        toast.info(t("review.nothingLeft"));
+        return;
+      }
+      reviewTotalRef.current = firstPage.totalCards;
+      setOpenScanId(first.scanId, true);
     } catch (err) {
       console.error("Failed to start card review:", err);
     }
-  }, [collectionGuid, page, pageData, queryClient, cardsQuery, setOpenScanId]);
+  }, [collectionGuid, queryClient, reviewQuery, setOpenScanId, t]);
 
   const finishReview = useCallback(
     (count: number) => {
       setOpenScanId(null);
-      toast.success(t("review.complete", { count }));
+      toast.success(
+        t("review.complete", { count: reviewTotalRef.current ?? count }),
+      );
+      reviewTotalRef.current = null;
     },
     [setOpenScanId, t],
   );
@@ -355,6 +372,26 @@ export function CardGrid() {
     [gameKey],
   );
   const [exportingSelected, setExportingSelected] = useState(false);
+  const [exportedScanIds, setExportedScanIds] = useState<string[] | null>(
+    null,
+  );
+  const exportedCount = exportedScanIds?.length ?? 0;
+  const [confirmDeleteExported, setConfirmDeleteExported] = useState(false);
+  const { isLocked: storageLocked } = useStorageAccess();
+  const { moveCards, isMoving } = useMoveCardsToLocation();
+  const { data: allCardsForDelete } = useQuery(
+    collectionCardsExportQueryOptions(
+      collectionGuid,
+      confirmOpen || confirmDeleteExported || (storageLocked && !!exportedScanIds),
+    ),
+  );
+  const storedCountOf = (scanIds: Iterable<string>) => {
+    if (!allCardsForDelete) return 0;
+    const ids = new Set(scanIds);
+    return allCardsForDelete.filter(
+      (card) => ids.has(card.scanId) && card.storageLocation,
+    ).length;
+  };
 
   const handleExportSelected = useCallback(
     async (adapter: ExportAdapter) => {
@@ -377,7 +414,7 @@ export function CardGrid() {
           { isMtg: gameKey === "mtg", fieldDefinitions },
           true,
         );
-        markDownloaded(selectedCards.map((card) => card.scanId));
+        setExportedScanIds(selectedCards.map((card) => card.scanId));
       } catch (err) {
         console.error("Failed to export selected cards:", err);
         toast.error(t("cardGrid.exportSelectedFailed"));
@@ -392,10 +429,29 @@ export function CardGrid() {
       activeCollection?.name,
       gameKey,
       fieldDefinitions,
-      markDownloaded,
       t,
     ],
   );
+
+  const handleMoveExported = useCallback(
+    (locationGuid: string) =>
+      moveCards({
+        guid: locationGuid,
+        scanIds: exportedScanIds ?? [],
+        collectionGuid,
+      }),
+    [moveCards, exportedScanIds, collectionGuid],
+  );
+
+  const handleDeleteExported = useCallback(() => {
+    if (!exportedScanIds) return;
+    removeCards(exportedScanIds);
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      for (const id of exportedScanIds) next.delete(id);
+      return next;
+    });
+  }, [exportedScanIds, removeCards]);
 
   const handleBulkDelete = useCallback(() => {
     removeCards(Array.from(selectedIds));
@@ -483,8 +539,10 @@ export function CardGrid() {
         scanId={openEntry.scanId}
         currentCard={openEntry.card}
         alternativeMatches={openEntry.alternativeMatches}
-        needsReview={openEntry.needsReview}
+        lowConfidenceMatch={openEntry.lowConfidenceMatch}
         wasCorrected={openEntry.corrected}
+        isReviewed={openEntry.reviewed}
+        storageLocation={openEntry.storageLocation}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
         condition={openEntry.condition}
@@ -589,8 +647,10 @@ export function CardGrid() {
                 condition: entry.condition,
                 isDownloaded: entry.isDownloaded,
                 hasAlternatives: !!entry.alternativeMatches?.length,
-                needsReview: entry.needsReview,
+                lowConfidenceMatch: entry.lowConfidenceMatch,
                 wasCorrected: entry.corrected,
+                isReviewed: entry.reviewed,
+                storageLocation: entry.storageLocation,
                 isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
               }))}
               showQuantity={groupDuplicates}
@@ -624,8 +684,10 @@ export function CardGrid() {
                     handleSelect(entry.scanId, options)
                   }
                   hasAlternatives={!!entry.alternativeMatches?.length}
-                  needsReview={entry.needsReview}
+                  lowConfidenceMatch={entry.lowConfidenceMatch}
                   wasCorrected={entry.corrected}
+                  isReviewed={entry.reviewed}
+                  storageLocation={entry.storageLocation}
                   isFoil={entry.isFoil}
                   foilType={entry.foilType}
                   condition={entry.condition}
@@ -749,7 +811,9 @@ export function CardGrid() {
         elapsedMs={elapsedMs}
         sessionScanCount={sessionScanCount}
         collectionName={activeCollection?.name ?? "collection"}
-        onMarkDownloaded={markDownloaded}
+        onExported={(scanIds) => {
+          if (scanIds.length > 0) setExportedScanIds(scanIds);
+        }}
         gridFilters={filters}
         gridFilterCount={activeFilterCount}
       />
@@ -765,7 +829,51 @@ export function CardGrid() {
           selectedIds.size > 100 ? { type: "keyword" } : { type: "simple" }
         }
         onConfirm={handleBulkDelete}
+      >
+        <StorageDeleteWarning
+          storedCount={storedCountOf(selectedIds)}
+          total={selectedIds.size}
+          className="mt-4"
+        />
+      </DeleteDialog>
+
+      <ExportedCardsDialog
+        open={exportedScanIds != null && !storageLocked && !confirmDeleteExported}
+        count={exportedCount}
+        isMoving={isMoving}
+        onOpenChange={(open) => {
+          if (!open) setExportedScanIds(null);
+        }}
+        onMove={handleMoveExported}
+        onDelete={() => setConfirmDeleteExported(true)}
       />
+
+      <DeleteDialog
+        open={
+          exportedScanIds != null && (storageLocked || confirmDeleteExported)
+        }
+        onOpenChange={(open) => {
+          if (open) return;
+          setConfirmDeleteExported(false);
+          setExportedScanIds(null);
+        }}
+        title={t("cardGrid.exportedDeleteTitle", { count: exportedCount })}
+        description={t("cardGrid.exportedDeleteDescription", {
+          count: exportedCount,
+        })}
+        confirm={exportedCount > 100 ? { type: "keyword" } : { type: "simple" }}
+        confirmLabel={t("cardGrid.exportedDeleteConfirm", {
+          count: exportedCount,
+        })}
+        cancelLabel={t("cardGrid.exportedKeep")}
+        onConfirm={handleDeleteExported}
+      >
+        <StorageDeleteWarning
+          storedCount={storedCountOf(exportedScanIds ?? [])}
+          total={exportedCount}
+          className="mt-4"
+        />
+      </DeleteDialog>
     </>
   );
 }

@@ -9,15 +9,11 @@ import {
 import { FoilOverlay } from "@/components/foil-overlay";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
-import { reviewTooltip } from "@/features/cards/lib/review-tooltip";
+import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
+import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
-import {
-  IconCheck,
-  IconDownload,
-  IconHelpCircle,
-  IconSparkles,
-} from "@tabler/icons-react";
+import { IconCheck, IconDownload, IconSparkles } from "@tabler/icons-react";
 import { DEFAULT_CARD_CONDITION } from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -31,14 +27,16 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   isSelected = false,
   onToggleSelect,
   hasAlternatives = false,
-  needsReview = false,
+  lowConfidenceMatch = false,
   wasCorrected = false,
+  isReviewed = false,
   isFoil = false,
   foilType,
   condition,
   isDownloaded = false,
   quantity = 1,
   showBinLocation = true,
+  storageLocation,
 }: ScannedCardItemProps) {
   const { t } = useTranslation("cards");
   const [isNew] = useState(
@@ -49,6 +47,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   const matchPercent = card.distance != null ? getMatchPercent(card) : 0;
   const { priceOf, format } = usePriceSource();
   const displayPrice = priceOf(card, isFoil, condition);
+  const showReviewStatus = hasAlternatives || lowConfidenceMatch || isReviewed;
   return (
     <div
       className={cn(
@@ -60,22 +59,18 @@ export const ScannedCardItem = memo(function ScannedCardItem({
     >
       <button type="button" className="w-full cursor-pointer" onClick={onOpen}>
         <div className="aspect-[2.5/3.5] rounded-md overflow-hidden relative">
-          {(hasAlternatives || needsReview) && (
-            <div
-              className={cn(
-                "absolute top-1 left-1 z-20 rounded-full p-0.5 shadow-md",
-                wasCorrected ? "bg-success-strong" : "bg-warning-strong",
-              )}
-              title={reviewTooltip(t, needsReview, wasCorrected)}
-            >
-              <IconHelpCircle className="size-3 text-white" />
-            </div>
-          )}
+          <ReviewStatusIcon
+            hasAlternatives={hasAlternatives}
+            lowConfidenceMatch={lowConfidenceMatch}
+            wasCorrected={wasCorrected}
+            isReviewed={isReviewed}
+            className="absolute top-1 left-1 z-20 shadow-md"
+          />
           {isFoil && (
             <div
               className={cn(
                 "absolute top-1 z-20 rounded-full p-0.5 shadow-md bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300",
-                hasAlternatives || needsReview ? "left-6" : "left-1",
+                showReviewStatus ? "left-6" : "left-1",
               )}
               title={foilType ?? t("foil")}
             >
@@ -125,7 +120,12 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                 </Badge>
               )}
             </div>
-            {showBinLocation ? (
+            {storageLocation ? (
+              <StorageLocationBadge
+                location={storageLocation}
+                className="shadow-md"
+              />
+            ) : showBinLocation ? (
               <Tooltip>
                 <TooltipTrigger
                   render={

@@ -103,6 +103,13 @@
     "delete": "Supprimer",
     "export": "Exporter",
     "exportSelectedFailed": "Impossible d'exporter les cartes sélectionnées",
+    "exportedDeleteTitle_one": "Supprimer la carte exportée ?",
+    "exportedDeleteTitle_other": "Supprimer les {{count}} cartes exportées ?",
+    "exportedDeleteDescription_one": "Ton export est en cours de téléchargement. Tu peux supprimer cette carte de la collection maintenant, ou la garder ici. La suppression est définitive.",
+    "exportedDeleteDescription_other": "Ton export est en cours de téléchargement. Tu peux supprimer ces {{count}} cartes de la collection maintenant, ou les garder ici. La suppression est définitive.",
+    "exportedDeleteConfirm_one": "Supprimer la carte",
+    "exportedDeleteConfirm_other": "Supprimer {{count}} cartes",
+    "exportedKeep": "Garder les cartes",
     "deleteCardsTitle_one": "Supprimer {{count}} carte ?",
     "deleteCardsTitle_other": "Supprimer {{count}} cartes ?",
     "deleteCardsDescription_one": "Cela retirera définitivement la carte sélectionnée de ta collection. Cette action est irréversible.",
@@ -147,10 +154,13 @@
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
     "multipleMatchesResolvedTooltip": "Plusieurs correspondances proches, vérifiée",
-    "needsReviewTooltip": "À vérifier : reconnue uniquement par le nom ou sous le seuil de correspondance faible, touche pour vérifier",
-    "needsReviewResolvedTooltip": "À vérifier, vérifiée",
+    "lowConfidenceTooltip": "Correspondance incertaine : reconnue uniquement par le nom de la carte, ou la correspondance d'image est sous le seuil de correspondance faible. Touche pour vérifier",
+    "lowConfidenceResolvedTooltip": "Correspondance incertaine, vérifiée",
+    "reviewedTooltip": "Vérifiée",
     "matchTooltip": "À quel point l'image scannée correspond à cette carte, basé sur une recherche de similarité visuelle",
     "bin": "Bac {{number}}",
+    "storage": "{{name}} · #{{position}}",
+    "storageTooltip": "En stockage : {{name}}, position {{position}}",
     "quantityTooltip_one": "{{count}} exemplaire de cette carte dans cette collection",
     "quantityTooltip_other": "{{count}} exemplaires de cette carte dans cette collection"
   },
@@ -242,8 +252,9 @@
     "matchPercent": "Correspondance",
     "distance": "Distance",
     "confidence": "Confiance",
-    "needsReview": "Signalée pour vérification",
+    "lowConfidenceMatch": "Correspondance incertaine",
     "reviewed": "Vérifiée",
+    "corrected": "Corrigée",
     "vectorizedOn": "Vectorisée sur",
     "orientation": "Orientation",
     "orientationValue": {
@@ -305,7 +316,8 @@
       "shiftEnter": "Maj Entrée"
     },
     "complete_one": "Vérification terminée : {{count}} carte vérifiée",
-    "complete_other": "Vérification terminée : {{count}} cartes vérifiées"
+    "complete_other": "Vérification terminée : {{count}} cartes vérifiées",
+    "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées."
   },
   "removeDialog": {
     "title": "Retirer {{name}} ?",
@@ -328,5 +340,22 @@
     "scannedBy": "Par",
     "sorter": "Trieuse",
     "deletedSorter": "{{name}} (supprimée)"
+  },
+  "exportedDialog": {
+    "title_one": "1 carte exportée",
+    "title_other": "{{count}} cartes exportées",
+    "description_one": "Ton export est en cours de téléchargement. Range la carte dans un emplacement de stockage pour la retrouver plus tard, ou supprime-la de la collection.",
+    "description_other": "Ton export est en cours de téléchargement. Range les {{count}} cartes dans un emplacement de stockage pour les retrouver plus tard, ou supprime-les de la collection.",
+    "move": "Déplacer vers l'emplacement",
+    "delete_one": "Supprimer la carte",
+    "delete_other": "Supprimer {{count}} cartes"
+  },
+  "storageDeleteWarning": {
+    "single": "Cette carte est rangée dans {{name}} en position #{{position}}. La supprimer la retire aussi de cet emplacement.",
+    "all_one": "Cette carte est rangée dans un emplacement de stockage. La supprimer la retire aussi du stockage.",
+    "all_other": "Les {{count}} cartes sont rangées dans des emplacements de stockage. Les supprimer les retire aussi du stockage.",
+    "some_one": "1 de ces {{total}} cartes est rangée dans un emplacement de stockage. La supprimer la retire aussi du stockage.",
+    "some_other": "{{count}} de ces {{total}} cartes sont rangées dans des emplacements de stockage. Les supprimer les retire aussi du stockage.",
+    "deleteAnyway": "Supprimer quand même"
   }
 }

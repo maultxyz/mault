@@ -1,5 +1,6 @@
 import {
   confirmCollectionCard,
+  markCollectionCardReviewed,
   setCollectionCardCondition,
   setCollectionCardFoilType,
   updateCollectionCard,
@@ -9,12 +10,14 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import {
   createStorageLocation,
   deleteStorageLocation,
+  moveCardsToStorageLocation,
   removeCardFromStorageLocation,
   renameStorageLocation,
   storageLocationKeys,
   storageLocationsQueryOptions,
 } from "@/features/storage/api/storage-locations";
 import type { CardDetailActions } from "@/lib/interfaces/cards";
+import type { MoveCardsToLocationInput } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import type {
   CardCondition,
@@ -111,6 +114,40 @@ export function useStorageLocations() {
   };
 }
 
+export function useMoveCardsToLocation() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+  const { activeOrg } = useOrg();
+  const listKey = storageLocationsQueryOptions(activeOrg?.id).queryKey;
+
+  const mutation = useMutation({
+    mutationFn: ({ guid, scanIds }: MoveCardsToLocationInput) =>
+      moveCardsToStorageLocation(guid, scanIds),
+    onSuccess: (result, { collectionGuid }) => {
+      if (!result.success || !result.data) {
+        toast.error(result.message ?? t("toasts.failed"));
+        return;
+      }
+      queryClient.setQueryData(listKey, result.data.locations);
+      toast.success(t("toasts.cardsMoved", { count: result.data.moved }));
+      void queryClient.invalidateQueries({
+        queryKey: storageLocationKeys.root(),
+      });
+      if (collectionGuid) {
+        void invalidateCollectionCards(queryClient, collectionGuid);
+      }
+    },
+    onError: () => toast.error(t("toasts.failed")),
+  });
+
+  const moveCards = async (input: MoveCardsToLocationInput) => {
+    const result = await mutation.mutateAsync(input).catch(() => null);
+    return !!result?.success;
+  };
+
+  return { moveCards, isMoving: mutation.isPending };
+}
+
 export function useRemoveCardFromLocation() {
   const { t } = useTranslation("storage");
   const queryClient = useQueryClient();
@@ -176,7 +213,11 @@ export function useCorrectStoredCard() {
       card: PlayingCardWithDistance;
     }) => updateCollectionCard(entry.collectionGuid, entry.scanId, card),
     onMutate: ({ entry, card }) =>
-      patchStoredCard(queryClient, entry, { card, corrected: true }),
+      patchStoredCard(queryClient, entry, {
+        card,
+        corrected: true,
+        reviewed: true,
+      }),
     onSuccess: (result) => {
       if (!result.success)
         toast.error(result.message ?? t("toasts.correctFailed"));
@@ -207,7 +248,7 @@ export function useConfirmStoredCard() {
     mutationFn: (entry: StorageLocationSearchResult) =>
       confirmCollectionCard(entry.collectionGuid, entry.scanId),
     onMutate: (entry) =>
-      patchStoredCard(queryClient, entry, { corrected: true }),
+      patchStoredCard(queryClient, entry, { corrected: true, reviewed: true }),
     onSuccess: (result) => {
       if (!result.success) toast.error(result.message ?? t("toasts.failed"));
     },
@@ -217,6 +258,27 @@ export function useConfirmStoredCard() {
   });
 
   return { confirmCard: (entry: StorageLocationSearchResult) => mutation.mutate(entry) };
+}
+
+export function useMarkStoredCardReviewed() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (entry: StorageLocationSearchResult) =>
+      markCollectionCardReviewed(entry.collectionGuid, entry.scanId),
+    onMutate: (entry) => patchStoredCard(queryClient, entry, { reviewed: true }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, entry) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    markReviewed: (entry: StorageLocationSearchResult) => mutation.mutate(entry),
+  };
 }
 
 export function useSetStoredCardFoilType() {
@@ -292,6 +354,7 @@ export function useStoredCardActions(
 ): CardDetailActions {
   const { correctCard } = useCorrectStoredCard();
   const { confirmCard } = useConfirmStoredCard();
+  const { markReviewed } = useMarkStoredCardReviewed();
   const { setFoilType } = useSetStoredCardFoilType();
   const { setCondition } = useSetStoredCardCondition();
 
@@ -301,6 +364,9 @@ export function useStoredCardActions(
     },
     confirmCard: () => {
       if (entry) confirmCard(entry);
+    },
+    markCardReviewed: () => {
+      if (entry) markReviewed(entry);
     },
     setCardFoilType: (_scanId, foilType) => {
       if (entry) setFoilType(entry, foilType);

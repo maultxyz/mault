@@ -150,6 +150,7 @@ export interface ScannedCardsContextValue {
   removeCards: (scanIds: string[]) => void;
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
+  markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
@@ -615,7 +616,7 @@ export interface ScanAttemptOutcome extends ResolvedSearchMatches {
   embedding: number[] | null;
   topDistance: number | null;
   ocr: OcrDiagnostics | null;
-  needsReview: boolean;
+  lowConfidenceMatch: boolean;
   matchedBy: ScanMatchSource;
   detectedColor: string | null;
 }
