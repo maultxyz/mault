@@ -18,6 +18,7 @@ import {
   DUPLICATE_PRINTING_MAX_DISTANCE,
   MATCH_CONFIDENCE_TEMPERATURE,
   MATCH_MAX_DISTANCE_RATIO,
+  CARD_MATCH_HNSW_EF_SEARCH,
   CARD_MATCH_LIMIT,
   CARD_MATCH_RUNNER_UP_SEARCH_LIMIT,
 } from "../../lib/constants/card-search";
@@ -121,7 +122,7 @@ export async function findCardMatches(
       SELECT
         set_config('hnsw.iterative_scan', 'strict_order', true),
         set_config('hnsw.max_scan_tuples', '100000', true),
-        set_config('hnsw.ef_search', '200', true)
+        set_config('hnsw.ef_search', ${String(CARD_MATCH_HNSW_EF_SEARCH)}, true)
     `);
 
     const matches = await tx.execute(sql`

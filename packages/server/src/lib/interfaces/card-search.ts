@@ -101,6 +101,7 @@ export interface SyncSource {
   defaultUrl: string;
   fetchHeaders: Record<string, string>;
   languages: string[];
+  volatileDataKeys?: string[];
   fetchCards(
     baseUrl: string,
     addLog: (msg: string) => void,

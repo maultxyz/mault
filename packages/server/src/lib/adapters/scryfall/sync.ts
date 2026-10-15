@@ -4,6 +4,7 @@ import type { ReadableStream as NodeWebReadableStream } from "node:stream/web";
 import { createGunzip } from "node:zlib";
 import type { SyncSource, SyncSourceCard } from "../../interfaces/card-search";
 import { CARD_API_HEADERS } from "../../constants/card-search";
+import { SCRYFALL_VOLATILE_DATA_KEYS } from "../../constants/sync";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
 import type { ScryfallBulkCard } from "../../interfaces/scryfall";
 
@@ -138,6 +139,7 @@ export const scryfallSyncSource: SyncSource = {
     "zhs",
     "zht",
   ],
+  volatileDataKeys: SCRYFALL_VOLATILE_DATA_KEYS,
   fetchCards,
   fetchOne,
 };

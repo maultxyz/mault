@@ -67,6 +67,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 ### Scanning
 
 - Pipeline: corner detector + Milo embedder (ONNX, client via `onnxruntime-web`, server via `onnxruntime-node`), `cards.embedding vector(128)`, top-K cosine search. Weights are pinned by HF revision + SHA-256 and downloaded at runtime. Swapping the model is a breaking migration (see `drizzle/0037_little_marvel_apes.sql`). Filtered embedding queries need `hnsw.iterative_scan`.
+- Every non-HOT update of a `cards` row adds a duplicate HNSW entry and mass churn wrecks recall, so sync ignores `SyncSource.volatileDataKeys` diffs (stored `prices` in `cards.data` may be stale) and rebuilds the game's index after heavy churn. Vector indexes use `CARD_VECTOR_INDEX_M`/`EF_CONSTRUCTION`; a plain `REINDEX` keeps an index's old build params, so rebuild through `rebuildGameVectorIndex`.
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page (`markRuntimeFailed`); don't retry or "fall back".
 - Cards are routed as soon as they match, in parallel with the save. Saves go through `PendingScanSavesProvider` (IndexedDB retry queue, `isRetry` idempotency on `scanId`), never directly.
 - Server-side in-process state (scan locks, device leases, rate limits, leaderboard cache, deploy notice) is per process and resets on restart.

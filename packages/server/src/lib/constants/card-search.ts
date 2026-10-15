@@ -63,3 +63,7 @@ export const CARD_SETS_CACHE_TTL_MS = 15 * 60 * 1000;
 export const CARD_MATCH_LIMIT = 5;
 
 export const CARD_MATCH_RUNNER_UP_SEARCH_LIMIT = 20;
+
+export const CARD_MATCH_HNSW_EF_SEARCH = 1000;
+export const CARD_VECTOR_INDEX_M = 32;
+export const CARD_VECTOR_INDEX_EF_CONSTRUCTION = 200;

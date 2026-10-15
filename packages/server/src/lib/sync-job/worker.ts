@@ -3,12 +3,16 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
-import { SYNC_DATA_REFRESH_BATCH_SIZE } from "../constants/sync";
+import {
+  SYNC_DATA_REFRESH_BATCH_SIZE,
+  SYNC_REINDEX_MIN_CHANGED_FRACTION,
+} from "../constants/sync";
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
 import type { ParentToWorkerMessage, WorkerToParentMessage } from "../interfaces/sync-job";
 import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
+import { rebuildGameVectorIndex } from "../game-vector-index";
 
 function errorMessage(err: unknown): string {
   if (!(err instanceof Error)) return String(err);
@@ -134,13 +138,14 @@ async function refreshStoredData(
   source: SyncSource,
   lang: string,
   cards: SyncSourceCard[],
-): Promise<void> {
-  if (cards.length === 0) return;
+): Promise<number> {
+  if (cards.length === 0) return 0;
   addLog(`Refreshing stored data for ${cards.length} existing cards...`);
 
+  const volatileKeys = `{${(source.volatileDataKeys ?? []).join(",")}}`;
   let updated = 0;
   for (let i = 0; i < cards.length; i += SYNC_DATA_REFRESH_BATCH_SIZE) {
-    if (isCancelled()) return;
+    if (isCancelled()) return updated;
     const batch = cards.slice(i, i + SYNC_DATA_REFRESH_BATCH_SIZE);
     const rows = `[${batch
       .map((c) => {
@@ -162,7 +167,7 @@ async function refreshStoredData(
         AND c.lang = ${lang}
         AND c.card_id = x.card_id
         AND (
-          c.data IS DISTINCT FROM x.data
+          (c.data - ${volatileKeys}::text[]) IS DISTINCT FROM (x.data - ${volatileKeys}::text[])
           OR c.collector_number IS DISTINCT FROM x.collector_number
         )
     `);
@@ -170,6 +175,31 @@ async function refreshStoredData(
   }
 
   addLog(`Stored data refreshed (${updated} changed).`);
+  return updated;
+}
+
+async function rebuildVectorIndexIfChurned(
+  source: SyncSource,
+  lang: string,
+  changed: number,
+  total: number,
+): Promise<void> {
+  if (total === 0 || changed < total * SYNC_REINDEX_MIN_CHANGED_FRACTION) {
+    return;
+  }
+  addLog(
+    `${changed} of ${total} cards changed, rebuilding the vector index...`,
+  );
+  try {
+    const indexName = await rebuildGameVectorIndex(source.gameKey, lang);
+    addLog(
+      indexName
+        ? `Rebuilt vector index ${indexName}.`
+        : "No vector index found for this game and language, skipped rebuild.",
+    );
+  } catch (err) {
+    addLog(`Vector index rebuild failed: ${errorMessage(err)}`);
+  }
 }
 
 function emitCancelledDone(): void {
@@ -267,7 +297,7 @@ async function runSync(
       (!card.backImageUrl || vectorizedBacks.has(card.id))) ||
     recentlyUpdated.has(card.id);
 
-  await refreshStoredData(
+  const refreshed = await refreshStoredData(
     source,
     lang,
     cards.filter(isAlreadyVectorized),
@@ -429,6 +459,13 @@ async function runSync(
     emitCancelledDone();
     return;
   }
+
+  await rebuildVectorIndexIfChurned(
+    source,
+    lang,
+    refreshed + getState().processed,
+    existingSet.size,
+  );
 
   patchState({ status: "completed" });
   const s = getState();

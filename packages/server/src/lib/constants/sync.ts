@@ -1,4 +1,6 @@
 export const SYNC_DATA_REFRESH_BATCH_SIZE = 500;
+export const SYNC_REINDEX_MIN_CHANGED_FRACTION = 0.1;
+export const SCRYFALL_VOLATILE_DATA_KEYS = ["prices", "edhrec_rank", "penny_rank"];
 export const TCGPLAYER_PRICE_UPSERT_BATCH_SIZE = 1000;
 export const TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE = 1000;
 export const CARDMARKET_PRICE_UPSERT_BATCH_SIZE = 1000;
