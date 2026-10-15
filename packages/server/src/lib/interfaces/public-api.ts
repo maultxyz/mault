@@ -57,6 +57,7 @@ export interface PublicApiCardRow {
   condition: string;
   foil_type: string | null;
   needs_review: boolean;
+  is_reviewed: boolean;
   name: string;
   set_code: string;
   set_name: string;

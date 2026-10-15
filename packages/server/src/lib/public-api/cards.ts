@@ -34,7 +34,8 @@ async function selectCards(
   const result = await tx.execute(sql`
     SELECT cc.id, cc.guid::text AS scan_id, cc.card_id, cc.is_foil, cc.foil_type,
       cc.condition,
-      (cc.low_confidence_match OR (cc.alternative_matches IS NOT NULL AND cc.alternative_matches <> '[]'::jsonb)) AS needs_review,
+      ((cc.low_confidence_match OR (cc.alternative_matches IS NOT NULL AND cc.alternative_matches <> '[]'::jsonb)) AND NOT cc.is_corrected) AS needs_review,
+      cc.is_reviewed,
       cc.card ->> 'name' AS name, cc.card ->> 'set' AS set_code,
       cc.card ->> 'setName' AS set_name,
       cc.card ->> 'collectorNumber' AS collector_number,
@@ -117,6 +118,7 @@ export function toApiScannedCard(row: PublicApiCardRow): ApiScannedCard {
       name: row.collection_name,
     },
     needs_review: row.needs_review,
+    is_reviewed: row.is_reviewed,
     scanned_at: row.scanned_at,
     created_at: row.created_at,
     updated_at: row.updated_at,

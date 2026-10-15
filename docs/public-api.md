@@ -100,6 +100,7 @@ One physical copy of a card, so three copies of a printing are three `scanned_ca
     "name": "Store stock"
   },
   "needs_review": false,
+  "is_reviewed": true,
   "scanned_at": "2026-10-09T14:03:11.204Z",
   "created_at": "2026-10-09T14:03:11.391Z",
   "updated_at": "2026-10-09T15:20:02.118Z"
@@ -118,6 +119,7 @@ One physical copy of a card, so three copies of a printing are three `scanned_ca
 | `prices` | The printing's current prices as strings, like Scryfall: `usd`/`usd_foil` from TCGplayer, `eur`/`eur_foil` from Cardmarket. `null` when there's no price. Pick the one matching `finish`. |
 | `location` | Where this copy is stored, or `null` when it isn't in a storage location. `position` is its place in that box, counting up in the order cards were put away. Positions are never renumbered, so there can be gaps. |
 | `needs_review` | `true` when the scan wasn't certain and nobody has confirmed it yet. |
+| `is_reviewed` | `true` once someone has checked this copy in the app: accepted it during a review, confirmed the match or corrected it. |
 
 Only these fields are returned, not the full card record from the card's source database.
 
