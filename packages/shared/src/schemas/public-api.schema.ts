@@ -130,6 +130,11 @@ export const apiScannedCardSchema = z
     needs_review: z
       .boolean()
       .describe("True when the scan wasn't certain and nobody confirmed it."),
+    is_reviewed: z
+      .boolean()
+      .describe(
+        "True once someone has checked this copy in the app: accepted it during a review, confirmed the match or corrected it.",
+      ),
     scanned_at: timestamp,
     created_at: timestamp,
     updated_at: timestamp,
