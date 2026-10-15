@@ -1,4 +1,8 @@
-import type { OcrReadout, OcrRegion } from "@magic-vault/shared";
+import type {
+  OcrReadout,
+  OcrRegion,
+  OcrRegionTrace,
+} from "@magic-vault/shared";
 import sharp from "sharp";
 import {
   createWorker,
@@ -9,11 +13,13 @@ import {
 } from "tesseract.js";
 import { OCR_CALIBRATION_MIN_WORD_CONFIDENCE } from "./constants/ocr-calibration";
 import type { OcrBox, OcrPageLine } from "./interfaces/ocr-calibration";
-import type { OcrRectangle } from "./interfaces/ocr";
+import type { OcrRectangle, OcrRegionLocation } from "./interfaces/ocr";
 import { anchorRegion, regionBox, searchWindow } from "./ocr-anchor";
 import {
   OCR_ANCHOR_MIN_WORD_CONFIDENCE,
   OCR_DARK_BACKGROUND_THRESHOLD,
+  OCR_MULTILINE_REGION_LINES,
+  OCR_TARGET_LINE_HEIGHT_PX,
   OCR_UPSCALE_FACTOR,
   REGION_MARGIN_X,
   REGION_MARGIN_Y,
@@ -59,14 +65,21 @@ function boxRectangle(
   return { left, top, width: right - left, height: bottom - top };
 }
 
+function regionScale(region: OcrRegion, rectangle: OcrRectangle): number {
+  const lines = region.multiline ? OCR_MULTILINE_REGION_LINES : 1;
+  const scale = (OCR_TARGET_LINE_HEIGHT_PX * lines) / rectangle.height;
+  return Math.min(OCR_UPSCALE_FACTOR, Math.max(1, scale));
+}
+
 async function prepareRegion(
   buffer: Buffer,
   rectangle: OcrRectangle,
+  scale: number = OCR_UPSCALE_FACTOR,
 ): Promise<Buffer> {
   const gray = sharp(buffer)
     .extract(rectangle)
     .greyscale()
-    .resize({ width: rectangle.width * OCR_UPSCALE_FACTOR, kernel: "lanczos3" })
+    .resize({ width: Math.round(rectangle.width * scale), kernel: "lanczos3" })
     .normalise();
   const pixels = await gray.clone().raw().toBuffer();
   const mean = pixels.reduce((sum, value) => sum + value, 0) / pixels.length;
@@ -103,14 +116,14 @@ async function readWindowLines(
   window: OcrRectangle,
   imageWidth: number,
   imageHeight: number,
+  scale: number,
 ): Promise<OcrPageLine[]> {
   await setMode(worker, PSM.SPARSE_TEXT);
   const { data } = await worker.recognize(
-    await prepareRegion(buffer, window),
+    await prepareRegion(buffer, window, scale),
     {},
     { blocks: true },
   );
-  const scale = OCR_UPSCALE_FACTOR;
   return linesFromBlocks(data.blocks, OCR_ANCHOR_MIN_WORD_CONFIDENCE, (bbox) => ({
     x0: (window.left + bbox.x0 / scale) / imageWidth,
     y0: (window.top + bbox.y0 / scale) / imageHeight,
@@ -125,7 +138,8 @@ async function locateRegion(
   region: OcrRegion,
   imageWidth: number,
   imageHeight: number,
-): Promise<OcrBox> {
+): Promise<OcrRegionLocation> {
+  const fallback = { box: regionBox(region), anchored: false, anchorText: null };
   const window = boxRectangle(
     searchWindow(region),
     imageWidth,
@@ -133,20 +147,39 @@ async function locateRegion(
     0,
     0,
   );
-  if (window.width <= 0 || window.height <= 0) return regionBox(region);
+  const expected = boxRectangle(
+    regionBox(region),
+    imageWidth,
+    imageHeight,
+    REGION_MARGIN_X,
+    REGION_MARGIN_Y,
+  );
+  if (
+    window.width <= 0 ||
+    window.height <= 0 ||
+    expected.width <= 0 ||
+    expected.height <= 0
+  ) {
+    return fallback;
+  }
   const lines = await readWindowLines(
     worker,
     buffer,
     window,
     imageWidth,
     imageHeight,
+    regionScale(region, expected),
   );
-  return anchorRegion(region, lines) ?? regionBox(region);
+  const anchor = anchorRegion(region, lines);
+  return anchor
+    ? { box: anchor.box, anchored: true, anchorText: anchor.text }
+    : fallback;
 }
 
 async function readRegions(
   buffer: Buffer,
   regions: OcrRegion[],
+  trace?: OcrRegionTrace[],
 ): Promise<OcrReadout> {
   const readout: OcrReadout = { name: "", setLine: "", number: "" };
   if (regions.length === 0) return readout;
@@ -155,7 +188,13 @@ async function readRegions(
   const { width = 0, height = 0 } = await sharp(buffer).metadata();
 
   for (const region of regions) {
-    const box = await locateRegion(worker, buffer, region, width, height);
+    const { box, anchored, anchorText } = await locateRegion(
+      worker,
+      buffer,
+      region,
+      width,
+      height,
+    );
     const rectangle = boxRectangle(
       box,
       width,
@@ -165,10 +204,27 @@ async function readRegions(
     );
     if (rectangle.width <= 0 || rectangle.height <= 0) continue;
     await setMode(worker, region.multiline ? PSM.SINGLE_BLOCK : PSM.SINGLE_LINE);
-    const { data } = await worker.recognize(
-      await prepareRegion(buffer, rectangle),
+    const prepared = await prepareRegion(
+      buffer,
+      rectangle,
+      regionScale(region, rectangle),
     );
+    const { data } = await worker.recognize(prepared);
     const text = data.text.trim();
+    trace?.push({
+      field: region.field,
+      fallback: !!region.fallback,
+      anchored,
+      anchorText,
+      box: {
+        x0: rectangle.left / width,
+        y0: rectangle.top / height,
+        x1: (rectangle.left + rectangle.width) / width,
+        y1: (rectangle.top + rectangle.height) / height,
+      },
+      imageDataUrl: `data:image/png;base64,${prepared.toString("base64")}`,
+      text,
+    });
     readout[region.field] = readout[region.field]
       ? `${readout[region.field]}
 ${text}`
@@ -204,8 +260,9 @@ function enqueue<T>(task: () => Promise<T>): Promise<T> {
 export function ocrRegions(
   buffer: Buffer,
   regions: OcrRegion[],
+  trace?: OcrRegionTrace[],
 ): Promise<OcrReadout> {
-  return enqueue(() => readRegions(buffer, regions));
+  return enqueue(() => readRegions(buffer, regions, trace));
 }
 
 export function ocrPageLines(buffer: Buffer): Promise<OcrPageLine[]> {

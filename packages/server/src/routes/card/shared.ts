@@ -5,6 +5,7 @@ import type {
   OcrField,
   OcrReadout,
   OcrRegion,
+  OcrRegionTrace,
   PlayingCard,
   SearchCardMatch,
   SearchNoMatchReason,
@@ -457,10 +458,12 @@ export async function findCardMatchesByOcr(
   buffer: Buffer,
   regions: OcrRegion[],
   params: Omit<CardTextMatchParams, "readout">,
+  trace?: OcrRegionTrace[],
 ): Promise<CardTextMatchResult> {
   const readout = await ocrRegions(
     buffer,
     regions.filter((region) => !region.fallback),
+    trace,
   );
   const first = await findCardMatchesByText(jwtClaims, { ...params, readout });
 
@@ -475,7 +478,7 @@ export async function findCardMatchesByOcr(
 
   const second = await findCardMatchesByText(jwtClaims, {
     ...params,
-    readout: mergeReadouts(readout, await ocrRegions(buffer, fallbacks)),
+    readout: mergeReadouts(readout, await ocrRegions(buffer, fallbacks, trace)),
   });
   const used = second.data ? second : first;
   return { ...used, ocr: { ...used.ocr, usedFallback: true } };

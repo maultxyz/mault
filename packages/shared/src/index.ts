@@ -27,6 +27,7 @@ export * from "./interfaces/sort-bins.interface";
 export * from "./interfaces/scan-rule-fields.interface";
 export * from "./interfaces/storage-locations.interface";
 export * from "./interfaces/deleted-items.interface";
+export * from "./interfaces/admin-unmatched.interface";
 export * from "./interfaces/platform-stats.interface";
 export * from "./interfaces/plans.interface";
 export * from "./interfaces/organization.interface";

@@ -8,6 +8,7 @@ import type {
 import {
   deleteObjectPrefix,
   deleteObjects,
+  getObject,
   orgObjectPrefix,
   parseDataUrl,
   presignObjectUrl,
@@ -62,6 +63,17 @@ export async function resolveScanImageUrl(
     return presignObjectUrl(row.capturedImageKey);
   }
   return row.capturedImageDataUrl ?? undefined;
+}
+
+export async function loadScanImage(
+  row: StoredScanImageRow,
+): Promise<Buffer | null> {
+  if (row.capturedImageKey && OBJECT_STORAGE_ENABLED) {
+    return getObject(row.capturedImageKey);
+  }
+  return row.capturedImageDataUrl
+    ? (parseDataUrl(row.capturedImageDataUrl)?.body ?? null)
+    : null;
 }
 
 export function deleteScanImages(keys: (string | null)[]): void {

@@ -16,6 +16,7 @@ import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
 import { syncStartRoute } from "./sync-start";
 import { syncStatusRoute } from "./sync-status";
+import { unmatchedRetryRoute } from "./unmatched-retry";
 
 const router = new Hono<AppEnv>()
   .route("/", syncStatusRoute)
@@ -33,6 +34,7 @@ const router = new Hono<AppEnv>()
   .route("/", activeScanningRoute)
   .route("/", plansRoute)
   .route("/", platformStatsRoute)
-  .route("/", deletedItemsRoute);
+  .route("/", deletedItemsRoute)
+  .route("/", unmatchedRetryRoute);
 
 export { router as adminRouter };

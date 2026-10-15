@@ -11,6 +11,7 @@
     "discordStats": "Statistiques Discord",
     "announcements": "Annonces",
     "deleted": "Éléments supprimés",
+    "unmatched": "Scans non reconnus",
     "servos": "Test des kits",
     "device": "Appareil",
     "developer": "Développeur"
@@ -367,6 +368,88 @@
       "restored": "{{name}} restauré",
       "restoreError": "Impossible de restaurer cet élément"
     }
+  },
+  "unmatchedRetry": {
+    "heading": "Scans non reconnus",
+    "description": "Les scans non reconnus les plus récents de toutes les organisations. Réessayer lance la reconnaissance actuelle sur les données enregistrées de chaque scan et montre ce qui serait reconnu maintenant. Rien n'est enregistré ni modifié. Réessayer un seul scan suit le scan en direct : si la reconnaissance par image est incertaine, l'OCR est aussi lancée sur la photo enregistrée. Tout réessayer ne refait que la reconnaissance par image, pour ne pas ralentir l'OCR des scans en direct.",
+    "searchPlaceholder": "Rechercher par organisation, collection ou carte",
+    "retryAll": "Tout réessayer ({{count}})",
+    "retry": "Réessayer",
+    "empty": "Aucun scan non reconnu",
+    "imageAlt": "Carte scannée",
+    "unknownOrg": "Organisation inconnue",
+    "original": "Au moment du scan : {{details}}",
+    "originalNone": "aucun détail",
+    "notRetried": "Pas encore réessayé",
+    "nearest": "Plus proche : {{name}} à {{distance}}",
+    "runnerUp": "Trop proche de {{name}} à {{distance}}",
+    "distance": "Distance {{value}}",
+    "cardLine": "{{name}} ({{set}} n°{{number}})",
+    "cardMissing": "Reconnue, mais les détails de la carte n'ont pas pu être chargés",
+    "statuses": {
+      "match": "Serait reconnue",
+      "no_match": "Toujours non reconnue",
+      "no_embedding": "Aucun embedding enregistré, impossible de réessayer",
+      "no_game": "Aucun jeu défini pour cette collection"
+    },
+    "reasons": {
+      "too_far": "Aucune correspondance proche",
+      "ambiguous": "Ambigu",
+      "empty_index": "Non synchronisé",
+      "no_consensus": "Instable",
+      "lookup_failed": "Échec du chargement"
+    },
+    "toasts": {
+      "retryError": "Impossible de réessayer les scans. Réessaie.",
+      "ocrError": "Impossible de lancer l'OCR sur ce scan. Réessaie."
+    },
+    "detail": {
+      "open": "Voir les détails du scan",
+      "title": "Détails du scan",
+      "scannedPhoto": "Photo scannée",
+      "matchedCard": "Serait reconnue : {{name}}",
+      "matchedCardEmpty": "Carte reconnue",
+      "compareHint": "Réessaie ce scan pour le comparer à la carte qui serait reconnue.",
+      "atScanTime": "Au moment du scan",
+      "noDiagnostics": "Aucune donnée de diagnostic n'a été enregistrée pour ce scan.",
+      "retryResult": "Résultat du nouvel essai",
+      "candidates": "Cartes les plus proches (seuil {{threshold}})",
+      "scanId": "ID du scan : {{id}}",
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+    "photoFilters": {
+      "all": "Toutes les photos",
+      "good": "Bonnes photos",
+      "bad": "Mauvaises photos"
+    },
+    "badPhoto": "Mauvaise photo",
+    "markBadPhoto": "Marquer comme mauvaise photo",
+    "unmarkBadPhoto": "Retirer la marque de mauvaise photo",
+    "summary": "Bonnes photos : {{retried}} réessayées, {{matched}} seraient reconnues, {{unmatched}} toujours non reconnues. Mauvaises photos : {{bad}}.",
+    "ocr": {
+      "heading": "Texte sur la carte (OCR)",
+      "run": "Lancer l'OCR",
+      "hint": "Lance l'OCR sur la photo enregistrée de ce scan et montre chaque zone lue. La photo enregistrée a une résolution plus faible que l'image de la caméra en direct, donc l'OCR en direct peut lire un peu mieux.",
+      "unsupported": "L'OCR n'est pas configurée pour ce jeu.",
+      "fields": {
+        "name": "Nom",
+        "setLine": "Ligne d'extension",
+        "number": "Numéro"
+      },
+      "anchored": "Texte trouvé",
+      "defaultPosition": "Position par défaut",
+      "fallbackRegion": "Zone de secours",
+      "nothingRead": "Rien de lu",
+      "closestName": "Nom de carte le plus proche : {{name}} (similarité {{score}})",
+      "noName": "Aucun nom de carte n'était assez proche du texte lu.",
+      "usedFallback": "Les zones de secours ont aussi été lues.",
+      "noMatch": "Aucune correspondance par le texte",
+      "anchoredTo": "Zone placée sur la ligne lue comme \"{{text}}\""
+    },
+    "matchedByImage": "Reconnue par l'image",
+    "matchedByOcr": "Reconnue par l'OCR",
+    "ocrNoName": "L'OCR a lu \"{{text}}\", aucun nom de carte n'était assez proche"
   },
   "platformStats": {
     "destinationHeading": "Destination",

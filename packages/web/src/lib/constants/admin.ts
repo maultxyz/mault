@@ -1,5 +1,8 @@
 import { DELETED_ITEM_TYPES, type SyncState } from "@magic-vault/shared";
-import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
+import type {
+  DeletedItemTypeFilter,
+  UnmatchedPhotoFilter,
+} from "@/lib/interfaces/admin";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import {
   IconBrandDiscord,
@@ -9,6 +12,7 @@ import {
   IconDeviceGamepad2,
   IconRestore,
   IconRotate360,
+  IconScanEye,
   IconSpeakerphone,
   IconTerminal2,
   IconUserScan,
@@ -38,6 +42,14 @@ export const DELETED_ITEM_TYPE_FILTERS: DeletedItemTypeFilter[] = [
   ...DELETED_ITEM_TYPES,
 ];
 
+export const UNMATCHED_PHOTO_FILTERS: UnmatchedPhotoFilter[] = [
+  "all",
+  "good",
+  "bad",
+];
+
+export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
+
 export const ADMIN_SECTIONS = [
   { path: "cards", icon: IconCards, labelKey: "sections.cards" },
   { path: "games", icon: IconDeviceGamepad2, labelKey: "sections.games" },
@@ -54,6 +66,7 @@ export const ADMIN_SECTIONS = [
     labelKey: "sections.announcements",
   },
   { path: "deleted", icon: IconRestore, labelKey: "sections.deleted" },
+  { path: "unmatched", icon: IconScanEye, labelKey: "sections.unmatched" },
   { path: "servos", icon: IconRotate360, labelKey: "sections.servos" },
   { path: "device", icon: IconTerminal2, labelKey: "sections.device" },
   { path: "developer", icon: IconBug, labelKey: "sections.developer" },

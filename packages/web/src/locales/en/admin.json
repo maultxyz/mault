@@ -11,6 +11,7 @@
     "discordStats": "Discord stats",
     "announcements": "Announcements",
     "deleted": "Deleted items",
+    "unmatched": "Unmatched scans",
     "servos": "Kit testing",
     "device": "Device",
     "developer": "Developer"
@@ -378,6 +379,88 @@
       "restored": "Restored {{name}}",
       "restoreError": "Couldn't restore that item"
     }
+  },
+  "unmatchedRetry": {
+    "heading": "Unmatched scans",
+    "description": "The most recent unmatched scans across all organizations. Retry runs today's card matching on each scan's saved data and shows what it would match now. Nothing is saved or changed. Retrying a single scan follows live scanning: if the image match is unsure, it also runs OCR on the saved photo. Retry all only re-runs the image match, so it doesn't hold up OCR for live scans.",
+    "searchPlaceholder": "Search by organization, collection or card",
+    "retryAll": "Retry all ({{count}})",
+    "retry": "Retry",
+    "empty": "No unmatched scans",
+    "imageAlt": "Scanned card",
+    "unknownOrg": "Unknown organization",
+    "original": "At scan time: {{details}}",
+    "originalNone": "no details",
+    "notRetried": "Not retried yet",
+    "nearest": "Nearest: {{name}} at {{distance}}",
+    "runnerUp": "Too close to {{name}} at {{distance}}",
+    "distance": "Distance {{value}}",
+    "cardLine": "{{name}} ({{set}} #{{number}})",
+    "cardMissing": "Matched, but the card details couldn't be loaded",
+    "statuses": {
+      "match": "Would match",
+      "no_match": "Still unmatched",
+      "no_embedding": "No saved embedding, can't retry",
+      "no_game": "No game set for this collection"
+    },
+    "reasons": {
+      "too_far": "No close match",
+      "ambiguous": "Ambiguous",
+      "empty_index": "Not synced",
+      "no_consensus": "Unstable",
+      "lookup_failed": "Lookup failed"
+    },
+    "toasts": {
+      "retryError": "Couldn't retry the scans. Try again.",
+      "ocrError": "Couldn't run OCR on this scan. Try again."
+    },
+    "detail": {
+      "open": "View scan details",
+      "title": "Scan details",
+      "scannedPhoto": "Scanned photo",
+      "matchedCard": "Would match: {{name}}",
+      "matchedCardEmpty": "Matched card",
+      "compareHint": "Retry this scan to compare it with the card it would match.",
+      "atScanTime": "At scan time",
+      "noDiagnostics": "No diagnostics were saved for this scan.",
+      "retryResult": "Retry result",
+      "candidates": "Nearest cards (match limit {{threshold}})",
+      "scanId": "Scan ID: {{id}}",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "photoFilters": {
+      "all": "All photos",
+      "good": "Good photos",
+      "bad": "Bad photos"
+    },
+    "badPhoto": "Bad photo",
+    "markBadPhoto": "Mark as bad photo",
+    "unmarkBadPhoto": "Unmark bad photo",
+    "summary": "Good photos: {{retried}} retried, {{matched}} would match, {{unmatched}} still unmatched. Bad photos: {{bad}}.",
+    "ocr": {
+      "heading": "Text on the card (OCR)",
+      "run": "Run OCR",
+      "hint": "Runs OCR on this scan's saved photo and shows each region it reads. The saved photo is lower resolution than the live camera frame, so live OCR can read slightly better.",
+      "unsupported": "OCR isn't set up for this game.",
+      "fields": {
+        "name": "Name",
+        "setLine": "Set line",
+        "number": "Number"
+      },
+      "anchored": "Text found",
+      "defaultPosition": "Default position",
+      "fallbackRegion": "Fallback",
+      "nothingRead": "Nothing read",
+      "closestName": "Closest card name: {{name}} (similarity {{score}})",
+      "noName": "No card name was close enough to the text read.",
+      "usedFallback": "The fallback regions were also read.",
+      "noMatch": "No match from text",
+      "anchoredTo": "Box placed on the line read as \"{{text}}\""
+    },
+    "matchedByImage": "Matched by image",
+    "matchedByOcr": "Matched by OCR",
+    "ocrNoName": "OCR read \"{{text}}\", no card name was close enough"
   },
   "platformStats": {
     "destinationHeading": "Destination",

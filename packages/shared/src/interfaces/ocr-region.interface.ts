@@ -12,6 +12,16 @@ export interface OcrRegion {
 
 export type OcrReadout = Record<OcrField, string>;
 
+export interface OcrRegionTrace {
+  field: OcrField;
+  fallback: boolean;
+  anchored: boolean;
+  anchorText: string | null;
+  box: { x0: number; y0: number; x1: number; y1: number };
+  imageDataUrl: string;
+  text: string;
+}
+
 export interface OcrDiagnostics {
   readout: OcrReadout;
   matchedName: string | null;

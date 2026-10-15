@@ -11,6 +11,7 @@
     "discordStats": "Discord-Statistiken",
     "announcements": "Ankündigungen",
     "deleted": "Gelöschte Elemente",
+    "unmatched": "Nicht erkannte Scans",
     "servos": "Bausatz-Test",
     "device": "Gerät",
     "developer": "Entwickler"
@@ -367,6 +368,88 @@
       "restored": "{{name}} wiederhergestellt",
       "restoreError": "Das Element konnte nicht wiederhergestellt werden"
     }
+  },
+  "unmatchedRetry": {
+    "heading": "Nicht erkannte Scans",
+    "description": "Die neuesten nicht erkannten Scans aus allen Organisationen. Ein erneuter Versuch führt den aktuellen Kartenabgleich mit den gespeicherten Daten jedes Scans aus und zeigt, was jetzt erkannt würde. Es wird nichts gespeichert oder geändert. Ein einzelner Scan wird wie beim Live-Scannen geprüft: Ist der Bildabgleich unsicher, läuft zusätzlich OCR auf dem gespeicherten Foto. Alle erneut versuchen wiederholt nur den Bildabgleich, damit die OCR für Live-Scans nicht ausgebremst wird.",
+    "searchPlaceholder": "Nach Organisation, Sammlung oder Karte suchen",
+    "retryAll": "Alle erneut versuchen ({{count}})",
+    "retry": "Erneut versuchen",
+    "empty": "Keine nicht erkannten Scans",
+    "imageAlt": "Gescannte Karte",
+    "unknownOrg": "Unbekannte Organisation",
+    "original": "Beim Scan: {{details}}",
+    "originalNone": "keine Details",
+    "notRetried": "Noch nicht erneut versucht",
+    "nearest": "Am nächsten: {{name}} mit {{distance}}",
+    "runnerUp": "Zu nah an {{name}} mit {{distance}}",
+    "distance": "Abstand {{value}}",
+    "cardLine": "{{name}} ({{set}} #{{number}})",
+    "cardMissing": "Erkannt, aber die Kartendetails konnten nicht geladen werden",
+    "statuses": {
+      "match": "Würde erkannt",
+      "no_match": "Weiterhin nicht erkannt",
+      "no_embedding": "Kein gespeichertes Embedding, kein erneuter Versuch möglich",
+      "no_game": "Kein Spiel für diese Sammlung festgelegt"
+    },
+    "reasons": {
+      "too_far": "Kein naher Treffer",
+      "ambiguous": "Mehrdeutig",
+      "empty_index": "Nicht synchronisiert",
+      "no_consensus": "Instabil",
+      "lookup_failed": "Abruf fehlgeschlagen"
+    },
+    "toasts": {
+      "retryError": "Die Scans konnten nicht erneut versucht werden. Versuche es erneut.",
+      "ocrError": "OCR konnte für diesen Scan nicht ausgeführt werden. Versuche es erneut."
+    },
+    "detail": {
+      "open": "Scan-Details anzeigen",
+      "title": "Scan-Details",
+      "scannedPhoto": "Gescanntes Foto",
+      "matchedCard": "Würde erkannt: {{name}}",
+      "matchedCardEmpty": "Erkannte Karte",
+      "compareHint": "Versuche diesen Scan erneut, um ihn mit der Karte zu vergleichen, die erkannt würde.",
+      "atScanTime": "Beim Scan",
+      "noDiagnostics": "Für diesen Scan wurden keine Diagnosedaten gespeichert.",
+      "retryResult": "Ergebnis des erneuten Versuchs",
+      "candidates": "Nächste Karten (Grenzwert {{threshold}})",
+      "scanId": "Scan-ID: {{id}}",
+      "previous": "Zurück",
+      "next": "Weiter"
+    },
+    "photoFilters": {
+      "all": "Alle Fotos",
+      "good": "Gute Fotos",
+      "bad": "Schlechte Fotos"
+    },
+    "badPhoto": "Schlechtes Foto",
+    "markBadPhoto": "Als schlechtes Foto markieren",
+    "unmarkBadPhoto": "Markierung als schlechtes Foto entfernen",
+    "summary": "Gute Fotos: {{retried}} erneut versucht, {{matched}} würden erkannt, {{unmatched}} weiterhin nicht erkannt. Schlechte Fotos: {{bad}}.",
+    "ocr": {
+      "heading": "Text auf der Karte (OCR)",
+      "run": "OCR ausführen",
+      "hint": "Führt OCR auf dem gespeicherten Foto dieses Scans aus und zeigt jeden gelesenen Bereich. Das gespeicherte Foto hat eine geringere Auflösung als das Live-Kamerabild, daher kann die Live-OCR etwas besser lesen.",
+      "unsupported": "OCR ist für dieses Spiel nicht eingerichtet.",
+      "fields": {
+        "name": "Name",
+        "setLine": "Set-Zeile",
+        "number": "Nummer"
+      },
+      "anchored": "Text gefunden",
+      "defaultPosition": "Standardposition",
+      "fallbackRegion": "Ausweichbereich",
+      "nothingRead": "Nichts gelesen",
+      "closestName": "Nächster Kartenname: {{name}} (Ähnlichkeit {{score}})",
+      "noName": "Kein Kartenname war nah genug am gelesenen Text.",
+      "usedFallback": "Die Ausweichbereiche wurden ebenfalls gelesen.",
+      "noMatch": "Kein Treffer per Text",
+      "anchoredTo": "Bereich auf die Zeile gesetzt, die als \"{{text}}\" gelesen wurde"
+    },
+    "matchedByImage": "Per Bild erkannt",
+    "matchedByOcr": "Per OCR erkannt",
+    "ocrNoName": "OCR hat \"{{text}}\" gelesen, kein Kartenname war nah genug"
   },
   "platformStats": {
     "destinationHeading": "Ziel",

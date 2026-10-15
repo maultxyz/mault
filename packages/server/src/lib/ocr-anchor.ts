@@ -5,6 +5,7 @@ import {
   OCR_SEARCH_MARGIN_X,
   OCR_SEARCH_MARGIN_Y,
 } from "./constants/ocr";
+import type { OcrAnchor } from "./interfaces/ocr";
 import type { OcrBox, OcrPageLine } from "./interfaces/ocr-calibration";
 
 export function regionBox(region: OcrRegion): OcrBox {
@@ -49,47 +50,58 @@ function union(boxes: OcrBox[]): OcrBox {
   };
 }
 
+function lineText(line: OcrPageLine): string {
+  return line.words.map((word) => word.text).join(" ");
+}
+
 export function anchorRegion(
   region: OcrRegion,
   lines: OcrPageLine[],
-): OcrBox | null {
+): OcrAnchor | null {
   const expected = regionBox(region);
   const window = searchWindow(region);
   const minHeight =
     (expected.y1 - expected.y0) * OCR_ANCHOR_MIN_LINE_HEIGHT_RATIO;
-  const candidates = lines
-    .map((line) => line.box)
-    .filter(
-      (box) =>
-        box.y1 - box.y0 >= minHeight &&
-        overlaps(box.x0, box.x1, expected.x0, expected.x1) &&
-        overlaps(box.y0, box.y1, window.y0, window.y1),
-    );
+  const candidates = lines.filter(
+    ({ box }) =>
+      box.y1 - box.y0 >= minHeight &&
+      overlaps(box.x0, box.x1, expected.x0, expected.x1) &&
+      overlaps(box.y0, box.y1, window.y0, window.y1),
+  );
   if (candidates.length === 0) return null;
 
   if (region.multiline) {
-    const inside = candidates.filter((box) =>
+    const inside = candidates.filter(({ box }) =>
       overlaps(box.y0, box.y1, expected.y0, expected.y1),
     );
     if (inside.length === 0) return null;
-    const text = union(inside);
+    const text = union(inside.map((line) => line.box));
     return {
-      x0: Math.min(expected.x0, text.x0),
-      y0: text.y0,
-      x1: Math.max(expected.x1, text.x1),
-      y1: text.y1,
+      box: {
+        x0: Math.min(expected.x0, text.x0),
+        y0: text.y0,
+        x1: Math.max(expected.x1, text.x1),
+        y1: text.y1,
+      },
+      text: inside.map(lineText).join("\n"),
     };
   }
 
-  const best = candidates.reduce((winner, box) =>
-    lineScore(box, expected) < lineScore(winner, expected) ? box : winner,
+  const best = candidates.reduce((winner, line) =>
+    lineScore(line.box, expected) < lineScore(winner.box, expected)
+      ? line
+      : winner,
   );
-  const center = (best.y0 + best.y1) / 2;
-  const halfHeight = Math.max(best.y1 - best.y0, expected.y1 - expected.y0) / 2;
+  const center = (best.box.y0 + best.box.y1) / 2;
+  const halfHeight =
+    Math.max(best.box.y1 - best.box.y0, expected.y1 - expected.y0) / 2;
   return {
-    x0: Math.min(expected.x0, best.x0),
-    y0: center - halfHeight,
-    x1: Math.max(expected.x1, best.x1),
-    y1: center + halfHeight,
+    box: {
+      x0: Math.min(expected.x0, best.box.x0),
+      y0: center - halfHeight,
+      x1: Math.max(expected.x1, best.box.x1),
+      y1: center + halfHeight,
+    },
+    text: lineText(best),
   };
 }

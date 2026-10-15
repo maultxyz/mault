@@ -57,6 +57,14 @@ export async function putObject(
   );
 }
 
+export async function getObject(key: string): Promise<Buffer> {
+  const { Body } = await getClient().send(
+    new GetObjectCommand({ Bucket: SCAN_IMAGE_BUCKET, Key: key }),
+  );
+  if (!Body) throw new Error(`Object ${key} has no body`);
+  return Buffer.from(await Body.transformToByteArray());
+}
+
 export function presignObjectUrl(key: string): Promise<string> {
   return getSignedUrl(
     getClient(),
