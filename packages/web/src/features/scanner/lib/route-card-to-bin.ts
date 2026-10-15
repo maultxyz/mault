@@ -3,11 +3,11 @@ import {
 } from "@/features/notifications/api/notification-settings";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/scanner";
 import type { RouteCardToBinParams } from "@/lib/interfaces/scanner";
-import { toast } from "@/lib/toast";
 
 export async function routeCardToBin({
   route,
   sendRoute,
+  toast,
   t,
   failedKey,
   cardName,

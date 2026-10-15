@@ -38,7 +38,7 @@ import { useOnnxRuntimeFailureToast } from "@/features/scanner/api/use-onnx-runt
 import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
@@ -50,6 +50,7 @@ export function CardScanner({
   controlsContainer,
 }: CardScannerComponentProps) {
   const { t } = useTranslation("scanner");
+  const toast = useStationToast();
   const navigate = useNavigate();
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
@@ -253,7 +254,7 @@ export function CardScanner({
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [pause, t]);
+  }, [toast, pause, t]);
 
   const deviceNeutralRef = useRef(false);
 
@@ -327,6 +328,17 @@ export function CardScanner({
             response: parsed,
             collectionGuid: activeCollection?.guid,
           });
+        } else if (parsed.detected === false && !ignoreIrSensors) {
+          pause();
+          toast.error(t("cardScanner.noCardDetected.title"), {
+            description: t("cardScanner.noCardDetected.description"),
+          });
+          void reportSerialEvent({
+            command: "feeder",
+            sent: true,
+            response: parsed,
+            collectionGuid: activeCollection?.guid,
+          });
         } else {
           handleCardArrived();
         }
@@ -345,12 +357,14 @@ export function CardScanner({
       setIsFeeding(false);
     }
   }, [
+    toast,
     isReady,
     ignoreIrSensors,
     prepareDevice,
     sendRequest,
     handleCardArrived,
     handlePause,
+    pause,
     t,
     activeCollection?.guid,
   ]);
@@ -381,29 +395,29 @@ export function CardScanner({
     } finally {
       setIsClearingDevice(false);
     }
-  }, [isReady, sendRequest, t]);
+  }, [toast, isReady, sendRequest, t]);
 
-  const handleForceScanClick = useCallback(async () => {
-    if (!isReady || ignoreIrSensors) {
-      handleForceScan();
-      return;
-    }
+  const isModuleOneEmpty = useCallback(async () => {
+    if (!isReady || ignoreIrSensors) return false;
     try {
       const { line: response } = await sendRequest({ readIR: true }, 2000);
-      if (response) {
-        const parsed = JSON.parse(response) as Record<string, unknown>;
-        if (Array.isArray(parsed.ir) && !parsed.ir[0]) {
-          toast.error(t("cardScanner.noCardDetected.title"), {
-            description: t("cardScanner.noCardDetected.description"),
-          });
-          return;
-        }
-      }
+      if (!response) return false;
+      const parsed = JSON.parse(response) as Record<string, unknown>;
+      return Array.isArray(parsed.ir) && !parsed.ir[0];
     } catch {
-      // Malformed/missing response - fall through to the scan attempt.
+      return false;
+    }
+  }, [isReady, ignoreIrSensors, sendRequest]);
+
+  const handleForceScanClick = useCallback(async () => {
+    if (await isModuleOneEmpty()) {
+      toast.error(t("cardScanner.noCardDetected.title"), {
+        description: t("cardScanner.noCardDetected.description"),
+      });
+      return;
     }
     handleForceScan();
-  }, [isReady, ignoreIrSensors, sendRequest, handleForceScan, t]);
+  }, [toast, isModuleOneEmpty, handleForceScan, t]);
 
   useEffect(() => {
     return registerCardArrivedHook(handleCardArrived);
@@ -416,6 +430,9 @@ export function CardScanner({
   const handleResumeScanning = useCallback(async () => {
     if (!(await prepareDevice())) return;
     clearFeedHalt();
+    if (heldCardArrivalRef.current && (await isModuleOneEmpty())) {
+      heldCardArrivalRef.current = false;
+    }
     if (heldCardArrivalRef.current) {
       handleResumeClick();
       return;
@@ -425,6 +442,7 @@ export function CardScanner({
   }, [
     prepareDevice,
     clearFeedHalt,
+    isModuleOneEmpty,
     handleResumeClick,
     handleResume,
     handleFeed,

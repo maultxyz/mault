@@ -5,12 +5,13 @@ import {
   JAM_TOAST_ID_PREFIX,
 } from "@/lib/constants/scanner";
 import type { JamToastOptions } from "@/lib/interfaces/scanner";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { useCallback, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 export function useJamToast(onResume: () => void) {
   const { t } = useTranslation("scanner");
+  const toast = useStationToast();
   const { isReady, sendRequest, readIR } = useSerial();
   const latestRef = useRef({ t, isReady, sendRequest, onResume });
   latestRef.current = { t, isReady, sendRequest, onResume };
@@ -108,6 +109,6 @@ export function useJamToast(onResume: () => void) {
           : t("cardScanner.jamDetected.description", { module }),
       );
     },
-    [isModuleBlocked, runCommand],
+    [toast, isModuleBlocked, runCommand],
   );
 }

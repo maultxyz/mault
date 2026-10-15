@@ -9,7 +9,11 @@ import {
   UNMATCHED_RATE_TOAST_ID,
   UNMATCHED_RATE_WINDOW,
 } from "@/lib/constants/scanner";
-import { toast } from "@/lib/toast";
+import {
+  useSharedStationName,
+  useStationToast,
+} from "@/features/scanner/api/use-station-toast";
+import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useRef } from "react";
@@ -18,6 +22,10 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 
 export function useUnmatchedRateToast() {
   const navigate = useNavigate();
+  const toast = useStationToast();
+  const stationName = useSharedStationName();
+  const { station } = useStation();
+  const { setActiveStation } = useStations();
   const { activeOrg } = useOrg();
   const { activeCollection } = useCollections();
   const { data: orgSettings } = useQuery(
@@ -28,17 +36,26 @@ export function useUnmatchedRateToast() {
     (OCR_REGIONS_BY_GAME_KEY[activeCollection?.game?.key ?? ""]?.length ?? 0) >
       0;
 
-  const latestRef = useRef({ navigate, suggestOcr });
-  latestRef.current = { navigate, suggestOcr };
+  const openForStation = (path: string) => {
+    setActiveStation(station.id);
+    navigate(path);
+  };
+  const latestRef = useRef({ openForStation, suggestOcr, stationName });
+  latestRef.current = { openForStation, suggestOcr, stationName };
   const outcomesRef = useRef<boolean[]>([]);
   const lastShownAtRef = useRef<number | null>(null);
 
   const showToast = useCallback(() => {
-    const { navigate: go, suggestOcr: withOcr } = latestRef.current;
+    const {
+      openForStation: go,
+      suggestOcr: withOcr,
+      stationName: name,
+    } = latestRef.current;
     toast.custom(
       (id) => (
         <UnmatchedRateToast
           toastId={id}
+          stationName={name}
           suggestOcr={withOcr}
           onOpenCalibration={() => go("/app/calibrate/scan-region")}
           onOpenSettings={() => go(SETTINGS_PATHS.scanning)}
@@ -46,7 +63,7 @@ export function useUnmatchedRateToast() {
       ),
       { id: UNMATCHED_RATE_TOAST_ID, duration: Infinity },
     );
-  }, []);
+  }, [toast]);
 
   const recordScanOutcome = useCallback((matched: boolean) => {
     const outcomes = [...outcomesRef.current, matched].slice(

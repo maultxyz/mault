@@ -6,7 +6,7 @@ import { isFedEvent } from "@/features/scanner/lib/serial-messages";
 import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import type { AutoFeedSerial } from "@/lib/interfaces/scanner";
 
 export function useAutoFeed({
@@ -17,6 +17,7 @@ export function useAutoFeed({
   activeCollectionRef: RefObject<Collection | null | undefined>;
 }) {
   const { t } = useTranslation("scanner");
+  const toast = useStationToast();
   const [autoFeed, setAutoFeedState] = useState(true);
   const autoFeedRef = useRef(true);
   const cardArrivedHookRef = useRef<(() => void) | null>(null);
@@ -98,11 +99,25 @@ export function useAutoFeed({
           response: parsed,
           collectionGuid: activeCollectionRef.current?.guid,
         });
+      } else if (
+        parsed.detected === false &&
+        !serialRef.current.ignoreIrSensors
+      ) {
+        pause();
+        toast.error(t("cardScanner.noCardDetected.title"), {
+          description: t("cardScanner.noCardDetected.description"),
+        });
+        void reportSerialEvent({
+          command: "auto-feed",
+          sent: true,
+          response: parsed,
+          collectionGuid: activeCollectionRef.current?.guid,
+        });
       } else {
         cardArrivedHookRef.current?.();
       }
     },
-    [t, serialRef, activeCollectionRef, pause],
+    [toast, t, serialRef, activeCollectionRef, pause],
   );
 
   useSerialMessage((message) => {
@@ -155,7 +170,7 @@ export function useAutoFeed({
         collectionGuid: activeCollectionRef.current?.guid,
       });
     }
-  }, [t, serialRef, activeCollectionRef, pause, handleFeedResult]);
+  }, [toast, t, serialRef, activeCollectionRef, pause, handleFeedResult]);
 
   return {
     autoFeed,

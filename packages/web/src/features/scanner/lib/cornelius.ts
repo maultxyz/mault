@@ -6,15 +6,9 @@ import {
   IMAGENET_STD,
   type Point,
 } from "@magic-vault/shared";
-import { loadOnnxSession, ort, runOnnxSession } from "./onnx-runtime";
+import { ort, runOnnxModel } from "./onnx-runtime";
 import type { CornerDetection } from "@/lib/interfaces/scanner";
 import { DEFAULT_MIN_SHARPNESS } from "@/lib/constants/scanner";
-
-function getSession() {
-  return loadOnnxSession("detector", CORNER_DETECTOR_MODEL, {
-    graphOptimizationLevel: "disabled",
-  });
-}
 
 function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
   const cropCanvas = document.createElement("canvas");
@@ -116,13 +110,15 @@ export async function detectCardCorners(
   canvas: HTMLCanvasElement,
   minSharpness: number = DEFAULT_MIN_SHARPNESS,
 ): Promise<CornerDetection> {
-  const session = await getSession();
   const chw = toChwTensor(canvas);
 
   const tensor = new ort.Tensor("float32", chw, [1, 3, CORNER_DETECTOR_INPUT_SIZE, CORNER_DETECTOR_INPUT_SIZE]);
-  const outputs = await runOnnxSession("detector", session, {
-    [session.inputNames[0]]: tensor,
-  });
+  const { outputs } = await runOnnxModel(
+    "detector",
+    CORNER_DETECTOR_MODEL,
+    (session) => ({ [session.inputNames[0]]: tensor }),
+    { graphOptimizationLevel: "disabled" },
+  );
 
   const corners = outputs["corners"].data as Float32Array;
   const sharpnessOut = outputs["sharpness"]?.data as Float32Array | undefined;

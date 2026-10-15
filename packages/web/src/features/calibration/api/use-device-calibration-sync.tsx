@@ -27,7 +27,7 @@ import type {
   Device,
   QueuedDeviceApply,
 } from "@/lib/interfaces/calibration";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import {
   CHANNEL_OFFSET,
   DEFAULT_CHANNEL_LAYOUT,
@@ -54,6 +54,7 @@ export function DeviceCalibrationSyncProvider({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const queryClient = useQueryClient();
   const {
     sendRequest,
@@ -96,7 +97,7 @@ export function DeviceCalibrationSyncProvider({
         });
       }
     },
-    [request, t],
+    [toast, request, t],
   );
 
   const pushCalibration = useCallback(
@@ -131,7 +132,7 @@ export function DeviceCalibrationSyncProvider({
         description: parsed?.error ? String(parsed.error) : undefined,
       });
     }
-  }, [request, t]);
+  }, [toast, request, t]);
 
   const readStoredCalibration = useCallback(
     async (moduleCount: number): Promise<StoredCalibrationRead> => {
@@ -254,7 +255,7 @@ export function DeviceCalibrationSyncProvider({
       toast.success(t("storedCalibration.toasts.adopted"));
       return adopted;
     },
-    [queryClient, fetchSavedCalibration, t],
+    [toast, queryClient, fetchSavedCalibration, t],
   );
 
   useEffect(() => {

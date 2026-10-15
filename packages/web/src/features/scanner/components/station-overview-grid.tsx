@@ -37,7 +37,7 @@ export function StationOverviewGrid() {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,16rem),1fr))] gap-3">
       {connected.map((station) => (
         <div
           key={station.id}

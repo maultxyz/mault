@@ -31,6 +31,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import type { CollectionsContextValue } from "@/lib/interfaces/collections";
 
 const CollectionsContext = createContext<CollectionsContextValue | null>(null);
@@ -50,16 +51,17 @@ export function CollectionsProvider({
   });
 
   const { station, isLive } = useStation();
+  const stationToast = useStationToast();
   const { stations, claimStationCollection, isStationLive } = useStations();
   const activeGuid = station.collectionGuid;
 
   const setActiveGuid = useCallback(
     (guid: string | null) => {
       const claimed = claimStationCollection(station.id, guid);
-      if (!claimed) toast.error(t("errors.openInAnotherSorter"));
+      if (!claimed) stationToast.error(t("errors.openInAnotherSorter"));
       return claimed;
     },
-    [claimStationCollection, station.id, t],
+    [claimStationCollection, station.id, stationToast, t],
   );
 
   // If the stored guid no longer exists (e.g. collection deleted), clear it

@@ -18,7 +18,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 const ModuleConfigsContext = createContext<ModuleConfigsContextValue | null>(
   null,
@@ -37,6 +37,7 @@ export function ModuleConfigsProvider({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const queryClient = useQueryClient();
   const device = useDevice();
   const { sendCommand } = useSerial();

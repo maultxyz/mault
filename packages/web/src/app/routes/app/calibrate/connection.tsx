@@ -4,11 +4,12 @@ import { useDeviceTogglesDraft } from "@/features/calibration/api/use-device-tog
 import { ConnectionSettingsPanel } from "@/features/calibration/components/connection-settings-panel";
 import { ExperimentalFeaturesPanel } from "@/features/calibration/components/experimental-features-panel";
 import { FirmwarePanel } from "@/features/calibration/components/firmware-panel";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { useTranslation } from "react-i18next";
 
 export default function CalibrateConnectionPage() {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const deviceToggles = useDeviceTogglesDraft();
 
   async function handleSave() {

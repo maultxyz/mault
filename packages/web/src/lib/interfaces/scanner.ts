@@ -1,4 +1,5 @@
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
+import type { AppToast } from "@/lib/interfaces/toast";
 import type { CardViewMode } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
@@ -633,6 +634,7 @@ export interface ScanOutcome {
 
 export interface UnmatchedRateToastProps {
   toastId: string | number;
+  stationName: string | null;
   suggestOcr: boolean;
   onOpenCalibration: () => void;
   onOpenSettings: () => void;
@@ -729,6 +731,7 @@ export interface RouteCardToBinParams {
     route: BinRoute,
     options?: RouteOptions,
   ) => Promise<unknown | null>;
+  toast: AppToast;
   t: TFunction;
   failedKey: string;
   cardName?: string;

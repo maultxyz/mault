@@ -1,10 +1,11 @@
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 export function useResetToNeutral() {
   const { t } = useTranslation("scanner");
+  const toast = useStationToast();
   const { sendNeutral } = useSerial();
   const [isResetting, setIsResetting] = useState(false);
 
@@ -16,7 +17,7 @@ export function useResetToNeutral() {
       });
     }
     return ok;
-  }, [sendNeutral, t]);
+  }, [toast, sendNeutral, t]);
 
   const handleResetToNeutral = useCallback(async () => {
     setIsResetting(true);
@@ -27,7 +28,7 @@ export function useResetToNeutral() {
     } finally {
       setIsResetting(false);
     }
-  }, [resetToNeutral, t]);
+  }, [toast, resetToNeutral, t]);
 
   return { resetToNeutral, handleResetToNeutral, isResetting };
 }
