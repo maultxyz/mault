@@ -1,6 +1,7 @@
 import type {
   CardCondition,
   CardFilters,
+  CardStorageLocation,
   CardSetOption,
   Collection,
   FieldMeta,
@@ -152,6 +153,19 @@ export interface CardToolbarProps {
   onGroupDuplicatesChange: (grouped: boolean) => void;
 }
 
+export interface StorageLocationBadgeProps {
+  location: CardStorageLocation;
+  className?: string;
+}
+
+export interface ReviewStatusIconProps {
+  hasAlternatives?: boolean;
+  needsReview?: boolean;
+  wasCorrected?: boolean;
+  isReviewed?: boolean;
+  className?: string;
+}
+
 export interface ScannedCardItemProps {
   card: PlayingCardWithDistance;
   scannedAt?: number;
@@ -163,12 +177,14 @@ export interface ScannedCardItemProps {
   hasAlternatives?: boolean;
   needsReview?: boolean;
   wasCorrected?: boolean;
+  isReviewed?: boolean;
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;
   isDownloaded?: boolean;
   quantity?: number;
   showBinLocation?: boolean;
+  storageLocation?: CardStorageLocation;
 }
 
 export interface ScannedCardTableRow {
@@ -184,6 +200,8 @@ export interface ScannedCardTableRow {
   hasAlternatives?: boolean;
   needsReview?: boolean;
   wasCorrected?: boolean;
+  isReviewed?: boolean;
+  storageLocation?: CardStorageLocation;
   isSelected?: boolean;
 }
 
@@ -238,6 +256,7 @@ export interface CardTechnicalDetailsProps {
   card: PlayingCardWithDistance;
   needsReview?: boolean;
   wasCorrected?: boolean;
+  isReviewed?: boolean;
 }
 
 export interface TechnicalDetailRowProps {
@@ -329,6 +348,7 @@ export interface OcrRegionCropsProps {
 export interface CardDetailActions {
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
+  markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
 }
@@ -354,6 +374,7 @@ export interface CardDetailPanelProps {
   alternativeMatches?: PlayingCardWithDistance[];
   needsReview?: boolean;
   wasCorrected?: boolean;
+  isReviewed?: boolean;
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;

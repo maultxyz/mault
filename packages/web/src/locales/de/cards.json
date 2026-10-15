@@ -149,8 +149,11 @@
     "multipleMatchesResolvedTooltip": "Mehrere ähnliche Treffer, geprüft",
     "needsReviewTooltip": "Zur Prüfung markiert: nur über den Namen erkannt oder unter der Schwelle für schwache Treffer, zum Prüfen tippen",
     "needsReviewResolvedTooltip": "Zur Prüfung markiert, geprüft",
+    "reviewedTooltip": "Geprüft",
     "matchTooltip": "Wie genau das gescannte Bild mit dieser Karte übereinstimmt, basierend auf visueller Ähnlichkeitssuche",
     "bin": "Fach {{number}}",
+    "storage": "{{name}} · #{{position}}",
+    "storageTooltip": "Im Lager: {{name}}, Position {{position}}",
     "quantityTooltip_one": "{{count}} Exemplar dieser Karte in dieser Sammlung",
     "quantityTooltip_other": "{{count}} Exemplare dieser Karte in dieser Sammlung"
   },
@@ -244,6 +247,7 @@
     "confidence": "Konfidenz",
     "needsReview": "Zur Prüfung markiert",
     "reviewed": "Geprüft",
+    "corrected": "Korrigiert",
     "vectorizedOn": "Vektorisiert auf",
     "orientation": "Ausrichtung",
     "orientationValue": {
@@ -305,7 +309,8 @@
       "shiftEnter": "Umschalt Enter"
     },
     "complete_one": "Prüfung abgeschlossen: {{count}} Karte geprüft",
-    "complete_other": "Prüfung abgeschlossen: {{count}} Karten geprüft"
+    "complete_other": "Prüfung abgeschlossen: {{count}} Karten geprüft",
+    "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft."
   },
   "removeDialog": {
     "title": "{{name}} entfernen?",

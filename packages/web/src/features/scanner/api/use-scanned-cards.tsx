@@ -48,6 +48,7 @@ import {
   confirmCollectionCard,
   identifyUnmatchedCard as identifyUnmatchedCardApi,
   loadUnmatchedCards,
+  markCollectionCardReviewed,
   markCollectionCardsDownloaded,
   releaseScanLock,
   removeCollectionCard,
@@ -1096,7 +1097,12 @@ export function ScannedCardsProvider({
         queryClient,
         collection.guid,
         new Set([scanId]),
-        (entry) => ({ ...entry, card: corrected, corrected: true }),
+        (entry) => ({
+          ...entry,
+          card: corrected,
+          corrected: true,
+          reviewed: true,
+        }),
       );
       updateCollectionCard(collection.guid, scanId, corrected, currentBin)
         .catch((err) => console.error("Failed to update card:", err))
@@ -1151,10 +1157,29 @@ export function ScannedCardsProvider({
         queryClient,
         collection.guid,
         new Set([scanId]),
-        (entry) => ({ ...entry, corrected: true }),
+        (entry) => ({ ...entry, corrected: true, reviewed: true }),
       );
       confirmCollectionCard(collection.guid, scanId)
         .catch((err) => console.error("Failed to confirm card:", err))
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient],
+  );
+
+  const markCardReviewed = useCallback(
+    (scanId: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection) return;
+      updateInCardPages(
+        queryClient,
+        collection.guid,
+        new Set([scanId]),
+        (entry) => ({ ...entry, reviewed: true }),
+      );
+      markCollectionCardReviewed(collection.guid, scanId)
+        .catch((err) => console.error("Failed to mark card reviewed:", err))
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
@@ -1286,6 +1311,7 @@ export function ScannedCardsProvider({
         removeCards,
         correctCard,
         confirmCard,
+        markCardReviewed,
         setCardFoilType,
         setCardCondition,
         setCardsCondition,

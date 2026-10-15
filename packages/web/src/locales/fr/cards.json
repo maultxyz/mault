@@ -149,8 +149,11 @@
     "multipleMatchesResolvedTooltip": "Plusieurs correspondances proches, vérifiée",
     "needsReviewTooltip": "À vérifier : reconnue uniquement par le nom ou sous le seuil de correspondance faible, touche pour vérifier",
     "needsReviewResolvedTooltip": "À vérifier, vérifiée",
+    "reviewedTooltip": "Vérifiée",
     "matchTooltip": "À quel point l'image scannée correspond à cette carte, basé sur une recherche de similarité visuelle",
     "bin": "Bac {{number}}",
+    "storage": "{{name}} · #{{position}}",
+    "storageTooltip": "En stockage : {{name}}, position {{position}}",
     "quantityTooltip_one": "{{count}} exemplaire de cette carte dans cette collection",
     "quantityTooltip_other": "{{count}} exemplaires de cette carte dans cette collection"
   },
@@ -244,6 +247,7 @@
     "confidence": "Confiance",
     "needsReview": "Signalée pour vérification",
     "reviewed": "Vérifiée",
+    "corrected": "Corrigée",
     "vectorizedOn": "Vectorisée sur",
     "orientation": "Orientation",
     "orientationValue": {
@@ -305,7 +309,8 @@
       "shiftEnter": "Maj Entrée"
     },
     "complete_one": "Vérification terminée : {{count}} carte vérifiée",
-    "complete_other": "Vérification terminée : {{count}} cartes vérifiées"
+    "complete_other": "Vérification terminée : {{count}} cartes vérifiées",
+    "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées."
   },
   "removeDialog": {
     "title": "Retirer {{name}} ?",

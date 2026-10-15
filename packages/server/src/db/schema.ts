@@ -499,6 +499,7 @@ export const collectionCards = pgTable(
     alternativeMatches: jsonb("alternative_matches"),
     isCorrected: boolean("is_corrected").notNull().default(false),
     needsReview: boolean("needs_review").notNull().default(false),
+    isReviewed: boolean("is_reviewed").notNull().default(false),
     diagnostics: jsonb("diagnostics"),
     locationId: integer("location_id").references(() => storageLocations.id, {
       onDelete: "set null",

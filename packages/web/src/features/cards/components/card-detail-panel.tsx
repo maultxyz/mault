@@ -74,6 +74,7 @@ export function CardDetailPanel({
   alternativeMatches,
   needsReview = false,
   wasCorrected = false,
+  isReviewed = false,
   isFoil = false,
   foilType,
   condition,
@@ -117,8 +118,13 @@ export function CardDetailPanel({
   const prevScanIdRef = useRef<string | undefined>(undefined);
 
   const { addCard } = useScannedCards();
-  const { correctCard, confirmCard, setCardFoilType, setCardCondition } =
-    useCardDetailActions();
+  const {
+    correctCard,
+    confirmCard,
+    markCardReviewed,
+    setCardFoilType,
+    setCardCondition,
+  } = useCardDetailActions();
   const { priceOf, format, conditionMultipliers } = usePriceSource();
   const canConfirm =
     !!scanId && (needsReview || !!alternativeMatches?.length) && !wasCorrected;
@@ -227,7 +233,10 @@ export function CardDetailPanel({
   };
 
   const acceptInReview = () => {
-    if (canConfirm && scanId) confirmCard(scanId);
+    if (scanId) {
+      if (canConfirm) confirmCard(scanId);
+      else markCardReviewed(scanId);
+    }
     runAfterCommit(goToNextInReview);
   };
 
@@ -344,6 +353,12 @@ export function CardDetailPanel({
               {reviewMode && (
                 <Badge variant="outline" className="shrink-0">
                   {t("review.badge")}
+                </Badge>
+              )}
+              {(isReviewed || wasCorrected) && (
+                <Badge variant="success" className="shrink-0">
+                  <IconCheck />
+                  {t("technicalDetails.reviewed")}
                 </Badge>
               )}
               {copyCount != null && copyCount > 1 && (
@@ -593,6 +608,7 @@ export function CardDetailPanel({
                   card={currentCard}
                   needsReview={needsReview}
                   wasCorrected={wasCorrected}
+                  isReviewed={isReviewed}
                 />
               )}
             </>

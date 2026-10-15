@@ -92,7 +92,8 @@
   },
   "review": {
     "start": "Review cards",
-    "startTitle": "Go through every card in this location one by one, in box order"
+    "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
+    "startTitle": "Go through the cards in this location that haven't been reviewed yet, in box order"
   },
   "export": {
     "button": "Export",

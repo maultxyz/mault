@@ -1,5 +1,6 @@
 import {
   confirmCollectionCard,
+  markCollectionCardReviewed,
   setCollectionCardCondition,
   setCollectionCardFoilType,
   updateCollectionCard,
@@ -176,7 +177,11 @@ export function useCorrectStoredCard() {
       card: PlayingCardWithDistance;
     }) => updateCollectionCard(entry.collectionGuid, entry.scanId, card),
     onMutate: ({ entry, card }) =>
-      patchStoredCard(queryClient, entry, { card, corrected: true }),
+      patchStoredCard(queryClient, entry, {
+        card,
+        corrected: true,
+        reviewed: true,
+      }),
     onSuccess: (result) => {
       if (!result.success)
         toast.error(result.message ?? t("toasts.correctFailed"));
@@ -207,7 +212,7 @@ export function useConfirmStoredCard() {
     mutationFn: (entry: StorageLocationSearchResult) =>
       confirmCollectionCard(entry.collectionGuid, entry.scanId),
     onMutate: (entry) =>
-      patchStoredCard(queryClient, entry, { corrected: true }),
+      patchStoredCard(queryClient, entry, { corrected: true, reviewed: true }),
     onSuccess: (result) => {
       if (!result.success) toast.error(result.message ?? t("toasts.failed"));
     },
@@ -217,6 +222,27 @@ export function useConfirmStoredCard() {
   });
 
   return { confirmCard: (entry: StorageLocationSearchResult) => mutation.mutate(entry) };
+}
+
+export function useMarkStoredCardReviewed() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: (entry: StorageLocationSearchResult) =>
+      markCollectionCardReviewed(entry.collectionGuid, entry.scanId),
+    onMutate: (entry) => patchStoredCard(queryClient, entry, { reviewed: true }),
+    onSuccess: (result) => {
+      if (!result.success) toast.error(result.message ?? t("toasts.failed"));
+    },
+    onError: () => toast.error(t("toasts.failed")),
+    onSettled: (_result, _error, entry) =>
+      refreshStoredCard(queryClient, entry),
+  });
+
+  return {
+    markReviewed: (entry: StorageLocationSearchResult) => mutation.mutate(entry),
+  };
 }
 
 export function useSetStoredCardFoilType() {
@@ -292,6 +318,7 @@ export function useStoredCardActions(
 ): CardDetailActions {
   const { correctCard } = useCorrectStoredCard();
   const { confirmCard } = useConfirmStoredCard();
+  const { markReviewed } = useMarkStoredCardReviewed();
   const { setFoilType } = useSetStoredCardFoilType();
   const { setCondition } = useSetStoredCardCondition();
 
@@ -301,6 +328,9 @@ export function useStoredCardActions(
     },
     confirmCard: () => {
       if (entry) confirmCard(entry);
+    },
+    markCardReviewed: () => {
+      if (entry) markReviewed(entry);
     },
     setCardFoilType: (_scanId, foilType) => {
       if (entry) setFoilType(entry, foilType);

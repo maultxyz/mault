@@ -30,6 +30,7 @@ export function CardTechnicalDetails({
   card,
   needsReview = false,
   wasCorrected = false,
+  isReviewed = false,
 }: CardTechnicalDetailsProps) {
   const { t } = useTranslation("cards");
   const collection = useCardDetailCollection();
@@ -80,6 +81,9 @@ export function CardTechnicalDetails({
             {yesNo(needsReview)}
           </Row>
           <Row label={t("technicalDetails.reviewed")}>
+            {yesNo(isReviewed || wasCorrected)}
+          </Row>
+          <Row label={t("technicalDetails.corrected")}>
             {yesNo(wasCorrected)}
           </Row>
           {diagnostics && (

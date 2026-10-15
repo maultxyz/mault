@@ -149,8 +149,11 @@
     "multipleMatchesResolvedTooltip": "Multiple close matches, reviewed",
     "needsReviewTooltip": "Flagged for review: matched by name only or below the low-match threshold, tap to review",
     "needsReviewResolvedTooltip": "Flagged for review, reviewed",
+    "reviewedTooltip": "Reviewed",
     "matchTooltip": "How closely the scanned image matches this card, based on visual similarity search",
     "bin": "Bin {{number}}",
+    "storage": "{{name}} · #{{position}}",
+    "storageTooltip": "In storage: {{name}}, position {{position}}",
     "quantityTooltip_one": "{{count}} copy of this card in this collection",
     "quantityTooltip_other": "{{count}} copies of this card in this collection"
   },
@@ -244,6 +247,7 @@
     "confidence": "Confidence",
     "needsReview": "Flagged for review",
     "reviewed": "Reviewed",
+    "corrected": "Corrected",
     "vectorizedOn": "Vectorized on",
     "orientation": "Orientation",
     "orientationValue": {
@@ -305,7 +309,8 @@
       "shiftEnter": "Shift Enter"
     },
     "complete_one": "Review complete: {{count}} card checked",
-    "complete_other": "Review complete: {{count}} cards checked"
+    "complete_other": "Review complete: {{count}} cards checked",
+    "nothingLeft": "Nothing left to review. Every card here has already been reviewed."
   },
   "removeDialog": {
     "title": "Remove {{name}}?",

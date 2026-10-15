@@ -15,14 +15,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
-import { reviewTooltip } from "@/features/cards/lib/review-tooltip";
+import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
+import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { RARITY_LABELS } from "@/lib/constants/rarity";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { ScannedCardTableProps } from "@/lib/interfaces/cards";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import {
   IconDownload,
-  IconHelpCircle,
   IconSparkles,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -149,21 +149,12 @@ export function ScannedCardTable({
                   ) : (
                     <span className="truncate font-medium">{card.name}</span>
                   )}
-                  {(row.hasAlternatives || row.needsReview) && (
-                    <span
-                      className={cn(
-                        "shrink-0 rounded-full p-0.5",
-                        row.wasCorrected ? "bg-success-strong" : "bg-warning-strong",
-                      )}
-                      title={reviewTooltip(
-                        t,
-                        !!row.needsReview,
-                        !!row.wasCorrected,
-                      )}
-                    >
-                      <IconHelpCircle className="size-3 text-white" />
-                    </span>
-                  )}
+                  <ReviewStatusIcon
+                    hasAlternatives={row.hasAlternatives}
+                    needsReview={row.needsReview}
+                    wasCorrected={row.wasCorrected}
+                    isReviewed={row.isReviewed}
+                  />
                   {row.isFoil && (
                     <span
                       className="shrink-0 rounded-full p-0.5 bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300"
@@ -220,13 +211,16 @@ export function ScannedCardTable({
                   </TooltipContent>
                 </Tooltip>
               </TableCell>
-              <TableCell>
-                {row.binNumber != null && !showBinLocation && (
+              <TableCell className="max-w-48">
+                {row.storageLocation && (
+                  <StorageLocationBadge location={row.storageLocation} />
+                )}
+                {!row.storageLocation && row.binNumber != null && !showBinLocation && (
                   <Badge variant="secondary">
                     {t("scannedCardItem.bin", { number: row.binNumber })}
                   </Badge>
                 )}
-                {row.binNumber != null && showBinLocation && (
+                {!row.storageLocation && row.binNumber != null && showBinLocation && (
                   <Tooltip>
                     <TooltipTrigger
                       render={

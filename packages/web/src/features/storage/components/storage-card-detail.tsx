@@ -13,6 +13,7 @@ import {
 } from "@/features/storage/api/use-storage-locations";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
+import type { StorageLocationCard } from "@magic-vault/shared";
 import { toast } from "@/lib/toast";
 import { IconBoxOff } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -38,8 +39,12 @@ export function StorageCardDetail({
 
   const index = cards.findIndex((card) => card.scanId === scanId);
   const stored = index >= 0 ? cards[index] : undefined;
-  const previous = index > 0 ? cards[index - 1] : undefined;
-  const next = index >= 0 ? cards[index + 1] : undefined;
+  const isNavigable = (card: StorageLocationCard) =>
+    !reviewMode || !card.reviewed;
+  const previous =
+    index > 0 ? cards.slice(0, index).findLast(isNavigable) : undefined;
+  const next =
+    index >= 0 ? cards.slice(index + 1).find(isNavigable) : undefined;
   const entry = useMemo(
     () =>
       stored
@@ -94,6 +99,7 @@ export function StorageCardDetail({
         alternativeMatches={scanned.alternativeMatches}
         needsReview={stored.needsReview}
         wasCorrected={stored.corrected}
+        isReviewed={stored.reviewed}
         isFoil={stored.isFoil}
         foilType={stored.foilType ?? undefined}
         condition={stored.condition}

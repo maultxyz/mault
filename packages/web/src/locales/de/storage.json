@@ -92,7 +92,8 @@
   },
   "review": {
     "start": "Karten prüfen",
-    "startTitle": "Alle Karten dieses Lagerorts nacheinander in Box-Reihenfolge durchgehen"
+    "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft.",
+    "startTitle": "Noch nicht geprüfte Karten dieses Lagerorts in Box-Reihenfolge durchgehen"
   },
   "export": {
     "button": "Exportieren",

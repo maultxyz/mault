@@ -202,6 +202,11 @@ export function CardGrid() {
     }),
     [debouncedSearch, sortKey, filters, groupDuplicates],
   );
+  const reviewQuery = useMemo(
+    () => ({ ...cardsQuery, unreviewed: true }),
+    [cardsQuery],
+  );
+  const reviewTotalRef = useRef<number | null>(null);
 
   useEffect(() => {
     setPage(0);
@@ -226,7 +231,11 @@ export function CardGrid() {
   }, [page, clampedPage]);
 
   const { data: openPosition, isPending: openPositionPending } = useQuery(
-    collectionCardPositionQueryOptions(collectionGuid, openScanId, cardsQuery),
+    collectionCardPositionQueryOptions(
+      collectionGuid,
+      openScanId,
+      isReviewing ? reviewQuery : cardsQuery,
+    ),
   );
   const openEntry =
     openPosition && openPosition.entry.scanId === openScanId
@@ -236,23 +245,28 @@ export function CardGrid() {
   const startReview = useCallback(async () => {
     if (!collectionGuid) return;
     try {
-      const firstPage =
-        page === 0 && pageData
-          ? pageData
-          : await queryClient.fetchQuery(
-              collectionCardsPageQueryOptions(collectionGuid, cardsQuery, 0),
-            );
+      const firstPage = await queryClient.fetchQuery(
+        collectionCardsPageQueryOptions(collectionGuid, reviewQuery, 0),
+      );
       const first = firstPage.items[0];
-      if (first) setOpenScanId(first.scanId, true);
+      if (!first) {
+        toast.info(t("review.nothingLeft"));
+        return;
+      }
+      reviewTotalRef.current = firstPage.totalCards;
+      setOpenScanId(first.scanId, true);
     } catch (err) {
       console.error("Failed to start card review:", err);
     }
-  }, [collectionGuid, page, pageData, queryClient, cardsQuery, setOpenScanId]);
+  }, [collectionGuid, queryClient, reviewQuery, setOpenScanId, t]);
 
   const finishReview = useCallback(
     (count: number) => {
       setOpenScanId(null);
-      toast.success(t("review.complete", { count }));
+      toast.success(
+        t("review.complete", { count: reviewTotalRef.current ?? count }),
+      );
+      reviewTotalRef.current = null;
     },
     [setOpenScanId, t],
   );
@@ -485,6 +499,7 @@ export function CardGrid() {
         alternativeMatches={openEntry.alternativeMatches}
         needsReview={openEntry.needsReview}
         wasCorrected={openEntry.corrected}
+        isReviewed={openEntry.reviewed}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
         condition={openEntry.condition}
@@ -591,6 +606,8 @@ export function CardGrid() {
                 hasAlternatives: !!entry.alternativeMatches?.length,
                 needsReview: entry.needsReview,
                 wasCorrected: entry.corrected,
+                isReviewed: entry.reviewed,
+                storageLocation: entry.storageLocation,
                 isSelected: entry.scanIds.every((id) => selectedIds.has(id)),
               }))}
               showQuantity={groupDuplicates}
@@ -626,6 +643,8 @@ export function CardGrid() {
                   hasAlternatives={!!entry.alternativeMatches?.length}
                   needsReview={entry.needsReview}
                   wasCorrected={entry.corrected}
+                  isReviewed={entry.reviewed}
+                  storageLocation={entry.storageLocation}
                   isFoil={entry.isFoil}
                   foilType={entry.foilType}
                   condition={entry.condition}

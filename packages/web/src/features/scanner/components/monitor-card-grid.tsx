@@ -63,6 +63,8 @@ export function MonitorCardGrid({
                 hasAlternatives: !!entry.alternativeMatches?.length,
                 needsReview: entry.needsReview,
                 wasCorrected: entry.corrected,
+                isReviewed: entry.reviewed,
+                storageLocation: entry.storageLocation,
               }))}
               showQuantity={groupDuplicates}
               showBinLocation={showBinLocation}
@@ -81,6 +83,8 @@ export function MonitorCardGrid({
               hasAlternatives={!!entry.alternativeMatches?.length}
               needsReview={entry.needsReview}
               wasCorrected={entry.corrected}
+              isReviewed={entry.reviewed}
+              storageLocation={entry.storageLocation}
               isFoil={entry.isFoil}
               foilType={entry.foilType}
               condition={entry.condition}

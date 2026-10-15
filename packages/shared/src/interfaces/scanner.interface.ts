@@ -5,6 +5,7 @@ import type {
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition } from "./card-condition.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
+import type { CardStorageLocation } from "./storage-locations.interface";
 
 export interface Point {
   x: number;
@@ -83,6 +84,8 @@ export interface ScannedCard {
   isDownloaded?: boolean;
   corrected?: boolean;
   needsReview?: boolean;
+  reviewed?: boolean;
+  storageLocation?: CardStorageLocation;
   vectorizedOn?: ScanVectorizeSource;
   diagnostics?: MatchedScanDiagnostics;
 }

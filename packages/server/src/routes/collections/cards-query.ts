@@ -80,6 +80,7 @@ export function parseCardsQuery(
     sort: params.sort || null,
     filters,
     grouped: params.grouped === "1",
+    unreviewed: params.unreviewed === "1",
   };
 }
 
@@ -162,6 +163,8 @@ function isCardPriceDetailKey(key: string): key is CardPriceDetailKey {
   return (CARD_PRICE_DETAIL_KEYS as readonly string[]).includes(key);
 }
 
+const STORAGE_LOCATION_JOIN = sql`LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND NOT sl.is_deleted`;
+
 const SCANNED_AT_MS = sql`(extract(epoch from cc.scanned_at) * 1000)::float8`;
 
 function fieldValueSql(path: string): SQL {
@@ -184,8 +187,19 @@ function anyOf(values: string[]): SQL {
   return sql`ANY(${pgTextArray(values)}::text[])`;
 }
 
-export function cardFilterSql({ filters, search }: CollectionCardsQuery): SQL {
+export function cardFilterSql(
+  { filters, search, unreviewed }: CollectionCardsQuery,
+  keepScanId?: string,
+): SQL {
   const conditions: SQL[] = [];
+
+  if (unreviewed) {
+    conditions.push(
+      keepScanId
+        ? sql`(NOT cc.is_reviewed OR cc.guid = ${keepScanId}::uuid)`
+        : sql`NOT cc.is_reviewed`,
+    );
+  }
 
   if (filters.colors.length > 0) {
     const named = filters.colors.filter((c) => c !== "C");
@@ -292,6 +306,7 @@ function rankedCardsCte(
   collectionId: number,
   query: CollectionCardsQuery,
   fieldDefinitions: FieldMeta[],
+  keepScanId?: string,
 ): SQL {
   const entryKey = query.grouped ? sql`dup_key` : sql`guid`;
   return sql`
@@ -299,12 +314,14 @@ function rankedCardsCte(
       SELECT
         cc.id, cc.guid, cc.card, cc.bin_number, cc.is_foil, cc.foil_type,
         cc.condition, cc.is_downloaded, cc.alternative_matches, cc.is_corrected,
-        cc.needs_review,
+        cc.needs_review, cc.is_reviewed, cc.location_position,
+        sl.guid::text AS location_guid, sl.name AS location_name,
         ${SCANNED_AT_MS} AS scanned_at_ms,
         ${DUPLICATE_KEY} AS dup_key,
         row_number() OVER (ORDER BY ${cardOrderSql(query.sort, fieldDefinitions)}) AS rn
       FROM collection_cards cc
-      WHERE cc.collection_id = ${collectionId} AND ${cardFilterSql(query)}
+      ${STORAGE_LOCATION_JOIN}
+      WHERE cc.collection_id = ${collectionId} AND ${cardFilterSql(query, keepScanId)}
     ),
     grouped AS (
       SELECT
@@ -332,6 +349,14 @@ function toCard(row: CollectionCardRow) {
     alternativeMatches: row.alternative_matches,
     isCorrected: row.is_corrected,
     needsReview: row.needs_review,
+    isReviewed: row.is_reviewed,
+    storageLocation: row.location_guid
+      ? {
+          guid: row.location_guid,
+          name: row.location_name ?? "",
+          position: row.location_position ?? 0,
+        }
+      : null,
   });
 }
 
@@ -352,6 +377,7 @@ export async function loadCardsPage(
     WITH ${cte}
     SELECT guid, card, scanned_at_ms, bin_number, is_foil, foil_type,
       condition, is_downloaded, alternative_matches, is_corrected, needs_review,
+      is_reviewed, location_guid, location_name, location_position,
       scan_ids, quantity,
       count(*) OVER ()::int AS total_entries,
       sum(quantity) OVER ()::int AS total_cards
@@ -403,7 +429,7 @@ export async function loadCardPosition(
   scanId: string,
 ) {
   const result = await tx.execute(sql`
-    WITH ${rankedCardsCte(collectionId, query, fieldDefinitions)},
+    WITH ${rankedCardsCte(collectionId, query, fieldDefinitions, scanId)},
     nav AS (
       SELECT
         grouped.*,
@@ -461,7 +487,7 @@ export async function loadAllCards(tx: Transaction, collectionId: number) {
     SELECT cc.guid, ${cardWithStoredPricesSql(sql`cc.card`, CC_ALIAS_SQL_COLUMNS)} AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
       cc.is_foil, cc.foil_type, cc.condition, cc.is_downloaded,
-      cc.alternative_matches, cc.is_corrected, cc.needs_review
+      cc.alternative_matches, cc.is_corrected, cc.needs_review, cc.is_reviewed
     FROM collection_cards cc
     WHERE cc.collection_id = ${collectionId}
     ORDER BY cc.scanned_at DESC, cc.id DESC

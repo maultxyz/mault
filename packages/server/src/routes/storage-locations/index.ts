@@ -56,6 +56,7 @@ const router = new Hono<AppEnv>()
             condition: collectionCards.condition,
             needsReview: sql<boolean>`(${collectionCards.needsReview} OR (${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb))`,
             corrected: collectionCards.isCorrected,
+            reviewed: collectionCards.isReviewed,
             collectionGuid: collections.guid,
             collectionName: collections.name,
             locationGuid: storageLocations.guid,
@@ -94,6 +95,7 @@ const router = new Hono<AppEnv>()
         condition: toCardCondition(r.condition),
         needsReview: r.needsReview,
         corrected: r.corrected,
+        reviewed: r.reviewed,
         collectionGuid: r.collectionGuid!,
         collectionName: r.collectionName,
         locationGuid: r.locationGuid!,
@@ -225,6 +227,7 @@ const router = new Hono<AppEnv>()
             condition: collectionCards.condition,
             needsReview: sql<boolean>`(${collectionCards.needsReview} OR (${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb))`,
             corrected: collectionCards.isCorrected,
+            reviewed: collectionCards.isReviewed,
             collectionGuid: collections.guid,
             collectionName: collections.name,
           })
@@ -249,6 +252,7 @@ const router = new Hono<AppEnv>()
           condition: toCardCondition(r.condition),
           needsReview: r.needsReview,
           corrected: r.corrected,
+          reviewed: r.reviewed,
           collectionGuid: r.collectionGuid!,
           collectionName: r.collectionName,
         }));

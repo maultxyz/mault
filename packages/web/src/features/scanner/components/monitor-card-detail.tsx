@@ -35,6 +35,7 @@ export function MonitorCardDetail({
       alternativeMatches={entry.alternativeMatches}
       needsReview={entry.needsReview}
       wasCorrected={entry.corrected}
+      isReviewed={entry.reviewed}
       isFoil={entry.isFoil}
       foilType={entry.foilType}
       condition={entry.condition}

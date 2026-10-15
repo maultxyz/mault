@@ -147,6 +147,15 @@ export async function confirmCollectionCard(
   });
 }
 
+export async function markCollectionCardReviewed(
+  guid: string,
+  scanId: string,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    reviewed: true,
+  });
+}
+
 export async function setCollectionCardFoilType(
   guid: string,
   scanId: string,

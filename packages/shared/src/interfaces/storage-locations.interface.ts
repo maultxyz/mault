@@ -27,6 +27,7 @@ export interface StorageLocationCard {
   condition: CardCondition;
   needsReview: boolean;
   corrected: boolean;
+  reviewed: boolean;
 }
 
 export interface StorageLocationExportCard {
