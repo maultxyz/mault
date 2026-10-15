@@ -20,7 +20,9 @@ export function ReviewStatusIcon({
     <span
       className={cn(
         "shrink-0 rounded-full p-0.5",
-        resolved ? "bg-success-strong" : "bg-warning-strong",
+        resolved
+          ? "bg-success-strong ring-2 ring-background"
+          : "bg-warning-strong",
         className,
       )}
       title={
