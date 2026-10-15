@@ -296,7 +296,7 @@ async function toAttemptOutcome(
     | "vectorizedOn"
     | "detection"
     | "ocr"
-    | "needsReview"
+    | "lowConfidenceMatch"
     | "matchedBy"
   >,
 ): Promise<ScanAttemptOutcome> {
@@ -386,7 +386,7 @@ async function searchCardImage(
           vectorizedOn: "web",
           detection,
           ocr: text?.ocr ?? null,
-          needsReview: !!text?.pick && !hasMatch(best.result),
+          lowConfidenceMatch: !!text?.pick && !hasMatch(best.result),
           matchedBy: text?.pick ? "ocr" : "embedding",
         },
       );
@@ -418,7 +418,7 @@ async function searchCardImage(
     vectorizedOn: "server",
     detection: { ...detection, fallbackReason },
     ocr: null,
-    needsReview: false,
+    lowConfidenceMatch: false,
     matchedBy: "embedding",
   });
 }
@@ -445,7 +445,7 @@ function toScanOutcome(
     debugImageUrl,
     detectedContour,
     vectorizedOn,
-    needsReview,
+    lowConfidenceMatch,
   } = outcome;
   if (card) {
     return {
@@ -455,7 +455,7 @@ function toScanOutcome(
       detectedContour,
       vectorizedOn,
       matched: {
-        needsReview,
+        lowConfidenceMatch,
         diagnostics: {
           matchedBy: outcome.matchedBy,
           vectorizedOn,
@@ -780,7 +780,7 @@ export function useCardScanner({
             if (!pausedMidSearch) updateStatus("duplicate");
           } else {
             lastScannedCardIdRef.current = card.id;
-            if (matched?.needsReview) {
+            if (matched?.lowConfidenceMatch) {
               scanLog(
                 `[scanner] OCR name match used without an embedding match, flagged for review: ${card.name} (${card.id})`,
               );

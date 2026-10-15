@@ -6,6 +6,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { useCardActions } from "@/features/cards/api/use-card-actions";
+import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import type {
   MobileCardActionsBodyProps,
   MobileCardActionsDrawerProps,
@@ -42,6 +43,16 @@ function MobileCardActionsBody({
     onClose();
   };
   const actionClass = "h-11 w-full justify-start gap-3 text-sm";
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
+  const storedCount = entry.storedCount ?? (entry.storageLocation ? 1 : 0);
+  const requestRemove = () => {
+    if (storedCount > 0 && !confirmingRemove) {
+      setConfirmingRemove(true);
+      return;
+    }
+    remove();
+    onClose();
+  };
 
   return (
     <div
@@ -132,13 +143,22 @@ function MobileCardActionsBody({
         </div>
       </div>
 
+      {confirmingRemove && (
+        <StorageDeleteWarning
+          storedCount={storedCount}
+          total={entry.scanIds.length}
+          location={entry.storageLocation}
+        />
+      )}
       <Button
         variant="destructive"
         className="h-11 w-full text-sm"
-        onClick={run(remove)}
+        onClick={requestRemove}
       >
         <IconTrash className="size-5" />
-        {t("cardContextMenu.remove", { count: entry.scanIds.length })}
+        {confirmingRemove
+          ? t("storageDeleteWarning.deleteAnyway")
+          : t("cardContextMenu.remove", { count: entry.scanIds.length })}
       </Button>
     </div>
   );

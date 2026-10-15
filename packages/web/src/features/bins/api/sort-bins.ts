@@ -4,6 +4,7 @@ import type {
   BinSet,
   DefaultBinInit,
   EmptyAllBinsInput,
+  EmptyAllBinsOptions,
   EmptyBinOptions,
   PickListFoundInput,
   PickListFoundResult,
@@ -104,10 +105,14 @@ export async function emptyBin(
 export async function emptyAllBins(
   binNumbers: number[],
   gameGuid?: string,
-): Promise<Result<BinSet[]>> {
+  options: EmptyAllBinsOptions = {},
+): Promise<Result<BinSet[]> & { assignedCount?: number }> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  const input: EmptyAllBinsInput = { binNumbers };
-  return apiPost<Result<BinSet[]>>(`/api/bins/bins/empty-all${params}`, input);
+  const input: EmptyAllBinsInput = { binNumbers, ...options };
+  return apiPost<Result<BinSet[]> & { assignedCount?: number }>(
+    `/api/bins/bins/empty-all${params}`,
+    input,
+  );
 }
 
 export async function setChaosMode(

@@ -435,7 +435,7 @@ export function SessionSummaryDialog({
   elapsedMs,
   sessionScanCount,
   collectionName,
-  onMarkDownloaded,
+  onExported,
   gridFilters,
   gridFilterCount,
 }: SessionSummaryDialogProps) {
@@ -521,8 +521,8 @@ export function SessionSummaryDialog({
 
   function handleDownload(adapter: ExportAdapter) {
     runExport(adapter, exportCards, slug, exportContext, combineDuplicates);
-    onMarkDownloaded(exportCards.map((c) => c.scanId));
     onOpenChange(false);
+    onExported(exportCards.map((c) => c.scanId));
   }
 
   function handleTouchStart(e: TouchEvent) {

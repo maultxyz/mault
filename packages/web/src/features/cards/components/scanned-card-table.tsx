@@ -151,7 +151,7 @@ export function ScannedCardTable({
                   )}
                   <ReviewStatusIcon
                     hasAlternatives={row.hasAlternatives}
-                    needsReview={row.needsReview}
+                    lowConfidenceMatch={row.lowConfidenceMatch}
                     wasCorrected={row.wasCorrected}
                     isReviewed={row.isReviewed}
                   />

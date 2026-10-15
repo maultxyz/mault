@@ -14,7 +14,7 @@ export const MobileCardTile = memo(function MobileCardTile({
   const { handlers, consumeLongPress } = useLongPress(onLongPress);
   const { priceOf, format } = usePriceSource();
   const price = priceOf(entry.card, entry.isFoil, entry.condition);
-  const flagged = entry.needsReview || !!entry.alternativeMatches?.length;
+  const flagged = entry.lowConfidenceMatch || !!entry.alternativeMatches?.length;
   const awaitingReview = flagged && !entry.corrected;
 
   return (

@@ -231,7 +231,7 @@ export function cardFilterSql(
 
   if (filters.needsAttention) {
     conditions.push(
-      sql`((jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0) OR cc.needs_review) AND NOT cc.is_corrected`,
+      sql`((jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0) OR cc.low_confidence_match) AND NOT cc.is_corrected`,
     );
   }
 
@@ -314,7 +314,7 @@ function rankedCardsCte(
       SELECT
         cc.id, cc.guid, cc.card, cc.bin_number, cc.is_foil, cc.foil_type,
         cc.condition, cc.is_downloaded, cc.alternative_matches, cc.is_corrected,
-        cc.needs_review, cc.is_reviewed, cc.location_position,
+        cc.low_confidence_match, cc.is_reviewed, cc.location_position,
         sl.guid::text AS location_guid, sl.name AS location_name,
         ${SCANNED_AT_MS} AS scanned_at_ms,
         ${DUPLICATE_KEY} AS dup_key,
@@ -328,6 +328,7 @@ function rankedCardsCte(
         ranked.*,
         min(rn) OVER (PARTITION BY ${entryKey}) AS entry_rn,
         count(*) OVER (PARTITION BY ${entryKey})::int AS quantity,
+        count(location_guid) OVER (PARTITION BY ${entryKey})::int AS stored_count,
         array_agg(guid::text) OVER (
           PARTITION BY ${entryKey} ORDER BY rn
           ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
@@ -348,7 +349,7 @@ function toCard(row: CollectionCardRow) {
     isDownloaded: row.is_downloaded,
     alternativeMatches: row.alternative_matches,
     isCorrected: row.is_corrected,
-    needsReview: row.needs_review,
+    lowConfidenceMatch: row.low_confidence_match,
     isReviewed: row.is_reviewed,
     storageLocation: row.location_guid
       ? {
@@ -376,9 +377,9 @@ export async function loadCardsPage(
   const result = await tx.execute(sql`
     WITH ${cte}
     SELECT guid, card, scanned_at_ms, bin_number, is_foil, foil_type,
-      condition, is_downloaded, alternative_matches, is_corrected, needs_review,
+      condition, is_downloaded, alternative_matches, is_corrected, low_confidence_match,
       is_reviewed, location_guid, location_name, location_position,
-      scan_ids, quantity,
+      scan_ids, quantity, stored_count,
       count(*) OVER ()::int AS total_entries,
       sum(quantity) OVER ()::int AS total_cards
     FROM grouped
@@ -389,6 +390,7 @@ export async function loadCardsPage(
   const rows = result.rows as unknown as (CollectionCardRow & {
     scan_ids: string[];
     quantity: number;
+    stored_count: number;
     total_entries: number;
     total_cards: number;
   })[];
@@ -399,6 +401,7 @@ export async function loadCardsPage(
       ...toCard(row),
       scanIds: row.scan_ids,
       quantity: row.quantity,
+      storedCount: row.stored_count,
     })),
     totalEntries: totals?.total_entries ?? 0,
     totalCards: totals?.total_cards ?? 0,
@@ -487,8 +490,10 @@ export async function loadAllCards(tx: Transaction, collectionId: number) {
     SELECT cc.guid, ${cardWithStoredPricesSql(sql`cc.card`, CC_ALIAS_SQL_COLUMNS)} AS card,
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
       cc.is_foil, cc.foil_type, cc.condition, cc.is_downloaded,
-      cc.alternative_matches, cc.is_corrected, cc.needs_review, cc.is_reviewed
+      cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
+      cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name
     FROM collection_cards cc
+    ${STORAGE_LOCATION_JOIN}
     WHERE cc.collection_id = ${collectionId}
     ORDER BY cc.scanned_at DESC, cc.id DESC
   `);

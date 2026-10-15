@@ -103,6 +103,13 @@
     "delete": "Löschen",
     "export": "Exportieren",
     "exportSelectedFailed": "Die ausgewählten Karten konnten nicht exportiert werden",
+    "exportedDeleteTitle_one": "Exportierte Karte löschen?",
+    "exportedDeleteTitle_other": "Die {{count}} exportierten Karten löschen?",
+    "exportedDeleteDescription_one": "Dein Export wird heruntergeladen. Du kannst diese Karte jetzt aus der Sammlung löschen oder sie hier behalten. Löschen kann nicht rückgängig gemacht werden.",
+    "exportedDeleteDescription_other": "Dein Export wird heruntergeladen. Du kannst diese {{count}} Karten jetzt aus der Sammlung löschen oder sie hier behalten. Löschen kann nicht rückgängig gemacht werden.",
+    "exportedDeleteConfirm_one": "Karte löschen",
+    "exportedDeleteConfirm_other": "{{count}} Karten löschen",
+    "exportedKeep": "Karten behalten",
     "deleteCardsTitle_one": "{{count}} Karte löschen?",
     "deleteCardsTitle_other": "{{count}} Karten löschen?",
     "deleteCardsDescription_one": "Dadurch wird die ausgewählte Karte dauerhaft aus deiner Sammlung entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
@@ -147,8 +154,8 @@
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",
     "multipleMatchesResolvedTooltip": "Mehrere ähnliche Treffer, geprüft",
-    "needsReviewTooltip": "Zur Prüfung markiert: nur über den Namen erkannt oder unter der Schwelle für schwache Treffer, zum Prüfen tippen",
-    "needsReviewResolvedTooltip": "Zur Prüfung markiert, geprüft",
+    "lowConfidenceTooltip": "Unsicherer Treffer: nur über den Kartennamen erkannt oder der Bildtreffer lag unter der Schwelle für schwache Treffer. Zum Prüfen tippen",
+    "lowConfidenceResolvedTooltip": "Unsicherer Treffer, geprüft",
     "reviewedTooltip": "Geprüft",
     "matchTooltip": "Wie genau das gescannte Bild mit dieser Karte übereinstimmt, basierend auf visueller Ähnlichkeitssuche",
     "bin": "Fach {{number}}",
@@ -245,7 +252,7 @@
     "matchPercent": "Übereinstimmung",
     "distance": "Distanz",
     "confidence": "Konfidenz",
-    "needsReview": "Zur Prüfung markiert",
+    "lowConfidenceMatch": "Unsicherer Treffer",
     "reviewed": "Geprüft",
     "corrected": "Korrigiert",
     "vectorizedOn": "Vektorisiert auf",
@@ -333,5 +340,22 @@
     "scannedBy": "Von",
     "sorter": "Sortierer",
     "deletedSorter": "{{name}} (gelöscht)"
+  },
+  "exportedDialog": {
+    "title_one": "1 Karte exportiert",
+    "title_other": "{{count}} Karten exportiert",
+    "description_one": "Dein Export wird heruntergeladen. Lege die Karte in einen Lagerort, damit du sie später wiederfindest, oder lösche sie aus der Sammlung.",
+    "description_other": "Dein Export wird heruntergeladen. Lege die {{count}} Karten in einen Lagerort, damit du sie später wiederfindest, oder lösche sie aus der Sammlung.",
+    "move": "In Lagerort verschieben",
+    "delete_one": "Karte löschen",
+    "delete_other": "{{count}} Karten löschen"
+  },
+  "storageDeleteWarning": {
+    "single": "Diese Karte liegt in {{name}} an Position #{{position}}. Beim Löschen wird sie auch aus diesem Lagerort entfernt.",
+    "all_one": "Diese Karte liegt in einem Lagerort. Beim Löschen wird sie auch aus dem Lager entfernt.",
+    "all_other": "Alle {{count}} Karten liegen in Lagerorten. Beim Löschen werden sie auch aus dem Lager entfernt.",
+    "some_one": "1 von {{total}} Karten liegt in einem Lagerort. Beim Löschen wird sie auch aus dem Lager entfernt.",
+    "some_other": "{{count}} von {{total}} Karten liegen in Lagerorten. Beim Löschen werden sie auch aus dem Lager entfernt.",
+    "deleteAnyway": "Trotzdem löschen"
   }
 }

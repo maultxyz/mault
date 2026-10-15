@@ -12,6 +12,7 @@ import { CardScanOriginSection } from "@/features/cards/components/card-scan-ori
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import type {
   MobileCardDetailBodyProps,
@@ -72,6 +73,8 @@ function MobileCardDetailBody({
 
   const [correctedCard, setCorrectedCard] = useState<PlayingCard | null>(null);
   const [editing, setEditing] = useState(false);
+  const [confirmingRemove, setConfirmingRemove] = useState(false);
+  const storageLocation = entry?.storageLocation;
 
   const card = correctedCard ?? entry?.card;
   const isMissing = !isPending && !entry && !correctedCard;
@@ -195,13 +198,27 @@ function MobileCardDetailBody({
         <Button
           variant="destructive"
           onClick={() => {
+            if (storageLocation && !confirmingRemove) {
+              setConfirmingRemove(true);
+              return;
+            }
             removeCard(scanId);
             onClose();
           }}
         >
           <IconTrash className="size-4" />
-          {t("cardPicker.remove")}
+          {confirmingRemove
+            ? t("storageDeleteWarning.deleteAnyway")
+            : t("cardPicker.remove")}
         </Button>
+        {confirmingRemove && (
+          <StorageDeleteWarning
+            storedCount={1}
+            total={1}
+            location={storageLocation}
+            className="order-first col-span-2"
+          />
+        )}
       </div>
     </div>
   );

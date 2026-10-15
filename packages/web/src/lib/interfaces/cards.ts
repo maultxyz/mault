@@ -153,6 +153,22 @@ export interface CardToolbarProps {
   onGroupDuplicatesChange: (grouped: boolean) => void;
 }
 
+export interface StorageDeleteWarningProps {
+  storedCount: number;
+  total: number;
+  location?: CardStorageLocation;
+  className?: string;
+}
+
+export interface ExportedCardsDialogProps {
+  open: boolean;
+  count: number;
+  isMoving: boolean;
+  onOpenChange: (open: boolean) => void;
+  onMove: (locationGuid: string) => Promise<boolean>;
+  onDelete: () => void;
+}
+
 export interface StorageLocationBadgeProps {
   location: CardStorageLocation;
   className?: string;
@@ -160,7 +176,7 @@ export interface StorageLocationBadgeProps {
 
 export interface ReviewStatusIconProps {
   hasAlternatives?: boolean;
-  needsReview?: boolean;
+  lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
   className?: string;
@@ -175,7 +191,7 @@ export interface ScannedCardItemProps {
   isSelected?: boolean;
   onToggleSelect?: (options: SelectToggleOptions) => void;
   hasAlternatives?: boolean;
-  needsReview?: boolean;
+  lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
   isFoil?: boolean;
@@ -198,7 +214,7 @@ export interface ScannedCardTableRow {
   condition?: CardCondition;
   isDownloaded?: boolean;
   hasAlternatives?: boolean;
-  needsReview?: boolean;
+  lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
   storageLocation?: CardStorageLocation;
@@ -254,7 +270,7 @@ export interface SelectToggleOptions {
 export interface CardTechnicalDetailsProps {
   scanId: string;
   card: PlayingCardWithDistance;
-  needsReview?: boolean;
+  lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
 }
@@ -286,7 +302,7 @@ export interface SessionSummaryDialogProps {
   elapsedMs: number;
   sessionScanCount: number;
   collectionName: string;
-  onMarkDownloaded: (scanIds: string[]) => void;
+  onExported: (scanIds: string[]) => void;
   gridFilters: CardFilters;
   gridFilterCount: number;
 }
@@ -372,7 +388,7 @@ export interface CardDetailPanelProps {
   onRemove?: () => void;
   currentCard?: PlayingCardWithDistance;
   alternativeMatches?: PlayingCardWithDistance[];
-  needsReview?: boolean;
+  lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
   isFoil?: boolean;
@@ -387,6 +403,7 @@ export interface CardDetailPanelProps {
   total?: number;
   copyIndex?: number;
   copyCount?: number;
+  storageLocation?: CardStorageLocation;
   reviewMode?: boolean;
   onReviewComplete?: () => void;
   footerActions?: ReactNode;

@@ -38,7 +38,7 @@ export function applyCardFilters(
   if (filters.needsAttention) {
     result = result.filter(
       (entry) =>
-        ((entry.alternativeMatches?.length ?? 0) > 0 || !!entry.needsReview) &&
+        ((entry.alternativeMatches?.length ?? 0) > 0 || !!entry.lowConfidenceMatch) &&
         !entry.corrected,
     );
   }

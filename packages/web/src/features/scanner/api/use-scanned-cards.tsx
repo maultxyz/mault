@@ -686,7 +686,7 @@ export function ScannedCardsProvider({
           : undefined,
         isFoil: forcedFoilType != null || undefined,
         foilType: forcedFoilType ?? undefined,
-        needsReview: details?.needsReview || isLowMatch || undefined,
+        lowConfidenceMatch: details?.lowConfidenceMatch || isLowMatch || undefined,
         vectorizedOn,
       };
 
@@ -1102,6 +1102,7 @@ export function ScannedCardsProvider({
           card: corrected,
           corrected: true,
           reviewed: true,
+          lowConfidenceMatch: false,
         }),
       );
       updateCollectionCard(collection.guid, scanId, corrected, currentBin)
@@ -1157,7 +1158,12 @@ export function ScannedCardsProvider({
         queryClient,
         collection.guid,
         new Set([scanId]),
-        (entry) => ({ ...entry, corrected: true, reviewed: true }),
+        (entry) => ({
+          ...entry,
+          corrected: true,
+          reviewed: true,
+          lowConfidenceMatch: false,
+        }),
       );
       confirmCollectionCard(collection.guid, scanId)
         .catch((err) => console.error("Failed to confirm card:", err))
@@ -1176,7 +1182,7 @@ export function ScannedCardsProvider({
         queryClient,
         collection.guid,
         new Set([scanId]),
-        (entry) => ({ ...entry, reviewed: true }),
+        (entry) => ({ ...entry, reviewed: true, lowConfidenceMatch: false }),
       );
       markCollectionCardReviewed(collection.guid, scanId)
         .catch((err) => console.error("Failed to mark card reviewed:", err))

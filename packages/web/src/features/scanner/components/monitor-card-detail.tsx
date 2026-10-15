@@ -33,9 +33,10 @@ export function MonitorCardDetail({
       scanId={entry.scanId}
       currentCard={entry.card}
       alternativeMatches={entry.alternativeMatches}
-      needsReview={entry.needsReview}
+      lowConfidenceMatch={entry.lowConfidenceMatch}
       wasCorrected={entry.corrected}
       isReviewed={entry.reviewed}
+      storageLocation={entry.storageLocation}
       isFoil={entry.isFoil}
       foilType={entry.foilType}
       condition={entry.condition}

@@ -25,7 +25,8 @@ export interface StorageLocationCard {
   isFoil: boolean;
   foilType: string | null;
   condition: CardCondition;
-  needsReview: boolean;
+  lowConfidenceMatch: boolean;
+  hasAlternatives: boolean;
   corrected: boolean;
   reviewed: boolean;
 }

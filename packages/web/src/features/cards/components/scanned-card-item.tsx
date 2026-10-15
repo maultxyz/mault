@@ -27,7 +27,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   isSelected = false,
   onToggleSelect,
   hasAlternatives = false,
-  needsReview = false,
+  lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
   isFoil = false,
@@ -47,7 +47,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   const matchPercent = card.distance != null ? getMatchPercent(card) : 0;
   const { priceOf, format } = usePriceSource();
   const displayPrice = priceOf(card, isFoil, condition);
-  const showReviewStatus = hasAlternatives || needsReview || isReviewed;
+  const showReviewStatus = hasAlternatives || lowConfidenceMatch || isReviewed;
   return (
     <div
       className={cn(
@@ -61,7 +61,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
         <div className="aspect-[2.5/3.5] rounded-md overflow-hidden relative">
           <ReviewStatusIcon
             hasAlternatives={hasAlternatives}
-            needsReview={needsReview}
+            lowConfidenceMatch={lowConfidenceMatch}
             wasCorrected={wasCorrected}
             isReviewed={isReviewed}
             className="absolute top-1 left-1 z-20 shadow-md"

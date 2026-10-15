@@ -616,7 +616,7 @@ export interface ScanAttemptOutcome extends ResolvedSearchMatches {
   embedding: number[] | null;
   topDistance: number | null;
   ocr: OcrDiagnostics | null;
-  needsReview: boolean;
+  lowConfidenceMatch: boolean;
   matchedBy: ScanMatchSource;
   detectedColor: string | null;
 }

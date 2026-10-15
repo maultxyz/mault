@@ -2,13 +2,13 @@ import type { TFunction } from "i18next";
 
 export function reviewTooltip(
   t: TFunction,
-  needsReview: boolean,
+  lowConfidenceMatch: boolean,
   wasCorrected: boolean,
 ): string {
-  if (needsReview) {
+  if (lowConfidenceMatch) {
     return wasCorrected
-      ? t("scannedCardItem.needsReviewResolvedTooltip")
-      : t("scannedCardItem.needsReviewTooltip");
+      ? t("scannedCardItem.lowConfidenceResolvedTooltip")
+      : t("scannedCardItem.lowConfidenceTooltip");
   }
   return wasCorrected
     ? t("scannedCardItem.multipleMatchesResolvedTooltip")

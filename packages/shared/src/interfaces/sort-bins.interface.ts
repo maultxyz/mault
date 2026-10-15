@@ -134,6 +134,16 @@ export interface ScanOnlyConfig {
   unmatchedBin?: number;
 }
 
-export interface EmptyAllBinsInput {
+export interface EmptyAllBinLocation {
+  binNumber: number;
+  locationGuid: string;
+}
+
+export interface EmptyAllBinsOptions {
+  collectionGuid?: string;
+  locations?: EmptyAllBinLocation[];
+}
+
+export interface EmptyAllBinsInput extends EmptyAllBinsOptions {
   binNumbers: number[];
 }

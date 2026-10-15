@@ -31,6 +31,7 @@ import { CardStorageLocationSection } from "@/features/storage/components/card-s
 import { CardScanOriginSection } from "@/features/cards/components/card-scan-origin-section";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
+import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
@@ -72,9 +73,10 @@ export function CardDetailPanel({
   onRemove,
   currentCard,
   alternativeMatches,
-  needsReview = false,
+  lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
+  storageLocation,
   isFoil = false,
   foilType,
   condition,
@@ -127,7 +129,7 @@ export function CardDetailPanel({
   } = useCardDetailActions();
   const { priceOf, format, conditionMultipliers } = usePriceSource();
   const canConfirm =
-    !!scanId && (needsReview || !!alternativeMatches?.length) && !wasCorrected;
+    !!scanId && (lowConfidenceMatch || !!alternativeMatches?.length) && !wasCorrected;
   const collection = useCardDetailCollection();
   const foilOptions = useFoilOptions();
   const scanDraft = useScanDraft({
@@ -606,7 +608,7 @@ export function CardDetailPanel({
                 <CardTechnicalDetails
                   scanId={scanId}
                   card={currentCard}
-                  needsReview={needsReview}
+                  lowConfidenceMatch={lowConfidenceMatch}
                   wasCorrected={wasCorrected}
                   isReviewed={isReviewed}
                 />
@@ -649,7 +651,12 @@ export function CardDetailPanel({
               </Button>
               {footerActions}
               {onRemove && (
-                <Button variant="destructive" onClick={onRemove}>
+                <Button
+                  variant="destructive"
+                  onClick={
+                    storageLocation ? () => setConfirmRemoveOpen(true) : onRemove
+                  }
+                >
                   <IconTrash className="size-4" />
                   {t("cardPicker.remove")}
                   <HotkeyHint id="cardRemove" />
@@ -691,7 +698,14 @@ export function CardDetailPanel({
           confirmLabel={t("cardPicker.remove")}
           focusConfirm
           onConfirm={onRemove}
-        />
+        >
+          <StorageDeleteWarning
+            storedCount={storageLocation ? 1 : 0}
+            total={1}
+            location={storageLocation}
+            className="mt-4"
+          />
+        </DeleteDialog>
       )}
       <SaveBar
         show={scanDraft.isDirty}

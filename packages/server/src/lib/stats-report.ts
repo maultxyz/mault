@@ -69,7 +69,7 @@ export async function loadStatsReport(
         ${collectionCards.guid}::text AS scan_id,
         ${collectionCards.cardId} AS card_id,
         ${collectionCards.isFoil} AS is_foil,
-        (${collectionCards.needsReview} OR (jsonb_typeof(${collectionCards.alternativeMatches}) = 'array' AND jsonb_array_length(${collectionCards.alternativeMatches}) > 0)) AS needs_review,
+        (${collectionCards.lowConfidenceMatch} OR (jsonb_typeof(${collectionCards.alternativeMatches}) = 'array' AND jsonb_array_length(${collectionCards.alternativeMatches}) > 0)) AS needs_review,
         ${collectionCards.isCorrected} AS is_corrected,
         ${collectionCards.createdAt} AS created_at,
         ${collectionCards.scannedAt} AS scanned_at,

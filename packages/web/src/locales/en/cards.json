@@ -103,6 +103,13 @@
     "delete": "Delete",
     "export": "Export",
     "exportSelectedFailed": "Couldn't export the selected cards",
+    "exportedDeleteTitle_one": "Delete the exported card?",
+    "exportedDeleteTitle_other": "Delete the {{count}} exported cards?",
+    "exportedDeleteDescription_one": "Your export is downloading. You can delete this card from the collection now, or keep it here. Deleting can't be undone.",
+    "exportedDeleteDescription_other": "Your export is downloading. You can delete these {{count}} cards from the collection now, or keep them here. Deleting can't be undone.",
+    "exportedDeleteConfirm_one": "Delete card",
+    "exportedDeleteConfirm_other": "Delete {{count}} cards",
+    "exportedKeep": "Keep cards",
     "deleteCardsTitle_one": "Delete {{count}} card?",
     "deleteCardsTitle_other": "Delete {{count}} cards?",
     "deleteCardsDescription_one": "This will permanently remove the selected card from your collection. This action cannot be undone.",
@@ -147,8 +154,8 @@
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
     "multipleMatchesResolvedTooltip": "Multiple close matches, reviewed",
-    "needsReviewTooltip": "Flagged for review: matched by name only or below the low-match threshold, tap to review",
-    "needsReviewResolvedTooltip": "Flagged for review, reviewed",
+    "lowConfidenceTooltip": "Low-confidence match: identified from the card name only, or the image match was below the low-match threshold. Tap to review",
+    "lowConfidenceResolvedTooltip": "Low-confidence match, reviewed",
     "reviewedTooltip": "Reviewed",
     "matchTooltip": "How closely the scanned image matches this card, based on visual similarity search",
     "bin": "Bin {{number}}",
@@ -245,7 +252,7 @@
     "matchPercent": "Match",
     "distance": "Distance",
     "confidence": "Confidence",
-    "needsReview": "Flagged for review",
+    "lowConfidenceMatch": "Low-confidence match",
     "reviewed": "Reviewed",
     "corrected": "Corrected",
     "vectorizedOn": "Vectorized on",
@@ -333,5 +340,22 @@
     "scannedBy": "By",
     "sorter": "Sorter",
     "deletedSorter": "{{name}} (deleted)"
+  },
+  "exportedDialog": {
+    "title_one": "1 card exported",
+    "title_other": "{{count}} cards exported",
+    "description_one": "Your export is downloading. Move the card into a storage location so you can find it later, or delete it from the collection.",
+    "description_other": "Your export is downloading. Move the {{count}} cards into a storage location so you can find them later, or delete them from the collection.",
+    "move": "Move to location",
+    "delete_one": "Delete card",
+    "delete_other": "Delete {{count}} cards"
+  },
+  "storageDeleteWarning": {
+    "single": "This card is in {{name}} at #{{position}}. Deleting it also removes it from that storage location.",
+    "all_one": "This card is in a storage location. Deleting it also removes it from storage.",
+    "all_other": "All {{count}} cards are in storage locations. Deleting them also removes them from storage.",
+    "some_one": "1 of these {{total}} cards is in a storage location. Deleting it also removes it from storage.",
+    "some_other": "{{count}} of these {{total}} cards are in storage locations. Deleting them also removes them from storage.",
+    "deleteAnyway": "Delete anyway"
   }
 }

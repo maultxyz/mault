@@ -97,7 +97,7 @@ export function StorageCardDetail({
         scanId={scanId}
         currentCard={stored.card}
         alternativeMatches={scanned.alternativeMatches}
-        needsReview={stored.needsReview}
+        lowConfidenceMatch={stored.lowConfidenceMatch}
         wasCorrected={stored.corrected}
         isReviewed={stored.reviewed}
         isFoil={stored.isFoil}

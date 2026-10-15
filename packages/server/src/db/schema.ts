@@ -498,7 +498,7 @@ export const collectionCards = pgTable(
     isDownloaded: boolean("is_downloaded").notNull().default(false),
     alternativeMatches: jsonb("alternative_matches"),
     isCorrected: boolean("is_corrected").notNull().default(false),
-    needsReview: boolean("needs_review").notNull().default(false),
+    lowConfidenceMatch: boolean("low_confidence_match").notNull().default(false),
     isReviewed: boolean("is_reviewed").notNull().default(false),
     diagnostics: jsonb("diagnostics"),
     locationId: integer("location_id").references(() => storageLocations.id, {

@@ -23,6 +23,7 @@ export interface CollectionCardsQuery {
 export interface GroupedScannedCard extends ScannedCard {
   scanIds: string[];
   quantity: number;
+  storedCount?: number;
 }
 
 export interface CollectionCardsPage {

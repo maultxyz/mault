@@ -70,7 +70,7 @@ export function toScannedCard(row: {
   isDownloaded?: boolean | null;
   alternativeMatches?: unknown;
   isCorrected?: boolean | null;
-  needsReview?: boolean | null;
+  lowConfidenceMatch?: boolean | null;
   isReviewed?: boolean | null;
   storageLocation?: CardStorageLocation | null;
 }): ScannedCard {
@@ -87,7 +87,7 @@ export function toScannedCard(row: {
     alternativeMatches:
       (row.alternativeMatches as PlayingCardWithDistance[] | null) ?? undefined,
     corrected: row.isCorrected ?? undefined,
-    needsReview: row.needsReview || undefined,
+    lowConfidenceMatch: row.lowConfidenceMatch || undefined,
     reviewed: row.isReviewed || undefined,
     storageLocation: row.storageLocation ?? undefined,
   };

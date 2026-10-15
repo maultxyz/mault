@@ -6,13 +6,13 @@ import { useTranslation } from "react-i18next";
 
 export function ReviewStatusIcon({
   hasAlternatives = false,
-  needsReview = false,
+  lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
   className,
 }: ReviewStatusIconProps) {
   const { t } = useTranslation("cards");
-  const flagged = hasAlternatives || needsReview;
+  const flagged = hasAlternatives || lowConfidenceMatch;
   const resolved = wasCorrected || isReviewed;
   if (!flagged && !isReviewed) return null;
 
@@ -27,7 +27,7 @@ export function ReviewStatusIcon({
       )}
       title={
         flagged
-          ? reviewTooltip(t, needsReview, resolved)
+          ? reviewTooltip(t, lowConfidenceMatch, resolved)
           : t("scannedCardItem.reviewedTooltip")
       }
     >

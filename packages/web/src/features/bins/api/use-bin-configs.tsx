@@ -23,6 +23,7 @@ import {
   DEFAULT_BIN_CAPACITY,
   mergePickListEntries,
   type DefaultBinInit,
+  type EmptyAllBinsOptions,
   type EmptyBinOptions,
   type RepackSlot,
   SCAN_ONLY_DEFAULT_BIN,
@@ -50,6 +51,7 @@ import {
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { collectionCardsKeys } from "@/features/collections/api/collection-cards";
 import { storageLocationKeys } from "@/features/storage/api/storage-locations";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -406,6 +408,9 @@ export function BinConfigsProvider({
         void queryClient.invalidateQueries({
           queryKey: storageLocationKeys.root(),
         });
+        void queryClient.invalidateQueries({
+          queryKey: collectionCardsKeys.root(),
+        });
       }
       if (result.data) {
         const confirmedBins = result.data;
@@ -422,11 +427,29 @@ export function BinConfigsProvider({
   });
 
   const emptyAllBinsMutation = useMutation({
-    mutationFn: (binNumbers: number[]) =>
-      emptyAllBinsAction(binNumbers, activeGameGuid),
+    mutationFn: ({
+      binNumbers,
+      options,
+    }: {
+      binNumbers: number[];
+      options?: EmptyAllBinsOptions;
+    }) => emptyAllBinsAction(binNumbers, activeGameGuid, options),
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.setQueryData(["bins"], result.data);
+        if (result.assignedCount) {
+          toast.success(
+            t("useBinConfigs.toasts.cardsStored", {
+              count: result.assignedCount,
+            }),
+          );
+          void queryClient.invalidateQueries({
+            queryKey: storageLocationKeys.root(),
+          });
+          void queryClient.invalidateQueries({
+            queryKey: collectionCardsKeys.root(),
+          });
+        }
       } else {
         toast.error(
           result.message ?? t("useBinConfigs.toasts.emptyAllBinsFailed"),
@@ -529,8 +552,11 @@ export function BinConfigsProvider({
   );
 
   const emptyAllBins = useCallback(
-    async (binNumbers: number[]) => {
-      const result = await emptyAllBinsMutation.mutateAsync(binNumbers);
+    async (binNumbers: number[], options?: EmptyAllBinsOptions) => {
+      const result = await emptyAllBinsMutation.mutateAsync({
+        binNumbers,
+        options,
+      });
       return result.success;
     },
     [emptyAllBinsMutation],

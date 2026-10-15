@@ -1,7 +1,10 @@
 import { sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { bins, collectionCards, unmatchedCards } from "../db/schema";
-import type { AssignBinToLocationInput } from "./interfaces/storage-locations";
+import type {
+  AssignBinToLocationInput,
+  MoveCardsToLocationInput,
+} from "./interfaces/storage-locations";
 
 export async function assignBinToLocation(
   tx: Transaction,
@@ -40,6 +43,40 @@ export async function assignBinToLocation(
         location_position = base.start + numbered.rn
     FROM numbered, base
     WHERE numbered.kind = 'card' AND cc.id = numbered.id
+    RETURNING cc.guid::text AS scan_id
+  `);
+  return (result.rows as { scan_id: string }[]).map((row) => row.scan_id);
+}
+
+export async function moveCardsToLocation(
+  tx: Transaction,
+  { orgId, locationId, scanIds }: MoveCardsToLocationInput,
+): Promise<string[]> {
+  await tx.execute(
+    sql`SELECT pg_advisory_xact_lock(hashtext(${`storage_location:${locationId}`}))`,
+  );
+  const result = await tx.execute(sql`
+    WITH requested AS (
+      SELECT r.id::uuid AS guid, r.ord
+      FROM unnest(${`{${scanIds.join(",")}}`}::text[]) WITH ORDINALITY AS r(id, ord)
+    ),
+    targets AS (
+      SELECT cc.id, row_number() OVER (ORDER BY requested.ord) AS rn
+      FROM ${collectionCards} cc
+      JOIN requested ON requested.guid = cc.guid
+      JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+      WHERE cc.org_id = ${orgId}
+    ),
+    base AS (
+      SELECT coalesce(max(location_position), 0) AS start
+      FROM ${collectionCards}
+      WHERE location_id = ${locationId}
+    )
+    UPDATE ${collectionCards} cc
+    SET location_id = ${locationId},
+        location_position = base.start + targets.rn
+    FROM targets, base
+    WHERE cc.id = targets.id
     RETURNING cc.guid::text AS scan_id
   `);
   return (result.rows as { scan_id: string }[]).map((row) => row.scan_id);

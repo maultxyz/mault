@@ -67,7 +67,9 @@
   "toasts": {
     "failed": "Couldn't update storage locations",
     "cardRemoved": "Card removed from its location",
-    "correctFailed": "Couldn't correct the card"
+    "correctFailed": "Couldn't correct the card",
+    "cardsMoved_one": "1 card moved to storage",
+    "cardsMoved_other": "{{count}} cards moved to storage"
   },
   "removeDialog": {
     "title": "Remove {{name}} from {{location}}?",
@@ -99,5 +101,14 @@
     "button": "Export",
     "loading": "Loading cards",
     "combineDuplicates": "Combine duplicates"
+  },
+  "emptyAllDialog": {
+    "title": "Empty all bins",
+    "description_one": "Mark every bin as emptied. Pick where the {{count}} card went so you can find it later.",
+    "description_other": "Mark every bin as emptied. Pick where the {{count}} cards went so you can find them later.",
+    "perBin": "Choose a location for each bin",
+    "binLabel_one": "Bin {{bin}} · {{count}} card",
+    "binLabel_other": "Bin {{bin}} · {{count}} cards",
+    "confirm": "Empty all bins"
   }
 }

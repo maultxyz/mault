@@ -83,7 +83,7 @@ export interface ScannedCard {
   condition?: CardCondition;
   isDownloaded?: boolean;
   corrected?: boolean;
-  needsReview?: boolean;
+  lowConfidenceMatch?: boolean;
   reviewed?: boolean;
   storageLocation?: CardStorageLocation;
   vectorizedOn?: ScanVectorizeSource;
@@ -142,7 +142,7 @@ export interface MatchedScanDiagnostics {
 }
 
 export interface MatchedScanDetails {
-  needsReview: boolean;
+  lowConfidenceMatch: boolean;
   diagnostics: MatchedScanDiagnostics;
 }
 

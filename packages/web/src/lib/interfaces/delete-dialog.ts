@@ -13,6 +13,7 @@ export interface DeleteDialogProps {
   children?: ReactNode;
   confirm?: DeleteConfirmMode;
   confirmLabel?: string;
+  cancelLabel?: string;
   focusConfirm?: boolean;
   onConfirm: () => void;
 }

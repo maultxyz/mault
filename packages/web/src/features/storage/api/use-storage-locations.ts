@@ -10,12 +10,14 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import {
   createStorageLocation,
   deleteStorageLocation,
+  moveCardsToStorageLocation,
   removeCardFromStorageLocation,
   renameStorageLocation,
   storageLocationKeys,
   storageLocationsQueryOptions,
 } from "@/features/storage/api/storage-locations";
 import type { CardDetailActions } from "@/lib/interfaces/cards";
+import type { MoveCardsToLocationInput } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import type {
   CardCondition,
@@ -110,6 +112,40 @@ export function useStorageLocations() {
     rename,
     remove,
   };
+}
+
+export function useMoveCardsToLocation() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+  const { activeOrg } = useOrg();
+  const listKey = storageLocationsQueryOptions(activeOrg?.id).queryKey;
+
+  const mutation = useMutation({
+    mutationFn: ({ guid, scanIds }: MoveCardsToLocationInput) =>
+      moveCardsToStorageLocation(guid, scanIds),
+    onSuccess: (result, { collectionGuid }) => {
+      if (!result.success || !result.data) {
+        toast.error(result.message ?? t("toasts.failed"));
+        return;
+      }
+      queryClient.setQueryData(listKey, result.data.locations);
+      toast.success(t("toasts.cardsMoved", { count: result.data.moved }));
+      void queryClient.invalidateQueries({
+        queryKey: storageLocationKeys.root(),
+      });
+      if (collectionGuid) {
+        void invalidateCollectionCards(queryClient, collectionGuid);
+      }
+    },
+    onError: () => toast.error(t("toasts.failed")),
+  });
+
+  const moveCards = async (input: MoveCardsToLocationInput) => {
+    const result = await mutation.mutateAsync(input).catch(() => null);
+    return !!result?.success;
+  };
+
+  return { moveCards, isMoving: mutation.isPending };
 }
 
 export function useRemoveCardFromLocation() {

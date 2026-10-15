@@ -28,7 +28,7 @@ function Row({ label, children }: TechnicalDetailRowProps) {
 export function CardTechnicalDetails({
   scanId,
   card,
-  needsReview = false,
+  lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
 }: CardTechnicalDetailsProps) {
@@ -77,8 +77,8 @@ export function CardTechnicalDetails({
           <Row label={t("technicalDetails.confidence")}>
             {formatNumber(card.confidence)}
           </Row>
-          <Row label={t("technicalDetails.needsReview")}>
-            {yesNo(needsReview)}
+          <Row label={t("technicalDetails.lowConfidenceMatch")}>
+            {yesNo(lowConfidenceMatch)}
           </Row>
           <Row label={t("technicalDetails.reviewed")}>
             {yesNo(isReviewed || wasCorrected)}

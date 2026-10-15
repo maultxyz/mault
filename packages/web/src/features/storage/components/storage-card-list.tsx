@@ -126,7 +126,8 @@ export function StorageCardList({
                         {entry.card.name}
                       </button>
                       <ReviewStatusIcon
-                        needsReview={entry.needsReview}
+                        hasAlternatives={entry.hasAlternatives}
+                        lowConfidenceMatch={entry.lowConfidenceMatch}
                         wasCorrected={entry.corrected}
                         isReviewed={entry.reviewed}
                       />

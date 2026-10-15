@@ -6,6 +6,8 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { BinLevelCell } from "@/features/scanner/components/bin-level-cell";
+import { useStorageAccess } from "@/features/storage/api/use-storage-access";
+import { EmptyAllBinsDialog } from "@/features/storage/components/empty-all-bins-dialog";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import {
   buildBinLevelLayout,
@@ -39,6 +41,7 @@ export function BinStatusMeter() {
   const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
   const [collapsed, setCollapsed] = useState(readCollapsed);
+  const { isLocked: storageLocked } = useStorageAccess();
   const catchAllBin = configs.find((c) => c.isCatchAll)?.binNumber;
   const disabledBins = new Set(
     configs
@@ -173,8 +176,22 @@ export function BinStatusMeter() {
         </div>
       )}
 
+      <EmptyAllBinsDialog
+        open={confirmAll && !storageLocked}
+        bins={levels.filter((level) => level.count > 0)}
+        preferLocation={!!selectedSet?.isChaosMode}
+        collectionGuid={activeCollection?.guid}
+        onOpenChange={setConfirmAll}
+        onConfirm={(options) =>
+          emptyAllBins(
+            levels.map((level) => level.binNumber),
+            options,
+          )
+        }
+      />
+
       <DeleteDialog
-        open={confirmAll}
+        open={confirmAll && storageLocked}
         onOpenChange={setConfirmAll}
         title={t("binStatusMeter.emptyAllTitle")}
         description={t("binStatusMeter.emptyAllDescription", {

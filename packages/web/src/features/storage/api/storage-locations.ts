@@ -86,6 +86,13 @@ export function createStorageLocation(
   return apiPost("/api/storage-locations", { name });
 }
 
+export function moveCardsToStorageLocation(
+  guid: string,
+  scanIds: string[],
+): Promise<Result<{ moved: number; locations: StorageLocation[] }>> {
+  return apiPost(`/api/storage-locations/${guid}/cards`, { scanIds });
+}
+
 export function renameStorageLocation(
   guid: string,
   name: string,

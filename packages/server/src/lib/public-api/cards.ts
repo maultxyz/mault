@@ -34,7 +34,7 @@ async function selectCards(
   const result = await tx.execute(sql`
     SELECT cc.id, cc.guid::text AS scan_id, cc.card_id, cc.is_foil, cc.foil_type,
       cc.condition,
-      (cc.needs_review OR (cc.alternative_matches IS NOT NULL AND cc.alternative_matches <> '[]'::jsonb)) AS needs_review,
+      (cc.low_confidence_match OR (cc.alternative_matches IS NOT NULL AND cc.alternative_matches <> '[]'::jsonb)) AS needs_review,
       cc.card ->> 'name' AS name, cc.card ->> 'set' AS set_code,
       cc.card ->> 'setName' AS set_name,
       cc.card ->> 'collectorNumber' AS collector_number,
