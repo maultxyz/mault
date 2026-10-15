@@ -49,7 +49,7 @@ export default defineConfig({
         clientsClaim: true,
         navigateFallback: "/index.html",
         // API + SSE traffic must always hit the network.
-        navigateFallbackDenylist: [/^\/api\//],
+        navigateFallbackDenylist: [/^\/api\//, /\/[^/?]+\.[^/]+$/],
       },
     }),
   ],
