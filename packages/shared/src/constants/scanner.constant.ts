@@ -8,6 +8,6 @@ export const DEFAULT_SCAN_REGION: ScanRegion = {
 
 export const DEFAULT_CAPTURE_SETTLE_DELAY_MS = 500;
 
-export const DEFAULT_MATCHES_NEEDED = 2;
+export const DEFAULT_MATCHES_NEEDED = 1;
 
 export const DEFAULT_CHECK_BOTH_ORIENTATIONS = true;
