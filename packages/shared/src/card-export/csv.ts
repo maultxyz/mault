@@ -1,5 +1,6 @@
 import { getCardValue } from "../evaluate-bin";
-import { conditionLabel, csvEscape, type ExportAdapter } from "./base";
+import { conditionLabel, csvEscape } from "./base";
+import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 export const csvAdapter: ExportAdapter = {
   key: "csv",

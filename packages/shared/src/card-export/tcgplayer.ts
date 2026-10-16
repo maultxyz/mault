@@ -1,5 +1,6 @@
 import type { PlayingCard } from "../interfaces/card.interface";
-import { conditionLabel, csvEscape, type ExportAdapter } from "./base";
+import { conditionLabel, csvEscape } from "./base";
+import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 function tcgplayerId(card: PlayingCard): string {
   if (card.tcgplayerId) return card.tcgplayerId;

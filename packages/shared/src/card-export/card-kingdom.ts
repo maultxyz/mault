@@ -1,4 +1,5 @@
-import { csvEscape, type ExportAdapter } from "./base";
+import { csvEscape } from "./base";
+import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 export const cardKingdomAdapter: ExportAdapter = {
   key: "cardkingdom",

@@ -2,8 +2,8 @@ import {
   conditionLabel,
   csvEscape,
   purchasePrice,
-  type ExportAdapter,
 } from "./base";
+import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 export const moxfieldAdapter: ExportAdapter = {
   key: "moxfield",
