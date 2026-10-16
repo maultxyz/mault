@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { MobileCollectionSheet } from "@/features/scanner/components/mobile-collection-sheet";
+import { MobilePresetSheet } from "@/features/scanner/components/mobile-preset-sheet";
 import { MobileScanNotice } from "@/features/scanner/components/mobile-scan-notice";
 import { MobileScanControlsSheet } from "@/features/scanner/components/mobile-scan-controls-sheet";
 import { MobileScanOptionsSheet } from "@/features/scanner/components/mobile-scan-options-sheet";
 import { MobileSessionScansSheet } from "@/features/scanner/components/mobile-session-scans-sheet";
-import { MOBILE_SORTER_PATH } from "@/lib/constants/nav";
 import {
   MOBILE_SCAN_CHIP_CLASS,
   SESSION_TIMER_RUNNING_STATUSES,
@@ -18,9 +18,7 @@ import {
   IconAdjustments,
   IconCamera,
   IconCards,
-  IconChevronDown,
   IconChevronRight,
-  IconCpu,
   IconDots,
   IconPlayerPauseFilled,
   IconPlayerPlayFilled,
@@ -35,6 +33,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const { sessionScanCount } = useScannedCards();
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [presetsOpen, setPresetsOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [sessionOpen, setSessionOpen] = useState(false);
 
@@ -65,21 +64,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           : t("mobileScan.phase.ready");
     }
   })();
-
-  const sorterLabel = !chrome.isConnected
-    ? t("mobileScan.sorterState.notConnected")
-    : chrome.sensorBlockedModule !== null
-      ? t("mobileScan.sorterState.blocked")
-      : !chrome.isReady
-        ? t("mobileScan.sorterState.testing")
-        : t("mobileScan.sorterState.ready");
-  const sorterDot = !chrome.isConnected
-    ? "bg-white/50"
-    : chrome.sensorBlockedModule !== null
-      ? "bg-destructive"
-      : chrome.isReady
-        ? "bg-success"
-        : "bg-warning animate-pulse motion-reduce:animate-none";
 
   const notice = (() => {
     if (chrome.isAtScanLimit) {
@@ -181,43 +165,13 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   return (
     <>
       <div className="pointer-events-none absolute inset-0 z-30 flex flex-col justify-between">
-        <div className="flex flex-col gap-2 px-4 pt-3">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setCollectionsOpen(true)}
-              className={cn(MOBILE_SCAN_CHIP_CLASS, "flex-1 justify-start")}
-            >
-              <span className="truncate">
-                {activeCollection?.name ?? t("mobileScan.chooseCollection")}
-              </span>
-              <IconChevronDown className="size-4 shrink-0" />
-            </button>
-            <span className={cn(MOBILE_SCAN_CHIP_CLASS, "shrink-0")}>
-              {running && (
-                <span className="size-2 rounded-full bg-success animate-pulse motion-reduce:animate-none" />
-              )}
-              {phaseLabel}
-            </span>
-            <button
-              type="button"
-              aria-label={t("mobileScan.options")}
-              onClick={() => setOptionsOpen(true)}
-              className={cn(MOBILE_SCAN_CHIP_CLASS, "size-9 justify-center px-0")}
-            >
-              <IconDots className="size-5" />
-            </button>
-          </div>
-          <div className="flex items-center justify-between gap-2">
-          <Link
-            to={MOBILE_SORTER_PATH}
-            className={cn(MOBILE_SCAN_CHIP_CLASS, "min-w-0")}
-          >
-            <span className={cn("size-2 shrink-0 rounded-full", sorterDot)} />
-            <IconCpu className="size-4 shrink-0" />
-            <span className="truncate">{sorterLabel}</span>
-            <IconChevronRight className="size-4 shrink-0" />
-          </Link>
+        <div className="flex items-center gap-2 px-4 pt-3">
+          <span className={MOBILE_SCAN_CHIP_CLASS}>
+            {running && (
+              <span className="size-2 shrink-0 rounded-full bg-success animate-pulse motion-reduce:animate-none" />
+            )}
+            <span className="truncate">{phaseLabel}</span>
+          </span>
           <button
             type="button"
             onClick={() => setSessionOpen(true)}
@@ -227,7 +181,17 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             {t("mobileScan.session.chip", { count: sessionScanCount })}
             <IconChevronRight className="size-4 shrink-0" />
           </button>
-          </div>
+          <button
+            type="button"
+            aria-label={t("mobileScan.options")}
+            onClick={() => setOptionsOpen(true)}
+            className={cn(
+              MOBILE_SCAN_CHIP_CLASS,
+              "ml-auto size-9 shrink-0 justify-center px-0",
+            )}
+          >
+            <IconDots className="size-5" />
+          </button>
         </div>
 
         <div className="flex flex-col gap-3 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
@@ -284,7 +248,16 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         open={optionsOpen}
         onOpenChange={setOptionsOpen}
         chrome={chrome}
+        onChooseCollection={() => {
+          setOptionsOpen(false);
+          setCollectionsOpen(true);
+        }}
+        onChoosePreset={() => {
+          setOptionsOpen(false);
+          setPresetsOpen(true);
+        }}
       />
+      <MobilePresetSheet open={presetsOpen} onOpenChange={setPresetsOpen} />
       <MobileScanControlsSheet
         open={controlsOpen}
         onOpenChange={setControlsOpen}

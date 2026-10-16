@@ -2,6 +2,8 @@ import { MobileListRow } from "@/components/mobile-list-row";
 import { MobileSection } from "@/components/mobile-section";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Switch } from "@/components/ui/switch";
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useCollections } from "@/features/collections/api/use-collections";
 import {
   MOBILE_LIST_CLASS,
   MOBILE_SCAN_PAIR_PATH,
@@ -9,9 +11,11 @@ import {
 } from "@/lib/constants/nav";
 import type { MobileScanOptionsSheetProps } from "@/lib/interfaces/scanner";
 import {
+  IconAlbum,
   IconCopy,
   IconCpu,
   IconDeviceDesktop,
+  IconListDetails,
   IconPlayerTrackNext,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -20,8 +24,12 @@ export function MobileScanOptionsSheet({
   open,
   onOpenChange,
   chrome,
+  onChooseCollection,
+  onChoosePreset,
 }: MobileScanOptionsSheetProps) {
   const { t } = useTranslation("scanner");
+  const { activeCollection } = useCollections();
+  const { sets, selectedSet } = useBinConfigs();
   const close = () => onOpenChange(false);
 
   return (
@@ -57,6 +65,25 @@ export function MobileScanOptionsSheet({
                 />
               }
             />
+          </div>
+
+          <div className={MOBILE_LIST_CLASS}>
+            <MobileListRow
+              icon={<IconAlbum />}
+              label={t("mobileScan.collection")}
+              value={
+                activeCollection?.name ?? t("mobileScan.chooseCollection")
+              }
+              onClick={onChooseCollection}
+            />
+            {sets.length > 0 && (
+              <MobileListRow
+                icon={<IconListDetails />}
+                label={t("mobileScan.preset")}
+                value={selectedSet?.name ?? t("mobileScan.choosePreset")}
+                onClick={onChoosePreset}
+              />
+            )}
           </div>
 
           {chrome.cameras.length > 1 && (

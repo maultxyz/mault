@@ -224,6 +224,7 @@ jobs:
             VITE_LATEST_FIRMWARE_VERSION=${{ vars.VITE_LATEST_FIRMWARE_VERSION }}
             VITE_ROLLBAR_ACCESS_TOKEN=${{ secrets.VITE_ROLLBAR_ACCESS_TOKEN }}
             VITE_SHOW_SCAN_LOGS=${{ vars.VITE_SHOW_SCAN_LOGS }}
+            VITE_API_DOCS_URL=${{ vars.VITE_API_DOCS_URL }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 
@@ -444,6 +445,10 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           PR_TITLE: ${{ steps.pr.outputs.title }}
         run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
           PAYLOAD=$(jq -n \
             --arg title "${PR_TITLE:-Mault deploy failed}" \
             --arg url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
