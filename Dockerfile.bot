@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Copy manifests for layer caching
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ patches/
 COPY packages/bot/package.json packages/bot/
 RUN pnpm install --frozen-lockfile
 
