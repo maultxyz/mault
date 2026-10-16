@@ -63,7 +63,7 @@
       "dialogTitle": "Mise à jour du firmware",
       "dialogDescription": "Installe le dernier firmware sur ton ESP32 connecté via cet onglet. Ne déconnecte pas l'appareil et ne ferme pas cet onglet pendant l'opération.",
       "startButton": "Démarrer la mise à jour",
-      "flashing": "Installation en cours — ne déconnecte pas l'appareil…",
+      "flashing": "Installation en cours, ne déconnecte pas l'appareil…",
       "success": "Firmware installé. Débranche la trieuse de ton ordinateur, puis rebranche-la pour terminer.",
       "errorTitle": "Échec de la mise à jour",
       "close": "Fermer",
@@ -297,7 +297,7 @@
   },
   "phoneCamera": {
     "scanDescription": "Scanne ce code QR avec ton téléphone, ou ouvre le lien, pour qu'il puisse être utilisé comme caméra de ce scanner.",
-    "connectedDescription": "Ton téléphone est prêt — il prendra une photo dès que ce scanner en aura besoin.",
+    "connectedDescription": "Ton téléphone est prêt : il prendra une photo dès que ce scanner en aura besoin.",
     "qrAlt": "Code QR pour associer une caméra de téléphone",
     "statusWaiting": "En attente du téléphone…",
     "statusConnected": "Connecté",
@@ -571,7 +571,8 @@
       "connecting": "Connexion…",
       "error": "Hors ligne",
       "closed": "Hors ligne"
-    }
+    },
+    "review": "Vérifier {{count}}"
   },
   "binCorrection": {
     "bin": "Bac {{number}}",
@@ -705,7 +706,29 @@
     "bin": "Bac {{number}}",
     "pause": "Mettre en pause",
     "start": "Démarrer le scan",
-    "scanOnce": "Scanner une carte"
+    "scanOnce": "Scanner une carte",
+    "session": {
+      "chip_one": "{{count}} scannée",
+      "chip_other": "{{count}} scannées",
+      "title": "Cette session",
+      "count_one": "{{count}} carte dans cette session",
+      "count_other": "{{count}} cartes dans cette session",
+      "empty": "Aucune carte scannée dans cette session pour l'instant."
+    },
+    "controls": {
+      "open": "Commandes du scanner",
+      "title": "Commandes du scanner",
+      "pausedHint": "Mettez le scan en pause pour les utiliser.",
+      "scanNow": "Scanner maintenant",
+      "scanNowDescription": "Identifier la carte sous la caméra",
+      "feed": "Charger une carte",
+      "feedDescription": "Charger une carte, puis la scanner et la trier",
+      "drop": "Faire tomber les cartes",
+      "dropDescription": "Ouvrir chaque module pour libérer les cartes coincées",
+      "neutral": "Remettre au neutre",
+      "neutralDescription": "Ramener chaque servo à sa position de repos",
+      "sorterDescription": "Connexion, autotest et état"
+    }
   },
   "mobileSorter": {
     "title": "Trieuse",

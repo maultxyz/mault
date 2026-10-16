@@ -10,7 +10,6 @@ import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
 import {
   Camera,
   type CameraRef,
-  useCameraDevice,
   useCameraPermission,
   usePhotoOutput,
 } from "react-native-vision-camera";
@@ -22,6 +21,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
+import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
@@ -55,7 +55,8 @@ export default function ScanScreen() {
   const { data: collections } = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const collection = collections?.find((c) => c.isActive) ?? null;
   const permission = useCameraPermission();
-  const device = useCameraDevice("back");
+  const camera = useCameraChoice();
+  const device = camera.device;
   const photoOutput = usePhotoOutput({
     targetResolution: CAPTURE_TARGET_RESOLUTION,
     qualityPrioritization: "speed",
@@ -242,6 +243,13 @@ export default function ScanScreen() {
         canScan={!!collection && !session.modelError && session.phase !== "loading-models"}
         onScanNow={session.scanOnce}
         onFeedOne={session.feedOnce}
+        autoFeed={session.autoFeed}
+        onAutoFeedChange={session.setAutoFeed}
+        allowDuplicates={session.allowDuplicates}
+        onAllowDuplicatesChange={session.setAllowDuplicates}
+        cameras={camera.devices}
+        selectedCameraId={device?.id ?? null}
+        onSelectCamera={camera.select}
         onClose={() => setControlsOpen(false)}
       />
       <SessionScansSheet

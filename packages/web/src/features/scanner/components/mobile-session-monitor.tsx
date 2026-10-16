@@ -2,6 +2,7 @@ import { MobileTabStrip } from "@/components/mobile-tab-strip";
 import {
   MOBILE_HERO_LABEL_CLASS,
   MOBILE_HERO_VALUE_CLASS,
+  MOBILE_MONITOR_CARD_PARAM,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
 } from "@/lib/constants/nav";
 import { MobilePageHeader } from "@/components/mobile-page-header";
@@ -16,7 +17,12 @@ import type {
   MobileSessionMonitorProps,
 } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
+import { MONITOR_NEEDS_REVIEW_CARDS_QUERY } from "@/lib/constants/scanner";
+import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
 
 export function MobileSessionMonitor({
@@ -31,9 +37,20 @@ export function MobileSessionMonitor({
 }: MobileSessionMonitorProps) {
   const { t } = useTranslation("scanner");
   const { format } = usePriceSource();
+  const { t: tCards } = useTranslation("cards");
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<MobileMonitorTab>("cards");
+  const [reviewing, setReviewing] = useState(false);
   const { collection, status, unmatchedCards, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const linkedScanId = searchParams.get(MOBILE_MONITOR_CARD_PARAM);
+
+  useEffect(() => {
+    if (!linkedScanId) return;
+    setOpenScanId(linkedScanId);
+    setSearchParams({}, { replace: true });
+  }, [linkedScanId, setOpenScanId, setSearchParams]);
   const alertCount = unmatchedCards.length + errors.length;
   const hasPricing = !!stats?.hasPricing;
 
@@ -41,10 +58,31 @@ export function MobileSessionMonitor({
     (scanId: string) => setOpenScanId(scanId),
     [setOpenScanId],
   );
-  const handleCloseCard = useCallback(
-    () => setOpenScanId(null),
-    [setOpenScanId],
-  );
+  const handleCloseCard = useCallback(() => {
+    setReviewing(false);
+    setOpenScanId(null);
+  }, [setOpenScanId]);
+
+  const startReview = useCallback(async () => {
+    try {
+      const page = await queryClient.fetchQuery(
+        collectionCardsPageQueryOptions(
+          collectionGuid,
+          MONITOR_NEEDS_REVIEW_CARDS_QUERY,
+          0,
+        ),
+      );
+      const first = page.items[0];
+      if (!first) {
+        toast.info(tCards("review.nothingLeft"));
+        return;
+      }
+      setReviewing(true);
+      setOpenScanId(first.scanId);
+    } catch {
+      toast.error(tCards("review.startFailed"));
+    }
+  }, [collectionGuid, queryClient, setOpenScanId, tCards]);
 
   const tabs: MobileMonitorTabItem[] = [
     { key: "cards", label: t("mobileMonitor.tabCards") },
@@ -122,6 +160,7 @@ export function MobileSessionMonitor({
             status={status}
             binCount={binCount}
             canEditCards={canEditCards}
+            onStartReview={() => void startReview()}
           />
         ) : (
           <MobileMonitorActivity
@@ -137,6 +176,15 @@ export function MobileSessionMonitor({
         <MobileCardDetailDrawer
           collectionGuid={collectionGuid}
           scanId={openScanId}
+          reviewMode={reviewing}
+          onNavigate={(next) => {
+            if (next) setOpenScanId(next);
+            else handleCloseCard();
+          }}
+          onReviewComplete={(count) => {
+            handleCloseCard();
+            toast.success(tCards("review.complete", { count }));
+          }}
           onClose={handleCloseCard}
         />
       )}

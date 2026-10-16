@@ -317,7 +317,8 @@
     },
     "complete_one": "Review complete: {{count}} card checked",
     "complete_other": "Review complete: {{count}} cards checked",
-    "nothingLeft": "Nothing left to review. Every card here has already been reviewed."
+    "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
+    "startFailed": "Couldn't start the review. Try again."
   },
   "removeDialog": {
     "title": "Remove {{name}}?",

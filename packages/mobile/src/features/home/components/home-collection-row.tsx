@@ -6,7 +6,7 @@ import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { HomeCollectionRowProps } from "@/lib/interfaces/ui";
 
-export function HomeCollectionRow({ name, subtitle, value, isActive, onPress }: HomeCollectionRowProps) {
+export function HomeCollectionRow({ name, subtitle, value, isActive, isLive = false, onPress }: HomeCollectionRowProps) {
   const colors = useTheme();
   return (
     <Pressable
@@ -24,7 +24,10 @@ export function HomeCollectionRow({ name, subtitle, value, isActive, onPress }: 
         backgroundColor: pressed ? colors.muted : "transparent",
       })}
     >
-      <IconBadge name={isActive ? "scan" : "collections"} tone={isActive ? "primary" : "neutral"} />
+      <IconBadge
+        name={isLive ? "live" : isActive ? "scan" : "collections"}
+        tone={isLive ? "warning" : isActive ? "primary" : "neutral"}
+      />
       <View style={{ flex: 1, minWidth: 0 }}>
         <AppText size="base" weight="semibold" numberOfLines={1}>
           {name}

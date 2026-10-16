@@ -28,6 +28,7 @@ import { configsFromSet, resolveBin } from "@/features/scanner/lib/bin-routing";
 import { identifyCard } from "@/features/scanner/lib/identify";
 import { warmScanModels } from "@/features/scanner/lib/inference";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
+import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { SESSION_FEED_IMAGE_LIMIT, SESSION_FEED_LIMIT } from "@/lib/constants/scanner";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/sorter";
@@ -65,6 +66,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const [sessionCount, setSessionCount] = useState(0);
   const [modelError, setModelError] = useState<string | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [autoFeed, setAutoFeedState] = useState(true);
+  const [allowDuplicates, setAllowDuplicates] = useState(true);
 
   const collection = collections?.find((c) => c.isActive) ?? null;
   const set = useMemo(() => {
@@ -83,6 +86,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       withScanRuleFields(collection?.game?.fieldDefinitions ?? [], collection?.game?.foilTypes ?? []),
     [collection?.game?.fieldDefinitions, collection?.game?.foilTypes],
   );
+  const playSoundForCard = useSoundRulePlayer(collection?.game?.guid, fieldDefinitions);
   const unsupportedMode: UnsupportedScanMode | null = set?.isRepackMode
     ? "repack"
     : set?.autoAssignField
@@ -93,6 +97,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const runningRef = useRef(false);
   const heldArrivalRef = useRef(false);
   const binCountsRef = useRef(new Map<number, number>());
+  const lastCardIdRef = useRef<string | null>(null);
+  const pendingDuplicateRef = useRef<IdentifyOutcome | null>(null);
 
   const latest = {
     sorter,
@@ -107,6 +113,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     capture,
     saveCard,
     saveUnmatched,
+    playSoundForCard,
+    autoFeed,
+    allowDuplicates,
   };
   const latestRef = useRef(latest);
   latestRef.current = latest;
@@ -216,7 +225,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         return;
       }
       if (res.fedNext) return;
-      if (runningRef.current) triggerFeedRef.current();
+      if (runningRef.current && latestRef.current.autoFeed) triggerFeedRef.current();
       else if (phaseRef.current === "routing") setPhase("ready");
     },
     [pause, setPhase],
@@ -226,7 +235,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     (binNumber: number) => {
       const { sorter: s } = latestRef.current;
       setPhase("routing");
-      const feedNext = runningRef.current && !!s.device?.pipelinedFeed;
+      const feedNext = runningRef.current && latestRef.current.autoFeed && !!s.device?.pipelinedFeed;
       void s.sendRoute(routeFor(binNumber), { feedNext }).then(handleRouteResponse);
     },
     [handleRouteResponse, routeFor, setPhase],
@@ -244,10 +253,16 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   );
 
   const handleMatched = useCallback(
-    (outcome: IdentifyOutcome) => {
+    (outcome: IdentifyOutcome, force = false) => {
       const ctx = latestRef.current;
       const card = outcome.card;
       if (!card || !ctx.collection) return;
+      if (!force && !ctx.allowDuplicates && lastCardIdRef.current === card.id) {
+        pendingDuplicateRef.current = outcome;
+        pause("duplicate");
+        return;
+      }
+      lastCardIdRef.current = card.id;
       const ruleCard = toRuleCard(card, { isFoil: false, foilType: null });
       const decision = resolveBin(ruleCard, {
         set: ctx.set,
@@ -282,12 +297,13 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         lowConfidence: record.lowConfidenceMatch,
       });
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      setTimeout(() => ctx.playSoundForCard(ruleCard), 0);
       queryClient.setQueryData(billingQueryOptions(ctx.orgId).queryKey, (old) =>
         old ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 } : old,
       );
 
       if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber);
-      else if (runningRef.current) triggerFeedRef.current();
+      else if (runningRef.current && ctx.autoFeed) triggerFeedRef.current();
 
       void ctx
         .saveCard({
@@ -318,8 +334,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       });
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
 
+      lastCardIdRef.current = null;
       if (catchAll && ctx.sorter.isReady) sendToBin(catchAll.binNumber);
-      else if (runningRef.current) triggerFeedRef.current();
+      else if (runningRef.current && ctx.autoFeed) triggerFeedRef.current();
 
       void ctx
         .saveUnmatched({
@@ -444,13 +461,23 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     setIsRunning(true);
     setPauseReason(null);
     setPauseDetail(null);
+    const duplicate = pendingDuplicateRef.current;
+    if (duplicate) {
+      pendingDuplicateRef.current = null;
+      handleMatched(duplicate, true);
+      return;
+    }
     if (heldArrivalRef.current) {
       heldArrivalRef.current = false;
       void runCapture();
       return;
     }
+    if (!latestRef.current.autoFeed) {
+      setPhase("ready");
+      return;
+    }
     triggerFeed();
-  }, [runCapture, triggerFeed]);
+  }, [handleMatched, runCapture, setPhase, triggerFeed]);
 
   const pauseByUser = useCallback(() => pause("user"), [pause]);
 
@@ -460,7 +487,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   }, [runCapture]);
 
   const feedOnce = useCallback(async () => {
-    if (runningRef.current || !latestRef.current.sorter.isReady || !latestRef.current.collection) return;
+    if (!latestRef.current.sorter.isReady || !latestRef.current.collection) return;
+    if (runningRef.current) {
+      if (!latestRef.current.autoFeed && phaseRef.current === "ready") triggerFeed();
+      return;
+    }
     setPhase("feeding");
     const reply = await latestRef.current.sorter.feed();
     if (!reply || reply.empty || reply.error || reply.detected === false) {
@@ -468,7 +499,16 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       return;
     }
     await runCapture();
-  }, [handleFeedResult, runCapture, setPhase]);
+  }, [handleFeedResult, runCapture, setPhase, triggerFeed]);
+
+  const setAutoFeed = useCallback(
+    (value: boolean) => {
+      setAutoFeedState(value);
+      latestRef.current = { ...latestRef.current, autoFeed: value };
+      if (value && runningRef.current && phaseRef.current === "ready") triggerFeed();
+    },
+    [triggerFeed],
+  );
 
   return {
     phase,
@@ -485,5 +525,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     resume: start,
     scanOnce,
     feedOnce,
+    autoFeed,
+    setAutoFeed,
+    allowDuplicates,
+    setAllowDuplicates,
   };
 }

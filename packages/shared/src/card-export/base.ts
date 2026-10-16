@@ -1,24 +1,14 @@
+import { toCardCondition } from "../card-condition";
+import { CONDITION_EXPORT_LABELS } from "../constants/card-export.constant";
 import type {
   ExportableCard,
   ExportAdapter,
   ExportContext,
   GroupBy,
   GroupedEntry,
-} from "@/lib/interfaces/cards";
-import { CONDITION_EXPORT_LABELS } from "@/lib/constants/cards";
-import {
-  toCardCondition,
-  type CardCondition,
-  type PlayingCardWithDistance,
-} from "@magic-vault/shared";
-
-export type {
-  ExportableCard,
-  ExportAdapter,
-  ExportContext,
-  GroupBy,
-  GroupedEntry,
-};
+} from "../interfaces/card-export.interface";
+import type { CardCondition } from "../interfaces/card-condition.interface";
+import type { PlayingCardWithDistance } from "../interfaces/card.interface";
 
 export function supportsGame(
   adapter: ExportAdapter,
@@ -78,33 +68,21 @@ function groupCards(
   return Array.from(grouped.values());
 }
 
-function downloadCsv(csv: string, filename: string) {
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 const dateSuffix = () => new Date().toISOString().slice(0, 10);
 
-export function runExport(
+export function buildExportCsv(
   adapter: ExportAdapter,
   cards: ExportableCard[],
-  collection: string,
   ctx: ExportContext,
   combineDuplicates: boolean,
-) {
-  if (cards.length === 0) return;
+): string {
   const entries = groupCards(cards, adapter.groupBy, combineDuplicates);
-  const csv = [
+  return [
     adapter.headers(ctx).join(","),
     ...entries.map((entry) => adapter.row(entry, ctx).join(",")),
   ].join("\n");
-  downloadCsv(
-    csv,
-    `magic-vault-${adapter.filenameSlug}-${dateSuffix()}-${collection}.csv`,
-  );
+}
+
+export function exportFilename(adapter: ExportAdapter, slug: string): string {
+  return `magic-vault-${adapter.filenameSlug}-${dateSuffix()}-${slug}.csv`;
 }

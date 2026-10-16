@@ -571,7 +571,8 @@
       "connecting": "Connecting…",
       "error": "Offline",
       "closed": "Offline"
-    }
+    },
+    "review": "Review {{count}}"
   },
   "binCorrection": {
     "bin": "Bin {{number}}",
@@ -705,7 +706,29 @@
     "bin": "Bin {{number}}",
     "pause": "Pause scanning",
     "start": "Start scanning",
-    "scanOnce": "Scan a card"
+    "scanOnce": "Scan a card",
+    "session": {
+      "chip_one": "{{count}} scanned",
+      "chip_other": "{{count}} scanned",
+      "title": "This session",
+      "count_one": "{{count}} card this session",
+      "count_other": "{{count}} cards this session",
+      "empty": "No cards scanned yet this session."
+    },
+    "controls": {
+      "open": "Scanner controls",
+      "title": "Scanner controls",
+      "pausedHint": "Pause scanning to use these.",
+      "scanNow": "Scan now",
+      "scanNowDescription": "Identify the card that is under the camera",
+      "feed": "Feed one card",
+      "feedDescription": "Feed a single card, then scan and sort it",
+      "drop": "Drop cards",
+      "dropDescription": "Open every module so stuck cards fall through",
+      "neutral": "Reset to neutral",
+      "neutralDescription": "Move every servo back to its resting position",
+      "sorterDescription": "Connection, self-test and status"
+    }
   },
   "mobileSorter": {
     "title": "Sorter",

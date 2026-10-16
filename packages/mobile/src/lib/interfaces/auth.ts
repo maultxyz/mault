@@ -34,3 +34,12 @@ export interface CachedJwt {
   token: string;
   expiresAt: number;
 }
+
+export interface AuthSessionRow {
+  id: string;
+  token: string;
+  userAgent: string | null;
+  ipAddress: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

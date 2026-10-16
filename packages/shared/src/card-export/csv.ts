@@ -1,4 +1,4 @@
-import { getCardValue } from "@magic-vault/shared";
+import { getCardValue } from "../evaluate-bin";
 import { conditionLabel, csvEscape, type ExportAdapter } from "./base";
 
 export const csvAdapter: ExportAdapter = {

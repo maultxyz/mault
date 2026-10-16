@@ -63,7 +63,7 @@
       "dialogTitle": "Firmware aktualisieren",
       "dialogDescription": "Spielt die neueste Firmware über diesen Browser-Tab auf deinen verbundenen ESP32. Trenne das Gerät nicht und schließe diesen Tab nicht, während der Vorgang läuft.",
       "startButton": "Update starten",
-      "flashing": "Wird installiert — Gerät nicht trennen…",
+      "flashing": "Wird installiert, Gerät nicht trennen…",
       "success": "Firmware wurde installiert. Trenne den Sortierer von deinem Computer und schließe ihn dann wieder an, um den Vorgang abzuschließen.",
       "errorTitle": "Update fehlgeschlagen",
       "close": "Schließen",
@@ -297,7 +297,7 @@
   },
   "phoneCamera": {
     "scanDescription": "Scanne diesen QR-Code mit deinem Telefon oder öffne den Link, damit es als Kamera dieses Scanners verwendet werden kann.",
-    "connectedDescription": "Dein Telefon ist bereit — es macht ein Foto, sobald dieser Scanner eines braucht.",
+    "connectedDescription": "Dein Telefon ist bereit: Es macht ein Foto, sobald dieser Scanner eines braucht.",
     "qrAlt": "QR-Code zum Koppeln einer Telefonkamera",
     "statusWaiting": "Warte auf Telefon…",
     "statusConnected": "Verbunden",
@@ -571,7 +571,8 @@
       "connecting": "Verbinde…",
       "error": "Offline",
       "closed": "Offline"
-    }
+    },
+    "review": "{{count}} prüfen"
   },
   "binCorrection": {
     "bin": "Fach {{number}}",
@@ -705,7 +706,29 @@
     "bin": "Fach {{number}}",
     "pause": "Scannen pausieren",
     "start": "Scannen starten",
-    "scanOnce": "Karte scannen"
+    "scanOnce": "Karte scannen",
+    "session": {
+      "chip_one": "{{count}} gescannt",
+      "chip_other": "{{count}} gescannt",
+      "title": "Diese Sitzung",
+      "count_one": "{{count}} Karte in dieser Sitzung",
+      "count_other": "{{count}} Karten in dieser Sitzung",
+      "empty": "In dieser Sitzung wurden noch keine Karten gescannt."
+    },
+    "controls": {
+      "open": "Scanner-Steuerung",
+      "title": "Scanner-Steuerung",
+      "pausedHint": "Pausiere das Scannen, um diese zu nutzen.",
+      "scanNow": "Jetzt scannen",
+      "scanNowDescription": "Die Karte unter der Kamera erkennen",
+      "feed": "Eine Karte einziehen",
+      "feedDescription": "Eine Karte einziehen, dann scannen und sortieren",
+      "drop": "Karten fallen lassen",
+      "dropDescription": "Alle Module öffnen, damit festsitzende Karten durchfallen",
+      "neutral": "Auf neutral zurücksetzen",
+      "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
+      "sorterDescription": "Verbindung, Selbsttest und Status"
+    }
   },
   "mobileSorter": {
     "title": "Sortierer",

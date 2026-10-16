@@ -485,7 +485,7 @@
           },
           "mountHopperRoller": {
             "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers.",
-            "note": "The roller should be stiff once mounted — it should not free-roll."
+            "note": "The roller should be stiff once mounted. It should not free-roll."
           },
           "calibrateHopperRoller": {
             "text": "Fit the spring and M3×25 screw, then tighten the screw until it pokes out from the bottom of the mounting point. Slowly back it off until the hopper feeds only 1 card at a time."

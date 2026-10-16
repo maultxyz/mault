@@ -108,3 +108,8 @@ export async function writeJpegTempFile(pixels: RgbaImage, quality: number): Pro
   const path = await image.saveToTemporaryFileAsync("jpg", quality);
   return path.startsWith("file://") ? path : `file://${path}`;
 }
+
+export async function imageToJpegDataUrl(image: Image, quality: number): Promise<string> {
+  const encoded = await image.toEncodedImageDataAsync("jpg", quality);
+  return `data:image/jpeg;base64,${bytesToBase64(new Uint8Array(encoded.buffer))}`;
+}

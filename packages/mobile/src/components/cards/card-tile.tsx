@@ -16,6 +16,7 @@ export const CardTile = memo(function CardTile({
   flagged = false,
   corrected = false,
   onPress,
+  onLongPress,
 }: CardTileProps) {
   const colors = useTheme();
   const awaitingReview = flagged && !corrected;
@@ -25,6 +26,7 @@ export const CardTile = memo(function CardTile({
       accessibilityLabel={`${name}, ${caption}`}
       disabled={!onPress}
       onPress={onPress}
+      onLongPress={onLongPress}
       style={({ pressed }) => ({ flex: 1, minWidth: 0, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
     >
       <View

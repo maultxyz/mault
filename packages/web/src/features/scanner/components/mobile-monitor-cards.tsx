@@ -26,6 +26,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconHelpCircle,
+  IconListCheck,
   IconSearch,
   IconStack2,
   IconWifiOff,
@@ -37,6 +38,7 @@ export function MobileMonitorCards({
   status,
   binCount,
   canEditCards,
+  onStartReview,
 }: MobileMonitorCardsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -113,6 +115,15 @@ export function MobileMonitorCards({
           />
         </div>
         <div className="-mx-5 flex gap-2 overflow-x-auto px-5">
+          {canEditCards && needsReviewCount > 0 && onStartReview && (
+            <Button
+              className={cn(MOBILE_FILTER_CHIP_CLASS, "rounded-full")}
+              onClick={onStartReview}
+            >
+              <IconListCheck />
+              {t("mobileMonitor.review", { count: needsReviewCount })}
+            </Button>
+          )}
           {showReviewChip && (
             <Button
               variant="ghost"

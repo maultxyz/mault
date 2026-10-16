@@ -1,22 +1,36 @@
-import { cardKingdomAdapter } from "./card-kingdom";
-import { csvAdapter } from "./csv";
-import { manaboxAdapter } from "./manabox";
-import { moxfieldAdapter } from "./moxfield";
-import { tcgplayerAdapter } from "./tcgplayer";
+import {
+  buildExportCsv,
+  exportFilename,
+  type ExportableCard,
+  type ExportAdapter,
+  type ExportContext,
+} from "@magic-vault/shared";
 
-export * from "./base";
 export {
-  cardKingdomAdapter,
-  csvAdapter,
-  manaboxAdapter,
-  moxfieldAdapter,
-  tcgplayerAdapter,
-};
+  allExportAdapters,
+  supportsGame,
+  type ExportableCard,
+  type ExportAdapter,
+  type ExportContext,
+} from "@magic-vault/shared";
 
-export const allExportAdapters = [
-  manaboxAdapter,
-  moxfieldAdapter,
-  tcgplayerAdapter,
-  cardKingdomAdapter,
-  csvAdapter,
-];
+function downloadCsv(csv: string, filename: string) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export function runExport(
+  adapter: ExportAdapter,
+  cards: ExportableCard[],
+  collection: string,
+  ctx: ExportContext,
+  combineDuplicates: boolean,
+) {
+  if (cards.length === 0) return;
+  downloadCsv(buildExportCsv(adapter, cards, ctx, combineDuplicates), exportFilename(adapter, collection));
+}

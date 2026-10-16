@@ -3,20 +3,21 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { MobileCollectionSheet } from "@/features/scanner/components/mobile-collection-sheet";
 import { MobileScanNotice } from "@/features/scanner/components/mobile-scan-notice";
+import { MobileScanControlsSheet } from "@/features/scanner/components/mobile-scan-controls-sheet";
 import { MobileScanOptionsSheet } from "@/features/scanner/components/mobile-scan-options-sheet";
-import { usePriceSource } from "@/hooks/use-price-source";
+import { MobileSessionScansSheet } from "@/features/scanner/components/mobile-session-scans-sheet";
 import { MOBILE_SORTER_PATH } from "@/lib/constants/nav";
 import {
   MOBILE_SCAN_CHIP_CLASS,
-  MOBILE_SCAN_LAST_CARD_MS,
-  MOBILE_SCAN_PANEL_CLASS,
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { MobileScanChromeProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import {
+  IconAdjustments,
   IconCamera,
+  IconCards,
   IconChevronDown,
   IconChevronRight,
   IconCpu,
@@ -31,23 +32,15 @@ import { Link } from "react-router-dom";
 export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const { t } = useTranslation("scanner");
   const { activeCollection } = useCollections();
-  const { lastRoutedBin } = useScannedCards();
-  const { priceOf, format } = usePriceSource();
+  const { sessionScanCount } = useScannedCards();
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const [sessionOpen, setSessionOpen] = useState(false);
 
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
   const sorterDriven = chrome.isReady;
   const canShoot = chrome.isCameraActive && !chrome.isAtScanLimit;
-  const lastScan =
-    chrome.lastScan && Date.now() - chrome.lastScan.at < MOBILE_SCAN_LAST_CARD_MS
-      ? chrome.lastScan
-      : null;
-  const lastBin =
-    lastScan && lastRoutedBin && lastRoutedBin.at >= lastScan.at
-      ? lastRoutedBin.binNumber
-      : null;
-  const lastPrice = lastScan?.card ? priceOf(lastScan.card) : null;
 
   const phaseLabel = (() => {
     switch (chrome.status) {
@@ -163,7 +156,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         <MobileScanNotice tone="warning" title={t("scannerOverlay.noCatchAllBin")} />
       );
     }
-    if (!chrome.isConnected && !lastScan) {
+    if (!chrome.isConnected && sessionScanCount === 0) {
       return (
         <MobileScanNotice
           title={t("mobileScan.noSorterTitle")}
@@ -215,58 +208,39 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
               <IconDots className="size-5" />
             </button>
           </div>
+          <div className="flex items-center justify-between gap-2">
           <Link
             to={MOBILE_SORTER_PATH}
-            className={cn(MOBILE_SCAN_CHIP_CLASS, "self-start")}
+            className={cn(MOBILE_SCAN_CHIP_CLASS, "min-w-0")}
           >
             <span className={cn("size-2 shrink-0 rounded-full", sorterDot)} />
             <IconCpu className="size-4 shrink-0" />
             <span className="truncate">{sorterLabel}</span>
             <IconChevronRight className="size-4 shrink-0" />
           </Link>
+          <button
+            type="button"
+            onClick={() => setSessionOpen(true)}
+            className={cn(MOBILE_SCAN_CHIP_CLASS, "shrink-0")}
+          >
+            <IconCards className="size-4 shrink-0" />
+            {t("mobileScan.session.chip", { count: sessionScanCount })}
+            <IconChevronRight className="size-4 shrink-0" />
+          </button>
+          </div>
         </div>
 
         <div className="flex flex-col gap-3 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
           {notice}
-          {lastScan && (
-            <div
-              key={lastScan.at}
-              className={cn(
-                MOBILE_SCAN_PANEL_CLASS,
-                "flex items-center gap-3 animate-in fade-in slide-in-from-bottom-2 motion-reduce:animate-none",
-              )}
+          <div className="flex items-center justify-end gap-3">
+            <button
+              type="button"
+              aria-label={t("mobileScan.controls.open")}
+              onClick={() => setControlsOpen(true)}
+              className={cn(MOBILE_SCAN_CHIP_CLASS, "size-11 justify-center px-0")}
             >
-              <img
-                src={
-                  lastScan.card?.image?.small ||
-                  lastScan.card?.image?.normal ||
-                  lastScan.imageUrl ||
-                  ""
-                }
-                alt=""
-                className="aspect-[2.5/3.5] w-10 shrink-0 rounded-sm bg-white/10 object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">
-                  {lastScan.card?.name ?? t("scannerOverlay.noMatch")}
-                </p>
-                <p className="truncate text-xs text-white/80">
-                  {[
-                    lastScan.card?.setName,
-                    lastPrice != null ? format(lastPrice) : null,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-              </div>
-              {lastBin != null && (
-                <span className="shrink-0 rounded-full bg-white px-3 py-1 text-sm font-bold text-black">
-                  {t("mobileScan.bin", { number: lastBin })}
-                </span>
-              )}
-            </div>
-          )}
-          <div className="flex justify-center">
+              <IconAdjustments className="size-5" />
+            </button>
             <button
               type="button"
               disabled={!canShoot}
@@ -284,24 +258,20 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                     : chrome.onResume
                   : chrome.onScanOnce
               }
-              className="pointer-events-auto flex size-20 items-center justify-center rounded-full border-4 border-white/80 transition-transform active:scale-95 disabled:opacity-50 motion-reduce:active:scale-100"
+              className={cn(
+                "pointer-events-auto flex size-12 items-center justify-center rounded-full text-white transition-transform active:scale-95 disabled:opacity-50 motion-reduce:active:scale-100 [&_svg]:size-5",
+                running ? "bg-destructive" : "bg-primary",
+              )}
             >
-              <span
-                className={cn(
-                  "flex size-16 items-center justify-center rounded-full text-white [&_svg]:size-7",
-                  running ? "bg-destructive" : "bg-primary",
-                )}
-              >
-                {sorterDriven ? (
-                  running ? (
-                    <IconPlayerPauseFilled />
-                  ) : (
-                    <IconPlayerPlayFilled />
-                  )
+              {sorterDriven ? (
+                running ? (
+                  <IconPlayerPauseFilled />
                 ) : (
-                  <IconCamera />
-                )}
-              </span>
+                  <IconPlayerPlayFilled />
+                )
+              ) : (
+                <IconCamera />
+              )}
             </button>
           </div>
         </div>
@@ -314,6 +284,17 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         open={optionsOpen}
         onOpenChange={setOptionsOpen}
         chrome={chrome}
+      />
+      <MobileScanControlsSheet
+        open={controlsOpen}
+        onOpenChange={setControlsOpen}
+        chrome={chrome}
+      />
+      <MobileSessionScansSheet
+        open={sessionOpen}
+        onOpenChange={setSessionOpen}
+        collectionGuid={activeCollection?.guid}
+        count={sessionScanCount}
       />
     </>
   );

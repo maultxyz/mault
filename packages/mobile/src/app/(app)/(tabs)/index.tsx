@@ -23,6 +23,10 @@ import { CardStrip } from "@/features/home/components/card-strip";
 import { HomeCollectionRow } from "@/features/home/components/home-collection-row";
 import { HomeHero } from "@/features/home/components/home-hero";
 import { HomeStatTile } from "@/features/home/components/home-stat-tile";
+import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
+import { useAppStream } from "@/features/stream/api/use-app-stream";
+import { AlertsBell } from "@/features/stream/components/alerts-bell";
+import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
 import { useActiveOrg } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useSession } from "@/lib/auth/session";
@@ -36,6 +40,9 @@ export default function HomeScreen() {
   const { user } = useSession();
   const orgId = org?.id ?? null;
   const [search, setSearch] = useState("");
+  const [alertsOpen, setAlertsOpen] = useState(false);
+  const alerts = useAppAlerts();
+  const { locks } = useAppStream();
   const collections = useQuery(collectionsQueryOptions(orgId));
   const overview = useQuery(orgOverviewQueryOptions(orgId));
   const firstName = user?.name?.trim().split(/\s+/)[0];
@@ -44,10 +51,13 @@ export default function HomeScreen() {
   const sorted = useMemo(
     () =>
       [...(collections.data ?? [])].sort((a, b) => {
+        const aLive = !!locks[a.guid];
+        const bLive = !!locks[b.guid];
+        if (aLive !== bLive) return aLive ? -1 : 1;
         if (a.isActive !== b.isActive) return a.isActive ? -1 : 1;
         return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
       }),
-    [collections.data],
+    [collections.data, locks],
   );
   const query = search.trim().toLowerCase();
   const filtered = query ? sorted.filter((c) => c.name.toLowerCase().includes(query)) : sorted;
@@ -68,6 +78,7 @@ export default function HomeScreen() {
         <PageHeader
           title={firstName ? t("home.greeting", { name: firstName }) : t("home.greetingNoName")}
           subtitle={org?.name}
+          actions={<AlertsBell count={alerts.length} onPress={() => setAlertsOpen(true)} />}
         />
       }
     >
@@ -139,14 +150,21 @@ export default function HomeScreen() {
           <ListGroup>
             {filtered.map((collection) => {
               const value = data?.collectionValues[collection.guid];
+              const lock = locks[collection.guid];
+              const liveLabel = lock
+                ? lock.userId === user?.id
+                  ? t("home.live.yourSession")
+                  : t("home.live.scanningBy", { name: lock.displayName })
+                : null;
               return (
                 <HomeCollectionRow
                   key={collection.guid}
                   name={collection.name}
                   isActive={collection.isActive}
+                  isLive={!!lock}
                   value={value != null ? pricing.format(value) : null}
                   subtitle={[
-                    collection.isActive ? t("collections.active") : null,
+                    liveLabel ?? (collection.isActive ? t("collections.active") : null),
                     t("collection.cardsCount", { count: collection.cardCount }),
                     formatShortDate(collection.updatedAt, i18n.language),
                   ]
@@ -181,6 +199,7 @@ export default function HomeScreen() {
           <CardStrip title={t("home.recentlyScanned")} cards={data.recentCards} onOpen={openCard} />
         </>
       ) : null}
+      <AlertsSheet visible={alertsOpen} alerts={alerts} onClose={() => setAlertsOpen(false)} />
     </Screen>
   );
 }

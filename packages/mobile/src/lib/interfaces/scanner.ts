@@ -1,3 +1,4 @@
+import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
   BinConfig,
   BinSet,
@@ -11,6 +12,7 @@ import type {
   RgbaImage,
   ScanDetectionDiagnostics,
   ScanMatchSource,
+  ScanRegion,
   ScannedCard,
   SearchNoMatchReason,
   UnmatchedCard,
@@ -99,7 +101,8 @@ export type ScannerPauseReason =
   | "collection-locked"
   | "save-failed"
   | "sorter-disconnected"
-  | "no-match";
+  | "no-match"
+  | "duplicate";
 
 export interface ScanFeedEntry {
   scanId: string;
@@ -185,6 +188,10 @@ export interface ScanSessionValue extends ScanSessionState {
   resume: () => void;
   scanOnce: () => void;
   feedOnce: () => Promise<void>;
+  autoFeed: boolean;
+  setAutoFeed: (value: boolean) => void;
+  allowDuplicates: boolean;
+  setAllowDuplicates: (value: boolean) => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -217,7 +224,37 @@ export interface ScannerControlsSheetProps {
   canScan: boolean;
   onScanNow: () => void;
   onFeedOne: () => Promise<void>;
+  autoFeed: boolean;
+  onAutoFeedChange: (value: boolean) => void;
+  allowDuplicates: boolean;
+  onAllowDuplicatesChange: (value: boolean) => void;
+  cameras: CameraDevice[];
+  selectedCameraId: string | null;
+  onSelectCamera: (id: string) => void;
   onClose: () => void;
 }
 
 export type ScannerControlAction = "scan" | "feed" | "drop" | "neutral";
+
+export interface CameraChoice {
+  devices: CameraDevice[];
+  device: CameraDevice | undefined;
+  select: (id: string) => void;
+}
+
+export interface PhoneCameraResponderOptions {
+  collectionGuid: string;
+  enabled: boolean;
+  capture: () => Promise<string | null>;
+}
+
+export interface PhoneCameraResponder {
+  connected: boolean;
+  sessionEnded: boolean;
+  capturedCount: number;
+  scanRegion: ScanRegion | null;
+}
+
+export interface QrScanner {
+  outputs: CameraOutput[];
+}

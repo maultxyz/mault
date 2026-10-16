@@ -28,10 +28,7 @@ import {
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
-import type {
-  CardScannerComponentProps,
-  ScannerLastScan,
-} from "@/lib/interfaces/scanner";
+import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
@@ -121,7 +118,6 @@ export function CardScanner({
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const { recordScanOutcome } = useUnmatchedRateToast();
-  const [lastScan, setLastScan] = useState<ScannerLastScan | null>(null);
   useOnnxRuntimeFailureToast();
   const {
     status,
@@ -153,7 +149,6 @@ export function CardScanner({
     onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
       if (cards.length > 0) {
         recordScanOutcome(true);
-        setLastScan({ card: cards[0], imageUrl: capturedImageUrl, at: Date.now() });
         addCard(
           cards[0],
           capturedImageUrl,
@@ -165,7 +160,6 @@ export function CardScanner({
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
       recordScanOutcome(false);
-      setLastScan({ card: null, imageUrl: capturedImageUrl, at: Date.now() });
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
     rotated: !isMobile,
@@ -590,7 +584,6 @@ export function CardScanner({
           bluetoothSupported,
           cameras,
           selectedCameraId,
-          lastScan,
           onPause: pause,
           onResume: () => void handleResumeScanning(),
           onScanOnce: () => void handleForceScanClick(),
@@ -600,6 +593,12 @@ export function CardScanner({
           onSelectCamera: selectCamera,
           onAutoFeedChange: setAutoFeed,
           onAllowDuplicatesChange: setAllowDuplicates,
+          isFeeding,
+          isClearingDevice,
+          isResettingDevice,
+          onFeed: () => void handleFeed(),
+          onClearDevice: () => void handleClearDevice(),
+          onResetDevice: () => void handleResetToNeutral(),
         })}
         {dialogs}
       </div>

@@ -10,6 +10,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { OrgThemeProvider } from "@/components/org-theme-provider";
 import { PendingSavesProvider } from "@/features/scanner/api/use-pending-saves";
 import { SorterProvider } from "@/features/sorter/api/use-sorter";
+import { AppStreamProvider } from "@/features/stream/api/use-app-stream";
 import { useTheme } from "@/hooks/use-theme";
 import { applyThemePreference, readThemePreference } from "@/lib/appearance";
 import { restoreSession, useSession } from "@/lib/auth/session";
@@ -71,9 +72,11 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <OrgThemeProvider>
             <SorterProvider>
-              <PendingSavesProvider>
-                <RootNavigator />
-              </PendingSavesProvider>
+              <AppStreamProvider>
+                <PendingSavesProvider>
+                  <RootNavigator />
+                </PendingSavesProvider>
+              </AppStreamProvider>
             </SorterProvider>
           </OrgThemeProvider>
         </QueryClientProvider>

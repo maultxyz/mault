@@ -501,6 +501,7 @@ export interface MobileMonitorCardsProps {
   status: ConnectionStatus;
   binCount?: number;
   canEditCards: boolean;
+  onStartReview?: () => void;
 }
 
 export interface MobileMonitorActivityProps {
@@ -531,12 +532,18 @@ export interface MobileCardActionsBodyProps {
 export interface MobileCardDetailDrawerProps {
   collectionGuid: string;
   scanId: string | undefined;
+  reviewMode?: boolean;
+  onNavigate: (scanId: string | null) => void;
+  onReviewComplete: (count: number) => void;
   onClose: () => void;
 }
 
 export interface MobileCardDetailBodyProps {
   collectionGuid: string;
   scanId: string;
+  reviewMode: boolean;
+  onNavigate: (scanId: string | null) => void;
+  onReviewComplete: (count: number) => void;
   onClose: () => void;
 }
 
@@ -577,12 +584,6 @@ export interface CardScannerComponentProps extends CardScannerProps {
   renderChrome?: (chrome: ScannerChromeContext) => ReactNode;
 }
 
-export interface ScannerLastScan {
-  card: PlayingCard | null;
-  imageUrl?: string;
-  at: number;
-}
-
 export interface ScannerChromeContext {
   status: ScannerStatus;
   errorMessage: string;
@@ -598,7 +599,6 @@ export interface ScannerChromeContext {
   bluetoothSupported: boolean;
   cameras: MediaDeviceInfo[];
   selectedCameraId: string | null;
-  lastScan: ScannerLastScan | null;
   onPause: () => void;
   onResume: () => void;
   onScanOnce: () => void;
@@ -608,6 +608,25 @@ export interface ScannerChromeContext {
   onSelectCamera: (deviceId: string) => void;
   onAutoFeedChange: (value: boolean) => void;
   onAllowDuplicatesChange: (value: boolean) => void;
+  isFeeding: boolean;
+  isClearingDevice: boolean;
+  isResettingDevice: boolean;
+  onFeed: () => void;
+  onClearDevice: () => void;
+  onResetDevice: () => void;
+}
+
+export interface MobileScanControlsSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  chrome: ScannerChromeContext;
+}
+
+export interface MobileSessionScansSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  collectionGuid: string | undefined;
+  count: number;
 }
 
 export interface UnmatchedDiagnosticsDetailsProps {

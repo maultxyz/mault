@@ -11,6 +11,7 @@ export default function AppLayout() {
       <Stack.Screen name="collection-new" options={{ presentation: "modal" }} />
       <Stack.Screen name="collection-rename" options={{ presentation: "modal" }} />
       <Stack.Screen name="storage-name" options={{ presentation: "modal" }} />
+      <Stack.Screen name="desktop-camera/[guid]" options={{ gestureEnabled: false }} />
     </Stack>
   );
 }

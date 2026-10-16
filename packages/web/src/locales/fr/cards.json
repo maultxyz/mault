@@ -317,7 +317,8 @@
     },
     "complete_one": "Vérification terminée : {{count}} carte vérifiée",
     "complete_other": "Vérification terminée : {{count}} cartes vérifiées",
-    "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées."
+    "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
+    "startFailed": "Impossible de lancer la vérification. Réessayez."
   },
   "removeDialog": {
     "title": "Retirer {{name}} ?",

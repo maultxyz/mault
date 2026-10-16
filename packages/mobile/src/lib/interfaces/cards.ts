@@ -1,4 +1,11 @@
-import type { CardCondition, PlayingCard, PlayingCardWithDistance, PriceSource, ScannedCard } from "@magic-vault/shared";
+import type {
+  CardCondition,
+  ExportAdapter,
+  PlayingCard,
+  PlayingCardWithDistance,
+  PriceSource,
+  ScannedCard,
+} from "@magic-vault/shared";
 
 export interface CardUpdateBody {
   card?: PlayingCardWithDistance;
@@ -63,4 +70,17 @@ export interface PriceSourceSection {
   source: PriceSource;
   headline: PriceHeadline;
   table: PriceTableData;
+}
+
+export interface ExportSheetProps {
+  visible: boolean;
+  title: string;
+  adapters: ExportAdapter[];
+  loading: boolean;
+  exporting: boolean;
+  failed: boolean;
+  combineDuplicates: boolean;
+  onCombineDuplicatesChange: (value: boolean) => void;
+  onExport: (adapter: ExportAdapter) => void;
+  onClose: () => void;
 }

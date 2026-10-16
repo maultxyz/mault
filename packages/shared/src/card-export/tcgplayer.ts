@@ -1,8 +1,6 @@
-import type { PlayingCard } from "@magic-vault/shared";
+import type { PlayingCard } from "../interfaces/card.interface";
 import { conditionLabel, csvEscape, type ExportAdapter } from "./base";
 
-// Cards scanned before PlayingCard.tcgplayerId existed only carry the ID in
-// their stored source payload, under whichever key that source API uses.
 function tcgplayerId(card: PlayingCard): string {
   if (card.tcgplayerId) return card.tcgplayerId;
   const raw = card.raw as

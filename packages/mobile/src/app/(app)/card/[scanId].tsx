@@ -34,6 +34,7 @@ import { CardCorrectionSearch } from "@/features/cards/components/card-correctio
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { cardScanSchema } from "@/features/cards/lib/card-scan-schema";
 import {
+  cardScanOriginQueryOptions,
   collectionCardQueryOptions,
   invalidateCollectionCards,
   removeCollectionCard,
@@ -41,7 +42,7 @@ import {
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import { cardStorageLocationQueryOptions } from "@/features/storage/api/storage";
+import { cardStorageLocationQueryOptions, storageLocationCardsQueryOptions } from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
@@ -51,16 +52,24 @@ import type { CardScanDraftValues } from "@/lib/interfaces/forms";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CardDetailScreen() {
-  const { scanId, guid, review } = useLocalSearchParams<{ scanId: string; guid: string; review?: string }>();
+  const { scanId, guid, review, storage: storageGuid } = useLocalSearchParams<{
+    scanId: string;
+    guid: string;
+    review?: string;
+    storage?: string;
+  }>();
   const reviewMode = review === "1";
+  const storageReview = reviewMode && !!storageGuid;
   const { t } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const position = useQuery(collectionCardQueryOptions(guid, scanId, reviewMode));
+  const position = useQuery(collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview));
+  const storageCards = useQuery({ ...storageLocationCardsQueryOptions(storageGuid ?? ""), enabled: storageReview });
   const image = useQuery(scanImageQueryOptions(guid, scanId));
+  const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
   const storage = useQuery(cardStorageLocationQueryOptions(guid, scanId));
   const collections = useQuery(collectionsQueryOptions(useActiveOrgId()));
   const correction = useCardCorrection(guid);
@@ -140,7 +149,25 @@ export default function CardDetailScreen() {
     ]);
   });
 
-  const goToNextInReview = () => {
+  const goToNextInReview = async () => {
+    if (storageReview && storageGuid) {
+      const list = await queryClient
+        .fetchQuery({ ...storageLocationCardsQueryOptions(storageGuid), staleTime: 0 })
+        .catch(() => storageCards.data ?? []);
+      const index = list.findIndex((c) => c.scanId === scanId);
+      const pending = (c: (typeof list)[number]) => !c.reviewed && c.scanId !== scanId;
+      const next = list.slice(index + 1).find(pending) ?? list.find(pending);
+      if (next) {
+        router.replace({
+          pathname: "/card/[scanId]",
+          params: { scanId: next.scanId, guid: next.collectionGuid, review: "1", storage: storageGuid },
+        });
+      } else {
+        router.back();
+        Alert.alert(t("cardDetail.reviewCompleteTitle"), t("cardDetail.reviewCompleteDescription"));
+      }
+      return;
+    }
     if (nextScanId) {
       router.replace({ pathname: "/card/[scanId]", params: { scanId: nextScanId, guid, review: "1" } });
     } else {
@@ -153,12 +180,12 @@ export default function CardDetailScreen() {
     if (!entry) return;
     await correction.correct(entry, selected);
     setEditing(false);
-    if (reviewMode) goToNextInReview();
+    if (reviewMode) await goToNextInReview();
   };
 
   const acceptInReview = async () => {
     await markCorrect.mutateAsync(canConfirm ? "confirm" : "review");
-    goToNextInReview();
+    await goToNextInReview();
   };
 
   const confirmRemove = () =>
@@ -183,7 +210,12 @@ export default function CardDetailScreen() {
         subtitle={
           editing
             ? card?.name
-            : reviewMode && position.data
+            : storageReview && storageCards.data
+              ? t("cardDetail.reviewProgress", {
+                  index: storageCards.data.findIndex((c) => c.scanId === scanId) + 1,
+                  total: storageCards.data.length,
+                })
+              : reviewMode && position.data
               ? t("cardDetail.reviewProgress", { index: position.data.index + 1, total: position.data.total })
               : card?.typeLine
         }
@@ -312,6 +344,28 @@ export default function CardDetailScreen() {
                     <BinLocationDiagram binNumber={entry.binNumber} />
                   </View>
                 ) : null}
+              </View>
+            ) : null}
+
+            {origin.data && (origin.data.scannedBy || origin.data.device) ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("cardDetail.scanOrigin.heading")} />
+                <ListGroup>
+                  {origin.data.scannedBy ? (
+                    <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
+                  ) : null}
+                  {origin.data.device ? (
+                    <ListRow
+                      icon="sorter"
+                      title={t("cardDetail.scanOrigin.sorter")}
+                      value={
+                        origin.data.device.isDeleted
+                          ? t("cardDetail.scanOrigin.deletedSorter", { name: origin.data.device.name })
+                          : origin.data.device.name
+                      }
+                    />
+                  ) : null}
+                </ListGroup>
               </View>
             ) : null}
 

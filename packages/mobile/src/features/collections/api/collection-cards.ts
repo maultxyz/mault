@@ -1,12 +1,15 @@
 import { infiniteQueryOptions, keepPreviousData, queryOptions, type QueryClient } from "@tanstack/react-query";
 import {
   EMPTY_CARD_FILTERS,
+  type CardScanOrigin,
   type CollectionCardPosition,
+  type CollectionCardsQuery,
+  type MonitorLink,
   type CollectionCardsPage,
   type CollectionCardsSummary,
   type Result,
 } from "@magic-vault/shared";
-import { apiDelete, apiGet, apiPut, unwrap } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, apiPut, unwrap } from "@/lib/api/client";
 import { SCAN_IMAGE_STALE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
@@ -21,13 +24,19 @@ function cardsParams(search: string, page?: number, review = false): string {
   return params.toString();
 }
 
-export const collectionCardsQueryOptions = (guid: string, search: string) =>
+function queryParams(query: CollectionCardsQuery, page: number): string {
+  const params = new URLSearchParams({ filters: JSON.stringify(query.filters), page: String(page) });
+  if (query.grouped) params.set("grouped", "1");
+  if (query.search) params.set("search", query.search);
+  if (query.sort) params.set("sort", query.sort);
+  return params.toString();
+}
+
+export const collectionCardsQueryOptions = (guid: string, query: CollectionCardsQuery) =>
   infiniteQueryOptions({
-    queryKey: ["collection-cards", guid, search] as const,
+    queryKey: ["collection-cards", guid, "list", query] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(
-        apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${cardsParams(search, pageParam)}`),
-      ),
+      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${queryParams(query, pageParam)}`)),
     initialPageParam: 0,
     getNextPageParam: (last) =>
       (last.page + 1) * last.pageSize < last.totalEntries ? last.page + 1 : undefined,
@@ -70,7 +79,18 @@ export function invalidateCollectionCards(queryClient: QueryClient, guid: string
   void queryClient.invalidateQueries({ queryKey: ["collection-card", guid] });
   void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
   void queryClient.invalidateQueries({ queryKey: ["stats"] });
+  void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
 }
+
+export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>
+  queryOptions({
+    queryKey: ["card-scan-origin", scanId] as const,
+    queryFn: () =>
+      apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`).then(
+        (r) => r.data ?? null,
+      ),
+    staleTime: Infinity,
+  });
 
 export const scanImageQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
@@ -84,4 +104,16 @@ export const scanImageQueryOptions = (guid: string, scanId: string) =>
 
 export function removeCollectionCard(guid: string, scanId: string): Promise<unknown> {
   return unwrap(apiDelete<Result<unknown>>(`/api/collections/${guid}/cards/${scanId}`));
+}
+
+export function removeCollectionCards(guid: string, scanIds: string[]): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds }));
+}
+
+export function createMonitorLink(guid: string, expiresInDays: number): Promise<MonitorLink> {
+  return unwrap(apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays }));
+}
+
+export function revokeMonitorLinks(guid: string): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/monitor-link/revoke`));
 }

@@ -1,0 +1,1587 @@
+{
+  "app": {
+    "name": "Mault"
+  },
+  "common": {
+    "show": "Afficher",
+    "hide": "Masquer",
+    "back": "Retour",
+    "dismiss": "Ignorer",
+    "done": "Terminé",
+    "save": "Enregistrer",
+    "discard": "Ignorer",
+    "unsavedChanges": "Modifications non enregistrées",
+    "discardTitle": "Annuler les modifications ?",
+    "discardDescription": "Tes modifications de ce bac n'ont pas été enregistrées.",
+    "keepEditing": "Continuer la modification"
+  },
+  "tabs": {
+    "collections": "Collections",
+    "scan": "Scanner",
+    "sorter": "Trieuse",
+    "stats": "Statistiques",
+    "account": "Compte",
+    "home": "Accueil",
+    "rules": "Règles",
+    "storage": "Rangement"
+  },
+  "auth": {
+    "tagline": "Scanne, trie et suis tes cartes depuis ton téléphone.",
+    "signIn": "Se connecter",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "signInFailed": "Connexion impossible",
+    "validation": {
+      "email": "Saisis une adresse e-mail valide.",
+      "passwordRequired": "Saisis ton mot de passe."
+    },
+    "errors": {
+      "network": "Impossible de joindre le serveur. Vérifie ta connexion et réessaie.",
+      "profile": "Connecté, mais les détails de ton compte n'ont pas pu être chargés. Réessaie.",
+      "verify-email": "Vérifie ton adresse e-mail, puis connecte-toi."
+    },
+    "createAccountOnWeb": "Nouveau sur Mault ? Crée un compte sur le web"
+  },
+  "collections": {
+    "title": "Collection",
+    "active": "Active",
+    "makeActive": "Activer",
+    "cardCount_one": "{{count}} carte",
+    "cardCount_other": "{{count}} cartes",
+    "loadFailed": "Impossible de charger tes collections",
+    "activateFailed": "Impossible de changer la collection active",
+    "cardsLoadFailed": "Impossible de charger les cartes",
+    "emptyTitle": "Pas encore de collections",
+    "emptyDescription": "Retire définitivement toutes les cartes de « {{name}} », mais conserve la collection elle-même. Cette action est irréversible.",
+    "search": "Rechercher",
+    "searchPlaceholder": "Nom de carte, extension ou numéro",
+    "noResults": "Aucune carte ne correspond à ta recherche",
+    "noCards": "Pas encore de cartes dans cette collection",
+    "new": "Nouvelle collection",
+    "createDescription": "Crée une nouvelle collection dans laquelle scanner des cartes.",
+    "nameLabel": "Nom de la collection",
+    "namePlaceholder": "ex. Collection Commander, Butin de draft...",
+    "duplicateName": "Une collection avec ce nom existe déjà",
+    "gameLabel": "Jeu",
+    "gamePlaceholder": "Sélectionner un jeu...",
+    "langLabel": "Langue",
+    "langPlaceholder": "Sélectionner une langue...",
+    "matchAllLanguagesLabel": "Reconnaître les cartes dans toutes les langues",
+    "matchAllLanguagesDescription": "Les scans reconnaissent les impressions dans toutes les langues de ce jeu, pas seulement celle choisie ci-dessus. La recherche et la correction utilisent toujours la langue choisie.",
+    "experimental": "Expérimental",
+    "create": "Créer",
+    "createFailed": "Impossible de créer la collection",
+    "rename": "Renommer",
+    "renameTitle": "Renommer la collection",
+    "renameDescription": "Renomme cette collection.",
+    "renameFailed": "Impossible de renommer la collection",
+    "save": "Enregistrer",
+    "empty": "Vider la collection",
+    "emptyConfirm": "Vider",
+    "emptyFailed": "Impossible de vider la collection",
+    "delete": "Supprimer la collection",
+    "deleteDescription": "Supprime « {{name}} » et masque toutes ses cartes. Contacte le support si tu as besoin de la récupérer.",
+    "deleteConfirm": "Supprimer",
+    "deleteFailed": "Impossible de supprimer la collection",
+    "actions": "Actions de la collection",
+    "cancel": "Annuler",
+    "validation": {
+      "name": "Saisis un nom de 50 caractères maximum.",
+      "game": "Choisis un jeu.",
+      "lang": "Choisis une langue."
+    },
+    "shareLink": "Partager le lien de la vue en direct",
+    "revokeLinks": "Révoquer les liens partagés",
+    "revokeLinksTitle": "Révoquer les liens partagés ?",
+    "revokeLinksDescription": "Toute personne disposant d'un lien vers la vue en direct de cette collection perd l'accès.",
+    "shareLinkFailed": "Impossible de mettre à jour le lien de la vue en direct"
+  },
+  "cards": {
+    "bin": "Bac {{number}}",
+    "needsReview": "À vérifier",
+    "quantity_one": "{{count}} exemplaire",
+    "quantity_other": "{{count}} exemplaires"
+  },
+  "monitor": {
+    "title": "Session en direct",
+    "open": "Vue en direct",
+    "recent": "Scans récents",
+    "scanError": "Erreur de scan",
+    "viewers_one": "{{count}} spectateur",
+    "viewers_other": "{{count}} spectateurs",
+    "unmatched_one": "{{count}} non reconnue",
+    "unmatched_other": "{{count}} non reconnues",
+    "emptyTitle": "En attente de scans",
+    "emptyDescription": "Les cartes apparaissent ici dès qu'un trieur les scanne dans cette collection.",
+    "status": {
+      "connecting": "Connexion",
+      "connected": "En direct",
+      "error": "Reconnexion"
+    }
+  },
+  "stats": {
+    "title": "Statistiques",
+    "subtitle": "Graphiques et chiffres de vos collections",
+    "error": "Impossible de charger les statistiques. Réessayez dans un instant.",
+    "empty": {
+      "title": "Aucune carte pour l'instant",
+      "description": "Les statistiques apparaîtront ici dès que vous aurez scanné des cartes."
+    },
+    "controls": {
+      "collection": "Collection",
+      "allCollections": "Toutes les collections",
+      "range": "Période",
+      "ranges": {
+        "7d": "7 j",
+        "30d": "30 j",
+        "90d": "90 j",
+        "1y": "1 an"
+      }
+    },
+    "tiles": {
+      "totalValue": "Valeur totale",
+      "collectionCount_one": "{{count}} collection",
+      "collectionCount_other": "{{count}} collections",
+      "cards": "Cartes",
+      "uniqueHint": "{{count}} différentes",
+      "avgValue": "Carte moyenne",
+      "pricedHint": "{{count}} avec un prix",
+      "scanned": {
+        "7d": "Scannées, 7 derniers jours",
+        "30d": "Scannées, 30 derniers jours",
+        "90d": "Scannées, 90 derniers jours",
+        "1y": "Scannées, dernière année"
+      },
+      "valueAddedHint": "{{value}} ajoutés",
+      "foils": "Foils",
+      "shareHint": "{{percent}} % des cartes",
+      "needsReview": "À vérifier",
+      "correctedHint": "{{count}} vérifiées"
+    },
+    "activity": {
+      "title": "Activité de scan",
+      "description": {
+        "day": "Cartes scannées par jour",
+        "week": "Cartes scannées par semaine"
+      },
+      "metrics": {
+        "count": "Cartes",
+        "value": "Valeur ajoutée"
+      },
+      "weekOf": "Semaine du {{date}}",
+      "thisWeek": "Cette semaine",
+      "today": "Aujourd'hui"
+    },
+    "compare": {
+      "title": "Comparer les collections",
+      "description": "Comment vos collections se comparent. Choisissez-en une pour voir ses propres statistiques.",
+      "metrics": {
+        "totalValue": "Valeur",
+        "cardCount": "Cartes",
+        "scansInRange": "Scannée"
+      },
+      "share": "{{percent}}%",
+      "never": "Jamais",
+      "columns": {
+        "name": "Collection",
+        "cardCount": "Cartes",
+        "uniqueCount": "Uniques",
+        "totalValue": "Valeur",
+        "avgValue": "Carte moy.",
+        "scansInRange": "Scannée",
+        "lastScanAt": "Dernier scan"
+      }
+    },
+    "prices": {
+      "title": "Répartition des prix",
+      "description": "Cartes avec un prix, regroupées par valeur",
+      "atLeast": "{{min}} et plus",
+      "under": "Moins de {{max}}",
+      "between": "De {{min}} à {{max}}"
+    },
+    "games": {
+      "title": "Par jeu",
+      "none": "Aucun jeu"
+    },
+    "sets": {
+      "title": "Extensions les plus précieuses"
+    },
+    "rarities": {
+      "title": "Rareté"
+    },
+    "colors": {
+      "title": "Couleurs"
+    },
+    "foils": {
+      "title": "Types de foil"
+    },
+    "topCards": {
+      "title": "Cartes les plus précieuses"
+    },
+    "cardCount_one": "{{count}} carte",
+    "cardCount_other": "{{count}} cartes",
+    "leaderboard": {
+      "title": "Classement",
+      "description_one": "L'organisation qui a scanné le plus de cartes avec Mault.",
+      "description_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+      "error": "Impossible de charger le classement. Réessayez dans un instant.",
+      "rank": "#{{rank}}",
+      "you": "Vous",
+      "hidden": "Non classée",
+      "unknownOrg": "Organisation inconnue",
+      "columns": {
+        "rank": "Rang",
+        "organization": "Organisation",
+        "scans": "Cartes scannées"
+      },
+      "optIn": {
+        "title": "Votre organisation n'apparaît pas dans le classement",
+        "description": "Les autres organisations ne vous voient pas. Votre ligne indique le rang que vous auriez. Rejoignez-le depuis les paramètres pour apparaître dans la liste.",
+        "action": "Rejoindre le classement"
+      }
+    }
+  },
+  "account": {
+    "organizations": "Organisations",
+    "noOrganizations": "Tu n'es encore membre d'aucune organisation.",
+    "about": "À propos",
+    "server": "Serveur",
+    "version": "Version",
+    "signOut": "Se déconnecter",
+    "pendingSaves": {
+      "title_one": "{{count}} scan en attente de synchronisation",
+      "title_other": "{{count}} scans en attente de synchronisation",
+      "description": "Enregistrés sur ce téléphone et renvoyés automatiquement jusqu'à ce que le serveur les accepte."
+    },
+    "roles": {
+      "owner": "Propriétaire",
+      "admin": "Admin",
+      "member": "Membre"
+    },
+    "appearance": "Apparence",
+    "themes": {
+      "light": "Clair",
+      "dark": "Sombre",
+      "system": "Système"
+    },
+    "profile": {
+      "title": "Compte",
+      "subtitle": "Gère ton nom, ton adresse e-mail, ton mot de passe et tes sessions actives.",
+      "profile": {
+        "heading": "Nom",
+        "nameLabel": "Nom affiché",
+        "save": "Enregistrer",
+        "updated": "Nom mis à jour",
+        "updateFailed": "Impossible de mettre à jour le nom",
+        "nameRequired": "Saisis ton nom."
+      },
+      "email": {
+        "heading": "E-mail",
+        "verified": "Vérifié",
+        "unverified": "Non vérifié",
+        "newLabel": "Nouvelle adresse e-mail",
+        "placeholder": "toi@exemple.fr",
+        "submit": "Mettre à jour l'e-mail",
+        "confirmationSent": "E-mail de confirmation envoyé",
+        "confirmationSentDescription": "Ouvre {{email}} et clique sur le lien pour terminer le changement d'adresse.",
+        "updateFailed": "Impossible de mettre à jour l'e-mail",
+        "sameAsCurrent": "C'est déjà ton adresse e-mail actuelle"
+      },
+      "password": {
+        "heading": "Mot de passe",
+        "currentLabel": "Mot de passe actuel",
+        "currentRequired": "Saisis ton mot de passe actuel",
+        "newLabel": "Nouveau mot de passe",
+        "confirmLabel": "Confirmer le nouveau mot de passe",
+        "revokeOtherSessions": "Déconnecter tous les autres appareils",
+        "submit": "Mettre à jour le mot de passe",
+        "updated": "Mot de passe mis à jour",
+        "updateFailed": "Impossible de mettre à jour le mot de passe",
+        "mismatch": "Les mots de passe ne correspondent pas",
+        "tooShort": "Doit contenir au moins 8 caractères"
+      },
+      "sessions": {
+        "heading": "Sessions",
+        "description": "Appareils actuellement connectés à ton compte.",
+        "current": "Cet appareil",
+        "revoke": "Révoquer",
+        "revokeAll": "Révoquer toutes les autres sessions",
+        "revokeAllConfirmTitle": "Révoquer toutes les autres sessions ?",
+        "revokeAllConfirmDescription": "Tu seras déconnecté de tous les autres appareils. Celui-ci reste connecté.",
+        "revokeConfirmTitle": "Révoquer cette session ?",
+        "revokeConfirmDescription": "L'appareil sera déconnecté immédiatement.",
+        "revokeCurrentConfirmDescription": "Il s'agit de ta session actuelle - tu seras déconnecté immédiatement et renvoyé vers la page de connexion.",
+        "revoked": "Session révoquée",
+        "revokeFailed": "Impossible de révoquer la session",
+        "allRevoked": "Autres sessions révoquées",
+        "revokeAllFailed": "Impossible de révoquer les autres sessions",
+        "loadFailed": "Impossible de charger les sessions",
+        "empty": "Aucune session active",
+        "lastActive": "Dernière activité {{date}}",
+        "unknownDevice": "Appareil inconnu",
+        "noIp": "Emplacement inconnu",
+        "revokeConfirm": "Révoquer",
+        "cancel": "Annuler"
+      },
+      "localSubtitle": "Les détails de ton compte. Demande à un admin de ce serveur de les modifier.",
+      "nameLabel": "Nom"
+    },
+    "settingsRow": "Paramètres du compte",
+    "settingsRowSubtitle": "Nom, e-mail, mot de passe et sessions",
+    "settingsRowSubtitleLocal": "Ton nom et ton e-mail",
+    "language": "Langue",
+    "languageSystem": "Langue du téléphone"
+  },
+  "sorter": {
+    "noSorter": "Aucun trieur connecté",
+    "connectHint": "Allume ton trieur, puis trouve-le ci-dessous.",
+    "firmware": "Firmware {{version}} sur {{board}}",
+    "findSorters": "Rechercher des trieurs",
+    "stopSearching": "Arrêter la recherche",
+    "nearby": "Trieurs à proximité",
+    "searching": "Recherche de trieurs",
+    "noneFound": "Aucun trieur trouvé",
+    "bluetoothOnly": "Seuls les trieurs ESP32-S3 et Uno R4 WiFi ont le Bluetooth. Un Uno R4 Minima nécessite l'application de bureau via USB.",
+    "unnamed": "Trieur sans nom",
+    "signal": "Signal {{rssi}} dBm",
+    "runSelfTest": "Lancer l'autotest",
+    "neutral": "Retour en position neutre",
+    "dropCard": "Lâcher la carte retenue",
+    "disconnect": "Déconnecter",
+    "commLog": "Journal de communication",
+    "commLogEmpty": "Rien d'envoyé ni de reçu pour l'instant.",
+    "phase": {
+      "idle": "Déconnecté",
+      "scanning": "Recherche",
+      "connecting": "Connexion",
+      "identifying": "Identification",
+      "syncing": "Synchronisation de l'étalonnage",
+      "testing": "Test",
+      "ready": "Prêt",
+      "error": "Nécessite une attention"
+    },
+    "errors": {
+      "bluetooth-off": {
+        "title": "Le Bluetooth est désactivé",
+        "description": "Active le Bluetooth, puis réessaie."
+      },
+      "bluetooth-unauthorized": {
+        "title": "L'accès Bluetooth est désactivé",
+        "description": "Autorise le Bluetooth pour Mault dans les Réglages pour te connecter à ton trieur."
+      },
+      "connect-failed": {
+        "title": "Connexion impossible",
+        "description": "Rapproche-toi du trieur et réessaie. {{detail}}"
+      },
+      "identify-failed": {
+        "title": "Le trieur ne répond pas",
+        "description": "Le trieur s'est connecté mais ne s'est pas identifié. Redémarre-le et réessaie."
+      },
+      "sorter-limit": {
+        "title": "Limite de trieurs atteinte",
+        "description": "La limite de trieurs connectés de ton forfait est atteinte. Déconnecte d'abord un autre trieur."
+      },
+      "servo-driver-missing": {
+        "title": "Pilote de servos introuvable",
+        "description": "Vérifie le câblage et l'alimentation du pilote de servos, puis reconnecte-toi."
+      },
+      "test-failed": {
+        "title": "Autotest échoué",
+        "description": "{{detail}}"
+      },
+      "sensor-blocked": {
+        "title": "Carte sur un capteur",
+        "description": "Le capteur du module {{module}} détecte une carte, le test automatique n'a donc pas été lancé. Éjectez la carte ou retirez-la à la main, puis marquez le problème comme résolu pour relancer le test."
+      },
+      "connection-lost": {
+        "title": "Connexion perdue",
+        "description": "Le trieur s'est déconnecté ou a redémarré. Reconnecte-toi pour continuer à scanner."
+      },
+      "heartbeat-lost": {
+        "title": "La trieuse ne répond plus",
+        "description": "Vérifie son alimentation et reconnecte-toi."
+      },
+      "setup-incomplete": {
+        "title": "Termine la configuration de ce trieur",
+        "description": "Termine d'abord l'étalonnage dans l'application web, puis reconnecte-toi depuis ton téléphone."
+      }
+    },
+    "restarted": {
+      "title": "Trieuse redémarrée",
+      "description": "Le trieur a redémarré tout seul : {{reason}} Une carte en mouvement n'a pas été triée, vérifie donc les modules avant de reprendre. Il a été resynchronisé automatiquement."
+    },
+    "resetReasons": {
+      "power_on": "l'alimentation a été coupée ou elle a été branchée.",
+      "external": "le bouton de réinitialisation a été pressé.",
+      "software": "le firmware a redémarré de lui-même, ou il a été flashé.",
+      "watchdog": "elle s'est figée et le watchdog l'a redémarrée.",
+      "brownout": "sa tension d'alimentation a chuté, généralement parce que les servos tirent trop de courant. Vérifiez l'alimentation et le câblage.",
+      "panic": "le firmware a planté.",
+      "usb": "la connexion USB l'a réinitialisée.",
+      "other": "une cause peu courante.",
+      "unknown": "la cause est inconnue."
+    },
+    "sensorBlocked": {
+      "dropCard": "Éjecter la carte",
+      "markCleared": "Marquer comme résolu",
+      "dropped": "Cartes éjectées. Marquez le problème comme résolu pour relancer le test automatique.",
+      "dropFailed": "Le trieur n'a pas répondu à la commande d'éjection. Retirez la carte à la main.",
+      "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le problème comme résolu.",
+      "noResponse": "Le trieur n'a pas répondu. Reconnectez-le et réessayez."
+    }
+  },
+  "scan": {
+    "start": "Démarrer",
+    "resume": "Reprendre",
+    "pause": {
+      "user": {
+        "title": "En pause",
+        "description": ""
+      },
+      "no-match": {
+        "title": "Aucune correspondance",
+        "description": "La carte a été enregistrée pour vérification."
+      },
+      "feeder-empty": {
+        "title": "Le chargeur est vide",
+        "description": "Ajoute des cartes, puis touche Reprendre."
+      },
+      "no-card": {
+        "title": "Aucune carte détectée",
+        "description": "Le chargeur a tourné mais aucune carte n'a atteint la caméra. Vérifie la pile, puis touche Reprendre."
+      },
+      "feed-failed": {
+        "title": "Problème de chargeur",
+        "description": "Le chargeur n'a pas répondu comme prévu. {{detail}}"
+      },
+      "route-failed": {
+        "title": "Impossible de trier la carte",
+        "description": "Vérifie le trieur, puis touche Reprendre. {{detail}}"
+      },
+      "jam": {
+        "title": "Carte coincée",
+        "description": "Une carte est coincée dans le module {{detail}}. Retire-la, puis touche Reprendre."
+      },
+      "bin-full": {
+        "title": "Bac plein",
+        "description": "Vide le bac dans l'application web, puis touche Reprendre."
+      },
+      "scan-limit": {
+        "title": "Limite de scans quotidienne atteinte",
+        "description": "Les scans gratuits de ton forfait pour aujourd'hui sont épuisés."
+      },
+      "sorter-limit": {
+        "title": "Limite de trieurs atteinte",
+        "description": "La limite de trieurs connectés de ton forfait est atteinte."
+      },
+      "collection-locked": {
+        "title": "Impossible d'enregistrer le scan",
+        "description": "Quelqu'un d'autre scanne peut-être dans cette collection. {{detail}}"
+      },
+      "save-failed": {
+        "title": "Impossible d'enregistrer le scan",
+        "description": "Vérifie ta connexion, puis touche Reprendre."
+      },
+      "sorter-disconnected": {
+        "title": "Trieur déconnecté",
+        "description": "Reconnecte-le dans l'onglet Trieur, puis touche Reprendre."
+      },
+      "duplicate": {
+        "title": "Même carte scannée à nouveau",
+        "description": "Touche Reprendre pour l'ajouter quand même, ou active Autoriser les doublons dans les options de scan."
+      }
+    },
+    "scanOnce": "Scanner une",
+    "scanningInto": "Scan dans {{name}}",
+    "sessionCount_one": "{{count}} carte dans cette session",
+    "sessionCount_other": "{{count}} cartes dans cette session",
+    "emptyTitle": "Pas encore de scans",
+    "emptyDescription": "Démarre le trieur, ou touche Scanner une avec une carte sous la caméra.",
+    "unmatched": "Aucune correspondance",
+    "unmatchedHint": "Enregistrée pour vérification",
+    "allowCamera": "Autoriser la caméra",
+    "cameraPermissionTitle": "Accès à la caméra requis",
+    "cameraPermissionDescription": "Mault utilise la caméra pour identifier les cartes qui passent dans ton trieur.",
+    "cameraPermissionSettings": "Active l'accès à la caméra pour Mault dans les Réglages.",
+    "noCamera": "Aucune caméra disponible",
+    "noCollectionTitle": "Aucune collection active",
+    "noCollectionDescription": "Choisis la collection dans laquelle scanner.",
+    "chooseCollection": "Choisir une collection",
+    "sorterNotReadyTitle": "Trieuse non connectée",
+    "sorterNotReadyDescription": "Connecte ton trieur pour charger et trier les cartes. Tu peux toujours scanner des cartes à la main.",
+    "openSorter": "Connecter la trieuse",
+    "modelErrorTitle": "Impossible de charger les modèles de reconnaissance des cartes",
+    "unsupported": {
+      "repack": {
+        "title": "Les préréglages de reconditionnement nécessitent l'application de bureau",
+        "description": "Passe à un autre préréglage, ou lance celui-ci depuis l'application web."
+      },
+      "auto-assign": {
+        "title": "Les préréglages à attribution automatique nécessitent l'application de bureau",
+        "description": "Passe à un autre préréglage, ou lance celui-ci depuis l'application web."
+      }
+    },
+    "phase": {
+      "idle": "Inactif",
+      "loading-models": "Chargement des modèles",
+      "ready": "Prêt",
+      "feeding": "Chargement",
+      "capturing": "Capture",
+      "identifying": "Identification",
+      "routing": "Tri en cours",
+      "paused": "En pause",
+      "error": "Erreur"
+    },
+    "pauseAction": "Pause",
+    "sessionChip_one": "{{count}} scannée",
+    "sessionChip_other": "{{count}} scannée",
+    "sessionScans": {
+      "title": "Cette session",
+      "empty": "Aucune carte scannée dans cette session pour l'instant.",
+      "noMatch": "Aucune correspondance",
+      "bin": "Bac {{number}}"
+    },
+    "controls": {
+      "open": "Commandes du scanner",
+      "title": "Commandes du scanner",
+      "pausedHint": "Mettez le scan en pause pour les utiliser.",
+      "scanNow": "Scanner maintenant",
+      "scanNowDescription": "Identifier la carte sous la caméra",
+      "feed": "Charger une carte",
+      "feedDescription": "Charger une carte, puis la scanner et la trier",
+      "drop": "Faire tomber les cartes",
+      "dropDescription": "Ouvrir chaque module pour libérer les cartes coincées",
+      "neutral": "Position neutre",
+      "neutralDescription": "Ramener chaque servo à sa position de repos",
+      "sorter": "Trieuse",
+      "sorterDescription": "Connexion, autotest et état",
+      "failed": "Ça n'a pas fonctionné. Vérifie la connexion au trieur et réessaie."
+    },
+    "options": {
+      "title": "Options de scan",
+      "autoFeed": "Alimentation auto",
+      "autoFeedDescription": "Charger la carte suivante dès qu'une carte est triée",
+      "allowDuplicates": "Autoriser les doublons",
+      "allowDuplicatesDescription": "Enregistrer la même impression plusieurs fois",
+      "camera": "Caméra",
+      "cameraFallback": "Caméra {{number}}",
+      "cameraPosition": {
+        "back": "Arrière",
+        "front": "Avant",
+        "external": "Externe"
+      },
+      "pairDesktop": "Utiliser comme caméra d'ordinateur",
+      "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur"
+    }
+  },
+  "home": {
+    "greeting": "Bonjour, {{name}}",
+    "greetingNoName": "Bon retour",
+    "totalValue": "Valeur totale",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "scannedToday": "Scannées aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "collections": "Collections",
+    "activityTitle": "Activité de scan",
+    "activityPoint_one": "{{date}} · {{count}} scan",
+    "activityPoint_other": "{{date}} · {{count}} scans",
+    "today": "Aujourd'hui",
+    "seeAllStats": "Toutes les statistiques",
+    "mostValuable": "Les plus chères",
+    "recentlyScanned": "Scannées récemment",
+    "allCollections": "Toutes les collections",
+    "searchPlaceholder": "Rechercher des collections",
+    "noSearchResultsTitle": "Aucune collection trouvée",
+    "noSearchResultsDescription": "Essaie un autre nom.",
+    "actions": {
+      "scan": "Scanner",
+      "newCollection": "Nouveau",
+      "sorter": "Trieuse",
+      "stats": "Statistiques"
+    },
+    "live": {
+      "yourSession": "Ta session",
+      "scanning": "Scan en cours",
+      "scanningBy": "{{name}} scanne"
+    }
+  },
+  "collection": {
+    "tabCards": "Cartes",
+    "tabActivity": "Activité",
+    "value": "Valeur",
+    "cards": "Cartes",
+    "cardsCount_one": "{{count}} carte",
+    "cardsCount_other": "{{count}} cartes",
+    "unique": "{{count}} différentes",
+    "searchPlaceholder": "Rechercher des cartes",
+    "noCardsYet": "Aucune carte scannée pour le moment",
+    "noMatches": "Aucune carte ne correspond à ta recherche",
+    "review": "Vérifier {{count}}",
+    "groupDuplicates": "Grouper les doublons",
+    "filters": {
+      "title": "Filtres",
+      "colors": "Couleurs",
+      "rarity": "Rareté",
+      "foil": "Foil",
+      "bin": "Bac",
+      "noBin": "Aucun bac",
+      "status": "Statut",
+      "needsReview": "À vérifier",
+      "showDownloaded": "Afficher les téléchargées",
+      "reset": "Réinitialiser"
+    },
+    "sort": {
+      "title": "Trier par",
+      "scanOrder": "Ordre de scan (plus récents d'abord)",
+      "ascending": "{{field}}, croissant",
+      "descending": "{{field}}, décroissant"
+    },
+    "actions": {
+      "copies_one": "{{count}} exemplaire",
+      "copies_other": "{{count}} exemplaires",
+      "removeTitle_one": "Retirer cette carte ?",
+      "removeTitle_other": "Retirer {{count}} exemplaires ?"
+    }
+  },
+  "cardDetail": {
+    "fallbackTitle": "Détails de la carte",
+    "capturedScan": "Scan capturé",
+    "matchedCard": "Carte reconnue",
+    "details": "Détails",
+    "set": "Extension",
+    "rarity": "Rareté",
+    "manaCost": "Coût de mana",
+    "powerToughness": "Force/Endurance",
+    "artist": "Artiste",
+    "bin": "Bac",
+    "viewSource": "Voir la source",
+    "remove": "Retirer",
+    "removeConfirmTitle": "Retirer cette carte ?",
+    "removeConfirmDescription": "Elle est retirée de la collection. Cette action est irréversible.",
+    "removeFailed": "Impossible de retirer la carte",
+    "cancel": "Annuler",
+    "loadFailed": "Impossible de charger cette carte",
+    "foil": "Foil",
+    "correctCard": "Corriger la carte",
+    "markCorrect": "Marquer comme correcte",
+    "acceptNext": "Ça a l'air bon",
+    "acceptFinish": "Ça a l'air bon",
+    "reviewProgress": "Vérification {{index}} sur {{total}}",
+    "reviewed": "Vérifiée",
+    "similarMatches": "Correspondances similaires",
+    "similarMatchesHint": "Plusieurs correspondances proches. Touche la bonne version.",
+    "thisScan": "Ce scan",
+    "foilNone": "Non foil",
+    "condition": "Condition",
+    "conditions": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Endommagée (DMG)"
+    },
+    "searchPlaceholder": "Rechercher par nom, numéro ou extension",
+    "startTyping": "Commence à taper pour rechercher des cartes",
+    "noCardsFound": "Aucune carte trouvée",
+    "loadMore": "Charger plus",
+    "saveFailed": "Impossible d'enregistrer cette carte",
+    "discardDescription": "Tes modifications de cette carte n'ont pas été enregistrées.",
+    "reviewCompleteTitle": "Vérification terminée",
+    "reviewCompleteDescription": "Chaque carte qui devait être vérifiée l'a été.",
+    "prices": "Prix",
+    "binLocation": "Emplacement du bac",
+    "scanOrigin": {
+      "heading": "Scanné",
+      "scannedBy": "Par",
+      "sorter": "Trieur",
+      "deletedSorter": "{{name}} (supprimé)"
+    }
+  },
+  "rules": {
+    "title": "Règles de tri",
+    "noCollectionTitle": "Aucune collection active",
+    "noCollectionDescription": "Choisis la collection dans laquelle tu tries, puis modifie ici les préréglages de son jeu.",
+    "noGameTitle": "Cette collection n'a pas de jeu",
+    "noGameDescription": "Choisis un jeu pour la collection sur le web pour configurer les règles de tri.",
+    "presets": "Préréglage",
+    "choosePreset": "Choisir un préréglage",
+    "noPresetsTitle": "Aucun préréglage pour ce jeu",
+    "noPresetsDescription": "Crée un préréglage sur le web, puis tire vers le bas pour actualiser.",
+    "activateFailed": "Impossible de changer de préréglage",
+    "binsWithRules_one": "{{count}} bac avec des règles",
+    "binsWithRules_other": "{{count}} bacs avec des règles",
+    "bins": "Bins",
+    "bin": "Bac {{number}}",
+    "catchAll": "Fourre-tout",
+    "disabled": "Désactivé",
+    "pickList": "Liste de tri",
+    "overflowFor": "Débordement du bac {{bins}}",
+    "and": "ET",
+    "or": "OU",
+    "noConditions": "Aucune condition",
+    "removeCondition": "Supprimer la condition",
+    "removeGroup": "Supprimer le groupe",
+    "valuePlaceholder": "Valeur...",
+    "freeformPlaceholder": "Valeurs séparées par des virgules...",
+    "needCatchAll": "Au moins un bac doit être un bac fourre-tout. Fais d'abord d'un autre bac le bac fourre-tout.",
+    "overflowNone": "Pas de débordement",
+    "overflowNoOptions": "Aucun bac libre. Efface les règles d'un bac pour l'utiliser comme débordement.",
+    "overflowTargetNotice_one": "Ce bac est le débordement du bac {{bins}}. Les cartes arrivent ici quand ce bac est plein, il ne peut donc pas avoir ses propres règles.",
+    "overflowTargetNotice_other": "Ce bac est le débordement des bacs {{bins}}. Les cartes arrivent ici quand ces bacs sont pleins, il ne peut donc pas avoir ses propres règles.",
+    "pickListNotice": "Ce bac utilise une liste de prélèvement. Modifie-la sur le web.",
+    "modeNoticeTitle": "Modifie ce préréglage sur le web",
+    "modeNotice": {
+      "repack": "Ce préréglage utilise le mode reconditionnement.",
+      "auto-assign": "Ce préréglage attribue les bacs automatiquement.",
+      "alphabet": "Ce préréglage trie par ordre alphabétique en plusieurs passes.",
+      "chaos": "Ce préréglage utilise le mode chaos."
+    },
+    "noActiveTitle": "Aucun préréglage actif",
+    "noActiveDescription": "Active un préréglage ci-dessus pour modifier ses bacs.",
+    "saveFailed": "Impossible d'enregistrer ce bac",
+    "loadFailed": "Impossible de charger tes préréglages",
+    "matchPrefix": "Correspondance",
+    "matchSuffix": "de ces conditions",
+    "combinatorAll": "toutes",
+    "combinatorAny": "une",
+    "combinatorTitle": "Les cartes doivent remplir",
+    "combinatorAllOption": "Toutes ces conditions",
+    "combinatorAnyOption": "Une de ces conditions",
+    "addCondition": "Ajouter une condition",
+    "addGroup": "Ajouter un groupe",
+    "noConditionsYet": "Pas encore de conditions",
+    "newCondition": "Nouvelle condition",
+    "editCondition": "Modifier la condition",
+    "chooseField": "Choisir un champ",
+    "searchFields": "Rechercher des champs",
+    "field": "Champ",
+    "operator": "Condition",
+    "value": "Valeur",
+    "selectPlaceholder": "Sélectionner...",
+    "noFieldMatches": "Aucun champ correspondant",
+    "rulesLabel": "Règles",
+    "rulesDescription": "Les cartes qui correspondent vont dans ce bac.",
+    "overrideLabel": "Règles prioritaires",
+    "overrideDescription": "Les cartes correspondantes viennent ici même si un autre bac correspond aussi. Laisse vide pour ne prendre que les restes.",
+    "settingsTitle": "Réglages du bac",
+    "catchAllLabel": "Fourre-tout",
+    "catchAllDescription": "Reçoit toutes les cartes qu'aucun autre bac ne prend",
+    "disabledLabel": "Désactivé",
+    "disabledDescription": "Les cartes ignorent ce bac",
+    "cardLimitLabel": "Limite de cartes",
+    "cardLimitDescription": "Met en pause ou déborde quand il est plein",
+    "noLimit": "Aucun",
+    "overflowLabel": "Une fois plein, déborder dans",
+    "noRulesTapToAdd": "Pas encore de règles, touche pour en ajouter",
+    "groupChip_one": "Groupe de {{count}}",
+    "groupChip_other": "Groupe de {{count}}",
+    "moreChips": "+{{count}}",
+    "limitChip": "Plein à {{count}}",
+    "overflowsTo": "Déborde vers {{bin}}"
+  },
+  "calibration": {
+    "title": "Calibrage",
+    "subtitle": "Régler les servos et le chargeur",
+    "entryTitle": "Calibrage",
+    "entrySubtitle": "Positions des servos, temporisations et chargeur",
+    "notConnectedTitle": "Connecte d'abord ton trieur",
+    "notConnectedDescription": "L'étalonnage déplace les servos en direct, le trieur doit donc être connecté.",
+    "moduleLabel": "Module {{module}}",
+    "msValue": "{{value}} ms",
+    "continuous": "Continu",
+    "servos": {
+      "bottom": "Trappe inférieure",
+      "paddle": "Palettes",
+      "pusher": "Poussoir"
+    },
+    "positions": {
+      "open": "Ouvert",
+      "closed": "Fermé",
+      "left": "Gauche",
+      "right": "Droite",
+      "neutral": "Neutre"
+    },
+    "editingPosition": "Modification : {{position}}",
+    "noPositionSelected": "Sélectionne une position ci-dessus pour la modifier",
+    "rawPulseToggleLabel": "Valeurs brutes de l'impulsion",
+    "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
+    "testServoGate": "Test : ouvre brièvement la trappe, puis la referme, pour que tu puisses observer le mouvement.",
+    "testServoPusher": "Test : pousse brièvement à gauche, puis à droite, puis revient en position neutre, pour que tu puisses observer le mouvement dans les deux sens.",
+    "pusherOffsetWarning": "Plus de {{percent}} % par rapport au neutre. Le bras ne doit pas toucher la paroi intérieure, et plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
+    "delays": {
+      "paddleOpenDelay": {
+        "label": "Délai d'ouverture de la palette (ms)",
+        "description": "Temps laissé à la palette pour s'abaisser avant le déclenchement du poussoir. Augmente-le si le poussoir touche la carte avant que la palette soit complètement baissée ; réduis-le pour trier plus vite."
+      },
+      "pusherHoldDuration": {
+        "label": "Durée de maintien du poussoir (ms)",
+        "description": "Durée pendant laquelle le poussoir reste déployé avant de revenir en position neutre. Augmente-la si les cartes ne sont pas entièrement poussées avant qu'il se rétracte ; garde-la courte, car le maintien contre la butée fatigue le palonnier du servo."
+      },
+      "paddleCloseDelay": {
+        "label": "Délai de fermeture de la palette (ms)",
+        "description": "Temps après le déclenchement du poussoir avant que la palette de ce module se referme, indépendamment du moment où le poussoir lui-même revient en position neutre. Augmente ce délai si les cartes ne sont pas totalement dégagées avant la fermeture."
+      }
+    },
+    "pushTestLabel": "Tester le timing de poussée",
+    "pushTestTooltip": "Exécute la poussée de ce module exactement comme lors d'un tri, avec la durée de maintien et le délai de fermeture de la palette ci-dessus (même non enregistrés). Aucune carte n'est alimentée ; place d'abord une carte dans le module pour la voir éjectée.",
+    "feeder": {
+      "heading": "Chargeur",
+      "showAdvanced": "Afficher les valeurs brutes",
+      "hideAdvanced": "Masquer les valeurs brutes",
+      "speedLabel": "Vitesse d'alimentation",
+      "speedTooltip": "À quelle vitesse et dans quel sens tourne le moteur du chargeur. 0 % est à l'arrêt ; fais glisser d'un côté ou de l'autre pour accélérer dans ce sens.",
+      "forward": "Avant",
+      "reverse": "Inverse",
+      "timeoutLabel": "Délai (ms)",
+      "pulseDurationLabel": "Durée de l'impulsion (ms)",
+      "continuousFeedButton": "Alimentation continue",
+      "pauseDurationLabel": "Durée de la pause (ms)",
+      "settleDurationLabel": "Délai de détection de la dernière carte (ms)",
+      "settleDurationDescription": "Temps supplémentaire à continuer d'alimenter une fois que le capteur du module 1 détecte la dernière carte de la trémie, afin qu'elle parcoure tout le mécanisme avant l'arrêt du moteur.",
+      "reverseDurationLabel": "Recul après l'alimentation (ms)",
+      "reverseDurationDescription": "Quand une carte atteint le module 1, le rouleau tourne en arrière pendant cette durée pour retirer la carte suivante du chargeur au lieu de la laisser avancer et provoquer une double alimentation. 0 le désactive.",
+      "reverseSpeedLabel": "Vitesse de recul",
+      "off": "Désactivé"
+    },
+    "runTest": "Lancer le test",
+    "testing": "Test en cours…",
+    "feed": "Alimenter",
+    "dropCard": "Éjecter la carte",
+    "calibrateBeforeTest": "Calibre tous les modules avant de lancer le test",
+    "testBeforeControls": "Lance un test réussi pour débloquer les commandes de l'appareil.",
+    "resetServosToDefaults": "Réinitialiser les servos",
+    "modules": "Modules",
+    "feederSection": "Calibration du chargeur",
+    "saveFailed": "Échec de l'enregistrement de la zone de scan ou du délai avant capture",
+    "firmwareRequired": "Nécessite le firmware {{version}} ou plus récent",
+    "discardDescription": "Tes modifications d'étalonnage n'ont pas été enregistrées. Les annuler remet les valeurs enregistrées sur le trieur.",
+    "hubSubtitle": "Configurer et régler ce trieur",
+    "sections": {
+      "servos": {
+        "title": "Servos et chargeur",
+        "description": "Positions des servos, temporisations des modules et chargeur"
+      },
+      "layout": {
+        "title": "Disposition",
+        "description": "Nombre de modules, bac de chaque emplacement et tailles des bacs"
+      },
+      "scanRegion": {
+        "title": "Caméra",
+        "description": "Position de la carte sur la photo et réglages de reconnaissance"
+      },
+      "connection": {
+        "title": "Connexion",
+        "description": "Connexion automatique, autotest à la connexion, fonctions expérimentales"
+      },
+      "test": {
+        "title": "Test",
+        "description": "Capteurs IR, bacs individuels et essai"
+      }
+    },
+    "binLabel": "Bac {{bin}}",
+    "moduleCount": {
+      "label": "Modules de tri",
+      "value_one": "{{count}} module",
+      "value_other": "{{count}} modules",
+      "description": "Nombre de modules de tri physiques câblés. Modifie le nombre de bacs disponibles et les sections ci-dessous.",
+      "reduceTitle": "Réduire le nombre de modules ?",
+      "reduceDescription": "Passer à {{count}} modules retirera les règles de tri et les données de calibration pour les modules et bacs au-delà de ce nombre, dans tous les préréglages de bacs.",
+      "reduceConfirm": "Changer le nombre de modules"
+    },
+    "bins": {
+      "label": "Configuration des bacs",
+      "resetToDefaults": "Rétablir les valeurs par défaut",
+      "moduleLeft": "Module {{module}}, gauche",
+      "moduleRight": "Module {{module}}, droite",
+      "bottomSectionLabel": "Bas (fourre-tout)",
+      "module": "Module",
+      "size": "Taille du bac",
+      "presets": {
+        "small": "Petit",
+        "medium": "Moyen",
+        "large": "Grand",
+        "unlimited": "Illimité",
+        "custom": "Personnalisé"
+      },
+      "customHeightUnit": "mm",
+      "customHeightHint": "Environ {{count}} cartes à {{thickness}} mm chacune",
+      "customHeightInvalid": "Saisissez entre {{min}} et {{max}} mm"
+    },
+    "layoutSaveFailed": "Impossible d'enregistrer la disposition",
+    "scanRegion": {
+      "heading": "Zone de scan",
+      "instructions": "Fais glisser le cadre pour le déplacer et utilise les curseurs pour le redimensionner. Aligne-le sur une carte posée au module 1.",
+      "liveDetectionHint": "Le cadre est le recadrage de secours utilisé quand la détection en direct ne trouve pas la carte. Le contour bleu est un aperçu en direct de ce que voit la détection.",
+      "size": "Taille",
+      "offsetX": "Décalage horizontal",
+      "offsetY": "Décalage vertical",
+      "resetToDefault": "Réinitialiser par défaut",
+      "captureSettleLabel": "Délai de stabilisation avant capture",
+      "captureSettleDescription": "Temps d'attente après que le chargeur confirme l'arrivée d'une carte avant de capturer une image, pour qu'elle soit parfaitement immobile et nette.",
+      "matchesNeededLabel": "Correspondances requises",
+      "matchesNeededDescription": "Nombre d'images consécutives devant s'accorder sur la même carte avant qu'un scan soit accepté. 1 est le plus rapide ; des valeurs plus élevées sont plus fiables mais plus lentes.",
+      "checkBothOrientationsLabel": "Vérifier les deux sens",
+      "checkBothOrientationsDescription": "Compare aussi la carte tournée de 180°, afin que les cartes insérées à l'envers soient quand même identifiées. Désactivez cette option si toutes vos cartes sont insérées dans le même sens pour accélérer chaque scan.",
+      "percent": "{{value}} %"
+    },
+    "connection": {
+      "title": "Connexion",
+      "autoConnectLabel": "Connexion automatique",
+      "autoConnectDescription": "Se connecte tout seul à ce trieur à l'ouverture de l'application et retente si la connexion tombe ou s'il redémarre pendant que l'application est ouverte. Connecte-le une fois à la main pour que le téléphone s'en souvienne.",
+      "testOnConnectLabel": "Autotest à la connexion",
+      "testOnConnectDescription": "Activé, le trieur fait bouger chaque servo et vérifie ses capteurs à chaque connexion. Désactivé, il charge seulement sa calibration enregistrée et est prêt tout de suite. Tu peux toujours lancer le test depuis Réglage du trieur.",
+      "experimentalTitle": "Expérimental",
+      "experimentalBadge": "Bêta",
+      "pipelinedFeedLabel": "Scanner la carte suivante pendant le tri",
+      "pipelinedFeedDescription": "Alimente et scanne la carte suivante dès que la précédente a quitté le module 1, au lieu d'attendre qu'elle atteigne son bac. Nécessite le firmware 2.1.0 ou plus récent et l'alimentation automatique activée. Désactive cette option si des cartes se coincent ou si les scans captent la carte en mouvement.",
+      "firmwareNote": "Les mises à jour du firmware nécessitent l'application de bureau, car elles sont flashées via USB."
+    },
+    "ir": {
+      "label": "Capteurs IR",
+      "description": "Capteurs infrarouges qui détectent la présence d'une carte dans le chemin d'alimentation de chaque module.",
+      "read": "Lire",
+      "monitor": "Surveiller",
+      "stop": "Arrêter",
+      "detected": "Carte",
+      "clear": "Libre",
+      "unknown": "Non lu",
+      "hopper": "Bac",
+      "hopperEmpty": "Trémie vide",
+      "hopperHasCards": "Cartes en attente"
+    },
+    "routing": {
+      "label": "Routage des bacs",
+      "description": "Envoie une carte dans un seul bac, ou fais-en passer une dans chaque bac dans l'ordre.",
+      "sampleRun": "Essai",
+      "running": "En cours…",
+      "binActive": "Bac {{bin}}…",
+      "resetToNeutral": "Position neutre",
+      "binFailed": "Le bac {{bin}} n'a pas été atteint",
+      "sampleRunStopped": "Test d'exécution arrêté au bac {{bin}}"
+    }
+  },
+  "storage": {
+    "title": "Rangement",
+    "subtitle": "Où vos cartes triées sont rangées, boîte par boîte, dans l'ordre où elles y sont entrées.",
+    "entrySubtitle": "Boîtes et emplacement de chaque carte",
+    "newLocation": "Nouvel emplacement",
+    "emptyTitle": "Aucun emplacement pour l'instant",
+    "emptyDescription": "Quand vous videz un bac depuis les niveaux du scanner, ou quand un bac plein met le scan en pause, choisissez ou créez un emplacement pour enregistrer où vont ses cartes.",
+    "summary_one": "{{count}} carte · {{value}} au total",
+    "summary_other": "{{count}} cartes · {{value}} au total",
+    "cardCount_one": "{{count}} carte",
+    "cardCount_other": "{{count}} cartes",
+    "rename": "Renommer l'emplacement",
+    "delete": "Supprimer l'emplacement",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteDescription": "Les cartes restent dans tes collections, mais perdent cet emplacement et leur position.",
+    "nameLabel": "Nom",
+    "namePlaceholder": "ex. Boîte 12",
+    "create": "Créer",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "searchPlaceholder": "Rechercher des cartes dans tous les emplacements",
+    "noResultsTitle": "Aucune carte trouvée",
+    "noResultsDescription": "Aucune carte rangée ne correspond à « {{query}} ».",
+    "position": "#{{position}}",
+    "storedIn": "Rangée dans {{name}}, position {{position}}",
+    "location": "Rangement",
+    "removeFromLocation": "Retirer de l'emplacement",
+    "noCardsTitle": "Cet emplacement est vide",
+    "businessOnly": "Les emplacements de rangement font partie de l'offre Business.",
+    "locked": "Notez dans quelle boîte va chaque carte, et à quelle place, quand vous videz un bac.",
+    "lockedWithLocations": "Vous pouvez toujours parcourir, rechercher et modifier vos emplacements, mais y enregistrer de nouvelles cartes nécessite Business.",
+    "actionFailed": "Impossible de mettre à jour le rangement",
+    "actions": "Actions de l'emplacement",
+    "review": {
+      "start": "Vérifier les cartes",
+      "nothingLeft": "Plus rien à vérifier. Toutes les cartes ici ont déjà été vérifiées.",
+      "startFailed": "Impossible de lancer la vérification"
+    }
+  },
+  "settings": {
+    "title": "Paramètres",
+    "subtitle": "Paramètres de l'organisation pour chaque scanner",
+    "entrySubtitle": "Prix, scan, image de marque et intégrations",
+    "sections": {
+      "general": {
+        "title": "Général",
+        "description": "Couleur d'accent et classement"
+      },
+      "scanning": {
+        "title": "Scan en cours",
+        "description": "OCR, invites de correction, pauses lors des mises à jour"
+      },
+      "pricing": {
+        "title": "Tarifs",
+        "description": "Source des prix et valeurs selon l'état"
+      },
+      "organization": {
+        "title": "Organisation",
+        "description": "Nom, membres et invitations"
+      },
+      "billing": {
+        "title": "Facturation",
+        "description": "Forfait et utilisation"
+      },
+      "integrations": {
+        "title": "Clés API",
+        "description": "Clés de l'API publique"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Salons Discord, alertes et règles de notification"
+      },
+      "sounds": {
+        "title": "Sons",
+        "description": "Joue un extrait quand une carte triée correspond à une règle"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "description": "Envoie les événements de scan et de rangement à ton propre serveur"
+      }
+    },
+    "appearance": {
+      "heading": "Apparence",
+      "description": "Personnalise la couleur d'accent de l'application.",
+      "primaryColor": "Couleur principale",
+      "resetColor": "Réinitialiser par défaut"
+    },
+    "leaderboard": {
+      "heading": "Classement",
+      "description": "Affiche le nom de votre organisation et le nombre de cartes scannées dans le classement des statistiques. Toutes les organisations peuvent voir le classement.",
+      "toggleLabel": "Afficher mon organisation dans le classement"
+    },
+    "sessionWrapped": {
+      "heading": "Récap de session",
+      "description": "Affiche un récap façon Wrapped des temps forts avant le résumé d'export.",
+      "toggleLabel": "Activer le récap de session"
+    },
+    "ocr": {
+      "heading": "Reconnaissance de texte (OCR)",
+      "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
+      "toggleLabel": "Activer la correspondance de texte OCR",
+      "badge": "Bêta"
+    },
+    "ocrBetaDialog": {
+      "title": "Correspondance de texte OCR (bêta)",
+      "description": "Quand un scan n'est pas une correspondance sûre, cette option lit le nom de la carte et sa ligne d'extension pour trouver la carte ou choisir la bonne impression. Les correspondances sûres l'ignorent, la vitesse de scan reste donc la même. Elle est encore en bêta et peut mal lire le texte. Désactive-la si elle semble dégrader les correspondances.",
+      "confirm": "Activer l'OCR",
+      "cancel": "Annuler"
+    },
+    "correctionAutoClose": {
+      "heading": "Invite après correction",
+      "promptToggleLabel": "Me demander de déplacer les cartes corrigées",
+      "promptToggleDescription": "Désactivez cette option si vous laissez les cartes corrigées là où elles ont été triées. La carte garde son bac actuel et aucune invite ne s'affiche.",
+      "description": "Après avoir corrigé ou identifié une carte, une invite indique dans quel bac elle se trouve et dans quel bac elle va. La fermeture automatique considère la carte comme déplacée à la fin du délai, sans clic.",
+      "toggleLabel": "Fermer automatiquement et marquer comme déplacée",
+      "secondsLabel": "Fermer après",
+      "seconds_one": "{{count}} seconde",
+      "seconds_other": "{{count}} secondes"
+    },
+    "deployPause": {
+      "heading": "Mises à jour",
+      "description": "Pendant une mise à jour de Mault, les trieuses en cours de scan sont mises en pause et une invite en explique la raison, pour qu'aucune carte ne soit perdue si un enregistrement échoue pendant la mise à jour. Vous pouvez reprendre immédiatement depuis l'invite.",
+      "toggleLabel": "Mettre le scan en pause pendant les mises à jour"
+    },
+    "pricing": {
+      "heading": "Tarifs",
+      "description": "Choisis les prix de quelle place de marché ton organisation utilise pour les cartes, la valeur des collections et les messages Discord. Card Kingdom ne fournit des prix que pour Magic: The Gathering.",
+      "sources": {
+        "tcgplayer": "TCGplayer",
+        "cardmarket": "Cardmarket",
+        "cardkingdom": "Card Kingdom"
+      }
+    },
+    "conditionPricing": {
+      "heading": "Prix selon l'état",
+      "description": "La part du prix Near Mint que vaut une carte dans chaque état. Les valeurs des cartes, les totaux des collections, les statistiques et les valeurs de stockage les utilisent.",
+      "baseNote": "Near Mint correspond toujours au prix du marché complet. Les valeurs par défaut sont celles de la plupart des grands vendeurs."
+    },
+    "conditions": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Endommagée (DMG)"
+    },
+    "draft": {
+      "saved": "Paramètres enregistrés.",
+      "saveFailed": "Impossible d'enregistrer tes paramètres. Réessaie."
+    },
+    "percentSuffix": "%",
+    "conditionInvalid": "Saisis une valeur de 0 à 100",
+    "discardDescription": "Tes modifications de ces paramètres n'ont pas été enregistrées.",
+    "org": {
+      "renameHeading": "Renommer « {{name}} »",
+      "nameLabel": "Nom de l'organisation",
+      "rename": "Renommer",
+      "membersHeading": "Membres",
+      "inviteMemberHeading": "Inviter un membre",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "Adresse e-mail",
+      "invite": "Inviter",
+      "role": "Rôle",
+      "pendingInvites": "Invitations en attente",
+      "cancelInvite": "Annuler l'invitation",
+      "dangerZoneHeading": "Zone à risque",
+      "deleteWarning": "Supprime définitivement « {{name}} » et toutes ses données.",
+      "deleteOrganization": "Supprimer l'organisation",
+      "deleteOrgDescription": "Supprime définitivement « {{name}} » et toutes ses données. Cette action est irréversible.",
+      "cancelSubscriptionFirst": "Annulez l'abonnement de cette organisation avant de la supprimer. Une fois qu'il est programmé pour s'arrêter à la fin de la période de facturation, vous pourrez supprimer l'organisation.",
+      "removeMemberTitle": "Retirer le membre",
+      "removeMemberDescription": "Retirer « {{name}} » de cette organisation ? Il perdra immédiatement l'accès.",
+      "remove": "Retirer",
+      "changeRole": "Changer de rôle",
+      "roles": {
+        "owner": "Propriétaire",
+        "admin": "Admin",
+        "member": "Membre"
+      },
+      "you": "Vous",
+      "failed": "Impossible de mettre à jour l'organisation",
+      "invalidEmail": "Saisis une adresse e-mail valide.",
+      "cancel": "Annuler",
+      "membersUnavailable": "Les membres sont gérés avec les outils d'administration de ton serveur auto-hébergé.",
+      "noInvites": "Aucune invitation en attente"
+    },
+    "billing": {
+      "plan": {
+        "free": "Free",
+        "business": "Business"
+      },
+      "includes": "Ton plan comprend",
+      "usage": "{{used}} / {{limit}} cartes scannées aujourd'hui",
+      "cancelAtPeriodEnd": "Ton abonnement se termine le {{date}}.",
+      "manageOnWeb": "Les changements de forfait et les informations de paiement se gèrent dans l'application web.",
+      "openWeb": "Ouvrir la facturation sur le web",
+      "features": {
+        "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
+        "unlimitedScans": "Scans de cartes illimités",
+        "freeSorters_one": "{{count}} trieur connecté à la fois",
+        "freeSorters_other": "{{count}} trieurs connectés à la fois",
+        "businessSorters_one": "Jusqu'à {{count}} trieur à la fois",
+        "businessSorters_other": "Jusqu'à {{count}} trieurs à la fois",
+        "freeSoundRules_one": "{{count}} règle sonore personnalisée",
+        "freeSoundRules_other": "{{count}} règles sonores personnalisées",
+        "soundRules": "Règles sonores illimitées avec tes propres clips importés",
+        "freeNotificationRules_one": "{{count}} règle de notification Discord",
+        "freeNotificationRules_other": "{{count}} règles de notification Discord",
+        "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
+        "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
+        "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
+        "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
+        "collections": "Collections illimitées",
+        "games": "Tous les jeux de cartes pris en charge",
+        "notifications": "Notifications Discord de scan"
+      }
+    },
+    "apiKeys": {
+      "heading": "Clés API",
+      "description": "Permettez à vos propres systèmes, comme une boutique en ligne, de lire les cartes et les emplacements de cette organisation. Les clés appartiennent à l'organisation, pas à vous : elles continuent de fonctionner si vous la quittez.",
+      "create": "Créer une clé",
+      "empty": "Aucune clé API pour l'instant.",
+      "readOnly": "Lecture seule",
+      "readWrite": "Lecture et écriture",
+      "createdBy": "Créée par {{name}} le {{date}}",
+      "lastUsed": "Dernière utilisation {{date}}",
+      "neverUsed": "Jamais utilisée",
+      "revoke": "Révoquer",
+      "revokeFailed": "Impossible de révoquer la clé API.",
+      "revokeConfirmTitle": "Révoquer cette clé API ?",
+      "revokeConfirmDescription": "Tout ce qui l'utilise cesse de fonctionner immédiatement. Cette action est irréversible.",
+      "createTitle": "Créer une clé API",
+      "createDescription": "Donnez un nom à la clé pour savoir plus tard ce qui l'utilise.",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Synchronisation de la boutique",
+      "writeLabel": "Autoriser l'écriture",
+      "writeDescription": "Les clés en lecture seule peuvent lister les cartes, les collections et les emplacements. Les clés avec accès en écriture peuvent aussi retirer des cartes de leur boîte, les déplacer dans une autre boîte et les supprimer.",
+      "createFailed": "Impossible de créer la clé API.",
+      "revealTitle": "Copiez votre clé API",
+      "revealDescription": "C'est la seule fois que la clé complète est affichée. Conservez-la en lieu sûr, par exemple dans les paramètres secrets de votre boutique.",
+      "revealDone": "Je l'ai copiée",
+      "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent créer ou révoquer des clés API.",
+      "loadFailed": "Impossible de charger les clés API.",
+      "upgrade": "Les clés API font partie de l'offre Business.",
+      "share": "Partager la clé",
+      "cancel": "Annuler"
+    },
+    "webhooks": {
+      "heading": "Webhooks",
+      "description": "Mault envoie un événement à votre URL quand des cartes sont scannées ou rangées dans un emplacement. Chaque webhook a son propre secret de signature pour vérifier qu'une requête vient bien de Mault.",
+      "add": "Ajouter un webhook",
+      "addTitle": "Ajouter un webhook",
+      "editTitle": "Modifier le webhook",
+      "dialogDescription": "Mault envoie une requête POST signée avec un corps JSON à cette URL. Elle doit être une adresse https:// publique.",
+      "save": "Enregistrer",
+      "saved": "Webhook enregistré.",
+      "saveFailed": "Impossible d'enregistrer le webhook.",
+      "urlLabel": "URL",
+      "invalidUrl": "Saisissez une URL https:// publique.",
+      "descriptionLabel": "Nom (facultatif)",
+      "descriptionPlaceholder": "Boutique en ligne",
+      "eventsLabel": "Événements",
+      "eventsRequired": "Choisissez au moins un événement.",
+      "events": {
+        "card": {
+          "scanned": "Une carte a été scannée et enregistrée dans une collection."
+        },
+        "cards": {
+          "stored": "Un bac a été rangé dans un emplacement. Inclut la boîte et la position de chaque carte."
+        }
+      },
+      "empty": "Aucun webhook pour l'instant.",
+      "disabled": "Désactivé",
+      "actions": "Actions du webhook",
+      "sendTest": "Envoyer un événement de test",
+      "edit": "Modifier",
+      "enable": "Réactiver",
+      "delete": "Supprimer",
+      "enabled": "Webhook réactivé.",
+      "enableFailed": "Impossible de réactiver le webhook.",
+      "testSucceeded": "Test livré (HTTP {{status}}).",
+      "testRejected": "Échec du test : {{error}}",
+      "testFailed": "Impossible d'envoyer l'événement de test.",
+      "unknownError": "Erreur inconnue",
+      "neverDelivered": "Rien livré pour l'instant",
+      "lastSucceeded": "Dernière livraison {{date}} : HTTP {{status}}",
+      "lastFailed": "Échec de la dernière livraison {{date}} : {{error}}",
+      "deleted": "Webhook supprimé.",
+      "deleteFailed": "Impossible de supprimer le webhook.",
+      "deleteConfirmTitle": "Supprimer ce webhook ?",
+      "deleteConfirmDescription": "Mault cesse immédiatement d'envoyer des événements à cette URL. Cette action est irréversible.",
+      "secretTitle": "Copiez votre secret de signature",
+      "secretDescription": "Utilisez-le pour vérifier l'en-tête X-Mault-Signature de chaque requête. Il n'est affiché qu'une seule fois.",
+      "copySecret": "Copier le secret",
+      "secretCopied": "Secret de signature copié.",
+      "copyFailed": "Impossible de copier le secret.",
+      "upgrade": "Les webhooks font partie de l'offre Business.",
+      "loadFailed": "Impossible de charger les webhooks.",
+      "share": "Partager le secret",
+      "cancel": "Annuler",
+      "managersOnly": "Seuls les propriétaires et les admins peuvent gérer les webhooks."
+    },
+    "discord": {
+      "discord": {
+        "heading": "Discord",
+        "description": "Publie les scans et les alertes sur ton serveur Discord.",
+        "connectedTo": "Connecté à {{server}}",
+        "statusLinked": "Lié",
+        "statusNotLinked": "Non lié",
+        "botUnreachable": "Impossible de joindre le bot Discord, les noms de salons et les permissions ne peuvent donc pas être affichés pour le moment.",
+        "botNotInServer": "Le bot n'est plus sur ton serveur lié. Ajoute-le à nouveau, puis relie-le.",
+        "connection": "Connexion"
+      },
+      "channelSettings": {
+        "heading": "Salons",
+        "description": "Où publier chaque scan et chaque erreur ou alerte. Seuls les propriétaires et les admins peuvent les modifier.",
+        "scan": "Chaque scan",
+        "error": "Erreurs et alertes",
+        "none": "Ne pas publier",
+        "sameScan": "Comme chaque scan",
+        "sameError": "Comme les erreurs",
+        "saved": "Salon enregistré.",
+        "saveFailed": "Impossible d'enregistrer le salon."
+      },
+      "overrides": {
+        "heading": "Exceptions par collection",
+        "description": "Envoie les scans ou les erreurs d'une collection dans un autre salon. Les collections sans exception utilisent les salons ci-dessus.",
+        "add": "Ajouter une exception",
+        "empty": "Aucune exception. Chaque collection utilise les salons ci-dessus.",
+        "collection": "Collection",
+        "remove": "Supprimer l'exception pour {{name}}",
+        "pickCollection": "Choisir une collection",
+        "pickChannel": "Choisis un salon pour ses scans"
+      },
+      "rules": {
+        "heading": "Règles de notification",
+        "description": "Publie une carte dans un salon quand elle correspond à une règle. Chaque règle correspondante publie, une carte peut donc aller dans plusieurs salons, mais chaque salon ne la reçoit qu'une fois.",
+        "add": "Ajouter une règle",
+        "empty": "Aucune règle de notification pour l'instant.",
+        "needsGame": "Choisis une collection avec un jeu pour ajouter des règles de notification.",
+        "postsTo": "Publie dans",
+        "noChannel": "Aucun salon. Modifie la règle pour en choisir un.",
+        "enabled": "Activée",
+        "edit": "Modifier {{name}}",
+        "delete": "Supprimer {{name}}",
+        "saveFailed": "Impossible d'enregistrer les règles de notification.",
+        "limitReached_one": "L'offre gratuite inclut {{count}} règle de notification Discord. Passe à Business pour des règles illimitées.",
+        "limitReached_other": "L'offre gratuite inclut {{count}} règles de notification Discord. Passe à Business pour des règles illimitées.",
+        "upgrade": "Passer à Business",
+        "andPings": "et mentionne"
+      },
+      "ruleDialog": {
+        "addTitle": "Ajouter une règle de notification",
+        "editTitle": "Modifier la règle de notification",
+        "description": "Quand une carte scannée remplit ces conditions, elle est publiée dans ce salon.",
+        "name": "Nom",
+        "channel": "Canal",
+        "channelPlaceholder": "Choisir un salon",
+        "role": "Rôle à mentionner",
+        "roleHint": "Mentionne ce rôle quand une carte correspond. Le bot ne peut pas mentionner les rôles grisés : rends-les mentionnables dans Discord, ou donne au bot la permission \"Mentionner @everyone, @here et tous les rôles\".",
+        "enabled": "Activée",
+        "conditions": "Conditions",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saveFailed": "Impossible d'enregistrer la règle de notification.",
+        "validation": {
+          "nameRequired": "Donne un nom à la règle.",
+          "channelRequired": "Choisis un salon.",
+          "conditionsRequired": "Ajoute au moins une condition."
+        }
+      },
+      "draft": {
+        "saved": "Paramètres Discord enregistrés.",
+        "saveFailed": "Certains paramètres Discord n'ont pas pu être enregistrés. Réessaie."
+      },
+      "channels": {
+        "unknown": "Salon inconnu ({{id}})",
+        "inCategory": "dans {{category}}"
+      },
+      "roles": {
+        "none": "Aucune mention",
+        "unknown": "rôle inconnu ({{id}})",
+        "cantPing": "mention impossible"
+      },
+      "notifications": {
+        "heading": "Notifications Discord",
+        "description": "Les notifications d'erreur et de statut (erreurs de trieuse, bourrages, échecs de synchronisation, erreurs de recherche de carte) sont publiées dans le canal choisi avec /notify-channel sur ton serveur Discord lié.",
+        "notifyToggleLabel": "Notifier à chaque carte scannée",
+        "notifyToggleDescription": "Publie le nom, le prix et l'image de la carte sur Discord à chaque scan.",
+        "threadToggleLabel": "Publier les scans dans un fil",
+        "threadToggleDescription": "Regroupe chaque scan dans un fil \"Card Scans\" pour garder le salon lisible. Désactive pour publier chaque carte directement dans le salon.",
+        "testHintNotLinked": "Lie un serveur Discord ci-dessus et exécute /notify-channel pour activer les notifications de test",
+        "testHintReady": "Envoyer une notification de test",
+        "sending": "Envoi...",
+        "testTypes": {
+          "sorter-error": "Erreur de trieuse",
+          "feeder-empty": "Chargeur vide",
+          "card-jam": "Bourrage de carte",
+          "card-search-error": "Erreur de recherche de carte",
+          "sync-failure": "Échec de synchronisation"
+        }
+      },
+      "toasts": {
+        "saveError": "Échec de l'enregistrement des paramètres de notification.",
+        "saveSuccess": "Paramètres de notification enregistrés.",
+        "testSuccess": "Notification de test envoyée.",
+        "testError": "Échec de l'envoi de la notification de test.",
+        "testNoChannel": {
+          "title": "Aucun salon d'erreurs défini",
+          "description": "Choisis un salon d'erreurs dans Paramètres > Discord, puis réessaie."
+        }
+      },
+      "bot": {
+        "heading": "Bot Discord",
+        "description": "Associe un serveur Discord à cette organisation pour que tout le monde puisse consulter les statistiques des collections et rechercher des cartes avec des commandes slash.",
+        "linked": "Associé à un serveur Discord",
+        "unlink": "Dissocier",
+        "unlinkSuccess": "Serveur Discord dissocié.",
+        "unlinkError": "Échec de la dissociation du serveur Discord.",
+        "generateButton": "Générer un code de liaison",
+        "generating": "Génération...",
+        "generateError": "Échec de la génération du code de liaison.",
+        "codeInstructions": "Exécute /link <code> sur ton serveur Discord pour terminer la liaison.",
+        "expiresIn": "Expire dans {{seconds}}s"
+      },
+      "notificationsHeading": "Publications des scans"
+    },
+    "sounds": {
+      "title": "Sons",
+      "subtitle": "Joue un son quand une carte {{game}} en cours de tri correspond à une règle.",
+      "subtitleNoGame": "Joue un son quand une carte en cours de tri correspond à une règle. Choisis une collection avec un jeu pour ajouter des règles.",
+      "library": {
+        "heading": "Clips sonores",
+        "description": "Importe des clips courts (MP3, WAV, OGG, WebM, M4A ou AAC, 1 Mo maximum) à utiliser dans tes règles.",
+        "upload": "Importer un clip",
+        "uploading": "Import en cours...",
+        "uploaded": "Clip sonore importé.",
+        "uploadFailed": "Impossible d'importer le clip sonore.",
+        "deleteFailed": "Impossible de supprimer le clip sonore.",
+        "wrongType": "Utilise un fichier MP3, WAV, OGG, WebM, M4A ou AAC.",
+        "tooLarge": "Les clips sonores ne peuvent pas dépasser 1 Mo.",
+        "empty": "Aucun clip sonore pour l'instant.",
+        "untitled": "Clip sans titre",
+        "size": "{{kb}} Ko",
+        "play": "Écouter {{name}}",
+        "delete": "Supprimer {{name}}",
+        "rename": "Renommer {{name}}",
+        "nameLabel": "Nom du clip",
+        "saveName": "Enregistrer le nom",
+        "cancelRename": "Annuler",
+        "renameFailed": "Impossible de renommer le clip sonore.",
+        "nameRequired": "Donne un nom au clip.",
+        "nameTooLong": "Le nom ne peut pas dépasser 60 caractères.",
+        "stop": "Arrêter {{name}}",
+        "pickFailed": "Impossible d'ouvrir ce fichier.",
+        "renamed": "Extrait sonore renommé.",
+        "deleteConfirm": "Les règles qui jouent cet extrait ne joueront plus de son."
+      },
+      "rules": {
+        "heading": "Règles sonores",
+        "description": "Les règles sont vérifiées de haut en bas pour chaque carte triée, et la première qui correspond joue son son.",
+        "add": "Ajouter une règle",
+        "needsClip": "Importe d'abord un clip sonore, puis ajoute une règle qui le joue.",
+        "empty": "Aucune règle sonore pour l'instant.",
+        "plays": "Joue {{clip}}",
+        "noClip": "Aucun clip sonore (il a été supprimé)",
+        "enabled": "Activée",
+        "moveUp": "Monter",
+        "moveDown": "Descendre",
+        "edit": "Modifier {{name}}",
+        "delete": "Supprimer {{name}}",
+        "saved": "Règles sonores enregistrées.",
+        "saveFailed": "Impossible d'enregistrer les règles sonores.",
+        "limitReached_one": "L'offre gratuite inclut {{count}} règle sonore. Passe à Business pour des règles sonores illimitées.",
+        "limitReached_other": "L'offre gratuite inclut {{count}} règles sonores. Passe à Business pour des règles sonores illimitées.",
+        "upgrade": "Passer à Business",
+        "deleteConfirm": "Cette règle ne jouera plus de son."
+      },
+      "ruleDialog": {
+        "addTitle": "Ajouter une règle sonore",
+        "editTitle": "Modifier la règle sonore",
+        "description": "Quand une carte en cours de tri remplit ces conditions, ce clip est joué.",
+        "name": "Nom",
+        "clip": "Clip sonore",
+        "clipPlaceholder": "Choisis un clip",
+        "enabled": "Activée",
+        "conditions": "Conditions",
+        "cancel": "Annuler",
+        "save": "Enregistrer",
+        "saveFailed": "Impossible d'enregistrer la règle sonore.",
+        "validation": {
+          "nameRequired": "Donne un nom à la règle.",
+          "clipRequired": "Choisis un clip sonore.",
+          "conditionsRequired": "Ajoute au moins une condition."
+        }
+      }
+    }
+  },
+  "binCorrection": {
+    "move": {
+      "title": "Déplacez {{name}} dans le bac {{to}}",
+      "description": "La carte est dans le bac {{from}}, mais après la correction elle va dans le bac {{to}}. Déplacez-la, puis confirmez pour que le compte des bacs reste juste.",
+      "descriptionNoBin": "Après la correction, la carte va dans le bac {{to}}. Placez-la dedans, puis confirmez pour que le compte des bacs reste juste."
+    },
+    "staysIn": {
+      "title": "{{name}} reste dans le bac {{bin}}",
+      "description": "La carte est déjà dans le bon bac, rien à déplacer."
+    },
+    "noBin": {
+      "title": "Aucun bac ne correspond à {{name}}",
+      "description": "Aucun de vos bacs ne prend cette carte, laissez-la où elle est."
+    },
+    "moved": "Déplacée dans le bac {{bin}}",
+    "leave": "La laisser dans le bac {{bin}}",
+    "ok": "OK"
+  },
+  "priceTable": {
+    "heading": "TCGplayer",
+    "cardmarketHeading": "Cardmarket",
+    "cardKingdomHeading": "Card Kingdom",
+    "showDetails": "Afficher le détail des prix",
+    "hideDetails": "Masquer le détail des prix",
+    "cardKingdomRetail": "Prix de vente Card Kingdom",
+    "retail": "Vente",
+    "buylist": "Rachat",
+    "avg": "Moyenne",
+    "trend": "Tendance",
+    "avg7": "Moy. 7 jours",
+    "tcgplayerMarket": "Prix du marché TCGplayer",
+    "cardmarketAvg": "Moyenne Cardmarket",
+    "foilPrice": "Foil {{price}}",
+    "nonFoilPrice": "Non foil {{price}}",
+    "avg30": "Moy. 30 jours",
+    "market": "Marché",
+    "low": "Bas",
+    "mid": "Moyen",
+    "high": "Haut",
+    "regular": "Normale",
+    "foil": "Foil",
+    "noPrice": "n/d",
+    "acrossPrintings": "Fourchette sur {{count}} impressions"
+  },
+  "health": {
+    "title": "État du système",
+    "subtitle": "État en direct de la base de données.",
+    "refresh": "Actualiser",
+    "allHealthy": "Tout fonctionne normalement.",
+    "someUnhealthy": "Certains services rencontrent des problèmes.",
+    "lastChecked": "Dernière vérification à {{time}}",
+    "loading": "Vérification de l’état des services…",
+    "latency": "{{ms}} ms",
+    "statusOk": "OK",
+    "statusError": "Erreur",
+    "pausedDuringSync": "Suspendu pendant une synchronisation de la base de données",
+    "ocrRegions": {
+      "heading": "Zones OCR",
+      "description": "Où le texte est lu sur les cartes de chaque jeu quand l'OCR est activé, affiché sur une carte d'exemple de la base. Les cadres pleins sont lus en premier ; les zones de repli en pointillés ne sont lues que si le premier passage ne trouve pas la carte.",
+      "fallback": "repli",
+      "multiline": "multiligne",
+      "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
+      "anotherCard": "Afficher une autre carte",
+      "sample": "{{name}} · {{set}} #{{number}}"
+    },
+    "cardLookup": {
+      "heading": "Recherche de cartes",
+      "description": "Vérifie si une carte est dans la base de cartes. Recherche par nom, code de set ou numéro de collection (ex. MH3 123).",
+      "game": "Jeu",
+      "language": "Langue",
+      "noGames": "Aucun jeu synchronisé",
+      "searchPlaceholder": "Rechercher des cartes...",
+      "noResults": "Aucune carte trouvée. Elle n'est peut-être pas encore synchronisée.",
+      "loadMore": "Charger plus"
+    },
+    "gameCoverage": {
+      "heading": "Couverture des cartes",
+      "description": "Quels jeux de cartes à collectionner sont pris en charge et combien de cartes se trouvent dans la base de données pour chacun.",
+      "cardCount_one": "{{count}} carte",
+      "cardCount_other": "{{count}} cartes",
+      "lastUpdated": "Mis à jour le {{date}}",
+      "inactive": "Inactive",
+      "empty": "Aucun jeu configuré pour le moment"
+    },
+    "ocrFields": {
+      "name": "Nom",
+      "setLine": "Ligne d'extension",
+      "number": "Numéro"
+    }
+  },
+  "export": {
+    "button": "Exporter",
+    "title": "Exporter {{name}}",
+    "loading": "Chargement des cartes",
+    "combineDuplicates": "Regrouper les doublons",
+    "failed": "Impossible d'exporter les cartes"
+  },
+  "alerts": {
+    "title": "Notifications",
+    "empty": "Tout est à jour.",
+    "learnMore": "En savoir plus",
+    "firmwareMissing": "Le firmware de ton trieur ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan."
+  },
+  "pairing": {
+    "title": "Scanner pour associer",
+    "subtitle": "Utiliser ce téléphone comme caméra du scanner",
+    "hint": "Sur ton ordinateur, ouvre le scanner et choisis Utiliser le téléphone comme caméra, puis vise le code QR avec ce téléphone.",
+    "invalidTitle": "Ce n'est pas un lien de caméra",
+    "invalidDescription": "Scanne le code QR de Utiliser le téléphone comme caméra sur la page du scanner de ton ordinateur.",
+    "paste": "Coller le lien à la place",
+    "linkLabel": "Lien d'association",
+    "connect": "Connecter"
+  },
+  "phoneCamera": {
+    "title": "Utiliser le téléphone comme caméra",
+    "ready": "Caméra prête",
+    "connecting": "Connexion au scanner",
+    "streamingTo": "Prêt pour {{name}}",
+    "switchCamera": "Changer de caméra",
+    "disconnect": "Déconnecter",
+    "sessionEndedTitle": "Session terminée",
+    "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter.",
+    "captured_one": "{{count}} photo envoyée",
+    "captured_other": "{{count}} photos envoyées",
+    "keepOpen": "Garde cet écran ouvert pendant que l'ordinateur scanne."
+  }
+}

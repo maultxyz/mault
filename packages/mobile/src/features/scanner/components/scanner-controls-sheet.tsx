@@ -1,19 +1,35 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Modal, Pressable, View } from "react-native";
+import { ActivityIndicator, Modal, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { SectionHeader } from "@/components/ui/section-header";
+import { SwitchRow } from "@/components/ui/switch-row";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ScannerControlAction, ScannerControlsSheetProps } from "@/lib/interfaces/scanner";
 
-export function ScannerControlsSheet({ visible, running, canScan, onScanNow, onFeedOne, onClose }: ScannerControlsSheetProps) {
+export function ScannerControlsSheet({
+  visible,
+  running,
+  canScan,
+  onScanNow,
+  onFeedOne,
+  autoFeed,
+  onAutoFeedChange,
+  allowDuplicates,
+  onAllowDuplicatesChange,
+  cameras,
+  selectedCameraId,
+  onSelectCamera,
+  onClose,
+}: ScannerControlsSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
@@ -21,6 +37,7 @@ export function ScannerControlsSheet({ visible, running, canScan, onScanNow, onF
   const [busy, setBusy] = useState<ScannerControlAction | null>(null);
   const [failed, setFailed] = useState(false);
   const sorterActionsDisabled = running || !sorter.isReady || busy !== null;
+  const feedDisabled = (running && autoFeed) || !sorter.isReady || busy !== null;
 
   const run = async (action: ScannerControlAction, task: () => Promise<unknown>, closeAfter = false) => {
     setBusy(action);
@@ -66,7 +83,7 @@ export function ScannerControlsSheet({ visible, running, canScan, onScanNow, onF
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
         </View>
-        <View style={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}>
+        <ScrollView style={{ maxHeight: "80%" }} contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}>
           {running ? <Callout tone="info" title={t("scan.controls.pausedHint")} /> : null}
           {failed ? <Callout tone="destructive" title={t("scan.controls.failed")} /> : null}
           <ListGroup>
@@ -85,7 +102,7 @@ export function ScannerControlsSheet({ visible, running, canScan, onScanNow, onF
               icon="play"
               title={t("scan.controls.feed")}
               subtitle={t("scan.controls.feedDescription")}
-              disabled={sorterActionsDisabled || !canScan}
+              disabled={feedDisabled || !canScan}
               right={spinner("feed")}
               onPress={() => void run("feed", onFeedOne, true)}
             />
@@ -120,8 +137,49 @@ export function ScannerControlsSheet({ visible, running, canScan, onScanNow, onF
                 router.push("/sorter");
               }}
             />
+            <ListRow
+              icon="desktop"
+              title={t("scan.options.pairDesktop")}
+              subtitle={t("scan.options.pairDesktopDescription")}
+              disabled={running}
+              onPress={() => {
+                onClose();
+                router.push("/pair-camera");
+              }}
+            />
           </ListGroup>
-        </View>
+          <SectionHeader title={t("scan.options.title")} />
+          <SwitchRow
+            title={t("scan.options.autoFeed")}
+            description={t("scan.options.autoFeedDescription")}
+            value={autoFeed}
+            onValueChange={onAutoFeedChange}
+          />
+          <SwitchRow
+            title={t("scan.options.allowDuplicates")}
+            description={t("scan.options.allowDuplicatesDescription")}
+            value={allowDuplicates}
+            onValueChange={onAllowDuplicatesChange}
+          />
+          {cameras.length > 1 ? (
+            <>
+              <SectionHeader title={t("scan.options.camera")} />
+              <ListGroup>
+                {cameras.map((camera, index) => (
+                  <ListRow
+                    key={camera.id}
+                    icon="camera"
+                    title={camera.localizedName || t("scan.options.cameraFallback", { number: index + 1 })}
+                    subtitle={t(`scan.options.cameraPosition.${camera.position}`, { defaultValue: camera.position })}
+                    selected={camera.id === selectedCameraId}
+                    disabled={running}
+                    onPress={() => onSelectCamera(camera.id)}
+                  />
+                ))}
+              </ListGroup>
+            </>
+          ) : null}
+        </ScrollView>
       </View>
     </Modal>
   );

@@ -171,6 +171,7 @@ export interface CardTileProps {
   flagged?: boolean;
   corrected?: boolean;
   onPress?: () => void;
+  onLongPress?: () => void;
 }
 
 export interface HomeStatTileProps {
@@ -205,6 +206,7 @@ export interface HomeCollectionRowProps {
   subtitle: string;
   value?: string | null;
   isActive: boolean;
+  isLive?: boolean;
   onPress: () => void;
 }
 

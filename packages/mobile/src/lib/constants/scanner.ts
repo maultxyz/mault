@@ -15,6 +15,7 @@ export const RUNNING_PHASES: ScannerPhase[] = ["feeding", "capturing", "identify
 export const CAMERA_ASPECT_RATIO = 3 / 4;
 export const PAUSE_TONES = {
   user: "info",
+  duplicate: "warning",
   "no-match": "info",
   "feeder-empty": "warning",
   "no-card": "warning",

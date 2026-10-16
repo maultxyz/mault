@@ -4,7 +4,18 @@ import IconAlertCircle from "@tabler/icons-react-native/IconAlertCircle";
 import IconAlertTriangle from "@tabler/icons-react-native/IconAlertTriangle";
 import IconArrowDown from "@tabler/icons-react-native/IconArrowDown";
 import IconArrowsSplit2 from "@tabler/icons-react-native/IconArrowsSplit2";
+import IconBell from "@tabler/icons-react-native/IconBell";
+import IconArrowsShuffle from "@tabler/icons-react-native/IconArrowsShuffle";
+import IconLanguage from "@tabler/icons-react-native/IconLanguage";
+import IconHeartbeat from "@tabler/icons-react-native/IconHeartbeat";
+import IconDeviceDesktop from "@tabler/icons-react-native/IconDeviceDesktop";
+import IconDeviceMobile from "@tabler/icons-react-native/IconDeviceMobile";
+import IconArrowUp from "@tabler/icons-react-native/IconArrowUp";
+import IconUpload from "@tabler/icons-react-native/IconUpload";
+import IconPlayerStopFilled from "@tabler/icons-react-native/IconPlayerStopFilled";
+import IconMusic from "@tabler/icons-react-native/IconMusic";
 import IconBluetooth from "@tabler/icons-react-native/IconBluetooth";
+import IconBrandDiscord from "@tabler/icons-react-native/IconBrandDiscord";
 import IconBox from "@tabler/icons-react-native/IconBox";
 import IconBrackets from "@tabler/icons-react-native/IconBrackets";
 import IconBroadcast from "@tabler/icons-react-native/IconBroadcast";
@@ -34,6 +45,8 @@ import IconPlugConnected from "@tabler/icons-react-native/IconPlugConnected";
 import IconPlus from "@tabler/icons-react-native/IconPlus";
 import IconRefresh from "@tabler/icons-react-native/IconRefresh";
 import IconScan from "@tabler/icons-react-native/IconScan";
+import IconArrowsSort from "@tabler/icons-react-native/IconArrowsSort";
+import IconFilter from "@tabler/icons-react-native/IconFilter";
 import IconSearch from "@tabler/icons-react-native/IconSearch";
 import IconShieldCheck from "@tabler/icons-react-native/IconShieldCheck";
 import IconSparkles from "@tabler/icons-react-native/IconSparkles";
@@ -51,7 +64,18 @@ export const ICONS = {
   test: IconTestPipe,
   arrowDown: IconArrowDown,
   back: IconChevronLeft,
+  bell: IconBell,
+  shuffle: IconArrowsShuffle,
+  language: IconLanguage,
+  health: IconHeartbeat,
+  desktop: IconDeviceDesktop,
+  phone: IconDeviceMobile,
+  arrowUp: IconArrowUp,
+  upload: IconUpload,
+  stop: IconPlayerStopFilled,
+  music: IconMusic,
   bluetooth: IconBluetooth,
+  discord: IconBrandDiscord,
   camera: IconCamera,
   check: IconCheck,
   chevron: IconChevronRight,
@@ -77,6 +101,8 @@ export const ICONS = {
   rules: IconArrowsSplit2,
   scan: IconScan,
   search: IconSearch,
+  sort: IconArrowsSort,
+  filter: IconFilter,
   condition: IconShieldCheck,
   sparkles: IconSparkles,
   selfTest: IconChecks,

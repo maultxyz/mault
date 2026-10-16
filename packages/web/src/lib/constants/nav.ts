@@ -56,6 +56,7 @@ export const MOBILE_HOME_PATH = "/app/monitor";
 export const MOBILE_SCAN_PATH = "/app/scan";
 export const MOBILE_SCAN_PAIR_PATH = "/app/scan/pair";
 export const MOBILE_SORTER_PATH = "/app/sorter";
+export const MOBILE_MONITOR_CARD_PARAM = "card";
 export const MOBILE_ACCOUNT_PATH = "/app/me";
 export const MOBILE_ACCOUNT_TAB_PATHS = [
   MOBILE_ACCOUNT_PATH,

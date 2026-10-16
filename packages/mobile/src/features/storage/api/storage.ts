@@ -4,6 +4,7 @@ import type {
   Result,
   StorageLocation,
   StorageLocationCard,
+  StorageLocationExportCard,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
@@ -23,6 +24,16 @@ export const storageLocationCardsQueryOptions = (guid: string) =>
   queryOptions({
     queryKey: ["storage-locations", "cards", guid] as const,
     queryFn: () => apiGet<Result<StorageLocationCard[]>>(`/api/storage-locations/${guid}/cards`).then((r) => r.data ?? []),
+  });
+
+export const storageLocationExportQueryOptions = (guid: string, enabled: boolean) =>
+  queryOptions({
+    queryKey: ["storage-locations", "export", guid] as const,
+    queryFn: () =>
+      apiGet<Result<StorageLocationExportCard[]>>(`/api/storage-locations/${guid}/cards/export`).then(
+        (r) => r.data ?? [],
+      ),
+    enabled,
   });
 
 export const storageSearchQueryOptions = (query: string) =>
