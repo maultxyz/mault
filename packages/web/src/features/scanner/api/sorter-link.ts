@@ -26,6 +26,6 @@ export async function createSorterLink(
   );
 }
 
-export async function deleteSorterLink(deviceGuid: string): Promise<Result> {
-  return apiDelete<Result>(`/api/devices/${deviceGuid}/sorter-link`);
+export async function deleteSorterLink(deviceGuid: string): Promise<Result<null>> {
+  return apiDelete<Result<null>>(`/api/devices/${deviceGuid}/sorter-link`);
 }

@@ -1,5 +1,4 @@
 import type { WrappedStorySlide } from "@/lib/interfaces/cards";
-import type { CardCondition } from "@magic-vault/shared";
 
 export const WRAPPED_SLIDE_DURATION_MS = 5000;
 
