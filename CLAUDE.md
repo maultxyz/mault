@@ -101,6 +101,9 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Sorters connect over BLE only (iOS has no USB serial). Android needs runtime BLE permissions (`ensureBlePermissions`) before any scan. `SorterLink` mirrors `use-serial`'s seq matching, busy guard and route queue; change both together.
 - No in-app account creation: App Store rules would then require in-app account deletion. Org listing goes through the provider-agnostic `/me/organizations`.
 - Repack and auto-assign presets are refused on mobile (they need bin contents / write bin rules).
+- `locales/en.json`, `de.json` and `fr.json` must keep identical keys; add every new string to all three.
+- QR pairing: vision-camera's `ScannedCode` is iOS-only, so Android decodes captured frames with `jsqr` (`use-qr-scanner.ts` picks per platform at module level).
+- CSV export adapters live in `shared/src/card-export`; web downloads the CSV, mobile hands it to `expo-sharing`.
 
 ### Discord bot
 
