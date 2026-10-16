@@ -19,6 +19,16 @@ export interface CardContour {
   bottomLeft: Point;
 }
 
+export type CornerRejectReason = "not_present" | "unusable_quad";
+
+export interface CornerDetection {
+  cardPresent: boolean;
+  confidence: number;
+  sharpness: number | null;
+  contour: CardContour | null;
+  rejectReason?: CornerRejectReason;
+}
+
 export interface ScanRegion {
   coverage: number; // 0-1
   offsetX: number; // -0.5 to 0.5

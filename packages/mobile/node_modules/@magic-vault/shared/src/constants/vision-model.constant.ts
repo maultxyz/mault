@@ -18,3 +18,21 @@ export const CORNER_DETECTOR_INPUT_SIZE = 384;
 export const MILO_INPUT_SIZE = 448;
 export const IMAGENET_MEAN = [0.485, 0.456, 0.406];
 export const IMAGENET_STD = [0.229, 0.224, 0.225];
+export const MTG_CARD_ASPECT_RATIO = 2.5 / 3.5;
+export const DEWARP_OUTPUT_SIZE = 448;
+export const CARD_PRESENCE_THRESHOLD = 0.5;
+export const MIN_USABLE_QUAD_AREA = 0.01;
+export const MIN_CORNER_DISTANCE_SQ = 0.0004;
+export const DEFAULT_MIN_SHARPNESS = 0.02;
+
+export const COLOR_BAR_MIN_SATURATION = 0.35;
+export const COLOR_BAR_MIN_BRIGHTNESS = 64;
+export const COLOR_BAR_MIN_SHARE = 0.12;
+export const COLOR_BAR_HUE_RANGES: Record<string, [number, number][]> = {
+  Red: [
+    [0, 20],
+    [330, 360],
+  ],
+  Yellow: [[35, 70]],
+  Blue: [[180, 260]],
+};
