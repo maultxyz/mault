@@ -114,6 +114,10 @@
           "esp32": {
             "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial - kann später auch direkt aus der App aktualisiert werden, siehe /app nach der Einrichtung"
           },
+          "esp32Breakout": {
+            "part": "ESP32-S3-Breakout-Board (GPIO-Schraubklemmen-Erweiterung)",
+            "notes": "Das ESP32-S3 wird darauf gesteckt, für die Verdrahtung über Schraubklemmen. Nur bei der Montage auf einem Breakout-Board nötig."
+          },
           "pca9685": {
             "part": "Adafruit PCA9685 16-Kanal-12-Bit-PWM-/Servotreiber",
             "notes": "I²C-Servotreiber – steuert alle 10 Servos an"
@@ -122,7 +126,7 @@
             "part": "SG90 Mikroservo, positionierend (180°)",
             "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber"
           },
-          "sg90Continuous": {
+          "mg90sContinuous": {
             "part": "MG90S-Servo, 360° Dauerdrehung",
             "notes": "Zuführung – befördert Karten aus dem Trichter in Modul 1"
           }
@@ -142,7 +146,7 @@
         "title": "Stromversorgung",
         "items": {
           "psu": {
-            "part": "6-V-geregeltes Netzteil, 2 A",
+            "part": "6-V-geregeltes Netzteil, 3 A",
             "notes": "Eigene Servobus-Versorgung an die V+-Klemme des PCA9685 – versorge nicht 10 Servos über die 5V-Onboard-Versorgung des {{board}}-Boards. Hohlstecker 5,5 mm x 2,5 mm, Innenleiter Plus."
           },
           "usbCable": {

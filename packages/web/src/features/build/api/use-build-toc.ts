@@ -2,7 +2,8 @@ import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
 import { useBuildPhases } from "@/features/build/api/use-build-phases";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
 import { phaseAnchorId } from "@/features/build/lib/anchors";
-import { GROUPS } from "@/features/build/lib/bom-parts";
+import { useBuildSetup } from "@/features/build/api/use-build-setup";
+import { visibleBomGroups } from "@/features/build/lib/bom-parts";
 import {
   BUILD_ASSEMBLY_ANCHOR,
   BUILD_PARTS_ANCHOR,
@@ -17,9 +18,12 @@ export function useBuildToc(): BuildTocEntry[] {
   const phases = useBuildPhases();
   const { checked: stepsChecked } = useBuildChecklist();
   const { checked: partsChecked } = usePartsChecklist();
+  const { boardType, mountType } = useBuildSetup();
 
   return useMemo(() => {
-    const partRows = GROUPS.flatMap((group) => group.rows);
+    const partRows = visibleBomGroups(boardType, mountType).flatMap(
+      (group) => group.rows,
+    );
     const phaseEntries: BuildTocEntry[] = phases.map((phase) => ({
       id: phaseAnchorId(phase.key),
       label: phase.title,
@@ -51,5 +55,5 @@ export function useBuildToc(): BuildTocEntry[] {
     return entries.map((entry) =>
       entry.depth === 0 ? { ...entry, number: ++number } : entry,
     );
-  }, [t, phases, stepsChecked, partsChecked]);
+  }, [t, phases, stepsChecked, partsChecked, boardType, mountType]);
 }

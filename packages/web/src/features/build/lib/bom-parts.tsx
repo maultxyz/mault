@@ -4,6 +4,7 @@ import type {
   BoardType,
   BomGroup,
   BomRow,
+  Esp32MountType,
 } from "@/lib/interfaces/build";
 
 export function resolveRowName(row: BomRow, boardType: BoardType): string {
@@ -15,6 +16,18 @@ export function resolveRowBuyUrl(
   boardType: BoardType,
 ): string | undefined {
   return typeof row.buyUrl === "function" ? row.buyUrl(boardType) : row.buyUrl;
+}
+
+export function visibleBomGroups(
+  boardType: BoardType,
+  mountType: Esp32MountType,
+): BomGroup[] {
+  return GROUPS.map((group) => ({
+    ...group,
+    rows: group.rows.filter(
+      (row) => !row.visible || row.visible(boardType, mountType),
+    ),
+  })).filter((group) => group.rows.length > 0);
 }
 
 // The bill of materials content, grouped by category - separate from
@@ -46,6 +59,16 @@ export const GROUPS: BomGroup[] = [
         buyUrl: (boardType) => BOARD_BUY_URLS[boardType],
       },
       {
+        key: "esp32-breakout",
+        qty: () => "1",
+        name: "ESP32-S3 breakout board",
+        part: (t) => t("bom.groups.electronics.items.esp32Breakout.part"),
+        notes: (t) => t("bom.groups.electronics.items.esp32Breakout.notes"),
+        buyUrl: "https://amzn.to/3VRVQQn",
+        visible: (boardType, mountType) =>
+          boardType === "esp32" && mountType === "breakout",
+      },
+      {
         key: "pca9685",
         qty: () => "1",
         name: "Adafruit PCA9685",
@@ -65,11 +88,11 @@ export const GROUPS: BomGroup[] = [
         buyUrl: "https://amzn.to/3VKQne1",
       },
       {
-        key: "sg90-continuous",
+        key: "mg90s-continuous",
         qty: () => "1",
         name: "MG90S servo, 360° continuous rotation",
-        part: (t) => t("bom.groups.electronics.items.sg90Continuous.part"),
-        notes: (t) => t("bom.groups.electronics.items.sg90Continuous.notes"),
+        part: (t) => t("bom.groups.electronics.items.mg90sContinuous.part"),
+        notes: (t) => t("bom.groups.electronics.items.mg90sContinuous.notes"),
         buyUrl: "https://amzn.to/4dyAkpZ",
       },
     ],
@@ -101,13 +124,13 @@ export const GROUPS: BomGroup[] = [
       {
         key: "psu",
         qty: () => "1",
-        name: "6V Power Supply",
+        name: "6V 3A Power Supply",
         part: (t) => t("bom.groups.power.items.psu.part"),
         notes: (t, _, boardType) =>
           t("bom.groups.power.items.psu.notes", {
             board: BOARD_INFO[boardType].shortName,
           }),
-        buyUrl: "https://www.amazon.com/dp/B0B2DZJQCR",
+        buyUrl: "https://amzn.to/4zB87XR",
       },
       {
         key: "usb-cable",

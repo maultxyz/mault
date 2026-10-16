@@ -12,7 +12,7 @@ import { BomGroupTable } from "@/features/build/components/bom-group-table";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
-import { GROUPS } from "@/features/build/lib/bom-parts";
+import { visibleBomGroups } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";
 import { IconPackage, IconShoppingCart } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
@@ -20,7 +20,7 @@ import { Trans, useTranslation } from "react-i18next";
 
 export function BuildBom() {
   const { t } = useTranslation("build");
-  const { moduleCount, boardType, usingKit } = useBuildSetup();
+  const { moduleCount, boardType, mountType, usingKit } = useBuildSetup();
   const { checked, toggle } = usePartsChecklist();
   const [openSections, setOpenSections] = useState<string[]>(["parts"]);
 
@@ -36,7 +36,11 @@ export function BuildBom() {
     );
   }, [hash]);
 
-  const allRows = useMemo(() => GROUPS.flatMap((g) => g.rows), []);
+  const groups = useMemo(
+    () => visibleBomGroups(boardType, mountType),
+    [boardType, mountType],
+  );
+  const allRows = useMemo(() => groups.flatMap((g) => g.rows), [groups]);
   const doneCount = allRows.filter((r) => checked[r.key]).length;
   const pct = allRows.length
     ? Math.round((doneCount / allRows.length) * 100)
@@ -120,7 +124,7 @@ export function BuildBom() {
           </AccordionTrigger>
           <AccordionContent className="pb-0">
             <div className="flex flex-col gap-5">
-              {GROUPS.map((group) => (
+              {groups.map((group) => (
                 <BomGroupTable
                   key={group.key}
                   group={group}

@@ -114,6 +114,10 @@
           "esp32": {
             "notes": "Exécute <code>{{path}}</code> ; connexion USB à l'ordinateur hôte pour le Web Serial - peut aussi être mis à jour directement depuis l'app ensuite, voir /app une fois configuré"
           },
+          "esp32Breakout": {
+            "part": "Carte d'extension ESP32-S3 (borniers à vis GPIO)",
+            "notes": "L'ESP32-S3 s'enfiche dessus pour un câblage par borniers à vis. Uniquement nécessaire avec l'option de montage sur carte d'extension."
+          },
           "pca9685": {
             "part": "Adafruit PCA9685, driver PWM/servo 16 canaux 12 bits",
             "notes": "Driver de servo I²C - pilote les 10 servos"
@@ -122,7 +126,7 @@
             "part": "Micro servo SG90, positionnel (180°)",
             "notes": "3 par module × {{count}} modules - trappe inférieure, porte à palette, poussoir"
           },
-          "sg90Continuous": {
+          "mg90sContinuous": {
             "part": "Servo MG90S, rotation continue 360°",
             "notes": "Chargeur - fait sortir les cartes de la trémie vers le module 1"
           }
@@ -142,7 +146,7 @@
         "title": "Alimentation",
         "items": {
           "psu": {
-            "part": "Alimentation régulée 6V, 2A",
+            "part": "Alimentation régulée 6V, 3A",
             "notes": "Alimentation dédiée au bus des servos vers la borne V+ du PCA9685 - ne pas alimenter 10 servos depuis le 5V embarqué de la carte {{board}}. Prise jack 5,5 mm x 2,5 mm, positif au centre."
           },
           "usbCable": {
