@@ -1,14 +1,11 @@
 import {
   MOBILE_LIST_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
-  MOBILE_HEADER_SEARCH_CLASS,
   MOBILE_SECTION_CLASS,
   MOBILE_SECTION_LABEL_CLASS,
 } from "@/lib/constants/nav";
-import { MobileSearchInput } from "@/components/mobile-search-input";
 import { cn } from "@/lib/utils";
 import { EmptyState } from "@/components/empty-state";
-import { MobilePageHeader } from "@/components/mobile-page-header";
 import { getInitials, InitialsAvatar } from "@/components/ui/initials-avatar";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,12 +17,8 @@ import {
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { useAuthSession } from "@/lib/auth";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
-import {
-  MobileHomeHero,
-  MobileHomeOverview,
-} from "@/features/collections/components/mobile-home-overview";
+import { MobileHome } from "@/features/collections/components/mobile-home";
 import type { Collection } from "@magic-vault/shared";
 import {
   IconChevronRight,
@@ -134,11 +127,9 @@ export default function MonitorSessionsPage() {
   const isMobile = useIsMobile();
 
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: session } = useAuthSession();
-  const firstName = session?.user?.name?.trim().split(/\s+/)[0];
   const { data: overview } = useQuery({
     ...orgOverviewQueryOptions(activeOrg?.id),
-    enabled: isMobile && !!activeOrg,
+    enabled: !isMobile && !!activeOrg,
   });
   const { format } = usePriceSource();
   const listClass = isMobile
@@ -238,29 +229,10 @@ export default function MonitorSessionsPage() {
     );
   };
 
+  if (isMobile) return <MobileHome />;
+
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      {isMobile && (
-        <MobilePageHeader
-          variant="brand"
-          title={
-            firstName
-              ? t("home.greeting", { name: firstName })
-              : t("home.greetingNoName")
-          }
-          subtitle={activeOrg?.name}
-        >
-          <MobileHomeHero orgId={activeOrg?.id} />
-          {!isLoading && sorted.length > 0 && (
-            <MobileSearchInput
-              placeholder={t("monitorSessions.searchPlaceholder")}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={MOBILE_HEADER_SEARCH_CLASS}
-            />
-          )}
-        </MobilePageHeader>
-      )}
       <div
         className={cn(
           "flex-1 min-h-0 overflow-y-auto",
@@ -286,10 +258,6 @@ export default function MonitorSessionsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          )}
-
-          {isMobile && !searchQuery.trim() && (
-            <MobileHomeOverview orgId={activeOrg?.id} />
           )}
 
           <div className="flex flex-col gap-5">

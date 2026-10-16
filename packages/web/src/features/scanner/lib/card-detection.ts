@@ -3,35 +3,7 @@ import {
   SCAN_REGION_MASK_FILL,
   SCAN_REGION_MASK_STROKE,
 } from "@/lib/constants/scanner";
-import {
-  DEFAULT_SCAN_REGION,
-  type CardContour,
-  type DetectionResult,
-  type ScanRegion,
-} from "@magic-vault/shared";
-
-export function getDefaultCardContour(
-  width: number,
-  height: number,
-  region: ScanRegion = DEFAULT_SCAN_REGION,
-): CardContour {
-  const cardAspect = width >= height ? 1 / MTG_ASPECT_RATIO : MTG_ASPECT_RATIO;
-  let boxH = height * region.coverage;
-  let boxW = boxH * cardAspect;
-  if (boxW > width * region.coverage) {
-    boxW = width * region.coverage;
-    boxH = boxW / cardAspect;
-  }
-  const left = (width - boxW) / 2 + region.offsetX * width;
-  const top = (height - boxH) / 2 + region.offsetY * height;
-
-  return {
-    topLeft: { x: left, y: top },
-    topRight: { x: left + boxW, y: top },
-    bottomRight: { x: left + boxW, y: top + boxH },
-    bottomLeft: { x: left, y: top + boxH },
-  };
-}
+import type { CardContour, DetectionResult } from "@magic-vault/shared";
 
 export function extractCardImage(
   sourceCanvas: HTMLCanvasElement,

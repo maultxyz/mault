@@ -8,7 +8,11 @@ import { StatsControls } from "@/features/stats/components/stats-controls";
 import { StatsDashboard } from "@/features/stats/components/stats-dashboard";
 import { StatsLeaderboardButton } from "@/features/stats/components/stats-leaderboard";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_HOME_PATH,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
+import { useBackNavigation } from "@/hooks/use-back-navigation";
 import {
   STATS_COLLECTION_PARAM,
   STATS_RANGE_PARAM,
@@ -33,6 +37,7 @@ function parseRange(value: string | null): StatsRange {
 export default function StatsPage() {
   const { t } = useTranslation("stats");
   const isMobile = useIsMobile();
+  const goBack = useBackNavigation(MOBILE_HOME_PATH);
   const { activeOrg } = useOrg();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [params, setParams] = useSearchParams();
@@ -102,6 +107,7 @@ export default function StatsPage() {
         <MobilePageHeader
           title={t("title")}
           subtitle={t("subtitle")}
+          onBack={goBack}
           actions={<StatsLeaderboardButton iconOnly />}
         />
       )}

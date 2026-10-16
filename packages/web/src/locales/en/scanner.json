@@ -641,7 +641,15 @@
     "today": "Today",
     "mostValuable": "Most valuable",
     "recentlyScanned": "Recently scanned",
-    "seeAllStats": "See all stats"
+    "seeAllStats": "See all stats",
+    "actions": {
+      "scan": "Scan",
+      "newCollection": "New",
+      "sorter": "Sorter",
+      "stats": "Stats"
+    },
+    "alerts": "Alerts",
+    "activeCollection": "Active"
   },
   "resetToNeutral": {
     "done": "Sorter reset to neutral",
@@ -663,5 +671,58 @@
       "title": "A queued scan couldn't be saved",
       "description": "The server refused a scan that was waiting to be saved. Check the collection for the missing card."
     }
+  },
+  "mobileScan": {
+    "chooseCollection": "Choose a collection",
+    "options": "Scan options",
+    "autoFeed": "Auto-feed",
+    "autoFeedDescription": "Feed the next card as soon as one is sorted",
+    "allowDuplicates": "Allow duplicates",
+    "allowDuplicatesDescription": "Save the same printing more than once",
+    "camera": "Camera",
+    "cameraFallback": "Camera {{number}}",
+    "sorter": "Sorter",
+    "pairDesktop": "Use as a desktop camera",
+    "pairDesktopDescription": "Scan the QR code shown on your computer",
+    "phase": {
+      "ready": "Ready",
+      "scanning": "Scanning",
+      "error": "Error"
+    },
+    "sorterState": {
+      "notConnected": "Sorter not connected",
+      "blocked": "Card in the way",
+      "testing": "Testing sorter",
+      "ready": "Sorter ready"
+    },
+    "cameraOff": "Camera is off",
+    "cameraOffDescription": "Allow camera access to start scanning.",
+    "startCamera": "Start camera",
+    "retry": "Retry",
+    "noSorterTitle": "No sorter connected",
+    "noSorterDescription": "Connect your sorter to sort cards, or tap the shutter to scan one card.",
+    "connect": "Connect",
+    "bin": "Bin {{number}}",
+    "pause": "Pause scanning",
+    "start": "Start scanning",
+    "scanOnce": "Scan a card"
+  },
+  "mobileSorter": {
+    "title": "Sorter",
+    "subtitle": "Connect and check your sorter",
+    "firmware": "Firmware {{version}}",
+    "transport": {
+      "serial": "USB",
+      "bluetooth": "Bluetooth"
+    },
+    "connectHint": "Turn on your sorter, then connect to it.",
+    "connectBluetooth": "Connect over Bluetooth",
+    "connectUsb": "Connect over USB",
+    "unsupported": "This browser can't connect to a sorter. Use Chrome on Android.",
+    "actions": "Actions",
+    "selfTest": "Run self-test",
+    "selfTestDescription": "Checks the sensors and moves every servo",
+    "disconnect": "Disconnect",
+    "calibrateOnDesktop": "Calibration and sorting rules are set up on a computer."
   }
 }

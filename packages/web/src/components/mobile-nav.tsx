@@ -1,41 +1,34 @@
-import { AlertTrayTrigger } from "@/components/alert-tray-trigger";
-import { MobileMoreSheet } from "@/components/mobile-more-sheet";
 import {
-  MOBILE_MORE_PATHS,
+  MOBILE_ACCOUNT_PATH,
+  MOBILE_ACCOUNT_TAB_PATHS,
+  MOBILE_HOME_PATH,
   MOBILE_NAV_TAB_ACTIVE_CLASS,
-  MOBILE_SCAN_PATH,
   MOBILE_NAV_TAB_CLASS,
+  MOBILE_SCAN_PATH,
+  MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { STORAGE_PATH } from "@/lib/constants/storage";
 import type {
-  MobileNavButtonProps,
   MobileNavTabIconProps,
   MobileNavTabProps,
 } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import {
-  IconBell,
-  IconHeartRateMonitor,
-  IconMenu2,
+  IconBox,
+  IconHome,
   IconScan,
-  IconSettings,
+  IconUserCircle,
 } from "@tabler/icons-react";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 
-function TabIcon({ icon, dot, count }: MobileNavTabIconProps) {
+function TabIcon({ icon, dot }: MobileNavTabIconProps) {
   return (
     <span className="relative flex h-6 w-8 items-center justify-center">
       {icon}
       {dot && (
         <span className="absolute top-0 right-1.5 size-2.5 rounded-full bg-success ring-2 ring-background" />
-      )}
-      {!!count && (
-        <span className="absolute -top-1 right-0 min-w-4 rounded-full bg-destructive-strong px-1 text-2xs leading-4 font-semibold text-white ring-2 ring-background">
-          {count > 9 ? "9+" : count}
-        </span>
       )}
     </span>
   );
@@ -57,34 +50,9 @@ function MobileNavTab({ to, icon, label, active, badge }: MobileNavTabProps) {
   );
 }
 
-function MobileNavButton({
-  icon,
-  label,
-  active = false,
-  badgeCount,
-  className,
-  ...props
-}: MobileNavButtonProps) {
-  return (
-    <button
-      type="button"
-      className={cn(
-        MOBILE_NAV_TAB_CLASS,
-        active ? MOBILE_NAV_TAB_ACTIVE_CLASS : "text-foreground/70",
-        className,
-      )}
-      {...props}
-    >
-      <TabIcon icon={icon} count={badgeCount} />
-      {label}
-    </button>
-  );
-}
-
 export function MobileNav() {
   const { t } = useTranslation("common");
   const { pathname } = useLocation();
-  const [moreOpen, setMoreOpen] = useState(false);
   const { locks, currentUserId } = useCollectionLocks();
   const liveCounts = useLiveSessionCounts();
 
@@ -94,48 +62,39 @@ export function MobileNav() {
       ([guid, count]) => locks[guid]?.userId === currentUserId && count > 0,
     )
   );
-  const moreActive =
-    moreOpen || MOBILE_MORE_PATHS.some((path) => pathname.startsWith(path));
 
   return (
-    <nav className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)]">
+    <nav className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-background pb-[env(safe-area-inset-bottom)]">
       <MobileNavTab
-        to="/app/monitor"
-        icon={<IconHeartRateMonitor size={20} />}
-        label={t("nav.monitor")}
-        active={pathname.startsWith("/app/monitor")}
+        to={MOBILE_HOME_PATH}
+        icon={<IconHome size={22} />}
+        label={t("mobileTabs.home")}
+        active={pathname.startsWith(MOBILE_HOME_PATH)}
         badge={hasLiveSessions}
       />
       <MobileNavTab
         to={MOBILE_SCAN_PATH}
-        icon={<IconScan size={20} />}
-        label={t("nav.scan")}
-        active={pathname.startsWith(MOBILE_SCAN_PATH)}
+        icon={<IconScan size={22} />}
+        label={t("mobileTabs.scan")}
+        active={
+          pathname.startsWith(MOBILE_SCAN_PATH) ||
+          pathname.startsWith(MOBILE_SORTER_PATH)
+        }
       />
       <MobileNavTab
-        to={SETTINGS_PATHS.root}
-        icon={<IconSettings size={20} />}
-        label={t("nav.settings")}
-        active={pathname.startsWith(SETTINGS_PATHS.root)}
+        to={STORAGE_PATH}
+        icon={<IconBox size={22} />}
+        label={t("mobileTabs.storage")}
+        active={pathname.startsWith(STORAGE_PATH)}
       />
-      <AlertTrayTrigger
-        side="top"
-        align="center"
-        trigger={(count) => (
-          <MobileNavButton
-            icon={<IconBell size={20} />}
-            label={t("nav.alerts")}
-            badgeCount={count}
-          />
+      <MobileNavTab
+        to={MOBILE_ACCOUNT_PATH}
+        icon={<IconUserCircle size={22} />}
+        label={t("mobileTabs.account")}
+        active={MOBILE_ACCOUNT_TAB_PATHS.some((path) =>
+          pathname.startsWith(path),
         )}
       />
-      <MobileNavButton
-        icon={<IconMenu2 size={20} />}
-        label={t("nav.more")}
-        active={moreActive}
-        onClick={() => setMoreOpen(true)}
-      />
-      <MobileMoreSheet open={moreOpen} onOpenChange={setMoreOpen} />
     </nav>
   );
 }

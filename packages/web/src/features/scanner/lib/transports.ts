@@ -7,7 +7,7 @@ import {
   NUS_RX_CHARACTERISTIC_UUID,
   NUS_SERVICE_UUID,
   NUS_TX_CHARACTERISTIC_UUID,
-} from "@/lib/constants/bluetooth";
+} from "@magic-vault/shared";
 import type {
   SerialTransportType,
   ByteTransport,

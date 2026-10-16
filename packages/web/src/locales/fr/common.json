@@ -216,5 +216,11 @@
   },
   "firmwareGate": {
     "requires": "Nécessite le firmware {{version}} ou plus récent. Mets à jour le firmware de ton trieur pour l'utiliser."
+  },
+  "mobileTabs": {
+    "home": "Accueil",
+    "scan": "Scanner",
+    "storage": "Rangement",
+    "account": "Compte"
   }
 }

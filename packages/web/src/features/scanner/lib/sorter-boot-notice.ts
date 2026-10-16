@@ -1,4 +1,4 @@
-import { SERIAL_BOOT_MATCH_TOLERANCE_MS } from "@/lib/constants/firmware";
+import { SERIAL_BOOT_MATCH_TOLERANCE_MS } from "@magic-vault/shared";
 import { SORTER_BOOT_NOTICES_STORAGE_KEY } from "@/lib/constants/storage-keys";
 
 export function claimBootNotice(hardwareId: string, uptimeMs: number): boolean {

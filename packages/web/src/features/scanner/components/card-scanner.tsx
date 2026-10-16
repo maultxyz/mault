@@ -28,7 +28,10 @@ import {
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
-import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
+import type {
+  CardScannerComponentProps,
+  ScannerLastScan,
+} from "@/lib/interfaces/scanner";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
@@ -48,6 +51,7 @@ export function CardScanner({
   compact,
   controlsPosition = "bottom",
   controlsContainer,
+  renderChrome,
 }: CardScannerComponentProps) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
@@ -117,6 +121,7 @@ export function CardScanner({
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const { recordScanOutcome } = useUnmatchedRateToast();
+  const [lastScan, setLastScan] = useState<ScannerLastScan | null>(null);
   useOnnxRuntimeFailureToast();
   const {
     status,
@@ -148,6 +153,7 @@ export function CardScanner({
     onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
       if (cards.length > 0) {
         recordScanOutcome(true);
+        setLastScan({ card: cards[0], imageUrl: capturedImageUrl, at: Date.now() });
         addCard(
           cards[0],
           capturedImageUrl,
@@ -159,6 +165,7 @@ export function CardScanner({
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
       recordScanOutcome(false);
+      setLastScan({ card: null, imageUrl: capturedImageUrl, at: Date.now() });
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
     rotated: !isMobile,
@@ -497,6 +504,108 @@ export function CardScanner({
     />
   );
 
+  const dialogs = (
+    <>
+      <PhoneCameraPairingDialog
+        open={phoneDialogOpen}
+        onOpenChange={handlePhoneDialogOpenChange}
+        status={phonePairingStatus}
+        pairingUrl={phonePairingUrl}
+        onRetry={startPhonePairing}
+        onDisconnect={() => {
+          stopPhonePairing();
+          setPhoneDialogOpen(false);
+        }}
+      />
+      <EmptyBinToLocationDialog
+        binNumber={binLimitReached?.binNumber ?? null}
+        title={t("binLimitDialog.title", {
+          number: binLimitReached?.binNumber,
+        })}
+        description={t("binLimitDialog.description", {
+          number: binLimitReached?.binNumber,
+          limit: binLimitCapacity,
+        })}
+        dismissLabel={t("binLimitDialog.notNow")}
+        preferLocation={!!selectedSet?.isChaosMode}
+        collectionGuid={activeCollection?.guid}
+        onOpenChange={(open) => {
+          if (!open) dismissBinLimit();
+        }}
+        onConfirm={handleContinueAfterBinLimit}
+      />
+      <EmptyBinToLocationDialog
+        binNumber={fullBins?.[0] ?? null}
+        description={
+          selectedSet?.isRepackMode
+            ? t("repackCompleteDialog.description", { bin: fullBins?.[0] })
+            : undefined
+        }
+        step={
+          fullBins
+            ? {
+                index: fullBinCount - fullBins.length + 1,
+                total: fullBinCount,
+              }
+            : undefined
+        }
+        collectionGuid={activeCollection?.guid}
+        onOpenChange={(open) => {
+          if (!open) dismissFullBins();
+        }}
+        onConfirm={handleEmptyNextFullBin}
+      />
+      <StaleDeviceDialog
+        open={staleDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) onDismissStaleDialog();
+        }}
+        onRunTest={onRunTest}
+        onCalibrateFirst={onCalibrateFirst}
+      />
+    </>
+  );
+
+  if (renderChrome) {
+    return (
+      <div className={cn("relative isolate overflow-hidden bg-black", className)}>
+        <video ref={videoRef} className="hidden" playsInline muted />
+        <canvas ref={displayCanvasRef} className="absolute" />
+        <canvas
+          ref={overlayCanvasRef}
+          className="absolute z-20 pointer-events-none"
+        />
+        {renderChrome({
+          status,
+          errorMessage,
+          isCameraActive,
+          isConnected,
+          isReady,
+          sensorBlockedModule,
+          firmwareVersion,
+          hasCatchAll,
+          autoFeed,
+          allowDuplicates,
+          isAtScanLimit,
+          bluetoothSupported,
+          cameras,
+          selectedCameraId,
+          lastScan,
+          onPause: pause,
+          onResume: () => void handleResumeScanning(),
+          onScanOnce: () => void handleForceScanClick(),
+          onRetry: handleRetryError,
+          onConnectBluetooth: connectBluetooth,
+          onResolveSensorBlocked: reopenSensorBlockedToast,
+          onSelectCamera: selectCamera,
+          onAutoFeedChange: setAutoFeed,
+          onAllowDuplicatesChange: setAllowDuplicates,
+        })}
+        {dialogs}
+      </div>
+    );
+  }
+
   return (
     <div
       className={cn(
@@ -603,63 +712,7 @@ export function CardScanner({
       {isCameraActive &&
         controlsContainer &&
         createPortal(scannerControls, controlsContainer)}
-      <PhoneCameraPairingDialog
-        open={phoneDialogOpen}
-        onOpenChange={handlePhoneDialogOpenChange}
-        status={phonePairingStatus}
-        pairingUrl={phonePairingUrl}
-        onRetry={startPhonePairing}
-        onDisconnect={() => {
-          stopPhonePairing();
-          setPhoneDialogOpen(false);
-        }}
-      />
-      <EmptyBinToLocationDialog
-        binNumber={binLimitReached?.binNumber ?? null}
-        title={t("binLimitDialog.title", {
-          number: binLimitReached?.binNumber,
-        })}
-        description={t("binLimitDialog.description", {
-          number: binLimitReached?.binNumber,
-          limit: binLimitCapacity,
-        })}
-        dismissLabel={t("binLimitDialog.notNow")}
-        preferLocation={!!selectedSet?.isChaosMode}
-        collectionGuid={activeCollection?.guid}
-        onOpenChange={(open) => {
-          if (!open) dismissBinLimit();
-        }}
-        onConfirm={handleContinueAfterBinLimit}
-      />
-      <EmptyBinToLocationDialog
-        binNumber={fullBins?.[0] ?? null}
-        description={
-          selectedSet?.isRepackMode
-            ? t("repackCompleteDialog.description", { bin: fullBins?.[0] })
-            : undefined
-        }
-        step={
-          fullBins
-            ? {
-                index: fullBinCount - fullBins.length + 1,
-                total: fullBinCount,
-              }
-            : undefined
-        }
-        collectionGuid={activeCollection?.guid}
-        onOpenChange={(open) => {
-          if (!open) dismissFullBins();
-        }}
-        onConfirm={handleEmptyNextFullBin}
-      />
-      <StaleDeviceDialog
-        open={staleDialogOpen}
-        onOpenChange={(open) => {
-          if (!open) onDismissStaleDialog();
-        }}
-        onRunTest={onRunTest}
-        onCalibrateFirst={onCalibrateFirst}
-      />
+      {dialogs}
     </div>
   );
 }

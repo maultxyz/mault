@@ -216,5 +216,11 @@
   },
   "firmwareGate": {
     "requires": "Benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware deines Sortierers, um das zu nutzen."
+  },
+  "mobileTabs": {
+    "home": "Start",
+    "scan": "Scannen",
+    "storage": "Lager",
+    "account": "Konto"
   }
 }

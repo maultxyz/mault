@@ -21,6 +21,7 @@ import { devicesRouter } from "./routes/devices";
 import { gamesRouter } from "./routes/games";
 import { impersonationRouter } from "./routes/impersonation";
 import { localAuthRouter } from "./routes/local-auth";
+import { meRouter } from "./routes/me";
 import { notificationsRouter } from "./routes/notifications";
 import { orgSettingsRouter } from "./routes/org-settings";
 import { publicRouter } from "./routes/public";
@@ -64,6 +65,7 @@ if (process.env.AUTH_PROVIDER === "local") {
 }
 
 app.route("/bot", botRouter);
+app.route("/me", meRouter);
 app.route("/cards", cardRouter);
 app.route("/bins", sortBinsRouter);
 app.route("/collections", collectionsRouter);

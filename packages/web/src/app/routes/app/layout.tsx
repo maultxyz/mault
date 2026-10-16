@@ -19,7 +19,7 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { DONATE_URL } from "@/lib/constants/links";
 import {
-  MOBILE_BRAND_SHELL_PATTERN,
+  MOBILE_IMMERSIVE_PATTERN,
   MOBILE_NAV_HIDDEN_PATTERN,
   MOBILE_NAV_SPACE_CLASS,
 } from "@/lib/constants/nav";
@@ -41,8 +41,8 @@ export default function AppLayout() {
         <div
           className={cn(
             "relative h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
-            MOBILE_BRAND_SHELL_PATTERN.test(pathname) && !hideMobileNav
-              ? "bg-primary"
+            MOBILE_IMMERSIVE_PATTERN.test(pathname)
+              ? "bg-black"
               : "bg-background",
             !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
           )}

@@ -46,39 +46,51 @@ export interface MobileNavTabProps {
 export interface MobileNavTabIconProps {
   icon: ReactNode;
   dot?: boolean;
-  count?: number;
-}
-
-export interface MobileNavButtonProps extends ComponentProps<"button"> {
-  icon: ReactNode;
-  label: string;
-  active?: boolean;
-  badgeCount?: number;
-}
-
-export interface MobileMoreSheetProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
-
-export interface MobileMenuRowProps {
-  icon: ReactNode;
-  label: string;
-  value?: string;
-  external?: boolean;
-  onClick: () => void;
 }
 
 export interface MobilePageHeaderProps {
-  title: string;
+  title: ReactNode;
   subtitle?: string;
+  subtitleLeading?: ReactNode;
   backTo?: string;
+  onBack?: () => void;
   actions?: ReactNode;
   children?: ReactNode;
-  variant?: MobilePageHeaderVariant;
 }
 
-export type MobilePageHeaderVariant = "brand" | "plain";
+export interface MobileQuickActionProps extends ComponentProps<"button"> {
+  icon: ReactNode;
+  label: string;
+  to?: string;
+}
+
+export interface MobileIconBadgeProps {
+  children: ReactNode;
+  tone?: "neutral" | "primary" | "destructive" | "warning" | "success";
+  className?: string;
+}
+
+export interface MobileSectionProps {
+  title?: string;
+  action?: ReactNode;
+  children: ReactNode;
+  className?: string;
+}
+
+export interface MobileListRowProps {
+  icon?: ReactNode;
+  leading?: ReactNode;
+  label: string;
+  description?: string;
+  value?: ReactNode;
+  trailing?: ReactNode;
+  to?: string;
+  href?: string;
+  onClick?: () => void;
+  destructive?: boolean;
+  selected?: boolean;
+  disabled?: boolean;
+}
 
 export interface AppVersionResponse {
   success: boolean;

@@ -19,10 +19,8 @@ import {
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
-import {
-  drawDetectionOverlay,
-  getDefaultCardContour,
-} from "@/features/scanner/lib/card-detection";
+import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
+import { getDefaultCardContour } from "@magic-vault/shared";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import {
   getOnnxRuntimeFailure,

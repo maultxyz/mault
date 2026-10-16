@@ -2,7 +2,7 @@ import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
 import { useSerialMessage } from "@/features/scanner/api/use-serial";
-import { isFedEvent } from "@/features/scanner/lib/serial-messages";
+import { isFedEvent } from "@magic-vault/shared";
 import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";

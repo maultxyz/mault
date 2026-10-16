@@ -1,0 +1,11 @@
+export const CARD_THUMB_WIDTH = 44;
+export const CARD_THUMB_HEIGHT = Math.round((CARD_THUMB_WIDTH * 3.5) / 2.5);
+export const SEARCH_DEBOUNCE_MS = 300;
+export const LIST_END_THRESHOLD = 0.5;
+export const CARD_GRID_COLUMNS = 3;
+export const CARD_ASPECT_RATIO = 2.5 / 3.5;
+export const HOME_STRIP_CARD_WIDTH = 96;
+export const ACTIVITY_CHART_HEIGHT = 96;
+export const CARD_GRID_GAP_X = 12;
+export const CARD_GRID_GAP_Y = 20;
+export const CARD_GRID_GUTTER = 16;

@@ -641,7 +641,15 @@
     "today": "Aujourd'hui",
     "mostValuable": "Les plus chères",
     "recentlyScanned": "Scannées récemment",
-    "seeAllStats": "Toutes les statistiques"
+    "seeAllStats": "Toutes les statistiques",
+    "actions": {
+      "scan": "Scanner",
+      "newCollection": "Nouvelle",
+      "sorter": "Trieuse",
+      "stats": "Stats"
+    },
+    "alerts": "Alertes",
+    "activeCollection": "Active"
   },
   "resetToNeutral": {
     "done": "Trieuse remise en position neutre",
@@ -663,5 +671,58 @@
       "title": "Un scan en attente n'a pas pu être enregistré",
       "description": "Le serveur a refusé un scan en attente d'enregistrement. Vérifiez qu'il ne manque pas de carte dans la collection."
     }
+  },
+  "mobileScan": {
+    "chooseCollection": "Choisir une collection",
+    "options": "Options de scan",
+    "autoFeed": "Alimentation auto",
+    "autoFeedDescription": "Charger la carte suivante dès qu'une carte est triée",
+    "allowDuplicates": "Autoriser les doublons",
+    "allowDuplicatesDescription": "Enregistrer la même impression plusieurs fois",
+    "camera": "Caméra",
+    "cameraFallback": "Caméra {{number}}",
+    "sorter": "Trieuse",
+    "pairDesktop": "Utiliser comme caméra d'ordinateur",
+    "pairDesktopDescription": "Scannez le code QR affiché sur votre ordinateur",
+    "phase": {
+      "ready": "Prêt",
+      "scanning": "Scan en cours",
+      "error": "Erreur"
+    },
+    "sorterState": {
+      "notConnected": "Trieuse non connectée",
+      "blocked": "Carte bloquée",
+      "testing": "Test de la trieuse",
+      "ready": "Trieuse prête"
+    },
+    "cameraOff": "Caméra désactivée",
+    "cameraOffDescription": "Autorisez l'accès à la caméra pour scanner.",
+    "startCamera": "Démarrer",
+    "retry": "Réessayer",
+    "noSorterTitle": "Aucune trieuse connectée",
+    "noSorterDescription": "Connectez votre trieuse, ou appuyez sur le déclencheur pour scanner une carte.",
+    "connect": "Connecter",
+    "bin": "Bac {{number}}",
+    "pause": "Mettre en pause",
+    "start": "Démarrer le scan",
+    "scanOnce": "Scanner une carte"
+  },
+  "mobileSorter": {
+    "title": "Trieuse",
+    "subtitle": "Connecter et vérifier votre trieuse",
+    "firmware": "Firmware {{version}}",
+    "transport": {
+      "serial": "USB",
+      "bluetooth": "Bluetooth"
+    },
+    "connectHint": "Allumez votre trieuse, puis connectez-vous.",
+    "connectBluetooth": "Connecter en Bluetooth",
+    "connectUsb": "Connecter en USB",
+    "unsupported": "Ce navigateur ne peut pas se connecter à une trieuse. Utilisez Chrome sur Android.",
+    "actions": "Actions",
+    "selfTest": "Lancer l'autotest",
+    "selfTestDescription": "Vérifie les capteurs et déplace chaque servo",
+    "disconnect": "Déconnecter",
+    "calibrateOnDesktop": "Le calibrage et les règles de tri se configurent sur un ordinateur."
   }
 }

@@ -1,0 +1,26 @@
+import type { z } from "zod";
+import type { signInSchema } from "@/features/account/lib/auth-schemas";
+import type { binSchema } from "@/features/rules/lib/bin-schema";
+import type { createCollectionSchema, renameCollectionSchema } from "@/features/collections/lib/collection-schemas";
+import type { apiKeySchema } from "@/features/integrations/lib/api-key-schema";
+import type { inviteMemberSchema, renameOrgSchema } from "@/features/org/lib/org-schemas";
+import type { orgSettingsDraftSchema } from "@/features/settings/lib/org-settings-schema";
+import type { storageNameSchema } from "@/features/storage/lib/storage-schemas";
+
+export type SignInValues = z.infer<typeof signInSchema>;
+
+export type BinFormValues = z.infer<typeof binSchema>;
+
+export type CreateCollectionValues = z.infer<typeof createCollectionSchema>;
+
+export type RenameCollectionValues = z.infer<typeof renameCollectionSchema>;
+
+export type StorageNameValues = z.infer<typeof storageNameSchema>;
+
+export type OrgSettingsDraftValues = z.infer<typeof orgSettingsDraftSchema>;
+
+export type InviteMemberValues = z.infer<typeof inviteMemberSchema>;
+
+export type RenameOrgValues = z.infer<typeof renameOrgSchema>;
+
+export type ApiKeyValues = z.infer<typeof apiKeySchema>;

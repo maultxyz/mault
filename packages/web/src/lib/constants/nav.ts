@@ -1,3 +1,4 @@
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { SHOP_URL } from "@/lib/constants/links";
 
@@ -7,39 +8,58 @@ export const WATCH_ROUTE_PREFIX = "/watch";
 export const WATCH_TOKEN_PARAM = "t";
 
 export const MOBILE_NAV_TAB_CLASS =
-  "flex h-14 flex-col items-center justify-center gap-0.5 text-2xs leading-tight font-medium transition-colors active:bg-muted data-[state=open]:text-primary dark:data-[state=open]:text-sidebar-primary";
+  "flex h-14 flex-col items-center justify-center gap-0.5 text-2xs leading-tight font-medium transition-colors active:bg-muted";
 export const MOBILE_NAV_SPACE_CLASS =
   "[--mobile-nav-space:calc(3.5rem+1px+env(safe-area-inset-bottom))]";
 export const MOBILE_NAV_SCROLL_PADDING_CLASS =
   "pb-[var(--mobile-nav-space,0px)]";
-export const MOBILE_NAV_TAB_ACTIVE_CLASS =
-  "text-primary font-semibold dark:text-sidebar-primary";
-export const MOBILE_HEADER_CLASS = "shrink-0 text-primary-foreground";
+export const MOBILE_NAV_TAB_ACTIVE_CLASS = "text-foreground font-semibold";
 export const MOBILE_PLAIN_HEADER_CLASS =
-  "flex shrink-0 flex-col gap-3 bg-background px-5 pt-3 pb-3 text-foreground";
-export const MOBILE_BRAND_SHELL_PATTERN = /^\/app\/monitor(\/|$)/;
-export const MOBILE_HEADER_BODY_CLASS =
-  "flex flex-col gap-3 bg-linear-to-b from-primary to-primary/80 px-5 pt-3 pb-2";
-export const MOBILE_HEADER_FADE_CLASS =
-  "pointer-events-none -mb-8 h-16 bg-linear-to-b from-primary/80 to-primary/0";
-export const MOBILE_HEADER_BUTTON_CLASS =
-  "-ml-2 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground active:bg-primary-foreground/15";
-export const MOBILE_HEADER_SEARCH_CLASS =
-  "border-transparent bg-background shadow-xs dark:bg-background";
+  "flex shrink-0 flex-col gap-4 bg-background px-5 pt-3 pb-4 text-foreground";
+export const MOBILE_PAGE_TITLE_CLASS =
+  "font-heading font-bold leading-tight tracking-tight text-foreground";
+export const MOBILE_PAGE_BODY_CLASS = "flex w-full flex-col gap-7 px-5 pt-1 pb-6";
 export const MOBILE_LIST_CLASS = "-mx-2 flex flex-col";
 export const MOBILE_LIST_ROW_CLASS =
-  "flex min-h-11 w-full items-center gap-3.5 rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors active:bg-muted";
+  "flex min-h-14 w-full items-center gap-3 rounded-md px-2 py-2 text-left text-base font-medium text-foreground transition-colors active:bg-muted";
 export const MOBILE_ICON_TILE_CLASS =
-  "flex size-5 shrink-0 items-center justify-center text-foreground/70";
-export const MOBILE_SECTION_LABEL_CLASS = "text-xs text-foreground/70";
-export const MOBILE_SECTION_CLASS = "flex flex-col gap-1";
+  "flex size-10 shrink-0 items-center justify-center rounded-full bg-muted text-foreground [&_svg]:size-5";
+export const MOBILE_SECTION_LABEL_CLASS =
+  "font-heading text-lg leading-tight font-bold text-foreground";
+export const MOBILE_SECTION_CLASS = "flex flex-col gap-2";
 export const MOBILE_SEARCH_INPUT_CLASS =
-  "h-9 rounded-lg border-transparent bg-muted pl-9 dark:bg-muted";
-export const MOBILE_ICON_BUTTON_CLASS = "size-9";
+  "h-11 rounded-full border-transparent bg-muted pl-10 text-base dark:bg-muted";
+export const MOBILE_ICON_BUTTON_CLASS =
+  "size-10 rounded-full [&_svg:not([class*='size-'])]:size-5";
+export const MOBILE_CIRCLE_BUTTON_CLASS =
+  "size-10 rounded-full bg-muted text-foreground hover:bg-muted active:bg-border dark:hover:bg-muted [&_svg:not([class*='size-'])]:size-5";
+export const MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS =
+  "size-10 rounded-full bg-primary text-primary-foreground hover:bg-primary active:bg-primary/85 [&_svg:not([class*='size-'])]:size-5";
+export const MOBILE_PILL_BUTTON_CLASS =
+  "h-11 gap-2 rounded-full px-5 text-sm font-semibold [&_svg:not([class*='size-'])]:size-4";
+export const MOBILE_PILL_BUTTON_SM_CLASS =
+  "h-9 gap-1.5 rounded-full px-4 text-sm font-semibold [&_svg:not([class*='size-'])]:size-4";
+export const MOBILE_CARD_CLASS = "overflow-hidden rounded-lg bg-muted";
+export const MOBILE_HERO_LABEL_CLASS = "text-sm font-medium text-foreground/70";
+export const MOBILE_HERO_VALUE_CLASS =
+  "truncate font-heading text-4xl leading-tight font-bold tracking-tight tabular-nums text-foreground";
+export const MOBILE_CHIP_CLASS =
+  "inline-flex max-w-full items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-foreground";
 export const THEME_OPTIONS = ["light", "dark", "system"] as const;
-export const MOBILE_MORE_PATHS = ["/app/account", "/app/health", STATS_PATH];
+export const MOBILE_HOME_PATH = "/app/monitor";
 export const MOBILE_SCAN_PATH = "/app/scan";
+export const MOBILE_SCAN_PAIR_PATH = "/app/scan/pair";
+export const MOBILE_SORTER_PATH = "/app/sorter";
+export const MOBILE_ACCOUNT_PATH = "/app/me";
+export const MOBILE_ACCOUNT_TAB_PATHS = [
+  MOBILE_ACCOUNT_PATH,
+  "/app/account",
+  "/app/health",
+  SETTINGS_PATHS.root,
+  STATS_PATH,
+];
 export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
+export const MOBILE_IMMERSIVE_PATTERN = /^\/app\/scan\/?$/;
 
 export const PUBLIC_NAV_PAGES = [
   { key: "home", to: "/" },

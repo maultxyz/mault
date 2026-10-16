@@ -58,6 +58,8 @@ export * from "./constants/org-overview.constant";
 export * from "./constants/stats.constant";
 
 export * from "./evaluate-bin";
+export * from "./vision";
+export * from "./serial-protocol";
 export * from "./pick-list";
 export * from "./interfaces/pick-list.interface";
 export * from "./constants/pick-list.constant";

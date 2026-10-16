@@ -1,13 +1,11 @@
 import {
   CARD_DETECTION_RETRY_INTERVAL_MS,
   CARD_DETECTION_RETRY_TIMEOUT_MS,
-} from "@/lib/constants/timing";
+  type CornerDetection,
+} from "@magic-vault/shared";
 import { detectCardCorners } from "./cornelius";
 import { dewarpCard } from "./perspective-warp";
-import type {
-  CornerDetection,
-  ClientDewarpResult,
-} from "@/lib/interfaces/scanner";
+import type { ClientDewarpResult } from "@/lib/interfaces/scanner";
 
 function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));

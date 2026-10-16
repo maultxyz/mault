@@ -8,6 +8,7 @@ import type {
   CardFilters,
   EmptyBinOptions,
   CardContour,
+  CornerDetection,
   CardScannerProps,
   CardSearchDiagnostics,
   CardSearchResult,
@@ -37,7 +38,6 @@ import type { ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
-import type { SERIAL_RESET_REASONS } from "@/lib/constants/firmware";
 
 export type PhoneCameraCaptureStatus =
   | "idle"
@@ -574,6 +574,40 @@ export interface ScanStatsProps {
 
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
+  renderChrome?: (chrome: ScannerChromeContext) => ReactNode;
+}
+
+export interface ScannerLastScan {
+  card: PlayingCard | null;
+  imageUrl?: string;
+  at: number;
+}
+
+export interface ScannerChromeContext {
+  status: ScannerStatus;
+  errorMessage: string;
+  isCameraActive: boolean;
+  isConnected: boolean;
+  isReady: boolean;
+  sensorBlockedModule: number | null;
+  firmwareVersion: string | null;
+  hasCatchAll: boolean;
+  autoFeed: boolean;
+  allowDuplicates: boolean;
+  isAtScanLimit: boolean;
+  bluetoothSupported: boolean;
+  cameras: MediaDeviceInfo[];
+  selectedCameraId: string | null;
+  lastScan: ScannerLastScan | null;
+  onPause: () => void;
+  onResume: () => void;
+  onScanOnce: () => void;
+  onRetry: () => void;
+  onConnectBluetooth: () => void;
+  onResolveSensorBlocked: () => void;
+  onSelectCamera: (deviceId: string) => void;
+  onAutoFeedChange: (value: boolean) => void;
+  onAllowDuplicatesChange: (value: boolean) => void;
 }
 
 export interface UnmatchedDiagnosticsDetailsProps {
@@ -712,13 +746,6 @@ export interface ByteTransport {
   setMtu?(mtu: number): void;
 }
 
-export interface CornerDetection {
-  cardPresent: boolean;
-  confidence: number;
-  sharpness: number | null;
-  contour: CardContour | null;
-}
-
 export interface ClientDewarpResult {
   detection: CornerDetection;
   dewarpedCanvas: HTMLCanvasElement | null;
@@ -816,7 +843,6 @@ export interface DebugCardSet {
   };
 }
 
-export type SerialResetReason = (typeof SERIAL_RESET_REASONS)[number];
 
 export interface ScanSaveOptions {
   deviceGuid?: string;
@@ -879,4 +905,26 @@ export type QrScannerStatus = "starting" | "scanning" | "error";
 
 export interface QrPairingScannerProps {
   onResult: (text: string) => void;
+}
+
+export interface MobileScanChromeProps {
+  chrome: ScannerChromeContext;
+}
+
+export interface MobileScanNoticeProps {
+  title: string;
+  description?: string;
+  tone?: "neutral" | "warning" | "error";
+  action?: ReactNode;
+}
+
+export interface MobileScanOptionsSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  chrome: ScannerChromeContext;
+}
+
+export interface MobileCollectionSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }

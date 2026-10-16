@@ -18,13 +18,14 @@ pnpm --filter @magic-vault/server db:push      # local iteration only
 pnpm --filter @magic-vault/server db:studio
 pnpm --filter @magic-vault/api-docs openapi    # regenerate packages/api-docs/public/openapi.json
 pnpm --filter @magic-vault/web model           # STEP -> public/models/card-sorter.glb
+pnpm --filter @magic-vault/mobile start        # Expo dev server for the iOS/Android dev build (see packages/mobile/README.md)
 ```
 
 No automated tests. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Architecture
 
-pnpm workspace + Turborepo: `shared` (types, constants, zod schemas, rule engine; no build, resolves to `src/index.ts`), `server` (Hono 4 + Drizzle + Postgres), `web` (React 19 SPA, React Router v7), `bot` (Discord), `api-docs` (Scalar API reference). One root `.env` is read by server and Vite. `docker-compose.yml` is the fully self-hosted stack (`AUTH_PROVIDER=local`, pgvector Postgres).
+pnpm workspace + Turborepo: `shared` (types, constants, zod schemas, rule engine; no build, resolves to `src/index.ts`), `server` (Hono 4 + Drizzle + Postgres), `web` (React 19 SPA, React Router v7), `mobile` (Expo iOS/Android app; no `dev`/`build` script so turbo skips it), `bot` (Discord), `api-docs` (Scalar API reference). One root `.env` is read by server and Vite. `docker-compose.yml` is the fully self-hosted stack (`AUTH_PROVIDER=local`, pgvector Postgres).
 
 The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server routes have no `/api` prefix.
 
@@ -92,6 +93,14 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Changing `BIN_HEIGHT_PRESETS` needs a data migration (see `drizzle/0080_small_bin_height.sql`).
 - The 3D model maps raw pulses (never percentages) to horn degrees, anchored at the CAD closed pose (gates) or neutral (pusher). `SORTER_BOTTOM_DEGREES_PER_TICK` is fit to a real gate: closed 453 to flat with the card bed at 231 (the CAD paddle pose sits ~13 degrees below the bed, not flat).
 - The 3D sorter model is built from `3d model/Card Sorter.step` by `pnpm --filter @magic-vault/web model`; rerun after changing the STEP file and update `MODULE_ROLES`/mechanism points if parts move.
+
+### Mobile (iOS/Android)
+
+- `shared/src/vision.ts` (corner parsing, homography/warp, tensor prep, color bar) and `shared/src/serial-protocol.ts` are the single implementation for web and mobile; platform code only converts pixels (canvas `ImageData` / nitro-image raw buffers) into `RgbaImage`.
+- Mobile runs ONNX on the CPU provider only: CoreML can drop to fp16, and embeddings must stay comparable to the fp32 vectors the server and web produce. It reports `vectorizedOn: "web"` (client-side).
+- Sorters connect over BLE only (iOS has no USB serial). Android needs runtime BLE permissions (`ensureBlePermissions`) before any scan. `SorterLink` mirrors `use-serial`'s seq matching, busy guard and route queue; change both together.
+- No in-app account creation: App Store rules would then require in-app account deletion. Org listing goes through the provider-agnostic `/me/organizations`.
+- Repack and auto-assign presets are refused on mobile (they need bin contents / write bin rules).
 
 ### Discord bot
 

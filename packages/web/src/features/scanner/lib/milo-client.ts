@@ -3,6 +3,8 @@ import {
   IMAGENET_STD,
   MILO_INPUT_SIZE,
   MILO_MODEL,
+  l2Normalize,
+  rgbaToChw,
 } from "@magic-vault/shared";
 import { ort, runOnnxModel } from "./onnx-runtime";
 
@@ -29,16 +31,7 @@ export function rotateCanvas180(canvas: HTMLCanvasElement): HTMLCanvasElement {
 }
 
 function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
-  const { data, width, height } = toImageData(canvas);
-  const plane = width * height;
-  const chw = new Float32Array(3 * plane);
-  for (let i = 0; i < plane; i++) {
-    const o = i * 4;
-    chw[i] = (data[o] / 255 - IMAGENET_MEAN[0]) / IMAGENET_STD[0];
-    chw[plane + i] = (data[o + 1] / 255 - IMAGENET_MEAN[1]) / IMAGENET_STD[1];
-    chw[2 * plane + i] = (data[o + 2] / 255 - IMAGENET_MEAN[2]) / IMAGENET_STD[2];
-  }
-  return chw;
+  return rgbaToChw(toImageData(canvas), IMAGENET_MEAN, IMAGENET_STD);
 }
 
 export async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
@@ -49,12 +42,5 @@ export async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> 
   }));
   const raw = outputs[session.outputNames[0]].data as Float32Array;
 
-  let normSq = 0;
-  for (let i = 0; i < raw.length; i++) normSq += raw[i] * raw[i];
-  const norm = Math.sqrt(normSq);
-  const denom = norm > 1e-8 ? norm : 1;
-
-  const embedding = new Array<number>(raw.length);
-  for (let i = 0; i < raw.length; i++) embedding[i] = raw[i] / denom;
-  return embedding;
+  return l2Normalize(raw);
 }

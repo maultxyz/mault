@@ -15,7 +15,6 @@ import {
   canvasToBlob,
   drawDetectionOverlay,
   extractCardImage,
-  getDefaultCardContour,
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
@@ -27,12 +26,9 @@ import {
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import {
-  OCR_CROP_HEIGHT,
-  OCR_CROP_WIDTH,
   SCANNABLE_STATUSES,
   SCANNER_LIVE_DETECTION_INTERVAL_MS,
   LIVE_DETECTION_STATUSES,
-  CONSENSUS_RETRY_BUDGET,
 } from "@/lib/constants/scanner";
 import type {
   MatchScope,
@@ -52,11 +48,15 @@ import { scanLog } from "@/lib/scan-log";
 import {
   CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
+  CONSENSUS_RETRY_BUDGET,
+  OCR_CROP_HEIGHT,
+  OCR_CROP_WIDTH,
   type ColorBarRegion,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
+  getDefaultCardContour,
   OCR_REGIONS_BY_GAME_KEY,
   type CardContour,
   type CardScannerProps,

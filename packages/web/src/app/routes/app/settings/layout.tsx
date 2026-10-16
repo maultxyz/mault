@@ -1,4 +1,7 @@
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_ACCOUNT_PATH,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageIntro } from "@/components/page-intro";
@@ -31,7 +34,11 @@ export default function SettingsLayout() {
             backTo={SETTINGS_PATHS.root}
           />
         ) : (
-          <MobilePageHeader title={t("title")} subtitle={t("subtitle")} />
+          <MobilePageHeader
+            title={t("title")}
+            subtitle={t("subtitle")}
+            backTo={MOBILE_ACCOUNT_PATH}
+          />
         )}
         <div
           className={cn(

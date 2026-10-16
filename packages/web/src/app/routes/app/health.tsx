@@ -1,5 +1,8 @@
 import { Callout } from "@/components/callout";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_ACCOUNT_PATH,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,6 +48,7 @@ export default function HealthPage() {
         <MobilePageHeader
           title={t("title")}
           subtitle={t("subtitle")}
+          backTo={MOBILE_ACCOUNT_PATH}
           actions={refreshButton}
         />
       )}

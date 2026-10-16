@@ -1,4 +1,9 @@
-import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
+import {
+  MOBILE_ACCOUNT_PATH,
+  MOBILE_SCAN_PAIR_PATH,
+  MOBILE_SCAN_PATH,
+  MOBILE_SORTER_PATH,
+} from "@/lib/constants/nav";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import NotFoundPage from "@/app/routes/not-found";
@@ -124,6 +129,9 @@ const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
 const ScanPage = lazy(() => import("@/app/routes/app/scan"));
+const ScanPairPage = lazy(() => import("@/app/routes/app/scan-pair"));
+const SorterPage = lazy(() => import("@/app/routes/app/sorter"));
+const MePage = lazy(() => import("@/app/routes/app/me"));
 const SettingsLayout = lazy(() => import("@/app/routes/app/settings/layout"));
 const SettingsIndexRedirect = lazy(
   () => import("@/app/routes/app/settings/index"),
@@ -336,10 +344,6 @@ export const router = createBrowserRouter([
                     element: <SortersPage />,
                   },
                   {
-                    path: STORAGE_PATH,
-                    element: <StoragePage />,
-                  },
-                  {
                     element: <AdminGuard />,
                     children: [
                       {
@@ -423,6 +427,22 @@ export const router = createBrowserRouter([
               {
                 path: MOBILE_SCAN_PATH,
                 element: <ScanPage />,
+              },
+              {
+                path: STORAGE_PATH,
+                element: <StoragePage />,
+              },
+              {
+                path: MOBILE_SCAN_PAIR_PATH,
+                element: <ScanPairPage />,
+              },
+              {
+                path: MOBILE_SORTER_PATH,
+                element: <SorterPage />,
+              },
+              {
+                path: MOBILE_ACCOUNT_PATH,
+                element: <MePage />,
               },
               {
                 path: SETTINGS_PATHS.root,

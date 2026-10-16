@@ -216,5 +216,11 @@
   },
   "firmwareGate": {
     "requires": "Requires firmware {{version}} or newer. Update your sorter's firmware to use this."
+  },
+  "mobileTabs": {
+    "home": "Home",
+    "scan": "Scan",
+    "storage": "Storage",
+    "account": "Account"
   }
 }

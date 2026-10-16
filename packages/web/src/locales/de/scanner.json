@@ -641,7 +641,15 @@
     "today": "Heute",
     "mostValuable": "Wertvollste",
     "recentlyScanned": "Zuletzt gescannt",
-    "seeAllStats": "Alle Statistiken"
+    "seeAllStats": "Alle Statistiken",
+    "actions": {
+      "scan": "Scannen",
+      "newCollection": "Neu",
+      "sorter": "Sortierer",
+      "stats": "Statistik"
+    },
+    "alerts": "Hinweise",
+    "activeCollection": "Aktiv"
   },
   "resetToNeutral": {
     "done": "Sortierer in Grundstellung",
@@ -663,5 +671,58 @@
       "title": "Ein wartender Scan konnte nicht gespeichert werden",
       "description": "Der Server hat einen Scan abgelehnt, der noch gespeichert werden sollte. Prüfe die Sammlung auf die fehlende Karte."
     }
+  },
+  "mobileScan": {
+    "chooseCollection": "Sammlung wählen",
+    "options": "Scan-Optionen",
+    "autoFeed": "Automatischer Einzug",
+    "autoFeedDescription": "Nächste Karte einziehen, sobald eine sortiert ist",
+    "allowDuplicates": "Duplikate erlauben",
+    "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
+    "camera": "Kamera",
+    "cameraFallback": "Kamera {{number}}",
+    "sorter": "Sortierer",
+    "pairDesktop": "Als Desktop-Kamera nutzen",
+    "pairDesktopDescription": "QR-Code auf deinem Computer scannen",
+    "phase": {
+      "ready": "Bereit",
+      "scanning": "Scannt",
+      "error": "Fehler"
+    },
+    "sorterState": {
+      "notConnected": "Sortierer nicht verbunden",
+      "blocked": "Karte im Weg",
+      "testing": "Sortierer wird getestet",
+      "ready": "Sortierer bereit"
+    },
+    "cameraOff": "Kamera ist aus",
+    "cameraOffDescription": "Erlaube den Kamerazugriff, um zu scannen.",
+    "startCamera": "Kamera starten",
+    "retry": "Erneut",
+    "noSorterTitle": "Kein Sortierer verbunden",
+    "noSorterDescription": "Verbinde deinen Sortierer, oder tippe auf den Auslöser, um eine Karte zu scannen.",
+    "connect": "Verbinden",
+    "bin": "Fach {{number}}",
+    "pause": "Scannen pausieren",
+    "start": "Scannen starten",
+    "scanOnce": "Karte scannen"
+  },
+  "mobileSorter": {
+    "title": "Sortierer",
+    "subtitle": "Sortierer verbinden und prüfen",
+    "firmware": "Firmware {{version}}",
+    "transport": {
+      "serial": "USB",
+      "bluetooth": "Bluetooth"
+    },
+    "connectHint": "Schalte den Sortierer ein und verbinde dich.",
+    "connectBluetooth": "Über Bluetooth verbinden",
+    "connectUsb": "Über USB verbinden",
+    "unsupported": "Dieser Browser kann sich nicht mit einem Sortierer verbinden. Nutze Chrome auf Android.",
+    "actions": "Aktionen",
+    "selfTest": "Selbsttest ausführen",
+    "selfTestDescription": "Prüft die Sensoren und bewegt alle Servos",
+    "disconnect": "Trennen",
+    "calibrateOnDesktop": "Kalibrierung und Sortierregeln richtest du am Computer ein."
   }
 }

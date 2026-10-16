@@ -5,10 +5,18 @@ import {
 import type { CameraTrackCapabilities } from "@/lib/interfaces/scanner";
 import type { StationState } from "@/lib/interfaces/stations";
 
-export async function acquireStream(deviceId?: string): Promise<MediaStream> {
+export async function acquireStream(
+  deviceId?: string,
+  preferRear = false,
+): Promise<MediaStream> {
+  const source: MediaTrackConstraints = deviceId
+    ? { deviceId: { exact: deviceId } }
+    : preferRear
+      ? { facingMode: { ideal: "environment" } }
+      : {};
   const stream = await navigator.mediaDevices.getUserMedia({
     video: {
-      ...(deviceId ? { deviceId: { exact: deviceId } } : {}),
+      ...source,
       width: { ideal: CAMERA_IDEAL_WIDTH },
       height: { ideal: CAMERA_IDEAL_HEIGHT },
       zoom: true,
@@ -55,13 +63,14 @@ async function pickUnusedCamera(
 export async function acquireFreeStream(
   preferredId: string | undefined,
   takenIds: Set<string>,
+  preferRear = false,
 ): Promise<MediaStream | null> {
   if (preferredId && !takenIds.has(preferredId)) {
     try {
       return await acquireStream(preferredId);
     } catch {}
   }
-  if (takenIds.size === 0) return acquireStream();
+  if (takenIds.size === 0) return acquireStream(undefined, preferRear);
   const excluded = new Set(takenIds);
   if (preferredId) excluded.add(preferredId);
   const freeId = await pickUnusedCamera(excluded);

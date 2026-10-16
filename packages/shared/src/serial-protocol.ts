@@ -5,8 +5,8 @@ import {
   SERIAL_READY_STATUS,
   SERIAL_RESET_REASONS,
   SERIAL_SERVO_DRIVER_MISSING,
-} from "@/lib/constants/firmware";
-import type { SerialResetReason } from "@/lib/interfaces/scanner";
+} from "./constants/firmware.constant";
+import type { SerialResetReason } from "./interfaces/firmware.interface";
 
 function asFields(message: unknown): Record<string, unknown> | null {
   return typeof message === "object" && message !== null

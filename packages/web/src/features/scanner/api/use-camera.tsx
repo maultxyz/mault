@@ -69,6 +69,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         const mediaStream = await acquireFreeStream(
           deviceId,
           otherStationCameraIds(),
+          isMobile,
         );
         if (!mediaStream) {
           setErrorMessage(t("camera.allInUse"));
@@ -106,7 +107,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         setStatus("error");
       }
     },
-    [t, stationId, otherStationCameraIds],
+    [t, stationId, otherStationCameraIds, isMobile],
   );
 
   const setFocusDistance = useCallback((value: number | null) => {
