@@ -1,3 +1,4 @@
+import { Checkbox } from "@/components/ui/checkbox";
 import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
 import type { StationOverviewCardProps } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,8 @@ export function StationOverviewCard({
   onOpen,
   openLabel,
   action,
+  selected = false,
+  onToggleSelect,
 }: StationOverviewCardProps) {
   const { t } = useTranslation("scanner");
   const latestImage = latestCard?.image?.small || latestCard?.image?.normal;
@@ -64,9 +67,17 @@ export function StationOverviewCard({
       className={cn(
         "flex flex-col overflow-hidden rounded-lg border bg-background",
         onOpen && "transition-colors hover:border-primary",
+        selected && "ring-2 ring-primary ring-offset-1",
       )}
     >
       <div className="flex items-center gap-2 border-b px-3 py-2">
+        {onToggleSelect && (
+          <Checkbox
+            checked={selected}
+            onCheckedChange={onToggleSelect}
+            aria-label={t("stations.overview.select", { name })}
+          />
+        )}
         <StationStatusDot status={status} />
         <span className="truncate text-sm font-medium text-foreground">
           {name}
