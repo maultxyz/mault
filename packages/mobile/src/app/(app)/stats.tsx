@@ -4,78 +4,103 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { STATS_DEFAULT_RANGE, STATS_RANGES, type StatsRange } from "@magic-vault/shared";
-import { CardRow } from "@/components/cards/card-row";
 import { Callout } from "@/components/ui/callout";
-import { ListGroup } from "@/components/ui/list-group";
+import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
+import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { PickerCard } from "@/components/ui/picker-card";
 import { Screen } from "@/components/ui/screen";
-import { SectionHeader } from "@/components/ui/section-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Skeleton } from "@/components/ui/skeleton";
-import { StatTile } from "@/components/ui/stat-tile";
+import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { statsQueryOptions } from "@/features/stats/api/stats";
+import { StatsDashboard } from "@/features/stats/components/stats-dashboard";
+import { StatsLeaderboardSheet } from "@/features/stats/components/stats-leaderboard-sheet";
 import { useActiveOrg } from "@/hooks/use-org";
-import { usePricing } from "@/hooks/use-pricing";
+import { STATS_ALL_COLLECTIONS } from "@/lib/constants/stats";
 import { SPACING } from "@/lib/constants/theme";
-import { absoluteUrl } from "@/lib/url";
 
 export default function StatsScreen() {
-  const { t, i18n } = useTranslation();
-  const pricing = usePricing();
+  const { t } = useTranslation();
   const org = useActiveOrg();
+  const orgId = org?.id ?? null;
   const [range, setRange] = useState<StatsRange>(STATS_DEFAULT_RANGE);
-  const { data, isPending, isError, refetch, isRefetching } = useQuery(statsQueryOptions(org?.id ?? null, range));
-  const number = (value: number) => value.toLocaleString(i18n.language);
+  const [collectionGuid, setCollectionGuid] = useState<string | null>(null);
+  const [collectionsOpen, setCollectionsOpen] = useState(false);
+  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
+  const collections = useQuery(collectionsQueryOptions(orgId));
+  const { data: report, isPending, isError, refetch, isRefetching } = useQuery(
+    statsQueryOptions(orgId, range, collectionGuid),
+  );
+  const selected = collections.data?.find((c) => c.guid === collectionGuid);
 
   return (
     <Screen
       refreshing={isRefetching}
       onRefresh={() => void refetch()}
       header={
-        <PageHeader title={t("tabs.stats")} subtitle={org?.name} onBack={() => router.back()}>
-          <SegmentedControl<StatsRange>
-            value={range}
-            onChange={setRange}
-            options={STATS_RANGES.map((value) => ({ value, label: t(`stats.ranges.${value}`) }))}
-          />
-        </PageHeader>
+        <PageHeader
+          title={t("stats.title")}
+          subtitle={t("stats.subtitle")}
+          onBack={() => router.back()}
+          actions={
+            <IconButton
+              icon="trophy"
+              accessibilityLabel={t("stats.leaderboard.title")}
+              onPress={() => setLeaderboardOpen(true)}
+            />
+          }
+        />
       }
     >
-      {isError ? <Callout tone="destructive" title={t("stats.loadFailed")} /> : null}
-      {isPending || !data ? (
-        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
-          {[0, 1, 2, 3].map((key) => (
-            <Skeleton key={key} width="47%" height={76} />
-          ))}
-        </View>
-      ) : (
-        <>
+      <View style={{ gap: SPACING.sm }}>
+        <PickerCard
+          icon="collections"
+          label={t("stats.controls.collection")}
+          value={selected?.name ?? t("stats.controls.allCollections")}
+          placeholder={t("stats.controls.allCollections")}
+          onPress={() => setCollectionsOpen(true)}
+        />
+        <SegmentedControl<StatsRange>
+          value={range}
+          onChange={setRange}
+          options={STATS_RANGES.map((value) => ({ value, label: t(`stats.controls.ranges.${value}`) }))}
+        />
+      </View>
+
+      {isError ? (
+        <Callout tone="destructive" title={t("stats.error")} />
+      ) : isPending || !report ? (
+        <View style={{ gap: SPACING.md }}>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
-            <StatTile label={t("stats.scansInRange")} value={number(data.totals.scansInRange)} />
-            <StatTile label={t("stats.totalCards")} value={number(data.totals.cardCount)} />
-            <StatTile label={t("stats.totalValue")} value={pricing.format(data.totals.totalValue)} />
-            <StatTile label={t("stats.valueAdded")} value={pricing.format(data.totals.valueAddedInRange)} />
-            <StatTile label={t("stats.uniqueCards")} value={number(data.totals.uniqueCount)} />
-            <StatTile label={t("stats.needsReview")} value={number(data.totals.needsReviewCount)} />
+            {[0, 1, 2, 3, 4, 5].map((key) => (
+              <Skeleton key={key} width="48%" height={84} />
+            ))}
           </View>
-          {data.topCards.length > 0 ? (
-            <>
-              <SectionHeader title={t("stats.topCards")} />
-              <ListGroup>
-                {data.topCards.map((entry) => (
-                  <CardRow
-                    key={entry.scanId}
-                    name={entry.card.name}
-                    subtitle={`${entry.card.setName} · ${entry.collectionName}`}
-                    imageUrl={absoluteUrl(entry.card.image?.small)}
-                    price={entry.price != null ? pricing.format(entry.price) : null}
-                  />
-                ))}
-              </ListGroup>
-            </>
-          ) : null}
-        </>
+          <Skeleton height={180} />
+        </View>
+      ) : report.totals.cardCount === 0 ? (
+        <EmptyState icon="stats" title={t("stats.empty.title")} description={t("stats.empty.description")} />
+      ) : (
+        <StatsDashboard report={report} onSelectCollection={setCollectionGuid} />
       )}
+
+      <OptionSheet
+        visible={collectionsOpen}
+        title={t("stats.controls.collection")}
+        options={[
+          { value: STATS_ALL_COLLECTIONS, label: t("stats.controls.allCollections") },
+          ...(collections.data ?? []).map((c) => ({ value: c.guid, label: c.name })),
+        ]}
+        selected={[collectionGuid ?? STATS_ALL_COLLECTIONS]}
+        onSelect={(value) => {
+          setCollectionGuid(value === STATS_ALL_COLLECTIONS ? null : value);
+          setCollectionsOpen(false);
+        }}
+        onClose={() => setCollectionsOpen(false)}
+      />
+      <StatsLeaderboardSheet visible={leaderboardOpen} onClose={() => setLeaderboardOpen(false)} />
     </Screen>
   );
 }

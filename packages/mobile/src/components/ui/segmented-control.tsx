@@ -15,8 +15,8 @@ export function SegmentedControl<T extends string>({
       accessibilityRole="tablist"
       style={{
         flexDirection: "row",
-        padding: 2,
-        borderRadius: RADIUS.lg,
+        padding: 4,
+        borderRadius: RADIUS.full,
         backgroundColor: colors.muted,
         gap: SPACING.xs,
       }}
@@ -31,20 +31,19 @@ export function SegmentedControl<T extends string>({
             onPress={() => onChange(option.value)}
             style={{
               flex: 1,
-              height: 32,
+              height: 36,
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: RADIUS.md,
+              borderRadius: RADIUS.full,
               paddingHorizontal: SPACING.sm,
-              backgroundColor: selected ? colors.segmentActive : "transparent",
-              shadowColor: "#000",
-              shadowOpacity: selected ? 0.06 : 0,
-              shadowRadius: 2,
-              shadowOffset: { width: 0, height: 1 },
-              elevation: selected ? 1 : 0,
+              backgroundColor: selected ? colors.foreground : "transparent",
             }}
           >
-            <AppText weight="medium" tone={selected ? "default" : "secondary"}>
+            <AppText
+              weight="semibold"
+              numberOfLines={1}
+              style={{ color: selected ? colors.background : colors.foregroundSecondary }}
+            >
               {option.label}
             </AppText>
           </Pressable>

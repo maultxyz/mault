@@ -11,24 +11,23 @@ export function StatTile({ label, value, hint }: StatTileProps) {
       accessible
       accessibilityLabel={`${label}: ${value}`}
       style={{
-        flex: 1,
-        minWidth: 140,
+        flexGrow: 1,
+        flexBasis: "45%",
+        minWidth: 0,
         padding: SPACING.md,
-        gap: SPACING.xs,
+        gap: 2,
         borderRadius: RADIUS.lg,
-        borderWidth: 1,
-        borderColor: colors.cardRing,
-        backgroundColor: colors.card,
+        backgroundColor: colors.muted,
       }}
     >
       <AppText size="xs" tone="secondary">
         {label}
       </AppText>
-      <AppText size="xl" heading style={{ fontVariant: ["tabular-nums"] }}>
+      <AppText size="xl" heading weight="bold" numberOfLines={1} adjustsFontSizeToFit style={{ fontVariant: ["tabular-nums"] }}>
         {value}
       </AppText>
       {hint ? (
-        <AppText size="2xs" tone="secondary">
+        <AppText size="xs" tone="secondary" numberOfLines={1}>
           {hint}
         </AppText>
       ) : null}

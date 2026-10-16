@@ -37,6 +37,7 @@ import IconScan from "@tabler/icons-react-native/IconScan";
 import IconSearch from "@tabler/icons-react-native/IconSearch";
 import IconTestPipe from "@tabler/icons-react-native/IconTestPipe";
 import IconTrash from "@tabler/icons-react-native/IconTrash";
+import IconTrophy from "@tabler/icons-react-native/IconTrophy";
 import IconUserCircle from "@tabler/icons-react-native/IconUserCircle";
 import IconX from "@tabler/icons-react-native/IconX";
 
@@ -80,6 +81,7 @@ export const ICONS = {
   storage: IconBox,
   success: IconCircleCheck,
   trash: IconTrash,
+  trophy: IconTrophy,
   viewers: IconEye,
   warning: IconAlertTriangle,
 } as const;

@@ -115,19 +115,125 @@
     }
   },
   "stats": {
-    "loadFailed": "Couldn't load stats",
-    "scansInRange": "Scans",
-    "totalCards": "Cards",
-    "totalValue": "Total value",
-    "valueAdded": "Value added",
-    "uniqueCards": "Unique cards",
-    "needsReview": "Needs review",
-    "topCards": "Most valuable",
-    "ranges": {
-      "7d": "7 days",
-      "30d": "30 days",
-      "90d": "90 days",
-      "1y": "1 year"
+    "title": "Stats",
+    "subtitle": "Charts and numbers across your collections",
+    "error": "Couldn't load stats. Try again in a moment.",
+    "empty": {
+      "title": "No cards yet",
+      "description": "Stats show up here once you've scanned some cards."
+    },
+    "controls": {
+      "collection": "Collection",
+      "allCollections": "All collections",
+      "range": "Time range",
+      "ranges": {
+        "7d": "7d",
+        "30d": "30d",
+        "90d": "90d",
+        "1y": "1y"
+      }
+    },
+    "tiles": {
+      "totalValue": "Total value",
+      "collectionCount_one": "{{count}} collection",
+      "collectionCount_other": "{{count}} collections",
+      "cards": "Cards",
+      "uniqueHint": "{{count}} unique",
+      "avgValue": "Average card",
+      "pricedHint": "{{count}} with a price",
+      "scanned": {
+        "7d": "Scanned, last 7 days",
+        "30d": "Scanned, last 30 days",
+        "90d": "Scanned, last 90 days",
+        "1y": "Scanned, last year"
+      },
+      "valueAddedHint": "{{value}} added",
+      "foils": "Foils",
+      "shareHint": "{{percent}}% of cards",
+      "needsReview": "Needs review",
+      "correctedHint": "{{count}} reviewed"
+    },
+    "activity": {
+      "title": "Scanning activity",
+      "description": {
+        "day": "Cards scanned each day",
+        "week": "Cards scanned each week"
+      },
+      "metrics": {
+        "count": "Cards",
+        "value": "Value added"
+      },
+      "weekOf": "Week of {{date}}",
+      "thisWeek": "This week",
+      "today": "Today"
+    },
+    "compare": {
+      "title": "Compare collections",
+      "description": "How your collections stack up. Pick one to see its own stats.",
+      "metrics": {
+        "totalValue": "Value",
+        "cardCount": "Cards",
+        "scansInRange": "Scanned"
+      },
+      "share": "{{percent}}%",
+      "never": "Never",
+      "columns": {
+        "name": "Collection",
+        "cardCount": "Cards",
+        "uniqueCount": "Unique",
+        "totalValue": "Value",
+        "avgValue": "Avg card",
+        "scansInRange": "Scanned",
+        "lastScanAt": "Last scan"
+      }
+    },
+    "prices": {
+      "title": "Price distribution",
+      "description": "Priced cards grouped by value",
+      "atLeast": "{{min}} and up",
+      "under": "Under {{max}}",
+      "between": "{{min}} to {{max}}"
+    },
+    "games": {
+      "title": "By game",
+      "none": "No game"
+    },
+    "sets": {
+      "title": "Top sets by value"
+    },
+    "rarities": {
+      "title": "Rarity"
+    },
+    "colors": {
+      "title": "Colors"
+    },
+    "foils": {
+      "title": "Foil types"
+    },
+    "topCards": {
+      "title": "Most valuable cards"
+    },
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "leaderboard": {
+      "title": "Leaderboard",
+      "description_one": "The {{count}} organization that has scanned the most cards with Mault.",
+      "description_other": "The {{count}} organizations that have scanned the most cards with Mault.",
+      "error": "Couldn't load the leaderboard. Try again in a moment.",
+      "rank": "#{{rank}}",
+      "you": "You",
+      "hidden": "Not listed",
+      "unknownOrg": "Unknown organization",
+      "columns": {
+        "rank": "Rank",
+        "organization": "Organization",
+        "scans": "Cards scanned"
+      },
+      "optIn": {
+        "title": "Your organization isn't on the leaderboard",
+        "description": "Other organizations can't see you. Your row shows where you would rank. Join from Settings to appear in the list.",
+        "action": "Join leaderboard"
+      }
     }
   },
   "account": {
