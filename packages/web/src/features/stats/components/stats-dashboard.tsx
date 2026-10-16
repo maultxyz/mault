@@ -1,7 +1,6 @@
 import { FoilOverlay } from "@/components/foil-overlay";
 import { SettingsSection } from "@/components/settings-section";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
   Table,
   TableBody,
@@ -71,19 +70,16 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
       heading={t("activity.title")}
       description={t(`activity.description.${report.bucket}`)}
       action={
-        <ButtonGroup>
-          {STATS_ACTIVITY_METRICS.map((option) => (
-            <Button
-              key={option}
-              size="sm"
-              variant={metric === option ? "outline-selected" : "outline"}
-              aria-pressed={metric === option}
-              onClick={() => setMetric(option)}
-            >
-              {t(`activity.metrics.${option}`)}
-            </Button>
-          ))}
-        </ButtonGroup>
+        <ResponsiveSegmented
+          size="sm"
+          label={t("activity.title")}
+          items={STATS_ACTIVITY_METRICS.map((option) => ({
+            key: option,
+            label: t(`activity.metrics.${option}`),
+          }))}
+          value={metric}
+          onChange={setMetric}
+        />
       }
     >
       <ColumnChart
@@ -235,19 +231,17 @@ function StatsCollectionsSection({
       heading={t("compare.title")}
       description={t("compare.description")}
       action={
-        <ButtonGroup className="md:hidden">
-          {STATS_COLLECTION_METRICS.map((option) => (
-            <Button
-              key={option}
-              size="sm"
-              variant={metric === option ? "outline-selected" : "outline"}
-              aria-pressed={metric === option}
-              onClick={() => setMetric(option)}
-            >
-              {t(`compare.metrics.${option}`)}
-            </Button>
-          ))}
-        </ButtonGroup>
+        <ResponsiveSegmented
+          size="sm"
+          label={t("compare.title")}
+          className="md:hidden"
+          items={STATS_COLLECTION_METRICS.map((option) => ({
+            key: option,
+            label: t(`compare.metrics.${option}`),
+          }))}
+          value={metric}
+          onChange={setMetric}
+        />
       }
     >
       <div className="md:hidden">

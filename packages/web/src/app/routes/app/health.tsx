@@ -1,6 +1,7 @@
 import { Callout } from "@/components/callout";
 import {
   MOBILE_ACCOUNT_PATH,
+  MOBILE_ICON_BUTTON_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
@@ -27,9 +28,20 @@ export default function HealthPage() {
   const isSyncing = useSyncState().status === "running";
   const isMobile = useIsMobile();
 
-  const refreshButton = (
+  const refreshButton = isMobile ? (
     <Button
-      size={isMobile ? "sm" : "xs"}
+      size="icon"
+      variant="ghost"
+      className={MOBILE_ICON_BUTTON_CLASS}
+      aria-label={t("refresh")}
+      onClick={() => refetch()}
+      disabled={isFetching || isSyncing}
+    >
+      <IconRefresh className={isFetching ? "animate-spin" : undefined} />
+    </Button>
+  ) : (
+    <Button
+      size="xs"
       variant="outline"
       onClick={() => refetch()}
       disabled={isFetching || isSyncing}

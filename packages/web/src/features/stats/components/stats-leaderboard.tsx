@@ -16,6 +16,7 @@ import { leaderboardQueryOptions } from "@/features/stats/api/leaderboard";
 import { buildLeaderboardRows } from "@/features/stats/lib/leaderboard-rows";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { StatsLeaderboardButtonProps } from "@/lib/interfaces/stats";
+import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { LEADERBOARD_SIZE } from "@magic-vault/shared";
 import { IconAlertTriangle, IconTrophy } from "@tabler/icons-react";
@@ -126,6 +127,7 @@ export function StatsLeaderboardButton({
         <Button
           variant={iconOnly ? "ghost" : "outline"}
           size={iconOnly ? "icon" : "default"}
+          className={iconOnly ? MOBILE_ICON_BUTTON_CLASS : undefined}
           aria-label={iconOnly ? t("leaderboard.title") : undefined}
         >
           <IconTrophy />

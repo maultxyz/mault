@@ -128,3 +128,12 @@ export interface PageIntroProps {
   description: string;
   className?: string;
 }
+
+export interface ResponsiveSegmentedProps<T extends string> {
+  items: MobileSegmentedControlItem<T>[];
+  value: T;
+  onChange: (value: T) => void;
+  label: string;
+  size?: "sm" | "default";
+  className?: string;
+}

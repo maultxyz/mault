@@ -45,7 +45,7 @@ export function DynamicPopover({
           </DrawerHeader>
           <div
             className={cn(
-              "flex flex-col gap-2 p-4 overflow-y-auto min-h-0",
+              "flex min-h-0 flex-col gap-2 overflow-y-auto px-5 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]",
               contentClassName,
             )}
           >

@@ -30,7 +30,7 @@ export const MOBILE_SECTION_CLASS = "flex flex-col gap-2";
 export const MOBILE_SEARCH_INPUT_CLASS =
   "h-11 rounded-full border-transparent bg-muted pl-10 text-base dark:bg-muted";
 export const MOBILE_ICON_BUTTON_CLASS =
-  "size-10 rounded-full [&_svg:not([class*='size-'])]:size-5";
+  "size-10 shrink-0 rounded-full border-transparent bg-muted text-foreground hover:bg-muted active:bg-border dark:bg-muted dark:hover:bg-muted aria-expanded:bg-border [&_svg:not([class*='size-'])]:size-5";
 export const MOBILE_CIRCLE_BUTTON_CLASS =
   "size-10 rounded-full bg-muted text-foreground hover:bg-muted active:bg-border dark:hover:bg-muted [&_svg:not([class*='size-'])]:size-5";
 export const MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS =
@@ -39,6 +39,12 @@ export const MOBILE_PILL_BUTTON_CLASS =
   "h-11 gap-2 rounded-full px-5 text-sm font-semibold [&_svg:not([class*='size-'])]:size-4";
 export const MOBILE_PILL_BUTTON_SM_CLASS =
   "h-9 gap-1.5 rounded-full px-4 text-sm font-semibold [&_svg:not([class*='size-'])]:size-4";
+export const MOBILE_FILTER_CHIP_CLASS =
+  "h-9 shrink-0 gap-1.5 rounded-full border-transparent px-4 text-sm font-semibold [&_svg:not([class*='size-'])]:size-4";
+export const MOBILE_FILTER_CHIP_ACTIVE_CLASS =
+  "bg-foreground text-background hover:bg-foreground hover:text-background dark:hover:bg-foreground";
+export const MOBILE_FILTER_CHIP_IDLE_CLASS =
+  "bg-muted text-foreground hover:bg-muted dark:bg-muted dark:hover:bg-muted";
 export const MOBILE_CARD_CLASS = "overflow-hidden rounded-lg bg-muted";
 export const MOBILE_HERO_LABEL_CLASS = "text-sm font-medium text-foreground/70";
 export const MOBILE_HERO_VALUE_CLASS =
