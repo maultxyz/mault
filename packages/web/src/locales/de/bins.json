@@ -80,7 +80,10 @@
     "sortSourceRules": "Sortierregeln",
     "sortSourcePickList": "Pickliste",
     "sortSourceRulesDescription": "Karten, die den Regeln unten entsprechen.",
-    "sortSourcePickListDescription": "Nur Karten auf der Liste unten, etwa eine Deckliste. Wird vor den Regeln aller anderen Fächer geprüft."
+    "sortSourcePickListDescription": "Nur Karten auf der Liste unten, etwa eine Deckliste. Wird vor den Regeln aller anderen Fächer geprüft.",
+    "settingsTitle": "Fach-Einstellungen",
+    "advancedTitle": "Erweitert",
+    "rulesSectionDescription": "Passende Karten kommen in dieses Fach."
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."

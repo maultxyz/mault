@@ -80,7 +80,10 @@
     "sortSourceRules": "Règles de tri",
     "sortSourcePickList": "Liste de tri",
     "sortSourceRulesDescription": "Les cartes qui correspondent aux règles ci-dessous.",
-    "sortSourcePickListDescription": "Uniquement les cartes de la liste ci-dessous, comme une liste de deck. Vérifiée avant les règles de tous les autres bacs."
+    "sortSourcePickListDescription": "Uniquement les cartes de la liste ci-dessous, comme une liste de deck. Vérifiée avant les règles de tous les autres bacs.",
+    "settingsTitle": "Réglages du bac",
+    "advancedTitle": "Avancé",
+    "rulesSectionDescription": "Les cartes qui correspondent vont dans ce bac."
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."
