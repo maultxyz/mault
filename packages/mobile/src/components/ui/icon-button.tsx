@@ -18,6 +18,7 @@ export function IconButton({
     neutral: { bg: colors.muted, pressed: colors.border, fg: colors.foreground },
     primary: { bg: colors.primary, pressed: colors.primary, fg: colors.primaryForeground },
     plain: { bg: "transparent", pressed: colors.muted, fg: colors.foreground },
+    camera: { bg: colors.cameraScrim, pressed: colors.cameraScrim, fg: colors.onCamera },
   }[variant];
   return (
     <Pressable

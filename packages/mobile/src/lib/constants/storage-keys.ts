@@ -4,3 +4,4 @@ export const LAST_SORTER_ID_KEY = "mault.last-sorter-id";
 export const PENDING_SCAN_SAVES_KEY = "mault.pending-scan-saves";
 export const MODEL_CACHE_DIR = "vision-models";
 export const SORTER_AUTO_CONNECT_KEY = "mault.sorter-auto-connect";
+export const THEME_PREFERENCE_KEY = "mault.theme-preference";

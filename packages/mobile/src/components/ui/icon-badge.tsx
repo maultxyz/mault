@@ -9,7 +9,7 @@ export function IconBadge({ name, tone = "neutral", size = ICON_BADGE_SIZE }: Ic
   const colors = useTheme();
   const palette = {
     neutral: { bg: colors.muted, fg: colors.foreground },
-    primary: { bg: colors.infoMuted, fg: colors.primaryText },
+    primary: { bg: colors.primaryMuted, fg: colors.primaryText },
     destructive: { bg: colors.destructiveTint, fg: colors.destructive },
     success: { bg: colors.successMuted, fg: colors.successForeground },
     warning: { bg: colors.warningMuted, fg: colors.warningForeground },

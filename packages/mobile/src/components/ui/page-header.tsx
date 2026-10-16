@@ -2,14 +2,13 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
+import { GradientBurst } from "@/components/ui/gradient-burst";
 import { IconButton } from "@/components/ui/icon-button";
-import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { PageHeaderProps } from "@/lib/interfaces/ui";
 
 export function PageHeader({ title, subtitle, subtitleAccessory, onBack, actions, children }: PageHeaderProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const insets = useSafeAreaInsets();
   const actionRow = actions ? <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>{actions}</View> : null;
 
@@ -20,9 +19,9 @@ export function PageHeader({ title, subtitle, subtitleAccessory, onBack, actions
         paddingHorizontal: SCREEN_GUTTER,
         paddingTop: insets.top + SPACING.sm,
         paddingBottom: SPACING.md,
-        backgroundColor: colors.background,
       }}
     >
+      <GradientBurst />
       {onBack ? (
         <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: SPACING.sm }}>
           <IconButton icon="back" accessibilityLabel={t("common.back")} onPress={onBack} />

@@ -17,6 +17,7 @@ import {
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -25,14 +26,14 @@ import { useScanSession } from "@/features/scanner/api/use-scan-session";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
-import { LastScanCard } from "@/features/scanner/components/last-scan-card";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
+import { ScannerControlsSheet } from "@/features/scanner/components/scanner-controls-sheet";
+import { SessionScansSheet } from "@/features/scanner/components/session-scans-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
 import { captureFrame } from "@/features/scanner/lib/frame";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useAppState } from "@/hooks/use-app-state";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import {
   CAMERA_ASPECT_RATIO,
@@ -42,11 +43,11 @@ import {
   RUNNING_PHASES,
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { SHUTTER_SIZE } from "@/lib/constants/ui";
 
 export default function ScanScreen() {
   const { t } = useTranslation();
   const colors = useTheme();
-  const pricing = usePricing();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const appState = useAppState();
@@ -74,8 +75,8 @@ export default function ScanScreen() {
     focused && appState === "active" && !!device && permission.hasPermission && !session.modelError,
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
   );
-  const latest = session.feed[0] ?? null;
-  const latestPrice = latest?.card ? pricing.priceOf(latest.card) : null;
+  const [sessionOpen, setSessionOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
   const phaseColor =
     session.phase === "error"
       ? colors.destructive
@@ -157,12 +158,19 @@ export default function ScanScreen() {
           </View>
           <CameraChip dotColor={phaseColor} label={t(`scan.phase.${session.phase}`)} />
         </View>
-        <View pointerEvents="box-none" style={{ alignItems: "flex-start" }}>
+        <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
+          <View style={{ flex: 1, minWidth: 0, alignItems: "flex-start" }}>
+            <CameraChip
+              icon="sorter"
+              dotColor={sorterColor}
+              label={sorter.device?.name ? `${sorter.device.name} · ${t(`sorter.phase.${sorter.phase}`)}` : t("sorter.phase.idle")}
+              onPress={() => router.push("/sorter")}
+            />
+          </View>
           <CameraChip
-            icon="sorter"
-            dotColor={sorterColor}
-            label={sorter.device?.name ? `${sorter.device.name} · ${t(`sorter.phase.${sorter.phase}`)}` : t("sorter.phase.idle")}
-            onPress={() => router.push("/sorter")}
+            icon="collections"
+            label={t("scan.sessionChip", { count: session.sessionCount })}
+            onPress={() => setSessionOpen(true)}
           />
         </View>
         {!collection ? (
@@ -207,18 +215,14 @@ export default function ScanScreen() {
           pointerEvents="box-none"
           style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg, gap: SPACING.md }}
         >
-          {latest ? (
-            <LastScanCard entry={latest} priceLabel={latestPrice != null ? pricing.format(latestPrice) : null} />
-          ) : null}
-          {session.sessionCount > 0 && collection ? (
-            <View style={{ alignItems: "center" }}>
-              <CameraChip
-                label={t("scan.sessionCount", { count: session.sessionCount })}
-                onPress={() => router.push({ pathname: "/collection/[guid]", params: { guid: collection.guid } })}
-              />
-            </View>
-          ) : null}
-          <View style={{ alignItems: "center" }}>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: SPACING.md }}>
+            <IconButton
+              icon="adjust"
+              variant="camera"
+              size={SHUTTER_SIZE - SPACING.sm}
+              accessibilityLabel={t("scan.controls.open")}
+              onPress={() => setControlsOpen(true)}
+            />
             <ShutterButton
               running={session.isRunning}
               label={
@@ -232,6 +236,20 @@ export default function ScanScreen() {
           </View>
         </View>
       </View>
+      <ScannerControlsSheet
+        visible={controlsOpen}
+        running={session.isRunning}
+        canScan={!!collection && !session.modelError && session.phase !== "loading-models"}
+        onScanNow={session.scanOnce}
+        onFeedOne={session.feedOnce}
+        onClose={() => setControlsOpen(false)}
+      />
+      <SessionScansSheet
+        visible={sessionOpen}
+        entries={session.feed}
+        collectionGuid={collection?.guid ?? null}
+        onClose={() => setSessionOpen(false)}
+      />
     </View>
   );
 }

@@ -15,7 +15,7 @@ export const MOBILE_NAV_SCROLL_PADDING_CLASS =
   "pb-[var(--mobile-nav-space,0px)]";
 export const MOBILE_NAV_TAB_ACTIVE_CLASS = "text-foreground font-semibold";
 export const MOBILE_PLAIN_HEADER_CLASS =
-  "flex shrink-0 flex-col gap-4 bg-background px-5 pt-3 pb-4 text-foreground";
+  "flex shrink-0 flex-col gap-4 px-5 pt-3 pb-4 text-foreground";
 export const MOBILE_PAGE_TITLE_CLASS =
   "font-heading font-bold leading-tight tracking-tight text-foreground";
 export const MOBILE_PAGE_BODY_CLASS = "flex w-full flex-col gap-7 px-5 pt-1 pb-6";

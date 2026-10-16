@@ -29,7 +29,7 @@ import { identifyCard } from "@/features/scanner/lib/identify";
 import { warmScanModels } from "@/features/scanner/lib/inference";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { RECENT_SCANS_LIMIT } from "@/lib/constants/scanner";
+import { SESSION_FEED_IMAGE_LIMIT, SESSION_FEED_LIMIT } from "@/lib/constants/scanner";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/sorter";
 import type {
   CardSaveResult,
@@ -181,7 +181,14 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   );
 
   const pushFeed = useCallback((entry: ScanFeedEntry) => {
-    setFeed((current) => [entry, ...current].slice(0, RECENT_SCANS_LIMIT));
+    setFeed((current) => [
+      entry,
+      ...current
+        .slice(0, SESSION_FEED_LIMIT - 1)
+        .map((item, index) =>
+          index >= SESSION_FEED_IMAGE_LIMIT - 1 && item.capturedImageUrl ? { ...item, capturedImageUrl: undefined } : item,
+        ),
+    ]);
     setSessionCount((count) => count + 1);
   }, []);
 
@@ -452,6 +459,17 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     void runCapture();
   }, [runCapture]);
 
+  const feedOnce = useCallback(async () => {
+    if (runningRef.current || !latestRef.current.sorter.isReady || !latestRef.current.collection) return;
+    setPhase("feeding");
+    const reply = await latestRef.current.sorter.feed();
+    if (!reply || reply.empty || reply.error || reply.detected === false) {
+      handleFeedResult(reply);
+      return;
+    }
+    await runCapture();
+  }, [handleFeedResult, runCapture, setPhase]);
+
   return {
     phase,
     pauseReason,
@@ -466,5 +484,6 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     pause: pauseByUser,
     resume: start,
     scanOnce,
+    feedOnce,
   };
 }

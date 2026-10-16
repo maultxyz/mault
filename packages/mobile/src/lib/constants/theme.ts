@@ -11,6 +11,7 @@ export const LIGHT_COLORS: ThemeColors = {
   primary: "#1447e6",
   primaryForeground: "#eff6ff",
   primaryText: "#1447e6",
+  primaryMuted: "rgba(20, 71, 230, 0.1)",
   destructive: "#e7000b",
   destructiveStrong: "#c10007",
   destructiveMuted: "#fef2f2",
@@ -54,6 +55,7 @@ export const DARK_COLORS: ThemeColors = {
   primary: "#155dfc",
   primaryForeground: "#eff6ff",
   primaryText: "#51a2ff",
+  primaryMuted: "rgba(21, 93, 252, 0.2)",
   destructive: "#ff6467",
   destructiveStrong: "#c10007",
   destructiveMuted: "#460809",
@@ -127,3 +129,6 @@ export const FONT_FAMILY = {
   headingSemibold: "Figtree_700Bold",
   mono: "JetBrainsMono_400Regular",
 } as const;
+
+export const DARK_PRIMARY_TEXT_MIN_LIGHTNESS = 0.72;
+export const PRIMARY_MUTED_ALPHA = { light: 0.1, dark: 0.2 } as const;

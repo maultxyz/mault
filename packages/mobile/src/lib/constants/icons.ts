@@ -35,6 +35,8 @@ import IconPlus from "@tabler/icons-react-native/IconPlus";
 import IconRefresh from "@tabler/icons-react-native/IconRefresh";
 import IconScan from "@tabler/icons-react-native/IconScan";
 import IconSearch from "@tabler/icons-react-native/IconSearch";
+import IconShieldCheck from "@tabler/icons-react-native/IconShieldCheck";
+import IconSparkles from "@tabler/icons-react-native/IconSparkles";
 import IconTestPipe from "@tabler/icons-react-native/IconTestPipe";
 import IconTrash from "@tabler/icons-react-native/IconTrash";
 import IconTrophy from "@tabler/icons-react-native/IconTrophy";
@@ -75,6 +77,8 @@ export const ICONS = {
   rules: IconArrowsSplit2,
   scan: IconScan,
   search: IconSearch,
+  condition: IconShieldCheck,
+  sparkles: IconSparkles,
   selfTest: IconChecks,
   sorter: IconCpu,
   stats: IconChartBar,

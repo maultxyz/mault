@@ -1,5 +1,6 @@
 import type { z } from "zod";
 import type { signInSchema } from "@/features/account/lib/auth-schemas";
+import type { cardScanSchema } from "@/features/cards/lib/card-scan-schema";
 import type { binSchema } from "@/features/rules/lib/bin-schema";
 import type { createCollectionSchema, renameCollectionSchema } from "@/features/collections/lib/collection-schemas";
 import type { apiKeySchema } from "@/features/integrations/lib/api-key-schema";
@@ -24,3 +25,5 @@ export type InviteMemberValues = z.infer<typeof inviteMemberSchema>;
 export type RenameOrgValues = z.infer<typeof renameOrgSchema>;
 
 export type ApiKeyValues = z.infer<typeof apiKeySchema>;
+
+export type CardScanDraftValues = z.infer<typeof cardScanSchema>;

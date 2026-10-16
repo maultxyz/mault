@@ -252,6 +252,12 @@
       "owner": "Owner",
       "admin": "Admin",
       "member": "Member"
+    },
+    "appearance": "Appearance",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
     }
   },
   "sorter": {
@@ -450,7 +456,31 @@
       "paused": "Paused",
       "error": "Error"
     },
-    "pauseAction": "Pause"
+    "pauseAction": "Pause",
+    "sessionChip_one": "{{count}} scanned",
+    "sessionChip_other": "{{count}} scanned",
+    "sessionScans": {
+      "title": "This session",
+      "empty": "No cards scanned yet this session.",
+      "noMatch": "No match",
+      "bin": "Bin {{number}}"
+    },
+    "controls": {
+      "open": "Scanner controls",
+      "title": "Scanner controls",
+      "pausedHint": "Pause scanning to use these.",
+      "scanNow": "Scan now",
+      "scanNowDescription": "Identify the card that is under the camera",
+      "feed": "Feed one card",
+      "feedDescription": "Feed a single card, then scan and sort it",
+      "drop": "Drop cards",
+      "dropDescription": "Open every module so stuck cards fall through",
+      "neutral": "Reset to neutral",
+      "neutralDescription": "Move every servo back to its resting position",
+      "sorter": "Sorter",
+      "sorterDescription": "Connection, self-test and status",
+      "failed": "That didn't work. Check the sorter connection and try again."
+    }
   },
   "home": {
     "greeting": "Hi, {{name}}",
@@ -489,7 +519,8 @@
     "unique": "{{count}} unique",
     "searchPlaceholder": "Search cards",
     "noCardsYet": "No cards scanned yet",
-    "noMatches": "No cards match your search"
+    "noMatches": "No cards match your search",
+    "review": "Review {{count}}"
   },
   "cardDetail": {
     "fallbackTitle": "Card details",
@@ -509,7 +540,35 @@
     "removeFailed": "Couldn't remove the card",
     "cancel": "Cancel",
     "loadFailed": "Couldn't load this card",
-    "foil": "Foil"
+    "foil": "Foil",
+    "correctCard": "Correct card",
+    "markCorrect": "Mark correct",
+    "acceptNext": "Looks right",
+    "acceptFinish": "Looks right",
+    "reviewProgress": "Reviewing {{index}} of {{total}}",
+    "reviewed": "Reviewed",
+    "similarMatches": "Similar matches",
+    "similarMatchesHint": "Several close matches. Tap the right version.",
+    "thisScan": "This scan",
+    "foilNone": "Not foil",
+    "condition": "Condition",
+    "conditions": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Damaged (DMG)"
+    },
+    "searchPlaceholder": "Search by name, number or set",
+    "startTyping": "Start typing to search for cards",
+    "noCardsFound": "No cards found",
+    "loadMore": "Load more",
+    "saveFailed": "Couldn't save this card",
+    "discardDescription": "Your changes to this card haven't been saved.",
+    "reviewCompleteTitle": "Review complete",
+    "reviewCompleteDescription": "Every card that needed a look has been checked.",
+    "prices": "Prices",
+    "binLocation": "Bin location"
   },
   "rules": {
     "title": "Sorting rules",
@@ -1011,5 +1070,49 @@
       "share": "Share key",
       "cancel": "Cancel"
     }
+  },
+  "binCorrection": {
+    "move": {
+      "title": "Move {{name}} to Bin {{to}}",
+      "description": "It's in Bin {{from}} now, but after the correction it belongs in Bin {{to}}. Move it, then confirm so the bin counts stay right.",
+      "descriptionNoBin": "After the correction it belongs in Bin {{to}}. Put it there, then confirm so the bin counts stay right."
+    },
+    "staysIn": {
+      "title": "{{name}} stays in Bin {{bin}}",
+      "description": "It's already in the right bin, so there's nothing to move."
+    },
+    "noBin": {
+      "title": "No bin matches {{name}}",
+      "description": "None of your bins take this card, so leave it where it is."
+    },
+    "moved": "I moved it to Bin {{bin}}",
+    "leave": "Leave it in Bin {{bin}}",
+    "ok": "OK"
+  },
+  "priceTable": {
+    "heading": "TCGplayer",
+    "cardmarketHeading": "Cardmarket",
+    "cardKingdomHeading": "Card Kingdom",
+    "showDetails": "Show price details",
+    "hideDetails": "Hide price details",
+    "cardKingdomRetail": "Card Kingdom retail",
+    "retail": "Retail",
+    "buylist": "Buylist",
+    "avg": "Avg",
+    "trend": "Trend",
+    "avg7": "7-day avg",
+    "tcgplayerMarket": "TCGplayer market",
+    "cardmarketAvg": "Cardmarket average",
+    "foilPrice": "Foil {{price}}",
+    "nonFoilPrice": "Non-foil {{price}}",
+    "avg30": "30-day avg",
+    "market": "Market",
+    "low": "Low",
+    "mid": "Mid",
+    "high": "High",
+    "regular": "Regular",
+    "foil": "Foil",
+    "noPrice": "n/a",
+    "acrossPrintings": "Range across {{count}} printings"
   }
 }

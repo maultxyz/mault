@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { StyleProp, TextProps, ViewStyle } from "react-native";
 import type { OrgOverviewCard, OrgOverviewDay, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
-import type { LiveCorners, MonitorState, ScanFeedEntry } from "@/lib/interfaces/scanner";
+import type { LiveCorners, MonitorState } from "@/lib/interfaces/scanner";
 import type { FontSize, StatusTone } from "@/lib/interfaces/theme";
 
 export type IconName = keyof typeof ICONS;
@@ -250,11 +250,6 @@ export interface ShutterButtonProps {
   disabled?: boolean;
 }
 
-export interface LastScanCardProps {
-  entry: ScanFeedEntry;
-  priceLabel: string | null;
-}
-
 export interface OptionItem {
   value: string;
   label: string;
@@ -353,7 +348,7 @@ export interface IconButtonProps {
   icon: IconName;
   accessibilityLabel: string;
   onPress: () => void;
-  variant?: "neutral" | "primary" | "plain";
+  variant?: "neutral" | "primary" | "plain" | "camera";
   size?: number;
   disabled?: boolean;
 }

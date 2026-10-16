@@ -13,3 +13,16 @@ export const SLIDER_TRACK_HEIGHT = 4;
 export const SLIDER_HIT_HEIGHT = 40;
 export const ICON_BADGE_SIZE = 40;
 export const QUICK_ACTION_SIZE = 56;
+
+export const GRADIENT_BURST_SIZE = 360;
+export const GRADIENT_BURST_CENTER = 32;
+export const GRADIENT_BURST_STOPS = [
+  { offset: "0", opacity: 0.45 },
+  { offset: "0.35", opacity: 0.3 },
+  { offset: "1", opacity: 0 },
+] as const;
+
+export const THEME_PREFERENCES = ["light", "dark", "system"] as const;
+
+export const SHUTTER_SIZE = 48;
+export const SHUTTER_ICON_SIZE = 20;

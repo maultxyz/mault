@@ -1,3 +1,6 @@
+import type { THEME_PREFERENCES } from "@/lib/constants/ui";
+import type { ReactNode } from "react";
+
 import type { FONT_SIZE } from "@/lib/constants/theme";
 
 export interface ThemeColors {
@@ -11,6 +14,7 @@ export interface ThemeColors {
   primary: string;
   primaryForeground: string;
   primaryText: string;
+  primaryMuted: string;
   destructive: string;
   destructiveStrong: string;
   destructiveMuted: string;
@@ -46,3 +50,9 @@ export interface ThemeColors {
 export type FontSize = keyof typeof FONT_SIZE;
 
 export type StatusTone = "info" | "success" | "warning" | "destructive";
+
+export interface OrgThemeProviderProps {
+  children: ReactNode;
+}
+
+export type ThemePreference = (typeof THEME_PREFERENCES)[number];

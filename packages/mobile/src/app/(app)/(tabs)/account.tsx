@@ -10,11 +10,14 @@ import { ListRow } from "@/components/ui/list-row";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useTheme } from "@/hooks/use-theme";
+import { useThemePreference } from "@/hooks/use-theme-preference";
 import { setActiveOrg, signOut, useSession } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
-import { ICON_BADGE_SIZE } from "@/lib/constants/ui";
+import { ICON_BADGE_SIZE, THEME_PREFERENCES } from "@/lib/constants/ui";
+import type { ThemePreference } from "@/lib/interfaces/theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { getInitials } from "@/lib/initials";
 
@@ -24,6 +27,7 @@ export default function AccountScreen() {
   const queryClient = useQueryClient();
   const { user, organizations, activeOrgId } = useSession();
   const { pendingCount } = usePendingSaves();
+  const [themePreference, setThemePreference] = useThemePreference();
 
   const switchOrg = (orgId: string) => {
     if (orgId === activeOrgId) return;
@@ -116,6 +120,14 @@ export default function AccountScreen() {
         />
         <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
       </ListGroup>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("account.appearance")} />
+        <SegmentedControl<ThemePreference>
+          value={themePreference}
+          onChange={setThemePreference}
+          options={THEME_PREFERENCES.map((value) => ({ value, label: t(`account.themes.${value}`) }))}
+        />
+      </View>
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("account.about")} />
         <ListGroup>

@@ -17,6 +17,7 @@ import { TabStrip } from "@/components/ui/tab-strip";
 import {
   collectionCardsQueryOptions,
   collectionCardsSummaryQueryOptions,
+  reviewQueueQueryOptions,
 } from "@/features/collections/api/collection-cards";
 import {
   collectionsQueryOptions,
@@ -58,6 +59,7 @@ export default function CollectionScreen() {
   const collection = collections?.find((c) => c.guid === guid);
   const cards = useInfiniteQuery(collectionCardsQueryOptions(guid, debounced));
   const summary = useQuery(collectionCardsSummaryQueryOptions(guid));
+  const reviewQueue = useQuery(reviewQueueQueryOptions(guid));
   const stream = useSessionStream(guid);
   const makeActive = useMutation({
     mutationFn: setActiveCollection,
@@ -146,6 +148,19 @@ export default function CollectionScreen() {
             label={t("collections.makeActive")}
             loading={makeActive.isPending}
             onPress={() => makeActive.mutate(guid)}
+          />
+        ) : null}
+        {reviewQueue.data?.firstScanId ? (
+          <Button
+            variant="secondary"
+            icon="check"
+            label={t("collection.review", { count: reviewQueue.data.total })}
+            onPress={() =>
+              router.push({
+                pathname: "/card/[scanId]",
+                params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
+              })
+            }
           />
         ) : null}
       </PageHeader>

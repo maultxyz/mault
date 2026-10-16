@@ -7,14 +7,17 @@ import { useEffect } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { OrgThemeProvider } from "@/components/org-theme-provider";
 import { PendingSavesProvider } from "@/features/scanner/api/use-pending-saves";
 import { SorterProvider } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
+import { applyThemePreference, readThemePreference } from "@/lib/appearance";
 import { restoreSession, useSession } from "@/lib/auth/session";
 import { FONT_ASSETS } from "@/lib/constants/fonts";
 import { queryClient } from "@/lib/query-client";
 
 void SplashScreen.preventAutoHideAsync();
+applyThemePreference(readThemePreference());
 
 function RootNavigator() {
   const { status } = useSession();
@@ -66,11 +69,13 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <SorterProvider>
-            <PendingSavesProvider>
-              <RootNavigator />
-            </PendingSavesProvider>
-          </SorterProvider>
+          <OrgThemeProvider>
+            <SorterProvider>
+              <PendingSavesProvider>
+                <RootNavigator />
+              </PendingSavesProvider>
+            </SorterProvider>
+          </OrgThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

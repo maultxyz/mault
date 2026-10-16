@@ -42,7 +42,7 @@ export function BinRow({ bin, bins, fieldDefinitions, onPress }: BinRowProps) {
           borderRadius: RADIUS.full,
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: bin.isCatchAll ? colors.infoMuted : colors.muted,
+          backgroundColor: bin.isCatchAll ? colors.primaryMuted : colors.muted,
           opacity: bin.isDisabled ? DISABLED_OPACITY : 1,
         }}
       >

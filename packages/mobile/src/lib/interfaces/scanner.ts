@@ -184,6 +184,7 @@ export interface ScanSessionValue extends ScanSessionState {
   pause: () => void;
   resume: () => void;
   scanOnce: () => void;
+  feedOnce: () => Promise<void>;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -202,3 +203,21 @@ export interface LiveCorners {
   frameWidth: number;
   frameHeight: number;
 }
+
+export interface SessionScansSheetProps {
+  visible: boolean;
+  entries: ScanFeedEntry[];
+  collectionGuid: string | null;
+  onClose: () => void;
+}
+
+export interface ScannerControlsSheetProps {
+  visible: boolean;
+  running: boolean;
+  canScan: boolean;
+  onScanNow: () => void;
+  onFeedOne: () => Promise<void>;
+  onClose: () => void;
+}
+
+export type ScannerControlAction = "scan" | "feed" | "drop" | "neutral";
