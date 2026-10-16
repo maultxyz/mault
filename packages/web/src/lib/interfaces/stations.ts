@@ -21,6 +21,7 @@ export interface DevicePrefs {
 export interface StationConnector {
   connect: () => Promise<void>;
   connectBluetooth: () => Promise<void>;
+  connectCloud: (deviceGuid: string) => Promise<boolean>;
   connectPort: (port: SerialPort) => Promise<void>;
   connectBluetoothDevice: (device: BluetoothDevice) => Promise<void>;
   disconnect: () => void;
@@ -46,6 +47,7 @@ export interface StationsContextValue {
   setStationConnected: (id: string, connected: boolean) => void;
   registerConnector: (id: string, connector: StationConnector) => () => void;
   connectAnotherSorter: (kind: StationConnectKind) => void;
+  connectAnotherSorterCloud: (deviceGuid: string) => void;
   connectPortToStandby: (port: SerialPort) => Promise<void>;
   connectBluetoothDeviceToStandby: (device: BluetoothDevice) => Promise<void>;
   isDeviceConnected: (deviceGuid: string) => boolean;

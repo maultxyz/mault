@@ -123,6 +123,12 @@
       "usb": "die USB-Verbindung hat ihn zurückgesetzt.",
       "other": "eine seltene Ursache.",
       "unknown": "die Ursache ist unbekannt."
+    },
+    "firmwareOutdatedBannerCloud": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Um ihn im Browser zu aktualisieren, schließe den ESP32-S3 per USB an und verbinde dich über USB statt WLAN.",
+    "cloud": {
+      "offline": "Dieser Sortierer ist gerade nicht online. Prüfe, ob er eingeschaltet und mit dem WLAN verbunden ist.",
+      "inUse": "Jemand anderes steuert diesen Sortierer bereits über WLAN.",
+      "failed": "Der Sortierer war über den Server nicht erreichbar. Versuche es gleich noch einmal."
     }
   },
   "sessionMonitor": {
@@ -736,16 +742,75 @@
     "firmware": "Firmware {{version}}",
     "transport": {
       "serial": "USB",
-      "bluetooth": "Bluetooth"
+      "bluetooth": "Bluetooth",
+      "cloud": "WLAN"
     },
     "connectHint": "Schalte den Sortierer ein und verbinde dich.",
     "connectBluetooth": "Über Bluetooth verbinden",
     "connectUsb": "Über USB verbinden",
-    "unsupported": "Dieser Browser kann sich nicht mit einem Sortierer verbinden. Nutze Chrome auf Android.",
+    "unsupported": "Dieser Browser kann sich nicht direkt mit einem Sortierer verbinden. Verbinde dich unten über WLAN oder nutze Chrome auf Android.",
     "actions": "Aktionen",
     "selfTest": "Selbsttest ausführen",
     "selfTestDescription": "Prüft die Sensoren und bewegt alle Servos",
     "disconnect": "Trennen",
-    "calibrateOnDesktop": "Kalibrierung und Sortierregeln richtest du am Computer ein."
+    "calibrateOnDesktop": "Kalibrierung und Sortierregeln richtest du am Computer ein.",
+    "remote": {
+      "title": "Über WLAN",
+      "unnamed": "Kartensortierer",
+      "online": "Online, zum Verbinden tippen",
+      "offline": "Offline",
+      "inUse": "Wird von jemand anderem verwendet"
+    }
+  },
+  "sorterWifi": {
+    "title": "WLAN-Fernzugriff",
+    "description": "Verbinde den Sortierer mit deinem WLAN, um ihn von überall zu steuern, auch von einem Handy ohne Bluetooth.",
+    "connectFirst": "Verbinde deinen Sortierer per USB oder Bluetooth, um WLAN einzurichten.",
+    "needsEsp32": "WLAN-Fernzugriff benötigt ein ESP32-Board.",
+    "needsFirmware": "WLAN-Fernzugriff benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware deines Sortierers, um ihn zu nutzen.",
+    "changeOverLocal": "Du bist über WLAN verbunden. Um das WLAN-Netz zu ändern, verbinde dich per USB oder Bluetooth.",
+    "setUp": "WLAN einrichten",
+    "change": "WLAN ändern",
+    "forget": "WLAN ausschalten",
+    "notSetUp": "Nicht eingerichtet",
+    "unknown": "Wird geprüft…",
+    "forgotten": "WLAN ausgeschaltet.",
+    "forgetFailed": "WLAN konnte nicht ausgeschaltet werden.",
+    "saved": "WLAN gespeichert. Der Sortierer verbindet sich mit dem Netz.",
+    "saveFailed": "WLAN konnte nicht gespeichert werden",
+    "saveFailedDescription": "Der Sortierer hat die Einstellungen nicht übernommen. Prüfe, ob er noch verbunden ist, und versuche es erneut.",
+    "dialogTitle": "Sortierer mit WLAN verbinden",
+    "dialogDescription": "Der Sortierer merkt sich dieses Netz und verbindet sich selbstständig wieder mit dem Server. Er unterstützt nur 2,4-GHz-Netze.",
+    "ssid": "Netzwerkname",
+    "password": "Passwort",
+    "passwordHint": "Für ein offenes Netz leer lassen.",
+    "save": "Speichern",
+    "validation": {
+      "ssidRequired": "Gib den Netzwerknamen ein.",
+      "ssidTooLong": "Netzwerknamen dürfen höchstens {{max}} Bytes lang sein.",
+      "password": "Passwörter haben {{min}} bis {{max}} Zeichen oder bleiben für ein offenes Netz leer."
+    },
+    "wifiLabel": "WLAN",
+    "cloudLabel": "Serververbindung",
+    "wifiState": {
+      "unconfigured": "Nicht eingerichtet",
+      "connecting": "Verbindet",
+      "connected": "Verbunden",
+      "paused": "Pausiert"
+    },
+    "cloudState": {
+      "unconfigured": "Nicht eingerichtet",
+      "offline": "Offline",
+      "connecting": "Verbindet",
+      "connected": "Verbunden",
+      "rejected": "Abgelehnt, WLAN erneut einrichten"
+    },
+    "pausedForPower": "Der Sortierer ist beim Start des WLANs wegen Spannungseinbrüchen immer wieder neu gestartet. Daher ist WLAN pausiert, USB und Bluetooth funktionieren weiter. Nutze ein stärkeres Netzteil oder versorge die Servos separat, trenne den Sortierer dann kurz vom Strom oder speichere das WLAN erneut, um es noch einmal zu versuchen."
+  },
+  "wifiConnect": {
+    "item": "WLAN: {{name}}",
+    "offline": "Offline",
+    "inUse": "In Benutzung",
+    "connectedHere": "Verbunden"
   }
 }

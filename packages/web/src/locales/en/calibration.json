@@ -470,7 +470,8 @@
     "bluetoothNote": "Flashing doesn't work over Bluetooth. Connect the sorter with a USB cable to flash it.",
     "unoNote": "Arduino Uno R4 boards can't be flashed from the browser. Download the firmware and upload it with the Arduino IDE.",
     "notConnectedHint": "Connect a sorter to see its version, or flash an ESP32-S3 over USB without connecting it first.",
-    "unsupported": "This browser can't flash boards. Use Chrome or Edge on a computer."
+    "unsupported": "This browser can't flash boards. Use Chrome or Edge on a computer.",
+    "cloudNote": "Flashing doesn't work over Wi-Fi. Connect the sorter with a USB cable to flash it."
   },
   "sectionIntros": {
     "connection": "Connect the sorter over USB or Bluetooth, keep its firmware up to date and choose what happens when it connects.",

@@ -1,4 +1,5 @@
 import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
+import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import { SectionNav } from "@/components/section-nav";
 import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import { Button } from "@/components/ui/button";
@@ -76,6 +77,7 @@ export default function CalibrateLayout() {
     isReady,
     connect,
     connectBluetooth,
+    connectCloud,
     staleDialogOpen,
     onDismissStaleDialog,
     onRunTest,
@@ -136,6 +138,7 @@ export default function CalibrateLayout() {
                       {t("calibratePage.connectBluetooth")}
                     </DropdownMenuItem>
                   )}
+                  <WifiSorterMenuItems onSelect={connectCloud} />
                 </DropdownMenuContent>
               </DropdownMenu>
             )}

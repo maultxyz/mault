@@ -272,7 +272,9 @@
       "route": "Charge une carte et l'envoie vers la sortie gauche, droite ou du bas d'un module.",
       "pushTest": "Exécute seulement l'étape de poussée d'un module, sans carte ni vérification IR.",
       "setConfig": "Définit les impulsions des servos et les délais de poussée d'un module. Les champs vides gardent leur valeur actuelle.",
-      "setFeederConfig": "Définit la vitesse, les délais et le recul du chargeur. Les champs vides gardent leur valeur actuelle."
+      "setFeederConfig": "Définit la vitesse, les délais et le recul du chargeur. Les champs vides gardent leur valeur actuelle.",
+      "getWifi": "Indique le réseau Wi-Fi, l'adresse IP, le signal et l'état du lien serveur.",
+      "clearWifi": "Oublie le réseau Wi-Fi et le lien serveur. La carte reste hors ligne jusqu'à ce que le Wi-Fi soit reconfiguré."
     },
     "raw": {
       "heading": "Console brute",

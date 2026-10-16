@@ -470,7 +470,8 @@
     "bluetoothNote": "Flashen funktioniert nicht über Bluetooth. Verbinde den Sortierer per USB-Kabel, um ihn zu flashen.",
     "unoNote": "Arduino Uno R4 Boards können nicht im Browser geflasht werden. Lade die Firmware herunter und spiele sie mit der Arduino IDE auf.",
     "notConnectedHint": "Verbinde einen Sortierer, um seine Version zu sehen, oder flashe einen ESP32-S3 per USB, ohne ihn vorher zu verbinden.",
-    "unsupported": "Dieser Browser kann keine Boards flashen. Verwende Chrome oder Edge auf einem Computer."
+    "unsupported": "Dieser Browser kann keine Boards flashen. Verwende Chrome oder Edge auf einem Computer.",
+    "cloudNote": "Flashen funktioniert nicht über WLAN. Schließe den Sortierer per USB-Kabel an, um ihn zu flashen."
   },
   "sectionIntros": {
     "connection": "Verbinde den Sortierer per USB oder Bluetooth, halte seine Firmware aktuell und lege fest, was beim Verbinden passiert.",

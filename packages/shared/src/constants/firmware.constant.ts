@@ -21,6 +21,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   feederRollback: "2.4.0",
   storedCalibration: "2.5.0",
   paddleOpenDelay: "2.6.0",
+  wifiRemote: "2.10.0",
 };
 
 export function isFirmwareFeatureSupported(

@@ -5,6 +5,7 @@ import { ConnectionSettingsPanel } from "@/features/calibration/components/conne
 import { ExperimentalFeaturesPanel } from "@/features/calibration/components/experimental-features-panel";
 import { FirmwarePanel } from "@/features/calibration/components/firmware-panel";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
+import { SorterWifiPanel } from "@/features/scanner/components/sorter-wifi-panel";
 import { useTranslation } from "react-i18next";
 
 export default function CalibrateConnectionPage() {
@@ -28,6 +29,7 @@ export default function CalibrateConnectionPage() {
         onChange={deviceToggles.set}
       />
       <FirmwarePanel />
+      <SorterWifiPanel />
       <ExperimentalFeaturesPanel
         values={deviceToggles.values}
         isLoaded={deviceToggles.isLoaded}

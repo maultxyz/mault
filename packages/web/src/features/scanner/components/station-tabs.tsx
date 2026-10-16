@@ -7,6 +7,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useStationName } from "@/features/scanner/api/use-station-name";
 import { useStations } from "@/features/scanner/api/use-stations";
+import { useWifiSorters } from "@/features/scanner/api/use-wifi-sorters";
+import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import type { StationTabProps } from "@/lib/interfaces/stations";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import { IconLayoutGrid, IconPlus, IconX } from "@tabler/icons-react";
@@ -57,9 +59,11 @@ export function StationTabs() {
     activeStationId,
     connectedStationIds,
     connectAnotherSorter,
+    connectAnotherSorterCloud,
     canConnectAnotherSorter,
     sorterLimitIsHardCap,
   } = useStations();
+  const hasWifiSorters = useWifiSorters(false).length > 0;
   const connected = stations.filter((s) => connectedStationIds.has(s.id));
   if (connected.length === 0) return null;
 
@@ -92,7 +96,7 @@ export function StationTabs() {
           />
         ))}
       </div>
-      {canConnectAnotherSorter && !bluetoothSupported ? (
+      {canConnectAnotherSorter && !bluetoothSupported && !hasWifiSorters ? (
         <Button
           size="sm"
           variant="ghost"
@@ -115,11 +119,14 @@ export function StationTabs() {
                 <DropdownMenuItem onClick={() => connectAnotherSorter("usb")}>
                   {t("scannerMenu.connectUsb")}
                 </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => connectAnotherSorter("bluetooth")}
-                >
-                  {t("scannerMenu.connectBluetooth")}
-                </DropdownMenuItem>
+                {bluetoothSupported && (
+                  <DropdownMenuItem
+                    onClick={() => connectAnotherSorter("bluetooth")}
+                  >
+                    {t("scannerMenu.connectBluetooth")}
+                  </DropdownMenuItem>
+                )}
+                <WifiSorterMenuItems onSelect={connectAnotherSorterCloud} />
               </>
             ) : sorterLimitIsHardCap ? (
               <DropdownMenuItem disabled>

@@ -5,6 +5,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useWifiSorters } from "@/features/scanner/api/use-wifi-sorters";
+import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import type { ScannerOverlayProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import {
@@ -69,9 +71,11 @@ export function ScannerOverlay({
   onOpenPhonePairing,
   onConnectScanner,
   onConnectScannerBluetooth,
+  onConnectScannerCloud,
   bluetoothSupported,
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
+  const hasWifiSorters = useWifiSorters(false).length > 0;
   const isPhoneMode = cameraSource === "phone";
 
   if (dailyLimitReached) {
@@ -149,7 +153,7 @@ export function ScannerOverlay({
           <span className="flex-1">
             {t("scannerOverlay.scannerNotConnected")}
           </span>
-          {bluetoothSupported ? (
+          {bluetoothSupported || hasWifiSorters ? (
             <DropdownMenu>
               <DropdownMenuTrigger render={<Button size="sm" />}>
                 {t("connect")}
@@ -158,9 +162,12 @@ export function ScannerOverlay({
                 <DropdownMenuItem onClick={onConnectScanner}>
                   {t("scannerMenu.connectUsb")}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={onConnectScannerBluetooth}>
-                  {t("scannerMenu.connectBluetooth")}
-                </DropdownMenuItem>
+                {bluetoothSupported && (
+                  <DropdownMenuItem onClick={onConnectScannerBluetooth}>
+                    {t("scannerMenu.connectBluetooth")}
+                  </DropdownMenuItem>
+                )}
+                <WifiSorterMenuItems onSelect={onConnectScannerCloud} />
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (

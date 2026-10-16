@@ -1,0 +1,2 @@
+ALTER TABLE "devices" ADD COLUMN "sorter_link_token_hash" text;--> statement-breakpoint
+CREATE UNIQUE INDEX "devices_sorter_link_token_idx" ON "devices" USING btree ("sorter_link_token_hash") WHERE "devices"."sorter_link_token_hash" IS NOT NULL;

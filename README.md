@@ -101,6 +101,7 @@ Each file holds only the variables its provider uses, with `AUTH_PROVIDER`/`VITE
    - `IMPERSONATION_SECRET` — any random string
    - `MONITOR_LINK_SECRET` — any random string (optional; enables shareable no-login monitor links)
    - `API_URL`: the API server's public base URL, e.g. `https://mault.example.com/api` (optional; used for `next_page` links in the public API, which otherwise come from the request's host)
+   - `SORTER_LINK_URL`: the WebSocket address ESP32 sorters dial for Wi-Fi remote control, e.g. `wss://mault.example.com/api/sorter-link/device` (optional; defaults to `API_URL` with `ws`/`wss`, else the web app's own origin. Set it when developing locally, since the board can't reach `localhost`: e.g. `ws://192.168.1.20:3001/sorter-link/device`)
    - `WEBHOOK_ALLOW_INSECURE_URLS`: `true` lets webhooks use `http://` and private addresses such as LAN or `localhost` targets (optional; off by default, keep it off on any server reachable from the internet)
 2. Start the stack:
    ```bash

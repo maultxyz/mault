@@ -84,6 +84,7 @@ export function CardScanner({
   const {
     setActiveStation,
     connectAnotherSorter,
+    connectAnotherSorterCloud,
     canConnectAnotherSorter,
     sorterLimitIsHardCap,
   } = useStations();
@@ -100,6 +101,7 @@ export function CardScanner({
   const {
     connect,
     connectBluetooth,
+    connectCloud,
     staleDialogOpen,
     onDismissStaleDialog,
     onRunTest,
@@ -674,6 +676,7 @@ export function CardScanner({
           onOpenPhonePairing={handleOpenPhonePairing}
           onConnectScanner={connect}
           onConnectScannerBluetooth={connectBluetooth}
+          onConnectScannerCloud={connectCloud}
           bluetoothSupported={bluetoothSupported}
         />
         <ScannerMenu
@@ -691,6 +694,7 @@ export function CardScanner({
           onOpenPhonePairing={handleOpenPhonePairing}
           onScannerConnect={connect}
           onScannerConnectBluetooth={connectBluetooth}
+          onScannerConnectCloud={connectCloud}
           bluetoothSupported={bluetoothSupported}
           onScannerDisconnect={disconnect}
           onScannerRetry={sendTest}
@@ -700,6 +704,7 @@ export function CardScanner({
           }}
           onConnectAnotherUsb={() => connectAnotherSorter("usb")}
           onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
+          onConnectAnotherCloud={connectAnotherSorterCloud}
           canConnectAnotherSorter={canConnectAnotherSorter}
           sorterLimitIsHardCap={sorterLimitIsHardCap}
           onUpgrade={() => navigate(SETTINGS_PATHS.billing)}

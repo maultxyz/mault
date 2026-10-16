@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
+import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconAdjustments,
@@ -40,6 +41,7 @@ export function ScannerMenu({
   onOpenPhonePairing,
   onScannerConnect,
   onScannerConnectBluetooth,
+  onScannerConnectCloud,
   bluetoothSupported,
   onScannerDisconnect,
   onScannerRetry,
@@ -48,6 +50,7 @@ export function ScannerMenu({
   onAllowDuplicatesChange,
   onConnectAnotherUsb,
   onConnectAnotherBluetooth,
+  onConnectAnotherCloud,
   canConnectAnotherSorter,
   sorterLimitIsHardCap,
   onUpgrade,
@@ -166,6 +169,7 @@ export function ScannerMenu({
                           {t("scannerMenu.connectAnotherBluetooth")}
                         </DropdownMenuItem>
                       )}
+                      <WifiSorterMenuItems onSelect={onConnectAnotherCloud} />
                     </>
                   ) : sorterLimitIsHardCap ? (
                     <DropdownMenuItem disabled>
@@ -197,6 +201,10 @@ export function ScannerMenu({
                       {t("scannerMenu.connectBluetooth")}
                     </DropdownMenuItem>
                   )}
+                  <WifiSorterMenuItems
+                    disabled={scanningBlocked}
+                    onSelect={onScannerConnectCloud}
+                  />
                   {webSerialSupported && (
                     <>
                       <DropdownMenuSeparator />

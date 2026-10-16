@@ -16,8 +16,10 @@ import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
 import { claimBootNotice } from "@/features/scanner/lib/sorter-boot-notice";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
+import { sorterLinkClientUrl } from "@/features/scanner/lib/sorter-link";
 import {
   BluetoothTransport,
+  CloudTransport,
   SerialTransport,
 } from "@/features/scanner/lib/transports";
 import {
@@ -1122,6 +1124,36 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [toast, openTransport, t],
   );
 
+  const connectCloud = useCallback(
+    async (
+      deviceGuid: string,
+      options?: { skipAutoTest?: boolean },
+    ): Promise<boolean> => {
+      if (disconnectingRef.current) {
+        await disconnectingRef.current;
+      }
+      if (transportRef.current) return false;
+
+      const url = await sorterLinkClientUrl(deviceGuid);
+      const result = url
+        ? await CloudTransport.open(url)
+        : ({ ok: false, reason: "failed" } as const);
+      if (!result.ok) {
+        toast.error(t("serial.connectionFailed.title"), {
+          description: t(`serial.cloud.${result.reason}`),
+        });
+        return false;
+      }
+      if (transportRef.current) {
+        await result.transport.close();
+        return false;
+      }
+      await openTransport(result.transport, options);
+      return true;
+    },
+    [toast, openTransport, t],
+  );
+
   // Keeps this sorter's slot against the plan's connected-sorter cap. If the
   // lease was lost (e.g. the server restarted) and another sorter took the
   // slot meanwhile, this one yields.
@@ -1142,6 +1174,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       stationsRef.current.registerConnector(station.id, {
         connect: () => connect(),
         connectBluetooth: () => connectBluetooth(),
+        connectCloud: (deviceGuid: string) => connectCloud(deviceGuid),
         connectPort,
         connectBluetoothDevice,
         disconnect,
@@ -1150,6 +1183,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       station.id,
       connect,
       connectBluetooth,
+      connectCloud,
       connectPort,
       connectBluetoothDevice,
       disconnect,
@@ -1479,6 +1513,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         transport,
         connect,
         connectBluetooth,
+        connectCloud,
         disconnect,
         sendRoute,
         sendPushTest,

@@ -4,6 +4,8 @@ import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { Button } from "@/components/ui/button";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { MobileRemoteSorters } from "@/features/scanner/components/mobile-remote-sorters";
+import { MobileSorterWifiSection } from "@/features/scanner/components/mobile-sorter-wifi-section";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   MOBILE_CARD_CLASS,
@@ -35,6 +37,7 @@ export default function SorterPage() {
   const [busy, setBusy] = useState<"connect" | "test" | "disconnect" | null>(
     null,
   );
+  const [connectingGuid, setConnectingGuid] = useState<string | null>(null);
   const bluetoothSupported =
     typeof navigator !== "undefined" && !!navigator.bluetooth;
   const usbSupported = typeof navigator !== "undefined" && !!navigator.serial;
@@ -47,6 +50,15 @@ export default function SorterPage() {
       await fn();
     } finally {
       setBusy(null);
+    }
+  };
+
+  const connectRemote = async (deviceGuid: string) => {
+    setConnectingGuid(deviceGuid);
+    try {
+      await run("connect", () => serial.connectCloud(deviceGuid));
+    } finally {
+      setConnectingGuid(null);
     }
   };
 
@@ -132,7 +144,7 @@ export default function SorterPage() {
                   disabled={busy !== null}
                   onClick={() => void run("connect", () => serial.connectBluetooth())}
                 >
-                  {busy === "connect" ? (
+                  {busy === "connect" && !connectingGuid ? (
                     <IconLoader2 className="animate-spin" />
                   ) : (
                     <IconBluetooth />
@@ -152,10 +164,15 @@ export default function SorterPage() {
                 </Button>
               )}
               {!bluetoothSupported && !usbSupported && (
-                <Callout variant="warning" icon={IconAlertTriangle}>
+                <Callout variant="info">
                   {t("mobileSorter.unsupported")}
                 </Callout>
               )}
+              <MobileRemoteSorters
+                disabled={busy !== null}
+                connectingGuid={connectingGuid}
+                onConnect={connectRemote}
+              />
             </div>
           ) : (
             <MobileSection title={t("mobileSorter.actions")}>
@@ -183,6 +200,8 @@ export default function SorterPage() {
               </div>
             </MobileSection>
           )}
+
+          {serial.isConnected && <MobileSorterWifiSection />}
 
           <p className="text-sm text-foreground/70">
             {t("mobileSorter.calibrateOnDesktop")}

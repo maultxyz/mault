@@ -1,6 +1,7 @@
 import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";
+import { createNodeWebSocket } from "@hono/node-ws";
 import { Hono } from "hono";
 import { PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
 import { cors } from "hono/cors";
@@ -27,6 +28,7 @@ import { orgSettingsRouter } from "./routes/org-settings";
 import { publicRouter } from "./routes/public";
 import { integrationsRouter } from "./routes/integrations";
 import { soundsRouter } from "./routes/sounds";
+import { createSorterLinkRouter } from "./routes/sorter-link";
 import { storageLocationsRouter } from "./routes/storage-locations";
 import { streamRoute } from "./routes/stream";
 import { publicApiRouter } from "./routes/v1";
@@ -40,6 +42,7 @@ import { loadPlanConfig } from "./lib/plan-config";
 import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
 
 const app = new Hono<AppEnv>();
+const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
 const PORT = parseInt(process.env.PORT ?? "3001");
 
 const appCors = cors({
@@ -87,6 +90,7 @@ app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
 app.route("/stream", streamRoute);
+app.route("/sorter-link", createSorterLinkRouter(upgradeWebSocket));
 app.route("/v1", publicApiRouter);
 
 app.onError((err, c) => {
@@ -98,6 +102,10 @@ app.onError((err, c) => {
 loadPlanConfig();
 startWebhookDeliveryWorker();
 
-serve({ fetch: app.fetch, port: PORT, hostname: "0.0.0.0" }, () => {
-  console.log(`[server] Running on port:${PORT}`);
-});
+const server = serve(
+  { fetch: app.fetch, port: PORT, hostname: "0.0.0.0" },
+  () => {
+    console.log(`[server] Running on port:${PORT}`);
+  },
+);
+injectWebSocket(server);

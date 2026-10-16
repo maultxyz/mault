@@ -163,7 +163,7 @@ export type SerialMessageListener = (message: unknown) => void;
 
 export type SerialBoardType = "esp32" | "uno_r4";
 
-export type SerialTransportType = "serial" | "bluetooth";
+export type SerialTransportType = "serial" | "bluetooth" | "cloud";
 
 export type FlashFailureReason =
   | "wrong-chip"
@@ -230,6 +230,10 @@ export interface SerialContextValue {
   transport: SerialTransportType | null;
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
+  connectCloud: (
+    deviceGuid: string,
+    options?: { skipAutoTest?: boolean },
+  ) => Promise<boolean>;
   disconnect: () => Promise<void>;
   sendRoute: (
     route: BinRoute,
@@ -306,6 +310,7 @@ export interface ScannerOverlayProps {
   onOpenPhonePairing: () => void;
   onConnectScanner: () => void;
   onConnectScannerBluetooth: () => void;
+  onConnectScannerCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
 }
 
@@ -835,6 +840,7 @@ export interface ScannerMenuProps {
   onOpenPhonePairing: () => void;
   onScannerConnect: () => void;
   onScannerConnectBluetooth: () => void;
+  onScannerConnectCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
   onScannerDisconnect: () => void;
   onScannerRetry: () => void;
@@ -843,6 +849,7 @@ export interface ScannerMenuProps {
   onAllowDuplicatesChange: (enabled: boolean) => void;
   onConnectAnotherUsb: () => void;
   onConnectAnotherBluetooth: () => void;
+  onConnectAnotherCloud: (deviceGuid: string) => void;
   canConnectAnotherSorter: boolean;
   sorterLimitIsHardCap: boolean;
   onUpgrade: () => void;
@@ -947,3 +954,5 @@ export interface MobileCollectionSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
+
+export type CloudTransportFailure = "offline" | "inUse" | "failed";

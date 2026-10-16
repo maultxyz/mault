@@ -171,6 +171,51 @@ protocol standpoint.
   so multiple physical units show up as distinct entries in a phone/OS
   Bluetooth picker before a client ever connects to one.
 
+## Wi-Fi transport (firmware 2.10.0+, ESP32 only)
+
+Every ESP32 build can also join the user's Wi-Fi network and hold an
+outbound WebSocket to the app's server, which relays it to a browser
+anywhere. The sorter never accepts inbound connections, so it works behind
+any home router without port forwarding. It carries the **exact same**
+line-delimited JSON protocol as Serial and BLE: received lines go through
+the same command dispatcher, and replies go back only on the transport the
+command arrived on.
+
+- **Setup:** over Serial or BLE, send `setWifi` (network) and `setCloud`
+  (server URL plus a per-device token issued by the server), see Commands
+  below. Both persist in NVS and survive reboots and reflashes;
+  `clearWifi` forgets them.
+- **Handshake:** the sorter opens `ws://` or `wss://` to the `setCloud` URL
+  (`/sorter-link/device` on the API) with these headers:
+  - `Authorization: Bearer <token>`
+  - `X-Sorter-Id: <id>` (the same `id` as `getStatus`)
+  - `X-Sorter-Firmware: <version>`
+
+  `wss://` verifies the server against the ESP-IDF root CA bundle. A `401`,
+  `403` or `404` reply marks the link `rejected` and the sorter retries only
+  every 5 minutes; any other failure retries with backoff from 1 s up to
+  30 s.
+- **Framing:** each WebSocket text message carries one or more whole
+  `
+`-terminated lines in either direction. Frames are at most 1024 bytes.
+- **Keepalive:** the server pings every 20 s. The sorter answers pings and
+  drops the link after 60 s without receiving anything.
+- **Server relay:** the server forwards the sorter's lines to at most one
+  browser at a time (`/sorter-link/client`). Before relaying, it sends the
+  browser `{"sorterLink":"ready","firmware":"2.10.0"}`. It closes the browser
+  socket with code `4404` when the sorter is offline or drops, and `4409`
+  when another browser already holds the sorter. Rotating or revoking the
+  token closes the sorter's socket with `4401`.
+- **Concurrency:** all networking runs in its own FreeRTOS task on the core
+  the Arduino loop doesn't use, so TLS handshakes never stretch servo
+  timings.
+- **Power safety:** joining Wi-Fi draws 300 to 500 mA spikes. The radio
+  waits 2 s after boot so it doesn't start alongside the boot-time servo
+  moves and BLE, transmits at 15 dBm, and after 2 brownout resets in a row
+  stays off (`"wifi":"paused"`) so Serial and BLE remain usable. It resumes
+  after a power cycle or the next `setWifi`/`setCloud`/`clearWifi`. 60 s of
+  uptime clears the brownout count.
+
 ## Hardware model
 
 - A **module** is one physical sorting stage: three positional SG90
@@ -254,6 +299,11 @@ Firmware 2.9.0+ adds `"servoDriver"` to both the boot banner and the
 (`0x40`), `"missing"` if it doesn't even after an I2C restart (unplugged,
 unpowered logic side, or miswired SDA/SCL). It only checks the logic side: a
 driver whose V+ servo supply is missing still reports `"ok"`.
+
+Firmware 2.10.0+ on ESP32 adds `"wifi"` (`"unconfigured"`, `"connecting"`,
+`"connected"` or `"paused"`) and `"cloud"` (`"unconfigured"`, `"offline"`,
+`"connecting"`, `"connected"` or `"rejected"`) to the `getStatus` reply. See
+`getWifi` for details.
 
 ### `setChannelOffset`
 ```json
@@ -491,6 +541,41 @@ as `setConfig`.
 
 Both section forms answer `{"error":"no stored config"}` before the first
 `storeConfig`. Older firmware answers `{"error":"unknown command"}`.
+
+### Wi-Fi commands (firmware 2.10.0+, ESP32 only)
+
+Older firmware and non-ESP32 boards answer `{"error":"unknown command"}`.
+
+```json
+{"setWifi": {"ssid": "Home", "password": "hunter22"}}
+```
+Stores the network and (re)joins it. `ssid` is 1 to 32 bytes, `password` is
+empty (open network) or 8 to 64 characters. Only 2.4 GHz networks work.
+→ `{"status":"ok"}`, or `{"error":"ssid must be 1 to 32 bytes"}` /
+`{"error":"password must be empty or 8 to 64 characters"}`.
+
+```json
+{"setCloud": {"url": "wss://mault.example.com/api/sorter-link/device", "token": "mvs_..."}}
+```
+Stores the server link and reconnects. `url` is a `ws://` or `wss://`
+address up to 150 characters, `token` is 16 to 80 characters (the server
+issues it per device record). → `{"status":"ok"}`, or an `{"error":...}`
+naming the bad field.
+
+```json
+{"clearWifi": true}
+```
+Forgets the network and the server link and turns the radio off.
+→ `{"status":"ok"}`
+
+```json
+{"getWifi": true}
+```
+→ `{"status":"ok","wifi":"connected","ssid":"Home","ip":"192.168.1.40","rssi":-58,"cloud":"connected","host":"mault.example.com"}`.
+`wifi` is `"unconfigured"`, `"connecting"`, `"connected"` or `"paused"`
+(see Power safety above). `ssid` is present once set, `ip` and `rssi` only while joined, `host` once a
+valid `setCloud` URL is stored. `cloud` is `"rejected"` when the server
+refused the token (set it up again with a fresh token).
 
 ### `readIR`
 ```json
