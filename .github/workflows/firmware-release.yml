@@ -5,6 +5,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: master-release-pipeline
@@ -135,17 +136,15 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Pushes made with the default GITHUB_TOKEN don't trigger other
-      # workflow runs (GitHub's built-in loop guard), so deploy.yml's own
-      # `push: branches: [master]` trigger won't fire for the commit above -
-      # without this, the live site would keep serving whatever firmware
-      # binary was already baked into the currently-deployed image until
-      # some unrelated change happened to redeploy web next.
-      - name: Trigger Coolify deployment (web)
+      # The firmware binary is baked into the web image, which only the deploy
+      # workflow builds, so the live site keeps serving the old binary until
+      # a deploy runs. It shares this workflow's concurrency group, so it
+      # queues behind this run and builds from the commit above.
+      - name: Trigger deploy
         if: steps.commit.outputs.changed == 'true'
-        run: |
-          curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --repo "${{ github.repository }}" --ref "${{ github.ref_name }}"
 
       - name: Create release
         env:

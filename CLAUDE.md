@@ -114,6 +114,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 ### Deploys
 
 - `.github/workflows/deploy.yml` posts and clears a deploy banner (`X-Deploy-Key`), pauses scanning via `DEPLOY_STATUS_EVENT`, and regenerates `openapi.json`. Every banner step is `continue-on-error`.
+- Images are built in CI and pushed to GHCR (`mault-web`/`-server`/`-api-docs`, tagged `vX.Y.Z` and `sha-*`); Coolify pulls `:latest` (production, from master) or `:dev` (pushes to `dev`, `development` GitHub environment, version `X.Y.Z-dev.<sha>`, never committed or tagged); the channel tag moves only after the release commit (and, for the server, migrations). Secrets and variables use the same names in both GitHub environments. Web `VITE_*` build args come from GitHub repo variables, not Coolify. Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`, not hit a Coolify webhook.
 
 ## Web conventions
 

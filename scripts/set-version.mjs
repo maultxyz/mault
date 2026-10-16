@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from "fs";
 
 const version = process.argv[2];
-if (!version || !/^\d+\.\d+\.\d+$/.test(version)) {
-  console.error("Usage: node scripts/set-version.mjs <major.minor.patch>");
+if (!version || !/^\d+\.\d+\.\d+(-[0-9A-Za-z.]+)?$/.test(version)) {
+  console.error("Usage: node scripts/set-version.mjs <major.minor.patch[-prerelease]>");
   process.exit(1);
 }
 
