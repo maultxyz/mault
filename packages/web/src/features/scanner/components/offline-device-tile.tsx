@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useDeleteDevice } from "@/features/calibration/api/use-delete-device";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionLatestCard } from "@/features/scanner/api/use-collection-latest-card";
+import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { RenameDeviceButton } from "@/features/scanner/components/rename-device-button";
 import { StationOverviewCard } from "@/features/scanner/components/station-overview-card";
@@ -19,6 +20,7 @@ export function OfflineDeviceTile({ device }: OfflineDeviceTileProps) {
   const collection = collections.find((c) => c.guid === lastCollectionGuid);
   const { latestCard, totalCount } = useCollectionLatestCard(collection?.guid);
   const deleteDevice = useDeleteDevice();
+  const { selectedKeys, toggleSelected } = useSorterSelection();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const deleteLabel = t("stations.overview.delete", { name: device.name });
 
@@ -30,6 +32,8 @@ export function OfflineDeviceTile({ device }: OfflineDeviceTileProps) {
         latestCard={latestCard}
         collectionName={collection?.name}
         totalCount={totalCount}
+        selected={selectedKeys.has(device.guid)}
+        onToggleSelect={() => toggleSelected(device.guid)}
         action={
           <>
             <RenameDeviceButton device={device} />

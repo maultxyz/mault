@@ -82,6 +82,23 @@ export interface StationOverviewCardProps {
   onOpen?: () => void;
   openLabel?: string;
   action?: ReactNode;
+  selected?: boolean;
+  onToggleSelect?: () => void;
+}
+
+export interface SorterControl {
+  isRunning: boolean;
+  pause: () => void;
+}
+
+export interface SorterSelectionContextValue {
+  selectedKeys: ReadonlySet<string>;
+  runningKeys: ReadonlySet<string>;
+  toggleSelected: (key: string) => void;
+  setSelected: (keys: Iterable<string>) => void;
+  clearSelected: () => void;
+  registerSorterControl: (key: string, control: SorterControl) => () => void;
+  pauseSorters: (keys: Iterable<string>) => void;
 }
 
 export interface OfflineDeviceTileProps {

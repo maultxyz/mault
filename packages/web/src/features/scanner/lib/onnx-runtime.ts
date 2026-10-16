@@ -16,6 +16,10 @@ export function getExecutionProviderPreference(): OnnxExecutionProviderPreferenc
   }
 }
 
+function notifyExecutionProviderListeners(): void {
+  executionProviderListeners.forEach((listener) => listener());
+}
+
 export function setExecutionProviderPreference(
   value: OnnxExecutionProviderPreference,
 ): void {
@@ -27,8 +31,19 @@ export function setExecutionProviderPreference(
     }
   } catch {}
 
-  sessions.clear();
-  executionProviderListeners.forEach((listener) => listener());
+  if (value === "webgpu") webgpuUnavailable = false;
+  resetSessions();
+  notifyExecutionProviderListeners();
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key !== null && event.key !== ONNX_EXECUTION_PROVIDER_STORAGE_KEY) {
+      return;
+    }
+    resetSessions();
+    notifyExecutionProviderListeners();
+  });
 }
 
 function subscribeExecutionProviderPreference(listener: () => void) {
@@ -47,6 +62,43 @@ export function useExecutionProviderPreference() {
 }
 
 const sessions = new Map<string, Promise<ort.InferenceSession>>();
+const runQueues = new Map<string, Promise<unknown>>();
+let webgpuUnavailable = false;
+
+function enqueue<T>(key: string, task: () => Promise<T>): Promise<T> {
+  const next = (runQueues.get(key) ?? Promise.resolve())
+    .catch(() => {})
+    .then(task);
+  runQueues.set(
+    key,
+    next.catch(() => {}),
+  );
+  return next;
+}
+
+function releaseWhenIdle(
+  key: string,
+  promise: Promise<ort.InferenceSession>,
+): void {
+  enqueue(key, async () => {
+    const session = await promise;
+    await session.release();
+  }).catch(() => {});
+}
+
+function resetSessions(keep?: string): void {
+  for (const [key, promise] of [...sessions]) {
+    if (key === keep) continue;
+    sessions.delete(key);
+    releaseWhenIdle(key, promise);
+  }
+}
+
+function effectiveExecutionProvider(): OnnxExecutionProviderPreference {
+  return getExecutionProviderPreference() === "webgpu" && !webgpuUnavailable
+    ? "webgpu"
+    : "wasm";
+}
 
 let runtimeFailure: Error | null = null;
 const runtimeFailureListeners = new Set<() => void>();
@@ -65,7 +117,7 @@ function markRuntimeFailed(err: Error): void {
     try {
       localStorage.removeItem(ONNX_EXECUTION_PROVIDER_STORAGE_KEY);
     } catch {}
-    executionProviderListeners.forEach((listener) => listener());
+    notifyExecutionProviderListeners();
   }
   runtimeFailureListeners.forEach((listener) => listener());
 }
@@ -88,72 +140,86 @@ export function useOnnxRuntimeFailure(): Error | null {
   );
 }
 
-export async function loadOnnxSession(
+async function createSession(
   key: string,
   model: PinnedModel,
   extraOptions?: Partial<ort.InferenceSession.SessionOptions>,
 ): Promise<ort.InferenceSession> {
-  if (runtimeFailure) throw runtimeFailure;
-  let promise = sessions.get(key);
-  if (!promise) {
-    promise = (async () => {
-      const buffer = await fetchPinnedModel(model);
-      if (getExecutionProviderPreference() === "webgpu") {
-        try {
-          return await ort.InferenceSession.create(buffer, {
-            executionProviders: ["webgpu", "wasm"],
-            ...extraOptions,
-          });
-        } catch (err) {
-          if (isWasmTrap(err)) {
-            markRuntimeFailed(err);
-            throw err;
-          }
-          console.warn(
-            `[onnx-runtime] ${key}: WebGPU session failed, falling back to WASM`,
-            err,
-          );
-        }
-      }
-      try {
-        return await ort.InferenceSession.create(buffer, {
-          executionProviders: ["wasm"],
-          ...extraOptions,
-        });
-      } catch (err) {
-        if (isWasmTrap(err)) markRuntimeFailed(err);
+  const buffer = await fetchPinnedModel(model);
+  if (effectiveExecutionProvider() === "webgpu") {
+    try {
+      return await ort.InferenceSession.create(buffer, {
+        executionProviders: ["webgpu", "wasm"],
+        ...extraOptions,
+      });
+    } catch (err) {
+      if (isWasmTrap(err)) {
+        markRuntimeFailed(err);
         throw err;
       }
-    })();
-    sessions.set(key, promise);
-    promise.catch(() => sessions.delete(key));
+      console.warn(
+        `[onnx-runtime] ${key}: WebGPU session failed, using WASM for every model`,
+        err,
+      );
+      webgpuUnavailable = true;
+      resetSessions(key);
+    }
+  }
+  try {
+    return await ort.InferenceSession.create(buffer, {
+      executionProviders: ["wasm"],
+      ...extraOptions,
+    });
+  } catch (err) {
+    if (isWasmTrap(err)) markRuntimeFailed(err);
+    throw err;
+  }
+}
+
+function loadSession(
+  key: string,
+  model: PinnedModel,
+  extraOptions?: Partial<ort.InferenceSession.SessionOptions>,
+): Promise<ort.InferenceSession> {
+  let promise = sessions.get(key);
+  if (!promise) {
+    const created = createSession(key, model, extraOptions);
+    sessions.set(key, created);
+    created.catch(() => {
+      if (sessions.get(key) === created) sessions.delete(key);
+    });
+    promise = created;
   }
   return promise;
 }
 
-const runQueues = new Map<string, Promise<unknown>>();
-
-export function runOnnxSession(
+export function runOnnxModel(
   key: string,
-  session: ort.InferenceSession,
-  feeds: ort.InferenceSession.OnnxValueMapType,
-): Promise<ort.InferenceSession.OnnxValueMapType> {
-  const previous = runQueues.get(key) ?? Promise.resolve();
-  const next = previous
-    .catch(() => {})
-    .then(() => {
-      if (runtimeFailure) throw runtimeFailure;
-      return session.run(feeds).catch((err) => {
-        if (isWasmTrap(err)) markRuntimeFailed(err);
+  model: PinnedModel,
+  buildFeeds: (
+    session: ort.InferenceSession,
+  ) => ort.InferenceSession.OnnxValueMapType,
+  extraOptions?: Partial<ort.InferenceSession.SessionOptions>,
+): Promise<{
+  session: ort.InferenceSession;
+  outputs: ort.InferenceSession.OnnxValueMapType;
+}> {
+  return enqueue(key, async () => {
+    if (runtimeFailure) throw runtimeFailure;
+    const promise = loadSession(key, model, extraOptions);
+    const session = await promise;
+    if (runtimeFailure) throw runtimeFailure;
+    try {
+      return { session, outputs: await session.run(buildFeeds(session)) };
+    } catch (err) {
+      if (isWasmTrap(err)) markRuntimeFailed(err);
+      if (sessions.get(key) === promise) {
         sessions.delete(key);
-        throw err;
-      });
-    });
-  runQueues.set(
-    key,
-    next.catch(() => {}),
-  );
-  return next;
+        await session.release().catch(() => {});
+      }
+      throw err;
+    }
+  });
 }
 
 export { ort };

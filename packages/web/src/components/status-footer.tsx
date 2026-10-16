@@ -25,7 +25,7 @@ import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 export function FooterDivider() {
   return <span className="h-3 w-px bg-border shrink-0" />;
@@ -137,6 +137,7 @@ function SyncStatusItem() {
 function SorterStatusItem() {
   const { t } = useTranslation("common");
   const { t: tScanner } = useTranslation("scanner");
+  const toast = useStationToast();
   const { isConnected, isReady, firmwareVersion, checkFirmwareVersion } =
     useSerial();
   const entries = useCommLog();

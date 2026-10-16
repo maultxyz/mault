@@ -13,7 +13,7 @@ import type {
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 const SetupWizardContext = createContext<SetupWizardContextValue | null>(null);
 
@@ -23,6 +23,7 @@ export function SetupWizardProvider({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const { isConnected } = useSerial();
   const { isOffline } = useOfflineCalibration();
   const device = useDevice();
@@ -64,7 +65,7 @@ export function SetupWizardProvider({
         ? undefined
         : t("setupWizard.forcedNextConnect", { name: saved.name }),
     });
-  }, [device?.guid, activeOrg?.id, queryClient, isConnected, t]);
+  }, [toast, device?.guid, activeOrg?.id, queryClient, isConnected, t]);
 
   return (
     <SetupWizardContext

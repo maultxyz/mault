@@ -4,11 +4,7 @@ import {
   MILO_INPUT_SIZE,
   MILO_MODEL,
 } from "@magic-vault/shared";
-import { loadOnnxSession, ort, runOnnxSession } from "./onnx-runtime";
-
-function getSession() {
-  return loadOnnxSession("milo", MILO_MODEL);
-}
+import { ort, runOnnxModel } from "./onnx-runtime";
 
 function toImageData(canvas: HTMLCanvasElement): ImageData {
   const copy = document.createElement("canvas");
@@ -46,12 +42,11 @@ function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
 }
 
 export async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
-  const session = await getSession();
   const chw = toChwTensor(canvas);
   const tensor = new ort.Tensor("float32", chw, [1, 3, MILO_INPUT_SIZE, MILO_INPUT_SIZE]);
-  const outputs = await runOnnxSession("milo", session, {
-    [session.inputNames[0]]: tensor,
-  });
+  const { session, outputs } = await runOnnxModel("milo", MILO_MODEL, (s) => ({
+    [s.inputNames[0]]: tensor,
+  }));
   const raw = outputs[session.outputNames[0]].data as Float32Array;
 
   let normSq = 0;

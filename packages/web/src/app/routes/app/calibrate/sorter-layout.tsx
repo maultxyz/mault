@@ -9,10 +9,11 @@ import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useModuleCountConfig } from "@/features/calibration/api/use-module-count-config";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 export default function CalibrateLayoutPage() {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const binRoutes = useBinRoutes();
   const binHeights = useBinHeights();
   const moduleCountConfig = useModuleCountConfig();

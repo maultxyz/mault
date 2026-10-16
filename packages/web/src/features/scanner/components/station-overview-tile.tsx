@@ -5,9 +5,11 @@ import { useCollectionLatestCard } from "@/features/scanner/api/use-collection-l
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useStationName } from "@/features/scanner/api/use-station-name";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
+import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection";
 import { RenameDeviceButton } from "@/features/scanner/components/rename-device-button";
 import { StationOverviewCard } from "@/features/scanner/components/station-overview-card";
-import { IconCamera } from "@tabler/icons-react";
+import { Button } from "@/components/ui/button";
+import { IconCamera, IconPlayerPause } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -20,13 +22,23 @@ export function StationOverviewTile() {
   const name = useStationName(station, index);
   const device = useDevice();
   const { stream, cameraSource } = useCameraContext();
-  const { isTimerActive } = useScannedCards();
+  const { isTimerActive, pause } = useScannedCards();
+  const { selectedKeys, toggleSelected, registerSorterControl } =
+    useSorterSelection();
+  const selectionKey = station.deviceGuid ?? station.id;
+  const pauseLabel = t("stations.overview.pause", { name });
   const { activeCollection } = useCollections();
   const { latestCard, totalCount } = useCollectionLatestCard(
     activeCollection?.guid,
   );
   const videoRef = useRef<HTMLVideoElement>(null);
   const showsVideo = !!stream && cameraSource === "local";
+
+  useEffect(
+    () =>
+      registerSorterControl(selectionKey, { isRunning: isTimerActive, pause }),
+    [registerSorterControl, selectionKey, isTimerActive, pause],
+  );
 
   useEffect(() => {
     const video = videoRef.current;
@@ -45,7 +57,24 @@ export function StationOverviewTile() {
       latestCard={latestCard}
       collectionName={activeCollection?.name}
       totalCount={totalCount}
-      action={device && <RenameDeviceButton device={device} />}
+      selected={selectedKeys.has(selectionKey)}
+      onToggleSelect={() => toggleSelected(selectionKey)}
+      action={
+        <>
+          {isTimerActive && (
+            <Button
+              size="icon-sm"
+              variant="ghost"
+              aria-label={pauseLabel}
+              title={pauseLabel}
+              onClick={pause}
+            >
+              <IconPlayerPause />
+            </Button>
+          )}
+          {device && <RenameDeviceButton device={device} />}
+        </>
+      }
       openLabel={t("stations.overview.openStation", { name })}
       onOpen={() => {
         setActiveStation(station.id);

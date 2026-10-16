@@ -24,7 +24,7 @@ import { IconClockHour3, IconRestore } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import type {
   AuditEntry,
   FeederConfigAuditEntry,
@@ -129,6 +129,7 @@ function FeederHistoryBody({ entry }: { entry: FeederConfigAuditEntry }) {
 
 export default function CalibrateCalibrationPage() {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const queryClient = useQueryClient();
   const device = useDevice();
   const { applyToDevice } = useDeviceCalibrationSync();

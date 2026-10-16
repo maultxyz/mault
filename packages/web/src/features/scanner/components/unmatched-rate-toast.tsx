@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 export function UnmatchedRateToast({
   toastId,
+  stationName,
   suggestOcr,
   onOpenCalibration,
   onOpenSettings,
@@ -18,6 +19,11 @@ export function UnmatchedRateToast({
       <div className="flex items-start gap-2.5">
         <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
         <div className="flex flex-col gap-1">
+          {stationName && (
+            <p className="text-xs font-medium text-foreground/70">
+              {stationName}
+            </p>
+          )}
           <p className="text-sm font-semibold">{t("unmatchedRateToast.title")}</p>
           <p className="text-xs text-foreground/70">
             {suggestOcr

@@ -64,7 +64,7 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { emptyRuleGroup } from "@/lib/rule-groups";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 function createEmptyConfig(binNumber: number): BinConfig {
   return {
@@ -103,6 +103,7 @@ export function BinConfigsProvider({
   const { activeOrg } = useOrg();
   const { activeCollection } = useCollections();
   const { t: tCommon } = useTranslation("common");
+  const toast = useStationToast();
   const moduleCount = useModuleCount();
   const [selectedBin, setSelectedBinState] = useState(1);
   const [isBinFormDirty, setBinFormDirty] = useState(false);

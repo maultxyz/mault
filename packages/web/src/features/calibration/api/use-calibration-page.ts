@@ -56,10 +56,11 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 export function useCalibrationPage() {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const {
     isConnected,
     isReady,
@@ -463,7 +464,7 @@ export function useCalibrationPage() {
         description: error ?? t("toasts.noResponse"),
       });
     }
-  }, [sendTest, isUnconfigured, applyDraftsToDevice, t]);
+  }, [toast, sendTest, isUnconfigured, applyDraftsToDevice, t]);
 
   const handleTestBin = useCallback(
     async (bin: number) => {
@@ -487,6 +488,7 @@ export function useCalibrationPage() {
       }
     },
     [
+      toast,
       isReady,
       sendRoute,
       resolveRoute,
@@ -529,6 +531,7 @@ export function useCalibrationPage() {
       setIsSampleRunning(false);
     }
   }, [
+    toast,
     isReady,
     sendRoute,
     resolveRoute,
@@ -573,6 +576,7 @@ export function useCalibrationPage() {
       }
     },
     [
+      toast,
       isReady,
       sendPushTest,
       moduleDelayValues,
@@ -701,6 +705,7 @@ export function useCalibrationPage() {
       setIsSavingFeederModule(false);
     }
   }, [
+    toast,
     isFeederDirty,
     dirtyModules,
     feederValues,
@@ -773,6 +778,7 @@ export function useCalibrationPage() {
       setIsSavingScanRegion(false);
     }
   }, [
+    toast,
     device,
     isScanRegionDirty,
     isCaptureSettleDirty,
@@ -840,7 +846,7 @@ export function useCalibrationPage() {
     } catch {
       toast.error(t("useCalibrationPage.toasts.copyFailed"));
     }
-  }, [channelLayout, moduleCount, configs, feederConfig, binRoutes, firmwareVersion, board, t]);
+  }, [toast, channelLayout, moduleCount, configs, feederConfig, binRoutes, firmwareVersion, board, t]);
 
   const handleExportConfig = useCallback(() => {
     downloadCalibrationExport(
@@ -900,7 +906,7 @@ export function useCalibrationPage() {
         setIsImporting(false);
       }
     },
-    [activeOrg?.id, device, queryClient, saveConfig, saveFeeder, t],
+    [toast, activeOrg?.id, device, queryClient, saveConfig, saveFeeder, t],
   );
 
   useEffect(() => {

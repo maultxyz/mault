@@ -114,6 +114,10 @@
           "esp32": {
             "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. Also flashable straight from the app afterward, see /app once it's set up"
           },
+          "esp32Breakout": {
+            "part": "ESP32-S3 breakout board (GPIO screw-terminal expansion)",
+            "notes": "The ESP32-S3 plugs into this for screw-terminal wiring. Only needed with the breakout mounting option."
+          },
           "pca9685": {
             "part": "Adafruit PCA9685 16-channel 12-bit PWM/servo driver",
             "notes": "I²C servo driver, drives all 10 servos"
@@ -122,7 +126,7 @@
             "part": "SG90 micro servo, positional (180°)",
             "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher"
           },
-          "sg90Continuous": {
+          "mg90sContinuous": {
             "part": "MG90S servo, 360° continuous rotation",
             "notes": "Feeder, drives cards out of the hopper into module 1"
           }
@@ -142,7 +146,7 @@
         "title": "Power",
         "items": {
           "psu": {
-            "part": "6V regulated power supply, 2A",
+            "part": "6V regulated power supply, 3A",
             "notes": "Dedicated servo bus power into the PCA9685 V+ terminal. Do not power 10 servos off the {{board}}'s onboard 5V. 5.5mm x 2.5mm barrel plug, center positive."
           },
           "usbCable": {

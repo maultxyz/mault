@@ -56,7 +56,7 @@ import type {
   Device,
   ModuleDelayField,
 } from "@/lib/interfaces/calibration";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { cn } from "@/lib/utils";
 import {
   CHANNEL_OFFSET,
@@ -95,6 +95,7 @@ function buildSteps(
 
 export function DeviceSetupWizard() {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const { isOpen, isOffline, close } = useSetupWizard();
   const device = useDevice();
   const { activeOrg } = useOrg();

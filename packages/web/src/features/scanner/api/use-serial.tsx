@@ -91,7 +91,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import type { Device } from "@/lib/interfaces/calibration";
 import { MAX_COMM_LOG_ENTRIES } from "@/lib/constants/limits";
 
@@ -100,6 +100,7 @@ const SerialContext = createContext<SerialContextValue | null>(null);
 
 export function SerialProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
+  const toast = useStationToast();
   const [isConnected, setIsConnected] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [sensorBlockedModule, setSensorBlockedModule] = useState<
@@ -186,7 +187,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     } catch {
       toast.error(t("serial.commLogCopyFailed"));
     }
-  }, [getCommLog, t]);
+  }, [toast, getCommLog, t]);
 
   const handleIncomingChunk = useCallback(
     (chunk: Uint8Array) => {
@@ -324,7 +325,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     reopenSensorBlockedToastRef.current = null;
     setSensorBlockedModule(null);
     toast.dismiss(SENSOR_BLOCKED_TOAST_ID);
-  }, []);
+  }, [toast, ]);
 
   const sendTest = useCallback(async (): Promise<TestResult> => {
     setIsReady(false);
@@ -445,7 +446,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       setSensorBlockedModule(module);
       show(t("serial.sensorBlocked.description", { module }));
     },
-    [sendRequest, clearSensorBlocked, t],
+    [toast, sendRequest, clearSensorBlocked, t],
   );
 
   const disconnect = useCallback(() => {
@@ -523,7 +524,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       setIsReady(true);
       toast.success(t("serial.deviceReadyNoTest"));
     },
-    [runPreTestHooks, sendRequest, disconnect, t],
+    [toast, runPreTestHooks, sendRequest, disconnect, t],
   );
 
   const runConnectTest = useCallback(
@@ -576,6 +577,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
     },
     [
+      toast,
       runPreTestHooks,
       sendTest,
       sendCommand,
@@ -614,12 +616,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       bindStationDevice(station.id, target.guid);
       return target;
     },
-    [station.id, t],
+    [toast, station.id, t],
   );
 
   const notifySorterLimit = useCallback(() => {
-    showSorterLimitToast(t, stationsRef.current.sorterLimitIsHardCap);
-  }, [t]);
+    showSorterLimitToast(toast, t, stationsRef.current.sorterLimitIsHardCap);
+  }, [toast, t]);
 
   // Fast in-tab check before claiming a device record. The server's lease
   // (acquired after binding, below) is the real enforcement, across every
@@ -656,12 +658,13 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
       return claimForStation(resolved);
     },
-    [activeOrg?.id, queryClient, claimForStation, t],
+    [toast, activeOrg?.id, queryClient, claimForStation, t],
   );
 
   // Firmware older than the boot-banner `id` can't say which board it is.
   // With only one device on the org there's no ambiguity, so bind to it;
-  // otherwise keep whatever this station already shows.
+  // otherwise keep whatever this station already shows, bound so no other
+  // station falls back to the same device record.
   const bindUnidentifiedBoard = useCallback(async (): Promise<
     Device | undefined | null
   > => {
@@ -676,8 +679,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         ? t("serial.unidentifiedBoard.description", { name: current.name })
         : t("serial.unidentifiedBoard.descriptionNoDevice"),
     });
-    return current;
-  }, [activeOrg?.id, queryClient, claimForStation, t]);
+    return current ? claimForStation(current) : current;
+  }, [activeOrg?.id, queryClient, claimForStation, toast, t]);
 
   const findAutoConnectDevice = useCallback(
     async (hardwareId: string): Promise<Device | undefined> => {
@@ -704,7 +707,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         description: t("serial.deviceInUse.description", { name }),
       });
     },
-    [activeOrg?.id, queryClient, t],
+    [toast, activeOrg?.id, queryClient, t],
   );
 
   const handleConnectionLost = useCallback(
@@ -755,7 +758,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         response: status,
       });
     },
-    [t, resetReasonText],
+    [toast, t, resetReasonText],
   );
 
   const handleUnexpectedReset = useCallback(
@@ -797,7 +800,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         }
       })();
     },
-    [t, resetReasonText, syncWithoutTest, runConnectTest],
+    [toast, t, resetReasonText, syncWithoutTest, runConnectTest],
   );
 
   useEffect(() => {
@@ -946,6 +949,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       return { identified };
     },
     [
+      toast,
       clearCommLog,
       handleIncomingChunk,
       sendRequest,
@@ -995,7 +999,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [openTransport, t],
+    [toast, openTransport, t],
   );
 
   const connectPort = useCallback(
@@ -1119,7 +1123,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [openTransport, t],
+    [toast, openTransport, t],
   );
 
   // Keeps this sorter's slot against the plan's connected-sorter cap. If the
@@ -1227,7 +1231,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     return () => {
       listeners.delete(listener);
     };
-  }, [t]);
+  }, [toast, t]);
 
   useEffect(() => {
     stationsRef.current.setStationConnected(station.id, isConnected);
@@ -1314,7 +1318,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
     }, SERIAL_HEARTBEAT_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [isConnected, isReady, isFlashing, sendRequest, handleConnectionLost, t]);
+  }, [toast, isConnected, isReady, isFlashing, sendRequest, handleConnectionLost, t]);
 
   const checkFirmwareVersion =
     useCallback(async (): Promise<FirmwareCheckResult> => {

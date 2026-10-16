@@ -6,7 +6,7 @@ export default function SortersPage() {
 
   return (
     <div className="flex-1 min-h-0 overflow-y-auto">
-      <div className="flex flex-col gap-4 p-4 md:p-6 w-full">
+      <div className="flex min-h-full flex-col gap-4 p-4 md:p-6 w-full">
         <div>
           <h1 className="font-heading text-lg font-semibold">
             {t("stations.overview.title")}

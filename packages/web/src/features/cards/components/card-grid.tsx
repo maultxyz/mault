@@ -210,6 +210,7 @@ export function CardGrid() {
     [cardsQuery],
   );
   const reviewTotalRef = useRef<number | null>(null);
+  const [reviewTrail, setReviewTrail] = useState<string[]>([]);
 
   useEffect(() => {
     setPage(0);
@@ -257,6 +258,7 @@ export function CardGrid() {
         return;
       }
       reviewTotalRef.current = firstPage.totalCards;
+      setReviewTrail([]);
       setOpenScanId(first.scanId, true);
     } catch (err) {
       console.error("Failed to start card review:", err);
@@ -270,6 +272,7 @@ export function CardGrid() {
         t("review.complete", { count: reviewTotalRef.current ?? count }),
       );
       reviewTotalRef.current = null;
+      setReviewTrail([]);
     },
     [setOpenScanId, t],
   );
@@ -534,6 +537,14 @@ export function CardGrid() {
   }
 
   if (openEntry) {
+    const reviewPrevScanId = isReviewing ? reviewTrail.at(-1) : undefined;
+    const prevScanId = reviewPrevScanId ?? openPosition?.prevScanId ?? null;
+    const goForward = (scanId: string | null) => {
+      if (isReviewing && scanId) {
+        setReviewTrail((trail) => [...trail, openEntry.scanId]);
+      }
+      setOpenScanId(scanId, isReviewing);
+    };
     return (
       <CardDetailPanel
         scanId={openEntry.scanId}
@@ -555,13 +566,12 @@ export function CardGrid() {
             isReviewing,
           );
         }}
-        onPrev={() =>
-          setOpenScanId(openPosition?.prevScanId ?? null, isReviewing)
-        }
-        onNext={() =>
-          setOpenScanId(openPosition?.nextScanId ?? null, isReviewing)
-        }
-        hasPrev={!!openPosition?.prevScanId}
+        onPrev={() => {
+          if (reviewPrevScanId) setReviewTrail((trail) => trail.slice(0, -1));
+          setOpenScanId(prevScanId, isReviewing);
+        }}
+        onNext={() => goForward(openPosition?.nextScanId ?? null)}
+        hasPrev={!!prevScanId}
         hasNext={!!openPosition?.nextScanId}
         currentIndex={openPosition?.index ?? 0}
         total={openPosition?.total ?? 0}

@@ -31,3 +31,35 @@ export function useDeleteDevice() {
     },
   });
 }
+
+export function useDeleteDevices() {
+  const { t } = useTranslation("scanner");
+  const queryClient = useQueryClient();
+  const { activeOrg } = useOrg();
+
+  return useMutation({
+    mutationFn: async (devices: Device[]) => {
+      const results = await Promise.allSettled(
+        devices.map(async (device) => {
+          const result = await deleteDevice(device.guid);
+          if (!result.success) throw new Error(result.message);
+        }),
+      );
+      return results.filter((r) => r.status === "rejected").length;
+    },
+    onSuccess: (failed, devices) => {
+      const deleted = devices.length - failed;
+      if (deleted > 0) {
+        toast.success(t("stations.overview.bulkDeleted", { count: deleted }));
+      }
+      if (failed > 0) {
+        toast.error(t("stations.overview.bulkDeleteFailed", { count: failed }));
+      }
+    },
+    onSettled: () => {
+      void queryClient.invalidateQueries({
+        queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
+      });
+    },
+  });
+}

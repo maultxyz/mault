@@ -87,7 +87,7 @@ import type {
   LastRoutedBin,
   ScannedCardsContextValue,
 } from "@/lib/interfaces/scanner";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { generateScanId } from "@/lib/utils";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
@@ -112,6 +112,7 @@ export function ScannedCardsProvider({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation("scanner");
+  const toast = useStationToast();
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const {
@@ -390,7 +391,7 @@ export function ScannedCardsProvider({
         });
       }
     },
-    [queryClient, t],
+    [toast, queryClient, t],
   );
 
   const pickListNameInBin = useCallback(
@@ -741,6 +742,7 @@ export function ScannedCardsProvider({
         void routeCardToBin({
           route: resolveRoute(matchedBin.binNumber),
           sendRoute: serialRef.current.sendRoute,
+          toast,
           t,
           failedKey: "scannedCards.routingFailed",
           cardName: card.name,
@@ -783,7 +785,7 @@ export function ScannedCardsProvider({
             return;
           }
           if (result.sorterLimitReached) {
-            showSorterLimitToast(t, sorterLimitIsHardCapRef.current);
+            showSorterLimitToast(toast, t, sorterLimitIsHardCapRef.current);
             return;
           }
           const key = result.scanLimitReached
@@ -818,6 +820,7 @@ export function ScannedCardsProvider({
       setTimeout(() => playSoundForCard(ruleCard), 0);
     },
     [
+      toast,
       t,
       resolvePickListMatch,
       markPickListFound,
@@ -884,6 +887,7 @@ export function ScannedCardsProvider({
       void routeCardToBin({
         route: resolveRoute(catchAll.binNumber),
         sendRoute: serialRef.current.sendRoute,
+        toast,
         t,
         failedKey: "scannedCards.routingFailedCatchAll",
         collectionGuid: activeCollectionRef.current?.guid,
@@ -895,6 +899,7 @@ export function ScannedCardsProvider({
       });
     }
   }, [
+    toast,
     t,
     resolveRoute,
     isAutoFeedEnabled,
@@ -961,7 +966,7 @@ export function ScannedCardsProvider({
           });
         });
     },
-    [sendCatchAllBin, pause, isBinFullLocally, t, saveUnmatched],
+    [toast, sendCatchAllBin, pause, isBinFullLocally, t, saveUnmatched],
   );
 
   const removeUnmatchedCard = useCallback((scanId: string) => {

@@ -19,7 +19,7 @@ import {
   useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "@/lib/toast";
+import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import type { FeederConfigContextValue } from "@/lib/interfaces/calibration";
 
 const FeederConfigContext = createContext<FeederConfigContextValue | null>(null);
@@ -30,6 +30,7 @@ export function FeederConfigProvider({
   children: React.ReactNode;
 }) {
   const { t } = useTranslation("calibration");
+  const toast = useStationToast();
   const queryClient = useQueryClient();
   const device = useDevice();
   const { sendCommand } = useSerial();

@@ -3,6 +3,7 @@ import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { OrgPickerModal } from "@/features/companies/components/org-picker-modal";
 import { OnboardingProvider } from "@/features/onboarding/components/onboarding-provider";
+import { SorterSelectionProvider } from "@/features/scanner/api/use-sorter-selection";
 import {
   StationsProvider,
   useStations,
@@ -67,15 +68,17 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
             <InitialLoadProvider>
               <PendingScanSavesProvider>
                 <DeployPauseProvider>
-                  <StationScopes>
-                    <OnboardingProvider>
-                      <AppAlertsProvider>
-                        <AppLoadingGate>{children}</AppLoadingGate>
-                      </AppAlertsProvider>
-                      <OrgPickerModal />
-                      <DocumentTitleUpdater />
-                    </OnboardingProvider>
-                  </StationScopes>
+                  <SorterSelectionProvider>
+                    <StationScopes>
+                      <OnboardingProvider>
+                        <AppAlertsProvider>
+                          <AppLoadingGate>{children}</AppLoadingGate>
+                        </AppAlertsProvider>
+                        <OrgPickerModal />
+                        <DocumentTitleUpdater />
+                      </OnboardingProvider>
+                    </StationScopes>
+                  </SorterSelectionProvider>
                 </DeployPauseProvider>
               </PendingScanSavesProvider>
               <SerialAutoConnect />
