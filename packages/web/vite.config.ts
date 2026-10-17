@@ -45,6 +45,9 @@ export default defineConfig({
       workbox: {
         // Excludes the 20MB+ onnxruntime .wasm, which is only needed for scanning.
         globPatterns: ["**/*.{js,css,html}"],
+        // Runtime config written by the container at start-up; a precached
+        // copy would pin the build's empty placeholder.
+        globIgnores: ["env.js"],
         skipWaiting: true,
         clientsClaim: true,
         navigateFallback: "/index.html",

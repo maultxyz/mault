@@ -4,6 +4,7 @@ import {
   type ScannerStatus,
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
+import { runtimeEnv } from "@/lib/runtime-env";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
@@ -66,7 +67,7 @@ export const UNMATCHED_RATE_THRESHOLD = 0.3;
 export const UNMATCHED_RATE_TOAST_COOLDOWN_MS = 30 * 60 * 1000;
 export const UNMATCHED_RATE_TOAST_ID = "unmatched-rate";
 
-export const SHOW_SCAN_LOGS = import.meta.env.VITE_SHOW_SCAN_LOGS === "true";
+export const SHOW_SCAN_LOGS = runtimeEnv("VITE_SHOW_SCAN_LOGS") === "true";
 
 export const ONNX_RUNTIME_FAILURE_TOAST_ID = "onnx-runtime-failure";
 

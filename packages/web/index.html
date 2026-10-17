@@ -2,6 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <!-- Runtime config (window.__ENV__), written by the web container at
+         start-up from its environment so one image serves every deployment.
+         A classic script, so it runs before the module bundle reads it. -->
+    <script src="/env.js"></script>
     <link rel="icon" type="image/png" href="/icon/Icon.png" />
     <link rel="apple-touch-icon" href="/icon/apple-touch-icon.png" />
     <meta name="theme-color" content="#1447e6" />

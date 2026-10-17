@@ -231,16 +231,12 @@ jobs:
           tags: |
             ${{ steps.images.outputs.web }}:v${{ steps.appversion.outputs.version }}
             ${{ steps.images.outputs.web }}:sha-${{ github.sha }}
+          # The image is public, so deployment config (Neon URLs, Rollbar
+          # token, app env) comes from the container's environment in Coolify
+          # at start-up instead. Only the firmware version, which describes the
+          # binary baked into the image, is a build arg.
           build-args: |
-            VITE_API_URL=${{ vars.VITE_API_URL }}
-            VITE_AUTH_PROVIDER=${{ vars.VITE_AUTH_PROVIDER }}
-            VITE_NEON_AUTH_URL=${{ vars.VITE_NEON_AUTH_URL }}
-            VITE_NEON_DATA_API_URL=${{ vars.VITE_NEON_DATA_API_URL }}
-            VITE_APP_ENV=${{ vars.VITE_APP_ENV }}
             VITE_LATEST_FIRMWARE_VERSION=${{ steps.firmware.outputs.version }}
-            VITE_ROLLBAR_ACCESS_TOKEN=${{ secrets.VITE_ROLLBAR_ACCESS_TOKEN }}
-            VITE_SHOW_SCAN_LOGS=${{ vars.VITE_SHOW_SCAN_LOGS }}
-            VITE_API_DOCS_URL=${{ vars.VITE_API_DOCS_URL }}
           cache-from: type=gha,scope=web
           cache-to: type=gha,mode=max,scope=web
 

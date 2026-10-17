@@ -132,14 +132,16 @@ services:
       context: .
       dockerfile: Dockerfile.web
       args:
-        VITE_API_URL: ${VITE_API_URL:-}
-        VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-local}
-        VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL:-}
-        VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
-        VITE_APP_ENV: ${VITE_APP_ENV:-local}
         VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-1.0.1}
-        VITE_ROLLBAR_ACCESS_TOKEN: ${VITE_ROLLBAR_ACCESS_TOKEN:-}
-        VITE_SHOW_SCAN_LOGS: ${VITE_SHOW_SCAN_LOGS:-}
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-}
+      VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-local}
+      VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL:-}
+      VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
+      VITE_APP_ENV: ${VITE_APP_ENV:-local}
+      VITE_ROLLBAR_ACCESS_TOKEN: ${VITE_ROLLBAR_ACCESS_TOKEN:-}
+      VITE_SHOW_SCAN_LOGS: ${VITE_SHOW_SCAN_LOGS:-}
+      VITE_API_DOCS_URL: ${VITE_API_DOCS_URL:-}
     depends_on:
       server:
         condition: service_healthy
