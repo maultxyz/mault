@@ -33,7 +33,7 @@
       "label": "Woher kommen deine Teile?",
       "kit": {
         "title": "Ein Mault-Kit",
-        "description": "ESP32-S3 auf seiner Breakout-Platine, 3 Module und bereits geflashte Firmware."
+        "description": "ESP32-S3 auf seiner Breakout-Platine, 3 Module und bereits geflashte Firmware. Ein eigenes 6V-Netzteil mit 3A brauchst du selbst."
       },
       "diy": {
         "title": "Ich besorge sie selbst",
@@ -92,6 +92,7 @@
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
     "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
     "partsListLabel": "Vollständige Teileliste",
+    "kitPowerSupplyNote": "Kits enthalten kein Netzteil. Du brauchst ein eigenes geregeltes 6V-Netzteil mit mindestens 3A für die Servos.",
     "kitCollapsedNote": "Du baust mit einem Bausatz, deshalb ist die Teileliste eingeklappt. Öffne sie, wenn du ein Teil nachsehen möchtest.",
     "progress": {
       "partsCount": "{{done}} von {{total}} Teilen"

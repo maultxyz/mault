@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import { useAppVersionCheck } from "@/hooks/use-app-version-check";
 import type { AppAlert } from "@/lib/interfaces/alerts";
+import { hardReload } from "@/lib/pwa";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -21,7 +22,7 @@ export function useAppVersionAlert(): AppAlert | null {
         size="xs"
         variant="outline"
         className={ALERT_BANNER_ACTION_CLASS}
-        onClick={() => window.location.reload()}
+        onClick={() => void hardReload()}
       >
         {t("appVersion.refreshButton")}
       </Button>
