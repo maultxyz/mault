@@ -6,13 +6,11 @@ on:
   # so both offsets are scheduled and "Compute deploy flag" keeps only the one
   # matching the current CDT/CST offset. Scheduled runs always use the default branch (master), and
   # only deploy when something changed since the last release tag.
-  # Every push to dev deploys to the development environment instead: no
-  # release commit or tag, and images move the :dev tag rather than :latest.
+  # Dev deploys are manual only (dispatch on dev, or a dev Firmware Release):
+  # no release commit or tag, and images move the :dev tag rather than :latest.
   schedule:
     - cron: "17 0 * * *"
     - cron: "17 1 * * *"
-  push:
-    branches: [dev]
   workflow_dispatch: {}
 
 permissions:
