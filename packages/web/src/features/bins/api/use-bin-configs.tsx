@@ -125,16 +125,17 @@ export function BinConfigsProvider({
   const foilTypes = targetCollection?.game?.foilTypes;
   const ruleFieldDefinitions = useMemo(
     () =>
-      withScanRuleFields(fieldDefinitions, foilTypes ?? [], {
+      withScanRuleFields(fieldDefinitions, foilTypes ?? [], gameKey, {
         foil: t("scanRuleFields.foil"),
         foilType: t("scanRuleFields.foilType"),
         matchPercent: t("scanRuleFields.matchPercent"),
         marketValueUsd: t("scanRuleFields.marketValueUsd"),
         marketValueEur: t("scanRuleFields.marketValueEur"),
+        collectorNumber: t("scanRuleFields.collectorNumber"),
         foilOption: t("scanRuleFields.foilOption"),
         nonFoilOption: t("scanRuleFields.nonFoilOption"),
       }),
-    [fieldDefinitions, foilTypes, t],
+    [fieldDefinitions, foilTypes, gameKey, t],
   );
   const apiDocsUrl = targetCollection?.game?.apiDocsUrl ?? null;
   const hasGame = !!targetCollection?.game;

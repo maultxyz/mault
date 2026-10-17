@@ -1,5 +1,8 @@
 import {
   DEFAULT_SCAN_RULE_FIELD_LABELS,
+  SCAN_RULE_COLLECTOR_NUMBER_FIELD,
+  SCAN_RULE_COLLECTOR_NUMBER_GAME_KEYS,
+  SCAN_RULE_COLLECTOR_NUMBER_OPERATORS,
   SCAN_RULE_FOIL_FIELD,
   SCAN_RULE_FOIL_OPERATORS,
   SCAN_RULE_FOIL_TYPE_FIELD,
@@ -34,6 +37,13 @@ export function cardMatchPercent(card: object): number | null {
   return Math.max(0, Math.min(100, score * 100));
 }
 
+export function cardCollectorNumber(card: object): number | null {
+  const { collectorNumber } = card as { collectorNumber?: unknown };
+  if (typeof collectorNumber !== "string") return null;
+  const digits = collectorNumber.match(/(\d+)\D*$/)?.[1];
+  return digits ? Number(digits) : null;
+}
+
 export function isScanRuleField(
   field: ConditionField,
   fieldDefinitions: FieldMeta[],
@@ -47,6 +57,7 @@ export function isScanRuleField(
 
 export function scanRuleFieldDefinitions(
   foilTypes: string[],
+  gameKey?: string | null,
   labels: ScanRuleFieldLabels = DEFAULT_SCAN_RULE_FIELD_LABELS,
 ): FieldMeta[] {
   const fields: FieldMeta[] = [
@@ -93,18 +104,28 @@ export function scanRuleFieldDefinitions(
       options: foilTypes.map((type) => ({ value: type, label: type })),
     });
   }
+  if (gameKey && SCAN_RULE_COLLECTOR_NUMBER_GAME_KEYS.includes(gameKey)) {
+    fields.push({
+      field: SCAN_RULE_COLLECTOR_NUMBER_FIELD,
+      label: labels.collectorNumber,
+      type: "numeric",
+      path: `${SCAN_RULE_ROOT}.collectorNumber`,
+      operators: SCAN_RULE_COLLECTOR_NUMBER_OPERATORS,
+    });
+  }
   return fields;
 }
 
 export function withScanRuleFields(
   fieldDefinitions: FieldMeta[],
   foilTypes: string[],
+  gameKey?: string | null,
   labels?: ScanRuleFieldLabels,
 ): FieldMeta[] {
   const taken = new Set(fieldDefinitions.map((f) => f.field));
   return [
     ...fieldDefinitions,
-    ...scanRuleFieldDefinitions(foilTypes, labels).filter(
+    ...scanRuleFieldDefinitions(foilTypes, gameKey, labels).filter(
       (f) => !taken.has(f.field),
     ),
   ];
@@ -127,6 +148,7 @@ export function toRuleCard<T extends object>(card: T, scan: ScanRuleState): T {
         scan.isFoil,
         "cardmarket",
       ),
+      collectorNumber: cardCollectorNumber(card),
     },
   };
 }
