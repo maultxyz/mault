@@ -201,6 +201,24 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Dev deploys flash the firmware-dev pre-release when one exists (see
+      # firmware-release.yml); the binary is swapped in the working tree only
+      # and never committed.
+      - name: Select firmware
+        id: firmware
+        if: steps.deploy.outputs.should_deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ vars.VITE_LATEST_FIRMWARE_VERSION }}"
+          if [ "$IS_DEV" = "true" ] && gh release view firmware-dev --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release download firmware-dev --repo "${{ github.repository }}"               -p esp32-latest.bin -p version.txt -D "$RUNNER_TEMP/firmware" --clobber
+            cp "$RUNNER_TEMP/firmware/esp32-latest.bin" packages/web/public/firmware/esp32-latest.bin
+            VERSION=$(tr -d '[:space:]' < "$RUNNER_TEMP/firmware/version.txt")
+            echo "Using dev firmware v$VERSION"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       # Images are pushed under their version and commit tags only. Coolify
       # pulls the channel tag (:latest for production, :dev for development),
       # which is moved onto these images further down, once the release commit
@@ -221,7 +239,7 @@ jobs:
             VITE_NEON_AUTH_URL=${{ vars.VITE_NEON_AUTH_URL }}
             VITE_NEON_DATA_API_URL=${{ vars.VITE_NEON_DATA_API_URL }}
             VITE_APP_ENV=${{ vars.VITE_APP_ENV }}
-            VITE_LATEST_FIRMWARE_VERSION=${{ vars.VITE_LATEST_FIRMWARE_VERSION }}
+            VITE_LATEST_FIRMWARE_VERSION=${{ steps.firmware.outputs.version }}
             VITE_ROLLBAR_ACCESS_TOKEN=${{ secrets.VITE_ROLLBAR_ACCESS_TOKEN }}
             VITE_SHOW_SCAN_LOGS=${{ vars.VITE_SHOW_SCAN_LOGS }}
             VITE_API_DOCS_URL=${{ vars.VITE_API_DOCS_URL }}
