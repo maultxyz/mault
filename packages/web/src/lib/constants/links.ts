@@ -1,3 +1,5 @@
+import { runtimeEnv } from "@/lib/runtime-env";
+
 export const REPO_URL = "https://github.com/dishwasher-detergent/mault";
 export const MODEL_URL = `${REPO_URL}/tree/master/3d%20model`;
 export const PRINT_FILES_URL =
@@ -16,6 +18,6 @@ export const REPO_API_URL = "https://api.github.com/repos/maultxyz/mault";
 
 export const LOCAL_API_DOCS_URL = "http://localhost:5174";
 export const API_REFERENCE_URL: string | undefined =
-  import.meta.env.VITE_API_DOCS_URL ||
+  runtimeEnv("VITE_API_DOCS_URL") ||
   (import.meta.env.DEV ? LOCAL_API_DOCS_URL : undefined);
 export const PUBLIC_API_DOCS_URL = `${REPO_URL}/blob/master/docs/public-api.md`;

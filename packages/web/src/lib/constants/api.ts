@@ -1,1 +1,3 @@
-export const API_BASE = import.meta.env.VITE_API_URL ?? "";
+import { runtimeEnv } from "@/lib/runtime-env";
+
+export const API_BASE = runtimeEnv("VITE_API_URL") ?? "";

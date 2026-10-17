@@ -1,3 +1,5 @@
+import { runtimeEnv } from "@/lib/runtime-env";
+
 export const ENV_BANNER_CONFIG = {
   local: {
     label: "Local",
@@ -13,4 +15,4 @@ export const ENV_BANNER_CONFIG = {
   },
 } satisfies Record<string, { label: string; className: string }>;
 
-export const APP_ENV = import.meta.env.VITE_APP_ENV as string | undefined;
+export const APP_ENV = runtimeEnv("VITE_APP_ENV");

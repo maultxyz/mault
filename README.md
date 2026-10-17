@@ -135,7 +135,7 @@ These target whichever Postgres `DATABASE_URL` points at. Self-hosted mode's con
 
 ## Deployment
 
-`Dockerfile.server` builds the Hono API (and pre-downloads the pinned CollectorVision Milo model at build time — `packages/server/src/lib/models/model-registry.ts`). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`); `VITE_API_URL` (and `VITE_AUTH_PROVIDER`) must be supplied as build args since they're baked into the client bundle. `Dockerfile.api-docs` builds the public API reference site (`packages/api-docs`, Scalar over the generated OpenAPI spec) as its own nginx image, kept out of the web image so the web build stays light; it takes the same `VITE_API_URL` build arg, and the web app links to it when its own build has `VITE_API_DOCS_URL`. The self-hosted compose stack serves it on `http://localhost:8081`. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
+`Dockerfile.server` builds the Hono API (and pre-downloads the pinned CollectorVision Milo model at build time — `packages/server/src/lib/models/model-registry.ts`). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`). Its `VITE_*` settings (`VITE_API_URL`, `VITE_AUTH_PROVIDER`, the Neon URLs, `VITE_APP_ENV`, ...) are read from the container's environment at start-up (`docker/web-env.sh` writes them to `env.js`), so one image works for any deployment. Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the firmware binary baked into the image. `Dockerfile.api-docs` builds the public API reference site (`packages/api-docs`, Scalar over the generated OpenAPI spec) as its own nginx image, kept out of the web image so the web build stays light; it takes the same `VITE_API_URL` build arg, and the web app links to it when its own build has `VITE_API_DOCS_URL`. The self-hosted compose stack serves it on `http://localhost:8081`. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
 
 > If you're running a Pi-hole or similar DNS-level blocker on your network, it may block `huggingface.co`, which will cause the Milo model download to fail. Allowlist that domain if you hit download errors during the server build/startup.
 
@@ -152,20 +152,21 @@ Inside compose the server and bot reach each other by service name (`http://serv
 
 ### Deploying with Neon
 
-For the Neon-backed deployment (`AUTH_PROVIDER=neon`, the default), the database and auth still need a [Neon project](#option-a-neon) set up first, and its connection details passed to the server container as env vars (`DATABASE_URL`, `NEON_AUTH_URL`, `WEB_URL`) and to the web build as build args (`VITE_API_URL`, `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_APP_ENV`, `VITE_LATEST_FIRMWARE_VERSION`). A minimal setup:
+For the Neon-backed deployment (`AUTH_PROVIDER=neon`, the default), the database and auth still need a [Neon project](#option-a-neon) set up first, and its connection details passed to the server container as env vars (`DATABASE_URL`, `NEON_AUTH_URL`, `WEB_URL`) and to the web container as env vars (`VITE_API_URL`, `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_APP_ENV`). A minimal setup:
 
 ```bash
 docker build -f Dockerfile.server -t magic-vault-server .
 docker run -p 3001:3001 --env-file .env magic-vault-server
 
 docker build -f Dockerfile.web \
-  --build-arg VITE_API_URL=https://your-api-host \
-  --build-arg VITE_NEON_AUTH_URL=$VITE_NEON_AUTH_URL \
-  --build-arg VITE_NEON_DATA_API_URL=$VITE_NEON_DATA_API_URL \
-  --build-arg VITE_APP_ENV=production \
   --build-arg VITE_LATEST_FIRMWARE_VERSION=1.0.2 \
   -t magic-vault-web .
-docker run -p 8080:80 magic-vault-web
+docker run -p 8080:80 \
+  -e VITE_API_URL=https://your-api-host \
+  -e VITE_NEON_AUTH_URL=$VITE_NEON_AUTH_URL \
+  -e VITE_NEON_DATA_API_URL=$VITE_NEON_DATA_API_URL \
+  -e VITE_APP_ENV=production \
+  magic-vault-web
 ```
 
 Point `WEB_URL` (server env) at the public URL of the web container so CORS and Discord monitor-page links resolve correctly, and re-run `db:push`/`db:migrate` against the Neon database as part of your deploy if the schema changed.
@@ -217,7 +218,7 @@ Leave `VITE_API_URL` empty: the web container proxies `/api` requests to the API
 
 Other variables have defaults or enable optional features. Email, S3 storage, Discord and Rollbar can remain unconfigured. See `.env.docker.example` for details.
 
-The `VITE_*` values are embedded into the frontend during its build. Changing them requires rebuilding and redeploying the web image.
+The `VITE_*` values are read when the web container starts, so changing them only needs a restart. The exception is `VITE_LATEST_FIRMWARE_VERSION`, which is baked in at build time.
 
 #### 3. Configure the domain
 

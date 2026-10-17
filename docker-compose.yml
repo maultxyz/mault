@@ -119,21 +119,24 @@ services:
       context: .
       dockerfile: Dockerfile.web
       args:
-        # Empty - every frontend API call already hardcodes an /api/... path
-        # (see lib/api/client.ts's callers), so this resolves relative to the
-        # page's own origin and nginx.conf's /api/ location proxies it to
-        # the server container. Set VITE_API_URL to an absolute URL instead
-        # only if serving the web and server on genuinely different origins.
-        VITE_API_URL: ${VITE_API_URL:-}
-        VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-neon}
-        # Only meaningful (and only need to be set in .env) for
-        # VITE_AUTH_PROVIDER=neon - unused/empty is fine for local mode.
-        VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL:-}
-        VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
-        VITE_APP_ENV: ${VITE_APP_ENV:-}
         VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-}
-        VITE_ROLLBAR_ACCESS_TOKEN: ${VITE_ROLLBAR_ACCESS_TOKEN:-}
-        VITE_SHOW_SCAN_LOGS: ${VITE_SHOW_SCAN_LOGS:-}
+    # Read at container start-up (docker/web-env.sh), not baked into the build.
+    environment:
+      # Empty - every frontend API call already hardcodes an /api/... path
+      # (see lib/api/client.ts's callers), so this resolves relative to the
+      # page's own origin and nginx.conf's /api/ location proxies it to
+      # the server container. Set VITE_API_URL to an absolute URL instead
+      # only if serving the web and server on genuinely different origins.
+      VITE_API_URL: ${VITE_API_URL:-}
+      VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-neon}
+      # Only meaningful (and only need to be set in .env) for
+      # VITE_AUTH_PROVIDER=neon - unused/empty is fine for local mode.
+      VITE_NEON_AUTH_URL: ${VITE_NEON_AUTH_URL:-}
+      VITE_NEON_DATA_API_URL: ${VITE_NEON_DATA_API_URL:-}
+      VITE_APP_ENV: ${VITE_APP_ENV:-}
+      VITE_ROLLBAR_ACCESS_TOKEN: ${VITE_ROLLBAR_ACCESS_TOKEN:-}
+      VITE_SHOW_SCAN_LOGS: ${VITE_SHOW_SCAN_LOGS:-}
+      VITE_API_DOCS_URL: ${VITE_API_DOCS_URL:-}
     depends_on:
       - server
     ports:
