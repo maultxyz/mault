@@ -532,7 +532,7 @@
           },
           "calibrateModules": {
             "text": "Grille de calibration des modules - définis l'impulsion ouvert/fermé pour chaque trappe inférieure et palette, et gauche/neutre/droite pour chaque poussoir, module par module.",
-            "note": "Pour pusherLeft/pusherRight, fais pivoter le bras vers la paroi intérieure mais arrête-toi avant qu'il ne la touche, à environ 10-12 % du neutre. Le poussoir n'a pas besoin de toucher la paroi pour éjecter la carte, et appuyer dessus force le servo. L'app affiche un avertissement au-delà de 12 %."
+            "note": "Pour pusherLeft/pusherRight, fais pivoter le bras vers la paroi intérieure mais arrête-toi avant qu'il ne la touche, à environ 10-12 % du neutre. Le poussoir n'a pas besoin de toucher la paroi pour éjecter la carte, et appuyer dessus force le servo. L'app affiche un avertissement au-delà de 16 %."
           },
           "installHorns": {
             "text": "Dans l'assistant de configuration (Configurer ton trieur, qui s'ouvre à la première connexion du trieur ou depuis le menu d'aide (?) sur /app/calibrate), installe les palonniers (avec leur trappe ou bras poussoir déjà fixé) un servo à la fois. Pour la trappe inférieure et les palettes latérales, mets le curseur à 90 %, puis appuie le palonnier sur l'axe du servo avec la palette en position fermée. Pour le poussoir, mets le curseur à 50 %, puis appuie le palonnier sur l'axe. Fixe chaque palonnier avec sa vis de palonnier, pour les {{count}} servos du module.",
