@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/table";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { useRemoveCardFromLocation } from "@/features/storage/api/use-storage-locations";
+import { MobileStorageCardList } from "@/features/storage/components/mobile-storage-card-list";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageCardListProps } from "@/lib/interfaces/storage";
 import type { StorageLocationSearchResult } from "@magic-vault/shared";
@@ -28,6 +30,17 @@ export function StorageCardList({
   const { removeCard, isRemoving } = useRemoveCardFromLocation();
   const [pendingRemoval, setPendingRemoval] =
     useState<StorageLocationSearchResult | null>(null);
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <MobileStorageCardList
+        entries={entries}
+        onOpenLocation={onOpenLocation}
+        onOpenCard={onOpenCard}
+      />
+    );
+  }
 
   return (
     <>

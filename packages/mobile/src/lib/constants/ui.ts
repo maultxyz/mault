@@ -1,0 +1,28 @@
+export const BUTTON_HEIGHTS = { sm: 34, md: 44, lg: 52 } as const;
+export const INPUT_HEIGHT = 48;
+export const SEARCH_INPUT_HEIGHT = 44;
+export const LIST_ROW_MIN_HEIGHT = 56;
+export const PAGE_HEADER_ICON_BUTTON_SIZE = 40;
+export const TAB_BAR_HEIGHT = 56;
+export const TAB_ICON_SIZE = 20;
+export const SKELETON_PULSE_MS = 900;
+export const PRESSED_OPACITY = 0.7;
+export const DISABLED_OPACITY = 0.5;
+export const SLIDER_THUMB_SIZE = 24;
+export const SLIDER_TRACK_HEIGHT = 4;
+export const SLIDER_HIT_HEIGHT = 40;
+export const ICON_BADGE_SIZE = 40;
+export const QUICK_ACTION_SIZE = 56;
+
+export const GRADIENT_BURST_SIZE = 360;
+export const GRADIENT_BURST_CENTER = 32;
+export const GRADIENT_BURST_STOPS = [
+  { offset: "0", opacity: 0.45 },
+  { offset: "0.35", opacity: 0.3 },
+  { offset: "1", opacity: 0 },
+] as const;
+
+export const THEME_PREFERENCES = ["light", "dark", "system"] as const;
+
+export const SHUTTER_SIZE = 48;
+export const SHUTTER_ICON_SIZE = 20;

@@ -77,6 +77,7 @@ export function useCalibrationPage() {
   const {
     connect,
     connectBluetooth,
+    connectCloud,
     staleDialogOpen,
     onDismissStaleDialog,
     onRunTest,
@@ -934,6 +935,7 @@ export function useCalibrationPage() {
     stopOfflineCalibration,
     connect,
     connectBluetooth,
+    connectCloud,
     staleDialogOpen,
     onDismissStaleDialog,
     onRunTest,

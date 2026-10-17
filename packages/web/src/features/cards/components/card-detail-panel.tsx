@@ -37,7 +37,10 @@ import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { CARD_TECHNICAL_DETAILS_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import {
+  CARD_OCR_REGIONS_STORAGE_KEY,
+  CARD_TECHNICAL_DETAILS_STORAGE_KEY,
+} from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
   CARD_CONDITIONS,
@@ -97,7 +100,19 @@ export function CardDetailPanel({
   const { t } = useTranslation("cards");
   const [editing, setEditing] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
-  const [showOcrRegions, setShowOcrRegions] = useState(false);
+  const [showOcrRegions, setShowOcrRegionsState] = useState(() => {
+    try {
+      return localStorage.getItem(CARD_OCR_REGIONS_STORAGE_KEY) === "true";
+    } catch {
+      return false;
+    }
+  });
+  const setShowOcrRegions = (checked: boolean) => {
+    setShowOcrRegionsState(checked);
+    try {
+      localStorage.setItem(CARD_OCR_REGIONS_STORAGE_KEY, String(checked));
+    } catch {}
+  };
   const [showTechnicalDetails, setShowTechnicalDetails] = useState(() => {
     try {
       return (
@@ -470,7 +485,16 @@ export function CardDetailPanel({
                         className="w-full h-full object-cover"
                       />
                       {draftIsFoil && <FoilOverlay />}
+                      {showOcrRegions && selectedCard?.image?.normal && (
+                        <OcrRegionOverlay />
+                      )}
                     </div>
+                    {showOcrRegions && selectedCard?.image?.normal && (
+                      <OcrRegionCrops
+                        src={selectedCard.image.normal}
+                        className="w-56 mt-1.5"
+                      />
+                    )}
                   </figure>
                 </div>
 

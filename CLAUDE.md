@@ -18,13 +18,14 @@ pnpm --filter @magic-vault/server db:push      # local iteration only
 pnpm --filter @magic-vault/server db:studio
 pnpm --filter @magic-vault/api-docs openapi    # regenerate packages/api-docs/public/openapi.json
 pnpm --filter @magic-vault/web model           # STEP -> public/models/card-sorter.glb
+pnpm --filter @magic-vault/mobile start        # Expo dev server for the iOS/Android dev build (see packages/mobile/README.md)
 ```
 
 No automated tests. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Architecture
 
-pnpm workspace + Turborepo: `shared` (types, constants, zod schemas, rule engine; no build, resolves to `src/index.ts`), `server` (Hono 4 + Drizzle + Postgres), `web` (React 19 SPA, React Router v7), `bot` (Discord), `api-docs` (Scalar API reference). One root `.env` is read by server and Vite. `docker-compose.yml` is the fully self-hosted stack (`AUTH_PROVIDER=local`, pgvector Postgres).
+pnpm workspace + Turborepo: `shared` (types, constants, zod schemas, rule engine; no build, resolves to `src/index.ts`), `server` (Hono 4 + Drizzle + Postgres), `web` (React 19 SPA, React Router v7), `mobile` (Expo iOS/Android app; no `dev`/`build` script so turbo skips it), `bot` (Discord), `api-docs` (Scalar API reference). One root `.env` is read by server and Vite. `docker-compose.yml` is the fully self-hosted stack (`AUTH_PROVIDER=local`, pgvector Postgres).
 
 The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server routes have no `/api` prefix.
 
@@ -70,7 +71,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Every non-HOT update of a `cards` row adds a duplicate HNSW entry and mass churn wrecks recall, so sync ignores `SyncSource.volatileDataKeys` diffs (stored `prices` in `cards.data` may be stale) and rebuilds the game's index after heavy churn. Vector indexes use `CARD_VECTOR_INDEX_M`/`EF_CONSTRUCTION`; a plain `REINDEX` keeps an index's old build params, so rebuild through `rebuildGameVectorIndex`.
 - An onnxruntime-web WASM `RuntimeError` is permanent for the page (`markRuntimeFailed`); don't retry or "fall back".
 - Cards are routed as soon as they match, in parallel with the save. Saves go through `PendingScanSavesProvider` (IndexedDB retry queue, `isRetry` idempotency on `scanId`), never directly.
-- Server-side in-process state (scan locks, device leases, rate limits, leaderboard cache, deploy notice) is per process and resets on restart.
+- Server-side in-process state (scan locks, device leases, sorter links, rate limits, leaderboard cache, deploy notice) is per process and resets on restart.
 - Stats that must not drop on deletes read `scan_stats`/`org_daily_scan_usage`, never `collection_cards`.
 - `collection_cards.is_reviewed` drives review mode (reviewed cards are skipped) and is set by any correct, confirm or review accept, which also clear `low_confidence_match` (set at scan time when the match came from OCR only or fell below the low-match threshold; the public API still exposes it, combined with alternatives, as `needs_review`). It is separate from `is_corrected` so accepting a confident match doesn't count as a correction.
 - Plan features/limits live in `plan_settings` (Admin > Plans), cached by `lib/plan-config.ts`. A new gated feature needs a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check. Limits are enforced only on create/enable, so downgraded orgs keep what they have.
@@ -86,12 +87,24 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Minimum-firmware features go in `FIRMWARE_FEATURE_MIN_VERSIONS` and are gated with `FirmwareFeatureGate`/`useFirmwareFeature`. Runtime paths still need fallbacks for older boards.
 - Changing the firmware's `ModuleConfig` requires an EEPROM layout migration (see `loadStoredConfigV1()`).
 - A function whose signature uses a sketch-defined struct needs its own prototype right after the struct (Arduino preprocessor).
-- ESP32-S3 release builds pin `FlashMode=dio`; keep the Hardware CDC TX timeout at 0.
+- ESP32-S3 release builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs` (BLE + Wi-Fi + TLS overflow the default 1.25 MB app slot; min_spiffs keeps NVS at 0x9000 so stored settings survive); keep the Hardware CDC TX timeout at 0.
 - Pusher directions are mirrored: `"left"` lands on the physical right. Render bin layouts through `BIN_SLOTS_PHYSICAL_ORDER`; never change default routes to fix the display.
 - Controls that send serial commands require `useSerial().isReady` (passed self-test). Hardware-editing pages are wrapped in `SessionLock`. A new firmware command gets an entry in `DEVICE_COMMANDS`.
+- Wi-Fi remote (ESP32, 2.10.0+, `cloud_esp32.ino`): the board holds an outbound WebSocket to `/sorter-link/device` (bearer token, SHA-256 in `devices.sorter_link_token_hash`, looked up through plain `db`), and `lib/sorter-link.ts` relays raw lines to one browser on `/sorter-link/client`. The web side is just another `ByteTransport` (`CloudTransport`, kind `cloud`), so seq matching, self-test and leases are unchanged. The relay is in process, so a board and its browser must reach the same server process. Board URL: `SORTER_LINK_URL`, else `API_URL`, else the web origin (unreachable from a board in local dev). Wi-Fi is configured only over USB/BLE; firmware never flashes over `cloud`. Wi-Fi start-up spikes brown out weak supplies, so the radio starts 2 s after boot at reduced TX power and pauses after 2 consecutive brownout resets (RTC-memory counter); never start Wi-Fi from `setup()` directly.
 - Changing `BIN_HEIGHT_PRESETS` needs a data migration (see `drizzle/0080_small_bin_height.sql`).
 - The 3D model maps raw pulses (never percentages) to horn degrees, anchored at the CAD closed pose (gates) or neutral (pusher). `SORTER_BOTTOM_DEGREES_PER_TICK` is fit to a real gate: closed 453 to flat with the card bed at 231 (the CAD paddle pose sits ~13 degrees below the bed, not flat).
 - The 3D sorter model is built from `3d model/Card Sorter.step` by `pnpm --filter @magic-vault/web model`; rerun after changing the STEP file and update `MODULE_ROLES`/mechanism points if parts move.
+
+### Mobile (iOS/Android)
+
+- `shared/src/vision.ts` (corner parsing, homography/warp, tensor prep, color bar) and `shared/src/serial-protocol.ts` are the single implementation for web and mobile; platform code only converts pixels (canvas `ImageData` / nitro-image raw buffers) into `RgbaImage`.
+- Mobile runs ONNX on the CPU provider only: CoreML can drop to fp16, and embeddings must stay comparable to the fp32 vectors the server and web produce. It reports `vectorizedOn: "web"` (client-side).
+- Sorters connect over BLE only (iOS has no USB serial). Android needs runtime BLE permissions (`ensureBlePermissions`) before any scan. `SorterLink` mirrors `use-serial`'s seq matching, busy guard and route queue; change both together.
+- No in-app account creation: App Store rules would then require in-app account deletion. Org listing goes through the provider-agnostic `/me/organizations`.
+- Repack and auto-assign presets are refused on mobile (they need bin contents / write bin rules).
+- `locales/en.json`, `de.json` and `fr.json` must keep identical keys; add every new string to all three.
+- QR pairing: vision-camera's `ScannedCode` is iOS-only, so Android decodes captured frames with `jsqr` (`use-qr-scanner.ts` picks per platform at module level).
+- CSV export adapters live in `shared/src/card-export`; web downloads the CSV, mobile hands it to `expo-sharing`.
 
 ### Discord bot
 
@@ -101,6 +114,8 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 ### Deploys
 
 - `.github/workflows/deploy.yml` posts and clears a deploy banner (`X-Deploy-Key`), pauses scanning via `DEPLOY_STATUS_EVENT`, and regenerates `openapi.json`. Every banner step is `continue-on-error`.
+- Images are built in CI and pushed to GHCR (`mault-web`/`-server`/`-api-docs`, tagged `vX.Y.Z` and `sha-*`); Coolify pulls `:latest` (production, from master) or `:dev` (pushes to `dev`, `development` GitHub environment, version `X.Y.Z-dev.<sha>`, never committed or tagged); the channel tag moves only after the release commit (and, for the server, migrations). Secrets and variables use the same names in both GitHub environments. Web `VITE_*` build args come from GitHub repo variables, not Coolify. Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`, not hit a Coolify webhook.
+- Firmware Release dispatched from `dev` commits nothing: it publishes the moving `firmware-dev` pre-release (version `X.Y.Z-dev.<run>`), and only dev deploys swap that binary and version into the web image. A production firmware release deletes `firmware-dev`.
 
 ## Web conventions
 

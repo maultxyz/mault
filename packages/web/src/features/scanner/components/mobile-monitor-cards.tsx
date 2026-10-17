@@ -8,7 +8,13 @@ import { EmptyState } from "@/components/empty-state";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { MobileSearchInput } from "@/components/mobile-search-input";
-import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_FILTER_CHIP_ACTIVE_CLASS,
+  MOBILE_FILTER_CHIP_CLASS,
+  MOBILE_FILTER_CHIP_IDLE_CLASS,
+  MOBILE_ICON_BUTTON_CLASS,
+} from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardFilterPopover } from "@/features/cards/components/card-filter-popover";
 import { CardSortButton } from "@/features/cards/components/card-sort-button";
@@ -20,6 +26,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconHelpCircle,
+  IconListCheck,
   IconSearch,
   IconStack2,
   IconWifiOff,
@@ -31,6 +38,7 @@ export function MobileMonitorCards({
   status,
   binCount,
   canEditCards,
+  onStartReview,
 }: MobileMonitorCardsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -71,7 +79,7 @@ export function MobileMonitorCards({
 
   return (
     <>
-      <div className="sticky top-0 z-10 flex flex-col gap-3 bg-background/85 px-4 pt-4 pb-3 backdrop-blur-xl">
+      <div className="sticky top-0 z-10 flex flex-col gap-3 bg-background/85 px-5 pt-4 pb-3 backdrop-blur-xl">
         <div className="flex gap-1.5">
           <MobileSearchInput
             placeholder={t("mobileMonitor.searchPlaceholder")}
@@ -106,12 +114,25 @@ export function MobileMonitorCards({
             triggerClassName={MOBILE_ICON_BUTTON_CLASS}
           />
         </div>
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4">
+        <div className="-mx-5 flex gap-2 overflow-x-auto px-5">
+          {canEditCards && needsReviewCount > 0 && onStartReview && (
+            <Button
+              className={cn(MOBILE_FILTER_CHIP_CLASS, "rounded-full")}
+              onClick={onStartReview}
+            >
+              <IconListCheck />
+              {t("mobileMonitor.review", { count: needsReviewCount })}
+            </Button>
+          )}
           {showReviewChip && (
             <Button
-              size="sm"
-              variant={filters.needsAttention ? "default" : "outline"}
-              className="shrink-0"
+              variant="ghost"
+              className={cn(
+                MOBILE_FILTER_CHIP_CLASS,
+                filters.needsAttention
+                  ? MOBILE_FILTER_CHIP_ACTIVE_CLASS
+                  : MOBILE_FILTER_CHIP_IDLE_CLASS,
+              )}
               onClick={() =>
                 setFilters({
                   ...filters,
@@ -127,9 +148,13 @@ export function MobileMonitorCards({
             </Button>
           )}
           <Button
-            size="sm"
-            variant={groupDuplicates ? "default" : "outline"}
-            className="shrink-0"
+            variant="ghost"
+            className={cn(
+              MOBILE_FILTER_CHIP_CLASS,
+              groupDuplicates
+                ? MOBILE_FILTER_CHIP_ACTIVE_CLASS
+                : MOBILE_FILTER_CHIP_IDLE_CLASS,
+            )}
             onClick={() => setGroupDuplicates(!groupDuplicates)}
           >
             <IconStack2 />

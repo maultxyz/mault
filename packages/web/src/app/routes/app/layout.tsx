@@ -19,10 +19,11 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { DONATE_URL } from "@/lib/constants/links";
 import {
-  MOBILE_BRAND_SHELL_PATTERN,
+  MOBILE_IMMERSIVE_PATTERN,
   MOBILE_NAV_HIDDEN_PATTERN,
   MOBILE_NAV_SPACE_CLASS,
 } from "@/lib/constants/nav";
+import { GRADIENT_BURST_CLASS } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -41,15 +42,16 @@ export default function AppLayout() {
         <div
           className={cn(
             "relative h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
-            MOBILE_BRAND_SHELL_PATTERN.test(pathname) && !hideMobileNav
-              ? "bg-primary"
+            MOBILE_IMMERSIVE_PATTERN.test(pathname)
+              ? "bg-black"
               : "bg-background",
             !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
           )}
         >
+          <div aria-hidden className={GRADIENT_BURST_CLASS} />
           <ImpersonationBanner />
           <AlertStack />
-          <main className="flex-1 min-h-0 overflow-hidden flex flex-col bg-background">
+          <main className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
             <PageTransition>
               <Outlet />
             </PageTransition>
@@ -58,10 +60,7 @@ export default function AppLayout() {
         </div>
       ) : (
         <div className="h-dvh w-dvw overflow-hidden p-2 pb-6 bg-muted dark:bg-black relative text-foreground/70">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute top-8 left-8 -translate-x-1/2 -translate-y-1/2 size-60 rounded-full bg-primary/50 blur-[60px]"
-          />
+          <div aria-hidden className={GRADIENT_BURST_CLASS} />
           <div className="flex flex-col border rounded-lg size-full overflow-hidden relative">
             <ImpersonationBanner />
             <AlertStack />

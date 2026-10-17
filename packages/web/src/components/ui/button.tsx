@@ -28,14 +28,14 @@ const buttonVariants = cva(
       },
       size: {
         default:
-          "h-7 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.5 data-icon-end:pr-1.5 data-kbd-end:pr-0.75 [&_svg:not([class*='size-'])]:size-3.5",
+          "h-7 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.5 data-icon-end:pr-1.5 data-kbd-end:pr-0.75 [&_svg:not([class*='size-'])]:size-3.5 max-md:h-10 max-md:gap-2 max-md:px-4 max-md:text-sm max-md:data-icon-start:pl-3 max-md:data-icon-end:pr-3 max-md:[&_svg:not([class*='size-'])]:size-4",
         xs: "h-5 gap-1.25 rounded-sm px-2 text-2xs data-icon-start:pl-1 data-icon-end:pr-1 [&_svg:not([class*='size-'])]:size-2.5",
-        sm: "h-6 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.25 data-icon-end:pr-1.25 data-kbd-end:pr-0.25 [&_svg:not([class*='size-'])]:size-3",
-        lg: "h-8 gap-2 px-2.5 text-xs/relaxed data-icon-start:pl-1.75 data-icon-end:pr-1.75 data-kbd-end:pr-1.25 [&_svg:not([class*='size-'])]:size-4",
-        icon: "size-7 [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-6 gap-1.5 px-2 text-xs/relaxed data-icon-start:pl-1.25 data-icon-end:pr-1.25 data-kbd-end:pr-0.25 [&_svg:not([class*='size-'])]:size-3 max-md:h-8 max-md:px-3 max-md:text-sm max-md:data-icon-start:pl-2.5 max-md:data-icon-end:pr-2.5 max-md:[&_svg:not([class*='size-'])]:size-4",
+        lg: "h-8 gap-2 px-2.5 text-xs/relaxed data-icon-start:pl-1.75 data-icon-end:pr-1.75 data-kbd-end:pr-1.25 [&_svg:not([class*='size-'])]:size-4 max-md:h-11 max-md:px-5 max-md:text-sm max-md:data-icon-start:pl-4 max-md:data-icon-end:pr-4",
+        icon: "size-7 [&_svg:not([class*='size-'])]:size-3.5 max-md:size-10 max-md:[&_svg:not([class*='size-'])]:size-5",
         "icon-xs": "size-5 rounded-sm [&_svg:not([class*='size-'])]:size-2.5",
-        "icon-sm": "size-6 [&_svg:not([class*='size-'])]:size-3",
-        "icon-lg": "size-8 [&_svg:not([class*='size-'])]:size-4",
+        "icon-sm": "size-6 [&_svg:not([class*='size-'])]:size-3 max-md:size-8 max-md:[&_svg:not([class*='size-'])]:size-4",
+        "icon-lg": "size-8 [&_svg:not([class*='size-'])]:size-4 max-md:size-10 max-md:[&_svg:not([class*='size-'])]:size-5",
       },
     },
     defaultVariants: {

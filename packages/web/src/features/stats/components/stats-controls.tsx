@@ -1,5 +1,4 @@
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
   Select,
   SelectContent,
@@ -58,22 +57,15 @@ export function StatsControls({
           ))}
         </SelectContent>
       </Select>
-      <ButtonGroup
-        className="w-full sm:w-auto"
-        aria-label={t("controls.range")}
-      >
-        {STATS_RANGES.map((option) => (
-          <Button
-            key={option}
-            variant={range === option ? "outline-selected" : "outline"}
-            aria-pressed={range === option}
-            className="flex-1 sm:flex-none"
-            onClick={() => onRangeChange(option)}
-          >
-            {t(`controls.ranges.${option}`)}
-          </Button>
-        ))}
-      </ButtonGroup>
+      <ResponsiveSegmented
+        label={t("controls.range")}
+        items={STATS_RANGES.map((option) => ({
+          key: option,
+          label: t(`controls.ranges.${option}`),
+        }))}
+        value={range}
+        onChange={onRangeChange}
+      />
     </div>
   );
 }

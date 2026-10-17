@@ -8,6 +8,7 @@ import type {
   CardFilters,
   EmptyBinOptions,
   CardContour,
+  CornerDetection,
   CardScannerProps,
   CardSearchDiagnostics,
   CardSearchResult,
@@ -37,7 +38,6 @@ import type { ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
-import type { SERIAL_RESET_REASONS } from "@/lib/constants/firmware";
 
 export type PhoneCameraCaptureStatus =
   | "idle"
@@ -163,7 +163,7 @@ export type SerialMessageListener = (message: unknown) => void;
 
 export type SerialBoardType = "esp32" | "uno_r4";
 
-export type SerialTransportType = "serial" | "bluetooth";
+export type SerialTransportType = "serial" | "bluetooth" | "cloud";
 
 export type FlashFailureReason =
   | "wrong-chip"
@@ -230,6 +230,10 @@ export interface SerialContextValue {
   transport: SerialTransportType | null;
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
+  connectCloud: (
+    deviceGuid: string,
+    options?: { skipAutoTest?: boolean },
+  ) => Promise<boolean>;
   disconnect: () => Promise<void>;
   sendRoute: (
     route: BinRoute,
@@ -306,6 +310,7 @@ export interface ScannerOverlayProps {
   onOpenPhonePairing: () => void;
   onConnectScanner: () => void;
   onConnectScannerBluetooth: () => void;
+  onConnectScannerCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
 }
 
@@ -501,6 +506,7 @@ export interface MobileMonitorCardsProps {
   status: ConnectionStatus;
   binCount?: number;
   canEditCards: boolean;
+  onStartReview?: () => void;
 }
 
 export interface MobileMonitorActivityProps {
@@ -531,12 +537,18 @@ export interface MobileCardActionsBodyProps {
 export interface MobileCardDetailDrawerProps {
   collectionGuid: string;
   scanId: string | undefined;
+  reviewMode?: boolean;
+  onNavigate: (scanId: string | null) => void;
+  onReviewComplete: (count: number) => void;
   onClose: () => void;
 }
 
 export interface MobileCardDetailBodyProps {
   collectionGuid: string;
   scanId: string;
+  reviewMode: boolean;
+  onNavigate: (scanId: string | null) => void;
+  onReviewComplete: (count: number) => void;
   onClose: () => void;
 }
 
@@ -574,6 +586,52 @@ export interface ScanStatsProps {
 
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
+  renderChrome?: (chrome: ScannerChromeContext) => ReactNode;
+}
+
+export interface ScannerChromeContext {
+  status: ScannerStatus;
+  errorMessage: string;
+  isCameraActive: boolean;
+  isConnected: boolean;
+  isReady: boolean;
+  sensorBlockedModule: number | null;
+  firmwareVersion: string | null;
+  hasCatchAll: boolean;
+  autoFeed: boolean;
+  allowDuplicates: boolean;
+  isAtScanLimit: boolean;
+  bluetoothSupported: boolean;
+  cameras: MediaDeviceInfo[];
+  selectedCameraId: string | null;
+  onPause: () => void;
+  onResume: () => void;
+  onScanOnce: () => void;
+  onRetry: () => void;
+  onConnectBluetooth: () => void;
+  onResolveSensorBlocked: () => void;
+  onSelectCamera: (deviceId: string) => void;
+  onAutoFeedChange: (value: boolean) => void;
+  onAllowDuplicatesChange: (value: boolean) => void;
+  isFeeding: boolean;
+  isClearingDevice: boolean;
+  isResettingDevice: boolean;
+  onFeed: () => void;
+  onClearDevice: () => void;
+  onResetDevice: () => void;
+}
+
+export interface MobileScanControlsSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  chrome: ScannerChromeContext;
+}
+
+export interface MobileSessionScansSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  collectionGuid: string | undefined;
+  count: number;
 }
 
 export interface UnmatchedDiagnosticsDetailsProps {
@@ -712,13 +770,6 @@ export interface ByteTransport {
   setMtu?(mtu: number): void;
 }
 
-export interface CornerDetection {
-  cardPresent: boolean;
-  confidence: number;
-  sharpness: number | null;
-  contour: CardContour | null;
-}
-
 export interface ClientDewarpResult {
   detection: CornerDetection;
   dewarpedCanvas: HTMLCanvasElement | null;
@@ -789,6 +840,7 @@ export interface ScannerMenuProps {
   onOpenPhonePairing: () => void;
   onScannerConnect: () => void;
   onScannerConnectBluetooth: () => void;
+  onScannerConnectCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
   onScannerDisconnect: () => void;
   onScannerRetry: () => void;
@@ -797,6 +849,7 @@ export interface ScannerMenuProps {
   onAllowDuplicatesChange: (enabled: boolean) => void;
   onConnectAnotherUsb: () => void;
   onConnectAnotherBluetooth: () => void;
+  onConnectAnotherCloud: (deviceGuid: string) => void;
   canConnectAnotherSorter: boolean;
   sorterLimitIsHardCap: boolean;
   onUpgrade: () => void;
@@ -816,7 +869,6 @@ export interface DebugCardSet {
   };
 }
 
-export type SerialResetReason = (typeof SERIAL_RESET_REASONS)[number];
 
 export interface ScanSaveOptions {
   deviceGuid?: string;
@@ -880,3 +932,34 @@ export type QrScannerStatus = "starting" | "scanning" | "error";
 export interface QrPairingScannerProps {
   onResult: (text: string) => void;
 }
+
+export interface MobileScanChromeProps {
+  chrome: ScannerChromeContext;
+}
+
+export interface MobileScanNoticeProps {
+  title: string;
+  description?: string;
+  tone?: "neutral" | "warning" | "error";
+  action?: ReactNode;
+}
+
+export interface MobileScanOptionsSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  chrome: ScannerChromeContext;
+  onChooseCollection: () => void;
+  onChoosePreset: () => void;
+}
+
+export interface MobileCollectionSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface MobilePresetSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export type CloudTransportFailure = "offline" | "inUse" | "failed";

@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import type { PendingConnectKind } from "@/lib/interfaces/calibration";
 
 export function useConnectWithStaleCheck() {
-  const { connect, connectBluetooth, runTest } = useSerial();
+  const { connect, connectBluetooth, connectCloud, runTest } = useSerial();
   const device = useDevice();
   const navigate = useNavigate();
   const location = useLocation();
@@ -23,8 +23,13 @@ export function useConnectWithStaleCheck() {
   // Always connects immediately either way - staleness only decides whether
   // the connect self-test runs automatically or waits on the dialog choice.
   const guardedConnect = useCallback(
-    (kind: PendingConnectKind) => {
-      const connectFn = kind === "usb" ? connect : connectBluetooth;
+    (kind: PendingConnectKind, deviceGuid?: string) => {
+      const connectFn = (options?: { skipAutoTest?: boolean }) =>
+        kind === "cloud" && deviceGuid
+          ? connectCloud(deviceGuid, options)
+          : kind === "usb"
+            ? connect(options)
+            : connectBluetooth(options);
       if (isStale) {
         setPending(kind);
         void connectFn({ skipAutoTest: true });
@@ -32,7 +37,7 @@ export function useConnectWithStaleCheck() {
       }
       void connectFn();
     },
-    [isStale, connect, connectBluetooth],
+    [isStale, connect, connectBluetooth, connectCloud],
   );
 
   const handleRunTest = useCallback(() => {
@@ -50,6 +55,7 @@ export function useConnectWithStaleCheck() {
   return {
     connect: () => guardedConnect("usb"),
     connectBluetooth: () => guardedConnect("bluetooth"),
+    connectCloud: (deviceGuid: string) => guardedConnect("cloud", deviceGuid),
     staleDialogOpen: pending !== null,
     onDismissStaleDialog: () => setPending(null),
     onRunTest: handleRunTest,

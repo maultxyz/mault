@@ -1,3 +1,5 @@
+import { SORTER_LINK_DEVICE_PATH } from "@magic-vault/shared";
+
 // The public web app's own URL - used to build links back into it (email
 // verification, Discord embeds, Stripe redirect URLs, invite links).
 // Combined here so the same fallback isn't retyped at every call site.
@@ -7,6 +9,13 @@ export function getWebUrl(): string {
 
 export function getApiUrl(): string | null {
   return process.env.API_URL || null;
+}
+
+export function getSorterLinkUrl(): string | null {
+  if (process.env.SORTER_LINK_URL) return process.env.SORTER_LINK_URL;
+  const apiUrl = getApiUrl();
+  if (!apiUrl) return null;
+  return `${apiUrl.replace(/^http/, "ws").replace(/\/$/, "")}${SORTER_LINK_DEVICE_PATH}`;
 }
 
 export const BMC_URL = "https://buymeacoffee.com/mault";

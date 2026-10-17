@@ -331,6 +331,16 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     void (kind === "usb" ? connector.connect() : connector.connectBluetooth());
   }, []);
 
+  const connectAnotherSorterCloud = useCallback((deviceGuid: string) => {
+    if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
+    const standby = stationsRef.current.find(
+      (s) => !connectedRef.current.has(s.id),
+    );
+    const connector = standby && connectorsRef.current.get(standby.id);
+    if (!connector) return;
+    void connector.connectCloud(deviceGuid);
+  }, []);
+
   const connectPortToStandby = useCallback(async (port: SerialPort) => {
     if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
     const standby = stationsRef.current.find(
@@ -484,6 +494,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       setStationConnected,
       registerConnector,
       connectAnotherSorter,
+      connectAnotherSorterCloud,
       connectPortToStandby,
       connectBluetoothDeviceToStandby,
       isDeviceConnected,
@@ -511,6 +522,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       setStationConnected,
       registerConnector,
       connectAnotherSorter,
+      connectAnotherSorterCloud,
       connectPortToStandby,
       connectBluetoothDeviceToStandby,
       isDeviceConnected,

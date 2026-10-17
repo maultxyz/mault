@@ -34,6 +34,8 @@ export function FirmwarePanel() {
     board === "esp32" &&
     transport === "bluetooth" &&
     !isFlashing;
+  const isEsp32OverCloud =
+    isConnected && board === "esp32" && transport === "cloud" && !isFlashing;
   const isUno = isConnected && board === "uno_r4" && !isFlashing;
   const isOutdated =
     isConnected &&
@@ -97,6 +99,9 @@ export function FirmwarePanel() {
       </div>
       {isEsp32OverBluetooth && (
         <Callout variant="info">{t("firmware.bluetoothNote")}</Callout>
+      )}
+      {isEsp32OverCloud && (
+        <Callout variant="info">{t("firmware.cloudNote")}</Callout>
       )}
       {isUno && <Callout variant="info">{t("firmware.unoNote")}</Callout>}
       <Esp32FlashDialog

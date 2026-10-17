@@ -63,7 +63,7 @@
       "dialogTitle": "Firmware aktualisieren",
       "dialogDescription": "Spielt die neueste Firmware über diesen Browser-Tab auf deinen verbundenen ESP32. Trenne das Gerät nicht und schließe diesen Tab nicht, während der Vorgang läuft.",
       "startButton": "Update starten",
-      "flashing": "Wird installiert — Gerät nicht trennen…",
+      "flashing": "Wird installiert, Gerät nicht trennen…",
       "success": "Firmware wurde installiert. Trenne den Sortierer von deinem Computer und schließe ihn dann wieder an, um den Vorgang abzuschließen.",
       "errorTitle": "Update fehlgeschlagen",
       "close": "Schließen",
@@ -123,6 +123,12 @@
       "usb": "die USB-Verbindung hat ihn zurückgesetzt.",
       "other": "eine seltene Ursache.",
       "unknown": "die Ursache ist unbekannt."
+    },
+    "firmwareOutdatedBannerCloud": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Um ihn im Browser zu aktualisieren, schließe den ESP32-S3 per USB an und verbinde dich über USB statt WLAN.",
+    "cloud": {
+      "offline": "Dieser Sortierer ist gerade nicht online. Prüfe, ob er eingeschaltet und mit dem WLAN verbunden ist.",
+      "inUse": "Jemand anderes steuert diesen Sortierer bereits über WLAN.",
+      "failed": "Der Sortierer war über den Server nicht erreichbar. Versuche es gleich noch einmal."
     }
   },
   "sessionMonitor": {
@@ -297,7 +303,7 @@
   },
   "phoneCamera": {
     "scanDescription": "Scanne diesen QR-Code mit deinem Telefon oder öffne den Link, damit es als Kamera dieses Scanners verwendet werden kann.",
-    "connectedDescription": "Dein Telefon ist bereit — es macht ein Foto, sobald dieser Scanner eines braucht.",
+    "connectedDescription": "Dein Telefon ist bereit: Es macht ein Foto, sobald dieser Scanner eines braucht.",
     "qrAlt": "QR-Code zum Koppeln einer Telefonkamera",
     "statusWaiting": "Warte auf Telefon…",
     "statusConnected": "Verbunden",
@@ -571,7 +577,8 @@
       "connecting": "Verbinde…",
       "error": "Offline",
       "closed": "Offline"
-    }
+    },
+    "review": "{{count}} prüfen"
   },
   "binCorrection": {
     "bin": "Fach {{number}}",
@@ -641,7 +648,15 @@
     "today": "Heute",
     "mostValuable": "Wertvollste",
     "recentlyScanned": "Zuletzt gescannt",
-    "seeAllStats": "Alle Statistiken"
+    "seeAllStats": "Alle Statistiken",
+    "actions": {
+      "scan": "Scannen",
+      "newCollection": "Neu",
+      "sorter": "Sortierer",
+      "stats": "Statistik"
+    },
+    "alerts": "Hinweise",
+    "activeCollection": "Aktiv"
   },
   "resetToNeutral": {
     "done": "Sortierer in Grundstellung",
@@ -663,5 +678,142 @@
       "title": "Ein wartender Scan konnte nicht gespeichert werden",
       "description": "Der Server hat einen Scan abgelehnt, der noch gespeichert werden sollte. Prüfe die Sammlung auf die fehlende Karte."
     }
+  },
+  "mobileScan": {
+    "chooseCollection": "Sammlung wählen",
+    "collection": "Sammlung",
+    "options": "Scan-Optionen",
+    "autoFeed": "Automatischer Einzug",
+    "autoFeedDescription": "Nächste Karte einziehen, sobald eine sortiert ist",
+    "allowDuplicates": "Duplikate erlauben",
+    "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
+    "camera": "Kamera",
+    "preset": "Regel-Vorlage",
+    "choosePreset": "Vorlage wählen",
+    "cameraFallback": "Kamera {{number}}",
+    "sorter": "Sortierer",
+    "pairDesktop": "Als Desktop-Kamera nutzen",
+    "pairDesktopDescription": "QR-Code auf deinem Computer scannen",
+    "phase": {
+      "ready": "Bereit",
+      "scanning": "Scannt",
+      "error": "Fehler"
+    },
+    "sorterState": {
+      "notConnected": "Sortierer nicht verbunden",
+      "blocked": "Karte im Weg",
+      "testing": "Sortierer wird getestet",
+      "ready": "Sortierer bereit"
+    },
+    "cameraOff": "Kamera ist aus",
+    "cameraOffDescription": "Erlaube den Kamerazugriff, um zu scannen.",
+    "startCamera": "Kamera starten",
+    "retry": "Erneut",
+    "noSorterTitle": "Kein Sortierer verbunden",
+    "noSorterDescription": "Verbinde deinen Sortierer, oder tippe auf den Auslöser, um eine Karte zu scannen.",
+    "connect": "Verbinden",
+    "bin": "Fach {{number}}",
+    "pause": "Scannen pausieren",
+    "start": "Scannen starten",
+    "scanOnce": "Karte scannen",
+    "session": {
+      "chip_one": "{{count}} gescannt",
+      "chip_other": "{{count}} gescannt",
+      "title": "Diese Sitzung",
+      "count_one": "{{count}} Karte in dieser Sitzung",
+      "count_other": "{{count}} Karten in dieser Sitzung",
+      "empty": "In dieser Sitzung wurden noch keine Karten gescannt."
+    },
+    "controls": {
+      "open": "Scanner-Steuerung",
+      "title": "Scanner-Steuerung",
+      "pausedHint": "Pausiere das Scannen, um diese zu nutzen.",
+      "scanNow": "Jetzt scannen",
+      "scanNowDescription": "Die Karte unter der Kamera erkennen",
+      "feed": "Eine Karte einziehen",
+      "feedDescription": "Eine Karte einziehen, dann scannen und sortieren",
+      "drop": "Karten fallen lassen",
+      "dropDescription": "Alle Module öffnen, damit festsitzende Karten durchfallen",
+      "neutral": "Auf neutral zurücksetzen",
+      "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
+      "sorterDescription": "Verbindung, Selbsttest und Status"
+    }
+  },
+  "mobileSorter": {
+    "title": "Sortierer",
+    "subtitle": "Sortierer verbinden und prüfen",
+    "firmware": "Firmware {{version}}",
+    "transport": {
+      "serial": "USB",
+      "bluetooth": "Bluetooth",
+      "cloud": "WLAN"
+    },
+    "connectHint": "Schalte den Sortierer ein und verbinde dich.",
+    "connectBluetooth": "Über Bluetooth verbinden",
+    "connectUsb": "Über USB verbinden",
+    "unsupported": "Dieser Browser kann sich nicht direkt mit einem Sortierer verbinden. Verbinde dich unten über WLAN oder nutze Chrome auf Android.",
+    "actions": "Aktionen",
+    "selfTest": "Selbsttest ausführen",
+    "selfTestDescription": "Prüft die Sensoren und bewegt alle Servos",
+    "disconnect": "Trennen",
+    "calibrateOnDesktop": "Kalibrierung und Sortierregeln richtest du am Computer ein.",
+    "remote": {
+      "title": "Über WLAN",
+      "unnamed": "Kartensortierer",
+      "online": "Online, zum Verbinden tippen",
+      "offline": "Offline",
+      "inUse": "Wird von jemand anderem verwendet"
+    }
+  },
+  "sorterWifi": {
+    "title": "WLAN-Fernzugriff",
+    "description": "Verbinde den Sortierer mit deinem WLAN, um ihn von überall zu steuern, auch von einem Handy ohne Bluetooth.",
+    "connectFirst": "Verbinde deinen Sortierer per USB oder Bluetooth, um WLAN einzurichten.",
+    "needsEsp32": "WLAN-Fernzugriff benötigt ein ESP32-Board.",
+    "needsFirmware": "WLAN-Fernzugriff benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware deines Sortierers, um ihn zu nutzen.",
+    "changeOverLocal": "Du bist über WLAN verbunden. Um das WLAN-Netz zu ändern, verbinde dich per USB oder Bluetooth.",
+    "setUp": "WLAN einrichten",
+    "change": "WLAN ändern",
+    "forget": "WLAN ausschalten",
+    "notSetUp": "Nicht eingerichtet",
+    "unknown": "Wird geprüft…",
+    "forgotten": "WLAN ausgeschaltet.",
+    "forgetFailed": "WLAN konnte nicht ausgeschaltet werden.",
+    "saved": "WLAN gespeichert. Der Sortierer verbindet sich mit dem Netz.",
+    "saveFailed": "WLAN konnte nicht gespeichert werden",
+    "saveFailedDescription": "Der Sortierer hat die Einstellungen nicht übernommen. Prüfe, ob er noch verbunden ist, und versuche es erneut.",
+    "dialogTitle": "Sortierer mit WLAN verbinden",
+    "dialogDescription": "Der Sortierer merkt sich dieses Netz und verbindet sich selbstständig wieder mit dem Server. Er unterstützt nur 2,4-GHz-Netze.",
+    "ssid": "Netzwerkname",
+    "password": "Passwort",
+    "passwordHint": "Für ein offenes Netz leer lassen.",
+    "save": "Speichern",
+    "validation": {
+      "ssidRequired": "Gib den Netzwerknamen ein.",
+      "ssidTooLong": "Netzwerknamen dürfen höchstens {{max}} Bytes lang sein.",
+      "password": "Passwörter haben {{min}} bis {{max}} Zeichen oder bleiben für ein offenes Netz leer."
+    },
+    "wifiLabel": "WLAN",
+    "cloudLabel": "Serververbindung",
+    "wifiState": {
+      "unconfigured": "Nicht eingerichtet",
+      "connecting": "Verbindet",
+      "connected": "Verbunden",
+      "paused": "Pausiert"
+    },
+    "cloudState": {
+      "unconfigured": "Nicht eingerichtet",
+      "offline": "Offline",
+      "connecting": "Verbindet",
+      "connected": "Verbunden",
+      "rejected": "Abgelehnt, WLAN erneut einrichten"
+    },
+    "pausedForPower": "Der Sortierer ist beim Start des WLANs wegen Spannungseinbrüchen immer wieder neu gestartet. Daher ist WLAN pausiert, USB und Bluetooth funktionieren weiter. Nutze ein stärkeres Netzteil oder versorge die Servos separat, trenne den Sortierer dann kurz vom Strom oder speichere das WLAN erneut, um es noch einmal zu versuchen."
+  },
+  "wifiConnect": {
+    "item": "WLAN: {{name}}",
+    "offline": "Offline",
+    "inUse": "In Benutzung",
+    "connectedHere": "Verbunden"
   }
 }

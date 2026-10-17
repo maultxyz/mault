@@ -1,4 +1,7 @@
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_ACCOUNT_PATH,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import {
@@ -47,7 +50,11 @@ export default function AccountPage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       {isMobile && (
-        <MobilePageHeader title={t("title")} subtitle={t("subtitle")} />
+        <MobilePageHeader
+          title={t("title")}
+          subtitle={t("subtitle")}
+          backTo={MOBILE_ACCOUNT_PATH}
+        />
       )}
       <div
         className={cn(

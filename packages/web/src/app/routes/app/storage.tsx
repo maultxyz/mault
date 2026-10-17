@@ -15,6 +15,8 @@ import { StorageLocationList } from "@/features/storage/components/storage-locat
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
 import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
+import { MobileStorage } from "@/features/storage/components/mobile-storage";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -37,7 +39,7 @@ import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
-export default function StoragePage() {
+function DesktopStoragePage() {
   const { t } = useTranslation("storage");
   const { locations, isLoading, isMutating, create, rename, remove } =
     useStorageLocations();
@@ -291,4 +293,9 @@ export default function StoragePage() {
       />
     </div>
   );
+}
+
+export default function StoragePage() {
+  const isMobile = useIsMobile();
+  return isMobile ? <MobileStorage /> : <DesktopStoragePage />;
 }

@@ -14,6 +14,7 @@ import type {
   ScanOnlyConfig,
 } from "@magic-vault/shared";
 import type { Control } from "react-hook-form";
+import type { ReactNode } from "react";
 import type { BinConfigFormValues } from "@/schemas/sort-bins.schema";
 
 export interface BinConfigSaveInput {
@@ -186,4 +187,12 @@ export interface BinLocationDiagramProps {
 
 export interface SortingRulesIntroProps {
   className?: string;
+}
+
+export interface BinSettingRowProps {
+  id?: string;
+  label: string;
+  description?: string;
+  control?: ReactNode;
+  children?: ReactNode;
 }

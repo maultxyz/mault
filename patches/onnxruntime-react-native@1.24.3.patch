@@ -1,0 +1,52 @@
+diff --git a/android/CMakeLists.txt b/android/CMakeLists.txt
+--- a/android/CMakeLists.txt
++++ b/android/CMakeLists.txt
+@@ -5,6 +5,7 @@ set(PACKAGE_NAME "onnxruntime-react-native")
+ set(BUILD_DIR ${CMAKE_SOURCE_DIR}/build)
+ set(CMAKE_VERBOSE_MAKEFILE ON)
+ set(CMAKE_CXX_STANDARD 17)
++set(CMAKE_OBJECT_PATH_MAX 250)
+ 
+ option(ORT_EXTENSIONS_ENABLED "Enable Ort Extensions" NO)
+ option(USE_NNAPI "Use NNAPI" YES)
+diff --git a/android/build.gradle b/android/build.gradle
+index 41b43599a9af6ef1c170047d39db1f3baa6ca682..66a378d7a2f1bff44198925130fd30d34d71b3d0 100644
+--- a/android/build.gradle
++++ b/android/build.gradle
+@@ -116,6 +116,7 @@ android {
+   externalNativeBuild {
+     cmake {
+       path "CMakeLists.txt"
++      buildStagingDirectory "${rootProject.projectDir}/.cxx/ort"
+     }
+   }
+ 
+@@ -247,10 +248,6 @@ dependencies {
+     extractLibs "com.microsoft.onnxruntime:onnxruntime-android:latest.integration@aar"
+   }
+ 
+-  if (VersionNumber.parse(REACT_NATIVE_VERSION) < VersionNumber.parse("0.71")) {
+-    extractLibs "com.facebook.fbjni:fbjni:+:headers"
+-    extractLibs "com.facebook.fbjni:fbjni:+"
+-  }
+ 
+   // By default it will just include onnxruntime full aar package
+   if (ortExtensionsEnabled) {
+@@ -264,7 +261,7 @@ task extractLibs {
+       def file = it.absoluteFile
+       copy {
+         from zipTree(file)
+-        into "$buildDir/$file.name"
++        into "${layout.buildDirectory.get().asFile}/$file.name"
+         include "**/*.h", "**/*.so"
+       }
+     }
+diff --git a/unimodule.json b/unimodule.json
+deleted file mode 100644
+--- a/unimodule.json
++++ /dev/null
+@@ -1,4 +0,0 @@
+-{
+-  "name": "onnxruntime-react-native",
+-  "platforms": ["ios", "android"]
+-}

@@ -5,6 +5,7 @@ WORKDIR /app
 
 # Copy manifests for layer caching
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ patches/
 COPY packages/shared/package.json packages/shared/
 COPY packages/web/package.json packages/web/
 RUN pnpm install --frozen-lockfile
@@ -22,6 +23,7 @@ ARG VITE_APP_ENV
 ARG VITE_LATEST_FIRMWARE_VERSION
 ARG VITE_ROLLBAR_ACCESS_TOKEN
 ARG VITE_SHOW_SCAN_LOGS
+ARG VITE_API_DOCS_URL
 ENV VITE_API_URL=$VITE_API_URL \
     VITE_AUTH_PROVIDER=$VITE_AUTH_PROVIDER \
     VITE_NEON_AUTH_URL=$VITE_NEON_AUTH_URL \
@@ -29,7 +31,8 @@ ENV VITE_API_URL=$VITE_API_URL \
     VITE_APP_ENV=$VITE_APP_ENV \
     VITE_LATEST_FIRMWARE_VERSION=$VITE_LATEST_FIRMWARE_VERSION \
     VITE_ROLLBAR_ACCESS_TOKEN=$VITE_ROLLBAR_ACCESS_TOKEN \
-    VITE_SHOW_SCAN_LOGS=$VITE_SHOW_SCAN_LOGS
+    VITE_SHOW_SCAN_LOGS=$VITE_SHOW_SCAN_LOGS \
+    VITE_API_DOCS_URL=$VITE_API_DOCS_URL
 
 RUN pnpm --filter @magic-vault/web build
 

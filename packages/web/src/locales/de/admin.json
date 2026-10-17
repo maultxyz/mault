@@ -272,7 +272,9 @@
       "route": "Führt eine Karte zu und leitet sie an den linken, rechten oder unteren Ausgang eines Moduls.",
       "pushTest": "Führt nur den Schiebeschritt eines Moduls aus, ohne Karte und ohne IR-Prüfung.",
       "setConfig": "Setzt die Servopulse und Schiebezeiten eines Moduls. Leere Felder behalten ihren aktuellen Wert.",
-      "setFeederConfig": "Setzt Geschwindigkeit, Zeiten und Rücklauf der Zuführung. Leere Felder behalten ihren aktuellen Wert."
+      "setFeederConfig": "Setzt Geschwindigkeit, Zeiten und Rücklauf der Zuführung. Leere Felder behalten ihren aktuellen Wert.",
+      "getWifi": "Meldet WLAN-Netz, IP-Adresse, Signal und Status der Serververbindung.",
+      "clearWifi": "Vergisst das WLAN-Netz und die Serververbindung. Das Board bleibt offline, bis WLAN erneut eingerichtet wird."
     },
     "raw": {
       "heading": "Rohkonsole",

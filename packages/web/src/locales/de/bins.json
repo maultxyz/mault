@@ -1,6 +1,6 @@
 {
   "nonEnglishRulesBanner": {
-    "message": "Diese Sammlung ist auf {{language}} eingestellt, daher verwenden die Regelfelder unten Freitext statt Dropdowns — die Kartendaten selbst kommen auf {{language}} zurück, nicht auf Englisch, weshalb englische Optionen nicht passen würden."
+    "message": "Diese Sammlung ist auf {{language}} eingestellt, daher verwenden die Regelfelder unten Freitext statt Dropdowns. Die Kartendaten selbst kommen auf {{language}} zurück, nicht auf Englisch, weshalb englische Optionen nicht passen würden."
   },
   "noGameBanner": {
     "message": "Dieser Sammlung ist kein Spiel zugewiesen, daher gibt es keine Kartenfelder für Sortierregeln. Erstellen Sie die Sammlung neu und wählen Sie ein Spiel aus, um die Sortierung zu aktivieren."
@@ -80,7 +80,10 @@
     "sortSourceRules": "Sortierregeln",
     "sortSourcePickList": "Pickliste",
     "sortSourceRulesDescription": "Karten, die den Regeln unten entsprechen.",
-    "sortSourcePickListDescription": "Nur Karten auf der Liste unten, etwa eine Deckliste. Wird vor den Regeln aller anderen Fächer geprüft."
+    "sortSourcePickListDescription": "Nur Karten auf der Liste unten, etwa eine Deckliste. Wird vor den Regeln aller anderen Fächer geprüft.",
+    "settingsTitle": "Fach-Einstellungen",
+    "advancedTitle": "Erweitert",
+    "rulesSectionDescription": "Passende Karten kommen in dieses Fach."
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."

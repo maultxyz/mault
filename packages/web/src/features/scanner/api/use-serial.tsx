@@ -13,35 +13,15 @@ import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
 import { flashEsp32Port } from "@/features/scanner/lib/esp32-flasher";
-import {
-  isBootBanner,
-  isBusyResponse,
-  isFailedRouteResponse,
-  isServoDriverMissing,
-  isUnsolicitedSerialMessage,
-  replySeq,
-  statusResetReason,
-  statusUptimeMs,
-  withSeq,
-} from "@/features/scanner/lib/serial-messages";
 import { claimBootNotice } from "@/features/scanner/lib/sorter-boot-notice";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
+import { sorterLinkClientUrl } from "@/features/scanner/lib/sorter-link";
 import {
   BluetoothTransport,
+  CloudTransport,
   SerialTransport,
 } from "@/features/scanner/lib/transports";
-import {
-  BLE_RECONNECT_BASE_DELAY_MS,
-  BLE_RECONNECT_MAX_DELAY_MS,
-} from "@/lib/constants/bluetooth";
-import {
-  SERIAL_ABNORMAL_RESET_REASONS,
-  SERIAL_HEARTBEAT_MAX_MISSES,
-  SERIAL_IDENTIFY_ATTEMPTS,
-  SERIAL_PUSH_BLOCKED_ERROR,
-  SERIAL_SEQ_MAX,
-} from "@/lib/constants/firmware";
 import {
   JAM_CLEAR_DEVICE_TIMEOUT_MS,
   JAM_COMMAND_TIMEOUT_MS,
@@ -78,7 +58,25 @@ import type {
   CommLogEntry,
 } from "@/lib/interfaces/scanner";
 import type { BleReconnectState, PreTestHook } from "@/lib/interfaces/stations";
-import type { BinRoute } from "@magic-vault/shared";
+import {
+  BLE_RECONNECT_BASE_DELAY_MS,
+  BLE_RECONNECT_MAX_DELAY_MS,
+  SERIAL_ABNORMAL_RESET_REASONS,
+  SERIAL_HEARTBEAT_MAX_MISSES,
+  SERIAL_IDENTIFY_ATTEMPTS,
+  SERIAL_PUSH_BLOCKED_ERROR,
+  SERIAL_SEQ_MAX,
+  isBootBanner,
+  isBusyResponse,
+  isFailedRouteResponse,
+  isServoDriverMissing,
+  isUnsolicitedSerialMessage,
+  replySeq,
+  statusResetReason,
+  statusUptimeMs,
+  withSeq,
+  type BinRoute,
+} from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -1126,6 +1124,36 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [toast, openTransport, t],
   );
 
+  const connectCloud = useCallback(
+    async (
+      deviceGuid: string,
+      options?: { skipAutoTest?: boolean },
+    ): Promise<boolean> => {
+      if (disconnectingRef.current) {
+        await disconnectingRef.current;
+      }
+      if (transportRef.current) return false;
+
+      const url = await sorterLinkClientUrl(deviceGuid);
+      const result = url
+        ? await CloudTransport.open(url)
+        : ({ ok: false, reason: "failed" } as const);
+      if (!result.ok) {
+        toast.error(t("serial.connectionFailed.title"), {
+          description: t(`serial.cloud.${result.reason}`),
+        });
+        return false;
+      }
+      if (transportRef.current) {
+        await result.transport.close();
+        return false;
+      }
+      await openTransport(result.transport, options);
+      return true;
+    },
+    [toast, openTransport, t],
+  );
+
   // Keeps this sorter's slot against the plan's connected-sorter cap. If the
   // lease was lost (e.g. the server restarted) and another sorter took the
   // slot meanwhile, this one yields.
@@ -1146,6 +1174,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       stationsRef.current.registerConnector(station.id, {
         connect: () => connect(),
         connectBluetooth: () => connectBluetooth(),
+        connectCloud: (deviceGuid: string) => connectCloud(deviceGuid),
         connectPort,
         connectBluetoothDevice,
         disconnect,
@@ -1154,6 +1183,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       station.id,
       connect,
       connectBluetooth,
+      connectCloud,
       connectPort,
       connectBluetoothDevice,
       disconnect,
@@ -1483,6 +1513,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         transport,
         connect,
         connectBluetooth,
+        connectCloud,
         disconnect,
         sendRoute,
         sendPushTest,

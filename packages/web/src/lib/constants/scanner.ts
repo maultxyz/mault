@@ -59,8 +59,6 @@ export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 export const PARKED_PANELS_ROOT_CLASS =
   "fixed top-0 left-0 -z-10 invisible pointer-events-none";
 
-export const OCR_CROP_WIDTH = 630;
-export const OCR_CROP_HEIGHT = 880;
 
 export const UNMATCHED_RATE_WINDOW = 20;
 export const UNMATCHED_RATE_MIN_SCANS = 10;
@@ -71,18 +69,6 @@ export const UNMATCHED_RATE_TOAST_ID = "unmatched-rate";
 export const SHOW_SCAN_LOGS = import.meta.env.VITE_SHOW_SCAN_LOGS === "true";
 
 export const ONNX_RUNTIME_FAILURE_TOAST_ID = "onnx-runtime-failure";
-
-export const COLOR_BAR_MIN_SATURATION = 0.35;
-export const COLOR_BAR_MIN_BRIGHTNESS = 64;
-export const COLOR_BAR_MIN_SHARE = 0.12;
-export const COLOR_BAR_HUE_RANGES: Record<string, [number, number][]> = {
-  Red: [
-    [0, 20],
-    [330, 360],
-  ],
-  Yellow: [[35, 70]],
-  Blue: [[180, 260]],
-};
 
 export const SCAN_IMAGE_URL_STALE_MS = 50 * 60 * 1000;
 
@@ -105,8 +91,6 @@ export const CORRECTION_TIMER_RADIUS = 16;
 export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
 
-export const DEFAULT_MIN_SHARPNESS = 0.02;
-
 export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
 
 export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
@@ -115,7 +99,6 @@ export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "settling",
 ];
 
-export const CONSENSUS_RETRY_BUDGET = 3;
 
 export const DOCUMENT_TITLE_BASE = "MAULT";
 
@@ -136,3 +119,8 @@ export const PENDING_SCAN_SAVES_TOAST_ID = "pending-scan-saves";
 
 export const SCAN_REGION_MASK_FILL = "rgb(0 0 0 / 0.4)";
 export const SCAN_REGION_MASK_STROKE = "rgb(255 255 255 / 0.9)";
+
+export const MOBILE_SCAN_CHIP_CLASS =
+  "pointer-events-auto inline-flex h-9 min-w-0 items-center gap-1.5 rounded-full bg-black/55 px-3 text-sm font-medium text-white backdrop-blur-md active:bg-black/70";
+export const MOBILE_SCAN_PANEL_CLASS =
+  "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";

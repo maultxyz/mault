@@ -470,7 +470,8 @@
     "bluetoothNote": "Le flashage ne fonctionne pas en Bluetooth. Connectez le trieur avec un câble USB pour le flasher.",
     "unoNote": "Les cartes Arduino Uno R4 ne peuvent pas être flashées depuis le navigateur. Téléchargez le firmware et téléversez-le avec l'IDE Arduino.",
     "notConnectedHint": "Connectez un trieur pour voir sa version, ou flashez un ESP32-S3 en USB sans le connecter d'abord.",
-    "unsupported": "Ce navigateur ne peut pas flasher de cartes. Utilisez Chrome ou Edge sur un ordinateur."
+    "unsupported": "Ce navigateur ne peut pas flasher de cartes. Utilisez Chrome ou Edge sur un ordinateur.",
+    "cloudNote": "Le flashage ne fonctionne pas en Wi-Fi. Branche la trieuse avec un câble USB pour la flasher."
   },
   "sectionIntros": {
     "connection": "Connecte le trieur en USB ou Bluetooth, garde son firmware à jour et choisis ce qui se passe à la connexion.",

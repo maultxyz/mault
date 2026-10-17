@@ -283,7 +283,9 @@
       "route": "Feeds a card and routes it to a module's left, right or bottom output.",
       "pushTest": "Runs only the push step on a module, without a card or IR checks.",
       "setConfig": "Sets a module's servo pulses and push timings. Empty fields keep their current value.",
-      "setFeederConfig": "Sets feeder speed, timings and rollback. Empty fields keep their current value."
+      "setFeederConfig": "Sets feeder speed, timings and rollback. Empty fields keep their current value.",
+      "getWifi": "Reports the Wi-Fi network, IP address, signal and server link state.",
+      "clearWifi": "Forgets the Wi-Fi network and server link. The board stays offline until Wi-Fi is set up again."
     },
     "raw": {
       "heading": "Raw console",

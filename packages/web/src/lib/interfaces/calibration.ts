@@ -443,4 +443,4 @@ export interface ScanRegionCalibrationPanelProps {
   onCheckBothOrientationsChange: (value: boolean) => void;
 }
 
-export type PendingConnectKind = "usb" | "bluetooth";
+export type PendingConnectKind = "usb" | "bluetooth" | "cloud";

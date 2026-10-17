@@ -250,6 +250,7 @@ export const devices = pgTable(
     pipelinedFeed: boolean("pipelined_feed").notNull().default(false),
     autoConnect: boolean("auto_connect").notNull().default(false),
     testOnConnect: boolean("test_on_connect").notNull().default(true),
+    sorterLinkTokenHash: text("sorter_link_token_hash"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
@@ -258,6 +259,9 @@ export const devices = pgTable(
     uniqueIndex("devices_org_hardware_idx")
       .on(table.orgId, table.hardwareId)
       .where(sql`${table.isDeleted} = false`),
+    uniqueIndex("devices_sorter_link_token_idx")
+      .on(table.sorterLinkTokenHash)
+      .where(sql`${table.sorterLinkTokenHash} IS NOT NULL`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

@@ -6,6 +6,8 @@ on:
   # so both offsets are scheduled and "Compute deploy flag" keeps only the one
   # matching the current CDT/CST offset. Scheduled runs always use the default branch (master), and
   # only deploy when something changed since the last release tag.
+  # Dev deploys are manual only (dispatch on dev, or a dev Firmware Release):
+  # no release commit or tag, and images move the :dev tag rather than :latest.
   schedule:
     - cron: "17 0 * * *"
     - cron: "17 1 * * *"
@@ -13,18 +15,31 @@ on:
 
 permissions:
   contents: write
+  packages: write
 
 concurrency:
-  group: master-release-pipeline
+  group: ${{ github.ref_name == 'dev' && 'dev-release-pipeline' || 'master-release-pipeline' }}
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     environment:
-      name: production
-      url: https://mault.xyz
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+      url: ${{ vars.APP_URL }}
+    env:
+      IS_DEV: ${{ github.ref_name == 'dev' }}
+      CHANNEL: ${{ github.ref_name == 'dev' && 'dev' || 'latest' }}
     steps:
+      # Dispatching from any other branch would deploy unreleased code to
+      # production, so only master and dev are allowed.
+      - name: Check branch
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ] && [ "${{ github.ref_name }}" != "dev" ]; then
+            echo "::error::Deploys run from master (production) or dev (development) only, not ${{ github.ref_name }}."
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -74,7 +89,7 @@ jobs:
       # older version, and the two are expected to stay on the same release.
       # A manual (workflow_dispatch) run always deploys, since the whole
       # point of triggering it by hand is to force a redeploy regardless of
-      # what changed - e.g. retrying after a failed Coolify webhook.
+      # what changed, e.g. retrying after a failed Coolify webhook.
       - name: Compute deploy flag
         id: deploy
         run: |
@@ -83,7 +98,7 @@ jobs:
           else
             EXPECTED_CRON="17 1 * * *"
           fi
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "$IS_DEV" = "true" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "should_deploy=true" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" != "$EXPECTED_CRON" ]; then
             echo "Skipping: ${{ github.event.schedule }} is not 19:17 America/Chicago today"
@@ -97,7 +112,9 @@ jobs:
       - name: Describe release
         id: pr
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "$IS_DEV" = "true" ]; then
+            TITLE="Dev deploy"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TITLE="Manual deploy"
           else
             TITLE="Nightly deploy (${{ steps.changes.outputs.count }} commits)"
@@ -114,54 +131,28 @@ jobs:
             echo "PR_TITLE_EOF"
           } >> "$GITHUB_OUTPUT"
 
-      # Build checks run before the release commit and tag are pushed, so a
-      # failed build (or a Docker Hub timeout pulling BuildKit) never leaves a
-      # tag behind that makes the next nightly run think nothing is pending.
-      - name: Set up Docker Buildx
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build web image
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.web
-          push: false
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,mode=max,scope=web
-
-      - name: Build server image
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.server
-          push: false
-          cache-from: type=gha,scope=server
-          cache-to: type=gha,mode=max,scope=server
-
-      - name: Build API docs image
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.api-docs
-          push: false
-          cache-from: type=gha,scope=api-docs
-          cache-to: type=gha,mode=max,scope=api-docs
-
+      # The version is bumped and the OpenAPI spec regenerated in the working
+      # tree before the images are built, so the images carry the release
+      # version. Nothing is committed or tagged until every image is pushed,
+      # so a failed build never leaves a tag behind that makes the next
+      # nightly run think nothing is pending. Dev builds keep the current
+      # version with a -dev.<sha> suffix, so the web app's version check and
+      # the wait step below still see each dev deploy as a new version.
       - name: Compute app version
         id: appversion
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
           CURRENT=$(node -p "require('./package.json').version")
-          MAJOR_MINOR=$(echo "$CURRENT" | grep -oP '^\d+\.\d+')
-          CURRENT_PATCH=$(echo "$CURRENT" | grep -oP '\d+$')
-          LAST=$(git tag -l "v${MAJOR_MINOR}.*" | sed -E "s/^v${MAJOR_MINOR}\.//" | sort -n | tail -1)
-          LAST="${LAST:-$CURRENT_PATCH}"
-          PATCH=$((LAST + 1))
-          VERSION="${MAJOR_MINOR}.${PATCH}"
+          if [ "$IS_DEV" = "true" ]; then
+            VERSION="${CURRENT}-dev.${GITHUB_SHA::7}"
+          else
+            MAJOR_MINOR=$(echo "$CURRENT" | grep -oP '^\d+\.\d+')
+            CURRENT_PATCH=$(echo "$CURRENT" | grep -oP '\d+$')
+            LAST=$(git tag -l "v${MAJOR_MINOR}.*" | grep -E "^v${MAJOR_MINOR}\.[0-9]+$" | sed -E "s/^v${MAJOR_MINOR}\.//" | sort -n | tail -1)
+            LAST="${LAST:-$CURRENT_PATCH}"
+            PATCH=$((LAST + 1))
+            VERSION="${MAJOR_MINOR}.${PATCH}"
+          fi
           node scripts/set-version.mjs "$VERSION"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
@@ -176,8 +167,8 @@ jobs:
           node-version: 20
           cache: pnpm
 
-      # The API reference site serves this file as-is, and Coolify builds that
-      # image from git, so the spec is regenerated here (with the new version)
+      # The API reference site serves this file as-is, so the spec is
+      # regenerated here (with the new version), baked into the API docs image
       # and committed with the release rather than generated at build time.
       - name: Generate OpenAPI spec
         if: steps.deploy.outputs.should_deploy == 'true'
@@ -185,9 +176,105 @@ jobs:
           pnpm install --frozen-lockfile --filter @magic-vault/api-docs...
           pnpm --filter @magic-vault/api-docs openapi
 
+      - name: Compute image names
+        id: images
+        if: steps.deploy.outputs.should_deploy == 'true'
+        run: |
+          PREFIX="ghcr.io/$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')/mault"
+          {
+            echo "web=$PREFIX-web"
+            echo "server=$PREFIX-server"
+            echo "docs=$PREFIX-api-docs"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Set up Docker Buildx
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Dev deploys flash the firmware-dev pre-release when one exists (see
+      # firmware-release.yml); the binary is swapped in the working tree only
+      # and never committed.
+      - name: Select firmware
+        id: firmware
+        if: steps.deploy.outputs.should_deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ vars.VITE_LATEST_FIRMWARE_VERSION }}"
+          if [ "$IS_DEV" = "true" ] && gh release view firmware-dev --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release download firmware-dev --repo "${{ github.repository }}"               -p esp32-latest.bin -p version.txt -D "$RUNNER_TEMP/firmware" --clobber
+            cp "$RUNNER_TEMP/firmware/esp32-latest.bin" packages/web/public/firmware/esp32-latest.bin
+            VERSION=$(tr -d '[:space:]' < "$RUNNER_TEMP/firmware/version.txt")
+            echo "Using dev firmware v$VERSION"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # Images are pushed under their version and commit tags only. Coolify
+      # pulls the channel tag (:latest for production, :dev for development),
+      # which is moved onto these images further down, once the release commit
+      # exists and (for the server) migrations have run.
+      - name: Build and push web image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.web
+          push: true
+          tags: |
+            ${{ steps.images.outputs.web }}:v${{ steps.appversion.outputs.version }}
+            ${{ steps.images.outputs.web }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_API_URL=${{ vars.VITE_API_URL }}
+            VITE_AUTH_PROVIDER=${{ vars.VITE_AUTH_PROVIDER }}
+            VITE_NEON_AUTH_URL=${{ vars.VITE_NEON_AUTH_URL }}
+            VITE_NEON_DATA_API_URL=${{ vars.VITE_NEON_DATA_API_URL }}
+            VITE_APP_ENV=${{ vars.VITE_APP_ENV }}
+            VITE_LATEST_FIRMWARE_VERSION=${{ steps.firmware.outputs.version }}
+            VITE_ROLLBAR_ACCESS_TOKEN=${{ secrets.VITE_ROLLBAR_ACCESS_TOKEN }}
+            VITE_SHOW_SCAN_LOGS=${{ vars.VITE_SHOW_SCAN_LOGS }}
+            VITE_API_DOCS_URL=${{ vars.VITE_API_DOCS_URL }}
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,mode=max,scope=web
+
+      - name: Build and push server image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.server
+          push: true
+          tags: |
+            ${{ steps.images.outputs.server }}:v${{ steps.appversion.outputs.version }}
+            ${{ steps.images.outputs.server }}:sha-${{ github.sha }}
+          cache-from: type=gha,scope=server
+          cache-to: type=gha,mode=max,scope=server
+
+      - name: Build and push API docs image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.api-docs
+          push: true
+          tags: |
+            ${{ steps.images.outputs.docs }}:v${{ steps.appversion.outputs.version }}
+            ${{ steps.images.outputs.docs }}:sha-${{ github.sha }}
+          build-args: |
+            VITE_API_URL=${{ vars.API_DOCS_VITE_API_URL }}
+          cache-from: type=gha,scope=api-docs
+          cache-to: type=gha,mode=max,scope=api-docs
+
       - name: Commit and tag app version
         id: appcommit
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && env.IS_DEV != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -217,6 +304,16 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"durationMinutes": 60}'
 
+      - name: Promote web and API docs images
+        if: steps.deploy.outputs.should_deploy == 'true'
+        run: |
+          docker buildx imagetools create \
+            -t "${{ steps.images.outputs.web }}:$CHANNEL" \
+            "${{ steps.images.outputs.web }}:v${{ steps.appversion.outputs.version }}"
+          docker buildx imagetools create \
+            -t "${{ steps.images.outputs.docs }}:$CHANNEL" \
+            "${{ steps.images.outputs.docs }}:v${{ steps.appversion.outputs.version }}"
+
       - name: Trigger Coolify deployment (web)
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
@@ -232,7 +329,8 @@ jobs:
             echo "COOLIFY_WEBHOOK_API_DOCS isn't set, skipping the API docs deploy."
             exit 0
           fi
-          curl -sf --request POST "$WEBHOOK"             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          curl -sf --request POST "$WEBHOOK" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Install server dependencies
         if: steps.deploy.outputs.should_deploy == 'true'
@@ -244,6 +342,13 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm --filter @magic-vault/server db:migrate
 
+      - name: Promote server image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        run: |
+          docker buildx imagetools create \
+            -t "${{ steps.images.outputs.server }}:$CHANNEL" \
+            "${{ steps.images.outputs.server }}:v${{ steps.appversion.outputs.version }}"
+
       - name: Trigger Coolify deployment (server)
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
@@ -252,10 +357,9 @@ jobs:
 
       # The Coolify webhook returns as soon as the deploy is queued, so the
       # deploy only counts as finished once the server reports the new
-      # version. Skipped when no release commit was pushed, since Coolify
-      # builds from git and the version wouldn't change.
+      # version.
       - name: Wait for new server version
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.appcommit.outputs.changed == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true'
         continue-on-error: true
         timeout-minutes: 30
         env:
@@ -285,7 +389,7 @@ jobs:
           exit 1
 
       - name: Notify Discord (success)
-        if: success() && steps.deploy.outputs.should_deploy == 'true'
+        if: success() && steps.deploy.outputs.should_deploy == 'true' && env.IS_DEV != 'true'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           DISCORD_ROLE_ID: ${{ secrets.DISCORD_DEPLOYMENTS_ROLE_ID }}
@@ -357,6 +461,10 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           PR_TITLE: ${{ steps.pr.outputs.title }}
         run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
           PAYLOAD=$(jq -n \
             --arg title "${PR_TITLE:-Mault deploy failed}" \
             --arg url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \

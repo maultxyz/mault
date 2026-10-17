@@ -27,7 +27,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.9.0"
+#define FIRMWARE_VERSION "2.10.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -57,6 +57,16 @@
 #define BLE_SUPPORTED 0
 #endif
 
+// Every ESP32 has a Wi-Fi radio, so every ESP32 build can join the user's
+// network and hold a WebSocket to the server (cloud_esp32.ino), letting the
+// app drive the sorter from anywhere. The Uno R4 WiFi's radio is the same
+// co-processor ArduinoBLE already owns, so it stays BLE-only.
+#if defined(ARDUINO_ARCH_ESP32)
+#define WIFI_SUPPORTED 1
+#else
+#define WIFI_SUPPORTED 0
+#endif
+
 // These must be #included here (not just in ble_arduinoble.ino/ble_esp32.ino,
 // even though that's where they're actually used) - the Arduino builder
 // inserts its auto-generated function prototypes for the WHOLE merged
@@ -72,6 +82,12 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
+#endif
+#if WIFI_SUPPORTED
+#include <NetworkClient.h>
+#include <NetworkClientSecure.h>
+#include <Preferences.h>
+#include <WiFi.h>
 #endif
 
 #define SERVO_DRIVER_I2C_ADDR 0x40
@@ -251,9 +267,11 @@ bool hopperHasCards() {
   return digitalRead(IR_PIN_HOPPER) == LOW;
 }
 
+bool watchdogStarted = false;
+
 void feedWatchdog() {
 #if defined(ARDUINO_ARCH_ESP32)
-  feedLoopWDT();
+  if (watchdogStarted) feedLoopWDT();
 #else
   WDT.refresh();
 #endif
@@ -299,6 +317,7 @@ void captureResetReason() {
 void startWatchdog() {
 #if defined(ARDUINO_ARCH_ESP32)
   enableLoopWDT();
+  watchdogStarted = true;
 #else
   WDT.begin(WATCHDOG_TIMEOUT_MS);
 #endif
@@ -557,6 +576,9 @@ struct InputState {
 InputState serialInput;
 #if BLE_SUPPORTED
 InputState bleInput;
+#endif
+#if WIFI_SUPPORTED
+InputState cloudInput;
 #endif
 
 // Manual prototype: the Arduino builder's auto-generated forward
@@ -1083,6 +1105,9 @@ void broadcastLine(const char* s) {
 #if BLE_SUPPORTED
   if (bleIsConnected()) bleSendLine(s);
 #endif
+#if WIFI_SUPPORTED
+  if (cloudIsConnected()) cloudSendLine(s);
+#endif
 }
 
 #if BLE_SUPPORTED
@@ -1112,6 +1137,32 @@ class BlePrint : public Print {
   uint16_t len = 0;
 };
 BlePrint bleReply;
+#endif
+
+#if WIFI_SUPPORTED
+// Same whole-line buffering as BlePrint: cloudSendLine() hands each line to
+// the network task as one WebSocket message, so a line must be complete
+// before it's queued.
+class CloudPrint : public Print {
+ public:
+  size_t write(uint8_t c) override {
+    if (c == '\n') {
+      if (len > 0 && buf[len - 1] == '\r') len--;
+      buf[len] = '\0';
+      cloudSendLine(buf);
+      len = 0;
+      return 1;
+    }
+    if (len < sizeof(buf) - 1) buf[len++] = c;
+    return 1;
+  }
+  using Print::write;
+
+ private:
+  char buf[MAX_REPLY_LEN + 1];
+  uint16_t len = 0;
+};
+CloudPrint cloudReply;
 #endif
 
 // Feeds one byte into a transport's line buffer, dispatching to
@@ -1223,6 +1274,9 @@ void pumpInput() {
 #if BLE_SUPPORTED
   blePoll();
 #endif
+#if WIFI_SUPPORTED
+  cloudPoll();
+#endif
 }
 
 void runCommand(char* json, Print& reply) {
@@ -1262,9 +1316,20 @@ void runCommand(char* json, Print& reply) {
       reply.print(bleMtu());
     }
 #endif
+#if WIFI_SUPPORTED
+    reply.print(F(",\"wifi\":\""));
+    reply.print(wifiStateName());
+    reply.print(F("\",\"cloud\":\""));
+    reply.print(cloudStateName());
+    reply.print(F("\""));
+#endif
     reply.println(F("}"));
     return;
   }
+
+#if WIFI_SUPPORTED
+  if (handleCloudCommand(doc, reply)) return;
+#endif
 
   // {"setChannelOffset": N} — see channel layout comment near the top.
   if (doc["setChannelOffset"].is<int>()) {
@@ -1614,6 +1679,9 @@ void setup() {
 
 #if BLE_SUPPORTED
   bleInit();  // Uno R4 WiFi sets deviceId here, from BLE.address()
+#endif
+#if WIFI_SUPPORTED
+  cloudInit();
 #endif
 
   // Nothing above set an ID - either a board with no radio at all (Uno R4

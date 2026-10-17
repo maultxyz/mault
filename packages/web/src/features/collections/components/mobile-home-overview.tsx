@@ -2,9 +2,10 @@ import { FoilOverlay } from "@/components/foil-overlay";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { MobileSection } from "@/components/mobile-section";
 import {
-  MOBILE_SECTION_CLASS,
-  MOBILE_SECTION_LABEL_CLASS,
+  MOBILE_HERO_LABEL_CLASS,
+  MOBILE_HERO_VALUE_CLASS,
 } from "@/lib/constants/nav";
 import type {
   HomeCardStripProps,
@@ -30,11 +31,11 @@ function formatDay(date: string): string {
 
 function HomeStatTile({ label, value }: HomeStatTileProps) {
   return (
-    <div className="min-w-0 rounded-lg bg-muted px-3 py-2.5">
-      <p className="truncate text-lg leading-tight font-semibold text-foreground tabular-nums">
+    <div className="min-w-0 rounded-lg bg-muted px-3.5 py-3">
+      <p className="truncate font-heading text-xl leading-tight font-bold text-foreground tabular-nums">
         {value}
       </p>
-      <p className="truncate text-2xs text-foreground/70">{label}</p>
+      <p className="truncate text-xs text-foreground/70">{label}</p>
     </div>
   );
 }
@@ -48,7 +49,7 @@ function ScanActivityChart({ days }: ScanActivityChartProps) {
 
   return (
     <figure className="flex flex-col gap-2">
-      <figcaption className="text-xs text-foreground tabular-nums">
+      <figcaption className="text-sm text-foreground tabular-nums">
         {t("home.activityPoint", {
           date: formatDay(current.date),
           count: current.count,
@@ -57,7 +58,7 @@ function ScanActivityChart({ days }: ScanActivityChartProps) {
       <div
         role="group"
         aria-label={t("home.activityLabel")}
-        className="flex h-24 items-end gap-0.5 border-b"
+        className="flex h-28 items-end gap-1 border-b"
       >
         {days.map((day, i) => (
           <button
@@ -96,14 +97,13 @@ function HomeCardStrip({ title, cards }: HomeCardStripProps) {
   if (cards.length === 0) return null;
 
   return (
-    <section className={MOBILE_SECTION_CLASS}>
-      <h2 className={MOBILE_SECTION_LABEL_CLASS}>{title}</h2>
-      <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pt-1 pb-1">
+    <MobileSection title={title}>
+      <div className="-mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 pt-1 pb-1">
         {cards.map((entry) => (
           <Link
             key={entry.scanId}
             to={`/app/monitor/${entry.collectionGuid}`}
-            className="flex w-24 shrink-0 snap-start flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
+            className="flex w-28 shrink-0 snap-start flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
           >
             <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-foreground/10">
               <img
@@ -116,10 +116,10 @@ function HomeCardStrip({ title, cards }: HomeCardStripProps) {
               {entry.isFoil && <FoilOverlay />}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-xs font-medium text-foreground">
+              <p className="truncate text-sm font-semibold text-foreground">
                 {entry.card.name}
               </p>
-              <p className="truncate text-xs text-foreground/70 tabular-nums">
+              <p className="truncate text-sm text-foreground/70 tabular-nums">
                 {entry.price != null
                   ? format(entry.price)
                   : entry.collectionName}
@@ -128,7 +128,7 @@ function HomeCardStrip({ title, cards }: HomeCardStripProps) {
           </Link>
         ))}
       </div>
-    </section>
+    </MobileSection>
   );
 }
 
@@ -138,24 +138,20 @@ export function MobileHomeHero({ orgId }: MobileHomeHeroProps) {
   const { data } = useQuery(orgOverviewQueryOptions(orgId));
 
   return (
-    <div className="flex flex-col">
-      <p className="text-2xs font-medium uppercase tracking-wide text-primary-foreground/80">
-        {t("home.totalValue")}
-      </p>
+    <div className="flex flex-col gap-0.5">
+      <p className={MOBILE_HERO_LABEL_CLASS}>{t("home.totalValue")}</p>
       {data ? (
-        <p className="truncate font-heading text-3xl leading-tight font-semibold tabular-nums">
-          {format(data.totalValue)}
-        </p>
+        <p className={MOBILE_HERO_VALUE_CLASS}>{format(data.totalValue)}</p>
       ) : (
-        <Skeleton className="my-1 h-8 w-32 bg-primary-foreground/20" />
+        <Skeleton className="my-1 h-10 w-44" />
       )}
-      <p className="text-xs text-primary-foreground/80 tabular-nums">
+      <p className="text-sm text-foreground/70 tabular-nums">
         {data
           ? [
               t("cardCount", { count: data.cardCount }),
               t("home.collectionCount", { count: data.collectionCount }),
             ].join(" · ")
-          : " "}
+          : " "}
       </p>
     </div>
   );
@@ -170,7 +166,7 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
       <div className="flex flex-col gap-5">
         <div className="grid grid-cols-3 gap-2">
           {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-14 rounded-lg" />
+            <Skeleton key={i} className="h-16 rounded-lg" />
           ))}
         </div>
         <Skeleton className="h-32 rounded-lg" />
@@ -180,7 +176,7 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
   if (!data) return null;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-7">
       <div className="grid grid-cols-3 gap-2">
         <HomeStatTile
           label={t("home.scannedToday")}
@@ -197,20 +193,19 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
       </div>
 
       {data.scansByDay.length > 1 && (
-        <section className={MOBILE_SECTION_CLASS}>
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className={MOBILE_SECTION_LABEL_CLASS}>
-              {t("home.activityTitle")}
-            </h2>
+        <MobileSection
+          title={t("home.activityTitle")}
+          action={
             <Link
               to={STATS_PATH}
-              className="text-xs font-medium text-primary dark:text-sidebar-primary"
+              className="text-sm font-semibold text-primary dark:text-sidebar-primary"
             >
               {t("home.seeAllStats")}
             </Link>
-          </div>
+          }
+        >
           <ScanActivityChart days={data.scansByDay} />
-        </section>
+        </MobileSection>
       )}
 
       <HomeCardStrip title={t("home.mostValuable")} cards={data.topCards} />

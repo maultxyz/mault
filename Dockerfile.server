@@ -10,6 +10,7 @@ ENV TESSERACT_CACHE_PATH=/app/.cache/tesseract
 
 # Copy manifests for layer caching
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ patches/
 COPY packages/shared/package.json packages/shared/
 COPY packages/server/package.json packages/server/
 RUN pnpm install --frozen-lockfile

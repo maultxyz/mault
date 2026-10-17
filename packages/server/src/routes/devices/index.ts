@@ -11,6 +11,11 @@ import { getDeviceRoute } from "./get";
 import { acquireDeviceLeaseRoute, releaseDeviceLeaseRoute } from "./lease";
 import { listDevicesRoute } from "./list";
 import { resolveDeviceRoute } from "./resolve";
+import {
+  createSorterLinkRoute,
+  deleteSorterLinkRoute,
+  listSorterLinksRoute,
+} from "./sorter-link";
 
 const router = new Hono<AppEnv>()
   .route("/", listDevicesRoute)
@@ -18,6 +23,9 @@ const router = new Hono<AppEnv>()
   .route("/", resolveDeviceRoute)
   .route("/", acquireDeviceLeaseRoute)
   .route("/", releaseDeviceLeaseRoute)
+  .route("/", listSorterLinksRoute)
+  .route("/", createSorterLinkRoute)
+  .route("/", deleteSorterLinkRoute)
   .route("/", getDeviceRoute)
   .route("/", editDeviceRoute)
   .route("/", deleteDeviceRoute)

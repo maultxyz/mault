@@ -16,6 +16,8 @@ import {
 import { gamesQueryOptions } from "@/features/games/api/games";
 import { storageLocationExportQueryOptions } from "@/features/storage/api/storage-locations";
 import type { StorageExportMenuProps } from "@/lib/interfaces/storage";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { MOBILE_PILL_BUTTON_SM_CLASS } from "@/lib/constants/nav";
 import { IconChevronDown, IconDownload } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -24,6 +26,7 @@ import { useTranslation } from "react-i18next";
 export function StorageExportMenu({ location }: StorageExportMenuProps) {
   const { t } = useTranslation("storage");
   const [open, setOpen] = useState(false);
+  const isMobile = useIsMobile();
   const [combineDuplicates, setCombineDuplicates] = useState(true);
   const { data: cards } = useQuery(
     storageLocationExportQueryOptions(location.guid, open),
@@ -66,7 +69,14 @@ export function StorageExportMenu({ location }: StorageExportMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger render={<Button variant="outline" />}>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            variant={isMobile ? "secondary" : "outline"}
+            className={isMobile ? MOBILE_PILL_BUTTON_SM_CLASS : undefined}
+          />
+        }
+      >
         <IconDownload />
         {t("export.button")}
         <IconChevronDown />

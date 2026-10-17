@@ -1,7 +1,5 @@
-import {
-  drawScanRegionMask,
-  getDefaultCardContour,
-} from "@/features/scanner/lib/card-detection";
+import { drawScanRegionMask } from "@/features/scanner/lib/card-detection";
+import { getDefaultCardContour } from "@magic-vault/shared";
 import {
   fitCanvasesToContainer,
   observeContainerResize,

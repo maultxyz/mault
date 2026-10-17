@@ -33,7 +33,7 @@
       "label": "Where are your parts from?",
       "kit": {
         "title": "A Mault kit",
-        "description": "ESP32-S3 on its breakout board, 3 modules, and the firmware already flashed."
+        "description": "ESP32-S3 on its breakout board, 3 modules, and the firmware already flashed. Bring your own 6V 3A power supply."
       },
       "diy": {
         "title": "Sourcing my own",
@@ -92,6 +92,7 @@
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links. We may earn a small commission on qualifying purchases at no extra cost to you.",
     "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
     "partsListLabel": "Full parts list",
+    "kitPowerSupplyNote": "Kits don't include a power supply. You'll need your own regulated 6V supply rated for at least 3A to power the servos.",
     "kitCollapsedNote": "You're building from a kit, so the parts list is collapsed. Open it if you want to check any part.",
     "progress": {
       "partsCount": "{{done}} of {{total}} parts"
@@ -485,7 +486,7 @@
           },
           "mountHopperRoller": {
             "text": "Install the hopper roller into place on the hopper with 2 M3×8 screws and 2 M3 washers.",
-            "note": "The roller should be stiff once mounted — it should not free-roll."
+            "note": "The roller should be stiff once mounted. It should not free-roll."
           },
           "calibrateHopperRoller": {
             "text": "Fit the spring and M3×25 screw, then tighten the screw until it pokes out from the bottom of the mounting point. Slowly back it off until the hopper feeds only 1 card at a time."

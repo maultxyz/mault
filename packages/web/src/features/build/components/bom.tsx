@@ -14,7 +14,7 @@ import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
 import { visibleBomGroups } from "@/features/build/lib/bom-parts";
 import { SHOP_URL } from "@/lib/constants/links";
-import { IconPackage, IconShoppingCart } from "@tabler/icons-react";
+import { IconPackage, IconPlug, IconShoppingCart } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
@@ -101,6 +101,16 @@ export function BuildBom() {
           />
         </div>
       </div>
+
+      {usingKit && (
+        <Callout
+          variant="warning"
+          icon={IconPlug}
+          className="mt-4 max-w-2xl px-3 py-2 text-sm/relaxed"
+        >
+          {t("bom.kitPowerSupplyNote")}
+        </Callout>
+      )}
 
       {usingKit && !openSections.includes("parts") && (
         <Callout

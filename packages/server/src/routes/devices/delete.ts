@@ -1,9 +1,11 @@
+import { SORTER_LINK_CLOSE_REVOKED } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { devices } from "../../db/schema";
 import { isDeviceLeased, releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
+import { closeDeviceLink } from "../../lib/sorter-link";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const deleteDeviceRoute = new Hono<AppEnv>().delete(
@@ -29,6 +31,7 @@ export const deleteDeviceRoute = new Hono<AppEnv>().delete(
           .set({ isDeleted: true })
           .where(eq(devices.id, device.id));
         releaseDeviceLease(orgId, guid);
+        closeDeviceLink(guid, SORTER_LINK_CLOSE_REVOKED);
 
         return { success: true, message: "Deleted device." };
       });

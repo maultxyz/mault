@@ -1,0 +1,1587 @@
+{
+  "app": {
+    "name": "Mault"
+  },
+  "common": {
+    "show": "Anzeigen",
+    "hide": "Ausblenden",
+    "back": "Zurück",
+    "dismiss": "Verwerfen",
+    "done": "Fertig",
+    "save": "Speichern",
+    "discard": "Verwerfen",
+    "unsavedChanges": "Nicht gespeicherte Änderungen",
+    "discardTitle": "Änderungen verwerfen?",
+    "discardDescription": "Deine Änderungen an diesem Fach wurden nicht gespeichert.",
+    "keepEditing": "Weiter bearbeiten"
+  },
+  "tabs": {
+    "collections": "Sammlungen",
+    "scan": "Scannen",
+    "sorter": "Sortierer",
+    "stats": "Statistiken",
+    "account": "Konto",
+    "home": "Startseite",
+    "rules": "Regeln",
+    "storage": "Lager"
+  },
+  "auth": {
+    "tagline": "Scanne, sortiere und verwalte deine Karten vom Handy aus.",
+    "signIn": "Anmelden",
+    "email": "E-Mail",
+    "password": "Passwort",
+    "signInFailed": "Anmeldung fehlgeschlagen",
+    "validation": {
+      "email": "Gib eine gültige E-Mail-Adresse ein.",
+      "passwordRequired": "Gib dein Passwort ein."
+    },
+    "errors": {
+      "network": "Der Server ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
+      "profile": "Angemeldet, aber deine Kontodaten konnten nicht geladen werden. Versuche es erneut.",
+      "verify-email": "Bestätige deine E-Mail-Adresse und melde dich dann an."
+    },
+    "createAccountOnWeb": "Neu bei Mault? Erstelle ein Konto im Web"
+  },
+  "collections": {
+    "title": "Sammlung",
+    "active": "Aktiv",
+    "makeActive": "Aktivieren",
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "loadFailed": "Deine Sammlungen konnten nicht geladen werden",
+    "activateFailed": "Die aktive Sammlung konnte nicht gewechselt werden",
+    "cardsLoadFailed": "Karten konnten nicht geladen werden",
+    "emptyTitle": "Noch keine Sammlungen",
+    "emptyDescription": "Entfernt dauerhaft alle Karten aus \"{{name}}\", behält aber die Sammlung selbst. Dies kann nicht rückgängig gemacht werden.",
+    "search": "Suchen",
+    "searchPlaceholder": "Kartenname, Set oder Nummer",
+    "noResults": "Keine Karten passen zu deiner Suche",
+    "noCards": "Noch keine Karten in dieser Sammlung",
+    "new": "Neue Sammlung",
+    "createDescription": "Erstelle eine neue Sammlung, um Karten hinein zu scannen.",
+    "nameLabel": "Sammlungsname",
+    "namePlaceholder": "z. B. Commander-Sammlung, Draft-Haul...",
+    "duplicateName": "Eine Sammlung mit diesem Namen existiert bereits",
+    "gameLabel": "Spiel",
+    "gamePlaceholder": "Spiel auswählen...",
+    "langLabel": "Sprache",
+    "langPlaceholder": "Sprache auswählen...",
+    "matchAllLanguagesLabel": "Karten in allen Sprachen erkennen",
+    "matchAllLanguagesDescription": "Scans erkennen Drucke in jeder Sprache dieses Spiels statt nur in der oben gewählten. Suche und Korrektur nutzen weiterhin die gewählte Sprache.",
+    "experimental": "Experimentell",
+    "create": "Erstellen",
+    "createFailed": "Die Sammlung konnte nicht erstellt werden",
+    "rename": "Umbenennen",
+    "renameTitle": "Sammlung umbenennen",
+    "renameDescription": "Benenne diese Sammlung um.",
+    "renameFailed": "Die Sammlung konnte nicht umbenannt werden",
+    "save": "Speichern",
+    "empty": "Sammlung leeren",
+    "emptyConfirm": "Leeren",
+    "emptyFailed": "Die Sammlung konnte nicht geleert werden",
+    "delete": "Sammlung löschen",
+    "deleteDescription": "Löscht \"{{name}}\" und blendet alle enthaltenen Karten aus. Wende dich an den Support, wenn du sie zurück brauchst.",
+    "deleteConfirm": "Löschen",
+    "deleteFailed": "Die Sammlung konnte nicht gelöscht werden",
+    "actions": "Sammlungsaktionen",
+    "cancel": "Abbrechen",
+    "validation": {
+      "name": "Gib einen Namen mit bis zu 50 Zeichen ein.",
+      "game": "Wähle ein Spiel.",
+      "lang": "Wähle eine Sprache."
+    },
+    "shareLink": "Link zur Live-Ansicht teilen",
+    "revokeLinks": "Geteilte Links widerrufen",
+    "revokeLinksTitle": "Geteilte Links widerrufen?",
+    "revokeLinksDescription": "Alle mit einem Link zur Live-Ansicht dieser Sammlung verlieren den Zugriff.",
+    "shareLinkFailed": "Der Link zur Live-Ansicht konnte nicht aktualisiert werden"
+  },
+  "cards": {
+    "bin": "Fach {{number}}",
+    "needsReview": "Zu prüfen",
+    "quantity_one": "{{count}} Exemplar",
+    "quantity_other": "{{count}} Exemplare"
+  },
+  "monitor": {
+    "title": "Live-Sitzung",
+    "open": "Live-Ansicht",
+    "recent": "Letzte Scans",
+    "scanError": "Scanfehler",
+    "viewers_one": "{{count}} Zuschauer",
+    "viewers_other": "{{count}} Zuschauer",
+    "unmatched_one": "{{count}} nicht erkannt",
+    "unmatched_other": "{{count}} nicht erkannt",
+    "emptyTitle": "Warte auf Scans",
+    "emptyDescription": "Karten erscheinen hier, sobald ein Sortierer sie in diese Sammlung scannt.",
+    "status": {
+      "connecting": "Verbinde",
+      "connected": "Live",
+      "error": "Verbinde erneut"
+    }
+  },
+  "stats": {
+    "title": "Statistiken",
+    "subtitle": "Diagramme und Zahlen zu deinen Sammlungen",
+    "error": "Statistiken konnten nicht geladen werden. Versuch es gleich noch einmal.",
+    "empty": {
+      "title": "Noch keine Karten",
+      "description": "Statistiken erscheinen hier, sobald du Karten gescannt hast."
+    },
+    "controls": {
+      "collection": "Sammlung",
+      "allCollections": "Alle Sammlungen",
+      "range": "Zeitraum",
+      "ranges": {
+        "7d": "7 T",
+        "30d": "30 T",
+        "90d": "90 T",
+        "1y": "1 J"
+      }
+    },
+    "tiles": {
+      "totalValue": "Gesamtwert",
+      "collectionCount_one": "{{count}} Sammlung",
+      "collectionCount_other": "{{count}} Sammlungen",
+      "cards": "Karten",
+      "uniqueHint": "{{count}} verschiedene",
+      "avgValue": "Durchschnittskarte",
+      "pricedHint": "{{count}} mit Preis",
+      "scanned": {
+        "7d": "Gescannt, letzte 7 Tage",
+        "30d": "Gescannt, letzte 30 Tage",
+        "90d": "Gescannt, letzte 90 Tage",
+        "1y": "Gescannt, letztes Jahr"
+      },
+      "valueAddedHint": "{{value}} hinzugefügt",
+      "foils": "Foils",
+      "shareHint": "{{percent}} % der Karten",
+      "needsReview": "Zu prüfen",
+      "correctedHint": "{{count}} geprüft"
+    },
+    "activity": {
+      "title": "Scan-Aktivität",
+      "description": {
+        "day": "Gescannte Karten pro Tag",
+        "week": "Gescannte Karten pro Woche"
+      },
+      "metrics": {
+        "count": "Karten",
+        "value": "Wertzuwachs"
+      },
+      "weekOf": "Woche vom {{date}}",
+      "thisWeek": "Diese Woche",
+      "today": "Heute"
+    },
+    "compare": {
+      "title": "Sammlungen vergleichen",
+      "description": "So schneiden deine Sammlungen ab. Wähle eine aus, um ihre eigenen Statistiken zu sehen.",
+      "metrics": {
+        "totalValue": "Wert",
+        "cardCount": "Karten",
+        "scansInRange": "Gescannt"
+      },
+      "share": "{{percent}}%",
+      "never": "Nie",
+      "columns": {
+        "name": "Sammlung",
+        "cardCount": "Karten",
+        "uniqueCount": "Einzigartig",
+        "totalValue": "Wert",
+        "avgValue": "Ø Karte",
+        "scansInRange": "Gescannt",
+        "lastScanAt": "Letzter Scan"
+      }
+    },
+    "prices": {
+      "title": "Preisverteilung",
+      "description": "Karten mit Preis nach Wert gruppiert",
+      "atLeast": "Ab {{min}}",
+      "under": "Unter {{max}}",
+      "between": "{{min}} bis {{max}}"
+    },
+    "games": {
+      "title": "Nach Spiel",
+      "none": "Kein Spiel"
+    },
+    "sets": {
+      "title": "Wertvollste Sets"
+    },
+    "rarities": {
+      "title": "Seltenheit"
+    },
+    "colors": {
+      "title": "Farben"
+    },
+    "foils": {
+      "title": "Foil-Typen"
+    },
+    "topCards": {
+      "title": "Wertvollste Karten"
+    },
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "leaderboard": {
+      "title": "Bestenliste",
+      "description_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
+      "description_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+      "error": "Die Bestenliste konnte nicht geladen werden. Versuch es gleich noch einmal.",
+      "rank": "#{{rank}}",
+      "you": "Du",
+      "hidden": "Nicht gelistet",
+      "unknownOrg": "Unbekannte Organisation",
+      "columns": {
+        "rank": "Rang",
+        "organization": "Organisation",
+        "scans": "Gescannte Karten"
+      },
+      "optIn": {
+        "title": "Deine Organisation ist nicht in der Bestenliste",
+        "description": "Andere Organisationen sehen dich nicht. Deine Zeile zeigt, auf welchem Rang du wärst. Tritt in den Einstellungen bei, um in der Liste zu erscheinen.",
+        "action": "Bestenliste beitreten"
+      }
+    }
+  },
+  "account": {
+    "organizations": "Organisationen",
+    "noOrganizations": "Du bist noch kein Mitglied einer Organisation.",
+    "about": "Info",
+    "server": "Server",
+    "version": "Version",
+    "signOut": "Abmelden",
+    "pendingSaves": {
+      "title_one": "{{count}} Scan wartet auf Synchronisierung",
+      "title_other": "{{count}} Scans warten auf Synchronisierung",
+      "description": "Auf diesem Handy gespeichert und automatisch erneut gesendet, bis der Server sie annimmt."
+    },
+    "roles": {
+      "owner": "Inhaber",
+      "admin": "Admin",
+      "member": "Mitglied"
+    },
+    "appearance": "Erscheinungsbild",
+    "themes": {
+      "light": "Hell",
+      "dark": "Dunkel",
+      "system": "System"
+    },
+    "profile": {
+      "title": "Konto",
+      "subtitle": "Verwalte deinen Namen, deine E-Mail-Adresse, dein Passwort und aktive Sitzungen.",
+      "profile": {
+        "heading": "Name",
+        "nameLabel": "Anzeigename",
+        "save": "Speichern",
+        "updated": "Name aktualisiert",
+        "updateFailed": "Name konnte nicht aktualisiert werden",
+        "nameRequired": "Gib deinen Namen ein."
+      },
+      "email": {
+        "heading": "E-Mail",
+        "verified": "Bestätigt",
+        "unverified": "Nicht bestätigt",
+        "newLabel": "Neue E-Mail-Adresse",
+        "placeholder": "du@beispiel.de",
+        "submit": "E-Mail aktualisieren",
+        "confirmationSent": "Bestätigungs-E-Mail gesendet",
+        "confirmationSentDescription": "Öffne {{email}} und klicke auf den Link, um die Änderung abzuschließen.",
+        "updateFailed": "E-Mail konnte nicht aktualisiert werden",
+        "sameAsCurrent": "Das ist bereits deine aktuelle E-Mail-Adresse"
+      },
+      "password": {
+        "heading": "Passwort",
+        "currentLabel": "Aktuelles Passwort",
+        "currentRequired": "Gib dein aktuelles Passwort ein",
+        "newLabel": "Neues Passwort",
+        "confirmLabel": "Neues Passwort bestätigen",
+        "revokeOtherSessions": "Auf allen anderen Geräten abmelden",
+        "submit": "Passwort aktualisieren",
+        "updated": "Passwort aktualisiert",
+        "updateFailed": "Passwort konnte nicht aktualisiert werden",
+        "mismatch": "Passwörter stimmen nicht überein",
+        "tooShort": "Muss mindestens 8 Zeichen lang sein"
+      },
+      "sessions": {
+        "heading": "Sitzungen",
+        "description": "Geräte, die aktuell bei deinem Konto angemeldet sind.",
+        "current": "Dieses Gerät",
+        "revoke": "Widerrufen",
+        "revokeAll": "Alle anderen Sitzungen widerrufen",
+        "revokeAllConfirmTitle": "Alle anderen Sitzungen widerrufen?",
+        "revokeAllConfirmDescription": "Du wirst auf jedem anderen Gerät abgemeldet. Dieses Gerät bleibt angemeldet.",
+        "revokeConfirmTitle": "Diese Sitzung widerrufen?",
+        "revokeConfirmDescription": "Das Gerät wird sofort abgemeldet.",
+        "revokeCurrentConfirmDescription": "Dies ist deine aktuelle Sitzung - du wirst sofort abgemeldet und zur Anmeldeseite zurückgeleitet.",
+        "revoked": "Sitzung widerrufen",
+        "revokeFailed": "Sitzung konnte nicht widerrufen werden",
+        "allRevoked": "Andere Sitzungen widerrufen",
+        "revokeAllFailed": "Andere Sitzungen konnten nicht widerrufen werden",
+        "loadFailed": "Sitzungen konnten nicht geladen werden",
+        "empty": "Keine aktiven Sitzungen",
+        "lastActive": "Zuletzt aktiv am {{date}}",
+        "unknownDevice": "Unbekanntes Gerät",
+        "noIp": "Unbekannter Standort",
+        "revokeConfirm": "Widerrufen",
+        "cancel": "Abbrechen"
+      },
+      "localSubtitle": "Deine Kontodaten. Bitte einen Admin dieses Servers, sie zu ändern.",
+      "nameLabel": "Name"
+    },
+    "settingsRow": "Kontoeinstellungen",
+    "settingsRowSubtitle": "Name, E-Mail, Passwort und Sitzungen",
+    "settingsRowSubtitleLocal": "Dein Name und deine E-Mail",
+    "language": "Sprache",
+    "languageSystem": "Sprache des Telefons"
+  },
+  "sorter": {
+    "noSorter": "Kein Sortierer verbunden",
+    "connectHint": "Schalte deinen Sortierer ein und suche ihn unten.",
+    "firmware": "Firmware {{version}} auf {{board}}",
+    "findSorters": "Sortierer suchen",
+    "stopSearching": "Suche beenden",
+    "nearby": "Sortierer in der Nähe",
+    "searching": "Suche nach Sortierern",
+    "noneFound": "Keine Sortierer gefunden",
+    "bluetoothOnly": "Nur ESP32-S3- und Uno-R4-WiFi-Sortierer haben Bluetooth. Ein Uno R4 Minima braucht die Desktop-App über USB.",
+    "unnamed": "Unbenannter Sortierer",
+    "signal": "Signal {{rssi}} dBm",
+    "runSelfTest": "Selbsttest ausführen",
+    "neutral": "Zurück in Neutralstellung",
+    "dropCard": "Gehaltene Karte fallen lassen",
+    "disconnect": "Trennen",
+    "commLog": "Kommunikationsprotokoll",
+    "commLogEmpty": "Noch nichts gesendet oder empfangen.",
+    "phase": {
+      "idle": "Getrennt",
+      "scanning": "Suche",
+      "connecting": "Verbinde",
+      "identifying": "Identifiziere",
+      "syncing": "Kalibrierung wird synchronisiert",
+      "testing": "Teste",
+      "ready": "Bereit",
+      "error": "Benötigt Aufmerksamkeit"
+    },
+    "errors": {
+      "bluetooth-off": {
+        "title": "Bluetooth ist aus",
+        "description": "Schalte Bluetooth ein und versuche es erneut."
+      },
+      "bluetooth-unauthorized": {
+        "title": "Bluetooth-Zugriff ist aus",
+        "description": "Erlaube Bluetooth für Mault in den Einstellungen, um dich mit deinem Sortierer zu verbinden."
+      },
+      "connect-failed": {
+        "title": "Verbindung fehlgeschlagen",
+        "description": "Geh näher an den Sortierer heran und versuche es erneut. {{detail}}"
+      },
+      "identify-failed": {
+        "title": "Sortierer antwortet nicht",
+        "description": "Der Sortierer hat sich verbunden, sich aber nicht identifiziert. Starte ihn neu und versuche es erneut."
+      },
+      "sorter-limit": {
+        "title": "Sortierer-Limit erreicht",
+        "description": "Das Limit verbundener Sortierer deines Tarifs ist ausgeschöpft. Trenne zuerst einen anderen Sortierer."
+      },
+      "servo-driver-missing": {
+        "title": "Servotreiber nicht gefunden",
+        "description": "Prüfe Verkabelung und Stromversorgung des Servotreibers und verbinde dich dann erneut."
+      },
+      "test-failed": {
+        "title": "Selbsttest fehlgeschlagen",
+        "description": "{{detail}}"
+      },
+      "sensor-blocked": {
+        "title": "Karte auf einem Sensor",
+        "description": "Der Sensor von Modul {{module}} erkennt eine Karte, daher wurde der Selbsttest nicht ausgeführt. Wirf die Karte ab oder entferne sie von Hand und markiere sie dann als behoben, um den Test erneut zu starten."
+      },
+      "connection-lost": {
+        "title": "Verbindung getrennt",
+        "description": "Der Sortierer wurde getrennt oder neu gestartet. Verbinde dich erneut, um weiter zu scannen."
+      },
+      "heartbeat-lost": {
+        "title": "Sortierer antwortet nicht mehr",
+        "description": "Prüfe die Stromversorgung und verbinde dich erneut."
+      },
+      "setup-incomplete": {
+        "title": "Schließe die Einrichtung dieses Sortierers ab",
+        "description": "Schließe zuerst die Kalibrierung in der Web-App ab und verbinde dich dann vom Handy aus."
+      }
+    },
+    "restarted": {
+      "title": "Sortierer neu gestartet",
+      "description": "Der Sortierer hat sich selbst neu gestartet: {{reason}} Eine Karte in Bewegung wurde nicht einsortiert, prüfe also die Module, bevor du fortfährst. Er wurde automatisch erneut synchronisiert."
+    },
+    "resetReasons": {
+      "power_on": "der Strom war weg oder er wurde eingesteckt.",
+      "external": "die Reset-Taste wurde gedrückt.",
+      "software": "die Firmware hat sich selbst neu gestartet oder wurde geflasht.",
+      "watchdog": "er ist hängen geblieben und der Watchdog hat ihn neu gestartet.",
+      "brownout": "die Versorgungsspannung ist eingebrochen, meist weil die Servos zu viel Strom ziehen. Prüfe Netzteil und Verkabelung.",
+      "panic": "die Firmware ist abgestürzt.",
+      "usb": "die USB-Verbindung hat ihn zurückgesetzt.",
+      "other": "eine seltene Ursache.",
+      "unknown": "die Ursache ist unbekannt."
+    },
+    "sensorBlocked": {
+      "dropCard": "Karte abwerfen",
+      "markCleared": "Als behoben markieren",
+      "dropped": "Karten abgeworfen. Markiere den Fehler als behoben, um den Selbsttest erneut zu starten.",
+      "dropFailed": "Der Sortierer hat nicht auf den Abwurfbefehl reagiert. Entferne die Karte von Hand.",
+      "stillBlocked": "Modul {{module}} erkennt noch eine Karte. Entferne sie und markiere den Fehler dann als behoben.",
+      "noResponse": "Der Sortierer hat nicht reagiert. Verbinde ihn erneut und versuche es noch einmal."
+    }
+  },
+  "scan": {
+    "start": "Start",
+    "resume": "Fortsetzen",
+    "pause": {
+      "user": {
+        "title": "Pausiert",
+        "description": ""
+      },
+      "no-match": {
+        "title": "Kein Treffer",
+        "description": "Die Karte wurde zur Überprüfung gespeichert."
+      },
+      "feeder-empty": {
+        "title": "Einzug ist leer",
+        "description": "Lege weitere Karten ein und tippe dann auf Fortsetzen."
+      },
+      "no-card": {
+        "title": "Keine Karte erkannt",
+        "description": "Der Einzug lief, aber keine Karte erreichte die Kamera. Prüfe den Stapel und tippe dann auf Fortsetzen."
+      },
+      "feed-failed": {
+        "title": "Problem mit dem Einzug",
+        "description": "Der Einzug hat nicht wie erwartet reagiert. {{detail}}"
+      },
+      "route-failed": {
+        "title": "Karte konnte nicht einsortiert werden",
+        "description": "Prüfe den Sortierer und tippe dann auf Fortsetzen. {{detail}}"
+      },
+      "jam": {
+        "title": "Kartenstau",
+        "description": "In Modul {{detail}} steckt eine Karte fest. Entferne sie und tippe dann auf Fortsetzen."
+      },
+      "bin-full": {
+        "title": "Fach voll",
+        "description": "Leere das Fach in der Web-App und tippe dann auf Fortsetzen."
+      },
+      "scan-limit": {
+        "title": "Tägliches Scan-Limit erreicht",
+        "description": "Die kostenlosen Scans deines Tarifs für heute sind aufgebraucht."
+      },
+      "sorter-limit": {
+        "title": "Sortierer-Limit erreicht",
+        "description": "Das Limit verbundener Sortierer deines Tarifs ist ausgeschöpft."
+      },
+      "collection-locked": {
+        "title": "Scan konnte nicht gespeichert werden",
+        "description": "Möglicherweise scannt gerade jemand anderes in diese Sammlung. {{detail}}"
+      },
+      "save-failed": {
+        "title": "Scan konnte nicht gespeichert werden",
+        "description": "Prüfe deine Verbindung und tippe dann auf Fortsetzen."
+      },
+      "sorter-disconnected": {
+        "title": "Sortierer getrennt",
+        "description": "Verbinde ihn im Tab Sortierer erneut und tippe dann auf Fortsetzen."
+      },
+      "duplicate": {
+        "title": "Dieselbe Karte erneut gescannt",
+        "description": "Tippe auf Fortsetzen, um sie trotzdem hinzuzufügen, oder aktiviere Duplikate erlauben in den Scan-Optionen."
+      }
+    },
+    "scanOnce": "Eine scannen",
+    "scanningInto": "Scanne in {{name}}",
+    "sessionCount_one": "{{count}} Karte in dieser Sitzung",
+    "sessionCount_other": "{{count}} Karten in dieser Sitzung",
+    "emptyTitle": "Noch keine Scans",
+    "emptyDescription": "Starte den Sortierer oder tippe auf Eine scannen, während eine Karte unter der Kamera liegt.",
+    "unmatched": "Kein Treffer",
+    "unmatchedHint": "Zur Überprüfung gespeichert",
+    "allowCamera": "Kamera erlauben",
+    "cameraPermissionTitle": "Kamerazugriff erforderlich",
+    "cameraPermissionDescription": "Mault nutzt die Kamera, um Karten zu erkennen, während sie durch deinen Sortierer laufen.",
+    "cameraPermissionSettings": "Aktiviere den Kamerazugriff für Mault in den Einstellungen.",
+    "noCamera": "Keine Kamera verfügbar",
+    "noCollectionTitle": "Keine aktive Sammlung",
+    "noCollectionDescription": "Wähle die Sammlung, in die gescannt werden soll.",
+    "chooseCollection": "Sammlung wählen",
+    "sorterNotReadyTitle": "Sortierer nicht verbunden",
+    "sorterNotReadyDescription": "Verbinde deinen Sortierer, um Karten einzuziehen und einzusortieren. Du kannst Karten weiterhin von Hand scannen.",
+    "openSorter": "Sortierer verbinden",
+    "modelErrorTitle": "Die Kartenerkennungsmodelle konnten nicht geladen werden",
+    "unsupported": {
+      "repack": {
+        "title": "Repack-Presets brauchen die Desktop-App",
+        "description": "Wechsle zu einem anderen Preset oder starte dieses in der Web-App."
+      },
+      "auto-assign": {
+        "title": "Presets mit automatischer Zuweisung brauchen die Desktop-App",
+        "description": "Wechsle zu einem anderen Preset oder starte dieses in der Web-App."
+      }
+    },
+    "phase": {
+      "idle": "Inaktiv",
+      "loading-models": "Lade Modelle",
+      "ready": "Bereit",
+      "feeding": "Einzug",
+      "capturing": "Aufnahme",
+      "identifying": "Erkenne",
+      "routing": "Sortiert",
+      "paused": "Pausiert",
+      "error": "Fehler"
+    },
+    "pauseAction": "Pause",
+    "sessionChip_one": "{{count}} gescannt",
+    "sessionChip_other": "{{count}} gescannt",
+    "sessionScans": {
+      "title": "Diese Sitzung",
+      "empty": "In dieser Sitzung wurden noch keine Karten gescannt.",
+      "noMatch": "Kein Treffer",
+      "bin": "Fach {{number}}"
+    },
+    "controls": {
+      "open": "Scanner-Steuerung",
+      "title": "Scanner-Steuerung",
+      "pausedHint": "Pausiere das Scannen, um diese zu nutzen.",
+      "scanNow": "Jetzt scannen",
+      "scanNowDescription": "Die Karte unter der Kamera erkennen",
+      "feed": "Eine Karte einziehen",
+      "feedDescription": "Eine Karte einziehen, dann scannen und sortieren",
+      "drop": "Karten fallen lassen",
+      "dropDescription": "Alle Module öffnen, damit festsitzende Karten durchfallen",
+      "neutral": "Grundstellung",
+      "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
+      "sorter": "Sortierer",
+      "sorterDescription": "Verbindung, Selbsttest und Status",
+      "failed": "Das hat nicht funktioniert. Prüfe die Verbindung zum Sortierer und versuche es erneut."
+    },
+    "options": {
+      "title": "Scan-Optionen",
+      "autoFeed": "Automatischer Einzug",
+      "autoFeedDescription": "Nächste Karte einziehen, sobald eine sortiert ist",
+      "allowDuplicates": "Duplikate erlauben",
+      "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
+      "camera": "Kamera",
+      "cameraFallback": "Kamera {{number}}",
+      "cameraPosition": {
+        "back": "Rückseite",
+        "front": "Vorderseite",
+        "external": "Extern"
+      },
+      "pairDesktop": "Als Desktop-Kamera nutzen",
+      "pairDesktopDescription": "QR-Code auf deinem Computer scannen"
+    }
+  },
+  "home": {
+    "greeting": "Hallo, {{name}}",
+    "greetingNoName": "Willkommen zurück",
+    "totalValue": "Gesamtwert",
+    "collectionCount_one": "{{count}} Sammlung",
+    "collectionCount_other": "{{count}} Sammlungen",
+    "scannedToday": "Heute gescannt",
+    "thisWeek": "Diese Woche",
+    "collections": "Sammlungen",
+    "activityTitle": "Scanaktivität",
+    "activityPoint_one": "{{date}} · {{count}} Scan",
+    "activityPoint_other": "{{date}} · {{count}} Scans",
+    "today": "Heute",
+    "seeAllStats": "Alle Statistiken",
+    "mostValuable": "Wertvollste",
+    "recentlyScanned": "Zuletzt gescannt",
+    "allCollections": "Alle Sammlungen",
+    "searchPlaceholder": "Sammlungen durchsuchen",
+    "noSearchResultsTitle": "Keine Sammlungen gefunden",
+    "noSearchResultsDescription": "Versuche einen anderen Namen.",
+    "actions": {
+      "scan": "Scannen",
+      "newCollection": "Neu",
+      "sorter": "Sortierer",
+      "stats": "Statistiken"
+    },
+    "live": {
+      "yourSession": "Deine Sitzung",
+      "scanning": "Wird gescannt",
+      "scanningBy": "{{name}} scannt"
+    }
+  },
+  "collection": {
+    "tabCards": "Karten",
+    "tabActivity": "Aktivität",
+    "value": "Wert",
+    "cards": "Karten",
+    "cardsCount_one": "{{count}} Karte",
+    "cardsCount_other": "{{count}} Karten",
+    "unique": "{{count}} verschiedene",
+    "searchPlaceholder": "Karten suchen",
+    "noCardsYet": "Noch keine Karten gescannt",
+    "noMatches": "Keine Karten passen zu deiner Suche",
+    "review": "{{count}} prüfen",
+    "groupDuplicates": "Duplikate gruppieren",
+    "filters": {
+      "title": "Filter",
+      "colors": "Farben",
+      "rarity": "Seltenheit",
+      "foil": "Foil",
+      "bin": "Fach",
+      "noBin": "Kein Fach",
+      "status": "Status",
+      "needsReview": "Zu prüfen",
+      "showDownloaded": "Heruntergeladene anzeigen",
+      "reset": "Zurücksetzen"
+    },
+    "sort": {
+      "title": "Sortieren nach",
+      "scanOrder": "Scanreihenfolge (neueste zuerst)",
+      "ascending": "{{field}}, aufsteigend",
+      "descending": "{{field}}, absteigend"
+    },
+    "actions": {
+      "copies_one": "{{count}} Exemplar",
+      "copies_other": "{{count}} Exemplare",
+      "removeTitle_one": "Diese Karte entfernen?",
+      "removeTitle_other": "{{count}} Exemplare entfernen?"
+    }
+  },
+  "cardDetail": {
+    "fallbackTitle": "Kartendetails",
+    "capturedScan": "Aufgenommener Scan",
+    "matchedCard": "Erkannte Karte",
+    "details": "Details",
+    "set": "Set",
+    "rarity": "Seltenheit",
+    "manaCost": "Manakosten",
+    "powerToughness": "Stärke/Widerstand",
+    "artist": "Künstler",
+    "bin": "Fach",
+    "viewSource": "Quelle ansehen",
+    "remove": "Entfernen",
+    "removeConfirmTitle": "Diese Karte entfernen?",
+    "removeConfirmDescription": "Sie wird aus der Sammlung entfernt. Das kann nicht rückgängig gemacht werden.",
+    "removeFailed": "Die Karte konnte nicht entfernt werden",
+    "cancel": "Abbrechen",
+    "loadFailed": "Diese Karte konnte nicht geladen werden",
+    "foil": "Foil",
+    "correctCard": "Karte korrigieren",
+    "markCorrect": "Als korrekt markieren",
+    "acceptNext": "Sieht richtig aus",
+    "acceptFinish": "Sieht richtig aus",
+    "reviewProgress": "Prüfe {{index}} von {{total}}",
+    "reviewed": "Geprüft",
+    "similarMatches": "Ähnliche Übereinstimmungen",
+    "similarMatchesHint": "Mehrere ähnliche Treffer. Tippe auf die richtige Version.",
+    "thisScan": "Dieser Scan",
+    "foilNone": "Kein Foil",
+    "condition": "Bedingung",
+    "conditions": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Beschädigt (DMG)"
+    },
+    "searchPlaceholder": "Nach Name, Nummer oder Set suchen",
+    "startTyping": "Beginne zu tippen, um nach Karten zu suchen",
+    "noCardsFound": "Keine Karten gefunden",
+    "loadMore": "Mehr laden",
+    "saveFailed": "Diese Karte konnte nicht gespeichert werden",
+    "discardDescription": "Deine Änderungen an dieser Karte wurden nicht gespeichert.",
+    "reviewCompleteTitle": "Überprüfung abgeschlossen",
+    "reviewCompleteDescription": "Jede Karte, die einen Blick brauchte, wurde geprüft.",
+    "prices": "Preise",
+    "binLocation": "Fachposition",
+    "scanOrigin": {
+      "heading": "Gescannt",
+      "scannedBy": "Von",
+      "sorter": "Sortierer",
+      "deletedSorter": "{{name}} (gelöscht)"
+    }
+  },
+  "rules": {
+    "title": "Sortierregeln",
+    "noCollectionTitle": "Keine aktive Sammlung",
+    "noCollectionDescription": "Wähle die Sammlung, in die du sortierst, und bearbeite hier die Presets ihres Spiels.",
+    "noGameTitle": "Diese Sammlung hat kein Spiel",
+    "noGameDescription": "Wähle im Web ein Spiel für die Sammlung, um Sortierregeln einzurichten.",
+    "presets": "Preset",
+    "choosePreset": "Preset wählen",
+    "noPresetsTitle": "Keine Presets für dieses Spiel",
+    "noPresetsDescription": "Erstelle ein Preset im Web und ziehe dann zum Aktualisieren nach unten.",
+    "activateFailed": "Preset konnte nicht gewechselt werden",
+    "binsWithRules_one": "{{count}} Fach mit Regeln",
+    "binsWithRules_other": "{{count}} Fächer mit Regeln",
+    "bins": "Bins",
+    "bin": "Fach {{number}}",
+    "catchAll": "Auffangfach",
+    "disabled": "Deaktiviert",
+    "pickList": "Pickliste",
+    "overflowFor": "Überlauf für Fach {{bins}}",
+    "and": "UND",
+    "or": "ODER",
+    "noConditions": "Keine Bedingungen",
+    "removeCondition": "Bedingung entfernen",
+    "removeGroup": "Gruppe entfernen",
+    "valuePlaceholder": "Wert...",
+    "freeformPlaceholder": "Werte, durch Komma getrennt...",
+    "needCatchAll": "Mindestens ein Fach muss ein Auffangfach sein. Mache zuerst ein anderes Fach zum Auffangfach.",
+    "overflowNone": "Kein Überlauf",
+    "overflowNoOptions": "Keine freien Fächer. Lösche die Regeln eines Fachs, um es als Überlauf zu nutzen.",
+    "overflowTargetNotice_one": "Dieses Fach ist der Überlauf für Fach {{bins}}. Karten landen hier, wenn dieses Fach voll ist, daher kann es keine eigenen Regeln haben.",
+    "overflowTargetNotice_other": "Dieses Fach ist der Überlauf für die Fächer {{bins}}. Karten landen hier, wenn diese Fächer voll sind, daher kann es keine eigenen Regeln haben.",
+    "pickListNotice": "Dieses Fach nutzt eine Pickliste. Bearbeite sie im Web.",
+    "modeNoticeTitle": "Bearbeite dieses Preset im Web",
+    "modeNotice": {
+      "repack": "Dieses Preset nutzt den Repack-Modus.",
+      "auto-assign": "Dieses Preset weist Fächer automatisch zu.",
+      "alphabet": "Dieses Preset sortiert alphabetisch in Durchgängen.",
+      "chaos": "Dieses Preset nutzt den Chaos-Modus."
+    },
+    "noActiveTitle": "Kein aktives Preset",
+    "noActiveDescription": "Aktiviere oben ein Preset, um seine Fächer zu bearbeiten.",
+    "saveFailed": "Dieses Fach konnte nicht gespeichert werden",
+    "loadFailed": "Deine Presets konnten nicht geladen werden",
+    "matchPrefix": "Treffer",
+    "matchSuffix": "davon",
+    "combinatorAll": "alle",
+    "combinatorAny": "eine",
+    "combinatorTitle": "Karten müssen passen auf",
+    "combinatorAllOption": "Alle diese Bedingungen",
+    "combinatorAnyOption": "Eine dieser Bedingungen",
+    "addCondition": "Bedingung hinzufügen",
+    "addGroup": "Gruppe hinzufügen",
+    "noConditionsYet": "Noch keine Bedingungen",
+    "newCondition": "Neue Bedingung",
+    "editCondition": "Bedingung bearbeiten",
+    "chooseField": "Feld wählen",
+    "searchFields": "Felder durchsuchen",
+    "field": "Feld",
+    "operator": "Bedingung",
+    "value": "Wert",
+    "selectPlaceholder": "Auswählen...",
+    "noFieldMatches": "Keine passenden Felder",
+    "rulesLabel": "Regeln",
+    "rulesDescription": "Passende Karten kommen in dieses Fach.",
+    "overrideLabel": "Vorrangige Regeln",
+    "overrideDescription": "Passende Karten kommen hierher, auch wenn ein anderes Fach ebenfalls passt. Leer lassen, um nur Reste aufzunehmen.",
+    "settingsTitle": "Fach-Einstellungen",
+    "catchAllLabel": "Auffangfach",
+    "catchAllDescription": "Bekommt jede Karte, die kein anderes Fach nimmt",
+    "disabledLabel": "Deaktiviert",
+    "disabledDescription": "Karten überspringen dieses Fach",
+    "cardLimitLabel": "Kartenlimit",
+    "cardLimitDescription": "Pausiert oder läuft über, wenn voll",
+    "noLimit": "Keine",
+    "overflowLabel": "Wenn voll, überlaufen in",
+    "noRulesTapToAdd": "Noch keine Regeln, tippe zum Hinzufügen",
+    "groupChip_one": "Gruppe mit {{count}}",
+    "groupChip_other": "Gruppe mit {{count}}",
+    "moreChips": "+{{count}}",
+    "limitChip": "Voll bei {{count}}",
+    "overflowsTo": "Läuft über in {{bin}}"
+  },
+  "calibration": {
+    "title": "Kalibrierung",
+    "subtitle": "Servos und Einzug einstellen",
+    "entryTitle": "Kalibrierung",
+    "entrySubtitle": "Servopositionen, Timings und der Einzug",
+    "notConnectedTitle": "Verbinde zuerst deinen Sortierer",
+    "notConnectedDescription": "Die Kalibrierung bewegt die Servos live, daher muss der Sortierer verbunden sein.",
+    "moduleLabel": "Modul {{module}}",
+    "msValue": "{{value}} ms",
+    "continuous": "Dauerbetrieb",
+    "servos": {
+      "bottom": "Unteres Paddel",
+      "paddle": "Paddel",
+      "pusher": "Schieber"
+    },
+    "positions": {
+      "open": "Offen",
+      "closed": "Geschlossen",
+      "left": "Links",
+      "right": "Rechts",
+      "neutral": "Neutral"
+    },
+    "editingPosition": "Bearbeite: {{position}}",
+    "noPositionSelected": "Wähle oben eine Position zum Bearbeiten",
+    "rawPulseToggleLabel": "Rohe Impulswerte",
+    "rawPulseTooltip": "Rohe Servo-Impulsposition (120-490), der genaue an das Gerät gesendete Wert.",
+    "testServoGate": "Test: öffnet die Klappe kurz und schließt sie wieder, damit du die Bewegung beobachten kannst.",
+    "testServoPusher": "Test: fährt den Schieber kurz nach links, dann nach rechts und dann zurück in die Neutralstellung, damit du die Bewegung in beide Richtungen beobachten kannst.",
+    "pusherOffsetWarning": "Mehr als {{percent}}% von neutral entfernt. Der Arm sollte die Innenwand nicht berühren, und je weiter du gehst, desto größer das Risiko, dass Zahnräder überspringen oder der Hebel auf der Welle verrutscht.",
+    "delays": {
+      "paddleOpenDelay": {
+        "label": "Paddel-Öffnungsverzögerung (ms)",
+        "description": "Wie lange sich das Paddel absenken kann, bevor der Schieber auslöst. Länger einstellen, wenn der Schieber die Karte trifft, bevor das Paddel ganz unten ist; kürzer für schnelleres Sortieren."
+      },
+      "pusherHoldDuration": {
+        "label": "Schieber-Haltezeit (ms)",
+        "description": "Wie lange der Schieber ausgefahren bleibt, bevor er in die Neutralstellung zurückkehrt. Länger einstellen, wenn Karten nicht vollständig hinausgeschoben werden; möglichst kurz halten, da das Drücken gegen den Anschlag das Servohorn belastet."
+      },
+      "paddleCloseDelay": {
+        "label": "Paddel-Schließverzögerung (ms)",
+        "description": "Wie lange nach dem Auslösen des Schiebers, bis sich das Paddel dieses Moduls wieder schließt, unabhängig davon, wann der Schieber selbst zurückkehrt. Länger einstellen, wenn Karten nicht vollständig frei sind, bevor sich das Tor schließt."
+      }
+    },
+    "pushTestLabel": "Schiebe-Timing testen",
+    "pushTestTooltip": "Führt den Schiebevorgang dieses Moduls genau wie beim Sortieren aus, mit der Haltezeit und Paddel-Schließverzögerung oben (auch ungespeichert). Es wird keine Karte zugeführt; lege vorher eine Karte in das Modul, um zu sehen, wie sie hinausgeschoben wird.",
+    "feeder": {
+      "heading": "Zuführung",
+      "showAdvanced": "Rohwerte anzeigen",
+      "hideAdvanced": "Rohwerte ausblenden",
+      "speedLabel": "Zuführgeschwindigkeit",
+      "speedTooltip": "Wie schnell und in welche Richtung der Zuführmotor dreht. 0 % bedeutet gestoppt; ziehe in eine der beiden Richtungen, um dort schneller zu werden.",
+      "forward": "Vorwärts",
+      "reverse": "Rückwärts",
+      "timeoutLabel": "Zeitlimit (ms)",
+      "pulseDurationLabel": "Impulsdauer (ms)",
+      "continuousFeedButton": "Dauerhafte Zuführung",
+      "pauseDurationLabel": "Pausendauer (ms)",
+      "settleDurationLabel": "Verzögerung für letzte Kartenerkennung (ms)",
+      "settleDurationDescription": "Zusätzliche Zeit, um die Zuführung fortzusetzen, nachdem der Sensor von Modul 1 die letzte Karte im Zuführbehälter erkannt hat, damit sie vollständig in den Mechanismus einläuft, bevor der Motor stoppt.",
+      "reverseDurationLabel": "Nach dem Einzug zurückrollen (ms)",
+      "reverseDurationDescription": "Sobald eine Karte Modul 1 erreicht, dreht die Rolle so lange rückwärts, damit die nächste Karte im Magazin zurückgezogen wird, statt nachzurutschen und doppelt eingezogen zu werden. 0 schaltet es aus.",
+      "reverseSpeedLabel": "Rückrollgeschwindigkeit",
+      "off": "Aus"
+    },
+    "runTest": "Test ausführen",
+    "testing": "Wird getestet…",
+    "feed": "Zuführen",
+    "dropCard": "Karte abwerfen",
+    "calibrateBeforeTest": "Kalibriere alle Module, bevor du den Test ausführst",
+    "testBeforeControls": "Führe einen erfolgreichen Test aus, um die Gerätesteuerung freizuschalten.",
+    "resetServosToDefaults": "Servos auf Standard zurücksetzen",
+    "modules": "Module",
+    "feederSection": "Zuführungskalibrierung",
+    "saveFailed": "Scanbereich oder Aufnahme-Verzögerung konnte nicht gespeichert werden",
+    "firmwareRequired": "Benötigt Firmware {{version}} oder neuer",
+    "discardDescription": "Deine Kalibrierungsänderungen wurden nicht gespeichert. Beim Verwerfen werden die gespeicherten Werte wieder auf den Sortierer übertragen.",
+    "hubSubtitle": "Diesen Sortierer einrichten und einstellen",
+    "sections": {
+      "servos": {
+        "title": "Servos & Zuführung",
+        "description": "Servopositionen, Modul-Timings und der Einzug"
+      },
+      "layout": {
+        "title": "Aufbau",
+        "description": "Modulanzahl, welches Fach jeder Platz ist, und Fachgrößen"
+      },
+      "scanRegion": {
+        "title": "Kamera",
+        "description": "Wo die Karte im Foto liegt, und Erkennungseinstellungen"
+      },
+      "connection": {
+        "title": "Verbindung",
+        "description": "Automatisch verbinden, Selbsttest beim Verbinden, experimentelle Funktionen"
+      },
+      "test": {
+        "title": "Test",
+        "description": "IR-Sensoren, einzelne Fächer und ein Probelauf"
+      }
+    },
+    "binLabel": "Fach {{bin}}",
+    "moduleCount": {
+      "label": "Sortiermodule",
+      "value_one": "{{count}} Modul",
+      "value_other": "{{count}} Module",
+      "description": "Wie viele physische Sortiermodule verbaut sind. Ändert die Anzahl der verfügbaren Fächer sowie die Abschnitte unten.",
+      "reduceTitle": "Modulanzahl verringern?",
+      "reduceDescription": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen.",
+      "reduceConfirm": "Modulanzahl ändern"
+    },
+    "bins": {
+      "label": "Fach-Konfiguration",
+      "resetToDefaults": "Auf Standard zurücksetzen",
+      "moduleLeft": "Modul {{module}}, links",
+      "moduleRight": "Modul {{module}}, rechts",
+      "bottomSectionLabel": "Unten (Auffangfach)",
+      "module": "Modul",
+      "size": "Fachgröße",
+      "presets": {
+        "small": "Klein",
+        "medium": "Mittel",
+        "large": "Groß",
+        "unlimited": "Unbegrenzt",
+        "custom": "Benutzerdefiniert"
+      },
+      "customHeightUnit": "mm",
+      "customHeightHint": "Etwa {{count}} Karten bei {{thickness}} mm pro Karte",
+      "customHeightInvalid": "{{min}} bis {{max}} mm eingeben"
+    },
+    "layoutSaveFailed": "Das Layout konnte nicht gespeichert werden",
+    "scanRegion": {
+      "heading": "Scanbereich",
+      "instructions": "Ziehe den Rahmen, um ihn zu verschieben, und nutze die Schieberegler für die Größe. Richte ihn an einer Karte aus, die an Modul 1 liegt.",
+      "liveDetectionHint": "Der Rahmen ist der Ersatzausschnitt, wenn die Live-Erkennung die Karte nicht findet. Die blaue Kontur ist eine Live-Vorschau dessen, was die Erkennung sieht.",
+      "size": "Größe",
+      "offsetX": "Horizontaler Versatz",
+      "offsetY": "Vertikaler Versatz",
+      "resetToDefault": "Auf Standard zurücksetzen",
+      "captureSettleLabel": "Wartezeit vor der Aufnahme",
+      "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
+      "matchesNeededLabel": "Benötigte Treffer",
+      "matchesNeededDescription": "Wie viele aufeinanderfolgende Bilder dieselbe Karte bestätigen müssen, bevor ein Scan akzeptiert wird. 1 ist am schnellsten; höhere Werte sind zuverlässiger, aber langsamer.",
+      "checkBothOrientationsLabel": "Beide Richtungen prüfen",
+      "checkBothOrientationsDescription": "Gleicht die Karte zusätzlich um 180° gedreht ab, damit auch verkehrt herum eingezogene Karten erkannt werden. Deaktivieren, wenn alle Karten gleich ausgerichtet eingezogen werden, um jeden Scan zu beschleunigen.",
+      "percent": "{{value}} %"
+    },
+    "connection": {
+      "title": "Verbindung",
+      "autoConnectLabel": "Automatisch verbinden",
+      "autoConnectDescription": "Verbindet sich beim Öffnen der App selbstständig mit diesem Sortierer und versucht es erneut, wenn die Verbindung abbricht oder er neu gestartet wird, während die App offen ist. Verbinde ihn einmal von Hand, damit das Handy ihn sich merkt.",
+      "testOnConnectLabel": "Selbsttest beim Verbinden",
+      "testOnConnectDescription": "Wenn aktiviert, bewegt der Sortierer bei jeder Verbindung alle Servos und prüft seine Sensoren. Wenn deaktiviert, lädt er nur seine gespeicherte Kalibrierung und ist sofort bereit. Den Test kannst du weiterhin unter Sortierer einrichten ausführen.",
+      "experimentalTitle": "Experimentell",
+      "experimentalBadge": "Beta",
+      "pipelinedFeedLabel": "Nächste Karte während des Sortierens scannen",
+      "pipelinedFeedDescription": "Führt die nächste Karte zu und scannt sie, sobald die vorherige Modul 1 verlassen hat, statt zu warten, bis sie ihr Fach erreicht. Erfordert Firmware 2.1.0 oder neuer und aktivierte automatische Zufuhr. Schalte dies aus, wenn Karten klemmen oder Scans die sich bewegende Karte erfassen.",
+      "firmwareNote": "Firmware-Updates brauchen die Desktop-App, da sie über USB geflasht werden."
+    },
+    "ir": {
+      "label": "IR-Sensoren",
+      "description": "Infrarotsensoren, die erkennen, wann eine Karte im Einzugsweg jedes Moduls liegt.",
+      "read": "Lesen",
+      "monitor": "Überwachen",
+      "stop": "Stopp",
+      "detected": "Karte",
+      "clear": "Frei",
+      "unknown": "Nicht gelesen",
+      "hopper": "Magazin",
+      "hopperEmpty": "Zuführbehälter leer",
+      "hopperHasCards": "Karten warten"
+    },
+    "routing": {
+      "label": "Fachzuweisung",
+      "description": "Schicke eine Karte in ein einzelnes Fach oder lass eine nacheinander durch alle Fächer laufen.",
+      "sampleRun": "Probelauf",
+      "running": "Läuft…",
+      "binActive": "Fach {{bin}}…",
+      "resetToNeutral": "Grundstellung",
+      "binFailed": "Fach {{bin}} wurde nicht angesteuert",
+      "sampleRunStopped": "Testlauf bei Fach {{bin}} gestoppt"
+    }
+  },
+  "storage": {
+    "title": "Lager",
+    "subtitle": "Wo deine sortierten Karten liegen, Box für Box, in der Reihenfolge, in der sie hineinkamen.",
+    "entrySubtitle": "Kisten und wohin jede Karte kam",
+    "newLocation": "Neuer Lagerort",
+    "emptyTitle": "Noch keine Lagerorte",
+    "emptyDescription": "Wenn du ein Fach über die Füllstände im Scanner leerst oder ein volles Fach das Scannen pausiert, wähle oder erstelle einen Lagerort, um festzuhalten, wohin die Karten kamen.",
+    "summary_one": "{{count}} Karte · {{value}} gesamt",
+    "summary_other": "{{count}} Karten · {{value}} gesamt",
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "rename": "Lagerort umbenennen",
+    "delete": "Lagerort löschen",
+    "deleteTitle": "{{name}} löschen?",
+    "deleteDescription": "Die Karten bleiben in deinen Sammlungen, verlieren aber diesen Lagerort und ihre Position darin.",
+    "nameLabel": "Name",
+    "namePlaceholder": "z. B. Kiste 12",
+    "create": "Erstellen",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "searchPlaceholder": "Karten in allen Lagerorten suchen",
+    "noResultsTitle": "Keine Karten gefunden",
+    "noResultsDescription": "Nichts Gelagertes passt zu \"{{query}}\".",
+    "position": "#{{position}}",
+    "storedIn": "Gelagert in {{name}}, Position {{position}}",
+    "location": "Lager",
+    "removeFromLocation": "Aus Lagerort entfernen",
+    "noCardsTitle": "Dieser Lagerort ist leer",
+    "businessOnly": "Lagerorte sind Teil des Business-Tarifs.",
+    "locked": "Halte beim Leeren eines Fachs fest, in welche Box jede Karte kommt und an welcher Stelle.",
+    "lockedWithLocations": "Du kannst deine Lagerorte weiter ansehen, durchsuchen und bearbeiten, aber neue Karten darin zu erfassen braucht Business.",
+    "actionFailed": "Lager konnte nicht aktualisiert werden",
+    "actions": "Lagerort-Aktionen",
+    "review": {
+      "start": "Karten prüfen",
+      "nothingLeft": "Nichts mehr zu prüfen. Jede Karte hier wurde bereits geprüft.",
+      "startFailed": "Die Prüfung konnte nicht gestartet werden"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Organisationsweite Einstellungen für jeden Scanner",
+    "entrySubtitle": "Preise, Scannen, Branding und Integrationen",
+    "sections": {
+      "general": {
+        "title": "Allgemein",
+        "description": "Akzentfarbe und Bestenliste"
+      },
+      "scanning": {
+        "title": "Wird gescannt",
+        "description": "OCR, Korrekturhinweise, Pausen bei Updates"
+      },
+      "pricing": {
+        "title": "Preise",
+        "description": "Preisquelle und Zustandswerte"
+      },
+      "organization": {
+        "title": "Organisation",
+        "description": "Name, Mitglieder und Einladungen"
+      },
+      "billing": {
+        "title": "Abrechnung",
+        "description": "Tarif und Nutzung"
+      },
+      "integrations": {
+        "title": "API-Schlüssel",
+        "description": "Schlüssel für die öffentliche API"
+      },
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "description": "Discord-Kanäle, Warnungen und Benachrichtigungsregeln"
+      },
+      "sounds": {
+        "title": "Sounds",
+        "description": "Spiele einen Clip ab, wenn eine sortierte Karte zu einer Regel passt"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "description": "Scan- und Lagerereignisse an deinen eigenen Server senden"
+      }
+    },
+    "appearance": {
+      "heading": "Erscheinungsbild",
+      "description": "Passe die Akzentfarbe der App an.",
+      "primaryColor": "Primärfarbe",
+      "resetColor": "Auf Standard zurücksetzen"
+    },
+    "leaderboard": {
+      "heading": "Bestenliste",
+      "description": "Zeigt den Namen deiner Organisation und die Anzahl gescannter Karten in der Bestenliste unter Statistiken. Jede Organisation kann die Bestenliste sehen.",
+      "toggleLabel": "Meine Organisation in der Bestenliste zeigen"
+    },
+    "sessionWrapped": {
+      "heading": "Sitzungs-Rückblick",
+      "description": "Zeigt vor der Exportübersicht einen Wrapped-artigen Rückblick mit Highlights.",
+      "toggleLabel": "Sitzungs-Rückblick aktivieren"
+    },
+    "ocr": {
+      "heading": "Texterkennung (OCR)",
+      "description": "Wenn ein Scan nicht sicher erkannt wird, werden Kartenname und Set-Zeile gelesen, um die Karte zu finden. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
+      "toggleLabel": "OCR-Texterkennung aktivieren",
+      "badge": "Beta"
+    },
+    "ocrBetaDialog": {
+      "title": "OCR-Texterkennung (Beta)",
+      "description": "Wenn ein Scan nicht sicher erkannt wird, liest diese Funktion den Kartennamen und die Set-Zeile, um die Karte zu finden oder die richtige Druckversion zu wählen. Sichere Treffer überspringen das, die Scangeschwindigkeit bleibt also gleich. Die Funktion ist noch in der Beta und kann Text falsch lesen. Schalte sie wieder aus, wenn die Treffer schlechter werden.",
+      "confirm": "OCR aktivieren",
+      "cancel": "Abbrechen"
+    },
+    "correctionAutoClose": {
+      "heading": "Hinweis nach Kartenkorrektur",
+      "promptToggleLabel": "Fragen, ob korrigierte Karten umgelegt werden",
+      "promptToggleDescription": "Schalte das aus, wenn korrigierte Karten dort bleiben, wo sie einsortiert wurden. Die Karte behält ihr aktuelles Fach und es erscheint kein Hinweis.",
+      "description": "Nach dem Korrigieren oder Zuordnen einer Karte zeigt ein Hinweis, in welchem Fach sie liegt und in welches sie gehört. Mit automatischem Schließen gilt die Karte nach Ablauf der Zeit als umgelegt, ohne Klick.",
+      "toggleLabel": "Automatisch schließen und als umgelegt markieren",
+      "secondsLabel": "Schließen nach",
+      "seconds_one": "{{count}} Sekunde",
+      "seconds_other": "{{count}} Sekunden"
+    },
+    "deployPause": {
+      "heading": "Updates",
+      "description": "Während Mault aktualisiert wird, werden scannende Sortierer pausiert und ein Hinweis erklärt den Grund, damit keine Karten verloren gehen, falls ein Speichern während des Updates fehlschlägt. Über den Hinweis kannst du sofort fortfahren.",
+      "toggleLabel": "Scannen während Updates pausieren"
+    },
+    "pricing": {
+      "heading": "Preise",
+      "description": "Wähle, welche Marktplatzpreise deine Organisation für Karten, Sammlungswerte und Discord-Beiträge nutzt. Card Kingdom liefert nur Preise für Magic: The Gathering.",
+      "sources": {
+        "tcgplayer": "TCGplayer",
+        "cardmarket": "Cardmarket",
+        "cardkingdom": "Card Kingdom"
+      }
+    },
+    "conditionPricing": {
+      "heading": "Preise nach Zustand",
+      "description": "Wie viel des Near-Mint-Preises eine Karte in jedem Zustand wert ist. Kartenwerte, Sammlungssummen, Statistiken und Lagerwerte verwenden diese Werte.",
+      "baseNote": "Near Mint ist immer der volle Marktpreis. Die Standardwerte entsprechen denen der meisten großen Händler."
+    },
+    "conditions": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Beschädigt (DMG)"
+    },
+    "draft": {
+      "saved": "Einstellungen gespeichert.",
+      "saveFailed": "Deine Einstellungen konnten nicht gespeichert werden. Versuch es erneut."
+    },
+    "percentSuffix": "%",
+    "conditionInvalid": "Gib 0 bis 100 ein",
+    "discardDescription": "Deine Änderungen an diesen Einstellungen wurden nicht gespeichert.",
+    "org": {
+      "renameHeading": "\"{{name}}\" umbenennen",
+      "nameLabel": "Name der Organisation",
+      "rename": "Umbenennen",
+      "membersHeading": "Mitglieder",
+      "inviteMemberHeading": "Mitglied einladen",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "E-Mail-Adresse",
+      "invite": "Einladen",
+      "role": "Rolle",
+      "pendingInvites": "Ausstehende Einladungen",
+      "cancelInvite": "Einladung zurückziehen",
+      "dangerZoneHeading": "Gefahrenzone",
+      "deleteWarning": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft.",
+      "deleteOrganization": "Organisation löschen",
+      "deleteOrgDescription": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft. Dies kann nicht rückgängig gemacht werden.",
+      "cancelSubscriptionFirst": "Kündige das Abonnement dieser Organisation, bevor du sie löschst. Sobald es zum Ende des Abrechnungszeitraums gekündigt ist, kannst du die Organisation löschen.",
+      "removeMemberTitle": "Mitglied entfernen",
+      "removeMemberDescription": "\"{{name}}\" aus dieser Organisation entfernen? Der Zugriff geht sofort verloren.",
+      "remove": "Entfernen",
+      "changeRole": "Rolle ändern",
+      "roles": {
+        "owner": "Inhaber",
+        "admin": "Admin",
+        "member": "Mitglied"
+      },
+      "you": "Du",
+      "failed": "Die Organisation konnte nicht aktualisiert werden",
+      "invalidEmail": "Gib eine gültige E-Mail-Adresse ein.",
+      "cancel": "Abbrechen",
+      "membersUnavailable": "Mitglieder werden über die Admin-Werkzeuge deines selbst gehosteten Servers verwaltet.",
+      "noInvites": "Keine offenen Einladungen"
+    },
+    "billing": {
+      "plan": {
+        "free": "Free",
+        "business": "Business"
+      },
+      "includes": "Dein Plan enthält",
+      "usage": "{{used}} / {{limit}} Karten heute gescannt",
+      "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
+      "manageOnWeb": "Tarifänderungen und Zahlungsdaten werden in der Web-App verwaltet.",
+      "openWeb": "Abrechnung im Web öffnen",
+      "features": {
+        "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag",
+        "unlimitedScans": "Unbegrenzte Kartenscans",
+        "freeSorters_one": "{{count}} verbundener Sortierer gleichzeitig",
+        "freeSorters_other": "{{count}} verbundene Sortierer gleichzeitig",
+        "businessSorters_one": "Bis zu {{count}} Sortierer gleichzeitig",
+        "businessSorters_other": "Bis zu {{count}} Sortierer gleichzeitig",
+        "freeSoundRules_one": "{{count}} eigene Soundregel",
+        "freeSoundRules_other": "{{count}} eigene Soundregeln",
+        "soundRules": "Unbegrenzte Soundregeln mit deinen eigenen hochgeladenen Clips",
+        "freeNotificationRules_one": "{{count}} Discord-Benachrichtigungsregel",
+        "freeNotificationRules_other": "{{count}} Discord-Benachrichtigungsregeln",
+        "notificationRules": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten",
+        "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
+        "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
+        "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
+        "collections": "Unbegrenzte Sammlungen",
+        "games": "Jedes unterstützte Sammelkartenspiel",
+        "notifications": "Discord-Scan-Benachrichtigungen"
+      }
+    },
+    "apiKeys": {
+      "heading": "API-Schlüssel",
+      "description": "Lass deine eigenen Systeme, etwa einen Onlineshop, die Karten und Lagerorte dieser Organisation lesen. Schlüssel gehören der Organisation, nicht dir, und funktionieren daher weiter, wenn du sie verlässt.",
+      "create": "Schlüssel erstellen",
+      "empty": "Noch keine API-Schlüssel.",
+      "readOnly": "Nur lesen",
+      "readWrite": "Lesen und schreiben",
+      "createdBy": "Erstellt von {{name}} am {{date}}",
+      "lastUsed": "Zuletzt verwendet {{date}}",
+      "neverUsed": "Nie verwendet",
+      "revoke": "Widerrufen",
+      "revokeFailed": "Der API-Schlüssel konnte nicht widerrufen werden.",
+      "revokeConfirmTitle": "Diesen API-Schlüssel widerrufen?",
+      "revokeConfirmDescription": "Alles, was ihn verwendet, funktioniert sofort nicht mehr. Das lässt sich nicht rückgängig machen.",
+      "createTitle": "API-Schlüssel erstellen",
+      "createDescription": "Gib dem Schlüssel einen Namen, damit du später weißt, was ihn verwendet.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Onlineshop-Abgleich",
+      "writeLabel": "Schreibzugriff erlauben",
+      "writeDescription": "Schlüssel mit Lesezugriff können Karten, Sammlungen und Lagerorte abrufen. Schlüssel mit Schreibzugriff können Karten außerdem aus ihrer Box nehmen, in eine andere Box verschieben und löschen.",
+      "createFailed": "Der API-Schlüssel konnte nicht erstellt werden.",
+      "revealTitle": "API-Schlüssel kopieren",
+      "revealDescription": "Der vollständige Schlüssel wird nur dieses eine Mal angezeigt. Bewahre ihn sicher auf, etwa in den geheimen Einstellungen deines Shops.",
+      "revealDone": "Ich habe ihn kopiert",
+      "managersOnly": "Nur Inhaber und Admins der Organisation können API-Schlüssel erstellen oder widerrufen.",
+      "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
+      "upgrade": "API-Schlüssel sind Teil des Business-Plans.",
+      "share": "Schlüssel teilen",
+      "cancel": "Abbrechen"
+    },
+    "webhooks": {
+      "heading": "Webhooks",
+      "description": "Mault sendet ein Ereignis an deine URL, wenn Karten gescannt oder in einen Lagerort einsortiert werden. Jeder Webhook hat ein eigenes Signaturgeheimnis, mit dem du prüfen kannst, dass eine Anfrage wirklich von Mault kommt.",
+      "add": "Webhook hinzufügen",
+      "addTitle": "Webhook hinzufügen",
+      "editTitle": "Webhook bearbeiten",
+      "dialogDescription": "Mault sendet eine signierte POST-Anfrage mit JSON-Inhalt an diese URL. Sie muss eine öffentliche https://-Adresse sein.",
+      "save": "Speichern",
+      "saved": "Webhook gespeichert.",
+      "saveFailed": "Der Webhook konnte nicht gespeichert werden.",
+      "urlLabel": "URL",
+      "invalidUrl": "Gib eine öffentliche https://-URL ein.",
+      "descriptionLabel": "Name (optional)",
+      "descriptionPlaceholder": "Onlineshop",
+      "eventsLabel": "Ereignisse",
+      "eventsRequired": "Wähle mindestens ein Ereignis.",
+      "events": {
+        "card": {
+          "scanned": "Eine Karte wurde gescannt und in einer Sammlung gespeichert."
+        },
+        "cards": {
+          "stored": "Ein Fach wurde in einen Lagerort einsortiert. Enthält Box und Position jeder Karte."
+        }
+      },
+      "empty": "Noch keine Webhooks.",
+      "disabled": "Deaktiviert",
+      "actions": "Webhook-Aktionen",
+      "sendTest": "Testereignis senden",
+      "edit": "Bearbeiten",
+      "enable": "Wieder aktivieren",
+      "delete": "Löschen",
+      "enabled": "Webhook wieder aktiviert.",
+      "enableFailed": "Der Webhook konnte nicht wieder aktiviert werden.",
+      "testSucceeded": "Test zugestellt (HTTP {{status}}).",
+      "testRejected": "Test fehlgeschlagen: {{error}}",
+      "testFailed": "Das Testereignis konnte nicht gesendet werden.",
+      "unknownError": "Unbekannter Fehler",
+      "neverDelivered": "Noch nichts zugestellt",
+      "lastSucceeded": "Letzte Zustellung {{date}}: HTTP {{status}}",
+      "lastFailed": "Letzte Zustellung {{date}} fehlgeschlagen: {{error}}",
+      "deleted": "Webhook gelöscht.",
+      "deleteFailed": "Der Webhook konnte nicht gelöscht werden.",
+      "deleteConfirmTitle": "Diesen Webhook löschen?",
+      "deleteConfirmDescription": "Mault sendet sofort keine Ereignisse mehr an diese URL. Das lässt sich nicht rückgängig machen.",
+      "secretTitle": "Signaturgeheimnis kopieren",
+      "secretDescription": "Prüfe damit den X-Mault-Signature-Header jeder Anfrage. Es wird nur dieses eine Mal angezeigt.",
+      "copySecret": "Geheimnis kopieren",
+      "secretCopied": "Signaturgeheimnis kopiert.",
+      "copyFailed": "Das Geheimnis konnte nicht kopiert werden.",
+      "upgrade": "Webhooks sind Teil des Business-Plans.",
+      "loadFailed": "Webhooks konnten nicht geladen werden.",
+      "share": "Secret teilen",
+      "cancel": "Abbrechen",
+      "managersOnly": "Nur Inhaber und Admins können Webhooks verwalten."
+    },
+    "discord": {
+      "discord": {
+        "heading": "Discord",
+        "description": "Poste Scans und Warnungen auf deinem Discord-Server.",
+        "connectedTo": "Verbunden mit {{server}}",
+        "statusLinked": "Verknüpft",
+        "statusNotLinked": "Nicht verknüpft",
+        "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Kanalnamen und Berechtigungen gerade nicht angezeigt werden.",
+        "botNotInServer": "Der Bot ist nicht mehr auf deinem verknüpften Server. Füge ihn wieder hinzu und verknüpfe ihn erneut.",
+        "connection": "Verbindung"
+      },
+      "channelSettings": {
+        "heading": "Kanäle",
+        "description": "Wohin jeder Scan und jeder Fehler oder jede Warnung gepostet wird. Nur Inhaber und Admins können das ändern.",
+        "scan": "Jeder Scan",
+        "error": "Fehler und Warnungen",
+        "none": "Nicht posten",
+        "sameScan": "Wie jeder Scan",
+        "sameError": "Wie Fehler",
+        "saved": "Kanal gespeichert.",
+        "saveFailed": "Der Kanal konnte nicht gespeichert werden."
+      },
+      "overrides": {
+        "heading": "Abweichungen pro Sammlung",
+        "description": "Sende die Scans oder Fehler einer Sammlung in einen anderen Kanal. Sammlungen ohne Abweichung nutzen die Kanäle oben.",
+        "add": "Abweichung hinzufügen",
+        "empty": "Keine Abweichungen. Jede Sammlung nutzt die Kanäle oben.",
+        "collection": "Sammlung",
+        "remove": "Abweichung für {{name}} entfernen",
+        "pickCollection": "Sammlung wählen",
+        "pickChannel": "Wähle einen Kanal für ihre Scans"
+      },
+      "rules": {
+        "heading": "Benachrichtigungsregeln",
+        "description": "Poste eine Karte in einen Kanal, wenn sie einer Regel entspricht. Jede passende Regel postet, eine Karte kann also in mehreren Kanälen landen, aber jeder Kanal bekommt sie nur einmal.",
+        "add": "Regel hinzufügen",
+        "empty": "Noch keine Benachrichtigungsregeln.",
+        "needsGame": "Wähle eine Sammlung mit einem Spiel, um Benachrichtigungsregeln hinzuzufügen.",
+        "postsTo": "Postet in",
+        "noChannel": "Kein Kanal. Bearbeite die Regel, um einen auszuwählen.",
+        "enabled": "Aktiviert",
+        "edit": "{{name}} bearbeiten",
+        "delete": "{{name}} löschen",
+        "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden.",
+        "limitReached_one": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregel. Upgrade auf Business für unbegrenzte Regeln.",
+        "limitReached_other": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade auf Business für unbegrenzte Regeln.",
+        "upgrade": "Upgraden",
+        "andPings": "und pingt"
+      },
+      "ruleDialog": {
+        "addTitle": "Benachrichtigungsregel hinzufügen",
+        "editTitle": "Benachrichtigungsregel bearbeiten",
+        "description": "Wenn eine gescannte Karte diese Bedingungen erfüllt, wird sie in diesen Kanal gepostet.",
+        "name": "Name",
+        "channel": "Kanal",
+        "channelPlaceholder": "Kanal auswählen",
+        "role": "Rolle pingen",
+        "roleHint": "Erwähnt diese Rolle, wenn eine Karte passt. Ausgegraute Rollen kann der Bot nicht pingen: Mach sie in Discord erwähnbar oder gib dem Bot die Berechtigung \"@everyone, @here und alle Rollen erwähnen\".",
+        "enabled": "Aktiviert",
+        "conditions": "Bedingungen",
+        "cancel": "Abbrechen",
+        "save": "Speichern",
+        "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden.",
+        "validation": {
+          "nameRequired": "Gib der Regel einen Namen.",
+          "channelRequired": "Wähle einen Kanal.",
+          "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
+        }
+      },
+      "draft": {
+        "saved": "Discord-Einstellungen gespeichert.",
+        "saveFailed": "Einige Discord-Einstellungen konnten nicht gespeichert werden. Versuch es erneut."
+      },
+      "channels": {
+        "unknown": "Unbekannter Kanal ({{id}})",
+        "inCategory": "in {{category}}"
+      },
+      "roles": {
+        "none": "Kein Ping",
+        "unknown": "unbekannte Rolle ({{id}})",
+        "cantPing": "kann nicht pingen"
+      },
+      "notifications": {
+        "heading": "Discord-Benachrichtigungen",
+        "description": "Fehler- und Statusbenachrichtigungen (Sortierfehler, Klemmer, Sync-Fehler, Kartensuchfehler) werden in den mit /notify-channel festgelegten Kanal deines verknüpften Discord-Servers gesendet.",
+        "notifyToggleLabel": "Bei jeder gescannten Karte benachrichtigen",
+        "notifyToggleDescription": "Sendet Name, Preis und Bild der Karte bei jedem Scan an Discord.",
+        "threadToggleLabel": "Scans in einem Thread posten",
+        "threadToggleDescription": "Sammelt jeden Scan in einem Thread \"Card Scans\", damit der Kanal übersichtlich bleibt. Ausschalten, um jede Karte direkt in den Kanal zu posten.",
+        "testHintNotLinked": "Verknüpfe oben einen Discord-Server und führe /notify-channel aus, um Testbenachrichtigungen zu aktivieren",
+        "testHintReady": "Testbenachrichtigung senden",
+        "sending": "Wird gesendet...",
+        "testTypes": {
+          "sorter-error": "Sortierfehler",
+          "feeder-empty": "Feeder leer",
+          "card-jam": "Kartenklemmer",
+          "card-search-error": "Kartensuchfehler",
+          "sync-failure": "Sync-Fehler"
+        }
+      },
+      "toasts": {
+        "saveError": "Benachrichtigungseinstellungen konnten nicht gespeichert werden.",
+        "saveSuccess": "Benachrichtigungseinstellungen gespeichert.",
+        "testSuccess": "Testbenachrichtigung gesendet.",
+        "testError": "Testbenachrichtigung konnte nicht gesendet werden.",
+        "testNoChannel": {
+          "title": "Kein Fehlerkanal festgelegt",
+          "description": "Wähle unter Einstellungen > Discord einen Fehlerkanal aus und versuche es dann erneut."
+        }
+      },
+      "bot": {
+        "heading": "Discord-Bot",
+        "description": "Verknüpfe einen Discord-Server mit dieser Organisation, damit alle darin Sammlungsstatistiken abrufen und Karten mit Slash-Befehlen nachschlagen können.",
+        "linked": "Mit einem Discord-Server verknüpft",
+        "unlink": "Trennen",
+        "unlinkSuccess": "Discord-Server getrennt.",
+        "unlinkError": "Discord-Server konnte nicht getrennt werden.",
+        "generateButton": "Verknüpfungscode erstellen",
+        "generating": "Wird erzeugt...",
+        "generateError": "Verknüpfungscode konnte nicht erstellt werden.",
+        "codeInstructions": "Führe /link <code> auf deinem Discord-Server aus, um die Verknüpfung abzuschließen.",
+        "expiresIn": "Läuft in {{seconds}}s ab"
+      },
+      "notificationsHeading": "Scan-Beiträge"
+    },
+    "sounds": {
+      "title": "Sounds",
+      "subtitle": "Spiele einen Sound ab, wenn eine sortierte {{game}}-Karte zu einer Regel passt.",
+      "subtitleNoGame": "Spiele einen Sound ab, wenn eine sortierte Karte zu einer Regel passt. Wähle eine Sammlung mit einem Spiel, um Regeln hinzuzufügen.",
+      "library": {
+        "heading": "Soundclips",
+        "description": "Lade kurze Clips hoch (MP3, WAV, OGG, WebM, M4A oder AAC, bis 1 MB), um sie in deinen Regeln zu verwenden.",
+        "upload": "Clip hochladen",
+        "uploading": "Wird hochgeladen...",
+        "uploaded": "Soundclip hochgeladen.",
+        "uploadFailed": "Der Soundclip konnte nicht hochgeladen werden.",
+        "deleteFailed": "Der Soundclip konnte nicht gelöscht werden.",
+        "wrongType": "Verwende eine MP3-, WAV-, OGG-, WebM-, M4A- oder AAC-Datei.",
+        "tooLarge": "Soundclips dürfen höchstens 1 MB groß sein.",
+        "empty": "Noch keine Soundclips.",
+        "untitled": "Unbenannter Clip",
+        "size": "{{kb}} KB",
+        "play": "{{name}} abspielen",
+        "delete": "{{name}} löschen",
+        "rename": "{{name}} umbenennen",
+        "nameLabel": "Clipname",
+        "saveName": "Namen speichern",
+        "cancelRename": "Abbrechen",
+        "renameFailed": "Der Soundclip konnte nicht umbenannt werden.",
+        "nameRequired": "Gib dem Clip einen Namen.",
+        "nameTooLong": "Der Name darf höchstens 60 Zeichen lang sein.",
+        "stop": "{{name}} stoppen",
+        "pickFailed": "Diese Datei konnte nicht geöffnet werden.",
+        "renamed": "Soundclip umbenannt.",
+        "deleteConfirm": "Regeln, die diesen Clip abspielen, spielen dann keinen Sound mehr."
+      },
+      "rules": {
+        "heading": "Soundregeln",
+        "description": "Die Regeln werden für jede sortierte Karte von oben nach unten geprüft, und der erste Treffer spielt seinen Sound ab.",
+        "add": "Regel hinzufügen",
+        "needsClip": "Lade zuerst einen Soundclip hoch und füge dann eine Regel hinzu, die ihn abspielt.",
+        "empty": "Noch keine Soundregeln.",
+        "plays": "Spielt {{clip}}",
+        "noClip": "Kein Soundclip (er wurde gelöscht)",
+        "enabled": "Aktiviert",
+        "moveUp": "Nach oben",
+        "moveDown": "Nach unten",
+        "edit": "{{name}} bearbeiten",
+        "delete": "{{name}} löschen",
+        "saved": "Soundregeln gespeichert.",
+        "saveFailed": "Die Soundregeln konnten nicht gespeichert werden.",
+        "limitReached_one": "Der kostenlose Plan enthält {{count}} Soundregel. Wechsle zu Business für unbegrenzte Soundregeln.",
+        "limitReached_other": "Der kostenlose Plan enthält {{count}} Soundregeln. Wechsle zu Business für unbegrenzte Soundregeln.",
+        "upgrade": "Upgraden",
+        "deleteConfirm": "Diese Regel spielt dann keinen Sound mehr ab."
+      },
+      "ruleDialog": {
+        "addTitle": "Soundregel hinzufügen",
+        "editTitle": "Soundregel bearbeiten",
+        "description": "Wenn eine sortierte Karte diese Bedingungen erfüllt, wird dieser Clip abgespielt.",
+        "name": "Name",
+        "clip": "Soundclip",
+        "clipPlaceholder": "Clip auswählen",
+        "enabled": "Aktiviert",
+        "conditions": "Bedingungen",
+        "cancel": "Abbrechen",
+        "save": "Speichern",
+        "saveFailed": "Die Soundregel konnte nicht gespeichert werden.",
+        "validation": {
+          "nameRequired": "Gib der Regel einen Namen.",
+          "clipRequired": "Wähle einen Soundclip.",
+          "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
+        }
+      }
+    }
+  },
+  "binCorrection": {
+    "move": {
+      "title": "{{name}} in Fach {{to}} legen",
+      "description": "Die Karte liegt jetzt in Fach {{from}}, gehört nach der Korrektur aber in Fach {{to}}. Leg sie um und bestätige es, damit die Fachzählung stimmt.",
+      "descriptionNoBin": "Nach der Korrektur gehört die Karte in Fach {{to}}. Leg sie dort hinein und bestätige es, damit die Fachzählung stimmt."
+    },
+    "staysIn": {
+      "title": "{{name}} bleibt in Fach {{bin}}",
+      "description": "Die Karte liegt bereits im richtigen Fach, es muss nichts umgelegt werden."
+    },
+    "noBin": {
+      "title": "Kein Fach passt zu {{name}}",
+      "description": "Keines deiner Fächer nimmt diese Karte auf, lass sie also, wo sie ist."
+    },
+    "moved": "In Fach {{bin}} umgelegt",
+    "leave": "In Fach {{bin}} lassen",
+    "ok": "OK"
+  },
+  "priceTable": {
+    "heading": "TCGplayer",
+    "cardmarketHeading": "Cardmarket",
+    "cardKingdomHeading": "Card Kingdom",
+    "showDetails": "Preisdetails anzeigen",
+    "hideDetails": "Preisdetails ausblenden",
+    "cardKingdomRetail": "Card Kingdom Verkaufspreis",
+    "retail": "Verkauf",
+    "buylist": "Ankauf",
+    "avg": "Durchschnitt",
+    "trend": "Preistrend",
+    "avg7": "7-Tage-Schnitt",
+    "tcgplayerMarket": "TCGplayer Marktpreis",
+    "cardmarketAvg": "Cardmarket Durchschnitt",
+    "foilPrice": "Foil {{price}}",
+    "nonFoilPrice": "Nicht-Foil {{price}}",
+    "avg30": "30-Tage-Schnitt",
+    "market": "Markt",
+    "low": "Niedrig",
+    "mid": "Mittel",
+    "high": "Hoch",
+    "regular": "Normal",
+    "foil": "Foil",
+    "noPrice": "k. A.",
+    "acrossPrintings": "Spanne über {{count}} Drucke"
+  },
+  "health": {
+    "title": "Systemstatus",
+    "subtitle": "Live-Status der Datenbank.",
+    "refresh": "Aktualisieren",
+    "allHealthy": "Alles funktioniert einwandfrei.",
+    "someUnhealthy": "Einige Dienste haben Probleme.",
+    "lastChecked": "Zuletzt geprüft um {{time}}",
+    "loading": "Dienststatus wird geprüft…",
+    "latency": "{{ms}} ms",
+    "statusOk": "OK",
+    "statusError": "Fehler",
+    "pausedDuringSync": "Pausiert, während eine Datenbanksynchronisierung läuft",
+    "ocrRegions": {
+      "heading": "OCR-Bereiche",
+      "description": "Wo auf den Karten jedes Spiels Text gelesen wird, wenn OCR aktiv ist, gezeigt auf einer Beispielkarte aus der Datenbank. Durchgezogene Rahmen werden zuerst gelesen, gestrichelte Ausweichbereiche nur, wenn der erste Durchgang die Karte nicht findet.",
+      "fallback": "Ausweichbereich",
+      "multiline": "mehrzeilig",
+      "coords": "x {{x}} %, y {{y}} %, {{width}} × {{height}} %",
+      "anotherCard": "Andere Karte zeigen",
+      "sample": "{{name}} · {{set}} #{{number}}"
+    },
+    "cardLookup": {
+      "heading": "Kartensuche",
+      "description": "Prüfe, ob eine Karte in der Kartendatenbank ist. Suche nach Name, Set-Code oder Sammlernummer (z. B. MH3 123).",
+      "game": "Spiel",
+      "language": "Sprache",
+      "noGames": "Keine synchronisierten Spiele",
+      "searchPlaceholder": "Karten suchen...",
+      "noResults": "Keine Karten gefunden. Sie ist möglicherweise noch nicht synchronisiert.",
+      "loadMore": "Mehr laden"
+    },
+    "gameCoverage": {
+      "heading": "Kartenabdeckung",
+      "description": "Welche Sammelkartenspiele unterstützt werden und wie viele Karten für jedes in der Datenbank vorhanden sind.",
+      "cardCount_one": "{{count}} Karte",
+      "cardCount_other": "{{count}} Karten",
+      "lastUpdated": "Aktualisiert am {{date}}",
+      "inactive": "Inaktiv",
+      "empty": "Noch keine Spiele konfiguriert"
+    },
+    "ocrFields": {
+      "name": "Name",
+      "setLine": "Set-Zeile",
+      "number": "Nummer"
+    }
+  },
+  "export": {
+    "button": "Exportieren",
+    "title": "{{name}} exportieren",
+    "loading": "Karten werden geladen",
+    "combineDuplicates": "Duplikate zusammenfassen",
+    "failed": "Die Karten konnten nicht exportiert werden"
+  },
+  "alerts": {
+    "title": "Benachrichtigungen",
+    "empty": "Du bist auf dem neuesten Stand.",
+    "learnMore": "Mehr erfahren",
+    "firmwareMissing": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren."
+  },
+  "pairing": {
+    "title": "Zum Verbinden scannen",
+    "subtitle": "Dieses Telefon als Scanner-Kamera verwenden",
+    "hint": "Öffne auf deinem Computer den Scanner, wähle Telefon als Kamera verwenden und richte dieses Telefon auf den QR-Code.",
+    "invalidTitle": "Das ist kein Kamera-Link",
+    "invalidDescription": "Scanne den QR-Code von Telefon als Kamera verwenden auf der Scanner-Seite deines Computers.",
+    "paste": "Stattdessen Link einfügen",
+    "linkLabel": "Kopplungslink",
+    "connect": "Verbinden"
+  },
+  "phoneCamera": {
+    "title": "Telefon als Kamera verwenden",
+    "ready": "Kamera bereit",
+    "connecting": "Verbinde mit dem Scanner",
+    "streamingTo": "Bereit für {{name}}",
+    "switchCamera": "Kamera wechseln",
+    "disconnect": "Trennen",
+    "sessionEndedTitle": "Sitzung beendet",
+    "sessionEndedDescription": "Der Scanner hat diese Kamera getrennt. Du kannst die Kamera ausschalten oder einen neuen QR-Code scannen, um dich wieder zu verbinden.",
+    "captured_one": "{{count}} Foto gesendet",
+    "captured_other": "{{count}} Fotos gesendet",
+    "keepOpen": "Lass diesen Bildschirm geöffnet, während der Computer scannt."
+  }
+}

@@ -32,11 +32,15 @@ import { useCallback, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 
 export function ShareMonitorLinkDialog({
   collectionGuid,
 }: ShareMonitorLinkDialogProps) {
   const { t, i18n } = useTranslation("collections");
+  const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
   const [link, setLink] = useState<CreatedMonitorLink | null>(null);
   const [isRevoking, setIsRevoking] = useState(false);
@@ -120,7 +124,7 @@ export function ShareMonitorLinkDialog({
         <Button
           variant="outline"
           size="icon"
-          className="shrink-0"
+          className={cn("shrink-0", isMobile && MOBILE_ICON_BUTTON_CLASS)}
           title={t("shareMonitorLink.trigger")}
           aria-label={t("shareMonitorLink.trigger")}
         >

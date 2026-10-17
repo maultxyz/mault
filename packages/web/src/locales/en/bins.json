@@ -80,7 +80,10 @@
     "sortSourceRules": "Sorting rules",
     "sortSourcePickList": "Pick list",
     "sortSourceRulesDescription": "Cards that match the rules below.",
-    "sortSourcePickListDescription": "Only cards on the list below, like a decklist. Checked before every other bin's rules."
+    "sortSourcePickListDescription": "Only cards on the list below, like a decklist. Checked before every other bin's rules.",
+    "settingsTitle": "Bin settings",
+    "advancedTitle": "Advanced",
+    "rulesSectionDescription": "Cards that match go to this bin."
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."

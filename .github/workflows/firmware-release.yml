@@ -5,26 +5,34 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
+# Dispatching from dev builds a dev firmware: nothing is committed, the binary
+# goes to the moving firmware-dev pre-release, and only dev deploys pick it up
+# (deploy.yml swaps it into the web image). A production release deletes
+# firmware-dev so dev falls back to the committed binary.
 concurrency:
-  group: master-release-pipeline
+  group: ${{ github.ref_name == 'dev' && 'dev-release-pipeline' || 'master-release-pipeline' }}
   cancel-in-progress: false
 
 env:
-  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio
+  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio,PartitionScheme=min_spiffs
   BUILD_DIR: firmware/main/build/esp32.esp32.esp32s3
   FIRMWARE_DEST: packages/web/public/firmware/esp32-latest.bin
   UNO_FQBN: arduino:renesas_uno:minima
   UNO_BUILD_DIR: firmware/main/build/arduino.renesas_uno.minima
   UNO_WIFI_FQBN: arduino:renesas_uno:unor4wifi
   UNO_WIFI_BUILD_DIR: firmware/main/build/arduino.renesas_uno.unor4wifi
+  DEV_TAG: firmware-dev
 
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
     environment:
-      name: production
-      url: https://mault.xyz
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+      url: ${{ vars.APP_URL }}
+    env:
+      IS_DEV: ${{ github.ref_name == 'dev' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,8 +56,14 @@ jobs:
             PATCH=$((LAST + 1))
           fi
           VERSION="${MAJOR_MINOR}.${PATCH}"
+          TAG="firmware-v${VERSION}"
+          if [ "$IS_DEV" = "true" ]; then
+            VERSION="${VERSION}-dev.${GITHUB_RUN_NUMBER}"
+            TAG="$DEV_TAG"
+          fi
           sed -i "s/#define FIRMWARE_VERSION \"[^\"]*\"/#define FIRMWARE_VERSION \"$VERSION\"/" firmware/main/main.ino
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Set up arduino-cli
         uses: arduino/setup-arduino-cli@v2
@@ -123,6 +137,7 @@ jobs:
 
       - name: Commit firmware version and binary
         id: commit
+        if: env.IS_DEV != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -135,19 +150,28 @@ jobs:
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
-      # Pushes made with the default GITHUB_TOKEN don't trigger other
-      # workflow runs (GitHub's built-in loop guard), so deploy.yml's own
-      # `push: branches: [master]` trigger won't fire for the commit above -
-      # without this, the live site would keep serving whatever firmware
-      # binary was already baked into the currently-deployed image until
-      # some unrelated change happened to redeploy web next.
-      - name: Trigger Coolify deployment (web)
-        if: steps.commit.outputs.changed == 'true'
+      # The firmware binary is baked into the web image, which only the deploy
+      # workflow builds, so the live site keeps serving the old binary until
+      # a deploy runs. It shares this workflow's concurrency group, so it
+      # queues behind this run and builds from the commit above.
+      - name: Publish dev release
+        if: env.IS_DEV == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
-            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "$VERSION" > dist/version.txt
+          gh release delete "$DEV_TAG" --repo "${{ github.repository }}" --cleanup-tag -y 2>/dev/null || true
+          gh release create "$DEV_TAG" "$FIRMWARE_DEST" dist/version.txt             "dist/arduino-uno-r4-minima-v${VERSION}.bin" "dist/arduino-uno-r4-wifi-v${VERSION}.bin"             --repo "${{ github.repository }}"             --target "${{ github.sha }}"             --prerelease             --title "Firmware v${VERSION} (dev)"             --notes "Dev firmware built from ${{ github.sha }}. Only dev deploys flash this binary; the next production firmware release replaces it."
+
+      - name: Trigger deploy
+        if: steps.commit.outputs.changed == 'true' || env.IS_DEV == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run deploy.yml --repo "${{ github.repository }}" --ref "${{ github.ref_name }}"
 
       - name: Create release
+        if: env.IS_DEV != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -168,6 +192,7 @@ jobs:
               --title "Firmware v${{ steps.version.outputs.version }}" \
               --notes "$NOTES"
           fi
+          gh release delete "$DEV_TAG" --repo "${{ github.repository }}" --cleanup-tag -y 2>/dev/null || true
 
       - name: Notify Discord (success)
         if: success()
@@ -178,7 +203,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$(jq -n \
               --arg version "${{ steps.version.outputs.version }}" \
-              --arg url "https://github.com/${{ github.repository }}/releases/tag/firmware-v${{ steps.version.outputs.version }}" \
+              --arg url "https://github.com/${{ github.repository }}/releases/tag/${{ steps.version.outputs.tag }}" \
               --arg commit "${GITHUB_SHA::7}" \
               --arg commit_url "https://github.com/${{ github.repository }}/commit/${{ github.sha }}" \
               --arg author "${{ github.actor }}" \

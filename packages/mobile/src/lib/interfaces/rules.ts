@@ -1,0 +1,75 @@
+import type { BinCondition, BinConfig, BinRuleGroup, BinSet, Collection, FieldMeta } from "@magic-vault/shared";
+
+export interface BinSaveInput {
+  binNumber: number;
+  gameGuid?: string;
+  rules: BinRuleGroup;
+  isCatchAll: boolean;
+  isDisabled: boolean;
+  cardLimit: number | null;
+  overflowBin: number | null;
+  isOverride?: boolean;
+  overridePriority?: number | null;
+  lowMatchPercent?: number | null;
+  maxCopies?: number | null;
+  maxCopiesBy?: string | null;
+}
+
+export type BinSetMode = "rules" | "repack" | "auto-assign" | "alphabet" | "chaos" | "scan-only";
+
+export interface RuleGroupEditorProps {
+  group: BinRuleGroup;
+  onChange: (group: BinRuleGroup) => void;
+  onRemove?: () => void;
+  depth?: number;
+  fieldDefinitions: FieldMeta[];
+  freeformOptions: boolean;
+  disabled?: boolean;
+}
+
+export interface RulesData {
+  collection: Collection | null;
+  gameGuid: string | undefined;
+  sets: BinSet[];
+  activeSet: BinSet | undefined;
+  bins: BinConfig[];
+  fieldDefinitions: FieldMeta[];
+  freeformOptions: boolean;
+  isPending: boolean;
+  isError: boolean;
+  refetch: () => void;
+  isRefetching: boolean;
+}
+
+export type ConditionSheetStep = "field" | "details";
+
+export interface ConditionSheetProps {
+  condition: BinCondition | null;
+  isNew: boolean;
+  fieldDefinitions: FieldMeta[];
+  freeformOptions: boolean;
+  onSave: (condition: BinCondition) => void;
+  onRemove?: () => void;
+  onClose: () => void;
+}
+
+export interface ConditionRowProps {
+  condition: BinCondition;
+  fieldDefinitions: FieldMeta[];
+  disabled?: boolean;
+  onPress: () => void;
+}
+
+export interface ConditionDescription {
+  field: string;
+  predicate: string;
+}
+
+export type ConditionEditTarget = { kind: "edit"; index: number } | { kind: "new" };
+
+export interface BinRowProps {
+  bin: BinConfig;
+  bins: BinConfig[];
+  fieldDefinitions: FieldMeta[];
+  onPress: () => void;
+}

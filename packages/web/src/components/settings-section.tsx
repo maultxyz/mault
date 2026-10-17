@@ -27,7 +27,9 @@ export function SettingsSection({
 
   const title = (
     <div className="flex flex-wrap items-center gap-2">
-      <h2 className="font-heading text-sm font-semibold">{heading}</h2>
+      <h2 className="font-heading text-sm font-semibold max-md:text-lg max-md:leading-tight max-md:font-bold">
+        {heading}
+      </h2>
       {badge}
     </div>
   );
@@ -52,7 +54,7 @@ export function SettingsSection({
           {text}
         </div>
         {action && (
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <div className="flex shrink-0 flex-wrap items-center gap-2 max-md:has-[[role=tablist]]:w-full">
             {action}
           </div>
         )}

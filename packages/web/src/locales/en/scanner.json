@@ -123,6 +123,12 @@
       "usb": "the USB connection reset it.",
       "other": "an uncommon cause.",
       "unknown": "the cause is unknown."
+    },
+    "firmwareOutdatedBannerCloud": "Your sorter is running firmware v{{version}}, older than the latest v{{latest}}. To update it from the browser, plug the ESP32-S3 in with USB and connect over USB instead of Wi-Fi.",
+    "cloud": {
+      "offline": "That sorter isn't online right now. Check that it's powered on and connected to Wi-Fi.",
+      "inUse": "Someone else is already controlling that sorter over Wi-Fi.",
+      "failed": "Couldn't reach the sorter through the server. Try again in a moment."
     }
   },
   "sessionMonitor": {
@@ -571,7 +577,8 @@
       "connecting": "Connecting…",
       "error": "Offline",
       "closed": "Offline"
-    }
+    },
+    "review": "Review {{count}}"
   },
   "binCorrection": {
     "bin": "Bin {{number}}",
@@ -641,7 +648,15 @@
     "today": "Today",
     "mostValuable": "Most valuable",
     "recentlyScanned": "Recently scanned",
-    "seeAllStats": "See all stats"
+    "seeAllStats": "See all stats",
+    "actions": {
+      "scan": "Scan",
+      "newCollection": "New",
+      "sorter": "Sorter",
+      "stats": "Stats"
+    },
+    "alerts": "Alerts",
+    "activeCollection": "Active"
   },
   "resetToNeutral": {
     "done": "Sorter reset to neutral",
@@ -663,5 +678,142 @@
       "title": "A queued scan couldn't be saved",
       "description": "The server refused a scan that was waiting to be saved. Check the collection for the missing card."
     }
+  },
+  "mobileScan": {
+    "chooseCollection": "Choose a collection",
+    "collection": "Collection",
+    "options": "Scan options",
+    "autoFeed": "Auto-feed",
+    "autoFeedDescription": "Feed the next card as soon as one is sorted",
+    "allowDuplicates": "Allow duplicates",
+    "allowDuplicatesDescription": "Save the same printing more than once",
+    "camera": "Camera",
+    "preset": "Rule preset",
+    "choosePreset": "Choose a preset",
+    "cameraFallback": "Camera {{number}}",
+    "sorter": "Sorter",
+    "pairDesktop": "Use as a desktop camera",
+    "pairDesktopDescription": "Scan the QR code shown on your computer",
+    "phase": {
+      "ready": "Ready",
+      "scanning": "Scanning",
+      "error": "Error"
+    },
+    "sorterState": {
+      "notConnected": "Sorter not connected",
+      "blocked": "Card in the way",
+      "testing": "Testing sorter",
+      "ready": "Sorter ready"
+    },
+    "cameraOff": "Camera is off",
+    "cameraOffDescription": "Allow camera access to start scanning.",
+    "startCamera": "Start camera",
+    "retry": "Retry",
+    "noSorterTitle": "No sorter connected",
+    "noSorterDescription": "Connect your sorter to sort cards, or tap the shutter to scan one card.",
+    "connect": "Connect",
+    "bin": "Bin {{number}}",
+    "pause": "Pause scanning",
+    "start": "Start scanning",
+    "scanOnce": "Scan a card",
+    "session": {
+      "chip_one": "{{count}} scanned",
+      "chip_other": "{{count}} scanned",
+      "title": "This session",
+      "count_one": "{{count}} card this session",
+      "count_other": "{{count}} cards this session",
+      "empty": "No cards scanned yet this session."
+    },
+    "controls": {
+      "open": "Scanner controls",
+      "title": "Scanner controls",
+      "pausedHint": "Pause scanning to use these.",
+      "scanNow": "Scan now",
+      "scanNowDescription": "Identify the card that is under the camera",
+      "feed": "Feed one card",
+      "feedDescription": "Feed a single card, then scan and sort it",
+      "drop": "Drop cards",
+      "dropDescription": "Open every module so stuck cards fall through",
+      "neutral": "Reset to neutral",
+      "neutralDescription": "Move every servo back to its resting position",
+      "sorterDescription": "Connection, self-test and status"
+    }
+  },
+  "mobileSorter": {
+    "title": "Sorter",
+    "subtitle": "Connect and check your sorter",
+    "firmware": "Firmware {{version}}",
+    "transport": {
+      "serial": "USB",
+      "bluetooth": "Bluetooth",
+      "cloud": "Wi-Fi"
+    },
+    "connectHint": "Turn on your sorter, then connect to it.",
+    "connectBluetooth": "Connect over Bluetooth",
+    "connectUsb": "Connect over USB",
+    "unsupported": "This browser can't connect to a sorter directly. Connect to one over Wi-Fi below, or use Chrome on Android.",
+    "actions": "Actions",
+    "selfTest": "Run self-test",
+    "selfTestDescription": "Checks the sensors and moves every servo",
+    "disconnect": "Disconnect",
+    "calibrateOnDesktop": "Calibration and sorting rules are set up on a computer.",
+    "remote": {
+      "title": "Over Wi-Fi",
+      "unnamed": "Card Sorter",
+      "online": "Online, tap to connect",
+      "offline": "Offline",
+      "inUse": "In use by someone else"
+    }
+  },
+  "sorterWifi": {
+    "title": "Wi-Fi remote access",
+    "description": "Connect the sorter to your Wi-Fi so you can control it from anywhere, including a phone without Bluetooth.",
+    "connectFirst": "Connect your sorter over USB or Bluetooth to set up Wi-Fi.",
+    "needsEsp32": "Wi-Fi remote access needs an ESP32 board.",
+    "needsFirmware": "Wi-Fi remote access needs firmware {{version}} or newer. Update your sorter's firmware to use it.",
+    "changeOverLocal": "You're connected over Wi-Fi. To change the Wi-Fi network, connect over USB or Bluetooth.",
+    "setUp": "Set up Wi-Fi",
+    "change": "Change Wi-Fi",
+    "forget": "Turn off Wi-Fi",
+    "notSetUp": "Not set up",
+    "unknown": "Checking…",
+    "forgotten": "Wi-Fi turned off.",
+    "forgetFailed": "Couldn't turn off Wi-Fi.",
+    "saved": "Wi-Fi saved. The sorter is joining the network.",
+    "saveFailed": "Couldn't save Wi-Fi",
+    "saveFailedDescription": "The sorter didn't accept the settings. Check that it's still connected and try again.",
+    "dialogTitle": "Connect sorter to Wi-Fi",
+    "dialogDescription": "The sorter remembers this network and reconnects to the server on its own. It supports 2.4 GHz networks only.",
+    "ssid": "Network name",
+    "password": "Password",
+    "passwordHint": "Leave empty for an open network.",
+    "save": "Save",
+    "validation": {
+      "ssidRequired": "Enter the network name.",
+      "ssidTooLong": "Network names can be at most {{max}} bytes.",
+      "password": "Passwords are {{min}} to {{max}} characters, or empty for an open network."
+    },
+    "wifiLabel": "Wi-Fi",
+    "cloudLabel": "Server link",
+    "wifiState": {
+      "unconfigured": "Not set up",
+      "connecting": "Connecting",
+      "connected": "Connected",
+      "paused": "Paused"
+    },
+    "cloudState": {
+      "unconfigured": "Not set up",
+      "offline": "Offline",
+      "connecting": "Connecting",
+      "connected": "Connected",
+      "rejected": "Rejected, set up Wi-Fi again"
+    },
+    "pausedForPower": "The sorter kept restarting from power dips when Wi-Fi started, so Wi-Fi is paused and USB and Bluetooth still work. Use a stronger power supply or power the servos separately, then unplug and replug the sorter or save Wi-Fi again to retry."
+  },
+  "wifiConnect": {
+    "item": "Wi-Fi: {{name}}",
+    "offline": "Offline",
+    "inUse": "In use",
+    "connectedHere": "Connected"
   }
 }

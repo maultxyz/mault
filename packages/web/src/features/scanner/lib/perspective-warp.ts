@@ -1,59 +1,9 @@
-import type { CardContour, Point } from "@magic-vault/shared";
-
-function solveHomographyDstToSrc(srcCorners: Point[]): number[] {
-  const dst: Point[] = [
-    { x: 0, y: 0 },
-    { x: 1, y: 0 },
-    { x: 1, y: 1 },
-    { x: 0, y: 1 },
-  ];
-
-  const A: number[][] = [];
-  const b: number[] = [];
-  for (let i = 0; i < 4; i++) {
-    const { x, y } = dst[i];
-    const { x: u, y: v } = srcCorners[i];
-    A.push([x, y, 1, 0, 0, 0, -x * u, -y * u]);
-    b.push(u);
-    A.push([0, 0, 0, x, y, 1, -x * v, -y * v]);
-    b.push(v);
-  }
-
-  const h = solveLinearSystem(A, b);
-  return [h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], 1];
-}
-
-function solveLinearSystem(A: number[][], b: number[]): number[] {
-  const n = A.length;
-  const M = A.map((row, i) => [...row, b[i]]);
-
-  for (let col = 0; col < n; col++) {
-    let pivot = col;
-    for (let row = col + 1; row < n; row++) {
-      if (Math.abs(M[row][col]) > Math.abs(M[pivot][col])) pivot = row;
-    }
-    [M[col], M[pivot]] = [M[pivot], M[col]];
-
-    const pivotVal = M[col][col];
-    if (Math.abs(pivotVal) < 1e-12) {
-      throw new Error("Degenerate quadrilateral - cannot solve homography");
-    }
-    for (let k = col; k <= n; k++) M[col][k] /= pivotVal;
-
-    for (let row = 0; row < n; row++) {
-      if (row === col) continue;
-      const factor = M[row][col];
-      if (factor === 0) continue;
-      for (let k = col; k <= n; k++) M[row][k] -= factor * M[col][k];
-    }
-  }
-
-  return M.map((row) => row[n]);
-}
-
-function contourToPoints(contour: CardContour): Point[] {
-  return [contour.topLeft, contour.topRight, contour.bottomRight, contour.bottomLeft];
-}
+import {
+  contourToPoints,
+  solveHomographyDstToSrc,
+  warpRgba,
+  type CardContour,
+} from "@magic-vault/shared";
 
 const VERTEX_SHADER = `
   attribute vec2 aPosition;
@@ -149,31 +99,6 @@ function warpWithWebGl(
   return output;
 }
 
-function bilinearSample(
-  imageData: ImageData,
-  x: number,
-  y: number,
-): [number, number, number] {
-  const { width, height, data } = imageData;
-  const x0 = Math.floor(x);
-  const y0 = Math.floor(y);
-  const x1 = Math.min(x0 + 1, width - 1);
-  const y1 = Math.min(y0 + 1, height - 1);
-  const fx = x - x0;
-  const fy = y - y0;
-
-  const at = (px: number, py: number, channel: number) =>
-    data[(py * width + px) * 4 + channel];
-
-  const result: [number, number, number] = [0, 0, 0];
-  for (let c = 0; c < 3; c++) {
-    const top = at(x0, y0, c) * (1 - fx) + at(x1, y0, c) * fx;
-    const bottom = at(x0, y1, c) * (1 - fx) + at(x1, y1, c) * fx;
-    result[c] = top * (1 - fy) + bottom * fy;
-  }
-  return result;
-}
-
 function warpWithCpu(
   source: HTMLCanvasElement,
   homography: number[],
@@ -183,6 +108,7 @@ function warpWithCpu(
   const sourceCtx = source.getContext("2d");
   if (!sourceCtx) throw new Error("Could not get canvas context");
   const sourceData = sourceCtx.getImageData(0, 0, source.width, source.height);
+  const warped = warpRgba(sourceData, homography, outputWidth, outputHeight);
 
   const output = document.createElement("canvas");
   output.width = outputWidth;
@@ -190,29 +116,7 @@ function warpWithCpu(
   const outCtx = output.getContext("2d");
   if (!outCtx) throw new Error("Could not get canvas context");
   const outData = outCtx.createImageData(outputWidth, outputHeight);
-
-  const h = homography;
-  for (let dy = 0; dy < outputHeight; dy++) {
-    const ny = dy / outputHeight;
-    for (let dx = 0; dx < outputWidth; dx++) {
-      const nx = dx / outputWidth;
-      const w = h[6] * nx + h[7] * ny + h[8];
-      const sx = (h[0] * nx + h[1] * ny + h[2]) / w;
-      const sy = (h[3] * nx + h[4] * ny + h[5]) / w;
-
-      const o = (dy * outputWidth + dx) * 4;
-      if (sx < 0 || sx > source.width - 1 || sy < 0 || sy > source.height - 1) {
-        outData.data[o + 3] = 255;
-        continue;
-      }
-      const [r, g, b] = bilinearSample(sourceData, sx, sy);
-      outData.data[o] = r;
-      outData.data[o + 1] = g;
-      outData.data[o + 2] = b;
-      outData.data[o + 3] = 255;
-    }
-  }
-
+  outData.data.set(warped.data);
   outCtx.putImageData(outData, 0, 0);
   return output;
 }

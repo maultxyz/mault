@@ -1,12 +1,11 @@
 import { MobileTabStrip } from "@/components/mobile-tab-strip";
 import {
-  MOBILE_HEADER_BUTTON_CLASS,
-  MOBILE_HEADER_BODY_CLASS,
-  MOBILE_HEADER_CLASS,
-  MOBILE_HEADER_FADE_CLASS,
+  MOBILE_HERO_LABEL_CLASS,
+  MOBILE_HERO_VALUE_CLASS,
+  MOBILE_MONITOR_CARD_PARAM,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
 } from "@/lib/constants/nav";
-import { Button } from "@/components/ui/button";
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MobileCardDetailDrawer } from "@/features/scanner/components/mobile-card-detail-drawer";
 import { MobileMonitorActivity } from "@/features/scanner/components/mobile-monitor-activity";
@@ -18,10 +17,13 @@ import type {
   MobileSessionMonitorProps,
 } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
-import { IconChevronLeft } from "@tabler/icons-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
+import { MONITOR_NEEDS_REVIEW_CARDS_QUERY } from "@/lib/constants/scanner";
+import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
 export function MobileSessionMonitor({
   session,
@@ -35,9 +37,20 @@ export function MobileSessionMonitor({
 }: MobileSessionMonitorProps) {
   const { t } = useTranslation("scanner");
   const { format } = usePriceSource();
+  const { t: tCards } = useTranslation("cards");
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<MobileMonitorTab>("cards");
+  const [reviewing, setReviewing] = useState(false);
   const { collection, status, unmatchedCards, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const linkedScanId = searchParams.get(MOBILE_MONITOR_CARD_PARAM);
+
+  useEffect(() => {
+    if (!linkedScanId) return;
+    setOpenScanId(linkedScanId);
+    setSearchParams({}, { replace: true });
+  }, [linkedScanId, setOpenScanId, setSearchParams]);
   const alertCount = unmatchedCards.length + errors.length;
   const hasPricing = !!stats?.hasPricing;
 
@@ -45,10 +58,31 @@ export function MobileSessionMonitor({
     (scanId: string) => setOpenScanId(scanId),
     [setOpenScanId],
   );
-  const handleCloseCard = useCallback(
-    () => setOpenScanId(null),
-    [setOpenScanId],
-  );
+  const handleCloseCard = useCallback(() => {
+    setReviewing(false);
+    setOpenScanId(null);
+  }, [setOpenScanId]);
+
+  const startReview = useCallback(async () => {
+    try {
+      const page = await queryClient.fetchQuery(
+        collectionCardsPageQueryOptions(
+          collectionGuid,
+          MONITOR_NEEDS_REVIEW_CARDS_QUERY,
+          0,
+        ),
+      );
+      const first = page.items[0];
+      if (!first) {
+        toast.info(tCards("review.nothingLeft"));
+        return;
+      }
+      setReviewing(true);
+      setOpenScanId(first.scanId);
+    } catch {
+      toast.error(tCards("review.startFailed"));
+    }
+  }, [collectionGuid, queryClient, setOpenScanId, tCards]);
 
   const tabs: MobileMonitorTabItem[] = [
     { key: "cards", label: t("mobileMonitor.tabCards") },
@@ -61,76 +95,55 @@ export function MobileSessionMonitor({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-      <header className={MOBILE_HEADER_CLASS}>
-        <div className={MOBILE_HEADER_BODY_CLASS}>
-          <div className="flex min-h-9 items-center gap-1">
-            {backHref && (
-              <Button
-                variant="ghost"
-                size="icon-lg"
-                className={MOBILE_HEADER_BUTTON_CLASS}
-                aria-label={t("mobileMonitor.back")}
-                render={<Link to={backHref} />}
-              >
-                <IconChevronLeft />
-              </Button>
+      <MobilePageHeader
+        title={
+          collection ? (
+            collection.name
+          ) : (
+            <Skeleton className="h-7 w-40" />
+          )
+        }
+        subtitle={[t(`mobileMonitor.status.${status}`), collection?.game?.name]
+          .filter(Boolean)
+          .join(" · ")}
+        subtitleLeading={
+          <span
+            className={cn(
+              "size-2 shrink-0 rounded-full",
+              status === "connected" &&
+                "bg-success animate-pulse motion-reduce:animate-none",
+              status === "connecting" && "bg-warning",
+              (status === "error" || status === "closed") && "bg-destructive",
             )}
-            <div className="min-w-0 flex-1">
-              {collection ? (
-                <h1 className="truncate font-heading text-lg leading-tight font-semibold">
-                  {collection.name}
-                </h1>
-              ) : (
-                <Skeleton className="h-5 w-40 bg-primary-foreground/20" />
-              )}
-              <div className="flex items-center gap-1.5 text-xs text-primary-foreground/80">
-                <span
-                  className={cn(
-                    "size-2 shrink-0 rounded-full ring-1 ring-primary-foreground/40",
-                    status === "connected" &&
-                      "bg-success animate-pulse motion-reduce:animate-none",
-                    status === "connecting" && "bg-warning",
-                    (status === "error" || status === "closed") &&
-                      "bg-destructive",
-                  )}
-                />
-                <span className="truncate">
-                  {[t(`mobileMonitor.status.${status}`), collection?.game?.name]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </span>
-              </div>
-            </div>
-            <div className="flex shrink-0 items-center gap-1.5">
+          />
+        }
+        backTo={backHref}
+        actions={
+          (header || toolbarLeading) && (
+            <>
               {header}
               {toolbarLeading}
-            </div>
-          </div>
-          <div className="flex items-end justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-2xs font-medium uppercase tracking-wide text-primary-foreground/80">
-                {hasPricing
-                  ? t("sessionStatsPanel.value")
-                  : t("mobileMonitor.cards")}
-              </p>
-              <p className="truncate font-heading text-2xl leading-tight font-semibold tabular-nums">
-                {stats?.hasPricing
-                  ? format(stats.totalValue)
-                  : String(cardCount)}
-              </p>
-            </div>
-            <p className="shrink-0 pb-0.5 text-xs text-primary-foreground/80 tabular-nums">
-              {[
-                hasPricing && `${cardCount} ${t("mobileMonitor.cards")}`,
-                stats && `${stats.uniqueCount} ${t("unique")}`,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </p>
-          </div>
+            </>
+          )
+        }
+      >
+        <div className="flex flex-col gap-0.5">
+          <p className={MOBILE_HERO_LABEL_CLASS}>
+            {hasPricing ? t("sessionStatsPanel.value") : t("mobileMonitor.cards")}
+          </p>
+          <p className={MOBILE_HERO_VALUE_CLASS}>
+            {stats?.hasPricing ? format(stats.totalValue) : String(cardCount)}
+          </p>
+          <p className="text-sm text-foreground/70 tabular-nums">
+            {[
+              hasPricing && `${cardCount} ${t("mobileMonitor.cards")}`,
+              stats && `${stats.uniqueCount} ${t("unique")}`,
+            ]
+              .filter(Boolean)
+              .join(" · ") || " "}
+          </p>
         </div>
-        <div aria-hidden className={MOBILE_HEADER_FADE_CLASS} />
-      </header>
+      </MobilePageHeader>
 
       <MobileTabStrip items={tabs} value={tab} onChange={setTab} />
 
@@ -147,6 +160,7 @@ export function MobileSessionMonitor({
             status={status}
             binCount={binCount}
             canEditCards={canEditCards}
+            onStartReview={() => void startReview()}
           />
         ) : (
           <MobileMonitorActivity
@@ -162,6 +176,15 @@ export function MobileSessionMonitor({
         <MobileCardDetailDrawer
           collectionGuid={collectionGuid}
           scanId={openScanId}
+          reviewMode={reviewing}
+          onNavigate={(next) => {
+            if (next) setOpenScanId(next);
+            else handleCloseCard();
+          }}
+          onReviewComplete={(count) => {
+            handleCloseCard();
+            toast.success(tCards("review.complete", { count }));
+          }}
           onClose={handleCloseCard}
         />
       )}

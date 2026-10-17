@@ -317,7 +317,8 @@
     },
     "complete_one": "Prüfung abgeschlossen: {{count}} Karte geprüft",
     "complete_other": "Prüfung abgeschlossen: {{count}} Karten geprüft",
-    "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft."
+    "nothingLeft": "Nichts mehr zu prüfen. Alle Karten hier wurden bereits geprüft.",
+    "startFailed": "Die Prüfung konnte nicht gestartet werden. Versuche es erneut."
   },
   "removeDialog": {
     "title": "{{name}} entfernen?",

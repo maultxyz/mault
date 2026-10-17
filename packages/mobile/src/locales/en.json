@@ -1,0 +1,1587 @@
+{
+  "app": {
+    "name": "Mault"
+  },
+  "common": {
+    "show": "Show",
+    "hide": "Hide",
+    "back": "Back",
+    "dismiss": "Dismiss",
+    "done": "Done",
+    "save": "Save",
+    "discard": "Discard",
+    "unsavedChanges": "Unsaved changes",
+    "discardTitle": "Discard changes?",
+    "discardDescription": "Your changes to this bin haven't been saved.",
+    "keepEditing": "Keep editing"
+  },
+  "tabs": {
+    "collections": "Collections",
+    "scan": "Scan",
+    "sorter": "Sorter",
+    "stats": "Stats",
+    "account": "Account",
+    "home": "Home",
+    "rules": "Rules",
+    "storage": "Storage"
+  },
+  "auth": {
+    "tagline": "Scan, sort and track your cards from your phone.",
+    "signIn": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "signInFailed": "Couldn't sign you in",
+    "validation": {
+      "email": "Enter a valid email address.",
+      "passwordRequired": "Enter your password."
+    },
+    "errors": {
+      "network": "Couldn't reach the server. Check your connection and try again.",
+      "profile": "Signed in, but your account details couldn't be loaded. Try again.",
+      "verify-email": "Verify your email address, then sign in."
+    },
+    "createAccountOnWeb": "New to Mault? Create an account on the web"
+  },
+  "collections": {
+    "title": "Collection",
+    "active": "Active",
+    "makeActive": "Make active",
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "loadFailed": "Couldn't load your collections",
+    "activateFailed": "Couldn't switch the active collection",
+    "cardsLoadFailed": "Couldn't load cards",
+    "emptyTitle": "No collections yet",
+    "emptyDescription": "Permanently removes all cards from \"{{name}}\", but keeps the collection itself. This cannot be undone.",
+    "search": "Search",
+    "searchPlaceholder": "Card name, set or number",
+    "noResults": "No cards match your search",
+    "noCards": "No cards in this collection yet",
+    "new": "New collection",
+    "createDescription": "Create a new collection to scan cards into.",
+    "nameLabel": "Collection name",
+    "namePlaceholder": "e.g. Commander Collection, Draft Haul...",
+    "duplicateName": "A collection with this name already exists",
+    "gameLabel": "Game",
+    "gamePlaceholder": "Select a game...",
+    "langLabel": "Language",
+    "langPlaceholder": "Select a language...",
+    "matchAllLanguagesLabel": "Match cards in every language",
+    "matchAllLanguagesDescription": "Scans match printings in any of this game's languages instead of only the one picked above. Searching and correcting still use the picked language.",
+    "experimental": "Experimental",
+    "create": "Create",
+    "createFailed": "Couldn't create the collection",
+    "rename": "Rename",
+    "renameTitle": "Rename collection",
+    "renameDescription": "Rename this collection.",
+    "renameFailed": "Couldn't rename the collection",
+    "save": "Save",
+    "empty": "Empty collection",
+    "emptyConfirm": "Empty",
+    "emptyFailed": "Couldn't empty the collection",
+    "delete": "Delete collection",
+    "deleteDescription": "Deletes \"{{name}}\" and hides all its cards. Contact support if you need it back.",
+    "deleteConfirm": "Delete",
+    "deleteFailed": "Couldn't delete the collection",
+    "actions": "Collection actions",
+    "cancel": "Cancel",
+    "validation": {
+      "name": "Enter a name of up to 50 characters.",
+      "game": "Choose a game.",
+      "lang": "Choose a language."
+    },
+    "shareLink": "Share live view link",
+    "revokeLinks": "Revoke shared links",
+    "revokeLinksTitle": "Revoke shared links?",
+    "revokeLinksDescription": "Anyone with a link to this collection's live view loses access.",
+    "shareLinkFailed": "Couldn't update the live view link"
+  },
+  "cards": {
+    "bin": "Bin {{number}}",
+    "needsReview": "Needs review",
+    "quantity_one": "{{count}} copy",
+    "quantity_other": "{{count}} copies"
+  },
+  "monitor": {
+    "title": "Live session",
+    "open": "Live view",
+    "recent": "Recent scans",
+    "scanError": "Scan error",
+    "viewers_one": "{{count}} viewer",
+    "viewers_other": "{{count}} viewers",
+    "unmatched_one": "{{count}} unmatched",
+    "unmatched_other": "{{count}} unmatched",
+    "emptyTitle": "Waiting for scans",
+    "emptyDescription": "Cards appear here as soon as any sorter scans them into this collection.",
+    "status": {
+      "connecting": "Connecting",
+      "connected": "Live",
+      "error": "Reconnecting"
+    }
+  },
+  "stats": {
+    "title": "Stats",
+    "subtitle": "Charts and numbers across your collections",
+    "error": "Couldn't load stats. Try again in a moment.",
+    "empty": {
+      "title": "No cards yet",
+      "description": "Stats show up here once you've scanned some cards."
+    },
+    "controls": {
+      "collection": "Collection",
+      "allCollections": "All collections",
+      "range": "Time range",
+      "ranges": {
+        "7d": "7d",
+        "30d": "30d",
+        "90d": "90d",
+        "1y": "1y"
+      }
+    },
+    "tiles": {
+      "totalValue": "Total value",
+      "collectionCount_one": "{{count}} collection",
+      "collectionCount_other": "{{count}} collections",
+      "cards": "Cards",
+      "uniqueHint": "{{count}} unique",
+      "avgValue": "Average card",
+      "pricedHint": "{{count}} with a price",
+      "scanned": {
+        "7d": "Scanned, last 7 days",
+        "30d": "Scanned, last 30 days",
+        "90d": "Scanned, last 90 days",
+        "1y": "Scanned, last year"
+      },
+      "valueAddedHint": "{{value}} added",
+      "foils": "Foils",
+      "shareHint": "{{percent}}% of cards",
+      "needsReview": "Needs review",
+      "correctedHint": "{{count}} reviewed"
+    },
+    "activity": {
+      "title": "Scanning activity",
+      "description": {
+        "day": "Cards scanned each day",
+        "week": "Cards scanned each week"
+      },
+      "metrics": {
+        "count": "Cards",
+        "value": "Value added"
+      },
+      "weekOf": "Week of {{date}}",
+      "thisWeek": "This week",
+      "today": "Today"
+    },
+    "compare": {
+      "title": "Compare collections",
+      "description": "How your collections stack up. Pick one to see its own stats.",
+      "metrics": {
+        "totalValue": "Value",
+        "cardCount": "Cards",
+        "scansInRange": "Scanned"
+      },
+      "share": "{{percent}}%",
+      "never": "Never",
+      "columns": {
+        "name": "Collection",
+        "cardCount": "Cards",
+        "uniqueCount": "Unique",
+        "totalValue": "Value",
+        "avgValue": "Avg card",
+        "scansInRange": "Scanned",
+        "lastScanAt": "Last scan"
+      }
+    },
+    "prices": {
+      "title": "Price distribution",
+      "description": "Priced cards grouped by value",
+      "atLeast": "{{min}} and up",
+      "under": "Under {{max}}",
+      "between": "{{min}} to {{max}}"
+    },
+    "games": {
+      "title": "By game",
+      "none": "No game"
+    },
+    "sets": {
+      "title": "Top sets by value"
+    },
+    "rarities": {
+      "title": "Rarity"
+    },
+    "colors": {
+      "title": "Colors"
+    },
+    "foils": {
+      "title": "Foil types"
+    },
+    "topCards": {
+      "title": "Most valuable cards"
+    },
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "leaderboard": {
+      "title": "Leaderboard",
+      "description_one": "The {{count}} organization that has scanned the most cards with Mault.",
+      "description_other": "The {{count}} organizations that have scanned the most cards with Mault.",
+      "error": "Couldn't load the leaderboard. Try again in a moment.",
+      "rank": "#{{rank}}",
+      "you": "You",
+      "hidden": "Not listed",
+      "unknownOrg": "Unknown organization",
+      "columns": {
+        "rank": "Rank",
+        "organization": "Organization",
+        "scans": "Cards scanned"
+      },
+      "optIn": {
+        "title": "Your organization isn't on the leaderboard",
+        "description": "Other organizations can't see you. Your row shows where you would rank. Join from Settings to appear in the list.",
+        "action": "Join leaderboard"
+      }
+    }
+  },
+  "account": {
+    "organizations": "Organizations",
+    "noOrganizations": "You aren't a member of any organization yet.",
+    "about": "About",
+    "server": "Server",
+    "version": "Version",
+    "signOut": "Sign out",
+    "pendingSaves": {
+      "title_one": "{{count}} scan waiting to sync",
+      "title_other": "{{count}} scans waiting to sync",
+      "description": "Saved on this phone and retried automatically until the server accepts them."
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "member": "Member"
+    },
+    "appearance": "Appearance",
+    "themes": {
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System"
+    },
+    "profile": {
+      "title": "Account",
+      "subtitle": "Manage your name, email, password, and active sessions.",
+      "profile": {
+        "heading": "Name",
+        "nameLabel": "Display name",
+        "save": "Save",
+        "updated": "Name updated",
+        "updateFailed": "Couldn't update your name",
+        "nameRequired": "Enter your name."
+      },
+      "email": {
+        "heading": "Email",
+        "verified": "Verified",
+        "unverified": "Unverified",
+        "newLabel": "New email",
+        "placeholder": "you@example.com",
+        "submit": "Update email",
+        "confirmationSent": "Confirmation email sent",
+        "confirmationSentDescription": "Check {{email}} and click the link to finish changing your email.",
+        "updateFailed": "Couldn't update your email",
+        "sameAsCurrent": "That's already your current email"
+      },
+      "password": {
+        "heading": "Password",
+        "currentLabel": "Current password",
+        "currentRequired": "Enter your current password",
+        "newLabel": "New password",
+        "confirmLabel": "Confirm new password",
+        "revokeOtherSessions": "Sign out of all other devices",
+        "submit": "Update password",
+        "updated": "Password updated",
+        "updateFailed": "Couldn't update your password",
+        "mismatch": "Passwords don't match",
+        "tooShort": "Must be at least 8 characters"
+      },
+      "sessions": {
+        "heading": "Sessions",
+        "description": "Devices currently signed in to your account.",
+        "current": "This device",
+        "revoke": "Revoke",
+        "revokeAll": "Revoke all other sessions",
+        "revokeAllConfirmTitle": "Revoke all other sessions?",
+        "revokeAllConfirmDescription": "You'll be signed out on every other device. This one stays signed in.",
+        "revokeConfirmTitle": "Revoke this session?",
+        "revokeConfirmDescription": "The device will be signed out immediately.",
+        "revokeCurrentConfirmDescription": "This is your current session. You'll be signed out immediately and returned to the sign-in page.",
+        "revoked": "Session revoked",
+        "revokeFailed": "Couldn't revoke session",
+        "allRevoked": "Other sessions revoked",
+        "revokeAllFailed": "Couldn't revoke other sessions",
+        "loadFailed": "Couldn't load sessions",
+        "empty": "No active sessions",
+        "lastActive": "Last active {{date}}",
+        "unknownDevice": "Unknown device",
+        "noIp": "Unknown location",
+        "revokeConfirm": "Revoke",
+        "cancel": "Cancel"
+      },
+      "localSubtitle": "Your account details. Ask an admin on this server to change them.",
+      "nameLabel": "Name"
+    },
+    "settingsRow": "Account settings",
+    "settingsRowSubtitle": "Name, email, password and sessions",
+    "settingsRowSubtitleLocal": "Your name and email",
+    "language": "Language",
+    "languageSystem": "Phone language"
+  },
+  "sorter": {
+    "noSorter": "No sorter connected",
+    "connectHint": "Turn on your sorter, then find it below.",
+    "firmware": "Firmware {{version}} on {{board}}",
+    "findSorters": "Find sorters",
+    "stopSearching": "Stop searching",
+    "nearby": "Nearby sorters",
+    "searching": "Searching for sorters",
+    "noneFound": "No sorters found",
+    "bluetoothOnly": "Only ESP32-S3 and Uno R4 WiFi sorters have Bluetooth. An Uno R4 Minima needs the desktop app over USB.",
+    "unnamed": "Unnamed sorter",
+    "signal": "Signal {{rssi}} dBm",
+    "runSelfTest": "Run self-test",
+    "neutral": "Return to neutral",
+    "dropCard": "Drop held card",
+    "disconnect": "Disconnect",
+    "commLog": "Communication log",
+    "commLogEmpty": "Nothing sent or received yet.",
+    "phase": {
+      "idle": "Disconnected",
+      "scanning": "Searching",
+      "connecting": "Connecting",
+      "identifying": "Identifying",
+      "syncing": "Syncing calibration",
+      "testing": "Testing",
+      "ready": "Ready",
+      "error": "Needs attention"
+    },
+    "errors": {
+      "bluetooth-off": {
+        "title": "Bluetooth is off",
+        "description": "Turn on Bluetooth, then try again."
+      },
+      "bluetooth-unauthorized": {
+        "title": "Bluetooth access is off",
+        "description": "Allow Bluetooth for Mault in Settings to connect to your sorter."
+      },
+      "connect-failed": {
+        "title": "Couldn't connect",
+        "description": "Move closer to the sorter and try again. {{detail}}"
+      },
+      "identify-failed": {
+        "title": "Sorter didn't respond",
+        "description": "The sorter connected but didn't identify itself. Power cycle it and try again."
+      },
+      "sorter-limit": {
+        "title": "Sorter limit reached",
+        "description": "Your plan's connected-sorter limit is in use. Disconnect another sorter first."
+      },
+      "servo-driver-missing": {
+        "title": "Servo driver not found",
+        "description": "Check the servo driver's wiring and power, then reconnect."
+      },
+      "test-failed": {
+        "title": "Self-test failed",
+        "description": "{{detail}}"
+      },
+      "sensor-blocked": {
+        "title": "Card on a sensor",
+        "description": "Module {{module}}'s sensor sees a card, so the self-test didn't run. Drop the card or clear it by hand, then mark it cleared to rerun the test."
+      },
+      "connection-lost": {
+        "title": "Connection lost",
+        "description": "The sorter disconnected or restarted. Reconnect to keep scanning."
+      },
+      "heartbeat-lost": {
+        "title": "Sorter stopped responding",
+        "description": "Check its power and reconnect."
+      },
+      "setup-incomplete": {
+        "title": "Finish setting up this sorter",
+        "description": "Complete calibration in the web app first, then reconnect from your phone."
+      }
+    },
+    "restarted": {
+      "title": "Sorter restarted",
+      "description": "The sorter restarted on its own: {{reason}} A card that was moving wasn't routed, so check the modules before resuming. It was synced again automatically."
+    },
+    "resetReasons": {
+      "power_on": "power was cut or it was plugged in.",
+      "external": "the reset button was pressed.",
+      "software": "the firmware restarted itself, or it was flashed.",
+      "watchdog": "it froze and the watchdog restarted it.",
+      "brownout": "its supply voltage dipped, usually from the servos drawing too much current. Check the power supply and wiring.",
+      "panic": "the firmware crashed.",
+      "usb": "the USB connection reset it.",
+      "other": "an uncommon cause.",
+      "unknown": "the cause is unknown."
+    },
+    "sensorBlocked": {
+      "dropCard": "Drop card",
+      "markCleared": "Mark cleared",
+      "dropped": "Cards dropped. Mark it cleared to rerun the self-test.",
+      "dropFailed": "The sorter didn't respond to the drop command. Clear the card by hand.",
+      "stillBlocked": "Module {{module}} still sees a card. Clear it, then mark it cleared.",
+      "noResponse": "The sorter didn't respond. Reconnect it and try again."
+    }
+  },
+  "scan": {
+    "start": "Start",
+    "resume": "Resume",
+    "pause": {
+      "user": {
+        "title": "Paused",
+        "description": ""
+      },
+      "no-match": {
+        "title": "No match",
+        "description": "The card was saved for review."
+      },
+      "feeder-empty": {
+        "title": "Feeder is empty",
+        "description": "Load more cards, then tap Resume."
+      },
+      "no-card": {
+        "title": "No card detected",
+        "description": "The feeder ran but no card reached the camera. Check the stack, then tap Resume."
+      },
+      "feed-failed": {
+        "title": "Feeder problem",
+        "description": "The feeder didn't respond as expected. {{detail}}"
+      },
+      "route-failed": {
+        "title": "Couldn't sort the card",
+        "description": "Check the sorter, then tap Resume. {{detail}}"
+      },
+      "jam": {
+        "title": "Card jammed",
+        "description": "A card is stuck in module {{detail}}. Clear it, then tap Resume."
+      },
+      "bin-full": {
+        "title": "Bin full",
+        "description": "Empty the bin on the web app, then tap Resume."
+      },
+      "scan-limit": {
+        "title": "Daily scan limit reached",
+        "description": "Your plan's free scans for today are used up."
+      },
+      "sorter-limit": {
+        "title": "Sorter limit reached",
+        "description": "Your plan's connected-sorter limit is in use."
+      },
+      "collection-locked": {
+        "title": "Couldn't save the scan",
+        "description": "Someone else may be scanning into this collection. {{detail}}"
+      },
+      "save-failed": {
+        "title": "Couldn't save the scan",
+        "description": "Check your connection, then tap Resume."
+      },
+      "sorter-disconnected": {
+        "title": "Sorter disconnected",
+        "description": "Reconnect it on the Sorter tab, then tap Resume."
+      },
+      "duplicate": {
+        "title": "Same card scanned again",
+        "description": "Tap Resume to add it anyway, or turn on Allow duplicates in scan options."
+      }
+    },
+    "scanOnce": "Scan one",
+    "scanningInto": "Scanning into {{name}}",
+    "sessionCount_one": "{{count}} card this session",
+    "sessionCount_other": "{{count}} cards this session",
+    "emptyTitle": "No scans yet",
+    "emptyDescription": "Start the sorter, or tap Scan one with a card under the camera.",
+    "unmatched": "No match",
+    "unmatchedHint": "Saved for review",
+    "allowCamera": "Allow camera",
+    "cameraPermissionTitle": "Camera access needed",
+    "cameraPermissionDescription": "Mault uses the camera to identify cards as they pass through your sorter.",
+    "cameraPermissionSettings": "Turn on camera access for Mault in Settings.",
+    "noCamera": "No camera available",
+    "noCollectionTitle": "No active collection",
+    "noCollectionDescription": "Choose the collection scans should go into.",
+    "chooseCollection": "Choose collection",
+    "sorterNotReadyTitle": "Sorter not connected",
+    "sorterNotReadyDescription": "Connect your sorter to feed and route cards. You can still scan cards by hand.",
+    "openSorter": "Connect sorter",
+    "modelErrorTitle": "Couldn't load the card recognition models",
+    "unsupported": {
+      "repack": {
+        "title": "Repack presets need the desktop app",
+        "description": "Switch to a different preset, or run this one from the web app."
+      },
+      "auto-assign": {
+        "title": "Auto-assign presets need the desktop app",
+        "description": "Switch to a different preset, or run this one from the web app."
+      }
+    },
+    "phase": {
+      "idle": "Idle",
+      "loading-models": "Loading models",
+      "ready": "Ready",
+      "feeding": "Feeding",
+      "capturing": "Capturing",
+      "identifying": "Identifying",
+      "routing": "Sorting",
+      "paused": "Paused",
+      "error": "Error"
+    },
+    "pauseAction": "Pause",
+    "sessionChip_one": "{{count}} scanned",
+    "sessionChip_other": "{{count}} scanned",
+    "sessionScans": {
+      "title": "This session",
+      "empty": "No cards scanned yet this session.",
+      "noMatch": "No match",
+      "bin": "Bin {{number}}"
+    },
+    "controls": {
+      "open": "Scanner controls",
+      "title": "Scanner controls",
+      "pausedHint": "Pause scanning to use these.",
+      "scanNow": "Scan now",
+      "scanNowDescription": "Identify the card that is under the camera",
+      "feed": "Feed one card",
+      "feedDescription": "Feed a single card, then scan and sort it",
+      "drop": "Drop cards",
+      "dropDescription": "Open every module so stuck cards fall through",
+      "neutral": "Reset to neutral",
+      "neutralDescription": "Move every servo back to its resting position",
+      "sorter": "Sorter",
+      "sorterDescription": "Connection, self-test and status",
+      "failed": "That didn't work. Check the sorter connection and try again."
+    },
+    "options": {
+      "title": "Scan options",
+      "autoFeed": "Auto-feed",
+      "autoFeedDescription": "Feed the next card as soon as one is sorted",
+      "allowDuplicates": "Allow duplicates",
+      "allowDuplicatesDescription": "Save the same printing more than once",
+      "camera": "Camera",
+      "cameraFallback": "Camera {{number}}",
+      "cameraPosition": {
+        "back": "Back",
+        "front": "Front",
+        "external": "External"
+      },
+      "pairDesktop": "Use as a desktop camera",
+      "pairDesktopDescription": "Scan the QR code shown on your computer"
+    }
+  },
+  "home": {
+    "greeting": "Hi, {{name}}",
+    "greetingNoName": "Welcome back",
+    "totalValue": "Total value",
+    "collectionCount_one": "{{count}} collection",
+    "collectionCount_other": "{{count}} collections",
+    "scannedToday": "Scanned today",
+    "thisWeek": "This week",
+    "collections": "Collections",
+    "activityTitle": "Scan activity",
+    "activityPoint_one": "{{date}} · {{count}} scan",
+    "activityPoint_other": "{{date}} · {{count}} scans",
+    "today": "Today",
+    "seeAllStats": "See all stats",
+    "mostValuable": "Most valuable",
+    "recentlyScanned": "Recently scanned",
+    "allCollections": "All collections",
+    "searchPlaceholder": "Search collections",
+    "noSearchResultsTitle": "No collections found",
+    "noSearchResultsDescription": "Try a different name.",
+    "actions": {
+      "scan": "Scan",
+      "newCollection": "New",
+      "sorter": "Sorter",
+      "stats": "Stats"
+    },
+    "live": {
+      "yourSession": "Your session",
+      "scanning": "Scanning",
+      "scanningBy": "{{name}} is scanning"
+    }
+  },
+  "collection": {
+    "tabCards": "Cards",
+    "tabActivity": "Activity",
+    "value": "Value",
+    "cards": "Cards",
+    "cardsCount_one": "{{count}} card",
+    "cardsCount_other": "{{count}} cards",
+    "unique": "{{count}} unique",
+    "searchPlaceholder": "Search cards",
+    "noCardsYet": "No cards scanned yet",
+    "noMatches": "No cards match your search",
+    "review": "Review {{count}}",
+    "groupDuplicates": "Group duplicates",
+    "filters": {
+      "title": "Filters",
+      "colors": "Colors",
+      "rarity": "Rarity",
+      "foil": "Foil",
+      "bin": "Bin",
+      "noBin": "No bin",
+      "status": "Status",
+      "needsReview": "Needs review",
+      "showDownloaded": "Show downloaded",
+      "reset": "Reset"
+    },
+    "sort": {
+      "title": "Sort by",
+      "scanOrder": "Scan order (newest first)",
+      "ascending": "{{field}}, ascending",
+      "descending": "{{field}}, descending"
+    },
+    "actions": {
+      "copies_one": "{{count}} copy",
+      "copies_other": "{{count}} copies",
+      "removeTitle_one": "Remove this card?",
+      "removeTitle_other": "Remove {{count}} copies?"
+    }
+  },
+  "cardDetail": {
+    "fallbackTitle": "Card details",
+    "capturedScan": "Captured scan",
+    "matchedCard": "Matched card",
+    "details": "Details",
+    "set": "Set",
+    "rarity": "Rarity",
+    "manaCost": "Mana cost",
+    "powerToughness": "Power/Toughness",
+    "artist": "Artist",
+    "bin": "Bin",
+    "viewSource": "View source",
+    "remove": "Remove",
+    "removeConfirmTitle": "Remove this card?",
+    "removeConfirmDescription": "It's removed from the collection. This can't be undone.",
+    "removeFailed": "Couldn't remove the card",
+    "cancel": "Cancel",
+    "loadFailed": "Couldn't load this card",
+    "foil": "Foil",
+    "correctCard": "Correct card",
+    "markCorrect": "Mark correct",
+    "acceptNext": "Looks right",
+    "acceptFinish": "Looks right",
+    "reviewProgress": "Reviewing {{index}} of {{total}}",
+    "reviewed": "Reviewed",
+    "similarMatches": "Similar matches",
+    "similarMatchesHint": "Several close matches. Tap the right version.",
+    "thisScan": "This scan",
+    "foilNone": "Not foil",
+    "condition": "Condition",
+    "conditions": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Damaged (DMG)"
+    },
+    "searchPlaceholder": "Search by name, number or set",
+    "startTyping": "Start typing to search for cards",
+    "noCardsFound": "No cards found",
+    "loadMore": "Load more",
+    "saveFailed": "Couldn't save this card",
+    "discardDescription": "Your changes to this card haven't been saved.",
+    "reviewCompleteTitle": "Review complete",
+    "reviewCompleteDescription": "Every card that needed a look has been checked.",
+    "prices": "Prices",
+    "binLocation": "Bin location",
+    "scanOrigin": {
+      "heading": "Scanned",
+      "scannedBy": "By",
+      "sorter": "Sorter",
+      "deletedSorter": "{{name}} (deleted)"
+    }
+  },
+  "rules": {
+    "title": "Sorting rules",
+    "noCollectionTitle": "No active collection",
+    "noCollectionDescription": "Choose the collection you sort into, then edit its game's presets here.",
+    "noGameTitle": "This collection has no game",
+    "noGameDescription": "Pick a game for the collection on the web to set up sorting rules.",
+    "presets": "Preset",
+    "choosePreset": "Choose a preset",
+    "noPresetsTitle": "No presets for this game",
+    "noPresetsDescription": "Create a preset on the web, then pull down to refresh.",
+    "activateFailed": "Couldn't switch presets",
+    "binsWithRules_one": "{{count}} bin with rules",
+    "binsWithRules_other": "{{count}} bins with rules",
+    "bins": "Bins",
+    "bin": "Bin {{number}}",
+    "catchAll": "Catch-all",
+    "disabled": "Disabled",
+    "pickList": "Pick list",
+    "overflowFor": "Overflow for bin {{bins}}",
+    "and": "AND",
+    "or": "OR",
+    "noConditions": "No conditions",
+    "removeCondition": "Remove condition",
+    "removeGroup": "Remove group",
+    "valuePlaceholder": "Value...",
+    "freeformPlaceholder": "Comma-separated values...",
+    "needCatchAll": "At least one bin must be catch-all. Make another bin the catch-all first.",
+    "overflowNone": "Don't overflow",
+    "overflowNoOptions": "No free bins. Clear a bin's rules to use it as an overflow.",
+    "overflowTargetNotice_one": "This bin is the overflow for bin {{bins}}. Cards land here when that bin is full, so it can't have rules of its own.",
+    "overflowTargetNotice_other": "This bin is the overflow for bins {{bins}}. Cards land here when those bins are full, so it can't have rules of its own.",
+    "pickListNotice": "This bin runs a pick list. Edit it on the web.",
+    "modeNoticeTitle": "Edit this preset on the web",
+    "modeNotice": {
+      "repack": "This preset uses repack mode.",
+      "auto-assign": "This preset assigns bins automatically.",
+      "alphabet": "This preset sorts alphabetically in passes.",
+      "chaos": "This preset uses chaos mode."
+    },
+    "noActiveTitle": "No active preset",
+    "noActiveDescription": "Activate a preset above to edit its bins.",
+    "saveFailed": "Couldn't save this bin",
+    "loadFailed": "Couldn't load your presets",
+    "matchPrefix": "Match",
+    "matchSuffix": "of these",
+    "combinatorAll": "all",
+    "combinatorAny": "any",
+    "combinatorTitle": "Cards must match",
+    "combinatorAllOption": "All of these conditions",
+    "combinatorAnyOption": "Any of these conditions",
+    "addCondition": "Add condition",
+    "addGroup": "Add group",
+    "noConditionsYet": "No conditions yet",
+    "newCondition": "New condition",
+    "editCondition": "Edit condition",
+    "chooseField": "Choose a field",
+    "searchFields": "Search fields",
+    "field": "Field",
+    "operator": "Condition",
+    "value": "Value",
+    "selectPlaceholder": "Select...",
+    "noFieldMatches": "No fields match",
+    "rulesLabel": "Rules",
+    "rulesDescription": "Cards that match go to this bin.",
+    "overrideLabel": "Override rules",
+    "overrideDescription": "Cards that match come here even when another bin also matches. Leave empty to only take leftovers.",
+    "settingsTitle": "Bin settings",
+    "catchAllLabel": "Catch-all",
+    "catchAllDescription": "Gets every card no other bin takes",
+    "disabledLabel": "Disabled",
+    "disabledDescription": "Cards skip this bin",
+    "cardLimitLabel": "Card limit",
+    "cardLimitDescription": "Pauses or overflows when full",
+    "noLimit": "None",
+    "overflowLabel": "When full, overflow to",
+    "noRulesTapToAdd": "No rules yet, tap to add",
+    "groupChip_one": "Group of {{count}}",
+    "groupChip_other": "Group of {{count}}",
+    "moreChips": "+{{count}}",
+    "limitChip": "Full at {{count}}",
+    "overflowsTo": "Overflows to {{bin}}"
+  },
+  "calibration": {
+    "title": "Calibration",
+    "subtitle": "Tune servos and the feeder",
+    "entryTitle": "Calibration",
+    "entrySubtitle": "Servo positions, timings and the feeder",
+    "notConnectedTitle": "Connect your sorter first",
+    "notConnectedDescription": "Calibration moves the servos live, so the sorter has to be connected.",
+    "moduleLabel": "Module {{module}}",
+    "msValue": "{{value}} ms",
+    "continuous": "Continuous",
+    "servos": {
+      "bottom": "Bottom Paddle",
+      "paddle": "Paddles",
+      "pusher": "Pusher"
+    },
+    "positions": {
+      "open": "Open",
+      "closed": "Closed",
+      "left": "Left",
+      "right": "Right",
+      "neutral": "Neutral"
+    },
+    "editingPosition": "Editing: {{position}}",
+    "noPositionSelected": "Select a position above to edit it",
+    "rawPulseToggleLabel": "Raw pulse values",
+    "rawPulseTooltip": "Raw servo pulse position (120-490), the exact value sent to the device.",
+    "testServoGate": "Test: briefly opens the gate, then returns it to closed, so you can watch it move.",
+    "testServoPusher": "Test: briefly fires the pusher left, then right, then returns it to neutral, so you can watch it move both ways.",
+    "pusherOffsetWarning": "More than {{percent}}% away from neutral. The arm shouldn't touch the inner wall, and the further out you push it, the higher the risk of skipping gears or the horn shifting on the shaft.",
+    "delays": {
+      "paddleOpenDelay": {
+        "label": "Paddle Open Delay (ms)",
+        "description": "How long the paddle gets to lower before the pusher fires. Longer if the pusher hits the card before the paddle is fully down; shorter to sort faster."
+      },
+      "pusherHoldDuration": {
+        "label": "Pusher Hold Time (ms)",
+        "description": "How long the pusher stays extended before returning to neutral. Longer if cards aren't pushed fully out before it retracts; keep it short, since holding against the end stop strains the servo horn."
+      },
+      "paddleCloseDelay": {
+        "label": "Paddle Close Delay (ms)",
+        "description": "How long after the pusher fires before this module's paddle closes again, independent of the pusher's own return timing. Longer if cards aren't fully clear before the gate shuts."
+      }
+    },
+    "pushTestLabel": "Test Push Timing",
+    "pushTestTooltip": "Runs this module's push exactly as a route would, using the hold time and paddle close delay above (even before you save them). No card is fed; drop one onto the module first to see it pushed out.",
+    "feeder": {
+      "heading": "Feeder",
+      "showAdvanced": "Show raw values",
+      "hideAdvanced": "Hide raw values",
+      "speedLabel": "Feed Speed",
+      "speedTooltip": "How fast and which way the feeder motor spins. 0% is stopped; drag either way to speed up in that direction.",
+      "forward": "Forward",
+      "reverse": "Reverse",
+      "timeoutLabel": "Timeout (ms)",
+      "pulseDurationLabel": "Pulse Duration (ms)",
+      "continuousFeedButton": "Continuous Feed",
+      "pauseDurationLabel": "Pause Duration (ms)",
+      "settleDurationLabel": "Final Card Detection Delay (ms)",
+      "settleDurationDescription": "Extra time to keep feeding once the module 1 sensor sees the last card in the hopper, so it travels all the way into the mechanism before the motor stops.",
+      "reverseDurationLabel": "Roll Back After Feed (ms)",
+      "reverseDurationDescription": "Once a card reaches module 1, spin the roller backward this long so the next card in the hopper is pulled back instead of creeping forward into a double feed. 0 turns it off.",
+      "reverseSpeedLabel": "Roll Back Speed",
+      "off": "Off"
+    },
+    "runTest": "Run Test",
+    "testing": "Testing…",
+    "feed": "Feed",
+    "dropCard": "Drop card",
+    "calibrateBeforeTest": "Calibrate all modules before running the test",
+    "testBeforeControls": "Run a successful test to unlock the device controls.",
+    "resetServosToDefaults": "Reset servos to defaults",
+    "modules": "Modules",
+    "feederSection": "Feeder Calibration",
+    "saveFailed": "Failed to save the scan region or capture settle delay",
+    "firmwareRequired": "Needs firmware {{version}} or later",
+    "discardDescription": "Your calibration changes haven't been saved. Discarding puts the saved values back on the sorter.",
+    "hubSubtitle": "Set up and tune this sorter",
+    "sections": {
+      "servos": {
+        "title": "Servos & feeder",
+        "description": "Servo positions, module timings and the feeder"
+      },
+      "layout": {
+        "title": "Layout",
+        "description": "Module count, which bin each slot is, and bin sizes"
+      },
+      "scanRegion": {
+        "title": "Camera",
+        "description": "Where the card sits in the photo, and match settings"
+      },
+      "connection": {
+        "title": "Connection",
+        "description": "Auto-connect, self-test on connect, experimental features"
+      },
+      "test": {
+        "title": "Test",
+        "description": "IR sensors, single bins and a sample run"
+      }
+    },
+    "binLabel": "Bin {{bin}}",
+    "moduleCount": {
+      "label": "Sorting modules",
+      "value_one": "{{count}} module",
+      "value_other": "{{count}} modules",
+      "description": "How many physical sorting modules are wired up. Changes the number of bins available and the sections below.",
+      "reduceTitle": "Reduce module count?",
+      "reduceDescription": "Dropping to {{count}} modules will remove the sorting rules and calibration data for modules and bins beyond that count, across every bin preset.",
+      "reduceConfirm": "Change module count"
+    },
+    "bins": {
+      "label": "Bin configurations",
+      "resetToDefaults": "Reset to defaults",
+      "moduleLeft": "Module {{module}}, left",
+      "moduleRight": "Module {{module}}, right",
+      "bottomSectionLabel": "Bottom (catch-all)",
+      "module": "Module",
+      "size": "Bin size",
+      "presets": {
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "unlimited": "Unlimited",
+        "custom": "Custom"
+      },
+      "customHeightUnit": "mm",
+      "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
+      "customHeightInvalid": "Enter {{min}} to {{max}} mm"
+    },
+    "layoutSaveFailed": "Couldn't save the layout",
+    "scanRegion": {
+      "heading": "Scan region",
+      "instructions": "Drag the box to move it and use the sliders to resize it. Line it up with a card sitting at module 1.",
+      "liveDetectionHint": "The box is the fallback crop used when live detection can't find the card. The blue outline is a live preview of what detection sees.",
+      "size": "Size",
+      "offsetX": "Horizontal offset",
+      "offsetY": "Vertical offset",
+      "resetToDefault": "Reset to default",
+      "captureSettleLabel": "Capture settle delay",
+      "captureSettleDescription": "How long to wait after the feeder confirms a card has arrived before capturing a frame, so the card is fully still and in focus.",
+      "matchesNeededLabel": "Matches needed",
+      "matchesNeededDescription": "How many consecutive frames must agree on the same card before a scan is accepted. 1 is fastest; higher values are more reliable but slower.",
+      "checkBothOrientationsLabel": "Check both directions",
+      "checkBothOrientationsDescription": "Also match the card rotated 180°, so cards fed upside down are still identified. Turn off if all your cards are fed the same way up to make each scan faster.",
+      "percent": "{{value}}%"
+    },
+    "connection": {
+      "title": "Connection",
+      "autoConnectLabel": "Auto-connect",
+      "autoConnectDescription": "Connects to this sorter on its own when the app opens, and keeps trying to reconnect if it drops or is power-cycled while the app is open. Connect it by hand once first so the phone remembers it.",
+      "testOnConnectLabel": "Run self-test on connect",
+      "testOnConnectDescription": "When on, the sorter cycles every servo and checks its sensors each time it connects. When off, it only loads its saved calibration and is ready right away. You can still run the test from Sorter setup.",
+      "experimentalTitle": "Experimental",
+      "experimentalBadge": "Beta",
+      "pipelinedFeedLabel": "Scan the next card while sorting",
+      "pipelinedFeedDescription": "Feeds and scans the next card as soon as the previous one has left module 1, instead of waiting for it to reach its bin. Needs firmware 2.1.0 or newer and auto-feed turned on. Turn this off if cards jam or scans start picking up the moving card.",
+      "firmwareNote": "Firmware updates need the desktop app, since they're flashed over USB."
+    },
+    "ir": {
+      "label": "IR sensors",
+      "description": "Infrared sensors that detect when a card is present at each module's feed path.",
+      "read": "Read",
+      "monitor": "Monitor",
+      "stop": "Stop",
+      "detected": "Card",
+      "clear": "Clear",
+      "unknown": "Not read",
+      "hopper": "Hopper",
+      "hopperEmpty": "Hopper empty",
+      "hopperHasCards": "Cards waiting"
+    },
+    "routing": {
+      "label": "Bin routing",
+      "description": "Send a card to a single bin, or run one through every bin in order.",
+      "sampleRun": "Sample run",
+      "running": "Running…",
+      "binActive": "Bin {{bin}}…",
+      "resetToNeutral": "Reset to neutral",
+      "binFailed": "Bin {{bin}} didn't route",
+      "sampleRunStopped": "Sample run stopped at bin {{bin}}"
+    }
+  },
+  "storage": {
+    "title": "Storage",
+    "subtitle": "Where your sorted cards are kept, box by box, in the order they went in.",
+    "entrySubtitle": "Boxes and where each card went",
+    "newLocation": "New location",
+    "emptyTitle": "No storage locations yet",
+    "emptyDescription": "When you empty a bin from the scanner's Bin Levels, or when a full bin pauses scanning, pick or create a location to record where its cards went.",
+    "summary_one": "{{count}} card · {{value}} total",
+    "summary_other": "{{count}} cards · {{value}} total",
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "rename": "Rename location",
+    "delete": "Delete location",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it.",
+    "nameLabel": "Name",
+    "namePlaceholder": "e.g. Box 12",
+    "create": "Create",
+    "save": "Save",
+    "cancel": "Cancel",
+    "searchPlaceholder": "Search cards in every location",
+    "noResultsTitle": "No cards found",
+    "noResultsDescription": "Nothing stored matches \"{{query}}\".",
+    "position": "#{{position}}",
+    "storedIn": "Stored in {{name}}, position {{position}}",
+    "location": "Storage",
+    "removeFromLocation": "Remove from location",
+    "noCardsTitle": "This location is empty",
+    "businessOnly": "Storage locations are part of the Business plan.",
+    "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
+    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs Business.",
+    "actionFailed": "Couldn't update storage",
+    "actions": "Location actions",
+    "review": {
+      "start": "Review cards",
+      "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
+      "startFailed": "Couldn't start the review"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Organization-wide settings for every scanner",
+    "entrySubtitle": "Pricing, scanning, branding and integrations",
+    "sections": {
+      "general": {
+        "title": "General",
+        "description": "Accent color and leaderboard"
+      },
+      "scanning": {
+        "title": "Scanning",
+        "description": "OCR, correction prompts, update pauses"
+      },
+      "pricing": {
+        "title": "Pricing",
+        "description": "Price source and condition values"
+      },
+      "organization": {
+        "title": "Organization",
+        "description": "Name, members and invites"
+      },
+      "billing": {
+        "title": "Billing",
+        "description": "Plan and usage"
+      },
+      "integrations": {
+        "title": "API keys",
+        "description": "Keys for the public API"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "description": "Discord channels, alerts and notification rules"
+      },
+      "sounds": {
+        "title": "Sounds",
+        "description": "Play a clip when a sorted card matches a rule"
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "description": "Post scan and storage events to your own server"
+      }
+    },
+    "appearance": {
+      "heading": "Appearance",
+      "description": "Customize the app's accent color.",
+      "primaryColor": "Primary color",
+      "resetColor": "Reset to default"
+    },
+    "leaderboard": {
+      "heading": "Leaderboard",
+      "description": "Show your organization's name and how many cards it has scanned on the leaderboard in Stats. Every organization can see the leaderboard.",
+      "toggleLabel": "Show my organization on the leaderboard"
+    },
+    "sessionWrapped": {
+      "heading": "Session Wrapped",
+      "description": "Show a Wrapped-style recap of stat highlights before the export summary.",
+      "toggleLabel": "Enable Session Wrapped"
+    },
+    "ocr": {
+      "heading": "Text recognition (OCR)",
+      "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
+      "toggleLabel": "Enable OCR text matching",
+      "badge": "Beta"
+    },
+    "ocrBetaDialog": {
+      "title": "OCR text matching (beta)",
+      "description": "When a scan isn't a confident match, this reads the card's name and set line to find the card or pick the right printing. Confident matches skip it, so scanning speed is unchanged. It's still in beta and can misread text. Turn it back off if it seems to be making matches worse.",
+      "confirm": "Enable OCR",
+      "cancel": "Cancel"
+    },
+    "correctionAutoClose": {
+      "heading": "Card correction prompt",
+      "promptToggleLabel": "Ask me to move corrected cards",
+      "promptToggleDescription": "Turn this off if you leave corrected cards where they were sorted. The card keeps its current bin and no prompt is shown.",
+      "description": "After you correct or identify a card, a prompt shows which bin it's in and which bin it belongs in. Auto-close accepts that you moved the card once the time runs out, so you don't have to click.",
+      "toggleLabel": "Auto-close and mark the card as moved",
+      "secondsLabel": "Close after",
+      "seconds_one": "{{count}} second",
+      "seconds_other": "{{count}} seconds"
+    },
+    "deployPause": {
+      "heading": "Updates",
+      "description": "When Mault is being updated, any sorter that's scanning is paused and a prompt explains why, so no cards are lost if a save fails mid-update. You can resume straight away from the prompt.",
+      "toggleLabel": "Pause scanning during updates"
+    },
+    "pricing": {
+      "heading": "Pricing",
+      "description": "Choose which marketplace prices your organization's cards, collection values and Discord posts use. Card Kingdom only prices Magic: The Gathering cards.",
+      "sources": {
+        "tcgplayer": "TCGplayer",
+        "cardmarket": "Cardmarket",
+        "cardkingdom": "Card Kingdom"
+      }
+    },
+    "conditionPricing": {
+      "heading": "Condition pricing",
+      "description": "How much of the Near Mint price a card in each condition is worth. Card values, collection totals, stats and storage values all use these.",
+      "baseNote": "Near Mint is always the full market price. The defaults match what most big sellers use."
+    },
+    "conditions": {
+      "NM": "Near Mint (NM)",
+      "LP": "Lightly Played (LP)",
+      "MP": "Moderately Played (MP)",
+      "HP": "Heavily Played (HP)",
+      "DMG": "Damaged (DMG)"
+    },
+    "draft": {
+      "saved": "Settings saved.",
+      "saveFailed": "Couldn't save your settings. Try again."
+    },
+    "percentSuffix": "%",
+    "conditionInvalid": "Enter 0 to 100",
+    "discardDescription": "Your changes to these settings haven't been saved.",
+    "org": {
+      "renameHeading": "Rename \"{{name}}\"",
+      "nameLabel": "Organization name",
+      "rename": "Rename",
+      "membersHeading": "Members",
+      "inviteMemberHeading": "Invite member",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Email address",
+      "invite": "Invite",
+      "role": "Role",
+      "pendingInvites": "Pending invites",
+      "cancelInvite": "Cancel invite",
+      "dangerZoneHeading": "Danger zone",
+      "deleteWarning": "Permanently deletes \"{{name}}\" and all its data.",
+      "deleteOrganization": "Delete organization",
+      "deleteOrgDescription": "Permanently deletes \"{{name}}\" and all its data. This cannot be undone.",
+      "cancelSubscriptionFirst": "Cancel this organization's subscription before deleting it. Once it's set to cancel at the end of the billing period, you can delete the organization.",
+      "removeMemberTitle": "Remove member",
+      "removeMemberDescription": "Remove \"{{name}}\" from this organization? They will lose access immediately.",
+      "remove": "Remove",
+      "changeRole": "Change role",
+      "roles": {
+        "owner": "Owner",
+        "admin": "Admin",
+        "member": "Member"
+      },
+      "you": "You",
+      "failed": "Couldn't update the organization",
+      "invalidEmail": "Enter a valid email address.",
+      "cancel": "Cancel",
+      "membersUnavailable": "Members are managed by your self-hosted server's admin tools.",
+      "noInvites": "No pending invites"
+    },
+    "billing": {
+      "plan": {
+        "free": "Free",
+        "business": "Business"
+      },
+      "includes": "Your plan includes",
+      "usage": "{{used}} / {{limit}} cards scanned today",
+      "cancelAtPeriodEnd": "Your subscription ends on {{date}}.",
+      "manageOnWeb": "Plan changes and payment details are handled on the web app.",
+      "openWeb": "Open billing on the web",
+      "features": {
+        "scanLimit": "Up to {{limit}} card scans per day",
+        "unlimitedScans": "Unlimited card scans",
+        "freeSorters_one": "{{count}} sorter connected at a time",
+        "freeSorters_other": "{{count}} sorters connected at a time",
+        "businessSorters_one": "Up to {{count}} sorter at once",
+        "businessSorters_other": "Up to {{count}} sorters at once",
+        "freeSoundRules_one": "{{count}} custom sound rule",
+        "freeSoundRules_other": "{{count}} custom sound rules",
+        "soundRules": "Unlimited sound rules with your own uploaded clips",
+        "freeNotificationRules_one": "{{count}} Discord notification rule",
+        "freeNotificationRules_other": "{{count}} Discord notification rules",
+        "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
+        "chaosSort": "Chaos sort, the fastest way to put away a big pile",
+        "storage": "Storage locations: record which box every card is in and where, then search across them",
+        "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
+        "collections": "Unlimited collections",
+        "games": "Every supported card game",
+        "notifications": "Discord scan notifications"
+      }
+    },
+    "apiKeys": {
+      "heading": "API keys",
+      "description": "Let your own systems, like an online shop, read this organization's cards and storage locations. Keys belong to the organization, not to you, so they keep working if you leave.",
+      "create": "Create key",
+      "empty": "No API keys yet.",
+      "readOnly": "Read only",
+      "readWrite": "Read and write",
+      "createdBy": "Created by {{name}} on {{date}}",
+      "lastUsed": "Last used {{date}}",
+      "neverUsed": "Never used",
+      "revoke": "Revoke",
+      "revokeFailed": "Couldn't revoke the API key.",
+      "revokeConfirmTitle": "Revoke this API key?",
+      "revokeConfirmDescription": "Anything using it stops working right away. This can't be undone.",
+      "createTitle": "Create API key",
+      "createDescription": "Give the key a name so you can tell later what uses it.",
+      "nameLabel": "Name",
+      "namePlaceholder": "Online shop sync",
+      "writeLabel": "Allow write access",
+      "writeDescription": "Read-only keys can list cards, collections and storage locations. Keys with write access can also take cards out of their box, move them to another box and delete them.",
+      "createFailed": "Couldn't create the API key.",
+      "revealTitle": "Copy your API key",
+      "revealDescription": "This is the only time the full key is shown. Store it somewhere safe, like your shop's secret settings.",
+      "revealDone": "I've copied it",
+      "managersOnly": "Only organization owners and admins can create or revoke API keys.",
+      "loadFailed": "Couldn't load API keys.",
+      "upgrade": "API keys are part of the Business plan.",
+      "share": "Share key",
+      "cancel": "Cancel"
+    },
+    "webhooks": {
+      "heading": "Webhooks",
+      "description": "Mault posts an event to your URL when cards are scanned or put away into a storage location. Each webhook has its own signing secret so you can check a request really came from Mault.",
+      "add": "Add webhook",
+      "addTitle": "Add webhook",
+      "editTitle": "Edit webhook",
+      "dialogDescription": "Mault sends a signed POST request with a JSON body to this URL. It must be a public https:// address.",
+      "save": "Save",
+      "saved": "Webhook saved.",
+      "saveFailed": "Couldn't save the webhook.",
+      "urlLabel": "URL",
+      "invalidUrl": "Enter a public https:// URL.",
+      "descriptionLabel": "Name (optional)",
+      "descriptionPlaceholder": "Online shop",
+      "eventsLabel": "Events",
+      "eventsRequired": "Pick at least one event.",
+      "events": {
+        "card": {
+          "scanned": "A card was scanned and saved to a collection."
+        },
+        "cards": {
+          "stored": "A bin was put away into a storage location. Includes each card's box and position."
+        }
+      },
+      "empty": "No webhooks yet.",
+      "disabled": "Disabled",
+      "actions": "Webhook actions",
+      "sendTest": "Send test event",
+      "edit": "Edit",
+      "enable": "Re-enable",
+      "delete": "Delete",
+      "enabled": "Webhook re-enabled.",
+      "enableFailed": "Couldn't re-enable the webhook.",
+      "testSucceeded": "Test delivered (HTTP {{status}}).",
+      "testRejected": "Test failed: {{error}}",
+      "testFailed": "Couldn't send the test event.",
+      "unknownError": "Unknown error",
+      "neverDelivered": "Nothing delivered yet",
+      "lastSucceeded": "Last delivery {{date}}: HTTP {{status}}",
+      "lastFailed": "Last delivery {{date}} failed: {{error}}",
+      "deleted": "Webhook deleted.",
+      "deleteFailed": "Couldn't delete the webhook.",
+      "deleteConfirmTitle": "Delete this webhook?",
+      "deleteConfirmDescription": "Mault stops sending events to this URL right away. This can't be undone.",
+      "secretTitle": "Copy your signing secret",
+      "secretDescription": "Use it to verify the X-Mault-Signature header on every request. This is the only time it's shown.",
+      "copySecret": "Copy secret",
+      "secretCopied": "Signing secret copied.",
+      "copyFailed": "Couldn't copy the secret.",
+      "upgrade": "Webhooks are part of the Business plan.",
+      "loadFailed": "Couldn't load webhooks.",
+      "share": "Share secret",
+      "cancel": "Cancel",
+      "managersOnly": "Only owners and admins can manage webhooks."
+    },
+    "discord": {
+      "discord": {
+        "heading": "Discord",
+        "description": "Post scans and alerts to your Discord server.",
+        "connectedTo": "Connected to {{server}}",
+        "statusLinked": "Linked",
+        "statusNotLinked": "Not linked",
+        "botUnreachable": "Couldn't reach the Discord bot, so channel names and permissions can't be shown right now.",
+        "botNotInServer": "The bot isn't in your linked server anymore. Add it back, then link again.",
+        "connection": "Connection"
+      },
+      "channelSettings": {
+        "heading": "Channels",
+        "description": "Where every scan and every error or alert gets posted. Only owners and admins can change these.",
+        "scan": "Every scan",
+        "error": "Errors and alerts",
+        "none": "Don't post",
+        "sameScan": "Same as every scan",
+        "sameError": "Same as errors",
+        "saved": "Channel saved.",
+        "saveFailed": "Couldn't save the channel."
+      },
+      "overrides": {
+        "heading": "Collection overrides",
+        "description": "Send one collection's scans or errors to a different channel. Collections without an override use the channels above.",
+        "add": "Add override",
+        "empty": "No overrides. Every collection uses the channels above.",
+        "collection": "Collection",
+        "remove": "Remove override for {{name}}",
+        "pickCollection": "Choose a collection",
+        "pickChannel": "Choose a channel for its scans"
+      },
+      "rules": {
+        "heading": "Notification rules",
+        "description": "Post a card to a channel when it matches a rule. Every matching rule posts, so one card can go to several channels, but each channel gets it once.",
+        "add": "Add rule",
+        "empty": "No notification rules yet.",
+        "needsGame": "Pick a collection with a game to add notification rules.",
+        "postsTo": "Posts to",
+        "noChannel": "No channel. Edit the rule to pick one.",
+        "enabled": "Enabled",
+        "edit": "Edit {{name}}",
+        "delete": "Delete {{name}}",
+        "saveFailed": "Couldn't save the notification rules.",
+        "limitReached_one": "The free plan includes {{count}} Discord notification rule. Upgrade to Business for unlimited rules.",
+        "limitReached_other": "The free plan includes {{count}} Discord notification rules. Upgrade to Business for unlimited rules.",
+        "upgrade": "Upgrade",
+        "andPings": "and pings"
+      },
+      "ruleDialog": {
+        "addTitle": "Add notification rule",
+        "editTitle": "Edit notification rule",
+        "description": "When a scanned card matches these conditions, it's posted to this channel.",
+        "name": "Name",
+        "channel": "Channel",
+        "channelPlaceholder": "Choose a channel",
+        "role": "Ping role",
+        "roleHint": "Mentions this role when a card matches. Greyed-out roles can't be pinged by the bot: make them mentionable in Discord, or give the bot the \"Mention @everyone, @here, and All Roles\" permission.",
+        "enabled": "Enabled",
+        "conditions": "Conditions",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saveFailed": "Couldn't save the notification rule.",
+        "validation": {
+          "nameRequired": "Give the rule a name.",
+          "channelRequired": "Choose a channel.",
+          "conditionsRequired": "Add at least one condition."
+        }
+      },
+      "draft": {
+        "saved": "Discord settings saved.",
+        "saveFailed": "Some Discord settings couldn't be saved. Try again."
+      },
+      "channels": {
+        "unknown": "Unknown channel ({{id}})",
+        "inCategory": "in {{category}}"
+      },
+      "roles": {
+        "none": "No ping",
+        "unknown": "unknown role ({{id}})",
+        "cantPing": "can't ping"
+      },
+      "notifications": {
+        "heading": "Discord Notifications",
+        "description": "Error and status notifications (sorter errors, jams, sync failures, card search errors) post to the channel picked with /notify-channel in your linked Discord server.",
+        "notifyToggleLabel": "Notify on every card scanned",
+        "notifyToggleDescription": "Posts the card's name, price, and image to Discord each time one is scanned.",
+        "threadToggleLabel": "Post scans in a thread",
+        "threadToggleDescription": "Keeps every scan in a \"Card Scans\" thread so the channel stays tidy. Turn off to post each card straight into the channel.",
+        "testHintNotLinked": "Link a Discord server above and run /notify-channel to enable test notifications",
+        "testHintReady": "Send a test notification",
+        "sending": "Sending...",
+        "testTypes": {
+          "sorter-error": "Sorter Error",
+          "feeder-empty": "Feeder Empty",
+          "card-jam": "Card Jam",
+          "card-search-error": "Card Search Error",
+          "sync-failure": "Sync Failure"
+        }
+      },
+      "toasts": {
+        "saveError": "Failed to save notification settings.",
+        "saveSuccess": "Notification settings saved.",
+        "testSuccess": "Test notification sent.",
+        "testError": "Failed to send test notification.",
+        "testNoChannel": {
+          "title": "No error channel set",
+          "description": "Pick an errors channel in Settings > Discord, then try again."
+        }
+      },
+      "bot": {
+        "heading": "Discord Bot",
+        "description": "Link a Discord server to this organization so anyone in it can check collection stats and look up cards with slash commands.",
+        "linked": "Linked to a Discord server",
+        "unlink": "Unlink",
+        "unlinkSuccess": "Discord server unlinked.",
+        "unlinkError": "Failed to unlink Discord server.",
+        "generateButton": "Generate link code",
+        "generating": "Generating...",
+        "generateError": "Failed to generate a link code.",
+        "codeInstructions": "Run /link <code> in your Discord server to finish linking it.",
+        "expiresIn": "Expires in {{seconds}}s"
+      },
+      "notificationsHeading": "Scan posts"
+    },
+    "sounds": {
+      "title": "Sounds",
+      "subtitle": "Play a sound when a {{game}} card being sorted matches a rule.",
+      "subtitleNoGame": "Play a sound when a card being sorted matches a rule. Pick a collection with a game to add rules.",
+      "library": {
+        "heading": "Sound clips",
+        "description": "Upload short clips (MP3, WAV, OGG, WebM, M4A or AAC, up to 1 MB) to use in your rules.",
+        "upload": "Upload clip",
+        "uploading": "Uploading...",
+        "uploaded": "Sound clip uploaded.",
+        "uploadFailed": "Couldn't upload the sound clip.",
+        "deleteFailed": "Couldn't delete the sound clip.",
+        "wrongType": "Use an MP3, WAV, OGG, WebM, M4A or AAC file.",
+        "tooLarge": "Sound clips can be at most 1 MB.",
+        "empty": "No sound clips yet.",
+        "untitled": "Untitled clip",
+        "size": "{{kb}} KB",
+        "play": "Play {{name}}",
+        "delete": "Delete {{name}}",
+        "rename": "Rename {{name}}",
+        "nameLabel": "Clip name",
+        "saveName": "Save name",
+        "cancelRename": "Cancel",
+        "renameFailed": "Couldn't rename the sound clip.",
+        "nameRequired": "Give the clip a name.",
+        "nameTooLong": "Keep the name to 60 characters or fewer.",
+        "stop": "Stop {{name}}",
+        "pickFailed": "Couldn't open that file.",
+        "renamed": "Sound clip renamed.",
+        "deleteConfirm": "Rules that play this clip stop playing a sound."
+      },
+      "rules": {
+        "heading": "Sound rules",
+        "description": "Rules are checked top to bottom for every card that gets sorted, and the first match plays its sound.",
+        "add": "Add rule",
+        "needsClip": "Upload a sound clip first, then add a rule that plays it.",
+        "empty": "No sound rules yet.",
+        "plays": "Plays {{clip}}",
+        "noClip": "No sound clip (it was deleted)",
+        "enabled": "Enabled",
+        "moveUp": "Move up",
+        "moveDown": "Move down",
+        "edit": "Edit {{name}}",
+        "delete": "Delete {{name}}",
+        "saved": "Sound rules saved.",
+        "saveFailed": "Couldn't save the sound rules.",
+        "limitReached_one": "The free plan includes {{count}} sound rule. Upgrade to Business for unlimited sound rules.",
+        "limitReached_other": "The free plan includes {{count}} sound rules. Upgrade to Business for unlimited sound rules.",
+        "upgrade": "Upgrade",
+        "deleteConfirm": "This rule stops playing its sound."
+      },
+      "ruleDialog": {
+        "addTitle": "Add sound rule",
+        "editTitle": "Edit sound rule",
+        "description": "When a card being sorted matches these conditions, this clip plays.",
+        "name": "Name",
+        "clip": "Sound clip",
+        "clipPlaceholder": "Choose a clip",
+        "enabled": "Enabled",
+        "conditions": "Conditions",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saveFailed": "Couldn't save the sound rule.",
+        "validation": {
+          "nameRequired": "Give the rule a name.",
+          "clipRequired": "Choose a sound clip.",
+          "conditionsRequired": "Add at least one condition."
+        }
+      }
+    }
+  },
+  "binCorrection": {
+    "move": {
+      "title": "Move {{name}} to Bin {{to}}",
+      "description": "It's in Bin {{from}} now, but after the correction it belongs in Bin {{to}}. Move it, then confirm so the bin counts stay right.",
+      "descriptionNoBin": "After the correction it belongs in Bin {{to}}. Put it there, then confirm so the bin counts stay right."
+    },
+    "staysIn": {
+      "title": "{{name}} stays in Bin {{bin}}",
+      "description": "It's already in the right bin, so there's nothing to move."
+    },
+    "noBin": {
+      "title": "No bin matches {{name}}",
+      "description": "None of your bins take this card, so leave it where it is."
+    },
+    "moved": "I moved it to Bin {{bin}}",
+    "leave": "Leave it in Bin {{bin}}",
+    "ok": "OK"
+  },
+  "priceTable": {
+    "heading": "TCGplayer",
+    "cardmarketHeading": "Cardmarket",
+    "cardKingdomHeading": "Card Kingdom",
+    "showDetails": "Show price details",
+    "hideDetails": "Hide price details",
+    "cardKingdomRetail": "Card Kingdom retail",
+    "retail": "Retail",
+    "buylist": "Buylist",
+    "avg": "Avg",
+    "trend": "Trend",
+    "avg7": "7-day avg",
+    "tcgplayerMarket": "TCGplayer market",
+    "cardmarketAvg": "Cardmarket average",
+    "foilPrice": "Foil {{price}}",
+    "nonFoilPrice": "Non-foil {{price}}",
+    "avg30": "30-day avg",
+    "market": "Market",
+    "low": "Low",
+    "mid": "Mid",
+    "high": "High",
+    "regular": "Regular",
+    "foil": "Foil",
+    "noPrice": "n/a",
+    "acrossPrintings": "Range across {{count}} printings"
+  },
+  "health": {
+    "title": "System Health",
+    "subtitle": "Live status of the database.",
+    "refresh": "Refresh",
+    "allHealthy": "Everything is operational.",
+    "someUnhealthy": "Some services are having trouble.",
+    "lastChecked": "Last checked at {{time}}",
+    "loading": "Checking service status…",
+    "latency": "{{ms}}ms",
+    "statusOk": "OK",
+    "statusError": "Error",
+    "pausedDuringSync": "Paused while a database sync is running",
+    "ocrRegions": {
+      "heading": "OCR regions",
+      "description": "Where text is read on each game's cards when OCR is on, shown over a sample card from the database. Solid boxes are read first; dashed fallbacks are only read when the first pass doesn't find the card.",
+      "fallback": "fallback",
+      "multiline": "multiline",
+      "coords": "x {{x}}%, y {{y}}%, {{width}} × {{height}}%",
+      "anotherCard": "Show another card",
+      "sample": "{{name}} · {{set}} #{{number}}"
+    },
+    "cardLookup": {
+      "heading": "Card lookup",
+      "description": "Check whether a card is in the card database. Search by name, set code or collector number (e.g. MH3 123).",
+      "game": "Game",
+      "language": "Language",
+      "noGames": "No synced games",
+      "searchPlaceholder": "Search cards...",
+      "noResults": "No cards found. It may not be synced yet.",
+      "loadMore": "Load more"
+    },
+    "gameCoverage": {
+      "heading": "Card Coverage",
+      "description": "Which trading card games are supported and how many cards are in the database for each.",
+      "cardCount_one": "{{count}} card",
+      "cardCount_other": "{{count}} cards",
+      "lastUpdated": "Updated {{date}}",
+      "inactive": "Inactive",
+      "empty": "No games configured yet"
+    },
+    "ocrFields": {
+      "name": "Name",
+      "setLine": "Set line",
+      "number": "Number"
+    }
+  },
+  "export": {
+    "button": "Export",
+    "title": "Export {{name}}",
+    "loading": "Loading cards",
+    "combineDuplicates": "Combine duplicates",
+    "failed": "Couldn't export the cards"
+  },
+  "alerts": {
+    "title": "Notifications",
+    "empty": "You're all caught up.",
+    "learnMore": "Learn more",
+    "firmwareMissing": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning."
+  },
+  "pairing": {
+    "title": "Scan to link",
+    "subtitle": "Use this phone as a scanner camera",
+    "hint": "On your computer, open the scanner and choose Use Phone as Camera, then point this phone at the QR code.",
+    "invalidTitle": "That isn't a camera link",
+    "invalidDescription": "Scan the QR code from Use Phone as Camera on your computer's scanner page.",
+    "paste": "Paste link instead",
+    "linkLabel": "Pairing link",
+    "connect": "Connect"
+  },
+  "phoneCamera": {
+    "title": "Use Phone as Camera",
+    "ready": "Camera ready",
+    "connecting": "Connecting to the scanner",
+    "streamingTo": "Ready for {{name}}",
+    "switchCamera": "Switch camera",
+    "disconnect": "Disconnect",
+    "sessionEndedTitle": "Session ended",
+    "sessionEndedDescription": "The scanner disconnected this camera. You can turn off the camera or scan a new QR code to reconnect.",
+    "captured_one": "{{count}} photo sent",
+    "captured_other": "{{count}} photos sent",
+    "keepOpen": "Keep this screen open while the computer scans."
+  }
+}

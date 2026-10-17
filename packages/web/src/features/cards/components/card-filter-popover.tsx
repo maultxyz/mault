@@ -18,9 +18,9 @@ function toggle<T>(arr: T[], item: T): T[] {
 }
 
 const chipBase =
-  "cursor-pointer border transition-colors rounded-md text-xs font-bold";
+  "cursor-pointer border transition-colors rounded-md text-xs font-bold max-md:rounded-full max-md:text-sm max-md:font-semibold";
 const chipInactive =
-  "border-border bg-transparent text-foreground/70 hover:bg-muted hover:text-foreground";
+  "border-border bg-transparent text-foreground/70 hover:bg-muted hover:text-foreground max-md:border-transparent max-md:bg-muted max-md:text-foreground";
 
 export function CardFilterPopover({
   activeFilters,
@@ -52,7 +52,7 @@ export function CardFilterPopover({
       <div className="flex flex-col gap-3">
         {availableColors.length > 0 && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
               {t("cardFilterPopover.color")}
             </p>
             <div className="flex flex-col gap-1">
@@ -71,7 +71,7 @@ export function CardFilterPopover({
                     }
                     className={cn(
                       chipBase,
-                      "flex items-center gap-1.5 px-2 h-7 font-medium",
+                      "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3 font-medium",
                       active
                         ? (knownActiveClass ??
                             cn("border-transparent", color.textClass))
@@ -97,7 +97,7 @@ export function CardFilterPopover({
 
         {availableRarities.length > 0 && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
               {t("cardFilterPopover.rarity")}
             </p>
             <div className="flex flex-col gap-1">
@@ -115,7 +115,7 @@ export function CardFilterPopover({
                     }
                     className={cn(
                       chipBase,
-                      "flex items-center gap-1.5 px-2 h-7 font-medium",
+                      "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3 font-medium",
                       active
                         ? cn(
                             "border-transparent",
@@ -143,7 +143,7 @@ export function CardFilterPopover({
 
         {availableFoilTypes.length > 0 && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
               {t("cardFilterPopover.foilType")}
             </p>
             <div className="flex flex-col gap-1">
@@ -164,7 +164,7 @@ export function CardFilterPopover({
                     }
                     className={cn(
                       chipBase,
-                      "flex items-center gap-1.5 px-2 h-7 font-medium",
+                      "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3 font-medium",
                       active
                         ? "bg-primary text-primary-foreground border-primary"
                         : chipInactive,
@@ -180,7 +180,7 @@ export function CardFilterPopover({
 
         {binCount !== undefined && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
               {t("cardFilterPopover.bin")}
             </p>
             <div className="flex gap-1 flex-wrap">
@@ -198,7 +198,7 @@ export function CardFilterPopover({
                     }
                     className={cn(
                       chipBase,
-                      "size-7",
+                      "size-7 max-md:size-9",
                       active
                         ? "bg-primary text-primary-foreground border-primary"
                         : chipInactive,
@@ -218,7 +218,7 @@ export function CardFilterPopover({
                 }
                 className={cn(
                   chipBase,
-                  "size-7",
+                  "size-7 max-md:size-9",
                   activeFilters.bins.includes(null)
                     ? "bg-muted-foreground text-background border-muted-foreground"
                     : chipInactive,
@@ -232,7 +232,7 @@ export function CardFilterPopover({
         )}
 
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 flex items-center justify-between">
+          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground flex items-center justify-between">
             <span>{t("cardFilterPopover.minMatch")}</span>
             <span className="text-foreground font-semibold">
               {activeFilters.minMatchPercent}%
@@ -253,7 +253,7 @@ export function CardFilterPopover({
         </div>
 
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
+          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
             {t("cardFilterPopover.status")}
           </p>
           <button
@@ -266,7 +266,7 @@ export function CardFilterPopover({
             }
             className={cn(
               chipBase,
-              "flex items-center gap-1.5 px-2 h-7",
+              "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3",
               activeFilters.needsAttention
                 ? "bg-warning-strong text-white border-warning-strong"
                 : chipInactive,
@@ -278,7 +278,7 @@ export function CardFilterPopover({
         </div>
 
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
+          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
             {t("downloaded")}
           </p>
           <button
@@ -291,7 +291,7 @@ export function CardFilterPopover({
             }
             className={cn(
               chipBase,
-              "flex items-center gap-1.5 px-2 h-7",
+              "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3",
               activeFilters.showDownloaded
                 ? "bg-primary text-primary-foreground border-primary"
                 : chipInactive,
@@ -304,7 +304,7 @@ export function CardFilterPopover({
 
         {activeFilters.sets.length > 0 && (
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5">
+            <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
               {t("cardFilterPopover.sets")}
             </p>
             <div className="flex gap-1 flex-wrap">
@@ -320,7 +320,7 @@ export function CardFilterPopover({
                   }
                   className={cn(
                     chipBase,
-                    "flex items-center gap-1 px-2 h-7 uppercase bg-primary text-primary-foreground border-primary",
+                    "flex items-center gap-1 px-2 h-7 max-md:h-9 max-md:px-3 uppercase bg-primary text-primary-foreground border-primary",
                   )}
                 >
                   {setCode}
