@@ -81,6 +81,10 @@
     "showAdvanced": "Rohwerte anzeigen",
     "hideAdvanced": "Rohwerte ausblenden",
     "speedLabel": "Zuführgeschwindigkeit",
+    "stopPulseLabel": "Haltepunkt",
+    "stopPulseDescription": "Der Impuls, bei dem dieser Zuführmotor stillsteht. Er unterscheidet sich etwas von Servo zu Servo. Stelle ihn so ein, dass sich die Zuführung bei der kurzen Vorschau nicht mehr bewegt; die Geschwindigkeitsprozente werden dann von hier aus gemessen.",
+    "stopPulseDefault": "Standard ({{pulse}})",
+    "resetStopPulse": "Haltepunkt zurücksetzen",
     "speedTooltip": "Wie schnell und in welche Richtung der Zuführmotor dreht. 0 % bedeutet gestoppt; ziehe in eine der beiden Richtungen, um dort schneller zu werden.",
     "forward": "Vorwärts",
     "reverse": "Rückwärts",
@@ -415,6 +419,13 @@
       "waiting": "Warte auf den ersten Messwert vom Sortierer…",
       "footnote": "Ein Sensor, der nie aufleuchtet, ist meist nicht eingesteckt, am falschen Pin angeschlossen oder zeigt nicht auf den Kartenweg. Du kannst weitermachen und das später beheben."
     },
+    "feederStop": {
+      "heading": "Haltepunkt der Zuführung",
+      "body": "Jeder Zuführmotor hat einen etwas anderen Punkt, an dem er stillsteht. Bei jeder Änderung läuft die Rolle kurz mit dieser Einstellung. Passe sie an, bis sich die Rolle überhaupt nicht mehr bewegt.",
+      "pulseLabel": "Halteimpuls",
+      "hint": "Kriecht die Rolle in eine Richtung, stelle in die andere Richtung nach. Steht sie still, wird das zu 0 % Zuführgeschwindigkeit.",
+      "saveFailed": "Der Haltepunkt der Zuführung konnte nicht gespeichert werden."
+    },
     "feeder": {
       "heading": "Zuführgeschwindigkeit",
       "body": "Die Zuführrolle zieht die unterste Karte aus dem Trichter in Modul 1. Ziehe, bis sie in die Richtung dreht, die Karten hineinzieht, mit gleichmäßiger Geschwindigkeit.",
@@ -435,6 +446,7 @@
       "moduleCount": "Dein Sortierer",
       "module": "Modul {{module}} von {{total}} · {{servo}}",
       "irSensors": "Sensoren",
+      "feederStop": "Haltepunkt der Zuführung",
       "feeder": "Zuführung",
       "test": "Selbsttest",
       "moduleDelays": "Modul {{module}} von {{total}} · Timing"

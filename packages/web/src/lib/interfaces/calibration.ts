@@ -109,6 +109,7 @@ export type SetupWizardStep =
   | { kind: "servo"; module: number; position: SetupServoPosition }
   | { kind: "moduleDelays"; module: number }
   | { kind: "irSensors" }
+  | { kind: "feederStop" }
   | { kind: "feeder" }
   | { kind: "test" };
 
@@ -210,9 +211,12 @@ export interface FeederCalibrationPanelProps {
   settleDurationValue: number;
   reverseSpeedValue: number;
   reverseDurationValue: number;
+  stopPulse: number | null;
   canEditTimings: boolean;
   canCalibrate: boolean;
   onSpeedChange: (value: number) => void;
+  onStopPulseChange: (value: number) => void;
+  onResetStopPulse: () => void;
   onDurationChange: (value: number) => void;
   onPulseDurationChange: (value: number) => void;
   onPauseDurationChange: (value: number) => void;
@@ -275,6 +279,7 @@ export interface Device {
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
   matchesNeeded: number;
+  feederStopPulse: number | null;
   checkBothOrientations: boolean;
   moduleCount: number;
   channelLayout: ChannelLayout;
