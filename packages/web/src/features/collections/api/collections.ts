@@ -6,7 +6,7 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, UnmatchedCard } from "@magic-vault/shared";
+import type { CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import type {
   CardSaveResult,
@@ -113,6 +113,21 @@ export async function addCollectionCard(
   // Return body for success, 423 (locked), 402 (free-plan scan or connected-sorter limit reached), and 409 (bin full)
   if (res.ok || res.status === 423 || res.status === 402 || res.status === 409)
     return res.json();
+  throw new ApiStatusError(res.status);
+}
+
+export async function recordSortOnlyScan(
+  guid: string,
+  request: SortOnlyScanRequest,
+  orgId: string | null,
+): Promise<CardSaveResult> {
+  const res = await fetch(`${API_BASE}/api/collections/${guid}/cards/sorted`, {
+    method: "POST",
+    headers: await scanSaveHeaders(orgId),
+    body: JSON.stringify(request),
+  });
+  await handleForbidden(res);
+  if (res.ok || res.status === 402) return res.json();
   throw new ApiStatusError(res.status);
 }
 

@@ -337,6 +337,28 @@ export function AutoAssignPanel() {
         </div>
       )}
 
+      <div className="flex items-center justify-between gap-3 border-t pt-2">
+        <span className="flex items-center gap-1.5">
+          <span className="text-xs font-medium">
+            {t("skipSavingPanel.heading")}
+          </span>
+          <Tooltip>
+            <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+              <IconInfoCircle className="size-3.5" />
+            </TooltipTrigger>
+            <TooltipContent className="max-w-xs">
+              {t("skipSavingPanel.description")}
+            </TooltipContent>
+          </Tooltip>
+        </span>
+        <Switch
+          aria-label={t("skipSavingPanel.heading")}
+          checked={effectiveMode.skipSaving}
+          disabled={disableToggles}
+          onCheckedChange={(checked) => stageMode({ skipSaving: checked })}
+        />
+      </div>
+
       <SaveBar
         show={isModeDirty}
         onSave={saveMode}

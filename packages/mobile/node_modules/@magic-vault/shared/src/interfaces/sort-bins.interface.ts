@@ -104,6 +104,7 @@ export interface BinSet {
   alphabetPrefix: string;
   isChaosMode: boolean;
   chaosBinSize: number | null;
+  skipSaving: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

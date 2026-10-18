@@ -47,6 +47,7 @@ import {
   setChaosMode as setChaosModeAction,
   setRepackConfig as setRepackConfigAction,
   setScanOnly as setScanOnlyAction,
+  setSkipSaving as setSkipSavingAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -186,6 +187,7 @@ export function BinConfigsProvider({
     isAlphabetMode: selectedSet?.isAlphabetMode ?? false,
     isChaosMode: selectedSet?.isChaosMode ?? false,
     chaosBinSize: selectedSet?.chaosBinSize ?? null,
+    skipSaving: selectedSet?.skipSaving ?? false,
   };
   const effectiveMode = modeDraft ?? modeBaseline;
   const isModeDirty =
@@ -197,7 +199,8 @@ export function BinConfigsProvider({
       modeDraft.isRepackMode !== modeBaseline.isRepackMode ||
       modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode ||
       modeDraft.isChaosMode !== modeBaseline.isChaosMode ||
-      modeDraft.chaosBinSize !== modeBaseline.chaosBinSize);
+      modeDraft.chaosBinSize !== modeBaseline.chaosBinSize ||
+      modeDraft.skipSaving !== modeBaseline.skipSaving);
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
@@ -510,6 +513,21 @@ export function BinConfigsProvider({
     onError: () => toast.error(t("useBinConfigs.toasts.chaosFailed")),
   });
 
+  const setSkipSavingMutation = useMutation({
+    mutationFn: ({ guid, skipSaving }: { guid: string; skipSaving: boolean }) =>
+      setSkipSavingAction(guid, skipSaving),
+    onSuccess: (result) => {
+      if (result.success && result.data) {
+        queryClient.setQueryData(["bins"], result.data);
+      } else {
+        toast.error(
+          result.message ?? t("useBinConfigs.toasts.skipSavingFailed"),
+        );
+      }
+    },
+    onError: () => toast.error(t("useBinConfigs.toasts.skipSavingFailed")),
+  });
+
   const setAlphabetConfigMutation = useMutation({
     mutationFn: ({ guid, config }: { guid: string; config: AlphabetConfig }) =>
       setAlphabetConfigAction(guid, config),
@@ -536,7 +554,8 @@ export function BinConfigsProvider({
     setScanOnlyMutation.isPending ||
     setRepackConfigMutation.isPending ||
     setAlphabetConfigMutation.isPending ||
-    setChaosModeMutation.isPending;
+    setChaosModeMutation.isPending ||
+    setSkipSavingMutation.isPending;
 
   const save = useCallback(
     (input: BinConfigSaveInput) => {
@@ -745,6 +764,12 @@ export function BinConfigsProvider({
           },
         });
         if (modeDraft.isChaosMode) ensureCatchAll();
+      }
+      if (modeDraft.skipSaving !== modeBaseline.skipSaving) {
+        await setSkipSavingMutation.mutateAsync({
+          guid: selectedSet.guid,
+          skipSaving: modeDraft.skipSaving,
+        });
       }
       if (modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode) {
         await setAlphabetConfigFn({

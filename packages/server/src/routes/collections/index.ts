@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { addCollectionRoute } from "./add";
 import { addCollectionCardRoute } from "./cards-add";
+import { sortOnlyScanRoute } from "./cards-sort-only";
 import { collectionCardBinsRoute } from "./cards-bins";
 import { clearCollectionCardsRoute } from "./cards-clear";
 import { deleteCollectionCardRoute } from "./cards-delete";
@@ -49,6 +50,7 @@ const router = new Hono<AppEnv>()
   .route("/", collectionCardBinsRoute)
   .route("/", collectionCardPositionRoute)
   .route("/", addCollectionCardRoute)
+  .route("/", sortOnlyScanRoute)
   .route("/", collectionCardImageRoute)
   .route("/", collectionCardDiagnosticsRoute)
   .route("/", collectionCardLocationRoute)
