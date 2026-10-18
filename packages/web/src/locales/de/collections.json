@@ -34,6 +34,12 @@
     "description": "Sammlungen organisieren deine gescannten Karten. Du benötigst mindestens eine, bevor du mit dem Scannen beginnen kannst.",
     "submit": "Sammlung erstellen"
   },
+  "view": {
+    "subtitle": "Ansicht, ohne sie zu aktivieren. Neue Scans landen weiterhin in der aktiven Sammlung.",
+    "back": "Zurück zu den Sammlungen",
+    "notFoundTitle": "Sammlung nicht gefunden",
+    "notFoundDescription": "Sie wurde möglicherweise gelöscht oder gehört zu einer anderen Organisation."
+  },
   "page": {
     "title": "Sammlungen",
     "subtitle": "Jede Sammlung hat ihre eigenen Karten. Neue Scans landen in der aktiven Sammlung.",
@@ -44,6 +50,7 @@
     "cardCount_other": "{{count}} Karten",
     "noGame": "Kein Spiel",
     "setActiveCollection": "Als aktive Sammlung festlegen",
+    "viewCards": "Karten ansehen",
     "edit": "Bearbeiten",
     "activeSection": "Aktive Sammlung",
     "otherSection": "Weitere Sammlungen"

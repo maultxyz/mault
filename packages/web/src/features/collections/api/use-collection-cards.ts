@@ -2,7 +2,7 @@ import {
   binCardCountsQueryOptions,
   collectionCardsSummaryQueryOptions,
 } from "@/features/collections/api/collection-cards";
-import { useCollections } from "@/features/collections/api/use-collections";
+import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import {
   toDisplayStats,
   toScanStats,
@@ -15,7 +15,7 @@ import { useMemo } from "react";
 export function useCollectionCardsSummary(
   query: CollectionCardsQuery = ALL_CARDS_QUERY,
 ) {
-  const { activeCollection } = useCollections();
+  const { collection: activeCollection } = useViewedCollection();
   const { data: summary, isPending } = useQuery(
     collectionCardsSummaryQueryOptions(activeCollection?.guid, query),
   );
@@ -40,7 +40,7 @@ export function useCollectionCardsSummary(
 }
 
 export function useBinCardCounts(bins: BinWindow[]): Map<number, number> {
-  const { activeCollection } = useCollections();
+  const { collection: activeCollection } = useViewedCollection();
   const { data } = useQuery(
     binCardCountsQueryOptions(activeCollection?.guid, bins),
   );
