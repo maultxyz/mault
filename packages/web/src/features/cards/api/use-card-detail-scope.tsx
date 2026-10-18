@@ -1,4 +1,4 @@
-import { useCollections } from "@/features/collections/api/use-collections";
+import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import type {
   CardDetailActions,
@@ -13,8 +13,8 @@ export const CardDetailScopeContext = createContext<CardDetailScope | null>(
 
 export function useCardDetailCollection(): Collection | null {
   const scope = useContext(CardDetailScopeContext);
-  const { activeCollection } = useCollections();
-  return scope ? scope.collection : activeCollection;
+  const { collection } = useViewedCollection();
+  return scope ? scope.collection : collection;
 }
 
 export function useCardDetailActions(): CardDetailActions {

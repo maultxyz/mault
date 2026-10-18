@@ -429,7 +429,8 @@
     "connectFailed": "Impossible de se connecter.",
     "noCardsScannedYet": "Aucune carte scannée pour le moment.",
     "noCardsMatchSearch": "Aucune carte ne correspond à la recherche.",
-    "isWatchingTooltip": "{{name}} regarde"
+    "isWatchingTooltip": "{{name}} regarde",
+    "setActive": "Activer"
   },
   "monitorSessions": {
     "yourSession": "Ta session",
@@ -692,6 +693,8 @@
     "autoFeedDescription": "Charger la carte suivante dès qu'une carte est triée",
     "allowDuplicates": "Autoriser les doublons",
     "allowDuplicatesDescription": "Enregistrer la même impression plusieurs fois",
+    "handScan": "Détection auto des cartes",
+    "handScanDescription": "Scanner sans trieuse. Tiens une carte immobile dans le cadre et elle est scannée toute seule.",
     "camera": "Caméra",
     "preset": "Préréglage de règles",
     "choosePreset": "Choisir un préréglage",
@@ -702,6 +705,7 @@
     "phase": {
       "ready": "Prêt",
       "scanning": "Scan en cours",
+      "handScan": "Tiens une carte immobile",
       "error": "Erreur"
     },
     "sorterState": {

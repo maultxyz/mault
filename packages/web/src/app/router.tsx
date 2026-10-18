@@ -85,6 +85,9 @@ const loadMonitorSessionsPage = () =>
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
+const CollectionViewPage = lazy(
+  () => import("@/app/routes/app/collection-view"),
+);
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
 const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
 const CalibrateConnectionPage = lazy(
@@ -286,6 +289,14 @@ export const router = createBrowserRouter([
                       {
                         path: "/app/collections",
                         element: <CollectionsPage />,
+                      },
+                      {
+                        path: "/app/collections/:collectionGuid",
+                        element: <CollectionViewPage />,
+                      },
+                      {
+                        path: "/app/collections/:collectionGuid/cards/:scanId",
+                        element: <CollectionViewPage />,
                       },
                       {
                         path: SORTING_RULES_PATH,

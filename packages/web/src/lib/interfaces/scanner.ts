@@ -622,6 +622,10 @@ export interface ScannerChromeContext {
   onFeed: () => void;
   onClearDevice: () => void;
   onResetDevice: () => void;
+  handScan: boolean;
+  handScanActive: boolean;
+  lastRoutedBin: LastRoutedBin | null;
+  onHandScanChange: (value: boolean) => void;
 }
 
 export interface MobileScanControlsSheetProps {

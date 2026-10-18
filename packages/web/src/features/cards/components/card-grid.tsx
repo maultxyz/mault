@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
@@ -38,7 +37,10 @@ import {
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
-import { useCollections } from "@/features/collections/api/use-collections";
+import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
+import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
+import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
+import { collectionViewPath } from "@/lib/constants/collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
@@ -82,7 +84,12 @@ import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 
 export function CardGrid() {
   const { t } = useTranslation("cards");
-  const { activeCollection, isLoading: collectionsLoading } = useCollections();
+  const {
+    collection: viewedCollection,
+    isViewingOther: readOnly,
+    isLoading: collectionsLoading,
+  } = useViewedCollection();
+  const viewedCardActions = useCollectionCardActions(viewedCollection?.guid);
   const {
     removeCard,
     removeCards,
@@ -91,21 +98,24 @@ export function CardGrid() {
     elapsedMs,
     sessionScanCount,
   } = useScannedCards();
-  const collectionGuid = activeCollection?.guid;
+  const collectionGuid = viewedCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
-    activeCollection && locks[activeCollection.guid]?.userId === currentUserId
+    viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
   );
   const viewersByGuid = useSessionViewersByGuid();
   const viewers =
-    isScanningActive && activeCollection
-      ? viewersByGuid[activeCollection.guid]?.filter(
+    isScanningActive && viewedCollection
+      ? viewersByGuid[viewedCollection.guid]?.filter(
           (v) => v.userId !== currentUserId,
         )
       : undefined;
   const { filters, setFilters } = useCardFilters();
-  const { fieldDefinitions } = useBinConfigs();
+  const fieldDefinitions = useMemo(
+    () => viewedCollection?.game?.fieldDefinitions ?? [],
+    [viewedCollection?.game?.fieldDefinitions],
+  );
   const moduleCount = useModuleCount();
   const {
     searchQuery,
@@ -135,11 +145,16 @@ export function CardGrid() {
   const setOpenScanId = useCallback(
     (scanId: string | null, review = false) => {
       const reviewSuffix = review ? `?${CARD_REVIEW_SEARCH_PARAM}=1` : "";
-      navigate(scanId ? `/app/cards/${scanId}${reviewSuffix}` : "/app", {
-        replace: true,
-      });
+      const basePath =
+        readOnly && viewedCollection
+          ? collectionViewPath(viewedCollection.guid)
+          : "/app";
+      navigate(
+        scanId ? `${basePath}/cards/${scanId}${reviewSuffix}` : basePath,
+        { replace: true },
+      );
     },
-    [navigate],
+    [navigate, readOnly, viewedCollection],
   );
   const [page, setPage] = useState(0);
   const [viewMode, setViewMode] = useState<CardViewMode>(() => {
@@ -279,7 +294,9 @@ export function CardGrid() {
 
   useHotkeys({
     reviewStart:
-      !openScanId && totalCards > 0 ? () => void startReview() : undefined,
+      !readOnly && !openScanId && totalCards > 0
+        ? () => void startReview()
+        : undefined,
   });
 
   const toggleSelect = useCallback((scanIds: string[]) => {
@@ -368,7 +385,7 @@ export function CardGrid() {
     collectionCardsExportQueryOptions(collectionGuid, summaryOpen),
   );
 
-  const gameKey = activeCollection?.game?.key;
+  const gameKey = viewedCollection?.game?.key;
   const exportAdapters = useMemo(
     () =>
       allExportAdapters.filter((adapter) => supportsGame(adapter, gameKey)),
@@ -407,7 +424,7 @@ export function CardGrid() {
         const selectedCards = allCards.filter((card) =>
           selectedIds.has(card.scanId),
         );
-        const slug = (activeCollection?.name ?? "collection")
+        const slug = (viewedCollection?.name ?? "collection")
           .replace(/\s+/g, "-")
           .toLowerCase();
         runExport(
@@ -417,7 +434,9 @@ export function CardGrid() {
           { isMtg: gameKey === "mtg", fieldDefinitions },
           true,
         );
-        setExportedScanIds(selectedCards.map((card) => card.scanId));
+        if (!readOnly) {
+          setExportedScanIds(selectedCards.map((card) => card.scanId));
+        }
       } catch (err) {
         console.error("Failed to export selected cards:", err);
         toast.error(t("cardGrid.exportSelectedFailed"));
@@ -429,7 +448,8 @@ export function CardGrid() {
       collectionGuid,
       queryClient,
       selectedIds,
-      activeCollection?.name,
+      viewedCollection?.name,
+      readOnly,
       gameKey,
       fieldDefinitions,
       t,
@@ -465,7 +485,7 @@ export function CardGrid() {
     clearCards();
   }, [clearCards]);
 
-  if (activeCollection && (pagePending || summaryPending)) {
+  if (viewedCollection && (pagePending || summaryPending)) {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
@@ -498,7 +518,7 @@ export function CardGrid() {
     );
   }
 
-  if (!collectionsLoading && !activeCollection) {
+  if (!collectionsLoading && !viewedCollection) {
     return (
       <EmptyState
         icon={IconAlbum}
@@ -545,7 +565,7 @@ export function CardGrid() {
       }
       setOpenScanId(scanId, isReviewing);
     };
-    return (
+    const detailPanel = (
       <CardDetailPanel
         scanId={openEntry.scanId}
         currentCard={openEntry.card}
@@ -559,13 +579,17 @@ export function CardGrid() {
         condition={openEntry.condition}
         binNumber={openEntry.binNumber}
         onClose={() => setOpenScanId(null)}
-        onRemove={() => {
-          removeCard(openEntry.scanId);
-          setOpenScanId(
-            isReviewing ? (openPosition?.nextScanId ?? null) : null,
-            isReviewing,
-          );
-        }}
+        onRemove={
+          readOnly
+            ? undefined
+            : () => {
+                removeCard(openEntry.scanId);
+                setOpenScanId(
+                  isReviewing ? (openPosition?.nextScanId ?? null) : null,
+                  isReviewing,
+                );
+              }
+        }
         onPrev={() => {
           if (reviewPrevScanId) setReviewTrail((trail) => trail.slice(0, -1));
           setOpenScanId(prevScanId, isReviewing);
@@ -581,6 +605,14 @@ export function CardGrid() {
         onReviewComplete={() => finishReview(openPosition?.total ?? 0)}
       />
     );
+    if (!readOnly) return detailPanel;
+    return (
+      <CardDetailScopeContext
+        value={{ collection: viewedCollection, actions: viewedCardActions }}
+      >
+        {detailPanel}
+      </CardDetailScopeContext>
+    );
   }
 
   return (
@@ -594,9 +626,9 @@ export function CardGrid() {
           onSortChange={setSortKey}
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
-          onStartReview={() => void startReview()}
-          collectionName={activeCollection?.name}
-          onClearAll={handleClearSession}
+          onStartReview={readOnly ? undefined : () => void startReview()}
+          collectionName={viewedCollection?.name}
+          onClearAll={readOnly ? undefined : handleClearSession}
           hasCards={totalCards > 0}
           activeFilters={filters}
           onFiltersChange={setFilters}
@@ -673,16 +705,8 @@ export function CardGrid() {
           </div>
         ) : (
           <div className={CARD_GRID_DENSITY_CLASS[density]}>
-            {pagedCards.map((entry) => (
-              <CardContextMenu
-                key={entry.scanId}
-                entry={entry}
-                isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
-                onOpen={() => setOpenScanId(entry.scanId)}
-                onToggleSelect={() =>
-                  handleSelect(entry.scanId, { shiftKey: false })
-                }
-              >
+            {pagedCards.map((entry) => {
+              const item = (
                 <ScannedCardItem
                   key={entry.scanId}
                   card={entry.card}
@@ -704,8 +728,22 @@ export function CardGrid() {
                   isDownloaded={entry.isDownloaded}
                   quantity={entry.quantity}
                 />
-              </CardContextMenu>
-            ))}
+              );
+              if (readOnly) return item;
+              return (
+                <CardContextMenu
+                  key={entry.scanId}
+                  entry={entry}
+                  isSelected={entry.scanIds.every((id) => selectedIds.has(id))}
+                  onOpen={() => setOpenScanId(entry.scanId)}
+                  onToggleSelect={() =>
+                    handleSelect(entry.scanId, { shiftKey: false })
+                  }
+                >
+                  {item}
+                </CardContextMenu>
+              );
+            })}
           </div>
         )}
         {pageCount > 1 && (
@@ -777,39 +815,43 @@ export function CardGrid() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                render={
-                  <Button
-                    variant="ghost"
-                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
-                  />
-                }
-              >
-                <IconRosette />
-                {t("condition.setSelected")}
-                <IconChevronDown />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" side="top">
-                {CARD_CONDITIONS.map((option) => (
-                  <DropdownMenuItem
-                    key={option}
-                    onClick={() =>
-                      setCardsCondition(Array.from(selectedIds), option)
+            {!readOnly && (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                      />
                     }
                   >
-                    {t(`condition.names.${option}`)}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="destructive"
-              className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
-              onClick={() => setConfirmOpen(true)}
-            >
-              {t("cardGrid.delete")}
-            </Button>
+                    <IconRosette />
+                    {t("condition.setSelected")}
+                    <IconChevronDown />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="top">
+                    {CARD_CONDITIONS.map((option) => (
+                      <DropdownMenuItem
+                        key={option}
+                        onClick={() =>
+                          setCardsCondition(Array.from(selectedIds), option)
+                        }
+                      >
+                        {t(`condition.names.${option}`)}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button
+                  variant="destructive"
+                  className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
+                  onClick={() => setConfirmOpen(true)}
+                >
+                  {t("cardGrid.delete")}
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -820,9 +862,9 @@ export function CardGrid() {
         cards={exportCards ?? []}
         elapsedMs={elapsedMs}
         sessionScanCount={sessionScanCount}
-        collectionName={activeCollection?.name ?? "collection"}
+        collectionName={viewedCollection?.name ?? "collection"}
         onExported={(scanIds) => {
-          if (scanIds.length > 0) setExportedScanIds(scanIds);
+          if (!readOnly && scanIds.length > 0) setExportedScanIds(scanIds);
         }}
         gridFilters={filters}
         gridFilterCount={activeFilterCount}

@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import type { ScannerPhase } from "@/lib/interfaces/scanner";
 
 export const CAPTURE_TARGET_RESOLUTION = { width: 1080, height: 1920 } as const;
@@ -35,4 +36,5 @@ export const SCAN_REGION_VIRTUAL_HEIGHT = 1000;
 export const SVG_MASK_SHOW = "#ffffff";
 export const SVG_MASK_HIDE = "#000000";
 export const LIVE_DETECTION_INTERVAL_MS = 300;
+export const LIVE_CORNERS_SUPPORTED = Platform.OS === "android";
 export const LIVE_DETECTION_PAUSED_PHASES: ScannerPhase[] = ["loading-models", "capturing", "identifying", "error"];

@@ -29,10 +29,12 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
+  collectionViewPath,
   COLLECTIONS_LIST_CLASS,
   COLLECTIONS_SECTION_CLASS,
   COLLECTIONS_SECTION_LABEL_CLASS,
 } from "@/lib/constants/collections";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
   editCollectionSchema,
@@ -44,6 +46,7 @@ import {
   IconAlbum,
   IconEdit,
   IconEraser,
+  IconEye,
   IconLoader2,
   IconPlayerPlay,
   IconPlus,
@@ -178,6 +181,25 @@ export default function CollectionsPage() {
         </div>
 
         <ButtonGroup className="shrink-0">
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("page.viewCards")}
+                  render={
+                    <Link
+                      to={isActive ? "/app" : collectionViewPath(collection.guid)}
+                    >
+                      <IconEye />
+                    </Link>
+                  }
+                />
+              }
+            ></TooltipTrigger>
+            <TooltipContent>{t("page.viewCards")}</TooltipContent>
+          </Tooltip>
           {!isActive && (
             <Tooltip>
               <TooltipTrigger

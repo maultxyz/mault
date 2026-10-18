@@ -429,7 +429,8 @@
     "connectFailed": "Could not connect.",
     "noCardsScannedYet": "No cards scanned yet.",
     "noCardsMatchSearch": "No cards match the search query.",
-    "isWatchingTooltip": "{{name}} is watching"
+    "isWatchingTooltip": "{{name}} is watching",
+    "setActive": "Set active"
   },
   "monitorSessions": {
     "yourSession": "Your session",
@@ -692,6 +693,8 @@
     "autoFeedDescription": "Feed the next card as soon as one is sorted",
     "allowDuplicates": "Allow duplicates",
     "allowDuplicatesDescription": "Save the same printing more than once",
+    "handScan": "Auto-detect cards",
+    "handScanDescription": "Scan without a sorter. Hold a card still in view and it scans on its own.",
     "camera": "Camera",
     "preset": "Rule preset",
     "choosePreset": "Choose a preset",
@@ -702,6 +705,7 @@
     "phase": {
       "ready": "Ready",
       "scanning": "Scanning",
+      "handScan": "Hold a card still",
       "error": "Error"
     },
     "sorterState": {

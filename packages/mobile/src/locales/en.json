@@ -532,6 +532,8 @@
       "paused": "Paused",
       "error": "Error"
     },
+    "handScanBinLabel": "Put in",
+    "handScanBin": "Bin {{number}}",
     "pauseAction": "Pause",
     "sessionChip_one": "{{count}} scanned",
     "sessionChip_other": "{{count}} scanned",
@@ -563,6 +565,8 @@
       "autoFeedDescription": "Feed the next card as soon as one is sorted",
       "allowDuplicates": "Allow duplicates",
       "allowDuplicatesDescription": "Save the same printing more than once",
+      "handScan": "Auto-detect cards",
+      "handScanDescription": "Scan without a sorter. Press Start, then hold a card still in view and it scans on its own.",
       "camera": "Camera",
       "cameraFallback": "Camera {{number}}",
       "cameraPosition": {
