@@ -1,3 +1,4 @@
+import { cyberpunkSyncSource } from "../adapters/cyberpunk/sync";
 import { fabSyncSource } from "../adapters/fab/sync";
 import { grandArchiveSyncSource } from "../adapters/grand-archive/sync";
 import { gundamSyncSource } from "../adapters/gundam/sync";
@@ -21,4 +22,5 @@ export const SYNC_SOURCES: Record<string, SyncSource> = {
   riftbound: riftboundSyncSource,
   swu: swuSyncSource,
   grandarchive: grandArchiveSyncSource,
+  cyberpunk: cyberpunkSyncSource,
 };

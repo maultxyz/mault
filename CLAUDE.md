@@ -49,6 +49,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 - One adapter per game in `server/src/lib/adapters/<game>/` (`search.ts` -> `CardSearchAdapter`, `sync.ts` -> `SyncSource`), registered in `card-search/resolve.ts` and `lib/sync-job.ts`; then add a `Game` row in the Games Manager.
 - Sync sources store the API's own complete card object in `cards.data` (never normalized; `normalizeStored` turns it into a `PlayingCard` on read) and return one entry per distinct artwork (foil is a scan property). Card art passes through `toPortraitCardImage()`. Every write of `cards.data` must also set `cards.collector_number`.
+- netdeck (Cyberpunk) image URLs are signed and expire within hours: stored data drops every `image_url` and cards render through `/cards/netdeck-image/:game/:slug/:printingId`, which re-signs them (`lib/netdeck.ts`).
 - `PlayingCard` is the canonical shape; `id` is per printing/art. Never hardcode source-specific fields: read through the game's `fieldDefinitions` and `getByPath`/`getCardValue` (which falls back raw -> `card_faces[0]` -> `PlayingCard`).
 - Rules store field keys only. Anything new that stores a field key must be added to `lib/field-renames.ts` (`applyFieldRenames`).
 - Rule evaluation always runs on a `toRuleCard(card, { isFoil, foilType })` card with the rule field list (`withScanRuleFields`, `$scan.*` paths). Never save a `$scan` card. Text comparisons are trimmed and lowercased.
