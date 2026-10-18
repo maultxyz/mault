@@ -176,6 +176,15 @@ export interface ScanSaveRequestFields {
   isRetry?: boolean;
 }
 
+export interface SortOnlyScanRequest {
+  scanId: string;
+  card: PlayingCardWithDistance;
+  scannedAt: number;
+  hasAlternatives: boolean;
+  vectorizedOn?: ScanVectorizeSource;
+  deviceGuid?: string;
+}
+
 export interface ActiveScanningStats {
   scanners: number;
   sessions: number;

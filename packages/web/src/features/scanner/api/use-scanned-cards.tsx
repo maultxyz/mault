@@ -50,6 +50,7 @@ import {
   loadUnmatchedCards,
   markCollectionCardReviewed,
   markCollectionCardsDownloaded,
+  recordSortOnlyScan,
   releaseScanLock,
   removeCollectionCard,
   removeCollectionCards,
@@ -755,6 +756,40 @@ export function ScannedCardsProvider({
         });
       }
 
+      if (selectedSetRef.current?.skipSaving) {
+        recordSortOnlyScan(
+          collection.guid,
+          {
+            scanId: record.scanId,
+            card,
+            scannedAt: record.scannedAt,
+            hasAlternatives: !!record.alternativeMatches?.length,
+            vectorizedOn,
+            deviceGuid: deviceGuidRef.current,
+          },
+          orgId ?? null,
+        )
+          .then((result) => {
+            if (result.success) return;
+            pause();
+            if (result.sorterLimitReached) {
+              showSorterLimitToast(toast, t, sorterLimitIsHardCapRef.current);
+              return;
+            }
+            toast.error(t("scannedCards.scanLimitReached.title"), {
+              description: t("scannedCards.scanLimitReached.description"),
+            });
+          })
+          .catch((err) => console.error("Failed to record sorted scan:", err))
+          .finally(() => {
+            if (billingQueryKey) {
+              void queryClient.invalidateQueries({ queryKey: billingQueryKey });
+            }
+          });
+        setTimeout(() => playSoundForCard(ruleCard), 0);
+        return;
+      }
+
       const pendingBin = record.binNumber;
       if (pendingBin != null) trackPendingBinCard(pendingBin, 1);
 
@@ -935,6 +970,13 @@ export function ScannedCardsProvider({
         vectorizedOn,
         diagnostics: details?.diagnostics,
       };
+      if (record.binNumber != null) {
+        setLastRoutedBin({ binNumber: record.binNumber, at: record.scannedAt });
+      }
+      if (selectedSetRef.current?.skipSaving) {
+        sendCatchAllBin();
+        return;
+      }
       const dropRecord = () =>
         setUnmatchedCards((prev) =>
           prev.filter((c) => c.scanId !== record.scanId),

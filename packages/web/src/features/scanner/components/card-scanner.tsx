@@ -42,6 +42,7 @@ import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
+import { useHandScan } from "@/features/scanner/lib/hand-scan";
 
 export function CardScanner({
   className,
@@ -75,6 +76,7 @@ export function CardScanner({
     emptyNextFullBin,
     dismissFullBins,
     setScannerRunning,
+    lastRoutedBin,
   } = useScannedCards();
   const binFillLevels = useBinFillLevels();
   const binLimitCapacity =
@@ -117,6 +119,8 @@ export function CardScanner({
     isResetting: isResettingDevice,
   } = useResetToNeutral();
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
+  const [handScan, setHandScan] = useHandScan();
+  const handScanActive = handScan && !isConnected && !isMobile;
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const { recordScanOutcome } = useUnmatchedRateToast();
@@ -165,6 +169,7 @@ export function CardScanner({
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
     rotated: !isMobile,
+    autoCapture: handScanActive,
   });
   const isSideControls = controlsPosition === "side";
 
@@ -678,6 +683,9 @@ export function CardScanner({
           onConnectScannerBluetooth={connectBluetooth}
           onConnectScannerCloud={connectCloud}
           bluetoothSupported={bluetoothSupported}
+          handScanActive={handScanActive}
+          lastRoutedBin={lastRoutedBin}
+          onEnableHandScan={() => setHandScan(true)}
         />
         <ScannerMenu
           isCameraActive={isCameraActive}
@@ -710,6 +718,8 @@ export function CardScanner({
           onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
           onAutoFeedChange={setAutoFeed}
           onAllowDuplicatesChange={setAllowDuplicates}
+          handScan={handScan}
+          onHandScanChange={setHandScan}
         />
       </div>
       {isCameraActive && !controlsContainer && scannerControls}

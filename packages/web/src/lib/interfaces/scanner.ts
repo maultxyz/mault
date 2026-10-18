@@ -312,6 +312,9 @@ export interface ScannerOverlayProps {
   onConnectScannerBluetooth: () => void;
   onConnectScannerCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
+  handScanActive: boolean;
+  lastRoutedBin: LastRoutedBin | null;
+  onEnableHandScan: () => void;
 }
 
 export interface SetStats {
@@ -853,6 +856,8 @@ export interface ScannerMenuProps {
   canConnectAnotherSorter: boolean;
   sorterLimitIsHardCap: boolean;
   onUpgrade: () => void;
+  handScan: boolean;
+  onHandScanChange: (enabled: boolean) => void;
 }
 
 export interface SessionStatsPanelProps {

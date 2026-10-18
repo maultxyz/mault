@@ -144,6 +144,7 @@
       "repackFailed": "Échec de la mise à jour des paramètres de repack",
       "alphabetFailed": "Échec de la mise à jour du tri alphabétique",
       "chaosFailed": "Impossible de mettre à jour le tri en vrac",
+      "skipSavingFailed": "Impossible de mettre à jour l'enregistrement",
       "cardsStored_one": "{{count}} carte rangée",
       "cardsStored_other": "{{count}} cartes rangées"
     }
@@ -182,6 +183,10 @@
     "siftDescription": "Les cartes qui correspondent aux règles ci-dessous vont dans le premier bac au lieu d'un paquet. Vous pouvez ainsi mettre de côté les cartes à garder (par valeur, rareté, édition ou autre) pendant que les autres bacs forment des paquets avec le reste.",
     "siftHint": "Les cartes qui correspondent à ces règles vont dans le bac {{bin}}. Les autres bacs forment des paquets avec le reste.",
     "siftNoBin": "Ce tri nécessite au moins un bac activé en plus du bac fourre-tout."
+  },
+  "skipSavingPanel": {
+    "heading": "Ne pas enregistrer les cartes",
+    "description": "Les cartes sont identifiées et triées dans les bacs comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne."
   },
   "chaosPanel": {
     "heading": "Tri en vrac",
