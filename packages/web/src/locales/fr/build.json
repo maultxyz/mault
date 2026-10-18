@@ -263,6 +263,10 @@
           "cameraMountScrew": {
             "part": "Vis de fixation caméra 1/4\"-20",
             "notes": "Filetage standard de fixation trépied - se visse dans le support de webcam ou de téléphone"
+          },
+          "hopperWeights": {
+            "part": "Poids pour le chariot de la trémie",
+            "notes": "Se placent dans le chariot lesté de la trémie pour presser la pile et fiabiliser l'alimentation des cartes. Jusqu'à 25"
           }
         }
       }

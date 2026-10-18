@@ -104,24 +104,16 @@ const CalibrateCalibrationPage = lazy(
 );
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
-const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
 const AdminGameEditorPage = lazy(
   () => import("@/app/routes/app/admin/game-editor"),
 );
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
-const AdminDiscordChannelsPage = lazy(
-  () => import("@/app/routes/app/admin/discord-channels"),
-);
-const AdminAnnouncementsPage = lazy(
-  () => import("@/app/routes/app/admin/announcements"),
-);
+const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
-const AdminUnmatchedPage = lazy(
-  () => import("@/app/routes/app/admin/unmatched"),
+const AdminHardwarePage = lazy(
+  () => import("@/app/routes/app/admin/hardware"),
 );
-const AdminServosPage = lazy(() => import("@/app/routes/app/admin/servos"));
-const AdminDevicePage = lazy(() => import("@/app/routes/app/admin/device"));
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -359,16 +351,16 @@ export const router = createBrowserRouter([
                             element: <AdminCardsPage />,
                           },
                           {
+                            path: "cards/games/new",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
+                            path: "cards/games/:guid",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
                             path: "games",
-                            element: <AdminGamesPage />,
-                          },
-                          {
-                            path: "games/new",
-                            element: <AdminGameEditorPage />,
-                          },
-                          {
-                            path: "games/:guid",
-                            element: <AdminGameEditorPage />,
+                            element: <Navigate to="../cards" replace />,
                           },
                           {
                             path: "users",
@@ -379,12 +371,16 @@ export const router = createBrowserRouter([
                             element: <AdminPlansPage />,
                           },
                           {
+                            path: "discord",
+                            element: <AdminDiscordPage />,
+                          },
+                          {
                             path: "discord-channels",
-                            element: <AdminDiscordChannelsPage />,
+                            element: <Navigate to="../discord" replace />,
                           },
                           {
                             path: "announcements",
-                            element: <AdminAnnouncementsPage />,
+                            element: <Navigate to="../discord" replace />,
                           },
                           {
                             path: "deleted",
@@ -392,15 +388,19 @@ export const router = createBrowserRouter([
                           },
                           {
                             path: "unmatched",
-                            element: <AdminUnmatchedPage />,
+                            element: <Navigate to="../deleted" replace />,
+                          },
+                          {
+                            path: "hardware",
+                            element: <AdminHardwarePage />,
                           },
                           {
                             path: "servos",
-                            element: <AdminServosPage />,
+                            element: <Navigate to="../hardware" replace />,
                           },
                           {
                             path: "device",
-                            element: <AdminDevicePage />,
+                            element: <Navigate to="../hardware" replace />,
                           },
                           {
                             path: "developer",

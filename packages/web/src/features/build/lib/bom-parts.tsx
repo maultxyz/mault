@@ -351,6 +351,14 @@ export const GROUPS: BomGroup[] = [
         notes: (t) => t("bom.groups.optional.items.cameraMountScrew.notes"),
         buyUrl: "https://amzn.to/4qTWoAy",
       },
+      {
+        key: "hopper-weights",
+        qty: () => "0-25",
+        name: "Hopper sled weights",
+        part: (t) => t("bom.groups.optional.items.hopperWeights.part"),
+        notes: (t) => t("bom.groups.optional.items.hopperWeights.notes"),
+        buyUrl: "https://amzn.to/4jtsnGk",
+      },
     ],
   },
 ];
