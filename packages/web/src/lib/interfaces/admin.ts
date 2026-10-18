@@ -61,7 +61,12 @@ export interface CardSyncContextValue {
   progress: number;
   elapsedMs: number;
   etaMs: number | null;
-  start: (gameKey: string, lang: string, forceResync?: boolean) => void;
+  start: (
+    gameKey: string,
+    lang: string,
+    forceResync?: boolean,
+    concurrency?: number,
+  ) => void;
   isStarting: boolean;
   cancel: () => void;
   isCancelling: boolean;
