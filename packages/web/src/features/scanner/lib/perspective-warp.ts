@@ -4,6 +4,7 @@ import {
   warpRgba,
   type CardContour,
 } from "@magic-vault/shared";
+import type { WebGlWarpState } from "@/lib/interfaces/scanner";
 
 const VERTEX_SHADER = `
   attribute vec2 aPosition;
@@ -47,16 +48,14 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string):
   return shader;
 }
 
-function warpWithWebGl(
-  source: HTMLCanvasElement,
-  homography: number[],
-  outputWidth: number,
-  outputHeight: number,
-): HTMLCanvasElement | null {
-  const output = document.createElement("canvas");
-  output.width = outputWidth;
-  output.height = outputHeight;
-  const gl = output.getContext("webgl", { premultipliedAlpha: false });
+let webGlWarp: WebGlWarpState | null = null;
+
+function createWebGlWarp(): WebGlWarpState | null {
+  const canvas = document.createElement("canvas");
+  const gl = canvas.getContext("webgl", {
+    premultipliedAlpha: false,
+    preserveDrawingBuffer: true,
+  });
   if (!gl) return null;
 
   const vertexShader = compileShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
@@ -85,17 +84,44 @@ function warpWithWebGl(
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.uniform1i(gl.getUniformLocation(program, "uSource"), 0);
+
+  return {
+    canvas,
+    gl,
+    homographyLocation: gl.getUniformLocation(program, "uHomography"),
+    sourceSizeLocation: gl.getUniformLocation(program, "uSourceSize"),
+  };
+}
+
+function warpWithWebGl(
+  source: HTMLCanvasElement,
+  homography: number[],
+  outputWidth: number,
+  outputHeight: number,
+): HTMLCanvasElement | null {
+  if (!webGlWarp || webGlWarp.gl.isContextLost()) webGlWarp = createWebGlWarp();
+  if (!webGlWarp) return null;
+  const { canvas, gl, homographyLocation, sourceSizeLocation } = webGlWarp;
+
+  if (canvas.width !== outputWidth) canvas.width = outputWidth;
+  if (canvas.height !== outputHeight) canvas.height = outputHeight;
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
 
   const h = homography;
   const mat3 = new Float32Array([h[0], h[3], h[6], h[1], h[4], h[7], h[2], h[5], h[8]]);
-  gl.uniformMatrix3fv(gl.getUniformLocation(program, "uHomography"), false, mat3);
-  gl.uniform2f(gl.getUniformLocation(program, "uSourceSize"), source.width, source.height);
-  gl.uniform1i(gl.getUniformLocation(program, "uSource"), 0);
+  gl.uniformMatrix3fv(homographyLocation, false, mat3);
+  gl.uniform2f(sourceSizeLocation, source.width, source.height);
 
   gl.viewport(0, 0, outputWidth, outputHeight);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
+  const output = document.createElement("canvas");
+  output.width = outputWidth;
+  output.height = outputHeight;
+  const outCtx = output.getContext("2d");
+  if (!outCtx) return null;
+  outCtx.drawImage(canvas, 0, 0);
   return output;
 }
 
