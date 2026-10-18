@@ -60,6 +60,7 @@ export * from "./constants/vision-model.constant";
 export * from "./constants/org-settings.constant";
 export * from "./constants/org-overview.constant";
 export * from "./constants/stats.constant";
+export * from "./constants/sync.constant";
 
 export * from "./evaluate-bin";
 export * from "./vision";
