@@ -237,7 +237,7 @@
             "notes": "Included with each servo; secures the horn to the shaft"
           },
           "hookupWire": {
-            "part": "Low Voltage Wire",
+            "part": "Jumper Wires",
             "notes": "IR sensor/Servos. Using these you may have to daisy chain some together, just electrical tape them to make sure they don't come apart."
           },
           "wagoConnectors": {
@@ -267,6 +267,10 @@
           "hopperWeights": {
             "part": "Hopper sled weights",
             "notes": "Drop into the weighted hopper sled to press the stack down so cards feed more reliably. Add up to 25"
+          },
+          "servoExtensionCables": {
+            "part": "Servo extension cables",
+            "notes": "Only needed for more than 3 sorting modules, where the stock servo leads won't reach the servo driver board"
           }
         }
       }
@@ -275,6 +279,7 @@
   "wiring": {
     "description": "Everything hangs off one I²C bus (PCA9685) and {{count}} digital input pins (IR sensors). The PCA9685's logic side runs off the {{board}}'s onboard supply; its <pin>V+</pin> servo rail must come from the external supply, and that supply's ground must be tied back to the {{board}}'s ground. A floating servo ground is the most common reason a freshly wired unit won't move.",
     "wireColorNote": "Wire colors vary between parts and suppliers, so don't rely on the colors in the diagram or photos. Trace each wire from its pin label and make sure it ends up at the correct place.",
+    "powerSupplyWarning": "Use a 6V 3A power supply for the servos. Anything higher can burn out the servos or the servo control board.",
     "sections": {
       "i2c": {
         "title": "I²C bus",

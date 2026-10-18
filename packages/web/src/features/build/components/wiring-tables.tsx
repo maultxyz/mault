@@ -20,7 +20,7 @@ import {
   BUILD_WIRING_ANCHOR,
   PCA9685_FEEDER_CHANNEL,
 } from "@/lib/constants/build";
-import { IconInfoCircle } from "@tabler/icons-react";
+import { IconAlertTriangle, IconInfoCircle } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { useLocation } from "react-router-dom";
@@ -57,6 +57,13 @@ export function WiringOverview() {
         className="px-3 py-2 text-sm/relaxed"
       >
         {t("wiring.wireColorNote")}
+      </Callout>
+      <Callout
+        variant="warning"
+        icon={IconAlertTriangle}
+        className="px-3 py-2 text-sm/relaxed"
+      >
+        {t("wiring.powerSupplyWarning")}
       </Callout>
       <Accordion multiple value={open} onValueChange={setOpen}>
         <AccordionItem
