@@ -164,7 +164,7 @@ export function sliderMax(value: number, defaultMax: number): number {
   return Math.max(defaultMax, value);
 }
 
-export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT = 12;
+export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT = 16;
 
 export const PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD = Math.round(
   (PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT / 100) *
