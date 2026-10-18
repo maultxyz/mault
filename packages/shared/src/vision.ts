@@ -419,3 +419,13 @@ export function detectColorBarRgba(
   if (!best) return null;
   return best[1] / (width * height) >= COLOR_BAR_MIN_SHARE ? best[0] : null;
 }
+
+export function maxCornerShift(a: CardContour, b: CardContour): number {
+  const from = contourToPoints(a);
+  const to = contourToPoints(b);
+  return Math.max(
+    ...from.map((point, index) =>
+      Math.hypot(point.x - to[index].x, point.y - to[index].y),
+    ),
+  );
+}

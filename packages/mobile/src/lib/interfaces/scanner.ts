@@ -192,6 +192,10 @@ export interface ScanSessionValue extends ScanSessionState {
   setAutoFeed: (value: boolean) => void;
   allowDuplicates: boolean;
   setAllowDuplicates: (value: boolean) => void;
+  handScan: boolean;
+  setHandScan: (value: boolean) => void;
+  handScanActive: boolean;
+  trackLiveCorners: (corners: LiveCorners | null) => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -211,6 +215,10 @@ export interface LiveCorners {
   frameHeight: number;
 }
 
+export interface HandScanTracker {
+  update: (corners: LiveCorners | null, canCapture: boolean) => boolean;
+}
+
 export interface SessionScansSheetProps {
   visible: boolean;
   entries: ScanFeedEntry[];
@@ -228,6 +236,8 @@ export interface ScannerControlsSheetProps {
   onAutoFeedChange: (value: boolean) => void;
   allowDuplicates: boolean;
   onAllowDuplicatesChange: (value: boolean) => void;
+  handScan: boolean;
+  onHandScanChange: (value: boolean) => void;
   cameras: CameraDevice[];
   selectedCameraId: string | null;
   onSelectCamera: (id: string) => void;

@@ -59,6 +59,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
       case "error":
         return t("mobileScan.phase.error");
       default:
+        if (chrome.handScanActive) return t("mobileScan.phase.handScan");
         return sorterDriven
           ? t("mobileScan.phase.scanning")
           : t("mobileScan.phase.ready");
@@ -140,7 +141,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         <MobileScanNotice tone="warning" title={t("scannerOverlay.noCatchAllBin")} />
       );
     }
-    if (!chrome.isConnected && sessionScanCount === 0) {
+    if (!chrome.isConnected && !chrome.handScan && sessionScanCount === 0) {
       return (
         <MobileScanNotice
           title={t("mobileScan.noSorterTitle")}
@@ -193,6 +194,23 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             <IconDots className="size-5" />
           </button>
         </div>
+        {chrome.handScanActive && chrome.lastRoutedBin && (
+          <div className="flex justify-center px-4 pt-3">
+            <div
+              key={chrome.lastRoutedBin.at}
+              className="flex flex-col items-center rounded-lg border border-primary bg-primary px-5 py-2 text-primary-foreground shadow-lg animate-in fade-in zoom-in-95 motion-reduce:animate-none"
+            >
+              <span className="text-xs font-medium">
+                {t("scannerOverlay.handScanBinLabel")}
+              </span>
+              <span className="text-3xl font-bold tabular-nums">
+                {t("scannerOverlay.handScanBin", {
+                  number: chrome.lastRoutedBin.binNumber,
+                })}
+              </span>
+            </div>
+          </div>
+        )}
 
         <div className="flex flex-col gap-3 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
           {notice}

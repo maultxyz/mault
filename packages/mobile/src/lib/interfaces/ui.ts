@@ -230,6 +230,10 @@ export interface CollectionActivityProps {
   onOpen: (scanId: string) => void;
 }
 
+export interface BinBadgeProps {
+  binNumber: number;
+}
+
 export interface CameraChipProps {
   label: string;
   dotColor?: string;

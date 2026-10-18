@@ -23,7 +23,6 @@ import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
 import {
   contourFingerprint,
   fingerprintDistance,
-  maxCornerShift,
 } from "@/features/scanner/lib/hand-scan";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import {
@@ -31,11 +30,7 @@ import {
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import {
-  HAND_SCAN_MAX_CORNER_SHIFT_RATIO,
   HAND_SCAN_REARM_FINGERPRINT_DIFF,
-  HAND_SCAN_REARM_SHIFT_RATIO,
-  HAND_SCAN_REMOVAL_TICKS,
-  HAND_SCAN_STABLE_TICKS,
   HAND_SCAN_TRACKING_STATUSES,
   SCANNABLE_STATUSES,
   SCANNER_LIVE_DETECTION_INTERVAL_MS,
@@ -72,6 +67,11 @@ import {
   type CardContour,
   type CardScannerProps,
   type CornerDetection,
+  HAND_SCAN_MAX_CORNER_SHIFT_RATIO,
+  HAND_SCAN_REARM_SHIFT_RATIO,
+  HAND_SCAN_REMOVAL_TICKS,
+  HAND_SCAN_STABLE_TICKS,
+  maxCornerShift,
   type CardSearchResult,
   type OcrDiagnostics,
   type PlayingCardWithDistance,
