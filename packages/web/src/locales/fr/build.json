@@ -237,7 +237,7 @@
             "notes": "Incluse avec chaque servo ; fixe le palonnier à l'axe"
           },
           "hookupWire": {
-            "part": "Fil basse tension",
+            "part": "Fils de connexion (jumper)",
             "notes": "Capteur IR/Servos. Avec ceux-ci, tu devras peut-être en chaîner certains ensemble, utilise du ruban électrique pour t'assurer qu'ils ne se séparent pas."
           },
           "wagoConnectors": {
@@ -267,6 +267,10 @@
           "hopperWeights": {
             "part": "Poids pour le chariot de la trémie",
             "notes": "Se placent dans le chariot lesté de la trémie pour presser la pile et fiabiliser l'alimentation des cartes. Jusqu'à 25"
+          },
+          "servoExtensionCables": {
+            "part": "Rallonges de servo",
+            "notes": "Nécessaires uniquement au-delà de 3 modules de tri, quand les câbles d'origine des servos n'atteignent pas la carte pilote des servos"
           }
         }
       }
@@ -275,6 +279,7 @@
   "wiring": {
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
     "wireColorNote": "Les couleurs des fils varient selon les pièces et les fournisseurs, donc ne te fie pas aux couleurs du schéma ou des photos. Suis chaque fil depuis l'étiquette de sa broche et vérifie qu'il arrive au bon endroit.",
+    "powerSupplyWarning": "Utilise une alimentation 6 V 3 A pour les servos. Toute valeur plus élevée peut griller les servos ou la carte de commande des servos.",
     "sections": {
       "i2c": {
         "title": "Bus I²C",
