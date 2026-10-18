@@ -1,5 +1,4 @@
 import {
-  platformStatsGuildQueryOptions,
   platformStatsQueryOptions,
   postPlatformStatsNow,
   savePlatformStatsSettings,
@@ -13,7 +12,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 export function usePlatformStatsDraft() {
@@ -28,9 +27,6 @@ export function usePlatformStatsDraft() {
     values: data?.settings,
     resetOptions: { keepDirtyValues: true },
   });
-
-  const guildId = useWatch({ control: form.control, name: "guildId" });
-  const guildQuery = useQuery(platformStatsGuildQueryOptions(guildId));
 
   const save = async (values: PlatformStatsFormValues) => {
     try {
@@ -67,8 +63,6 @@ export function usePlatformStatsDraft() {
   return {
     form,
     data,
-    guild: guildQuery.data ?? null,
-    isGuildLoading: guildQuery.isFetching,
     isLoading: isPending,
     isPosting,
     save: form.handleSubmit(save),

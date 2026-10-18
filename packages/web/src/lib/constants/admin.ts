@@ -3,9 +3,11 @@ import type {
   DeletedItemTypeFilter,
   UnmatchedPhotoFilter,
 } from "@/lib/interfaces/admin";
+import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import {
   IconBrandDiscord,
+  IconHash,
   IconBug,
   IconCards,
   IconCreditCard,
@@ -61,6 +63,11 @@ export const ADMIN_SECTIONS = [
     labelKey: "sections.discordStats",
   },
   {
+    path: "discord-channels",
+    icon: IconHash,
+    labelKey: "sections.discordChannels",
+  },
+  {
     path: "announcements",
     icon: IconSpeakerphone,
     labelKey: "sections.announcements",
@@ -78,7 +85,14 @@ export const PLATFORM_STATS_SCRIPT_COMMAND =
   "node packages/server/dist/scripts/post-platform-stats.js";
 
 export const EMPTY_PLATFORM_STATS_FORM: PlatformStatsFormValues = {
-  guildId: null,
-  channelId: null,
   stats: [],
 };
+
+export const ADMIN_DISCORD_CHANNELS_PATH = "/app/admin/discord-channels";
+
+export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormValues =
+  {
+    stats: { guildId: null, channelId: null },
+    donations: { guildId: null, channelId: null },
+    pricing: { guildId: null, channelId: null },
+  };

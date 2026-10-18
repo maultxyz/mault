@@ -5,95 +5,48 @@ import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { usePlatformStatsDraft } from "@/features/admin/api/use-platform-stats-draft";
-import { DiscordGuildSelect } from "@/features/admin/components/discord-guild-select";
-import { DiscordChannelSelect } from "@/features/integrations/components/discord-channel-select";
-import { PLATFORM_STATS_SCRIPT_COMMAND } from "@/lib/constants/admin";
+import {
+  ADMIN_DISCORD_CHANNELS_PATH,
+  PLATFORM_STATS_SCRIPT_COMMAND,
+} from "@/lib/constants/admin";
 import { PLATFORM_STAT_KEYS } from "@magic-vault/shared";
 import { IconLoader2, IconSend } from "@tabler/icons-react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export function PlatformStatsManager() {
   const { t, i18n } = useTranslation("admin");
-  const {
-    form,
-    data,
-    guild,
-    isGuildLoading,
-    isLoading,
-    isPosting,
-    save,
-    postNow,
-  } = usePlatformStatsDraft();
+  const { form, data, isLoading, isPosting, save, postNow } =
+    usePlatformStatsDraft();
   const { isDirty, isSubmitting } = form.formState;
 
   if (isLoading || !data) {
     return (
-      <SettingsSection heading={t("platformStats.destinationHeading")}>
+      <SettingsSection heading={t("platformStats.statsHeading")}>
         <ListSkeleton />
       </SettingsSection>
     );
   }
 
-  const saved = data.settings;
   const canPost =
-    !isDirty && !!saved.guildId && !!saved.channelId && saved.stats.length > 0;
+    !isDirty && data.channelConfigured && data.settings.stats.length > 0;
 
   return (
     <form id="platform-stats-form" onSubmit={save} className="contents">
-      {!data.botReachable && (
-        <Callout variant="warning">{t("platformStats.botUnreachable")}</Callout>
+      {!data.channelConfigured && (
+        <Callout variant="info">
+          {t("platformStats.noChannelConfigured")}{" "}
+          <Link
+            to={ADMIN_DISCORD_CHANNELS_PATH}
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            {t("platformStats.openDiscordChannels")}
+          </Link>
+        </Callout>
       )}
-
-      <SettingsSection
-        heading={t("platformStats.destinationHeading")}
-        description={t("platformStats.destinationDescription")}
-      >
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <Label>{t("platformStats.server")}</Label>
-            <Controller
-              control={form.control}
-              name="guildId"
-              render={({ field }) => (
-                <DiscordGuildSelect
-                  value={field.value}
-                  guilds={data.guilds}
-                  emptyLabel={t("platformStats.noServer")}
-                  disabled={!data.botReachable}
-                  onChange={(next) => {
-                    field.onChange(next);
-                    form.setValue("channelId", null, { shouldDirty: true });
-                  }}
-                />
-              )}
-            />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>{t("platformStats.channel")}</Label>
-            <Controller
-              control={form.control}
-              name="channelId"
-              render={({ field }) => (
-                <DiscordChannelSelect
-                  value={field.value}
-                  channels={guild?.channels ?? []}
-                  emptyLabel={
-                    isGuildLoading
-                      ? t("platformStats.loadingChannels")
-                      : t("platformStats.noChannel")
-                  }
-                  disabled={!guild || isGuildLoading}
-                  onChange={field.onChange}
-                />
-              )}
-            />
-          </div>
-        </div>
-      </SettingsSection>
 
       <SettingsSection
         heading={t("platformStats.statsHeading")}

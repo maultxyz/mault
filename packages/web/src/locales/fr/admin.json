@@ -9,6 +9,7 @@
     "users": "Utilisateurs",
     "plans": "Offres",
     "discordStats": "Statistiques Discord",
+    "discordChannels": "Salons Discord",
     "announcements": "Annonces",
     "deleted": "Éléments supprimés",
     "unmatched": "Scans non reconnus",
@@ -454,16 +455,10 @@
     "ocrNoName": "L'OCR a lu \"{{text}}\", aucun nom de carte n'était assez proche"
   },
   "platformStats": {
-    "destinationHeading": "Destination",
-    "destinationDescription": "Le serveur et le salon Discord où les statistiques de la plateforme sont publiées. Le bot doit être sur le serveur et pouvoir publier dans le salon.",
-    "server": "Serveur",
-    "channel": "Salon",
-    "noServer": "Aucun serveur",
-    "noChannel": "Aucun salon",
-    "loadingChannels": "Chargement des salons...",
-    "botUnreachable": "Le bot Discord est injoignable, les serveurs et salons ne peuvent donc pas être listés pour le moment.",
     "statsHeading": "Statistiques",
     "statsDescription": "Les chiffres à inclure dans chaque publication, toutes organisations confondues.",
+    "noChannelConfigured": "Les statistiques ne peuvent pas être publiées tant qu'aucun salon de statistiques n'est choisi.",
+    "openDiscordChannels": "Ouvrir les salons Discord",
     "stats": {
       "scannedCards": {
         "label": "Cartes scannées",
@@ -500,5 +495,29 @@
     "saveFailed": "Impossible d'enregistrer les paramètres des statistiques.",
     "posted": "Statistiques publiées sur Discord.",
     "postFailed": "Impossible de publier les statistiques."
+  },
+  "discordChannels": {
+    "server": "Serveur",
+    "channel": "Salon",
+    "noServer": "Aucun serveur",
+    "noChannel": "Aucun salon",
+    "loadingChannels": "Chargement des salons...",
+    "botUnreachable": "Le bot Discord est injoignable, les serveurs et salons ne peuvent donc pas être listés pour le moment.",
+    "channels": {
+      "stats": {
+        "heading": "Statistiques de la plateforme",
+        "description": "Où les statistiques de la plateforme sont publiées. Choisissez les statistiques à inclure dans Statistiques Discord. Laissez vide pour ne plus publier les statistiques."
+      },
+      "donations": {
+        "heading": "Dons",
+        "description": "Où chaque don Buy Me a Coffee est publié. Laissez vide pour ne plus publier les dons."
+      },
+      "pricing": {
+        "heading": "Mises à jour des prix",
+        "description": "Où un résumé est publié chaque fois que la synchronisation des prix récupère de nouveaux prix. Laissez vide pour ne plus publier les mises à jour des prix."
+      }
+    },
+    "saved": "Salons Discord enregistrés.",
+    "saveFailed": "Impossible d'enregistrer les salons Discord."
   }
 }
