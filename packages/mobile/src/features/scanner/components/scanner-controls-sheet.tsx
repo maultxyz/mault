@@ -12,6 +12,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
+import { LIVE_CORNERS_SUPPORTED } from "@/lib/constants/scanner";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ScannerControlAction, ScannerControlsSheetProps } from "@/lib/interfaces/scanner";
 
@@ -25,6 +26,8 @@ export function ScannerControlsSheet({
   onAutoFeedChange,
   allowDuplicates,
   onAllowDuplicatesChange,
+  handScan,
+  onHandScanChange,
   cameras,
   selectedCameraId,
   onSelectCamera,
@@ -149,6 +152,14 @@ export function ScannerControlsSheet({
             />
           </ListGroup>
           <SectionHeader title={t("scan.options.title")} />
+          {LIVE_CORNERS_SUPPORTED && !sorter.isReady ? (
+            <SwitchRow
+              title={t("scan.options.handScan")}
+              description={t("scan.options.handScanDescription")}
+              value={handScan}
+              onValueChange={onHandScanChange}
+            />
+          ) : null}
           <SwitchRow
             title={t("scan.options.autoFeed")}
             description={t("scan.options.autoFeedDescription")}

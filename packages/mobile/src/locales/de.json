@@ -532,6 +532,8 @@
       "paused": "Pausiert",
       "error": "Fehler"
     },
+    "handScanBinLabel": "Ablegen in",
+    "handScanBin": "Fach {{number}}",
     "pauseAction": "Pause",
     "sessionChip_one": "{{count}} gescannt",
     "sessionChip_other": "{{count}} gescannt",
@@ -563,6 +565,8 @@
       "autoFeedDescription": "Nächste Karte einziehen, sobald eine sortiert ist",
       "allowDuplicates": "Duplikate erlauben",
       "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
+      "handScan": "Karten automatisch erkennen",
+      "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
       "camera": "Kamera",
       "cameraFallback": "Kamera {{number}}",
       "cameraPosition": {

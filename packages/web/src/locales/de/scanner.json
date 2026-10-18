@@ -429,7 +429,8 @@
     "connectFailed": "Verbindung konnte nicht hergestellt werden.",
     "noCardsScannedYet": "Noch keine Karten gescannt.",
     "noCardsMatchSearch": "Keine Karten entsprechen der Suche.",
-    "isWatchingTooltip": "{{name}} schaut zu"
+    "isWatchingTooltip": "{{name}} schaut zu",
+    "setActive": "Aktivieren"
   },
   "monitorSessions": {
     "yourSession": "Deine Sitzung",
@@ -692,6 +693,8 @@
     "autoFeedDescription": "Nächste Karte einziehen, sobald eine sortiert ist",
     "allowDuplicates": "Duplikate erlauben",
     "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
+    "handScan": "Karten automatisch erkennen",
+    "handScanDescription": "Ohne Sortierer scannen. Halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
     "camera": "Kamera",
     "preset": "Regel-Vorlage",
     "choosePreset": "Vorlage wählen",
@@ -702,6 +705,7 @@
     "phase": {
       "ready": "Bereit",
       "scanning": "Scannt",
+      "handScan": "Karte ruhig halten",
       "error": "Fehler"
     },
     "sorterState": {

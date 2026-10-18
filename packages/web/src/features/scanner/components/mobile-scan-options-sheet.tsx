@@ -15,6 +15,7 @@ import {
   IconCopy,
   IconCpu,
   IconDeviceDesktop,
+  IconFocus2,
   IconListDetails,
   IconPlayerTrackNext,
 } from "@tabler/icons-react";
@@ -41,6 +42,20 @@ export function MobileScanOptionsSheet({
           </DrawerTitle>
 
           <div className={MOBILE_LIST_CLASS}>
+            {!chrome.isConnected && (
+              <MobileListRow
+                icon={<IconFocus2 />}
+                label={t("mobileScan.handScan")}
+                description={t("mobileScan.handScanDescription")}
+                trailing={
+                  <Switch
+                    checked={chrome.handScan}
+                    onCheckedChange={chrome.onHandScanChange}
+                    aria-label={t("mobileScan.handScan")}
+                  />
+                }
+              />
+            )}
             <MobileListRow
               icon={<IconPlayerTrackNext />}
               label={t("mobileScan.autoFeed")}

@@ -532,6 +532,8 @@
       "paused": "En pause",
       "error": "Erreur"
     },
+    "handScanBinLabel": "À ranger dans",
+    "handScanBin": "Bac {{number}}",
     "pauseAction": "Pause",
     "sessionChip_one": "{{count}} scannée",
     "sessionChip_other": "{{count}} scannée",
@@ -563,6 +565,8 @@
       "autoFeedDescription": "Charger la carte suivante dès qu'une carte est triée",
       "allowDuplicates": "Autoriser les doublons",
       "allowDuplicatesDescription": "Enregistrer la même impression plusieurs fois",
+      "handScan": "Détection auto des cartes",
+      "handScanDescription": "Scanner sans trieuse. Appuie sur Démarrer, puis tiens une carte immobile dans le cadre et elle est scannée toute seule.",
       "camera": "Caméra",
       "cameraFallback": "Caméra {{number}}",
       "cameraPosition": {

@@ -120,7 +120,7 @@ export function CardScanner({
   } = useResetToNeutral();
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [handScan, setHandScan] = useHandScan();
-  const handScanActive = handScan && !isConnected && !isMobile;
+  const handScanActive = handScan && !isConnected;
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const { recordScanOutcome } = useUnmatchedRateToast();
@@ -606,6 +606,10 @@ export function CardScanner({
           onFeed: () => void handleFeed(),
           onClearDevice: () => void handleClearDevice(),
           onResetDevice: () => void handleResetToNeutral(),
+          handScan,
+          handScanActive,
+          lastRoutedBin,
+          onHandScanChange: setHandScan,
         })}
         {dialogs}
       </div>

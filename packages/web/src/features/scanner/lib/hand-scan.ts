@@ -1,9 +1,6 @@
-import {
-  CONTOUR_CORNERS,
-  HAND_SCAN_FINGERPRINT_SIZE,
-} from "@/lib/constants/scanner";
+import { HAND_SCAN_FINGERPRINT_SIZE } from "@/lib/constants/scanner";
 import { HAND_SCAN_STORAGE_KEY } from "@/lib/constants/storage-keys";
-import type { CardContour } from "@magic-vault/shared";
+import { contourToPoints, type CardContour } from "@magic-vault/shared";
 import { useSyncExternalStore } from "react";
 
 const listeners = new Set<() => void>();
@@ -36,22 +33,15 @@ export function useHandScan() {
   return [stored, setHandScan] as const;
 }
 
-export function maxCornerShift(a: CardContour, b: CardContour): number {
-  return Math.max(
-    ...CONTOUR_CORNERS.map((corner) =>
-      Math.hypot(a[corner].x - b[corner].x, a[corner].y - b[corner].y),
-    ),
-  );
-}
-
 let fingerprintCanvas: HTMLCanvasElement | null = null;
 
 export function contourFingerprint(
   canvas: HTMLCanvasElement,
   contour: CardContour,
 ): Float32Array | null {
-  const xs = CONTOUR_CORNERS.map((corner) => contour[corner].x);
-  const ys = CONTOUR_CORNERS.map((corner) => contour[corner].y);
+  const points = contourToPoints(contour);
+  const xs = points.map((point) => point.x);
+  const ys = points.map((point) => point.y);
   const left = Math.max(0, Math.min(...xs));
   const top = Math.max(0, Math.min(...ys));
   const width = Math.min(canvas.width, Math.max(...xs)) - left;

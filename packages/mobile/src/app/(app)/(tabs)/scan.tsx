@@ -24,6 +24,7 @@ import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
+import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
@@ -75,7 +76,9 @@ export default function ScanScreen() {
     cameraRef,
     focused && appState === "active" && !!device && permission.hasPermission && !session.modelError,
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
+    session.trackLiveCorners,
   );
+  const lastBin = session.handScanActive ? session.feed[0]?.binNumber : undefined;
   const [sessionOpen, setSessionOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const phaseColor =
@@ -174,6 +177,11 @@ export default function ScanScreen() {
             onPress={() => setSessionOpen(true)}
           />
         </View>
+        {lastBin != null ? (
+          <View pointerEvents="none" style={{ alignItems: "center" }}>
+            <BinBadge key={session.feed[0]?.scanId} binNumber={lastBin} />
+          </View>
+        ) : null}
         {!collection ? (
           <CameraNotice
             tone="warning"
@@ -247,6 +255,8 @@ export default function ScanScreen() {
         onAutoFeedChange={session.setAutoFeed}
         allowDuplicates={session.allowDuplicates}
         onAllowDuplicatesChange={session.setAllowDuplicates}
+        handScan={session.handScan}
+        onHandScanChange={session.setHandScan}
         cameras={camera.devices}
         selectedCameraId={device?.id ?? null}
         onSelectCamera={camera.select}

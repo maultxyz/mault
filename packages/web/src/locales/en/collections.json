@@ -34,6 +34,12 @@
     "description": "Collections organise your scanned cards. You need at least one before you can start scanning.",
     "submit": "Create Collection"
   },
+  "view": {
+    "subtitle": "Viewing without making it active. New scans still go to the active collection.",
+    "back": "Back to collections",
+    "notFoundTitle": "Collection not found",
+    "notFoundDescription": "It may have been deleted, or it belongs to another organization."
+  },
   "page": {
     "title": "Collections",
     "subtitle": "Each collection keeps its own cards. New scans are saved to the active one.",
@@ -44,6 +50,7 @@
     "cardCount_other": "{{count}} cards",
     "noGame": "No game",
     "setActiveCollection": "Set as active collection",
+    "viewCards": "View cards",
     "edit": "Edit",
     "activeSection": "Active collection",
     "otherSection": "Other collections"

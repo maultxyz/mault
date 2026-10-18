@@ -34,6 +34,12 @@
     "description": "Les collections organisent tes cartes scannées. Tu dois en avoir au moins une avant de pouvoir commencer à scanner.",
     "submit": "Créer une collection"
   },
+  "view": {
+    "subtitle": "Consultation sans l'activer. Les nouveaux scans vont toujours dans la collection active.",
+    "back": "Retour aux collections",
+    "notFoundTitle": "Collection introuvable",
+    "notFoundDescription": "Elle a peut-être été supprimée, ou elle appartient à une autre organisation."
+  },
   "page": {
     "title": "Collections",
     "subtitle": "Chaque collection garde ses propres cartes. Les nouveaux scans vont dans la collection active.",
@@ -44,6 +50,7 @@
     "cardCount_other": "{{count}} cartes",
     "noGame": "Aucun jeu",
     "setActiveCollection": "Définir comme collection active",
+    "viewCards": "Voir les cartes",
     "edit": "Modifier",
     "activeSection": "Collection active",
     "otherSection": "Autres collections"
