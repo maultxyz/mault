@@ -7,6 +7,7 @@ import { cardsListRoute } from "./cards-list";
 import { cardsRevectorizeRoute } from "./cards-revectorize";
 import { cardsSyncRoute } from "./cards-sync";
 import { deletedItemsRoute } from "./deleted-items";
+import { discordChannelsRoute } from "./discord-channels";
 import { plansRoute } from "./plans";
 import { platformStatsRoute } from "./platform-stats";
 import { rollbarTestRoute } from "./rollbar-test";
@@ -34,6 +35,7 @@ const router = new Hono<AppEnv>()
   .route("/", activeScanningRoute)
   .route("/", plansRoute)
   .route("/", platformStatsRoute)
+  .route("/", discordChannelsRoute)
   .route("/", deletedItemsRoute)
   .route("/", unmatchedRetryRoute);
 

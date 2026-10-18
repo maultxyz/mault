@@ -25,6 +25,7 @@ import {
   PLATFORM_STATS_SETTINGS_ID,
 } from "./constants/platform-stats";
 import { sendDiscordChannelMessage } from "./discord";
+import { loadPlatformDiscordChannel } from "./platform-discord-channels";
 import type { DiscordEmbed } from "./interfaces/discord";
 import type {
   PlatformStatsPostOutcome,
@@ -136,8 +137,6 @@ export async function loadPlatformStatsSettings(): Promise<StoredPlatformStatsSe
     .where(eq(platformStatsSettings.id, PLATFORM_STATS_SETTINGS_ID))
     .limit(1);
   return {
-    guildId: row?.guildId ?? null,
-    channelId: row?.channelId ?? null,
     stats: row
       ? parsePlatformStatKeys(row.stats)
       : [...DEFAULT_PLATFORM_STAT_KEYS],
@@ -149,34 +148,30 @@ export async function savePlatformStatsSettings(
   settings: PlatformStatsSettings,
 ): Promise<StoredPlatformStatsSettings> {
   const now = new Date();
-  const values = {
-    guildId: settings.guildId,
-    channelId: settings.channelId,
-    stats: settings.stats,
-    updatedAt: now,
-  };
+  const values = { stats: settings.stats, updatedAt: now };
   const [row] = await db
     .insert(platformStatsSettings)
     .values({ id: PLATFORM_STATS_SETTINGS_ID, ...values })
     .onConflictDoUpdate({ target: platformStatsSettings.id, set: values })
     .returning();
   return {
-    guildId: row.guildId,
-    channelId: row.channelId,
     stats: parsePlatformStatKeys(row.stats),
     lastPostedAt: row.lastPostedAt,
   };
 }
 
 export async function postPlatformStats(): Promise<PlatformStatsPostOutcome> {
-  const settings = await loadPlatformStatsSettings();
-  if (!settings.guildId || !settings.channelId || !settings.stats.length) {
+  const [settings, { guildId, channelId }] = await Promise.all([
+    loadPlatformStatsSettings(),
+    loadPlatformDiscordChannel("stats"),
+  ]);
+  if (!guildId || !channelId || !settings.stats.length) {
     return "not_configured";
   }
   const values = await computePlatformStats(settings.stats);
   const sent = await sendDiscordChannelMessage({
-    guildId: settings.guildId,
-    channelId: settings.channelId,
+    guildId,
+    channelId,
     embed: buildPlatformStatsEmbed(settings.stats, values),
   });
   if (!sent) return "failed";

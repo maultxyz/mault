@@ -1,8 +1,9 @@
 import type {
   DiscordGuildInfo,
-  PlatformStatsGuildSummary,
+  PlatformDiscordGuildSummary,
 } from "@magic-vault/shared";
 import { DISCORD_GUILD_FETCH_TIMEOUT_MS } from "../constants/discord";
+import type { DiscordChannelCheckFailure } from "../interfaces/discord";
 
 export async function fetchDiscordGuild(
   guildId: string,
@@ -31,7 +32,7 @@ export async function fetchDiscordGuild(
 
 export async function fetchDiscordGuilds(): Promise<{
   reachable: boolean;
-  guilds: PlatformStatsGuildSummary[];
+  guilds: PlatformDiscordGuildSummary[];
 }> {
   const botUrl = process.env.BOT_URL;
   const botSecret = process.env.BOT_API_SECRET;
@@ -43,10 +44,31 @@ export async function fetchDiscordGuilds(): Promise<{
       signal: AbortSignal.timeout(DISCORD_GUILD_FETCH_TIMEOUT_MS),
     });
     if (!res.ok) return { reachable: false, guilds: [] };
-    const body = (await res.json()) as { data?: PlatformStatsGuildSummary[] };
+    const body = (await res.json()) as { data?: PlatformDiscordGuildSummary[] };
     return { reachable: true, guilds: body.data ?? [] };
   } catch (err) {
     console.error("[discord] Failed to list guilds from bot:", err);
     return { reachable: false, guilds: [] };
   }
+}
+
+export async function checkDiscordChannel(
+  guildId: string,
+  channelId: string,
+): Promise<DiscordChannelCheckFailure | null> {
+  const { reachable, guild } = await fetchDiscordGuild(guildId);
+  if (!reachable) {
+    return { status: 502, message: "The Discord bot isn't reachable." };
+  }
+  const channel = guild?.channels.find((ch) => ch.id === channelId);
+  if (!channel) {
+    return { status: 400, message: "That channel isn't in the server." };
+  }
+  if (channel.missingPermissions.length) {
+    return {
+      status: 400,
+      message: `The bot is missing permissions in that channel: ${channel.missingPermissions.join(", ")}.`,
+    };
+  }
+  return null;
 }

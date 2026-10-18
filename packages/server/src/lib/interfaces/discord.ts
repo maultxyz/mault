@@ -15,6 +15,11 @@ export type DiscordNotificationKind = "scan" | "error";
 
 export type DiscordNotifyOutcome = "sent" | "no_channel" | "failed";
 
+export interface DiscordChannelCheckFailure {
+  status: 400 | 502;
+  message: string;
+}
+
 export interface BotPostRequest {
   channelId: string;
   embed: DiscordEmbed;
@@ -45,4 +50,15 @@ export interface NotifyConfig {
   channelId: string | null;
   threadId: string | null;
   source: "collection" | "org";
+}
+
+export type PriceSyncSourceOutcome =
+  | { status: "updated"; prices: number; products?: number; failures?: number }
+  | { status: "unchanged" }
+  | { status: "failed" };
+
+export interface PriceSyncSummary {
+  forced: boolean;
+  sources: Record<string, PriceSyncSourceOutcome>;
+  refreshedCards: number | null;
 }

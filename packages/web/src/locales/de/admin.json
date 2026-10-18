@@ -9,6 +9,7 @@
     "users": "Benutzer",
     "plans": "Tarife",
     "discordStats": "Discord-Statistiken",
+    "discordChannels": "Discord-Kanäle",
     "announcements": "Ankündigungen",
     "deleted": "Gelöschte Elemente",
     "unmatched": "Nicht erkannte Scans",
@@ -454,16 +455,10 @@
     "ocrNoName": "OCR hat \"{{text}}\" gelesen, kein Kartenname war nah genug"
   },
   "platformStats": {
-    "destinationHeading": "Ziel",
-    "destinationDescription": "Der Discord-Server und Kanal, in den die Plattformstatistiken gepostet werden. Der Bot muss auf dem Server sein und im Kanal posten dürfen.",
-    "server": "Server",
-    "channel": "Kanal",
-    "noServer": "Kein Server",
-    "noChannel": "Kein Kanal",
-    "loadingChannels": "Kanäle werden geladen...",
-    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Server und Kanäle gerade nicht angezeigt werden.",
     "statsHeading": "Statistiken",
     "statsDescription": "Welche Zahlen jeder Beitrag enthält, über alle Organisationen hinweg.",
+    "noChannelConfigured": "Statistiken können erst gepostet werden, wenn ein Statistik-Kanal ausgewählt ist.",
+    "openDiscordChannels": "Discord-Kanäle öffnen",
     "stats": {
       "scannedCards": {
         "label": "Gescannte Karten",
@@ -500,5 +495,29 @@
     "saveFailed": "Die Statistik-Einstellungen konnten nicht gespeichert werden.",
     "posted": "Statistiken auf Discord gepostet.",
     "postFailed": "Die Statistiken konnten nicht gepostet werden."
+  },
+  "discordChannels": {
+    "server": "Server",
+    "channel": "Kanal",
+    "noServer": "Kein Server",
+    "noChannel": "Kein Kanal",
+    "loadingChannels": "Kanäle werden geladen...",
+    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Server und Kanäle gerade nicht aufgelistet werden.",
+    "channels": {
+      "stats": {
+        "heading": "Plattform-Statistiken",
+        "description": "Wohin die Plattform-Statistiken gepostet werden. Welche Statistiken enthalten sind, legst du unter Discord-Statistiken fest. Leer lassen, um keine Statistiken mehr zu posten."
+      },
+      "donations": {
+        "heading": "Spenden",
+        "description": "Wohin jede Buy Me a Coffee-Spende gepostet wird. Leer lassen, um keine Spenden mehr zu posten."
+      },
+      "pricing": {
+        "heading": "Preisaktualisierungen",
+        "description": "Wohin eine Zusammenfassung gepostet wird, wenn die Preissynchronisierung neue Preise abruft. Leer lassen, um keine Preisaktualisierungen mehr zu posten."
+      }
+    },
+    "saved": "Discord-Kanäle gespeichert.",
+    "saveFailed": "Die Discord-Kanäle konnten nicht gespeichert werden."
   }
 }
