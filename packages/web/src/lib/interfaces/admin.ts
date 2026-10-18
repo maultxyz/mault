@@ -8,6 +8,7 @@ import type {
   SyncState,
 } from "@magic-vault/shared";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
+import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import type { UseFormReturn } from "react-hook-form";
 
 export type DeletedItemTypeFilter = DeletedItemType | "all";
@@ -76,6 +77,15 @@ export interface PlatformDiscordChannelFieldsProps {
   channelKey: PlatformDiscordChannelKey;
   guilds: PlatformDiscordGuildSummary[];
   botReachable: boolean;
+}
+
+export interface PlatformStatsFieldsProps {
+  form: UseFormReturn<PlatformStatsFormValues>;
+}
+
+export interface AdminScriptCommandProps {
+  command: string;
+  description: string;
 }
 
 export interface DiscordGuildSelectProps {

@@ -8,7 +8,6 @@
     "games": "Spiele",
     "users": "Benutzer",
     "plans": "Tarife",
-    "discordStats": "Discord-Statistiken",
     "discordChannels": "Discord-Kanäle",
     "announcements": "Ankündigungen",
     "deleted": "Gelöschte Elemente",
@@ -457,8 +456,6 @@
   "platformStats": {
     "statsHeading": "Statistiken",
     "statsDescription": "Welche Zahlen jeder Beitrag enthält, über alle Organisationen hinweg.",
-    "noChannelConfigured": "Statistiken können erst gepostet werden, wenn ein Statistik-Kanal ausgewählt ist.",
-    "openDiscordChannels": "Discord-Kanäle öffnen",
     "stats": {
       "scannedCards": {
         "label": "Gescannte Karten",
@@ -506,7 +503,7 @@
     "channels": {
       "stats": {
         "heading": "Plattform-Statistiken",
-        "description": "Wohin die Plattform-Statistiken gepostet werden. Welche Statistiken enthalten sind, legst du unter Discord-Statistiken fest. Leer lassen, um keine Statistiken mehr zu posten."
+        "description": "Wohin die Plattform-Statistiken gepostet werden und welche Zahlen jeder Beitrag enthält. Lass den Kanal leer, um keine Statistiken mehr zu posten."
       },
       "donations": {
         "heading": "Spenden",
@@ -517,6 +514,8 @@
         "description": "Wohin eine Zusammenfassung gepostet wird, wenn die Preissynchronisierung neue Preise abruft. Leer lassen, um keine Preisaktualisierungen mehr zu posten."
       }
     },
+    "priceSyncCommand": "Preise werden abgerufen, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, alle paar Stunden. Er lädt nur herunter, was sich geändert hat.",
+    "donationsLink": "Buy Me a Coffee-Seite öffnen",
     "saved": "Discord-Kanäle gespeichert.",
     "saveFailed": "Die Discord-Kanäle konnten nicht gespeichert werden."
   }

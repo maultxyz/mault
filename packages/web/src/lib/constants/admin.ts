@@ -7,7 +7,6 @@ import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-disco
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import {
   IconBrandDiscord,
-  IconHash,
   IconBug,
   IconCards,
   IconCreditCard,
@@ -58,13 +57,8 @@ export const ADMIN_SECTIONS = [
   { path: "users", icon: IconUserScan, labelKey: "sections.users" },
   { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
   {
-    path: "discord-stats",
-    icon: IconBrandDiscord,
-    labelKey: "sections.discordStats",
-  },
-  {
     path: "discord-channels",
-    icon: IconHash,
+    icon: IconBrandDiscord,
     labelKey: "sections.discordChannels",
   },
   {
@@ -84,11 +78,12 @@ export const NO_DISCORD_GUILD = "none";
 export const PLATFORM_STATS_SCRIPT_COMMAND =
   "node packages/server/dist/scripts/post-platform-stats.js";
 
+export const PRICE_SYNC_SCRIPT_COMMAND =
+  "node packages/server/dist/scripts/sync-prices.js";
+
 export const EMPTY_PLATFORM_STATS_FORM: PlatformStatsFormValues = {
   stats: [],
 };
-
-export const ADMIN_DISCORD_CHANNELS_PATH = "/app/admin/discord-channels";
 
 export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormValues =
   {
