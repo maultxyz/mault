@@ -263,6 +263,10 @@
           "cameraMountScrew": {
             "part": "1/4\"-20 camera mount screw",
             "notes": "Standard tripod-mount thread, screws into a webcam or phone mount's socket"
+          },
+          "hopperWeights": {
+            "part": "Hopper sled weights",
+            "notes": "Drop into the weighted hopper sled to press the stack down so cards feed more reliably. Add up to 25"
           }
         }
       }

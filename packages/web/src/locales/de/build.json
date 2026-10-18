@@ -263,6 +263,10 @@
           "cameraMountScrew": {
             "part": "1/4\"-20 Kamera-Befestigungsschraube",
             "notes": "Standard-Stativgewinde - passt in die Buchse einer Webcam- oder Telefonhalterung"
+          },
+          "hopperWeights": {
+            "part": "Gewichte für den Hopper-Schlitten",
+            "notes": "Werden in den beschwerten Hopper-Schlitten gelegt und drücken den Stapel nach unten, damit Karten zuverlässiger einziehen. Bis zu 25 möglich"
           }
         }
       }
