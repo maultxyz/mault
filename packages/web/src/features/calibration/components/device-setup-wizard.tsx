@@ -649,7 +649,7 @@ export function DeviceSetupWizard() {
             />
             <ControlPanel
               label={t("setupWizard.feederStop.pulseLabel")}
-              value={feederStopPulse}
+              value={String(feederStopPulse)}
               hint={t("setupWizard.feederStop.hint")}
             >
               <div className="flex items-center gap-3">

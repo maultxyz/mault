@@ -78,7 +78,9 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
         const merged = {
           name: "name" in body && body.name ? body.name : device.name,
           hardwareId:
-            "hardwareId" in body ? body.hardwareId : device.hardwareId,
+            "hardwareId" in body
+              ? (body.hardwareId ?? null)
+              : device.hardwareId,
           scanCoverage:
             "scanRegion" in body
               ? body.scanRegion
