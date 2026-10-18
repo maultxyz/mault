@@ -122,6 +122,15 @@ export async function setChaosMode(
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/chaos`, config);
 }
 
+export async function setSkipSaving(
+  guid: string,
+  skipSaving: boolean,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/skip-saving`, {
+    skipSaving,
+  });
+}
+
 export async function setAutoAssignField(
   guid: string,
   field: string | null,

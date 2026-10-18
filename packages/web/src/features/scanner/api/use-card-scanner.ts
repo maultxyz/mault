@@ -20,12 +20,23 @@ import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
+import {
+  contourFingerprint,
+  fingerprintDistance,
+  maxCornerShift,
+} from "@/features/scanner/lib/hand-scan";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
 import {
   embedCanvas,
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import {
+  HAND_SCAN_MAX_CORNER_SHIFT_RATIO,
+  HAND_SCAN_REARM_FINGERPRINT_DIFF,
+  HAND_SCAN_REARM_SHIFT_RATIO,
+  HAND_SCAN_REMOVAL_TICKS,
+  HAND_SCAN_STABLE_TICKS,
+  HAND_SCAN_TRACKING_STATUSES,
   SCANNABLE_STATUSES,
   SCANNER_LIVE_DETECTION_INTERVAL_MS,
   LIVE_DETECTION_STATUSES,
@@ -60,6 +71,7 @@ import {
   OCR_REGIONS_BY_GAME_KEY,
   type CardContour,
   type CardScannerProps,
+  type CornerDetection,
   type CardSearchResult,
   type OcrDiagnostics,
   type PlayingCardWithDistance,
@@ -561,9 +573,11 @@ export function useCardScanner({
   onError,
   rotated = true,
   scanRegion: scanRegionProp,
+  autoCapture = false,
 }: Omit<CardScannerProps, "className"> & {
   rotated?: boolean;
   scanRegion?: ScanRegion;
+  autoCapture?: boolean;
 } = {}) {
   const { t } = useTranslation("scanner");
   const {
@@ -597,6 +611,16 @@ export function useCardScanner({
 
   const rotatedRef = useRef(rotated);
   rotatedRef.current = rotated;
+
+  const autoCaptureRef = useRef(autoCapture);
+  autoCaptureRef.current = autoCapture;
+  const handScanArmedRef = useRef(true);
+  const handScanStableTicksRef = useRef(0);
+  const handScanAbsentTicksRef = useRef(0);
+  const handScanLastContourRef = useRef<CardContour | null>(null);
+  const handScanCapturedContourRef = useRef<CardContour | null>(null);
+  const handScanCapturedFingerprintRef = useRef<Float32Array | null>(null);
+  const captureCardRef = useRef<() => void>(() => {});
 
   const scanRegion =
     scanRegionProp ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
@@ -908,7 +932,7 @@ export function useCardScanner({
 
     const intervalId = setInterval(() => {
       if (liveDetectingRef.current || getOnnxRuntimeFailure()) return;
-      if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
+      if (!isTrackedStatus()) return;
 
       const canvas = displayCanvasRef.current;
       const overlayCanvas = overlayCanvasRef.current;
@@ -917,6 +941,8 @@ export function useCardScanner({
       liveDetectingRef.current = true;
       detectCardCorners(canvas)
         .then((detection) => {
+          if (!isTrackedStatus()) return;
+          if (autoCaptureRef.current) trackHandScan(detection, canvas);
           if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
           const overlayCtx = overlayCanvas.getContext("2d");
           if (!overlayCtx) return;
@@ -938,6 +964,80 @@ export function useCardScanner({
           liveDetectingRef.current = false;
         });
     }, SCANNER_LIVE_DETECTION_INTERVAL_MS);
+
+    function isTrackedStatus() {
+      return autoCaptureRef.current
+        ? HAND_SCAN_TRACKING_STATUSES.includes(statusRef.current)
+        : LIVE_DETECTION_STATUSES.includes(statusRef.current);
+    }
+
+    function cardChangedSinceCapture(
+      contour: CardContour,
+      canvas: HTMLCanvasElement,
+    ) {
+      const capturedContour = handScanCapturedContourRef.current;
+      if (!capturedContour) return true;
+      const rearmShift =
+        Math.max(canvas.width, canvas.height) * HAND_SCAN_REARM_SHIFT_RATIO;
+      if (maxCornerShift(capturedContour, contour) > rearmShift) return true;
+      const capturedFingerprint = handScanCapturedFingerprintRef.current;
+      const fingerprint = contourFingerprint(canvas, contour);
+      return (
+        !!capturedFingerprint &&
+        !!fingerprint &&
+        fingerprintDistance(capturedFingerprint, fingerprint) >
+          HAND_SCAN_REARM_FINGERPRINT_DIFF
+      );
+    }
+
+    function trackHandScan(
+      detection: CornerDetection,
+      canvas: HTMLCanvasElement,
+    ) {
+      if (!detection.cardPresent || !detection.contour) {
+        handScanStableTicksRef.current = 0;
+        handScanLastContourRef.current = null;
+        handScanAbsentTicksRef.current++;
+        if (handScanAbsentTicksRef.current >= HAND_SCAN_REMOVAL_TICKS)
+          handScanArmedRef.current = true;
+        return;
+      }
+      handScanAbsentTicksRef.current = 0;
+      const previous = handScanLastContourRef.current;
+      handScanLastContourRef.current = detection.contour;
+      if (
+        !handScanArmedRef.current &&
+        SCANNABLE_STATUSES.includes(statusRef.current) &&
+        cardChangedSinceCapture(detection.contour, canvas)
+      ) {
+        handScanArmedRef.current = true;
+      }
+      if (
+        !handScanArmedRef.current ||
+        !SCANNABLE_STATUSES.includes(statusRef.current)
+      ) {
+        handScanStableTicksRef.current = 0;
+        return;
+      }
+      const maxShift =
+        Math.max(canvas.width, canvas.height) *
+        HAND_SCAN_MAX_CORNER_SHIFT_RATIO;
+      const isStill =
+        previous !== null &&
+        maxCornerShift(previous, detection.contour) <= maxShift;
+      handScanStableTicksRef.current = isStill
+        ? handScanStableTicksRef.current + 1
+        : 0;
+      if (handScanStableTicksRef.current < HAND_SCAN_STABLE_TICKS) return;
+      handScanStableTicksRef.current = 0;
+      handScanArmedRef.current = false;
+      handScanCapturedContourRef.current = detection.contour;
+      handScanCapturedFingerprintRef.current = contourFingerprint(
+        canvas,
+        detection.contour,
+      );
+      captureCardRef.current();
+    }
 
     return () => clearInterval(intervalId);
   }, [stream]);
@@ -1101,6 +1201,7 @@ export function useCardScanner({
       performCapture(true, contour, true);
     }, captureSettleDelayMsRef.current);
   }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);
+  captureCardRef.current = captureCard;
 
   const handleSkipDuplicate = useCallback(() => {
     setDuplicateCard(null);

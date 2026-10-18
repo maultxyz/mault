@@ -1,5 +1,6 @@
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
+  type CardContour,
   type CollectionCardsQuery,
   type ScannerStatus,
   EMPTY_CARD_FILTERS,
@@ -93,6 +94,26 @@ export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
 
 export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
+
+export const HAND_SCAN_STABLE_TICKS = 3;
+export const HAND_SCAN_REMOVAL_TICKS = 2;
+export const HAND_SCAN_MAX_CORNER_SHIFT_RATIO = 0.02;
+export const HAND_SCAN_REARM_SHIFT_RATIO = 0.12;
+export const HAND_SCAN_REARM_FINGERPRINT_DIFF = 0.08;
+export const HAND_SCAN_FINGERPRINT_SIZE = 16;
+export const HAND_SCAN_TRACKING_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "paused",
+  "settling",
+  "no-match",
+  "duplicate",
+];
+export const CONTOUR_CORNERS = [
+  "topLeft",
+  "topRight",
+  "bottomRight",
+  "bottomLeft",
+] as const satisfies readonly (keyof CardContour)[];
 
 export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "scanning",

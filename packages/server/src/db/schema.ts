@@ -214,6 +214,7 @@ export const binSets = pgTable(
     alphabetPrefix: text("alphabet_prefix").notNull().default(""),
     isChaosMode: boolean("is_chaos_mode").notNull().default(false),
     chaosBinSize: integer("chaos_bin_size"),
+    skipSaving: boolean("skip_saving").notNull().default(false),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),

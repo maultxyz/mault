@@ -54,6 +54,8 @@ export function ScannerMenu({
   canConnectAnotherSorter,
   sorterLimitIsHardCap,
   onUpgrade,
+  handScan,
+  onHandScanChange,
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
@@ -205,6 +207,21 @@ export function ScannerMenu({
                     disabled={scanningBlocked}
                     onSelect={onScannerConnectCloud}
                   />
+                  <DropdownMenuSeparator />
+                  <DropdownMenuCheckboxItem
+                    checked={handScan}
+                    onCheckedChange={onHandScanChange}
+                  >
+                    {t("scannerMenu.scanWithoutSorter")}
+                  </DropdownMenuCheckboxItem>
+                  {handScan && (
+                    <DropdownMenuCheckboxItem
+                      checked={allowDuplicates}
+                      onCheckedChange={onAllowDuplicatesChange}
+                    >
+                      {t("scannerMenu.allowDuplicates")}
+                    </DropdownMenuCheckboxItem>
+                  )}
                   {webSerialSupported && (
                     <>
                       <DropdownMenuSeparator />

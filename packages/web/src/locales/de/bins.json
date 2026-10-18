@@ -144,6 +144,7 @@
       "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden",
       "alphabetFailed": "Alphabetische Sortierung konnte nicht aktualisiert werden",
       "chaosFailed": "Chaotisches Sortieren konnte nicht aktualisiert werden",
+      "skipSavingFailed": "Speichern konnte nicht aktualisiert werden",
       "cardsStored_one": "{{count}} Karte eingelagert",
       "cardsStored_other": "{{count}} Karten eingelagert"
     }
@@ -182,6 +183,10 @@
     "siftDescription": "Karten, die den Regeln unten entsprechen, kommen statt in ein Paket in das erste Fach. So kannst du Karten, die du behalten willst (nach Wert, Seltenheit, Set oder etwas anderem), aussortieren, während alle anderen Fächer Pakete aus dem Rest bilden.",
     "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Fach {{bin}}. Alle anderen Fächer bilden Pakete aus dem Rest.",
     "siftNoBin": "Zum Aussortieren wird neben dem Sammelfach mindestens ein aktiviertes Fach benötigt."
+  },
+  "skipSavingPanel": {
+    "heading": "Karten nicht speichern",
+    "description": "Karten werden wie gewohnt erkannt und in Fächer sortiert, aber nicht zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit."
   },
   "chaosPanel": {
     "heading": "Chaotisches Sortieren",

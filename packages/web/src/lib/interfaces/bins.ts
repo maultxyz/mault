@@ -41,6 +41,7 @@ export interface BinModeDraft {
   isAlphabetMode: boolean;
   isChaosMode: boolean;
   chaosBinSize: number | null;
+  skipSaving: boolean;
 }
 
 export interface ChaosConfig {
