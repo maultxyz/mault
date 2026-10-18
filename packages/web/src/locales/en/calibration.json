@@ -81,6 +81,10 @@
     "showAdvanced": "Show raw values",
     "hideAdvanced": "Hide raw values",
     "speedLabel": "Feed Speed",
+    "stopPulseLabel": "Stop Point",
+    "stopPulseDescription": "The pulse where this feeder motor stands still. It differs a little from servo to servo. Adjust it until the feeder stops moving during the short preview; the speed percentages are then measured from here.",
+    "stopPulseDefault": "Default ({{pulse}})",
+    "resetStopPulse": "Reset stop point",
     "speedTooltip": "How fast and which way the feeder motor spins. 0% is stopped; drag either way to speed up in that direction.",
     "forward": "Forward",
     "reverse": "Reverse",
@@ -415,6 +419,13 @@
       "waiting": "Waiting for the first reading from the sorter…",
       "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later."
     },
+    "feederStop": {
+      "heading": "Feeder stop point",
+      "body": "Every feeder motor has a slightly different point where it stands still. Each change runs the roller at that setting for a moment. Nudge it until the roller doesn't move at all.",
+      "pulseLabel": "Stop pulse",
+      "hint": "If the roller creeps one way, nudge the other way. When it stays still, that becomes 0% feeder speed.",
+      "saveFailed": "Couldn't save the feeder stop point."
+    },
     "feeder": {
       "heading": "Feeder speed",
       "body": "The feeder roller pulls the bottom card out of the hopper and into module 1. Drag until it spins in the direction that pulls cards in, at a steady speed.",
@@ -435,6 +446,7 @@
       "moduleCount": "Your sorter",
       "module": "Module {{module}} of {{total}} · {{servo}}",
       "irSensors": "Sensors",
+      "feederStop": "Feeder stop point",
       "feeder": "Feeder",
       "test": "Self-test",
       "moduleDelays": "Module {{module}} of {{total}} · Timing"

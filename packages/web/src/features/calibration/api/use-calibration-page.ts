@@ -254,6 +254,14 @@ export function useCalibrationPage() {
     [],
   );
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [feederStopDraft, setFeederStopDraft] = useState<
+    number | null | undefined
+  >(undefined);
+  const savedFeederStopPulse = device?.feederStopPulse ?? null;
+  const feederStopPulse =
+    feederStopDraft === undefined ? savedFeederStopPulse : feederStopDraft;
+  const isFeederStopDirty =
+    feederStopDraft !== undefined && feederStopDraft !== savedFeederStopPulse;
   const feederStateRef = useRef({ config: feederConfig, draft: feederDraft });
   feederStateRef.current = { config: feederConfig, draft: feederDraft };
 
@@ -610,6 +618,24 @@ export function useCalibrationPage() {
     [canCalibrate, previewSpeed, setFeederDraftField],
   );
 
+  const handleFeederStopPulseChange = useCallback(
+    (value: number) => {
+      if (!canCalibrate) return;
+      setFeederStopDraft(value);
+      if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
+      feederDebounceRef.current = setTimeout(
+        () => previewSpeed(value),
+        CALIBRATION_PREVIEW_DEBOUNCE_MS,
+      );
+    },
+    [canCalibrate, previewSpeed],
+  );
+
+  const handleResetFeederStopPulse = useCallback(
+    () => setFeederStopDraft(null),
+    [],
+  );
+
   const handleFeederDurationChange = useCallback(
     (value: number) => setFeederDraftField("duration", value),
     [setFeederDraftField],
@@ -667,7 +693,8 @@ export function useCalibrationPage() {
     [modules, pendingCalibration],
   );
 
-  const isFeederModuleDirty = isFeederDirty || dirtyModules.length > 0;
+  const isFeederModuleDirty =
+    isFeederDirty || isFeederStopDirty || dirtyModules.length > 0;
   const isScanRegionSectionDirty =
     isScanRegionDirty ||
     isCaptureSettleDirty ||
@@ -683,6 +710,13 @@ export function useCalibrationPage() {
         await saveFeeder(feederValues);
         draftsOnDeviceRef.current.feeder = false;
         setFeederDraft({});
+      }
+      if (isFeederStopDirty && device) {
+        await saveDevice(device.guid, { feederStopPulse });
+        await queryClient.invalidateQueries({
+          queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
+        });
+        setFeederStopDraft(undefined);
       }
       for (const moduleNumber of dirtyModules) {
         const config = configsRef.current.find(
@@ -708,6 +742,11 @@ export function useCalibrationPage() {
   }, [
     toast,
     isFeederDirty,
+    isFeederStopDirty,
+    feederStopPulse,
+    device,
+    queryClient,
+    activeOrg?.id,
     dirtyModules,
     feederValues,
     saveFeeder,
@@ -750,6 +789,7 @@ export function useCalibrationPage() {
   const handleDiscardFeederModuleCalibration = useCallback(() => {
     setPendingCalibration({});
     setFeederDraft({});
+    setFeederStopDraft(undefined);
     void restoreSavedOnDevice();
   }, [restoreSavedOnDevice]);
 
@@ -968,7 +1008,10 @@ export function useCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
+    feederStopPulse,
     handleFeederSpeedChange,
+    handleFeederStopPulseChange,
+    handleResetFeederStopPulse,
     handleFeederDurationChange,
     handleFeederPulseDurationChange,
     handleFeederPauseDurationChange,

@@ -7,6 +7,7 @@ export interface DevicePatch {
   scanRegion?: ScanRegion | null;
   captureSettleDelayMs?: number | null;
   matchesNeeded?: number | null;
+  feederStopPulse?: number | null;
   checkBothOrientations?: boolean | null;
   moduleCount?: number;
   channelLayout?: ChannelLayout;

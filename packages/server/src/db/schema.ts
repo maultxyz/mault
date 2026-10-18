@@ -243,6 +243,7 @@ export const devices = pgTable(
     scanOffsetY: integer("scan_offset_y"),
     captureSettleDelayMs: integer("capture_settle_delay_ms"),
     matchesNeeded: integer("matches_needed"),
+    feederStopPulse: integer("feeder_stop_pulse"),
     checkBothOrientations: boolean("check_both_orientations"),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),

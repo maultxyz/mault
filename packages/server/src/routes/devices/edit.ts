@@ -30,6 +30,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       } | null;
       captureSettleDelayMs?: number | null;
       matchesNeeded?: number | null;
+      feederStopPulse?: number | null;
       checkBothOrientations?: boolean | null;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
@@ -104,6 +105,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             "matchesNeeded" in body
               ? (body.matchesNeeded ?? null)
               : device.matchesNeeded,
+          feederStopPulse:
+            "feederStopPulse" in body
+              ? (body.feederStopPulse ?? null)
+              : device.feederStopPulse,
           checkBothOrientations:
             "checkBothOrientations" in body
               ? (body.checkBothOrientations ?? null)
