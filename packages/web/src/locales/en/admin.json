@@ -4,16 +4,12 @@
     "subtitle": "Manage games, sync card data, and the card image vector database"
   },
   "sections": {
-    "cards": "Cards",
-    "games": "Games",
+    "cards": "Games and cards",
     "users": "Users",
     "plans": "Plans",
-    "discordChannels": "Discord channels",
-    "announcements": "Announcements",
-    "deleted": "Deleted items",
-    "unmatched": "Unmatched scans",
-    "servos": "Kit testing",
-    "device": "Device",
+    "discord": "Discord",
+    "deleted": "Deleted and unmatched",
+    "hardware": "Hardware",
     "developer": "Developer"
   },
   "kitTest": {

@@ -25,7 +25,11 @@ import { checkGameKey } from "@/features/games/api/games";
 import { useSaveGame } from "@/features/games/api/use-save-game";
 import { toGameFormValues } from "@/features/games/lib/game-form";
 import { listSyncSources } from "@/lib/api/admin";
-import { GAME_FORM_ID, GAMES_ADMIN_PATH } from "@/lib/constants/games";
+import {
+  GAME_EDITOR_BASE_PATH,
+  GAME_FORM_ID,
+  GAMES_ADMIN_PATH,
+} from "@/lib/constants/games";
 import type { GameEditorProps } from "@/lib/interfaces/games";
 import {
   createGameFormSchema,
@@ -98,7 +102,7 @@ export function GameEditor({ game }: GameEditorProps) {
     if (game) {
       reset(toGameFormValues(saved));
     } else {
-      navigate(`${GAMES_ADMIN_PATH}/${saved.guid}`, { replace: true });
+      navigate(`${GAME_EDITOR_BASE_PATH}/${saved.guid}`, { replace: true });
     }
   }
 

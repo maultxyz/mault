@@ -4,16 +4,12 @@
     "subtitle": "Verwalte Spiele, die Kartensynchronisierung und die Kartenbild-Vektordatenbank"
   },
   "sections": {
-    "cards": "Karten",
-    "games": "Spiele",
+    "cards": "Spiele und Karten",
     "users": "Benutzer",
     "plans": "Tarife",
-    "discordChannels": "Discord-Kanäle",
-    "announcements": "Ankündigungen",
-    "deleted": "Gelöschte Elemente",
-    "unmatched": "Nicht erkannte Scans",
-    "servos": "Bausatz-Test",
-    "device": "Gerät",
+    "discord": "Discord",
+    "deleted": "Gelöscht und nicht erkannt",
+    "hardware": "Hardware",
     "developer": "Entwickler"
   },
   "kitTest": {

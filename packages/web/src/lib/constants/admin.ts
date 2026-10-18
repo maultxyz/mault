@@ -10,12 +10,8 @@ import {
   IconBug,
   IconCards,
   IconCreditCard,
-  IconDeviceGamepad2,
   IconRestore,
   IconRotate360,
-  IconScanEye,
-  IconSpeakerphone,
-  IconTerminal2,
   IconUserScan,
 } from "@tabler/icons-react";
 
@@ -53,23 +49,11 @@ export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
 
 export const ADMIN_SECTIONS = [
   { path: "cards", icon: IconCards, labelKey: "sections.cards" },
-  { path: "games", icon: IconDeviceGamepad2, labelKey: "sections.games" },
   { path: "users", icon: IconUserScan, labelKey: "sections.users" },
   { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
-  {
-    path: "discord-channels",
-    icon: IconBrandDiscord,
-    labelKey: "sections.discordChannels",
-  },
-  {
-    path: "announcements",
-    icon: IconSpeakerphone,
-    labelKey: "sections.announcements",
-  },
+  { path: "discord", icon: IconBrandDiscord, labelKey: "sections.discord" },
   { path: "deleted", icon: IconRestore, labelKey: "sections.deleted" },
-  { path: "unmatched", icon: IconScanEye, labelKey: "sections.unmatched" },
-  { path: "servos", icon: IconRotate360, labelKey: "sections.servos" },
-  { path: "device", icon: IconTerminal2, labelKey: "sections.device" },
+  { path: "hardware", icon: IconRotate360, labelKey: "sections.hardware" },
   { path: "developer", icon: IconBug, labelKey: "sections.developer" },
 ] as const;
 

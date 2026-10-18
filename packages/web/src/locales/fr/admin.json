@@ -4,16 +4,12 @@
     "subtitle": "Gère les jeux, la synchronisation des cartes et la base de données de vecteurs d'image"
   },
   "sections": {
-    "cards": "Cartes",
-    "games": "Jeux",
+    "cards": "Jeux et cartes",
     "users": "Utilisateurs",
     "plans": "Offres",
-    "discordChannels": "Salons Discord",
-    "announcements": "Annonces",
-    "deleted": "Éléments supprimés",
-    "unmatched": "Scans non reconnus",
-    "servos": "Test des kits",
-    "device": "Appareil",
+    "discord": "Discord",
+    "deleted": "Supprimés et non reconnus",
+    "hardware": "Matériel",
     "developer": "Développeur"
   },
   "kitTest": {
