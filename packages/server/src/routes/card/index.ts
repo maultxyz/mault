@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { imageProxyRoute } from "./image-proxy";
+import { netdeckImageRoute } from "./netdeck-image";
 import { searchByImageRoute } from "./search-by-image";
 import { searchByTextRoute } from "./search-by-text";
 import { searchByVectorRoute } from "./search-by-vector";
@@ -17,6 +18,7 @@ const router = new Hono<AppEnv>()
   .route("/", sampleCardRoute)
   .route("/", searchCardRoute)
   .route("/", searchCardByIdRoute)
-  .route("/", imageProxyRoute);
+  .route("/", imageProxyRoute)
+  .route("/", netdeckImageRoute);
 
 export { router as cardRouter };

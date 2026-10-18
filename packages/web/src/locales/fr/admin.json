@@ -8,7 +8,6 @@
     "games": "Jeux",
     "users": "Utilisateurs",
     "plans": "Offres",
-    "discordStats": "Statistiques Discord",
     "discordChannels": "Salons Discord",
     "announcements": "Annonces",
     "deleted": "Éléments supprimés",
@@ -457,8 +456,6 @@
   "platformStats": {
     "statsHeading": "Statistiques",
     "statsDescription": "Les chiffres à inclure dans chaque publication, toutes organisations confondues.",
-    "noChannelConfigured": "Les statistiques ne peuvent pas être publiées tant qu'aucun salon de statistiques n'est choisi.",
-    "openDiscordChannels": "Ouvrir les salons Discord",
     "stats": {
       "scannedCards": {
         "label": "Cartes scannées",
@@ -506,7 +503,7 @@
     "channels": {
       "stats": {
         "heading": "Statistiques de la plateforme",
-        "description": "Où les statistiques de la plateforme sont publiées. Choisissez les statistiques à inclure dans Statistiques Discord. Laissez vide pour ne plus publier les statistiques."
+        "description": "Où les statistiques de la plateforme sont publiées, et quels chiffres chaque publication inclut. Laissez le salon vide pour ne plus publier les statistiques."
       },
       "donations": {
         "heading": "Dons",
@@ -517,6 +514,8 @@
         "description": "Où un résumé est publié chaque fois que la synchronisation des prix récupère de nouveaux prix. Laissez vide pour ne plus publier les mises à jour des prix."
       }
     },
+    "priceSyncCommand": "Les prix sont récupérés quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, toutes les quelques heures. Elle ne télécharge que ce qui a changé.",
+    "donationsLink": "Ouvrir la page Buy Me a Coffee",
     "saved": "Salons Discord enregistrés.",
     "saveFailed": "Impossible d'enregistrer les salons Discord."
   }

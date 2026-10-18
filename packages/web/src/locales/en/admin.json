@@ -8,7 +8,6 @@
     "games": "Games",
     "users": "Users",
     "plans": "Plans",
-    "discordStats": "Discord stats",
     "discordChannels": "Discord channels",
     "announcements": "Announcements",
     "deleted": "Deleted items",
@@ -468,8 +467,6 @@
   "platformStats": {
     "statsHeading": "Stats",
     "statsDescription": "Which numbers to include in each post, across every organization.",
-    "noChannelConfigured": "Stats can't be posted until a stats channel is picked.",
-    "openDiscordChannels": "Open Discord channels",
     "stats": {
       "scannedCards": {
         "label": "Scanned cards",
@@ -517,7 +514,7 @@
     "channels": {
       "stats": {
         "heading": "Platform stats",
-        "description": "Where the platform stats are posted. Pick which stats to include in Discord stats. Leave it empty to stop posting stats."
+        "description": "Where the platform stats are posted, and which numbers each post includes. Leave the channel empty to stop posting stats."
       },
       "donations": {
         "heading": "Donations",
@@ -528,6 +525,8 @@
         "description": "Where a summary is posted whenever the price sync pulls new prices. Leave it empty to stop posting price updates."
       }
     },
+    "priceSyncCommand": "Prices are pulled when this command runs. Add it as a scheduled task in Coolify on the server app, every few hours. It only downloads what changed upstream.",
+    "donationsLink": "Open the Buy Me a Coffee page",
     "saved": "Discord channels saved.",
     "saveFailed": "Couldn't save the Discord channels."
   }
