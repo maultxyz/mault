@@ -111,6 +111,8 @@
     "selectGamePlaceholder": "Spiel auswählen...",
     "languagePlaceholder": "Sprache...",
     "forceResyncLabel": "Vollständige Neusynchronisierung erzwingen",
+    "concurrencyLabel": "Karten gleichzeitig",
+    "concurrencyDescription": "Vektorisiert so viele Kartenbilder gleichzeitig. Downloads starten weiterhin mit kurzem Abstand.",
     "cancellingButton": "Wird abgebrochen...",
     "startSyncButton": "Sync starten",
     "progressCount": "{{done}} / {{total}}",
