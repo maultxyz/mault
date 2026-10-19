@@ -96,19 +96,6 @@ export interface DiscordGuildSelectProps {
   onChange: (guildId: string | null) => void;
 }
 
-export interface AdminStatTile {
-  key: string;
-  label: string;
-  value: string | number | null | undefined;
-  detail?: string | null;
-}
-
-export interface AdminStatGroupProps {
-  heading: string;
-  tiles: AdminStatTile[];
-  live?: boolean;
-}
-
 export interface UnmatchedRetryResultProps {
   result: AdminUnmatchedRetryResult;
 }

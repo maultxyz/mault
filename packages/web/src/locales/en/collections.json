@@ -57,7 +57,8 @@
       "collections": "Collections",
       "cards": "Cards",
       "games": "Games",
-      "live": "Live now"
+      "live": "Live now",
+      "heading": "Overview"
     },
     "liveView": "Live view"
   },

@@ -57,7 +57,8 @@
       "collections": "Sammlungen",
       "cards": "Karten",
       "games": "Spiele",
-      "live": "Gerade live"
+      "live": "Gerade live",
+      "heading": "Übersicht"
     },
     "liveView": "Live-Ansicht"
   },

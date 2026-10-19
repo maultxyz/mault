@@ -28,9 +28,6 @@ export const COLLECTION_PREVIEW_FAN_CLASSES = [
   "z-10 translate-x-[15%] -translate-y-[44%] rotate-12 group-hover:translate-x-[35%] group-hover:rotate-[18deg]",
 ] as const;
 
-export const COLLECTION_STAT_CLASS =
-  "flex flex-col gap-0.5 rounded-lg border bg-card px-4 py-3";
-
 export const COLLECTIONS_SKELETON_COUNT = 3;
 
 export const EMPTY_COLLECTION_DELETE = "__delete__";

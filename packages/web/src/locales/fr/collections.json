@@ -57,7 +57,8 @@
       "collections": "Collections",
       "cards": "Cartes",
       "games": "Jeux",
-      "live": "En direct"
+      "live": "En direct",
+      "heading": "Aperçu"
     },
     "liveView": "Vue en direct"
   },

@@ -15,12 +15,12 @@ import { CreateCollectionDialog } from "@/features/collections/components/create
 import { EmptyCollectionDialog } from "@/features/collections/components/empty-collection-dialog";
 import type { CollectionTarget } from "@/lib/interfaces/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { StatGroup } from "@/components/stat-group";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   COLLECTION_SELECTION_ISLAND_BUTTON_CLASS,
   COLLECTION_SELECTION_ISLAND_CLASS,
-  COLLECTION_STAT_CLASS,
   COLLECTIONS_GRID_CLASS,
   COLLECTIONS_SKELETON_COUNT,
 } from "@/lib/constants/collections";
@@ -129,20 +129,31 @@ export default function CollectionsPage() {
     });
   };
 
+  const liveCount = collections.filter((c) => !!locks[c.guid]).length;
   const stats = [
-    { label: t("page.stats.collections"), value: collections.length },
     {
+      key: "collections",
+      label: t("page.stats.collections"),
+      value: collections.length.toLocaleString(),
+    },
+    {
+      key: "live",
       label: t("page.stats.live"),
-      value: collections.filter((c) => !!locks[c.guid]).length,
+      value: liveCount.toLocaleString(),
     },
     {
+      key: "cards",
       label: t("page.stats.cards"),
-      value: collections.reduce((sum, c) => sum + c.cardCount, 0),
+      value: collections
+        .reduce((sum, c) => sum + c.cardCount, 0)
+        .toLocaleString(),
     },
     {
+      key: "games",
       label: t("page.stats.games"),
-      value: new Set(collections.flatMap((c) => (c.game ? [c.game.guid] : [])))
-        .size,
+      value: new Set(
+        collections.flatMap((c) => (c.game ? [c.game.guid] : [])),
+      ).size.toLocaleString(),
     },
   ];
 
@@ -245,18 +256,12 @@ export default function CollectionsPage() {
           </div>
           {!isLoading && collections.length > 0 && (
             <>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                {stats.map((stat) => (
-                  <div key={stat.label} className={COLLECTION_STAT_CLASS}>
-                    <span className="text-xs text-foreground/70">
-                      {stat.label}
-                    </span>
-                    <span className="font-heading text-lg font-semibold tabular-nums">
-                      {stat.value.toLocaleString()}
-                    </span>
-                  </div>
-                ))}
-              </div>
+              <StatGroup
+                heading={t("page.stats.heading")}
+                tiles={stats}
+                live={liveCount > 0}
+                gridClassName="grid-cols-2 sm:grid-cols-4"
+              />
               <div className="relative">
                 <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
                 <Input
