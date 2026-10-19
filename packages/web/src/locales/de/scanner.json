@@ -391,7 +391,9 @@
     "identifyTitle": "Diese Karte bestimmen",
     "identifyDescription": "Wähle die Karte aus diesem Scan. Sie wird mit diesem Foto der Sammlung hinzugefügt, im Fach, in das sie sortiert wurde.",
     "identified": "{{name}} wurde der Sammlung hinzugefügt.",
-    "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut."
+    "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut.",
+    "remove": "Karte entfernen",
+    "removeFailed": "Die Karte konnte nicht entfernt werden. Versuche es erneut."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",

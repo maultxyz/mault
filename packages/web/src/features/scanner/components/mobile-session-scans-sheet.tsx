@@ -7,8 +7,8 @@ import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import {
   MOBILE_LIST_CLASS,
   MOBILE_LIST_ROW_CLASS,
-  MOBILE_MONITOR_CARD_PARAM,
 } from "@/lib/constants/nav";
+import { MONITOR_OPEN_CARD_PARAM } from "@/lib/constants/scanner";
 import type { MobileSessionScansSheetProps } from "@/lib/interfaces/scanner";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -57,7 +57,7 @@ export function MobileSessionScansSheet({
                 return (
                   <Link
                     key={entry.scanId}
-                    to={`/app/monitor/${collectionGuid}?${MOBILE_MONITOR_CARD_PARAM}=${entry.scanId}`}
+                    to={`/app/monitor/${collectionGuid}?${MONITOR_OPEN_CARD_PARAM}=${entry.scanId}`}
                     className={MOBILE_LIST_ROW_CLASS}
                   >
                     <span className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-sm bg-muted">

@@ -1,4 +1,5 @@
-import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
+import { IdentifyUnmatchedDialog } from "@/features/scanner/components/identify-unmatched-dialog";
+import { MobileUnmatchedCardDrawer } from "@/features/scanner/components/mobile-unmatched-card-drawer";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -14,16 +15,25 @@ import {
   IconChevronRight,
   IconSparkles,
 } from "@tabler/icons-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { RECENT_SCANNED_CARDS_COUNT } from "@magic-vault/shared";
+import {
+  RECENT_SCANNED_CARDS_COUNT,
+  type UnmatchedCard,
+} from "@magic-vault/shared";
 
 export function MobileMonitorActivity({
   session,
+  collectionGuid,
   stats,
   canEditCards,
   onOpenCard,
 }: MobileMonitorActivityProps) {
   const { t } = useTranslation("scanner");
+  const [openUnmatched, setOpenUnmatched] = useState<UnmatchedCard | null>(
+    null,
+  );
+  const [identifying, setIdentifying] = useState<UnmatchedCard | null>(null);
   const { priceOf, format } = usePriceSource();
   const { recentCards, unmatchedCards, errors } = session;
   const recent = recentCards.slice(0, RECENT_SCANNED_CARDS_COUNT);
@@ -43,10 +53,27 @@ export function MobileMonitorActivity({
   return (
     <div className="flex flex-col gap-6 p-4">
       <SessionErrorsPanel errors={errors} />
-      {canEditCards ? (
-        <IdentifiableUnmatchedCardsPanel cards={unmatchedCards} />
-      ) : (
-        <UnmatchedCardsPanel cards={unmatchedCards} />
+      <UnmatchedCardsPanel
+        cards={unmatchedCards}
+        onOpen={canEditCards ? setOpenUnmatched : undefined}
+      />
+      {canEditCards && (
+        <>
+          <MobileUnmatchedCardDrawer
+            entry={openUnmatched}
+            collectionGuid={collectionGuid}
+            onIdentify={(entry) => {
+              setOpenUnmatched(null);
+              setIdentifying(entry);
+            }}
+            onClose={() => setOpenUnmatched(null)}
+          />
+          <IdentifyUnmatchedDialog
+            entry={identifying}
+            collectionGuid={collectionGuid}
+            onClose={() => setIdentifying(null)}
+          />
+        </>
       )}
 
       {recent.length > 0 && (

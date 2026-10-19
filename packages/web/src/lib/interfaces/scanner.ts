@@ -514,6 +514,7 @@ export interface MobileMonitorCardsProps {
 
 export interface MobileMonitorActivityProps {
   session: SessionMonitorState;
+  collectionGuid: string;
   stats: ScanStats | null;
   canEditCards: boolean;
   onOpenCard?: (scanId: string) => void;
@@ -643,6 +644,7 @@ export interface MobileSessionScansSheetProps {
 
 export interface UnmatchedDiagnosticsDetailsProps {
   diagnostics: UnmatchedScanDiagnostics;
+  className?: string;
 }
 
 export interface OrientedSearch {
@@ -709,6 +711,14 @@ export interface UnmatchedCardsPanelProps {
   cards: UnmatchedCard[];
   onRemove?: (scanId: string) => void;
   onIdentify?: (card: UnmatchedCard) => void;
+  onOpen?: (card: UnmatchedCard) => void;
+}
+
+export interface MobileUnmatchedCardDrawerProps {
+  entry: UnmatchedCard | null;
+  collectionGuid: string;
+  onIdentify: (card: UnmatchedCard) => void;
+  onClose: () => void;
 }
 
 export interface IdentifiableUnmatchedCardsPanelProps {
