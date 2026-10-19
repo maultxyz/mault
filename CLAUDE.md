@@ -102,9 +102,9 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - `shared/src/vision.ts` (corner parsing, homography/warp, tensor prep, color bar) and `shared/src/serial-protocol.ts` are the single implementation for web and mobile; platform code only converts pixels (canvas `ImageData` / nitro-image raw buffers) into `RgbaImage`.
 - Captured photos always go through `resizeAsync` before reading pixels: on iOS nitro-image's `toRawPixelData` reads the unrotated `cgImage`, while `width`/`height` and resize honour the photo's orientation.
 - Mobile runs ONNX on the CPU provider only: CoreML can drop to fp16, and embeddings must stay comparable to the fp32 vectors the server and web produce. It reports `vectorizedOn: "web"` (client-side).
-- Sorters connect over BLE only (iOS has no USB serial). Android needs runtime BLE permissions (`ensureBlePermissions`) before any scan. `SorterLink` mirrors `use-serial`'s seq matching, busy guard and route queue; change both together.
+- Sorters connect over BLE or the Wi-Fi relay, never USB (iOS has no USB serial). Wi-Fi uses `CloudTransport` (mirror of web's); its ids are `cloud:<deviceGuid>` so `connect`, auto-reconnect and the last-sorter key work unchanged. Android needs runtime BLE permissions (`ensureBlePermissions`) before any scan. `SorterLink` mirrors `use-serial`'s seq matching, busy guard and route queue; change both together.
 - No in-app account creation: App Store rules would then require in-app account deletion. Org listing goes through the provider-agnostic `/me/organizations`.
-- Repack and auto-assign presets are refused on mobile (they need bin contents / write bin rules).
+- Mobile runs every routing mode: repack and max-copies load `/cards/bin-contents`, auto-assign writes learned rules through `saveBinConfig`. Modes are edited on Rules > Sorting mode; `apply-mode.ts` turns the old mode off before enabling the new one.
 - `locales/en.json`, `de.json` and `fr.json` must keep identical keys; add every new string to all three.
 - QR pairing: vision-camera's `ScannedCode` is iOS-only, so Android decodes captured frames with `jsqr` (`use-qr-scanner.ts` picks per platform at module level).
 - CSV export adapters live in `shared/src/card-export`; web downloads the CSV, mobile hands it to `expo-sharing`.
@@ -118,6 +118,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 - `.github/workflows/deploy.yml` posts and clears a deploy banner (`X-Deploy-Key`), pauses scanning via `DEPLOY_STATUS_EVENT`, and regenerates `openapi.json`. Every banner step is `continue-on-error`.
 - Images are built in CI and pushed to GHCR (`mault-web`/`-server`/`-api-docs`/`-bot`, tagged `vX.Y.Z` and `sha-*`); Coolify pulls `:latest` (production, from master) or `:dev` (manual dispatch on `dev` only, `development` GitHub environment, version `X.Y.Z-dev.<sha>`, never committed or tagged); the channel tag moves only after the release commit (and, for the server, migrations). Secrets and variables use the same names in both GitHub environments. Images are public, so web `VITE_*` config is runtime: `docker/web-env.sh` writes `env.js` (`window.__ENV__`) from the container env at start-up, and code reads it through `runtimeEnv()`, never `import.meta.env.VITE_*`. Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg (it describes the baked-in binary). Anything that changes a baked-in file (e.g. firmware) must dispatch `deploy.yml`, not hit a Coolify webhook.
+- Mobile Release (`mobile-release.yml`, manual): from `master` it bumps `packages/mobile`'s own version (the store version, independent of the web/server version), runs EAS `production` builds with `--auto-submit` (TestFlight, Play internal track), then commits and tags `mobile-vX.Y.Z`; from `dev` it runs `preview` internal builds and commits nothing. EAS build workers don't see GitHub env: the `MOBILE_*` values `app.config.ts` reads (the EAS project id is committed as its default) must be set as EAS environment variables (`development`/`preview`/`production`).
 - Firmware Release dispatched from `dev` commits nothing: it publishes the moving `firmware-dev` pre-release (version `X.Y.Z-dev.<run>`), and only dev deploys swap that binary and version into the web image. A production firmware release deletes `firmware-dev`.
 
 ## Web conventions
@@ -128,6 +129,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Nothing auto-saves: settings edit a draft saved through the page's single `SaveBar` with `UnsavedChangesGuard`. Draft forms take server data via `values` with `resetOptions: { keepDirtyValues: true }`; Discard must pass `DISCARD_RESET_OPTIONS`. Discrete actions (dialog submits, deletes, uploads, tests) stay immediate.
 - Hotkeys only through `useHotkeys`, declared in `HOTKEYS` (`lib/constants/hotkeys.ts`).
 - Toasts only through the root `Toaster` in `main.tsx`.
+- The Rules page (`SORTING_RULES_PATH`) is outside `DesktopOnlyGuard` and renders `MobileBins` on phones (Rules tab in `MobileNav`).
 - Settings sub-pages use `SETTINGS_PATHS`, each panel is a `SettingsSection`, and each sub-page needs a `settings:sectionIntros` entry. Calibration tour steps name their section, so moving a panel means updating `CALIBRATION_TOUR_STEPS`.
 - Mobile screens use `MobilePageHeader` and the `MOBILE_*` classes in `lib/constants/nav.ts`; every mobile scroll area adds `MOBILE_NAV_SCROLL_PADDING_CLASS`. Keep `Select`s and popovers out of vaul drawers.
 - Card actions belong in `useCardActions` (shared by context menu and mobile drawer).

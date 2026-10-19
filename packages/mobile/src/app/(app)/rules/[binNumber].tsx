@@ -18,7 +18,7 @@ import { saveBinConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { binSchema } from "@/features/rules/lib/bin-schema";
-import { binSetMode, emptyRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
+import { emptyRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { BinFormValues } from "@/lib/interfaces/forms";
@@ -57,8 +57,7 @@ export default function BinEditorScreen() {
   const isCatchAll = form.watch("isCatchAll");
   const overflowBin = form.watch("overflowBin");
 
-  const mode = binSetMode(activeSet);
-  const editableSet = !!activeSet?.isActive && (mode === "rules" || mode === "scan-only");
+  const editableSet = !!activeSet?.isActive;
   const sources = overflowSourcesFor(binNumber, bins);
   const targets = overflowTargetsFor(binNumber, bins);
   const pickList = !!bin?.pickList;
@@ -111,9 +110,6 @@ export default function BinEditorScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xxl }}
       >
-        {!editableSet && mode !== "rules" && mode !== "scan-only" ? (
-          <Callout tone="info" title={t("rules.modeNoticeTitle")} description={t(`rules.modeNotice.${mode}`)} />
-        ) : null}
         {activeSet && !activeSet.isActive ? (
           <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
         ) : null}

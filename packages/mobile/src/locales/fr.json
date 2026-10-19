@@ -13,7 +13,8 @@
     "unsavedChanges": "Modifications non enregistrées",
     "discardTitle": "Annuler les modifications ?",
     "discardDescription": "Tes modifications de ce bac n'ont pas été enregistrées.",
-    "keepEditing": "Continuer la modification"
+    "keepEditing": "Continuer la modification",
+    "cancel": "Annuler"
   },
   "tabs": {
     "collections": "Collections",
@@ -341,7 +342,7 @@
     "nearby": "Trieurs à proximité",
     "searching": "Recherche de trieurs",
     "noneFound": "Aucun trieur trouvé",
-    "bluetoothOnly": "Seuls les trieurs ESP32-S3 et Uno R4 WiFi ont le Bluetooth. Un Uno R4 Minima nécessite l'application de bureau via USB.",
+    "bluetoothOnly": "Seuls les trieurs ESP32-S3 et Uno R4 WiFi ont le Bluetooth. Les trieurs configurés pour le Wi-Fi dans l'application web apparaissent aussi sous Par Wi-Fi. Un Uno R4 Minima nécessite l'application de bureau en USB.",
     "unnamed": "Trieur sans nom",
     "signal": "Signal {{rssi}} dBm",
     "runSelfTest": "Lancer l'autotest",
@@ -404,6 +405,14 @@
       "setup-incomplete": {
         "title": "Termine la configuration de ce trieur",
         "description": "Termine d'abord l'étalonnage dans l'application web, puis reconnecte-toi depuis ton téléphone."
+      },
+      "sorter-offline": {
+        "title": "Le trieur est hors ligne",
+        "description": "Le trieur n'est pas connecté au Wi-Fi pour le moment. Vérifie qu'il est allumé et à portée de ton réseau."
+      },
+      "sorter-in-use": {
+        "title": "Le trieur est utilisé",
+        "description": "Un autre appareil est connecté à ce trieur. Déconnecte-le là-bas, puis réessaie."
       }
     },
     "restarted": {
@@ -428,6 +437,12 @@
       "dropFailed": "Le trieur n'a pas répondu à la commande d'éjection. Retirez la carte à la main.",
       "stillBlocked": "Le module {{module}} détecte encore une carte. Retirez-la, puis marquez le problème comme résolu.",
       "noResponse": "Le trieur n'a pas répondu. Reconnectez-le et réessayez."
+    },
+    "overWifi": "Par Wi-Fi",
+    "wifiStatus": {
+      "online": "En ligne",
+      "offline": "Hors ligne",
+      "inUse": "Utilisé sur un autre appareil"
     }
   },
   "scan": {
@@ -489,6 +504,10 @@
       "duplicate": {
         "title": "Même carte scannée à nouveau",
         "description": "Touche Reprendre pour l'ajouter quand même, ou active Autoriser les doublons dans les options de scan."
+      },
+      "repack-complete": {
+        "title": "Paquets terminés",
+        "description": "Tous les bacs de paquets sont pleins. Vide-les, puis touche Reprendre pour lancer le tour suivant."
       }
     },
     "scanOnce": "Scanner une",
@@ -511,16 +530,6 @@
     "sorterNotReadyDescription": "Connecte ton trieur pour charger et trier les cartes. Tu peux toujours scanner des cartes à la main.",
     "openSorter": "Connecter la trieuse",
     "modelErrorTitle": "Impossible de charger les modèles de reconnaissance des cartes",
-    "unsupported": {
-      "repack": {
-        "title": "Les préréglages de reconditionnement nécessitent l'application de bureau",
-        "description": "Passe à un autre préréglage, ou lance celui-ci depuis l'application web."
-      },
-      "auto-assign": {
-        "title": "Les préréglages à attribution automatique nécessitent l'application de bureau",
-        "description": "Passe à un autre préréglage, ou lance celui-ci depuis l'application web."
-      }
-    },
     "phase": {
       "idle": "Inactif",
       "loading-models": "Chargement des modèles",
@@ -575,7 +584,10 @@
         "external": "Externe"
       },
       "pairDesktop": "Utiliser comme caméra d'ordinateur",
-      "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur"
+      "pairDesktopDescription": "Scanne le code QR affiché sur ton ordinateur",
+      "collection": "Collection",
+      "preset": "Préréglage de règles",
+      "chooseCamera": "Choisir une caméra"
     }
   },
   "home": {
@@ -734,13 +746,6 @@
     "overflowTargetNotice_one": "Ce bac est le débordement du bac {{bins}}. Les cartes arrivent ici quand ce bac est plein, il ne peut donc pas avoir ses propres règles.",
     "overflowTargetNotice_other": "Ce bac est le débordement des bacs {{bins}}. Les cartes arrivent ici quand ces bacs sont pleins, il ne peut donc pas avoir ses propres règles.",
     "pickListNotice": "Ce bac utilise une liste de prélèvement. Modifie-la sur le web.",
-    "modeNoticeTitle": "Modifie ce préréglage sur le web",
-    "modeNotice": {
-      "repack": "Ce préréglage utilise le mode reconditionnement.",
-      "auto-assign": "Ce préréglage attribue les bacs automatiquement.",
-      "alphabet": "Ce préréglage trie par ordre alphabétique en plusieurs passes.",
-      "chaos": "Ce préréglage utilise le mode chaos."
-    },
     "noActiveTitle": "Aucun préréglage actif",
     "noActiveDescription": "Active un préréglage ci-dessus pour modifier ses bacs.",
     "saveFailed": "Impossible d'enregistrer ce bac",
@@ -782,7 +787,97 @@
     "groupChip_other": "Groupe de {{count}}",
     "moreChips": "+{{count}}",
     "limitChip": "Plein à {{count}}",
-    "overflowsTo": "Déborde vers {{bin}}"
+    "overflowsTo": "Déborde vers {{bin}}",
+    "mode": {
+      "title": "Mode de tri",
+      "saveFailed": "Impossible d'enregistrer le mode de tri",
+      "chaosLocked": "Inclus dans l'offre Business. Passe à l'offre supérieure sur le web pour l'utiliser.",
+      "matchedBin": "Cartes scannées",
+      "matchedBinDescription": "Cartes qui ont été identifiées",
+      "unmatchedBin": "Cartes non identifiées",
+      "unmatchedBinDescription": "Cartes qui n'ont pas pu être reconnues",
+      "autoAssignField": "Attribuer les bacs selon",
+      "reset": "Réinitialiser les bacs appris",
+      "resetHint": "Efface la valeur apprise de chaque bac pour que les nouveaux scans les remplissent à nouveau",
+      "resetTitle": "Réinitialiser les bacs détectés automatiquement ?",
+      "resetDescription": "Efface la valeur apprise de chaque bac de ce préréglage. Les nouveaux scans les rempliront à partir de zéro.",
+      "resetFailed": "Impossible de réinitialiser les bacs appris",
+      "chaosBinSize": "Cartes par bac",
+      "chaosBinSizeDescription": "Passe au bac suivant après ce nombre de cartes. Laisse vide pour remplir chaque bac jusqu'à sa taille.",
+      "chaosBinSizePlaceholder": "Taille du bac",
+      "repackSaveFirst": "Enregistre pour passer aux repacks, puis configure les emplacements des paquets.",
+      "alphabetHint": "Après l'enregistrement, l'onglet Règles indique les lettres de chaque bac et te permet de passer au tour suivant.",
+      "skipSaving": "Ne pas enregistrer les cartes",
+      "skipSavingDescription": "Les cartes sont identifiées et triées comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne."
+    },
+    "modes": {
+      "rules": {
+        "title": "Règles de tri",
+        "description": "Chaque bac reçoit les cartes qui correspondent à ses règles"
+      },
+      "scan-only": {
+        "title": "Scan uniquement",
+        "description": "Ignore les règles : les cartes identifiées vont dans un bac, les autres dans un autre"
+      },
+      "auto-assign": {
+        "title": "Tri automatique",
+        "description": "Chaque nouvelle valeur d'un champ prend le prochain bac libre pendant le scan"
+      },
+      "repack": {
+        "title": "Créer des repacks",
+        "description": "Chaque bac construit son propre paquet à partir des emplacements définis. Ce qui ne rentre pas va dans le bac fourre-tout."
+      },
+      "alphabet": {
+        "title": "Tri alphabétique",
+        "description": "Une lettre par bac, en plusieurs tours, avec un tri plus fin pour les grosses piles"
+      },
+      "chaos": {
+        "title": "Tri chaos",
+        "description": "Ignore les règles et remplit les bacs l'un après l'autre"
+      }
+    },
+    "repack": {
+      "title": "Emplacements des paquets",
+      "slotCount_one": "{{count}} emplacement",
+      "slotCount_other": "{{count}} emplacements",
+      "saveFailed": "Impossible d'enregistrer les emplacements",
+      "uniqueByLabel": "Doublons dans un paquet",
+      "uniqueByDescription": "Empêche un paquet de recevoir deux cartes qui partagent ceci",
+      "uniqueByAllow": "Autoriser les doublons",
+      "uniqueByPrinting": "Pas d'impressions en double",
+      "uniqueByName": "Pas de noms en double",
+      "uniqueByField": "Pas de {{field}} en double",
+      "siftLabel": "Mettre des cartes de côté",
+      "siftDescription": "Les cartes qui correspondent à ces règles vont dans le premier bac au lieu d'un paquet",
+      "siftHint": "Les cartes qui correspondent à ces règles vont dans le bac {{bin}}. Les autres bacs construisent des paquets avec le reste.",
+      "siftNoBin": "Mettre de côté nécessite au moins un bac actif en plus du bac fourre-tout.",
+      "slotsLabel": "Emplacements",
+      "slotCountLabel": "Nombre",
+      "removeSlot": "Supprimer l'emplacement",
+      "addSlot": "Ajouter un emplacement"
+    },
+    "alphabet": {
+      "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",
+      "passHeading": "Tour {{current}} sur {{total}}",
+      "passRange": "Tri des noms commençant par {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
+      "prefixRange": "Tri de la pile {{prefix}} par la lettre suivante : {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
+      "unusedBin": "Non utilisé",
+      "nextPassHint": "Quand ce tour est fini, vide chaque bac, remets les cartes du bac fourre-tout dans le chargeur, puis passe aux lettres suivantes.",
+      "lastPassHint": "C'est le dernier tour. Ce qui reste ensuite dans le bac fourre-tout a un nom qui ne commence pas par une lettre.",
+      "nextPileHint": "Quand ce tour est fini, vide chaque bac en gardant chaque pile dans l'ordre. Ensuite : la pile {{prefix}}.",
+      "pileDoneHint": "C'est le dernier tour pour la pile {{prefix}}. Recommence pour revenir à l'alphabet complet.",
+      "previous": "Précédent",
+      "next": "Lettres suivantes",
+      "startOver": "Recommencer",
+      "sortDeeper": "Trier plus finement",
+      "sortDeeperItem": "Pile {{label}} par lettre suivante",
+      "upLevel": "Remonter d'un niveau",
+      "confirmTitle": "Passer à de nouvelles lettres ?",
+      "confirmDescription": "Vérifie que chaque bac est vide et que les cartes du bac fourre-tout sont de retour dans le chargeur. Tous les bacs seront marqués comme vidés.",
+      "confirmPileTitle": "Commencer la pile {{prefix}} ?",
+      "confirmPileDescription": "Vide chaque bac en gardant chaque pile dans l'ordre, puis mets la pile {{prefix}} dans le chargeur. Tous les bacs seront marqués comme vidés.",
+      "confirm": "Les bacs sont vides"
+    }
   },
   "calibration": {
     "title": "Calibrage",

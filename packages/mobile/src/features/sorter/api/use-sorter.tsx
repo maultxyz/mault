@@ -31,6 +31,7 @@ import {
 import { State } from "react-native-ble-plx";
 import { ensureBlePermissions } from "@/features/sorter/lib/ble-permissions";
 import { BleTransport, getBleManager, settledBleState } from "@/features/sorter/lib/ble-transport";
+import { CloudTransport } from "@/features/sorter/lib/cloud-transport";
 import { SorterLink } from "@/features/sorter/lib/sorter-link";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
@@ -38,6 +39,7 @@ import {
   AUTO_CONNECT_LAUNCH_DELAY_MS,
   AUTO_RECONNECT_ATTEMPTS,
   AUTO_RECONNECT_INTERVAL_MS,
+  CLOUD_SORTER_ID_PREFIX,
   DEVICE_LEASE_HEARTBEAT_MS,
   JAM_CLEAR_DEVICE_TIMEOUT_MS,
   JAM_COMMAND_TIMEOUT_MS,
@@ -51,6 +53,8 @@ import {
 import { LAST_SORTER_ID_KEY, SORTER_AUTO_CONNECT_KEY } from "@/lib/constants/storage-keys";
 import type { Device } from "@/lib/interfaces/devices";
 import type {
+  ByteTransport,
+  CloudOpenResult,
   CommLogEntry,
   DiscoveredSorter,
   SorterContextValue,
@@ -68,6 +72,13 @@ import { useSession } from "@/lib/auth/session";
 const SorterContext = createContext<SorterContextValue | null>(null);
 
 const link = new SorterLink();
+
+async function openTransport(id: string): Promise<CloudOpenResult> {
+  if (id.startsWith(CLOUD_SORTER_ID_PREFIX)) {
+    return CloudTransport.open(id.slice(CLOUD_SORTER_ID_PREFIX.length));
+  }
+  return { ok: true, transport: await BleTransport.connect(id) };
+}
 
 function parseTest(reply: SorterMessage | null): TestOutcome {
   if (!reply) return { ok: false, error: null, blockedModule: null, servoDriverMissing: false };
@@ -256,9 +267,14 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       setSensorNote(null);
       setPhase("connecting");
 
-      let transport: BleTransport;
+      let transport: ByteTransport;
       try {
-        transport = await BleTransport.connect(id);
+        const opened = await openTransport(id);
+        if (!opened.ok) {
+          if (!stale()) fail({ code: opened.code });
+          return;
+        }
+        transport = opened.transport;
       } catch (err) {
         if (!stale()) fail({ code: "connect-failed", detail: err instanceof Error ? err.message : undefined });
         return;
@@ -348,13 +364,19 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   );
   connectRef.current = connect;
 
+  const connectCloud = useCallback(
+    (deviceGuid: string) => connect(`${CLOUD_SORTER_ID_PREFIX}${deviceGuid}`),
+    [connect],
+  );
+
   useEffect(() => {
     if (sessionStatus !== "signed-in" || launchedRef.current) return;
     launchedRef.current = true;
     const id = readKv(LAST_SORTER_ID_KEY);
     if (!id || readKv(SORTER_AUTO_CONNECT_KEY) !== "1") return;
     const timer = setTimeout(() => {
-      void ensureBlePermissions().then((granted) => {
+      const permitted = id.startsWith(CLOUD_SORTER_ID_PREFIX) ? Promise.resolve(true) : ensureBlePermissions();
+      void permitted.then((granted) => {
         if (granted && !deviceRef.current && !manualDisconnectRef.current) void connectRef.current(id);
       });
     }, AUTO_CONNECT_LAUNCH_DELAY_MS);
@@ -553,6 +575,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       startDiscovery,
       stopDiscovery,
       connect,
+      connectCloud,
       disconnect: disconnectByUser,
       runSelfTest,
       sendRequest,
@@ -582,6 +605,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       startDiscovery,
       stopDiscovery,
       connect,
+      connectCloud,
       disconnectByUser,
       runSelfTest,
       sendRequest,
