@@ -120,6 +120,12 @@ export interface SorterBaseSupportCounts {
   oneTall: number;
 }
 
+export interface SorterModulePinCounts {
+  front: number;
+  top: number;
+  total: number;
+}
+
 export interface SorterSceneOptions {
   container: HTMLElement;
   palette?: SorterScenePalette;

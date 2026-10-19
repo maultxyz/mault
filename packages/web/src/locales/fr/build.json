@@ -411,6 +411,10 @@
           "printEndBinPlate": {
             "text": "Imprime 1 plaque End Bin."
           },
+          "printModulePins": {
+            "text": "Imprime {{count}} Module Pins pour {{modules}} modules de tri : {{top}} pour le dessus et {{front}} pour l'avant des pièces Base Support. Chaque pièce Base Support prend 4 pins sur le dessus, et chaque unité de hauteur en prend 2 à l'avant, sauf l'unité du haut de chaque colonne. Les pins assemblent les pièces Base Support entre elles et maintiennent les modules de tri sur la base. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour.",
+            "note": "Assemble d'abord à sec les pièces Base Support et les modules de tri avec les pins. Quand tout est bien aligné, colle chaque pin avec de la colle cyanoacrylate."
+          },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
           }

@@ -16,6 +16,7 @@ import { PRINT_FILES_URL, REPO_URL } from "@/lib/constants/links";
 import {
   breakoutSupportHeight as breakoutHeightFor,
   countBaseSupportPieces,
+  countModulePins,
 } from "@/lib/sorter-model/base-support";
 import {
   IconCpu,
@@ -58,6 +59,7 @@ export function buildPhases(
   const sortingModules = moduleCount;
   const baseSupportPieces = countBaseSupportPieces(moduleCount);
   const genericBase = Math.max(0, moduleCount - 2);
+  const modulePins = countModulePins(moduleCount);
   const breakoutSupportHeight = isEsp32Breakout
     ? breakoutHeightFor(moduleCount)
     : null;
@@ -162,6 +164,16 @@ export function buildPhases(
         {
           key: "print-end-bin-plate",
           text: t("assembly.phases.print.steps.printEndBinPlate.text"),
+        },
+        {
+          key: "print-module-pins",
+          text: t("assembly.phases.print.steps.printModulePins.text", {
+            modules: moduleCount,
+            count: modulePins.total,
+            top: modulePins.top,
+            front: modulePins.front,
+          }),
+          note: t("assembly.phases.print.steps.printModulePins.note"),
         },
         {
           key: "dry-fit",

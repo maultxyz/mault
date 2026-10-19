@@ -411,6 +411,10 @@
           "printEndBinPlate": {
             "text": "Drucke 1 End-Bin-Platte."
           },
+          "printModulePins": {
+            "text": "Drucke {{count}} Module Pins für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der Base-Support-Teile. Jedes Base-Support-Teil braucht 4 Pins oben, und jede Höheneinheit 2 vorne, außer der obersten Einheit jeder Säule. Die Pins verbinden die Base-Support-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren.",
+            "note": "Stecke die Base-Support-Teile und Sortiermodule zuerst mit den Pins trocken zusammen. Wenn alles passt, klebe jeden Pin mit Sekundenkleber fest."
+          },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
           }

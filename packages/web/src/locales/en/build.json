@@ -410,6 +410,10 @@
           "printEndBinPlate": {
             "text": "Print 1 End Bin Plate."
           },
+          "printModulePins": {
+            "text": "Print {{count}} Module Pins for {{modules}} sorting modules: {{top}} for the tops and {{front}} for the fronts of the Base Support pieces. Each Base Support piece takes 4 pins on top, and each unit of height takes 2 on the front, except the top unit of each column. The pins join the Base Support pieces together and hold the sorting modules on the base. Change the module count in the setup above to update this.",
+            "note": "Dry-fit the Base Support pieces and sorting modules with the pins first. Once everything lines up, super glue each pin into place."
+          },
           "dryFit": {
             "text": "Dry-fit each module housing before inserting any electronics. Sand or adjust any tight servo pockets now."
           }
