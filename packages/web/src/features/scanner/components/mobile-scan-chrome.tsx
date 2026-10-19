@@ -38,7 +38,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const [sessionOpen, setSessionOpen] = useState(false);
 
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
-  const sorterDriven = chrome.isReady;
+  const sorterDriven = chrome.isReady || chrome.handScanActive;
   const canShoot = chrome.isCameraActive && !chrome.isAtScanLimit;
 
   const phaseLabel = (() => {
