@@ -67,6 +67,17 @@ export interface CollectionPreviewStackProps {
   images: string[];
 }
 
+export interface CollectionTarget {
+  guid: string;
+  name: string;
+}
+
+export interface EmptyCollectionDialogProps {
+  targets: CollectionTarget[];
+  onOpenChange: (open: boolean) => void;
+  onChooseDelete: () => void;
+}
+
 export interface CollectionTileProps {
   collection: Collection;
   isActive: boolean;

@@ -11,13 +11,17 @@ import {
   createStorageLocation,
   deleteStorageLocation,
   moveCardsToStorageLocation,
+  moveCollectionToStorageLocation,
   removeCardFromStorageLocation,
   renameStorageLocation,
   storageLocationKeys,
   storageLocationsQueryOptions,
 } from "@/features/storage/api/storage-locations";
 import type { CardDetailActions } from "@/lib/interfaces/cards";
-import type { MoveCardsToLocationInput } from "@/lib/interfaces/storage";
+import type {
+  MoveCardsToLocationInput,
+  MoveCollectionsToLocationInput,
+} from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import type {
   CardCondition,
@@ -148,6 +152,55 @@ export function useMoveCardsToLocation() {
   };
 
   return { moveCards, isMoving: mutation.isPending };
+}
+
+export function useMoveCollectionsToLocation() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+  const { activeOrg } = useOrg();
+  const listKey = storageLocationsQueryOptions(activeOrg?.id).queryKey;
+
+  const mutation = useMutation({
+    mutationFn: async ({
+      guid,
+      collectionGuids,
+    }: MoveCollectionsToLocationInput) => {
+      let moved = 0;
+      for (const collectionGuid of collectionGuids) {
+        const result = await moveCollectionToStorageLocation(
+          guid,
+          collectionGuid,
+        );
+        if (!result.success || !result.data) return { ...result, moved };
+        moved += result.data.moved;
+        queryClient.setQueryData(listKey, result.data.locations);
+      }
+      return { success: true, moved };
+    },
+    onSuccess: (result, { collectionGuids }) => {
+      if (!result.success) {
+        toast.error(
+          ("message" in result && result.message) || t("toasts.failed"),
+        );
+      } else {
+        toast.success(t("toasts.cardsMoved", { count: result.moved }));
+      }
+      void queryClient.invalidateQueries({
+        queryKey: storageLocationKeys.root(),
+      });
+      for (const collectionGuid of collectionGuids) {
+        void invalidateCollectionCards(queryClient, collectionGuid);
+      }
+    },
+    onError: () => toast.error(t("toasts.failed")),
+  });
+
+  const moveCollections = async (input: MoveCollectionsToLocationInput) => {
+    const result = await mutation.mutateAsync(input).catch(() => null);
+    return !!result?.success;
+  };
+
+  return { moveCollections, isMoving: mutation.isPending };
 }
 
 export function useRemoveCardFromLocation() {

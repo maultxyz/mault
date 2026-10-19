@@ -120,5 +120,18 @@
     "deleteTitle_one": "Delete {{count}} collection",
     "deleteTitle_other": "Delete {{count}} collections",
     "deleteDescription": "Deletes the selected collections and hides all their cards. Contact support if you need them back."
+  },
+  "emptyChoice": {
+    "title": "Empty {{name}}",
+    "titleBulk": "Empty {{count}} collections",
+    "description": "Choose a storage box to move the cards into. They stay in the collection and show up in the box. Cards already in a box stay where they are.",
+    "lockedDescription": "Storage boxes aren't available on your plan, so emptying deletes the cards.",
+    "locationLabel": "Move cards to",
+    "placeholder": "Choose a storage box",
+    "newBox": "New storage box",
+    "newBoxName": "Box name",
+    "delete": "Delete cards permanently",
+    "confirm": "Move cards",
+    "continue": "Continue"
   }
 }

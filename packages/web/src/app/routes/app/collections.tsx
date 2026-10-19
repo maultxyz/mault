@@ -12,6 +12,8 @@ import {
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CollectionTile } from "@/features/collections/components/collection-tile";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
+import { EmptyCollectionDialog } from "@/features/collections/components/empty-collection-dialog";
+import type { CollectionTarget } from "@/lib/interfaces/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 import { useQueryClient } from "@tanstack/react-query";
@@ -79,6 +81,10 @@ export default function CollectionsPage() {
     (a, b) => sortRank(a.guid) - sortRank(b.guid),
   );
   const queryClient = useQueryClient();
+  const [emptyChoice, setEmptyChoice] = useState<{
+    targets: CollectionTarget[];
+    bulk: boolean;
+  } | null>(null);
   const [selectedGuids, setSelectedGuids] = useState<Set<string>>(new Set());
   const [lastToggledGuid, setLastToggledGuid] = useState<string | null>(null);
   const [bulkAction, setBulkAction] = useState<"empty" | "delete" | null>(null);
@@ -335,7 +341,9 @@ export default function CollectionsPage() {
                     editForm.reset({ name: collection.name });
                     setEditTarget(target);
                   }}
-                  onEmpty={() => setEmptyTarget(target)}
+                  onEmpty={() =>
+                    setEmptyChoice({ targets: [target], bulk: false })
+                  }
                   onDelete={() => setDeleteTarget(target)}
                 />
               );
@@ -394,7 +402,14 @@ export default function CollectionsPage() {
                   variant="ghost"
                   className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
                   disabled={isMutating}
-                  onClick={() => setBulkAction("empty")}
+                  onClick={() =>
+                    setEmptyChoice({
+                      targets: collections
+                        .filter((c) => selectedGuids.has(c.guid))
+                        .map((c) => ({ guid: c.guid, name: c.name })),
+                      bulk: true,
+                    })
+                  }
                 >
                   <IconEraser />
                   {t("selection.empty")}
@@ -432,6 +447,19 @@ export default function CollectionsPage() {
             bulkAction === "empty" ? t("emptyDialog.confirmLabel") : undefined
           }
           onConfirm={() => void runBulkAction()}
+        />
+        <EmptyCollectionDialog
+          targets={emptyChoice?.targets ?? []}
+          onOpenChange={(open) => {
+            if (!open) setEmptyChoice(null);
+          }}
+          onChooseDelete={() => {
+            const choice = emptyChoice;
+            setEmptyChoice(null);
+            if (!choice) return;
+            if (choice.bulk) setBulkAction("empty");
+            else setEmptyTarget(choice.targets[0]);
+          }}
         />
         <DynamicDialog
           open={!!editTarget}

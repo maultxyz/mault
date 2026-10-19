@@ -27,7 +27,10 @@ import {
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import { moveCardsToLocation } from "../../lib/storage-locations";
+import {
+  moveCardsToLocation,
+  moveCollectionToLocation,
+} from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
@@ -423,6 +426,73 @@ const router = new Hono<AppEnv>()
         }));
         return { success: true, data };
       });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .post("/:guid/cards/from-collection", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const body = await c.req
+      .json<{ collectionGuid?: unknown }>()
+      .catch(() => ({ collectionGuid: undefined }));
+    const collectionGuid = body.collectionGuid;
+    if (
+      !UUID_PATTERN.test(guid) ||
+      typeof collectionGuid !== "string" ||
+      !UUID_PATTERN.test(collectionGuid)
+    ) {
+      return c.json({ success: false, message: "Invalid request." }, 400);
+    }
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        if (!(await isStorageAllowed(tx, orgId))) {
+          return {
+            success: false,
+            message: STORAGE_UPGRADE_MESSAGE,
+            upgradeRequired: true,
+          };
+        }
+        const locationId = await findLocationId(tx, orgId, guid);
+        if (locationId === null) {
+          return { success: false, message: "Storage location not found." };
+        }
+        const collection = await tx.query.collections.findFirst({
+          where: (t, { eq, and }) =>
+            and(
+              eq(t.guid, collectionGuid),
+              eq(t.orgId, orgId),
+              eq(t.isDeleted, false),
+            ),
+          columns: { id: true },
+        });
+        if (!collection) {
+          return { success: false, message: "Collection not found." };
+        }
+        const movedScanIds = await moveCollectionToLocation(tx, {
+          collectionId: collection.id,
+          locationId,
+        });
+        await tx
+          .update(storageLocations)
+          .set({ lastUsedAt: new Date() })
+          .where(eq(storageLocations.id, locationId));
+        return {
+          success: true,
+          movedScanIds,
+          data: {
+            moved: movedScanIds.length,
+            locations: await loadLocations(tx, orgId),
+          },
+        };
+      });
+      if (result.success && "movedScanIds" in result && result.movedScanIds) {
+        const { movedScanIds, ...body } = result;
+        emitCardsStoredWebhook(orgId, guid, movedScanIds);
+        return c.json(body);
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);

@@ -131,6 +131,15 @@ export function moveCardsToStorageLocation(
   return apiPost(`/api/storage-locations/${guid}/cards`, { scanIds });
 }
 
+export function moveCollectionToStorageLocation(
+  guid: string,
+  collectionGuid: string,
+): Promise<Result<{ moved: number; locations: StorageLocation[] }>> {
+  return apiPost(`/api/storage-locations/${guid}/cards/from-collection`, {
+    collectionGuid,
+  });
+}
+
 export function renameStorageLocation(
   guid: string,
   name: string,

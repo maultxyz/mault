@@ -33,6 +33,8 @@ export const COLLECTION_STAT_CLASS =
 
 export const COLLECTIONS_SKELETON_COUNT = 3;
 
+export const EMPTY_COLLECTION_DELETE = "__delete__";
+
 export const MOBILE_HOME_SEARCH_MIN_COLLECTIONS = 6;
 
 export const COLLECTIONS_PATH = "/app/collections";

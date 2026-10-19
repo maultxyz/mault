@@ -120,5 +120,18 @@
     "deleteTitle_one": "Supprimer {{count}} collection",
     "deleteTitle_other": "Supprimer {{count}} collections",
     "deleteDescription": "Supprime les collections sélectionnées et masque toutes leurs cartes. Contacte le support si tu as besoin de les récupérer."
+  },
+  "emptyChoice": {
+    "title": "Vider {{name}}",
+    "titleBulk": "Vider {{count}} collections",
+    "description": "Choisis une boîte de rangement où déplacer les cartes. Elles restent dans la collection et apparaissent dans la boîte. Les cartes déjà rangées dans une boîte y restent.",
+    "lockedDescription": "Les boîtes de rangement ne sont pas disponibles avec ton abonnement, donc vider supprime les cartes.",
+    "locationLabel": "Déplacer les cartes vers",
+    "placeholder": "Choisis une boîte de rangement",
+    "newBox": "Nouvelle boîte de rangement",
+    "newBoxName": "Nom de la boîte",
+    "delete": "Supprimer définitivement les cartes",
+    "confirm": "Déplacer les cartes",
+    "continue": "Continuer"
   }
 }
