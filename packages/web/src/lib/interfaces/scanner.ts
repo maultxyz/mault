@@ -972,3 +972,15 @@ export interface MobilePresetSheetProps {
 }
 
 export type CloudTransportFailure = "offline" | "inUse" | "failed";
+
+export interface WebGlWarpState {
+  canvas: HTMLCanvasElement;
+  gl: WebGLRenderingContext;
+  homographyLocation: WebGLUniformLocation | null;
+  sourceSizeLocation: WebGLUniformLocation | null;
+}
+
+export interface OutlineAnimator {
+  setTarget: (contour: CardContour | null) => void;
+  cancel: () => void;
+}

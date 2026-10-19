@@ -11,11 +11,16 @@ function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+let snapshot: HTMLCanvasElement | null = null;
+
 function snapshotCanvas(source: HTMLCanvasElement): HTMLCanvasElement {
-  const snapshot = document.createElement("canvas");
-  snapshot.width = source.width;
-  snapshot.height = source.height;
-  snapshot.getContext("2d")?.drawImage(source, 0, 0);
+  snapshot ??= document.createElement("canvas");
+  if (snapshot.width !== source.width) snapshot.width = source.width;
+  if (snapshot.height !== source.height) snapshot.height = source.height;
+  const ctx = snapshot.getContext("2d");
+  if (!ctx) throw new Error("Could not get canvas context");
+  ctx.clearRect(0, 0, snapshot.width, snapshot.height);
+  ctx.drawImage(source, 0, 0);
   return snapshot;
 }
 
