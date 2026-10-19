@@ -107,7 +107,7 @@ export const riftboundAdapter: CardSearchAdapter = {
   normalizeStored: (raw) => normalizeRiftboundCard(raw as RiftboundCard),
   tcgplayer: {
     categoryId: 89,
-    subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
+    subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),
   },
   cardmarket: {
     gameId: 22,
