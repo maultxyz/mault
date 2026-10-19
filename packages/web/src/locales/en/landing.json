@@ -162,6 +162,11 @@
     "eyebrow": "Pricing",
     "heading": "Simple, transparent pricing",
     "subtitle": "The same app either way. Free covers casual sorting. Business removes the daily scan cap, runs several sorters at once, and unlocks unlimited custom sounds and Discord notification rules.",
+    "intervals": {
+      "label": "Billing period",
+      "month": "Monthly",
+      "year": "Yearly"
+    },
     "shared": {
       "collections": "Unlimited collections",
       "games": "Every supported card game",
@@ -182,6 +187,8 @@
     "business": {
       "name": "Business",
       "perMonth": "/month",
+      "perYear": "/year",
+      "yearlySavings": "Save {{percent}}% with yearly billing",
       "description": "For shops and serious collectors.",
       "unlimitedScans": "Unlimited card scans",
       "cta": "Start Business plan",
