@@ -10,6 +10,7 @@ import { MobileCardDetailDrawer } from "@/features/scanner/components/mobile-car
 import { MobileMonitorActivity } from "@/features/scanner/components/mobile-monitor-activity";
 import { MobileMonitorCards } from "@/features/scanner/components/mobile-monitor-cards";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { useScrollCollapse } from "@/hooks/use-scroll-collapse";
 import type {
   MobileMonitorTab,
   MobileMonitorTabItem,
@@ -39,6 +40,8 @@ export function MobileSessionMonitor({
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<MobileMonitorTab>("cards");
   const [reviewing, setReviewing] = useState(false);
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
+  const heroCollapsed = useScrollCollapse(scrollRoot);
   const { collection, status, unmatchedCards, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
   const alertCount = unmatchedCards.length + errors.length;
@@ -93,7 +96,14 @@ export function MobileSessionMonitor({
             <Skeleton className="h-7 w-40" />
           )
         }
-        subtitle={[t(`mobileMonitor.status.${status}`), collection?.game?.name]
+        subtitle={[
+          t(`mobileMonitor.status.${status}`),
+          collection?.game?.name,
+          heroCollapsed &&
+            (hasPricing && stats
+              ? format(stats.totalValue)
+              : `${cardCount} ${t("mobileMonitor.cards")}`),
+        ]
           .filter(Boolean)
           .join(" · ")}
         subtitleLeading={
@@ -108,6 +118,7 @@ export function MobileSessionMonitor({
           />
         }
         backTo={backHref}
+        collapsed={heroCollapsed}
         actions={
           (header || toolbarLeading) && (
             <>
@@ -138,6 +149,7 @@ export function MobileSessionMonitor({
       <MobileTabStrip items={tabs} value={tab} onChange={setTab} />
 
       <div
+        ref={setScrollRoot}
         data-scroll-root
         className={cn(
           "min-h-0 flex-1 overflow-y-auto",

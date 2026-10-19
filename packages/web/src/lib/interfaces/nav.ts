@@ -56,6 +56,7 @@ export interface MobilePageHeaderProps {
   onBack?: () => void;
   actions?: ReactNode;
   children?: ReactNode;
+  collapsed?: boolean;
 }
 
 export interface MobileQuickActionProps extends ComponentProps<"button"> {
