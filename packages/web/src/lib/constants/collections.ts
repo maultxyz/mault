@@ -14,7 +14,7 @@ export const COLLECTION_TILE_SELECTED_CLASS =
   "border-primary ring-2 ring-primary";
 
 export const COLLECTION_SELECTION_ISLAND_CLASS =
-  "sticky bottom-4 z-30 mx-auto mb-4 flex w-fit items-center gap-3 rounded-lg bg-foreground px-1.5 py-1.5 pl-3 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150 motion-reduce:animate-none";
+  "fixed inset-x-0 bottom-[calc(var(--mobile-nav-space,0px)+1.5rem)] z-50 mx-auto flex w-fit items-center gap-3 rounded-lg bg-foreground px-1.5 py-1.5 pl-3 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150 motion-reduce:animate-none";
 
 export const COLLECTION_SELECTION_ISLAND_BUTTON_CLASS =
   "text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15";

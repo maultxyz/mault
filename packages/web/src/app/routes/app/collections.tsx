@@ -39,6 +39,7 @@ import {
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -266,7 +267,12 @@ export default function CollectionsPage() {
         </div>
       </div>
 
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6">
+      <div
+        className={cn(
+          "mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6",
+          liveSelectedGuids.length > 0 && "pb-24 md:pb-24",
+        )}
+      >
         {isLoading && (
           <div className={COLLECTIONS_GRID_CLASS}>
             {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
@@ -352,58 +358,60 @@ export default function CollectionsPage() {
             )}
           </div>
         )}
-        {liveSelectedGuids.length > 0 && (
-          <div role="status" className={COLLECTION_SELECTION_ISLAND_CLASS}>
-            <span className="font-medium">
-              {t("selection.selected", { count: liveSelectedGuids.length })}
-            </span>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
-                onClick={() =>
-                  setSelectedGuids(
-                    allVisibleSelected
-                      ? new Set()
-                      : new Set([
-                          ...selectedGuids,
-                          ...sortedCollections.map((c) => c.guid),
-                        ]),
-                  )
-                }
-              >
-                {allVisibleSelected
-                  ? t("selection.deselectAll")
-                  : t("selection.selectAll")}
-              </Button>
-              <Button
-                variant="ghost"
-                className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
-                onClick={() => setSelectedGuids(new Set())}
-              >
-                {t("selection.clear")}
-              </Button>
-              <Button
-                variant="ghost"
-                className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
-                disabled={isMutating}
-                onClick={() => setBulkAction("empty")}
-              >
-                <IconEraser />
-                {t("selection.empty")}
-              </Button>
-              <Button
-                variant="destructive"
-                className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
-                disabled={isMutating}
-                onClick={() => setBulkAction("delete")}
-              >
-                <IconTrash />
-                {t("selection.delete")}
-              </Button>
-            </div>
-          </div>
-        )}
+        {liveSelectedGuids.length > 0 &&
+          createPortal(
+            <div role="status" className={COLLECTION_SELECTION_ISLAND_CLASS}>
+              <span className="font-medium">
+                {t("selection.selected", { count: liveSelectedGuids.length })}
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                  onClick={() =>
+                    setSelectedGuids(
+                      allVisibleSelected
+                        ? new Set()
+                        : new Set([
+                            ...selectedGuids,
+                            ...sortedCollections.map((c) => c.guid),
+                          ]),
+                    )
+                  }
+                >
+                  {allVisibleSelected
+                    ? t("selection.deselectAll")
+                    : t("selection.selectAll")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                  onClick={() => setSelectedGuids(new Set())}
+                >
+                  {t("selection.clear")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                  disabled={isMutating}
+                  onClick={() => setBulkAction("empty")}
+                >
+                  <IconEraser />
+                  {t("selection.empty")}
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
+                  disabled={isMutating}
+                  onClick={() => setBulkAction("delete")}
+                >
+                  <IconTrash />
+                  {t("selection.delete")}
+                </Button>
+              </div>
+            </div>,
+            document.body,
+          )}
         <DeleteDialog
           open={bulkAction !== null}
           onOpenChange={(open) => {
