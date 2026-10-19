@@ -700,6 +700,7 @@
     "camera": "Caméra",
     "preset": "Préréglage de règles",
     "choosePreset": "Choisir un préréglage",
+    "chooseCamera": "Choisir une caméra",
     "cameraFallback": "Caméra {{number}}",
     "sorter": "Trieuse",
     "pairDesktop": "Utiliser comme caméra d'ordinateur",

@@ -969,6 +969,13 @@ export interface MobileScanOptionsSheetProps {
   chrome: ScannerChromeContext;
   onChooseCollection: () => void;
   onChoosePreset: () => void;
+  onChooseCamera: () => void;
+}
+
+export interface MobileCameraSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  chrome: ScannerChromeContext;
 }
 
 export interface MobileCollectionSheetProps {

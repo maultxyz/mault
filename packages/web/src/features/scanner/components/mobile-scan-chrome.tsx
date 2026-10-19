@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { MobileCameraSheet } from "@/features/scanner/components/mobile-camera-sheet";
 import { MobileCollectionSheet } from "@/features/scanner/components/mobile-collection-sheet";
 import { MobilePresetSheet } from "@/features/scanner/components/mobile-preset-sheet";
 import { MobileScanNotice } from "@/features/scanner/components/mobile-scan-notice";
@@ -34,6 +35,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [optionsOpen, setOptionsOpen] = useState(false);
   const [presetsOpen, setPresetsOpen] = useState(false);
+  const [camerasOpen, setCamerasOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [sessionOpen, setSessionOpen] = useState(false);
 
@@ -274,8 +276,17 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           setOptionsOpen(false);
           setPresetsOpen(true);
         }}
+        onChooseCamera={() => {
+          setOptionsOpen(false);
+          setCamerasOpen(true);
+        }}
       />
       <MobilePresetSheet open={presetsOpen} onOpenChange={setPresetsOpen} />
+      <MobileCameraSheet
+        open={camerasOpen}
+        onOpenChange={setCamerasOpen}
+        chrome={chrome}
+      />
       <MobileScanControlsSheet
         open={controlsOpen}
         onOpenChange={setControlsOpen}

@@ -700,6 +700,7 @@
     "camera": "Camera",
     "preset": "Rule preset",
     "choosePreset": "Choose a preset",
+    "chooseCamera": "Choose a camera",
     "cameraFallback": "Camera {{number}}",
     "sorter": "Sorter",
     "pairDesktop": "Use as a desktop camera",
