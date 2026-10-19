@@ -1,5 +1,5 @@
 import { SettingsSection } from "@/components/settings-section";
-import { AdminStatGroup } from "@/features/admin/components/admin-stat-group";
+import { StatGroup } from "@/components/stat-group";
 import {
   getActiveScanning,
   getAdminScanMetrics,
@@ -90,16 +90,16 @@ export function ScanStatsOverviewPanel() {
       description={t("metricsStats.description", { minutes })}
     >
       <div className="flex flex-col gap-3">
-        <AdminStatGroup
+        <StatGroup
           heading={t("activeScanning.heading")}
           tiles={activeTiles}
           live={(active?.scanners ?? 0) > 0}
         />
-        <AdminStatGroup
+        <StatGroup
           heading={t("metricsStats.allTimeHeading")}
           tiles={allTimeTiles}
         />
-        <AdminStatGroup
+        <StatGroup
           heading={t("scanVectorizeStats.heading")}
           tiles={vectorizeTiles}
         />

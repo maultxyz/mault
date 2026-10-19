@@ -162,6 +162,11 @@
     "eyebrow": "Preise",
     "heading": "Einfache, transparente Preise",
     "subtitle": "Dieselbe App in beiden Fällen. Free reicht für gelegentliches Sortieren. Business hebt das tägliche Scanlimit auf, betreibt mehrere Sortierer gleichzeitig und schaltet unbegrenzte eigene Sounds und Discord-Benachrichtigungsregeln frei.",
+    "intervals": {
+      "label": "Abrechnungszeitraum",
+      "month": "Monatlich",
+      "year": "Jährlich"
+    },
     "shared": {
       "collections": "Unbegrenzte Sammlungen",
       "games": "Jedes unterstützte Sammelkartenspiel",
@@ -182,6 +187,8 @@
     "business": {
       "name": "Business",
       "perMonth": "/Monat",
+      "perYear": "/Jahr",
+      "yearlySavings": "Spare {{percent}} % mit jährlicher Abrechnung",
       "description": "Für Shops und ambitionierte Sammler.",
       "unlimitedScans": "Unbegrenzte Kartenscans",
       "cta": "Business-Plan starten",

@@ -110,5 +110,11 @@
     "binLabel_one": "Fach {{bin}} · {{count}} Karte",
     "binLabel_other": "Fach {{bin}} · {{count}} Karten",
     "confirm": "Alle Fächer leeren"
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite {{page}} von {{count}}",
+    "range": "{{from}}-{{to}} von {{total}} Karten"
   }
 }

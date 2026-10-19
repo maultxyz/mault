@@ -5,6 +5,10 @@ import { orgBilling } from "../../db/schema";
 import { apiAccessAllowedForPlan } from "../../lib/api-access";
 import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
 import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
+import {
+  businessIntervalForPriceId,
+  getBusinessPrices,
+} from "../../lib/stripe";
 import { sorterLimitForPlan } from "../../lib/sorter-limit";
 import { notificationRuleLimitForPlan } from "../../lib/notification-rule-limit";
 import { soundRuleLimitForPlan } from "../../lib/sound-rule-limit";
@@ -18,6 +22,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     try {
+      const prices = await getBusinessPrices();
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const billing = await tx.query.orgBilling.findFirst({
           where: eq(orgBilling.orgId, orgId),
@@ -33,6 +38,11 @@ export const getBillingRoute = new Hono<AppEnv>().get(
             status: billing?.status ?? null,
             cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,
             currentPeriodEnd: billing?.currentPeriodEnd ?? null,
+            interval:
+              plan === "business"
+                ? businessIntervalForPriceId(billing?.stripePriceId)
+                : null,
+            prices,
             cardsScannedToday: count,
             dailyLimit: dailyScanLimitForPlan(plan),
             maxConnectedSorters: sorterLimitForPlan(plan),

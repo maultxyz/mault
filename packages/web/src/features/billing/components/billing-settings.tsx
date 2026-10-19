@@ -1,11 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatPlanPrice, yearlySavingsPercent } from "@/lib/plan-price";
+import { DEFAULT_BILLING_INTERVAL } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { useBilling } from "../api/use-billing";
 import { PlanFeatures } from "./plan-features";
 
 export function BillingSettings() {
-  const { t } = useTranslation("billing");
+  const { t, i18n } = useTranslation("billing");
   const {
     billing,
     isLoading,
@@ -26,6 +28,9 @@ export function BillingSettings() {
           Math.round((billing.cardsScannedToday / billing.dailyLimit) * 100),
         )
       : 0;
+  const monthlyPrice = billing.prices?.month ?? null;
+  const yearlyPrice = billing.prices?.year ?? null;
+  const yearlySavings = yearlySavingsPercent(monthlyPrice, yearlyPrice);
 
   return (
     <div className="flex flex-col gap-3">
@@ -62,6 +67,12 @@ export function BillingSettings() {
         </p>
       )}
 
+      {isBusiness && billing.interval && !billing.cancelAtPeriodEnd && (
+        <p className="text-xs text-foreground/70">
+          {t(billing.interval === "year" ? "billedYearly" : "billedMonthly")}
+        </p>
+      )}
+
       {canManage && (
         <div>
           {isBusiness ? (
@@ -73,10 +84,41 @@ export function BillingSettings() {
             >
               {t("manage")}
             </Button>
+          ) : yearlyPrice ? (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => startCheckout("month")}
+                  disabled={isStartingCheckout}
+                >
+                  {monthlyPrice
+                    ? t("upgradeMonthly", {
+                        price: formatPlanPrice(monthlyPrice, i18n.language),
+                      })
+                    : t("upgrade")}
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => startCheckout("year")}
+                  disabled={isStartingCheckout}
+                >
+                  {t("upgradeYearly", {
+                    price: formatPlanPrice(yearlyPrice, i18n.language),
+                  })}
+                </Button>
+              </div>
+              {yearlySavings != null && (
+                <p className="text-xs text-foreground/70">
+                  {t("yearlySavings", { percent: yearlySavings })}
+                </p>
+              )}
+            </div>
           ) : (
             <Button
               size="sm"
-              onClick={startCheckout}
+              onClick={() => startCheckout(DEFAULT_BILLING_INTERVAL)}
               disabled={isStartingCheckout}
             >
               {t("upgrade")}

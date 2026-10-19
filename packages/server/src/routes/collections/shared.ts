@@ -1,4 +1,5 @@
 import {
+  COLLECTION_PREVIEW_IMAGE_COUNT,
   toCardCondition,
   type CardStorageLocation,
   type Collection,
@@ -8,9 +9,10 @@ import {
   type UnmatchedCard,
   type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
-import { and, count, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import { collectionCards, collections, games } from "../../db/schema";
+import { COLLECTION_PREVIEW_SCAN_WINDOW } from "../../lib/constants/collections";
 
 export function toCollection(row: {
   guid: string | null;
@@ -31,12 +33,14 @@ export function toCollection(row: {
   gameCardThickness: number | null;
   gameCreatedAt: Date | null;
   gameUpdatedAt: Date | null;
+  previewImages?: string[];
 }): Collection {
   return {
     guid: row.guid!,
     name: row.name,
     isActive: row.isActive,
     cardCount: Number(row.cardCount),
+    previewImages: row.previewImages ?? [],
     lang: row.lang,
     matchAllLanguages: row.matchAllLanguages,
     game: row.gameGuid
@@ -120,7 +124,7 @@ export async function loadCollections(
       guid: collections.guid,
       name: collections.name,
       isActive: collections.isActive,
-      cardCount: count(collectionCards.id),
+      cardCount: sql<number>`(SELECT count(*)::int FROM ${collectionCards} cc WHERE cc.collection_id = ${collections.id})`,
       lang: collections.lang,
       matchAllLanguages: collections.matchAllLanguages,
       createdAt: collections.createdAt,
@@ -137,23 +141,48 @@ export async function loadCollections(
       gameUpdatedAt: games.updatedAt,
     })
     .from(collections)
-    .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
     .leftJoin(games, eq(games.id, collections.gameId))
     .where(and(eq(collections.orgId, orgId), eq(collections.isDeleted, false)))
-    .groupBy(
-      collections.id,
-      collections.guid,
-      collections.name,
-      collections.isActive,
-      collections.lang,
-      collections.matchAllLanguages,
-      collections.createdAt,
-      collections.updatedAt,
-      games.id,
-    )
     .orderBy(desc(collections.updatedAt));
 
-  return { success: true, data: rows.map(toCollection) };
+  const previews = await tx.execute(sql`
+    SELECT c.guid, COALESCE(p.images, ARRAY[]::text[]) AS images
+    FROM ${collections} c
+    LEFT JOIN LATERAL (
+      SELECT array_agg(recent.image ORDER BY recent.scanned_at DESC) AS images
+      FROM (
+        SELECT latest.image, latest.scanned_at
+        FROM (
+          SELECT cc.card->'image'->>'small' AS image, cc.scanned_at
+          FROM ${collectionCards} cc
+          WHERE cc.collection_id = c.id
+          ORDER BY cc.scanned_at DESC
+          LIMIT ${COLLECTION_PREVIEW_SCAN_WINDOW}
+        ) latest
+        WHERE latest.image IS NOT NULL
+        ORDER BY latest.scanned_at DESC
+        LIMIT ${COLLECTION_PREVIEW_IMAGE_COUNT}
+      ) recent
+    ) p ON true
+    WHERE c.org_id = ${orgId}
+      AND c.is_deleted = false
+  `);
+  const imagesByGuid = new Map(
+    (previews.rows as { guid: string; images: string[] }[]).map((r) => [
+      r.guid,
+      r.images,
+    ]),
+  );
+
+  return {
+    success: true,
+    data: rows.map((row) =>
+      toCollection({
+        ...row,
+        previewImages: imagesByGuid.get(row.guid ?? "") ?? [],
+      }),
+    ),
+  };
 }
 
 export async function collectionNameTaken(

@@ -53,12 +53,6 @@ export interface BarListProps {
   emptyLabel?: string;
 }
 
-export interface StatTileProps {
-  label: string;
-  value: string;
-  hint?: string;
-}
-
 export interface StatsDashboardProps {
   report: StatsReport;
   onSelectCollection: (guid: string) => void;

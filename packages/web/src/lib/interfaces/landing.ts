@@ -1,13 +1,15 @@
 import type { Icon } from "@tabler/icons-react";
 import type { ComponentType } from "react";
 import type {
+  BusinessPriceInfo,
   PlanConfig,
   PlanSettings,
   PlayingCardWithDistance,
 } from "@magic-vault/shared";
 
 export interface PublicPricing {
-  business: { amount: number; currency: string; interval: string } | null;
+  business: BusinessPriceInfo | null;
+  businessYearly?: BusinessPriceInfo | null;
   plans?: PlanConfig;
   maxConnectedSorters?: number;
 }

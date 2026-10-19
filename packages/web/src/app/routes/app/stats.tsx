@@ -17,7 +17,6 @@ import {
   STATS_COLLECTION_PARAM,
   STATS_RANGE_PARAM,
 } from "@/lib/constants/stats";
-import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
 import { cn } from "@/lib/utils";
 import {
   STATS_DEFAULT_RANGE,
@@ -83,11 +82,7 @@ export default function StatsPage() {
     </Callout>
   ) : isLoading || !report ? (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-x-4 gap-y-5 md:grid-cols-3 md:gap-x-6 xl:grid-cols-6">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <Skeleton key={i} className="h-14 rounded-md" />
-        ))}
-      </div>
+      <Skeleton className="h-24 rounded-lg" />
       <Skeleton className="h-56 rounded-lg" />
       <Skeleton className="h-48 rounded-lg" />
     </div>
@@ -118,27 +113,26 @@ export default function StatsPage() {
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <SettingsSectionLayoutContext value="flat">
-          <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:gap-6 md:p-6">
-            {isMobile ? (
-              controls
-            ) : (
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <h1 className="font-heading text-lg font-semibold">
-                    {t("title")}
-                  </h1>
-                  <p className="text-xs text-foreground/70">{t("subtitle")}</p>
-                </div>
-                <div className="flex flex-wrap items-end gap-2">
-                  {controls}
-                  <StatsLeaderboardButton />
-                </div>
+        {!isMobile && (
+          <div className="sticky top-0 z-20 border-b bg-background/80 py-3 backdrop-blur-2xl md:py-4">
+            <div className="mx-auto flex w-full max-w-6xl flex-wrap items-end justify-between gap-4 px-4 md:px-6">
+              <div className="min-w-0">
+                <h1 className="font-heading text-lg font-semibold">
+                  {t("title")}
+                </h1>
+                <p className="text-xs text-foreground/70">{t("subtitle")}</p>
               </div>
-            )}
-            {body}
+              <div className="flex flex-wrap items-end gap-2">
+                {controls}
+                <StatsLeaderboardButton />
+              </div>
+            </div>
           </div>
-        </SettingsSectionLayoutContext>
+        )}
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-6">
+          {isMobile && controls}
+          {body}
+        </div>
       </div>
     </div>
   );

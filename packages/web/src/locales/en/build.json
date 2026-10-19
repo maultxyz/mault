@@ -486,8 +486,12 @@
           "mountFeederRoller": {
             "text": "Attach the roller to the feeder module."
           },
+          "mountRollerHorn": {
+            "text": "Press the roller horn onto the shaft of the continuous-rotation feeder servo.",
+            "note": "The feeder roller is printed in two parts: the roller itself and a separate roller horn. Neither part has \"servo\" printed on it. The roller horn is the small piece that fits onto the servo shaft."
+          },
           "mountFeederServo": {
-            "text": "Install the continuous-rotation feeder servo to the roller, at the base of the hopper."
+            "text": "Push the feeder servo, with the roller horn on its shaft, into the end of the roller at the base of the hopper. The roller horn seats inside the roller so the servo turns it."
           },
           "fitHopperRollerOrings": {
             "text": "Fit o-rings onto the hopper roller.",

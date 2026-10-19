@@ -391,7 +391,9 @@
     "identifyTitle": "Identify this card",
     "identifyDescription": "Pick the card in this scan. It's added to the collection with this photo, in the bin it was sorted into.",
     "identified": "{{name}} added to the collection.",
-    "identifyFailed": "Couldn't add the card. Try again."
+    "identifyFailed": "Couldn't add the card. Try again.",
+    "remove": "Remove card",
+    "removeFailed": "Couldn't remove the card. Try again."
   },
   "binStatusMeter": {
     "heading": "Bin Levels",
@@ -698,6 +700,7 @@
     "camera": "Camera",
     "preset": "Rule preset",
     "choosePreset": "Choose a preset",
+    "chooseCamera": "Choose a camera",
     "cameraFallback": "Camera {{number}}",
     "sorter": "Sorter",
     "pairDesktop": "Use as a desktop camera",

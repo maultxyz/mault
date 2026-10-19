@@ -52,8 +52,15 @@
     "setActiveCollection": "Set as active collection",
     "viewCards": "View cards",
     "edit": "Edit",
-    "activeSection": "Active collection",
-    "otherSection": "Other collections"
+    "activeBadge": "Active",
+    "stats": {
+      "collections": "Collections",
+      "cards": "Cards",
+      "games": "Games",
+      "live": "Live now",
+      "heading": "Overview"
+    },
+    "liveView": "Live view"
   },
   "editDialog": {
     "title": "Edit Collection",
@@ -98,5 +105,34 @@
     "revoked": "Every shared link for this collection has stopped working.",
     "revokeFailed": "Couldn't revoke the shared links.",
     "close": "Close"
+  },
+  "selection": {
+    "select": "Select {{name}}",
+    "selected_one": "{{count}} collection selected",
+    "selected_other": "{{count}} collections selected",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "clear": "Clear",
+    "empty": "Empty",
+    "delete": "Delete",
+    "emptyTitle_one": "Empty {{count}} collection",
+    "emptyTitle_other": "Empty {{count}} collections",
+    "emptyDescription": "Permanently removes all cards from the selected collections, but keeps the collections themselves. This cannot be undone.",
+    "deleteTitle_one": "Delete {{count}} collection",
+    "deleteTitle_other": "Delete {{count}} collections",
+    "deleteDescription": "Deletes the selected collections and hides all their cards. Contact support if you need them back."
+  },
+  "emptyChoice": {
+    "title": "Empty {{name}}",
+    "titleBulk": "Empty {{count}} collections",
+    "description": "Choose a storage box to move the cards into. They stay in the collection and show up in the box. Cards already in a box stay where they are.",
+    "lockedDescription": "Storage boxes aren't available on your plan, so emptying deletes the cards.",
+    "locationLabel": "Move cards to",
+    "placeholder": "Choose a storage box",
+    "newBox": "New storage box",
+    "newBoxName": "Box name",
+    "delete": "Delete cards permanently",
+    "confirm": "Move cards",
+    "continue": "Continue"
   }
 }

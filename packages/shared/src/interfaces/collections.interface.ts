@@ -6,6 +6,7 @@ export interface Collection {
   name: string;
   isActive: boolean;
   cardCount: number;
+  previewImages: string[];
   game: Game | null;
   lang: string;
   matchAllLanguages: boolean;

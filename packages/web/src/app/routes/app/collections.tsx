@@ -1,59 +1,47 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Field,
-  FieldError,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import {
   checkCollectionName,
   collectionsQueryOptions,
 } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { CollectionTile } from "@/features/collections/components/collection-tile";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
+import { EmptyCollectionDialog } from "@/features/collections/components/empty-collection-dialog";
+import type { CollectionTarget } from "@/lib/interfaces/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
+import { StatGroup } from "@/components/stat-group";
+import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
+import { useQueryClient } from "@tanstack/react-query";
 import {
-  collectionViewPath,
-  COLLECTIONS_LIST_CLASS,
-  COLLECTIONS_SECTION_CLASS,
-  COLLECTIONS_SECTION_LABEL_CLASS,
+  COLLECTION_SELECTION_ISLAND_BUTTON_CLASS,
+  COLLECTION_SELECTION_ISLAND_CLASS,
+  COLLECTIONS_GRID_CLASS,
+  COLLECTIONS_SKELETON_COUNT,
 } from "@/lib/constants/collections";
-import { Link } from "react-router-dom";
+import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import {
   editCollectionSchema,
   type EditCollectionFormValues,
 } from "@/schemas/collections.schema";
-import type { Collection } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconAlbum,
-  IconEdit,
   IconEraser,
-  IconEye,
   IconLoader2,
-  IconPlayerPlay,
   IconPlus,
+  IconSearch,
   IconTrash,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -75,17 +63,99 @@ export default function CollectionsPage() {
     enabled: !!activeOrg,
   });
 
+  const { locks, currentUserId } = useCollectionLocks();
+  const viewersByGuid = useSessionViewersByGuid();
+
   const [searchQuery, setSearchQuery] = useState("");
   const filteredCollections = collections.filter((collection) =>
     collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
 
-  const activeCollections = filteredCollections.filter(
-    (collection) => collection.guid === activeCollection?.guid,
+  const sortRank = (guid: string) => {
+    if (guid === activeCollection?.guid) return 0;
+    if (locks[guid]?.userId === currentUserId) return 1;
+    if (locks[guid]) return 2;
+    return 3;
+  };
+  const sortedCollections = [...filteredCollections].sort(
+    (a, b) => sortRank(a.guid) - sortRank(b.guid),
   );
-  const otherCollections = filteredCollections.filter(
-    (collection) => collection.guid !== activeCollection?.guid,
-  );
+  const queryClient = useQueryClient();
+  const [emptyChoice, setEmptyChoice] = useState<{
+    targets: CollectionTarget[];
+    bulk: boolean;
+  } | null>(null);
+  const [selectedGuids, setSelectedGuids] = useState<Set<string>>(new Set());
+  const [lastToggledGuid, setLastToggledGuid] = useState<string | null>(null);
+  const [bulkAction, setBulkAction] = useState<"empty" | "delete" | null>(null);
+  const liveSelectedGuids = collections
+    .filter((c) => selectedGuids.has(c.guid))
+    .map((c) => c.guid);
+  const allVisibleSelected =
+    sortedCollections.length > 0 &&
+    sortedCollections.every((c) => selectedGuids.has(c.guid));
+
+  const toggleSelect = (guid: string, shiftKey: boolean) => {
+    const order = sortedCollections.map((c) => c.guid);
+    const anchor = lastToggledGuid ? order.indexOf(lastToggledGuid) : -1;
+    const target = order.indexOf(guid);
+    setSelectedGuids((previous) => {
+      const next = new Set(previous);
+      if (shiftKey && anchor >= 0 && target >= 0) {
+        const [from, to] =
+          anchor < target ? [anchor, target] : [target, anchor];
+        for (const g of order.slice(from, to + 1)) next.add(g);
+      } else if (next.has(guid)) {
+        next.delete(guid);
+      } else {
+        next.add(guid);
+      }
+      return next;
+    });
+    setLastToggledGuid(guid);
+  };
+
+  const runBulkAction = async () => {
+    const action = bulkAction;
+    const guids = liveSelectedGuids;
+    setBulkAction(null);
+    for (const guid of guids) {
+      if (action === "delete") await deleteCollection(guid);
+      else if (action === "empty") await emptyCollection(guid);
+    }
+    setSelectedGuids(new Set());
+    void queryClient.invalidateQueries({
+      queryKey: collectionsQueryOptions.queryKey,
+    });
+  };
+
+  const liveCount = collections.filter((c) => !!locks[c.guid]).length;
+  const stats = [
+    {
+      key: "collections",
+      label: t("page.stats.collections"),
+      value: collections.length.toLocaleString(),
+    },
+    {
+      key: "live",
+      label: t("page.stats.live"),
+      value: liveCount.toLocaleString(),
+    },
+    {
+      key: "cards",
+      label: t("page.stats.cards"),
+      value: collections
+        .reduce((sum, c) => sum + c.cardCount, 0)
+        .toLocaleString(),
+    },
+    {
+      key: "games",
+      label: t("page.stats.games"),
+      value: new Set(
+        collections.flatMap((c) => (c.game ? [c.game.guid] : [])),
+      ).size.toLocaleString(),
+    },
+  ];
 
   const [editTarget, setEditTarget] = useState<{
     guid: string;
@@ -159,166 +229,67 @@ export default function CollectionsPage() {
     if (!open) setEmptyTarget(null);
   }, []);
 
-  const renderRow = (collection: Collection) => {
-    const isActive = collection.guid === activeCollection?.guid;
-    return (
+  return (
+    <div
+      className={cn(
+        "min-h-0 flex-1 overflow-y-auto",
+        MOBILE_NAV_SCROLL_PADDING_CLASS,
+      )}
+    >
+      <div className="sticky top-0 z-20 border-b bg-background/80 py-3 backdrop-blur-2xl md:py-4">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 md:px-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="font-heading text-lg font-semibold">
+                {t("page.title")}
+              </h1>
+              <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
+            </div>
+            <CreateCollectionDialog
+              trigger={({ disabled }) => (
+                <Button disabled={disabled} data-tour="create-collection">
+                  <IconPlus />
+                  {t("newCollection")}
+                </Button>
+              )}
+            />
+          </div>
+          {!isLoading && collections.length > 0 && (
+            <>
+              <StatGroup
+                heading={t("page.stats.heading")}
+                tiles={stats}
+                live={liveCount > 0}
+                gridClassName="grid-cols-2 sm:grid-cols-4"
+              />
+              <div className="relative">
+                <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
+                <Input
+                  type="search"
+                  placeholder={t("page.searchPlaceholder")}
+                  data-hotkey-search
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+
       <div
-        key={collection.guid}
         className={cn(
-          "flex items-center gap-3 px-4 py-3.5",
-          isActive && "bg-primary/5 dark:bg-primary/15",
+          "mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6",
+          liveSelectedGuids.length > 0 && "pb-24 md:pb-24",
         )}
       >
-        <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium truncate">
-            {collection.name}
-          </p>
-          <p className="text-xs text-foreground/70">
-            {t("page.cardCount", { count: collection.cardCount })} ·{" "}
-            {collection.game ? collection.game.name : t("page.noGame")} ·{" "}
-            {new Date(collection.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-
-        <ButtonGroup className="shrink-0">
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  aria-label={t("page.viewCards")}
-                  render={
-                    <Link
-                      to={isActive ? "/app" : collectionViewPath(collection.guid)}
-                    >
-                      <IconEye />
-                    </Link>
-                  }
-                />
-              }
-            ></TooltipTrigger>
-            <TooltipContent>{t("page.viewCards")}</TooltipContent>
-          </Tooltip>
-          {!isActive && (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    disabled={isActivating}
-                    onClick={() => activateCollection(collection.guid)}
-                  >
-                    <IconPlayerPlay className="size-4 text-foreground/70" />
-                  </Button>
-                }
-              ></TooltipTrigger>
-              <TooltipContent>
-                {t("page.setActiveCollection")}
-              </TooltipContent>
-            </Tooltip>
-          )}
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Button
-                  variant="outline"
-                  size="icon"
-                  disabled={isMutating}
-                  data-tour="edit-collection"
-                  onClick={() => {
-                    editForm.reset({ name: collection.name });
-                    setEditTarget({
-                      guid: collection.guid,
-                      name: collection.name,
-                    });
-                  }}
-                >
-                  <IconEdit />
-                </Button>
-              }
-            ></TooltipTrigger>
-            <TooltipContent>{t("page.edit")}</TooltipContent>
-          </Tooltip>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              render={
-                <Button
-                  variant="outline-destructive"
-                  size="icon"
-                  disabled={isMutating}
-                >
-                  <IconTrash />
-                </Button>
-              }
-            />
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() =>
-                  setEmptyTarget({
-                    guid: collection.guid,
-                    name: collection.name,
-                  })
-                }
-              >
-                <IconEraser />
-                {t("emptyCollection")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() =>
-                  setDeleteTarget({
-                    guid: collection.guid,
-                    name: collection.name,
-                  })
-                }
-              >
-                <IconTrash />
-                {t("deleteCollection")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </ButtonGroup>
-      </div>
-    );
-  };
-
-  return (
-    <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold font-heading">
-            {t("page.title")}
-          </h1>
-          <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
-        </div>
-        <CreateCollectionDialog
-          trigger={({ disabled }) => (
-            <Button disabled={disabled} data-tour="create-collection">
-              <IconPlus className="size-4" />
-              {t("newCollection")}
-            </Button>
-          )}
-        />
-      </div>
-
-      {!isLoading && collections.length > 0 && (
-        <Input
-          placeholder={t("page.searchPlaceholder")}
-          data-hotkey-search
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      )}
-
-      <div className="flex flex-col gap-5">
         {isLoading && (
-          <div className={COLLECTIONS_LIST_CLASS}>
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-3 px-4 py-3.5">
-                <Skeleton className="size-8 rounded-md shrink-0" />
-                <div className="flex-1 space-y-1.5">
+          <div className={COLLECTIONS_GRID_CLASS}>
+            {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-lg border">
+                <Skeleton className="h-40 rounded-none" />
+                <div className="space-y-1.5 border-t p-3">
                   <Skeleton className="h-3 w-32" />
                   <Skeleton className="h-2.5 w-20" />
                 </div>
@@ -345,102 +316,230 @@ export default function CollectionsPage() {
             />
           )}
 
-        {activeCollections.length > 0 && (
-          <section className={COLLECTIONS_SECTION_CLASS}>
-            <h2 className={COLLECTIONS_SECTION_LABEL_CLASS}>
-              {t("page.activeSection")}
-            </h2>
-            <div className={COLLECTIONS_LIST_CLASS}>
-              {activeCollections.map(renderRow)}
-            </div>
-          </section>
-        )}
-        {otherCollections.length > 0 && (
-          <section className={COLLECTIONS_SECTION_CLASS}>
-            {activeCollections.length > 0 && (
-              <h2 className={COLLECTIONS_SECTION_LABEL_CLASS}>
-                {t("page.otherSection")}
-              </h2>
-            )}
-            <div className={COLLECTIONS_LIST_CLASS}>
-              {otherCollections.map(renderRow)}
-            </div>
-          </section>
-        )}
-      </div>
-      <DynamicDialog
-        open={!!editTarget}
-        onOpenChange={(open) => {
-          if (!open) setEditTarget(null);
-        }}
-        title={t("editDialog.title")}
-        description={t("editDialog.description")}
-        trigger={<span />}
-        footer={
-          <>
-            <Button variant="outline" onClick={() => setEditTarget(null)}>
-              {t("createDialog.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              form="edit-collection-form"
-              disabled={!editForm.formState.isValid || isMutating}
-            >
-              {isMutating && <IconLoader2 className="size-4 animate-spin" />}
-              {t("editDialog.submit")}
-            </Button>
-          </>
-        }
-        footerClassName="flex-col-reverse md:flex-row"
-      >
-        <form
-          id="edit-collection-form"
-          onSubmit={editForm.handleSubmit(handleEditSubmit)}
-          className="flex flex-col gap-4"
-        >
-          <Controller
-            name="name"
-            control={editForm.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="edit-collection-name">
-                  {t("createDialog.nameLabel")}
-                </FieldLabel>
-                <Input
-                  {...field}
-                  id="edit-collection-name"
-                  aria-invalid={fieldState.invalid}
-                  autoFocus
+        {sortedCollections.length > 0 && (
+          <div className={COLLECTIONS_GRID_CLASS}>
+            {sortedCollections.map((collection) => {
+              const target = { guid: collection.guid, name: collection.name };
+              const scannerLock = locks[collection.guid];
+              return (
+                <CollectionTile
+                  key={collection.guid}
+                  collection={collection}
+                  isActive={collection.guid === activeCollection?.guid}
+                  scannerLock={scannerLock}
+                  isOwnSession={
+                    !!scannerLock && scannerLock.userId === currentUserId
+                  }
+                  isSelected={selectedGuids.has(collection.guid)}
+                  onToggleSelect={(shiftKey) =>
+                    toggleSelect(collection.guid, shiftKey)
+                  }
+                  watchers={(viewersByGuid[collection.guid] ?? []).filter(
+                    (v) =>
+                      v.userId !== scannerLock?.userId &&
+                      v.userId !== currentUserId,
+                  )}
+                  isActivating={isActivating}
+                  isMutating={isMutating}
+                  onActivate={() => activateCollection(collection.guid)}
+                  onEdit={() => {
+                    editForm.reset({ name: collection.name });
+                    setEditTarget(target);
+                  }}
+                  onEmpty={() =>
+                    setEmptyChoice({ targets: [target], bulk: false })
+                  }
+                  onDelete={() => setDeleteTarget(target)}
                 />
-                {fieldState.invalid && (
-                  <FieldError errors={[fieldState.error]} />
+              );
+            })}
+            {!searchQuery.trim() && (
+              <CreateCollectionDialog
+                trigger={({ disabled }) => (
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
+                  >
+                    <span className="rounded-full border border-dashed p-3">
+                      <IconPlus className="size-5" />
+                    </span>
+                    {t("newCollection")}
+                  </button>
                 )}
-              </Field>
+              />
             )}
-          />
-        </form>
-      </DynamicDialog>
-      <DeleteDialog
-        open={!!deleteTarget}
-        onOpenChange={handleDeleteOpenChange}
-        title={t("deleteCollection")}
-        description={t("deleteDialog.description", {
-          name: deleteTarget?.name ?? "",
-        })}
-        confirm={{ type: "name", name: deleteTarget?.name ?? "" }}
-        onConfirm={handleDelete}
-      />
-      <DeleteDialog
-        open={!!emptyTarget}
-        onOpenChange={handleEmptyOpenChange}
-        title={t("emptyCollection")}
-        description={t("emptyDialog.description", {
-          name: emptyTarget?.name ?? "",
-        })}
-        confirm={{ type: "name", name: emptyTarget?.name ?? "" }}
-        confirmLabel={t("emptyDialog.confirmLabel")}
-        onConfirm={handleEmpty}
-      />
+          </div>
+        )}
+        {liveSelectedGuids.length > 0 &&
+          createPortal(
+            <div role="status" className={COLLECTION_SELECTION_ISLAND_CLASS}>
+              <span className="font-medium">
+                {t("selection.selected", { count: liveSelectedGuids.length })}
+              </span>
+              <div className="flex gap-2">
+                <Button
+                  variant="ghost"
+                  className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                  onClick={() =>
+                    setSelectedGuids(
+                      allVisibleSelected
+                        ? new Set()
+                        : new Set([
+                            ...selectedGuids,
+                            ...sortedCollections.map((c) => c.guid),
+                          ]),
+                    )
+                  }
+                >
+                  {allVisibleSelected
+                    ? t("selection.deselectAll")
+                    : t("selection.selectAll")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                  onClick={() => setSelectedGuids(new Set())}
+                >
+                  {t("selection.clear")}
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
+                  disabled={isMutating}
+                  onClick={() =>
+                    setEmptyChoice({
+                      targets: collections
+                        .filter((c) => selectedGuids.has(c.guid))
+                        .map((c) => ({ guid: c.guid, name: c.name })),
+                      bulk: true,
+                    })
+                  }
+                >
+                  <IconEraser />
+                  {t("selection.empty")}
+                </Button>
+                <Button
+                  variant="destructive"
+                  className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
+                  disabled={isMutating}
+                  onClick={() => setBulkAction("delete")}
+                >
+                  <IconTrash />
+                  {t("selection.delete")}
+                </Button>
+              </div>
+            </div>,
+            document.body,
+          )}
+        <DeleteDialog
+          open={bulkAction !== null}
+          onOpenChange={(open) => {
+            if (!open) setBulkAction(null);
+          }}
+          title={
+            bulkAction === "empty"
+              ? t("selection.emptyTitle", { count: liveSelectedGuids.length })
+              : t("selection.deleteTitle", { count: liveSelectedGuids.length })
+          }
+          description={
+            bulkAction === "empty"
+              ? t("selection.emptyDescription")
+              : t("selection.deleteDescription")
+          }
+          confirm={{ type: "keyword" }}
+          confirmLabel={
+            bulkAction === "empty" ? t("emptyDialog.confirmLabel") : undefined
+          }
+          onConfirm={() => void runBulkAction()}
+        />
+        <EmptyCollectionDialog
+          targets={emptyChoice?.targets ?? []}
+          onOpenChange={(open) => {
+            if (!open) setEmptyChoice(null);
+          }}
+          onChooseDelete={() => {
+            const choice = emptyChoice;
+            setEmptyChoice(null);
+            if (!choice) return;
+            if (choice.bulk) setBulkAction("empty");
+            else setEmptyTarget(choice.targets[0]);
+          }}
+        />
+        <DynamicDialog
+          open={!!editTarget}
+          onOpenChange={(open) => {
+            if (!open) setEditTarget(null);
+          }}
+          title={t("editDialog.title")}
+          description={t("editDialog.description")}
+          trigger={<span />}
+          footer={
+            <>
+              <Button variant="outline" onClick={() => setEditTarget(null)}>
+                {t("createDialog.cancel")}
+              </Button>
+              <Button
+                type="submit"
+                form="edit-collection-form"
+                disabled={!editForm.formState.isValid || isMutating}
+              >
+                {isMutating && <IconLoader2 className="size-4 animate-spin" />}
+                {t("editDialog.submit")}
+              </Button>
+            </>
+          }
+          footerClassName="flex-col-reverse md:flex-row"
+        >
+          <form
+            id="edit-collection-form"
+            onSubmit={editForm.handleSubmit(handleEditSubmit)}
+            className="flex flex-col gap-4"
+          >
+            <Controller
+              name="name"
+              control={editForm.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid || undefined}>
+                  <FieldLabel htmlFor="edit-collection-name">
+                    {t("createDialog.nameLabel")}
+                  </FieldLabel>
+                  <Input
+                    {...field}
+                    id="edit-collection-name"
+                    aria-invalid={fieldState.invalid}
+                    autoFocus
+                  />
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+          </form>
+        </DynamicDialog>
+        <DeleteDialog
+          open={!!deleteTarget}
+          onOpenChange={handleDeleteOpenChange}
+          title={t("deleteCollection")}
+          description={t("deleteDialog.description", {
+            name: deleteTarget?.name ?? "",
+          })}
+          confirm={{ type: "name", name: deleteTarget?.name ?? "" }}
+          onConfirm={handleDelete}
+        />
+        <DeleteDialog
+          open={!!emptyTarget}
+          onOpenChange={handleEmptyOpenChange}
+          title={t("emptyCollection")}
+          description={t("emptyDialog.description", {
+            name: emptyTarget?.name ?? "",
+          })}
+          confirm={{ type: "name", name: emptyTarget?.name ?? "" }}
+          confirmLabel={t("emptyDialog.confirmLabel")}
+          onConfirm={handleEmpty}
+        />
+      </div>
     </div>
   );
 }
