@@ -12,6 +12,7 @@ export const STORE_CONFIG_TIMEOUT_MS = 5000;
 export const DEVICE_LEASE_HEARTBEAT_MS = 20_000;
 export const BLE_DISCOVERY_TIMEOUT_MS = 15_000;
 export const BLE_PREFERRED_MTU = 517;
+export const BLE_STATE_SETTLE_TIMEOUT_MS = 3000;
 export const MAX_COMM_LOG_ENTRIES = 200;
 export const ROUTE_TIMEOUT_MODULE_PATTERN = /module (\d+)/i;
 export const COMM_LOG_VISIBLE_ENTRIES = 40;

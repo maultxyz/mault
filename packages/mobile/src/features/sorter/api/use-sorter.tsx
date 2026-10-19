@@ -30,7 +30,7 @@ import {
 } from "@/features/devices/api/devices";
 import { State } from "react-native-ble-plx";
 import { ensureBlePermissions } from "@/features/sorter/lib/ble-permissions";
-import { BleTransport, getBleManager } from "@/features/sorter/lib/ble-transport";
+import { BleTransport, getBleManager, settledBleState } from "@/features/sorter/lib/ble-transport";
 import { SorterLink } from "@/features/sorter/lib/sorter-link";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
@@ -166,7 +166,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     setError(null);
     setDiscovered([]);
     void ensureBlePermissions()
-      .then((granted) => (granted ? ble.state() : State.Unauthorized))
+      .then((granted) => (granted ? settledBleState() : State.Unauthorized))
       .then((state) => {
         if (state === State.Unauthorized) {
           fail({ code: "bluetooth-unauthorized" });

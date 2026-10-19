@@ -100,6 +100,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 ### Mobile (iOS/Android)
 
 - `shared/src/vision.ts` (corner parsing, homography/warp, tensor prep, color bar) and `shared/src/serial-protocol.ts` are the single implementation for web and mobile; platform code only converts pixels (canvas `ImageData` / nitro-image raw buffers) into `RgbaImage`.
+- Captured photos always go through `resizeAsync` before reading pixels: on iOS nitro-image's `toRawPixelData` reads the unrotated `cgImage`, while `width`/`height` and resize honour the photo's orientation.
 - Mobile runs ONNX on the CPU provider only: CoreML can drop to fp16, and embeddings must stay comparable to the fp32 vectors the server and web produce. It reports `vectorizedOn: "web"` (client-side).
 - Sorters connect over BLE only (iOS has no USB serial). Android needs runtime BLE permissions (`ensureBlePermissions`) before any scan. `SorterLink` mirrors `use-serial`'s seq matching, busy guard and route queue; change both together.
 - No in-app account creation: App Store rules would then require in-app account deletion. Org listing goes through the provider-agnostic `/me/organizations`.
