@@ -234,6 +234,15 @@ export function buildPhases(
           images: ["/instructions/assembling_feeder.jpg"],
         },
         {
+          key: "mount-roller-horn",
+          text: t(
+            "assembly.phases.assembleModules.steps.mountRollerHorn.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.mountRollerHorn.note",
+          ),
+        },
+        {
           key: "mount-feeder-servo",
           text: t(
             "assembly.phases.assembleModules.steps.mountFeederServo.text",
