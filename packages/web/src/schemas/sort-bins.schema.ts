@@ -38,6 +38,9 @@ const conditionOperatorValues = [
   "contains_any",
   "contains_all",
   "contains_none",
+  "count_equals",
+  "count_gt",
+  "count_lt",
   "is_null",
   "is_not_null",
 ] as const;

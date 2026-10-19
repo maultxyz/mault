@@ -2,6 +2,7 @@ import type { ConditionRowProps } from "@/lib/interfaces/bins";
 import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
+  COUNT_OPERATORS,
   ConditionField,
   ConditionOperator,
   FieldMeta,
@@ -156,9 +157,19 @@ export function ConditionRow({
 
   const handleOperatorChange = useCallback(
     (operator: ConditionOperator) => {
-      onChange({ ...condition, operator });
+      const isCount = COUNT_OPERATORS.includes(operator);
+      if (isCount === COUNT_OPERATORS.includes(condition.operator)) {
+        onChange({ ...condition, operator });
+        return;
+      }
+      const isList = fieldMeta?.type === "enum" || fieldMeta?.type === "set";
+      onChange({
+        ...condition,
+        operator,
+        value: !isCount && isList ? [] : "",
+      });
     },
-    [condition, onChange],
+    [condition, onChange, fieldMeta],
   );
 
   const handleValueChange = useCallback(
@@ -173,6 +184,23 @@ export function ConditionRow({
 
     if (condition.operator === "is_null" || condition.operator === "is_not_null") {
       return null;
+    }
+
+    if (COUNT_OPERATORS.includes(condition.operator)) {
+      return (
+        <Input
+          type="number"
+          min={0}
+          step={1}
+          placeholder="0"
+          className="min-w-24 flex-1"
+          value={condition.value === "" ? "" : String(condition.value)}
+          onChange={(e) => {
+            const raw = e.target.value;
+            handleValueChange(raw === "" ? "" : Number(raw));
+          }}
+        />
+      );
     }
 
     const isMulti =

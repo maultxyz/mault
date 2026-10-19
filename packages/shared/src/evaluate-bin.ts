@@ -98,6 +98,11 @@ function sameSet(a: string[], b: string[]): boolean {
   );
 }
 
+function itemCount(value: string | number | string[] | null): number {
+  if (Array.isArray(value)) return value.length;
+  return isNullish(value) ? 0 : 1;
+}
+
 function evaluateCondition(
   card: SourceCard,
   condition: BinCondition,
@@ -162,6 +167,15 @@ function evaluateCondition(
 
     case "contains_none":
       return bothLists && !valueList.some((v) => cardList.includes(v));
+
+    case "count_equals":
+      return itemCount(cardValue) === Number(value);
+
+    case "count_gt":
+      return itemCount(cardValue) > Number(value);
+
+    case "count_lt":
+      return itemCount(cardValue) < Number(value);
 
     default:
       return false;
