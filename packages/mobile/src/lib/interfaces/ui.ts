@@ -312,7 +312,7 @@ export interface ScanRegionOverlayProps {
 }
 
 export interface DetectedOutlineProps {
-  corners: LiveCorners;
+  corners: LiveCorners | null;
   color: string;
 }
 

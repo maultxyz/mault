@@ -19,6 +19,11 @@ export interface CardContour {
   bottomLeft: Point;
 }
 
+export interface OutlineAnimationState {
+  contour: CardContour | null;
+  opacity: number;
+}
+
 export type CornerRejectReason = "not_present" | "unusable_quad";
 
 export interface CornerDetection {
