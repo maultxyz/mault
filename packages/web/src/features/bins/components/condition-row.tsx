@@ -11,6 +11,14 @@ import {
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxInput,
+  ComboboxItem,
+  ComboboxList,
+} from "@/components/ui/combobox";
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -292,21 +300,32 @@ export function ConditionRow({
 
   return (
     <div className="flex flex-wrap items-start gap-1.5" data-tour="condition-row">
-      <Select
-        value={condition.field}
-        onValueChange={(val) => handleFieldChange(val as ConditionField)}
+      <Combobox
+        items={sortedFields}
+        value={fieldMeta ?? null}
+        onValueChange={(meta: FieldMeta | null) => {
+          if (meta) handleFieldChange(meta.field);
+        }}
+        itemToStringLabel={(meta: FieldMeta) => meta.label}
+        isItemEqualToValue={(a: FieldMeta, b: FieldMeta) =>
+          a?.field === b?.field
+        }
       >
-        <SelectTrigger className="min-w-28">
-          <SelectValue>{fieldMeta?.label}</SelectValue>
-        </SelectTrigger>
-        <SelectContent>
-          {sortedFields.map((f) => (
-            <SelectItem key={f.field} value={f.field}>
-              {f.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        <ComboboxInput
+          className="min-w-28"
+          placeholder={t("conditionRow.selectPlaceholder")}
+        />
+        <ComboboxContent>
+          <ComboboxEmpty>{t("conditionRow.noFields")}</ComboboxEmpty>
+          <ComboboxList>
+            {(meta: FieldMeta) => (
+              <ComboboxItem key={meta.field} value={meta}>
+                <span className="truncate">{meta.label}</span>
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
 
       {fieldMeta && (
         <Select
