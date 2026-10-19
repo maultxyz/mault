@@ -11,6 +11,20 @@ import type {
 
 const SEARCH_PAGE_SIZE = 30;
 
+function productMatchName(name: string): string {
+  return name
+    .replace(/\s*\([^)]*\)$/, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function tcgplayerNumber(riftboundId: string): string | null {
+  const [, number, total] = riftboundId.split("-");
+  if (!number) return null;
+  const printed = number.replace(/^[a-z]+/, (prefix) => prefix.toUpperCase());
+  return total ? `${printed}/${total}` : printed;
+}
+
 export function normalizeRiftboundCard(raw: RiftboundCard): PlayingCard {
   const typeLine = raw.classification.supertype
     ? `${raw.classification.type} - ${raw.classification.supertype}`
@@ -107,7 +121,17 @@ export const riftboundAdapter: CardSearchAdapter = {
   normalizeStored: (raw) => normalizeRiftboundCard(raw as RiftboundCard),
   tcgplayer: {
     categoryId: 89,
-    subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
+    subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),
+    productMatch: (card) => {
+      const raw = card.raw as RiftboundCard;
+      const number = tcgplayerNumber(raw.riftbound_id ?? "");
+      if (!number) return null;
+      const name = productMatchName(raw.name);
+      return {
+        numbers: [number],
+        accepts: (product) => productMatchName(product.name).endsWith(name),
+      };
+    },
   },
   cardmarket: {
     gameId: 22,
