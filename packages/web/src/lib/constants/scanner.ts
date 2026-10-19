@@ -34,6 +34,14 @@ export const MTG_ASPECT_RATIO = 2.5 / 3.5;
 export const PHONE_CAMERA_JPEG_QUALITY = 0.85;
 export const CATCH_ALL_BIN = 7;
 
+export const PI_SCAN_CARD_EVENTS = [
+  "card_added",
+  "unmatched_added",
+  "card_removed",
+  "cards_removed",
+  "unmatched_removed",
+] as const;
+
 export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;

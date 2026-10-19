@@ -46,6 +46,9 @@ next-env.d.ts
 **/dist/**
 
 # Locally-cached CollectorVision model download (packages/server/src/lib/models/model-registry.ts)
-**/.cache/collectorvision/**
+**/.cache/
 
 firmware/**/build/**
+
+__pycache__/
+*.py[cod]

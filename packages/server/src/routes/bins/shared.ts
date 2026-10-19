@@ -361,6 +361,20 @@ export function activeBinSetWhere(
   );
 }
 
+export async function loadActiveBinSet(
+  tx: Transaction,
+  orgId: string,
+  gameId: number | null,
+): Promise<{ id: number; set: BinSet } | null> {
+  const row = await tx.query.binSets.findFirst({
+    ...binSetQuery,
+    columns: { ...binSetQuery.columns, id: true },
+    where: (table) => activeBinSetWhere(table, orgId, gameId),
+  });
+  if (!row?.guid) return null;
+  return { id: row.id, set: toBinSet(row) };
+}
+
 export async function binSetNameTaken(
   tx: Transaction,
   orgId: string,

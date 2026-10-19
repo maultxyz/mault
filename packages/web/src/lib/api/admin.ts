@@ -9,9 +9,13 @@ import type {
   AdminUserSummary,
   ImpersonationAuditEntry,
   ImpersonationSession,
+  BrowserSyncWorkCard,
+  BrowserSyncWorkFailure,
+  BrowserSyncWorkResult,
   PublicMetrics,
   Result,
   SyncState,
+  SyncVectorizeOn,
 } from "@magic-vault/shared";
 
 
@@ -29,6 +33,7 @@ export async function startSync(
   lang: string = "en",
   forceResync: boolean = false,
   concurrency?: number,
+  vectorizeOn: SyncVectorizeOn = "server",
 ): Promise<{
   success: boolean;
   data: SyncState;
@@ -38,7 +43,25 @@ export async function startSync(
     lang,
     forceResync,
     concurrency,
+    vectorizeOn,
   });
+}
+
+export async function claimBrowserSyncWork(
+  limit: number,
+): Promise<BrowserSyncWorkCard[]> {
+  const response = await apiPost<{
+    success: boolean;
+    data?: BrowserSyncWorkCard[];
+  }>("/api/admin/sync/work/claim", { limit });
+  return response.data ?? [];
+}
+
+export async function submitBrowserSyncWork(
+  results: BrowserSyncWorkResult[],
+  failures: BrowserSyncWorkFailure[],
+): Promise<void> {
+  await apiPost("/api/admin/sync/work", { results, failures });
 }
 
 export async function cancelSync(): Promise<{

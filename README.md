@@ -67,7 +67,7 @@ firmware/      Sorter sketch (firmware/main/*.ino) and wire protocol (firmware/P
 drizzle/       Generated SQL migrations
 docs/          Public API guide
 docker/        Web container start-up script (runtime env.js)
-scripts/       Release and version helpers
+scripts/       Release and version helpers, plus scripts/pi for a Raspberry Pi host
 .github/       Build check, deploy, firmware PR check and firmware release workflows
 ```
 
@@ -87,7 +87,7 @@ scripts/       Release and version helpers
 The app needs Postgres with pgvector and an identity provider. Pick one with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
 - **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough for a personal deployment.
-- **`local`**: fully self-hosted and offline-capable. `docker-compose.yml` runs Postgres, the API, the web app, price sync and the API docs.
+- **`local`**: fully self-hosted and offline-capable. `docker-compose.yml` runs Postgres, the API, the web app, price sync and the API docs. A Raspberry Pi can host the same local-auth app with `scripts/pi/install.sh` (Option C).
 
 Both read one root `.env` (Vite reads it from the repo root too):
 
@@ -128,6 +128,36 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
 
 Local mode supports sign-up/sign-in, org switching and invites, API keys and the audit log. Email verification, profile/password editing, multi-session management and social sign-in are Neon-only.
+
+### Option C: Raspberry Pi
+
+A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi.
+
+Node, pnpm, Python 3, `v4l2-ctl`, and PostgreSQL need to be installed already. `sudo -u postgres` must work for the user who runs the installer.
+
+```bash
+scripts/pi/install.sh
+```
+
+On a fresh checkout this writes `.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, and a `mault` database on `127.0.0.1:5432`. If `.env` already exists and has no `PI_HOST` line, the script appends `PI_HOST=1`. It then creates the `mault` role and database, builds the server and the web app, runs migrations, and enables three user services. Linger is turned on so those services start at boot.
+
+| Service | Role |
+| --- | --- |
+| `mault-api` | API on port 3001 |
+| `mault-web` | Web app on port 8080. Proxies `/api` to the API and `/pi-camera` to the webcam helper |
+| `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam |
+
+```bash
+scripts/pi/start.sh            # start the services and open Chromium on the Pi desktop
+scripts/pi/start.sh --kiosk
+scripts/pi/stop.sh
+```
+
+Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh` also opens Chromium on the Pi at `http://127.0.0.1:8080`. That window is a local browser, so it uses the machine's own camera and serial port instead of the remote path.
+
+The API reports a Pi host when `PI_HOST=1`, and also when `/proc/device-tree/model` contains `Raspberry Pi` and `PI_HOST` is unset. `PI_HOST=0` turns the remote-browser behavior off. `WEBCAM_DEVICE` selects a specific `/dev/video*` node when the helper should not pick one itself.
+
+Sign up on the Pi's page. The first account is the platform admin. Add a game in Admin and sync it before scanning.
 
 ### Running pieces individually
 
@@ -226,6 +256,10 @@ Full BOM, wiring and assembly steps are at `/build`. In short:
 The sketch is `firmware/main/` (`main.ino` plus the BLE and Wi-Fi tabs). The easiest path is flashing from the app, which uses the builds published by `.github/workflows/firmware-release.yml`. To build it yourself, install ArduinoJson, Adafruit PWM Servo Driver and (Uno R4 WiFi) ArduinoBLE, and use the FQBNs from that workflow; ESP32-S3 builds need `USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio,PartitionScheme=min_spiffs`.
 
 The firmware has no idea what a bin is: the app resolves each bin to a module and direction (`left`, `right` or `bottom`) and sends newline-delimited JSON at 9600 baud, such as `{"seq":42,"route":{"module":2,"direction":"left"}}`. Note that `"left"` lands on the physical right. `firmware/PROTOCOL.md` documents every command and the USB, BLE and Wi-Fi transports. The PCA9685 channel layout (Standard from channel 0, or Legacy from channel 4 for older wiring) is chosen in Calibration and sent at connect time.
+
+### Raspberry Pi
+
+See [Option C](#option-c-raspberry-pi). The sorter stays plugged into the Pi, and a USB webcam on the Pi is the scanner camera.
 
 ### Wi-Fi remote
 

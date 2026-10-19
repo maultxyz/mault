@@ -1,4 +1,10 @@
-import type { SyncState } from "@magic-vault/shared";
+import type {
+  BrowserSyncWorkCard,
+  BrowserSyncWorkFailure,
+  BrowserSyncWorkResult,
+  SyncState,
+  SyncVectorizeOn,
+} from "@magic-vault/shared";
 
 export interface StartMessage {
   type: "start";
@@ -6,6 +12,7 @@ export interface StartMessage {
   lang: string;
   forceResync: boolean;
   skipUpdatedWithinMs?: number;
+  vectorizeOn: SyncVectorizeOn;
   initialState: SyncState;
 }
 
@@ -13,7 +20,24 @@ export interface CancelMessage {
   type: "cancel";
 }
 
-export type ParentToWorkerMessage = StartMessage | CancelMessage;
+export interface ClaimWorkMessage {
+  type: "claim";
+  requestId: string;
+  limit: number;
+}
+
+export interface SubmitWorkMessage {
+  type: "submit";
+  requestId: string;
+  results: BrowserSyncWorkResult[];
+  failures: BrowserSyncWorkFailure[];
+}
+
+export type ParentToWorkerMessage =
+  | StartMessage
+  | CancelMessage
+  | ClaimWorkMessage
+  | SubmitWorkMessage;
 
 export interface PatchStateMessage {
   type: "patchState";
@@ -36,8 +60,17 @@ export interface EmitEventMessage {
   data: unknown;
 }
 
+export interface WorkResponseMessage {
+  type: "workResponse";
+  requestId: string;
+  cards?: BrowserSyncWorkCard[];
+  ok?: boolean;
+  message?: string;
+}
+
 export type WorkerToParentMessage =
   | PatchStateMessage
   | IncrementCountersMessage
   | AddLogMessage
-  | EmitEventMessage;
+  | EmitEventMessage
+  | WorkResponseMessage;

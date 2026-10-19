@@ -1,0 +1,16 @@
+[Unit]
+Description=Mault API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/mault
+Environment=NODE_ENV=production
+Environment=VECTORIZE_CONCURRENCY=1
+ExecStartPre=/bin/bash -c 'for i in $(seq 1 50); do (echo >/dev/tcp/127.0.0.1/5432) >/dev/null 2>&1 && exit 0; sleep 0.2; done; exit 1'
+ExecStart=/usr/bin/node --env-file=%h/mault/.env %h/mault/packages/server/dist/index.js
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

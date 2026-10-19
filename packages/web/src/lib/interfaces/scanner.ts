@@ -34,7 +34,7 @@ import type {
   Result,
   UnmatchedCard,
 } from "@magic-vault/shared";
-import type { ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
@@ -62,6 +62,12 @@ export interface CameraRange {
 
 export interface CameraFocusControlProps {
   className?: string;
+}
+
+export interface LensFocusDialogProps {
+  trigger?: ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export type CameraTrackSettings = MediaTrackSettings & {
@@ -163,7 +169,7 @@ export type SerialMessageListener = (message: unknown) => void;
 
 export type SerialBoardType = "esp32" | "uno_r4";
 
-export type SerialTransportType = "serial" | "bluetooth" | "cloud";
+export type SerialTransportType = "serial" | "bluetooth" | "cloud" | "pi";
 
 export type FlashFailureReason =
   | "wrong-chip"
@@ -279,6 +285,14 @@ export interface ScannerControlsProps {
   onFeed: () => void;
   onClearDevice: () => void;
   onResetDevice: () => void;
+  sessionFeed?: boolean;
+  sessionLive?: boolean;
+  onStop?: () => void;
+  onAutoFeedChange?: (enabled: boolean) => void;
+  bottomsOpen?: boolean;
+  isMovingBottoms?: boolean;
+  canToggleBottoms?: boolean;
+  onToggleBottoms?: () => void;
 }
 
 export interface ScannerControlButtonProps {
@@ -315,6 +329,9 @@ export interface ScannerOverlayProps {
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;
   onEnableHandScan: () => void;
+  sessionLive?: boolean;
+  sessionDetail?: string | null;
+  piReady?: boolean;
 }
 
 export interface SetStats {

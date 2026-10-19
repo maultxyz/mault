@@ -108,6 +108,14 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - QR pairing: vision-camera's `ScannedCode` is iOS-only, so Android decodes captured frames with `jsqr` (`use-qr-scanner.ts` picks per platform at module level).
 - CSV export adapters live in `shared/src/card-export`; web downloads the CSV, mobile hands it to `expo-sharing`.
 
+### Pi scanning
+
+- The scanner camera is the USB webcam, served by `scripts/pi/camera-ctl.py` on `127.0.0.1:8765` and proxied as `/pi-camera`. Frames are re-encoded to JFIF before they go out.
+- Remote-browser Pi behavior (serial bridge, camera relay, hiding the connect prompt) turns on only when the API reports `piHost`. That is true when `PI_HOST=1` (set by `scripts/pi/install.sh`) or when `/proc/device-tree/model` is a Raspberry Pi. `PI_HOST=0` forces it off.
+- A remote browser on a Pi host opens the sorter through `/pi-serial` (`lib/pi-serial-bridge.ts`). The port is claimed in `lib/pi-serial-port.ts`, so the Pi scan session and a browser cannot hold it at the same time.
+- Pi-owned scanning (`lib/pi-scan/session.ts`, `GET/POST/DELETE /scan-session`) runs the loop in the API process. It feeds, waits the device capture settle delay once, then takes the scan photo.
+- Both sync paths use the admin "cards at a time" control. The server path sets `VECTORIZE_CONCURRENCY` on the sync worker. "Start on this computer" (`vectorizeOn: "browser"`) is offered only when the API reports `piHost`. It hands cards that are not in the database yet to the open admin page and runs that many browser workers. `crypto.subtle` is missing on plain HTTP, so model hashing falls back to a pure JS SHA-256.
+
 ### Discord bot
 
 - One global bot; commands registered globally only (`/link`, `/stats`). Each guild maps to one org via `org_settings.discord_guild_id`. Every channel and rule target is validated against the linked guild, so posts can never land in another server. Mentions are limited to the exact roles requested.

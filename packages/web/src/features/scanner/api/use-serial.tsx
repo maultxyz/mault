@@ -9,6 +9,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
+import { refreshPiScanHold } from "@/features/scanner/api/pi-scan-session";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
@@ -20,8 +21,11 @@ import { sorterLinkClientUrl } from "@/features/scanner/lib/sorter-link";
 import {
   BluetoothTransport,
   CloudTransport,
+  PiSerialTransport,
   SerialTransport,
 } from "@/features/scanner/lib/transports";
+import { isRemoteBrowser } from "@/lib/host";
+import { loadPiHost } from "@/lib/pi-host";
 import {
   JAM_CLEAR_DEVICE_TIMEOUT_MS,
   JAM_COMMAND_TIMEOUT_MS,
@@ -973,12 +977,41 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     await runConnectTest(activeTransport, deviceRef.current);
   }, [runConnectTest]);
 
+  const refusePiScanPort = useCallback(async () => {
+    if (!(await refreshPiScanHold())) return false;
+    toast.error(t("serial.connectionFailed.title"), {
+      description: t("serial.piScanBusy"),
+    });
+    return true;
+  }, [t]);
+
   const connect = useCallback(
     async (options?: { skipAutoTest?: boolean }) => {
+      if (await refusePiScanPort()) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
       if (transportRef.current) return;
+      if ((await loadPiHost()) && isRemoteBrowser()) {
+        const result = await PiSerialTransport.open();
+        if (!result.ok) {
+          const description =
+            result.reason === "missing"
+              ? t("serial.piMissing")
+              : result.reason === "busy"
+                ? t("serial.piBusy")
+                : t("serial.connectionFailed.description");
+          toast.error(t("serial.connectionFailed.title"), { description });
+          void reportSerialEvent({
+            command: "connect",
+            sent: false,
+            response: null,
+          });
+          return;
+        }
+        await openTransport(result.transport, options);
+        return;
+      }
       if (!navigator.serial) return;
 
       const result = await SerialTransport.requestAndOpen();
@@ -997,11 +1030,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [toast, openTransport, t],
+    [toast, openTransport, refusePiScanPort, t],
   );
 
   const connectPort = useCallback(
     async (port: SerialPort) => {
+      if (await refusePiScanPort()) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -1013,11 +1047,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       });
       await identified;
     },
-    [openTransport],
+    [openTransport, refusePiScanPort],
   );
 
   const connectBluetoothDevice = useCallback(
     async (device: BluetoothDevice) => {
+      if (await refusePiScanPort()) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -1030,7 +1065,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
       await openTransport(transport, { autoConnect: true });
     },
-    [openTransport],
+    [openTransport, refusePiScanPort],
   );
 
   const isAutoConnectDeviceRef = useRef<(guid: string) => boolean>(() => false);

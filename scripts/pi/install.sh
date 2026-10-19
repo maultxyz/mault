@@ -1,0 +1,134 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+cd "$ROOT"
+
+if [[ ! -f .env ]]; then
+  python3 - << 'PY'
+import secrets
+from pathlib import Path
+
+password = secrets.token_hex(24)
+text = f"""AUTH_PROVIDER=local
+VITE_AUTH_PROVIDER=local
+DATABASE_URL=postgresql://mault:{password}@127.0.0.1:5432/mault
+DATABASE_SSL=false
+POSTGRES_PASSWORD={password}
+OWN_AUTH_TOKEN_PEPPER={secrets.token_hex(32)}
+IMPERSONATION_SECRET={secrets.token_hex(32)}
+MONITOR_LINK_SECRET={secrets.token_hex(32)}
+WEB_URL=http://127.0.0.1:8080
+PORT=3001
+VITE_APP_ENV=local
+VITE_LATEST_FIRMWARE_VERSION=2.10.0
+PI_HOST=1
+"""
+Path(".env").write_text(text)
+Path(".env").chmod(0o600)
+print("[install] Wrote .env")
+PY
+fi
+
+if ! grep -q '^PI_HOST=' .env; then
+  printf '\nPI_HOST=1\n' >> .env
+  echo "[install] Set PI_HOST=1"
+fi
+
+PASSWORD="$(python3 - << 'PY'
+from pathlib import Path
+for line in Path(".env").read_text().splitlines():
+    if line.startswith("POSTGRES_PASSWORD="):
+        print(line.split("=", 1)[1])
+        break
+PY
+)"
+
+if [[ -z "$PASSWORD" ]]; then
+  echo "POSTGRES_PASSWORD is missing from .env" >&2
+  exit 1
+fi
+
+sudo -u postgres psql -v ON_ERROR_STOP=1 << SQL
+DO \$\$
+BEGIN
+  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'mault') THEN
+    CREATE ROLE mault LOGIN SUPERUSER PASSWORD '${PASSWORD}';
+  ELSE
+    ALTER ROLE mault WITH LOGIN SUPERUSER PASSWORD '${PASSWORD}';
+  END IF;
+END
+\$\$;
+SELECT 'CREATE DATABASE mault OWNER mault'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'mault')\\gexec
+SQL
+sudo -u postgres psql -d mault -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
+
+pnpm install
+pnpm --filter @magic-vault/server build
+pnpm --filter @magic-vault/web build
+
+set -a
+# shellcheck disable=SC1091
+source .env
+set +a
+pnpm --filter @magic-vault/server db:migrate-local
+
+UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
+mkdir -p "$UNIT_DIR"
+for unit in mault-api.service mault-web.service mault-camera.service; do
+  cp "$ROOT/scripts/pi/$unit" "$UNIT_DIR/$unit"
+done
+systemctl --user daemon-reload
+systemctl --user enable mault-api.service mault-web.service mault-camera.service
+
+if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" || -S "/run/user/$(id -u)/bus" ]]; then
+  export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
+  gdbus call --session \
+    --dest org.freedesktop.impl.portal.PermissionStore \
+    --object-path /org/freedesktop/impl/portal/PermissionStore \
+    --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
+    devices true camera '' "['yes']" >/dev/null
+  gdbus call --session \
+    --dest org.freedesktop.impl.portal.PermissionStore \
+    --object-path /org/freedesktop/impl/portal/PermissionStore \
+    --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
+    devices true camera chromium "['yes']" >/dev/null
+fi
+
+DESKTOP="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
+mkdir -p "$DESKTOP"
+for action in Start Stop; do
+  script="$ROOT/scripts/pi/$(echo "$action" | tr '[:upper:]' '[:lower:]').sh"
+  if [[ "$action" == "Start" ]]; then
+    icon="/usr/share/pixmaps/chromium.png"
+    comment="Start MAULT and open it"
+  else
+    icon="/usr/share/icons/AdwaitaLegacy/48x48/legacy/process-stop.png"
+    comment="Stop MAULT"
+  fi
+  cat > "$DESKTOP/${action} MAULT.desktop" << EOF
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=${action} MAULT
+Comment=${comment}
+Exec=lxterminal -t "${action} MAULT" -e bash -lc '${script}; echo; echo "Press Enter to close."; read'
+Icon=${icon}
+Terminal=false
+Categories=Utility;
+StartupNotify=false
+EOF
+  chmod +x "$DESKTOP/${action} MAULT.desktop"
+done
+if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" || -S "/run/user/$(id -u)/bus" ]]; then
+  export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
+  gio set "$DESKTOP/Start MAULT.desktop" metadata::trusted true 2>/dev/null || true
+  gio set "$DESKTOP/Stop MAULT.desktop" metadata::trusted true 2>/dev/null || true
+fi
+
+if ! loginctl show-user "$USER" -p Linger 2>/dev/null | grep -q '=yes'; then
+  sudo loginctl enable-linger "$USER"
+fi
+
+echo "[install] Ready. The API and web app start on boot. Open http://<this-pi>:8080 from another computer."

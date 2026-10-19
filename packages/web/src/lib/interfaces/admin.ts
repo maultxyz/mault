@@ -6,6 +6,7 @@ import type {
   PlatformDiscordChannelKey,
   PlatformDiscordGuildSummary,
   SyncState,
+  SyncVectorizeOn,
 } from "@magic-vault/shared";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
@@ -52,6 +53,11 @@ export interface PlanLimitInputProps {
   onChange: (value: number | null) => void;
 }
 
+export interface BrowserSyncPace {
+  vectorized: number;
+  embeddingCount: number;
+}
+
 export interface CardSyncContextValue {
   syncState: SyncState;
   sources: SyncSourceInfo[];
@@ -61,11 +67,14 @@ export interface CardSyncContextValue {
   progress: number;
   elapsedMs: number;
   etaMs: number | null;
+  cardsPerMinute: number | null;
+  embeddingCount: number;
   start: (
     gameKey: string,
     lang: string,
     forceResync?: boolean,
     concurrency?: number,
+    vectorizeOn?: SyncVectorizeOn,
   ) => void;
   isStarting: boolean;
   cancel: () => void;
