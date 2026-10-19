@@ -23,6 +23,7 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import {
   STORAGE_CARD_SEARCH_PARAM,
   STORAGE_LOCATION_SEARCH_PARAM,
+  STORAGE_PAGE_SEARCH_PARAM,
   STORAGE_REVIEW_SEARCH_PARAM,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
@@ -62,6 +63,7 @@ function DesktopStoragePage() {
   const selected = locations.find((l) => l.guid === selectedGuid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const isReviewing = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM) === "1";
+  const pageParam = searchParams.get(STORAGE_PAGE_SEARCH_PARAM);
   const isCardOpen = !!selected && !isSearching && !!openScanId;
 
   const select = useCallback(
@@ -79,13 +81,21 @@ function DesktopStoragePage() {
         [STORAGE_LOCATION_SEARCH_PARAM]: guid,
         [STORAGE_CARD_SEARCH_PARAM]: scanId,
         ...(review ? { [STORAGE_REVIEW_SEARCH_PARAM]: "1" } : {}),
+        ...(pageParam ? { [STORAGE_PAGE_SEARCH_PARAM]: pageParam } : {}),
       },
       { replace: true },
     );
 
   const closeCard = useCallback(() => {
-    if (selected) select(selected.guid);
-  }, [selected, select]);
+    if (!selected) return;
+    setSearchParams(
+      {
+        [STORAGE_LOCATION_SEARCH_PARAM]: selected.guid,
+        ...(pageParam ? { [STORAGE_PAGE_SEARCH_PARAM]: pageParam } : {}),
+      },
+      { replace: true },
+    );
+  }, [selected, pageParam, setSearchParams]);
 
   const startReview = async () => {
     if (!selected) return;
