@@ -215,6 +215,10 @@ export interface LiveCorners {
   frameHeight: number;
 }
 
+export interface SmoothedCorners extends LiveCorners {
+  opacity: number;
+}
+
 export interface HandScanTracker {
   update: (corners: LiveCorners | null, canCapture: boolean) => boolean;
 }

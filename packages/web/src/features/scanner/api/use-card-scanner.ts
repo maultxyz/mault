@@ -20,6 +20,7 @@ import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
+import { createOutlineAnimator } from "@/features/scanner/lib/outline-animator";
 import {
   contourFingerprint,
   fingerprintDistance,
@@ -653,6 +654,9 @@ export function useCardScanner({
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [outlineAnimator] = useState(() =>
+    createOutlineAnimator(() => overlayCanvasRef.current),
+  );
   const rafRef = useRef<number>(0);
 
   const statusRef = useRef<ScannerStatus>("initializing");
@@ -781,6 +785,7 @@ export function useCardScanner({
         debugImageUrlRef.current = debugImageUrl;
         vectorizedOnRef.current = vectorizedOn;
 
+        outlineAnimator.cancel();
         const overlayCtx = overlayCanvasRef.current?.getContext("2d");
         if (overlayCtx && canvas.width && canvas.height) {
           overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
@@ -834,7 +839,13 @@ export function useCardScanner({
         isCapturingRef.current = false;
       }
     },
-    [updateStatus, allowDuplicates, drawLatestVideoFrame, t],
+    [
+      updateStatus,
+      allowDuplicates,
+      drawLatestVideoFrame,
+      outlineAnimator,
+      t,
+    ],
   );
 
   const detectionLoop = useCallback(() => {
@@ -912,6 +923,7 @@ export function useCardScanner({
     return () => {
       cancelled = true;
       stopObservingResize();
+      outlineAnimator.cancel();
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
       if (settleTimeoutRef.current) {
@@ -921,7 +933,7 @@ export function useCardScanner({
       }
       video.srcObject = null;
     };
-  }, [stream, updateStatus, detectionLoop]);
+  }, [stream, updateStatus, detectionLoop, outlineAnimator]);
 
   // Continuous live-preview overlay showing what would be captured - purely
   // visual feedback, decoupled from when an actual capture/match fires
@@ -944,16 +956,9 @@ export function useCardScanner({
           if (!isTrackedStatus()) return;
           if (autoCaptureRef.current) trackHandScan(detection, canvas);
           if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
-          const overlayCtx = overlayCanvas.getContext("2d");
-          if (!overlayCtx) return;
-          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-          if (detection.cardPresent && detection.contour) {
-            drawDetectionOverlay(overlayCtx, {
-              detected: true,
-              contour: detection.contour,
-              confidence: detection.confidence,
-            });
-          }
+          outlineAnimator.setTarget(
+            detection.cardPresent ? detection.contour : null,
+          );
         })
         .catch((err) => {
           if (!getOnnxRuntimeFailure()) {
@@ -1040,7 +1045,7 @@ export function useCardScanner({
     }
 
     return () => clearInterval(intervalId);
-  }, [stream]);
+  }, [stream, outlineAnimator]);
 
   const handleForceAddDuplicate = useCallback(() => {
     if (duplicateCard) {
@@ -1087,6 +1092,7 @@ export function useCardScanner({
             scanRegionRef.current,
           );
 
+          outlineAnimator.cancel();
           const overlayCtx = overlayCanvas?.getContext("2d");
           if (overlayCanvas && overlayCtx) {
             overlayCtx.clearRect(
@@ -1124,7 +1130,7 @@ export function useCardScanner({
         img.src = dataUrl;
       });
     },
-    [],
+    [outlineAnimator],
   );
 
   const capturePhonePhotoThenSearch = useCallback(

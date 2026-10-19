@@ -142,7 +142,7 @@ export default function ScanScreen() {
           strokeColor={working ? colors.success : colors.onCamera}
         />
       ) : null}
-      {liveCorners ? <DetectedOutline corners={liveCorners} color={colors.primary} /> : null}
+      {device ? <DetectedOutline corners={liveCorners} color={colors.primary} /> : null}
 
       <View
         pointerEvents="box-none"

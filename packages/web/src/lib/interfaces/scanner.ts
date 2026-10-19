@@ -979,3 +979,8 @@ export interface WebGlWarpState {
   homographyLocation: WebGLUniformLocation | null;
   sourceSizeLocation: WebGLUniformLocation | null;
 }
+
+export interface OutlineAnimator {
+  setTarget: (contour: CardContour | null) => void;
+  cancel: () => void;
+}
