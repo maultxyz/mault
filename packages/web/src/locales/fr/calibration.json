@@ -421,10 +421,16 @@
     },
     "feederStop": {
       "heading": "Point d'arrêt du chargeur",
-      "body": "Chaque moteur de chargeur a un point d'immobilité légèrement différent. À chaque changement, le rouleau tourne brièvement avec ce réglage. Ajuste-le jusqu'à ce que le rouleau ne bouge plus du tout.",
+      "body": "Chaque moteur de chargeur a un point d'immobilité légèrement différent. À chaque changement, le rouleau tourne brièvement à 0 % de vitesse : au bon point d'arrêt, il ne bouge pas du tout.",
       "pulseLabel": "Impulsion d'arrêt",
-      "hint": "Si le rouleau avance lentement dans un sens, ajuste dans l'autre sens. Quand il reste immobile, cela devient 0 % de vitesse du chargeur.",
-      "saveFailed": "Impossible d'enregistrer le point d'arrêt du chargeur."
+      "hint": "Utilise les boutons pour avancer d'une impulsion à la fois.",
+      "saveFailed": "Impossible d'enregistrer le point d'arrêt du chargeur.",
+      "guide": {
+        "zero": "Observe le rouleau après chaque changement. Cette étape le fait toujours tourner à 0 % de vitesse.",
+        "stops": "Déplace le point d'arrêt jusqu'à ce que le rouleau s'arrête. Note cette valeur, par exemple 330.",
+        "starts": "Continue dans le même sens jusqu'à ce que le rouleau se remette à bouger. Note aussi cette valeur, par exemple 344.",
+        "middle": "Place le point d'arrêt à mi-chemin entre les deux. Pour 330 et 344, c'est 337."
+      }
     },
     "feeder": {
       "heading": "Vitesse d'alimentation",

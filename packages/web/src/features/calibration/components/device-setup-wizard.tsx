@@ -27,11 +27,13 @@ import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   emptySetupIrSeen,
+  FEEDER_STOP_GUIDE_STEPS,
   FEEDER_STOP_PULSE_SLIDER_RANGE,
   MODULE_DELAY_FIELDS,
   PUSHER_SUGGESTED_OFFSET_PERCENT,
   pulseToPercent,
   pulseToSignedPercent,
+  recenterSpeedPulse,
   SERVO_PULSE_CENTER,
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
@@ -47,6 +49,7 @@ import {
 import type {
   ReadIrResponse,
   SetupControlPanelProps,
+  SetupFeederSpeedAnchor,
   SetupIrReading,
   SetupIrSeen,
   SetupIrSensor,
@@ -142,6 +145,7 @@ export function DeviceSetupWizard() {
   );
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const feederSpeedAnchorRef = useRef<SetupFeederSpeedAnchor | null>(null);
 
   const steps = useMemo(
     () => buildSteps(moduleCount.displayCount, isOffline),
@@ -181,6 +185,7 @@ export function DeviceSetupWizard() {
     const current = latest.current;
     setStepIndex(0);
     setDrafts({});
+    feederSpeedAnchorRef.current = null;
     setFeederSpeed(current.feederSpeed);
     setFeederStopPulse(current.feederStopPulse);
     setTestState("idle");
@@ -304,6 +309,12 @@ export function DeviceSetupWizard() {
 
   const handleFeederStopChange = (pulse: number) => {
     const clamped = Math.min(SERVO_PULSE_MAX, Math.max(SERVO_PULSE_MIN, pulse));
+    const anchor = feederSpeedAnchorRef.current ?? {
+      center: feederStopPulse,
+      speed: feederSpeed,
+    };
+    feederSpeedAnchorRef.current = anchor;
+    setFeederSpeed(recenterSpeedPulse(anchor.speed, anchor.center, clamped));
     setFeederStopPulse(clamped);
     if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
     feederDebounceRef.current = setTimeout(
@@ -333,6 +344,7 @@ export function DeviceSetupWizard() {
 
   const handleFeederChange = (signedPercent: number) => {
     const pulse = signedPercentToPulse(signedPercent, feederStopPulse);
+    feederSpeedAnchorRef.current = null;
     setFeederSpeed(pulse);
     if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
     feederDebounceRef.current = setTimeout(
@@ -647,6 +659,11 @@ export function DeviceSetupWizard() {
               title={t("setupWizard.feederStop.heading")}
               body={t("setupWizard.feederStop.body")}
             />
+            <ol className="flex list-inside list-decimal flex-col gap-1 text-sm text-foreground/70">
+              {FEEDER_STOP_GUIDE_STEPS.map((key) => (
+                <li key={key}>{t(`setupWizard.feederStop.guide.${key}`)}</li>
+              ))}
+            </ol>
             <ControlPanel
               label={t("setupWizard.feederStop.pulseLabel")}
               value={String(feederStopPulse)}
