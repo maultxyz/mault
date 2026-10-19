@@ -26,6 +26,7 @@ import {
   fingerprintDistance,
 } from "@/features/scanner/lib/hand-scan";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
+import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
   embedCanvas,
   rotateCanvas180,
@@ -252,29 +253,35 @@ async function searchByCardText(
     OCR_CROP_WIDTH,
     OCR_CROP_HEIGHT,
   );
+  const crops = [uprightCrop];
   let ocr: OcrDiagnostics | null = null;
-  for (const option of [best, best.alternate]) {
-    if (!option?.embedding) continue;
-    const crop =
-      option.orientation === "rotated"
-        ? rotateCanvas180(uprightCrop)
-        : uprightCrop;
-    try {
-      const result = await searchByText(
-        buildSearchFormData(option.embedding, scope, await canvasToBlob(crop)),
-      );
-      ocr = result.ocr ?? ocr;
-      scanLog(
-        `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
-      );
-      if (hasMatch(result)) {
-        return { pick: { ...option, result, alternate: null }, ocr };
+  try {
+    for (const option of [best, best.alternate]) {
+      if (!option?.embedding) continue;
+      const crop =
+        option.orientation === "rotated"
+          ? rotateCanvas180(uprightCrop)
+          : uprightCrop;
+      crops.push(crop);
+      try {
+        const result = await searchByText(
+          buildSearchFormData(option.embedding, scope, await canvasToBlob(crop)),
+        );
+        ocr = result.ocr ?? ocr;
+        scanLog(
+          `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
+        );
+        if (hasMatch(result)) {
+          return { pick: { ...option, result, alternate: null }, ocr };
+        }
+      } catch (err) {
+        console.error("[scanner] text search failed:", err);
       }
-    } catch (err) {
-      console.error("[scanner] text search failed:", err);
     }
+    return { pick: null, ocr };
+  } finally {
+    releaseCanvases(crops);
   }
-  return { pick: null, ocr };
 }
 
 function buildImageSearchFormData(blob: Blob, scope: MatchScope): FormData {
@@ -341,6 +348,33 @@ async function searchCardImage(
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
 ): Promise<ScanAttemptOutcome> {
+  const created: HTMLCanvasElement[] = [];
+  try {
+    return await runCardImageSearch(
+      created,
+      canvas,
+      refreshFrame,
+      contour,
+      scope,
+      ocrEnabled,
+      checkBothOrientations,
+      colorBarRegion,
+    );
+  } finally {
+    releaseCanvases(created, [canvas]);
+  }
+}
+
+async function runCardImageSearch(
+  created: HTMLCanvasElement[],
+  canvas: HTMLCanvasElement,
+  refreshFrame: () => void,
+  contour: CardContour | null | undefined,
+  scope: MatchScope,
+  ocrEnabled: boolean | undefined,
+  checkBothOrientations: boolean,
+  colorBarRegion: ColorBarRegion | undefined,
+): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
   let detection: ScanDetectionDiagnostics = {
@@ -362,6 +396,7 @@ async function searchCardImage(
       fallbackReason: null,
     };
     if (dewarpedCanvas) {
+      created.push(dewarpedCanvas);
       const best = await searchBothOrientations(
         dewarpedCanvas,
         checkBothOrientations,
@@ -373,6 +408,8 @@ async function searchCardImage(
           return { result, embedding };
         },
       );
+      created.push(best.canvas);
+      if (best.alternate) created.push(best.alternate.canvas);
 
       scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
@@ -415,6 +452,7 @@ async function searchCardImage(
 
   scanLog(`[scanner] using fallback scan region (${fallbackReason})`);
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
+  created.push(warpedCanvas);
   const best = await searchBothOrientations(
     warpedCanvas,
     checkBothOrientations,
@@ -425,6 +463,8 @@ async function searchCardImage(
       return { result, embedding: result.diagnostics?.embedding ?? null };
     },
   );
+  created.push(best.canvas);
+  if (best.alternate) created.push(best.alternate.canvas);
 
   return toAttemptOutcome(best, collectionGuid, undefined, {
     detectedContour: null,
