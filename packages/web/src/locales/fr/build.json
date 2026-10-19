@@ -487,8 +487,12 @@
           "mountFeederRoller": {
             "text": "Fixe le rouleau au module du chargeur."
           },
+          "mountRollerHorn": {
+            "text": "Enfonce le palonnier du rouleau sur l'axe du servo de chargeur à rotation continue.",
+            "note": "Le rouleau du chargeur est imprimé en deux pièces : le rouleau lui-même et un palonnier de rouleau séparé. Aucune des deux pièces ne porte l'inscription \"servo\". Le palonnier de rouleau est la petite pièce qui s'emboîte sur l'axe du servo."
+          },
           "mountFeederServo": {
-            "text": "Installe le servo de chargeur à rotation continue sur le rouleau, à la base de la trémie."
+            "text": "Insère le servo de chargeur, avec le palonnier de rouleau sur son axe, dans l'extrémité du rouleau à la base de la trémie. Le palonnier se loge dans le rouleau pour que le servo le fasse tourner."
           },
           "fitHopperRollerOrings": {
             "text": "Monte des joints toriques sur le rouleau de la trémie.",

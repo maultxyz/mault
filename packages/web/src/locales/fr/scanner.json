@@ -391,7 +391,9 @@
     "identifyTitle": "Identifier cette carte",
     "identifyDescription": "Choisis la carte de ce scan. Elle est ajoutée à la collection avec cette photo, dans le bac où elle a été triée.",
     "identified": "{{name}} a été ajoutée à la collection.",
-    "identifyFailed": "Impossible d'ajouter la carte. Réessaie."
+    "identifyFailed": "Impossible d'ajouter la carte. Réessaie.",
+    "remove": "Retirer la carte",
+    "removeFailed": "Impossible de retirer la carte. Réessaie."
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
@@ -698,6 +700,7 @@
     "camera": "Caméra",
     "preset": "Préréglage de règles",
     "choosePreset": "Choisir un préréglage",
+    "chooseCamera": "Choisir une caméra",
     "cameraFallback": "Caméra {{number}}",
     "sorter": "Trieuse",
     "pairDesktop": "Utiliser comme caméra d'ordinateur",

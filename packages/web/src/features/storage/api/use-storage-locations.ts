@@ -11,13 +11,17 @@ import {
   createStorageLocation,
   deleteStorageLocation,
   moveCardsToStorageLocation,
+  moveCollectionToStorageLocation,
   removeCardFromStorageLocation,
   renameStorageLocation,
   storageLocationKeys,
   storageLocationsQueryOptions,
 } from "@/features/storage/api/storage-locations";
 import type { CardDetailActions } from "@/lib/interfaces/cards";
-import type { MoveCardsToLocationInput } from "@/lib/interfaces/storage";
+import type {
+  MoveCardsToLocationInput,
+  MoveCollectionsToLocationInput,
+} from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import type {
   CardCondition,
@@ -26,6 +30,8 @@ import type {
   Result,
   StorageLocation,
   StorageLocationCard,
+  StorageLocationCardContext,
+  StorageLocationCardPage,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import {
@@ -148,6 +154,55 @@ export function useMoveCardsToLocation() {
   return { moveCards, isMoving: mutation.isPending };
 }
 
+export function useMoveCollectionsToLocation() {
+  const { t } = useTranslation("storage");
+  const queryClient = useQueryClient();
+  const { activeOrg } = useOrg();
+  const listKey = storageLocationsQueryOptions(activeOrg?.id).queryKey;
+
+  const mutation = useMutation({
+    mutationFn: async ({
+      guid,
+      collectionGuids,
+    }: MoveCollectionsToLocationInput) => {
+      let moved = 0;
+      for (const collectionGuid of collectionGuids) {
+        const result = await moveCollectionToStorageLocation(
+          guid,
+          collectionGuid,
+        );
+        if (!result.success || !result.data) return { ...result, moved };
+        moved += result.data.moved;
+        queryClient.setQueryData(listKey, result.data.locations);
+      }
+      return { success: true, moved };
+    },
+    onSuccess: (result, { collectionGuids }) => {
+      if (!result.success) {
+        toast.error(
+          ("message" in result && result.message) || t("toasts.failed"),
+        );
+      } else {
+        toast.success(t("toasts.cardsMoved", { count: result.moved }));
+      }
+      void queryClient.invalidateQueries({
+        queryKey: storageLocationKeys.root(),
+      });
+      for (const collectionGuid of collectionGuids) {
+        void invalidateCollectionCards(queryClient, collectionGuid);
+      }
+    },
+    onError: () => toast.error(t("toasts.failed")),
+  });
+
+  const moveCollections = async (input: MoveCollectionsToLocationInput) => {
+    const result = await mutation.mutateAsync(input).catch(() => null);
+    return !!result?.success;
+  };
+
+  return { moveCollections, isMoving: mutation.isPending };
+}
+
 export function useRemoveCardFromLocation() {
   const { t } = useTranslation("storage");
   const queryClient = useQueryClient();
@@ -183,12 +238,22 @@ function patchStoredCard(
   entry: StorageLocationSearchResult,
   patch: Partial<StorageLocationCard>,
 ) {
-  queryClient.setQueryData<StorageLocationCard[]>(
-    storageLocationKeys.cards(entry.locationGuid),
-    (cards) =>
-      cards?.map((card) =>
-        card.scanId === entry.scanId ? { ...card, ...patch } : card,
-      ),
+  queryClient.setQueriesData<StorageLocationCardPage | null>(
+    { queryKey: storageLocationKeys.cardPages(entry.locationGuid) },
+    (data) =>
+      data && {
+        ...data,
+        cards: data.cards.map((card) =>
+          card.scanId === entry.scanId ? { ...card, ...patch } : card,
+        ),
+      },
+  );
+  queryClient.setQueriesData<StorageLocationCardContext | null>(
+    { queryKey: storageLocationKeys.cardContexts(entry.locationGuid) },
+    (data) =>
+      data?.card.scanId === entry.scanId
+        ? { ...data, card: { ...data.card, ...patch } }
+        : data,
   );
 }
 
@@ -257,7 +322,9 @@ export function useConfirmStoredCard() {
       refreshStoredCard(queryClient, entry),
   });
 
-  return { confirmCard: (entry: StorageLocationSearchResult) => mutation.mutate(entry) };
+  return {
+    confirmCard: (entry: StorageLocationSearchResult) => mutation.mutate(entry),
+  };
 }
 
 export function useMarkStoredCardReviewed() {
@@ -267,7 +334,8 @@ export function useMarkStoredCardReviewed() {
   const mutation = useMutation({
     mutationFn: (entry: StorageLocationSearchResult) =>
       markCollectionCardReviewed(entry.collectionGuid, entry.scanId),
-    onMutate: (entry) => patchStoredCard(queryClient, entry, { reviewed: true }),
+    onMutate: (entry) =>
+      patchStoredCard(queryClient, entry, { reviewed: true }),
     onSuccess: (result) => {
       if (!result.success) toast.error(result.message ?? t("toasts.failed"));
     },
@@ -277,7 +345,8 @@ export function useMarkStoredCardReviewed() {
   });
 
   return {
-    markReviewed: (entry: StorageLocationSearchResult) => mutation.mutate(entry),
+    markReviewed: (entry: StorageLocationSearchResult) =>
+      mutation.mutate(entry),
   };
 }
 
@@ -313,8 +382,10 @@ export function useSetStoredCardFoilType() {
   });
 
   return {
-    setFoilType: (entry: StorageLocationSearchResult, foilType: string | null) =>
-      mutation.mutate({ entry, foilType }),
+    setFoilType: (
+      entry: StorageLocationSearchResult,
+      foilType: string | null,
+    ) => mutation.mutate({ entry, foilType }),
   };
 }
 

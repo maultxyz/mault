@@ -1,8 +1,12 @@
 import {
   STORAGE_LOCATION_NAME_MAX_LENGTH,
+  toCardCondition,
+  type PlayingCardWithDistance,
   type StorageLocation,
+  type StorageLocationCard,
+  type StorageLocationCardNeighbor,
 } from "@magic-vault/shared";
-import { sql } from "drizzle-orm";
+import { and, asc, desc, eq, sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import {
   collectionCards,
@@ -10,6 +14,7 @@ import {
   storageLocations,
 } from "../../db/schema";
 import type { StorageLocationRow } from "../../lib/interfaces/storage-locations";
+import { cardWithStoredPricesSql } from "../../lib/card-price-sql";
 import { loadOrgPricing } from "../../lib/price-source";
 import { cardPriceSql } from "../collections/cards-query";
 
@@ -36,6 +41,119 @@ export async function locationNameTaken(
     columns: { guid: true },
   });
   return !!existing && existing.guid !== excludeGuid;
+}
+
+export async function findLocationId(
+  tx: Transaction,
+  orgId: string,
+  guid: string,
+): Promise<number | null> {
+  const location = await tx.query.storageLocations.findFirst({
+    where: (t, { eq, and }) =>
+      and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+    columns: { id: true },
+  });
+  return location?.id ?? null;
+}
+
+export const storedCardPosition = sql<number>`COALESCE(${collectionCards.locationPosition}, 0)`;
+
+export const storedCardOrderKey = sql`(COALESCE(${collectionCards.locationPosition}, 0), ${collectionCards.id})`;
+
+export function storedCardsWhere(
+  locationId: number,
+  ...conditions: (SQL | undefined)[]
+) {
+  return and(
+    eq(collectionCards.locationId, locationId),
+    eq(collections.isDeleted, false),
+    ...conditions,
+  );
+}
+
+export function selectStoredCards(tx: Transaction) {
+  return tx
+    .select({
+      rowId: collectionCards.id,
+      scanId: collectionCards.guid,
+      position: storedCardPosition,
+      card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
+      isFoil: collectionCards.isFoil,
+      foilType: collectionCards.foilType,
+      condition: collectionCards.condition,
+      lowConfidenceMatch: collectionCards.lowConfidenceMatch,
+      hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
+      corrected: collectionCards.isCorrected,
+      reviewed: collectionCards.isReviewed,
+      collectionGuid: collections.guid,
+      collectionName: collections.name,
+    })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId));
+}
+
+export function toStoredCard(
+  r: Awaited<ReturnType<typeof selectStoredCards>>[number],
+): StorageLocationCard {
+  return {
+    scanId: r.scanId!,
+    position: Number(r.position),
+    card: r.card,
+    isFoil: r.isFoil,
+    foilType: r.foilType,
+    condition: toCardCondition(r.condition),
+    lowConfidenceMatch: r.lowConfidenceMatch,
+    hasAlternatives: r.hasAlternatives,
+    corrected: r.corrected,
+    reviewed: r.reviewed,
+    collectionGuid: r.collectionGuid!,
+    collectionName: r.collectionName,
+  };
+}
+
+export async function countStoredCards(
+  tx: Transaction,
+  locationId: number,
+  ...conditions: (SQL | undefined)[]
+): Promise<number> {
+  const [row] = await tx
+    .select({ count: sql<number>`count(*)::int` })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .where(storedCardsWhere(locationId, ...conditions));
+  return Number(row?.count ?? 0);
+}
+
+export async function findStoredCardNeighbor(
+  tx: Transaction,
+  locationId: number,
+  direction: "previous" | "next",
+  currentKey: SQL,
+  ...conditions: (SQL | undefined)[]
+): Promise<StorageLocationCardNeighbor | null> {
+  const isPrevious = direction === "previous";
+  const [row] = await tx
+    .select({ scanId: collectionCards.guid, collectionGuid: collections.guid })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .where(
+      storedCardsWhere(
+        locationId,
+        isPrevious
+          ? sql`${storedCardOrderKey} < ${currentKey}`
+          : sql`${storedCardOrderKey} > ${currentKey}`,
+        ...conditions,
+      ),
+    )
+    .orderBy(
+      ...(isPrevious
+        ? [desc(storedCardPosition), desc(collectionCards.id)]
+        : [asc(storedCardPosition), asc(collectionCards.id)]),
+    )
+    .limit(1);
+  return row?.scanId && row.collectionGuid
+    ? { scanId: row.scanId, collectionGuid: row.collectionGuid }
+    : null;
 }
 
 export async function loadLocations(

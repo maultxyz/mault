@@ -1,3 +1,4 @@
+import { COLLECTIONS_PATH } from "@/lib/constants/collections";
 import { Button } from "@/components/ui/button";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -26,7 +27,8 @@ export default function MonitorPage() {
   const isMobile = useIsMobile();
   const { activeCollection, activateCollection, isActivating } =
     useCollections();
-  const isActive = !!collectionGuid && activeCollection?.guid === collectionGuid;
+  const isActive =
+    !!collectionGuid && activeCollection?.guid === collectionGuid;
 
   const lock = collectionGuid ? locks[collectionGuid] : undefined;
   const otherViewers = session.viewers.filter(
@@ -78,7 +80,7 @@ export default function MonitorPage() {
       }
       binCount={computeBinCount(moduleCount)}
       showBinLocation
-      backHref="/app/monitor"
+      backHref={isMobile ? "/app/monitor" : COLLECTIONS_PATH}
       canEditCards={isActive}
     />
   );

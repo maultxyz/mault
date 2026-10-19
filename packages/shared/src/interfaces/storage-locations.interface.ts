@@ -31,6 +31,26 @@ export interface StorageLocationCard {
   reviewed: boolean;
 }
 
+export interface StorageLocationCardPage {
+  cards: StorageLocationCard[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface StorageLocationCardNeighbor {
+  scanId: string;
+  collectionGuid: string;
+}
+
+export interface StorageLocationCardContext {
+  card: StorageLocationCard;
+  index: number;
+  total: number;
+  previous: StorageLocationCardNeighbor | null;
+  next: StorageLocationCardNeighbor | null;
+}
+
 export interface StorageLocationExportCard {
   scanId: string;
   position: number;

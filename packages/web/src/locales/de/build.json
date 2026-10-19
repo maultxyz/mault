@@ -487,8 +487,12 @@
           "mountFeederRoller": {
             "text": "Befestige die Rolle am Zuführmodul."
           },
+          "mountRollerHorn": {
+            "text": "Drücke das Rollenhorn auf die Welle des Dauerdreh-Zuführservos.",
+            "note": "Die Zuführrolle wird in zwei Teilen gedruckt: die Rolle selbst und ein separates Rollenhorn. Auf keinem der Teile steht \"Servo\". Das Rollenhorn ist das kleine Teil, das auf die Servowelle passt."
+          },
           "mountFeederServo": {
-            "text": "Montiere den Dauerdreh-Zuführservo an der Rolle, am Fuß des Trichters."
+            "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht."
           },
           "fitHopperRollerOrings": {
             "text": "Ziehe O-Ringe auf die Trichterrolle auf.",

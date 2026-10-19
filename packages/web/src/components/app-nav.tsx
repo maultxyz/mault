@@ -17,11 +17,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { UserMenu } from "@/features/account/components/user-menu";
+import { githubStarsQueryOptions } from "@/features/billing/api/github-stars";
 import { useCollections } from "@/features/collections/api/use-collections";
+import {
+  collectionViewPath,
+  COLLECTIONS_PATH,
+  monitorCollectionPath,
+} from "@/lib/constants/collections";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
-import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
+import { DISCORD_URL, REPO_URL, SHOP_URL } from "@/lib/constants/links";
 import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
 import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
@@ -36,13 +42,15 @@ import {
   IconBox,
   IconChartBar,
   IconBrandDiscord,
+  IconBrandGithub,
   IconCameraSpark,
   IconDatabaseCog,
-  IconHeartRateMonitor,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconShoppingCart,
+  IconStarFilled,
 } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -275,9 +283,20 @@ function SubItem({
 }
 
 export function AppNav() {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  const { data: githubStars } = useQuery(githubStarsQueryOptions(true));
+  const formattedStars =
+    githubStars != null
+      ? new Intl.NumberFormat(i18n.language, { notation: "compact" }).format(
+          githubStars,
+        )
+      : null;
+  const githubLabel =
+    githubStars != null
+      ? `${t("nav.githubAriaLabel")} (${t("nav.githubStars", { count: githubStars })})`
+      : t("nav.githubAriaLabel");
   const { isAdmin } = useRole();
-  const { collections } = useCollections();
+  const { collections, activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
   const [expanded, setExpanded] = useState(
@@ -318,26 +337,25 @@ export function AppNav() {
       end: true,
     },
     {
-      to: "/app/collections",
+      to: COLLECTIONS_PATH,
       icon: <IconAlbum size={20} />,
       label: t("nav.collections"),
+      badge: hasLiveSessions,
+      subItems: monitorCollections.map((c) => ({
+        key: c.guid,
+        to: locks[c.guid]
+          ? monitorCollectionPath(c.guid)
+          : c.guid === activeCollection?.guid
+            ? "/app"
+            : collectionViewPath(c.guid),
+        label: c.name,
+        badge: !!locks[c.guid],
+      })),
     },
     {
       to: SORTING_RULES_PATH,
       icon: <IconArrowsSplit2 size={20} />,
       label: t("nav.sortingRules"),
-    },
-    {
-      to: "/app/monitor",
-      icon: <IconHeartRateMonitor size={20} />,
-      label: t("nav.monitor"),
-      badge: hasLiveSessions,
-      subItems: monitorCollections.map((c) => ({
-        key: c.guid,
-        to: `/app/monitor/${c.guid}`,
-        label: c.name,
-        badge: !!locks[c.guid],
-      })),
     },
     {
       to: STATS_PATH,
@@ -445,6 +463,33 @@ export function AppNav() {
           );
         })}
       </nav>
+      <a
+        href={REPO_URL}
+        target="_blank"
+        rel="noreferrer"
+        title={githubLabel}
+        aria-label={githubLabel}
+        className={cn(
+          buttonVariants({
+            variant: "ghost",
+            size: `${expanded ? "default" : "icon-lg"}`,
+          }),
+          expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
+        )}
+      >
+        <IconBrandGithub size={16} />
+        {expanded && (
+          <>
+            <span className="truncate text-sm">{t("nav.github")}</span>
+            {githubStars != null && (
+              <span className="ml-auto inline-flex items-center gap-0.5 rounded-full border bg-muted px-1.5 text-2xs text-foreground/80">
+                <IconStarFilled className="size-3 text-warning" />
+                {formattedStars}
+              </span>
+            )}
+          </>
+        )}
+      </a>
       <a
         href={DISCORD_URL}
         target="_blank"

@@ -1,5 +1,4 @@
 import { MobileListRow } from "@/components/mobile-list-row";
-import { MobileSection } from "@/components/mobile-section";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Switch } from "@/components/ui/switch";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
@@ -12,6 +11,7 @@ import {
 import type { MobileScanOptionsSheetProps } from "@/lib/interfaces/scanner";
 import {
   IconAlbum,
+  IconCamera,
   IconCopy,
   IconCpu,
   IconDeviceDesktop,
@@ -27,11 +27,15 @@ export function MobileScanOptionsSheet({
   chrome,
   onChooseCollection,
   onChoosePreset,
+  onChooseCamera,
 }: MobileScanOptionsSheetProps) {
   const { t } = useTranslation("scanner");
   const { activeCollection } = useCollections();
   const { sets, selectedSet } = useBinConfigs();
-  const close = () => onOpenChange(false);
+  const selectedCameraIndex = chrome.cameras.findIndex(
+    (camera) => camera.deviceId === chrome.selectedCameraId,
+  );
+  const selectedCamera = chrome.cameras[selectedCameraIndex];
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
@@ -99,28 +103,22 @@ export function MobileScanOptionsSheet({
                 onClick={onChoosePreset}
               />
             )}
+            {chrome.cameras.length > 1 && (
+              <MobileListRow
+                icon={<IconCamera />}
+                label={t("mobileScan.camera")}
+                value={
+                  selectedCamera
+                    ? selectedCamera.label ||
+                      t("mobileScan.cameraFallback", {
+                        number: selectedCameraIndex + 1,
+                      })
+                    : t("mobileScan.chooseCamera")
+                }
+                onClick={onChooseCamera}
+              />
+            )}
           </div>
-
-          {chrome.cameras.length > 1 && (
-            <MobileSection title={t("mobileScan.camera")}>
-              <div className={MOBILE_LIST_CLASS}>
-                {chrome.cameras.map((camera, index) => (
-                  <MobileListRow
-                    key={camera.deviceId}
-                    label={
-                      camera.label ||
-                      t("mobileScan.cameraFallback", { number: index + 1 })
-                    }
-                    selected={camera.deviceId === chrome.selectedCameraId}
-                    onClick={() => {
-                      chrome.onSelectCamera(camera.deviceId);
-                      close();
-                    }}
-                  />
-                ))}
-              </div>
-            </MobileSection>
-          )}
 
           <div className={MOBILE_LIST_CLASS}>
             <MobileListRow

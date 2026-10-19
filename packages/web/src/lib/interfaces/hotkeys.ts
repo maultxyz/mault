@@ -9,7 +9,6 @@ export type HotkeyId =
   | "dismissToasts"
   | "goScanner"
   | "goCollections"
-  | "goMonitor"
   | "goSortingRules"
   | "goStorage"
   | "goCalibrate"

@@ -3,7 +3,8 @@ import type {
   CardStorageLocation,
   Result,
   StorageLocation,
-  StorageLocationCard,
+  StorageLocationCardContext,
+  StorageLocationCardPage,
   StorageLocationExportCard,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
@@ -15,6 +16,17 @@ export const storageLocationKeys = {
     [...storageLocationKeys.root(), orgId] as const,
   cards: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "cards", guid] as const,
+  cardPages: (guid: string | undefined) =>
+    [...storageLocationKeys.cards(guid), "page"] as const,
+  cardPage: (guid: string | undefined, page: number) =>
+    [...storageLocationKeys.cardPages(guid), page] as const,
+  cardContexts: (guid: string | undefined) =>
+    [...storageLocationKeys.cards(guid), "context"] as const,
+  cardContext: (
+    guid: string | undefined,
+    scanId: string | undefined,
+    reviewOnly: boolean,
+  ) => [...storageLocationKeys.cardContexts(guid), scanId, reviewOnly] as const,
   export: (guid: string | undefined) =>
     [...storageLocationKeys.root(), "export", guid] as const,
   card: (scanId: string | undefined) =>
@@ -44,15 +56,41 @@ export const storageLocationsQueryOptions = (orgId: string | undefined) =>
     enabled: !!orgId,
   });
 
-export const storageLocationCardsQueryOptions = (guid: string | undefined) =>
+export const storageLocationCardPageQueryOptions = (
+  guid: string | undefined,
+  page: number,
+) =>
   queryOptions({
-    queryKey: storageLocationKeys.cards(guid),
+    queryKey: storageLocationKeys.cardPage(guid, page),
     queryFn: () =>
-      apiGet<Result<StorageLocationCard[]>>(
-        `/api/storage-locations/${guid}/cards`,
-      ).then((r) => r.data ?? []),
+      apiGet<Result<StorageLocationCardPage>>(
+        `/api/storage-locations/${guid}/cards/page?page=${page}`,
+      ).then((r) => r.data ?? null),
     enabled: !!guid,
+    placeholderData: (previous) => previous,
   });
+
+export const storageLocationCardContextQueryOptions = (
+  guid: string | undefined,
+  scanId: string | undefined,
+  reviewOnly: boolean,
+) =>
+  queryOptions({
+    queryKey: storageLocationKeys.cardContext(guid, scanId, reviewOnly),
+    queryFn: () =>
+      apiGet<Result<StorageLocationCardContext | null>>(
+        `/api/storage-locations/${guid}/cards/${scanId}/context${reviewOnly ? "?review=1" : ""}`,
+      ).then((r) => r.data ?? null),
+    enabled: !!guid && !!scanId,
+  });
+
+export function fetchNextUnreviewedStorageCard(
+  guid: string,
+): Promise<string | null> {
+  return apiGet<Result<string | null>>(
+    `/api/storage-locations/${guid}/cards/next-unreviewed`,
+  ).then((r) => r.data ?? null);
+}
 
 export const storageLocationExportQueryOptions = (
   guid: string | undefined,
@@ -91,6 +129,15 @@ export function moveCardsToStorageLocation(
   scanIds: string[],
 ): Promise<Result<{ moved: number; locations: StorageLocation[] }>> {
   return apiPost(`/api/storage-locations/${guid}/cards`, { scanIds });
+}
+
+export function moveCollectionToStorageLocation(
+  guid: string,
+  collectionGuid: string,
+): Promise<Result<{ moved: number; locations: StorageLocation[] }>> {
+  return apiPost(`/api/storage-locations/${guid}/cards/from-collection`, {
+    collectionGuid,
+  });
 }
 
 export function renameStorageLocation(

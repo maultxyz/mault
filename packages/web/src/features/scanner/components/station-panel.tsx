@@ -4,10 +4,10 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { BinStatusMeter } from "@/features/scanner/components/bin-status-meter";
 import { CardScanner } from "@/features/scanner/components/card-scanner";
-import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
-import type { StationPanelLayout } from "@/lib/interfaces/stations";
+import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { useElementHeight } from "@/hooks/use-element-height";
+import type { StationPanelLayout } from "@/lib/interfaces/stations";
 import { useState } from "react";
 
 export function StationPanel({ layout }: { layout: StationPanelLayout }) {
@@ -21,10 +21,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
     return (
       <>
         <CardScanner className="h-full shrink-0" controlsPosition="side" />
-        <div className="flex flex-col flex-1 min-w-0">
-          <ScanStats />
-        </div>
-        <div className="flex flex-col gap-4 w-60 shrink-0 overflow-y-auto">
+        <div className="flex flex-col gap-4 shrink-0 overflow-y-auto">
           <CollectionSwitcher />
           <PresetSelector readOnly />
           <IdentifiableUnmatchedCardsPanel
@@ -33,6 +30,9 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
           />
           <BinStatusMeter />
           <AlphabetPassControl />
+        </div>
+        <div className="flex flex-col flex-1 min-w-0">
+          <ScanStats />
         </div>
       </>
     );

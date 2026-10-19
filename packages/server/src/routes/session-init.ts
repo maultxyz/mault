@@ -110,6 +110,7 @@ async function querySessionInit(
       name: collection.name,
       isActive: collection.isActive,
       cardCount,
+      previewImages: [],
       lang: collection.lang,
       matchAllLanguages: collection.matchAllLanguages,
       game: game

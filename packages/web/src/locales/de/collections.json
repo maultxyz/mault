@@ -52,8 +52,15 @@
     "setActiveCollection": "Als aktive Sammlung festlegen",
     "viewCards": "Karten ansehen",
     "edit": "Bearbeiten",
-    "activeSection": "Aktive Sammlung",
-    "otherSection": "Weitere Sammlungen"
+    "activeBadge": "Aktiv",
+    "stats": {
+      "collections": "Sammlungen",
+      "cards": "Karten",
+      "games": "Spiele",
+      "live": "Gerade live",
+      "heading": "Übersicht"
+    },
+    "liveView": "Live-Ansicht"
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",
@@ -98,5 +105,34 @@
     "revoked": "Alle geteilten Links für diese Sammlung funktionieren nicht mehr.",
     "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
     "close": "Schließen"
+  },
+  "selection": {
+    "select": "{{name}} auswählen",
+    "selected_one": "{{count}} Sammlung ausgewählt",
+    "selected_other": "{{count}} Sammlungen ausgewählt",
+    "selectAll": "Alle auswählen",
+    "deselectAll": "Alle abwählen",
+    "clear": "Zurücksetzen",
+    "empty": "Leeren",
+    "delete": "Löschen",
+    "emptyTitle_one": "{{count}} Sammlung leeren",
+    "emptyTitle_other": "{{count}} Sammlungen leeren",
+    "emptyDescription": "Entfernt dauerhaft alle Karten aus den ausgewählten Sammlungen, behält aber die Sammlungen selbst. Dies kann nicht rückgängig gemacht werden.",
+    "deleteTitle_one": "{{count}} Sammlung löschen",
+    "deleteTitle_other": "{{count}} Sammlungen löschen",
+    "deleteDescription": "Löscht die ausgewählten Sammlungen und blendet alle enthaltenen Karten aus. Wende dich an den Support, wenn du sie zurück brauchst."
+  },
+  "emptyChoice": {
+    "title": "{{name}} leeren",
+    "titleBulk": "{{count}} Sammlungen leeren",
+    "description": "Wähle eine Aufbewahrungsbox, in die die Karten verschoben werden. Sie bleiben in der Sammlung und erscheinen in der Box. Karten, die schon in einer Box liegen, bleiben, wo sie sind.",
+    "lockedDescription": "Aufbewahrungsboxen sind in deinem Tarif nicht verfügbar, daher werden die Karten beim Leeren gelöscht.",
+    "locationLabel": "Karten verschieben nach",
+    "placeholder": "Aufbewahrungsbox wählen",
+    "newBox": "Neue Aufbewahrungsbox",
+    "newBoxName": "Name der Box",
+    "delete": "Karten dauerhaft löschen",
+    "confirm": "Karten verschieben",
+    "continue": "Weiter"
   }
 }

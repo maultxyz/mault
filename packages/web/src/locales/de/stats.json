@@ -35,7 +35,8 @@
     "foils": "Foils",
     "shareHint": "{{percent}} % der Karten",
     "needsReview": "Zu prüfen",
-    "correctedHint": "{{count}} geprüft"
+    "correctedHint": "{{count}} geprüft",
+    "heading": "Übersicht"
   },
   "activity": {
     "title": "Scan-Aktivität",

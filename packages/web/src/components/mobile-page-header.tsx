@@ -18,6 +18,7 @@ export function MobilePageHeader({
   onBack,
   actions,
   children,
+  collapsed = false,
 }: MobilePageHeaderProps) {
   const { t } = useTranslation("common");
   const hasBack = !!backTo || !!onBack;
@@ -61,7 +62,17 @@ export function MobilePageHeader({
         </div>
         {!hasBack && actionGroup}
       </div>
-      {children}
+      {children && (
+        <div
+          aria-hidden={collapsed || undefined}
+          className={cn(
+            "grid transition-[grid-template-rows,margin,opacity] duration-200 motion-reduce:transition-none",
+            collapsed ? "-mt-4 grid-rows-[0fr] opacity-0" : "grid-rows-[1fr]",
+          )}
+        >
+          <div className="min-h-0 overflow-hidden">{children}</div>
+        </div>
+      )}
     </header>
   );
 }

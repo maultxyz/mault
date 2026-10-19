@@ -305,7 +305,7 @@ export function CardDetailPanel({
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
         <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2">
-          <ButtonGroup>
+          <ButtonGroup className="shrink-0">
             <Button
               size="icon"
               variant="outline"
@@ -325,9 +325,9 @@ export function CardDetailPanel({
               <IconChevronDown />
             </Button>
           </ButtonGroup>
-          <div className="flex items-center gap-4 shrink-0 text-xs text-foreground/70">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-1 text-xs text-foreground/70">
             {capturedImageUrl && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 whitespace-nowrap">
                 <span>{t("cardDetailPanel.showOcrRegions")}</span>
                 <Switch
                   size="sm"
@@ -338,7 +338,7 @@ export function CardDetailPanel({
               </div>
             )}
             {scanId && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 whitespace-nowrap">
                 <span>{t("technicalDetails.toggle")}</span>
                 <Switch
                   size="sm"
@@ -348,15 +348,16 @@ export function CardDetailPanel({
                 />
               </div>
             )}
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={onClose}
-              aria-label={t("cardDetailPanel.backToList")}
-            >
-              <IconX />
-            </Button>
           </div>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="shrink-0"
+            onClick={onClose}
+            aria-label={t("cardDetailPanel.backToList")}
+          >
+            <IconX />
+          </Button>
         </div>
         <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
           <div className="min-w-0">

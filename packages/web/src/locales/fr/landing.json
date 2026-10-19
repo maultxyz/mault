@@ -162,6 +162,11 @@
     "eyebrow": "Tarifs",
     "heading": "Des tarifs simples et transparents",
     "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois et débloque les sons personnalisés et les règles de notification Discord illimités.",
+    "intervals": {
+      "label": "Période de facturation",
+      "month": "Mensuel",
+      "year": "Annuel"
+    },
     "shared": {
       "collections": "Collections illimitées",
       "games": "Tous les jeux de cartes pris en charge",
@@ -182,6 +187,8 @@
     "business": {
       "name": "Business",
       "perMonth": "/mois",
+      "perYear": "/an",
+      "yearlySavings": "Économise {{percent}} % avec la facturation annuelle",
       "description": "Pour les boutiques et les collectionneurs assidus.",
       "unlimitedScans": "Scans de cartes illimités",
       "cta": "Passer au plan Business",

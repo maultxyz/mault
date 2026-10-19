@@ -1,11 +1,15 @@
 import { cardWithStoredPricesSql } from "../../lib/card-price-sql";
 import {
+  STORAGE_CARDS_PAGE_SIZE,
+  STORAGE_CARDS_PAGE_SIZE_MAX,
   STORAGE_MOVE_CARDS_MAX,
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
   toCardCondition,
   type PlayingCardWithDistance,
   type StorageLocationCard,
+  type StorageLocationCardContext,
+  type StorageLocationCardPage,
   type StorageLocationExportCard,
   type StorageLocationSearchResult,
 } from "@magic-vault/shared";
@@ -23,10 +27,25 @@ import {
   STORAGE_UPGRADE_MESSAGE,
 } from "../../lib/storage-access";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import { moveCardsToLocation } from "../../lib/storage-locations";
+import {
+  moveCardsToLocation,
+  moveCollectionToLocation,
+} from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { loadLocations, locationNameTaken, parseLocationName } from "./shared";
+import {
+  countStoredCards,
+  findLocationId,
+  findStoredCardNeighbor,
+  loadLocations,
+  locationNameTaken,
+  parseLocationName,
+  selectStoredCards,
+  storedCardOrderKey,
+  storedCardPosition,
+  storedCardsWhere,
+  toStoredCard,
+} from "./shared";
 
 const router = new Hono<AppEnv>()
   .get("/", requireAuth, requireOrg, async (c) => {
@@ -215,55 +234,141 @@ const router = new Hono<AppEnv>()
     const guid = c.req.param("guid");
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const location = await tx.query.storageLocations.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { id: true },
-        });
-        if (!location) {
+        const locationId = await findLocationId(tx, orgId, guid);
+        if (locationId === null) {
           return { success: false, message: "Storage location not found." };
         }
-        const rows = await tx
-          .select({
-            scanId: collectionCards.guid,
-            position: collectionCards.locationPosition,
-            card: sql<PlayingCardWithDistance>`${cardWithStoredPricesSql(sql`(${collectionCards.card} - 'raw')`)}`,
-            isFoil: collectionCards.isFoil,
-            foilType: collectionCards.foilType,
-            condition: collectionCards.condition,
-            lowConfidenceMatch: collectionCards.lowConfidenceMatch,
-            hasAlternatives: sql<boolean>`(${collectionCards.alternativeMatches} IS NOT NULL AND ${collectionCards.alternativeMatches} <> '[]'::jsonb)`,
-            corrected: collectionCards.isCorrected,
-            reviewed: collectionCards.isReviewed,
-            collectionGuid: collections.guid,
-            collectionName: collections.name,
-          })
+        const rows = await selectStoredCards(tx)
+          .where(storedCardsWhere(locationId))
+          .orderBy(asc(storedCardPosition), asc(collectionCards.id));
+        const data: StorageLocationCard[] = rows.map(toStoredCard);
+        return { success: true, data };
+      });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .get("/:guid/cards/page", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const pageSize = Math.min(
+      Math.max(
+        Number.parseInt(c.req.query("limit") ?? "", 10) ||
+          STORAGE_CARDS_PAGE_SIZE,
+        1,
+      ),
+      STORAGE_CARDS_PAGE_SIZE_MAX,
+    );
+    const requestedPage = Math.max(
+      Number.parseInt(c.req.query("page") ?? "", 10) || 1,
+      1,
+    );
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        const locationId = await findLocationId(tx, orgId, guid);
+        if (locationId === null) {
+          return { success: false, message: "Storage location not found." };
+        }
+        const total = await countStoredCards(tx, locationId);
+        const page = Math.min(
+          requestedPage,
+          Math.max(Math.ceil(total / pageSize), 1),
+        );
+        const rows = await selectStoredCards(tx)
+          .where(storedCardsWhere(locationId))
+          .orderBy(asc(storedCardPosition), asc(collectionCards.id))
+          .limit(pageSize)
+          .offset((page - 1) * pageSize);
+        const data: StorageLocationCardPage = {
+          cards: rows.map(toStoredCard),
+          total,
+          page,
+          pageSize,
+        };
+        return { success: true, data };
+      });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .get("/:guid/cards/next-unreviewed", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        const locationId = await findLocationId(tx, orgId, guid);
+        if (locationId === null) {
+          return { success: false, message: "Storage location not found." };
+        }
+        const [row] = await tx
+          .select({ scanId: collectionCards.guid })
           .from(collectionCards)
           .innerJoin(
             collections,
             eq(collections.id, collectionCards.collectionId),
           )
           .where(
-            and(
-              eq(collectionCards.locationId, location.id),
-              eq(collections.isDeleted, false),
-            ),
+            storedCardsWhere(locationId, eq(collectionCards.isReviewed, false)),
           )
-          .orderBy(asc(collectionCards.locationPosition));
-        const data: StorageLocationCard[] = rows.map((r) => ({
-          scanId: r.scanId!,
-          position: r.position ?? 0,
-          card: r.card,
-          isFoil: r.isFoil,
-          foilType: r.foilType,
-          condition: toCardCondition(r.condition),
-          lowConfidenceMatch: r.lowConfidenceMatch,
-          hasAlternatives: r.hasAlternatives,
-          corrected: r.corrected,
-          reviewed: r.reviewed,
-          collectionGuid: r.collectionGuid!,
-          collectionName: r.collectionName,
-        }));
+          .orderBy(asc(storedCardPosition), asc(collectionCards.id))
+          .limit(1);
+        return { success: true, data: row?.scanId ?? null };
+      });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .get("/:guid/cards/:scanId/context", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const scanId = c.req.param("scanId");
+    const reviewFilter =
+      c.req.query("review") === "1"
+        ? eq(collectionCards.isReviewed, false)
+        : undefined;
+    if (!UUID_PATTERN.test(scanId)) {
+      return c.json({ success: false, message: "Invalid card id." }, 400);
+    }
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        const locationId = await findLocationId(tx, orgId, guid);
+        if (locationId === null) {
+          return { success: false, message: "Storage location not found." };
+        }
+        const [current] = await selectStoredCards(tx)
+          .where(storedCardsWhere(locationId, eq(collectionCards.guid, scanId)))
+          .limit(1);
+        if (!current) return { success: true, data: null };
+        const currentKey = sql`(${Number(current.position)}::int, ${current.rowId}::int)`;
+        const data: StorageLocationCardContext = {
+          card: toStoredCard(current),
+          index: await countStoredCards(
+            tx,
+            locationId,
+            sql`${storedCardOrderKey} < ${currentKey}`,
+          ),
+          total: await countStoredCards(tx, locationId),
+          previous: await findStoredCardNeighbor(
+            tx,
+            locationId,
+            "previous",
+            currentKey,
+            reviewFilter,
+          ),
+          next: await findStoredCardNeighbor(
+            tx,
+            locationId,
+            "next",
+            currentKey,
+            reviewFilter,
+          ),
+        };
         return { success: true, data };
       });
       return c.json(result);
@@ -321,6 +426,73 @@ const router = new Hono<AppEnv>()
         }));
         return { success: true, data };
       });
+      return c.json(result);
+    } catch (err) {
+      console.error(err);
+      return c.json({ success: false, message: "Database error." }, 500);
+    }
+  })
+  .post("/:guid/cards/from-collection", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const guid = c.req.param("guid");
+    const body = await c.req
+      .json<{ collectionGuid?: unknown }>()
+      .catch(() => ({ collectionGuid: undefined }));
+    const collectionGuid = body.collectionGuid;
+    if (
+      !UUID_PATTERN.test(guid) ||
+      typeof collectionGuid !== "string" ||
+      !UUID_PATTERN.test(collectionGuid)
+    ) {
+      return c.json({ success: false, message: "Invalid request." }, 400);
+    }
+    try {
+      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        if (!(await isStorageAllowed(tx, orgId))) {
+          return {
+            success: false,
+            message: STORAGE_UPGRADE_MESSAGE,
+            upgradeRequired: true,
+          };
+        }
+        const locationId = await findLocationId(tx, orgId, guid);
+        if (locationId === null) {
+          return { success: false, message: "Storage location not found." };
+        }
+        const collection = await tx.query.collections.findFirst({
+          where: (t, { eq, and }) =>
+            and(
+              eq(t.guid, collectionGuid),
+              eq(t.orgId, orgId),
+              eq(t.isDeleted, false),
+            ),
+          columns: { id: true },
+        });
+        if (!collection) {
+          return { success: false, message: "Collection not found." };
+        }
+        const movedScanIds = await moveCollectionToLocation(tx, {
+          collectionId: collection.id,
+          locationId,
+        });
+        await tx
+          .update(storageLocations)
+          .set({ lastUsedAt: new Date() })
+          .where(eq(storageLocations.id, locationId));
+        return {
+          success: true,
+          movedScanIds,
+          data: {
+            moved: movedScanIds.length,
+            locations: await loadLocations(tx, orgId),
+          },
+        };
+      });
+      if (result.success && "movedScanIds" in result && result.movedScanIds) {
+        const { movedScanIds, ...body } = result;
+        emitCardsStoredWebhook(orgId, guid, movedScanIds);
+        return c.json(body);
+      }
       return c.json(result);
     } catch (err) {
       console.error(err);
@@ -391,7 +563,7 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Database error." }, 500);
     }
   })
-  .delete("/:guid/cards/:scanId",requireAuth, requireOrg, async (c) => {
+  .delete("/:guid/cards/:scanId", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const scanId = c.req.param("scanId");
