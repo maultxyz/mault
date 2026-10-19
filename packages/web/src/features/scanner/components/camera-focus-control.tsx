@@ -1,14 +1,17 @@
+import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { currentFocusDistance } from "@/features/scanner/lib/camera-focus";
+import { LensFocusDialog } from "@/features/scanner/components/lens-focus-dialog";
+import { PI_CAMERA_DEVICE_ID } from "@/features/scanner/lib/pi-camera";
 import type { CameraFocusControlProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 export function CameraFocusControl({ className }: CameraFocusControlProps) {
   const { t } = useTranslation("scanner");
-  const { stream, focusRange, focusDistance, setFocusDistance } =
+  const { stream, focusRange, focusDistance, setFocusDistance, selectedCameraId } =
     useCameraContext();
   if (!focusRange) return null;
 
@@ -43,6 +46,21 @@ export function CameraFocusControl({ className }: CameraFocusControlProps) {
         disabled={isAuto}
         onValueChange={setFocusDistance}
       />
+      {stream?.getVideoTracks()[0] &&
+        selectedCameraId === PI_CAMERA_DEVICE_ID && (
+          <>
+            <p className="text-xs text-foreground/70">
+              {t("cameraFocus.manualHint")}
+            </p>
+            <LensFocusDialog
+              trigger={
+                <Button type="button" variant="outline" size="sm">
+                  {t("lensFocus.open")}
+                </Button>
+              }
+            />
+          </>
+        )}
     </div>
   );
 }

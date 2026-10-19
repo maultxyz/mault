@@ -6,6 +6,29 @@
          start-up from its environment so one image serves every deployment.
          A classic script, so it runs before the module bundle reads it. -->
     <script src="/env.js"></script>
+    <script>
+      if (typeof crypto.randomUUID !== "function") {
+        crypto.randomUUID = function () {
+          var bytes = crypto.getRandomValues(new Uint8Array(16));
+          bytes[6] = (bytes[6] & 15) | 64;
+          bytes[8] = (bytes[8] & 63) | 128;
+          var hex = Array.from(bytes, function (b) {
+            return b.toString(16).padStart(2, "0");
+          }).join("");
+          return (
+            hex.slice(0, 8) +
+            "-" +
+            hex.slice(8, 12) +
+            "-" +
+            hex.slice(12, 16) +
+            "-" +
+            hex.slice(16, 20) +
+            "-" +
+            hex.slice(20)
+          );
+        };
+      }
+    </script>
     <link rel="icon" type="image/png" href="/icon/Icon.png" />
     <link rel="apple-touch-icon" href="/icon/apple-touch-icon.png" />
     <meta name="theme-color" content="#1447e6" />

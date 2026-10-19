@@ -29,6 +29,7 @@ import type {
 import {
   IconArrowBarToDown,
   IconBolt,
+  IconDoor,
   IconFocus2,
   IconLoader2,
   IconPlayerPause,
@@ -85,6 +86,14 @@ export function ScannerControls({
   onFeed,
   onClearDevice,
   onResetDevice,
+  sessionFeed = false,
+  sessionLive = false,
+  onStop,
+  onAutoFeedChange,
+  bottomsOpen = false,
+  isMovingBottoms = false,
+  canToggleBottoms = false,
+  onToggleBottoms,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -101,8 +110,9 @@ export function ScannerControls({
   const { isActive } = useStation();
   const { panelsDocked } = useStations();
   const isMobile = useIsMobile();
-  const canFeed = isConnected && isReady && !isFeeding;
-  const canClearDevice = isConnected && isReady && !isClearingDevice;
+  const canFeed = (sessionFeed || (isConnected && isReady)) && !isFeeding;
+  const canClearDevice =
+    !sessionLive && isConnected && isReady && !isClearingDevice;
 
   const [setPickerOpen, setSetPickerOpen] = useState(false);
 
@@ -111,18 +121,26 @@ export function ScannerControls({
     const next = (options.indexOf(forceFoilType) + 1) % options.length;
     setForceFoilType(options[next]);
   };
+  const toggleAutoFeed = () => {
+    const next = !autoFeed;
+    if (onAutoFeedChange) onAutoFeedChange(next);
+    else setAutoFeed(next);
+  };
 
   useHotkeys(
     {
       scanPauseResume: status === "paused" ? onResume : onPause,
-      scanNow: canForceScan ? onForceScan : undefined,
+      scanNow: canForceScan && !sessionFeed ? onForceScan : undefined,
       scanFeed: canFeed ? onFeed : undefined,
-      scanToggleAutoFeed: isConnected
-        ? () => setAutoFeed(!autoFeed)
-        : undefined,
+      scanToggleAutoFeed:
+        isConnected || sessionLive ? toggleAutoFeed : undefined,
       scanCycleFoil: cycleFoilType,
       scanPickSet: () => setSetPickerOpen(true),
-      scanClearDevice: canClearDevice ? onClearDevice : undefined,
+      scanClearDevice: sessionLive
+        ? onStop
+        : canClearDevice
+          ? onClearDevice
+          : undefined,
     },
     isActive && panelsDocked && !isMobile,
   );
@@ -162,12 +180,12 @@ export function ScannerControls({
           }
           hotkey="scanNow"
           onClick={onForceScan}
-          disabled={!canForceScan}
+          disabled={!canForceScan || sessionLive}
         >
           <IconFocus2 />
         </ScannerControlButton>
       </ButtonGroup>
-      {isConnected && (
+      {(isConnected || sessionFeed) && (
         <ButtonGroup orientation={orientation}>
           <ScannerControlButton
             tooltip={
@@ -179,7 +197,7 @@ export function ScannerControls({
             }
             hotkey="scanFeed"
             onClick={onFeed}
-            disabled={!isReady || isFeeding}
+            disabled={(!isReady && !sessionFeed) || isFeeding}
           >
             {isFeeding ? (
               <IconLoader2 className="animate-spin" />
@@ -194,23 +212,27 @@ export function ScannerControls({
                 : t("scannerControls.autoFeedOffTooltip")
             }
             hotkey="scanToggleAutoFeed"
-            onClick={() => setAutoFeed(!autoFeed)}
+            onClick={toggleAutoFeed}
             selected={autoFeed}
           >
             <IconBolt />
           </ScannerControlButton>
           <ScannerControlButton
-            tooltip={t("scannerControls.clearDeviceTooltip")}
-            hotkey="scanClearDevice"
-            onClick={onClearDevice}
-            disabled={!isReady || isClearingDevice}
+            tooltip={
+              sessionLive
+                ? t("scannerControls.stopPiScan")
+                : t("scannerControls.clearDeviceTooltip")
+            }
+            hotkey={sessionLive ? undefined : "scanClearDevice"}
+            onClick={sessionLive ? (onStop ?? onClearDevice) : onClearDevice}
+            disabled={sessionLive ? false : !isReady || isClearingDevice}
           >
             <IconArrowBarToDown />
           </ScannerControlButton>
           <ScannerControlButton
             tooltip={t("scannerControls.resetToNeutralTooltip")}
             onClick={onResetDevice}
-            disabled={!isReady || isResettingDevice}
+            disabled={!isReady || isResettingDevice || sessionLive}
           >
             {isResettingDevice ? (
               <IconLoader2 className="animate-spin" />
@@ -263,6 +285,25 @@ export function ScannerControls({
         </DropdownMenu>
         <ForcedSetPicker open={setPickerOpen} onOpenChange={setSetPickerOpen} />
       </ButtonGroup>
+      {onToggleBottoms && (
+        <Button
+          type="button"
+          variant={bottomsOpen ? "outline-selected" : "outline"}
+          size="sm"
+          className="w-full"
+          disabled={!canToggleBottoms || isMovingBottoms}
+          onClick={onToggleBottoms}
+        >
+          {isMovingBottoms ? (
+            <IconLoader2 className="animate-spin" />
+          ) : (
+            <IconDoor />
+          )}
+          {bottomsOpen
+            ? t("scannerControls.bottomsOpenTooltip")
+            : t("scannerControls.bottomsClosedTooltip")}
+        </Button>
+      )}
       <ScannerDebug />
     </div>
   );

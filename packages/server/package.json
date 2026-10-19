@@ -38,6 +38,7 @@
     "pg": "^8.16.3",
     "resend": "^6.24.0",
     "rollbar": "^3.1.0",
+    "serialport": "12",
     "sharp": "^0.34.1",
     "stripe": "^22.6.1",
     "tesseract.js": "^7.0.0",

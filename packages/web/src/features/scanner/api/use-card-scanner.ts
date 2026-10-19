@@ -17,6 +17,7 @@ import {
   extractCardImage,
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
+import { drawPiRelayFrame } from "@/features/scanner/lib/pi-camera";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
@@ -737,12 +738,15 @@ export function useCardScanner({
     );
   }, [cameraSource, phonePairingStatus, updateStatus]);
 
+  const streamRef = useRef(stream);
+  streamRef.current = stream;
+
   const drawLatestVideoFrame = useCallback(() => {
-    const video = videoRef.current;
     const canvas = displayCanvasRef.current;
-    if (!video || !canvas || video.readyState < video.HAVE_CURRENT_DATA) {
-      return;
-    }
+    if (!canvas) return;
+    if (drawPiRelayFrame(streamRef.current, canvas)) return;
+    const video = videoRef.current;
+    if (!video || video.readyState < video.HAVE_CURRENT_DATA) return;
     canvas.getContext("2d")?.drawImage(video, 0, 0);
   }, []);
 
@@ -849,19 +853,30 @@ export function useCardScanner({
   );
 
   const detectionLoop = useCallback(() => {
-    const video = videoRef.current;
     const displayCanvas = displayCanvasRef.current;
+    if (!displayCanvas) return;
 
-    if (!video || !displayCanvas) return;
-    if (video.readyState < video.HAVE_ENOUGH_DATA) {
-      rafRef.current = requestAnimationFrame(detectionLoop);
-      return;
+    const drewRelay = drawPiRelayFrame(streamRef.current, displayCanvas);
+    if (!drewRelay) {
+      const video = videoRef.current;
+      if (!video || video.readyState < video.HAVE_ENOUGH_DATA) {
+        rafRef.current = requestAnimationFrame(detectionLoop);
+        return;
+      }
+      displayCanvas.getContext("2d")?.drawImage(video, 0, 0);
     }
 
-    const displayCtx = displayCanvas.getContext("2d");
-    if (!displayCtx) return;
-
-    displayCtx.drawImage(video, 0, 0);
+    const overlay = overlayCanvasRef.current;
+    if (
+      overlay &&
+      displayCanvas.width &&
+      displayCanvas.height &&
+      (overlay.width !== displayCanvas.width ||
+        overlay.height !== displayCanvas.height)
+    ) {
+      overlay.width = displayCanvas.width;
+      overlay.height = displayCanvas.height;
+    }
 
     rafRef.current = requestAnimationFrame(detectionLoop);
   }, []);
@@ -886,7 +901,14 @@ export function useCardScanner({
         await video.play();
         if (cancelled) return;
 
-        const { videoWidth, videoHeight } = video;
+        const display = displayCanvasRef.current;
+        let videoWidth = video.videoWidth;
+        let videoHeight = video.videoHeight;
+        if (display && drawPiRelayFrame(stream, display)) {
+          videoWidth = display.width;
+          videoHeight = display.height;
+        }
+        if (!videoWidth || !videoHeight) return;
         for (const ref of [displayCanvasRef, overlayCanvasRef]) {
           if (ref.current) {
             ref.current.width = videoWidth;

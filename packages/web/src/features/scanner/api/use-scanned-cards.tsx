@@ -1,3 +1,4 @@
+import { useCollectionStream } from "@/lib/app-stream";
 import { SCAN_RATE_WINDOW_MS } from "@/lib/constants/scanner";
 import {
   type BinConfig,
@@ -147,6 +148,7 @@ export function ScannedCardsProvider({
   const { sendRoute, sendRequest, isConnected, isReady } =
     useSerial();
   const { activeCollection, emptyCollection } = useCollections();
+  const unmatchedStream = useCollectionStream(activeCollection?.guid);
   const playSoundForCard = useSoundRulePlayer(
     activeCollection?.game?.guid,
     fieldDefinitions,
@@ -542,7 +544,12 @@ export function ScannedCardsProvider({
     loadUnmatchedCards(activeCollectionGuid)
       .then((unmatchedResult) => {
         if (cancelled) return;
-        setUnmatchedCards(unmatchedResult.data ?? []);
+        const loaded = unmatchedResult.data ?? [];
+        const seen = new Set(loaded.map((card) => card.scanId));
+        setUnmatchedCards((prev) => [
+          ...prev.filter((card) => !seen.has(card.scanId)),
+          ...loaded,
+        ]);
       })
       .catch((err) => {
         if (!cancelled) console.error("Failed to load unmatched cards:", err);
@@ -555,6 +562,38 @@ export function ScannedCardsProvider({
       cancelled = true;
     };
   }, [activeCollectionGuid]);
+
+  useEffect(() => {
+    if (!unmatchedStream || !activeCollection?.guid) return;
+    const scoped = (name: string) =>
+      `session:${activeCollection.guid}:${name}`;
+    const onAdded = (event: Event) => {
+      const card = JSON.parse((event as MessageEvent).data) as UnmatchedCard;
+      setUnmatchedCards((prev) =>
+        prev.some((item) => item.scanId === card.scanId)
+          ? prev
+          : [card, ...prev],
+      );
+    };
+    const onRemoved = (event: Event) => {
+      const { scanId } = JSON.parse((event as MessageEvent).data) as {
+        scanId: string;
+      };
+      setUnmatchedCards((prev) => prev.filter((item) => item.scanId !== scanId));
+    };
+    const onCleared = () => setUnmatchedCards([]);
+    const added = scoped("unmatched_added");
+    const removed = scoped("unmatched_removed");
+    const cleared = scoped("unmatched_cleared");
+    unmatchedStream.addEventListener(added, onAdded);
+    unmatchedStream.addEventListener(removed, onRemoved);
+    unmatchedStream.addEventListener(cleared, onCleared);
+    return () => {
+      unmatchedStream.removeEventListener(added, onAdded);
+      unmatchedStream.removeEventListener(removed, onRemoved);
+      unmatchedStream.removeEventListener(cleared, onCleared);
+    };
+  }, [unmatchedStream, activeCollection?.guid]);
 
   const needsBinContents =
     !!selectedSet?.isRepackMode || hasMaxCopiesBins(binConfigs);

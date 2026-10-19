@@ -1,8 +1,21 @@
-import type { SyncState } from "@magic-vault/shared";
+import type {
+  BrowserSyncWorkCard,
+  BrowserSyncWorkFailure,
+  BrowserSyncWorkResult,
+  SyncState,
+  SyncVectorizeOn,
+} from "@magic-vault/shared";
 import { type ChildProcess, fork } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { sendDiscordNotification } from "../discord";
-import type { StartMessage, WorkerToParentMessage } from "../interfaces/sync-job";
+import type {
+  ClaimWorkMessage,
+  StartMessage,
+  SubmitWorkMessage,
+  WorkResponseMessage,
+  WorkerToParentMessage,
+} from "../interfaces/sync-job";
 import { publicGamesCache } from "../public-games";
 import { SYNC_SOURCES } from "./sources";
 import {
@@ -19,6 +32,38 @@ import {
 export { getStatus, subscribeSSE, SYNC_SOURCES };
 
 let currentWorker: ChildProcess | null = null;
+
+const pendingWork = new Map<
+  string,
+  {
+    resolve: (message: WorkResponseMessage) => void;
+    reject: (err: Error) => void;
+    timer: ReturnType<typeof setTimeout>;
+  }
+>();
+
+function rejectPendingWork(message: string): void {
+  for (const [requestId, pending] of pendingWork) {
+    clearTimeout(pending.timer);
+    pendingWork.delete(requestId);
+    pending.reject(new Error(message));
+  }
+}
+
+function requestWork(
+  message: ClaimWorkMessage | SubmitWorkMessage,
+): Promise<WorkResponseMessage> {
+  const worker = currentWorker;
+  if (!worker) return Promise.reject(new Error("Sync is not running."));
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      pendingWork.delete(message.requestId);
+      reject(new Error("Sync worker did not answer."));
+    }, 60_000);
+    pendingWork.set(message.requestId, { resolve, reject, timer });
+    worker.send(message);
+  });
+}
 
 function resolveWorkerEntry(): { modulePath: string; execArgv: string[] } {
   if (process.env.NODE_ENV === "production") {
@@ -40,6 +85,7 @@ export function startSync(
   forceResync: boolean = false,
   skipUpdatedWithinMs?: number,
   concurrency?: number,
+  vectorizeOn: SyncVectorizeOn = "server",
 ): void {
   if (currentWorker) return;
 
@@ -58,6 +104,9 @@ export function startSync(
     queued: 0,
     startedAt: new Date().toISOString(),
     logs: [],
+    vectorizeOn,
+    acceptingWork: false,
+    ...(concurrency !== undefined ? { concurrency } : {}),
   };
   resetState(initialState);
 
@@ -120,12 +169,25 @@ export function startSync(
           notifyFailure(data.message ?? "Unknown error");
         }
         break;
+      case "workResponse": {
+        const pending = pendingWork.get(msg.requestId);
+        if (!pending) break;
+        clearTimeout(pending.timer);
+        pendingWork.delete(msg.requestId);
+        if (msg.ok === false) {
+          pending.reject(new Error(msg.message || "Sync work failed."));
+        } else {
+          pending.resolve(msg);
+        }
+        break;
+      }
     }
   });
 
   child.on("close", (code) => {
     currentWorker = null;
     publicGamesCache.invalidate();
+    rejectPendingWork("Sync worker stopped.");
     if (reachedTerminalStatus) return;
     const msg = `Sync worker exited unexpectedly (code ${code ?? "unknown"}).`;
     patchState({ status: "failed" });
@@ -140,6 +202,7 @@ export function startSync(
     lang,
     forceResync,
     skipUpdatedWithinMs,
+    vectorizeOn,
     initialState,
   };
   child.send(startMessage);
@@ -149,4 +212,37 @@ export function cancelSync(): void {
   if (currentWorker && getState().status === "running") {
     currentWorker.send({ type: "cancel" });
   }
+}
+
+export async function claimSyncWork(
+  limit: number,
+): Promise<BrowserSyncWorkCard[]> {
+  if (
+    !currentWorker ||
+    getState().status !== "running" ||
+    getState().vectorizeOn !== "browser"
+  ) {
+    return [];
+  }
+  const response = await requestWork({
+    type: "claim",
+    requestId: randomUUID(),
+    limit,
+  });
+  return response.cards ?? [];
+}
+
+export async function submitSyncWork(
+  results: BrowserSyncWorkResult[],
+  failures: BrowserSyncWorkFailure[],
+): Promise<void> {
+  if (!currentWorker || getState().status !== "running") {
+    throw new Error("Sync is not running.");
+  }
+  await requestWork({
+    type: "submit",
+    requestId: randomUUID(),
+    results,
+    failures,
+  });
 }

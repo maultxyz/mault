@@ -2,6 +2,9 @@ import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
+import { createPiSerialRouter } from "./lib/pi-serial-bridge";
+import { PI_SERIAL_PATH } from "./lib/constants/pi-serial";
+import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
 import { PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
 import { cors } from "hono/cors";
@@ -89,6 +92,8 @@ app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
+app.route(PI_SCAN_SESSION_PATH, piScanRouter);
+app.route(PI_SERIAL_PATH, createPiSerialRouter(upgradeWebSocket));
 app.route("/stream", streamRoute);
 app.route("/sorter-link", createSorterLinkRouter(upgradeWebSocket));
 app.route("/v1", publicApiRouter);

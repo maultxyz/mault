@@ -1,7 +1,8 @@
 {
   "camera": {
     "permissionDenied": "Camera permission denied. Please allow camera access and try again.",
-    "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter."
+    "allInUse": "Every connected camera is already used by another sorter. Plug in another camera for this sorter.",
+    "piUnavailable": "The webcam on the Raspberry Pi is not available."
   },
   "scanEngine": {
     "searchFailed": "Failed to search card",
@@ -21,11 +22,32 @@
     "minimize": "Minimize to the side",
     "expand": "Show scanner preview"
   },
+  "piScan": {
+    "preview": "Live view of the sorter",
+    "starting": "Starting the scan on the Pi",
+    "feeding": "Feeding a card",
+    "matching": "Identifying a card",
+    "routing": "Sending {{name}} to bin {{bin}}",
+    "routingUnmatched": "Sending an unmatched card to bin {{bin}}",
+    "scanning": "Scanning",
+    "paused": "Paused",
+    "stopping": "Stopping after this card",
+    "lastCard": "{{name}} to bin {{bin}}",
+    "lastUnmatched": "Unmatched card to bin {{bin}}",
+    "count": "{{count}} cards this run",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "openScanner": "Open scanner"
+  },
   "serial": {
     "connectionFailed": {
       "title": "Connection failed",
       "description": "Failed to connect. Make sure no other application is using the device."
     },
+    "piMissing": "No sorter is plugged into this Raspberry Pi.",
+    "piBusy": "The Pi's USB port is already in use. Disconnect it in the other browser, or stop the scan running on the Pi, then try again.",
+    "piScanBusy": "A scan is running on the Pi, so this browser cannot take the sorter. Stop the scan first.",
     "bluetoothPermissionBlocked": "Bluetooth permission is blocked for this browser. Check your browser's site settings (or chrome://settings/content/bluetoothDevices) to allow Bluetooth, then try again.",
     "connectionLost": {
       "title": "Connection lost",
@@ -209,6 +231,10 @@
     "feedError": {
       "title": "Feed error"
     },
+    "bottomsFailed": {
+      "title": "Bottom levers did not move",
+      "description": "The sorter did not confirm the move."
+    },
     "clearFailed": {
       "title": "Clear failed",
       "description": "Could not send command to the device."
@@ -260,7 +286,10 @@
     "startTooltip": "Feed the first card and start scanning",
     "autoFeedOnTooltip": "Auto-feed on, next card feeds automatically after each scan",
     "autoFeedOffTooltip": "Auto-feed off, feed each card manually",
+    "bottomsClosedTooltip": "Open all bottom levers",
+    "bottomsOpenTooltip": "Close all bottom levers",
     "clearDeviceTooltip": "Clear device (opens all bottom paddles)",
+    "stopPiScan": "Stop scanning and release the sorter",
     "resetToNeutralTooltip": "Reset to neutral (closes every bottom and paddle, centers the pushers)",
     "foilTooltip": "Foil type for scanned cards: {{type}}",
     "setTooltip": "Set for scanned cards: {{set}}",
@@ -489,7 +518,14 @@
   },
   "cameraFocus": {
     "label": "Focus",
-    "auto": "Auto"
+    "auto": "Auto",
+    "manualHint": "This camera focuses by turning the lens ring. The slider does not move it."
+  },
+  "lensFocus": {
+    "open": "Larger view",
+    "title": "Focus the lens",
+    "description": "Leave a card in the scanner and turn the lens ring until the name is sharp. Then leave the ring there.",
+    "previewAlt": "Live camera, enlarged so the lens can be focused"
   },
   "stations": {
     "label": "Sorter {{number}}",

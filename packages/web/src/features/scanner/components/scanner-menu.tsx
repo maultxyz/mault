@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { NewBoardFlashDialog } from "@/features/scanner/components/new-board-flash-dialog";
 import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
+import { isRemoteBrowser } from "@/lib/host";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
   IconAdjustments,
@@ -23,6 +25,7 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { useState } from "react";
+import { LensFocusDialog } from "@/features/scanner/components/lens-focus-dialog";
 import { useTranslation } from "react-i18next";
 import type { ScannerMenuProps } from "@/lib/interfaces/scanner";
 
@@ -59,8 +62,12 @@ export function ScannerMenu({
 }: ScannerMenuProps) {
   const { t } = useTranslation("scanner");
   const [flashDialogOpen, setFlashDialogOpen] = useState(false);
+  const [lensFocusOpen, setLensFocusOpen] = useState(false);
+  const piHost = usePiHost();
   const webSerialSupported =
-    typeof navigator !== "undefined" && !!navigator.serial;
+    typeof navigator !== "undefined" &&
+    !!navigator.serial &&
+    !(piHost && isRemoteBrowser());
 
 
   return (
@@ -99,6 +106,9 @@ export function ScannerMenu({
                       <DropdownMenuSeparator />
                     </>
                   )}
+                  <DropdownMenuItem onClick={() => setLensFocusOpen(true)}>
+                    {t("lensFocus.open")}
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     variant="destructive"
                     onClick={onCameraDisconnect}
@@ -242,6 +252,7 @@ export function ScannerMenu({
         onOpenChange={setFlashDialogOpen}
         onConnect={onScannerConnect}
       />
+      <LensFocusDialog open={lensFocusOpen} onOpenChange={setLensFocusOpen} />
     </div>
   );
 }

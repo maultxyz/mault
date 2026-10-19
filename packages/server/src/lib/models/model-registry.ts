@@ -4,6 +4,13 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { MILO_MODEL, type PinnedModel } from "@magic-vault/shared";
 
+export const CARD_DETECTOR_MODEL: PinnedModel = {
+  repo: "HanClinto/ccgdetector-fastweb-single",
+  revision: "66ffd4976ec57bda0f6ea2d83e15ca6a3add7dd9",
+  filename: "fastweb-single-1.39.onnx",
+  sha256: "05d2b90b928a5a3bf0f49aa90aa86211b2103d9c347c238fd18b4f544b3cb8ca",
+};
+
 function cacheRoot(): string {
   return (
     process.env.COLLECTORVISION_CACHE ??
@@ -45,4 +52,8 @@ async function resolvePinnedModel(model: PinnedModel): Promise<string> {
 
 export function resolveMiloModelPath(): Promise<string> {
   return resolvePinnedModel(MILO_MODEL);
+}
+
+export function resolveCardDetectorModelPath(): Promise<string> {
+  return resolvePinnedModel(CARD_DETECTOR_MODEL);
 }

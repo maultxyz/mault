@@ -4,16 +4,25 @@ import {
 } from "@/features/scanner/api/use-phone-camera-capture";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import {
-  applyFocus,
   loadSavedFocus,
-  manualFocusRange,
   saveFocus,
 } from "@/features/scanner/lib/camera-focus";
+import {
+  PI_CAMERA_DEVICE_ID,
+  acquirePiRelayStream,
+  applyTrackFocus,
+  browserMustUsePiCamera,
+  focusRangeForTrack,
+  isPiRelayTrack,
+  piCameraDevice,
+  readPiCameraHealth,
+} from "@/features/scanner/lib/pi-camera";
 import {
   acquireFreeStream,
   camerasHeldByOtherStations,
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { loadPiHost } from "@/lib/pi-host";
 import type {
   CameraContextValue,
   CameraRange,
@@ -66,8 +75,42 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       setStatus("requesting");
       setErrorMessage("");
       try {
+        await loadPiHost();
+        const health = await readPiCameraHealth();
+        const usePi = health.status === "ready" || browserMustUsePiCamera();
+        if (usePi) {
+          if (health.status !== "ready") {
+            setErrorMessage(t("camera.piUnavailable"));
+            setStatus("error");
+            return;
+          }
+          const mediaStream = await acquirePiRelayStream();
+          streamRef.current = mediaStream;
+          setStream(mediaStream);
+          setStatus("ready");
+          setCameras([piCameraDevice(health.label)]);
+          setSelectedCameraId(PI_CAMERA_DEVICE_ID);
+          stationsRef.current.setStationCamera(stationId, PI_CAMERA_DEVICE_ID);
+          const range = health.focus;
+          const saved = loadSavedFocus(PI_CAMERA_DEVICE_ID);
+          const savedFocus =
+            range &&
+            saved !== null &&
+            saved >= range.min &&
+            saved <= range.max
+              ? saved
+              : null;
+          setFocusRange(range);
+          setFocusDistanceState(savedFocus);
+          if (savedFocus !== null) {
+            const track = mediaStream.getVideoTracks()[0];
+            if (track) await applyTrackFocus(track, savedFocus).catch(() => {});
+          }
+          return;
+        }
+
         const mediaStream = await acquireFreeStream(
-          deviceId,
+          deviceId === PI_CAMERA_DEVICE_ID ? undefined : deviceId,
           otherStationCameraIds(),
           isMobile,
         );
@@ -86,23 +129,24 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           setSelectedCameraId(activeDeviceId);
           stationsRef.current.setStationCamera(stationId, activeDeviceId);
 
-          const range = manualFocusRange(track);
+          const range = focusRangeForTrack(track);
           const savedFocus = range ? loadSavedFocus(activeDeviceId) : null;
           setFocusRange(range);
           setFocusDistanceState(savedFocus);
           if (savedFocus !== null) {
-            await applyFocus(track, savedFocus).catch(() => {});
+            await applyTrackFocus(track, savedFocus).catch(() => {});
           }
         }
 
-        // Enumerate cameras after permission is granted so labels are available
         const devices = await navigator.mediaDevices.enumerateDevices();
         setCameras(devices.filter((d) => d.kind === "videoinput"));
       } catch (err) {
         const msg =
           err instanceof DOMException && err.name === "NotAllowedError"
             ? t("camera.permissionDenied")
-            : t("cameraAccessError");
+            : browserMustUsePiCamera()
+              ? t("camera.piUnavailable")
+              : t("cameraAccessError");
         setErrorMessage(msg);
         setStatus("error");
       }
@@ -113,8 +157,13 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const setFocusDistance = useCallback((value: number | null) => {
     const track = streamRef.current?.getVideoTracks()[0];
     if (!track) return;
-    void applyFocus(track, value).catch(() => {});
-    saveFocus(track.getSettings().deviceId ?? null, value);
+    void applyTrackFocus(track, value).catch(() => {});
+    saveFocus(
+      isPiRelayTrack(track)
+        ? PI_CAMERA_DEVICE_ID
+        : (track.getSettings().deviceId ?? null),
+      value,
+    );
     setFocusDistanceState(value);
   }, []);
 
@@ -179,13 +228,16 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     [startCamera, stopCamera, otherStationCameraIds],
   );
 
+  const startCameraRef = useRef(startCamera);
+  startCameraRef.current = startCamera;
+
   useEffect(() => {
     // Mobile is redirected to the read-only monitor view and never scans -
     // don't prompt for camera access it'll never use.
     // The idle standby station holds no camera until it's connected or viewed.
     if (isMobile || !isLive) return;
 
-    void startCamera(stationCameraIdRef.current ?? undefined);
+    void startCameraRef.current(stationCameraIdRef.current ?? undefined);
 
     return () => {
       if (streamRef.current) {
@@ -195,9 +247,10 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       setStream(null);
       setStatus("idle");
     };
-  }, [startCamera, isMobile, isLive]);
+  }, [isMobile, isLive]);
 
   useEffect(() => {
+    if (selectedCameraId === PI_CAMERA_DEVICE_ID) return;
     if (
       status === "ready" &&
       cameraSource === "local" &&
