@@ -421,10 +421,16 @@
     },
     "feederStop": {
       "heading": "Feeder stop point",
-      "body": "Every feeder motor has a slightly different point where it stands still. Each change runs the roller at that setting for a moment. Nudge it until the roller doesn't move at all.",
+      "body": "Every feeder motor has a slightly different point where it stands still. Each change runs the roller at 0% speed for a moment, so at the right stop point it doesn't move at all.",
       "pulseLabel": "Stop pulse",
-      "hint": "If the roller creeps one way, nudge the other way. When it stays still, that becomes 0% feeder speed.",
-      "saveFailed": "Couldn't save the feeder stop point."
+      "hint": "Use the buttons to step one pulse at a time.",
+      "saveFailed": "Couldn't save the feeder stop point.",
+      "guide": {
+        "zero": "Watch the roller after each change. This step always runs it at 0% speed.",
+        "stops": "Move the stop point until the roller stops moving. Note that number, for example 330.",
+        "starts": "Keep going the same way until the roller starts moving again. Note that number too, for example 344.",
+        "middle": "Set the stop point halfway between the two. For 330 and 344 that's 337."
+      }
     },
     "feeder": {
       "heading": "Feeder speed",

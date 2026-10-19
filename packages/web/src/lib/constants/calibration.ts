@@ -79,6 +79,13 @@ export const SERVO_PULSE_CENTER = (SERVO_PULSE_MIN + SERVO_PULSE_MAX) / 2;
 
 export const FEEDER_STOP_PULSE_SLIDER_RANGE = 50;
 
+export const FEEDER_STOP_GUIDE_STEPS = [
+  "zero",
+  "stops",
+  "starts",
+  "middle",
+] as const;
+
 export function pulseToDirectionalSpeed(
   pulse: number,
   center: number = SERVO_PULSE_CENTER,
@@ -97,6 +104,19 @@ export function pulseToDirectionalSpeed(
       ((pulse - center) / (SERVO_PULSE_MAX - center)) * 100,
     ),
   };
+}
+
+export function recenterSpeedPulse(
+  pulse: number,
+  fromCenter: number,
+  toCenter: number,
+): number {
+  if (pulse <= fromCenter) {
+    const ratio = (fromCenter - pulse) / (fromCenter - SERVO_PULSE_MIN);
+    return Math.round(toCenter - ratio * (toCenter - SERVO_PULSE_MIN));
+  }
+  const ratio = (pulse - fromCenter) / (SERVO_PULSE_MAX - fromCenter);
+  return Math.round(toCenter + ratio * (SERVO_PULSE_MAX - toCenter));
 }
 
 export function directionalSpeedToPulse(

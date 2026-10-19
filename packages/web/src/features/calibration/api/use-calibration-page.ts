@@ -29,12 +29,17 @@ import {
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import type {
   ActivePositions,
+  FeederSpeedAnchor,
   ModuleDelayField,
   SliderKey,
   ServoName,
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { SETUP_SERVO_POSITIONS } from "@/lib/constants/calibration";
+import {
+  recenterSpeedPulse,
+  SERVO_PULSE_CENTER,
+  SETUP_SERVO_POSITIONS,
+} from "@/lib/constants/calibration";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
   CALIBRATION_STEP_SETTLE_MS,
@@ -249,10 +254,12 @@ export function useCalibrationPage() {
   const feederReverseDurationValue = feederValues.reverseDuration;
   const setFeederDraftField = useCallback(
     (field: keyof FeederCalibration, value: number) => {
+      feederSpeedAnchorRef.current = null;
       setFeederDraft((prev) => ({ ...prev, [field]: value }));
     },
     [],
   );
+  const feederSpeedAnchorRef = useRef<FeederSpeedAnchor | null>(null);
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [feederStopDraft, setFeederStopDraft] = useState<
     number | null | undefined
@@ -618,22 +625,47 @@ export function useCalibrationPage() {
     [canCalibrate, previewSpeed, setFeederDraftField],
   );
 
+  const moveFeederStopPulse = useCallback(
+    (value: number | null) => {
+      const { config, draft } = feederStateRef.current;
+      const current = { ...config, ...draft };
+      const anchor = feederSpeedAnchorRef.current ?? {
+        center: feederStopPulse ?? SERVO_PULSE_CENTER,
+        speed: current.speed,
+        reverseSpeed: current.reverseSpeed,
+      };
+      feederSpeedAnchorRef.current = anchor;
+      const toCenter = value ?? SERVO_PULSE_CENTER;
+      setFeederDraft((prev) => ({
+        ...prev,
+        speed: recenterSpeedPulse(anchor.speed, anchor.center, toCenter),
+        reverseSpeed: recenterSpeedPulse(
+          anchor.reverseSpeed,
+          anchor.center,
+          toCenter,
+        ),
+      }));
+      setFeederStopDraft(value);
+    },
+    [feederStopPulse],
+  );
+
   const handleFeederStopPulseChange = useCallback(
     (value: number) => {
       if (!canCalibrate) return;
-      setFeederStopDraft(value);
+      moveFeederStopPulse(value);
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed],
+    [canCalibrate, previewSpeed, moveFeederStopPulse],
   );
 
   const handleResetFeederStopPulse = useCallback(
-    () => setFeederStopDraft(null),
-    [],
+    () => moveFeederStopPulse(null),
+    [moveFeederStopPulse],
   );
 
   const handleFeederDurationChange = useCallback(
@@ -788,6 +820,7 @@ export function useCalibrationPage() {
 
   const handleDiscardFeederModuleCalibration = useCallback(() => {
     setPendingCalibration({});
+    feederSpeedAnchorRef.current = null;
     setFeederDraft({});
     setFeederStopDraft(undefined);
     void restoreSavedOnDevice();
