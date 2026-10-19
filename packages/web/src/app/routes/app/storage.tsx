@@ -6,7 +6,7 @@ import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
-import { storageLocationCardsQueryOptions } from "@/features/storage/api/storage-locations";
+import { fetchNextUnreviewedStorageCard } from "@/features/storage/api/storage-locations";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
@@ -35,7 +35,6 @@ import {
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -57,7 +56,6 @@ function DesktopStoragePage() {
   );
   const isSearching = searchQuery.trim().length > 0;
 
-  const queryClient = useQueryClient();
   const selectedGuid =
     searchParams.get(STORAGE_LOCATION_SEARCH_PARAM) ?? locations[0]?.guid;
   const selected = locations.find((l) => l.guid === selectedGuid);
@@ -99,11 +97,10 @@ function DesktopStoragePage() {
 
   const startReview = async () => {
     if (!selected) return;
-    const cards = await queryClient
-      .fetchQuery(storageLocationCardsQueryOptions(selected.guid))
-      .catch(() => []);
-    const first = cards.find((card) => !card.reviewed);
-    if (first) openCard(selected.guid, first.scanId, true);
+    const first = await fetchNextUnreviewedStorageCard(selected.guid).catch(
+      () => null,
+    );
+    if (first) openCard(selected.guid, first, true);
     else toast.info(t("review.nothingLeft"));
   };
 

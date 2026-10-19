@@ -6,6 +6,4 @@ export const STORAGE_CARD_SEARCH_PARAM = "card";
 export const STORAGE_REVIEW_SEARCH_PARAM = "review";
 export const STORAGE_PAGE_SEARCH_PARAM = "page";
 
-export const STORAGE_CARDS_PAGE_SIZE = 50;
-
 export const STORAGE_LIST_SKELETON_COUNT = 6;

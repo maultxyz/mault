@@ -26,6 +26,8 @@ import type {
   Result,
   StorageLocation,
   StorageLocationCard,
+  StorageLocationCardContext,
+  StorageLocationCardPage,
   StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import {
@@ -183,12 +185,22 @@ function patchStoredCard(
   entry: StorageLocationSearchResult,
   patch: Partial<StorageLocationCard>,
 ) {
-  queryClient.setQueryData<StorageLocationCard[]>(
-    storageLocationKeys.cards(entry.locationGuid),
-    (cards) =>
-      cards?.map((card) =>
-        card.scanId === entry.scanId ? { ...card, ...patch } : card,
-      ),
+  queryClient.setQueriesData<StorageLocationCardPage | null>(
+    { queryKey: storageLocationKeys.cardPages(entry.locationGuid) },
+    (data) =>
+      data && {
+        ...data,
+        cards: data.cards.map((card) =>
+          card.scanId === entry.scanId ? { ...card, ...patch } : card,
+        ),
+      },
+  );
+  queryClient.setQueriesData<StorageLocationCardContext | null>(
+    { queryKey: storageLocationKeys.cardContexts(entry.locationGuid) },
+    (data) =>
+      data?.card.scanId === entry.scanId
+        ? { ...data, card: { ...data.card, ...patch } }
+        : data,
   );
 }
 
@@ -257,7 +269,9 @@ export function useConfirmStoredCard() {
       refreshStoredCard(queryClient, entry),
   });
 
-  return { confirmCard: (entry: StorageLocationSearchResult) => mutation.mutate(entry) };
+  return {
+    confirmCard: (entry: StorageLocationSearchResult) => mutation.mutate(entry),
+  };
 }
 
 export function useMarkStoredCardReviewed() {
@@ -267,7 +281,8 @@ export function useMarkStoredCardReviewed() {
   const mutation = useMutation({
     mutationFn: (entry: StorageLocationSearchResult) =>
       markCollectionCardReviewed(entry.collectionGuid, entry.scanId),
-    onMutate: (entry) => patchStoredCard(queryClient, entry, { reviewed: true }),
+    onMutate: (entry) =>
+      patchStoredCard(queryClient, entry, { reviewed: true }),
     onSuccess: (result) => {
       if (!result.success) toast.error(result.message ?? t("toasts.failed"));
     },
@@ -277,7 +292,8 @@ export function useMarkStoredCardReviewed() {
   });
 
   return {
-    markReviewed: (entry: StorageLocationSearchResult) => mutation.mutate(entry),
+    markReviewed: (entry: StorageLocationSearchResult) =>
+      mutation.mutate(entry),
   };
 }
 
@@ -313,8 +329,10 @@ export function useSetStoredCardFoilType() {
   });
 
   return {
-    setFoilType: (entry: StorageLocationSearchResult, foilType: string | null) =>
-      mutation.mutate({ entry, foilType }),
+    setFoilType: (
+      entry: StorageLocationSearchResult,
+      foilType: string | null,
+    ) => mutation.mutate({ entry, foilType }),
   };
 }
 
