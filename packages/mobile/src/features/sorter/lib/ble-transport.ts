@@ -1,4 +1,4 @@
-import { BleManager, type Device as BleDevice, type Subscription } from "react-native-ble-plx";
+import { BleManager, State, type Device as BleDevice, type Subscription } from "react-native-ble-plx";
 import {
   BLE_ATT_HEADER_SIZE,
   BLE_CONNECT_ATTEMPTS,
@@ -9,7 +9,7 @@ import {
   NUS_SERVICE_UUID,
   NUS_TX_CHARACTERISTIC_UUID,
 } from "@magic-vault/shared";
-import { BLE_PREFERRED_MTU } from "@/lib/constants/sorter";
+import { BLE_PREFERRED_MTU, BLE_STATE_SETTLE_TIMEOUT_MS } from "@/lib/constants/sorter";
 import type { ByteTransport } from "@/lib/interfaces/sorter";
 import { base64ToBytes, bytesToBase64 } from "./bytes";
 
@@ -18,6 +18,28 @@ let manager: BleManager | null = null;
 export function getBleManager(): BleManager {
   if (!manager) manager = new BleManager();
   return manager;
+}
+
+export function settledBleState(): Promise<State> {
+  const ble = getBleManager();
+  return new Promise((resolve) => {
+    let settled = false;
+    let subscription: Subscription | null = null;
+    const finish = (state: State) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      subscription?.remove();
+      resolve(state);
+    };
+    const timer = setTimeout(() => {
+      void ble.state().then(finish);
+    }, BLE_STATE_SETTLE_TIMEOUT_MS);
+    subscription = ble.onStateChange((state) => {
+      if (state !== State.Unknown && state !== State.Resetting) finish(state);
+    }, true);
+    if (settled) subscription.remove();
+  });
 }
 
 function delay(ms: number): Promise<void> {
@@ -48,6 +70,7 @@ export class BleTransport implements ByteTransport {
 
   static async connect(deviceId: string): Promise<BleTransport> {
     const ble = getBleManager();
+    await settledBleState();
     let lastError: unknown;
     for (let attempt = 1; attempt <= BLE_CONNECT_ATTEMPTS; attempt++) {
       try {

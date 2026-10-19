@@ -382,7 +382,8 @@
             "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
           },
           "printFeederModule": {
-            "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie."
+            "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie.",
+            "mg90Note": "Tu utilises un servo MG90S pour le chargeur ? Imprime le palonnier de chargeur MG90S depuis la plaque Alternative Horn au lieu du palonnier de rouleau standard."
           },
           "printSortingModuleShroud": {
             "text": "Imprime 1 Sorting Module Shroud - une seule suffit. Le capot qui recouvre les modules empilés."
@@ -410,6 +411,10 @@
           },
           "printEndBinPlate": {
             "text": "Imprime 1 plaque End Bin."
+          },
+          "printModulePins": {
+            "text": "Imprime {{count}} Module Pins pour {{modules}} modules de tri : {{top}} pour le dessus et {{front}} pour l'avant des pièces Base Support. Chaque pièce Base Support prend 4 pins sur le dessus, et chaque unité de hauteur en prend 2 à l'avant, sauf l'unité du haut de chaque colonne. Les pins assemblent les pièces Base Support entre elles et maintiennent les modules de tri sur la base. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour.",
+            "note": "Assemble d'abord à sec les pièces Base Support et les modules de tri avec les pins. Quand tout est bien aligné, colle chaque pin avec de la colle cyanoacrylate."
           },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
@@ -492,7 +497,8 @@
             "note": "Le rouleau du chargeur est imprimé en deux pièces : le rouleau lui-même et un palonnier de rouleau séparé. Aucune des deux pièces ne porte l'inscription \"servo\". Le palonnier de rouleau est la petite pièce qui s'emboîte sur l'axe du servo."
           },
           "mountFeederServo": {
-            "text": "Insère le servo de chargeur, avec le palonnier de rouleau sur son axe, dans l'extrémité du rouleau à la base de la trémie. Le palonnier se loge dans le rouleau pour que le servo le fasse tourner."
+            "text": "Insère le servo de chargeur, avec le palonnier de rouleau sur son axe, dans l'extrémité du rouleau à la base de la trémie. Le palonnier se loge dans le rouleau pour que le servo le fasse tourner.",
+            "note": "Tu as le rouleau en deux pièces ? Visse d'abord le palonnier de rouleau sur l'axe du servo, fais passer le palonnier par le trou de la base du chargeur, puis fais glisser l'autre moitié du rouleau sur le palonnier."
           },
           "fitHopperRollerOrings": {
             "text": "Monte des joints toriques sur le rouleau de la trémie.",

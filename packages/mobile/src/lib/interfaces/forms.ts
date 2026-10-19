@@ -10,6 +10,7 @@ import type { discordSettingsSchema, notificationRuleSchema } from "@/features/i
 import type { webhookSchema } from "@/features/integrations/lib/webhook-schema";
 import type { soundClipNameSchema, soundRuleSchema, soundRulesDraftSchema } from "@/features/sounds/lib/sound-schema";
 import type { binSchema } from "@/features/rules/lib/bin-schema";
+import type { modeSchema, repackSchema } from "@/features/rules/lib/mode-schema";
 import type { createCollectionSchema, renameCollectionSchema } from "@/features/collections/lib/collection-schemas";
 import type { apiKeySchema } from "@/features/integrations/lib/api-key-schema";
 import type { inviteMemberSchema, renameOrgSchema } from "@/features/org/lib/org-schemas";
@@ -19,6 +20,10 @@ import type { storageNameSchema } from "@/features/storage/lib/storage-schemas";
 export type SignInValues = z.infer<typeof signInSchema>;
 
 export type BinFormValues = z.infer<typeof binSchema>;
+
+export type ModeFormValues = z.infer<typeof modeSchema>;
+
+export type RepackFormValues = z.infer<typeof repackSchema>;
 
 export type CreateCollectionValues = z.infer<typeof createCollectionSchema>;
 

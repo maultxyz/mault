@@ -251,6 +251,7 @@ export interface CameraNoticeProps {
 
 export interface ShutterButtonProps {
   running: boolean;
+  icon: IconName;
   label: string;
   onPress: () => void;
   disabled?: boolean;

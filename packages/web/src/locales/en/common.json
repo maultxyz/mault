@@ -222,6 +222,7 @@
   "mobileTabs": {
     "home": "Home",
     "scan": "Scan",
+    "rules": "Rules",
     "storage": "Storage",
     "account": "Account"
   }

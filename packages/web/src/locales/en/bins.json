@@ -90,6 +90,7 @@
   },
   "binLocationDiagram": {},
   "conditionRow": {
+    "noFields": "No matching fields",
     "selectPlaceholder": "Select...",
     "valuePlaceholder": "Value...",
     "freeformMultiPlaceholder": "Comma-separated values..."
