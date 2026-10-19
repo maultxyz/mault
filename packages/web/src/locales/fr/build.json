@@ -496,7 +496,8 @@
             "note": "Le rouleau du chargeur est imprimé en deux pièces : le rouleau lui-même et un palonnier de rouleau séparé. Aucune des deux pièces ne porte l'inscription \"servo\". Le palonnier de rouleau est la petite pièce qui s'emboîte sur l'axe du servo."
           },
           "mountFeederServo": {
-            "text": "Insère le servo de chargeur, avec le palonnier de rouleau sur son axe, dans l'extrémité du rouleau à la base de la trémie. Le palonnier se loge dans le rouleau pour que le servo le fasse tourner."
+            "text": "Insère le servo de chargeur, avec le palonnier de rouleau sur son axe, dans l'extrémité du rouleau à la base de la trémie. Le palonnier se loge dans le rouleau pour que le servo le fasse tourner.",
+            "note": "Tu as le rouleau en deux pièces ? Visse d'abord le palonnier de rouleau sur l'axe du servo, fais passer le palonnier par le trou de la base du chargeur, puis fais glisser l'autre moitié du rouleau sur le palonnier."
           },
           "fitHopperRollerOrings": {
             "text": "Monte des joints toriques sur le rouleau de la trémie.",

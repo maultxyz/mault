@@ -496,7 +496,8 @@
             "note": "Die Zuführrolle wird in zwei Teilen gedruckt: die Rolle selbst und ein separates Rollenhorn. Auf keinem der Teile steht \"Servo\". Das Rollenhorn ist das kleine Teil, das auf die Servowelle passt."
           },
           "mountFeederServo": {
-            "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht."
+            "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht.",
+            "note": "Hast du die zweiteilige Rolle? Schraube zuerst das Rollenhorn auf die Servowelle, führe das Horn dann durch das Loch im Zuführsockel und schiebe anschließend die andere Hälfte der Rolle auf das Horn."
           },
           "fitHopperRollerOrings": {
             "text": "Ziehe O-Ringe auf die Trichterrolle auf.",
