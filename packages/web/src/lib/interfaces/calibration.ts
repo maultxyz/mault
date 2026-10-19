@@ -203,6 +203,17 @@ export interface DeviceTogglePanelProps {
   onChange: (key: DeviceToggleKey, value: boolean) => void;
 }
 
+export interface FeederSpeedAnchor {
+  center: number;
+  speed: number;
+  reverseSpeed: number;
+}
+
+export interface SetupFeederSpeedAnchor {
+  center: number;
+  speed: number;
+}
+
 export interface FeederCalibrationPanelProps {
   speedValue: number;
   durationValue: number;
