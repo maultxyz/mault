@@ -102,6 +102,7 @@ export function buildPhases(
         {
           key: "print-feeder-module",
           text: t("assembly.phases.print.steps.printFeederModule.text"),
+          note: t("assembly.phases.print.steps.printFeederModule.mg90Note"),
         },
         {
           key: "print-sorting-module-shroud",

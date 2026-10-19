@@ -382,7 +382,8 @@
             "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {
-            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
+            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals.",
+            "mg90Note": "Verwendest du einen MG90S-Servo für den Zuführer? Drucke das MG90S-Zuführhorn von der Alternative-Horn-Platte statt des Standard-Rollenhorns."
           },
           "printSortingModuleShroud": {
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."

@@ -381,7 +381,8 @@
             "text": "Slice and print {{count}} Sorting Module plates, one per sorting module, from the <mesh>MakerWorld model</mesh> (or re-export from <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
-            "text": "Print 1 Feeder Module from the same file. Only one needed, regardless of module count. Houses the feeder roller and hopper throat."
+            "text": "Print 1 Feeder Module from the same file. Only one needed, regardless of module count. Houses the feeder roller and hopper throat.",
+            "mg90Note": "Using an MG90S servo for the feeder? Print the MG90S feeder horn from the Alternative Horn plate instead of the standard roller horn."
           },
           "printSortingModuleShroud": {
             "text": "Print 1 Sorting Module Shroud. Only one needed. The cover that sits over the stacked modules."

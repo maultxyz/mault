@@ -382,7 +382,8 @@
             "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
           },
           "printFeederModule": {
-            "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie."
+            "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie.",
+            "mg90Note": "Tu utilises un servo MG90S pour le chargeur ? Imprime le palonnier de chargeur MG90S depuis la plaque Alternative Horn au lieu du palonnier de rouleau standard."
           },
           "printSortingModuleShroud": {
             "text": "Imprime 1 Sorting Module Shroud - une seule suffit. Le capot qui recouvre les modules empilés."
