@@ -16,6 +16,7 @@ import {
   areAllRepackPacksComplete,
   countCopiesInBin,
   evaluateAlphabetBin,
+  findAutoAssignTarget,
   evaluateCardBin,
   evaluateChaosBin,
   evaluatePickListBin,
@@ -78,7 +79,6 @@ import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
-import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
@@ -429,6 +429,7 @@ export function ScannedCardsProvider({
             configs,
             fieldDefinitionsRef.current,
             autoAssignFieldRef.current,
+            () => crypto.randomUUID(),
           );
       if (!autoTarget) return resolveMatchedBin(ruleCard);
       binConfigsRef.current = configs.map((c) =>
@@ -628,6 +629,7 @@ export function ScannedCardsProvider({
               binConfigsRef.current,
               fieldDefinitionsRef.current,
               autoAssignFieldRef.current,
+              () => crypto.randomUUID(),
             );
       if (autoTarget) {
         binConfigsRef.current = binConfigsRef.current.map((c) =>

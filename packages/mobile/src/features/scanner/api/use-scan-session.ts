@@ -3,18 +3,25 @@ import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  areAllRepackPacksComplete,
   computeBinCount,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
+  findAutoAssignTarget,
+  getCardsInBin,
   getCatchAllBin,
+  getRepackPackBins,
+  hasMaxCopiesBins,
   isFedEvent,
   OCR_REGIONS_BY_GAME_KEY,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
   SERIAL_JAM_ERROR,
   toRuleCard,
   withScanRuleFields,
+  type BinConfig,
+  type BinContentCard,
   type BinRoute,
   type ScannedCard,
 } from "@magic-vault/shared";
@@ -22,7 +29,8 @@ import { collectionsQueryOptions } from "@/features/collections/api/collections"
 import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/api/devices";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
-import { fetchBinCounts } from "@/features/scanner/api/bin-counts";
+import { fetchBinContents, fetchBinCounts } from "@/features/scanner/api/bin-counts";
+import { saveBinConfig } from "@/features/rules/api/bin-sets";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { configsFromSet, resolveBin } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
@@ -48,7 +56,6 @@ import type {
   ScannerPhase,
   ScanSessionInputs,
   ScanSessionValue,
-  UnsupportedScanMode,
 } from "@/lib/interfaces/scanner";
 import type { SorterMessage } from "@/lib/interfaces/sorter";
 
@@ -89,9 +96,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const moduleCount = sorter.device?.moduleCount ?? 0;
   const binCount = moduleCount
     ? computeBinCount(moduleCount)
-    : handScanActive
-      ? Math.max(0, ...(set?.bins ?? []).map((bin) => bin.binNumber))
-      : 0;
+    : Math.max(0, ...(set?.bins ?? []).map((bin) => bin.binNumber));
   const configs = useMemo(() => (binCount ? configsFromSet(set, binCount) : []), [set, binCount]);
   const fieldDefinitions = useMemo(
     () =>
@@ -99,11 +104,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     [collection?.game?.fieldDefinitions, collection?.game?.foilTypes],
   );
   const playSoundForCard = useSoundRulePlayer(collection?.game?.guid, fieldDefinitions);
-  const unsupportedMode: UnsupportedScanMode | null = set?.isRepackMode
-    ? "repack"
-    : set?.autoAssignField
-      ? "auto-assign"
-      : null;
+  const needsBinContents = !!set?.isRepackMode || hasMaxCopiesBins(configs);
 
   const phaseRef = useRef<ScannerPhase>("idle");
   const runningRef = useRef(false);
@@ -111,6 +112,8 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const binCountsRef = useRef(new Map<number, number>());
   const lastCardIdRef = useRef<string | null>(null);
   const pendingDuplicateRef = useRef<IdentifyOutcome | null>(null);
+  const binContentsRef = useRef<BinContentCard[]>([]);
+  const assignedConfigsRef = useRef<BinConfig[] | null>(null);
 
   const latest = {
     sorter,
@@ -178,6 +181,28 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       })
       .catch(() => {});
   }, [collection, configs]);
+
+  useEffect(() => {
+    assignedConfigsRef.current = null;
+  }, [configs]);
+
+  useEffect(() => {
+    binContentsRef.current = [];
+    if (!collection || !needsBinContents) return;
+    let cancelled = false;
+    const windows = configs
+      .filter((bin) => !bin.isCatchAll)
+      .map((bin) => ({ binNumber: bin.binNumber, lastEmptiedAt: bin.lastEmptiedAt ?? null }));
+    void fetchBinContents(collection.guid, windows)
+      .then((contents) => {
+        if (cancelled) return;
+        binContentsRef.current = contents.map((entry) => ({ ...entry, card: toRuleCard(entry.card, entry) }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [collection, configs, needsBinContents]);
 
   const routeFor = useCallback((binNumber: number): BinRoute => {
     const { binRoutes: routes, sorter: s } = latestRef.current;
@@ -256,7 +281,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const sendToBin = useCallback(
     (binNumber: number) => {
       const { sorter: s } = latestRef.current;
-      setPhase("routing");
+      if (phaseRef.current !== "paused") setPhase("routing");
       const feedNext = runningRef.current && latestRef.current.autoFeed && !!s.device?.pipelinedFeed;
       void s.sendRoute(routeFor(binNumber), { feedNext }).then(handleRouteResponse);
     },
@@ -286,13 +311,48 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       }
       lastCardIdRef.current = card.id;
       const ruleCard = toRuleCard(card, { isFoil: false, foilType: null });
+      let configs = assignedConfigsRef.current ?? ctx.configs;
+      const autoTarget = ctx.set?.isRepackMode
+        ? null
+        : findAutoAssignTarget(ruleCard, configs, ctx.fieldDefinitions, ctx.set?.autoAssignField ?? null, () =>
+            Crypto.randomUUID(),
+          );
+      if (autoTarget) {
+        configs = configs.map((c) => (c.binNumber === autoTarget.binNumber ? { ...c, rules: autoTarget.rules } : c));
+        assignedConfigsRef.current = configs;
+        const assigned = configs.find((c) => c.binNumber === autoTarget.binNumber);
+        void saveBinConfig({
+          binNumber: autoTarget.binNumber,
+          gameGuid: ctx.collection.game?.guid,
+          rules: autoTarget.rules,
+          isCatchAll: !!assigned?.isCatchAll,
+          isDisabled: !!assigned?.isDisabled,
+          cardLimit: assigned?.cardLimit ?? null,
+          overflowBin: assigned?.overflowBin ?? null,
+        })
+          .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey }))
+          .catch(() => {});
+      }
+      const binContents = binContentsRef.current;
       const decision = resolveBin(ruleCard, {
         set: ctx.set,
-        configs: ctx.configs,
+        configs,
         fieldDefinitions: ctx.fieldDefinitions,
         countInBin,
         isBinFull,
+        binContents,
+        autoAssignActive: !!ctx.set?.autoAssignField,
       });
+      const repackSet = ctx.set?.isRepackMode ? ctx.set : null;
+      const packsComplete = () =>
+        !!repackSet &&
+        areAllRepackPacksComplete(configs, ctx.fieldDefinitions, repackSet, (bin) =>
+          getCardsInBin(binContentsRef.current, bin),
+        );
+      if (decision.bin?.isCatchAll && !decision.isLowMatch && packsComplete()) {
+        pause("repack-complete");
+        return;
+      }
       if (decision.allChaosBinsFull || (decision.bin && isBinFull(decision.bin.binNumber))) {
         pause("bin-full");
         return;
@@ -309,7 +369,17 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       };
       if (record.binNumber != null) {
         binCountsRef.current.set(record.binNumber, countInBin(record.binNumber) + 1);
+        if (repackSet || hasMaxCopiesBins(configs)) {
+          binContentsRef.current = [
+            { scanId: record.scanId, binNumber: record.binNumber, scannedAt: record.scannedAt, card: ruleCard },
+            ...binContentsRef.current,
+          ];
+        }
       }
+      const filledPack =
+        !!repackSet &&
+        getRepackPackBins(configs, repackSet).some((bin) => bin.binNumber === record.binNumber) &&
+        packsComplete();
       pushFeed({
         scanId: record.scanId,
         scannedAt: record.scannedAt,
@@ -324,8 +394,9 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         old ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 } : old,
       );
 
+      if (filledPack) pause("repack-complete");
       if (record.binNumber != null && ctx.sorter.isReady) sendToBin(record.binNumber);
-      else continueAfterCard();
+      else if (!filledPack) continueAfterCard();
 
       void ctx
         .saveCard({
@@ -472,7 +543,6 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const canStart =
     !!collection &&
     (sorter.isReady || handScanActive) &&
-    !unsupportedMode &&
     !modelError &&
     phase !== "loading-models" &&
     !isRunning;
@@ -556,7 +626,6 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     sessionCount,
     modelError,
     isRunning,
-    unsupportedMode,
     canStart,
     start,
     pause: pauseByUser,

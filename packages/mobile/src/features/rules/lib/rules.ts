@@ -1,6 +1,7 @@
 import * as Crypto from "expo-crypto";
 import type { TFunction } from "i18next";
 import {
+  COUNT_OPERATORS,
   isRuleGroup,
   type BinCondition,
   type BinConfig,
@@ -16,7 +17,7 @@ export function sortFields(fields: FieldMeta[]): FieldMeta[] {
 }
 
 export function defaultValueFor(meta: FieldMeta | undefined, operator: BinCondition["operator"]): BinCondition["value"] {
-  if (!meta) return "";
+  if (!meta || COUNT_OPERATORS.includes(operator)) return "";
   if (MULTI_VALUE_OPERATORS.includes(operator)) return [];
   if (meta.type === "set" && (operator === "equals" || operator === "not_equals")) return [];
   return "";

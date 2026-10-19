@@ -61,10 +61,7 @@ export async function captureFrame(output: CameraPhotoOutput): Promise<CapturedF
   }
   const longSide = Math.max(full.width, full.height);
   const scale = longSide > WORKING_LONG_SIDE ? WORKING_LONG_SIDE / longSide : 1;
-  const image =
-    scale < 1
-      ? await full.resizeAsync(Math.round(full.width * scale), Math.round(full.height * scale))
-      : full;
+  const image = await full.resizeAsync(Math.round(full.width * scale), Math.round(full.height * scale));
   return { image, pixels: await imageToRgba(image), scale };
 }
 

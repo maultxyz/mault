@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PickerCard } from "@/components/ui/picker-card";
@@ -16,6 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { activateBinSet } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
+import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
 import { BinRow } from "@/features/rules/components/bin-row";
 import { binSetMode } from "@/features/rules/lib/rules";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -76,9 +78,25 @@ export default function RulesScreen() {
           {activeSet && !activeSet.isActive ? (
             <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
           ) : null}
-          {mode !== "rules" && mode !== "scan-only" ? (
-            <Callout tone="info" title={t("rules.modeNoticeTitle")} description={t(`rules.modeNotice.${mode}`)} />
+          {activeSet?.isActive ? (
+            <ListGroup>
+              <ListRow
+                icon="adjust"
+                title={t("rules.mode.title")}
+                value={t(`rules.modes.${mode}.title`)}
+                onPress={() => router.push("/rules/mode")}
+              />
+              {mode === "repack" ? (
+                <ListRow
+                  icon="rules"
+                  title={t("rules.repack.title")}
+                  subtitle={t("rules.repack.slotCount", { count: activeSet.repackSlots.length })}
+                  onPress={() => router.push("/rules/repack")}
+                />
+              ) : null}
+            </ListGroup>
           ) : null}
+          {mode === "alphabet" && activeSet?.isActive ? <AlphabetPassCard set={activeSet} bins={bins} /> : null}
 
           {activeSet ? (
             <View style={{ gap: SPACING.sm }}>
