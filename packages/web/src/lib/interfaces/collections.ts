@@ -62,3 +62,31 @@ export interface AppStreamContextValue {
   deployNotice: DeployNotice | null;
   watchCollection: (guid: string) => () => void;
 }
+
+export interface CollectionPreviewStackProps {
+  images: string[];
+}
+
+export interface CollectionTileProps {
+  collection: Collection;
+  isActive: boolean;
+  isActivating: boolean;
+  isMutating: boolean;
+  scannerLock?: ScanLockInfo;
+  isOwnSession: boolean;
+  watchers: SessionViewer[];
+  isSelected: boolean;
+  onToggleSelect: (shiftKey: boolean) => void;
+  onActivate: () => void;
+  onEdit: () => void;
+  onEmpty: () => void;
+  onDelete: () => void;
+}
+
+export interface ScanningPillProps {
+  isOwn?: boolean;
+}
+
+export interface ReleaseSessionButtonProps {
+  guid: string;
+}

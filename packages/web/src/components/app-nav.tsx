@@ -19,6 +19,11 @@ import {
 import { UserMenu } from "@/features/account/components/user-menu";
 import { githubStarsQueryOptions } from "@/features/billing/api/github-stars";
 import { useCollections } from "@/features/collections/api/use-collections";
+import {
+  collectionViewPath,
+  COLLECTIONS_PATH,
+  monitorCollectionPath,
+} from "@/lib/constants/collections";
 import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
@@ -40,7 +45,6 @@ import {
   IconBrandGithub,
   IconCameraSpark,
   IconDatabaseCog,
-  IconHeartRateMonitor,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
   IconShoppingCart,
@@ -292,7 +296,7 @@ export function AppNav() {
       ? `${t("nav.githubAriaLabel")} (${t("nav.githubStars", { count: githubStars })})`
       : t("nav.githubAriaLabel");
   const { isAdmin } = useRole();
-  const { collections } = useCollections();
+  const { collections, activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
   const [expanded, setExpanded] = useState(
@@ -333,26 +337,25 @@ export function AppNav() {
       end: true,
     },
     {
-      to: "/app/collections",
+      to: COLLECTIONS_PATH,
       icon: <IconAlbum size={20} />,
       label: t("nav.collections"),
+      badge: hasLiveSessions,
+      subItems: monitorCollections.map((c) => ({
+        key: c.guid,
+        to: locks[c.guid]
+          ? monitorCollectionPath(c.guid)
+          : c.guid === activeCollection?.guid
+            ? "/app"
+            : collectionViewPath(c.guid),
+        label: c.name,
+        badge: !!locks[c.guid],
+      })),
     },
     {
       to: SORTING_RULES_PATH,
       icon: <IconArrowsSplit2 size={20} />,
       label: t("nav.sortingRules"),
-    },
-    {
-      to: "/app/monitor",
-      icon: <IconHeartRateMonitor size={20} />,
-      label: t("nav.monitor"),
-      badge: hasLiveSessions,
-      subItems: monitorCollections.map((c) => ({
-        key: c.guid,
-        to: `/app/monitor/${c.guid}`,
-        label: c.name,
-        badge: !!locks[c.guid],
-      })),
     },
     {
       to: STATS_PATH,

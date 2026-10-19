@@ -2,7 +2,6 @@
   "nav": {
     "scanner": "Sortieren",
     "collections": "Sammlungen",
-    "monitor": "Live-Ansicht",
     "scan": "Kamera koppeln",
     "storage": "Lagerboxen",
     "calibrate": "Sortierer einrichten",
@@ -186,7 +185,6 @@
       "dismissToasts": "Alle Benachrichtigungen schließen",
       "goScanner": "Zum Sortieren",
       "goCollections": "Zu den Sammlungen",
-      "goMonitor": "Zur Live-Ansicht",
       "goStorage": "Zu den Lagerboxen",
       "goCalibrate": "Zur Sortierer-Einrichtung",
       "goSettings": "Zu den Einstellungen",

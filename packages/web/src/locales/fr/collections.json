@@ -52,8 +52,14 @@
     "setActiveCollection": "Définir comme collection active",
     "viewCards": "Voir les cartes",
     "edit": "Modifier",
-    "activeSection": "Collection active",
-    "otherSection": "Autres collections"
+    "activeBadge": "Active",
+    "stats": {
+      "collections": "Collections",
+      "cards": "Cartes",
+      "games": "Jeux",
+      "live": "En direct"
+    },
+    "liveView": "Vue en direct"
   },
   "editDialog": {
     "title": "Modifier la collection",
@@ -98,5 +104,21 @@
     "revoked": "Tous les liens partagés de cette collection ne fonctionnent plus.",
     "revokeFailed": "Impossible de révoquer les liens partagés.",
     "close": "Fermer"
+  },
+  "selection": {
+    "select": "Sélectionner {{name}}",
+    "selected_one": "{{count}} collection sélectionnée",
+    "selected_other": "{{count}} collections sélectionnées",
+    "selectAll": "Tout sélectionner",
+    "deselectAll": "Tout désélectionner",
+    "clear": "Effacer",
+    "empty": "Vider",
+    "delete": "Supprimer",
+    "emptyTitle_one": "Vider {{count}} collection",
+    "emptyTitle_other": "Vider {{count}} collections",
+    "emptyDescription": "Retire définitivement toutes les cartes des collections sélectionnées, mais conserve les collections elles-mêmes. Cette action est irréversible.",
+    "deleteTitle_one": "Supprimer {{count}} collection",
+    "deleteTitle_other": "Supprimer {{count}} collections",
+    "deleteDescription": "Supprime les collections sélectionnées et masque toutes leurs cartes. Contacte le support si tu as besoin de les récupérer."
   }
 }

@@ -4,10 +4,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CardGrid } from "@/features/cards/components/card-grid";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { ViewedCollectionContext } from "@/features/collections/api/use-viewed-collection";
-import { COLLECTIONS_PATH } from "@/lib/constants/collections";
+import {
+  COLLECTIONS_PATH,
+  monitorCollectionPath,
+} from "@/lib/constants/collections";
 import {
   IconAlbum,
   IconArrowLeft,
+  IconHeartRateMonitor,
   IconPlayerPlay,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -77,6 +81,15 @@ export default function CollectionViewPage() {
           <p className="truncate text-sm font-medium">{collection.name}</p>
           <p className="text-xs text-foreground/70">{t("view.subtitle")}</p>
         </div>
+        <Button
+          variant="outline"
+          render={
+            <Link to={monitorCollectionPath(collection.guid)}>
+              <IconHeartRateMonitor />
+              {t("page.liveView")}
+            </Link>
+          }
+        />
         <Button
           variant="outline"
           disabled={isActivating}
