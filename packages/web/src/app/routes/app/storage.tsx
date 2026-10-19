@@ -159,9 +159,20 @@ function DesktopStoragePage() {
             />
           </section>
         ) : (
-          <section className="relative col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 pt-14 lg:col-span-9">
+          <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 lg:col-span-9">
             {selected && !isSearching && (
-              <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+              <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+                <div className="mr-auto min-w-0">
+                  <h1 className="truncate font-heading text-lg font-semibold">
+                    {selected.name}
+                  </h1>
+                  <p className="text-xs tabular-nums text-foreground/70">
+                    {t("page.summary", {
+                      count: selected.cardCount,
+                      value: format(selected.totalValue),
+                    })}
+                  </p>
+                </div>
                 {selected.cardCount > 0 && (
                   <>
                     <Button
@@ -232,25 +243,12 @@ function DesktopStoragePage() {
               )
             ) : (
               selected && (
-                <>
-                  <div className="min-w-0">
-                    <h1 className="truncate font-heading text-lg font-semibold">
-                      {selected.name}
-                    </h1>
-                    <p className="text-xs tabular-nums text-foreground/70">
-                      {t("page.summary", {
-                        count: selected.cardCount,
-                        value: format(selected.totalValue),
-                      })}
-                    </p>
-                  </div>
-                  <StorageLocationCards
-                    location={selected}
-                    onOpenCard={(entry) =>
-                      openStoredCard(entry.locationGuid, entry.scanId)
-                    }
-                  />
-                </>
+                <StorageLocationCards
+                  location={selected}
+                  onOpenCard={(entry) =>
+                    openStoredCard(entry.locationGuid, entry.scanId)
+                  }
+                />
               )
             )}
           </section>

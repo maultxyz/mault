@@ -149,6 +149,8 @@
       "comfortable": "normale",
       "large": "grande"
     },
+    "review": "Vérifier",
+    "export": "Exporter",
     "reviewCards": "Vérifier les cartes une par une (R)"
   },
   "scannedCardItem": {

@@ -14,6 +14,7 @@ import {
   IconLayoutGrid,
   IconLayoutList,
   IconListCheck,
+  IconSearch,
   IconStack2,
   IconTrash,
   IconZoomIn,
@@ -61,145 +62,149 @@ export function CardToolbar({
   };
 
   return (
-    <div className="flex flex-row gap-2 items-center w-full">
-      {leading}
-      {watchers && watchers.length > 0 && <WatcherStack watchers={watchers} />}
-      <Input
-        placeholder={t("cardToolbar.searchPlaceholder")}
-        data-hotkey-search
-        value={searchQuery}
-        onChange={(e) => onSearchChange(e.target.value)}
-        className="flex-1 min-w-0"
-      />
-      <ClearCardQueryButton
-        searchQuery={searchQuery}
-        activeFilterCount={activeFilterCount}
-        onClear={() => {
-          onSearchChange("");
-          onFiltersChange(EMPTY_CARD_FILTERS);
-        }}
-      />
-      <CardSortButton
-        sortKey={sortKey}
-        onSortChange={onSortChange}
-        sortableFields={sortableFields}
-      />
-      <CardFilterPopover
-        activeFilters={activeFilters}
-        onFiltersChange={onFiltersChange}
-        activeFilterCount={activeFilterCount}
-        availableRarities={availableRarities ?? []}
-        availableColors={availableColors ?? []}
-        availableFoilTypes={availableFoilTypes ?? []}
-        binCount={binCount}
-      />
-      <ButtonGroup className="shrink-0">
-        <Button
-          variant={viewMode === "grid" ? "outline-selected" : "outline"}
-          size="icon"
-          onClick={() => onViewModeChange("grid")}
-          title={t("cardToolbar.gridView")}
-        >
-          <IconLayoutGrid className="size-4" />
-        </Button>
-        <Button
-          variant={viewMode === "list" ? "outline-selected" : "outline"}
-          size="icon"
-          onClick={() => onViewModeChange("list")}
-          title={t("cardToolbar.listView")}
-        >
-          <IconLayoutList className="size-4" />
-        </Button>
-      </ButtonGroup>
-      {viewMode === "grid" && density && onDensityChange && (
-        <Button
-          variant="outline"
-          size="icon"
-          className="shrink-0"
-          onClick={() =>
-            onDensityChange(
-              CARD_GRID_DENSITIES[
-                (CARD_GRID_DENSITIES.indexOf(density) + 1) %
-                  CARD_GRID_DENSITIES.length
-              ],
-            )
-          }
-          title={t("cardToolbar.density", {
-            density: t(`cardToolbar.densities.${density}`),
-          })}
-        >
-          {density === "compact" ? (
-            <IconZoomOut className="size-4" />
-          ) : density === "large" ? (
-            <IconZoomIn className="size-4" />
-          ) : (
-            <IconZoomReset className="size-4" />
+    <div className="w-full">
+      <div className="flex flex-col gap-2">
+        <div className="flex flex-row gap-2 items-center min-w-0">
+          {leading}
+          {watchers && watchers.length > 0 && (
+            <WatcherStack watchers={watchers} />
           )}
-        </Button>
-      )}
-      <Button
-        variant={groupDuplicates ? "outline-selected" : "outline"}
-        size="icon"
-        className="shrink-0"
-        onClick={() => onGroupDuplicatesChange(!groupDuplicates)}
-        title={t("cardToolbar.groupDuplicates")}
-      >
-        <IconStack2 className="size-4" />
-      </Button>
-      {onToggleSelectAll && (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onToggleSelectAll}
-          disabled={!hasCards}
-          className="shrink-0"
-          title={
-            allSelected
-              ? t("cardToolbar.deselectAll")
-              : t("cardToolbar.selectAll")
-          }
-        >
-          <IconCheckbox className="size-4" />
-        </Button>
-      )}
-      {onStartReview && (
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={onStartReview}
-          disabled={!hasCards}
-          className="shrink-0"
-          title={t("cardToolbar.reviewCards")}
-          aria-label={t("cardToolbar.reviewCards")}
-        >
-          <IconListCheck className="size-4" />
-        </Button>
-      )}
-      {(onExport || onClearAll) && (
-        <ButtonGroup>
+          <div className="relative flex-1 min-w-0">
+            <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
+            <Input
+              type="search"
+              placeholder={t("cardToolbar.searchPlaceholder")}
+              data-hotkey-search
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <ClearCardQueryButton
+            searchQuery={searchQuery}
+            activeFilterCount={activeFilterCount}
+            onClear={() => {
+              onSearchChange("");
+              onFiltersChange(EMPTY_CARD_FILTERS);
+            }}
+          />
+          <CardSortButton
+            sortKey={sortKey}
+            onSortChange={onSortChange}
+            sortableFields={sortableFields}
+          />
+          <CardFilterPopover
+            activeFilters={activeFilters}
+            onFiltersChange={onFiltersChange}
+            activeFilterCount={activeFilterCount}
+            availableRarities={availableRarities ?? []}
+            availableColors={availableColors ?? []}
+            availableFoilTypes={availableFoilTypes ?? []}
+            binCount={binCount}
+          />
+        </div>
+        <div className="flex flex-row flex-wrap gap-2 items-center justify-end">
+          <ButtonGroup className="shrink-0">
+            <Button
+              variant={viewMode === "grid" ? "outline-selected" : "outline"}
+              onClick={() => onViewModeChange("grid")}
+            >
+              <IconLayoutGrid />
+              {t("cardToolbar.gridView")}
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "outline-selected" : "outline"}
+              onClick={() => onViewModeChange("list")}
+            >
+              <IconLayoutList />
+              {t("cardToolbar.listView")}
+            </Button>
+          </ButtonGroup>
+          {viewMode === "grid" && density && onDensityChange && (
+            <Button
+              variant="outline"
+              className="shrink-0"
+              onClick={() =>
+                onDensityChange(
+                  CARD_GRID_DENSITIES[
+                    (CARD_GRID_DENSITIES.indexOf(density) + 1) %
+                      CARD_GRID_DENSITIES.length
+                  ],
+                )
+              }
+            >
+              {density === "compact" ? (
+                <IconZoomOut />
+              ) : density === "large" ? (
+                <IconZoomIn />
+              ) : (
+                <IconZoomReset />
+              )}
+              {t("cardToolbar.density", {
+                density: t(`cardToolbar.densities.${density}`),
+              })}
+            </Button>
+          )}
           <Button
-            variant="outline"
-            size="icon"
-            onClick={onExport}
-            disabled={!hasCards}
+            variant={groupDuplicates ? "outline-selected" : "outline"}
             className="shrink-0"
-            title={t("cardToolbar.sessionSummaryExport")}
-            data-tour="export-collection"
+            onClick={() => onGroupDuplicatesChange(!groupDuplicates)}
           >
-            <IconDownload className="size-4" />
+            <IconStack2 />
+            {t("cardToolbar.groupDuplicates")}
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setClearAllDialogOpen(true)}
-            disabled={!hasCards}
-            className="shrink-0"
-            title={t("cardToolbar.clearAllCardsTitle")}
-          >
-            <IconTrash className="size-4" />
-          </Button>
-        </ButtonGroup>
-      )}
+          {onToggleSelectAll && (
+            <Button
+              variant="outline"
+              onClick={onToggleSelectAll}
+              disabled={!hasCards}
+              className="shrink-0"
+            >
+              <IconCheckbox />
+              {allSelected
+                ? t("cardToolbar.deselectAll")
+                : t("cardToolbar.selectAll")}
+            </Button>
+          )}
+          {onStartReview && (
+            <Button
+              variant="outline"
+              onClick={onStartReview}
+              disabled={!hasCards}
+              className="shrink-0"
+              title={t("cardToolbar.reviewCards")}
+            >
+              <IconListCheck />
+              {t("cardToolbar.review")}
+            </Button>
+          )}
+          {(onExport || onClearAll) && (
+            <ButtonGroup>
+              <Button
+                variant="outline"
+                onClick={onExport}
+                disabled={!hasCards}
+                className="shrink-0"
+                title={t("cardToolbar.sessionSummaryExport")}
+                data-tour="export-collection"
+              >
+                <IconDownload />
+                {t("cardToolbar.export")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setClearAllDialogOpen(true)}
+                disabled={!hasCards}
+                className="shrink-0"
+                title={t("cardToolbar.clearAllCardsTitle")}
+              >
+                <IconTrash />
+                {t("cardToolbar.clearAll")}
+              </Button>
+            </ButtonGroup>
+          )}
+        </div>
+      </div>
       <DeleteDialog
         open={clearAllDialogOpen}
         onOpenChange={setClearAllDialogOpen}
