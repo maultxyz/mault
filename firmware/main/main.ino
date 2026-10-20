@@ -27,7 +27,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.10.0"
+#define FIRMWARE_VERSION "2.11.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -88,6 +88,15 @@
 #include <NetworkClientSecure.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#endif
+
+// WS2812B strip lighting the scan area (lighting.ino). Every board drives
+// it; FastLED.h has to be included here for the same prototype-hoisting
+// reason as the BLE headers above.
+#define LED_STRIP_SUPPORTED 1
+#define ENABLE_DYNAMIC_FOIL_DETECTION 1
+#if LED_STRIP_SUPPORTED
+#include <FastLED.h>
 #endif
 
 #define SERVO_DRIVER_I2C_ADDR 0x40
@@ -201,15 +210,18 @@ int moduleChannelOffset = 0;
 // integrated flash/PSRAM (26-37).
 const int IR_PINS[MAX_MODULES] = {4, 5, 6, 7, 15};
 #define IR_PIN_HOPPER 16
+#define LED_PIN 17
 #elif defined(ARDUINO_ARCH_ESP32)
 // Classic ESP32 (WROOM/WROVER) pins avoid strapping (0, 2, 5, 12, 15),
 // flash (6-11), WROVER PSRAM (16, 17), and input-only pins (34-39, no
 // internal pull-up) - renumber for other ESP32 variants as needed.
 const int IR_PINS[MAX_MODULES] = {18, 19, 23, 25, 26};
 #define IR_PIN_HOPPER 27
+#define LED_PIN 13
 #else
 const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 #define IR_PIN_HOPPER 5
+#define LED_PIN 8
 #endif
 
 #define IR_TIMEOUT_MS 3000
@@ -251,6 +263,7 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 enum FeedResult { FEED_DETECTED, FEED_TIMEOUT, FEED_EMPTY };
 FeedResult runFeeder();
 void printFeedFailureFields(FeedResult feedResult, Print& reply);
+void showFeedResult(FeedResult feedResult);
 
 // Largest module number whose 3 channels, plus one feeder channel right
 // after it, still fit in channels [offset, 15].
@@ -863,6 +876,7 @@ void checkModuleJams() {
       char line[40];
       snprintf(line, sizeof(line), "{\"error\":\"jam\",\"module\":%d}", m);
       broadcastLine(line);
+      setStripAlert("jam");
     }
   }
 }
@@ -981,8 +995,18 @@ void printFeedFailureFields(FeedResult feedResult, Print& reply) {
   reply.println(F("}"));
 }
 
+// An empty hopper flashes the strip until a later feed delivers a card.
+void showFeedResult(FeedResult feedResult) {
+  if (feedResult == FEED_EMPTY) {
+    setStripAlert("empty");
+  } else if (feedResult == FEED_DETECTED) {
+    clearStripAlert("empty");
+  }
+}
+
 bool feedNextCard(Print& reply) {
   FeedResult feedResult = runFeeder();
+  showFeedResult(feedResult);
   if (feedResult == FEED_DETECTED) return true;
 
   reply.print(F("{"));
@@ -993,6 +1017,7 @@ bool feedNextCard(Print& reply) {
 
 void feedAndReportEvent(Print& reply) {
   FeedResult feedResult = runFeeder();
+  showFeedResult(feedResult);
   if (feedResult == FEED_DETECTED) {
     reply.println(F("{\"event\":\"fed\",\"status\":\"ok\",\"detected\":true,\"empty\":false}"));
     return;
@@ -1042,6 +1067,7 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
         reply.print(F("{\"error\":\"timeout: no card detected at module "));
         reply.print(m + 1);
         reply.println(F("\"}"));
+        setStripAlert("jam");
         setAllNeutral();
         return;
       }
@@ -1068,6 +1094,7 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
   }
 
   if (feedNext && !nextFed) feedAndReportEvent(reply);
+  clearStripAlert("jam");
   printRoutedResponse(targetModule, direction, feedNext, reply);
 }
 
@@ -1388,6 +1415,7 @@ void runCommand(char* json, Print& reply) {
     waitMs(DELAY_PUSH);
     setAllNeutral();
     waitMs(200);
+    clearStripAlert("jam");
     reply.println(F("{\"status\":\"cleared\"}"));
     return;
   }
@@ -1493,6 +1521,7 @@ void runCommand(char* json, Print& reply) {
   // {"feeder": true} — run feeder until module 1 IR detects a card (or timeout/empty hopper)
   if (doc["feeder"].is<bool>() && doc["feeder"].as<bool>()) {
     FeedResult result = runFeeder();
+    showFeedResult(result);
     reply.print(F("{\"status\":\"ok\",\"detected\":"));
     reply.print(result == FEED_DETECTED ? F("true") : F("false"));
     reply.print(F(",\"empty\":"));
@@ -1639,6 +1668,17 @@ void runCommand(char* json, Print& reply) {
     return;
   }
 
+  // {"setLight": "white"} or {"setLight": {"mode": "custom", "r": 255,
+  // "g": 0, "b": 0, "brightness": 160}, "clearAlert": true} - see lighting.ino
+  if (!doc["setLight"].isNull()) {
+#if LED_STRIP_SUPPORTED
+    handleLightCommand(doc, reply);
+#else
+    reply.println(F("{\"error\":\"this board has no light strip\"}"));
+#endif
+    return;
+  }
+
   reply.println(F("{\"error\":\"unknown command\"}"));
 }
 
@@ -1672,6 +1712,9 @@ void setup() {
 
   initServoDriver();
   setAllNeutral();
+#if LED_STRIP_SUPPORTED
+  initLedStrip();
+#endif
 
 #if defined(ARDUINO_ARCH_ESP32)
   initDeviceIdFromEspMac();
@@ -1705,6 +1748,9 @@ void loop() {
   pumpInput();
   checkModuleJams();
   releaseIdleServos();
+#if LED_STRIP_SUPPORTED
+  updateLedStrip();
+#endif
 #if defined(RGB_BUILTIN)
   updateStatusLed();
 #endif

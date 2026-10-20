@@ -577,6 +577,30 @@ Forgets the network and the server link and turns the radio off.
 valid `setCloud` URL is stored. `cloud` is `"rejected"` when the server
 refused the token (set it up again with a fresh token).
 
+### `setLight` (firmware 2.11.0+)
+
+Drives the WS2812B strip (10 LEDs) on `LED_PIN`: GPIO 17 on the ESP32-S3,
+13 on classic ESP32, D8 on the Uno R4. Older firmware answers
+`{"error":"unknown command"}`.
+
+```json
+{"setLight": "white"}
+{"setLight": {"mode": "custom", "r": 255, "g": 120, "b": 0, "brightness": 160}, "clearAlert": true}
+```
+`mode` is `white`, `auto` (same color as white), `off`, `custom` (needs
+`r`, `g` and `b`), `foil` (a white light chasing around the strip) or
+`value` (a 3 s red/green/blue celebration flash that leaves the mode
+alone). `brightness` and the color channels are integers from 0 to 255;
+`brightness` defaults to the current one (160 at boot). `clearAlert`
+drops an active `jam` or `empty` alert.
+→ `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160}`
+
+Alerts override the mode until they clear. `jam` (flashing red) starts with
+an unsolicited `jam` or a `timeout: no card detected at module N` and clears
+after a successful `route` or `clearDevice`. `empty` (flashing yellow)
+starts when a feed finds the hopper empty and clears on the next delivered
+card. A jam outranks an empty hopper, and both outrank `value`.
+
 ### `readIR`
 ```json
 {"readIR": true}
@@ -658,6 +682,7 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 255 characters |
 | `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}` | firmware 2.2.x only: a `servo`/`channel` pusher move while a card is on module *N*'s platform and its side paddle isn't down (see Push safeguard) |
+| `{"error":"light mode must be white, auto, off, custom, foil or value"}` | firmware 2.11.0+: unknown `setLight` mode (also `setLight must be a string or object`, `setLight.mode must be a string`, `light values must be integers from 0 to 255`, `custom light requires r, g and b`, `clearAlert must be a boolean`) |
 | `{"error":"busy","reason":"another command is in progress"}` | a line arrived while another command (from any transport) was still executing; the line was not run |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
 | `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no servo activity (informational only - no paddle-flap is attempted since nothing is actively sorting) |

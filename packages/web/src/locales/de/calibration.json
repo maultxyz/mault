@@ -47,6 +47,7 @@
     "moduleCalibration": "Modulkalibrierung",
     "connection": "Verbindung",
     "layout": "Aufbau",
+    "lights": "Licht",
     "test": "Test"
   },
   "binConfigurations": {
@@ -496,6 +497,7 @@
     "layout": "Sag der App, wie viele Module verbaut sind, in welchem Platz jedes Fach sitzt und wie groß jedes Fach ist.",
     "calibration": "Stimme die Zuführung und die Servos jedes Moduls ab, bis Karten sauber laufen, und speichere dann.",
     "scanRegion": "Rahme den Teil des Kamerabilds ein, in dem die Karte liegt, und lege fest, wie genau jeder Scan abgeglichen wird.",
+    "lights": "Lege Farbe und Helligkeit des Scanlichts fest. Der Sortierer behält diese Einstellung und bekommt sie bei jeder Verbindung mit der App zurück.",
     "test": "Prüfe vor dem Sortieren, ob die Sensoren Karten erkennen und jedes Fach sie erhält."
   },
   "sorterModel": {
@@ -528,5 +530,47 @@
       "feeder": "Zieht eine Karte aus dem Magazin auf Modul 1."
     },
     "xray": "Röntgenblick"
+  },
+  "lights": {
+    "previewUnavailable": "Verbinde den Sortierer und lass ihn den Selbsttest bestehen, um Änderungen am Streifen zu sehen. Bearbeiten und Speichern geht trotzdem.",
+    "strip": {
+      "heading": "Lichtstreifen",
+      "description": "Beleuchtet die Karte beim Scannen. Änderungen erscheinen sofort am Streifen und bleiben nach dem Speichern erhalten."
+    },
+    "modeLabel": "Modus",
+    "modes": {
+      "off": {
+        "label": "Aus",
+        "description": "Der Streifen bleibt dunkel, außer bei Warnungen."
+      },
+      "white": {
+        "label": "Weiß",
+        "description": "Ein helles, neutrales Weiß, für die meisten Kameras am besten."
+      },
+      "custom": {
+        "label": "Eigene Farbe",
+        "description": "Eine beliebige einfarbige Farbe deiner Wahl."
+      },
+      "foil": {
+        "label": "Foil-Lauflicht",
+        "description": "Ein weißes Licht läuft um den Streifen, damit Foil-Karten das Licht aus verschiedenen Winkeln einfangen."
+      }
+    },
+    "colorLabel": "Farbe",
+    "brightnessLabel": "Helligkeit",
+    "brightnessValue": "{{percent}} %",
+    "alerts": {
+      "heading": "Warnungen",
+      "description": "Der Streifen blinkt von selbst, wenn der Sortierer Aufmerksamkeit braucht. Warnungen überdecken den Modus, bis sie enden.",
+      "jam": "Rot blinkend: Eine Karte steckt fest. Endet nach dem nächsten erfolgreichen Sortieren oder „Karte abwerfen“.",
+      "empty": "Gelb blinkend: Der Einzug ist leer. Endet, sobald wieder eine Karte eingezogen wird.",
+      "value": "Rot, Grün und Blau blinkend: eine Feier für eine wertvolle Karte. Dauert 3 Sekunden.",
+      "testCelebration": "Feier testen",
+      "clear": "Warnung beenden"
+    },
+    "toasts": {
+      "saved": "Lichteinstellungen gespeichert.",
+      "saveFailed": "Lichteinstellungen konnten nicht gespeichert werden."
+    }
   }
 }

@@ -2,8 +2,13 @@ import {
   computeBinCount,
   DEFAULT_CHANNEL_LAYOUT,
   DEVICE_NAME_MAX_LENGTH,
+  isLightBrightness,
+  isLightColor,
+  isLightMode,
+  LIGHT_BRIGHTNESS_MAX,
   maxModulesForLayout,
   type ChannelLayout,
+  type LightMode,
 } from "@magic-vault/shared";
 import { and, eq, gt } from "drizzle-orm";
 import { Hono } from "hono";
@@ -38,7 +43,28 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       pipelinedFeed?: boolean;
       autoConnect?: boolean;
       testOnConnect?: boolean;
+      lightMode?: LightMode;
+      lightColor?: string;
+      lightBrightness?: number;
     }>();
+    if ("lightMode" in body && !isLightMode(body.lightMode)) {
+      return c.json({ success: false, message: "Unknown light mode." }, 400);
+    }
+    if ("lightColor" in body && !isLightColor(body.lightColor)) {
+      return c.json(
+        { success: false, message: "Light color must be a #rrggbb hex color." },
+        400,
+      );
+    }
+    if ("lightBrightness" in body && !isLightBrightness(body.lightBrightness)) {
+      return c.json(
+        {
+          success: false,
+          message: `Light brightness must be an integer from 0 to ${LIGHT_BRIGHTNESS_MAX}.`,
+        },
+        400,
+      );
+    }
     if (
       "channelLayout" in body &&
       body.channelLayout !== DEFAULT_CHANNEL_LAYOUT
@@ -134,6 +160,9 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             typeof body.testOnConnect === "boolean"
               ? body.testOnConnect
               : device.testOnConnect,
+          lightMode: body.lightMode ?? device.lightMode,
+          lightColor: body.lightColor?.toLowerCase() ?? device.lightColor,
+          lightBrightness: body.lightBrightness ?? device.lightBrightness,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
               ? Math.min(

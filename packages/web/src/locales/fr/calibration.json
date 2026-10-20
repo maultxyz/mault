@@ -47,6 +47,7 @@
     "moduleCalibration": "Calibration des modules",
     "connection": "Connexion",
     "layout": "Disposition",
+    "lights": "Éclairage",
     "test": "Test"
   },
   "binConfigurations": {
@@ -496,6 +497,7 @@
     "layout": "Indique à l'application combien de modules sont installés, où se trouve chaque bac et quelle est sa taille.",
     "calibration": "Ajuste le chargeur et les servos de chaque module jusqu'à ce que les cartes passent proprement, puis enregistre.",
     "scanRegion": "Cadre la partie de l'image de la caméra où se trouve la carte, et choisis avec quelle précision chaque scan est comparé.",
+    "lights": "Règle la couleur et la luminosité de l'éclairage de scan. Le trieur garde ce réglage et le récupère à chaque connexion de l'application.",
     "test": "Vérifie que les capteurs détectent les cartes et que chaque bac les reçoit avant de commencer à trier."
   },
   "sorterModel": {
@@ -528,5 +530,47 @@
       "feeder": "Fait entrer une carte du chargeur sur le module 1."
     },
     "xray": "Rayons X"
+  },
+  "lights": {
+    "previewUnavailable": "Connecte le trieur et fais-lui passer l'autotest pour prévisualiser les changements sur le ruban. Tu peux quand même modifier et enregistrer.",
+    "strip": {
+      "heading": "Ruban lumineux",
+      "description": "Éclaire la carte pendant le scan. Les changements s'affichent tout de suite sur le ruban et sont conservés une fois enregistrés."
+    },
+    "modeLabel": "Mode",
+    "modes": {
+      "off": {
+        "label": "Éteint",
+        "description": "Le ruban reste éteint, sauf pour les alertes."
+      },
+      "white": {
+        "label": "Blanc",
+        "description": "Un blanc neutre et lumineux, idéal pour la plupart des caméras."
+      },
+      "custom": {
+        "label": "Couleur personnalisée",
+        "description": "Une couleur unie de ton choix."
+      },
+      "foil": {
+        "label": "Balayage foil",
+        "description": "Une lumière blanche fait le tour du ruban pour que les cartes foil captent la lumière sous différents angles."
+      }
+    },
+    "colorLabel": "Couleur",
+    "brightnessLabel": "Luminosité",
+    "brightnessValue": "{{percent}} %",
+    "alerts": {
+      "heading": "Alertes",
+      "description": "Le ruban clignote tout seul quand le trieur a besoin d'attention. Les alertes remplacent le mode jusqu'à leur fin.",
+      "jam": "Rouge clignotant : une carte est coincée. S'arrête après le prochain tri réussi ou « Lâcher la carte ».",
+      "empty": "Jaune clignotant : le chargeur est vide. S'arrête dès qu'une carte est de nouveau chargée.",
+      "value": "Clignotement rouge, vert et bleu : une célébration pour une carte de valeur. Dure 3 secondes.",
+      "testCelebration": "Tester la célébration",
+      "clear": "Arrêter l'alerte"
+    },
+    "toasts": {
+      "saved": "Réglages d'éclairage enregistrés.",
+      "saveFailed": "Impossible d'enregistrer les réglages d'éclairage."
+    }
   }
 }

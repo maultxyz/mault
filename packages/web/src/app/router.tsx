@@ -105,6 +105,9 @@ const CalibrateScanRegionPage = lazy(
 const CalibrateCalibrationPage = lazy(
   () => import("@/app/routes/app/calibrate/calibration"),
 );
+const CalibrateLightsPage = lazy(
+  () => import("@/app/routes/app/calibrate/lights"),
+);
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
 const AdminGameEditorPage = lazy(
@@ -329,6 +332,10 @@ export const router = createBrowserRouter([
                           {
                             path: "calibration",
                             element: <CalibrateCalibrationPage />,
+                          },
+                          {
+                            path: "lights",
+                            element: <CalibrateLightsPage />,
                           },
                           {
                             path: "test",

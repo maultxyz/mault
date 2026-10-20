@@ -855,6 +855,13 @@
       "when": 1792433759136,
       "tag": "0121_enum_count_operators",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1792501816120,
+      "tag": "0122_device_lighting",
+      "breakpoints": true
     }
   ]
 }

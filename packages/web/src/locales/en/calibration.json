@@ -47,6 +47,7 @@
     "moduleCalibration": "Module Calibration",
     "connection": "Connection",
     "layout": "Layout",
+    "lights": "Lights",
     "test": "Test"
   },
   "binConfigurations": {
@@ -496,6 +497,7 @@
     "layout": "Tell the app how many modules are installed, which slot each bin is in and how big each bin is.",
     "calibration": "Fine-tune the feeder and each module's servos until cards move cleanly, then save.",
     "scanRegion": "Frame the part of the camera image that holds the card, and choose how carefully each scan is matched.",
+    "lights": "Set the scan light's color and brightness. The sorter keeps this setting and gets it back every time the app connects.",
     "test": "Check that the sensors see cards and that every bin receives them before you start sorting."
   },
   "sorterModel": {
@@ -528,5 +530,47 @@
       "feeder": "Feeds one card from the hopper onto module 1."
     },
     "xray": "X-ray"
+  },
+  "lights": {
+    "previewUnavailable": "Connect the sorter and pass its self-test to preview changes on the strip. You can still edit and save.",
+    "strip": {
+      "heading": "Light strip",
+      "description": "Lights the card while it's scanned. Changes show on the strip right away and are kept once you save."
+    },
+    "modeLabel": "Mode",
+    "modes": {
+      "off": {
+        "label": "Off",
+        "description": "The strip stays dark, except for alerts."
+      },
+      "white": {
+        "label": "White",
+        "description": "A bright neutral white, best for most cameras."
+      },
+      "custom": {
+        "label": "Custom color",
+        "description": "Any solid color you pick."
+      },
+      "foil": {
+        "label": "Foil sweep",
+        "description": "A white light chases around the strip so foil cards catch the light at different angles."
+      }
+    },
+    "colorLabel": "Color",
+    "brightnessLabel": "Brightness",
+    "brightnessValue": "{{percent}}%",
+    "alerts": {
+      "heading": "Alerts",
+      "description": "The strip flashes on its own when the sorter needs attention. Alerts override the mode until they clear.",
+      "jam": "Flashing red: a card is stuck. Clears after the next successful sort or Drop Card.",
+      "empty": "Flashing yellow: the hopper is empty. Clears once a card feeds again.",
+      "value": "Red, green and blue flash: a celebration for a valuable card. Lasts 3 seconds.",
+      "testCelebration": "Test celebration",
+      "clear": "Clear alert"
+    },
+    "toasts": {
+      "saved": "Light settings saved.",
+      "saveFailed": "Couldn't save the light settings."
+    }
   }
 }

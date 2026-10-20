@@ -272,7 +272,8 @@
       "setConfig": "Définit les impulsions des servos et les délais de poussée d'un module. Les champs vides gardent leur valeur actuelle.",
       "setFeederConfig": "Définit la vitesse, les délais et le recul du chargeur. Les champs vides gardent leur valeur actuelle.",
       "getWifi": "Indique le réseau Wi-Fi, l'adresse IP, le signal et l'état du lien serveur.",
-      "clearWifi": "Oublie le réseau Wi-Fi et le lien serveur. La carte reste hors ligne jusqu'à ce que le Wi-Fi soit reconfiguré."
+      "clearWifi": "Oublie le réseau Wi-Fi et le lien serveur. La carte reste hors ligne jusqu'à ce que le Wi-Fi soit reconfiguré.",
+      "setLight": "Règle le mode, la luminosité et la couleur du ruban lumineux. Le mode value joue un court clignotement de célébration."
     },
     "raw": {
       "heading": "Console brute",

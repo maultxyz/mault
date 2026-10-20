@@ -1,3 +1,4 @@
+import type { Control } from "react-hook-form";
 import type { ReactNode } from "react";
 import type {
   BinHeight,
@@ -6,6 +7,7 @@ import type {
   ModuleConfig,
   ServoCalibration,
   ChannelLayout,
+  LightSettings,
   ScanRegion,
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
@@ -15,6 +17,7 @@ export type CalibrationSection =
   | "layout"
   | "calibration"
   | "scanRegion"
+  | "lights"
   | "test";
 
 export interface ModuleConfigsContextValue {
@@ -283,7 +286,7 @@ export interface CalibrationConflictDialogProps {
   onChoose: (source: CalibrationSource) => void;
 }
 
-export interface Device {
+export interface Device extends LightSettings {
   guid: string;
   name: string;
   hardwareId: string | null;
@@ -460,3 +463,12 @@ export interface ScanRegionCalibrationPanelProps {
 }
 
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
+
+export interface LightingPanelProps {
+  control: Control<LightSettings>;
+  isLoaded: boolean;
+  canControl: boolean;
+  onPreview: () => void;
+  onTestCelebration: () => void;
+  onClearAlert: () => void;
+}

@@ -2,6 +2,7 @@ import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
+  toLightMode,
 } from "@magic-vault/shared";
 import { toScanRegion } from "../org-settings/shared";
 
@@ -22,6 +23,9 @@ export function toDevice(row: {
   pipelinedFeed: boolean;
   autoConnect: boolean;
   testOnConnect: boolean;
+  lightMode: string;
+  lightColor: string;
+  lightBrightness: number;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -42,6 +46,9 @@ export function toDevice(row: {
     pipelinedFeed: row.pipelinedFeed,
     autoConnect: row.autoConnect,
     testOnConnect: row.testOnConnect,
+    lightMode: toLightMode(row.lightMode),
+    lightColor: row.lightColor,
+    lightBrightness: row.lightBrightness,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

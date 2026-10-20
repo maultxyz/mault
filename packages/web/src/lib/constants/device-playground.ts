@@ -5,7 +5,12 @@ import type {
   DeviceCommandGroup,
   DeviceCommandValues,
 } from "@/lib/interfaces/device-playground";
-import { maxModulesForLayout } from "@magic-vault/shared";
+import {
+  DEFAULT_LIGHT_BRIGHTNESS,
+  LIGHT_BRIGHTNESS_MAX,
+  LIGHT_MODES,
+  maxModulesForLayout,
+} from "@magic-vault/shared";
 
 export const DEVICE_PLAYGROUND_DEFAULT_TIMEOUT_MS = 5_000;
 export const DEVICE_PLAYGROUND_STOP_TIMEOUT_MS = 3_000;
@@ -139,6 +144,36 @@ export const DEVICE_COMMANDS: DeviceCommand[] = [
     timeoutMs: DEVICE_PLAYGROUND_DEFAULT_TIMEOUT_MS,
     feature: "wifiRemote",
     build: () => ({ clearWifi: true }),
+  },
+  {
+    id: "setLight",
+    command: "setLight",
+    group: "status",
+    fields: [
+      {
+        name: "mode",
+        type: "select",
+        options: [...LIGHT_MODES, "value"],
+        defaultValue: "white",
+      },
+      {
+        name: "brightness",
+        type: "number",
+        min: 0,
+        max: LIGHT_BRIGHTNESS_MAX,
+        defaultValue: DEFAULT_LIGHT_BRIGHTNESS,
+      },
+      { name: "r", type: "optionalNumber", min: 0, max: 255, defaultValue: null },
+      { name: "g", type: "optionalNumber", min: 0, max: 255, defaultValue: null },
+      { name: "b", type: "optionalNumber", min: 0, max: 255, defaultValue: null },
+      { name: "clearAlert", type: "boolean", defaultValue: false },
+    ],
+    timeoutMs: DEVICE_PLAYGROUND_DEFAULT_TIMEOUT_MS,
+    feature: "lighting",
+    build: ({ clearAlert, ...light }) => ({
+      setLight: withoutEmpty(light),
+      ...(clearAlert ? { clearAlert: true } : {}),
+    }),
   },
   {
     id: "neutral",

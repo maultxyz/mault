@@ -13,6 +13,7 @@ import {
   IconAdjustmentsHorizontal,
   IconArrowBarToDown,
   IconArrowsHorizontal,
+  IconBulb,
   IconChecklist,
   IconColumns2,
   IconFocus2,
@@ -29,6 +30,9 @@ import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHANNEL_LAYOUT,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  DEFAULT_LIGHT_BRIGHTNESS,
+  DEFAULT_LIGHT_COLOR,
+  DEFAULT_LIGHT_MODE,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_MODULE_COUNT,
   DEFAULT_SCAN_REGION,
@@ -264,6 +268,9 @@ export const DEFAULT_DEVICE: Device = {
   pipelinedFeed: false,
   autoConnect: false,
   testOnConnect: true,
+  lightMode: DEFAULT_LIGHT_MODE,
+  lightColor: DEFAULT_LIGHT_COLOR,
+  lightBrightness: DEFAULT_LIGHT_BRIGHTNESS,
   createdAt: "",
   updatedAt: "",
 };
@@ -273,6 +280,7 @@ export const CALIBRATION_SECTION_PATHS: Record<CalibrationSection, string> = {
   layout: "layout",
   calibration: "calibration",
   scanRegion: "scan-region",
+  lights: "lights",
   test: "test",
 };
 
@@ -281,6 +289,7 @@ export const CALIBRATION_PATH_SECTIONS: Record<string, CalibrationSection> = {
   layout: "layout",
   calibration: "calibration",
   "scan-region": "scanRegion",
+  lights: "lights",
   test: "test",
 };
 
@@ -291,6 +300,7 @@ export const CALIBRATION_SECTIONS = [
   { section: "layout", icon: IconLayoutBoardSplit },
   { section: "calibration", icon: IconAdjustmentsHorizontal },
   { section: "scanRegion", icon: IconFocus2 },
+  { section: "lights", icon: IconBulb },
   { section: "test", icon: IconChecklist },
 ] as const satisfies readonly {
   section: CalibrationSection;

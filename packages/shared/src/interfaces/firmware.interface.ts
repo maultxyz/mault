@@ -5,6 +5,7 @@ export type FirmwareFeature =
   | "feederRollback"
   | "storedCalibration"
   | "paddleOpenDelay"
-  | "wifiRemote";
+  | "wifiRemote"
+  | "lighting";
 
 export type SerialResetReason = (typeof SERIAL_RESET_REASONS)[number];

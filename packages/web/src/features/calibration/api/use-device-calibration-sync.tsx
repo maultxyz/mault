@@ -32,6 +32,7 @@ import {
   CHANNEL_OFFSET,
   DEFAULT_CHANNEL_LAYOUT,
   isFirmwareFeatureSupported,
+  toSetLightCommand,
   type ModuleConfig,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
@@ -313,6 +314,20 @@ export function DeviceCalibrationSyncProvider({
     pushCalibration,
     storeOnDevice,
   ]);
+
+  const firmwareVersionRef = useRef(firmwareVersion);
+  useEffect(() => {
+    firmwareVersionRef.current = firmwareVersion;
+  }, [firmwareVersion]);
+
+  useEffect(() => {
+    return registerPreTestHook(async (target) => {
+      const version = firmwareVersionRef.current;
+      if (!target) return;
+      if (version && !isFirmwareFeatureSupported(version, "lighting")) return;
+      await request(toSetLightCommand(target));
+    });
+  }, [registerPreTestHook, request]);
 
   const applyToDevice = useCallback(
     (changes: Partial<DeviceCalibration>) => {
