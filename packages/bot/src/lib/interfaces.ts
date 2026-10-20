@@ -19,6 +19,7 @@ export interface GuildRoleSummary {
   name: string;
   color: string | null;
   canPing: boolean;
+  canAssign: boolean;
 }
 
 export interface ApiResult<T> {
@@ -34,6 +35,13 @@ export interface LinkResult {
 
 export interface LinkAccountResult {
   userName: string | null;
+}
+
+export interface MemberRoleBody {
+  guildId?: string;
+  userId?: string;
+  roleId?: string;
+  action?: "add" | "remove";
 }
 
 export interface TopCardSummary {

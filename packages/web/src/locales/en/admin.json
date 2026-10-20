@@ -524,6 +524,13 @@
     "priceSyncCommand": "Prices are pulled when this command runs. Add it as a scheduled task in Coolify on the server app, every few hours. It only downloads what changed upstream.",
     "donationsLink": "Open the Buy Me a Coffee page",
     "saved": "Discord channels saved.",
-    "saveFailed": "Couldn't save the Discord channels."
+    "saveFailed": "Couldn't save the Discord channels.",
+    "linkedRole": {
+      "heading": "Linked account role",
+      "description": "Members of this server who link their Mault account with /link-account get this role, and lose it when they unlink. The bot needs Manage Roles, and its own role must sit above this one.",
+      "role": "Role",
+      "saved": "Linked account role saved.",
+      "saveFailed": "Couldn't save the linked account role."
+    }
   }
 }

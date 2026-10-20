@@ -56,7 +56,7 @@
   },
   "discord": {
     "heading": "Discord-Konto",
-    "description": "Verknüpfe dein Discord-Konto, damit der Mault-Bot weiß, wer du bist.",
+    "description": "Verknüpfe dein Discord-Konto, damit der Mault-Bot weiß, wer du bist, und dir deine Rolle auf dem Mault-Discord-Server gibt.",
     "linked": "Mit einem Discord-Konto verknüpft",
     "linkedAs": "Verknüpft als @{{username}}",
     "unlink": "Trennen",

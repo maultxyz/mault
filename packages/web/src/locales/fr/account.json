@@ -56,7 +56,7 @@
   },
   "discord": {
     "heading": "Compte Discord",
-    "description": "Lie ton compte Discord pour que le bot Mault sache qui tu es.",
+    "description": "Lie ton compte Discord pour que le bot Mault sache qui tu es et te donne ton rôle sur le serveur Discord de Mault.",
     "linked": "Lié à un compte Discord",
     "linkedAs": "Lié en tant que @{{username}}",
     "unlink": "Dissocier",

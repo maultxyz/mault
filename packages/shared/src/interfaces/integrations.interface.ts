@@ -15,6 +15,7 @@ export interface DiscordRole {
   name: string;
   color: string | null;
   canPing: boolean;
+  canAssign: boolean;
 }
 
 export interface DiscordGuildInfo {

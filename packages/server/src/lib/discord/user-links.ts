@@ -2,11 +2,12 @@ import type {
   DiscordAccountLink,
   DiscordAccountLinkCode,
 } from "@magic-vault/shared";
-import { and, eq, gt, ne } from "drizzle-orm";
+import { and, eq, gt, isNotNull, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { discordUserLinks } from "../../db/schema";
 import { DISCORD_LINK_CODE_LENGTH } from "../constants/discord";
 import { DISCORD_LINK_CODE_TTL_MS } from "../constants/timing";
+import type { DiscordUserLinkRedemption } from "../interfaces/discord";
 
 export async function loadDiscordUserLink(
   userId: string,
@@ -46,7 +47,22 @@ export async function createDiscordUserLinkCode(
   return { code, expiresAt: expiresAt.toISOString() };
 }
 
-export async function unlinkDiscordUser(userId: string): Promise<void> {
+export async function listLinkedDiscordUserIds(): Promise<string[]> {
+  const rows = await db
+    .select({ discordUserId: discordUserLinks.discordUserId })
+    .from(discordUserLinks)
+    .where(isNotNull(discordUserLinks.discordUserId));
+  return rows.flatMap((row) => (row.discordUserId ? [row.discordUserId] : []));
+}
+
+export async function unlinkDiscordUser(
+  userId: string,
+): Promise<string | null> {
+  const [row] = await db
+    .select({ discordUserId: discordUserLinks.discordUserId })
+    .from(discordUserLinks)
+    .where(eq(discordUserLinks.userId, userId))
+    .limit(1);
   await db
     .update(discordUserLinks)
     .set({
@@ -58,16 +74,20 @@ export async function unlinkDiscordUser(userId: string): Promise<void> {
       updatedAt: new Date(),
     })
     .where(eq(discordUserLinks.userId, userId));
+  return row?.discordUserId ?? null;
 }
 
 export async function redeemDiscordUserLinkCode(
   code: string,
   discordUserId: string,
   discordUsername: string,
-): Promise<string | null> {
+): Promise<DiscordUserLinkRedemption | null> {
   return db.transaction(async (tx) => {
     const [row] = await tx
-      .select({ userId: discordUserLinks.userId })
+      .select({
+        userId: discordUserLinks.userId,
+        discordUserId: discordUserLinks.discordUserId,
+      })
       .from(discordUserLinks)
       .where(
         and(
@@ -105,6 +125,12 @@ export async function redeemDiscordUserLinkCode(
         updatedAt: now,
       })
       .where(eq(discordUserLinks.userId, row.userId));
-    return row.userId;
+    return {
+      userId: row.userId,
+      previousDiscordUserId:
+        row.discordUserId && row.discordUserId !== discordUserId
+          ? row.discordUserId
+          : null,
+    };
   });
 }

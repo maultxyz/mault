@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { updateLinkedAccountRole } from "../../lib/discord/member-roles";
 import {
   createDiscordUserLinkCode,
   loadDiscordUserLink,
@@ -36,7 +37,8 @@ export const meDiscordRoute = new Hono<AppEnv>()
   })
   .post("/discord/unlink", requireAuth, async (c) => {
     try {
-      await unlinkDiscordUser(c.get("userId"));
+      const previous = await unlinkDiscordUser(c.get("userId"));
+      if (previous) void updateLinkedAccountRole(previous, "remove");
       return c.json({ success: true, message: "Unlinked." });
     } catch (err) {
       console.error(err);

@@ -1041,6 +1041,14 @@ export const platformDiscordChannels = pgTable("platform_discord_channels", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const platformDiscordRoles = pgTable("platform_discord_roles", {
+  key: text("key").primaryKey(),
+  guildId: text("guild_id"),
+  roleId: text("role_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const discordUserLinks = pgTable(
   "discord_user_links",
   {

@@ -862,6 +862,13 @@
       "when": 1792523903968,
       "tag": "0122_magenta_the_liberteens",
       "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1792524651125,
+      "tag": "0123_blue_barracuda",
+      "breakpoints": true
     }
   ]
 }

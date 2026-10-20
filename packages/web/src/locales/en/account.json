@@ -80,7 +80,7 @@
   },
   "discord": {
     "heading": "Discord account",
-    "description": "Link your Discord account so the Mault bot knows who you are.",
+    "description": "Link your Discord account so the Mault bot knows who you are and gives you your role in the Mault Discord server.",
     "linked": "Linked to a Discord account",
     "linkedAs": "Linked as @{{username}}",
     "unlink": "Unlink",

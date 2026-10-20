@@ -8,6 +8,7 @@ import type {
   SyncState,
 } from "@magic-vault/shared";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
+import type { PlatformDiscordLinkedRoleFormValues } from "@/schemas/platform-discord-linked-role.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import type { UseFormReturn } from "react-hook-form";
 
@@ -75,6 +76,12 @@ export interface ImpersonationAuditDrawerProps {
 export interface PlatformDiscordChannelFieldsProps {
   form: UseFormReturn<PlatformDiscordChannelsFormValues>;
   channelKey: PlatformDiscordChannelKey;
+  guilds: PlatformDiscordGuildSummary[];
+  botReachable: boolean;
+}
+
+export interface PlatformDiscordLinkedRoleFieldsProps {
+  form: UseFormReturn<PlatformDiscordLinkedRoleFormValues>;
   guilds: PlatformDiscordGuildSummary[];
   botReachable: boolean;
 }
