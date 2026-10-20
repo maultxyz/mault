@@ -10,7 +10,7 @@ import {
   type Result,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap } from "@/lib/api/client";
-import { SCAN_IMAGE_STALE_MS } from "@/lib/constants/query";
+import { SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
 
@@ -80,6 +80,22 @@ export function invalidateCollectionCards(queryClient: QueryClient, guid: string
   void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
   void queryClient.invalidateQueries({ queryKey: ["stats"] });
   void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+}
+
+const scanSaveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const lastScanSaveRefresh = new Map<string, number>();
+
+export function invalidateAfterScanSave(queryClient: QueryClient, guid: string): void {
+  if (scanSaveRefreshTimers.has(guid)) return;
+  const wait = Math.max(0, SCAN_SAVE_REFRESH_THROTTLE_MS - (Date.now() - (lastScanSaveRefresh.get(guid) ?? 0)));
+  scanSaveRefreshTimers.set(
+    guid,
+    setTimeout(() => {
+      scanSaveRefreshTimers.delete(guid);
+      lastScanSaveRefresh.set(guid, Date.now());
+      void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
+    }, wait),
+  );
 }
 
 export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>

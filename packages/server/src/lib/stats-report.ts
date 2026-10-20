@@ -88,17 +88,19 @@ export async function loadStatsReport(
       WHERE ${scope}
     )
     SELECT
-      json_build_object(
-        'cardCount', (SELECT count(*)::int FROM base),
-        'uniqueCount', (SELECT count(DISTINCT card_id)::int FROM base),
-        'totalValue', (SELECT COALESCE(sum(price) FILTER (WHERE price > 0), 0)::float8 FROM base),
-        'avgValue', (SELECT COALESCE(avg(price) FILTER (WHERE price > 0), 0)::float8 FROM base),
-        'priceableCount', (SELECT (count(*) FILTER (WHERE price > 0))::int FROM base),
-        'foilCount', (SELECT (count(*) FILTER (WHERE is_foil))::int FROM base),
-        'needsReviewCount', (SELECT (count(*) FILTER (WHERE NOT is_corrected AND needs_review))::int FROM base),
-        'correctedCount', (SELECT (count(*) FILTER (WHERE is_corrected))::int FROM base),
-        'scansInRange', (SELECT (count(*) FILTER (WHERE ${inRange}))::int FROM base),
-        'valueAddedInRange', (SELECT COALESCE(sum(price) FILTER (WHERE price > 0 AND ${inRange}), 0)::float8 FROM base)
+      (
+        SELECT json_build_object(
+          'cardCount', count(*)::int,
+          'uniqueCount', count(DISTINCT card_id)::int,
+          'totalValue', COALESCE(sum(price) FILTER (WHERE price > 0), 0)::float8,
+          'avgValue', COALESCE(avg(price) FILTER (WHERE price > 0), 0)::float8,
+          'priceableCount', (count(*) FILTER (WHERE price > 0))::int,
+          'foilCount', (count(*) FILTER (WHERE is_foil))::int,
+          'needsReviewCount', (count(*) FILTER (WHERE NOT is_corrected AND needs_review))::int,
+          'correctedCount', (count(*) FILTER (WHERE is_corrected))::int,
+          'scansInRange', (count(*) FILTER (WHERE ${inRange}))::int,
+          'valueAddedInRange', COALESCE(sum(price) FILTER (WHERE price > 0 AND ${inRange}), 0)::float8
+        ) FROM base
       ) AS totals,
       (
         SELECT COALESCE(json_agg(json_build_object(
