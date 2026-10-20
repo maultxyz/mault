@@ -4,6 +4,7 @@ import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
 import { useBuildPhases } from "@/features/build/api/use-build-phases";
 import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { PhaseVideo } from "@/features/build/components/phase-video";
+import { PrintPartImages } from "@/features/build/components/print-part-images";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { phaseAnchorId, stepAnchorId } from "@/features/build/lib/anchors";
 import {
@@ -156,6 +157,9 @@ export function BuildAssembly() {
                             <p className="mt-0.5 text-sm/relaxed text-foreground/70">
                               {step.note}
                             </p>
+                          )}
+                          {step.modelParts && (
+                            <PrintPartImages parts={step.modelParts} />
                           )}
                           {step.images && step.images.length > 0 && (
                             <div className="mt-1.5 flex flex-wrap gap-1.5">

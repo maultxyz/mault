@@ -4,6 +4,7 @@ import type {
   UnmatchedPhotoFilter,
 } from "@/lib/interfaces/admin";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
+import type { PlatformDiscordLinkedRoleFormValues } from "@/schemas/platform-discord-linked-role.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import {
   IconBrandDiscord,
@@ -68,6 +69,9 @@ export const PRICE_SYNC_SCRIPT_COMMAND =
 export const EMPTY_PLATFORM_STATS_FORM: PlatformStatsFormValues = {
   stats: [],
 };
+
+export const EMPTY_PLATFORM_DISCORD_LINKED_ROLE_FORM: PlatformDiscordLinkedRoleFormValues =
+  { guildId: null, roleId: null };
 
 export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormValues =
   {
