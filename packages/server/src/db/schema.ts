@@ -1041,6 +1041,24 @@ export const platformDiscordChannels = pgTable("platform_discord_channels", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const discordUserLinks = pgTable(
+  "discord_user_links",
+  {
+    userId: text("user_id").primaryKey(),
+    discordUserId: text("discord_user_id"),
+    discordUsername: text("discord_username"),
+    linkCode: text("link_code"),
+    linkCodeExpiresAt: timestamp("link_code_expires_at"),
+    linkedAt: timestamp("linked_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("discord_user_links_discord_user_idx").on(table.discordUserId),
+    uniqueIndex("discord_user_links_code_idx").on(table.linkCode),
+  ],
+).enableRLS();
+
 export const tcgplayerPrices = pgTable(
   "tcgplayer_prices",
   {

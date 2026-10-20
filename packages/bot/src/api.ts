@@ -2,6 +2,7 @@ import type {
   ApiResult,
   CollectionSummary,
   GameSummary,
+  LinkAccountResult,
   LinkResult,
   StatsResult,
 } from "./lib/interfaces";
@@ -26,6 +27,17 @@ export function linkGuild(guildId: string, code: string, confirm = false) {
   return botFetch<LinkResult>("/bot/link", {
     method: "POST",
     body: JSON.stringify({ guildId, code, confirm }),
+  });
+}
+
+export function linkAccount(
+  discordUserId: string,
+  discordUsername: string,
+  code: string,
+) {
+  return botFetch<LinkAccountResult>("/bot/link-account", {
+    method: "POST",
+    body: JSON.stringify({ discordUserId, discordUsername, code }),
   });
 }
 

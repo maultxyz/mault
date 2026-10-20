@@ -12,6 +12,7 @@ import {
 } from "discord.js";
 import { unlinkGuild } from "./api";
 import * as link from "./commands/link";
+import * as linkAccount from "./commands/link-account";
 import * as stats from "./commands/stats";
 import { startNotifyServer } from "./notify-server";
 import { startPresenceCycle } from "./presence";
@@ -25,7 +26,7 @@ if (!DISCORD_BOT_TOKEN || !DISCORD_CLIENT_ID) {
   throw new Error("DISCORD_BOT_TOKEN and DISCORD_CLIENT_ID must be set.");
 }
 
-const commands: BotCommand[] = [link, stats];
+const commands: BotCommand[] = [link, linkAccount, stats];
 const commandsByName = new Map(commands.map((c) => [c.data.name, c]));
 const commandBodies = commands.map((c) => c.data.toJSON());
 

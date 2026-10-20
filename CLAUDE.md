@@ -111,7 +111,8 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 ### Discord bot
 
-- One global bot; commands registered globally only (`/link`, `/stats`). Each guild maps to one org via `org_settings.discord_guild_id`. Every channel and rule target is validated against the linked guild, so posts can never land in another server. Mentions are limited to the exact roles requested.
+- One global bot; commands registered globally only (`/link`, `/link-account`, `/stats`). Each guild maps to one org via `org_settings.discord_guild_id`. Every channel and rule target is validated against the linked guild, so posts can never land in another server. Mentions are limited to the exact roles requested.
+- Users link their own Discord account with a code from Account > Discord account redeemed by `/link-account` (`discord_user_links`, one Discord id per user). The table is server-only (RLS on, no policies, plain `db` in `lib/discord/user-links.ts`); user routes filter by the verified `userId`. Neon Auth has no Discord sign-in.
 - Scan notifications run off the request path through `lib/scan-notification-queue.ts`.
 
 ### Deploys

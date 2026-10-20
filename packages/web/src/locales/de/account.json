@@ -54,6 +54,20 @@
     "unknownDevice": "Unbekanntes Gerät",
     "noIp": "Unbekannter Standort"
   },
+  "discord": {
+    "heading": "Discord-Konto",
+    "description": "Verknüpfe dein Discord-Konto, damit der Mault-Bot weiß, wer du bist.",
+    "linked": "Mit einem Discord-Konto verknüpft",
+    "linkedAs": "Verknüpft als @{{username}}",
+    "unlink": "Trennen",
+    "unlinked": "Discord-Konto getrennt",
+    "unlinkFailed": "Dein Discord-Konto konnte nicht getrennt werden",
+    "generate": "Verknüpfungscode erstellen",
+    "generating": "Wird erstellt…",
+    "generateFailed": "Verknüpfungscode konnte nicht erstellt werden",
+    "codeInstructions": "Führe /link-account <code> auf einem Server mit dem Mault-Bot oder in einer Direktnachricht an ihn aus.",
+    "expiresIn": "Läuft in {{seconds}}s ab"
+  },
   "tour": {
     "heading": "Geführte Tour",
     "description": "Wiederhole die Einführung in Scanner, Sammlungen und Sortierregeln.",

@@ -78,6 +78,20 @@
     "expires": "expires {{date}}",
     "noExpiry": "no expiry"
   },
+  "discord": {
+    "heading": "Discord account",
+    "description": "Link your Discord account so the Mault bot knows who you are.",
+    "linked": "Linked to a Discord account",
+    "linkedAs": "Linked as @{{username}}",
+    "unlink": "Unlink",
+    "unlinked": "Discord account unlinked",
+    "unlinkFailed": "Couldn't unlink your Discord account",
+    "generate": "Generate link code",
+    "generating": "Generating…",
+    "generateFailed": "Couldn't generate a link code",
+    "codeInstructions": "Run /link-account <code> in any server with the Mault bot, or in a DM with it.",
+    "expiresIn": "Expires in {{seconds}}s"
+  },
   "tour": {
     "heading": "Guided tour",
     "description": "Replay the onboarding walkthrough of the scanner, collections, and sorting rules.",

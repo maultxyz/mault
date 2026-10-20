@@ -16,7 +16,7 @@ export const serialEventNotificationRoute = new Hono<AppEnv>().post(
       void sendDiscordNotification(
         orgId,
         {
-          title: `Magic Vault — ${classified.title}`,
+          title: `Mault — ${classified.title}`,
           description: classified.description,
           color: 0xed4245,
           timestamp: new Date().toISOString(),

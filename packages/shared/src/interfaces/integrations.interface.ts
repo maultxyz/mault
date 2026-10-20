@@ -65,3 +65,13 @@ export interface DiscordChannelInput {
   errorChannelId?: string | null;
   collectionGuid?: string;
 }
+
+export interface DiscordAccountLink {
+  discordUsername: string | null;
+  linkedAt: string;
+}
+
+export interface DiscordAccountLinkCode {
+  code: string;
+  expiresAt: string;
+}

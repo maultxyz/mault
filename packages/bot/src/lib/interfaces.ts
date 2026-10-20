@@ -32,6 +32,10 @@ export interface LinkResult {
   currentOrgName?: string;
 }
 
+export interface LinkAccountResult {
+  userName: string | null;
+}
+
 export interface TopCardSummary {
   name: string;
   setName: string | null;
