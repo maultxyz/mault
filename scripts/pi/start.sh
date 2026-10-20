@@ -2,9 +2,10 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-UID_NUM="$(id -u)"
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$UID_NUM}"
-export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
+# shellcheck disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/session.sh"
+pi_require_user
+pi_ensure_user_bus
 export WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
 
 KIOSK=0
