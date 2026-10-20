@@ -38,7 +38,7 @@
   },
   "commands": {
     "title": "Commandes",
-    "description": "Le bot n'a besoin que de deux commandes. Tout le reste se configure dans l'application.",
+    "description": "Lie un serveur et ton propre compte, puis consulte les statistiques ou montre ta collection. Tout le reste se règle dans l'application.",
     "items": {
       "link": {
         "usage": "/link <code>",
@@ -47,6 +47,14 @@
       "stats": {
         "usage": "/stats [collection]",
         "description": "Affiche les statistiques de collection de cette organisation, éventuellement limitées à une collection."
+      },
+      "linkAccount": {
+        "usage": "/link-account <code>",
+        "description": "Lie ton compte Discord à ton compte Mault, avec le code de Compte > Compte Discord."
+      },
+      "showoff": {
+        "usage": "/showoff",
+        "description": "Publie la valeur totale de ta collection et ta carte la plus chère. Nécessite un compte lié."
       }
     }
   },

@@ -34,6 +34,9 @@ export const DISCORD_BLURPLE = 0x5865f2;
 export const NOT_LINKED_MESSAGE =
   "This server isn't linked yet - run `/link <code>` first (generate a code in Mault's Settings > Discord).";
 
+export const ACCOUNT_NOT_LINKED_MESSAGE =
+  "Your Discord account isn't linked to Mault yet. Generate a code in Mault's Account > Discord account, then run `/link-account <code>`.";
+
 export const PRESENCE_CYCLE_MS = 20_000;
 
 export const PRESENCE_REFRESH_MS = 10 * 60 * 1000;

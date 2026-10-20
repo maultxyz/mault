@@ -4,6 +4,7 @@ import type {
   GameSummary,
   LinkAccountResult,
   LinkResult,
+  ShowoffResult,
   StatsResult,
 } from "./lib/interfaces";
 import { BOT_API_SECRET, SERVER_URL } from "./lib/constants";
@@ -52,6 +53,12 @@ export function getStats(guildId: string, collectionGuid?: string) {
   const query = new URLSearchParams({ guildId });
   if (collectionGuid) query.set("collection", collectionGuid);
   return botFetch<StatsResult>(`/bot/stats?${query.toString()}`);
+}
+
+export function getShowoff(discordUserId: string, guildId: string | null) {
+  const query = new URLSearchParams({ discordUserId });
+  if (guildId) query.set("guildId", guildId);
+  return botFetch<ShowoffResult>(`/bot/showoff?${query.toString()}`);
 }
 
 export function getCollections(guildId: string) {

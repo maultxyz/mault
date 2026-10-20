@@ -38,7 +38,7 @@
   },
   "commands": {
     "title": "Commands",
-    "description": "The bot only needs two commands. Everything else is set up in the app.",
+    "description": "Link a server and your own account, then check stats or show off your collection. Everything else is set up in the app.",
     "items": {
       "link": {
         "usage": "/link <code>",
@@ -47,6 +47,14 @@
       "stats": {
         "usage": "/stats [collection]",
         "description": "Show this organization's collection stats, optionally limited to one collection."
+      },
+      "linkAccount": {
+        "usage": "/link-account <code>",
+        "description": "Link your Discord account to your Mault account, using the code from Account > Discord account."
+      },
+      "showoff": {
+        "usage": "/showoff",
+        "description": "Post your collection's total value and your most valuable card. Needs a linked account."
       }
     }
   },

@@ -28,6 +28,17 @@ export async function loadDiscordUserLink(
   };
 }
 
+export async function findUserIdByDiscordUser(
+  discordUserId: string,
+): Promise<string | null> {
+  const [row] = await db
+    .select({ userId: discordUserLinks.userId })
+    .from(discordUserLinks)
+    .where(eq(discordUserLinks.discordUserId, discordUserId))
+    .limit(1);
+  return row?.userId ?? null;
+}
+
 export async function createDiscordUserLinkCode(
   userId: string,
 ): Promise<DiscordAccountLinkCode> {

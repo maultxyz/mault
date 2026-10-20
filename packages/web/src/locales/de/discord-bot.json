@@ -38,7 +38,7 @@
   },
   "commands": {
     "title": "Befehle",
-    "description": "Der Bot braucht nur zwei Befehle. Alles andere richtest du in der App ein.",
+    "description": "Verknüpfe einen Server und dein eigenes Konto, dann ruf Statistiken ab oder zeig deine Sammlung. Alles andere richtest du in der App ein.",
     "items": {
       "link": {
         "usage": "/link <code>",
@@ -47,6 +47,14 @@
       "stats": {
         "usage": "/stats [Sammlung]",
         "description": "Zeigt die Sammlungsstatistiken dieser Organisation, optional auf eine Sammlung beschränkt."
+      },
+      "linkAccount": {
+        "usage": "/link-account <code>",
+        "description": "Verknüpft dein Discord-Konto mit deinem Mault-Konto, mit dem Code aus Konto > Discord-Konto."
+      },
+      "showoff": {
+        "usage": "/showoff",
+        "description": "Postet den Gesamtwert deiner Sammlung und deine wertvollste Karte. Erfordert ein verknüpftes Konto."
       }
     }
   },

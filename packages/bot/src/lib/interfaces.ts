@@ -62,6 +62,10 @@ export interface StatsResult {
   topCard: TopCardSummary | null;
 }
 
+export interface ShowoffResult extends StatsResult {
+  orgName: string;
+}
+
 export interface CollectionSummary {
   guid: string | null;
   name: string;
