@@ -18,7 +18,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption((opt) =>
     opt
       .setName("code")
-      .setDescription("The code shown in Magic Vault's Settings > Notifications")
+      .setDescription("The code shown in Magic Vault's Settings > Discord")
       .setRequired(true),
   );
 
@@ -77,7 +77,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         return;
       }
       await interaction.editReply({
-        content: `Linked this server to **${confirmed.data.orgName}**. Run \`/stats\` to check collection stats, or \`/scanning\` and \`/notification\` to get card-scan and error notifications here.`,
+        content: `Linked this server to **${confirmed.data.orgName}**. Run \`/stats\` to check collection stats. Card-scan and error notifications are set up in Magic Vault under Settings > Discord.`,
         components: [],
       });
     } catch {
@@ -95,6 +95,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   await interaction.editReply(
-    `Linked this server to **${result.data.orgName}**. Run \`/stats\` to check collection stats, or \`/scanning\` and \`/notification\` to get card-scan and error notifications here.`,
+    `Linked this server to **${result.data.orgName}**. Run \`/stats\` to check collection stats. Card-scan and error notifications are set up in Magic Vault under Settings > Discord.`,
   );
 }
