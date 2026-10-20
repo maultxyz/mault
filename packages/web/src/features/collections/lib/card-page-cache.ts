@@ -3,7 +3,11 @@ import type {
   CollectionCardsPage,
   GroupedScannedCard,
 } from "@magic-vault/shared";
+import { CARDS_SUMMARY_REFRESH_THROTTLE_MS } from "@/lib/constants/timing";
 import type { QueryClient } from "@tanstack/react-query";
+
+const summaryRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const lastSummaryRefresh = new Map<string, number>();
 
 export function patchCardPages(
   queryClient: QueryClient,
@@ -55,11 +59,29 @@ export function findInCardPages(
   return undefined;
 }
 
+function scheduleSummaryRefresh(queryClient: QueryClient, guid: string) {
+  if (summaryRefreshTimers.has(guid)) return;
+  const elapsed = Date.now() - (lastSummaryRefresh.get(guid) ?? 0);
+  const wait = Math.max(0, CARDS_SUMMARY_REFRESH_THROTTLE_MS - elapsed);
+  summaryRefreshTimers.set(
+    guid,
+    setTimeout(() => {
+      summaryRefreshTimers.delete(guid);
+      lastSummaryRefresh.set(guid, Date.now());
+      void queryClient.invalidateQueries({
+        queryKey: [...collectionCardsKeys.all(guid), "summary"],
+      });
+    }, wait),
+  );
+}
+
 export function invalidateCollectionCards(
   queryClient: QueryClient,
   guid: string,
 ) {
+  scheduleSummaryRefresh(queryClient, guid);
   return queryClient.invalidateQueries({
     queryKey: collectionCardsKeys.all(guid),
+    predicate: (query) => query.queryKey[2] !== "summary",
   });
 }

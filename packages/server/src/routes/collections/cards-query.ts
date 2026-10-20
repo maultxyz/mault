@@ -501,40 +501,40 @@ export async function loadAllCards(tx: Transaction, collectionId: number) {
 }
 
 function cardStatsJsonSql(source: SQL): SQL {
-  return sql`json_build_object(
-    'totalCount', (SELECT count(*)::int FROM ${source}),
-    'uniqueCount', (SELECT count(DISTINCT card ->> 'id')::int FROM ${source}),
-    'totalValue', (SELECT COALESCE(sum(price) FILTER (WHERE price > 0), 0)::float8 FROM ${source}),
-    'priceableCount', (SELECT (count(*) FILTER (WHERE price > 0))::int FROM ${source}),
+  return sql`(
+    SELECT jsonb_build_object(
+      'totalCount', count(*)::int,
+      'uniqueCount', count(DISTINCT card_key)::int,
+      'totalValue', COALESCE(sum(price) FILTER (WHERE price > 0), 0)::float8,
+      'priceableCount', (count(*) FILTER (WHERE price > 0))::int
+    ) FROM ${source}
+  ) || jsonb_build_object(
     'mostValuable', (
-      SELECT json_build_object('name', card ->> 'name', 'price', price)
+      SELECT json_build_object('name', name, 'price', price)
       FROM ${source} WHERE price > 0
       ORDER BY price DESC, scanned_at DESC LIMIT 1
     ),
     'sets', (
       SELECT COALESCE(json_agg(s), '[]'::json) FROM (
         SELECT
-          card ->> 'set' AS code,
-          (array_agg(card ->> 'setName' ORDER BY scanned_at DESC))[1] AS name,
+          set_code AS code,
+          (array_agg(set_name ORDER BY scanned_at DESC))[1] AS name,
           count(*)::int AS count,
           sum(price)::float8 AS value
-        FROM ${source} GROUP BY card ->> 'set'
+        FROM ${source} GROUP BY set_code
       ) s
     ),
     'rarities', (
       SELECT COALESCE(json_agg(r), '[]'::json) FROM (
-        SELECT card ->> 'rarity' AS key, count(*)::int AS count
-        FROM ${source} WHERE COALESCE(card ->> 'rarity', '') <> ''
-        GROUP BY card ->> 'rarity'
+        SELECT rarity AS key, count(*)::int AS count
+        FROM ${source} WHERE COALESCE(rarity, '') <> ''
+        GROUP BY rarity
       ) r
     ),
     'colors', (
       SELECT COALESCE(json_agg(c), '[]'::json) FROM (
         SELECT color AS key, count(*)::int AS count
-        FROM ${source}, jsonb_array_elements_text(
-          CASE WHEN jsonb_typeof(card -> 'colorIdentity') = 'array'
-            THEN card -> 'colorIdentity' ELSE '[]'::jsonb END
-        ) AS color
+        FROM ${source}, jsonb_array_elements_text(colors) AS color
         GROUP BY color
       ) c
     ),
@@ -548,21 +548,46 @@ function cardStatsJsonSql(source: SQL): SQL {
   )`;
 }
 
+function cardStatsBaseSql(
+  collection: { id: number; gameKey: string | null; lang: string },
+  filter: SQL,
+  pricing: OrgPricing,
+): SQL {
+  const priceKeys = Object.keys(CARD_PRICE_COLUMNS) as CardPriceKey[];
+  const priceKeyColumns = sql.raw(
+    priceKeys.map((key) => `, "${key}" jsonb`).join(""),
+  );
+  const priceCard = sql.raw(
+    `jsonb_build_object('lang', j.lang${priceKeys.map((key) => `, '${key}', j."${key}"`).join("")})`,
+  );
+  const cols = { ...CC_ALIAS_SQL_COLUMNS, card: sql`jp.card` };
+  const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, cols, "cp")}, 0)`;
+  return sql`
+    SELECT j.id AS card_key, j.name, j."set" AS set_code, j."setName" AS set_name,
+      j.rarity,
+      CASE WHEN jsonb_typeof(j."colorIdentity") = 'array'
+        THEN j."colorIdentity" ELSE '[]'::jsonb END AS colors,
+      cc.is_foil, cc.foil_type, cc.scanned_at,
+      ${price} AS price, (${filter}) AS in_filter
+    FROM collection_cards cc
+    CROSS JOIN LATERAL jsonb_to_record(cc.card) AS j(
+      id text, name text, "set" text, "setName" text, rarity text,
+      "colorIdentity" jsonb, lang text${priceKeyColumns}
+    )
+    CROSS JOIN LATERAL (SELECT ${priceCard} AS card) jp
+    ${cardPricesJoinSql("cp", collection, cols)}
+    WHERE cc.collection_id = ${collection.id}
+  `;
+}
+
 export async function loadCardStats(
   tx: Transaction,
   collection: { id: number; gameKey: string | null; lang: string },
   filter: SQL,
   pricing: OrgPricing,
 ): Promise<{ all: CardStatsAggregate; filtered: CardStatsAggregate }> {
-  const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}, 0)`;
   const result = await tx.execute(sql`
-    WITH base AS MATERIALIZED (
-      SELECT cc.card, cc.is_foil, cc.foil_type, cc.scanned_at,
-        ${price} AS price, (${filter}) AS in_filter
-      FROM collection_cards cc
-      ${cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS)}
-      WHERE cc.collection_id = ${collection.id}
-    ),
+    WITH base AS MATERIALIZED (${cardStatsBaseSql(collection, filter, pricing)}),
     filtered AS (SELECT * FROM base WHERE in_filter)
     SELECT
       ${cardStatsJsonSql(sql`base`)} AS all_stats,
@@ -573,6 +598,19 @@ export async function loadCardStats(
     filtered_stats: CardStatsAggregate;
   };
   return { all: row.all_stats, filtered: row.filtered_stats };
+}
+
+export async function loadAllCardStats(
+  tx: Transaction,
+  collection: { id: number; gameKey: string | null; lang: string },
+  pricing: OrgPricing,
+): Promise<CardStatsAggregate> {
+  const result = await tx.execute(sql`
+    WITH base AS MATERIALIZED (${cardStatsBaseSql(collection, sql`true`, pricing)})
+    SELECT ${cardStatsJsonSql(sql`base`)} AS all_stats
+  `);
+  const row = result.rows[0] as unknown as { all_stats: CardStatsAggregate };
+  return row.all_stats;
 }
 
 function binWindowsJoin(collectionId: number, bins: BinWindow[]): SQL {
