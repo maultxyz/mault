@@ -29,7 +29,6 @@ import type {
 import {
   IconArrowBarToDown,
   IconBolt,
-  IconDoor,
   IconFocus2,
   IconLoader2,
   IconPlayerPause,
@@ -90,10 +89,6 @@ export function ScannerControls({
   sessionLive = false,
   onStop,
   onAutoFeedChange,
-  bottomsOpen = false,
-  isMovingBottoms = false,
-  canToggleBottoms = false,
-  onToggleBottoms,
 }: ScannerControlsProps) {
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
@@ -285,25 +280,6 @@ export function ScannerControls({
         </DropdownMenu>
         <ForcedSetPicker open={setPickerOpen} onOpenChange={setSetPickerOpen} />
       </ButtonGroup>
-      {onToggleBottoms && (
-        <Button
-          type="button"
-          variant={bottomsOpen ? "outline-selected" : "outline"}
-          size="sm"
-          className="w-full"
-          disabled={!canToggleBottoms || isMovingBottoms}
-          onClick={onToggleBottoms}
-        >
-          {isMovingBottoms ? (
-            <IconLoader2 className="animate-spin" />
-          ) : (
-            <IconDoor />
-          )}
-          {bottomsOpen
-            ? t("scannerControls.bottomsOpenTooltip")
-            : t("scannerControls.bottomsClosedTooltip")}
-        </Button>
-      )}
       <ScannerDebug />
     </div>
   );

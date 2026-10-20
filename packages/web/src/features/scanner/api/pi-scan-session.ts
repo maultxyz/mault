@@ -92,9 +92,3 @@ export function updatePiScanSettings(
 export function feedPiScanSession(): Promise<PiScanSessionResult> {
   return send("POST", `${PI_SCAN_SESSION_API}/feed`);
 }
-
-export function setPiScanBottoms(
-  position: "open" | "closed",
-): Promise<PiScanSessionResult> {
-  return send("POST", `${PI_SCAN_SESSION_API}/bottoms`, { position });
-}

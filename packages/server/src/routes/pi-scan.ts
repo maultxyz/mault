@@ -1,11 +1,9 @@
 import {
   PI_SCAN_SESSION_PATH,
-  type PiScanBottomsBody,
   type PiScanSessionSettingsBody,
   type PiScanSessionStartBody,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
-import { setPiBottomLevers } from "../lib/pi-scan/bottoms";
 import {
   getPiScanSession,
   pausePiScanSession,
@@ -65,24 +63,6 @@ export const piScanRouter = new Hono<AppEnv>()
       return c.json({ success: false, message: "No scan is running." }, 409);
     }
     return c.json({ success: true, data: state });
-  })
-  .post("/bottoms", requireAuth, requireOrg, async (c) => {
-    const body = await c.req.json<PiScanBottomsBody>();
-    if (body.position !== "open" && body.position !== "closed") {
-      return c.json(
-        { success: false, message: "Position must be open or closed." },
-        400,
-      );
-    }
-    const result = await setPiBottomLevers({
-      orgId: c.get("orgId"),
-      jwtClaims: c.get("jwtClaims"),
-      position: body.position,
-    });
-    if (!result.ok) {
-      return c.json({ success: false, message: result.message }, result.status);
-    }
-    return c.json({ success: true });
   })
   .post("/feed", requireAuth, requireOrg, (c) => {
     const state = requestPiScanFeed(c.get("orgId"));
