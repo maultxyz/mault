@@ -1,3 +1,4 @@
+import "../src/lib/console-timestamps";
 import { pool } from "../src/db";
 import { refreshCardPrices } from "../src/lib/card-price-refresh";
 import { syncCardKingdomPrices } from "../src/lib/cardkingdom-price-sync";
@@ -11,6 +12,7 @@ import { syncTcgplayerPrices } from "../src/lib/tcgplayer-price-sync";
 
 const log = (msg: string) => console.log(`[sync-prices] ${msg}`);
 const force = process.argv.includes("--force");
+const refreshOnly = process.argv.includes("--refresh-only");
 
 async function notifyDiscord(summary: PriceSyncSummary): Promise<void> {
   try {
@@ -25,11 +27,23 @@ async function notifyDiscord(summary: PriceSyncSummary): Promise<void> {
   }
 }
 
+async function refresh(): Promise<boolean> {
+  log("Refresh only: rebuilding card prices from stored source prices.");
+  try {
+    await refreshCardPrices({ log, onlyMissing: false });
+    return true;
+  } catch (err) {
+    console.error("[sync-prices] Card price refresh failed:", err);
+    return false;
+  }
+}
+
 async function run(): Promise<boolean> {
   let ok = true;
   let pulled = force;
   const sources: PriceSyncSummary["sources"] = {};
   try {
+    log("TCGplayer: starting.");
     const tcgplayer = await syncTcgplayerPrices({ force, log });
     ok &&= tcgplayer.failedGroups === 0;
     pulled ||= tcgplayer.prices > 0 || tcgplayer.products > 0;
@@ -50,6 +64,7 @@ async function run(): Promise<boolean> {
     sources.TCGplayer = { status: "failed" };
   }
   try {
+    log("Cardmarket: starting.");
     const cardmarket = await syncCardmarketPrices({ force, log });
     ok &&= cardmarket.failedGames === 0;
     pulled ||= cardmarket.prices > 0 || cardmarket.products > 0;
@@ -70,6 +85,7 @@ async function run(): Promise<boolean> {
     sources.Cardmarket = { status: "failed" };
   }
   try {
+    log("Card Kingdom: starting.");
     const cardKingdom = await syncCardKingdomPrices({ force, log });
     pulled ||= cardKingdom.prices > 0;
     sources["Card Kingdom"] =
@@ -101,7 +117,7 @@ async function run(): Promise<boolean> {
   return ok;
 }
 
-run()
+(refreshOnly ? refresh() : run())
   .then((ok) => {
     process.exitCode = ok ? 0 : 1;
   })

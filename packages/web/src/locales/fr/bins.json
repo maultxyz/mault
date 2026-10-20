@@ -255,7 +255,8 @@
     "foilOption": "Foil",
     "nonFoilOption": "Non foil",
     "marketValueUsd": "Valeur marchande (USD)",
-    "marketValueEur": "Valeur marchande (EUR)"
+    "marketValueEur": "Valeur marchande (EUR)",
+    "collectorNumber": "Numéro de collection (numérique)"
   },
   "pickList": {
     "modeLabel": "Quand une carte est trouvée",

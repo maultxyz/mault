@@ -39,11 +39,13 @@ export function CardSyncProvider({ children }: { children: ReactNode }) {
       gameKey,
       lang,
       forceResync,
+      concurrency,
     }: {
       gameKey: string;
       lang: string;
       forceResync?: boolean;
-    }) => startSync(gameKey, lang, forceResync),
+      concurrency?: number;
+    }) => startSync(gameKey, lang, forceResync, concurrency),
   });
   const cancelSyncMutation = useMutation({ mutationFn: cancelSync });
 
@@ -68,8 +70,8 @@ export function CardSyncProvider({ children }: { children: ReactNode }) {
         progress,
         elapsedMs,
         etaMs,
-        start: (gameKey, lang, forceResync) =>
-          startSyncMutation.mutate({ gameKey, lang, forceResync }),
+        start: (gameKey, lang, forceResync, concurrency) =>
+          startSyncMutation.mutate({ gameKey, lang, forceResync, concurrency }),
         isStarting: startSyncMutation.isPending,
         cancel: () => cancelSyncMutation.mutate(),
         isCancelling: cancelSyncMutation.isPending,

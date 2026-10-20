@@ -7,6 +7,12 @@ import {
 } from "@magic-vault/shared";
 import { sql, type AnyColumn, type SQL } from "drizzle-orm";
 import {
+  cardPrices,
+  collectionCards,
+  collections,
+  games,
+} from "../db/schema";
+import {
   CARD_PRICE_COLUMNS,
   COLLECTION_CARD_SQL_COLUMNS,
 } from "./constants/card-prices";
@@ -100,6 +106,20 @@ export function joinedScannedCardPriceSql(
   );
 }
 
+export function collectionCardPriceSql(
+  pricing: OrgPricing,
+): SQL<number | null> {
+  return joinedScannedCardPriceSql(
+    pricing,
+    COLLECTION_CARD_SQL_COLUMNS,
+    "card_prices",
+  );
+}
+
+export function collectionCardPricesJoinOn(): SQL {
+  return sql`${cardPrices.gameKey} = ${games.key} AND ${cardPrices.lang} = COALESCE(${collectionCards.card} ->> 'lang', ${collections.lang}) AND ${cardPrices.cardId} = ${collectionCards.cardId}`;
+}
+
 export function cardPricesJoinSql(
   cardPricesAlias: string,
   { gameKey, lang }: { gameKey: string | null; lang: string },
@@ -109,20 +129,22 @@ export function cardPricesJoinSql(
   return sql`LEFT JOIN card_prices ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = COALESCE(${card} ->> 'lang', ${lang}) AND ${cp}.card_id = ${cardId}`;
 }
 
+export function joinedCardPricesJsonSql(cardPricesAlias = "cp"): SQL {
+  const cp = sql.raw(cardPricesAlias);
+  return sql`jsonb_strip_nulls(jsonb_build_object(
+      'price', ${cp}.price,
+      'priceFoil', ${cp}.price_foil,
+      'priceEur', ${cp}.price_eur,
+      'priceEurFoil', ${cp}.price_eur_foil,
+      'priceCardKingdom', ${cp}.price_card_kingdom,
+      'priceCardKingdomFoil', ${cp}.price_card_kingdom_foil
+    ) || COALESCE(${cp}.details, '{}'::jsonb))`;
+}
+
 export function cardWithStoredPricesSql(
   card: SQL,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL {
-  const prices = storedCardPriceSelect(
-    cols,
-    sql`jsonb_strip_nulls(jsonb_build_object(
-      'price', cp.price,
-      'priceFoil', cp.price_foil,
-      'priceEur', cp.price_eur,
-      'priceEurFoil', cp.price_eur_foil,
-      'priceCardKingdom', cp.price_card_kingdom,
-      'priceCardKingdomFoil', cp.price_card_kingdom_foil
-    ) || COALESCE(cp.details, '{}'::jsonb))`,
-  );
+  const prices = storedCardPriceSelect(cols, joinedCardPricesJsonSql());
   return sql`(${card} || COALESCE(${prices}, '{}'::jsonb))`;
 }

@@ -29,8 +29,7 @@ export const collectionCardPositionRoute = new Hono<AppEnv>().get(
 
         const data = await loadCardPosition(
           tx,
-          collection.id,
-          collection.fieldDefinitions,
+          collection,
           query,
           scanId,
         );

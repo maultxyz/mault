@@ -1,5 +1,12 @@
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
+import type { FieldMeta, PlayingCardWithDistance } from "@magic-vault/shared";
 import type { Transaction } from "../../db";
+
+export interface CardsCollection {
+  id: number;
+  gameKey: string | null;
+  lang: string;
+  fieldDefinitions: FieldMeta[];
+}
 
 export interface BinLimitStatus {
   binNumber: number;

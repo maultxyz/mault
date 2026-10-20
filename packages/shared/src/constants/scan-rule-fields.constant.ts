@@ -10,6 +10,7 @@ export const SCAN_RULE_FOIL_TYPE_FIELD = "foilType";
 export const SCAN_RULE_MATCH_PERCENT_FIELD = "matchPercent";
 export const SCAN_RULE_MARKET_VALUE_USD_FIELD = "marketValueUsd";
 export const SCAN_RULE_MARKET_VALUE_EUR_FIELD = "marketValueEur";
+export const SCAN_RULE_COLLECTOR_NUMBER_FIELD = "collectorNumberValue";
 
 export const SCAN_RULE_FOIL_VALUE = "foil";
 export const SCAN_RULE_NON_FOIL_VALUE = "nonfoil";
@@ -42,12 +43,24 @@ export const SCAN_RULE_NUMERIC_OPERATORS: {
   { value: "gte", label: "greater than or equal" },
 ];
 
+export const SCAN_RULE_COLLECTOR_NUMBER_OPERATORS: {
+  value: ConditionOperator;
+  label: string;
+}[] = [
+  { value: "equals", label: "equals" },
+  { value: "not_equals", label: "does not equal" },
+  ...SCAN_RULE_NUMERIC_OPERATORS,
+];
+
+export const SCAN_RULE_COLLECTOR_NUMBER_GAME_KEYS: string[] = ["mtg"];
+
 export const DEFAULT_SCAN_RULE_FIELD_LABELS = {
   foil: "Foil",
   foilType: "Foil type",
   matchPercent: "Match %",
   marketValueUsd: "Market value (USD)",
   marketValueEur: "Market value (EUR)",
+  collectorNumber: "Collector number (numeric)",
   foilOption: "Foil",
   nonFoilOption: "Non-foil",
 };
@@ -58,4 +71,5 @@ export const SCAN_RULE_FIELDS: ConditionField[] = [
   SCAN_RULE_MATCH_PERCENT_FIELD,
   SCAN_RULE_MARKET_VALUE_USD_FIELD,
   SCAN_RULE_MARKET_VALUE_EUR_FIELD,
+  SCAN_RULE_COLLECTOR_NUMBER_FIELD,
 ];
