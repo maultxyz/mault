@@ -1,0 +1,4 @@
+export const ORG_OVERVIEW_TOP_CARDS_LIMIT = 6;
+export const ORG_OVERVIEW_RECENT_CARDS_LIMIT = 8;
+export const ORG_OVERVIEW_ACTIVITY_DAYS = 14;
+export const ORG_OVERVIEW_WEEK_DAYS = 7;
