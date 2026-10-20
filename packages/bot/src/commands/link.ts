@@ -13,12 +13,12 @@ import { LINK_CONFIRM_TIMEOUT_MS } from "../lib/constants";
 
 export const data = new SlashCommandBuilder()
   .setName("link")
-  .setDescription("Link this Discord server to a Magic Vault organization")
+  .setDescription("Link this Discord server to a Mault organization")
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
   .addStringOption((opt) =>
     opt
       .setName("code")
-      .setDescription("The code shown in Magic Vault's Settings > Discord")
+      .setDescription("The code shown in Mault's Settings > Discord")
       .setRequired(true),
   );
 
@@ -77,7 +77,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         return;
       }
       await interaction.editReply({
-        content: `Linked this server to **${confirmed.data.orgName}**. Run \`/stats\` to check collection stats. Card-scan and error notifications are set up in Magic Vault under Settings > Discord.`,
+        content: `Linked this server to **${confirmed.data.orgName}**. Run \`/stats\` to check collection stats. Card-scan and error notifications are set up in Mault under Settings > Discord.`,
         components: [],
       });
     } catch {
@@ -95,6 +95,6 @@ export async function execute(interaction: ChatInputCommandInteraction) {
   }
 
   await interaction.editReply(
-    `Linked this server to **${result.data.orgName}**. Run \`/stats\` to check collection stats. Card-scan and error notifications are set up in Magic Vault under Settings > Discord.`,
+    `Linked this server to **${result.data.orgName}**. Run \`/stats\` to check collection stats. Card-scan and error notifications are set up in Mault under Settings > Discord.`,
   );
 }

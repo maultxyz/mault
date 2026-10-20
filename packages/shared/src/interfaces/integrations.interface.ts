@@ -15,6 +15,7 @@ export interface DiscordRole {
   name: string;
   color: string | null;
   canPing: boolean;
+  canAssign: boolean;
 }
 
 export interface DiscordGuildInfo {
@@ -64,4 +65,14 @@ export interface DiscordChannelInput {
   scanChannelId?: string | null;
   errorChannelId?: string | null;
   collectionGuid?: string;
+}
+
+export interface DiscordAccountLink {
+  discordUsername: string | null;
+  linkedAt: string;
+}
+
+export interface DiscordAccountLinkCode {
+  code: string;
+  expiresAt: string;
 }

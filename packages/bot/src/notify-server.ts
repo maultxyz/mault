@@ -18,7 +18,7 @@ import {
   SCAN_ATTACHMENT_NAME,
   SERVER_URL,
 } from "./lib/constants";
-import type { NotifyBody } from "./lib/interfaces";
+import type { MemberRoleBody, NotifyBody } from "./lib/interfaces";
 
 function decodeDataUrl(dataUrl: string): Buffer | null {
   const match = /^data:[^;]+;base64,(.+)$/.exec(dataUrl);
@@ -207,6 +207,56 @@ export function startNotifyServer(client: Client) {
     } catch (err) {
       console.error("[bot] Failed to post notification:", err);
       return c.json({ success: false, message: "Failed to send." }, 500);
+    }
+  });
+
+  app.post("/members/role", async (c) => {
+    const secret = c.req.header("X-Bot-Secret");
+    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+      return c.json({ success: false, message: "Unauthorized" }, 401);
+    }
+
+    const body = await c.req.json<MemberRoleBody>();
+    if (
+      !body.guildId ||
+      !body.userId ||
+      !body.roleId ||
+      (body.action !== "add" && body.action !== "remove")
+    ) {
+      return c.json(
+        {
+          success: false,
+          message: "guildId, userId, roleId and action are required.",
+        },
+        400,
+      );
+    }
+
+    const guild = client.guilds.cache.get(body.guildId);
+    if (!guild) {
+      return c.json({ success: false, message: "not_in_guild" }, 404);
+    }
+    const role = guild.roles.cache.get(body.roleId);
+    if (!role) {
+      return c.json({ success: false, message: "role_not_found" }, 404);
+    }
+    if (!role.editable) {
+      return c.json({ success: false, message: "cant_assign_role" }, 400);
+    }
+
+    const member = await guild.members.fetch(body.userId).catch(() => null);
+    if (!member) return c.json({ success: true, message: "not_member" });
+
+    try {
+      if (body.action === "add") {
+        await member.roles.add(role, "Linked a Mault account");
+      } else {
+        await member.roles.remove(role, "Unlinked a Mault account");
+      }
+      return c.json({ success: true, message: "updated" });
+    } catch (err) {
+      console.error("[bot] Failed to update member role:", err);
+      return c.json({ success: false, message: "Failed to update role." }, 500);
     }
   });
 

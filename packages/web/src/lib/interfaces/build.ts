@@ -49,6 +49,7 @@ export interface BuildStep {
   text: ReactNode;
   note?: ReactNode;
   images?: string[];
+  modelParts?: readonly SorterPrintPart[];
   reference?: ReactNode;
   optional?: true;
 }
@@ -149,6 +150,7 @@ export interface ChecklistStore {
   subscribe: (listener: () => void) => () => void;
   getSnapshot: () => Record<string, boolean>;
   toggle: (key: string) => void;
+  check: (keys: readonly string[]) => void;
 }
 
 export interface BuildTocEntry {
@@ -163,6 +165,17 @@ export interface BuildTocEntry {
 export interface BuildTocListProps {
   entries: BuildTocEntry[];
   onNavigate?: () => void;
+}
+
+export type PrintPartImagesStatus = "loading" | "ready" | "error";
+
+export interface PrintPartImagesState {
+  status: PrintPartImagesStatus;
+  images: Partial<Record<SorterPrintPart, string>>;
+}
+
+export interface PrintPartImagesProps {
+  parts: readonly SorterPrintPart[];
 }
 
 export interface PrintPartEntry {

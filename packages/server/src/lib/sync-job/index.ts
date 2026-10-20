@@ -66,7 +66,7 @@ export function startSync(
     void sendDiscordNotification(
       orgId,
       {
-        title: "Magic Vault — Sync Failed",
+        title: "Mault — Sync Failed",
         description: `The card database sync job encountered a fatal error.\n\n**Error:** ${message}`,
         color: 0xed4245,
         timestamp: new Date().toISOString(),
