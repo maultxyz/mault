@@ -4,6 +4,31 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
+echo "[install] Installing system packages"
+sudo DEBIAN_FRONTEND=noninteractive apt-get update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
+  git curl ca-certificates python3 build-essential v4l-utils ffmpeg postgresql
+sudo systemctl enable --now postgresql
+pg_major="$(psql --version | awk '{print $3}' | cut -d. -f1)"
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "postgresql-${pg_major}-pgvector"
+
+node_major=0
+if command -v node >/dev/null 2>&1; then
+  node_major="$(node -p 'process.versions.node.split(".")[0]')"
+fi
+if [[ "$node_major" -lt 22 ]]; then
+  echo "[install] Installing Node 22"
+  curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs
+fi
+
+if ! command -v pnpm >/dev/null 2>&1 || [[ "$(pnpm -v)" != "9.1.3" ]]; then
+  echo "[install] Installing pnpm"
+  sudo corepack enable
+  sudo env COREPACK_ENABLE_DOWNLOAD_PROMPT=0 corepack prepare pnpm@9.1.3 --activate
+fi
+hash -r
+
 if [[ ! -f .env ]]; then
   python3 - << 'PY'
 import secrets
