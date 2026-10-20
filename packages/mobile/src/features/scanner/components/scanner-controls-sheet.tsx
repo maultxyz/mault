@@ -8,8 +8,6 @@ import { Callout } from "@/components/ui/callout";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
-import { SectionHeader } from "@/components/ui/section-header";
-import { SwitchRow } from "@/components/ui/switch-row";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -22,12 +20,6 @@ export function ScannerControlsSheet({
   onScanNow,
   onFeedOne,
   autoFeed,
-  onAutoFeedChange,
-  allowDuplicates,
-  onAllowDuplicatesChange,
-  cameras,
-  selectedCameraId,
-  onSelectCamera,
   onClose,
 }: ScannerControlsSheetProps) {
   const { t } = useTranslation();
@@ -137,48 +129,7 @@ export function ScannerControlsSheet({
                 router.push("/sorter");
               }}
             />
-            <ListRow
-              icon="desktop"
-              title={t("scan.options.pairDesktop")}
-              subtitle={t("scan.options.pairDesktopDescription")}
-              disabled={running}
-              onPress={() => {
-                onClose();
-                router.push("/pair-camera");
-              }}
-            />
           </ListGroup>
-          <SectionHeader title={t("scan.options.title")} />
-          <SwitchRow
-            title={t("scan.options.autoFeed")}
-            description={t("scan.options.autoFeedDescription")}
-            value={autoFeed}
-            onValueChange={onAutoFeedChange}
-          />
-          <SwitchRow
-            title={t("scan.options.allowDuplicates")}
-            description={t("scan.options.allowDuplicatesDescription")}
-            value={allowDuplicates}
-            onValueChange={onAllowDuplicatesChange}
-          />
-          {cameras.length > 1 ? (
-            <>
-              <SectionHeader title={t("scan.options.camera")} />
-              <ListGroup>
-                {cameras.map((camera, index) => (
-                  <ListRow
-                    key={camera.id}
-                    icon="camera"
-                    title={camera.localizedName || t("scan.options.cameraFallback", { number: index + 1 })}
-                    subtitle={t(`scan.options.cameraPosition.${camera.position}`, { defaultValue: camera.position })}
-                    selected={camera.id === selectedCameraId}
-                    disabled={running}
-                    onPress={() => onSelectCamera(camera.id)}
-                  />
-                ))}
-              </ListGroup>
-            </>
-          ) : null}
         </ScrollView>
       </View>
     </Modal>

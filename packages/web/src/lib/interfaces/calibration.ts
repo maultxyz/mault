@@ -109,6 +109,7 @@ export type SetupWizardStep =
   | { kind: "servo"; module: number; position: SetupServoPosition }
   | { kind: "moduleDelays"; module: number }
   | { kind: "irSensors" }
+  | { kind: "feederStop" }
   | { kind: "feeder" }
   | { kind: "test" };
 
@@ -202,6 +203,17 @@ export interface DeviceTogglePanelProps {
   onChange: (key: DeviceToggleKey, value: boolean) => void;
 }
 
+export interface FeederSpeedAnchor {
+  center: number;
+  speed: number;
+  reverseSpeed: number;
+}
+
+export interface SetupFeederSpeedAnchor {
+  center: number;
+  speed: number;
+}
+
 export interface FeederCalibrationPanelProps {
   speedValue: number;
   durationValue: number;
@@ -210,9 +222,12 @@ export interface FeederCalibrationPanelProps {
   settleDurationValue: number;
   reverseSpeedValue: number;
   reverseDurationValue: number;
+  stopPulse: number | null;
   canEditTimings: boolean;
   canCalibrate: boolean;
   onSpeedChange: (value: number) => void;
+  onStopPulseChange: (value: number) => void;
+  onResetStopPulse: () => void;
   onDurationChange: (value: number) => void;
   onPulseDurationChange: (value: number) => void;
   onPauseDurationChange: (value: number) => void;
@@ -275,6 +290,7 @@ export interface Device {
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
   matchesNeeded: number;
+  feederStopPulse: number | null;
   checkBothOrientations: boolean;
   moduleCount: number;
   channelLayout: ChannelLayout;

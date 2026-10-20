@@ -4,16 +4,12 @@
     "subtitle": "Manage games, sync card data, and the card image vector database"
   },
   "sections": {
-    "cards": "Cards",
-    "games": "Games",
+    "cards": "Games and cards",
     "users": "Users",
     "plans": "Plans",
-    "discordStats": "Discord stats",
-    "announcements": "Announcements",
-    "deleted": "Deleted items",
-    "unmatched": "Unmatched scans",
-    "servos": "Kit testing",
-    "device": "Device",
+    "discord": "Discord",
+    "deleted": "Deleted and unmatched",
+    "hardware": "Hardware",
     "developer": "Developer"
   },
   "kitTest": {
@@ -115,6 +111,8 @@
     "selectGamePlaceholder": "Select a game...",
     "languagePlaceholder": "Language...",
     "forceResyncLabel": "Force full resync",
+    "concurrencyLabel": "Cards at a time",
+    "concurrencyDescription": "Vectorizes this many card images at once. Downloads still start a short time apart.",
     "cancellingButton": "Cancelling...",
     "startSyncButton": "Start Sync",
     "progressCount": "{{done}} / {{total}}",
@@ -465,14 +463,6 @@
     "ocrNoName": "OCR read \"{{text}}\", no card name was close enough"
   },
   "platformStats": {
-    "destinationHeading": "Destination",
-    "destinationDescription": "The Discord server and channel the platform stats are posted to. The bot must be in the server and able to post in the channel.",
-    "server": "Server",
-    "channel": "Channel",
-    "noServer": "No server",
-    "noChannel": "No channel",
-    "loadingChannels": "Loading channels...",
-    "botUnreachable": "The Discord bot isn't reachable, so servers and channels can't be listed right now.",
     "statsHeading": "Stats",
     "statsDescription": "Which numbers to include in each post, across every organization.",
     "stats": {
@@ -511,5 +501,31 @@
     "saveFailed": "Couldn't save the stats settings.",
     "posted": "Stats posted to Discord.",
     "postFailed": "Couldn't post the stats."
+  },
+  "discordChannels": {
+    "server": "Server",
+    "channel": "Channel",
+    "noServer": "No server",
+    "noChannel": "No channel",
+    "loadingChannels": "Loading channels...",
+    "botUnreachable": "The Discord bot isn't reachable, so servers and channels can't be listed right now.",
+    "channels": {
+      "stats": {
+        "heading": "Platform stats",
+        "description": "Where the platform stats are posted, and which numbers each post includes. Leave the channel empty to stop posting stats."
+      },
+      "donations": {
+        "heading": "Donations",
+        "description": "Where each Buy Me a Coffee donation is posted. Leave it empty to stop posting donations."
+      },
+      "pricing": {
+        "heading": "Price updates",
+        "description": "Where a summary is posted whenever the price sync pulls new prices. Leave it empty to stop posting price updates."
+      }
+    },
+    "priceSyncCommand": "Prices are pulled when this command runs. Add it as a scheduled task in Coolify on the server app, every few hours. It only downloads what changed upstream.",
+    "donationsLink": "Open the Buy Me a Coffee page",
+    "saved": "Discord channels saved.",
+    "saveFailed": "Couldn't save the Discord channels."
   }
 }

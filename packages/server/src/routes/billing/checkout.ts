@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import { authQuery, db } from "../../db";
 import { orgBilling } from "../../db/schema";
 import {
-  getBusinessPriceId,
+  findBusinessPriceId,
   getStripe,
 } from "../../lib/stripe";
 import {
@@ -13,7 +13,7 @@ import {
   requireOrgRole,
   type AppEnv,
 } from "../../middleware/auth";
-import { webUrl } from "./shared";
+import { checkoutInputSchema, webUrl } from "./shared";
 
 export const checkoutBillingRoute = new Hono<AppEnv>().post(
   "/checkout",
@@ -23,6 +23,19 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
   async (c) => {
     const orgId = c.get("orgId");
     const userId = c.get("userId");
+    const input = checkoutInputSchema.safeParse(
+      await c.req.json().catch(() => ({})),
+    );
+    if (!input.success) {
+      return c.json({ success: false, message: "Invalid input." }, 400);
+    }
+    const priceId = findBusinessPriceId(input.data.interval);
+    if (!priceId) {
+      return c.json(
+        { success: false, message: "This billing interval is not available." },
+        400,
+      );
+    }
     try {
       const existing = await authQuery(c.get("jwtClaims"), (tx) =>
         tx.query.orgBilling.findFirst({
@@ -52,7 +65,7 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
         customer: stripeCustomerId,
         client_reference_id: orgId,
         metadata: { orgId },
-        line_items: [{ price: getBusinessPriceId(), quantity: 1 }],
+        line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${webUrl()}/app/settings/billing?billing=success`,
         cancel_url: `${webUrl()}/app/settings/billing?billing=cancelled`,
       });

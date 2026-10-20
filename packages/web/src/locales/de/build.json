@@ -237,7 +237,7 @@
             "notes": "Bei jedem Servo enthalten; sichert das Horn auf der Welle"
           },
           "hookupWire": {
-            "part": "Niederspannungskabel",
+            "part": "Jumper-Kabel",
             "notes": "IR-Sensoren/Servos. Damit musst du eventuell einige in Reihe verbinden – umwickle sie einfach mit Isolierband, damit sie sich nicht lösen."
           },
           "wagoConnectors": {
@@ -263,6 +263,14 @@
           "cameraMountScrew": {
             "part": "1/4\"-20 Kamera-Befestigungsschraube",
             "notes": "Standard-Stativgewinde - passt in die Buchse einer Webcam- oder Telefonhalterung"
+          },
+          "hopperWeights": {
+            "part": "Gewichte für den Hopper-Schlitten",
+            "notes": "Werden in den beschwerten Hopper-Schlitten gelegt und drücken den Stapel nach unten, damit Karten zuverlässiger einziehen. Bis zu 25 möglich"
+          },
+          "servoExtensionCables": {
+            "part": "Servo-Verlängerungskabel",
+            "notes": "Nur bei mehr als 3 Sortiermodulen nötig, wenn die Servokabel ab Werk nicht bis zur Servotreiberplatine reichen"
           }
         }
       }
@@ -271,6 +279,7 @@
   "wiring": {
     "description": "Alles hängt an einem einzigen I²C-Bus (PCA9685) und {{count}} digitalen Eingangspins (IR-Sensoren). Die Logikseite des PCA9685 wird über die Onboard-Versorgung des {{board}} gespeist; seine <pin>V+</pin>-Servoschiene muss von der externen Versorgung kommen, und deren Masse muss mit der Masse des {{board}} verbunden sein – eine schwebende Servomasse ist der häufigste Grund, warum sich ein frisch verkabeltes Gerät nicht bewegt.",
     "wireColorNote": "Kabelfarben unterscheiden sich je nach Bauteil und Hersteller, verlass dich also nicht auf die Farben im Schaltplan oder auf den Fotos. Verfolge jedes Kabel ab seiner Pin-Beschriftung und stelle sicher, dass es an der richtigen Stelle ankommt.",
+    "powerSupplyWarning": "Verwende für die Servos ein 6V-3A-Netzteil. Alles darüber kann die Servos oder die Servo-Steuerplatine durchbrennen lassen.",
     "sections": {
       "i2c": {
         "title": "I²C-Bus",
@@ -373,7 +382,8 @@
             "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {
-            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
+            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals.",
+            "mg90Note": "Verwendest du einen MG90S-Servo für den Zuführer? Drucke das MG90S-Zuführhorn von der Alternative-Horn-Platte statt des Standard-Rollenhorns."
           },
           "printSortingModuleShroud": {
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
@@ -401,6 +411,10 @@
           },
           "printEndBinPlate": {
             "text": "Drucke 1 End-Bin-Platte."
+          },
+          "printModulePins": {
+            "text": "Drucke {{count}} Module Pins für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der Base-Support-Teile. Jedes Base-Support-Teil braucht 4 Pins oben, und jede Höheneinheit 2 vorne, außer der obersten Einheit jeder Säule. Die Pins verbinden die Base-Support-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren.",
+            "note": "Stecke die Base-Support-Teile und Sortiermodule zuerst mit den Pins trocken zusammen. Wenn alles passt, klebe jeden Pin mit Sekundenkleber fest."
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
@@ -478,8 +492,13 @@
           "mountFeederRoller": {
             "text": "Befestige die Rolle am Zuführmodul."
           },
+          "mountRollerHorn": {
+            "text": "Drücke das Rollenhorn auf die Welle des Dauerdreh-Zuführservos.",
+            "note": "Die Zuführrolle wird in zwei Teilen gedruckt: die Rolle selbst und ein separates Rollenhorn. Auf keinem der Teile steht \"Servo\". Das Rollenhorn ist das kleine Teil, das auf die Servowelle passt."
+          },
           "mountFeederServo": {
-            "text": "Montiere den Dauerdreh-Zuführservo an der Rolle, am Fuß des Trichters."
+            "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht.",
+            "note": "Hast du die zweiteilige Rolle? Schraube zuerst das Rollenhorn auf die Servowelle, führe das Horn dann durch das Loch im Zuführsockel und schiebe anschließend die andere Hälfte der Rolle auf das Horn."
           },
           "fitHopperRollerOrings": {
             "text": "Ziehe O-Ringe auf die Trichterrolle auf.",

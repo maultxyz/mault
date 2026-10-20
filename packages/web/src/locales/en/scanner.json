@@ -287,6 +287,7 @@
     "scanner": "Scanner",
     "autoFeed": "Auto-feed",
     "allowDuplicates": "Allow duplicates",
+    "scanWithoutSorter": "Scan without sorter",
     "calibrate": "Sorter setup",
     "retryConnection": "Retry Connection",
     "phoneCameraConnected": "Phone Camera Connected",
@@ -329,6 +330,10 @@
     "testingScanner": "Testing card sorter connection…",
     "settling": "Waiting for card to settle…",
     "autoFeedOff": "Auto-feed is off, feed cards manually.",
+    "scanByHand": "Scan by hand",
+    "handScanPrompt": "Hold a card still under the camera, then remove it to scan the next one.",
+    "handScanBinLabel": "Put in",
+    "handScanBin": "Bin {{number}}",
     "firmwareVersionMissing": "Card sorter firmware doesn't report a version. Re-upload the latest firmware/main/main.ino to enable scanning.",
     "noCatchAllBin": "No catch-all bin configured, so unmatched cards won't be sorted.",
     "initializing": "Initializing scanner…",
@@ -386,7 +391,9 @@
     "identifyTitle": "Identify this card",
     "identifyDescription": "Pick the card in this scan. It's added to the collection with this photo, in the bin it was sorted into.",
     "identified": "{{name}} added to the collection.",
-    "identifyFailed": "Couldn't add the card. Try again."
+    "identifyFailed": "Couldn't add the card. Try again.",
+    "remove": "Remove card",
+    "removeFailed": "Couldn't remove the card. Try again."
   },
   "binStatusMeter": {
     "heading": "Bin Levels",
@@ -424,7 +431,8 @@
     "connectFailed": "Could not connect.",
     "noCardsScannedYet": "No cards scanned yet.",
     "noCardsMatchSearch": "No cards match the search query.",
-    "isWatchingTooltip": "{{name}} is watching"
+    "isWatchingTooltip": "{{name}} is watching",
+    "setActive": "Set active"
   },
   "monitorSessions": {
     "yourSession": "Your session",
@@ -687,9 +695,12 @@
     "autoFeedDescription": "Feed the next card as soon as one is sorted",
     "allowDuplicates": "Allow duplicates",
     "allowDuplicatesDescription": "Save the same printing more than once",
+    "handScan": "Auto-detect cards",
+    "handScanDescription": "Scan without a sorter. Hold a card still in view and it scans on its own.",
     "camera": "Camera",
     "preset": "Rule preset",
     "choosePreset": "Choose a preset",
+    "chooseCamera": "Choose a camera",
     "cameraFallback": "Camera {{number}}",
     "sorter": "Sorter",
     "pairDesktop": "Use as a desktop camera",
@@ -697,6 +708,7 @@
     "phase": {
       "ready": "Ready",
       "scanning": "Scanning",
+      "handScan": "Hold a card still",
       "error": "Error"
     },
     "sorterState": {

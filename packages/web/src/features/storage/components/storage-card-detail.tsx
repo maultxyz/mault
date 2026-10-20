@@ -6,14 +6,13 @@ import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { storageLocationCardsQueryOptions } from "@/features/storage/api/storage-locations";
+import { storageLocationCardContextQueryOptions } from "@/features/storage/api/storage-locations";
 import {
   useRemoveCardFromLocation,
   useStoredCardActions,
 } from "@/features/storage/api/use-storage-locations";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
-import type { StorageLocationCard } from "@magic-vault/shared";
 import { toast } from "@/lib/toast";
 import { IconBoxOff } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -33,22 +32,22 @@ export function StorageCardDetail({
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const queryClient = useQueryClient();
   const { collections } = useCollections();
-  const { data: cards = [], isPending } = useQuery(
-    storageLocationCardsQueryOptions(location.guid),
+  const { data: context, isPending } = useQuery(
+    storageLocationCardContextQueryOptions(location.guid, scanId, reviewMode),
   );
 
-  const index = cards.findIndex((card) => card.scanId === scanId);
-  const stored = index >= 0 ? cards[index] : undefined;
-  const isNavigable = (card: StorageLocationCard) =>
-    !reviewMode || !card.reviewed;
-  const previous =
-    index > 0 ? cards.slice(0, index).findLast(isNavigable) : undefined;
-  const next =
-    index >= 0 ? cards.slice(index + 1).find(isNavigable) : undefined;
+  const stored = context?.card;
+  const previous = context?.previous;
+  const next = context?.next;
+  const total = context?.total ?? 0;
   const entry = useMemo(
     () =>
       stored
-        ? { ...stored, locationGuid: location.guid, locationName: location.name }
+        ? {
+            ...stored,
+            locationGuid: location.guid,
+            locationName: location.name,
+          }
         : null,
     [stored, location.guid, location.name],
   );
@@ -72,17 +71,26 @@ export function StorageCardDetail({
   }, [isMissing, onClose]);
 
   useEffect(() => {
-    if (!next) return;
-    void queryClient.prefetchQuery(
-      collectionCardPositionQueryOptions(
-        next.collectionGuid,
-        next.scanId,
-        CARD_LOOKUP_QUERY,
-      ),
-    );
-  }, [next, queryClient]);
+    for (const neighbor of [next, previous]) {
+      if (!neighbor) continue;
+      void queryClient.prefetchQuery(
+        storageLocationCardContextQueryOptions(
+          location.guid,
+          neighbor.scanId,
+          reviewMode,
+        ),
+      );
+      void queryClient.prefetchQuery(
+        collectionCardPositionQueryOptions(
+          neighbor.collectionGuid,
+          neighbor.scanId,
+          CARD_LOOKUP_QUERY,
+        ),
+      );
+    }
+  }, [next, previous, location.guid, reviewMode, queryClient]);
 
-  if (!stored || !scanned) return <CardDetailPanelSkeleton />;
+  if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 
   const removeFromLocation = () => {
     setConfirmRemoveOpen(false);
@@ -109,11 +117,11 @@ export function StorageCardDetail({
         onNext={() => next && onNavigate(next.scanId)}
         hasPrev={!!previous}
         hasNext={!!next}
-        currentIndex={index}
-        total={cards.length}
+        currentIndex={context.index}
+        total={total}
         reviewMode={reviewMode}
         onReviewComplete={() => {
-          toast.success(t("review.complete", { count: cards.length }));
+          toast.success(t("review.complete", { count: total }));
           onClose();
         }}
         onRemoveShortcut={() => setConfirmRemoveOpen(true)}

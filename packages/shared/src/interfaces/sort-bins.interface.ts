@@ -21,6 +21,9 @@ export type ConditionOperator =
   | "contains_any"
   | "contains_all"
   | "contains_none"
+  | "count_equals"
+  | "count_gt"
+  | "count_lt"
   | "is_null"
   | "is_not_null";
 
@@ -104,6 +107,7 @@ export interface BinSet {
   alphabetPrefix: string;
   isChaosMode: boolean;
   chaosBinSize: number | null;
+  skipSaving: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

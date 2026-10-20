@@ -6,7 +6,7 @@ import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
-import { storageLocationCardsQueryOptions } from "@/features/storage/api/storage-locations";
+import { fetchNextUnreviewedStorageCard } from "@/features/storage/api/storage-locations";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
@@ -23,6 +23,7 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import {
   STORAGE_CARD_SEARCH_PARAM,
   STORAGE_LOCATION_SEARCH_PARAM,
+  STORAGE_PAGE_SEARCH_PARAM,
   STORAGE_REVIEW_SEARCH_PARAM,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
@@ -34,7 +35,6 @@ import {
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -56,12 +56,12 @@ function DesktopStoragePage() {
   );
   const isSearching = searchQuery.trim().length > 0;
 
-  const queryClient = useQueryClient();
   const selectedGuid =
     searchParams.get(STORAGE_LOCATION_SEARCH_PARAM) ?? locations[0]?.guid;
   const selected = locations.find((l) => l.guid === selectedGuid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const isReviewing = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM) === "1";
+  const pageParam = searchParams.get(STORAGE_PAGE_SEARCH_PARAM);
   const isCardOpen = !!selected && !isSearching && !!openScanId;
 
   const select = useCallback(
@@ -79,21 +79,28 @@ function DesktopStoragePage() {
         [STORAGE_LOCATION_SEARCH_PARAM]: guid,
         [STORAGE_CARD_SEARCH_PARAM]: scanId,
         ...(review ? { [STORAGE_REVIEW_SEARCH_PARAM]: "1" } : {}),
+        ...(pageParam ? { [STORAGE_PAGE_SEARCH_PARAM]: pageParam } : {}),
       },
       { replace: true },
     );
 
   const closeCard = useCallback(() => {
-    if (selected) select(selected.guid);
-  }, [selected, select]);
+    if (!selected) return;
+    setSearchParams(
+      {
+        [STORAGE_LOCATION_SEARCH_PARAM]: selected.guid,
+        ...(pageParam ? { [STORAGE_PAGE_SEARCH_PARAM]: pageParam } : {}),
+      },
+      { replace: true },
+    );
+  }, [selected, pageParam, setSearchParams]);
 
   const startReview = async () => {
     if (!selected) return;
-    const cards = await queryClient
-      .fetchQuery(storageLocationCardsQueryOptions(selected.guid))
-      .catch(() => []);
-    const first = cards.find((card) => !card.reviewed);
-    if (first) openCard(selected.guid, first.scanId, true);
+    const first = await fetchNextUnreviewedStorageCard(selected.guid).catch(
+      () => null,
+    );
+    if (first) openCard(selected.guid, first, true);
     else toast.info(t("review.nothingLeft"));
   };
 
@@ -159,9 +166,20 @@ function DesktopStoragePage() {
             />
           </section>
         ) : (
-          <section className="relative col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 pt-14 lg:col-span-9">
+          <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 lg:col-span-9">
             {selected && !isSearching && (
-              <div className="absolute top-2 right-2 z-10 flex items-center gap-2">
+              <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+                <div className="mr-auto min-w-0">
+                  <h1 className="truncate font-heading text-lg font-semibold">
+                    {selected.name}
+                  </h1>
+                  <p className="text-xs tabular-nums text-foreground/70">
+                    {t("page.summary", {
+                      count: selected.cardCount,
+                      value: format(selected.totalValue),
+                    })}
+                  </p>
+                </div>
                 {selected.cardCount > 0 && (
                   <>
                     <Button
@@ -232,25 +250,12 @@ function DesktopStoragePage() {
               )
             ) : (
               selected && (
-                <>
-                  <div className="min-w-0">
-                    <h1 className="truncate font-heading text-lg font-semibold">
-                      {selected.name}
-                    </h1>
-                    <p className="text-xs tabular-nums text-foreground/70">
-                      {t("page.summary", {
-                        count: selected.cardCount,
-                        value: format(selected.totalValue),
-                      })}
-                    </p>
-                  </div>
-                  <StorageLocationCards
-                    location={selected}
-                    onOpenCard={(entry) =>
-                      openStoredCard(entry.locationGuid, entry.scanId)
-                    }
-                  />
-                </>
+                <StorageLocationCards
+                  location={selected}
+                  onOpenCard={(entry) =>
+                    openStoredCard(entry.locationGuid, entry.scanId)
+                  }
+                />
               )
             )}
           </section>

@@ -151,9 +151,12 @@ export function SorterCalibrationPanel({
             settleDurationValue={state.feederSettleDurationValue}
             reverseSpeedValue={state.feederReverseSpeedValue}
             reverseDurationValue={state.feederReverseDurationValue}
+            stopPulse={state.feederStopPulse}
             canEditTimings={canEditTimings}
             canCalibrate={state.canCalibrate}
             onSpeedChange={state.handleFeederSpeedChange}
+            onStopPulseChange={state.handleFeederStopPulseChange}
+            onResetStopPulse={state.handleResetFeederStopPulse}
             onDurationChange={state.handleFeederDurationChange}
             onPulseDurationChange={state.handleFeederPulseDurationChange}
             onPauseDurationChange={state.handleFeederPauseDurationChange}

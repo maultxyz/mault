@@ -1,4 +1,5 @@
 import type { UnmatchedDiagnosticsDetailsProps } from "@/lib/interfaces/scanner";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 function formatDistance(distance: number | null): string {
@@ -7,12 +8,13 @@ function formatDistance(distance: number | null): string {
 
 export function UnmatchedDiagnosticsDetails({
   diagnostics,
+  className,
 }: UnmatchedDiagnosticsDetailsProps) {
   const { t } = useTranslation("scanner");
   const { search, detection, attempts } = diagnostics;
 
   return (
-    <div className="w-64 flex flex-col gap-2 px-1.5 py-1 text-xs">
+    <div className={cn("w-64 flex flex-col gap-2 px-1.5 py-1 text-xs", className)}>
       <div>
         <p className="font-medium">
           {t(`unmatchedCardsPanel.reasons.${diagnostics.reason}`)}

@@ -12,6 +12,10 @@ import { useCardSync } from "@/features/admin/api/use-card-sync";
 import { formatDuration } from "@/features/admin/lib/format-duration";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
+import {
+  SYNC_VECTORIZE_CONCURRENCY_DEFAULT,
+  SYNC_VECTORIZE_CONCURRENCY_OPTIONS,
+} from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -34,6 +38,9 @@ export function CardSyncPanel() {
   const [syncGameKey, setSyncGameKey] = useState<string | null>(null);
   const [syncLang, setSyncLang] = useState<string>("en");
   const [forceResync, setForceResync] = useState(false);
+  const [concurrency, setConcurrency] = useState(
+    SYNC_VECTORIZE_CONCURRENCY_DEFAULT,
+  );
 
   useEffect(() => {
     if (logRef.current) {
@@ -126,7 +133,9 @@ export function CardSyncPanel() {
             ) : (
               <Button
                 disabled={isRunning || isStarting || !syncGameKey}
-                onClick={() => start(syncGameKey!, syncLang, forceResync)}
+                onClick={() =>
+                  start(syncGameKey!, syncLang, forceResync, concurrency)
+                }
               >
                 {isStarting
                   ? t("starting")
@@ -137,14 +146,46 @@ export function CardSyncPanel() {
         </div>
 
         {!isRunning && (
-          <label className="flex items-center gap-2 text-sm">
-            <Switch
-              size="sm"
-              checked={forceResync}
-              onCheckedChange={setForceResync}
-            />
-            {t("cardImageVectors.forceResyncLabel")}
-          </label>
+          <div className="flex flex-col gap-3">
+            <label className="flex items-center gap-2 text-sm">
+              <Switch
+                size="sm"
+                checked={forceResync}
+                onCheckedChange={setForceResync}
+              />
+              {t("cardImageVectors.forceResyncLabel")}
+            </label>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="text-sm">
+                  {t("cardImageVectors.concurrencyLabel")}
+                </span>
+                <Select
+                  value={String(concurrency)}
+                  onValueChange={(value) => {
+                    const next = SYNC_VECTORIZE_CONCURRENCY_OPTIONS.find(
+                      (option) => String(option) === value,
+                    );
+                    if (next !== undefined) setConcurrency(next);
+                  }}
+                >
+                  <SelectTrigger className="w-24">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SYNC_VECTORIZE_CONCURRENCY_OPTIONS.map((option) => (
+                      <SelectItem key={option} value={String(option)}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-foreground/70">
+                {t("cardImageVectors.concurrencyDescription")}
+              </p>
+            </div>
+          </div>
         )}
 
         {total > 0 && (

@@ -8,11 +8,18 @@ import {
   MIN_USABLE_QUAD_AREA,
   MTG_CARD_ASPECT_RATIO,
 } from "./constants/vision-model.constant";
-import { DEFAULT_SCAN_REGION } from "./constants/scanner.constant";
+import {
+  DEFAULT_SCAN_REGION,
+  OUTLINE_FADE_MS,
+  OUTLINE_SETTLED_PX,
+  OUTLINE_SMOOTHING_MS,
+  OUTLINE_SNAP_OPACITY,
+} from "./constants/scanner.constant";
 import type { ColorBarRegion } from "./interfaces/ocr-region.interface";
 import type {
   CardContour,
   CornerDetection,
+  OutlineAnimationState,
   Point,
   ScanRegion,
 } from "./interfaces/scanner.interface";
@@ -418,4 +425,63 @@ export function detectColorBarRgba(
   const [best] = Object.entries(votes).sort((a, b) => b[1] - a[1]);
   if (!best) return null;
   return best[1] / (width * height) >= COLOR_BAR_MIN_SHARE ? best[0] : null;
+}
+
+export function maxCornerShift(a: CardContour, b: CardContour): number {
+  const from = contourToPoints(a);
+  const to = contourToPoints(b);
+  return Math.max(
+    ...from.map((point, index) =>
+      Math.hypot(point.x - to[index].x, point.y - to[index].y),
+    ),
+  );
+}
+
+export function lerpContour(
+  from: CardContour,
+  to: CardContour,
+  t: number,
+): CardContour {
+  const lerp = (a: Point, b: Point): Point => ({
+    x: a.x + (b.x - a.x) * t,
+    y: a.y + (b.y - a.y) * t,
+  });
+  return {
+    topLeft: lerp(from.topLeft, to.topLeft),
+    topRight: lerp(from.topRight, to.topRight),
+    bottomRight: lerp(from.bottomRight, to.bottomRight),
+    bottomLeft: lerp(from.bottomLeft, to.bottomLeft),
+  };
+}
+
+export function stepOutline(
+  state: OutlineAnimationState,
+  target: CardContour | null,
+  dtMs: number,
+  reduceMotion: boolean,
+): OutlineAnimationState {
+  if (reduceMotion) {
+    return { contour: target ?? state.contour, opacity: target ? 1 : 0 };
+  }
+  const move = 1 - Math.exp(-dtMs / OUTLINE_SMOOTHING_MS);
+  const fade = 1 - Math.exp(-dtMs / OUTLINE_FADE_MS);
+  const contour = target
+    ? state.contour && state.opacity > OUTLINE_SNAP_OPACITY
+      ? lerpContour(state.contour, target, move)
+      : target
+    : state.contour;
+  const opacity = state.opacity + ((target ? 1 : 0) - state.opacity) * fade;
+  return { contour, opacity };
+}
+
+export function isOutlineSettled(
+  state: OutlineAnimationState,
+  target: CardContour | null,
+): boolean {
+  if (!target) return state.opacity < 0.01;
+  return (
+    !!state.contour &&
+    state.opacity > 0.99 &&
+    maxCornerShift(state.contour, target) < OUTLINE_SETTLED_PX
+  );
 }

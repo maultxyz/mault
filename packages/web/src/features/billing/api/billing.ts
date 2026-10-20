@@ -1,6 +1,7 @@
 import { apiGet, apiPost } from "@/lib/api/client";
 import { BILLING_STALE_MS } from "@/lib/constants/timing";
 import type { BillingStatus } from "@/lib/interfaces/billing";
+import type { BillingInterval } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
 
@@ -11,12 +12,14 @@ export async function getBillingStatus(): Promise<{
   return apiGet("/api/billing");
 }
 
-export async function createCheckoutSession(): Promise<{
+export async function createCheckoutSession(
+  interval: BillingInterval,
+): Promise<{
   success: boolean;
   message?: string;
   data?: { url: string };
 }> {
-  return apiPost("/api/billing/checkout");
+  return apiPost("/api/billing/checkout", { interval });
 }
 
 export async function createPortalSession(): Promise<{

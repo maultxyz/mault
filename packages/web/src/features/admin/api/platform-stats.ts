@@ -1,6 +1,5 @@
 import { apiGet, apiPost, apiPut } from "@/lib/api/client";
 import type {
-  AdminPlatformStatsGuildResponse,
   AdminPlatformStatsResponse,
   PlatformStatsSettings,
   Result,
@@ -14,16 +13,6 @@ export const platformStatsQueryOptions = queryOptions({
       (r) => r.data ?? null,
     ),
 });
-
-export const platformStatsGuildQueryOptions = (guildId: string | null) =>
-  queryOptions({
-    queryKey: ["admin", "platform-stats", "guild", guildId] as const,
-    queryFn: () =>
-      apiGet<Result<AdminPlatformStatsGuildResponse>>(
-        `/api/admin/platform-stats/guilds/${encodeURIComponent(guildId!)}`,
-      ).then((r) => r.data ?? null),
-    enabled: !!guildId,
-  });
 
 export function savePlatformStatsSettings(
   settings: PlatformStatsSettings,

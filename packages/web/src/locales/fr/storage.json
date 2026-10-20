@@ -110,5 +110,11 @@
     "binLabel_one": "Bac {{bin}} · {{count}} carte",
     "binLabel_other": "Bac {{bin}} · {{count}} cartes",
     "confirm": "Vider tous les bacs"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page {{page}} sur {{count}}",
+    "range": "{{from}}-{{to}} sur {{total}} cartes"
   }
 }

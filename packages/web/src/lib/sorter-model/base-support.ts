@@ -1,6 +1,11 @@
+import {
+  MODULE_PINS_PER_PIECE_TOP,
+  MODULE_PINS_PER_UNIT_FRONT,
+} from "@/lib/constants/build";
 import type {
   SorterBaseSupportBlock,
   SorterBaseSupportCounts,
+  SorterModulePinCounts,
 } from "@/lib/interfaces/sorter-model";
 
 function columnPieces(height: number) {
@@ -20,6 +25,15 @@ export function countBaseSupportPieces(
     oneTall += tier % 3;
   }
   return { threeTall, oneTall };
+}
+
+export function countModulePins(moduleCount: number): SorterModulePinCounts {
+  const { threeTall, oneTall } = countBaseSupportPieces(moduleCount);
+  const columns = moduleCount + 1;
+  const units = (columns * (columns + 1)) / 2;
+  const front = MODULE_PINS_PER_UNIT_FRONT * (units - columns);
+  const top = MODULE_PINS_PER_PIECE_TOP * (threeTall + oneTall);
+  return { front, top, total: front + top };
 }
 
 export function breakoutSupportHeight(moduleCount: number) {

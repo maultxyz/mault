@@ -1,6 +1,8 @@
+import type { PlatformDiscordChannelKey } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { collections, orgSettings } from "../../db/schema";
+import { loadPlatformDiscordChannel } from "../platform-discord-channels";
 import type {
   BotPostRequest,
   DiscordEmbed,
@@ -165,13 +167,15 @@ export async function sendDiscordNotification(
   return ok ? "sent" : "failed";
 }
 
-export async function sendDonationDiscordNotification(
+export async function sendPlatformDiscordNotification(
+  key: PlatformDiscordChannelKey,
   embed: DiscordEmbed,
-): Promise<void> {
-  const channelId = process.env.DISCORD_DONATION_CHANNEL_ID;
-  if (!channelId) return;
+): Promise<DiscordNotifyOutcome> {
+  const { guildId, channelId } = await loadPlatformDiscordChannel(key);
+  if (!guildId || !channelId) return "no_channel";
 
-  await postEmbedToBot({ channelId, embed });
+  const { ok } = await postEmbedToBot({ guildId, channelId, embed });
+  return ok ? "sent" : "failed";
 }
 
 export async function sendDiscordChannelMessage(

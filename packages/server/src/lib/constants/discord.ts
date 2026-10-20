@@ -34,3 +34,9 @@ export const DISCORD_TEST_EMBEDS: Record<string, { title: string; description: s
       "The card database sync job encountered a fatal error.\n\n**Error:** Scryfall catalog fetch failed: 503",
   },
 };
+
+export const PRICE_SYNC_EMBED_COLORS = {
+  success: 0x57f287,
+  partial: 0xfee75c,
+  failed: 0xed4245,
+} as const;

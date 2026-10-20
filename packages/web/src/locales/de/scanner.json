@@ -287,6 +287,7 @@
     "scanner": "Scanner",
     "autoFeed": "Automatische Zufuhr",
     "allowDuplicates": "Duplikate zulassen",
+    "scanWithoutSorter": "Ohne Sortierer scannen",
     "calibrate": "Sortierer einrichten",
     "retryConnection": "Verbindung erneut versuchen",
     "phoneCameraConnected": "Telefonkamera verbunden",
@@ -328,6 +329,10 @@
     "scannerNotConnected": "Kartensortierer nicht verbunden.",
     "testingScanner": "Verbindung zum Kartensortierer wird getestet…",
     "autoFeedOff": "Automatische Zufuhr ist deaktiviert - Karten manuell zuführen.",
+    "scanByHand": "Per Hand scannen",
+    "handScanPrompt": "Halte eine Karte ruhig unter die Kamera und nimm sie dann weg, um die nächste zu scannen.",
+    "handScanBinLabel": "Ablegen in",
+    "handScanBin": "Fach {{number}}",
     "firmwareVersionMissing": "Die Firmware des Kartensortierers meldet keine Version. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
     "noCatchAllBin": "Kein Sammelfach konfiguriert - nicht zugeordnete Karten werden nicht sortiert.",
     "initializing": "Scanner wird initialisiert…",
@@ -386,7 +391,9 @@
     "identifyTitle": "Diese Karte bestimmen",
     "identifyDescription": "Wähle die Karte aus diesem Scan. Sie wird mit diesem Foto der Sammlung hinzugefügt, im Fach, in das sie sortiert wurde.",
     "identified": "{{name}} wurde der Sammlung hinzugefügt.",
-    "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut."
+    "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut.",
+    "remove": "Karte entfernen",
+    "removeFailed": "Die Karte konnte nicht entfernt werden. Versuche es erneut."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
@@ -424,7 +431,8 @@
     "connectFailed": "Verbindung konnte nicht hergestellt werden.",
     "noCardsScannedYet": "Noch keine Karten gescannt.",
     "noCardsMatchSearch": "Keine Karten entsprechen der Suche.",
-    "isWatchingTooltip": "{{name}} schaut zu"
+    "isWatchingTooltip": "{{name}} schaut zu",
+    "setActive": "Aktivieren"
   },
   "monitorSessions": {
     "yourSession": "Deine Sitzung",
@@ -687,9 +695,12 @@
     "autoFeedDescription": "Nächste Karte einziehen, sobald eine sortiert ist",
     "allowDuplicates": "Duplikate erlauben",
     "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
+    "handScan": "Karten automatisch erkennen",
+    "handScanDescription": "Ohne Sortierer scannen. Halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
     "camera": "Kamera",
     "preset": "Regel-Vorlage",
     "choosePreset": "Vorlage wählen",
+    "chooseCamera": "Kamera wählen",
     "cameraFallback": "Kamera {{number}}",
     "sorter": "Sortierer",
     "pairDesktop": "Als Desktop-Kamera nutzen",
@@ -697,6 +708,7 @@
     "phase": {
       "ready": "Bereit",
       "scanning": "Scannt",
+      "handScan": "Karte ruhig halten",
       "error": "Fehler"
     },
     "sorterState": {

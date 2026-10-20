@@ -19,3 +19,8 @@ export interface AssignBinToLocationInput {
   collectionId: number;
   locationId: number;
 }
+
+export interface MoveCollectionToLocationInput {
+  collectionId: number;
+  locationId: number;
+}

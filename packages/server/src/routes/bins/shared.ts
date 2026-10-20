@@ -151,6 +151,7 @@ function toBinSet(row: {
   alphabetPrefix: string;
   isChaosMode: boolean;
   chaosBinSize: number | null;
+  skipSaving: boolean;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -198,6 +199,7 @@ function toBinSet(row: {
     alphabetPrefix: row.alphabetPrefix,
     isChaosMode: row.isChaosMode,
     chaosBinSize: row.chaosBinSize,
+    skipSaving: row.skipSaving,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -250,6 +252,7 @@ const binSetQuery = {
     alphabetPrefix: true,
     isChaosMode: true,
     chaosBinSize: true,
+    skipSaving: true,
     createdAt: true,
     updatedAt: true,
   },

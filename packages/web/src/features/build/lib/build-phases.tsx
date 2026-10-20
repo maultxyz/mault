@@ -13,9 +13,15 @@ import {
   WIRE_AND_CALIBRATE_VIDEO,
 } from "@/lib/constants/build";
 import { PRINT_FILES_URL, REPO_URL } from "@/lib/constants/links";
+import type {
+  BoardType,
+  BuildPhase,
+  Esp32MountType,
+} from "@/lib/interfaces/build";
 import {
   breakoutSupportHeight as breakoutHeightFor,
   countBaseSupportPieces,
+  countModulePins,
 } from "@/lib/sorter-model/base-support";
 import {
   IconCpu,
@@ -26,11 +32,6 @@ import {
 } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
 import { Trans } from "react-i18next";
-import type {
-  BoardType,
-  BuildPhase,
-  Esp32MountType,
-} from "@/lib/interfaces/build";
 
 export function getYouTubeVideoId(url: string): string | null {
   const match = url.match(
@@ -58,6 +59,7 @@ export function buildPhases(
   const sortingModules = moduleCount;
   const baseSupportPieces = countBaseSupportPieces(moduleCount);
   const genericBase = Math.max(0, moduleCount - 2);
+  const modulePins = countModulePins(moduleCount);
   const breakoutSupportHeight = isEsp32Breakout
     ? breakoutHeightFor(moduleCount)
     : null;
@@ -100,6 +102,7 @@ export function buildPhases(
         {
           key: "print-feeder-module",
           text: t("assembly.phases.print.steps.printFeederModule.text"),
+          note: t("assembly.phases.print.steps.printFeederModule.mg90Note"),
         },
         {
           key: "print-sorting-module-shroud",
@@ -162,6 +165,16 @@ export function buildPhases(
         {
           key: "print-end-bin-plate",
           text: t("assembly.phases.print.steps.printEndBinPlate.text"),
+        },
+        {
+          key: "print-module-pins",
+          text: t("assembly.phases.print.steps.printModulePins.text", {
+            modules: moduleCount,
+            count: modulePins.total,
+            top: modulePins.top,
+            front: modulePins.front,
+          }),
+          note: t("assembly.phases.print.steps.printModulePins.note"),
         },
         {
           key: "dry-fit",
@@ -227,16 +240,17 @@ export function buildPhases(
           images: ["/instructions/roller_o_rings_mounted.jpg"],
         },
         {
-          key: "mount-feeder-roller",
-          text: t(
-            "assembly.phases.assembleModules.steps.mountFeederRoller.text",
-          ),
-          images: ["/instructions/assembling_feeder.jpg"],
+          key: "mount-roller-horn",
+          text: t("assembly.phases.assembleModules.steps.mountRollerHorn.text"),
+          note: t("assembly.phases.assembleModules.steps.mountRollerHorn.note"),
         },
         {
           key: "mount-feeder-servo",
           text: t(
             "assembly.phases.assembleModules.steps.mountFeederServo.text",
+          ),
+          note: t(
+            "assembly.phases.assembleModules.steps.mountFeederServo.note",
           ),
           images: ["/instructions/feeder_servo_mounted.jpg"],
         },

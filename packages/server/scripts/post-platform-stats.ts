@@ -5,7 +5,7 @@ postPlatformStats()
   .then((outcome) => {
     if (outcome === "not_configured") {
       console.log(
-        "[post-platform-stats] Not configured: pick a server, channel and stats in Admin > Discord stats.",
+        "[post-platform-stats] Not configured: pick a stats channel in Admin > Discord channels and stats in Admin > Discord stats.",
       );
     } else if (outcome === "failed") {
       console.error("[post-platform-stats] The bot couldn't post the stats.");

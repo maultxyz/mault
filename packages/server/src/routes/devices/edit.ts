@@ -30,6 +30,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       } | null;
       captureSettleDelayMs?: number | null;
       matchesNeeded?: number | null;
+      feederStopPulse?: number | null;
       checkBothOrientations?: boolean | null;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
@@ -77,7 +78,9 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
         const merged = {
           name: "name" in body && body.name ? body.name : device.name,
           hardwareId:
-            "hardwareId" in body ? body.hardwareId : device.hardwareId,
+            "hardwareId" in body
+              ? (body.hardwareId ?? null)
+              : device.hardwareId,
           scanCoverage:
             "scanRegion" in body
               ? body.scanRegion
@@ -104,6 +107,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             "matchesNeeded" in body
               ? (body.matchesNeeded ?? null)
               : device.matchesNeeded,
+          feederStopPulse:
+            "feederStopPulse" in body
+              ? (body.feederStopPulse ?? null)
+              : device.feederStopPulse,
           checkBothOrientations:
             "checkBothOrientations" in body
               ? (body.checkBothOrientations ?? null)

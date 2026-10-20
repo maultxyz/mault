@@ -26,6 +26,9 @@ export const MAX_MODULES = 5;
 export const DEFAULT_MODULES = 3;
 
 export const KIT_MODULE_COUNT = 3;
+
+export const MODULE_PINS_PER_UNIT_FRONT = 2;
+export const MODULE_PINS_PER_PIECE_TOP = 4;
 export const KIT_BOARD_TYPE: BoardType = "esp32";
 
 export const BOARD_INFO: Record<BoardType, BoardInfo> = {

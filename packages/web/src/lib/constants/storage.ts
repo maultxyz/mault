@@ -4,5 +4,6 @@ export const STORAGE_PATH = "/app/storage";
 export const STORAGE_LOCATION_SEARCH_PARAM = "location";
 export const STORAGE_CARD_SEARCH_PARAM = "card";
 export const STORAGE_REVIEW_SEARCH_PARAM = "review";
+export const STORAGE_PAGE_SEARCH_PARAM = "page";
 
 export const STORAGE_LIST_SKELETON_COUNT = 6;

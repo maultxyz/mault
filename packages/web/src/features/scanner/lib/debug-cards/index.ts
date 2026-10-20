@@ -1,3 +1,4 @@
+import { cyberpunkDebugCards } from "./cyberpunk";
 import { fabDebugCards } from "./fab";
 import { grandArchiveDebugCards } from "./grand-archive";
 import { gundamDebugCards } from "./gundam";
@@ -15,6 +16,7 @@ const DEBUG_CARDS_BY_GAME_KEY: Record<string, DebugCardSet> = {
   onepiece: onePieceDebugCards,
   fab: fabDebugCards,
   grandarchive: grandArchiveDebugCards,
+  cyberpunk: cyberpunkDebugCards,
 };
 
 export function getDebugCards(gameKey: string | undefined): DebugCardSet {

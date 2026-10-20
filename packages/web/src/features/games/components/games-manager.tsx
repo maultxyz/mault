@@ -20,7 +20,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-import { GAMES_ADMIN_PATH, NEW_GAME_PATH } from "@/lib/constants/games";
+import { GAME_EDITOR_BASE_PATH, NEW_GAME_PATH } from "@/lib/constants/games";
 import { Link } from "react-router-dom";
 import { GamesTransferMenu } from "./games-transfer-menu";
 
@@ -102,7 +102,7 @@ export function GamesManager() {
                 size="icon"
                 variant="outline"
                 nativeButton={false}
-                render={<Link to={`${GAMES_ADMIN_PATH}/${game.guid}`} />}
+                render={<Link to={`${GAME_EDITOR_BASE_PATH}/${game.guid}`} />}
                 title={t("gamesManager.editTitle")}
               >
                 <IconPencil size={14} />

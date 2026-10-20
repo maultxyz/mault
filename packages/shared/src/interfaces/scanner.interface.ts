@@ -19,6 +19,11 @@ export interface CardContour {
   bottomLeft: Point;
 }
 
+export interface OutlineAnimationState {
+  contour: CardContour | null;
+  opacity: number;
+}
+
 export type CornerRejectReason = "not_present" | "unusable_quad";
 
 export interface CornerDetection {
@@ -174,6 +179,15 @@ export interface UnmatchedCard {
 export interface ScanSaveRequestFields {
   deviceGuid?: string;
   isRetry?: boolean;
+}
+
+export interface SortOnlyScanRequest {
+  scanId: string;
+  card: PlayingCardWithDistance;
+  scannedAt: number;
+  hasAlternatives: boolean;
+  vectorizedOn?: ScanVectorizeSource;
+  deviceGuid?: string;
 }
 
 export interface ActiveScanningStats {

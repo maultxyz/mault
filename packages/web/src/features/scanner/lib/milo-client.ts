@@ -8,12 +8,16 @@ import {
 } from "@magic-vault/shared";
 import { ort, runOnnxModel } from "./onnx-runtime";
 
+let scratchCanvas: HTMLCanvasElement | null = null;
+
 function toImageData(canvas: HTMLCanvasElement): ImageData {
-  const copy = document.createElement("canvas");
-  copy.width = canvas.width;
-  copy.height = canvas.height;
-  const ctx = copy.getContext("2d");
+  scratchCanvas ??= document.createElement("canvas");
+  const copy = scratchCanvas;
+  if (copy.width !== canvas.width) copy.width = canvas.width;
+  if (copy.height !== canvas.height) copy.height = canvas.height;
+  const ctx = copy.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("Could not get canvas context");
+  ctx.clearRect(0, 0, copy.width, copy.height);
   ctx.drawImage(canvas, 0, 0);
   return ctx.getImageData(0, 0, copy.width, copy.height);
 }

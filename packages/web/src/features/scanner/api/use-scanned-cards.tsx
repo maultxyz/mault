@@ -16,6 +16,7 @@ import {
   areAllRepackPacksComplete,
   countCopiesInBin,
   evaluateAlphabetBin,
+  findAutoAssignTarget,
   evaluateCardBin,
   evaluateChaosBin,
   evaluatePickListBin,
@@ -50,6 +51,7 @@ import {
   loadUnmatchedCards,
   markCollectionCardReviewed,
   markCollectionCardsDownloaded,
+  recordSortOnlyScan,
   releaseScanLock,
   removeCollectionCard,
   removeCollectionCards,
@@ -77,7 +79,6 @@ import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
-import { findAutoAssignTarget } from "@/features/scanner/lib/auto-assign";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
@@ -428,6 +429,7 @@ export function ScannedCardsProvider({
             configs,
             fieldDefinitionsRef.current,
             autoAssignFieldRef.current,
+            () => crypto.randomUUID(),
           );
       if (!autoTarget) return resolveMatchedBin(ruleCard);
       binConfigsRef.current = configs.map((c) =>
@@ -627,6 +629,7 @@ export function ScannedCardsProvider({
               binConfigsRef.current,
               fieldDefinitionsRef.current,
               autoAssignFieldRef.current,
+              () => crypto.randomUUID(),
             );
       if (autoTarget) {
         binConfigsRef.current = binConfigsRef.current.map((c) =>
@@ -753,6 +756,40 @@ export function ScannedCardsProvider({
           triggerAutoFeed,
           onJam: showJamToast,
         });
+      }
+
+      if (selectedSetRef.current?.skipSaving) {
+        recordSortOnlyScan(
+          collection.guid,
+          {
+            scanId: record.scanId,
+            card,
+            scannedAt: record.scannedAt,
+            hasAlternatives: !!record.alternativeMatches?.length,
+            vectorizedOn,
+            deviceGuid: deviceGuidRef.current,
+          },
+          orgId ?? null,
+        )
+          .then((result) => {
+            if (result.success) return;
+            pause();
+            if (result.sorterLimitReached) {
+              showSorterLimitToast(toast, t, sorterLimitIsHardCapRef.current);
+              return;
+            }
+            toast.error(t("scannedCards.scanLimitReached.title"), {
+              description: t("scannedCards.scanLimitReached.description"),
+            });
+          })
+          .catch((err) => console.error("Failed to record sorted scan:", err))
+          .finally(() => {
+            if (billingQueryKey) {
+              void queryClient.invalidateQueries({ queryKey: billingQueryKey });
+            }
+          });
+        setTimeout(() => playSoundForCard(ruleCard), 0);
+        return;
       }
 
       const pendingBin = record.binNumber;
@@ -935,6 +972,13 @@ export function ScannedCardsProvider({
         vectorizedOn,
         diagnostics: details?.diagnostics,
       };
+      if (record.binNumber != null) {
+        setLastRoutedBin({ binNumber: record.binNumber, at: record.scannedAt });
+      }
+      if (selectedSetRef.current?.skipSaving) {
+        sendCatchAllBin();
+        return;
+      }
       const dropRecord = () =>
         setUnmatchedCards((prev) =>
           prev.filter((c) => c.scanId !== record.scanId),

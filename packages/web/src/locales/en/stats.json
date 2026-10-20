@@ -35,7 +35,8 @@
     "foils": "Foils",
     "shareHint": "{{percent}}% of cards",
     "needsReview": "Needs review",
-    "correctedHint": "{{count}} reviewed"
+    "correctedHint": "{{count}} reviewed",
+    "heading": "Overview"
   },
   "activity": {
     "title": "Scanning activity",

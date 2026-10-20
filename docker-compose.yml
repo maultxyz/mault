@@ -92,6 +92,7 @@ services:
       AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
       PRICE_SYNC_INTERVAL_HOURS: ${PRICE_SYNC_INTERVAL_HOURS:-6}
       PRICE_SYNC_RETRY_MINUTES: ${PRICE_SYNC_RETRY_MINUTES:-10}
+      BOT_URL: ${DOCKER_BOT_URL:-http://bot:3002}
     command:
       - sh
       - -c

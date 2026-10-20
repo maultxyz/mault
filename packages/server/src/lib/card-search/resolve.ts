@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import { authQuery } from "../../db";
 import { collections, games } from "../../db/schema";
+import { cyberpunkAdapter } from "../adapters/cyberpunk/search";
 import { fabAdapter } from "../adapters/fab/search";
 import { grandArchiveAdapter } from "../adapters/grand-archive/search";
 import { gundamAdapter } from "../adapters/gundam/search";
@@ -30,6 +31,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   riftbound: withCache(withErrorHandling(riftboundAdapter)),
   swu: withCache(withErrorHandling(swuAdapter)),
   grandarchive: withCache(withErrorHandling(grandArchiveAdapter)),
+  cyberpunk: withCache(withErrorHandling(cyberpunkAdapter)),
 };
 
 export async function resolveGameKeyAndLang(

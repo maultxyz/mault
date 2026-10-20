@@ -7,3 +7,4 @@ export const SORTER_AUTO_CONNECT_KEY = "mault.sorter-auto-connect";
 export const THEME_PREFERENCE_KEY = "mault.theme-preference";
 export const LANGUAGE_PREFERENCE_KEY = "mault.language-preference";
 export const CAMERA_DEVICE_KEY = "mault.camera-device";
+export const HAND_SCAN_KEY = "mault.hand-scan";

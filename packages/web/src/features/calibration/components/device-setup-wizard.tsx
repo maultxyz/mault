@@ -27,10 +27,14 @@ import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
   emptySetupIrSeen,
+  FEEDER_STOP_GUIDE_STEPS,
+  FEEDER_STOP_PULSE_SLIDER_RANGE,
   MODULE_DELAY_FIELDS,
   PUSHER_SUGGESTED_OFFSET_PERCENT,
   pulseToPercent,
   pulseToSignedPercent,
+  recenterSpeedPulse,
+  SERVO_PULSE_CENTER,
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
   SETUP_INTRO_PARTS,
@@ -45,6 +49,7 @@ import {
 import type {
   ReadIrResponse,
   SetupControlPanelProps,
+  SetupFeederSpeedAnchor,
   SetupIrReading,
   SetupIrSeen,
   SetupIrSensor,
@@ -88,8 +93,14 @@ function buildSteps(
     }
     steps.push({ kind: "moduleDelays", module });
   }
-  if (isOffline) steps.push({ kind: "feeder" });
-  else steps.push({ kind: "irSensors" }, { kind: "feeder" }, { kind: "test" });
+  if (isOffline) steps.push({ kind: "feederStop" }, { kind: "feeder" });
+  else
+    steps.push(
+      { kind: "irSensors" },
+      { kind: "feederStop" },
+      { kind: "feeder" },
+      { kind: "test" },
+    );
   return steps;
 }
 
@@ -121,6 +132,9 @@ export function DeviceSetupWizard() {
   const [stepIndex, setStepIndex] = useState(0);
   const [drafts, setDrafts] = useState<Record<number, ServoCalibration>>({});
   const [feederSpeed, setFeederSpeed] = useState(feederConfig.speed);
+  const [feederStopPulse, setFeederStopPulse] = useState(
+    device?.feederStopPulse ?? SERVO_PULSE_CENTER,
+  );
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [testState, setTestState] = useState<SetupTestState>("idle");
   const [testError, setTestError] = useState<string | null>(null);
@@ -131,6 +145,7 @@ export function DeviceSetupWizard() {
   );
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const feederSpeedAnchorRef = useRef<SetupFeederSpeedAnchor | null>(null);
 
   const steps = useMemo(
     () => buildSteps(moduleCount.displayCount, isOffline),
@@ -148,6 +163,7 @@ export function DeviceSetupWizard() {
 
   const latest = useRef({
     feederSpeed: feederConfig.speed,
+    feederStopPulse: device?.feederStopPulse ?? SERVO_PULSE_CENTER,
     channelLayout: device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT,
     step,
     calibrationFor,
@@ -156,6 +172,7 @@ export function DeviceSetupWizard() {
   });
   latest.current = {
     feederSpeed: feederConfig.speed,
+    feederStopPulse: device?.feederStopPulse ?? SERVO_PULSE_CENTER,
     channelLayout: device?.channelLayout ?? DEFAULT_CHANNEL_LAYOUT,
     step,
     calibrationFor,
@@ -168,7 +185,9 @@ export function DeviceSetupWizard() {
     const current = latest.current;
     setStepIndex(0);
     setDrafts({});
+    feederSpeedAnchorRef.current = null;
     setFeederSpeed(current.feederSpeed);
+    setFeederStopPulse(current.feederStopPulse);
     setTestState("idle");
     setTestError(null);
     setIrReading(null);
@@ -288,8 +307,44 @@ export function DeviceSetupWizard() {
     }
   };
 
+  const handleFeederStopChange = (pulse: number) => {
+    const clamped = Math.min(SERVO_PULSE_MAX, Math.max(SERVO_PULSE_MIN, pulse));
+    const anchor = feederSpeedAnchorRef.current ?? {
+      center: feederStopPulse,
+      speed: feederSpeed,
+    };
+    feederSpeedAnchorRef.current = anchor;
+    setFeederSpeed(recenterSpeedPulse(anchor.speed, anchor.center, clamped));
+    setFeederStopPulse(clamped);
+    if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
+    feederDebounceRef.current = setTimeout(
+      () => previewSpeed(clamped),
+      CALIBRATION_PREVIEW_DEBOUNCE_MS,
+    );
+  };
+
+  const saveFeederStopPulse = async () => {
+    if (!device?.guid) return;
+    const current = device.feederStopPulse ?? SERVO_PULSE_CENTER;
+    if (feederStopPulse === current) return;
+    const result = await saveDevice(device.guid, {
+      feederStopPulse,
+    }).catch(() => null);
+    if (!result?.success || !result.data) {
+      toast.error(t("setupWizard.feederStop.saveFailed"));
+      return;
+    }
+    const saved = result.data;
+    queryClient.setQueryData(
+      devicesQueryOptions(activeOrg?.id).queryKey,
+      (old: Device[] | undefined) =>
+        old?.map((d) => (d.guid === saved.guid ? saved : d)),
+    );
+  };
+
   const handleFeederChange = (signedPercent: number) => {
-    const pulse = signedPercentToPulse(signedPercent);
+    const pulse = signedPercentToPulse(signedPercent, feederStopPulse);
+    feederSpeedAnchorRef.current = null;
     setFeederSpeed(pulse);
     if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
     feederDebounceRef.current = setTimeout(
@@ -314,6 +369,10 @@ export function DeviceSetupWizard() {
     }
     if (step.kind === "moduleDelays") {
       await saveConfig(step.module, calibrationFor(step.module));
+    }
+    if (step.kind === "feederStop") {
+      void sendCommand(JSON.stringify({ feederStop: true }));
+      await saveFeederStopPulse();
     }
     if (step.kind === "feeder") {
       void sendCommand(JSON.stringify({ feederStop: true }));
@@ -594,6 +653,51 @@ export function DeviceSetupWizard() {
           </>
         )}
 
+        {step.kind === "feederStop" && (
+          <>
+            <StepHeading
+              title={t("setupWizard.feederStop.heading")}
+              body={t("setupWizard.feederStop.body")}
+            />
+            <ol className="flex list-inside list-decimal flex-col gap-1 text-sm text-foreground/70">
+              {FEEDER_STOP_GUIDE_STEPS.map((key) => (
+                <li key={key}>{t(`setupWizard.feederStop.guide.${key}`)}</li>
+              ))}
+            </ol>
+            <ControlPanel
+              label={t("setupWizard.feederStop.pulseLabel")}
+              value={String(feederStopPulse)}
+              hint={t("setupWizard.feederStop.hint")}
+            >
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  aria-label={t("setupWizard.nudgeDown")}
+                  onClick={() => handleFeederStopChange(feederStopPulse - 1)}
+                >
+                  <IconMinus />
+                </Button>
+                <Slider
+                  min={SERVO_PULSE_CENTER - FEEDER_STOP_PULSE_SLIDER_RANGE}
+                  max={SERVO_PULSE_CENTER + FEEDER_STOP_PULSE_SLIDER_RANGE}
+                  step={1}
+                  value={feederStopPulse}
+                  onValueChange={handleFeederStopChange}
+                />
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  aria-label={t("setupWizard.nudgeUp")}
+                  onClick={() => handleFeederStopChange(feederStopPulse + 1)}
+                >
+                  <IconPlus />
+                </Button>
+              </div>
+            </ControlPanel>
+          </>
+        )}
+
         {step.kind === "feeder" && (
           <>
             <StepHeading
@@ -603,7 +707,7 @@ export function DeviceSetupWizard() {
             <ControlPanel
               label={t("setupWizard.feeder.speedLabel")}
               value={t("setupWizard.percent", {
-                value: pulseToSignedPercent(feederSpeed),
+                value: pulseToSignedPercent(feederSpeed, feederStopPulse),
               })}
               hint={t("setupWizard.feeder.hint")}
             >
@@ -611,7 +715,7 @@ export function DeviceSetupWizard() {
                 min={-100}
                 max={100}
                 step={1}
-                value={pulseToSignedPercent(feederSpeed)}
+                value={pulseToSignedPercent(feederSpeed, feederStopPulse)}
                 onValueChange={handleFeederChange}
               />
             </ControlPanel>

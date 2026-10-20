@@ -1,3 +1,4 @@
+import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import {
   BinConfigsProvider,
@@ -17,6 +18,11 @@ import { SortingRulesIntro } from "@/features/bins/components/sorting-rules-intr
 import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
 import { CollectionSwitcher } from "@/features/collections/components/collection-switcher";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import {
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+  MOBILE_PAGE_BODY_CLASS,
+} from "@/lib/constants/nav";
+import { cn } from "@/lib/utils";
 import { IconLayoutGrid } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -34,21 +40,31 @@ function MobileBins() {
   const { selectedBin } = useBinConfigs();
 
   return (
-    <div className="flex-1 min-h-0 relative overflow-hidden">
-      <div className="size-full overflow-y-auto @container p-4 flex flex-col gap-4">
-        <div className="flex items-start justify-between gap-3">
-          <SortingRulesIntro />
-          <BinRulesMenu className="shrink-0" />
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <MobilePageHeader
+        title={t("page.title")}
+        actions={<BinRulesMenu className="shrink-0" />}
+      />
+      <div
+        className={cn(
+          "@container min-h-0 flex-1 overflow-y-auto",
+          MOBILE_NAV_SCROLL_PADDING_CLASS,
+        )}
+      >
+        <div className={cn(MOBILE_PAGE_BODY_CLASS, "gap-4 pb-20")}>
+          <CollectionSwitcher />
+          <PresetSelector />
+          <AutoAssignPanel />
+          <RepackPanel />
+          <AlphabetPanel />
+          <BinConfigPanel />
         </div>
-        <RepackPanel />
-        <AlphabetPanel />
-        <BinConfigPanel />
       </div>
       <Drawer>
         <DrawerTrigger asChild>
           <button
             type="button"
-            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 text-sm font-medium shadow-lg"
+            className="absolute bottom-[calc(var(--mobile-nav-space,0px)+1.25rem)] left-1/2 -translate-x-1/2 z-10 flex items-center gap-2 bg-background/90 backdrop-blur-sm border rounded-full px-4 py-2 text-sm font-medium shadow-lg"
           >
             <IconLayoutGrid size={16} />
             {t("binLabel", { number: selectedBin })}
@@ -56,9 +72,6 @@ function MobileBins() {
         </DrawerTrigger>
         <DrawerContent>
           <div className="overflow-y-auto p-4 flex flex-col gap-4 max-h-[calc(80vh-2rem)]">
-            <CollectionSwitcher />
-            <PresetSelector />
-            <AutoAssignPanel />
             <BinList />
           </div>
         </DrawerContent>

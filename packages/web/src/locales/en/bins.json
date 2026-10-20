@@ -90,6 +90,7 @@
   },
   "binLocationDiagram": {},
   "conditionRow": {
+    "noFields": "No matching fields",
     "selectPlaceholder": "Select...",
     "valuePlaceholder": "Value...",
     "freeformMultiPlaceholder": "Comma-separated values..."
@@ -144,6 +145,7 @@
       "repackFailed": "Failed to update repack settings",
       "alphabetFailed": "Failed to update alphabetical sort",
       "chaosFailed": "Failed to update chaos sort",
+      "skipSavingFailed": "Failed to update saving",
       "cardsStored_one": "Stored {{count}} card",
       "cardsStored_other": "Stored {{count}} cards"
     }
@@ -182,6 +184,10 @@
     "siftDescription": "Cards that match the rules below go to the first bin instead of a pack, so you can pull out cards you want to keep (by value, rarity, set or anything else) while every other bin builds packs from the rest.",
     "siftHint": "Cards matching these rules go to bin {{bin}}. Every other bin builds packs from the rest.",
     "siftNoBin": "Sifting needs at least one enabled bin besides the catch-all."
+  },
+  "skipSavingPanel": {
+    "heading": "Don't save cards",
+    "description": "Cards are identified and sorted into bins as usual, but nothing is added to the collection. Scans still count toward your daily limit."
   },
   "chaosPanel": {
     "heading": "Chaos sort",
@@ -249,7 +255,8 @@
     "foilOption": "Foil",
     "nonFoilOption": "Non-foil",
     "marketValueUsd": "Market value (USD)",
-    "marketValueEur": "Market value (EUR)"
+    "marketValueEur": "Market value (EUR)",
+    "collectorNumber": "Collector number (numeric)"
   },
   "pickList": {
     "modeLabel": "When a card is found",

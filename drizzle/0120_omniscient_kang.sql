@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "skip_saving" boolean DEFAULT false NOT NULL;

@@ -1,6 +1,7 @@
 import type { CameraDevice, CameraOutput } from "react-native-vision-camera";
 import type {
   BinConfig,
+  BinContentCard,
   BinSet,
   CardContour,
   FieldMeta,
@@ -102,7 +103,8 @@ export type ScannerPauseReason =
   | "save-failed"
   | "sorter-disconnected"
   | "no-match"
-  | "duplicate";
+  | "duplicate"
+  | "repack-complete";
 
 export interface ScanFeedEntry {
   scanId: string;
@@ -164,6 +166,8 @@ export interface RoutingContext {
   fieldDefinitions: FieldMeta[];
   countInBin: (binNumber: number) => number;
   isBinFull: (binNumber: number) => boolean;
+  binContents: BinContentCard[];
+  autoAssignActive: boolean;
 }
 
 export interface RoutingDecision {
@@ -173,15 +177,12 @@ export interface RoutingDecision {
   allChaosBinsFull: boolean;
 }
 
-export type UnsupportedScanMode = "repack" | "auto-assign";
-
 export interface ScanSessionInputs {
   capture: () => Promise<CapturedFrame>;
 }
 
 export interface ScanSessionValue extends ScanSessionState {
   isRunning: boolean;
-  unsupportedMode: UnsupportedScanMode | null;
   canStart: boolean;
   start: () => void;
   pause: () => void;
@@ -192,6 +193,10 @@ export interface ScanSessionValue extends ScanSessionState {
   setAutoFeed: (value: boolean) => void;
   allowDuplicates: boolean;
   setAllowDuplicates: (value: boolean) => void;
+  handScan: boolean;
+  setHandScan: (value: boolean) => void;
+  handScanActive: boolean;
+  trackLiveCorners: (corners: LiveCorners | null) => void;
 }
 
 export type StreamStatus = "connecting" | "connected" | "error";
@@ -211,6 +216,14 @@ export interface LiveCorners {
   frameHeight: number;
 }
 
+export interface SmoothedCorners extends LiveCorners {
+  opacity: number;
+}
+
+export interface HandScanTracker {
+  update: (corners: LiveCorners | null, canCapture: boolean) => boolean;
+}
+
 export interface SessionScansSheetProps {
   visible: boolean;
   entries: ScanFeedEntry[];
@@ -225,12 +238,26 @@ export interface ScannerControlsSheetProps {
   onScanNow: () => void;
   onFeedOne: () => Promise<void>;
   autoFeed: boolean;
+  onClose: () => void;
+}
+
+export interface ScanOptionsSheetProps {
+  visible: boolean;
+  running: boolean;
+  autoFeed: boolean;
   onAutoFeedChange: (value: boolean) => void;
   allowDuplicates: boolean;
   onAllowDuplicatesChange: (value: boolean) => void;
-  cameras: CameraDevice[];
-  selectedCameraId: string | null;
-  onSelectCamera: (id: string) => void;
+  handScan: boolean;
+  onHandScanChange: (value: boolean) => void;
+  collectionName: string | null;
+  presetName: string | null;
+  showPreset: boolean;
+  cameraName: string | null;
+  showCamera: boolean;
+  onChooseCollection: () => void;
+  onChoosePreset: () => void;
+  onChooseCamera: () => void;
   onClose: () => void;
 }
 

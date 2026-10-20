@@ -25,6 +25,9 @@ const OPERATOR_TEXT: Record<string, string> = {
   contains_any: "contains any of",
   contains_all: "contains all of",
   contains_none: "contains none of",
+  count_equals: "item count =",
+  count_gt: "item count >",
+  count_lt: "item count <",
 };
 
 function describeCondition(cond: BinCondition): string {

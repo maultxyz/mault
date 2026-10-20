@@ -94,6 +94,16 @@ export const CORRECTION_TIMER_CIRCUMFERENCE =
 
 export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
 
+export const HAND_SCAN_REARM_FINGERPRINT_DIFF = 0.08;
+export const HAND_SCAN_FINGERPRINT_SIZE = 16;
+export const HAND_SCAN_TRACKING_STATUSES: ScannerStatus[] = [
+  "scanning",
+  "paused",
+  "settling",
+  "no-match",
+  "duplicate",
+];
+
 export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "scanning",
   "paused",
