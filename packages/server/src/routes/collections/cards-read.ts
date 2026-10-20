@@ -29,8 +29,7 @@ export async function readCardsPage(
     if (!collection) return null;
     const data = await loadCardsPage(
       tx,
-      collection.id,
-      collection.fieldDefinitions,
+      collection,
       query,
       page,
       COLLECTION_CARDS_PAGE_SIZE,

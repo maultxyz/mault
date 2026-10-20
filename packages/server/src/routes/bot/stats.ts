@@ -2,8 +2,16 @@ import { formatPrice, type PlayingCard } from "@magic-vault/shared";
 import { and, count, desc, eq, isNotNull, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
-import { collectionCards, collections } from "../../db/schema";
-import { scannedCardPriceSql } from "../../lib/card-price-sql";
+import {
+  cardPrices,
+  collectionCards,
+  collections,
+  games,
+} from "../../db/schema";
+import {
+  collectionCardPriceSql,
+  collectionCardPricesJoinOn,
+} from "../../lib/card-price-sql";
 import { resolveImageUrl } from "../../lib/discord";
 import { loadOrgPricing } from "../../lib/price-source";
 import type { AppEnv } from "../../middleware/auth";
@@ -29,7 +37,7 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
 
   const pricing = await loadOrgPricing(db, orgId);
   const priceSource = pricing.source;
-  const cardPrice = scannedCardPriceSql(pricing);
+  const cardPrice = collectionCardPriceSql(pricing);
   const scopeCondition = collection
     ? eq(collections.id, collection.id)
     : and(eq(collections.orgId, orgId), eq(collections.isDeleted, false));
@@ -42,6 +50,8 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
     })
     .from(collections)
     .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(cardPrices, collectionCardPricesJoinOn())
     .where(scopeCondition);
 
   const [top] = await db
@@ -54,6 +64,8 @@ export const botStatsRoute = new Hono<AppEnv>().get("/stats", async (c) => {
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(cardPrices, collectionCardPricesJoinOn())
     .where(and(scopeCondition, isNotNull(cardPrice)))
     .orderBy(desc(cardPrice))
     .limit(1);
