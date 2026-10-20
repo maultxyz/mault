@@ -17,6 +17,7 @@ export const CAMERA_ASPECT_RATIO = 3 / 4;
 export const PAUSE_TONES = {
   user: "info",
   duplicate: "warning",
+  "repack-complete": "success",
   "no-match": "info",
   "feeder-empty": "warning",
   "no-card": "warning",

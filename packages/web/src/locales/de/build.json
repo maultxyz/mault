@@ -382,7 +382,8 @@
             "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
           },
           "printFeederModule": {
-            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals."
+            "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals.",
+            "mg90Note": "Verwendest du einen MG90S-Servo für den Zuführer? Drucke das MG90S-Zuführhorn von der Alternative-Horn-Platte statt des Standard-Rollenhorns."
           },
           "printSortingModuleShroud": {
             "text": "Drucke 1 Sorting-Module-Shroud – es wird nur eine benötigt. Die Abdeckung, die über den gestapelten Modulen sitzt."
@@ -410,6 +411,10 @@
           },
           "printEndBinPlate": {
             "text": "Drucke 1 End-Bin-Platte."
+          },
+          "printModulePins": {
+            "text": "Drucke {{count}} Module Pins für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der Base-Support-Teile. Jedes Base-Support-Teil braucht 4 Pins oben, und jede Höheneinheit 2 vorne, außer der obersten Einheit jeder Säule. Die Pins verbinden die Base-Support-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren.",
+            "note": "Stecke die Base-Support-Teile und Sortiermodule zuerst mit den Pins trocken zusammen. Wenn alles passt, klebe jeden Pin mit Sekundenkleber fest."
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
@@ -492,7 +497,8 @@
             "note": "Die Zuführrolle wird in zwei Teilen gedruckt: die Rolle selbst und ein separates Rollenhorn. Auf keinem der Teile steht \"Servo\". Das Rollenhorn ist das kleine Teil, das auf die Servowelle passt."
           },
           "mountFeederServo": {
-            "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht."
+            "text": "Schiebe den Zuführservo mit dem Rollenhorn auf der Welle in das Ende der Rolle am Fuß des Trichters. Das Rollenhorn sitzt in der Rolle, sodass der Servo sie dreht.",
+            "note": "Hast du die zweiteilige Rolle? Schraube zuerst das Rollenhorn auf die Servowelle, führe das Horn dann durch das Loch im Zuführsockel und schiebe anschließend die andere Hälfte der Rolle auf das Horn."
           },
           "fitHopperRollerOrings": {
             "text": "Ziehe O-Ringe auf die Trichterrolle auf.",

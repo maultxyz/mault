@@ -13,7 +13,8 @@
     "unsavedChanges": "Nicht gespeicherte Änderungen",
     "discardTitle": "Änderungen verwerfen?",
     "discardDescription": "Deine Änderungen an diesem Fach wurden nicht gespeichert.",
-    "keepEditing": "Weiter bearbeiten"
+    "keepEditing": "Weiter bearbeiten",
+    "cancel": "Abbrechen"
   },
   "tabs": {
     "collections": "Sammlungen",
@@ -341,7 +342,7 @@
     "nearby": "Sortierer in der Nähe",
     "searching": "Suche nach Sortierern",
     "noneFound": "Keine Sortierer gefunden",
-    "bluetoothOnly": "Nur ESP32-S3- und Uno-R4-WiFi-Sortierer haben Bluetooth. Ein Uno R4 Minima braucht die Desktop-App über USB.",
+    "bluetoothOnly": "Nur ESP32-S3- und Uno-R4-WiFi-Sortierer haben Bluetooth. Sortierer, die in der Web-App für WLAN eingerichtet sind, erscheinen auch unter Über WLAN. Ein Uno R4 Minima braucht die Desktop-App über USB.",
     "unnamed": "Unbenannter Sortierer",
     "signal": "Signal {{rssi}} dBm",
     "runSelfTest": "Selbsttest ausführen",
@@ -404,6 +405,14 @@
       "setup-incomplete": {
         "title": "Schließe die Einrichtung dieses Sortierers ab",
         "description": "Schließe zuerst die Kalibrierung in der Web-App ab und verbinde dich dann vom Handy aus."
+      },
+      "sorter-offline": {
+        "title": "Sortierer ist offline",
+        "description": "Der Sortierer ist gerade nicht mit dem WLAN verbunden. Prüfe, ob er eingeschaltet und in Reichweite deines Netzwerks ist."
+      },
+      "sorter-in-use": {
+        "title": "Sortierer wird verwendet",
+        "description": "Ein anderes Gerät ist mit diesem Sortierer verbunden. Trenne die Verbindung dort und versuche es erneut."
       }
     },
     "restarted": {
@@ -428,6 +437,12 @@
       "dropFailed": "Der Sortierer hat nicht auf den Abwurfbefehl reagiert. Entferne die Karte von Hand.",
       "stillBlocked": "Modul {{module}} erkennt noch eine Karte. Entferne sie und markiere den Fehler dann als behoben.",
       "noResponse": "Der Sortierer hat nicht reagiert. Verbinde ihn erneut und versuche es noch einmal."
+    },
+    "overWifi": "Über WLAN",
+    "wifiStatus": {
+      "online": "Online",
+      "offline": "Offline",
+      "inUse": "Auf einem anderen Gerät in Verwendung"
     }
   },
   "scan": {
@@ -489,6 +504,10 @@
       "duplicate": {
         "title": "Dieselbe Karte erneut gescannt",
         "description": "Tippe auf Fortsetzen, um sie trotzdem hinzuzufügen, oder aktiviere Duplikate erlauben in den Scan-Optionen."
+      },
+      "repack-complete": {
+        "title": "Packs vollständig",
+        "description": "Alle Pack-Behälter sind voll. Leere sie und tippe dann auf Fortsetzen, um die nächste Runde zu starten."
       }
     },
     "scanOnce": "Eine scannen",
@@ -511,16 +530,6 @@
     "sorterNotReadyDescription": "Verbinde deinen Sortierer, um Karten einzuziehen und einzusortieren. Du kannst Karten weiterhin von Hand scannen.",
     "openSorter": "Sortierer verbinden",
     "modelErrorTitle": "Die Kartenerkennungsmodelle konnten nicht geladen werden",
-    "unsupported": {
-      "repack": {
-        "title": "Repack-Presets brauchen die Desktop-App",
-        "description": "Wechsle zu einem anderen Preset oder starte dieses in der Web-App."
-      },
-      "auto-assign": {
-        "title": "Presets mit automatischer Zuweisung brauchen die Desktop-App",
-        "description": "Wechsle zu einem anderen Preset oder starte dieses in der Web-App."
-      }
-    },
     "phase": {
       "idle": "Inaktiv",
       "loading-models": "Lade Modelle",
@@ -575,7 +584,10 @@
         "external": "Extern"
       },
       "pairDesktop": "Als Desktop-Kamera nutzen",
-      "pairDesktopDescription": "QR-Code auf deinem Computer scannen"
+      "pairDesktopDescription": "QR-Code auf deinem Computer scannen",
+      "collection": "Sammlung",
+      "preset": "Regel-Preset",
+      "chooseCamera": "Kamera auswählen"
     }
   },
   "home": {
@@ -734,13 +746,6 @@
     "overflowTargetNotice_one": "Dieses Fach ist der Überlauf für Fach {{bins}}. Karten landen hier, wenn dieses Fach voll ist, daher kann es keine eigenen Regeln haben.",
     "overflowTargetNotice_other": "Dieses Fach ist der Überlauf für die Fächer {{bins}}. Karten landen hier, wenn diese Fächer voll sind, daher kann es keine eigenen Regeln haben.",
     "pickListNotice": "Dieses Fach nutzt eine Pickliste. Bearbeite sie im Web.",
-    "modeNoticeTitle": "Bearbeite dieses Preset im Web",
-    "modeNotice": {
-      "repack": "Dieses Preset nutzt den Repack-Modus.",
-      "auto-assign": "Dieses Preset weist Fächer automatisch zu.",
-      "alphabet": "Dieses Preset sortiert alphabetisch in Durchgängen.",
-      "chaos": "Dieses Preset nutzt den Chaos-Modus."
-    },
     "noActiveTitle": "Kein aktives Preset",
     "noActiveDescription": "Aktiviere oben ein Preset, um seine Fächer zu bearbeiten.",
     "saveFailed": "Dieses Fach konnte nicht gespeichert werden",
@@ -782,7 +787,97 @@
     "groupChip_other": "Gruppe mit {{count}}",
     "moreChips": "+{{count}}",
     "limitChip": "Voll bei {{count}}",
-    "overflowsTo": "Läuft über in {{bin}}"
+    "overflowsTo": "Läuft über in {{bin}}",
+    "mode": {
+      "title": "Sortiermodus",
+      "saveFailed": "Der Sortiermodus konnte nicht gespeichert werden",
+      "chaosLocked": "Teil des Business-Plans. Führe im Web ein Upgrade durch, um ihn zu nutzen.",
+      "matchedBin": "Gescannte Karten",
+      "matchedBinDescription": "Karten, die erkannt wurden",
+      "unmatchedBin": "Nicht erkannte Karten",
+      "unmatchedBinDescription": "Karten, die nicht zugeordnet werden konnten",
+      "autoAssignField": "Behälter zuweisen nach",
+      "reset": "Gelernte Behälter zurücksetzen",
+      "resetHint": "Löscht den gelernten Wert jedes Behälters, damit neue Scans sie neu füllen",
+      "resetTitle": "Automatisch erkannte Behälter zurücksetzen?",
+      "resetDescription": "Löscht den gelernten Wert jedes Behälters in diesem Preset. Neue Scans füllen sie von vorn.",
+      "resetFailed": "Die gelernten Behälter konnten nicht zurückgesetzt werden",
+      "chaosBinSize": "Karten pro Behälter",
+      "chaosBinSizeDescription": "Wechselt nach so vielen Karten zum nächsten Behälter. Leer lassen, um jeden Behälter bis zu seiner Größe zu füllen.",
+      "chaosBinSizePlaceholder": "Behältergröße",
+      "repackSaveFirst": "Speichere, um zu Repacks zu wechseln, und richte dann die Pack-Plätze ein.",
+      "alphabetHint": "Nach dem Speichern zeigt der Regeln-Tab, welche Buchstaben jeder Behälter bekommt, und du kannst zum nächsten Durchgang wechseln.",
+      "skipSaving": "Karten nicht speichern",
+      "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit."
+    },
+    "modes": {
+      "rules": {
+        "title": "Sortierregeln",
+        "description": "Jeder Behälter nimmt die Karten, die seinen Regeln entsprechen"
+      },
+      "scan-only": {
+        "title": "Nur scannen",
+        "description": "Regeln überspringen: Erkannte Karten kommen in einen Behälter, nicht erkannte in einen anderen"
+      },
+      "auto-assign": {
+        "title": "Automatisch sortieren",
+        "description": "Jeder neue Wert eines Feldes belegt beim Scannen den nächsten freien Behälter"
+      },
+      "repack": {
+        "title": "Repacks bauen",
+        "description": "Jeder Behälter baut aus den festgelegten Plätzen sein eigenes Pack. Was nicht passt, kommt in den Sammelbehälter."
+      },
+      "alphabet": {
+        "title": "Alphabetisch sortieren",
+        "description": "Ein Buchstabe pro Behälter, in Durchgängen, mit feinerer Sortierung für große Stapel"
+      },
+      "chaos": {
+        "title": "Chaos-Sortierung",
+        "description": "Regeln ignorieren und die Behälter nacheinander füllen"
+      }
+    },
+    "repack": {
+      "title": "Pack-Plätze",
+      "slotCount_one": "{{count}} Platz",
+      "slotCount_other": "{{count}} Plätze",
+      "saveFailed": "Die Pack-Plätze konnten nicht gespeichert werden",
+      "uniqueByLabel": "Duplikate in einem Pack",
+      "uniqueByDescription": "Verhindert, dass ein Pack zwei Karten mit diesem Merkmal bekommt",
+      "uniqueByAllow": "Duplikate erlauben",
+      "uniqueByPrinting": "Keine doppelten Drucke",
+      "uniqueByName": "Keine doppelten Namen",
+      "uniqueByField": "Keine doppelten {{field}}",
+      "siftLabel": "Karten aussieben",
+      "siftDescription": "Karten, die diesen Regeln entsprechen, kommen in den ersten Behälter statt in ein Pack",
+      "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Behälter {{bin}}. Alle anderen Behälter bauen Packs aus dem Rest.",
+      "siftNoBin": "Zum Aussieben braucht es mindestens einen aktiven Behälter neben dem Sammelbehälter.",
+      "slotsLabel": "Plätze",
+      "slotCountLabel": "Anzahl",
+      "removeSlot": "Platz entfernen",
+      "addSlot": "Platz hinzufügen"
+    },
+    "alphabet": {
+      "needBins": "Die alphabetische Sortierung braucht mindestens einen Behälter neben dem Sammelbehälter.",
+      "passHeading": "Durchgang {{current}} von {{total}}",
+      "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere kommt in den Sammelbehälter.",
+      "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere kommt in den Sammelbehälter.",
+      "unusedBin": "Nicht verwendet",
+      "nextPassHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Behälter, lege die Karten aus dem Sammelbehälter zurück in den Zuführer und wechsle zu den nächsten Buchstaben.",
+      "lastPassHint": "Das ist der letzte Durchgang. Was danach im Sammelbehälter bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
+      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Behälter und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
+      "pileDoneHint": "Das ist der letzte Durchgang für den Stapel {{prefix}}. Fange von vorn an, um zum ganzen Alphabet zurückzukehren.",
+      "previous": "Zurück",
+      "next": "Nächste Buchstaben",
+      "startOver": "Von vorn beginnen",
+      "sortDeeper": "Feiner sortieren",
+      "sortDeeperItem": "Stapel {{label}} nach nächstem Buchstaben",
+      "upLevel": "Eine Ebene höher",
+      "confirmTitle": "Zu neuen Buchstaben wechseln?",
+      "confirmDescription": "Stelle sicher, dass jeder Behälter leer ist und die Karten aus dem Sammelbehälter wieder im Zuführer liegen. Alle Behälter werden als geleert markiert.",
+      "confirmPileTitle": "Stapel {{prefix}} starten?",
+      "confirmPileDescription": "Leere jeden Behälter und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Behälter werden als geleert markiert.",
+      "confirm": "Behälter sind leer"
+    }
   },
   "calibration": {
     "title": "Kalibrierung",

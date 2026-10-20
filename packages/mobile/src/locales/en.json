@@ -13,7 +13,8 @@
     "unsavedChanges": "Unsaved changes",
     "discardTitle": "Discard changes?",
     "discardDescription": "Your changes to this bin haven't been saved.",
-    "keepEditing": "Keep editing"
+    "keepEditing": "Keep editing",
+    "cancel": "Cancel"
   },
   "tabs": {
     "collections": "Collections",
@@ -341,7 +342,7 @@
     "nearby": "Nearby sorters",
     "searching": "Searching for sorters",
     "noneFound": "No sorters found",
-    "bluetoothOnly": "Only ESP32-S3 and Uno R4 WiFi sorters have Bluetooth. An Uno R4 Minima needs the desktop app over USB.",
+    "bluetoothOnly": "Only ESP32-S3 and Uno R4 WiFi sorters have Bluetooth. Sorters set up for Wi-Fi in the web app also appear under Over Wi-Fi. An Uno R4 Minima needs the desktop app over USB.",
     "unnamed": "Unnamed sorter",
     "signal": "Signal {{rssi}} dBm",
     "runSelfTest": "Run self-test",
@@ -404,6 +405,14 @@
       "setup-incomplete": {
         "title": "Finish setting up this sorter",
         "description": "Complete calibration in the web app first, then reconnect from your phone."
+      },
+      "sorter-offline": {
+        "title": "Sorter is offline",
+        "description": "The sorter isn't connected to Wi-Fi right now. Check that it's powered on and in range of your network."
+      },
+      "sorter-in-use": {
+        "title": "Sorter is in use",
+        "description": "Another device is connected to this sorter. Disconnect it there, then try again."
       }
     },
     "restarted": {
@@ -428,6 +437,12 @@
       "dropFailed": "The sorter didn't respond to the drop command. Clear the card by hand.",
       "stillBlocked": "Module {{module}} still sees a card. Clear it, then mark it cleared.",
       "noResponse": "The sorter didn't respond. Reconnect it and try again."
+    },
+    "overWifi": "Over Wi-Fi",
+    "wifiStatus": {
+      "online": "Online",
+      "offline": "Offline",
+      "inUse": "In use on another device"
     }
   },
   "scan": {
@@ -489,6 +504,10 @@
       "duplicate": {
         "title": "Same card scanned again",
         "description": "Tap Resume to add it anyway, or turn on Allow duplicates in scan options."
+      },
+      "repack-complete": {
+        "title": "Packs complete",
+        "description": "Every pack bin is full. Empty them, then tap Resume to start the next round."
       }
     },
     "scanOnce": "Scan one",
@@ -511,16 +530,6 @@
     "sorterNotReadyDescription": "Connect your sorter to feed and route cards. You can still scan cards by hand.",
     "openSorter": "Connect sorter",
     "modelErrorTitle": "Couldn't load the card recognition models",
-    "unsupported": {
-      "repack": {
-        "title": "Repack presets need the desktop app",
-        "description": "Switch to a different preset, or run this one from the web app."
-      },
-      "auto-assign": {
-        "title": "Auto-assign presets need the desktop app",
-        "description": "Switch to a different preset, or run this one from the web app."
-      }
-    },
     "phase": {
       "idle": "Idle",
       "loading-models": "Loading models",
@@ -575,7 +584,10 @@
         "external": "External"
       },
       "pairDesktop": "Use as a desktop camera",
-      "pairDesktopDescription": "Scan the QR code shown on your computer"
+      "pairDesktopDescription": "Scan the QR code shown on your computer",
+      "collection": "Collection",
+      "preset": "Rule preset",
+      "chooseCamera": "Choose a camera"
     }
   },
   "home": {
@@ -734,13 +746,6 @@
     "overflowTargetNotice_one": "This bin is the overflow for bin {{bins}}. Cards land here when that bin is full, so it can't have rules of its own.",
     "overflowTargetNotice_other": "This bin is the overflow for bins {{bins}}. Cards land here when those bins are full, so it can't have rules of its own.",
     "pickListNotice": "This bin runs a pick list. Edit it on the web.",
-    "modeNoticeTitle": "Edit this preset on the web",
-    "modeNotice": {
-      "repack": "This preset uses repack mode.",
-      "auto-assign": "This preset assigns bins automatically.",
-      "alphabet": "This preset sorts alphabetically in passes.",
-      "chaos": "This preset uses chaos mode."
-    },
     "noActiveTitle": "No active preset",
     "noActiveDescription": "Activate a preset above to edit its bins.",
     "saveFailed": "Couldn't save this bin",
@@ -782,7 +787,97 @@
     "groupChip_other": "Group of {{count}}",
     "moreChips": "+{{count}}",
     "limitChip": "Full at {{count}}",
-    "overflowsTo": "Overflows to {{bin}}"
+    "overflowsTo": "Overflows to {{bin}}",
+    "mode": {
+      "title": "Sorting mode",
+      "saveFailed": "Couldn't save the sorting mode",
+      "chaosLocked": "Part of the Business plan. Upgrade on the web to use it.",
+      "matchedBin": "Scanned cards",
+      "matchedBinDescription": "Cards that were identified",
+      "unmatchedBin": "Unidentified cards",
+      "unmatchedBinDescription": "Cards that couldn't be matched",
+      "autoAssignField": "Assign bins by",
+      "reset": "Reset learned bins",
+      "resetHint": "Clears every bin's learned value so new scans refill them",
+      "resetTitle": "Reset auto-detected bins?",
+      "resetDescription": "Clears every bin's learned value in this preset. New scans will refill them from scratch.",
+      "resetFailed": "Couldn't reset the learned bins",
+      "chaosBinSize": "Cards per bin",
+      "chaosBinSizeDescription": "Moves to the next bin after this many cards. Leave empty to fill each bin to its size.",
+      "chaosBinSizePlaceholder": "Bin size",
+      "repackSaveFirst": "Save to switch to repacks, then set up the pack slots.",
+      "alphabetHint": "After saving, the Rules tab shows which letters each bin gets and lets you move to the next pass.",
+      "skipSaving": "Don't save cards",
+      "skipSavingDescription": "Cards are identified and sorted as usual, but nothing is added to the collection. Scans still count toward your daily limit."
+    },
+    "modes": {
+      "rules": {
+        "title": "Sorting rules",
+        "description": "Each bin takes the cards that match its rules"
+      },
+      "scan-only": {
+        "title": "Scan only",
+        "description": "Skip the rules: identified cards go to one bin, unidentified cards to another"
+      },
+      "auto-assign": {
+        "title": "Auto-detect sorting",
+        "description": "Each new value of a field claims the next open bin as you scan"
+      },
+      "repack": {
+        "title": "Build repacks",
+        "description": "Every bin builds its own pack from the slots you define. Anything that doesn't fit goes to the catch-all."
+      },
+      "alphabet": {
+        "title": "Sort alphabetically",
+        "description": "One letter per bin, in passes, with deeper sorting for big piles"
+      },
+      "chaos": {
+        "title": "Chaos sort",
+        "description": "Ignore the rules and fill the bins one after another"
+      }
+    },
+    "repack": {
+      "title": "Pack slots",
+      "slotCount_one": "{{count}} slot",
+      "slotCount_other": "{{count}} slots",
+      "saveFailed": "Couldn't save the pack slots",
+      "uniqueByLabel": "Duplicates in a pack",
+      "uniqueByDescription": "Stops a pack from getting two cards that share this",
+      "uniqueByAllow": "Allow duplicates",
+      "uniqueByPrinting": "No duplicate printings",
+      "uniqueByName": "No duplicate names",
+      "uniqueByField": "No duplicate {{field}}",
+      "siftLabel": "Sift cards out",
+      "siftDescription": "Cards that match these rules go to the first bin instead of a pack",
+      "siftHint": "Cards matching these rules go to bin {{bin}}. Every other bin builds packs from the rest.",
+      "siftNoBin": "Sifting needs at least one enabled bin besides the catch-all.",
+      "slotsLabel": "Slots",
+      "slotCountLabel": "Count",
+      "removeSlot": "Remove slot",
+      "addSlot": "Add slot"
+    },
+    "alphabet": {
+      "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
+      "passHeading": "Pass {{current}} of {{total}}",
+      "passRange": "Sorting names starting with {{from}} to {{to}}. Everything else goes to the catch-all.",
+      "prefixRange": "Sorting the {{prefix}} pile by its next letter: {{from}} to {{to}}. Everything else goes to the catch-all.",
+      "unusedBin": "Not used",
+      "nextPassHint": "When this pass is done, take the cards out of every bin, put the catch-all cards back in the feeder, then move to the next letters.",
+      "lastPassHint": "This is the last pass. Anything left in the catch-all afterwards has a name that doesn't start with a letter.",
+      "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{prefix}} pile.",
+      "pileDoneHint": "This is the last pass for the {{prefix}} pile. Start over to go back to the whole alphabet.",
+      "previous": "Previous",
+      "next": "Next letters",
+      "startOver": "Start over",
+      "sortDeeper": "Sort deeper",
+      "sortDeeperItem": "{{label}} pile by next letter",
+      "upLevel": "Up a level",
+      "confirmTitle": "Move to a new set of letters?",
+      "confirmDescription": "Make sure every bin is empty and the catch-all cards are back in the feeder. All bins will be marked as emptied.",
+      "confirmPileTitle": "Start the {{prefix}} pile?",
+      "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{prefix}} pile in the feeder. All bins will be marked as emptied.",
+      "confirm": "Bins are empty"
+    }
   },
   "calibration": {
     "title": "Calibration",

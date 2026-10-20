@@ -1,0 +1,143 @@
+name: Mobile Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: Which app to build
+        type: choice
+        options: [all, ios, android]
+        default: all
+      bump:
+        description: Version bump (master only; dev builds keep the current version)
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: write
+
+# Builds run on EAS, and this job waits for them (often 20+ minutes), so it
+# gets its own group instead of holding up web deploys and firmware releases.
+concurrency:
+  group: mobile-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+    env:
+      IS_DEV: ${{ github.ref_name == 'dev' }}
+      PROFILE: ${{ github.ref_name == 'dev' && 'preview' || 'production' }}
+      PLATFORM: ${{ inputs.platform }}
+    steps:
+      # master builds go to the stores, dev builds are internal install links.
+      # Anything else would ship unreleased code, so it's refused.
+      - name: Check branch
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ] && [ "${{ github.ref_name }}" != "dev" ]; then
+            echo "::error::Mobile releases run from master (stores) or dev (internal), not ${{ github.ref_name }}."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Set up EAS
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # The store version is packages/mobile's own version, separate from the
+      # web/server release version. Build numbers are managed remotely by EAS
+      # (appVersionSource: remote, autoIncrement on production). iOS only
+      # accepts plain X.Y.Z, so dev builds reuse the current version.
+      - name: Compute app version
+        id: version
+        working-directory: packages/mobile
+        run: |
+          CURRENT=$(node -p "require('./package.json').version")
+          if [ "$IS_DEV" = "true" ]; then
+            VERSION="$CURRENT"
+          else
+            VERSION=$(node -e '
+              const [major, minor, patch] = process.argv[1].split(".").map(Number);
+              const bump = process.argv[2];
+              console.log(bump === "major" ? `${major + 1}.0.0` : bump === "minor" ? `${major}.${minor + 1}.0` : `${major}.${minor}.${patch + 1}`);
+            ' "$CURRENT" "${{ inputs.bump }}")
+            node -e '
+              const fs = require("fs");
+              const pkg = JSON.parse(fs.readFileSync("package.json", "utf-8"));
+              pkg.version = process.argv[1];
+              fs.writeFileSync("package.json", JSON.stringify(pkg, null, 2) + "\n");
+            ' "$VERSION"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      # Non-interactive iOS submission needs the App Store Connect app id,
+      # which lives in a repo variable rather than the committed eas.json.
+      - name: Configure store submission
+        if: env.IS_DEV != 'true'
+        working-directory: packages/mobile
+        env:
+          ASC_APP_ID: ${{ vars.MOBILE_ASC_APP_ID }}
+        run: |
+          if [ "$PLATFORM" != "android" ] && [ -z "$ASC_APP_ID" ]; then
+            echo "::error::Set the MOBILE_ASC_APP_ID variable (App Store Connect > App Information > Apple ID) to submit iOS builds."
+            exit 1
+          fi
+          jq --arg id "$ASC_APP_ID" '.submit.production.ios.ascAppId = $id' eas.json > eas.json.tmp
+          mv eas.json.tmp eas.json
+
+      - name: Build${{ github.ref_name != 'dev' && ' and submit' || '' }}
+        working-directory: packages/mobile
+        run: |
+          ARGS=(--platform "$PLATFORM" --profile "$PROFILE" --non-interactive)
+          if [ "$IS_DEV" != "true" ]; then ARGS+=(--auto-submit); fi
+          eas build "${ARGS[@]}"
+
+      # Only after the builds succeed: a failed run leaves no version bump.
+      - name: Commit and tag mobile version
+        if: env.IS_DEV != 'true'
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git checkout -- packages/mobile/eas.json
+          git add packages/mobile/package.json
+          git commit -m "chore(release): mobile v$VERSION [skip ci]"
+          git tag "mobile-v$VERSION"
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin "HEAD:${{ github.ref_name }}"
+          git push origin "mobile-v$VERSION"
+
+      - name: Summary
+        run: |
+          {
+            echo "## Mobile ${{ env.IS_DEV == 'true' && 'dev build' || 'release' }} v${{ steps.version.outputs.version }}"
+            echo ""
+            echo "- Platform: $PLATFORM"
+            echo "- EAS profile: $PROFILE"
+            if [ "$IS_DEV" = "true" ]; then
+              echo "- Install links: https://expo.dev (Builds, preview profile)"
+            else
+              echo "- iOS goes to TestFlight, Android to the Play internal track. Promote to the stores from App Store Connect and the Play Console."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
