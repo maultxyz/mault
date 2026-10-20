@@ -12,6 +12,7 @@ import { syncTcgplayerPrices } from "../src/lib/tcgplayer-price-sync";
 
 const log = (msg: string) => console.log(`[sync-prices] ${msg}`);
 const force = process.argv.includes("--force");
+const refreshOnly = process.argv.includes("--refresh-only");
 
 async function notifyDiscord(summary: PriceSyncSummary): Promise<void> {
   try {
@@ -23,6 +24,17 @@ async function notifyDiscord(summary: PriceSyncSummary): Promise<void> {
     else if (outcome === "failed") log("Discord price update post failed.");
   } catch (err) {
     console.error("[sync-prices] Discord notification failed:", err);
+  }
+}
+
+async function refresh(): Promise<boolean> {
+  log("Refresh only: rebuilding card prices from stored source prices.");
+  try {
+    await refreshCardPrices({ log, onlyMissing: false });
+    return true;
+  } catch (err) {
+    console.error("[sync-prices] Card price refresh failed:", err);
+    return false;
   }
 }
 
@@ -105,7 +117,7 @@ async function run(): Promise<boolean> {
   return ok;
 }
 
-run()
+(refreshOnly ? refresh() : run())
   .then((ok) => {
     process.exitCode = ok ? 0 : 1;
   })
