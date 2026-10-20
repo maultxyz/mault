@@ -1,13 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
+# shellcheck disable=SC1091
+source "$(cd "$(dirname "$0")" && pwd)/session.sh"
+pi_require_user
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 
 echo "[install] Installing system packages"
 sudo DEBIAN_FRONTEND=noninteractive apt-get update
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  git curl ca-certificates python3 build-essential v4l-utils ffmpeg postgresql
+  git curl ca-certificates python3 build-essential v4l-utils ffmpeg postgresql dbus-user-session
 sudo systemctl enable --now postgresql
 pg_major="$(psql --version | awk '{print $3}' | cut -d. -f1)"
 sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "postgresql-${pg_major}-pgvector"
@@ -99,6 +103,9 @@ source .env
 set +a
 pnpm --filter @magic-vault/server db:migrate-local
 
+echo "[install] Enabling user services"
+pi_ensure_user_bus
+
 UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
 mkdir -p "$UNIT_DIR"
 for unit in mault-api.service mault-web.service mault-camera.service; do
@@ -107,18 +114,19 @@ done
 systemctl --user daemon-reload
 systemctl --user enable mault-api.service mault-web.service mault-camera.service
 
-if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" || -S "/run/user/$(id -u)/bus" ]]; then
-  export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
+if ! {
   gdbus call --session \
     --dest org.freedesktop.impl.portal.PermissionStore \
     --object-path /org/freedesktop/impl/portal/PermissionStore \
     --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
-    devices true camera '' "['yes']" >/dev/null
-  gdbus call --session \
-    --dest org.freedesktop.impl.portal.PermissionStore \
-    --object-path /org/freedesktop/impl/portal/PermissionStore \
-    --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
-    devices true camera chromium "['yes']" >/dev/null
+    devices true camera '' "['yes']" >/dev/null \
+    && gdbus call --session \
+      --dest org.freedesktop.impl.portal.PermissionStore \
+      --object-path /org/freedesktop/impl/portal/PermissionStore \
+      --method org.freedesktop.impl.portal.PermissionStore.SetPermission \
+      devices true camera chromium "['yes']" >/dev/null
+}; then
+  echo "[install] Could not pre-allow the camera. Chromium will ask the first time it opens."
 fi
 
 DESKTOP="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
@@ -146,14 +154,7 @@ StartupNotify=false
 EOF
   chmod +x "$DESKTOP/${action} MAULT.desktop"
 done
-if [[ -n "${DBUS_SESSION_BUS_ADDRESS:-}" || -S "/run/user/$(id -u)/bus" ]]; then
-  export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
-  gio set "$DESKTOP/Start MAULT.desktop" metadata::trusted true 2>/dev/null || true
-  gio set "$DESKTOP/Stop MAULT.desktop" metadata::trusted true 2>/dev/null || true
-fi
-
-if ! loginctl show-user "$USER" -p Linger 2>/dev/null | grep -q '=yes'; then
-  sudo loginctl enable-linger "$USER"
-fi
+gio set "$DESKTOP/Start MAULT.desktop" metadata::trusted true 2>/dev/null || true
+gio set "$DESKTOP/Stop MAULT.desktop" metadata::trusted true 2>/dev/null || true
 
 echo "[install] Ready. The API and web app start on boot. Open http://<this-pi>:8080 from another computer."
