@@ -1,0 +1,13 @@
+{
+  "name": "@magic-vault/shared",
+  "version": "1.0.165",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "dependencies": {
+    "zod": "^4.3.6"
+  }
+}
