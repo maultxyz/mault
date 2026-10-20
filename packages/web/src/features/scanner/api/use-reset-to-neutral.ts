@@ -22,9 +22,9 @@ export function useResetToNeutral() {
   const handleResetToNeutral = useCallback(async () => {
     setIsResetting(true);
     try {
-      const ok = await resetToNeutral();
-      if (ok) toast.success(t("resetToNeutral.done"));
-      return ok;
+      if (await resetToNeutral()) {
+        toast.success(t("resetToNeutral.done"));
+      }
     } finally {
       setIsResetting(false);
     }

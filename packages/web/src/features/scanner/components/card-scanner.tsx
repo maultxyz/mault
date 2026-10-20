@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import {
   Tooltip,
@@ -19,7 +18,6 @@ import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { useVerifyJam } from "@/features/scanner/api/use-verify-jam";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
-import { LensFocusDialog } from "@/features/scanner/components/lens-focus-dialog";
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
@@ -34,9 +32,8 @@ import {
 import { cn } from "@/lib/utils";
 import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
 import type { ScannerStatus } from "@magic-vault/shared";
-import { IconEye, IconZoomIn } from "@tabler/icons-react";
+import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useBottomLevers } from "@/features/scanner/api/use-bottom-levers";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
@@ -130,13 +127,6 @@ export function CardScanner({
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const piScan = usePiScanSession();
-  const {
-    bottomsOpen,
-    isMovingBottoms,
-    toggleBottoms,
-    ensureBottomsClosed,
-    markBottomsClosed,
-  } = useBottomLevers(piScan.cameraReady);
   const changeAutoFeed = useCallback(
     (enabled: boolean) => {
       setAutoFeed(enabled);
@@ -304,12 +294,10 @@ export function CardScanner({
   }, [status, isReady]);
 
   const prepareDevice = useCallback(async () => {
-    if (!isReady) return true;
-    if (!(await ensureBottomsClosed())) return false;
-    if (deviceNeutralRef.current) return true;
+    if (!isReady || deviceNeutralRef.current) return true;
     deviceNeutralRef.current = await resetToNeutral();
     return deviceNeutralRef.current;
-  }, [isReady, resetToNeutral, ensureBottomsClosed]);
+  }, [isReady, resetToNeutral]);
 
   const handleFeed = useCallback(async () => {
     if (!isReady) return;
@@ -435,11 +423,10 @@ export function CardScanner({
       toast.success(t("cardScanner.deviceCleared.title"), {
         description: t("cardScanner.deviceCleared.description"),
       });
-      markBottomsClosed();
     } finally {
       setIsClearingDevice(false);
     }
-  }, [toast, isReady, sendRequest, t, markBottomsClosed]);
+  }, [toast, isReady, sendRequest, t]);
 
   const isModuleOneEmpty = useCallback(async () => {
     if (!isReady || ignoreIrSensors) return false;
@@ -543,52 +530,30 @@ export function CardScanner({
       onPause={piScan.cameraReady ? () => void piScan.pause() : pause}
       onResume={
         piScan.cameraReady
-          ? () => {
-              void (async () => {
-                if (
-                  piScan.state.phase !== "running" &&
-                  piScan.state.phase !== "paused" &&
-                  !(await ensureBottomsClosed())
-                ) {
-                  return;
-                }
-                piScan.startOrResume();
-              })();
-            }
+          ? () => void piScan.startOrResume()
           : handleResumeScanning
       }
       onFeed={
         piScan.cameraReady
           ? () => {
-              void (async () => {
-                if (
-                  piScan.state.phase === "running" ||
-                  piScan.state.phase === "paused"
-                ) {
-                  piScan.feed();
-                  return;
-                }
-                if (!(await ensureBottomsClosed())) return;
-                piScan.startOrResume();
-              })();
+              if (
+                piScan.state.phase === "running" ||
+                piScan.state.phase === "paused"
+              ) {
+                piScan.feed();
+                return;
+              }
+              void piScan.startOrResume();
             }
           : handleFeed
       }
       onClearDevice={handleClearDevice}
       isResettingDevice={isResettingDevice}
-      onResetDevice={() => {
-        void handleResetToNeutral().then((ok) => {
-          if (ok) markBottomsClosed();
-        });
-      }}
+      onResetDevice={() => void handleResetToNeutral()}
       sessionFeed={piScan.cameraReady}
       sessionLive={piScanLive}
       onStop={() => void piScan.stop()}
       onAutoFeedChange={changeAutoFeed}
-      bottomsOpen={bottomsOpen}
-      isMovingBottoms={isMovingBottoms}
-      canToggleBottoms={(isReady || piScan.cameraReady) && !piScanLive}
-      onToggleBottoms={() => void toggleBottoms()}
     />
   );
 
@@ -735,24 +700,9 @@ export function CardScanner({
             !isMobile && cameraSource === "local" && "rotate-90",
           )}
         />
-        {isCameraActive && cameraSource === "local" && (
-          <LensFocusDialog
-            trigger={
-              <Button
-                type="button"
-                size="sm"
-                variant="secondary"
-                className="absolute top-2 left-2 z-30"
-              >
-                <IconZoomIn />
-                {t("lensFocus.open")}
-              </Button>
-            }
-          />
-        )}
         {isAdmin && debugImageUrl && (
           <Tooltip>
-            <TooltipTrigger className="absolute top-11 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
+            <TooltipTrigger className="absolute top-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
               <IconEye size={16} />
             </TooltipTrigger>
             <TooltipContent

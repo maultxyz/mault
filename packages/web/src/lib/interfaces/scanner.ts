@@ -34,7 +34,7 @@ import type {
   Result,
   UnmatchedCard,
 } from "@magic-vault/shared";
-import type { ReactElement, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type { PreTestHook } from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
@@ -62,12 +62,6 @@ export interface CameraRange {
 
 export interface CameraFocusControlProps {
   className?: string;
-}
-
-export interface LensFocusDialogProps {
-  trigger?: ReactElement;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
 }
 
 export type CameraTrackSettings = MediaTrackSettings & {
@@ -289,10 +283,6 @@ export interface ScannerControlsProps {
   sessionLive?: boolean;
   onStop?: () => void;
   onAutoFeedChange?: (enabled: boolean) => void;
-  bottomsOpen?: boolean;
-  isMovingBottoms?: boolean;
-  canToggleBottoms?: boolean;
-  onToggleBottoms?: () => void;
 }
 
 export interface ScannerControlButtonProps {

@@ -35,12 +35,6 @@ export interface PiScanSessionStartBody {
   autoFeed?: boolean;
 }
 
-export type PiScanBottomPosition = "open" | "closed";
-
-export interface PiScanBottomsBody {
-  position: PiScanBottomPosition;
-}
-
 export interface PiScanSessionSettingsBody {
   foilType?: string | null;
   preferredSetCode?: string | null;

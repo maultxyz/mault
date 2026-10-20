@@ -1,11 +1,18 @@
 import { randomUUID } from "node:crypto";
-import sharp from "sharp";
 import { and, eq, sql } from "drizzle-orm";
 import {
   CLOSE_MATCH_DELTA,
+  COLOR_BAR_REGIONS_BY_GAME_KEY,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  DEWARP_OUTPUT_SIZE,
+  OCR_CROP_HEIGHT,
+  OCR_CROP_WIDTH,
   OCR_REGIONS_BY_GAME_KEY,
+  detectColorBarRgba,
+  dewarpRgba,
+  getDefaultCardContour,
+  rotateRgba180,
   computeBinCapacity,
   createDefaultBinRoutes,
   findLowMatchCatchAll,
@@ -18,6 +25,7 @@ import {
   type FieldMeta,
   type MatchedScanDiagnostics,
   type OcrDiagnostics,
+  type ScanDetectionDiagnostics,
   type ScanMatchSource,
   type PiScanSessionStartBody,
   type PiScanSessionStartCode,
@@ -39,7 +47,11 @@ import {
 } from "../constants/pi-scan";
 import { acquireLock, releaseLock } from "../scan-lock";
 import { getUserDisplayName } from "../../middleware/auth";
-import { straightenScan } from "../straighten-scan";
+import {
+  detectScanCorners,
+  readScanImage,
+  rgbaToJpeg,
+} from "../straighten-scan";
 import { vectorizeCardImage } from "../vectorize";
 import { claimSorterPort, releaseSorterPort, SorterPortError } from "../pi-serial-port";
 import {
@@ -50,7 +62,7 @@ import {
 import { loadBinContents } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadActiveBinSet, snapshotBinSet } from "../../routes/bins/shared";
-import { cropScanRegion, grabCameraFrame } from "./camera";
+import { grabCameraFrame } from "./camera";
 import { saveMatchedScan, saveUnmatchedScan } from "./save-scan";
 import {
   chooseRulesBin,
@@ -437,6 +449,30 @@ async function searchOrientation(
   };
 }
 
+function preferDetectedColor(
+  result: CardMatchSearchResult,
+  color: string | null,
+): CardMatchSearchResult {
+  const data = result.data;
+  if (!color || !data || data.length === 0) return result;
+  const leader = data[0];
+  const close = data.filter(
+    (match) => match.distance - leader.distance <= CLOSE_MATCH_DELTA,
+  );
+  const preferred = close.find((match) =>
+    match.card?.colorIdentity?.includes(color),
+  );
+  if (!preferred || preferred === leader) return result;
+  return {
+    ...result,
+    data: [
+      preferred,
+      ...close.filter((match) => match !== preferred),
+      ...data.filter((match) => !close.includes(match)),
+    ],
+  };
+}
+
 async function matchFrame(
   session: PiScanLive,
   context: PiScanRunContext,
@@ -449,27 +485,42 @@ async function matchFrame(
   ocr: OcrDiagnostics | null;
   matchedBy: ScanMatchSource;
   lowConfidenceFromOcr: boolean;
+  detection: ScanDetectionDiagnostics;
+  detectedColor: string | null;
 }> {
-  const cropped = await cropScanRegion(frame, context.region);
-  let uprightImage = await straightenScan(cropped);
-  if (uprightImage === cropped) uprightImage = await straightenScan(frame);
+  const source = await readScanImage(frame);
+  const corners = await detectScanCorners(source);
+  const contour =
+    corners.contour ??
+    getDefaultCardContour(source.width, source.height, context.region);
+  const upright = dewarpRgba(source, contour, DEWARP_OUTPUT_SIZE);
+  const uprightImage = await rgbaToJpeg(upright);
+  const detection: ScanDetectionDiagnostics = {
+    cardDetected: corners.cardPresent,
+    sharpness: corners.sharpness,
+    confidence: corners.confidence,
+    fallbackReason: corners.contour
+      ? null
+      : `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`,
+  };
+
   let best: Awaited<ReturnType<typeof searchOrientation>>;
   let alternate: typeof best | null = null;
   if (context.checkBothOrientations) {
-    const rotatedImage = await sharp(uprightImage).rotate(180).jpeg().toBuffer();
-    const [upright, rotated] = await Promise.all([
+    const rotatedImage = await rgbaToJpeg(rotateRgba180(upright));
+    const [uprightHit, rotated] = await Promise.all([
       searchOrientation(session, context, uprightImage, "upright"),
       searchOrientation(session, context, rotatedImage, "rotated"),
     ]);
-    best = upright;
+    best = uprightHit;
     const rotatedWins =
-      hasCardMatch(upright.result) !== hasCardMatch(rotated.result)
+      hasCardMatch(uprightHit.result) !== hasCardMatch(rotated.result)
         ? hasCardMatch(rotated.result)
         : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-          (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
+          (uprightHit.result.nearestDistance ?? Number.POSITIVE_INFINITY);
     if (rotatedWins) {
       best = rotated;
-      alternate = upright;
+      alternate = uprightHit;
     } else {
       alternate = rotated;
     }
@@ -484,15 +535,24 @@ async function matchFrame(
   const embeddingMatched = hasCardMatch(best.result);
   if (
     context.ocrEnabled &&
+    corners.contour &&
     regions.length > 0 &&
     needsTextSearch(best.result)
   ) {
+    const ocrCrop = dewarpRgba(
+      source,
+      corners.contour,
+      OCR_CROP_WIDTH,
+      OCR_CROP_HEIGHT,
+    );
     for (const option of [best, alternate]) {
       if (!option?.embedding) continue;
       try {
         const text = await findCardMatchesByOcr(
           session.jwtClaims,
-          option.image,
+          await rgbaToJpeg(
+            option.orientation === "rotated" ? rotateRgba180(ocrCrop) : ocrCrop,
+          ),
           regions,
           {
             gameKey: context.gameKey,
@@ -520,16 +580,24 @@ async function matchFrame(
     }
   }
 
-  return { ...best, ocr, matchedBy, lowConfidenceFromOcr };
-}
+  const colorRegion = corners.contour
+    ? COLOR_BAR_REGIONS_BY_GAME_KEY[context.gameKey]
+    : undefined;
+  const detectedColor = colorRegion
+    ? detectColorBarRgba(
+        best.orientation === "rotated" ? rotateRgba180(upright) : upright,
+        colorRegion,
+      )
+    : null;
 
-function detectionFor(image: Buffer, frame: Buffer) {
-  const found = image !== frame;
   return {
-    cardDetected: found,
-    sharpness: null,
-    confidence: null,
-    fallbackReason: found ? null : "no card detected",
+    ...best,
+    result: preferDetectedColor(best.result, detectedColor),
+    ocr,
+    matchedBy,
+    lowConfidenceFromOcr,
+    detection,
+    detectedColor,
   };
 }
 
@@ -661,7 +729,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           search: matched.result.diagnostics
             ? withoutEmbedding(matched.result.diagnostics)
             : null,
-          detection: detectionFor(matched.image, frame),
+          detection: matched.detection,
           orientation: matched.orientation,
           matchesNeeded: 1,
           attempts: [
@@ -782,7 +850,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       const diagnostics: MatchedScanDiagnostics = {
         matchedBy: matched.matchedBy,
         vectorizedOn: "server",
-        detection: detectionFor(matched.image, frame),
+        detection: matched.detection,
         orientation: matched.orientation,
         matchesNeeded: 1,
         attempts: [
@@ -800,6 +868,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           confidence: match.confidence,
         })),
         ocr: matched.ocr,
+        detectedColor: matched.detectedColor,
       };
       const saved = await saveMatchedScan({
         jwtClaims: session.jwtClaims,

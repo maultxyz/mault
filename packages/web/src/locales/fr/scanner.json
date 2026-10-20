@@ -231,10 +231,6 @@
     "feedError": {
       "title": "Erreur d'alimentation"
     },
-    "bottomsFailed": {
-      "title": "Trappes inférieures immobiles",
-      "description": "Le trieur n'a pas confirmé le mouvement."
-    },
     "clearFailed": {
       "title": "Échec du vidage",
       "description": "Impossible d'envoyer la commande à l'appareil."
@@ -286,8 +282,6 @@
     "startTooltip": "Alimenter la première carte et démarrer le scan",
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
-    "bottomsClosedTooltip": "Ouvrir toutes les trappes inférieures",
-    "bottomsOpenTooltip": "Fermer toutes les trappes inférieures",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
     "stopPiScan": "Arrêter le tri et libérer le trieur",
     "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",

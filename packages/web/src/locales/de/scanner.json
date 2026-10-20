@@ -231,10 +231,6 @@
     "feedError": {
       "title": "Zufuhrfehler"
     },
-    "bottomsFailed": {
-      "title": "Untere Klappen nicht bewegt",
-      "description": "Der Sorter hat die Bewegung nicht bestätigt."
-    },
     "clearFailed": {
       "title": "Leeren fehlgeschlagen",
       "description": "Befehl konnte nicht an das Gerät gesendet werden."
@@ -286,8 +282,6 @@
     "startTooltip": "Die erste Karte zuführen und den Scan starten",
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
-    "bottomsClosedTooltip": "Alle unteren Klappen öffnen",
-    "bottomsOpenTooltip": "Alle unteren Klappen schließen",
     "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
     "stopPiScan": "Sortierung stoppen und den Sorter freigeben",
     "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
