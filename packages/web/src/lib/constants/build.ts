@@ -89,6 +89,15 @@ export const BUILD_WIRING_ANCHOR = "wiring";
 
 export const EMPTY_CHECKLIST: Record<string, boolean> = {};
 
+export const FLASH_IN_BROWSER_STEP_KEYS = [
+  "flash-in-browser",
+  "download-code",
+  "install-esp32-core",
+  "install-libraries",
+  "upload-sketch",
+  "confirm-ready",
+] as const;
+
 export const WIRE_COLOR_CLASSES: Record<WireColor, string> = {
   yellow: "bg-yellow-400",
   green: "bg-green-600",

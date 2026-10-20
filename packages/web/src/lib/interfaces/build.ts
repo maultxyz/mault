@@ -149,6 +149,7 @@ export interface ChecklistStore {
   subscribe: (listener: () => void) => () => void;
   getSnapshot: () => Record<string, boolean>;
   toggle: (key: string) => void;
+  check: (keys: readonly string[]) => void;
 }
 
 export interface BuildTocEntry {
