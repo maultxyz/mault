@@ -100,11 +100,12 @@ export async function postMatchingNotificationRules(params: {
 
   const game = await db.query.games.findFirst({
     where: eq(games.id, gameId),
-    columns: { fieldDefinitions: true, foilTypes: true },
+    columns: { key: true, fieldDefinitions: true, foilTypes: true },
   });
   const fields = withScanRuleFields(
     (game?.fieldDefinitions as FieldMeta[] | undefined) ?? [],
     (game?.foilTypes as string[] | undefined) ?? [],
+    game?.key,
   );
   const ruleCard = toRuleCard(card, scan);
 

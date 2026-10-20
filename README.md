@@ -157,6 +157,8 @@ These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before sh
 
 `packages/server/scripts/sync-prices.ts` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed upstream. In the self-hosted stack the `prices` container runs it every `PRICE_SYNC_INTERVAL_HOURS` (default 6, `0` disables it, failures retry after `PRICE_SYNC_RETRY_MINUTES`). Hosted deployments run it from an external scheduler.
 
+tcgcsv publishes once a day and blocks clients that poll it harder, so the TCGplayer step makes no requests at all within 20 hours of its last successful pull, then checks `last-updated.txt` before downloading anything, one request per second. Set `CARD_API_USER_AGENT` to your own install's name: every card and price source sees it, and a source that blocks an agent blocks every install sharing it. Use `--force` sparingly: it downloads every category again.
+
 Prices attach to synced cards, so cards show no price until their game has synced and the first pull has finished. Follow it with `docker compose logs -f prices`, or force a full pull with `docker compose exec prices node packages/server/dist/scripts/sync-prices.js --force`.
 
 ## Deployment

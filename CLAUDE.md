@@ -57,7 +57,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 ### Prices
 
-- `scripts/sync-prices.ts` (external scheduler) pulls TCGplayer (tcgcsv), Cardmarket and Card Kingdom, then resolves `card_prices` (keyed `(game_key, lang, card_id)`). Reads overlay `card_prices` via `applyCardPrices` (JS) or `lib/card-price-sql.ts` (SQL). Respect tcgcsv's rate and User-Agent rules.
+- `scripts/sync-prices.ts` (external scheduler) pulls TCGplayer (tcgcsv), Cardmarket and Card Kingdom, then resolves `card_prices` (keyed `(game_key, lang, card_id)`). Reads overlay `card_prices` via `applyCardPrices` (JS) or `lib/card-price-sql.ts` (SQL). tcgcsv blocks overuse (it blocked the shared `MagicVault/1.0` agent in 2026-10): at most one pull per 20 h per install, `last-updated.txt` checked first, 1 request/s, one `CARD_API_USER_AGENT` (env) for every outgoing card/price request. Never call tcgcsv from request paths.
 - Never read `card.price` directly for display or totals: use `shared`'s `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`), server `loadOrgPricing`. Any new SQL total must pass the org's `OrgPricing` (price source plus condition multipliers). Currencies never mix.
 
 ### Soft deletes

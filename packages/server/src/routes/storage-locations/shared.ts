@@ -14,9 +14,12 @@ import {
   storageLocations,
 } from "../../db/schema";
 import type { StorageLocationRow } from "../../lib/interfaces/storage-locations";
-import { cardWithStoredPricesSql } from "../../lib/card-price-sql";
+import {
+  cardWithStoredPricesSql,
+  joinedScannedCardPriceSql,
+} from "../../lib/card-price-sql";
+import { CC_ALIAS_SQL_COLUMNS } from "../../lib/constants/card-prices";
 import { loadOrgPricing } from "../../lib/price-source";
-import { cardPriceSql } from "../collections/cards-query";
 
 export function parseLocationName(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -164,13 +167,16 @@ export async function loadLocations(
   const result = await tx.execute(sql`
     SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at,
       count(cc.id)::int AS card_count,
-      COALESCE(sum(${cardPriceSql(pricing)}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
+      COALESCE(sum(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
     FROM ${storageLocations} sl
-    LEFT JOIN ${collectionCards} cc ON cc.location_id = sl.id
-      AND EXISTS (
-        SELECT 1 FROM ${collections} col
-        WHERE col.id = cc.collection_id AND col.is_deleted = false
-      )
+    LEFT JOIN (
+      ${collectionCards} cc
+      JOIN ${collections} col ON col.id = cc.collection_id AND col.is_deleted = false
+      LEFT JOIN games g ON g.id = col.game_id
+      LEFT JOIN card_prices cp ON cp.game_key = g.key
+        AND cp.lang = COALESCE(cc.card ->> 'lang', col.lang)
+        AND cp.card_id = cc.card_id
+    ) ON cc.location_id = sl.id
     WHERE sl.org_id = ${orgId}
       AND sl.is_deleted = false
     GROUP BY sl.id

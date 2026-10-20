@@ -6,11 +6,13 @@ import {
   evaluateCardBin,
   evaluateRepackBin,
   findLowMatchCatchAll,
+  getCardValue,
   isBinFull,
   isOverflowTarget,
   matchesCatchAllRules,
   REPACK_UNIQUE_BY_NAME,
   REPACK_UNIQUE_BY_PRINTING,
+  SCAN_RULE_COLLECTOR_NUMBER_FIELD,
   sortOverrideBins,
   toRuleCard,
   type BinConfig,
@@ -385,4 +387,48 @@ test("overflow: the catch-all can overflow too", () => {
     evaluateCardBin({ colors: [] }, catchAllOverflow, fields, undefined, undefined, fullBins(7))?.binNumber,
     8,
   );
+});
+
+const mtgRuleFields = withScanRuleFields(fields, [], "mtg");
+
+test("the numeric collector number field is only added for Magic", () => {
+  const hasField = (gameKey?: string | null) =>
+    withScanRuleFields(fields, [], gameKey).some((f) => f.field === SCAN_RULE_COLLECTOR_NUMBER_FIELD);
+  assert.equal(hasField("mtg"), true);
+  assert.equal(hasField("pokemon"), false);
+  assert.equal(hasField(null), false);
+  assert.equal(hasField(), false);
+});
+
+test("collector numbers are read as their last run of digits", () => {
+  const cases: [string | undefined, number | null][] = [
+    ["144", 144],
+    ["144a", 144],
+    ["1★", 1],
+    ["A-12", 12],
+    ["CLB-144a", 144],
+    ["2XM-1", 1],
+    ["10E-31", 31],
+    ["★", null],
+    [undefined, null],
+  ];
+  for (const [collectorNumber, expected] of cases) {
+    const ruleCard = toRuleCard({ collectorNumber }, {});
+    assert.equal(getCardValue(ruleCard, SCAN_RULE_COLLECTOR_NUMBER_FIELD, mtgRuleFields), expected, collectorNumber);
+  }
+});
+
+test("collector number rules compare numerically", () => {
+  const from100 = bin(1, [{ id: "cn", field: SCAN_RULE_COLLECTOR_NUMBER_FIELD, operator: "gte", value: 100 }]);
+  const exactly144 = bin(2, [{ id: "cn", field: SCAN_RULE_COLLECTOR_NUMBER_FIELD, operator: "equals", value: 144 }]);
+  const route = (collectorNumber: string, configs: BinConfig[]) =>
+    evaluateCardBin(
+      toRuleCard({ collectorNumber, raw: { collector_number: collectorNumber } }, {}),
+      configs,
+      mtgRuleFields,
+    );
+  assert.equal(route("CLB-144a", [from100, catchAll]), from100);
+  assert.equal(route("2XM-1", [from100, catchAll]), catchAll);
+  assert.equal(route("144a", [exactly144, catchAll]), exactly144);
+  assert.equal(route("145", [exactly144, catchAll]), catchAll);
 });

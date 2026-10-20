@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { AppState } from "react-native";
+import { invalidateAfterScanSave } from "@/features/collections/api/collection-cards";
 import { isRetryableSaveError, sendScanSave } from "@/features/scanner/api/scan-saves";
 import {
   deletePendingSave,
@@ -94,7 +95,7 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
     async (save: PendingScanSave): Promise<CardSaveResult> => {
       try {
         const result = await sendScanSave(save, false);
-        void queryClient.invalidateQueries({ queryKey: ["collection-cards", save.collectionGuid] });
+        invalidateAfterScanSave(queryClient, save.collectionGuid);
         return result;
       } catch (err) {
         if (!isRetryableSaveError(err)) throw err;
@@ -119,7 +120,7 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
     for (const save of listPendingSaves()) {
       if (inFlight.current.has(save.key)) continue;
       void retryUntilSettled(save, true)
-        .then(() => queryClient.invalidateQueries({ queryKey: ["collection-cards", save.collectionGuid] }))
+        .then(() => invalidateAfterScanSave(queryClient, save.collectionGuid))
         .catch(() => {});
     }
   }, [queryClient, retryUntilSettled]);
