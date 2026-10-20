@@ -131,15 +131,15 @@ Local mode supports sign-up/sign-in, org switching and invites, API keys and the
 
 ### Option C: Raspberry Pi
 
-A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi.
-
-Node, pnpm, Python 3, `v4l2-ctl`, and PostgreSQL need to be installed already. `sudo -u postgres` must work for the user who runs the installer.
+A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi. Use Raspberry Pi OS with the desktop (Debian 13). The services expect the checkout at `~/mault`.
 
 ```bash
+git clone https://github.com/maultxyz/mault.git ~/mault
+cd ~/mault
 scripts/pi/install.sh
 ```
 
-On a fresh checkout this writes `.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, and a `mault` database on `127.0.0.1:5432`. If `.env` already exists and has no `PI_HOST` line, the script appends `PI_HOST=1`. It then creates the `mault` role and database, builds the server and the web app, runs migrations, and enables three user services. Linger is turned on so those services start at boot.
+`install.sh` installs Node 22, pnpm, Postgres with pgvector, ffmpeg, and the webcam tools, then writes `.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, and a `mault` database on `127.0.0.1:5432`. It will ask for your password if `sudo` needs one. If `git` is not installed yet, run `sudo apt install -y git` before the clone. If `.env` already exists and has no `PI_HOST` line, the script appends `PI_HOST=1`. It then creates the `mault` role and database, builds the server and the web app, runs migrations, and enables three user services. Linger is turned on so those services start at boot.
 
 | Service | Role |
 | --- | --- |
