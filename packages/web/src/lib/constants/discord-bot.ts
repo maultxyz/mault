@@ -14,6 +14,7 @@ export const DISCORD_BOT_COMMANDS = [
   "stats",
   "linkAccount",
   "showoff",
+  "leaderboard",
 ] as const;
 
 export const DISCORD_BOT_FEATURE_ICONS = [

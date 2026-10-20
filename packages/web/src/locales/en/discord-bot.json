@@ -55,6 +55,10 @@
       "showoff": {
         "usage": "/showoff",
         "description": "Post your collection's total value and your most valuable card. Needs a linked account."
+      },
+      "leaderboard": {
+        "usage": "/leaderboard",
+        "description": "Show the organizations that have scanned the most cards with Mault, the same list as the leaderboard in Stats."
       }
     }
   },

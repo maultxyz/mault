@@ -2,6 +2,7 @@ import type {
   ApiResult,
   CollectionSummary,
   GameSummary,
+  LeaderboardResult,
   LinkAccountResult,
   LinkResult,
   ShowoffResult,
@@ -59,6 +60,11 @@ export function getShowoff(discordUserId: string, guildId: string | null) {
   const query = new URLSearchParams({ discordUserId });
   if (guildId) query.set("guildId", guildId);
   return botFetch<ShowoffResult>(`/bot/showoff?${query.toString()}`);
+}
+
+export function getLeaderboard(guildId: string | null) {
+  const query = guildId ? `?guildId=${encodeURIComponent(guildId)}` : "";
+  return botFetch<LeaderboardResult>(`/bot/leaderboard${query}`);
 }
 
 export function getCollections(guildId: string) {

@@ -55,6 +55,10 @@
       "showoff": {
         "usage": "/showoff",
         "description": "Postet den Gesamtwert deiner Sammlung und deine wertvollste Karte. Erfordert ein verknüpftes Konto."
+      },
+      "leaderboard": {
+        "usage": "/leaderboard",
+        "description": "Zeigt die Organisationen, die mit Mault die meisten Karten gescannt haben, dieselbe Liste wie die Bestenliste unter Statistiken."
       }
     }
   },

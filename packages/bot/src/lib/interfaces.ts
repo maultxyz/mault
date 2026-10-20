@@ -62,6 +62,19 @@ export interface StatsResult {
   topCard: TopCardSummary | null;
 }
 
+export interface LeaderboardRow {
+  rank: number;
+  name: string | null;
+  scanCount: number;
+  isOwnOrg: boolean;
+}
+
+export interface LeaderboardResult {
+  rows: LeaderboardRow[];
+  size: number;
+  linkedOrgOptedIn: boolean | null;
+}
+
 export interface ShowoffResult extends StatsResult {
   orgName: string;
 }

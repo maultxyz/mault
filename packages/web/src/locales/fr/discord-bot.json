@@ -55,6 +55,10 @@
       "showoff": {
         "usage": "/showoff",
         "description": "Publie la valeur totale de ta collection et ta carte la plus chère. Nécessite un compte lié."
+      },
+      "leaderboard": {
+        "usage": "/leaderboard",
+        "description": "Affiche les organisations qui ont scanné le plus de cartes avec Mault, la même liste que le classement dans Statistiques."
       }
     }
   },
