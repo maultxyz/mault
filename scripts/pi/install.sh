@@ -112,7 +112,10 @@ for unit in mault-api.service mault-web.service mault-camera.service; do
   cp "$ROOT/scripts/pi/$unit" "$UNIT_DIR/$unit"
 done
 systemctl --user daemon-reload
-systemctl --user enable mault-api.service mault-web.service mault-camera.service
+if ! systemctl --user enable --now mault-camera.service mault-api.service mault-web.service; then
+  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
+  exit 1
+fi
 
 if ! {
   gdbus call --session \
@@ -157,4 +160,17 @@ done
 gio set "$DESKTOP/Start MAULT.desktop" metadata::trusted true 2>/dev/null || true
 gio set "$DESKTOP/Stop MAULT.desktop" metadata::trusted true 2>/dev/null || true
 
-echo "[install] Ready. The API and web app start on boot. Open http://<this-pi>:8080 from another computer."
+for _ in $(seq 1 60); do
+  if curl -sf http://127.0.0.1:8080/ >/dev/null; then
+    break
+  fi
+  sleep 0.5
+done
+
+if ! curl -sf http://127.0.0.1:8080/ >/dev/null; then
+  echo "[install] The web app did not come up on port 8080." >&2
+  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
+  exit 1
+fi
+
+echo "[install] Ready. Open http://<this-pi>:8080 from another computer. The services also start on boot."
