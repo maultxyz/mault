@@ -18,6 +18,7 @@ import type {
   WireKey,
   WiringViewMode,
 } from "@/lib/interfaces/build";
+import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
 export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
 
@@ -88,6 +89,23 @@ export const BUILD_ASSEMBLY_ANCHOR = "assembly";
 export const BUILD_WIRING_ANCHOR = "wiring";
 
 export const EMPTY_CHECKLIST: Record<string, boolean> = {};
+
+export const PRINT_PART_IMAGE_SIZE = 320;
+
+export const PRINT_PART_IMAGE_PARTS = [
+  "sortingModule",
+  "feederModule",
+  "shroud",
+  "baseSupportTall",
+  "baseSupportShort",
+  "baseSupportBreakout",
+  "circuitBoardPlate",
+  "servoControllerPlate",
+  "endPlate",
+  "genericPlate",
+  "binsPlate",
+  "endBinPlate",
+] as const satisfies readonly SorterPrintPart[];
 
 export const FLASH_IN_BROWSER_STEP_KEYS = [
   "flash-in-browser",
