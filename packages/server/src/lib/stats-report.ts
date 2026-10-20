@@ -11,7 +11,7 @@ import type { Transaction } from "../db";
 import { collectionCards, collections, games } from "../db/schema";
 import {
   findCardsCollection,
-  loadCardStats,
+  loadAllCardStats,
 } from "../routes/collections/cards-query";
 import { joinedScannedCardPriceSql } from "./card-price-sql";
 import { COLLECTION_CARD_SQL_COLUMNS } from "./constants/card-prices";
@@ -167,7 +167,7 @@ export async function loadStatsReport(
   const row = result.rows[0] as unknown as StatsReportRow;
 
   const breakdown = collection
-    ? (await loadCardStats(tx, collection, sql`true`, pricing)).all
+    ? await loadAllCardStats(tx, collection, pricing)
     : null;
 
   return {
