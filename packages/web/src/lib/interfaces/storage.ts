@@ -33,6 +33,11 @@ export interface MoveCardsToLocationInput {
   collectionGuid: string | undefined;
 }
 
+export interface MoveCollectionsToLocationInput {
+  guid: string;
+  collectionGuids: string[];
+}
+
 export interface EmptyBinToLocationDialogProps {
   binNumber: number | null;
   step?: EmptyBinDialogStep;

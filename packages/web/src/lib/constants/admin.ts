@@ -3,18 +3,15 @@ import type {
   DeletedItemTypeFilter,
   UnmatchedPhotoFilter,
 } from "@/lib/interfaces/admin";
+import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import {
   IconBrandDiscord,
   IconBug,
   IconCards,
   IconCreditCard,
-  IconDeviceGamepad2,
   IconRestore,
   IconRotate360,
-  IconScanEye,
-  IconSpeakerphone,
-  IconTerminal2,
   IconUserScan,
 } from "@tabler/icons-react";
 
@@ -52,23 +49,11 @@ export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
 
 export const ADMIN_SECTIONS = [
   { path: "cards", icon: IconCards, labelKey: "sections.cards" },
-  { path: "games", icon: IconDeviceGamepad2, labelKey: "sections.games" },
   { path: "users", icon: IconUserScan, labelKey: "sections.users" },
   { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
-  {
-    path: "discord-stats",
-    icon: IconBrandDiscord,
-    labelKey: "sections.discordStats",
-  },
-  {
-    path: "announcements",
-    icon: IconSpeakerphone,
-    labelKey: "sections.announcements",
-  },
+  { path: "discord", icon: IconBrandDiscord, labelKey: "sections.discord" },
   { path: "deleted", icon: IconRestore, labelKey: "sections.deleted" },
-  { path: "unmatched", icon: IconScanEye, labelKey: "sections.unmatched" },
-  { path: "servos", icon: IconRotate360, labelKey: "sections.servos" },
-  { path: "device", icon: IconTerminal2, labelKey: "sections.device" },
+  { path: "hardware", icon: IconRotate360, labelKey: "sections.hardware" },
   { path: "developer", icon: IconBug, labelKey: "sections.developer" },
 ] as const;
 
@@ -77,8 +62,16 @@ export const NO_DISCORD_GUILD = "none";
 export const PLATFORM_STATS_SCRIPT_COMMAND =
   "node packages/server/dist/scripts/post-platform-stats.js";
 
+export const PRICE_SYNC_SCRIPT_COMMAND =
+  "node packages/server/dist/scripts/sync-prices.js";
+
 export const EMPTY_PLATFORM_STATS_FORM: PlatformStatsFormValues = {
-  guildId: null,
-  channelId: null,
   stats: [],
 };
+
+export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormValues =
+  {
+    stats: { guildId: null, channelId: null },
+    donations: { guildId: null, channelId: null },
+    pricing: { guildId: null, channelId: null },
+  };

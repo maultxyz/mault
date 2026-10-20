@@ -8,3 +8,5 @@ export const CARD_SEARCH_FIELDS = [
   "collectorNumber",
   "text",
 ];
+
+export const COLLECTION_PREVIEW_SCAN_WINDOW = 50;

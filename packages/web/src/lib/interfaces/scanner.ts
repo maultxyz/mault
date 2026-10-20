@@ -312,6 +312,9 @@ export interface ScannerOverlayProps {
   onConnectScannerBluetooth: () => void;
   onConnectScannerCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
+  handScanActive: boolean;
+  lastRoutedBin: LastRoutedBin | null;
+  onEnableHandScan: () => void;
 }
 
 export interface SetStats {
@@ -511,6 +514,7 @@ export interface MobileMonitorCardsProps {
 
 export interface MobileMonitorActivityProps {
   session: SessionMonitorState;
+  collectionGuid: string;
   stats: ScanStats | null;
   canEditCards: boolean;
   onOpenCard?: (scanId: string) => void;
@@ -619,6 +623,10 @@ export interface ScannerChromeContext {
   onFeed: () => void;
   onClearDevice: () => void;
   onResetDevice: () => void;
+  handScan: boolean;
+  handScanActive: boolean;
+  lastRoutedBin: LastRoutedBin | null;
+  onHandScanChange: (value: boolean) => void;
 }
 
 export interface MobileScanControlsSheetProps {
@@ -636,6 +644,7 @@ export interface MobileSessionScansSheetProps {
 
 export interface UnmatchedDiagnosticsDetailsProps {
   diagnostics: UnmatchedScanDiagnostics;
+  className?: string;
 }
 
 export interface OrientedSearch {
@@ -702,6 +711,14 @@ export interface UnmatchedCardsPanelProps {
   cards: UnmatchedCard[];
   onRemove?: (scanId: string) => void;
   onIdentify?: (card: UnmatchedCard) => void;
+  onOpen?: (card: UnmatchedCard) => void;
+}
+
+export interface MobileUnmatchedCardDrawerProps {
+  entry: UnmatchedCard | null;
+  collectionGuid: string;
+  onIdentify: (card: UnmatchedCard) => void;
+  onClose: () => void;
 }
 
 export interface IdentifiableUnmatchedCardsPanelProps {
@@ -853,6 +870,8 @@ export interface ScannerMenuProps {
   canConnectAnotherSorter: boolean;
   sorterLimitIsHardCap: boolean;
   onUpgrade: () => void;
+  handScan: boolean;
+  onHandScanChange: (enabled: boolean) => void;
 }
 
 export interface SessionStatsPanelProps {
@@ -950,6 +969,13 @@ export interface MobileScanOptionsSheetProps {
   chrome: ScannerChromeContext;
   onChooseCollection: () => void;
   onChoosePreset: () => void;
+  onChooseCamera: () => void;
+}
+
+export interface MobileCameraSheetProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  chrome: ScannerChromeContext;
 }
 
 export interface MobileCollectionSheetProps {
@@ -963,3 +989,8 @@ export interface MobilePresetSheetProps {
 }
 
 export type CloudTransportFailure = "offline" | "inUse" | "failed";
+
+export interface OutlineAnimator {
+  setTarget: (contour: CardContour | null) => void;
+  cancel: () => void;
+}

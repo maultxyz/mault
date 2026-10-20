@@ -39,6 +39,7 @@ export function startSync(
   lang: string = "en",
   forceResync: boolean = false,
   skipUpdatedWithinMs?: number,
+  concurrency?: number,
 ): void {
   if (currentWorker) return;
 
@@ -84,7 +85,12 @@ export function startSync(
       DB_IDLE_TIMEOUT_MS: process.env.SYNC_DB_IDLE_TIMEOUT_MS ?? "60000",
       DB_CONNECTION_TIMEOUT_MS:
         process.env.SYNC_DB_CONNECTION_TIMEOUT_MS ?? "30000",
+      VECTORIZE_CONCURRENCY:
+        concurrency?.toString() ??
+        process.env.VECTORIZE_CONCURRENCY ??
+        "10",
       SCAN_VECTORIZE_CONCURRENCY:
+        concurrency?.toString() ??
         process.env.SYNC_VECTORIZE_CONCURRENCY ??
         process.env.VECTORIZE_CONCURRENCY ??
         "10",

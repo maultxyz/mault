@@ -81,6 +81,10 @@
     "showAdvanced": "Show raw values",
     "hideAdvanced": "Hide raw values",
     "speedLabel": "Feed Speed",
+    "stopPulseLabel": "Stop Point",
+    "stopPulseDescription": "The pulse where this feeder motor stands still. It differs a little from servo to servo. Adjust it until the feeder stops moving during the short preview; the speed percentages are then measured from here.",
+    "stopPulseDefault": "Default ({{pulse}})",
+    "resetStopPulse": "Reset stop point",
     "speedTooltip": "How fast and which way the feeder motor spins. 0% is stopped; drag either way to speed up in that direction.",
     "forward": "Forward",
     "reverse": "Reverse",
@@ -415,6 +419,19 @@
       "waiting": "Waiting for the first reading from the sorter…",
       "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later."
     },
+    "feederStop": {
+      "heading": "Feeder stop point",
+      "body": "Every feeder motor has a slightly different point where it stands still. Each change runs the roller at 0% speed for a moment, so at the right stop point it doesn't move at all.",
+      "pulseLabel": "Stop pulse",
+      "hint": "Use the buttons to step one pulse at a time.",
+      "saveFailed": "Couldn't save the feeder stop point.",
+      "guide": {
+        "zero": "Watch the roller after each change. This step always runs it at 0% speed.",
+        "stops": "Move the stop point until the roller stops moving. Note that number, for example 330.",
+        "starts": "Keep going the same way until the roller starts moving again. Note that number too, for example 344.",
+        "middle": "Set the stop point halfway between the two. For 330 and 344 that's 337."
+      }
+    },
     "feeder": {
       "heading": "Feeder speed",
       "body": "The feeder roller pulls the bottom card out of the hopper and into module 1. Drag until it spins in the direction that pulls cards in, at a steady speed.",
@@ -435,6 +452,7 @@
       "moduleCount": "Your sorter",
       "module": "Module {{module}} of {{total}} · {{servo}}",
       "irSensors": "Sensors",
+      "feederStop": "Feeder stop point",
       "feeder": "Feeder",
       "test": "Self-test",
       "moduleDelays": "Module {{module}} of {{total}} · Timing"

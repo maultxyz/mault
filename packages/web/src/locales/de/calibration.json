@@ -81,6 +81,10 @@
     "showAdvanced": "Rohwerte anzeigen",
     "hideAdvanced": "Rohwerte ausblenden",
     "speedLabel": "Zuführgeschwindigkeit",
+    "stopPulseLabel": "Haltepunkt",
+    "stopPulseDescription": "Der Impuls, bei dem dieser Zuführmotor stillsteht. Er unterscheidet sich etwas von Servo zu Servo. Stelle ihn so ein, dass sich die Zuführung bei der kurzen Vorschau nicht mehr bewegt; die Geschwindigkeitsprozente werden dann von hier aus gemessen.",
+    "stopPulseDefault": "Standard ({{pulse}})",
+    "resetStopPulse": "Haltepunkt zurücksetzen",
     "speedTooltip": "Wie schnell und in welche Richtung der Zuführmotor dreht. 0 % bedeutet gestoppt; ziehe in eine der beiden Richtungen, um dort schneller zu werden.",
     "forward": "Vorwärts",
     "reverse": "Rückwärts",
@@ -415,6 +419,19 @@
       "waiting": "Warte auf den ersten Messwert vom Sortierer…",
       "footnote": "Ein Sensor, der nie aufleuchtet, ist meist nicht eingesteckt, am falschen Pin angeschlossen oder zeigt nicht auf den Kartenweg. Du kannst weitermachen und das später beheben."
     },
+    "feederStop": {
+      "heading": "Haltepunkt der Zuführung",
+      "body": "Jeder Zuführmotor hat einen etwas anderen Punkt, an dem er stillsteht. Bei jeder Änderung läuft die Rolle kurz mit 0 % Geschwindigkeit, am richtigen Haltepunkt bewegt sie sich also gar nicht.",
+      "pulseLabel": "Halteimpuls",
+      "hint": "Mit den Tasten gehst du jeweils einen Impuls weiter.",
+      "saveFailed": "Der Haltepunkt der Zuführung konnte nicht gespeichert werden.",
+      "guide": {
+        "zero": "Beobachte die Rolle nach jeder Änderung. Dieser Schritt lässt sie immer mit 0 % Geschwindigkeit laufen.",
+        "stops": "Verschiebe den Haltepunkt, bis die Rolle stillsteht. Merke dir diesen Wert, zum Beispiel 330.",
+        "starts": "Mach in dieselbe Richtung weiter, bis sich die Rolle wieder bewegt. Merke dir auch diesen Wert, zum Beispiel 344.",
+        "middle": "Stelle den Haltepunkt genau in die Mitte der beiden Werte. Bei 330 und 344 ist das 337."
+      }
+    },
     "feeder": {
       "heading": "Zuführgeschwindigkeit",
       "body": "Die Zuführrolle zieht die unterste Karte aus dem Trichter in Modul 1. Ziehe, bis sie in die Richtung dreht, die Karten hineinzieht, mit gleichmäßiger Geschwindigkeit.",
@@ -435,6 +452,7 @@
       "moduleCount": "Dein Sortierer",
       "module": "Modul {{module}} von {{total}} · {{servo}}",
       "irSensors": "Sensoren",
+      "feederStop": "Haltepunkt der Zuführung",
       "feeder": "Zuführung",
       "test": "Selbsttest",
       "moduleDelays": "Modul {{module}} von {{total}} · Timing"

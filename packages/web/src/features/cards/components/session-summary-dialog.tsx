@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
-import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { applyCardFilters } from "@/features/cards/api/use-card-filter-sort";
 import {
   allExportAdapters,
@@ -21,7 +20,7 @@ import {
   type ExportAdapter,
 } from "@/features/cards/lib/export";
 import { buildWrappedSlides } from "@/features/cards/lib/wrapped-slides";
-import { useCollections } from "@/features/collections/api/use-collections";
+import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { computeStats } from "@/features/scanner/lib/compute-stats";
@@ -449,7 +448,7 @@ export function SessionSummaryDialog({
   const [paused, setPaused] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  const { activeCollection } = useCollections();
+  const { collection: activeCollection } = useViewedCollection();
 
   const previouslyDownloadedCount = useMemo(
     () => cards.filter((c) => c.isDownloaded).length,
@@ -471,7 +470,7 @@ export function SessionSummaryDialog({
     [cards, priceSource, conditionMultipliers],
   );
   const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
-  const { fieldDefinitions } = useBinConfigs();
+  const fieldDefinitions = activeCollection?.game?.fieldDefinitions ?? [];
   const { activeOrg } = useOrg();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(activeOrg?.id));
   const wrappedEnabled = orgSettings?.sessionWrappedEnabled ?? true;

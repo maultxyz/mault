@@ -24,6 +24,13 @@ export const SINGLE_TOKEN_PATTERN = /^#?([a-z0-9-]+)$/i;
 export const NAME_AND_NUMBER_PATTERN =
   /^(.*\S)\s+#?([a-z0-9-]*\d[a-z0-9-]*)(?:\/\d+)?$/i;
 
+export const NETDECK_SEARCH_PAGE_SIZE = 30;
+export const NETDECK_IMAGE_GAMES = new Set(["cyberpunk"]);
+export const NETDECK_SLUG_PATTERN = /^[a-z0-9-]+$/;
+export const NETDECK_IMAGE_URL_REFRESH_MARGIN_MS = 10 * 60 * 1000;
+export const NETDECK_IMAGE_URL_FALLBACK_TTL_MS = 60 * 60 * 1000;
+export const CYBERPUNK_TCGPLAYER_CATEGORY_ID = 92;
+
 export const FAB_SEARCH_CARD_LIMIT = 12;
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {

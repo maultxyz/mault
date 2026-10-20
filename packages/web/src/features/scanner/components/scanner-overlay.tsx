@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import {
   IconAlertTriangle,
   IconCameraSpark,
+  IconCards,
   IconDeviceMobile,
   IconDeviceUsb,
   IconHandStop,
@@ -73,6 +74,9 @@ export function ScannerOverlay({
   onConnectScannerBluetooth,
   onConnectScannerCloud,
   bluetoothSupported,
+  handScanActive,
+  lastRoutedBin,
+  onEnableHandScan,
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
   const hasWifiSorters = useWifiSorters(false).length > 0;
@@ -143,10 +147,31 @@ export function ScannerOverlay({
     );
   }
 
-  return <>{renderStatusPill()}</>;
+  return (
+    <>
+      {handScanActive && lastRoutedBin && (
+        <div className="pointer-events-none absolute inset-x-0 top-2 z-30 flex justify-center">
+          <div
+            key={lastRoutedBin.at}
+            className="flex flex-col items-center rounded-lg border border-primary bg-primary px-4 py-2 text-primary-foreground shadow-lg animate-in fade-in zoom-in-95 motion-reduce:animate-none"
+          >
+            <span className="text-xs font-medium">
+              {t("scannerOverlay.handScanBinLabel")}
+            </span>
+            <span className="text-3xl font-bold tabular-nums">
+              {t("scannerOverlay.handScanBin", {
+                number: lastRoutedBin.binNumber,
+              })}
+            </span>
+          </div>
+        </div>
+      )}
+      {renderStatusPill()}
+    </>
+  );
 
   function renderStatusPill() {
-    if (!isConnected) {
+    if (!isConnected && !handScanActive) {
       return (
         <StatusPill variant="warning">
           <IconDeviceUsb className="size-3.5 shrink-0" />
@@ -175,9 +200,14 @@ export function ScannerOverlay({
               {t("connect")}
             </Button>
           )}
+          <Button size="sm" variant="secondary" onClick={onEnableHandScan}>
+            {t("scannerOverlay.scanByHand")}
+          </Button>
         </StatusPill>
       );
     }
+
+    if (handScanActive) return renderScanStatus();
 
     if (sensorBlockedModule !== null) {
       return (
@@ -220,6 +250,10 @@ export function ScannerOverlay({
       );
     }
 
+    return renderScanStatus();
+  }
+
+  function renderScanStatus() {
     switch (status) {
       case "initializing":
         return (
@@ -280,6 +314,14 @@ export function ScannerOverlay({
           </StatusPill>
         );
       default:
+        if (handScanActive) {
+          return (
+            <StatusPill>
+              <IconCards className="size-3.5 shrink-0" />
+              <span>{t("scannerOverlay.handScanPrompt")}</span>
+            </StatusPill>
+          );
+        }
         if (!autoFeed) {
           return (
             <StatusPill>

@@ -74,10 +74,11 @@ END
 $$;
 
 -- platform_user_roles, impersonation_audit, scan_stats,
--- platform_stats_settings and webhook_deliveries are intentionally not
--- granted here - the app only ever touches them via `db` directly (see
--- auth/local.ts, routes/impersonation.ts, lib/scan-stats.ts,
--- lib/platform-stats.ts, lib/webhooks/queue.ts),
+-- platform_stats_settings, platform_discord_channels and webhook_deliveries
+-- are intentionally not granted here - the app only ever touches them via
+-- `db` directly (see auth/local.ts, routes/impersonation.ts,
+-- lib/scan-stats.ts, lib/platform-stats.ts,
+-- lib/platform-discord-channels.ts, lib/webhooks/queue.ts),
 -- never through an authQuery()/authenticated
 -- session, so authenticated has no need to read or write them.
 

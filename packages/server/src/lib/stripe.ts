@@ -1,6 +1,12 @@
+import {
+  BILLING_INTERVALS,
+  type BillingInterval,
+  type BusinessPriceInfo,
+  type BusinessPrices,
+} from "@magic-vault/shared";
 import Stripe from "stripe";
+import { BUSINESS_PRICE_ID_ENV } from "./constants/billing";
 import { STRIPE_PRICE_CACHE_TTL_MS as PRICE_CACHE_TTL_MS } from "./constants/timing";
-import type { BusinessPriceInfo } from "./interfaces/billing";
 
 let _stripe: Stripe | null = null;
 
@@ -21,12 +27,21 @@ export function getStripe(): Stripe {
   return _stripe;
 }
 
-export function getBusinessPriceId(): string {
-  const priceId = process.env.STRIPE_PRICE_ID_BUSINESS;
-  if (!priceId) {
-    throw new Error("STRIPE_PRICE_ID_BUSINESS is not configured.");
-  }
-  return priceId;
+export function findBusinessPriceId(
+  interval: BillingInterval,
+): string | undefined {
+  return process.env[BUSINESS_PRICE_ID_ENV[interval]] || undefined;
+}
+
+export function businessIntervalForPriceId(
+  priceId: string | null | undefined,
+): BillingInterval | null {
+  if (!priceId) return null;
+  return (
+    BILLING_INTERVALS.find(
+      (interval) => findBusinessPriceId(interval) === priceId,
+    ) ?? null
+  );
 }
 
 export const FREE_PLAN_DAILY_SCAN_LIMIT =
@@ -61,30 +76,45 @@ export async function getCancelAtPeriodEndPortalConfigurationId(): Promise<
   return config.id;
 }
 
-let _businessPriceCache: BusinessPriceInfo | null = null;
-let _businessPriceCachedAt = 0;
+const _businessPriceCache = new Map<
+  string,
+  { info: BusinessPriceInfo | null; cachedAt: number }
+>();
 
-export async function getBusinessPriceInfo(): Promise<BusinessPriceInfo | null> {
-  if (
-    _businessPriceCache &&
-    Date.now() - _businessPriceCachedAt < PRICE_CACHE_TTL_MS
-  ) {
-    return _businessPriceCache;
-  }
-
-  const priceId = process.env.STRIPE_PRICE_ID_BUSINESS;
+async function getBusinessPriceInfo(
+  interval: BillingInterval,
+): Promise<BusinessPriceInfo | null> {
+  const priceId = findBusinessPriceId(interval);
   if (!priceId) return null;
 
-  const price = await getStripe().prices.retrieve(priceId);
-  if (price.unit_amount == null || !price.recurring) return null;
+  const cached = _businessPriceCache.get(priceId);
+  if (cached && Date.now() - cached.cachedAt < PRICE_CACHE_TTL_MS) {
+    return cached.info;
+  }
 
-  _businessPriceCache = {
-    amount: price.unit_amount,
-    currency: price.currency,
-    interval: price.recurring.interval,
-  };
-  _businessPriceCachedAt = Date.now();
-  return _businessPriceCache;
+  const price = await getStripe().prices.retrieve(priceId);
+  const info =
+    price.unit_amount == null || !price.recurring
+      ? null
+      : {
+          amount: price.unit_amount,
+          currency: price.currency,
+          interval: price.recurring.interval,
+        };
+  _businessPriceCache.set(priceId, { info, cachedAt: Date.now() });
+  return info;
+}
+
+export async function getBusinessPrices(): Promise<BusinessPrices> {
+  const [month, year] = await Promise.all(
+    BILLING_INTERVALS.map((interval) =>
+      getBusinessPriceInfo(interval).catch((err) => {
+        console.error(err);
+        return null;
+      }),
+    ),
+  );
+  return { month, year };
 }
 export const FREE_PLAN_MAX_SOUND_RULES =
   Number(process.env.FREE_PLAN_MAX_SOUND_RULES) || 1;

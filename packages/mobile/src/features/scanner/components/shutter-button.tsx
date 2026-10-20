@@ -5,7 +5,7 @@ import { RADIUS } from "@/lib/constants/theme";
 import { DISABLED_OPACITY, SHUTTER_ICON_SIZE, SHUTTER_SIZE } from "@/lib/constants/ui";
 import type { ShutterButtonProps } from "@/lib/interfaces/ui";
 
-export function ShutterButton({ running, label, onPress, disabled = false }: ShutterButtonProps) {
+export function ShutterButton({ running, icon, label, onPress, disabled = false }: ShutterButtonProps) {
   const colors = useTheme();
   return (
     <Pressable
@@ -25,7 +25,7 @@ export function ShutterButton({ running, label, onPress, disabled = false }: Shu
         transform: [{ scale: pressed ? 0.94 : 1 }],
       })}
     >
-      <Icon name={running ? "pause" : "play"} size={SHUTTER_ICON_SIZE} color={colors.onCamera} />
+      <Icon name={icon} size={SHUTTER_ICON_SIZE} color={colors.onCamera} />
     </Pressable>
   );
 }

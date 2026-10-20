@@ -1,6 +1,9 @@
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
-import { HOTKEY_ROUTES, HOTKEY_SEARCH_ATTRIBUTE } from "@/lib/constants/hotkeys";
+import {
+  HOTKEY_ROUTES,
+  HOTKEY_SEARCH_ATTRIBUTE,
+} from "@/lib/constants/hotkeys";
 import { focusHotkeySearch } from "@/lib/hotkeys";
 import { toast } from "@/lib/toast";
 import { useNavigate } from "react-router-dom";
@@ -15,7 +18,6 @@ export function AppHotkeys() {
     dismissToasts: () => toast.dismiss(),
     goScanner: go(HOTKEY_ROUTES.goScanner),
     goCollections: go(HOTKEY_ROUTES.goCollections),
-    goMonitor: go(HOTKEY_ROUTES.goMonitor),
     goSortingRules: go(HOTKEY_ROUTES.goSortingRules),
     goStorage: go(HOTKEY_ROUTES.goStorage),
     goCalibrate: go(HOTKEY_ROUTES.goCalibrate),

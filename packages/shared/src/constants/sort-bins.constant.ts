@@ -1,11 +1,17 @@
 import type {
   BinHeightPreset,
   BinRuleGroup,
+  ConditionOperator,
   DefaultBinInit,
   FieldType,
 } from "../interfaces/sort-bins.interface";
 
 export const SET_NAME_MAX_LENGTH = 50;
+export const COUNT_OPERATORS: ConditionOperator[] = [
+  "count_equals",
+  "count_gt",
+  "count_lt",
+];
 export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
 export const DEFAULT_BIN_CAPACITY = 250;

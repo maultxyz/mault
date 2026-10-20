@@ -81,6 +81,10 @@
     "showAdvanced": "Afficher les valeurs brutes",
     "hideAdvanced": "Masquer les valeurs brutes",
     "speedLabel": "Vitesse d'alimentation",
+    "stopPulseLabel": "Point d'arrêt",
+    "stopPulseDescription": "L'impulsion à laquelle ce moteur du chargeur reste immobile. Elle varie un peu d'un servo à l'autre. Ajuste-la jusqu'à ce que le chargeur ne bouge plus pendant le court aperçu ; les pourcentages de vitesse sont alors mesurés à partir de ce point.",
+    "stopPulseDefault": "Par défaut ({{pulse}})",
+    "resetStopPulse": "Réinitialiser le point d'arrêt",
     "speedTooltip": "À quelle vitesse et dans quel sens tourne le moteur du chargeur. 0 % est à l'arrêt ; fais glisser d'un côté ou de l'autre pour accélérer dans ce sens.",
     "forward": "Avant",
     "reverse": "Inverse",
@@ -415,6 +419,19 @@
       "waiting": "En attente de la première lecture du trieur…",
       "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard."
     },
+    "feederStop": {
+      "heading": "Point d'arrêt du chargeur",
+      "body": "Chaque moteur de chargeur a un point d'immobilité légèrement différent. À chaque changement, le rouleau tourne brièvement à 0 % de vitesse : au bon point d'arrêt, il ne bouge pas du tout.",
+      "pulseLabel": "Impulsion d'arrêt",
+      "hint": "Utilise les boutons pour avancer d'une impulsion à la fois.",
+      "saveFailed": "Impossible d'enregistrer le point d'arrêt du chargeur.",
+      "guide": {
+        "zero": "Observe le rouleau après chaque changement. Cette étape le fait toujours tourner à 0 % de vitesse.",
+        "stops": "Déplace le point d'arrêt jusqu'à ce que le rouleau s'arrête. Note cette valeur, par exemple 330.",
+        "starts": "Continue dans le même sens jusqu'à ce que le rouleau se remette à bouger. Note aussi cette valeur, par exemple 344.",
+        "middle": "Place le point d'arrêt à mi-chemin entre les deux. Pour 330 et 344, c'est 337."
+      }
+    },
     "feeder": {
       "heading": "Vitesse d'alimentation",
       "body": "Le rouleau d'alimentation tire la carte du dessous de la trémie jusque dans le module 1. Fais glisser jusqu'à ce qu'il tourne dans le sens qui fait entrer les cartes, à vitesse régulière.",
@@ -435,6 +452,7 @@
       "moduleCount": "Ton trieur",
       "module": "Module {{module}} sur {{total}} · {{servo}}",
       "irSensors": "Capteurs",
+      "feederStop": "Point d'arrêt du chargeur",
       "feeder": "Alimentation",
       "test": "Autotest",
       "moduleDelays": "Module {{module}} sur {{total}} · Délais"

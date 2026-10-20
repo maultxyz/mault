@@ -8,8 +8,10 @@ import {
   FEEDER_PULSE_DURATION_SLIDER_MAX,
   FEEDER_REVERSE_DURATION_SLIDER_MAX,
   FEEDER_SETTLE_DURATION_SLIDER_MAX,
+  FEEDER_STOP_PULSE_SLIDER_RANGE,
   pulseToDirectionalSpeed,
   pulseToSignedPercent,
+  SERVO_PULSE_CENTER,
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
   signedPercentToPulse,
@@ -17,7 +19,7 @@ import {
 } from "@/lib/constants/calibration";
 import type { FeederCalibrationPanelProps } from "@/lib/interfaces/calibration";
 import { cn } from "@/lib/utils";
-import { IconChevronDown } from "@tabler/icons-react";
+import { IconChevronDown, IconRestore } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -29,9 +31,12 @@ export function FeederCalibrationPanel({
   settleDurationValue,
   reverseSpeedValue,
   reverseDurationValue,
+  stopPulse,
   canEditTimings,
   canCalibrate,
   onSpeedChange,
+  onStopPulseChange,
+  onResetStopPulse,
   onDurationChange,
   onPulseDurationChange,
   onPauseDurationChange,
@@ -43,8 +48,9 @@ export function FeederCalibrationPanel({
 }: FeederCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const speed = pulseToDirectionalSpeed(speedValue);
-  const reverseSpeed = pulseToDirectionalSpeed(reverseSpeedValue);
+  const center = stopPulse ?? SERVO_PULSE_CENTER;
+  const speed = pulseToDirectionalSpeed(speedValue, center);
+  const reverseSpeed = pulseToDirectionalSpeed(reverseSpeedValue, center);
   const ms = (value: number) => t("msValue", { value });
   const speedLabel = (s: typeof speed) =>
     `${t(`feederCalibrationPanel.${s.direction}`)} ${s.magnitude}%`;
@@ -88,8 +94,10 @@ export function FeederCalibrationPanel({
           min={-100}
           max={100}
           disabled={!canCalibrate}
-          value={pulseToSignedPercent(speedValue)}
-          onValueChange={(value) => onSpeedChange(signedPercentToPulse(value))}
+          value={pulseToSignedPercent(speedValue, center)}
+          onValueChange={(value) =>
+            onSpeedChange(signedPercentToPulse(value, center))
+          }
         >
           {showAdvanced && (
             <RawStepperRow
@@ -102,6 +110,45 @@ export function FeederCalibrationPanel({
               onChange={onSpeedChange}
               valueLabel={speedValue}
             />
+          )}
+        </SliderField>
+
+        <SliderField
+          label={t("feederCalibrationPanel.stopPulseLabel")}
+          description={t("feederCalibrationPanel.stopPulseDescription")}
+          valueLabel={
+            stopPulse === null
+              ? t("feederCalibrationPanel.stopPulseDefault", {
+                  pulse: SERVO_PULSE_CENTER,
+                })
+              : stopPulse
+          }
+          min={SERVO_PULSE_CENTER - FEEDER_STOP_PULSE_SLIDER_RANGE}
+          max={SERVO_PULSE_CENTER + FEEDER_STOP_PULSE_SLIDER_RANGE}
+          disabled={!canCalibrate}
+          value={center}
+          onValueChange={onStopPulseChange}
+        >
+          <RawStepperRow
+            value={center}
+            min={SERVO_PULSE_MIN}
+            max={SERVO_PULSE_MAX}
+            bigStep={10}
+            smallStep={1}
+            disabled={!canCalibrate}
+            onChange={onStopPulseChange}
+            valueLabel={center}
+          />
+          {stopPulse !== null && (
+            <Button
+              variant="outline"
+              disabled={!canCalibrate}
+              onClick={onResetStopPulse}
+              className="w-full"
+            >
+              <IconRestore />
+              {t("feederCalibrationPanel.resetStopPulse")}
+            </Button>
           )}
         </SliderField>
 
@@ -242,9 +289,9 @@ export function FeederCalibrationPanel({
               min={-100}
               max={100}
               disabled={!canCalibrate}
-              value={pulseToSignedPercent(reverseSpeedValue)}
+              value={pulseToSignedPercent(reverseSpeedValue, center)}
               onValueChange={(value) =>
-                onReverseSpeedChange(signedPercentToPulse(value))
+                onReverseSpeedChange(signedPercentToPulse(value, center))
               }
             >
               {showAdvanced && (

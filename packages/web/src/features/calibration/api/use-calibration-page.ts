@@ -29,12 +29,17 @@ import {
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import type {
   ActivePositions,
+  FeederSpeedAnchor,
   ModuleDelayField,
   SliderKey,
   ServoName,
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { SETUP_SERVO_POSITIONS } from "@/lib/constants/calibration";
+import {
+  recenterSpeedPulse,
+  SERVO_PULSE_CENTER,
+  SETUP_SERVO_POSITIONS,
+} from "@/lib/constants/calibration";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
   CALIBRATION_STEP_SETTLE_MS,
@@ -249,11 +254,21 @@ export function useCalibrationPage() {
   const feederReverseDurationValue = feederValues.reverseDuration;
   const setFeederDraftField = useCallback(
     (field: keyof FeederCalibration, value: number) => {
+      feederSpeedAnchorRef.current = null;
       setFeederDraft((prev) => ({ ...prev, [field]: value }));
     },
     [],
   );
+  const feederSpeedAnchorRef = useRef<FeederSpeedAnchor | null>(null);
   const feederDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [feederStopDraft, setFeederStopDraft] = useState<
+    number | null | undefined
+  >(undefined);
+  const savedFeederStopPulse = device?.feederStopPulse ?? null;
+  const feederStopPulse =
+    feederStopDraft === undefined ? savedFeederStopPulse : feederStopDraft;
+  const isFeederStopDirty =
+    feederStopDraft !== undefined && feederStopDraft !== savedFeederStopPulse;
   const feederStateRef = useRef({ config: feederConfig, draft: feederDraft });
   feederStateRef.current = { config: feederConfig, draft: feederDraft };
 
@@ -610,6 +625,49 @@ export function useCalibrationPage() {
     [canCalibrate, previewSpeed, setFeederDraftField],
   );
 
+  const moveFeederStopPulse = useCallback(
+    (value: number | null) => {
+      const { config, draft } = feederStateRef.current;
+      const current = { ...config, ...draft };
+      const anchor = feederSpeedAnchorRef.current ?? {
+        center: feederStopPulse ?? SERVO_PULSE_CENTER,
+        speed: current.speed,
+        reverseSpeed: current.reverseSpeed,
+      };
+      feederSpeedAnchorRef.current = anchor;
+      const toCenter = value ?? SERVO_PULSE_CENTER;
+      setFeederDraft((prev) => ({
+        ...prev,
+        speed: recenterSpeedPulse(anchor.speed, anchor.center, toCenter),
+        reverseSpeed: recenterSpeedPulse(
+          anchor.reverseSpeed,
+          anchor.center,
+          toCenter,
+        ),
+      }));
+      setFeederStopDraft(value);
+    },
+    [feederStopPulse],
+  );
+
+  const handleFeederStopPulseChange = useCallback(
+    (value: number) => {
+      if (!canCalibrate) return;
+      moveFeederStopPulse(value);
+      if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
+      feederDebounceRef.current = setTimeout(
+        () => previewSpeed(value),
+        CALIBRATION_PREVIEW_DEBOUNCE_MS,
+      );
+    },
+    [canCalibrate, previewSpeed, moveFeederStopPulse],
+  );
+
+  const handleResetFeederStopPulse = useCallback(
+    () => moveFeederStopPulse(null),
+    [moveFeederStopPulse],
+  );
+
   const handleFeederDurationChange = useCallback(
     (value: number) => setFeederDraftField("duration", value),
     [setFeederDraftField],
@@ -667,7 +725,8 @@ export function useCalibrationPage() {
     [modules, pendingCalibration],
   );
 
-  const isFeederModuleDirty = isFeederDirty || dirtyModules.length > 0;
+  const isFeederModuleDirty =
+    isFeederDirty || isFeederStopDirty || dirtyModules.length > 0;
   const isScanRegionSectionDirty =
     isScanRegionDirty ||
     isCaptureSettleDirty ||
@@ -683,6 +742,13 @@ export function useCalibrationPage() {
         await saveFeeder(feederValues);
         draftsOnDeviceRef.current.feeder = false;
         setFeederDraft({});
+      }
+      if (isFeederStopDirty && device) {
+        await saveDevice(device.guid, { feederStopPulse });
+        await queryClient.invalidateQueries({
+          queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
+        });
+        setFeederStopDraft(undefined);
       }
       for (const moduleNumber of dirtyModules) {
         const config = configsRef.current.find(
@@ -708,6 +774,11 @@ export function useCalibrationPage() {
   }, [
     toast,
     isFeederDirty,
+    isFeederStopDirty,
+    feederStopPulse,
+    device,
+    queryClient,
+    activeOrg?.id,
     dirtyModules,
     feederValues,
     saveFeeder,
@@ -749,7 +820,9 @@ export function useCalibrationPage() {
 
   const handleDiscardFeederModuleCalibration = useCallback(() => {
     setPendingCalibration({});
+    feederSpeedAnchorRef.current = null;
     setFeederDraft({});
+    setFeederStopDraft(undefined);
     void restoreSavedOnDevice();
   }, [restoreSavedOnDevice]);
 
@@ -968,7 +1041,10 @@ export function useCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
+    feederStopPulse,
     handleFeederSpeedChange,
+    handleFeederStopPulseChange,
+    handleResetFeederStopPulse,
     handleFeederDurationChange,
     handleFeederPulseDurationChange,
     handleFeederPauseDurationChange,

@@ -2,7 +2,6 @@
   "nav": {
     "scanner": "Sort",
     "collections": "Collections",
-    "monitor": "Live view",
     "scan": "Link camera",
     "storage": "Storage boxes",
     "calibrate": "Sorter setup",
@@ -11,6 +10,10 @@
     "cart": "Shop",
     "comingSoon": "Coming soon",
     "admin": "Admin",
+    "github": "GitHub",
+    "githubAriaLabel": "View on GitHub",
+    "githubStars_one": "{{count}} star on GitHub",
+    "githubStars_other": "{{count}} stars on GitHub",
     "discord": "Discord",
     "discordAriaLabel": "Join the Discord",
     "collapse": "Collapse",
@@ -182,7 +185,6 @@
       "dismissToasts": "Clear all notifications",
       "goScanner": "Go to sorting",
       "goCollections": "Go to collections",
-      "goMonitor": "Go to live view",
       "goStorage": "Go to storage boxes",
       "goCalibrate": "Go to sorter setup",
       "goSettings": "Go to settings",
@@ -220,6 +222,7 @@
   "mobileTabs": {
     "home": "Home",
     "scan": "Scan",
+    "rules": "Rules",
     "storage": "Storage",
     "account": "Account"
   }

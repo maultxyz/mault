@@ -237,7 +237,7 @@
             "notes": "Incluse avec chaque servo ; fixe le palonnier à l'axe"
           },
           "hookupWire": {
-            "part": "Fil basse tension",
+            "part": "Fils de connexion (jumper)",
             "notes": "Capteur IR/Servos. Avec ceux-ci, tu devras peut-être en chaîner certains ensemble, utilise du ruban électrique pour t'assurer qu'ils ne se séparent pas."
           },
           "wagoConnectors": {
@@ -263,6 +263,14 @@
           "cameraMountScrew": {
             "part": "Vis de fixation caméra 1/4\"-20",
             "notes": "Filetage standard de fixation trépied - se visse dans le support de webcam ou de téléphone"
+          },
+          "hopperWeights": {
+            "part": "Poids pour le chariot de la trémie",
+            "notes": "Se placent dans le chariot lesté de la trémie pour presser la pile et fiabiliser l'alimentation des cartes. Jusqu'à 25"
+          },
+          "servoExtensionCables": {
+            "part": "Rallonges de servo",
+            "notes": "Nécessaires uniquement au-delà de 3 modules de tri, quand les câbles d'origine des servos n'atteignent pas la carte pilote des servos"
           }
         }
       }
@@ -271,6 +279,7 @@
   "wiring": {
     "description": "Tout dépend d'un seul bus I²C (PCA9685) et de {{count}} broches d'entrée numériques (capteurs IR). Le côté logique du PCA9685 fonctionne sur l'alimentation embarquée du {{board}} ; son rail servo <pin>V+</pin> doit provenir de l'alimentation externe, et la masse de cette alimentation doit être reliée à la masse du {{board}} - une masse de servo flottante est la cause la plus courante d'une unité fraîchement câblée qui ne bouge pas.",
     "wireColorNote": "Les couleurs des fils varient selon les pièces et les fournisseurs, donc ne te fie pas aux couleurs du schéma ou des photos. Suis chaque fil depuis l'étiquette de sa broche et vérifie qu'il arrive au bon endroit.",
+    "powerSupplyWarning": "Utilise une alimentation 6 V 3 A pour les servos. Toute valeur plus élevée peut griller les servos ou la carte de commande des servos.",
     "sections": {
       "i2c": {
         "title": "Bus I²C",
@@ -373,7 +382,8 @@
             "note": "« Plaque » désigne ici le plateau d'impression du logiciel de tranchage (l'agencement des pièces d'un job d'impression) - pas une pièce nommée « Plaque » dans le modèle."
           },
           "printFeederModule": {
-            "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie."
+            "text": "Imprime 1 Feeder Module à partir du même fichier - une seule suffit, quel que soit le nombre de modules. Loge le rouleau du chargeur et la gorge de la trémie.",
+            "mg90Note": "Tu utilises un servo MG90S pour le chargeur ? Imprime le palonnier de chargeur MG90S depuis la plaque Alternative Horn au lieu du palonnier de rouleau standard."
           },
           "printSortingModuleShroud": {
             "text": "Imprime 1 Sorting Module Shroud - une seule suffit. Le capot qui recouvre les modules empilés."
@@ -401,6 +411,10 @@
           },
           "printEndBinPlate": {
             "text": "Imprime 1 plaque End Bin."
+          },
+          "printModulePins": {
+            "text": "Imprime {{count}} Module Pins pour {{modules}} modules de tri : {{top}} pour le dessus et {{front}} pour l'avant des pièces Base Support. Chaque pièce Base Support prend 4 pins sur le dessus, et chaque unité de hauteur en prend 2 à l'avant, sauf l'unité du haut de chaque colonne. Les pins assemblent les pièces Base Support entre elles et maintiennent les modules de tri sur la base. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour.",
+            "note": "Assemble d'abord à sec les pièces Base Support et les modules de tri avec les pins. Quand tout est bien aligné, colle chaque pin avec de la colle cyanoacrylate."
           },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."
@@ -478,8 +492,13 @@
           "mountFeederRoller": {
             "text": "Fixe le rouleau au module du chargeur."
           },
+          "mountRollerHorn": {
+            "text": "Enfonce le palonnier du rouleau sur l'axe du servo de chargeur à rotation continue.",
+            "note": "Le rouleau du chargeur est imprimé en deux pièces : le rouleau lui-même et un palonnier de rouleau séparé. Aucune des deux pièces ne porte l'inscription \"servo\". Le palonnier de rouleau est la petite pièce qui s'emboîte sur l'axe du servo."
+          },
           "mountFeederServo": {
-            "text": "Installe le servo de chargeur à rotation continue sur le rouleau, à la base de la trémie."
+            "text": "Insère le servo de chargeur, avec le palonnier de rouleau sur son axe, dans l'extrémité du rouleau à la base de la trémie. Le palonnier se loge dans le rouleau pour que le servo le fasse tourner.",
+            "note": "Tu as le rouleau en deux pièces ? Visse d'abord le palonnier de rouleau sur l'axe du servo, fais passer le palonnier par le trou de la base du chargeur, puis fais glisser l'autre moitié du rouleau sur le palonnier."
           },
           "fitHopperRollerOrings": {
             "text": "Monte des joints toriques sur le rouleau de la trémie.",

@@ -1,13 +1,16 @@
 import * as Crypto from "expo-crypto";
 import {
   areAllChaosBinsFull,
+  countCopiesInBin,
   DEFAULT_BIN_CAPACITY,
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateChaosBin,
   evaluatePickListBin,
+  evaluateRepackBin,
   evaluateScanOnlyBin,
   findLowMatchCatchAll,
+  getCardsInBin,
   isRulesMode,
   reservePickListBins,
   resolveOverflowBin,
@@ -54,12 +57,14 @@ export function resolveBin(card: PlayingCardWithDistance, ctx: RoutingContext): 
     bin = evaluateChaosBin(configs, isFull);
   } else if (set?.isAlphabetMode) {
     bin = evaluateAlphabetBin(card, configs, set.alphabetPass, set.alphabetPrefix);
+  } else if (set?.isRepackMode) {
+    bin = evaluateRepackBin(card, configs, fieldDefinitions, set, (b) => getCardsInBin(ctx.binContents, b));
   } else {
     bin = evaluateCardBin(
       card,
       configs,
       fieldDefinitions,
-      undefined,
+      ctx.autoAssignActive ? undefined : (b) => countCopiesInBin(ctx.binContents, b, card, fieldDefinitions),
       (b) => ctx.countInBin(b.binNumber),
       isFull,
     );

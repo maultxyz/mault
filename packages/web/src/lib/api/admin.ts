@@ -28,6 +28,7 @@ export async function startSync(
   gameKey: string,
   lang: string = "en",
   forceResync: boolean = false,
+  concurrency?: number,
 ): Promise<{
   success: boolean;
   data: SyncState;
@@ -36,6 +37,7 @@ export async function startSync(
     gameKey,
     lang,
     forceResync,
+    concurrency,
   });
 }
 

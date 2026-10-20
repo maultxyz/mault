@@ -4,16 +4,12 @@
     "subtitle": "Verwalte Spiele, die Kartensynchronisierung und die Kartenbild-Vektordatenbank"
   },
   "sections": {
-    "cards": "Karten",
-    "games": "Spiele",
+    "cards": "Spiele und Karten",
     "users": "Benutzer",
     "plans": "Tarife",
-    "discordStats": "Discord-Statistiken",
-    "announcements": "Ankündigungen",
-    "deleted": "Gelöschte Elemente",
-    "unmatched": "Nicht erkannte Scans",
-    "servos": "Bausatz-Test",
-    "device": "Gerät",
+    "discord": "Discord",
+    "deleted": "Gelöscht und nicht erkannt",
+    "hardware": "Hardware",
     "developer": "Entwickler"
   },
   "kitTest": {
@@ -115,6 +111,8 @@
     "selectGamePlaceholder": "Spiel auswählen...",
     "languagePlaceholder": "Sprache...",
     "forceResyncLabel": "Vollständige Neusynchronisierung erzwingen",
+    "concurrencyLabel": "Karten gleichzeitig",
+    "concurrencyDescription": "Vektorisiert so viele Kartenbilder gleichzeitig. Downloads starten weiterhin mit kurzem Abstand.",
     "cancellingButton": "Wird abgebrochen...",
     "startSyncButton": "Sync starten",
     "progressCount": "{{done}} / {{total}}",
@@ -454,14 +452,6 @@
     "ocrNoName": "OCR hat \"{{text}}\" gelesen, kein Kartenname war nah genug"
   },
   "platformStats": {
-    "destinationHeading": "Ziel",
-    "destinationDescription": "Der Discord-Server und Kanal, in den die Plattformstatistiken gepostet werden. Der Bot muss auf dem Server sein und im Kanal posten dürfen.",
-    "server": "Server",
-    "channel": "Kanal",
-    "noServer": "Kein Server",
-    "noChannel": "Kein Kanal",
-    "loadingChannels": "Kanäle werden geladen...",
-    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Server und Kanäle gerade nicht angezeigt werden.",
     "statsHeading": "Statistiken",
     "statsDescription": "Welche Zahlen jeder Beitrag enthält, über alle Organisationen hinweg.",
     "stats": {
@@ -500,5 +490,31 @@
     "saveFailed": "Die Statistik-Einstellungen konnten nicht gespeichert werden.",
     "posted": "Statistiken auf Discord gepostet.",
     "postFailed": "Die Statistiken konnten nicht gepostet werden."
+  },
+  "discordChannels": {
+    "server": "Server",
+    "channel": "Kanal",
+    "noServer": "Kein Server",
+    "noChannel": "Kein Kanal",
+    "loadingChannels": "Kanäle werden geladen...",
+    "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Server und Kanäle gerade nicht aufgelistet werden.",
+    "channels": {
+      "stats": {
+        "heading": "Plattform-Statistiken",
+        "description": "Wohin die Plattform-Statistiken gepostet werden und welche Zahlen jeder Beitrag enthält. Lass den Kanal leer, um keine Statistiken mehr zu posten."
+      },
+      "donations": {
+        "heading": "Spenden",
+        "description": "Wohin jede Buy Me a Coffee-Spende gepostet wird. Leer lassen, um keine Spenden mehr zu posten."
+      },
+      "pricing": {
+        "heading": "Preisaktualisierungen",
+        "description": "Wohin eine Zusammenfassung gepostet wird, wenn die Preissynchronisierung neue Preise abruft. Leer lassen, um keine Preisaktualisierungen mehr zu posten."
+      }
+    },
+    "priceSyncCommand": "Preise werden abgerufen, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, alle paar Stunden. Er lädt nur herunter, was sich geändert hat.",
+    "donationsLink": "Buy Me a Coffee-Seite öffnen",
+    "saved": "Discord-Kanäle gespeichert.",
+    "saveFailed": "Die Discord-Kanäle konnten nicht gespeichert werden."
   }
 }

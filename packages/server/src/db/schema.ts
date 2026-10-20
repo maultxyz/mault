@@ -214,6 +214,7 @@ export const binSets = pgTable(
     alphabetPrefix: text("alphabet_prefix").notNull().default(""),
     isChaosMode: boolean("is_chaos_mode").notNull().default(false),
     chaosBinSize: integer("chaos_bin_size"),
+    skipSaving: boolean("skip_saving").notNull().default(false),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -243,6 +244,7 @@ export const devices = pgTable(
     scanOffsetY: integer("scan_offset_y"),
     captureSettleDelayMs: integer("capture_settle_delay_ms"),
     matchesNeeded: integer("matches_needed"),
+    feederStopPulse: integer("feeder_stop_pulse"),
     checkBothOrientations: boolean("check_both_orientations"),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
@@ -1025,10 +1027,16 @@ export const scanStats = pgTable(
 
 export const platformStatsSettings = pgTable("platform_stats_settings", {
   id: text("id").primaryKey(),
-  guildId: text("guild_id"),
-  channelId: text("channel_id"),
   stats: jsonb("stats").notNull().default([]),
   lastPostedAt: timestamp("last_posted_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const platformDiscordChannels = pgTable("platform_discord_channels", {
+  key: text("key").primaryKey(),
+  guildId: text("guild_id"),
+  channelId: text("channel_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });

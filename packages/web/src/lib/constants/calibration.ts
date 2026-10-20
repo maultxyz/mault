@@ -77,49 +77,79 @@ export function percentToPulse(percent: number): number {
 
 export const SERVO_PULSE_CENTER = (SERVO_PULSE_MIN + SERVO_PULSE_MAX) / 2;
 
-export function pulseToDirectionalSpeed(pulse: number): DirectionalSpeed {
-  if (pulse <= SERVO_PULSE_CENTER) {
+export const FEEDER_STOP_PULSE_SLIDER_RANGE = 50;
+
+export const FEEDER_STOP_GUIDE_STEPS = [
+  "zero",
+  "stops",
+  "starts",
+  "middle",
+] as const;
+
+export function pulseToDirectionalSpeed(
+  pulse: number,
+  center: number = SERVO_PULSE_CENTER,
+): DirectionalSpeed {
+  if (pulse <= center) {
     return {
       direction: "forward",
       magnitude: Math.round(
-        ((SERVO_PULSE_CENTER - pulse) /
-          (SERVO_PULSE_CENTER - SERVO_PULSE_MIN)) *
-          100,
+        ((center - pulse) / (center - SERVO_PULSE_MIN)) * 100,
       ),
     };
   }
   return {
     direction: "reverse",
     magnitude: Math.round(
-      ((pulse - SERVO_PULSE_CENTER) / (SERVO_PULSE_MAX - SERVO_PULSE_CENTER)) *
-        100,
+      ((pulse - center) / (SERVO_PULSE_MAX - center)) * 100,
     ),
   };
 }
 
-export function directionalSpeedToPulse(speed: DirectionalSpeed): number {
+export function recenterSpeedPulse(
+  pulse: number,
+  fromCenter: number,
+  toCenter: number,
+): number {
+  if (pulse <= fromCenter) {
+    const ratio = (fromCenter - pulse) / (fromCenter - SERVO_PULSE_MIN);
+    return Math.round(toCenter - ratio * (toCenter - SERVO_PULSE_MIN));
+  }
+  const ratio = (pulse - fromCenter) / (SERVO_PULSE_MAX - fromCenter);
+  return Math.round(toCenter + ratio * (SERVO_PULSE_MAX - toCenter));
+}
+
+export function directionalSpeedToPulse(
+  speed: DirectionalSpeed,
+  center: number = SERVO_PULSE_CENTER,
+): number {
   if (speed.direction === "forward") {
     return Math.round(
-      SERVO_PULSE_CENTER -
-        (speed.magnitude / 100) * (SERVO_PULSE_CENTER - SERVO_PULSE_MIN),
+      center - (speed.magnitude / 100) * (center - SERVO_PULSE_MIN),
     );
   }
   return Math.round(
-    SERVO_PULSE_CENTER +
-      (speed.magnitude / 100) * (SERVO_PULSE_MAX - SERVO_PULSE_CENTER),
+    center + (speed.magnitude / 100) * (SERVO_PULSE_MAX - center),
   );
 }
 
-export function pulseToSignedPercent(pulse: number): number {
-  const { direction, magnitude } = pulseToDirectionalSpeed(pulse);
+export function pulseToSignedPercent(
+  pulse: number,
+  center: number = SERVO_PULSE_CENTER,
+): number {
+  const { direction, magnitude } = pulseToDirectionalSpeed(pulse, center);
   return direction === "forward" ? magnitude : -magnitude;
 }
 
-export function signedPercentToPulse(signedPercent: number): number {
+export function signedPercentToPulse(
+  signedPercent: number,
+  center: number = SERVO_PULSE_CENTER,
+): number {
   return directionalSpeedToPulse(
     signedPercent >= 0
       ? { direction: "forward", magnitude: signedPercent }
       : { direction: "reverse", magnitude: -signedPercent },
+    center,
   );
 }
 
@@ -226,6 +256,7 @@ export const DEFAULT_DEVICE: Device = {
   scanRegion: DEFAULT_SCAN_REGION,
   captureSettleDelayMs: DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   matchesNeeded: DEFAULT_MATCHES_NEEDED,
+  feederStopPulse: null,
   checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,

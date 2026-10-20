@@ -1,4 +1,5 @@
 import { FoilOverlay } from "@/components/foil-overlay";
+import { StatGroup } from "@/components/stat-group";
 import { SettingsSection } from "@/components/settings-section";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
@@ -12,7 +13,6 @@ import {
 import { toScanStats } from "@/features/scanner/lib/compute-stats";
 import { BarList } from "@/features/stats/components/bar-list";
 import { ColumnChart } from "@/features/stats/components/column-chart";
-import { StatTile } from "@/features/stats/components/stat-tile";
 import { usePriceSource } from "@/hooks/use-price-source";
 import {
   STATS_ACTIVITY_METRICS,
@@ -67,6 +67,7 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
 
   return (
     <SettingsSection
+      className="bg-card"
       heading={t("activity.title")}
       description={t(`activity.description.${report.bucket}`)}
       action={
@@ -228,6 +229,7 @@ function StatsCollectionsSection({
 
   return (
     <SettingsSection
+      className="bg-card"
       heading={t("compare.title")}
       description={t("compare.description")}
       action={
@@ -275,7 +277,10 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
   if (cards.length === 0) return null;
 
   return (
-    <SettingsSection heading={t("topCards.title")}>
+    <SettingsSection
+      className="rounded-none border-0 p-0 pt-2"
+      heading={t("topCards.title")}
+    >
       <div className="grid grid-cols-3 gap-x-3 gap-y-4 sm:grid-cols-5">
         {cards.map((entry) => (
           <Link
@@ -339,49 +344,66 @@ export function StatsDashboard({
   }));
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="grid grid-cols-2 gap-x-4 gap-y-5 md:grid-cols-3 md:gap-x-6 xl:grid-cols-6">
-        <StatTile
-          label={t("tiles.totalValue")}
-          value={format(totals.totalValue)}
-          hint={
-            isOrg
+    <div className="flex flex-col gap-4">
+      <StatGroup
+        heading={t("tiles.heading")}
+        gridClassName="grid-cols-2 sm:grid-cols-3 xl:grid-cols-6"
+        tiles={[
+          {
+            key: "totalValue",
+            label: t("tiles.totalValue"),
+            value: format(totals.totalValue),
+            detail: isOrg
               ? t("tiles.collectionCount", { count: totals.collectionCount })
-              : undefined
-          }
-        />
-        <StatTile
-          label={t("tiles.cards")}
-          value={totals.cardCount.toLocaleString()}
-          hint={t("tiles.uniqueHint", { count: totals.uniqueCount })}
-        />
-        <StatTile
-          label={t("tiles.avgValue")}
-          value={format(totals.avgValue)}
-          hint={t("tiles.pricedHint", { count: totals.priceableCount })}
-        />
-        <StatTile
-          label={t(`tiles.scanned.${report.range}`)}
-          value={totals.scansInRange.toLocaleString()}
-          hint={t("tiles.valueAddedHint", {
-            value: format(totals.valueAddedInRange),
-          })}
-        />
-        <StatTile
-          label={t("tiles.foils")}
-          value={totals.foilCount.toLocaleString()}
-          hint={t("tiles.shareHint", {
-            percent: percent(totals.foilCount, totals.cardCount),
-          })}
-        />
-        <StatTile
-          label={t("tiles.needsReview")}
-          value={totals.needsReviewCount.toLocaleString()}
-          hint={t("tiles.correctedHint", { count: totals.correctedCount })}
-        />
-      </div>
+              : undefined,
+          },
+          {
+            key: "cards",
+            label: t("tiles.cards"),
+            value: totals.cardCount.toLocaleString(),
+            detail: t("tiles.uniqueHint", { count: totals.uniqueCount }),
+          },
+          {
+            key: "avgValue",
+            label: t("tiles.avgValue"),
+            value: format(totals.avgValue),
+            detail: t("tiles.pricedHint", { count: totals.priceableCount }),
+          },
+          {
+            key: "scanned",
+            label: t(`tiles.scanned.${report.range}`),
+            value: totals.scansInRange.toLocaleString(),
+            detail: t("tiles.valueAddedHint", {
+              value: format(totals.valueAddedInRange),
+            }),
+          },
+          {
+            key: "foils",
+            label: t("tiles.foils"),
+            value: totals.foilCount.toLocaleString(),
+            detail: t("tiles.shareHint", {
+              percent: percent(totals.foilCount, totals.cardCount),
+            }),
+          },
+          {
+            key: "needsReview",
+            label: t("tiles.needsReview"),
+            value: totals.needsReviewCount.toLocaleString(),
+            detail: t("tiles.correctedHint", { count: totals.correctedCount }),
+          },
+        ]}
+      />
 
-      <StatsActivitySection report={report} />
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+        <StatsActivitySection report={report} />
+        <SettingsSection
+          className="bg-card"
+          heading={t("prices.title")}
+          description={t("prices.description")}
+        >
+          <BarList items={priceItems} />
+        </SettingsSection>
+      </div>
 
       {isOrg && report.collections.length > 1 && (
         <StatsCollectionsSection
@@ -390,16 +412,10 @@ export function StatsDashboard({
         />
       )}
 
-      <div className="grid gap-x-10 gap-y-6 border-t pt-6 lg:grid-cols-2 [&>*]:min-w-0 lg:[&>section]:border-t-0 lg:[&>section]:pt-0">
-        <SettingsSection
-          heading={t("prices.title")}
-          description={t("prices.description")}
-        >
-          <BarList items={priceItems} />
-        </SettingsSection>
+      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
 
         {isOrg && report.games.length > 1 && (
-          <SettingsSection heading={t("games.title")}>
+          <SettingsSection className="bg-card" heading={t("games.title")}>
             <BarList
               items={report.games.map((game) => ({
                 key: game.key ?? "none",
@@ -413,7 +429,7 @@ export function StatsDashboard({
         )}
 
         {breakdown && breakdown.sets.length > 0 && (
-          <SettingsSection heading={t("sets.title")}>
+          <SettingsSection className="bg-card" heading={t("sets.title")}>
             <BarList
               items={breakdown.sets
                 .slice(0, STATS_BAR_LIST_LIMIT)
@@ -429,7 +445,7 @@ export function StatsDashboard({
         )}
 
         {breakdown && breakdown.rarities.length > 0 && (
-          <SettingsSection heading={t("rarities.title")}>
+          <SettingsSection className="bg-card" heading={t("rarities.title")}>
             <BarList
               items={breakdown.rarities.map((rarity) => ({
                 key: rarity.key,
@@ -446,7 +462,7 @@ export function StatsDashboard({
         )}
 
         {breakdown && breakdown.colors.length > 0 && (
-          <SettingsSection heading={t("colors.title")}>
+          <SettingsSection className="bg-card" heading={t("colors.title")}>
             <BarList
               items={breakdown.colors.map((color) => ({
                 key: color.key,
@@ -463,7 +479,7 @@ export function StatsDashboard({
         )}
 
         {breakdown && breakdown.foilTypes.length > 0 && (
-          <SettingsSection heading={t("foils.title")}>
+          <SettingsSection className="bg-card" heading={t("foils.title")}>
             <BarList
               items={breakdown.foilTypes.map((foil) => ({
                 key: foil.key,

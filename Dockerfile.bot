@@ -15,5 +15,7 @@ COPY packages/bot/ packages/bot/
 # Build bot
 RUN pnpm --filter @magic-vault/bot build
 
+ENV NODE_ENV=production
+
 EXPOSE 3002
 CMD ["node", "packages/bot/dist/index.js"]

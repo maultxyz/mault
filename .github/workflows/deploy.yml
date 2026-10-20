@@ -63,9 +63,11 @@ jobs:
           WEB=false
           SERVER=false
           DOCS=false
+          BOT=false
           if grep -qE '^(packages/web/|packages/shared/|Dockerfile\.web$)' <<< "$FILES"; then WEB=true; fi
           if grep -qE '^(packages/server/|packages/shared/|drizzle/|Dockerfile\.server$)' <<< "$FILES"; then SERVER=true; fi
           if grep -qE '^(packages/api-docs/|packages/shared/|Dockerfile\.api-docs$)' <<< "$FILES"; then DOCS=true; fi
+          if grep -qE '^(packages/bot/|Dockerfile\.bot$)' <<< "$FILES"; then BOT=true; fi
 
           COMMITS=$(git log --no-merges --format='%s' "$RANGE" | grep -v '^chore(release):' || true)
           COUNT=$(grep -c . <<< "$COMMITS" || true)
@@ -75,6 +77,7 @@ jobs:
             echo "web=$WEB"
             echo "server=$SERVER"
             echo "docs=$DOCS"
+            echo "bot=$BOT"
             echo "last_tag=$LAST_TAG"
             echo "count=$COUNT"
             echo "authors=$AUTHORS"
@@ -82,7 +85,7 @@ jobs:
             head -n 15 <<< "$COMMITS"
             echo "COMMITS_EOF"
           } >> "$GITHUB_OUTPUT"
-          echo "Pending since ${LAST_TAG:-the first commit}: web=$WEB server=$SERVER, $COUNT commit(s)"
+          echo "Pending since ${LAST_TAG:-the first commit}: web=$WEB server=$SERVER docs=$DOCS bot=$BOT, $COUNT commit(s)"
 
       # Web and server are always deployed together: if only one of them
       # changed, deploying just that one would leave the other running an
@@ -103,7 +106,7 @@ jobs:
           elif [ "${{ github.event.schedule }}" != "$EXPECTED_CRON" ]; then
             echo "Skipping: ${{ github.event.schedule }} is not 19:17 America/Chicago today"
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
-          elif [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ] || [ "${{ steps.changes.outputs.docs }}" = "true" ]; then
+          elif [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ] || [ "${{ steps.changes.outputs.docs }}" = "true" ] || [ "${{ steps.changes.outputs.bot }}" = "true" ]; then
             echo "should_deploy=true" >> "$GITHUB_OUTPUT"
           else
             echo "should_deploy=false" >> "$GITHUB_OUTPUT"
@@ -185,6 +188,7 @@ jobs:
             echo "web=$PREFIX-web"
             echo "server=$PREFIX-server"
             echo "docs=$PREFIX-api-docs"
+            echo "bot=$PREFIX-bot"
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
@@ -268,13 +272,28 @@ jobs:
           cache-from: type=gha,scope=api-docs
           cache-to: type=gha,mode=max,scope=api-docs
 
+      # Like the server, the bot reads all of its config (token, client id,
+      # server URL, secrets) from the container's environment at start-up.
+      - name: Build and push bot image
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.bot
+          push: true
+          tags: |
+            ${{ steps.images.outputs.bot }}:v${{ steps.appversion.outputs.version }}
+            ${{ steps.images.outputs.bot }}:sha-${{ github.sha }}
+          cache-from: type=gha,scope=bot
+          cache-to: type=gha,mode=max,scope=bot
+
       - name: Commit and tag app version
         id: appcommit
         if: steps.deploy.outputs.should_deploy == 'true' && env.IS_DEV != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json packages/web/package.json packages/server/package.json packages/shared/package.json packages/api-docs/package.json packages/api-docs/public/openapi.json
+          git add package.json packages/web/package.json packages/server/package.json packages/shared/package.json packages/api-docs/package.json packages/bot/package.json packages/api-docs/public/openapi.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -300,7 +319,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"durationMinutes": 60}'
 
-      - name: Promote web and API docs images
+      - name: Promote web, API docs and bot images
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
           docker buildx imagetools create \
@@ -309,6 +328,9 @@ jobs:
           docker buildx imagetools create \
             -t "${{ steps.images.outputs.docs }}:$CHANNEL" \
             "${{ steps.images.outputs.docs }}:v${{ steps.appversion.outputs.version }}"
+          docker buildx imagetools create \
+            -t "${{ steps.images.outputs.bot }}:$CHANNEL" \
+            "${{ steps.images.outputs.bot }}:v${{ steps.appversion.outputs.version }}"
 
       - name: Trigger Coolify deployment (web)
         if: steps.deploy.outputs.should_deploy == 'true'
@@ -323,6 +345,18 @@ jobs:
         run: |
           if [ -z "$WEBHOOK" ]; then
             echo "COOLIFY_WEBHOOK_API_DOCS isn't set, skipping the API docs deploy."
+            exit 0
+          fi
+          curl -sf --request POST "$WEBHOOK" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
+      - name: Trigger Coolify deployment (bot)
+        if: steps.deploy.outputs.should_deploy == 'true'
+        env:
+          WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_BOT }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "COOLIFY_WEBHOOK_BOT isn't set, skipping the bot deploy."
             exit 0
           fi
           curl -sf --request POST "$WEBHOOK" \

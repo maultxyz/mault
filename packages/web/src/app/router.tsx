@@ -85,6 +85,9 @@ const loadMonitorSessionsPage = () =>
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
+const CollectionViewPage = lazy(
+  () => import("@/app/routes/app/collection-view"),
+);
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
 const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
 const CalibrateConnectionPage = lazy(
@@ -104,24 +107,16 @@ const CalibrateCalibrationPage = lazy(
 );
 const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
 const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
-const AdminGamesPage = lazy(() => import("@/app/routes/app/admin/games"));
 const AdminGameEditorPage = lazy(
   () => import("@/app/routes/app/admin/game-editor"),
 );
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
-const AdminDiscordStatsPage = lazy(
-  () => import("@/app/routes/app/admin/discord-stats"),
-);
-const AdminAnnouncementsPage = lazy(
-  () => import("@/app/routes/app/admin/announcements"),
-);
+const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
-const AdminUnmatchedPage = lazy(
-  () => import("@/app/routes/app/admin/unmatched"),
+const AdminHardwarePage = lazy(
+  () => import("@/app/routes/app/admin/hardware"),
 );
-const AdminServosPage = lazy(() => import("@/app/routes/app/admin/servos"));
-const AdminDevicePage = lazy(() => import("@/app/routes/app/admin/device"));
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -296,8 +291,12 @@ export const router = createBrowserRouter([
                         element: <CollectionsPage />,
                       },
                       {
-                        path: SORTING_RULES_PATH,
-                        element: <BinsPage />,
+                        path: "/app/collections/:collectionGuid",
+                        element: <CollectionViewPage />,
+                      },
+                      {
+                        path: "/app/collections/:collectionGuid/cards/:scanId",
+                        element: <CollectionViewPage />,
                       },
                       {
                         path: "/app/collections/:collectionGuid/bins",
@@ -359,16 +358,16 @@ export const router = createBrowserRouter([
                             element: <AdminCardsPage />,
                           },
                           {
+                            path: "cards/games/new",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
+                            path: "cards/games/:guid",
+                            element: <AdminGameEditorPage />,
+                          },
+                          {
                             path: "games",
-                            element: <AdminGamesPage />,
-                          },
-                          {
-                            path: "games/new",
-                            element: <AdminGameEditorPage />,
-                          },
-                          {
-                            path: "games/:guid",
-                            element: <AdminGameEditorPage />,
+                            element: <Navigate to="../cards" replace />,
                           },
                           {
                             path: "users",
@@ -379,12 +378,16 @@ export const router = createBrowserRouter([
                             element: <AdminPlansPage />,
                           },
                           {
-                            path: "discord-stats",
-                            element: <AdminDiscordStatsPage />,
+                            path: "discord",
+                            element: <AdminDiscordPage />,
+                          },
+                          {
+                            path: "discord-channels",
+                            element: <Navigate to="../discord" replace />,
                           },
                           {
                             path: "announcements",
-                            element: <AdminAnnouncementsPage />,
+                            element: <Navigate to="../discord" replace />,
                           },
                           {
                             path: "deleted",
@@ -392,15 +395,19 @@ export const router = createBrowserRouter([
                           },
                           {
                             path: "unmatched",
-                            element: <AdminUnmatchedPage />,
+                            element: <Navigate to="../deleted" replace />,
+                          },
+                          {
+                            path: "hardware",
+                            element: <AdminHardwarePage />,
                           },
                           {
                             path: "servos",
-                            element: <AdminServosPage />,
+                            element: <Navigate to="../hardware" replace />,
                           },
                           {
                             path: "device",
-                            element: <AdminDevicePage />,
+                            element: <Navigate to="../hardware" replace />,
                           },
                           {
                             path: "developer",
@@ -439,6 +446,15 @@ export const router = createBrowserRouter([
               {
                 path: MOBILE_SORTER_PATH,
                 element: <SorterPage />,
+              },
+              {
+                element: <RequireCollectionGuard />,
+                children: [
+                  {
+                    path: SORTING_RULES_PATH,
+                    element: <BinsPage />,
+                  },
+                ],
               },
               {
                 path: MOBILE_ACCOUNT_PATH,

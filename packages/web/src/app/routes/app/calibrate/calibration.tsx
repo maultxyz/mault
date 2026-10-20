@@ -166,7 +166,10 @@ export default function CalibrateCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
+    feederStopPulse,
     handleFeederSpeedChange,
+    handleFeederStopPulseChange,
+    handleResetFeederStopPulse,
     handleFeederDurationChange,
     handleFeederPulseDurationChange,
     handleFeederPauseDurationChange,
@@ -344,9 +347,12 @@ export default function CalibrateCalibrationPage() {
               settleDurationValue={feederSettleDurationValue}
               reverseSpeedValue={feederReverseSpeedValue}
               reverseDurationValue={feederReverseDurationValue}
+              stopPulse={feederStopPulse}
               canEditTimings={isConnected || isOfflineCalibration}
               canCalibrate={canCalibrate}
               onSpeedChange={handleFeederSpeedChange}
+              onStopPulseChange={handleFeederStopPulseChange}
+              onResetStopPulse={handleResetFeederStopPulse}
               onDurationChange={handleFeederDurationChange}
               onPulseDurationChange={handleFeederPulseDurationChange}
               onPauseDurationChange={handleFeederPauseDurationChange}

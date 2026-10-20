@@ -149,6 +149,8 @@
       "comfortable": "comfortable",
       "large": "large"
     },
+    "review": "Review",
+    "export": "Export",
     "reviewCards": "Review cards one by one (R)"
   },
   "scannedCardItem": {

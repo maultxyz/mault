@@ -11,11 +11,15 @@ import {
 } from "@magic-vault/shared";
 import { ort, runOnnxModel } from "./onnx-runtime";
 
+let cropCanvas: HTMLCanvasElement | null = null;
+
 function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
-  const cropCanvas = document.createElement("canvas");
-  cropCanvas.width = CORNER_DETECTOR_INPUT_SIZE;
-  cropCanvas.height = CORNER_DETECTOR_INPUT_SIZE;
-  const ctx = cropCanvas.getContext("2d");
+  if (!cropCanvas) {
+    cropCanvas = document.createElement("canvas");
+    cropCanvas.width = CORNER_DETECTOR_INPUT_SIZE;
+    cropCanvas.height = CORNER_DETECTOR_INPUT_SIZE;
+  }
+  const ctx = cropCanvas.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("Could not get canvas context");
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";

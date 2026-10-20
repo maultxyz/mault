@@ -230,6 +230,10 @@ export interface CollectionActivityProps {
   onOpen: (scanId: string) => void;
 }
 
+export interface BinBadgeProps {
+  binNumber: number;
+}
+
 export interface CameraChipProps {
   label: string;
   dotColor?: string;
@@ -247,6 +251,7 @@ export interface CameraNoticeProps {
 
 export interface ShutterButtonProps {
   running: boolean;
+  icon: IconName;
   label: string;
   onPress: () => void;
   disabled?: boolean;
@@ -308,7 +313,7 @@ export interface ScanRegionOverlayProps {
 }
 
 export interface DetectedOutlineProps {
-  corners: LiveCorners;
+  corners: LiveCorners | null;
   color: string;
 }
 

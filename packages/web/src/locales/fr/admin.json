@@ -4,16 +4,12 @@
     "subtitle": "Gère les jeux, la synchronisation des cartes et la base de données de vecteurs d'image"
   },
   "sections": {
-    "cards": "Cartes",
-    "games": "Jeux",
+    "cards": "Jeux et cartes",
     "users": "Utilisateurs",
     "plans": "Offres",
-    "discordStats": "Statistiques Discord",
-    "announcements": "Annonces",
-    "deleted": "Éléments supprimés",
-    "unmatched": "Scans non reconnus",
-    "servos": "Test des kits",
-    "device": "Appareil",
+    "discord": "Discord",
+    "deleted": "Supprimés et non reconnus",
+    "hardware": "Matériel",
     "developer": "Développeur"
   },
   "kitTest": {
@@ -115,6 +111,8 @@
     "selectGamePlaceholder": "Sélectionner un jeu...",
     "languagePlaceholder": "Langue...",
     "forceResyncLabel": "Forcer la resynchronisation complète",
+    "concurrencyLabel": "Cartes à la fois",
+    "concurrencyDescription": "Vectorise ce nombre d'images de cartes en même temps. Les téléchargements restent espacés.",
     "cancellingButton": "Annulation...",
     "startSyncButton": "Démarrer la synchro",
     "progressCount": "{{done}} / {{total}}",
@@ -454,14 +452,6 @@
     "ocrNoName": "L'OCR a lu \"{{text}}\", aucun nom de carte n'était assez proche"
   },
   "platformStats": {
-    "destinationHeading": "Destination",
-    "destinationDescription": "Le serveur et le salon Discord où les statistiques de la plateforme sont publiées. Le bot doit être sur le serveur et pouvoir publier dans le salon.",
-    "server": "Serveur",
-    "channel": "Salon",
-    "noServer": "Aucun serveur",
-    "noChannel": "Aucun salon",
-    "loadingChannels": "Chargement des salons...",
-    "botUnreachable": "Le bot Discord est injoignable, les serveurs et salons ne peuvent donc pas être listés pour le moment.",
     "statsHeading": "Statistiques",
     "statsDescription": "Les chiffres à inclure dans chaque publication, toutes organisations confondues.",
     "stats": {
@@ -500,5 +490,31 @@
     "saveFailed": "Impossible d'enregistrer les paramètres des statistiques.",
     "posted": "Statistiques publiées sur Discord.",
     "postFailed": "Impossible de publier les statistiques."
+  },
+  "discordChannels": {
+    "server": "Serveur",
+    "channel": "Salon",
+    "noServer": "Aucun serveur",
+    "noChannel": "Aucun salon",
+    "loadingChannels": "Chargement des salons...",
+    "botUnreachable": "Le bot Discord est injoignable, les serveurs et salons ne peuvent donc pas être listés pour le moment.",
+    "channels": {
+      "stats": {
+        "heading": "Statistiques de la plateforme",
+        "description": "Où les statistiques de la plateforme sont publiées, et quels chiffres chaque publication inclut. Laissez le salon vide pour ne plus publier les statistiques."
+      },
+      "donations": {
+        "heading": "Dons",
+        "description": "Où chaque don Buy Me a Coffee est publié. Laissez vide pour ne plus publier les dons."
+      },
+      "pricing": {
+        "heading": "Mises à jour des prix",
+        "description": "Où un résumé est publié chaque fois que la synchronisation des prix récupère de nouveaux prix. Laissez vide pour ne plus publier les mises à jour des prix."
+      }
+    },
+    "priceSyncCommand": "Les prix sont récupérés quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, toutes les quelques heures. Elle ne télécharge que ce qui a changé.",
+    "donationsLink": "Ouvrir la page Buy Me a Coffee",
+    "saved": "Salons Discord enregistrés.",
+    "saveFailed": "Impossible d'enregistrer les salons Discord."
   }
 }

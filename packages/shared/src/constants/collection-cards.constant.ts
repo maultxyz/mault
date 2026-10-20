@@ -15,3 +15,5 @@ export const EMPTY_CARD_FILTERS: CardFilters = {
   foilTypes: [],
 };
 export const RECENT_SCANNED_CARDS_COUNT = 5;
+
+export const COLLECTION_PREVIEW_IMAGE_COUNT = 3;

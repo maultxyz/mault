@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { router, useIsFocused } from "expo-router";
 import { StatusBar } from "expo-status-bar";
@@ -17,16 +17,22 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
+import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
-import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { collectionsQueryOptions, setActiveCollection } from "@/features/collections/api/collections";
+import { binSetsQueryOptions } from "@/features/devices/api/devices";
+import { activateBinSet } from "@/features/rules/api/bin-sets";
+import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
+import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
+import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
 import { ScannerControlsSheet } from "@/features/scanner/components/scanner-controls-sheet";
 import { SessionScansSheet } from "@/features/scanner/components/session-scans-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
@@ -52,8 +58,24 @@ export default function ScanScreen() {
   const focused = useIsFocused();
   const appState = useAppState();
   const sorter = useSorter();
-  const { data: collections } = useQuery(collectionsQueryOptions(useActiveOrgId()));
+  const queryClient = useQueryClient();
+  const orgId = useActiveOrgId();
+  const { data: collections } = useQuery(collectionsQueryOptions(orgId));
   const collection = collections?.find((c) => c.isActive) ?? null;
+  const { sets: presets, activeSet } = useRulesData();
+  const activePreset = activeSet?.isActive ? activeSet : null;
+  const switchCollection = useMutation({
+    mutationFn: setActiveCollection,
+    onSuccess: (next) => queryClient.setQueryData(collectionsQueryOptions(orgId).queryKey, next),
+  });
+  const switchPreset = useMutation({
+    mutationFn: activateBinSet,
+    onSuccess: (next) => queryClient.setQueryData(binSetsQueryOptions(orgId).queryKey, next),
+  });
+  const [collectionPickerOpen, setCollectionPickerOpen] = useState(false);
+  const [presetPickerOpen, setPresetPickerOpen] = useState(false);
+  const [cameraPickerOpen, setCameraPickerOpen] = useState(false);
+  const [optionsOpen, setOptionsOpen] = useState(false);
   const permission = useCameraPermission();
   const camera = useCameraChoice();
   const device = camera.device;
@@ -75,9 +97,13 @@ export default function ScanScreen() {
     cameraRef,
     focused && appState === "active" && !!device && permission.hasPermission && !session.modelError,
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
+    session.trackLiveCorners,
   );
+  const lastBin = sorter.isReady ? undefined : session.feed[0]?.binNumber;
   const [sessionOpen, setSessionOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
+  const sorterDriven = sorter.isReady || session.handScanActive;
+  const canScanOnce = !!collection && !session.modelError && session.phase !== "loading-models";
   const phaseColor =
     session.phase === "error"
       ? colors.destructive
@@ -85,9 +111,11 @@ export default function ScanScreen() {
         ? colors.success
         : session.phase === "paused" || session.phase === "loading-models"
           ? colors.warning
-          : colors.onCamera;
-  const sorterColor = sorter.isReady ? colors.success : sorter.isConnected ? colors.warning : colors.destructive;
+          : undefined;
   const pauseNotice = session.phase === "paused" && session.pauseReason && session.pauseReason !== "user";
+  const cameraLabel = (index: number) =>
+    camera.devices[index]?.localizedName || t("scan.options.cameraFallback", { number: index + 1 });
+  const selectedCameraIndex = camera.devices.findIndex((d) => d.id === device?.id);
 
   useEffect(() => {
     if (!session.isRunning) return;
@@ -114,6 +142,44 @@ export default function ScanScreen() {
     );
   }
 
+  const notice = session.modelError ? (
+    <CameraNotice tone="destructive" title={t("scan.modelErrorTitle")} description={session.modelError} />
+  ) : !collection ? (
+    <CameraNotice
+      tone="warning"
+      title={t("scan.noCollectionTitle")}
+      description={t("scan.noCollectionDescription")}
+      actionLabel={t("scan.chooseCollection")}
+      onAction={() => setCollectionPickerOpen(true)}
+    />
+  ) : switchCollection.isError ? (
+    <CameraNotice tone="destructive" title={t("collections.activateFailed")} />
+  ) : switchPreset.isError ? (
+    <CameraNotice tone="destructive" title={t("rules.activateFailed")} />
+  ) : sorter.notice ? (
+    <CameraNotice
+      tone="warning"
+      title={t("sorter.restarted.title")}
+      description={t(`sorter.resetReasons.${sorter.notice.reason}`)}
+      actionLabel={t("common.dismiss")}
+      onAction={sorter.dismissNotice}
+    />
+  ) : pauseNotice && session.pauseReason ? (
+    <CameraNotice
+      tone={PAUSE_TONES[session.pauseReason]}
+      title={t(`scan.pause.${session.pauseReason}.title`)}
+      description={t(`scan.pause.${session.pauseReason}.description`, { detail: session.pauseDetail ?? "" })}
+    />
+  ) : !sorter.isConnected && !session.handScan && session.sessionCount === 0 ? (
+    <CameraNotice
+      tone="info"
+      title={t("scan.sorterNotReadyTitle")}
+      description={t("scan.sorterNotReadyDescription")}
+      actionLabel={t("scan.openSorter")}
+      onAction={() => router.push("/sorter")}
+    />
+  ) : null;
+
   return (
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {focused ? <StatusBar style="light" /> : null}
@@ -139,75 +205,34 @@ export default function ScanScreen() {
           strokeColor={working ? colors.success : colors.onCamera}
         />
       ) : null}
-      {liveCorners ? <DetectedOutline corners={liveCorners} color={colors.primary} /> : null}
+      {device ? <DetectedOutline corners={liveCorners} color={colors.primary} /> : null}
 
       <View
         pointerEvents="box-none"
-        style={{ paddingTop: insets.top + SPACING.md, paddingHorizontal: SCREEN_GUTTER, gap: SPACING.sm }}
+        style={{ paddingTop: insets.top + SPACING.md, paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}
       >
         <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-          <View style={{ flex: 1, minWidth: 0, alignItems: "flex-start" }}>
-            <CameraChip
-              icon="collections"
-              label={collection ? collection.name : t("scan.chooseCollection")}
-              onPress={() =>
-                collection
-                  ? router.push({ pathname: "/collection/[guid]", params: { guid: collection.guid } })
-                  : router.navigate("/")
-              }
-            />
-          </View>
-          <CameraChip dotColor={phaseColor} label={t(`scan.phase.${session.phase}`)} />
-        </View>
-        <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-          <View style={{ flex: 1, minWidth: 0, alignItems: "flex-start" }}>
-            <CameraChip
-              icon="sorter"
-              dotColor={sorterColor}
-              label={sorter.device?.name ? `${sorter.device.name} · ${t(`sorter.phase.${sorter.phase}`)}` : t("sorter.phase.idle")}
-              onPress={() => router.push("/sorter")}
-            />
+          <View style={{ flexShrink: 1, minWidth: 0 }}>
+            <CameraChip dotColor={phaseColor} label={t(`scan.phase.${session.phase}`)} />
           </View>
           <CameraChip
             icon="collections"
             label={t("scan.sessionChip", { count: session.sessionCount })}
             onPress={() => setSessionOpen(true)}
           />
+          <View style={{ flex: 1 }} />
+          <IconButton
+            icon="more"
+            variant="camera"
+            size={36}
+            accessibilityLabel={t("scan.options.title")}
+            onPress={() => setOptionsOpen(true)}
+          />
         </View>
-        {!collection ? (
-          <CameraNotice
-            tone="warning"
-            title={t("scan.noCollectionTitle")}
-            description={t("scan.noCollectionDescription")}
-            actionLabel={t("scan.chooseCollection")}
-            onAction={() => router.navigate("/")}
-          />
-        ) : null}
-        {session.unsupportedMode ? (
-          <CameraNotice
-            tone="warning"
-            title={t(`scan.unsupported.${session.unsupportedMode}.title`)}
-            description={t(`scan.unsupported.${session.unsupportedMode}.description`)}
-          />
-        ) : null}
-        {sorter.notice ? (
-          <CameraNotice
-            tone="warning"
-            title={t("sorter.restarted.title")}
-            description={t(`sorter.resetReasons.${sorter.notice.reason}`)}
-            actionLabel={t("common.dismiss")}
-            onAction={sorter.dismissNotice}
-          />
-        ) : null}
-        {session.modelError ? (
-          <CameraNotice tone="destructive" title={t("scan.modelErrorTitle")} description={session.modelError} />
-        ) : null}
-        {pauseNotice && session.pauseReason ? (
-          <CameraNotice
-            tone={PAUSE_TONES[session.pauseReason]}
-            title={t(`scan.pause.${session.pauseReason}.title`)}
-            description={t(`scan.pause.${session.pauseReason}.description`, { detail: session.pauseDetail ?? "" })}
-          />
+        {lastBin != null ? (
+          <View pointerEvents="none" style={{ alignItems: "center" }}>
+            <BinBadge key={session.feed[0]?.scanId} binNumber={lastBin} />
+          </View>
         ) : null}
       </View>
 
@@ -216,6 +241,7 @@ export default function ScanScreen() {
           pointerEvents="box-none"
           style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg, gap: SPACING.md }}
         >
+          {notice}
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", gap: SPACING.md }}>
             <IconButton
               icon="adjust"
@@ -224,33 +250,99 @@ export default function ScanScreen() {
               accessibilityLabel={t("scan.controls.open")}
               onPress={() => setControlsOpen(true)}
             />
-            <ShutterButton
-              running={session.isRunning}
-              label={
-                session.isRunning ? t("scan.pauseAction") : session.phase === "paused" ? t("scan.resume") : t("scan.start")
-              }
-              disabled={!session.isRunning && !session.canStart}
-              onPress={
-                session.isRunning ? session.pause : session.phase === "paused" ? session.resume : session.start
-              }
-            />
+            {sorterDriven ? (
+              <ShutterButton
+                running={session.isRunning}
+                icon={session.isRunning ? "pause" : "play"}
+                label={
+                  session.isRunning ? t("scan.pauseAction") : session.phase === "paused" ? t("scan.resume") : t("scan.start")
+                }
+                disabled={!session.isRunning && !session.canStart}
+                onPress={
+                  session.isRunning ? session.pause : session.phase === "paused" ? session.resume : session.start
+                }
+              />
+            ) : (
+              <ShutterButton
+                running={false}
+                icon="camera"
+                label={t("scan.scanOnce")}
+                disabled={!canScanOnce || RUNNING_PHASES.includes(session.phase)}
+                onPress={session.scanOnce}
+              />
+            )}
           </View>
         </View>
       </View>
-      <ScannerControlsSheet
-        visible={controlsOpen}
+      <ScanOptionsSheet
+        visible={optionsOpen}
         running={session.isRunning}
-        canScan={!!collection && !session.modelError && session.phase !== "loading-models"}
-        onScanNow={session.scanOnce}
-        onFeedOne={session.feedOnce}
         autoFeed={session.autoFeed}
         onAutoFeedChange={session.setAutoFeed}
         allowDuplicates={session.allowDuplicates}
         onAllowDuplicatesChange={session.setAllowDuplicates}
-        cameras={camera.devices}
-        selectedCameraId={device?.id ?? null}
-        onSelectCamera={camera.select}
+        handScan={session.handScan}
+        onHandScanChange={session.setHandScan}
+        collectionName={collection?.name ?? null}
+        presetName={activePreset?.name ?? null}
+        showPreset={!!collection?.game && presets.length > 0}
+        cameraName={selectedCameraIndex >= 0 ? cameraLabel(selectedCameraIndex) : null}
+        showCamera={camera.devices.length > 1}
+        onChooseCollection={() => {
+          setOptionsOpen(false);
+          setCollectionPickerOpen(true);
+        }}
+        onChoosePreset={() => {
+          setOptionsOpen(false);
+          setPresetPickerOpen(true);
+        }}
+        onChooseCamera={() => {
+          setOptionsOpen(false);
+          setCameraPickerOpen(true);
+        }}
+        onClose={() => setOptionsOpen(false)}
+      />
+      <ScannerControlsSheet
+        visible={controlsOpen}
+        running={session.isRunning}
+        canScan={canScanOnce}
+        onScanNow={session.scanOnce}
+        onFeedOne={session.feedOnce}
+        autoFeed={session.autoFeed}
         onClose={() => setControlsOpen(false)}
+      />
+      <OptionSheet
+        visible={collectionPickerOpen}
+        title={t("scan.chooseCollection")}
+        options={(collections ?? []).map((c) => ({ value: c.guid, label: c.name }))}
+        selected={collection ? [collection.guid] : []}
+        onSelect={(guid) => {
+          setCollectionPickerOpen(false);
+          if (guid !== collection?.guid) switchCollection.mutate(guid);
+        }}
+        onClose={() => setCollectionPickerOpen(false)}
+      />
+      <OptionSheet
+        visible={presetPickerOpen}
+        title={t("rules.presets")}
+        options={presets.map((preset) => ({ value: preset.guid, label: preset.name }))}
+        selected={activePreset ? [activePreset.guid] : []}
+        onSelect={(guid) => {
+          setPresetPickerOpen(false);
+          if (guid !== activePreset?.guid) switchPreset.mutate(guid);
+        }}
+        onClose={() => setPresetPickerOpen(false)}
+      />
+      <OptionSheet
+        visible={cameraPickerOpen}
+        title={t("scan.options.camera")}
+        options={camera.devices.map((d, index) => ({ value: d.id, label: cameraLabel(index) }))}
+        selected={device ? [device.id] : []}
+        onSelect={(id) => {
+          setCameraPickerOpen(false);
+          camera.select(id);
+        }}
+        onClose={() => setCameraPickerOpen(false)}
       />
       <SessionScansSheet
         visible={sessionOpen}

@@ -14,6 +14,7 @@ export function toDevice(row: {
   scanOffsetY: number | null;
   captureSettleDelayMs: number | null;
   matchesNeeded: number | null;
+  feederStopPulse: number | null;
   checkBothOrientations: boolean | null;
   moduleCount: number;
   channelLayout: string | null;
@@ -32,6 +33,7 @@ export function toDevice(row: {
     captureSettleDelayMs:
       row.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
     matchesNeeded: row.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
+    feederStopPulse: row.feederStopPulse,
     checkBothOrientations:
       row.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
     moduleCount: row.moduleCount,

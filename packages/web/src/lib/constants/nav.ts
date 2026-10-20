@@ -16,6 +16,9 @@ export const MOBILE_NAV_SCROLL_PADDING_CLASS =
 export const MOBILE_NAV_TAB_ACTIVE_CLASS = "text-foreground font-semibold";
 export const MOBILE_PLAIN_HEADER_CLASS =
   "flex shrink-0 flex-col gap-4 px-5 pt-3 pb-4 text-foreground";
+export const SCROLL_COLLAPSE_AT = 48;
+export const SCROLL_EXPAND_AT = 4;
+export const SCROLL_COLLAPSE_MIN_OVERFLOW = 160;
 export const MOBILE_PAGE_TITLE_CLASS =
   "font-heading font-bold leading-tight tracking-tight text-foreground";
 export const MOBILE_PAGE_BODY_CLASS = "flex w-full flex-col gap-7 px-5 pt-1 pb-6";
@@ -56,7 +59,6 @@ export const MOBILE_HOME_PATH = "/app/monitor";
 export const MOBILE_SCAN_PATH = "/app/scan";
 export const MOBILE_SCAN_PAIR_PATH = "/app/scan/pair";
 export const MOBILE_SORTER_PATH = "/app/sorter";
-export const MOBILE_MONITOR_CARD_PARAM = "card";
 export const MOBILE_ACCOUNT_PATH = "/app/me";
 export const MOBILE_ACCOUNT_TAB_PATHS = [
   MOBILE_ACCOUNT_PATH,

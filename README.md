@@ -1,291 +1,245 @@
-# Magic Vault
+# Mault
 
-A TCG card scanner and physical sorter. A webcam identifies cards via AI image embeddings, a rule engine decides which bin each card belongs in, and a feeder and servo mechanism driven by an Arduino or ESP32 physically routes the card there.
+An open-source trading card scanner and physical sorter. A camera identifies each card with on-device image embeddings, a rule engine picks its bin, and a feeder plus servo modules driven by an Arduino or ESP32 drop it there. Collections, storage boxes, prices, stats and integrations live in the same app.
 
-## Supported TCGs
+- Hosted app: [mault.xyz](https://mault.xyz)
+- Printable sorter: [MakerWorld](https://makerworld.com/en/models/3066180-tcg-card-sorting-machine)
+- Build guide (BOM, wiring, assembly): `/build` in the app
 
-Magic: The Gathering, Pokemon, Yu-Gi-Oh, One Piece, Lorcana, Gundam, Flesh and Blood, Riftbound
+## Supported games
 
-## MakerWorld
+Magic: The Gathering, Pokemon, Yu-Gi-Oh, One Piece, Lorcana, Gundam, Flesh and Blood, Riftbound, Grand Archive, Star Wars: Unlimited, Cyberpunk.
 
-https://makerworld.com/en/models/3066180-tcg-card-sorting-machine
+Each game is a pluggable adapter (`packages/server/src/lib/adapters/<game>/`) plus a `Game` row in the admin Games Manager, whose field definitions drive rules, sorting, filters and notifications for that game.
 
 ## How it works
 
-1. A feeder mechanism (continuous-rotation servo + roller) pulls a card from the hopper into view of the webcam, into a fixed, per-camera-calibrated scan region (see calibration screen) used as a coarse hint for step 2
-2. The browser locates the card's four corners and perspective-dewarps it to a straightened crop, then embeds it, all client-side via [CollectorVision](https://github.com/HanClinto/CollectorVision)'s Cornelius (corner detection) and Milo (embedding) ONNX models running in-browser
-3. The embedding is sent to the server for similarity search (or, if the client can't run the on-device models, the raw image is sent for server-side embedding instead)
-4. PostgreSQL vector similarity search (pgvector) identifies the card
-5. Configurable, per-collection bin rules decide which bin the card should go to
-6. The web app sends a serial command to the microcontroller, which drives the trapdoor/paddle/pusher servos to route the card into that bin
+1. The feeder pushes a card from the hopper into the camera's calibrated scan region and waits for it to settle at the IR sensor.
+2. The client finds the card's four corners, dewarps it and embeds it with [CollectorVision](https://github.com/HanClinto/CollectorVision)'s corner detector and Milo embedder (ONNX, in the browser or on the phone). If the client can't run the models, the server embeds the image instead.
+3. The server finds the closest cards with a pgvector HNSW search. When printings look alike, OCR of the name, set and number breaks the tie; weak matches are flagged for review.
+4. The collection's active bin preset decides the bin (rules, auto-assign, repack, alphabetical, chaos, pick lists, overflow and copy limits), client-side.
+5. The client tells the sorter which module and direction to use, over USB serial, Bluetooth or Wi-Fi, and saves the scan in parallel.
 
 ## Features
 
-- Live webcam scanning with automatic card detection and identification; captures wait for the card to physically settle at the sensor before the shot is taken
-- Multi-TCG support: pluggable card-search adapters per game, with each game's own admin-configurable field definitions driving sorting, filtering, and bin rules
-- Rule-based sort bins, grouped by collection, with and/or rule trees across each game's own card fields (color, rarity, price, set, etc.)
-- Override rules let a matching bin take priority over ordinary bins. For example, enable **Override rules** on bin 6 with a price condition of **greater than or equal to 1** to send cards worth $1+ there before checking color bins 1–5. If multiple override bins match, the lowest bin number wins; unmatched cards still use the catch-all.
-- Card grid sorting (by name, price, rarity, etc.) adapts automatically to whichever game a collection uses
-- Multiple collections per organization, each with their own bin configuration and card history
-- Remote monitoring: watch an in-progress scan session live from another device
-- Discord bot: link a Discord server to an organization with `/link` and a code from the Integrations page, then anyone in it can run `/stats` (optionally scoped to one collection via autocomplete) to check collection stats. Everything else is set up in the app's Integrations page: which channels get every scan and every error or alert (server-wide or per collection), and notification rules that post matching cards to their own channels. No webhook URLs to configure
-- Per-organization branding and scanner layout settings
-- Feeder, servo, and camera scan-region calibration tools: the camera's capture region can be dragged/resized live against the feed to match different webcam mountings and fields of view
-- In-app hardware build guide (`/build`) with bill of materials, wiring diagrams, and assembly instructions
+**Scanning**
+- Webcam scanning in the browser, or a paired phone used as the camera (QR pairing)
+- Several sorters from one browser tab, each with its own camera and collection
+- Multi-language scanning, OCR tie-breaking, a review mode for low-confidence matches and one-click corrections
+- Offline-tolerant saves: scans queue in IndexedDB and retry until the server accepts them
 
-## Stack
+**Sorting**
+- Bin presets per collection with and/or rule trees over each game's own fields, plus override bins that win over ordinary ones
+- Auto bin assignment, repack building, alphabetical drill-down, chaos sort, overflow bins, copy limits and decklist pick lists
+- Custom sounds played when matching cards are sorted
 
-- **Web**: React 19, Vite, React Router v7, Tailwind CSS 4, TanStack Query
-- **Server**: Hono 4, Drizzle ORM, PostgreSQL (pgvector) — either Neon-hosted or self-hosted
-- **Auth**: two interchangeable providers, picked with `AUTH_PROVIDER` — [Neon Auth](https://neon.com) (JWT, hosted) or [own-auth](https://own-auth.com) (self-hosted, bearer tokens against your own Postgres); see [Choosing a provider](#choosing-a-provider)
-- **Hardware**: Arduino Uno R4 or ESP32 via Web Serial API (9600 baud), PCA9685 servo driver
-- **Monorepo**: Turborepo + pnpm workspaces
+**Collections and value**
+- Multiple organizations and collections, with roles, invites and an audit log
+- Storage locations: empty a bin into a box and Mault records each card's position, searchable and exportable as CSV
+- Prices from TCGplayer, Cardmarket and Card Kingdom, with per-org price source and condition multipliers
+- Stats, a leaderboard and live remote monitoring (or a shareable read-only monitor link)
 
-## Project structure
+**Integrations**
+- Discord bot: `/link` a server to an org, `/stats` for collection stats; scan, alert and rule-based channels are configured in Settings > Integrations
+- Public REST API with org API keys and signed webhooks, following Scryfall's conventions ([docs/public-api.md](docs/public-api.md), reference site in `packages/api-docs`)
+
+**Hardware**
+- Calibration for servos, feeder, bin heights, routes and the camera's scan region, with a guided tour
+- In-browser firmware flashing, firmware feature gating, device self-test and session locks
+- Wi-Fi remote control for ESP32 boards, relayed through the server
+- Native iOS/Android app ([packages/mobile](packages/mobile/README.md)) that scans with the phone camera and drives a sorter over Bluetooth
+
+**Plans**
+- Free and Business tiers (Stripe), with features and limits editable in Admin > Plans
+
+## Repository layout
 
 ```
 packages/
-├── shared/   @magic-vault/shared - types, constants, evaluate-bin rule engine
-├── server/   @magic-vault/server - Hono API, Drizzle schema/db, auth middleware
-├── web/      @magic-vault/web    - React SPA (scanner, bins, collections, admin, build guide)
-└── bot/      @magic-vault/bot    - Discord bot (slash commands), talks to the server's HTTP API only
-firmware/     Arduino/ESP32 sketch (firmware/main/main.ino)
-"3d model"/   Printable enclosure/module design (Fusion 360 + .3mf)
-drizzle/      Generated SQL migrations
-scripts/      Release/version-bump helpers
+├── shared/    @magic-vault/shared    types, constants, zod schemas, rule engine, vision + serial protocol (no build step)
+├── server/    @magic-vault/server    Hono API, Drizzle schema, auth providers, sync and price jobs
+├── web/       @magic-vault/web       React SPA: landing, build guide, scanner, calibration, admin
+├── mobile/    @magic-vault/mobile    Expo iOS/Android app
+├── bot/       @magic-vault/bot       Discord bot, talks to the server over HTTP only
+└── api-docs/  @magic-vault/api-docs  Scalar reference for the public API (openapi.json)
+firmware/      Sorter sketch (firmware/main/*.ino) and wire protocol (firmware/PROTOCOL.md)
+3d model/      Fusion 360 / STEP source and printable .3mf
+drizzle/       Generated SQL migrations
+docs/          Public API guide
+docker/        Web container start-up script (runtime env.js)
+scripts/       Release and version helpers
+.github/       Build check, deploy, firmware PR check and firmware release workflows
 ```
+
+`CLAUDE.md` records the project's conventions and invariants; `CONTRIBUTING.md` covers the dev workflow and database changes.
+
+## Stack
+
+- **Web**: React 19, Vite, React Router v7, Tailwind CSS 4, TanStack Query, React Hook Form + Zod, onnxruntime-web
+- **Server**: Hono 4, Drizzle ORM, PostgreSQL with pgvector (Neon or self-hosted), onnxruntime-node, tesseract.js
+- **Mobile**: Expo, React Native, onnxruntime-react-native, BLE
+- **Auth**: `AUTH_PROVIDER=neon` ([Neon Auth](https://neon.com), JWT via JWKS) or `local` ([own-auth](https://own-auth.com), bearer sessions in your own Postgres)
+- **Hardware**: Arduino Uno R4 Minima / R4 WiFi or ESP32(-S3), PCA9685 servo driver, SG90 servos
+- **Monorepo**: pnpm workspaces + Turborepo
 
 ## Getting started
 
-### Choosing a provider
+The app needs Postgres with pgvector and an identity provider. Pick one with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
-The app needs a Postgres database with pgvector (for card-embedding search) and an identity provider (for login + row-level security), selected by `AUTH_PROVIDER`/`VITE_AUTH_PROVIDER`:
+- **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough for a personal deployment.
+- **`local`**: fully self-hosted and offline-capable. `docker-compose.yml` runs Postgres, the API, the web app, price sync and the API docs.
 
-- **`neon`** (default) — a hosted [Neon](https://neon.com) project. A few minutes of console setup, then `pnpm dev`. Neon's free tier is enough for a personal/single-org deployment.
-- **`local`** — fully self-hosted, no external account, works offline. `docker-compose.yml` runs the whole stack (Postgres+pgvector, API, web app) with [own-auth](https://own-auth.com) handling sign-up/sign-in against that same self-hosted Postgres.
-
-Both providers read from the same root `.env` (Vite is configured to read up from `packages/web`, so there's no separate `packages/web/.env`):
+Both read one root `.env` (Vite reads it from the repo root too):
 
 ```bash
 cp .env.neon.example .env      # Option A: Neon
 cp .env.docker.example .env    # Option B: self-hosted
 ```
 
-Each file holds only the variables its provider uses, with `AUTH_PROVIDER`/`VITE_AUTH_PROVIDER` already set.
+Each example lists only the variables that mode uses, with comments for the optional ones (email via Resend, S3 scan image storage, Stripe, Discord, Rollbar, sync tuning).
 
 ### Option A: Neon
 
-1. Create a Neon project at [console.neon.tech](https://console.neon.tech) (any recent Postgres version works; pgvector ships as a bundled extension).
-2. Open the SQL editor on your project's default branch/database and enable pgvector:
-   ```sql
-   CREATE EXTENSION IF NOT EXISTS vector;
-   ```
-3. Copy the pooled connection string (Dashboard → Connect) into `DATABASE_URL`.
-4. Enable **Neon Auth** for the project (Dashboard → Auth). This provisions the `auth` schema, the `authenticated` Postgres role, and `auth.user_id()` — the row-level-security policies in `drizzle/*.sql` reference these directly, so Auth must be enabled _before_ you run migrations or `db:push` (step below), or they'll fail with an undefined function/role error.
-5. From the Auth page, grab:
-   - `NEON_AUTH_URL` — the base Auth URL (the server derives the JWKS endpoint and JWT issuer from it: `${NEON_AUTH_URL}/.well-known/jwks.json`)
-   - `VITE_NEON_AUTH_URL` — same Auth base URL, used client-side by the Better Auth React client
-   - `VITE_NEON_DATA_API_URL` — the project's Data API URL, also from the Auth page
-6. Run `pnpm --filter @magic-vault/server db:push` (or `db:generate` + `db:migrate`, see [Database](#database)) to create the schema and RLS policies against your new database.
-7. Install and run:
+1. Create a project at [console.neon.tech](https://console.neon.tech) and run `CREATE EXTENSION IF NOT EXISTS vector;` in its SQL editor.
+2. Put the pooled connection string in `DATABASE_URL`.
+3. Enable **Neon Auth** (Dashboard > Auth) **before** migrating: the RLS policies reference its `authenticated` role and `auth.user_id()`.
+4. From the Auth page, set `NEON_AUTH_URL`, `VITE_NEON_AUTH_URL` (same base URL) and `VITE_NEON_DATA_API_URL`.
+5. Migrate and run:
    ```bash
    pnpm install
-   pnpm dev        # Vite on :5173, Hono on :3001
+   pnpm --filter @magic-vault/server db:migrate
+   pnpm dev        # web :5173, API :3001, API docs :5174
    ```
 
-### Option B: Self-hosted (no Neon account, works offline)
+### Option B: Self-hosted
 
-1. In `.env` (copied from `.env.docker.example`), fill in:
-   - `POSTGRES_PASSWORD` — the local Postgres container's password
-   - `OWN_AUTH_TOKEN_PEPPER` — 32+ random bytes; own-auth uses it to hash sessions/tokens/API keys
-   - `IMPERSONATION_SECRET` — any random string
-   - `MONITOR_LINK_SECRET` — any random string (optional; enables shareable no-login monitor links)
-   - `API_URL`: the API server's public base URL, e.g. `https://mault.example.com/api` (optional; used for `next_page` links in the public API, which otherwise come from the request's host)
-   - `SORTER_LINK_URL`: the WebSocket address ESP32 sorters dial for Wi-Fi remote control, e.g. `wss://mault.example.com/api/sorter-link/device` (optional; defaults to `API_URL` with `ws`/`wss`, else the web app's own origin. Set it when developing locally, since the board can't reach `localhost`: e.g. `ws://192.168.1.20:3001/sorter-link/device`)
-   - `WEBHOOK_ALLOW_INSECURE_URLS`: `true` lets webhooks use `http://` and private addresses such as LAN or `localhost` targets (optional; off by default, keep it off on any server reachable from the internet)
-2. Start the stack:
-   ```bash
-   docker compose up -d
-   ```
-3. Open `http://localhost:8080` and sign up. The first account ever created on a fresh instance is automatically made platform admin (Games Manager, sync job, impersonation) and gets a default "Home" organisation — from there, add at least one game in the admin Games Manager (`/app/admin`) and run its sync before scanning, or collections/scanning have nothing to match against.
+1. In `.env`, set `POSTGRES_PASSWORD`, `OWN_AUTH_TOKEN_PEPPER` (32+ random bytes) and `IMPERSONATION_SECRET`. Optional: `MONITOR_LINK_SECRET` (shareable monitor links), `API_URL` (public API base for `next_page` links), `SORTER_LINK_URL` (see [Wi-Fi remote](#wi-fi-remote)) and `WEBHOOK_ALLOW_INSECURE_URLS=true` (lets webhooks target `http://` and LAN addresses; keep it off on internet-facing servers).
+2. `docker compose up -d`
+3. Open `http://localhost:8080` and sign up. The first account becomes platform admin and gets a "Home" organization.
+4. In `/app/admin`, add at least one game in the Games Manager and run its sync. Until a game is synced there is nothing to match against.
 
-Prices (TCGplayer USD and Cardmarket EUR) come from the `prices` container, which starts with the stack, pulls on start and then checks every `PRICE_SYNC_INTERVAL_HOURS` (6 by default), only downloading what changed upstream. Prices attach to synced cards, so run a game's sync from `/app/admin` first; until then, or until the first pull finishes, cards show no price. Watch it with `docker compose logs -f prices`, or force a full re-pull with `docker compose exec prices node packages/server/dist/scripts/sync-prices.js --force`.
+On every start the `server` container runs Drizzle migrations, own-auth's migrations and `packages/server/src/db/bootstrap-local.sql` (`pnpm db:migrate-local`), all idempotent. Postgres is exposed only on `127.0.0.1:5433` for admin clients.
 
-The `server` container applies Drizzle migrations, own-auth's own migrations, and the RLS bootstrap (`packages/server/src/db/bootstrap-local.sql`, run via `pnpm db:migrate-local` — see that script for why plain Postgres needs a few things Neon normally provisions automatically) on every start; all three steps are idempotent.
-
-To grant a _second_ admin, update their row in `platform_user_roles` directly — there's no UI for it yet:
+To make another user a platform admin (there's no UI yet):
 
 ```sql
-INSERT INTO platform_user_roles (user_id, role) VALUES ('<their own_auth_users.id>', 'admin')
+INSERT INTO platform_user_roles (user_id, role) VALUES ('<own_auth_users.id>', 'admin')
 ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
 
-Local mode covers sign-up/sign-in/sign-out/session/org-switch, its own org invite UI, personal API keys, and an org audit log — email verification, profile/password editing, and multi-device session management stay Neon-only for now (see `CLAUDE.md`'s Auth & RLS section).
+Local mode supports sign-up/sign-in, org switching and invites, API keys and the audit log. Email verification, profile/password editing, multi-session management and social sign-in are Neon-only.
+
+### Running pieces individually
+
+```bash
+pnpm --filter @magic-vault/server dev
+pnpm --filter @magic-vault/web dev
+pnpm dev:bot                                   # Discord bot (excluded from pnpm dev)
+pnpm --filter @magic-vault/mobile start        # Expo dev server, see packages/mobile/README.md
+pnpm build                                     # server (tsup) + web (tsc -b, vite build)
+pnpm --filter @magic-vault/web lint
+```
+
+There are no automated tests; the web build's `tsc -b` is the type check.
 
 ## Database
 
 ```bash
-pnpm --filter @magic-vault/server db:generate  # generate a migration from schema changes
+pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes
 pnpm --filter @magic-vault/server db:migrate   # apply migrations
-pnpm --filter @magic-vault/server db:push      # push schema directly (dev)
-pnpm --filter @magic-vault/server db:studio    # open Drizzle Studio
+pnpm --filter @magic-vault/server db:push      # local iteration only
+pnpm --filter @magic-vault/server db:studio
 ```
 
-These target whichever Postgres `DATABASE_URL` points at. Self-hosted mode's container applies migrations automatically (see [Option B](#option-b-self-hosted-no-neon-account-works-offline)) — you only need these commands by hand against Neon, or after changing `packages/server/src/db/schema.ts`.
+These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before shipping a migration; Drizzle orders migrations by journal timestamp, so check them after merging branches.
+
+## Prices
+
+`packages/server/scripts/sync-prices.ts` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed upstream. In the self-hosted stack the `prices` container runs it every `PRICE_SYNC_INTERVAL_HOURS` (default 6, `0` disables it, failures retry after `PRICE_SYNC_RETRY_MINUTES`). Hosted deployments run it from an external scheduler.
+
+Prices attach to synced cards, so cards show no price until their game has synced and the first pull has finished. Follow it with `docker compose logs -f prices`, or force a full pull with `docker compose exec prices node packages/server/dist/scripts/sync-prices.js --force`.
 
 ## Deployment
 
-`Dockerfile.server` builds the Hono API (and pre-downloads the pinned CollectorVision Milo model at build time — `packages/server/src/lib/models/model-registry.ts`). `Dockerfile.web` builds the Vite SPA and serves it with nginx (`nginx.conf`). Its `VITE_*` settings (`VITE_API_URL`, `VITE_AUTH_PROVIDER`, the Neon URLs, `VITE_APP_ENV`, ...) are read from the container's environment at start-up (`docker/web-env.sh` writes them to `env.js`), so one image works for any deployment. Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the firmware binary baked into the image. `Dockerfile.api-docs` builds the public API reference site (`packages/api-docs`, Scalar over the generated OpenAPI spec) as its own nginx image, kept out of the web image so the web build stays light; it takes the same `VITE_API_URL` build arg, and the web app links to it when its own build has `VITE_API_DOCS_URL`. The self-hosted compose stack serves it on `http://localhost:8081`. `Dockerfile.bot` builds the optional Discord bot — it talks to the server over HTTP (`SERVER_URL`), never the database directly, but the connection is bidirectional: the server also calls back into the bot's own small HTTP server (`BOT_PORT`, exposed to the server as `BOT_URL`) to post every notification into whichever channel was set with `/notify-channel` (errors, jams, sync failures) or `/scan-channel` (card scans), or for Buy Me a Coffee donations (`routes/public.ts`'s `/webhooks/buymeacoffee`, unauthenticated but HMAC-verified rather than org-linked). Both directions share `BOT_API_SECRET`.
+Four images, built from the repo root:
 
-> If you're running a Pi-hole or similar DNS-level blocker on your network, it may block `huggingface.co`, which will cause the Milo model download to fail. Allowlist that domain if you hit download errors during the server build/startup.
+| Dockerfile | Image | Notes |
+| --- | --- | --- |
+| `Dockerfile.server` | `mault-server` | Hono API; also runs `sync-prices` |
+| `Dockerfile.web` | `mault-web` | Vite SPA on nginx, proxies `/api` to the server |
+| `Dockerfile.api-docs` | `mault-api-docs` | Public API reference |
+| `Dockerfile.bot` | `mault-bot` | Optional Discord bot |
 
-### Deploying self-hosted
+CI (`.github/workflows/deploy.yml`) publishes them to GHCR as `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`. Because the images are public, the web image's `VITE_*` settings are read at container start (`docker/web-env.sh` writes `env.js`), so one image works for any deployment. Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the firmware baked into the image.
 
-The same `docker compose up -d` flow from [Option B](#option-b-self-hosted-no-neon-account-works-offline) is the production deployment too — just point `WEB_URL` at your public URL, and use a real `POSTGRES_PASSWORD`/`OWN_AUTH_TOKEN_PEPPER`/`IMPERSONATION_SECRET` rather than dev placeholders.
+The scanner's ONNX weights are pinned by Hugging Face revision and SHA-256 and downloaded at runtime. DNS blockers such as Pi-hole may block `huggingface.co`; allowlist it if model downloads fail.
 
-```bash
-docker compose up --build -d              # server + web + price sync + local Postgres
-docker compose --profile bot up --build -d  # + Discord bot
-```
+### Docker Compose
 
-Inside compose the server and bot reach each other by service name (`http://server:3001`, `http://bot:3002`), so the `SERVER_URL`/`BOT_URL` values in `.env` (which point at localhost for `pnpm dev`) are overridden there. If you already run `sync-prices` from your own scheduler, set `PRICE_SYNC_INTERVAL_HOURS=0` so the `prices` container doesn't pull too.
-
-### Deploying with Neon
-
-For the Neon-backed deployment (`AUTH_PROVIDER=neon`, the default), the database and auth still need a [Neon project](#option-a-neon) set up first, and its connection details passed to the server container as env vars (`DATABASE_URL`, `NEON_AUTH_URL`, `WEB_URL`) and to the web container as env vars (`VITE_API_URL`, `VITE_NEON_AUTH_URL`, `VITE_NEON_DATA_API_URL`, `VITE_APP_ENV`). A minimal setup:
+`docker-compose.yml` works for both providers:
 
 ```bash
-docker build -f Dockerfile.server -t magic-vault-server .
-docker run -p 3001:3001 --env-file .env magic-vault-server
-
-docker build -f Dockerfile.web \
-  --build-arg VITE_LATEST_FIRMWARE_VERSION=1.0.2 \
-  -t magic-vault-web .
-docker run -p 8080:80 \
-  -e VITE_API_URL=https://your-api-host \
-  -e VITE_NEON_AUTH_URL=$VITE_NEON_AUTH_URL \
-  -e VITE_NEON_DATA_API_URL=$VITE_NEON_DATA_API_URL \
-  -e VITE_APP_ENV=production \
-  magic-vault-web
+docker compose up --build -d                 # postgres, server, prices, web (:8080), api-docs (:8081)
+docker compose --profile bot up --build -d   # + Discord bot (:3002)
 ```
 
-Point `WEB_URL` (server env) at the public URL of the web container so CORS and Discord monitor-page links resolve correctly, and re-run `db:push`/`db:migrate` against the Neon database as part of your deploy if the schema changed.
+For production, set `WEB_URL` to your public origin and use real secrets. With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` service then sits unused. Inside compose the server and bot reach each other by service name, so `.env`'s localhost `SERVER_URL`/`BOT_URL` are overridden. Set `PRICE_SYNC_INTERVAL_HOURS=0` if you already schedule `sync-prices` elsewhere.
 
-The same `docker-compose.yml` from [Option B](#option-b-self-hosted-no-neon-account-works-offline) can wire the three images together this way too (server on :3001, web on :8080, and the optional bot on :3002) — `AUTH_PROVIDER` in `.env` just needs to be `neon` (the default) rather than `local`:
+### Coolify
 
-```bash
-docker compose up --build
-docker compose --profile bot up --build  # + Discord bot
-```
+`docker-compose-coolify.yml` is a self-contained local-auth stack (web, API, pgvector Postgres, price sync, optional bot).
 
-`.env` must already point `DATABASE_URL`/`NEON_AUTH_URL` at a real Neon project — the `postgres` service in `docker-compose.yml` still starts alongside it, but sits unused since nothing points at it in this mode.
+1. **+ New** > Public Repository (or a Git integration), build pack **Docker Compose**, base directory `/`, compose file `/docker-compose-coolify.yml`.
+2. Set the environment:
 
-### Deploying with Coolify
+   | Variable | Value |
+   | --- | --- |
+   | `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` | `local` |
+   | `VITE_APP_ENV` | `local` |
+   | `WEB_URL` | Public origin, e.g. `https://mault.example.com`, no trailing slash |
+   | `POSTGRES_PASSWORD` | Strong password |
+   | `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER` | Separate random secrets (`openssl rand -hex 32`) |
 
-Mault can be self-hosted with [Coolify](https://coolify.io/) using `docker-compose-coolify.yml`. This runs the web app, API, PostgreSQL with pgvector, and automatic price updates. No Neon account is required.
+   Leave `VITE_API_URL` and the Neon variables empty. Everything else is optional (see `.env.docker.example`).
+3. Route your domain to the **web** service on port 80 (e.g. `https://mault.example.com:80`; the suffix only picks the container port).
+4. Deploy. The API migrates before starting and the other services wait for it to be healthy.
 
-#### 1. Add the repository
+For Discord, set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot container idles.
 
-1. Open your project and environment in Coolify, then select **+ New**.
-2. Choose **Public Repository**, or use a Git provider integration for a private repository.
-3. Enter the URL of the repository containing `docker-compose-coolify.yml` and select **Check Repository**.
-4. Select the branch containing the file.
-5. Choose **Docker Compose** as the build strategy.
-6. Set **Base Directory** to `/` and **Docker Compose Location** to `/docker-compose-coolify.yml`.
-7. Save and load the Compose configuration.
+Postgres lives in the `mault-postgres` volume: keep it across updates and back it up. Changing `POSTGRES_PASSWORD` later doesn't change the existing role's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
 
-#### 2. Configure the environment
+### Discord bot
 
-Coolify detects the variables referenced in the Compose file. Open **Environment Variables** and configure:
-
-| Variable | Value |
-| --- | --- |
-| `AUTH_PROVIDER` | `local` |
-| `VITE_AUTH_PROVIDER` | `local` |
-| `VITE_APP_ENV` | `local` |
-| `WEB_URL` | Your public origin, e.g. `https://mault.example.com`, without a trailing slash |
-| `POSTGRES_PASSWORD` | A strong database password |
-| `IMPERSONATION_SECRET` | A random secret |
-| `OWN_AUTH_TOKEN_PEPPER` | A separate random secret |
-
-Generate each password or secret separately, for example:
-
-```sh
-openssl rand -hex 32
-```
-
-Leave `VITE_API_URL` empty: the web container proxies `/api` requests to the API internally. The Neon variables can also remain empty when using local authentication.
-
-Other variables have defaults or enable optional features. Email, S3 storage, Discord and Rollbar can remain unconfigured. See `.env.docker.example` for details.
-
-The `VITE_*` values are read when the web container starts, so changing them only needs a restart. The exception is `VITE_LATEST_FIRMWARE_VERSION`, which is baked in at build time.
-
-#### 3. Configure the domain
-
-Point your domain’s DNS record at the Coolify server.
-
-In Coolify’s domain configuration, select the **web** service and route your domain to its internal port **80**, for example:
-
-```text
-https://mault.example.com:80
-```
-
-The `:80` suffix selects the container port; visitors still access `https://mault.example.com` over HTTPS.
-
-Set `WEB_URL` to the visitor-facing URL, without the internal port suffix. Only the web service needs a public domain.
-
-#### 4. Deploy
-
-Select **Deploy** and monitor the deployment logs. The API runs database migrations before starting, and the remaining application services wait for it to become healthy.
-
-Once deployment completes, open your configured domain.
-
-#### Optional Discord bot
-
-To enable Discord, configure `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and a random `BOT_API_SECRET`, then redeploy. The same `BOT_API_SECRET` is supplied to both the API and bot automatically.
-
-When the Discord credentials are empty, the bot container remains idle.
-
-#### Persistent data
-
-PostgreSQL data is stored in the `mault-postgres` named volume. Preserve this volume when updating the application and back it up regularly.
-
-For an existing database, changing `POSTGRES_PASSWORD` in Coolify does not update the database role’s password. Update the database password separately and keep the application’s setting in sync. Preserve `OWN_AUTH_TOKEN_PEPPER` between deployments; changing it invalidates existing sessions.
+The bot only talks to the server over HTTP (`SERVER_URL`), and the server calls back into the bot's small HTTP server (`BOT_URL`/`BOT_PORT`) to post scan notifications, alerts and rule matches into the channels chosen in Settings > Integrations. Both directions share `BOT_API_SECRET`. Commands are registered globally; set `DISCORD_DEV_GUILD_ID` for faster iteration in development.
 
 ## Hardware
 
-The full bill of materials, wiring diagrams, and assembly instructions live in the app at `/build`. In short:
+Full BOM, wiring and assembly steps are at `/build`. In short:
 
-- Arduino Uno R4 or ESP32 Dev Module, driving a PCA9685 servo controller over I2C
-- 3 positional SG90 servos per sorting module (trapdoor, paddle gate, pusher) plus 1 360° continuous-rotation MG90S for the feeder — module count is configurable (up to 5 on a single PCA9685) in Calibration
-- IR sensor for card-feed detection
-- Enclosure and module parts are in `3d model/` (Fusion 360 source + printable `.3mf`)
+- **Controller**: Arduino Uno R4 Minima (USB), Uno R4 WiFi (USB + Bluetooth) or ESP32 / ESP32-S3 (USB, Bluetooth and Wi-Fi), driving a PCA9685 over I2C
+- **Modules**: 3 positional SG90 servos each (trapdoor, paddle gate, pusher); add modules any time without reflashing, the count is set in Calibration
+- **Feeder**: one continuous-rotation servo plus an IR sensor for feed detection
+- **Enclosure**: `3d model/` (Fusion 360 / STEP source and printable `.3mf`)
 
-Upload `firmware/main/main.ino` (requires the ArduinoJson library) to either board via the Arduino IDE — see `/build` for the full flashing steps and per-board pin/wiring differences. The sketch is always compiled for the full module ceiling a single PCA9685 supports — it doesn't need to match how many modules you've actually built, since the app already knows each org's real module count and only ever sends route commands for modules that exist, so you can add modules later without reflashing. It communicates via JSON over USB serial: the web app sends `{"route": {"module": N, "direction": "left"|"right"|"bottom"}}`, resolved from the bin's routing assignment in Calibration, and the board runs the routing sequence. `"bottom"` advances the card through each preceding module (same as `"left"`/`"right"`) and drops it through the target module's own bottom output, rather than a shared catch-all — any bin can be assigned to any module's bottom output.
+### Firmware
 
-Where module 1 starts on the PCA9685 is also runtime-configurable, not baked into the firmware: a "PCA9685 channel layout" toggle in Calibration (Standard = channel 0, up to 5 modules; Legacy = channel 4, reserving 0-3 for the status LEDs older firmware drove, up to 3 modules) sends `{"setChannelOffset": N}` once per connection. Orgs with pre-existing module calibration data default to Legacy so already-wired hardware keeps working unchanged; new orgs default to Standard.
+The sketch is `firmware/main/` (`main.ino` plus the BLE and Wi-Fi tabs). The easiest path is flashing from the app, which uses the builds published by `.github/workflows/firmware-release.yml`. To build it yourself, install ArduinoJson, Adafruit PWM Servo Driver and (Uno R4 WiFi) ArduinoBLE, and use the FQBNs from that workflow; ESP32-S3 builds need `USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio,PartitionScheme=min_spiffs`.
 
-## Webcam
+The firmware has no idea what a bin is: the app resolves each bin to a module and direction (`left`, `right` or `bottom`) and sends newline-delimited JSON at 9600 baud, such as `{"seq":42,"route":{"module":2,"direction":"left"}}`. Note that `"left"` lands on the physical right. `firmware/PROTOCOL.md` documents every command and the USB, BLE and Wi-Fi transports. The PCA9685 channel layout (Standard from channel 0, or Legacy from channel 4 for older wiring) is chosen in Calibration and sent at connect time.
 
-Using a Logitech C920, these settings worked best:
+### Wi-Fi remote
 
-Auto Focus: Off
-Focus: 50%
-Auto Exposure: On
-Low Light Compensation: On
-Auto White Balance: On
-Brightness: 140
-Contrast: 140
-Saturation: 160
-Sharpness: 130
+ESP32 boards on firmware 2.10.0+ can be driven without a cable. Wi-Fi is configured over USB or Bluetooth, then the board holds a WebSocket to `/sorter-link/device` and the server relays it to one browser. The board dials `SORTER_LINK_URL`, else `API_URL`, else the web origin. In local development set it to a LAN address the board can reach, e.g. `ws://192.168.1.20:3001/sorter-link/device`. The relay is in process, so the board and its browser must reach the same server instance.
+
+### Webcam
+
+A Logitech C920 works well with: auto focus off, focus 50%, auto exposure on, low light compensation on, auto white balance on, brightness 140, contrast 140, saturation 160, sharpness 130.
 
 ## Licensing
 
-This repository contains multiple components with different licenses.
+| Component | License |
+| --- | --- |
+| Software source code | MIT |
+| 3D models (`3d model/`) | CC BY-NC-SA 4.0 |
 
-| Component               | License         |
-| ----------------------- | --------------- |
-| Software source code    | MIT License     |
-| 3D models (`/3d model`) | CC BY-NC-SA 4.0 |
-
-See the `LICENSE` file in each directory for the complete license terms.
+See the `LICENSE` file in each directory for the full terms.

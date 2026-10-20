@@ -3,9 +3,13 @@ import type {
   AdminUnmatchedRetryResult,
   AdminUnmatchedScan,
   DeletedItemType,
-  PlatformStatsGuildSummary,
+  PlatformDiscordChannelKey,
+  PlatformDiscordGuildSummary,
   SyncState,
 } from "@magic-vault/shared";
+import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
+import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
+import type { UseFormReturn } from "react-hook-form";
 
 export type DeletedItemTypeFilter = DeletedItemType | "all";
 
@@ -57,7 +61,12 @@ export interface CardSyncContextValue {
   progress: number;
   elapsedMs: number;
   etaMs: number | null;
-  start: (gameKey: string, lang: string, forceResync?: boolean) => void;
+  start: (
+    gameKey: string,
+    lang: string,
+    forceResync?: boolean,
+    concurrency?: number,
+  ) => void;
   isStarting: boolean;
   cancel: () => void;
   isCancelling: boolean;
@@ -68,25 +77,28 @@ export interface ImpersonationAuditDrawerProps {
   onOpenChange: (open: boolean) => void;
 }
 
+export interface PlatformDiscordChannelFieldsProps {
+  form: UseFormReturn<PlatformDiscordChannelsFormValues>;
+  channelKey: PlatformDiscordChannelKey;
+  guilds: PlatformDiscordGuildSummary[];
+  botReachable: boolean;
+}
+
+export interface PlatformStatsFieldsProps {
+  form: UseFormReturn<PlatformStatsFormValues>;
+}
+
+export interface AdminScriptCommandProps {
+  command: string;
+  description: string;
+}
+
 export interface DiscordGuildSelectProps {
   value: string | null;
-  guilds: PlatformStatsGuildSummary[];
+  guilds: PlatformDiscordGuildSummary[];
   emptyLabel: string;
   disabled?: boolean;
   onChange: (guildId: string | null) => void;
-}
-
-export interface AdminStatTile {
-  key: string;
-  label: string;
-  value: string | number | null | undefined;
-  detail?: string | null;
-}
-
-export interface AdminStatGroupProps {
-  heading: string;
-  tiles: AdminStatTile[];
-  live?: boolean;
 }
 
 export interface UnmatchedRetryResultProps {

@@ -1,8 +1,12 @@
+import type { BillingInterval, BusinessPrices } from "@magic-vault/shared";
+
 export interface BillingStatus {
   plan: "free" | "business";
   status: string | null;
   cancelAtPeriodEnd: boolean;
   currentPeriodEnd: string | null;
+  interval?: BillingInterval | null;
+  prices?: BusinessPrices;
   cardsScannedToday: number;
   dailyLimit: number | null;
   maxConnectedSorters?: number | null;

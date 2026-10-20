@@ -1,4 +1,13 @@
-import type { BinCondition, BinConfig, BinRuleGroup, BinSet, Collection, FieldMeta } from "@magic-vault/shared";
+import type {
+  AlphabetStep,
+  BinCondition,
+  BinConfig,
+  BinRuleGroup,
+  BinSet,
+  Collection,
+  FieldMeta,
+  RepackSlot,
+} from "@magic-vault/shared";
 
 export interface BinSaveInput {
   binNumber: number;
@@ -16,6 +25,29 @@ export interface BinSaveInput {
 }
 
 export type BinSetMode = "rules" | "repack" | "auto-assign" | "alphabet" | "chaos" | "scan-only";
+
+export type ModePicker = "matched" | "unmatched" | "field";
+
+export interface RepackConfigInput {
+  isRepackMode: boolean;
+  repackSlots: RepackSlot[];
+  repackUniqueBy: string | null;
+  repackSiftRules: BinRuleGroup | null;
+}
+
+export interface AlphabetConfigInput extends AlphabetStep {
+  isAlphabetMode: boolean;
+}
+
+export interface ChaosConfigInput {
+  isChaosMode: boolean;
+  chaosBinSize: number | null;
+}
+
+export interface AlphabetPassCardProps {
+  set: BinSet;
+  bins: BinConfig[];
+}
 
 export interface RuleGroupEditorProps {
   group: BinRuleGroup;

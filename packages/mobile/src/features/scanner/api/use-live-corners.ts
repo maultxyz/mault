@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { Platform } from "react-native";
 import type { CameraRef } from "react-native-vision-camera";
 import { detectCornersInImage } from "@/features/scanner/lib/inference";
-import { LIVE_DETECTION_INTERVAL_MS } from "@/lib/constants/scanner";
+import { LIVE_CORNERS_SUPPORTED, LIVE_DETECTION_INTERVAL_MS } from "@/lib/constants/scanner";
 import type { LiveCorners } from "@/lib/interfaces/scanner";
 
 export function useLiveCorners(
   cameraRef: RefObject<CameraRef | null>,
   active: boolean,
   paused: boolean,
+  onDetection?: (corners: LiveCorners | null) => void,
 ): LiveCorners | null {
   const [corners, setCorners] = useState<LiveCorners | null>(null);
   const busyRef = useRef(false);
   const pausedRef = useRef(paused);
   pausedRef.current = paused;
-  const supported = Platform.OS === "android";
+  const onDetectionRef = useRef(onDetection);
+  onDetectionRef.current = onDetection;
+  const supported = LIVE_CORNERS_SUPPORTED;
 
   useEffect(() => {
     if (!active || !supported) {
@@ -32,14 +34,17 @@ export function useLiveCorners(
           if (pausedRef.current) return;
           const detection = await detectCornersInImage(image, image.width, image.height);
           if (cancelled || pausedRef.current) return;
-          setCorners(
+          const next =
             detection.cardPresent && detection.contour
               ? { contour: detection.contour, frameWidth: image.width, frameHeight: image.height }
-              : null,
-          );
+              : null;
+          setCorners(next);
+          onDetectionRef.current?.(next);
         })
         .catch(() => {
-          if (!cancelled) setCorners(null);
+          if (cancelled) return;
+          setCorners(null);
+          onDetectionRef.current?.(null);
         })
         .finally(() => {
           busyRef.current = false;

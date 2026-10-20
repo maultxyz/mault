@@ -167,7 +167,9 @@ export function CollectionsProvider({
       if (r.success) {
         setCollections(
           collections.map((c) =>
-            c.guid === guid ? { ...c, cardCount: 0, updatedAt: new Date() } : c,
+            c.guid === guid
+              ? { ...c, cardCount: 0, previewImages: [], updatedAt: new Date() }
+              : c,
           ),
         );
       }

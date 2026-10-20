@@ -20,12 +20,20 @@ import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
+import { createOutlineAnimator } from "@/features/scanner/lib/outline-animator";
+import {
+  contourFingerprint,
+  fingerprintDistance,
+} from "@/features/scanner/lib/hand-scan";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
+import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
   embedCanvas,
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import {
+  HAND_SCAN_REARM_FINGERPRINT_DIFF,
+  HAND_SCAN_TRACKING_STATUSES,
   SCANNABLE_STATUSES,
   SCANNER_LIVE_DETECTION_INTERVAL_MS,
   LIVE_DETECTION_STATUSES,
@@ -60,6 +68,12 @@ import {
   OCR_REGIONS_BY_GAME_KEY,
   type CardContour,
   type CardScannerProps,
+  type CornerDetection,
+  HAND_SCAN_MAX_CORNER_SHIFT_RATIO,
+  HAND_SCAN_REARM_SHIFT_RATIO,
+  HAND_SCAN_REMOVAL_TICKS,
+  HAND_SCAN_STABLE_TICKS,
+  maxCornerShift,
   type CardSearchResult,
   type OcrDiagnostics,
   type PlayingCardWithDistance,
@@ -239,29 +253,35 @@ async function searchByCardText(
     OCR_CROP_WIDTH,
     OCR_CROP_HEIGHT,
   );
+  const crops = [uprightCrop];
   let ocr: OcrDiagnostics | null = null;
-  for (const option of [best, best.alternate]) {
-    if (!option?.embedding) continue;
-    const crop =
-      option.orientation === "rotated"
-        ? rotateCanvas180(uprightCrop)
-        : uprightCrop;
-    try {
-      const result = await searchByText(
-        buildSearchFormData(option.embedding, scope, await canvasToBlob(crop)),
-      );
-      ocr = result.ocr ?? ocr;
-      scanLog(
-        `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
-      );
-      if (hasMatch(result)) {
-        return { pick: { ...option, result, alternate: null }, ocr };
+  try {
+    for (const option of [best, best.alternate]) {
+      if (!option?.embedding) continue;
+      const crop =
+        option.orientation === "rotated"
+          ? rotateCanvas180(uprightCrop)
+          : uprightCrop;
+      crops.push(crop);
+      try {
+        const result = await searchByText(
+          buildSearchFormData(option.embedding, scope, await canvasToBlob(crop)),
+        );
+        ocr = result.ocr ?? ocr;
+        scanLog(
+          `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
+        );
+        if (hasMatch(result)) {
+          return { pick: { ...option, result, alternate: null }, ocr };
+        }
+      } catch (err) {
+        console.error("[scanner] text search failed:", err);
       }
-    } catch (err) {
-      console.error("[scanner] text search failed:", err);
     }
+    return { pick: null, ocr };
+  } finally {
+    releaseCanvases(crops);
   }
-  return { pick: null, ocr };
 }
 
 function buildImageSearchFormData(blob: Blob, scope: MatchScope): FormData {
@@ -328,6 +348,33 @@ async function searchCardImage(
   checkBothOrientations: boolean,
   colorBarRegion: ColorBarRegion | undefined,
 ): Promise<ScanAttemptOutcome> {
+  const created: HTMLCanvasElement[] = [];
+  try {
+    return await runCardImageSearch(
+      created,
+      canvas,
+      refreshFrame,
+      contour,
+      scope,
+      ocrEnabled,
+      checkBothOrientations,
+      colorBarRegion,
+    );
+  } finally {
+    releaseCanvases(created, [canvas]);
+  }
+}
+
+async function runCardImageSearch(
+  created: HTMLCanvasElement[],
+  canvas: HTMLCanvasElement,
+  refreshFrame: () => void,
+  contour: CardContour | null | undefined,
+  scope: MatchScope,
+  ocrEnabled: boolean | undefined,
+  checkBothOrientations: boolean,
+  colorBarRegion: ColorBarRegion | undefined,
+): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
   let detection: ScanDetectionDiagnostics = {
@@ -349,6 +396,7 @@ async function searchCardImage(
       fallbackReason: null,
     };
     if (dewarpedCanvas) {
+      created.push(dewarpedCanvas);
       const best = await searchBothOrientations(
         dewarpedCanvas,
         checkBothOrientations,
@@ -360,6 +408,8 @@ async function searchCardImage(
           return { result, embedding };
         },
       );
+      created.push(best.canvas);
+      if (best.alternate) created.push(best.alternate.canvas);
 
       scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
@@ -402,6 +452,7 @@ async function searchCardImage(
 
   scanLog(`[scanner] using fallback scan region (${fallbackReason})`);
   const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
+  created.push(warpedCanvas);
   const best = await searchBothOrientations(
     warpedCanvas,
     checkBothOrientations,
@@ -412,6 +463,8 @@ async function searchCardImage(
       return { result, embedding: result.diagnostics?.embedding ?? null };
     },
   );
+  created.push(best.canvas);
+  if (best.alternate) created.push(best.alternate.canvas);
 
   return toAttemptOutcome(best, collectionGuid, undefined, {
     detectedContour: null,
@@ -561,9 +614,11 @@ export function useCardScanner({
   onError,
   rotated = true,
   scanRegion: scanRegionProp,
+  autoCapture = false,
 }: Omit<CardScannerProps, "className"> & {
   rotated?: boolean;
   scanRegion?: ScanRegion;
+  autoCapture?: boolean;
 } = {}) {
   const { t } = useTranslation("scanner");
   const {
@@ -598,6 +653,16 @@ export function useCardScanner({
   const rotatedRef = useRef(rotated);
   rotatedRef.current = rotated;
 
+  const autoCaptureRef = useRef(autoCapture);
+  autoCaptureRef.current = autoCapture;
+  const handScanArmedRef = useRef(true);
+  const handScanStableTicksRef = useRef(0);
+  const handScanAbsentTicksRef = useRef(0);
+  const handScanLastContourRef = useRef<CardContour | null>(null);
+  const handScanCapturedContourRef = useRef<CardContour | null>(null);
+  const handScanCapturedFingerprintRef = useRef<Float32Array | null>(null);
+  const captureCardRef = useRef<() => void>(() => {});
+
   const scanRegion =
     scanRegionProp ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
   const scanRegionRef = useRef(scanRegion);
@@ -629,6 +694,9 @@ export function useCardScanner({
   const videoRef = useRef<HTMLVideoElement>(null);
   const displayCanvasRef = useRef<HTMLCanvasElement>(null);
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [outlineAnimator] = useState(() =>
+    createOutlineAnimator(() => overlayCanvasRef.current),
+  );
   const rafRef = useRef<number>(0);
 
   const statusRef = useRef<ScannerStatus>("initializing");
@@ -757,6 +825,7 @@ export function useCardScanner({
         debugImageUrlRef.current = debugImageUrl;
         vectorizedOnRef.current = vectorizedOn;
 
+        outlineAnimator.cancel();
         const overlayCtx = overlayCanvasRef.current?.getContext("2d");
         if (overlayCtx && canvas.width && canvas.height) {
           overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
@@ -810,7 +879,13 @@ export function useCardScanner({
         isCapturingRef.current = false;
       }
     },
-    [updateStatus, allowDuplicates, drawLatestVideoFrame, t],
+    [
+      updateStatus,
+      allowDuplicates,
+      drawLatestVideoFrame,
+      outlineAnimator,
+      t,
+    ],
   );
 
   const detectionLoop = useCallback(() => {
@@ -888,6 +963,7 @@ export function useCardScanner({
     return () => {
       cancelled = true;
       stopObservingResize();
+      outlineAnimator.cancel();
       cancelAnimationFrame(rafRef.current);
       rafRef.current = 0;
       if (settleTimeoutRef.current) {
@@ -897,7 +973,7 @@ export function useCardScanner({
       }
       video.srcObject = null;
     };
-  }, [stream, updateStatus, detectionLoop]);
+  }, [stream, updateStatus, detectionLoop, outlineAnimator]);
 
   // Continuous live-preview overlay showing what would be captured - purely
   // visual feedback, decoupled from when an actual capture/match fires
@@ -908,7 +984,7 @@ export function useCardScanner({
 
     const intervalId = setInterval(() => {
       if (liveDetectingRef.current || getOnnxRuntimeFailure()) return;
-      if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
+      if (!isTrackedStatus()) return;
 
       const canvas = displayCanvasRef.current;
       const overlayCanvas = overlayCanvasRef.current;
@@ -917,17 +993,12 @@ export function useCardScanner({
       liveDetectingRef.current = true;
       detectCardCorners(canvas)
         .then((detection) => {
+          if (!isTrackedStatus()) return;
+          if (autoCaptureRef.current) trackHandScan(detection, canvas);
           if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
-          const overlayCtx = overlayCanvas.getContext("2d");
-          if (!overlayCtx) return;
-          overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
-          if (detection.cardPresent && detection.contour) {
-            drawDetectionOverlay(overlayCtx, {
-              detected: true,
-              contour: detection.contour,
-              confidence: detection.confidence,
-            });
-          }
+          outlineAnimator.setTarget(
+            detection.cardPresent ? detection.contour : null,
+          );
         })
         .catch((err) => {
           if (!getOnnxRuntimeFailure()) {
@@ -939,8 +1010,82 @@ export function useCardScanner({
         });
     }, SCANNER_LIVE_DETECTION_INTERVAL_MS);
 
+    function isTrackedStatus() {
+      return autoCaptureRef.current
+        ? HAND_SCAN_TRACKING_STATUSES.includes(statusRef.current)
+        : LIVE_DETECTION_STATUSES.includes(statusRef.current);
+    }
+
+    function cardChangedSinceCapture(
+      contour: CardContour,
+      canvas: HTMLCanvasElement,
+    ) {
+      const capturedContour = handScanCapturedContourRef.current;
+      if (!capturedContour) return true;
+      const rearmShift =
+        Math.max(canvas.width, canvas.height) * HAND_SCAN_REARM_SHIFT_RATIO;
+      if (maxCornerShift(capturedContour, contour) > rearmShift) return true;
+      const capturedFingerprint = handScanCapturedFingerprintRef.current;
+      const fingerprint = contourFingerprint(canvas, contour);
+      return (
+        !!capturedFingerprint &&
+        !!fingerprint &&
+        fingerprintDistance(capturedFingerprint, fingerprint) >
+          HAND_SCAN_REARM_FINGERPRINT_DIFF
+      );
+    }
+
+    function trackHandScan(
+      detection: CornerDetection,
+      canvas: HTMLCanvasElement,
+    ) {
+      if (!detection.cardPresent || !detection.contour) {
+        handScanStableTicksRef.current = 0;
+        handScanLastContourRef.current = null;
+        handScanAbsentTicksRef.current++;
+        if (handScanAbsentTicksRef.current >= HAND_SCAN_REMOVAL_TICKS)
+          handScanArmedRef.current = true;
+        return;
+      }
+      handScanAbsentTicksRef.current = 0;
+      const previous = handScanLastContourRef.current;
+      handScanLastContourRef.current = detection.contour;
+      if (
+        !handScanArmedRef.current &&
+        SCANNABLE_STATUSES.includes(statusRef.current) &&
+        cardChangedSinceCapture(detection.contour, canvas)
+      ) {
+        handScanArmedRef.current = true;
+      }
+      if (
+        !handScanArmedRef.current ||
+        !SCANNABLE_STATUSES.includes(statusRef.current)
+      ) {
+        handScanStableTicksRef.current = 0;
+        return;
+      }
+      const maxShift =
+        Math.max(canvas.width, canvas.height) *
+        HAND_SCAN_MAX_CORNER_SHIFT_RATIO;
+      const isStill =
+        previous !== null &&
+        maxCornerShift(previous, detection.contour) <= maxShift;
+      handScanStableTicksRef.current = isStill
+        ? handScanStableTicksRef.current + 1
+        : 0;
+      if (handScanStableTicksRef.current < HAND_SCAN_STABLE_TICKS) return;
+      handScanStableTicksRef.current = 0;
+      handScanArmedRef.current = false;
+      handScanCapturedContourRef.current = detection.contour;
+      handScanCapturedFingerprintRef.current = contourFingerprint(
+        canvas,
+        detection.contour,
+      );
+      captureCardRef.current();
+    }
+
     return () => clearInterval(intervalId);
-  }, [stream]);
+  }, [stream, outlineAnimator]);
 
   const handleForceAddDuplicate = useCallback(() => {
     if (duplicateCard) {
@@ -987,6 +1132,7 @@ export function useCardScanner({
             scanRegionRef.current,
           );
 
+          outlineAnimator.cancel();
           const overlayCtx = overlayCanvas?.getContext("2d");
           if (overlayCanvas && overlayCtx) {
             overlayCtx.clearRect(
@@ -1024,7 +1170,7 @@ export function useCardScanner({
         img.src = dataUrl;
       });
     },
-    [],
+    [outlineAnimator],
   );
 
   const capturePhonePhotoThenSearch = useCallback(
@@ -1101,6 +1247,7 @@ export function useCardScanner({
       performCapture(true, contour, true);
     }, captureSettleDelayMsRef.current);
   }, [updateStatus, performCapture, cameraSource, capturePhonePhotoThenSearch]);
+  captureCardRef.current = captureCard;
 
   const handleSkipDuplicate = useCallback(() => {
     setDuplicateCard(null);

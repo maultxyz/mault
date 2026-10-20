@@ -10,3 +10,7 @@ export const PLAN_LIMIT_KEYS = [
 ] as const;
 
 export const PLAN_LIMIT_MAX = 1_000_000;
+
+export const BILLING_INTERVALS = ["month", "year"] as const;
+
+export const DEFAULT_BILLING_INTERVAL = "month";
