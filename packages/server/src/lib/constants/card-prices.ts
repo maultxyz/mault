@@ -21,6 +21,7 @@ export const CARD_PRICE_DETAIL_KEYS = [
 ] as const;
 
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
+export const CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES = 20;
 
 export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
   card: collectionCards.card,
