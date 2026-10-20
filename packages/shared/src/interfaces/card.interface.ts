@@ -73,8 +73,31 @@ export interface PlayingCardWithDistance extends PlayingCard {
   confidence?: number;
 }
 
+export interface PrintingScoreHit {
+  id: string;
+  name: string;
+  set: string;
+  collectorNumber: string;
+  image: PlayingCardImage | null;
+  distance: number;
+}
+
+export interface PrintingScoreResult {
+  success: true;
+  found: boolean;
+  distanceThreshold: number;
+  card: PrintingScoreHit | null;
+  nearest: PrintingScoreHit | null;
+}
+
 export interface CardSetOption {
   code: string;
   name: string;
   cardCount: number;
+}
+
+export interface SetPrintingOption {
+  id: string;
+  name: string;
+  collectorNumber: string;
 }

@@ -171,6 +171,30 @@
     "cameraFallbackLabel": "Kamera {{index}}",
     "heading": "Scanbereich"
   },
+  "cameraPrintingScore": {
+    "heading": "Hilfe zur Kamerakalibrierung",
+    "setLabel": "Set",
+    "cardLabel": "Karte",
+    "setPlaceholder": "Set wählen",
+    "cardPlaceholder": "Karte wählen",
+    "setsLoading": "Sets werden geladen…",
+    "cardsLoading": "Karten werden geladen…",
+    "noSets": "Keine passenden Sets.",
+    "noCards": "Keine passenden Karten.",
+    "rate": "Bewerten",
+    "rating": "Bewerte…",
+    "description": "Wähle das Set und dann die Karte auf dem Scanner, und bewerte ein Bild der Kamera. Niedriger liegt näher am gespeicherten Bild dieser Ausgabe. Unter {{threshold}} akzeptiert ein Scan die Karte. Ab {{threshold}} lehnt er sie ab. Die Zahl ist kein Prozentsatz und keine Zustandsnote, und sie kann sich zwischen den Versuchen ändern. Bewerten ändert die Kamera nicht und speichert nichts.",
+    "fieldsRequired": "Wähle ein Set und eine Karte.",
+    "noCollection": "Wähle zuerst eine Sammlung. Die Bewertung nutzt das Spiel dieser Sammlung.",
+    "noCamera": "Verbinde eine Kamera oder nimm ein Telefonfoto auf, bevor du bewertest.",
+    "notSynced": "Diese Ausgabe ist im synchronisierten Katalog für das Spiel dieser Sammlung nicht vorhanden. Synchronisiere das Set und bewerte danach erneut.",
+    "distanceLabel": "Abstand",
+    "wouldAccept": "Ein Scan würde dieses Bild akzeptieren.",
+    "wouldReject": "Ein Scan würde dieses Bild ablehnen.",
+    "nearestDifferent": "Die nächste Karte im Katalog ist {{name}} ({{set}} {{number}}) mit {{distance}}.",
+    "cardLine": "{{name}}, {{set}} {{number}}",
+    "failed": "Dieses Bild konnte nicht bewertet werden."
+  },
   "useCalibrationPage": {
     "toasts": {
       "notCalibrated": "Module nicht kalibriert",

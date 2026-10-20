@@ -171,6 +171,30 @@
     "cameraFallbackLabel": "Caméra {{index}}",
     "heading": "Zone de scan"
   },
+  "cameraPrintingScore": {
+    "heading": "Aide au calibrage de la caméra",
+    "setLabel": "Set",
+    "cardLabel": "Carte",
+    "setPlaceholder": "Choisir un set",
+    "cardPlaceholder": "Choisir une carte",
+    "setsLoading": "Chargement des sets…",
+    "cardsLoading": "Chargement des cartes…",
+    "noSets": "Aucun set correspondant.",
+    "noCards": "Aucune carte correspondante.",
+    "rate": "Noter",
+    "rating": "Notation…",
+    "description": "Choisis le set, puis la carte posée sur le scanner, et note une image de la caméra. Plus le nombre est bas, plus l'image est proche de la photo enregistrée de ce tirage. Sous {{threshold}}, un scan accepte la carte. À partir de {{threshold}}, il la refuse. Ce nombre n'est pas un pourcentage et n'est pas une note d'état, et il peut changer d'une pression à l'autre. Noter ne change pas la caméra et n'enregistre rien.",
+    "fieldsRequired": "Choisis un set et une carte.",
+    "noCollection": "Choisis une collection avant de noter. La note utilise le jeu de cette collection.",
+    "noCamera": "Connecte une caméra, ou prends une photo avec le téléphone, avant de noter.",
+    "notSynced": "Ce tirage n'est pas dans le catalogue synchronisé pour le jeu de cette collection. Synchronise le set, puis note à nouveau.",
+    "distanceLabel": "Distance",
+    "wouldAccept": "Un scan accepterait cette image.",
+    "wouldReject": "Un scan refuserait cette image.",
+    "nearestDifferent": "La carte la plus proche du catalogue est {{name}} ({{set}} {{number}}) à {{distance}}.",
+    "cardLine": "{{name}}, {{set}} {{number}}",
+    "failed": "Impossible de noter cette image."
+  },
   "useCalibrationPage": {
     "toasts": {
       "notCalibrated": "Modules non calibrés",

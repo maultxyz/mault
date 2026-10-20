@@ -171,6 +171,30 @@
     "cameraFallbackLabel": "Camera {{index}}",
     "heading": "Scan region"
   },
+  "cameraPrintingScore": {
+    "heading": "Camera Calibration Aid",
+    "setLabel": "Set",
+    "cardLabel": "Card",
+    "setPlaceholder": "Choose a set",
+    "cardPlaceholder": "Choose a card",
+    "setsLoading": "Loading sets…",
+    "cardsLoading": "Loading cards…",
+    "noSets": "No matching sets.",
+    "noCards": "No matching cards.",
+    "rate": "Score",
+    "rating": "Scoring…",
+    "description": "Choose the set, then the card on the scanner, and score one frame from the camera. Lower is closer to the stored picture of that printing. Under {{threshold}} a scan accepts the card. At {{threshold}} or higher it rejects it. The number is not a percentage and not a condition grade, and it can change between presses. Scoring does not change the camera and does not save anything.",
+    "fieldsRequired": "Choose a set and a card.",
+    "noCollection": "Choose a collection before scoring. The score uses that collection's game.",
+    "noCamera": "Connect a camera, or take a phone photo, before scoring.",
+    "notSynced": "That printing is not in the synced catalog for this collection's game. Sync the set, then score again.",
+    "distanceLabel": "Distance",
+    "wouldAccept": "A scan would accept this frame.",
+    "wouldReject": "A scan would reject this frame.",
+    "nearestDifferent": "The closest card in the catalog is {{name}} ({{set}} {{number}}) at {{distance}}.",
+    "cardLine": "{{name}}, {{set}} {{number}}",
+    "failed": "Could not score that frame."
+  },
   "useCalibrationPage": {
     "toasts": {
       "notCalibrated": "Modules not calibrated",
