@@ -7,6 +7,8 @@ export default function AppLayout() {
       <Stack.Screen name="collection/[guid]" />
       <Stack.Screen name="card/[scanId]" options={{ presentation: "modal" }} />
       <Stack.Screen name="rules/[binNumber]" />
+      <Stack.Screen name="rules/mode" />
+      <Stack.Screen name="rules/repack" />
       <Stack.Screen name="stats" />
       <Stack.Screen name="collection-new" options={{ presentation: "modal" }} />
       <Stack.Screen name="collection-rename" options={{ presentation: "modal" }} />

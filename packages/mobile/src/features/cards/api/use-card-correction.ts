@@ -47,6 +47,8 @@ export function useCardCorrection(guid: string): CardCorrection {
             fieldDefinitions: rules.fieldDefinitions,
             countInBin: () => 0,
             isBinFull: () => false,
+            binContents: [],
+            autoAssignActive: !!rules.activeSet?.autoAssignField,
           },
         ).bin?.binNumber;
 

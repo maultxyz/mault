@@ -299,10 +299,6 @@ export const router = createBrowserRouter([
                         element: <CollectionViewPage />,
                       },
                       {
-                        path: SORTING_RULES_PATH,
-                        element: <BinsPage />,
-                      },
-                      {
                         path: "/app/collections/:collectionGuid/bins",
                         element: <Navigate to={SORTING_RULES_PATH} replace />,
                       },
@@ -450,6 +446,15 @@ export const router = createBrowserRouter([
               {
                 path: MOBILE_SORTER_PATH,
                 element: <SorterPage />,
+              },
+              {
+                element: <RequireCollectionGuard />,
+                children: [
+                  {
+                    path: SORTING_RULES_PATH,
+                    element: <BinsPage />,
+                  },
+                ],
               },
               {
                 path: MOBILE_ACCOUNT_PATH,

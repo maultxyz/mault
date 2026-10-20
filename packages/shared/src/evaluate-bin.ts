@@ -98,6 +98,11 @@ function sameSet(a: string[], b: string[]): boolean {
   );
 }
 
+function itemCount(value: string | number | string[] | null): number {
+  if (Array.isArray(value)) return value.length;
+  return isNullish(value) ? 0 : 1;
+}
+
 function evaluateCondition(
   card: SourceCard,
   condition: BinCondition,
@@ -162,6 +167,15 @@ function evaluateCondition(
 
     case "contains_none":
       return bothLists && !valueList.some((v) => cardList.includes(v));
+
+    case "count_equals":
+      return itemCount(cardValue) === Number(value);
+
+    case "count_gt":
+      return itemCount(cardValue) > Number(value);
+
+    case "count_lt":
+      return itemCount(cardValue) < Number(value);
 
     default:
       return false;
@@ -741,4 +755,44 @@ export function evaluateAlphabetBin(
     }
   }
   return catchAll;
+}
+
+export function findAutoAssignTarget(
+  card: SourceCard,
+  configs: BinConfig[],
+  fieldDefinitions: FieldMeta[],
+  autoAssignField: string | null,
+  newId: () => string,
+): { binNumber: number; rules: BinRuleGroup } | null {
+  if (!autoAssignField) return null;
+  if (findLowMatchCatchAll(card, configs)) return null;
+  if (matchesCatchAllRules(card, configs, fieldDefinitions)) return null;
+
+  const matched = evaluateCardBin(card, configs, fieldDefinitions);
+  if (matched && !matched.isCatchAll) return null;
+
+  const nextOpen = configs
+    .filter(
+      (c) =>
+        !c.isCatchAll &&
+        !c.isDisabled &&
+        c.rules.conditions.length === 0 &&
+        !isOverflowTarget(configs, c.binNumber),
+    )
+    .sort((a, b) => a.binNumber - b.binNumber)[0];
+  if (!nextOpen) return null;
+
+  const value = getCardValue(card, autoAssignField, fieldDefinitions);
+  if (value === null || value === "" || (Array.isArray(value) && value.length === 0)) {
+    return null;
+  }
+
+  return {
+    binNumber: nextOpen.binNumber,
+    rules: {
+      id: newId(),
+      combinator: "and",
+      conditions: [{ id: newId(), field: autoAssignField, operator: "equals", value }],
+    },
+  };
 }

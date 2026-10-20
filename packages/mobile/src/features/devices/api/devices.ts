@@ -8,10 +8,12 @@ import {
   type FeederCalibration,
   type ModuleConfig,
   type Result,
+  type SorterLinkStatus,
 } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import { apiDelete, apiGet, apiPost, apiRequest, unwrap } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
+import { SORTER_LINKS_REFETCH_MS } from "@/lib/constants/sorter";
 import type { Device } from "@/lib/interfaces/devices";
 
 export const devicesQueryOptions = (orgId: string | null) =>
@@ -20,6 +22,14 @@ export const devicesQueryOptions = (orgId: string | null) =>
     queryFn: () => unwrap(apiGet<Result<Device[]>>("/api/devices")),
     enabled: !!orgId,
     staleTime: QUERY_STALE_MS,
+  });
+
+export const sorterLinksQueryOptions = (orgId: string | null, poll: boolean) =>
+  queryOptions({
+    queryKey: ["sorter-links", orgId] as const,
+    queryFn: () => unwrap(apiGet<Result<SorterLinkStatus[]>>("/api/devices/sorter-links")),
+    enabled: !!orgId,
+    refetchInterval: poll ? SORTER_LINKS_REFETCH_MS : false,
   });
 
 export const binRoutesQueryOptions = (deviceGuid: string | null) =>

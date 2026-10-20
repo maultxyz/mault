@@ -11,10 +11,13 @@ import IconHeartbeat from "@tabler/icons-react-native/IconHeartbeat";
 import IconDeviceDesktop from "@tabler/icons-react-native/IconDeviceDesktop";
 import IconDeviceMobile from "@tabler/icons-react-native/IconDeviceMobile";
 import IconArrowUp from "@tabler/icons-react-native/IconArrowUp";
+import IconArrowLeft from "@tabler/icons-react-native/IconArrowLeft";
+import IconArrowRight from "@tabler/icons-react-native/IconArrowRight";
 import IconUpload from "@tabler/icons-react-native/IconUpload";
 import IconPlayerStopFilled from "@tabler/icons-react-native/IconPlayerStopFilled";
 import IconMusic from "@tabler/icons-react-native/IconMusic";
 import IconBluetooth from "@tabler/icons-react-native/IconBluetooth";
+import IconWifi from "@tabler/icons-react-native/IconWifi";
 import IconBrandDiscord from "@tabler/icons-react-native/IconBrandDiscord";
 import IconBox from "@tabler/icons-react-native/IconBox";
 import IconBrackets from "@tabler/icons-react-native/IconBrackets";
@@ -71,10 +74,13 @@ export const ICONS = {
   desktop: IconDeviceDesktop,
   phone: IconDeviceMobile,
   arrowUp: IconArrowUp,
+  arrowLeft: IconArrowLeft,
+  arrowRight: IconArrowRight,
   upload: IconUpload,
   stop: IconPlayerStopFilled,
   music: IconMusic,
   bluetooth: IconBluetooth,
+  wifi: IconWifi,
   discord: IconBrandDiscord,
   camera: IconCamera,
   check: IconCheck,

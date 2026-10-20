@@ -47,6 +47,17 @@ export interface DiscoveredSorter {
   rssi: number | null;
 }
 
+export interface WifiSorter {
+  guid: string;
+  name: string;
+  online: boolean;
+  inUse: boolean;
+}
+
+export type CloudOpenResult =
+  | { ok: true; transport: ByteTransport }
+  | { ok: false; code: SorterErrorCode };
+
 export type SorterPhase =
   | "idle"
   | "scanning"
@@ -68,7 +79,9 @@ export type SorterErrorCode =
   | "sensor-blocked"
   | "connection-lost"
   | "heartbeat-lost"
-  | "setup-incomplete";
+  | "setup-incomplete"
+  | "sorter-offline"
+  | "sorter-in-use";
 
 export interface SorterError {
   code: SorterErrorCode;
@@ -110,6 +123,7 @@ export interface SorterContextValue {
   startDiscovery: () => void;
   stopDiscovery: () => void;
   connect: (id: string) => Promise<void>;
+  connectCloud: (deviceGuid: string) => Promise<void>;
   disconnect: () => Promise<void>;
   runSelfTest: () => Promise<boolean>;
   sendRequest: (command: object, timeoutMs?: number) => Promise<SerialRequestResult>;

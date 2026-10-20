@@ -1,5 +1,5 @@
 import type { ConfigContext, ExpoConfig } from "expo/config";
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const rootEnvPath = resolve(__dirname, "../../.env");
@@ -17,7 +17,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   name: "Mault",
   slug: "mault",
   scheme: "mault",
-  version: "1.0.0",
+  version: JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf-8")).version,
   orientation: "default",
   userInterfaceStyle: "automatic",
   icon: "./assets/icon.png",
@@ -68,6 +68,6 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     webUrl: env("MOBILE_WEB_URL", "https://mault.xyz"),
     authProvider: env("MOBILE_AUTH_PROVIDER", env("AUTH_PROVIDER", "neon")),
     neonAuthUrl: env("MOBILE_NEON_AUTH_URL", env("VITE_NEON_AUTH_URL")),
-    eas: { projectId: env("EAS_PROJECT_ID") || undefined },
+    eas: { projectId: env("EAS_PROJECT_ID", "07e4a782-1b6c-4707-80b6-38bf856bc0c4") },
   },
 });

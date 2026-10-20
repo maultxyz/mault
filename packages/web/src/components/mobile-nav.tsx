@@ -7,6 +7,7 @@ import {
   MOBILE_SCAN_PATH,
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
+import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STORAGE_PATH } from "@/lib/constants/storage";
 import type {
   MobileNavTabIconProps,
@@ -14,6 +15,7 @@ import type {
 } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import {
+  IconArrowsSplit2,
   IconBox,
   IconHome,
   IconScan,
@@ -64,7 +66,7 @@ export function MobileNav() {
   );
 
   return (
-    <nav className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t bg-background pb-[env(safe-area-inset-bottom)]">
+    <nav className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)]">
       <MobileNavTab
         to={MOBILE_HOME_PATH}
         icon={<IconHome size={22} />}
@@ -80,6 +82,12 @@ export function MobileNav() {
           pathname.startsWith(MOBILE_SCAN_PATH) ||
           pathname.startsWith(MOBILE_SORTER_PATH)
         }
+      />
+      <MobileNavTab
+        to={SORTING_RULES_PATH}
+        icon={<IconArrowsSplit2 size={22} />}
+        label={t("mobileTabs.rules")}
+        active={pathname.startsWith(SORTING_RULES_PATH)}
       />
       <MobileNavTab
         to={STORAGE_PATH}

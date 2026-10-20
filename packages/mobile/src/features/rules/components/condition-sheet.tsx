@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
+  COUNT_OPERATORS,
   isScanRuleField,
   type BinCondition,
   type ConditionOperator,
@@ -53,6 +54,7 @@ export function ConditionSheet({
   const shownFields = query ? fields.filter((f) => f.label.toLowerCase().includes(query)) : fields;
   const meta = draft ? fieldDefinitions.find((f) => f.field === draft.field) : undefined;
   const multi = draft ? isMultiValue(meta, draft.operator) : false;
+  const count = !!draft && COUNT_OPERATORS.includes(draft.operator);
   const options = meta && (meta.type === "enum" || meta.type === "set") ? (meta.options ?? null) : null;
   const freeform = !!draft && freeformOptions && !isScanRuleField(draft.field, fieldDefinitions);
   const sortedOptions = useMemo(() => (options ? [...options].sort((a, b) => a.label.localeCompare(b.label)) : []), [options]);
@@ -70,8 +72,11 @@ export function ConditionSheet({
 
   const chooseOperator = (operator: ConditionOperator) => {
     if (!draft) return;
-    const switchesShape = isMultiValue(meta, operator) !== multi;
-    if (switchesShape) setFreeformText("");
+    const switchesShape = isMultiValue(meta, operator) !== multi || COUNT_OPERATORS.includes(operator) !== count;
+    if (switchesShape) {
+      setFreeformText("");
+      setNumericText("");
+    }
     setDraft({ ...draft, operator, value: switchesShape ? defaultValueFor(meta, operator) : draft.value });
   };
 
@@ -86,7 +91,7 @@ export function ConditionSheet({
 
   const renderValue = () => {
     if (!draft || !meta || !needsValue(draft.operator)) return null;
-    if (options && freeform && multi) {
+    if (options && freeform && multi && !count) {
       return (
         <Input
           accessibilityLabel={meta.label}
@@ -105,7 +110,7 @@ export function ConditionSheet({
         />
       );
     }
-    if (options && !freeform) {
+    if (options && !freeform && !count) {
       return (
         <View style={{ marginHorizontal: -SPACING.sm }}>
           {sortedOptions.map((option) => (
@@ -119,7 +124,7 @@ export function ConditionSheet({
         </View>
       );
     }
-    if (meta.type === "numeric") {
+    if (meta.type === "numeric" || count) {
       return (
         <Input
           accessibilityLabel={meta.label}

@@ -4,6 +4,7 @@ import {
   SCAN_REGION_MASK_STROKE,
 } from "@/lib/constants/scanner";
 import type { CardContour, DetectionResult } from "@magic-vault/shared";
+import { releaseCanvases } from "./scan-canvas";
 
 export function extractCardImage(
   sourceCanvas: HTMLCanvasElement,
@@ -38,6 +39,7 @@ export function extractCardImage(
   outCtx.translate(outputWidth / 2, outputHeight / 2);
   outCtx.rotate(Math.PI / 2);
   outCtx.drawImage(cropCanvas, -cropW / 2, -cropH / 2);
+  releaseCanvases([cropCanvas]);
   return outputCanvas;
 }
 

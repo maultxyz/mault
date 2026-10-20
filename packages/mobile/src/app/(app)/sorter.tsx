@@ -13,6 +13,7 @@ import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { useSorter } from "@/features/sorter/api/use-sorter";
+import { useWifiSorters } from "@/features/sorter/api/use-wifi-sorters";
 import { CommLog } from "@/features/sorter/components/comm-log";
 import { useTheme } from "@/hooks/use-theme";
 import { BUSY_PHASES, PHASE_TONES } from "@/lib/constants/sorter";
@@ -25,6 +26,7 @@ export default function SorterScreen() {
   const [showLog, setShowLog] = useState(false);
   const busy = (BUSY_PHASES as readonly string[]).includes(sorter.phase);
   const connected = sorter.isConnected;
+  const wifiSorters = useWifiSorters(!connected);
 
   return (
     <Screen
@@ -160,6 +162,23 @@ export default function SorterScreen() {
               </ListGroup>
             )}
           </View>
+          {wifiSorters.length > 0 ? (
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("sorter.overWifi")} />
+              <ListGroup>
+                {wifiSorters.map((wifi) => (
+                  <ListRow
+                    key={wifi.guid}
+                    icon="wifi"
+                    title={wifi.name}
+                    subtitle={t(`sorter.wifiStatus.${!wifi.online ? "offline" : wifi.inUse ? "inUse" : "online"}`)}
+                    disabled={busy || !wifi.online || wifi.inUse}
+                    onPress={() => void sorter.connectCloud(wifi.guid)}
+                  />
+                ))}
+              </ListGroup>
+            </View>
+          ) : null}
         </>
       )}
 

@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/web",
-  "version": "1.0.163",
+  "version": "1.0.164",
   "private": true,
   "scripts": {
     "dev": "vite",
