@@ -182,6 +182,11 @@ export interface FlashEsp32Result {
 
 export type FirmwareFlashState = "idle" | "flashing" | "success" | "error";
 
+export interface FlashImagePart {
+  data: Uint8Array;
+  address: number;
+}
+
 export interface FlashProgressCallbacks {
   onLog: (line: string) => void;
   onClearLog: () => void;
