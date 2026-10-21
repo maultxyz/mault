@@ -148,6 +148,7 @@
     "pages": {
       "home": "Home",
       "build": "Build",
+      "selfHost": "Self-host",
       "discordBot": "Discord Bot",
       "shop": "Shop"
     },

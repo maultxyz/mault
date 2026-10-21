@@ -3,7 +3,7 @@ import { DiscordBotFeatures } from "@/features/discord-bot/components/features";
 import { DiscordBotFooter } from "@/features/discord-bot/components/footer";
 import { DiscordBotHero } from "@/features/discord-bot/components/hero";
 import { DiscordBotSetup } from "@/features/discord-bot/components/setup";
-import { PublicGlow } from "@/components/public-glow";
+import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { useTranslation } from "react-i18next";
@@ -18,13 +18,13 @@ export default function DiscordBotPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
-      <PublicGlow />
+      <BlueprintBackdrop />
       <PublicNav containerClassName="max-w-4xl" />
       <main className="flex-1">
         <DiscordBotHero />
-        <DiscordBotSetup />
-        <DiscordBotCommands />
-        <DiscordBotFeatures />
+        <DiscordBotSetup step="01" />
+        <DiscordBotCommands step="02" />
+        <DiscordBotFeatures step="03" />
       </main>
       <DiscordBotFooter />
     </div>

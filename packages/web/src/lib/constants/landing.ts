@@ -67,6 +67,20 @@ export const DEMO_BIN_DIAGRAM_MODULES = [
   { module: 3, left: 5, right: 6 },
 ];
 
+export const HERO_SORT_INTERVAL_MS = 2600;
+
+export const HERO_QUEUE_PREVIEW = 3;
+
+export const HERO_BIN_BASE_COUNTS: Record<number, number> = {
+  1: 41,
+  2: 57,
+  3: 23,
+  4: 66,
+  5: 18,
+  6: 4,
+  7: 12,
+};
+
 export const DEMO_REPACK_SLOTS = [
   { label: "Bin 1", note: "commons", done: 3, total: 3 },
   { label: "Bin 2", note: "uncommons", done: 1, total: 2 },
@@ -128,7 +142,7 @@ export const LANDING_FEATURE_GRID_CLASS =
   "mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-2 lg:grid-cols-6";
 
 export const LANDING_FEATURE_TILE_CLASS =
-  "flex flex-col gap-5 bg-card p-6 md:p-8";
+  "flex flex-col gap-4 bg-card p-5 md:p-6";
 
 export const LANDING_FEATURE_DEMO_CLASS =
-  "flex flex-1 items-center justify-center rounded-md bg-muted/40 p-4 ring-1 ring-foreground/5";
+  "flex flex-1 items-center justify-center rounded-md border bg-background bg-blueprint p-4";

@@ -11,6 +11,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://mault.xyz/self-host</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://mault.xyz/discord-bot</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

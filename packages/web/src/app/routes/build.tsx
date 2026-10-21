@@ -4,7 +4,7 @@ import { BuildFooter } from "@/features/build/components/footer";
 import { BuildHero } from "@/features/build/components/hero";
 import { BuildSetup } from "@/features/build/components/setup";
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
-import { PublicGlow } from "@/components/public-glow";
+import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
 import { PublicNav } from "@/components/public-nav";
 import { useScrollToHash } from "@/features/build/api/use-scroll-to-hash";
 import { usePageMeta } from "@/hooks/use-page-meta";
@@ -21,7 +21,7 @@ export default function BuildGuidePage() {
 
   return (
     <div className="relative flex min-h-screen flex-col bg-background text-foreground">
-      <PublicGlow />
+      <BlueprintBackdrop />
       <PublicAnnouncementBanner />
       <PublicNav containerClassName="max-w-4xl" />
       <main className="flex-1">

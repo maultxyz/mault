@@ -20,6 +20,7 @@ import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 
 const LandingPage = lazy(
   withNamespaces(
@@ -29,6 +30,9 @@ const LandingPage = lazy(
 );
 const BuildGuidePage = lazy(
   withNamespaces(() => import("@/app/routes/build"), ["common", "build"]),
+);
+const SelfHostPage = lazy(
+  withNamespaces(() => import("@/app/routes/self-host"), ["common", "selfhost"]),
 );
 const DiscordBotPage = lazy(
   withNamespaces(
@@ -210,6 +214,10 @@ export const router = createBrowserRouter([
       {
         path: "/build",
         element: <BuildGuidePage />,
+      },
+      {
+        path: SELF_HOST_PATH,
+        element: <SelfHostPage />,
       },
       {
         path: "/discord-bot",

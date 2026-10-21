@@ -34,7 +34,8 @@
         "title": "Choisir tes salons",
         "description": "De retour dans Paramètres > Discord, choisis où publier les scans et les alertes, par collection si tu veux, et ajoute des règles pour décider quelles cartes vont où."
       }
-    ]
+    ],
+    "eyebrow": "Configuration"
   },
   "commands": {
     "title": "Commandes",
@@ -60,7 +61,8 @@
         "usage": "/leaderboard",
         "description": "Affiche les organisations qui ont scanné le plus de cartes avec Mault, la même liste que le classement dans Statistiques."
       }
-    }
+    },
+    "eyebrow": "Commandes"
   },
   "features": {
     "title": "Ce qui est publié",
@@ -82,7 +84,8 @@
         "title": "Présence en direct",
         "description": "Le statut du bot défile parmi les jeux pris en charge par ton instance Mault, pour montrer clairement qu'il est en ligne et connecté."
       }
-    ]
+    ],
+    "eyebrow": "Fonctionnalités"
   },
   "footer": {
     "reportIssue": "Signaler un problème",

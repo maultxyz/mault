@@ -294,6 +294,21 @@ code {
   }
 }
 
+@keyframes hero-scan-sweep {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  15%,
+  85% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
 @keyframes wrapped-progress {
   from {
     transform: scaleX(0);
@@ -356,6 +371,21 @@ code {
 
 .animate-marquee {
   animation: marquee var(--marquee-duration, 40s) linear infinite;
+}
+
+.bg-blueprint {
+  background-image:
+    linear-gradient(
+      to right,
+      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 40px 40px;
 }
 
 .bg-foil-sheen {

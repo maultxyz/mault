@@ -7,8 +7,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
 import { BomGroupTable } from "@/features/build/components/bom-group-table";
+import { BuildSectionHeader } from "@/features/build/components/section-header";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
@@ -49,21 +49,22 @@ export function BuildBom() {
   const channelsUsed = moduleCount * 3 + 1;
 
   return (
-    <section id="parts" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-8">
-      <div className="group/anchor flex items-center gap-1">
-        <h2 className="font-heading text-xl font-semibold tracking-tight md:text-2xl">
-          {t("bom.heading")}
-        </h2>
-        <AnchorLinkButton id="parts" />
-      </div>
-      <p className="mt-1.5 max-w-2xl text-sm/relaxed text-foreground/70">
-        {t("bom.description", {
-          modules: moduleCount,
-          irSensors: moduleCount + 1,
-          channelsUsed,
-          channelsFree: 16 - channelsUsed,
-        })}
-      </p>
+    <section id="parts" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-10">
+      <BuildSectionHeader
+        id="parts"
+        step="02"
+        eyebrow={t("hero.nav.parts")}
+        heading={t("bom.heading")}
+      >
+        <p className="text-sm/relaxed text-foreground/70">
+          {t("bom.description", {
+            modules: moduleCount,
+            irSensors: moduleCount + 1,
+            channelsUsed,
+            channelsFree: 16 - channelsUsed,
+          })}
+        </p>
+      </BuildSectionHeader>
       <BuildSelectionSummary />
       <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm/relaxed text-primary">
         <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
@@ -85,7 +86,7 @@ export function BuildBom() {
       </div>
 
       <div className="mt-4">
-        <div className="mb-1 flex items-center justify-between font-mono text-sm text-foreground/70">
+        <div className="mb-1.5 flex items-center justify-between font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase tabular-nums">
           <span>
             {t("bom.progress.partsCount", {
               done: doneCount,
@@ -94,7 +95,7 @@ export function BuildBom() {
           </span>
           <span>{pct}%</span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-secondary/50">
+        <div className="h-1 overflow-hidden rounded-full bg-border">
           <div
             className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
             style={{ width: `${pct}%` }}
