@@ -117,7 +117,8 @@
           },
           "sg90Positional": {
             "part": "SG90 micro servo, positional (180°)",
-            "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher"
+            "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher",
+            "alert": "Buy digital SG90s. Analog SG90s, and Tower Pro servos in particular, don't hold their calibrated positions reliably in this sorter."
           },
           "mg90sContinuous": {
             "part": "MG90S servo, 360° continuous rotation",

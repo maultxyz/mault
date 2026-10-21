@@ -117,7 +117,8 @@
           },
           "sg90Positional": {
             "part": "Micro servo SG90, positionnel (180°)",
-            "notes": "3 par module × {{count}} modules - trappe inférieure, porte à palette, poussoir"
+            "notes": "3 par module × {{count}} modules - trappe inférieure, porte à palette, poussoir",
+            "alert": "Achète des SG90 numériques. Les SG90 analogiques, et en particulier les servos Tower Pro, ne tiennent pas leurs positions calibrées de façon fiable dans ce trieur."
           },
           "mg90sContinuous": {
             "part": "Servo MG90S, rotation continue 360°",

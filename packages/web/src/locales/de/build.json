@@ -117,7 +117,8 @@
           },
           "sg90Positional": {
             "part": "SG90 Mikroservo, positionierend (180°)",
-            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber"
+            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber",
+            "alert": "Kaufe digitale SG90. Analoge SG90 und besonders Servos von Tower Pro halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
           },
           "mg90sContinuous": {
             "part": "MG90S-Servo, 360° Dauerdrehung",
