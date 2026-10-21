@@ -86,7 +86,7 @@
     "healthChecking": "Vérification de l’état des services…"
   },
   "appVersion": {
-    "outdatedBanner": "Une nouvelle version de Magic Vault est disponible.",
+    "outdatedBanner": "Une nouvelle version de Mault est disponible.",
     "refreshButton": "Actualiser"
   },
   "impersonation": {

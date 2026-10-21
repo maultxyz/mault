@@ -40,7 +40,16 @@ function createChecklistStore(storageKey: string): ChecklistStore {
     listeners.forEach((listener) => listener());
   };
 
-  return { subscribe, getSnapshot, toggle };
+  const check = (keys: readonly string[]) => {
+    const current = getSnapshot();
+    state = { ...current, ...Object.fromEntries(keys.map((key) => [key, true])) };
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(state));
+    } catch {}
+    listeners.forEach((listener) => listener());
+  };
+
+  return { subscribe, getSnapshot, toggle, check };
 }
 
 export const buildChecklistStore = createChecklistStore(

@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ApiKeysManager } from "@/features/account/components/api-keys-manager";
 import { ChangeEmailForm } from "@/features/account/components/change-email-form";
+import { DiscordAccountLink } from "@/features/account/components/discord-account-link";
 import { ChangePasswordForm } from "@/features/account/components/change-password-form";
 import { SessionsList } from "@/features/account/components/sessions-list";
 import { UpdateNameForm } from "@/features/account/components/update-name-form";
@@ -96,6 +97,13 @@ export default function AccountPage() {
                 </SettingsSection>
               </>
             )}
+
+            <SettingsSection
+              heading={t("discord.heading")}
+              description={t("discord.description")}
+            >
+              <DiscordAccountLink />
+            </SettingsSection>
 
             {!isMobile && (
               <SettingsSection
