@@ -80,7 +80,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         void sendDiscordNotification(
           orgId,
           {
-            title: "Magic Vault — Card Search Error",
+            title: "Mault — Card Search Error",
             description:
               "A database error occurred while searching for a card.",
             color: 0xed4245,

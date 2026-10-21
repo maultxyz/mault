@@ -6,12 +6,12 @@
   "hero": {
     "eyebrow": "Intégration Discord",
     "title": "Amène ton trieur de cartes dans Discord",
-    "description": "Le bot Discord de Magic Vault publie un message pour chaque carte triée, alerte ton serveur en cas de problème et répond à /stats à la demande - plus besoin de garder la page de suivi ouverte pour savoir ce qui se passe.",
+    "description": "Le bot Discord de Mault publie un message pour chaque carte triée, alerte ton serveur en cas de problème et répond à /stats à la demande - plus besoin de garder la page de suivi ouverte pour savoir ce qui se passe.",
     "addToDiscord": "Ajouter à Discord",
     "getStarted": "Commencer",
     "openSettings": "Ouvrir les paramètres",
     "seeSetup": "Voir les étapes de configuration",
-    "selfHostedNote": "Le bot tourne comme son propre processus (packages/bot) à côté du reste de Magic Vault - consulte le README pour les variables d'environnement nécessaires si tu t'auto-héberges."
+    "selfHostedNote": "Le bot tourne comme son propre processus (packages/bot) à côté du reste de Mault - consulte le README pour les variables d'environnement nécessaires si tu t'auto-héberges."
   },
   "setup": {
     "title": "Relie un serveur en moins d'une minute",
@@ -20,11 +20,11 @@
     "steps": [
       {
         "title": "Ajouter le bot",
-        "description": "Ajoute le bot Magic Vault à ton serveur Discord - nécessite la permission Gérer le serveur."
+        "description": "Ajoute le bot Mault à ton serveur Discord - nécessite la permission Gérer le serveur."
       },
       {
         "title": "Générer un code",
-        "description": "Dans Magic Vault, ouvre Paramètres > Discord et génère un code de liaison. Il n'est valable que quelques minutes."
+        "description": "Dans Mault, ouvre Paramètres > Discord et génère un code de liaison. Il n'est valable que quelques minutes."
       },
       {
         "title": "Exécuter /link",
@@ -38,15 +38,27 @@
   },
   "commands": {
     "title": "Commandes",
-    "description": "Le bot n'a besoin que de deux commandes. Tout le reste se configure dans l'application.",
+    "description": "Lie un serveur et ton propre compte, puis consulte les statistiques ou montre ta collection. Tout le reste se règle dans l'application.",
     "items": {
       "link": {
         "usage": "/link <code>",
-        "description": "Relie ce serveur Discord à une organisation Magic Vault."
+        "description": "Relie ce serveur Discord à une organisation Mault."
       },
       "stats": {
         "usage": "/stats [collection]",
         "description": "Affiche les statistiques de collection de cette organisation, éventuellement limitées à une collection."
+      },
+      "linkAccount": {
+        "usage": "/link-account <code>",
+        "description": "Lie ton compte Discord à ton compte Mault, avec le code de Compte > Compte Discord."
+      },
+      "showoff": {
+        "usage": "/showoff",
+        "description": "Publie la valeur totale de ta collection et ta carte la plus chère. Nécessite un compte lié."
+      },
+      "leaderboard": {
+        "usage": "/leaderboard",
+        "description": "Affiche les organisations qui ont scanné le plus de cartes avec Mault, la même liste que le classement dans Statistiques."
       }
     }
   },
@@ -68,7 +80,7 @@
       },
       {
         "title": "Présence en direct",
-        "description": "Le statut du bot défile parmi les jeux pris en charge par ton instance Magic Vault, pour montrer clairement qu'il est en ligne et connecté."
+        "description": "Le statut du bot défile parmi les jeux pris en charge par ton instance Mault, pour montrer clairement qu'il est en ligne et connecté."
       }
     ]
   },

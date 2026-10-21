@@ -73,6 +73,7 @@ export function buildPhases(
       steps: [
         {
           key: "print-sorting-module",
+          modelParts: ["sortingModule"],
           text: (
             <Trans
               t={t}
@@ -101,15 +102,22 @@ export function buildPhases(
         },
         {
           key: "print-feeder-module",
+          modelParts: ["feederModule"],
           text: t("assembly.phases.print.steps.printFeederModule.text"),
           note: t("assembly.phases.print.steps.printFeederModule.mg90Note"),
         },
         {
           key: "print-sorting-module-shroud",
+          modelParts: ["shroud"],
           text: t("assembly.phases.print.steps.printSortingModuleShroud.text"),
         },
         {
           key: "print-plate-base",
+          modelParts: [
+            "baseSupportTall",
+            "baseSupportShort",
+            ...(breakoutSupportHeight ? (["baseSupportBreakout"] as const) : []),
+          ],
           text: breakoutSupportHeight
             ? t("assembly.phases.print.steps.printPlateBase.breakoutText", {
                 modules: moduleCount,
@@ -133,6 +141,7 @@ export function buildPhases(
         },
         {
           key: "print-plate-base-bottom",
+          modelParts: ["circuitBoardPlate"],
           text: t(
             isEsp32Breakout
               ? "assembly.phases.print.steps.printPlateBaseBottom.esp32Breakout"
@@ -141,14 +150,17 @@ export function buildPhases(
         },
         {
           key: "print-servo-controller-plate",
+          modelParts: ["servoControllerPlate"],
           text: t("assembly.phases.print.steps.printServoControllerPlate.text"),
         },
         {
           key: "print-end-plate",
+          modelParts: ["endPlate"],
           text: t("assembly.phases.print.steps.printEndBottom.text"),
         },
         {
           key: "print-generic-base",
+          modelParts: ["genericPlate"],
           text: t("assembly.phases.print.steps.printGenericBase.text", {
             modules: moduleCount,
             count: genericBase,
@@ -156,6 +168,7 @@ export function buildPhases(
         },
         {
           key: "print-bins-plate",
+          modelParts: ["binsPlate"],
           text: t("assembly.phases.print.steps.printBinsPlate.text"),
           note:
             moduleCount > 3
@@ -164,6 +177,7 @@ export function buildPhases(
         },
         {
           key: "print-end-bin-plate",
+          modelParts: ["endBinPlate"],
           text: t("assembly.phases.print.steps.printEndBinPlate.text"),
         },
         {

@@ -6,10 +6,12 @@ export function NewBoardFlashDialog({
   open,
   onOpenChange,
   onConnect,
+  onFlashed,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onConnect?: () => void;
+  onFlashed?: () => void;
 }) {
   const { t } = useTranslation("scanner");
   const { isFlashing, flashProgress, flashLog, flashNewBoard } =
@@ -37,7 +39,11 @@ export function NewBoardFlashDialog({
       isFlashing={isFlashing}
       flashProgress={flashProgress}
       flashLog={flashLog}
-      onStart={flashNewBoard}
+      onStart={async () => {
+        const result = await flashNewBoard();
+        if (result?.success) onFlashed?.();
+        return result;
+      }}
     />
   );
 }

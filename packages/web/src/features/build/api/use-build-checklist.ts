@@ -9,5 +9,9 @@ export function useBuildChecklist() {
     () => EMPTY_CHECKLIST,
   );
 
-  return { checked, toggle: buildChecklistStore.toggle };
+  return {
+    checked,
+    toggle: buildChecklistStore.toggle,
+    check: buildChecklistStore.check,
+  };
 }
