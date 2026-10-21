@@ -26,11 +26,9 @@ export interface DemoScannedCard {
   isFoil?: boolean;
 }
 
-export interface LandingSectionHeaderProps {
-  eyebrow: string;
-  heading: string;
-  subtitle: string;
-  centered?: boolean;
+export interface HeroStationLabelProps {
+  step: string;
+  label: string;
 }
 
 export interface LandingFeatureHighlight {

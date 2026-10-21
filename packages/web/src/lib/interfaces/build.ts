@@ -96,13 +96,12 @@ export interface BuildSetupValue extends BuildSetupState {
   updateSetup: (patch: Partial<BuildSetupState>) => void;
 }
 
-export interface BuildOptionCardProps {
-  icon: Icon;
-  title: string;
-  description: string;
-  selected: boolean;
-  disabled?: boolean;
-  onSelect: () => void;
+export interface BuildSectionHeaderProps {
+  id: string;
+  step: string;
+  eyebrow: string;
+  heading: string;
+  children?: ReactNode;
 }
 
 export interface BuildSetupStepProps {

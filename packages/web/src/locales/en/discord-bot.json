@@ -34,7 +34,8 @@
         "title": "Pick your channels",
         "description": "Back in Settings > Discord, choose where scans and alerts get posted, per collection if you like, and add rules for which cards go where."
       }
-    ]
+    ],
+    "eyebrow": "Setup"
   },
   "commands": {
     "title": "Commands",
@@ -60,7 +61,8 @@
         "usage": "/leaderboard",
         "description": "Show the organizations that have scanned the most cards with Mault, the same list as the leaderboard in Stats."
       }
-    }
+    },
+    "eyebrow": "Commands"
   },
   "features": {
     "title": "What gets posted",
@@ -82,7 +84,8 @@
         "title": "Live presence",
         "description": "The bot's status cycles through the games your Mault instance supports, so it's obviously online and connected."
       }
-    ]
+    ],
+    "eyebrow": "Features"
   },
   "footer": {
     "reportIssue": "Report an issue",

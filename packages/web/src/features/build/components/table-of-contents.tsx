@@ -34,14 +34,14 @@ function BuildTocList({ entries, onNavigate }: BuildTocListProps) {
               )}
             >
               {entry.number !== undefined && (
-                <span className="grid size-6 shrink-0 place-items-center rounded-md bg-muted font-mono text-sm text-foreground">
-                  {entry.number}
+                <span className="w-6 shrink-0 font-heading text-xs font-semibold text-primary tabular-nums">
+                  {String(entry.number).padStart(2, "0")}
                 </span>
               )}
               <span className="min-w-0 flex-1 truncate">{entry.label}</span>
               {hasProgress && (
                 <span className="flex shrink-0 items-center gap-2">
-                  <span className="font-mono text-sm text-foreground/70 tabular-nums">
+                  <span className="font-heading text-xs text-foreground/70 tabular-nums">
                     {entry.done}/{entry.total}
                   </span>
                   {complete ? (
@@ -87,9 +87,11 @@ export function BuildTableOfContents() {
       <nav
         ref={inlineRef}
         aria-label={t("toc.label")}
-        className="mt-5 max-w-2xl rounded-lg border bg-card p-1.5 dark:border-foreground/15"
+        className="mt-8 max-w-2xl rounded-lg border bg-card p-1.5 dark:border-foreground/15"
       >
-        <p className="px-2 pt-0.5 pb-1 text-sm font-semibold">{t("toc.label")}</p>
+        <p className="mb-1 border-b px-2 pt-1 pb-2 font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase">
+          {t("toc.label")}
+        </p>
         <BuildTocList entries={entries} />
       </nav>
       {!inlineVisible && (

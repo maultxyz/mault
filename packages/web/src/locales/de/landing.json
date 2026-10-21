@@ -18,11 +18,28 @@
   },
   "hero": {
     "title": "Jede Karte,<br></br><highlight>schön dort, wo sie hingehört.</highlight>",
-    "subtitle": "Lade deine Karten in den Trichter, und Mault übernimmt den Rest - die Zuführung schiebt jede Karte an der Kamera vorbei zur Erkennung und sortiert sie danach in Fächer, ganz nach den Regeln, die du selbst festlegst: Seltenheit, Farbe, Set, Typ oder was du sonst magst. Keine Tabellen, kein Rätselraten.",
     "seeFeatures": "Funktionen ansehen",
-    "currentSession": "Aktuelle Sitzung",
-    "cardCount_one": "{{count}} Karte",
-    "cardCount_other": "{{count}} Karten"
+    "liveSort": "Live-Sortierung",
+    "sortedCount_one": "{{count}} Karte sortiert",
+    "sortedCount_other": "{{count}} Karten sortiert",
+    "nextUp": "Als Nächstes",
+    "match": "Treffer",
+    "foil": "Foil",
+    "stations": {
+      "hopper": "Trichter",
+      "camera": "Kamera",
+      "bins": "Fächer"
+    },
+    "binRules": {
+      "1": "Blaue Commons",
+      "2": "Rot unter 5 $",
+      "3": "Blaue Uncommons",
+      "4": "Grün",
+      "5": "Farblos",
+      "6": "Über 20 $"
+    },
+    "eyebrow": "Open-Source-Kartensortierer",
+    "tagline": "Scannen / Sortieren / Erfassen"
   },
   "stats": {
     "items": {
@@ -203,7 +220,8 @@
   },
   "cta": {
     "heading": "Lass uns deine Karten sortieren.",
-    "subtitle": "Richte deine erste Sammlung in ein paar Minuten ein und lass Mault ab da für Ordnung sorgen."
+    "subtitle": "Richte deine erste Sammlung in ein paar Minuten ein und lass Mault ab da für Ordnung sorgen.",
+    "eyebrow": "Bereit, wenn du es bist"
   },
   "getStartedFree": "Kostenlos starten"
 }
