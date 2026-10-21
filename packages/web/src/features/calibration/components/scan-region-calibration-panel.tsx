@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
+import { CameraPrintingScore } from "@/features/calibration/components/camera-printing-score";
 import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
 import {
   contourToBox,
@@ -300,6 +301,13 @@ export function ScanRegionCalibrationPanel({
                 : t("scanRegionCalibrationPanel.usePhoneAsCamera")}
             </Button>
           </div>
+
+          <CameraPrintingScore
+            canvasRef={canvasRef}
+            region={region}
+            checkBothOrientations={checkBothOrientations}
+            canCapture={isCameraActive || !!phonePhotoUrl}
+          />
 
           {cameraSource === "local" && cameras.length > 0 && (
             <div className="flex flex-col gap-1.5">

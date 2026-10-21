@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import type {
   BinHeight,
   BinRoute,
@@ -457,6 +457,14 @@ export interface ScanRegionCalibrationPanelProps {
   onCaptureSettleChange: (value: number) => void;
   onMatchesNeededChange: (value: number) => void;
   onCheckBothOrientationsChange: (value: boolean) => void;
+}
+
+export interface CameraPrintingScoreProps {
+  canvasRef: RefObject<HTMLCanvasElement | null>;
+  region: ScanRegion;
+  checkBothOrientations: boolean;
+  canCapture: boolean;
+  className?: string;
 }
 
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
