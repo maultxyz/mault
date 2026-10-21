@@ -715,6 +715,14 @@ export interface UnmatchedCardsPanelProps {
   onOpen?: (card: UnmatchedCard) => void;
 }
 
+export interface UnmatchedCardsGridDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  cards: UnmatchedCard[];
+  onRemove?: (scanId: string) => void;
+  onIdentify?: (card: UnmatchedCard) => void;
+}
+
 export interface MobileUnmatchedCardDrawerProps {
   entry: UnmatchedCard | null;
   collectionGuid: string;
