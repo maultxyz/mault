@@ -1,3 +1,4 @@
+import { MarketingRule } from "@/components/marketing-rule";
 import { buttonVariants } from "@/components/ui/button";
 import { neon } from "@/lib/auth/client";
 import { DISCORD_BOT_INSTALL_URL } from "@/lib/constants/links";
@@ -13,18 +14,16 @@ export function DiscordBotHero() {
   const isSignedIn = !isPending && !!data?.user;
 
   return (
-    <section className="mx-auto max-w-4xl px-4 pt-12 pb-16">
-      <p className="text-sm font-semibold text-primary">
-        {t("hero.eyebrow")}
-      </p>
-      <h1 className="mt-4 font-heading text-3xl font-semibold tracking-tight text-balance md:text-4xl lg:text-5xl">
+    <section className="mx-auto max-w-4xl px-4 pt-10 pb-16 md:pt-14">
+      <MarketingRule lead="Mault" label={t("hero.eyebrow")} />
+      <h1 className="mt-6 font-heading text-4xl leading-[0.95] font-semibold tracking-tight text-balance md:text-5xl">
         {t("hero.title")}
       </h1>
       <p className="mt-4 max-w-2xl text-sm/relaxed text-foreground/70 md:text-base/relaxed">
         {t("hero.description")}
       </p>
 
-      <div className="mt-6 flex flex-wrap gap-3">
+      <div className="mt-8 flex flex-wrap gap-3">
         <a
           href={DISCORD_BOT_INSTALL_URL}
           target="_blank"
@@ -51,7 +50,7 @@ export function DiscordBotHero() {
         </a>
       </div>
 
-      <p className="mt-5 max-w-2xl text-sm/relaxed text-foreground/70">
+      <p className="mt-6 max-w-2xl border-l pl-4 text-xs/relaxed text-foreground/70">
         {t("hero.selfHostedNote")}
       </p>
     </section>

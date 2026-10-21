@@ -182,6 +182,11 @@ export interface FlashEsp32Result {
 
 export type FirmwareFlashState = "idle" | "flashing" | "success" | "error";
 
+export interface FlashImagePart {
+  data: Uint8Array;
+  address: number;
+}
+
 export interface FlashProgressCallbacks {
   onLog: (line: string) => void;
   onClearLog: () => void;
@@ -713,6 +718,14 @@ export interface UnmatchedCardsPanelProps {
   onRemove?: (scanId: string) => void;
   onIdentify?: (card: UnmatchedCard) => void;
   onOpen?: (card: UnmatchedCard) => void;
+}
+
+export interface UnmatchedCardsGridDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  cards: UnmatchedCard[];
+  onRemove?: (scanId: string) => void;
+  onIdentify?: (card: UnmatchedCard) => void;
 }
 
 export interface MobileUnmatchedCardDrawerProps {

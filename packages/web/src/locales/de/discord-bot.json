@@ -34,7 +34,8 @@
         "title": "Kanäle wählen",
         "description": "Lege unter Einstellungen > Discord fest, wohin Scans und Warnungen gepostet werden, auf Wunsch pro Sammlung, und füge Regeln hinzu, welche Karten wohin gehen."
       }
-    ]
+    ],
+    "eyebrow": "Einrichtung"
   },
   "commands": {
     "title": "Befehle",
@@ -60,7 +61,8 @@
         "usage": "/leaderboard",
         "description": "Zeigt die Organisationen, die mit Mault die meisten Karten gescannt haben, dieselbe Liste wie die Bestenliste unter Statistiken."
       }
-    }
+    },
+    "eyebrow": "Befehle"
   },
   "features": {
     "title": "Was gepostet wird",
@@ -82,7 +84,8 @@
         "title": "Live-Präsenz",
         "description": "Der Status des Bots wechselt durch die Spiele, die deine Mault-Instanz unterstützt, sodass klar ist, dass er online und verbunden ist."
       }
-    ]
+    ],
+    "eyebrow": "Funktionen"
   },
   "footer": {
     "reportIssue": "Problem melden",

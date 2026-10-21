@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { BUILD_OPTIONAL_BADGE_CLASS } from "@/lib/constants/build";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { AnchorLinkButton } from "@/components/guide/anchor-link-button";
 import { bomGroupAnchorId } from "@/features/build/lib/anchors";
 import {
   resolveRowBuyUrl,
