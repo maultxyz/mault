@@ -87,7 +87,7 @@ scripts/       Release and version helpers
 The app needs Postgres with pgvector and an identity provider. Pick one with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
 - **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough for a personal deployment.
-- **`local`**: fully self-hosted and offline-capable. `docker-compose.yml` runs Postgres, the API, the web app, price sync and the API docs.
+- **`local`**: fully self-hosted and offline-capable. `docker-compose.yml` runs Postgres, the API, the web app and the API docs; price sync runs from cron (see [Prices](#prices)).
 
 Both read one root `.env` (Vite reads it from the repo root too):
 
@@ -155,11 +155,17 @@ These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before sh
 
 ## Prices
 
-`packages/server/scripts/sync-prices.ts` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed upstream. In the self-hosted stack the `prices` container runs it every `PRICE_SYNC_INTERVAL_HOURS` (default 6, `0` disables it, failures retry after `PRICE_SYNC_RETRY_MINUTES`). Hosted deployments run it from an external scheduler.
+`packages/server/scripts/sync-prices.ts` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed upstream. Nothing runs it automatically: schedule it with cron (or any scheduler) on the host. It's built into the server image, so with Docker Compose run it inside the `server` container. Add this with `crontab -e`, replacing `/opt/mault` with the folder holding `docker-compose.yml`:
+
+```cron
+0 */6 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1
+```
+
+The `sh -c` wrapper points local mode at the stack's own Postgres, the same way the server's start-up command does. Every six hours is enough: runs that find nothing new upstream download nothing, and a failed run is simply retried by the next one. Outside Docker, run `pnpm --filter @magic-vault/server build` once and schedule `node packages/server/dist/scripts/sync-prices.js` from the repo root with the same `.env` values in its environment.
 
 tcgcsv publishes once a day and blocks clients that poll it harder, so the TCGplayer step makes no requests at all within 20 hours of its last successful pull, then checks `last-updated.txt` before downloading anything, one request per second. Set `CARD_API_USER_AGENT` to your own install's name: every card and price source sees it, and a source that blocks an agent blocks every install sharing it. Use `--force` sparingly: it downloads every category again.
 
-Prices attach to synced cards, so cards show no price until their game has synced and the first pull has finished. Follow it with `docker compose logs -f prices`, or force a full pull with `docker compose exec prices node packages/server/dist/scripts/sync-prices.js --force`.
+Prices attach to synced cards, so cards show no price until their game has synced and the first pull has finished. After the first game sync, run the cron command once by hand (append `--force` after `sync-prices.js` for a full pull) instead of waiting for the schedule, and check `/var/log/mault-prices.log` for later runs.
 
 ## Deployment
 
@@ -167,7 +173,7 @@ Four images, built from the repo root:
 
 | Dockerfile | Image | Notes |
 | --- | --- | --- |
-| `Dockerfile.server` | `mault-server` | Hono API; also runs `sync-prices` |
+| `Dockerfile.server` | `mault-server` | Hono API; also contains the `sync-prices` script |
 | `Dockerfile.web` | `mault-web` | Vite SPA on nginx, proxies `/api` to the server |
 | `Dockerfile.api-docs` | `mault-api-docs` | Public API reference |
 | `Dockerfile.bot` | `mault-bot` | Optional Discord bot |
@@ -181,11 +187,11 @@ The scanner's ONNX weights are pinned by Hugging Face revision and SHA-256 and d
 `docker-compose.yml` works for both providers:
 
 ```bash
-docker compose up --build -d                 # postgres, server, prices, web (:8080), api-docs (:8081)
+docker compose up --build -d                 # postgres, server, web (:8080), api-docs (:8081)
 docker compose --profile bot up --build -d   # + Discord bot (:3002)
 ```
 
-For production, set `WEB_URL` to your public origin and use real secrets. With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` service then sits unused. Inside compose the server and bot reach each other by service name, so `.env`'s localhost `SERVER_URL`/`BOT_URL` are overridden. Set `PRICE_SYNC_INTERVAL_HOURS=0` if you already schedule `sync-prices` elsewhere.
+For production, set `WEB_URL` to your public origin and use real secrets. With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` service then sits unused. Inside compose the server and bot reach each other by service name, so `.env`'s localhost `SERVER_URL`/`BOT_URL` are overridden. Prices need the cron job from [Prices](#prices).
 
 ### Coolify
 
