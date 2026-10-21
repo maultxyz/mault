@@ -184,6 +184,8 @@
     "slotsLabel": "Créneaux du pack",
     "slotCountLabel": "Nombre",
     "addSlot": "Ajouter un créneau",
+    "multiplePacksLabel": "Plusieurs paquets par bac",
+    "multiplePacksDescription": "Quand un bac termine un paquet, il en commence un nouveau par-dessus et continue jusqu'à ce que le bac soit plein. Un bac ne commence un nouveau paquet que s'il a la place pour le paquet entier, donc aucun paquet n'est coupé.",
     "siftLabel": "Mettre des cartes de côté",
     "siftDescription": "Les cartes qui correspondent aux règles ci-dessous vont dans le premier bac au lieu d'un paquet. Vous pouvez ainsi mettre de côté les cartes à garder (par valeur, rareté, édition ou autre) pendant que les autres bacs forment des paquets avec le reste.",
     "siftHint": "Les cartes qui correspondent à ces règles vont dans le bac {{bin}}. Les autres bacs forment des paquets avec le reste.",
