@@ -22,6 +22,8 @@ import {
   camerasHeldByOtherStations,
 } from "@/features/scanner/lib/camera-stream";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { isRemoteBrowser } from "@/lib/host";
 import { loadPiHost } from "@/lib/pi-host";
 import type {
   CameraContextValue,
@@ -45,6 +47,7 @@ const CameraContext = createContext<CameraContextValue | null>(null);
 export function CameraProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
+  const piRemote = usePiHost() && isRemoteBrowser();
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [status, setStatus] = useState<CameraStatus>("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -232,10 +235,9 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   startCameraRef.current = startCamera;
 
   useEffect(() => {
-    // Mobile is redirected to the read-only monitor view and never scans -
-    // don't prompt for camera access it'll never use.
     // The idle standby station holds no camera until it's connected or viewed.
-    if (isMobile || !isLive) return;
+    // A phone on a Pi uses the Pi webcam, the same as a remote browser.
+    if (!isLive || (isMobile && !piRemote)) return;
 
     void startCameraRef.current(stationCameraIdRef.current ?? undefined);
 
@@ -247,7 +249,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       setStream(null);
       setStatus("idle");
     };
-  }, [isMobile, isLive]);
+  }, [isMobile, isLive, piRemote]);
 
   useEffect(() => {
     if (selectedCameraId === PI_CAMERA_DEVICE_ID) return;

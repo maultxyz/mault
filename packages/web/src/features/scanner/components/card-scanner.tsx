@@ -24,6 +24,8 @@ import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { isRemoteBrowser } from "@/lib/host";
 import { useRole } from "@/hooks/use-role";
 import {
   PAUSE_WHEN_HIDDEN_STATUSES,
@@ -59,6 +61,7 @@ export function CardScanner({
   const navigate = useNavigate();
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
+  const previewRotated = !isMobile || (usePiHost() && isRemoteBrowser());
   const {
     addCard,
     addUnmatchedCard,
@@ -183,7 +186,7 @@ export function CardScanner({
       recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
-    rotated: !isMobile,
+    rotated: previewRotated,
     autoCapture: handScanActive,
   });
   const piScanLive =
@@ -690,14 +693,14 @@ export function CardScanner({
           ref={displayCanvasRef}
           className={cn(
             "absolute",
-            !isMobile && cameraSource === "local" && "rotate-90",
+            previewRotated && cameraSource === "local" && "rotate-90",
           )}
         />
         <canvas
           ref={overlayCanvasRef}
           className={cn(
             "absolute z-20 pointer-events-none",
-            !isMobile && cameraSource === "local" && "rotate-90",
+            previewRotated && cameraSource === "local" && "rotate-90",
           )}
         />
         {isAdmin && debugImageUrl && (

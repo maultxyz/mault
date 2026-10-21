@@ -781,17 +781,21 @@
     "transport": {
       "serial": "USB",
       "bluetooth": "Bluetooth",
-      "cloud": "Wi-Fi"
+      "cloud": "Wi-Fi",
+      "pi": "This Pi"
     },
     "connectHint": "Turn on your sorter, then connect to it.",
     "connectBluetooth": "Connect over Bluetooth",
     "connectUsb": "Connect over USB",
+    "connectPi": "Connect the sorter on this Pi",
     "unsupported": "This browser can't connect to a sorter directly. Connect to one over Wi-Fi below, or use Chrome on Android.",
     "actions": "Actions",
     "selfTest": "Run self-test",
     "selfTestDescription": "Checks the sensors and moves every servo",
     "disconnect": "Disconnect",
     "calibrateOnDesktop": "Calibration and sorting rules are set up on a computer.",
+    "calibrate": "Calibrate",
+    "calibrateOnPi": "Adjust the sorter plugged into this Pi.",
     "remote": {
       "title": "Over Wi-Fi",
       "unnamed": "Card Sorter",
