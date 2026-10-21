@@ -225,5 +225,11 @@
     "rules": "Regeln",
     "storage": "Lager",
     "account": "Konto"
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite {{page}} von {{count}}",
+    "range": "{{from}}-{{to}} von {{total}}"
   }
 }
