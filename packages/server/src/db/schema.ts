@@ -246,6 +246,7 @@ export const devices = pgTable(
     matchesNeeded: integer("matches_needed"),
     feederStopPulse: integer("feeder_stop_pulse"),
     checkBothOrientations: boolean("check_both_orientations"),
+    flipCamera: boolean("flip_camera").notNull().default(false),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
     setupCompletedAt: timestamp("setup_completed_at"),

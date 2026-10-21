@@ -152,6 +152,8 @@
     "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
     "matchesNeededLabel": "Benötigte Übereinstimmungen",
     "matchesNeededDescription": "Wie viele aufeinanderfolgende Bilder dieselbe Karte bestätigen müssen, bevor ein Scan akzeptiert wird. 1 ist am schnellsten; höhere Werte sind zuverlässiger, aber langsamer.",
+    "flipCameraLabel": "Kamera um 180° drehen",
+    "flipCameraDescription": "Dreht das Kamerabild auf den Kopf, für eine Kamera, die andersherum montiert ist. Gilt für Scans und jede Vorschau der angeschlossenen Kamera dieses Sortierers, nicht für Telefonfotos.",
     "checkBothOrientationsLabel": "Beide Richtungen prüfen",
     "checkBothOrientationsDescription": "Gleicht die Karte zusätzlich um 180° gedreht ab, damit auch verkehrt herum eingezogene Karten erkannt werden. Deaktivieren, wenn alle Karten gleich ausgerichtet eingezogen werden, um jeden Scan zu beschleunigen.",
     "executionProviderLabel": "KI-Erkennungs-Backend",

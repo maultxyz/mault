@@ -293,6 +293,7 @@ export interface Device {
   matchesNeeded: number;
   feederStopPulse: number | null;
   checkBothOrientations: boolean;
+  flipCamera: boolean;
   moduleCount: number;
   channelLayout: ChannelLayout;
   setupCompletedAt: string | null;
@@ -331,6 +332,12 @@ export interface CalibrationTourProps {
   section: CalibrationSection;
   setSection: (section: CalibrationSection) => void;
   className?: string;
+}
+
+export interface UseCameraFrameCanvasOptions {
+  stream: MediaStream | null;
+  phonePhotoUrl: string | null;
+  flipCamera: boolean;
 }
 
 export interface FrameSize {
@@ -452,12 +459,14 @@ export interface ScanRegionCalibrationPanelProps {
   captureSettleDelayMs: number;
   matchesNeeded: number;
   checkBothOrientations: boolean;
+  flipCamera: boolean;
   isLoading: boolean;
   onRegionChange: (region: ScanRegion) => void;
   onResetRegion: () => void;
   onCaptureSettleChange: (value: number) => void;
   onMatchesNeededChange: (value: number) => void;
   onCheckBothOrientationsChange: (value: boolean) => void;
+  onFlipCameraChange: (value: boolean) => void;
 }
 
 export interface CameraPrintingScoreProps {

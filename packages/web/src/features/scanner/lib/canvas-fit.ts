@@ -32,3 +32,19 @@ export function observeContainerResize(
   observer.observe(container);
   return () => observer.disconnect();
 }
+
+export function drawVideoFrame(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  flipped: boolean,
+) {
+  if (!flipped) {
+    ctx.drawImage(video, 0, 0);
+    return;
+  }
+  ctx.save();
+  ctx.translate(ctx.canvas.width, ctx.canvas.height);
+  ctx.rotate(Math.PI);
+  ctx.drawImage(video, 0, 0);
+  ctx.restore();
+}

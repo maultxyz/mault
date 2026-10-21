@@ -1,18 +1,21 @@
 import { fitFrameToContainer } from "@/features/calibration/lib/scan-region-geometry";
 import { useEffect, useRef, useState } from "react";
-import type { FrameSize } from "@/lib/interfaces/calibration";
+import type {
+  FrameSize,
+  UseCameraFrameCanvasOptions,
+} from "@/lib/interfaces/calibration";
 
 export function useCameraFrameCanvas({
   stream,
   phonePhotoUrl,
-}: {
-  stream: MediaStream | null;
-  phonePhotoUrl: string | null;
-}) {
+  flipCamera,
+}: UseCameraFrameCanvasOptions) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const frameRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
+  const flipCameraRef = useRef(flipCamera);
+  flipCameraRef.current = flipCamera;
   const [videoSize, setVideoSize] = useState<FrameSize | null>(null);
   const [phonePhotoSize, setPhonePhotoSize] = useState<FrameSize | null>(null);
 
@@ -49,7 +52,7 @@ export function useCameraFrameCanvas({
           if (c && ctx && video.readyState >= video.HAVE_ENOUGH_DATA) {
             ctx.save();
             ctx.translate(c.width / 2, c.height / 2);
-            ctx.rotate(Math.PI / 2);
+            ctx.rotate(flipCameraRef.current ? (3 * Math.PI) / 2 : Math.PI / 2);
             ctx.drawImage(
               video,
               -videoWidth / 2,
