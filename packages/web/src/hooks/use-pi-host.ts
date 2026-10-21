@@ -1,18 +1,25 @@
-import { isPiHost, loadPiHost } from "@/lib/pi-host";
+import { isPiHost, isPiHostSettled, loadPiHost } from "@/lib/pi-host";
 import { useEffect, useState } from "react";
 
-export function usePiHost(): boolean {
-  const [piHost, setPiHost] = useState(isPiHost);
+export function usePiHostState(): { piHost: boolean; settled: boolean } {
+  const [state, setState] = useState(() => ({
+    piHost: isPiHost(),
+    settled: isPiHostSettled(),
+  }));
 
   useEffect(() => {
     let cancelled = false;
     void loadPiHost().then((value) => {
-      if (!cancelled) setPiHost(value);
+      if (!cancelled) setState({ piHost: value, settled: true });
     });
     return () => {
       cancelled = true;
     };
   }, []);
 
-  return piHost;
+  return state;
+}
+
+export function usePiHost(): boolean {
+  return usePiHostState().piHost;
 }

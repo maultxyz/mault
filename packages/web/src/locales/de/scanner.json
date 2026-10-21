@@ -781,17 +781,21 @@
     "transport": {
       "serial": "USB",
       "bluetooth": "Bluetooth",
-      "cloud": "WLAN"
+      "cloud": "WLAN",
+      "pi": "Dieser Pi"
     },
     "connectHint": "Schalte den Sortierer ein und verbinde dich.",
     "connectBluetooth": "Über Bluetooth verbinden",
     "connectUsb": "Über USB verbinden",
+    "connectPi": "Sortierer an diesem Pi verbinden",
     "unsupported": "Dieser Browser kann sich nicht direkt mit einem Sortierer verbinden. Verbinde dich unten über WLAN oder nutze Chrome auf Android.",
     "actions": "Aktionen",
     "selfTest": "Selbsttest ausführen",
     "selfTestDescription": "Prüft die Sensoren und bewegt alle Servos",
     "disconnect": "Trennen",
     "calibrateOnDesktop": "Kalibrierung und Sortierregeln richtest du am Computer ein.",
+    "calibrate": "Kalibrieren",
+    "calibrateOnPi": "Stelle den Sortierer ein, der an diesem Pi steckt.",
     "remote": {
       "title": "Über WLAN",
       "unnamed": "Kartensortierer",

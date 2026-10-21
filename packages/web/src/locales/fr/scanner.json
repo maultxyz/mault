@@ -781,17 +781,21 @@
     "transport": {
       "serial": "USB",
       "bluetooth": "Bluetooth",
-      "cloud": "Wi-Fi"
+      "cloud": "Wi-Fi",
+      "pi": "Ce Pi"
     },
     "connectHint": "Allumez votre trieuse, puis connectez-vous.",
     "connectBluetooth": "Connecter en Bluetooth",
     "connectUsb": "Connecter en USB",
+    "connectPi": "Connecter la trieuse de ce Pi",
     "unsupported": "Ce navigateur ne peut pas se connecter directement à une trieuse. Connecte-toi en Wi-Fi ci-dessous, ou utilise Chrome sur Android.",
     "actions": "Actions",
     "selfTest": "Lancer l'autotest",
     "selfTestDescription": "Vérifie les capteurs et déplace chaque servo",
     "disconnect": "Déconnecter",
     "calibrateOnDesktop": "Le calibrage et les règles de tri se configurent sur un ordinateur.",
+    "calibrate": "Calibrer",
+    "calibrateOnPi": "Réglez la trieuse branchée sur ce Pi.",
     "remote": {
       "title": "En Wi-Fi",
       "unnamed": "Trieuse de cartes",
