@@ -85,3 +85,8 @@ export interface IdentifyUnmatchedCardRequest {
   isFoil?: boolean;
   foilType?: string | null;
 }
+
+export interface AddManualCardRequest {
+  card: PlayingCard;
+  locationGuid?: string;
+}

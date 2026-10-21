@@ -45,24 +45,33 @@ export function BinCorrectionDialog({
   const targetBin = correction?.targetBin;
   const needsMove = targetBin != null && currentBin !== targetBin;
   const name = correction?.cardName ?? "";
+  const isAdded = !!correction?.addedCard;
 
   const title =
     targetBin == null
       ? t("binCorrection.noBin.title", { name })
-      : needsMove
-        ? t("binCorrection.move.title", { name, to: targetBin })
-        : t("binCorrection.staysIn.title", { name, bin: targetBin });
+      : isAdded
+        ? t("binCorrection.added.title", { name, to: targetBin })
+        : needsMove
+          ? t("binCorrection.move.title", { name, to: targetBin })
+          : t("binCorrection.staysIn.title", { name, bin: targetBin });
   const description =
     targetBin == null
-      ? t("binCorrection.noBin.description")
-      : needsMove
-        ? currentBin != null
-          ? t("binCorrection.move.description", {
-              from: currentBin,
-              to: targetBin,
-            })
-          : t("binCorrection.move.descriptionNoBin", { to: targetBin })
-        : t("binCorrection.staysIn.description");
+      ? t(
+          isAdded
+            ? "binCorrection.added.noBinDescription"
+            : "binCorrection.noBin.description",
+        )
+      : isAdded
+        ? t("binCorrection.added.description", { to: targetBin })
+        : needsMove
+          ? currentBin != null
+            ? t("binCorrection.move.description", {
+                from: currentBin,
+                to: targetBin,
+              })
+            : t("binCorrection.move.descriptionNoBin", { to: targetBin })
+          : t("binCorrection.staysIn.description");
 
   const confirm = () => {
     if (!correction) return;

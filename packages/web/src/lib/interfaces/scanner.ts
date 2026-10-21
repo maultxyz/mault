@@ -132,6 +132,7 @@ export interface ScannedCardsContextValue {
     scanId: string,
     card: PlayingCard,
   ) => Promise<boolean>;
+  promptAddedCardBin: (collectionGuid: string, added: ScannedCard) => boolean;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
@@ -752,6 +753,7 @@ export interface BinCorrection {
   targetBin?: number;
   pickListName?: string;
   releasedPickListName?: string;
+  addedCard?: ScannedCard;
 }
 
 export interface CorrectedBinTarget {
