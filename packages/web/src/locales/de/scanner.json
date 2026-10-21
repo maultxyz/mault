@@ -393,7 +393,11 @@
     "identified": "{{name}} wurde der Sammlung hinzugefügt.",
     "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut.",
     "remove": "Karte entfernen",
-    "removeFailed": "Die Karte konnte nicht entfernt werden. Versuche es erneut."
+    "removeFailed": "Die Karte konnte nicht entfernt werden. Versuche es erneut.",
+    "expand": "Vergrößern",
+    "gridTitle": "Nicht erkannte Karten",
+    "gridDescription": "Wähle eine Karte, um zu sehen, warum sie nicht erkannt wurde, und bestimme sie.",
+    "gridNearest": "Am nächsten: {{name}}"
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",

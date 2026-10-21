@@ -393,7 +393,11 @@
     "identified": "{{name}} added to the collection.",
     "identifyFailed": "Couldn't add the card. Try again.",
     "remove": "Remove card",
-    "removeFailed": "Couldn't remove the card. Try again."
+    "removeFailed": "Couldn't remove the card. Try again.",
+    "expand": "Expand",
+    "gridTitle": "Unmatched cards",
+    "gridDescription": "Pick a card to see why it didn't match and identify it.",
+    "gridNearest": "Nearest: {{name}}"
   },
   "binStatusMeter": {
     "heading": "Bin Levels",
