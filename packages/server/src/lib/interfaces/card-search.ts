@@ -131,3 +131,8 @@ export interface CardTextMatchParams {
 export interface CardTextMatchResult extends CardMatchSearchResult {
   ocr: OcrDiagnostics;
 }
+
+export interface OrientedCardMatch {
+  embedding: number[];
+  result: CardMatchSearchResult;
+}

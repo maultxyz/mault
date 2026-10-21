@@ -3,11 +3,6 @@
     "title": "Build Your Own Trading Card Sorting Machine | MAULT",
     "description": "Step-by-step guide to building the MAULT card sorter: bill of materials, wiring diagrams, 3D printed parts, firmware and assembly instructions."
   },
-  "anchorLink": {
-    "copy": "Copy link to this section",
-    "copied": "Link copied",
-    "copyFailed": "Couldn't copy the link"
-  },
   "hero": {
     "eyebrow": "Hardware build guide",
     "title": "Build the card sorter",
@@ -21,9 +16,6 @@
       "parts": "Parts",
       "assembly": "Assembly"
     }
-  },
-  "toc": {
-    "label": "Contents"
   },
   "setup": {
     "heading": "Set up your build",
@@ -125,7 +117,8 @@
           },
           "sg90Positional": {
             "part": "SG90 micro servo, positional (180°)",
-            "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher"
+            "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher",
+            "alert": "Buy digital SG90s. Analog SG90s, and Tower Pro servos in particular, don't hold their calibrated positions reliably in this sorter."
           },
           "mg90sContinuous": {
             "part": "MG90S servo, 360° continuous rotation",
@@ -559,9 +552,13 @@
           "calibrateFeeder": {
             "text": "Feeder Calibration Panel, tune feed speed, pulse/pause timing, and settle duration against your actual hopper."
           },
+          "adjustIr": {
+            "text": "Set the detection distance of all {{count}} IR sensors so each one sees a card 1 inch (2.5 cm) in front of it. With the board powered, use a small screwdriver on the screw of the blue box (the potentiometer) on each sensor: first turn it until the sensor's indicator LED goes off with nothing in front of it, then hold a card 1 inch in front of the sensor and turn the screw slowly back the other way until the LED just comes on.",
+            "note": "Check it by pulling the card back to about 2 inches (5 cm): the LED should go off again. If it stays on, back the screw off a little. A sensor set too far reaches past the card path and reports cards that aren't there."
+          },
           "checkIr": {
             "text": "IR Sensor Panel, verify all {{count}} sensors report present/absent correctly with a card in hand.",
-            "note": "If a sensor doesn't trigger, or triggers with nothing in front of it, calibrate its detection distance manually: on the back of the sensor is a small blue box with a gray potentiometer dial. Turn it all the way one way so it detects nothing, then turn it slowly back until it just detects a card an inch or two in front of it."
+            "note": "If a sensor doesn't trigger, or triggers with nothing in front of it, repeat the previous step for that sensor."
           },
           "testBins": {
             "text": "Bin Routing Controls, send a test card to each of the {{count}} bins in turn and confirm it lands correctly."

@@ -57,7 +57,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 ### Prices
 
-- `scripts/sync-prices.ts` (external scheduler) pulls TCGplayer (tcgcsv), Cardmarket and Card Kingdom, then resolves `card_prices` (keyed `(game_key, lang, card_id)`). Reads overlay `card_prices` via `applyCardPrices` (JS) or `lib/card-price-sql.ts` (SQL). Respect tcgcsv's rate and User-Agent rules.
+- `scripts/sync-prices.ts` (external scheduler) pulls TCGplayer (tcgcsv), Cardmarket and Card Kingdom, then resolves `card_prices` (keyed `(game_key, lang, card_id)`). Reads overlay `card_prices` via `applyCardPrices` (JS) or `lib/card-price-sql.ts` (SQL). tcgcsv blocks overuse (it blocked the shared `MagicVault/1.0` agent in 2026-10): at most one pull per 20 h per install, `last-updated.txt` checked first, 1 request/s, one `CARD_API_USER_AGENT` (env) for every outgoing card/price request. Never call tcgcsv from request paths.
 - Never read `card.price` directly for display or totals: use `shared`'s `cardPriceFor`/`formatPrice` (web `usePriceSource().priceOf`), server `loadOrgPricing`. Any new SQL total must pass the org's `OrgPricing` (price source plus condition multipliers). Currencies never mix.
 
 ### Soft deletes
@@ -89,7 +89,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Minimum-firmware features go in `FIRMWARE_FEATURE_MIN_VERSIONS` and are gated with `FirmwareFeatureGate`/`useFirmwareFeature`. Runtime paths still need fallbacks for older boards.
 - Changing the firmware's `ModuleConfig` requires an EEPROM layout migration (see `loadStoredConfigV1()`).
 - A function whose signature uses a sketch-defined struct needs its own prototype right after the struct (Arduino preprocessor).
-- ESP32-S3 release builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs` (BLE + Wi-Fi + TLS overflow the default 1.25 MB app slot; min_spiffs keeps NVS at 0x9000 so stored settings survive); keep the Hardware CDC TX timeout at 0.
+- ESP32-S3 release builds pin `FlashMode=dio` and `PartitionScheme=min_spiffs` (BLE + Wi-Fi + TLS overflow the default 1.25 MB app slot; min_spiffs keeps NVS at 0x9000 so stored settings survive); keep the Hardware CDC TX timeout at 0. The released image is the full 4 MB merged bin, so `esp32-flasher.ts` writes it around NVS (0x9000-0xE000) and drops the erased tail; never write it whole at 0.
 - Pusher directions are mirrored: `"left"` lands on the physical right. Render bin layouts through `BIN_SLOTS_PHYSICAL_ORDER`; never change default routes to fix the display.
 - Controls that send serial commands require `useSerial().isReady` (passed self-test). Hardware-editing pages are wrapped in `SessionLock`. A new firmware command gets an entry in `DEVICE_COMMANDS`.
 - Wi-Fi remote (ESP32, 2.10.0+, `cloud_esp32.ino`): the board holds an outbound WebSocket to `/sorter-link/device` (bearer token, SHA-256 in `devices.sorter_link_token_hash`, looked up through plain `db`), and `lib/sorter-link.ts` relays raw lines to one browser on `/sorter-link/client`. The web side is just another `ByteTransport` (`CloudTransport`, kind `cloud`), so seq matching, self-test and leases are unchanged. The relay is in process, so a board and its browser must reach the same server process. Board URL: `SORTER_LINK_URL`, else `API_URL`, else the web origin (unreachable from a board in local dev). Wi-Fi is configured only over USB/BLE; firmware never flashes over `cloud`. Wi-Fi start-up spikes brown out weak supplies, so the radio starts 2 s after boot at reduced TX power and pauses after 2 consecutive brownout resets (RTC-memory counter); never start Wi-Fi from `setup()` directly.
@@ -119,7 +119,8 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 ### Discord bot
 
-- One global bot; commands registered globally only (`/link`, `/stats`). Each guild maps to one org via `org_settings.discord_guild_id`. Every channel and rule target is validated against the linked guild, so posts can never land in another server. Mentions are limited to the exact roles requested.
+- One global bot; commands registered globally only (`/link`, `/link-account`, `/leaderboard`, `/showoff`, `/stats`). Each guild maps to one org via `org_settings.discord_guild_id`. Every channel and rule target is validated against the linked guild, so posts can never land in another server. Mentions are limited to the exact roles requested.
+- Users link their own Discord account with a code from Account > Discord account redeemed by `/link-account` (`discord_user_links`, one Discord id per user). The table is server-only (RLS on, no policies, plain `db` in `lib/discord/user-links.ts`); user routes filter by the verified `userId`. Neon Auth has no Discord sign-in. The linked account role (Admin > Discord channels, `platform_discord_roles`) is added and removed server-side through the bot's `/members/role` on link, unlink and Discord-account switch, and for every linked user when the role changes. The bot has no GuildMembers intent, so people who join the server after linking get the role only by relinking.
 - Scan notifications run off the request path through `lib/scan-notification-queue.ts`.
 
 ### Deploys

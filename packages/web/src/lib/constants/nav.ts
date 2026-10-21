@@ -1,3 +1,4 @@
+import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { SHOP_URL } from "@/lib/constants/links";
@@ -75,6 +76,7 @@ export const MOBILE_IMMERSIVE_PATTERN = /^\/app\/scan\/?$/;
 export const PUBLIC_NAV_PAGES = [
   { key: "home", to: "/" },
   { key: "build", to: "/build" },
+  { key: "selfHost", to: SELF_HOST_PATH },
   { key: "discordBot", to: "/discord-bot" },
   { key: "shop", to: SHOP_URL, external: true },
 ] as const;

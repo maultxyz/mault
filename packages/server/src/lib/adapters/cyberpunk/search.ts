@@ -121,7 +121,7 @@ export const cyberpunkAdapter: CardSearchAdapter = {
   },
   tcgplayer: {
     categoryId: CYBERPUNK_TCGPLAYER_CATEGORY_ID,
-    subTypes: () => ({ price: ["Normal"], priceFoil: [] }),
+    subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),
     productMatch: (card) => {
       const raw = card.raw as NetdeckCard;
       if (raw.language !== "en" || !raw.print_number) return null;

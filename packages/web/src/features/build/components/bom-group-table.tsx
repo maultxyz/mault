@@ -1,14 +1,15 @@
 import { Badge } from "@/components/ui/badge";
+import { Callout } from "@/components/callout";
 import { BUILD_OPTIONAL_BADGE_CLASS } from "@/lib/constants/build";
 import { Checkbox } from "@/components/ui/checkbox";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { AnchorLinkButton } from "@/components/guide/anchor-link-button";
 import { bomGroupAnchorId } from "@/features/build/lib/anchors";
 import {
   resolveRowBuyUrl,
   resolveRowName,
 } from "@/features/build/lib/bom-parts";
 import { cn } from "@/lib/utils";
-import { IconExternalLink } from "@tabler/icons-react";
+import { IconAlertTriangle, IconExternalLink } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { BoardType, BomGroup } from "@/lib/interfaces/build";
 
@@ -93,6 +94,15 @@ export function BomGroupTable({
                   </td>
                   <td className="px-2.5 py-1.5 text-foreground/70">
                     {row.notes(t, moduleCount, boardType)}
+                    {row.alert && (
+                      <Callout
+                        variant="warning"
+                        icon={IconAlertTriangle}
+                        className="mt-1.5"
+                      >
+                        {row.alert(t)}
+                      </Callout>
+                    )}
                   </td>
                   <td className="px-2.5 py-1.5">
                     {resolveRowBuyUrl(row, boardType) && (

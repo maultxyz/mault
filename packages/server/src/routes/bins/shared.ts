@@ -43,6 +43,14 @@ export function toMaxCopies(
   return Number.isInteger(value) && value >= 1 ? value : null;
 }
 
+export function toRepackPriority(
+  value: number | null | undefined,
+  isCatchAll: boolean | undefined,
+): number | null {
+  if (isCatchAll || value == null) return null;
+  return Number.isInteger(value) && value >= 1 ? value : null;
+}
+
 export function toMaxCopiesBy(
   value: string | null | undefined,
   isCatchAll: boolean | undefined,
@@ -146,6 +154,7 @@ function toBinSet(row: {
   repackSlots: unknown;
   repackUniqueBy: string | null;
   repackSiftRules: unknown;
+  repackMultiplePacks: boolean;
   isAlphabetMode: boolean;
   alphabetPass: number;
   alphabetPrefix: string;
@@ -168,6 +177,7 @@ function toBinSet(row: {
     overflowBin: number | null;
     isDisabled: boolean;
     pickList: unknown;
+    repackPriority: number | null;
     lastEmptiedAt: Date | null;
   }[];
   game: {
@@ -194,6 +204,7 @@ function toBinSet(row: {
     repackSlots: (row.repackSlots as RepackSlot[] | null) ?? [],
     repackUniqueBy: row.repackUniqueBy,
     repackSiftRules: (row.repackSiftRules as BinRuleGroup | null) ?? null,
+    repackMultiplePacks: row.repackMultiplePacks,
     isAlphabetMode: row.isAlphabetMode,
     alphabetPass: row.alphabetPass,
     alphabetPrefix: row.alphabetPrefix,
@@ -214,6 +225,7 @@ function toBinSet(row: {
       overflowBin: bin.overflowBin,
       isDisabled: bin.isDisabled,
       pickList: bin.isCatchAll ? null : toPickList(bin.pickList),
+      repackPriority: bin.repackPriority,
       lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
     })),
     game: row.game
@@ -247,6 +259,7 @@ const binSetQuery = {
     repackSlots: true,
     repackUniqueBy: true,
     repackSiftRules: true,
+    repackMultiplePacks: true,
     isAlphabetMode: true,
     alphabetPass: true,
     alphabetPrefix: true,
@@ -273,6 +286,7 @@ const binSetQuery = {
         overflowBin: true,
         isDisabled: true,
         pickList: true,
+        repackPriority: true,
         lastEmptiedAt: true,
       },
     },
@@ -313,6 +327,7 @@ export async function snapshotBinSet(
       overflowBin: true,
       isDisabled: true,
       pickList: true,
+      repackPriority: true,
     },
   });
   const snapshot: BinConfig[] = rows.map((r) => ({
@@ -329,6 +344,7 @@ export async function snapshotBinSet(
     overflowBin: r.overflowBin,
     isDisabled: r.isDisabled,
     pickList: r.isCatchAll ? null : toPickList(r.pickList),
+    repackPriority: r.repackPriority,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
 }

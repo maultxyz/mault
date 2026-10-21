@@ -13,6 +13,13 @@ export type DiscordEmbed = {
 
 export type DiscordNotificationKind = "scan" | "error";
 
+export type DiscordMemberRoleAction = "add" | "remove";
+
+export interface DiscordUserLinkRedemption {
+  userId: string;
+  previousDiscordUserId: string | null;
+}
+
 export type DiscordNotifyOutcome = "sent" | "no_channel" | "failed";
 
 export interface DiscordChannelCheckFailure {

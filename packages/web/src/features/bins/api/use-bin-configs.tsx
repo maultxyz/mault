@@ -17,7 +17,6 @@ import type {
 import {
   type AlphabetStep,
   BinConfig,
-  BinRuleGroup,
   BinSet,
   computeBinCount,
   DEFAULT_BIN_CAPACITY,
@@ -25,7 +24,7 @@ import {
   type DefaultBinInit,
   type EmptyAllBinsOptions,
   type EmptyBinOptions,
-  type RepackSlot,
+  type RepackConfigPatch,
   SCAN_ONLY_DEFAULT_BIN,
   type ScanOnlyConfig,
   withScanRuleFields,
@@ -217,6 +216,7 @@ export function BinConfigsProvider({
       overflowBin,
       isDisabled,
       pickList,
+      repackPriority,
     }) => {
       await queryClient.cancelQueries({ queryKey: ["bins"] });
       const previous = queryClient.getQueryData<BinSet[]>(["bins"]);
@@ -260,6 +260,13 @@ export function BinConfigsProvider({
               (isDisabled ?? (idx >= 0 ? set.bins[idx].isDisabled : false)) ===
                 true,
             pickList: nextPickList,
+            repackPriority: isCatchAll
+              ? null
+              : repackPriority === undefined
+                ? idx >= 0
+                  ? (set.bins[idx].repackPriority ?? null)
+                  : null
+                : repackPriority,
             lastEmptiedAt: idx >= 0 ? set.bins[idx].lastEmptiedAt : null,
           };
           const bins =
@@ -483,12 +490,7 @@ export function BinConfigsProvider({
       config,
     }: {
       guid: string;
-      config: {
-        isRepackMode: boolean;
-        repackSlots: RepackSlot[];
-        repackUniqueBy: string | null;
-        repackSiftRules: BinRuleGroup | null;
-      };
+      config: RepackConfigPatch;
     }) => setRepackConfigAction(guid, config),
     onSuccess: (result) => {
       if (result.success && result.data) {
@@ -654,12 +656,7 @@ export function BinConfigsProvider({
   );
 
   const setRepackConfigFn = useCallback(
-    async (config: {
-      isRepackMode: boolean;
-      repackSlots: RepackSlot[];
-      repackUniqueBy: string | null;
-      repackSiftRules: BinRuleGroup | null;
-    }) => {
+    async (config: RepackConfigPatch) => {
       if (!selectedSet) return false;
       const result = await setRepackConfigMutation.mutateAsync({
         guid: selectedSet.guid,

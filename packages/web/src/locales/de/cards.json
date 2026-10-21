@@ -360,5 +360,13 @@
     "some_one": "1 von {{total}} Karten liegt in einem Lagerort. Beim Löschen wird sie auch aus dem Lager entfernt.",
     "some_other": "{{count}} von {{total}} Karten liegen in Lagerorten. Beim Löschen werden sie auch aus dem Lager entfernt.",
     "deleteAnyway": "Trotzdem löschen"
+  },
+  "addCard": {
+    "button": "Karte hinzufügen",
+    "title": "Karte hinzufügen",
+    "description": "Suche nach einer Karte und wähle die Druckversion aus, um sie hinzuzufügen.",
+    "collection": "Sammlung",
+    "added": "{{name}} hinzugefügt",
+    "failed": "Die Karte konnte nicht hinzugefügt werden."
   }
 }

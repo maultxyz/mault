@@ -18,11 +18,28 @@
   },
   "hero": {
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
-    "subtitle": "Charge tes cartes dans la trémie, et Mault s'occupe du reste - le chargeur fait passer chaque carte devant la caméra pour la reconnaître, puis la trie dans un bac selon les règles que tu définis : rareté, couleur, set, type, ou ce que tu préfères. Plus de tableurs, plus de suppositions.",
     "seeFeatures": "Découvrir les fonctionnalités",
-    "currentSession": "Session en cours",
-    "cardCount_one": "{{count}} carte",
-    "cardCount_other": "{{count}} cartes"
+    "liveSort": "Tri en direct",
+    "sortedCount_one": "{{count}} carte triée",
+    "sortedCount_other": "{{count}} cartes triées",
+    "nextUp": "Suivante",
+    "match": "correspondance",
+    "foil": "Foil",
+    "stations": {
+      "hopper": "Trémie",
+      "camera": "Caméra",
+      "bins": "Bacs"
+    },
+    "binRules": {
+      "1": "Communes bleues",
+      "2": "Rouges sous 5 $",
+      "3": "Peu communes bleues",
+      "4": "Vertes",
+      "5": "Incolores",
+      "6": "Plus de 20 $"
+    },
+    "eyebrow": "Trieuse de cartes open source",
+    "tagline": "Scanner / Trier / Suivre"
   },
   "stats": {
     "items": {
@@ -203,7 +220,8 @@
   },
   "cta": {
     "heading": "Trions tes cartes ensemble.",
-    "subtitle": "Configure ta première collection en quelques minutes à peine, et laisse Mault garder tout ça bien organisé à partir de maintenant."
+    "subtitle": "Configure ta première collection en quelques minutes à peine, et laisse Mault garder tout ça bien organisé à partir de maintenant.",
+    "eyebrow": "Prêt quand tu l'es"
   },
   "getStartedFree": "Commencer gratuitement"
 }

@@ -74,6 +74,7 @@ export const binConfigSchema = z.object({
     .min(1, "Must be at least 1")
     .max(OVERRIDE_PRIORITY_MAX, `Must be at most ${OVERRIDE_PRIORITY_MAX}`)
     .nullable(),
+  repackPriority: z.number().int().min(1).nullable(),
   isDisabled: z.boolean(),
   rules: binRuleGroupSchema,
   maxCopies: z
@@ -115,6 +116,7 @@ export const repackConfigSchema = z.object({
   repackUniqueBy: z.string().min(1),
   repackSiftRules: binRuleGroupSchema.nullable(),
   repackSlots: z.array(repackSlotSchema),
+  repackMultiplePacks: z.boolean(),
 });
 
 export type RepackConfigFormValues = z.infer<typeof repackConfigSchema>;

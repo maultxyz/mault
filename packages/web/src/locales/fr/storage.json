@@ -12,7 +12,8 @@
     "deleteTitle": "Supprimer {{name}} ?",
     "deleteDescription": "Les cartes restent dans tes collections, mais perdent cet emplacement et leur position.",
     "summary_one": "{{count}} carte · {{value}} au total",
-    "summary_other": "{{count}} cartes · {{value}} au total"
+    "summary_other": "{{count}} cartes · {{value}} au total",
+    "addCard": "Ajouter une carte"
   },
   "nameDialog": {
     "label": "Nom",

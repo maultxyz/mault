@@ -416,7 +416,11 @@
     "identified": "{{name}} a été ajoutée à la collection.",
     "identifyFailed": "Impossible d'ajouter la carte. Réessaie.",
     "remove": "Retirer la carte",
-    "removeFailed": "Impossible de retirer la carte. Réessaie."
+    "removeFailed": "Impossible de retirer la carte. Réessaie.",
+    "expand": "Agrandir",
+    "gridTitle": "Cartes non reconnues",
+    "gridDescription": "Choisissez une carte pour voir pourquoi elle n'a pas été reconnue et l'identifier.",
+    "gridNearest": "La plus proche : {{name}}"
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
@@ -644,6 +648,11 @@
     "keys": {
       "enter": "Entrée",
       "escape": "Échap"
+    },
+    "added": {
+      "title": "Placez {{name}} dans le bac {{to}}",
+      "description": "D'après vos règles de tri, elle va dans le bac {{to}}. Placez-la, puis confirmez pour que le décompte des bacs reste juste.",
+      "noBinDescription": "Aucun de vos bacs n'accepte cette carte, mettez-la de côté."
     }
   },
   "deployPause": {

@@ -44,7 +44,7 @@ export function buildCalibrationDebugText({
   board,
 }: CalibrationDebugParams): string {
   const lines: string[] = [
-    "Magic Vault Calibration Debug",
+    "Mault Calibration Debug",
     `Generated: ${new Date().toISOString()}`,
     `Firmware: ${firmwareVersion ? `${firmwareVersion}${board ? ` (${board})` : ""}` : "not connected"}`,
     `Channel layout: ${channelLayout} (offset ${CHANNEL_OFFSET[channelLayout]})`,

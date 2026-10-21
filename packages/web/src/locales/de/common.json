@@ -86,7 +86,7 @@
     "healthChecking": "Dienststatus wird geprüft…"
   },
   "appVersion": {
-    "outdatedBanner": "Eine neue Version von Magic Vault ist verfügbar.",
+    "outdatedBanner": "Eine neue Version von Mault ist verfügbar.",
     "refreshButton": "Aktualisieren"
   },
   "impersonation": {
@@ -148,6 +148,7 @@
     "pages": {
       "home": "Startseite",
       "build": "Bauanleitung",
+      "selfHost": "Selbst hosten",
       "discordBot": "Discord-Bot",
       "shop": "Shop"
     },
@@ -225,5 +226,24 @@
     "rules": "Regeln",
     "storage": "Lager",
     "account": "Konto"
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "page": "Seite {{page}} von {{count}}",
+    "range": "{{from}}-{{to}} von {{total}}"
+  },
+  "guide": {
+    "contents": "Inhalt",
+    "anchorLink": {
+      "copy": "Link zu diesem Abschnitt kopieren",
+      "copied": "Link kopiert",
+      "copyFailed": "Link konnte nicht kopiert werden"
+    },
+    "code": {
+      "copy": "Kopieren",
+      "copied": "In die Zwischenablage kopiert",
+      "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
+    }
   }
 }

@@ -6,9 +6,11 @@ import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { usePlatformDiscordChannelsDraft } from "@/features/admin/api/use-platform-discord-channels-draft";
+import { usePlatformDiscordLinkedRoleDraft } from "@/features/admin/api/use-platform-discord-linked-role-draft";
 import { usePlatformStatsDraft } from "@/features/admin/api/use-platform-stats-draft";
 import { AdminScriptCommand } from "@/features/admin/components/admin-script-command";
 import { PlatformDiscordChannelFields } from "@/features/admin/components/platform-discord-channel-fields";
+import { PlatformDiscordLinkedRoleFields } from "@/features/admin/components/platform-discord-linked-role-fields";
 import { PlatformStatsFields } from "@/features/admin/components/platform-stats-fields";
 import {
   PLATFORM_STATS_SCRIPT_COMMAND,
@@ -23,13 +25,23 @@ export function PlatformDiscordChannelsManager() {
   const { t, i18n } = useTranslation("admin");
   const channels = usePlatformDiscordChannelsDraft();
   const stats = usePlatformStatsDraft();
+  const linkedRole = usePlatformDiscordLinkedRoleDraft();
   const channelsDirty = channels.form.formState.isDirty;
   const statsDirty = stats.form.formState.isDirty;
-  const isDirty = channelsDirty || statsDirty;
+  const linkedRoleDirty = linkedRole.form.formState.isDirty;
+  const isDirty = channelsDirty || statsDirty || linkedRoleDirty;
   const isSaving =
-    channels.form.formState.isSubmitting || stats.form.formState.isSubmitting;
+    channels.form.formState.isSubmitting ||
+    stats.form.formState.isSubmitting ||
+    linkedRole.form.formState.isSubmitting;
 
-  if (channels.isLoading || !channels.data || stats.isLoading || !stats.data) {
+  if (
+    channels.isLoading ||
+    !channels.data ||
+    stats.isLoading ||
+    !stats.data ||
+    linkedRole.isLoading
+  ) {
     return (
       <SettingsSection heading={t("discordChannels.channels.stats.heading")}>
         <ListSkeleton />
@@ -45,11 +57,13 @@ export function PlatformDiscordChannelsManager() {
   const saveAll = async () => {
     if (channelsDirty) await channels.save();
     if (statsDirty) await stats.save();
+    if (linkedRoleDirty) await linkedRole.save();
   };
 
   const discardAll = () => {
     channels.form.reset(undefined, DISCARD_RESET_OPTIONS);
     stats.form.reset(undefined, DISCARD_RESET_OPTIONS);
+    linkedRole.form.reset(undefined, DISCARD_RESET_OPTIONS);
   };
 
   const { guilds, botReachable } = channels.data;
@@ -132,6 +146,17 @@ export function PlatformDiscordChannelsManager() {
         <AdminScriptCommand
           command={PRICE_SYNC_SCRIPT_COMMAND}
           description={t("discordChannels.priceSyncCommand")}
+        />
+      </SettingsSection>
+
+      <SettingsSection
+        heading={t("discordChannels.linkedRole.heading")}
+        description={t("discordChannels.linkedRole.description")}
+      >
+        <PlatformDiscordLinkedRoleFields
+          form={linkedRole.form}
+          guilds={guilds}
+          botReachable={botReachable}
         />
       </SettingsSection>
 

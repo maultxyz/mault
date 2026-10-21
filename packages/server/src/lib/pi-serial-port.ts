@@ -1,8 +1,7 @@
 import { SerialPort } from "serialport";
 import type { PiSerialErrorReason } from "@magic-vault/shared";
 import { PI_SERIAL_BAUD_RATE } from "./constants/pi-serial";
-
-export type SorterPortOwner = "bridge" | "session" | "levers";
+import type { SorterPortOwner } from "./interfaces/pi-serial";
 
 export class SorterPortError extends Error {
   constructor(readonly reason: PiSerialErrorReason) {

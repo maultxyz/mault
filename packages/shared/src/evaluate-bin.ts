@@ -490,6 +490,60 @@ export function isRepackComplete(
   );
 }
 
+export function getRepackPackSize(slots: RepackSlot[]): number {
+  return slots.reduce((sum, slot) => sum + Math.max(slot.targetCount, 0), 0);
+}
+
+export function getCurrentRepackPack(
+  cardsOldestFirst: SourceCard[],
+  slots: RepackSlot[],
+  fieldDefinitions: FieldMeta[],
+): SourceCard[] {
+  let pack: SourceCard[] = [];
+  for (const card of cardsOldestFirst) {
+    pack.push(card);
+    if (isRepackComplete(slots, fieldDefinitions, pack)) pack = [];
+  }
+  return pack;
+}
+
+export function getRepackBinCards(
+  cards: { binNumber?: number | null; scannedAt: number; card: SourceCard }[],
+  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt">,
+  binSet: Pick<BinSet, "repackSlots"> &
+    Partial<Pick<BinSet, "repackMultiplePacks">>,
+  fieldDefinitions: FieldMeta[],
+): SourceCard[] {
+  if (!binSet.repackMultiplePacks) return getCardsInBin(cards, bin);
+  const oldestFirst = cards
+    .filter(
+      (c) =>
+        c.binNumber === bin.binNumber &&
+        (bin.lastEmptiedAt == null || c.scannedAt > bin.lastEmptiedAt),
+    )
+    .sort((a, b) => a.scannedAt - b.scannedAt)
+    .map((c) => c.card);
+  return getCurrentRepackPack(oldestFirst, binSet.repackSlots, fieldDefinitions);
+}
+
+function canStartRepackPack(
+  bin: BinConfig,
+  cardsInPack: SourceCard[],
+  binSet: Pick<BinSet, "repackSlots"> &
+    Partial<Pick<BinSet, "repackMultiplePacks">>,
+  binRoom: (bin: BinConfig) => number,
+): boolean {
+  return (
+    !binSet.repackMultiplePacks ||
+    cardsInPack.length > 0 ||
+    binRoom(bin) >= getRepackPackSize(binSet.repackSlots)
+  );
+}
+
+function unlimitedBinRoom(): number {
+  return Number.POSITIVE_INFINITY;
+}
+
 export function repackDuplicateKey(
   card: SourceCard,
   uniqueBy: string,
@@ -551,18 +605,33 @@ export function getRepackPackBins(
   );
 }
 
+export function sortRepackPackBins(bins: BinConfig[]): BinConfig[] {
+  const rank = (bin: BinConfig) =>
+    bin.repackPriority ?? Number.POSITIVE_INFINITY;
+  return [...bins].sort((a, b) => {
+    const rankA = rank(a);
+    const rankB = rank(b);
+    return rankA === rankB ? a.binNumber - b.binNumber : rankA - rankB;
+  });
+}
+
 export function areAllRepackPacksComplete(
   configs: BinConfig[],
   fieldDefinitions: FieldMeta[],
-  binSet: Pick<BinSet, "repackSlots" | "repackSiftRules">,
+  binSet: Pick<BinSet, "repackSlots" | "repackSiftRules"> &
+    Partial<Pick<BinSet, "repackMultiplePacks">>,
   cardsInBin: (bin: BinConfig) => SourceCard[],
+  binRoom: (bin: BinConfig) => number = unlimitedBinRoom,
 ): boolean {
   const packBins = getRepackPackBins(configs, binSet);
   return (
     packBins.length > 0 &&
-    packBins.every((bin) =>
-      isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInBin(bin)),
-    )
+    packBins.every((bin) => {
+      const cardsInPack = cardsInBin(bin);
+      return binSet.repackMultiplePacks
+        ? !canStartRepackPack(bin, cardsInPack, binSet, binRoom)
+        : isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack);
+    })
   );
 }
 
@@ -573,8 +642,10 @@ export function evaluateRepackBin(
   binSet: Pick<
     BinSet,
     "repackSlots" | "repackUniqueBy" | "repackSiftRules"
-  >,
+  > &
+    Partial<Pick<BinSet, "repackMultiplePacks">>,
   cardsInBin: (bin: BinConfig) => SourceCard[],
+  binRoom: (bin: BinConfig) => number = unlimitedBinRoom,
 ): BinConfig | undefined {
   const catchAll = getCatchAllBin(configs);
   const siftRules = binSet.repackSiftRules;
@@ -588,11 +659,12 @@ export function evaluateRepackBin(
     return siftBin;
   }
 
-  for (const bin of getRepackPackBins(configs, binSet)) {
+  for (const bin of sortRepackPackBins(getRepackPackBins(configs, binSet))) {
     const cardsInPack = cardsInBin(bin);
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
       continue;
     }
+    if (!canStartRepackPack(bin, cardsInPack, binSet, binRoom)) continue;
     if (
       binSet.repackUniqueBy &&
       isDuplicateInPack(card, cardsInPack, binSet.repackUniqueBy, fieldDefinitions)

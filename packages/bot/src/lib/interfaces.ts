@@ -19,6 +19,7 @@ export interface GuildRoleSummary {
   name: string;
   color: string | null;
   canPing: boolean;
+  canAssign: boolean;
 }
 
 export interface ApiResult<T> {
@@ -30,6 +31,17 @@ export interface ApiResult<T> {
 export interface LinkResult {
   orgName?: string;
   currentOrgName?: string;
+}
+
+export interface LinkAccountResult {
+  userName: string | null;
+}
+
+export interface MemberRoleBody {
+  guildId?: string;
+  userId?: string;
+  roleId?: string;
+  action?: "add" | "remove";
 }
 
 export interface TopCardSummary {
@@ -48,6 +60,23 @@ export interface StatsResult {
   totalValueDisplay?: string;
   collectionName?: string;
   topCard: TopCardSummary | null;
+}
+
+export interface LeaderboardRow {
+  rank: number;
+  name: string | null;
+  scanCount: number;
+  isOwnOrg: boolean;
+}
+
+export interface LeaderboardResult {
+  rows: LeaderboardRow[];
+  size: number;
+  linkedOrgOptedIn: boolean | null;
+}
+
+export interface ShowoffResult extends StatsResult {
+  orgName: string;
 }
 
 export interface CollectionSummary {

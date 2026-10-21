@@ -170,6 +170,7 @@ export async function syncCardmarketPrices({
   for (const [gameId, matchesProducts] of needsProducts) {
     try {
       const guideUrl = priceGuideUrl(gameId);
+      log(`Game ${gameId}: checking price guide...`);
       const modifiedAt = await lastModified(guideUrl);
       const pulledAt = syncedAt.get(gameId);
       if (!force && modifiedAt && pulledAt && pulledAt >= modifiedAt) {
@@ -180,6 +181,7 @@ export async function syncCardmarketPrices({
 
       let products = 0;
       if (matchesProducts) {
+        log(`Game ${gameId}: downloading product list...`);
         const list = (await (
           await download(productListUrl(gameId))
         ).json()) as CardmarketProductsFile;
@@ -187,6 +189,7 @@ export async function syncCardmarketPrices({
         products = list.products.length;
       }
 
+      log(`Game ${gameId}: downloading price guide...`);
       const guide = (await (
         await download(guideUrl)
       ).json()) as CardmarketPriceGuideFile;

@@ -25,8 +25,7 @@ export const collectionCardIdsRoute = new Hono<AppEnv>().get(
 
         const data = await loadCardIds(
           tx,
-          collection.id,
-          collection.fieldDefinitions,
+          collection,
           query,
         );
         return { success: true, data };

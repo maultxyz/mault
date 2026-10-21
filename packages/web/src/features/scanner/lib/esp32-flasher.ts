@@ -1,10 +1,15 @@
 import {
+  ESP32_ERASED_BYTE,
   ESP32_FIRMWARE_CHIP,
   ESP32_FLASH_BAUD_RATE,
+  ESP32_FLASH_SECTOR_SIZE,
   ESP32_HARD_RESET_SEQUENCE,
+  ESP32_NVS_END,
+  ESP32_NVS_START,
 } from "@/lib/constants/firmware";
 import type {
   FlashEsp32Result,
+  FlashImagePart,
   FlashProgressCallbacks,
 } from "@/lib/interfaces/scanner";
 import {
@@ -20,9 +25,31 @@ function hardReset(transport: EspLoaderTransport) {
 
 // Talks to the chip's ROM bootloader directly, so this works the same on a
 // board running this project's firmware, some other sketch, or nothing at
-// all. The released image is a merged bootloader + partitions + app binary,
-// which is why it's written whole at offset 0.
+// all. The released image is a merged bootloader + partitions + app binary
+// laid out from offset 0. It is written around the NVS partition so stored
+// calibration and Wi-Fi settings survive, and its trailing erased padding is
+// skipped.
 let activeFlashes = 0;
+
+function trimErasedTail(data: Uint8Array): Uint8Array {
+  let end = data.length;
+  while (end > 0 && data[end - 1] === ESP32_ERASED_BYTE) end--;
+  const aligned =
+    Math.ceil(end / ESP32_FLASH_SECTOR_SIZE) * ESP32_FLASH_SECTOR_SIZE;
+  return data.subarray(0, Math.min(aligned, data.length));
+}
+
+function splitAroundNvs(image: Uint8Array): FlashImagePart[] {
+  if (image.length <= ESP32_NVS_START) {
+    return [{ data: image, address: 0 }];
+  }
+  const parts: FlashImagePart[] = [
+    { data: image.subarray(0, ESP32_NVS_START), address: 0 },
+  ];
+  const rest = trimErasedTail(image.subarray(ESP32_NVS_END));
+  if (rest.length > 0) parts.push({ data: rest, address: ESP32_NVS_END });
+  return parts;
+}
 
 export function isFlashInProgress(): boolean {
   return activeFlashes > 0;
@@ -91,22 +118,40 @@ async function flashPort(
       return { success: false, reason: "wrong-chip", chip };
     }
 
+    const parts = splitAroundNvs(firmwareData);
+    const totalBytes = parts.reduce((sum, part) => sum + part.data.length, 0);
+    const partStarts = parts.map((_, i) =>
+      parts.slice(0, i).reduce((sum, part) => sum + part.data.length, 0),
+    );
+
     await loader.writeFlash({
-      fileArray: [{ data: firmwareData, address: 0 }],
+      fileArray: parts,
       flashMode: "keep",
       flashFreq: "keep",
       flashSize: "keep",
       eraseAll: false,
       compress: true,
-      reportProgress: (_fileIndex, written, total) => {
-        callbacks.onProgress(total > 0 ? written / total : null);
+      reportProgress: (fileIndex, written, total) => {
+        if (totalBytes === 0 || total === 0) {
+          callbacks.onProgress(null);
+          return;
+        }
+        const partLength = parts[fileIndex].data.length;
+        const partWritten = (written / total) * partLength;
+        callbacks.onProgress(
+          (partStarts[fileIndex] + partWritten) / totalBytes,
+        );
       },
     });
 
-    const expectedMd5 = md5.hex(firmwareData);
-    const flashedMd5 = await loader.flashMd5sum(0, firmwareData.length);
-    if (flashedMd5.toLowerCase() !== expectedMd5) {
-      return { success: false, reason: "verify-failed", chip };
+    for (const part of parts) {
+      const flashedMd5 = await loader.flashMd5sum(
+        part.address,
+        part.data.length,
+      );
+      if (flashedMd5.toLowerCase() !== md5.hex(part.data)) {
+        return { success: false, reason: "verify-failed", chip };
+      }
     }
 
     await hardReset(espTransport);

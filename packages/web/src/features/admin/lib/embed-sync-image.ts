@@ -1,15 +1,9 @@
 import type { BrowserSyncWorkCard } from "@magic-vault/shared";
 import { MILO_INPUT_SIZE } from "@magic-vault/shared";
-
-export interface LoadedSyncCanvas {
-  cardId: string;
-  canvas: HTMLCanvasElement;
-}
-
-export interface FailedSyncImage {
-  cardId: string;
-  message: string;
-}
+import type {
+  FailedSyncImage,
+  LoadedSyncCanvas,
+} from "@/lib/interfaces/admin";
 
 function drawPortrait(
   bitmap: ImageBitmap,

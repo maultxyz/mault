@@ -6,12 +6,12 @@
   "hero": {
     "eyebrow": "Discord Integration",
     "title": "Bring your card sorter into Discord",
-    "description": "Magic Vault's Discord bot posts a message for every card as it's sorted, alerts your server when something goes wrong, and answers /stats on demand, so you don't have to keep the monitor page open to know what's happening.",
+    "description": "Mault's Discord bot posts a message for every card as it's sorted, alerts your server when something goes wrong, and answers /stats on demand, so you don't have to keep the monitor page open to know what's happening.",
     "addToDiscord": "Add to Discord",
     "getStarted": "Get started",
     "openSettings": "Open Settings",
     "seeSetup": "See setup steps",
-    "selfHostedNote": "The bot runs as its own process (packages/bot) alongside the rest of Magic Vault. See the README for the env vars it needs if you're self-hosting."
+    "selfHostedNote": "The bot runs as its own process (packages/bot) alongside the rest of Mault. See the README for the env vars it needs if you're self-hosting."
   },
   "setup": {
     "title": "Link a server in under a minute",
@@ -20,11 +20,11 @@
     "steps": [
       {
         "title": "Add the bot",
-        "description": "Add the Magic Vault bot to your Discord server. Requires the Manage Server permission."
+        "description": "Add the Mault bot to your Discord server. Requires the Manage Server permission."
       },
       {
         "title": "Generate a code",
-        "description": "In Magic Vault, open Settings > Discord and generate a link code. It's only valid for a few minutes."
+        "description": "In Mault, open Settings > Discord and generate a link code. It's only valid for a few minutes."
       },
       {
         "title": "Run /link",
@@ -34,21 +34,35 @@
         "title": "Pick your channels",
         "description": "Back in Settings > Discord, choose where scans and alerts get posted, per collection if you like, and add rules for which cards go where."
       }
-    ]
+    ],
+    "eyebrow": "Setup"
   },
   "commands": {
     "title": "Commands",
-    "description": "The bot only needs two commands. Everything else is set up in the app.",
+    "description": "Link a server and your own account, then check stats or show off your collection. Everything else is set up in the app.",
     "items": {
       "link": {
         "usage": "/link <code>",
-        "description": "Link this Discord server to a Magic Vault organization."
+        "description": "Link this Discord server to a Mault organization."
       },
       "stats": {
         "usage": "/stats [collection]",
         "description": "Show this organization's collection stats, optionally limited to one collection."
+      },
+      "linkAccount": {
+        "usage": "/link-account <code>",
+        "description": "Link your Discord account to your Mault account, using the code from Account > Discord account."
+      },
+      "showoff": {
+        "usage": "/showoff",
+        "description": "Post your collection's total value and your most valuable card. Needs a linked account."
+      },
+      "leaderboard": {
+        "usage": "/leaderboard",
+        "description": "Show the organizations that have scanned the most cards with Mault, the same list as the leaderboard in Stats."
       }
-    }
+    },
+    "eyebrow": "Commands"
   },
   "features": {
     "title": "What gets posted",
@@ -68,9 +82,10 @@
       },
       {
         "title": "Live presence",
-        "description": "The bot's status cycles through the games your Magic Vault instance supports, so it's obviously online and connected."
+        "description": "The bot's status cycles through the games your Mault instance supports, so it's obviously online and connected."
       }
-    ]
+    ],
+    "eyebrow": "Features"
   },
   "footer": {
     "reportIssue": "Report an issue",

@@ -20,14 +20,16 @@ export interface SaveMatchedScanInput {
   isFoil?: boolean;
   foilType?: string;
   alternativeMatches?: PlayingCardWithDistance[];
-  needsReview?: boolean;
+  lowConfidenceMatch?: boolean;
   diagnostics?: MatchedScanDiagnostics;
   vectorizedOn?: ScanVectorizeSource;
   deviceGuid?: string;
+  isRetry?: boolean;
 }
 
 export interface SaveUnmatchedScanInput {
   jwtClaims: string;
+  userId: string;
   orgId: string;
   collectionGuid: string;
   scanId: string;
@@ -38,6 +40,7 @@ export interface SaveUnmatchedScanInput {
   diagnostics?: UnmatchedScanDiagnostics;
   embedding?: number[] | null;
   deviceGuid?: string;
+  isRetry?: boolean;
 }
 
 export type SaveScanResult =
@@ -49,4 +52,5 @@ export type SaveScanResult =
       sorterLimitReached?: boolean;
       binLimitReached?: boolean;
       binNumber?: number;
+      scanInUse?: boolean;
     };

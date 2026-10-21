@@ -1,33 +1,35 @@
 import type { PlayingCardWithDistance } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
-import { authQuery } from "../../db";
-import { collectionCards, collections, games, unmatchedCards } from "../../db/schema";
+import { authQuery } from "../db";
+import { collectionCards, collections, games, unmatchedCards } from "../db/schema";
 import {
   acquireDeviceLease,
   UNIDENTIFIED_SORTER_LEASE_KEY,
-} from "../device-leases";
+} from "./device-leases";
 import type {
   SaveMatchedScanInput,
   SaveScanResult,
   SaveUnmatchedScanInput,
-} from "../interfaces/save-scan";
-import { MILO_EMBEDDING_DIM } from "../constants/card-search";
-import { acquireLock } from "../scan-lock";
-import { deleteScanImages, storeScanImage } from "../scan-images";
-import { recordMatchedScan, recordUnmatchedScan } from "../scan-stats";
-import { sorterLimitForPlan, sorterLimitMessage } from "../sorter-limit";
+} from "./interfaces/save-scan";
+import { MILO_EMBEDDING_DIM } from "./constants/card-search";
+import { resolveScanDeviceId } from "./scan-origin";
+import { acquireLock } from "./scan-lock";
+import { deleteScanImages, storeScanImage } from "./scan-images";
+import { recordMatchedScan, recordUnmatchedScan } from "./scan-stats";
+import { sorterLimitForPlan, sorterLimitMessage } from "./sorter-limit";
 import {
   consumeDailyScan,
   dailyScanLimitForPlan,
   dailyScanLimitMessage,
   getScansToday,
-} from "../scan-usage";
-import { emitToOrg, emitToSession } from "../session-stream";
-import { emitCardScannedWebhook } from "../webhooks/events";
-import { getUserDisplayName } from "../../middleware/auth";
-import { findFullBin } from "../../routes/collections/bin-limit";
-import { notifyCardScanned } from "../../routes/collections/notify-card-scanned";
-import { loadOrgPlan } from "../../routes/collections/scan-limit";
+} from "./scan-usage";
+import { emitToOrg, emitToSession } from "./session-stream";
+import { emitCardScannedWebhook } from "./webhooks/events";
+import { getUserDisplayName } from "../middleware/auth";
+import { findFullBin } from "../routes/collections/bin-limit";
+import { notifyCardScanned } from "../routes/collections/notify-card-scanned";
+import { loadOrgPlan } from "../routes/collections/scan-limit";
+import { isScanSaved } from "../routes/collections/scan-saved";
 
 export async function saveMatchedScan(
   input: SaveMatchedScanInput,
@@ -45,11 +47,22 @@ export async function saveMatchedScan(
     isFoil,
     foilType,
     alternativeMatches,
-    needsReview,
+    lowConfidenceMatch,
     diagnostics,
     vectorizedOn,
     deviceGuid,
+    isRetry,
   } = input;
+
+  if (
+    isRetry &&
+    (await isScanSaved(jwtClaims, collectionCards, scanId))
+  ) {
+    return {
+      success: true,
+      data: { scanId, card, scannedAt, binNumber },
+    };
+  }
 
   const displayName = await getUserDisplayName(userId);
   const { ok: lockOk, isNewSession } = acquireLock(
@@ -62,6 +75,7 @@ export async function saveMatchedScan(
     return {
       success: false,
       message: "Another org member is currently scanning into this collection.",
+      scanInUse: true,
     };
   }
 
@@ -138,7 +152,7 @@ export async function saveMatchedScan(
         };
       }
 
-      if (binNumber != null) {
+      if (binNumber != null && !isRetry) {
         const fullBin = await findFullBin(
           tx,
           orgId,
@@ -171,6 +185,11 @@ export async function saveMatchedScan(
         return scanLimitReachedResult;
       }
 
+      const scannedByDeviceId = await resolveScanDeviceId(
+        tx,
+        orgId,
+        deviceGuid,
+      );
       await tx
         .insert(collectionCards)
         .values({
@@ -187,8 +206,10 @@ export async function saveMatchedScan(
           alternativeMatches: alternativeMatches?.length
             ? alternativeMatches
             : null,
-          lowConfidenceMatch: needsReview ?? false,
+          lowConfidenceMatch: lowConfidenceMatch ?? false,
           diagnostics: diagnostics ?? null,
+          scannedByUserId: userId,
+          scannedByDeviceId,
           orgId,
         })
         .onConflictDoNothing();
@@ -210,7 +231,7 @@ export async function saveMatchedScan(
             isFoil,
             foilType,
             alternativeMatches,
-            lowConfidenceMatch: needsReview,
+            lowConfidenceMatch,
           },
         },
         collectionName: collection.name,
@@ -261,6 +282,7 @@ export async function saveUnmatchedScan(
 ): Promise<SaveScanResult> {
   const {
     jwtClaims,
+    userId,
     orgId,
     collectionGuid,
     scanId,
@@ -271,7 +293,14 @@ export async function saveUnmatchedScan(
     diagnostics,
     embedding,
     deviceGuid,
+    isRetry,
   } = input;
+  if (isRetry && (await isScanSaved(jwtClaims, unmatchedCards, scanId))) {
+    return {
+      success: true,
+      data: { scanId, scannedAt, binNumber },
+    };
+  }
   const storedImage = await storeScanImage(
     { orgId, collectionGuid, scanId, kind: "unmatched" },
     capturedImageUrl,
@@ -291,7 +320,7 @@ export async function saveUnmatchedScan(
         return { success: false as const, message: "Collection not found." };
       }
 
-      if (binNumber != null) {
+      if (binNumber != null && !isRetry) {
         const fullBin = await findFullBin(
           tx,
           orgId,
@@ -310,6 +339,11 @@ export async function saveUnmatchedScan(
         }
       }
 
+      const scannedByDeviceId = await resolveScanDeviceId(
+        tx,
+        orgId,
+        deviceGuid,
+      );
       await tx
         .insert(unmatchedCards)
         .values({
@@ -322,6 +356,8 @@ export async function saveUnmatchedScan(
           diagnostics: diagnostics ?? null,
           embedding:
             embedding?.length === MILO_EMBEDDING_DIM ? embedding : null,
+          scannedByUserId: userId,
+          scannedByDeviceId,
           orgId,
         })
         .onConflictDoNothing();

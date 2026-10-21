@@ -519,6 +519,13 @@
     "priceSyncCommand": "Les prix sont récupérés quand cette commande s'exécute. Ajoute-la comme tâche planifiée dans Coolify sur l'application serveur, toutes les quelques heures. Elle ne télécharge que ce qui a changé.",
     "donationsLink": "Ouvrir la page Buy Me a Coffee",
     "saved": "Salons Discord enregistrés.",
-    "saveFailed": "Impossible d'enregistrer les salons Discord."
+    "saveFailed": "Impossible d'enregistrer les salons Discord.",
+    "linkedRole": {
+      "heading": "Rôle des comptes liés",
+      "description": "Les membres de ce serveur qui lient leur compte Mault avec /link-account reçoivent ce rôle, et le perdent s'ils le dissocient. Le bot a besoin de la permission Gérer les rôles, et son propre rôle doit être placé au-dessus de celui-ci.",
+      "role": "Rôle",
+      "saved": "Rôle des comptes liés enregistré.",
+      "saveFailed": "Impossible d'enregistrer le rôle des comptes liés."
+    }
   }
 }

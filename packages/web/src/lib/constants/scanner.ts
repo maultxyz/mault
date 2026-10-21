@@ -1,6 +1,7 @@
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
   type CollectionCardsQuery,
+  type PiScanSessionState,
   type ScannerStatus,
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
@@ -46,6 +47,27 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+export const PI_CAMERA_BASE = "/pi-camera";
+export const PI_CAMERA_DEVICE_ID = "pi-webcam";
+export const PI_CAMERA_WIDTH = CAMERA_IDEAL_WIDTH;
+export const PI_CAMERA_HEIGHT = CAMERA_IDEAL_HEIGHT;
+export const PI_CAMERA_LABEL = "USB Live camera";
+export const PI_SERIAL_OPEN_TIMEOUT_MS = 8000;
+
+export const IDLE_PI_SCAN_SESSION: PiScanSessionState = {
+  phase: "idle",
+  collectionGuid: null,
+  message: null,
+  cardsScanned: 0,
+  stopping: false,
+  activity: null,
+  current: null,
+  lastCard: null,
+  startedAt: null,
+  pausedMs: 0,
+  pausedAt: null,
+  autoFeed: true,
+};
 export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";

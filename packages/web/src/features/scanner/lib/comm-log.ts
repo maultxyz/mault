@@ -3,7 +3,7 @@ import type { CommLogEntry } from "@/lib/interfaces/scanner";
 
 export function formatCommLog(entries: CommLogEntry[]): string {
   const lines = [
-    "Magic Vault Device Communication Log",
+    "Mault Device Communication Log",
     `Generated: ${new Date().toISOString()}`,
     "",
   ];

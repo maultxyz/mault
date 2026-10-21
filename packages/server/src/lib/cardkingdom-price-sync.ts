@@ -104,6 +104,7 @@ export async function syncCardKingdomPrices({
   }
 
   const startedAt = new Date();
+  log("Card Kingdom: downloading price list...");
   const res = await fetch(CARDKINGDOM_PRICELIST_URL, {
     headers: CARD_API_HEADERS,
     signal: AbortSignal.timeout(CARDKINGDOM_DOWNLOAD_TIMEOUT_MS),
@@ -114,6 +115,7 @@ export async function syncCardKingdomPrices({
     );
   }
   const list = (await res.json()) as CardKingdomPriceListFile;
+  log(`Card Kingdom: saving ${list.data.length} prices...`);
   await upsertPrices(
     list.data,
     list.meta.base_url || CARDKINGDOM_SITE_URL,

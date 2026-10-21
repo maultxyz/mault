@@ -1,15 +1,15 @@
-import type { BuildOptionCardProps } from "@/lib/interfaces/build";
+import type { OptionCardProps } from "@/lib/interfaces/option-card";
 import { cn } from "@/lib/utils";
 import { IconCheck } from "@tabler/icons-react";
 
-export function BuildOptionCard({
+export function OptionCard({
   icon: Icon,
   title,
   description,
   selected,
   disabled,
   onSelect,
-}: BuildOptionCardProps) {
+}: OptionCardProps) {
   return (
     <button
       type="button"

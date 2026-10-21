@@ -18,7 +18,7 @@ export const exportCollectionCardsRoute = new Hono<AppEnv>().get(
         if (!collection)
           return { success: false, message: "Collection not found." };
 
-        return { success: true, data: await loadAllCards(tx, collection.id) };
+        return { success: true, data: await loadAllCards(tx, collection) };
       });
       return c.json(result);
     } catch (err) {

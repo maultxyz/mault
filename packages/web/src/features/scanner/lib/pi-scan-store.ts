@@ -1,8 +1,8 @@
 import {
   fetchPiScanSession,
-  IDLE_PI_SCAN_SESSION,
   piScanHoldsPort,
 } from "@/features/scanner/api/pi-scan-session";
+import { IDLE_PI_SCAN_SESSION } from "@/lib/constants/scanner";
 import { setPiScanHoldingPort } from "@/features/scanner/lib/pi-scan-hold";
 import type { PiScanSessionState } from "@magic-vault/shared";
 

@@ -4,14 +4,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useBuildToc } from "@/features/build/api/use-build-toc";
-import type { BuildTocListProps } from "@/lib/interfaces/build";
+import type {
+  GuideTableOfContentsProps,
+  GuideTocListProps,
+} from "@/lib/interfaces/guide";
 import { cn } from "@/lib/utils";
 import { IconCircleCheckFilled, IconListDetails } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function BuildTocList({ entries, onNavigate }: BuildTocListProps) {
+function GuideTocList({ entries, onNavigate }: GuideTocListProps) {
   return (
     <ol className="flex flex-col">
       {entries.map((entry) => {
@@ -34,14 +36,14 @@ function BuildTocList({ entries, onNavigate }: BuildTocListProps) {
               )}
             >
               {entry.number !== undefined && (
-                <span className="grid size-6 shrink-0 place-items-center rounded-md bg-muted font-mono text-sm text-foreground">
-                  {entry.number}
+                <span className="w-6 shrink-0 font-heading text-xs font-semibold text-primary tabular-nums">
+                  {String(entry.number).padStart(2, "0")}
                 </span>
               )}
               <span className="min-w-0 flex-1 truncate">{entry.label}</span>
               {hasProgress && (
                 <span className="flex shrink-0 items-center gap-2">
-                  <span className="font-mono text-sm text-foreground/70 tabular-nums">
+                  <span className="font-heading text-xs text-foreground/70 tabular-nums">
                     {entry.done}/{entry.total}
                   </span>
                   {complete ? (
@@ -64,9 +66,8 @@ function BuildTocList({ entries, onNavigate }: BuildTocListProps) {
   );
 }
 
-export function BuildTableOfContents() {
-  const { t } = useTranslation("build");
-  const entries = useBuildToc();
+export function GuideTableOfContents({ entries }: GuideTableOfContentsProps) {
+  const { t } = useTranslation("common");
   const inlineRef = useRef<HTMLElement>(null);
   const [inlineVisible, setInlineVisible] = useState(true);
   const [open, setOpen] = useState(false);
@@ -86,11 +87,13 @@ export function BuildTableOfContents() {
     <>
       <nav
         ref={inlineRef}
-        aria-label={t("toc.label")}
-        className="mt-5 max-w-2xl rounded-lg border bg-card p-1.5 dark:border-foreground/15"
+        aria-label={t("guide.contents")}
+        className="mt-8 max-w-2xl rounded-lg border bg-card p-1.5 dark:border-foreground/15"
       >
-        <p className="px-2 pt-0.5 pb-1 text-sm font-semibold">{t("toc.label")}</p>
-        <BuildTocList entries={entries} />
+        <p className="mb-1 border-b px-2 pt-1 pb-2 font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase">
+          {t("guide.contents")}
+        </p>
+        <GuideTocList entries={entries} />
       </nav>
       {!inlineVisible && (
         <div className="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30">
@@ -99,7 +102,7 @@ export function BuildTableOfContents() {
               render={
                 <Button size="lg" className="h-10 px-4 text-sm shadow-lg">
                   <IconListDetails />
-                  {t("toc.label")}
+                  {t("guide.contents")}
                 </Button>
               }
             />
@@ -109,7 +112,7 @@ export function BuildTableOfContents() {
               sideOffset={8}
               className="max-h-[70vh] w-80 max-w-[calc(100vw-2rem)] gap-0 overflow-y-auto p-1.5 text-sm"
             >
-              <BuildTocList
+              <GuideTocList
                 entries={entries}
                 onNavigate={() => setOpen(false)}
               />

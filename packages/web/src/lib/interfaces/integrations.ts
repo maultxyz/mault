@@ -31,6 +31,8 @@ export interface DiscordRoleSelectProps {
   value: string | null;
   roles: DiscordRole[];
   onChange: (roleId: string | null) => void;
+  isSelectable?: (role: DiscordRole) => boolean;
+  disabled?: boolean;
 }
 
 export interface DiscordChannelLabelProps {

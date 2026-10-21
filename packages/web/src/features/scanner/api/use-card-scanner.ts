@@ -50,6 +50,7 @@ import type {
   TextSearchOutcome,
 } from "@/lib/interfaces/scanner";
 import {
+  drawVideoFrame,
   fitCanvasesToContainer,
   observeContainerResize,
 } from "@/features/scanner/lib/canvas-fit";
@@ -76,7 +77,7 @@ import {
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
   type CardSearchResult,
-  type OcrDiagnostics,
+  isStrongerTextMatch,
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
   type ScanDetectionDiagnostics,
@@ -255,31 +256,47 @@ async function searchByCardText(
     OCR_CROP_HEIGHT,
   );
   const crops = [uprightCrop];
-  let ocr: OcrDiagnostics | null = null;
   try {
-    for (const option of [best, best.alternate]) {
-      if (!option?.embedding) continue;
-      const crop =
-        option.orientation === "rotated"
-          ? rotateCanvas180(uprightCrop)
-          : uprightCrop;
-      crops.push(crop);
-      try {
-        const result = await searchByText(
-          buildSearchFormData(option.embedding, scope, await canvasToBlob(crop)),
-        );
-        ocr = result.ocr ?? ocr;
-        scanLog(
-          `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
-        );
-        if (hasMatch(result)) {
-          return { pick: { ...option, result, alternate: null }, ocr };
+    const options = [best, best.alternate].filter(
+      (option): option is OrientedCandidate & { embedding: number[] } =>
+        !!option?.embedding,
+    );
+    const results = await Promise.all(
+      options.map(async (option) => {
+        const crop =
+          option.orientation === "rotated"
+            ? rotateCanvas180(uprightCrop)
+            : uprightCrop;
+        crops.push(crop);
+        try {
+          const result = await searchByText(
+            buildSearchFormData(
+              option.embedding,
+              scope,
+              await canvasToBlob(crop),
+            ),
+          );
+          scanLog(
+            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
+          );
+          return result;
+        } catch (err) {
+          console.error("[scanner] text search failed:", err);
+          return null;
         }
-      } catch (err) {
-        console.error("[scanner] text search failed:", err);
-      }
-    }
-    return { pick: null, ocr };
+      }),
+    );
+    let bestIndex = 0;
+    results.forEach((result, index) => {
+      if (isStrongerTextMatch(result, results[bestIndex])) bestIndex = index;
+    });
+    const result = results[bestIndex];
+    const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
+    if (!result || !hasMatch(result)) return { pick: null, ocr };
+    return {
+      pick: { ...options[bestIndex], result, alternate: null },
+      ocr,
+    };
   } finally {
     releaseCanvases(crops);
   }
@@ -683,6 +700,9 @@ export function useCardScanner({
   const checkBothOrientationsRef = useRef(checkBothOrientations);
   checkBothOrientationsRef.current = checkBothOrientations;
 
+  const flipCameraRef = useRef(device?.flipCamera ?? false);
+  flipCameraRef.current = device?.flipCamera ?? false;
+
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
   const preferredSetCodeRef = useRef(preferredSetCode);
@@ -784,10 +804,12 @@ export function useCardScanner({
   const drawLatestVideoFrame = useCallback(() => {
     const canvas = displayCanvasRef.current;
     if (!canvas) return;
-    if (drawPiRelayFrame(streamRef.current, canvas)) return;
+    const flipped = flipCameraRef.current;
+    if (drawPiRelayFrame(streamRef.current, canvas, flipped)) return;
     const video = videoRef.current;
     if (!video || video.readyState < video.HAVE_CURRENT_DATA) return;
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    const ctx = canvas.getContext("2d");
+    if (ctx) drawVideoFrame(ctx, video, flipped);
   }, []);
 
   const performCapture = useCallback(
@@ -893,29 +915,32 @@ export function useCardScanner({
   );
 
   const detectionLoop = useCallback(() => {
+    const video = videoRef.current;
     const displayCanvas = displayCanvasRef.current;
     if (!displayCanvas) return;
 
-    const drewRelay = drawPiRelayFrame(streamRef.current, displayCanvas);
-    if (!drewRelay) {
-      const video = videoRef.current;
+    const flipped = flipCameraRef.current;
+    const drewRelay = drawPiRelayFrame(streamRef.current, displayCanvas, flipped);
+    if (drewRelay) {
+      const overlay = overlayCanvasRef.current;
+      if (
+        overlay &&
+        displayCanvas.width &&
+        displayCanvas.height &&
+        (overlay.width !== displayCanvas.width ||
+          overlay.height !== displayCanvas.height)
+      ) {
+        overlay.width = displayCanvas.width;
+        overlay.height = displayCanvas.height;
+      }
+    } else {
       if (!video || video.readyState < video.HAVE_ENOUGH_DATA) {
         rafRef.current = requestAnimationFrame(detectionLoop);
         return;
       }
-      displayCanvas.getContext("2d")?.drawImage(video, 0, 0);
-    }
-
-    const overlay = overlayCanvasRef.current;
-    if (
-      overlay &&
-      displayCanvas.width &&
-      displayCanvas.height &&
-      (overlay.width !== displayCanvas.width ||
-        overlay.height !== displayCanvas.height)
-    ) {
-      overlay.width = displayCanvas.width;
-      overlay.height = displayCanvas.height;
+      const displayCtx = displayCanvas.getContext("2d");
+      if (!displayCtx) return;
+      drawVideoFrame(displayCtx, video, flipped);
     }
 
     rafRef.current = requestAnimationFrame(detectionLoop);
@@ -944,7 +969,7 @@ export function useCardScanner({
         const display = displayCanvasRef.current;
         let videoWidth = video.videoWidth;
         let videoHeight = video.videoHeight;
-        if (display && drawPiRelayFrame(stream, display)) {
+        if (display && drawPiRelayFrame(stream, display, flipCameraRef.current)) {
           videoWidth = display.width;
           videoHeight = display.height;
         }

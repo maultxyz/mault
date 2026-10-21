@@ -18,11 +18,28 @@
   },
   "hero": {
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
-    "subtitle": "Load your cards into the hopper and Mault takes it from there. The feeder pushes each one past the camera to be recognized, then sorts it into bins using rules you set: rarity, color, set, type, or anything else. No spreadsheets, no guesswork.",
     "seeFeatures": "Explore features",
-    "currentSession": "Current session",
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards"
+    "liveSort": "Live sort",
+    "sortedCount_one": "{{count}} card sorted",
+    "sortedCount_other": "{{count}} cards sorted",
+    "nextUp": "Next up",
+    "match": "match",
+    "foil": "Foil",
+    "stations": {
+      "hopper": "Hopper",
+      "camera": "Camera",
+      "bins": "Bins"
+    },
+    "binRules": {
+      "1": "Blue commons",
+      "2": "Red under $5",
+      "3": "Blue uncommons",
+      "4": "Green",
+      "5": "Colorless",
+      "6": "Over $20"
+    },
+    "eyebrow": "Open-source card sorter",
+    "tagline": "Scan / Sort / Track"
   },
   "stats": {
     "items": {
@@ -203,7 +220,8 @@
   },
   "cta": {
     "heading": "Let's get your cards sorted.",
-    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out."
+    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out.",
+    "eyebrow": "Ready when you are"
   },
   "getStartedFree": "Get started free"
 }

@@ -8,7 +8,6 @@ import {
   saveFocus,
 } from "@/features/scanner/lib/camera-focus";
 import {
-  PI_CAMERA_DEVICE_ID,
   acquirePiRelayStream,
   applyTrackFocus,
   browserMustUsePiCamera,
@@ -17,6 +16,7 @@ import {
   piCameraDevice,
   readPiCameraHealth,
 } from "@/features/scanner/lib/pi-camera";
+import { PI_CAMERA_DEVICE_ID } from "@/lib/constants/scanner";
 import {
   acquireFreeStream,
   camerasHeldByOtherStations,

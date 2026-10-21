@@ -18,6 +18,7 @@ import type {
   WireKey,
   WiringViewMode,
 } from "@/lib/interfaces/build";
+import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
 export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
 
@@ -61,15 +62,6 @@ export const BOARD_BUY_URLS: Partial<Record<BoardType, string>> = {
   esp32: "https://amzn.to/4gmsm51",
 };
 
-export const BUILD_ANCHOR_SCROLL_MAX_FRAMES = 120;
-export const BUILD_ANCHOR_HIGHLIGHT_MS = 2500;
-export const BUILD_ANCHOR_HIGHLIGHT_CLASSES = [
-  "ring-2",
-  "ring-primary",
-  "ring-offset-4",
-  "ring-offset-background",
-  "rounded-md",
-];
 export const BOM_ANCHOR_PREFIX = "parts-";
 
 export const BUILD_SETUP_ANCHOR = "setup";
@@ -87,7 +79,31 @@ export const BUILD_PARTS_ANCHOR = "parts";
 export const BUILD_ASSEMBLY_ANCHOR = "assembly";
 export const BUILD_WIRING_ANCHOR = "wiring";
 
-export const EMPTY_CHECKLIST: Record<string, boolean> = {};
+export const PRINT_PART_IMAGE_SIZE = 320;
+
+export const PRINT_PART_IMAGE_PARTS = [
+  "sortingModule",
+  "feederModule",
+  "shroud",
+  "baseSupportTall",
+  "baseSupportShort",
+  "baseSupportBreakout",
+  "circuitBoardPlate",
+  "servoControllerPlate",
+  "endPlate",
+  "genericPlate",
+  "binsPlate",
+  "endBinPlate",
+] as const satisfies readonly SorterPrintPart[];
+
+export const FLASH_IN_BROWSER_STEP_KEYS = [
+  "flash-in-browser",
+  "download-code",
+  "install-esp32-core",
+  "install-libraries",
+  "upload-sketch",
+  "confirm-ready",
+] as const;
 
 export const WIRE_COLOR_CLASSES: Record<WireColor, string> = {
   yellow: "bg-yellow-400",
