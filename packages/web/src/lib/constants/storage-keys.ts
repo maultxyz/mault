@@ -8,6 +8,8 @@ export const ONNX_EXECUTION_PROVIDER_STORAGE_KEY =
   "magic-vault:scanner-onnx-execution-provider";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =
   "magic-vault:build-parts-checklist";
+export const SELF_HOST_CHECKLIST_STORAGE_KEY =
+  "magic-vault:self-host-checklist";
 
 export const SORTING_RULES_TOUR_COMPLETED_KEY =
   "magic-vault:sorting-rules-tour-completed";

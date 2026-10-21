@@ -11,6 +11,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
+import { CameraPrintingScore } from "@/features/calibration/components/camera-printing-score";
 import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
 import {
   contourToBox,
@@ -51,12 +52,14 @@ export function ScanRegionCalibrationPanel({
   captureSettleDelayMs: captureSettleDelayMsValue,
   matchesNeeded,
   checkBothOrientations,
+  flipCamera,
   isLoading,
   onRegionChange,
   onResetRegion,
   onCaptureSettleChange,
   onMatchesNeededChange,
   onCheckBothOrientationsChange,
+  onFlipCameraChange,
 }: ScanRegionCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const regionRef = useRef(region);
@@ -141,7 +144,7 @@ export function ScanRegionCalibrationPanel({
   };
 
   const { videoRef, frameRef, canvasRef, videoSize, phonePhotoSize } =
-    useCameraFrameCanvas({ stream, phonePhotoUrl });
+    useCameraFrameCanvas({ stream, phonePhotoUrl, flipCamera });
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -300,6 +303,13 @@ export function ScanRegionCalibrationPanel({
                 : t("scanRegionCalibrationPanel.usePhoneAsCamera")}
             </Button>
           </div>
+
+          <CameraPrintingScore
+            canvasRef={canvasRef}
+            region={region}
+            checkBothOrientations={checkBothOrientations}
+            canCapture={isCameraActive || !!phonePhotoUrl}
+          />
 
           {cameraSource === "local" && cameras.length > 0 && (
             <div className="flex flex-col gap-1.5">
@@ -493,6 +503,25 @@ export function ScanRegionCalibrationPanel({
             value={matchesNeeded}
             onValueChange={onMatchesNeededChange}
           />
+
+          <div className="flex flex-col gap-2 pt-2 border-t">
+            <label className="flex items-center justify-between gap-2">
+              <span className="text-xs font-medium">
+                {t("scanRegionCalibrationPanel.flipCameraLabel")}
+              </span>
+              {isLoading ? (
+                <Skeleton className="h-4 w-7 rounded-full" />
+              ) : (
+                <Switch
+                  checked={flipCamera}
+                  onCheckedChange={onFlipCameraChange}
+                />
+              )}
+            </label>
+            <p className="text-2xs text-foreground/70">
+              {t("scanRegionCalibrationPanel.flipCameraDescription")}
+            </p>
+          </div>
 
           <div className="flex flex-col gap-2 pt-2 border-t">
             <label className="flex items-center justify-between gap-2">

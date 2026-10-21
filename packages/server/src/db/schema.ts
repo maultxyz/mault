@@ -209,6 +209,7 @@ export const binSets = pgTable(
     repackSlots: jsonb("repack_slots").notNull().default([]),
     repackUniqueBy: text("repack_unique_by").default(REPACK_UNIQUE_BY_PRINTING),
     repackSiftRules: jsonb("repack_sift_rules"),
+    repackMultiplePacks: boolean("repack_multiple_packs").notNull().default(false),
     isAlphabetMode: boolean("is_alphabet_mode").notNull().default(false),
     alphabetPass: integer("alphabet_pass").notNull().default(0),
     alphabetPrefix: text("alphabet_prefix").notNull().default(""),
@@ -246,6 +247,7 @@ export const devices = pgTable(
     matchesNeeded: integer("matches_needed"),
     feederStopPulse: integer("feeder_stop_pulse"),
     checkBothOrientations: boolean("check_both_orientations"),
+    flipCamera: boolean("flip_camera").notNull().default(false),
     moduleCount: integer("module_count").notNull().default(3),
     channelLayout: text("channel_layout"),
     setupCompletedAt: timestamp("setup_completed_at"),
@@ -292,6 +294,7 @@ export const bins = pgTable(
     overflowBin: integer("overflow_bin"),
     isDisabled: boolean("is_disabled").notNull().default(false),
     pickList: jsonb("pick_list"),
+    repackPriority: integer("repack_priority"),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
@@ -1040,6 +1043,32 @@ export const platformDiscordChannels = pgTable("platform_discord_channels", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
+
+export const platformDiscordRoles = pgTable("platform_discord_roles", {
+  key: text("key").primaryKey(),
+  guildId: text("guild_id"),
+  roleId: text("role_id"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const discordUserLinks = pgTable(
+  "discord_user_links",
+  {
+    userId: text("user_id").primaryKey(),
+    discordUserId: text("discord_user_id"),
+    discordUsername: text("discord_username"),
+    linkCode: text("link_code"),
+    linkCodeExpiresAt: timestamp("link_code_expires_at"),
+    linkedAt: timestamp("linked_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("discord_user_links_discord_user_idx").on(table.discordUserId),
+    uniqueIndex("discord_user_links_code_idx").on(table.linkCode),
+  ],
+).enableRLS();
 
 export const tcgplayerPrices = pgTable(
   "tcgplayer_prices",

@@ -3,7 +3,6 @@ import type {
   BrowserSyncWorkCard,
   BrowserSyncWorkFailure,
   BrowserSyncWorkResult,
-  SyncState,
 } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { db } from "../../db";
@@ -13,7 +12,8 @@ import {
   BROWSER_SYNC_LEASE_MS,
   BROWSER_SYNC_MAX_ATTEMPTS,
 } from "../constants/sync";
-import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
+import type { SyncSourceCard } from "../interfaces/card-search";
+import type { BrowserQueueHost } from "../interfaces/sync-job";
 
 interface QueuedCard {
   card: SyncSourceCard;
@@ -23,23 +23,6 @@ interface QueuedCard {
 interface Lease {
   item: QueuedCard;
   expiresAt: number;
-}
-
-export interface BrowserQueueHost {
-  source: SyncSource;
-  lang: string;
-  cards: SyncSourceCard[];
-  skipped: number;
-  addLog: (msg: string) => void;
-  patchState: (patch: Partial<SyncState>) => void;
-  incrementCounters: (delta: {
-    processed?: number;
-    skipped?: number;
-    errors?: number;
-  }) => void;
-  emitEvent: (event: string, data: unknown) => void;
-  getState: () => SyncState;
-  isCancelled: () => boolean;
 }
 
 interface QueueState {

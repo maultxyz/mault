@@ -360,5 +360,13 @@
     "some_one": "1 of these {{total}} cards is in a storage location. Deleting it also removes it from storage.",
     "some_other": "{{count}} of these {{total}} cards are in storage locations. Deleting them also removes them from storage.",
     "deleteAnyway": "Delete anyway"
+  },
+  "addCard": {
+    "button": "Add card",
+    "title": "Add a card",
+    "description": "Search for a card and pick the printing to add it.",
+    "collection": "Collection",
+    "added": "Added {{name}}",
+    "failed": "Couldn't add the card."
   }
 }

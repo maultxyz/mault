@@ -27,3 +27,8 @@ export interface AdminPlatformDiscordChannelsResponse {
 }
 
 export type AdminPlatformDiscordGuildResponse = DiscordGuildInfo;
+
+export interface PlatformDiscordLinkedRole {
+  guildId: string | null;
+  roleId: string | null;
+}

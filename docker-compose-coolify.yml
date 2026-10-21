@@ -1,4 +1,5 @@
 # Coolify: assign your domain to web on port 80.
+# Pulls the prebuilt images from GHCR; MAULT_IMAGE_TAG pins a release (vX.Y.Z).
 # Keep existing credentials and the mault-postgres volume when updating.
 services:
   postgres:
@@ -18,9 +19,7 @@ services:
       retries: 20
     restart: unless-stopped
   server:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
+    image: ghcr.io/dishwasher-detergent/mault-server:${MAULT_IMAGE_TAG:-latest}
     depends_on:
       postgres:
         condition: service_healthy
@@ -34,7 +33,7 @@ services:
       DB_POOL_MAX: ${DB_POOL_MAX:-10}
       DB_IDLE_TIMEOUT_MS: ${DB_IDLE_TIMEOUT_MS:-10000}
       DB_CONNECTION_TIMEOUT_MS: ${DB_CONNECTION_TIMEOUT_MS:-10000}
-      DATABASE_URL: ${DATABASE_URL:-}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD}@postgres:5432/mault}
       NEON_AUTH_URL: ${NEON_AUTH_URL:-}
       MONITOR_LINK_SECRET: ${MONITOR_LINK_SECRET:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
@@ -60,13 +59,11 @@ services:
       SYNC_DB_CONNECTION_TIMEOUT_MS: ${SYNC_DB_CONNECTION_TIMEOUT_MS:-30000}
       RESYNC_CONCURRENCY: ${RESYNC_CONCURRENCY:-${VECTORIZE_CONCURRENCY:-1}}
       SCAN_VECTORIZE_CONCURRENCY: ${SCAN_VECTORIZE_CONCURRENCY:-4}
+      CARD_API_USER_AGENT: ${CARD_API_USER_AGENT:-}
     command:
     - sh
     - -ec
     - |
-      if [ "$$AUTH_PROVIDER" = "local" ] && [ -z "$$DATABASE_URL" ]; then
-        export DATABASE_URL="$$(node -e 'process.stdout.write("postgresql://mault:" + encodeURIComponent(process.env.POSTGRES_PASSWORD) + "@postgres:5432/mault")')"
-      fi
       if [ "$$AUTH_PROVIDER" = "local" ]; then
         pnpm --filter @magic-vault/server db:migrate-local
       fi
@@ -84,56 +81,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 120s
-  prices:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
-    depends_on:
-      postgres:
-        condition: service_healthy
-      server:
-        condition: service_healthy
-    environment:
-      AUTH_PROVIDER: ${AUTH_PROVIDER:-local}
-      PRICE_SYNC_INTERVAL_HOURS: ${PRICE_SYNC_INTERVAL_HOURS:-6}
-      PRICE_SYNC_RETRY_MINUTES: ${PRICE_SYNC_RETRY_MINUTES:-10}
-      BOT_URL: ${DOCKER_BOT_URL:-http://bot:${BOT_PORT:-3002}}
-      BOT_API_SECRET: ${BOT_API_SECRET:-}
-      DATABASE_SSL: ${DATABASE_SSL:-false}
-      DB_POOL_MAX: ${DB_POOL_MAX:-10}
-      DB_IDLE_TIMEOUT_MS: ${DB_IDLE_TIMEOUT_MS:-10000}
-      DB_CONNECTION_TIMEOUT_MS: ${DB_CONNECTION_TIMEOUT_MS:-10000}
-      DATABASE_URL: ${DATABASE_URL:-}
-      ROLLBAR_SERVER_TOKEN: ${ROLLBAR_SERVER_TOKEN:-}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
-    command:
-    - sh
-    - -ec
-    - |
-      if [ "$$PRICE_SYNC_INTERVAL_HOURS" = "0" ]; then
-        echo "[prices] PRICE_SYNC_INTERVAL_HOURS=0, price sync disabled."
-        exec sleep infinity
-      fi
-
-      if [ "$$AUTH_PROVIDER" = "local" ] && [ -z "$$DATABASE_URL" ]; then
-        export DATABASE_URL="$$(node -e 'process.stdout.write("postgresql://mault:" + encodeURIComponent(process.env.POSTGRES_PASSWORD) + "@postgres:5432/mault")')"
-      fi
-
-      while true; do
-        if node packages/server/dist/scripts/sync-prices.js; then
-          sleep $$(($$PRICE_SYNC_INTERVAL_HOURS * 3600))
-        else
-          echo "[prices] Sync failed, retrying in $$PRICE_SYNC_RETRY_MINUTES minutes."
-          sleep $$(($$PRICE_SYNC_RETRY_MINUTES * 60))
-        fi
-      done
-    restart: unless-stopped
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile.web
-      args:
-        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-1.0.1}
+    image: ghcr.io/dishwasher-detergent/mault-web:${MAULT_IMAGE_TAG:-latest}
     environment:
       VITE_API_URL: ${VITE_API_URL:-}
       VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-local}
@@ -160,9 +109,7 @@ services:
       timeout: 5s
       retries: 3
   bot:
-    build:
-      context: .
-      dockerfile: Dockerfile.bot
+    image: ghcr.io/dishwasher-detergent/mault-bot:${MAULT_IMAGE_TAG:-latest}
     environment:
       SERVER_URL: ${DOCKER_SERVER_URL:-http://server:3001}
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN:-}

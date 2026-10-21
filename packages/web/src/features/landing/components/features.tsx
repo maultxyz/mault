@@ -1,4 +1,4 @@
-import { LandingSectionHeader } from "@/features/landing/components/section-header";
+import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { LANDING_FEATURE_HIGHLIGHTS } from "@/features/landing/lib/feature-highlights";
 import {
   LANDING_FEATURE_DEMO_CLASS,
@@ -8,14 +8,17 @@ import {
 } from "@/lib/constants/landing";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { MarketingRule } from "@/components/marketing-rule";
+import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function LandingFeatures() {
+export function LandingFeatures({ step }: MarketingStepProps) {
   const { t } = useTranslation("landing");
 
   return (
-    <section id="features" className="border-y bg-secondary/30">
+    <section id="features">
       <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-        <LandingSectionHeader
+        <MarketingSectionHeader
+          step={step}
           eyebrow={t("features.eyebrow")}
           heading={t("features.heading")}
           subtitle={t("features.subtitle")}
@@ -23,27 +26,28 @@ export function LandingFeatures() {
 
         <div className={LANDING_FEATURE_GRID_CLASS}>
           {LANDING_FEATURE_HIGHLIGHTS.map(
-            ({ key, icon: Icon, demo: Demo, className, isNew }) => (
+            ({ key, icon: Icon, demo: Demo, className, isNew }, index) => (
               <div key={key} className={cn(LANDING_FEATURE_TILE_CLASS, className)}>
-                <div className="flex items-start gap-3">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary ring-1 ring-primary/20">
-                    <Icon size={20} />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-heading text-base font-semibold">
-                        {t(`features.items.${key}.title`)}
-                      </h3>
+                <MarketingRule
+                  lead={`${step}.${String(index + 1).padStart(2, "0")}`}
+                  aside={
+                    <>
                       {isNew && (
-                        <span className="rounded-full bg-primary px-2 py-0.5 text-sm font-semibold text-primary-foreground">
+                        <span className="rounded-sm border border-primary px-1.5 py-0.5 text-primary">
                           {t("features.new")}
                         </span>
                       )}
-                    </div>
-                    <p className="mt-1 text-sm/relaxed text-foreground/70">
-                      {t(`features.items.${key}.description`)}
-                    </p>
-                  </div>
+                      <Icon className="size-4" />
+                    </>
+                  }
+                />
+                <div>
+                  <h3 className="font-heading text-base font-semibold">
+                    {t(`features.items.${key}.title`)}
+                  </h3>
+                  <p className="mt-1 text-sm/relaxed text-foreground/70">
+                    {t(`features.items.${key}.description`)}
+                  </p>
                 </div>
                 <div className={LANDING_FEATURE_DEMO_CLASS}>
                   <Demo />
@@ -57,10 +61,10 @@ export function LandingFeatures() {
           <h3 className="font-heading text-xl font-semibold tracking-tight md:text-2xl">
             {t("features.more.heading")}
           </h3>
-          <div className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border sm:grid-cols-2 lg:grid-cols-4">
             {LANDING_FEATURE_EXTRAS.map(({ key, icon: Icon }) => (
-              <div key={key} className="flex items-start gap-3">
-                <Icon size={20} className="mt-0.5 shrink-0 text-primary" />
+              <div key={key} className="flex flex-col gap-3 bg-card p-5">
+                <Icon className="size-4 text-primary" />
                 <div>
                   <p className="font-heading text-sm font-semibold">
                     {t(`features.more.items.${key}.title`)}

@@ -1,3 +1,4 @@
+import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
@@ -6,6 +7,7 @@ import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
 import { SCANNER_PIP_MINIMIZED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { formatElapsed } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import {
   IconArrowBackUp,
   IconCamera,
@@ -30,6 +32,7 @@ export function ScannerPip() {
   const { station } = useStation();
   const { panelLayout, panelsDocked, connectedStationIds } = useStations();
   const { stream, cameraSource } = useCameraContext();
+  const device = useDevice();
   const { elapsedMs, isTimerActive } = useScannedCards();
   const { activeCollection } = useCollections();
   const { totalCount } = useCollectionCardsSummary();
@@ -95,7 +98,10 @@ export function ScannerPip() {
               ref={videoRef}
               muted
               playsInline
-              className="absolute top-1/2 left-1/2 w-[133.333%] h-3/4 max-w-none -translate-x-1/2 -translate-y-1/2 rotate-90 object-cover"
+              className={cn(
+                "absolute top-1/2 left-1/2 w-[133.333%] h-3/4 max-w-none -translate-x-1/2 -translate-y-1/2 object-cover",
+                device?.flipCamera ? "-rotate-90" : "rotate-90",
+              )}
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center text-white/60">

@@ -3,11 +3,18 @@ import type {
   BinRoute,
   BinSet,
   FieldMeta,
+  OcrDiagnostics,
   PiScanSessionActivity,
   PiScanSessionPhase,
   PiScanSessionSight,
+  PiScanSessionStartBody,
+  PiScanSessionStartCode,
+  PiScanSessionState,
+  ScanDetectionDiagnostics,
+  ScanMatchSource,
   ScanRegion,
 } from "@magic-vault/shared";
+import type { CardMatchSearchResult } from "./card-search";
 import type { SorterLink } from "../pi-scan/sorter-link";
 
 export interface PiScanBinCard {
@@ -28,6 +35,8 @@ export interface PiScanRunContext {
   region: ScanRegion;
   settleMs: number;
   checkBothOrientations: boolean;
+  flipCamera: boolean;
+  matchesNeeded: number;
   matchAllLanguages: boolean;
   ocrEnabled: boolean;
   cardThickness: number | null;
@@ -70,3 +79,31 @@ export interface PiScanLive {
   done: Promise<void>;
   resolveDone: () => void;
 }
+
+export interface PiScanFrameMatch {
+  image: Buffer;
+  orientation: "upright" | "rotated";
+  result: CardMatchSearchResult;
+  embedding: number[] | null;
+  ocr: OcrDiagnostics | null;
+  matchedBy: ScanMatchSource;
+  lowConfidenceFromOcr: boolean;
+  detection: ScanDetectionDiagnostics;
+  detectedColor: string | null;
+}
+
+export interface PiScanStartInput {
+  orgId: string;
+  userId: string;
+  jwtClaims: string;
+  body: PiScanSessionStartBody;
+}
+
+export type PiScanStartResult =
+  | { ok: true; state: PiScanSessionState }
+  | {
+      ok: false;
+      status: 400 | 409;
+      code: PiScanSessionStartCode;
+      message: string;
+    };

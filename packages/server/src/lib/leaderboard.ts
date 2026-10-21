@@ -1,4 +1,5 @@
 import {
+  LEADERBOARD_OWN_ORG_AFTER,
   LEADERBOARD_SIZE,
   type Leaderboard,
   type LeaderboardEntry,
@@ -59,6 +60,34 @@ async function countOrgScans(orgId: string): Promise<number> {
 
 function rankOf(scanCount: number, ranked: OrgScanCount[]): number {
   return 1 + ranked.filter((row) => row.scanCount > scanCount).length;
+}
+
+export async function loadTopLeaderboardEntries(): Promise<LeaderboardEntry[]> {
+  const ranked = await getOptedInScanCounts();
+  const top = ranked.slice(0, LEADERBOARD_SIZE);
+  const names = await authProvider.getOrganisationNames(
+    top.map((row) => row.orgId),
+  );
+  return top.map((row) => ({
+    rank: rankOf(row.scanCount, ranked),
+    name: names.get(row.orgId) ?? null,
+    scanCount: row.scanCount,
+    isOwnOrg: false,
+  }));
+}
+
+export function publicLeaderboardRows(
+  leaderboard: Leaderboard,
+): LeaderboardEntry[] {
+  if (!leaderboard.optedIn) return leaderboard.entries;
+  if (leaderboard.entries.some((entry) => entry.isOwnOrg)) {
+    return leaderboard.entries;
+  }
+  return [
+    ...leaderboard.entries.slice(0, LEADERBOARD_OWN_ORG_AFTER),
+    leaderboard.ownEntry,
+    ...leaderboard.entries.slice(LEADERBOARD_OWN_ORG_AFTER),
+  ];
 }
 
 export async function loadLeaderboard(orgId: string): Promise<Leaderboard> {

@@ -9,6 +9,7 @@ import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection"
 import { RenameDeviceButton } from "@/features/scanner/components/rename-device-button";
 import { StationOverviewCard } from "@/features/scanner/components/station-overview-card";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { IconCamera, IconPlayerPause } from "@tabler/icons-react";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
@@ -87,7 +88,10 @@ export function StationOverviewTile() {
             autoPlay
             muted
             playsInline
-            className="absolute top-1/2 left-1/2 w-[133.333%] h-3/4 max-w-none -translate-x-1/2 -translate-y-1/2 rotate-90 object-cover"
+            className={cn(
+              "absolute top-1/2 left-1/2 w-[133.333%] h-3/4 max-w-none -translate-x-1/2 -translate-y-1/2 object-cover",
+              device?.flipCamera ? "-rotate-90" : "rotate-90",
+            )}
           />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-white/70">

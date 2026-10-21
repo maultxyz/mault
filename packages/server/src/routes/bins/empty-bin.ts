@@ -134,6 +134,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
             maxCopiesBy: true,
             overflowBin: true,
             isDisabled: true,
+            repackPriority: true,
             lastEmptiedAt: true,
           },
         });
@@ -157,6 +158,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
               maxCopiesBy: b.maxCopiesBy,
               overflowBin: b.overflowBin,
               isDisabled: b.isDisabled,
+              repackPriority: b.repackPriority,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),

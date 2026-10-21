@@ -1,13 +1,14 @@
-import type { CameraRange } from "@/lib/interfaces/scanner";
+import {
+  PI_CAMERA_BASE,
+  PI_CAMERA_DEVICE_ID,
+  PI_CAMERA_HEIGHT,
+  PI_CAMERA_LABEL,
+  PI_CAMERA_WIDTH,
+} from "@/lib/constants/scanner";
+import type { CameraRange, PiCameraHealth } from "@/lib/interfaces/scanner";
 import { isRemoteBrowser } from "@/lib/host";
 import { isPiHost } from "@/lib/pi-host";
 import { applyFocus, manualFocusRange } from "./camera-focus";
-
-export const PI_CAMERA_BASE = "/pi-camera";
-export const PI_CAMERA_DEVICE_ID = "pi-webcam";
-export const PI_CAMERA_WIDTH = 1920;
-export const PI_CAMERA_HEIGHT = 1080;
-export const PI_CAMERA_LABEL = "USB Live camera";
 
 const piRelayTracks = new WeakSet<MediaStreamTrack>();
 const piRelayCanvases = new WeakMap<MediaStream, HTMLCanvasElement>();
@@ -19,6 +20,7 @@ export function isPiRelayTrack(track: MediaStreamTrack): boolean {
 export function drawPiRelayFrame(
   stream: MediaStream | null | undefined,
   target: HTMLCanvasElement,
+  flipped = false,
 ): boolean {
   if (!stream) return false;
   const source = piRelayCanvases.get(stream);
@@ -29,7 +31,15 @@ export function drawPiRelayFrame(
   }
   const context = target.getContext("2d");
   if (!context) return false;
+  if (!flipped) {
+    context.drawImage(source, 0, 0);
+    return true;
+  }
+  context.save();
+  context.translate(target.width, target.height);
+  context.rotate(Math.PI);
   context.drawImage(source, 0, 0);
+  context.restore();
   return true;
 }
 
@@ -43,16 +53,6 @@ export function focusRangeForTrack(
 export function browserMustUsePiCamera(): boolean {
   return isPiHost() && isRemoteBrowser();
 }
-
-export interface PiCameraReady {
-  status: "ready";
-  label: string;
-  width: number;
-  height: number;
-  focus: CameraRange | null;
-}
-
-export type PiCameraHealth = PiCameraReady | { status: "down" | "absent" };
 
 export async function readPiCameraHealth(): Promise<PiCameraHealth> {
   try {

@@ -1,51 +1,13 @@
-import type {
-  PlayingCardWithDistance,
-  ScanSaveRequestFields,
-  ScannedCard,
-} from "@magic-vault/shared";
-import { and, eq } from "drizzle-orm";
+import type { ScanSaveRequestFields, ScannedCard } from "@magic-vault/shared";
 import { Hono } from "hono";
-import { authQuery } from "../../db";
-import { collectionCards, collections, games } from "../../db/schema";
-import {
-  acquireDeviceLease,
-  UNIDENTIFIED_SORTER_LEASE_KEY,
-} from "../../lib/device-leases";
-import { acquireLock } from "../../lib/scan-lock";
-import { deleteScanImages, storeScanImage } from "../../lib/scan-images";
-import { recordMatchedScan } from "../../lib/scan-stats";
-import {
-  sorterLimitForPlan,
-  sorterLimitMessage,
-} from "../../lib/sorter-limit";
-import {
-  consumeDailyScan,
-  dailyScanLimitForPlan,
-  dailyScanLimitMessage,
-  getScansToday,
-} from "../../lib/scan-usage";
-import { emitToOrg, emitToSession } from "../../lib/session-stream";
-import {
-  getUserDisplayName,
-  requireAuth,
-  requireOrg,
-  type AppEnv,
-} from "../../middleware/auth";
-import { findFullBin } from "./bin-limit";
-import { isScanSaved } from "./scan-saved";
-import { emitCardScannedWebhook } from "../../lib/webhooks/events";
-import { notifyCardScanned } from "./notify-card-scanned";
-import { loadOrgPlan } from "./scan-limit";
-import { resolveScanDeviceId } from "../../lib/scan-origin";
+import { saveMatchedScan } from "../../lib/save-scan";
+import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
   requireAuth,
   requireOrg,
   async (c) => {
-    const guid = c.req.param("guid");
-    const userId = c.get("userId");
-    const orgId = c.get("orgId");
     const {
       scanId,
       card,
@@ -61,257 +23,36 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       deviceGuid,
       isRetry,
     } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
-
-    if (
-      isRetry &&
-      (await isScanSaved(c.get("jwtClaims"), collectionCards, scanId))
-    ) {
-      return c.json({
-        success: true,
-        data: { scanId, card, scannedAt, binNumber } as ScannedCard,
-      });
-    }
-
-    const displayName = await getUserDisplayName(userId);
-    const { ok: lockOk, isNewSession } = acquireLock(
-      guid,
-      userId,
-      orgId,
-      displayName,
-    );
-    if (!lockOk) {
-      return c.json(
-        {
-          success: false,
-          message:
-            "Another org member is currently scanning into this collection.",
-        },
-        423,
-      );
-    }
-
-    type AddCardResult =
-      | { success: true; data: ScannedCard }
-      | {
-          success: false;
-          message: string;
-          scanLimitReached?: boolean;
-          sorterLimitReached?: boolean;
-          binLimitReached?: boolean;
-          binNumber?: number;
-        };
-
-    const storedImage = await storeScanImage(
-      { orgId, collectionGuid: guid, scanId, kind: "cards" },
+    const result = await saveMatchedScan({
+      jwtClaims: c.get("jwtClaims"),
+      userId: c.get("userId"),
+      orgId: c.get("orgId"),
+      collectionGuid: c.req.param("guid"),
+      scanId,
+      card,
+      scannedAt,
+      binNumber,
       capturedImageUrl,
-    );
-    try {
-      const { result, collectionName, gameName, gameId } = await authQuery<{
-        result: AddCardResult;
-        collectionName: string | undefined;
-        gameName: string | undefined;
-        gameId: number | null;
-      }>(c.get("jwtClaims"), async (tx) => {
-        const [collection] = await tx
-          .select({
-            id: collections.id,
-            gameId: collections.gameId,
-            name: collections.name,
-            gameName: games.name,
-          })
-          .from(collections)
-          .leftJoin(games, eq(games.id, collections.gameId))
-          .where(
-            and(
-              eq(collections.guid, guid),
-              eq(collections.orgId, orgId),
-              eq(collections.isDeleted, false),
-            ),
-          )
-          .limit(1);
-        if (!collection)
-          return {
-            result: { success: false, message: "Collection not found." },
-            collectionName: undefined,
-            gameName: undefined,
-            gameId: null,
-          };
-
-        const plan = await loadOrgPlan(tx, orgId);
-        const dailyLimit = dailyScanLimitForPlan(plan);
-        const scanLimitReachedResult = {
-          result: {
-            success: false as const,
-            message: dailyScanLimitMessage(dailyLimit),
-            scanLimitReached: true,
-          },
-          collectionName: undefined,
-          gameName: undefined,
-          gameId: null,
-        };
-        if (
-          dailyLimit != null &&
-          (await getScansToday(tx, orgId)) >= dailyLimit
-        ) {
-          return scanLimitReachedResult;
-        }
-
-        // Backstop for the connect-time lease (routes/devices/lease.ts): a
-        // client that never leased still can't scan past the plan's cap, and
-        // every scan renews the scanning sorter's lease.
-        const sorterLimit = sorterLimitForPlan(plan);
-        if (
-          !acquireDeviceLease(
-            orgId,
-            deviceGuid ?? UNIDENTIFIED_SORTER_LEASE_KEY,
-            sorterLimit,
-          )
-        ) {
-          return {
-            result: {
-              success: false,
-              message: sorterLimitMessage(sorterLimit),
-              sorterLimitReached: true,
-            },
-            collectionName: undefined,
-            gameName: undefined,
-            gameId: null,
-          };
-        }
-
-        if (binNumber != null && !isRetry) {
-          const fullBin = await findFullBin(
-            tx,
-            orgId,
-            collection.gameId,
-            collection.id,
-            binNumber,
-            deviceGuid,
-          );
-          if (fullBin) {
-            return {
-              result: {
-                success: false,
-                message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.cardLimit} cards). Empty it to continue scanning.`,
-                binLimitReached: true,
-                binNumber: fullBin.binNumber,
-              },
-              collectionName: undefined,
-              gameName: undefined,
-              gameId: null,
-            };
-          }
-        }
-
-        const [alreadySaved] = await tx
-          .select({ id: collectionCards.id })
-          .from(collectionCards)
-          .where(eq(collectionCards.guid, scanId))
-          .limit(1);
-        if (!alreadySaved && !(await consumeDailyScan(orgId, plan))) {
-          return scanLimitReachedResult;
-        }
-
-        const scannedByDeviceId = await resolveScanDeviceId(
-          tx,
-          orgId,
-          deviceGuid,
-        );
-        await tx
-          .insert(collectionCards)
-          .values({
-            guid: scanId,
-            collectionId: collection.id,
-            cardId: (card as PlayingCardWithDistance).id,
-            card,
-            scannedAt: new Date(scannedAt),
-            binNumber: binNumber ?? null,
-            capturedImageDataUrl: storedImage.dataUrl,
-            capturedImageKey: storedImage.key,
-            isFoil: isFoil ?? false,
-            foilType: foilType ?? null,
-            alternativeMatches: alternativeMatches?.length
-              ? alternativeMatches
-              : null,
-            lowConfidenceMatch: lowConfidenceMatch ?? false,
-            diagnostics: diagnostics ?? null,
-            scannedByUserId: userId,
-            scannedByDeviceId,
-            orgId,
-          })
-          .onConflictDoNothing();
-
-        await tx
-          .update(collections)
-          .set({ updatedAt: new Date() })
-          .where(eq(collections.id, collection.id));
-
-
-        return {
-          result: {
-            success: true,
-            data: {
-              scanId,
-              card,
-              scannedAt,
-              binNumber,
-              capturedImageUrl,
-              isFoil,
-              foilType,
-              alternativeMatches,
-              lowConfidenceMatch,
-            } as ScannedCard,
-          },
-          collectionName: collection.name,
-          gameName: collection.gameName ?? undefined,
-          gameId: collection.gameId,
-        };
-      });
-      if (!result.success) deleteScanImages([storedImage.key]);
-      if (result.success) {
-        void recordMatchedScan(
-          orgId,
-          scanId,
-          card as PlayingCardWithDistance,
-          !!alternativeMatches?.length,
-          scannedAt,
-          vectorizedOn,
-        );
-        emitToSession(guid, "card_added", result.data);
-        emitToOrg(orgId, "collections_changed", { guid });
-
-        notifyCardScanned({
-          orgId,
-          collectionGuid: guid,
-          isNewSession,
-          card: card as PlayingCardWithDistance,
-          isFoil,
-          foilType,
-          collectionName,
-          gameName,
-          gameId,
-          capturedImageUrl,
-        });
-        emitCardScannedWebhook(orgId, scanId);
-      }
-      if (
-        !result.success &&
-        (result.scanLimitReached || result.sorterLimitReached)
-      ) {
-        return c.json(result, 402);
-      }
-      if (!result.success && result.binLimitReached) {
-        return c.json(result, 409);
-      }
-      return c.json(result);
-    } catch (err) {
-      deleteScanImages([storedImage.key]);
-      console.error(err);
-      emitToSession(guid, "scan_error", {
-        message: "Failed to save card to collection.",
-        timestamp: Date.now(),
-      });
-      return c.json({ success: false, message: "Database error." }, 500);
+      isFoil,
+      foilType,
+      alternativeMatches,
+      lowConfidenceMatch,
+      diagnostics,
+      vectorizedOn,
+      deviceGuid,
+      isRetry,
+    });
+    if (!result.success && result.scanInUse) return c.json(result, 423);
+    if (
+      !result.success &&
+      (result.scanLimitReached || result.sorterLimitReached)
+    ) {
+      return c.json(result, 402);
     }
+    if (!result.success && result.binLimitReached) return c.json(result, 409);
+    if (!result.success && result.message === "Database error.") {
+      return c.json(result, 500);
+    }
+    return c.json(result);
   },
 );

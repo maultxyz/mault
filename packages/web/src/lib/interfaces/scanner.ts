@@ -60,6 +60,16 @@ export interface CameraRange {
   step: number;
 }
 
+export interface PiCameraReady {
+  status: "ready";
+  label: string;
+  width: number;
+  height: number;
+  focus: CameraRange | null;
+}
+
+export type PiCameraHealth = PiCameraReady | { status: "down" | "absent" };
+
 export interface CameraFocusControlProps {
   className?: string;
 }
@@ -132,6 +142,7 @@ export interface ScannedCardsContextValue {
     scanId: string,
     card: PlayingCard,
   ) => Promise<boolean>;
+  promptAddedCardBin: (collectionGuid: string, added: ScannedCard) => boolean;
   sendCatchAllBin: () => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
@@ -180,6 +191,11 @@ export interface FlashEsp32Result {
 }
 
 export type FirmwareFlashState = "idle" | "flashing" | "success" | "error";
+
+export interface FlashImagePart {
+  data: Uint8Array;
+  address: number;
+}
 
 export interface FlashProgressCallbacks {
   onLog: (line: string) => void;
@@ -721,6 +737,14 @@ export interface UnmatchedCardsPanelProps {
   onOpen?: (card: UnmatchedCard) => void;
 }
 
+export interface UnmatchedCardsGridDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  cards: UnmatchedCard[];
+  onRemove?: (scanId: string) => void;
+  onIdentify?: (card: UnmatchedCard) => void;
+}
+
 export interface MobileUnmatchedCardDrawerProps {
   entry: UnmatchedCard | null;
   collectionGuid: string;
@@ -759,6 +783,7 @@ export interface BinCorrection {
   targetBin?: number;
   pickListName?: string;
   releasedPickListName?: string;
+  addedCard?: ScannedCard;
 }
 
 export interface CorrectedBinTarget {

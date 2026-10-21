@@ -91,6 +91,7 @@ export function createPiSerialRouter(
     upgradeWebSocket(() => ({
       onOpen(_event, ws) {
         const raw = ws.raw;
+        if (!raw) return;
         if (activeSocket) {
           sendControl(raw, { type: "error", reason: "busy" });
           raw.close();

@@ -152,6 +152,8 @@
     "captureSettleDescription": "Temps d'attente après que le chargeur confirme l'arrivée d'une carte avant de capturer une image, pour qu'elle soit parfaitement immobile et nette.",
     "matchesNeededLabel": "Correspondances requises",
     "matchesNeededDescription": "Nombre d'images consécutives devant s'accorder sur la même carte avant qu'un scan soit accepté. 1 est le plus rapide ; des valeurs plus élevées sont plus fiables mais plus lentes.",
+    "flipCameraLabel": "Retourner la caméra à 180°",
+    "flipCameraDescription": "Retourne l'image de la caméra, pour une caméra montée à l'envers. S'applique aux scans et à chaque aperçu de la caméra connectée à ce trieur, pas aux photos du téléphone.",
     "checkBothOrientationsLabel": "Vérifier les deux sens",
     "checkBothOrientationsDescription": "Compare aussi la carte tournée de 180°, afin que les cartes insérées à l'envers soient quand même identifiées. Désactivez cette option si toutes vos cartes sont insérées dans le même sens pour accélérer chaque scan.",
     "executionProviderLabel": "Moteur de détection IA",
@@ -170,6 +172,35 @@
     "cameraPlaceholder": "Choisir une caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
     "heading": "Zone de scan"
+  },
+  "cameraPrintingScore": {
+    "heading": "Aide au calibrage de la caméra",
+    "setLabel": "Set",
+    "cardLabel": "Carte",
+    "setPlaceholder": "Choisir un set",
+    "cardPlaceholder": "Choisir une carte",
+    "setsLoading": "Chargement des sets…",
+    "cardsLoading": "Chargement des cartes…",
+    "noSets": "Aucun set correspondant.",
+    "noCards": "Aucune carte correspondante.",
+    "rate": "Noter",
+    "rating": "Notation…",
+    "description": "Choisis le set, puis la carte posée sur le scanner, et note une image de la caméra. Plus le nombre est bas, plus l'image est proche de la photo enregistrée de ce tirage. Un scan accepte la carte seulement si elle est la plus proche, sous {{threshold}}, et nettement plus proche que toute autre carte. Ce nombre n'est pas un pourcentage et n'est pas une note d'état, et il peut changer d'une pression à l'autre. Noter ne change pas la caméra et n'enregistre rien.",
+    "fieldsRequired": "Choisis un set et une carte.",
+    "noCollection": "Choisis une collection avant de noter. La note utilise le jeu de cette collection.",
+    "noCamera": "Connecte une caméra, ou prends une photo avec le téléphone, avant de noter.",
+    "notSynced": "Ce tirage n'est pas dans le catalogue synchronisé pour le jeu de cette collection. Synchronise le set, puis note à nouveau.",
+    "distanceLabel": "Distance",
+    "nearestDifferent": "La carte la plus proche du catalogue est {{name}} ({{set}} {{number}}) à {{distance}}.",
+    "cardLine": "{{name}}, {{set}} {{number}}",
+    "failed": "Impossible de noter cette image.",
+    "verdict": {
+      "accept": "Un scan accepterait cette carte.",
+      "other_card": "Un scan reconnaîtrait une autre carte.",
+      "too_far": "Un scan refuserait cette image. La carte la plus proche est à {{threshold}} ou plus.",
+      "ambiguous": "Un scan refuserait cette image. Une autre carte est presque aussi proche.",
+      "empty_index": "Un scan refuserait cette image. Aucune carte n'est synchronisée pour ce jeu."
+    }
   },
   "useCalibrationPage": {
     "toasts": {
@@ -418,7 +449,7 @@
       "clear": "Libre",
       "verified": "Capteur vérifié",
       "waiting": "En attente de la première lecture du trieur…",
-      "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard."
+      "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard. Si un capteur s'allume sans rien devant lui, ou ne voit une carte que collée contre lui, tourne la vis de son boîtier bleu (le potentiomètre) jusqu'à ce qu'il détecte une carte à 2,5 cm."
     },
     "feederStop": {
       "heading": "Point d'arrêt du chargeur",

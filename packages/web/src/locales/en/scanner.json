@@ -416,7 +416,11 @@
     "identified": "{{name}} added to the collection.",
     "identifyFailed": "Couldn't add the card. Try again.",
     "remove": "Remove card",
-    "removeFailed": "Couldn't remove the card. Try again."
+    "removeFailed": "Couldn't remove the card. Try again.",
+    "expand": "Expand",
+    "gridTitle": "Unmatched cards",
+    "gridDescription": "Pick a card to see why it didn't match and identify it.",
+    "gridNearest": "Nearest: {{name}}"
   },
   "binStatusMeter": {
     "heading": "Bin Levels",
@@ -644,6 +648,11 @@
     "keys": {
       "enter": "Enter",
       "escape": "Esc"
+    },
+    "added": {
+      "title": "Put {{name}} in Bin {{to}}",
+      "description": "Based on your sorting rules it belongs in Bin {{to}}. Put it there, then confirm so the bin counts stay right.",
+      "noBinDescription": "None of your bins take this card, so keep it aside."
     }
   },
   "deployPause": {

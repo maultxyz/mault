@@ -519,6 +519,13 @@
     "priceSyncCommand": "Preise werden abgerufen, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, alle paar Stunden. Er lädt nur herunter, was sich geändert hat.",
     "donationsLink": "Buy Me a Coffee-Seite öffnen",
     "saved": "Discord-Kanäle gespeichert.",
-    "saveFailed": "Die Discord-Kanäle konnten nicht gespeichert werden."
+    "saveFailed": "Die Discord-Kanäle konnten nicht gespeichert werden.",
+    "linkedRole": {
+      "heading": "Rolle für verknüpfte Konten",
+      "description": "Mitglieder dieses Servers, die ihr Mault-Konto mit /link-account verknüpfen, erhalten diese Rolle und verlieren sie beim Trennen wieder. Der Bot braucht die Berechtigung „Rollen verwalten“, und seine eigene Rolle muss über dieser stehen.",
+      "role": "Rolle",
+      "saved": "Rolle für verknüpfte Konten gespeichert.",
+      "saveFailed": "Die Rolle für verknüpfte Konten konnte nicht gespeichert werden."
+    }
   }
 }

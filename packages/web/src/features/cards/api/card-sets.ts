@@ -1,6 +1,6 @@
 import { apiGet } from "@/lib/api/client";
 import { CARD_SETS_STALE_MS } from "@/lib/constants/scanner";
-import type { CardSetOption, Result } from "@magic-vault/shared";
+import type { CardSetOption, Result, SetPrintingOption } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
 export const cardSetsQueryOptions = (
@@ -21,5 +21,28 @@ export const cardSetsQueryOptions = (
       return result.data;
     },
     enabled: !!collectionGuid,
+    staleTime: CARD_SETS_STALE_MS,
+  });
+
+export const setPrintingsQueryOptions = (
+  collectionGuid: string | undefined,
+  setCode: string | undefined,
+) =>
+  queryOptions({
+    queryKey: ["set-printings", collectionGuid, setCode ?? null],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        collectionGuid: collectionGuid ?? "",
+        set: setCode ?? "",
+      });
+      const result = await apiGet<Result<SetPrintingOption[]>>(
+        `/api/cards/set-printings?${params}`,
+      );
+      if (!result.success || !result.data) {
+        throw new Error(result.message ?? "Failed to load cards.");
+      }
+      return result.data;
+    },
+    enabled: !!collectionGuid && !!setCode,
     staleTime: CARD_SETS_STALE_MS,
   });

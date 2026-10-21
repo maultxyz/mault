@@ -1,4 +1,5 @@
 import { API_BASE } from "@/lib/constants/api";
+import { IDLE_PI_SCAN_SESSION } from "@/lib/constants/scanner";
 import { getAuthHeaders } from "@/lib/api/client";
 import {
   PI_SCAN_SESSION_PATH,
@@ -13,21 +14,6 @@ import {
 } from "@/features/scanner/lib/pi-scan-hold";
 
 const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;
-
-export const IDLE_PI_SCAN_SESSION: PiScanSessionState = {
-  phase: "idle",
-  collectionGuid: null,
-  message: null,
-  cardsScanned: 0,
-  stopping: false,
-  activity: null,
-  current: null,
-  lastCard: null,
-  startedAt: null,
-  pausedMs: 0,
-  pausedAt: null,
-  autoFeed: true,
-};
 
 async function send(
   method: string,

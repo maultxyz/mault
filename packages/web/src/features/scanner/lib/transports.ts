@@ -14,6 +14,7 @@ import {
   SORTER_LINK_READY_KEY,
   SORTER_LINK_READY_VALUE,
 } from "@magic-vault/shared";
+import { PI_SERIAL_OPEN_TIMEOUT_MS } from "@/lib/constants/scanner";
 import { SORTER_LINK_OPEN_TIMEOUT_MS } from "@/lib/constants/timing";
 import type {
   CloudTransportFailure,
@@ -432,7 +433,6 @@ export class CloudTransport implements ByteTransport {
   }
 }
 
-const PI_SERIAL_OPEN_TIMEOUT_MS = 8000;
 
 function copyBytes(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
   const copy = new Uint8Array(new ArrayBuffer(bytes.byteLength));

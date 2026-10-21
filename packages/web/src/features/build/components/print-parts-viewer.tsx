@@ -2,6 +2,11 @@ import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PrintPartsKey } from "@/features/build/components/print-parts-key";
+import { printPartImagesStore } from "@/features/build/lib/print-part-images-store";
+import {
+  PRINT_PART_IMAGE_PARTS,
+  PRINT_PART_IMAGE_SIZE,
+} from "@/lib/constants/build";
 import type { PrintPartsViewerProps } from "@/lib/interfaces/build";
 import type {
   SorterModelStatus,
@@ -45,7 +50,10 @@ export default function PrintPartsViewer({
       reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
         .matches,
       onLoad: () => setStatus("ready"),
-      onError: () => setStatus("error"),
+      onError: () => {
+        setStatus("error");
+        printPartImagesStore.setError();
+      },
     });
     scene.setModuleCount(setupRef.current.moduleCount);
     scene.setBreakoutHeight(setupRef.current.breakoutHeight);
@@ -75,6 +83,14 @@ export default function PrintPartsViewer({
   useEffect(() => {
     sceneRef.current?.setXray(xray);
   }, [xray, status]);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (status !== "ready" || !scene) return;
+    printPartImagesStore.setImages(
+      scene.capturePartImages(PRINT_PART_IMAGE_PARTS, PRINT_PART_IMAGE_SIZE),
+    );
+  }, [status, moduleCount, breakoutHeight]);
 
   return (
     <div className="flex flex-col gap-3">

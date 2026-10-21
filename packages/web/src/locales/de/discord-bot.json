@@ -6,12 +6,12 @@
   "hero": {
     "eyebrow": "Discord-Integration",
     "title": "Hol dir deinen Kartensortierer in Discord",
-    "description": "Der Discord-Bot von Magic Vault postet für jede sortierte Karte eine Nachricht, warnt deinen Server bei Problemen und beantwortet /stats auf Abruf - so musst du nicht ständig die Monitor-Seite offen halten, um zu wissen, was passiert.",
+    "description": "Der Discord-Bot von Mault postet für jede sortierte Karte eine Nachricht, warnt deinen Server bei Problemen und beantwortet /stats auf Abruf - so musst du nicht ständig die Monitor-Seite offen halten, um zu wissen, was passiert.",
     "addToDiscord": "Zu Discord hinzufügen",
     "getStarted": "Loslegen",
     "openSettings": "Einstellungen öffnen",
     "seeSetup": "Einrichtungsschritte ansehen",
-    "selfHostedNote": "Der Bot läuft als eigener Prozess (packages/bot) neben dem Rest von Magic Vault - die benötigten Umgebungsvariablen fürs Self-Hosting findest du in der README."
+    "selfHostedNote": "Der Bot läuft als eigener Prozess (packages/bot) neben dem Rest von Mault - die benötigten Umgebungsvariablen fürs Self-Hosting findest du in der README."
   },
   "setup": {
     "title": "Einen Server in unter einer Minute verknüpfen",
@@ -20,11 +20,11 @@
     "steps": [
       {
         "title": "Bot hinzufügen",
-        "description": "Füge den Magic-Vault-Bot zu deinem Discord-Server hinzu - erfordert die Berechtigung „Server verwalten“."
+        "description": "Füge den Mault-Bot zu deinem Discord-Server hinzu - erfordert die Berechtigung „Server verwalten“."
       },
       {
         "title": "Code erzeugen",
-        "description": "Öffne in Magic Vault Einstellungen > Discord und erzeuge einen Verknüpfungscode. Er ist nur wenige Minuten gültig."
+        "description": "Öffne in Mault Einstellungen > Discord und erzeuge einen Verknüpfungscode. Er ist nur wenige Minuten gültig."
       },
       {
         "title": "/link ausführen",
@@ -34,21 +34,35 @@
         "title": "Kanäle wählen",
         "description": "Lege unter Einstellungen > Discord fest, wohin Scans und Warnungen gepostet werden, auf Wunsch pro Sammlung, und füge Regeln hinzu, welche Karten wohin gehen."
       }
-    ]
+    ],
+    "eyebrow": "Einrichtung"
   },
   "commands": {
     "title": "Befehle",
-    "description": "Der Bot braucht nur zwei Befehle. Alles andere richtest du in der App ein.",
+    "description": "Verknüpfe einen Server und dein eigenes Konto, dann ruf Statistiken ab oder zeig deine Sammlung. Alles andere richtest du in der App ein.",
     "items": {
       "link": {
         "usage": "/link <code>",
-        "description": "Verknüpft diesen Discord-Server mit einer Magic-Vault-Organisation."
+        "description": "Verknüpft diesen Discord-Server mit einer Mault-Organisation."
       },
       "stats": {
         "usage": "/stats [Sammlung]",
         "description": "Zeigt die Sammlungsstatistiken dieser Organisation, optional auf eine Sammlung beschränkt."
+      },
+      "linkAccount": {
+        "usage": "/link-account <code>",
+        "description": "Verknüpft dein Discord-Konto mit deinem Mault-Konto, mit dem Code aus Konto > Discord-Konto."
+      },
+      "showoff": {
+        "usage": "/showoff",
+        "description": "Postet den Gesamtwert deiner Sammlung und deine wertvollste Karte. Erfordert ein verknüpftes Konto."
+      },
+      "leaderboard": {
+        "usage": "/leaderboard",
+        "description": "Zeigt die Organisationen, die mit Mault die meisten Karten gescannt haben, dieselbe Liste wie die Bestenliste unter Statistiken."
       }
-    }
+    },
+    "eyebrow": "Befehle"
   },
   "features": {
     "title": "Was gepostet wird",
@@ -68,9 +82,10 @@
       },
       {
         "title": "Live-Präsenz",
-        "description": "Der Status des Bots wechselt durch die Spiele, die deine Magic-Vault-Instanz unterstützt, sodass klar ist, dass er online und verbunden ist."
+        "description": "Der Status des Bots wechselt durch die Spiele, die deine Mault-Instanz unterstützt, sodass klar ist, dass er online und verbunden ist."
       }
-    ]
+    ],
+    "eyebrow": "Funktionen"
   },
   "footer": {
     "reportIssue": "Problem melden",

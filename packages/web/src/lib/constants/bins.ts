@@ -20,6 +20,7 @@ export const DEFAULT_CATCH_ALL_MATCH_PERCENT = 80;
 export const REPACK_ALLOW_DUPLICATES_VALUE = "$allow";
 
 export const NO_OVERFLOW_VALUE = "$none";
+export const REPACK_PRIORITY_AUTO_VALUE = "$auto";
 
 export const PICK_LIST_DECKLIST_MAX_LENGTH = 50000;
 

@@ -16,6 +16,7 @@ import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
+import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ExportedCardsDialog } from "@/features/cards/components/exported-cards-dialog";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
@@ -65,6 +66,7 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconDownload,
+  IconPlus,
   IconRosette,
 } from "@tabler/icons-react";
 import { CARD_CONDITIONS, computeBinCount } from "@magic-vault/shared";
@@ -100,6 +102,7 @@ export function CardGrid() {
   } = useScannedCards();
   const collectionGuid = viewedCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [addCardOpen, setAddCardOpen] = useState(false);
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
@@ -539,6 +542,14 @@ export function CardGrid() {
     );
   }
 
+  const addCardDialog = viewedCollection && (
+    <AddCardDialog
+      open={addCardOpen}
+      onOpenChange={setAddCardOpen}
+      collectionGuid={viewedCollection.guid}
+    />
+  );
+
   if (totalCount === 0) {
     return (
       <>
@@ -547,7 +558,18 @@ export function CardGrid() {
           className="flex-1"
           title={t("cardGrid.noCardsScanned")}
           description={t("cardGrid.scanToGetStarted")}
+          action={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAddCardOpen(true)}
+            >
+              <IconPlus />
+              {t("addCard.button")}
+            </Button>
+          }
         />
+        {addCardDialog}
       </>
     );
   }
@@ -627,6 +649,7 @@ export function CardGrid() {
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
           onStartReview={readOnly ? undefined : () => void startReview()}
+          onAddCard={() => setAddCardOpen(true)}
           collectionName={viewedCollection?.name}
           onClearAll={readOnly ? undefined : handleClearSession}
           hasCards={totalCards > 0}
@@ -855,6 +878,8 @@ export function CardGrid() {
           </div>
         </div>
       )}
+
+      {addCardDialog}
 
       <SessionSummaryDialog
         open={summaryOpen && !!exportCards}

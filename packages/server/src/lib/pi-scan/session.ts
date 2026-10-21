@@ -3,8 +3,10 @@ import { and, eq, sql } from "drizzle-orm";
 import {
   CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
+  CONSENSUS_RETRY_BUDGET,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  DEFAULT_MATCHES_NEEDED,
   DEWARP_OUTPUT_SIZE,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
@@ -30,13 +32,23 @@ import {
   type PiScanSessionStartBody,
   type PiScanSessionStartCode,
   type PiScanSessionState,
+  isStrongerTextMatch,
   type PlayingCardWithDistance,
+  type ScanAttemptDiagnostic,
   type SearchCardMatch,
+  type UnmatchedReason,
   type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
 import { bins, collections, games, orgSettings } from "../../db/schema";
-import type { PiScanBinCard, PiScanLive, PiScanRunContext } from "../interfaces/pi-scan";
+import type {
+  PiScanBinCard,
+  PiScanFrameMatch,
+  PiScanLive,
+  PiScanRunContext,
+  PiScanStartInput,
+  PiScanStartResult,
+} from "../interfaces/pi-scan";
 import type { CardMatchSearchResult } from "../interfaces/card-search";
 import {
   PI_SCAN_FEED_TIMEOUT_MS,
@@ -63,7 +75,7 @@ import { loadBinContents } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadActiveBinSet, snapshotBinSet } from "../../routes/bins/shared";
 import { grabCameraFrame } from "./camera";
-import { saveMatchedScan, saveUnmatchedScan } from "./save-scan";
+import { saveMatchedScan, saveUnmatchedScan } from "../save-scan";
 import {
   chooseRulesBin,
   findAutoAssignTarget,
@@ -286,6 +298,8 @@ async function prepareContext(
         scanOffsetY: true,
         captureSettleDelayMs: true,
         checkBothOrientations: true,
+        flipCamera: true,
+        matchesNeeded: true,
       },
     });
     if (!device?.guid) {
@@ -363,6 +377,8 @@ async function prepareContext(
       settleMs: device.captureSettleDelayMs ?? DEFAULT_CAPTURE_SETTLE_DELAY_MS,
       checkBothOrientations:
         device.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
+      flipCamera: device.flipCamera,
+      matchesNeeded: device.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
       matchAllLanguages: collection.matchAllLanguages,
       ocrEnabled: settings?.ocrEnabled === true,
       cardThickness: collection.cardThickness,
@@ -477,18 +493,9 @@ async function matchFrame(
   session: PiScanLive,
   context: PiScanRunContext,
   frame: Buffer,
-): Promise<{
-  image: Buffer;
-  orientation: "upright" | "rotated";
-  result: CardMatchSearchResult;
-  embedding: number[] | null;
-  ocr: OcrDiagnostics | null;
-  matchedBy: ScanMatchSource;
-  lowConfidenceFromOcr: boolean;
-  detection: ScanDetectionDiagnostics;
-  detectedColor: string | null;
-}> {
-  const source = await readScanImage(frame);
+): Promise<PiScanFrameMatch> {
+  const read = await readScanImage(frame);
+  const source = context.flipCamera ? rotateRgba180(read) : read;
   const corners = await detectScanCorners(source);
   const contour =
     corners.contour ??
@@ -545,38 +552,46 @@ async function matchFrame(
       OCR_CROP_WIDTH,
       OCR_CROP_HEIGHT,
     );
-    for (const option of [best, alternate]) {
-      if (!option?.embedding) continue;
-      try {
-        const text = await findCardMatchesByOcr(
-          session.jwtClaims,
-          await rgbaToJpeg(
-            option.orientation === "rotated" ? rotateRgba180(ocrCrop) : ocrCrop,
-          ),
-          regions,
-          {
-            gameKey: context.gameKey,
-            lang: context.lang,
-            matchAllLanguages: context.matchAllLanguages,
-            embeddings: { embedding: option.embedding },
-            preferredSetCode: session.preferredSetCode ?? undefined,
-          },
-        );
-        ocr = text.ocr;
-        const attached = await attachMatchedCards(
-          text,
-          context.gameKey,
-          context.lang,
-        );
-        if (hasCardMatch(attached)) {
-          best = { ...option, result: attached };
-          matchedBy = "ocr";
-          lowConfidenceFromOcr = !embeddingMatched;
-          break;
+    const options = [best, alternate].filter(
+      (option): option is NonNullable<typeof best> & { embedding: number[] } =>
+        !!option?.embedding,
+    );
+    const texts = await Promise.all(
+      options.map(async (option) => {
+        try {
+          return await findCardMatchesByOcr(
+            session.jwtClaims,
+            await rgbaToJpeg(
+              option.orientation === "rotated" ? rotateRgba180(ocrCrop) : ocrCrop,
+            ),
+            regions,
+            {
+              gameKey: context.gameKey,
+              lang: context.lang,
+              matchAllLanguages: context.matchAllLanguages,
+              embeddings: { embedding: option.embedding },
+              preferredSetCode: session.preferredSetCode ?? undefined,
+            },
+          );
+        } catch (err) {
+          console.error("[pi-scan] text search failed:", err);
+          return null;
         }
-      } catch (err) {
-        console.error("[pi-scan] text search failed:", err);
-      }
+      }),
+    );
+    let bestIndex = 0;
+    texts.forEach((result, index) => {
+      if (isStrongerTextMatch(result, texts[bestIndex])) bestIndex = index;
+    });
+    const text = texts[bestIndex];
+    ocr = text?.ocr ?? texts.find((item) => item?.ocr)?.ocr ?? null;
+    if (text && hasCardMatch(text)) {
+      best = {
+        ...options[bestIndex],
+        result: await attachMatchedCards(text, context.gameKey, context.lang),
+      };
+      matchedBy = "ocr";
+      lowConfidenceFromOcr = !embeddingMatched;
     }
   }
 
@@ -599,6 +614,86 @@ async function matchFrame(
     detection,
     detectedColor,
   };
+}
+
+function attemptDiagnostic(matched: PiScanFrameMatch): ScanAttemptDiagnostic {
+  const leader = matched.result.data?.[0];
+  const card = leader ? scannedCard(leader) : null;
+  return {
+    reason: card ? null : (matched.result.diagnostics?.reason ?? "too_far"),
+    cardId: card?.id ?? null,
+    cardName: card?.name ?? null,
+    distance: card?.distance ?? matched.result.nearestDistance ?? null,
+  };
+}
+
+function unmatchedReason(
+  context: PiScanRunContext,
+  matched: PiScanFrameMatch,
+  attempts: ScanAttemptDiagnostic[],
+): UnmatchedReason {
+  if (
+    context.matchesNeeded > 1 &&
+    attempts.some((attempt) => attempt.cardId)
+  ) {
+    return "no_consensus";
+  }
+  return matched.result.diagnostics?.reason ?? "too_far";
+}
+
+async function matchUntilConsensus(
+  session: PiScanLive,
+  context: PiScanRunContext,
+): Promise<{
+  matched: PiScanFrameMatch;
+  attempts: ScanAttemptDiagnostic[];
+  card: PlayingCardWithDistance | null;
+}> {
+  const take = async () => matchFrame(session, context, await grabCameraFrame());
+  if (context.matchesNeeded <= 1) {
+    const matched = await take();
+    const leader = matched.result.data?.[0];
+    return {
+      matched,
+      attempts: [attemptDiagnostic(matched)],
+      card: leader ? scannedCard(leader) : null,
+    };
+  }
+
+  const maxAttempts = context.matchesNeeded + CONSENSUS_RETRY_BUDGET;
+  const attempts: ScanAttemptDiagnostic[] = [];
+  let streakId: string | null = null;
+  let streakCount = 0;
+  let streak: PiScanFrameMatch | null = null;
+  let last: PiScanFrameMatch | null = null;
+  for (let index = 0; index < maxAttempts; index += 1) {
+    const matched = await take();
+    last = matched;
+    attempts.push(attemptDiagnostic(matched));
+    const topId = matched.result.data?.[0]?.cardId ?? null;
+    if (topId != null && topId === streakId) {
+      streakCount += 1;
+      streak = matched;
+    } else {
+      streakId = topId;
+      streakCount = topId != null ? 1 : 0;
+      streak = topId != null ? matched : null;
+    }
+    if (streak && streakCount >= context.matchesNeeded) {
+      const leader = streak.result.data?.[0];
+      return {
+        matched: streak,
+        attempts,
+        card: leader ? scannedCard(leader) : null,
+      };
+    }
+  }
+
+  if (!last) {
+    const matched = await take();
+    return { matched, attempts: [attemptDiagnostic(matched)], card: null };
+  }
+  return { matched: last, attempts, card: null };
 }
 
 function fail(session: PiScanLive, message: string) {
@@ -695,10 +790,10 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         break;
       }
 
-      const frame = await grabCameraFrame();
-      const matched = await matchFrame(session, context, frame);
+      const identified = await matchUntilConsensus(session, context);
+      const matched = identified.matched;
+      const card = identified.card;
       const leader = matched.result.data?.[0];
-      const card = leader ? scannedCard(leader) : null;
       const imageUrl = jpegDataUrl(matched.image);
       const scannedAt = Date.now();
       const scanId = randomUUID();
@@ -725,24 +820,18 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           break;
         }
         const diagnostics: UnmatchedScanDiagnostics = {
-          reason: matched.result.diagnostics?.reason ?? "too_far",
+          reason: unmatchedReason(context, matched, identified.attempts),
           search: matched.result.diagnostics
             ? withoutEmbedding(matched.result.diagnostics)
             : null,
           detection: matched.detection,
           orientation: matched.orientation,
-          matchesNeeded: 1,
-          attempts: [
-            {
-              reason: matched.result.diagnostics?.reason ?? "too_far",
-              cardId: null,
-              cardName: null,
-              distance: matched.result.nearestDistance,
-            },
-          ],
+          matchesNeeded: context.matchesNeeded,
+          attempts: identified.attempts,
         };
         const saved = await saveUnmatchedScan({
           jwtClaims: session.jwtClaims,
+          userId: session.userId,
           orgId: session.orgId,
           collectionGuid: session.collectionGuid,
           scanId,
@@ -846,21 +935,14 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         )
         .map((match) => scannedCard(match))
         .filter((match): match is PlayingCardWithDistance => match != null);
-      const lowMatch = !!findLowMatchCatchAll(ruleCard, context.configs);
+      const lowMatchBin = findLowMatchCatchAll(ruleCard, context.configs);
       const diagnostics: MatchedScanDiagnostics = {
         matchedBy: matched.matchedBy,
         vectorizedOn: "server",
         detection: matched.detection,
         orientation: matched.orientation,
-        matchesNeeded: 1,
-        attempts: [
-          {
-            reason: null,
-            cardId: card.id,
-            cardName: card.name,
-            distance: card.distance,
-          },
-        ],
+        matchesNeeded: context.matchesNeeded,
+        attempts: identified.attempts,
         candidates: (matched.result.data ?? []).map((match) => ({
           cardId: match.cardId,
           name: match.card?.name ?? null,
@@ -883,8 +965,9 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         isFoil: session.foilType != null,
         foilType: session.foilType ?? undefined,
         alternativeMatches: alternatives,
-        needsReview:
-          lowMatch || alternatives.length > 0 || matched.lowConfidenceFromOcr,
+        lowConfidenceMatch:
+          matched.lowConfidenceFromOcr ||
+          lowMatchBin?.binNumber === chosen.binNumber,
         diagnostics,
         vectorizedOn: "server",
         deviceGuid: context.deviceGuid,
@@ -1046,20 +1129,9 @@ function createSession(
   };
 }
 
-export async function startPiScanSession(input: {
-  orgId: string;
-  userId: string;
-  jwtClaims: string;
-  body: PiScanSessionStartBody;
-}): Promise<
-  | { ok: true; state: PiScanSessionState }
-  | {
-      ok: false;
-      status: 400 | 409;
-      code: PiScanSessionStartCode;
-      message: string;
-    }
-> {
+export async function startPiScanSession(
+  input: PiScanStartInput,
+): Promise<PiScanStartResult> {
   const collectionGuid = input.body.collectionGuid?.trim();
   if (!collectionGuid) {
     return {

@@ -2,6 +2,7 @@ export const APP_LOADING_TRANSITION_MS = 500;
 // Well inside the server's DEVICE_LEASE_TTL_MS (60s).
 export const DEVICE_LEASE_HEARTBEAT_MS = 20_000;
 export const LIVE_CLOCK_TICK_MS = 1000;
+export const DISCORD_ACCOUNT_LINK_POLL_MS = 3000;
 export const SEARCH_DEBOUNCE_MS = 300;
 export const CAPTURE_FLASH_MS = 300;
 export const PRESENCE_TIMEOUT_MS = 8000;
@@ -23,6 +24,7 @@ export const PUSH_TEST_RESPONSE_TIMEOUT_MS = 12_000;
 export const SETUP_IR_POLL_MS = 300;
 export const SETUP_IR_RESPONSE_TIMEOUT_MS = 1000;
 export const MONITOR_REFRESH_THROTTLE_MS = 1000;
+export const CARDS_SUMMARY_REFRESH_THROTTLE_MS = 3000;
 export const BILLING_STALE_MS = 60_000;
 export const STORE_CONFIG_TIMEOUT_MS = 10_000;
 export const NEUTRAL_RESPONSE_TIMEOUT_MS = 5000;

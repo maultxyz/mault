@@ -1,8 +1,8 @@
 import {
-  BUILD_ANCHOR_HIGHLIGHT_CLASSES,
-  BUILD_ANCHOR_HIGHLIGHT_MS,
-  BUILD_ANCHOR_SCROLL_MAX_FRAMES,
-} from "@/lib/constants/build";
+  GUIDE_ANCHOR_HIGHLIGHT_CLASSES,
+  GUIDE_ANCHOR_HIGHLIGHT_MS,
+  GUIDE_ANCHOR_SCROLL_MAX_FRAMES,
+} from "@/lib/constants/guide";
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
@@ -21,24 +21,24 @@ export function useScrollToHash() {
     const tryScroll = () => {
       const el = document.getElementById(id);
       if (!el) {
-        if (attempts++ < BUILD_ANCHOR_SCROLL_MAX_FRAMES) {
+        if (attempts++ < GUIDE_ANCHOR_SCROLL_MAX_FRAMES) {
           frame = requestAnimationFrame(tryScroll);
         }
         return;
       }
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       highlighted = el;
-      el.classList.add(...BUILD_ANCHOR_HIGHLIGHT_CLASSES);
+      el.classList.add(...GUIDE_ANCHOR_HIGHLIGHT_CLASSES);
       timeout = setTimeout(() => {
-        el.classList.remove(...BUILD_ANCHOR_HIGHLIGHT_CLASSES);
-      }, BUILD_ANCHOR_HIGHLIGHT_MS);
+        el.classList.remove(...GUIDE_ANCHOR_HIGHLIGHT_CLASSES);
+      }, GUIDE_ANCHOR_HIGHLIGHT_MS);
     };
 
     frame = requestAnimationFrame(tryScroll);
     return () => {
       cancelAnimationFrame(frame);
       clearTimeout(timeout);
-      highlighted?.classList.remove(...BUILD_ANCHOR_HIGHLIGHT_CLASSES);
+      highlighted?.classList.remove(...GUIDE_ANCHOR_HIGHLIGHT_CLASSES);
     };
   }, [hash]);
 }

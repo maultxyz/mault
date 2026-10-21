@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import {
@@ -8,7 +9,7 @@ import {
   stopPiScanSession,
 } from "@/features/scanner/api/pi-scan-session";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
-import { PI_CAMERA_BASE } from "@/features/scanner/lib/pi-camera";
+import { PI_CAMERA_BASE } from "@/lib/constants/scanner";
 import {
   applyPiScanState,
   getPiScanState,
@@ -28,6 +29,7 @@ import { Link, useLocation } from "react-router-dom";
 
 export function PiScanStatusBar() {
   const { t } = useTranslation("scanner");
+  const device = useDevice();
   const { pathname } = useLocation();
   const queryClient = useQueryClient();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
@@ -94,7 +96,10 @@ export function PiScanStatusBar() {
         <img
           src={`${PI_CAMERA_BASE}/stream`}
           alt={t("piScan.preview")}
-          className="h-14 w-10 shrink-0 rounded-md bg-muted object-cover"
+          className={cn(
+            "h-14 w-10 shrink-0 rounded-md bg-muted object-cover",
+            device?.flipCamera && "rotate-180",
+          )}
         />
       )}
       <span

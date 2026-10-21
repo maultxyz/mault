@@ -16,6 +16,7 @@ export function toDevice(row: {
   matchesNeeded: number | null;
   feederStopPulse: number | null;
   checkBothOrientations: boolean | null;
+  flipCamera: boolean;
   moduleCount: number;
   channelLayout: string | null;
   setupCompletedAt: Date | null;
@@ -36,6 +37,7 @@ export function toDevice(row: {
     feederStopPulse: row.feederStopPulse,
     checkBothOrientations:
       row.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
+    flipCamera: row.flipCamera,
     moduleCount: row.moduleCount,
     channelLayout: row.channelLayout,
     setupCompletedAt: row.setupCompletedAt?.toISOString() ?? null,

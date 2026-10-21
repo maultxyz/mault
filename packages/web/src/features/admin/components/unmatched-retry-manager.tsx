@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,8 @@ import { useBadPhotoMarks } from "@/features/admin/api/use-bad-photo-marks";
 import { UnmatchedRetryResult } from "@/features/admin/components/unmatched-retry-result";
 import { UnmatchedScanDetailDialog } from "@/features/admin/components/unmatched-scan-detail-dialog";
 import { formatMatchDistance } from "@/features/admin/lib/format-match-distance";
+import { useClientPagination } from "@/hooks/use-client-pagination";
+import { CLIENT_LIST_PAGE_SIZE } from "@/lib/constants/pagination";
 import { UNMATCHED_PHOTO_FILTERS } from "@/lib/constants/admin";
 import type { UnmatchedPhotoFilter } from "@/lib/interfaces/admin";
 import { toast } from "@/lib/toast";
@@ -100,6 +103,7 @@ export function UnmatchedRetryManager() {
             .some((value) => value!.toLowerCase().includes(query))),
     );
   }, [scansQuery.data, search, results, photoFilter, badPhotos.isBad]);
+  const pagination = useClientPagination(scans);
 
   const badCount = scans.filter((scan) => badPhotos.isBad(scan.scanId)).length;
   const goodResults = scans.flatMap((scan) =>
@@ -129,6 +133,13 @@ export function UnmatchedRetryManager() {
   };
   const previousId = neighborOf(-1);
   const nextId = neighborOf(1);
+  const selectNeighbor = (scanId: string) => {
+    setSelectedId(scanId);
+    const index = scans.findIndex((scan) => scan.scanId === scanId);
+    if (index !== -1) {
+      pagination.setPage(Math.floor(index / CLIENT_LIST_PAGE_SIZE) + 1);
+    }
+  };
 
   const isRetrying = (scanId: string) =>
     retryMutation.isPending &&
@@ -172,15 +183,19 @@ export function UnmatchedRetryManager() {
       <div className="flex flex-col gap-2 sm:flex-row">
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            pagination.setPage(1);
+          }}
           placeholder={t("unmatchedRetry.searchPlaceholder")}
           data-hotkey-search
         />
         <Select
           value={photoFilter}
-          onValueChange={(value) =>
-            setPhotoFilter(value as UnmatchedPhotoFilter)
-          }
+          onValueChange={(value) => {
+            setPhotoFilter(value as UnmatchedPhotoFilter);
+            pagination.setPage(1);
+          }}
         >
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue>
@@ -217,111 +232,117 @@ export function UnmatchedRetryManager() {
           title={t("unmatchedRetry.empty")}
         />
       ) : (
-        <div className="divide-y rounded-lg border">
-          {scans.map((scan) => {
-            const result = results[scan.scanId];
-            const isBad = badPhotos.isBad(scan.scanId);
-            const badPhotoLabel = isBad
-              ? t("unmatchedRetry.unmarkBadPhoto")
-              : t("unmatchedRetry.markBadPhoto");
-            return (
-              <div
-                key={scan.scanId}
-                className="flex flex-col gap-3 px-4 py-2.5 sm:flex-row sm:items-center"
-              >
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(scan.scanId)}
-                  aria-label={t("unmatchedRetry.detail.open")}
-                  className="flex min-w-0 flex-1 items-center gap-3 rounded-md text-left outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
+        <>
+          <div className="divide-y rounded-lg border">
+            {pagination.pageItems.map((scan) => {
+              const result = results[scan.scanId];
+              const isBad = badPhotos.isBad(scan.scanId);
+              const badPhotoLabel = isBad
+                ? t("unmatchedRetry.unmarkBadPhoto")
+                : t("unmatchedRetry.markBadPhoto");
+              return (
+                <div
+                  key={scan.scanId}
+                  className="flex flex-col gap-3 px-4 py-2.5 sm:flex-row sm:items-center"
                 >
-                  <div className="aspect-[2.5/3.5] w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
-                    {scan.capturedImageUrl ? (
-                      <img
-                        src={scan.capturedImageUrl}
-                        alt={t("unmatchedRetry.imageAlt")}
-                        className="h-full w-full object-fill"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <IconPhotoOff className="size-4 text-foreground/70" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="truncate text-sm font-medium">
-                        {[
-                          scan.collectionName,
-                          scan.orgName ?? t("unmatchedRetry.unknownOrg"),
-                        ].join(" · ")}
-                      </p>
-                      {isBad && (
-                        <Badge variant="destructive" className="shrink-0">
-                          {t("unmatchedRetry.badPhoto")}
-                        </Badge>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(scan.scanId)}
+                    aria-label={t("unmatchedRetry.detail.open")}
+                    className="flex min-w-0 flex-1 items-center gap-3 rounded-md text-left outline-none hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <div className="aspect-[2.5/3.5] w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
+                      {scan.capturedImageUrl ? (
+                        <img
+                          src={scan.capturedImageUrl}
+                          alt={t("unmatchedRetry.imageAlt")}
+                          className="h-full w-full object-fill"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                          <IconPhotoOff className="size-4 text-foreground/70" />
+                        </div>
                       )}
                     </div>
-                    <p className="truncate text-xs text-foreground/70">
-                      {[
-                        scan.gameKey
-                          ? `${scan.gameKey} (${scan.lang})`
-                          : t("unmatchedRetry.statuses.no_game"),
-                        new Date(scan.scannedAt).toLocaleString(i18n.language, {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        }),
-                      ].join(" · ")}
-                    </p>
-                    <p className="truncate text-xs text-foreground/70">
-                      {t("unmatchedRetry.original", {
-                        details:
-                          describeOriginal(scan) ||
-                          t("unmatchedRetry.originalNone"),
-                      })}
-                    </p>
-                  </div>
-                </button>
-
-                <div className="flex items-center gap-3 sm:w-80">
-                  <div className="min-w-0 flex-1">
-                    {result ? (
-                      <UnmatchedRetryResult result={result} />
-                    ) : (
-                      <p className="text-xs text-foreground/70">
-                        {scan.hasEmbedding
-                          ? t("unmatchedRetry.notRetried")
-                          : t("unmatchedRetry.statuses.no_embedding")}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-medium">
+                          {[
+                            scan.collectionName,
+                            scan.orgName ?? t("unmatchedRetry.unknownOrg"),
+                          ].join(" · ")}
+                        </p>
+                        {isBad && (
+                          <Badge variant="destructive" className="shrink-0">
+                            {t("unmatchedRetry.badPhoto")}
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="truncate text-xs text-foreground/70">
+                        {[
+                          scan.gameKey
+                            ? `${scan.gameKey} (${scan.lang})`
+                            : t("unmatchedRetry.statuses.no_game"),
+                          new Date(scan.scannedAt).toLocaleString(
+                            i18n.language,
+                            {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            },
+                          ),
+                        ].join(" · ")}
                       </p>
-                    )}
+                      <p className="truncate text-xs text-foreground/70">
+                        {t("unmatchedRetry.original", {
+                          details:
+                            describeOriginal(scan) ||
+                            t("unmatchedRetry.originalNone"),
+                        })}
+                      </p>
+                    </div>
+                  </button>
+
+                  <div className="flex items-center gap-3 sm:w-80">
+                    <div className="min-w-0 flex-1">
+                      {result ? (
+                        <UnmatchedRetryResult result={result} />
+                      ) : (
+                        <p className="text-xs text-foreground/70">
+                          {scan.hasEmbedding
+                            ? t("unmatchedRetry.notRetried")
+                            : t("unmatchedRetry.statuses.no_embedding")}
+                        </p>
+                      )}
+                    </div>
+                    <Button
+                      size="icon"
+                      variant={isBad ? "destructive" : "outline"}
+                      aria-pressed={isBad}
+                      aria-label={badPhotoLabel}
+                      title={badPhotoLabel}
+                      onClick={() => badPhotos.toggle(scan.scanId)}
+                    >
+                      <IconPhotoX />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => retryOne(scan.scanId)}
+                      disabled={retryMutation.isPending || !scan.hasEmbedding}
+                    >
+                      {isRetrying(scan.scanId) ? (
+                        <IconLoader2 className="animate-spin" />
+                      ) : (
+                        <IconRefresh />
+                      )}
+                      {t("unmatchedRetry.retry")}
+                    </Button>
                   </div>
-                  <Button
-                    size="icon"
-                    variant={isBad ? "destructive" : "outline"}
-                    aria-pressed={isBad}
-                    aria-label={badPhotoLabel}
-                    title={badPhotoLabel}
-                    onClick={() => badPhotos.toggle(scan.scanId)}
-                  >
-                    <IconPhotoX />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => retryOne(scan.scanId)}
-                    disabled={retryMutation.isPending || !scan.hasEmbedding}
-                  >
-                    {isRetrying(scan.scanId) ? (
-                      <IconLoader2 className="animate-spin" />
-                    ) : (
-                      <IconRefresh />
-                    )}
-                    {t("unmatchedRetry.retry")}
-                  </Button>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+          <ListPagination pagination={pagination} />
+        </>
       )}
 
       <UnmatchedScanDetailDialog
@@ -336,8 +357,8 @@ export function UnmatchedRetryManager() {
           ocrMutation.isPending && ocrMutation.variables === selected?.scanId
         }
         onRunOcr={(scanId) => ocrMutation.mutate(scanId)}
-        onPrevious={previousId ? () => setSelectedId(previousId) : null}
-        onNext={nextId ? () => setSelectedId(nextId) : null}
+        onPrevious={previousId ? () => selectNeighbor(previousId) : null}
+        onNext={nextId ? () => selectNeighbor(nextId) : null}
         onClose={() => setSelectedId(null)}
       />
     </SettingsSection>

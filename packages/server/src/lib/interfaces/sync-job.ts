@@ -5,6 +5,7 @@ import type {
   SyncState,
   SyncVectorizeOn,
 } from "@magic-vault/shared";
+import type { SyncSource, SyncSourceCard } from "./card-search";
 
 export interface StartMessage {
   type: "start";
@@ -74,3 +75,20 @@ export type WorkerToParentMessage =
   | AddLogMessage
   | EmitEventMessage
   | WorkResponseMessage;
+
+export interface BrowserQueueHost {
+  source: SyncSource;
+  lang: string;
+  cards: SyncSourceCard[];
+  skipped: number;
+  addLog: (msg: string) => void;
+  patchState: (patch: Partial<SyncState>) => void;
+  incrementCounters: (delta: {
+    processed?: number;
+    skipped?: number;
+    errors?: number;
+  }) => void;
+  emitEvent: (event: string, data: unknown) => void;
+  getState: () => SyncState;
+  isCancelled: () => boolean;
+}
