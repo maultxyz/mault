@@ -1,3 +1,4 @@
+import { PRINTING_SCORE_SET_CODE_MAX_LENGTH } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { listSetPrintings } from "../../lib/card-search/card-sets";
 import { resolveCardSearch } from "../../lib/card-search/resolve";
@@ -9,7 +10,7 @@ export const setPrintingsRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const setCode = c.req.query("set")?.trim() ?? "";
-    if (!setCode || setCode.length > 64) {
+    if (!setCode || setCode.length > PRINTING_SCORE_SET_CODE_MAX_LENGTH) {
       return c.json({ success: false, message: "A set is required." }, 400);
     }
     const resolved = await resolveCardSearch(

@@ -76,7 +76,7 @@ function poolDuplicatePrintings<
   );
 }
 
-function vectorLiteral(embedding: number[] | null): string | null {
+export function vectorLiteral(embedding: number[] | null): string | null {
   return embedding ? `[${embedding.join(",")}]` : null;
 }
 
@@ -90,11 +90,11 @@ export function parseEmbeddingField(value: unknown): number[] | null {
   }
 }
 
-function cardDistanceSql(embeddingStr: string): SQL {
+export function cardDistanceSql(embeddingStr: string): SQL {
   return sql`LEAST(embedding <=> ${embeddingStr}::vector(128), back_embedding <=> ${embeddingStr}::vector(128))`;
 }
 
-function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): SQL {
+export function langFilter({ lang, matchAllLanguages }: CollectionMatchScope): SQL {
   return matchAllLanguages ? sql`` : sql`AND lang = ${lang}`;
 }
 
