@@ -1,7 +1,8 @@
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import { Button } from "@/components/ui/button";
 import { OptionCard } from "@/components/option-card";
-import { BuildSectionHeader } from "@/features/build/components/section-header";
+import { GuideSectionHeader } from "@/components/guide/guide-section-header";
+import { GuideSetupStep } from "@/components/guide/guide-setup-step";
 import {
   BOARD_ICONS,
   BOARD_INFO,
@@ -15,7 +16,6 @@ import {
   MAX_MODULES,
   MIN_MODULES,
 } from "@/lib/constants/build";
-import type { BuildSetupStepProps } from "@/lib/interfaces/build";
 import {
   IconLock,
   IconMinus,
@@ -24,31 +24,6 @@ import {
   IconTool,
 } from "@tabler/icons-react";
 import { Trans, useTranslation } from "react-i18next";
-
-function SetupStep({ step, label, hint, children }: BuildSetupStepProps) {
-  return (
-    <div className="group/step flex gap-3">
-      <div className="flex flex-col items-center">
-        <span className="grid size-6 shrink-0 place-items-center rounded-sm border border-primary font-heading text-2xs font-semibold text-primary">
-          {String(step).padStart(2, "0")}
-        </span>
-        <span
-          aria-hidden
-          className="my-1.5 w-px flex-1 bg-border group-last/step:hidden"
-        />
-      </div>
-      <div className="min-w-0 flex-1 pb-5 group-last/step:pb-0">
-        <h3 className="font-heading text-sm font-semibold">{label}</h3>
-        {hint && (
-          <div className="mt-0.5 text-sm/relaxed text-foreground/70">
-            {hint}
-          </div>
-        )}
-        <div className="mt-2">{children}</div>
-      </div>
-    </div>
-  );
-}
 
 export function BuildSetup() {
   const { t } = useTranslation("build");
@@ -77,7 +52,7 @@ export function BuildSetup() {
       id={BUILD_SETUP_ANCHOR}
       className="mx-auto max-w-4xl scroll-mt-14 px-4 py-10"
     >
-      <BuildSectionHeader
+      <GuideSectionHeader
         id={BUILD_SETUP_ANCHOR}
         step="01"
         eyebrow={t("hero.nav.setup")}
@@ -86,10 +61,10 @@ export function BuildSetup() {
         <p className="text-sm/relaxed text-foreground/70">
           {t("setup.description")}
         </p>
-      </BuildSectionHeader>
+      </GuideSectionHeader>
 
       <div className="mt-6 flex flex-col">
-        <SetupStep step={1} label={t("setup.source.label")}>
+        <GuideSetupStep step={1} label={t("setup.source.label")}>
           <div
             role="radiogroup"
             aria-label={t("setup.source.label")}
@@ -110,9 +85,9 @@ export function BuildSetup() {
               onSelect={() => updateSetup({ usingKit: false })}
             />
           </div>
-        </SetupStep>
+        </GuideSetupStep>
 
-        <SetupStep
+        <GuideSetupStep
           step={2}
           label={t("setup.board.label")}
           hint={
@@ -141,10 +116,10 @@ export function BuildSetup() {
               />
             ))}
           </div>
-        </SetupStep>
+        </GuideSetupStep>
 
         {isEsp32 && (
-          <SetupStep step={3} label={t("setup.mount.label")}>
+          <GuideSetupStep step={3} label={t("setup.mount.label")}>
             <div
               role="radiogroup"
               aria-label={t("setup.mount.label")}
@@ -162,10 +137,10 @@ export function BuildSetup() {
                 />
               ))}
             </div>
-          </SetupStep>
+          </GuideSetupStep>
         )}
 
-        <SetupStep
+        <GuideSetupStep
           step={moduleStep}
           label={t("setup.modules.label")}
           hint={t("setup.modules.description", { bins: catchAllBin })}
@@ -239,7 +214,7 @@ export function BuildSetup() {
               />
             </p>
           </div>
-        </SetupStep>
+        </GuideSetupStep>
       </div>
     </section>
   );

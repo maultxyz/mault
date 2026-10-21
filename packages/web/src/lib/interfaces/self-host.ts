@@ -1,5 +1,4 @@
 import type { Icon } from "@tabler/icons-react";
-import type { ReactNode } from "react";
 
 export type SelfHostHost = "compose" | "coolify";
 
@@ -44,17 +43,3 @@ export interface SelfHostSectionProps {
   toggle: (key: string) => void;
 }
 
-export interface SelfHostSetupStepProps {
-  step: number;
-  label: string;
-  children: ReactNode;
-}
-
-export interface SelfHostCodeBlockProps {
-  code: string;
-}
-
-export interface SelfHostHeroProps {
-  sections: SelfHostSection[];
-  checked: Record<string, boolean>;
-}

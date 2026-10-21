@@ -1,10 +1,11 @@
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useBuildChecklist } from "@/features/build/api/use-build-checklist";
 import { useBuildPhases } from "@/features/build/api/use-build-phases";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { AnchorLinkButton } from "@/components/guide/anchor-link-button";
 import { PhaseVideo } from "@/features/build/components/phase-video";
-import { BuildSectionHeader } from "@/features/build/components/section-header";
+import { GuideChecklistItem } from "@/components/guide/guide-checklist-item";
+import { GuideProgress } from "@/components/guide/guide-progress";
+import { GuideSectionHeader } from "@/components/guide/guide-section-header";
 import { PrintPartImages } from "@/features/build/components/print-part-images";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { phaseAnchorId, stepAnchorId } from "@/features/build/lib/anchors";
@@ -25,16 +26,13 @@ export function BuildAssembly() {
 
   const allSteps = useMemo(() => PHASES.flatMap((p) => p.steps), [PHASES]);
   const doneCount = allSteps.filter((s) => checked[s.key]).length;
-  const pct = allSteps.length
-    ? Math.round((doneCount / allSteps.length) * 100)
-    : 0;
 
   return (
     <section
       id={BUILD_ASSEMBLY_ANCHOR}
       className="mx-auto max-w-7xl scroll-mt-14 px-4 py-10"
     >
-      <BuildSectionHeader
+      <GuideSectionHeader
         id={BUILD_ASSEMBLY_ANCHOR}
         step="03"
         eyebrow={t("hero.nav.assembly")}
@@ -43,7 +41,7 @@ export function BuildAssembly() {
         <p className="text-sm/relaxed text-foreground/70">
           {t("assembly.description")}
         </p>
-      </BuildSectionHeader>
+      </GuideSectionHeader>
       <p className="mt-1 max-w-2xl text-sm/relaxed text-foreground/70">
         <Trans
           t={t}
@@ -64,21 +62,14 @@ export function BuildAssembly() {
       <BuildSelectionSummary />
 
       <div className="mt-4">
-        <div className="mb-1.5 flex items-center justify-between font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase tabular-nums">
-          <span>
-            {t("assembly.progress.stepsCount", {
-              done: doneCount,
-              total: allSteps.length,
-            })}
-          </span>
-          <span>{pct}%</span>
-        </div>
-        <div className="h-1 overflow-hidden rounded-full bg-border">
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
+        <GuideProgress
+          label={t("assembly.progress.stepsCount", {
+            done: doneCount,
+            total: allSteps.length,
+          })}
+          done={doneCount}
+          total={allSteps.length}
+        />
       </div>
 
       <div className="mt-5 flex flex-col gap-4">
@@ -131,57 +122,48 @@ export function BuildAssembly() {
                       id={stepAnchorId(step.key)}
                       className="flex scroll-mt-32 flex-col gap-2 py-2 first:pt-0 last:pb-0"
                     >
-                      <label
-                        htmlFor={step.key}
-                        className="group/anchor flex cursor-pointer items-start gap-2.5"
+                      <GuideChecklistItem
+                        id={step.key}
+                        checked={!!checked[step.key]}
+                        onToggle={() => toggle(step.key)}
+                        details={
+                          <>
+                            {step.note && (
+                              <p className="mt-0.5 text-sm/relaxed text-foreground/70">
+                                {step.note}
+                              </p>
+                            )}
+                            {step.modelParts && (
+                              <PrintPartImages parts={step.modelParts} />
+                            )}
+                            {step.images && step.images.length > 0 && (
+                              <div className="mt-1.5 flex flex-wrap gap-1.5">
+                                {step.images.map((src) => (
+                                  <img
+                                    key={src}
+                                    src={src}
+                                    alt=""
+                                    className="w-full max-w-32 rounded-md border sm:max-w-56"
+                                  />
+                                ))}
+                              </div>
+                            )}
+                          </>
+                        }
+                        aside={
+                          <AnchorLinkButton
+                            id={stepAnchorId(step.key)}
+                            className="-my-1"
+                          />
+                        }
                       >
-                        <Checkbox
-                          id={step.key}
-                          checked={!!checked[step.key]}
-                          onCheckedChange={() => toggle(step.key)}
-                          className="mt-0.5"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p
-                            className={cn(
-                              "text-sm/relaxed",
-                              checked[step.key] &&
-                                "text-foreground/70 line-through decoration-foreground/70",
-                            )}
-                          >
-                            {step.text}
-                            {step.optional && (
-                              <Badge className={BUILD_OPTIONAL_BADGE_CLASS}>
-                                {t("optionalBadge")}
-                              </Badge>
-                            )}
-                          </p>
-                          {step.note && (
-                            <p className="mt-0.5 text-sm/relaxed text-foreground/70">
-                              {step.note}
-                            </p>
-                          )}
-                          {step.modelParts && (
-                            <PrintPartImages parts={step.modelParts} />
-                          )}
-                          {step.images && step.images.length > 0 && (
-                            <div className="mt-1.5 flex flex-wrap gap-1.5">
-                              {step.images.map((src) => (
-                                <img
-                                  key={src}
-                                  src={src}
-                                  alt=""
-                                  className="w-full max-w-32 rounded-md border sm:max-w-56"
-                                />
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                        <AnchorLinkButton
-                          id={stepAnchorId(step.key)}
-                          className="-my-1"
-                        />
-                      </label>
+                        {step.text}
+                        {step.optional && (
+                          <Badge className={BUILD_OPTIONAL_BADGE_CLASS}>
+                            {t("optionalBadge")}
+                          </Badge>
+                        )}
+                      </GuideChecklistItem>
                       {step.reference && (
                         <div className="sm:pl-7">{step.reference}</div>
                       )}

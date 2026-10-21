@@ -8,7 +8,8 @@ import {
 } from "@/components/ui/accordion";
 import { usePartsChecklist } from "@/features/build/api/use-parts-checklist";
 import { BomGroupTable } from "@/features/build/components/bom-group-table";
-import { BuildSectionHeader } from "@/features/build/components/section-header";
+import { GuideProgress } from "@/components/guide/guide-progress";
+import { GuideSectionHeader } from "@/components/guide/guide-section-header";
 import { BuildSelectionSummary } from "@/features/build/components/selection-summary";
 import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
@@ -42,15 +43,12 @@ export function BuildBom() {
   );
   const allRows = useMemo(() => groups.flatMap((g) => g.rows), [groups]);
   const doneCount = allRows.filter((r) => checked[r.key]).length;
-  const pct = allRows.length
-    ? Math.round((doneCount / allRows.length) * 100)
-    : 0;
 
   const channelsUsed = moduleCount * 3 + 1;
 
   return (
     <section id="parts" className="mx-auto max-w-4xl scroll-mt-14 px-4 py-10">
-      <BuildSectionHeader
+      <GuideSectionHeader
         id="parts"
         step="02"
         eyebrow={t("hero.nav.parts")}
@@ -64,7 +62,7 @@ export function BuildBom() {
             channelsFree: 16 - channelsUsed,
           })}
         </p>
-      </BuildSectionHeader>
+      </GuideSectionHeader>
       <BuildSelectionSummary />
       <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm/relaxed text-primary">
         <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
@@ -86,21 +84,14 @@ export function BuildBom() {
       </div>
 
       <div className="mt-4">
-        <div className="mb-1.5 flex items-center justify-between font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase tabular-nums">
-          <span>
-            {t("bom.progress.partsCount", {
-              done: doneCount,
-              total: allRows.length,
-            })}
-          </span>
-          <span>{pct}%</span>
-        </div>
-        <div className="h-1 overflow-hidden rounded-full bg-border">
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
-            style={{ width: `${pct}%` }}
-          />
-        </div>
+        <GuideProgress
+          label={t("bom.progress.partsCount", {
+            done: doneCount,
+            total: allRows.length,
+          })}
+          done={doneCount}
+          total={allRows.length}
+        />
       </div>
 
       {usingKit && (

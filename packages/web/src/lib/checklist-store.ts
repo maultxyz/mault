@@ -1,5 +1,5 @@
-import { EMPTY_CHECKLIST } from "@/lib/constants/build";
-import type { ChecklistStore } from "@/lib/interfaces/build";
+import { EMPTY_CHECKLIST } from "@/lib/constants/guide";
+import type { ChecklistStore } from "@/lib/interfaces/guide";
 
 export function createChecklistStore(storageKey: string): ChecklistStore {
   let state: Record<string, boolean> | null = null;

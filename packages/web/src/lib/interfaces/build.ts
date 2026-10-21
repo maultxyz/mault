@@ -3,11 +3,6 @@ import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
-export interface AnchorLinkButtonProps {
-  id: string;
-  className?: string;
-}
-
 export type BoardType = "uno_r4" | "esp32";
 
 export interface BoardInfo {
@@ -96,21 +91,6 @@ export interface BuildSetupValue extends BuildSetupState {
   updateSetup: (patch: Partial<BuildSetupState>) => void;
 }
 
-export interface BuildSectionHeaderProps {
-  id: string;
-  step: string;
-  eyebrow: string;
-  heading: string;
-  children?: ReactNode;
-}
-
-export interface BuildSetupStepProps {
-  step: number;
-  label: string;
-  hint?: ReactNode;
-  children: ReactNode;
-}
-
 export type WireColor = "yellow" | "green" | "blue" | "red" | "black" | "white";
 
 export type WireKey =
@@ -143,27 +123,6 @@ export interface WiringReferenceProps {
   description?: ReactNode;
   footnote?: ReactNode;
   children: ReactNode;
-}
-
-export interface ChecklistStore {
-  subscribe: (listener: () => void) => () => void;
-  getSnapshot: () => Record<string, boolean>;
-  toggle: (key: string) => void;
-  check: (keys: readonly string[]) => void;
-}
-
-export interface BuildTocEntry {
-  id: string;
-  label: string;
-  done?: number;
-  total?: number;
-  depth: 0 | 1;
-  number?: number;
-}
-
-export interface BuildTocListProps {
-  entries: BuildTocEntry[];
-  onNavigate?: () => void;
 }
 
 export type PrintPartImagesStatus = "loading" | "ready" | "error";
