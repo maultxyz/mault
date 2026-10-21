@@ -10,7 +10,7 @@ import {
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   findAutoAssignTarget,
-  getCardsInBin,
+  getRepackBinCards,
   getCatchAllBin,
   getRepackPackBins,
   hasMaxCopiesBins,
@@ -347,7 +347,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const packsComplete = () =>
         !!repackSet &&
         areAllRepackPacksComplete(configs, ctx.fieldDefinitions, repackSet, (bin) =>
-          getCardsInBin(binContentsRef.current, bin),
+          getRepackBinCards(binContentsRef.current, bin, repackSet, ctx.fieldDefinitions),
         );
       if (decision.bin?.isCatchAll && !decision.isLowMatch && packsComplete()) {
         pause("repack-complete");

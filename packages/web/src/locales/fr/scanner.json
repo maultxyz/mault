@@ -621,6 +621,11 @@
     "keys": {
       "enter": "Entrée",
       "escape": "Échap"
+    },
+    "added": {
+      "title": "Placez {{name}} dans le bac {{to}}",
+      "description": "D'après vos règles de tri, elle va dans le bac {{to}}. Placez-la, puis confirmez pour que le décompte des bacs reste juste.",
+      "noBinDescription": "Aucun de vos bacs n'accepte cette carte, mettez-la de côté."
     }
   },
   "deployPause": {

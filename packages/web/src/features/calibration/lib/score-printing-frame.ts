@@ -3,16 +3,12 @@ import { extractCardImage, canvasToBlob } from "@/features/scanner/lib/card-dete
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
 import { embedCanvas, rotateCanvas180 } from "@/features/scanner/lib/milo-client";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
-import type { PrintingScoreFormValues } from "@/schemas/printing-score.schema";
-import { getDefaultCardContour, type PrintingScoreResult, type ScanRegion } from "@magic-vault/shared";
+import type { ScorePrintingFrameInput } from "@/lib/interfaces/calibration";
+import { getDefaultCardContour, type PrintingScoreResult } from "@magic-vault/shared";
 
-export async function scorePrintingFrame(input: {
-  canvas: HTMLCanvasElement;
-  region: ScanRegion;
-  checkBothOrientations: boolean;
-  collectionGuid: string;
-  values: PrintingScoreFormValues;
-}): Promise<PrintingScoreResult> {
+export async function scorePrintingFrame(
+  input: ScorePrintingFrameInput,
+): Promise<PrintingScoreResult> {
   const created: HTMLCanvasElement[] = [];
   try {
     let source: HTMLCanvasElement | null = null;

@@ -32,6 +32,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       matchesNeeded?: number | null;
       feederStopPulse?: number | null;
       checkBothOrientations?: boolean | null;
+      flipCamera?: boolean;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
       setupCompleted?: boolean;
@@ -115,6 +116,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             "checkBothOrientations" in body
               ? (body.checkBothOrientations ?? null)
               : device.checkBothOrientations,
+          flipCamera:
+            typeof body.flipCamera === "boolean"
+              ? body.flipCamera
+              : device.flipCamera,
           channelLayout,
           setupCompletedAt:
             "setupCompleted" in body

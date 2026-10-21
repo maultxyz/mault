@@ -27,3 +27,6 @@ export const OUTLINE_SMOOTHING_MS = 90;
 export const OUTLINE_FADE_MS = 140;
 export const OUTLINE_SNAP_OPACITY = 0.05;
 export const OUTLINE_SETTLED_PX = 0.5;
+
+export const PRINTING_SCORE_SET_CODE_MAX_LENGTH = 64;
+export const PRINTING_SCORE_CARD_ID_MAX_LENGTH = 1024;

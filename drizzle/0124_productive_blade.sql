@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD COLUMN "flip_camera" boolean DEFAULT false NOT NULL;

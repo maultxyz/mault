@@ -621,6 +621,11 @@
     "keys": {
       "enter": "Enter",
       "escape": "Esc"
+    },
+    "added": {
+      "title": "{{name}} in Fach {{to}} legen",
+      "description": "Laut deinen Sortierregeln gehört sie in Fach {{to}}. Lege sie dort hinein und bestätige, damit die Fachzählung stimmt.",
+      "noBinDescription": "Keines deiner Fächer nimmt diese Karte auf, lege sie also beiseite."
     }
   },
   "deployPause": {

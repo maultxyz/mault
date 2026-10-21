@@ -152,6 +152,8 @@
     "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
     "matchesNeededLabel": "Benötigte Übereinstimmungen",
     "matchesNeededDescription": "Wie viele aufeinanderfolgende Bilder dieselbe Karte bestätigen müssen, bevor ein Scan akzeptiert wird. 1 ist am schnellsten; höhere Werte sind zuverlässiger, aber langsamer.",
+    "flipCameraLabel": "Kamera um 180° drehen",
+    "flipCameraDescription": "Dreht das Kamerabild auf den Kopf, für eine Kamera, die andersherum montiert ist. Gilt für Scans und jede Vorschau der angeschlossenen Kamera dieses Sortierers, nicht für Telefonfotos.",
     "checkBothOrientationsLabel": "Beide Richtungen prüfen",
     "checkBothOrientationsDescription": "Gleicht die Karte zusätzlich um 180° gedreht ab, damit auch verkehrt herum eingezogene Karten erkannt werden. Deaktivieren, wenn alle Karten gleich ausgerichtet eingezogen werden, um jeden Scan zu beschleunigen.",
     "executionProviderLabel": "KI-Erkennungs-Backend",
@@ -183,17 +185,22 @@
     "noCards": "Keine passenden Karten.",
     "rate": "Bewerten",
     "rating": "Bewerte…",
-    "description": "Wähle das Set und dann die Karte auf dem Scanner, und bewerte ein Bild der Kamera. Niedriger liegt näher am gespeicherten Bild dieser Ausgabe. Unter {{threshold}} akzeptiert ein Scan die Karte. Ab {{threshold}} lehnt er sie ab. Die Zahl ist kein Prozentsatz und keine Zustandsnote, und sie kann sich zwischen den Versuchen ändern. Bewerten ändert die Kamera nicht und speichert nichts.",
+    "description": "Wähle das Set und dann die Karte auf dem Scanner, und bewerte ein Bild der Kamera. Niedriger liegt näher am gespeicherten Bild dieser Ausgabe. Ein Scan akzeptiert die Karte nur, wenn sie der nächste Treffer ist, unter {{threshold}} liegt und deutlich näher ist als jede andere Karte. Die Zahl ist kein Prozentsatz und keine Zustandsnote, und sie kann sich zwischen den Versuchen ändern. Bewerten ändert die Kamera nicht und speichert nichts.",
     "fieldsRequired": "Wähle ein Set und eine Karte.",
     "noCollection": "Wähle zuerst eine Sammlung. Die Bewertung nutzt das Spiel dieser Sammlung.",
     "noCamera": "Verbinde eine Kamera oder nimm ein Telefonfoto auf, bevor du bewertest.",
     "notSynced": "Diese Ausgabe ist im synchronisierten Katalog für das Spiel dieser Sammlung nicht vorhanden. Synchronisiere das Set und bewerte danach erneut.",
     "distanceLabel": "Abstand",
-    "wouldAccept": "Ein Scan würde dieses Bild akzeptieren.",
-    "wouldReject": "Ein Scan würde dieses Bild ablehnen.",
     "nearestDifferent": "Die nächste Karte im Katalog ist {{name}} ({{set}} {{number}}) mit {{distance}}.",
     "cardLine": "{{name}}, {{set}} {{number}}",
-    "failed": "Dieses Bild konnte nicht bewertet werden."
+    "failed": "Dieses Bild konnte nicht bewertet werden.",
+    "verdict": {
+      "accept": "Ein Scan würde diese Karte akzeptieren.",
+      "other_card": "Ein Scan würde eine andere Karte erkennen.",
+      "too_far": "Ein Scan würde dieses Bild ablehnen. Die nächste Karte liegt bei {{threshold}} oder höher.",
+      "ambiguous": "Ein Scan würde dieses Bild ablehnen. Eine andere Karte ist fast genauso nah.",
+      "empty_index": "Ein Scan würde dieses Bild ablehnen. Für dieses Spiel sind keine Karten synchronisiert."
+    }
   },
   "useCalibrationPage": {
     "toasts": {
