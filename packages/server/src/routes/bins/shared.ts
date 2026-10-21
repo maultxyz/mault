@@ -154,6 +154,7 @@ function toBinSet(row: {
   repackSlots: unknown;
   repackUniqueBy: string | null;
   repackSiftRules: unknown;
+  repackMultiplePacks: boolean;
   isAlphabetMode: boolean;
   alphabetPass: number;
   alphabetPrefix: string;
@@ -203,6 +204,7 @@ function toBinSet(row: {
     repackSlots: (row.repackSlots as RepackSlot[] | null) ?? [],
     repackUniqueBy: row.repackUniqueBy,
     repackSiftRules: (row.repackSiftRules as BinRuleGroup | null) ?? null,
+    repackMultiplePacks: row.repackMultiplePacks,
     isAlphabetMode: row.isAlphabetMode,
     alphabetPass: row.alphabetPass,
     alphabetPrefix: row.alphabetPrefix,
@@ -257,6 +259,7 @@ const binSetQuery = {
     repackSlots: true,
     repackUniqueBy: true,
     repackSiftRules: true,
+    repackMultiplePacks: true,
     isAlphabetMode: true,
     alphabetPass: true,
     alphabetPrefix: true,

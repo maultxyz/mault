@@ -30,7 +30,7 @@ import {
   findLowMatchCatchAll,
   isRulesMode,
   resolveOverflowBin,
-  getCardsInBin,
+  getRepackBinCards,
   getCatchAllBin,
   getChaosBins,
   getRepackPackBins,
@@ -200,6 +200,16 @@ export function ScannedCardsProvider({
       (level?.count ?? 0) + (pendingBinCardsRef.current.get(binNumber) ?? 0)
     );
   }, []);
+  const binRoomLocally = useCallback(
+    (binNumber: number) => {
+      const level = binFillLevelsRef.current.find(
+        (l) => l.binNumber === binNumber,
+      );
+      if (!level?.capacity) return Number.POSITIVE_INFINITY;
+      return level.capacity - countCardsLocally(binNumber);
+    },
+    [countCardsLocally],
+  );
   const trackPendingBinCard = useCallback(
     (binNumber: number, delta: number) => {
       const pending = pendingBinCardsRef.current;
@@ -340,7 +350,14 @@ export function ScannedCardsProvider({
           binConfigsRef.current,
           fieldDefinitionsRef.current,
           set,
-          (bin) => getCardsInBin(binContentsRef.current, bin),
+          (bin) =>
+            getRepackBinCards(
+              binContentsRef.current,
+              bin,
+              set,
+              fieldDefinitionsRef.current,
+            ),
+          (bin) => binRoomLocally(bin.binNumber),
         );
       }
       return evaluateCardBin(
@@ -360,7 +377,7 @@ export function ScannedCardsProvider({
         (bin) => isBinFullLocally(bin.binNumber),
       );
     },
-    [isBinFullLocally, countCardsLocally],
+    [isBinFullLocally, countCardsLocally, binRoomLocally],
   );
 
   const resolvePickListMatch = useCallback(
@@ -472,10 +489,17 @@ export function ScannedCardsProvider({
         binConfigsRef.current,
         fieldDefinitionsRef.current,
         set,
-        (bin) => getCardsInBin(binContentsRef.current, bin),
+        (bin) =>
+          getRepackBinCards(
+            binContentsRef.current,
+            bin,
+            set,
+            fieldDefinitionsRef.current,
+          ),
+        (bin) => binRoomLocally(bin.binNumber),
       )
     );
-  }, []);
+  }, [binRoomLocally]);
 
   const pauseForCompletePacks = useCallback(() => {
     const set = selectedSetRef.current;

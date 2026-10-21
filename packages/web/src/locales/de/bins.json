@@ -184,6 +184,8 @@
     "slotsLabel": "Pack-Slots",
     "slotCountLabel": "Anzahl",
     "addSlot": "Slot hinzufügen",
+    "multiplePacksLabel": "Mehrere Pakete pro Fach",
+    "multiplePacksDescription": "Wenn ein Fach ein Paket fertig hat, beginnt es darauf ein neues und macht weiter, bis das Fach voll ist. Ein Fach beginnt ein neues Paket nur, wenn das ganze Paket noch hineinpasst, damit kein Paket unvollständig bleibt.",
     "siftLabel": "Karten aussortieren",
     "siftDescription": "Karten, die den Regeln unten entsprechen, kommen statt in ein Paket in das erste Fach. So kannst du Karten, die du behalten willst (nach Wert, Seltenheit, Set oder etwas anderem), aussortieren, während alle anderen Fächer Pakete aus dem Rest bilden.",
     "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Fach {{bin}}. Alle anderen Fächer bilden Pakete aus dem Rest.",

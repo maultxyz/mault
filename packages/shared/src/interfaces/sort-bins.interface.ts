@@ -95,6 +95,7 @@ export interface RepackConfigPatch {
   repackSlots: RepackSlot[];
   repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
+  repackMultiplePacks?: boolean;
 }
 
 export interface BinSet {
@@ -110,6 +111,7 @@ export interface BinSet {
   repackSlots: RepackSlot[];
   repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
+  repackMultiplePacks: boolean;
   isAlphabetMode: boolean;
   alphabetPass: number;
   alphabetPrefix: string;

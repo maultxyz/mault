@@ -116,6 +116,7 @@ export const repackConfigSchema = z.object({
   repackUniqueBy: z.string().min(1),
   repackSiftRules: binRuleGroupSchema.nullable(),
   repackSlots: z.array(repackSlotSchema),
+  repackMultiplePacks: z.boolean(),
 });
 
 export type RepackConfigFormValues = z.infer<typeof repackConfigSchema>;

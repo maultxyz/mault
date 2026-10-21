@@ -27,11 +27,13 @@ export const setRepackRoute = new Hono<AppEnv>().put(
       repackSlots,
       repackUniqueBy,
       repackSiftRules,
+      repackMultiplePacks,
     } = await c.req.json<{
       isRepackMode: boolean;
       repackSlots: RepackSlot[];
       repackUniqueBy?: string | null;
       repackSiftRules?: BinRuleGroup | null;
+      repackMultiplePacks?: boolean;
     }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -57,6 +59,9 @@ export const setRepackRoute = new Hono<AppEnv>().put(
             }),
             ...(repackSiftRules !== undefined && {
               repackSiftRules: toSiftRules(repackSiftRules),
+            }),
+            ...(typeof repackMultiplePacks === "boolean" && {
+              repackMultiplePacks,
             }),
             updatedAt: new Date(),
           })

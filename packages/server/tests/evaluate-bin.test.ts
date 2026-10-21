@@ -6,6 +6,7 @@ import {
   evaluateCardBin,
   evaluateRepackBin,
   findLowMatchCatchAll,
+  getRepackBinCards,
   getCardValue,
   isBinFull,
   isOverflowTarget,
@@ -328,6 +329,66 @@ test("repack is complete once every pack bin has met its pack limit", () => {
 test("the sift bin doesn't need a complete pack for repack to finish", () => {
   assert.equal(packsComplete(siftRules, [2, 3]), true);
   assert.equal(packsComplete(siftRules, [1, 2]), false);
+});
+
+const multiSet = {
+  repackSlots: [anySlot],
+  repackUniqueBy: null,
+  repackSiftRules: null,
+  repackMultiplePacks: true,
+};
+
+function binCards(binNumber: number, count: number) {
+  return Array.from({ length: count }, (_, i) => ({
+    binNumber,
+    scannedAt: i + 1,
+    card: toRuleCard({ id: `b${binNumber}-${i}`, price: 1, prices: { usd: 1 } }, {}),
+  }));
+}
+
+function repackMulti(contents: ReturnType<typeof binCards>, binOneRoom: number) {
+  return evaluateRepackBin(
+    toRuleCard({ price: 1, prices: { usd: 1 } }, {}),
+    repackConfigs,
+    ruleFields,
+    multiSet,
+    (b) => getRepackBinCards(contents, b, multiSet, ruleFields),
+    (b) => (b.binNumber === 1 ? binOneRoom : Number.POSITIVE_INFINITY),
+  )?.binNumber;
+}
+
+test("multiple packs: a bin with a finished pack starts a new one", () => {
+  assert.equal(repackMulti(binCards(1, 10), Number.POSITIVE_INFINITY), 1);
+});
+
+test("multiple packs: a bin without room for a whole pack is skipped", () => {
+  assert.equal(repackMulti(binCards(1, 10), 5), 2);
+});
+
+test("multiple packs: a pack already started keeps filling", () => {
+  assert.equal(repackMulti(binCards(1, 13), 2), 1);
+});
+
+test("multiple packs: only the cards since the last finished pack count", () => {
+  assert.equal(getRepackBinCards(binCards(1, 23), repackBins[0], multiSet, ruleFields).length, 3);
+  assert.equal(
+    getRepackBinCards(binCards(1, 23), repackBins[0], { ...multiSet, repackMultiplePacks: false }, ruleFields).length,
+    23,
+  );
+});
+
+test("multiple packs: repack finishes once no bin can start another pack", () => {
+  const contents = [...binCards(1, 10), ...binCards(2, 20), ...binCards(3, 10)];
+  const complete = (room: number) =>
+    areAllRepackPacksComplete(
+      repackConfigs,
+      ruleFields,
+      multiSet,
+      (b) => getRepackBinCards(contents, b, multiSet, ruleFields),
+      () => room,
+    );
+  assert.equal(complete(5), true);
+  assert.equal(complete(Number.POSITIVE_INFINITY), false);
 });
 
 function repackUnique(card: object, uniqueBy: string | null, inFirstPack: object[]) {
