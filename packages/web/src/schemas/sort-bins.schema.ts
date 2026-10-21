@@ -74,6 +74,7 @@ export const binConfigSchema = z.object({
     .min(1, "Must be at least 1")
     .max(OVERRIDE_PRIORITY_MAX, `Must be at most ${OVERRIDE_PRIORITY_MAX}`)
     .nullable(),
+  repackPriority: z.number().int().min(1).nullable(),
   isDisabled: z.boolean(),
   rules: binRuleGroupSchema,
   maxCopies: z

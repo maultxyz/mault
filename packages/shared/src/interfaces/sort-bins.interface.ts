@@ -71,6 +71,7 @@ export interface BinConfig {
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickList | null;
+  repackPriority?: number | null;
   lastEmptiedAt?: number | null;
 }
 
@@ -87,6 +88,13 @@ export interface RepackSlot {
   id: string;
   rule: BinRuleGroup;
   targetCount: number;
+}
+
+export interface RepackConfigPatch {
+  isRepackMode: boolean;
+  repackSlots: RepackSlot[];
+  repackUniqueBy: string | null;
+  repackSiftRules: BinRuleGroup | null;
 }
 
 export interface BinSet {

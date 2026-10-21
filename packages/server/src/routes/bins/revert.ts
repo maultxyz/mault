@@ -13,6 +13,7 @@ import {
   toMaxCopiesBy,
   toOverflowBin,
   toOverridePriority,
+  toRepackPriority,
   normalizeOverflowBins,
   toBinPickList,
 } from "./shared";
@@ -82,6 +83,10 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
             ),
             overflowBin: toOverflowBin(config.overflowBin, config.binNumber),
             isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
+            repackPriority: toRepackPriority(
+              config.repackPriority,
+              config.isCatchAll,
+            ),
           };
           const existing = binSet.bins.find(
             (b) => b.binNumber === config.binNumber,

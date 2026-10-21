@@ -18,6 +18,7 @@ import {
   toMaxCopiesBy,
   toOverflowBin,
   toOverridePriority,
+  toRepackPriority,
   activeBinSetWhere,
   emptyRules,
   normalizeOverflowBins,
@@ -44,6 +45,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       overflowBin,
       isDisabled,
       pickList,
+      repackPriority,
     } = await c.req.json<{
       rules: BinRuleGroup;
       isCatchAll?: boolean;
@@ -56,6 +58,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
       overflowBin?: number | null;
       isDisabled?: boolean;
       pickList?: PickListInput | null;
+      repackPriority?: number | null;
     }>();
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -72,6 +75,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
                 isDisabled: true,
                 overflowBin: true,
                 pickList: true,
+                repackPriority: true,
               },
             },
           },
@@ -129,6 +133,12 @@ export const editBinRoute = new Hono<AppEnv>().put(
                 isDisabled ?? existing.isDisabled,
                 isCatchAll,
               ),
+              repackPriority: toRepackPriority(
+                repackPriority === undefined
+                  ? existing.repackPriority
+                  : repackPriority,
+                isCatchAll,
+              ),
               updatedAt: new Date(),
             })
             .where(eq(bins.id, existing.id));
@@ -138,6 +148,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             binNumber,
             overflowBin: isPickList ? null : toOverflowBin(overflowBin, binNumber),
             isDisabled: toIsDisabled(isDisabled, isCatchAll),
+            repackPriority: toRepackPriority(repackPriority, isCatchAll),
             binSet: activeBinSet.id,
             orgId,
           });
@@ -163,6 +174,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
             overflowBin: true,
             isDisabled: true,
             pickList: true,
+            repackPriority: true,
             lastEmptiedAt: true,
           },
         });
@@ -185,6 +197,7 @@ export const editBinRoute = new Hono<AppEnv>().put(
               overflowBin: b.overflowBin,
               isDisabled: b.isDisabled,
               pickList: b.isCatchAll ? null : toPickList(b.pickList),
+              repackPriority: b.repackPriority,
               lastEmptiedAt: b.lastEmptiedAt ? b.lastEmptiedAt.getTime() : null,
             }),
           ),

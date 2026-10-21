@@ -7,6 +7,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import {
   getAlphabetPassLetters,
   getOverflowSources,
+  getRepackPackBins,
   isRulesMode,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -32,6 +33,12 @@ export function BinList() {
           configs,
           selectedSet?.alphabetPass ?? 0,
           selectedSet?.alphabetPrefix ?? "",
+        )
+      : null;
+  const repackPackBins =
+    effectiveMode.isRepackMode && !isModeDirty && selectedSet
+      ? new Set(
+          getRepackPackBins(configs, selectedSet).map((bin) => bin.binNumber),
         )
       : null;
   const { activeOrg } = useOrg();
@@ -75,6 +82,11 @@ export function BinList() {
               alphabetLetters
                 ? (alphabetLetters.get(config.binNumber) ?? null)
                 : undefined
+            }
+            repackPriority={
+              repackPackBins?.has(config.binNumber)
+                ? config.repackPriority
+                : null
             }
             showOverflow={showOverflow}
             overflowSources={

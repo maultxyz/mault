@@ -293,6 +293,7 @@ export const bins = pgTable(
     overflowBin: integer("overflow_bin"),
     isDisabled: boolean("is_disabled").notNull().default(false),
     pickList: jsonb("pick_list"),
+    repackPriority: integer("repack_priority"),
     lastEmptiedAt: timestamp("last_emptied_at"),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
