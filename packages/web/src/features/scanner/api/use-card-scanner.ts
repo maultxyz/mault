@@ -49,6 +49,7 @@ import type {
   TextSearchOutcome,
 } from "@/lib/interfaces/scanner";
 import {
+  drawVideoFrame,
   fitCanvasesToContainer,
   observeContainerResize,
 } from "@/features/scanner/lib/canvas-fit";
@@ -682,6 +683,9 @@ export function useCardScanner({
   const checkBothOrientationsRef = useRef(checkBothOrientations);
   checkBothOrientationsRef.current = checkBothOrientations;
 
+  const flipCameraRef = useRef(device?.flipCamera ?? false);
+  flipCameraRef.current = device?.flipCamera ?? false;
+
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
   const preferredSetCodeRef = useRef(preferredSetCode);
@@ -783,7 +787,8 @@ export function useCardScanner({
     if (!video || !canvas || video.readyState < video.HAVE_CURRENT_DATA) {
       return;
     }
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    const ctx = canvas.getContext("2d");
+    if (ctx) drawVideoFrame(ctx, video, flipCameraRef.current);
   }, []);
 
   const performCapture = useCallback(
@@ -901,7 +906,7 @@ export function useCardScanner({
     const displayCtx = displayCanvas.getContext("2d");
     if (!displayCtx) return;
 
-    displayCtx.drawImage(video, 0, 0);
+    drawVideoFrame(displayCtx, video, flipCameraRef.current);
 
     rafRef.current = requestAnimationFrame(detectionLoop);
   }, []);
