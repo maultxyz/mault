@@ -70,51 +70,6 @@ services:
       - "3001:3001"
     restart: unless-stopped
 
-  # Daily TCGplayer + Cardmarket price pull (scripts/sync-prices.ts). Hosted
-  # deployments run it from an external scheduler; here it loops on its own.
-  # Each run only downloads what changed upstream since the last pull (the
-  # job checks tcgcsv's last-updated.txt and Cardmarket's Last-Modified
-  # first), so checking every few hours stays within both sources' asks.
-  # A failed run (e.g. the server hasn't finished migrating a fresh database
-  # yet) retries after PRICE_SYNC_RETRY_MINUTES. PRICE_SYNC_INTERVAL_HOURS=0
-  # turns it off, e.g. when an external scheduler already runs the script.
-  prices:
-    build:
-      context: .
-      dockerfile: Dockerfile.server
-    depends_on:
-      postgres:
-        condition: service_healthy
-      server:
-        condition: service_started
-    env_file: .env
-    environment:
-      AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
-      PRICE_SYNC_INTERVAL_HOURS: ${PRICE_SYNC_INTERVAL_HOURS:-6}
-      PRICE_SYNC_RETRY_MINUTES: ${PRICE_SYNC_RETRY_MINUTES:-10}
-      BOT_URL: ${DOCKER_BOT_URL:-http://bot:3002}
-    command:
-      - sh
-      - -c
-      - |
-        if [ "$$PRICE_SYNC_INTERVAL_HOURS" = "0" ]; then
-          echo "[prices] PRICE_SYNC_INTERVAL_HOURS=0, price sync disabled."
-          exec sleep infinity
-        fi
-        if [ "$$AUTH_PROVIDER" = "local" ]; then
-          export DATABASE_URL="$${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
-          export DATABASE_SSL="$${DATABASE_SSL:-false}"
-        fi
-        while true; do
-          if node packages/server/dist/scripts/sync-prices.js; then
-            sleep $$(($$PRICE_SYNC_INTERVAL_HOURS * 3600))
-          else
-            echo "[prices] Sync failed, retrying in $$PRICE_SYNC_RETRY_MINUTES minutes."
-            sleep $$(($$PRICE_SYNC_RETRY_MINUTES * 60))
-          fi
-        done
-    restart: unless-stopped
-
   web:
     build:
       context: .
