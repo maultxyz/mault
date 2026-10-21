@@ -14,6 +14,7 @@ import {
   IconLayoutGrid,
   IconLayoutList,
   IconListCheck,
+  IconPlus,
   IconSearch,
   IconStack2,
   IconTrash,
@@ -53,6 +54,7 @@ export function CardToolbar({
   groupDuplicates,
   onGroupDuplicatesChange,
   leading,
+  onAddCard,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
@@ -202,6 +204,12 @@ export function CardToolbar({
                 {t("cardToolbar.clearAll")}
               </Button>
             </ButtonGroup>
+          )}
+          {onAddCard && (
+            <Button variant="outline" onClick={onAddCard} className="shrink-0">
+              <IconPlus />
+              {t("addCard.button")}
+            </Button>
           )}
         </div>
       </div>

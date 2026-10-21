@@ -360,5 +360,13 @@
     "some_one": "1 de ces {{total}} cartes est rangée dans un emplacement de stockage. La supprimer la retire aussi du stockage.",
     "some_other": "{{count}} de ces {{total}} cartes sont rangées dans des emplacements de stockage. Les supprimer les retire aussi du stockage.",
     "deleteAnyway": "Supprimer quand même"
+  },
+  "addCard": {
+    "button": "Ajouter une carte",
+    "title": "Ajouter une carte",
+    "description": "Recherchez une carte et choisissez l'impression à ajouter.",
+    "collection": "Collection",
+    "added": "{{name}} ajoutée",
+    "failed": "Impossible d'ajouter la carte."
   }
 }

@@ -6,7 +6,7 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard } from "@magic-vault/shared";
+import type { AddManualCardRequest, CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard } from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import type {
   CardSaveResult,
@@ -266,6 +266,16 @@ export async function identifyUnmatchedCard(
 ): Promise<Result<ScannedCard>> {
   return apiPost<Result<ScannedCard>>(
     `/api/collections/${guid}/unmatched/${scanId}/identify`,
+    request,
+  );
+}
+
+export async function addManualCollectionCard(
+  guid: string,
+  request: AddManualCardRequest,
+): Promise<Result<ScannedCard>> {
+  return apiPost<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/manual`,
     request,
   );
 }
