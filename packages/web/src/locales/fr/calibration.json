@@ -448,7 +448,7 @@
       "clear": "Libre",
       "verified": "Capteur vérifié",
       "waiting": "En attente de la première lecture du trieur…",
-      "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard."
+      "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard. Si un capteur s'allume sans rien devant lui, ou ne voit une carte que collée contre lui, tourne la vis de son boîtier bleu (le potentiomètre) jusqu'à ce qu'il détecte une carte à 2,5 cm."
     },
     "feederStop": {
       "heading": "Point d'arrêt du chargeur",

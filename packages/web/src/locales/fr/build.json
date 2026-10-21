@@ -552,9 +552,13 @@
           "calibrateFeeder": {
             "text": "Panneau de calibration du chargeur - ajuste la vitesse d'alimentation, le minutage impulsion/pause et la durée de stabilisation en fonction de ta trémie réelle."
           },
+          "adjustIr": {
+            "text": "Règle la distance de détection des {{count}} capteurs IR pour que chacun voie une carte à 2,5 cm (1 pouce) devant lui. Carte alimentée, utilise un petit tournevis sur la vis du boîtier bleu (le potentiomètre) de chaque capteur : tourne-la d'abord jusqu'à ce que la LED témoin du capteur s'éteigne sans rien devant lui, puis tiens une carte à 2,5 cm devant le capteur et tourne lentement la vis dans l'autre sens jusqu'à ce que la LED s'allume tout juste.",
+            "note": "Pour vérifier, recule la carte à environ 5 cm : la LED doit s'éteindre. Si elle reste allumée, tourne la vis un peu en arrière. Un capteur réglé trop loin dépasse le trajet des cartes et signale des cartes qui ne sont pas là."
+          },
           "checkIr": {
             "text": "Panneau des capteurs IR - vérifie que les {{count}} capteurs signalent correctement la présence/l'absence avec une carte en main.",
-            "note": "Si un capteur ne se déclenche pas, ou se déclenche sans rien devant lui, calibre sa distance de détection manuellement : au dos du capteur se trouve un petit boîtier bleu avec une molette grise (potentiomètre). Tourne-la à fond dans un sens pour qu'il ne détecte plus rien, puis tourne-la lentement en sens inverse jusqu'à ce qu'il détecte juste une carte à deux ou trois centimètres devant lui."
+            "note": "Si un capteur ne se déclenche pas, ou se déclenche sans rien devant lui, refais l'étape précédente pour ce capteur."
           },
           "testBins": {
             "text": "Contrôles de routage des bacs : envoie une carte de test vers chacun des {{count}} bacs à tour de rôle et confirme qu'elle atterrit correctement."
