@@ -258,6 +258,7 @@ export const DEFAULT_DEVICE: Device = {
   matchesNeeded: DEFAULT_MATCHES_NEEDED,
   feederStopPulse: null,
   checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  flipCamera: false,
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
   setupCompletedAt: null,

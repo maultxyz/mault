@@ -10,7 +10,7 @@ import {
   evaluateRepackBin,
   evaluateScanOnlyBin,
   findLowMatchCatchAll,
-  getCardsInBin,
+  getRepackBinCards,
   isRulesMode,
   reservePickListBins,
   resolveOverflowBin,
@@ -58,7 +58,9 @@ export function resolveBin(card: PlayingCardWithDistance, ctx: RoutingContext): 
   } else if (set?.isAlphabetMode) {
     bin = evaluateAlphabetBin(card, configs, set.alphabetPass, set.alphabetPrefix);
   } else if (set?.isRepackMode) {
-    bin = evaluateRepackBin(card, configs, fieldDefinitions, set, (b) => getCardsInBin(ctx.binContents, b));
+    bin = evaluateRepackBin(card, configs, fieldDefinitions, set, (b) =>
+      getRepackBinCards(ctx.binContents, b, set, fieldDefinitions),
+    );
   } else {
     bin = evaluateCardBin(
       card,

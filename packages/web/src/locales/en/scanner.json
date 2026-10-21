@@ -621,6 +621,11 @@
     "keys": {
       "enter": "Enter",
       "escape": "Esc"
+    },
+    "added": {
+      "title": "Put {{name}} in Bin {{to}}",
+      "description": "Based on your sorting rules it belongs in Bin {{to}}. Put it there, then confirm so the bin counts stay right.",
+      "noBinDescription": "None of your bins take this card, so keep it aside."
     }
   },
   "deployPause": {

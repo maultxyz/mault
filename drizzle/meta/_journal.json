@@ -869,6 +869,27 @@
       "when": 1792524651125,
       "tag": "0123_blue_barracuda",
       "breakpoints": true
+    },
+    {
+      "idx": 124,
+      "version": "7",
+      "when": 1792592665898,
+      "tag": "0124_productive_blade",
+      "breakpoints": true
+    },
+    {
+      "idx": 125,
+      "version": "7",
+      "when": 1792593515935,
+      "tag": "0125_keen_viper",
+      "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1792593989429,
+      "tag": "0126_charming_kingpin",
+      "breakpoints": true
     }
   ]
 }

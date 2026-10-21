@@ -62,6 +62,7 @@ export function RepackPanel() {
       repackUniqueBy: REPACK_UNIQUE_BY_PRINTING,
       repackSiftRules: null,
       repackSlots: [createSlot()],
+      repackMultiplePacks: false,
     },
   });
 
@@ -76,6 +77,7 @@ export function RepackPanel() {
       repackSiftRules: set.repackSiftRules,
       repackSlots:
         set.repackSlots.length > 0 ? set.repackSlots : [createSlot()],
+      repackMultiplePacks: set.repackMultiplePacks,
     });
   }, [selectedSetGuid, form]);
 
@@ -90,6 +92,7 @@ export function RepackPanel() {
               ? null
               : values.repackUniqueBy,
           repackSiftRules: values.repackSiftRules,
+          repackMultiplePacks: values.repackMultiplePacks,
         });
         if (saved) form.reset(values);
       } catch {}
@@ -183,6 +186,34 @@ export function RepackPanel() {
                 </SelectContent>
               </Select>
             </Field>
+          )}
+        />
+
+        <Controller
+          name="repackMultiplePacks"
+          control={form.control}
+          render={({ field }) => (
+            <div
+              className="flex items-center gap-2"
+              data-tour="repack-multiple-packs"
+            >
+              <Switch
+                aria-label={t("repackPanel.multiplePacksLabel")}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+              <span className="flex items-center gap-1.5">
+                <FieldLabel>{t("repackPanel.multiplePacksLabel")}</FieldLabel>
+                <Tooltip>
+                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                    <IconInfoCircle className="size-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    {t("repackPanel.multiplePacksDescription")}
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+            </div>
           )}
         />
 

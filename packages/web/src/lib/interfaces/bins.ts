@@ -10,7 +10,7 @@ import type {
   FieldMeta,
   PickList,
   PickListInput,
-  RepackSlot,
+  RepackConfigPatch,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
 import type { Control } from "react-hook-form";
@@ -30,6 +30,7 @@ export interface BinConfigSaveInput {
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickListInput | null;
+  repackPriority?: number | null;
 }
 
 export interface BinModeDraft {
@@ -106,12 +107,7 @@ export interface BinConfigsContextValue {
   setAutoAssignField: (field: string | null) => Promise<void>;
   resetAutoAssign: () => Promise<void>;
   setScanOnly: (config: ScanOnlyConfig) => Promise<void>;
-  setRepackConfig: (config: {
-    isRepackMode: boolean;
-    repackSlots: RepackSlot[];
-    repackUniqueBy: string | null;
-    repackSiftRules: BinRuleGroup | null;
-  }) => Promise<boolean>;
+  setRepackConfig: (config: RepackConfigPatch) => Promise<boolean>;
   setAlphabetPass: (step: AlphabetStep) => Promise<void>;
   effectiveMode: BinModeDraft;
   isModeDirty: boolean;
@@ -140,6 +136,7 @@ export interface BinCardProps {
   isScanOnlyTarget?: boolean;
   isChaosMode?: boolean;
   alphabetLetter?: string | null;
+  repackPriority?: number | null;
   showOverflow?: boolean;
   overflowSources?: number[];
   disabled?: boolean;

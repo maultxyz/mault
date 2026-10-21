@@ -5,6 +5,8 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { useCollections } from "@/features/collections/api/use-collections";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { fetchNextUnreviewedStorageCard } from "@/features/storage/api/storage-locations";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
@@ -49,6 +51,8 @@ function DesktopStoragePage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [addCardOpen, setAddCardOpen] = useState(false);
+  const { collections } = useCollections();
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebouncedValue(
     searchQuery.trim(),
@@ -180,6 +184,16 @@ function DesktopStoragePage() {
                     })}
                   </p>
                 </div>
+                {!isLocked && (
+                  <Button
+                    variant="outline"
+                    disabled={collections.length === 0}
+                    onClick={() => setAddCardOpen(true)}
+                  >
+                    <IconPlus />
+                    {t("page.addCard")}
+                  </Button>
+                )}
                 {selected.cardCount > 0 && (
                   <>
                     <Button
@@ -262,6 +276,13 @@ function DesktopStoragePage() {
         )}
       </div>
 
+      {selected && (
+        <AddCardDialog
+          open={addCardOpen}
+          onOpenChange={setAddCardOpen}
+          locationGuid={selected.guid}
+        />
+      )}
       <StorageLocationNameDialog
         open={createOpen}
         onOpenChange={setCreateOpen}

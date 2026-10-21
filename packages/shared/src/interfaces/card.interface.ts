@@ -1,3 +1,5 @@
+import type { SearchNoMatchReason } from "./api.interface";
+
 export type SourceCard = object;
 
 export interface PlayingCardImage {
@@ -82,10 +84,13 @@ export interface PrintingScoreHit {
   distance: number;
 }
 
+export type PrintingScoreVerdict = "accept" | "other_card" | SearchNoMatchReason;
+
 export interface PrintingScoreResult {
   success: true;
   found: boolean;
   distanceThreshold: number;
+  verdict: PrintingScoreVerdict;
   card: PrintingScoreHit | null;
   nearest: PrintingScoreHit | null;
 }

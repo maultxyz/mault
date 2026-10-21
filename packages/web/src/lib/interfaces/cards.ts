@@ -122,8 +122,22 @@ export type CardViewMode = "grid" | "list";
 
 export type CardGridDensity = "compact" | "comfortable" | "large";
 
+export interface AddCardDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  collectionGuid?: string;
+  locationGuid?: string;
+}
+
+export interface AddManualCardInput {
+  collectionGuid: string;
+  card: PlayingCard;
+  locationGuid?: string;
+}
+
 export interface CardToolbarProps {
   leading?: ReactNode;
+  onAddCard?: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sortKey: string | null;

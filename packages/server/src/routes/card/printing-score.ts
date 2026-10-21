@@ -1,50 +1,44 @@
 import {
   DISTANCE_THRESHOLD,
+  PRINTING_SCORE_CARD_ID_MAX_LENGTH,
   type PlayingCardImage,
   type PrintingScoreHit,
   type PrintingScoreResult,
+  type PrintingScoreVerdict,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
-import { sql, type SQL } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { authQuery } from "../../db";
-import {
-  CARD_MATCH_HNSW_EF_SEARCH,
-  MILO_EMBEDDING_DIM,
-} from "../../lib/constants/card-search";
+import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import {
   resolveCardSearchForGame,
   resolveGameKeyAndLang,
 } from "../../lib/card-search/resolve";
-import type { CollectionMatchScope } from "../../lib/interfaces/card-search";
+import type {
+  CardMatchSearchResult,
+  CollectionMatchScope,
+  OrientedCardMatch,
+} from "../../lib/interfaces/card-search";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { parseEmbeddingField } from "./shared";
+import {
+  cardDistanceSql,
+  findCardMatches,
+  langFilter,
+  parseEmbeddingField,
+  vectorLiteral,
+} from "./shared";
 
-function embeddingLiteral(value: number[] | null): string | null {
+function validEmbedding(value: number[] | null): number[] | null {
   if (!value || value.length !== MILO_EMBEDDING_DIM) return null;
-  if (!value.every((entry) => typeof entry === "number" && Number.isFinite(entry))) {
-    return null;
-  }
-  return `[${value.join(",")}]`;
+  return value.every((entry) => typeof entry === "number" && Number.isFinite(entry))
+    ? value
+    : null;
 }
 
 function asNumber(value: unknown): number | null {
   const number = typeof value === "number" ? value : Number(value);
   return Number.isFinite(number) ? number : null;
-}
-
-function langSql(scope: CollectionMatchScope): SQL {
-  return scope.matchAllLanguages ? sql`` : sql`AND lang = ${scope.lang}`;
-}
-
-function distanceSql(embeddingStr: string): SQL {
-  return sql`CASE
-    WHEN back_embedding IS NULL THEN embedding <=> ${embeddingStr}::vector(128)
-    ELSE LEAST(
-      embedding <=> ${embeddingStr}::vector(128),
-      back_embedding <=> ${embeddingStr}::vector(128)
-    )
-  END`;
 }
 
 function imageFor(
@@ -78,122 +72,85 @@ function toHit(
   };
 }
 
-async function scoreEmbedding(
+function hasMatch(result: CardMatchSearchResult): boolean {
+  return (result.data?.length ?? 0) > 0;
+}
+
+function pickOrientation(matches: OrientedCardMatch[]): OrientedCardMatch {
+  return matches.reduce((best, next) => {
+    if (hasMatch(best.result) !== hasMatch(next.result)) {
+      return hasMatch(next.result) ? next : best;
+    }
+    const bestDistance = best.result.nearestDistance ?? Number.POSITIVE_INFINITY;
+    const nextDistance = next.result.nearestDistance ?? Number.POSITIVE_INFINITY;
+    return nextDistance < bestDistance ? next : best;
+  });
+}
+
+function verdictFor(
+  result: CardMatchSearchResult,
+  cardId: string,
+): PrintingScoreVerdict {
+  const top = result.data?.[0];
+  if (top) return top.cardId === cardId ? "accept" : "other_card";
+  return result.diagnostics?.reason ?? "too_far";
+}
+
+function nearestCardId(result: CardMatchSearchResult): string | null {
+  return (
+    result.data?.[0]?.cardId ??
+    result.diagnostics?.candidates[0]?.cardId ??
+    null
+  );
+}
+
+async function loadHits(
   jwtClaims: string,
   scope: CollectionMatchScope,
-  embeddingStr: string,
-  cardId: string,
-): Promise<PrintingScoreResult> {
-  const { gameKey } = scope;
-  return authQuery(jwtClaims, async (tx) => {
-    await tx.execute(sql`
-      SELECT
-        set_config('hnsw.iterative_scan', 'strict_order', true),
-        set_config('hnsw.max_scan_tuples', '100000', true),
-        set_config('hnsw.ef_search', ${String(CARD_MATCH_HNSW_EF_SEARCH)}, true)
-    `);
-
-    const printing = await tx.execute(sql`
-      SELECT
+  embedding: number[],
+  cardIds: string[],
+): Promise<Map<string, PrintingScoreHit>> {
+  const embeddingStr = vectorLiteral(embedding)!;
+  const result = await authQuery(jwtClaims, (tx) =>
+    tx.execute(sql`
+      SELECT DISTINCT ON (card_id)
         card_id,
         lang,
         name,
         set_code,
         collector_number,
         data,
-        ${distanceSql(embeddingStr)} AS distance
+        ${cardDistanceSql(embeddingStr)} AS distance
       FROM cards
-      WHERE game_key = ${gameKey} ${langSql(scope)}
-        AND card_id = ${cardId}
-      ORDER BY distance
-      LIMIT 1
-    `);
-
-    const nearest = await tx.execute(sql`
-      SELECT card_id, lang, name, set_code, collector_number, data, distance
-      FROM (
-        (
-          SELECT
-            card_id,
-            lang,
-            name,
-            set_code,
-            collector_number,
-            data,
-            embedding <=> ${embeddingStr}::vector(128) AS distance
-          FROM cards
-          WHERE game_key = ${gameKey} ${langSql(scope)}
-          ORDER BY embedding <=> ${embeddingStr}::vector(128)
-          LIMIT 1
-        )
-        UNION ALL
-        (
-          SELECT
-            card_id,
-            lang,
-            name,
-            set_code,
-            collector_number,
-            data,
-            back_embedding <=> ${embeddingStr}::vector(128) AS distance
-          FROM cards
-          WHERE back_embedding IS NOT NULL
-            AND game_key = ${gameKey} ${langSql(scope)}
-          ORDER BY back_embedding <=> ${embeddingStr}::vector(128)
-          LIMIT 1
-        )
-      ) faces
-      ORDER BY distance
-      LIMIT 1
-    `);
-
-    const card = toHit(printing.rows[0], gameKey);
-    return {
-      success: true,
-      found: card != null,
-      distanceThreshold: DISTANCE_THRESHOLD,
-      card,
-      nearest: toHit(nearest.rows[0], gameKey),
-    };
-  });
-}
-
-function preferScore(
-  scores: PrintingScoreResult[],
-): PrintingScoreResult {
-  return scores.reduce((best, next) => {
-    const bestDistance = best.card?.distance ?? Number.POSITIVE_INFINITY;
-    const nextDistance = next.card?.distance ?? Number.POSITIVE_INFINITY;
-    if (next.found && nextDistance < bestDistance) return next;
-    if (!best.found && !next.found) {
-      const bestNearest = best.nearest?.distance ?? Number.POSITIVE_INFINITY;
-      const nextNearest = next.nearest?.distance ?? Number.POSITIVE_INFINITY;
-      return nextNearest < bestNearest ? next : best;
-    }
-    return best;
-  });
-}
-
-async function literalFromUpload(value: unknown): Promise<string | null> {
-  if (!value || typeof value === "string") return null;
-  if (typeof value !== "object" || !("type" in value) || !("arrayBuffer" in value)) {
-    return null;
+      WHERE game_key = ${scope.gameKey} ${langFilter(scope)}
+        AND card_id IN (${sql.join(
+          cardIds.map((id) => sql`${id}`),
+          sql`, `,
+        )})
+      ORDER BY card_id, distance
+    `),
+  );
+  const hits = new Map<string, PrintingScoreHit>();
+  for (const row of result.rows) {
+    const hit = toHit(row, scope.gameKey);
+    if (hit) hits.set(hit.id, hit);
   }
-  const file = value as { type: unknown; arrayBuffer: () => Promise<ArrayBuffer> };
-  if (typeof file.type !== "string" || !file.type.startsWith("image/")) return null;
-  const vector = await vectorizeCardImage(Buffer.from(await file.arrayBuffer()));
-  return embeddingLiteral(vector.embedding);
+  return hits;
 }
 
-async function literalsFromImages(
-  uploads: unknown[],
-): Promise<string[]> {
-  const literals: string[] = [];
+async function embeddingFromUpload(value: unknown): Promise<number[] | null> {
+  if (!(value instanceof File) || !value.type.startsWith("image/")) return null;
+  const vector = await vectorizeCardImage(Buffer.from(await value.arrayBuffer()));
+  return validEmbedding(vector.embedding);
+}
+
+async function embeddingsFromImages(uploads: unknown[]): Promise<number[][]> {
+  const embeddings: number[][] = [];
   for (const upload of uploads) {
-    const literal = await literalFromUpload(upload);
-    if (literal) literals.push(literal);
+    const embedding = await embeddingFromUpload(upload);
+    if (embedding) embeddings.push(embedding);
   }
-  return literals;
+  return embeddings;
 }
 
 export const printingScoreRoute = new Hono<AppEnv>().post(
@@ -203,7 +160,7 @@ export const printingScoreRoute = new Hono<AppEnv>().post(
   async (c) => {
     const body = await c.req.parseBody();
     const cardId = typeof body["cardId"] === "string" ? body["cardId"].trim() : "";
-    if (!cardId || cardId.length > 1024) {
+    if (!cardId || cardId.length > PRINTING_SCORE_CARD_ID_MAX_LENGTH) {
       return c.json({ success: false, message: "A card is required." }, 400);
     }
 
@@ -218,12 +175,12 @@ export const printingScoreRoute = new Hono<AppEnv>().post(
     }
 
     let embeddings = [body["embedding"], body["rotatedEmbedding"]]
-      .map((value) => embeddingLiteral(parseEmbeddingField(value)))
-      .filter((value): value is string => value != null);
+      .map((value) => validEmbedding(parseEmbeddingField(value)))
+      .filter((value): value is number[] => value != null);
 
     if (embeddings.length === 0) {
       try {
-        embeddings = await literalsFromImages([body["image"], body["rotatedImage"]]);
+        embeddings = await embeddingsFromImages([body["image"], body["rotatedImage"]]);
       } catch (err) {
         console.error(err);
         return c.json(
@@ -238,18 +195,34 @@ export const printingScoreRoute = new Hono<AppEnv>().post(
     }
 
     try {
-      const scores: PrintingScoreResult[] = [];
+      const matches: OrientedCardMatch[] = [];
       for (const embedding of embeddings) {
-        scores.push(
-          await scoreEmbedding(
-            c.get("jwtClaims"),
-            resolved,
-            embedding,
-            cardId,
-          ),
-        );
+        matches.push({
+          embedding,
+          result: await findCardMatches(c.get("jwtClaims"), {
+            ...resolved,
+            embeddings: { embedding },
+          }),
+        });
       }
-      return c.json(preferScore(scores));
+      const picked = pickOrientation(matches);
+      const nearestId = nearestCardId(picked.result);
+      const hits = await loadHits(
+        c.get("jwtClaims"),
+        resolved,
+        picked.embedding,
+        nearestId && nearestId !== cardId ? [cardId, nearestId] : [cardId],
+      );
+      const card = hits.get(cardId) ?? null;
+      const response: PrintingScoreResult = {
+        success: true,
+        found: card != null,
+        distanceThreshold: DISTANCE_THRESHOLD,
+        verdict: verdictFor(picked.result, cardId),
+        card,
+        nearest: nearestId ? (hits.get(nearestId) ?? null) : null,
+      };
+      return c.json(response);
     } catch (err) {
       console.error(err);
       return c.json({ success: false, message: "Database error." }, 500);
