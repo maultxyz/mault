@@ -19,7 +19,7 @@ export function useSelfHostToc(
         depth: 0,
         number: 1,
       },
-      ...sections.map((section, i) => ({
+      ...sections.map((section, i): GuideTocEntry => ({
         id: section.key,
         label: t(`sections.${section.key}.label`),
         done: section.steps.filter(
