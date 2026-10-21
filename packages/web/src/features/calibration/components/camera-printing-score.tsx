@@ -11,6 +11,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -71,9 +72,9 @@ export function CameraPrintingScore({
   });
   const { reset, setValue, control, handleSubmit, formState } = form;
   const setCode = useWatch({ control, name: "setCode" });
-  const setsQuery = useQuery({
-    ...cardSetsQueryOptions(open ? collectionGuid : undefined),
-  });
+  const setsQuery = useQuery(
+    cardSetsQueryOptions(open ? collectionGuid : undefined),
+  );
   const printingsQuery = useQuery(
     setPrintingsQueryOptions(open ? collectionGuid : undefined, setCode || undefined),
   );
@@ -128,9 +129,8 @@ export function CameraPrintingScore({
 
   const card = result?.card ?? null;
   const nearest = result?.nearest ?? null;
-  const showNearest = !!card && !!nearest && nearest.id !== card.id;
-  const accepted =
-    !!card && card.distance < (result?.distanceThreshold ?? DISTANCE_THRESHOLD);
+  const showNearest = !!nearest && nearest.id !== card?.id;
+  const accepted = result?.verdict === "accept";
 
   return (
     <>
@@ -148,12 +148,12 @@ export function CameraPrintingScore({
           <DialogHeader>
             <DialogTitle>{t("cameraPrintingScore.heading")}</DialogTitle>
             {activeCollection?.game?.name && (
-              <p className="text-xs text-foreground/70">{activeCollection.game.name}</p>
+              <DialogDescription>{activeCollection.game.name}</DialogDescription>
             )}
           </DialogHeader>
           <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem]">
             <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg border bg-background">
-              <canvas ref={previewRef} className="absolute inset-0 h-full w-full" />
+              <canvas ref={previewRef} className="absolute inset-0 h-full w-full object-contain" />
               {!canCapture && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
                   <p className="text-xs text-foreground/70">
@@ -299,7 +299,7 @@ export function CameraPrintingScore({
               {result && !result.found && (
                 <Callout variant="warning">{t("cameraPrintingScore.notSynced")}</Callout>
               )}
-              {card && (
+              {result && card && (
                 <div className="flex items-start gap-2">
                   {card.image?.small && (
                     <img
@@ -321,22 +321,20 @@ export function CameraPrintingScore({
                       {formatDistance(card.distance)}
                     </p>
                     <Callout variant={accepted ? "success" : "warning"}>
-                      {accepted
-                        ? t("cameraPrintingScore.wouldAccept")
-                        : t("cameraPrintingScore.wouldReject")}
+                      {t(`cameraPrintingScore.verdict.${result.verdict}`, { threshold })}
                     </Callout>
-                    {showNearest && nearest && (
-                      <p className="text-2xs text-foreground/70">
-                        {t("cameraPrintingScore.nearestDifferent", {
-                          name: nearest.name,
-                          set: nearest.set,
-                          number: nearest.collectorNumber,
-                          distance: formatDistance(nearest.distance),
-                        })}
-                      </p>
-                    )}
                   </div>
                 </div>
+              )}
+              {showNearest && nearest && (
+                <p className="text-2xs text-foreground/70">
+                  {t("cameraPrintingScore.nearestDifferent", {
+                    name: nearest.name,
+                    set: nearest.set,
+                    number: nearest.collectorNumber,
+                    distance: formatDistance(nearest.distance),
+                  })}
+                </p>
               )}
             </form>
           </div>

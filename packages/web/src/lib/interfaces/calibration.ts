@@ -9,6 +9,7 @@ import type {
   ScanRegion,
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
+import type { PrintingScoreFormValues } from "@/schemas/printing-score.schema";
 
 export type CalibrationSection =
   | "connection"
@@ -465,6 +466,14 @@ export interface CameraPrintingScoreProps {
   checkBothOrientations: boolean;
   canCapture: boolean;
   className?: string;
+}
+
+export interface ScorePrintingFrameInput {
+  canvas: HTMLCanvasElement;
+  region: ScanRegion;
+  checkBothOrientations: boolean;
+  collectionGuid: string;
+  values: PrintingScoreFormValues;
 }
 
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
