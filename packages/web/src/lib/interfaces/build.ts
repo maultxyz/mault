@@ -30,6 +30,7 @@ export interface BomRow {
     boardType: BoardType,
   ) => ReactNode;
   buyUrl?: string | ((boardType: BoardType) => string | undefined);
+  alert?: (t: BuildTFunction) => ReactNode;
   optional?: true;
   visible?: (boardType: BoardType, mountType: Esp32MountType) => boolean;
 }
