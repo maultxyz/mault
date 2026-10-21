@@ -25,6 +25,14 @@
         "buildType": "apk"
       }
     },
+    "simulator": {
+      "distribution": "internal",
+      "environment": "preview",
+      "ios": {
+        "simulator": true,
+        "resourceClass": "m-medium"
+      }
+    },
     "production": {
       "autoIncrement": true,
       "environment": "production",
