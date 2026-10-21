@@ -201,7 +201,7 @@
           "text": "Code holen und neu bauen. Migrationen laufen beim Start."
         },
         "updateCoolify": {
-          "text": "Stelle erneut bereit, um das neueste Image für deinen Tag zu laden."
+          "text": "Stelle erneut bereit. Coolify holt die neueste Compose-Datei und lädt das aktuelle Image für deinen Tag."
         },
         "backup": {
           "text": "Sichere das Volume <code>mault-postgres</code> regelmäßig."
@@ -223,7 +223,7 @@
       "description": "Coolify nutzt die veröffentlichten Images, auf deinem Server wird also nichts gebaut.",
       "steps": {
         "compose": {
-          "text": "Lege <code>+ New</code> > <code>Docker Compose Empty</code> an und füge <code>docker-compose-coolify.yml</code> ein, das dieser Befehl ausgibt."
+          "text": "Lege <code>+ New</code> > <code>Public Repository</code> mit dieser URL, dem Branch <code>master</code>, dem Build Pack <code>Docker Compose</code> und der Compose-Datei <code>/docker-compose-coolify.yml</code> an."
         },
         "images": {
           "text": "Diese Images werden geladen. Setze <code>MAULT_IMAGE_TAG</code> (etwa <code>v1.2.3</code>), um eine Version festzulegen. Standard ist <code>latest</code>."
