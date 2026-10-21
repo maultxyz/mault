@@ -10,6 +10,7 @@ import {
   detectColorBarRgba,
   dewarpRgba,
   getDefaultCardContour,
+  isStrongerTextMatch,
   rotateRgba180,
   type CardContour,
   type CardSearchResult,
@@ -96,18 +97,26 @@ async function searchByCardText(
   scope: MatchScope,
 ): Promise<{ pick: OrientedPick | null; ocr: ScanAttempt["ocr"] }> {
   const upright = dewarpRgba(frame.pixels, contour, OCR_CROP_WIDTH, OCR_CROP_HEIGHT);
-  let ocr: ScanAttempt["ocr"] = null;
-  for (const option of [best, best.alternate]) {
-    if (!option) continue;
-    const crop = option.orientation === "rotated" ? rotateRgba180(upright) : upright;
-    try {
-      const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
-      const result = await searchByText(option.embedding, scope, uri);
-      ocr = result.ocr ?? ocr;
-      if (hasMatch(result)) return { pick: { ...option, result, alternate: null }, ocr };
-    } catch {}
-  }
-  return { pick: null, ocr };
+  const options = [best, best.alternate].filter((option): option is OrientedPick => !!option);
+  const results = await Promise.all(
+    options.map(async (option) => {
+      const crop = option.orientation === "rotated" ? rotateRgba180(upright) : upright;
+      try {
+        const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
+        return await searchByText(option.embedding, scope, uri);
+      } catch {
+        return null;
+      }
+    }),
+  );
+  let bestIndex = 0;
+  results.forEach((result, index) => {
+    if (isStrongerTextMatch(result, results[bestIndex])) bestIndex = index;
+  });
+  const result = results[bestIndex];
+  const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
+  if (!result || !hasMatch(result)) return { pick: null, ocr };
+  return { pick: { ...options[bestIndex], result, alternate: null }, ocr };
 }
 
 async function resolveMatches(
