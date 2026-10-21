@@ -201,7 +201,7 @@
           "text": "Pull and rebuild. Migrations run on start-up."
         },
         "updateCoolify": {
-          "text": "Redeploy to pull the latest image for your tag."
+          "text": "Redeploy. Coolify fetches the latest compose file and pulls the current image for your tag."
         },
         "backup": {
           "text": "Back up the <code>mault-postgres</code> volume regularly."
@@ -223,7 +223,7 @@
       "description": "Coolify runs the published images, so nothing builds on your server.",
       "steps": {
         "compose": {
-          "text": "Create <code>+ New</code> > <code>Docker Compose Empty</code> and paste <code>docker-compose-coolify.yml</code>, which this command prints."
+          "text": "Create <code>+ New</code> > <code>Public Repository</code> with this URL, branch <code>master</code>, build pack <code>Docker Compose</code> and compose file <code>/docker-compose-coolify.yml</code>."
         },
         "images": {
           "text": "These images are pulled. Set <code>MAULT_IMAGE_TAG</code> (for example <code>v1.2.3</code>) to pin a version. The default is <code>latest</code>."

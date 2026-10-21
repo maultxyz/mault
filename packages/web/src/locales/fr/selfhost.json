@@ -201,7 +201,7 @@
           "text": "Récupère et reconstruis. Les migrations s'exécutent au démarrage."
         },
         "updateCoolify": {
-          "text": "Redéploie pour récupérer la dernière image de ton tag."
+          "text": "Redéploie. Coolify récupère le dernier fichier compose et l'image actuelle de ton tag."
         },
         "backup": {
           "text": "Sauvegarde régulièrement le volume <code>mault-postgres</code>."
@@ -223,7 +223,7 @@
       "description": "Coolify utilise les images publiées, rien n'est donc construit sur ton serveur.",
       "steps": {
         "compose": {
-          "text": "Crée <code>+ New</code> > <code>Docker Compose Empty</code> et colle <code>docker-compose-coolify.yml</code>, affiché par cette commande."
+          "text": "Crée <code>+ New</code> > <code>Public Repository</code> avec cette URL, la branche <code>master</code>, le build pack <code>Docker Compose</code> et le fichier compose <code>/docker-compose-coolify.yml</code>."
         },
         "images": {
           "text": "Ces images sont récupérées. Règle <code>MAULT_IMAGE_TAG</code> (par exemple <code>v1.2.3</code>) pour figer une version. Par défaut : <code>latest</code>."

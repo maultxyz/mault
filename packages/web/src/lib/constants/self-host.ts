@@ -39,9 +39,6 @@ export const SELF_HOST_AUTH_OPTIONS: SelfHostOption<SelfHostAuth>[] = [
 
 export const SELF_HOST_PRICE_CRON = `0 4 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="\${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="\${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1`;
 
-export const SELF_HOST_COOLIFY_COMPOSE_URL =
-  "https://raw.githubusercontent.com/dishwasher-detergent/mault/master/docker-compose-coolify.yml";
-
 const NEON_MIGRATE = "pnpm --filter @magic-vault/server db:migrate";
 
 export const SELF_HOST_SECTIONS: SelfHostSection[] = [
@@ -113,7 +110,7 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
     key: "coolify",
     when: { host: "coolify" },
     steps: [
-      { key: "compose", code: `curl -fsSL ${SELF_HOST_COOLIFY_COMPOSE_URL}` },
+      { key: "compose", code: REPO_URL },
       {
         key: "images",
         code: "ghcr.io/dishwasher-detergent/mault-server\nghcr.io/dishwasher-detergent/mault-web\nghcr.io/dishwasher-detergent/mault-bot",
