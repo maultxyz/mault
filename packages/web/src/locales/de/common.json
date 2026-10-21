@@ -232,5 +232,18 @@
     "next": "Weiter",
     "page": "Seite {{page}} von {{count}}",
     "range": "{{from}}-{{to}} von {{total}}"
+  },
+  "guide": {
+    "contents": "Inhalt",
+    "anchorLink": {
+      "copy": "Link zu diesem Abschnitt kopieren",
+      "copied": "Link kopiert",
+      "copyFailed": "Link konnte nicht kopiert werden"
+    },
+    "code": {
+      "copy": "Kopieren",
+      "copied": "In die Zwischenablage kopiert",
+      "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
+    }
   }
 }

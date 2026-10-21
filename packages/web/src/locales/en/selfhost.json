@@ -35,14 +35,6 @@
       }
     }
   },
-  "toc": {
-    "label": "Steps"
-  },
-  "code": {
-    "copy": "Copy",
-    "copied": "Copied to clipboard",
-    "copyFailed": "Couldn't copy to the clipboard"
-  },
   "sections": {
     "requirements": {
       "label": "Requirements",

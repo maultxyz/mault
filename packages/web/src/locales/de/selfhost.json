@@ -35,14 +35,6 @@
       }
     }
   },
-  "toc": {
-    "label": "Schritte"
-  },
-  "code": {
-    "copy": "Kopieren",
-    "copied": "In die Zwischenablage kopiert",
-    "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
-  },
   "sections": {
     "requirements": {
       "label": "Voraussetzungen",

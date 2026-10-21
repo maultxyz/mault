@@ -3,11 +3,6 @@
     "title": "Build Your Own Trading Card Sorting Machine | MAULT",
     "description": "Step-by-step guide to building the MAULT card sorter: bill of materials, wiring diagrams, 3D printed parts, firmware and assembly instructions."
   },
-  "anchorLink": {
-    "copy": "Copy link to this section",
-    "copied": "Link copied",
-    "copyFailed": "Couldn't copy the link"
-  },
   "hero": {
     "eyebrow": "Hardware build guide",
     "title": "Build the card sorter",
@@ -21,9 +16,6 @@
       "parts": "Parts",
       "assembly": "Assembly"
     }
-  },
-  "toc": {
-    "label": "Contents"
   },
   "setup": {
     "heading": "Set up your build",

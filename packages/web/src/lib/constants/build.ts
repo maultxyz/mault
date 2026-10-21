@@ -62,15 +62,6 @@ export const BOARD_BUY_URLS: Partial<Record<BoardType, string>> = {
   esp32: "https://amzn.to/4gmsm51",
 };
 
-export const BUILD_ANCHOR_SCROLL_MAX_FRAMES = 120;
-export const BUILD_ANCHOR_HIGHLIGHT_MS = 2500;
-export const BUILD_ANCHOR_HIGHLIGHT_CLASSES = [
-  "ring-2",
-  "ring-primary",
-  "ring-offset-4",
-  "ring-offset-background",
-  "rounded-md",
-];
 export const BOM_ANCHOR_PREFIX = "parts-";
 
 export const BUILD_SETUP_ANCHOR = "setup";
@@ -87,8 +78,6 @@ export const BUILD_OPTIONAL_BADGE_CLASS =
 export const BUILD_PARTS_ANCHOR = "parts";
 export const BUILD_ASSEMBLY_ANCHOR = "assembly";
 export const BUILD_WIRING_ANCHOR = "wiring";
-
-export const EMPTY_CHECKLIST: Record<string, boolean> = {};
 
 export const PRINT_PART_IMAGE_SIZE = 320;
 

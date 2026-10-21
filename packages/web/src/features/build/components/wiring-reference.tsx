@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { AnchorLinkButton } from "@/components/guide/anchor-link-button";
 import { wiringAnchorId } from "@/features/build/lib/anchors";
 import {
   BOARD_INFO,

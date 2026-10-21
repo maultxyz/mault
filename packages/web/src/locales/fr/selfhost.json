@@ -35,14 +35,6 @@
       }
     }
   },
-  "toc": {
-    "label": "Étapes"
-  },
-  "code": {
-    "copy": "Copier",
-    "copied": "Copié dans le presse-papiers",
-    "copyFailed": "Impossible de copier dans le presse-papiers"
-  },
   "sections": {
     "requirements": {
       "label": "Prérequis",

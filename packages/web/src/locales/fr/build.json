@@ -3,11 +3,6 @@
     "title": "Construis ta propre trieuse de cartes à collectionner | MAULT",
     "description": "Guide étape par étape pour construire la trieuse de cartes MAULT : liste des composants, schémas de câblage, pièces imprimées en 3D, firmware et montage."
   },
-  "anchorLink": {
-    "copy": "Copier le lien vers cette section",
-    "copied": "Lien copié",
-    "copyFailed": "Impossible de copier le lien"
-  },
   "hero": {
     "eyebrow": "Guide de montage du matériel",
     "title": "Construire la trieuse de cartes",
@@ -21,9 +16,6 @@
       "parts": "Pièces",
       "assembly": "Assemblage"
     }
-  },
-  "toc": {
-    "label": "Sommaire"
   },
   "setup": {
     "heading": "Configure ton montage",

@@ -1,21 +1,27 @@
+import { AnchorLinkButton } from "@/components/guide/anchor-link-button";
 import { MarketingRule } from "@/components/marketing-rule";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
-import type { BuildSectionHeaderProps } from "@/lib/interfaces/build";
+import type { GuideSectionHeaderProps } from "@/lib/interfaces/guide";
 
-export function BuildSectionHeader({
+export function GuideSectionHeader({
   id,
   step,
   eyebrow,
   heading,
+  aside,
   children,
-}: BuildSectionHeaderProps) {
+}: GuideSectionHeaderProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="group/anchor">
         <MarketingRule
           lead={step}
           label={eyebrow}
-          aside={<AnchorLinkButton id={id} className="-my-2" />}
+          aside={
+            <>
+              {aside}
+              <AnchorLinkButton id={id} className="-my-2" />
+            </>
+          }
         />
       </div>
       <div className="flex max-w-2xl flex-col gap-2">

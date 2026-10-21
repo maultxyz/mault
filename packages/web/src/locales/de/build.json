@@ -3,11 +3,6 @@
     "title": "Baue deine eigene Sortiermaschine für Sammelkarten | MAULT",
     "description": "Schritt-für-Schritt-Anleitung für den MAULT-Kartensortierer: Stückliste, Schaltpläne, 3D-gedruckte Teile, Firmware und Montageanleitung."
   },
-  "anchorLink": {
-    "copy": "Link zu diesem Abschnitt kopieren",
-    "copied": "Link kopiert",
-    "copyFailed": "Link konnte nicht kopiert werden"
-  },
   "hero": {
     "eyebrow": "Bauanleitung für die Hardware",
     "title": "Den Kartensortierer bauen",
@@ -21,9 +16,6 @@
       "parts": "Teile",
       "assembly": "Zusammenbau"
     }
-  },
-  "toc": {
-    "label": "Inhalt"
   },
   "setup": {
     "heading": "Richte deinen Bau ein",
