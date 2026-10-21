@@ -117,7 +117,8 @@
           },
           "sg90Positional": {
             "part": "SG90 Mikroservo, positionierend (180°)",
-            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber"
+            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber",
+            "alert": "Kaufe digitale SG90. Analoge SG90 und besonders Servos von Tower Pro halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
           },
           "mg90sContinuous": {
             "part": "MG90S-Servo, 360° Dauerdrehung",
@@ -552,9 +553,13 @@
           "calibrateFeeder": {
             "text": "Zuführungs-Kalibrierungsfeld – stimme Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab."
           },
+          "adjustIr": {
+            "text": "Stelle die Erkennungsdistanz aller {{count}} IR-Sensoren so ein, dass jeder eine Karte 2,5 cm (1 Zoll) vor sich erkennt. Drehe bei eingeschaltetem Board mit einem kleinen Schraubendreher an der Schraube im blauen Gehäuse (dem Potentiometer) jedes Sensors: Drehe sie zuerst so weit, bis die Anzeige-LED des Sensors ausgeht, solange nichts vor ihm ist. Halte dann eine Karte 2,5 cm vor den Sensor und drehe die Schraube langsam in die andere Richtung, bis die LED gerade angeht.",
+            "note": "Zur Kontrolle ziehst du die Karte auf etwa 5 cm zurück: Die LED sollte wieder ausgehen. Bleibt sie an, drehe die Schraube ein kleines Stück zurück. Ein zu weit eingestellter Sensor reicht über den Kartenweg hinaus und meldet Karten, die nicht da sind."
+          },
           "checkIr": {
             "text": "IR-Sensorfeld – prüfe, ob alle {{count}} Sensoren mit einer Karte in der Hand korrekt „vorhanden“/„nicht vorhanden“ melden.",
-            "note": "Wenn ein Sensor nicht auslöst oder auslöst, obwohl nichts vor ihm ist, kalibriere seine Erkennungsdistanz manuell: Auf der Rückseite des Sensors befindet sich ein kleines blaues Gehäuse mit einem grauen Potentiometer-Rädchen. Drehe es ganz in eine Richtung, sodass er nichts mehr erkennt, und drehe es dann langsam zurück, bis er eine Karte gerade so aus zwei bis fünf Zentimetern Entfernung erkennt."
+            "note": "Wenn ein Sensor nicht auslöst oder auslöst, obwohl nichts vor ihm ist, wiederhole den vorherigen Schritt für diesen Sensor."
           },
           "testBins": {
             "text": "Fachsteuerung: Sende der Reihe nach eine Testkarte an jedes der {{count}} Fächer und bestätige, dass sie korrekt landet."

@@ -469,6 +469,13 @@ export function buildPhases(
           ),
         },
         {
+          key: "adjust-ir",
+          text: t("assembly.phases.wireAndCalibrate.steps.adjustIr.text", {
+            count: moduleCount + 1,
+          }),
+          note: t("assembly.phases.wireAndCalibrate.steps.adjustIr.note"),
+        },
+        {
           key: "check-ir",
           text: t("assembly.phases.wireAndCalibrate.steps.checkIr.text", {
             count: moduleCount + 1,

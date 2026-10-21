@@ -448,7 +448,7 @@
       "clear": "Clear",
       "verified": "Sensor verified",
       "waiting": "Waiting for the first reading from the sorter…",
-      "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later."
+      "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later. If a sensor lights up with nothing in front of it, or only sees a card pressed right against it, turn the screw on its blue box (the potentiometer) until it detects a card 1 inch (2.5 cm) away."
     },
     "feederStop": {
       "heading": "Feeder stop point",
