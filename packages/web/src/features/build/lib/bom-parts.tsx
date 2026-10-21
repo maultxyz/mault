@@ -85,6 +85,7 @@ export const GROUPS: BomGroup[] = [
           t("bom.groups.electronics.items.sg90Positional.notes", {
             count: n,
           }),
+        alert: (t) => t("bom.groups.electronics.items.sg90Positional.alert"),
         buyUrl: "https://amzn.to/3VKQne1",
       },
       {

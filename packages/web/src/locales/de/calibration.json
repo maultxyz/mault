@@ -448,7 +448,7 @@
       "clear": "Frei",
       "verified": "Sensor geprüft",
       "waiting": "Warte auf den ersten Messwert vom Sortierer…",
-      "footnote": "Ein Sensor, der nie aufleuchtet, ist meist nicht eingesteckt, am falschen Pin angeschlossen oder zeigt nicht auf den Kartenweg. Du kannst weitermachen und das später beheben."
+      "footnote": "Ein Sensor, der nie aufleuchtet, ist meist nicht eingesteckt, am falschen Pin angeschlossen oder zeigt nicht auf den Kartenweg. Du kannst weitermachen und das später beheben. Leuchtet ein Sensor auf, obwohl nichts vor ihm ist, oder erkennt er eine Karte nur direkt davor, drehe an der Schraube in seinem blauen Gehäuse (dem Potentiometer), bis er eine Karte in 2,5 cm Entfernung erkennt."
     },
     "feederStop": {
       "heading": "Haltepunkt der Zuführung",
