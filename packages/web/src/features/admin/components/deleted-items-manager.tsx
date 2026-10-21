@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ import {
   deletedItemsQueryOptions,
   restoreDeletedItem,
 } from "@/features/admin/api/deleted-items";
+import { useClientPagination } from "@/hooks/use-client-pagination";
 import {
   ALL_DELETED_ITEM_TYPES,
   DELETED_ITEM_TYPE_FILTERS,
@@ -60,6 +62,7 @@ export function DeletedItemsManager() {
             .some((value) => value!.toLowerCase().includes(query))),
     );
   }, [itemsQuery.data, typeFilter, search]);
+  const pagination = useClientPagination(items);
 
   const typeLabel = (type: DeletedItemTypeFilter) =>
     type === ALL_DELETED_ITEM_TYPES
@@ -74,15 +77,19 @@ export function DeletedItemsManager() {
       <div className="flex flex-col gap-2 sm:flex-row">
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            pagination.setPage(1);
+          }}
           placeholder={t("deletedItems.searchPlaceholder")}
           data-hotkey-search
         />
         <Select
           value={typeFilter}
-          onValueChange={(value) =>
-            setTypeFilter(value as DeletedItemTypeFilter)
-          }
+          onValueChange={(value) => {
+            setTypeFilter(value as DeletedItemTypeFilter);
+            pagination.setPage(1);
+          }}
         >
           <SelectTrigger className="w-full sm:w-48">
             <SelectValue>{typeLabel(typeFilter)}</SelectValue>
@@ -106,54 +113,59 @@ export function DeletedItemsManager() {
           title={t("deletedItems.empty")}
         />
       ) : (
-        <div className="divide-y rounded-lg border">
-          {items.map((item) => {
-            const restoring =
-              restoreMutation.isPending &&
-              restoreMutation.variables?.guid === item.guid;
-            return (
-              <div
-                key={`${item.type}-${item.guid}`}
-                className="flex items-center gap-3 px-4 py-2.5"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium">{item.name}</p>
-                    <Badge variant="outline" className="shrink-0">
-                      {typeLabel(item.type)}
-                    </Badge>
-                  </div>
-                  <p className="truncate text-xs text-foreground/70">
-                    {[
-                      item.detail,
-                      item.orgName ?? t("deletedItems.global"),
-                      t("deletedItems.lastUpdated", {
-                        date: new Date(item.updatedAt).toLocaleString(
-                          i18n.language,
-                          { dateStyle: "medium", timeStyle: "short" },
-                        ),
-                      }),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => restoreMutation.mutate(item)}
-                  disabled={restoreMutation.isPending}
+        <>
+          <div className="divide-y rounded-lg border">
+            {pagination.pageItems.map((item) => {
+              const restoring =
+                restoreMutation.isPending &&
+                restoreMutation.variables?.guid === item.guid;
+              return (
+                <div
+                  key={`${item.type}-${item.guid}`}
+                  className="flex items-center gap-3 px-4 py-2.5"
                 >
-                  {restoring ? (
-                    <IconLoader2 className="animate-spin" />
-                  ) : (
-                    <IconRestore />
-                  )}
-                  {t("deletedItems.restore")}
-                </Button>
-              </div>
-            );
-          })}
-        </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-medium">
+                        {item.name}
+                      </p>
+                      <Badge variant="outline" className="shrink-0">
+                        {typeLabel(item.type)}
+                      </Badge>
+                    </div>
+                    <p className="truncate text-xs text-foreground/70">
+                      {[
+                        item.detail,
+                        item.orgName ?? t("deletedItems.global"),
+                        t("deletedItems.lastUpdated", {
+                          date: new Date(item.updatedAt).toLocaleString(
+                            i18n.language,
+                            { dateStyle: "medium", timeStyle: "short" },
+                          ),
+                        }),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => restoreMutation.mutate(item)}
+                    disabled={restoreMutation.isPending}
+                  >
+                    {restoring ? (
+                      <IconLoader2 className="animate-spin" />
+                    ) : (
+                      <IconRestore />
+                    )}
+                    {t("deletedItems.restore")}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+          <ListPagination pagination={pagination} />
+        </>
       )}
     </SettingsSection>
   );

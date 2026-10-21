@@ -1,6 +1,6 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { LandingSectionHeader } from "@/features/landing/components/section-header";
+import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { usePublicPricing } from "@/features/landing/api/use-public-pricing";
 import { PlanBullets } from "@/features/landing/components/plan-bullets";
 import { DEFAULT_PUBLIC_PLAN_CONFIG } from "@/lib/constants/pricing";
@@ -15,8 +15,10 @@ import {
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { MarketingRule } from "@/components/marketing-rule";
+import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function LandingPricing() {
+export function LandingPricing({ step }: MarketingStepProps) {
   const { t, i18n } = useTranslation("landing");
   const pricing = usePublicPricing();
   const plans = pricing?.plans ?? DEFAULT_PUBLIC_PLAN_CONFIG;
@@ -38,15 +40,15 @@ export function LandingPricing() {
   return (
     <section id="pricing" className="border-t">
       <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-        <LandingSectionHeader
+        <MarketingSectionHeader
+          step={step}
           eyebrow={t("pricing.eyebrow")}
           heading={t("pricing.heading")}
           subtitle={t("pricing.subtitle")}
-          centered
         />
 
         {hasYearly && (
-          <div className="mt-10 flex justify-center">
+          <div className="mt-10 flex">
             <ButtonGroup aria-label={t("pricing.intervals.label")}>
               {BILLING_INTERVALS.map((value) => (
                 <Button
@@ -65,16 +67,14 @@ export function LandingPricing() {
 
         <div
           className={cn(
-            "mx-auto grid max-w-4xl gap-6 sm:grid-cols-2",
+            "grid gap-6 sm:grid-cols-2",
             hasYearly ? "mt-6" : "mt-10",
           )}
         >
-          <div className="flex flex-col gap-6 rounded-xl border p-6">
+          <div className="flex flex-col gap-6 rounded-lg border bg-card p-6">
             <div>
-              <p className="font-heading text-sm font-semibold">
-                {t("pricing.free.name")}
-              </p>
-              <p className="mt-3 font-heading text-3xl font-semibold">
+              <MarketingRule lead={`${step}.01`} label={t("pricing.free.name")} />
+              <p className="mt-5 font-heading text-3xl font-semibold">
                 {t("pricing.free.price")}
               </p>
               <p className="mt-1 text-sm text-foreground/70">
@@ -93,12 +93,14 @@ export function LandingPricing() {
             </Link>
           </div>
 
-          <div className="flex flex-col gap-6 rounded-xl border border-primary/50 bg-primary/5 p-6 shadow-sm shadow-primary/10">
+          <div className="flex flex-col gap-6 rounded-lg border border-primary bg-primary/5 p-6">
             <div>
-              <p className="font-heading text-sm font-semibold">
-                {t("pricing.business.name")}
-              </p>
-              <p className="mt-3 font-heading text-3xl font-semibold">
+              <MarketingRule
+                lead={`${step}.02`}
+                label={t("pricing.business.name")}
+                className="border-primary/40"
+              />
+              <p className="mt-5 font-heading text-3xl font-semibold">
                 {businessPrice ?? "-"}
                 {businessPrice && (
                   <span className="text-sm font-normal text-foreground/70">

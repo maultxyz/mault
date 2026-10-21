@@ -84,50 +84,48 @@ scripts/       Release and version helpers
 
 ## Getting started
 
-The app needs Postgres with pgvector and an identity provider. Pick one with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
+For a production install, follow the step-by-step guide at [mault.xyz/self-host](https://mault.xyz/self-host). This section covers development.
 
-- **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough for a personal deployment.
-- **`local`**: fully self-hosted and offline-capable. `docker-compose.yml` runs Postgres, the API, the web app and the API docs; price sync runs from cron (see [Prices](#prices)).
+Mault needs Postgres with pgvector and an identity provider, picked with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
-Both read one root `.env` (Vite reads it from the repo root too):
+- **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough.
+- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs.
+
+Both read one `.env` in the repo root:
 
 ```bash
-cp .env.neon.example .env      # Option A: Neon
-cp .env.docker.example .env    # Option B: self-hosted
+cp .env.neon.example .env      # Neon
+cp .env.docker.example .env    # local
 ```
 
-Each example lists only the variables that mode uses, with comments for the optional ones (email via Resend, S3 scan image storage, Stripe, Discord, Rollbar, sync tuning).
+### Neon
 
-### Option A: Neon
-
-1. Create a project at [console.neon.tech](https://console.neon.tech) and run `CREATE EXTENSION IF NOT EXISTS vector;` in its SQL editor.
-2. Put the pooled connection string in `DATABASE_URL`.
-3. Enable **Neon Auth** (Dashboard > Auth) **before** migrating: the RLS policies reference its `authenticated` role and `auth.user_id()`.
-4. From the Auth page, set `NEON_AUTH_URL`, `VITE_NEON_AUTH_URL` (same base URL) and `VITE_NEON_DATA_API_URL`.
-5. Migrate and run:
+1. Create a project at [console.neon.tech](https://console.neon.tech) and run `CREATE EXTENSION IF NOT EXISTS vector;`.
+2. Enable **Neon Auth** (Dashboard > Auth) **before** migrating: the RLS policies use its `authenticated` role and `auth.user_id()`.
+3. Set `DATABASE_URL` (pooled), `NEON_AUTH_URL` and `VITE_NEON_AUTH_URL` (same URL) and `VITE_NEON_DATA_API_URL`.
+4. Migrate and run:
    ```bash
    pnpm install
    pnpm --filter @magic-vault/server db:migrate
    pnpm dev        # web :5173, API :3001, API docs :5174
    ```
 
-### Option B: Self-hosted
+### Local
 
-1. In `.env`, set `POSTGRES_PASSWORD`, `OWN_AUTH_TOKEN_PEPPER` (32+ random bytes) and `IMPERSONATION_SECRET`. Optional: `MONITOR_LINK_SECRET` (shareable monitor links), `API_URL` (public API base for `next_page` links), `SORTER_LINK_URL` (see [Wi-Fi remote](#wi-fi-remote)) and `WEBHOOK_ALLOW_INSECURE_URLS=true` (lets webhooks target `http://` and LAN addresses; keep it off on internet-facing servers).
-2. `docker compose up -d`
-3. Open `http://localhost:8080` and sign up. The first account becomes platform admin and gets a "Home" organization.
-4. In `/app/admin`, add at least one game in the Games Manager and run its sync. Until a game is synced there is nothing to match against.
+1. In `.env`, set `POSTGRES_PASSWORD`, `OWN_AUTH_TOKEN_PEPPER`, `IMPERSONATION_SECRET` and `MONITOR_LINK_SECRET` (`openssl rand -hex 32` each).
+2. `docker compose up -d`, then open `http://localhost:8080` and sign up. The first account becomes platform admin with a "Home" organization.
+3. In `/app/admin`, add a game in the Games Manager and sync it. Scans can't match until one has synced.
 
-On every start the `server` container runs Drizzle migrations, own-auth's migrations and `packages/server/src/db/bootstrap-local.sql` (`pnpm db:migrate-local`), all idempotent. Postgres is exposed only on `127.0.0.1:5433` for admin clients.
+The `server` container runs every migration and `packages/server/src/db/bootstrap-local.sql` on start (`pnpm db:migrate-local`, idempotent). Postgres listens only on `127.0.0.1:5433`. Email verification, profile/password editing, multi-session management and social sign-in are Neon-only.
 
-To make another user a platform admin (there's no UI yet):
+Optional: `API_URL` (public API base for `next_page` links), `SORTER_LINK_URL` (see [Wi-Fi remote](#wi-fi-remote)), `WEBHOOK_ALLOW_INSECURE_URLS=true` (webhooks to `http://` and LAN addresses; keep it off on public servers).
+
+To make another user platform admin (no UI yet):
 
 ```sql
 INSERT INTO platform_user_roles (user_id, role) VALUES ('<own_auth_users.id>', 'admin')
 ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
-
-Local mode supports sign-up/sign-in, org switching and invites, API keys and the audit log. Email verification, profile/password editing, multi-session management and social sign-in are Neon-only.
 
 ### Running pieces individually
 
@@ -155,21 +153,24 @@ These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before sh
 
 ## Prices
 
-`packages/server/scripts/sync-prices.ts` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed upstream. Nothing runs it automatically: schedule it with cron (or any scheduler) on the host. It's built into the server image, so with Docker Compose run it inside the `server` container. Add this with `crontab -e`, replacing `/opt/mault` with the folder holding `docker-compose.yml`:
+`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
+
+- **Once a day, never more often.** tcgcsv blocks installs that poll it harder; the TCGplayer step also skips any run within 20 hours of its last pull.
+- **No automatic retries.** A failed run waits for the next daily run.
+- **First run:** after your first game sync, run it once by hand. Cards have no price until then. `--force` re-downloads everything; use it sparingly.
+- Set `CARD_API_USER_AGENT` to a name unique to your install: a source that blocks a name blocks every install using it.
+
+Docker Compose, with `crontab -e` (replace `/opt/mault` with your `docker-compose.yml` folder):
 
 ```cron
-0 */6 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1
+0 4 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1
 ```
 
-The `sh -c` wrapper points local mode at the stack's own Postgres, the same way the server's start-up command does. Every six hours is enough: runs that find nothing new upstream download nothing, and a failed run is simply retried by the next one. Outside Docker, run `pnpm --filter @magic-vault/server build` once and schedule `node packages/server/dist/scripts/sync-prices.js` from the repo root with the same `.env` values in its environment.
-
-tcgcsv publishes once a day and blocks clients that poll it harder, so the TCGplayer step makes no requests at all within 20 hours of its last successful pull, then checks `last-updated.txt` before downloading anything, one request per second. Set `CARD_API_USER_AGENT` to your own install's name: every card and price source sees it, and a source that blocks an agent blocks every install sharing it. Use `--force` sparingly: it downloads every category again.
-
-Prices attach to synced cards, so cards show no price until their game has synced and the first pull has finished. After the first game sync, run the cron command once by hand (append `--force` after `sync-prices.js` for a full pull) instead of waiting for the schedule, and check `/var/log/mault-prices.log` for later runs.
+Coolify: see step 5 under [Coolify](#coolify). Outside Docker: `pnpm --filter @magic-vault/server build`, then schedule the command from the repo root with the `.env` values in its environment.
 
 ## Deployment
 
-Four images, built from the repo root:
+Four images, built from the repo root and published by CI (`.github/workflows/deploy.yml`) to `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`:
 
 | Dockerfile | Image | Notes |
 | --- | --- | --- |
@@ -178,43 +179,34 @@ Four images, built from the repo root:
 | `Dockerfile.api-docs` | `mault-api-docs` | Public API reference |
 | `Dockerfile.bot` | `mault-bot` | Optional Discord bot |
 
-CI (`.github/workflows/deploy.yml`) publishes them to GHCR as `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`. Because the images are public, the web image's `VITE_*` settings are read at container start (`docker/web-env.sh` writes `env.js`), so one image works for any deployment. Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the firmware baked into the image.
+The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the bundled firmware.
 
-The scanner's ONNX weights are pinned by Hugging Face revision and SHA-256 and downloaded at runtime. DNS blockers such as Pi-hole may block `huggingface.co`; allowlist it if model downloads fail.
+The scanner downloads its ONNX weights from `huggingface.co` at runtime (pinned by revision and SHA-256). Allowlist it in DNS blockers such as Pi-hole.
 
 ### Docker Compose
-
-`docker-compose.yml` works for both providers:
 
 ```bash
 docker compose up --build -d                 # postgres, server, web (:8080), api-docs (:8081)
 docker compose --profile bot up --build -d   # + Discord bot (:3002)
 ```
 
-For production, set `WEB_URL` to your public origin and use real secrets. With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` service then sits unused. Inside compose the server and bot reach each other by service name, so `.env`'s localhost `SERVER_URL`/`BOT_URL` are overridden. Prices need the cron job from [Prices](#prices).
+- For production, set `WEB_URL` to your public origin and use real secrets.
+- With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` then sits unused.
+- Prices need the cron job from [Prices](#prices).
 
 ### Coolify
 
-`docker-compose-coolify.yml` is a self-contained local-auth stack (web, API, pgvector Postgres, price sync, optional bot).
+`docker-compose-coolify.yml` runs the published images (web, API, pgvector Postgres, optional bot), so nothing builds on your server. `MAULT_IMAGE_TAG` picks the tag (default `latest`; set e.g. `v1.2.3` to pin).
 
-1. **+ New** > Public Repository (or a Git integration), build pack **Docker Compose**, base directory `/`, compose file `/docker-compose-coolify.yml`.
-2. Set the environment:
+1. **+ New** > **Public Repository** with `https://github.com/dishwasher-detergent/mault`, branch `master`, build pack **Docker Compose** and compose file `/docker-compose-coolify.yml`.
+2. Set `WEB_URL` (public origin, no trailing slash) and give `POSTGRES_PASSWORD`, `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER` and `MONITOR_LINK_SECRET` each its own `openssl rand -hex 32` value. Everything else is optional (see `.env.docker.example`).
+3. Route your domain to the **web** service on port 80 (e.g. `https://mault.example.com:80`).
+4. Deploy. The API migrates before starting. To update, redeploy: Coolify fetches the latest compose file and pulls the current images.
+5. Under **Scheduled Tasks**, add the price sync: command `node packages/server/dist/scripts/sync-prices.js`, container `server`, frequency `0 4 * * *`.
 
-   | Variable | Value |
-   | --- | --- |
-   | `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` | `local` |
-   | `VITE_APP_ENV` | `local` |
-   | `WEB_URL` | Public origin, e.g. `https://mault.example.com`, no trailing slash |
-   | `POSTGRES_PASSWORD` | Strong password |
-   | `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER` | Separate random secrets (`openssl rand -hex 32`) |
-
-   Leave `VITE_API_URL` and the Neon variables empty. Everything else is optional (see `.env.docker.example`).
-3. Route your domain to the **web** service on port 80 (e.g. `https://mault.example.com:80`; the suffix only picks the container port).
-4. Deploy. The API migrates before starting and the other services wait for it to be healthy.
-
-For Discord, set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot container idles.
-
-Postgres lives in the `mault-postgres` volume: keep it across updates and back it up. Changing `POSTGRES_PASSWORD` later doesn't change the existing role's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
+- **Neon:** also set `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` to `neon`, `DATABASE_SSL=true` and the Neon values, and run the migrations from a checkout before each deploy.
+- **Discord:** set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot idles.
+- **Data:** Postgres lives in the `mault-postgres` volume; keep it and back it up. The default `DATABASE_URL` uses `POSTGRES_PASSWORD` unencoded, so keep it URL-safe (hex is). Changing `POSTGRES_PASSWORD` later doesn't change the database's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
 
 ### Discord bot
 

@@ -6,9 +6,16 @@ import {
 } from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { UnmatchedCardsPanelProps } from "@/lib/interfaces/scanner";
+import { UnmatchedCardsGridDialog } from "@/features/scanner/components/unmatched-cards-grid-dialog";
 import { UnmatchedDiagnosticsDetails } from "@/features/scanner/components/unmatched-diagnostics-details";
 import type { UnmatchedCard } from "@magic-vault/shared";
-import { IconPhotoOff, IconSearch, IconX } from "@tabler/icons-react";
+import {
+  IconArrowsMaximize,
+  IconPhotoOff,
+  IconSearch,
+  IconX,
+} from "@tabler/icons-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function UnmatchedCardsPanel({
@@ -19,7 +26,11 @@ export function UnmatchedCardsPanel({
 }: UnmatchedCardsPanelProps) {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
-  if (cards.length === 0) return null;
+  const [gridOpen, setGridOpen] = useState(false);
+  if (cards.length === 0) {
+    if (gridOpen) setGridOpen(false);
+    return null;
+  }
 
   const tileContent = (entry: UnmatchedCard) => (
     <>
@@ -46,9 +57,20 @@ export function UnmatchedCardsPanel({
 
   return (
     <div className="rounded-lg border border-warning-border bg-warning-muted overflow-hidden flex-none">
-      <p className="text-2xs font-medium text-warning-foreground uppercase tracking-wide px-2 pt-2 pb-1.5">
-        {t("unmatchedCardsPanel.heading", { count: cards.length })}
-      </p>
+      <div className="flex items-center justify-between gap-2 pl-2 pr-1 pt-1">
+        <p className="text-2xs font-medium text-warning-foreground uppercase tracking-wide">
+          {t("unmatchedCardsPanel.heading", { count: cards.length })}
+        </p>
+        <Button
+          size="icon-sm"
+          variant="ghost"
+          aria-label={t("unmatchedCardsPanel.expand")}
+          title={t("unmatchedCardsPanel.expand")}
+          onClick={() => setGridOpen(true)}
+        >
+          <IconArrowsMaximize />
+        </Button>
+      </div>
       <div className="flex gap-1.5 p-1.5 overflow-x-auto">
         {cards.map((entry) =>
           onOpen ? (
@@ -98,7 +120,9 @@ export function UnmatchedCardsPanel({
                   </p>
                 )}
                 {entry.diagnostics && (
-                  <UnmatchedDiagnosticsDetails diagnostics={entry.diagnostics} />
+                  <UnmatchedDiagnosticsDetails
+                    diagnostics={entry.diagnostics}
+                  />
                 )}
                 {onIdentify && (
                   <Button
@@ -115,6 +139,13 @@ export function UnmatchedCardsPanel({
           ),
         )}
       </div>
+      <UnmatchedCardsGridDialog
+        open={gridOpen}
+        onOpenChange={setGridOpen}
+        cards={cards}
+        onRemove={onRemove}
+        onIdentify={onIdentify}
+      />
     </div>
   );
 }

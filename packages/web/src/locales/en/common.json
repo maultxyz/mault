@@ -148,6 +148,7 @@
     "pages": {
       "home": "Home",
       "build": "Build",
+      "selfHost": "Self-host",
       "discordBot": "Discord Bot",
       "shop": "Shop"
     },
@@ -225,5 +226,24 @@
     "rules": "Rules",
     "storage": "Storage",
     "account": "Account"
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{count}}",
+    "range": "{{from}}-{{to}} of {{total}}"
+  },
+  "guide": {
+    "contents": "Contents",
+    "anchorLink": {
+      "copy": "Copy link to this section",
+      "copied": "Link copied",
+      "copyFailed": "Couldn't copy the link"
+    },
+    "code": {
+      "copy": "Copy",
+      "copied": "Copied to clipboard",
+      "copyFailed": "Couldn't copy to the clipboard"
+    }
   }
 }

@@ -27,11 +27,11 @@ export function LandingSupportedGames() {
     >
       {items.map((game, index) => (
         <li key={`${game.key}-${index}`} className="flex items-center gap-3">
-          <span className="size-1.5 rounded-full bg-primary" />
+          <span className="font-heading text-sm text-primary">/</span>
           <span className="font-heading text-base font-semibold whitespace-nowrap md:text-lg">
             {game.name}
           </span>
-          <span className="text-sm whitespace-nowrap text-foreground/70 tabular-nums">
+          <span className="font-heading text-2xs tracking-widest whitespace-nowrap text-foreground/70 uppercase tabular-nums">
             {t("supportedGames.cardsIndexed", {
               count: game.cardCount,
               formatted: game.cardCount.toLocaleString(i18n.language),
@@ -45,7 +45,7 @@ export function LandingSupportedGames() {
   return (
     <section
       aria-label={t("supportedGames.heading")}
-      className="overflow-hidden border-y bg-secondary/30 py-5 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+      className="overflow-hidden border-y bg-card py-4 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
     >
       {games === null ? (
         <div className="flex justify-center gap-10">

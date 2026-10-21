@@ -1,0 +1,40 @@
+import { Button } from "@/components/ui/button";
+import type { ListPaginationProps } from "@/lib/interfaces/pagination";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
+import { useTranslation } from "react-i18next";
+
+export function ListPagination({ pagination }: ListPaginationProps) {
+  const { t } = useTranslation("common");
+  const { page, pageCount, from, to, total, setPage } = pagination;
+
+  if (pageCount <= 1) return null;
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <p className="text-xs tabular-nums text-foreground/70">
+        {t("pagination.range", { from, to, total })}
+      </p>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          disabled={page <= 1}
+          onClick={() => setPage(page - 1)}
+        >
+          <IconChevronLeft />
+          {t("pagination.previous")}
+        </Button>
+        <span className="text-xs tabular-nums text-foreground/70">
+          {t("pagination.page", { page, count: pageCount })}
+        </span>
+        <Button
+          variant="outline"
+          disabled={page >= pageCount}
+          onClick={() => setPage(page + 1)}
+        >
+          {t("pagination.next")}
+          <IconChevronRight />
+        </Button>
+      </div>
+    </div>
+  );
+}

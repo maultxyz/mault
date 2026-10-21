@@ -393,7 +393,11 @@
     "identified": "{{name}} a été ajoutée à la collection.",
     "identifyFailed": "Impossible d'ajouter la carte. Réessaie.",
     "remove": "Retirer la carte",
-    "removeFailed": "Impossible de retirer la carte. Réessaie."
+    "removeFailed": "Impossible de retirer la carte. Réessaie.",
+    "expand": "Agrandir",
+    "gridTitle": "Cartes non reconnues",
+    "gridDescription": "Choisissez une carte pour voir pourquoi elle n'a pas été reconnue et l'identifier.",
+    "gridNearest": "La plus proche : {{name}}"
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",

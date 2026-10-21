@@ -1,0 +1,276 @@
+{
+  "meta": {
+    "title": "Self-hosting guide | MAULT",
+    "description": "Run Mault on your own server with Docker Compose: Postgres, the API, the web app and the API docs, step by step."
+  },
+  "hero": {
+    "eyebrow": "Self-hosting guide",
+    "title": "Run Mault on your own server",
+    "description": "Run Mault on your own hardware. Pick your setup and the guide shows only the steps you need. Progress is saved in this browser."
+  },
+  "setup": {
+    "label": "Your setup",
+    "title": "Choose your setup",
+    "description": "Your choices are saved in the URL, so you can bookmark or share this guide.",
+    "host": {
+      "label": "Where are you hosting?",
+      "compose": {
+        "title": "Docker Compose",
+        "description": "Any server you manage. Builds the stack from the repo."
+      },
+      "coolify": {
+        "title": "Coolify",
+        "description": "Runs the prebuilt images from GitHub Container Registry."
+      }
+    },
+    "auth": {
+      "label": "Accounts and database",
+      "local": {
+        "title": "Built-in",
+        "description": "Postgres and accounts run inside the stack. No outside services."
+      },
+      "neon": {
+        "title": "Neon",
+        "description": "Hosted Postgres and Neon Auth. Adds email verification, password editing and social sign-in."
+      }
+    }
+  },
+  "sections": {
+    "requirements": {
+      "label": "Requirements",
+      "title": "Before you start",
+      "description": "What to have ready.",
+      "steps": {
+        "docker": {
+          "text": "Docker with Compose v2. This should print a version."
+        },
+        "git": {
+          "text": "Git."
+        },
+        "coolify": {
+          "text": "A Coolify instance with a server connected."
+        },
+        "neonAccount": {
+          "text": "A Neon account. The free tier is enough."
+        },
+        "node": {
+          "text": "Node.js, Git and pnpm on any machine, to run the Neon migrations. Corepack installs the right pnpm."
+        },
+        "huggingface": {
+          "text": "Outbound access to <code>huggingface.co</code> for the scanner's model. Allowlist it in DNS blockers such as Pi-hole."
+        },
+        "domain": {
+          "text": "Optional: a domain and an HTTPS reverse proxy for access outside your network."
+        }
+      }
+    },
+    "configure": {
+      "label": "Configure",
+      "title": "Configure",
+      "description": "All settings live in one .env file in the repository root.",
+      "steps": {
+        "clone": {
+          "text": "Clone the repository."
+        },
+        "env": {
+          "text": "Copy the self-hosted example config."
+        },
+        "envNeon": {
+          "text": "Copy the Neon example config."
+        },
+        "secrets": {
+          "text": "Set <code>POSTGRES_PASSWORD</code>, <code>OWN_AUTH_TOKEN_PEPPER</code>, <code>IMPERSONATION_SECRET</code> and <code>MONITOR_LINK_SECRET</code>, each to its own random value.",
+          "note": "Run the command once per secret."
+        },
+        "secretsNeon": {
+          "text": "Set <code>IMPERSONATION_SECRET</code> and <code>MONITOR_LINK_SECRET</code>, each to its own random value."
+        },
+        "webUrl": {
+          "text": "Set <code>WEB_URL</code> to the address people will open, without a trailing slash. Keep <code>http://localhost:8080</code> for a single machine."
+        },
+        "webUrlNeon": {
+          "text": "Set <code>WEB_URL</code> to the address people will open, without a trailing slash. The Neon example points at the dev server, so change it, for example to <code>http://localhost:8080</code>."
+        },
+        "userAgent": {
+          "text": "Set <code>CARD_API_USER_AGENT</code> to a name unique to your install, such as <code>MyMault/1.0</code>. Sources block names that overuse them."
+        }
+      }
+    },
+    "start": {
+      "label": "Start",
+      "title": "Start the stack",
+      "description": "Compose builds the images and starts every service.",
+      "steps": {
+        "up": {
+          "text": "Build and start in the background."
+        },
+        "logs": {
+          "text": "Watch the server start. It runs the database migrations itself."
+        },
+        "logsNeon": {
+          "text": "Watch the server start. It connects to your migrated Neon database."
+        },
+        "ports": {
+          "text": "Web app <code>:8080</code>, API docs <code>:8081</code>, API <code>:3001</code>. Postgres listens only on <code>127.0.0.1:5433</code>."
+        },
+        "portsNeon": {
+          "text": "Web app <code>:8080</code>, API docs <code>:8081</code>, API <code>:3001</code>. The bundled Postgres starts but isn't used."
+        }
+      }
+    },
+    "firstRun": {
+      "label": "First sign-in",
+      "title": "Create your account",
+      "description": "Sign up, then add a game to match scans against.",
+      "steps": {
+        "signUp": {
+          "text": "Open your <code>WEB_URL</code> and sign up. The first account becomes platform admin with a Home organization.",
+          "note": "Email verification, password editing, multi-session management and social sign-in need Neon."
+        },
+        "signUpNeon": {
+          "text": "Open your <code>WEB_URL</code>, sign up and create your organization."
+        },
+        "adminNeon": {
+          "text": "Make yourself platform admin in Neon's SQL editor."
+        },
+        "game": {
+          "text": "In <code>/app/admin</code>, add a game in the Games Manager and run its sync. Scans can't match until one has synced."
+        },
+        "admins": {
+          "text": "Optional: make another user platform admin. There's no screen for it yet."
+        }
+      }
+    },
+    "prices": {
+      "label": "Prices",
+      "title": "Schedule price sync",
+      "description": "Prices come from TCGplayer, Cardmarket and Card Kingdom. Sync once a day, never more often: sources block installs that poll harder.",
+      "steps": {
+        "cron": {
+          "text": "Add this with <code>crontab -e</code>, replacing <code>/opt/mault</code> with your <code>docker-compose.yml</code> folder.",
+          "note": "Failed runs aren't retried. The next daily run catches up."
+        },
+        "firstPull": {
+          "text": "After your first game sync, run the command once by hand. Cards have no price until then. Logs go to <code>/var/log/mault-prices.log</code>."
+        },
+        "coolify": {
+          "text": "In <code>Scheduled Tasks</code>, add this command with container <code>server</code> and frequency <code>0 4 * * *</code>.",
+          "note": "After your first game sync, run it once from the <code>server</code> terminal. Failed runs aren't retried."
+        }
+      }
+    },
+    "optional": {
+      "label": "Extras",
+      "title": "Optional features",
+      "description": "Each stays off until its variables are set. Restart or redeploy after changes.",
+      "steps": {
+        "discord": {
+          "text": "Discord bot: set <code>DISCORD_BOT_TOKEN</code>, <code>DISCORD_CLIENT_ID</code> and <code>BOT_API_SECRET</code>, then start with the bot profile."
+        },
+        "discordCoolify": {
+          "text": "Discord bot: set <code>DISCORD_BOT_TOKEN</code>, <code>DISCORD_CLIENT_ID</code> and <code>BOT_API_SECRET</code>, then redeploy."
+        },
+        "storage": {
+          "text": "File storage: point <code>SCAN_IMAGE_BUCKET</code> and the <code>AWS_*</code> variables at any S3-compatible bucket. Otherwise files are kept in Postgres."
+        },
+        "email": {
+          "text": "Email: set <code>RESEND_API_KEY</code> and <code>RESEND_FROM_EMAIL</code> for password resets and invites. Otherwise invites are link-only."
+        },
+        "wifi": {
+          "text": "Wi-Fi sorters: set <code>SORTER_LINK_URL</code> (or <code>API_URL</code>) to an address the sorter board can reach."
+        }
+      }
+    },
+    "maintain": {
+      "label": "Maintenance",
+      "title": "Updates and backups",
+      "description": "Stay current and protect your data.",
+      "steps": {
+        "migrateNeon": {
+          "text": "Before each update, pull the latest code and run the Neon migrations."
+        },
+        "update": {
+          "text": "Pull and rebuild. Migrations run on start-up."
+        },
+        "updateCoolify": {
+          "text": "Redeploy. Coolify fetches the latest compose file and pulls the current image for your tag."
+        },
+        "backup": {
+          "text": "Back up the <code>mault-postgres</code> volume regularly."
+        },
+        "backupCoolify": {
+          "text": "Keep the <code>mault-postgres</code> volume across redeploys and back it up regularly."
+        },
+        "backupNeon": {
+          "text": "Neon holds your data. Use its restore window and branches as backups."
+        },
+        "secrets": {
+          "text": "Don't rotate secrets casually. A new <code>OWN_AUTH_TOKEN_PEPPER</code> signs everyone out, and changing <code>POSTGRES_PASSWORD</code> doesn't update the existing database."
+        }
+      }
+    },
+    "coolify": {
+      "label": "Coolify",
+      "title": "Deploy with Coolify",
+      "description": "Coolify runs the published images, so nothing builds on your server.",
+      "steps": {
+        "compose": {
+          "text": "Create <code>+ New</code> > <code>Public Repository</code> with this URL, branch <code>master</code>, build pack <code>Docker Compose</code> and compose file <code>/docker-compose-coolify.yml</code>."
+        },
+        "images": {
+          "text": "These images are pulled. Set <code>MAULT_IMAGE_TAG</code> (for example <code>v1.2.3</code>) to pin a version. The default is <code>latest</code>."
+        },
+        "env": {
+          "text": "In the environment, set <code>WEB_URL</code> to your public origin without a trailing slash, and give <code>POSTGRES_PASSWORD</code>, <code>IMPERSONATION_SECRET</code>, <code>OWN_AUTH_TOKEN_PEPPER</code> and <code>MONITOR_LINK_SECRET</code> each its own random value.",
+          "note": "Leave <code>VITE_API_URL</code> and the Neon variables empty."
+        },
+        "envNeon": {
+          "text": "In the environment, set these values, <code>WEB_URL</code> (no trailing slash) and your Neon values. Also give <code>POSTGRES_PASSWORD</code>, <code>IMPERSONATION_SECRET</code>, <code>OWN_AUTH_TOKEN_PEPPER</code> and <code>MONITOR_LINK_SECRET</code> each its own random value, since the compose file requires them.",
+          "note": "Neon only accepts encrypted connections, hence <code>DATABASE_SSL=true</code>."
+        },
+        "domain": {
+          "text": "Assign your domain to the <code>web</code> service on port 80, such as <code>https://mault.example.com:80</code>."
+        },
+        "deploy": {
+          "text": "Deploy. The bot stays idle until its Discord variables are set."
+        }
+      }
+    },
+    "neon": {
+      "label": "Neon",
+      "title": "Set up Neon",
+      "description": "Neon hosts the database, sign-in and file storage. The containers never migrate Neon, so you run the migrations yourself.",
+      "steps": {
+        "project": {
+          "text": "Create a project at <code>console.neon.tech</code> and run this in its SQL editor."
+        },
+        "auth": {
+          "text": "Enable Neon Auth (Dashboard > Auth) before migrating."
+        },
+        "urls": {
+          "text": "Copy the pooled connection string (<code>DATABASE_URL</code>), the auth URL (<code>NEON_AUTH_URL</code> and <code>VITE_NEON_AUTH_URL</code>) and the Data API URL (<code>VITE_NEON_DATA_API_URL</code>)."
+        },
+        "storage": {
+          "text": "Create a bucket in Neon's object storage and copy its name, S3 endpoint, region and keys into <code>SCAN_IMAGE_BUCKET</code>, <code>AWS_ENDPOINT_URL_S3</code>, <code>AWS_REGION</code>, <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code>."
+        },
+        "envCompose": {
+          "text": "Paste these values into <code>.env</code>."
+        },
+        "clone": {
+          "text": "On a machine with Node.js, clone the repository, copy the Neon example config and set <code>DATABASE_URL</code>."
+        },
+        "migrate": {
+          "text": "Run the migrations.",
+          "note": "Repeat this before every update."
+        }
+      }
+    }
+  },
+  "footer": {
+    "openSource": "Open source",
+    "reportIssue": "Report an issue",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "copyright": "© {{year}} Mault LLC"
+  }
+}

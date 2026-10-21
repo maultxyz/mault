@@ -1,13 +1,12 @@
+import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
 import { LandingCta } from "@/features/landing/components/cta";
 import { LandingFeatures } from "@/features/landing/components/features";
 import { LandingFooter } from "@/features/landing/components/footer";
 import { LandingHero } from "@/features/landing/components/hero";
 import { LandingOpenSource } from "@/features/landing/components/open-source";
 import { LandingPricing } from "@/features/landing/components/pricing";
-import { LandingStats } from "@/features/landing/components/stats";
 import { LandingSupportedGames } from "@/features/landing/components/supported-games";
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
-import { PublicGlow } from "@/components/public-glow";
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
@@ -23,16 +22,15 @@ export default function LandingPage() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
-      <PublicGlow />
+      <BlueprintBackdrop />
       <PublicAnnouncementBanner />
       <PublicNav />
       <main className="flex-1">
         <LandingHero />
         <LandingSupportedGames />
-        <LandingStats />
-        <LandingFeatures />
-        <LandingOpenSource />
-        {AUTH_PROVIDER !== "local" && <LandingPricing />}
+        <LandingFeatures step="01" />
+        <LandingOpenSource step="02" />
+        {AUTH_PROVIDER !== "local" && <LandingPricing step="03" />}
         <LandingCta />
       </main>
       <LandingFooter />
