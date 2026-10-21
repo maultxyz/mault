@@ -31,6 +31,7 @@ export function BinCard({
   isScanOnlyTarget,
   isChaosMode,
   alphabetLetter,
+  repackPriority,
   showOverflow,
   overflowSources = [],
   disabled,
@@ -84,6 +85,11 @@ export function BinCard({
                     {t("binCard.maxCopies", { count: config.maxCopies })}
                   </Badge>
                 )}
+              {!isDisabled && repackPriority != null && (
+                <Badge variant="outline">
+                  {t("binCard.priority", { priority: repackPriority })}
+                </Badge>
+              )}
               {(config.isCatchAll || config.isOverride) &&
                 !isDisabled &&
                 !isChaosMode &&

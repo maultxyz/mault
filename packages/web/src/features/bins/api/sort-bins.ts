@@ -1,6 +1,5 @@
 import type {
   BinConfig,
-  BinRuleGroup,
   BinSet,
   DefaultBinInit,
   EmptyAllBinsInput,
@@ -8,7 +7,7 @@ import type {
   EmptyBinOptions,
   PickListFoundInput,
   PickListFoundResult,
-  RepackSlot,
+  RepackConfigPatch,
   Result,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
@@ -151,12 +150,7 @@ export async function setScanOnly(
 
 export async function setRepackConfig(
   guid: string,
-  config: {
-    isRepackMode: boolean;
-    repackSlots: RepackSlot[];
-    repackUniqueBy: string | null;
-    repackSiftRules: BinRuleGroup | null;
-  },
+  config: RepackConfigPatch,
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/repack`, config);
 }

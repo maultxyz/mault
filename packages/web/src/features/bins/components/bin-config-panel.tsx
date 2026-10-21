@@ -38,6 +38,7 @@ import {
   DEFAULT_MAX_COPIES,
   NO_OVERFLOW_VALUE,
   REPACK_ALLOW_DUPLICATES_VALUE,
+  REPACK_PRIORITY_AUTO_VALUE,
 } from "@/lib/constants/bins";
 import { emptyRuleGroup } from "@/lib/rule-groups";
 import {
@@ -51,12 +52,14 @@ import {
   DEFAULT_BIN_CAPACITY,
   formatDecklist,
   getOverflowSources,
+  getRepackPackBins,
   isOverflowTarget,
   OVERRIDE_PRIORITY_MAX,
   parseDecklist,
   REPACK_UNIQUE_BY_NAME,
   REPACK_UNIQUE_BY_PRINTING,
   sortOverrideBins,
+  sortRepackPackBins,
 } from "@magic-vault/shared";
 import { useCallback, useEffect, useMemo } from "react";
 import { Controller, useForm, type Resolver } from "react-hook-form";
@@ -91,6 +94,7 @@ export function BinConfigPanel() {
     setBinFormDirty,
     effectiveMode,
     isModeDirty,
+    selectedSet,
   } = useBinConfigs();
 
   const autoAssignField = effectiveMode.autoAssignField;
@@ -104,6 +108,7 @@ export function BinConfigPanel() {
       isCatchAll: false,
       isOverride: false,
       overridePriority: null,
+      repackPriority: null,
       isDisabled: false,
       rules: emptyRuleGroup(),
       maxCopies: null,
@@ -119,6 +124,7 @@ export function BinConfigPanel() {
       isCatchAll: config.isCatchAll ?? false,
       isOverride: config.isOverride ?? false,
       overridePriority: config.overridePriority ?? null,
+      repackPriority: config.isCatchAll ? null : (config.repackPriority ?? null),
       isDisabled: !config.isCatchAll && !!config.isDisabled,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
@@ -186,6 +192,7 @@ export function BinConfigPanel() {
           maxCopies: values.isCatchAll ? null : (config.maxCopies ?? null),
           maxCopiesBy: values.isCatchAll ? null : (config.maxCopiesBy ?? null),
           isDisabled: !values.isCatchAll && values.isDisabled,
+          repackPriority: values.isCatchAll ? null : values.repackPriority,
         });
         return;
       }
@@ -255,6 +262,7 @@ export function BinConfigPanel() {
         isCatchAll: false,
         isOverride: false,
         overridePriority: null,
+        repackPriority: form.getValues("repackPriority"),
         isDisabled: form.getValues("isDisabled"),
         rules: emptyRuleGroup(),
         maxCopies: null,
@@ -470,6 +478,97 @@ export function BinConfigPanel() {
         />
       }
     />
+  );
+
+  const repackPackBins = useMemo(
+    () =>
+      effectiveMode.isRepackMode && selectedSet
+        ? getRepackPackBins(configs, selectedSet)
+        : [],
+    [effectiveMode.isRepackMode, selectedSet, configs],
+  );
+  const isRepackPackBin =
+    !isCatchAll &&
+    !isDisabled &&
+    repackPackBins.some((c) => c.binNumber === config.binNumber);
+  const draftRepackPriority = form.watch("repackPriority");
+  const repackPriorityOptions = Array.from(
+    {
+      length: Math.max(repackPackBins.length, draftRepackPriority ?? 0),
+    },
+    (_, i) => i + 1,
+  );
+  const repackFillOrder = useMemo(
+    () =>
+      sortRepackPackBins(
+        repackPackBins.map((c) =>
+          c.binNumber === config.binNumber
+            ? { ...c, repackPriority: draftRepackPriority }
+            : c,
+        ),
+      ),
+    [repackPackBins, config.binNumber, draftRepackPriority],
+  );
+
+  const repackPriorityRow = isRepackPackBin && (
+    <BinSettingRow
+      key="repack-priority"
+      id="bin-repack-priority"
+      label={t("binConfigPanel.repackPriorityLabel")}
+      description={t("binConfigPanel.repackPriorityDescription")}
+      control={
+        <Select
+          value={
+            draftRepackPriority == null
+              ? REPACK_PRIORITY_AUTO_VALUE
+              : String(draftRepackPriority)
+          }
+          onValueChange={(value) =>
+            form.setValue(
+              "repackPriority",
+              !value || value === REPACK_PRIORITY_AUTO_VALUE
+                ? null
+                : Number(value),
+              { shouldDirty: true },
+            )
+          }
+        >
+          <SelectTrigger
+            id="bin-repack-priority"
+            className="w-40"
+            aria-label={t("binConfigPanel.repackPriorityLabel")}
+          >
+            <SelectValue>
+              {draftRepackPriority == null
+                ? t("binConfigPanel.repackPriorityAuto")
+                : t("binCard.priority", { priority: draftRepackPriority })}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="end">
+            <SelectGroup>
+              <SelectItem value={REPACK_PRIORITY_AUTO_VALUE}>
+                {t("binConfigPanel.repackPriorityAuto")}
+              </SelectItem>
+              {repackPriorityOptions.map((priority) => (
+                <SelectItem key={priority} value={String(priority)}>
+                  {t("binCard.priority", { priority })}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      }
+    >
+      {repackFillOrder.length > 1 && (
+        <p className="text-2xs text-foreground/70">
+          {t("binConfigPanel.repackPriorityOrder", {
+            order: repackFillOrder
+              .map((c) => t("binLabel", { number: c.binNumber }))
+              .join(", "),
+          })}
+        </p>
+      )}
+    </BinSettingRow>
   );
 
   const overflowRow = !isDisabled && (
@@ -707,6 +806,7 @@ export function BinConfigPanel() {
               });
               form.setValue("isOverride", false, { shouldDirty: true });
               form.setValue("overridePriority", null, { shouldDirty: true });
+              form.setValue("repackPriority", null, { shouldDirty: true });
               form.setValue("isDisabled", false, { shouldDirty: true });
               form.setValue("pickList", null, { shouldDirty: true });
               field.onChange(!field.value);
@@ -762,7 +862,7 @@ export function BinConfigPanel() {
             {catchAllToggle}
           </div>
           <div className={BIN_SETTINGS_LIST_CLASS}>
-            {isCatchAll ? lowMatchRow : disableRow}
+            {isCatchAll ? lowMatchRow : [disableRow, repackPriorityRow]}
           </div>
           {catchAllError}
         </form>

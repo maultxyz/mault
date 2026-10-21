@@ -272,6 +272,43 @@ test("the sift bin skips disabled bins", () => {
   );
 });
 
+function repackPriority(
+  priorities: Record<number, number>,
+  fullBins: number[] = [],
+  rules: BinRuleGroup | null = null,
+) {
+  const configs = repackConfigs.map((b) => ({
+    ...b,
+    repackPriority: priorities[b.binNumber] ?? null,
+  }));
+  return evaluateRepackBin(
+    toRuleCard({ price: 1, prices: { usd: 1 } }, {}),
+    configs,
+    ruleFields,
+    { repackSlots: [anySlot], repackUniqueBy: null, repackSiftRules: rules },
+    (b) => (fullBins.includes(b.binNumber) ? fullPack : []),
+  )?.binNumber;
+}
+
+test("repack priority: the priority 1 bin fills first", () => {
+  assert.equal(repackPriority({ 3: 1 }), 3);
+});
+
+test("repack priority: lower numbers win and unranked bins come last in bin order", () => {
+  const priorities = { 3: 2, 2: 1 };
+  assert.equal(repackPriority(priorities), 2);
+  assert.equal(repackPriority(priorities, [2]), 3);
+  assert.equal(repackPriority(priorities, [2, 3]), 1);
+});
+
+test("repack priority: equal priorities fall back to bin order", () => {
+  assert.equal(repackPriority({ 3: 1, 2: 1 }), 2);
+});
+
+test("repack priority: the sift bin is never a pack even with a priority", () => {
+  assert.equal(repackPriority({ 1: 1 }, [], siftRules), 2);
+});
+
 const fullPack = Array.from({ length: 10 }, (_, i) => ({ id: `c${i}`, price: 1, prices: { usd: 1 } }));
 
 function packsComplete(rules: BinRuleGroup | null, fullBins: number[]) {

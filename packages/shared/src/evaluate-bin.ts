@@ -551,6 +551,16 @@ export function getRepackPackBins(
   );
 }
 
+export function sortRepackPackBins(bins: BinConfig[]): BinConfig[] {
+  const rank = (bin: BinConfig) =>
+    bin.repackPriority ?? Number.POSITIVE_INFINITY;
+  return [...bins].sort((a, b) => {
+    const rankA = rank(a);
+    const rankB = rank(b);
+    return rankA === rankB ? a.binNumber - b.binNumber : rankA - rankB;
+  });
+}
+
 export function areAllRepackPacksComplete(
   configs: BinConfig[],
   fieldDefinitions: FieldMeta[],
@@ -588,7 +598,7 @@ export function evaluateRepackBin(
     return siftBin;
   }
 
-  for (const bin of getRepackPackBins(configs, binSet)) {
+  for (const bin of sortRepackPackBins(getRepackPackBins(configs, binSet))) {
     const cardsInPack = cardsInBin(bin);
     if (isRepackComplete(binSet.repackSlots, fieldDefinitions, cardsInPack)) {
       continue;
