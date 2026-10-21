@@ -104,6 +104,19 @@ set +a
 pnpm --filter @magic-vault/server db:migrate-local
 
 echo "[install] Enabling user services"
+dialout_members=",$(getent group dialout | cut -d: -f4),"
+case "$dialout_members" in
+  *,"$USER",*) ;;
+  *)
+    echo "[install] Adding $USER to dialout"
+    sudo usermod -aG dialout "$USER"
+    ;;
+esac
+case " $(id -nG) " in
+  *" dialout "*) dialout_active=1 ;;
+  *) dialout_active=0 ;;
+esac
+
 pi_ensure_user_bus
 
 UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
@@ -115,6 +128,11 @@ systemctl --user daemon-reload
 if ! systemctl --user enable --now mault-camera.service mault-api.service mault-web.service; then
   systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
   exit 1
+fi
+if [[ "$dialout_active" -eq 0 ]]; then
+  echo "[install] Restarting user services so they can open the sorter"
+  sudo systemctl restart "user@$(id -u).service"
+  pi_ensure_user_bus
 fi
 
 if ! {
