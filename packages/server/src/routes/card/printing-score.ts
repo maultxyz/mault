@@ -1,5 +1,4 @@
 import {
-  CARD_EMBEDDING_DIMENSIONS,
   DISTANCE_THRESHOLD,
   type PlayingCardImage,
   type PrintingScoreHit,
@@ -8,7 +7,10 @@ import {
 import { Hono } from "hono";
 import { sql, type SQL } from "drizzle-orm";
 import { authQuery } from "../../db";
-import { CARD_MATCH_HNSW_EF_SEARCH } from "../../lib/constants/card-search";
+import {
+  CARD_MATCH_HNSW_EF_SEARCH,
+  MILO_EMBEDDING_DIM,
+} from "../../lib/constants/card-search";
 import {
   resolveCardSearchForGame,
   resolveGameKeyAndLang,
@@ -19,7 +21,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { parseEmbeddingField } from "./shared";
 
 function embeddingLiteral(value: number[] | null): string | null {
-  if (!value || value.length !== CARD_EMBEDDING_DIMENSIONS) return null;
+  if (!value || value.length !== MILO_EMBEDDING_DIM) return null;
   if (!value.every((entry) => typeof entry === "number" && Number.isFinite(entry))) {
     return null;
   }
