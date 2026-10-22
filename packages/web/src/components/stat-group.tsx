@@ -25,21 +25,37 @@ export function StatGroup({
         )}
       </div>
       <div className={cn("-mr-px -mb-px grid", gridClassName)}>
-        {tiles.map((tile) => (
-          <div key={tile.key} className="border-r border-b border-input p-2">
-            <p className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
-              {tile.label}
-            </p>
-            <p className="text-sm font-semibold tabular-nums">
-              {tile.value ?? "-"}
-            </p>
-            {tile.detail !== undefined && (
-              <p className="text-2xs text-foreground/70">
-                {tile.detail ?? "-"}
+        {tiles.map((tile) => {
+          const content = (
+            <>
+              <p className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+                {tile.label}
               </p>
-            )}
-          </div>
-        ))}
+              <p className="text-sm font-semibold tabular-nums">
+                {tile.value ?? "-"}
+              </p>
+              {tile.detail !== undefined && (
+                <p className="text-2xs text-foreground/70">
+                  {tile.detail ?? "-"}
+                </p>
+              )}
+            </>
+          );
+          return tile.onClick ? (
+            <button
+              key={tile.key}
+              type="button"
+              onClick={tile.onClick}
+              className="cursor-pointer border-r border-b border-input p-2 text-left transition-colors hover:bg-input/40 focus-visible:bg-input/40 focus-visible:outline-none"
+            >
+              {content}
+            </button>
+          ) : (
+            <div key={tile.key} className="border-r border-b border-input p-2">
+              {content}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

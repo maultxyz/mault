@@ -5,6 +5,7 @@ import { SCAN_LOCK_TTL_MS as LOCK_TTL_MS } from "./constants/timing";
 import type { SseWriter } from "./interfaces/sse";
 import type {
   AcquireLockResult,
+  ActiveScanLock,
   LockEntry,
   ScanLock,
 } from "./interfaces/scan-lock";
@@ -64,6 +65,7 @@ export function acquireLock(
     userId,
     displayName,
     orgId,
+    startedAt: Date.now(),
     expiresAt: Date.now() + LOCK_TTL_MS,
     timer: scheduleLockExpiry(guid),
   });
@@ -132,4 +134,15 @@ export function getActiveScanLockStats(): {
     sessions: entries.length,
     orgs: new Set(entries.map((e) => e.orgId)).size,
   };
+}
+
+export function listActiveScanLocks(): ActiveScanLock[] {
+  return [...locks.entries()].map(([collectionGuid, entry]) => ({
+    collectionGuid,
+    userId: entry.userId,
+    displayName: entry.displayName,
+    orgId: entry.orgId,
+    startedAt: entry.startedAt,
+    expiresAt: entry.expiresAt,
+  }));
 }
