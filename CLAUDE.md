@@ -11,6 +11,8 @@ pnpm --filter @magic-vault/server dev
 pnpm --filter @magic-vault/web dev
 pnpm build                                    # tsup (server), tsc -b + vite build (web)
 pnpm --filter @magic-vault/web lint            # only package with a lint script
+pnpm --filter @magic-vault/server test
+python3 -m unittest discover -s scripts/pi/tests -v
 
 pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes
 pnpm --filter @magic-vault/server db:migrate
@@ -21,7 +23,7 @@ pnpm --filter @magic-vault/web model           # STEP -> public/models/card-sort
 pnpm --filter @magic-vault/mobile start        # Expo dev server for the iOS/Android dev build (see packages/mobile/README.md)
 ```
 
-No automated tests. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
+Run regression tests relevant to the change. Browser worker tests use `pnpm --filter @magic-vault/server exec tsx --tsconfig ../web/tsconfig.app.json --test ../web/tests/browser-sync-pool.test.ts`. Type-check via the `web` build (`tsc -b`) and editor diagnostics; the server build uses tsup and does not type-check. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Architecture
 
@@ -115,7 +117,9 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Remote-browser Pi behavior (serial bridge, camera relay, hiding the connect prompt) turns on only when the API reports `piHost`. That is true when `PI_HOST=1` (set by `scripts/pi/install.sh`, which also installs Node 22, pnpm, Postgres with pgvector, ffmpeg, and v4l-utils) or when `/proc/device-tree/model` is a Raspberry Pi. `PI_HOST=0` forces it off.
 - A remote browser on a Pi host opens the sorter through `/pi-serial` (`lib/pi-serial-bridge.ts`). The port is claimed in `lib/pi-serial-port.ts`, so the Pi scan session and a browser cannot hold it at the same time. The node is `root:dialout` mode `660`. `install.sh` adds the desktop user to `dialout` and restarts the user manager when this login does not have the group yet. Raspberry Pi OS already puts its user in `dialout`; Other Linux Distros do not.
 - Pi-owned scanning (`lib/pi-scan/session.ts`, `GET/POST/DELETE /scan-session`) runs the loop in the API process. It feeds, waits the device capture settle delay once, then takes the scan photo. Full bins and completed packs hold the current card until resume, which reloads bin state. The serial link uses shared seq/event helpers and rejects pending work on disconnect.
-- Both sync paths use the admin "cards at a time" control. The server path sets `VECTORIZE_CONCURRENCY` on the sync worker. "Start on this computer" (`vectorizeOn: "browser"`) is offered only when the API reports `piHost`. It hands cards missing front or back image vectors to the open admin page and runs that many browser workers. `crypto.subtle` is missing on plain HTTP, so model hashing falls back to `fast-sha256`. Browser offloading is for bulk database sync only; live card identification stays on the Pi. Browser inference workers are capped separately from cards in flight; a fatal runtime failure stops the job until page reload.
+- Both sync paths use the admin "cards at a time" control. The server path sets `VECTORIZE_CONCURRENCY` on the sync worker. "Start on this computer" (`vectorizeOn: "browser"`) is offered only when the API reports `piHost`. It hands cards missing front or back image vectors to the open admin page; the control limits cards in flight, while `BROWSER_EMBED_WORKER_MAX` separately caps model workers. `crypto.subtle` is missing on plain HTTP, so model hashing falls back to `fast-sha256`. Browser offloading is for bulk database sync only; live card identification stays on the Pi. A fatal runtime failure stops the job until page reload.
+- `scripts/pi/update.sh` follows the installed branch's tracking remote with a fast-forward only. Refuse local changes and unpublished commits; never reset or stash them automatically. Stop services before changing code or builds, rebuild both apps, then refresh and start services. Preserve `.env`; database migrations run through `run-api.sh` at startup. Keep updater execution inside a parsed function so fetching a replacement of its own script cannot change the running procedure.
+- Browser-triggered host updates require platform admin and `piHost`, and refuse active scans, sorter connections and sync jobs. Run `run-update.sh` in a separate systemd user job so it survives API restarts; persist its result under the Mault state directory. The browser version mismatch means refresh; host update availability compares the running API package version with `packages/server/package.json` on the configured Git upstream, not commit hashes.
 
 ### Discord bot
 

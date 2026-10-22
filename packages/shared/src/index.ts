@@ -23,6 +23,7 @@ export * from "./interfaces/scanner.interface";
 export * from "./interfaces/phone-camera.interface";
 export * from "./interfaces/pi-serial.interface";
 export * from "./interfaces/pi-scan.interface";
+export * from "./interfaces/pi-update.interface";
 export * from "./interfaces/price-source.interface";
 export * from "./interfaces/card-condition.interface";
 export * from "./interfaces/sort-bins.interface";

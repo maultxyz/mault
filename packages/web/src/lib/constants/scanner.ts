@@ -168,6 +168,6 @@ export const MOBILE_SCAN_CHIP_CLASS =
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
 
-export const PI_CAMERA_PREVIEW_INTERVAL_MS = 1000;
+export const PI_CAMERA_PREVIEW_INTERVAL_MS = 250;
 
 export const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;

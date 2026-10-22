@@ -405,7 +405,6 @@ export function CardScanner({
     prepareDevice,
     sendRequest,
     handleCardArrived,
-    handlePause,
     pause,
     t,
     activeCollection?.guid,

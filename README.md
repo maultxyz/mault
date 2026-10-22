@@ -145,21 +145,24 @@ scripts/pi/install.sh
 | `mault-web` | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
 | `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam |
 
-The API service applies local database migrations before starting. After rebuilding an existing checkout, restart the API and web services. To install the migration startup check on an older Pi installation, run:
+Updates are installed manually. Finish any scan, then run these commands on the Pi:
 
 ```bash
-cp scripts/pi/mault-api.service ~/.config/systemd/user/mault-api.service
-systemctl --user daemon-reload
-systemctl --user restart mault-api.service mault-web.service
+cd ~/mault
+bash scripts/pi/update.sh
 ```
+
+The updater downloads and builds the latest version of Mault, then restarts the app and camera services. Your settings, accounts, and saved cards stay in place. Any required database updates are applied automatically. When the update finishes, reload Mault in your browsers.
+
+Admins can also choose **Update Mault** in the update banner when a new version is available. Finish scanning, disconnect the sorter, and stop any database sync first. Keep the page open while the update runs, then choose **Refresh** when it reports success. If the app cannot reconnect, check `${XDG_STATE_HOME:-$HOME/.local/state}/mault/update.log` on the Pi.
+
+If you have changed or added files in the installation folder, the updater stops before updating so it does not overwrite your work. If an update fails after stopping the app, resolve the reported error and run the same command again. Check the release instructions for any additional system requirements.
 
 The API service keeps its output in `${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log`, including scan failures and feed commands. To inspect the latest entries even when the user journal is unavailable:
 
 ```bash
 tail -n 100 "${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log"
 ```
-
-If sorter setup shows the default three modules or cannot save, check that migrations completed: `pnpm --filter @magic-vault/server db:migrate-local`. A missing device column prevents settings from loading even when the stored module count is correct. Reload the browser after repairing the database.
 
 ```bash
 scripts/pi/start.sh            # start the services and open Chromium on the Pi desktop

@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { test, type TestContext } from "node:test";
 import { MILO_MODEL } from "@magic-vault/shared";
-import { MiloSyncPool } from "../src/features/admin/lib/milo-sync-pool";
-import { BROWSER_EMBED_WORKER_MAX } from "../src/lib/constants/admin";
+import { MiloSyncPool } from "@/features/admin/lib/milo-sync-pool";
+import { BROWSER_EMBED_WORKER_MAX } from "@/lib/constants/admin";
 
 function workers(t: TestContext, mode: "normal" | "hold" | "fail") {
   const instances: FakeWorker[] = [];

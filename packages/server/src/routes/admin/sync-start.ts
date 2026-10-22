@@ -4,6 +4,7 @@ import {
 } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { isPiHost } from "../../lib/pi-host";
+import { piUpdateRunning } from "../../lib/pi-update";
 import { getStatus, startSync, SYNC_SOURCES } from "../../lib/sync-job";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
@@ -19,6 +20,11 @@ export const syncStartRoute = new Hono<AppEnv>().post(
   requireRole("admin"),
   async (c) => {
     let gameKey: string | undefined;
+    if (isPiHost() && (await piUpdateRunning()))
+      return c.json(
+        { success: false, message: "A system update is running." },
+        409,
+      );
     let lang = "en";
     let forceResync = false;
     let concurrency: number | undefined;
