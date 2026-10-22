@@ -1,4 +1,5 @@
 import { SettingsSection } from "@/components/settings-section";
+import { ActiveScanSessionsDrawer } from "@/features/admin/components/active-scan-sessions-drawer";
 import { StatGroup } from "@/components/stat-group";
 import {
   getActiveScanning,
@@ -11,10 +12,13 @@ import {
   SCAN_VECTORIZE_STATS_REFRESH_MS,
 } from "@/lib/constants/admin";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function ScanStatsOverviewPanel() {
   const { t } = useTranslation("admin");
+  const [sessionsOpen, setSessionsOpen] = useState(false);
+  const openSessions = () => setSessionsOpen(true);
 
   const { data: active } = useQuery({
     queryKey: ["admin", "active-scanning"],
@@ -50,6 +54,10 @@ export function ScanStatsOverviewPanel() {
     key,
     label: t(`activeScanning.${key}`, { minutes }),
     value,
+    onClick:
+      key === "scanners" || key === "sessions" || key === "orgs"
+        ? openSessions
+        : undefined,
   }));
 
   const allTimeTiles = [
@@ -94,6 +102,10 @@ export function ScanStatsOverviewPanel() {
           heading={t("activeScanning.heading")}
           tiles={activeTiles}
           live={(active?.scanners ?? 0) > 0}
+        />
+        <ActiveScanSessionsDrawer
+          open={sessionsOpen}
+          onOpenChange={setSessionsOpen}
         />
         <StatGroup
           heading={t("metricsStats.allTimeHeading")}

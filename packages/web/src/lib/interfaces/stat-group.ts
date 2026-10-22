@@ -3,6 +3,7 @@ export interface StatGroupTile {
   label: string;
   value: string | number | null | undefined;
   detail?: string | null;
+  onClick?: () => void;
 }
 
 export interface StatGroupProps {
