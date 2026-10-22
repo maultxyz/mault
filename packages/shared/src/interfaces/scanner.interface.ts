@@ -176,6 +176,11 @@ export interface UnmatchedCard {
   embedding?: number[];
 }
 
+export interface UnmatchedCardsPage {
+  cards: UnmatchedCard[];
+  total: number;
+}
+
 export interface ScanSaveRequestFields {
   deviceGuid?: string;
   isRetry?: boolean;

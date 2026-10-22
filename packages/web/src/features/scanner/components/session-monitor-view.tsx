@@ -1,11 +1,13 @@
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
+import { removeUnmatchedScan } from "@/features/collections/api/collections";
 import { useMonitorCards } from "@/features/scanner/api/use-monitor-cards";
-import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
 import { MobileSessionMonitor } from "@/features/scanner/components/mobile-session-monitor";
 import { MonitorCardDetail } from "@/features/scanner/components/monitor-card-detail";
 import { MonitorCardGrid } from "@/features/scanner/components/monitor-card-grid";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { SessionStatsPanel } from "@/features/scanner/components/session-stats-panel";
+import { UnmatchedCardsBrowser } from "@/features/scanner/components/unmatched-cards-browser";
+import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { SessionMonitorViewProps } from "@/lib/interfaces/scanner";
@@ -21,8 +23,9 @@ export function SessionMonitorView({
   canEditCards = false,
   backHref,
 }: SessionMonitorViewProps) {
-  const { unmatchedCards, errors, status } = session;
+  const { unmatchedCards, unmatchedCount, errors, status } = session;
   const isMobile = useIsMobile();
+  const unmatchedView = useUnmatchedView();
   const cards = useMonitorCards(session, cardsSource, canEditCards);
   const { stats, cardCount, matchingCount, openScanId, setOpenScanId } = cards;
 
@@ -56,15 +59,35 @@ export function SessionMonitorView({
         {header}
         <SessionStatsPanel stats={stats} totalCards={cards.filteredCount} />
         {canEditCards ? (
-          <IdentifiableUnmatchedCardsPanel cards={unmatchedCards} />
+          <UnmatchedCardsPanel
+            canIdentify
+            cards={unmatchedCards}
+            total={unmatchedCount}
+            collectionGuid={cardsSource.collectionGuid}
+            onRemove={(scanId) =>
+              removeUnmatchedScan(cardsSource.collectionGuid, scanId)
+            }
+          />
         ) : (
-          <UnmatchedCardsPanel cards={unmatchedCards} />
+          <UnmatchedCardsPanel cards={unmatchedCards} total={unmatchedCount} />
         )}
         <SessionErrorsPanel errors={errors} />
       </aside>
 
       <main className="col-span-7 md:col-span-7 lg:col-span-8 xl:col-span-9 2xl:col-span-10 overflow-y-auto h-full @container">
-        {openScanId ? (
+        {unmatchedView.isOpen && canEditCards ? (
+          <UnmatchedCardsBrowser
+            collectionGuid={cardsSource.collectionGuid}
+            openIndex={unmatchedView.openIndex}
+            onOpenIndexChange={unmatchedView.setOpenIndex}
+            canIdentify
+            onRemove={(scanId) =>
+              removeUnmatchedScan(cardsSource.collectionGuid, scanId)
+            }
+            onClose={unmatchedView.close}
+            className="min-h-full"
+          />
+        ) : openScanId ? (
           <MonitorCardDetail
             collectionGuid={cardsSource.collectionGuid}
             scanId={openScanId}
