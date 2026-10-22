@@ -65,6 +65,7 @@ export * from "./constants/sync.constant";
 export * from "./evaluate-bin";
 export * from "./vision";
 export * from "./text-match";
+export * from "./consensus";
 export * from "./serial-protocol";
 export * from "./pick-list";
 export * from "./interfaces/pick-list.interface";

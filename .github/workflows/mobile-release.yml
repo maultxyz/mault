@@ -32,6 +32,7 @@ jobs:
       IS_DEV: ${{ github.ref_name == 'dev' }}
       PROFILE: ${{ github.ref_name == 'dev' && 'preview' || 'production' }}
       PLATFORM: ${{ inputs.platform }}
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
     steps:
       # master builds go to the stores, dev builds are internal install links.
       # Anything else would ship unreleased code, so it's refused.
@@ -39,6 +40,10 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" != "master" ] && [ "${{ github.ref_name }}" != "dev" ]; then
             echo "::error::Mobile releases run from master (stores) or dev (internal), not ${{ github.ref_name }}."
+            exit 1
+          fi
+          if [ -z "$EAS_PROJECT_ID" ]; then
+            echo "::error::Set the EAS_PROJECT_ID variable in this GitHub environment (expo.dev > project > Project ID)."
             exit 1
           fi
 
