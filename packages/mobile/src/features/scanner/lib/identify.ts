@@ -11,6 +11,7 @@ import {
   dewarpRgba,
   getDefaultCardContour,
   isStrongerTextMatch,
+  pickConsensus,
   rotateRgba180,
   type CardContour,
   type CardSearchResult,
@@ -300,26 +301,12 @@ export async function identifyCard(
     return toOutcome(await attempt(), attempts, options.matchesNeeded);
   }
 
-  let streakId: string | null = null;
-  let streakCount = 0;
-  let streakResult: ScanAttempt | null = null;
   let last: ScanAttempt | null = null;
   const maxAttempts = options.matchesNeeded + CONSENSUS_RETRY_BUDGET;
   for (let i = 0; i < maxAttempts; i++) {
-    const result = await attempt();
-    last = result;
-    const topId = result.card?.id ?? null;
-    if (topId != null && topId === streakId) {
-      streakCount++;
-      streakResult = result;
-    } else {
-      streakId = topId;
-      streakCount = topId != null ? 1 : 0;
-      streakResult = topId != null ? result : null;
-    }
-    if (streakResult && streakCount >= options.matchesNeeded) {
-      return toOutcome(streakResult, attempts, options.matchesNeeded);
-    }
+    last = await attempt();
+    const agreed = pickConsensus(attempts, options.matchesNeeded);
+    if (agreed) return toOutcome(agreed, attempts, options.matchesNeeded);
   }
   return toOutcome({ ...last!, card: null }, attempts, options.matchesNeeded);
 }
