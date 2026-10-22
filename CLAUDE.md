@@ -113,6 +113,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 ### Pi scanning
 
+- The Linux API service sets `API_HOST=127.0.0.1`; Pi hosts also default to loopback when unset. Remote clients use port 8080 through the existing HTTP/WebSocket `/api` proxy. Keep the default `0.0.0.0` for non-Pi deployments unless explicitly configured.
 - The scanner camera is the USB webcam, served by `scripts/pi/camera-ctl.py` on `127.0.0.1:8765` and exposed through the authenticated API at `/api/pi-camera`. The web server must not proxy directly to the helper. Frames are re-encoded to JFIF before they go out.
 - Remote-browser Pi behavior (serial bridge, camera relay, hiding the connect prompt) turns on only when the API reports `piHost`. That is true when `PI_HOST=1` (set by `scripts/pi/install.sh`, which also installs Node 22, pnpm, Postgres with pgvector, ffmpeg, and v4l-utils) or when `/proc/device-tree/model` is a Raspberry Pi. `PI_HOST=0` forces it off.
 - A remote browser on a Pi host opens the sorter through `/pi-serial` (`lib/pi-serial-bridge.ts`). The port is claimed in `lib/pi-serial-port.ts`, so the Pi scan session and a browser cannot hold it at the same time. The node is `root:dialout` mode `660`. `install.sh` adds the desktop user to `dialout` and restarts the user manager when this login does not have the group yet. Raspberry Pi OS already puts its user in `dialout`; Other Linux Distros do not.

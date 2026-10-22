@@ -6,6 +6,7 @@ import { piCameraRouter } from "./routes/pi-camera";
 import { piUpdateRouter } from "./routes/pi-update";
 import { createPiSerialRouter } from "./routes/pi-serial";
 import { PI_SERIAL_PATH } from "./lib/constants/pi-serial";
+import { API_PORT, getApiHost } from "./lib/constants/server";
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
 import { PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
@@ -48,7 +49,6 @@ import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
 
 const app = new Hono<AppEnv>();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
-const PORT = parseInt(process.env.PORT ?? "3001");
 
 const appCors = cors({
   origin: getWebUrl(),
@@ -112,9 +112,9 @@ loadPlanConfig();
 startWebhookDeliveryWorker();
 
 const server = serve(
-  { fetch: app.fetch, port: PORT, hostname: "0.0.0.0" },
+  { fetch: app.fetch, port: API_PORT, hostname: getApiHost() },
   () => {
-    console.log(`[server] Running on port:${PORT}`);
+    console.log(`[server] Running on ${getApiHost()}:${API_PORT}`);
   },
 );
 injectWebSocket(server);

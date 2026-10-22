@@ -6,6 +6,7 @@ After=network.target
 Type=simple
 WorkingDirectory=%h/mault
 Environment=NODE_ENV=production
+Environment=API_HOST=127.0.0.1
 Environment=VECTORIZE_CONCURRENCY=1
 ExecStart=/bin/bash %h/mault/scripts/pi/run-api.sh
 Restart=on-failure
