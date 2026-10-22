@@ -208,6 +208,19 @@
     "connectedSorters": "Verbundene Sortierer",
     "recentScans": "Scans, letzte {{minutes}} Min."
   },
+  "activeScanSessions": {
+    "title": "Aktive Scan-Sitzungen",
+    "close": "Schließen",
+    "empty": "Gerade scannt niemand",
+    "emptyDescription": "Sitzungen erscheinen hier, solange eine Sammlung zum Scannen gesperrt ist.",
+    "sessionCount_one": "{{count}} Sitzung",
+    "sessionCount_other": "{{count}} Sitzungen",
+    "scans_one": "{{count}} Scan",
+    "scans_other": "{{count}} Scans",
+    "collectionWithGame": "{{collection}} · {{game}}",
+    "unknownCollection": "Unbekannte Sammlung",
+    "timing": "Gestartet {{started}}, letzte Aktivität {{lastActivity}}"
+  },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
     "serverLabel": "Server",

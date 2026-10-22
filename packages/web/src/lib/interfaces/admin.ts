@@ -73,6 +73,11 @@ export interface CardSyncContextValue {
   isCancelling: boolean;
 }
 
+export interface ActiveScanSessionsDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export interface ImpersonationAuditDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
