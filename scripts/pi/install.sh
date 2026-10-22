@@ -119,11 +119,7 @@ esac
 
 pi_ensure_user_bus
 
-UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
-mkdir -p "$UNIT_DIR"
-for unit in mault-api.service mault-web.service mault-camera.service; do
-  cp "$ROOT/scripts/pi/$unit" "$UNIT_DIR/$unit"
-done
+node "$ROOT/scripts/pi/install-services.mjs" "$ROOT"
 systemctl --user daemon-reload
 if ! systemctl --user enable --now mault-camera.service mault-api.service mault-web.service; then
   systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
