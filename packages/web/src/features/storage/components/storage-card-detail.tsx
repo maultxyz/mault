@@ -6,8 +6,8 @@ import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import {
   loadCollectionPositionStep,
-  usePrefetchReviewCards,
-} from "@/features/cards/api/use-prefetch-review-cards";
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { storageLocationCardContextQueryOptions } from "@/features/storage/api/storage-locations";
@@ -17,7 +17,7 @@ import {
 } from "@/features/storage/api/use-storage-locations";
 import { useReviewSession } from "@/hooks/use-review-session";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
-import { REVIEW_PREFETCH_STALE_MS } from "@/lib/constants/cards";
+import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import { IconBoxOff } from "@tabler/icons-react";
@@ -103,15 +103,15 @@ export function StorageCardDetail({
     }
   }, [next, previous, location.guid, reviewMode, queryClient]);
 
-  const loadReviewStep = useCallback(
+  const loadPrefetchStep = useCallback(
     async (nextScanId: string) => {
       const nextContext = await queryClient.fetchQuery({
         ...storageLocationCardContextQueryOptions(
           location.guid,
           nextScanId,
-          true,
+          reviewMode,
         ),
-        staleTime: REVIEW_PREFETCH_STALE_MS,
+        staleTime: DETAIL_PREFETCH_STALE_MS,
       });
       if (!nextContext) return null;
       const step = await loadCollectionPositionStep(
@@ -122,9 +122,9 @@ export function StorageCardDetail({
       );
       return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
     },
-    [queryClient, location.guid],
+    [queryClient, location.guid, reviewMode],
   );
-  usePrefetchReviewCards(nextScanId, reviewMode, loadReviewStep);
+  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep);
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 

@@ -429,16 +429,16 @@ export interface CardCorrectionSearchProps {
   onCancel: () => void;
 }
 
-export interface ReviewPrefetchStep {
+export interface DetailPrefetchStep {
   collectionGuid: string;
   card: PlayingCard;
   alternativeMatches?: PlayingCard[];
   nextScanId: string | null;
 }
 
-export type ReviewPrefetchLoader = (
+export type DetailPrefetchLoader = (
   scanId: string,
-) => Promise<ReviewPrefetchStep | null>;
+) => Promise<DetailPrefetchStep | null>;
 
 export interface ReviewSession {
   index: number;

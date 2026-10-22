@@ -1,12 +1,12 @@
 import { scanImageQueryOptions } from "@/features/cards/api/use-scan-image";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import {
-  REVIEW_PREFETCH_COUNT,
-  REVIEW_PREFETCH_STALE_MS,
+  DETAIL_PREFETCH_COUNT,
+  DETAIL_PREFETCH_STALE_MS,
 } from "@/lib/constants/cards";
 import type {
-  ReviewPrefetchLoader,
-  ReviewPrefetchStep,
+  DetailPrefetchLoader,
+  DetailPrefetchStep,
 } from "@/lib/interfaces/cards";
 import type { CollectionCardsQuery } from "@magic-vault/shared";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
@@ -19,7 +19,7 @@ function preloadImage(src: string | null | undefined) {
   image.src = src;
 }
 
-function preloadStepImages(step: ReviewPrefetchStep) {
+function preloadStepImages(step: DetailPrefetchStep) {
   preloadImage(step.card.image?.normal);
   for (const alternative of step.alternativeMatches ?? []) {
     preloadImage(alternative.image?.small || alternative.image?.normal);
@@ -31,10 +31,10 @@ export async function loadCollectionPositionStep(
   collectionGuid: string,
   scanId: string,
   query: CollectionCardsQuery,
-): Promise<ReviewPrefetchStep | null> {
+): Promise<DetailPrefetchStep | null> {
   const position = await queryClient.fetchQuery({
     ...collectionCardPositionQueryOptions(collectionGuid, scanId, query),
-    staleTime: REVIEW_PREFETCH_STALE_MS,
+    staleTime: DETAIL_PREFETCH_STALE_MS,
   });
   if (!position) return null;
   return {
@@ -45,10 +45,10 @@ export async function loadCollectionPositionStep(
   };
 }
 
-export function usePrefetchReviewCards(
+export function usePrefetchDetailCards(
   firstScanId: string | null | undefined,
   enabled: boolean,
-  loadStep: ReviewPrefetchLoader,
+  loadStep: DetailPrefetchLoader,
 ) {
   const queryClient = useQueryClient();
 
@@ -57,8 +57,10 @@ export function usePrefetchReviewCards(
     let cancelled = false;
     void (async () => {
       let scanId: string | null = firstScanId;
-      for (let i = 0; i < REVIEW_PREFETCH_COUNT && scanId; i++) {
-        const step = await loadStep(scanId).catch(() => null);
+      for (let i = 0; i < DETAIL_PREFETCH_COUNT && scanId; i++) {
+        const step: DetailPrefetchStep | null = await loadStep(scanId).catch(
+          () => null,
+        );
         if (cancelled || !step) return;
         preloadStepImages(step);
         void queryClient
