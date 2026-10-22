@@ -129,7 +129,7 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 
 ### Raspberry Pi
 
-A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi. Use Raspberry Pi OS with the desktop. The services expect the checkout at `~/mault`.
+A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi. Use Raspberry Pi OS with the desktop. The examples use `~/mault`, but you can install in another directory; the service paths are configured automatically.
 
 ```bash
 git clone https://github.com/maultxyz/mault.git ~/mault

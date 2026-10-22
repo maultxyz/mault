@@ -53,11 +53,7 @@ main() {
   pnpm --filter @magic-vault/server build
   pnpm --filter @magic-vault/web build
 
-  UNIT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/systemd/user"
-  mkdir -p "$UNIT_DIR"
-  for unit in "${services[@]}"; do
-    cp "$ROOT/scripts/pi/$unit" "$UNIT_DIR/$unit"
-  done
+  node "$ROOT/scripts/pi/install-services.mjs" "$ROOT"
   systemctl --user daemon-reload
   systemctl --user reset-failed "${services[@]}"
   systemctl --user start --no-block mault-camera.service mault-api.service mault-web.service

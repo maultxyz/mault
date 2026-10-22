@@ -23,25 +23,29 @@ class UpdateTests(unittest.TestCase):
         scripts = self.source / "scripts/pi"
         scripts.mkdir(parents=True)
         shutil.copyfile(UPDATER, scripts / "update.sh")
+        shutil.copyfile(UPDATER.parent / "install-services.mjs", scripts / "install-services.mjs")
         (scripts / "session.sh").write_text("pi_require_user() { :; }\npi_ensure_user_bus() { :; }\n")
         for name in ["api", "web", "camera"]:
-            (scripts / f"mault-{name}.service").write_text(f"service {name}\n")
+            shutil.copyfile(UPDATER.parent / f"mault-{name}.service", scripts / f"mault-{name}.service")
         (self.source / ".gitignore").write_text(".env\n")
         (self.source / "package.json").write_text('{"version":"1.0.0"}\n')
         self.git(self.source, "add", ".")
         self.git(self.source, "commit", "-m", "Initial installation")
-        self.repo = self.root / "mault"
+        self.repo = self.root / "projects/mault-pi-host"
+        self.repo.parent.mkdir()
         self.git(self.root, "clone", str(self.source), str(self.repo))
         (self.repo / ".env").write_text("PI_HOST=1\n")
         self.bin = self.root / "bin"
         self.bin.mkdir()
         self.log = self.root / "commands.log"
         self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}",
-                        XDG_CONFIG_HOME=str(self.root / "config"), UPDATE_TEST_LOG=str(self.log))
+                        XDG_CONFIG_HOME=str(self.root / "config"), UPDATE_TEST_LOG=str(self.log),
+                        UPDATE_TEST_NODE=shutil.which("node"))
         for name in ["pnpm", "systemctl", "curl", "node"]:
             script = self.bin / name
             script.write_text(
                 '#!/bin/bash\nprintf "%s %s\\n" "${0##*/}" "$*" >> "$UPDATE_TEST_LOG"\n'
+                'if [[ "${0##*/}" == node && "$1" == */install-services.mjs ]]; then exec "$UPDATE_TEST_NODE" "$@"; fi\n'
                 'if [[ "${0##*/}" == pnpm && "${FAIL_BUILD:-}" == 1 && "$*" == *build* ]]; then exit 1; fi\n'
                 'if [[ "${0##*/}" == node ]]; then echo 1.0.1; fi\n'
             )
@@ -70,6 +74,30 @@ class UpdateTests(unittest.TestCase):
         self.assertIn("systemctl --user daemon-reload", calls)
         self.assertIn("is-active --quiet mault-camera.service", calls)
         self.assertTrue((self.root / "config/systemd/user/mault-api.service").exists())
+        self.assertEqual((self.repo / ".env").read_text(), "PI_HOST=1\n")
+        units = self.root / "config/systemd/user"
+        api = (units / "mault-api.service").read_text()
+        web = (units / "mault-web.service").read_text()
+        camera = (units / "mault-camera.service").read_text()
+        self.assertIn(f'WorkingDirectory={self.repo}/.', api)
+        self.assertIn(f'ExecStart=/bin/bash "{self.repo}/scripts/pi/run-api.sh"', api)
+        self.assertIn(f'WorkingDirectory={self.repo}/packages/web/.', web)
+        self.assertIn(f'ExecStart=/usr/bin/python3 "{self.repo}/scripts/pi/camera-ctl.py"', camera)
+        self.assertNotIn("%h/mault", api + web + camera)
+
+    def test_service_paths_escape_spaces_and_systemd_expansions(self):
+        destination = self.root / 'Mault beta % $HOME "test"'
+        self.repo.rename(destination)
+        self.repo = destination
+        self.publish()
+        result = self.update()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        units = self.root / "config/systemd/user"
+        working = str(self.repo).replace('%', '%%')
+        executable = working.replace('"', '\\"').replace('$', '$$')
+        api = (units / "mault-api.service").read_text()
+        self.assertIn(f'WorkingDirectory={working}/.', api)
+        self.assertIn(f'ExecStart=/bin/bash "{executable}/scripts/pi/run-api.sh"', api)
         self.assertEqual((self.repo / ".env").read_text(), "PI_HOST=1\n")
 
     def test_dirty_checkout_does_not_stop_services(self):
