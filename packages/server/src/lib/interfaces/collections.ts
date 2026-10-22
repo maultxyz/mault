@@ -10,7 +10,7 @@ export interface CardsCollection {
 
 export interface BinLimitStatus {
   binNumber: number;
-  cardLimit: number;
+  capacity: number;
   count: number;
 }
 

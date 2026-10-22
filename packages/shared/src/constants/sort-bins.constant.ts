@@ -14,7 +14,6 @@ export const COUNT_OPERATORS: ConditionOperator[] = [
 ];
 export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
-export const DEFAULT_BIN_CAPACITY = 250;
 export const OVERRIDE_PRIORITY_MAX = 100;
 export const LOW_MATCH_PERCENT_MAX = 100;
 
@@ -45,7 +44,6 @@ export function createDefaultCatchAllOnlyBins(
   return Array.from({ length: binCount }, (_, i) => ({
     binNumber: i + 1,
     isCatchAll: i === binCount - 1,
-    cardLimit: DEFAULT_BIN_CAPACITY,
     rules: {
       id: crypto.randomUUID(),
       combinator: "and" as const,

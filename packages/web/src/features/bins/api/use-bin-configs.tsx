@@ -19,7 +19,6 @@ import {
   BinConfig,
   BinSet,
   computeBinCount,
-  DEFAULT_BIN_CAPACITY,
   mergePickListEntries,
   type DefaultBinInit,
   type EmptyAllBinsOptions,
@@ -71,7 +70,6 @@ function createEmptyConfig(binNumber: number): BinConfig {
     guid: crypto.randomUUID(),
     binNumber,
     rules: emptyRuleGroup(),
-    cardLimit: DEFAULT_BIN_CAPACITY,
   };
 }
 
@@ -210,7 +208,6 @@ export function BinConfigsProvider({
       isOverride,
       overridePriority,
       lowMatchPercent,
-      cardLimit,
       maxCopies,
       maxCopiesBy,
       overflowBin,
@@ -245,7 +242,6 @@ export function BinConfigsProvider({
             overridePriority:
               isCatchAll || isOverride ? (overridePriority ?? null) : null,
             lowMatchPercent: isCatchAll ? (lowMatchPercent ?? null) : null,
-            cardLimit: cardLimit ?? null,
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
             maxCopiesBy:
               isCatchAll || maxCopies == null ? null : (maxCopiesBy ?? null),
@@ -702,7 +698,6 @@ export function BinConfigsProvider({
         binNumber: lastBin.binNumber,
         rules: emptyRuleGroup(),
         isCatchAll: true,
-        cardLimit: lastBin.cardLimit,
       });
   };
 
@@ -744,7 +739,6 @@ export function BinConfigsProvider({
               binNumber: lastBin.binNumber,
               rules: emptyRuleGroup(),
               isCatchAll: true,
-              cardLimit: lastBin.cardLimit,
             });
           }
         }

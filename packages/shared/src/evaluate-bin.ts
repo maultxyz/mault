@@ -410,14 +410,6 @@ export function countCardsInBin(
   ).length;
 }
 
-export function isBinFull(
-  cards: Pick<ScannedCard, "binNumber" | "scannedAt">[],
-  bin: Pick<BinConfig, "binNumber" | "lastEmptiedAt" | "cardLimit">,
-): boolean {
-  if (bin.cardLimit == null) return false;
-  return countCardsInBin(cards, bin) >= bin.cardLimit;
-}
-
 export function isValidBinHeight(height: unknown): height is number {
   return (
     typeof height === "number" &&

@@ -17,7 +17,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { emptyRules, resolveGameId, activeBinSetWhere } from "./shared";
 
 // Marks a physical bin as emptied - cards scanned before now stop counting
-// toward its cardLimit, without touching the collection's card history.
+// toward its capacity, without touching the collection's card history.
 export const emptyBinRoute = new Hono<AppEnv>().post(
   "/bins/:binNumber/empty",
   requireAuth,
@@ -129,7 +129,6 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
             isOverride: true,
             overridePriority: true,
             lowMatchPercent: true,
-            cardLimit: true,
             maxCopies: true,
             maxCopiesBy: true,
             overflowBin: true,
@@ -153,7 +152,6 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
               isOverride: b.isOverride,
               overridePriority: b.overridePriority,
               lowMatchPercent: b.lowMatchPercent,
-              cardLimit: b.cardLimit,
               maxCopies: b.maxCopies,
               maxCopiesBy: b.maxCopiesBy,
               overflowBin: b.overflowBin,

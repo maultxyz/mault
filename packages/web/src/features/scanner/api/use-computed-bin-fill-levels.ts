@@ -2,7 +2,10 @@ import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useBinHeights } from "@/features/calibration/api/use-bin-heights";
 import { useBinCardCounts } from "@/features/collections/api/use-collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
-import type { BinFillLevel } from "@/lib/interfaces/scanner";
+import type {
+  BinFillLevel,
+  ComputedBinFillLevels,
+} from "@/lib/interfaces/scanner";
 import {
   computeBinCapacity,
   countCardsInBin,
@@ -12,7 +15,7 @@ import { useMemo } from "react";
 
 export function useComputedBinFillLevels(
   unmatchedCards: UnmatchedCard[],
-): BinFillLevel[] {
+): ComputedBinFillLevels {
   const { configs, selectedSet } = useBinConfigs();
   const chaosBinSize = selectedSet?.isChaosMode
     ? (selectedSet.chaosBinSize ?? null)
@@ -26,11 +29,12 @@ export function useComputedBinFillLevels(
       })),
     [configs],
   );
-  const matchedCounts = useBinCardCounts(binWindows);
+  const { counts: matchedCounts, updatedAt: countsUpdatedAt } =
+    useBinCardCounts(binWindows);
   const { activeCollection } = useCollections();
   const cardThickness = activeCollection?.game?.cardThickness ?? null;
 
-  return useMemo(
+  const levels = useMemo(
     () =>
       configs
         .map((bin): BinFillLevel => {
@@ -60,4 +64,5 @@ export function useComputedBinFillLevels(
       chaosBinSize,
     ],
   );
+  return { levels, countsUpdatedAt };
 }

@@ -45,7 +45,6 @@ async function saveCatchAll(bin: BinConfig, gameGuid: string | undefined): Promi
     rules: emptyRules(),
     isCatchAll: true,
     isDisabled: false,
-    cardLimit: bin.cardLimit ?? null,
     overflowBin: null,
   });
 }

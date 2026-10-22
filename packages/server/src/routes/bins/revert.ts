@@ -1,4 +1,4 @@
-import { DEFAULT_BIN_CAPACITY, type BinConfig } from "@magic-vault/shared";
+import type { BinConfig } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
@@ -52,14 +52,6 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
 
         const snapshot = entry.snapshot as BinConfig[];
         for (const config of snapshot) {
-          // A pre-capacity snapshot has no cardLimit field at all
-          // (undefined) - fall back to the default rather than reverting
-          // it to unlimited. An explicit null (deliberately set to
-          // unlimited at snapshot time) is preserved as-is.
-          const cardLimit =
-            config.cardLimit === undefined
-              ? DEFAULT_BIN_CAPACITY
-              : config.cardLimit;
           const { rules, lowMatchPercent } = fromLegacyCatchAllRules(config);
           const restored = {
             rules,
@@ -74,7 +66,6 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
               lowMatchPercent,
               config.isCatchAll,
             ),
-            cardLimit,
             maxCopies: toMaxCopies(config.maxCopies, config.isCatchAll),
             maxCopiesBy: toMaxCopiesBy(
               config.maxCopiesBy,

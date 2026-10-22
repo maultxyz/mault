@@ -65,7 +65,6 @@ export interface BinConfig {
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
-  cardLimit?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
   overflowBin?: number | null;
@@ -134,7 +133,6 @@ export type DefaultBinInit = {
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
-  cardLimit: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
   overflowBin?: number | null;

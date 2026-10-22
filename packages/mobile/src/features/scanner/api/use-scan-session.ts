@@ -4,6 +4,7 @@ import * as Haptics from "expo-haptics";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   areAllRepackPacksComplete,
+  computeBinCapacity,
   computeBinCount,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
@@ -25,6 +26,7 @@ import {
   type BinRoute,
   type ScannedCard,
 } from "@magic-vault/shared";
+import { binHeightsQueryOptions } from "@/features/calibration/api/calibration-configs";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { binRoutesQueryOptions, binSetsQueryOptions } from "@/features/devices/api/devices";
 import { billingQueryOptions } from "@/features/org/api/billing";
@@ -73,6 +75,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const { data: binRoutes } = useQuery(binRoutesQueryOptions(sorter.device?.guid ?? null));
+  const { data: binHeights } = useQuery(binHeightsQueryOptions(sorter.device?.guid ?? null));
 
   const [phase, setPhaseState] = useState<ScannerPhase>("idle");
   const [pauseReason, setPauseReason] = useState<ScannerPauseReason | null>(null);
@@ -124,6 +127,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
     orgSettings,
     billing,
     binRoutes,
+    binHeights,
     orgId,
     capture,
     saveCard,
@@ -219,10 +223,15 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
 
   const isBinFull = useCallback(
     (binNumber: number) => {
-      const { set: s, configs: cfg } = latestRef.current;
+      const { set: s, configs: cfg, binHeights: heights, collection: col } = latestRef.current;
       const bin = cfg.find((c) => c.binNumber === binNumber);
-      if (!s?.isChaosMode || !s.chaosBinSize || !bin || bin.isCatchAll) return false;
-      return countInBin(binNumber) >= s.chaosBinSize;
+      if (!bin) return false;
+      const height = heights?.find((h) => h.binNumber === binNumber)?.height;
+      const physicalCapacity = computeBinCapacity(height, col?.game?.cardThickness);
+      const chaosBinSize = s?.isChaosMode && !bin.isCatchAll ? (s.chaosBinSize ?? null) : null;
+      const capacity =
+        chaosBinSize != null ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize) : physicalCapacity;
+      return capacity != null && countInBin(binNumber) >= capacity;
     },
     [countInBin],
   );
@@ -327,7 +336,6 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
           rules: autoTarget.rules,
           isCatchAll: !!assigned?.isCatchAll,
           isDisabled: !!assigned?.isDisabled,
-          cardLimit: assigned?.cardLimit ?? null,
           overflowBin: assigned?.overflowBin ?? null,
         })
           .then(() => queryClient.invalidateQueries({ queryKey: binSetsQueryOptions(ctx.orgId).queryKey }))
@@ -416,6 +424,11 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
       const ctx = latestRef.current;
       if (!ctx.collection) return;
       const catchAll = getCatchAllBin(ctx.configs);
+      if (catchAll && isBinFull(catchAll.binNumber)) {
+        pause("bin-full");
+        return;
+      }
+      if (catchAll) binCountsRef.current.set(catchAll.binNumber, countInBin(catchAll.binNumber) + 1);
       const scanId = Crypto.randomUUID();
       const scannedAt = Date.now();
       pushFeed({
@@ -449,7 +462,7 @@ export function useScanSession({ capture }: ScanSessionInputs): ScanSessionValue
         .then(handleSaveResult)
         .catch(() => pause("save-failed"));
     },
-    [continueAfterCard, handleSaveResult, pause, pushFeed, sendToBin],
+    [continueAfterCard, countInBin, handleSaveResult, isBinFull, pause, pushFeed, sendToBin],
   );
 
   const runCapture = useCallback(async () => {
