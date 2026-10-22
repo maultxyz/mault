@@ -79,7 +79,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Plan features/limits live in `plan_settings` (Admin > Plans), cached by `lib/plan-config.ts`. A new gated feature needs a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check. Limits are enforced only on create/enable, so downgraded orgs keep what they have.
 - Never put a collection's full card list in a stream payload (`session_init` once hit ~180 MB). Stream creators call `recordSessionInits` immediately.
 - Scan images: object storage when `SCAN_IMAGE_BUCKET` is set, else inline data URL; always read via `resolveScanImageUrl`. The captured 448x448 image is displayed in an `aspect-[2.5/3.5]` frame with `object-fill`.
-- Bin routing modes (rules, auto-assign, scan-only, chaos, repack, alphabetical, pick lists, overflow, copy limits) live in `shared`'s `evaluate-bin.ts` (`selectScanBin` / `chooseScanBin`). The browser and the Pi scan session both call those. Match decisions (orientation, OCR gate, color, consensus) live in `shared`'s `scan-match.ts`.
+- Bin routing modes (rules, auto-assign, scan-only, chaos, repack, alphabetical, pick lists, overflow, copy limits) live in `shared`'s `evaluate-bin.ts` and are evaluated in the browser. The Pi scan session calls those same evaluators, then saves and updates bins through the existing collection and bin routes.
 
 ### Firmware & serial
 

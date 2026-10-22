@@ -13,28 +13,14 @@ import {
   dewarpRgba,
   getDefaultCardContour,
   rotateRgba180,
-  advanceConsensus,
-  applyPickListFound,
-  betterSearch,
-  chooseScanBin,
-  closeMatchesOf,
   computeBinCapacity,
-  consensusAttemptLimit,
   countCopiesInBin,
-  consensusMet,
-  consensusMissReason,
   createDefaultBinRoutes,
-  emptyConsensus,
   findLowMatchCatchAll,
   getRepackBinCards,
   hasMaxCopiesBins,
-  hasSearchMatch,
   isRulesMode,
-  needsTextSearch,
-  orderMatchesByColor,
   reservePickListBins,
-  routeForBin,
-  scanHoldReason,
   toRuleCard,
   withScanRuleFields,
   type BinConfig,
@@ -57,7 +43,7 @@ import {
   type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
-import { bins, collections, games, orgSettings } from "../../db/schema";
+import { collections, games, orgSettings } from "../../db/schema";
 import type {
   PiScanBinCard,
   PiScanFrameMatch,
@@ -89,10 +75,28 @@ import {
 } from "../../routes/card/shared";
 import { loadBinContents } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
-import { loadActiveBinSet, snapshotBinSet } from "../../routes/bins/shared";
-import { updateBinPickList } from "../../routes/bins/pick-list-found";
+import { loadSets } from "../../routes/bins/shared";
 import { grabCameraFrame } from "./camera";
-import { saveMatchedScan, saveUnmatchedScan } from "../save-scan";
+import {
+  advanceConsensus,
+  betterSearch,
+  chooseScanBin,
+  closeMatchesOf,
+  consensusAttemptLimit,
+  consensusMet,
+  consensusMissReason,
+  emptyConsensus,
+  hasSearchMatch,
+  needsTextSearch,
+  orderMatchesByColor,
+  routeForBin,
+  scanHoldReason,
+} from "./decisions";
+import {
+  recordPickFound,
+  saveBinThroughRoute,
+  saveThroughCollectionRoute,
+} from "./existing-routes";
 import { SorterLink } from "./sorter-link";
 
 const sessions = new Map<string, PiScanLive>();
@@ -258,6 +262,7 @@ async function prepareContext(
         lang: collections.lang,
         matchAllLanguages: collections.matchAllLanguages,
         gameKey: games.key,
+        gameGuid: games.guid,
         gameName: games.name,
         fieldDefinitions: games.fieldDefinitions,
         foilTypes: games.foilTypes,
@@ -280,8 +285,11 @@ async function prepareContext(
       throw new PiScanStartError("This collection has no game.", "invalid", 400);
     }
 
-    const active = await loadActiveBinSet(tx, session.orgId, collection.gameId);
-    if (!active) {
+    const sets = await loadSets(tx, session.orgId);
+    const active = sets.data?.find(
+      (item) => item.isActive && item.game?.key === collection.gameKey,
+    );
+    if (!active || !collection.gameGuid) {
       throw new PiScanStartError(
         "This collection's game has no active bin preset.",
         "invalid",
@@ -347,16 +355,16 @@ async function prepareContext(
 
     const fieldDefinitions = withScanRuleFields(
       (collection.fieldDefinitions as FieldMeta[] | null) ??
-        active.set.game?.fieldDefinitions ??
+        active.game?.fieldDefinitions ??
         [],
       (collection.foilTypes as string[] | null) ??
-        active.set.game?.foilTypes ??
+        active.game?.foilTypes ??
         [],
     );
     const trackContents =
-      active.set.isRepackMode || hasMaxCopiesBins(active.set.bins);
+      active.isRepackMode || hasMaxCopiesBins(active.bins);
     const windows = trackContents
-      ? active.set.bins
+      ? active.bins
           .filter((bin) => !bin.isCatchAll)
           .map((bin) => ({
             binNumber: bin.binNumber,
@@ -373,13 +381,14 @@ async function prepareContext(
       scannedAt: row.scannedAt,
       card: toRuleCard(row.card, row),
     }));
-    const sourceBins = active.set.bins.map((bin) => ({ ...bin }));
+    const sourceBins = active.bins.map((bin) => ({ ...bin }));
 
     return {
       collectionId: collection.id,
       collectionName: collection.name,
       gameId: collection.gameId,
       gameKey: collection.gameKey,
+      gameGuid: collection.gameGuid,
       gameName: collection.gameName ?? undefined,
       lang: collection.lang,
       deviceGuid: device.guid,
@@ -394,10 +403,8 @@ async function prepareContext(
       ocrEnabled: settings?.ocrEnabled === true,
       cardThickness: collection.cardThickness,
       fieldDefinitions,
-      binSetId: active.id,
-      binSetGuid: active.set.guid,
-      set: active.set,
-      configs: isRulesMode(active.set)
+      set: active,
+      configs: isRulesMode(active)
         ? reservePickListBins(sourceBins.map((bin) => ({ ...bin })))
         : sourceBins.map((bin) => ({ ...bin })),
       pickConfigs: sourceBins,
@@ -419,20 +426,15 @@ async function rememberAutoAssign(
   if (!target) return;
   target.rules = rules;
   try {
-    await authQuery(session.jwtClaims, async (tx) => {
-      await tx
-        .update(bins)
-        .set({ rules, updatedAt: new Date() })
-        .where(
-          and(eq(bins.guid, target.guid), eq(bins.orgId, session.orgId)),
-        );
-      await snapshotBinSet(
-        tx,
-        context.binSetId,
-        context.binSetGuid,
-        session.orgId,
-      );
-    });
+    const saved = await saveBinThroughRoute(
+      session.accessToken,
+      session.orgId,
+      context.gameGuid,
+      target,
+    );
+    if (!saved) {
+      console.error("[pi-scan] failed to save an auto-assign rule");
+    }
   } catch (err) {
     console.error("[pi-scan] failed to save an auto-assign rule:", err);
   }
@@ -789,20 +791,22 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           matchesNeeded: context.matchesNeeded,
           attempts: identified.attempts,
         };
-        const saved = await saveUnmatchedScan({
-          jwtClaims: session.jwtClaims,
-          userId: session.userId,
-          orgId: session.orgId,
-          collectionGuid: session.collectionGuid,
-          scanId,
-          scannedAt,
-          capturedImageUrl: imageUrl,
-          binNumber: catchAll.binNumber,
-          vectorizedOn: "server",
-          diagnostics,
-          embedding: matched.embedding,
-          deviceGuid: context.deviceGuid,
-        });
+        const saved = await saveThroughCollectionRoute(
+          session.accessToken,
+          session.orgId,
+          session.collectionGuid,
+          "unmatched",
+          {
+            scanId,
+            scannedAt,
+            capturedImageUrl: imageUrl,
+            binNumber: catchAll.binNumber,
+            vectorizedOn: "server",
+            diagnostics,
+            embedding: matched.embedding,
+            deviceGuid: context.deviceGuid,
+          },
+        );
         if (!saved.success) {
           fail(session, saved.message);
           break;
@@ -907,12 +911,13 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       if (choice.pickListName) {
         const listed = context.pickConfigs.find((bin) => bin.guid === chosen.guid);
         try {
-          const saved = await authQuery(session.jwtClaims, (tx) =>
-            updateBinPickList(tx, session.orgId, chosen.guid, (current) =>
-              applyPickListFound(current, choice.pickListName!, 1),
-            ),
+          const pickList = await recordPickFound(
+            session.accessToken,
+            session.orgId,
+            chosen.guid,
+            choice.pickListName,
           );
-          if (saved?.pickList && listed) listed.pickList = saved.pickList;
+          if (pickList && listed) listed.pickList = pickList;
         } catch (err) {
           console.error("[pi-scan] failed to update a pick list:", err);
         }
@@ -951,26 +956,28 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         ocr: matched.ocr,
         detectedColor: matched.detectedColor,
       };
-      const saved = await saveMatchedScan({
-        jwtClaims: session.jwtClaims,
-        userId: session.userId,
-        orgId: session.orgId,
-        collectionGuid: session.collectionGuid,
-        scanId,
-        card,
-        scannedAt,
-        binNumber: chosen.binNumber,
-        capturedImageUrl: imageUrl,
-        isFoil: session.foilType != null,
-        foilType: session.foilType ?? undefined,
-        alternativeMatches: alternatives,
-        lowConfidenceMatch:
-          matched.lowConfidenceFromOcr ||
-          lowMatchBin?.binNumber === chosen.binNumber,
-        diagnostics,
-        vectorizedOn: "server",
-        deviceGuid: context.deviceGuid,
-      });
+      const saved = await saveThroughCollectionRoute(
+        session.accessToken,
+        session.orgId,
+        session.collectionGuid,
+        "cards",
+        {
+          scanId,
+          card,
+          scannedAt,
+          binNumber: chosen.binNumber,
+          capturedImageUrl: imageUrl,
+          isFoil: session.foilType != null,
+          foilType: session.foilType ?? undefined,
+          alternativeMatches: alternatives,
+          lowConfidenceMatch:
+            matched.lowConfidenceFromOcr ||
+            lowMatchBin?.binNumber === chosen.binNumber,
+          diagnostics,
+          vectorizedOn: "server",
+          deviceGuid: context.deviceGuid,
+        },
+      );
       if (!saved.success) {
         fail(session, saved.message);
         break;
@@ -1092,6 +1099,7 @@ function createSession(
   orgId: string,
   userId: string,
   jwtClaims: string,
+  accessToken: string,
   body: PiScanSessionStartBody,
 ): PiScanLive {
   let resolveDone: () => void = () => {};
@@ -1103,6 +1111,7 @@ function createSession(
     orgId,
     userId,
     jwtClaims,
+    accessToken,
     collectionGuid: body.collectionGuid,
     message: null,
     cardsScanned: 0,
@@ -1154,10 +1163,16 @@ export async function startPiScanSession(
   }
   if (existing) await existing.done;
 
-  const session = createSession(input.orgId, input.userId, input.jwtClaims, {
-    ...input.body,
-    collectionGuid,
-  });
+  const session = createSession(
+    input.orgId,
+    input.userId,
+    input.jwtClaims,
+    input.accessToken,
+    {
+      ...input.body,
+      collectionGuid,
+    },
+  );
   sessions.set(input.orgId, session);
   try {
     await arm(session);
