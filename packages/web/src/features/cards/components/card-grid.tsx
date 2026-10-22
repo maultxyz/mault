@@ -43,8 +43,8 @@ import { useViewedCollection } from "@/features/collections/api/use-viewed-colle
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import {
   loadCollectionPositionStep,
-  usePrefetchReviewCards,
-} from "@/features/cards/api/use-prefetch-review-cards";
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionViewPath } from "@/lib/constants/collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -268,20 +268,24 @@ export function CardGrid() {
     openPosition && openPosition.entry.scanId === openScanId
       ? openPosition.entry
       : null;
-  const loadReviewStep = useCallback(
+  const loadPrefetchStep = useCallback(
     (scanId: string) =>
       loadCollectionPositionStep(
         queryClient,
         collectionGuid!,
         scanId,
-        reviewQuery,
+        isReviewing ? reviewQuery : cardsQuery,
       ),
-    [queryClient, collectionGuid, reviewQuery],
+    [queryClient, collectionGuid, isReviewing, reviewQuery, cardsQuery],
   );
-  usePrefetchReviewCards(
-    openEntry ? reviewSession.resolveNext(openPosition?.nextScanId) : null,
-    isReviewing && !!collectionGuid,
-    loadReviewStep,
+  usePrefetchDetailCards(
+    openEntry
+      ? isReviewing
+        ? reviewSession.resolveNext(openPosition?.nextScanId)
+        : openPosition?.nextScanId
+      : null,
+    !!collectionGuid,
+    loadPrefetchStep,
   );
 
   const startReview = useCallback(async () => {

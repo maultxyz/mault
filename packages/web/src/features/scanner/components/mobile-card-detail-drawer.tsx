@@ -3,8 +3,8 @@ import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import {
   loadCollectionPositionStep,
-  usePrefetchReviewCards,
-} from "@/features/cards/api/use-prefetch-review-cards";
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useReviewSession } from "@/hooks/use-review-session";
@@ -79,7 +79,7 @@ function MobileCardDetailBody({
   const nextScanId = reviewMode
     ? reviewSession.resolveNext(position?.nextScanId)
     : (position?.nextScanId ?? null);
-  const loadReviewStep = useCallback(
+  const loadPrefetchStep = useCallback(
     (nextScanId: string) =>
       loadCollectionPositionStep(
         queryClient,
@@ -89,10 +89,10 @@ function MobileCardDetailBody({
       ),
     [queryClient, collectionGuid, query],
   );
-  usePrefetchReviewCards(
+  usePrefetchDetailCards(
     entry ? nextScanId : null,
-    reviewMode,
-    loadReviewStep,
+    true,
+    loadPrefetchStep,
   );
 
   useEffect(() => {

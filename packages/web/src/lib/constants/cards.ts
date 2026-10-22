@@ -48,6 +48,6 @@ export const WRAPPED_GRAIN_OVERLAY =
 
 export const CARD_REVIEW_SEARCH_PARAM = "review";
 
-export const REVIEW_PREFETCH_COUNT = 3;
+export const DETAIL_PREFETCH_COUNT = 3;
 
-export const REVIEW_PREFETCH_STALE_MS = 30 * 1000;
+export const DETAIL_PREFETCH_STALE_MS = 30 * 1000;
