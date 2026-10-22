@@ -1,6 +1,5 @@
 import {
   computeBinCount,
-  DEFAULT_BIN_CAPACITY,
   type DefaultBinInit,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
@@ -70,7 +69,6 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
                 rules: emptyRules(),
                 isCatchAll: false,
                 isOverride: false,
-                cardLimit: DEFAULT_BIN_CAPACITY,
               }),
             );
         await tx.insert(bins).values(
@@ -87,7 +85,6 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
                 b.isOverride,
               ),
               lowMatchPercent: toLowMatchPercent(lowMatchPercent, b.isCatchAll),
-              cardLimit: b.cardLimit ?? DEFAULT_BIN_CAPACITY,
               maxCopies: toMaxCopies(b.maxCopies, b.isCatchAll),
               maxCopiesBy: toMaxCopiesBy(
                 b.maxCopiesBy,

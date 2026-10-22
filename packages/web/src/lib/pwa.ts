@@ -3,6 +3,7 @@ import { registerSW } from "virtual:pwa-register";
 
 export function registerServiceWorker() {
   registerSW({
+    onNeedReload() {},
     onRegisteredSW(_swUrl, registration) {
       if (!registration) return;
       setInterval(() => registration.update(), APP_VERSION_CHECK_INTERVAL_MS);

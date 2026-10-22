@@ -362,6 +362,21 @@ export interface BinFillLevel {
   percent: number;
 }
 
+export interface BinCardCounts {
+  counts: Map<number, number>;
+  updatedAt: number;
+}
+
+export interface ComputedBinFillLevels {
+  levels: BinFillLevel[];
+  countsUpdatedAt: number;
+}
+
+export interface PendingBinCard {
+  binNumber: number;
+  savedAt: number | null;
+}
+
 export type BinLevelStatus = "normal" | "warning" | "full";
 
 export interface LastRoutedBin {

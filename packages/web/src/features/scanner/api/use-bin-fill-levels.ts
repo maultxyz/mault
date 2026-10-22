@@ -4,5 +4,5 @@ import type { BinFillLevel } from "@/lib/interfaces/scanner";
 
 export function useBinFillLevels(): BinFillLevel[] {
   const { unmatchedCards } = useScannedCards();
-  return useComputedBinFillLevels(unmatchedCards);
+  return useComputedBinFillLevels(unmatchedCards).levels;
 }

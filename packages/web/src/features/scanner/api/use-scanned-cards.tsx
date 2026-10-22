@@ -86,6 +86,7 @@ import type {
   BinCorrection,
   CorrectedBinTarget,
   LastRoutedBin,
+  PendingBinCard,
   ScannedCardsContextValue,
 } from "@/lib/interfaces/scanner";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -180,26 +181,46 @@ export function ScannedCardsProvider({
     activeOrgIdRef.current = activeOrg?.id;
   }, [activeOrg?.id]);
 
-  const binFillLevels = useComputedBinFillLevels(unmatchedCards);
+  const { levels: binFillLevels, countsUpdatedAt } =
+    useComputedBinFillLevels(unmatchedCards);
   const binFillLevelsRef = useRef(binFillLevels);
   binFillLevelsRef.current = binFillLevels;
-  const pendingBinCardsRef = useRef(new Map<number, number>());
-  const isBinFullLocally = useCallback((binNumber: number) => {
-    const level = binFillLevelsRef.current.find(
-      (l) => l.binNumber === binNumber,
-    );
-    if (!level?.capacity) return false;
-    const pending = pendingBinCardsRef.current.get(binNumber) ?? 0;
-    return level.count + pending >= level.capacity;
+  const countsUpdatedAtRef = useRef(countsUpdatedAt);
+  countsUpdatedAtRef.current = countsUpdatedAt;
+  const pendingBinCardsRef = useRef(new Map<string, PendingBinCard>());
+  const countPendingCards = useCallback((binNumber: number) => {
+    let count = 0;
+    for (const [scanId, pending] of pendingBinCardsRef.current) {
+      if (
+        pending.savedAt != null &&
+        pending.savedAt < countsUpdatedAtRef.current
+      ) {
+        pendingBinCardsRef.current.delete(scanId);
+      } else if (pending.binNumber === binNumber) {
+        count++;
+      }
+    }
+    return count;
   }, []);
-  const countCardsLocally = useCallback((binNumber: number) => {
-    const level = binFillLevelsRef.current.find(
-      (l) => l.binNumber === binNumber,
-    );
-    return (
-      (level?.count ?? 0) + (pendingBinCardsRef.current.get(binNumber) ?? 0)
-    );
-  }, []);
+  const isBinFullLocally = useCallback(
+    (binNumber: number) => {
+      const level = binFillLevelsRef.current.find(
+        (l) => l.binNumber === binNumber,
+      );
+      if (!level?.capacity) return false;
+      return level.count + countPendingCards(binNumber) >= level.capacity;
+    },
+    [countPendingCards],
+  );
+  const countCardsLocally = useCallback(
+    (binNumber: number) => {
+      const level = binFillLevelsRef.current.find(
+        (l) => l.binNumber === binNumber,
+      );
+      return (level?.count ?? 0) + countPendingCards(binNumber);
+    },
+    [countPendingCards],
+  );
   const binRoomLocally = useCallback(
     (binNumber: number) => {
       const level = binFillLevelsRef.current.find(
@@ -211,14 +232,15 @@ export function ScannedCardsProvider({
     [countCardsLocally],
   );
   const trackPendingBinCard = useCallback(
-    (binNumber: number, delta: number) => {
-      const pending = pendingBinCardsRef.current;
-      const next = (pending.get(binNumber) ?? 0) + delta;
-      if (next > 0) pending.set(binNumber, next);
-      else pending.delete(binNumber);
+    (scanId: string, binNumber: number) => {
+      pendingBinCardsRef.current.set(scanId, { binNumber, savedAt: null });
     },
     [],
   );
+  const settlePendingBinCard = useCallback((scanId: string) => {
+    const pending = pendingBinCardsRef.current.get(scanId);
+    if (pending) pending.savedAt = Date.now();
+  }, []);
 
   const rawBinConfigsRef = useRef(binConfigs);
   const binConfigsRef = useRef(
@@ -817,7 +839,7 @@ export function ScannedCardsProvider({
       }
 
       const pendingBin = record.binNumber;
-      if (pendingBin != null) trackPendingBinCard(pendingBin, 1);
+      if (pendingBin != null) trackPendingBinCard(record.scanId, pendingBin);
 
       saveCard({
         orgId: orgId ?? null,
@@ -867,12 +889,9 @@ export function ScannedCardsProvider({
             dismissible: true,
           });
         })
-        .finally(async () => {
-          try {
-            await invalidateCollectionCards(queryClient, collection.guid);
-          } finally {
-            if (pendingBin != null) trackPendingBinCard(pendingBin, -1);
-          }
+        .finally(() => {
+          settlePendingBinCard(record.scanId);
+          void invalidateCollectionCards(queryClient, collection.guid);
           if (billingQueryKey) {
             void queryClient.invalidateQueries({ queryKey: billingQueryKey });
           }
@@ -897,6 +916,7 @@ export function ScannedCardsProvider({
       showJamToast,
       isBinFullLocally,
       trackPendingBinCard,
+      settlePendingBinCard,
       playSoundForCard,
       setFullBins,
       areAllPacksComplete,

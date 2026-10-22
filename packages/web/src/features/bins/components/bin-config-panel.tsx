@@ -49,7 +49,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BinConfig,
   BinRuleGroup,
-  DEFAULT_BIN_CAPACITY,
   formatDecklist,
   getOverflowSources,
   getRepackPackBins,
@@ -173,17 +172,12 @@ export function BinConfigPanel() {
         });
         return;
       }
-      const cardLimit =
-        config.cardLimit === undefined
-          ? DEFAULT_BIN_CAPACITY
-          : config.cardLimit;
       const keepsRole = !!config.isCatchAll === values.isCatchAll;
       if (rulesLocked) {
         save({
           binNumber: config.binNumber,
           rules: keepsRole ? config.rules : emptyRuleGroup(),
           isCatchAll: values.isCatchAll,
-          cardLimit,
           isOverride: !values.isCatchAll && config.isOverride,
           overridePriority: keepsRole
             ? (config.overridePriority ?? null)
@@ -201,7 +195,6 @@ export function BinConfigPanel() {
           binNumber: config.binNumber,
           rules: emptyRuleGroup(),
           isCatchAll: false,
-          cardLimit,
           isOverride: false,
           overridePriority: null,
           lowMatchPercent: null,
@@ -222,7 +215,6 @@ export function BinConfigPanel() {
         binNumber: config.binNumber,
         rules: claimed ? emptyRuleGroup() : (values.rules as BinRuleGroup),
         isCatchAll: values.isCatchAll,
-        cardLimit,
         isOverride,
         overridePriority:
           values.isCatchAll || isOverride ? values.overridePriority : null,

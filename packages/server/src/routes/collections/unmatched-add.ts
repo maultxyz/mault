@@ -68,7 +68,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           if (fullBin) {
             return {
               success: false,
-              message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.cardLimit} cards). Empty it to continue scanning.`,
+              message: `Bin ${fullBin.binNumber} is full (${fullBin.count}/${fullBin.capacity} cards). Empty it to continue scanning.`,
               binLimitReached: true,
               binNumber: fullBin.binNumber,
             };

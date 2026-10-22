@@ -15,7 +15,6 @@ export interface BinSaveInput {
   rules: BinRuleGroup;
   isCatchAll: boolean;
   isDisabled: boolean;
-  cardLimit: number | null;
   overflowBin: number | null;
   isOverride?: boolean;
   overridePriority?: number | null;

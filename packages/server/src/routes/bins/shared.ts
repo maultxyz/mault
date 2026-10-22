@@ -171,7 +171,6 @@ function toBinSet(row: {
     isOverride: boolean;
     overridePriority: number | null;
     lowMatchPercent: number | null;
-    cardLimit: number | null;
     maxCopies: number | null;
     maxCopiesBy: string | null;
     overflowBin: number | null;
@@ -219,7 +218,6 @@ function toBinSet(row: {
       isOverride: bin.isOverride,
       overridePriority: bin.overridePriority,
       lowMatchPercent: bin.lowMatchPercent,
-      cardLimit: bin.cardLimit,
       maxCopies: bin.maxCopies,
       maxCopiesBy: bin.maxCopiesBy,
       overflowBin: bin.overflowBin,
@@ -280,7 +278,6 @@ const binSetQuery = {
         isOverride: true,
         overridePriority: true,
         lowMatchPercent: true,
-        cardLimit: true,
         maxCopies: true,
         maxCopiesBy: true,
         overflowBin: true,
@@ -321,7 +318,6 @@ export async function snapshotBinSet(
       isOverride: true,
       overridePriority: true,
       lowMatchPercent: true,
-      cardLimit: true,
       maxCopies: true,
       maxCopiesBy: true,
       overflowBin: true,
@@ -338,7 +334,6 @@ export async function snapshotBinSet(
     isOverride: r.isOverride,
     overridePriority: r.overridePriority,
     lowMatchPercent: r.lowMatchPercent,
-    cardLimit: r.cardLimit,
     maxCopies: r.maxCopies,
     maxCopiesBy: r.maxCopiesBy,
     overflowBin: r.overflowBin,

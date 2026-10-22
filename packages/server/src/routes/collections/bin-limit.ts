@@ -22,7 +22,7 @@ export async function findFullBin(
 ): Promise<BinLimitStatus | null> {
   const result = await tx.execute(sql`
     WITH target AS (
-      SELECT b.card_limit, b.last_emptied_at
+      SELECT b.last_emptied_at
       FROM ${bins} b
       JOIN ${binSets} s ON s.id = b.bin_set
       WHERE s.is_active
@@ -34,7 +34,6 @@ export async function findFullBin(
       LIMIT 1
     )
     SELECT
-      t.card_limit,
       (
         SELECT bh.height
         FROM ${binHeights} bh
@@ -67,7 +66,6 @@ export async function findFullBin(
   `);
   const row = result.rows[0] as
     | {
-        card_limit: number | null;
         height: number | null;
         card_thickness: number | null;
         count: number;
@@ -80,5 +78,5 @@ export async function findFullBin(
 
   const count = Number(row.count);
   if (count < effectiveCapacity) return null;
-  return { binNumber, cardLimit: effectiveCapacity, count };
+  return { binNumber, capacity: effectiveCapacity, count };
 }
