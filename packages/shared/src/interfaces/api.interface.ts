@@ -38,6 +38,12 @@ export interface CardSearchResult extends Result<SearchCardMatch[] | null> {
   diagnostics?: CardSearchDiagnostics;
 }
 
+export interface SearchRank {
+  data?: readonly { distance: number }[] | null;
+  nearestDistance?: number | null;
+  diagnostics?: { reason?: string | null } | null;
+}
+
 export interface CardTextSearchResult extends CardSearchResult {
   ocr?: OcrDiagnostics;
 }

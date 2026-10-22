@@ -1,3 +1,4 @@
+import type { SourceCard } from "./card.interface";
 import type { Game } from "./games.interface";
 import type { PickList } from "./pick-list.interface";
 
@@ -161,3 +162,23 @@ export interface EmptyAllBinsOptions {
 export interface EmptyAllBinsInput extends EmptyAllBinsOptions {
   binNumbers: number[];
 }
+
+export interface ScanBinDeps {
+  countCopies: (bin: BinConfig) => number;
+  countInBin: (bin: BinConfig) => number;
+  isBinFull: (bin: BinConfig) => boolean;
+  binRoom: (bin: BinConfig) => number;
+  cardsInBin: (bin: BinConfig) => SourceCard[];
+  newId: () => string;
+}
+
+export interface ChosenScanBin {
+  bin: BinConfig | undefined;
+  autoAssign: { binNumber: number; rules: BinRuleGroup } | null;
+  pickListName: string | null;
+}
+
+export type ScanHoldReason =
+  | { reason: "chaos-full"; binNumbers: number[] }
+  | { reason: "repack-complete"; binNumbers: number[] }
+  | { reason: "bin-full"; bin: BinConfig };
