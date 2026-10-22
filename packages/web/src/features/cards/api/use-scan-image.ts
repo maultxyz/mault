@@ -1,12 +1,12 @@
 import { loadCardImage } from "@/features/collections/api/collections";
 import { SCAN_IMAGE_URL_STALE_MS } from "@/lib/constants/scanner";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-export function useScanImage(
+export const scanImageQueryOptions = (
   collectionGuid: string | undefined,
   scanId: string | undefined,
-) {
-  return useQuery({
+) =>
+  queryOptions({
     queryKey: ["collection-card-image", collectionGuid, scanId],
     queryFn: () =>
       loadCardImage(collectionGuid!, scanId!).then(
@@ -15,4 +15,10 @@ export function useScanImage(
     enabled: !!collectionGuid && !!scanId,
     staleTime: SCAN_IMAGE_URL_STALE_MS,
   });
+
+export function useScanImage(
+  collectionGuid: string | undefined,
+  scanId: string | undefined,
+) {
+  return useQuery(scanImageQueryOptions(collectionGuid, scanId));
 }
