@@ -288,6 +288,69 @@ export function CardDetailPanel({
     <Skeleton className="h-full w-full rounded-none" />
   );
 
+  const imageWidthClass = reviewMode ? "w-full" : "w-56";
+
+  const cardImages = (
+    <>
+      {showCapturedImageSlot && (
+        <figure className="flex min-w-0 flex-col gap-1.5">
+          <figcaption className="text-xs text-foreground/70">
+            {t("cardDetailPanel.capturedScan")}
+          </figcaption>
+          <button
+            type="button"
+            onClick={() => setViewerOpen(true)}
+            disabled={!capturedImageUrl}
+            aria-label={t("cardDetailPanel.enlargeImage")}
+            title={t("cardDetailPanel.enlargeImage")}
+            className={cn(
+              "relative aspect-[2.5/3.5] rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors",
+              imageWidthClass,
+            )}
+          >
+            {capturedImage}
+            {showOcrRegions && capturedImageUrl && <OcrRegionOverlay />}
+          </button>
+          {showOcrRegions && capturedImageUrl && (
+            <OcrRegionCrops
+              src={capturedImageUrl}
+              className={cn(imageWidthClass, "mt-1.5")}
+            />
+          )}
+        </figure>
+      )}
+      <figure className="flex min-w-0 flex-col gap-1.5">
+        {showCapturedImageSlot && (
+          <figcaption className="text-xs text-foreground/70">
+            {t("cardDetailPanel.matchedCard")}
+          </figcaption>
+        )}
+        <div
+          className={cn(
+            "relative aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm",
+            imageWidthClass,
+          )}
+        >
+          <img
+            src={selectedCard?.image?.normal || ""}
+            alt={selectedCard?.name}
+            className="w-full h-full object-cover"
+          />
+          {draftIsFoil && <FoilOverlay />}
+          {showOcrRegions && selectedCard?.image?.normal && (
+            <OcrRegionOverlay />
+          )}
+        </div>
+        {showOcrRegions && selectedCard?.image?.normal && (
+          <OcrRegionCrops
+            src={selectedCard.image.normal}
+            className={cn(imageWidthClass, "mt-1.5")}
+          />
+        )}
+      </figure>
+    </>
+  );
+
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
   const typeLine = selectedCard?.typeLine ?? "";
@@ -394,6 +457,19 @@ export function CardDetailPanel({
           </div>
           {currentCard && !editing ? (
             <>
+              {reviewMode && (
+                <div
+                  className={cn(
+                    "grid gap-4",
+                    showCapturedImageSlot
+                      ? "grid-cols-2 max-w-3xl"
+                      : "max-w-sm",
+                  )}
+                >
+                  {cardImages}
+                </div>
+              )}
+
               {hasMultipleCandidates && (
                 <DetailSection title={t("cardDetailPanel.similarMatches")}>
                   <p className="text-sm text-foreground/70">
@@ -445,59 +521,17 @@ export function CardDetailPanel({
                 </DetailSection>
               )}
 
-              <div className="grid gap-6 @3xl:grid-cols-[auto_minmax(0,1fr)]">
-                <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row">
-                  {showCapturedImageSlot && (
-                    <figure className="flex flex-col gap-1.5">
-                      <figcaption className="text-xs text-foreground/70">
-                        {t("cardDetailPanel.capturedScan")}
-                      </figcaption>
-                      <button
-                        type="button"
-                        onClick={() => setViewerOpen(true)}
-                        disabled={!capturedImageUrl}
-                        aria-label={t("cardDetailPanel.enlargeImage")}
-                        title={t("cardDetailPanel.enlargeImage")}
-                        className="relative w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors"
-                      >
-                        {capturedImage}
-                        {showOcrRegions && capturedImageUrl && (
-                          <OcrRegionOverlay />
-                        )}
-                      </button>
-                      {showOcrRegions && capturedImageUrl && (
-                        <OcrRegionCrops
-                          src={capturedImageUrl}
-                          className="w-56 mt-1.5"
-                        />
-                      )}
-                    </figure>
-                  )}
-                  <figure className="flex flex-col gap-1.5">
-                    {showCapturedImageSlot && (
-                      <figcaption className="text-xs text-foreground/70">
-                        {t("cardDetailPanel.matchedCard")}
-                      </figcaption>
-                    )}
-                    <div className="relative w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
-                      <img
-                        src={selectedCard?.image?.normal || ""}
-                        alt={selectedCard?.name}
-                        className="w-full h-full object-cover"
-                      />
-                      {draftIsFoil && <FoilOverlay />}
-                      {showOcrRegions && selectedCard?.image?.normal && (
-                        <OcrRegionOverlay />
-                      )}
-                    </div>
-                    {showOcrRegions && selectedCard?.image?.normal && (
-                      <OcrRegionCrops
-                        src={selectedCard.image.normal}
-                        className="w-56 mt-1.5"
-                      />
-                    )}
-                  </figure>
-                </div>
+              <div
+                className={cn(
+                  "grid gap-6",
+                  !reviewMode && "@3xl:grid-cols-[auto_minmax(0,1fr)]",
+                )}
+              >
+                {!reviewMode && (
+                  <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row">
+                    {cardImages}
+                  </div>
+                )}
 
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">

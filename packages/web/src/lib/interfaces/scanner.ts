@@ -1,6 +1,6 @@
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type { AppToast } from "@/lib/interfaces/toast";
-import type { CardViewMode } from "@/lib/interfaces/cards";
+import type { CardViewMode, ReviewSession } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
@@ -557,6 +557,7 @@ export interface MobileCardDetailBodyProps {
   collectionGuid: string;
   scanId: string;
   reviewMode: boolean;
+  reviewSession: ReviewSession;
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
   onClose: () => void;

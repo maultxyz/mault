@@ -1,5 +1,5 @@
 import type { PlayingCard } from "../interfaces/card.interface";
-import { conditionLabel, csvEscape } from "./base";
+import { conditionLabel, csvEscape, finishLabel } from "./base";
 import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 function tcgplayerId(card: PlayingCard): string {
@@ -19,10 +19,10 @@ export const tcgplayerAdapter: ExportAdapter = {
   key: "tcgplayer",
   label: "TCGPlayer",
   filenameSlug: "tcgplayer",
-  groupBy: "card",
+  groupBy: "card-foil",
   games: "all",
   headers: () => [
-    "TCGplayer Id",
+    "TCGplayer ID",
     "Quantity",
     "Name",
     "Set Name",
@@ -31,14 +31,14 @@ export const tcgplayerAdapter: ExportAdapter = {
     "Printing",
     "Language",
   ],
-  row: ({ card, quantity, condition }) => [
+  row: ({ card, quantity, isFoil, foilType, condition }, ctx) => [
     tcgplayerId(card),
     String(quantity),
     csvEscape(card.name),
     csvEscape(card.setName),
     card.collectorNumber,
     conditionLabel(condition),
-    "Normal",
+    csvEscape(finishLabel(isFoil, ctx.isMtg ? null : foilType)),
     "English",
   ],
 };
