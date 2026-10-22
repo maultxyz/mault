@@ -1,5 +1,7 @@
 import type { BrowserSyncWorkCard } from "@magic-vault/shared";
 import { MILO_INPUT_SIZE } from "@magic-vault/shared";
+import { API_BASE } from "@/lib/constants/api";
+import { syncImageUrl } from "@/features/admin/lib/sync-image-url";
 import type {
   FailedSyncImage,
   LoadedSyncCanvas,
@@ -51,7 +53,7 @@ export async function loadSyncCanvas(
   imageUrl: string,
   signal: AbortSignal,
 ): Promise<HTMLCanvasElement> {
-  const response = await fetch(imageUrl, { signal });
+  const response = await fetch(syncImageUrl(imageUrl, API_BASE), { signal });
   if (!response.ok) {
     throw new Error(`Image fetch failed (${response.status})`);
   }
