@@ -23,10 +23,12 @@ export const piScanRouter = new Hono<AppEnv>()
   })
   .post("/", requireAuth, requireOrg, async (c) => {
     const body = await c.req.json<PiScanSessionStartBody>();
+    const header = c.req.header("Authorization") ?? "";
     const result = await startPiScanSession({
       orgId: c.get("orgId"),
       userId: c.get("userId"),
       jwtClaims: c.get("jwtClaims"),
+      accessToken: header.startsWith("Bearer ") ? header.slice(7) : "",
       body,
     });
     if (!result.ok) {

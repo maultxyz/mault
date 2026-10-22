@@ -17,7 +17,6 @@ import {
   extractCardImage,
 } from "@/features/scanner/lib/card-detection";
 import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
-import { drawPiRelayFrame } from "@/features/scanner/lib/pi-camera";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
@@ -56,7 +55,9 @@ import {
 } from "@/features/scanner/lib/canvas-fit";
 import { scanLog } from "@/lib/scan-log";
 import {
+  CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
+  CONSENSUS_RETRY_BUDGET,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   type ColorBarRegion,
@@ -75,17 +76,7 @@ import {
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
   type CardSearchResult,
-  advanceConsensus,
-  betterSearch,
-  closeMatchesOf,
-  consensusAttemptLimit,
-  consensusMet,
-  consensusMissReason,
-  emptyConsensus,
-  hasSearchMatch,
   isStrongerTextMatch,
-  needsTextSearch,
-  preferColoredCard,
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
   type ScanDetectionDiagnostics,
@@ -149,7 +140,9 @@ async function resolveSearchMatches(
     confidence: m.confidence,
   }));
 
-  const closeMatches = closeMatchesOf(data);
+  const closeMatches = data.filter(
+    (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
+  );
   const resolved = await Promise.all(
     closeMatches.map(async (m) => {
       const card =
@@ -193,6 +186,10 @@ function buildSearchFormData(
   return formData;
 }
 
+function hasMatch(result: CardSearchResult): boolean {
+  return (result.data?.length ?? 0) > 0;
+}
+
 async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,
@@ -224,9 +221,25 @@ async function searchBothOrientations(
     ),
   ]);
 
-  return betterSearch(upright.result, rotated.result) === rotated.result
+  const rotatedWins =
+    hasMatch(upright.result) !== hasMatch(rotated.result)
+      ? hasMatch(rotated.result)
+      : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
+        (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
+  return rotatedWins
     ? { ...rotated, alternate: upright }
     : { ...upright, alternate: rotated };
+}
+
+function needsTextSearch(result: CardSearchResult): boolean {
+  const reason = result.diagnostics?.reason;
+  if (reason === "too_far" || reason === "ambiguous") return true;
+  const [leader, runnerUp] = result.data ?? [];
+  return (
+    leader != null &&
+    runnerUp != null &&
+    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
+  );
 }
 
 async function searchByCardText(
@@ -263,7 +276,7 @@ async function searchByCardText(
             ),
           );
           scanLog(
-            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasSearchMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
+            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
           );
           return result;
         } catch (err) {
@@ -278,7 +291,7 @@ async function searchByCardText(
     });
     const result = results[bestIndex];
     const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
-    if (!result || !hasSearchMatch(result)) return { pick: null, ocr };
+    if (!result || !hasMatch(result)) return { pick: null, ocr };
     return {
       pick: { ...options[bestIndex], result, alternate: null },
       ocr,
@@ -299,16 +312,14 @@ function preferDetectedColor(
   resolved: ResolvedSearchMatches,
   color: string | null,
 ): ResolvedSearchMatches {
-  const preferred = preferColoredCard(
-    resolved.card,
-    resolved.alternativeMatches,
-    color,
-  );
-  if (!preferred) return resolved;
+  if (!color || !resolved.card) return resolved;
+  const all = [resolved.card, ...resolved.alternativeMatches];
+  const preferred = all.find((c) => c.colorIdentity?.includes(color));
+  if (!preferred || preferred === resolved.card) return resolved;
   return {
     ...resolved,
-    card: preferred.card,
-    alternativeMatches: preferred.alternatives,
+    card: preferred,
+    alternativeMatches: all.filter((c) => c !== preferred),
   };
 }
 
@@ -442,7 +453,7 @@ async function runCardImageSearch(
           vectorizedOn: "web",
           detection,
           ocr: text?.ocr ?? null,
-          lowConfidenceMatch: !!text?.pick && !hasSearchMatch(best.result),
+          lowConfidenceMatch: !!text?.pick && !hasMatch(best.result),
           matchedBy: text?.pick ? "ocr" : "embedding",
         },
       );
@@ -535,10 +546,9 @@ function toScanOutcome(
     ? (({ embedding: _embedding, ...rest }) => rest)(outcome.search)
     : null;
   const diagnostics: UnmatchedScanDiagnostics = {
-    reason: consensusMissReason(
-      attempts.some((attempt) => attempt.card),
-      outcome.noMatchReason,
-    ),
+    reason: attempts.some((a) => a.card)
+      ? "no_consensus"
+      : (outcome.noMatchReason ?? "too_far"),
     search: searchWithoutEmbedding,
     detection: outcome.detection,
     orientation: outcome.orientation,
@@ -587,18 +597,29 @@ async function searchCardImageWithConsensus(
   if (matchesNeeded <= 1)
     return toScanOutcome(await attempt(), attempts, matchesNeeded);
 
-  const maxAttempts = consensusAttemptLimit(matchesNeeded);
+  const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
 
-  let streak = emptyConsensus<ScanAttemptOutcome>();
+  let streakId: string | null = null;
+  let streakCount = 0;
+  let streakResult: ScanAttemptOutcome | null = null;
   let lastResult: ScanAttemptOutcome | null = null;
 
   for (let i = 0; i < maxAttempts; i++) {
     const result = await attempt();
     lastResult = result;
-    streak = advanceConsensus(streak, result, result.card?.id ?? null);
-    if (consensusMet(streak, matchesNeeded)) {
-      return toScanOutcome(streak.item, attempts, matchesNeeded);
+    const topId = result.card?.id ?? null;
+
+    if (topId != null && topId === streakId) {
+      streakCount++;
+      streakResult = result;
+    } else {
+      streakId = topId;
+      streakCount = topId != null ? 1 : 0;
+      streakResult = topId != null ? result : null;
     }
+
+    if (streakCount >= matchesNeeded)
+      return toScanOutcome(streakResult!, attempts, matchesNeeded);
   }
 
   return toScanOutcome({ ...lastResult!, card: null }, attempts, matchesNeeded);
@@ -776,18 +797,14 @@ export function useCardScanner({
     );
   }, [cameraSource, phonePairingStatus, updateStatus]);
 
-  const streamRef = useRef(stream);
-  streamRef.current = stream;
-
   const drawLatestVideoFrame = useCallback(() => {
-    const canvas = displayCanvasRef.current;
-    if (!canvas) return;
-    const flipped = flipCameraRef.current;
-    if (drawPiRelayFrame(streamRef.current, canvas, flipped)) return;
     const video = videoRef.current;
-    if (!video || video.readyState < video.HAVE_CURRENT_DATA) return;
+    const canvas = displayCanvasRef.current;
+    if (!video || !canvas || video.readyState < video.HAVE_CURRENT_DATA) {
+      return;
+    }
     const ctx = canvas.getContext("2d");
-    if (ctx) drawVideoFrame(ctx, video, flipped);
+    if (ctx) drawVideoFrame(ctx, video, flipCameraRef.current);
   }, []);
 
   const performCapture = useCallback(
@@ -895,31 +912,17 @@ export function useCardScanner({
   const detectionLoop = useCallback(() => {
     const video = videoRef.current;
     const displayCanvas = displayCanvasRef.current;
-    if (!displayCanvas) return;
 
-    const flipped = flipCameraRef.current;
-    const drewRelay = drawPiRelayFrame(streamRef.current, displayCanvas, flipped);
-    if (drewRelay) {
-      const overlay = overlayCanvasRef.current;
-      if (
-        overlay &&
-        displayCanvas.width &&
-        displayCanvas.height &&
-        (overlay.width !== displayCanvas.width ||
-          overlay.height !== displayCanvas.height)
-      ) {
-        overlay.width = displayCanvas.width;
-        overlay.height = displayCanvas.height;
-      }
-    } else {
-      if (!video || video.readyState < video.HAVE_ENOUGH_DATA) {
-        rafRef.current = requestAnimationFrame(detectionLoop);
-        return;
-      }
-      const displayCtx = displayCanvas.getContext("2d");
-      if (!displayCtx) return;
-      drawVideoFrame(displayCtx, video, flipped);
+    if (!video || !displayCanvas) return;
+    if (video.readyState < video.HAVE_ENOUGH_DATA) {
+      rafRef.current = requestAnimationFrame(detectionLoop);
+      return;
     }
+
+    const displayCtx = displayCanvas.getContext("2d");
+    if (!displayCtx) return;
+
+    drawVideoFrame(displayCtx, video, flipCameraRef.current);
 
     rafRef.current = requestAnimationFrame(detectionLoop);
   }, []);
@@ -944,14 +947,7 @@ export function useCardScanner({
         await video.play();
         if (cancelled) return;
 
-        const display = displayCanvasRef.current;
-        let videoWidth = video.videoWidth;
-        let videoHeight = video.videoHeight;
-        if (display && drawPiRelayFrame(stream, display, flipCameraRef.current)) {
-          videoWidth = display.width;
-          videoHeight = display.height;
-        }
-        if (!videoWidth || !videoHeight) return;
+        const { videoWidth, videoHeight } = video;
         for (const ref of [displayCanvasRef, overlayCanvasRef]) {
           if (ref.current) {
             ref.current.width = videoWidth;

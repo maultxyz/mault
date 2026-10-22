@@ -124,12 +124,6 @@ export interface ScanAttemptDiagnostic {
   distance: number | null;
 }
 
-export interface ConsensusStreak<T> {
-  id: string | null;
-  count: number;
-  item: T | null;
-}
-
 export interface UnmatchedScanDiagnostics {
   reason: UnmatchedReason;
   search: Omit<CardSearchDiagnostics, "embedding"> | null;

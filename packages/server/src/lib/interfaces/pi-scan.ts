@@ -41,8 +41,7 @@ export interface PiScanRunContext {
   ocrEnabled: boolean;
   cardThickness: number | null;
   fieldDefinitions: FieldMeta[];
-  binSetId: number;
-  binSetGuid: string;
+  gameGuid: string;
   set: BinSet;
   configs: BinConfig[];
   pickConfigs: BinConfig[];
@@ -57,6 +56,7 @@ export interface PiScanLive {
   orgId: string;
   userId: string;
   jwtClaims: string;
+  accessToken: string;
   collectionGuid: string;
   message: string | null;
   cardsScanned: number;
@@ -97,6 +97,7 @@ export interface PiScanStartInput {
   orgId: string;
   userId: string;
   jwtClaims: string;
+  accessToken: string;
   body: PiScanSessionStartBody;
 }
 
