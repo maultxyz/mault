@@ -1,5 +1,9 @@
 import { toCardCondition } from "../card-condition";
-import { CONDITION_EXPORT_LABELS } from "../constants/card-export.constant";
+import {
+  CONDITION_EXPORT_LABELS,
+  FOIL_FINISH_LABEL,
+  NONFOIL_FINISH_LABEL,
+} from "../constants/card-export.constant";
 import type {
   ExportableCard,
   ExportAdapter,
@@ -26,6 +30,14 @@ export function csvEscape(val: string): string {
 
 export function conditionLabel(condition: CardCondition): string {
   return CONDITION_EXPORT_LABELS[condition];
+}
+
+export function finishLabel(
+  isFoil: boolean,
+  foilType: string | null | undefined,
+): string {
+  if (!isFoil) return NONFOIL_FINISH_LABEL;
+  return foilType?.trim() || FOIL_FINISH_LABEL;
 }
 
 export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
