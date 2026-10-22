@@ -199,6 +199,19 @@ export interface ActiveScanningStats {
   windowMinutes: number;
 }
 
+export interface ActiveScanSession {
+  collectionGuid: string;
+  collectionName: string | null;
+  gameName: string | null;
+  orgId: string;
+  orgName: string | null;
+  userId: string;
+  displayName: string;
+  startedAt: string;
+  lastActivityAt: string;
+  scansThisSession: number;
+}
+
 export interface ScanOriginUser {
   userId: string;
   name: string;

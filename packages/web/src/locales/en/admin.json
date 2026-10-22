@@ -200,6 +200,19 @@
     "connectedSorters": "Connected sorters",
     "recentScans": "Scans, last {{minutes}} min"
   },
+  "activeScanSessions": {
+    "title": "Active scan sessions",
+    "close": "Close",
+    "empty": "Nobody is scanning right now",
+    "emptyDescription": "Sessions appear here while a collection is locked for scanning.",
+    "sessionCount_one": "{{count}} session",
+    "sessionCount_other": "{{count}} sessions",
+    "scans_one": "{{count}} scan",
+    "scans_other": "{{count}} scans",
+    "collectionWithGame": "{{collection}} · {{game}}",
+    "unknownCollection": "Unknown collection",
+    "timing": "Started {{started}}, last activity {{lastActivity}}"
+  },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
     "serverLabel": "Server",

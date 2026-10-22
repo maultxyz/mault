@@ -208,6 +208,19 @@
     "connectedSorters": "Trieurs connectés",
     "recentScans": "Scans, {{minutes}} dernières min"
   },
+  "activeScanSessions": {
+    "title": "Sessions de scan actives",
+    "close": "Fermer",
+    "empty": "Personne ne scanne en ce moment",
+    "emptyDescription": "Les sessions apparaissent ici tant qu’une collection est verrouillée pour le scan.",
+    "sessionCount_one": "{{count}} session",
+    "sessionCount_other": "{{count}} sessions",
+    "scans_one": "{{count}} scan",
+    "scans_other": "{{count}} scans",
+    "collectionWithGame": "{{collection}} · {{game}}",
+    "unknownCollection": "Collection inconnue",
+    "timing": "Démarrée à {{started}}, dernière activité à {{lastActivity}}"
+  },
   "scanVectorizeStats": {
     "heading": "Source de vectorisation des scans",
     "serverLabel": "Serveur",
