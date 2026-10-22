@@ -141,9 +141,11 @@ scripts/pi/install.sh
 
 | Service | Role |
 | --- | --- |
-| `mault-api` | API on port 3001 |
+| `mault-api` | API on `127.0.0.1:3001`, accessible through the web app's `/api` proxy |
 | `mault-web` | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
 | `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam |
+
+Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
 
 Updates are installed manually. Finish any scan, then run these commands on the Pi:
 
