@@ -31,6 +31,8 @@ export const PAUSE_WHEN_HIDDEN_STATUSES: ScannerStatus[] = [
 ];
 
 export const MTG_ASPECT_RATIO = 2.5 / 3.5;
+export const UNMATCHED_VIEW_PARAM = "unmatched";
+export const UNMATCHED_CARD_PARAM = "unmatchedCard";
 export const PHONE_CAMERA_JPEG_QUALITY = 0.85;
 export const CATCH_ALL_BIN = 7;
 

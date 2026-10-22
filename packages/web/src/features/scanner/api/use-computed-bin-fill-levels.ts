@@ -6,16 +6,10 @@ import type {
   BinFillLevel,
   ComputedBinFillLevels,
 } from "@/lib/interfaces/scanner";
-import {
-  computeBinCapacity,
-  countCardsInBin,
-  type UnmatchedCard,
-} from "@magic-vault/shared";
+import { computeBinCapacity } from "@magic-vault/shared";
 import { useMemo } from "react";
 
-export function useComputedBinFillLevels(
-  unmatchedCards: UnmatchedCard[],
-): ComputedBinFillLevels {
+export function useComputedBinFillLevels(): ComputedBinFillLevels {
   const { configs, selectedSet } = useBinConfigs();
   const chaosBinSize = selectedSet?.isChaosMode
     ? (selectedSet.chaosBinSize ?? null)
@@ -46,9 +40,7 @@ export function useComputedBinFillLevels(
             chaosBinSize != null && !bin.isCatchAll
               ? Math.min(physicalCapacity ?? chaosBinSize, chaosBinSize)
               : physicalCapacity;
-          const count =
-            (matchedCounts.get(bin.binNumber) ?? 0) +
-            countCardsInBin(unmatchedCards, bin);
+          const count = matchedCounts.get(bin.binNumber) ?? 0;
           const percent = capacity
             ? Math.min(100, Math.round((count / capacity) * 100))
             : 0;
@@ -59,7 +51,6 @@ export function useComputedBinFillLevels(
       configs,
       savedHeights,
       matchedCounts,
-      unmatchedCards,
       cardThickness,
       chaosBinSize,
     ],

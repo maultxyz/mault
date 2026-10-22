@@ -12,6 +12,7 @@ import {
   type ScannedCard,
   type UnmatchedCard,
   RECENT_SCANNED_CARDS_COUNT,
+  UNMATCHED_PREVIEW_COUNT,
 } from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,6 +35,7 @@ export function useSessionEvents(
   const [cardsVersion, setCardsVersion] = useState(0);
   const initializedRef = useRef(false);
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
+  const [unmatchedCount, setUnmatchedCount] = useState(0);
   const [viewers, setViewers] = useState<SessionViewer[]>([]);
   const [errors, setErrors] = useState<SessionError[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
@@ -50,6 +52,7 @@ export function useSessionEvents(
     initializedRef.current = false;
     setRecentCards([]);
     setUnmatchedCards([]);
+    setUnmatchedCount(0);
     setCollection(null);
     setViewers([]);
     setErrors([]);
@@ -73,11 +76,13 @@ export function useSessionEvents(
         collection,
         recentCards: initRecent,
         unmatchedCards: initUnmatched,
+        unmatchedCount: initUnmatchedCount,
         viewers: initViewers,
       } = JSON.parse(data) as {
         collection: Collection;
         recentCards?: ScannedCard[];
         unmatchedCards?: UnmatchedCard[];
+        unmatchedCount?: number;
         viewers?: SessionViewer[];
       };
       setCollection(collection);
@@ -85,6 +90,7 @@ export function useSessionEvents(
       if (initializedRef.current) cardsChanged();
       initializedRef.current = true;
       setUnmatchedCards(initUnmatched ?? []);
+      setUnmatchedCount(initUnmatchedCount ?? initUnmatched?.length ?? 0);
       if (initViewers) setViewers(initViewers);
       setStatus("connected");
     };
@@ -161,7 +167,10 @@ export function useSessionEvents(
 
     on(scoped("unmatched_added"), (e) => {
       const card = JSON.parse((e as MessageEvent).data) as UnmatchedCard;
-      setUnmatchedCards((prev) => [card, ...prev]);
+      setUnmatchedCards((prev) =>
+        [card, ...prev].slice(0, UNMATCHED_PREVIEW_COUNT),
+      );
+      setUnmatchedCount((count) => count + 1);
     });
 
     on(scoped("unmatched_removed"), (e) => {
@@ -169,10 +178,12 @@ export function useSessionEvents(
         scanId: string;
       };
       setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+      setUnmatchedCount((count) => Math.max(0, count - 1));
     });
 
     on(scoped("unmatched_cleared"), () => {
       setUnmatchedCards([]);
+      setUnmatchedCount(0);
     });
 
     on(scoped("scan_error"), (e) => {
@@ -211,6 +222,7 @@ export function useSessionEvents(
     recentCards,
     cardsVersion,
     unmatchedCards,
+    unmatchedCount,
     viewers,
     errors,
     status,

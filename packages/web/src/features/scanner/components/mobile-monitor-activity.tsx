@@ -1,5 +1,4 @@
-import { IdentifyUnmatchedDialog } from "@/features/scanner/components/identify-unmatched-dialog";
-import { MobileUnmatchedCardDrawer } from "@/features/scanner/components/mobile-unmatched-card-drawer";
+import { removeUnmatchedScan } from "@/features/collections/api/collections";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -15,12 +14,8 @@ import {
   IconChevronRight,
   IconSparkles,
 } from "@tabler/icons-react";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  RECENT_SCANNED_CARDS_COUNT,
-  type UnmatchedCard,
-} from "@magic-vault/shared";
+import { RECENT_SCANNED_CARDS_COUNT } from "@magic-vault/shared";
 
 export function MobileMonitorActivity({
   session,
@@ -30,16 +25,13 @@ export function MobileMonitorActivity({
   onOpenCard,
 }: MobileMonitorActivityProps) {
   const { t } = useTranslation("scanner");
-  const [openUnmatched, setOpenUnmatched] = useState<UnmatchedCard | null>(
-    null,
-  );
-  const [identifying, setIdentifying] = useState<UnmatchedCard | null>(null);
   const { priceOf, format } = usePriceSource();
-  const { recentCards, unmatchedCards, errors } = session;
+  const { recentCards, unmatchedCards, unmatchedCount, errors } = session;
   const recent = recentCards.slice(0, RECENT_SCANNED_CARDS_COUNT);
   const hasRarities = !!stats && stats.rarities.length > 0;
   const isEmpty =
     recent.length === 0 &&
+    unmatchedCount === 0 &&
     unmatchedCards.length === 0 &&
     errors.length === 0 &&
     !hasRarities;
@@ -55,26 +47,15 @@ export function MobileMonitorActivity({
       <SessionErrorsPanel errors={errors} />
       <UnmatchedCardsPanel
         cards={unmatchedCards}
-        onOpen={canEditCards ? setOpenUnmatched : undefined}
+        total={unmatchedCount}
+        collectionGuid={canEditCards ? collectionGuid : undefined}
+        canIdentify={canEditCards}
+        onRemove={
+          canEditCards
+            ? (scanId) => removeUnmatchedScan(collectionGuid, scanId)
+            : undefined
+        }
       />
-      {canEditCards && (
-        <>
-          <MobileUnmatchedCardDrawer
-            entry={openUnmatched}
-            collectionGuid={collectionGuid}
-            onIdentify={(entry) => {
-              setOpenUnmatched(null);
-              setIdentifying(entry);
-            }}
-            onClose={() => setOpenUnmatched(null)}
-          />
-          <IdentifyUnmatchedDialog
-            entry={identifying}
-            collectionGuid={collectionGuid}
-            onClose={() => setIdentifying(null)}
-          />
-        </>
-      )}
 
       {recent.length > 0 && (
         <section className={MOBILE_SECTION_CLASS}>
