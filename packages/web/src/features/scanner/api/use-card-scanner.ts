@@ -77,6 +77,7 @@ import {
   maxCornerShift,
   type CardSearchResult,
   isStrongerTextMatch,
+  pickConsensus,
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
   type ScanDetectionDiagnostics,
@@ -599,27 +600,12 @@ async function searchCardImageWithConsensus(
 
   const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
 
-  let streakId: string | null = null;
-  let streakCount = 0;
-  let streakResult: ScanAttemptOutcome | null = null;
   let lastResult: ScanAttemptOutcome | null = null;
 
   for (let i = 0; i < maxAttempts; i++) {
-    const result = await attempt();
-    lastResult = result;
-    const topId = result.card?.id ?? null;
-
-    if (topId != null && topId === streakId) {
-      streakCount++;
-      streakResult = result;
-    } else {
-      streakId = topId;
-      streakCount = topId != null ? 1 : 0;
-      streakResult = topId != null ? result : null;
-    }
-
-    if (streakCount >= matchesNeeded)
-      return toScanOutcome(streakResult!, attempts, matchesNeeded);
+    lastResult = await attempt();
+    const agreed = pickConsensus(attempts, matchesNeeded);
+    if (agreed) return toScanOutcome(agreed, attempts, matchesNeeded);
   }
 
   return toScanOutcome({ ...lastResult!, card: null }, attempts, matchesNeeded);
