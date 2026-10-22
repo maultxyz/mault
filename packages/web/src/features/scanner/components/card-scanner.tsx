@@ -21,6 +21,8 @@ import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-ca
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
 import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
+import { useDevice } from "@/features/calibration/api/use-device";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -61,7 +63,10 @@ export function CardScanner({
   const navigate = useNavigate();
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
-  const previewRotated = !isMobile || (usePiHost() && isRemoteBrowser());
+  const piHost = usePiHost();
+  const piRemote = piHost && isRemoteBrowser();
+  const device = useDevice();
+  const previewRotated = !isMobile || (piHost && isRemoteBrowser());
   const {
     addCard,
     addUnmatchedCard,
@@ -130,12 +135,13 @@ export function CardScanner({
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
   const piScan = usePiScanSession();
+  const setPiAutoFeed = piScan.setAutoFeed;
   const changeAutoFeed = useCallback(
     (enabled: boolean) => {
       setAutoFeed(enabled);
-      piScan.setAutoFeed(enabled);
+      setPiAutoFeed(enabled);
     },
-    [piScan.setAutoFeed, setAutoFeed],
+    [setPiAutoFeed, setAutoFeed],
   );
   const piWaitingForFeed =
     piScan.state.phase === "running" &&
@@ -195,7 +201,9 @@ export function CardScanner({
     ? piScan.state.phase === "running"
       ? "scanning"
       : "paused"
-    : status;
+    : piRemote && piScan.cameraReady
+      ? "paused"
+      : status;
   const isSideControls = controlsPosition === "side";
 
   const handleOpenPhonePairing = () => {
@@ -689,10 +697,19 @@ export function CardScanner({
         )}
       >
         <video ref={videoRef} className="hidden" playsInline muted />
+        {piRemote && isCameraActive && (
+          <PiCameraPreview
+            alt={t("piScan.preview")}
+            rotated
+            flipped={device?.flipCamera}
+            className="absolute max-w-none"
+          />
+        )}
         <canvas
           ref={displayCanvasRef}
           className={cn(
             "absolute",
+            piRemote && "hidden",
             previewRotated && cameraSource === "local" && "rotate-90",
           )}
         />
@@ -700,6 +717,7 @@ export function CardScanner({
           ref={overlayCanvasRef}
           className={cn(
             "absolute z-20 pointer-events-none",
+            piRemote && "hidden",
             previewRotated && cameraSource === "local" && "rotate-90",
           )}
         />

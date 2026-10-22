@@ -1,3 +1,4 @@
+import type { PiScanListener } from "@/lib/interfaces/scanner";
 import {
   fetchPiScanSession,
   piScanHoldsPort,
@@ -5,14 +6,15 @@ import {
 import { IDLE_PI_SCAN_SESSION } from "@/lib/constants/scanner";
 import { setPiScanHoldingPort } from "@/features/scanner/lib/pi-scan-hold";
 import type { PiScanSessionState } from "@magic-vault/shared";
+import { loadPiHost } from "@/lib/pi-host";
+import { piScanAnnouncementKey } from "@/features/scanner/lib/pi-scan-status";
 
-type Listener = () => void;
 
 let state: PiScanSessionState = IDLE_PI_SCAN_SESSION;
 let holdOverride = false;
 let announced: string | null = null;
 let timer: ReturnType<typeof setInterval> | null = null;
-const listeners = new Set<Listener>();
+const listeners = new Set<PiScanListener>();
 
 function publishHold() {
   setPiScanHoldingPort(holdOverride || piScanHoldsPort(state));
@@ -67,15 +69,15 @@ export function setPiScanHoldOverride(value: boolean) {
 }
 
 export function notePiScanMessage(message: string | null) {
-  announced = message;
+  announced = message ? piScanAnnouncementKey({ ...state, message }) : null;
 }
 
 export function takePiScanAnnouncement(
   current: PiScanSessionState,
 ): "error" | "info" | null {
-  if (!current.message || current.message === announced) return null;
+  if (!current.message || piScanAnnouncementKey(current) === announced) return null;
   if (current.phase !== "error" && current.phase !== "stopped") return null;
-  announced = current.message;
+  announced = piScanAnnouncementKey(current);
   return current.phase === "error" ? "error" : "info";
 }
 
@@ -86,15 +88,15 @@ async function pull() {
   }
 }
 
-function ensurePolling() {
-  if (timer) return;
+async function ensurePolling() {
+  if (!(await loadPiHost()) || timer || listeners.size === 0) return;
   void pull();
   timer = setInterval(() => void pull(), 1000);
 }
 
-export function subscribePiScan(listener: Listener): () => void {
+export function subscribePiScan(listener: PiScanListener): () => void {
   listeners.add(listener);
-  ensurePolling();
+  void ensurePolling();
   return () => {
     listeners.delete(listener);
     if (listeners.size === 0 && timer) {

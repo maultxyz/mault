@@ -142,8 +142,24 @@ scripts/pi/install.sh
 | Service | Role |
 | --- | --- |
 | `mault-api` | API on port 3001 |
-| `mault-web` | Web app on port 8080. Proxies `/api` to the API and `/pi-camera` to the webcam helper |
+| `mault-web` | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
 | `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam |
+
+The API service applies local database migrations before starting. After rebuilding an existing checkout, restart the API and web services. To install the migration startup check on an older Pi installation, run:
+
+```bash
+cp scripts/pi/mault-api.service ~/.config/systemd/user/mault-api.service
+systemctl --user daemon-reload
+systemctl --user restart mault-api.service mault-web.service
+```
+
+The API service keeps its output in `${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log`, including scan failures and feed commands. To inspect the latest entries even when the user journal is unavailable:
+
+```bash
+tail -n 100 "${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log"
+```
+
+If sorter setup shows the default three modules or cannot save, check that migrations completed: `pnpm --filter @magic-vault/server db:migrate-local`. A missing device column prevents settings from loading even when the stored module count is correct. Reload the browser after repairing the database.
 
 ```bash
 scripts/pi/start.sh            # start the services and open Chromium on the Pi desktop
@@ -151,11 +167,13 @@ scripts/pi/start.sh --kiosk
 scripts/pi/stop.sh
 ```
 
-Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh` also opens Chromium on the Pi at `http://127.0.0.1:8080`. That window is a local browser, so it uses the machine's own camera and serial port instead of the remote path.
+Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh` also opens Chromium on the Pi at `http://127.0.0.1:8080`. The camera helper owns the webcam, and the API owns the sorter during a scan. Camera preview and focus control require signing in to an organization.
 
 The API reports a Pi host when `PI_HOST=1`, and also when `/proc/device-tree/model` contains `Raspberry Pi` and `PI_HOST` is unset. `PI_HOST=0` turns the remote-browser behavior off. `WEBCAM_DEVICE` selects a specific `/dev/video*` node when the helper should not pick one itself.
 
-Sign up on the Pi's page. The first account is the platform admin. Add a game in Admin and sync it before scanning.
+Sign up on the Pi's page. The first account is the platform admin. Add a game in Admin and sync it before scanning. On a Pi host, **Start on this computer** uses the remote computer's browser to vectorize missing card images for the bulk database sync. Keep that admin page open while it works; the cards-at-a-time control sets its concurrency. Live scans still identify cards on the Pi.
+
+If a bin fills or all repack packs are complete, scanning pauses with the current card retained. Empty the relevant bins in the app, then resume. The API reloads rules, capacities, and bin contents before routing that card. Presets with **skip saving** use the existing sort-only path. Stopping a scan may leave a card in the sorter; remove it before starting another session.
 
 ### Running pieces individually
 

@@ -240,7 +240,7 @@ async function runSync(
   addLog(`Using data source: ${baseUrl}`);
   if (vectorizeOn === "browser" && forceResync) {
     addLog(
-      "Force resync is ignored so this computer only vectorizes cards that are not in the database yet.",
+      "Force resync is ignored so this computer only vectorizes cards missing front or back image vectors.",
     );
     forceResync = false;
   }

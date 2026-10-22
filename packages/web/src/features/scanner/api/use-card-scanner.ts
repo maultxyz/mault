@@ -55,9 +55,14 @@ import {
 } from "@/features/scanner/lib/canvas-fit";
 import { scanLog } from "@/lib/scan-log";
 import {
-  CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
-  CONSENSUS_RETRY_BUDGET,
+  betterSearch,
+  closeMatchesOf,
+  consensusAttemptLimit,
+  consensusMissReason,
+  hasSearchMatch as hasMatch,
+  needsTextSearch,
+  preferScanColor,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   type ColorBarRegion,
@@ -141,9 +146,7 @@ async function resolveSearchMatches(
     confidence: m.confidence,
   }));
 
-  const closeMatches = data.filter(
-    (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
-  );
+  const closeMatches = closeMatchesOf(data, data[0].distance);
   const resolved = await Promise.all(
     closeMatches.map(async (m) => {
       const card =
@@ -187,10 +190,6 @@ function buildSearchFormData(
   return formData;
 }
 
-function hasMatch(result: CardSearchResult): boolean {
-  return (result.data?.length ?? 0) > 0;
-}
-
 async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,
@@ -223,24 +222,10 @@ async function searchBothOrientations(
   ]);
 
   const rotatedWins =
-    hasMatch(upright.result) !== hasMatch(rotated.result)
-      ? hasMatch(rotated.result)
-      : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-        (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
+    betterSearch(upright.result, rotated.result) === rotated.result;
   return rotatedWins
     ? { ...rotated, alternate: upright }
     : { ...upright, alternate: rotated };
-}
-
-function needsTextSearch(result: CardSearchResult): boolean {
-  const reason = result.diagnostics?.reason;
-  if (reason === "too_far" || reason === "ambiguous") return true;
-  const [leader, runnerUp] = result.data ?? [];
-  return (
-    leader != null &&
-    runnerUp != null &&
-    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
-  );
 }
 
 async function searchByCardText(
@@ -315,12 +300,12 @@ function preferDetectedColor(
 ): ResolvedSearchMatches {
   if (!color || !resolved.card) return resolved;
   const all = [resolved.card, ...resolved.alternativeMatches];
-  const preferred = all.find((c) => c.colorIdentity?.includes(color));
-  if (!preferred || preferred === resolved.card) return resolved;
+  const [preferred, ...alternativeMatches] = preferScanColor(all, color);
+  if (preferred === resolved.card) return resolved;
   return {
     ...resolved,
     card: preferred,
-    alternativeMatches: all.filter((c) => c !== preferred),
+    alternativeMatches,
   };
 }
 
@@ -547,9 +532,10 @@ function toScanOutcome(
     ? (({ embedding: _embedding, ...rest }) => rest)(outcome.search)
     : null;
   const diagnostics: UnmatchedScanDiagnostics = {
-    reason: attempts.some((a) => a.card)
-      ? "no_consensus"
-      : (outcome.noMatchReason ?? "too_far"),
+    reason: consensusMissReason(
+      attempts.some((a) => a.card),
+      outcome.noMatchReason,
+    ),
     search: searchWithoutEmbedding,
     detection: outcome.detection,
     orientation: outcome.orientation,
@@ -598,8 +584,7 @@ async function searchCardImageWithConsensus(
   if (matchesNeeded <= 1)
     return toScanOutcome(await attempt(), attempts, matchesNeeded);
 
-  const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
-
+  const maxAttempts = consensusAttemptLimit(matchesNeeded);
   let lastResult: ScanAttemptOutcome | null = null;
 
   for (let i = 0; i < maxAttempts; i++) {

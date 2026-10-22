@@ -1,3 +1,5 @@
+import { getAuthHeaders } from "@/lib/api/client";
+import { API_BASE } from "@/lib/constants/api";
 import {
   PI_CAMERA_BASE,
   PI_CAMERA_DEVICE_ID,
@@ -7,7 +9,7 @@ import {
 } from "@/lib/constants/scanner";
 import type { CameraRange, PiCameraHealth } from "@/lib/interfaces/scanner";
 import { isRemoteBrowser } from "@/lib/host";
-import { isPiHost } from "@/lib/pi-host";
+import { isPiHost, loadPiHost } from "@/lib/pi-host";
 import { applyFocus, manualFocusRange } from "./camera-focus";
 
 const piRelayTracks = new WeakSet<MediaStreamTrack>();
@@ -55,9 +57,11 @@ export function browserMustUsePiCamera(): boolean {
 }
 
 export async function readPiCameraHealth(): Promise<PiCameraHealth> {
+  if (!(await loadPiHost())) return { status: "absent" };
   try {
-    const response = await fetch(`${PI_CAMERA_BASE}/health`, {
+    const response = await fetch(`${API_BASE}${PI_CAMERA_BASE}/health`, {
       cache: "no-store",
+      headers: await getAuthHeaders(),
     });
     if (!response.ok) {
       return { status: response.status === 404 ? "absent" : "down" };
@@ -107,8 +111,13 @@ export function piCameraDevice(label: string): MediaDeviceInfo {
   };
 }
 
-function copyBytes(buffer: Uint8Array, start: number, end?: number): Uint8Array<ArrayBuffer> {
-  const view = end === undefined ? buffer.subarray(start) : buffer.subarray(start, end);
+function copyBytes(
+  buffer: Uint8Array,
+  start: number,
+  end?: number,
+): Uint8Array<ArrayBuffer> {
+  const view =
+    end === undefined ? buffer.subarray(start) : buffer.subarray(start, end);
   const copy = new Uint8Array(view.byteLength);
   copy.set(view);
   return copy;
@@ -153,9 +162,10 @@ export async function acquirePiRelayStream(): Promise<MediaStream> {
     stop();
   };
 
-  const response = await fetch(`${PI_CAMERA_BASE}/stream`, {
+  const response = await fetch(`${API_BASE}${PI_CAMERA_BASE}/stream`, {
     signal: controller.signal,
     cache: "no-store",
+    headers: await getAuthHeaders(),
   });
   if (!response.ok || !response.body) {
     track.stop();
@@ -230,7 +240,8 @@ export async function acquirePiRelayStream(): Promise<MediaStream> {
         buffer = parsed.rest;
         parsed = takeJpeg(buffer);
       }
-      if (buffer.length > 8_000_000) buffer = copyBytes(buffer, buffer.length - 2);
+      if (buffer.length > 8_000_000)
+        buffer = copyBytes(buffer, buffer.length - 2);
       if (pending) void drawLatest();
     }
   };
@@ -241,9 +252,10 @@ export async function acquirePiRelayStream(): Promise<MediaStream> {
       try {
         const next = connected
           ? response
-          : await fetch(`${PI_CAMERA_BASE}/stream`, {
+          : await fetch(`${API_BASE}${PI_CAMERA_BASE}/stream`, {
               signal: controller.signal,
               cache: "no-store",
+              headers: await getAuthHeaders(),
             });
         connected = false;
         if (!next.ok || !next.body) throw new Error("camera stream failed");
@@ -261,16 +273,19 @@ export async function acquirePiRelayStream(): Promise<MediaStream> {
 
 export async function applyPiFocus(value: number | null): Promise<void> {
   const body =
-    value === null
-      ? { mode: "auto" }
-      : { mode: "manual", lensPosition: value };
-  const response = await fetch(`${PI_CAMERA_BASE}/focus`, {
+    value === null ? { mode: "auto" } : { mode: "manual", lensPosition: value };
+  const response = await fetch(`${API_BASE}${PI_CAMERA_BASE}/focus`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...(await getAuthHeaders()),
+    },
     body: JSON.stringify(body),
   });
   if (!response.ok) {
-    throw new Error((await response.text()) || `focus helper ${response.status}`);
+    throw new Error(
+      (await response.text()) || `focus helper ${response.status}`,
+    );
   }
 }
 

@@ -46,7 +46,8 @@ next-env.d.ts
 **/dist/**
 
 # Locally-cached CollectorVision model download (packages/server/src/lib/models/model-registry.ts)
-**/.cache/
+**/.cache/collectorvision/**
+**/.cache/firmware/**
 
 firmware/**/build/**
 

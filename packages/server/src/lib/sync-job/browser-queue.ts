@@ -1,4 +1,4 @@
-import { CARD_EMBEDDING_DIMENSIONS } from "@magic-vault/shared";
+import { CARD_EMBEDDING_DIMENSIONS, SYNC_VECTORIZE_CONCURRENCY_MAX } from "@magic-vault/shared";
 import type {
   BrowserSyncWorkCard,
   BrowserSyncWorkFailure,
@@ -12,29 +12,7 @@ import {
   BROWSER_SYNC_LEASE_MS,
   BROWSER_SYNC_MAX_ATTEMPTS,
 } from "../constants/sync";
-import type { SyncSourceCard } from "../interfaces/card-search";
-import type { BrowserQueueHost } from "../interfaces/sync-job";
-
-interface QueuedCard {
-  card: SyncSourceCard;
-  attempts: number;
-}
-
-interface Lease {
-  item: QueuedCard;
-  expiresAt: number;
-}
-
-interface QueueState {
-  host: BrowserQueueHost;
-  pending: QueuedCard[];
-  leased: Map<string, Lease>;
-  timer: ReturnType<typeof setInterval>;
-  announced: boolean;
-  settled: boolean;
-  submitsInFlight: number;
-  resolve: (outcome: "done" | "cancelled") => void;
-}
+import type { AcceptedBrowserWork, BrowserQueueHost, QueueState, QueuedCard } from "../interfaces/sync-job";
 
 let queue: QueueState | null = null;
 
@@ -116,7 +94,7 @@ export function claimBrowserWork(limit: number): BrowserSyncWorkCard[] {
     if (queue.submitsInFlight === 0) settle("cancelled");
     return [];
   }
-  const count = Math.max(0, Math.min(limit, 16));
+  const count = Math.max(0, Math.min(limit, SYNC_VECTORIZE_CONCURRENCY_MAX));
   const cards: BrowserSyncWorkCard[] = [];
   while (cards.length < count && queue.pending.length > 0) {
     const item = queue.pending.shift();
@@ -129,6 +107,7 @@ export function claimBrowserWork(limit: number): BrowserSyncWorkCard[] {
       cardId: item.card.id,
       name: item.card.name,
       imageUrl: item.card.imageUrl,
+      backImageUrl: item.card.backImageUrl ?? undefined,
     });
   }
   if (cards.length > 0 && !queue.announced) {
@@ -146,17 +125,21 @@ export async function submitBrowserWork(
   if (!queue || queue.settled) return "idle";
   queue.submitsInFlight += 1;
   try {
-    const accepted: { item: QueuedCard; embedding: number[] }[] = [];
-    for (const result of results.slice(0, 32)) {
+    const accepted: AcceptedBrowserWork[] = [];
+    for (const result of results.slice(0, SYNC_VECTORIZE_CONCURRENCY_MAX)) {
       const item = take(result.cardId);
       if (!item) continue;
       if (!isEmbedding(result.embedding)) {
         failItem(item, "Embedding was not a 128-number vector.");
         continue;
       }
-      accepted.push({ item, embedding: result.embedding });
+      if ((item.card.backImageUrl || result.backEmbedding !== undefined) && (!result.backEmbedding || !isEmbedding(result.backEmbedding))) {
+        failItem(item, "The back image needs a 128-number vector.");
+        continue;
+      }
+      accepted.push({ item, embedding: result.embedding, backEmbedding: result.backEmbedding });
     }
-    for (const failure of failures.slice(0, 32)) {
+    for (const failure of failures.slice(0, SYNC_VECTORIZE_CONCURRENCY_MAX)) {
       const item = take(failure.cardId);
       if (!item) continue;
       const message = failure.message.trim().slice(0, 200) || "Image failed.";
@@ -170,7 +153,7 @@ export async function submitBrowserWork(
         item: QueuedCard;
         row: typeof cardImageVectors.$inferInsert;
       }[] = [];
-      for (const { item, embedding } of accepted) {
+      for (const { item, embedding, backEmbedding } of accepted) {
         let data: unknown;
         try {
           data = JSON.parse(item.card.data);
@@ -193,6 +176,7 @@ export async function submitBrowserWork(
               data,
             ),
             embedding,
+            backEmbedding,
             data,
           },
         });
@@ -209,11 +193,7 @@ export async function submitBrowserWork(
                 cardImageVectors.cardId,
               ],
               set: {
-                name: sql`excluded.name`,
-                setCode: sql`excluded.set_code`,
-                collectorNumber: sql`excluded.collector_number`,
-                embedding: sql`excluded.embedding`,
-                data: sql`excluded.data`,
+                backEmbedding: sql`coalesce(${cardImageVectors.backEmbedding}, excluded.back_embedding)`,
                 updatedAt: sql`now()`,
               },
             });
@@ -266,7 +246,7 @@ export async function serveBrowserQueue(
     "Leaving stored card text unchanged. Only cards missing an image vector will be processed.",
   );
   host.addLog(
-    `Waiting for a browser to vectorize ${host.cards.length} new cards. Keep the admin page open.`,
+    `Waiting for a browser to vectorize ${host.cards.length} cards missing image vectors. Keep the admin page open.`,
   );
   host.patchState({ acceptingWork: true, queued: host.cards.length });
   host.emitEvent("status", host.getState());

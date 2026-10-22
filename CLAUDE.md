@@ -79,7 +79,7 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 - Plan features/limits live in `plan_settings` (Admin > Plans), cached by `lib/plan-config.ts`. A new gated feature needs a key in `shared` (`PLAN_FEATURE_KEYS`/`PLAN_LIMIT_KEYS`) plus its check. Limits are enforced only on create/enable, so downgraded orgs keep what they have.
 - Never put a collection's full card list in a stream payload (`session_init` once hit ~180 MB). Stream creators call `recordSessionInits` immediately.
 - Scan images: object storage when `SCAN_IMAGE_BUCKET` is set, else inline data URL; always read via `resolveScanImageUrl`. The captured 448x448 image is displayed in an `aspect-[2.5/3.5]` frame with `object-fill`.
-- Bin routing modes (rules, auto-assign, scan-only, chaos, repack, alphabetical, pick lists, overflow, copy limits) live in `shared`'s `evaluate-bin.ts` and are evaluated in the browser. The Pi scan session calls those same evaluators, then saves and updates bins through the existing collection and bin routes.
+- Browser and Pi scanners share matching and routing decisions in `shared/scan-decisions.ts` and `shared/consensus.ts`, preserving upstream browser behavior and reusing the existing rule engine. Pi saves and bin updates use the existing routes, including `cards/sorted` for skip-saving presets.
 
 ### Firmware & serial
 
@@ -111,11 +111,11 @@ The Vite dev proxy rewrites `/api/*` to `http://localhost:3001/*`, so server rou
 
 ### Pi scanning
 
-- The scanner camera is the USB webcam, served by `scripts/pi/camera-ctl.py` on `127.0.0.1:8765` and proxied as `/pi-camera`. Frames are re-encoded to JFIF before they go out.
+- The scanner camera is the USB webcam, served by `scripts/pi/camera-ctl.py` on `127.0.0.1:8765` and exposed through the authenticated API at `/api/pi-camera`. The web server must not proxy directly to the helper. Frames are re-encoded to JFIF before they go out.
 - Remote-browser Pi behavior (serial bridge, camera relay, hiding the connect prompt) turns on only when the API reports `piHost`. That is true when `PI_HOST=1` (set by `scripts/pi/install.sh`, which also installs Node 22, pnpm, Postgres with pgvector, ffmpeg, and v4l-utils) or when `/proc/device-tree/model` is a Raspberry Pi. `PI_HOST=0` forces it off.
 - A remote browser on a Pi host opens the sorter through `/pi-serial` (`lib/pi-serial-bridge.ts`). The port is claimed in `lib/pi-serial-port.ts`, so the Pi scan session and a browser cannot hold it at the same time. The node is `root:dialout` mode `660`. `install.sh` adds the desktop user to `dialout` and restarts the user manager when this login does not have the group yet. Raspberry Pi OS already puts its user in `dialout`; Other Linux Distros do not.
-- Pi-owned scanning (`lib/pi-scan/session.ts`, `GET/POST/DELETE /scan-session`) runs the loop in the API process. It feeds, waits the device capture settle delay once, then takes the scan photo.
-- Both sync paths use the admin "cards at a time" control. The server path sets `VECTORIZE_CONCURRENCY` on the sync worker. "Start on this computer" (`vectorizeOn: "browser"`) is offered only when the API reports `piHost`. It hands cards that are not in the database yet to the open admin page and runs that many browser workers. `crypto.subtle` is missing on plain HTTP, so model hashing falls back to a pure JS SHA-256.
+- Pi-owned scanning (`lib/pi-scan/session.ts`, `GET/POST/DELETE /scan-session`) runs the loop in the API process. It feeds, waits the device capture settle delay once, then takes the scan photo. Full bins and completed packs hold the current card until resume, which reloads bin state. The serial link uses shared seq/event helpers and rejects pending work on disconnect.
+- Both sync paths use the admin "cards at a time" control. The server path sets `VECTORIZE_CONCURRENCY` on the sync worker. "Start on this computer" (`vectorizeOn: "browser"`) is offered only when the API reports `piHost`. It hands cards missing front or back image vectors to the open admin page and runs that many browser workers. `crypto.subtle` is missing on plain HTTP, so model hashing falls back to `fast-sha256`. Browser offloading is for bulk database sync only; live card identification stays on the Pi. Browser inference workers are capped separately from cards in flight; a fatal runtime failure stops the job until page reload.
 
 ### Discord bot
 

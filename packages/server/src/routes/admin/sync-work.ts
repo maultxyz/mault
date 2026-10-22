@@ -6,6 +6,7 @@ import type {
 } from "@magic-vault/shared";
 import { claimSyncWork, submitSyncWork } from "../../lib/sync-job";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import { isPiHost } from "../../lib/pi-host";
 
 function failureMessage(err: unknown): string {
   return err instanceof Error ? err.message : "Sync work failed.";
@@ -13,6 +14,7 @@ function failureMessage(err: unknown): string {
 
 export const syncWorkRoute = new Hono<AppEnv>()
   .post("/sync/work/claim", requireAuth, requireRole("admin"), async (c) => {
+    if (!isPiHost()) return c.notFound();
     let limit = BROWSER_SYNC_BATCH_SIZE;
     try {
       const body = await c.req.json<{ limit?: number }>();
@@ -28,6 +30,7 @@ export const syncWorkRoute = new Hono<AppEnv>()
     }
   })
   .post("/sync/work", requireAuth, requireRole("admin"), async (c) => {
+    if (!isPiHost()) return c.notFound();
     let results: BrowserSyncWorkResult[] = [];
     let failures: BrowserSyncWorkFailure[] = [];
     try {

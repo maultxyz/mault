@@ -52,7 +52,7 @@ export default defineConfig({
         clientsClaim: true,
         navigateFallback: "/index.html",
         // API + SSE traffic must always hit the network.
-        navigateFallbackDenylist: [/^\/api\//, /^\/pi-camera\//, /\/[^/?]+\.[^/]+$/],
+        navigateFallbackDenylist: [/^\/api\//, /\/[^/?]+\.[^/]+$/],
       },
     }),
   ],
@@ -74,13 +74,6 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-      "/pi-camera": {
-        target: "http://127.0.0.1:8765",
-        changeOrigin: true,
-        timeout: 0,
-        proxyTimeout: 0,
-        rewrite: (path) => path.replace(/^\/pi-camera/, ""),
-      },
     },
   },
   preview: {
@@ -92,13 +85,6 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
-      },
-      "/pi-camera": {
-        target: "http://127.0.0.1:8765",
-        changeOrigin: true,
-        timeout: 0,
-        proxyTimeout: 0,
-        rewrite: (path) => path.replace(/^\/pi-camera/, ""),
       },
     },
   },

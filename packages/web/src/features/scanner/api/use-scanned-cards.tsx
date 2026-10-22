@@ -12,27 +12,24 @@ import {
   type ScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
-  areAllChaosBinsFull,
   areAllRepackPacksComplete,
   countCopiesInBin,
-  evaluateAlphabetBin,
+  chooseScanBin,
+  routeForBin,
+  scanHoldReason,
+  selectScanBin,
+  type ScanBinDeps,
   findAutoAssignTarget,
-  evaluateCardBin,
-  evaluateChaosBin,
   evaluatePickListBin,
   applyPickListFound,
   isPickListComplete,
   isPickListBin,
   findPickListEntry,
   reservePickListBins,
-  evaluateScanOnlyBin,
-  evaluateRepackBin,
   findLowMatchCatchAll,
   isRulesMode,
-  resolveOverflowBin,
   getRepackBinCards,
   getCatchAllBin,
-  getChaosBins,
   getRepackPackBins,
   hasMaxCopiesBins,
   toRuleCard,
@@ -76,6 +73,8 @@ import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bi
 import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
 import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
+import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
@@ -317,67 +316,40 @@ export function ScannedCardsProvider({
     };
   }, [sendRoute, sendRequest, isConnected, isReady, ignoreIrSensors]);
 
-  const resolveMatchedBin = useCallback(
-    (card: PlayingCardWithDistance): BinConfig | undefined => {
-      const set = selectedSetRef.current;
-      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
-      if (lowMatch) {
-        return isRulesMode(set)
-          ? resolveOverflowBin(lowMatch, binConfigsRef.current, (bin) =>
-              isBinFullLocally(bin.binNumber),
-            )
-          : lowMatch;
-      }
-      if (set?.scanOnly) {
-        return evaluateScanOnlyBin(binConfigsRef.current, set.scanOnlyBin);
-      }
-      if (set?.isChaosMode) {
-        return evaluateChaosBin(binConfigsRef.current, (bin) =>
-          isBinFullLocally(bin.binNumber),
-        );
-      }
-      if (set?.isAlphabetMode) {
-        return evaluateAlphabetBin(
+  const scanBinDeps = useCallback(
+    (card: PlayingCardWithDistance): ScanBinDeps => ({
+      countCopies: (bin) =>
+        countCopiesInBin(
+          binContentsRef.current,
+          bin,
           card,
-          binConfigsRef.current,
-          set.alphabetPass,
-          set.alphabetPrefix,
-        );
-      }
-      if (set?.isRepackMode) {
-        return evaluateRepackBin(
-          card,
-          binConfigsRef.current,
           fieldDefinitionsRef.current,
-          set,
-          (bin) =>
-            getRepackBinCards(
-              binContentsRef.current,
-              bin,
-              set,
-              fieldDefinitionsRef.current,
-            ),
-          (bin) => binRoomLocally(bin.binNumber),
-        );
-      }
-      return evaluateCardBin(
+        ),
+      countInBin: (bin) => countCardsLocally(bin.binNumber),
+      isBinFull: (bin) => isBinFullLocally(bin.binNumber),
+      binRoom: (bin) => binRoomLocally(bin.binNumber),
+      cardsInBin: (bin) =>
+        getRepackBinCards(
+          binContentsRef.current,
+          bin,
+          selectedSetRef.current!,
+          fieldDefinitionsRef.current,
+        ),
+      newId: () => crypto.randomUUID(),
+    }),
+    [countCardsLocally, isBinFullLocally, binRoomLocally],
+  );
+
+  const resolveMatchedBin = useCallback(
+    (card: PlayingCardWithDistance): BinConfig | undefined =>
+      selectScanBin(
         card,
+        selectedSetRef.current,
         binConfigsRef.current,
         fieldDefinitionsRef.current,
-        autoAssignFieldRef.current
-          ? undefined
-          : (bin) =>
-              countCopiesInBin(
-                binContentsRef.current,
-                bin,
-                card,
-                fieldDefinitionsRef.current,
-              ),
-        (bin) => countCardsLocally(bin.binNumber),
-        (bin) => isBinFullLocally(bin.binNumber),
-      );
-    },
-    [isBinFullLocally, countCardsLocally, binRoomLocally],
+        scanBinDeps(card),
+      ),
+    [scanBinDeps],
   );
 
   const resolvePickListMatch = useCallback(
@@ -519,15 +491,11 @@ export function ScannedCardsProvider({
     [],
   );
 
-  const resolveRoute = useCallback((binNumber: number): BinRoute => {
-    const found = binRoutesRef.current.find((r) => r.binNumber === binNumber);
-    if (found) return found;
-    const lastModule = Math.max(
-      1,
-      ...binRoutesRef.current.map((r) => r.module),
-    );
-    return { binNumber, module: lastModule, direction: "bottom" };
-  }, []);
+  const resolveRoute = useCallback(
+    (binNumber: number): BinRoute =>
+      routeForBin(binNumber, binRoutesRef.current),
+    [],
+  );
 
   const setForceFoilType = useCallback((foilType: string | null) => {
     forceFoilTypeRef.current = foilType;
@@ -553,7 +521,18 @@ export function ScannedCardsProvider({
   }, []);
 
   const activeCollectionGuid = activeCollection?.guid;
+  const piHost = usePiHost();
+  const piSession = useSessionMonitor(
+    piHost ? activeCollectionGuid : undefined,
+  );
   useEffect(() => {
+    if (!piHost) return;
+    setUnmatchedCards(piSession.unmatchedCards);
+    setIsLoading(piSession.status === "connecting");
+  }, [piHost, piSession.unmatchedCards, piSession.status]);
+
+  useEffect(() => {
+    if (piHost) return;
     if (!activeCollectionGuid) {
       setUnmatchedCards([]);
       setIsLoading(false);
@@ -579,7 +558,7 @@ export function ScannedCardsProvider({
     return () => {
       cancelled = true;
     };
-  }, [activeCollectionGuid]);
+  }, [activeCollectionGuid, piHost]);
 
   const needsBinContents =
     !!selectedSet?.isRepackMode || hasMaxCopiesBins(binConfigs);
@@ -643,18 +622,16 @@ export function ScannedCardsProvider({
         isFoil: forcedFoilType != null,
         foilType: forcedFoilType,
       });
-      const pickMatch = resolvePickListMatch(ruleCard);
-      let matchedBin = pickMatch?.bin ?? resolveMatchedBin(ruleCard);
-      const autoTarget =
-        pickMatch || selectedSetRef.current?.isRepackMode
-          ? null
-          : findAutoAssignTarget(
-              ruleCard,
-              binConfigsRef.current,
-              fieldDefinitionsRef.current,
-              autoAssignFieldRef.current,
-              () => crypto.randomUUID(),
-            );
+      const choice = chooseScanBin(
+        ruleCard,
+        selectedSetRef.current,
+        binConfigsRef.current,
+        rawBinConfigsRef.current,
+        fieldDefinitionsRef.current,
+        scanBinDeps(ruleCard),
+      );
+      let matchedBin = choice.bin;
+      const autoTarget = choice.autoAssign;
       if (autoTarget) {
         binConfigsRef.current = binConfigsRef.current.map((c) =>
           c.binNumber === autoTarget.binNumber
@@ -669,35 +646,30 @@ export function ScannedCardsProvider({
           rules: autoTarget.rules,
         });
       }
-      if (
-        selectedSetRef.current?.isChaosMode &&
-        matchedBin?.isCatchAll &&
-        !findLowMatchCatchAll(ruleCard, binConfigsRef.current) &&
-        areAllChaosBinsFull(binConfigsRef.current, (bin) =>
-          isBinFullLocally(bin.binNumber),
-        )
-      ) {
+      const hold = scanHoldReason(
+        ruleCard,
+        selectedSetRef.current,
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+        matchedBin,
+        scanBinDeps(ruleCard),
+      );
+      if (hold?.reason === "chaos-full") {
         pause();
-        setFullBins(
-          getChaosBins(binConfigsRef.current).map((bin) => bin.binNumber),
-        );
+        setFullBins(hold.binNumbers);
         return;
       }
-      if (
-        matchedBin?.isCatchAll &&
-        !findLowMatchCatchAll(ruleCard, binConfigsRef.current) &&
-        areAllPacksComplete()
-      ) {
+      if (hold?.reason === "repack-complete") {
         pauseForCompletePacks();
         return;
       }
-      if (matchedBin && isBinFullLocally(matchedBin.binNumber)) {
+      if (hold?.reason === "bin-full") {
         pause();
-        setBinLimitBin(matchedBin);
+        setBinLimitBin(hold.bin);
         return;
       }
-      if (pickMatch) {
-        markPickListFound(pickMatch.bin.binNumber, pickMatch.entry.name, 1);
+      if (choice.pickListName && matchedBin) {
+        markPickListFound(matchedBin.binNumber, choice.pickListName, 1);
       }
       const isLowMatch =
         !!matchedBin &&
@@ -883,25 +855,23 @@ export function ScannedCardsProvider({
     [
       toast,
       t,
-      resolvePickListMatch,
       markPickListFound,
       saveBinConfig,
       queryClient,
       resolveRoute,
-      resolveMatchedBin,
       tracksBinContents,
       isAutoFeedEnabled,
       isPipelinedFeedEnabled,
       pause,
       triggerAutoFeed,
       showJamToast,
-      isBinFullLocally,
       trackPendingBinCard,
       playSoundForCard,
       setFullBins,
       areAllPacksComplete,
       pauseForCompletePacks,
       saveCard,
+      scanBinDeps,
     ],
   );
 

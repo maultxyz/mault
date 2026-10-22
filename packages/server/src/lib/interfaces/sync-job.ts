@@ -92,3 +92,36 @@ export interface BrowserQueueHost {
   getState: () => SyncState;
   isCancelled: () => boolean;
 }
+
+export interface QueuedCard {
+  card: SyncSourceCard;
+  attempts: number;
+}
+
+export interface Lease {
+  item: QueuedCard;
+  expiresAt: number;
+}
+
+export interface QueueState {
+  host: BrowserQueueHost;
+  pending: QueuedCard[];
+  leased: Map<string, Lease>;
+  timer: ReturnType<typeof setInterval>;
+  announced: boolean;
+  settled: boolean;
+  submitsInFlight: number;
+  resolve: (outcome: "done" | "cancelled") => void;
+}
+
+export interface PendingSyncWork {
+  resolve: (message: WorkResponseMessage) => void;
+  reject: (err: Error) => void;
+  timer: ReturnType<typeof setTimeout>;
+}
+
+export interface AcceptedBrowserWork {
+  item: QueuedCard;
+  embedding: number[];
+  backEmbedding?: number[];
+}

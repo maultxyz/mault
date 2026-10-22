@@ -1,4 +1,9 @@
+import type { PiScanTranslate } from "@/lib/interfaces/scanner";
 import type { PiScanSessionState } from "@magic-vault/shared";
+
+export function piScanAnnouncementKey(state: PiScanSessionState): string {
+  return `${state.startedAt}:${state.phase}:${state.message}`;
+}
 
 export function piScanElapsedMs(state: PiScanSessionState, now: number): number {
   if (!state.startedAt) return 0;
@@ -12,12 +17,7 @@ export function piScanElapsedMs(state: PiScanSessionState, now: number): number 
   return Math.max(0, now - start - paused);
 }
 
-type Translate = (
-  key: string,
-  options?: Record<string, unknown>,
-) => string;
-
-function cardText(t: Translate, sight: PiScanSessionState["lastCard"]) {
+function cardText(t: PiScanTranslate, sight: PiScanSessionState["lastCard"]) {
   if (!sight || sight.binNumber == null) return null;
   if (sight.matched && sight.name) {
     return t("piScan.lastCard", { name: sight.name, bin: sight.binNumber });
@@ -26,11 +26,12 @@ function cardText(t: Translate, sight: PiScanSessionState["lastCard"]) {
 }
 
 export function piScanStatusText(
-  t: Translate,
+  t: PiScanTranslate,
   state: PiScanSessionState,
 ): string {
   if (state.stopping) return t("piScan.stopping");
   if (state.phase === "paused") {
+    if (state.message) return state.message;
     const last = cardText(t, state.lastCard);
     return last ? `${t("piScan.paused")} · ${last}` : t("piScan.paused");
   }

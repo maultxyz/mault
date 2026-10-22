@@ -78,11 +78,13 @@ export interface BrowserSyncWorkCard {
   cardId: string;
   name: string;
   imageUrl: string;
+  backImageUrl?: string;
 }
 
 export interface BrowserSyncWorkResult {
   cardId: string;
   embedding: number[];
+  backEmbedding?: number[];
 }
 
 export interface BrowserSyncWorkFailure {

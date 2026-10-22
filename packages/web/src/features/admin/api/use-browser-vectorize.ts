@@ -1,18 +1,20 @@
 import { loadSyncCanvas } from "@/features/admin/lib/embed-sync-image";
 import { MiloSyncPool } from "@/features/admin/lib/milo-sync-pool";
-import { embedCanvas } from "@/features/scanner/lib/milo-client";
-import {
-  claimBrowserSyncWork,
-  submitBrowserSyncWork,
-} from "@/lib/api/admin";
+import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
+import { toast } from "@/lib/toast";
+import { cancelSync, claimBrowserSyncWork, submitBrowserSyncWork } from "@/lib/api/admin";
 import { BROWSER_SYNC_POLL_MS } from "@/lib/constants/admin";
 import type { BrowserSyncPace } from "@/lib/interfaces/admin";
 import type { BrowserSyncWorkCard } from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 function sleep(ms: number, signal: AbortSignal): Promise<void> {
   return new Promise((resolve) => {
-    const timer = setTimeout(resolve, ms);
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", stop);
+      resolve();
+    }, ms);
     const stop = () => {
       clearTimeout(timer);
       resolve();
@@ -42,8 +44,7 @@ async function claimOne(
       const cards = await claimBrowserSyncWork(1);
       if (signal.aborted) return null;
       if (cards[0]) return cards[0];
-    } catch {
-    }
+    } catch {}
     await sleep(BROWSER_SYNC_POLL_MS, signal);
   }
   return null;
@@ -55,60 +56,68 @@ export function useBrowserVectorize(
   serverVectorized: number,
   parallel: number,
 ): BrowserSyncPace {
+  const { t } = useTranslation("admin");
   const acceptingRef = useRef(acceptingWork);
   acceptingRef.current = acceptingWork;
-  const [ahead, setAhead] = useState(0);
   const [embeddingCount, setEmbeddingCount] = useState(0);
-  const [trackedServer, setTrackedServer] = useState(serverVectorized);
-  let pendingAhead = ahead;
-  if (serverVectorized !== trackedServer) {
-    const delta = serverVectorized - trackedServer;
-    pendingAhead = delta > 0 ? Math.max(0, ahead - delta) : ahead;
-    setTrackedServer(serverVectorized);
-    setAhead(pendingAhead);
-  }
 
   useEffect(() => {
     if (!enabled) return;
     const controller = new AbortController();
     let stopped = false;
     const signal = controller.signal;
+    let activePool: MiloSyncPool | null = null;
+    const stopAfterFailure = () => {
+      if (signal.aborted) return;
+      stopped = true;
+      controller.abort();
+      activePool?.close();
+      toast.error(t("cardImageVectors.browserStopped"), {
+        description: t("cardImageVectors.browserStoppedHint"),
+      });
+      void cancelSync().catch(() => {});
+    };
 
     const bumpEmbedding = (delta: number) => {
       setEmbeddingCount((count) => Math.max(0, count + delta));
     };
-    const bumpAhead = () => {
-      setAhead((count) => count + 1);
-    };
-
-    const runCard = async (card: BrowserSyncWorkCard, pool: MiloSyncPool | null) => {
+    const runCard = async (
+      card: BrowserSyncWorkCard,
+      pool: MiloSyncPool,
+    ) => {
       bumpEmbedding(1);
+      let canvas: HTMLCanvasElement | null = null;
       try {
-        const canvas = await loadSyncCanvas(card.imageUrl, signal);
-        let embedding: number[];
-        try {
-          embedding = pool ? await pool.embed(canvas) : await embedCanvas(canvas);
-        } catch (err) {
-          if (!pool || signal.aborted) throw err;
-          embedding = await embedCanvas(canvas);
+        canvas = await loadSyncCanvas(card.imageUrl, signal);
+        const embedding = await pool.embed(canvas);
+        releaseCanvases([canvas]);
+        canvas = null;
+        let backEmbedding: number[] | undefined;
+        if (card.backImageUrl) {
+          canvas = await loadSyncCanvas(card.backImageUrl, signal);
+          backEmbedding = await pool.embed(canvas);
         }
         if (signal.aborted) return;
-        await submitBrowserSyncWork([{ cardId: card.cardId, embedding }], []);
-        bumpAhead();
+        await submitBrowserSyncWork([{ cardId: card.cardId, embedding, backEmbedding }], []);
       } catch (err) {
         if (signal.aborted) return;
-        try {
-          await submitBrowserSyncWork([], [
-            { cardId: card.cardId, message: errorText(err) },
-          ]);
-        } catch {
+        if (pool.failure) {
+          stopAfterFailure();
+          return;
         }
+        try {
+          await submitBrowserSyncWork(
+            [],
+            [{ cardId: card.cardId, message: errorText(err) }],
+          );
+        } catch {}
       } finally {
+        if (canvas) releaseCanvases([canvas]);
         bumpEmbedding(-1);
       }
     };
 
-    const loop = async (pool: MiloSyncPool | null) => {
+    const loop = async (pool: MiloSyncPool) => {
       while (!stopped && !signal.aborted) {
         const card = await claimOne(signal, () => acceptingRef.current);
         if (!card || signal.aborted) return;
@@ -119,9 +128,11 @@ export function useBrowserVectorize(
     void (async () => {
       let pool: MiloSyncPool | null = null;
       try {
-        pool = await MiloSyncPool.create(parallel);
+        pool = await MiloSyncPool.create(parallel, signal);
+        activePool = pool;
       } catch {
-        pool = null;
+        stopAfterFailure();
+        return;
       }
       if (stopped || signal.aborted) {
         pool?.close();
@@ -134,20 +145,13 @@ export function useBrowserVectorize(
     return () => {
       stopped = true;
       controller.abort();
+      activePool?.close();
       setEmbeddingCount(0);
     };
-  }, [enabled, parallel]);
+  }, [enabled, parallel, t]);
 
-  useEffect(() => {
-    if (enabled) return;
-    setAhead(0);
-    setTrackedServer(serverVectorized);
-    setEmbeddingCount(0);
-  }, [enabled, serverVectorized]);
-
-  const vectorized = serverVectorized + (enabled ? pendingAhead : 0);
   return {
-    vectorized,
+    vectorized: serverVectorized,
     embeddingCount: enabled ? embeddingCount : 0,
   };
 }

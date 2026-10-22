@@ -1,3 +1,4 @@
+import { isPiHost } from "@/lib/pi-host";
 import {
   devicesQueryOptions,
   saveDevice,
@@ -51,7 +52,11 @@ export function ModuleCountConfigProvider({
   const discard = useCallback(() => setPending(null), []);
 
   const commit = useCallback(async () => {
-    if (!device || pending == null) return;
+    if (pending == null) return;
+    if (!device) {
+      if (isPiHost()) throw new Error("Sorter settings have not loaded.");
+      return;
+    }
     setIsSaving(true);
     try {
       const result = await saveDevice(device.guid, { moduleCount: pending });

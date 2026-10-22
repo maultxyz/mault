@@ -1,8 +1,9 @@
 import { API_BASE } from "@/lib/constants/api";
+import { loadPiHost } from "@/lib/pi-host";
+import { PI_SCAN_SESSION_API } from "@/lib/constants/scanner";
 import { IDLE_PI_SCAN_SESSION } from "@/lib/constants/scanner";
 import { getAuthHeaders } from "@/lib/api/client";
 import {
-  PI_SCAN_SESSION_PATH,
   type PiScanSessionResult,
   type PiScanSessionSettingsBody,
   type PiScanSessionStartBody,
@@ -12,8 +13,6 @@ import {
   isPiScanHoldingPort,
   setPiScanHoldingPort,
 } from "@/features/scanner/lib/pi-scan-hold";
-
-const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;
 
 async function send(
   method: string,
@@ -36,6 +35,7 @@ export function piScanHoldsPort(state: PiScanSessionState): boolean {
 }
 
 export async function fetchPiScanSession(): Promise<PiScanSessionState> {
+  if (!(await loadPiHost())) return IDLE_PI_SCAN_SESSION;
   const result = await send("GET", PI_SCAN_SESSION_API);
   return result.data ?? IDLE_PI_SCAN_SESSION;
 }

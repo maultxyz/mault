@@ -1,3 +1,4 @@
+import { SYNC_WORK_RESPONSE_TIMEOUT_MS } from "../constants/sync";
 import type {
   BrowserSyncWorkCard,
   BrowserSyncWorkFailure,
@@ -10,6 +11,7 @@ import { randomUUID } from "node:crypto";
 import path from "node:path";
 import { sendDiscordNotification } from "../discord";
 import type {
+  PendingSyncWork,
   ClaimWorkMessage,
   StartMessage,
   SubmitWorkMessage,
@@ -33,14 +35,7 @@ export { getStatus, subscribeSSE, SYNC_SOURCES };
 
 let currentWorker: ChildProcess | null = null;
 
-const pendingWork = new Map<
-  string,
-  {
-    resolve: (message: WorkResponseMessage) => void;
-    reject: (err: Error) => void;
-    timer: ReturnType<typeof setTimeout>;
-  }
->();
+const pendingWork = new Map<string, PendingSyncWork>();
 
 function rejectPendingWork(message: string): void {
   for (const [requestId, pending] of pendingWork) {
@@ -59,7 +54,7 @@ function requestWork(
     const timer = setTimeout(() => {
       pendingWork.delete(message.requestId);
       reject(new Error("Sync worker did not answer."));
-    }, 60_000);
+    }, SYNC_WORK_RESPONSE_TIMEOUT_MS);
     pendingWork.set(message.requestId, { resolve, reject, timer });
     worker.send(message);
   });

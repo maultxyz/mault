@@ -95,3 +95,6 @@ export * from "./constants/leaderboard.constant";
 export * from "./interfaces/card-export.interface";
 export * from "./constants/card-export.constant";
 export * from "./card-export";
+
+export * from "./scan-decisions";
+export * from "./interfaces/scan-decisions.interface";

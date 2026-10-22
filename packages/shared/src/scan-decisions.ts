@@ -1,12 +1,9 @@
 import {
-  CLOSE_MATCH_DELTA,
-  CONSENSUS_RETRY_BUDGET,
   areAllChaosBinsFull,
   areAllRepackPacksComplete,
   evaluateAlphabetBin,
   evaluateCardBin,
   evaluateChaosBin,
-  evaluatePickListBin,
   evaluateRepackBin,
   evaluateScanOnlyBin,
   findAutoAssignTarget,
@@ -15,46 +12,24 @@ import {
   getRepackPackBins,
   isRulesMode,
   resolveOverflowBin,
-  type BinConfig,
-  type BinRoute,
-  type BinRuleGroup,
-  type BinSet,
-  type FieldMeta,
-  type SourceCard,
-  type UnmatchedReason,
-} from "@magic-vault/shared";
-
-interface SearchRank {
-  data?: readonly { distance: number }[] | null;
-  nearestDistance?: number | null;
-  diagnostics?: { reason?: string | null } | null;
-}
-
-interface ConsensusStreak<T> {
-  id: string | null;
-  count: number;
-  item: T | null;
-}
-
-interface ScanBinDeps {
-  countCopies: (bin: BinConfig) => number;
-  countInBin: (bin: BinConfig) => number;
-  isBinFull: (bin: BinConfig) => boolean;
-  binRoom: (bin: BinConfig) => number;
-  cardsInBin: (bin: BinConfig) => SourceCard[];
-  newId: () => string;
-}
-
-export interface ChosenScanBin {
-  bin: BinConfig | undefined;
-  autoAssign: { binNumber: number; rules: BinRuleGroup } | null;
-  pickListName: string | null;
-}
-
-type ScanHold =
-  | { reason: "chaos-full"; binNumbers: number[] }
-  | { reason: "repack-complete"; binNumbers: number[] }
-  | { reason: "bin-full"; bin: BinConfig };
+} from "./evaluate-bin";
+import { CONSENSUS_RETRY_BUDGET } from "./constants/scanner.constant";
+import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
+import { evaluatePickListBin } from "./pick-list";
+import type {
+  BinConfig,
+  BinSet,
+  FieldMeta,
+} from "./interfaces/sort-bins.interface";
+import type { BinRoute } from "./interfaces/bin-routes.interface";
+import type { SourceCard } from "./interfaces/card.interface";
+import type { UnmatchedReason } from "./interfaces/scanner.interface";
+import type {
+  SearchRank,
+  ScanBinDeps,
+  ChosenScanBin,
+  ScanHold,
+} from "./interfaces/scan-decisions.interface";
 
 export function routeForBin(binNumber: number, routes: BinRoute[]): BinRoute {
   const found = routes.find((route) => route.binNumber === binNumber);
@@ -91,11 +66,11 @@ export function betterSearch<T extends SearchRank>(current: T, next: T): T {
 
 export function closeMatchesOf<T extends { distance: number }>(
   matches: readonly T[],
+  leaderDistance = Math.min(...matches.map((match) => match.distance)),
 ): T[] {
   if (matches.length === 0) return [];
-  const leader = matches[0].distance;
   return matches.filter(
-    (match) => match.distance - leader <= CLOSE_MATCH_DELTA,
+    (match) => match.distance - leaderDistance <= CLOSE_MATCH_DELTA,
   );
 }
 
@@ -106,6 +81,14 @@ function colorMatches(
   return !!color && !!card?.colorIdentity?.includes(color);
 }
 
+export function preferScanColor<
+  T extends { colorIdentity?: readonly string[] | null },
+>(matches: readonly T[], color: string | null): T[] {
+  const preferred = matches.find((card) => colorMatches(card, color));
+  if (!preferred || preferred === matches[0]) return [...matches];
+  return [preferred, ...matches.filter((card) => card !== preferred)];
+}
+
 export function orderMatchesByColor<
   T extends {
     distance: number;
@@ -113,37 +96,15 @@ export function orderMatchesByColor<
   },
 >(matches: readonly T[] | null, color: string | null): T[] | null {
   if (!matches) return null;
-  if (!color || matches.length === 0) return [...matches];
   const close = closeMatchesOf(matches);
-  const preferred = close.find((match) => colorMatches(match.card, color));
-  if (!preferred || preferred === matches[0]) return [...matches];
+  const ordered = preferScanColor(
+    close.map((match) => ({ ...match.card, match })),
+    color,
+  );
   return [
-    preferred,
-    ...close.filter((match) => match !== preferred),
+    ...ordered.map((item) => item.match),
     ...matches.filter((match) => !close.includes(match)),
   ];
-}
-
-export function emptyConsensus<T>(): ConsensusStreak<T> {
-  return { id: null, count: 0, item: null };
-}
-
-export function advanceConsensus<T>(
-  streak: ConsensusStreak<T>,
-  item: T,
-  id: string | null,
-): ConsensusStreak<T> {
-  if (id != null && id === streak.id) {
-    return { id, count: streak.count + 1, item };
-  }
-  return { id, count: id != null ? 1 : 0, item: id != null ? item : null };
-}
-
-export function consensusMet<T>(
-  streak: ConsensusStreak<T>,
-  matchesNeeded: number,
-): streak is ConsensusStreak<T> & { item: T } {
-  return streak.item != null && streak.count >= matchesNeeded;
 }
 
 export function consensusAttemptLimit(matchesNeeded: number): number {
@@ -163,7 +124,7 @@ function cardName(card: SourceCard): string {
   return typeof name === "string" ? name : "";
 }
 
-function selectScanBin(
+export function selectScanBin(
   card: SourceCard,
   set: BinSet | undefined,
   configs: BinConfig[],
@@ -219,8 +180,7 @@ export function chooseScanBin(
       ? null
       : evaluatePickListBin(cardName(card), pickConfigs);
   let bin =
-    pickMatch?.bin ??
-    selectScanBin(card, set, configs, fieldDefinitions, deps);
+    pickMatch?.bin ?? selectScanBin(card, set, configs, fieldDefinitions, deps);
   const autoAssign =
     pickMatch || set?.isRepackMode
       ? null
