@@ -217,8 +217,11 @@ export function cardFilterSql(
   }
 
   if (filters.needsAttention) {
+    const needsAttention = sql`((jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0) OR cc.low_confidence_match) AND NOT cc.is_corrected`;
     conditions.push(
-      sql`((jsonb_typeof(cc.alternative_matches) = 'array' AND jsonb_array_length(cc.alternative_matches) > 0) OR cc.low_confidence_match) AND NOT cc.is_corrected`,
+      keepScanId
+        ? sql`((${needsAttention}) OR cc.guid = ${keepScanId}::uuid)`
+        : needsAttention,
     );
   }
 
