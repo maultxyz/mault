@@ -1,4 +1,5 @@
 import {
+  betterSearch,
   DISTANCE_THRESHOLD,
   PRINTING_SCORE_CARD_ID_MAX_LENGTH,
   type PlayingCardImage,
@@ -72,19 +73,10 @@ function toHit(
   };
 }
 
-function hasMatch(result: CardMatchSearchResult): boolean {
-  return (result.data?.length ?? 0) > 0;
-}
-
 function pickOrientation(matches: OrientedCardMatch[]): OrientedCardMatch {
-  return matches.reduce((best, next) => {
-    if (hasMatch(best.result) !== hasMatch(next.result)) {
-      return hasMatch(next.result) ? next : best;
-    }
-    const bestDistance = best.result.nearestDistance ?? Number.POSITIVE_INFINITY;
-    const nextDistance = next.result.nearestDistance ?? Number.POSITIVE_INFINITY;
-    return nextDistance < bestDistance ? next : best;
-  });
+  return matches.reduce((best, next) =>
+    betterSearch(best.result, next.result) === next.result ? next : best,
+  );
 }
 
 function verdictFor(

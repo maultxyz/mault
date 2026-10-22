@@ -1,6 +1,6 @@
 import {
-  CLOSE_MATCH_DELTA,
   OCR_REGIONS_BY_GAME_KEY,
+  needsTextSearch,
   type AdminUnmatchedOcrResult,
   type AdminUnmatchedRetryRequest,
   type AdminUnmatchedRetryResult,
@@ -102,17 +102,6 @@ function matchCandidates(
     setCode: match.card?.set ?? "",
     distance: match.distance,
   }));
-}
-
-function needsTextSearch(result: CardMatchSearchResult): boolean {
-  const reason = result.diagnostics?.reason;
-  if (reason === "too_far" || reason === "ambiguous") return true;
-  const [leader, runnerUp] = result.data ?? [];
-  return (
-    leader != null &&
-    runnerUp != null &&
-    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
-  );
 }
 
 async function retryScan(

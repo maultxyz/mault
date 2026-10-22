@@ -56,9 +56,7 @@ import {
 } from "@/features/scanner/lib/canvas-fit";
 import { scanLog } from "@/lib/scan-log";
 import {
-  CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
-  CONSENSUS_RETRY_BUDGET,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   type ColorBarRegion,
@@ -77,7 +75,17 @@ import {
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
   type CardSearchResult,
+  advanceConsensus,
+  betterSearch,
+  closeMatchesOf,
+  consensusAttemptLimit,
+  consensusMet,
+  consensusMissReason,
+  emptyConsensus,
+  hasSearchMatch,
   isStrongerTextMatch,
+  needsTextSearch,
+  preferColoredCard,
   type PlayingCardWithDistance,
   type ScanAttemptDiagnostic,
   type ScanDetectionDiagnostics,
@@ -141,9 +149,7 @@ async function resolveSearchMatches(
     confidence: m.confidence,
   }));
 
-  const closeMatches = data.filter(
-    (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
-  );
+  const closeMatches = closeMatchesOf(data);
   const resolved = await Promise.all(
     closeMatches.map(async (m) => {
       const card =
@@ -187,10 +193,6 @@ function buildSearchFormData(
   return formData;
 }
 
-function hasMatch(result: CardSearchResult): boolean {
-  return (result.data?.length ?? 0) > 0;
-}
-
 async function searchBothOrientations(
   canvas: HTMLCanvasElement,
   checkBothOrientations: boolean,
@@ -222,25 +224,9 @@ async function searchBothOrientations(
     ),
   ]);
 
-  const rotatedWins =
-    hasMatch(upright.result) !== hasMatch(rotated.result)
-      ? hasMatch(rotated.result)
-      : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-        (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
-  return rotatedWins
+  return betterSearch(upright.result, rotated.result) === rotated.result
     ? { ...rotated, alternate: upright }
     : { ...upright, alternate: rotated };
-}
-
-function needsTextSearch(result: CardSearchResult): boolean {
-  const reason = result.diagnostics?.reason;
-  if (reason === "too_far" || reason === "ambiguous") return true;
-  const [leader, runnerUp] = result.data ?? [];
-  return (
-    leader != null &&
-    runnerUp != null &&
-    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
-  );
 }
 
 async function searchByCardText(
@@ -277,7 +263,7 @@ async function searchByCardText(
             ),
           );
           scanLog(
-            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
+            `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasSearchMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
           );
           return result;
         } catch (err) {
@@ -292,7 +278,7 @@ async function searchByCardText(
     });
     const result = results[bestIndex];
     const ocr = result?.ocr ?? results.find((r) => r?.ocr)?.ocr ?? null;
-    if (!result || !hasMatch(result)) return { pick: null, ocr };
+    if (!result || !hasSearchMatch(result)) return { pick: null, ocr };
     return {
       pick: { ...options[bestIndex], result, alternate: null },
       ocr,
@@ -313,14 +299,16 @@ function preferDetectedColor(
   resolved: ResolvedSearchMatches,
   color: string | null,
 ): ResolvedSearchMatches {
-  if (!color || !resolved.card) return resolved;
-  const all = [resolved.card, ...resolved.alternativeMatches];
-  const preferred = all.find((c) => c.colorIdentity?.includes(color));
-  if (!preferred || preferred === resolved.card) return resolved;
+  const preferred = preferColoredCard(
+    resolved.card,
+    resolved.alternativeMatches,
+    color,
+  );
+  if (!preferred) return resolved;
   return {
     ...resolved,
-    card: preferred,
-    alternativeMatches: all.filter((c) => c !== preferred),
+    card: preferred.card,
+    alternativeMatches: preferred.alternatives,
   };
 }
 
@@ -454,7 +442,7 @@ async function runCardImageSearch(
           vectorizedOn: "web",
           detection,
           ocr: text?.ocr ?? null,
-          lowConfidenceMatch: !!text?.pick && !hasMatch(best.result),
+          lowConfidenceMatch: !!text?.pick && !hasSearchMatch(best.result),
           matchedBy: text?.pick ? "ocr" : "embedding",
         },
       );
@@ -547,9 +535,10 @@ function toScanOutcome(
     ? (({ embedding: _embedding, ...rest }) => rest)(outcome.search)
     : null;
   const diagnostics: UnmatchedScanDiagnostics = {
-    reason: attempts.some((a) => a.card)
-      ? "no_consensus"
-      : (outcome.noMatchReason ?? "too_far"),
+    reason: consensusMissReason(
+      attempts.some((attempt) => attempt.card),
+      outcome.noMatchReason,
+    ),
     search: searchWithoutEmbedding,
     detection: outcome.detection,
     orientation: outcome.orientation,
@@ -598,29 +587,18 @@ async function searchCardImageWithConsensus(
   if (matchesNeeded <= 1)
     return toScanOutcome(await attempt(), attempts, matchesNeeded);
 
-  const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
+  const maxAttempts = consensusAttemptLimit(matchesNeeded);
 
-  let streakId: string | null = null;
-  let streakCount = 0;
-  let streakResult: ScanAttemptOutcome | null = null;
+  let streak = emptyConsensus<ScanAttemptOutcome>();
   let lastResult: ScanAttemptOutcome | null = null;
 
   for (let i = 0; i < maxAttempts; i++) {
     const result = await attempt();
     lastResult = result;
-    const topId = result.card?.id ?? null;
-
-    if (topId != null && topId === streakId) {
-      streakCount++;
-      streakResult = result;
-    } else {
-      streakId = topId;
-      streakCount = topId != null ? 1 : 0;
-      streakResult = topId != null ? result : null;
+    streak = advanceConsensus(streak, result, result.card?.id ?? null);
+    if (consensusMet(streak, matchesNeeded)) {
+      return toScanOutcome(streak.item, attempts, matchesNeeded);
     }
-
-    if (streakCount >= matchesNeeded)
-      return toScanOutcome(streakResult!, attempts, matchesNeeded);
   }
 
   return toScanOutcome({ ...lastResult!, card: null }, attempts, matchesNeeded);

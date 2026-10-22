@@ -13,28 +13,24 @@ import {
   type ScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
-  areAllChaosBinsFull,
   areAllRepackPacksComplete,
+  chooseScanBin,
   countCopiesInBin,
-  evaluateAlphabetBin,
   findAutoAssignTarget,
-  evaluateCardBin,
-  evaluateChaosBin,
   evaluatePickListBin,
   applyPickListFound,
   isPickListComplete,
   isPickListBin,
   findPickListEntry,
   reservePickListBins,
-  evaluateScanOnlyBin,
-  evaluateRepackBin,
   findLowMatchCatchAll,
   isRulesMode,
-  resolveOverflowBin,
   getRepackBinCards,
   getCatchAllBin,
-  getChaosBins,
   getRepackPackBins,
+  routeForBin,
+  scanHoldReason,
+  selectScanBin,
   hasMaxCopiesBins,
   toRuleCard,
 } from "@magic-vault/shared";
@@ -322,61 +318,30 @@ export function ScannedCardsProvider({
   const resolveMatchedBin = useCallback(
     (card: PlayingCardWithDistance): BinConfig | undefined => {
       const set = selectedSetRef.current;
-      const lowMatch = findLowMatchCatchAll(card, binConfigsRef.current);
-      if (lowMatch) {
-        return isRulesMode(set)
-          ? resolveOverflowBin(lowMatch, binConfigsRef.current, (bin) =>
-              isBinFullLocally(bin.binNumber),
-            )
-          : lowMatch;
-      }
-      if (set?.scanOnly) {
-        return evaluateScanOnlyBin(binConfigsRef.current, set.scanOnlyBin);
-      }
-      if (set?.isChaosMode) {
-        return evaluateChaosBin(binConfigsRef.current, (bin) =>
-          isBinFullLocally(bin.binNumber),
-        );
-      }
-      if (set?.isAlphabetMode) {
-        return evaluateAlphabetBin(
-          card,
-          binConfigsRef.current,
-          set.alphabetPass,
-          set.alphabetPrefix,
-        );
-      }
-      if (set?.isRepackMode) {
-        return evaluateRepackBin(
-          card,
-          binConfigsRef.current,
-          fieldDefinitionsRef.current,
-          set,
-          (bin) =>
+      return selectScanBin(
+        card,
+        set,
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+        {
+          countCopies: (bin) =>
+            countCopiesInBin(
+              binContentsRef.current,
+              bin,
+              card,
+              fieldDefinitionsRef.current,
+            ),
+          countInBin: (bin) => countCardsLocally(bin.binNumber),
+          isBinFull: (bin) => isBinFullLocally(bin.binNumber),
+          binRoom: (bin) => binRoomLocally(bin.binNumber),
+          cardsInBin: (bin) =>
             getRepackBinCards(
               binContentsRef.current,
               bin,
-              set,
+              set ?? { repackSlots: [] },
               fieldDefinitionsRef.current,
             ),
-          (bin) => binRoomLocally(bin.binNumber),
-        );
-      }
-      return evaluateCardBin(
-        card,
-        binConfigsRef.current,
-        fieldDefinitionsRef.current,
-        autoAssignFieldRef.current
-          ? undefined
-          : (bin) =>
-              countCopiesInBin(
-                binContentsRef.current,
-                bin,
-                card,
-                fieldDefinitionsRef.current,
-              ),
-        (bin) => countCardsLocally(bin.binNumber),
-        (bin) => isBinFullLocally(bin.binNumber),
+        },
       );
     },
     [isBinFullLocally, countCardsLocally, binRoomLocally],
@@ -521,15 +486,11 @@ export function ScannedCardsProvider({
     [],
   );
 
-  const resolveRoute = useCallback((binNumber: number): BinRoute => {
-    const found = binRoutesRef.current.find((r) => r.binNumber === binNumber);
-    if (found) return found;
-    const lastModule = Math.max(
-      1,
-      ...binRoutesRef.current.map((r) => r.module),
-    );
-    return { binNumber, module: lastModule, direction: "bottom" };
-  }, []);
+  const resolveRoute = useCallback(
+    (binNumber: number): BinRoute =>
+      routeForBin(binNumber, binRoutesRef.current),
+    [],
+  );
 
   const setForceFoilType = useCallback((foilType: string | null) => {
     forceFoilTypeRef.current = foilType;
@@ -682,61 +643,82 @@ export function ScannedCardsProvider({
         isFoil: forcedFoilType != null,
         foilType: forcedFoilType,
       });
-      const pickMatch = resolvePickListMatch(ruleCard);
-      let matchedBin = pickMatch?.bin ?? resolveMatchedBin(ruleCard);
-      const autoTarget =
-        pickMatch || selectedSetRef.current?.isRepackMode
-          ? null
-          : findAutoAssignTarget(
+      const choice = chooseScanBin(
+        ruleCard,
+        selectedSetRef.current,
+        binConfigsRef.current,
+        rawBinConfigsRef.current,
+        fieldDefinitionsRef.current,
+        {
+          countCopies: (bin) =>
+            countCopiesInBin(
+              binContentsRef.current,
+              bin,
               ruleCard,
-              binConfigsRef.current,
               fieldDefinitionsRef.current,
-              autoAssignFieldRef.current,
-              () => crypto.randomUUID(),
-            );
-      if (autoTarget) {
+            ),
+          countInBin: (bin) => countCardsLocally(bin.binNumber),
+          isBinFull: (bin) => isBinFullLocally(bin.binNumber),
+          binRoom: (bin) => binRoomLocally(bin.binNumber),
+          cardsInBin: (bin) =>
+            getRepackBinCards(
+              binContentsRef.current,
+              bin,
+              selectedSetRef.current ?? { repackSlots: [] },
+              fieldDefinitionsRef.current,
+            ),
+          newId: () => crypto.randomUUID(),
+        },
+      );
+      let matchedBin = choice.bin;
+      if (choice.autoAssign) {
         binConfigsRef.current = binConfigsRef.current.map((c) =>
-          c.binNumber === autoTarget.binNumber
-            ? { ...c, rules: autoTarget.rules }
+          c.binNumber === choice.autoAssign!.binNumber
+            ? { ...c, rules: choice.autoAssign!.rules }
             : c,
         );
         matchedBin = binConfigsRef.current.find(
-          (c) => c.binNumber === autoTarget.binNumber,
+          (c) => c.binNumber === choice.autoAssign!.binNumber,
         );
         saveBinConfig({
-          binNumber: autoTarget.binNumber,
-          rules: autoTarget.rules,
+          binNumber: choice.autoAssign.binNumber,
+          rules: choice.autoAssign.rules,
         });
       }
-      if (
-        selectedSetRef.current?.isChaosMode &&
-        matchedBin?.isCatchAll &&
-        !findLowMatchCatchAll(ruleCard, binConfigsRef.current) &&
-        areAllChaosBinsFull(binConfigsRef.current, (bin) =>
-          isBinFullLocally(bin.binNumber),
-        )
-      ) {
-        pause();
-        setFullBins(
-          getChaosBins(binConfigsRef.current).map((bin) => bin.binNumber),
-        );
-        return;
-      }
-      if (
-        matchedBin?.isCatchAll &&
-        !findLowMatchCatchAll(ruleCard, binConfigsRef.current) &&
-        areAllPacksComplete()
-      ) {
+      const hold = scanHoldReason(
+        ruleCard,
+        selectedSetRef.current,
+        binConfigsRef.current,
+        fieldDefinitionsRef.current,
+        matchedBin,
+        {
+          isBinFull: (bin) => isBinFullLocally(bin.binNumber),
+          binRoom: (bin) => binRoomLocally(bin.binNumber),
+          cardsInBin: (bin) =>
+            getRepackBinCards(
+              binContentsRef.current,
+              bin,
+              selectedSetRef.current ?? { repackSlots: [] },
+              fieldDefinitionsRef.current,
+            ),
+        },
+      );
+      if (hold?.reason === "repack-complete") {
         pauseForCompletePacks();
         return;
       }
-      if (matchedBin && isBinFullLocally(matchedBin.binNumber)) {
+      if (hold?.reason === "chaos-full") {
         pause();
-        setBinLimitBin(matchedBin);
+        setFullBins(hold.binNumbers);
         return;
       }
-      if (pickMatch) {
-        markPickListFound(pickMatch.bin.binNumber, pickMatch.entry.name, 1);
+      if (hold?.reason === "bin-full") {
+        pause();
+        setBinLimitBin(hold.bin);
+        return;
+      }
+      if (choice.pickListName && matchedBin) {
+        markPickListFound(matchedBin.binNumber, choice.pickListName, 1);
       }
       const isLowMatch =
         !!matchedBin &&

@@ -45,6 +45,7 @@ export interface PiScanRunContext {
   binSetGuid: string;
   set: BinSet;
   configs: BinConfig[];
+  pickConfigs: BinConfig[];
   routes: BinRoute[];
   heights: Map<number, number>;
   counts: Map<number, number>;

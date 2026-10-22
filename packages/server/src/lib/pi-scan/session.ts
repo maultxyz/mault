@@ -1,9 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import {
-  CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
-  CONSENSUS_RETRY_BUDGET,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
@@ -15,9 +13,28 @@ import {
   dewarpRgba,
   getDefaultCardContour,
   rotateRgba180,
+  advanceConsensus,
+  applyPickListFound,
+  betterSearch,
+  chooseScanBin,
+  closeMatchesOf,
   computeBinCapacity,
+  consensusAttemptLimit,
+  countCopiesInBin,
+  consensusMet,
+  consensusMissReason,
   createDefaultBinRoutes,
+  emptyConsensus,
   findLowMatchCatchAll,
+  getRepackBinCards,
+  hasMaxCopiesBins,
+  hasSearchMatch,
+  isRulesMode,
+  needsTextSearch,
+  orderMatchesByColor,
+  reservePickListBins,
+  routeForBin,
+  scanHoldReason,
   toRuleCard,
   withScanRuleFields,
   type BinConfig,
@@ -49,7 +66,6 @@ import type {
   PiScanStartInput,
   PiScanStartResult,
 } from "../interfaces/pi-scan";
-import type { CardMatchSearchResult } from "../interfaces/card-search";
 import {
   PI_SCAN_FEED_TIMEOUT_MS,
   PI_SCAN_NEUTRAL_TIMEOUT_MS,
@@ -74,14 +90,9 @@ import {
 import { loadBinContents } from "../../routes/collections/cards-query";
 import { toScanRegion } from "../../routes/org-settings/shared";
 import { loadActiveBinSet, snapshotBinSet } from "../../routes/bins/shared";
+import { updateBinPickList } from "../../routes/bins/pick-list-found";
 import { grabCameraFrame } from "./camera";
 import { saveMatchedScan, saveUnmatchedScan } from "../save-scan";
-import {
-  chooseRulesBin,
-  findAutoAssignTarget,
-  routeForBin,
-  unsupportedPresetMessage,
-} from "./routing";
 import { SorterLink } from "./sorter-link";
 
 const sessions = new Map<string, PiScanLive>();
@@ -277,11 +288,6 @@ async function prepareContext(
         400,
       );
     }
-    const unsupported = unsupportedPresetMessage(active.set);
-    if (unsupported) {
-      throw new PiScanStartError(unsupported, "unsupported");
-    }
-
     const device = await tx.query.devices.findFirst({
       where: (table, { eq: eqCol, and: andCol }) =>
         andCol(
@@ -347,12 +353,16 @@ async function prepareContext(
         active.set.game?.foilTypes ??
         [],
     );
-    const windows = active.set.bins
-      .filter((bin) => bin.maxCopies != null)
-      .map((bin) => ({
-        binNumber: bin.binNumber,
-        lastEmptiedAt: bin.lastEmptiedAt ?? null,
-      }));
+    const trackContents =
+      active.set.isRepackMode || hasMaxCopiesBins(active.set.bins);
+    const windows = trackContents
+      ? active.set.bins
+          .filter((bin) => !bin.isCatchAll)
+          .map((bin) => ({
+            binNumber: bin.binNumber,
+            lastEmptiedAt: bin.lastEmptiedAt ?? null,
+          }))
+      : [];
     const settings = await tx.query.orgSettings.findFirst({
       where: eq(orgSettings.orgId, session.orgId),
       columns: { ocrEnabled: true },
@@ -361,8 +371,9 @@ async function prepareContext(
     const contents: PiScanBinCard[] = loaded.map((row) => ({
       binNumber: row.binNumber,
       scannedAt: row.scannedAt,
-      card: row.card,
+      card: toRuleCard(row.card, row),
     }));
+    const sourceBins = active.set.bins.map((bin) => ({ ...bin }));
 
     return {
       collectionId: collection.id,
@@ -386,7 +397,10 @@ async function prepareContext(
       binSetId: active.id,
       binSetGuid: active.set.guid,
       set: active.set,
-      configs: active.set.bins.map((bin) => ({ ...bin })),
+      configs: isRulesMode(active.set)
+        ? reservePickListBins(sourceBins.map((bin) => ({ ...bin })))
+        : sourceBins.map((bin) => ({ ...bin })),
+      pickConfigs: sourceBins,
       routes,
       heights,
       counts: new Map(),
@@ -424,21 +438,6 @@ async function rememberAutoAssign(
   }
 }
 
-function hasCardMatch(result: CardMatchSearchResult): boolean {
-  return (result.data?.length ?? 0) > 0;
-}
-
-function needsTextSearch(result: CardMatchSearchResult): boolean {
-  const reason = result.diagnostics?.reason;
-  if (reason === "too_far" || reason === "ambiguous") return true;
-  const [leader, runnerUp] = result.data ?? [];
-  return (
-    leader != null &&
-    runnerUp != null &&
-    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
-  );
-}
-
 async function searchOrientation(
   session: PiScanLive,
   context: PiScanRunContext,
@@ -462,30 +461,6 @@ async function searchOrientation(
     orientation,
     result,
     embedding: embeddings.embedding,
-  };
-}
-
-function preferDetectedColor(
-  result: CardMatchSearchResult,
-  color: string | null,
-): CardMatchSearchResult {
-  const data = result.data;
-  if (!color || !data || data.length === 0) return result;
-  const leader = data[0];
-  const close = data.filter(
-    (match) => match.distance - leader.distance <= CLOSE_MATCH_DELTA,
-  );
-  const preferred = close.find((match) =>
-    match.card?.colorIdentity?.includes(color),
-  );
-  if (!preferred || preferred === leader) return result;
-  return {
-    ...result,
-    data: [
-      preferred,
-      ...close.filter((match) => match !== preferred),
-      ...data.filter((match) => !close.includes(match)),
-    ],
   };
 }
 
@@ -521,10 +496,7 @@ async function matchFrame(
     ]);
     best = uprightHit;
     const rotatedWins =
-      hasCardMatch(uprightHit.result) !== hasCardMatch(rotated.result)
-        ? hasCardMatch(rotated.result)
-        : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-          (uprightHit.result.nearestDistance ?? Number.POSITIVE_INFINITY);
+      betterSearch(uprightHit.result, rotated.result) === rotated.result;
     if (rotatedWins) {
       best = rotated;
       alternate = uprightHit;
@@ -539,7 +511,7 @@ async function matchFrame(
   let matchedBy: ScanMatchSource = "embedding";
   let lowConfidenceFromOcr = false;
   const regions = OCR_REGIONS_BY_GAME_KEY[context.gameKey] ?? [];
-  const embeddingMatched = hasCardMatch(best.result);
+  const embeddingMatched = hasSearchMatch(best.result);
   if (
     context.ocrEnabled &&
     corners.contour &&
@@ -585,7 +557,7 @@ async function matchFrame(
     });
     const text = texts[bestIndex];
     ocr = text?.ocr ?? texts.find((item) => item?.ocr)?.ocr ?? null;
-    if (text && hasCardMatch(text)) {
+    if (text && hasSearchMatch(text)) {
       best = {
         ...options[bestIndex],
         result: await attachMatchedCards(text, context.gameKey, context.lang),
@@ -607,7 +579,10 @@ async function matchFrame(
 
   return {
     ...best,
-    result: preferDetectedColor(best.result, detectedColor),
+    result: {
+      ...best.result,
+      data: orderMatchesByColor(best.result.data, detectedColor),
+    },
     ocr,
     matchedBy,
     lowConfidenceFromOcr,
@@ -628,17 +603,13 @@ function attemptDiagnostic(matched: PiScanFrameMatch): ScanAttemptDiagnostic {
 }
 
 function unmatchedReason(
-  context: PiScanRunContext,
   matched: PiScanFrameMatch,
   attempts: ScanAttemptDiagnostic[],
 ): UnmatchedReason {
-  if (
-    context.matchesNeeded > 1 &&
-    attempts.some((attempt) => attempt.cardId)
-  ) {
-    return "no_consensus";
-  }
-  return matched.result.diagnostics?.reason ?? "too_far";
+  return consensusMissReason(
+    attempts.some((attempt) => attempt.cardId),
+    matched.result.diagnostics?.reason,
+  );
 }
 
 async function matchUntilConsensus(
@@ -660,29 +631,23 @@ async function matchUntilConsensus(
     };
   }
 
-  const maxAttempts = context.matchesNeeded + CONSENSUS_RETRY_BUDGET;
+  const maxAttempts = consensusAttemptLimit(context.matchesNeeded);
   const attempts: ScanAttemptDiagnostic[] = [];
-  let streakId: string | null = null;
-  let streakCount = 0;
-  let streak: PiScanFrameMatch | null = null;
+  let streak = emptyConsensus<PiScanFrameMatch>();
   let last: PiScanFrameMatch | null = null;
   for (let index = 0; index < maxAttempts; index += 1) {
     const matched = await take();
     last = matched;
     attempts.push(attemptDiagnostic(matched));
-    const topId = matched.result.data?.[0]?.cardId ?? null;
-    if (topId != null && topId === streakId) {
-      streakCount += 1;
-      streak = matched;
-    } else {
-      streakId = topId;
-      streakCount = topId != null ? 1 : 0;
-      streak = topId != null ? matched : null;
-    }
-    if (streak && streakCount >= context.matchesNeeded) {
-      const leader = streak.result.data?.[0];
+    streak = advanceConsensus(
+      streak,
+      matched,
+      matched.result.data?.[0]?.cardId ?? null,
+    );
+    if (consensusMet(streak, context.matchesNeeded)) {
+      const leader = streak.item.result.data?.[0];
       return {
-        matched: streak,
+        matched: streak.item,
         attempts,
         card: leader ? scannedCard(leader) : null,
       };
@@ -793,7 +758,6 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       const identified = await matchUntilConsensus(session, context);
       const matched = identified.matched;
       const card = identified.card;
-      const leader = matched.result.data?.[0];
       const imageUrl = jpegDataUrl(matched.image);
       const scannedAt = Date.now();
       const scanId = randomUUID();
@@ -805,11 +769,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           break;
         }
         showCard(session, null, catchAll.binNumber, false);
-        const route = routeForBin(
-          catchAll.binNumber,
-          context.routes,
-          context.moduleCount,
-        );
+        const route = routeForBin(catchAll.binNumber, context.routes);
         const routed = await link.command(
           { route: { module: route.module, direction: route.direction } },
           PI_SCAN_ROUTE_TIMEOUT_MS,
@@ -820,7 +780,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           break;
         }
         const diagnostics: UnmatchedScanDiagnostics = {
-          reason: unmatchedReason(context, matched, identified.attempts),
+          reason: unmatchedReason(matched, identified.attempts),
           search: matched.result.diagnostics
             ? withoutEmbedding(matched.result.diagnostics)
             : null,
@@ -871,50 +831,94 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         if (capacity == null) return false;
         return countInBin(bin) >= capacity;
       };
-      let chosen = chooseRulesBin(
+      const binRoom = (bin: BinConfig) => {
+        const capacity = computeBinCapacity(
+          context.heights.get(bin.binNumber),
+          context.cardThickness,
+        );
+        if (capacity == null) return Number.POSITIVE_INFINITY;
+        return capacity - countInBin(bin);
+      };
+      const cardsInBin = (bin: BinConfig) =>
+        getRepackBinCards(
+          context.contents,
+          bin,
+          context.set,
+          context.fieldDefinitions,
+        );
+      const choice = chooseScanBin(
         ruleCard,
         context.set,
         context.configs,
+        context.pickConfigs,
         context.fieldDefinitions,
-        context.contents,
-        countInBin,
-        isBinFull,
+        {
+          countCopies: (bin) =>
+            countCopiesInBin(
+              context.contents,
+              bin,
+              ruleCard,
+              context.fieldDefinitions,
+            ),
+          countInBin,
+          isBinFull,
+          binRoom,
+          cardsInBin,
+          newId: () => randomUUID(),
+        },
       );
-      const autoTarget = findAutoAssignTarget(
-        ruleCard,
-        context.configs,
-        context.fieldDefinitions,
-        context.set.autoAssignField,
-      );
-      if (autoTarget) {
+      if (choice.autoAssign) {
         await rememberAutoAssign(
           session,
           context,
-          autoTarget.binNumber,
-          autoTarget.rules,
-        );
-        chosen = context.configs.find(
-          (bin) => bin.binNumber === autoTarget.binNumber,
+          choice.autoAssign.binNumber,
+          choice.autoAssign.rules,
         );
       }
+      const chosen = choice.bin;
       if (!chosen) {
         fail(session, "No bin matched this card.");
         break;
       }
       showCard(session, card.name, chosen.binNumber, true);
-      if (isBinFull(chosen)) {
+      const hold = scanHoldReason(
+        ruleCard,
+        context.set,
+        context.configs,
+        context.fieldDefinitions,
+        chosen,
+        { isBinFull, binRoom, cardsInBin },
+      );
+      if (hold?.reason === "bin-full") {
         fail(
           session,
-          `Bin ${chosen.binNumber} is full. Empty it, then start again.`,
+          `Bin ${hold.bin.binNumber} is full. Empty it, then start again.`,
         );
         break;
       }
+      if (hold?.reason === "chaos-full") {
+        fail(session, "Every bin is full. Empty one, then start again.");
+        break;
+      }
+      if (hold) {
+        fail(session, "Every pack is complete.");
+        break;
+      }
+      if (choice.pickListName) {
+        const listed = context.pickConfigs.find((bin) => bin.guid === chosen.guid);
+        try {
+          const saved = await authQuery(session.jwtClaims, (tx) =>
+            updateBinPickList(tx, session.orgId, chosen.guid, (current) =>
+              applyPickListFound(current, choice.pickListName!, 1),
+            ),
+          );
+          if (saved?.pickList && listed) listed.pickList = saved.pickList;
+        } catch (err) {
+          console.error("[pi-scan] failed to update a pick list:", err);
+        }
+      }
 
-      const route = routeForBin(
-        chosen.binNumber,
-        context.routes,
-        context.moduleCount,
-      );
+      const route = routeForBin(chosen.binNumber, context.routes);
       const routed = await link.command(
         { route: { module: route.module, direction: route.direction } },
         PI_SCAN_ROUTE_TIMEOUT_MS,
@@ -925,14 +929,9 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         break;
       }
 
-      const alternatives = (matched.result.data ?? [])
+      const alternatives = closeMatchesOf(matched.result.data ?? [])
         .slice(1)
-        .filter(
-          (match) =>
-            leader &&
-            match.distance - leader.distance <= CLOSE_MATCH_DELTA &&
-            match.card,
-        )
+        .filter((match) => match.card)
         .map((match) => scannedCard(match))
         .filter((match): match is PlayingCardWithDistance => match != null);
       const lowMatchBin = findLowMatchCatchAll(ruleCard, context.configs);

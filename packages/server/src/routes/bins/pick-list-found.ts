@@ -12,7 +12,7 @@ import { bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resetPickList } from "./shared";
 
-async function updateBinPickList(
+export async function updateBinPickList(
   tx: Transaction,
   orgId: string,
   binGuid: string,
