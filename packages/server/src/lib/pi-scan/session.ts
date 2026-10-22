@@ -47,6 +47,7 @@ import {
   type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
+import { piUpdateRunning } from "../pi-update";
 import { collections, games, orgSettings } from "../../db/schema";
 import type {
   PiScanBinCard,
@@ -1099,6 +1100,8 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
 
 async function arm(session: PiScanLive) {
   const displayName = await getUserDisplayName(session.userId);
+  if (await piUpdateRunning())
+    throw new PiScanStartError("A system update is running.", "busy");
   const lock = acquireLock(
     session.collectionGuid,
     session.userId,

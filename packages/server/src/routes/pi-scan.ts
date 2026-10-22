@@ -14,6 +14,7 @@ import {
   updatePiScanSettings,
 } from "../lib/pi-scan/session";
 import { requireAuth, requireOrg, type AppEnv } from "../middleware/auth";
+import { piUpdateRunning } from "../lib/pi-update";
 
 export { PI_SCAN_SESSION_PATH };
 
@@ -25,6 +26,11 @@ export const piScanRouter = new Hono<AppEnv>()
     return c.json({ success: true, data: getPiScanSession(c.get("orgId")) });
   })
   .post("/", requireAuth, requireOrg, async (c) => {
+    if (await piUpdateRunning())
+      return c.json(
+        { success: false, message: "A system update is running." },
+        409,
+      );
     const body = await c.req.json<PiScanSessionStartBody>();
     const header = c.req.header("Authorization") ?? "";
     const result = await startPiScanSession({

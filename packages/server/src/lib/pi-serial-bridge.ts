@@ -1,10 +1,5 @@
-import type { NodeWebSocket } from "@hono/node-ws";
-import { Hono } from "hono";
 import type { RawData, WebSocket } from "ws";
 import type { PiSerialControlMessage } from "@magic-vault/shared";
-import { isPiHost } from "./pi-host";
-import { authProvider } from "../auth";
-import { verifyRequestToken } from "../middleware/auth";
 import {
   claimSorterPort,
   releaseSorterPort,
@@ -17,14 +12,6 @@ function sendControl(socket: WebSocket, message: PiSerialControlMessage) {
   if (socket.readyState === socket.OPEN) {
     socket.send(JSON.stringify(message));
   }
-}
-
-async function authorize(token: string | undefined, orgId: string | undefined) {
-  if (!token || !orgId) return false;
-  const payload = await verifyRequestToken(token);
-  if (!payload?.sub) return false;
-  const member = await authProvider.resolveOrgMembership(payload.sub, orgId);
-  return !!member;
 }
 
 function toBuffer(data: RawData): Buffer {
@@ -79,36 +66,19 @@ async function runSession(socket: WebSocket) {
   }
 }
 
-export function createPiSerialRouter(
-  upgradeWebSocket: NodeWebSocket["upgradeWebSocket"],
-) {
-  return new Hono().get(
-    "/",
-    async (c, next) => {
-      if (!isPiHost()) return c.notFound();
-      const allowed = await authorize(c.req.query("token"), c.req.query("orgId"));
-      if (!allowed) return c.text("Unauthorized", 401);
-      await next();
-    },
-    upgradeWebSocket(() => ({
-      onOpen(_event, ws) {
-        const raw = ws.raw;
-        if (!raw) return;
-        if (activeSocket) {
-          sendControl(raw, { type: "error", reason: "busy" });
-          raw.close();
-          return;
-        }
-        activeSocket = raw;
-        const clear = () => {
-          if (activeSocket === raw) activeSocket = null;
-        };
-        raw.on("close", clear);
-        void runSession(raw).catch(() => {
-          sendControl(raw, { type: "error", reason: "open-failed" });
-          raw.close();
-        });
-      },
-    })),
-  );
+export function openPiSerialSocket(socket: WebSocket) {
+  if (activeSocket) {
+    sendControl(socket, { type: "error", reason: "busy" });
+    socket.close();
+    return;
+  }
+  activeSocket = socket;
+  const clear = () => {
+    if (activeSocket === socket) activeSocket = null;
+  };
+  socket.on("close", clear);
+  void runSession(socket).catch(() => {
+    sendControl(socket, { type: "error", reason: "open-failed" });
+    socket.close();
+  });
 }

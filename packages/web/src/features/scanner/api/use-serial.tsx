@@ -983,7 +983,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       description: t("serial.piScanBusy"),
     });
     return true;
-  }, [t]);
+  }, [toast, t]);
 
   const connect = useCallback(
     async (options?: { skipAutoTest?: boolean }) => {
