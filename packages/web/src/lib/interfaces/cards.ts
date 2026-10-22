@@ -428,3 +428,22 @@ export interface CardCorrectionSearchProps {
   onSelect: (card: PlayingCard, options: CardCorrectionOptions) => void;
   onCancel: () => void;
 }
+
+export interface DetailPrefetchStep {
+  collectionGuid: string;
+  card: PlayingCard;
+  alternativeMatches?: PlayingCard[];
+  nextScanId: string | null;
+}
+
+export type DetailPrefetchLoader = (
+  scanId: string,
+) => Promise<DetailPrefetchStep | null>;
+
+export interface ReviewSession {
+  index: number;
+  size: number;
+  previousScanId: string | null;
+  resolveNext: (upcomingScanId: string | null | undefined) => string | null;
+  forget: (scanId: string) => void;
+}

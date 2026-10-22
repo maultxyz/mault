@@ -1,16 +1,21 @@
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import {
+  loadCollectionPositionStep,
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useReviewSession } from "@/hooks/use-review-session";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
 import { MONITOR_NEEDS_REVIEW_CARDS_QUERY } from "@/lib/constants/scanner";
 import type {
   MobileCardDetailBodyProps,
   MobileCardDetailDrawerProps,
 } from "@/lib/interfaces/scanner";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function MobileCardDetailDrawer({
@@ -23,6 +28,7 @@ export function MobileCardDetailDrawer({
 }: MobileCardDetailDrawerProps) {
   const [shownScanId, setShownScanId] = useState(scanId);
   if (scanId && scanId !== shownScanId) setShownScanId(scanId);
+  const reviewSession = useReviewSession(scanId, reviewMode);
 
   return (
     <Drawer
@@ -38,6 +44,7 @@ export function MobileCardDetailDrawer({
             collectionGuid={collectionGuid}
             scanId={shownScanId}
             reviewMode={reviewMode}
+            reviewSession={reviewSession}
             onNavigate={onNavigate}
             onReviewComplete={onReviewComplete}
             onClose={onClose}
@@ -52,18 +59,41 @@ function MobileCardDetailBody({
   collectionGuid,
   scanId,
   reviewMode,
+  reviewSession,
   onNavigate,
   onReviewComplete,
   onClose,
 }: MobileCardDetailBodyProps) {
   const { t } = useTranslation("cards");
   const { removeCard } = useScannedCards();
+  const queryClient = useQueryClient();
   const query = reviewMode ? MONITOR_NEEDS_REVIEW_CARDS_QUERY : CARD_LOOKUP_QUERY;
   const { data: position, isPending } = useQuery(
     collectionCardPositionQueryOptions(collectionGuid, scanId, query),
   );
   const entry = position?.entry.scanId === scanId ? position.entry : null;
   const isMissing = !isPending && !entry;
+  const prevScanId = reviewMode
+    ? reviewSession.previousScanId
+    : (position?.prevScanId ?? null);
+  const nextScanId = reviewMode
+    ? reviewSession.resolveNext(position?.nextScanId)
+    : (position?.nextScanId ?? null);
+  const loadPrefetchStep = useCallback(
+    (nextScanId: string) =>
+      loadCollectionPositionStep(
+        queryClient,
+        collectionGuid,
+        nextScanId,
+        query,
+      ),
+    [queryClient, collectionGuid, query],
+  );
+  usePrefetchDetailCards(
+    entry ? nextScanId : null,
+    true,
+    loadPrefetchStep,
+  );
 
   useEffect(() => {
     if (isMissing && !reviewMode) onClose();
@@ -98,13 +128,14 @@ function MobileCardDetailBody({
         onClose={onClose}
         onRemove={() => {
           removeCard(entry.scanId);
-          if (reviewMode && position?.nextScanId) onNavigate(position.nextScanId);
+          if (reviewMode) reviewSession.forget(entry.scanId);
+          if (reviewMode && nextScanId) onNavigate(nextScanId);
           else onClose();
         }}
-        onPrev={() => onNavigate(position?.prevScanId ?? null)}
-        onNext={() => onNavigate(position?.nextScanId ?? null)}
-        hasPrev={!!position?.prevScanId}
-        hasNext={!!position?.nextScanId}
+        onPrev={() => onNavigate(prevScanId)}
+        onNext={() => onNavigate(nextScanId)}
+        hasPrev={!!prevScanId}
+        hasNext={!!nextScanId}
         currentIndex={position?.index ?? 0}
         total={position?.total ?? 0}
         copyIndex={position?.copyIndex ?? -1}

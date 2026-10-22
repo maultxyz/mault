@@ -52,6 +52,7 @@ export const CARD_SET_PICKER_LIMIT = 100;
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
   ...ALL_CARDS_QUERY,
   filters: { ...EMPTY_CARD_FILTERS, needsAttention: true },
+  unreviewed: true,
 };
 export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
 export const SESSION_LOCK_ALERT_ID = "session-lock";

@@ -41,6 +41,10 @@ import { useCollectionCardsSummary } from "@/features/collections/api/use-collec
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
+import {
+  loadCollectionPositionStep,
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionViewPath } from "@/lib/constants/collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -80,6 +84,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useHotkeys } from "@/hooks/use-hotkeys";
+import { useReviewSession } from "@/hooks/use-review-session";
 import { toast } from "@/lib/toast";
 import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
@@ -227,8 +232,8 @@ export function CardGrid() {
     () => ({ ...cardsQuery, unreviewed: true }),
     [cardsQuery],
   );
-  const reviewTotalRef = useRef<number | null>(null);
-  const [reviewTrail, setReviewTrail] = useState<string[]>([]);
+  const [reviewTotal, setReviewTotal] = useState<number | null>(null);
+  const reviewSession = useReviewSession(openScanId, isReviewing);
 
   useEffect(() => {
     setPage(0);
@@ -263,6 +268,25 @@ export function CardGrid() {
     openPosition && openPosition.entry.scanId === openScanId
       ? openPosition.entry
       : null;
+  const loadPrefetchStep = useCallback(
+    (scanId: string) =>
+      loadCollectionPositionStep(
+        queryClient,
+        collectionGuid!,
+        scanId,
+        isReviewing ? reviewQuery : cardsQuery,
+      ),
+    [queryClient, collectionGuid, isReviewing, reviewQuery, cardsQuery],
+  );
+  usePrefetchDetailCards(
+    openEntry
+      ? isReviewing
+        ? reviewSession.resolveNext(openPosition?.nextScanId)
+        : openPosition?.nextScanId
+      : null,
+    !!collectionGuid,
+    loadPrefetchStep,
+  );
 
   const startReview = useCallback(async () => {
     if (!collectionGuid) return;
@@ -275,8 +299,7 @@ export function CardGrid() {
         toast.info(t("review.nothingLeft"));
         return;
       }
-      reviewTotalRef.current = firstPage.totalCards;
-      setReviewTrail([]);
+      setReviewTotal(firstPage.totalCards);
       setOpenScanId(first.scanId, true);
     } catch (err) {
       console.error("Failed to start card review:", err);
@@ -286,13 +309,10 @@ export function CardGrid() {
   const finishReview = useCallback(
     (count: number) => {
       setOpenScanId(null);
-      toast.success(
-        t("review.complete", { count: reviewTotalRef.current ?? count }),
-      );
-      reviewTotalRef.current = null;
-      setReviewTrail([]);
+      toast.success(t("review.complete", { count: reviewTotal ?? count }));
+      setReviewTotal(null);
     },
-    [setOpenScanId, t],
+    [setOpenScanId, reviewTotal, t],
   );
 
   useHotkeys({
@@ -579,14 +599,12 @@ export function CardGrid() {
   }
 
   if (openEntry) {
-    const reviewPrevScanId = isReviewing ? reviewTrail.at(-1) : undefined;
-    const prevScanId = reviewPrevScanId ?? openPosition?.prevScanId ?? null;
-    const goForward = (scanId: string | null) => {
-      if (isReviewing && scanId) {
-        setReviewTrail((trail) => [...trail, openEntry.scanId]);
-      }
-      setOpenScanId(scanId, isReviewing);
-    };
+    const prevScanId = isReviewing
+      ? reviewSession.previousScanId
+      : (openPosition?.prevScanId ?? null);
+    const nextScanId = isReviewing
+      ? reviewSession.resolveNext(openPosition?.nextScanId)
+      : (openPosition?.nextScanId ?? null);
     const detailPanel = (
       <CardDetailPanel
         scanId={openEntry.scanId}
@@ -606,21 +624,25 @@ export function CardGrid() {
             ? undefined
             : () => {
                 removeCard(openEntry.scanId);
-                setOpenScanId(
-                  isReviewing ? (openPosition?.nextScanId ?? null) : null,
-                  isReviewing,
-                );
+                if (isReviewing) reviewSession.forget(openEntry.scanId);
+                setOpenScanId(isReviewing ? nextScanId : null, isReviewing);
               }
         }
-        onPrev={() => {
-          if (reviewPrevScanId) setReviewTrail((trail) => trail.slice(0, -1));
-          setOpenScanId(prevScanId, isReviewing);
-        }}
-        onNext={() => goForward(openPosition?.nextScanId ?? null)}
+        onPrev={() => setOpenScanId(prevScanId, isReviewing)}
+        onNext={() => setOpenScanId(nextScanId, isReviewing)}
         hasPrev={!!prevScanId}
-        hasNext={!!openPosition?.nextScanId}
-        currentIndex={openPosition?.index ?? 0}
-        total={openPosition?.total ?? 0}
+        hasNext={!!nextScanId}
+        currentIndex={
+          isReviewing ? reviewSession.index : (openPosition?.index ?? 0)
+        }
+        total={
+          isReviewing
+            ? Math.max(
+                reviewTotal ?? openPosition?.total ?? 0,
+                reviewSession.size,
+              )
+            : (openPosition?.total ?? 0)
+        }
         copyIndex={openPosition?.copyIndex ?? -1}
         copyCount={openPosition?.copyCount ?? 1}
         reviewMode={isReviewing}
