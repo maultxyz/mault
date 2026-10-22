@@ -56,11 +56,5 @@ systemd-run --user --collect --unit=mault-kiosk \
   --setenv=DBUS_SESSION_BUS_ADDRESS="$DBUS_SESSION_BUS_ADDRESS" \
   /usr/bin/chromium "${CHROMIUM_ARGS[@]}"
 
-echo "Mault is running at http://127.0.0.1:8080"
-for addr in $(hostname -I 2>/dev/null); do
-  case "$addr" in
-    *:*|127.*) continue ;;
-  esac
-  echo "Other computers on this network: http://${addr}:8080"
-done
+pi_print_urls
 echo "Chromium is open on the desktop. Allow the camera if it asks."

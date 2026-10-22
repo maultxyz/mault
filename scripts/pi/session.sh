@@ -1,5 +1,16 @@
 #!/bin/bash
 
+pi_print_urls() {
+  local addr
+  echo "Mault is running at http://127.0.0.1:8080"
+  for addr in $(hostname -I 2>/dev/null); do
+    case "$addr" in
+      *:*|127.*) continue ;;
+    esac
+    echo "Other computers on this network: http://${addr}:8080"
+  done
+}
+
 pi_require_user() {
   if [[ "$(id -u)" -eq 0 ]]; then
     echo "Run this as the desktop user. It will ask for your password when it needs root." >&2

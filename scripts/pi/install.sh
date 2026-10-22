@@ -191,4 +191,6 @@ if ! curl -sf http://127.0.0.1:8080/ >/dev/null; then
   exit 1
 fi
 
-echo "[install] Ready. Open http://<this-pi>:8080 from another computer. The services also start on boot."
+echo "[install] Ready."
+pi_print_urls
+echo "[install] The services also start on boot."
