@@ -1,4 +1,5 @@
 import type {
+  PickList,
   BinConfig,
   BinRoute,
   BinSet,
@@ -20,10 +21,12 @@ import type { SorterLink } from "../pi-scan/sorter-link";
 export interface PiScanBinCard {
   binNumber?: number | null;
   scannedAt: number;
+  unsaved?: boolean;
   card: object;
 }
 
 export interface PiScanRunContext {
+  hardwareId: string;
   collectionId: number;
   collectionName: string;
   gameId: number;
@@ -67,10 +70,12 @@ export interface PiScanLive {
   preferredSetCode: string | null;
   autoFeed: boolean;
   feedRequested: boolean;
+  cardInFlight: boolean;
   startedAt: number;
   pausedMs: number;
   pauseStartedAt: number | null;
   pauseRequested: boolean;
+  refreshRequested: boolean;
   stopRequested: boolean;
   handedOff: boolean;
   locked: boolean;
@@ -109,3 +114,19 @@ export type PiScanStartResult =
       code: PiScanSessionStartCode;
       message: string;
     };
+
+export interface PiScanRouteJson {
+  success?: boolean;
+  message?: string;
+  data?: { pickList?: PickList | null };
+}
+
+export type PiScanRecoveryState = Pick<
+  PiScanLive,
+  | "phase"
+  | "pauseRequested"
+  | "stopRequested"
+  | "refreshRequested"
+  | "context"
+  | "message"
+>;

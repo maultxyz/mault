@@ -172,7 +172,9 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           const next = JSON.parse((e as MessageEvent).data) as SyncState;
           setSyncState({
             ...next,
-            logs: next.logs.filter((line) => !isBrowserSaveLog(line)),
+            logs: next.vectorizeOn === "browser"
+              ? next.logs.filter((line) => !isBrowserSaveLog(line))
+              : next.logs,
           });
         });
         es.addEventListener("progress", (e) => {
@@ -191,11 +193,11 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           const { line } = JSON.parse((e as MessageEvent).data) as {
             line: string;
           };
-          if (isBrowserSaveLog(line)) return;
-          setSyncState((prev) => ({
-            ...prev,
-            logs: [...prev.logs.slice(-199), line],
-          }));
+          setSyncState((prev) =>
+            prev.vectorizeOn === "browser" && isBrowserSaveLog(line)
+              ? prev
+              : { ...prev, logs: [...prev.logs.slice(-199), line] },
+          );
         });
 
         es.addEventListener(DEPLOY_STATUS_EVENT, (e) => {

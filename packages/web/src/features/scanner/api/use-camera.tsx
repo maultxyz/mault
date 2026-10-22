@@ -10,6 +10,7 @@ import {
 import {
   acquirePiRelayStream,
   applyTrackFocus,
+  applyPiFocus,
   browserMustUsePiCamera,
   focusRangeForTrack,
   isPiRelayTrack,
@@ -87,7 +88,9 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
             setStatus("error");
             return;
           }
-          const mediaStream = await acquirePiRelayStream();
+          const mediaStream = isMobile && browserMustUsePiCamera()
+            ? null
+            : await acquirePiRelayStream();
           streamRef.current = mediaStream;
           setStream(mediaStream);
           setStatus("ready");
@@ -106,8 +109,11 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           setFocusRange(range);
           setFocusDistanceState(savedFocus);
           if (savedFocus !== null) {
-            const track = mediaStream.getVideoTracks()[0];
-            if (track) await applyTrackFocus(track, savedFocus).catch(() => {});
+            if (!mediaStream) await applyPiFocus(savedFocus).catch(() => {});
+            else {
+              const track = mediaStream.getVideoTracks()[0];
+              if (track) await applyTrackFocus(track, savedFocus).catch(() => {});
+            }
           }
           return;
         }
@@ -158,6 +164,12 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   );
 
   const setFocusDistance = useCallback((value: number | null) => {
+    if (browserMustUsePiCamera()) {
+      void applyPiFocus(value).catch(() => {});
+      saveFocus(PI_CAMERA_DEVICE_ID, value);
+      setFocusDistanceState(value);
+      return;
+    }
     const track = streamRef.current?.getVideoTracks()[0];
     if (!track) return;
     void applyTrackFocus(track, value).catch(() => {});
@@ -231,15 +243,12 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     [startCamera, stopCamera, otherStationCameraIds],
   );
 
-  const startCameraRef = useRef(startCamera);
-  startCameraRef.current = startCamera;
-
   useEffect(() => {
     // The idle standby station holds no camera until it's connected or viewed.
     // A phone on a Pi uses the Pi webcam, the same as a remote browser.
     if (!isLive || (isMobile && !piRemote)) return;
 
-    void startCameraRef.current(stationCameraIdRef.current ?? undefined);
+    void startCamera(stationCameraIdRef.current ?? undefined);
 
     return () => {
       if (streamRef.current) {
@@ -249,7 +258,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       setStream(null);
       setStatus("idle");
     };
-  }, [isMobile, isLive, piRemote]);
+  }, [startCamera, isMobile, isLive, piRemote]);
 
   useEffect(() => {
     if (selectedCameraId === PI_CAMERA_DEVICE_ID) return;

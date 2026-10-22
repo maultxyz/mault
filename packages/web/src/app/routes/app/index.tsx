@@ -13,6 +13,7 @@ import { CardScanner } from "@/features/scanner/components/card-scanner";
 import { ScanStats } from "@/features/scanner/components/scan-stats";
 import { StationPanels } from "@/features/scanner/components/station-panels";
 import { IdentifiableUnmatchedCardsPanel } from "@/features/scanner/components/identifiable-unmatched-cards-panel";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
@@ -25,12 +26,13 @@ function MobileScanner() {
   const { t } = useTranslation("scanner");
   const { unmatchedCards, removeUnmatchedCard } = useScannedCards();
   const { totalCount } = useCollectionCardsSummary();
+  const piHost = usePiHost();
 
   return (
     <div
       className={cn(
         "relative min-h-0 flex-1 overflow-hidden",
-        MOBILE_NAV_SCROLL_PADDING_CLASS,
+        piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
       )}
     >
       <div className="p-2 size-full bg-sidebar flex flex-col gap-2">

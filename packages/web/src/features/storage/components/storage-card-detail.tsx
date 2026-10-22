@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
+import {
+  loadCollectionPositionStep,
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { storageLocationCardContextQueryOptions } from "@/features/storage/api/storage-locations";
@@ -11,12 +15,14 @@ import {
   useRemoveCardFromLocation,
   useStoredCardActions,
 } from "@/features/storage/api/use-storage-locations";
+import { useReviewSession } from "@/hooks/use-review-session";
 import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
+import { DETAIL_PREFETCH_STALE_MS } from "@/lib/constants/cards";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import { IconBoxOff } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function StorageCardDetail({
@@ -40,6 +46,13 @@ export function StorageCardDetail({
   const previous = context?.previous;
   const next = context?.next;
   const total = context?.total ?? 0;
+  const reviewSession = useReviewSession(scanId, reviewMode);
+  const prevScanId = reviewMode
+    ? reviewSession.previousScanId
+    : (previous?.scanId ?? null);
+  const nextScanId = reviewMode
+    ? reviewSession.resolveNext(next?.scanId)
+    : (next?.scanId ?? null);
   const entry = useMemo(
     () =>
       stored
@@ -90,12 +103,36 @@ export function StorageCardDetail({
     }
   }, [next, previous, location.guid, reviewMode, queryClient]);
 
+  const loadPrefetchStep = useCallback(
+    async (nextScanId: string) => {
+      const nextContext = await queryClient.fetchQuery({
+        ...storageLocationCardContextQueryOptions(
+          location.guid,
+          nextScanId,
+          reviewMode,
+        ),
+        staleTime: DETAIL_PREFETCH_STALE_MS,
+      });
+      if (!nextContext) return null;
+      const step = await loadCollectionPositionStep(
+        queryClient,
+        nextContext.card.collectionGuid,
+        nextScanId,
+        CARD_LOOKUP_QUERY,
+      );
+      return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
+    },
+    [queryClient, location.guid, reviewMode],
+  );
+  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep);
+
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 
   const removeFromLocation = () => {
     setConfirmRemoveOpen(false);
     void removeCard(location.guid, scanId);
-    if (next) onNavigate(next.scanId);
+    if (reviewMode) reviewSession.forget(scanId);
+    if (nextScanId) onNavigate(nextScanId);
     else onClose();
   };
 
@@ -113,10 +150,10 @@ export function StorageCardDetail({
         condition={stored.condition}
         binNumber={scanned.binNumber}
         onClose={onClose}
-        onPrev={() => previous && onNavigate(previous.scanId)}
-        onNext={() => next && onNavigate(next.scanId)}
-        hasPrev={!!previous}
-        hasNext={!!next}
+        onPrev={() => prevScanId && onNavigate(prevScanId)}
+        onNext={() => nextScanId && onNavigate(nextScanId)}
+        hasPrev={!!prevScanId}
+        hasNext={!!nextScanId}
         currentIndex={context.index}
         total={total}
         reviewMode={reviewMode}

@@ -1,20 +1,30 @@
 import type { SerialPort } from "serialport";
-
-type Waiter = {
-  resolve: (line: Record<string, unknown>) => void;
-  reject: (error: Error) => void;
-  timer: NodeJS.Timeout;
-};
+import {
+  isBootBanner,
+  isUnsolicitedSerialMessage,
+  replySeq,
+  withSeq,
+} from "@magic-vault/shared";
+import type { SorterReplyWaiter } from "../interfaces/pi-serial";
 
 export class SorterLink {
   private buffer = "";
-  private pending: Waiter[] = [];
+  private pending = new Map<number, SorterReplyWaiter>();
+  private nextSeq = 1;
+  private supportsSeq = false;
+  private receivedReply = false;
   private closed = false;
   jamModule: number | null = null;
 
   constructor(private port: SerialPort) {
-    port.on("data", (chunk: Buffer) => this.push(chunk.toString("utf8")));
+    port.on("data", this.onData);
+    port.on("error", this.onError);
+    port.on("close", this.onClose);
   }
+
+  private onData = (chunk: Buffer) => this.push(chunk.toString("utf8"));
+  private onError = (error: Error) => this.close(error);
+  private onClose = () => this.close(new Error("The sorter disconnected."));
 
   private push(text: string) {
     this.buffer += text;
@@ -30,14 +40,30 @@ export class SorterLink {
       } catch {
         continue;
       }
-      if (line.error === "jam") {
-        const module = Number(line.module);
-        if (Number.isFinite(module) && module !== 1) this.jamModule = module;
+      if (isBootBanner(line)) {
+        if (this.receivedReply) this.close(new Error("The sorter restarted."));
         continue;
       }
-      const waiter = this.pending.shift();
-      if (!waiter) continue;
+      if (isUnsolicitedSerialMessage(line)) {
+        if (line.error === "jam") {
+          const module = Number(line.module);
+          if (Number.isFinite(module) && module !== 1) this.jamModule = module;
+        }
+        continue;
+      }
+      const seq = replySeq(line);
+      if (seq !== null) this.supportsSeq = true;
+      // Firmware before 2.7.0 has no seq. It is safe only with one request.
+      const key =
+        seq ??
+        (!this.supportsSeq && this.pending.size === 1
+          ? this.pending.keys().next().value
+          : undefined);
+      const waiter = key === undefined ? undefined : this.pending.get(key);
+      if (!waiter || key === undefined) continue;
+      this.pending.delete(key);
       clearTimeout(waiter.timer);
+      this.receivedReply = true;
       waiter.resolve(line);
     }
   }
@@ -49,30 +75,39 @@ export class SorterLink {
     if (this.closed || !this.port.isOpen) {
       return Promise.reject(new Error("The sorter link is closed."));
     }
+    if (this.pending.size > 0) {
+      return Promise.reject(new Error("The sorter is busy."));
+    }
+    const seq = this.nextSeq++ >>> 0;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
-        const index = this.pending.findIndex((item) => item.resolve === resolve);
-        if (index >= 0) this.pending.splice(index, 1);
-        reject(new Error("The sorter did not answer in time."));
+        this.pending.delete(seq);
+        const error = new Error("The sorter did not answer in time.");
+        reject(error);
+        // An unnumbered late reply cannot safely be used for a new request.
+        if (!this.supportsSeq) this.close(error);
       }, timeoutMs);
-      this.pending.push({ resolve, reject, timer });
-      this.port.write(`${JSON.stringify(payload)}\n`, (error) => {
+      this.pending.set(seq, { resolve, reject, timer });
+      this.port.write(withSeq(JSON.stringify(payload), seq).text, (error) => {
         if (!error) return;
-        clearTimeout(timer);
-        const index = this.pending.findIndex((item) => item.resolve === resolve);
-        if (index >= 0) this.pending.splice(index, 1);
-        reject(error instanceof Error ? error : new Error(String(error)));
+        const waiter = this.pending.get(seq);
+        if (!waiter) return;
+        clearTimeout(waiter.timer);
+        this.pending.delete(seq);
+        reject(error);
       });
     });
   }
 
-  close() {
+  close(error = new Error("The sorter link is closed.")) {
     this.closed = true;
-    for (const waiter of this.pending) {
+    for (const waiter of this.pending.values()) {
       clearTimeout(waiter.timer);
-      waiter.reject(new Error("The sorter link is closed."));
+      waiter.reject(error);
     }
-    this.pending = [];
-    this.port.removeAllListeners("data");
+    this.pending.clear();
+    this.port.off("data", this.onData);
+    this.port.off("error", this.onError);
+    this.port.off("close", this.onClose);
   }
 }

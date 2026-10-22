@@ -9,7 +9,7 @@ import {
   stopPiScanSession,
 } from "@/features/scanner/api/pi-scan-session";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
-import { PI_CAMERA_BASE } from "@/lib/constants/scanner";
+import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
 import {
   applyPiScanState,
   getPiScanState,
@@ -44,9 +44,15 @@ export function PiScanStatusBar() {
 
   useEffect(() => {
     const kind = takePiScanAnnouncement(state);
-    if (kind === "error") toast.error(state.message ?? "");
+    if (kind === "error") {
+      toast.error(t("scannedCards.sorterError.title"), {
+        description: state.message ?? "",
+        duration: Infinity,
+        dismissible: true,
+      });
+    }
     else if (kind === "info" && state.message) toast.info(state.message);
-  }, [state]);
+  }, [state, t]);
 
   useEffect(() => {
     if (!sessionLive || !state.collectionGuid) {
@@ -93,8 +99,7 @@ export function PiScanStatusBar() {
   return (
     <div className="flex items-center gap-2 border-b bg-background px-3 py-1.5 text-xs">
       {!onScanner && (
-        <img
-          src={`${PI_CAMERA_BASE}/stream`}
+        <PiCameraPreview
           alt={t("piScan.preview")}
           className={cn(
             "h-14 w-10 shrink-0 rounded-md bg-muted object-cover",

@@ -1,3 +1,4 @@
+import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
   type CollectionCardsQuery,
@@ -47,7 +48,7 @@ export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
-export const PI_CAMERA_BASE = "/pi-camera";
+export const PI_CAMERA_BASE = "/api/pi-camera";
 export const PI_CAMERA_DEVICE_ID = "pi-webcam";
 export const PI_CAMERA_WIDTH = CAMERA_IDEAL_WIDTH;
 export const PI_CAMERA_HEIGHT = CAMERA_IDEAL_HEIGHT;
@@ -82,6 +83,7 @@ export const CARD_SET_PICKER_LIMIT = 100;
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
   ...ALL_CARDS_QUERY,
   filters: { ...EMPTY_CARD_FILTERS, needsAttention: true },
+  unreviewed: true,
 };
 export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
 export const SESSION_LOCK_ALERT_ID = "session-lock";
@@ -165,3 +167,7 @@ export const MOBILE_SCAN_CHIP_CLASS =
   "pointer-events-auto inline-flex h-9 min-w-0 items-center gap-1.5 rounded-full bg-black/55 px-3 text-sm font-medium text-white backdrop-blur-md active:bg-black/70";
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
+
+export const PI_CAMERA_PREVIEW_INTERVAL_MS = 1000;
+
+export const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;

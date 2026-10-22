@@ -17,7 +17,10 @@ import { requireAuth, requireOrg, type AppEnv } from "../middleware/auth";
 
 export { PI_SCAN_SESSION_PATH };
 
+import { isPiHost } from "../lib/pi-host";
+
 export const piScanRouter = new Hono<AppEnv>()
+  .use("*", async (c, next) => (isPiHost() ? next() : c.notFound()))
   .get("/", requireAuth, requireOrg, (c) => {
     return c.json({ success: true, data: getPiScanSession(c.get("orgId")) });
   })

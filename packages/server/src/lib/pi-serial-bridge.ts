@@ -2,6 +2,7 @@ import type { NodeWebSocket } from "@hono/node-ws";
 import { Hono } from "hono";
 import type { RawData, WebSocket } from "ws";
 import type { PiSerialControlMessage } from "@magic-vault/shared";
+import { isPiHost } from "./pi-host";
 import { authProvider } from "../auth";
 import { verifyRequestToken } from "../middleware/auth";
 import {
@@ -84,6 +85,7 @@ export function createPiSerialRouter(
   return new Hono().get(
     "/",
     async (c, next) => {
+      if (!isPiHost()) return c.notFound();
       const allowed = await authorize(c.req.query("token"), c.req.query("orgId"));
       if (!allowed) return c.text("Unauthorized", 401);
       await next();

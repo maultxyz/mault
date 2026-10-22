@@ -12,6 +12,7 @@ import { cardWithStoredPricesSql } from "../lib/card-price-sql";
 import { SESSION_INIT_UNMATCHED_IMAGE_LIMIT } from "../lib/constants/session-stream";
 import type { ViewerInfo } from "../lib/session-stream";
 import { resolveScanImageUrl } from "../lib/scan-images";
+import { isPiHost } from "../lib/pi-host";
 import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 
 async function querySessionInit(
@@ -71,6 +72,7 @@ async function querySessionInit(
       guid: unmatchedCards.guid,
       scannedAt: unmatchedCards.scannedAt,
       binNumber: unmatchedCards.binNumber,
+      ...(isPiHost() ? { diagnostics: unmatchedCards.diagnostics } : {}),
     })
     .from(unmatchedCards)
     .where(

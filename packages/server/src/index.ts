@@ -2,6 +2,7 @@ import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
+import { piCameraRouter } from "./routes/pi-camera";
 import { createPiSerialRouter } from "./lib/pi-serial-bridge";
 import { PI_SERIAL_PATH } from "./lib/constants/pi-serial";
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
@@ -92,6 +93,7 @@ app.route("/billing", billingRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
+app.route("/pi-camera", piCameraRouter);
 app.route(PI_SCAN_SESSION_PATH, piScanRouter);
 app.route(PI_SERIAL_PATH, createPiSerialRouter(upgradeWebSocket));
 app.route("/stream", streamRoute);

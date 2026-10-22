@@ -236,7 +236,7 @@ export function CardSyncPanel() {
                 {t("cardImageVectors.progressCount", { done, total })}
               </span>
               <span>
-                {t("cardImageVectors.vectorizedCount", {
+                {t(syncState.vectorizeOn === "browser" ? "cardImageVectors.savedCount" : "cardImageVectors.vectorizedCount", {
                   count:
                     syncState.vectorizeOn === "browser"
                       ? done - syncState.errors
@@ -245,7 +245,7 @@ export function CardSyncPanel() {
               </span>
               {embeddingCount > 0 && (
                 <span>
-                  {t("cardImageVectors.embeddingCount", {
+                  {t("cardImageVectors.activeCount", {
                     count: embeddingCount,
                   })}
                 </span>

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { MOBILE_SAVE_BAR_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { IconLoader2 } from "@tabler/icons-react";
@@ -19,6 +20,7 @@ export function SaveBar({
 }: SaveBarProps) {
   const { t } = useTranslation("common");
   const isMobile = useIsMobile();
+  const piHost = usePiHost();
 
   if (!show) return null;
 
@@ -27,7 +29,7 @@ export function SaveBar({
       role="status"
       className={cn(
         "fixed inset-x-0 z-50 mx-auto flex w-fit items-center gap-3 rounded-lg border bg-popover px-1 pl-2 py-1 text-xs shadow-lg animate-in fade-in-0 slide-in-from-bottom-4 duration-150 motion-reduce:animate-none",
-        isMobile ? MOBILE_SAVE_BAR_CLASS : "bottom-8",
+        isMobile && piHost ? MOBILE_SAVE_BAR_CLASS : "bottom-8",
         className,
       )}
     >

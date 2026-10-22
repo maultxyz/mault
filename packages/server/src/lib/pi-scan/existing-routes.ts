@@ -1,14 +1,9 @@
+import type { PiScanRouteJson } from "../interfaces/pi-scan";
 import type { BinConfig, PickList } from "@magic-vault/shared";
 import type { Hono } from "hono";
 import { collectionsRouter } from "../../routes/collections";
 import { sortBinsRouter } from "../../routes/bins";
 import type { AppEnv } from "../../middleware/auth";
-
-interface RouteJson {
-  success?: boolean;
-  message?: string;
-  data?: { pickList?: PickList | null };
-}
 
 async function callJson(
   router: Hono<AppEnv>,
@@ -17,7 +12,7 @@ async function callJson(
   token: string,
   orgId: string,
   body: unknown,
-): Promise<{ ok: boolean; body: RouteJson }> {
+): Promise<{ ok: boolean; body: PiScanRouteJson }> {
   const response = await router.request(path, {
     method,
     headers: {
@@ -27,7 +22,7 @@ async function callJson(
     },
     body: JSON.stringify(body),
   });
-  const payload = (await response.json()) as RouteJson;
+  const payload = (await response.json()) as PiScanRouteJson;
   return { ok: response.ok && payload.success !== false, body: payload };
 }
 
@@ -35,7 +30,7 @@ export async function saveThroughCollectionRoute(
   token: string,
   orgId: string,
   collectionGuid: string,
-  kind: "cards" | "unmatched",
+  kind: "cards" | "unmatched" | "cards/sorted",
   body: unknown,
 ): Promise<{ success: boolean; message: string }> {
   if (!token) {

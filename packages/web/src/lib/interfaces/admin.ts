@@ -82,6 +82,11 @@ export interface CardSyncContextValue {
   isCancelling: boolean;
 }
 
+export interface ActiveScanSessionsDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
 export interface ImpersonationAuditDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -160,4 +165,57 @@ export interface LoadedSyncCanvas {
 export interface FailedSyncImage {
   cardId: string;
   message: string;
+}
+
+export interface SyncWorkerScope {
+  onmessage: ((event: MessageEvent) => void) | null;
+  postMessage(message: unknown): void;
+}
+
+export interface ReadyMessage {
+  type: "ready";
+}
+
+export interface InitErrorMessage {
+  type: "init-error";
+  message: string;
+}
+
+export interface EmbeddingMessage {
+  type: "embedding";
+  id: number;
+  embedding: number[];
+}
+
+export interface ErrorMessage {
+  type: "error";
+  id: number;
+  message: string;
+}
+
+export type WorkerMessage =
+  | ReadyMessage
+  | InitErrorMessage
+  | EmbeddingMessage
+  | ErrorMessage;
+
+export interface PendingEmbed {
+  resolve: (embedding: number[]) => void;
+  reject: (err: Error) => void;
+}
+
+export interface PendingSyncWorker {
+  resolve: (worker: SyncEmbedWorker) => void;
+  reject: (error: Error) => void;
+}
+
+export interface SyncEmbedWorker {
+  embed: (pixels: ArrayBuffer) => Promise<number[]>;
+}
+
+export interface SyncWorkerRequest {
+  type?: string;
+  id?: number;
+  buffer?: ArrayBuffer;
+  pixels?: ArrayBuffer;
 }
